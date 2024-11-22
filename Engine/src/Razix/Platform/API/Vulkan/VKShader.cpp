@@ -41,9 +41,6 @@ namespace Razix {
 
             m_Desc = desc;
 
-            // Attach the binary extension before loading shaders
-            setShaderFilePath(desc.filePath);
-
             m_Desc.name = Razix::Utilities::GetFileName(desc.filePath);
 
             // Read the *.rzsf shader file to get the necessary shader stages and it's corresponding compiled shader file virtual path
@@ -155,7 +152,7 @@ namespace Razix {
                 RZVirtualFileSystem::Get().resolvePhysicalPath(virtualPath, outPath);
                 int64_t fileSize = RZFileSystem::GetFileSize(outPath);
 
-                const void* spvByteCode = reinterpret_cast<void*>(RZVirtualFileSystem::Get().readFile(virtualPath));
+                const u8* spvByteCode = reinterpret_cast<u8*>(RZVirtualFileSystem::Get().readFile(virtualPath));
 
                 // Generate reflection data for a shader
                 SpvReflectShaderModule module;
@@ -188,7 +185,7 @@ namespace Razix {
                         if (inputVar.semantic && std::string(inputVar.semantic) == "SV_VertexID")
                             break;
 
-                        if (inputVar.name && std::string(inputVar.name) == "gl_VertexIndex" || inputVar.name == "vs_out")
+                        if (inputVar.name && (std::string(inputVar.name) == "gl_VertexIndex" || std::string(inputVar.name) == "vs_out"))
                             break;
 
 #if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1

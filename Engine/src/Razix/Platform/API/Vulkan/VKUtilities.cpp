@@ -882,7 +882,7 @@ namespace Razix {
                     case VK_FORMAT_R8_SINT:
                         return sizeof(int);
                     case VK_FORMAT_R32_SFLOAT:
-                        return sizeof(FLOAT);
+                        return sizeof(float);
                     case VK_FORMAT_R32G32_SFLOAT:
                         return sizeof(glm::vec2);
                     case VK_FORMAT_R32G32B32_SFLOAT:
@@ -921,7 +921,7 @@ namespace Razix {
                         layout.push<int>(name);
                         break;
                     case VK_FORMAT_R32_SFLOAT:
-                        layout.push<FLOAT>(name);
+                        layout.push<float>(name);
                         break;
                     case VK_FORMAT_R32G32_SFLOAT:
                         layout.push<glm::vec2>(name);
@@ -950,6 +950,9 @@ namespace Razix {
                         break;
                     case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                         return DescriptorType::UniformBuffer;
+                        break;
+                    default:
+                        return DescriptorType::kNone;
                         break;
                 }
 

@@ -131,6 +131,7 @@ namespace Razix {
                     }
                 });
 
+#ifdef RAZIX_PLATFORM_WINDOWS
                 // Do Windows-specific thread setup:
                 HANDLE handle = (HANDLE) worker.native_handle();
 
@@ -149,6 +150,7 @@ namespace Razix {
                 HRESULT hr = SetThreadDescription(handle, wss.str().c_str());
 
                 RAZIX_ASSERT(SUCCEEDED(hr), "");
+#endif
 
                 worker.detach();
             }

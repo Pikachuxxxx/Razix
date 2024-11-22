@@ -13,7 +13,7 @@
 ; TEXCOORD                 0   xy          0     NONE   float   xy  
 ; SV_Position              0   xyzw        1      POS   float   xyzw
 ;
-; shader hash: 6da206a5ecf300ee441e4d048e584bf1
+; shader hash: 3d8e4858834042b69c605f91a8257715
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -92,9 +92,9 @@ attributes #1 = { nounwind }
 !dx.viewIdState = !{!4}
 !dx.entryPoints = !{!5}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxc(private) 1.7.0.4388 (7d2f9c74d)"}
 !1 = !{i32 1, i32 0}
-!2 = !{i32 1, i32 8}
+!2 = !{i32 1, i32 6}
 !3 = !{!"vs", i32 6, i32 0}
 !4 = !{[3 x i32] [i32 1, i32 8, i32 51]}
 !5 = !{void ()* @VS_MAIN, !"VS_MAIN", !6, null, null}

@@ -14,6 +14,8 @@ namespace Razix {
         {
         public:
             VKCommandPool() {}
+            /* Destructor for the command pool */
+            ~VKCommandPool() {}
             /**
              * Constructor for vulkan command buffer
              * 
@@ -21,8 +23,6 @@ namespace Razix {
              * @param flags Configure the pool
              */
             VKCommandPool(int queueIndex, VkCommandPoolCreateFlags flags);
-            /* Destructor for the command pool */
-            ~VKCommandPool() {}
 
             RAZIX_CLEANUP_RESOURCE
 

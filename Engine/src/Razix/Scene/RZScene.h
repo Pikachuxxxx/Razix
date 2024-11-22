@@ -111,7 +111,7 @@ namespace Razix {
 #pragma warning(disable : 4267)
             auto view = m_Registry.view<T>();
             for (auto& entity: view)
-                components.push_back(view.get<T>(entity));
+                components.push_back(view.template get<T>(entity));
 
 #pragma warning(pop)
 
@@ -132,8 +132,8 @@ namespace Razix {
         std::string    m_ScenePath;                 /* The Path of the scene file                   */
         u32            m_LastMeshesCount = 0;
         RZSceneCamera  m_EditorModeCamera;
-
         Gfx::RZMesh* m_Cube       = nullptr;
+        RZSceneCamera m_DefaultSceneCameraToAvoidCompileErrors;
 
         friend class RZEntity;
 

@@ -16,7 +16,6 @@
 namespace Razix {
     namespace Gfx {
 
-        static u32 initial_frames_paused     = 15;
         static f32 s_framebuffer_pixel_count = 0.f;
 
         void RZGPUProfiler::Init(Memory::IRZAllocator* allocator, u32 max_frames, u32 max_queries_per_frame)

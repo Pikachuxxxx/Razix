@@ -23,9 +23,9 @@ namespace Razix {
             static void Shutdown();
 
             /* Returns the shared pointer to the engine core logger */
-            RAZIX_FORCE_INLINE static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+            RAZIX_INLINE static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
             /* Returns the shared pointer to the engine application logger */
-            RAZIX_FORCE_INLINE static std::shared_ptr<spdlog::logger>& GetApplicationLogger() { return s_ApplicationLogger; }
+            RAZIX_INLINE static std::shared_ptr<spdlog::logger>& GetApplicationLogger() { return s_ApplicationLogger; }
 
             static void RegisterCoreLoggerSink(spdlog::sink_ptr sink) { s_CoreLoggerSinks.push_back(sink); }
             static void RegisterApplicationLoggerSink(spdlog::sink_ptr sink) { s_AppLoggerSinks.push_back(sink); }

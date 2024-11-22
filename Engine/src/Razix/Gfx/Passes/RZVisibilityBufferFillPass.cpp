@@ -112,8 +112,6 @@ namespace Razix {
 
                     // Update descriptors on first frame
                     if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
-                        auto& shaderBindVars = RZResourceManager::Get().getShaderResource(shader)->getBindVars();
-
                         RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
                     }
 
@@ -122,6 +120,7 @@ namespace Razix {
                     RHI::EndRendering(cmdBuffer);
 
                     RAZIX_MARK_END();
+                    RAZIX_TIME_STAMP_END();
                 });
         }
 

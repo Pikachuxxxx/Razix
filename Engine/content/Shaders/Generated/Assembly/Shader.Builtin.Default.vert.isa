@@ -18,7 +18,7 @@
 ; TEXCOORD                 0   xy          2     NONE   float   xy  
 ; NORMAL                   0   xyz         3     NONE   float   xyz 
 ;
-; shader hash: f755c7ea1e0ce03bde1bff51f57fc9cc
+; shader hash: 9f56e5e8b2b6eb2da1d3131090611aaa
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -274,9 +274,9 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!8}
 !dx.entryPoints = !{!9}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxc(private) 1.7.0.4388 (7d2f9c74d)"}
 !1 = !{i32 1, i32 0}
-!2 = !{i32 1, i32 8}
+!2 = !{i32 1, i32 6}
 !3 = !{!"vs", i32 6, i32 0}
 !4 = !{null, null, !5, null}
 !5 = !{!6, !7}

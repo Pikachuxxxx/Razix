@@ -33,14 +33,12 @@ namespace Razix {
         static const u32 MaxPoints                  = 10000;
         static const u32 MaxPointVertices           = MaxPoints * 4;
         static const u32 MaxPointIndices            = MaxPoints * 6;
-        static const u32 MAX_BATCH_DRAW_CALLS       = 100;
         static const u32 RENDERER_POINT_SIZE        = sizeof(Razix::Gfx::PointVertexData) * 4;
         static const u32 RENDERER_POINT_BUFFER_SIZE = RENDERER_POINT_SIZE * MaxPointVertices;
 
         static const uint32_t MaxLines                  = 10000;
         static const uint32_t MaxLineVertices           = MaxLines * 2;
         static const uint32_t MaxLineIndices            = MaxLines * 6;
-        static const uint32_t MAX_LINE_BATCH_DRAW_CALLS = 100;
         static const uint32_t RENDERER_LINE_SIZE        = sizeof(Razix::Gfx::LineVertexData) * 4;
         static const uint32_t RENDERER_LINE_BUFFER_SIZE = RENDERER_LINE_SIZE * MaxLineVertices;
 
@@ -617,7 +615,6 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            f32 offset = 0.0f;
             DrawCircle(50, radius, position, glm::vec3(90.0f, 0.0f, 0.0f), colour);
             DrawCircle(50, radius, position, glm::vec3(45.0f, 0.0f, 0.0f), colour);
             DrawCircle(50, radius, position, glm::vec3(-45.0f, 0.0f, 0.0f), colour);
@@ -638,7 +635,6 @@ namespace Razix {
 
             glm::vec3 forward     = -(quatRotation * glm::vec3(0.0f, 0.0f, -1.0f));
             glm::vec3 endPosition = position + forward * length;
-            f32       offset      = 0.0f;
             DrawCircle(numCircleVerts, radius, endPosition, rotation, colour);
 
             // FIXME: Use the draw circle logic and get the points on the circle and draw lines to it from the origin

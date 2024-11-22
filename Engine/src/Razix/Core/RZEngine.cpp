@@ -143,7 +143,8 @@ namespace Razix {
         if (success) {
             // Installation Settings
             {
-                engineConfigParser.getValue<std::string>("Installation", "RootDir", m_EngineInstallationDir);
+                //engineConfigParser.getValue<std::string>("Installation", "RootDir", m_EngineInstallationDir);
+                m_EngineInstallationDir = RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
             }
 
             // Rendering Settings

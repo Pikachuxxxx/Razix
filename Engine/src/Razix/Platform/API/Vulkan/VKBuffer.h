@@ -2,7 +2,9 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
+#if RAZIX_USE_VMA
     #include <vma/vk_mem_alloc.h>
+#endif
     #include <vulkan/vulkan.h>
 
     #include "Razix/Core/RZDebugConfig.h"
@@ -69,13 +71,13 @@ namespace Razix {
     #endif
 
         protected:
-    #ifndef RAZIX_USE_VMA
+    #if !RAZIX_USE_VMA
             VkDeviceMemory m_BufferMemory = VK_NULL_HANDLE; /* Handle to the buffer memory                               */
     #else
             VmaAllocation     m_VMAAllocation = {}; /* Holds the VMA allocation state info                       */
             VmaAllocationInfo m_AllocInfo     = {}; /* Holds the alloc info and persistently mapped CPU pointer  */
-    #endif                                                             // RAZIX_USE_VMA
             VmaAllocationCreateFlags m_VMAAllocFlags = {};             /* Holds the flags for type of VMA Allocation                */
+    #endif                                                             // RAZIX_USE_VMA
             void*                    m_Mapped        = nullptr;        /* The HOST mapped region of the buffer, non-persistent      */
             VkBuffer                 m_Buffer        = VK_NULL_HANDLE; /* handle to the Vulkan GPU buffer handle                    */
             VkDeviceSize             m_BufferSize    = 0;              /* The size of the buffer                                    */

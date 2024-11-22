@@ -33,6 +33,7 @@ namespace Razix {
             if (Gfx::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN) {
                 auto                 vkCmdBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
                 VKDrawCommandBuffer* cmdBuffer   = new (where) VKDrawCommandBuffer(vkCmdBuffer);
+                RAZIX_UNREF_VAR(cmdBuffer);
             }
 #endif
 

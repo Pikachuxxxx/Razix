@@ -130,7 +130,7 @@ namespace Razix {
                     }
 
                     T                      resource;   /* Resource handle              */
-                    typename const T::Desc descriptor; /* Resource creation descriptor */
+                    const typename T::Desc descriptor; /* Resource creation descriptor */
                 };
 
             public:
@@ -150,7 +150,7 @@ namespace Razix {
                 }
 
                 template<typename T>
-                typename const T::Desc &getDescriptor() const
+                const typename T::Desc &getDescriptor() const
                 {
                     return getModel<T>()->descriptor;
                 }

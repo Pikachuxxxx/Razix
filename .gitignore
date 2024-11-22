@@ -20,6 +20,8 @@ build/
 
 # MacOS files
 .DS_Store
+*.DS_Store
+**.DS_Store
 
 /Sandbox/LargeScenesSandbox.razixproject
 /Sandbox/Assets/Models/BistroExterior.glb

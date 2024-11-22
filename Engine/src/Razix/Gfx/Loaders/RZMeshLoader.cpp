@@ -73,7 +73,6 @@ namespace Razix {
             }
 
             if (mesh_header.vertex_count > 0) {
-                uint32_t numBlobs = mesh_header.blobs_count;
 
                 // Load vertices
                 Razix::AssetSystem::BINBlobHeader h;

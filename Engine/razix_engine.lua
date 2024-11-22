@@ -46,9 +46,6 @@ project "Razix"
         -- Debugging directory = where the main premake5.lua is located
     debugdir "%{wks.location}../"
 
-    pchheader "src/rzxpch.h"
-    pchsource "src/rzxpch.cpp"
-
     -- Razix Engine defines (Global)
     defines
     {
@@ -179,15 +176,15 @@ project "Razix"
         disablewarnings { 4307, 4267, 4275, 4715, 4554 } -- Disabling the 4275 cause this will propagate into everything ig, also 4715 = not returinign values from all control paths is usually done deliberately hence fuck this warning
         characterset ("MBCS")
         editandcontinue "Off"
+        
+        pchheader "rzxpch.h"
+        pchsource "src/rzxpch.cpp"
 
          -- Enable AVX, AVX2, Bit manipulation Instruction set (-mbmi)
          -- because GCC uses fused-multiply-add (fma) instruction by default, if it is available. Clang, on the contrary, doesn't use them by default, even if it is available, so we enable it explicityly
         -- Only works with GCC and Clang
         --buildoptions { "-mavx", "-mavx2", "-mbmi", "-march=haswell"}--, "-mavx512f -mavx512dq -mavx512bw -mavx512vbmi -mavx512vbmi2 -mavx512vl"}
         --buildoptions {"/-fsanitize=address"}
-
-        pchheader "rzxpch.h"
-        pchsource "src/rzxpch.cpp"
 
         -- Build options for Windows / Visual Studio (MSVC)
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
@@ -287,6 +284,111 @@ project "Razix"
             '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxcompiler.dll" "%{cfg.targetdir}"',
             '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxil.dll" "%{cfg.targetdir}"'
         }
+        
+    -------------------------------------
+    -- Razix Project settings for MacOS
+    -------------------------------------
+    filter "system:macosx"
+        cppdialect "C++17"
+        staticruntime "off"
+        systemversion "latest"
+
+        --pchheader "rzxpch.h"
+        --pchsource "src/rzxpch.cpp"
+
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_MACOS",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_USE_GLFW_WINDOWS",
+            "RAZIX_IMGUI",
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "RAZIX_RENDER_API_METAL",
+            "TRACY_ENABLE"
+        }
+
+        -- Windows specific source files for compilation
+        files
+        {
+            -- platform sepecific implementatioon
+            "src/Razix/Platform/MacOS/*.h",
+            "src/Razix/Platform/MacOS/*.cpp",
+            
+            "src/Razix/Platform/Unix/*.h",
+            "src/Razix/Platform/Unix/*.cpp",
+
+            "src/Razix/Platform/GLFW/*.h",
+            "src/Razix/Platform/GLFW/*.cpp",
+
+            "src/Razix/Platform/API/Vulkan/*.h",
+            "src/Razix/Platform/API/Vulkan/*.cpp",
+
+            "src/Razix/Platform/API/Metal/*.h",
+            "src/Razix/Platform/API/Metal/*.cpp",
+
+            -- Vendor source files
+            "vendor/glad/src/glad.c"
+        }
+    
+        removefiles
+        {
+            --"src/rzxpch.cpp"
+        }
+        
+        -- Windows specific incldue directories
+        includedirs
+        {
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+            "./",
+            "../"
+        }
+
+        libdirs
+        {
+            VulkanSDK .. "/lib"
+        }
+
+        -- Windows specific linkage libraries (DirectX inlcude and library paths are implicityly added by Visual Studio, hence we need not add anything explicityly)
+        links
+        {
+            -- Render API
+            "vulkan",
+            "IOKit.framework",
+            "CoreFoundation.framework",
+            "CoreVideo.framework",
+            "CoreGraphics.framework",
+            "AppKit.framework",
+            "SystemConfiguration.framework"
+        }
+        
+        -- Apple Clang compiler options
+        buildoptions
+        {
+            "-Wno-error=switch-enum"
+        }
+        
+                
+        -- TEMP TEMP TEMP TEMP TEMP
+        postbuildcommands
+        {
+            -- copy vulkan DLL until we use volk
+            '{COPY}  "%{VulkanSDK}/lib/libvulkan.dylib" "%{cfg.targetdir}/libvulkan.dylib"',
+            '{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.targetdir}/libvulkan.1.dylib"',
+        }
+        
+        filter "files:**.c"
+            flags { "NoPCH" }
+        filter "files:**.m"
+            flags { "NoPCH" }
+        filter "files:**.mm"
+            flags { "NoPCH" }
 
     -- Config settings for Razix Engine project
     filter "configurations:Debug"
@@ -295,23 +397,27 @@ project "Razix"
         runtime "Debug"
         optimize "Off"
 
-        links
-        {
-            "WinPixEventRuntime",
-            "WinPixEventRuntime_UAP"
-        }
+        filter "system:windows"
+            links
+            {
+                "WinPixEventRuntime",
+                "WinPixEventRuntime_UAP"
+            }
+        filter {}
 
     filter "configurations:Release"
         defines { "RAZIX_RELEASE", "NDEBUG" }
         optimize "Speed"
         symbols "On"
         runtime "Release"
-
-        links
-        {
-            "WinPixEventRuntime",
-            "WinPixEventRuntime_UAP"
-        }
+        
+        filter "system:windows"
+            links
+            {
+                "WinPixEventRuntime",
+                "WinPixEventRuntime_UAP"
+            }
+        filter {}
 
     filter "configurations:Distribution"
         defines { "RAZIX_DISTRIBUTION", "NDEBUG" }

@@ -70,6 +70,8 @@ namespace Razix {
                 explicit RZFrameGraphCodePass(ExecuteFunc &&exec, ResizeFunc &&resize)
                     : execFunction{std::forward<ExecuteFunc>(exec)}, resizeFunction{std::forward<ResizeFunc>(resize)} {}
 
+                RAZIX_VIRTUAL_DESCTURCTOR(RZFrameGraphCodePass)
+                
                 void operator()(RZPassNode &node, RZPassResourceDirectory &resources) override
                 {
                     // Note: Node isn't is used here it's for the RZFrameGraphDataPass
@@ -100,6 +102,8 @@ namespace Razix {
             struct RZFrameGraphDataPass final : IRZFrameGraphPass
             {
                 RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawGeometryMode geometryMode, Resolution res, bool resize, glm::vec2 extents, u32 layers);
+                
+                RAZIX_VIRTUAL_DESCTURCTOR(RZFrameGraphDataPass)
 
                 Gfx::RZShaderHandle     m_shader;
                 Gfx::RZPipelineHandle   m_pipeline;

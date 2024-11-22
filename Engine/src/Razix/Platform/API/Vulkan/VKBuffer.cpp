@@ -22,7 +22,7 @@ namespace Razix {
 
             // Based on Usage set some vulkan usage flags
             // [Source] : https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/usage_patterns.html#usage_patterns_advanced_data_uploading
-
+#if RAZIX_USE_VMA
             switch (m_Usage) {
                 case BufferUsage::Static: {
                     /**
@@ -61,15 +61,19 @@ namespace Razix {
                 case BufferUsage::ReadBack:
                     m_VMAAllocFlags = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT;
                     break;
+                default:
+                    m_VMAAllocFlags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+                    m_UsageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+                    break;
             }
-
+#endif
             init(data RZ_DEBUG_E_ARG_NAME);
         }
 
         void VKBuffer::destroy()
         {
             if (m_Buffer != VK_NULL_HANDLE) {
-#ifndef RAZIX_USE_VMA
+#if !RAZIX_USE_VMA
                 if (m_BufferMemory) {
                     vkFreeMemory(VKDevice::Get().getDevice(), m_BufferMemory, nullptr);
                 }
@@ -88,7 +92,7 @@ namespace Razix {
 
             VkResult res;
             // Map the memory to the mapped buffer
-#ifndef RAZIX_USE_VMA
+#if !RAZIX_USE_VMA
             if (!m_Mapped) {
                 res = vkMapMemory(VKDevice::Get().getDevice(), m_BufferMemory, offset, size, 0, &m_Mapped);
                 RAZIX_CORE_ASSERT((res == VK_SUCCESS), "[Vulkan] Failed to map buffer!");
@@ -106,7 +110,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-#ifndef RAZIX_USE_VMA
+#if !RAZIX_USE_VMA
             if (m_Mapped) {
                 vkUnmapMemory(VKDevice::Get().getDevice(), m_BufferMemory);
             }
@@ -123,7 +127,7 @@ namespace Razix {
             if (!size)
                 size = VK_WHOLE_SIZE;
 
-#ifndef RAZIX_USE_VMA
+#if !RAZIX_USE_VMA
             VkMappedMemoryRange mappedRange = {};
             mappedRange.sType               = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
             mappedRange.memory              = m_BufferMemory;
@@ -141,7 +145,7 @@ namespace Razix {
             if (!size)
                 size = VK_WHOLE_SIZE;
 
-#ifndef RAZIX_USE_VMA
+#if !RAZIX_USE_VMA
             VkMappedMemoryRange mappedRange = {};
             mappedRange.sType               = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
             mappedRange.memory              = m_BufferMemory;
@@ -212,7 +216,7 @@ VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANS
             bufferInfo.usage              = m_UsageFlags;
             bufferInfo.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
 
-#ifndef RAZIX_USE_VMA
+#if !RAZIX_USE_VMA
             // Create the buffer
             VK_CHECK_RESULT(vkCreateBuffer(VKDevice::Get().getDevice(), &bufferInfo, nullptr, &m_Buffer));
 

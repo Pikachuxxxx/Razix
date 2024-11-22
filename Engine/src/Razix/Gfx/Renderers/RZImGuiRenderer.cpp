@@ -170,7 +170,6 @@ namespace Razix {
             RAZIX_MARK_BEGIN("ImGui Pass", glm::vec4(1.0f, 7.0f, 0.0f, 1.0f));
 
             ImDrawData* imDrawData       = ImGui::GetDrawData();
-            bool        updateCmdBuffers = false;
 
             if (!imDrawData) { return; };
 

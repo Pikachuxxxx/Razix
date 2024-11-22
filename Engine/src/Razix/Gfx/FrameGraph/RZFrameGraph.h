@@ -79,14 +79,14 @@ namespace Razix {
 
                     // Create a builder for this PassNode
                     // SetupFunc gets PassNode via RZPassResourceBuilder and ExecFunc gets PassNode via RZPassResourceDirectory
-                    RZPassResourceBuilder builder(*this, passNode);
+                    RZPassResourceBuilder* builder = CreateBuilder(*this, passNode);
 
                     /**
                      * SetupFunc is captured by reference because we immediately execute where as ExecuteFunc execution is deferred so it's captured by value
                      */
 
                     // Call the setup function for the pass
-                    std::invoke(setupFunc, pass->data, builder);
+                    std::invoke(setupFunc, pass->data, *builder);
 
                     // Return the data instance
                     return pass->data;
@@ -138,7 +138,7 @@ namespace Razix {
                 }
 
                 /* Gets the resource descriptor */
-                ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE typename const T::Desc &getDescriptor(RZFrameGraphResource id)
+                ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE const typename T::Desc &getDescriptor(RZFrameGraphResource id)
                 {
                     return getResourceEntry(id).getDescriptor<T>();
                 }
@@ -155,7 +155,7 @@ namespace Razix {
                 /* parse the frame graph from a given JSON file */
                 bool parse(const std::string &path);
                 /* Parses a Built in/User defined pass from a file */
-                RAZIX_NO_DISCARD RZPassNode &parsePass(const std::string &passPath);
+                RAZIX_NO_DISCARD RZPassNode& parsePass(const std::string &passPath);
                 /* Compiles the Frame Graph passes and culls any unused passes/resources */
                 void compile();
                 /* Executes the Frame Graph passes */
@@ -198,12 +198,12 @@ namespace Razix {
 
                 RAZIX_INLINE u32 getPassNodesSize()
                 {
-                    return m_PassNodes.size();
+                    return static_cast<u32>(m_PassNodes.size());
                 }
 
                 RAZIX_INLINE u32 getResourceNodesSize()
                 {
-                    return m_ResourceNodes.size();
+                    return static_cast<u32>(m_ResourceNodes.size());
                 }
 
             private:
@@ -228,6 +228,7 @@ namespace Razix {
                 RAZIX_NO_DISCARD RZPassNode          &createPassNode(const std::string_view name, std::unique_ptr<IRZFrameGraphPass> &&func);
                 RAZIX_NO_DISCARD RZResourceNode      &createResourceNode(const std::string_view name, u32 resourceID);
                 RAZIX_NO_DISCARD RZFrameGraphResource cloneResource(RZFrameGraphResource id);
+                static RZPassResourceBuilder* CreateBuilder(RZFrameGraph& fg, RZPassNode& passNode);
             };
 
             //-----------------------------------------------------------------------------------
@@ -320,7 +321,7 @@ namespace Razix {
                     return m_FrameGraph.getResourceEntry(id).get<T>();
                 }
 
-                ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE typename const T::Desc &getDescriptor(RZFrameGraphResource id) const
+                ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE const typename T::Desc &getDescriptor(RZFrameGraphResource id) const
                 {
                     RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
                     // This is a safe way that doesn't violate the design of the frame graph PassNodes

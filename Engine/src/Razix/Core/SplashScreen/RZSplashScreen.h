@@ -65,4 +65,24 @@ namespace Razix {
         LRESULT                 HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
     };
 }    // namespace Razix
-#endif    // RAZIX_PLATFORM_WINDOWS
+#else
+namespace Razix {
+    // TODO: Fix splash screen for other platforms
+    /* Creates a Splash Screen while the Engine systems are loading */
+    class RAZIX_API RZSplashScreen final : public RZSingleton<RZSplashScreen>
+    {
+        
+    public:
+        RZSplashScreen(){}
+        ~RZSplashScreen(){}
+        
+        void init(){}
+        void destroy(){}
+        
+        /* Set version string for the splash screen */
+        void setVersionString(const std::string& text){}
+        /* Set the log string for the splash screen */
+        void setLogString(const std::string& text){}
+    };
+}
+#endif
