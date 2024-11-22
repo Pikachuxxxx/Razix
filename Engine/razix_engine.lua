@@ -386,16 +386,25 @@ project "Razix"
             '{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.targetdir}/libvulkan.1.dylib"',
             -- Copy the engine content folder with subdirectories: config, Fonts, FrameGraphs, Logos, Shaders/Compiled, Splash, Textures
             -- [Docs]: https://linux.die.net/man/1/rsync
+            -- we need to create the directo=ries manually unlike robocopy
+            'mkdir -p "%{cfg.targetdir}/Engine/content/config/"',
+            'mkdir -p "%{cfg.targetdir}/Engine/content/Fonts/"',
+            'mkdir -p "%{cfg.targetdir}/Engine/content/FrameGraphs/"',
+            'mkdir -p "%{cfg.targetdir}/Engine/content/Logos/"',
+            'mkdir -p "%{cfg.targetdir}/Engine/content/Shaders/Compiled/"',
+            'mkdir -p "%{cfg.targetdir}/Engine/content/Shaders/Razix/"',
+            'mkdir -p "%{cfg.targetdir}/Engine/content/Splash/"',
+            'mkdir -p "%{cfg.targetdir}/Engine/content/Textures/"',
             -- -a: Archive mode, preserves symbolic links, permissions, timestamps, etc.
             -- --delete: Ensures the destination matches the source exactly (like /MIR in robocopy)
-            'rsync -a --delete "%{wks.location}../Engine/content/config/" "%{cfg.targetdir}/Engine/content/config/"',
-            'rsync -a --delete "%{wks.location}../Engine/content/Fonts/" "%{cfg.targetdir}/Engine/content/Fonts/"',
-            'rsync -a --delete "%{wks.location}../Engine/content/FrameGraphs/" "%{cfg.targetdir}/Engine/content/FrameGraphs/"',
-            'rsync -a --delete "%{wks.location}../Engine/content/Logos/" "%{cfg.targetdir}/Engine/content/Logos/"',
-            'rsync -a --delete "%{wks.location}../Engine/content/Shaders/Compiled/" "%{cfg.targetdir}/Engine/content/Shaders/Compiled/"',
-            'rsync -a --delete "%{wks.location}../Engine/content/Shaders/Razix/" "%{cfg.targetdir}/Engine/content/Shaders/Razix/"',
-            'rsync -a --delete "%{wks.location}../Engine/content/Splash/" "%{cfg.targetdir}/Engine/content/Splash/"',
-            'rsync -a --delete "%{wks.location}../Engine/content/Textures/" "%{cfg.targetdir}/Engine/content/Textures/"'
+            'rsync -a --delete "%{wks.location}/../Engine/content/config/" "%{cfg.targetdir}/Engine/content/config/"',
+            'rsync -a --delete "%{wks.location}/../Engine/content/Fonts/" "%{cfg.targetdir}/Engine/content/Fonts/"',
+            'rsync -a --delete "%{wks.location}/../Engine/content/FrameGraphs/" "%{cfg.targetdir}/Engine/content/FrameGraphs/"',
+            'rsync -a --delete "%{wks.location}/../Engine/content/Logos/" "%{cfg.targetdir}/Engine/content/Logos/"',
+            'rsync -a --delete "%{wks.location}/../Engine/content/Shaders/Compiled/" "%{cfg.targetdir}/Engine/content/Shaders/Compiled/"',
+            'rsync -a --delete "%{wks.location}/../Engine/content/Shaders/Razix/" "%{cfg.targetdir}/Engine/content/Shaders/Razix/"',
+            'rsync -a --delete "%{wks.location}/../Engine/content/Splash/" "%{cfg.targetdir}/Engine/content/Splash/"',
+            'rsync -a --delete "%{wks.location}/../Engine/content/Textures/" "%{cfg.targetdir}/Engine/content/Textures/"'
         }
         
         filter "files:**.c"

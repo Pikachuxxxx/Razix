@@ -16,7 +16,7 @@
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader hash: 21c506338003546f77cf7a893a034b3c
+; shader hash: df60f358b91d44878cac314c26367746
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -107,9 +107,9 @@ attributes #1 = { nounwind }
 !dx.viewIdState = !{!4}
 !dx.entryPoints = !{!5}
 
-!0 = !{!"dxc(private) 1.7.0.4388 (7d2f9c74d)"}
+!0 = !{!"dxc(private) 1.8.0.4650 (49d1ae9a0)"}
 !1 = !{i32 1, i32 0}
-!2 = !{i32 1, i32 6}
+!2 = !{i32 1, i32 8}
 !3 = !{!"ps", i32 6, i32 0}
 !4 = !{[19 x i32] [i32 17, i32 4, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 7, i32 0, i32 0, i32 0, i32 12]}
 !5 = !{void ()* @PS_MAIN, !"PS_MAIN", !6, null, null}
