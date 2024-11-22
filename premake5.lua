@@ -91,13 +91,8 @@ Arch = ""
 if _OPTIONS["arch"] then
     Arch = _OPTIONS["arch"]
 else
-    if _OPTIONS["os"] then
-        _OPTIONS["arch"] = "arm"
-        Arch = "arm"
-    else
-        _OPTIONS["arch"] = "x64"
-        Arch = "x64"
-    end
+    _OPTIONS["arch"] = "x64"
+    Arch = "x64"
 end
 
 -- Razix Engine Global Built Settings
@@ -147,9 +142,6 @@ workspace ( settings.workspace_name )
     elseif Arch == "ARM64" then
         architecture "ARM64"
     end
-    
-    architecture "ARM64"
-
 
     print("Generating Project files for Architecture = ", Arch)
 

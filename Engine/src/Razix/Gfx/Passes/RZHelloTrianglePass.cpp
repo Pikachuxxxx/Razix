@@ -4,8 +4,8 @@
 #include "RZHelloTrianglePass.h"
 
 #include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/Markers/RZMarkers.h"
+#include "Razix/Core/RZEngine.h"
 
 #include "Razix/Gfx/RHI/API/RZPipeline.h"
 #include "Razix/Gfx/RHI/API/RZShader.h"
@@ -34,15 +34,17 @@ namespace Razix {
             pipelineInfo.name                   = "Pipeline.HelloTriangle";
             pipelineInfo.shader                 = shader;
             pipelineInfo.colorAttachmentFormats = {TextureFormat::SCREEN};
-            pipelineInfo.depthFormat            = TextureFormat::DEPTH16_UNORM;
-            pipelineInfo.cullMode               = Gfx::CullMode::None;
-            pipelineInfo.drawType               = Gfx::DrawType::Triangle;
-            pipelineInfo.depthTestEnabled       = false;
-            pipelineInfo.depthWriteEnabled      = false;
-            pipelineInfo.transparencyEnabled    = false;
-            pipelineInfo.depthBiasEnabled       = false;
-            m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
-            
+#ifdef __APPLE__    // Metal cannot draw without a depth attachment
+            pipelineInfo.depthFormat = TextureFormat::DEPTH16_UNORM;
+#endif
+            pipelineInfo.cullMode            = Gfx::CullMode::None;
+            pipelineInfo.drawType            = Gfx::DrawType::Triangle;
+            pipelineInfo.depthTestEnabled    = false;
+            pipelineInfo.depthWriteEnabled   = false;
+            pipelineInfo.transparencyEnabled = false;
+            pipelineInfo.depthBiasEnabled    = false;
+            m_Pipeline                       = RZResourceManager::Get().createPipeline(pipelineInfo);
+
             struct HelloTriangleData
             {
                 FrameGraph::RZFrameGraphResource Depth;
@@ -52,7 +54,8 @@ namespace Razix {
                 "Pass.Builtin.Code.HelloTriangle",
                 [&](HelloTriangleData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
-                    
+
+#ifdef __APPLE__    // Metal cannot draw without a depth attachment
                     RZTextureDesc depthTextureDesc;
                     depthTextureDesc.name      = "SceneDepth";
                     depthTextureDesc.width     = RZApplication::Get().getWindow()->getWidth();
@@ -61,7 +64,7 @@ namespace Razix {
                     depthTextureDesc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
                     depthTextureDesc.type      = TextureType::Texture_Depth;
                     data.Depth                 = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
-
+#endif
                 },
                 [=](const HelloTriangleData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -74,10 +77,10 @@ namespace Razix {
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {{Gfx::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::OpaqueBlack}}};
-                    
+#ifdef __APPLE__    // Metal cannot draw without a depth attachment
                     info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
-                    
-                    info.resize           = true;
+#endif
+                    info.resize = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
 
@@ -98,5 +101,5 @@ namespace Razix {
         {
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

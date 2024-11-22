@@ -177,7 +177,7 @@ project "Razix"
         characterset ("MBCS")
         editandcontinue "Off"
         
-        pchheader "src/rzxpch.h"
+        pchheader "rzxpch.h"
         pchsource "src/rzxpch.cpp"
 
          -- Enable AVX, AVX2, Bit manipulation Instruction set (-mbmi)

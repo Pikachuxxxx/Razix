@@ -46,7 +46,7 @@ namespace Razix {
                 case Razix::Gfx::RenderAPI::VULKAN: new (where) VKTexture(desc RZ_DEBUG_E_ARG_NAME); break;
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
-                case Razix::Gfx::RenderAPI::D3D12:
+                case Razix::Gfx::RenderAPI::D3D12: RAZIX_DEBUG_BREAK(); break;
 #endif
                 default: break;
             }
@@ -62,7 +62,7 @@ namespace Razix {
                 case Razix::Gfx::RenderAPI::VULKAN: new (where) VKTexture(desc, filePath RZ_DEBUG_E_ARG_NAME); break;
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
-                case Razix::Gfx::RenderAPI::D3D12:
+                case Razix::Gfx::RenderAPI::D3D12: RAZIX_DEBUG_BREAK(); break;
 #endif
                 default: break;
             }
@@ -118,5 +118,5 @@ namespace Razix {
             if (!m_DescriptorSet)
                 m_DescriptorSet = Gfx::RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG(descriptor.name));
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -1,9 +1,9 @@
 #include "RZMemoryFunctions.h"
 
-#ifdef RAZIX_PLATFORM_WINDOWX
-#include <corecrt_malloc.h>
+#ifdef RAZIX_PLATFORM_WINDOWS
+    #include <corecrt_malloc.h>
 #elif RAZIX_PLATFORM_UNIX
-#include <stdlib.h>
+    #include <stdlib.h>
 #endif
 
 #include <stdio.h>
@@ -79,12 +79,12 @@ namespace Razix {
             // Plus reports the allocation that was done
             // We create a struct as mentioned and then add it to the total allocation size --> Init it with allocation info --> Append it --> Align it and boom sent it for usage --> user wont know it's a bit bigger
             size_t total_size = size; /* + sizeof(AllocationInfo) */
-#ifdef RAZIX_PLATFORM_WINDOWS
-            void*  addr       = _aligned_malloc(size, alignment);
-#elif RAZIX_PLATFORM_UNIX
+    #ifdef RAZIX_PLATFORM_WINDOWS
+            void* addr = _aligned_malloc(size, alignment);
+    #elif RAZIX_PLATFORM_UNIX
             void* addr = malloc(RZMemAlign(size, alignment));
-#endif
-            
+    #endif
+
             //printf("[Memory Alloc]  sz : %zu | alignment : %zu | tag : %s | addr : %llx", size, alignment, tag, (uintptr_t) addr);
             return addr;
         }
@@ -94,7 +94,11 @@ namespace Razix {
             // Removes the allocation info that was done from the tracker
             // Add the allocation info size --> sets to 0xCD --> Free's the memory to the OS
             // Kinda works for now
+    #if defined(RAZIX_PLATFORM_CONSOLE) || (RAZIX_PLATFORM_UNIX)
             free(address);
+    #elif defined(_WIN32)
+            _aligned_free(address);
+    #endif
         }
 
 #endif

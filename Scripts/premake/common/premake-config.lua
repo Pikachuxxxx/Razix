@@ -5,9 +5,7 @@ newoption
    description = "Choose a renderer",
    allowed =
    {
-      { "opengl", "OpenGL (macOS, linux, Windows)" },
-      { "dx11",  "DirectX 11 (Windows only)" },
-      { "metal", "Metal (macOS, iOS only)" },
+      { "dx12",  "DirectX 12 (Windows only)" },
       { "vulkan", "Vulkan (Windows, linux, iOS, macOS)" }
    }
 }
@@ -19,10 +17,9 @@ newoption
 	description = "Choose architecture",
 	allowed =
 	{
-		{"x86", "x86" },
-		{"x64", "x64" },
-		{"arm", "arm" },
-		{"arm64", "arm64"}
+		{"x64", "x64 arhcitexture for PC like devices" },
+		{"arm", "arm for android/PSVita devices" },
+		{"arm64", "arm64 for Apple Silicon devices"}
 	}
 }
 

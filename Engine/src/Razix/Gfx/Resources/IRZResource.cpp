@@ -10,34 +10,60 @@ namespace Razix {
 template<typename T>
         void* IRZResource<T>::operator new(size_t size)
         {
+            RAZIX_ASSERT(false, "[Resource] new cannot be used to allocate memory! Please use T::Create(where, ...) or RZResourceManager::CreateXXX(TDesc&)");
+
             // Return the pre allocated memory from it's respective Resource Memory Pool
-            return RZResourceManager::Get().getPool<T>().obtain();
+            RZHandle<T> handle;
+            void*       ptr = RZResourceManager::Get().getPool<T>().obtain(handle);
+            ///////////////////////////////////////////
+            // THIS INFO IS BEING LOST!
+            IRZResource* resource = (IRZResource*) ptr;
+            resource->setHandle(handle);
+            ///////////////////////////////////////////
+            return ptr;
         }
 
-        template<typename T>
+
+ template<typename T>
         void* IRZResource<T>::operator new[](size_t size)
         {
-            return RZResourceManager::Get().getPool<T>().obtain();
+            RAZIX_ASSERT(false, "[Resource] new cannot be used to allocate memory! Please use T::Create(where, ...) or RZResourceManager::CreateXXX(TDesc&)");
+
+            // Return the pre allocated memory from it's respective Resource Memory Pool
+            RZHandle<T>  handle;
+            void*        ptr      = RZResourceManager::Get().getPool<T>().obtain(handle);
+            IRZResource* resource = (IRZResource*) ptr;
+            resource->setHandle(handle);
+            return ptr;
         }
 
-        template<typename T>
-        void* IRZResource<T>::operator new[](size_t size, void* where)
-        {
-            (void) size;
-            return (where);
-        }
 
-        template<typename T>
+ template<typename T>
         void IRZResource<T>::operator delete(void* pointer)
         {
-            RZResourceManager::Get().getPool<T>().release(m_Handle.getIndex());
+            // Memory is deallocated manually using pool allocator indices and we will never use free
+            // in fact crash the app if someone tried to use and issue a warning saying it's the wrong way to do it
+            // Now in essence it's an IRZResource and we get it's handle from the pointer (m_Handle wont' work cause this is a static method)
+            // TODO: Destroy Generation Index
+            auto res = (IRZResource*) (pointer);
+            res->setGenerationIndex(0);
+            RZResourceManager::Get().getPool<T>().release(res->getHandle());
         }
 
-        template<typename T>
+     
+template<typename T>
         void IRZResource<T>::operator delete[](void* pointer)
         {
-            RZResourceManager::Get().getPool<T>().release(m_Handle.getIndex());
+            // Memory is deallocated manually using pool allocator indices and we will never use free
+            // in fact crash the app if someone tried to use and issue a warning saying it's the wrong way to do it
+            // Now in essence it's an IRZResource and we get it's handle from the pointer (m_Handle wont' work cause this is a static method)
+            // TODO: Destroy Generation Index
+            auto res = (IRZResource*) (pointer);
+            res->setGenerationIndex(0);
+            RZResourceManager::Get().getPool<T>().release(res->getHandle());
         }
+
 #endif
-    }    // namespace Graphics
+
+    }    // namespace Gfx
 }    // namespace Razix
