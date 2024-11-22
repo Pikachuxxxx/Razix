@@ -37,10 +37,16 @@ function generate_default_engine_config()
     else
         -- File doesn't exist, create a new one with default content
         config_content = [[
-    [Rendering]
-    EnableBindless = true       ; Enable Bindless resource by default
-    Quality = High              ; High/Medium/Low depending on GPU
-    MaxShadowCascades = 4
+        [Rendering]
+        EnableAPIValidation = true
+        EnableMSAA = false
+        EnableBindless = true
+        PerfMode = 0                    ; None/Fidelity/Performance 
+        GfxQuality = 2                  ; High/Medium/Low depending on GPU
+        PreferredResolution = 1         
+        TargetFPS = 120                 ; 60/120
+        MaxShadowCascades = 4
+        MSAASamples = 4
     ]]
     end
 

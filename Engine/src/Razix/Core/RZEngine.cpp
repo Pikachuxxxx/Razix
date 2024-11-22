@@ -139,7 +139,14 @@ namespace Razix {
     {
         Utilities::RZiniParser engineConfigParser;
         // we're fucked if people launch it from bin directory we need to safe copy this just in case
-        bool success = engineConfigParser.parse("./Engine/content/config/DefaultEngineConfig.ini", true);
+
+        std::string defaultConfigPath    = "//RazixConfig/DefaultEngineConfig.ini";
+        bool        skipVFSForConfigLoad = false;
+        if (m_CommandLineParser.isSet("engine config filename")) {
+            defaultConfigPath    = m_CommandLineParser.getValueAsString("engine config filename");
+            skipVFSForConfigLoad = true;
+        }
+        bool success = engineConfigParser.parse(defaultConfigPath, skipVFSForConfigLoad);
         if (success) {
             // Rendering Settings
             {
