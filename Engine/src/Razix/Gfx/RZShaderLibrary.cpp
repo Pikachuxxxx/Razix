@@ -17,7 +17,7 @@ namespace Razix {
         {
             // Instance is automatically created once the system is Started Up
             RAZIX_CORE_INFO("[Shader Library] Starting Up Shader Library to load shaders");
-            Razix::RZSplashScreen::Get().setLogString("STATIC_INITIALIZATION: Starting Shader Library...");
+            Razix::RZSplashScreen::Get().setLogString("Starting Shader Library...");
 
             // TESTING HLSL LOADING
             loadBuiltInShader(ShaderBuiltin::HelloTriangle, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTriangle.rzsf");

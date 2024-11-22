@@ -10,8 +10,9 @@ namespace Razix {
     {
         AddCommand("help", {"--help"}, 0, "Show help");
         AddCommand("version", {"--version", "-v"}, 0, "Engine Version");
-        AddCommand("project filename", {"-f", "--project-file"}, 1, "The project file to start the application with");
-        AddCommand("project filename", {"-s", "--scene"}, 1, "The scene file to load when the engine is fired");
+        AddCommand("project file path", {"-f", "--project-file-path"}, 1, "The project file path where the *.razixproject and Assets is located at.");
+        AddCommand("project file name", {"-f", "--project-file-name"}, 1, "The project file name (of type *.razixproject)");
+        AddCommand("scene filename", {"-s", "--scene"}, 1, "The scene file to load when the engine is fired");
         AddCommand("engine config filename", {"-cf", "--config-file"}, 1, "The engine config file to for the engine runtime settings");
         AddCommand("rendering api", {"-a", "--api"}, 1, "The Rendering API to use");
         AddCommand("validation", {"-v", "--validation"}, 0, "Enable Graphics API validation layers");

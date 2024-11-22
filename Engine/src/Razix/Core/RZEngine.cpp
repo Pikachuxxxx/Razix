@@ -141,14 +141,9 @@ namespace Razix {
         // we're fucked if people launch it from bin directory we need to safe copy this just in case
         bool success = engineConfigParser.parse("./Engine/content/config/DefaultEngineConfig.ini", true);
         if (success) {
-            // Installation Settings
-            {
-                //engineConfigParser.getValue<std::string>("Installation", "RootDir", m_EngineInstallationDir);
-                m_EngineInstallationDir = RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
-            }
-
             // Rendering Settings
             {
+                engineConfigParser.getValue<bool>("Rendering", "EnableAPIValidation", m_EngineSettings.EnableAPIValidation);
                 engineConfigParser.getValue<bool>("Rendering", "EnableMSAA", m_EngineSettings.EnableMSAA);
                 engineConfigParser.getValue<bool>("Rendering", "EnableBindless", m_EngineSettings.EnableBindless);
 
@@ -169,14 +164,6 @@ namespace Razix {
                 engineConfigParser.getValue<int>("Rendering", "MaxShadowCascades", m_EngineSettings.MaxShadowCascades);
                 engineConfigParser.getValue<int>("Rendering", "MSAASamples", m_EngineSettings.MSAASamples);
             }
-
-        } else {
-#ifdef RAZIX_DEBUG
-            m_EngineInstallationDir = RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
-#elif defined RAZIX_DISTRIBUTION
-            m_EngineInstallationDir = "C:/Program Files/Razix";
-#endif
         }
     }
-
 }    // namespace Razix

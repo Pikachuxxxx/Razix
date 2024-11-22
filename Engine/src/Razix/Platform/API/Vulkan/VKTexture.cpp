@@ -8,7 +8,7 @@
 #include "Razix/Platform/API/Vulkan/VKBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
-#include "Razix/Utilities/LoadImage.h"
+#include "Razix/Utilities/RZLoadImage.h"
 
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 

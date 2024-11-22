@@ -9,7 +9,7 @@
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Events/RZKeyEvent.h"
 #include "Razix/Events/RZMouseEvent.h"
-#include "Razix/Utilities/LoadImage.h"
+#include "Razix/Utilities/RZLoadImage.h"
 
 #if defined RAZIX_RENDER_API_OPENGL || RAZIX_RENDER_API_VULKAN
 // clang-format off

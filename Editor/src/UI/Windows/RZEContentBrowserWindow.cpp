@@ -18,7 +18,7 @@ namespace Razix {
             // Set filter
             dirModel->setFilter(QDir::NoDotAndDotDot | QDir::AllDirs);
             // Set the root path --> Project root path
-            dirModel->setRootPath(Razix::RZApplication::Get().getAppFilePath().c_str());
+            dirModel->setRootPath(Razix::RZApplication::Get().getProjectRoot().c_str());
 
             ui.directoryTreeView->setModel(dirModel);
 
@@ -30,7 +30,7 @@ namespace Razix {
             fileModel->setFilter(QDir::NoDotAndDotDot | QDir::Files);
 
             // QFileSystemModel requires root path
-            fileModel->setRootPath(Razix::RZApplication::Get().getAppFilePath().c_str());
+            fileModel->setRootPath(Razix::RZApplication::Get().getProjectRoot().c_str());
 
             // Attach the model to the view
             ui.folderListView->setModel(fileModel);
