@@ -82,20 +82,15 @@ namespace Razix {
         void Ignite();
         /* Post ignition after important engine systems, usually called after Gfx context and RZApp has been initialized */
         void PostGraphicsIgnite();
-
         /* Shutdowns the engine and all the resources and systems */
         void ShutDown();
-
         /* manages the Engine Runtime systems */
         void Run();
-
         /* Loads and fills the Engine config Settings */
         void LoadEngineConfigFile();
 
         /* Gets the command line parser */
-        RZCommandLineParser getCommandLineParser() { return m_CommandLineParser; }
-        /* Get engine installation directory */
-        RAZIX_INLINE const std::string& getEngineInstallationDir() { return m_EngineInstallationDir; }
+        RAZIX_INLINE RZCommandLineParser getCommandLineParser() { return m_CommandLineParser; }
         /* Gets the Statistics of the current engine state */
         RAZIX_INLINE Stats& GetStatistics() { return m_Stats; }
         /* Reset Statistics of the current engine state */
@@ -113,10 +108,9 @@ namespace Razix {
         RAZIX_INLINE Gfx::RZShaderLibrary& getShaderLibrary() { return m_ShaderLibrary; }
 
     private:
-        RZCommandLineParser     m_CommandLineParser;     /* Razix command line args passed to app/engine                   */
-        Stats                   m_Stats;                 /* Current frame basic statistics	                               */
-        std::string             m_EngineInstallationDir; /* Where was the engine installed                                 */
-        Gfx::RZRendererSettings m_WorldSettings;         /* World Renderer Settings                                        */
-        EngineSettings          m_EngineSettings;        /* Global Engine wide settings                                    */
+        RZCommandLineParser     m_CommandLineParser; /* Razix command line args passed to app/engine                   */
+        Stats                   m_Stats;             /* Current frame basic statistics	                               */
+        Gfx::RZRendererSettings m_WorldSettings;     /* World Renderer Settings                                        */
+        EngineSettings          m_EngineSettings;    /* Global Engine wide settings                                    */
     };
 }    // namespace Razix

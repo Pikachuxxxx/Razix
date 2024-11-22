@@ -23,6 +23,7 @@ namespace Razix {
     // stored in .ini file
     struct EngineSettings
     {
+        bool            EnableAPIValidation = true;
         bool            EnableMSAA          = false;
         bool            EnableBindless      = false;
         GfxQualityMode  GfxQuality          = GfxQualityMode::kHigh;

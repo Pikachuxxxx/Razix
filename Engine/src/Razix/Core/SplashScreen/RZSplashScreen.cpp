@@ -1,27 +1,27 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
+#include "RZSplashScreen.h"
+
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
+#include "Razix/Core/Version/RazixVersion.h"
 
 #ifdef RAZIX_PLATFORM_WINDOWS
-    #include "RZSplashScreen.h"
-    #include "Razix/Core/Version/RazixVersion.h"
-
-    #include "Razix/Core/RZEngine.h"
-
-    #include <sstream>
-    #include <thread>
-
 namespace Razix {
     // Window Class Construction for the static singleton variable
     RZSplashScreen::WindowClass RZSplashScreen::WindowClass::wndClass;
 
     RZSplashScreen::RZSplashScreen()
     {
+        std::string filePath;
         // Select the splash image based on the release stage
         if (RazixVersion.getReleaseStage() == Version::Stage::Development)
-            m_ImagePath = RZEngine::Get().getEngineInstallationDir() + std::string("/Engine/content/Splash/RazixSplashScreenDev.bmp");
+            filePath = "//RazixSplash/RazixSplashScreenDev.bmp";
         else if (RazixVersion.getReleaseStage() == Version::Stage::Alpha)
-            m_ImagePath = RZEngine::Get().getEngineInstallationDir() + std::string("/Engine/content/Splash/RazixSplashScreenAlpha2.bmp");
+            filePath = "//RazixSplash/RazixSplashScreenAlpha2.bmp";
+
+        if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, m_ImagePath))
+            return;
 
         // Create Window Instance & get hWnd
         hWnd = CreateWindow(

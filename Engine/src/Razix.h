@@ -61,7 +61,7 @@
 #include "Razix/Scene/RZScene.h"
 
 // Utilities
-#include "Razix/Utilities/LoadImage.h"
+#include "Razix/Utilities/RZLoadImage.h"
 #include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/RZStringUtilities.h"
 #include "Razix/Utilities/RZTimer.h"

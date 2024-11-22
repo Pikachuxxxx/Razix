@@ -23,7 +23,7 @@
 
 #include "Razix/Gfx/Materials/RZMaterial.h"
 
-#include "Razix/Utilities/LoadImage.h"
+#include "Razix/Utilities/RZLoadImage.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 

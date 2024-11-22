@@ -1,7 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "LoadImage.h"
+#include "RZLoadImage.h"
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 

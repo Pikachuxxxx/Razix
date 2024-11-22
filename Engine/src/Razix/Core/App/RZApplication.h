@@ -32,17 +32,19 @@
 //! Some style guide rules are waved off for RZApplication class
 
 namespace Guizmo {
-    enum OPERATION {
+    enum OPERATION
+    {
         TRANSLATE,
         ROTATE,
         SCALE
     };
 
-    enum MODE {
+    enum MODE
+    {
         LOCAL,
         WORLD
     };
-}    // namespace ImGuizmo
+}    // namespace Guizmo
 
 namespace Razix::Gfx {
     class RZTexture;
@@ -151,57 +153,53 @@ namespace Razix {
         virtual void RAZIX_CALL OnResize(u32 width, u32 height) {}
 
         /* Returns a reference to the application window */
-        inline RZWindow* RAZIX_CALL getWindow() { return m_Window; }
+        RAZIX_INLINE RZWindow* RAZIX_CALL getWindow() { return m_Window; }
         /* Gets the window size */
-        inline glm::vec2 RAZIX_CALL getWindowSize() { return glm::vec2(m_Window->getWidth(), m_Window->getHeight()); }
+        RAZIX_INLINE glm::vec2 RAZIX_CALL getWindowSize() { return glm::vec2(m_Window->getWidth(), m_Window->getHeight()); }
         /* Returns a reference to the Application instance */
-        inline std::string RAZIX_CALL getAppName() const { return m_ProjectName; }
-        /* Gets the razixproject file path */
-        inline std::string getAppFilePath() const { return m_ProjectFilePath; }
+        RAZIX_INLINE std::string RAZIX_CALL getAppName() const { return m_ProjectName; }
+        /* Gets the razixproject and Assets root firectory */
+        RAZIX_INLINE std::string getProjectRoot() const { return m_ProjectPath; }
+        /* Sets the project root directory */
+        RAZIX_INLINE void setProjectRoot(const std::string& projPath) { m_ProjectPath = projPath; }
         /* Gets the window properties */
-        inline WindowProperties& RAZIX_CALL getWindowProps() { return m_WindowProperties; }
+        RAZIX_INLINE WindowProperties& RAZIX_CALL getWindowProps() { return m_WindowProperties; }
         /* Gets the application render loop timer */
-        inline RZTimer RAZIX_CALL getTimer() { return *m_Timer.get(); }
+        RAZIX_INLINE RZTimer RAZIX_CALL getTimer() { return *m_Timer.get(); }
         /* Get Project UUID */
-        inline RZUUID RAZIX_CALL getProjectUUID() { return m_ProjectID; }
-
-        void setViewportWindow(RZWindow* viewportWindow) { m_Window = viewportWindow; }
+        RAZIX_INLINE RZUUID RAZIX_CALL getProjectUUID() { return m_ProjectID; }
+        RAZIX_INLINE void              setViewportWindow(RZWindow* viewportWindow) { m_Window = viewportWindow; }
 #ifdef RAZIX_PLATFORM_WINDOWS
-        void setViewportHWND(HWND hwnd) { viewportHWND = hwnd; }
-        HWND getViewportHWND() { return viewportHWND; }
+        RAZIX_INLINE void setViewportHWND(HWND hwnd) { viewportHWND = hwnd; }
+        RAZIX_INLINE HWND getViewportHWND() { return viewportHWND; }
 #endif
-
-        void setProjectRoot(const std::string& projPath) { m_ProjectFilePath = projPath; }
-
-        inline AppType getAppType() { return m_appType; }
-        void           setAppType(AppType appType) { m_appType = appType; }
-
+        RAZIX_INLINE AppType getAppType() { return m_appType; }
+        RAZIX_INLINE void    setAppType(AppType appType) { m_appType = appType; }
         // Guizmo Operations
-        void disableGuizmoEditing() { m_EnableGuizmoEditing = false; }
-        void setGuizmoForEntity(RZEntity& entity)
+        RAZIX_INLINE void            disableGuizmoEditing() { m_EnableGuizmoEditing = false; }
+        RAZIX_INLINE void            setGuizmoOperation(Guizmo::OPERATION operation) { m_GuizmoOperation = operation; }
+        RAZIX_INLINE void            setGuizmoMode(Guizmo::MODE mode) { m_GuizmoMode = mode; }
+        RAZIX_INLINE void            setGuizmoSnapAmount(f32 snapAmount) { m_GuizmoSnapAmount = snapAmount; }
+        RAZIX_INLINE const AppState& getAppState() const { return m_CurrentState; }
+        RAZIX_INLINE void            setAppState(AppState state) { m_CurrentState = state; }
+
+        RAZIX_INLINE void setGuizmoForEntity(RZEntity& entity)
         {
             m_GuizmoEntity        = entity;
             m_EnableGuizmoEditing = true;
         }
-        void setGuizmoOperation(Guizmo::OPERATION operation) { m_GuizmoOperation = operation; }
-        void setGuizmoMode(Guizmo::MODE mode) { m_GuizmoMode = mode; }
-        void setGuizmoSnapAmount(f32 snapAmount) { m_GuizmoSnapAmount = snapAmount; }
-
-        RAZIX_INLINE const AppState& getAppState() const { return m_CurrentState; }
-        void                         setAppState(AppState state) { m_CurrentState = state; }
 
         // Application Save and Load Functions
         RAZIX_DEFINE_SAVE_LOAD
 
     private:
 #ifdef RAZIX_PLATFORM_WINDOWS
-        HWND                      viewportHWND;
+        HWND viewportHWND;
 #endif
         static RZApplication*     s_AppInstance;                      /* The singleton instance of the application                */
         AppState                  m_CurrentState = AppState::Loading; /* The current state of the application                     */
         AppType                   m_appType      = AppType::GAME;     /* The type of the application                              */
         std::string               m_ProjectName;                      /* The name of the application                              */
-        std::string               m_ProjectFilePath;                  /* The path of the Razix Project file (*.razixproject)      */
         std::string               m_ProjectPath;                      /* The path of the Razix Project Assets folder              */
         u32                       m_RenderAPI;                        /* The Render API being used to render the application      */
         u32                       m_Frames  = 0;                      /* The number of frames per second                          */
@@ -217,7 +215,7 @@ namespace Razix {
         Guizmo::OPERATION         m_GuizmoOperation;
         Guizmo::MODE              m_GuizmoMode;
         f32                       m_GuizmoSnapAmount = 0.0f;
-        Gfx::RZGPUProfiler   m_GPUProfiler;
+        Gfx::RZGPUProfiler        m_GPUProfiler;
         bool                      m_EnableGuizmoEditing = false;
         std::mutex                m_RenderThreadMutex;
         std::thread               m_RenderThread;
