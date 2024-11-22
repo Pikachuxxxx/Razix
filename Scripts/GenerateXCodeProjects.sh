@@ -26,6 +26,6 @@ echo THE TOOL IS A WIP...still adding options...
 echo 🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧 
 echo ==========================================================   
 chmod +x ./Tools/Building/premake/premake5
-./Tools/Building/premake/premake5 xcode4
+./Tools/Building/premake/premake5 --arch=arm64 xcode4
 
 
