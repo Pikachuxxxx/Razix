@@ -64,8 +64,8 @@ generate_default_engine_config()
 -- Set some Razix SDK env variables on Windows only
 if os.target() == "windows" then
     run_as_admin = "runas /user:administrator"
-    set_env = run_as_admin .. "SETX RAZIX_SDK" .. root_dir .. " /m"
-    set_env_tools = run_as_admin .. "SETX RAZIX_SDK" .. root_dir .. "/Tools /m"
+    set_env = run_as_admin .. "SETX RAZIX_SDK" .. root_dir .. " /m >nul 2>&1"
+    set_env_tools = run_as_admin .. "SETX RAZIX_SDK" .. root_dir .. "/Tools /m >nul 2>&1"
     os.execute(set_env)
     os.execute(set_env_tools)
 end
@@ -126,7 +126,7 @@ workspace ( settings.workspace_name )
     -- Intermediate files Output directory
     objdir ("bin-int/%{outputdir}/obj/")
     -- Debugging directory = where the executable is located
-    debugdir "%{targetdir}../"
+    debugdir ("bin/%{outputdir}/")
 
     -- Setting the architecture for the workspace
     if Arch == "arm" then
