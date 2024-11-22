@@ -125,8 +125,6 @@ solution "Sunshine.Win32"
       defines {"_WIN32", "_CONSOLE", "NOMINMAX", "_UNICODE", "UNICODE"}
       libdirs {"External/libRocket/bin"}
       links { "kernel32", "RocketCore", "RocketControls", "RocketDebugger" }
-      targetdir "../"
-      debugdir "../"
 
       configuration "Debug"
          defines { "_DEBUG" }

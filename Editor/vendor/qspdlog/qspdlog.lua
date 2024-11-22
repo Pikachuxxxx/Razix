@@ -10,8 +10,6 @@ project "qspdlog"
     language "C++"
     cppdialect (engine_global_config.cpp_dialect)
     staticruntime "off"
-        -- Debugging directory = where the main premake5.lua is located
-    debugdir "%{wks.location}../"
 
     -- be carefull, this function enables Qt only for the current configuration.
     -- So if you want to enable it on all configuration, be sure that no filter

@@ -13,15 +13,11 @@ namespace Razix {
 
     RZSplashScreen::RZSplashScreen()
     {
-        std::string filePath;
         // Select the splash image based on the release stage
         if (RazixVersion.getReleaseStage() == Version::Stage::Development)
-            filePath = "//RazixSplash/RazixSplashScreenDev.bmp";
+            m_ImagePath = "./Engine/content/Splash/RazixSplashScreenDev.bmp";
         else if (RazixVersion.getReleaseStage() == Version::Stage::Alpha)
-            filePath = "//RazixSplash/RazixSplashScreenAlpha2.bmp";
-
-        if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, m_ImagePath))
-            return;
+            m_ImagePath = "./Engine/content/Splash/RazixSplashScreenAlpha2.bmp";
 
         // Create Window Instance & get hWnd
         hWnd = CreateWindow(
