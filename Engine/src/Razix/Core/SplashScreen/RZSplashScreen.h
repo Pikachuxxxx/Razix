@@ -38,8 +38,8 @@ namespace Razix {
         RZSplashScreen();
         ~RZSplashScreen();
 
-        void init();
-        void destroy();
+        void StartUp();
+        void ShutDown();
 
         /* Set version string for the splash screen */
         void setVersionString(const std::string& text);
@@ -76,8 +76,8 @@ namespace Razix {
         RZSplashScreen(){}
         ~RZSplashScreen(){}
         
-        void init(){}
-        void destroy(){}
+        void StartUp(){}
+        void ShutDown(){}
         
         /* Set version string for the splash screen */
         void setVersionString(const std::string& text){}

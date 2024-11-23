@@ -275,17 +275,18 @@ project "Razix"
             -- Copy the DXC dlls 
             '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxcompiler.dll" "%{cfg.targetdir}"',
             '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxil.dll" "%{cfg.targetdir}"',
+                -- we are using RAZIX_ROOT_DIR for now
             -- Copy the engine conten folder with subdirs: config, Fonts, FrameGraphs, Logos, Shaders/Compiled, Splash, Textures
             -- [Docs]: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/robocopy
             -- /E: Copies subdirectories. This option automatically includes empty directories.
-            'robocopy /E /MIR "%{wks.location}../Engine/content/config" "%{cfg.targetdir}"/Engine/content/config',
-            'robocopy /E /MIR "%{wks.location}../Engine/content/Fonts" "%{cfg.targetdir}"/Engine/content/Fonts',
-            'robocopy /E /MIR "%{wks.location}../Engine/content/FrameGraphs" "%{cfg.targetdir}"/Engine/content/FrameGraphs',
-            'robocopy /E /MIR "%{wks.location}../Engine/content/Logos" "%{cfg.targetdir}"/Engine/content/Logos',
-            'robocopy /E /MIR "%{wks.location}../Engine/content/Shaders/Compiled" "%{cfg.targetdir}"/Engine/content/Shaders/Compiled',
-            'robocopy /E /MIR "%{wks.location}../Engine/content/Shaders/Razix" "%{cfg.targetdir}"/Engine/content/Shaders/Razix',
-            'robocopy /E /MIR "%{wks.location}../Engine/content/Splash" "%{cfg.targetdir}"/Engine/content/Splash',
-            'robocopy /E /MIR "%{wks.location}../Engine/content/Textures" "%{cfg.targetdir}"/Engine/content/Textures'
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/config" "%{cfg.targetdir}"/Engine/content/config',
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/Fonts" "%{cfg.targetdir}"/Engine/content/Fonts',
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/FrameGraphs" "%{cfg.targetdir}"/Engine/content/FrameGraphs',
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/Logos" "%{cfg.targetdir}"/Engine/content/Logos',
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/Shaders/Compiled" "%{cfg.targetdir}"/Engine/content/Shaders/Compiled',
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/Shaders/Razix" "%{cfg.targetdir}"/Engine/content/Shaders/Razix',
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/Splash" "%{cfg.targetdir}"/Engine/content/Splash',
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/Textures" "%{cfg.targetdir}"/Engine/content/Textures'
         }
         
     -------------------------------------
@@ -384,27 +385,28 @@ project "Razix"
             -- copy vulkan DLL until we use volk
             '{COPY}  "%{VulkanSDK}/lib/libvulkan.dylib" "%{cfg.targetdir}/libvulkan.dylib"',
             '{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.targetdir}/libvulkan.1.dylib"',
+            -- we are using RAZIX_ROOT_DIR for now
             -- Copy the engine content folder with subdirectories: config, Fonts, FrameGraphs, Logos, Shaders/Compiled, Splash, Textures
             -- [Docs]: https://linux.die.net/man/1/rsync
             -- we need to create the directo=ries manually unlike robocopy
-            'mkdir -p "%{cfg.targetdir}/Engine/content/config/"',
-            'mkdir -p "%{cfg.targetdir}/Engine/content/Fonts/"',
-            'mkdir -p "%{cfg.targetdir}/Engine/content/FrameGraphs/"',
-            'mkdir -p "%{cfg.targetdir}/Engine/content/Logos/"',
-            'mkdir -p "%{cfg.targetdir}/Engine/content/Shaders/Compiled/"',
-            'mkdir -p "%{cfg.targetdir}/Engine/content/Shaders/Razix/"',
-            'mkdir -p "%{cfg.targetdir}/Engine/content/Splash/"',
-            'mkdir -p "%{cfg.targetdir}/Engine/content/Textures/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/config/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/Fonts/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/FrameGraphs/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/Logos/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/Shaders/Compiled/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/Shaders/Razix/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/Splash/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/Textures/"',
             -- -a: Archive mode, preserves symbolic links, permissions, timestamps, etc.
             -- --delete: Ensures the destination matches the source exactly (like /MIR in robocopy)
-            'rsync -a --delete "%{wks.location}/../Engine/content/config/" "%{cfg.targetdir}/Engine/content/config/"',
-            'rsync -a --delete "%{wks.location}/../Engine/content/Fonts/" "%{cfg.targetdir}/Engine/content/Fonts/"',
-            'rsync -a --delete "%{wks.location}/../Engine/content/FrameGraphs/" "%{cfg.targetdir}/Engine/content/FrameGraphs/"',
-            'rsync -a --delete "%{wks.location}/../Engine/content/Logos/" "%{cfg.targetdir}/Engine/content/Logos/"',
-            'rsync -a --delete "%{wks.location}/../Engine/content/Shaders/Compiled/" "%{cfg.targetdir}/Engine/content/Shaders/Compiled/"',
-            'rsync -a --delete "%{wks.location}/../Engine/content/Shaders/Razix/" "%{cfg.targetdir}/Engine/content/Shaders/Razix/"',
-            'rsync -a --delete "%{wks.location}/../Engine/content/Splash/" "%{cfg.targetdir}/Engine/content/Splash/"',
-            'rsync -a --delete "%{wks.location}/../Engine/content/Textures/" "%{cfg.targetdir}/Engine/content/Textures/"'
+            --'rsync -a --delete "%{wks.location}/../Engine/content/config/" "%{cfg.targetdir}/Engine/content/config/"',
+            --'rsync -a --delete "%{wks.location}/../Engine/content/Fonts/" "%{cfg.targetdir}/Engine/content/Fonts/"',
+            --'rsync -a --delete "%{wks.location}/../Engine/content/FrameGraphs/" "%{cfg.targetdir}/Engine/content/FrameGraphs/"',
+            --'rsync -a --delete "%{wks.location}/../Engine/content/Logos/" "%{cfg.targetdir}/Engine/content/Logos/"',
+            --'rsync -a --delete "%{wks.location}/../Engine/content/Shaders/Compiled/" "%{cfg.targetdir}/Engine/content/Shaders/Compiled/"',
+            --'rsync -a --delete "%{wks.location}/../Engine/content/Shaders/Razix/" "%{cfg.targetdir}/Engine/content/Shaders/Razix/"',
+            --'rsync -a --delete "%{wks.location}/../Engine/content/Splash/" "%{cfg.targetdir}/Engine/content/Splash/"',
+            --'rsync -a --delete "%{wks.location}/../Engine/content/Textures/" "%{cfg.targetdir}/Engine/content/Textures/"'
         }
         
         filter "files:**.c"

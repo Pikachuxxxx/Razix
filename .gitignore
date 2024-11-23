@@ -23,6 +23,10 @@ build/
 *.DS_Store
 **.DS_Store
 
+#ignore the compiled shaders they are per-gpu-isa
+Engine/content/Shaders/Compiled/
+Engine/content/Shaders/Generated/
+
 /Sandbox/LargeScenesSandbox.razixproject
 /Sandbox/Assets/Models/BistroExterior.glb
 /Sandbox/Assets/Models/BattleOfTrashGods.gltf

@@ -13,11 +13,24 @@ namespace Razix {
 
     RZSplashScreen::RZSplashScreen()
     {
+    }
+
+    RZSplashScreen::~RZSplashScreen()
+    {
+        
+    }
+
+    void RZSplashScreen::StartUp()
+    {
         // Select the splash image based on the release stage
+        std::string filePath;
         if (RazixVersion.getReleaseStage() == Version::Stage::Development)
-            m_ImagePath = "./Engine/content/Splash/RazixSplashScreenDev.bmp";
+            filePath = "//RazixSplash/RazixSplashScreenDev.bmp";
         else if (RazixVersion.getReleaseStage() == Version::Stage::Alpha)
-            m_ImagePath = "./Engine/content/Splash/RazixSplashScreenAlpha2.bmp";
+            filePath = "//RazixSplash/RazixSplashScreenAlpha2.bmp";
+
+        if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, m_ImagePath))
+            return;
 
         // Create Window Instance & get hWnd
         hWnd = CreateWindow(
@@ -36,20 +49,12 @@ namespace Razix {
 
         // newly created windows start off as hidden
         ShowWindow(hWnd, SW_SHOW);
-    }
 
-    RZSplashScreen::~RZSplashScreen()
-    {
-        DestroyWindow(hWnd);
-    }
-
-    void RZSplashScreen::init()
-    {
         //std::thread splashThread(this->ProcessMessages());
         ProcessMessages();
     }
 
-    void RZSplashScreen::destroy()
+    void RZSplashScreen::ShutDown()
     {
         DestroyWindow(hWnd);
     }

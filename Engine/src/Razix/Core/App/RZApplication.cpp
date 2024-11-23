@@ -310,7 +310,7 @@ namespace Razix {
 
         Razix::RZSplashScreen::Get().setLogString("Starting Razix Application...");
 
-        Razix::RZSplashScreen::Get().destroy();
+        Razix::RZSplashScreen::Get().ShutDown();
 
         //m_GPUProfiler.Init(&RZCPUMemoryManager::Get().getSystemAllocator(), RAZIX_MAX_FRAMES, 32);
 

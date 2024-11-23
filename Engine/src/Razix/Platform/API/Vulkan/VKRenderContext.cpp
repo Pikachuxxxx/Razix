@@ -355,7 +355,7 @@ namespace Razix {
 
                 if (attachment.second.clear) {
                     attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
-                    attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_NONE;
+                    attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 } else {
                     attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff we render on top of what was rendered previously
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -391,7 +391,7 @@ namespace Razix {
 
                 if (clearDepth) {
                     attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
-                    attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_NONE;
+                    attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 } else {
                     attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff we render on top of what was presented previously
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
