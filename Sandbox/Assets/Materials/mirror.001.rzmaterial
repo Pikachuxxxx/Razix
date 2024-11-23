@@ -1,0 +1,25 @@
+{
+    "mirror.001": {
+        "Name": "mirror.001",
+        "Albedo": "//Assets/",
+        "Normal": "//Assets/",
+        "Metallic": "//Assets/",
+        "Roughness": "//Assets/",
+        "Ao": "//Assets/",
+        "Emissive": "//Assets/",
+        "albedoColor": {
+            "x": 0.06666667014360428,
+            "y": 0.13333334028720857,
+            "z": 0.13333334028720857
+        },
+        "roughnessColor": 1.0,
+        "metallicColor": 0.5527864098548889,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

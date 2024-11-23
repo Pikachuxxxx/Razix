@@ -1,0 +1,25 @@
+{
+    "red2.001": {
+        "Name": "red2.001",
+        "Albedo": "//Assets/",
+        "Normal": "//Assets/",
+        "Metallic": "//Assets/",
+        "Roughness": "//Assets/",
+        "Ao": "//Assets/",
+        "Emissive": "//Assets/",
+        "albedoColor": {
+            "x": 0.8078432083129883,
+            "y": 0.1098039299249649,
+            "z": 0.01568627543747425
+        },
+        "roughnessColor": 1.0,
+        "metallicColor": 0.858578622341156,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

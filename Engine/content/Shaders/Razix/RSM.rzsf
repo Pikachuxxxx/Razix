@@ -1,0 +1,17 @@
+/*
+ * Razix Shader File 
+ * RSM.rzsf : Generate Reflective Shadow maps
+ * Copyright Razix Engine 2024by Pikachuxxxx (Phani Srikar)
+ */
+
+#shader vertex
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/mesh.vert.spv
+    #endif
+#end
+
+#shader fragment
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/ReflectiveShadowMap.frag.spv
+    #endif
+#end#pragma once

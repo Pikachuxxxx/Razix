@@ -1,0 +1,25 @@
+{
+    "$MATERIAL": {
+        "Name": "Material_22",
+        "Albedo": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Models/Sponza/8481240838833932244.jpg",
+        "Normal": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Models/Sponza/10381718147657362067.jpg",
+        "Metallic": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Models/Sponza/17556969131407844942.jpg",
+        "Roughness": "",
+        "Ao": "",
+        "Emissive": "",
+        "albedoColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "roughnessColor": 0.02500000037252903,
+        "metallicColor": 1.0,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 1,
+        "isUsingMetallicMap": 1,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 1,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

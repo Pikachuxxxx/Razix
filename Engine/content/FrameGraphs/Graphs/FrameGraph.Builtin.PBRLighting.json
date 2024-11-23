@@ -1,0 +1,106 @@
+{
+    "name": "PBRLighting",
+    "passes": [
+        {
+            "render_pass": "Pass.Builtin.RenderShadows",
+            "outputs": [
+                {
+                    "type": "Texture",
+                    "name": "ShadowMap",
+                    "texture_type": "Texture_Depth",
+                    "format": "DEPTH32F",
+                    "width": 4096,
+                    "height": 4096,
+                    "attachment_info": {
+                        "clear": true,
+                        "clear_color": "OpaqueBlack",
+                        "binding_idx": 0,
+                        "mip": 0,
+                        "layer": 0
+                    }
+                },
+                {
+                    "type": "Buffer",
+                    "name": "LightSpaceMatrix",
+                    "size": 64
+                }
+            ]
+        },
+        {
+            "render_pass": "Pass.Builtin.PBRLighting",
+            "inputs": [
+                {
+                    "type": "Reference",
+                    "name": "ShadowMap"
+                },
+                {
+                    "type": "Reference",
+                    "name": "FrameData"
+                },
+                {
+                    "type": "Reference",
+                    "name": "LightSpaceMatrix"
+                },
+                {
+                    "type": "Reference",
+                    "name": "SceneLightsData"
+                },
+                {
+                    "type": "Reference",
+                    "name": "BrdfLUT",
+                    "is_imported": true
+                },
+                {
+                    "type": "Reference",
+                    "name": "EnvironmentMap",
+                    "is_imported": true
+                },
+                {
+                    "type": "Reference",
+                    "name": "PreFilteredMap",
+                    "is_imported": true
+                },
+                {
+                    "type": "Reference",
+                    "name": "IrradianceMap",
+                    "is_imported": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "Texture",
+                    "name": "SceneHDR",
+                    "texture_type": "Texture_2D",
+                    "format": "RGBA16F",
+                    "width": 4096,
+                    "height": 4096,
+                    "attachment_info": {
+
+                        "clear": true,
+                        "clear_color": "TransparentBlack",
+                        "binding_idx": 0,
+                        "mip": 0,
+                        "layer": 0
+                    }
+                },
+                {
+                    "type": "Texture",
+                    "name": "SceneDepth",
+                    "texture_type": "Texture_Depth",
+                    "format": "DEPTH32F",
+                    "width": 4096,
+                    "height": 4096,
+                    "attachment_info": {
+
+                        "clear": true,
+                        "clear_color": "TransparentBlack",
+                        "binding_idx": 0,
+                        "mip": 0,
+                        "layer": 0
+                    }
+                }
+            ]
+        }
+    ],
+    "final_output": "SceneHDR"
+}

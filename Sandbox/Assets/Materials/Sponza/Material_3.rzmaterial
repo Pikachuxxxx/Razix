@@ -1,0 +1,25 @@
+{
+    "Material_3": {
+        "Name": "Material_3",
+        "Albedo": "X:/GameEngines/Razix/Sandbox/Assets/Models/Sponza/8006627369776289000.png",
+        "Normal": "X:/GameEngines/Razix/Sandbox/Assets/Models/Sponza/12501374198249454378.jpg",
+        "Metallic": "X:/GameEngines/Razix/Sandbox/Assets/Models/Sponza/715093869573992647.jpg",
+        "Roughness": "",
+        "Ao": "",
+        "Emissive": "",
+        "albedoColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "roughnessColor": 0.02500000037252903,
+        "metallicColor": 1.0,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

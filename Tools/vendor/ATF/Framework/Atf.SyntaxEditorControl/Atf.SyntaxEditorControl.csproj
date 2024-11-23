@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+    <ProjectGuid>{1DC0900F-89F7-D8A6-9201-3DCAFEB7FF9F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Sce.Atf</RootNamespace>
+    <AssemblyName>Atf.SyntaxEditorControl</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\..\bin\Debug-windows-x86_64\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Debug-windows-x86_64\obj\Debug\Atf.SyntaxEditorControl\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants></DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\..\bin\Release-windows-x86_64\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Release-windows-x86_64\obj\Release\Atf.SyntaxEditorControl\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants></DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Distribution|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\..\bin\Distribution-windows-x86_64\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\..\..\bin-int\Distribution-windows-x86_64\obj\Distribution\Atf.SyntaxEditorControl\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants></DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ActiproSoftware.Shared.Net20" />
+    <Reference Include="ActiproSoftware.SyntaxEditor.Addons.DotNet.Net20" />
+    <Reference Include="ActiproSoftware.SyntaxEditor.Net20" />
+    <Reference Include="ActiproSoftware.WinUICore.Net20" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ActiproSoftware.Shared.Net20" />
+    <Reference Include="ActiproSoftware.SyntaxEditor.Addons.DotNet.Net20" />
+    <Reference Include="ActiproSoftware.SyntaxEditor.Net20" />
+    <Reference Include="ActiproSoftware.WinUICore.Net20" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Distribution|x64' ">
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ActiproSoftware.Shared.Net20" />
+    <Reference Include="ActiproSoftware.SyntaxEditor.Addons.DotNet.Net20" />
+    <Reference Include="ActiproSoftware.SyntaxEditor.Net20" />
+    <Reference Include="ActiproSoftware.WinUICore.Net20" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\SyntaxEditorControl\BreakpointEventArgs.cs" />
+    <Compile Include="Controls\SyntaxEditorControl\BreakpointIndicator.cs" />
+    <Compile Include="Controls\SyntaxEditorControl\EditorTextChangedEventArgs.cs" />
+    <Compile Include="Controls\SyntaxEditorControl\IBreakpoint.cs" />
+    <Compile Include="Controls\SyntaxEditorControl\ISyntaxEditorControl.cs" />
+    <Compile Include="Controls\SyntaxEditorControl\Languages.cs" />
+    <Compile Include="Controls\SyntaxEditorControl\LuaDynamicSyntaxLanguage.cs" />
+    <Compile Include="Controls\SyntaxEditorControl\MouseHoverOverTokenEventArgs.cs" />
+    <Compile Include="Controls\SyntaxEditorControl\ShowContextMenuEventArg.cs" />
+    <Compile Include="Controls\SyntaxEditorControl\SyntaxEditorControl.cs" />
+    <Compile Include="Controls\SyntaxEditorControl\SyntaxEditorRegions.cs" />
+    <Compile Include="Controls\SyntaxEditorControl\TextEditorFactory.cs" />
+    <Compile Include="Controls\SyntaxEditorControl\Token.cs" />
+    <EmbeddedResource Include="LanguageDefinitions\CSharpDefinition.xml" />
+    <EmbeddedResource Include="LanguageDefinitions\CgDefinition.xml" />
+    <EmbeddedResource Include="LanguageDefinitions\ImatDefinition.xml" />
+    <EmbeddedResource Include="LanguageDefinitions\LuaDefinition.xml" />
+    <EmbeddedResource Include="LanguageDefinitions\PythonDefinition.xml" />
+    <EmbeddedResource Include="LanguageDefinitions\SquirrelDefinition.xml" />
+    <EmbeddedResource Include="LanguageDefinitions\XMLDefinition.xml" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Atf.Core\Atf.Core.csproj">
+      <Project>{971A234B-83E7-7D56-AC00-6CFE982CB3E4}</Project>
+      <Name>Atf.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Atf.Gui\Atf.Gui.csproj">
+      <Project>{B3AD2FA5-1F8D-AE40-28A5-3917940315A2}</Project>
+      <Name>Atf.Gui</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Atf.Gui.WinForms\Atf.Gui.WinForms.csproj">
+      <Project>{D652ADB2-C24B-CC04-EB7D-B189D7D5AB10}</Project>
+      <Name>Atf.Gui.WinForms</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

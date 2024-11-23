@@ -1,0 +1,16 @@
+/*
+ * Razix Shader File 
+ * [TAAResolve] Temporal Anti Aliasing Resolve pass - We’ll collect the samples and merge them together. We also write to the History Buffer in this pass
+ */
+
+#shader vertex
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/Shader.Builtin.Quad.vert.spv
+    #endif
+#end
+
+#shader fragment
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/Shader.Builtin.TAAResolve.frag.spv
+    #endif
+#end

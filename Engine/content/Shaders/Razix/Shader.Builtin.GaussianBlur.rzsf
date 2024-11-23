@@ -1,0 +1,16 @@
+/*
+ * Razix Shader File 
+ * [SSAO Blur] Screen Space Ambient Occlusion Blur shader
+ */
+
+#shader vertex
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/Shader.Builtin.Quad.vert.spv
+    #endif
+#end
+
+#shader fragment
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/Shader.Builtin.GaussianBlur.frag.spv
+    #endif
+#end

@@ -1,0 +1,25 @@
+{
+    "Material_2": {
+        "Name": "Material_2",
+        "Albedo": "X:/GameEngines/Razix/Sandbox/Assets/Models/Sponza/white.png",
+        "Normal": "",
+        "Metallic": "",
+        "Roughness": "",
+        "Ao": "",
+        "Emissive": "",
+        "albedoColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "roughnessColor": 0.0,
+        "metallicColor": 1.0,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

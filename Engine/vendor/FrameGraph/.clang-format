@@ -1,0 +1,5 @@
+BasedOnStyle: LLVM
+AllowShortIfStatementsOnASingleLine: WithoutElse
+ContinuationIndentWidth: 2
+SortIncludes: 'false'
+IndentPPDirectives: AfterHash

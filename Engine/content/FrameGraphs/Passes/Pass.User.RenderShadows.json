@@ -1,0 +1,40 @@
+{
+    "name": "Pass.User.RenderShadows",
+    "shader": "Shader.Builtin.DepthPreTest",
+    "is_standalone": true,
+    "pipeline_info": {
+        "cull_mode": "Front",
+        "polygon_mode": "Fill",
+        "draw_type": "Triangle",
+        "transparency": false,
+        "color_blend": {
+            "src": "SrcAlpha",
+            "dst": "OneMinusSrcAlpha",
+            "op": "Add"
+        },
+        "alpha_blend": {
+            "src": "One",
+            "dst": "One",
+            "op": "Add"
+        },
+        "depth": {
+            "write": true,
+            "test": true,
+            "op": "Less"
+        },
+        "depth_format": "DEPTH32F",
+        "color_formats": []
+    },
+    "scene_params": {
+        "geometry_mode": "SceneGeometry"
+    },
+    "rendering_info": {
+        "resolution": "kCustom",
+        "extents": {
+            "x": 4096.0,
+            "y": 4096.0
+        },
+        "resize": false,
+        "layers": 1
+    }
+}

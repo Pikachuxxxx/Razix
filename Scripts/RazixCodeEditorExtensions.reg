@@ -1,0 +1,29 @@
+Windows Registry Editor Version 5.00
+
+; Registering the *.rzsf file extension
+[HKEY_CLASSES_ROOT\.rzsf]
+@="Razix.ShaderFile"
+
+; Register the Razix.ShaderFile to add Icon and executable command
+[HKEY_CLASSES_ROOT\Razix.ShaderFile]
+@="Razix Engine Shader File"
+
+; Add the default Icon path
+[HKEY_CLASSES_ROOT\Razix.ShaderFile\DefaultIcon]
+@="\"C:\\Dev\\Game Engines\\Razix\\Engine\\content\\Logos\\RazixLogo64.ico\""
+
+; Add default open behaviour
+[HKEY_CLASSES_ROOT\Razix.ShaderFile\shell]
+
+; Opens with the Code Editor by default
+[HKEY_CLASSES_ROOT\Razix.ShaderFile\shell\open]
+@="Open"
+; Icon for open command option
+"Icon"="\"C:\\Dev\\Game Engines\\Razix\\Engine\\content\\Logos\\RazixLogo64.ico\""
+
+; TODO: Passing the filename as a command line argument with a -f flag to the Razix Game Application
+[HKEY_CLASSES_ROOT\Razix.ShaderFile\shell\open\command]
+@="\"C:\\Dev\\Game Engines\\Razix\\bin\\Debug-windows-x86_64\\RazixCodeEditor.exe\" \"%1\""
+; -f \"%1\"
+
+; TODO: Register the remainning file extension types (glsl, vert, frag, hlsl, pssl, cg, lua, python)

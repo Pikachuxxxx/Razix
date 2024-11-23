@@ -1,0 +1,18 @@
+﻿/*
+ * Razix Shader File 
+ * DeferredTiledLighting.rzsf : Deferred Tiled Lighting + PBR + GI + IBL
+ * Copyright Razix Engine 2024by Pikachuxxxx (Phani Srikar)
+ */
+
+#shader vertex
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/quad.vert.spv
+    #endif
+#end
+
+// Including the default fragment shader
+#shader fragment
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/deferred_tiled_lighting.frag.spv
+    #endif
+#end

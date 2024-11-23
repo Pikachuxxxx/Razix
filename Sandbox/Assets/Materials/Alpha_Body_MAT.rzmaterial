@@ -1,0 +1,25 @@
+{
+    "Alpha_Body_MAT": {
+        "Name": "Alpha_Body_MAT",
+        "Albedo": "//Assets/",
+        "Normal": "//Assets/",
+        "Metallic": "//Assets/",
+        "Roughness": "//Assets/",
+        "Ao": "//Assets/",
+        "Emissive": "//Assets/",
+        "albedoColor": {
+            "x": 0.09657000750303269,
+            "y": 0.42161980271339419,
+            "z": 0.5220000147819519
+        },
+        "roughnessColor": 0.0,
+        "metallicColor": 0.8082915544509888,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

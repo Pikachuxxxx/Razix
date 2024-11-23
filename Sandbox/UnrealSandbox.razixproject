@@ -1,0 +1,14 @@
+{
+    "Razix Application": {
+        "Project Name": "UnrealSandbox",
+        "Engine Version": "0.43.0",
+        "Project ID": "+Üô‰EGy‹“0à·€Æ>",
+        "Render API": 1,
+        "Width": 1661,
+        "Height": 1195,
+        "Project Path": "C:/Dev/Game Engines/Razix/Sandbox/",
+        "Scenes": [
+            "//Scenes/UnrealBlockScene.rzscn"
+        ]
+    }
+}

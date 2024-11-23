@@ -1,0 +1,25 @@
+{
+    "MT_Iron": {
+        "Name": "MT_Iron",
+        "Albedo": "",
+        "Normal": "",
+        "Metallic": "",
+        "Roughness": "",
+        "Ao": "",
+        "Emissive": "",
+        "albedoColor": {
+            "x": 0.531000018119812,
+            "y": 0.5120000243186951,
+            "z": 0.4959999918937683
+        },
+        "roughnessColor": 1.0,
+        "metallicColor": 0.3763636350631714,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

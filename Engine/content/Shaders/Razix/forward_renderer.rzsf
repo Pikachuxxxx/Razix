@@ -1,0 +1,16 @@
+﻿/*
+ * Razix Shader File 
+ * forward_renderer.rzsf : [Forward Rendering] Phong lighitng model shader that can be used to render the scene with basic lighting using light maps (albedo, roughness, normal etc.) ==> Forward Rendering
+ */
+
+#shader vertex
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/mesh.vert.spv
+    #endif
+#end
+
+#shader fragment
+    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
+        #include Compiled/SPIRV/mesh_phong_lighting.frag.spv
+    #endif
+#end

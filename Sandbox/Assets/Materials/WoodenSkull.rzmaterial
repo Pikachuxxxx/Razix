@@ -1,0 +1,25 @@
+{
+    "$MATERIAL": {
+        "Name": "WoodenSkull",
+        "Albedo": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Wooden Skull/Skull_Mandala_basecolor.jpg",
+        "Normal": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Wooden Skull/Skull_Mandala_normal.jpg",
+        "Metallic": "",
+        "Roughness": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Wooden Skull/Skull_Mandala_roughness.jpg",
+        "Ao": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Textures/Wooden Skull/Skull_Mandala_ambientocclusion.jpg",
+        "Emissive": "",
+        "albedoColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "roughnessColor": 0.02500000037252903,
+        "metallicColor": 0.4000000059604645,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 1,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 1,
+        "isUsingNormalMap": 1,
+        "isUsingAOMap": 1,
+        "isUsingEmissiveMap": 0
+    }
+}

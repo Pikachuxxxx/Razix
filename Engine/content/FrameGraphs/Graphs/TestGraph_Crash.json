@@ -1,0 +1,104 @@
+{
+    "name": "FrameGraph.User.EditorTest",
+    "final_output": "SceneHDR",
+    "passes": [
+        {
+            "render_pass": "Pass.User.Pass.User.RenderShadows",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "Buffer",
+                    "name": "LightSpaceMatrix",
+                    "size": 64,
+                    "usage": "Static"
+                },
+                {
+                    "type": "Texture",
+                    "name": "ShadowMap",
+                    "width": 4096,
+                    "height": 4096,
+                    "depth": 1,
+                    "layers": 1,
+                    "texture_type": "Texture_2D",
+                    "format": "DEPTH32F",
+                    "wrapping": "CLAMP_TO_EDGE",
+                    "filtering": {
+                        "min": "LINEAR",
+                        "mag": "LINEAR"
+                    },
+                    "enable_mips": false,
+                    "hdr": false
+                }
+            ]
+        },
+        {
+            "render_pass": "Pass.User.Pass.User.PBRLighting",
+            "inputs": [
+                {
+                    "name": "LightSpaceMatrix",
+                    "type": "Reference"
+                },
+                {
+                    "name": "ShadowMap",
+                    "type": "Reference"
+                },
+                {
+                    "name": "BrdfLUT",
+                    "type": "Reference",
+                    "is_imported": true
+                },
+                {
+                    "name": "EnvironmentMap",
+                    "type": "Reference",
+                    "is_imported": true
+                },
+                {
+                    "name": "PreFileteredMap",
+                    "type": "Reference",
+                    "is_imported": true
+                },
+                {
+                    "name": "IrradianceMap",
+                    "type": "Reference",
+                    "is_imported": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "Texture",
+                    "name": "SceneHDR",
+                    "width": 1280,
+                    "height": 720,
+                    "depth": 1,
+                    "layers": 1,
+                    "texture_type": "Texture_2D",
+                    "format": "RGBA16F",
+                    "wrapping": "CLAMP_TO_EDGE",
+                    "filtering": {
+                        "min": "LINEAR",
+                        "mag": "LINEAR"
+                    },
+                    "enable_mips": false,
+                    "hdr": true
+                },
+                {
+                    "type": "Texture",
+                    "name": "SceneDepth",
+                    "width": 1280,
+                    "height": 720,
+                    "depth": 1,
+                    "layers": 1,
+                    "texture_type": "Texture_2D",
+                    "format": "DEPTH32F",
+                    "wrapping": "CLAMP_TO_EDGE",
+                    "filtering": {
+                        "min": "LINEAR",
+                        "mag": "LINEAR"
+                    },
+                    "enable_mips": false,
+                    "hdr": false
+                }
+            ]
+        }
+    ]
+}
