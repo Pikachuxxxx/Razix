@@ -5,6 +5,7 @@
 namespace Razix {
     /* Cross - Platform Virtual File System for the Engine */
     // TODO: Log unsuccessful path resolution
+    // TODO: Add read/write only access
     class RAZIX_API RZVirtualFileSystem : public RZSingleton<RZVirtualFileSystem>
     {
     public:

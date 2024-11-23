@@ -415,6 +415,8 @@ namespace Razix {
             m_FrameGraph.compile();
 
             // Dump the Frame Graph for visualization
+            // NOTE: Careful this won't write to the Engire directory this is inside bin and build artifact
+            // FIXME: Find a way to map VFS to OG Engine path pre-copy or idk just umm...be careful I guess
             std::string outPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/FrameGraphs", outPath, true);
             RAZIX_CORE_INFO("Exporting FrameGraph .... to ({0})", outPath);

@@ -18,17 +18,17 @@ namespace Razix {
         Razix::RZSplashScreen::Get().setLogString("Starting VFS...");
 
         // Static Initialization load basic paths + root paths in consoles
-        // Mount engine specific Paths from the [root of exe]/Engine/...
-        RZVirtualFileSystem::Get().mount("RazixRoot", std::string("./Engine/"));
-        RZVirtualFileSystem::Get().mount("RazixContent", std::string("./Engine/content/"));
-        RZVirtualFileSystem::Get().mount("RazixConfig", std::string("./Engine/content/config/"));
-        RZVirtualFileSystem::Get().mount("RazixFonts", std::string("./Engine/content/Fonts/"));
-        RZVirtualFileSystem::Get().mount("RazixFG", std::string("./Engine/content/FrameGraphs/"));
-        RZVirtualFileSystem::Get().mount("RazixLogos", std::string("./Engine/content/Logos/"));
-        RZVirtualFileSystem::Get().mount("RazixShaders", std::string("./Engine/content/Shaders/Razix/"));
-        RZVirtualFileSystem::Get().mount("RazixCompiledShaders", std::string("./Engine/content/Shaders/Compiled/"));
-        RZVirtualFileSystem::Get().mount("RazixSplash", std::string("./Engine/content/RazixSplash/"));
-        RZVirtualFileSystem::Get().mount("RazixTextures", std::string("./Engine/content/Textures/"));
+        // Mount engine specific Paths from the ./Engine/... given by the env variable RAZIX_ROOT_DIR
+        RZVirtualFileSystem::Get().mount("RazixRoot", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/"));
+        RZVirtualFileSystem::Get().mount("RazixContent", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/"));
+        RZVirtualFileSystem::Get().mount("RazixConfig", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/config/"));
+        RZVirtualFileSystem::Get().mount("RazixFonts", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/Fonts/"));
+        RZVirtualFileSystem::Get().mount("RazixFG", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/FrameGraphs/"));
+        RZVirtualFileSystem::Get().mount("RazixLogos", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/Logos/"));
+        RZVirtualFileSystem::Get().mount("RazixShaders", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/Shaders/Razix/"));
+        RZVirtualFileSystem::Get().mount("RazixCompiledShaders", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/Shaders/Compiled/"));
+        RZVirtualFileSystem::Get().mount("RazixSplash", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/RazixSplash/"));
+        RZVirtualFileSystem::Get().mount("RazixTextures", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/Textures/"));
     }
 
     void RZVirtualFileSystem::ShutDown()

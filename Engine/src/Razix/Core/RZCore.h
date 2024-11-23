@@ -154,7 +154,7 @@
 // Stringize
 #define STRINGIZE2(s)         #s
 #define RAZIX_STRINGIZE(s)    STRINGIZE2(s)
-#define RAZIX_ENGINE_ROOT_DIR STRINGIZE(RAZIX_ROOT_DIR)
+#define RAZIX_ENGINE_ROOT_DIR RAZIX_STRINGIZE(RAZIX_ROOT_DIR)
 
 // Concatenate two preprocessor tokens, indirectly to allow for use of macros like __LINE__
 #define RZ_CONCATENATE(a, b)  CONCATENATE2(a, b)
