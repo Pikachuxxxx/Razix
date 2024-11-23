@@ -114,8 +114,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_DrawCommandBuffers.set_capacity(MAX_SWAPCHAIN_BUFFERS);
-            m_GraphicsCommandPool.set_capacity(MAX_SWAPCHAIN_BUFFERS);
+            m_DrawCommandBuffers.resize(MAX_SWAPCHAIN_BUFFERS);
+            m_GraphicsCommandPool.resize(MAX_SWAPCHAIN_BUFFERS);
 
             for (u32 i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
                 auto pool                  = RZResourceManager::Get().createCommandPool(PoolType::kGraphics);

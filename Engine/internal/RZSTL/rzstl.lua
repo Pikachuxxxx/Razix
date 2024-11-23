@@ -8,27 +8,18 @@ project "RZSTL"
     files
     {
         "src/**.cpp",
-        "include/**.h",
-        "./vendor/EABase/include/**.h",
-        "./vendor/EASTL/include/**.h",
-        "./vendor/EASTL/source/**.cpp"
+        "include/**.h"
     }
 
     externalincludedirs
     {
         "./include",
-        "./vendor/EABase/include",
-        "./vendor/EABase/include/Common",
-        "./vendor/EASTL/include",
         "%{InternalIncludeDir.RazixMemory}"
     }
 
      includedirs
     {
         "./include",
-        "./vendor/EABase/include",
-        "./vendor/EABase/include/Common",
-        "./vendor/EASTL/include",
         "%{InternalIncludeDir.RazixMemory}"
     }
 

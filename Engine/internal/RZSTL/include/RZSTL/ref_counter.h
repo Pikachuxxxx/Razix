@@ -1,7 +1,7 @@
 #ifndef RZSTL_REF_COUNTER_H
 #define RZSTL_REF_COUNTER_H
 
-#include <EASTL/atomic.h>
+#include <atomic>
 
 namespace Razix {
     namespace rzstl {
@@ -12,7 +12,7 @@ namespace Razix {
         struct ReferenceCounter
         {
             /// Global object reference count
-            eastl::atomic<int> count = 0;
+            std::atomic<int> count = 0;
 
         public:
             /// <summary>

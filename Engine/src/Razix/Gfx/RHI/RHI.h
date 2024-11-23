@@ -395,9 +395,9 @@ namespace Razix {
             u32                                           m_PrevHeight = 0;
             CommandQueue                                  m_GraphicsCommandQueue; /* The queue of recorded commands that needs execution */
             RZDrawCommandBufferHandle                     m_CurrentCommandBuffer;
-            rzstl::ring_buffer<RZDrawCommandBufferHandle> m_DrawCommandBuffers;
-            rzstl::ring_buffer<RZCommandPoolHandle>       m_GraphicsCommandPool;
-            rzstl::ring_buffer<RZCommandPoolHandle>       m_ComputeCommandPool;
+            std::vector<RZDrawCommandBufferHandle>        m_DrawCommandBuffers;
+            std::vector<RZCommandPoolHandle>              m_GraphicsCommandPool;
+            std::vector<RZCommandPoolHandle>              m_ComputeCommandPool;
             RZDescriptorSet*                              m_FrameDataSet       = nullptr;
             RZDescriptorSet*                              m_SceneLightsDataSet = nullptr;
         };

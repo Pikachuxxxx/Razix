@@ -1003,7 +1003,7 @@ namespace Razix {
 
             VkResult CreateDebugObjName(const std::string& name, VkObjectType type, uint64_t handle)
             {
-                RAZIX_CORE_ASSERT((handle != NULL), "NULL HANDLE DETECTED!");
+                RAZIX_CORE_ASSERT((handle != 0), "NULL HANDLE DETECTED!");
 
                 VkDebugUtilsObjectNameInfoEXT info{};
                 info.sType        = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;

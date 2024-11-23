@@ -1,7 +1,7 @@
 #ifndef RZSTL_CONST_MAP_H
 #define RZSTL_CONST_MAP_H
 
-#include "RZSTL/config.h"
+#include <unordered_map>
 
 namespace Razix {
     namespace rzstl {
@@ -216,7 +216,7 @@ namespace Razix {
             public:
                 template<typename T>
                 constexpr constexpr_map(const T (&data)[N]) noexcept
-                    : constexpr_map(data, eastl::make_index_sequence<N>())
+                    : constexpr_map(data, std::make_index_sequence<N>())
                 {
                 }
 
@@ -279,7 +279,7 @@ namespace Razix {
                     return bound<greater_equal>(data_, data_ + N, compare_key_type{key});
                 }
 
-                constexpr eastl::pair<const_iterator, const_iterator> equal_range(const key_type& key) const noexcept
+                constexpr std::pair<const_iterator, const_iterator> equal_range(const key_type& key) const noexcept
                 {
                     const compare_key_type compare_key{key};
                     auto                   first = bound<less>(data_, data_ + N, compare_key);
@@ -311,7 +311,7 @@ namespace Razix {
         }    // namespace Internal
 
         template<typename Key, typename Value, size_t N>
-        static constexpr auto constexpr_map(const eastl::pair<const Key, const Value> (&items)[N]) noexcept
+        static constexpr auto constexpr_map(const std::pair<const Key, const Value> (&items)[N]) noexcept
         {
             return Internal::constexpr_map<Internal::element<Key, Value>, N>(items);
         }

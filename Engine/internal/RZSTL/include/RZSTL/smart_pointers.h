@@ -3,7 +3,8 @@
 
 #include "RZSTL/ref_counter.h"
 
-#include <EASTL/shared_ptr.h>
+#include <memory>
+#include <functional>
 
 #undef CUSTOM_SMART_PTR
 //#define CUSTOM_SMART_PTR
@@ -142,7 +143,7 @@ namespace Razix {
                     delete m_Counter;
                     m_Counter = nullptr;
                 }
-                eastl::swap(tmp, m_Ptr);
+                std::swap(tmp, m_Ptr);
                 m_Ptr = nullptr;
 
                 return tmp;
@@ -206,8 +207,8 @@ namespace Razix {
             inline constexpr bool     operator!=(const Reference<T>& p_r) const { return m_Ptr != p_r.m_Ptr; }
             inline void               swap(Reference& other) noexcept
             {
-                eastl::swap(m_Ptr, other.m_Ptr);
-                eastl::swap(m_Counter, other.m_Counter);
+                std::swap(m_Ptr, other.m_Ptr);
+                std::swap(m_Counter, other.m_Counter);
             }
             template<typename U>
             inline Reference<U> As() const
@@ -481,7 +482,7 @@ namespace Razix {
             inline T* release()
             {
                 T* result = nullptr;
-                eastl::swap(result, m_Ptr);
+                std::swap(result, m_Ptr);
                 return result;
             }
 
@@ -493,7 +494,7 @@ namespace Razix {
 
             inline void swap(Owned& src) noexcept
             {
-                eastl::swap(m_Ptr, src.m_Ptr);
+                std::swap(m_Ptr, src.m_Ptr);
             }
 
         private:
@@ -513,7 +514,7 @@ namespace Razix {
         template<typename T, typename... Args>
         rzstl::Ref<T> CreateRef(Args&&... args)
         {
-            auto ptr = new T(eastl::forward<Args>(args)...);
+            auto ptr = new T(std::forward<Args>(args)...);
 
             return Reference<T>(ptr);
         }
@@ -524,7 +525,7 @@ namespace Razix {
         template<typename T, typename... Args>
         UniqueRef<T> CreateUniqueRef(Args&&... args)
         {
-            auto ptr = new T(eastl::forward<Args>(args)...);
+            auto ptr = new T(std::forward<Args>(args)...);
             return Owned<T>(ptr);
         }
 
@@ -532,24 +533,24 @@ namespace Razix {
         using WeakRef = WeakReference<T>;
 #elif defined(CUSTOM_SMART_PTR_EASTL)
         template<class T>
-        using Ref = eastl::shared_ptr<T>;
+        using Ref = std::shared_ptr<T>;
 
         template<typename T, typename... Args>
         Ref<T> CreateRef(Args&&... args)
         {
-            return eastl::make_shared<T>(eastl::forward<Args>(args)...);
+            return std::make_shared<T>(std::forward<Args>(args)...);
         }
 
         template<class T>
-        using WeakRef = eastl::weak_ptr<T>;
+        using WeakRef = std::weak_ptr<T>;
 
         template<class T>
-        using UniqueRef = eastl::unique_ptr<T>;
+        using UniqueRef = std::unique_ptr<T>;
 
         template<typename T, typename... Args>
         UniqueRef<T> CreateUniqueRef(Args&&... args)
         {
-            return eastl::make_unique<T>(eastl::forward<Args>(args)...);
+            return std::make_unique<T>(std::forward<Args>(args)...);
         }
 #else
         template<class T>
