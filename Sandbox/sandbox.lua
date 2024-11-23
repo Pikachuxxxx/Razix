@@ -144,6 +144,7 @@ project "Sandbox"
             "RAZIX_PLATFORM_MACOS",
             "RAZIX_PLATFORM_UNIX",
             "RAZIX_USE_GLFW_WINDOWS",
+            "RAZIX_ROOT_DIR="  .. root_dir,
             "RAZIX_IMGUI",
             -- API
             "RAZIX_RENDER_API_VULKAN",
