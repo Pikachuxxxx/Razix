@@ -246,7 +246,7 @@ namespace Razix {
             for (u32 i = 0; i < glfwExtensionsCount; i++) {
                 RAZIX_CORE_TRACE("\t");
                 int j = 0;
-                while (*(glfwExtensions[i] + j) != NULL) {
+                while (*(glfwExtensions[i] + j) != 0) {
                     std::cout << *(glfwExtensions[i] + j);
                     j++;
                 }

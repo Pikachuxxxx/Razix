@@ -54,7 +54,7 @@ namespace Razix {
             SocketStatus Send(const char* data, size_t size);
 
             // Receives data from the socket
-            ssize_t Receive(char* buffer, size_t size);
+            size_t Receive(char* buffer, size_t size);
 
             // Closes the socket
             SocketStatus Close();
