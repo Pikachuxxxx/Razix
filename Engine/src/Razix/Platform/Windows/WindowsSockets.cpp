@@ -98,7 +98,7 @@ namespace Razix {
             return SocketStatus::SUCCESS;
         }
 
-        ssize_t RZSocket::Receive(char* buffer, size_t size)
+        size_t RZSocket::Receive(char* buffer, size_t size)
         {
             int result = recv(CAST_SOCKET_PTR(m_Socket), buffer, static_cast<int>(size), 0);
             if (result == SOCKET_ERROR) {
