@@ -34,6 +34,8 @@ namespace Razix {
         //------------------------------//
         // 1. Virtual File System
         RZVirtualFileSystem::Get().StartUp();
+        
+        LoadEngineConfigFile();
 
         // Load the memory budgets
         RAZIX_CORE_INFO("Loading Department/Global Budgets...");
@@ -139,7 +141,7 @@ namespace Razix {
     {
         Utilities::RZiniParser engineConfigParser;
         // Engine is in the same directory as the executable
-        std::string defaultConfigPath    = "./Engine/content/config/DefaultEngineConfig.ini";
+        std::string defaultConfigPath    = "//RazixConfig/DefaultEngineConfig.ini";
         bool        skipVFSForConfigLoad = false;
         if (m_CommandLineParser.isSet("engine config filename")) {
             defaultConfigPath    = m_CommandLineParser.getValueAsString("engine config filename");

@@ -132,8 +132,6 @@ static int EngineMain(int argc, char** argv)
     // 1.-> Logging System Initialization, start up logging before anything else
     Razix::Debug::RZLog::StartUp();
 
-    Razix::RZEngine::Get().LoadEngineConfigFile();
-
     // Splash Screen!
     Razix::RZSplashScreen::Get().init();
     Razix::RZSplashScreen::Get().setVersionString("Version : " + std::string(Razix::RazixVersion.getVersionString()));
