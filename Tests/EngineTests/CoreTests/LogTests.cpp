@@ -89,9 +89,9 @@ namespace Razix {
 
             const auto& messages = mockSink->getMessages();
             ASSERT_EQ(messages.size(), 3) << "There should be 3 log messages.";
-            EXPECT_EQ(messages[0].message, "[Razix Core] [info]: First Message \r\n") << "First message should be logged first.";
-            EXPECT_EQ(messages[1].message, "[Razix Core] [warning]: Second Message \r\n") << "Second message should be logged second.";
-            EXPECT_EQ(messages[2].message, "[Razix Core] [error]: Third Message \r\n") << "Third message should be logged third.";
+            EXPECT_EQ(messages[0].message, "[Razix Core] [info]: First Message \n") << "First message should be logged first.";
+            EXPECT_EQ(messages[1].message, "[Razix Core] [warning]: Second Message \n") << "Second message should be logged second.";
+            EXPECT_EQ(messages[2].message, "[Razix Core] [error]: Third Message \n") << "Third message should be logged third.";
         }
 
         TEST_F(RZLogTests, RegisterMultipleSinks)
@@ -106,8 +106,8 @@ namespace Razix {
             // 2 since we have default onces from startup call
             EXPECT_EQ(mockSink1->getMessages().size(), 2) << "First sink should receive the log message.";
             EXPECT_EQ(mockSink2->getMessages().size(), 1) << "Second sink should also receive the log message.";
-            EXPECT_EQ(mockSink1->getMessages()[0].message, "[Razix Core] [info]: Message for multiple sinks \r\n");
-            EXPECT_EQ(mockSink2->getMessages()[0].message, "[Razix Core] [info]: Message for multiple sinks \r\n");
+            EXPECT_EQ(mockSink1->getMessages()[0].message, "[Razix Core] [info]: Message for multiple sinks \n");
+            EXPECT_EQ(mockSink2->getMessages()[0].message, "[Razix Core] [info]: Message for multiple sinks \n");
         }
 
         TEST_F(RZLogTests, LoggingConcurrency)
@@ -150,7 +150,7 @@ namespace Razix {
 
             const auto& messages = mockSink->getMessages();
             ASSERT_EQ(messages.size(), 1) << "One message should be logged.";
-            EXPECT_EQ(messages[0].message, "[Razix Core] [info]: " + longMessage + " \r\n")
+            EXPECT_EQ(messages[0].message, "[Razix Core] [info]: " + longMessage + " \n")
                 << "[Razix Core] [info]: Long message should not be truncated.";
         }
 
@@ -170,7 +170,7 @@ namespace Razix {
 
             const auto& messages = mockSink->getMessages();
             ASSERT_EQ(messages.size(), 1) << "An empty message should still be logged.";
-            EXPECT_EQ(messages[0].message, "[Razix Core] [info]:  \r\n") << "Empty message should be logged as a newline.";
+            EXPECT_EQ(messages[0].message, "[Razix Core] [info]:  \n") << "Empty message should be logged as a newline.";
         }
 
         TEST_F(RZLogTests, LogLevelFiltering)
@@ -187,7 +187,7 @@ namespace Razix {
 
             const auto& messages = mockSink->getMessages();
             ASSERT_EQ(messages.size(), 1) << "Only warnings or higher should be logged.";
-            EXPECT_EQ(messages[0].message, "[Razix Core] [warning]: This should be logged \r\n")
+            EXPECT_EQ(messages[0].message, "[Razix Core] [warning]: This should be logged \n")
                 << "Only the warning message should appear.";
         }
 
