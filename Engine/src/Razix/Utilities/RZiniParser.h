@@ -63,7 +63,7 @@ namespace Razix {
                     auto it = m_Sections.find(sectionName);
                     if (it != m_Sections.end()) {
                         auto& variables = it->second.variables;
-                        auto varIt     = variables.find(key);
+                        auto  varIt     = variables.find(key);
                         if (varIt != variables.end()) {
                             if (std::holds_alternative<T>(varIt->second)) {
                                 value = std::get<T>(varIt->second);
@@ -77,7 +77,7 @@ namespace Razix {
                 return false;
             }
 
-        private:
+        protected: // Protexted only for the 
             std::unordered_map<std::string, Section> m_Sections;
 
         private:
@@ -89,10 +89,10 @@ namespace Razix {
                 auto it = m_Sections.find(sectionName);
                 if (it != m_Sections.end()) {
                     auto& subsections = it->second.subsections;
-                    auto subsecIt    = subsections.find(subSection);
+                    auto  subsecIt    = subsections.find(subSection);
                     if (subsecIt != subsections.end()) {
                         auto& variables = subsecIt->second.variables;
-                        auto varIt     = variables.find(key);
+                        auto  varIt     = variables.find(key);
                         if (varIt != variables.end()) {
                             if (std::holds_alternative<T>(varIt->second)) {
                                 value = std::get<T>(varIt->second);

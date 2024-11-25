@@ -8,21 +8,21 @@
 namespace Razix {
     RZCommandLineParser::RZCommandLineParser()
     {
-        AddCommand("help", {"--help"}, 0, "Show help");
-        AddCommand("version", {"--version", "-v"}, 0, "Engine Version");
-        AddCommand("project file path", {"-f", "--project-file-path"}, 1, "The project file path where the *.razixproject and Assets is located at.");
-        AddCommand("project file name", {"-f", "--project-file-name"}, 1, "The project file name (of type *.razixproject)");
-        AddCommand("scene filename", {"-s", "--scene"}, 1, "The scene file to load when the engine is fired");
-        AddCommand("engine config filename", {"-cf", "--config-file"}, 1, "The engine config file to for the engine runtime settings");
-        AddCommand("rendering api", {"-a", "--api"}, 1, "The Rendering API to use");
-        AddCommand("validation", {"-v", "--validation"}, 0, "Enable Graphics API validation layers");
-        AddCommand("vsync", {"-vs", "--vsync"}, 0, "Enable V-Sync");
-        AddCommand("width", {"-w", "--width"}, 1, "Set window width");
-        AddCommand("height", {"-h", "--height"}, 1, "Set window height");
+        addCommand("help", {"--help"}, 0, "Show help");
+        addCommand("version", {"--version", "-v"}, 0, "Engine Version");
+        addCommand("project file path", {"-f", "--project-file-path"}, 1, "The project file path where the *.razixproject and Assets is located at.");
+        addCommand("project file name", {"-f", "--project-file-name"}, 1, "The project file name (of type *.razixproject)");
+        addCommand("scene filename", {"-s", "--scene"}, 1, "The scene file to load when the engine is fired");
+        addCommand("engine config filename", {"-cf", "--config-file"}, 1, "The engine config file to for the engine runtime settings");
+        addCommand("rendering api", {"-a", "--api"}, 1, "The Rendering API to use");
+        addCommand("validation", {"-v", "--validation"}, 0, "Enable Graphics API validation layers");
+        addCommand("vsync", {"-vs", "--vsync"}, 0, "Enable V-Sync");
+        addCommand("width", {"-w", "--width"}, 1, "Set window width");
+        addCommand("height", {"-h", "--height"}, 1, "Set window height");
         //-------------------------------------------------------
         // Dev Utils
-        AddCommand("vulkan", {"--vulkan"}, 0, "Start the engine with Vulkan API.");
-        AddCommand("dx12", {"--dx12"}, 0, "Start the engine with DirectX12 API.");
+        addCommand("vulkan", {"--vulkan"}, 0, "Start the engine with Vulkan API.");
+        addCommand("dx12", {"--dx12"}, 0, "Start the engine with DirectX12 API.");
     }
 
     void RZCommandLineParser::printHelp()
@@ -55,14 +55,14 @@ namespace Razix {
 
     int32_t RZCommandLineParser::getValueAsInt(std::string name)
     {
-        RAZIX_CORE_ASSERT(m_CommandOptions.find(name) == m_CommandOptions.end(), "No value has been passed to the argument");
+        RAZIX_CORE_ASSERT(m_CommandOptions.find(name) != m_CommandOptions.end(), "No value has been passed to the argument");
         std::string value = m_CommandOptions[name].value;
         char*       numConvPtr;
         i32     intVal = (i32)strtol(value.c_str(), &numConvPtr, 10);
         return intVal;
     }
 
-    void RZCommandLineParser::AddCommand(std::string name, std::vector<std::string> commands, bool hasValue, std::string help)
+    void RZCommandLineParser::addCommand(std::string name, std::vector<std::string> commands, bool hasValue, std::string help)
     {
         m_CommandOptions[name].commandFlags = commands;
         m_CommandOptions[name].helpDesc     = help;
