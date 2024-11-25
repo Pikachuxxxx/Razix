@@ -1,7 +1,6 @@
-// RZLogTests.cpp
+// LogTests.cpp
 // AI-generated unit tests for the RZLog class
-#define RAZIX_TESTS
-#include <Razix/Core/Log/RZLog.h>    // Replace with the actual include path for your RZLog class
+#include <Razix/Core/Log/RZLog.h> 
 #include <gtest/gtest.h>
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/sinks/base_sink.h>
