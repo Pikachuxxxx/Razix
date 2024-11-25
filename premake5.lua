@@ -86,6 +86,7 @@ end
 Arch = ""
 
 if _OPTIONS["arch"] then
+
     Arch = _OPTIONS["arch"]
 else
     _OPTIONS["arch"] = "x64"
