@@ -93,14 +93,14 @@ namespace Razix {
         return buffer.str();
     }
 
-    bool RZFileSystem::WriteFile(const std::string& path, u8* buffer)
+    bool RZFileSystem::WriteFile(const std::string& path, u8* buffer, i64 size)
     {
         std::ofstream file(path, std::ios::binary);
         if (!file.is_open()) {
             return false;
         }
 
-        file.write(reinterpret_cast<char*>(buffer), GetFileSize(path));
+        file.write(reinterpret_cast<char*>(buffer), size);
         file.close();
         return true;
     }
