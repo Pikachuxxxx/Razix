@@ -3,9 +3,6 @@
 #include <Razix/Core/RZHandle.h> 
 #include <gtest/gtest.h>
 
-#include "Razix/Core/RZHandle.h"
-#include <gtest/gtest.h>
-
 namespace Razix {
     class RZHandleTests : public ::testing::Test
     {
