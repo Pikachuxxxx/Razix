@@ -2,6 +2,8 @@
 include 'Scripts/premake/common/vendor_includes.lua'
 -- Internal libraies include dirs
 include 'Scripts/premake/common/internal_includes.lua'
+-- common include dirs
+include 'Scripts/premake/common/common_include_dirs.lua'
 ------------------------------------------------------------------------------
 -- Shaders a separate project to build as cache
 include 'razix_shaders_build.lua'
@@ -88,7 +90,12 @@ project "Razix"
         "internal/",
         "src/",
         "src/Razix",
-        -- Vendor
+        "%{wks.location}/../Engine",
+        "%{wks.location}/../Engine/src",
+        "%{wks.location}/../Engine/src/Razix",
+        "%{wks.location}/../Engine/internal",
+        "%{wks.location}/../Engine/internal/RazixMemory",
+        "%{wks.location}/../Engine/internal/RZSTL",
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
@@ -110,9 +117,6 @@ project "Razix"
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
         "%{ExperimentalIncludeDir.Eigen}",
-        -- API related
-        -- Vulkan
-        "%{VulkanSDK}",
         -- Internal libraries
         "%{InternalIncludeDir.RazixMemory}",
         "%{InternalIncludeDir.RZSTL}",

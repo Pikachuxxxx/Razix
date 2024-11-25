@@ -17,14 +17,14 @@ namespace Razix {
         /**
          * Parses the budget ini file to assign memory/frame time constraints
          */
-        bool ParseBudgetFile(const std::string& filePath);
+        RAZIX_API bool ParseBudgetFile(const std::string& filePath);
         /**
          * Get the total frame budget
          */
-        BudgetInfo GetGlobalFrameBudget();
+        RAZIX_API BudgetInfo GetGlobalFrameBudget();
         /**
          * Get the per-frame budget constraints
          */
-        BudgetInfo GetDepartmentBudgetInfo(Department department);
+        RAZIX_API BudgetInfo GetDepartmentBudgetInfo(Department department);
     }    // namespace Memory
 }    // namespace Razix

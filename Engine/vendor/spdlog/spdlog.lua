@@ -7,6 +7,7 @@ project "meshoptimizer"
 	disablewarnings {
 		"4251",
 		"4275",
+		"4996"
 	}
 
 	defines {

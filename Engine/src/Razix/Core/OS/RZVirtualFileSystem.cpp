@@ -33,7 +33,7 @@ namespace Razix {
 
     void RZVirtualFileSystem::ShutDown()
     {
-        RAZIX_CORE_ERROR("[Virtual File System] Shutting Down Virtual File System");
+        RAZIX_CORE_INFO("[Virtual File System] Shutting Down Virtual File System");
     }
 
     void RZVirtualFileSystem::mount(const std::string& virtualPath, const std::string& physicalPath)
@@ -113,11 +113,11 @@ namespace Razix {
         return resolvePhysicalPath(path, physicalPath) ? RZFileSystem::ReadTextFile(physicalPath) : nullptr;
     }
 
-    bool RZVirtualFileSystem::writeFile(const std::string& path, u8* buffer)
+    bool RZVirtualFileSystem::writeFile(const std::string& path, u8* buffer, i64 size)
     {
         // RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
         std::string physicalPath;
-        return resolvePhysicalPath(path, physicalPath) ? RZFileSystem::WriteFile(physicalPath, buffer) : false;
+        return resolvePhysicalPath(path, physicalPath) ? RZFileSystem::WriteFile(physicalPath, buffer, size) : false;
     }
 
     bool RZVirtualFileSystem::writeTextFile(const std::string& path, const std::string& text)

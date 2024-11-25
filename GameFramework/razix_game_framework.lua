@@ -2,8 +2,8 @@
 include 'Scripts/premake/common/vendor_includes.lua'
 -- Internal libraies include dirs
 include 'Scripts/premake/common/internal_includes.lua'
-
--- Sanbox Game project
+------------------------------------------------------------------------------
+-- Game Framework project
 project "GameFramework"
     kind "ConsoleApp"
     language "C++"
@@ -20,6 +20,12 @@ project "GameFramework"
     {
         "../Engine/src/Razix",
         "../Engine",
+        "%{wks.location}/../Engine",
+        "%{wks.location}/../Engine/src",
+        "%{wks.location}/../Engine/src/Razix",
+        "%{wks.location}/../Engine/internal",
+        "%{wks.location}/../Engine/internal/RazixMemory",
+        "%{wks.location}/../Engine/internal/RZSTL",
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
