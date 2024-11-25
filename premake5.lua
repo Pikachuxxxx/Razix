@@ -240,7 +240,7 @@ workspace ( settings.workspace_name )
         include "Tools/Building/GamePackager/game_packager.lua"
     group ""
 
-    -- Razix Engine Samples and Tests
+    -- Razix Engine Tests
     --------------------------------------------------------------------------------
-    -- TODO: Tests
-    --include "Tests/tests.lua"
+    -- Tests
+    include "Tests/tests.lua"

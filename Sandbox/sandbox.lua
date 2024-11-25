@@ -1,9 +1,10 @@
-
 -- Razix Engine vendor Common Inlcudes 
 include 'Scripts/premake/common/vendor_includes.lua'
 -- Internal libraies include dirs
 include 'Scripts/premake/common/internal_includes.lua'
-
+-- common include dirs
+include 'Scripts/premake/common/common_include_dirs.lua'
+------------------------------------------------------------------------------
 -- Sanbox Game project
 project "Sandbox"
     kind "ConsoleApp"
@@ -31,6 +32,12 @@ project "Sandbox"
     {
         "../Engine/src/Razix",
         "../Engine",
+        "%{wks.location}/../Engine",
+        "%{wks.location}/../Engine/src",
+        "%{wks.location}/../Engine/src/Razix",
+        "%{wks.location}/../Engine/internal",
+        "%{wks.location}/../Engine/internal/RazixMemory",
+        "%{wks.location}/../Engine/internal/RZSTL",
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
@@ -60,7 +67,7 @@ project "Sandbox"
     }
 
    -- Razix Application linkage libraries
-          -- vendors (Tf am I linking these)
+   -- vendors (Tf am I linking these)
    links
    {
        "Razix", -- Razix DLL
