@@ -204,9 +204,9 @@ namespace Razix {
         }
 
         // Test that logging doesn't occur when in distribution mode
+#ifdef RAZIX_DISTRIBUTION
         TEST_F(RZLogTests, DistributionModeLogging)
         {
-#ifdef RAZIX_DISTRIBUTION
             auto mockSink = std::make_shared<MockSink>();
             RZLog::RegisterCoreLoggerSink(mockSink);
             RZLog::RegisterApplicationLoggerSink(mockSink);
@@ -225,10 +225,7 @@ namespace Razix {
 
             const auto& messages = mockSink->getMessages();
             EXPECT_EQ(messages.size(), 0) << "No messages should be logged in distribution mode.";
-#else
-            GTEST_SKIP() << "Test is only valid when RAZIX_DISTRIBUTION is defined.";
-#endif
         }
-
+#endif
     }    // namespace Debug
 }    // namespace Razix
