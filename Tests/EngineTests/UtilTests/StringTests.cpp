@@ -98,7 +98,9 @@ namespace Razix {
 
         TEST(RZStringUtilities, TrimWhitespaces)
         {
-            EXPECT_EQ(RemoveSpaces(TrimWhitespaces("   test   ")), "test");
+            auto trim = TrimWhitespaces("   test   ");
+            auto str = RemoveSpaces(trim);
+            EXPECT_EQ(str, "test");
         }
 
         TEST(RZStringUtilities, StringContains)
