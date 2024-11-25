@@ -77,7 +77,10 @@ project "QGoodWindow"
         qtbinpath "C:/Qt/5.15.2/msvc2019_64/bin"
 
         qtmodules { "core", "gui", "widgets", "winextras"}
-
+        
+    filter "system:macosx"
+        qtbinpath "/opt/homebrew/opt/qt@5/bin"
+        qtpath "/opt/homebrew/opt/qt@5"
 
    filter "configurations:Debug"
        defines { "RAZIX_DEBUG", "_DEBUG" }
