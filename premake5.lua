@@ -205,7 +205,8 @@ workspace ( settings.workspace_name )
     -- Editor vendors
     group "Editor/vendor"
         include "Editor/vendor/QGoodWindow/QGoodWindow.lua"
-        include "Editor/vendor/qspdlog/qspdlog.lua"
+        -- Disabled due to C++20 requirement
+        -- include "Editor/vendor/qspdlog/qspdlog.lua"
         include "Editor/vendor/QtADS/QtADS.lua"
         include "Editor/vendor/toolwindowmanager/toolwindowmanager.lua"
     group ""

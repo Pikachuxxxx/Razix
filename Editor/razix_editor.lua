@@ -114,7 +114,7 @@ project "RazixEditor"
         "RazixAssetPacker",
         -- Editor Vendor
         "QGoodWindow",
-        "qspdlog",
+        --"qspdlog", -- DIsabled due to C++20 requirement
         "QtADS",
         "toolwindowmanager"
     }

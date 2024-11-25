@@ -5,7 +5,7 @@
 // clang-format on
 
 #include <Razix.h>
-#include <Razix/Core/RazixVersion.h>
+#include <Razix/Core/Version/RazixVersion.h>
 #include <Razix/Platform/API/Vulkan/VKContext.h>
 
 #include <vulkan/vulkan.h>
