@@ -78,7 +78,7 @@ namespace Razix {
             // In addition to the allocation we will append a memory info struct which will store more information about the allocation(s)
             // Plus reports the allocation that was done
             // We create a struct as mentioned and then add it to the total allocation size --> Init it with allocation info --> Append it --> Align it and boom sent it for usage --> user wont know it's a bit bigger
-            size_t total_size = size; /* + sizeof(AllocationInfo) */
+            //size_t total_size = size; /* + sizeof(AllocationInfo) */
     #ifdef RAZIX_PLATFORM_WINDOWS
             void* addr = _aligned_malloc(size, alignment);
     #elif RAZIX_PLATFORM_UNIX
