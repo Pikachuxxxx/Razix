@@ -11,17 +11,18 @@ namespace Razix {
 
         // trick to dynamically generate asset type enum
 
-#define ASSET_TYPE_LIST                                                                                                                                                            \
-    X(Undefined)                                                                                                                                                                   \
-    X(Transform)                                                                                                                                                                   \
-    X(Camera)                                                                                                                                                                      \
-    X(Light)                                                                                                                                                                       \
-    X(Material)                                                                                                                                                                    \
-    X(Mesh)                                                                                                                                                                        \
-    X(Texture)                                                                                                                                                                     \
-    X(Animation)                                                                                                                                                                   \
-    X(Audio)                                                                                                                                                                       \
-    X(LuaScript)                                                                                                                                                                   \
+#define ASSET_TYPE_LIST \
+    X(Undefined)        \
+    X(Transform)        \
+    X(Camera)           \
+    X(Light)            \
+    X(Material)         \
+    X(PhysicsMaterial)  \
+    X(Mesh)             \
+    X(Texture)          \
+    X(Animation)        \
+    X(Audio)            \
+    X(LuaScript)        \
     X(UserDataContainer)    // Generic asset type to store some generic data for gameplay/scripting (ex. PlayerHealthStats/EnemyNPCTypes/Weapons/RegionalPowerups)
 
         enum class AssetType
@@ -79,6 +80,12 @@ namespace Razix {
             Department               department;   /* Department responsible for the asset                      */
             int                      _padding;
         };
+        
+        struct RAZIX_MEM_ALIGN_16 AssetDependecy
+        {
+            AssetType type;
+            RZUUID assetID;
+        };
 
         /**
          * RZAsset is the base class for the all assets in the engine
@@ -122,24 +129,24 @@ namespace Razix {
             RAZIX_INLINE const AssetMetadata& getMetadata() const { return m_Metadata; }
             RAZIX_INLINE void                 acquireLockOnAsset() { m_Mutex.lock(); }
             RAZIX_INLINE void                 releaseLockOnAsset() { m_Mutex.unlock(); }
-            RAZIX_INLINE void                 addDependency(const RZUUID& assetID) { m_Dependencies.push_back(assetID); }
-            RAZIX_INLINE const std::vector<RZUUID>& getDependencies() const { return m_Dependencies; }
+            RAZIX_INLINE void                 addDependency(AssetType assetType, const RZUUID& assetID) { m_Dependencies.push_back({assetType, assetID}); }
+            RAZIX_INLINE const std::vector<AssetDependecy>& getDependencies() const { return m_Dependencies; }
 
             RZUUID operator()() { return m_UUID; }
             bool   operator==(RZAsset& other) { return m_UUID == other.m_UUID; }
             bool   operator!=(RZAsset& other) { return m_UUID != other.m_UUID; }
 
         protected:
-            RZUUID                   m_UUID;              /* Unique identifier                              */
-            AssetType                m_Type;              /* Type of the asset (e.g., "Texture", "Model")   */
-            std::atomic<u32>         m_ReferenceCount;    /* Reference count for ownership tracking         */
-            std::vector<RZUUID>      m_Dependencies;      /* Other assets this asset depends on             */
-            AssetMetadata            m_Metadata;          /* Additional metadata                            */
-            AssetStorageType         m_StoragePreference; /* Asset memory storage type                      */
-            bool                     m_IsDirty;           /* Flag for tracking modifications                */
-            Razix::RZEventDispatcher m_EventDispatcher;   /* Listeners for asset updates                    */
-            mutable std::mutex       m_Mutex;             /* Thread safety lock                             */
-            bool                     m_AllocateLazy;      /* This resource storage will be done lazily      */
+            RZUUID                      m_UUID;              /* Unique identifier                              */
+            AssetType                   m_Type;              /* Type of the asset (e.g., "Texture", "Model")   */
+            std::atomic<u32>            m_ReferenceCount;    /* Reference count for ownership tracking         */
+            std::vector<AssetDependecy> m_Dependencies;      /* Other assets this asset depends on             */
+            AssetMetadata               m_Metadata;          /* Additional metadata                            */
+            AssetStorageType            m_StoragePreference; /* Asset memory storage type                      */
+            bool                        m_IsDirty;           /* Flag for tracking modifications                */
+            Razix::RZEventDispatcher    m_EventDispatcher;   /* Listeners for asset updates                    */
+            mutable std::mutex          m_Mutex;             /* Thread safety lock                             */
+            bool                        m_AllocateLazy;      /* This resource storage will be done lazily      */
         };
     }    // namespace AssetSystem
 }    // namespace Razix
