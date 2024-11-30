@@ -353,6 +353,9 @@ public:                                                  \
 #define RAZIX_TYPE_HAS_SUB_TYPE_V(T, U) \
     has_##U##_v<T>
 
+
+#define RAZIX_CHECK_IF_TYPE_IS_DEFINED(T, msg) static_assert(std::is_class_v<T>(), msg)
+
 /**
  * SFINAE_TYPE_ERASURE_CONCEPT_CHECK
  */

@@ -16,20 +16,33 @@ namespace Razix {
     enum class EventType
     {
         kNone = 0,
+        // Window
         kWindowClose,
         kWindowResize,
         kWindowFocus,
         kWindowLostFocus,
         kWindowMoved,
+        // App
         kAppTick,
         kAppUpdate,
         kAppRender,
+        // Input
         kKeyPressed,
         kKeyReleased,
         kMouseButtonPressed,
         kMouseButtonReleased,
         kMouseMoved,
         kMouseScrolled,
+        // TODO: Joystick events
+        // Asset System
+        kAssetCreated,
+        kAssetModified,
+        kAssetMemoryMoved,
+        kAssetCopied,
+        kAssetDeleted,
+        kAssetBroken,
+        kAssetSerialized,
+        kAssetDeserialzed,
         COUNT
     };
 
