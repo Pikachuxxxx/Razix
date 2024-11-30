@@ -17,27 +17,40 @@ extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
     #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
 // TODO: Change this back to WinMain, since we are use the logging system to output to console we use an Console App instead of an Widowed App
-//#pragma comment(linker, "/subsystem:windows")
 //
-//#ifndef NOMINMAX
-//#define NOMINMAX // For windows.h
-//#endif
-//
-//#include <windows.h>
 
-    #define RAZIX_PLATFORM_MAIN                                 \
-        int main(int argc, char** argv)                         \
-        {                                                       \
-            EngineMain(argc, argv);                             \
-            while (Razix::RZApplication::Get().RenderFrame()) { \
-            }                                                   \
-                                                                \
-            Razix::RZApplication::Get().Quit();                 \
-            Razix::RZApplication::Get().SaveApp();              \
-                                                                \
-            EngineExit();                                       \
-                                                                \
-            return EXIT_SUCCESS;                                \
+// https://www.gamedev.net/forums/topic/251536-how-to-run-console-window-main-from-winmain/
+void main(int argc, char** argv)
+{
+    printf("[Razix Console Window]");
+    AllocConsole();
+    freopen("CONOUT$", "w+", stdout);
+    freopen("CONOUT$", "w+", stderr);
+    freopen("CONOUT$", "w+", stdin);
+}
+
+    #ifndef NOMINMAX
+        #define NOMINMAX    // For windows.h
+    #endif
+    //
+    #include <windows.h>
+    #pragma comment(linker, "/subsystem:windows")
+
+    #define RAZIX_PLATFORM_MAIN                                                                           \
+        int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) \
+        {                                                                                                 \
+            ShowWindow(GetConsoleWindow(), SW_SHOW);                                                      \
+            main(__argc, __argv);                                                                         \
+            EngineMain(__argc, __argv);                                                                   \
+            while (Razix::RZApplication::Get().RenderFrame()) {                                           \
+            }                                                                                             \
+                                                                                                          \
+            Razix::RZApplication::Get().Quit();                                                           \
+            Razix::RZApplication::Get().SaveApp();                                                        \
+                                                                                                          \
+            EngineExit();                                                                                 \
+                                                                                                          \
+            return EXIT_SUCCESS;                                                                          \
         }
 
 /* Windows Entry point - WinMain */

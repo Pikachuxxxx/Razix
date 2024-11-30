@@ -183,5 +183,5 @@ Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
     return new MemoryTest();
 }
 
-RAZIX_PLATFORM_MAIN
+    RAZIX_PLATFORM_MAIN
 #endif
