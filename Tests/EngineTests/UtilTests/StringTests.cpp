@@ -99,7 +99,7 @@ namespace Razix {
         TEST(RZStringUtilities, TrimWhitespaces)
         {
             auto trim = TrimWhitespaces("   test   ");
-            auto str = RemoveSpaces(trim);
+            auto str  = RemoveSpaces(trim);
             EXPECT_EQ(str, "test");
         }
 

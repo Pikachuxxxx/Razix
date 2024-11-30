@@ -9,7 +9,8 @@ namespace Assimp {
         *   @brief  read/convert of Structure array to memory
         */
         template<typename T>
-        bool read(const Structure &s, T *p, const size_t cnt, const FileDatabase &db) {
+        bool read(const Structure &s, T *p, const size_t cnt, const FileDatabase &db)
+        {
             for (size_t i = 0; i < cnt; ++i) {
                 T read;
                 s.Convert(read, db);
@@ -22,33 +23,36 @@ namespace Assimp {
         /**
         *   @brief  pointer to function read memory for n CustomData types
         */
-        typedef bool        (*PRead)(ElemBase *pOut, const size_t cnt, const FileDatabase &db);
-        typedef ElemBase *  (*PCreate)(const size_t cnt);
-        typedef void(*PDestroy)(ElemBase *);
+        typedef bool (*PRead)(ElemBase *pOut, const size_t cnt, const FileDatabase &db);
+        typedef ElemBase *(*PCreate)(const size_t cnt);
+        typedef void (*PDestroy)(ElemBase *);
 
-#define IMPL_STRUCT_READ(ty)                                                    \
-        bool read##ty(ElemBase *v, const size_t cnt, const FileDatabase &db) {  \
-            return read<ty>(db.dna[#ty], dynamic_cast<ty *>(v), cnt, db);       \
-        }
+#define IMPL_STRUCT_READ(ty)                                             \
+    bool read##ty(ElemBase *v, const size_t cnt, const FileDatabase &db) \
+    {                                                                    \
+        return read<ty>(db.dna[#ty], dynamic_cast<ty *>(v), cnt, db);    \
+    }
 
-#define IMPL_STRUCT_CREATE(ty)                                                  \
-        ElemBase *create##ty(const size_t cnt) {                                \
-            return new ty[cnt];                                                 \
-        }
+#define IMPL_STRUCT_CREATE(ty)             \
+    ElemBase *create##ty(const size_t cnt) \
+    {                                      \
+        return new ty[cnt];                \
+    }
 
-#define IMPL_STRUCT_DESTROY(ty)                                                 \
-        void destroy##ty(ElemBase *pE) {                                        \
-            ty *p = dynamic_cast<ty *>(pE);                                     \
-            delete[]p;                                                          \
-        }
+#define IMPL_STRUCT_DESTROY(ty)         \
+    void destroy##ty(ElemBase *pE)      \
+    {                                   \
+        ty *p = dynamic_cast<ty *>(pE); \
+        delete[] p;                     \
+    }
 
         /**
         *   @brief  helper macro to define Structure functions
         */
-#define IMPL_STRUCT(ty)                                                         \
-        IMPL_STRUCT_READ(ty)                                                    \
-        IMPL_STRUCT_CREATE(ty)                                                  \
-        IMPL_STRUCT_DESTROY(ty)
+#define IMPL_STRUCT(ty)    \
+    IMPL_STRUCT_READ(ty)   \
+    IMPL_STRUCT_CREATE(ty) \
+    IMPL_STRUCT_DESTROY(ty)
 
         // supported structures for CustomData
         IMPL_STRUCT(MVert)
@@ -64,31 +68,36 @@ namespace Assimp {
         /**
         *   @brief  describes the size of data and the read function to be used for single CustomerData.type
         */
-        struct CustomDataTypeDescription {
-            PRead Read;                         ///< function to read one CustomData type element
-            PCreate Create;                       ///< function to allocate n type elements
+        struct CustomDataTypeDescription
+        {
+            PRead    Read;      ///< function to read one CustomData type element
+            PCreate  Create;    ///< function to allocate n type elements
             PDestroy Destroy;
 
             CustomDataTypeDescription(PRead read, PCreate create, PDestroy destroy)
-                : Read(read)
-                , Create(create)
-                , Destroy(destroy)
-            {}
+                : Read(read), Create(create), Destroy(destroy)
+            {
+            }
         };
-
 
         /**
         *   @brief  helper macro to define Structure type specific CustomDataTypeDescription
         *   @note   IMPL_STRUCT_READ for same ty must be used earlier to implement the typespecific read function
         */
-#define DECL_STRUCT_CUSTOMDATATYPEDESCRIPTION(ty)           \
-        CustomDataTypeDescription{&read##ty, &create##ty, &destroy##ty}
+#define DECL_STRUCT_CUSTOMDATATYPEDESCRIPTION(ty) \
+    CustomDataTypeDescription                     \
+    {                                             \
+        &read##ty, &create##ty, &destroy##ty      \
+    }
 
         /**
         *   @brief  helper macro to define CustomDataTypeDescription for UNSUPPORTED type
         */
-#define DECL_UNSUPPORTED_CUSTOMDATATYPEDESCRIPTION          \
-        CustomDataTypeDescription{nullptr, nullptr, nullptr}
+#define DECL_UNSUPPORTED_CUSTOMDATATYPEDESCRIPTION \
+    CustomDataTypeDescription                      \
+    {                                              \
+        nullptr, nullptr, nullptr                  \
+    }
 
         /**
         *   @brief  descriptors for data pointed to from CustomDataLayer.data
@@ -96,8 +105,7 @@ namespace Assimp {
         *           other (like CD_ORCO, ...) uses arrays of rawtypes or even arrays of Structures
         *           use a special readfunction for that cases
         */
-        std::array<CustomDataTypeDescription, CD_NUMTYPES> customDataTypeDescriptions = { {
-            DECL_STRUCT_CUSTOMDATATYPEDESCRIPTION(MVert),
+        std::array<CustomDataTypeDescription, CD_NUMTYPES> customDataTypeDescriptions = {{DECL_STRUCT_CUSTOMDATATYPEDESCRIPTION(MVert),
             DECL_UNSUPPORTED_CUSTOMDATATYPEDESCRIPTION,
             DECL_UNSUPPORTED_CUSTOMDATATYPEDESCRIPTION,
             DECL_STRUCT_CUSTOMDATATYPEDESCRIPTION(MEdge),
@@ -142,15 +150,15 @@ namespace Assimp {
             DECL_UNSUPPORTED_CUSTOMDATATYPEDESCRIPTION,
 
             DECL_UNSUPPORTED_CUSTOMDATATYPEDESCRIPTION,
-            DECL_UNSUPPORTED_CUSTOMDATATYPEDESCRIPTION
-        }};
+            DECL_UNSUPPORTED_CUSTOMDATATYPEDESCRIPTION}};
 
-
-        bool isValidCustomDataType(const int cdtype) {
+        bool isValidCustomDataType(const int cdtype)
+        {
             return cdtype >= 0 && cdtype < CD_NUMTYPES;
         }
 
-        bool readCustomData(std::shared_ptr<ElemBase> &out, const int cdtype, const size_t cnt, const FileDatabase &db) {
+        bool readCustomData(std::shared_ptr<ElemBase> &out, const int cdtype, const size_t cnt, const FileDatabase &db)
+        {
             if (!isValidCustomDataType(cdtype)) {
                 throw Error((Formatter::format(), "CustomData.type ", cdtype, " out of index"));
             }
@@ -164,7 +172,8 @@ namespace Assimp {
             return false;
         }
 
-        std::shared_ptr<CustomDataLayer> getCustomDataLayer(const CustomData &customdata, const CustomDataType cdtype, const std::string &name) {
+        std::shared_ptr<CustomDataLayer> getCustomDataLayer(const CustomData &customdata, const CustomDataType cdtype, const std::string &name)
+        {
             for (auto it = customdata.layers.begin(); it != customdata.layers.end(); ++it) {
                 if (it->get()->type == cdtype && name == it->get()->name) {
                     return *it;
@@ -173,7 +182,7 @@ namespace Assimp {
             return nullptr;
         }
 
-        const ElemBase * getCustomDataLayerData(const CustomData &customdata, const CustomDataType cdtype, const std::string &name)
+        const ElemBase *getCustomDataLayerData(const CustomData &customdata, const CustomDataType cdtype, const std::string &name)
         {
             const std::shared_ptr<CustomDataLayer> pLayer = getCustomDataLayer(customdata, cdtype, name);
             if (pLayer && pLayer->data) {
@@ -181,5 +190,5 @@ namespace Assimp {
             }
             return nullptr;
         }
-    }
-}
+    }    // namespace Blender
+}    // namespace Assimp

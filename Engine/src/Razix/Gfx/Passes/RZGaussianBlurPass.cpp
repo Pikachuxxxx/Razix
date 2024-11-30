@@ -4,8 +4,8 @@
 #include "RZGaussianBlurPass.h"
 
 #include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/Markers/RZMarkers.h"
+#include "Razix/Core/RZEngine.h"
 
 #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
@@ -150,5 +150,5 @@ namespace Razix {
 
             return pass.blur;
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

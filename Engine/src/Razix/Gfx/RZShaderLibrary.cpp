@@ -129,5 +129,5 @@ namespace Razix {
             return m_BuiltinShaders[m_BuiltinShadersReverseNameMap[shaderName]];
         }
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

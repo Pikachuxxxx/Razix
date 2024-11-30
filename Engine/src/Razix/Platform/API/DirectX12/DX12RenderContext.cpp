@@ -316,7 +316,7 @@ namespace Razix {
 
             return static_cast<RZSwapchain*>(DX12Context::Get()->getSwapchain().get());
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

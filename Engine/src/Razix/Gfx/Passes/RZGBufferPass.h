@@ -25,5 +25,5 @@ namespace Razix {
             RZPipelineHandle m_Pipeline;
             RZPipelineHandle m_WireframePipeline;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

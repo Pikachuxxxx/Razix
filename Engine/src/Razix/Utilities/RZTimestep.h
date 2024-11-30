@@ -53,7 +53,7 @@ namespace Razix {
         /// Time taken from start when the last frame was rendered
         f32 m_LastTime;
         ///	Time elapsed since the beginning of the first frame
-        f32 m_Elapsed;
-        bool  _padding[4];
+        f32  m_Elapsed;
+        bool _padding[4];
     };
 }    // namespace Razix

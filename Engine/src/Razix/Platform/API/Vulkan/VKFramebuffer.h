@@ -23,6 +23,6 @@ namespace Razix {
         private:
             VkFramebuffer m_Framebuffer;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

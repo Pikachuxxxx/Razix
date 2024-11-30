@@ -1,16 +1,19 @@
 #include "../Eigen/Core"
 
 #ifdef EIGEN_SHOULD_FAIL_TO_BUILD
-#define CV_QUALIFIER const
+    #define CV_QUALIFIER const
 #else
-#define CV_QUALIFIER
+    #define CV_QUALIFIER
 #endif
 
 using namespace Eigen;
 
-void foo(){
+void foo()
+{
     MatrixXf m;
-    SelfAdjointView<CV_QUALIFIER MatrixXf,Upper>(m).coeffRef(0, 0) = 1.0f;
+    SelfAdjointView<CV_QUALIFIER MatrixXf, Upper>(m).coeffRef(0, 0) = 1.0f;
 }
 
-int main() {}
+int main()
+{
+}

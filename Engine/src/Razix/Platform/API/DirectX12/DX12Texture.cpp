@@ -46,7 +46,7 @@ namespace Razix {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

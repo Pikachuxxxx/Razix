@@ -36,5 +36,5 @@ namespace Razix {
         {
             return &m_Handles[idx];
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -4,8 +4,8 @@
 
 #include <functional>
 #include <sstream>
-#include <unordered_map>
 #include <typeindex>
+#include <unordered_map>
 
 namespace Razix {
 
@@ -60,8 +60,8 @@ namespace Razix {
     public:
         virtual ~RZEvent() = default;
 
-        virtual cstr        GetName() const          = 0;
-        virtual EventType   GetEventType() const     = 0;
+        virtual cstr        GetName() const      = 0;
+        virtual EventType   GetEventType() const = 0;
         virtual std::string ToString() const { return GetName(); }
 
     private:

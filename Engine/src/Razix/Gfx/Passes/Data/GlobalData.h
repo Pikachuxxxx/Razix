@@ -102,5 +102,5 @@ namespace Razix {
                 FrameGraph::RZFrameGraphResource accumulationTexture;
             };
         }    // namespace FX
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

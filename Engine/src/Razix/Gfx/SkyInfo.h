@@ -10,5 +10,5 @@ namespace Razix {
             u32              elevation;
             // TODO: Add weather, rain etc. presets
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

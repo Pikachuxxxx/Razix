@@ -24,7 +24,7 @@ namespace Razix {
             ID3DBlob*            pErrorBlob               = nullptr;
         };
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

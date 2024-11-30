@@ -15,7 +15,7 @@ namespace Razix {
     namespace Gfx {
         struct RenderingInfo;
         enum class Resolution : u32;
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 /**
@@ -71,7 +71,7 @@ namespace Razix {
                     : execFunction{std::forward<ExecuteFunc>(exec)}, resizeFunction{std::forward<ResizeFunc>(resize)} {}
 
                 RAZIX_VIRTUAL_DESCTURCTOR(RZFrameGraphCodePass)
-                
+
                 void operator()(RZPassNode &node, RZPassResourceDirectory &resources) override
                 {
                     // Note: Node isn't is used here it's for the RZFrameGraphDataPass
@@ -90,8 +90,8 @@ namespace Razix {
 
             struct FrameGraphDataPassDesc
             {
-                Gfx::RZShaderHandle     shader;
-                Gfx::RZPipelineHandle   pipeline;
+                Gfx::RZShaderHandle          shader;
+                Gfx::RZPipelineHandle        pipeline;
                 Razix::SceneDrawGeometryMode geometryMode;
                 Resolution                   resolution;
                 bool                         enableResize;
@@ -102,11 +102,11 @@ namespace Razix {
             struct RZFrameGraphDataPass final : IRZFrameGraphPass
             {
                 RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawGeometryMode geometryMode, Resolution res, bool resize, glm::vec2 extents, u32 layers);
-                
+
                 RAZIX_VIRTUAL_DESCTURCTOR(RZFrameGraphDataPass)
 
-                Gfx::RZShaderHandle     m_shader;
-                Gfx::RZPipelineHandle   m_pipeline;
+                Gfx::RZShaderHandle          m_shader;
+                Gfx::RZPipelineHandle        m_pipeline;
                 Razix::SceneDrawGeometryMode m_geometryMode;
                 Resolution                   m_resolution;
                 bool                         m_enableResize;
@@ -117,5 +117,5 @@ namespace Razix {
                 void resize(RZPassResourceDirectory &resources, u32 width, u32 height) override;
             };
         }    // namespace FrameGraph
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

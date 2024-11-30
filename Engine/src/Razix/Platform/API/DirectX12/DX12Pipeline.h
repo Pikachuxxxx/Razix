@@ -23,7 +23,7 @@ namespace Razix {
             ID3D12PipelineState* m_PipelineState  = nullptr;
             ID3D12RootSignature* m_pRootSignature = nullptr;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

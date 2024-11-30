@@ -7,7 +7,9 @@ namespace Razix {
     namespace Gfx {
 
         RZBufferLayout::RZBufferLayout()
-            : m_Stride(0) {}
+            : m_Stride(0)
+        {
+        }
 
         void RZBufferLayout::pushImpl(const std::string& name, BufferFormat format, u32 size, bool Normalised)
         {
@@ -92,5 +94,5 @@ namespace Razix {
         //{
         //    pushImpl(name, BufferFormat::R32G32B32A32_FLOAT4X4, sizeof(glm::mat4), normalized);
         //}
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

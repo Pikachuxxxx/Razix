@@ -5,8 +5,8 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
 
 namespace Razix {
     namespace Gfx {
@@ -52,6 +52,6 @@ namespace Razix {
         {
             wait(signal(commandQueue));
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

@@ -27,8 +27,8 @@ namespace Razix {
 
         private:
             bool m_IsBufferMapped = false;
-            
+
             void destroy();
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

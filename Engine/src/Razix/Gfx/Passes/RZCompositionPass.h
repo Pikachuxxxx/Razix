@@ -26,5 +26,5 @@ namespace Razix {
         private:
             RZPipelineHandle m_Pipeline;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

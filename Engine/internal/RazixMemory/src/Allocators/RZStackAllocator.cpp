@@ -37,7 +37,7 @@ namespace Razix {
         {
             // TODO: Add asserts
             const size_t size_at_pointer = (uint8_t*) ptr - m_StackChunk;
-            m_AllocatedSize = size_at_pointer;
+            m_AllocatedSize              = size_at_pointer;
         }
     }    // namespace Memory
 }    // namespace Razix

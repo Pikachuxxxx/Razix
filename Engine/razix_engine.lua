@@ -304,6 +304,8 @@ project "Razix"
         --pchheader "rzxpch.h"
         --pchsource "src/rzxpch.cpp"
 
+        linkoptions { "-rpath @executable_path/libRazix.dylib" }
+
         defines
         {
             -- Engine
@@ -387,12 +389,12 @@ project "Razix"
         postbuildcommands
         {
             -- copy vulkan DLL until we use volk
-            '{COPY}  "%{VulkanSDK}/lib/libvulkan.dylib" "%{cfg.targetdir}/libvulkan.dylib"',
-            '{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.targetdir}/libvulkan.1.dylib"',
+            --'{COPY}  "%{VulkanSDK}/lib/libvulkan.dylib" "%{cfg.targetdir}/libvulkan.dylib"',
+            --'{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.targetdir}/libvulkan.1.dylib"'
             -- we are using RAZIX_ROOT_DIR for now
             -- Copy the engine content folder with subdirectories: config, Fonts, FrameGraphs, Logos, Shaders/Compiled, Splash, Textures
             -- [Docs]: https://linux.die.net/man/1/rsync
-            -- we need to create the directo=ries manually unlike robocopy
+            -- we need to create the directories manually unlike robocopy
             --'mkdir -p "%{cfg.targetdir}/Engine/content/config/"',
             --'mkdir -p "%{cfg.targetdir}/Engine/content/Fonts/"',
             --'mkdir -p "%{cfg.targetdir}/Engine/content/FrameGraphs/"',
@@ -419,6 +421,24 @@ project "Razix"
             flags { "NoPCH" }
         filter "files:**.mm"
             flags { "NoPCH" }
+
+    -------------------------------------
+    -- Razix Project settings for iOS
+    -------------------------------------
+    filter "system:ios"
+		targetextension ".app"
+        
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_IOS",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_IMGUI",
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "RAZIX_RENDER_API_METAL",
+            "TRACY_ENABLE"
+        }
 
     -- Config settings for Razix Engine project
     filter "configurations:Debug"

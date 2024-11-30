@@ -443,5 +443,5 @@ namespace Razix {
                 }
             }
         }    // namespace AssetPacker
-    }        // namespace Tool
+    }    // namespace Tool
 }    // namespace Razix

@@ -73,6 +73,6 @@ namespace Razix {
             static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data);
         };
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

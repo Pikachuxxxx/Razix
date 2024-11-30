@@ -39,5 +39,5 @@ namespace Razix {
                 return nullptr;
             }
         }    // namespace Diana
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

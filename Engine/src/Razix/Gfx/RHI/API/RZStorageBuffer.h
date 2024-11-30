@@ -16,10 +16,10 @@ namespace Razix {
 
             virtual void Bind() {}
 
-            virtual void* GetData()                                = 0;
+            virtual void* GetData()                           = 0;
             virtual void  SetData(u32 size, const void* data) = 0;
             /* Destroys the uniform buffer and frees the buffer and other resources it's holds such as memory etc. */
             virtual void Destroy() = 0;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -164,5 +164,5 @@ namespace Razix {
             RZShaderHandle       m_LineShader      = {};
             RZShaderHandle       m_PointShader     = {};
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

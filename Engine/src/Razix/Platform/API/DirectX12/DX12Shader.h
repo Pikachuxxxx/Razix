@@ -35,7 +35,7 @@ namespace Razix {
             void reflectShader();
             void createShaderModules();
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

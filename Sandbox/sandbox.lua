@@ -7,7 +7,7 @@ include 'Scripts/premake/common/common_include_dirs.lua'
 ------------------------------------------------------------------------------
 -- Sanbox Game project
 project "Sandbox"
-    kind "ConsoleApp"
+    kind "WindowedApp"
     language "C++"
 
     buildoptions
@@ -145,6 +145,35 @@ project "Sandbox"
         staticruntime "off"
         systemversion "latest"
 
+        linkoptions { "-rpath @executable_path/libRazix.dylib" }
+
+        runpathdirs
+        {
+            "%{cfg.buildtarget.bundlepath}/"
+        }
+
+        embed {
+            "libRazix.dylib",
+            "libvulkan.1.dylib"
+        }
+
+        xcodebuildresources { "IconAssets.xcassets", "libMoltenVK.dylib" }
+
+		xcodebuildsettings
+		{
+			['ARCHS'] = false,
+			['CODE_SIGN_IDENTITY'] = 'Mac Developer',
+            ['PRODUCT_BUNDLE_IDENTIFIER'] = settings.bundle_identifier,
+			['INFOPLIST_FILE'] = '../Engine/src/Razix/Platform/MacOS/Info.plist',
+			['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon',
+			['CODE_SIGN_IDENTITY'] = ''
+        }
+
+        files 
+        {
+            "%{wks.location}/../Engine/src/Razix/Platform/MacOS/IconAssets.xcassets"
+        }
+
         defines
         {
             -- Engine
@@ -157,6 +186,58 @@ project "Sandbox"
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
             "TRACY_ENABLE"
+        }
+
+        postbuildcommands 
+        {
+            '{COPY}  "%{VulkanSDK}/lib/libvulkan.dylib" "%{cfg.buildtarget.bundlepath}/libvulkan.dylib"',
+            '{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.buildtarget.bundlepath}/libvulkan.1.dylib"',
+            '{COPY}  "%{wks.location}/../bin/%{outputdir}/libRazix.dylib" "%{cfg.buildtarget.bundlepath}/libRazix.dylib"'
+            --'install_name_tool -add_rpath "@executable_path/libRazix.dylib" "%{cfg.buildtarget.bundlepath}/Sandbox"'
+        }
+
+    filter "system:ios"
+        targetextension ".app"
+        
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_IOS",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_IMGUI",
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "RAZIX_RENDER_API_METAL",
+            "TRACY_ENABLE"
+        }
+
+        linkoptions { "-rpath @executable_path/libRazix.dylib" }
+
+        runpathdirs
+        {
+            "%{cfg.buildtarget.bundlepath}/"
+        }
+
+        embed {
+            "libRazix.dylib",
+            "libvulkan.1.dylib"
+        }
+
+        xcodebuildresources { "IconAssets.xcassets", "libMoltenVK.dylib" }
+
+		xcodebuildsettings
+		{
+			['ARCHS'] = false,
+			['CODE_SIGN_IDENTITY'] = 'Mac Developer',
+            ['PRODUCT_BUNDLE_IDENTIFIER'] = settings.bundle_identifier,
+			['INFOPLIST_FILE'] = '../Engine/src/Razix/Platform/iOS/Info.plist',
+			['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon',
+			['CODE_SIGN_IDENTITY'] = ''
+        }
+
+        files 
+        {
+            "%{wks.location}/../Engine/src/Razix/Platform/iOS/IconAssets.xcassets"
         }
 
     filter "configurations:Debug"

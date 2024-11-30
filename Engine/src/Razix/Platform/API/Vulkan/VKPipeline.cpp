@@ -190,9 +190,9 @@ namespace Razix {
             // Multi sample State (MSAA)
             //----------------------------
             VkPipelineMultisampleStateCreateInfo multiSampleSCI{};
-            multiSampleSCI.sType                 = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-            multiSampleSCI.pNext                 = nullptr;
-            multiSampleSCI.pSampleMask           = nullptr;
+            multiSampleSCI.sType       = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+            multiSampleSCI.pNext       = nullptr;
+            multiSampleSCI.pSampleMask = nullptr;
             // Razix::RZEngine::Get().getGlobalEngineSettings().EnableMSAA use to apply more samples
             multiSampleSCI.rasterizationSamples  = VK_SAMPLE_COUNT_1_BIT;
             multiSampleSCI.sampleShadingEnable   = VK_FALSE;
@@ -227,7 +227,7 @@ namespace Razix {
             graphicsPipelineCI.pRasterizationState                    = &rasterizationSCI;
             graphicsPipelineCI.pColorBlendState                       = &colorBlendSCI;
             graphicsPipelineCI.pTessellationState                     = nullptr;
-            graphicsPipelineCI.pMultisampleState                      = &multiSampleSCI ;
+            graphicsPipelineCI.pMultisampleState                      = &multiSampleSCI;
             graphicsPipelineCI.pDynamicState                          = &dynamicStateCI;
             graphicsPipelineCI.pViewportState                         = &viewportSCI;
             graphicsPipelineCI.pDepthStencilState                     = &depthStencilSCI;

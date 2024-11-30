@@ -23,13 +23,13 @@ namespace Razix {
              */
             struct RZFrameGraphResourceAcessView
             {
-                RZFrameGraphResource id    = -1; /* Unique ID of the resource                            */
+                RZFrameGraphResource id    = -1;         /* Unique ID of the resource                            */
                 u32                  flags = kFlagsNone; /* Flags on how to view the resource from rendering POV */
 
                 RZFrameGraphResourceAcessView(RZFrameGraphResource _id, u32 _flags)
                     : id(_id), flags(_flags)
-                {}
-
+                {
+                }
 
                 bool operator==(const RZFrameGraphResourceAcessView& view) const
                 {
@@ -37,5 +37,5 @@ namespace Razix {
                 }
             };
         }    // namespace FrameGraph
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -77,7 +77,7 @@ namespace Razix {
                 return false;
             }
 
-        protected: // Protexted only for the 
+        protected:    // Protexted only for the
             std::unordered_map<std::string, Section> m_Sections;
 
         private:

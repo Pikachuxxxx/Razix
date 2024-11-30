@@ -47,7 +47,6 @@ public:                                                                         
 #define RAZIX_RESOURCE_TYPE(resourceName) \
     static_assert(resourceName##_type_id != RAZIX_RESOURCE_TYPE_NONE, "Resource type ID cannot be zero");
 
-
     // Define a structure to hold pool initialization parameters
     struct RZResourcePoolInitParams
     {
@@ -94,6 +93,6 @@ private:                                                                        
     static void initResourcePool(size_t capacity, size_t instanceSize)                     \
     {                                                                                      \
         ResourceManager::get().getPool<T>().init(capacity, instanceSize);                  \
-    }      
+    }
 
 }    // namespace Razix

@@ -18,16 +18,16 @@ namespace Razix {
             DX12Texture(ID3D12Resource* backbuffer);
             ~DX12Texture() {}
 
-            void DestroyResource() override;
-            void Bind(u32 slot) override;
-            void Unbind(u32 slot) override;
+            void    DestroyResource() override;
+            void    Bind(u32 slot) override;
+            void    Unbind(u32 slot) override;
             int32_t ReadPixels(u32 x, u32 y) override;
-            void* GetAPIHandlePtr() const override;
+            void*   GetAPIHandlePtr() const override;
 
         private:
             ID3D12Resource* m_ResourceHandle;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

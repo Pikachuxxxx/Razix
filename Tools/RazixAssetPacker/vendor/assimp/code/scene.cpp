@@ -43,33 +43,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assimp/scene.h>
 
 aiNode::aiNode()
-: mName("")
-, mParent(NULL)
-, mNumChildren(0)
-, mChildren(NULL)
-, mNumMeshes(0)
-, mMeshes(NULL)
-, mMetaData(NULL) {
+    : mName(""), mParent(NULL), mNumChildren(0), mChildren(NULL), mNumMeshes(0), mMeshes(NULL), mMetaData(NULL)
+{
     // empty
 }
 
 aiNode::aiNode(const std::string& name)
-: mName(name)
-, mParent(NULL)
-, mNumChildren(0)
-, mChildren(NULL)
-, mNumMeshes(0)
-, mMeshes(NULL)
-, mMetaData(NULL) {
+    : mName(name), mParent(NULL), mNumChildren(0), mChildren(NULL), mNumMeshes(0), mMeshes(NULL), mMetaData(NULL)
+{
     // empty
 }
 
 /** Destructor */
-aiNode::~aiNode() {
+aiNode::~aiNode()
+{
     // delete all children recursively
     // to make sure we won't crash if the data is invalid ...
-    if (mChildren && mNumChildren)
-    {
+    if (mChildren && mNumChildren) {
         for (unsigned int a = 0; a < mNumChildren; a++)
             delete mChildren[a];
     }
@@ -78,7 +68,8 @@ aiNode::~aiNode() {
     delete mMetaData;
 }
 
-const aiNode *aiNode::FindNode(const char* name) const {
+const aiNode* aiNode::FindNode(const char* name) const
+{
     if (nullptr == name) {
         return nullptr;
     }
@@ -95,10 +86,10 @@ const aiNode *aiNode::FindNode(const char* name) const {
     return nullptr;
 }
 
-aiNode *aiNode::FindNode(const char* name) {
-    if (!::strcmp(mName.data, name))return this;
-    for (unsigned int i = 0; i < mNumChildren; ++i)
-    {
+aiNode* aiNode::FindNode(const char* name)
+{
+    if (!::strcmp(mName.data, name)) return this;
+    for (unsigned int i = 0; i < mNumChildren; ++i) {
         aiNode* const p = mChildren[i]->FindNode(name);
         if (p) {
             return p;
@@ -108,29 +99,29 @@ aiNode *aiNode::FindNode(const char* name) {
     return nullptr;
 }
 
-void aiNode::addChildren(unsigned int numChildren, aiNode **children) {
+void aiNode::addChildren(unsigned int numChildren, aiNode** children)
+{
     if (nullptr == children || 0 == numChildren) {
         return;
     }
 
     for (unsigned int i = 0; i < numChildren; i++) {
-        aiNode *child = children[i];
+        aiNode* child = children[i];
         if (nullptr != child) {
             child->mParent = this;
         }
     }
 
     if (mNumChildren > 0) {
-        aiNode **tmp = new aiNode*[mNumChildren];
+        aiNode** tmp = new aiNode*[mNumChildren];
         ::memcpy(tmp, mChildren, sizeof(aiNode*) * mNumChildren);
         delete[] mChildren;
         mChildren = new aiNode*[mNumChildren + numChildren];
         ::memcpy(mChildren, tmp, sizeof(aiNode*) * mNumChildren);
-        ::memcpy(&mChildren[mNumChildren], children, sizeof(aiNode*)* numChildren);
+        ::memcpy(&mChildren[mNumChildren], children, sizeof(aiNode*) * numChildren);
         mNumChildren += numChildren;
         delete[] tmp;
-    }
-    else {
+    } else {
         mChildren = new aiNode*[numChildren];
         for (unsigned int i = 0; i < numChildren; i++) {
             mChildren[i] = children[i];

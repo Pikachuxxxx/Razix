@@ -39,44 +39,44 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 #ifndef ASSIMP_BUILD_NO_EXPORT
-#ifndef ASSIMP_BUILD_NO_FBX_EXPORTER
+    #ifndef ASSIMP_BUILD_NO_FBX_EXPORTER
 
-#include "FBXExporter.h"
-#include "FBXExportNode.h"
-#include "FBXExportProperty.h"
-#include "FBXCommon.h"
+        #include "FBXExporter.h"
+        #include "FBXCommon.h"
+        #include "FBXExportNode.h"
+        #include "FBXExportProperty.h"
 
-#include <assimp/version.h> // aiGetVersion
-#include <assimp/IOSystem.hpp>
-#include <assimp/Exporter.hpp>
-#include <assimp/DefaultLogger.hpp>
-#include <assimp/StreamWriter.h> // StreamWriterLE
-#include <assimp/Exceptional.h> // DeadlyExportError
-#include <assimp/material.h> // aiTextureType
-#include <assimp/scene.h>
-#include <assimp/mesh.h>
+        #include <assimp/DefaultLogger.hpp>
+        #include <assimp/Exceptional.h>    // DeadlyExportError
+        #include <assimp/Exporter.hpp>
+        #include <assimp/IOSystem.hpp>
+        #include <assimp/StreamWriter.h>    // StreamWriterLE
+        #include <assimp/material.h>        // aiTextureType
+        #include <assimp/mesh.h>
+        #include <assimp/scene.h>
+        #include <assimp/version.h>    // aiGetVersion
 
-// Header files, standard library.
-#include <memory> // shared_ptr
-#include <string>
-#include <sstream> // stringstream
-#include <ctime> // localtime, tm_*
-#include <map>
-#include <set>
-#include <vector>
-#include <array>
-#include <unordered_set>
+        // Header files, standard library.
+        #include <array>
+        #include <ctime>    // localtime, tm_*
+        #include <map>
+        #include <memory>    // shared_ptr
+        #include <set>
+        #include <sstream>    // stringstream
+        #include <string>
+        #include <unordered_set>
+        #include <vector>
 
 // RESOURCES:
 // https://code.blender.org/2013/08/fbx-binary-file-format-specification/
 // https://wiki.blender.org/index.php/User:Mont29/Foundation/FBX_File_Structure
 
-const ai_real DEG = ai_real( 57.29577951308232087679815481 ); // degrees per radian
+const ai_real DEG = ai_real(57.29577951308232087679815481);    // degrees per radian
 
 // some constants that we'll use for writing metadata
 namespace FBX {
     const std::string EXPORT_VERSION_STR = "7.4.0";
-    const uint32_t EXPORT_VERSION_INT = 7400; // 7.4 == 2014/2015
+    const uint32_t    EXPORT_VERSION_INT = 7400;    // 7.4 == 2014/2015
     // FBX files have some hashed values that depend on the creation time field,
     // but for now we don't actually know how to generate these.
     // what we can do is set them to a known-working version.
@@ -90,7 +90,7 @@ namespace FBX {
         "\xf8\x5a\x8c\x6a\xde\xf5\xd9\x7e\xec\xe9\x0c\xe3\x75\x8f\x29\x0b";
     const std::string COMMENT_UNDERLINE =
         ";------------------------------------------------------------------";
-}
+}    // namespace FBX
 
 using namespace Assimp;
 using namespace FBX;
@@ -100,12 +100,12 @@ namespace Assimp {
     // ---------------------------------------------------------------------
     // Worker function for exporting a scene to binary FBX.
     // Prototyped and registered in Exporter.cpp
-    void ExportSceneFBX (
-        const char* pFile,
-        IOSystem* pIOSystem,
-        const aiScene* pScene,
-        const ExportProperties* pProperties
-    ){
+    void ExportSceneFBX(
+        const char*             pFile,
+        IOSystem*               pIOSystem,
+        const aiScene*          pScene,
+        const ExportProperties* pProperties)
+    {
         // initialize the exporter
         FBXExporter exporter(pScene, pProperties);
 
@@ -116,12 +116,12 @@ namespace Assimp {
     // ---------------------------------------------------------------------
     // Worker function for exporting a scene to ASCII FBX.
     // Prototyped and registered in Exporter.cpp
-    void ExportSceneFBXA (
-        const char* pFile,
-        IOSystem* pIOSystem,
-        const aiScene* pScene,
-        const ExportProperties* pProperties
-    ){
+    void ExportSceneFBXA(
+        const char*             pFile,
+        IOSystem*               pIOSystem,
+        const aiScene*          pScene,
+        const ExportProperties* pProperties)
+    {
         // initialize the exporter
         FBXExporter exporter(pScene, pProperties);
 
@@ -129,38 +129,35 @@ namespace Assimp {
         exporter.ExportAscii(pFile, pIOSystem);
     }
 
-} // end of namespace Assimp
+}    // end of namespace Assimp
 
-FBXExporter::FBXExporter (
-    const aiScene* pScene,
-    const ExportProperties* pProperties
-)
-    : mScene(pScene)
-    , mProperties(pProperties)
+FBXExporter::FBXExporter(
+    const aiScene*          pScene,
+    const ExportProperties* pProperties)
+    : mScene(pScene), mProperties(pProperties)
 {
     // will probably need to determine UIDs, connections, etc here.
     // basically anything that needs to be known
     // before we start writing sections to the stream.
 }
 
-void FBXExporter::ExportBinary (
+void FBXExporter::ExportBinary(
     const char* pFile,
-    IOSystem* pIOSystem
-){
+    IOSystem*   pIOSystem)
+{
     // remember that we're exporting in binary mode
     binary = true;
 
     // we're not currently using these preferences,
     // but clang will cry about it if we never touch it.
     // TODO: some of these might be relevant to export
-    (void)mProperties;
+    (void) mProperties;
 
     // open the indicated file for writing (in binary mode)
-    outfile.reset(pIOSystem->Open(pFile,"wb"));
+    outfile.reset(pIOSystem->Open(pFile, "wb"));
     if (!outfile) {
         throw DeadlyExportError(
-            "could not open output .fbx file: " + std::string(pFile)
-        );
+            "could not open output .fbx file: " + std::string(pFile));
     }
 
     // first a binary-specific file header
@@ -180,19 +177,18 @@ void FBXExporter::ExportBinary (
     outfile.reset();
 }
 
-void FBXExporter::ExportAscii (
+void FBXExporter::ExportAscii(
     const char* pFile,
-    IOSystem* pIOSystem
-){
+    IOSystem*   pIOSystem)
+{
     // remember that we're exporting in ascii mode
     binary = false;
 
     // open the indicated file for writing in text mode
-    outfile.reset(pIOSystem->Open(pFile,"wt"));
+    outfile.reset(pIOSystem->Open(pFile, "wt"));
     if (!outfile) {
         throw DeadlyExportError(
-            "could not open output .fbx file: " + std::string(pFile)
-        );
+            "could not open output .fbx file: " + std::string(pFile));
     }
 
     // write the ascii header
@@ -225,7 +221,7 @@ void FBXExporter::WriteAsciiHeader()
 
 void FBXExporter::WriteAsciiSectionHeader(const std::string& title)
 {
-    StreamWriterLE outstream(outfile);
+    StreamWriterLE    outstream(outfile);
     std::stringstream s;
     s << "\n\n; " << title << '\n';
     s << FBX::COMMENT_UNDERLINE << "\n";
@@ -243,7 +239,7 @@ void FBXExporter::WriteBinaryHeader()
     {
         StreamWriterLE outstream(outfile);
         outstream.PutU4(EXPORT_VERSION_INT);
-    } // StreamWriter destructor writes the data to the file
+    }    // StreamWriter destructor writes the data to the file
 
     // after this the node data starts immediately
     // (probably with the FBXHEaderExtension node)
@@ -272,7 +268,7 @@ void FBXExporter::WriteBinaryFooter()
     {
         StreamWriterLE outstream(outfile);
         outstream.PutU4(EXPORT_VERSION_INT);
-    } // StreamWriter destructor writes the data to the file
+    }    // StreamWriter destructor writes the data to the file
 
     // and finally some binary footer added to all files
     for (size_t i = 0; i < 120; ++i) {
@@ -281,7 +277,7 @@ void FBXExporter::WriteBinaryFooter()
     outfile->Write(FOOT_MAGIC.c_str(), FOOT_MAGIC.size(), 1);
 }
 
-void FBXExporter::WriteAllNodes ()
+void FBXExporter::WriteAllNodes()
 {
     // header
     // (and fileid, creation time, creator, if binary)
@@ -309,14 +305,14 @@ void FBXExporter::WriteAllNodes ()
 }
 
 //FBXHeaderExtension top-level node
-void FBXExporter::WriteHeaderExtension ()
+void FBXExporter::WriteHeaderExtension()
 {
     if (!binary) {
         // no title, follows directly from the top comment
     }
-    FBX::Node n("FBXHeaderExtension");
+    FBX::Node      n("FBXHeaderExtension");
     StreamWriterLE outstream(outfile);
-    int indent = 0;
+    int            indent = 0;
 
     // begin node
     n.Begin(outstream, binary, indent);
@@ -334,21 +330,18 @@ void FBXExporter::WriteHeaderExtension ()
 
     // write child nodes
     FBX::Node::WritePropertyNode(
-        "FBXHeaderVersion", int32_t(1003), outstream, binary, indent
-    );
+        "FBXHeaderVersion", int32_t(1003), outstream, binary, indent);
     FBX::Node::WritePropertyNode(
-        "FBXVersion", int32_t(EXPORT_VERSION_INT), outstream, binary, indent
-    );
+        "FBXVersion", int32_t(EXPORT_VERSION_INT), outstream, binary, indent);
     if (binary) {
         FBX::Node::WritePropertyNode(
-            "EncryptionType", int32_t(0), outstream, binary, indent
-        );
+            "EncryptionType", int32_t(0), outstream, binary, indent);
     }
 
     FBX::Node CreationTimeStamp("CreationTimeStamp");
-    time_t rawtime;
+    time_t    rawtime;
     time(&rawtime);
-    struct tm * now = localtime(&rawtime);
+    struct tm* now = localtime(&rawtime);
     CreationTimeStamp.AddChild("Version", int32_t(1000));
     CreationTimeStamp.AddChild("Year", int32_t(now->tm_year + 1900));
     CreationTimeStamp.AddChild("Month", int32_t(now->tm_mon + 1));
@@ -363,8 +356,7 @@ void FBXExporter::WriteHeaderExtension ()
     creator << "Open Asset Import Library (Assimp) " << aiGetVersionMajor()
             << "." << aiGetVersionMinor() << "." << aiGetVersionRevision();
     FBX::Node::WritePropertyNode(
-        "Creator", creator.str(), outstream, binary, indent
-    );
+        "Creator", creator.str(), outstream, binary, indent);
 
     //FBX::Node sceneinfo("SceneInfo");
     //sceneinfo.AddProperty("GlobalInfo" + FBX::SEPARATOR + "SceneInfo");
@@ -386,17 +378,14 @@ void FBXExporter::WriteHeaderExtension ()
         raw[i] = uint8_t(GENERIC_FILEID[i]);
     }
     FBX::Node::WritePropertyNode(
-        "FileId", raw, outstream, binary, indent
-    );
+        "FileId", raw, outstream, binary, indent);
     FBX::Node::WritePropertyNode(
-        "CreationTime", GENERIC_CTIME, outstream, binary, indent
-    );
+        "CreationTime", GENERIC_CTIME, outstream, binary, indent);
     FBX::Node::WritePropertyNode(
-        "Creator", creator.str(), outstream, binary, indent
-    );
+        "Creator", creator.str(), outstream, binary, indent);
 }
 
-void FBXExporter::WriteGlobalSettings ()
+void FBXExporter::WriteGlobalSettings()
 {
     if (!binary) {
         // no title, follows directly from the header extension
@@ -420,22 +409,22 @@ void FBXExporter::WriteGlobalSettings ()
     p.AddP70enum("TimeMode", 11);
     p.AddP70enum("TimeProtocol", 2);
     p.AddP70enum("SnapOnFrameMode", 0);
-    p.AddP70time("TimeSpanStart", 0); // TODO: animation support
-    p.AddP70time("TimeSpanStop", FBX::SECOND); // TODO: animation support
+    p.AddP70time("TimeSpanStart", 0);             // TODO: animation support
+    p.AddP70time("TimeSpanStop", FBX::SECOND);    // TODO: animation support
     p.AddP70double("CustomFrameRate", -1.0);
-    p.AddP70("TimeMarker", "Compound", "", ""); // not sure what this is
+    p.AddP70("TimeMarker", "Compound", "", "");    // not sure what this is
     p.AddP70int("CurrentTimeMarker", -1);
     gs.AddChild(p);
 
     gs.Dump(outfile, binary, 0);
 }
 
-void FBXExporter::WriteDocuments ()
+void FBXExporter::WriteDocuments()
 {
     if (!binary) {
         WriteAsciiSectionHeader("Documents Description");
     }
-    
+
     // not sure what the use of multiple documents would be,
     // or whether any end-application supports it
     FBX::Node docs("Documents");
@@ -446,8 +435,8 @@ void FBXExporter::WriteDocuments ()
     int64_t uid = generate_uid();
     doc.AddProperties(uid, "", "Scene");
     FBX::Node p("Properties70");
-    p.AddP70("SourceObject", "object", "", ""); // what is this even for?
-    p.AddP70string("ActiveAnimStackName", ""); // should do this properly?
+    p.AddP70("SourceObject", "object", "", "");    // what is this even for?
+    p.AddP70string("ActiveAnimStackName", "");     // should do this properly?
     doc.AddChild(p);
 
     // UID for root node in scene hierarchy.
@@ -460,7 +449,7 @@ void FBXExporter::WriteDocuments ()
     docs.Dump(outfile, binary, 0);
 }
 
-void FBXExporter::WriteReferences ()
+void FBXExporter::WriteReferences()
 {
     if (!binary) {
         WriteAsciiSectionHeader("Document References");
@@ -472,13 +461,13 @@ void FBXExporter::WriteReferences ()
     n.Dump(outfile, binary, 0);
 }
 
-
 // ---------------------------------------------------------------
 // some internal helper functions used for writing the definitions
 // (before any actual data is written)
 // ---------------------------------------------------------------
 
-size_t count_nodes(const aiNode* n) {
+size_t count_nodes(const aiNode* n)
+{
     size_t count = 1;
     for (size_t i = 0; i < n->mNumChildren; ++i) {
         count += count_nodes(n->mChildren[i]);
@@ -490,8 +479,8 @@ bool has_phong_mat(const aiScene* scene)
 {
     // just search for any material with a shininess exponent
     for (size_t i = 0; i < scene->mNumMaterials; ++i) {
-        aiMaterial* mat = scene->mMaterials[i];
-        float shininess = 0;
+        aiMaterial* mat       = scene->mMaterials[i];
+        float       shininess = 0;
         mat->Get(AI_MATKEY_SHININESS, shininess);
         if (shininess > 0) {
             return true;
@@ -500,18 +489,18 @@ bool has_phong_mat(const aiScene* scene)
     return false;
 }
 
-size_t count_images(const aiScene* scene) {
+size_t count_images(const aiScene* scene)
+{
     std::unordered_set<std::string> images;
-    aiString texpath;
+    aiString                        texpath;
     for (size_t i = 0; i < scene->mNumMaterials; ++i) {
         aiMaterial* mat = scene->mMaterials[i];
         for (
             size_t tt = aiTextureType_DIFFUSE;
             tt < aiTextureType_UNKNOWN;
-            ++tt
-        ){
-            const aiTextureType textype = static_cast<aiTextureType>(tt);
-            const size_t texcount = mat->GetTextureCount(textype);
+            ++tt) {
+            const aiTextureType textype  = static_cast<aiTextureType>(tt);
+            const size_t        texcount = mat->GetTextureCount(textype);
             for (unsigned int j = 0; j < texcount; ++j) {
                 mat->GetTexture(textype, j, &texpath);
                 images.insert(std::string(texpath.C_Str()));
@@ -521,15 +510,15 @@ size_t count_images(const aiScene* scene) {
     return images.size();
 }
 
-size_t count_textures(const aiScene* scene) {
+size_t count_textures(const aiScene* scene)
+{
     size_t count = 0;
     for (size_t i = 0; i < scene->mNumMaterials; ++i) {
         aiMaterial* mat = scene->mMaterials[i];
         for (
             size_t tt = aiTextureType_DIFFUSE;
             tt < aiTextureType_UNKNOWN;
-            ++tt
-        ){
+            ++tt) {
             // TODO: handle layered textures
             if (mat->GetTextureCount(static_cast<aiTextureType>(tt)) > 0) {
                 count += 1;
@@ -539,7 +528,8 @@ size_t count_textures(const aiScene* scene) {
     return count;
 }
 
-size_t count_deformers(const aiScene* scene) {
+size_t count_deformers(const aiScene* scene)
+{
     size_t count = 0;
     for (size_t i = 0; i < scene->mNumMeshes; ++i) {
         const size_t n = scene->mMeshes[i]->mNumBones;
@@ -551,7 +541,7 @@ size_t count_deformers(const aiScene* scene) {
     return count;
 }
 
-void FBXExporter::WriteDefinitions ()
+void FBXExporter::WriteDefinitions()
 {
     // basically this is just bookkeeping:
     // determining how many of each type of object there are
@@ -568,11 +558,11 @@ void FBXExporter::WriteDefinitions ()
 
     // and store them
     std::vector<FBX::Node> object_nodes;
-    FBX::Node n, pt, p;
+    FBX::Node              n, pt, p;
 
     // GlobalSettings
     // this seems to always be here in Maya exports
-    n = FBX::Node("ObjectType", "GlobalSettings");
+    n     = FBX::Node("ObjectType", "GlobalSettings");
     count = 1;
     n.AddChild("Count", count);
     object_nodes.push_back(n);
@@ -586,7 +576,7 @@ void FBXExporter::WriteDefinitions ()
         n = FBX::Node("ObjectType", "AnimationStack");
         n.AddChild("Count", count);
         pt = FBX::Node("PropertyTemplate", "FbxAnimStack");
-        p = FBX::Node("Properties70");
+        p  = FBX::Node("Properties70");
         p.AddP70string("Description", "");
         p.AddP70time("LocalStart", 0);
         p.AddP70time("LocalStop", 0);
@@ -608,7 +598,7 @@ void FBXExporter::WriteDefinitions ()
         n = FBX::Node("ObjectType", "AnimationLayer");
         n.AddChild("Count", count);
         pt = FBX::Node("PropertyTemplate", "FBXAnimLayer");
-        p = FBX::Node("Properties70");
+        p  = FBX::Node("Properties70");
         p.AddP70("Weight", "Number", "", "A", double(100));
         p.AddP70bool("Mute", 0);
         p.AddP70bool("Solo", 0);
@@ -632,13 +622,13 @@ void FBXExporter::WriteDefinitions ()
     // otherwise... we just pick one :/.
     // the others have to set all their properties every instance,
     // because there's no template.
-    count = 1; // TODO: select properly
+    count = 1;    // TODO: select properly
     if (count) {
         // FbxSkeleton
         n = FBX::Node("ObjectType", "NodeAttribute");
         n.AddChild("Count", count);
         pt = FBX::Node("PropertyTemplate", "FbxSkeleton");
-        p = FBX::Node("Properties70");
+        p  = FBX::Node("Properties70");
         p.AddP70color("Color", 0.8, 0.8, 0.8);
         p.AddP70double("Size", 33.333333333333);
         p.AddP70("LimbLength", "double", "Number", "H", double(1));
@@ -651,12 +641,12 @@ void FBXExporter::WriteDefinitions ()
 
     // Model / FbxNode
     // <~~ node hierarchy
-    count = int32_t(count_nodes(mScene->mRootNode)) - 1; // (not counting root node)
+    count = int32_t(count_nodes(mScene->mRootNode)) - 1;    // (not counting root node)
     if (count) {
         n = FBX::Node("ObjectType", "Model");
         n.AddChild("Count", count);
         pt = FBX::Node("PropertyTemplate", "FbxNode");
-        p = FBX::Node("Properties70");
+        p  = FBX::Node("Properties70");
         p.AddP70enum("QuaternionInterpolate", 0);
         p.AddP70vector("RotationOffset", 0.0, 0.0, 0.0);
         p.AddP70vector("RotationPivot", 0.0, 0.0, 0.0);
@@ -724,22 +714,14 @@ void FBXExporter::WriteDefinitions ()
         p.AddP70bool("Freeze", 0);
         p.AddP70bool("LODBox", 0);
         p.AddP70(
-            "Lcl Translation", "Lcl Translation", "", "A",
-            double(0), double(0), double(0)
-        );
+            "Lcl Translation", "Lcl Translation", "", "A", double(0), double(0), double(0));
         p.AddP70(
-            "Lcl Rotation", "Lcl Rotation", "", "A",
-            double(0), double(0), double(0)
-        );
+            "Lcl Rotation", "Lcl Rotation", "", "A", double(0), double(0), double(0));
         p.AddP70(
-            "Lcl Scaling", "Lcl Scaling", "", "A",
-            double(1), double(1), double(1)
-        );
+            "Lcl Scaling", "Lcl Scaling", "", "A", double(1), double(1), double(1));
         p.AddP70("Visibility", "Visibility", "", "A", double(1));
         p.AddP70(
-            "Visibility Inheritance", "Visibility Inheritance", "", "",
-            int32_t(1)
-        );
+            "Visibility Inheritance", "Visibility Inheritance", "", "", int32_t(1));
         pt.AddChild(p);
         n.AddChild(pt);
         object_nodes.push_back(n);
@@ -753,7 +735,7 @@ void FBXExporter::WriteDefinitions ()
         n = FBX::Node("ObjectType", "Geometry");
         n.AddChild("Count", count);
         pt = FBX::Node("PropertyTemplate", "FbxMesh");
-        p = FBX::Node("Properties70");
+        p  = FBX::Node("Properties70");
         p.AddP70color("Color", 0, 0, 0);
         p.AddP70vector("BBoxMin", 0, 0, 0);
         p.AddP70vector("BBoxMax", 0, 0, 0);
@@ -776,7 +758,7 @@ void FBXExporter::WriteDefinitions ()
     count = mScene->mNumMaterials;
     if (count) {
         bool has_phong = has_phong_mat(mScene);
-        n = FBX::Node("ObjectType", "Material");
+        n              = FBX::Node("ObjectType", "Material");
         n.AddChild("Count", count);
         pt = FBX::Node("PropertyTemplate");
         if (has_phong) {
@@ -826,7 +808,7 @@ void FBXExporter::WriteDefinitions ()
         n = FBX::Node("ObjectType", "Video");
         n.AddChild("Count", count);
         pt = FBX::Node("PropertyTemplate", "FbxVideo");
-        p = FBX::Node("Properties70");
+        p  = FBX::Node("Properties70");
         p.AddP70bool("ImageSequence", 0);
         p.AddP70int("ImageSequenceOffset", 0);
         p.AddP70double("FrameRate", 0.0);
@@ -855,7 +837,7 @@ void FBXExporter::WriteDefinitions ()
         n = FBX::Node("ObjectType", "Texture");
         n.AddChild("Count", count);
         pt = FBX::Node("PropertyTemplate", "FbxFileTexture");
-        p = FBX::Node("Properties70");
+        p  = FBX::Node("Properties70");
         p.AddP70enum("TextureTypeUse", 0);
         p.AddP70numberA("Texture alpha", 1.0);
         p.AddP70enum("CurrentMappingType", 0);
@@ -884,7 +866,7 @@ void FBXExporter::WriteDefinitions ()
         n = FBX::Node("ObjectType", "AnimationCurveNode");
         n.AddChild("Count", count);
         pt = FBX::Node("PropertyTemplate", "FbxAnimCurveNode");
-        p = FBX::Node("Properties70");
+        p  = FBX::Node("Properties70");
         p.AddP70("d", "Compound", "", "");
         pt.AddChild(p);
         n.AddChild(pt);
@@ -929,7 +911,7 @@ void FBXExporter::WriteDefinitions ()
         n = FBX::Node("ObjectType", "");
         n.AddChild("Count", count);
         pt = FBX::Node("PropertyTemplate", "");
-        p = FBX::Node("Properties70");
+        p  = FBX::Node("Properties70");
         pt.AddChild(p);
         n.AddChild(pt);
         object_nodes.push_back(n);
@@ -940,10 +922,9 @@ void FBXExporter::WriteDefinitions ()
     FBX::Node defs("Definitions");
     defs.AddChild("Version", int32_t(100));
     defs.AddChild("Count", int32_t(total_count));
-    for (auto &n : object_nodes) { defs.AddChild(n); }
+    for (auto& n: object_nodes) { defs.AddChild(n); }
     defs.Dump(outfile, binary, 0);
 }
-
 
 // -------------------------------------------------------------------
 // some internal helper functions used for writing the objects section
@@ -978,26 +959,28 @@ aiMatrix4x4 get_world_transform(const aiNode* node, const aiScene* scene)
     return transform;
 }
 
-int64_t to_ktime(double ticks, const aiAnimation* anim) {
+int64_t to_ktime(double ticks, const aiAnimation* anim)
+{
     if (anim->mTicksPerSecond <= 0) {
         return static_cast<int64_t>(ticks) * FBX::SECOND;
     }
     return (static_cast<int64_t>(ticks) / static_cast<int64_t>(anim->mTicksPerSecond)) * FBX::SECOND;
 }
 
-int64_t to_ktime(double time) {
+int64_t to_ktime(double time)
+{
     return (static_cast<int64_t>(time * FBX::SECOND));
 }
 
-void FBXExporter::WriteObjects ()
+void FBXExporter::WriteObjects()
 {
     if (!binary) {
         WriteAsciiSectionHeader("Object properties");
     }
     // numbers should match those given in definitions! make sure to check
     StreamWriterLE outstream(outfile);
-    FBX::Node object_node("Objects");
-    int indent = 0;
+    FBX::Node      object_node("Objects");
+    int            indent = 0;
     object_node.Begin(outstream, binary, indent);
     object_node.EndProperties(outstream, binary, indent);
     object_node.BeginChildren(outstream, binary, indent);
@@ -1011,7 +994,7 @@ void FBXExporter::WriteObjects ()
 
         // start the node record
         FBX::Node n("Geometry");
-        int64_t uid = generate_uid();
+        int64_t   uid = generate_uid();
         mesh_uids.push_back(uid);
         n.AddProperty(uid);
         n.AddProperty(FBX::SEPARATOR + "Geometry");
@@ -1027,11 +1010,11 @@ void FBXExporter::WriteObjects ()
         // index of original vertex in vertex data vector
         std::vector<int32_t> vertex_indices;
         // map of vertex value to its index in the data vector
-        std::map<aiVector3D,size_t> index_by_vertex_value;
-        int32_t index = 0;
+        std::map<aiVector3D, size_t> index_by_vertex_value;
+        int32_t                      index = 0;
         for (size_t vi = 0; vi < m->mNumVertices; ++vi) {
-            aiVector3D vtx = m->mVertices[vi];
-            auto elem = index_by_vertex_value.find(vtx);
+            aiVector3D vtx  = m->mVertices[vi];
+            auto       elem = index_by_vertex_value.find(vtx);
             if (elem == index_by_vertex_value.end()) {
                 vertex_indices.push_back(index);
                 index_by_vertex_value[vtx] = index;
@@ -1044,31 +1027,27 @@ void FBXExporter::WriteObjects ()
             }
         }
         FBX::Node::WritePropertyNode(
-            "Vertices", flattened_vertices, outstream, binary, indent
-        );
+            "Vertices", flattened_vertices, outstream, binary, indent);
 
         // output polygon data as a flattened array of vertex indices.
         // the last vertex index of each polygon is negated and - 1
         std::vector<int32_t> polygon_data;
         for (size_t fi = 0; fi < m->mNumFaces; ++fi) {
-            const aiFace &f = m->mFaces[fi];
+            const aiFace& f = m->mFaces[fi];
             for (size_t pvi = 0; pvi < f.mNumIndices - 1; ++pvi) {
                 polygon_data.push_back(vertex_indices[f.mIndices[pvi]]);
             }
             polygon_data.push_back(
-                -1 - vertex_indices[f.mIndices[f.mNumIndices-1]]
-            );
+                -1 - vertex_indices[f.mIndices[f.mNumIndices - 1]]);
         }
         FBX::Node::WritePropertyNode(
-            "PolygonVertexIndex", polygon_data, outstream, binary, indent
-        );
+            "PolygonVertexIndex", polygon_data, outstream, binary, indent);
 
         // here could be edges but they're insane.
         // it's optional anyway, so let's ignore it.
 
         FBX::Node::WritePropertyNode(
-            "GeometryVersion", int32_t(124), outstream, binary, indent
-        );
+            "GeometryVersion", int32_t(124), outstream, binary, indent);
 
         // normals, if any
         if (m->HasNormals()) {
@@ -1079,34 +1058,27 @@ void FBXExporter::WriteObjects ()
             normals.BeginChildren(outstream, binary, indent);
             indent = 3;
             FBX::Node::WritePropertyNode(
-                "Version", int32_t(101), outstream, binary, indent
-            );
+                "Version", int32_t(101), outstream, binary, indent);
             FBX::Node::WritePropertyNode(
-                "Name", "", outstream, binary, indent
-            );
+                "Name", "", outstream, binary, indent);
             FBX::Node::WritePropertyNode(
-                "MappingInformationType", "ByPolygonVertex",
-                outstream, binary, indent
-            );
+                "MappingInformationType", "ByPolygonVertex", outstream, binary, indent);
             // TODO: vertex-normals or indexed normals when appropriate
             FBX::Node::WritePropertyNode(
-                "ReferenceInformationType", "Direct",
-                outstream, binary, indent
-            );
+                "ReferenceInformationType", "Direct", outstream, binary, indent);
             std::vector<double> normal_data;
             normal_data.reserve(3 * polygon_data.size());
             for (size_t fi = 0; fi < m->mNumFaces; ++fi) {
-                const aiFace &f = m->mFaces[fi];
+                const aiFace& f = m->mFaces[fi];
                 for (size_t pvi = 0; pvi < f.mNumIndices; ++pvi) {
-                    const aiVector3D &n = m->mNormals[f.mIndices[pvi]];
+                    const aiVector3D& n = m->mNormals[f.mIndices[pvi]];
                     normal_data.push_back(n.x);
                     normal_data.push_back(n.y);
                     normal_data.push_back(n.z);
                 }
             }
             FBX::Node::WritePropertyNode(
-                "Normals", normal_data, outstream, binary, indent
-            );
+                "Normals", normal_data, outstream, binary, indent);
             // note: version 102 has a NormalsW also... not sure what it is,
             // so we can stick with version 101 for now.
             indent = 2;
@@ -1137,30 +1109,24 @@ void FBXExporter::WriteObjects ()
             uv.BeginChildren(outstream, binary, indent);
             indent = 3;
             FBX::Node::WritePropertyNode(
-                "Version", int32_t(101), outstream, binary, indent
-            );
+                "Version", int32_t(101), outstream, binary, indent);
             // it doesn't seem like assimp keeps the uv map name,
             // so just leave it blank.
             FBX::Node::WritePropertyNode(
-                "Name", "", outstream, binary, indent
-            );
+                "Name", "", outstream, binary, indent);
             FBX::Node::WritePropertyNode(
-                "MappingInformationType", "ByPolygonVertex",
-                outstream, binary, indent
-            );
+                "MappingInformationType", "ByPolygonVertex", outstream, binary, indent);
             FBX::Node::WritePropertyNode(
-                "ReferenceInformationType", "IndexToDirect",
-                outstream, binary, indent
-            );
+                "ReferenceInformationType", "IndexToDirect", outstream, binary, indent);
 
-            std::vector<double> uv_data;
-            std::vector<int32_t> uv_indices;
-            std::map<aiVector3D,int32_t> index_by_uv;
-            int32_t index = 0;
+            std::vector<double>           uv_data;
+            std::vector<int32_t>          uv_indices;
+            std::map<aiVector3D, int32_t> index_by_uv;
+            int32_t                       index = 0;
             for (size_t fi = 0; fi < m->mNumFaces; ++fi) {
-                const aiFace &f = m->mFaces[fi];
+                const aiFace& f = m->mFaces[fi];
                 for (size_t pvi = 0; pvi < f.mNumIndices; ++pvi) {
-                    const aiVector3D &uv =
+                    const aiVector3D& uv =
                         m->mTextureCoords[uvi][f.mIndices[pvi]];
                     auto elem = index_by_uv.find(uv);
                     if (elem == index_by_uv.end()) {
@@ -1176,11 +1142,9 @@ void FBXExporter::WriteObjects ()
                 }
             }
             FBX::Node::WritePropertyNode(
-                "UV", uv_data, outstream, binary, indent
-            );
+                "UV", uv_data, outstream, binary, indent);
             FBX::Node::WritePropertyNode(
-                "UVIndex", uv_indices, outstream, binary, indent
-            );
+                "UVIndex", uv_indices, outstream, binary, indent);
             indent = 2;
             uv.End(outstream, binary, indent, true);
         }
@@ -1228,7 +1192,8 @@ void FBXExporter::WriteObjects ()
         aiMaterial* m = mScene->mMaterials[i];
 
         // these are used to receive material data
-        float f; aiColor3D c;
+        float     f;
+        aiColor3D c;
 
         // start the node record
         FBX::Node n("Material");
@@ -1318,13 +1283,19 @@ void FBXExporter::WriteObjects ()
         // and usually are completely ignored when loading.
         // One notable exception is the "Opacity" property,
         // which Blender uses as (1.0 - alpha).
-        c.r = 0.0f; c.g = 0.0f; c.b = 0.0f;
+        c.r = 0.0f;
+        c.g = 0.0f;
+        c.b = 0.0f;
         m->Get(AI_MATKEY_COLOR_EMISSIVE, c);
         p.AddP70vector("Emissive", c.r, c.g, c.b);
-        c.r = 0.2f; c.g = 0.2f; c.b = 0.2f;
+        c.r = 0.2f;
+        c.g = 0.2f;
+        c.b = 0.2f;
         m->Get(AI_MATKEY_COLOR_AMBIENT, c);
         p.AddP70vector("Ambient", c.r, c.g, c.b);
-        c.r = 0.8f; c.g = 0.8f; c.b = 0.8f;
+        c.r = 0.8f;
+        c.g = 0.8f;
+        c.b = 0.8f;
         m->Get(AI_MATKEY_COLOR_DIFFUSE, c);
         p.AddP70vector("Diffuse", c.r, c.g, c.b);
         // The FBX SDK determines "Opacity" from transparency colour (RGB)
@@ -1341,11 +1312,13 @@ void FBXExporter::WriteObjects ()
         p.AddP70double("Opacity", f);
         if (phong) {
             // specular color is multiplied by shininess_strength
-            c.r = 0.2f; c.g = 0.2f; c.b = 0.2f;
+            c.r = 0.2f;
+            c.g = 0.2f;
+            c.b = 0.2f;
             m->Get(AI_MATKEY_COLOR_SPECULAR, c);
             f = 1.0f;
             m->Get(AI_MATKEY_SHININESS_STRENGTH, f);
-            p.AddP70vector("Specular", f*c.r, f*c.g, f*c.b);
+            p.AddP70vector("Specular", f * c.r, f * c.g, f * c.b);
             f = 20.0f;
             m->Get(AI_MATKEY_SHININESS, f);
             p.AddP70double("Shininess", f);
@@ -1357,7 +1330,7 @@ void FBXExporter::WriteObjects ()
             m->Get(AI_MATKEY_REFLECTIVITY, f);
             c.r = 1.0f, c.g = 1.0f, c.b = 1.0f;
             m->Get(AI_MATKEY_COLOR_REFLECTIVE, c);
-            p.AddP70double("Reflectivity", f*f*((c.r+c.g+c.b)/3.0));
+            p.AddP70double("Reflectivity", f * f * ((c.r + c.g + c.b) / 3.0));
         }
 
         n.AddChild(p);
@@ -1369,19 +1342,18 @@ void FBXExporter::WriteObjects ()
     // so we can generate uids, and eliminate duplicates.
     std::map<std::string, int64_t> uid_by_image;
     for (size_t i = 0; i < mScene->mNumMaterials; ++i) {
-        aiString texpath;
+        aiString    texpath;
         aiMaterial* mat = mScene->mMaterials[i];
         for (
             size_t tt = aiTextureType_DIFFUSE;
             tt < aiTextureType_UNKNOWN;
-            ++tt
-        ){
-            const aiTextureType textype = static_cast<aiTextureType>(tt);
-            const size_t texcount = mat->GetTextureCount(textype);
+            ++tt) {
+            const aiTextureType textype  = static_cast<aiTextureType>(tt);
+            const size_t        texcount = mat->GetTextureCount(textype);
             for (size_t j = 0; j < texcount; ++j) {
-                mat->GetTexture(textype, (unsigned int)j, &texpath);
+                mat->GetTexture(textype, (unsigned int) j, &texpath);
                 const std::string texstring = texpath.C_Str();
-                auto elem = uid_by_image.find(texstring);
+                auto              elem      = uid_by_image.find(texstring);
                 if (elem == uid_by_image.end()) {
                     uid_by_image[texstring] = generate_uid();
                 }
@@ -1390,14 +1362,14 @@ void FBXExporter::WriteObjects ()
     }
 
     // FbxVideo - stores images used by textures.
-    for (const auto &it : uid_by_image) {
+    for (const auto& it: uid_by_image) {
         if (it.first.compare(0, 1, "*") == 0) {
             // TODO: embedded textures
             continue;
         }
-        FBX::Node n("Video");
-        const int64_t& uid = it.second;
-        const std::string name = ""; // TODO: ... name???
+        FBX::Node         n("Video");
+        const int64_t&    uid  = it.second;
+        const std::string name = "";    // TODO: ... name???
         n.AddProperties(uid, name + FBX::SEPARATOR + "Video", "Clip");
         n.AddChild("Type", "Clip");
         FBX::Node p("Properties70");
@@ -1415,8 +1387,8 @@ void FBXExporter::WriteObjects ()
 
     // Textures
     // referenced by material_index/texture_type pairs.
-    std::map<std::pair<size_t,size_t>,int64_t> texture_uids;
-    const std::map<aiTextureType,std::string> prop_name_by_tt = {
+    std::map<std::pair<size_t, size_t>, int64_t> texture_uids;
+    const std::map<aiTextureType, std::string>   prop_name_by_tt = {
         {aiTextureType_DIFFUSE, "DiffuseColor"},
         {aiTextureType_SPECULAR, "SpecularColor"},
         {aiTextureType_AMBIENT, "AmbientColor"},
@@ -1432,18 +1404,17 @@ void FBXExporter::WriteObjects ()
     };
     for (size_t i = 0; i < mScene->mNumMaterials; ++i) {
         // textures are attached to materials
-        aiMaterial* mat = mScene->mMaterials[i];
-        int64_t material_uid = material_uids[i];
+        aiMaterial* mat          = mScene->mMaterials[i];
+        int64_t     material_uid = material_uids[i];
 
         for (
             size_t j = aiTextureType_DIFFUSE;
             j < aiTextureType_UNKNOWN;
-            ++j
-        ) {
+            ++j) {
             const aiTextureType tt = static_cast<aiTextureType>(j);
-            size_t n = mat->GetTextureCount(tt);
+            size_t              n  = mat->GetTextureCount(tt);
 
-            if (n < 1) { // no texture of this type
+            if (n < 1) {    // no texture of this type
                 continue;
             }
 
@@ -1498,8 +1469,7 @@ void FBXExporter::WriteObjects ()
 
             // link the texture to the material
             connections.emplace_back(
-                "C", "OP", texture_uid, material_uid, prop_name
-            );
+                "C", "OP", texture_uid, material_uid, prop_name);
 
             // link the image data to the texture
             connections.emplace_back("C", "OO", image_uid, texture_uid);
@@ -1514,7 +1484,7 @@ void FBXExporter::WriteObjects ()
             tnode.AddChild("Version", int32_t(202));
             tnode.AddChild("TextureName", texture_name);
             FBX::Node p("Properties70");
-            p.AddP70enum("CurrentTextureBlendMode", 0); // TODO: verify
+            p.AddP70enum("CurrentTextureBlendMode", 0);    // TODO: verify
             //p.AddP70string("UVSet", ""); // TODO: how should this work?
             p.AddP70bool("UseMaterial", 1);
             tnode.AddChild(p);
@@ -1527,8 +1497,7 @@ void FBXExporter::WriteObjects ()
             tnode.AddChild("ModelUVScaling", double(1.0), double(1.0));
             tnode.AddChild("Texture_Alpha_Source", "None");
             tnode.AddChild(
-                "Cropping", int32_t(0), int32_t(0), int32_t(0), int32_t(0)
-            );
+                "Cropping", int32_t(0), int32_t(0), int32_t(0), int32_t(0));
             tnode.Dump(outstream, binary, indent);
         }
     }
@@ -1582,15 +1551,15 @@ void FBXExporter::WriteObjects ()
     // which will be used later to mark them as type "limbNode".
     std::unordered_set<const aiNode*> limbnodes;
     // and a map of nodes by bone name, as finding them is annoying.
-    std::map<std::string,aiNode*> node_by_bone;
+    std::map<std::string, aiNode*> node_by_bone;
     for (size_t mi = 0; mi < mScene->mNumMeshes; ++mi) {
-        const aiMesh* m = mScene->mMeshes[mi];
+        const aiMesh*           m = mScene->mMeshes[mi];
         std::set<const aiNode*> skeleton;
-        for (size_t bi =0; bi < m->mNumBones; ++bi) {
-            const aiBone* b = m->mBones[bi];
+        for (size_t bi = 0; bi < m->mNumBones; ++bi) {
+            const aiBone*     b = m->mBones[bi];
             const std::string name(b->mName.C_Str());
-            auto elem = node_by_bone.find(name);
-            aiNode* n;
+            auto              elem = node_by_bone.find(name);
+            aiNode*           n;
             if (elem != node_by_bone.end()) {
                 n = elem->second;
             } else {
@@ -1612,8 +1581,7 @@ void FBXExporter::WriteObjects ()
             for (
                 const aiNode* parent = n->mParent;
                 parent && parent != mScene->mRootNode;
-                parent = parent->mParent
-            ) {
+                parent = parent->mParent) {
                 // if we've already done this node we can skip it all
                 if (skeleton.count(parent)) {
                     break;
@@ -1655,8 +1623,8 @@ void FBXExporter::WriteObjects ()
 
     // we'll need the uids for the bone nodes, so generate them now
     for (size_t i = 0; i < mScene->mNumMeshes; ++i) {
-        auto &s = skeleton_by_mesh[i];
-        for (const aiNode* n : s) {
+        auto& s = skeleton_by_mesh[i];
+        for (const aiNode* n: s) {
             auto elem = node_uids.find(n);
             if (elem == node_uids.end()) {
                 node_uids[n] = generate_uid();
@@ -1675,13 +1643,13 @@ void FBXExporter::WriteObjects ()
             continue;
         }
         // make a deformer for this mesh
-        int64_t deformer_uid = generate_uid();
+        int64_t   deformer_uid = generate_uid();
         FBX::Node dnode("Deformer");
         dnode.AddProperties(deformer_uid, FBX::SEPARATOR + "Deformer", "Skin");
         dnode.AddChild("Version", int32_t(101));
         // "acuracy"... this is not a typo....
         dnode.AddChild("Link_DeformAcuracy", double(50));
-        dnode.AddChild("SkinningType", "Linear"); // TODO: other modes?
+        dnode.AddChild("SkinningType", "Linear");    // TODO: other modes?
         dnode.Dump(outstream, binary, indent);
 
         // connect it
@@ -1696,11 +1664,11 @@ void FBXExporter::WriteObjects ()
         // index of original vertex in vertex data vector
         std::vector<int32_t> vertex_indices;
         // map of vertex value to its index in the data vector
-        std::map<aiVector3D,size_t> index_by_vertex_value;
-        int32_t index = 0;
+        std::map<aiVector3D, size_t> index_by_vertex_value;
+        int32_t                      index = 0;
         for (size_t vi = 0; vi < m->mNumVertices; ++vi) {
-            aiVector3D vtx = m->mVertices[vi];
-            auto elem = index_by_vertex_value.find(vtx);
+            aiVector3D vtx  = m->mVertices[vi];
+            auto       elem = index_by_vertex_value.find(vtx);
             if (elem == index_by_vertex_value.end()) {
                 vertex_indices.push_back(index);
                 index_by_vertex_value[vtx] = index;
@@ -1722,12 +1690,12 @@ void FBXExporter::WriteObjects ()
         // as it can be instanced to many nodes.
         // All we can do is assume no instancing,
         // and take the first node we find that contains the mesh.
-        aiNode* mesh_node = get_node_for_mesh((unsigned int)mi, mScene->mRootNode);
+        aiNode*     mesh_node  = get_node_for_mesh((unsigned int) mi, mScene->mRootNode);
         aiMatrix4x4 mesh_xform = get_world_transform(mesh_node, mScene);
 
         // now make a subdeformer for each bone in the skeleton
-        const std::set<const aiNode*> &skeleton = skeleton_by_mesh[mi];
-        for (const aiNode* bone_node : skeleton) {
+        const std::set<const aiNode*>& skeleton = skeleton_by_mesh[mi];
+        for (const aiNode* bone_node: skeleton) {
             // if there's a bone for this node, find it
             const aiBone* b = nullptr;
             for (size_t bi = 0; bi < m->mNumBones; ++bi) {
@@ -1744,18 +1712,17 @@ void FBXExporter::WriteObjects ()
 
             // start the subdeformer node
             const int64_t subdeformer_uid = generate_uid();
-            FBX::Node sdnode("Deformer");
+            FBX::Node     sdnode("Deformer");
             sdnode.AddProperties(
-                subdeformer_uid, FBX::SEPARATOR + "SubDeformer", "Cluster"
-            );
+                subdeformer_uid, FBX::SEPARATOR + "SubDeformer", "Cluster");
             sdnode.AddChild("Version", int32_t(100));
             sdnode.AddChild("UserData", "", "");
 
             // add indices and weights, if any
             if (b) {
                 std::vector<int32_t> subdef_indices;
-                std::vector<double> subdef_weights;
-                int32_t last_index = -1;
+                std::vector<double>  subdef_weights;
+                int32_t              last_index = -1;
                 for (size_t wi = 0; wi < b->mNumWeights; ++wi) {
                     int32_t vi = vertex_indices[b->mWeights[wi].mVertexId];
                     if (vi == last_index) {
@@ -1781,16 +1748,16 @@ void FBXExporter::WriteObjects ()
             // if the skeleton is in the bind pose,
             // we can take the inverse of the world-space bone transform
             // and multiply by the world-space transform of the mesh.
-            aiMatrix4x4 bone_xform = get_world_transform(bone_node, mScene);
+            aiMatrix4x4 bone_xform         = get_world_transform(bone_node, mScene);
             aiMatrix4x4 inverse_bone_xform = bone_xform;
             inverse_bone_xform.Inverse();
             aiMatrix4x4 tr = inverse_bone_xform * mesh_xform;
 
             // this should be the same as the bone's mOffsetMatrix.
             // if it's not the same, the skeleton isn't in the bind pose.
-            const float epsilon = 1e-4f; // some error is to be expected
-            bool bone_xform_okay = true;
-            if (b && ! tr.Equal(b->mOffsetMatrix, epsilon)) {
+            const float epsilon         = 1e-4f;    // some error is to be expected
+            bool        bone_xform_okay = true;
+            if (b && !tr.Equal(b->mOffsetMatrix, epsilon)) {
                 not_in_bind_pose.insert(b);
                 bone_xform_okay = false;
             }
@@ -1814,7 +1781,7 @@ void FBXExporter::WriteObjects ()
             // we can just use the matrix we already calculated
             if (bone_xform_okay) {
                 sdnode.AddChild("TransformLink", bone_xform);
-            // otherwise we can only work it out using the mesh position.
+                // otherwise we can only work it out using the mesh position.
             } else {
                 aiMatrix4x4 trl = b->mOffsetMatrix;
                 trl.Inverse();
@@ -1830,13 +1797,11 @@ void FBXExporter::WriteObjects ()
 
             // lastly, connect to the parent deformer
             connections.emplace_back(
-                "C", "OO", subdeformer_uid, deformer_uid
-            );
+                "C", "OO", subdeformer_uid, deformer_uid);
 
             // we also need to connect the limb node to the subdeformer.
             connections.emplace_back(
-                "C", "OO", node_uids[bone_node], subdeformer_uid
-            );
+                "C", "OO", node_uids[bone_node], subdeformer_uid);
         }
 
         // if we cannot create a valid FBX file, simply die.
@@ -1862,7 +1827,6 @@ void FBXExporter::WriteObjects ()
             err << " Please ensure bones are in the bind pose to export.";
             throw DeadlyExportError(err.str());
         }
-
     }
 
     // BindPose
@@ -1952,8 +1916,7 @@ void FBXExporter::WriteObjects ()
     // write nodes (i.e. model hierarchy)
     // start at root node
     WriteModelNodes(
-        outstream, mScene->mRootNode, 0, limbnodes
-    );
+        outstream, mScene->mRootNode, 0, limbnodes);
 
     // animations
     //
@@ -1987,15 +1950,15 @@ void FBXExporter::WriteObjects ()
     // AnimationStack / aiAnimation
     std::vector<int64_t> animation_stack_uids(mScene->mNumAnimations);
     for (size_t ai = 0; ai < mScene->mNumAnimations; ++ai) {
-        int64_t animstack_uid = generate_uid();
+        int64_t animstack_uid    = generate_uid();
         animation_stack_uids[ai] = animstack_uid;
-        const aiAnimation* anim = mScene->mAnimations[ai];
+        const aiAnimation* anim  = mScene->mAnimations[ai];
 
-        FBX::Node asnode("AnimationStack");
+        FBX::Node   asnode("AnimationStack");
         std::string name = anim->mName.C_Str() + FBX::SEPARATOR + "AnimStack";
         asnode.AddProperties(animstack_uid, name, "");
         FBX::Node p("Properties70");
-        p.AddP70time("LocalStart", 0); // assimp doesn't store this
+        p.AddP70time("LocalStart", 0);    // assimp doesn't store this
         p.AddP70time("LocalStop", to_ktime(anim->mDuration, anim));
         p.AddP70time("ReferenceStart", 0);
         p.AddP70time("ReferenceStop", to_ktime(anim->mDuration, anim));
@@ -2012,7 +1975,7 @@ void FBXExporter::WriteObjects ()
     // AnimationLayer - one per aiAnimation
     std::vector<int64_t> animation_layer_uids(mScene->mNumAnimations);
     for (size_t ai = 0; ai < mScene->mNumAnimations; ++ai) {
-        int64_t animlayer_uid = generate_uid();
+        int64_t animlayer_uid    = generate_uid();
         animation_layer_uids[ai] = animlayer_uid;
         FBX::Node alnode("AnimationLayer");
         alnode.AddProperties(animlayer_uid, FBX::SEPARATOR + "AnimLayer", "");
@@ -2023,48 +1986,56 @@ void FBXExporter::WriteObjects ()
 
         // connect to the relevant animstack
         connections.emplace_back(
-            "C", "OO", animlayer_uid, animation_stack_uids[ai]
-        );
+            "C", "OO", animlayer_uid, animation_stack_uids[ai]);
     }
 
     // AnimCurveNode - three per aiNodeAnim
-    std::vector<std::vector<std::array<int64_t,3>>> curve_node_uids;
+    std::vector<std::vector<std::array<int64_t, 3>>> curve_node_uids;
     for (size_t ai = 0; ai < mScene->mNumAnimations; ++ai) {
-        const aiAnimation* anim = mScene->mAnimations[ai];
-        const int64_t layer_uid = animation_layer_uids[ai];
-        std::vector<std::array<int64_t,3>> nodeanim_uids;
+        const aiAnimation*                  anim      = mScene->mAnimations[ai];
+        const int64_t                       layer_uid = animation_layer_uids[ai];
+        std::vector<std::array<int64_t, 3>> nodeanim_uids;
         for (size_t nai = 0; nai < anim->mNumChannels; ++nai) {
             const aiNodeAnim* na = anim->mChannels[nai];
             // get the corresponding aiNode
             const aiNode* node = mScene->mRootNode->FindNode(na->mNodeName);
             // and its transform
             const aiMatrix4x4 node_xfm = get_world_transform(node, mScene);
-            aiVector3D T, R, S;
+            aiVector3D        T, R, S;
             node_xfm.Decompose(S, R, T);
 
             // AnimationCurveNode uids
-            std::array<int64_t,3> ids;
-            ids[0] = generate_uid(); // T
-            ids[1] = generate_uid(); // R
-            ids[2] = generate_uid(); // S
+            std::array<int64_t, 3> ids;
+            ids[0] = generate_uid();    // T
+            ids[1] = generate_uid();    // R
+            ids[2] = generate_uid();    // S
 
             // translation
             WriteAnimationCurveNode(outstream,
-                ids[0], "T", T, "Lcl Translation",
-                layer_uid, node_uids[node]
-            );
+                ids[0],
+                "T",
+                T,
+                "Lcl Translation",
+                layer_uid,
+                node_uids[node]);
 
             // rotation
             WriteAnimationCurveNode(outstream,
-                ids[1], "R", R, "Lcl Rotation",
-                layer_uid, node_uids[node]
-            );
+                ids[1],
+                "R",
+                R,
+                "Lcl Rotation",
+                layer_uid,
+                node_uids[node]);
 
             // scale
             WriteAnimationCurveNode(outstream,
-                ids[2], "S", S, "Lcl Scale",
-                layer_uid, node_uids[node]
-            );
+                ids[2],
+                "S",
+                S,
+                "Lcl Scale",
+                layer_uid,
+                node_uids[node]);
 
             // store the uids for later use
             nodeanim_uids.push_back(ids);
@@ -2083,12 +2054,12 @@ void FBXExporter::WriteObjects ()
             const aiNode* node = mScene->mRootNode->FindNode(na->mNodeName);
             // and its transform
             const aiMatrix4x4 node_xfm = get_world_transform(node, mScene);
-            aiVector3D T, R, S;
+            aiVector3D        T, R, S;
             node_xfm.Decompose(S, R, T);
-            const std::array<int64_t,3>& ids = curve_node_uids[ai][nai];
+            const std::array<int64_t, 3>& ids = curve_node_uids[ai][nai];
 
             std::vector<int64_t> times;
-            std::vector<float> xval, yval, zval;
+            std::vector<float>   xval, yval, zval;
 
             // position/translation
             for (size_t ki = 0; ki < na->mNumPositionKeys; ++ki) {
@@ -2104,13 +2075,16 @@ void FBXExporter::WriteObjects ()
             WriteAnimationCurve(outstream, T.z, times, zval, ids[0], "d|Z");
 
             // rotation
-            times.clear(); xval.clear(); yval.clear(); zval.clear();
+            times.clear();
+            xval.clear();
+            yval.clear();
+            zval.clear();
             for (size_t ki = 0; ki < na->mNumRotationKeys; ++ki) {
                 const aiQuatKey& k = na->mRotationKeys[ki];
                 times.push_back(to_ktime(k.mTime));
                 // TODO: aiQuaternion method to convert to Euler...
                 aiMatrix4x4 m(k.mValue.GetMatrix());
-                aiVector3D qs, qr, qt;
+                aiVector3D  qs, qr, qt;
                 m.Decompose(qs, qr, qt);
                 qr *= DEG;
                 xval.push_back(qr.x);
@@ -2122,7 +2096,10 @@ void FBXExporter::WriteObjects ()
             WriteAnimationCurve(outstream, R.z, times, zval, ids[1], "d|Z");
 
             // scaling/scale
-            times.clear(); xval.clear(); yval.clear(); zval.clear();
+            times.clear();
+            xval.clear();
+            yval.clear();
+            zval.clear();
             for (size_t ki = 0; ki < na->mNumScalingKeys; ++ki) {
                 const aiVectorKey& k = na->mScalingKeys[ki];
                 times.push_back(to_ktime(k.mTime));
@@ -2142,7 +2119,7 @@ void FBXExporter::WriteObjects ()
 
 // convenience map of magic node name strings to FBX properties,
 // including the expected type of transform.
-const std::map<std::string,std::pair<std::string,char>> transform_types = {
+const std::map<std::string, std::pair<std::string, char>> transform_types = {
     {"Translation", {"Lcl Translation", 't'}},
     {"RotationOffset", {"RotationOffset", 't'}},
     {"RotationPivot", {"RotationPivot", 't'}},
@@ -2159,23 +2136,22 @@ const std::map<std::string,std::pair<std::string,char>> transform_types = {
     {"GeometricTranslation", {"GeometricTranslation", 't'}},
     {"GeometricTranslationInverse", {"GeometricTranslationInverse", 'i'}},
     {"GeometricRotationInverse", {"GeometricRotationInverse", 'i'}},
-    {"GeometricScalingInverse", {"GeometricScalingInverse", 'i'}}
-};
+    {"GeometricScalingInverse", {"GeometricScalingInverse", 'i'}}};
 
 // write a single model node to the stream
 void FBXExporter::WriteModelNode(
-    StreamWriterLE& outstream,
-    bool binary,
-    const aiNode* node,
-    int64_t node_uid,
-    const std::string& type,
-    const std::vector<std::pair<std::string,aiVector3D>>& transform_chain,
-    TransformInheritance inherit_type
-){
+    StreamWriterLE&                                        outstream,
+    bool                                                   binary,
+    const aiNode*                                          node,
+    int64_t                                                node_uid,
+    const std::string&                                     type,
+    const std::vector<std::pair<std::string, aiVector3D>>& transform_chain,
+    TransformInheritance                                   inherit_type)
+{
     const aiVector3D zero = {0, 0, 0};
-    const aiVector3D one = {1, 1, 1};
-    FBX::Node m("Model");
-    std::string name = node->mName.C_Str() + FBX::SEPARATOR + "Model";
+    const aiVector3D one  = {1, 1, 1};
+    FBX::Node        m("Model");
+    std::string      name = node->mName.C_Str() + FBX::SEPARATOR + "Model";
     m.AddProperties(node_uid, name, type);
     m.AddChild("Version", int32_t(232));
     FBX::Node p("Properties70");
@@ -2188,28 +2164,22 @@ void FBXExporter::WriteModelNode(
         node->mTransformation.Decompose(s, r, t);
         if (t != zero) {
             p.AddP70(
-                "Lcl Translation", "Lcl Translation", "", "A",
-                double(t.x), double(t.y), double(t.z)
-            );
+                "Lcl Translation", "Lcl Translation", "", "A", double(t.x), double(t.y), double(t.z));
         }
         if (r != zero) {
             p.AddP70(
-                "Lcl Rotation", "Lcl Rotation", "", "A",
-                double(DEG*r.x), double(DEG*r.y), double(DEG*r.z)
-            );
+                "Lcl Rotation", "Lcl Rotation", "", "A", double(DEG * r.x), double(DEG * r.y), double(DEG * r.z));
         }
         if (s != one) {
             p.AddP70(
-                "Lcl Scaling", "Lcl Scaling", "", "A",
-                double(s.x), double(s.y), double(s.z)
-            );
+                "Lcl Scaling", "Lcl Scaling", "", "A", double(s.x), double(s.y), double(s.z));
         }
     } else {
         // apply the transformation chain.
         // these transformation elements are created when importing FBX,
         // which has a complex transformation hierarchy for each node.
         // as such we can bake the hierarchy back into the node on export.
-        for (auto &item : transform_chain) {
+        for (auto& item: transform_chain) {
             auto elem = transform_types.find(item.first);
             if (elem == transform_types.end()) {
                 // then this is a bug
@@ -2218,14 +2188,12 @@ void FBXExporter::WriteModelNode(
                 err << item.first;
                 throw DeadlyExportError(err.str());
             }
-            const std::string &name = elem->second.first;
-            const aiVector3D &v = item.second;
+            const std::string& name = elem->second.first;
+            const aiVector3D&  v    = item.second;
             if (name.compare(0, 4, "Lcl ") == 0) {
                 // special handling for animatable properties
                 p.AddP70(
-                    name, name, "", "A",
-                    double(v.x), double(v.y), double(v.z)
-                );
+                    name, name, "", "A", double(v.x), double(v.y), double(v.z));
             } else {
                 p.AddP70vector(name, v.x, v.y, v.z);
             }
@@ -2243,28 +2211,28 @@ void FBXExporter::WriteModelNode(
 
 // wrapper for WriteModelNodes to create and pass a blank transform chain
 void FBXExporter::WriteModelNodes(
-    StreamWriterLE& s,
-    const aiNode* node,
-    int64_t parent_uid,
-    const std::unordered_set<const aiNode*>& limbnodes
-) {
-    std::vector<std::pair<std::string,aiVector3D>> chain;
+    StreamWriterLE&                          s,
+    const aiNode*                            node,
+    int64_t                                  parent_uid,
+    const std::unordered_set<const aiNode*>& limbnodes)
+{
+    std::vector<std::pair<std::string, aiVector3D>> chain;
     WriteModelNodes(s, node, parent_uid, limbnodes, chain);
 }
 
 void FBXExporter::WriteModelNodes(
-    StreamWriterLE& outstream,
-    const aiNode* node,
-    int64_t parent_uid,
-    const std::unordered_set<const aiNode*>& limbnodes,
-    std::vector<std::pair<std::string,aiVector3D>>& transform_chain
-) {
+    StreamWriterLE&                                  outstream,
+    const aiNode*                                    node,
+    int64_t                                          parent_uid,
+    const std::unordered_set<const aiNode*>&         limbnodes,
+    std::vector<std::pair<std::string, aiVector3D>>& transform_chain)
+{
     // first collapse any expanded transformation chains created by FBX import.
     std::string node_name(node->mName.C_Str());
     if (node_name.find(MAGIC_NODE_TAG) != std::string::npos) {
-        auto pos = node_name.find(MAGIC_NODE_TAG) + MAGIC_NODE_TAG.size() + 1;
+        auto        pos       = node_name.find(MAGIC_NODE_TAG) + MAGIC_NODE_TAG.size() + 1;
         std::string type_name = node_name.substr(pos);
-        auto elem = transform_types.find(type_name);
+        auto        elem      = transform_types.find(type_name);
         if (elem == transform_types.end()) {
             // then this is a bug and should be fixed
             std::stringstream err;
@@ -2275,25 +2243,25 @@ void FBXExporter::WriteModelNodes(
         aiVector3D t, r, s;
         node->mTransformation.Decompose(s, r, t);
         switch (elem->second.second) {
-        case 'i': // inverse
-            // we don't need to worry about the inverse matrices
-            break;
-        case 't': // translation
-            transform_chain.emplace_back(elem->first, t);
-            break;
-        case 'r': // rotation
-            r *= float(DEG);
-            transform_chain.emplace_back(elem->first, r);
-            break;
-        case 's': // scale
-            transform_chain.emplace_back(elem->first, s);
-            break;
-        default:
-            // this should never happen
-            std::stringstream err;
-            err << "unrecognized FBX transformation type code: ";
-            err << elem->second.second;
-            throw DeadlyExportError(err.str());
+            case 'i':    // inverse
+                // we don't need to worry about the inverse matrices
+                break;
+            case 't':    // translation
+                transform_chain.emplace_back(elem->first, t);
+                break;
+            case 'r':    // rotation
+                r *= float(DEG);
+                transform_chain.emplace_back(elem->first, r);
+                break;
+            case 's':    // scale
+                transform_chain.emplace_back(elem->first, s);
+                break;
+            default:
+                // this should never happen
+                std::stringstream err;
+                err << "unrecognized FBX transformation type code: ";
+                err << elem->second.second;
+                throw DeadlyExportError(err.str());
         }
         // now continue on to any child nodes
         for (unsigned i = 0; i < node->mNumChildren; ++i) {
@@ -2302,8 +2270,7 @@ void FBXExporter::WriteModelNodes(
                 node->mChildren[i],
                 parent_uid,
                 limbnodes,
-                transform_chain
-            );
+                transform_chain);
         }
         return;
     }
@@ -2315,7 +2282,7 @@ void FBXExporter::WriteModelNodes(
         if (elem != node_uids.end()) {
             node_uid = elem->second;
         } else {
-            node_uid = generate_uid();
+            node_uid        = generate_uid();
             node_uids[node] = node_uid;
         }
         connections.emplace_back("C", "OO", node_uid, parent_uid);
@@ -2327,28 +2294,21 @@ void FBXExporter::WriteModelNodes(
     } else if (node->mNumMeshes == 1) {
         // connect to child mesh, which should have been written previously
         connections.emplace_back(
-            "C", "OO", mesh_uids[node->mMeshes[0]], node_uid
-        );
+            "C", "OO", mesh_uids[node->mMeshes[0]], node_uid);
         // also connect to the material for the child mesh
         connections.emplace_back(
-            "C", "OO",
-            material_uids[mScene->mMeshes[node->mMeshes[0]]->mMaterialIndex],
-            node_uid
-        );
+            "C", "OO", material_uids[mScene->mMeshes[node->mMeshes[0]]->mMaterialIndex], node_uid);
         // write model node
         WriteModelNode(
-            outstream, binary, node, node_uid, "Mesh", transform_chain
-        );
+            outstream, binary, node, node_uid, "Mesh", transform_chain);
     } else if (limbnodes.count(node)) {
         WriteModelNode(
-            outstream, binary, node, node_uid, "LimbNode", transform_chain
-        );
+            outstream, binary, node, node_uid, "LimbNode", transform_chain);
         // we also need to write a nodeattribute to mark it as a skeleton
-        int64_t node_attribute_uid = generate_uid();
+        int64_t   node_attribute_uid = generate_uid();
         FBX::Node na("NodeAttribute");
         na.AddProperties(
-            node_attribute_uid, FBX::SEPARATOR + "NodeAttribute", "LimbNode"
-        );
+            node_attribute_uid, FBX::SEPARATOR + "NodeAttribute", "LimbNode");
         na.AddChild("TypeFlags", Property("Skeleton"));
         na.Dump(outstream, binary, 1);
         // and connect them
@@ -2356,8 +2316,7 @@ void FBXExporter::WriteModelNodes(
     } else {
         // generate a null node so we can add children to it
         WriteModelNode(
-            outstream, binary, node, node_uid, "Null", transform_chain
-        );
+            outstream, binary, node, node_uid, "Null", transform_chain);
     }
 
     // if more than one child mesh, make nodes for each mesh
@@ -2369,16 +2328,10 @@ void FBXExporter::WriteModelNodes(
             connections.emplace_back("C", "OO", new_node_uid, node_uid);
             // connect to child mesh, which should have been written previously
             connections.emplace_back(
-                "C", "OO", mesh_uids[node->mMeshes[i]], new_node_uid
-            );
+                "C", "OO", mesh_uids[node->mMeshes[i]], new_node_uid);
             // also connect to the material for the child mesh
             connections.emplace_back(
-                "C", "OO",
-                material_uids[
-                    mScene->mMeshes[node->mMeshes[i]]->mMaterialIndex
-                ],
-                new_node_uid
-            );
+                "C", "OO", material_uids[mScene->mMeshes[node->mMeshes[i]]->mMaterialIndex], new_node_uid);
             // write model node
             FBX::Node m("Model");
             // take name from mesh name, if it exists
@@ -2396,21 +2349,19 @@ void FBXExporter::WriteModelNodes(
     // now recurse into children
     for (size_t i = 0; i < node->mNumChildren; ++i) {
         WriteModelNodes(
-            outstream, node->mChildren[i], node_uid, limbnodes
-        );
+            outstream, node->mChildren[i], node_uid, limbnodes);
     }
 }
 
-
 void FBXExporter::WriteAnimationCurveNode(
     StreamWriterLE& outstream,
-    int64_t uid,
-    std::string name, // "T", "R", or "S"
-    aiVector3D default_value,
-    std::string property_name, // "Lcl Translation" etc
-    int64_t layer_uid,
-    int64_t node_uid
-) {
+    int64_t         uid,
+    std::string     name,    // "T", "R", or "S"
+    aiVector3D      default_value,
+    std::string     property_name,    // "Lcl Translation" etc
+    int64_t         layer_uid,
+    int64_t         node_uid)
+{
     FBX::Node n("AnimationCurveNode");
     n.AddProperties(uid, name + FBX::SEPARATOR + "AnimCurveNode", "");
     FBX::Node p("Properties70");
@@ -2425,17 +2376,17 @@ void FBXExporter::WriteAnimationCurveNode(
     this->connections.emplace_back("C", "OP", uid, node_uid, property_name);
 }
 
-
 void FBXExporter::WriteAnimationCurve(
-    StreamWriterLE& outstream,
-    double default_value,
+    StreamWriterLE&             outstream,
+    double                      default_value,
     const std::vector<int64_t>& times,
-    const std::vector<float>& values,
-    int64_t curvenode_uid,
-    const std::string& property_link // "d|X", "d|Y", etc
-) {
+    const std::vector<float>&   values,
+    int64_t                     curvenode_uid,
+    const std::string&          property_link    // "d|X", "d|Y", etc
+)
+{
     FBX::Node n("AnimationCurve");
-    int64_t curve_uid = generate_uid();
+    int64_t   curve_uid = generate_uid();
     n.AddProperties(curve_uid, FBX::SEPARATOR + "AnimCurve", "");
     n.AddChild("Default", default_value);
     n.AddChild("KeyVer", int32_t(4009));
@@ -2443,20 +2394,17 @@ void FBXExporter::WriteAnimationCurve(
     n.AddChild("KeyValueFloat", values);
     // TODO: keyattr flags and data (STUB for now)
     n.AddChild("KeyAttrFlags", std::vector<int32_t>{0});
-    n.AddChild("KeyAttrDataFloat", std::vector<float>{0,0,0,0});
+    n.AddChild("KeyAttrDataFloat", std::vector<float>{0, 0, 0, 0});
     ai_assert(static_cast<int32_t>(times.size()) <= std::numeric_limits<int32_t>::max());
     n.AddChild(
         "KeyAttrRefCount",
-        std::vector<int32_t>{static_cast<int32_t>(times.size())}
-    );
+        std::vector<int32_t>{static_cast<int32_t>(times.size())});
     n.Dump(outstream, binary, 1);
     this->connections.emplace_back(
-        "C", "OP", curve_uid, curvenode_uid, property_link
-    );
+        "C", "OP", curve_uid, curvenode_uid, property_link);
 }
 
-
-void FBXExporter::WriteConnections ()
+void FBXExporter::WriteConnections()
 {
     // we should have completed the connection graph already,
     // so basically just dump it here
@@ -2464,16 +2412,16 @@ void FBXExporter::WriteConnections ()
         WriteAsciiSectionHeader("Object connections");
     }
     // TODO: comments with names in the ascii version
-    FBX::Node conn("Connections");
+    FBX::Node      conn("Connections");
     StreamWriterLE outstream(outfile);
     conn.Begin(outstream, binary, 0);
     conn.BeginChildren(outstream, binary, 0);
-    for (auto &n : connections) {
+    for (auto& n: connections) {
         n.Dump(outstream, binary, 1);
     }
     conn.End(outstream, binary, 0, !connections.empty());
     connections.clear();
 }
 
-#endif // ASSIMP_BUILD_NO_FBX_EXPORTER
-#endif // ASSIMP_BUILD_NO_EXPORT
+    #endif    // ASSIMP_BUILD_NO_FBX_EXPORTER
+#endif        // ASSIMP_BUILD_NO_EXPORT

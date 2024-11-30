@@ -37,7 +37,7 @@ namespace Razix {
             ID3D12Resource*          m_VertexBufferResource = nullptr;
             D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView     = {};
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

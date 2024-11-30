@@ -45,9 +45,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *  @brief Implementation of the CPP-API class #Importer
  */
 
-#include <assimp/version.h>
 #include <assimp/config.h>
 #include <assimp/importerdesc.h>
+#include <assimp/version.h>
 
 // ------------------------------------------------------------------------------------------------
 /* Uncomment this line to prevent Assimp from catching unknown exceptions.
@@ -58,35 +58,34 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 // ------------------------------------------------------------------------------------------------
 #ifndef ASSIMP_BUILD_DEBUG
-#   define ASSIMP_CATCH_GLOBAL_EXCEPTIONS
+    #define ASSIMP_CATCH_GLOBAL_EXCEPTIONS
 #endif
 
 // ------------------------------------------------------------------------------------------------
 // Internal headers
 // ------------------------------------------------------------------------------------------------
+#include "BaseProcess.h"
 #include "Importer.h"
 #include <assimp/BaseImporter.h>
-#include "BaseProcess.h"
 
 #include "DefaultProgressHandler.h"
-#include <assimp/GenericProperty.h>
 #include "ProcessHelper.h"
 #include "ScenePreprocessor.h"
 #include "ScenePrivate.h"
+#include <assimp/Exceptional.h>
+#include <assimp/GenericProperty.h>
 #include <assimp/MemoryIOWrapper.h>
 #include <assimp/Profiler.h>
 #include <assimp/TinyFormatter.h>
-#include <assimp/Exceptional.h>
-#include <assimp/Profiler.h>
-#include <set>
-#include <memory>
 #include <cctype>
+#include <memory>
+#include <set>
 
 #include <assimp/DefaultIOStream.h>
 #include <assimp/DefaultIOSystem.h>
 
 #ifndef ASSIMP_BUILD_NO_VALIDATEDS_PROCESS
-#   include "ValidateDataStructure.h"
+    #include "ValidateDataStructure.h"
 #endif
 
 using namespace Assimp::Profiling;
@@ -94,12 +93,12 @@ using namespace Assimp::Formatter;
 
 namespace Assimp {
     // ImporterRegistry.cpp
-    void GetImporterInstanceList(std::vector< BaseImporter* >& out);
-	void DeleteImporterInstanceList(std::vector< BaseImporter* >& out);
+    void GetImporterInstanceList(std::vector<BaseImporter*>& out);
+    void DeleteImporterInstanceList(std::vector<BaseImporter*>& out);
 
     // PostStepRegistry.cpp
-    void GetPostProcessingStepInstanceList(std::vector< BaseProcess* >& out);
-}
+    void GetPostProcessingStepInstanceList(std::vector<BaseProcess*>& out);
+}    // namespace Assimp
 
 using namespace Assimp;
 using namespace Assimp::Intern;
@@ -110,53 +109,58 @@ using namespace Assimp::Intern;
 // utilize our DLL heap.
 // See http://www.gotw.ca/publications/mill15.htm
 // ------------------------------------------------------------------------------------------------
-void* AllocateFromAssimpHeap::operator new ( size_t num_bytes)  {
+void* AllocateFromAssimpHeap::operator new(size_t num_bytes)
+{
     return ::operator new(num_bytes);
 }
 
-void* AllocateFromAssimpHeap::operator new ( size_t num_bytes, const std::nothrow_t& ) throw()  {
+void* AllocateFromAssimpHeap::operator new(size_t num_bytes, const std::nothrow_t&) throw()
+{
     try {
-        return AllocateFromAssimpHeap::operator new( num_bytes );
-    }
-    catch( ... )    {
+        return AllocateFromAssimpHeap::operator new(num_bytes);
+    } catch (...) {
         return NULL;
     }
 }
 
-void AllocateFromAssimpHeap::operator delete ( void* data)  {
+void AllocateFromAssimpHeap::operator delete(void* data)
+{
     return ::operator delete(data);
 }
 
-void* AllocateFromAssimpHeap::operator new[] ( size_t num_bytes)    {
+void* AllocateFromAssimpHeap::operator new[](size_t num_bytes)
+{
     return ::operator new[](num_bytes);
 }
 
-void* AllocateFromAssimpHeap::operator new[] ( size_t num_bytes, const std::nothrow_t& ) throw() {
+void* AllocateFromAssimpHeap::operator new[](size_t num_bytes, const std::nothrow_t&) throw()
+{
     try {
-        return AllocateFromAssimpHeap::operator new[]( num_bytes );
-    }
-    catch( ... )    {
+        return AllocateFromAssimpHeap::operator new[](num_bytes);
+    } catch (...) {
         return NULL;
     }
 }
 
-void AllocateFromAssimpHeap::operator delete[] ( void* data)    {
+void AllocateFromAssimpHeap::operator delete[](void* data)
+{
     return ::operator delete[](data);
 }
 
 // ------------------------------------------------------------------------------------------------
 // Importer constructor.
 Importer::Importer()
- : pimpl( new ImporterPimpl ) {
-    pimpl->mScene = NULL;
+    : pimpl(new ImporterPimpl)
+{
+    pimpl->mScene       = NULL;
     pimpl->mErrorString = "";
 
     // Allocate a default IO handler
-    pimpl->mIOHandler = new DefaultIOSystem;
+    pimpl->mIOHandler        = new DefaultIOSystem;
     pimpl->mIsDefaultHandler = true;
-    pimpl->bExtraVerbose     = false; // disable extra verbose mode by default
+    pimpl->bExtraVerbose     = false;    // disable extra verbose mode by default
 
-    pimpl->mProgressHandler = new DefaultProgressHandler();
+    pimpl->mProgressHandler          = new DefaultProgressHandler();
     pimpl->mIsDefaultProgressHandler = true;
 
     GetImporterInstanceList(pimpl->mImporter);
@@ -164,10 +168,9 @@ Importer::Importer()
 
     // Allocate a SharedPostProcessInfo object and store pointers to it in all post-process steps in the list.
     pimpl->mPPShared = new SharedPostProcessInfo();
-    for (std::vector<BaseProcess*>::iterator it =  pimpl->mPostProcessingSteps.begin();
+    for (std::vector<BaseProcess*>::iterator it = pimpl->mPostProcessingSteps.begin();
         it != pimpl->mPostProcessingSteps.end();
-        ++it)   {
-
+        ++it) {
         (*it)->SetSharedData(pimpl->mPPShared);
     }
 }
@@ -177,10 +180,10 @@ Importer::Importer()
 Importer::~Importer()
 {
     // Delete all import plugins
-	DeleteImporterInstanceList(pimpl->mImporter);
+    DeleteImporterInstanceList(pimpl->mImporter);
 
     // Delete all post-processing plug-ins
-    for( unsigned int a = 0; a < pimpl->mPostProcessingSteps.size(); a++)
+    for (unsigned int a = 0; a < pimpl->mPostProcessingSteps.size(); a++)
         delete pimpl->mPostProcessingSteps[a];
 
     // Delete the assigned IO and progress handler
@@ -204,8 +207,8 @@ aiReturn Importer::RegisterPPStep(BaseProcess* pImp)
     ai_assert(NULL != pImp);
     ASSIMP_BEGIN_EXCEPTION_REGION();
 
-        pimpl->mPostProcessingSteps.push_back(pImp);
-        ASSIMP_LOG_INFO("Registering custom post-processing step");
+    pimpl->mPostProcessingSteps.push_back(pImp);
+    ASSIMP_LOG_INFO("Registering custom post-processing step");
 
     ASSIMP_END_EXCEPTION_REGION(aiReturn);
     return AI_SUCCESS;
@@ -225,11 +228,10 @@ aiReturn Importer::RegisterLoader(BaseImporter* pImp)
     // loader is a bit too lazy in his file checking.
     // --------------------------------------------------------------------
     std::set<std::string> st;
-    std::string baked;
+    std::string           baked;
     pImp->GetExtensionList(st);
 
-    for(std::set<std::string>::const_iterator it = st.begin(); it != st.end(); ++it) {
-
+    for (std::set<std::string>::const_iterator it = st.begin(); it != st.end(); ++it) {
 #ifdef ASSIMP_BUILD_DEBUG
         if (IsExtensionSupported(*it)) {
             ASSIMP_LOG_WARN_F("The file extension ", *it, " is already in use");
@@ -249,16 +251,17 @@ aiReturn Importer::RegisterLoader(BaseImporter* pImp)
 // Unregister a custom loader plugin
 aiReturn Importer::UnregisterLoader(BaseImporter* pImp)
 {
-    if(!pImp) {
+    if (!pImp) {
         // unregistering a NULL importer is no problem for us ... really!
         return AI_SUCCESS;
     }
 
     ASSIMP_BEGIN_EXCEPTION_REGION();
     std::vector<BaseImporter*>::iterator it = std::find(pimpl->mImporter.begin(),
-        pimpl->mImporter.end(),pImp);
+        pimpl->mImporter.end(),
+        pImp);
 
-    if (it != pimpl->mImporter.end())   {
+    if (it != pimpl->mImporter.end()) {
         pimpl->mImporter.erase(it);
         ASSIMP_LOG_INFO("Unregistering custom importer: ");
         return AI_SUCCESS;
@@ -272,16 +275,17 @@ aiReturn Importer::UnregisterLoader(BaseImporter* pImp)
 // Unregister a custom loader plugin
 aiReturn Importer::UnregisterPPStep(BaseProcess* pImp)
 {
-    if(!pImp) {
+    if (!pImp) {
         // unregistering a NULL ppstep is no problem for us ... really!
         return AI_SUCCESS;
     }
 
     ASSIMP_BEGIN_EXCEPTION_REGION();
     std::vector<BaseProcess*>::iterator it = std::find(pimpl->mPostProcessingSteps.begin(),
-        pimpl->mPostProcessingSteps.end(),pImp);
+        pimpl->mPostProcessingSteps.end(),
+        pImp);
 
-    if (it != pimpl->mPostProcessingSteps.end())    {
+    if (it != pimpl->mPostProcessingSteps.end()) {
         pimpl->mPostProcessingSteps.erase(it);
         ASSIMP_LOG_INFO("Unregistering custom post-processing step");
         return AI_SUCCESS;
@@ -293,21 +297,19 @@ aiReturn Importer::UnregisterPPStep(BaseProcess* pImp)
 
 // ------------------------------------------------------------------------------------------------
 // Supplies a custom IO handler to the importer to open and access files.
-void Importer::SetIOHandler( IOSystem* pIOHandler)
+void Importer::SetIOHandler(IOSystem* pIOHandler)
 {
     ASSIMP_BEGIN_EXCEPTION_REGION();
     // If the new handler is zero, allocate a default IO implementation.
-    if (!pIOHandler)
-    {
+    if (!pIOHandler) {
         // Release pointer in the possession of the caller
-        pimpl->mIOHandler = new DefaultIOSystem();
+        pimpl->mIOHandler        = new DefaultIOSystem();
         pimpl->mIsDefaultHandler = true;
     }
     // Otherwise register the custom handler
-    else if (pimpl->mIOHandler != pIOHandler)
-    {
+    else if (pimpl->mIOHandler != pIOHandler) {
         delete pimpl->mIOHandler;
-        pimpl->mIOHandler = pIOHandler;
+        pimpl->mIOHandler        = pIOHandler;
         pimpl->mIsDefaultHandler = false;
     }
     ASSIMP_END_EXCEPTION_REGION(void);
@@ -329,21 +331,19 @@ bool Importer::IsDefaultIOHandler() const
 
 // ------------------------------------------------------------------------------------------------
 // Supplies a custom progress handler to get regular callbacks during importing
-void Importer::SetProgressHandler ( ProgressHandler* pHandler )
+void Importer::SetProgressHandler(ProgressHandler* pHandler)
 {
     ASSIMP_BEGIN_EXCEPTION_REGION();
     // If the new handler is zero, allocate a default implementation.
-    if (!pHandler)
-    {
+    if (!pHandler) {
         // Release pointer in the possession of the caller
-        pimpl->mProgressHandler = new DefaultProgressHandler();
+        pimpl->mProgressHandler          = new DefaultProgressHandler();
         pimpl->mIsDefaultProgressHandler = true;
     }
     // Otherwise register the custom handler
-    else if (pimpl->mProgressHandler != pHandler)
-    {
+    else if (pimpl->mProgressHandler != pHandler) {
         delete pimpl->mProgressHandler;
-        pimpl->mProgressHandler = pHandler;
+        pimpl->mProgressHandler          = pHandler;
         pimpl->mIsDefaultProgressHandler = false;
     }
     ASSIMP_END_EXCEPTION_REGION(void);
@@ -367,11 +367,11 @@ bool Importer::IsDefaultProgressHandler() const
 // Validate post process step flags
 bool _ValidateFlags(unsigned int pFlags)
 {
-    if (pFlags & aiProcess_GenSmoothNormals && pFlags & aiProcess_GenNormals)   {
+    if (pFlags & aiProcess_GenSmoothNormals && pFlags & aiProcess_GenNormals) {
         ASSIMP_LOG_ERROR("#aiProcess_GenSmoothNormals and #aiProcess_GenNormals are incompatible");
         return false;
     }
-    if (pFlags & aiProcess_OptimizeGraph && pFlags & aiProcess_PreTransformVertices)    {
+    if (pFlags & aiProcess_OptimizeGraph && pFlags & aiProcess_PreTransformVertices) {
         ASSIMP_LOG_ERROR("#aiProcess_OptimizeGraph and #aiProcess_PreTransformVertices are incompatible");
         return false;
     }
@@ -380,7 +380,7 @@ bool _ValidateFlags(unsigned int pFlags)
 
 // ------------------------------------------------------------------------------------------------
 // Free the current scene
-void Importer::FreeScene( )
+void Importer::FreeScene()
 {
     ASSIMP_BEGIN_EXCEPTION_REGION();
     delete pimpl->mScene;
@@ -394,7 +394,7 @@ void Importer::FreeScene( )
 // Get the current error string, if any
 const char* Importer::GetErrorString() const
 {
-     /* Must remain valid as long as ReadFile() or FreeFile() are not called */
+    /* Must remain valid as long as ReadFile() or FreeFile() are not called */
     return pimpl->mErrorString.c_str();
 }
 
@@ -432,7 +432,7 @@ bool Importer::ValidateFlags(unsigned int pFlags) const
 {
     ASSIMP_BEGIN_EXCEPTION_REGION();
     // run basic checks for mutually exclusive flags
-    if(!_ValidateFlags(pFlags)) {
+    if (!_ValidateFlags(pFlags)) {
         return false;
     }
 
@@ -446,14 +446,11 @@ bool Importer::ValidateFlags(unsigned int pFlags) const
 
     // Now iterate through all bits which are set in the flags and check whether we find at least
     // one pp plugin which handles it.
-    for (unsigned int mask = 1; mask < (1u << (sizeof(unsigned int)*8-1));mask <<= 1) {
-
+    for (unsigned int mask = 1; mask < (1u << (sizeof(unsigned int) * 8 - 1)); mask <<= 1) {
         if (pFlags & mask) {
-
             bool have = false;
-            for( unsigned int a = 0; a < pimpl->mPostProcessingSteps.size(); a++)   {
-                if (pimpl->mPostProcessingSteps[a]-> IsActive(mask) ) {
-
+            for (unsigned int a = 0; a < pimpl->mPostProcessingSteps.size(); a++) {
+                if (pimpl->mPostProcessingSteps[a]->IsActive(mask)) {
                     have = true;
                     break;
                 }
@@ -468,33 +465,33 @@ bool Importer::ValidateFlags(unsigned int pFlags) const
 }
 
 // ------------------------------------------------------------------------------------------------
-const aiScene* Importer::ReadFileFromMemory( const void* pBuffer,
-    size_t pLength,
-    unsigned int pFlags,
-    const char* pHint /*= ""*/)
+const aiScene* Importer::ReadFileFromMemory(const void* pBuffer,
+    size_t                                              pLength,
+    unsigned int                                        pFlags,
+    const char*                                         pHint /*= ""*/)
 {
     ASSIMP_BEGIN_EXCEPTION_REGION();
     if (!pHint) {
         pHint = "";
     }
 
-    if (!pBuffer || !pLength || strlen(pHint) > MaxLenHint ) {
+    if (!pBuffer || !pLength || strlen(pHint) > MaxLenHint) {
         pimpl->mErrorString = "Invalid parameters passed to ReadFileFromMemory()";
         return NULL;
     }
 
     // prevent deletion of the previous IOHandler
-    IOSystem* io = pimpl->mIOHandler;
+    IOSystem* io      = pimpl->mIOHandler;
     pimpl->mIOHandler = NULL;
 
-    SetIOHandler(new MemoryIOSystem((const uint8_t*)pBuffer,pLength));
+    SetIOHandler(new MemoryIOSystem((const uint8_t*) pBuffer, pLength));
 
     // read the file and recover the previous IOSystem
     static const size_t BufSize(Importer::MaxLenHint + 28);
-    char fbuff[BufSize];
-    ai_snprintf(fbuff, BufSize, "%s.%s",AI_MEMORYIO_MAGIC_FILENAME,pHint);
+    char                fbuff[BufSize];
+    ai_snprintf(fbuff, BufSize, "%s.%s", AI_MEMORYIO_MAGIC_FILENAME, pHint);
 
-    ReadFile(fbuff,pFlags);
+    ReadFile(fbuff, pFlags);
     SetIOHandler(io);
 
     ASSIMP_END_EXCEPTION_REGION(const aiScene*);
@@ -510,51 +507,51 @@ void WriteLogOpening(const std::string& file)
     // need to ask the authors of incoming bug reports for
     // the library version they're using - a log dump is
     // sufficient.
-    const unsigned int flags( aiGetCompileFlags() );
-    std::stringstream stream;
+    const unsigned int flags(aiGetCompileFlags());
+    std::stringstream  stream;
     stream << "Assimp " << aiGetVersionMajor() << "." << aiGetVersionMinor() << "." << aiGetVersionRevision() << " "
 #if defined(ASSIMP_BUILD_ARCHITECTURE)
-        << ASSIMP_BUILD_ARCHITECTURE
+           << ASSIMP_BUILD_ARCHITECTURE
 #elif defined(_M_IX86) || defined(__x86_32__) || defined(__i386__)
-        << "x86"
+           << "x86"
 #elif defined(_M_X64) || defined(__x86_64__)
-        << "amd64"
+           << "amd64"
 #elif defined(_M_IA64) || defined(__ia64__)
-        << "itanium"
+           << "itanium"
 #elif defined(__ppc__) || defined(__powerpc__)
-        << "ppc32"
+           << "ppc32"
 #elif defined(__powerpc64__)
-        << "ppc64"
+           << "ppc64"
 #elif defined(__arm__)
-        << "arm"
+           << "arm"
 #else
-        << "<unknown architecture>"
+           << "<unknown architecture>"
 #endif
-        << " "
+           << " "
 #if defined(ASSIMP_BUILD_COMPILER)
-        << ( ASSIMP_BUILD_COMPILER )
+           << (ASSIMP_BUILD_COMPILER)
 #elif defined(_MSC_VER)
-        << "msvc"
+           << "msvc"
 #elif defined(__GNUC__)
-        << "gcc"
+           << "gcc"
 #else
-        << "<unknown compiler>"
+           << "<unknown compiler>"
 #endif
 
 #ifdef ASSIMP_BUILD_DEBUG
-        << " debug"
+           << " debug"
 #endif
 
-        << (flags & ASSIMP_CFLAGS_NOBOOST ? " noboost" : "")
-        << (flags & ASSIMP_CFLAGS_SHARED  ? " shared" : "")
-        << (flags & ASSIMP_CFLAGS_SINGLETHREADED  ? " singlethreaded" : "");
+           << (flags & ASSIMP_CFLAGS_NOBOOST ? " noboost" : "")
+           << (flags & ASSIMP_CFLAGS_SHARED ? " shared" : "")
+           << (flags & ASSIMP_CFLAGS_SINGLETHREADED ? " singlethreaded" : "");
 
-        ASSIMP_LOG_DEBUG(stream.str());
+    ASSIMP_LOG_DEBUG(stream.str());
 }
 
 // ------------------------------------------------------------------------------------------------
 // Reads the given file and returns its contents if successful.
-const aiScene* Importer::ReadFile( const char* _pFile, unsigned int pFlags)
+const aiScene* Importer::ReadFile(const char* _pFile, unsigned int pFlags)
 {
     ASSIMP_BEGIN_EXCEPTION_REGION();
     const std::string pFile(_pFile);
@@ -569,53 +566,50 @@ const aiScene* Importer::ReadFile( const char* _pFile, unsigned int pFlags)
 
 #ifdef ASSIMP_CATCH_GLOBAL_EXCEPTIONS
     try
-#endif // ! ASSIMP_CATCH_GLOBAL_EXCEPTIONS
+#endif    // ! ASSIMP_CATCH_GLOBAL_EXCEPTIONS
     {
         // Check whether this Importer instance has already loaded
         // a scene. In this case we need to delete the old one
-        if (pimpl->mScene)  {
-
+        if (pimpl->mScene) {
             ASSIMP_LOG_DEBUG("(Deleting previous scene)");
             FreeScene();
         }
 
         // First check if the file is accessible at all
-        if( !pimpl->mIOHandler->Exists( pFile)) {
-
+        if (!pimpl->mIOHandler->Exists(pFile)) {
             pimpl->mErrorString = "Unable to open file \"" + pFile + "\".";
             ASSIMP_LOG_ERROR(pimpl->mErrorString);
             return NULL;
         }
 
-        std::unique_ptr<Profiler> profiler(GetPropertyInteger(AI_CONFIG_GLOB_MEASURE_TIME,0)?new Profiler():NULL);
+        std::unique_ptr<Profiler> profiler(GetPropertyInteger(AI_CONFIG_GLOB_MEASURE_TIME, 0) ? new Profiler() : NULL);
         if (profiler) {
             profiler->BeginRegion("total");
         }
 
         // Find an worker class which can handle the file
         BaseImporter* imp = NULL;
-        for( unsigned int a = 0; a < pimpl->mImporter.size(); a++)  {
-
-            if( pimpl->mImporter[a]->CanRead( pFile, pimpl->mIOHandler, false)) {
+        for (unsigned int a = 0; a < pimpl->mImporter.size(); a++) {
+            if (pimpl->mImporter[a]->CanRead(pFile, pimpl->mIOHandler, false)) {
                 imp = pimpl->mImporter[a];
                 break;
             }
         }
 
-        if (!imp)   {
+        if (!imp) {
             // not so bad yet ... try format auto detection.
             const std::string::size_type s = pFile.find_last_of('.');
             if (s != std::string::npos) {
                 ASSIMP_LOG_INFO("File extension not known, trying signature-based detection");
-                for( unsigned int a = 0; a < pimpl->mImporter.size(); a++)  {
-                    if( pimpl->mImporter[a]->CanRead( pFile, pimpl->mIOHandler, true)) {
+                for (unsigned int a = 0; a < pimpl->mImporter.size(); a++) {
+                    if (pimpl->mImporter[a]->CanRead(pFile, pimpl->mIOHandler, true)) {
                         imp = pimpl->mImporter[a];
                         break;
                     }
                 }
             }
             // Put a proper error message if no suitable importer was found
-            if( !imp)   {
+            if (!imp) {
                 pimpl->mErrorString = "No suitable reader found for the file format of file \"" + pFile + "\".";
                 ASSIMP_LOG_ERROR(pimpl->mErrorString);
                 return NULL;
@@ -623,29 +617,28 @@ const aiScene* Importer::ReadFile( const char* _pFile, unsigned int pFlags)
         }
 
         // Get file size for progress handler
-        IOStream * fileIO = pimpl->mIOHandler->Open( pFile );
-        uint32_t fileSize = 0;
-        if (fileIO)
-        {
+        IOStream* fileIO   = pimpl->mIOHandler->Open(pFile);
+        uint32_t  fileSize = 0;
+        if (fileIO) {
             fileSize = static_cast<uint32_t>(fileIO->FileSize());
-            pimpl->mIOHandler->Close( fileIO );
+            pimpl->mIOHandler->Close(fileIO);
         }
 
         // Dispatch the reading to the worker class for this format
-        const aiImporterDesc *desc( imp->GetInfo() );
-        std::string ext( "unknown" );
-        if ( NULL != desc ) {
+        const aiImporterDesc* desc(imp->GetInfo());
+        std::string           ext("unknown");
+        if (NULL != desc) {
             ext = desc->mName;
         }
-        ASSIMP_LOG_INFO("Found a matching importer for this file format: " + ext + "." );
-        pimpl->mProgressHandler->UpdateFileRead( 0, fileSize );
+        ASSIMP_LOG_INFO("Found a matching importer for this file format: " + ext + ".");
+        pimpl->mProgressHandler->UpdateFileRead(0, fileSize);
 
         if (profiler) {
             profiler->BeginRegion("import");
         }
 
-        pimpl->mScene = imp->ReadFile( this, pFile, pimpl->mIOHandler);
-        pimpl->mProgressHandler->UpdateFileRead( fileSize, fileSize );
+        pimpl->mScene = imp->ReadFile(this, pFile, pimpl->mIOHandler);
+        pimpl->mProgressHandler->UpdateFileRead(fileSize, fileSize);
 
         if (profiler) {
             profiler->EndRegion("import");
@@ -654,19 +647,17 @@ const aiScene* Importer::ReadFile( const char* _pFile, unsigned int pFlags)
         SetPropertyString("sourceFilePath", pFile);
 
         // If successful, apply all active post processing steps to the imported data
-        if( pimpl->mScene)  {
-
+        if (pimpl->mScene) {
 #ifndef ASSIMP_BUILD_NO_VALIDATEDS_PROCESS
             // The ValidateDS process is an exception. It is executed first, even before ScenePreprocessor is called.
-            if (pFlags & aiProcess_ValidateDataStructure)
-            {
+            if (pFlags & aiProcess_ValidateDataStructure) {
                 ValidateDSProcess ds;
-                ds.ExecuteOnScene (this);
+                ds.ExecuteOnScene(this);
                 if (!pimpl->mScene) {
                     return NULL;
                 }
             }
-#endif // no validation
+#endif    // no validation
 
             // Preprocess the scene and prepare it for post-processing
             if (profiler) {
@@ -684,7 +675,7 @@ const aiScene* Importer::ReadFile( const char* _pFile, unsigned int pFlags)
             ApplyPostProcessing(pFlags & (~aiProcess_ValidateDataStructure));
         }
         // if failed, extract the error string
-        else if( !pimpl->mScene) {
+        else if (!pimpl->mScene) {
             pimpl->mErrorString = imp->GetErrorText();
         }
 
@@ -696,25 +687,24 @@ const aiScene* Importer::ReadFile( const char* _pFile, unsigned int pFlags)
         }
     }
 #ifdef ASSIMP_CATCH_GLOBAL_EXCEPTIONS
-    catch (std::exception &e)
-    {
-#if (defined _MSC_VER) &&   (defined _CPPRTTI)
+    catch (std::exception& e) {
+    #if (defined _MSC_VER) && (defined _CPPRTTI)
         // if we have RTTI get the full name of the exception that occurred
-        pimpl->mErrorString = std::string(typeid( e ).name()) + ": " + e.what();
-#else
+        pimpl->mErrorString = std::string(typeid(e).name()) + ": " + e.what();
+    #else
         pimpl->mErrorString = std::string("std::exception: ") + e.what();
-#endif
+    #endif
 
         ASSIMP_LOG_ERROR(pimpl->mErrorString);
-        delete pimpl->mScene; pimpl->mScene = NULL;
+        delete pimpl->mScene;
+        pimpl->mScene = NULL;
     }
-#endif // ! ASSIMP_CATCH_GLOBAL_EXCEPTIONS
+#endif    // ! ASSIMP_CATCH_GLOBAL_EXCEPTIONS
 
     // either successful or failure - the pointer expresses it anyways
     ASSIMP_END_EXCEPTION_REGION(const aiScene*);
     return pimpl->mScene;
 }
-
 
 // ------------------------------------------------------------------------------------------------
 // Apply post-processing to the currently bound scene
@@ -738,74 +728,70 @@ const aiScene* Importer::ApplyPostProcessing(unsigned int pFlags)
 #ifndef ASSIMP_BUILD_NO_VALIDATEDS_PROCESS
     // The ValidateDS process plays an exceptional role. It isn't contained in the global
     // list of post-processing steps, so we need to call it manually.
-    if (pFlags & aiProcess_ValidateDataStructure)
-    {
+    if (pFlags & aiProcess_ValidateDataStructure) {
         ValidateDSProcess ds;
-        ds.ExecuteOnScene (this);
+        ds.ExecuteOnScene(this);
         if (!pimpl->mScene) {
             return NULL;
         }
     }
-#endif // no validation
+#endif    // no validation
 #ifdef ASSIMP_BUILD_DEBUG
-    if (pimpl->bExtraVerbose)
-    {
-#ifdef ASSIMP_BUILD_NO_VALIDATEDS_PROCESS
+    if (pimpl->bExtraVerbose) {
+    #ifdef ASSIMP_BUILD_NO_VALIDATEDS_PROCESS
         ASSIMP_LOG_ERROR("Verbose Import is not available due to build settings");
-#endif  // no validation
+    #endif    // no validation
         pFlags |= aiProcess_ValidateDataStructure;
     }
 #else
     if (pimpl->bExtraVerbose) {
         ASSIMP_LOG_WARN("Not a debug build, ignoring extra verbose setting");
     }
-#endif // ! DEBUG
+#endif    // ! DEBUG
 
-    std::unique_ptr<Profiler> profiler(GetPropertyInteger(AI_CONFIG_GLOB_MEASURE_TIME,0)?new Profiler():NULL);
-    for( unsigned int a = 0; a < pimpl->mPostProcessingSteps.size(); a++)   {
-
+    std::unique_ptr<Profiler> profiler(GetPropertyInteger(AI_CONFIG_GLOB_MEASURE_TIME, 0) ? new Profiler() : NULL);
+    for (unsigned int a = 0; a < pimpl->mPostProcessingSteps.size(); a++) {
         BaseProcess* process = pimpl->mPostProcessingSteps[a];
-        pimpl->mProgressHandler->UpdatePostProcess(static_cast<int>(a), static_cast<int>(pimpl->mPostProcessingSteps.size()) );
-        if( process->IsActive( pFlags)) {
-
+        pimpl->mProgressHandler->UpdatePostProcess(static_cast<int>(a), static_cast<int>(pimpl->mPostProcessingSteps.size()));
+        if (process->IsActive(pFlags)) {
             if (profiler) {
                 profiler->BeginRegion("postprocess");
             }
 
-            process->ExecuteOnScene ( this );
+            process->ExecuteOnScene(this);
 
             if (profiler) {
                 profiler->EndRegion("postprocess");
             }
         }
-        if( !pimpl->mScene) {
+        if (!pimpl->mScene) {
             break;
         }
 #ifdef ASSIMP_BUILD_DEBUG
 
-#ifdef ASSIMP_BUILD_NO_VALIDATEDS_PROCESS
+    #ifdef ASSIMP_BUILD_NO_VALIDATEDS_PROCESS
         continue;
-#endif  // no validation
+    #endif    // no validation
 
         // If the extra verbose mode is active, execute the ValidateDataStructureStep again - after each step
-        if (pimpl->bExtraVerbose)   {
+        if (pimpl->bExtraVerbose) {
             ASSIMP_LOG_DEBUG("Verbose Import: re-validating data structures");
 
             ValidateDSProcess ds;
-            ds.ExecuteOnScene (this);
-            if( !pimpl->mScene) {
+            ds.ExecuteOnScene(this);
+            if (!pimpl->mScene) {
                 ASSIMP_LOG_ERROR("Verbose Import: failed to re-validate data structures");
                 break;
             }
         }
-#endif // ! DEBUG
+#endif    // ! DEBUG
     }
-    pimpl->mProgressHandler->UpdatePostProcess( static_cast<int>(pimpl->mPostProcessingSteps.size()), 
-        static_cast<int>(pimpl->mPostProcessingSteps.size()) );
+    pimpl->mProgressHandler->UpdatePostProcess(static_cast<int>(pimpl->mPostProcessingSteps.size()),
+        static_cast<int>(pimpl->mPostProcessingSteps.size()));
 
     // update private scene flags
-    if( pimpl->mScene )
-      ScenePriv(pimpl->mScene)->mPPStepsApplied |= pFlags;
+    if (pimpl->mScene)
+        ScenePriv(pimpl->mScene)->mPPStepsApplied |= pFlags;
 
     // clear any data allocated by post-process steps
     pimpl->mPPShared->Clean();
@@ -816,75 +802,74 @@ const aiScene* Importer::ApplyPostProcessing(unsigned int pFlags)
 }
 
 // ------------------------------------------------------------------------------------------------
-const aiScene* Importer::ApplyCustomizedPostProcessing( BaseProcess *rootProcess, bool requestValidation ) {
+const aiScene* Importer::ApplyCustomizedPostProcessing(BaseProcess* rootProcess, bool requestValidation)
+{
     ASSIMP_BEGIN_EXCEPTION_REGION();
 
     // Return immediately if no scene is active
-    if ( NULL == pimpl->mScene ) {
+    if (NULL == pimpl->mScene) {
         return NULL;
     }
 
     // If no flags are given, return the current scene with no further action
-    if ( NULL == rootProcess ) {
+    if (NULL == rootProcess) {
         return pimpl->mScene;
     }
 
     // In debug builds: run basic flag validation
-    ASSIMP_LOG_INFO( "Entering customized post processing pipeline" );
+    ASSIMP_LOG_INFO("Entering customized post processing pipeline");
 
 #ifndef ASSIMP_BUILD_NO_VALIDATEDS_PROCESS
     // The ValidateDS process plays an exceptional role. It isn't contained in the global
     // list of post-processing steps, so we need to call it manually.
-    if ( requestValidation )
-    {
+    if (requestValidation) {
         ValidateDSProcess ds;
-        ds.ExecuteOnScene( this );
-        if ( !pimpl->mScene ) {
+        ds.ExecuteOnScene(this);
+        if (!pimpl->mScene) {
             return NULL;
         }
     }
-#endif // no validation
+#endif    // no validation
 #ifdef ASSIMP_BUILD_DEBUG
-    if ( pimpl->bExtraVerbose )
-    {
-#ifdef ASSIMP_BUILD_NO_VALIDATEDS_PROCESS
-        ASSIMP_LOG_ERROR( "Verbose Import is not available due to build settings" );
-#endif  // no validation
+    if (pimpl->bExtraVerbose) {
+    #ifdef ASSIMP_BUILD_NO_VALIDATEDS_PROCESS
+        ASSIMP_LOG_ERROR("Verbose Import is not available due to build settings");
+    #endif    // no validation
     }
 #else
-    if ( pimpl->bExtraVerbose ) {
-        ASSIMP_LOG_WARN( "Not a debug build, ignoring extra verbose setting" );
+    if (pimpl->bExtraVerbose) {
+        ASSIMP_LOG_WARN("Not a debug build, ignoring extra verbose setting");
     }
-#endif // ! DEBUG
+#endif    // ! DEBUG
 
-    std::unique_ptr<Profiler> profiler( GetPropertyInteger( AI_CONFIG_GLOB_MEASURE_TIME, 0 ) ? new Profiler() : NULL );
+    std::unique_ptr<Profiler> profiler(GetPropertyInteger(AI_CONFIG_GLOB_MEASURE_TIME, 0) ? new Profiler() : NULL);
 
-    if ( profiler ) {
-        profiler->BeginRegion( "postprocess" );
+    if (profiler) {
+        profiler->BeginRegion("postprocess");
     }
 
-    rootProcess->ExecuteOnScene( this );
+    rootProcess->ExecuteOnScene(this);
 
-    if ( profiler ) {
-        profiler->EndRegion( "postprocess" );
+    if (profiler) {
+        profiler->EndRegion("postprocess");
     }
 
     // If the extra verbose mode is active, execute the ValidateDataStructureStep again - after each step
-    if ( pimpl->bExtraVerbose || requestValidation  ) {
-        ASSIMP_LOG_DEBUG( "Verbose Import: revalidating data structures" );
+    if (pimpl->bExtraVerbose || requestValidation) {
+        ASSIMP_LOG_DEBUG("Verbose Import: revalidating data structures");
 
         ValidateDSProcess ds;
-        ds.ExecuteOnScene( this );
-        if ( !pimpl->mScene ) {
-            ASSIMP_LOG_ERROR( "Verbose Import: failed to revalidate data structures" );
+        ds.ExecuteOnScene(this);
+        if (!pimpl->mScene) {
+            ASSIMP_LOG_ERROR("Verbose Import: failed to revalidate data structures");
         }
     }
 
     // clear any data allocated by post-process steps
     pimpl->mPPShared->Clean();
-    ASSIMP_LOG_INFO( "Leaving customized post processing pipeline" );
+    ASSIMP_LOG_INFO("Leaving customized post processing pipeline");
 
-    ASSIMP_END_EXCEPTION_REGION( const aiScene* );
+    ASSIMP_END_EXCEPTION_REGION(const aiScene*);
 
     return pimpl->mScene;
 }
@@ -911,9 +896,8 @@ const aiImporterDesc* Importer::GetImporterInfo(size_t index) const
     return pimpl->mImporter[index]->GetInfo();
 }
 
-
 // ------------------------------------------------------------------------------------------------
-BaseImporter* Importer::GetImporter (size_t index) const
+BaseImporter* Importer::GetImporter(size_t index) const
 {
     if (index >= pimpl->mImporter.size()) {
         return NULL;
@@ -923,35 +907,36 @@ BaseImporter* Importer::GetImporter (size_t index) const
 
 // ------------------------------------------------------------------------------------------------
 // Find a loader plugin for a given file extension
-BaseImporter* Importer::GetImporter (const char* szExtension) const
+BaseImporter* Importer::GetImporter(const char* szExtension) const
 {
     return GetImporter(GetImporterIndex(szExtension));
 }
 
 // ------------------------------------------------------------------------------------------------
 // Find a loader plugin for a given file extension
-size_t Importer::GetImporterIndex (const char* szExtension) const {
+size_t Importer::GetImporterIndex(const char* szExtension) const
+{
     ai_assert(nullptr != szExtension);
 
     ASSIMP_BEGIN_EXCEPTION_REGION();
 
     // skip over wildcard and dot characters at string head --
-    for ( ; *szExtension == '*' || *szExtension == '.'; ++szExtension );
+    for (; *szExtension == '*' || *szExtension == '.'; ++szExtension);
 
     std::string ext(szExtension);
     if (ext.empty()) {
         return static_cast<size_t>(-1);
     }
-    std::transform( ext.begin(), ext.end(), ext.begin(), ToLower<char> );
+    std::transform(ext.begin(), ext.end(), ext.begin(), ToLower<char>);
 
     std::set<std::string> str;
-    for (std::vector<BaseImporter*>::const_iterator i =  pimpl->mImporter.begin();i != pimpl->mImporter.end();++i)  {
+    for (std::vector<BaseImporter*>::const_iterator i = pimpl->mImporter.begin(); i != pimpl->mImporter.end(); ++i) {
         str.clear();
 
         (*i)->GetExtensionList(str);
         for (std::set<std::string>::const_iterator it = str.begin(); it != str.end(); ++it) {
             if (ext == *it) {
-                return std::distance(static_cast< std::vector<BaseImporter*>::const_iterator >(pimpl->mImporter.begin()), i);
+                return std::distance(static_cast<std::vector<BaseImporter*>::const_iterator>(pimpl->mImporter.begin()), i);
             }
         }
     }
@@ -965,22 +950,22 @@ void Importer::GetExtensionList(aiString& szOut) const
 {
     ASSIMP_BEGIN_EXCEPTION_REGION();
     std::set<std::string> str;
-    for (std::vector<BaseImporter*>::const_iterator i =  pimpl->mImporter.begin();i != pimpl->mImporter.end();++i)  {
+    for (std::vector<BaseImporter*>::const_iterator i = pimpl->mImporter.begin(); i != pimpl->mImporter.end(); ++i) {
         (*i)->GetExtensionList(str);
     }
 
-	// List can be empty
-	if( !str.empty() ) {
-		for (std::set<std::string>::const_iterator it = str.begin();; ) {
-			szOut.Append("*.");
-			szOut.Append((*it).c_str());
+    // List can be empty
+    if (!str.empty()) {
+        for (std::set<std::string>::const_iterator it = str.begin();;) {
+            szOut.Append("*.");
+            szOut.Append((*it).c_str());
 
-			if (++it == str.end()) {
-				break;
-			}
-			szOut.Append(";");
-		}
-	}
+            if (++it == str.end()) {
+                break;
+            }
+            szOut.Append(";");
+        }
+    }
     ASSIMP_END_EXCEPTION_REGION(void);
 }
 
@@ -990,7 +975,7 @@ bool Importer::SetPropertyInteger(const char* szName, int iValue)
 {
     bool existing;
     ASSIMP_BEGIN_EXCEPTION_REGION();
-        existing = SetGenericProperty<int>(pimpl->mIntProperties, szName,iValue);
+    existing = SetGenericProperty<int>(pimpl->mIntProperties, szName, iValue);
     ASSIMP_END_EXCEPTION_REGION(bool);
     return existing;
 }
@@ -1001,7 +986,7 @@ bool Importer::SetPropertyFloat(const char* szName, ai_real iValue)
 {
     bool existing;
     ASSIMP_BEGIN_EXCEPTION_REGION();
-        existing = SetGenericProperty<ai_real>(pimpl->mFloatProperties, szName,iValue);
+    existing = SetGenericProperty<ai_real>(pimpl->mFloatProperties, szName, iValue);
     ASSIMP_END_EXCEPTION_REGION(bool);
     return existing;
 }
@@ -1012,7 +997,7 @@ bool Importer::SetPropertyString(const char* szName, const std::string& value)
 {
     bool existing;
     ASSIMP_BEGIN_EXCEPTION_REGION();
-        existing = SetGenericProperty<std::string>(pimpl->mStringProperties, szName,value);
+    existing = SetGenericProperty<std::string>(pimpl->mStringProperties, szName, value);
     ASSIMP_END_EXCEPTION_REGION(bool);
     return existing;
 }
@@ -1023,7 +1008,7 @@ bool Importer::SetPropertyMatrix(const char* szName, const aiMatrix4x4& value)
 {
     bool existing;
     ASSIMP_BEGIN_EXCEPTION_REGION();
-        existing = SetGenericProperty<aiMatrix4x4>(pimpl->mMatrixProperties, szName,value);
+    existing = SetGenericProperty<aiMatrix4x4>(pimpl->mMatrixProperties, szName, value);
     ASSIMP_END_EXCEPTION_REGION(bool);
     return existing;
 }
@@ -1031,45 +1016,45 @@ bool Importer::SetPropertyMatrix(const char* szName, const aiMatrix4x4& value)
 // ------------------------------------------------------------------------------------------------
 // Get a configuration property
 int Importer::GetPropertyInteger(const char* szName,
-    int iErrorReturn /*= 0xffffffff*/) const
+    int                                      iErrorReturn /*= 0xffffffff*/) const
 {
-    return GetGenericProperty<int>(pimpl->mIntProperties,szName,iErrorReturn);
+    return GetGenericProperty<int>(pimpl->mIntProperties, szName, iErrorReturn);
 }
 
 // ------------------------------------------------------------------------------------------------
 // Get a configuration property
 ai_real Importer::GetPropertyFloat(const char* szName,
-    ai_real iErrorReturn /*= 10e10*/) const
+    ai_real                                    iErrorReturn /*= 10e10*/) const
 {
-    return GetGenericProperty<ai_real>(pimpl->mFloatProperties,szName,iErrorReturn);
+    return GetGenericProperty<ai_real>(pimpl->mFloatProperties, szName, iErrorReturn);
 }
 
 // ------------------------------------------------------------------------------------------------
 // Get a configuration property
 const std::string Importer::GetPropertyString(const char* szName,
-    const std::string& iErrorReturn /*= ""*/) const
+    const std::string&                                    iErrorReturn /*= ""*/) const
 {
-    return GetGenericProperty<std::string>(pimpl->mStringProperties,szName,iErrorReturn);
+    return GetGenericProperty<std::string>(pimpl->mStringProperties, szName, iErrorReturn);
 }
 
 // ------------------------------------------------------------------------------------------------
 // Get a configuration property
 const aiMatrix4x4 Importer::GetPropertyMatrix(const char* szName,
-    const aiMatrix4x4& iErrorReturn /*= aiMatrix4x4()*/) const
+    const aiMatrix4x4&                                    iErrorReturn /*= aiMatrix4x4()*/) const
 {
-    return GetGenericProperty<aiMatrix4x4>(pimpl->mMatrixProperties,szName,iErrorReturn);
+    return GetGenericProperty<aiMatrix4x4>(pimpl->mMatrixProperties, szName, iErrorReturn);
 }
 
 // ------------------------------------------------------------------------------------------------
 // Get the memory requirements of a single node
-inline void AddNodeWeight(unsigned int& iScene,const aiNode* pcNode)
+inline void AddNodeWeight(unsigned int& iScene, const aiNode* pcNode)
 {
     iScene += sizeof(aiNode);
     iScene += sizeof(unsigned int) * pcNode->mNumMeshes;
     iScene += sizeof(void*) * pcNode->mNumChildren;
 
-    for (unsigned int i = 0; i < pcNode->mNumChildren;++i) {
-        AddNodeWeight(iScene,pcNode->mChildren[i]);
+    for (unsigned int i = 0; i < pcNode->mNumChildren; ++i) {
+        AddNodeWeight(iScene, pcNode->mChildren[i]);
     }
 }
 
@@ -1077,19 +1062,17 @@ inline void AddNodeWeight(unsigned int& iScene,const aiNode* pcNode)
 // Get the memory requirements of the scene
 void Importer::GetMemoryRequirements(aiMemoryInfo& in) const
 {
-    in = aiMemoryInfo();
+    in              = aiMemoryInfo();
     aiScene* mScene = pimpl->mScene;
 
     // return if we have no scene loaded
     if (!pimpl->mScene)
         return;
 
-
     in.total = sizeof(aiScene);
 
     // add all meshes
-    for (unsigned int i = 0; i < mScene->mNumMeshes;++i)
-    {
+    for (unsigned int i = 0; i < mScene->mNumMeshes; ++i) {
         in.meshes += sizeof(aiMesh);
         if (mScene->mMeshes[i]->HasPositions()) {
             in.meshes += sizeof(aiVector3D) * mScene->mMeshes[i]->mNumVertices;
@@ -1103,42 +1086,42 @@ void Importer::GetMemoryRequirements(aiMemoryInfo& in) const
             in.meshes += sizeof(aiVector3D) * mScene->mMeshes[i]->mNumVertices * 2;
         }
 
-        for (unsigned int a = 0; a < AI_MAX_NUMBER_OF_COLOR_SETS;++a) {
+        for (unsigned int a = 0; a < AI_MAX_NUMBER_OF_COLOR_SETS; ++a) {
             if (mScene->mMeshes[i]->HasVertexColors(a)) {
                 in.meshes += sizeof(aiColor4D) * mScene->mMeshes[i]->mNumVertices;
-            }
-            else break;
+            } else
+                break;
         }
-        for (unsigned int a = 0; a < AI_MAX_NUMBER_OF_TEXTURECOORDS;++a) {
+        for (unsigned int a = 0; a < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++a) {
             if (mScene->mMeshes[i]->HasTextureCoords(a)) {
                 in.meshes += sizeof(aiVector3D) * mScene->mMeshes[i]->mNumVertices;
-            }
-            else break;
+            } else
+                break;
         }
         if (mScene->mMeshes[i]->HasBones()) {
             in.meshes += sizeof(void*) * mScene->mMeshes[i]->mNumBones;
-            for (unsigned int p = 0; p < mScene->mMeshes[i]->mNumBones;++p) {
+            for (unsigned int p = 0; p < mScene->mMeshes[i]->mNumBones; ++p) {
                 in.meshes += sizeof(aiBone);
                 in.meshes += mScene->mMeshes[i]->mBones[p]->mNumWeights * sizeof(aiVertexWeight);
             }
         }
-        in.meshes += (sizeof(aiFace) + 3 * sizeof(unsigned int))*mScene->mMeshes[i]->mNumFaces;
+        in.meshes += (sizeof(aiFace) + 3 * sizeof(unsigned int)) * mScene->mMeshes[i]->mNumFaces;
     }
     in.total += in.meshes;
 
     // add all embedded textures
-    for (unsigned int i = 0; i < mScene->mNumTextures;++i) {
+    for (unsigned int i = 0; i < mScene->mNumTextures; ++i) {
         const aiTexture* pc = mScene->mTextures[i];
         in.textures += sizeof(aiTexture);
         if (pc->mHeight) {
             in.textures += 4 * pc->mHeight * pc->mWidth;
-        }
-        else in.textures += pc->mWidth;
+        } else
+            in.textures += pc->mWidth;
     }
     in.total += in.textures;
 
     // add all animations
-    for (unsigned int i = 0; i < mScene->mNumAnimations;++i) {
+    for (unsigned int i = 0; i < mScene->mNumAnimations; ++i) {
         const aiAnimation* pc = mScene->mAnimations[i];
         in.animations += sizeof(aiAnimation);
 
@@ -1154,20 +1137,20 @@ void Importer::GetMemoryRequirements(aiMemoryInfo& in) const
     in.total += in.animations;
 
     // add all cameras and all lights
-    in.total += in.cameras = sizeof(aiCamera) *  mScene->mNumCameras;
-    in.total += in.lights  = sizeof(aiLight)  *  mScene->mNumLights;
+    in.total += in.cameras = sizeof(aiCamera) * mScene->mNumCameras;
+    in.total += in.lights  = sizeof(aiLight) * mScene->mNumLights;
 
     // add all nodes
-    AddNodeWeight(in.nodes,mScene->mRootNode);
+    AddNodeWeight(in.nodes, mScene->mRootNode);
     in.total += in.nodes;
 
     // add all materials
-    for (unsigned int i = 0; i < mScene->mNumMaterials;++i) {
+    for (unsigned int i = 0; i < mScene->mNumMaterials; ++i) {
         const aiMaterial* pc = mScene->mMaterials[i];
         in.materials += sizeof(aiMaterial);
         in.materials += pc->mNumAllocated * sizeof(void*);
 
-        for (unsigned int a = 0; a < pc->mNumProperties;++a) {
+        for (unsigned int a = 0; a < pc->mNumProperties; ++a) {
             in.materials += pc->mProperties[a]->mDataLength;
         }
     }

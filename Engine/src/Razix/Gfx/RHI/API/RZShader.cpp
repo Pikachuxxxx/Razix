@@ -118,5 +118,5 @@ else if (Razix::Utilities::StartsWith(str, "#ifdef")) {
             for (auto& set: m_SceneParams.userSets)
                 set->UpdateSet(m_DescriptorsPerHeap[set->getSetIdx()]);
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

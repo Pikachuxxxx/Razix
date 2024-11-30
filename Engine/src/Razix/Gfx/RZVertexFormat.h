@@ -104,7 +104,7 @@ namespace Razix {
             }
         };
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1

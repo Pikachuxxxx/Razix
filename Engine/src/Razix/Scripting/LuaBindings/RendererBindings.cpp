@@ -10,7 +10,6 @@ namespace Razix {
 
         void RZLuaScriptHandler::bindRendererAPI()
         {
-           
         }
 
     }    // namespace Scripting

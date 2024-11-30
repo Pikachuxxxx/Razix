@@ -6,8 +6,6 @@
 
 // Only use simde if we use clang on windows --> soon to use only 256b-it AVX as PS5 doesn't support avx-512
 
-
-
 namespace Razix {
 
 #if defined(BIGENDIAN)

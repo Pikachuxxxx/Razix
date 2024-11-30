@@ -496,5 +496,5 @@ namespace Razix {
 
             return preFilteredMapHandle;
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

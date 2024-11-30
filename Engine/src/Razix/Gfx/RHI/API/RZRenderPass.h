@@ -14,17 +14,17 @@ namespace Razix {
         {
             TextureType   type;         /* The type of the attachment                                                                                               */
             TextureFormat format;       /* The format of the attachment                                                                                             */
-            bool              clear = true; /* Whether or not to clear the particular attachment                                                                        */
-            glm::vec4         clearColor;   /* Clear color with which the attachment is cleared, Note: x and y represent the depth clear values if clear is false       */
+            bool          clear = true; /* Whether or not to clear the particular attachment                                                                        */
+            glm::vec4     clearColor;   /* Clear color with which the attachment is cleared, Note: x and y represent the depth clear values if clear is false       */
         };
 
         /* Info to create a render pass */
         struct RAZIX_MEM_ALIGN_16 RenderPassInfo
         {
-            std::string     name;            /* Name of the renderpass                               */
+            std::string               name;            /* Name of the renderpass                               */
             RenderPassAttachmentInfo* attachmentInfos; /* Attachments and their info                           */
-            u32        attachmentCount; /* The number of attachments in the current render pass */
-            u8         _padding[3];     /* manual Padding for 16-byte alignment fill up         */
+            u32                       attachmentCount; /* The number of attachments in the current render pass */
+            u8                        _padding[3];     /* manual Padding for 16-byte alignment fill up         */
         };
 
         enum SubPassContents
@@ -75,9 +75,9 @@ namespace Razix {
             RAZIX_INLINE RenderPassAttachmentInfo* getAttachmentTypes() { return m_AttachmentTypes; }
 
         protected:
-            u32        m_AttachmentsCount      = 0;       /* The total number of attachments bounded to the render pass                       */
-            u32        m_ColorAttachmentsCount = 0;       /* The total number of color attachments bounded to the render pass                 */
+            u32                       m_AttachmentsCount      = 0;       /* The total number of attachments bounded to the render pass                       */
+            u32                       m_ColorAttachmentsCount = 0;       /* The total number of color attachments bounded to the render pass                 */
             RenderPassAttachmentInfo* m_AttachmentTypes       = nullptr; /* Types of attachments for the framebuffer that will be used by the render pass    */
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

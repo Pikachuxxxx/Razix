@@ -349,5 +349,5 @@ namespace Razix {
         {
             return ShaderStageStringMap[str];
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

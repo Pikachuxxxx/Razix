@@ -45,7 +45,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *  @brief Implementation of the aiProcess_FindInstances postprocessing step
 */
 
-
 #include "FindInstancesProcess.h"
 #include <memory>
 #include <stdio.h>
@@ -55,17 +54,19 @@ using namespace Assimp;
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
 FindInstancesProcess::FindInstancesProcess()
-:   configSpeedFlag (false)
-{}
+    : configSpeedFlag(false)
+{
+}
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
 FindInstancesProcess::~FindInstancesProcess()
-{}
+{
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.
-bool FindInstancesProcess::IsActive( unsigned int pFlags) const
+bool FindInstancesProcess::IsActive(unsigned int pFlags) const
 {
     // FindInstances makes absolutely no sense together with PreTransformVertices
     // fixme: spawn error message somewhere else?
@@ -77,25 +78,25 @@ bool FindInstancesProcess::IsActive( unsigned int pFlags) const
 void FindInstancesProcess::SetupProperties(const Importer* pImp)
 {
     // AI_CONFIG_FAVOUR_SPEED
-    configSpeedFlag = (0 != pImp->GetPropertyInteger(AI_CONFIG_FAVOUR_SPEED,0));
+    configSpeedFlag = (0 != pImp->GetPropertyInteger(AI_CONFIG_FAVOUR_SPEED, 0));
 }
 
 // ------------------------------------------------------------------------------------------------
 // Compare the bones of two meshes
 bool CompareBones(const aiMesh* orig, const aiMesh* inst)
 {
-    for (unsigned int i = 0; i < orig->mNumBones;++i) {
+    for (unsigned int i = 0; i < orig->mNumBones; ++i) {
         aiBone* aha = orig->mBones[i];
         aiBone* oha = inst->mBones[i];
 
-        if (aha->mNumWeights   != oha->mNumWeights   ||
+        if (aha->mNumWeights != oha->mNumWeights ||
             aha->mOffsetMatrix != oha->mOffsetMatrix) {
             return false;
         }
 
         // compare weight per weight ---
-        for (unsigned int n = 0; n < aha->mNumWeights;++n) {
-            if  (aha->mWeights[n].mVertexId != oha->mWeights[n].mVertexId ||
+        for (unsigned int n = 0; n < aha->mNumWeights; ++n) {
+            if (aha->mWeights[n].mVertexId != oha->mWeights[n].mVertexId ||
                 (aha->mWeights[n].mWeight - oha->mWeights[n].mWeight) < 10e-3f) {
                 return false;
             }
@@ -108,38 +109,35 @@ bool CompareBones(const aiMesh* orig, const aiMesh* inst)
 // Update mesh indices in the node graph
 void UpdateMeshIndices(aiNode* node, unsigned int* lookup)
 {
-    for (unsigned int n = 0; n < node->mNumMeshes;++n)
+    for (unsigned int n = 0; n < node->mNumMeshes; ++n)
         node->mMeshes[n] = lookup[node->mMeshes[n]];
 
-    for (unsigned int n = 0; n < node->mNumChildren;++n)
-        UpdateMeshIndices(node->mChildren[n],lookup);
+    for (unsigned int n = 0; n < node->mNumChildren; ++n)
+        UpdateMeshIndices(node->mChildren[n], lookup);
 }
 
 // ------------------------------------------------------------------------------------------------
 // Executes the post processing step on the given imported data.
-void FindInstancesProcess::Execute( aiScene* pScene)
+void FindInstancesProcess::Execute(aiScene* pScene)
 {
     ASSIMP_LOG_DEBUG("FindInstancesProcess begin");
     if (pScene->mNumMeshes) {
-
         // use a pseudo hash for all meshes in the scene to quickly find
         // the ones which are possibly equal. This step is executed early
         // in the pipeline, so we could, depending on the file format,
         // have several thousand small meshes. That's too much for a brute
         // everyone-against-everyone check involving up to 10 comparisons
         // each.
-        std::unique_ptr<uint64_t[]> hashes (new uint64_t[pScene->mNumMeshes]);
-        std::unique_ptr<unsigned int[]> remapping (new unsigned int[pScene->mNumMeshes]);
+        std::unique_ptr<uint64_t[]>     hashes(new uint64_t[pScene->mNumMeshes]);
+        std::unique_ptr<unsigned int[]> remapping(new unsigned int[pScene->mNumMeshes]);
 
         unsigned int numMeshesOut = 0;
         for (unsigned int i = 0; i < pScene->mNumMeshes; ++i) {
-
             aiMesh* inst = pScene->mMeshes[i];
-            hashes[i] = GetMeshHash(inst);
+            hashes[i]    = GetMeshHash(inst);
 
-            for (int a = i-1; a >= 0; --a) {
-                if (hashes[i] == hashes[a])
-                {
+            for (int a = i - 1; a >= 0; --a) {
+                if (hashes[i] == hashes[a]) {
                     aiMesh* orig = pScene->mMeshes[a];
                     if (!orig)
                         continue;
@@ -147,10 +145,10 @@ void FindInstancesProcess::Execute( aiScene* pScene)
                     // check for hash collision .. we needn't check
                     // the vertex format, it *must* match due to the
                     // (brilliant) construction of the hash
-                    if (orig->mNumBones       != inst->mNumBones      ||
-                        orig->mNumFaces       != inst->mNumFaces      ||
-                        orig->mNumVertices    != inst->mNumVertices   ||
-                        orig->mMaterialIndex  != inst->mMaterialIndex ||
+                    if (orig->mNumBones != inst->mNumBones ||
+                        orig->mNumFaces != inst->mNumFaces ||
+                        orig->mNumVertices != inst->mNumVertices ||
+                        orig->mMaterialIndex != inst->mMaterialIndex ||
                         orig->mPrimitiveTypes != inst->mPrimitiveTypes)
                         continue;
 
@@ -162,16 +160,16 @@ void FindInstancesProcess::Execute( aiScene* pScene)
                     // now compare vertex positions, normals,
                     // tangents and bitangents using this epsilon.
                     if (orig->HasPositions()) {
-                        if(!CompareArrays(orig->mVertices,inst->mVertices,orig->mNumVertices,epsilon))
+                        if (!CompareArrays(orig->mVertices, inst->mVertices, orig->mNumVertices, epsilon))
                             continue;
                     }
                     if (orig->HasNormals()) {
-                        if(!CompareArrays(orig->mNormals,inst->mNormals,orig->mNumVertices,epsilon))
+                        if (!CompareArrays(orig->mNormals, inst->mNormals, orig->mNumVertices, epsilon))
                             continue;
                     }
                     if (orig->HasTangentsAndBitangents()) {
-                        if (!CompareArrays(orig->mTangents,inst->mTangents,orig->mNumVertices,epsilon) ||
-                            !CompareArrays(orig->mBitangents,inst->mBitangents,orig->mNumVertices,epsilon))
+                        if (!CompareArrays(orig->mTangents, inst->mTangents, orig->mNumVertices, epsilon) ||
+                            !CompareArrays(orig->mBitangents, inst->mBitangents, orig->mNumVertices, epsilon))
                             continue;
                     }
 
@@ -179,11 +177,11 @@ void FindInstancesProcess::Execute( aiScene* pScene)
                     static const float uvEpsilon = 10e-4f;
                     {
                         unsigned int i, end = orig->GetNumUVChannels();
-                        for(i = 0; i < end; ++i) {
+                        for (i = 0; i < end; ++i) {
                             if (!orig->mTextureCoords[i]) {
                                 continue;
                             }
-                            if(!CompareArrays(orig->mTextureCoords[i],inst->mTextureCoords[i],orig->mNumVertices,uvEpsilon)) {
+                            if (!CompareArrays(orig->mTextureCoords[i], inst->mTextureCoords[i], orig->mNumVertices, uvEpsilon)) {
                                 break;
                             }
                         }
@@ -193,11 +191,11 @@ void FindInstancesProcess::Execute( aiScene* pScene)
                     }
                     {
                         unsigned int i, end = orig->GetNumColorChannels();
-                        for(i = 0; i < end; ++i) {
+                        for (i = 0; i < end; ++i) {
                             if (!orig->mColors[i]) {
                                 continue;
                             }
-                            if(!CompareArrays(orig->mColors[i],inst->mColors[i],orig->mNumVertices,uvEpsilon)) {
+                            if (!CompareArrays(orig->mColors[i], inst->mColors[i], orig->mNumVertices, uvEpsilon)) {
                                 break;
                             }
                         }
@@ -210,13 +208,12 @@ void FindInstancesProcess::Execute( aiScene* pScene)
                     // Almost. That's why they're still here. But there's no reason to do them
                     // in speed-targeted imports.
                     if (!configSpeedFlag) {
-
                         // It seems to be strange, but we really need to check whether the
                         // bones are identical too. Although it's extremely unprobable
                         // that they're not if control reaches here, we need to deal
                         // with unprobable cases, too. It could still be that there are
                         // equal shapes which are deformed differently.
-                        if (!CompareBones(orig,inst))
+                        if (!CompareBones(orig, inst))
                             continue;
 
                         // For completeness ... compare even the index buffers for equality
@@ -224,16 +221,16 @@ void FindInstancesProcess::Execute( aiScene* pScene)
                         std::unique_ptr<unsigned int[]> ftbl_orig(new unsigned int[orig->mNumVertices]);
                         std::unique_ptr<unsigned int[]> ftbl_inst(new unsigned int[orig->mNumVertices]);
 
-                        for (unsigned int tt = 0; tt < orig->mNumFaces;++tt) {
+                        for (unsigned int tt = 0; tt < orig->mNumFaces; ++tt) {
                             aiFace& f = orig->mFaces[tt];
-                            for (unsigned int nn = 0; nn < f.mNumIndices;++nn)
+                            for (unsigned int nn = 0; nn < f.mNumIndices; ++nn)
                                 ftbl_orig[f.mIndices[nn]] = tt;
 
                             aiFace& f2 = inst->mFaces[tt];
-                            for (unsigned int nn = 0; nn < f2.mNumIndices;++nn)
+                            for (unsigned int nn = 0; nn < f2.mNumIndices; ++nn)
                                 ftbl_inst[f2.mIndices[nn]] = tt;
                         }
-                        if (0 != ::memcmp(ftbl_inst.get(),ftbl_orig.get(),orig->mNumVertices*sizeof(unsigned int)))
+                        if (0 != ::memcmp(ftbl_inst.get(), ftbl_orig.get(), orig->mNumVertices * sizeof(unsigned int)))
                             continue;
                     }
 
@@ -255,7 +252,6 @@ void FindInstancesProcess::Execute( aiScene* pScene)
         }
         ai_assert(0 != numMeshesOut);
         if (numMeshesOut != pScene->mNumMeshes) {
-
             // Collapse the meshes array by removing all NULL entries
             for (unsigned int real = 0, i = 0; real < numMeshesOut; ++i) {
                 if (pScene->mMeshes[i])
@@ -263,11 +259,11 @@ void FindInstancesProcess::Execute( aiScene* pScene)
             }
 
             // And update the node graph with our nice lookup table
-            UpdateMeshIndices(pScene->mRootNode,remapping.get());
+            UpdateMeshIndices(pScene->mRootNode, remapping.get());
 
             // write to log
             if (!DefaultLogger::isNullLogger()) {
-                ASSIMP_LOG_INFO_F( "FindInstancesProcess finished. Found ", (pScene->mNumMeshes - numMeshesOut), " instances" );
+                ASSIMP_LOG_INFO_F("FindInstancesProcess finished. Found ", (pScene->mNumMeshes - numMeshesOut), " instances");
             }
             pScene->mNumMeshes = numMeshesOut;
         } else {

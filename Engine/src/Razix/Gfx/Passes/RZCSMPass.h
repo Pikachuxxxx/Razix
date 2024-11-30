@@ -48,5 +48,5 @@ namespace Razix {
         private:
             CascadeSubPassData addCascadePass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, CascadeSubPassData subpassData, u32 cascadeIdx);
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -29,9 +29,9 @@ namespace Razix {
             ~WindowClass();
 
             // Singleton instance
-            static WindowClass           wndClass;
+            static WindowClass    wndClass;
             static constexpr cstr wndClassName = "Razix Engine Splash Screen";
-            HINSTANCE                    hInst;
+            HINSTANCE             hInst;
         };
 
     public:
@@ -71,18 +71,17 @@ namespace Razix {
     /* Creates a Splash Screen while the Engine systems are loading */
     class RAZIX_API RZSplashScreen final : public RZSingleton<RZSplashScreen>
     {
-        
     public:
-        RZSplashScreen(){}
-        ~RZSplashScreen(){}
-        
-        void StartUp(){}
-        void ShutDown(){}
-        
+        RZSplashScreen() {}
+        ~RZSplashScreen() {}
+
+        void StartUp() {}
+        void ShutDown() {}
+
         /* Set version string for the splash screen */
-        void setVersionString(const std::string& text){}
+        void setVersionString(const std::string& text) {}
         /* Set the log string for the splash screen */
-        void setLogString(const std::string& text){}
+        void setLogString(const std::string& text) {}
     };
-}
+}    // namespace Razix
 #endif

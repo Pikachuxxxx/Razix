@@ -158,5 +158,5 @@ namespace Razix {
         {
             vkDestroyDescriptorSetLayout(VKDevice::Get().getDevice(), setLayout, nullptr);
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

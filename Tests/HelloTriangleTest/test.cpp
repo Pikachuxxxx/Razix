@@ -1,6 +1,6 @@
 #if 0
-#pragma once
-#include <Razix.h>
+    #pragma once
+    #include <Razix.h>
 
 // This is a test without a RZApplication
 
@@ -34,7 +34,7 @@ void main(int argc, char** argv)
     RAZIX_CORE_INFO("Initializing Graphics Context...");
     Razix::Gfx::RZGraphicsContext::GetContext()->Init();
     //-------------------------------------------------------------------------------------
-#if 0
+    #if 0
 
     std::vector<Razix::Gfx::RZCommandBuffer*> CommandBuffers(3);
     for (size_t i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
@@ -64,7 +64,7 @@ void main(int argc, char** argv)
     Razix::Gfx::RHI::Present({});
 
     Razix::Gfx::RZGraphicsContext::Release();
-#endif
+    #endif
 
     bool closeWindow = false;
     while (!closeWindow) {

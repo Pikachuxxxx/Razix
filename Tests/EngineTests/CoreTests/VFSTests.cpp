@@ -57,18 +57,18 @@ namespace Razix {
 
         // Test case for mounting paths and verifying the mount
         // These can change not reliable, think of a better test
-//        TEST_F(VFSTests, TestMountingPaths)
-//        {
-//            // Check if the paths are correctly mounted by verifying the physical path
-//            std::string physicalPath;
-//            bool        result = RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixRoot", physicalPath, true);
-//            EXPECT_TRUE(result);
-//            EXPECT_FALSE(physicalPath.empty());
-//
-//            result = RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent", physicalPath, true);
-//            EXPECT_TRUE(result);
-//            EXPECT_FALSE(physicalPath.empty());
-//        }
+        //        TEST_F(VFSTests, TestMountingPaths)
+        //        {
+        //            // Check if the paths are correctly mounted by verifying the physical path
+        //            std::string physicalPath;
+        //            bool        result = RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixRoot", physicalPath, true);
+        //            EXPECT_TRUE(result);
+        //            EXPECT_FALSE(physicalPath.empty());
+        //
+        //            result = RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent", physicalPath, true);
+        //            EXPECT_TRUE(result);
+        //            EXPECT_FALSE(physicalPath.empty());
+        //        }
 
         // Test case for mounting new paths and checking resolution
         TEST_F(VFSTests, TestMountNewPaths)

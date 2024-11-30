@@ -81,8 +81,8 @@ namespace Razix {
             void Destroy();
             void bindVBsAndIB(RZDrawCommandBufferHandle cmdBuffer);
 
-            void setName(const char* name);
-            void setName(std::string name);
+            void               setName(const char* name);
+            void               setName(std::string name);
             RAZIX_INLINE const std::string&   getName() const { return m_Name; }
             RAZIX_INLINE RZMaterial*          getMaterial() { return m_Material; }
             RAZIX_INLINE void                 setMaterial(RZMaterial* mat) { m_Material = mat; }
@@ -120,5 +120,5 @@ namespace Razix {
             RZVertexBufferHandle m_VertexBuffers[VERTEX_ATTRIBS_COUNT] = {}; /* The Vertex Buffers for each vertex attrib                 */
 #endif
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

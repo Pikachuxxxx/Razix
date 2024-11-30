@@ -41,30 +41,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "EmbedTexturesProcess.h"
-#include <assimp/ParsingUtils.h>
 #include "ProcessHelper.h"
+#include <assimp/ParsingUtils.h>
 
 #include <fstream>
 
 using namespace Assimp;
 
 EmbedTexturesProcess::EmbedTexturesProcess()
-: BaseProcess() {
+    : BaseProcess()
+{
 }
 
-EmbedTexturesProcess::~EmbedTexturesProcess() {
+EmbedTexturesProcess::~EmbedTexturesProcess()
+{
 }
 
-bool EmbedTexturesProcess::IsActive(unsigned int pFlags) const {
+bool EmbedTexturesProcess::IsActive(unsigned int pFlags) const
+{
     return (pFlags & aiProcess_EmbedTextures) != 0;
 }
 
-void EmbedTexturesProcess::SetupProperties(const Importer* pImp) {
+void EmbedTexturesProcess::SetupProperties(const Importer* pImp)
+{
     mRootPath = pImp->GetPropertyString("sourceFilePath");
     mRootPath = mRootPath.substr(0, mRootPath.find_last_of("\\/") + 1u);
 }
 
-void EmbedTexturesProcess::Execute(aiScene* pScene) {
+void EmbedTexturesProcess::Execute(aiScene* pScene)
+{
     if (pScene == nullptr || pScene->mRootNode == nullptr) return;
 
     aiString path;
@@ -75,12 +80,12 @@ void EmbedTexturesProcess::Execute(aiScene* pScene) {
         auto material = pScene->mMaterials[matId];
 
         for (auto ttId = 1u; ttId < AI_TEXTURE_TYPE_MAX; ++ttId) {
-            auto tt = static_cast<aiTextureType>(ttId);
+            auto tt            = static_cast<aiTextureType>(ttId);
             auto texturesCount = material->GetTextureCount(tt);
 
             for (auto texId = 0u; texId < texturesCount; ++texId) {
                 material->GetTexture(tt, texId, &path);
-                if (path.data[0] == '*') continue; // Already embedded
+                if (path.data[0] == '*') continue;    // Already embedded
 
                 // Indeed embed
                 if (addTexture(pScene, path.data)) {
@@ -93,10 +98,11 @@ void EmbedTexturesProcess::Execute(aiScene* pScene) {
         }
     }
 
-    ASSIMP_LOG_INFO_F("EmbedTexturesProcess finished. Embedded ", embeddedTexturesCount, " textures." );
+    ASSIMP_LOG_INFO_F("EmbedTexturesProcess finished. Embedded ", embeddedTexturesCount, " textures.");
 }
 
-bool EmbedTexturesProcess::addTexture(aiScene* pScene, std::string path) const {
+bool EmbedTexturesProcess::addTexture(aiScene* pScene, std::string path) const
+{
     std::streampos imageSize = 0;
     std::string    imagePath = path;
 
@@ -124,16 +130,16 @@ bool EmbedTexturesProcess::addTexture(aiScene* pScene, std::string path) const {
     file.read(reinterpret_cast<char*>(imageContent), imageSize);
 
     // Enlarging the textures table
-    auto textureId = pScene->mNumTextures++;
-    auto oldTextures = pScene->mTextures;
+    auto textureId    = pScene->mNumTextures++;
+    auto oldTextures  = pScene->mTextures;
     pScene->mTextures = new aiTexture*[pScene->mNumTextures];
     memmove(pScene->mTextures, oldTextures, sizeof(aiTexture*) * (pScene->mNumTextures - 1u));
 
     // Add the new texture
-    auto pTexture = new aiTexture();
-    pTexture->mHeight = 0; // Means that this is still compressed
-    pTexture->mWidth = static_cast<uint32_t>(imageSize);
-    pTexture->pcData = imageContent;
+    auto pTexture     = new aiTexture();
+    pTexture->mHeight = 0;    // Means that this is still compressed
+    pTexture->mWidth  = static_cast<uint32_t>(imageSize);
+    pTexture->pcData  = imageContent;
 
     auto extension = path.substr(path.find_last_of('.') + 1u);
     std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);

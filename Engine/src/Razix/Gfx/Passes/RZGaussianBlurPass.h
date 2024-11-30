@@ -55,5 +55,5 @@ namespace Razix {
         private:
             FrameGraph::RZFrameGraphResource addBlurPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, FrameGraph::RZFrameGraphResource inputTexture, f32 blurRadius, GaussianTap filterTap, GaussianDirection direction);
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

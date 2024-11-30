@@ -168,10 +168,10 @@ namespace Razix {
             } else if (m_Usage == BufferUsage::PersistentStream) {
                 memcpy(m_AllocInfo.pMappedData, data, size);
             } else if (m_Usage == BufferUsage::Static) {
-                /**
+    /**
                 * For anything else we copy using a staging buffer to copy to the GPU
                 */
-                #if 0
+    #if 0
 VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, data RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging buffer to copy to Device only GPU buffer"));
                 {
                     // 1.1 Copy from staging buffer to Image
@@ -187,7 +187,7 @@ VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANS
                     VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
                 }
                 m_TransferBuffer.destroy();
-#endif
+    #endif
                 VKUtilities::CopyDataToGPUBufferResource(data, m_Buffer, size);
             }
 #else
@@ -270,5 +270,5 @@ VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANS
             return m_Mapped;
 #endif
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

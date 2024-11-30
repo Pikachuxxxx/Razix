@@ -31,5 +31,5 @@ namespace Razix {
         private:
             RZPipelineHandle m_PreBlurPipeline;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

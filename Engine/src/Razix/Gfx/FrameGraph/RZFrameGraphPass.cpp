@@ -143,5 +143,5 @@ namespace Razix {
                 RZResourceManager::Get().getShaderResource(m_shader)->updateBindVarsHeaps();
             }
         }    // namespace FrameGraph
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -301,7 +301,7 @@ namespace Razix {
                 delete csoByteCode;
             }
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

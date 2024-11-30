@@ -19,7 +19,6 @@ namespace Razix {
         {
             m_LightData.type = type;
         }
-         
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

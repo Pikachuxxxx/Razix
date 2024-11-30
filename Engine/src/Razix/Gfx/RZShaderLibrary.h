@@ -71,5 +71,5 @@ namespace Razix {
             std::unordered_map<ShaderBuiltin, RZShaderHandle> m_BuiltinShaders;
             std::unordered_map<std::string, ShaderBuiltin>    m_BuiltinShadersReverseNameMap;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

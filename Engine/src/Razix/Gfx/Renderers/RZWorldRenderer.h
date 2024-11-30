@@ -158,5 +158,5 @@ namespace Razix {
             void uploadFrameData(RZScene* scene, RZRendererSettings& settings);
             void uploadLightsData(RZScene* scene, RZRendererSettings& settings);
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

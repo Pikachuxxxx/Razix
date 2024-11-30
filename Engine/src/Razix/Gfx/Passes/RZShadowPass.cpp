@@ -4,8 +4,8 @@
 #include "RZShadowPass.h"
 
 #include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/Markers/RZMarkers.h"
+#include "Razix/Core/RZEngine.h"
 
 #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
@@ -102,7 +102,7 @@ namespace Razix {
                         }
                     }
 
-                    glm::mat4 lightView  = glm::lookAt(dir_light.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                    glm::mat4 lightView       = glm::lookAt(dir_light.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                     glm::mat4 lightProjection = glm::perspective(60.0f, 1.0f, 0.1f, 100.0f);
                     //(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
                     lightProjection[1][1] *= -1;
@@ -148,5 +148,5 @@ namespace Razix {
         {
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

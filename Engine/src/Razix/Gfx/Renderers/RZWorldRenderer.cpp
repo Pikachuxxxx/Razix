@@ -9,8 +9,8 @@
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 #include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/Markers/RZMarkers.h"
+#include "Razix/Core/RZEngine.h"
 
 #include "Razix/Gfx/FrameGraph/RZBlackboard.h"
 #include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
@@ -608,7 +608,7 @@ namespace Razix {
                                         buf[i].pos = ImRotate(buf[i].pos, s, c) - center;
                                 };
 
-                                i32 passIndex     = 0;
+                                i32 passIndex = 0;
 
                                 auto passNodesSize = RZEngine::Get().getWorldRenderer().getFrameGraph().getPassNodesSize();
 
@@ -623,7 +623,6 @@ namespace Razix {
 
                                 ImVec2 cursor      = ImGui::GetCursorScreenPos();
                                 ImVec2 passNamePos = cursor + ImVec2(resourceNameWidth, 0);
-
 
                                 for (u32 i = 0; i < passNodesSize; i++) {
                                     const auto& passNode         = RZEngine::Get().getWorldRenderer().getFrameGraph().getPassNode(i);
@@ -1012,5 +1011,5 @@ namespace Razix {
                     RAZIX_TIME_STAMP_END();
                 });
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

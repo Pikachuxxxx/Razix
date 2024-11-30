@@ -317,5 +317,5 @@ namespace Razix {
                 return mesh;
             }
         }    // namespace MeshFactory
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -3,7 +3,6 @@
 // clang-format on
 #include "Razix/Core/OS/RZFileSystem.h"
 
-
 #ifdef RAZIX_PLATFORM_UNIX
 
 namespace Razix {
@@ -117,5 +116,5 @@ namespace Razix {
         return true;
     }
 
-} // namespace Razix
+}    // namespace Razix
 #endif

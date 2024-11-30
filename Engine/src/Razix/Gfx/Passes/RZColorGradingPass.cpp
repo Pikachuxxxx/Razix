@@ -110,5 +110,5 @@ namespace Razix {
         {
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

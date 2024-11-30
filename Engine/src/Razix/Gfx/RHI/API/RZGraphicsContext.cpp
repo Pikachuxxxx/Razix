@@ -105,5 +105,5 @@ namespace Razix {
                 default: return "None"; break;
             }
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

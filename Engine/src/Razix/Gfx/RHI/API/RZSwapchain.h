@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Razix/Core/RZCore.h"
 #include "Razix/Core/Log/RZLog.h"
+#include "Razix/Core/RZCore.h"
 
 #include "Razix/Core/OS/RZWindow.h"
 
@@ -65,5 +65,5 @@ namespace Razix {
             bool m_IsResizing                   = false; /* is the swapchain in the process of resizing                                  */
         };
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

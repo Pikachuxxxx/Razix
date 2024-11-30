@@ -36,6 +36,6 @@ namespace Razix {
             bool          m_DepthOnly;  /* Should we create the render pass with only a depth attachment            */
             bool          m_ClearDepth; /* Whether or not to clear the depth attachment                             */
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

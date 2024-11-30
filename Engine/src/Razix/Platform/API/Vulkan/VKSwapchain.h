@@ -98,6 +98,6 @@ namespace Razix {
             /* creates the image views for the swapchain */
             std::vector<VkImageView> createSwapImageViews(std::vector<VkImage> swapImages);
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

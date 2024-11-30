@@ -350,7 +350,7 @@ namespace Razix {
             /* Gets the height of the current RHI rendering extents */
             RAZIX_FORCE_INLINE const u32& getHeight() { return m_Height; }
             /* Set the command buffer to record command onto */
-//            RAZIX_DEPRECATED("[Razix Deprecated!] SetCmdBuffer is no longer used, RHI will use a RingBufferAllocator to allocate command buffers from as needed per each frame graph render pass.")
+            //            RAZIX_DEPRECATED("[Razix Deprecated!] SetCmdBuffer is no longer used, RHI will use a RingBufferAllocator to allocate command buffers from as needed per each frame graph render pass.")
             RAZIX_FORCE_INLINE static void SetCmdBuffer(RZDrawCommandBufferHandle cmdBuf) { s_APIInstance->m_CurrentCommandBuffer = cmdBuf; }
 
             /* OnImGui UI rendering for RHI */
@@ -388,18 +388,18 @@ namespace Razix {
         protected:
             static RHI* s_APIInstance;
 
-            std::string                                   m_RendererTitle; /* The name of the renderer API that is being used */
-            u32                                           m_Width      = 0;
-            u32                                           m_Height     = 0;
-            u32                                           m_PrevWidth  = 0;
-            u32                                           m_PrevHeight = 0;
-            CommandQueue                                  m_GraphicsCommandQueue; /* The queue of recorded commands that needs execution */
-            RZDrawCommandBufferHandle                     m_CurrentCommandBuffer;
-            std::vector<RZDrawCommandBufferHandle>        m_DrawCommandBuffers;
-            std::vector<RZCommandPoolHandle>              m_GraphicsCommandPool;
-            std::vector<RZCommandPoolHandle>              m_ComputeCommandPool;
-            RZDescriptorSet*                              m_FrameDataSet       = nullptr;
-            RZDescriptorSet*                              m_SceneLightsDataSet = nullptr;
+            std::string                            m_RendererTitle; /* The name of the renderer API that is being used */
+            u32                                    m_Width      = 0;
+            u32                                    m_Height     = 0;
+            u32                                    m_PrevWidth  = 0;
+            u32                                    m_PrevHeight = 0;
+            CommandQueue                           m_GraphicsCommandQueue; /* The queue of recorded commands that needs execution */
+            RZDrawCommandBufferHandle              m_CurrentCommandBuffer;
+            std::vector<RZDrawCommandBufferHandle> m_DrawCommandBuffers;
+            std::vector<RZCommandPoolHandle>       m_GraphicsCommandPool;
+            std::vector<RZCommandPoolHandle>       m_ComputeCommandPool;
+            RZDescriptorSet*                       m_FrameDataSet       = nullptr;
+            RZDescriptorSet*                       m_SceneLightsDataSet = nullptr;
         };
     }    // namespace Gfx
 }    // namespace Razix

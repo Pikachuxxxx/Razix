@@ -34,5 +34,5 @@ namespace Razix {
             DrawData*    ExtractBatchDrawData(Batch* batch);
             DrawData*    ExtractDrawableDrawData(Drawable* drawable);
         }    // namespace Diana
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

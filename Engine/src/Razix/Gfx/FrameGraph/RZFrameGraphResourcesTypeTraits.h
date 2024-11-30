@@ -95,5 +95,5 @@ namespace Razix {
 #define ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE template<typename T, typename = std::enable_if_t<is_acceptible_frame_graph_resource<T>()>>
 
         }    // namespace FrameGraph
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

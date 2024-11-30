@@ -26,10 +26,10 @@ struct LightPropagationVolumesData
 struct RadianceInjectionUBOData
 {
     int       RSMResolution;
-    f32     CellSize;
-    char       _padding[5];
+    f32       CellSize;
+    char      _padding[5];
     glm::vec3 MinCorner;
-    char       _padding_;
+    char      _padding_;
     glm::vec3 GridSize;
     //char       _padding__;
 };

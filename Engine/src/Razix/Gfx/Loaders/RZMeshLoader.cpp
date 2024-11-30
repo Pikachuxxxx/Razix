@@ -65,7 +65,7 @@ namespace Razix {
 
             // This is dummy Name until we load the submesh and get it's true name, this is use the by Root empty Entity that will hold meshes unless it's a single one
 
-            Gfx::RZVertex    vertices;
+            Gfx::RZVertex         vertices;
             std::vector<uint32_t> indices(mesh_header.index_count);
 
             if (mesh_header.index_count > 0) {
@@ -73,7 +73,6 @@ namespace Razix {
             }
 
             if (mesh_header.vertex_count > 0) {
-
                 // Load vertices
                 Razix::AssetSystem::BINBlobHeader h;
                 h = {};
@@ -156,9 +155,9 @@ namespace Razix {
             material->setName(materialName);
 
             // Using the Name of the Material search the //Assets/Materials + MeshName_MaterialName.rzmaterial file and load it and set the material Data
-            std::string                   matPath = "//Assets/Materials/" + folderName + "/" + std::string(materialName) + ".rzmaterial";
+            std::string              matPath = "//Assets/Materials/" + folderName + "/" + std::string(materialName) + ".rzmaterial";
             Razix::Gfx::MaterialData matData{};
-            std::string                   matPhysicalPath;
+            std::string              matPhysicalPath;
             if (RZVirtualFileSystem::Get().resolvePhysicalPath(matPath, matPhysicalPath)) {
                 if (!matPhysicalPath.empty()) {
                     std::ifstream AppStream;
@@ -176,5 +175,5 @@ namespace Razix {
             return material;
 #endif
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

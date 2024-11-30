@@ -3,8 +3,8 @@
 // clang-format on
 #include "RZSceneManager.h"
 
-#include "Razix/Core/OS/RZVirtualFileSystem.h"
 #include "Razix/Core/App/RZApplication.h"
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
@@ -94,7 +94,7 @@ namespace Razix {
 
         bool found          = false;
         m_IsSwitchingScenes = true;
-        u32 idx        = 0;
+        u32 idx             = 0;
         for (u32 i = 0; !found && i < m_LoadedScenes.size(); ++i) {
             if (m_LoadedScenes[i]->getSceneName() == sceneName) {
                 found = true;

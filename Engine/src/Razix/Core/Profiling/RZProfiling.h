@@ -43,7 +43,7 @@
 
         // GPU profiling needs API specific objects hence cannot be abstracted using macros but we can switch to required Profiler using defines, atleast for Tracy this is a mess
         #define RAZIX_PROFILE_GPU_CONTEXT(context)
-        #define RAZIX_PROFILE_GPU_SCOPE(name)           
+        #define RAZIX_PROFILE_GPU_SCOPE(name)
         #define RAZIX_PROFILE_GPU_SCOPEC(name, color)
         //#define  RAZIX_PROFILE_GPU_FUNCTION()
         //#define  RAZIX_PROFILE_GPU_FUNCTION(color)

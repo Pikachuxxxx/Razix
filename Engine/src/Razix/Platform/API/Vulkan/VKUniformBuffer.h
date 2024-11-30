@@ -30,6 +30,6 @@ namespace Razix {
 
             void DestroyResource() override;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

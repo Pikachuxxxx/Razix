@@ -24,5 +24,5 @@ namespace Razix {
             static RZTextureHandle generateIrradianceMap(RZTextureHandle cubeMap);
             static RZTextureHandle generatePreFilteredMap(RZTextureHandle cubeMap);
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

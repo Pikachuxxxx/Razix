@@ -46,121 +46,110 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef ASSIMP_BUILD_NO_FBX_IMPORTER
 
-#include "FBXParser.h"
-#include "FBXDocument.h"
-#include "FBXImporter.h"
-#include "FBXDocumentUtil.h"
+    #include "FBXDocument.h"
+    #include "FBXDocumentUtil.h"
+    #include "FBXImporter.h"
+    #include "FBXParser.h"
 
 namespace Assimp {
-namespace FBX {
+    namespace FBX {
 
-using namespace Util;
+        using namespace Util;
 
-// ------------------------------------------------------------------------------------------------
-Deformer::Deformer(uint64_t id, const Element& element, const Document& doc, const std::string& name)
-    : Object(id,element,name)
-{
-    const Scope& sc = GetRequiredScope(element);
+        // ------------------------------------------------------------------------------------------------
+        Deformer::Deformer(uint64_t id, const Element& element, const Document& doc, const std::string& name)
+            : Object(id, element, name)
+        {
+            const Scope& sc = GetRequiredScope(element);
 
-    const std::string& classname = ParseTokenAsString(GetRequiredToken(element,2));
-    props = GetPropertyTable(doc,"Deformer.Fbx" + classname,element,sc,true);
-}
-
-
-// ------------------------------------------------------------------------------------------------
-Deformer::~Deformer()
-{
-
-}
-
-
-// ------------------------------------------------------------------------------------------------
-Cluster::Cluster(uint64_t id, const Element& element, const Document& doc, const std::string& name)
-: Deformer(id,element,doc,name)
-, node()
-{
-    const Scope& sc = GetRequiredScope(element);
-
-    const Element* const Indexes = sc["Indexes"];
-    const Element* const Weights = sc["Weights"];
-
-    const Element& Transform = GetRequiredElement(sc,"Transform",&element);
-    const Element& TransformLink = GetRequiredElement(sc,"TransformLink",&element);
-
-    transform = ReadMatrix(Transform);
-    transformLink = ReadMatrix(TransformLink);
-
-    // it is actually possible that there be Deformer's with no weights
-    if (!!Indexes != !!Weights) {
-        DOMError("either Indexes or Weights are missing from Cluster",&element);
-    }
-
-    if(Indexes) {
-        ParseVectorDataArray(indices,*Indexes);
-        ParseVectorDataArray(weights,*Weights);
-    }
-
-    if(indices.size() != weights.size()) {
-        DOMError("sizes of index and weight array don't match up",&element);
-    }
-
-    // read assigned node
-    const std::vector<const Connection*>& conns = doc.GetConnectionsByDestinationSequenced(ID(),"Model");
-    for(const Connection* con : conns) {
-        const Model* const mod = ProcessSimpleConnection<Model>(*con, false, "Model -> Cluster", element);
-        if(mod) {
-            node = mod;
-            break;
+            const std::string& classname = ParseTokenAsString(GetRequiredToken(element, 2));
+            props                        = GetPropertyTable(doc, "Deformer.Fbx" + classname, element, sc, true);
         }
-    }
 
-    if (!node) {
-        DOMError("failed to read target Node for Cluster",&element);
-    }
-}
-
-
-// ------------------------------------------------------------------------------------------------
-Cluster::~Cluster()
-{
-
-}
-
-
-// ------------------------------------------------------------------------------------------------
-Skin::Skin(uint64_t id, const Element& element, const Document& doc, const std::string& name)
-: Deformer(id,element,doc,name)
-, accuracy( 0.0f ) {
-    const Scope& sc = GetRequiredScope(element);
-
-    const Element* const Link_DeformAcuracy = sc["Link_DeformAcuracy"];
-    if(Link_DeformAcuracy) {
-        accuracy = ParseTokenAsFloat(GetRequiredToken(*Link_DeformAcuracy,0));
-    }
-
-    // resolve assigned clusters
-    const std::vector<const Connection*>& conns = doc.GetConnectionsByDestinationSequenced(ID(),"Deformer");
-
-    clusters.reserve(conns.size());
-    for(const Connection* con : conns) {
-
-        const Cluster* const cluster = ProcessSimpleConnection<Cluster>(*con, false, "Cluster -> Skin", element);
-        if(cluster) {
-            clusters.push_back(cluster);
-            continue;
+        // ------------------------------------------------------------------------------------------------
+        Deformer::~Deformer()
+        {
         }
-    }
-}
 
+        // ------------------------------------------------------------------------------------------------
+        Cluster::Cluster(uint64_t id, const Element& element, const Document& doc, const std::string& name)
+            : Deformer(id, element, doc, name), node()
+        {
+            const Scope& sc = GetRequiredScope(element);
 
-// ------------------------------------------------------------------------------------------------
-Skin::~Skin()
-{
+            const Element* const Indexes = sc["Indexes"];
+            const Element* const Weights = sc["Weights"];
 
-}
+            const Element& Transform     = GetRequiredElement(sc, "Transform", &element);
+            const Element& TransformLink = GetRequiredElement(sc, "TransformLink", &element);
 
-}
-}
+            transform     = ReadMatrix(Transform);
+            transformLink = ReadMatrix(TransformLink);
+
+            // it is actually possible that there be Deformer's with no weights
+            if (!!Indexes != !!Weights) {
+                DOMError("either Indexes or Weights are missing from Cluster", &element);
+            }
+
+            if (Indexes) {
+                ParseVectorDataArray(indices, *Indexes);
+                ParseVectorDataArray(weights, *Weights);
+            }
+
+            if (indices.size() != weights.size()) {
+                DOMError("sizes of index and weight array don't match up", &element);
+            }
+
+            // read assigned node
+            const std::vector<const Connection*>& conns = doc.GetConnectionsByDestinationSequenced(ID(), "Model");
+            for (const Connection* con: conns) {
+                const Model* const mod = ProcessSimpleConnection<Model>(*con, false, "Model -> Cluster", element);
+                if (mod) {
+                    node = mod;
+                    break;
+                }
+            }
+
+            if (!node) {
+                DOMError("failed to read target Node for Cluster", &element);
+            }
+        }
+
+        // ------------------------------------------------------------------------------------------------
+        Cluster::~Cluster()
+        {
+        }
+
+        // ------------------------------------------------------------------------------------------------
+        Skin::Skin(uint64_t id, const Element& element, const Document& doc, const std::string& name)
+            : Deformer(id, element, doc, name), accuracy(0.0f)
+        {
+            const Scope& sc = GetRequiredScope(element);
+
+            const Element* const Link_DeformAcuracy = sc["Link_DeformAcuracy"];
+            if (Link_DeformAcuracy) {
+                accuracy = ParseTokenAsFloat(GetRequiredToken(*Link_DeformAcuracy, 0));
+            }
+
+            // resolve assigned clusters
+            const std::vector<const Connection*>& conns = doc.GetConnectionsByDestinationSequenced(ID(), "Deformer");
+
+            clusters.reserve(conns.size());
+            for (const Connection* con: conns) {
+                const Cluster* const cluster = ProcessSimpleConnection<Cluster>(*con, false, "Cluster -> Skin", element);
+                if (cluster) {
+                    clusters.push_back(cluster);
+                    continue;
+                }
+            }
+        }
+
+        // ------------------------------------------------------------------------------------------------
+        Skin::~Skin()
+        {
+        }
+
+    }    // namespace FBX
+}    // namespace Assimp
 
 #endif
-

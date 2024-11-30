@@ -55,5 +55,5 @@ namespace Razix {
         struct DrawCommandLists
         {
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

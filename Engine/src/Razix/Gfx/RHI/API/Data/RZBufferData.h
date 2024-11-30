@@ -82,5 +82,5 @@ namespace Razix {
 
         RAZIX_ENUM_NAMES_ASSERT(BufferTypeNames, BufferType);
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

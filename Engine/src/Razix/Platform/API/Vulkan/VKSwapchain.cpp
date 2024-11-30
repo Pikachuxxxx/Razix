@@ -585,5 +585,5 @@ namespace Razix {
 
             m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_SwapchainImageCount;
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -35,5 +35,5 @@ namespace Razix {
             RZMesh* CreateCapsule(f32 radius = 1.0f, f32 midHeight = 1.0f, int radialSegments = 64, int rings = 8);
             RZMesh* CreateCylinder(f32 bottomRadius = 1.0f, f32 topRadius = 1.0f, f32 height = 1.0f, int radialSegments = 64, int rings = 8);
         }    // namespace MeshFactory
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

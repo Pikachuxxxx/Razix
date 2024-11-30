@@ -11,5 +11,5 @@ namespace Razix {
             u64 AllocateVideoMemoryFromPoolId(u32 poolIdx) override;
         };
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

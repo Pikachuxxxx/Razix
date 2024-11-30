@@ -86,5 +86,5 @@ namespace Razix {
             for (uint32_t i = 0; i < m_PoolSize; ++i)
                 m_FreeIndices[i] = i;
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

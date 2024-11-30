@@ -1,7 +1,7 @@
 #pragma once
 
+#include <stddef.h>    // UNIX
 #include <stdint.h>
-#include <stddef.h> // UNIX
 // Native types typedefs /////////////////////////////////////////////////
 typedef int8_t  i8;
 typedef int16_t i16;

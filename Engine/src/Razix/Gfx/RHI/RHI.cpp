@@ -59,5 +59,5 @@ namespace Razix {
             // Release the context at last
             Gfx::RZGraphicsContext::GetContext()->Release();
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

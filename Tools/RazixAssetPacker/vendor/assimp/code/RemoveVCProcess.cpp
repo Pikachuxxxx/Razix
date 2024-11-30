@@ -44,43 +44,43 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *        any parts of the mesh structure from the imported data.
 */
 
-
 #include "RemoveVCProcess.h"
-#include <assimp/postprocess.h>
 #include <assimp/DefaultLogger.hpp>
+#include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
 using namespace Assimp;
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
-RemoveVCProcess::RemoveVCProcess() :
-    configDeleteFlags()
-  , mScene()
-{}
+RemoveVCProcess::RemoveVCProcess()
+    : configDeleteFlags(), mScene()
+{
+}
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
 RemoveVCProcess::~RemoveVCProcess()
-{}
+{
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.
-bool RemoveVCProcess::IsActive( unsigned int pFlags) const
+bool RemoveVCProcess::IsActive(unsigned int pFlags) const
 {
     return (pFlags & aiProcess_RemoveComponent) != 0;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Small helper function to delete all elements in a T** aray using delete
-template <typename T>
+template<typename T>
 inline void ArrayDelete(T**& in, unsigned int& num)
 {
     for (unsigned int i = 0; i < num; ++i)
         delete in[i];
 
     delete[] in;
-    in = NULL;
+    in  = NULL;
     num = 0;
 }
 
@@ -143,86 +143,74 @@ bool UpdateNodeGraph(aiNode* node,std::list<aiNode*>& childsOfParent,bool root)
 
 // ------------------------------------------------------------------------------------------------
 // Executes the post processing step on the given imported data.
-void RemoveVCProcess::Execute( aiScene* pScene)
+void RemoveVCProcess::Execute(aiScene* pScene)
 {
     ASSIMP_LOG_DEBUG("RemoveVCProcess begin");
-    bool bHas = false; //,bMasked = false;
+    bool bHas = false;    //,bMasked = false;
 
     mScene = pScene;
 
     // handle animations
-    if ( configDeleteFlags & aiComponent_ANIMATIONS)
-    {
-
+    if (configDeleteFlags & aiComponent_ANIMATIONS) {
         bHas = true;
-        ArrayDelete(pScene->mAnimations,pScene->mNumAnimations);
+        ArrayDelete(pScene->mAnimations, pScene->mNumAnimations);
     }
 
     // handle textures
-    if ( configDeleteFlags & aiComponent_TEXTURES)
-    {
+    if (configDeleteFlags & aiComponent_TEXTURES) {
         bHas = true;
-        ArrayDelete(pScene->mTextures,pScene->mNumTextures);
+        ArrayDelete(pScene->mTextures, pScene->mNumTextures);
     }
 
     // handle materials
-    if ( configDeleteFlags & aiComponent_MATERIALS && pScene->mNumMaterials)
-    {
+    if (configDeleteFlags & aiComponent_MATERIALS && pScene->mNumMaterials) {
         bHas = true;
-        for (unsigned int i = 1;i < pScene->mNumMaterials;++i)
+        for (unsigned int i = 1; i < pScene->mNumMaterials; ++i)
             delete pScene->mMaterials[i];
 
         pScene->mNumMaterials = 1;
-        aiMaterial* helper = (aiMaterial*) pScene->mMaterials[0];
+        aiMaterial* helper    = (aiMaterial*) pScene->mMaterials[0];
         ai_assert(NULL != helper);
         helper->Clear();
 
         // gray
-        aiColor3D clr(0.6f,0.6f,0.6f);
-        helper->AddProperty(&clr,1,AI_MATKEY_COLOR_DIFFUSE);
+        aiColor3D clr(0.6f, 0.6f, 0.6f);
+        helper->AddProperty(&clr, 1, AI_MATKEY_COLOR_DIFFUSE);
 
         // add a small ambient color value
-        clr = aiColor3D(0.05f,0.05f,0.05f);
-        helper->AddProperty(&clr,1,AI_MATKEY_COLOR_AMBIENT);
+        clr = aiColor3D(0.05f, 0.05f, 0.05f);
+        helper->AddProperty(&clr, 1, AI_MATKEY_COLOR_AMBIENT);
 
         aiString s;
         s.Set("Dummy_MaterialsRemoved");
-        helper->AddProperty(&s,AI_MATKEY_NAME);
+        helper->AddProperty(&s, AI_MATKEY_NAME);
     }
 
     // handle light sources
-    if ( configDeleteFlags & aiComponent_LIGHTS)
-    {
-        bHas =  true;
-        ArrayDelete(pScene->mLights,pScene->mNumLights);
+    if (configDeleteFlags & aiComponent_LIGHTS) {
+        bHas = true;
+        ArrayDelete(pScene->mLights, pScene->mNumLights);
     }
 
     // handle camneras
-    if ( configDeleteFlags & aiComponent_CAMERAS)
-    {
+    if (configDeleteFlags & aiComponent_CAMERAS) {
         bHas = true;
-        ArrayDelete(pScene->mCameras,pScene->mNumCameras);
+        ArrayDelete(pScene->mCameras, pScene->mNumCameras);
     }
 
     // handle meshes
-    if (configDeleteFlags & aiComponent_MESHES)
-    {
+    if (configDeleteFlags & aiComponent_MESHES) {
         bHas = true;
-        ArrayDelete(pScene->mMeshes,pScene->mNumMeshes);
-    }
-    else
-    {
-        for( unsigned int a = 0; a < pScene->mNumMeshes; a++)
-        {
-            if( ProcessMesh( pScene->mMeshes[a]))
+        ArrayDelete(pScene->mMeshes, pScene->mNumMeshes);
+    } else {
+        for (unsigned int a = 0; a < pScene->mNumMeshes; a++) {
+            if (ProcessMesh(pScene->mMeshes[a]))
                 bHas = true;
         }
     }
 
-
     // now check whether the result is still a full scene
-    if (!pScene->mNumMeshes || !pScene->mNumMaterials)
-    {
+    if (!pScene->mNumMeshes || !pScene->mNumMaterials) {
         pScene->mFlags |= AI_SCENE_FLAGS_INCOMPLETE;
         ASSIMP_LOG_DEBUG("Setting AI_SCENE_FLAGS_INCOMPLETE flag");
 
@@ -242,9 +230,8 @@ void RemoveVCProcess::Execute( aiScene* pScene)
 // Setup configuration properties for the step
 void RemoveVCProcess::SetupProperties(const Importer* pImp)
 {
-    configDeleteFlags = pImp->GetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,0x0);
-    if (!configDeleteFlags)
-    {
+    configDeleteFlags = pImp->GetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, 0x0);
+    if (!configDeleteFlags) {
         ASSIMP_LOG_WARN("RemoveVCProcess: AI_CONFIG_PP_RVC_FLAGS is zero.");
     }
 }
@@ -257,46 +244,41 @@ bool RemoveVCProcess::ProcessMesh(aiMesh* pMesh)
 
     // if all materials have been deleted let the material
     // index of the mesh point to the created default material
-    if ( configDeleteFlags & aiComponent_MATERIALS)
+    if (configDeleteFlags & aiComponent_MATERIALS)
         pMesh->mMaterialIndex = 0;
 
     // handle normals
-    if (configDeleteFlags & aiComponent_NORMALS && pMesh->mNormals)
-    {
+    if (configDeleteFlags & aiComponent_NORMALS && pMesh->mNormals) {
         delete[] pMesh->mNormals;
         pMesh->mNormals = NULL;
-        ret = true;
+        ret             = true;
     }
 
     // handle tangents and bitangents
-    if (configDeleteFlags & aiComponent_TANGENTS_AND_BITANGENTS && pMesh->mTangents)
-    {
+    if (configDeleteFlags & aiComponent_TANGENTS_AND_BITANGENTS && pMesh->mTangents) {
         delete[] pMesh->mTangents;
         pMesh->mTangents = NULL;
 
         delete[] pMesh->mBitangents;
         pMesh->mBitangents = NULL;
-        ret = true;
+        ret                = true;
     }
 
     // handle texture coordinates
     bool b = (0 != (configDeleteFlags & aiComponent_TEXCOORDS));
-    for (unsigned int i = 0, real = 0; real < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++real)
-    {
-        if (!pMesh->mTextureCoords[i])break;
-        if (configDeleteFlags & aiComponent_TEXCOORDSn(real) || b)
-        {
-            delete [] pMesh->mTextureCoords[i];
+    for (unsigned int i = 0, real = 0; real < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++real) {
+        if (!pMesh->mTextureCoords[i]) break;
+        if (configDeleteFlags & aiComponent_TEXCOORDSn(real) || b) {
+            delete[] pMesh->mTextureCoords[i];
             pMesh->mTextureCoords[i] = NULL;
-            ret = true;
+            ret                      = true;
 
-            if (!b)
-            {
+            if (!b) {
                 // collapse the rest of the array
-                for (unsigned int a = i+1; a < AI_MAX_NUMBER_OF_TEXTURECOORDS;++a)
-                    pMesh->mTextureCoords[a-1] = pMesh->mTextureCoords[a];
+                for (unsigned int a = i + 1; a < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++a)
+                    pMesh->mTextureCoords[a - 1] = pMesh->mTextureCoords[a];
 
-                pMesh->mTextureCoords[AI_MAX_NUMBER_OF_TEXTURECOORDS-1] = NULL;
+                pMesh->mTextureCoords[AI_MAX_NUMBER_OF_TEXTURECOORDS - 1] = NULL;
                 continue;
             }
         }
@@ -305,22 +287,19 @@ bool RemoveVCProcess::ProcessMesh(aiMesh* pMesh)
 
     // handle vertex colors
     b = (0 != (configDeleteFlags & aiComponent_COLORS));
-    for (unsigned int i = 0, real = 0; real < AI_MAX_NUMBER_OF_COLOR_SETS; ++real)
-    {
-        if (!pMesh->mColors[i])break;
-        if (configDeleteFlags & aiComponent_COLORSn(i) || b)
-        {
-            delete [] pMesh->mColors[i];
+    for (unsigned int i = 0, real = 0; real < AI_MAX_NUMBER_OF_COLOR_SETS; ++real) {
+        if (!pMesh->mColors[i]) break;
+        if (configDeleteFlags & aiComponent_COLORSn(i) || b) {
+            delete[] pMesh->mColors[i];
             pMesh->mColors[i] = NULL;
-            ret = true;
+            ret               = true;
 
-            if (!b)
-            {
+            if (!b) {
                 // collapse the rest of the array
-                for (unsigned int a = i+1; a < AI_MAX_NUMBER_OF_COLOR_SETS;++a)
-                    pMesh->mColors[a-1] = pMesh->mColors[a];
+                for (unsigned int a = i + 1; a < AI_MAX_NUMBER_OF_COLOR_SETS; ++a)
+                    pMesh->mColors[a - 1] = pMesh->mColors[a];
 
-                pMesh->mColors[AI_MAX_NUMBER_OF_COLOR_SETS-1] = NULL;
+                pMesh->mColors[AI_MAX_NUMBER_OF_COLOR_SETS - 1] = NULL;
                 continue;
             }
         }
@@ -328,9 +307,8 @@ bool RemoveVCProcess::ProcessMesh(aiMesh* pMesh)
     }
 
     // handle bones
-    if (configDeleteFlags & aiComponent_BONEWEIGHTS && pMesh->mBones)
-    {
-        ArrayDelete(pMesh->mBones,pMesh->mNumBones);
+    if (configDeleteFlags & aiComponent_BONEWEIGHTS && pMesh->mBones) {
+        ArrayDelete(pMesh->mBones, pMesh->mNumBones);
         ret = true;
     }
     return ret;

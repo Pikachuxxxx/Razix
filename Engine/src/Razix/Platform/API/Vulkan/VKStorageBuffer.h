@@ -16,5 +16,5 @@ namespace Razix {
             void  SetData(u32 size, const void* data) override;
             void  Destroy() override;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -81,5 +81,5 @@ private:                                                                        
 
 #define RZ_GET_RESOURCE_MANAGER()      RZResourceManager::Get()
 #define RZ_GET_RAW_RESOURCE(T, handle) RZResourceManager::Get().get##T##Resource(handle)
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

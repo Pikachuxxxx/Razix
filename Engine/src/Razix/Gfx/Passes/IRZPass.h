@@ -31,5 +31,5 @@ namespace Razix {
 
             virtual void destroy() = 0;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -60,7 +60,8 @@ void appendJson(std::string& s, const char* begin, const char* end)
 			break;
 
 		case Quoted:
-			state = (ch == '"') ? None : (ch == '\\') ? Escape : Quoted;
+			state = (ch == '"') ? None : (ch == '\\') ? Escape
+			                                          : Quoted;
 			break;
 
 		case Escape:

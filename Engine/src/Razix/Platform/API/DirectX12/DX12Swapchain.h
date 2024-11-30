@@ -53,6 +53,6 @@ namespace Razix {
             const u32                    m_BackbuffersCount                                 = RAZIX_MAX_SWAP_IMAGES_COUNT; /* Number of swapchain back buffers  */
         };
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

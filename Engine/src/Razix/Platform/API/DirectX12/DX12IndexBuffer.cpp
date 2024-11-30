@@ -12,8 +12,8 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
 
     #include <vendor/d3dx12/d3dx12.h>
 
@@ -98,7 +98,7 @@ namespace Razix {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

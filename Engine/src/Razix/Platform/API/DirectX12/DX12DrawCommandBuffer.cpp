@@ -80,7 +80,7 @@ namespace Razix {
             CHECK_HRESULT(m_CommandList->Reset(m_CommandAllocator, nullptr));
         }
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

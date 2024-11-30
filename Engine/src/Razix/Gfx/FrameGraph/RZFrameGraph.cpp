@@ -139,7 +139,7 @@ namespace Razix {
                 for (auto &pass: passes) {
                     auto &render_pass = pass["render_pass"];
                     // Load this render pass from file
-                    RZPassNode& passNode = parsePass("//RazixFG/Passes/" + std::string(render_pass) + ".json");
+                    RZPassNode &passNode = parsePass("//RazixFG/Passes/" + std::string(render_pass) + ".json");
 
                     // Use the builder to build input/output resources
                     RZPassResourceBuilder builder(*this, passNode);
@@ -387,7 +387,7 @@ namespace Razix {
                 return true;
             }
 
-            RZPassNode& RZFrameGraph::parsePass(const std::string &passPath)
+            RZPassNode &RZFrameGraph::parsePass(const std::string &passPath)
             {
                 std::string physicalPath;
                 RAZIX_ASSERT(RZVirtualFileSystem::Get().resolvePhysicalPath(passPath, physicalPath), "Invalid Pass, please check again!");
@@ -397,11 +397,11 @@ namespace Razix {
                 json data = json::parse(jsonStrData);
 
                 // Get the pass name
-                auto &passName = data["name"];
+                auto       &passName    = data["name"];
                 std::string passNameStr = "DefaultPass";
-                if(!passName.empty())
+                if (!passName.empty())
                     passNameStr = passName.template get<std::string>();
-                    
+
                 RAZIX_CORE_TRACE("pass name : {0}", passName);
 
                 // parse the shader and load into/from Shader Library
@@ -523,7 +523,7 @@ namespace Razix {
                 // Now that the checks are done, let's create the pass and PassNode
                 auto *pass = new RZFrameGraphDataPass(shader, pipeline, geomMode, resolution, resize, extent, layers);
                 // Create the PassNode in the graph
-                RZPassNode& passNode = createPassNode(std::string_view(passNameStr), std::unique_ptr<RZFrameGraphDataPass>(pass));
+                RZPassNode &passNode = createPassNode(std::string_view(passNameStr), std::unique_ptr<RZFrameGraphDataPass>(pass));
                 // Mark as data driven
                 passNode.m_IsDataDriven = true;
                 auto isStandAlonePass   = data["is_standalone"];
@@ -857,8 +857,8 @@ namespace Razix {
                 m_ResourceNodes.emplace_back(RZResourceNode(node.m_Name, cloneId, node.m_ResourceEntryID, entry.getVersion()));
                 return cloneId;
             }
-        
-            RZPassResourceBuilder* RZFrameGraph::CreateBuilder(RZFrameGraph& fg, RZPassNode& passNode)
+
+            RZPassResourceBuilder *RZFrameGraph::CreateBuilder(RZFrameGraph &fg, RZPassNode &passNode)
             {
                 return new RZPassResourceBuilder(fg, passNode);
             }
@@ -928,5 +928,5 @@ namespace Razix {
             {
             }
         }    // namespace FrameGraph
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -4,8 +4,8 @@
 #include "RZCSMPass.h"
 
 #include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/Markers/RZMarkers.h"
+#include "Razix/Core/RZEngine.h"
 
 #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
@@ -57,7 +57,7 @@ namespace Razix {
             pipelineInfo.depthWriteEnabled   = true;
             m_Pipeline                       = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            auto& csmData        = framegraph.getBlackboard().add<CSMData>();
+            auto& csmData = framegraph.getBlackboard().add<CSMData>();
 
             CascadeSubPassData cascadeSubpassData{-1};
             for (u32 i = 0; i < kNumCascades; i++) {
@@ -128,8 +128,8 @@ namespace Razix {
             const f32 clipRange = farClip - nearClip;
 
             // Get the cascade splits
-            const auto cascadeSplits  = buildCascadeSplits(numCascades, lambda, camera.getPerspectiveNearClip(), clipRange);
-            const auto invViewProj    = glm::inverse((camera.getProjection() * camera.getViewMatrix()));    // This is causing a flip
+            const auto cascadeSplits = buildCascadeSplits(numCascades, lambda, camera.getPerspectiveNearClip(), clipRange);
+            const auto invViewProj   = glm::inverse((camera.getProjection() * camera.getViewMatrix()));    // This is causing a flip
 
             auto lastSplitDist = 0.0f;
 
@@ -366,5 +366,5 @@ namespace Razix {
 
             return pass;
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

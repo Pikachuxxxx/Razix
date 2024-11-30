@@ -24,7 +24,7 @@ namespace Razix {
         private:
             ID3D12CommandAllocator* m_CommandListAllocator = nullptr;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

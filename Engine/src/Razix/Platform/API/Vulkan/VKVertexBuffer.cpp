@@ -96,5 +96,5 @@ namespace Razix {
 
             VKBuffer::invalidate(m_BufferSize);
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

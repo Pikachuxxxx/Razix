@@ -74,6 +74,6 @@ namespace Razix {
             void initDisposableResources();
             void uploadUIFont(const std::string& fontPath);
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

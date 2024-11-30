@@ -34,6 +34,6 @@ namespace Razix {
 
             VK_CHECK_RESULT(vkResetCommandPool(VKDevice::Get().getDevice(), m_CmdPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

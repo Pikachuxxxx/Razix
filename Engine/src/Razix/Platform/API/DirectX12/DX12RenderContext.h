@@ -53,7 +53,7 @@ namespace Razix {
             rzstl::UniqueRef<DX12Fence> m_RenderReadyFence;
             u64                         m_InflightFramesFenceValues[RAZIX_MAX_FRAMES] = {0, 0, 0};
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

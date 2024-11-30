@@ -14,7 +14,7 @@ namespace Razix {
         class RZMesh;
         enum MeshPrimitive : int;
         class RZMaterial;
-    }    // namespace Graphics
+    }    // namespace Gfx
 
     /**
      * Mesh renderer component references a mesh that will taken by the render to render a mesh on the 3D scene

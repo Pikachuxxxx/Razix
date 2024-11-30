@@ -17,7 +17,6 @@ namespace Razix {
 
     RZSplashScreen::~RZSplashScreen()
     {
-        
     }
 
     void RZSplashScreen::StartUp()

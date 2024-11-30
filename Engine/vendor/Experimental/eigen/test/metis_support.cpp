@@ -8,18 +8,19 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "sparse_solver.h"
-#include <Eigen/SparseLU>
 #include <Eigen/MetisSupport>
+#include <Eigen/SparseLU>
 #include <unsupported/Eigen/SparseExtra>
 
-template<typename T> void test_metis_T()
+template<typename T>
+void test_metis_T()
 {
-  SparseLU<SparseMatrix<T, ColMajor>, MetisOrdering<int> > sparselu_metis;
-  
-  check_sparse_square_solving(sparselu_metis); 
+    SparseLU<SparseMatrix<T, ColMajor>, MetisOrdering<int> > sparselu_metis;
+
+    check_sparse_square_solving(sparselu_metis);
 }
 
 EIGEN_DECLARE_TEST(metis_support)
 {
-  CALL_SUBTEST_1(test_metis_T<double>());
+    CALL_SUBTEST_1(test_metis_T<double>());
 }

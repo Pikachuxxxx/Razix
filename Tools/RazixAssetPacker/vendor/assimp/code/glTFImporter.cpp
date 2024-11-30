@@ -42,27 +42,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef ASSIMP_BUILD_NO_GLTF_IMPORTER
 
-#include "glTFImporter.h"
-#include <assimp/StringComparison.h>
-#include <assimp/StringUtils.h>
+    #include "glTFImporter.h"
+    #include <assimp/StringComparison.h>
+    #include <assimp/StringUtils.h>
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/ai_assert.h>
-#include <assimp/DefaultLogger.hpp>
-#include <assimp/importerdesc.h>
+    #include <assimp/DefaultLogger.hpp>
+    #include <assimp/Importer.hpp>
+    #include <assimp/ai_assert.h>
+    #include <assimp/importerdesc.h>
+    #include <assimp/scene.h>
 
-#include <memory>
+    #include <memory>
 
-#include "MakeVerboseFormat.h"
+    #include "MakeVerboseFormat.h"
 
-#include "glTFAsset.h"
-// This is included here so WriteLazyDict<T>'s definition is found.
-#include "glTFAssetWriter.h"
+    #include "glTFAsset.h"
+    // This is included here so WriteLazyDict<T>'s definition is found.
+    #include "glTFAssetWriter.h"
 
 using namespace Assimp;
 using namespace glTF;
-
 
 //
 // glTFImporter
@@ -73,24 +72,21 @@ static const aiImporterDesc desc = {
     "",
     "",
     "",
-    aiImporterFlags_SupportTextFlavour | aiImporterFlags_SupportBinaryFlavour | aiImporterFlags_SupportCompressedFlavour
-        | aiImporterFlags_LimitedSupport | aiImporterFlags_Experimental,
+    aiImporterFlags_SupportTextFlavour | aiImporterFlags_SupportBinaryFlavour | aiImporterFlags_SupportCompressedFlavour | aiImporterFlags_LimitedSupport | aiImporterFlags_Experimental,
     0,
     0,
     0,
     0,
-    "gltf glb"
-};
+    "gltf glb"};
 
 glTFImporter::glTFImporter()
-: BaseImporter()
-, meshOffsets()
-, embeddedTexIdxs()
-, mScene( NULL ) {
+    : BaseImporter(), meshOffsets(), embeddedTexIdxs(), mScene(NULL)
+{
     // empty
 }
 
-glTFImporter::~glTFImporter() {
+glTFImporter::~glTFImporter()
+{
     // empty
 }
 
@@ -101,7 +97,7 @@ const aiImporterDesc* glTFImporter::GetInfo() const
 
 bool glTFImporter::CanRead(const std::string& pFile, IOSystem* pIOHandler, bool /* checkSig */) const
 {
-    const std::string &extension = GetExtension(pFile);
+    const std::string& extension = GetExtension(pFile);
 
     if (extension != "gltf" && extension != "glb")
         return false;
@@ -120,8 +116,6 @@ bool glTFImporter::CanRead(const std::string& pFile, IOSystem* pIOHandler, bool 
     return false;
 }
 
-
-
 //static void CopyValue(const glTF::vec3& v, aiColor3D& out)
 //{
 //    out.r = v[0]; out.g = v[1]; out.b = v[2];
@@ -129,30 +123,52 @@ bool glTFImporter::CanRead(const std::string& pFile, IOSystem* pIOHandler, bool 
 
 static void CopyValue(const glTF::vec4& v, aiColor4D& out)
 {
-    out.r = v[0]; out.g = v[1]; out.b = v[2]; out.a = v[3];
+    out.r = v[0];
+    out.g = v[1];
+    out.b = v[2];
+    out.a = v[3];
 }
 
 static void CopyValue(const glTF::vec4& v, aiColor3D& out)
 {
-    out.r = v[0]; out.g = v[1]; out.b = v[2];
+    out.r = v[0];
+    out.g = v[1];
+    out.b = v[2];
 }
 
 static void CopyValue(const glTF::vec3& v, aiVector3D& out)
 {
-    out.x = v[0]; out.y = v[1]; out.z = v[2];
+    out.x = v[0];
+    out.y = v[1];
+    out.z = v[2];
 }
 
 static void CopyValue(const glTF::vec4& v, aiQuaternion& out)
 {
-    out.x = v[0]; out.y = v[1]; out.z = v[2]; out.w = v[3];
+    out.x = v[0];
+    out.y = v[1];
+    out.z = v[2];
+    out.w = v[3];
 }
 
 static void CopyValue(const glTF::mat4& v, aiMatrix4x4& o)
 {
-    o.a1 = v[ 0]; o.b1 = v[ 1]; o.c1 = v[ 2]; o.d1 = v[ 3];
-    o.a2 = v[ 4]; o.b2 = v[ 5]; o.c2 = v[ 6]; o.d2 = v[ 7];
-    o.a3 = v[ 8]; o.b3 = v[ 9]; o.c3 = v[10]; o.d3 = v[11];
-    o.a4 = v[12]; o.b4 = v[13]; o.c4 = v[14]; o.d4 = v[15];
+    o.a1 = v[0];
+    o.b1 = v[1];
+    o.c1 = v[2];
+    o.d1 = v[3];
+    o.a2 = v[4];
+    o.b2 = v[5];
+    o.c2 = v[6];
+    o.d2 = v[7];
+    o.a3 = v[8];
+    o.b3 = v[9];
+    o.c3 = v[10];
+    o.d3 = v[11];
+    o.a4 = v[12];
+    o.b4 = v[13];
+    o.c4 = v[14];
+    o.d4 = v[15];
 }
 
 inline void SetMaterialColorProperty(std::vector<int>& embeddedTexIdxs, Asset& /*r*/, glTF::TexProperty prop, aiMaterial* mat,
@@ -163,16 +179,15 @@ inline void SetMaterialColorProperty(std::vector<int>& embeddedTexIdxs, Asset& /
             aiString uri(prop.texture->source->uri);
 
             int texIdx = embeddedTexIdxs[prop.texture->source.GetIndex()];
-            if (texIdx != -1) { // embedded
+            if (texIdx != -1) {    // embedded
                 // setup texture reference string (copied from ColladaLoader::FindFilenameForEffectTexture)
                 uri.data[0] = '*';
-                uri.length = 1 + ASSIMP_itoa10(uri.data + 1, MAXLEN - 1, texIdx);
+                uri.length  = 1 + ASSIMP_itoa10(uri.data + 1, MAXLEN - 1, texIdx);
             }
 
             mat->AddProperty(&uri, _AI_MATKEY_TEXTURE_BASE, texType, 0);
         }
-    }
-    else {
+    } else {
         aiColor4D col;
         CopyValue(prop.color, col);
         mat->AddProperty(&col, 1, pKey, type, idx);
@@ -182,7 +197,7 @@ inline void SetMaterialColorProperty(std::vector<int>& embeddedTexIdxs, Asset& /
 void glTFImporter::ImportMaterials(glTF::Asset& r)
 {
     mScene->mNumMaterials = unsigned(r.materials.Size());
-    mScene->mMaterials = new aiMaterial*[mScene->mNumMaterials];
+    mScene->mMaterials    = new aiMaterial*[mScene->mNumMaterials];
 
     for (unsigned int i = 0; i < mScene->mNumMaterials; ++i) {
         aiMaterial* aimat = mScene->mMaterials[i] = new aiMaterial();
@@ -194,8 +209,8 @@ void glTFImporter::ImportMaterials(glTF::Asset& r)
             aimat->AddProperty(&str, AI_MATKEY_NAME);
         }
 
-        SetMaterialColorProperty(embeddedTexIdxs, r, mat.ambient,  aimat, aiTextureType_AMBIENT,  AI_MATKEY_COLOR_AMBIENT );
-        SetMaterialColorProperty(embeddedTexIdxs, r, mat.diffuse,  aimat, aiTextureType_DIFFUSE,  AI_MATKEY_COLOR_DIFFUSE );
+        SetMaterialColorProperty(embeddedTexIdxs, r, mat.ambient, aimat, aiTextureType_AMBIENT, AI_MATKEY_COLOR_AMBIENT);
+        SetMaterialColorProperty(embeddedTexIdxs, r, mat.diffuse, aimat, aiTextureType_DIFFUSE, AI_MATKEY_COLOR_DIFFUSE);
         SetMaterialColorProperty(embeddedTexIdxs, r, mat.specular, aimat, aiTextureType_SPECULAR, AI_MATKEY_COLOR_SPECULAR);
         SetMaterialColorProperty(embeddedTexIdxs, r, mat.emission, aimat, aiTextureType_EMISSIVE, AI_MATKEY_COLOR_EMISSIVE);
 
@@ -212,23 +227,22 @@ void glTFImporter::ImportMaterials(glTF::Asset& r)
 
     if (mScene->mNumMaterials == 0) {
         mScene->mNumMaterials = 1;
-        mScene->mMaterials = new aiMaterial*[1];
+        mScene->mMaterials    = new aiMaterial*[1];
         mScene->mMaterials[0] = new aiMaterial();
     }
 }
 
-
 static inline void SetFace(aiFace& face, int a)
 {
     face.mNumIndices = 1;
-    face.mIndices = new unsigned int[1];
+    face.mIndices    = new unsigned int[1];
     face.mIndices[0] = a;
 }
 
 static inline void SetFace(aiFace& face, int a, int b)
 {
     face.mNumIndices = 2;
-    face.mIndices = new unsigned int[2];
+    face.mIndices    = new unsigned int[2];
     face.mIndices[0] = a;
     face.mIndices[1] = b;
 }
@@ -236,13 +250,13 @@ static inline void SetFace(aiFace& face, int a, int b)
 static inline void SetFace(aiFace& face, int a, int b, int c)
 {
     face.mNumIndices = 3;
-    face.mIndices = new unsigned int[3];
+    face.mIndices    = new unsigned int[3];
     face.mIndices[0] = a;
     face.mIndices[1] = b;
     face.mIndices[2] = c;
 }
 
-#ifdef ASSIMP_BUILD_DEBUG
+    #ifdef ASSIMP_BUILD_DEBUG
 static inline bool CheckValidFacesIndices(aiFace* faces, unsigned nFaces, unsigned nVerts)
 {
     for (unsigned i = 0; i < nFaces; ++i) {
@@ -254,7 +268,7 @@ static inline bool CheckValidFacesIndices(aiFace* faces, unsigned nFaces, unsign
     }
     return true;
 }
-#endif // ASSIMP_BUILD_DEBUG
+    #endif    // ASSIMP_BUILD_DEBUG
 
 void glTFImporter::ImportMeshes(glTF::Asset& r)
 {
@@ -265,39 +279,35 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
     for (unsigned int m = 0; m < r.meshes.Size(); ++m) {
         Mesh& mesh = r.meshes[m];
 
-		// Check if mesh extensions is used
-		if(mesh.Extension.size() > 0)
-		{
-			for(Mesh::SExtension* cur_ext : mesh.Extension)
-			{
-#ifdef ASSIMP_IMPORTER_GLTF_USE_OPEN3DGC
-				if(cur_ext->Type == Mesh::SExtension::EType::Compression_Open3DGC)
-				{
-					// Limitations for meshes when using Open3DGC-compression.
-					// It's a current limitation of sp... Specification have not this part still - about mesh compression. Why only one primitive?
-					// Because glTF is very flexibly. But in fact it ugly flexible. Every primitive can has own set of accessors and accessors can
-					// point to a-a-a-a-any part of buffer (through bufferview of course) and even to another buffer. We know that "Open3DGC-compression"
-					// is applicable only to part of buffer. As we can't guaranty continuity of the data for decoder, we will limit quantity of primitives.
-					// Yes indices, coordinates etc. still can br stored in different buffers, but with current specification it's a exporter problem.
-					// Also primitive can has only one of "POSITION", "NORMAL" and less then "AI_MAX_NUMBER_OF_TEXTURECOORDS" of "TEXCOORD". All accessor
-					// of primitive must point to one continuous region of the buffer.
-					if(mesh.primitives.size() > 2) throw DeadlyImportError("GLTF: When using Open3DGC compression then only one primitive per mesh are allowed.");
+        // Check if mesh extensions is used
+        if (mesh.Extension.size() > 0) {
+            for (Mesh::SExtension* cur_ext: mesh.Extension) {
+    #ifdef ASSIMP_IMPORTER_GLTF_USE_OPEN3DGC
+                if (cur_ext->Type == Mesh::SExtension::EType::Compression_Open3DGC) {
+                    // Limitations for meshes when using Open3DGC-compression.
+                    // It's a current limitation of sp... Specification have not this part still - about mesh compression. Why only one primitive?
+                    // Because glTF is very flexibly. But in fact it ugly flexible. Every primitive can has own set of accessors and accessors can
+                    // point to a-a-a-a-any part of buffer (through bufferview of course) and even to another buffer. We know that "Open3DGC-compression"
+                    // is applicable only to part of buffer. As we can't guaranty continuity of the data for decoder, we will limit quantity of primitives.
+                    // Yes indices, coordinates etc. still can br stored in different buffers, but with current specification it's a exporter problem.
+                    // Also primitive can has only one of "POSITION", "NORMAL" and less then "AI_MAX_NUMBER_OF_TEXTURECOORDS" of "TEXCOORD". All accessor
+                    // of primitive must point to one continuous region of the buffer.
+                    if (mesh.primitives.size() > 2) throw DeadlyImportError("GLTF: When using Open3DGC compression then only one primitive per mesh are allowed.");
 
-					Mesh::SCompression_Open3DGC* o3dgc_ext = (Mesh::SCompression_Open3DGC*)cur_ext;
-					Ref<Buffer> buf = r.buffers.Get(o3dgc_ext->Buffer);
+                    Mesh::SCompression_Open3DGC* o3dgc_ext = (Mesh::SCompression_Open3DGC*) cur_ext;
+                    Ref<Buffer>                  buf       = r.buffers.Get(o3dgc_ext->Buffer);
 
-					buf->EncodedRegion_SetCurrent(mesh.id);
-				}
-				else
-#endif
-				{
-					throw DeadlyImportError("GLTF: Can not import mesh: unknown mesh extension (code: \"" + to_string(cur_ext->Type) +
-											"\"), only Open3DGC is supported.");
-				}
-			}
-		}// if(mesh.Extension.size() > 0)
+                    buf->EncodedRegion_SetCurrent(mesh.id);
+                } else
+    #endif
+                {
+                    throw DeadlyImportError("GLTF: Can not import mesh: unknown mesh extension (code: \"" + to_string(cur_ext->Type) +
+                                            "\"), only Open3DGC is supported.");
+                }
+            }
+        }    // if(mesh.Extension.size() > 0)
 
-		meshOffsets.push_back(k);
+        meshOffsets.push_back(k);
         k += unsigned(mesh.primitives.size());
 
         for (unsigned int p = 0; p < mesh.primitives.size(); ++p) {
@@ -308,7 +318,7 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
 
             aim->mName = mesh.id;
             if (mesh.primitives.size() > 1) {
-                size_t& len = aim->mName.length;
+                size_t& len          = aim->mName.length;
                 aim->mName.data[len] = '-';
                 len += 1 + ASSIMP_itoa10(aim->mName.data + len + 1, unsigned(MAXLEN - len - 1), p);
             }
@@ -333,12 +343,12 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
 
             Mesh::Primitive::Attributes& attr = prim.attributes;
 
-			if (attr.position.size() > 0 && attr.position[0]) {
+            if (attr.position.size() > 0 && attr.position[0]) {
                 aim->mNumVertices = attr.position[0]->count;
                 attr.position[0]->ExtractData(aim->mVertices);
-			}
+            }
 
-			if (attr.normal.size() > 0 && attr.normal[0]) attr.normal[0]->ExtractData(aim->mNormals);
+            if (attr.normal.size() > 0 && attr.normal[0]) attr.normal[0]->ExtractData(aim->mNormals);
 
             for (size_t tc = 0; tc < attr.texcoord.size() && tc < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++tc) {
                 attr.texcoord[tc]->ExtractData(aim->mTextureCoords[tc]);
@@ -346,12 +356,11 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
 
                 aiVector3D* values = aim->mTextureCoords[tc];
                 for (unsigned int i = 0; i < aim->mNumVertices; ++i) {
-                    values[i].y = 1 - values[i].y; // Flip Y coords
+                    values[i].y = 1 - values[i].y;    // Flip Y coords
                 }
             }
 
-
-            aiFace* faces = 0;
+            aiFace*      faces  = 0;
             unsigned int nFaces = 0;
 
             if (prim.indices) {
@@ -363,7 +372,7 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
                 switch (prim.mode) {
                     case PrimitiveMode_POINTS: {
                         nFaces = count;
-                        faces = new aiFace[nFaces];
+                        faces  = new aiFace[nFaces];
                         for (unsigned int i = 0; i < count; ++i) {
                             SetFace(faces[i], data.GetUInt(i));
                         }
@@ -372,7 +381,7 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
 
                     case PrimitiveMode_LINES: {
                         nFaces = count / 2;
-                        faces = new aiFace[nFaces];
+                        faces  = new aiFace[nFaces];
                         for (unsigned int i = 0; i < count; i += 2) {
                             SetFace(faces[i / 2], data.GetUInt(i), data.GetUInt(i + 1));
                         }
@@ -382,12 +391,12 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
                     case PrimitiveMode_LINE_LOOP:
                     case PrimitiveMode_LINE_STRIP: {
                         nFaces = count - ((prim.mode == PrimitiveMode_LINE_STRIP) ? 1 : 0);
-                        faces = new aiFace[nFaces];
+                        faces  = new aiFace[nFaces];
                         SetFace(faces[0], data.GetUInt(0), data.GetUInt(1));
                         for (unsigned int i = 2; i < count; ++i) {
                             SetFace(faces[i - 1], faces[i - 2].mIndices[1], data.GetUInt(i));
                         }
-                        if (prim.mode == PrimitiveMode_LINE_LOOP) { // close the loop
+                        if (prim.mode == PrimitiveMode_LINE_LOOP) {    // close the loop
                             SetFace(faces[count - 1], faces[count - 2].mIndices[1], faces[0].mIndices[0]);
                         }
                         break;
@@ -395,7 +404,7 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
 
                     case PrimitiveMode_TRIANGLES: {
                         nFaces = count / 3;
-                        faces = new aiFace[nFaces];
+                        faces  = new aiFace[nFaces];
                         for (unsigned int i = 0; i < count; i += 3) {
                             SetFace(faces[i / 3], data.GetUInt(i), data.GetUInt(i + 1), data.GetUInt(i + 2));
                         }
@@ -403,7 +412,7 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
                     }
                     case PrimitiveMode_TRIANGLE_STRIP: {
                         nFaces = count - 2;
-                        faces = new aiFace[nFaces];
+                        faces  = new aiFace[nFaces];
                         SetFace(faces[0], data.GetUInt(0), data.GetUInt(1), data.GetUInt(2));
                         for (unsigned int i = 3; i < count; ++i) {
                             SetFace(faces[i - 2], faces[i - 1].mIndices[1], faces[i - 1].mIndices[2], data.GetUInt(i));
@@ -412,82 +421,81 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
                     }
                     case PrimitiveMode_TRIANGLE_FAN:
                         nFaces = count - 2;
-                        faces = new aiFace[nFaces];
+                        faces  = new aiFace[nFaces];
                         SetFace(faces[0], data.GetUInt(0), data.GetUInt(1), data.GetUInt(2));
                         for (unsigned int i = 3; i < count; ++i) {
                             SetFace(faces[i - 2], faces[0].mIndices[0], faces[i - 1].mIndices[2], data.GetUInt(i));
                         }
                         break;
                 }
-            }
-            else { // no indices provided so directly generate from counts
+            } else {    // no indices provided so directly generate from counts
 
-                // use the already determined count as it includes checks 
+                // use the already determined count as it includes checks
                 unsigned int count = aim->mNumVertices;
 
                 switch (prim.mode) {
-                case PrimitiveMode_POINTS: {
-                    nFaces = count;
-                    faces = new aiFace[nFaces];
-                    for (unsigned int i = 0; i < count; ++i) {
-                        SetFace(faces[i], i);
+                    case PrimitiveMode_POINTS: {
+                        nFaces = count;
+                        faces  = new aiFace[nFaces];
+                        for (unsigned int i = 0; i < count; ++i) {
+                            SetFace(faces[i], i);
+                        }
+                        break;
                     }
-                    break;
-                }
 
-                case PrimitiveMode_LINES: {
-                    nFaces = count / 2;
-                    faces = new aiFace[nFaces];
-                    for (unsigned int i = 0; i < count; i += 2) {
-                        SetFace(faces[i / 2], i, i + 1);
+                    case PrimitiveMode_LINES: {
+                        nFaces = count / 2;
+                        faces  = new aiFace[nFaces];
+                        for (unsigned int i = 0; i < count; i += 2) {
+                            SetFace(faces[i / 2], i, i + 1);
+                        }
+                        break;
                     }
-                    break;
-                }
 
-                case PrimitiveMode_LINE_LOOP:
-                case PrimitiveMode_LINE_STRIP: {
-                    nFaces = count - ((prim.mode == PrimitiveMode_LINE_STRIP) ? 1 : 0);
-                    faces = new aiFace[nFaces];
-                    SetFace(faces[0], 0, 1);
-                    for (unsigned int i = 2; i < count; ++i) {
-                        SetFace(faces[i - 1], faces[i - 2].mIndices[1], i);
+                    case PrimitiveMode_LINE_LOOP:
+                    case PrimitiveMode_LINE_STRIP: {
+                        nFaces = count - ((prim.mode == PrimitiveMode_LINE_STRIP) ? 1 : 0);
+                        faces  = new aiFace[nFaces];
+                        SetFace(faces[0], 0, 1);
+                        for (unsigned int i = 2; i < count; ++i) {
+                            SetFace(faces[i - 1], faces[i - 2].mIndices[1], i);
+                        }
+                        if (prim.mode == PrimitiveMode_LINE_LOOP) {    // close the loop
+                            SetFace(faces[count - 1], faces[count - 2].mIndices[1], faces[0].mIndices[0]);
+                        }
+                        break;
                     }
-                    if (prim.mode == PrimitiveMode_LINE_LOOP) { // close the loop
-                        SetFace(faces[count - 1], faces[count - 2].mIndices[1], faces[0].mIndices[0]);
-                    }
-                    break;
-                }
 
-                case PrimitiveMode_TRIANGLES: {
-                    nFaces = count / 3;
-                    faces = new aiFace[nFaces];
-                    for (unsigned int i = 0; i < count; i += 3) {
-                        SetFace(faces[i / 3], i, i + 1, i + 2);
+                    case PrimitiveMode_TRIANGLES: {
+                        nFaces = count / 3;
+                        faces  = new aiFace[nFaces];
+                        for (unsigned int i = 0; i < count; i += 3) {
+                            SetFace(faces[i / 3], i, i + 1, i + 2);
+                        }
+                        break;
                     }
-                    break;
-                }
-                case PrimitiveMode_TRIANGLE_STRIP: {
-                    nFaces = count - 2;
-                    faces = new aiFace[nFaces];
-                    SetFace(faces[0], 0, 1, 2);
-                    for (unsigned int i = 3; i < count; ++i) {
-                        SetFace(faces[i - 2], faces[i - 1].mIndices[1], faces[i - 1].mIndices[2], i);
+                    case PrimitiveMode_TRIANGLE_STRIP: {
+                        nFaces = count - 2;
+                        faces  = new aiFace[nFaces];
+                        SetFace(faces[0], 0, 1, 2);
+                        for (unsigned int i = 3; i < count; ++i) {
+                            SetFace(faces[i - 2], faces[i - 1].mIndices[1], faces[i - 1].mIndices[2], i);
+                        }
+                        break;
                     }
-                    break;
-                }
-                case PrimitiveMode_TRIANGLE_FAN:
-                    nFaces = count - 2;
-                    faces = new aiFace[nFaces];
-                    SetFace(faces[0], 0, 1, 2);
-                    for (unsigned int i = 3; i < count; ++i) {
-                        SetFace(faces[i - 2], faces[0].mIndices[0], faces[i - 1].mIndices[2], i);
-                    }
-                    break;
+                    case PrimitiveMode_TRIANGLE_FAN:
+                        nFaces = count - 2;
+                        faces  = new aiFace[nFaces];
+                        SetFace(faces[0], 0, 1, 2);
+                        for (unsigned int i = 3; i < count; ++i) {
+                            SetFace(faces[i - 2], faces[0].mIndices[0], faces[i - 1].mIndices[2], i);
+                        }
+                        break;
                 }
             }
 
             if (faces) {
-                aim->mFaces = faces;
+                aim->mFaces    = faces;
                 aim->mNumFaces = nFaces;
                 ai_assert(CheckValidFacesIndices(faces, nFaces, aim->mNumVertices));
             }
@@ -508,7 +516,7 @@ void glTFImporter::ImportCameras(glTF::Asset& r)
     if (!r.cameras.Size()) return;
 
     mScene->mNumCameras = r.cameras.Size();
-    mScene->mCameras = new aiCamera*[r.cameras.Size()];
+    mScene->mCameras    = new aiCamera*[r.cameras.Size()];
 
     for (size_t i = 0; i < r.cameras.Size(); ++i) {
         Camera& cam = r.cameras[i];
@@ -516,13 +524,11 @@ void glTFImporter::ImportCameras(glTF::Asset& r)
         aiCamera* aicam = mScene->mCameras[i] = new aiCamera();
 
         if (cam.type == Camera::Perspective) {
-
             aicam->mAspect        = cam.perspective.aspectRatio;
             aicam->mHorizontalFOV = cam.perspective.yfov * aicam->mAspect;
             aicam->mClipPlaneFar  = cam.perspective.zfar;
             aicam->mClipPlaneNear = cam.perspective.znear;
-        }
-        else {
+        } else {
             // assimp does not support orthographic cameras
         }
     }
@@ -533,7 +539,7 @@ void glTFImporter::ImportLights(glTF::Asset& r)
     if (!r.lights.Size()) return;
 
     mScene->mNumLights = r.lights.Size();
-    mScene->mLights = new aiLight*[r.lights.Size()];
+    mScene->mLights    = new aiLight*[r.lights.Size()];
 
     for (size_t i = 0; i < r.lights.Size(); ++i) {
         Light& l = r.lights[i];
@@ -542,16 +548,20 @@ void glTFImporter::ImportLights(glTF::Asset& r)
 
         switch (l.type) {
             case Light::Type_directional:
-                ail->mType = aiLightSource_DIRECTIONAL; break;
+                ail->mType = aiLightSource_DIRECTIONAL;
+                break;
 
             case Light::Type_spot:
-                ail->mType = aiLightSource_SPOT; break;
+                ail->mType = aiLightSource_SPOT;
+                break;
 
             case Light::Type_ambient:
-                ail->mType = aiLightSource_AMBIENT; break;
+                ail->mType = aiLightSource_AMBIENT;
+                break;
 
-            default: // Light::Type_point
-                ail->mType = aiLightSource_POINT; break;
+            default:    // Light::Type_point
+                ail->mType = aiLightSource_POINT;
+                break;
         }
 
         CopyValue(l.color, ail->mColorAmbient);
@@ -559,14 +569,13 @@ void glTFImporter::ImportLights(glTF::Asset& r)
         CopyValue(l.color, ail->mColorSpecular);
 
         ail->mAngleOuterCone = l.falloffAngle;
-        ail->mAngleInnerCone = l.falloffExponent; // TODO fix this, it does not look right at all
+        ail->mAngleInnerCone = l.falloffExponent;    // TODO fix this, it does not look right at all
 
         ail->mAttenuationConstant  = l.constantAttenuation;
         ail->mAttenuationLinear    = l.linearAttenuation;
         ail->mAttenuationQuadratic = l.quadraticAttenuation;
     }
 }
-
 
 aiNode* ImportNode(aiScene* pScene, glTF::Asset& r, std::vector<unsigned int>& meshOffsets, glTF::Ref<glTF::Node>& ptr)
 {
@@ -576,11 +585,11 @@ aiNode* ImportNode(aiScene* pScene, glTF::Asset& r, std::vector<unsigned int>& m
 
     if (!node.children.empty()) {
         ainode->mNumChildren = unsigned(node.children.size());
-        ainode->mChildren = new aiNode*[ainode->mNumChildren];
+        ainode->mChildren    = new aiNode*[ainode->mNumChildren];
 
         for (unsigned int i = 0; i < ainode->mNumChildren; ++i) {
-            aiNode* child = ImportNode(pScene, r, meshOffsets, node.children[i]);
-            child->mParent = ainode;
+            aiNode* child        = ImportNode(pScene, r, meshOffsets, node.children[i]);
+            child->mParent       = ainode;
             ainode->mChildren[i] = child;
         }
     }
@@ -588,8 +597,7 @@ aiNode* ImportNode(aiScene* pScene, glTF::Asset& r, std::vector<unsigned int>& m
     aiMatrix4x4& matrix = ainode->mTransformation;
     if (node.matrix.isPresent) {
         CopyValue(node.matrix.value, matrix);
-    }
-    else {
+    } else {
         if (node.translation.isPresent) {
             aiVector3D trans;
             CopyValue(node.translation.value, trans);
@@ -606,7 +614,6 @@ aiNode* ImportNode(aiScene* pScene, glTF::Asset& r, std::vector<unsigned int>& m
             matrix = s * matrix;
         }
 
-
         if (node.rotation.isPresent) {
             aiQuaternion rot;
             CopyValue(node.rotation.value, rot);
@@ -622,7 +629,7 @@ aiNode* ImportNode(aiScene* pScene, glTF::Asset& r, std::vector<unsigned int>& m
         }
 
         ainode->mNumMeshes = count;
-        ainode->mMeshes = new unsigned int[count];
+        ainode->mMeshes    = new unsigned int[count];
 
         int k = 0;
         for (size_t i = 0; i < node.meshes.size(); ++i) {
@@ -648,19 +655,18 @@ void glTFImporter::ImportNodes(glTF::Asset& r)
 {
     if (!r.scene) return;
 
-    std::vector< Ref<Node> > rootNodes = r.scene->nodes;
+    std::vector<Ref<Node> > rootNodes = r.scene->nodes;
 
     // The root nodes
     unsigned int numRootNodes = unsigned(rootNodes.size());
-    if (numRootNodes == 1) { // a single root node: use it
+    if (numRootNodes == 1) {    // a single root node: use it
         mScene->mRootNode = ImportNode(mScene, r, meshOffsets, rootNodes[0]);
-    }
-    else if (numRootNodes > 1) { // more than one root node: create a fake root
-        aiNode* root = new aiNode("ROOT");
+    } else if (numRootNodes > 1) {    // more than one root node: create a fake root
+        aiNode* root    = new aiNode("ROOT");
         root->mChildren = new aiNode*[numRootNodes];
         for (unsigned int i = 0; i < numRootNodes; ++i) {
-            aiNode* node = ImportNode(mScene, r, meshOffsets, rootNodes[i]);
-            node->mParent = root;
+            aiNode* node                          = ImportNode(mScene, r, meshOffsets, rootNodes[i]);
+            node->mParent                         = root;
             root->mChildren[root->mNumChildren++] = node;
         }
         mScene->mRootNode = root;
@@ -688,20 +694,20 @@ void glTFImporter::ImportEmbeddedTextures(glTF::Asset& r)
 
     // Add the embedded textures
     for (size_t i = 0; i < r.images.Size(); ++i) {
-        Image &img = r.images[i];
+        Image& img = r.images[i];
         if (!img.HasData()) continue;
 
-        int idx = mScene->mNumTextures++;
+        int idx            = mScene->mNumTextures++;
         embeddedTexIdxs[i] = idx;
 
         aiTexture* tex = mScene->mTextures[idx] = new aiTexture();
 
         size_t length = img.GetDataLength();
-        void* data = img.StealData();
+        void*  data   = img.StealData();
 
-        tex->mWidth = static_cast<unsigned int>(length);
+        tex->mWidth  = static_cast<unsigned int>(length);
         tex->mHeight = 0;
-        tex->pcData = reinterpret_cast<aiTexel*>(data);
+        tex->pcData  = reinterpret_cast<aiTexel*>(data);
 
         if (!img.mimeType.empty()) {
             const char* ext = strchr(img.mimeType.c_str(), '/') + 1;
@@ -717,14 +723,13 @@ void glTFImporter::ImportEmbeddedTextures(glTF::Asset& r)
     }
 }
 
-void glTFImporter::InternReadFile(const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler) {
-
+void glTFImporter::InternReadFile(const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler)
+{
     this->mScene = pScene;
 
     // read the asset file
     glTF::Asset asset(pIOHandler);
     asset.Load(pFile, GetExtension(pFile) == "glb");
-
 
     //
     // Copy the data out
@@ -742,14 +747,12 @@ void glTFImporter::InternReadFile(const std::string& pFile, aiScene* pScene, IOS
 
     // TODO: it does not split the loaded vertices, should it?
     //pScene->mFlags |= AI_SCENE_FLAGS_NON_VERBOSE_FORMAT;
-	MakeVerboseFormatProcess process;
+    MakeVerboseFormatProcess process;
     process.Execute(pScene);
-
 
     if (pScene->mNumMeshes == 0) {
         pScene->mFlags |= AI_SCENE_FLAGS_INCOMPLETE;
     }
 }
 
-#endif // ASSIMP_BUILD_NO_GLTF_IMPORTER
-
+#endif    // ASSIMP_BUILD_NO_GLTF_IMPORTER

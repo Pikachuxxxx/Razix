@@ -333,7 +333,8 @@ void encodeImages(std::string* encoded, const cgltf_data* data, const std::vecto
 
 		encoded[i].clear();
 
-		encodePush([=]() {
+		encodePush([=]()
+		    {
 			std::string img_data;
 			std::string mime_type;
 			std::string result;
@@ -341,8 +342,7 @@ void encodeImages(std::string* encoded, const cgltf_data* data, const std::vecto
 			if (readImage(image, input_path, img_data, mime_type) && encodeBasis(img_data, mime_type.c_str(), result, info, settings))
 			{
 				encoded[i].swap(result);
-			}
-		});
+			} });
 	}
 
 	encodeWait();

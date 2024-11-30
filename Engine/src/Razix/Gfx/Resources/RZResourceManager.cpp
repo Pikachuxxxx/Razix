@@ -110,7 +110,6 @@ namespace Razix {
             RAZIX_INIT_RESOURCE_POOL(DrawCommandBuffer, 32)
             RAZIX_INIT_RESOURCE_POOL(VertexBuffer, 512)
             RAZIX_INIT_RESOURCE_POOL(IndexBuffer, 512)
-
         }
 
         void RZResourceManager::ShutDown()

@@ -62,7 +62,7 @@
     #define RAZIX_HIDDEN
 #elif defined RAZIX_PLATFORM_MACOS
     #define MEM_DEF_ALIGNMENT_16 16
-    #define RAZIX_MEM_ALIGN_16  alignas(MEM_DEF_ALIGNMENT_16)
+    #define RAZIX_MEM_ALIGN_16   alignas(MEM_DEF_ALIGNMENT_16)
 
     #ifdef RAZIX_BUILD_DLL
         #define RAZIX_API __attribute__((visibility("default")))
@@ -72,8 +72,7 @@
 
     #define RAZIX_DEBUG_BREAK() __builtin_debugtrap()    // clang
 
-
-    #define RAZIX_HIDDEN        __attribute__((visibility("hidden")))
+    #define RAZIX_HIDDEN __attribute__((visibility("hidden")))
 #else
     #define MEM_DEF_ALIGNMENT_16 16
 
@@ -271,11 +270,11 @@ public:                                                  \
 #define RAZIX_CALL RAZIX_CALLING_CONVENTION
 
 // Inline macros
-#define RAZIX_INLINE       inline
+#define RAZIX_INLINE inline
 #ifdef RAZIX_COMPILER_MSVC
-#define RAZIX_FORCE_INLINE __forceinline
+    #define RAZIX_FORCE_INLINE __forceinline
 #elif defined RAZIX_COMPILER_CLANG
-#define RAZIX_FORCE_INLINE  __attribute__((always_inline))
+    #define RAZIX_FORCE_INLINE __attribute__((always_inline))
 #endif
 
 /**
@@ -304,27 +303,27 @@ public:                                                  \
  * if not the first one will fail due to SFINAE and select the second type and return false_type
  */
 
-#define RAZIX_CHECK_TYPE_HAS_FUNCTION(T, funcName)                       \
-    template<typename T>                                                 \
-    class has_##funcName                                                 \
-    {                                                                    \
-    private:                                                             \
-        template<typename C>                                             \
-        static constexpr ::std::true_type test(decltype(&C::funcName))   \
-        {                                                                \
-            return {};                                                   \
-        }                                                                \
-                                                                         \
-        template<typename C>                                             \
-        static constexpr ::std::false_type test(...)                     \
-        {                                                                \
-            return {};                                                   \
-        }                                                                \
-                                                                         \
-    public:                                                              \
-        static constexpr bool value = test<T>(0);                        \
-    };                                                                   \
-    template<typename T>                                                 \
+#define RAZIX_CHECK_TYPE_HAS_FUNCTION(T, funcName)                     \
+    template<typename T>                                               \
+    class has_##funcName                                               \
+    {                                                                  \
+    private:                                                           \
+        template<typename C>                                           \
+        static constexpr ::std::true_type test(decltype(&C::funcName)) \
+        {                                                              \
+            return {};                                                 \
+        }                                                              \
+                                                                       \
+        template<typename C>                                           \
+        static constexpr ::std::false_type test(...)                   \
+        {                                                              \
+            return {};                                                 \
+        }                                                              \
+                                                                       \
+    public:                                                            \
+        static constexpr bool value = test<T>(0);                      \
+    };                                                                 \
+    template<typename T>                                               \
     inline constexpr bool has_##funcName##_v = has_##funcName<T>::value;
 
 #define RAZIX_TYPE_HAS_FUNCTION_V(T, funcName) \
@@ -339,16 +338,16 @@ public:                                                  \
  * 
  */
 
-#define RAZIX_CHECK_TYPE_HAS_SUBTYPE(T, U)                               \
-    template<typename T, typename = void>                                \
-    struct has_##U : ::std::false_type                                   \
-    {                                                                    \
-    };                                                                   \
-    template<typename T>                                                 \
-    struct has_##U<T, ::std::void_t<typename T::U>> : ::std::true_type   \
-    {                                                                    \
-    };                                                                   \
-    template<typename T>                                                 \
+#define RAZIX_CHECK_TYPE_HAS_SUBTYPE(T, U)                             \
+    template<typename T, typename = void>                              \
+    struct has_##U : ::std::false_type                                 \
+    {                                                                  \
+    };                                                                 \
+    template<typename T>                                               \
+    struct has_##U<T, ::std::void_t<typename T::U>> : ::std::true_type \
+    {                                                                  \
+    };                                                                 \
+    template<typename T>                                               \
     inline constexpr bool has_##U##_v = has_##U<T>::value
 
 #define RAZIX_TYPE_HAS_SUB_TYPE_V(T, U) \
@@ -410,8 +409,7 @@ public:                                                  \
     #define RAZIX_WARNING_DISABLE(x)
 #endif
 
-
-#if defined(__GNUC__) || defined(__clang__) // GCC or Clang
+#if defined(__GNUC__) || defined(__clang__)    // GCC or Clang
     #define RAZIX_UNUSED [[maybe_unused]] x
 #else
     #define RAZIX_UNUSED
@@ -422,7 +420,7 @@ public:                                                  \
 /**
  * Memory Related stuff & Alignment Macros
  */
-#define RZ_ALIGN_ARB(n, a) (((size_t) (n) + ((size_t) (a) -1)) & ~(size_t) ((a) -1))    // 'a' needs to be a power of 2
+#define RZ_ALIGN_ARB(n, a) (((size_t) (n) + ((size_t) (a) - 1)) & ~(size_t) ((a) - 1))    // 'a' needs to be a power of 2
 
 #define RZ_ALIGN_64K(n) ((((size_t) (n)) + 0xffff) & ~0xffff)
 
@@ -438,7 +436,7 @@ public:                                                  \
 #define RZ_ALIGN_4(n)   ((((size_t) (n)) + 3) & ~3)
 #define RZ_ALIGN_2(n)   ((((size_t) (n)) + 1) & ~1)
 
-#define RZ_IS_ALIGNED_ARB(n, a) (((size_t) (n) & ((size_t) (a) -1)) == 0)    // 'a' needs to be a power of 2
+#define RZ_IS_ALIGNED_ARB(n, a) (((size_t) (n) & ((size_t) (a) - 1)) == 0)    // 'a' needs to be a power of 2
 
 #define RZ_IS_ALIGNED_512(n) (((size_t) (n) & 511) == 0)
 #define RZ_IS_ALIGNED_256(n) (((size_t) (n) & 255) == 0)
@@ -450,7 +448,7 @@ public:                                                  \
 #define RZ_IS_ALIGNED_4(n)   (((size_t) (n) & 3) == 0)
 #define RZ_IS_ALIGNED_2(n)   (((size_t) (n) & 1) == 0)
 
-#define RZ_ALIGN_DOWN_ARB(n, a) ((size_t) (n) & ~(size_t) ((a) -1))    // 'a' needs to be a power of 2
+#define RZ_ALIGN_DOWN_ARB(n, a) ((size_t) (n) & ~(size_t) ((a) - 1))    // 'a' needs to be a power of 2
 
 #define RZ_ALIGN_DOWN_512(n) (size_t(n) & ~511)
 #define RZ_ALIGN_DOWN_256(n) (size_t(n) & ~255)
@@ -475,7 +473,7 @@ public:                                                  \
 #define in_Kib(x) (x / 1024)
 
 #ifdef RAZIX_PLATFORM_UNIX
-    #include <stddef.h> // for size_t
+    #include <stddef.h>    // for size_t
 #endif
 
 // Operator overload for quick expression without using macros
@@ -539,9 +537,9 @@ static constexpr float operator""_inKib(unsigned long long int x)
 
 /* Whether or not to use VMA as memory backend */
 #ifdef RAZIX_PLATFORM_WINDOWS
-#define RAZIX_USE_VMA 1
+    #define RAZIX_USE_VMA 1
 #elif RAZIX_PLATFORM_MACOS
-#define RAZIX_USE_VMA 0 // Still porting WIP, so disabled idk if the SDK has it
+    #define RAZIX_USE_VMA 0    // Still porting WIP, so disabled idk if the SDK has it
 #endif
 
 /* Size of indices in Razix Engine, change here for global configuration */

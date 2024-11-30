@@ -39,5 +39,5 @@ namespace Razix {
         // Null Handle
         using RZNullHandle = RZHandle<void>;
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

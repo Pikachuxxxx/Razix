@@ -37,6 +37,6 @@ namespace Razix {
         private:
             bool m_IsBufferMapped = false;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

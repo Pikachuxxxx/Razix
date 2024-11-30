@@ -40,124 +40,129 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-
-
 #if !defined(ASSIMP_BUILD_NO_EXPORT) && !defined(ASSIMP_BUILD_NO_STL_EXPORTER)
 
-#include "STLExporter.h"
-#include <assimp/version.h>
-#include <assimp/IOSystem.hpp>
-#include <assimp/scene.h>
-#include <assimp/Exporter.hpp>
-#include <memory>
-#include <assimp/Exceptional.h>
-#include <assimp/ByteSwapper.h>
+    #include "STLExporter.h"
+    #include <assimp/ByteSwapper.h>
+    #include <assimp/Exceptional.h>
+    #include <assimp/Exporter.hpp>
+    #include <assimp/IOSystem.hpp>
+    #include <assimp/scene.h>
+    #include <assimp/version.h>
+    #include <memory>
 
 using namespace Assimp;
 
-namespace Assimp    {
+namespace Assimp {
 
-// ------------------------------------------------------------------------------------------------
-// Worker function for exporting a scene to Stereolithograpy. Prototyped and registered in Exporter.cpp
-void ExportSceneSTL(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* pProperties )
-{
-    bool exportPointClouds = pProperties->GetPropertyBool(AI_CONFIG_EXPORT_POINT_CLOUDS);
+    // ------------------------------------------------------------------------------------------------
+    // Worker function for exporting a scene to Stereolithograpy. Prototyped and registered in Exporter.cpp
+    void ExportSceneSTL(const char* pFile, IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* pProperties)
+    {
+        bool exportPointClouds = pProperties->GetPropertyBool(AI_CONFIG_EXPORT_POINT_CLOUDS);
 
-    // invoke the exporter
-    STLExporter exporter(pFile, pScene, exportPointClouds );
+        // invoke the exporter
+        STLExporter exporter(pFile, pScene, exportPointClouds);
 
-    if (exporter.mOutput.fail()) {
-        throw DeadlyExportError("output data creation failed. Most likely the file became too large: " + std::string(pFile));
+        if (exporter.mOutput.fail()) {
+            throw DeadlyExportError("output data creation failed. Most likely the file became too large: " + std::string(pFile));
+        }
+
+        // we're still here - export successfully completed. Write the file.
+        std::unique_ptr<IOStream> outfile(pIOSystem->Open(pFile, "wt"));
+        if (outfile == NULL) {
+            throw DeadlyExportError("could not open output .stl file: " + std::string(pFile));
+        }
+
+        outfile->Write(exporter.mOutput.str().c_str(), static_cast<size_t>(exporter.mOutput.tellp()), 1);
     }
-    
-    // we're still here - export successfully completed. Write the file.
-    std::unique_ptr<IOStream> outfile (pIOSystem->Open(pFile,"wt"));
-    if(outfile == NULL) {
-        throw DeadlyExportError("could not open output .stl file: " + std::string(pFile));
+    void ExportSceneSTLBinary(const char* pFile, IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* pProperties)
+    {
+        bool exportPointClouds = pProperties->GetPropertyBool(AI_CONFIG_EXPORT_POINT_CLOUDS);
+
+        // invoke the exporter
+        STLExporter exporter(pFile, pScene, exportPointClouds, true);
+
+        if (exporter.mOutput.fail()) {
+            throw DeadlyExportError("output data creation failed. Most likely the file became too large: " + std::string(pFile));
+        }
+
+        // we're still here - export successfully completed. Write the file.
+        std::unique_ptr<IOStream> outfile(pIOSystem->Open(pFile, "wb"));
+        if (outfile == NULL) {
+            throw DeadlyExportError("could not open output .stl file: " + std::string(pFile));
+        }
+
+        outfile->Write(exporter.mOutput.str().c_str(), static_cast<size_t>(exporter.mOutput.tellp()), 1);
     }
 
-    outfile->Write( exporter.mOutput.str().c_str(), static_cast<size_t>(exporter.mOutput.tellp()),1);
-}
-void ExportSceneSTLBinary(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* pProperties )
-{
-    bool exportPointClouds = pProperties->GetPropertyBool(AI_CONFIG_EXPORT_POINT_CLOUDS);
+}    // end of namespace Assimp
 
-    // invoke the exporter
-    STLExporter exporter(pFile, pScene, exportPointClouds, true);
-
-    if (exporter.mOutput.fail()) {
-        throw DeadlyExportError("output data creation failed. Most likely the file became too large: " + std::string(pFile));
-    }
-    
-    // we're still here - export successfully completed. Write the file.
-    std::unique_ptr<IOStream> outfile (pIOSystem->Open(pFile,"wb"));
-    if(outfile == NULL) {
-        throw DeadlyExportError("could not open output .stl file: " + std::string(pFile));
-    }
-
-    outfile->Write( exporter.mOutput.str().c_str(), static_cast<size_t>(exporter.mOutput.tellp()),1);
-}
-
-} // end of namespace Assimp
-
-static const char *SolidToken = "solid";
-static const char *EndSolidToken = "endsolid";
+static const char* SolidToken    = "solid";
+static const char* EndSolidToken = "endsolid";
 
 // ------------------------------------------------------------------------------------------------
 STLExporter::STLExporter(const char* _filename, const aiScene* pScene, bool exportPointClouds, bool binary)
-: filename(_filename)
-, endl("\n")
+    : filename(_filename), endl("\n")
 {
     // make sure that all formatting happens using the standard, C locale and not the user's current locale
     const std::locale& l = std::locale("C");
     mOutput.imbue(l);
     mOutput.precision(16);
     if (binary) {
-        char buf[80] = {0} ;
-        buf[0] = 'A'; buf[1] = 's'; buf[2] = 's'; buf[3] = 'i'; buf[4] = 'm'; buf[5] = 'p';
-        buf[6] = 'S'; buf[7] = 'c'; buf[8] = 'e'; buf[9] = 'n'; buf[10] = 'e';
+        char buf[80] = {0};
+        buf[0]       = 'A';
+        buf[1]       = 's';
+        buf[2]       = 's';
+        buf[3]       = 'i';
+        buf[4]       = 'm';
+        buf[5]       = 'p';
+        buf[6]       = 'S';
+        buf[7]       = 'c';
+        buf[8]       = 'e';
+        buf[9]       = 'n';
+        buf[10]      = 'e';
         mOutput.write(buf, 80);
         unsigned int meshnum = 0;
-        for(unsigned int i = 0; i < pScene->mNumMeshes; ++i) {
+        for (unsigned int i = 0; i < pScene->mNumMeshes; ++i) {
             for (unsigned int j = 0; j < pScene->mMeshes[i]->mNumFaces; ++j) {
                 meshnum++;
             }
         }
         AI_SWAP4(meshnum);
-        mOutput.write((char *)&meshnum, 4);
+        mOutput.write((char*) &meshnum, 4);
 
         if (exportPointClouds) {
-
         }
 
-        for(unsigned int i = 0; i < pScene->mNumMeshes; ++i) {
+        for (unsigned int i = 0; i < pScene->mNumMeshes; ++i) {
             WriteMeshBinary(pScene->mMeshes[i]);
         }
     } else {
-
         // Exporting only point clouds
         if (exportPointClouds) {
-            WritePointCloud("Assimp_Pointcloud", pScene );
+            WritePointCloud("Assimp_Pointcloud", pScene);
             return;
-        } 
+        }
 
-        // Export the assimp mesh 
+        // Export the assimp mesh
         const std::string name = "AssimpScene";
         mOutput << SolidToken << " " << name << endl;
-        for(unsigned int i = 0; i < pScene->mNumMeshes; ++i) {
-            WriteMesh(pScene->mMeshes[ i ]);
+        for (unsigned int i = 0; i < pScene->mNumMeshes; ++i) {
+            WriteMesh(pScene->mMeshes[i]);
         }
         mOutput << EndSolidToken << name << endl;
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void STLExporter::WritePointCloud(const std::string &name, const aiScene* pScene) {
+void STLExporter::WritePointCloud(const std::string& name, const aiScene* pScene)
+{
     mOutput << " " << SolidToken << " " << name << endl;
     aiVector3D nor;
     mOutput << " facet normal " << nor.x << " " << nor.y << " " << nor.z << endl;
     for (unsigned int i = 0; i < pScene->mNumMeshes; ++i) {
-        aiMesh *mesh = pScene->mMeshes[i];
+        aiMesh* mesh = pScene->mMeshes[i];
         if (nullptr == mesh) {
             continue;
         }
@@ -182,20 +187,21 @@ void STLExporter::WriteMesh(const aiMesh* m)
         // but nonetheless we have to expect per-vertex normals.
         aiVector3D nor;
         if (m->mNormals) {
-            for(unsigned int a = 0; a < f.mNumIndices; ++a) {
+            for (unsigned int a = 0; a < f.mNumIndices; ++a) {
                 nor += m->mNormals[f.mIndices[a]];
             }
             nor.NormalizeSafe();
         }
         mOutput << " facet normal " << nor.x << " " << nor.y << " " << nor.z << endl;
         mOutput << "  outer loop" << endl;
-        for(unsigned int a = 0; a < f.mNumIndices; ++a) {
-            const aiVector3D& v  = m->mVertices[f.mIndices[a]];
+        for (unsigned int a = 0; a < f.mNumIndices; ++a) {
+            const aiVector3D& v = m->mVertices[f.mIndices[a]];
             mOutput << "  vertex " << v.x << " " << v.y << " " << v.z << endl;
         }
 
         mOutput << "  endloop" << endl;
-        mOutput << " endfacet" << endl << endl;
+        mOutput << " endfacet" << endl
+                << endl;
     }
 }
 
@@ -207,7 +213,7 @@ void STLExporter::WriteMeshBinary(const aiMesh* m)
         // but nonetheless we have to expect per-vertex normals.
         aiVector3D nor;
         if (m->mNormals) {
-            for(unsigned int a = 0; a < f.mNumIndices; ++a) {
+            for (unsigned int a = 0; a < f.mNumIndices; ++a) {
                 nor += m->mNormals[f.mIndices[a]];
             }
             nor.Normalize();
@@ -217,13 +223,21 @@ void STLExporter::WriteMeshBinary(const aiMesh* m)
         float nx = (float) nor.x;
         float ny = (float) nor.y;
         float nz = (float) nor.z;
-        AI_SWAP4(nx); AI_SWAP4(ny); AI_SWAP4(nz);
-        mOutput.write((char *)&nx, 4); mOutput.write((char *)&ny, 4); mOutput.write((char *)&nz, 4);
-        for(unsigned int a = 0; a < f.mNumIndices; ++a) {
+        AI_SWAP4(nx);
+        AI_SWAP4(ny);
+        AI_SWAP4(nz);
+        mOutput.write((char*) &nx, 4);
+        mOutput.write((char*) &ny, 4);
+        mOutput.write((char*) &nz, 4);
+        for (unsigned int a = 0; a < f.mNumIndices; ++a) {
             const aiVector3D& v  = m->mVertices[f.mIndices[a]];
-            float vx = (float) v.x, vy = (float) v.y, vz = (float) v.z;
-            AI_SWAP4(vx); AI_SWAP4(vy); AI_SWAP4(vz);
-            mOutput.write((char *)&vx, 4); mOutput.write((char *)&vy, 4); mOutput.write((char *)&vz, 4);
+            float             vx = (float) v.x, vy = (float) v.y, vz = (float) v.z;
+            AI_SWAP4(vx);
+            AI_SWAP4(vy);
+            AI_SWAP4(vz);
+            mOutput.write((char*) &vx, 4);
+            mOutput.write((char*) &vy, 4);
+            mOutput.write((char*) &vz, 4);
         }
         char dummy[2] = {0};
         mOutput.write(dummy, 2);

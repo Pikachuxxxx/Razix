@@ -474,5 +474,5 @@ namespace Razix {
                 delete spvByteCode;
             }
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -207,5 +207,5 @@ namespace Razix {
 
             return info;
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -62,7 +62,7 @@ namespace Razix {
         m_UpdateFunc  = GetLuaFunctionRefID(L, "OnUpdate");
         m_OnImGuiFunc = GetLuaFunctionRefID(L, "OnImGui");
 
-        // TODO: Load any other functions present in the script 
+        // TODO: Load any other functions present in the script
     }
 
     // TODO: Pass entity as func params

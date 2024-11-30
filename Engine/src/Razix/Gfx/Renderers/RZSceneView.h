@@ -10,8 +10,8 @@ namespace Razix {
 
     struct RZSceneView
     {
-        RZSceneCamera                primaryCamera;
-        LightsData                   lightsData;
+        RZSceneCamera           primaryCamera;
+        LightsData              lightsData;
         Gfx::RZTextureHandle    sceneRenderTarget;
         Gfx::SkyInfo            skyInfo;
         Gfx::RZRendererSettings rendererSettings;

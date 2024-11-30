@@ -26,7 +26,6 @@ namespace Razix {
 
         void RZLuaScriptHandler::bindECSAPI()
         {
-            
         }
     }    // namespace Scripting
 }    // namespace Razix

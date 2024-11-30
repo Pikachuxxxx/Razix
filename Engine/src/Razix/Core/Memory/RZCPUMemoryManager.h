@@ -4,7 +4,6 @@
 
 #include "Razix/Utilities/TRZSingleton.h"
 
-
 namespace Razix {
 
 #define RAZIX_FRAME_BUDGET Mib(512)    // Total frame allocations size = 512 Mib

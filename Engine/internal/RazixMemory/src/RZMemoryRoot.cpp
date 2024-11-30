@@ -31,4 +31,4 @@ namespace Razix {
         Memory::RZFree(pointer);
     }
 #endif
-}
+}    // namespace Razix

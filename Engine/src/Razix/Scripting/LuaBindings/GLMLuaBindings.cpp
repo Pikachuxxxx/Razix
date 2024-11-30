@@ -9,10 +9,8 @@
 namespace Razix {
     namespace Scripting {
 
-      
         void RZLuaScriptHandler::bindglm()
         {
-           
         }
     }    // namespace Scripting
 }    // namespace Razix
