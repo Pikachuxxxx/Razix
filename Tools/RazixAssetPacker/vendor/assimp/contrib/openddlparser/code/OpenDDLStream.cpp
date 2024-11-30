@@ -24,38 +24,33 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 BEGIN_ODDLPARSER_NS
 
-StreamFormatterBase::StreamFormatterBase()
-{
+StreamFormatterBase::StreamFormatterBase() {
     // empty
 }
 
-StreamFormatterBase::~StreamFormatterBase()
-{
+StreamFormatterBase::~StreamFormatterBase() {
     // empty
 }
 
-std::string StreamFormatterBase::format(const std::string &statement)
-{
+std::string StreamFormatterBase::format(const std::string &statement) {
     std::string tmp(statement);
     return tmp;
 }
 
 IOStreamBase::IOStreamBase(StreamFormatterBase *formatter)
-    : m_formatter(formatter), m_file(ddl_nullptr)
-{
+    : m_formatter(formatter)
+    , m_file(ddl_nullptr) {
     if (ddl_nullptr == m_formatter) {
         m_formatter = new StreamFormatterBase;
     }
 }
 
-IOStreamBase::~IOStreamBase()
-{
+IOStreamBase::~IOStreamBase() {
     delete m_formatter;
     m_formatter = ddl_nullptr;
 }
 
-bool IOStreamBase::open(const std::string &name)
-{
+bool IOStreamBase::open(const std::string &name) {
     m_file = ::fopen(name.c_str(), "a");
     if (m_file == ddl_nullptr) {
         return false;
@@ -64,8 +59,7 @@ bool IOStreamBase::open(const std::string &name)
     return true;
 }
 
-bool IOStreamBase::close()
-{
+bool IOStreamBase::close() {
     if (ddl_nullptr == m_file) {
         return false;
     }
@@ -76,25 +70,22 @@ bool IOStreamBase::close()
     return true;
 }
 
-bool IOStreamBase::isOpen() const
-{
-    return (ddl_nullptr != m_file);
+bool IOStreamBase::isOpen() const {
+    return ( ddl_nullptr != m_file );
 }
 
-size_t IOStreamBase::read(size_t sizeToRead, std::string &statement)
-{
+size_t IOStreamBase::read( size_t sizeToRead, std::string &statement ) {
     if (ddl_nullptr == m_file) {
         return 0;
     }
-
+    
     statement.resize(sizeToRead);
-    const size_t readBytes = ::fread(&statement[0], 1, sizeToRead, m_file);
+    const size_t readBytes = ::fread( &statement[0], 1, sizeToRead, m_file );
 
     return readBytes;
 }
 
-size_t IOStreamBase::write(const std::string &statement)
-{
+size_t IOStreamBase::write(const std::string &statement) {
     if (ddl_nullptr == m_file) {
         return 0;
     }

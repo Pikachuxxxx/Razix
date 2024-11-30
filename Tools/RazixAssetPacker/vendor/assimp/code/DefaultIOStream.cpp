@@ -44,10 +44,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *  @brief Default File I/O implementation for #Importer
  */
 
-#include <assimp/DefaultIOStream.h>
+
 #include <assimp/ai_assert.h>
-#include <sys/stat.h>
+#include <assimp/DefaultIOStream.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 using namespace Assimp;
 
@@ -62,8 +63,8 @@ DefaultIOStream::~DefaultIOStream()
 
 // ----------------------------------------------------------------------------------
 size_t DefaultIOStream::Read(void* pvBuffer,
-    size_t                         pSize,
-    size_t                         pCount)
+    size_t pSize,
+    size_t pCount)
 {
     ai_assert(NULL != pvBuffer && 0 != pSize && 0 != pCount);
     return (mFile ? ::fread(pvBuffer, pSize, pCount, mFile) : 0);
@@ -71,8 +72,8 @@ size_t DefaultIOStream::Read(void* pvBuffer,
 
 // ----------------------------------------------------------------------------------
 size_t DefaultIOStream::Write(const void* pvBuffer,
-    size_t                                pSize,
-    size_t                                pCount)
+    size_t pSize,
+    size_t pCount)
 {
     ai_assert(NULL != pvBuffer && 0 != pSize && 0 != pCount);
     return (mFile ? ::fwrite(pvBuffer, pSize, pCount, mFile) : 0);
@@ -80,7 +81,7 @@ size_t DefaultIOStream::Write(const void* pvBuffer,
 
 // ----------------------------------------------------------------------------------
 aiReturn DefaultIOStream::Seek(size_t pOffset,
-    aiOrigin                          pOrigin)
+     aiOrigin pOrigin)
 {
     if (!mFile) {
         return AI_FAILURE;
@@ -88,12 +89,11 @@ aiReturn DefaultIOStream::Seek(size_t pOffset,
 
     // Just to check whether our enum maps one to one with the CRT constants
     static_assert(aiOrigin_CUR == SEEK_CUR &&
-                      aiOrigin_END == SEEK_END && aiOrigin_SET == SEEK_SET,
-        "aiOrigin_CUR == SEEK_CUR && \
+        aiOrigin_END == SEEK_END && aiOrigin_SET == SEEK_SET, "aiOrigin_CUR == SEEK_CUR && \
         aiOrigin_END == SEEK_END && aiOrigin_SET == SEEK_SET");
 
     // do the seek
-    return (0 == ::fseek(mFile, (long) pOffset, (int) pOrigin) ? AI_SUCCESS : AI_FAILURE);
+    return (0 == ::fseek(mFile, (long)pOffset,(int)pOrigin) ? AI_SUCCESS : AI_FAILURE);
 }
 
 // ----------------------------------------------------------------------------------
@@ -108,11 +108,12 @@ size_t DefaultIOStream::Tell() const
 // ----------------------------------------------------------------------------------
 size_t DefaultIOStream::FileSize() const
 {
-    if (!mFile || mFilename.empty()) {
+    if (! mFile || mFilename.empty()) {
         return 0;
     }
 
-    if (SIZE_MAX == mCachedSize) {
+    if (SIZE_MAX == mCachedSize ) {
+
         // Although fseek/ftell would allow us to reuse the existing file handle here,
         // it is generally unsafe because:
         //  - For binary streams, it is not technically well-defined
@@ -124,19 +125,19 @@ size_t DefaultIOStream::FileSize() const
 #if defined _WIN32 && (!defined __GNUC__ || __MSVCRT_VERSION__ >= 0x0601)
         struct __stat64 fileStat;
         //using fileno + fstat avoids having to handle the filename
-        int err = _fstat64(_fileno(mFile), &fileStat);
+        int err = _fstat64(  _fileno(mFile), &fileStat );
         if (0 != err)
             return 0;
         mCachedSize = (size_t) (fileStat.st_size);
 #elif defined __GNUC__ || defined __APPLE__ || defined __MACH__ || defined __FreeBSD__
         struct stat fileStat;
-        int         err = stat(mFilename.c_str(), &fileStat);
+        int err = stat(mFilename.c_str(), &fileStat );
         if (0 != err)
             return 0;
         const unsigned long long cachedSize = fileStat.st_size;
-        mCachedSize                         = static_cast<size_t>(cachedSize);
+        mCachedSize = static_cast< size_t >( cachedSize );
 #else
-    #error "Unknown platform"
+#   error "Unknown platform"
 #endif
     }
     return mCachedSize;

@@ -46,82 +46,89 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef ASSIMP_BUILD_NO_X3D_IMPORTER
 
-    #include "X3DImporter.hpp"
-    #include "X3DImporter_Macro.hpp"
+#include "X3DImporter.hpp"
+#include "X3DImporter_Macro.hpp"
 
-    // Header files, Assimp.
-    #include <assimp/DefaultIOSystem.h>
+// Header files, Assimp.
+#include <assimp/DefaultIOSystem.h>
 
 //#include <regex>
 
-namespace Assimp {
+namespace Assimp
+{
 
-    //static std::regex pattern_parentDir(R"((^|/)[^/]+/../)");
-    static std::string parentDir("/../");
+//static std::regex pattern_parentDir(R"((^|/)[^/]+/../)");
+static std::string parentDir("/../");
 
-    // <Inline
-    // DEF=""              ID
-    // USE=""              IDREF
-    // bboxCenter="0 0 0"  SFVec3f  [initializeOnly]
-    // bboxSize="-1 -1 -1" SFVec3f  [initializeOnly]
-    // load="true"         SFBool   [inputOutput]
-    // url=""              MFString [inputOutput]
-    // />
-    void X3DImporter::ParseNode_Networking_Inline()
-    {
-        std::string            def, use;
-        bool                   load = true;
-        std::list<std::string> url;
+// <Inline
+// DEF=""              ID
+// USE=""              IDREF
+// bboxCenter="0 0 0"  SFVec3f  [initializeOnly]
+// bboxSize="-1 -1 -1" SFVec3f  [initializeOnly]
+// load="true"         SFBool   [inputOutput]
+// url=""              MFString [inputOutput]
+// />
+void X3DImporter::ParseNode_Networking_Inline()
+{
+    std::string def, use;
+    bool load = true;
+    std::list<std::string> url;
 
-        MACRO_ATTRREAD_LOOPBEG;
-        MACRO_ATTRREAD_CHECKUSEDEF_RET(def, use);
-        MACRO_ATTRREAD_CHECK_RET("load", load, XML_ReadNode_GetAttrVal_AsBool);
-        MACRO_ATTRREAD_CHECK_REF("url", url, XML_ReadNode_GetAttrVal_AsListS);
-        MACRO_ATTRREAD_LOOPEND;
+	MACRO_ATTRREAD_LOOPBEG;
+		MACRO_ATTRREAD_CHECKUSEDEF_RET(def, use);
+		MACRO_ATTRREAD_CHECK_RET("load", load, XML_ReadNode_GetAttrVal_AsBool);
+		MACRO_ATTRREAD_CHECK_REF("url", url, XML_ReadNode_GetAttrVal_AsListS);
+	MACRO_ATTRREAD_LOOPEND;
 
-        // if "USE" defined then find already defined element.
-        if (!use.empty()) {
-            CX3DImporter_NodeElement* ne;
+	// if "USE" defined then find already defined element.
+	if(!use.empty())
+	{
+		CX3DImporter_NodeElement* ne;
 
-            MACRO_USE_CHECKANDAPPLY(def, use, ENET_Group, ne);
-        } else {
-            ParseHelper_Group_Begin(true);    // create new grouping element and go deeper if node has children.
-            // at this place new group mode created and made current, so we can name it.
-            if (!def.empty()) NodeElement_Cur->ID = def;
+		MACRO_USE_CHECKANDAPPLY(def, use, ENET_Group, ne);
+	}
+	else
+	{
+		ParseHelper_Group_Begin(true);// create new grouping element and go deeper if node has children.
+		// at this place new group mode created and made current, so we can name it.
+		if(!def.empty()) NodeElement_Cur->ID = def;
 
-            if (load && (url.size() > 0)) {
-                std::string full_path = mpIOHandler->CurrentDirectory() + url.front();
+		if(load && (url.size() > 0))
+		{
+			std::string full_path = mpIOHandler->CurrentDirectory() + url.front();
 
-                //full_path = std::regex_replace(full_path, pattern_parentDir, "$1");
-                for (std::string::size_type pos = full_path.find(parentDir); pos != std::string::npos; pos = full_path.find(parentDir, pos)) {
-                    if (pos > 0) {
-                        std::string::size_type pos2 = full_path.rfind('/', pos - 1);
-                        if (pos2 != std::string::npos) {
-                            full_path.erase(pos2, pos - pos2 + 3);
-                            pos = pos2;
-                        } else {
-                            full_path.erase(0, pos + 4);
-                            pos = 0;
-                        }
-                    } else {
-                        pos += 3;
-                    }
-                }
-                // Attribute "url" can contain list of strings. But we need only one - first.
-                std::string::size_type slashPos = full_path.find_last_of("\\/");
-                mpIOHandler->PushDirectory(slashPos == std::string::npos ? std::string() : full_path.substr(0, slashPos + 1));
-                ParseFile(full_path, mpIOHandler);
-                mpIOHandler->PopDirectory();
-            }
+			//full_path = std::regex_replace(full_path, pattern_parentDir, "$1");
+			for (std::string::size_type pos = full_path.find(parentDir); pos != std::string::npos; pos = full_path.find(parentDir, pos)) {
+				if (pos > 0) {
+					std::string::size_type pos2 = full_path.rfind('/', pos - 1);
+					if (pos2 != std::string::npos) {
+						full_path.erase(pos2, pos - pos2 + 3);
+						pos = pos2;
+					}
+					else {
+						full_path.erase(0, pos + 4);
+						pos = 0;
+					}
+				}
+				else {
+					pos += 3;
+				}
+			}
+			// Attribute "url" can contain list of strings. But we need only one - first.
+			std::string::size_type slashPos = full_path.find_last_of("\\/");
+			mpIOHandler->PushDirectory(slashPos == std::string::npos ? std::string() : full_path.substr(0, slashPos + 1));
+			ParseFile(full_path, mpIOHandler);
+			mpIOHandler->PopDirectory();
+		}
 
-            // check for X3DMetadataObject childs.
-            if (!mReader->isEmptyElement()) ParseNode_Metadata(NodeElement_Cur, "Inline");
+		// check for X3DMetadataObject childs.
+		if(!mReader->isEmptyElement()) ParseNode_Metadata(NodeElement_Cur, "Inline");
 
-            // exit from node in that place
-            ParseHelper_Node_Exit();
-        }    // if(!use.empty()) else
-    }
+		// exit from node in that place
+		ParseHelper_Node_Exit();
+	}// if(!use.empty()) else
+}
 
-}    // namespace Assimp
+}// namespace Assimp
 
-#endif    // !ASSIMP_BUILD_NO_X3D_IMPORTER
+#endif // !ASSIMP_BUILD_NO_X3D_IMPORTER

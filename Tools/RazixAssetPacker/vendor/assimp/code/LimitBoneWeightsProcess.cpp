@@ -42,14 +42,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /** Implementation of the LimitBoneWeightsProcess post processing step */
 
+
 #include "LimitBoneWeightsProcess.h"
-#include <assimp/DefaultLogger.hpp>
 #include <assimp/StringUtils.h>
 #include <assimp/postprocess.h>
+#include <assimp/DefaultLogger.hpp>
 #include <assimp/scene.h>
 #include <stdio.h>
 
 using namespace Assimp;
+
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
@@ -67,17 +69,16 @@ LimitBoneWeightsProcess::~LimitBoneWeightsProcess()
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.
-bool LimitBoneWeightsProcess::IsActive(unsigned int pFlags) const
+bool LimitBoneWeightsProcess::IsActive( unsigned int pFlags) const
 {
     return (pFlags & aiProcess_LimitBoneWeights) != 0;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Executes the post processing step on the given imported data.
-void LimitBoneWeightsProcess::Execute(aiScene* pScene)
-{
+void LimitBoneWeightsProcess::Execute( aiScene* pScene) {
     ASSIMP_LOG_DEBUG("LimitBoneWeightsProcess begin");
-    for (unsigned int a = 0; a < pScene->mNumMeshes; ++a) {
+    for (unsigned int a = 0; a < pScene->mNumMeshes; ++a ) {
         ProcessMesh(pScene->mMeshes[a]);
     }
 
@@ -89,26 +90,28 @@ void LimitBoneWeightsProcess::Execute(aiScene* pScene)
 void LimitBoneWeightsProcess::SetupProperties(const Importer* pImp)
 {
     // get the current value of the property
-    this->mMaxWeights = pImp->GetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, AI_LMW_MAX_WEIGHTS);
+    this->mMaxWeights = pImp->GetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS,AI_LMW_MAX_WEIGHTS);
 }
 
 // ------------------------------------------------------------------------------------------------
 // Unites identical vertices in the given mesh
-void LimitBoneWeightsProcess::ProcessMesh(aiMesh* pMesh)
+void LimitBoneWeightsProcess::ProcessMesh( aiMesh* pMesh)
 {
-    if (!pMesh->HasBones())
+    if( !pMesh->HasBones())
         return;
 
     // collect all bone weights per vertex
-    typedef std::vector<std::vector<Weight> > WeightsPerVertex;
-    WeightsPerVertex                          vertexWeights(pMesh->mNumVertices);
+    typedef std::vector< std::vector< Weight > > WeightsPerVertex;
+    WeightsPerVertex vertexWeights( pMesh->mNumVertices);
 
     // collect all weights per vertex
-    for (unsigned int a = 0; a < pMesh->mNumBones; a++) {
+    for( unsigned int a = 0; a < pMesh->mNumBones; a++)
+    {
         const aiBone* bone = pMesh->mBones[a];
-        for (unsigned int b = 0; b < bone->mNumWeights; b++) {
+        for( unsigned int b = 0; b < bone->mNumWeights; b++)
+        {
             const aiVertexWeight& w = bone->mWeights[b];
-            vertexWeights[w.mVertexId].push_back(Weight(a, w.mWeight));
+            vertexWeights[w.mVertexId].push_back( Weight( a, w.mWeight));
         }
     }
 
@@ -116,80 +119,83 @@ void LimitBoneWeightsProcess::ProcessMesh(aiMesh* pMesh)
 
     // now cut the weight count if it exceeds the maximum
     bool bChanged = false;
-    for (WeightsPerVertex::iterator vit = vertexWeights.begin(); vit != vertexWeights.end(); ++vit) {
-        if (vit->size() <= mMaxWeights)
+    for( WeightsPerVertex::iterator vit = vertexWeights.begin(); vit != vertexWeights.end(); ++vit)
+    {
+        if( vit->size() <= mMaxWeights)
             continue;
 
         bChanged = true;
 
         // more than the defined maximum -> first sort by weight in descending order. That's
         // why we defined the < operator in such a weird way.
-        std::sort(vit->begin(), vit->end());
+        std::sort( vit->begin(), vit->end());
 
         // now kill everything beyond the maximum count
         unsigned int m = static_cast<unsigned int>(vit->size());
-        vit->erase(vit->begin() + mMaxWeights, vit->end());
-        removed += static_cast<unsigned int>(m - vit->size());
+        vit->erase( vit->begin() + mMaxWeights, vit->end());
+        removed += static_cast<unsigned int>(m-vit->size());
 
         // and renormalize the weights
         float sum = 0.0f;
-        for (std::vector<Weight>::const_iterator it = vit->begin(); it != vit->end(); ++it) {
+        for( std::vector<Weight>::const_iterator it = vit->begin(); it != vit->end(); ++it ) {
             sum += it->mWeight;
         }
-        if (0.0f != sum) {
+        if( 0.0f != sum ) {
             const float invSum = 1.0f / sum;
-            for (std::vector<Weight>::iterator it = vit->begin(); it != vit->end(); ++it) {
+            for( std::vector<Weight>::iterator it = vit->begin(); it != vit->end(); ++it ) {
                 it->mWeight *= invSum;
             }
         }
     }
 
-    if (bChanged) {
+    if (bChanged)   {
         // rebuild the vertex weight array for all bones
-        typedef std::vector<std::vector<aiVertexWeight> > WeightsPerBone;
-        WeightsPerBone                                    boneWeights(pMesh->mNumBones);
-        for (unsigned int a = 0; a < vertexWeights.size(); a++) {
+        typedef std::vector< std::vector< aiVertexWeight > > WeightsPerBone;
+        WeightsPerBone boneWeights( pMesh->mNumBones);
+        for( unsigned int a = 0; a < vertexWeights.size(); a++)
+        {
             const std::vector<Weight>& vw = vertexWeights[a];
-            for (std::vector<Weight>::const_iterator it = vw.begin(); it != vw.end(); ++it)
-                boneWeights[it->mBone].push_back(aiVertexWeight(a, it->mWeight));
+            for( std::vector<Weight>::const_iterator it = vw.begin(); it != vw.end(); ++it)
+                boneWeights[it->mBone].push_back( aiVertexWeight( a, it->mWeight));
         }
 
         // and finally copy the vertex weight list over to the mesh's bones
-        std::vector<bool> abNoNeed(pMesh->mNumBones, false);
+        std::vector<bool> abNoNeed(pMesh->mNumBones,false);
         bChanged = false;
 
-        for (unsigned int a = 0; a < pMesh->mNumBones; a++) {
-            const std::vector<aiVertexWeight>& bw   = boneWeights[a];
-            aiBone*                            bone = pMesh->mBones[a];
+        for( unsigned int a = 0; a < pMesh->mNumBones; a++)
+        {
+            const std::vector<aiVertexWeight>& bw = boneWeights[a];
+            aiBone* bone = pMesh->mBones[a];
 
-            if (bw.empty()) {
+            if ( bw.empty() )
+            {
                 abNoNeed[a] = bChanged = true;
                 continue;
             }
 
             // copy the weight list. should always be less weights than before, so we don't need a new allocation
-            ai_assert(bw.size() <= bone->mNumWeights);
-            bone->mNumWeights = static_cast<unsigned int>(bw.size());
-            ::memcpy(bone->mWeights, &bw[0], bw.size() * sizeof(aiVertexWeight));
+            ai_assert( bw.size() <= bone->mNumWeights);
+            bone->mNumWeights = static_cast<unsigned int>( bw.size() );
+            ::memcpy( bone->mWeights, &bw[0], bw.size() * sizeof( aiVertexWeight));
         }
 
-        if (bChanged) {
+        if (bChanged)   {
             // the number of new bones is smaller than before, so we can reuse the old array
-            aiBone** ppcCur = pMesh->mBones;
-            aiBone** ppcSrc = ppcCur;
+            aiBone** ppcCur = pMesh->mBones;aiBone** ppcSrc = ppcCur;
 
-            for (std::vector<bool>::const_iterator iter = abNoNeed.begin(); iter != abNoNeed.end(); ++iter) {
-                if (*iter) {
+            for (std::vector<bool>::const_iterator iter  = abNoNeed.begin();iter != abNoNeed.end()  ;++iter)    {
+                if (*iter)  {
                     delete *ppcSrc;
                     --pMesh->mNumBones;
-                } else
-                    *ppcCur++ = *ppcSrc;
+                }
+                else *ppcCur++ = *ppcSrc;
                 ++ppcSrc;
             }
         }
 
         if (!DefaultLogger::isNullLogger()) {
-            ASSIMP_LOG_INFO_F("Removed ", removed, " weights. Input bones: ", old_bones, ". Output bones: ", pMesh->mNumBones);
+            ASSIMP_LOG_INFO_F("Removed ", removed, " weights. Input bones: ", old_bones, ". Output bones: ", pMesh->mNumBones );
         }
     }
 }

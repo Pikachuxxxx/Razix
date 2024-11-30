@@ -46,175 +46,190 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef ASSIMP_BUILD_NO_FBX_IMPORTER
 
-    #include "FBXProperties.h"
-    #include "FBXDocument.h"
-    #include "FBXDocumentUtil.h"
-    #include "FBXParser.h"
-    #include "FBXTokenizer.h"
+#include "FBXTokenizer.h"
+#include "FBXParser.h"
+#include "FBXDocument.h"
+#include "FBXDocumentUtil.h"
+#include "FBXProperties.h"
 
 namespace Assimp {
-    namespace FBX {
+namespace FBX {
 
-        using namespace Util;
+    using namespace Util;
 
-        // ------------------------------------------------------------------------------------------------
-        Property::Property()
-        {
+// ------------------------------------------------------------------------------------------------
+Property::Property()
+{
+}
+
+// ------------------------------------------------------------------------------------------------
+Property::~Property()
+{
+}
+
+namespace {
+
+// ------------------------------------------------------------------------------------------------
+// read a typed property out of a FBX element. The return value is NULL if the property cannot be read.
+Property* ReadTypedProperty(const Element& element)
+{
+    ai_assert(element.KeyToken().StringContents() == "P");
+
+    const TokenList& tok = element.Tokens();
+    ai_assert(tok.size() >= 5);
+
+    const std::string& s = ParseTokenAsString(*tok[1]);
+    const char* const cs = s.c_str();
+    if (!strcmp(cs,"KString")) {
+        return new TypedProperty<std::string>(ParseTokenAsString(*tok[4]));
+    }
+    else if (!strcmp(cs,"bool") || !strcmp(cs,"Bool")) {
+        return new TypedProperty<bool>(ParseTokenAsInt(*tok[4]) != 0);
+    }
+    else if (!strcmp(cs, "int") || !strcmp(cs, "Int") || !strcmp(cs, "enum") || !strcmp(cs, "Enum")) {
+        return new TypedProperty<int>(ParseTokenAsInt(*tok[4]));
+    }
+    else if (!strcmp(cs, "ULongLong")) {
+        return new TypedProperty<uint64_t>(ParseTokenAsID(*tok[4]));
+    }
+    else if (!strcmp(cs, "KTime")) {
+        return new TypedProperty<int64_t>(ParseTokenAsInt64(*tok[4]));
+    }
+    else if (!strcmp(cs,"Vector3D") ||
+        !strcmp(cs,"ColorRGB") ||
+        !strcmp(cs,"Vector") ||
+        !strcmp(cs,"Color") ||
+        !strcmp(cs,"Lcl Translation") ||
+        !strcmp(cs,"Lcl Rotation") ||
+        !strcmp(cs,"Lcl Scaling")
+        ) {
+        return new TypedProperty<aiVector3D>(aiVector3D(
+            ParseTokenAsFloat(*tok[4]),
+            ParseTokenAsFloat(*tok[5]),
+            ParseTokenAsFloat(*tok[6]))
+        );
+    }
+    else if (!strcmp(cs,"double") || !strcmp(cs,"Number") || !strcmp(cs,"Float") || !strcmp(cs,"FieldOfView") || !strcmp( cs, "UnitScaleFactor" ) ) {
+        return new TypedProperty<float>(ParseTokenAsFloat(*tok[4]));
+    }
+    return NULL;
+}
+
+
+// ------------------------------------------------------------------------------------------------
+// peek into an element and check if it contains a FBX property, if so return its name.
+std::string PeekPropertyName(const Element& element)
+{
+    ai_assert(element.KeyToken().StringContents() == "P");
+    const TokenList& tok = element.Tokens();
+    if(tok.size() < 4) {
+        return "";
+    }
+
+    return ParseTokenAsString(*tok[0]);
+}
+
+} //! anon
+
+
+// ------------------------------------------------------------------------------------------------
+PropertyTable::PropertyTable()
+: templateProps()
+, element()
+{
+}
+
+// ------------------------------------------------------------------------------------------------
+PropertyTable::PropertyTable(const Element& element, std::shared_ptr<const PropertyTable> templateProps)
+: templateProps(templateProps)
+, element(&element)
+{
+    const Scope& scope = GetRequiredScope(element);
+    for(const ElementMap::value_type& v : scope.Elements()) {
+        if(v.first != "P") {
+            DOMWarning("expected only P elements in property table",v.second);
+            continue;
         }
 
-        // ------------------------------------------------------------------------------------------------
-        Property::~Property()
-        {
+        const std::string& name = PeekPropertyName(*v.second);
+        if(!name.length()) {
+            DOMWarning("could not read property name",v.second);
+            continue;
         }
 
-        namespace {
+        LazyPropertyMap::const_iterator it = lazyProps.find(name);
+        if (it != lazyProps.end()) {
+            DOMWarning("duplicate property name, will hide previous value: " + name,v.second);
+            continue;
+        }
 
-            // ------------------------------------------------------------------------------------------------
-            // read a typed property out of a FBX element. The return value is NULL if the property cannot be read.
-            Property* ReadTypedProperty(const Element& element)
-            {
-                ai_assert(element.KeyToken().StringContents() == "P");
+        lazyProps[name] = v.second;
+    }
+}
 
-                const TokenList& tok = element.Tokens();
-                ai_assert(tok.size() >= 5);
 
-                const std::string& s  = ParseTokenAsString(*tok[1]);
-                const char* const  cs = s.c_str();
-                if (!strcmp(cs, "KString")) {
-                    return new TypedProperty<std::string>(ParseTokenAsString(*tok[4]));
-                } else if (!strcmp(cs, "bool") || !strcmp(cs, "Bool")) {
-                    return new TypedProperty<bool>(ParseTokenAsInt(*tok[4]) != 0);
-                } else if (!strcmp(cs, "int") || !strcmp(cs, "Int") || !strcmp(cs, "enum") || !strcmp(cs, "Enum")) {
-                    return new TypedProperty<int>(ParseTokenAsInt(*tok[4]));
-                } else if (!strcmp(cs, "ULongLong")) {
-                    return new TypedProperty<uint64_t>(ParseTokenAsID(*tok[4]));
-                } else if (!strcmp(cs, "KTime")) {
-                    return new TypedProperty<int64_t>(ParseTokenAsInt64(*tok[4]));
-                } else if (!strcmp(cs, "Vector3D") ||
-                           !strcmp(cs, "ColorRGB") ||
-                           !strcmp(cs, "Vector") ||
-                           !strcmp(cs, "Color") ||
-                           !strcmp(cs, "Lcl Translation") ||
-                           !strcmp(cs, "Lcl Rotation") ||
-                           !strcmp(cs, "Lcl Scaling")) {
-                    return new TypedProperty<aiVector3D>(aiVector3D(
-                        ParseTokenAsFloat(*tok[4]),
-                        ParseTokenAsFloat(*tok[5]),
-                        ParseTokenAsFloat(*tok[6])));
-                } else if (!strcmp(cs, "double") || !strcmp(cs, "Number") || !strcmp(cs, "Float") || !strcmp(cs, "FieldOfView") || !strcmp(cs, "UnitScaleFactor")) {
-                    return new TypedProperty<float>(ParseTokenAsFloat(*tok[4]));
-                }
-                return NULL;
+// ------------------------------------------------------------------------------------------------
+PropertyTable::~PropertyTable()
+{
+    for(PropertyMap::value_type& v : props) {
+        delete v.second;
+    }
+}
+
+
+// ------------------------------------------------------------------------------------------------
+const Property* PropertyTable::Get(const std::string& name) const
+{
+    PropertyMap::const_iterator it = props.find(name);
+    if (it == props.end()) {
+        // hasn't been parsed yet?
+        LazyPropertyMap::const_iterator lit = lazyProps.find(name);
+        if(lit != lazyProps.end()) {
+            props[name] = ReadTypedProperty(*(*lit).second);
+            it = props.find(name);
+
+            ai_assert(it != props.end());
+        }
+
+        if (it == props.end()) {
+            // check property template
+            if(templateProps) {
+                return templateProps->Get(name);
             }
 
-            // ------------------------------------------------------------------------------------------------
-            // peek into an element and check if it contains a FBX property, if so return its name.
-            std::string PeekPropertyName(const Element& element)
-            {
-                ai_assert(element.KeyToken().StringContents() == "P");
-                const TokenList& tok = element.Tokens();
-                if (tok.size() < 4) {
-                    return "";
-                }
-
-                return ParseTokenAsString(*tok[0]);
-            }
-
-        }    // namespace
-
-        // ------------------------------------------------------------------------------------------------
-        PropertyTable::PropertyTable()
-            : templateProps(), element()
-        {
+            return NULL;
         }
+    }
 
-        // ------------------------------------------------------------------------------------------------
-        PropertyTable::PropertyTable(const Element& element, std::shared_ptr<const PropertyTable> templateProps)
-            : templateProps(templateProps), element(&element)
-        {
-            const Scope& scope = GetRequiredScope(element);
-            for (const ElementMap::value_type& v: scope.Elements()) {
-                if (v.first != "P") {
-                    DOMWarning("expected only P elements in property table", v.second);
-                    continue;
-                }
+    return (*it).second;
+}
 
-                const std::string& name = PeekPropertyName(*v.second);
-                if (!name.length()) {
-                    DOMWarning("could not read property name", v.second);
-                    continue;
-                }
+DirectPropertyMap PropertyTable::GetUnparsedProperties() const
+{
+    DirectPropertyMap result;
 
-                LazyPropertyMap::const_iterator it = lazyProps.find(name);
-                if (it != lazyProps.end()) {
-                    DOMWarning("duplicate property name, will hide previous value: " + name, v.second);
-                    continue;
-                }
+    // Loop through all the lazy properties (which is all the properties)
+    for(const LazyPropertyMap::value_type& element : lazyProps) {
 
-                lazyProps[name] = v.second;
-            }
-        }
+        // Skip parsed properties
+        if (props.end() != props.find(element.first)) continue;
 
-        // ------------------------------------------------------------------------------------------------
-        PropertyTable::~PropertyTable()
-        {
-            for (PropertyMap::value_type& v: props) {
-                delete v.second;
-            }
-        }
+        // Read the element's value.
+        // Wrap the naked pointer (since the call site is required to acquire ownership)
+        // std::unique_ptr from C++11 would be preferred both as a wrapper and a return value.
+        std::shared_ptr<Property> prop = std::shared_ptr<Property>(ReadTypedProperty(*element.second));
 
-        // ------------------------------------------------------------------------------------------------
-        const Property* PropertyTable::Get(const std::string& name) const
-        {
-            PropertyMap::const_iterator it = props.find(name);
-            if (it == props.end()) {
-                // hasn't been parsed yet?
-                LazyPropertyMap::const_iterator lit = lazyProps.find(name);
-                if (lit != lazyProps.end()) {
-                    props[name] = ReadTypedProperty(*(*lit).second);
-                    it          = props.find(name);
+        // Element could not be read. Skip it.
+        if (!prop) continue;
 
-                    ai_assert(it != props.end());
-                }
+        // Add to result
+        result[element.first] = prop;
+    }
 
-                if (it == props.end()) {
-                    // check property template
-                    if (templateProps) {
-                        return templateProps->Get(name);
-                    }
+    return result;
+}
 
-                    return NULL;
-                }
-            }
-
-            return (*it).second;
-        }
-
-        DirectPropertyMap PropertyTable::GetUnparsedProperties() const
-        {
-            DirectPropertyMap result;
-
-            // Loop through all the lazy properties (which is all the properties)
-            for (const LazyPropertyMap::value_type& element: lazyProps) {
-                // Skip parsed properties
-                if (props.end() != props.find(element.first)) continue;
-
-                // Read the element's value.
-                // Wrap the naked pointer (since the call site is required to acquire ownership)
-                // std::unique_ptr from C++11 would be preferred both as a wrapper and a return value.
-                std::shared_ptr<Property> prop = std::shared_ptr<Property>(ReadTypedProperty(*element.second));
-
-                // Element could not be read. Skip it.
-                if (!prop) continue;
-
-                // Add to result
-                result[element.first] = prop;
-            }
-
-            return result;
-        }
-
-    }    // namespace FBX
-}    // namespace Assimp
+} //! FBX
+} //! Assimp
 
 #endif

@@ -46,31 +46,31 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // no #ifdefing here, Cinema4D support is carried out in a branch of assimp
 // where it is turned on in the CMake settings.
 
-    #ifndef _MSC_VER
-        #error C4D support is currently MSVC only
-    #endif
+#ifndef _MSC_VER
+#   error C4D support is currently MSVC only
+#endif
 
-    #include "C4DImporter.h"
-    #include <assimp/IOSystem.hpp>
-    #include <assimp/TinyFormatter.h>
-    #include <assimp/ai_assert.h>
-    #include <assimp/scene.h>
-    #include <memory>
+#include "C4DImporter.h"
+#include <assimp/TinyFormatter.h>
+#include <memory>
+#include <assimp/IOSystem.hpp>
+#include <assimp/scene.h>
+#include <assimp/ai_assert.h>
 
-    #if defined(_M_X64) || defined(__amd64__)
-        #define __C4D_64BIT
-    #endif
+#if defined(_M_X64) || defined(__amd64__)
+#   define __C4D_64BIT
+#endif
 
-    #define __PC
-    #include "c4d_file.h"
-    #include "default_alien_overloads.h"
+#define __PC
+#include "c4d_file.h"
+#include "default_alien_overloads.h"
 
 using namespace melange;
 
 // overload this function and fill in your own unique data
-void GetWriterInfo(int& id, String& appname)
+void GetWriterInfo(int &id, String &appname)
 {
-    id      = 2424226;
+    id = 2424226;
     appname = "Open Asset Import Library";
 }
 
@@ -78,8 +78,7 @@ using namespace Assimp;
 using namespace Assimp::Formatter;
 
 namespace Assimp {
-    template<>
-    const std::string LogFunctions<C4DImporter>::log_prefix = "C4D: ";
+    template<> const std::string LogFunctions<C4DImporter>::log_prefix = "C4D: ";
 }
 
 static const aiImporterDesc desc = {
@@ -92,34 +91,34 @@ static const aiImporterDesc desc = {
     0,
     0,
     0,
-    "c4d"};
+    "c4d"
+};
+
 
 // ------------------------------------------------------------------------------------------------
 C4DImporter::C4DImporter()
-{
-}
+{}
 
 // ------------------------------------------------------------------------------------------------
 C4DImporter::~C4DImporter()
-{
-}
+{}
 
 // ------------------------------------------------------------------------------------------------
-bool C4DImporter::CanRead(const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const
+bool C4DImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const
 {
     const std::string& extension = GetExtension(pFile);
     if (extension == "c4d") {
         return true;
     }
 
-    else if ((!extension.length() || checkSig) && pIOHandler) {
+    else if ((!extension.length() || checkSig) && pIOHandler)   {
         // TODO
     }
     return false;
 }
 
 // ------------------------------------------------------------------------------------------------
-const aiImporterDesc* C4DImporter::GetInfo() const
+const aiImporterDesc* C4DImporter::GetInfo () const
 {
     return &desc;
 }
@@ -130,14 +129,15 @@ void C4DImporter::SetupProperties(const Importer* /*pImp*/)
     // nothing to be done for the moment
 }
 
+
 // ------------------------------------------------------------------------------------------------
 // Imports the given file into the given scene structure.
-void C4DImporter::InternReadFile(const std::string& pFile,
+void C4DImporter::InternReadFile( const std::string& pFile,
     aiScene* pScene, IOSystem* pIOHandler)
 {
-    std::unique_ptr<IOStream> file(pIOHandler->Open(pFile));
+    std::unique_ptr<IOStream> file( pIOHandler->Open( pFile));
 
-    if (file.get() == NULL) {
+    if( file.get() == NULL) {
         ThrowException("failed to open file " + pFile);
     }
 
@@ -151,7 +151,7 @@ void C4DImporter::InternReadFile(const std::string& pFile,
 
     // open document first
     BaseDocument* doc = LoadDocument(f, SCENEFILTER_OBJECTS | SCENEFILTER_MATERIALS);
-    if (doc == NULL) {
+    if(doc == NULL) {
         ThrowException("failed to read document " + pFile);
     }
 
@@ -163,8 +163,9 @@ void C4DImporter::InternReadFile(const std::string& pFile,
     // process C4D scenegraph recursively
     try {
         RecurseHierarchy(doc->GetFirstObject(), pScene->mRootNode);
-    } catch (...) {
-        for (aiMesh* mesh: meshes) {
+    }
+    catch(...) {
+        for(aiMesh* mesh : meshes) {
             delete mesh;
         }
         BaseDocument::Free(doc);
@@ -174,18 +175,18 @@ void C4DImporter::InternReadFile(const std::string& pFile,
 
     // copy meshes over
     pScene->mNumMeshes = static_cast<unsigned int>(meshes.size());
-    pScene->mMeshes    = new aiMesh*[pScene->mNumMeshes]();
+    pScene->mMeshes = new aiMesh*[pScene->mNumMeshes]();
     std::copy(meshes.begin(), meshes.end(), pScene->mMeshes);
 
     // copy materials over, adding a default material if necessary
     unsigned int mat_count = static_cast<unsigned int>(materials.size());
-    for (aiMesh* mesh: meshes) {
+    for(aiMesh* mesh : meshes) {
         ai_assert(mesh->mMaterialIndex <= mat_count);
-        if (mesh->mMaterialIndex >= mat_count) {
+        if(mesh->mMaterialIndex >= mat_count) {
             ++mat_count;
 
             std::unique_ptr<aiMaterial> def_material(new aiMaterial());
-            const aiString              name(AI_DEFAULT_MATERIAL_NAME);
+            const aiString name(AI_DEFAULT_MATERIAL_NAME);
             def_material->AddProperty(&name, AI_MATKEY_NAME);
 
             materials.push_back(def_material.release());
@@ -194,60 +195,69 @@ void C4DImporter::InternReadFile(const std::string& pFile,
     }
 
     pScene->mNumMaterials = static_cast<unsigned int>(materials.size());
-    pScene->mMaterials    = new aiMaterial*[pScene->mNumMaterials]();
+    pScene->mMaterials = new aiMaterial*[pScene->mNumMaterials]();
     std::copy(materials.begin(), materials.end(), pScene->mMaterials);
 }
+
 
 // ------------------------------------------------------------------------------------------------
 bool C4DImporter::ReadShader(aiMaterial* out, melange::BaseShader* shader)
 {
     // based on Melange sample code (C4DImportExport.cpp)
-    while (shader) {
-        if (shader->GetType() == Xlayer) {
-            BaseContainer*  container  = shader->GetDataInstance();
-            GeData          blend      = container->GetData(SLA_LAYER_BLEND);
+    while(shader) {
+        if(shader->GetType() == Xlayer) {
+            BaseContainer* container = shader->GetDataInstance();
+            GeData blend = container->GetData(SLA_LAYER_BLEND);
             iBlendDataType* blend_list = reinterpret_cast<iBlendDataType*>(blend.GetCustomDataType(CUSTOMDATA_BLEND_LIST));
-            if (!blend_list) {
+            if (!blend_list)
+            {
                 LogWarn("ignoring XLayer shader: no blend list given");
                 continue;
             }
 
-            LayerShaderLayer* lsl = dynamic_cast<LayerShaderLayer*>(blend_list->m_BlendLayers.GetObject(0));
+            LayerShaderLayer *lsl = dynamic_cast<LayerShaderLayer*>(blend_list->m_BlendLayers.GetObject(0));
 
             // Ignore the actual layer blending - models for real-time rendering should not
             // use them in a non-trivial way. Just try to find textures that we can apply
             // to the model.
-            while (lsl) {
-                if (lsl->GetType() == TypeFolder) {
+            while (lsl)
+            {
+                if (lsl->GetType() == TypeFolder)
+                {
                     BlendFolder* const folder = dynamic_cast<BlendFolder*>(lsl);
-                    LayerShaderLayer*  subLsl = dynamic_cast<LayerShaderLayer*>(folder->m_Children.GetObject(0));
+                    LayerShaderLayer *subLsl = dynamic_cast<LayerShaderLayer*>(folder->m_Children.GetObject(0));
 
-                    while (subLsl) {
+                    while (subLsl)
+                    {
                         if (subLsl->GetType() == TypeShader) {
                             BlendShader* const shader = dynamic_cast<BlendShader*>(subLsl);
-                            if (ReadShader(out, static_cast<BaseShader*>(shader->m_pLink->GetLink()))) {
+                            if(ReadShader(out, static_cast<BaseShader*>(shader->m_pLink->GetLink()))) {
                                 return true;
                             }
                         }
 
                         subLsl = subLsl->GetNext();
                     }
-                } else if (lsl->GetType() == TypeShader) {
+                }
+                else if (lsl->GetType() == TypeShader) {
                     BlendShader* const shader = dynamic_cast<BlendShader*>(lsl);
-                    if (ReadShader(out, static_cast<BaseShader*>(shader->m_pLink->GetLink()))) {
+                    if(ReadShader(out, static_cast<BaseShader*>(shader->m_pLink->GetLink()))) {
                         return true;
                     }
                 }
 
                 lsl = lsl->GetNext();
             }
-        } else if (shader->GetType() == Xbitmap) {
+        }
+        else if ( shader->GetType() == Xbitmap )
+        {
             aiString path;
-            shader->GetFileName().GetString().GetCString(path.data, MAXLEN - 1);
+            shader->GetFileName().GetString().GetCString(path.data, MAXLEN-1);
             path.length = ::strlen(path.data);
             out->AddProperty(&path, AI_MATKEY_TEXTURE_DIFFUSE(0));
             return true;
-        } else {
+        }
+        else {
             LogWarn("ignoring shader type: " + std::string(GetObjectTypeName(shader->GetType())));
         }
         shader = shader->GetNext();
@@ -255,25 +265,29 @@ bool C4DImporter::ReadShader(aiMaterial* out, melange::BaseShader* shader)
     return false;
 }
 
+
 // ------------------------------------------------------------------------------------------------
 void C4DImporter::ReadMaterials(melange::BaseMaterial* mat)
 {
     // based on Melange sample code
-    while (mat) {
+    while (mat)
+    {
         const String& name = mat->GetName();
-        if (mat->GetType() == Mmaterial) {
-            aiMaterial* out       = new aiMaterial();
+        if (mat->GetType() == Mmaterial)
+        {
+            aiMaterial* out = new aiMaterial();
             material_mapping[mat] = static_cast<unsigned int>(materials.size());
             materials.push_back(out);
 
             aiString ai_name;
-            name.GetCString(ai_name.data, MAXLEN - 1);
+            name.GetCString(ai_name.data, MAXLEN-1);
             ai_name.length = ::strlen(ai_name.data);
             out->AddProperty(&ai_name, AI_MATKEY_NAME);
 
             Material& m = dynamic_cast<Material&>(*mat);
 
-            if (m.GetChannelState(CHANNEL_COLOR)) {
+            if (m.GetChannelState(CHANNEL_COLOR))
+            {
                 GeData data;
                 mat->GetParameter(MATERIAL_COLOR_COLOR, data);
                 Vector color = data.GetVector();
@@ -290,10 +304,12 @@ void C4DImporter::ReadMaterials(melange::BaseMaterial* mat)
             }
 
             BaseShader* const shader = m.GetShader(MATERIAL_COLOR_SHADER);
-            if (shader) {
+            if(shader) {
                 ReadShader(out, shader);
             }
-        } else {
+        }
+        else
+        {
             LogWarn("ignoring plugin material: " + std::string(GetObjectTypeName(mat->GetType())));
         }
         mat = mat->GetNext();
@@ -307,18 +323,19 @@ void C4DImporter::RecurseHierarchy(BaseObject* object, aiNode* parent)
     std::vector<aiNode*> nodes;
 
     // based on Melange sample code
-    while (object) {
+    while (object)
+    {
         const String& name = object->GetName();
-        const LONG    type = object->GetType();
-        const Matrix& ml   = object->GetMl();
+        const LONG type = object->GetType();
+        const Matrix& ml = object->GetMl();
 
         aiString string;
-        name.GetCString(string.data, MAXLEN - 1);
-        string.length    = ::strlen(string.data);
+        name.GetCString(string.data, MAXLEN-1);
+        string.length = ::strlen(string.data);
         aiNode* const nd = new aiNode();
 
         nd->mParent = parent;
-        nd->mName   = string;
+        nd->mName = string;
 
         nd->mTransformation.a1 = ml.v1.x;
         nd->mTransformation.b1 = ml.v1.y;
@@ -339,20 +356,26 @@ void C4DImporter::RecurseHierarchy(BaseObject* object, aiNode* parent)
         nodes.push_back(nd);
 
         GeData data;
-        if (type == Ocamera) {
+        if (type == Ocamera)
+        {
             object->GetParameter(CAMERAOBJECT_FOV, data);
             // TODO: read camera
-        } else if (type == Olight) {
+        }
+        else if (type == Olight)
+        {
             // TODO: read light
-        } else if (type == Opolygon) {
+        }
+        else if (type == Opolygon)
+        {
             aiMesh* const mesh = ReadMesh(object);
-            if (mesh != NULL) {
+            if(mesh != NULL) {
                 nd->mNumMeshes = 1;
-                nd->mMeshes    = new unsigned int[1];
+                nd->mMeshes = new unsigned int[1];
                 nd->mMeshes[0] = static_cast<unsigned int>(meshes.size());
                 meshes.push_back(mesh);
             }
-        } else {
+        }
+        else {
             LogWarn("ignoring object: " + std::string(GetObjectTypeName(type)));
         }
 
@@ -362,9 +385,10 @@ void C4DImporter::RecurseHierarchy(BaseObject* object, aiNode* parent)
 
     // copy nodes over to parent
     parent->mNumChildren = static_cast<unsigned int>(nodes.size());
-    parent->mChildren    = new aiNode*[parent->mNumChildren]();
+    parent->mChildren = new aiNode*[parent->mNumChildren]();
     std::copy(nodes.begin(), nodes.end(), parent->mChildren);
 }
+
 
 // ------------------------------------------------------------------------------------------------
 aiMesh* C4DImporter::ReadMesh(BaseObject* object)
@@ -376,8 +400,8 @@ aiMesh* C4DImporter::ReadMesh(BaseObject* object)
     ai_assert(polyObject != NULL);
 
     const LONG pointCount = polyObject->GetPointCount();
-    const LONG polyCount  = polyObject->GetPolygonCount();
-    if (!polyObject || !pointCount) {
+    const LONG polyCount = polyObject->GetPolygonCount();
+    if(!polyObject || !pointCount) {
         LogWarn("ignoring mesh with zero vertices or faces");
         return NULL;
     }
@@ -393,16 +417,18 @@ aiMesh* C4DImporter::ReadMesh(BaseObject* object)
     aiFace* face = mesh->mFaces = new aiFace[mesh->mNumFaces]();
 
     mesh->mPrimitiveTypes = aiPrimitiveType_TRIANGLE;
-    mesh->mMaterialIndex  = 0;
+    mesh->mMaterialIndex = 0;
 
     unsigned int vcount = 0;
 
     // first count vertices
-    for (LONG i = 0; i < polyCount; i++) {
+    for (LONG i = 0; i < polyCount; i++)
+    {
         vcount += 3;
 
         // TODO: do we also need to handle lines or points with similar checks?
-        if (polys[i].c != polys[i].d) {
+        if (polys[i].c != polys[i].d)
+        {
             mesh->mPrimitiveTypes |= aiPrimitiveType_POLYGON;
             ++vcount;
         }
@@ -411,82 +437,86 @@ aiMesh* C4DImporter::ReadMesh(BaseObject* object)
     ai_assert(vcount > 0);
 
     mesh->mNumVertices = vcount;
-    aiVector3D*  verts = mesh->mVertices = new aiVector3D[mesh->mNumVertices];
-    aiVector3D * normals, *uvs, *tangents, *bitangents;
+    aiVector3D* verts = mesh->mVertices = new aiVector3D[mesh->mNumVertices];
+    aiVector3D* normals, *uvs, *tangents, *bitangents;
     unsigned int n = 0;
 
     // check if there are normals, tangents or UVW coordinates
-    BaseTag*   tag         = object->GetTag(Tnormal);
+    BaseTag* tag = object->GetTag(Tnormal);
     NormalTag* normals_src = NULL;
-    if (tag) {
+    if(tag) {
         normals_src = dynamic_cast<NormalTag*>(tag);
         normals = mesh->mNormals = new aiVector3D[mesh->mNumVertices]();
     }
 
-    tag                      = object->GetTag(Ttangent);
+    tag = object->GetTag(Ttangent);
     TangentTag* tangents_src = NULL;
-    if (tag) {
+    if(tag) {
         tangents_src = dynamic_cast<TangentTag*>(tag);
         tangents = mesh->mTangents = new aiVector3D[mesh->mNumVertices]();
         bitangents = mesh->mBitangents = new aiVector3D[mesh->mNumVertices]();
     }
 
-    tag             = object->GetTag(Tuvw);
+    tag = object->GetTag(Tuvw);
     UVWTag* uvs_src = NULL;
-    if (tag) {
+    if(tag) {
         uvs_src = dynamic_cast<UVWTag*>(tag);
         uvs = mesh->mTextureCoords[0] = new aiVector3D[mesh->mNumVertices]();
     }
 
     // copy vertices and extra channels over and populate faces
-    for (LONG i = 0; i < polyCount; ++i, ++face) {
+    for (LONG i = 0; i < polyCount; ++i, ++face)
+    {
         ai_assert(polys[i].a < pointCount && polys[i].a >= 0);
         const Vector& pointA = points[polys[i].a];
-        verts->x             = pointA.x;
-        verts->y             = pointA.y;
-        verts->z             = pointA.z;
+        verts->x = pointA.x;
+        verts->y = pointA.y;
+        verts->z = pointA.z;
         ++verts;
 
         ai_assert(polys[i].b < pointCount && polys[i].b >= 0);
         const Vector& pointB = points[polys[i].b];
-        verts->x             = pointB.x;
-        verts->y             = pointB.y;
-        verts->z             = pointB.z;
+        verts->x = pointB.x;
+        verts->y = pointB.y;
+        verts->z = pointB.z;
         ++verts;
 
         ai_assert(polys[i].c < pointCount && polys[i].c >= 0);
         const Vector& pointC = points[polys[i].c];
-        verts->x             = pointC.x;
-        verts->y             = pointC.y;
-        verts->z             = pointC.z;
+        verts->x = pointC.x;
+        verts->y = pointC.y;
+        verts->z = pointC.z;
         ++verts;
 
         // TODO: do we also need to handle lines or points with similar checks?
-        if (polys[i].c != polys[i].d) {
+        if (polys[i].c != polys[i].d)
+        {
             ai_assert(polys[i].d < pointCount && polys[i].d >= 0);
 
             face->mNumIndices = 4;
             mesh->mPrimitiveTypes |= aiPrimitiveType_POLYGON;
             const Vector& pointD = points[polys[i].d];
-            verts->x             = pointD.x;
-            verts->y             = pointD.y;
-            verts->z             = pointD.z;
+            verts->x = pointD.x;
+            verts->y = pointD.y;
+            verts->z = pointD.z;
             ++verts;
-        } else {
+        }
+        else {
             face->mNumIndices = 3;
         }
         face->mIndices = new unsigned int[face->mNumIndices];
-        for (unsigned int j = 0; j < face->mNumIndices; ++j) {
+        for(unsigned int j = 0; j < face->mNumIndices; ++j) {
             face->mIndices[j] = n++;
         }
 
         // copy normals
         if (normals_src) {
-            if (i >= normals_src->GetDataCount()) {
+            if(i >= normals_src->GetDataCount()) {
                 LogError("unexpected number of normals, ignoring");
-            } else {
+            }
+            else {
                 ConstNormalHandle normal_handle = normals_src->GetDataAddressR();
-                NormalStruct      nor;
+                NormalStruct nor;
                 NormalTag::Get(normal_handle, i, nor);
                 normals->x = nor.a.x;
                 normals->y = nor.a.y;
@@ -503,7 +533,7 @@ aiMesh* C4DImporter::ReadMesh(BaseObject* object)
                 normals->z = nor.c.z;
                 ++normals;
 
-                if (face->mNumIndices == 4) {
+                if(face->mNumIndices == 4) {
                     normals->x = nor.d.x;
                     normals->y = nor.d.y;
                     normals->z = nor.d.z;
@@ -514,25 +544,26 @@ aiMesh* C4DImporter::ReadMesh(BaseObject* object)
 
         // copy tangents and bitangents
         if (tangents_src) {
-            for (unsigned int k = 0; k < face->mNumIndices; ++k) {
+
+            for(unsigned int k = 0; k < face->mNumIndices; ++k) {
                 LONG l;
-                switch (k) {
-                    case 0:
-                        l = polys[i].a;
-                        break;
-                    case 1:
-                        l = polys[i].b;
-                        break;
-                    case 2:
-                        l = polys[i].c;
-                        break;
-                    case 3:
-                        l = polys[i].d;
-                        break;
-                    default:
-                        ai_assert(false);
+                switch(k) {
+                case 0:
+                    l = polys[i].a;
+                    break;
+                case 1:
+                    l = polys[i].b;
+                    break;
+                case 2:
+                    l = polys[i].c;
+                    break;
+                case 3:
+                    l = polys[i].d;
+                    break;
+                default:
+                    ai_assert(false);
                 }
-                if (l >= tangents_src->GetDataCount()) {
+                if(l >= tangents_src->GetDataCount()) {
                     LogError("unexpected number of tangents, ignoring");
                     break;
                 }
@@ -552,30 +583,31 @@ aiMesh* C4DImporter::ReadMesh(BaseObject* object)
 
         // copy UVs
         if (uvs_src) {
-            if (i >= uvs_src->GetDataCount()) {
+            if(i >= uvs_src->GetDataCount()) {
                 LogError("unexpected number of UV coordinates, ignoring");
-            } else {
+            }
+            else {
                 UVWStruct uvw;
-                uvs_src->Get(uvs_src->GetDataAddressR(), i, uvw);
+                uvs_src->Get(uvs_src->GetDataAddressR(),i,uvw);
 
                 uvs->x = uvw.a.x;
-                uvs->y = 1.0f - uvw.a.y;
+                uvs->y = 1.0f-uvw.a.y;
                 uvs->z = uvw.a.z;
                 ++uvs;
 
                 uvs->x = uvw.b.x;
-                uvs->y = 1.0f - uvw.b.y;
+                uvs->y = 1.0f-uvw.b.y;
                 uvs->z = uvw.b.z;
                 ++uvs;
 
                 uvs->x = uvw.c.x;
-                uvs->y = 1.0f - uvw.c.y;
+                uvs->y = 1.0f-uvw.c.y;
                 uvs->z = uvw.c.z;
                 ++uvs;
 
-                if (face->mNumIndices == 4) {
+                if(face->mNumIndices == 4) {
                     uvs->x = uvw.d.x;
-                    uvs->y = 1.0f - uvw.d.y;
+                    uvs->y = 1.0f-uvw.d.y;
                     uvs->z = uvw.d.z;
                     ++uvs;
                 }
@@ -587,6 +619,7 @@ aiMesh* C4DImporter::ReadMesh(BaseObject* object)
     return mesh.release();
 }
 
+
 // ------------------------------------------------------------------------------------------------
 unsigned int C4DImporter::ResolveMaterial(PolygonObject* obj)
 {
@@ -595,7 +628,7 @@ unsigned int C4DImporter::ResolveMaterial(PolygonObject* obj)
     const unsigned int mat_count = static_cast<unsigned int>(materials.size());
 
     BaseTag* tag = obj->GetTag(Ttexture);
-    if (tag == NULL) {
+    if(tag == NULL) {
         return mat_count;
     }
 
@@ -605,7 +638,7 @@ unsigned int C4DImporter::ResolveMaterial(PolygonObject* obj)
     ai_assert(mat != NULL);
 
     const MaterialMap::const_iterator it = material_mapping.find(mat);
-    if (it == material_mapping.end()) {
+    if(it == material_mapping.end()) {
         return mat_count;
     }
 
@@ -613,4 +646,5 @@ unsigned int C4DImporter::ResolveMaterial(PolygonObject* obj)
     return (*it).second;
 }
 
-#endif    // ASSIMP_BUILD_NO_C4D_IMPORTER
+#endif // ASSIMP_BUILD_NO_C4D_IMPORTER
+

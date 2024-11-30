@@ -45,96 +45,94 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *    serialized set of data structures.
  */
 
+
 #ifndef ASSIMP_BUILD_NO_BLEND_IMPORTER
-    #include "BlenderDNA.h"
-    #include <assimp/StreamReader.h>
-    #include <assimp/TinyFormatter.h>
-    #include <assimp/fast_atof.h>
+#include "BlenderDNA.h"
+#include <assimp/StreamReader.h>
+#include <assimp/fast_atof.h>
+#include <assimp/TinyFormatter.h>
 
 using namespace Assimp;
 using namespace Assimp::Blender;
 using namespace Assimp::Formatter;
 
-static bool match4(StreamReaderAny& stream, const char* string)
-{
-    ai_assert(nullptr != string);
+static bool match4(StreamReaderAny& stream, const char* string) {
+    ai_assert( nullptr != string );
     char tmp[4];
-    tmp[0] = (stream).GetI1();
-    tmp[1] = (stream).GetI1();
-    tmp[2] = (stream).GetI1();
-    tmp[3] = (stream).GetI1();
-    return (tmp[0] == string[0] && tmp[1] == string[1] && tmp[2] == string[2] && tmp[3] == string[3]);
+    tmp[ 0 ] = ( stream ).GetI1();
+    tmp[ 1 ] = ( stream ).GetI1();
+    tmp[ 2 ] = ( stream ).GetI1();
+    tmp[ 3 ] = ( stream ).GetI1();
+    return (tmp[0]==string[0] && tmp[1]==string[1] && tmp[2]==string[2] && tmp[3]==string[3]);
 }
 
-struct Type
-{
-    size_t      size;
+struct Type {
+    size_t size;
     std::string name;
 };
 
 // ------------------------------------------------------------------------------------------------
-void DNAParser::Parse()
+void DNAParser::Parse ()
 {
     StreamReaderAny& stream = *db.reader.get();
-    DNA&             dna    = db.dna;
+    DNA& dna = db.dna;
 
-    if (!match4(stream, "SDNA")) {
+    if(!match4(stream,"SDNA")) {
         throw DeadlyImportError("BlenderDNA: Expected SDNA chunk");
     }
 
     // name dictionary
-    if (!match4(stream, "NAME")) {
+    if(!match4(stream,"NAME")) {
         throw DeadlyImportError("BlenderDNA: Expected NAME field");
     }
 
-    std::vector<std::string> names(stream.GetI4());
-    for (std::string& s: names) {
+    std::vector<std::string> names (stream.GetI4());
+    for(std::string& s : names) {
         while (char c = stream.GetI1()) {
             s += c;
         }
     }
 
     // type dictionary
-    for (; stream.GetCurrentPos() & 0x3; stream.GetI1());
-    if (!match4(stream, "TYPE")) {
+    for (;stream.GetCurrentPos() & 0x3; stream.GetI1());
+    if(!match4(stream,"TYPE")) {
         throw DeadlyImportError("BlenderDNA: Expected TYPE field");
     }
 
-    std::vector<Type> types(stream.GetI4());
-    for (Type& s: types) {
+    std::vector<Type> types (stream.GetI4());
+    for(Type& s : types) {
         while (char c = stream.GetI1()) {
             s.name += c;
         }
     }
 
     // type length dictionary
-    for (; stream.GetCurrentPos() & 0x3; stream.GetI1());
-    if (!match4(stream, "TLEN")) {
+    for (;stream.GetCurrentPos() & 0x3; stream.GetI1());
+    if(!match4(stream,"TLEN")) {
         throw DeadlyImportError("BlenderDNA: Expected TLEN field");
     }
 
-    for (Type& s: types) {
+    for(Type& s : types) {
         s.size = stream.GetI2();
     }
 
     // structures dictionary
-    for (; stream.GetCurrentPos() & 0x3; stream.GetI1());
-    if (!match4(stream, "STRC")) {
+    for (;stream.GetCurrentPos() & 0x3; stream.GetI1());
+    if(!match4(stream,"STRC")) {
         throw DeadlyImportError("BlenderDNA: Expected STRC field");
     }
 
     size_t end = stream.GetI4(), fields = 0;
 
     dna.structures.reserve(end);
-    for (size_t i = 0; i != end; ++i) {
+    for(size_t i = 0; i != end; ++i) {
+
         uint16_t n = stream.GetI2();
         if (n >= types.size()) {
             throw DeadlyImportError((format(),
-                "BlenderDNA: Invalid type index in structure name",
-                n,
-                " (there are only ",
-                types.size(),
-                " entries)"));
+                "BlenderDNA: Invalid type index in structure name" ,n,
+                " (there are only ", types.size(), " entries)"
+            ));
         }
 
         // maintain separate indexes
@@ -142,7 +140,7 @@ void DNAParser::Parse()
 
         dna.structures.push_back(Structure());
         Structure& s = dna.structures.back();
-        s.name       = types[n].name;
+        s.name  = types[n].name;
         //s.index = dna.structures.size()-1;
 
         n = stream.GetI2();
@@ -150,14 +148,13 @@ void DNAParser::Parse()
 
         size_t offset = 0;
         for (size_t m = 0; m < n; ++m, ++fields) {
+
             uint16_t j = stream.GetI2();
             if (j >= types.size()) {
                 throw DeadlyImportError((format(),
-                    "BlenderDNA: Invalid type index in structure field ",
-                    j,
-                    " (there are only ",
-                    types.size(),
-                    " entries)"));
+                    "BlenderDNA: Invalid type index in structure field ", j,
+                    " (there are only ", types.size(), " entries)"
+                ));
             }
             s.fields.push_back(Field());
             Field& f = s.fields.back();
@@ -169,14 +166,12 @@ void DNAParser::Parse()
             j = stream.GetI2();
             if (j >= names.size()) {
                 throw DeadlyImportError((format(),
-                    "BlenderDNA: Invalid name index in structure field ",
-                    j,
-                    " (there are only ",
-                    names.size(),
-                    " entries)"));
+                    "BlenderDNA: Invalid name index in structure field ", j,
+                    " (there are only ", names.size(), " entries)"
+                ));
             }
 
-            f.name  = names[j];
+            f.name = names[j];
             f.flags = 0u;
 
             // pointers always specify the size of the pointee instead of their own.
@@ -197,38 +192,40 @@ void DNAParser::Parse()
                 if (rb == std::string::npos) {
                     throw DeadlyImportError((format(),
                         "BlenderDNA: Encountered invalid array declaration ",
-                        f.name));
+                        f.name
+                    ));
                 }
 
                 f.flags |= FieldFlag_Array;
-                DNA::ExtractArraySize(f.name, f.array_sizes);
-                f.name = f.name.substr(0, rb);
+                DNA::ExtractArraySize(f.name,f.array_sizes);
+                f.name = f.name.substr(0,rb);
 
                 f.size *= f.array_sizes[0] * f.array_sizes[1];
             }
 
             // maintain separate indexes
-            s.indices[f.name] = s.fields.size() - 1;
+            s.indices[f.name] = s.fields.size()-1;
             offset += f.size;
         }
         s.size = offset;
     }
 
-    ASSIMP_LOG_DEBUG_F("BlenderDNA: Got ", dna.structures.size(), " structures with totally ", fields, " fields");
+    ASSIMP_LOG_DEBUG_F( "BlenderDNA: Got ", dna.structures.size()," structures with totally ",fields," fields");
 
-    #ifdef ASSIMP_BUILD_BLENDER_DEBUG
+#ifdef ASSIMP_BUILD_BLENDER_DEBUG
     dna.DumpToFile();
-    #endif
+#endif
 
     dna.AddPrimitiveStructures();
     dna.RegisterConverters();
 }
 
-    #ifdef ASSIMP_BUILD_BLENDER_DEBUG
 
-        #include <fstream>
+#ifdef ASSIMP_BUILD_BLENDER_DEBUG
+
+#include <fstream>
 // ------------------------------------------------------------------------------------------------
-void DNA ::DumpToFile()
+void DNA :: DumpToFile()
 {
     // we don't bother using the VFS here for this is only for debugging.
     // (and all your bases are belong to us).
@@ -241,9 +238,9 @@ void DNA ::DumpToFile()
     f << "Field format: type name offset size" << "\n";
     f << "Structure format: name size" << "\n";
 
-    for (const Structure& s: structures) {
+    for(const Structure& s : structures) {
         f << s.name << " " << s.size << "\n\n";
-        for (const Field& ff: s.fields) {
+        for(const Field& ff : s.fields) {
             f << "\t" << ff.type << " " << ff.name << " " << ff.offset << " " << ff.size << "\n";
         }
         f << "\n";
@@ -252,21 +249,22 @@ void DNA ::DumpToFile()
 
     ASSIMP_LOG_INFO("BlenderDNA: Dumped dna to dna.txt");
 }
-    #endif
+#endif
 
 // ------------------------------------------------------------------------------------------------
-/*static*/ void DNA ::ExtractArraySize(
+/*static*/ void  DNA :: ExtractArraySize(
     const std::string& out,
-    size_t             array_sizes[2])
+    size_t array_sizes[2]
+)
 {
     array_sizes[0] = array_sizes[1] = 1;
-    std::string::size_type pos      = out.find('[');
+    std::string::size_type pos = out.find('[');
     if (pos++ == std::string::npos) {
         return;
     }
     array_sizes[0] = strtoul10(&out[pos]);
 
-    pos = out.find('[', pos);
+    pos = out.find('[',pos);
     if (pos++ == std::string::npos) {
         return;
     }
@@ -274,34 +272,35 @@ void DNA ::DumpToFile()
 }
 
 // ------------------------------------------------------------------------------------------------
-std::shared_ptr<ElemBase> DNA ::ConvertBlobToStructure(
-    const Structure&    structure,
-    const FileDatabase& db) const
+std::shared_ptr< ElemBase > DNA :: ConvertBlobToStructure(
+    const Structure& structure,
+    const FileDatabase& db
+) const
 {
-    std::map<std::string, FactoryPair>::const_iterator it = converters.find(structure.name);
+    std::map<std::string, FactoryPair >::const_iterator it = converters.find(structure.name);
     if (it == converters.end()) {
-        return std::shared_ptr<ElemBase>();
+        return std::shared_ptr< ElemBase >();
     }
 
-    std::shared_ptr<ElemBase> ret = (structure.*((*it).second.first))();
-    (structure.*((*it).second.second))(ret, db);
+    std::shared_ptr< ElemBase > ret = (structure.*((*it).second.first))();
+    (structure.*((*it).second.second))(ret,db);
 
     return ret;
 }
 
 // ------------------------------------------------------------------------------------------------
-DNA::FactoryPair DNA ::GetBlobToStructureConverter(
+DNA::FactoryPair DNA :: GetBlobToStructureConverter(
     const Structure& structure,
     const FileDatabase& /*db*/
 ) const
 {
-    std::map<std::string, FactoryPair>::const_iterator it = converters.find(structure.name);
+    std::map<std::string,  FactoryPair>::const_iterator it = converters.find(structure.name);
     return it == converters.end() ? FactoryPair() : (*it).second;
 }
 
 // basing on http://www.blender.org/development/architecture/notes-on-sdna/
 // ------------------------------------------------------------------------------------------------
-void DNA ::AddPrimitiveStructures()
+void DNA :: AddPrimitiveStructures()
 {
     // NOTE: these are just dummies. Their presence enforces
     // Structure::Convert<target_type> to be called on these
@@ -312,27 +311,30 @@ void DNA ::AddPrimitiveStructures()
     // in question.
 
     indices["int"] = structures.size();
-    structures.push_back(Structure());
+    structures.push_back( Structure() );
     structures.back().name = "int";
     structures.back().size = 4;
 
     indices["short"] = structures.size();
-    structures.push_back(Structure());
+    structures.push_back( Structure() );
     structures.back().name = "short";
     structures.back().size = 2;
 
+
     indices["char"] = structures.size();
-    structures.push_back(Structure());
+    structures.push_back( Structure() );
     structures.back().name = "char";
     structures.back().size = 1;
 
+
     indices["float"] = structures.size();
-    structures.push_back(Structure());
+    structures.push_back( Structure() );
     structures.back().name = "float";
     structures.back().size = 4;
 
+
     indices["double"] = structures.size();
-    structures.push_back(Structure());
+    structures.push_back( Structure() );
     structures.back().name = "double";
     structures.back().size = 8;
 
@@ -340,33 +342,34 @@ void DNA ::AddPrimitiveStructures()
 }
 
 // ------------------------------------------------------------------------------------------------
-void SectionParser ::Next()
+void SectionParser :: Next()
 {
     stream.SetCurrentPos(current.start + current.size);
 
     const char tmp[] = {
-        (const char) stream.GetI1(),
-        (const char) stream.GetI1(),
-        (const char) stream.GetI1(),
-        (const char) stream.GetI1()};
-    current.id = std::string(tmp, tmp[3] ? 4 : tmp[2] ? 3
-                                           : tmp[1]   ? 2
-                                                      : 1);
+        (const char)stream.GetI1(),
+        (const char)stream.GetI1(),
+        (const char)stream.GetI1(),
+        (const char)stream.GetI1()
+    };
+    current.id = std::string(tmp,tmp[3]?4:tmp[2]?3:tmp[1]?2:1);
 
-    current.size        = stream.GetI4();
+    current.size = stream.GetI4();
     current.address.val = ptr64 ? stream.GetU8() : stream.GetU4();
 
     current.dna_index = stream.GetI4();
-    current.num       = stream.GetI4();
+    current.num = stream.GetI4();
 
     current.start = stream.GetCurrentPos();
     if (stream.GetRemainingSizeToLimit() < current.size) {
         throw DeadlyImportError("BLEND: invalid size of file block");
     }
 
-    #ifdef ASSIMP_BUILD_BLENDER_DEBUG
+#ifdef ASSIMP_BUILD_BLENDER_DEBUG
     ASSIMP_LOG_DEBUG(current.id);
-    #endif
+#endif
 }
+
+
 
 #endif

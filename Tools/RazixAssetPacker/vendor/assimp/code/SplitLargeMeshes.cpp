@@ -40,14 +40,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
+
 /** @file Implementation of the SplitLargeMeshes postprocessing step
 */
+
+
 
 // internal headers of the post-processing framework
 #include "SplitLargeMeshes.h"
 #include "ProcessHelper.h"
 
 using namespace Assimp;
+
 
 // ------------------------------------------------------------------------------------------------
 SplitLargeMeshesProcess_Triangle::SplitLargeMeshesProcess_Triangle()
@@ -63,46 +67,48 @@ SplitLargeMeshesProcess_Triangle::~SplitLargeMeshesProcess_Triangle()
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.
-bool SplitLargeMeshesProcess_Triangle::IsActive(unsigned int pFlags) const
+bool SplitLargeMeshesProcess_Triangle::IsActive( unsigned int pFlags) const
 {
     return (pFlags & aiProcess_SplitLargeMeshes) != 0;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Executes the post processing step on the given imported data.
-void SplitLargeMeshesProcess_Triangle::Execute(aiScene* pScene)
+void SplitLargeMeshesProcess_Triangle::Execute( aiScene* pScene)
 {
-    if (0xffffffff == this->LIMIT) return;
+    if (0xffffffff == this->LIMIT)return;
 
     ASSIMP_LOG_DEBUG("SplitLargeMeshesProcess_Triangle begin");
     std::vector<std::pair<aiMesh*, unsigned int> > avList;
 
-    for (unsigned int a = 0; a < pScene->mNumMeshes; a++)
-        this->SplitMesh(a, pScene->mMeshes[a], avList);
+    for( unsigned int a = 0; a < pScene->mNumMeshes; a++)
+        this->SplitMesh(a, pScene->mMeshes[a],avList);
 
-    if (avList.size() != pScene->mNumMeshes) {
+    if (avList.size() != pScene->mNumMeshes)
+    {
         // it seems something has been split. rebuild the mesh list
         delete[] pScene->mMeshes;
-        pScene->mNumMeshes = (unsigned int) avList.size();
-        pScene->mMeshes    = new aiMesh*[avList.size()];
+        pScene->mNumMeshes = (unsigned int)avList.size();
+        pScene->mMeshes = new aiMesh*[avList.size()];
 
-        for (unsigned int i = 0; i < avList.size(); ++i)
+        for (unsigned int i = 0; i < avList.size();++i)
             pScene->mMeshes[i] = avList[i].first;
 
         // now we need to update all nodes
-        this->UpdateNode(pScene->mRootNode, avList);
+        this->UpdateNode(pScene->mRootNode,avList);
         ASSIMP_LOG_INFO("SplitLargeMeshesProcess_Triangle finished. Meshes have been split");
-    } else {
+    }
+    else {
         ASSIMP_LOG_DEBUG("SplitLargeMeshesProcess_Triangle finished. There was nothing to do");
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Setup properties
-void SplitLargeMeshesProcess_Triangle::SetupProperties(const Importer* pImp)
+void SplitLargeMeshesProcess_Triangle::SetupProperties( const Importer* pImp)
 {
     // get the current value of the split property
-    this->LIMIT = pImp->GetPropertyInteger(AI_CONFIG_PP_SLM_TRIANGLE_LIMIT, AI_SLM_DEFAULT_MAX_TRIANGLES);
+    this->LIMIT = pImp->GetPropertyInteger(AI_CONFIG_PP_SLM_TRIANGLE_LIMIT,AI_SLM_DEFAULT_MAX_TRIANGLES);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -113,9 +119,12 @@ void SplitLargeMeshesProcess_Triangle::UpdateNode(aiNode* pcNode,
     // for every index in out list build a new entry
     std::vector<unsigned int> aiEntries;
     aiEntries.reserve(pcNode->mNumMeshes + 1);
-    for (unsigned int i = 0; i < pcNode->mNumMeshes; ++i) {
-        for (unsigned int a = 0; a < avList.size(); ++a) {
-            if (avList[a].second == pcNode->mMeshes[i]) {
+    for (unsigned int i = 0; i < pcNode->mNumMeshes;++i)
+    {
+        for (unsigned int a = 0; a < avList.size();++a)
+        {
+            if (avList[a].second == pcNode->mMeshes[i])
+            {
                 aiEntries.push_back(a);
             }
         }
@@ -123,15 +132,16 @@ void SplitLargeMeshesProcess_Triangle::UpdateNode(aiNode* pcNode,
 
     // now build the new list
     delete[] pcNode->mMeshes;
-    pcNode->mNumMeshes = (unsigned int) aiEntries.size();
-    pcNode->mMeshes    = new unsigned int[pcNode->mNumMeshes];
+    pcNode->mNumMeshes = (unsigned int)aiEntries.size();
+    pcNode->mMeshes = new unsigned int[pcNode->mNumMeshes];
 
-    for (unsigned int b = 0; b < pcNode->mNumMeshes; ++b)
+    for (unsigned int b = 0; b < pcNode->mNumMeshes;++b)
         pcNode->mMeshes[b] = aiEntries[b];
 
     // recusively update all other nodes
-    for (unsigned int i = 0; i < pcNode->mNumChildren; ++i) {
-        UpdateNode(pcNode->mChildren[i], avList);
+    for (unsigned int i = 0; i < pcNode->mNumChildren;++i)
+    {
+        UpdateNode ( pcNode->mChildren[i], avList );
     }
     return;
 }
@@ -139,31 +149,35 @@ void SplitLargeMeshesProcess_Triangle::UpdateNode(aiNode* pcNode,
 // ------------------------------------------------------------------------------------------------
 // Executes the post processing step on the given imported data.
 void SplitLargeMeshesProcess_Triangle::SplitMesh(
-    unsigned int                                    a,
-    aiMesh*                                         pMesh,
+    unsigned int a,
+    aiMesh* pMesh,
     std::vector<std::pair<aiMesh*, unsigned int> >& avList)
 {
-    if (pMesh->mNumFaces > SplitLargeMeshesProcess_Triangle::LIMIT) {
+    if (pMesh->mNumFaces > SplitLargeMeshesProcess_Triangle::LIMIT)
+    {
         ASSIMP_LOG_INFO("Mesh exceeds the triangle limit. It will be split ...");
 
         // we need to split this mesh into sub meshes
         // determine the size of a submesh
         const unsigned int iSubMeshes = (pMesh->mNumFaces / LIMIT) + 1;
 
-        const unsigned int iOutFaceNum   = pMesh->mNumFaces / iSubMeshes;
+        const unsigned int iOutFaceNum = pMesh->mNumFaces / iSubMeshes;
         const unsigned int iOutVertexNum = iOutFaceNum * 3;
 
         // now generate all submeshes
-        for (unsigned int i = 0; i < iSubMeshes; ++i) {
-            aiMesh* pcMesh         = new aiMesh;
-            pcMesh->mNumFaces      = iOutFaceNum;
-            pcMesh->mMaterialIndex = pMesh->mMaterialIndex;
+        for (unsigned int i = 0; i < iSubMeshes;++i)
+        {
+            aiMesh* pcMesh          = new aiMesh;
+            pcMesh->mNumFaces       = iOutFaceNum;
+            pcMesh->mMaterialIndex  = pMesh->mMaterialIndex;
 
             // the name carries the adjacency information between the meshes
             pcMesh->mName = pMesh->mName;
 
-            if (i == iSubMeshes - 1) {
-                pcMesh->mNumFaces = iOutFaceNum + (pMesh->mNumFaces - iOutFaceNum * iSubMeshes);
+            if (i == iSubMeshes-1)
+            {
+                pcMesh->mNumFaces = iOutFaceNum + (
+                    pMesh->mNumFaces - iOutFaceNum * iSubMeshes);
             }
             // copy the list of faces
             pcMesh->mFaces = new aiFace[pcMesh->mNumFaces];
@@ -172,7 +186,8 @@ void SplitLargeMeshesProcess_Triangle::SplitMesh(
 
             // get the total number of indices
             unsigned int iCnt = 0;
-            for (unsigned int p = iBase; p < pcMesh->mNumFaces + iBase; ++p) {
+            for (unsigned int p = iBase; p < pcMesh->mNumFaces + iBase;++p)
+            {
                 iCnt += pMesh->mFaces[p].mNumIndices;
             }
             pcMesh->mNumVertices = iCnt;
@@ -184,103 +199,117 @@ void SplitLargeMeshesProcess_Triangle::SplitMesh(
             if (pMesh->HasNormals())
                 pcMesh->mNormals = new aiVector3D[iCnt];
 
-            if (pMesh->HasTangentsAndBitangents()) {
-                pcMesh->mTangents   = new aiVector3D[iCnt];
+            if (pMesh->HasTangentsAndBitangents())
+            {
+                pcMesh->mTangents = new aiVector3D[iCnt];
                 pcMesh->mBitangents = new aiVector3D[iCnt];
             }
 
             // texture coordinates
-            for (unsigned int c = 0; c < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++c) {
+            for (unsigned int c = 0;  c < AI_MAX_NUMBER_OF_TEXTURECOORDS;++c)
+            {
                 pcMesh->mNumUVComponents[c] = pMesh->mNumUVComponents[c];
-                if (pMesh->HasTextureCoords(c)) {
+                if (pMesh->HasTextureCoords( c))
+                {
                     pcMesh->mTextureCoords[c] = new aiVector3D[iCnt];
                 }
             }
 
             // vertex colors
-            for (unsigned int c = 0; c < AI_MAX_NUMBER_OF_COLOR_SETS; ++c) {
-                if (pMesh->HasVertexColors(c)) {
+            for (unsigned int c = 0;  c < AI_MAX_NUMBER_OF_COLOR_SETS;++c)
+            {
+                if (pMesh->HasVertexColors( c))
+                {
                     pcMesh->mColors[c] = new aiColor4D[iCnt];
                 }
             }
 
-            if (pMesh->HasBones()) {
+            if (pMesh->HasBones())
+            {
                 // assume the number of bones won't change in most cases
                 pcMesh->mBones = new aiBone*[pMesh->mNumBones];
 
                 // iterate through all bones of the mesh and find those which
                 // need to be copied to the split mesh
                 std::vector<aiVertexWeight> avTempWeights;
-                for (unsigned int p = 0; p < pcMesh->mNumBones; ++p) {
+                for (unsigned int p = 0; p < pcMesh->mNumBones;++p)
+                {
                     aiBone* const bone = pcMesh->mBones[p];
                     avTempWeights.clear();
                     avTempWeights.reserve(bone->mNumWeights / iSubMeshes);
 
-                    for (unsigned int q = 0; q < bone->mNumWeights; ++q) {
+                    for (unsigned int q = 0; q < bone->mNumWeights;++q)
+                    {
                         aiVertexWeight& weight = bone->mWeights[q];
-                        if (weight.mVertexId >= iBase && weight.mVertexId < iBase + iOutVertexNum) {
+                        if(weight.mVertexId >= iBase && weight.mVertexId < iBase + iOutVertexNum)
+                        {
                             avTempWeights.push_back(weight);
                             weight = avTempWeights.back();
                             weight.mVertexId -= iBase;
                         }
                     }
 
-                    if (!avTempWeights.empty()) {
+                    if (!avTempWeights.empty())
+                    {
                         // we'll need this bone. Copy it ...
-                        aiBone* pc                          = new aiBone();
+                        aiBone* pc = new aiBone();
                         pcMesh->mBones[pcMesh->mNumBones++] = pc;
-                        pc->mName                           = aiString(bone->mName);
-                        pc->mNumWeights                     = (unsigned int) avTempWeights.size();
-                        pc->mOffsetMatrix                   = bone->mOffsetMatrix;
+                        pc->mName = aiString(bone->mName);
+                        pc->mNumWeights = (unsigned int)avTempWeights.size();
+                        pc->mOffsetMatrix = bone->mOffsetMatrix;
 
                         // no need to reallocate the array for the last submesh.
                         // Here we can reuse the (large) source array, although
                         // we'll waste some memory
-                        if (iSubMeshes - 1 == i) {
-                            pc->mWeights   = bone->mWeights;
+                        if (iSubMeshes-1 == i)
+                        {
+                            pc->mWeights = bone->mWeights;
                             bone->mWeights = NULL;
-                        } else
-                            pc->mWeights = new aiVertexWeight[pc->mNumWeights];
+                        }
+                        else pc->mWeights = new aiVertexWeight[pc->mNumWeights];
 
                         // copy the weights
-                        ::memcpy(pc->mWeights, &avTempWeights[0], sizeof(aiVertexWeight) * pc->mNumWeights);
+                        ::memcpy(pc->mWeights,&avTempWeights[0],sizeof(aiVertexWeight)*pc->mNumWeights);
                     }
                 }
             }
 
             // (we will also need to copy the array of indices)
             unsigned int iCurrent = 0;
-            for (unsigned int p = 0; p < pcMesh->mNumFaces; ++p) {
+            for (unsigned int p = 0; p < pcMesh->mNumFaces;++p)
+            {
                 pcMesh->mFaces[p].mNumIndices = 3;
                 // allocate a new array
-                const unsigned int iTemp       = p + iBase;
+                const unsigned int iTemp = p + iBase;
                 const unsigned int iNumIndices = pMesh->mFaces[iTemp].mNumIndices;
 
                 // setup face type and number of indices
                 pcMesh->mFaces[p].mNumIndices = iNumIndices;
-                unsigned int* pi              = pMesh->mFaces[iTemp].mIndices;
+                unsigned int* pi = pMesh->mFaces[iTemp].mIndices;
                 unsigned int* piOut = pcMesh->mFaces[p].mIndices = new unsigned int[iNumIndices];
 
                 // need to update the output primitive types
-                switch (iNumIndices) {
-                    case 1:
-                        pcMesh->mPrimitiveTypes |= aiPrimitiveType_POINT;
-                        break;
-                    case 2:
-                        pcMesh->mPrimitiveTypes |= aiPrimitiveType_LINE;
-                        break;
-                    case 3:
-                        pcMesh->mPrimitiveTypes |= aiPrimitiveType_TRIANGLE;
-                        break;
-                    default:
-                        pcMesh->mPrimitiveTypes |= aiPrimitiveType_POLYGON;
+                switch (iNumIndices)
+                {
+                case 1:
+                    pcMesh->mPrimitiveTypes |= aiPrimitiveType_POINT;
+                    break;
+                case 2:
+                    pcMesh->mPrimitiveTypes |= aiPrimitiveType_LINE;
+                    break;
+                case 3:
+                    pcMesh->mPrimitiveTypes |= aiPrimitiveType_TRIANGLE;
+                    break;
+                default:
+                    pcMesh->mPrimitiveTypes |= aiPrimitiveType_POLYGON;
                 }
 
                 // and copy the contents of the old array, offset by current base
-                for (unsigned int v = 0; v < iNumIndices; ++v) {
-                    unsigned int iIndex    = pi[v];
+                for (unsigned int v = 0; v < iNumIndices;++v)
+                {
+                    unsigned int iIndex = pi[v];
                     unsigned int iIndexOut = iCurrent++;
-                    piOut[v]               = iIndexOut;
+                    piOut[v] = iIndexOut;
 
                     // copy positions
                     if (pMesh->mVertices != NULL)
@@ -291,32 +320,35 @@ void SplitLargeMeshesProcess_Triangle::SplitMesh(
                         pcMesh->mNormals[iIndexOut] = pMesh->mNormals[iIndex];
 
                     // copy tangents/bitangents
-                    if (pMesh->HasTangentsAndBitangents()) {
-                        pcMesh->mTangents[iIndexOut]   = pMesh->mTangents[iIndex];
+                    if (pMesh->HasTangentsAndBitangents())
+                    {
+                        pcMesh->mTangents[iIndexOut] = pMesh->mTangents[iIndex];
                         pcMesh->mBitangents[iIndexOut] = pMesh->mBitangents[iIndex];
                     }
 
                     // texture coordinates
-                    for (unsigned int c = 0; c < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++c) {
-                        if (pMesh->HasTextureCoords(c))
+                    for (unsigned int c = 0;  c < AI_MAX_NUMBER_OF_TEXTURECOORDS;++c)
+                    {
+                        if (pMesh->HasTextureCoords( c))
                             pcMesh->mTextureCoords[c][iIndexOut] = pMesh->mTextureCoords[c][iIndex];
                     }
                     // vertex colors
-                    for (unsigned int c = 0; c < AI_MAX_NUMBER_OF_COLOR_SETS; ++c) {
-                        if (pMesh->HasVertexColors(c))
+                    for (unsigned int c = 0;  c < AI_MAX_NUMBER_OF_COLOR_SETS;++c)
+                    {
+                        if (pMesh->HasVertexColors( c))
                             pcMesh->mColors[c][iIndexOut] = pMesh->mColors[c][iIndex];
                     }
                 }
             }
 
             // add the newly created mesh to the list
-            avList.push_back(std::pair<aiMesh*, unsigned int>(pcMesh, a));
+            avList.push_back(std::pair<aiMesh*, unsigned int>(pcMesh,a));
         }
 
         // now delete the old mesh data
         delete pMesh;
-    } else
-        avList.push_back(std::pair<aiMesh*, unsigned int>(pMesh, a));
+    }
+    else avList.push_back(std::pair<aiMesh*, unsigned int>(pMesh,a));
     return;
 }
 
@@ -334,34 +366,35 @@ SplitLargeMeshesProcess_Vertex::~SplitLargeMeshesProcess_Vertex()
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.
-bool SplitLargeMeshesProcess_Vertex::IsActive(unsigned int pFlags) const
+bool SplitLargeMeshesProcess_Vertex::IsActive( unsigned int pFlags) const
 {
     return (pFlags & aiProcess_SplitLargeMeshes) != 0;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Executes the post processing step on the given imported data.
-void SplitLargeMeshesProcess_Vertex::Execute(aiScene* pScene)
+void SplitLargeMeshesProcess_Vertex::Execute( aiScene* pScene)
 {
     std::vector<std::pair<aiMesh*, unsigned int> > avList;
 
-    if (0xffffffff == this->LIMIT) return;
+    if (0xffffffff == this->LIMIT)return;
 
     ASSIMP_LOG_DEBUG("SplitLargeMeshesProcess_Vertex begin");
-    for (unsigned int a = 0; a < pScene->mNumMeshes; a++)
-        this->SplitMesh(a, pScene->mMeshes[a], avList);
+    for( unsigned int a = 0; a < pScene->mNumMeshes; a++)
+        this->SplitMesh(a, pScene->mMeshes[a],avList);
 
-    if (avList.size() != pScene->mNumMeshes) {
+    if (avList.size() != pScene->mNumMeshes)
+    {
         // it seems something has been split. rebuild the mesh list
         delete[] pScene->mMeshes;
-        pScene->mNumMeshes = (unsigned int) avList.size();
-        pScene->mMeshes    = new aiMesh*[avList.size()];
+        pScene->mNumMeshes = (unsigned int)avList.size();
+        pScene->mMeshes = new aiMesh*[avList.size()];
 
-        for (unsigned int i = 0; i < avList.size(); ++i)
+        for (unsigned int i = 0; i < avList.size();++i)
             pScene->mMeshes[i] = avList[i].first;
 
         // now we need to update all nodes
-        SplitLargeMeshesProcess_Triangle::UpdateNode(pScene->mRootNode, avList);
+        SplitLargeMeshesProcess_Triangle::UpdateNode(pScene->mRootNode,avList);
         ASSIMP_LOG_INFO("SplitLargeMeshesProcess_Vertex finished. Meshes have been split");
     } else {
         ASSIMP_LOG_DEBUG("SplitLargeMeshesProcess_Vertex finished. There was nothing to do");
@@ -370,20 +403,21 @@ void SplitLargeMeshesProcess_Vertex::Execute(aiScene* pScene)
 
 // ------------------------------------------------------------------------------------------------
 // Setup properties
-void SplitLargeMeshesProcess_Vertex::SetupProperties(const Importer* pImp)
+void SplitLargeMeshesProcess_Vertex::SetupProperties( const Importer* pImp)
 {
-    this->LIMIT = pImp->GetPropertyInteger(AI_CONFIG_PP_SLM_VERTEX_LIMIT, AI_SLM_DEFAULT_MAX_VERTICES);
+    this->LIMIT = pImp->GetPropertyInteger(AI_CONFIG_PP_SLM_VERTEX_LIMIT,AI_SLM_DEFAULT_MAX_VERTICES);
 }
 
 // ------------------------------------------------------------------------------------------------
 // Executes the post processing step on the given imported data.
 void SplitLargeMeshesProcess_Vertex::SplitMesh(
-    unsigned int                                    a,
-    aiMesh*                                         pMesh,
+    unsigned int a,
+    aiMesh* pMesh,
     std::vector<std::pair<aiMesh*, unsigned int> >& avList)
 {
-    if (pMesh->mNumVertices > SplitLargeMeshesProcess_Vertex::LIMIT) {
-        typedef std::vector<std::pair<unsigned int, float> > VertexWeightTable;
+    if (pMesh->mNumVertices > SplitLargeMeshesProcess_Vertex::LIMIT)
+    {
+        typedef std::vector< std::pair<unsigned int,float> > VertexWeightTable;
 
         // build a per-vertex weight list if necessary
         VertexWeightTable* avPerVertexWeights = ComputeVertexBoneWeightTable(pMesh);
@@ -397,7 +431,7 @@ void SplitLargeMeshesProcess_Vertex::SplitMesh(
         // create a std::vector<unsigned int> to indicate which vertices
         // have already been copied
         std::vector<unsigned int> avWasCopied;
-        avWasCopied.resize(pMesh->mNumVertices, 0xFFFFFFFF);
+        avWasCopied.resize(pMesh->mNumVertices,0xFFFFFFFF);
 
         // try to find a good estimate for the number of output faces
         // per mesh. Add 12.5% as buffer
@@ -406,26 +440,30 @@ void SplitLargeMeshesProcess_Vertex::SplitMesh(
 
         // now generate all submeshes
         unsigned int iBase = 0;
-        while (true) {
+        while (true)
+        {
             const unsigned int iOutVertexNum = SplitLargeMeshesProcess_Vertex::LIMIT;
 
-            aiMesh* pcMesh         = new aiMesh;
-            pcMesh->mNumVertices   = 0;
-            pcMesh->mMaterialIndex = pMesh->mMaterialIndex;
+            aiMesh* pcMesh          = new aiMesh;
+            pcMesh->mNumVertices    = 0;
+            pcMesh->mMaterialIndex  = pMesh->mMaterialIndex;
 
             // the name carries the adjacency information between the meshes
             pcMesh->mName = pMesh->mName;
 
             typedef std::vector<aiVertexWeight> BoneWeightList;
-            if (pMesh->HasBones()) {
+            if (pMesh->HasBones())
+            {
                 pcMesh->mBones = new aiBone*[pMesh->mNumBones];
-                ::memset(pcMesh->mBones, 0, sizeof(void*) * pMesh->mNumBones);
+                ::memset(pcMesh->mBones,0,sizeof(void*)*pMesh->mNumBones);
             }
 
             // clear the temporary helper array
-            if (iBase) {
+            if (iBase)
+            {
                 // we can't use memset here we unsigned int needn' be 32 bits
-                for (auto& elem: avWasCopied) {
+                for (auto &elem : avWasCopied)
+                {
                     elem = 0xffffffff;
                 }
             }
@@ -434,41 +472,50 @@ void SplitLargeMeshesProcess_Vertex::SplitMesh(
             std::vector<aiFace> vFaces;
 
             // reserve enough storage for most cases
-            if (pMesh->HasPositions()) {
+            if (pMesh->HasPositions())
+            {
                 pcMesh->mVertices = new aiVector3D[iOutVertexNum];
             }
-            if (pMesh->HasNormals()) {
+            if (pMesh->HasNormals())
+            {
                 pcMesh->mNormals = new aiVector3D[iOutVertexNum];
             }
-            if (pMesh->HasTangentsAndBitangents()) {
-                pcMesh->mTangents   = new aiVector3D[iOutVertexNum];
+            if (pMesh->HasTangentsAndBitangents())
+            {
+                pcMesh->mTangents = new aiVector3D[iOutVertexNum];
                 pcMesh->mBitangents = new aiVector3D[iOutVertexNum];
             }
-            for (unsigned int c = 0; pMesh->HasVertexColors(c); ++c) {
+            for (unsigned int c = 0; pMesh->HasVertexColors(c);++c)
+            {
                 pcMesh->mColors[c] = new aiColor4D[iOutVertexNum];
             }
-            for (unsigned int c = 0; pMesh->HasTextureCoords(c); ++c) {
+            for (unsigned int c = 0; pMesh->HasTextureCoords(c);++c)
+            {
                 pcMesh->mNumUVComponents[c] = pMesh->mNumUVComponents[c];
-                pcMesh->mTextureCoords[c]   = new aiVector3D[iOutVertexNum];
+                pcMesh->mTextureCoords[c] = new aiVector3D[iOutVertexNum];
             }
             vFaces.reserve(iEstimatedSize);
 
             // (we will also need to copy the array of indices)
-            while (iBase < pMesh->mNumFaces) {
+            while (iBase < pMesh->mNumFaces)
+            {
                 // allocate a new array
                 const unsigned int iNumIndices = pMesh->mFaces[iBase].mNumIndices;
 
                 // doesn't catch degenerates but is quite fast
                 unsigned int iNeed = 0;
-                for (unsigned int v = 0; v < iNumIndices; ++v) {
+                for (unsigned int v = 0; v < iNumIndices;++v)
+                {
                     unsigned int iIndex = pMesh->mFaces[iBase].mIndices[v];
 
                     // check whether we do already have this vertex
-                    if (0xFFFFFFFF == avWasCopied[iIndex]) {
+                    if (0xFFFFFFFF == avWasCopied[iIndex])
+                    {
                         iNeed++;
                     }
                 }
-                if (pcMesh->mNumVertices + iNeed > iOutVertexNum) {
+                if (pcMesh->mNumVertices + iNeed > iOutVertexNum)
+                {
                     // don't use this face
                     break;
                 }
@@ -478,29 +525,32 @@ void SplitLargeMeshesProcess_Vertex::SplitMesh(
 
                 // setup face type and number of indices
                 rFace.mNumIndices = iNumIndices;
-                rFace.mIndices    = new unsigned int[iNumIndices];
+                rFace.mIndices = new unsigned int[iNumIndices];
 
                 // need to update the output primitive types
-                switch (rFace.mNumIndices) {
-                    case 1:
-                        pcMesh->mPrimitiveTypes |= aiPrimitiveType_POINT;
-                        break;
-                    case 2:
-                        pcMesh->mPrimitiveTypes |= aiPrimitiveType_LINE;
-                        break;
-                    case 3:
-                        pcMesh->mPrimitiveTypes |= aiPrimitiveType_TRIANGLE;
-                        break;
-                    default:
-                        pcMesh->mPrimitiveTypes |= aiPrimitiveType_POLYGON;
+                switch (rFace.mNumIndices)
+                {
+                case 1:
+                    pcMesh->mPrimitiveTypes |= aiPrimitiveType_POINT;
+                    break;
+                case 2:
+                    pcMesh->mPrimitiveTypes |= aiPrimitiveType_LINE;
+                    break;
+                case 3:
+                    pcMesh->mPrimitiveTypes |= aiPrimitiveType_TRIANGLE;
+                    break;
+                default:
+                    pcMesh->mPrimitiveTypes |= aiPrimitiveType_POLYGON;
                 }
 
                 // and copy the contents of the old array, offset by current base
-                for (unsigned int v = 0; v < iNumIndices; ++v) {
+                for (unsigned int v = 0; v < iNumIndices;++v)
+                {
                     unsigned int iIndex = pMesh->mFaces[iBase].mIndices[v];
 
                     // check whether we do already have this vertex
-                    if (0xFFFFFFFF != avWasCopied[iIndex]) {
+                    if (0xFFFFFFFF != avWasCopied[iIndex])
+                    {
                         rFace.mIndices[v] = avWasCopied[iIndex];
                         continue;
                     }
@@ -509,43 +559,52 @@ void SplitLargeMeshesProcess_Vertex::SplitMesh(
                     pcMesh->mVertices[pcMesh->mNumVertices] = (pMesh->mVertices[iIndex]);
 
                     // copy normals
-                    if (pMesh->HasNormals()) {
+                    if (pMesh->HasNormals())
+                    {
                         pcMesh->mNormals[pcMesh->mNumVertices] = (pMesh->mNormals[iIndex]);
                     }
 
                     // copy tangents/bitangents
-                    if (pMesh->HasTangentsAndBitangents()) {
-                        pcMesh->mTangents[pcMesh->mNumVertices]   = (pMesh->mTangents[iIndex]);
+                    if (pMesh->HasTangentsAndBitangents())
+                    {
+                        pcMesh->mTangents[pcMesh->mNumVertices] = (pMesh->mTangents[iIndex]);
                         pcMesh->mBitangents[pcMesh->mNumVertices] = (pMesh->mBitangents[iIndex]);
                     }
 
                     // texture coordinates
-                    for (unsigned int c = 0; c < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++c) {
-                        if (pMesh->HasTextureCoords(c)) {
+                    for (unsigned int c = 0;  c < AI_MAX_NUMBER_OF_TEXTURECOORDS;++c)
+                    {
+                        if (pMesh->HasTextureCoords( c))
+                        {
                             pcMesh->mTextureCoords[c][pcMesh->mNumVertices] = pMesh->mTextureCoords[c][iIndex];
                         }
                     }
                     // vertex colors
-                    for (unsigned int c = 0; c < AI_MAX_NUMBER_OF_COLOR_SETS; ++c) {
-                        if (pMesh->HasVertexColors(c)) {
+                    for (unsigned int c = 0;  c < AI_MAX_NUMBER_OF_COLOR_SETS;++c)
+                    {
+                        if (pMesh->HasVertexColors( c))
+                        {
                             pcMesh->mColors[c][pcMesh->mNumVertices] = pMesh->mColors[c][iIndex];
                         }
                     }
                     // check whether we have bone weights assigned to this vertex
                     rFace.mIndices[v] = pcMesh->mNumVertices;
-                    if (avPerVertexWeights) {
-                        VertexWeightTable& table = avPerVertexWeights[pcMesh->mNumVertices];
-                        if (!table.empty()) {
+                    if (avPerVertexWeights)
+                    {
+                        VertexWeightTable& table = avPerVertexWeights[ pcMesh->mNumVertices ];
+                        if( !table.empty() )
+                        {
                             for (VertexWeightTable::const_iterator
-                                     iter = table.begin();
-                                iter != table.end();
-                                ++iter) {
+                                iter =  table.begin();
+                                iter != table.end();++iter)
+                            {
                                 // allocate the bone weight array if necessary
-                                BoneWeightList* pcWeightList = (BoneWeightList*) pcMesh->mBones[(*iter).first];
-                                if (!pcWeightList) {
-                                    pcMesh->mBones[(*iter).first] = (aiBone*) (pcWeightList = new BoneWeightList());
+                                BoneWeightList* pcWeightList = (BoneWeightList*)pcMesh->mBones[(*iter).first];
+                                if (!pcWeightList)
+                                {
+                                    pcMesh->mBones[(*iter).first] = (aiBone*)(pcWeightList = new BoneWeightList());
                                 }
-                                pcWeightList->push_back(aiVertexWeight(pcMesh->mNumVertices, (*iter).second));
+                                pcWeightList->push_back(aiVertexWeight(pcMesh->mNumVertices,(*iter).second));
                             }
                         }
                     }
@@ -554,29 +613,34 @@ void SplitLargeMeshesProcess_Vertex::SplitMesh(
                     pcMesh->mNumVertices++;
                 }
                 iBase++;
-                if (pcMesh->mNumVertices == iOutVertexNum) {
+                if(pcMesh->mNumVertices == iOutVertexNum)
+                {
                     // break here. The face is only added if it was complete
                     break;
                 }
             }
 
             // check which bones we'll need to create for this submesh
-            if (pMesh->HasBones()) {
+            if (pMesh->HasBones())
+            {
                 aiBone** ppCurrent = pcMesh->mBones;
-                for (unsigned int k = 0; k < pMesh->mNumBones; ++k) {
+                for (unsigned int k = 0; k < pMesh->mNumBones;++k)
+                {
                     // check whether the bone is existing
                     BoneWeightList* pcWeightList;
-                    if ((pcWeightList = (BoneWeightList*) pcMesh->mBones[k])) {
+                    if ((pcWeightList = (BoneWeightList*)pcMesh->mBones[k]))
+                    {
                         aiBone* pcOldBone = pMesh->mBones[k];
                         aiBone* pcOut;
                         *ppCurrent++ = pcOut = new aiBone();
-                        pcOut->mName         = aiString(pcOldBone->mName);
+                        pcOut->mName = aiString(pcOldBone->mName);
                         pcOut->mOffsetMatrix = pcOldBone->mOffsetMatrix;
-                        pcOut->mNumWeights   = (unsigned int) pcWeightList->size();
-                        pcOut->mWeights      = new aiVertexWeight[pcOut->mNumWeights];
+                        pcOut->mNumWeights = (unsigned int)pcWeightList->size();
+                        pcOut->mWeights = new aiVertexWeight[pcOut->mNumWeights];
 
                         // copy the vertex weights
-                        ::memcpy(pcOut->mWeights, &pcWeightList->operator[](0), pcOut->mNumWeights * sizeof(aiVertexWeight));
+                        ::memcpy(pcOut->mWeights,&pcWeightList->operator[](0),
+                            pcOut->mNumWeights * sizeof(aiVertexWeight));
 
                         // delete the temporary bone weight list
                         delete pcWeightList;
@@ -586,16 +650,17 @@ void SplitLargeMeshesProcess_Vertex::SplitMesh(
             }
 
             // copy the face list to the mesh
-            pcMesh->mFaces    = new aiFace[vFaces.size()];
-            pcMesh->mNumFaces = (unsigned int) vFaces.size();
+            pcMesh->mFaces = new aiFace[vFaces.size()];
+            pcMesh->mNumFaces = (unsigned int)vFaces.size();
 
-            for (unsigned int p = 0; p < pcMesh->mNumFaces; ++p)
+            for (unsigned int p = 0; p < pcMesh->mNumFaces;++p)
                 pcMesh->mFaces[p] = vFaces[p];
 
             // add the newly created mesh to the list
-            avList.push_back(std::pair<aiMesh*, unsigned int>(pcMesh, a));
+            avList.push_back(std::pair<aiMesh*, unsigned int>(pcMesh,a));
 
-            if (iBase == pMesh->mNumFaces) {
+            if (iBase == pMesh->mNumFaces)
+            {
                 // have all faces ... finish the outer loop, too
                 break;
             }
@@ -608,6 +673,6 @@ void SplitLargeMeshesProcess_Vertex::SplitMesh(
         delete pMesh;
         return;
     }
-    avList.push_back(std::pair<aiMesh*, unsigned int>(pMesh, a));
+    avList.push_back(std::pair<aiMesh*, unsigned int>(pMesh,a));
     return;
 }

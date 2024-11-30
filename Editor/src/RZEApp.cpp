@@ -82,13 +82,18 @@ public:
         Gfx::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
 
+        //-------------------------------------------------------------------------------------
+        // Override the Graphics API here! for testing
+        Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::VULKAN);
+        //---------------------------------------------------------------------------------
+
         vulkanWindow->Init();
 
         vulkanWindow->setTitle("Vulkan Window");
 
         Razix::RZApplication::Get().Init();
 
-        VkSurfaceKHR                surface = QVulkanInstance::surfaceForWindow(vulkanWindow);
+        VkSurfaceKHR           surface = QVulkanInstance::surfaceForWindow(vulkanWindow);
         Razix::Gfx::VKContext* context = static_cast<Razix::Gfx::VKContext*>(Razix::Gfx::RZGraphicsContext::GetContext());
         context->CreateSurface(&surface);
         context->SetupDeviceAndSC();

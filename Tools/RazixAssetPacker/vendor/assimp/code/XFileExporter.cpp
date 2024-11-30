@@ -41,73 +41,76 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-#ifndef ASSIMP_BUILD_NO_EXPORT
-    #ifndef ASSIMP_BUILD_NO_X_EXPORTER
 
-        #include "XFileExporter.h"
-        #include "ConvertToLHProcess.h"
-        #include <assimp/BaseImporter.h>
-        #include <assimp/Bitmap.h>
-        #include <assimp/DefaultIOSystem.h>
-        #include <assimp/Exceptional.h>
-        #include <assimp/IOSystem.hpp>
-        #include <assimp/SceneCombiner.h>
-        #include <assimp/fast_atof.h>
-        #include <assimp/light.h>
-        #include <assimp/scene.h>
-        #include <ctime>
-        #include <memory>
-        #include <set>
+#ifndef ASSIMP_BUILD_NO_EXPORT
+#ifndef ASSIMP_BUILD_NO_X_EXPORTER
+
+#include "XFileExporter.h"
+#include "ConvertToLHProcess.h"
+#include <assimp/Bitmap.h>
+#include <assimp/BaseImporter.h>
+#include <assimp/fast_atof.h>
+#include <assimp/SceneCombiner.h>
+#include <assimp/DefaultIOSystem.h>
+#include <ctime>
+#include <set>
+#include <memory>
+#include <assimp/Exceptional.h>
+#include <assimp/IOSystem.hpp>
+#include <assimp/scene.h>
+#include <assimp/light.h>
 
 using namespace Assimp;
 
-namespace Assimp {
+namespace Assimp
+{
 
-    // ------------------------------------------------------------------------------------------------
-    // Worker function for exporting a scene to Collada. Prototyped and registered in Exporter.cpp
-    void ExportSceneXFile(const char* pFile, IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* pProperties)
-    {
-        std::string path = DefaultIOSystem::absolutePath(std::string(pFile));
-        std::string file = DefaultIOSystem::completeBaseName(std::string(pFile));
+// ------------------------------------------------------------------------------------------------
+// Worker function for exporting a scene to Collada. Prototyped and registered in Exporter.cpp
+void ExportSceneXFile(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* pProperties)
+{
+    std::string path = DefaultIOSystem::absolutePath(std::string(pFile));
+    std::string file = DefaultIOSystem::completeBaseName(std::string(pFile));
 
-        // create/copy Properties
-        ExportProperties props(*pProperties);
+    // create/copy Properties
+    ExportProperties props(*pProperties);
 
-        // set standard properties if not set
-        if (!props.HasPropertyBool(AI_CONFIG_EXPORT_XFILE_64BIT)) props.SetPropertyBool(AI_CONFIG_EXPORT_XFILE_64BIT, false);
+    // set standard properties if not set
+    if (!props.HasPropertyBool(AI_CONFIG_EXPORT_XFILE_64BIT)) props.SetPropertyBool(AI_CONFIG_EXPORT_XFILE_64BIT, false);
 
-        // invoke the exporter
-        XFileExporter iDoTheExportThing(pScene, pIOSystem, path, file, &props);
+    // invoke the exporter
+    XFileExporter iDoTheExportThing( pScene, pIOSystem, path, file, &props);
 
-        if (iDoTheExportThing.mOutput.fail()) {
-            throw DeadlyExportError("output data creation failed. Most likely the file became too large: " + std::string(pFile));
-        }
-
-        // we're still here - export successfully completed. Write result to the given IOSYstem
-        std::unique_ptr<IOStream> outfile(pIOSystem->Open(pFile, "wt"));
-        if (outfile == NULL) {
-            throw DeadlyExportError("could not open output .x file: " + std::string(pFile));
-        }
-
-        // XXX maybe use a small wrapper around IOStream that behaves like std::stringstream in order to avoid the extra copy.
-        outfile->Write(iDoTheExportThing.mOutput.str().c_str(), static_cast<size_t>(iDoTheExportThing.mOutput.tellp()), 1);
+    if (iDoTheExportThing.mOutput.fail()) {
+        throw DeadlyExportError("output data creation failed. Most likely the file became too large: " + std::string(pFile));
+    }
+    
+    // we're still here - export successfully completed. Write result to the given IOSYstem
+    std::unique_ptr<IOStream> outfile (pIOSystem->Open(pFile,"wt"));
+    if(outfile == NULL) {
+        throw DeadlyExportError("could not open output .x file: " + std::string(pFile));
     }
 
-}    // end of namespace Assimp
+    // XXX maybe use a small wrapper around IOStream that behaves like std::stringstream in order to avoid the extra copy.
+    outfile->Write( iDoTheExportThing.mOutput.str().c_str(), static_cast<size_t>(iDoTheExportThing.mOutput.tellp()),1);
+}
+
+} // end of namespace Assimp
+
 
 // ------------------------------------------------------------------------------------------------
 // Constructor for a specific scene to export
 XFileExporter::XFileExporter(const aiScene* pScene, IOSystem* pIOSystem, const std::string& path, const std::string& file, const ExportProperties* pProperties)
-    : mProperties(pProperties),
-      mIOSystem(pIOSystem),
-      mPath(path),
-      mFile(file),
-      mScene(pScene),
-      mSceneOwned(false),
-      endstr("\n")
+        : mProperties(pProperties),
+        mIOSystem(pIOSystem),
+        mPath(path),
+        mFile(file),
+        mScene(pScene),
+        mSceneOwned(false),
+        endstr("\n")
 {
     // make sure that all formatting happens using the standard, C locale and not the user's current locale
-    mOutput.imbue(std::locale("C"));
+    mOutput.imbue( std::locale("C") );
     mOutput.precision(16);
 
     // start writing
@@ -118,7 +121,7 @@ XFileExporter::XFileExporter(const aiScene* pScene, IOSystem* pIOSystem, const s
 // Destructor
 XFileExporter::~XFileExporter()
 {
-    if (mSceneOwned) {
+    if(mSceneOwned) {
         delete mScene;
     }
 }
@@ -129,7 +132,7 @@ void XFileExporter::WriteFile()
 {
     // note, that all realnumber values must be comma separated in x files
     mOutput.setf(std::ios::fixed);
-    mOutput.precision(16);    // precision for double
+    mOutput.precision(16); // precision for double
 
     // entry of writing the file
     WriteHeader();
@@ -137,13 +140,14 @@ void XFileExporter::WriteFile()
     mOutput << startstr << "Frame DXCC_ROOT {" << endstr;
     PushTag();
 
-    aiMatrix4x4 I;    // identity
+    aiMatrix4x4 I; // identity
     WriteFrameTransform(I);
 
     WriteNode(mScene->mRootNode);
     PopTag();
 
     mOutput << startstr << "}" << endstr;
+
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -278,6 +282,7 @@ void XFileExporter::WriteHeader()
     mOutput << endstr;
 }
 
+
 // Writes the material setup
 void XFileExporter::WriteFrameTransform(aiMatrix4x4& m)
 {
@@ -291,11 +296,13 @@ void XFileExporter::WriteFrameTransform(aiMatrix4x4& m)
     mOutput << startstr << "}" << endstr << endstr;
 }
 
+
 // ------------------------------------------------------------------------------------------------
 // Recursively writes the given node
-void XFileExporter::WriteNode(aiNode* pNode)
+void XFileExporter::WriteNode( aiNode* pNode)
 {
-    if (pNode->mName.length == 0) {
+    if (pNode->mName.length==0)
+    {
         std::stringstream ss;
         ss << "Node_" << pNode;
         pNode->mName.Set(ss.str());
@@ -328,9 +335,10 @@ void XFileExporter::WriteMesh(aiMesh* mesh)
 
     // write all the vertices
     mOutput << startstr << mesh->mNumVertices << ";" << endstr;
-    for (size_t a = 0; a < mesh->mNumVertices; a++) {
-        aiVector3D& v = mesh->mVertices[a];
-        mOutput << startstr << v[0] << ";" << v[1] << ";" << v[2] << ";";
+    for (size_t a = 0; a < mesh->mNumVertices; a++)
+    {
+        aiVector3D &v = mesh->mVertices[a];
+        mOutput << startstr << v[0] << ";"<< v[1] << ";" << v[2] << ";";
         if (a < mesh->mNumVertices - 1)
             mOutput << "," << endstr;
         else
@@ -339,15 +347,17 @@ void XFileExporter::WriteMesh(aiMesh* mesh)
 
     // write all the faces
     mOutput << startstr << mesh->mNumFaces << ";" << endstr;
-    for (size_t a = 0; a < mesh->mNumFaces; ++a) {
+    for( size_t a = 0; a < mesh->mNumFaces; ++a )
+    {
         const aiFace& face = mesh->mFaces[a];
         mOutput << startstr << face.mNumIndices << ";";
         // must be counter clockwise triangle
         //for(int b = face.mNumIndices - 1; b >= 0 ; --b)
-        for (size_t b = 0; b < face.mNumIndices; ++b) {
+        for(size_t b = 0; b < face.mNumIndices ; ++b)
+        {
             mOutput << face.mIndices[b];
             //if (b > 0)
-            if (b < face.mNumIndices - 1)
+            if (b<face.mNumIndices-1)
                 mOutput << ",";
             else
                 mOutput << ";";
@@ -361,18 +371,20 @@ void XFileExporter::WriteMesh(aiMesh* mesh)
 
     mOutput << endstr;
 
-    if (mesh->HasTextureCoords(0)) {
+    if (mesh->HasTextureCoords(0))
+    {
         const aiMaterial* mat = mScene->mMaterials[mesh->mMaterialIndex];
-        aiString          relpath;
+        aiString relpath;
         mat->Get(_AI_MATKEY_TEXTURE_BASE, aiTextureType_DIFFUSE, 0, relpath);
 
         mOutput << startstr << "MeshMaterialList {" << endstr;
         PushTag();
-        mOutput << startstr << "1;" << endstr;                      // number of materials
-        mOutput << startstr << mesh->mNumFaces << ";" << endstr;    // number of faces
+        mOutput << startstr << "1;" << endstr; // number of materials
+        mOutput << startstr << mesh->mNumFaces << ";" << endstr; // number of faces
         mOutput << startstr;
-        for (size_t a = 0; a < mesh->mNumFaces; ++a) {
-            mOutput << "0";    // the material index
+        for( size_t a = 0; a < mesh->mNumFaces; ++a )
+        {
+            mOutput << "0"; // the material index
             if (a < mesh->mNumFaces - 1)
                 mOutput << ", ";
             else
@@ -381,9 +393,9 @@ void XFileExporter::WriteMesh(aiMesh* mesh)
         mOutput << startstr << "Material {" << endstr;
         PushTag();
         mOutput << startstr << "1.0; 1.0; 1.0; 1.000000;;" << endstr;
-        mOutput << startstr << "1.000000;" << endstr;                         // power
-        mOutput << startstr << "0.000000; 0.000000; 0.000000;;" << endstr;    // specularity
-        mOutput << startstr << "0.000000; 0.000000; 0.000000;;" << endstr;    // emission
+        mOutput << startstr << "1.000000;" << endstr; // power
+        mOutput << startstr << "0.000000; 0.000000; 0.000000;;" << endstr; // specularity
+        mOutput << startstr << "0.000000; 0.000000; 0.000000;;" << endstr; // emission
         mOutput << startstr << "TextureFilename { \"";
 
         writePath(relpath);
@@ -396,13 +408,15 @@ void XFileExporter::WriteMesh(aiMesh* mesh)
     }
 
     // write normals (every vertex has one)
-    if (mesh->HasNormals()) {
+    if (mesh->HasNormals())
+    {
         mOutput << endstr << startstr << "MeshNormals {" << endstr;
         mOutput << startstr << mesh->mNumVertices << ";" << endstr;
-        for (size_t a = 0; a < mesh->mNumVertices; a++) {
-            aiVector3D& v = mesh->mNormals[a];
+        for (size_t a = 0; a < mesh->mNumVertices; a++)
+        {
+            aiVector3D &v = mesh->mNormals[a];
             // because we have a LHS and also changed wth winding, we need to invert the normals again
-            mOutput << startstr << -v[0] << ";" << -v[1] << ";" << -v[2] << ";";
+            mOutput << startstr << -v[0] << ";"<< -v[1] << ";" << -v[2] << ";";
             if (a < mesh->mNumVertices - 1)
                 mOutput << "," << endstr;
             else
@@ -410,21 +424,23 @@ void XFileExporter::WriteMesh(aiMesh* mesh)
         }
 
         mOutput << startstr << mesh->mNumFaces << ";" << endstr;
-        for (size_t a = 0; a < mesh->mNumFaces; a++) {
+        for (size_t a = 0; a < mesh->mNumFaces; a++)
+        {
             const aiFace& face = mesh->mFaces[a];
             mOutput << startstr << face.mNumIndices << ";";
 
             //for(int b = face.mNumIndices-1; b >= 0 ; --b)
-            for (size_t b = 0; b < face.mNumIndices; ++b) {
+            for(size_t b = 0; b < face.mNumIndices ; ++b)
+            {
                 mOutput << face.mIndices[b];
                 //if (b > 0)
-                if (b < face.mNumIndices - 1)
+                if (b<face.mNumIndices-1)
                     mOutput << ",";
                 else
                     mOutput << ";";
             }
 
-            if (a < mesh->mNumFaces - 1)
+            if (a < mesh->mNumFaces-1)
                 mOutput << "," << endstr;
             else
                 mOutput << ";" << endstr;
@@ -433,16 +449,17 @@ void XFileExporter::WriteMesh(aiMesh* mesh)
     }
 
     // write texture UVs if available
-    if (mesh->HasTextureCoords(0)) {
-        mOutput << endstr << startstr << "MeshTextureCoords {" << endstr;
+    if (mesh->HasTextureCoords(0))
+    {
+        mOutput << endstr << startstr << "MeshTextureCoords {"  << endstr;
         mOutput << startstr << mesh->mNumVertices << ";" << endstr;
         for (size_t a = 0; a < mesh->mNumVertices; a++)
         //for (int a = (int)mesh->mNumVertices-1; a >=0 ; a--)
         {
-            aiVector3D& uv = mesh->mTextureCoords[0][a];    // uv of first uv layer for the vertex
+            aiVector3D& uv = mesh->mTextureCoords[0][a]; // uv of first uv layer for the vertex
             mOutput << startstr << uv.x << ";" << uv.y;
-            if (a < mesh->mNumVertices - 1)
-                //if (a >0 )
+            if (a < mesh->mNumVertices-1)
+            //if (a >0 )
                 mOutput << ";," << endstr;
             else
                 mOutput << ";;" << endstr;
@@ -451,13 +468,15 @@ void XFileExporter::WriteMesh(aiMesh* mesh)
     }
 
     // write color channel if available
-    if (mesh->HasVertexColors(0)) {
-        mOutput << endstr << startstr << "MeshVertexColors {" << endstr;
+    if (mesh->HasVertexColors(0))
+    {
+        mOutput << endstr << startstr << "MeshVertexColors {"  << endstr;
         mOutput << startstr << mesh->mNumVertices << ";" << endstr;
-        for (size_t a = 0; a < mesh->mNumVertices; a++) {
-            aiColor4D& mColors = mesh->mColors[0][a];    // color of first vertex color set for the vertex
+        for (size_t a = 0; a < mesh->mNumVertices; a++)
+        {
+            aiColor4D& mColors = mesh->mColors[0][a]; // color of first vertex color set for the vertex
             mOutput << startstr << a << ";" << mColors.r << ";" << mColors.g << ";" << mColors.b << ";" << mColors.a << ";;";
-            if (a < mesh->mNumVertices - 1)
+            if (a < mesh->mNumVertices-1)
                 mOutput << "," << endstr;
             else
                 mOutput << ";" << endstr;
@@ -483,35 +502,38 @@ void XFileExporter::WriteMesh(aiMesh* mesh)
     */
     PopTag();
     mOutput << startstr << "}" << endstr << endstr;
+
 }
 
-std::string XFileExporter::toXFileString(aiString& name)
+std::string XFileExporter::toXFileString(aiString &name)
 {
-    std::string pref = "";    // node name prefix to prevent unexpected start of string
-    std::string str  = pref + std::string(name.C_Str());
-    for (int i = 0; i < (int) str.length(); ++i) {
-        if ((str[i] >= '0' && str[i] <= '9') ||    // 0-9
-            (str[i] >= 'A' && str[i] <= 'Z') ||    // A-Z
-            (str[i] >= 'a' && str[i] <= 'z'))      // a-z
+    std::string pref = ""; // node name prefix to prevent unexpected start of string
+    std::string str = pref + std::string(name.C_Str());
+    for (int i=0; i < (int) str.length(); ++i)
+    {
+        if ((str[i] >= '0' && str[i] <= '9') || // 0-9
+            (str[i] >= 'A' && str[i] <= 'Z') || // A-Z
+            (str[i] >= 'a' && str[i] <= 'z')) // a-z
             continue;
         str[i] = '_';
     }
     return str;
 }
 
-void XFileExporter::writePath(const aiString& path)
+void XFileExporter::writePath(const aiString &path)
 {
     std::string str = std::string(path.C_Str());
     BaseImporter::ConvertUTF8toISO8859_1(str);
 
-    while (str.find("\\\\") != std::string::npos)
-        str.replace(str.find("\\\\"), 2, "\\");
+    while( str.find( "\\\\") != std::string::npos)
+        str.replace( str.find( "\\\\"), 2, "\\");
 
-    while (str.find("\\") != std::string::npos)
-        str.replace(str.find("\\"), 1, "/");
+    while( str.find( "\\") != std::string::npos)
+        str.replace( str.find( "\\"), 1, "/");
 
     mOutput << str;
+
 }
 
-    #endif
+#endif
 #endif

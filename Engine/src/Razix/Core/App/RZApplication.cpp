@@ -315,9 +315,8 @@ namespace Razix {
         m_EventDispatcher.registerCallback<RZKeyPressedEvent>(RAZIX_BIND_CB_EVENT_FN(OnKeyPress));
         m_EventDispatcher.registerCallback<RZKeyReleasedEvent>(RAZIX_BIND_CB_EVENT_FN(OnKeyRelease));
 
-#ifdef WIP_DX12_RENDERER
+
         Start();
-#endif
     }
 
     bool RZApplication::RenderFrame()

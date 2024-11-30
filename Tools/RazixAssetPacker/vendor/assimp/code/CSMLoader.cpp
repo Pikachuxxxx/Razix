@@ -45,19 +45,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *  Implementation of the CSM importer class.
  */
 
+
+
 #ifndef ASSIMP_BUILD_NO_CSM_IMPORTER
 
-    #include "CSMLoader.h"
-    #include <assimp/DefaultLogger.hpp>
-    #include <assimp/IOSystem.hpp>
-    #include <assimp/Importer.hpp>
-    #include <assimp/ParsingUtils.h>
-    #include <assimp/SkeletonMeshBuilder.h>
-    #include <assimp/anim.h>
-    #include <assimp/fast_atof.h>
-    #include <assimp/importerdesc.h>
-    #include <assimp/scene.h>
-    #include <memory>
+#include "CSMLoader.h"
+#include <assimp/SkeletonMeshBuilder.h>
+#include <assimp/ParsingUtils.h>
+#include <assimp/fast_atof.h>
+#include <assimp/Importer.hpp>
+#include <memory>
+#include <assimp/IOSystem.hpp>
+#include <assimp/anim.h>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/scene.h>
+#include <assimp/importerdesc.h>
 
 using namespace Assimp;
 
@@ -71,41 +73,41 @@ static const aiImporterDesc desc = {
     0,
     0,
     0,
-    "csm"};
+    "csm"
+};
+
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
 CSMImporter::CSMImporter()
-    : noSkeletonMesh()
-{
-}
+: noSkeletonMesh()
+{}
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
 CSMImporter::~CSMImporter()
-{
-}
+{}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.
-bool CSMImporter::CanRead(const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const
+bool CSMImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const
 {
     // check file extension
     const std::string extension = GetExtension(pFile);
 
-    if (extension == "csm")
+    if( extension == "csm")
         return true;
 
     if ((checkSig || !extension.length()) && pIOHandler) {
         const char* tokens[] = {"$Filename"};
-        return SearchFileHeaderForToken(pIOHandler, pFile, tokens, 1);
+        return SearchFileHeaderForToken(pIOHandler,pFile,tokens,1);
     }
     return false;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Build a string of all file extensions supported
-const aiImporterDesc* CSMImporter::GetInfo() const
+const aiImporterDesc* CSMImporter::GetInfo () const
 {
     return &desc;
 }
@@ -114,55 +116,58 @@ const aiImporterDesc* CSMImporter::GetInfo() const
 // Setup configuration properties for the loader
 void CSMImporter::SetupProperties(const Importer* pImp)
 {
-    noSkeletonMesh = pImp->GetPropertyInteger(AI_CONFIG_IMPORT_NO_SKELETON_MESHES, 0) != 0;
+    noSkeletonMesh = pImp->GetPropertyInteger(AI_CONFIG_IMPORT_NO_SKELETON_MESHES,0) != 0;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Imports the given file into the given scene structure.
-void CSMImporter::InternReadFile(const std::string& pFile,
+void CSMImporter::InternReadFile( const std::string& pFile,
     aiScene* pScene, IOSystem* pIOHandler)
 {
-    std::unique_ptr<IOStream> file(pIOHandler->Open(pFile, "rb"));
+    std::unique_ptr<IOStream> file( pIOHandler->Open( pFile, "rb"));
 
     // Check whether we can read from the file
-    if (file.get() == NULL) {
-        throw DeadlyImportError("Failed to open CSM file " + pFile + ".");
+    if( file.get() == NULL) {
+        throw DeadlyImportError( "Failed to open CSM file " + pFile + ".");
     }
 
     // allocate storage and copy the contents of the file to a memory buffer
     std::vector<char> mBuffer2;
-    TextFileToBuffer(file.get(), mBuffer2);
+    TextFileToBuffer(file.get(),mBuffer2);
     const char* buffer = &mBuffer2[0];
 
     std::unique_ptr<aiAnimation> anim(new aiAnimation());
-    int                          first = 0, last = 0x00ffffff;
+    int first = 0, last = 0x00ffffff;
 
     // now process the file and look out for '$' sections
-    while (1) {
+    while (1)   {
         SkipSpaces(&buffer);
         if ('\0' == *buffer)
             break;
 
-        if ('$' == *buffer) {
+        if ('$'  == *buffer)    {
             ++buffer;
-            if (TokenMatchI(buffer, "firstframe", 10)) {
+            if (TokenMatchI(buffer,"firstframe",10))    {
                 SkipSpaces(&buffer);
-                first = strtol10(buffer, &buffer);
-            } else if (TokenMatchI(buffer, "lastframe", 9)) {
+                first = strtol10(buffer,&buffer);
+            }
+            else if (TokenMatchI(buffer,"lastframe",9))     {
                 SkipSpaces(&buffer);
-                last = strtol10(buffer, &buffer);
-            } else if (TokenMatchI(buffer, "rate", 4)) {
+                last = strtol10(buffer,&buffer);
+            }
+            else if (TokenMatchI(buffer,"rate",4))  {
                 SkipSpaces(&buffer);
                 float d;
-                buffer                = fast_atoreal_move<float>(buffer, d);
+                buffer = fast_atoreal_move<float>(buffer,d);
                 anim->mTicksPerSecond = d;
-            } else if (TokenMatchI(buffer, "order", 5)) {
-                std::vector<aiNodeAnim*> anims_temp;
+            }
+            else if (TokenMatchI(buffer,"order",5)) {
+                std::vector< aiNodeAnim* > anims_temp;
                 anims_temp.reserve(30);
-                while (1) {
+                while (1)   {
                     SkipSpaces(&buffer);
                     if (IsLineEnd(*buffer) && SkipSpacesAndLineEnd(&buffer) && *buffer == '$')
-                        break;    // next section
+                        break; // next section
 
                     // Construct a new node animation channel and setup its name
                     anims_temp.push_back(new aiNodeAnim());
@@ -172,8 +177,8 @@ void CSMImporter::InternReadFile(const std::string& pFile,
                     while (!IsSpaceOrNewLine(*buffer))
                         *ot++ = *buffer++;
 
-                    *ot                   = '\0';
-                    nda->mNodeName.length = (size_t) (ot - nda->mNodeName.data);
+                    *ot = '\0';
+                    nda->mNodeName.length = (size_t)(ot-nda->mNodeName.data);
                 }
 
                 anim->mNumChannels = static_cast<unsigned int>(anims_temp.size());
@@ -182,62 +187,66 @@ void CSMImporter::InternReadFile(const std::string& pFile,
 
                 // copy over to the output animation
                 anim->mChannels = new aiNodeAnim*[anim->mNumChannels];
-                ::memcpy(anim->mChannels, &anims_temp[0], sizeof(aiNodeAnim*) * anim->mNumChannels);
-            } else if (TokenMatchI(buffer, "points", 6)) {
+                ::memcpy(anim->mChannels,&anims_temp[0],sizeof(aiNodeAnim*)*anim->mNumChannels);
+            }
+            else if (TokenMatchI(buffer,"points",6))    {
                 if (!anim->mNumChannels)
                     throw DeadlyImportError("CSM: \'$order\' section is required to appear prior to \'$points\'");
 
                 // If we know how many frames we'll read, we can preallocate some storage
                 unsigned int alloc = 100;
-                if (last != 0x00ffffff) {
-                    alloc = last - first;
-                    alloc += alloc >> 2u;    // + 25%
-                    for (unsigned int i = 0; i < anim->mNumChannels; ++i)
+                if (last != 0x00ffffff)
+                {
+                    alloc = last-first;
+                    alloc += alloc>>2u; // + 25%
+                    for (unsigned int i = 0; i < anim->mNumChannels;++i)
                         anim->mChannels[i]->mPositionKeys = new aiVectorKey[alloc];
                 }
 
                 unsigned int filled = 0;
 
                 // Now read all point data.
-                while (1) {
+                while (1)   {
                     SkipSpaces(&buffer);
-                    if (IsLineEnd(*buffer) && (!SkipSpacesAndLineEnd(&buffer) || *buffer == '$')) {
-                        break;    // next section
+                    if (IsLineEnd(*buffer) && (!SkipSpacesAndLineEnd(&buffer) || *buffer == '$'))   {
+                        break; // next section
                     }
 
                     // read frame
-                    const int frame = ::strtoul10(buffer, &buffer);
-                    last            = std::max(frame, last);
-                    first           = std::min(frame, last);
-                    for (unsigned int i = 0; i < anim->mNumChannels; ++i) {
+                    const int frame = ::strtoul10(buffer,&buffer);
+                    last  = std::max(frame,last);
+                    first = std::min(frame,last);
+                    for (unsigned int i = 0; i < anim->mNumChannels;++i)    {
+
                         aiNodeAnim* s = anim->mChannels[i];
-                        if (s->mNumPositionKeys == alloc) { /* need to reallocate? */
+                        if (s->mNumPositionKeys == alloc)   { /* need to reallocate? */
 
                             aiVectorKey* old = s->mPositionKeys;
-                            s->mPositionKeys = new aiVectorKey[s->mNumPositionKeys = alloc * 2];
-                            ::memcpy(s->mPositionKeys, old, sizeof(aiVectorKey) * alloc);
+                            s->mPositionKeys = new aiVectorKey[s->mNumPositionKeys = alloc*2];
+                            ::memcpy(s->mPositionKeys,old,sizeof(aiVectorKey)*alloc);
                             delete[] old;
                         }
 
                         // read x,y,z
-                        if (!SkipSpacesAndLineEnd(&buffer))
+                        if(!SkipSpacesAndLineEnd(&buffer))
                             throw DeadlyImportError("CSM: Unexpected EOF occurred reading sample x coord");
 
-                        if (TokenMatchI(buffer, "DROPOUT", 7)) {
+                        if (TokenMatchI(buffer, "DROPOUT", 7))  {
                             // seems this is invalid marker data; at least the doc says it's possible
                             ASSIMP_LOG_WARN("CSM: Encountered invalid marker data (DROPOUT)");
-                        } else {
+                        }
+                        else    {
                             aiVectorKey* sub = s->mPositionKeys + s->mNumPositionKeys;
-                            sub->mTime       = (double) frame;
-                            buffer           = fast_atoreal_move<float>(buffer, (float&) sub->mValue.x);
+                            sub->mTime = (double)frame;
+                            buffer = fast_atoreal_move<float>(buffer, (float&)sub->mValue.x);
 
-                            if (!SkipSpacesAndLineEnd(&buffer))
+                            if(!SkipSpacesAndLineEnd(&buffer))
                                 throw DeadlyImportError("CSM: Unexpected EOF occurred reading sample y coord");
-                            buffer = fast_atoreal_move<float>(buffer, (float&) sub->mValue.y);
+                            buffer = fast_atoreal_move<float>(buffer, (float&)sub->mValue.y);
 
-                            if (!SkipSpacesAndLineEnd(&buffer))
+                            if(!SkipSpacesAndLineEnd(&buffer))
                                 throw DeadlyImportError("CSM: Unexpected EOF occurred reading sample z coord");
-                            buffer = fast_atoreal_move<float>(buffer, (float&) sub->mValue.z);
+                            buffer = fast_atoreal_move<float>(buffer, (float&)sub->mValue.z);
 
                             ++s->mNumPositionKeys;
                         }
@@ -250,39 +259,41 @@ void CSMImporter::InternReadFile(const std::string& pFile,
                     ++filled;
                 }
                 // all channels must be complete in order to continue safely.
-                for (unsigned int i = 0; i < anim->mNumChannels; ++i) {
+                for (unsigned int i = 0; i < anim->mNumChannels;++i)    {
+
                     if (!anim->mChannels[i]->mNumPositionKeys)
                         throw DeadlyImportError("CSM: Invalid marker track");
                 }
             }
-        } else {
+        }
+        else    {
             // advance to the next line
             SkipLine(&buffer);
         }
     }
 
     // Setup a proper animation duration
-    anim->mDuration = last - std::min(first, 0);
+    anim->mDuration = last - std::min( first, 0 );
 
     // build a dummy root node with the tiny markers as children
     pScene->mRootNode = new aiNode();
     pScene->mRootNode->mName.Set("$CSM_DummyRoot");
 
     pScene->mRootNode->mNumChildren = anim->mNumChannels;
-    pScene->mRootNode->mChildren    = new aiNode*[anim->mNumChannels];
+    pScene->mRootNode->mChildren = new aiNode* [anim->mNumChannels];
 
-    for (unsigned int i = 0; i < anim->mNumChannels; ++i) {
+    for (unsigned int i = 0; i < anim->mNumChannels;++i)    {
         aiNodeAnim* na = anim->mChannels[i];
 
-        aiNode* nd = pScene->mRootNode->mChildren[i] = new aiNode();
-        nd->mName                                    = anim->mChannels[i]->mNodeName;
-        nd->mParent                                  = pScene->mRootNode;
+        aiNode* nd  = pScene->mRootNode->mChildren[i] = new aiNode();
+        nd->mName   = anim->mChannels[i]->mNodeName;
+        nd->mParent = pScene->mRootNode;
 
         aiMatrix4x4::Translation(na->mPositionKeys[0].mValue, nd->mTransformation);
     }
 
     // Store the one and only animation in the scene
-    pScene->mAnimations = new aiAnimation*[pScene->mNumAnimations = 1];
+    pScene->mAnimations    = new aiAnimation*[pScene->mNumAnimations=1];
     anim->mName.Set("$CSM_MasterAnim");
     pScene->mAnimations[0] = anim.release();
 
@@ -290,8 +301,8 @@ void CSMImporter::InternReadFile(const std::string& pFile,
     pScene->mFlags |= AI_SCENE_FLAGS_INCOMPLETE;
 
     if (!noSkeletonMesh) {
-        SkeletonMeshBuilder maker(pScene, pScene->mRootNode, true);
+        SkeletonMeshBuilder maker(pScene,pScene->mRootNode,true);
     }
 }
 
-#endif    // !! ASSIMP_BUILD_NO_CSM_IMPORTER
+#endif // !! ASSIMP_BUILD_NO_CSM_IMPORTER

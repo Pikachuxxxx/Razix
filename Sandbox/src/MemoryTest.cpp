@@ -66,6 +66,7 @@ public:
 
     void OnStart() override
     {
+    #if 0
         // Testing the HeapAllocator
         {
             Razix::Memory::RZHeapAllocator heapAlloc;
@@ -109,6 +110,7 @@ public:
             //}
         }
 
+
         // Add a directional light for test
         auto lightEnitties = RZSceneManager::Get().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
         if (!lightEnitties.size()) {
@@ -138,7 +140,6 @@ public:
             }
         }
 
-    #if 0
         // PBR materials test
         {
             int nrRows    = 7;
@@ -183,5 +184,5 @@ Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
     return new MemoryTest();
 }
 
-    RAZIX_PLATFORM_MAIN
+RAZIX_PLATFORM_MAIN
 #endif

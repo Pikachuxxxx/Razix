@@ -46,86 +46,90 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef ASSIMP_BUILD_NO_FBX_IMPORTER
 
-    #include "FBXDocumentUtil.h"
-    #include "FBXDocument.h"
-    #include "FBXParser.h"
-    #include "FBXProperties.h"
-    #include "FBXUtil.h"
+#include "FBXParser.h"
+#include "FBXDocument.h"
+#include "FBXUtil.h"
+#include "FBXDocumentUtil.h"
+#include "FBXProperties.h"
+
 
 namespace Assimp {
-    namespace FBX {
-        namespace Util {
+namespace FBX {
+namespace Util {
 
-            // ------------------------------------------------------------------------------------------------
-            // signal DOM construction error, this is always unrecoverable. Throws DeadlyImportError.
-            void DOMError(const std::string& message, const Token& token)
-            {
-                throw DeadlyImportError(Util::AddTokenText("FBX-DOM", message, &token));
-            }
+// ------------------------------------------------------------------------------------------------
+// signal DOM construction error, this is always unrecoverable. Throws DeadlyImportError.
+void DOMError(const std::string& message, const Token& token)
+{
+    throw DeadlyImportError(Util::AddTokenText("FBX-DOM",message,&token));
+}
 
-            // ------------------------------------------------------------------------------------------------
-            void DOMError(const std::string& message, const Element* element /*= NULL*/)
-            {
-                if (element) {
-                    DOMError(message, element->KeyToken());
-                }
-                throw DeadlyImportError("FBX-DOM " + message);
-            }
+// ------------------------------------------------------------------------------------------------
+void DOMError(const std::string& message, const Element* element /*= NULL*/)
+{
+    if(element) {
+        DOMError(message,element->KeyToken());
+    }
+    throw DeadlyImportError("FBX-DOM " + message);
+}
 
-            // ------------------------------------------------------------------------------------------------
-            // print warning, do return
-            void DOMWarning(const std::string& message, const Token& token)
-            {
-                if (DefaultLogger::get()) {
-                    ASSIMP_LOG_WARN(Util::AddTokenText("FBX-DOM", message, &token));
-                }
-            }
 
-            // ------------------------------------------------------------------------------------------------
-            void DOMWarning(const std::string& message, const Element* element /*= NULL*/)
-            {
-                if (element) {
-                    DOMWarning(message, element->KeyToken());
-                    return;
-                }
-                if (DefaultLogger::get()) {
-                    ASSIMP_LOG_WARN("FBX-DOM: " + message);
-                }
-            }
+// ------------------------------------------------------------------------------------------------
+// print warning, do return
+void DOMWarning(const std::string& message, const Token& token)
+{
+    if(DefaultLogger::get()) {
+        ASSIMP_LOG_WARN(Util::AddTokenText("FBX-DOM",message,&token));
+    }
+}
 
-            // ------------------------------------------------------------------------------------------------
-            // fetch a property table and the corresponding property template
-            std::shared_ptr<const PropertyTable> GetPropertyTable(const Document& doc,
-                const std::string&                                                templateName,
-                const Element&                                                    element,
-                const Scope&                                                      sc,
-                bool                                                              no_warn /*= false*/)
-            {
-                const Element* const                 Properties70  = sc["Properties70"];
-                std::shared_ptr<const PropertyTable> templateProps = std::shared_ptr<const PropertyTable>(
-                    static_cast<const PropertyTable*>(NULL));
+// ------------------------------------------------------------------------------------------------
+void DOMWarning(const std::string& message, const Element* element /*= NULL*/)
+{
+    if(element) {
+        DOMWarning(message,element->KeyToken());
+        return;
+    }
+    if(DefaultLogger::get()) {
+        ASSIMP_LOG_WARN("FBX-DOM: " + message);
+    }
+}
 
-                if (templateName.length()) {
-                    PropertyTemplateMap::const_iterator it = doc.Templates().find(templateName);
-                    if (it != doc.Templates().end()) {
-                        templateProps = (*it).second;
-                    }
-                }
 
-                if (!Properties70 || !Properties70->Compound()) {
-                    if (!no_warn) {
-                        DOMWarning("property table (Properties70) not found", &element);
-                    }
-                    if (templateProps) {
-                        return templateProps;
-                    } else {
-                        return std::make_shared<const PropertyTable>();
-                    }
-                }
-                return std::make_shared<const PropertyTable>(*Properties70, templateProps);
-            }
-        }    // namespace Util
-    }    // namespace FBX
-}    // namespace Assimp
+// ------------------------------------------------------------------------------------------------
+// fetch a property table and the corresponding property template
+std::shared_ptr<const PropertyTable> GetPropertyTable(const Document& doc,
+    const std::string& templateName,
+    const Element &element,
+    const Scope& sc,
+    bool no_warn /*= false*/)
+{
+    const Element* const Properties70 = sc["Properties70"];
+    std::shared_ptr<const PropertyTable> templateProps = std::shared_ptr<const PropertyTable>(
+        static_cast<const PropertyTable*>(NULL));
+
+    if(templateName.length()) {
+        PropertyTemplateMap::const_iterator it = doc.Templates().find(templateName);
+        if(it != doc.Templates().end()) {
+            templateProps = (*it).second;
+        }
+    }
+
+    if(!Properties70 || !Properties70->Compound()) {
+        if(!no_warn) {
+            DOMWarning("property table (Properties70) not found",&element);
+        }
+        if(templateProps) {
+            return templateProps;
+        }
+        else {
+            return std::make_shared<const PropertyTable>();
+        }
+    }
+    return std::make_shared<const PropertyTable>(*Properties70,templateProps);
+}
+} // !Util
+} // !FBX
+} // !Assimp
 
 #endif
