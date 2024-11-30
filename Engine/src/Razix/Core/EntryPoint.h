@@ -17,16 +17,32 @@ extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
     #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
 // TODO: Change this back to WinMain, since we are use the logging system to output to console we use an Console App instead of an Widowed App
-//
-
 // https://www.gamedev.net/forums/topic/251536-how-to-run-console-window-main-from-winmain/
-void main(int argc, char** argv)
+// https://stackoverflow.com/questions/191842/how-do-i-get-console-output-in-c-with-a-windows-program
+
+static int AttachConsole(void)
 {
-    printf("[Razix Console Window]");
-    AllocConsole();
-    freopen("CONOUT$", "w+", stdout);
-    freopen("CONOUT$", "w+", stderr);
-    freopen("CONOUT$", "w+", stdin);
+    if (!AllocConsole()) {
+        MessageBox(NULL, L"AllocConsole failed", L"Error", MB_OK | MB_ICONERROR);
+        return -1;    // Exit the application or handle the error appropriately
+    }
+
+    FILE* pFile;
+    if (freopen_s(&pFile, "CONOUT$", "w", stdout) != 0) {
+        MessageBox(NULL, L"Failed to redirect stdout", L"Error", MB_OK | MB_ICONERROR);
+        return -1;    // Exit the application or handle the error appropriately
+    }
+
+    if (freopen_s(&pFile, "CONIN$", "r", stdin) != 0) {
+        MessageBox(NULL, L"Failed to redirect stdin", L"Error", MB_OK | MB_ICONERROR);
+        return -1;
+    }
+
+    if (freopen_s(&pFile, "CONOUT$", "w", stderr) != 0) {
+        MessageBox(NULL, L"Failed to redirect stderr", L"Error", MB_OK | MB_ICONERROR);
+        return -1;
+    }
+    return 0;
 }
 
     #ifndef NOMINMAX
@@ -34,13 +50,12 @@ void main(int argc, char** argv)
     #endif
     //
     #include <windows.h>
-    #pragma comment(linker, "/subsystem:windows")
 
     #define RAZIX_PLATFORM_MAIN                                                                           \
         int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) \
         {                                                                                                 \
+            AttachConsole();                                                                              \
             ShowWindow(GetConsoleWindow(), SW_SHOW);                                                      \
-            main(__argc, __argv);                                                                         \
             EngineMain(__argc, __argv);                                                                   \
             while (Razix::RZApplication::Get().RenderFrame()) {                                           \
             }                                                                                             \
@@ -49,7 +64,7 @@ void main(int argc, char** argv)
             Razix::RZApplication::Get().SaveApp();                                                        \
                                                                                                           \
             EngineExit();                                                                                 \
-                                                                                                          \
+            FreeConsole();                                                                                \
             return EXIT_SUCCESS;                                                                          \
         }
 

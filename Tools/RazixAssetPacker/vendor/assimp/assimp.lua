@@ -161,8 +161,6 @@ project "assimp"
   }
 
     filter "system:windows"
-        systemversion "latest"
-        cppdialect (engine_global_config.cpp_dialect)
         staticruntime "off"
 
     filter "configurations:Debug"
