@@ -389,8 +389,8 @@ project "Razix"
         postbuildcommands
         {
             -- copy vulkan DLL until we use volk
-            --'{COPY}  "%{VulkanSDK}/lib/libvulkan.dylib" "%{cfg.targetdir}/libvulkan.dylib"',
-            --'{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.targetdir}/libvulkan.1.dylib"'
+            '{COPY}  "%{VulkanSDK}/lib/libvulkan.dylib" "%{cfg.targetdir}/libvulkan.dylib"',
+            '{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.targetdir}/libvulkan.1.dylib"'
             -- we are using RAZIX_ROOT_DIR for now
             -- Copy the engine content folder with subdirectories: config, Fonts, FrameGraphs, Logos, Shaders/Compiled, Splash, Textures
             -- [Docs]: https://linux.die.net/man/1/rsync
