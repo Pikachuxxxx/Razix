@@ -66,6 +66,11 @@ public:
 
     void OnStart() override
     {
+        int n = 5;
+        unsigned int n_ = rzstl::bitmanip::flipBits(n);
+        RAZIX_INFO("ans: {0}", n | n_);
+
+
     #if 0
         // Testing the HeapAllocator
         {
