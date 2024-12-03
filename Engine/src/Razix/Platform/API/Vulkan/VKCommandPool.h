@@ -36,6 +36,6 @@ namespace Razix {
         private:
             VkCommandPool m_CmdPool = VK_NULL_HANDLE; /* Handle to vulkan command pool */
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

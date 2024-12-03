@@ -40,6 +40,8 @@ group "Engine/content"
             "content/Shaders/Generated/**"
         }
 
+    -- Note: All shaders are built using SM6
+
     -- TODO: Add as rules, every shader file type will have it's own rule
     -- TODO: customize per build config, release/distr shaders will need signing and extra optimization flags (-O3 etc.)
     -- Don't build the these shader types, they are compiled by the engine once and cached/include only

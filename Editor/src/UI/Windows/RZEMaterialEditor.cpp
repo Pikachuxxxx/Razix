@@ -160,7 +160,10 @@ namespace Razix {
 
             auto& matTextures = m_Material->getTextures();
             //matTextures.albedo->Release();
-            matTextures.albedo = Gfx::RZResourceManager::Get().createTexture({.name = fileName.toStdString(), .filePath = fileName.toStdString()});
+            Razix::Gfx::RZTextureDesc textureDesc;
+            textureDesc.name   = fileName.toStdString();
+            textureDesc.name   = fileName.toStdString();
+            matTextures.albedo = Gfx::RZResourceManager::Get().createTexture(textureDesc);
 
             m_Material->setTextures(matTextures);
         }
@@ -208,7 +211,10 @@ namespace Razix {
 
             auto& matTextures = m_Material->getTextures();
             //matTextures.albedo->Release();
-            matTextures.specular = Gfx::RZResourceManager::Get().createTexture({.name = fileName.toStdString(), .filePath = fileName.toStdString()});
+            Razix::Gfx::RZTextureDesc textureDesc;
+            textureDesc.name     = fileName.toStdString();
+            textureDesc.name     = fileName.toStdString();
+            matTextures.specular = Gfx::RZResourceManager::Get().createTexture(textureDesc);
 
             m_Material->setTextures(matTextures);
         }
@@ -235,8 +241,11 @@ namespace Razix {
             memcpy(matTexturePaths.normal, fileName.toStdString().c_str(), 250);
             m_Material->setTexturePaths(matTexturePaths);
 
-            auto& matTextures  = m_Material->getTextures();
-            matTextures.normal = Gfx::RZResourceManager::Get().createTexture({.name = fileName.toStdString(), .filePath = fileName.toStdString()});
+            auto&                     matTextures = m_Material->getTextures();
+            Razix::Gfx::RZTextureDesc textureDesc;
+            textureDesc.name   = fileName.toStdString();
+            textureDesc.name   = fileName.toStdString();
+            matTextures.normal = Gfx::RZResourceManager::Get().createTexture(textureDesc);
             m_Material->setTextures(matTextures);
         }
         //---------------------------------------------------------------------------
@@ -266,8 +275,11 @@ namespace Razix {
             memcpy(matTexturePaths.metallic, fileName.toStdString().c_str(), 250);
             m_Material->setTexturePaths(matTexturePaths);
 
-            auto& matTextures    = m_Material->getTextures();
-            matTextures.metallic = Gfx::RZResourceManager::Get().createTexture({.name = fileName.toStdString(), .filePath = fileName.toStdString()});
+            auto&                     matTextures = m_Material->getTextures();
+            Razix::Gfx::RZTextureDesc textureDesc;
+            textureDesc.name     = fileName.toStdString();
+            textureDesc.name     = fileName.toStdString();
+            matTextures.metallic = Gfx::RZResourceManager::Get().createTexture(textureDesc);
             m_Material->setTextures(matTextures);
         }
         //---------------------------------------------------------------------------
@@ -297,8 +309,11 @@ namespace Razix {
             memcpy(matTexturePaths.roughness, fileName.toStdString().c_str(), 250);
             m_Material->setTexturePaths(matTexturePaths);
 
-            auto& matTextures     = m_Material->getTextures();
-            matTextures.roughness = Gfx::RZResourceManager::Get().createTexture({.name = fileName.toStdString(), .filePath = fileName.toStdString()});
+            auto&                     matTextures = m_Material->getTextures();
+            Razix::Gfx::RZTextureDesc textureDesc;
+            textureDesc.name      = fileName.toStdString();
+            textureDesc.name      = fileName.toStdString();
+            matTextures.roughness = Gfx::RZResourceManager::Get().createTexture(textureDesc);
             m_Material->setTextures(matTextures);
         }
         //---------------------------------------------------------------------------
@@ -339,8 +354,11 @@ namespace Razix {
             memcpy(matTexturePaths.ao, fileName.toStdString().c_str(), 250);
             m_Material->setTexturePaths(matTexturePaths);
 
-            auto& matTextures = m_Material->getTextures();
-            matTextures.ao    = Gfx::RZResourceManager::Get().createTexture({.name = fileName.toStdString(), .filePath = fileName.toStdString()});
+            auto&                     matTextures = m_Material->getTextures();
+            Razix::Gfx::RZTextureDesc textureDesc;
+            textureDesc.name = fileName.toStdString();
+            textureDesc.name = fileName.toStdString();
+            matTextures.ao   = Gfx::RZResourceManager::Get().createTexture(textureDesc);
             m_Material->setTextures(matTextures);
         }
 

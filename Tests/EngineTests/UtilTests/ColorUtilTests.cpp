@@ -83,4 +83,4 @@ namespace Razix {
         EXPECT_EQ(g, static_cast<uint8_t>(color.g * 255.0f)) << "Green channel is incorrect.";
         EXPECT_EQ(b, static_cast<uint8_t>(color.b * 255.0f)) << "Blue channel is incorrect.";
     }
-}
+}    // namespace Razix

@@ -1,6 +1,6 @@
 // HandleTests.cpp
 // AI-generated unit tests for the RZHandle class
-#include <Razix/Core/RZHandle.h> 
+#include <Razix/Core/RZHandle.h>
 #include <gtest/gtest.h>
 
 namespace Razix {

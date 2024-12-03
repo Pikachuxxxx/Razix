@@ -93,5 +93,5 @@ namespace Razix {
             void updateVertexData();
             void updateDescriptorSets();
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -9,7 +9,7 @@
 namespace Razix {
     namespace Gfx {
 
-        class RZHelloTrianglePass final : public IRZPass
+        class RZWaveInstrinsicsTestPass : public IRZPass
         {
         public:
             void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
@@ -18,5 +18,5 @@ namespace Razix {
         private:
             RZPipelineHandle m_Pipeline;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

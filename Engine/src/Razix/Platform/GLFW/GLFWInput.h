@@ -18,8 +18,8 @@ namespace Razix {
         bool IsMouseButtonHeldImpl(int button) override;
 
         std::pair<f32, f32> GetMousePositionImpl() override;
-        f32                   GetMouseXImpl() override;
-        f32                   GetMouseYImpl() override;
+        f32                 GetMouseXImpl() override;
+        f32                 GetMouseYImpl() override;
     };
 
 }    // namespace Razix

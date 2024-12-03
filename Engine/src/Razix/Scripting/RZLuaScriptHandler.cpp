@@ -25,7 +25,7 @@ namespace Razix {
 
             // Load lua default libraries that can be used by the client
             m_State = luaL_newstate();
-            luaL_openlibs(m_State); // Load standard libraries 
+            luaL_openlibs(m_State);    // Load standard libraries
 
             // [] Bind the Engine Systems Scripting API to be exposed to user via lua (windowing etc.)
             bindApplicationAPI();
@@ -85,8 +85,8 @@ namespace Razix {
 
             for (auto entity: view) {
                 auto& luaScript = registry.get<LuaScriptComponent>(entity);
-                luaScript.OnUpdate(RZEntity(entity, scene) , dt);
-            } 
+                luaScript.OnUpdate(RZEntity(entity, scene), dt);
+            }
         }
 
         void RZLuaScriptHandler::OnImGui(RZScene* scene)

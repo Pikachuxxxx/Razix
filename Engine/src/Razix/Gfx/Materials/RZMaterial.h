@@ -66,5 +66,5 @@ namespace Razix {
 
         RZMaterial* GetDefaultMaterial();
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

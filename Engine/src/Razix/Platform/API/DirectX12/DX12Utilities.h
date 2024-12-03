@@ -139,7 +139,7 @@ namespace Razix {
             // I3DXXXX* ShaderStageToDX12(Razix::Gfx::ShaderStage stage);
 
         }    // namespace DX12Utilities
-    }        // namespace Gfx
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

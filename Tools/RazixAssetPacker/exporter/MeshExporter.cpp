@@ -240,5 +240,5 @@ namespace Razix {
                 return true;
             }
         }    // namespace AssetPacker
-    }        // namespace Tool
+    }    // namespace Tool
 }    // namespace Razix

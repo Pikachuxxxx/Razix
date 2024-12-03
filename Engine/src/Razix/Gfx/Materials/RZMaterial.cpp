@@ -56,7 +56,7 @@ namespace Razix {
             pinkDefDesc.data   = pinkTextureDataRaw;
             pinkDefDesc.size   = sizeof(u8) * 4;
             pinkDefDesc.format = TextureFormat::RGBA8;
-            s_DefaultTexture = RZResourceManager::Get().createTexture(pinkDefDesc);
+            s_DefaultTexture   = RZResourceManager::Get().createTexture(pinkDefDesc);
         }
 
         void RZMaterial::ReleaseDefaultTexture()
@@ -70,7 +70,7 @@ namespace Razix {
             setName(m_Name);
             // Using the Name of the Material search the //Assets/Materials + MeshName_MaterialName.rzmaterial file and load it and set the material Data
             Razix::Gfx::MaterialData matData{};
-            std::string                   matPhysicalPath;
+            std::string              matPhysicalPath;
             if (RZVirtualFileSystem::Get().resolvePhysicalPath(path, matPhysicalPath)) {
                 if (!matPhysicalPath.empty()) {
                     std::ifstream AppStream;
@@ -356,5 +356,5 @@ namespace Razix {
             } else
                 return DefaultMaterial;
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -7,7 +7,7 @@ namespace Razix {
     class RAZIX_API RZOS
     {
     public:
-        RZOS()  = default;
+        RZOS()          = default;
         virtual ~RZOS() = default;
 
         /* Destroys the OS instance */

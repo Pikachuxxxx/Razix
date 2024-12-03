@@ -28,6 +28,7 @@ namespace Razix {
 
             void setWidth(uint32_t val) { m_Data.Width = val; }
             void setHeight(uint32_t val) { m_Data.Height = val; }
+            void setTitle(const char* title) override;
 
             EventCallbackFn& getEventCallbackFunc() { return EventCallback; }
 

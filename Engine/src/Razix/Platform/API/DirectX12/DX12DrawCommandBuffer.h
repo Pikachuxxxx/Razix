@@ -32,6 +32,6 @@ namespace Razix {
             ID3D12GraphicsCommandList2* m_CommandList      = nullptr; /* Handle to the DX12 command buffer that will be executed by the GPU */
             ID3D12CommandAllocator*     m_CommandAllocator = nullptr; /* Handle to the command allocator from which this buffer was allocated from */
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

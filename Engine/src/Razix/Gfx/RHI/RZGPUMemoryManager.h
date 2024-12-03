@@ -22,5 +22,5 @@ namespace Razix {
             Razix::Memory::RZHeapAllocator m_VideoAllocator; /* Persistently mapped GPU memory allocator */
             //Razix::Memory::RZRingAllocator m_VideoRingAllocator;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

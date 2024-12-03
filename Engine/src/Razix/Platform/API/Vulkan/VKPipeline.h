@@ -23,8 +23,8 @@ namespace Razix {
             inline const VkPipelineLayout& getPipelineLayout() const { return m_PipelineLayout; }
 
         private:
-            VkPipelineLayout m_PipelineLayout; // TODO: Remove this, replace it with RZRootSignature (from shader FX)
+            VkPipelineLayout m_PipelineLayout;    // TODO: Remove this, replace it with RZRootSignature (from shader FX)
             VkPipeline       m_Pipeline;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -100,5 +100,5 @@ namespace Razix {
                 std::string                                           m_FinalOutputName = "SceneHDR";
             };
         }    // namespace FrameGraph
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

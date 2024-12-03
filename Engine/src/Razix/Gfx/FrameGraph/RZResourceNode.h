@@ -38,5 +38,5 @@ namespace Razix {
                 RZPassNode* m_Last            = nullptr;                 /* Next Pass Node that will read this resource, used to create edges in graph                          */
             };
         }    // namespace FrameGraph
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

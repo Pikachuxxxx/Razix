@@ -5,15 +5,15 @@
 #ifdef RAZIX_APPLE_SILICON
     #include <arm_neon.h>
 
-#ifdef __clang__
-    #define SIMDE_ENABLE_NATIVE_ALIASES
-    #define SIMDE_X86_AVX_ENABLE_NATIVE_ALIASES
+    #ifdef __clang__
+        #define SIMDE_ENABLE_NATIVE_ALIASES
+        #define SIMDE_X86_AVX_ENABLE_NATIVE_ALIASES
 
-    #include <simde/x86/avx.h>     // AVX
-    #include <simde/x86/avx2.h>    // AVX
-    #include <simde/x86/sse4.1.h>
-    #include <simde/arm/neon.h>
-#endif
+        #include <simde/arm/neon.h>
+        #include <simde/x86/avx.h>     // AVX
+        #include <simde/x86/avx2.h>    // AVX
+        #include <simde/x86/sse4.1.h>
+    #endif
 #endif
 
 namespace Razix {

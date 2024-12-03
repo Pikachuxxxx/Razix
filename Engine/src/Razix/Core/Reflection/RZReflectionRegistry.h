@@ -32,7 +32,7 @@ namespace Razix {
         // ADD MORE HERE
         COUNT
     };
-    static_assert((int)MetaDataViewHint::COUNT == 11);
+    static_assert((int) MetaDataViewHint::COUNT == 11);
 
     class RZTypeRegistry
     {

@@ -40,7 +40,7 @@ namespace Razix {
             ID3D12Resource*         m_IndexBufferResource = nullptr;
             D3D12_INDEX_BUFFER_VIEW m_IndexBufferView     = {};
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

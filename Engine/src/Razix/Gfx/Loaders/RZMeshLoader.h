@@ -10,5 +10,5 @@ namespace Razix {
 
         RZMesh*     loadMesh(const std::string& filePath);
         RZMaterial* loadMaterial(const std::string& materialName, const std::string& folderNam);
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

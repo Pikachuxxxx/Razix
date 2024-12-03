@@ -32,5 +32,5 @@ namespace Razix {
             //VKBuffer::destroy();
         }
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

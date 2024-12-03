@@ -13,25 +13,24 @@
 // for packet_traits<Packet*>
 // => The only workaround would be to wrap _m128 and the likes
 //    within wrappers.
-#if EIGEN_GNUC_AT_LEAST(6,0)
+#if EIGEN_GNUC_AT_LEAST(6, 0)
     #pragma GCC diagnostic ignored "-Wignored-attributes"
 #endif
 
-#define GET(i,j) (StorageOrder == RowMajor ? (i)*stride + (j) : (i) + (j)*stride)
-#define SCATTER(i,j,k) (StorageOrder == RowMajor ? ((i)+(k))*stride + (j) : (i) + ((j)+(k))*stride)
+#define GET(i, j)        (StorageOrder == RowMajor ? (i) * stride + (j) : (i) + (j) * stride)
+#define SCATTER(i, j, k) (StorageOrder == RowMajor ? ((i) + (k)) * stride + (j) : (i) + ((j) + (k)) * stride)
 
 template<typename Scalar, typename Packet>
 void compare(const Packet& a, const Packet& b)
 {
-    int pktsz = internal::packet_traits<Scalar>::size;
-    Scalar *buffA = new Scalar[pktsz];
-    Scalar *buffB = new Scalar[pktsz];
+    int     pktsz = internal::packet_traits<Scalar>::size;
+    Scalar* buffA = new Scalar[pktsz];
+    Scalar* buffB = new Scalar[pktsz];
 
     internal::pstoreu<Scalar, Packet>(buffA, a);
     internal::pstoreu<Scalar, Packet>(buffB, b);
 
-    for(int i = 0; i < pktsz; i++)
-    {
+    for (int i = 0; i < pktsz; i++) {
         VERIFY_IS_EQUAL(buffA[i], buffB[i]);
     }
 
@@ -44,19 +43,17 @@ struct PacketBlockSet
 {
     typedef typename internal::packet_traits<Scalar>::type Packet;
 
-    void setPacketBlock(internal::PacketBlock<Packet,n>& block, Scalar value)
+    void setPacketBlock(internal::PacketBlock<Packet, n>& block, Scalar value)
     {
-        for(int idx = 0; idx < n; idx++)
-        {
+        for (int idx = 0; idx < n; idx++) {
             block.packet[idx] = internal::pset1<Packet>(value);
         }
     }
 
-    void comparePacketBlock(Scalar *data, int i, int j, int stride, internal::PacketBlock<Packet, n>& block)
+    void comparePacketBlock(Scalar* data, int i, int j, int stride, internal::PacketBlock<Packet, n>& block)
     {
-        for(int idx = 0; idx < n; idx++)
-        {
-            Packet line = internal::ploadu<Packet>(data + SCATTER(i,j,idx));
+        for (int idx = 0; idx < n; idx++) {
+            Packet line = internal::ploadu<Packet>(data + SCATTER(i, j, idx));
             compare<Scalar, Packet>(block.packet[idx], line);
         }
     }
@@ -66,88 +63,74 @@ template<typename Scalar, int StorageOrder, int BlockSize>
 void run_bdmp_spec_1()
 {
     typedef internal::blas_data_mapper<Scalar, int, StorageOrder> BlasDataMapper;
-    int packetSize = internal::packet_traits<Scalar>::size;
-    int minSize = std::max<int>(packetSize, BlockSize);
-    typedef typename internal::packet_traits<Scalar>::type Packet;
+    int                                                           packetSize = internal::packet_traits<Scalar>::size;
+    int                                                           minSize    = std::max<int>(packetSize, BlockSize);
+    typedef typename internal::packet_traits<Scalar>::type        Packet;
 
-    int szm = internal::random<int>(minSize,500), szn = internal::random<int>(minSize,500);
-    int stride = StorageOrder == RowMajor ? szn : szm;
-    Scalar *d = new Scalar[szn*szm];
+    int     szm = internal::random<int>(minSize, 500), szn = internal::random<int>(minSize, 500);
+    int     stride = StorageOrder == RowMajor ? szn : szm;
+    Scalar* d      = new Scalar[szn * szm];
 
     // Initializing with random entries
-    for(int i = 0; i < szm*szn; i++)
-    {
+    for (int i = 0; i < szm * szn; i++) {
         d[i] = internal::random<Scalar>(static_cast<Scalar>(3), static_cast<Scalar>(10));
     }
 
     BlasDataMapper bdm(d, stride);
 
     // Testing operator()
-    for(int i = 0; i < szm; i++)
-    {
-        for(int j = 0; j < szn; j++)
-        {
-            VERIFY_IS_EQUAL(d[GET(i,j)], bdm(i,j));
+    for (int i = 0; i < szm; i++) {
+        for (int j = 0; j < szn; j++) {
+            VERIFY_IS_EQUAL(d[GET(i, j)], bdm(i, j));
         }
     }
 
     // Testing getSubMapper and getLinearMapper
-    int i0 = internal::random<int>(0,szm-2);
-    int j0 = internal::random<int>(0,szn-2);
-    for(int i = i0; i < szm; i++)
-    {
-        for(int j = j0; j < szn; j++)
-        {
-            const BlasDataMapper& bdmSM = bdm.getSubMapper(i0,j0);
-            const internal::BlasLinearMapper<Scalar, int, 0>& bdmLM = bdm.getLinearMapper(i0,j0);
+    int i0 = internal::random<int>(0, szm - 2);
+    int j0 = internal::random<int>(0, szn - 2);
+    for (int i = i0; i < szm; i++) {
+        for (int j = j0; j < szn; j++) {
+            const BlasDataMapper&                             bdmSM = bdm.getSubMapper(i0, j0);
+            const internal::BlasLinearMapper<Scalar, int, 0>& bdmLM = bdm.getLinearMapper(i0, j0);
 
-            Scalar v = bdmSM(i - i0, j - j0);
-            Scalar vd = d[GET(i,j)];
+            Scalar v  = bdmSM(i - i0, j - j0);
+            Scalar vd = d[GET(i, j)];
             VERIFY_IS_EQUAL(vd, v);
-            VERIFY_IS_EQUAL(vd, bdmLM(GET(i-i0, j-j0)));
+            VERIFY_IS_EQUAL(vd, bdmLM(GET(i - i0, j - j0)));
         }
     }
 
     // Testing loadPacket
-    for(int i = 0; i < szm - minSize; i++)
-    {
-        for(int j = 0; j < szn - minSize; j++)
-        {
-            Packet pktBDM = bdm.template loadPacket<Packet>(i,j);
-            Packet pktD = internal::ploadu<Packet>(d + GET(i,j));
+    for (int i = 0; i < szm - minSize; i++) {
+        for (int j = 0; j < szn - minSize; j++) {
+            Packet pktBDM = bdm.template loadPacket<Packet>(i, j);
+            Packet pktD   = internal::ploadu<Packet>(d + GET(i, j));
 
             compare<Scalar, Packet>(pktBDM, pktD);
         }
     }
 
     // Testing gatherPacket
-    Scalar *buff = new Scalar[packetSize];
-    for(int i = 0; i < szm - minSize; i++)
-    {
-        for(int j = 0; j < szn - minSize; j++)
-        {
-            Packet p = bdm.template gatherPacket<Packet>(i,j);
+    Scalar* buff = new Scalar[packetSize];
+    for (int i = 0; i < szm - minSize; i++) {
+        for (int j = 0; j < szn - minSize; j++) {
+            Packet p = bdm.template gatherPacket<Packet>(i, j);
             internal::pstoreu<Scalar, Packet>(buff, p);
 
-            for(int k = 0; k < packetSize; k++)
-            {
-                VERIFY_IS_EQUAL(d[SCATTER(i,j,k)], buff[k]);
+            for (int k = 0; k < packetSize; k++) {
+                VERIFY_IS_EQUAL(d[SCATTER(i, j, k)], buff[k]);
             }
-
         }
     }
     delete[] buff;
 
     // Testing scatterPacket
-    for(int i = 0; i < szm - minSize; i++)
-    {
-        for(int j = 0; j < szn - minSize; j++)
-        {
+    for (int i = 0; i < szm - minSize; i++) {
+        for (int j = 0; j < szn - minSize; j++) {
             Packet p = internal::pset1<Packet>(static_cast<Scalar>(1));
-            bdm.template scatterPacket<Packet>(i,j,p);
-            for(int k = 0; k < packetSize; k++)
-            {
-                VERIFY_IS_EQUAL(d[SCATTER(i,j,k)], static_cast<Scalar>(1));
+            bdm.template scatterPacket<Packet>(i, j, p);
+            for (int k = 0; k < packetSize; k++) {
+                VERIFY_IS_EQUAL(d[SCATTER(i, j, k)], static_cast<Scalar>(1));
             }
         }
     }
@@ -158,10 +141,8 @@ void run_bdmp_spec_1()
     PacketBlockSet<Scalar, StorageOrder, BlockSize> pbs;
     pbs.setPacketBlock(block, static_cast<Scalar>(2));
 
-    for(int i = 0; i < szm - minSize; i++)
-    {
-        for(int j = 0; j < szn - minSize; j++)
-        {
+    for (int i = 0; i < szm - minSize; i++) {
+        for (int j = 0; j < szn - minSize; j++) {
             bdm.template storePacketBlock<Packet, BlockSize>(i, j, block);
 
             pbs.comparePacketBlock(d, i, j, stride, block);
@@ -188,8 +169,7 @@ void run_test()
 
 EIGEN_DECLARE_TEST(blasutil)
 {
-    for(int i = 0; i < g_repeat; i++)
-    {
+    for (int i = 0; i < g_repeat; i++) {
         CALL_SUBTEST_1(run_test<numext::int8_t>());
         CALL_SUBTEST_2(run_test<numext::int16_t>());
         CALL_SUBTEST_3(run_test<numext::int32_t>());

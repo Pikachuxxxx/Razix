@@ -13,5 +13,5 @@ namespace Razix {
             }
         }    // namespace FrameGraph
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

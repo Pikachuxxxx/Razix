@@ -3,6 +3,3 @@
 // clang-format on
 
 #include "RZWorld.h"
-
-
-

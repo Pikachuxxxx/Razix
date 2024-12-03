@@ -181,5 +181,5 @@ namespace Razix {
             return &time_query;
         }
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

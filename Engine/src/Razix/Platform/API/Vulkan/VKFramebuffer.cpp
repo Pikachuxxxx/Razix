@@ -19,8 +19,8 @@ namespace Razix {
             m_Height          = frameBufInfo.height;
             m_AttachmentCount = frameBufInfo.attachmentCount;
 
-            std::vector<VkImageView> attachments;
-            RenderPassAttachmentInfo*          attachmentTypes = frameBufInfo.renderPass->getAttachmentTypes();
+            std::vector<VkImageView>  attachments;
+            RenderPassAttachmentInfo* attachmentTypes = frameBufInfo.renderPass->getAttachmentTypes();
             for (u32 i = 0; i < m_AttachmentCount; i++) {
                 switch (attachmentTypes[i].type) {
                     case TextureType::Texture_2D:
@@ -54,11 +54,13 @@ namespace Razix {
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_FRAMEBUFFER, (uint64_t) m_Framebuffer);
         }
 
-        VKFramebuffer::~VKFramebuffer() {}
+        VKFramebuffer::~VKFramebuffer()
+        {
+        }
 
         void VKFramebuffer::Destroy()
         {
             vkDestroyFramebuffer(VKDevice::Get().getDevice(), m_Framebuffer, VK_NULL_HANDLE);
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

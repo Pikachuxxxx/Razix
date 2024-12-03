@@ -239,5 +239,5 @@ namespace Razix {
             DescriptorType VKToEngineDescriptorType(SpvReflectDescriptorType type);
 
         }    // namespace VKUtilities
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

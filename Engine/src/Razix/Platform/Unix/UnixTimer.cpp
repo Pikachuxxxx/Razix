@@ -4,7 +4,7 @@
 #include "Razix/Utilities/RZTimer.h"
 
 namespace Razix {
-   
+
     TimeStamp RZTimer::Now()
     {
         // Get current time using the high_resolution_clock
@@ -24,4 +24,4 @@ namespace Razix {
         auto duration = std::chrono::duration_cast<std::chrono::duration<f32>>(end - start);
         return duration.count() / timeResolution;
     }
-} // namespace Razix
+}    // namespace Razix

@@ -19,5 +19,5 @@ namespace Razix {
 
             virtual u64 AllocateVideoMemoryFromPoolId(u32 poolIdx) = 0;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

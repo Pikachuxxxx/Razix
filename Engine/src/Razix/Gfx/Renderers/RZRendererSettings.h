@@ -86,5 +86,5 @@ namespace Razix {
             SceneSamplingPattern samplingPattern     = Halton;
             bool                 useProceduralSkybox = false;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

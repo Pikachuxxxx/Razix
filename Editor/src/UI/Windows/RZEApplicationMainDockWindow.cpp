@@ -28,7 +28,6 @@
 
 // clang-format off
 #include <imgui.h>
-#include <ImGui/plugins/ImGuizmo.h>
 // clang-format on
 
 namespace Razix {
@@ -163,17 +162,17 @@ namespace Razix {
 
         void RZEApplicationMainDockWindowCentralWidget::set_TranslateGuizmo()
         {
-            RZApplication::Get().setGuizmoOperation(ImGuizmo::TRANSLATE);
+            RZApplication::Get().setGuizmoOperation(Guizmo::TRANSLATE);
         }
 
         void RZEApplicationMainDockWindowCentralWidget::set_RotateGuizmo()
         {
-            RZApplication::Get().setGuizmoOperation(ImGuizmo::ROTATE);
+            RZApplication::Get().setGuizmoOperation(Guizmo::ROTATE);
         }
 
         void RZEApplicationMainDockWindowCentralWidget::set_ScaleGuizmo()
         {
-            RZApplication::Get().setGuizmoOperation(ImGuizmo::SCALE);
+            RZApplication::Get().setGuizmoOperation(Guizmo::SCALE);
         }
 
         void RZEApplicationMainDockWindowCentralWidget::toggle_WorldLocal()
@@ -182,13 +181,13 @@ namespace Razix {
                 World_vs_LocalButton->setIcon(QIcon(":/rzeditor/local_icon.png"));
                 World_vs_LocalButton->setIconSize(QSize(20, 20));
 
-                RZApplication::Get().setGuizmoMode(ImGuizmo::LOCAL);
+                RZApplication::Get().setGuizmoMode(Guizmo::LOCAL);
 
             } else {
                 World_vs_LocalButton->setIcon(QIcon(":/rzeditor/world_icon.png"));
                 World_vs_LocalButton->setIconSize(QSize(20, 20));
 
-                RZApplication::Get().setGuizmoMode(ImGuizmo::WORLD);
+                RZApplication::Get().setGuizmoMode(Guizmo::WORLD);
             }
         }
 

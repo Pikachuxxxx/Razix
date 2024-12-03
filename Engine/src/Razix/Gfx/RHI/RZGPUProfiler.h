@@ -107,5 +107,5 @@ namespace Razix {
             f32                    m_MaxDuration;
             bool                   m_IsPaused;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

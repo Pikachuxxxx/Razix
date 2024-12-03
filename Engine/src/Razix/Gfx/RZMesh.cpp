@@ -332,5 +332,5 @@ namespace Razix {
                     Gfx::RZResourceManager::Get().getVertexBufferResource(vertexBuffer)->Bind(cmdBuffer);
             }
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

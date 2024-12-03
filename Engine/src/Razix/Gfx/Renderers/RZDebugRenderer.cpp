@@ -5,8 +5,8 @@
 #include "RZDebugRenderer.h"
 
 #include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/Markers/RZMarkers.h"
+#include "Razix/Core/RZEngine.h"
 
 #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Gfx/RHI/API/RZFramebuffer.h"
@@ -52,19 +52,19 @@ namespace Razix {
         //---------------------------------------------------------------------------------------------------------------
         void RZDebugRenderer::Init()
         {
-            m_PointShader                         = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugPoint);
-            Gfx::RZPipelineDesc pipelineInfo = {};
-            pipelineInfo.name                     = "Pipeline.DebugRender::Points(DT)";
-            pipelineInfo.cullMode                 = Gfx::CullMode::None;
-            pipelineInfo.depthBiasEnabled         = false;
-            pipelineInfo.drawType                 = Gfx::DrawType::Triangle;
-            pipelineInfo.shader                   = m_PointShader;
-            pipelineInfo.transparencyEnabled      = true;
-            pipelineInfo.colorAttachmentFormats   = {Gfx::TextureFormat::RGBA16F};
-            pipelineInfo.depthFormat              = Gfx::TextureFormat::DEPTH32F;
-            pipelineInfo.depthTestEnabled         = true;
-            pipelineInfo.depthWriteEnabled        = true;
-            pipelineInfo.depthOp                  = CompareOp::LessOrEqual;
+            m_PointShader                       = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugPoint);
+            Gfx::RZPipelineDesc pipelineInfo    = {};
+            pipelineInfo.name                   = "Pipeline.DebugRender::Points(DT)";
+            pipelineInfo.cullMode               = Gfx::CullMode::None;
+            pipelineInfo.depthBiasEnabled       = false;
+            pipelineInfo.drawType               = Gfx::DrawType::Triangle;
+            pipelineInfo.shader                 = m_PointShader;
+            pipelineInfo.transparencyEnabled    = true;
+            pipelineInfo.colorAttachmentFormats = {Gfx::TextureFormat::RGBA16F};
+            pipelineInfo.depthFormat            = Gfx::TextureFormat::DEPTH32F;
+            pipelineInfo.depthTestEnabled       = true;
+            pipelineInfo.depthWriteEnabled      = true;
+            pipelineInfo.depthOp                = CompareOp::LessOrEqual;
             // Points Pipeline
             m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
@@ -649,5 +649,5 @@ namespace Razix {
                 //DrawPoint(endPoint,0.1f, colour);
             }
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

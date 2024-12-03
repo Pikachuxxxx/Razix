@@ -28,11 +28,11 @@ public:
 
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-#ifdef RAZIX_PLATFORM_WINDOWS
+    #ifdef RAZIX_PLATFORM_WINDOWS
         Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::D3D12);
-#elif defined RAZIX_PLATFORM_MACOS
+    #elif defined RAZIX_PLATFORM_MACOS
         Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::VULKAN);
-#endif
+    #endif
         //-------------------------------------------------------------------------------------
 
         // Init Graphics Context
@@ -66,6 +66,12 @@ public:
 
     void OnStart() override
     {
+        int n = 5;
+        int n_ = rzstl::bitmanip::flipBits(n);
+        RAZIX_INFO("ans: {0}", n | n_);
+
+
+    #if 0
         // Testing the HeapAllocator
         {
             Razix::Memory::RZHeapAllocator heapAlloc;
@@ -109,6 +115,7 @@ public:
             //}
         }
 
+
         // Add a directional light for test
         auto lightEnitties = RZSceneManager::Get().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
         if (!lightEnitties.size()) {
@@ -138,7 +145,6 @@ public:
             }
         }
 
-    #if 0
         // PBR materials test
         {
             int nrRows    = 7;

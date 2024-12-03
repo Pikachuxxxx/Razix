@@ -144,5 +144,5 @@ namespace Razix {
 
         //-----------------------------------------------------------------------------------
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

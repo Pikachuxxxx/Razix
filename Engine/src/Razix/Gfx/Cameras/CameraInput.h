@@ -18,5 +18,5 @@ namespace Razix {
 
         private:
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -32,6 +32,6 @@ namespace Razix {
             VkWriteDescriptorSet*   m_WriteDescriptorSetPool = nullptr;
             VkDescriptorSetLayout   setLayout;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

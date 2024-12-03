@@ -17,7 +17,6 @@
 #include "Razix/Gfx/Passes/RZGBufferPass.h"
 #include "Razix/Gfx/Passes/RZGIPass.h"
 #include "Razix/Gfx/Passes/RZGaussianBlurPass.h"
-#include "Razix/Gfx/Passes/RZHelloTrianglePass.h"
 #include "Razix/Gfx/Passes/RZPBRDeferredLightingPass.h"
 #include "Razix/Gfx/Passes/RZPBRLightingPass.h"
 #include "Razix/Gfx/Passes/RZSSAOPass.h"
@@ -26,6 +25,10 @@
 #include "Razix/Gfx/Passes/RZTAAResolvePass.h"
 #include "Razix/Gfx/Passes/RZTonemapPass.h"
 #include "Razix/Gfx/Passes/RZVisibilityBufferFillPass.h"
+
+// Test/Demo Passes
+#include "Razix/Gfx/Passes/Tests/RZHelloTriangleTestPass.h"
+#include "Razix/Gfx/Passes/Tests/RZWaveInstrinsicsTestPass.h"
 
 // Renderers
 #include "Razix/Gfx/Renderers/RZImGuiRenderer.h"
@@ -126,8 +129,9 @@ namespace Razix {
             RZToneMapPass              m_TonemapPass;
             RZCompositionPass          m_CompositePass;
             //-------------------------------------------
-            // TESTING PASS
-            RZHelloTrianglePass m_HelloTrianglePass;
+            // TEST PASSES
+            RZHelloTriangleTestPass   m_HelloTriangleTestPass;
+            RZWaveInstrinsicsTestPass m_WaveInstrinsicsTestPass;
             //-------------------------------------------
 
             //RZColorGradingPass        m_ColorGradingPass;
@@ -158,5 +162,5 @@ namespace Razix {
             void uploadFrameData(RZScene* scene, RZRendererSettings& settings);
             void uploadLightsData(RZScene* scene, RZRendererSettings& settings);
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

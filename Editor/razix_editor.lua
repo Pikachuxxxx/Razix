@@ -114,7 +114,7 @@ project "RazixEditor"
         "RazixAssetPacker",
         -- Editor Vendor
         "QGoodWindow",
-        "qspdlog",
+        --"qspdlog", -- Disabled due to C++20 requirement
         "QtADS",
         "toolwindowmanager"
     }
@@ -222,6 +222,10 @@ project "RazixEditor"
 
     --postbuildcommands {
     --}
+    
+    filter "system:macosx"
+        qtbinpath "/opt/homebrew/opt/qt@5/bin"
+        qtpath "/opt/homebrew/opt/qt@5"
 
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }

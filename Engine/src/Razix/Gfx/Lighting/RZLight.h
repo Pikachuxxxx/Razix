@@ -55,5 +55,5 @@ namespace Razix {
         private:
             LightData m_LightData;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

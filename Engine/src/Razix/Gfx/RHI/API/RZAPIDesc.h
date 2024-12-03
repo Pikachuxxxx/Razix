@@ -121,5 +121,5 @@ namespace Razix {
         // [Source] : https://twitter.com/SebAaltonen/status/1597135035811106816
 
         //-----------------------------------------------------------------------------------
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

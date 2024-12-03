@@ -115,5 +115,5 @@ namespace Razix {
 
             friend class RZResourceManager;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

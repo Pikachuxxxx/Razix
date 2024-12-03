@@ -103,8 +103,8 @@ void benchCodecs(const std::vector<Vertex>& vertices, const std::vector<unsigned
 
 			if (verbose)
 				printf("decode: vertex %.2f ms (%.2f GB/sec), index %.2f ms (%.2f GB/sec)\n",
-				       (t1 - t0) * 1000, double(vertices.size() * sizeof(Vertex)) / GB / (t1 - t0),
-				       (t2 - t1) * 1000, double(indices.size() * 4) / GB / (t2 - t1));
+				    (t1 - t0) * 1000, double(vertices.size() * sizeof(Vertex)) / GB / (t1 - t0),
+				    (t2 - t1) * 1000, double(indices.size() * 4) / GB / (t2 - t1));
 
 			if (pass == 0)
 			{
@@ -149,10 +149,10 @@ void benchFilters(size_t count, double& besto8, double& besto12, double& bestq12
 
 		if (verbose)
 			printf("filter: oct8 %.2f ms (%.2f GB/sec), oct12 %.2f ms (%.2f GB/sec), quat12 %.2f ms (%.2f GB/sec), exp %.2f ms (%.2f GB/sec)\n",
-			       (t1 - t0) * 1000, double(d4.size()) / GB / (t1 - t0),
-			       (t2 - t1) * 1000, double(d8.size()) / GB / (t2 - t1),
-			       (t3 - t2) * 1000, double(d8.size()) / GB / (t3 - t2),
-			       (t4 - t3) * 1000, double(d8.size()) / GB / (t4 - t3));
+			    (t1 - t0) * 1000, double(d4.size()) / GB / (t1 - t0),
+			    (t2 - t1) * 1000, double(d8.size()) / GB / (t2 - t1),
+			    (t3 - t2) * 1000, double(d8.size()) / GB / (t3 - t2),
+			    (t4 - t3) * 1000, double(d8.size()) / GB / (t4 - t3));
 
 		besto8 = std::max(besto8, double(d4.size()) / GB / (t1 - t0));
 		besto12 = std::max(besto12, double(d8.size()) / GB / (t2 - t1));
@@ -220,5 +220,5 @@ int main(int argc, char** argv)
 
 	printf("Algorithm   :\tvtx\tidx\toct8\toct12\tquat12\texp\n");
 	printf("Score (GB/s):\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n",
-	       bestvd, bestid, besto8, besto12, bestq12, bestexp);
+	    bestvd, bestid, besto8, besto12, bestq12, bestexp);
 }

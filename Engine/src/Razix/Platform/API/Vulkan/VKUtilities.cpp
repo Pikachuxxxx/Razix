@@ -201,7 +201,7 @@ namespace Razix {
                         case TextureFormat::BGRA8_UNORM:
                             return VK_FORMAT_B8G8R8A8_UNORM;
                             break;
-                        case TextureFormat::SCREEN: 
+                        case TextureFormat::SCREEN:
                             return VK_FORMAT_B8G8R8A8_UNORM;
                             break;
                         case TextureFormat::DEPTH16_UNORM:
@@ -1018,5 +1018,5 @@ namespace Razix {
                     return VK_ERROR_EXTENSION_NOT_PRESENT;
             }
         }    // namespace VKUtilities
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

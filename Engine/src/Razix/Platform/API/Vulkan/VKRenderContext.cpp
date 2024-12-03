@@ -74,7 +74,7 @@ namespace Razix {
                 ImGui::Text("Vendor ID          : %s", std::to_string(m_PhysicalDeviceProperties.vendorID).c_str());
                 ImGui::Text("Device Type        : %s", std::string(VKDevice::Get().getPhysicalDevice()->getPhysicalDeviceTypeString(m_PhysicalDeviceProperties.deviceType)).c_str());
                 ImGui::Text("Driver Version     : %d.%d.%d", VK_VERSION_MAJOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_MINOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_PATCH(m_PhysicalDeviceProperties.driverVersion));
-                
+
 #if RAZIX_USE_VMA
                 ImGui::Separator();
 
@@ -662,5 +662,5 @@ namespace Razix {
                 func(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), markerData);
             }
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

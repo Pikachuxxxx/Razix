@@ -87,5 +87,5 @@ namespace Razix {
 
             reset();
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

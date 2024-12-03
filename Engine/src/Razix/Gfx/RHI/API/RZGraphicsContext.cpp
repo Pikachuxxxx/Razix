@@ -22,8 +22,9 @@
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
 namespace Razix {
-
     namespace Gfx {
+
+        GraphicsFeatures g_GraphicsFeatures = {};
 
         // Initializing the static variables
         RZGraphicsContext* RZGraphicsContext::s_Context = nullptr;
@@ -105,5 +106,5 @@ namespace Razix {
                 default: return "None"; break;
             }
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -5,14 +5,13 @@
 
 int main()
 {
-  return 0;
+    return 0;
 }
-
 
 template<typename T, int dim>
-bool bug1213_2(const Eigen::Matrix<T,dim,1>& )
+bool bug1213_2(const Eigen::Matrix<T, dim, 1>&)
 {
-  return true;
+    return true;
 }
 
-template bool bug1213_2<float,3>(const Eigen::Vector3f&);
+template bool bug1213_2<float, 3>(const Eigen::Vector3f&);

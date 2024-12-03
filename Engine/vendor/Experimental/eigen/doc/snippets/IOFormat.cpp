@@ -1,5 +1,5 @@
 std::string sep = "\n----------------------------------------\n";
-Matrix3d m1;
+Matrix3d    m1;
 m1 << 1.111111, 2, 3.33333, 4, 5, 6, 7, 8.888888, 9;
 
 IOFormat CommaInitFmt(StreamPrecision, DontAlignCols, ", ", ", ", "", "", " << ", ";");

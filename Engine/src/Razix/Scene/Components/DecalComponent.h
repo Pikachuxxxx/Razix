@@ -11,7 +11,7 @@ namespace Razix {
      */
     struct RAZIX_API DecalComponent
     {
-        std::string       decalFilePath;
+        std::string  decalFilePath;
         Gfx::RZDecal instance;
 
         DecalComponent()                      = default;

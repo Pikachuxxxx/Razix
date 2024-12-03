@@ -171,19 +171,7 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        RZEventDispatcher dispatcher(event);
-        // Window close event
-        dispatcher.Dispatch<WindowCloseEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowClose));
-        // Window resize event
-        dispatcher.Dispatch<RZWindowResizeEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowResize));
-
-        // Mouse Events
-        // Mouse Moved event
-        dispatcher.Dispatch<RZMouseMovedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseMoved));
-        dispatcher.Dispatch<RZMouseButtonPressedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseButtonPressed));
-        dispatcher.Dispatch<RZMouseButtonReleasedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseButtonReleased));
-        dispatcher.Dispatch<RZKeyPressedEvent>(RAZIX_BIND_CB_EVENT_FN(OnKeyPress));
-        dispatcher.Dispatch<RZKeyReleasedEvent>(RAZIX_BIND_CB_EVENT_FN(OnKeyRelease));
+        m_EventDispatcher.dispatch(event);
     }
 
     bool RZApplication::OnWindowClose(WindowCloseEvent& e)
@@ -257,6 +245,7 @@ namespace Razix {
 
     bool RZApplication::OnKeyPress(RZKeyPressedEvent& e)
     {
+        RAZIX_CORE_INFO("Keypress event {0}", e.ToString());
 #if 0
  auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
@@ -314,9 +303,20 @@ namespace Razix {
 
         //m_GPUProfiler.Init(&RZCPUMemoryManager::Get().getSystemAllocator(), RAZIX_MAX_FRAMES, 32);
 
-#ifdef WIP_DX12_RENDERER
+        // Window close event
+        m_EventDispatcher.registerCallback<WindowCloseEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowClose));
+        // Window resize event
+        m_EventDispatcher.registerCallback<RZWindowResizeEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowResize));
+        // Mouse Events
+        // Mouse Moved event
+        m_EventDispatcher.registerCallback<RZMouseMovedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseMoved));
+        m_EventDispatcher.registerCallback<RZMouseButtonPressedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseButtonPressed));
+        m_EventDispatcher.registerCallback<RZMouseButtonReleasedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseButtonReleased));
+        m_EventDispatcher.registerCallback<RZKeyPressedEvent>(RAZIX_BIND_CB_EVENT_FN(OnKeyPress));
+        m_EventDispatcher.registerCallback<RZKeyReleasedEvent>(RAZIX_BIND_CB_EVENT_FN(OnKeyRelease));
+
+
         Start();
-#endif
     }
 
     bool RZApplication::RenderFrame()

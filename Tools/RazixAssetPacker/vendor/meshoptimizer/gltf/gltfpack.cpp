@@ -1152,7 +1152,8 @@ Settings defaults()
 template <typename T>
 T clamp(T v, T min, T max)
 {
-	return v < min ? min : v > max ? max : v;
+	return v < min ? min : v > max ? max
+	                               : v;
 }
 
 unsigned int textureMask(const char* arg)

@@ -30,7 +30,7 @@ namespace Razix {
             void destroy() override;
 
         private:
-            RZPipelineHandle      m_Pipeline;
+            RZPipelineHandle m_Pipeline;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

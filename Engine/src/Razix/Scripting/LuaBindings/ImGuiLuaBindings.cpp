@@ -10,7 +10,6 @@ namespace Razix {
 
         void RZLuaScriptHandler::bindImGuiAPI()
         {
-            
         }
     }    // namespace Scripting
 }    // namespace Razix

@@ -48,8 +48,9 @@ namespace Razix {
             RAZIX_INLINE ID3D12Device10* getDevice() { return m_Device; }
 
         private:
-            RZWindow*       m_Window = nullptr; /* The Window handle                 */
-            ID3D12Device10* m_Device = nullptr; /* D3D12 handle to the GPU device    */
+            RZWindow*                         m_Window = nullptr;      /* The Window handle                 */
+            ID3D12Device10*                   m_Device = nullptr;      /* D3D12 handle to the GPU device    */
+            D3D12_FEATURE_DATA_D3D12_OPTIONS1 m_WaveIntrinsicsSupport; /* Device Features: Wave Intrinsics */
     #ifdef RAZIX_DEBUG
             ID3D12Debug6* m_D3D12Debug = nullptr; /* D3D12 error handle    */
             IDXGIDebug1*  m_DXGIDebug  = nullptr; /* DXGI debugging handle */
@@ -60,9 +61,9 @@ namespace Razix {
             ID3D12CommandQueue*             m_GraphicsQueue;           /* GPU queue to submit draw/graphics related command lists */
             ID3D12CommandQueue*             m_CopyQueue;               /* GPU queue to submit copy command lists, for temporary and persistent resource copies */
             ID3D12CommandQueue*             m_SingleTimeGraphicsQueue; /* Graphics queue to submit single time command lists, for copy/single frame operations etc */
-            rzstl::UniqueRef<DX12Swapchain> m_Swapchain; /* Handle to the Razix-DX12 swapchain abstraction     */
+            rzstl::UniqueRef<DX12Swapchain> m_Swapchain;               /* Handle to the Razix-DX12 swapchain abstraction     */
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

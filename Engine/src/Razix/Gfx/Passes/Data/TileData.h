@@ -5,7 +5,7 @@
 struct TileData
 {
     glm::vec3 MinCorner;
-    f32     _padding;
+    f32       _padding;
     glm::vec3 GridSize;
-    f32     CellSize;
+    f32       CellSize;
 };

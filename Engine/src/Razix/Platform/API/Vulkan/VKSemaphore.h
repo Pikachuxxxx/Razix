@@ -19,5 +19,5 @@ namespace Razix {
         private:
             VkSemaphore m_Handles[RAZIX_MAX_SWAP_IMAGES_COUNT];
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

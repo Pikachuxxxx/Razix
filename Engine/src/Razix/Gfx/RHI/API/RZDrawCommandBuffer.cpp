@@ -15,8 +15,8 @@
 #endif
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
-    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12DrawCommandBuffer.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
 #endif
 
 namespace Razix {
@@ -82,5 +82,5 @@ namespace Razix {
                 default: break;
             }
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

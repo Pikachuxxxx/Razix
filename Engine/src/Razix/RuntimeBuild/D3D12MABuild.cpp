@@ -11,6 +11,4 @@
 
 #endif
 
-
-
 // clang-format on

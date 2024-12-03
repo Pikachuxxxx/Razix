@@ -8,7 +8,7 @@ namespace Razix {
     {
         std::vector<Gfx::RZMeshHandle>  meshes;
         std::vector<Gfx::RZDecalHandle> decals;
-        std::vector<RZSceneView*>            sceneViews;
+        std::vector<RZSceneView*>       sceneViews;
     };
 
 }    // namespace Razix

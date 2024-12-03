@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'ToolWindowManager.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.2)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.16)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -13,7 +13,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'ToolWindowManager.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.2. It"
+#error "This file was generated using the moc from 5.15.16. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -94,7 +94,7 @@ void ToolWindowManager::qt_static_metacall(QObject *_o, QMetaObject::Call _c, in
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
         auto *_t = static_cast<ToolWindowManager *>(_o);
-        Q_UNUSED(_t)
+        (void)_t;
         switch (_id) {
         case 0: _t->toolWindowVisibilityChanged((*reinterpret_cast< QWidget*(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
         case 1: _t->tabCloseRequested((*reinterpret_cast< int(*)>(_a[1]))); break;
@@ -125,7 +125,7 @@ void ToolWindowManager::qt_static_metacall(QObject *_o, QMetaObject::Call _c, in
 #ifndef QT_NO_PROPERTIES
     else if (_c == QMetaObject::ReadProperty) {
         auto *_t = static_cast<ToolWindowManager *>(_o);
-        Q_UNUSED(_t)
+        (void)_t;
         void *_v = _a[0];
         switch (_id) {
         case 0: *reinterpret_cast< int*>(_v) = _t->allowFloatingWindow(); break;
@@ -135,7 +135,7 @@ void ToolWindowManager::qt_static_metacall(QObject *_o, QMetaObject::Call _c, in
         }
     } else if (_c == QMetaObject::WriteProperty) {
         auto *_t = static_cast<ToolWindowManager *>(_o);
-        Q_UNUSED(_t)
+        (void)_t;
         void *_v = _a[0];
         switch (_id) {
         case 0: _t->setAllowFloatingWindow(*reinterpret_cast< int*>(_v)); break;

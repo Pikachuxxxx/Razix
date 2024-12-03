@@ -25,5 +25,5 @@ namespace Razix {
                 Gfx::RZUniformBufferHandle m_BufferHandle;
             };
         }    // namespace FrameGraph
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

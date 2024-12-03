@@ -3,8 +3,8 @@
 // clang-format on
 #include "RZImGuiRenderer.h"
 
-#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/Markers/RZMarkers.h"
+#include "Razix/Core/RZEngine.h"
 #include "razix/Core/App/RZApplication.h"
 
 #include "Razix/Core/Memory/RZCPUMemoryManager.h"
@@ -169,7 +169,7 @@ namespace Razix {
 
             RAZIX_MARK_BEGIN("ImGui Pass", glm::vec4(1.0f, 7.0f, 0.0f, 1.0f));
 
-            ImDrawData* imDrawData       = ImGui::GetDrawData();
+            ImDrawData* imDrawData = ImGui::GetDrawData();
 
             if (!imDrawData) { return; };
 
@@ -296,7 +296,6 @@ namespace Razix {
             m_ScreenBufferWidth  = width;
             m_ScreenBufferHeight = height;
 
-
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
 
             Gfx::RHI::OnResize(width, height);
@@ -304,7 +303,6 @@ namespace Razix {
 
         void RZImGuiRenderer::Destroy()
         {
-
             if (m_FontAtlasDescriptorSet)
                 m_FontAtlasDescriptorSet->Destroy();
             RZResourceManager::Get().destroyTexture(m_FontAtlasTexture);
@@ -357,5 +355,5 @@ namespace Razix {
 
             m_FontAtlasTexture = RZResourceManager::Get().createTexture(fontAtlasDesc);
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

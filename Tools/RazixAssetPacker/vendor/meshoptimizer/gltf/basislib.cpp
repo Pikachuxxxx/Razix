@@ -21,7 +21,7 @@
 #endif
 
 #ifdef _MSC_VER
-#pragma warning(disable: 4702) // unreachable code
+#pragma warning(disable : 4702) // unreachable code
 #endif
 
 #define BASISU_NO_ITERATOR_DEBUG_LEVEL
@@ -36,22 +36,22 @@
 
 #include "encoder/apg_bmp.c"
 #include "encoder/basisu_astc_decomp.cpp"
-#include "encoder/basisu_etc.cpp"
-#include "encoder/basisu_resample_filters.cpp"
 #include "encoder/basisu_backend.cpp"
-#include "encoder/basisu_frontend.cpp"
-#include "encoder/basisu_resampler.cpp"
 #include "encoder/basisu_basis_file.cpp"
 #include "encoder/basisu_bc7enc.cpp"
-#include "encoder/basisu_global_selector_palette_helpers.cpp"
-#include "encoder/basisu_ssim.cpp"
-#include "encoder/basisu_gpu_texture.cpp"
-#include "encoder/basisu_uastc_enc.cpp"
 #include "encoder/basisu_comp.cpp"
-#include "encoder/basisu_kernels_sse.cpp"
-#include "encoder/jpgd.cpp"
 #include "encoder/basisu_enc.cpp"
+#include "encoder/basisu_etc.cpp"
+#include "encoder/basisu_frontend.cpp"
+#include "encoder/basisu_global_selector_palette_helpers.cpp"
+#include "encoder/basisu_gpu_texture.cpp"
+#include "encoder/basisu_kernels_sse.cpp"
 #include "encoder/basisu_pvrtc1_4.cpp"
+#include "encoder/basisu_resample_filters.cpp"
+#include "encoder/basisu_resampler.cpp"
+#include "encoder/basisu_ssim.cpp"
+#include "encoder/basisu_uastc_enc.cpp"
+#include "encoder/jpgd.cpp"
 #include "encoder/lodepng.cpp"
 #include "transcoder/basisu_transcoder.cpp"
 

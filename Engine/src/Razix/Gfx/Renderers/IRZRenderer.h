@@ -77,6 +77,6 @@ namespace Razix {
             std::string      m_RendererName;
             RZTimestep       m_PassTimer;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

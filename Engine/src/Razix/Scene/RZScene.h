@@ -19,7 +19,7 @@ namespace Razix {
         class RZPipeline;
         class RZDescriptorSet;
         class RZMesh;
-    }    // namespace Graphics
+    }    // namespace Gfx
 
     using RZDescriptorSets = std::vector<Gfx::RZDescriptorSet*>;
 
@@ -132,8 +132,8 @@ namespace Razix {
         std::string    m_ScenePath;                 /* The Path of the scene file                   */
         u32            m_LastMeshesCount = 0;
         RZSceneCamera  m_EditorModeCamera;
-        Gfx::RZMesh* m_Cube       = nullptr;
-        RZSceneCamera m_DefaultSceneCameraToAvoidCompileErrors;
+        Gfx::RZMesh*   m_Cube = nullptr;
+        RZSceneCamera  m_DefaultSceneCameraToAvoidCompileErrors;
 
         friend class RZEntity;
 

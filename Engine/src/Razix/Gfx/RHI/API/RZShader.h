@@ -2,8 +2,8 @@
 
 #include "Razix/Gfx/Resources/IRZResource.h"
 
-#include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
 #include "Razix/Gfx/RHI/API/RZBufferLayout.h"
+#include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
 
 namespace Razix {
     namespace Gfx {
@@ -125,7 +125,7 @@ namespace Razix {
             RZShaderDesc                       m_Desc       = {};
             ShaderSourceType                   m_SourceType = ShaderSourceType::SPIRV; /* The source type of the shader                                                                            */
             std::map<ShaderStage, std::string> m_ParsedRZSF;                           /* The razix shader file that was parsed                                                                    */
-            RZBufferLayout               m_BufferLayout;                         /* Detailed description of the input data format of the vertex buffer that has been extracted from shader   */
+            RZBufferLayout                     m_BufferLayout;                         /* Detailed description of the input data format of the vertex buffer that has been extracted from shader   */
             DescriptorsPerHeapMap              m_DescriptorsPerHeap;                   /* Encapsulates the descriptors corresponding to a set with binding and resource information                */
             ShaderBindVars                     m_BindVars;                             /* Descriptors and name maps for updating descriptors                                                       */
             SceneDrawParams                    m_SceneParams;                          /* Some params to help with scene drawing                                                                   */
@@ -142,5 +142,5 @@ namespace Razix {
 
             friend class RZResourceManager;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

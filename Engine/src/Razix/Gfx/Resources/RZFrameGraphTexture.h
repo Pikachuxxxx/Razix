@@ -39,5 +39,5 @@ namespace Razix {
                 Gfx::RZTextureHandle m_TextureHandle;
             };
         }    // namespace FrameGraph
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

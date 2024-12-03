@@ -38,7 +38,7 @@ namespace Razix {
             HANDLE       m_FenceEvent = NULL;    /* Fence event to signal when the fence reaches a certain value */
             u64          m_FenceValue = 0;       /* The value to signal the fence with when the GPU queue has finished processing any commands */
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 
 }    // namespace Razix
 #endif

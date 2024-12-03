@@ -23,9 +23,6 @@ namespace Razix {
         RAZIX_CORE_INFO("***********************************");
         Razix::RZSplashScreen::Get().setLogString("Igniting Engine...");
 
-        // TODO: Temp code remove this!!!
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
         // Logging the Engine Version details
         RAZIX_CORE_INFO("Engine Stats : [Version : {0} , Release Stage : {1}, Release Date : {2}]", Razix::RazixVersion.getVersionString(), Razix::RazixVersion.getReleaseStageString(), Razix::RazixVersion.getReleaseDateString());
 

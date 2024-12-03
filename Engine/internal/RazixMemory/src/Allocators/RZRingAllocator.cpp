@@ -3,6 +3,5 @@
 namespace Razix {
     namespace Memory {
 
-       
     }    // namespace Memory
 }    // namespace Razix

@@ -15,11 +15,11 @@ namespace Razix {
         RZTimer();
         ~RZTimer() = default;
 
-        f32            GetTimeMS();
+        f32              GetTimeMS();
         static TimeStamp Now();
 
         static d32 Duration(TimeStamp start, TimeStamp end, d32 timeResolution = 1.0);
-        static f32  Duration(TimeStamp start, TimeStamp end, f32 timeResolution);
+        static f32 Duration(TimeStamp start, TimeStamp end, f32 timeResolution);
 
         f32 GetElapsedMS()
         {

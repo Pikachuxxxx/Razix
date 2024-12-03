@@ -8,7 +8,7 @@ namespace Razix {
     #define RZ_DEBUG_NAME_TAG_E_ARG        , const std::string& bufferName
     #define RZ_DEBUG_NAME_TAG_F_ARG        const std::string &bufferName,
     #define RZ_DEBUG_NAME_TAG_M_ARG        , const std::string &bufferName,
-    #define RZ_DEBUG_F_ARG_NAME            bufferName, 
+    #define RZ_DEBUG_F_ARG_NAME            bufferName,
     #define RZ_DEBUG_S_ARG_NAME            bufferName
     #define RZ_DEBUG_E_ARG_NAME            , bufferName
     #define RZ_DEBUG_NAME_TAG_STR_E_ARG(x) , x

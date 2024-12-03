@@ -136,5 +136,5 @@ namespace Razix {
         private:
             void pushImpl(const std::string& name, BufferFormat format, u32 size, bool Normalised);
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

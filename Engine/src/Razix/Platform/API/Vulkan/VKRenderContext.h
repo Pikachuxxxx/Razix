@@ -59,5 +59,5 @@ namespace Razix {
         private:
             void SetCmdCheckpointImpl(RZDrawCommandBufferHandle cmdBuffer, void* markerData);
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

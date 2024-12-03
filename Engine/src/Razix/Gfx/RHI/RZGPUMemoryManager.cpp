@@ -15,5 +15,5 @@ namespace Razix {
         {
             m_VideoAllocator.shutdown();
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

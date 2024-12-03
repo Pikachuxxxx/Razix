@@ -354,7 +354,7 @@ namespace Razix {
             }
 
         }    // namespace DX12Utilities
-    }        // namespace Gfx
+    }    // namespace Gfx
 }    // namespace Razix
 
 #endif

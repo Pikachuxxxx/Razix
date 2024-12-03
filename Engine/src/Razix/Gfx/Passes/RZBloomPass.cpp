@@ -4,8 +4,8 @@
 #include "RZBloomPass.h"
 
 #include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/Markers/RZMarkers.h"
+#include "Razix/Core/RZEngine.h"
 
 #include "Razix/Gfx/Materials/RZMaterial.h"
 
@@ -438,5 +438,5 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
                 });
         }
 #endif
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

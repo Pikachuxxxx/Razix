@@ -9,6 +9,7 @@
 #include "RZSTL/string.h"
 #include "RZSTL/unordered_map.h"
 #include "RZSTL/vector.h"
+#include "RZSTL/bits.h"
 
 #include "RZMemoryFunctions.h"
 

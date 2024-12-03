@@ -27,7 +27,7 @@ namespace Razix {
         /* What type of data does the descriptor set member represent */
         enum class DescriptorType : u32
         {
-            kNone = u32_max,
+            kNone                = u32_max,
             UniformBuffer        = 0,
             ImageSamplerCombined = 1,    // (combined image sampler)
             COUNT
@@ -114,5 +114,5 @@ namespace Razix {
         AttachmentInfo       DecodeAttachmentInfo(u32 bits);
 
         //-----------------------------------------------------------------------------------
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

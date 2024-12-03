@@ -82,5 +82,5 @@ namespace Razix {
                 RZFrameGraphResource registerResourceForWrite(RZFrameGraphResource id, u32 flags);
             };
         }    // namespace FrameGraph
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

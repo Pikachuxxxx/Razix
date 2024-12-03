@@ -156,5 +156,5 @@ namespace Razix {
         protected:
             u32 m_SetIdx = kInvalidSetIdx;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

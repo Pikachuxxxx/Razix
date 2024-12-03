@@ -19,5 +19,5 @@ namespace Razix {
             void OnUpdate(const RZTimestep& dt) override;
         };
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

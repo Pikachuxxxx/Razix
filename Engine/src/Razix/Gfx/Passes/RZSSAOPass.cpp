@@ -4,8 +4,8 @@
 #include "RZSSAOPass.h"
 
 #include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/RZEngine.h"
 #include "Razix/Core/Markers/RZMarkers.h"
+#include "Razix/Core/RZEngine.h"
 
 #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
@@ -213,5 +213,5 @@ namespace Razix {
         {
             RZResourceManager::Get().destroyPipeline(m_PreBlurPipeline);
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

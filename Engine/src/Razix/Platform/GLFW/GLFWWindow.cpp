@@ -23,6 +23,18 @@
 namespace Razix {
     static bool sGLFWInitialized = false;
 
+    //typedef void (* GLFWwindowsizefun)(GLFWwindow*,int,int);
+    //    template <typename Fn>
+    //    GLFWwindowsizefun SetWindowSizeCallback(GLFWwindow* handle, Fn func) {
+    //        auto closure = [](GLFWwindow* window, int width, int height) -> void {
+    //            auto og = (Fn*) glfwGetWindowUserPointer(window); // store where this comes from
+    //            (*og)(width, height);
+    //        };
+    //
+    //        glfwSetWindowUserPointer(handle, &func);
+    //        return glfwSetWindowSizeCallback(handle, closure);
+    //    }
+
     GLFWWindow::GLFWWindow(const WindowProperties& properties)
     {
         Init(properties);
@@ -146,7 +158,17 @@ namespace Razix {
         //std::string icon = std::string(STRINGIZE(RAZIX_ROOT_DIR)) + std::string("/Razix/src/Razix/Embedded/RazixLogo.png");
         SetWindowIcon();
 
+        // The problem with using capture list here is the user_data is a global state, it's not per callback function and that will not properly capture the modified lambda with the necessary args and maintain their lifetime properly
         // Setting up event callbacks function via the dispatcher
+        //        SetWindowSizeCallback(m_Window, [&](int width, int height) {
+        //
+        //            m_Data.Width  = width;
+        //            m_Data.Height = height;
+        //
+        //            RZWindowResizeEvent event(width, height);
+        //            m_Data.EventCallback(event);
+        //        });
+
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
             WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 

@@ -4,7 +4,7 @@
 
 #include <Razix.h>
 #include <Razix/Core/EntryPoint.h>
-#include <Razix/Core/RZApplication.h>
+#include <Razix/Core/App/RZApplication.h>
 
 namespace Razix {
     namespace Editor {

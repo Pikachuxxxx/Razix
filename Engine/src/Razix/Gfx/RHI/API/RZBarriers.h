@@ -92,5 +92,5 @@ namespace Razix {
             MemoryAccessMask srcAccess;
             MemoryAccessMask dstAccess;
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

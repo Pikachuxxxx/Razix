@@ -37,7 +37,7 @@ namespace Razix {
             struct BloomPassGPUResources
             {
                 std::vector<RZDrawCommandBuffer*> cmdBuffers;
-                std::vector<RZDescriptorSet*> bloomDescSet;
+                std::vector<RZDescriptorSet*>     bloomDescSet;
             };
             BloomPassGPUResources downsamplebBloomGpuResources[NUM_BLOOM_MIPS];
             BloomPassGPUResources upsamplebBloomGpuResources[NUM_BLOOM_MIPS];
@@ -53,5 +53,5 @@ namespace Razix {
              */
             void mixScene(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings);
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

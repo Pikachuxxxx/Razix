@@ -6,19 +6,17 @@
     #include "Razix/Platform/API/Vulkan/VKCommandPool.h"
     #include "Razix/Utilities/TRZSingleton.h"
 
-#if RAZIX_USE_VMA
-    #include <vma/vk_mem_alloc.h>
-#endif
+    #if RAZIX_USE_VMA
+        #include <vma/vk_mem_alloc.h>
+    #endif
     #include <vulkan/vulkan.h>
 
-    #define VK_KHR_dynamic_rendering_NAME "VK_KHR_dynamic_rendering"
-    #define VK_KHR_push_descriptor_NAME   "VK_KHR_push_descriptor"
 
 // Enable any device specific extensions
 // Ex. VK_KHR_RAY_TRACING etc.
 static std::vector<cstr> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-    VK_KHR_dynamic_rendering_NAME,
+    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
     VK_KHR_MAINTENANCE1_EXTENSION_NAME,
     VK_KHR_MAINTENANCE2_EXTENSION_NAME,
     VK_KHR_MULTIVIEW_EXTENSION_NAME,
@@ -27,13 +25,12 @@ static std::vector<cstr> deviceExtensions = {
     VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME,
     VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
     VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
-#ifdef __APPLE__
-    VK_EXT_ROBUSTNESS_2_EXTENSION_NAME,
+    #ifdef __APPLE__
+        VK_EXT_ROBUSTNESS_2_EXTENSION_NAME,
     VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
-#endif
+    #endif
     //VK_GOOGLE_HLSL_FUNCTIONALITY1_EXTENSION_NAME,
     //VK_GOOGLE_USER_TYPE_EXTENSION_NAME,
-    VK_KHR_push_descriptor_NAME,
     // On the fly Push Descriptors similar to PushConstants
     //"VK_NV_device_diagnostic_checkpoints"
 };
@@ -133,10 +130,11 @@ namespace Razix {
             RAZIX_INLINE VkDescriptorSet                  getBindlessDescriptorSet() const { return m_BindlessDescriptorSet; }
             RAZIX_INLINE VkDescriptorSetLayout            getBindlessSetLayout() const { return m_BindlessSetLayout; }
             RAZIX_INLINE bool                             isBindlessSupported() const { return m_IsBindlessSupported; }
-#if RAZIX_USE_VMA
+            RAZIX_INLINE VkPhysicalDeviceProperties2      getGPUProperties2() const { return m_PhysicalDeviceProperties2; };
+    #if RAZIX_USE_VMA
             /* Gets the Vulkan Memory Allocator */
             RAZIX_INLINE VmaAllocator& getVMA() { return m_VMAllocator; }
-#endif
+    #endif
 
         private:
             VkDevice                     m_Device                 = VK_NULL_HANDLE; /* Vulkan handle to abstracted device                                               */
@@ -153,10 +151,12 @@ namespace Razix {
             VkQueryPool                  m_TimestampsQueryPool    = VK_NULL_HANDLE; /* Query pool for allocating timestamps                                             */
             VkQueryPool                  m_PipelineStatsQueryPool = VK_NULL_HANDLE; /* Query pool for allocating pipeline stats                                         */
             bool                         m_IsBindlessSupported    = false;          /* Whether or not Bindless is supported on the machine                              */
-#if RAZIX_USE_VMA
-            VmaAllocator                 m_VMAllocator            = VK_NULL_HANDLE; /* Vulkan Memory Allocator for managing GPU heap                                    */
-#endif
+            VkPhysicalDeviceProperties2  m_PhysicalDeviceProperties2;               /* Selected GPU physical Device properties                                          */
+
+    #if RAZIX_USE_VMA
+            VmaAllocator m_VMAllocator = VK_NULL_HANDLE; /* Vulkan Memory Allocator for managing GPU heap                                    */
+    #endif
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

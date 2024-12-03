@@ -72,8 +72,8 @@ project "example"
 
     filter "system:macosx"
         systemversion "12.0"
-        qtbinpath "/Users/phanisrikar/Qt/5.15.2/clang_64/bin"
-        qtpath "/Users/phanisrikar/Qt/5.15.2/clang_64"
+        qtbinpath "/opt/homebrew/opt/qt@5/bin"
+        qtpath "/opt/homebrew/opt/qt@5"
 
         filter "configurations:Debug"
             defines { "_DEBUG" }

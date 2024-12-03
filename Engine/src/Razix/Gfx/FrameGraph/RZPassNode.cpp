@@ -18,7 +18,7 @@ namespace Razix {
 #endif
             }
 
-            RAZIX_NO_DISCARD static  bool hasId(const std::vector<RZFrameGraphResourceAcessView> &v, RZFrameGraphResource id)
+            RAZIX_NO_DISCARD static bool hasId(const std::vector<RZFrameGraphResourceAcessView> &v, RZFrameGraphResource id)
             {
                 const auto match = [id](const auto &e) { return e.id == id; };
 
@@ -75,5 +75,5 @@ namespace Razix {
                 return canWriteResouce(id) ? id : m_Writes.emplace_back(RZFrameGraphResourceAcessView(id, flags)).id;
             }
         }    // namespace FrameGraph
-    }        // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

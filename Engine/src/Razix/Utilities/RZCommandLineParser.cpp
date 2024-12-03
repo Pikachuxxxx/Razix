@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZCommandLineParser.h"
 
- #include "Razix/Core/Version/RazixVersion.h"
+#include "Razix/Core/Version/RazixVersion.h"
 
 namespace Razix {
     RZCommandLineParser::RZCommandLineParser()
@@ -58,7 +58,7 @@ namespace Razix {
         RAZIX_CORE_ASSERT(m_CommandOptions.find(name) != m_CommandOptions.end(), "No value has been passed to the argument");
         std::string value = m_CommandOptions[name].value;
         char*       numConvPtr;
-        i32     intVal = (i32)strtol(value.c_str(), &numConvPtr, 10);
+        i32         intVal = (i32) strtol(value.c_str(), &numConvPtr, 10);
         return intVal;
     }
 
@@ -73,7 +73,7 @@ namespace Razix {
 
     void RZCommandLineParser::parse(std::vector<cstr>& arguments)
     {
-        bool printH       = false;
+        bool printH = false;
         // Known arguments
         for (auto& option: m_CommandOptions) {
             for (auto& command: option.second.commandFlags) {

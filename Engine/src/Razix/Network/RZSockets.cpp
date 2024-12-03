@@ -5,6 +5,6 @@
 #include "RZSockets.h"
 
 namespace Razix {
-	namespace Network {
-	}
-}
+    namespace Network {
+    }
+}    // namespace Razix

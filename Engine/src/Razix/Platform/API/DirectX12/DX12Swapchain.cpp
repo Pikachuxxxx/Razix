@@ -199,8 +199,8 @@ namespace Razix {
 
         void DX12Swapchain::present()
         {
-            u32 syncInterval = g_GraphicsFeaturesSettings.EnableVSync ? 1 : 0;
-            u32 presentFlags = !g_GraphicsFeaturesSettings.EnableVSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
+            u32 syncInterval = g_GraphicsFeatures.EnableVSync ? 1 : 0;
+            u32 presentFlags = !g_GraphicsFeatures.EnableVSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
             CHECK_HRESULT(m_Swapchain->Present(0, DXGI_PRESENT_ALLOW_TEARING));
 
             m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_SwapchainImageCount;
@@ -229,6 +229,6 @@ namespace Razix {
 
         //--------------------------------------------------------------------------------------
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

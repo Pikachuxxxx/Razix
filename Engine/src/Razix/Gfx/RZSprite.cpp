@@ -286,5 +286,5 @@ m_IsAnimated = true;
             //    }
             //}
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

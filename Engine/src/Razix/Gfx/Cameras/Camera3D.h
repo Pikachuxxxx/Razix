@@ -146,5 +146,5 @@ namespace Razix {
             void updateCameraVectors();
         };
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

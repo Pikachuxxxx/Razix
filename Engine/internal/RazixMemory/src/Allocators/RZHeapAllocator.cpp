@@ -17,7 +17,7 @@ namespace Razix {
 
 #ifdef RAZIX_DEBUG
             if (used)
-                printf("[Heap Allocator] Found active allocation at : %p, size: %llu \n", ptr, size);
+                printf("[Heap Allocator] Found active allocation at : %p, size: %zu \n", ptr, size);
 #endif
         }
 
@@ -33,7 +33,6 @@ namespace Razix {
             m_TLSFHandle = tlsf_create_with_pool(m_ChunkAddress, chunkSize);
 
 #ifdef RAZIX_DEBUG
-            float size = 0;
             if (float(chunkSize / 1024) < 1.0f)
                 std::cout << "[Heap Allocator] Creating TLSL pool... | size : " << float(chunkSize / 1024) << "Kb" << std::endl;
             else

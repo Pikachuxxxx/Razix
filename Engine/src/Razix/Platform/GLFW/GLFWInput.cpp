@@ -82,8 +82,8 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-        auto   window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
-        d32 xpos, ypos;
+        auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
+        d32  xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
 
         return {(f32) xpos, (f32) ypos};

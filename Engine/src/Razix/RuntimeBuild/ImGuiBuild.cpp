@@ -14,6 +14,4 @@
     #include <imgui/backends/imgui_impl_vulkan.cpp>
 #endif
 
-
-
 // clang-format on

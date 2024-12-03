@@ -11,7 +11,6 @@ namespace Razix {
 
         void RZLuaScriptHandler::bindApplicationAPI()
         {
-           
         }
     }    // namespace Scripting
 }    // namespace Razix

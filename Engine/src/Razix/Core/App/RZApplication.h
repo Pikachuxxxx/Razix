@@ -219,6 +219,7 @@ namespace Razix {
         bool                      m_EnableGuizmoEditing = false;
         std::mutex                m_RenderThreadMutex;
         std::thread               m_RenderThread;
+        RZEventDispatcher         m_EventDispatcher;
 
     private:
         /* Starts the application */

@@ -88,5 +88,5 @@ namespace Razix {
             vkFreeCommandBuffers(VKDevice::Get().getDevice(), m_CommandPool, 1, &m_CommandBuffer);
         }
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
