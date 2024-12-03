@@ -86,13 +86,13 @@ namespace Razix {
                     data.Depth                 = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
 #endif
 
-                    RZBufferDesc DebugDataBufferDesc{};
-                    DebugDataBufferDesc.name  = "WaveIntrinsicsConstantBufferData";
-                    DebugDataBufferDesc.size  = sizeof(SSAOParamsData);
-                    DebugDataBufferDesc.usage = BufferUsage::PersistentStream;
-                    data.DebugBuffer          = builder.create<FrameGraph::RZFrameGraphBuffer>(DebugDataBufferDesc.name, CAST_TO_FG_BUF_DESC DebugDataBufferDesc);
-
-                    data.DebugBuffer = builder.write(data.DebugBuffer);
+                   //RZBufferDesc DebugDataBufferDesc{};
+                   //DebugDataBufferDesc.name  = "WaveIntrinsicsConstantBufferData";
+                   //DebugDataBufferDesc.size  = sizeof(SSAOParamsData);
+                   //DebugDataBufferDesc.usage = BufferUsage::PersistentStream;
+                   //data.DebugBuffer          = builder.create<FrameGraph::RZFrameGraphBuffer>(DebugDataBufferDesc.name, CAST_TO_FG_BUF_DESC DebugDataBufferDesc);
+                   //
+                   //data.DebugBuffer = builder.write(data.DebugBuffer);
                 },
                 [=](const WaveIntrinsicsData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -117,25 +117,25 @@ namespace Razix {
 
                     // Bind the push CB with the render mode
                     // Set the Descriptor Set once rendering starts
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
-                        auto&         shaderBindVars = RZResourceManager::Get().getShaderResource(shader)->getBindVars();
-                        RZDescriptor* descriptor     = nullptr;
-                        descriptor                   = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(data.DebugBuffer)];
-                        if (descriptor)
-                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.DebugBuffer).getHandle();
-                        RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
-                    }
-
-                    WaveIntrinsicsConstantBufferData debugData{};
-                    debugData.waveMode = 2;
-                    debugData.laneSize = g_GraphicsFeatures.MinLaneWidth;
-
-                    auto DataHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.DebugBuffer).getHandle();
-                    RZResourceManager::Get().getUniformBufferResource(DataHandle)->SetData(sizeof(WaveIntrinsicsConstantBufferData), &debugData);
-
-                    // Bind the descriptor set
-                    auto& sceneDrawParams = Gfx::RZResourceManager::Get().getShaderResource(shader)->getSceneDrawParams();
-                    Gfx::RHI::BindUserDescriptorSets(m_Pipeline, cmdBuffer, sceneDrawParams.userSets, 0);
+                    //if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    //    auto&         shaderBindVars = RZResourceManager::Get().getShaderResource(shader)->getBindVars();
+                    //    RZDescriptor* descriptor     = nullptr;
+                    //    descriptor                   = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(data.DebugBuffer)];
+                    //    if (descriptor)
+                    //        descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.DebugBuffer).getHandle();
+                    //    RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
+                    //}
+                    //
+                    //WaveIntrinsicsConstantBufferData debugData{};
+                    //debugData.waveMode = 2;
+                    //debugData.laneSize = g_GraphicsFeatures.MinLaneWidth;
+                    //
+                    //auto DataHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.DebugBuffer).getHandle();
+                    //RZResourceManager::Get().getUniformBufferResource(DataHandle)->SetData(sizeof(WaveIntrinsicsConstantBufferData), &debugData);
+                    //
+                    //// Bind the descriptor set
+                    //auto& sceneDrawParams = Gfx::RZResourceManager::Get().getShaderResource(shader)->getSceneDrawParams();
+                    //Gfx::RHI::BindUserDescriptorSets(m_Pipeline, cmdBuffer, sceneDrawParams.userSets, 0);
 
                     // Draw 3 vertices
                     Gfx::RHI::Draw(cmdBuffer, 3);
