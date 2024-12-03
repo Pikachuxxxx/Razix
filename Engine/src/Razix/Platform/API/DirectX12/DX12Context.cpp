@@ -77,6 +77,10 @@ namespace Razix {
 
         void DX12Context::Init()
         {
+            //https://learn.microsoft.com/bs-latn-ba/windows/win32/api/dxgi1_6/nf-dxgi1_6-dxgideclareadapterremovalsupport
+            // helps with adapter lost events
+            DXGIDeclareAdapterRemovalSupport();
+
     #if RAZIX_DEBUG
 
             // Init the Debug layer stuff
@@ -95,6 +99,28 @@ namespace Razix {
             // Get all the GPUs and choose the Discrete one + DirectX >= 12.2.
             auto m_PhysicalGPUAdapter = GetAdapter(g_UseWarp);
             D3D12CreateDevice(GetAdapter(g_UseWarp).Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&m_Device));
+
+            // Device Features and Support
+            {
+                // Checks for SM6 and WaveIntrinsics
+                // query shader model level, we ask for min of this level
+                D3D12_FEATURE_DATA_SHADER_MODEL queryShaderModel = {D3D_SHADER_MODEL_6_0};
+                CHECK_HRESULT(m_Device->CheckFeatureSupport((D3D12_FEATURE) D3D12_FEATURE_SHADER_MODEL, &queryShaderModel, sizeof(queryShaderModel)));
+                // Query the level of support of Wave Intrinsics
+                // https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ns-d3d12-d3d12_feature_data_d3d12_options1
+                CHECK_HRESULT(m_Device->CheckFeatureSupport((D3D12_FEATURE) D3D12_FEATURE_D3D12_OPTIONS1, &m_WaveIntrinsicsSupport, sizeof(m_WaveIntrinsicsSupport)));
+
+                if (queryShaderModel.HighestShaderModel >= D3D_SHADER_MODEL_6_0)
+                    g_GraphicsFeatures.SupportsShaderModel6 = true;
+                else
+                    RAZIX_CORE_ERROR("[D3D12] Doesn't support Shader Model 6.0, some features will not work as expected and engine may crash!");
+                if (m_WaveIntrinsicsSupport.WaveOps == 1) {
+                    g_GraphicsFeatures.SupportsWaveIntrinsics = true;
+                    g_GraphicsFeatures.MinLaneWidth           = m_WaveIntrinsicsSupport.WaveLaneCountMin;
+                    g_GraphicsFeatures.MaxLaneWidth           = m_WaveIntrinsicsSupport.WaveLaneCountMax;
+                } else
+                    RAZIX_CORE_ERROR("[D3D12] Doesn't support Wave Instrinsics, some features will not work as expected and engine may crash!");
+            }
 
             // Print the GPU adapter details
             DXGI_ADAPTER_DESC1 desc;
@@ -167,7 +193,7 @@ namespace Razix {
             CHECK_HRESULT(m_Device->CreateCommandQueue(&CommandQueueDesc, IID_PPV_ARGS(&m_SingleTimeGraphicsQueue)));
             D3D12_TAG_OBJECT(m_SingleTimeGraphicsQueue, L"Single TIme Graphics Queue");
 
-            if (g_GraphicsFeaturesSettings.EnableVSync) {
+            if (g_GraphicsFeatures.EnableVSync) {
             }
 
             // Create the swapchain

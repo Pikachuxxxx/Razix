@@ -13,7 +13,11 @@ namespace Razix {
 
         enum class ShaderBuiltin : u32
         {
-            HelloTriangle,    //Test shader
+            //------------------------------
+            // TEST PASSES
+            HelloTriangleTest,    //Test shader
+            WaveIntrinsicsTest,
+            //------------------------------
             Default,
             Skybox,
             ProceduralSkybox,

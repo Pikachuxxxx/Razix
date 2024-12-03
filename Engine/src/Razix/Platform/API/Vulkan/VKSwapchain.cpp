@@ -174,7 +174,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            if (g_GraphicsFeaturesSettings.EnableVSync)
+            if (g_GraphicsFeatures.EnableVSync)
                 return VK_PRESENT_MODE_FIFO_KHR;    // VSync
 
             // Choose the right kind of image presentation mode for the  swapchain images

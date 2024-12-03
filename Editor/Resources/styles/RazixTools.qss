@@ -1,0 +1,38 @@
+/*
+ * Razix Qt Tools global StyleSheet
+ */
+
+QWidget, QMainWindow {
+    background-color: #111111; /* Background */
+    color: #999999; /* Light text */
+}
+
+/* Global QPushButton Styles */
+QPushButton {
+    background-color: #323232; /* Primary */
+    color: #999999; /* Light text */
+    border: 1px solid #999999; /* Light */
+    border-radius: 6px; /* Rounded corners */
+    padding: 4px 4px; /* Spacing for text */
+    font-family: Helvetica;
+    font-size: 12px;
+    font-weight: Bold; /* Bold text */
+}
+
+/* Hover Effect */
+QPushButton:hover {
+    background-color: #6A6A6A; /* Secondary */
+}
+
+/* Pressed/Focused State */
+QPushButton:pressed {
+    background-color: #999999; /* Light for pressed */
+    border-color: #1D72FF; /* Highlight for border */
+}
+
+/* Disabled State */
+QPushButton:disabled {
+    background-color: #1F1F1F; /* Background */
+    color: #6A6A6A; /* Secondary color for text */
+    border-color: #FB4242; /* Error for border */
+}

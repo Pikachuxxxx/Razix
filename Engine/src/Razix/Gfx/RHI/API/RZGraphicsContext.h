@@ -22,16 +22,25 @@ namespace Razix {
             NX
         };
 
-        typedef struct GraphicsFeaturesSettings
+        // TODO: move this to RZEngineSettings, only run-time queried values live in this struct
+        /**
+         * Graphics Features as supported by the GPU, even though Engine supports them
+         * the GPU can override certain setting and query run-time info like LaneWidth etc.
+         */
+        typedef struct GraphicsFeatures
         {
-            bool EnableVSync         = false; /* No V-Sync by default we don't cap the frame rate */
-            bool TesselateTerrain    = true;
-            bool EnableBindless      = true;
-            u32  MaxBindlessTextures = 4096;
-        } GraphicsFeaturesSettings;
+            bool EnableVSync            = false; /* No V-Sync by default we don't cap the frame rate */
+            bool TesselateTerrain       = true;
+            bool SupportsBindless       = true;
+            bool SupportsWaveIntrinsics = false;
+            bool SupportsShaderModel6   = false;
+            u32  MaxBindlessTextures    = 4096;
+            u32  MinLaneWidth           = 0;
+            u32  MaxLaneWidth           = 0;
+        } GraphicsFeatures;
 
         /* Global instance for Graphics Device level features */
-        static const GraphicsFeaturesSettings g_GraphicsFeaturesSettings{};
+        extern GraphicsFeatures g_GraphicsFeatures;
 
         /**
          * The Graphics Context that manages the context of the underlying graphics API

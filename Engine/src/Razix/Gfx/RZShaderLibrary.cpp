@@ -19,8 +19,9 @@ namespace Razix {
             RAZIX_CORE_INFO("[Shader Library] Starting Up Shader Library to load shaders");
             Razix::RZSplashScreen::Get().setLogString("Starting Shader Library...");
 
-            // TESTING HLSL LOADING
-            loadBuiltInShader(ShaderBuiltin::HelloTriangle, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTriangle.rzsf");
+            // TEST SHADERS
+            loadBuiltInShader(ShaderBuiltin::HelloTriangleTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTriangleTest.rzsf");
+            loadBuiltInShader(ShaderBuiltin::WaveIntrinsicsTest, "//RazixContent/Shaders/Razix/Shader.Builtin.WaveIntrinsicsTest.rzsf");
 
             // TESTING VIS BUFFER GEN SHADER
             loadBuiltInShader(ShaderBuiltin::VisibilityBufferFill, "//RazixContent/Shaders/Razix/Shader.Builtin.VisibilityBufferFill.rzsf");

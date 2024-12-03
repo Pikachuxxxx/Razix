@@ -58,7 +58,8 @@ namespace Razix {
             std::string revisionID   = ""; /* Unique ID for this version (e.g., hash, GUID) */
             int         _padding2[2] = {0, 0};
 
-            AssetVersion(int major = 1, int minor = 0, int patch = 0, const std::string& revID = "") : major(major), minor(minor), patch(patch), revisionID(revID) {}
+            AssetVersion(int major = 1, int minor = 0, int patch = 0, const std::string& revID = "")
+                : major(major), minor(minor), patch(patch), revisionID(revID) {}
 
             std::string toString() const
             {
@@ -80,11 +81,11 @@ namespace Razix {
             Department               department;   /* Department responsible for the asset                      */
             int                      _padding;
         };
-        
-        struct RAZIX_MEM_ALIGN_16 AssetDependecy
+
+        struct RZ_ALIGN_AS(8) AssetDependecy
         {
             AssetType type;
-            RZUUID assetID;
+            RZUUID    assetID;
         };
 
         /**

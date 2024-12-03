@@ -115,7 +115,7 @@ namespace Razix {
                 vkUnmapMemory(VKDevice::Get().getDevice(), m_BufferMemory);
             }
 #else
-            if (m_Usage == BufferUsage::Staging)
+            if (m_Usage == BufferUsage::Staging && m_Mapped)
                 vmaUnmapMemory(VKDevice::Get().getVMA(), m_VMAAllocation);
 #endif
             m_Mapped = nullptr;

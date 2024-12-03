@@ -57,7 +57,12 @@ namespace Razix {
             //-------------------------------
             // [TEST] HELLO TRIANGLE
             //-------------------------------
-            m_HelloTrianglePass.addPass(m_FrameGraph, scene, &settings);
+            m_HelloTriangleTestPass.addPass(m_FrameGraph, scene, &settings);
+
+            //-------------------------------
+            // [TEST] WAVE INTRINSICE
+            //-------------------------------
+            m_WaveInstrinsicsTestPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // Vis Buffer Fill Pass
@@ -481,7 +486,7 @@ namespace Razix {
             m_FrameGraphBuildingInProgress = true;
 
 #if HELLO_TRIANGLE_TEST
-            m_HelloTrianglePass.destroy();
+            m_HelloTriangleTestPass.destroy();
 
             m_VisBufferFillPass.destroy();
 #else
