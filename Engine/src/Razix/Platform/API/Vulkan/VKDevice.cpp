@@ -20,6 +20,34 @@
 namespace Razix {
     namespace Gfx {
 
+        // Helper class for pNext layers Injection
+        class PNextChain
+        {
+        public:
+            template<typename T>
+            void inject(T& feature)
+            {
+                feature.pNext = head;
+                head          = &feature;
+                chain.push_back(&feature);
+            }
+
+            void* getHead() const
+            {
+                return head;
+            }
+
+            void clear()
+            {
+                head = nullptr;
+                chain.clear();
+            }
+
+        private:
+            void*              head = nullptr;
+            std::vector<void*> chain;
+        };
+
         //-----------------------------------------------------------------------------------
         // Physical Device
         //-----------------------------------------------------------------------------------
@@ -181,39 +209,55 @@ namespace Razix {
             // Create the Physical device
             m_PhysicalDevice = rzstl::CreateRef<VKPhysicalDevice>();
 
+            // pNext Injection utility
+            PNextChain pNextFeaturesChain;
+
             // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VK_EXT_robustness2.html
             // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkPhysicalDeviceRobustness2FeaturesEXT.html
             // Enable Null Descriptor writes
             VkPhysicalDeviceRobustness2FeaturesEXT robustness2Features{};
             robustness2Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT;
-            robustness2Features.pNext = nullptr;
             // Just like DirectX12 this enables passing null descriptors to vkUpdateDescriptorSets and treats as if no descriptors were bound
             robustness2Features.nullDescriptor = VK_TRUE;
+            pNextFeaturesChain.inject(robustness2Features);
 
             // Query bindless extension, called Descriptor Indexing (https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_EXT_descriptor_indexing.html)
             VkPhysicalDeviceDescriptorIndexingFeatures indexing_features{};
             indexing_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
-            indexing_features.pNext = &robustness2Features;
+            pNextFeaturesChain.inject(indexing_features);
 
-            VkPhysicalDeviceFeatures2 device_features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
+            // Enable Dynamic Rendering
+            VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeatures{};
+            dynamicRenderingFeatures.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR;
+            dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+            pNextFeaturesChain.inject(dynamicRenderingFeatures);
+
+            VkPhysicalDeviceFeatures2 device_features{};
+            device_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+            // Get all injections and query for support
+            device_features.pNext = pNextFeaturesChain.getHead();
             vkGetPhysicalDeviceFeatures2(getGPU(), &device_features);
+
+            // Run-time check, hence done after all injections
             // Check if Bindless feature is supported by the GPU
-            // [TAG: BINDLESS]
             // For the feature to be correctly working, we need both the possibility to partially bind a descriptor,
             // as some entries in the bindless array will be empty, and SpirV runtime descriptors.
             m_IsBindlessSupported = indexing_features.descriptorBindingPartiallyBound && indexing_features.runtimeDescriptorArray;
 
             if (m_IsBindlessSupported) {
+                // Notify the global scope that engine supports bindless
+                g_GraphicsFeatures.SupportsBindless = true;
+
                 indexing_features.descriptorBindingPartiallyBound = VK_TRUE;
                 indexing_features.runtimeDescriptorArray          = VK_TRUE;
-                device_features.pNext                             = &indexing_features;
             }
 
-            device_features.pNext = nullptr;
-
-            // Enable Geometry Shaders
-            //            device_features.features.geometryShader    = VK_TRUE;
-            //            device_features.features.samplerAnisotropy = VK_TRUE;
+            // Enable Device Features
+    #ifndef __APPLE__
+            device_features.features.geometryShader          = VK_TRUE;
+            device_features.features.samplerAnisotropy       = VK_TRUE;
+            device_features.features.pipelineStatisticsQuery = VK_TRUE;
+    #endif
             device_features.features.sampleRateShading = VK_TRUE;
 
             if (m_PhysicalDevice->isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
@@ -232,16 +276,10 @@ namespace Razix {
             }
     #endif
 
-            // Enable Dynamic Rendering
-            VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeatures{};
-            dynamicRenderingFeatures.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR;
-            dynamicRenderingFeatures.pNext            = &device_features;
-            dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
-
             // Device Create Info
             VkDeviceCreateInfo deviceCI{};
             deviceCI.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-            deviceCI.pNext                   = &dynamicRenderingFeatures;
+            deviceCI.pNext                   = &device_features;
             deviceCI.queueCreateInfoCount    = static_cast<u32>(m_PhysicalDevice->m_QueueCreateInfos.size());
             deviceCI.pQueueCreateInfos       = m_PhysicalDevice->m_QueueCreateInfos.data();
             deviceCI.enabledExtensionCount   = static_cast<u32>(deviceExtensions.size());
@@ -253,6 +291,33 @@ namespace Razix {
                 return false;
             } else
                 RAZIX_CORE_INFO("[Vulkan] Successfully created logical device!");
+
+            //////////////////////////////////////////////////////////////////////////////
+            // Get Device Properties
+            PNextChain pNextPropertiesChain;
+
+            VkPhysicalDeviceSubgroupProperties subgroupProperties = {};
+            subgroupProperties.sType                              = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES;
+            pNextPropertiesChain.inject(subgroupProperties);
+
+            VkPhysicalDeviceVulkan13Properties vulkan13Props = {};
+            vulkan13Props.sType                              = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_PROPERTIES;
+            pNextPropertiesChain.inject(vulkan13Props);
+
+            m_PhysicalDeviceProperties2       = {};
+            m_PhysicalDeviceProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+            m_PhysicalDeviceProperties2.pNext = pNextPropertiesChain.getHead();
+
+            // Query the properties of the finalized GPU
+            vkGetPhysicalDeviceProperties2(getGPU(), &m_PhysicalDeviceProperties2);
+
+            if (subgroupProperties.quadOperationsInAllStages) {
+                // Subgroups aka WaveIntrinsics
+                // https://www.khronos.org/blog/vulkan-subgroup-tutorial
+                g_GraphicsFeatures.SupportsWaveIntrinsics = true;
+                g_GraphicsFeatures.MaxLaneWidth           = subgroupProperties.subgroupSize;
+                g_GraphicsFeatures.MinLaneWidth           = subgroupProperties.subgroupSize;
+            }
 
             // Get the queue handles using the queue index (we assume that the graphics queue also has presentation and compute capabilities)
             vkGetDeviceQueue(m_Device, m_PhysicalDevice->m_QueueFamilyIndices.Graphics, 0, &m_GraphicsQueue);
