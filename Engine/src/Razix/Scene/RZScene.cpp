@@ -27,6 +27,8 @@
 
 namespace Razix {
 
+    // TODO: Draw compaction for scene drawing all meshes are updated into large enough buffer adn we supply bnidless access and arguments to acces into it and do culling adn write to indirect args to draw meshlets using VB + HiZ + 2 Pass Occlusion Culling --> Tiled Forward PBR -> DS skin
+
     RZScene::RZScene()
     {
         // TODO: Find a way to Add Camera skybox and environment settings
