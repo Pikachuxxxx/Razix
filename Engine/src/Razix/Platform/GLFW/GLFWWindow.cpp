@@ -152,6 +152,16 @@ namespace Razix {
 
 #endif
         m_Window = glfwCreateWindow((int) properties.Width, (int) properties.Height, properties.Title.c_str(), nullptr, nullptr);
+        
+        // update with DPI
+        float xscale, yscale;
+        glfwGetWindowContentScale(m_Window, &xscale, &yscale);
+        m_Data.wScale = int(xscale);
+        m_Data.hScale = int(yscale);
+        
+        m_Data.Width *= m_Data.wScale;
+        m_Data.Height *= m_Data.hScale;
+        
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
 
@@ -169,13 +179,30 @@ namespace Razix {
         //            m_Data.EventCallback(event);
         //        });
 
+        // Handle high DPI-monitors (only Primary for now)
+        glfwSetWindowContentScaleCallback(m_Window, [](GLFWwindow* window, float xscale, float yscale){
+            WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
+
+            data.wScale = xscale;
+            data.hScale = yscale;
+            
+            data.Width *= data.wScale;
+            data.Height *= data.hScale;
+
+            RZWindowResizeEvent event(data.Width, data.Height);
+            data.EventCallback(event);
+        });
+        
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
             WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
             data.Width  = width;
             data.Height = height;
+            
+            data.Width *= data.wScale;
+            data.Height *= data.hScale;
 
-            RZWindowResizeEvent event(width, height);
+            RZWindowResizeEvent event(data.Width, data.Height);
             data.EventCallback(event);
         });
 
