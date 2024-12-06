@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Razix/Core/Log/RZLog.h"
 #include "Razix/Core/RZCore.h"
+#include "Razix/Core/RZLog.h"
 #include "Razix/Events/RZEvent.h"
 
 namespace Razix {
@@ -61,7 +61,7 @@ namespace Razix {
         virtual void OnWindowUpdate() = 0;
 
         /* Process the Input polling */
-        virtual void ProcessInput() {};
+        virtual void ProcessInput(){};
 
         virtual void Destroy() = 0;
 
@@ -70,8 +70,6 @@ namespace Razix {
 
         /* Gets the Height of the window */
         virtual unsigned int getHeight() const = 0;
-
-        virtual void setTitle(const char* title) = 0;
 
         // Window Attributes
 

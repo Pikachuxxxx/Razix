@@ -20,7 +20,8 @@ namespace Razix {
             return ss.str();
         }
 
-        EVENT_CLASS_TYPE(kMouseMoved)
+        EVENT_CLASS_TYPE(MouseMoved)
+        EVENT_CLASS_CATEGORY((int) EventCategory::EventCategoryMouse | (int) EventCategory::EventCategoryInput)
     private:
         f32 m_MouseX, m_MouseY;
     };
@@ -41,7 +42,8 @@ namespace Razix {
             return ss.str();
         }
 
-        EVENT_CLASS_TYPE(kMouseScrolled)
+        EVENT_CLASS_TYPE(MouseScrolled)
+        EVENT_CLASS_CATEGORY((int) EventCategory::EventCategoryMouse | (int) EventCategory::EventCategoryInput)
     private:
         f32 m_XOffset, m_YOffset;
     };
@@ -51,6 +53,7 @@ namespace Razix {
     public:
         inline int GetMouseButton() const { return m_Button; }
 
+        EVENT_CLASS_CATEGORY((int) EventCategory::EventCategoryMouse | (int) EventCategory::EventCategoryInput)
     protected:
         RZMouseButtonEvent(int button)
             : m_Button(button) {}
@@ -71,7 +74,7 @@ namespace Razix {
             return ss.str();
         }
 
-        EVENT_CLASS_TYPE(kMouseButtonPressed)
+        EVENT_CLASS_TYPE(MouseButtonPressed)
     };
 
     class RAZIX_API RZMouseButtonReleasedEvent : public RZMouseButtonEvent
@@ -87,7 +90,7 @@ namespace Razix {
             return ss.str();
         }
 
-        EVENT_CLASS_TYPE(kMouseButtonReleased)
+        EVENT_CLASS_TYPE(MouseButtonReleased)
     };
 
 }    // namespace Razix

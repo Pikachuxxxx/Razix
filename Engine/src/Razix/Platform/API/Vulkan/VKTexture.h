@@ -2,7 +2,7 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
-    #include "Razix/Gfx/RHI/API/RZTexture.h"
+    #include "Razix/Graphics/RHI/API/RZTexture.h"
 
     #include "Razix/Platform/API/Vulkan/VKBuffer.h"
     #include "Razix/Platform/API/Vulkan/VKDevice.h"
@@ -10,7 +10,7 @@
     #include <vulkan/vulkan.h>
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         // TODO: Just as we generate one image view per mip do the same per each layer
 
@@ -34,8 +34,6 @@ namespace Razix {
              * @param imageMemory The reference to the image memory to created and will be bound to
              */
             static void CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG);
-
-    #if RAZIX_USE_VMA
             /**
              * Creates a Vulkan Image handle using VMA
              *
@@ -51,7 +49,6 @@ namespace Razix {
              * @param vmaAllocation VMA memory allocation handle
              */
             static void CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VmaAllocation& vmaAllocation, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG);
-    #endif
 
             /**
              * Creates an ImageView for the Vulkan image
@@ -140,10 +137,8 @@ namespace Razix {
             RAZIX_INLINE VkSampler getSampler() const { return m_ImageSampler; }
             /* Gets the Vulkan image memory handle */
             RAZIX_INLINE VkDeviceMemory getMemory() const { return m_ImageMemory; }
-    #if RAZIX_USE_VMA
             /* Gets the VMA allocation for the buffer */
             RAZIX_INLINE VmaAllocation getVMAAllocation() const { return m_VMAAllocation; }
-    #endif
 
         private:
             VkImage                            m_Image           = VK_NULL_HANDLE;            /* Vulkan image handle for the Texture object                                      */
@@ -154,16 +149,14 @@ namespace Razix {
             bool                               m_DeleteImageData = false;                     /* Whether or not to delete image intermediate data                                */
             VkImageAspectFlagBits              m_AspectBit       = VK_IMAGE_ASPECT_NONE;      /* Aspect bit of the image                                                         */
             VkDeviceMemory                     m_ImageMemory     = VK_NULL_HANDLE;            /* Handle to the image memory               */
-    #if RAZIX_USE_VMA
-            VmaAllocation m_VMAAllocation = {}; /* Holds the VMA allocation state info       */
-    #endif
+            VmaAllocation                      m_VMAAllocation   = {};                        /* Holds the VMA allocation state info       */
 
         private:
             /* Creates the 2D Texture--> Image, view, sampler and performs layout transition and staged buffer copy operations */
             bool load(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
             void init(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
         };
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix
 
 #endif

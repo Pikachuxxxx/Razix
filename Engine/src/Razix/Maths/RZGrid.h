@@ -19,7 +19,7 @@ namespace Razix {
             /**
              * The cell size for the grid is defined by the GI and Tiling implementation so it's defined there
              */
-            RZGrid(const AABB& aabb) {}
+            explicit RZGrid(const AABB& aabb);
 
             AABB       aabb;     /* aabb of the Grid                     */
             glm::uvec3 size;     /* Total dimensions of the grid         */

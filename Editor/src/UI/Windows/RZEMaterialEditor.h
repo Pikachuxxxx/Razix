@@ -6,7 +6,7 @@
 
 namespace Razix {
 
-    namespace Gfx {
+    namespace Graphics {
         class RZMaterial;
     }
 
@@ -25,7 +25,7 @@ namespace Razix {
             ~RZEMaterialEditor();
 
         public slots:
-            void OnSetEditingMaterial(Razix::Gfx::RZMaterial* material);
+            void OnSetEditingMaterial(Razix::Graphics::RZMaterial* material);
             void on_NameChanged();
             // TODO: In Future use the reflection data to create the fields automatically, since we use a single Material this is perfectly acceptable
             // Diffuse
@@ -55,7 +55,7 @@ namespace Razix {
 
         private:
             Ui::MaterialEditor           ui;
-            Razix::Gfx::RZMaterial* m_Material = nullptr;
+            Razix::Graphics::RZMaterial* m_Material = nullptr;
             QColor                       m_DiffuseColor;
         };
     }    // namespace Editor

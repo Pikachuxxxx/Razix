@@ -1,7 +1,7 @@
 project "cereal"
 	kind "StaticLib"
 	language "C++"
-	cppdialect (engine_global_config.cpp_dialect)
+	cppdialect "C++20"
 	staticruntime "off"
 
 	files 

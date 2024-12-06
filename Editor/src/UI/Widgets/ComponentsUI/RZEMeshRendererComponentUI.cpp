@@ -4,8 +4,8 @@
 
 #include "RZEMeshRendererComponentUI.h"
 
-#include "Razix/Gfx/RZMesh.h"
-#include "Razix/Gfx/RZMeshFactory.h"
+#include "Razix/Graphics/RZMesh.h"
+#include "Razix/Graphics/RZMeshFactory.h"
 #include "Razix/Scene/Components/MeshRendererComponent.h"
 
 #include <QInputDialog>
@@ -34,7 +34,7 @@ namespace Razix {
             auto& mrc = m_Entity.GetComponent<MeshRendererComponent>();
             //Graphics::RZMesh* oldMesh = mrc.Mesh;
             if (mrc.Mesh)
-                mrc.Mesh = Razix::Gfx::MeshFactory::CreatePrimitive((Razix::Gfx::MeshPrimitive) meshType);
+                mrc.Mesh = Razix::Graphics::MeshFactory::CreatePrimitive((Razix::Graphics::MeshPrimitive) meshType);
             //oldMesh->Destroy();
             // TODO: Update the material in the Material Editor (emit a signal)
         }

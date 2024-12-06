@@ -5,23 +5,16 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
+    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
-    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         DX12DrawCommandBuffer::DX12DrawCommandBuffer(ID3D12CommandAllocator* commandAllocator)
             : m_CommandList(nullptr), m_CommandAllocator(commandAllocator)
         {
             m_State = CommandBufferState::Idle;
-        }
-
-        DX12DrawCommandBuffer::DX12DrawCommandBuffer(ID3D12GraphicsCommandList2* commandList)
-            : m_CommandList(commandList)
-        {
-            UINT dataSize = sizeof(m_CommandAllocator);
-            CHECK_HRESULT(m_CommandList->GetPrivateData(__uuidof(ID3D12CommandAllocator), &dataSize, &m_CommandAllocator));
         }
 
         RAZIX_CLEANUP_RESOURCE_IMPL(DX12DrawCommandBuffer)
@@ -39,13 +32,12 @@ namespace Razix {
             CHECK_HRESULT(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_CommandAllocator, nullptr, IID_PPV_ARGS(&m_CommandList)));
             CHECK_HRESULT(m_CommandList->Close());
 
-            D3D12_TAG_OBJECT(m_CommandList, L"Draw Command List");
+            D3D12_TAG_OBJECT(m_CommandList, "Draw Command List");
         }
 
         void DX12DrawCommandBuffer::BeginRecording()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-            m_State = CommandBufferState::Recording;
 
             // Reset the Command Allocator and Command List using the apt one for the current in-flight frame index
             CHECK_HRESULT(m_CommandAllocator->Reset());
@@ -57,8 +49,6 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             CHECK_HRESULT(m_CommandList->Close());
-
-            m_State = CommandBufferState::Ended;
         }
 
         void DX12DrawCommandBuffer::Execute()
@@ -69,7 +59,6 @@ namespace Razix {
                 m_CommandList};
 
             DX12Context::Get()->getGraphicsQueue()->ExecuteCommandLists(1, ppCommandLists);
-            m_State = CommandBufferState::Submitted;
         }
 
         void DX12DrawCommandBuffer::Reset()
@@ -80,7 +69,7 @@ namespace Razix {
             CHECK_HRESULT(m_CommandList->Reset(m_CommandAllocator, nullptr));
         }
 
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix
 
 #endif

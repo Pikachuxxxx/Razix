@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Razix/Gfx/RHI/API/RZStorageBuffer.h"
+#include "Razix/Graphics/RHI/API/RZStorageBuffer.h"
 
 #include "Razix/Platform/API/Vulkan/VKBuffer.h"
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
         class VKStorageBuffer : public RZStorageBuffer
         {
         public:
@@ -16,5 +16,5 @@ namespace Razix {
             void  SetData(u32 size, const void* data) override;
             void  Destroy() override;
         };
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix

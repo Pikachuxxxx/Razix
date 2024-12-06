@@ -9,6 +9,7 @@ namespace Razix {
         void RZFrustum::build(glm::mat4 VP)
         {
             static const bool zerotoOne = false;
+            static const bool leftHand  = true;
 
             glm::mat4 transformInv = glm::inverse(VP);
 

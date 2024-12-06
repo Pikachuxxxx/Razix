@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Razix/Gfx/RHI/API/RZSemaphore.h"
+#include "Razix/Graphics/RHI/API/RZSemaphore.h"
 
 #include <vulkan/vulkan.h>
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
         class VKSemaphore : public RZSemaphore
         {
         public:
@@ -19,5 +19,5 @@ namespace Razix {
         private:
             VkSemaphore m_Handles[RAZIX_MAX_SWAP_IMAGES_COUNT];
         };
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix

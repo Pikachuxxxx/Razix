@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Razix/Gfx/RHI/API/RZRenderPass.h"
+#include "Razix/Graphics/RHI/API/RZRenderPass.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
     #include <vulkan/vulkan.h>
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         /* Vulkan implementation of the render pass */
         class VKRenderPass : public RZRenderPass
@@ -36,6 +36,6 @@ namespace Razix {
             bool          m_DepthOnly;  /* Should we create the render pass with only a depth attachment            */
             bool          m_ClearDepth; /* Whether or not to clear the depth attachment                             */
         };
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix
 #endif

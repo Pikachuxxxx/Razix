@@ -6,45 +6,120 @@
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
-#include "Razix/AssetSystem/RZAssetFileSpec.h"
-
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
-#include "Razix/Gfx/RZShaderLibrary.h"
+#include "Razix/Graphics/RZShaderLibrary.h"
 
-#include "Razix/Gfx/Renderers/RZSystemBinding.h"
+#include "Razix/Graphics/Renderers/RZSystemBinding.h"
 
 #include "Razix/Utilities/RZStringUtilities.h"
 
-#include "internal/RazixMemory/include/RZMemoryFunctions.h"
-
 #include <SPIRVReflect/common/output_stream.h>
-#include <glm/glm.hpp>
-#include <imgui/imgui.h>
 #include <spirv_reflect.h>
 
+#include <glm/glm.hpp>
+
+#include <imgui/imgui.h>
+
+#include "internal/RazixMemory/include/RZMemoryFunctions.h"
+
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
-        std::unordered_map<ShaderStage, const char*> ShaderStageEntryPointNameMap = {
-            {ShaderStage::Vertex, "VS_MAIN"},
-            {ShaderStage::Pixel, "PS_MAIN"},
-            {ShaderStage::Compute, "CS_MAIN"},
-            {ShaderStage::Geometry, "GS_MAIN"}};
-
-        // TODO: Move these to VKUtilites
-
-        VKShader::VKShader(const RZShaderDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
+        static u32 GetStrideFromVulkanFormat(VkFormat format)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_Desc = desc;
+            switch (format) {
+                case VK_FORMAT_R8_SINT:
+                    return sizeof(int);
+                case VK_FORMAT_R32_SFLOAT:
+                    return sizeof(FLOAT);
+                case VK_FORMAT_R32G32_SFLOAT:
+                    return sizeof(glm::vec2);
+                case VK_FORMAT_R32G32B32_SFLOAT:
+                    return sizeof(glm::vec3);
+                case VK_FORMAT_R32G32B32A32_SFLOAT:
+                    return sizeof(glm::vec4);
+                case VK_FORMAT_R32G32_SINT:
+                    return sizeof(glm::ivec2);
+                case VK_FORMAT_R32G32B32_SINT:
+                    return sizeof(glm::ivec3);
+                case VK_FORMAT_R32G32B32A32_SINT:
+                    return sizeof(glm::ivec4);
+                case VK_FORMAT_R32G32_UINT:
+                    return sizeof(glm::uvec2);
+                case VK_FORMAT_R32G32B32_UINT:
+                    return sizeof(glm::uvec3);
+                case VK_FORMAT_R32G32B32A32_UINT:
+                    return sizeof(glm::uvec4);    //Need uintvec?
+                case VK_FORMAT_R32_UINT:
+                    return sizeof(unsigned int);
+                default:
+                    RAZIX_CORE_ERROR("Unsupported Format {0}", format);
+                    return 0;
+            }
 
-            m_Desc.name = Razix::Utilities::GetFileName(desc.filePath);
+            return 0;
+        }
+
+        static u32 pushBufferLayout(VkFormat format, const std::string& name, RZVertexBufferLayout& layout)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // TODO: Add buffer layout for all supported types
+            switch (format) {
+                case VK_FORMAT_R8_SINT:
+                    layout.push<int>(name);
+                    break;
+                case VK_FORMAT_R32_SFLOAT:
+                    layout.push<FLOAT>(name);
+                    break;
+                case VK_FORMAT_R32G32_SFLOAT:
+                    layout.push<glm::vec2>(name);
+                    break;
+                case VK_FORMAT_R32G32B32_SFLOAT:
+                    layout.push<glm::vec3>(name);
+                    break;
+                case VK_FORMAT_R32G32B32A32_SFLOAT:
+                    layout.push<glm::vec4>(name);
+                    break;
+                default:
+                    RAZIX_CORE_ERROR("Unsupported Format {0}", format);
+                    return 0;
+            }
+
+            return 0;
+        }
+
+        static DescriptorType VKToEngineDescriptorType(SpvReflectDescriptorType type)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            switch (type) {
+                case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    return DescriptorType::ImageSamplerCombined;
+                    break;
+                case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    return DescriptorType::UniformBuffer;
+                    break;
+            }
+
+            // FIXME: Make this return something like NONE and cause a ASSERT_ERROR
+            return DescriptorType::UniformBuffer;
+        }
+
+        VKShader::VKShader(const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            setShaderFilePath(filePath);
+
+            m_Name = Razix::Utilities::GetFileName(filePath);
 
             // Read the *.rzsf shader file to get the necessary shader stages and it's corresponding compiled shader file virtual path
-            m_ParsedRZSF = RZShader::ParseRZSF(desc.filePath);
+            m_ParsedRZSF = RZShader::ParseRZSF(filePath);
 
             // Cross compile the shaders if necessary to reflect it onto GLSL
             // TODO: Make this shit dynamic!
@@ -55,9 +130,17 @@ namespace Razix {
 
             // Create the shader modules and the pipeline shader stage create infos that will be bound to the pipeline
             createShaderModules();
+
+            for (const auto& spvSource: m_ParsedRZSF) {
+                VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_SHADER_MODULE, (uint64_t) m_ShaderCreateInfos[spvSource.first].module);
+            }
         }
 
-        RAZIX_CLEANUP_RESOURCE_IMPL(VKShader)
+        VKShader::~VKShader()
+        {
+        }
+
+        void VKShader::DestroyResource()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -152,7 +235,7 @@ namespace Razix {
                 RZVirtualFileSystem::Get().resolvePhysicalPath(virtualPath, outPath);
                 int64_t fileSize = RZFileSystem::GetFileSize(outPath);
 
-                const u8* spvByteCode = reinterpret_cast<u8*>(RZVirtualFileSystem::Get().readFile(virtualPath));
+                const void* spvByteCode = reinterpret_cast<void*>(RZVirtualFileSystem::Get().readFile(virtualPath));
 
                 // Generate reflection data for a shader
                 SpvReflectShaderModule module;
@@ -179,16 +262,8 @@ namespace Razix {
                     for (sz i = 0; i < module.input_variable_count; i++) {
                         SpvReflectInterfaceVariable inputVar = *module.input_variables[i];
 
-                        if (inputVar.semantic == NULL && inputVar.name == NULL)
+                        if (std::string(inputVar.name) == "gl_VertexIndex" || inputVar.name == "vs_out")
                             break;
-
-                        if (inputVar.semantic && std::string(inputVar.semantic) == "SV_VertexID")
-                            break;
-
-                        if (inputVar.name && (std::string(inputVar.name) == "gl_VertexIndex" || std::string(inputVar.name) == "vs_out"))
-                            break;
-
-#if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
 
                         // Fill the vulkan input variables attribute information
                         VkVertexInputAttributeDescription verextInputattribDesc = {};
@@ -199,33 +274,17 @@ namespace Razix {
 
                         m_VertexInputAttributeDescriptions.push_back(verextInputattribDesc);
 
-                        m_VertexInputStride += VKUtilities::GetStrideFromVulkanFormat((VkFormat) inputVar.format);
+                        m_VertexInputStride += GetStrideFromVulkanFormat((VkFormat) inputVar.format);
 
-                        VKUtilities::PushBufferLayout((VkFormat) inputVar.format, inputVar.name, m_BufferLayout);
-#else
-                        // SOA so we will have a attrib per binding+location pair and also multiple VkVertexInputBindingDescriptions
+                        // Create the buffer layout for Razix engine
+                        pushBufferLayout((VkFormat) inputVar.format, inputVar.name, m_BufferLayout);
 
-                        VkVertexInputAttributeDescription verextInputattribDesc = {};
-                        verextInputattribDesc.binding                           = inputVar.location;    // Since we will be doing SOA instead of AOS
-                        verextInputattribDesc.location                          = inputVar.location;
-                        verextInputattribDesc.format                            = (VkFormat) inputVar.format;
-                        verextInputattribDesc.offset                            = 0;
-                        m_VertexInputAttributeDescriptions.push_back(verextInputattribDesc);
-
-                        VkVertexInputBindingDescription bindingDesc = {};
-                        bindingDesc.binding                         = verextInputattribDesc.binding;
-                        bindingDesc.stride                          = VKUtilities::GetStrideFromVulkanFormat((VkFormat) inputVar.format);
-                        bindingDesc.inputRate                       = VK_VERTEX_INPUT_RATE_VERTEX;
-                        m_VertexInputBindingDescriptions.push_back(bindingDesc);
-
-                        // TODO: Not creating the buffer layout for Razix engine, but in case of SOA we will have many, each for a buffer, they are added manually for now, not reflected.
-#endif
                         //delete inputVar;
                     }
 
                     // FIXME: Make this intuitive and don't hard code it
                     // Specializing vertex format for ImGui shaders
-                    if (spvSource.second == "Compiled/SPIRV/Shader.Builtin.ImGui.vert.spv" || m_Desc.libraryID == ShaderBuiltin::ImGui) {
+                    if (spvSource.second == "Compiled/SPIRV/Shader.Builtin.ImGui.vert.spv" || m_ShaderLibraryID == ShaderBuiltin::ImGui) {
                         struct ImDrawVert
                         {
                             ImVec2 pos;
@@ -293,7 +352,7 @@ namespace Razix {
                     bindingInfo.location.binding = descriptor.binding;
                     bindingInfo.location.set     = descriptor.set;
                     bindingInfo.count            = descriptor.count;
-                    bindingInfo.type             = VKUtilities::VKToEngineDescriptorType(descriptor.descriptor_type);
+                    bindingInfo.type             = VKToEngineDescriptorType(descriptor.descriptor_type);
                     bindingInfo.stage            = spvSource.first;
 
                     if (descriptor.count >= 1024)
@@ -382,7 +441,7 @@ namespace Razix {
                 else
                     RAZIX_CORE_TRACE("[Vulkan] Successfully created descriptor set layout");
 
-                VK_TAG_OBJECT(m_Desc.name, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, (uint64_t) setLayout)
+                VK_TAG_OBJECT(m_Name, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, (uint64_t) setLayout)
             }
 
             std::vector<VkDescriptorSetLayout> descriptorLayouts;
@@ -411,7 +470,7 @@ namespace Razix {
             else
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created pipeline layout!");
 
-            VK_TAG_OBJECT(m_Desc.name, VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64_t) m_PipelineLayout)
+            VK_TAG_OBJECT(m_Name, VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64_t) m_PipelineLayout)
 
             // Replace the Set a index BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START with the bindless set layout
             if (potentiallyBindless) {
@@ -460,7 +519,7 @@ namespace Razix {
                 shaderModuleCI.pCode                    = spvByteCode;
 
                 m_ShaderCreateInfos[spvSource.first].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-                m_ShaderCreateInfos[spvSource.first].pName = ShaderStageEntryPointNameMap[spvSource.first];
+                m_ShaderCreateInfos[spvSource.first].pName = "main";    // TODO: Extract this from shader later
                 m_ShaderCreateInfos[spvSource.first].stage = VKUtilities::ShaderStageToVK(spvSource.first);
 
                 if (VK_CHECK_RESULT(vkCreateShaderModule(VKDevice::Get().getDevice(), &shaderModuleCI, nullptr, &m_ShaderCreateInfos[spvSource.first].module)))
@@ -468,11 +527,8 @@ namespace Razix {
                 else
                     RAZIX_CORE_TRACE("[Vulkan] Successfully created shader module");
 
-                // Name tag
-                VK_TAG_OBJECT(m_Desc.filePath, VK_OBJECT_TYPE_SHADER_MODULE, (uint64_t) m_ShaderCreateInfos[spvSource.first].module);
-
                 delete spvByteCode;
             }
         }
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix

@@ -3,109 +3,97 @@
 #include "Razix/Core/RZCore.h"
 
 #include <functional>
+#include <iostream>
 #include <sstream>
-#include <typeindex>
-#include <unordered_map>
 
 namespace Razix {
 
-    // TODO: use macros for new event type/category registration and fill these enums using macros during compile time
-    // https://deplinenoise.wordpress.com/2014/02/23/using-c11-capturing-lambdas-w-vanilla-c-api-functions/
     // Events in Razix are currently blocking
+    //
     // This means that they are handled/dispatched as given and not queued
     enum class EventType
     {
-        kNone = 0,
-        // Window
-        kWindowClose,
-        kWindowResize,
-        kWindowFocus,
-        kWindowLostFocus,
-        kWindowMoved,
-        // App
-        kAppTick,
-        kAppUpdate,
-        kAppRender,
-        // Input
-        kKeyPressed,
-        kKeyReleased,
-        kMouseButtonPressed,
-        kMouseButtonReleased,
-        kMouseMoved,
-        kMouseScrolled,
-        // TODO: Joystick events
-        // Asset System
-        kAssetCreated,
-        kAssetModified,
-        kAssetMemoryMoved,
-        kAssetCopied,
-        kAssetDeleted,
-        kAssetBroken,
-        kAssetSerialized,
-        kAssetDeserialzed,
-        COUNT
+        None = 0,
+        WindowClose,
+        WindowResize,
+        WindowFocus,
+        WindowLostFocus,
+        WindowMoved,
+        AppTick,
+        AppUpdate,
+        AppRender,
+        KeyPressed,
+        KeyReleased,
+        MouseButtonPressed,
+        MouseButtonReleased,
+        MouseMoved,
+        MouseScrolled
     };
 
-    // util macros to simplify code gen
-#define EVENT_CLASS_TYPE(type)                      \
-    static EventType GetStaticType()                \
-    {                                               \
-        return EventType::type;                     \
-    }                                               \
-    virtual EventType GetEventType() const override \
-    {                                               \
-        return GetStaticType();                     \
-    }                                               \
-    virtual cstr GetName() const override           \
-    {                                               \
-        return #type;                               \
-    }
-
-    /**
-     * Base class from which all the RZEvents derive
-     * This class uses visitor pattern
-     */
-    class RAZIX_API RZEvent
+    enum class EventCategory
     {
+        None                     = 0,
+        EventCategoryApplication = RZ_BIT_SHIFT(0),
+        EventCategoryInput       = RZ_BIT_SHIFT(1),
+        EventCategoryKeyboard    = RZ_BIT_SHIFT(2),
+        EventCategoryMouse       = RZ_BIT_SHIFT(3),
+        EventCategoryMouseButton = RZ_BIT_SHIFT(4)
+    };
+
+#define EVENT_CLASS_TYPE(type)                                                    \
+    static EventType    GetStaticType() { return EventType::##type; }             \
+    virtual EventType   GetEventType() const override { return GetStaticType(); } \
+    virtual cstr GetName() const override { return #type; }
+
+#define EVENT_CLASS_CATEGORY(category) \
+    virtual int GetCategoryFlags() const override { return category; }
+
+    class RAZIX_API RZEvent : public RZRoot
+    {
+        friend class RZEventDispatcher;
+
     public:
         bool Handled = false;
 
     public:
-        virtual ~RZEvent() = default;
-
-        virtual cstr        GetName() const      = 0;
-        virtual EventType   GetEventType() const = 0;
+        virtual EventType   GetEventType() const     = 0;
+        virtual cstr GetName() const          = 0;
+        virtual int         GetCategoryFlags() const = 0;
         virtual std::string ToString() const { return GetName(); }
 
-    private:
-        friend class RZEventDispatcher;
+        inline bool IsInCategory(EventCategory category)
+        {
+            return GetCategoryFlags() & (int) category;
+        }
     };
 
-    /**
-     * Event dispatcher using callback functions
-     */
-    class RZEventDispatcher
+    class RZEventDispatcher : public RZRoot
     {
-    public:
         template<typename T>
-        void registerCallback(std::function<void(T&)> callback)
+        using EventFn = std::function<bool(T&)>;
+
+    public:
+        RZEventDispatcher(RZEvent& event)
+            : m_Event(event)
         {
-            callbacks[typeid(T)] = [cb = std::move(callback)](RZEvent& e) {
-                cb(static_cast<T&>(e));
-            };
         }
 
-        void dispatch(RZEvent& event)
+        template<typename T>
+        bool Dispatch(EventFn<T> func)
         {
-            auto it = callbacks.find(typeid(event));
-            if (it != callbacks.end()) {
-                it->second(event);
+            if (m_Event.GetEventType() == T::GetStaticType()) {
+                m_Event.Handled = func(*(T*) &m_Event);
+                return true;
             }
+            return false;
         }
 
     private:
-        using Callback = std::function<void(RZEvent&)>;
-        std::unordered_map<std::type_index, Callback> callbacks;
+        RZEvent& m_Event;
     };
 
+    inline std::ostream& operator<<(std::ostream& os, const RZEvent& e)
+    {
+        return os << e.ToString();
+    }
 }    // namespace Razix

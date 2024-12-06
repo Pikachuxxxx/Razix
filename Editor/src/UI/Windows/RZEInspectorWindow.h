@@ -59,7 +59,7 @@ namespace Razix {
 
         signals:
             void InspectorPropertyChanged();
-            void OnMeshMaterialSelected(Gfx::RZMaterial* material);
+            void OnMeshMaterialSelected(Graphics::RZMaterial* material);
 
         public slots:
             void OnNameEdit();

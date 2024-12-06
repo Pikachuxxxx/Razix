@@ -7,7 +7,7 @@
     #include "Razix/Core/RZDebugConfig.h"
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         /* A Vulkan fence is a object used to synchronize between the CPU and GPU */
         class VKFence : public RZRoot
@@ -18,7 +18,7 @@ namespace Razix {
              * 
              * @param isSignalled Whether or not to create a fence in a signaled state or not
              */
-            VKFence(bool isSignalled = false);
+            VKFence( bool isSignalled = false);
             ~VKFence();
 
             /* Indicates whether the fence is in signaled or not */
@@ -38,6 +38,6 @@ namespace Razix {
             VkFence m_Fence;      /* The handle to the Vulkan fence object                                        */
             bool    m_IsSignaled; /* Boolean that indicates the whether the fence is in signaled state or not     */
         };
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix
 #endif

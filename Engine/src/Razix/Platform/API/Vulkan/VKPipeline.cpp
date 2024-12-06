@@ -3,17 +3,13 @@
 // clang-format on
 #include "VKPipeline.h"
 
-#include "Razix/Core/RZEngine.h"
-
-#include "Razix/AssetSystem/RZAssetFileSpec.h"
-
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKShader.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         VKPipeline::VKPipeline(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
@@ -24,18 +20,11 @@ namespace Razix {
             init(pipelineInfo RZ_DEBUG_E_ARG_NAME);
         }
 
-        RAZIX_CLEANUP_RESOURCE_IMPL(VKPipeline)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            vkDestroyPipeline(VKDevice::Get().getDevice(), m_Pipeline, nullptr);
-        }
-
         void VKPipeline::Bind(RZDrawCommandBufferHandle cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
             vkCmdBindPipeline(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
         }
 
@@ -48,22 +37,19 @@ namespace Razix {
             //----------------------------
             // Vertex Input Layout Stage
             //----------------------------
-#if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
             VkVertexInputBindingDescription vertexBindingDescription{};
             vertexBindingDescription.binding   = 0;
             vertexBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
             vertexBindingDescription.stride    = shader->getInputStride();
-#endif
 
             // Get the input description information from the shader reflection
-            auto& vertexInputBindingDescription   = static_cast<VKShader*>(shader)->getVertexBindingDescriptions();
-            auto& vertexInputAttributeDescription = static_cast<VKShader*>(shader)->getVertexAttribDescriptions();
+            const std::vector<VkVertexInputAttributeDescription>& vertexInputAttributeDescription = static_cast<VKShader*>(shader)->getVertexAttribDescriptions();
 
             VkPipelineVertexInputStateCreateInfo vertexInputSCI{};
             vertexInputSCI.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
             vertexInputSCI.pNext                           = nullptr;
-            vertexInputSCI.vertexBindingDescriptionCount   = u32(vertexInputBindingDescription.size());
-            vertexInputSCI.pVertexBindingDescriptions      = vertexInputBindingDescription.data();
+            vertexInputSCI.vertexBindingDescriptionCount   = vertexBindingDescription.stride == 0 ? 0 : 1;
+            vertexInputSCI.pVertexBindingDescriptions      = vertexBindingDescription.stride == 0 ? nullptr : &vertexBindingDescription;
             vertexInputSCI.vertexAttributeDescriptionCount = u32(vertexInputAttributeDescription.size());
             vertexInputSCI.pVertexAttributeDescriptions    = vertexInputAttributeDescription.data();
 
@@ -187,15 +173,14 @@ namespace Razix {
             depthStencilSCI.front          = depthStencilSCI.back;
 
             //----------------------------
-            // Multi sample State (MSAA)
+            // Multi sample State
             //----------------------------
             VkPipelineMultisampleStateCreateInfo multiSampleSCI{};
-            multiSampleSCI.sType       = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-            multiSampleSCI.pNext       = nullptr;
-            multiSampleSCI.pSampleMask = nullptr;
-            // Razix::RZEngine::Get().getGlobalEngineSettings().EnableMSAA use to apply more samples
+            multiSampleSCI.sType                 = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+            multiSampleSCI.pNext                 = nullptr;
+            multiSampleSCI.pSampleMask           = nullptr;
             multiSampleSCI.rasterizationSamples  = VK_SAMPLE_COUNT_1_BIT;
-            multiSampleSCI.sampleShadingEnable   = VK_FALSE;
+            multiSampleSCI.sampleShadingEnable   = VK_TRUE;
             multiSampleSCI.alphaToCoverageEnable = VK_FALSE;
             multiSampleSCI.alphaToOneEnable      = VK_FALSE;
             multiSampleSCI.minSampleShading      = 0.5;
@@ -244,5 +229,12 @@ namespace Razix {
 
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_PIPELINE, (uint64_t) m_Pipeline);
         }
-    }    // namespace Gfx
+
+        void VKPipeline::DestroyResource()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            vkDestroyPipeline(VKDevice::Get().getDevice(), m_Pipeline, nullptr);
+        }
+    }    // namespace Graphics
 }    // namespace Razix

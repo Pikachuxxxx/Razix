@@ -9,7 +9,7 @@
     #include "VKUtilities.h"
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         VKCommandPool::VKCommandPool(int queueIndex, VkCommandPoolCreateFlags flags)
         {
@@ -34,6 +34,6 @@ namespace Razix {
 
             VK_CHECK_RESULT(vkResetCommandPool(VKDevice::Get().getDevice(), m_CmdPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
         }
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix
 #endif

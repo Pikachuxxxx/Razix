@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Core/UUID/RZUUID.h"
+#include "Razix/Core/RZUUID.h"
 
 #include <cereal/cereal.hpp>
 

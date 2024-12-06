@@ -4,7 +4,7 @@ namespace Razix {
     /**
      * Parses the command line arguments for the Razix Application
      */
-    class RAZIX_API RZCommandLineParser
+    class RAZIX_API RZCommandLineParser : public RZRoot
     {
     public:
         /* Command Line Option information */
@@ -26,7 +26,7 @@ namespace Razix {
          *
          * @param arguments The list of all the arguments to parse
          */
-        void parse(std::vector<const char*>& arguments);
+        void parse(std::vector<cstr>& arguments);
 
         /**
          * prints the description of all command available and their description
@@ -43,6 +43,10 @@ namespace Razix {
         std::string getValueAsString(std::string name);
         int32_t     getValueAsInt(std::string name);
 
+    private:
+        std::unordered_map<std::string, CommandLineOption> m_CommandOptions; /* The list of all command line options available, if passed via command line, it is set */
+
+    private:
         /**
          * Adds the command which can be parsed from the command line
          *
@@ -51,9 +55,6 @@ namespace Razix {
          * @param hasValue  Denotes that the command takes a value after the flag
          * @param help      Description of the command
          */
-        void addCommand(std::string name, std::vector<std::string> commands, bool hasValue, std::string help);
-
-    private:
-        std::unordered_map<std::string, CommandLineOption> m_CommandOptions; /* The list of all command line options available, if passed via command line, it is set */
+        void AddCommand(std::string name, std::vector<std::string> commands, bool hasValue, std::string help);
     };
 }    // namespace Razix

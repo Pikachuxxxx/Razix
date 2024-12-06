@@ -3,14 +3,17 @@
 // clang-format on
 #include "RZEngine.h"
 
-#include "Razix/Core/SplashScreen/RZSplashScreen.h"
-#include "Razix/Core/Version/RazixVersion.h"
-#include "Razix/Gfx/Materials/RZMaterial.h"
+#include "Razix/Core/RZSplashScreen.h"
+#include "Razix/Core/RazixVersion.h"
+#include "Razix/Graphics/Materials/RZMaterial.h"
 
-#include "Razix/Core/Memory/RZCPUMemoryManager.h"
-#include "Razix/Gfx/RHI/RZGPUMemoryManager.h"
+#include "Razix/Core/RZCPUMemoryManager.h"
+#include "Razix/Graphics/RHI/RZGPUMemoryManager.h"
 
-#include "Razix/Utilities/RZiniParser.h"
+#include <chrono>
+
+#include <d3d11.h>
+#include <vulkan/vulkan.h>
 
 namespace Razix {
     void RZEngine::Ignite()
@@ -23,29 +26,17 @@ namespace Razix {
         RAZIX_CORE_INFO("***********************************");
         Razix::RZSplashScreen::Get().setLogString("Igniting Engine...");
 
+        // TODO: Temp code remove this!!!
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
         // Logging the Engine Version details
         RAZIX_CORE_INFO("Engine Stats : [Version : {0} , Release Stage : {1}, Release Date : {2}]", Razix::RazixVersion.getVersionString(), Razix::RazixVersion.getReleaseStageString(), Razix::RazixVersion.getReleaseDateString());
 
         //------------------------------//
         // Igniting all the sub-systems //
         //------------------------------//
-
-        // Load the memory budgets
-        RAZIX_CORE_INFO("Loading Department/Global Budgets...");
-        bool success = Memory::ParseBudgetFile("//RazixConfig/RazixDepartmentBudgets.ini");
-
-        // TODO: maybe use RAZIX_CORE_ASSERT
-        if (success)
-            RAZIX_CORE_INFO("Department/Global Budgets Load Success!");
-        else {
-            RAZIX_CORE_ERROR("Department/Global Budgets Load Failed! Defaulting...");
-        }
-
-        // TODO: Load the Map the default world renderer settings file...the scene can override this
-        Utilities::RZiniParser worldSettingsParser;
-        success = worldSettingsParser.parse("//RazixConfig/DefaultWorldRendererSettings.ini");
-        if (success)
-            RAZIX_CORE_INFO("Default World Renderer Settings Load Success!");
+        // 1. Virtual File System
+        RZVirtualFileSystem::Get().StartUp();
 
         // TODO: Temp code remove this!!!
         //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -97,8 +88,8 @@ namespace Razix {
         RAZIX_CORE_INFO("*   Post Graphics Ignition....    *");
         RAZIX_CORE_INFO("***********************************");
 
-        // Ignite the shader library after the Graphics has been initialized (Shutdown by RHI when being destroyed)
-        Gfx::RZShaderLibrary::Get().StartUp();
+        // Ignite the shader library after the Graphics has been initialized
+        //Graphics::RZShaderLibrary::Get().StartUp();
         //Graphics::RZMaterial::InitDefaultTexture();
     }
 
@@ -109,7 +100,7 @@ namespace Razix {
         RAZIX_CORE_ERROR("***********************************");
 
         // Shutting down all the sub-systems
-
+        
         // Shutdown the lua script handle
         Scripting::RZLuaScriptHandler::Get().ShutDown();
         // Shutdown the Scene Manager
@@ -132,39 +123,21 @@ namespace Razix {
 
     void RZEngine::LoadEngineConfigFile()
     {
-        Utilities::RZiniParser engineConfigParser;
-        // Engine is in the same directory as the executable
-        std::string defaultConfigPath    = "//RazixConfig/DefaultEngineConfig.ini";
-        bool        skipVFSForConfigLoad = false;
-        if (m_CommandLineParser.isSet("engine config filename")) {
-            defaultConfigPath    = m_CommandLineParser.getValueAsString("engine config filename");
-            skipVFSForConfigLoad = true;
-        }
-        bool success = engineConfigParser.parse(defaultConfigPath, skipVFSForConfigLoad);
-        if (success) {
-            // Rendering Settings
-            {
-                engineConfigParser.getValue<bool>("Rendering", "EnableAPIValidation", m_EngineSettings.EnableAPIValidation);
-                engineConfigParser.getValue<bool>("Rendering", "EnableMSAA", m_EngineSettings.EnableMSAA);
-                engineConfigParser.getValue<bool>("Rendering", "EnableBindless", m_EngineSettings.EnableBindless);
-
-                int perfMode = 0;
-                engineConfigParser.getValue<int>("Rendering", "PerfMode", perfMode);
-                m_EngineSettings.PerformanceMode = (PerfMode) perfMode;
-
-                int GfxQuality = 0;
-                engineConfigParser.getValue<int>("Rendering", "GfxQuality", GfxQuality);
-                m_EngineSettings.GfxQuality = (GfxQualityMode) GfxQuality;
-
-                engineConfigParser.getValue<int>("Rendering", "MaxShadowCascades", m_EngineSettings.MaxShadowCascades);
-
-                int FPS = 0;
-                engineConfigParser.getValue<int>("Rendering", "TargetFPS", FPS);
-                m_EngineSettings.TargetFPSCap = (Gfx::TargetFPS) FPS;
-
-                engineConfigParser.getValue<int>("Rendering", "MaxShadowCascades", m_EngineSettings.MaxShadowCascades);
-                engineConfigParser.getValue<int>("Rendering", "MSAASamples", m_EngineSettings.MSAASamples);
-            }
+        std::ifstream config_file("./Engine/content/config/razix_engine.config");
+        if (config_file.good()) {
+            std::string line;
+            std::getline(config_file, line);
+            std::cout << line << std::endl;
+            auto installationDir    = line.substr(0, line.find("=")).length();
+            m_EngineInstallationDir = line.erase(0, installationDir + 1);
+            std::cout << m_EngineInstallationDir << std::endl;
+        } else {
+#ifdef RAZIX_DEBUG
+            m_EngineInstallationDir = RAZIX_STRINGIZE(RAZIX_ROOT_DIR);
+#elif defined RAZIX_DISTRIBUTION
+            m_EngineInstallationDir = "C:/Program Files/Razix";
+#endif
         }
     }
+
 }    // namespace Razix

@@ -8,8 +8,10 @@ local qt = premake.extensions.qt
 project "qspdlog"
     kind "StaticLib"
     language "C++"
-    cppdialect (engine_global_config.cpp_dialect)
+    cppdialect "C++20"
     staticruntime "off"
+        -- Debugging directory = where the main premake5.lua is located
+    debugdir "%{wks.location}../"
 
     -- be carefull, this function enables Qt only for the current configuration.
     -- So if you want to enable it on all configuration, be sure that no filter
@@ -72,10 +74,6 @@ project "qspdlog"
         editandcontinue "Off"
         qtpath "C:/Qt/5.15.2/msvc2019_64/"
         qtbinpath "C:/Qt/5.15.2/msvc2019_64/bin"
-        
-    filter "system:macosx"
-        qtbinpath "/opt/homebrew/opt/qt@5/bin"
-        qtpath "/opt/homebrew/opt/qt@5"
 
    filter "configurations:Debug"
        defines { "RAZIX_DEBUG", "_DEBUG" }

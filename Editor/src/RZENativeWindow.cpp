@@ -72,9 +72,5 @@ namespace Razix {
             ConstructionFuncNative = NativeConstructionFunc;
         }
 
-        void RZENativeWindow::setTitle(const char* title)
-        {
-            m_Data.Title = title;
-        }
     }    // namespace Editor
 }    // namespace Razix

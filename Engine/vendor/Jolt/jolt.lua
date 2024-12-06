@@ -1,16 +1,10 @@
 project "Jolt"
     kind "StaticLib"
     language "C++"
-    cppdialect "C++17" -- Exception as Jolt was initially authored using C++17
+    cppdialect "C++20"
     staticruntime "off"
 
      includedirs
-    {
-         "./",
-         "./Jolt"
-    }
-    
-    externalincludedirs
     {
          "./",
          "./Jolt"
@@ -24,7 +18,7 @@ project "Jolt"
 
     filter "system:windows"
         systemversion "latest"
-        cppdialect (engine_global_config.cpp_dialect)
+        cppdialect "C++20"
         staticruntime "off"
 
     filter "configurations:Debug"

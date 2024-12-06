@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Razix/Gfx/RHI/RHI.h"
+#include "Razix/Graphics/RHI/RHI.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         class DX12RenderContext : public RHI
         {
@@ -31,7 +31,6 @@ namespace Razix {
             void         BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx) override;
             void         DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT) override;
             void         DrawIndexedAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0) override;
-            void         DispatchAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 groupX, u32 groupY, u32 groupZ) override;
             void         DestroyAPIImpl() override;
             void         OnResizeAPIImpl(u32 width, u32 height) override;
             void         BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant) override;
@@ -53,7 +52,7 @@ namespace Razix {
             rzstl::UniqueRef<DX12Fence> m_RenderReadyFence;
             u64                         m_InflightFramesFenceValues[RAZIX_MAX_FRAMES] = {0, 0, 0};
         };
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix
 
 #endif

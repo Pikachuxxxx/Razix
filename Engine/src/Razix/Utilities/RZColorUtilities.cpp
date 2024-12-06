@@ -25,14 +25,5 @@ namespace Razix {
             glm::vec3  color = glm::vec3(rz & glm::uvec3(0x7fffffffU)) / float(0x7fffffff);
             return glm::vec4(color, 1.0f);
         }
-
-        RAZIX_API uint32_t ColorToARGB(const glm::vec4& color)
-        {
-            return (0xFF << 24) |
-                   (static_cast<uint8_t>(glm::clamp(color.r, 0.0f, 1.0f) * 255.0f) << 16) |
-                   (static_cast<uint8_t>(glm::clamp(color.g, 0.0f, 1.0f) * 255.0f) << 8) |
-                   static_cast<uint8_t>(glm::clamp(color.b, 0.0f, 1.0f) * 255.0f);
-        }
-
     }    // namespace Utilities
 }    // namespace Razix

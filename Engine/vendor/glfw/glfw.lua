@@ -54,34 +54,7 @@ project "GLFW"
         {
             "_GLFW_X11"
         }
-    
-    filter "system:macosx"
-        pic "On"
 
-        systemversion "latest"
-        staticruntime "off"
-
-        defines { "_GLFW_COCOA", "_GLFW_USE_RETINA" }
-    
-        files {
-            "src/cocoa_platform.h",
-            "src/cocoa_joystick.h",
-            "src/nsgl_context.h",
-            "src/cocoa_init.m",
-            "src/cocoa_joystick.m",
-            "src/cocoa_monitor.m",
-            "src/cocoa_window.m",
-            "src/cocoa_time.c",
-            "src/nsgl_context.m",
-            "src/posix_thread.h",
-            "src/posix_thread.c",
-            "src/egl_context.h",
-            "src/egl_context.c",
-            "src/osmesa_context.h",
-            "src/osmesa_context.c"
-        }
-
-    
     filter "system:windows"
         systemversion "latest"
         staticruntime "off"

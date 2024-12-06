@@ -4,7 +4,7 @@
 #include "VKStorageBuffer.h"
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         VKStorageBuffer::VKStorageBuffer(u32 size, const std::string& name)
         // : VKBuffer(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, size, nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG(name))
@@ -32,5 +32,5 @@ namespace Razix {
             //VKBuffer::destroy();
         }
 
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix

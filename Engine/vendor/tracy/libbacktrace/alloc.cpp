@@ -41,128 +41,134 @@ POSSIBILITY OF SUCH DAMAGE.  */
 
 #include "../common/TracyAlloc.hpp"
 
-namespace tracy {
+namespace tracy
+{
 
-    /* Allocation routines to use on systems that do not support anonymous
+/* Allocation routines to use on systems that do not support anonymous
    mmap.  This implementation just uses malloc, which means that the
    backtrace functions may not be safely invoked from a signal
    handler.  */
 
-    /* Allocate memory like malloc.  If ERROR_CALLBACK is NULL, don't
+/* Allocate memory like malloc.  If ERROR_CALLBACK is NULL, don't
    report an error.  */
 
-    void *
-    backtrace_alloc(struct backtrace_state *state ATTRIBUTE_UNUSED,
-        size_t size, backtrace_error_callback error_callback,
-        void *data)
-    {
-        void *ret;
+void *
+backtrace_alloc (struct backtrace_state *state ATTRIBUTE_UNUSED,
+		 size_t size, backtrace_error_callback error_callback,
+		 void *data)
+{
+  void *ret;
 
-        ret = tracy_malloc(size);
-        if (ret == NULL) {
-            if (error_callback)
-                error_callback(data, "malloc", errno);
-        }
-        return ret;
+  ret = tracy_malloc (size);
+  if (ret == NULL)
+    {
+      if (error_callback)
+	error_callback (data, "malloc", errno);
+    }
+  return ret;
+}
+
+/* Free memory.  */
+
+void
+backtrace_free (struct backtrace_state *state ATTRIBUTE_UNUSED,
+		void *p, size_t size ATTRIBUTE_UNUSED,
+		backtrace_error_callback error_callback ATTRIBUTE_UNUSED,
+		void *data ATTRIBUTE_UNUSED)
+{
+  tracy_free (p);
+}
+
+/* Grow VEC by SIZE bytes.  */
+
+void *
+backtrace_vector_grow (struct backtrace_state *state ATTRIBUTE_UNUSED,
+		       size_t size, backtrace_error_callback error_callback,
+		       void *data, struct backtrace_vector *vec)
+{
+  void *ret;
+
+  if (size > vec->alc)
+    {
+      size_t alc;
+      void *base;
+
+      if (vec->size == 0)
+	alc = 32 * size;
+      else if (vec->size >= 4096)
+	alc = vec->size + 4096;
+      else
+	alc = 2 * vec->size;
+
+      if (alc < vec->size + size)
+	alc = vec->size + size;
+
+      base = tracy_realloc (vec->base, alc);
+      if (base == NULL)
+	{
+	  error_callback (data, "realloc", errno);
+	  return NULL;
+	}
+
+      vec->base = base;
+      vec->alc = alc - vec->size;
     }
 
-    /* Free memory.  */
+  ret = (char *) vec->base + vec->size;
+  vec->size += size;
+  vec->alc -= size;
+  return ret;
+}
 
-    void
-    backtrace_free(struct backtrace_state *state ATTRIBUTE_UNUSED,
-        void *p, size_t size ATTRIBUTE_UNUSED,
-        backtrace_error_callback error_callback ATTRIBUTE_UNUSED,
-        void *data                              ATTRIBUTE_UNUSED)
-    {
-        tracy_free(p);
-    }
+/* Finish the current allocation on VEC.  */
 
-    /* Grow VEC by SIZE bytes.  */
+void *
+backtrace_vector_finish (struct backtrace_state *state,
+			 struct backtrace_vector *vec,
+			 backtrace_error_callback error_callback,
+			 void *data)
+{
+  void *ret;
 
-    void *
-    backtrace_vector_grow(struct backtrace_state *state ATTRIBUTE_UNUSED,
-        size_t size, backtrace_error_callback error_callback,
-        void *data, struct backtrace_vector *vec)
-    {
-        void *ret;
-
-        if (size > vec->alc) {
-            size_t alc;
-            void  *base;
-
-            if (vec->size == 0)
-                alc = 32 * size;
-            else if (vec->size >= 4096)
-                alc = vec->size + 4096;
-            else
-                alc = 2 * vec->size;
-
-            if (alc < vec->size + size)
-                alc = vec->size + size;
-
-            base = tracy_realloc(vec->base, alc);
-            if (base == NULL) {
-                error_callback(data, "realloc", errno);
-                return NULL;
-            }
-
-            vec->base = base;
-            vec->alc  = alc - vec->size;
-        }
-
-        ret = (char *) vec->base + vec->size;
-        vec->size += size;
-        vec->alc -= size;
-        return ret;
-    }
-
-    /* Finish the current allocation on VEC.  */
-
-    void *
-    backtrace_vector_finish(struct backtrace_state *state,
-        struct backtrace_vector                    *vec,
-        backtrace_error_callback                    error_callback,
-        void                                       *data)
-    {
-        void *ret;
-
-        /* With this allocator we call realloc in backtrace_vector_grow,
+  /* With this allocator we call realloc in backtrace_vector_grow,
      which means we can't easily reuse the memory here.  So just
      release it.  */
-        if (!backtrace_vector_release(state, vec, error_callback, data))
-            return NULL;
-        ret       = vec->base;
-        vec->base = NULL;
-        vec->size = 0;
-        vec->alc  = 0;
-        return ret;
-    }
+  if (!backtrace_vector_release (state, vec, error_callback, data))
+    return NULL;
+  ret = vec->base;
+  vec->base = NULL;
+  vec->size = 0;
+  vec->alc = 0;
+  return ret;
+}
 
-    /* Release any extra space allocated for VEC.  */
+/* Release any extra space allocated for VEC.  */
 
-    int
-    backtrace_vector_release(struct backtrace_state *state ATTRIBUTE_UNUSED,
-        struct backtrace_vector                           *vec,
-        backtrace_error_callback                           error_callback,
-        void                                              *data)
+int
+backtrace_vector_release (struct backtrace_state *state ATTRIBUTE_UNUSED,
+			  struct backtrace_vector *vec,
+			  backtrace_error_callback error_callback,
+			  void *data)
+{
+  vec->alc = 0;
+
+  if (vec->size == 0)
     {
-        vec->alc = 0;
-
-        if (vec->size == 0) {
-            /* As of C17, realloc with size 0 is marked as an obsolescent feature, use
+      /* As of C17, realloc with size 0 is marked as an obsolescent feature, use
 	 free instead.  */
-            tracy_free(vec->base);
-            vec->base = NULL;
-            return 1;
-        }
-
-        vec->base = tracy_realloc(vec->base, vec->size);
-        if (vec->base == NULL) {
-            error_callback(data, "realloc", errno);
-            return 0;
-        }
-
-        return 1;
+      tracy_free (vec->base);
+      vec->base = NULL;
+      return 1;
     }
 
-}    // namespace tracy
+  vec->base = tracy_realloc (vec->base, vec->size);
+  if (vec->base == NULL)
+    {
+      error_callback (data, "realloc", errno);
+      return 0;
+    }
+
+  return 1;
+}
+
+}

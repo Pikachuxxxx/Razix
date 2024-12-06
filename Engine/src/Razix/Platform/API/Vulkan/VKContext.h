@@ -4,7 +4,7 @@
 
 #include "Razix/Core/OS/RZWindow.h"
 
-#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
@@ -16,7 +16,7 @@
 struct GLFWwindow;
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         class RAZIX_API VKContext : public RZGraphicsContext
         {
@@ -73,6 +73,6 @@ namespace Razix {
             static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data);
         };
 
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix
 #endif

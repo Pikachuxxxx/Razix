@@ -98,24 +98,22 @@ namespace Razix {
         return success ? result : std::string();
     }
 
-    bool RZFileSystem::WriteFile(const std::string& path, u8* buffer, i64 size = -1)
+    bool RZFileSystem::WriteFile(const std::string& path, u8* buffer)
     {
-        bool         fileExists = FileExists(path);
-        int          flags      = fileExists ? OPEN_EXISTING : CREATE_NEW;
-        const HANDLE file       = CreateFile(path.c_str(), GENERIC_WRITE, NULL, nullptr, flags, FILE_ATTRIBUTE_NORMAL, nullptr);
-        if (file == INVALID_HANDLE_VALUE) {
+        const HANDLE file = CreateFile(path.c_str(), GENERIC_WRITE, NULL, nullptr, CREATE_NEW | OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+        if (file == INVALID_HANDLE_VALUE)
             return false;
-        }
 
-        DWORD written;
-        ::WriteFile(file, buffer, static_cast<DWORD>(size), &written, nullptr);
+        const int64_t size = GetFileSizeInternal(file);
+        DWORD         written;
+        const bool    result = ::WriteFile(file, buffer, static_cast<DWORD>(size), &written, nullptr) != 0;
         CloseHandle(file);
-        return written != 0;
+        return result;
     }
 
     bool RZFileSystem::WriteTextFile(const std::string& path, const std::string& text)
     {
-        return WriteFile(path, (u8*) &text[0], text.size());
+        return WriteFile(path, (u8*) &text[0]);
     }
 }    // namespace Razix
 

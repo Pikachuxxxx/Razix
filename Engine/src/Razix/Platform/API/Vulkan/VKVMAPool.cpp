@@ -4,12 +4,12 @@
 #include "VKVMAPool.h"
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         u64 VKVMAPool::AllocateVideoMemoryFromPoolId(u32 poolIdx)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix

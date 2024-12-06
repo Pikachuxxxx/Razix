@@ -4,5 +4,5 @@
 #include "ActiveComponent.h"
 
 namespace Razix {
-
+   
 }    // namespace Razix

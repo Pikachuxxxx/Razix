@@ -1,39 +1,40 @@
-#include <cassert>
 #include <iostream>
-#include <numeric>
+#include <cassert>
 #include <string>
 #include <vector>
+#include <numeric>
 
 #include <CL/cl.h>
 
 #include <Tracy.hpp>
 #include <TracyOpenCL.hpp>
 
-#define CL_ASSERT(err)                                            \
-    if ((err) != CL_SUCCESS) {                                    \
-        std::cerr << "OpenCL Call Returned " << err << std::endl; \
-        assert(false);                                            \
+#define CL_ASSERT(err)                                              \
+    if((err) != CL_SUCCESS)                                         \
+    {                                                               \
+        std::cerr << "OpenCL Call Returned " << err << std::endl;   \
+        assert(false);                                              \
     }
 
 const char kernelSource[] =
-    "   void __kernel vectorAdd(global float* C, global float* A, global float* B, int N)  "
-    "   {                                                                                  "
-    "       int i = get_global_id(0);                                                      "
-    "       if (i < N) {                                                                   "
-    "           C[i] = A[i] + B[i];                                                        "
-    "       }                                                                              "
-    "   }                                                                                  ";
+"   void __kernel vectorAdd(global float* C, global float* A, global float* B, int N)  "
+"   {                                                                                  "
+"       int i = get_global_id(0);                                                      "
+"       if (i < N) {                                                                   "
+"           C[i] = A[i] + B[i];                                                        "
+"       }                                                                              "
+"   }                                                                                  ";
 
 int main()
 {
-    cl_platform_id   platform;
-    cl_device_id     device;
-    cl_context       context;
+    cl_platform_id platform;
+    cl_device_id device;
+    cl_context context;
     cl_command_queue commandQueue;
-    cl_kernel        vectorAddKernel;
-    cl_program       program;
-    cl_int           err;
-    cl_mem           bufferA, bufferB, bufferC;
+    cl_kernel vectorAddKernel;
+    cl_program program;
+    cl_int err;
+    cl_mem bufferA, bufferB, bufferC;
 
     TracyCLCtx tracyCLCtx;
 
@@ -43,7 +44,8 @@ int main()
         cl_uint numPlatforms = 0;
         CL_ASSERT(clGetPlatformIDs(0, nullptr, &numPlatforms));
 
-        if (numPlatforms == 0) {
+        if (numPlatforms == 0)
+        {
             std::cerr << "Cannot find OpenCL platform to run this application" << std::endl;
             return 1;
         }
@@ -65,16 +67,17 @@ int main()
 
         std::cout << "OpenCL Device: " << deviceName << std::endl;
 
-        err     = CL_SUCCESS;
+        err = CL_SUCCESS;
         context = clCreateContext(nullptr, 1, &device, nullptr, nullptr, &err);
         CL_ASSERT(err);
 
-        size_t      kernelSourceLength = sizeof(kernelSource);
-        const char* kernelSourceArray  = {kernelSource};
-        program                        = clCreateProgramWithSource(context, 1, &kernelSourceArray, &kernelSourceLength, &err);
+        size_t kernelSourceLength = sizeof(kernelSource);
+        const char* kernelSourceArray = { kernelSource };
+        program = clCreateProgramWithSource(context, 1, &kernelSourceArray, &kernelSourceLength, &err);
         CL_ASSERT(err);
 
-        if (clBuildProgram(program, 1, &device, nullptr, nullptr, nullptr) != CL_SUCCESS) {
+        if (clBuildProgram(program, 1, &device, nullptr, nullptr, nullptr) != CL_SUCCESS)
+        {
             size_t programBuildLogBufferSize = 0;
             CL_ASSERT(clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, 0, nullptr, &programBuildLogBufferSize));
             std::string programBuildLog(programBuildLogBufferSize, '\0');
@@ -92,7 +95,7 @@ int main()
 
     tracyCLCtx = TracyCLContext(context, device);
 
-    size_t             N = 10 * 1024 * 1024 / sizeof(float);    // 10MB of floats
+    size_t N = 10 * 1024 * 1024 / sizeof(float); // 10MB of floats
     std::vector<float> hostA, hostB, hostC;
 
     {
@@ -134,7 +137,8 @@ int main()
         }
     }
 
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 10; ++i)
+    {
         ZoneScopedN("VectorAdd Kernel Launch");
         TracyCLZoneC(tracyCLCtx, "VectorAdd Kernel", tracy::Color::Blue4);
 
@@ -172,7 +176,8 @@ int main()
     {
         ZoneScopedN("Checking results");
 
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < N; ++i)
+        {
             assert(hostC[i] == hostA[i] + hostB[i]);
         }
     }

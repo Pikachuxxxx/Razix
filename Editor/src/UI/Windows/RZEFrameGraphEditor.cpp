@@ -15,21 +15,21 @@
 #include "Nodes/RZEPassNodeUI.h"
 #include "Nodes/RZETextureResourceNodeUI.h"
 
-#include "Razix/Core/App/RZApplication.h"
+#include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
 
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
-#include "Razix/Gfx/RHI/API/RZAPIDesc.h"
+#include "Razix/Graphics/RHI/API/RZAPIDesc.h"
 
-#include "Razix/Gfx/RHI/API/Data/RZBufferData.h"
-#include "Razix/Gfx/RHI/API/Data/RZPipelineData.h"
-#include "Razix/Gfx/RHI/API/Data/RZTextureData.h"
+#include "Razix/Graphics/RHI/API/Data/RZBufferData.h"
+#include "Razix/Graphics/RHI/API/Data/RZPipelineData.h"
+#include "Razix/Graphics/RHI/API/Data/RZTextureData.h"
 
-#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
+#include "Razix/Graphics/FrameGraph/RZFrameGraph.h"
 
-#include "Razix/Gfx/RHI/RHI.h"
+#include "Razix/Graphics/RHI/RHI.h"
 
 #include "Razix/Scene/RZScene.h"
 
@@ -358,7 +358,7 @@ namespace Razix {
         {
             auto formatsComboBox = new QComboBox();
             formatsComboBox->addItems(m_FormatsStringList);
-            formatsComboBox->setCurrentIndex((u32) Razix::Gfx::TextureFormat::RGBA16F);    // Default format = RGBA32F
+            formatsComboBox->setCurrentIndex((u32) Razix::Graphics::TextureFormat::RGBA16F);    // Default format = RGBA32F
 
             m_ColorFormatsComboBoxSignalMapper->setMapping(formatsComboBox, ui.color_formats_layout->rowCount());
 
@@ -807,63 +807,63 @@ namespace Razix {
 
             connect(ui.cullMode, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineCullModeSelected()));
             // Fill cull mode combo box
-            for (u32 i = 0; i < (u32) Gfx::CullMode::COUNT; i++)
-                ui.cullMode->addItem(Gfx::CullModeNames[i]);
-            ui.cullMode->setCurrentIndex((u32) Gfx::CullMode::Back);
+            for (u32 i = 0; i < (u32) Graphics::CullMode::COUNT; i++)
+                ui.cullMode->addItem(Graphics::CullModeNames[i]);
+            ui.cullMode->setCurrentIndex((u32) Graphics::CullMode::Back);
 
             connect(ui.polygonMode, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelinePolygonModeSelected()));
-            for (u32 i = 0; i < (u32) Gfx::PolygonMode::COUNT; i++)
-                ui.polygonMode->addItem(Gfx::PolygonModeNames[i]);
-            ui.polygonMode->setCurrentIndex((u32) Gfx::PolygonMode::Fill);
+            for (u32 i = 0; i < (u32) Graphics::PolygonMode::COUNT; i++)
+                ui.polygonMode->addItem(Graphics::PolygonModeNames[i]);
+            ui.polygonMode->setCurrentIndex((u32) Graphics::PolygonMode::Fill);
 
             connect(ui.drawType, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineDrawTypeSelected()));
-            for (u32 i = 0; i < (u32) Gfx::DrawType::COUNT; i++)
-                ui.drawType->addItem(Gfx::DrawTypeNames[i]);
-            ui.drawType->setCurrentIndex((u32) Gfx::DrawType::Triangle);
+            for (u32 i = 0; i < (u32) Graphics::DrawType::COUNT; i++)
+                ui.drawType->addItem(Graphics::DrawTypeNames[i]);
+            ui.drawType->setCurrentIndex((u32) Graphics::DrawType::Triangle);
 
             connect(ui.enableTransparency, SIGNAL(stateChanged(int)), this, SLOT(OnPipelineEnableTransparencyChecked()));
             connect(ui.enableDepthTest, SIGNAL(stateChanged(int)), this, SLOT(OnPipelineEnableDepthTestChecked()));
             connect(ui.enableDepthWrite, SIGNAL(stateChanged(int)), this, SLOT(OnPipelineEnableDepthWriteChecked()));
 
             connect(ui.depthOperation, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineDepthOperationSelected()));
-            for (u32 i = 0; i < (u32) Gfx::CompareOp ::COUNT; i++)
-                ui.depthOperation->addItem(Gfx::CompareOpNames[i]);
-            ui.depthOperation->setCurrentIndex((u32) Gfx::CompareOp::Less);
+            for (u32 i = 0; i < (u32) Graphics::CompareOp ::COUNT; i++)
+                ui.depthOperation->addItem(Graphics::CompareOpNames[i]);
+            ui.depthOperation->setCurrentIndex((u32) Graphics::CompareOp::Less);
 
             // Blend Factor
             connect(ui.colorSrc, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineColorSrcSelected()));
             connect(ui.colorDst, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineColorDstSelected()));
             connect(ui.alphaSrc, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineAlphaSrcSelected()));
             connect(ui.alphaDst, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineAlphaDstSelected()));
-            for (u32 i = 0; i < (u32) Gfx::BlendFactor::COUNT; i++) {
-                ui.colorSrc->addItem(Gfx::BlendFactorNames[i]);
-                ui.colorDst->addItem(Gfx::BlendFactorNames[i]);
-                ui.alphaSrc->addItem(Gfx::BlendFactorNames[i]);
-                ui.alphaDst->addItem(Gfx::BlendFactorNames[i]);
+            for (u32 i = 0; i < (u32) Graphics::BlendFactor::COUNT; i++) {
+                ui.colorSrc->addItem(Graphics::BlendFactorNames[i]);
+                ui.colorDst->addItem(Graphics::BlendFactorNames[i]);
+                ui.alphaSrc->addItem(Graphics::BlendFactorNames[i]);
+                ui.alphaDst->addItem(Graphics::BlendFactorNames[i]);
             }
-            ui.colorSrc->setCurrentIndex((u32) Gfx::BlendFactor::SrcAlpha);
-            ui.colorDst->setCurrentIndex((u32) Gfx::BlendFactor::OneMinusSrcAlpha);
-            ui.alphaSrc->setCurrentIndex((u32) Gfx::BlendFactor::One);
-            ui.alphaDst->setCurrentIndex((u32) Gfx::BlendFactor::One);
+            ui.colorSrc->setCurrentIndex((u32) Graphics::BlendFactor::SrcAlpha);
+            ui.colorDst->setCurrentIndex((u32) Graphics::BlendFactor::OneMinusSrcAlpha);
+            ui.alphaSrc->setCurrentIndex((u32) Graphics::BlendFactor::One);
+            ui.alphaDst->setCurrentIndex((u32) Graphics::BlendFactor::One);
 
             // Blend Op
             connect(ui.colorOp, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineColorOperationSelected()));
             connect(ui.alphaOp, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineAlphaOperationSelected()));
-            for (u32 i = 0; i < (u32) Gfx::BlendOp::COUNT; i++) {
-                ui.colorOp->addItem(Gfx::BlendOpNames[i]);
-                ui.alphaOp->addItem(Gfx::BlendOpNames[i]);
+            for (u32 i = 0; i < (u32) Graphics::BlendOp::COUNT; i++) {
+                ui.colorOp->addItem(Graphics::BlendOpNames[i]);
+                ui.alphaOp->addItem(Graphics::BlendOpNames[i]);
             }
-            ui.colorOp->setCurrentIndex((u32) Gfx::BlendOp::Add);
-            ui.alphaOp->setCurrentIndex((u32) Gfx::BlendOp::Add);
+            ui.colorOp->setCurrentIndex((u32) Graphics::BlendOp::Add);
+            ui.alphaOp->setCurrentIndex((u32) Graphics::BlendOp::Add);
 
             // Fill the formats combobox items
-            for (u32 i = 0; i < (u32) Gfx::TextureFormat::COUNT; i++)
-                m_FormatsStringList.push_back(Razix::Gfx::TextureFormatNames[i]);
+            for (u32 i = 0; i < (u32) Graphics::TextureFormat::COUNT; i++)
+                m_FormatsStringList.push_back(Razix::Graphics::TextureFormatNames[i]);
 
             // Depth format
             connect(ui.depthFormat, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPipelineDepthFormatSelected()));
             ui.depthFormat->addItems(m_FormatsStringList);
-            ui.depthFormat->setCurrentIndex((u32) Gfx::TextureFormat::DEPTH32F);
+            ui.depthFormat->setCurrentIndex((u32) Graphics::TextureFormat::DEPTH32F);
 
             connect(ui.add_color_format, SIGNAL(pressed()), this, SLOT(OnAddColorFormatClicked()));
             connect(ui.remove_color_format, SIGNAL(pressed()), this, SLOT(OnRemoveColorFormatClicked()));
@@ -881,8 +881,8 @@ namespace Razix {
             connect(ui.enableResize, SIGNAL(stateChanged(int)), this, SLOT(OnEnableResize()));
 
             connect(ui.resolution, SIGNAL(currentIndexChanged(int)), this, SLOT(OnResolutionSelected()));
-            for (u32 i = 0; i < (u32) Razix::Gfx::Resolution::COUNT; i++)
-                ui.resolution->addItem(Razix::Gfx::ResolutionNames[i]);
+            for (u32 i = 0; i < (u32) Razix::Graphics::Resolution::COUNT; i++)
+                ui.resolution->addItem(Razix::Graphics::ResolutionNames[i]);
 
             // Extents X & Y
             connect(ui.extentX, SIGNAL(returnPressed()), this, SLOT(OnExtentXChanged()));
@@ -901,8 +901,8 @@ namespace Razix {
             connect(ui.bufferSize, SIGNAL(returnPressed()), this, SLOT(OnBufferSizeChanged()));
             ui.bufferSize->setValidator(new QIntValidator(0, Gib(1), this));
             connect(ui.bufferUsage, SIGNAL(currentIndexChanged(int)), this, SLOT(OnBufferUsageSelected()));
-            for (u32 i = 0; i < (u32) Razix::Gfx::BufferUsage::COUNT; i++)
-                ui.bufferUsage->addItem(Razix::Gfx::BufferUsageNames[i]);
+            for (u32 i = 0; i < (u32) Razix::Graphics::BufferUsage::COUNT; i++)
+                ui.bufferUsage->addItem(Razix::Graphics::BufferUsageNames[i]);
             ui.bufferUsage->setCurrentIndex(0);
             // TODO: enable data reflection check box
 
@@ -921,29 +921,29 @@ namespace Razix {
             ui.textureLayers->setValidator(new QIntValidator(0, Mib(1), this));
 
             connect(ui.textureType, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureTypeSelected()));
-            for (u32 i = 0; i < (u32) Razix::Gfx::TextureType::COUNT; i++)
-                ui.textureType->addItem(Razix::Gfx::TextureTypeNames[i]);
-            ui.textureType->setCurrentIndex((u32) Razix::Gfx::TextureType::Texture_2D);
+            for (u32 i = 0; i < (u32) Razix::Graphics::TextureType::COUNT; i++)
+                ui.textureType->addItem(Razix::Graphics::TextureTypeNames[i]);
+            ui.textureType->setCurrentIndex((u32) Razix::Graphics::TextureType::Texture_2D);
 
             connect(ui.textureFormat, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureFormatSelected()));
-            for (u32 i = 0; i < (u32) Razix::Gfx::TextureFormat::COUNT; i++)
-                ui.textureFormat->addItem(Razix::Gfx::TextureFormatNames[i]);
-            ui.textureFormat->setCurrentIndex((u32) Razix::Gfx::TextureFormat::RGBA16F);
+            for (u32 i = 0; i < (u32) Razix::Graphics::TextureFormat::COUNT; i++)
+                ui.textureFormat->addItem(Razix::Graphics::TextureFormatNames[i]);
+            ui.textureFormat->setCurrentIndex((u32) Razix::Graphics::TextureFormat::RGBA16F);
 
             connect(ui.wrapMode, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureWrapModeSelected()));
-            for (u32 i = 0; i < (u32) Razix::Gfx::Wrapping::COUNT; i++)
-                ui.wrapMode->addItem(Razix::Gfx::WrappingNames[i]);
-            ui.wrapMode->setCurrentIndex((u32) Razix::Gfx::Wrapping::CLAMP_TO_EDGE);
+            for (u32 i = 0; i < (u32) Razix::Graphics::Wrapping::COUNT; i++)
+                ui.wrapMode->addItem(Razix::Graphics::WrappingNames[i]);
+            ui.wrapMode->setCurrentIndex((u32) Razix::Graphics::Wrapping::CLAMP_TO_EDGE);
 
             connect(ui.filterModeMin, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureFilteringMinModeSelected()));
-            for (u32 i = 0; i < (u32) Razix::Gfx::Filtering::Mode::COUNT; i++)
-                ui.filterModeMin->addItem(Razix::Gfx::FitleringModeNames[i]);
-            ui.filterModeMin->setCurrentIndex((u32) Razix::Gfx::Filtering::Mode::LINEAR);
+            for (u32 i = 0; i < (u32) Razix::Graphics::Filtering::Mode::COUNT; i++)
+                ui.filterModeMin->addItem(Razix::Graphics::FitleringModeNames[i]);
+            ui.filterModeMin->setCurrentIndex((u32) Razix::Graphics::Filtering::Mode::LINEAR);
 
             connect(ui.filterModeMag, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureFilteringMagModeSelected()));
-            for (u32 i = 0; i < (u32) Razix::Gfx::Filtering::Mode::COUNT; i++)
-                ui.filterModeMag->addItem(Razix::Gfx::FitleringModeNames[i]);
-            ui.filterModeMag->setCurrentIndex((u32) Razix::Gfx::Filtering::Mode::LINEAR);
+            for (u32 i = 0; i < (u32) Razix::Graphics::Filtering::Mode::COUNT; i++)
+                ui.filterModeMag->addItem(Razix::Graphics::FitleringModeNames[i]);
+            ui.filterModeMag->setCurrentIndex((u32) Razix::Graphics::Filtering::Mode::LINEAR);
 
             connect(ui.enableMips, SIGNAL(stateChanged(int)), this, SLOT(OnEnableMips()));
             connect(ui.isHDR, SIGNAL(stateChanged(int)), this, SLOT(OnEnableIsHDR()));

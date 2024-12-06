@@ -5,14 +5,14 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
+    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
 
 // Windows Runtime Library. Needed for Microsoft::WRL::ComPtr<> template class.
     #include <wrl.h>
 using namespace Microsoft::WRL;
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         // https://www.3dgep.com/learning-directx-12-1/
         //--------------------------------------------------------------------------------------
@@ -77,10 +77,6 @@ namespace Razix {
 
         void DX12Context::Init()
         {
-            //https://learn.microsoft.com/bs-latn-ba/windows/win32/api/dxgi1_6/nf-dxgi1_6-dxgideclareadapterremovalsupport
-            // helps with adapter lost events
-            DXGIDeclareAdapterRemovalSupport();
-
     #if RAZIX_DEBUG
 
             // Init the Debug layer stuff
@@ -99,28 +95,6 @@ namespace Razix {
             // Get all the GPUs and choose the Discrete one + DirectX >= 12.2.
             auto m_PhysicalGPUAdapter = GetAdapter(g_UseWarp);
             D3D12CreateDevice(GetAdapter(g_UseWarp).Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&m_Device));
-
-            // Device Features and Support
-            {
-                // Checks for SM6 and WaveIntrinsics
-                // query shader model level, we ask for min of this level
-                D3D12_FEATURE_DATA_SHADER_MODEL queryShaderModel = {D3D_SHADER_MODEL_6_0};
-                CHECK_HRESULT(m_Device->CheckFeatureSupport((D3D12_FEATURE) D3D12_FEATURE_SHADER_MODEL, &queryShaderModel, sizeof(queryShaderModel)));
-                // Query the level of support of Wave Intrinsics
-                // https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ns-d3d12-d3d12_feature_data_d3d12_options1
-                CHECK_HRESULT(m_Device->CheckFeatureSupport((D3D12_FEATURE) D3D12_FEATURE_D3D12_OPTIONS1, &m_WaveIntrinsicsSupport, sizeof(m_WaveIntrinsicsSupport)));
-
-                if (queryShaderModel.HighestShaderModel >= D3D_SHADER_MODEL_6_0)
-                    g_GraphicsFeatures.SupportsShaderModel6 = true;
-                else
-                    RAZIX_CORE_ERROR("[D3D12] Doesn't support Shader Model 6.0, some features will not work as expected and engine may crash!");
-                if (m_WaveIntrinsicsSupport.WaveOps == 1) {
-                    g_GraphicsFeatures.SupportsWaveIntrinsics = true;
-                    g_GraphicsFeatures.MinLaneWidth           = m_WaveIntrinsicsSupport.WaveLaneCountMin;
-                    g_GraphicsFeatures.MaxLaneWidth           = m_WaveIntrinsicsSupport.WaveLaneCountMax;
-                } else
-                    RAZIX_CORE_ERROR("[D3D12] Doesn't support Wave Instrinsics, some features will not work as expected and engine may crash!");
-            }
 
             // Print the GPU adapter details
             DXGI_ADAPTER_DESC1 desc;
@@ -176,30 +150,22 @@ namespace Razix {
     #endif
 
             // Create the Graphics Command Queue
-            D3D12_COMMAND_QUEUE_DESC CommandQueueDesc = {};
-            CommandQueueDesc.Type                     = D3D12_COMMAND_LIST_TYPE_DIRECT;    // Direct = Graphics
-            CommandQueueDesc.Priority                 = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
-            CommandQueueDesc.Flags                    = D3D12_COMMAND_QUEUE_FLAG_NONE;
-            CommandQueueDesc.NodeMask                 = 0;
+            D3D12_COMMAND_QUEUE_DESC graphicsCommandQueueDesc = {};
+            graphicsCommandQueueDesc.Type                     = D3D12_COMMAND_LIST_TYPE_DIRECT;    // Direct = Graphics
+            graphicsCommandQueueDesc.Priority                 = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+            graphicsCommandQueueDesc.Flags                    = D3D12_COMMAND_QUEUE_FLAG_NONE;
+            graphicsCommandQueueDesc.NodeMask                 = 0;
 
-            CHECK_HRESULT(m_Device->CreateCommandQueue(&CommandQueueDesc, IID_PPV_ARGS(&m_GraphicsQueue)));
-            D3D12_TAG_OBJECT(m_GraphicsQueue, L"Graphics Queue");
+            CHECK_HRESULT(m_Device->CreateCommandQueue(&graphicsCommandQueueDesc, IID_PPV_ARGS(&m_GraphicsQueue)));
 
-            CommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
-            CHECK_HRESULT(m_Device->CreateCommandQueue(&CommandQueueDesc, IID_PPV_ARGS(&m_CopyQueue)));
-            D3D12_TAG_OBJECT(m_CopyQueue, L"Copy Queue");
-
-            CommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-            CHECK_HRESULT(m_Device->CreateCommandQueue(&CommandQueueDesc, IID_PPV_ARGS(&m_SingleTimeGraphicsQueue)));
-            D3D12_TAG_OBJECT(m_SingleTimeGraphicsQueue, L"Single TIme Graphics Queue");
-
-            if (g_GraphicsFeatures.EnableVSync) {
+            if (g_GraphicsFeaturesSettings.EnableVSync) {
             }
 
             // Create the swapchain
             m_Swapchain = rzstl::CreateUniqueRef<DX12Swapchain>(m_Window->getWidth(), m_Window->getHeight());
 
-            D3D12_TAG_OBJECT(m_Device, L"Device");
+            D3D12_TAG_OBJECT(m_Device, "Device");
+            D3D12_TAG_OBJECT(m_GraphicsQueue, "Graphics Queue");
         }
 
         void DX12Context::Destroy()
@@ -230,6 +196,6 @@ namespace Razix {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix
 #endif

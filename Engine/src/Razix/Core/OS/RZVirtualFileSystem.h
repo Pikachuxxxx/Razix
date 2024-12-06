@@ -5,7 +5,6 @@
 namespace Razix {
     /* Cross - Platform Virtual File System for the Engine */
     // TODO: Log unsuccessful path resolution
-    // TODO: Add read/write only access
     class RAZIX_API RZVirtualFileSystem : public RZSingleton<RZVirtualFileSystem>
     {
     public:
@@ -67,7 +66,7 @@ namespace Razix {
 		 * @param path The virtual path to which the file is being written to  
 		 * @returns True, if the file was written successfully  
 		 */
-        bool writeFile(const std::string& path, u8* buffer, i64 size);
+        bool writeFile(const std::string& path, u8* buffer);
         /**
 		 * Writes the text file given the virtual path
 		 * 

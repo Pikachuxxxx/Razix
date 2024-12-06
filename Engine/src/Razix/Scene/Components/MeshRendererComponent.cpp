@@ -9,17 +9,17 @@ namespace Razix {
         : Mesh(nullptr)
     {
     }
-    MeshRendererComponent::MeshRendererComponent(Gfx::MeshPrimitive primitive)
-        : Mesh(Gfx::MeshFactory::CreatePrimitive(primitive)), primitive(primitive)
+    MeshRendererComponent::MeshRendererComponent(Graphics::MeshPrimitive primitive)
+        : Mesh(Graphics::MeshFactory::CreatePrimitive(primitive)), primitive(primitive)
     {
     }
-    MeshRendererComponent::MeshRendererComponent(Gfx::RZMesh* mesh)
+    MeshRendererComponent::MeshRendererComponent(Graphics::RZMesh* mesh)
         : Mesh(mesh)
     {
     }
 
     MeshRendererComponent::MeshRendererComponent(const std::string& filePath)
     {
-        Mesh = Razix::Gfx::loadMesh(filePath);
+        Mesh = Razix::Graphics::loadMesh(filePath);
     }
 }    // namespace Razix

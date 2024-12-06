@@ -24,7 +24,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Razix__Editor__RZEMaterialEditor_t {
     QByteArrayData data[21];
-    char stringdata0[431];
+    char stringdata0[436];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -36,29 +36,30 @@ static const qt_meta_stringdata_Razix__Editor__RZEMaterialEditor_t qt_meta_strin
 QT_MOC_LITERAL(0, 0, 32), // "Razix::Editor::RZEMaterialEditor"
 QT_MOC_LITERAL(1, 33, 20), // "OnSetEditingMaterial"
 QT_MOC_LITERAL(2, 54, 0), // ""
-QT_MOC_LITERAL(3, 55, 23), // "Razix::Gfx::RZMaterial*"
-QT_MOC_LITERAL(4, 79, 8), // "material"
-QT_MOC_LITERAL(5, 88, 14), // "on_NameChanged"
-QT_MOC_LITERAL(6, 103, 23), // "on_DiffuseTextureSelect"
-QT_MOC_LITERAL(7, 127, 27), // "onDiffuseTextureUseCheckbox"
-QT_MOC_LITERAL(8, 155, 15), // "on_DiffuseColor"
-QT_MOC_LITERAL(9, 171, 26), // "on_SpecularTextureSelected"
-QT_MOC_LITERAL(10, 198, 20), // "on_SpecularIntensity"
-QT_MOC_LITERAL(11, 219, 23), // "on_NormaTextureSelected"
-QT_MOC_LITERAL(12, 243, 19), // "on_MetallicValueSet"
-QT_MOC_LITERAL(13, 263, 26), // "on_MetallicTextureSelected"
-QT_MOC_LITERAL(14, 290, 20), // "on_RoughnessValueSet"
-QT_MOC_LITERAL(15, 311, 27), // "on_RoughnessTextureSelected"
-QT_MOC_LITERAL(16, 339, 20), // "on_EmissionIntensity"
-QT_MOC_LITERAL(17, 360, 13), // "on_AOValueSet"
-QT_MOC_LITERAL(18, 374, 20), // "on_AOTextureSelected"
-QT_MOC_LITERAL(19, 395, 17), // "OnUVScaleXChanged"
-QT_MOC_LITERAL(20, 413, 17) // "OnUVScaleYChanged"
+QT_MOC_LITERAL(3, 55, 28), // "Razix::Graphics::RZMaterial*"
+QT_MOC_LITERAL(4, 84, 8), // "material"
+QT_MOC_LITERAL(5, 93, 14), // "on_NameChanged"
+QT_MOC_LITERAL(6, 108, 23), // "on_DiffuseTextureSelect"
+QT_MOC_LITERAL(7, 132, 27), // "onDiffuseTextureUseCheckbox"
+QT_MOC_LITERAL(8, 160, 15), // "on_DiffuseColor"
+QT_MOC_LITERAL(9, 176, 26), // "on_SpecularTextureSelected"
+QT_MOC_LITERAL(10, 203, 20), // "on_SpecularIntensity"
+QT_MOC_LITERAL(11, 224, 23), // "on_NormaTextureSelected"
+QT_MOC_LITERAL(12, 248, 19), // "on_MetallicValueSet"
+QT_MOC_LITERAL(13, 268, 26), // "on_MetallicTextureSelected"
+QT_MOC_LITERAL(14, 295, 20), // "on_RoughnessValueSet"
+QT_MOC_LITERAL(15, 316, 27), // "on_RoughnessTextureSelected"
+QT_MOC_LITERAL(16, 344, 20), // "on_EmissionIntensity"
+QT_MOC_LITERAL(17, 365, 13), // "on_AOValueSet"
+QT_MOC_LITERAL(18, 379, 20), // "on_AOTextureSelected"
+QT_MOC_LITERAL(19, 400, 17), // "OnUVScaleXChanged"
+QT_MOC_LITERAL(20, 418, 17) // "OnUVScaleYChanged"
 
     },
     "Razix::Editor::RZEMaterialEditor\0"
-    "OnSetEditingMaterial\0\0Razix::Gfx::RZMaterial*\0"
-    "material\0on_NameChanged\0on_DiffuseTextureSelect\0"
+    "OnSetEditingMaterial\0\0"
+    "Razix::Graphics::RZMaterial*\0material\0"
+    "on_NameChanged\0on_DiffuseTextureSelect\0"
     "onDiffuseTextureUseCheckbox\0on_DiffuseColor\0"
     "on_SpecularTextureSelected\0"
     "on_SpecularIntensity\0on_NormaTextureSelected\0"
@@ -130,7 +131,7 @@ void Razix::Editor::RZEMaterialEditor::qt_static_metacall(QObject *_o, QMetaObje
         auto *_t = static_cast<RZEMaterialEditor *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->OnSetEditingMaterial((*reinterpret_cast< Razix::Gfx::RZMaterial*(*)>(_a[1]))); break;
+        case 0: _t->OnSetEditingMaterial((*reinterpret_cast< Razix::Graphics::RZMaterial*(*)>(_a[1]))); break;
         case 1: _t->on_NameChanged(); break;
         case 2: _t->on_DiffuseTextureSelect(); break;
         case 3: _t->onDiffuseTextureUseCheckbox(); break;
