@@ -5,16 +5,20 @@ node [shape=record, fontname="helvetica", fontsize=10, margin="0.2,0.03"]
 P0 [label=<{ {<B>[Test] Pass.Builtin.Code.HelloTriangle</B>} | {&#x2605; Refs: 0<BR/> Index: 0} }> style="rounded,filled", fillcolor=orange]
 P1 [label=<{ {<B>[Test] Pass.Builtin.Code.WaveIntrinsics</B>} | {&#x2605; Refs: 0<BR/> Index: 1} }> style="rounded,filled", fillcolor=orange]
 
+R0_1 [label=<{ {<B>SceneDepth</B><BR/>(2560, 1440) - DEPTH [Depth]} | {Index: 0<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R1_1 [label=<{ {<B>SceneDepth</B><BR/>(2560, 1440) - DEPTH [Depth]} | {Index: 1<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
 P0 -> { } [color=orangered]
 P1 -> { } [color=orangered]
 
+R0_1 -> { } [color=olivedrab3]
+R1_1 -> { } [color=olivedrab3]
 
 subgraph cluster_0 {
-P0 
+P0 R0_1 
 }
 subgraph cluster_1 {
-P1 
+P1 R1_1 
 }
 
 subgraph cluster_imported_resources {

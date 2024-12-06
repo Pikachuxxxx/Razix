@@ -5,6 +5,8 @@
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZEngine.h"
 
+#include "Razix/Core/Crashdump/RZCrashdumpHandler.h"
+
 /* Using the forward declared the application creating function, that we assume was defined on the client side */
 extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
 
@@ -72,6 +74,8 @@ static int AttachConsole(void)
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 static int EngineMain(int argc, char** argv)
 {
+    Razix::CrashDumpHandler::Initialize();
+    
     // Read the command line arguments
     static std::vector<cstr> args;
     for (int32_t i = 1; i < argc; i++) {
@@ -154,6 +158,8 @@ static void EngineExit()
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 static int EngineMain(int argc, char** argv)
 {
+    Razix::CrashDumpHandler::Initialize();
+    
     // Read the command line arguments
     static std::vector<cstr> args;
     for (int32_t i = 1; i < argc; i++) {
