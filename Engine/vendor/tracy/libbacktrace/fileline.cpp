@@ -32,303 +32,320 @@ POSSIBILITY OF SUCH DAMAGE.  */
 
 #include "config.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <unistd.h>
 
-#if defined(HAVE_KERN_PROC_ARGS) || defined(HAVE_KERN_PROC)
-    #include <sys/sysctl.h>
+#if defined (HAVE_KERN_PROC_ARGS) || defined (HAVE_KERN_PROC)
+#include <sys/sysctl.h>
 #endif
 
 #ifdef HAVE_MACH_O_DYLD_H
-    #include <mach-o/dyld.h>
+#include <mach-o/dyld.h>
 #endif
 
 #include "backtrace.hpp"
 #include "internal.hpp"
 
 #ifndef HAVE_GETEXECNAME
-    #define getexecname() NULL
+#define getexecname() NULL
 #endif
 
-namespace tracy {
+namespace tracy
+{
 
-#if !defined(HAVE_KERN_PROC_ARGS) && !defined(HAVE_KERN_PROC)
+#if !defined (HAVE_KERN_PROC_ARGS) && !defined (HAVE_KERN_PROC)
 
-    #define sysctl_exec_name1(state, error_callback, data) NULL
-    #define sysctl_exec_name2(state, error_callback, data) NULL
+#define sysctl_exec_name1(state, error_callback, data) NULL
+#define sysctl_exec_name2(state, error_callback, data) NULL
 
 #else /* defined (HAVE_KERN_PROC_ARGS) || |defined (HAVE_KERN_PROC) */
 
-    static char *
-    sysctl_exec_name(struct backtrace_state *state,
-        int mib0, int mib1, int mib2, int mib3,
-        backtrace_error_callback error_callback, void *data)
+static char *
+sysctl_exec_name (struct backtrace_state *state,
+		  int mib0, int mib1, int mib2, int mib3,
+		  backtrace_error_callback error_callback, void *data)
+{
+  int mib[4];
+  size_t len;
+  char *name;
+  size_t rlen;
+
+  mib[0] = mib0;
+  mib[1] = mib1;
+  mib[2] = mib2;
+  mib[3] = mib3;
+
+  if (sysctl (mib, 4, NULL, &len, NULL, 0) < 0)
+    return NULL;
+  name = (char *) backtrace_alloc (state, len, error_callback, data);
+  if (name == NULL)
+    return NULL;
+  rlen = len;
+  if (sysctl (mib, 4, name, &rlen, NULL, 0) < 0)
     {
-        int    mib[4];
-        size_t len;
-        char  *name;
-        size_t rlen;
-
-        mib[0] = mib0;
-        mib[1] = mib1;
-        mib[2] = mib2;
-        mib[3] = mib3;
-
-        if (sysctl(mib, 4, NULL, &len, NULL, 0) < 0)
-            return NULL;
-        name = (char *) backtrace_alloc(state, len, error_callback, data);
-        if (name == NULL)
-            return NULL;
-        rlen = len;
-        if (sysctl(mib, 4, name, &rlen, NULL, 0) < 0) {
-            backtrace_free(state, name, len, error_callback, data);
-            return NULL;
-        }
-        return name;
+      backtrace_free (state, name, len, error_callback, data);
+      return NULL;
     }
+  return name;
+}
 
-    #ifdef HAVE_KERN_PROC_ARGS
+#ifdef HAVE_KERN_PROC_ARGS
 
-    static char *
-    sysctl_exec_name1(struct backtrace_state *state,
-        backtrace_error_callback error_callback, void *data)
-    {
-        /* This variant is used on NetBSD.  */
-        return sysctl_exec_name(state, CTL_KERN, KERN_PROC_ARGS, -1, KERN_PROC_PATHNAME, error_callback, data);
-    }
+static char *
+sysctl_exec_name1 (struct backtrace_state *state,
+		   backtrace_error_callback error_callback, void *data)
+{
+  /* This variant is used on NetBSD.  */
+  return sysctl_exec_name (state, CTL_KERN, KERN_PROC_ARGS, -1,
+			   KERN_PROC_PATHNAME, error_callback, data);
+}
 
-    #else
+#else
 
-        #define sysctl_exec_name1(state, error_callback, data) NULL
+#define sysctl_exec_name1(state, error_callback, data) NULL
 
-    #endif
+#endif
 
-    #ifdef HAVE_KERN_PROC
+#ifdef HAVE_KERN_PROC
 
-    static char *
-    sysctl_exec_name2(struct backtrace_state *state,
-        backtrace_error_callback error_callback, void *data)
-    {
-        /* This variant is used on FreeBSD.  */
-        return sysctl_exec_name(state, CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1, error_callback, data);
-    }
+static char *
+sysctl_exec_name2 (struct backtrace_state *state,
+		   backtrace_error_callback error_callback, void *data)
+{
+  /* This variant is used on FreeBSD.  */
+  return sysctl_exec_name (state, CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1,
+			   error_callback, data);
+}
 
-    #else
+#else
 
-        #define sysctl_exec_name2(state, error_callback, data) NULL
+#define sysctl_exec_name2(state, error_callback, data) NULL
 
-    #endif
+#endif
 
 #endif /* defined (HAVE_KERN_PROC_ARGS) || |defined (HAVE_KERN_PROC) */
 
 #ifdef HAVE_MACH_O_DYLD_H
 
-    static char *
-    macho_get_executable_path(struct backtrace_state *state,
-        backtrace_error_callback error_callback, void *data)
-    {
-        uint32_t len;
-        char    *name;
+static char *
+macho_get_executable_path (struct backtrace_state *state,
+			   backtrace_error_callback error_callback, void *data)
+{
+  uint32_t len;
+  char *name;
 
-        len = 0;
-        if (_NSGetExecutablePath(NULL, &len) == 0)
-            return NULL;
-        name = (char *) backtrace_alloc(state, len, error_callback, data);
-        if (name == NULL)
-            return NULL;
-        if (_NSGetExecutablePath(name, &len) != 0) {
-            backtrace_free(state, name, len, error_callback, data);
-            return NULL;
-        }
-        return name;
+  len = 0;
+  if (_NSGetExecutablePath (NULL, &len) == 0)
+    return NULL;
+  name = (char *) backtrace_alloc (state, len, error_callback, data);
+  if (name == NULL)
+    return NULL;
+  if (_NSGetExecutablePath (name, &len) != 0)
+    {
+      backtrace_free (state, name, len, error_callback, data);
+      return NULL;
     }
+  return name;
+}
 
 #else /* !defined (HAVE_MACH_O_DYLD_H) */
 
-    #define macho_get_executable_path(state, error_callback, data) NULL
+#define macho_get_executable_path(state, error_callback, data) NULL
 
 #endif /* !defined (HAVE_MACH_O_DYLD_H) */
 
-    /* Initialize the fileline information from the executable.  Returns 1
+/* Initialize the fileline information from the executable.  Returns 1
    on success, 0 on failure.  */
 
-    static int
-    fileline_initialize(struct backtrace_state *state,
-        backtrace_error_callback error_callback, void *data)
+static int
+fileline_initialize (struct backtrace_state *state,
+		     backtrace_error_callback error_callback, void *data)
+{
+  int failed;
+  fileline fileline_fn;
+  int pass;
+  int called_error_callback;
+  int descriptor;
+  const char *filename;
+  char buf[64];
+
+  if (!state->threaded)
+    failed = state->fileline_initialization_failed;
+  else
+    failed = backtrace_atomic_load_int (&state->fileline_initialization_failed);
+
+  if (failed)
     {
-        int         failed;
-        fileline    fileline_fn;
-        int         pass;
-        int         called_error_callback;
-        int         descriptor;
-        const char *filename;
-        char        buf[64];
+      error_callback (data, "failed to read executable information", -1);
+      return 0;
+    }
 
-        if (!state->threaded)
-            failed = state->fileline_initialization_failed;
-        else
-            failed = backtrace_atomic_load_int(&state->fileline_initialization_failed);
+  if (!state->threaded)
+    fileline_fn = state->fileline_fn;
+  else
+    fileline_fn = backtrace_atomic_load_pointer (&state->fileline_fn);
+  if (fileline_fn != NULL)
+    return 1;
 
-        if (failed) {
-            error_callback(data, "failed to read executable information", -1);
-            return 0;
-        }
+  /* We have not initialized the information.  Do it now.  */
 
-        if (!state->threaded)
-            fileline_fn = state->fileline_fn;
-        else
-            fileline_fn = backtrace_atomic_load_pointer(&state->fileline_fn);
-        if (fileline_fn != NULL)
-            return 1;
+  descriptor = -1;
+  called_error_callback = 0;
+  for (pass = 0; pass < 8; ++pass)
+    {
+      int does_not_exist;
 
-        /* We have not initialized the information.  Do it now.  */
+      switch (pass)
+	{
+	case 0:
+	  filename = state->filename;
+	  break;
+	case 1:
+	  filename = getexecname ();
+	  break;
+	case 2:
+	  filename = "/proc/self/exe";
+	  break;
+	case 3:
+	  filename = "/proc/curproc/file";
+	  break;
+	case 4:
+	  snprintf (buf, sizeof (buf), "/proc/%ld/object/a.out",
+		    (long) getpid ());
+	  filename = buf;
+	  break;
+	case 5:
+	  filename = sysctl_exec_name1 (state, error_callback, data);
+	  break;
+	case 6:
+	  filename = sysctl_exec_name2 (state, error_callback, data);
+	  break;
+	case 7:
+	  filename = macho_get_executable_path (state, error_callback, data);
+	  break;
+	default:
+	  abort ();
+	}
 
-        descriptor            = -1;
-        called_error_callback = 0;
-        for (pass = 0; pass < 8; ++pass) {
-            int does_not_exist;
+      if (filename == NULL)
+	continue;
 
-            switch (pass) {
-                case 0:
-                    filename = state->filename;
-                    break;
-                case 1:
-                    filename = getexecname();
-                    break;
-                case 2:
-                    filename = "/proc/self/exe";
-                    break;
-                case 3:
-                    filename = "/proc/curproc/file";
-                    break;
-                case 4:
-                    snprintf(buf, sizeof(buf), "/proc/%ld/object/a.out", (long) getpid());
-                    filename = buf;
-                    break;
-                case 5:
-                    filename = sysctl_exec_name1(state, error_callback, data);
-                    break;
-                case 6:
-                    filename = sysctl_exec_name2(state, error_callback, data);
-                    break;
-                case 7:
-                    filename = macho_get_executable_path(state, error_callback, data);
-                    break;
-                default:
-                    abort();
-            }
+      descriptor = backtrace_open (filename, error_callback, data,
+				   &does_not_exist);
+      if (descriptor < 0 && !does_not_exist)
+	{
+	  called_error_callback = 1;
+	  break;
+	}
+      if (descriptor >= 0)
+	break;
+    }
 
-            if (filename == NULL)
-                continue;
+  if (descriptor < 0)
+    {
+      if (!called_error_callback)
+	{
+	  if (state->filename != NULL)
+	    error_callback (data, state->filename, ENOENT);
+	  else
+	    error_callback (data,
+			    "libbacktrace could not find executable to open",
+			    0);
+	}
+      failed = 1;
+    }
 
-            descriptor = backtrace_open(filename, error_callback, data, &does_not_exist);
-            if (descriptor < 0 && !does_not_exist) {
-                called_error_callback = 1;
-                break;
-            }
-            if (descriptor >= 0)
-                break;
-        }
+  if (!failed)
+    {
+      if (!backtrace_initialize (state, filename, descriptor, error_callback,
+				 data, &fileline_fn))
+	failed = 1;
+    }
 
-        if (descriptor < 0) {
-            if (!called_error_callback) {
-                if (state->filename != NULL)
-                    error_callback(data, state->filename, ENOENT);
-                else
-                    error_callback(data,
-                        "libbacktrace could not find executable to open",
-                        0);
-            }
-            failed = 1;
-        }
+  if (failed)
+    {
+      if (!state->threaded)
+	state->fileline_initialization_failed = 1;
+      else
+	backtrace_atomic_store_int (&state->fileline_initialization_failed, 1);
+      return 0;
+    }
 
-        if (!failed) {
-            if (!backtrace_initialize(state, filename, descriptor, error_callback, data, &fileline_fn))
-                failed = 1;
-        }
+  if (!state->threaded)
+    state->fileline_fn = fileline_fn;
+  else
+    {
+      backtrace_atomic_store_pointer (&state->fileline_fn, fileline_fn);
 
-        if (failed) {
-            if (!state->threaded)
-                state->fileline_initialization_failed = 1;
-            else
-                backtrace_atomic_store_int(&state->fileline_initialization_failed, 1);
-            return 0;
-        }
-
-        if (!state->threaded)
-            state->fileline_fn = fileline_fn;
-        else {
-            backtrace_atomic_store_pointer(&state->fileline_fn, fileline_fn);
-
-            /* Note that if two threads initialize at once, one of the data
+      /* Note that if two threads initialize at once, one of the data
 	 sets may be leaked.  */
-        }
-
-        return 1;
     }
 
-    /* Given a PC, find the file name, line number, and function name.  */
+  return 1;
+}
 
-    int
-    backtrace_pcinfo(struct backtrace_state *state, uintptr_t pc,
-        backtrace_full_callback  callback,
-        backtrace_error_callback error_callback, void *data)
-    {
-        if (!fileline_initialize(state, error_callback, data))
-            return 0;
+/* Given a PC, find the file name, line number, and function name.  */
 
-        if (state->fileline_initialization_failed)
-            return 0;
+int
+backtrace_pcinfo (struct backtrace_state *state, uintptr_t pc,
+		  backtrace_full_callback callback,
+		  backtrace_error_callback error_callback, void *data)
+{
+  if (!fileline_initialize (state, error_callback, data))
+    return 0;
 
-        return state->fileline_fn(state, pc, callback, error_callback, data);
-    }
+  if (state->fileline_initialization_failed)
+    return 0;
 
-    /* Given a PC, find the symbol for it, and its value.  */
+  return state->fileline_fn (state, pc, callback, error_callback, data);
+}
 
-    int
-    backtrace_syminfo(struct backtrace_state *state, uintptr_t pc,
-        backtrace_syminfo_callback callback,
-        backtrace_error_callback error_callback, void *data)
-    {
-        if (!fileline_initialize(state, error_callback, data))
-            return 0;
+/* Given a PC, find the symbol for it, and its value.  */
 
-        if (state->fileline_initialization_failed)
-            return 0;
+int
+backtrace_syminfo (struct backtrace_state *state, uintptr_t pc,
+		   backtrace_syminfo_callback callback,
+		   backtrace_error_callback error_callback, void *data)
+{
+  if (!fileline_initialize (state, error_callback, data))
+    return 0;
 
-        state->syminfo_fn(state, pc, callback, error_callback, data);
-        return 1;
-    }
+  if (state->fileline_initialization_failed)
+    return 0;
 
-    /* A backtrace_syminfo_callback that can call into a
+  state->syminfo_fn (state, pc, callback, error_callback, data);
+  return 1;
+}
+
+/* A backtrace_syminfo_callback that can call into a
    backtrace_full_callback, used when we have a symbol table but no
    debug info.  */
 
-    void
-    backtrace_syminfo_to_full_callback(void *data, uintptr_t pc,
-        const char       *symname,
-        uintptr_t symval  ATTRIBUTE_UNUSED,
-        uintptr_t symsize ATTRIBUTE_UNUSED)
-    {
-        struct backtrace_call_full *bdata = (struct backtrace_call_full *) data;
+void
+backtrace_syminfo_to_full_callback (void *data, uintptr_t pc,
+				    const char *symname,
+				    uintptr_t symval ATTRIBUTE_UNUSED,
+				    uintptr_t symsize ATTRIBUTE_UNUSED)
+{
+  struct backtrace_call_full *bdata = (struct backtrace_call_full *) data;
 
-        bdata->ret = bdata->full_callback(bdata->full_data, pc, 0, NULL, 0, symname);
-    }
+  bdata->ret = bdata->full_callback (bdata->full_data, pc, 0, NULL, 0, symname);
+}
 
-    /* An error callback that corresponds to
+/* An error callback that corresponds to
    backtrace_syminfo_to_full_callback.  */
 
-    void
-    backtrace_syminfo_to_full_error_callback(void *data, const char *msg,
-        int errnum)
-    {
-        struct backtrace_call_full *bdata = (struct backtrace_call_full *) data;
+void
+backtrace_syminfo_to_full_error_callback (void *data, const char *msg,
+					  int errnum)
+{
+  struct backtrace_call_full *bdata = (struct backtrace_call_full *) data;
 
-        bdata->full_error_callback(bdata->full_data, msg, errnum);
-    }
+  bdata->full_error_callback (bdata->full_data, msg, errnum);
+}
 
-}    // namespace tracy
+}

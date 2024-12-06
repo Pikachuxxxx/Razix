@@ -2,17 +2,16 @@
 
 #include <vulkan/vulkan.h>
 
-#include "Razix/Gfx/RHI/API/RZTexture.h"
+#include "Razix/Graphics/RHI/API/RZTexture.h"
 
 #include <glm/glm.hpp>
-#include <spirv_reflect.h>
 
 #define VK_CHECK_RESULT(x) VK_ERROR_REPORT(x)
 
-#define VK_ERROR_REPORT(x) Razix::Gfx::VKUtilities::VulkanCheckErrorStatus(x, __func__, __FILE__, __LINE__)
+#define VK_ERROR_REPORT(x) Razix::Graphics::VKUtilities::VulkanCheckErrorStatus(x, __func__, __FILE__, __LINE__)
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         // Forward Declarations for reducing cyclic dependency
         enum class DrawType;
@@ -26,7 +25,6 @@ namespace Razix {
         enum class ImageLayout : u32;
         enum class PipelineStage : u32;
         enum class MemoryAccessMask : u32;
-        class RZBufferLayout;
 
         namespace VKUtilities {
 
@@ -88,7 +86,7 @@ namespace Razix {
                 {VK_ERROR_INCOMPATIBLE_DRIVER, "The requested version of Vulkan is not supported by the driver or is otherwise incompatible for implementation-specific reasons."},
                 {VK_ERROR_TOO_MANY_OBJECTS, "Too many objects of the type have already been created."},
                 {VK_ERROR_FORMAT_NOT_SUPPORTED, "A requested format is not supported on this device."},
-                {VK_ERROR_FRAGMENTED_POOL, "A pool allocation has failed due to fragmentation of the pool's memory. This must only be returned if no attempt to allocate host or device memory was made to accommodate the new allocation. This should be returned in preference to VK_ERROR_OUT_OF_POOL_MEMORY, but only if the implementation is certain that the pool allocation failure was due to fragmentation."},
+                {VK_ERROR_FRAGMENTED_POOL, "A pool allocation has failed due to fragmentation of the pool’s memory. This must only be returned if no attempt to allocate host or device memory was made to accommodate the new allocation. This should be returned in preference to VK_ERROR_OUT_OF_POOL_MEMORY, but only if the implementation is certain that the pool allocation failure was due to fragmentation."},
                 {VK_ERROR_SURFACE_LOST_KHR, "A surface is no longer available."},
                 {VK_ERROR_NATIVE_WINDOW_IN_USE_KHR, "The requested window is already in use by Vulkan or another API in a manner which prevents it from being used again."},
                 {VK_ERROR_OUT_OF_DATE_KHR, "A surface has changed in such a way that it is no longer compatible with the swapchain, and further presentation requests using the swapchain will fail. Applications must query the new surface properties and recreate their swapchain if they wish to continue presenting to the surface."},
@@ -99,7 +97,7 @@ namespace Razix {
                 {VK_ERROR_FRAGMENTATION, "A descriptor pool creation has failed due to fragmentation."},
                 {VK_ERROR_INVALID_DEVICE_ADDRESS_EXT, "A buffer creation failed because the requested address is not available."},
                 {VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS, "A buffer creation or memory allocation failed because the requested address is not available. A shader group handle assignment failed because the requested shader group handle information is no longer valid."},
-                {VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT, "An operation on a swapchain created with VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT failed as it did not have exlusive full-screen access. This may occur due to implementation-dependent reasons, outside of the application's control."},
+                {VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT, "An operation on a swapchain created with VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT failed as it did not have exlusive full-screen access. This may occur due to implementation-dependent reasons, outside of the application’s control."},
                 {VK_ERROR_UNKNOWN, "An unknown error has occurred; either the application has provided invalid input, or an implementation failure has occurred."}};
 
             /* 
@@ -118,12 +116,6 @@ namespace Razix {
             }
 
             //-----------------------------------------------------------------------------------
-
-            /**
-             * Copies data from CPU to GPU only visible buffer using a staging buffer
-             */
-            void CopyDataToGPUBufferResource(const void* cpuData, VkBuffer gpuBuffer, u32 size, u32 srcOffset = 0, u32 dstOffset = 0);
-            void CopyDataToGPUTextureResource(const void* cpuData, VkImage gpuTexture, u32 width, u32 height, u64 size, u32 mipLevel = 0, u32 layersCount = 1, u32 baseArrayLayer = 0);
 
             //-----------------------------------------------------------------------------------
             // Texture/Image utility Functions
@@ -218,26 +210,22 @@ namespace Razix {
              * 
              * @returns Vulkan equivalent value of primitive topology 
              */
-            VkPrimitiveTopology DrawTypeToVK(Razix::Gfx::DrawType type);
+            VkPrimitiveTopology DrawTypeToVK(Razix::Graphics::DrawType type);
 
-            VkCullModeFlags CullModeToVK(Razix::Gfx::CullMode cullMode);
+            VkCullModeFlags CullModeToVK(Razix::Graphics::CullMode cullMode);
 
-            VkPolygonMode PolygoneModeToVK(Razix::Gfx::PolygonMode polygonMode);
+            VkPolygonMode PolygoneModeToVK(Razix::Graphics::PolygonMode polygonMode);
 
-            VkBlendOp BlendOpToVK(Razix::Gfx::BlendOp blendOp);
+            VkBlendOp BlendOpToVK(Razix::Graphics::BlendOp blendOp);
 
-            VkBlendFactor BlendFactorToVK(Razix::Gfx::BlendFactor blendFactor);
+            VkBlendFactor BlendFactorToVK(Razix::Graphics::BlendFactor blendFactor);
 
-            VkCompareOp CompareOpToVK(Razix::Gfx::CompareOp compareOp);
+            VkCompareOp CompareOpToVK(Razix::Graphics::CompareOp compareOp);
 
-            VkDescriptorType DescriptorTypeToVK(Razix::Gfx::DescriptorType descriptorType);
+            VkDescriptorType DescriptorTypeToVK(Razix::Graphics::DescriptorType descriptorType);
 
-            VkShaderStageFlagBits ShaderStageToVK(Razix::Gfx::ShaderStage stage);
-
-            u32            GetStrideFromVulkanFormat(VkFormat format);
-            u32            PushBufferLayout(VkFormat format, const std::string& name, RZBufferLayout& layout);
-            DescriptorType VKToEngineDescriptorType(SpvReflectDescriptorType type);
+            VkShaderStageFlagBits ShaderStageToVK(Razix::Graphics::ShaderStage stage);
 
         }    // namespace VKUtilities
-    }    // namespace Gfx
+    }        // namespace Graphics
 }    // namespace Razix

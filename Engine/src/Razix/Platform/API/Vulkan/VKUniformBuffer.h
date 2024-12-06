@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
+#include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
@@ -8,10 +8,10 @@
     #include "Razix/Platform/API/Vulkan/VKDevice.h"
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         /* Vulkan API Implementation of the RZUniformBufferm, it is also a VKBuffer by behavior */
-        class VKUniformBuffer final : public RZUniformBuffer, public VKBuffer
+        class VKUniformBuffer : public RZUniformBuffer, public VKBuffer
         {
         public:
             /**
@@ -30,6 +30,6 @@ namespace Razix {
 
             void DestroyResource() override;
         };
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix
 #endif

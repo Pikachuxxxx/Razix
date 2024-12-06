@@ -23,7 +23,7 @@ namespace Razix {
         RAZIX_API int32_t                  FindStringPosition(const std::string& string, const std::string& search, uint32_t offset = 0);
         RAZIX_API std::string StringRange(const std::string& string, uint32_t start, uint32_t length);
         RAZIX_API std::string RemoveStringRange(const std::string& string, uint32_t start, uint32_t length);
-        RAZIX_API std::string TrimWhitespaces(const std::string& string);
+        RAZIX_API std::string RemoveTabs(const std::string& string);
         RAZIX_API std::string GetBlock(const char* str, const char** outPosition = nullptr);
         RAZIX_API std::string GetBlock(const std::string& string, uint32_t offset = 0);
         RAZIX_API std::string GetStatement(const char* str, const char** outPosition = nullptr);

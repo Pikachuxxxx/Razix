@@ -32,7 +32,7 @@ namespace Razix {
             connect(ui.enableTonemapping, SIGNAL(clicked(bool)), this, SLOT(OnTonemapEnabled()));
 
             // Set the default scene sampling pattern to Halton mode
-            ui.sceneSamplingPattern->setCurrentIndex((u32) Razix::Gfx::SceneSamplingPattern::Halton);
+            ui.sceneSamplingPattern->setCurrentIndex((u32) Razix::Graphics::SceneSamplingPattern::Halton);
         }
 
         //-------------------------------------------------------------------------------------------
@@ -46,19 +46,19 @@ namespace Razix {
         void RZERendererSettingsUIWindow::OnToneMapModeChanged()
         {
             auto& settings       = Razix::RZEngine::Get().getWorldSettings();
-            settings.tonemapMode = (Razix::Gfx::TonemapMode) ui.tonemapMode->currentIndex();
+            settings.tonemapMode = (Razix::Graphics::TonemapMode) ui.tonemapMode->currentIndex();
         }
 
         void RZERendererSettingsUIWindow::OnAAModeChanged()
         {
             auto& settings  = Razix::RZEngine::Get().getWorldSettings();
-            settings.aaMode = (Razix::Gfx::Antialising) ui.aaMode->currentIndex();
+            settings.aaMode = (Razix::Graphics::Antialising) ui.aaMode->currentIndex();
         }
 
         void RZERendererSettingsUIWindow::OnSceneSamplingPatternChanged()
         {
             auto& settings           = Razix::RZEngine::Get().getWorldSettings();
-            settings.samplingPattern = (Razix::Gfx::SceneSamplingPattern) ui.sceneSamplingPattern->currentIndex();
+            settings.samplingPattern = (Razix::Graphics::SceneSamplingPattern) ui.sceneSamplingPattern->currentIndex();
         }
 
         void RZERendererSettingsUIWindow::OnSetFilterRadius()
@@ -79,9 +79,9 @@ namespace Razix {
         {
             auto& settings = Razix::RZEngine::Get().getWorldSettings();
             if (ui.debugflag_visCSM->isChecked())
-                settings.debugFlags |= Razix::Gfx::RendererDebugFlag_VisCSMCascades;
+                settings.debugFlags |= Razix::Graphics::RendererDebugFlag_VisCSMCascades;
             else
-                settings.debugFlags &= ~Razix::Gfx::RendererDebugFlag_VisCSMCascades;
+                settings.debugFlags &= ~Razix::Graphics::RendererDebugFlag_VisCSMCascades;
         }
 
         //-------------------------------------------------------------------------------------------
@@ -90,54 +90,54 @@ namespace Razix {
         {
             auto& settings = Razix::RZEngine::Get().getWorldSettings();
             if (ui.Shadows->isChecked())
-                settings.renderFeatures |= Razix::Gfx::RendererFeature_Shadows;
+                settings.renderFeatures |= Razix::Graphics::RendererFeature_Shadows;
             else
-                settings.renderFeatures &= ~Razix::Gfx::RendererFeature_Shadows;
+                settings.renderFeatures &= ~Razix::Graphics::RendererFeature_Shadows;
         }
 
         void RZERendererSettingsUIWindow::OnSkyboxEnabled()
         {
             auto& settings = Razix::RZEngine::Get().getWorldSettings();
             if (ui.Skybox->isChecked())
-                settings.renderFeatures |= Razix::Gfx::RendererFeature_Skybox;
+                settings.renderFeatures |= Razix::Graphics::RendererFeature_Skybox;
             else
-                settings.renderFeatures &= ~Razix::Gfx::RendererFeature_Skybox;
+                settings.renderFeatures &= ~Razix::Graphics::RendererFeature_Skybox;
         }
 
         void RZERendererSettingsUIWindow::OnSSAOEnabled()
         {
             auto& settings = Razix::RZEngine::Get().getWorldSettings();
             if (ui.SSAO->isChecked())
-                settings.renderFeatures |= Razix::Gfx::RendererFeature_SSAO;
+                settings.renderFeatures |= Razix::Graphics::RendererFeature_SSAO;
             else
-                settings.renderFeatures &= ~Razix::Gfx::RendererFeature_SSAO;
+                settings.renderFeatures &= ~Razix::Graphics::RendererFeature_SSAO;
         }
 
         void RZERendererSettingsUIWindow::OnImGuiEnabled()
         {
             auto& settings = Razix::RZEngine::Get().getWorldSettings();
             if (ui.ImGui->isChecked())
-                settings.renderFeatures |= Razix::Gfx::RendererFeature_ImGui;
+                settings.renderFeatures |= Razix::Graphics::RendererFeature_ImGui;
             else
-                settings.renderFeatures &= ~Razix::Gfx::RendererFeature_ImGui;
+                settings.renderFeatures &= ~Razix::Graphics::RendererFeature_ImGui;
         }
 
         void RZERendererSettingsUIWindow::OnFXAAEnabled()
         {
             auto& settings = Razix::RZEngine::Get().getWorldSettings();
             if (ui.FXAA->isChecked())
-                settings.renderFeatures |= Razix::Gfx::RendererFeature_FXAA;
+                settings.renderFeatures |= Razix::Graphics::RendererFeature_FXAA;
             else
-                settings.renderFeatures &= ~Razix::Gfx::RendererFeature_FXAA;
+                settings.renderFeatures &= ~Razix::Graphics::RendererFeature_FXAA;
         }
 
         void RZERendererSettingsUIWindow::OnTonemapEnabled()
         {
             auto& settings = Razix::RZEngine::Get().getWorldSettings();
             if (ui.enableTonemapping->isChecked())
-                settings.renderFeatures |= Razix::Gfx::RendererFeature_Tonemap;
+                settings.renderFeatures |= Razix::Graphics::RendererFeature_Tonemap;
             else
-                settings.renderFeatures &= ~Razix::Gfx::RendererFeature_Tonemap;
+                settings.renderFeatures &= ~Razix::Graphics::RendererFeature_Tonemap;
         }
 
     }    // namespace Editor

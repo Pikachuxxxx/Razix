@@ -5,7 +5,7 @@
         "commandLine": "",
         "environment": [
         ],
-        "executable": "X:\\Game Engines\\Razix\\bin\\Debug-windows-x86_64\\Sandbox.exe",
+        "executable": "C:\\Dev\\Game Engines\\Razix\\bin\\Debug-windows-x86_64\\Sandbox.exe",
         "inject": false,
         "numQueuedFrames": 0,
         "options": {
@@ -23,6 +23,6 @@
             "verifyBufferAccess": true
         },
         "queuedFrameCap": 0,
-        "workingDir": "X:/Game Engines/Razix"
+        "workingDir": "C:/Dev/Game Engines/Razix"
     }
 }

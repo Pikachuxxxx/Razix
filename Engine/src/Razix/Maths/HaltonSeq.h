@@ -22,7 +22,7 @@ static d32 HaltonSequence(u32 index, u32 base)
     while (index > 0) {
         f /= static_cast<float>(base);
         r     = r + f * static_cast<float>(index % base);
-        index = static_cast<uint32_t>(floorf(static_cast<float>(index) / static_cast<float>(base)));
+        index = static_cast<UINT>(floorf(static_cast<float>(index) / static_cast<float>(base)));
     }
     return r;
 }

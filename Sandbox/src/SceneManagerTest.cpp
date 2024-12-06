@@ -35,7 +35,7 @@ public:
 
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::VULKAN);
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
         //-------------------------------------------------------------------------------------
 
         // Init Graphics Context
@@ -98,7 +98,7 @@ public:
         width  = getWindow()->getWidth();
         height = getWindow()->getHeight();
 
-        if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::VULKAN || Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::OPENGL) {
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN || Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             buildPipelineResources();
             buildCommandPipeline();
 
@@ -133,7 +133,7 @@ public:
         auto& cameras = activeScene->GetComponentsOfType<CameraComponent>();
         activeScene->getSceneCamera().Camera.update(dt.GetTimestepMs());
 
-        if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::VULKAN || Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::OPENGL) {
+        if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN || Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::OPENGL) {
             Graphics::RZAPIRenderer::Begin();
             {
                 Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer()->UpdateViewport(getWindow()->getWidth(), getWindow()->getHeight());
@@ -188,7 +188,7 @@ public:
                 // Update the uniform buffer data
                 viewProjUBOData.view       = cameras[0].Camera.getViewMatrix();
                 viewProjUBOData.projection = cameras[0].Camera.getProjection();
-                if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::VULKAN)
+                if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Razix::Graphics::RenderAPI::VULKAN)
                     viewProjUBOData.projection[1][1] *= -1;
                 viewProjUniformBuffers[Graphics::RZAPIRenderer::getSwapchain()->getCurrentImageIndex()]->SetData(sizeof(ViewProjectionUniformBuffer), &viewProjUBOData);
 
@@ -203,8 +203,8 @@ public:
             }
             // Present the frame by executing the recorded commands
             Graphics::RZAPIRenderer::Present(Graphics::RZAPIRenderer::getSwapchain()->getCurrentCommandBuffer());
-        } else if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::DIRECTX11)
-            Razix::Gfx::RZGraphicsContext::GetContext()->ClearWithColor(0.04f, 0.44f, 0.66f);
+        } else if (Razix::Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::DIRECTX11)
+            Razix::Graphics::RZGraphicsContext::GetContext()->ClearWithColor(0.04f, 0.44f, 0.66f);
     }
 
     void OnQuit() override

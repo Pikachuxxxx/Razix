@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Razix/Gfx/RHI/API/RZTexture.h"
-#include "Razix/Gfx/RZSprite.h"
+#include "Razix/Graphics/RHI/API/RZTexture.h"
+#include "Razix/Graphics/RZSprite.h"
 
 namespace Razix {
 
-    namespace Gfx {
+    namespace Graphics {
         class RZSprite;
     }
 
@@ -14,11 +14,11 @@ namespace Razix {
      */
     struct RAZIX_API SpriteRendererComponent
     {
-        Gfx::RZSprite* Sprite = nullptr;
+        Graphics::RZSprite* Sprite = nullptr;
 
         SpriteRendererComponent() {}
         SpriteRendererComponent(glm::vec4 color);
-        SpriteRendererComponent(Gfx::RZTextureHandle texture);
+        SpriteRendererComponent(Graphics::RZTextureHandle texture);
         SpriteRendererComponent(const SpriteRendererComponent&) = default;
 
         template<class Archive>
@@ -33,7 +33,7 @@ namespace Razix {
             } else {
                 glm::vec4 color;
                 archive(cereal::make_nvp("Color", color));
-                Sprite = new Gfx::RZSprite(color);
+                Sprite = new Graphics::RZSprite(color);
             }
         }
 

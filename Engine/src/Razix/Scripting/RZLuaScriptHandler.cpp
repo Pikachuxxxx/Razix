@@ -3,10 +3,9 @@
 // clang-format on
 #include "RZLuaScriptHandler.h"
 
-#include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/SplashScreen/RZSplashScreen.h"
-
-#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
+#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/RZSplashScreen.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
 
 #include "Razix/Scene/RZScene.h"
 
@@ -24,25 +23,24 @@ namespace Razix {
             Razix::RZSplashScreen::Get().setLogString("Starting Lua Script Handler...");
 
             // Load lua default libraries that can be used by the client
-            m_State = luaL_newstate();
-            luaL_openlibs(m_State);    // Load standard libraries
+            m_State.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::table);
 
-            // [] Bind the Engine Systems Scripting API to be exposed to user via lua (windowing etc.)
+            // Bind the Engine Systems Scripting API to be exposed to user via lua
             bindApplicationAPI();
 
-            // [x] Bind the logging API that can be used by the user via scripts
+            // Bind the logging API that can be used by the user via scripts
             bindLoggingAPI();
 
-            // [] Bind the ImGui bindings
+            // Bind the ImGui bindings
             bindImGuiAPI();
 
-            // [] Bind the Renderer API (materials etc.)
+            // Bind the Renderer API
             bindRendererAPI();
 
-            // [] Binding GLM
+            // Binding GLM
             bindglm();
 
-            // [] Bind the ECS API
+            // Bind the ECS API
             bindECSAPI();
 
             // TODO: Bind other APIs (engine, gfx, ecs, physics etc.)
@@ -51,8 +49,6 @@ namespace Razix {
         void RZLuaScriptHandler::ShutDown()
         {
             RAZIX_CORE_ERROR("[Lua Script Manager] Shutting Lua Script Handler");
-            lua_gc(m_State, LUA_GCCOLLECT, 0);
-            lua_close(m_State);
         }
 
         void RZLuaScriptHandler::OnStart(RZScene* scene)
@@ -85,8 +81,8 @@ namespace Razix {
 
             for (auto entity: view) {
                 auto& luaScript = registry.get<LuaScriptComponent>(entity);
-                luaScript.OnUpdate(RZEntity(entity, scene), dt);
-            }
+                luaScript.OnUpdate(RZEntity(entity, scene) , dt);
+            } 
         }
 
         void RZLuaScriptHandler::OnImGui(RZScene* scene)

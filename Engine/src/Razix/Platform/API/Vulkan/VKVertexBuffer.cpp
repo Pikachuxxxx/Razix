@@ -7,19 +7,11 @@
 #include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
-        VKVertexBuffer::VKVertexBuffer(const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
-            : VKBuffer(desc.usage, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, desc.size, desc.data RZ_DEBUG_E_ARG_NAME)
+        VKVertexBuffer::VKVertexBuffer(u32 size, const void* data, BufferUsage usage RZ_DEBUG_NAME_TAG_E_ARG)
+            : VKBuffer(usage, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, size, data RZ_DEBUG_E_ARG_NAME)
         {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            m_Desc = desc;
-        }
-
-        RAZIX_CLEANUP_RESOURCE_IMPL(VKVertexBuffer)
-        {
-            Destroy();
         }
 
         void VKVertexBuffer::Bind(RZDrawCommandBufferHandle cmdBuffer)
@@ -27,7 +19,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             VkDeviceSize offsets[1]        = {0};
-            auto         cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
+            auto         cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
             vkCmdBindVertexBuffers(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), 0, 1, &m_Buffer, offsets);
         }
 
@@ -96,5 +88,5 @@ namespace Razix {
 
             VKBuffer::invalidate(m_BufferSize);
         }
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix

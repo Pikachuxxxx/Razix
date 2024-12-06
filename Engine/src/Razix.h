@@ -5,13 +5,13 @@
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZCore.h"
 // clang-format on
-#include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/Log/RZLog.h"
+#include "Razix/Core/IRZSystem.h"
+#include "Razix/Core/RZApplication.h"
 #include "Razix/Core/RZEngine.h"
-#include "Razix/Core/SplashScreen/RZSplashScreen.h"
-#include "Razix/Core/System/IRZSystem.h"
-#include "Razix/Core/UUID/RZUUID.h"
-#include "Razix/Core/Version/RazixVersion.h"
+#include "Razix/Core/RZLog.h"
+#include "Razix/Core/RZSplashScreen.h"
+#include "Razix/Core/RZUUID.h"
+#include "Razix/Core/RazixVersion.h"
 
 // Core/OS
 #include "Razix/Core/OS/RZFileSystem.h"
@@ -28,32 +28,32 @@
 #include "Razix/Events/RZMouseEvent.h"
 
 // Graphics API
-#include "Razix/Gfx/RHI/API/RZAPIDesc.h"
-#include "Razix/Gfx/RHI/API/RZAPIHandles.h"
-#include "Razix/Gfx/RHI/API/RZBufferLayout.h"
-#include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
-#include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
-#include "Razix/Gfx/RHI/API/RZFramebuffer.h"
-#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
-#include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
-#include "Razix/Gfx/RHI/API/RZPipeline.h"
-#include "Razix/Gfx/RHI/API/RZRenderPass.h"
-#include "Razix/Gfx/RHI/API/RZShader.h"
-#include "Razix/Gfx/RHI/API/RZSwapchain.h"
-#include "Razix/Gfx/RHI/API/RZTexture.h"
-#include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
-#include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZAPIDesc.h"
+#include "Razix/Graphics/RHI/API/RZAPIHandles.h"
+#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
+#include "Razix/Graphics/RHI/API/RZFramebuffer.h"
+#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Graphics/RHI/API/RZIndexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZPipeline.h"
+#include "Razix/Graphics/RHI/API/RZRenderPass.h"
+#include "Razix/Graphics/RHI/API/RZShader.h"
+#include "Razix/Graphics/RHI/API/RZSwapchain.h"
+#include "Razix/Graphics/RHI/API/RZTexture.h"
+#include "Razix/Graphics/RHI/API/RZUniformBuffer.h"
+#include "Razix/Graphics/RHI/API/RZVertexBuffer.h"
+#include "Razix/Graphics/RHI/API/RZVertexBufferLayout.h"
 
-#include "Razix/Gfx/RHI/RHI.h"
+#include "Razix/Graphics/RHI/RHI.h"
 
 // Graphics/Cameras
-#include "Razix/Gfx/Cameras/Camera3D.h"
+#include "Razix/Graphics/Cameras/Camera3D.h"
 
 // Graphics
-#include "Razix/Gfx/RZMesh.h"
-#include "Razix/Gfx/RZMeshFactory.h"
+#include "Razix/Graphics/RZMesh.h"
+#include "Razix/Graphics/RZMeshFactory.h"
 
-#include "Razix/Gfx/RZSprite.h"
+#include "Razix/Graphics/RZSprite.h"
 
 // Scene
 #include "Razix/Scene/Components/RZComponents.h"
@@ -61,8 +61,8 @@
 #include "Razix/Scene/RZScene.h"
 
 // Utilities
+#include "Razix/Utilities/LoadImage.h"
 #include "Razix/Utilities/RZCommandLineParser.h"
-#include "Razix/Utilities/RZLoadImage.h"
 #include "Razix/Utilities/RZStringUtilities.h"
 #include "Razix/Utilities/RZTimer.h"
 #include "Razix/Utilities/RZTimestep.h"

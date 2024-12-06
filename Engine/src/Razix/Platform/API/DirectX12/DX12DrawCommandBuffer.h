@@ -1,19 +1,18 @@
 #pragma once
 
-#include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
+#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
     #include <d3d12.h>
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         class DX12DrawCommandBuffer final : public RZDrawCommandBuffer
         {
         public:
             DX12DrawCommandBuffer(ID3D12CommandAllocator* commandAllocator);
-            DX12DrawCommandBuffer(ID3D12GraphicsCommandList2* commandList);
             ~DX12DrawCommandBuffer() {}
 
             RAZIX_CLEANUP_RESOURCE
@@ -32,6 +31,6 @@ namespace Razix {
             ID3D12GraphicsCommandList2* m_CommandList      = nullptr; /* Handle to the DX12 command buffer that will be executed by the GPU */
             ID3D12CommandAllocator*     m_CommandAllocator = nullptr; /* Handle to the command allocator from which this buffer was allocated from */
         };
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix
 #endif

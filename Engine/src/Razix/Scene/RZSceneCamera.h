@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Razix/Core/RZCore.h"
-#include "Razix/Gfx/Cameras/Camera3D.h"
+#include "Razix/Graphics/Cameras/Camera3D.h"
 
 #include "Razix/Maths/RZFrustum.h"
 
@@ -9,7 +9,7 @@
 
 namespace Razix {
 
-    class RAZIX_API RZSceneCamera : public Gfx::Camera3D
+    class RAZIX_API RZSceneCamera : public Graphics::Camera3D
     {
     public:
         enum class ProjectionType

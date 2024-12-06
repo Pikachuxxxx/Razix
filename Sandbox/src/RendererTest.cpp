@@ -12,7 +12,7 @@ public:
     {
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-        Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::VULKAN);
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::VULKAN);
         //-------------------------------------------------------------------------------------
 
         Razix::RZInput::SelectGLFWInputManager();
@@ -22,9 +22,9 @@ public:
         //-------------------------------------------------------------------------------------
         // Creating the Graphics Context and Initialize it
         RAZIX_CORE_INFO("Creating Graphics Context...");
-        Razix::Gfx::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
+        Razix::Graphics::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
         RAZIX_CORE_INFO("Initializing Graphics Context...");
-        Razix::Gfx::RZGraphicsContext::GetContext()->Init();
+        Razix::Graphics::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
     }
 
@@ -34,11 +34,11 @@ public:
     {
         // Add some model entities
     #if 0
-        auto& modelEnitties = RZSceneManager::Get().getCurrentScene()->GetComponentsOfType<Razix::Gfx::RZModel>();
+        auto& modelEnitties = RZSceneManager::Get().getCurrentScene()->GetComponentsOfType<Razix::Graphics::RZModel>();
         if (!modelEnitties.size()) {
             // since Avocado is already there we load Sponza
             auto& spoznaModelEntity = RZSceneManager::Get().getCurrentScene()->createEntity("Sponza");
-            spoznaModelEntity.AddComponent<Razix::Gfx::RZModel>("//Meshes/bistro.obj");
+            spoznaModelEntity.AddComponent<Razix::Graphics::RZModel>("//Meshes/bistro.obj");
         }
     #endif
 

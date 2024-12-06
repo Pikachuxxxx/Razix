@@ -1,7 +1,7 @@
 project "lua"
     kind "StaticLib"
     language "C++"
-    cppdialect (engine_global_config.cpp_dialect)
+    cppdialect "C++20"
     staticruntime "off"
 
 	defines
@@ -35,7 +35,7 @@ project "lua"
 
     filter "system:windows"
         systemversion "latest"
-        cppdialect (engine_global_config.cpp_dialect)
+        cppdialect "C++20"
         staticruntime "off"
 
     filter "configurations:Debug"

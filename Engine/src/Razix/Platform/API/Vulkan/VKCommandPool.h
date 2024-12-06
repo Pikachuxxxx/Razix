@@ -1,21 +1,19 @@
 #pragma once
 
-#include "Razix/Gfx/RHI/API/RZCommandPool.h"
+#include "Razix/Graphics/RHI/API/RZCommandPool.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
     #include <vulkan/vulkan.h>
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         /* Creates a Vulkan command buffer */
         class VKCommandPool final : public RZCommandPool
         {
         public:
             VKCommandPool() {}
-            /* Destructor for the command pool */
-            ~VKCommandPool() {}
             /**
              * Constructor for vulkan command buffer
              * 
@@ -23,6 +21,8 @@ namespace Razix {
              * @param flags Configure the pool
              */
             VKCommandPool(int queueIndex, VkCommandPoolCreateFlags flags);
+            /* Destructor for the command pool */
+            ~VKCommandPool() {}
 
             RAZIX_CLEANUP_RESOURCE
 
@@ -36,6 +36,6 @@ namespace Razix {
         private:
             VkCommandPool m_CmdPool = VK_NULL_HANDLE; /* Handle to vulkan command pool */
         };
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix
 #endif

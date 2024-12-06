@@ -10,7 +10,7 @@ namespace Razix {
     {
         Physics::RZRigidBody rigidbody;
 
-        RigidBodyComponent()                          = default;
+        RigidBodyComponent()              = default;
         RigidBodyComponent(const RigidBodyComponent&) = default;
     };
 }    // namespace Razix

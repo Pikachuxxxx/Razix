@@ -17,6 +17,6 @@ namespace Razix {
     {
     public:
         RZRoot() = default;
-        virtual ~RZRoot() {}
+        virtual ~RZRoot() { }
     };
-}    // namespace Razix
+}

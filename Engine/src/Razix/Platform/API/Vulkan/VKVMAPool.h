@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Razix/Gfx/Resources/RZGPUResourcePool.h"
+#include "Razix/Graphics/Resources/RZGPUResourcePool.h"
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         class VKVMAPool : public RZGPUResourcePool
         {
@@ -11,5 +11,5 @@ namespace Razix {
             u64 AllocateVideoMemoryFromPoolId(u32 poolIdx) override;
         };
 
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix

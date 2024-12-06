@@ -6,7 +6,7 @@
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         DX12Texture::DX12Texture(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
@@ -46,7 +46,7 @@ namespace Razix {
             throw std::logic_error("The method or operation is not implemented.");
         }
 
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix
 
 #endif

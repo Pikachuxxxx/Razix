@@ -1,13 +1,12 @@
 project "meshoptimizer"
 	kind "StaticLib"
 	language "C++"
-	cppdialect (engine_global_config.cpp_dialect)
+	cppdialect "C++20"
 	staticruntime "off"
 
 	disablewarnings {
 		"4251",
 		"4275",
-		"4996"
 	}
 
 	defines {

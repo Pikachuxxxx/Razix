@@ -183,12 +183,5 @@
         <file>toolbar/shading_modes/lit_shading.PNG</file>
         <file>toolbar/shading_modes/quad_overdraw.PNG</file>
         <file>toolbar/shading_modes/wireframe.PNG</file>
-        <file>FilterDropdownIcon.png</file>
-        <file>FolderIcon16.png</file>
-        <file>MeshAssetIcon.png</file>
-        <file>RootIcon.png</file>
-        <file>SearchIcon.png</file>
-        <file>WorldIcon.png</file>
-        <file>styles/RazixTools.qss</file>
     </qresource>
 </RCC>

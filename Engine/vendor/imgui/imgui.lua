@@ -1,17 +1,12 @@
 project "ImGui"
     kind "StaticLib"
     language "C++"
-    cppdialect (engine_global_config.cpp_dialect)
+    cppdialect "C++20"
     staticruntime "off"
 
-        includedirs
+     includedirs
         {
-            "./"
-        }
-    
-        externalincludedirs
-        {
-            "./"
+             "./"
         }
 
     files
@@ -34,7 +29,7 @@ project "ImGui"
 
     filter "system:windows"
         systemversion "latest"
-        cppdialect (engine_global_config.cpp_dialect)
+        cppdialect "C++20"
         staticruntime "off"
 
     filter "configurations:Debug"

@@ -4,8 +4,8 @@
 #include "RZWindow.h"
 
 namespace Razix {
-    RZWindow* (*RZWindow::ConstructionFunc)(const WindowProperties&)              = nullptr;
-    RZWindow* (*RZWindow::ConstructionFuncNative)(void*, const WindowProperties&) = nullptr;
+    RZWindow* (*RZWindow::ConstructionFunc) (const WindowProperties&) = nullptr;
+    RZWindow* (*RZWindow::ConstructionFuncNative) (void*, const WindowProperties&) = nullptr;
 
     RZWindow* RZWindow::Create(const WindowProperties& properties /*= WindowProperties()*/)
     {

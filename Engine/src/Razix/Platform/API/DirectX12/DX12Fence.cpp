@@ -5,11 +5,11 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
+    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
-    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         DX12Fence::DX12Fence(bool isSignalled /*= false*/)
         {
@@ -19,7 +19,7 @@ namespace Razix {
             m_FenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
             RAZIX_CORE_ASSERT(m_FenceEvent, "[DX12] cannot create fence event handle!.");
 
-            D3D12_TAG_OBJECT(m_Fence, L"Sync Fence");
+            D3D12_TAG_OBJECT(m_Fence, "Sync Fence");
         }
 
         DX12Fence::~DX12Fence()
@@ -52,6 +52,6 @@ namespace Razix {
         {
             wait(signal(commandQueue));
         }
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix
 #endif

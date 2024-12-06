@@ -9,6 +9,7 @@ namespace Razix {
     public:
         inline int GetKeyCode() const { return m_KeyCode; }
 
+        EVENT_CLASS_CATEGORY((int) EventCategory::EventCategoryKeyboard | (int) EventCategory::EventCategoryInput)
     protected:
         RZKeyEvent(int keycode)
             : m_KeyCode(keycode) {}
@@ -31,7 +32,7 @@ namespace Razix {
             return ss.str();
         }
 
-        EVENT_CLASS_TYPE(kKeyPressed)
+        EVENT_CLASS_TYPE(KeyPressed)
     private:
         int m_RepeatCount;
     };
@@ -49,6 +50,6 @@ namespace Razix {
             return ss.str();
         }
 
-        EVENT_CLASS_TYPE(kKeyReleased)
+        EVENT_CLASS_TYPE(KeyReleased)
     };
 }    // namespace Razix

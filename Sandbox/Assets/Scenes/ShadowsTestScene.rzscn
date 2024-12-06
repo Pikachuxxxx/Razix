@@ -1,6 +1,6 @@
 {
     "Razix Scene": {
-        "UUID": "\u0019¸ÒS·ŠW¢mwwwmw§ª",
+        "UUID": "˜±ÒS·ŠW¢mwwwmw§ª",
         "SceneName": "default Scene",
         "Total Entities": 21
     },
@@ -1180,7 +1180,7 @@
         "Primitive": -842150451,
         "MeshName": "RazixTestScene_Shadows",
         "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cube_Ground.rzmesh",
-        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+        "MaterialPath": "//Assets/Materials/Mat_RazixTestScene_Shadows_6.rzmaterial"
     },
     "value159": 6,
     "value160": {
@@ -1194,42 +1194,42 @@
         "Primitive": -842150451,
         "MeshName": "RazixTestScene_Shadows",
         "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Suzanne.rzmesh",
-        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+        "MaterialPath": "//Assets/Materials/MAT_Gold.rzmaterial"
     },
     "value163": 8,
     "value164": {
         "Primitive": -842150451,
         "MeshName": "RazixTestScene_Shadows",
         "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_IcosphereFront.rzmesh",
-        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+        "MaterialPath": "//Assets/Materials/MAT_RoughRed.rzmaterial"
     },
     "value165": 9,
     "value166": {
         "Primitive": -842150451,
         "MeshName": "RazixTestScene_Shadows",
         "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_IcosphereBack.rzmesh",
-        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+        "MaterialPath": "//Assets/Materials/MAT_MetalRods.rzmaterial"
     },
     "value167": 10,
     "value168": {
         "Primitive": -842150451,
         "MeshName": "RazixTestScene_Shadows",
         "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cube_InclinedPillarFront.rzmesh",
-        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+        "MaterialPath": "//Assets/Materials/MT_Metalblue.rzmaterial"
     },
     "value169": 11,
     "value170": {
         "Primitive": -842150451,
         "MeshName": "RazixTestScene_Shadows",
         "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_SM_Primitive.Cube_InclinedPillarRight.rzmesh",
-        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+        "MaterialPath": "//Assets/Materials/MT_Pink.rzmaterial"
     },
     "value171": 12,
     "value172": {
         "Primitive": -842150451,
         "MeshName": "RazixTestScene_Shadows",
         "MeshPath": "//Assets/Cache/Meshes/RazixTestScene_Shadows/RazixTestScene_Shadows_Torus.rzmesh",
-        "MaterialPath": "//Assets/Materials/MT_Iron.rzmaterial"
+        "MaterialPath": "//Assets/Materials/MT_Metalblue.rzmaterial"
     },
     "value173": 13,
     "value174": {

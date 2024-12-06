@@ -11,7 +11,7 @@
 #include "vulkan/vulkan_core.h"
 
 namespace Razix {
-    namespace Gfx {
+    namespace Graphics {
 
         VKBuffer::VKBuffer(BufferUsage usage, VkBufferUsageFlags usageFlags, u32 size, const void* data RZ_DEBUG_NAME_TAG_E_ARG)
             : m_Usage(usage), m_UsageFlags(usageFlags), m_BufferSize(size)
@@ -22,7 +22,7 @@ namespace Razix {
 
             // Based on Usage set some vulkan usage flags
             // [Source] : https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/usage_patterns.html#usage_patterns_advanced_data_uploading
-#if RAZIX_USE_VMA
+
             switch (m_Usage) {
                 case BufferUsage::Static: {
                     /**
@@ -61,19 +61,15 @@ namespace Razix {
                 case BufferUsage::ReadBack:
                     m_VMAAllocFlags = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT;
                     break;
-                default:
-                    m_VMAAllocFlags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
-                    m_UsageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-                    break;
             }
-#endif
+
             init(data RZ_DEBUG_E_ARG_NAME);
         }
 
         void VKBuffer::destroy()
         {
             if (m_Buffer != VK_NULL_HANDLE) {
-#if !RAZIX_USE_VMA
+#ifndef RAZIX_USE_VMA
                 if (m_BufferMemory) {
                     vkFreeMemory(VKDevice::Get().getDevice(), m_BufferMemory, nullptr);
                 }
@@ -92,7 +88,7 @@ namespace Razix {
 
             VkResult res;
             // Map the memory to the mapped buffer
-#if !RAZIX_USE_VMA
+#ifndef RAZIX_USE_VMA
             if (!m_Mapped) {
                 res = vkMapMemory(VKDevice::Get().getDevice(), m_BufferMemory, offset, size, 0, &m_Mapped);
                 RAZIX_CORE_ASSERT((res == VK_SUCCESS), "[Vulkan] Failed to map buffer!");
@@ -110,12 +106,12 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-#if !RAZIX_USE_VMA
+#ifndef RAZIX_USE_VMA
             if (m_Mapped) {
                 vkUnmapMemory(VKDevice::Get().getDevice(), m_BufferMemory);
             }
 #else
-            if (m_Usage == BufferUsage::Staging && m_Mapped)
+            if (m_Usage == BufferUsage::Staging)
                 vmaUnmapMemory(VKDevice::Get().getVMA(), m_VMAAllocation);
 #endif
             m_Mapped = nullptr;
@@ -127,7 +123,7 @@ namespace Razix {
             if (!size)
                 size = VK_WHOLE_SIZE;
 
-#if !RAZIX_USE_VMA
+#ifndef RAZIX_USE_VMA
             VkMappedMemoryRange mappedRange = {};
             mappedRange.sType               = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
             mappedRange.memory              = m_BufferMemory;
@@ -145,7 +141,7 @@ namespace Razix {
             if (!size)
                 size = VK_WHOLE_SIZE;
 
-#if !RAZIX_USE_VMA
+#ifndef RAZIX_USE_VMA
             VkMappedMemoryRange mappedRange = {};
             mappedRange.sType               = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
             mappedRange.memory              = m_BufferMemory;
@@ -168,11 +164,10 @@ namespace Razix {
             } else if (m_Usage == BufferUsage::PersistentStream) {
                 memcpy(m_AllocInfo.pMappedData, data, size);
             } else if (m_Usage == BufferUsage::Static) {
-    /**
+                /**
                 * For anything else we copy using a staging buffer to copy to the GPU
                 */
-    #if 0
-VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, data RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging buffer to copy to Device only GPU buffer"));
+                VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, data RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging buffer to copy to Device only GPU buffer"));
                 {
                     // 1.1 Copy from staging buffer to Image
                     VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
@@ -187,8 +182,6 @@ VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANS
                     VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
                 }
                 m_TransferBuffer.destroy();
-    #endif
-                VKUtilities::CopyDataToGPUBufferResource(data, m_Buffer, size);
             }
 #else
             map(size, 0);
@@ -216,7 +209,7 @@ VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANS
             bufferInfo.usage              = m_UsageFlags;
             bufferInfo.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
 
-#if !RAZIX_USE_VMA
+#ifndef RAZIX_USE_VMA
             // Create the buffer
             VK_CHECK_RESULT(vkCreateBuffer(VKDevice::Get().getDevice(), &bufferInfo, nullptr, &m_Buffer));
 
@@ -270,5 +263,5 @@ VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANS
             return m_Mapped;
 #endif
         }
-    }    // namespace Gfx
+    }    // namespace Graphics
 }    // namespace Razix

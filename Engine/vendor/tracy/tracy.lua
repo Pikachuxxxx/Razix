@@ -1,7 +1,7 @@
 project "Tracy"
     kind "StaticLib"
     language "C++"
-    cppdialect (engine_global_config.cpp_dialect)
+    cppdialect "C++20"
     staticruntime "off"
 
     files
@@ -23,7 +23,7 @@ project "Tracy"
 
     filter "system:windows"
         systemversion "latest"
-        cppdialect (engine_global_config.cpp_dialect)
+        cppdialect "C++20"
         staticruntime "off"
 
     -- Config settings for Razix Engine project

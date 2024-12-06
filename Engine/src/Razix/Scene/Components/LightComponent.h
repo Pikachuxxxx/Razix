@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Gfx/Lighting/RZLight.h"
+#include "Razix/Graphics/Lighting/RZLight.h"
 
 #include <cereal/cereal.hpp>
 
@@ -12,7 +12,7 @@ namespace Razix {
         LightComponent()                      = default;
         LightComponent(const LightComponent&) = default;
 
-        Gfx::RZLight light;
+        Graphics::RZLight light;
 
         template<class Archive>
         void serialize(Archive& archive)

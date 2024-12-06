@@ -19,8 +19,8 @@ class MemoryTest : public Razix::RZApplication
 {
 public:
     MemoryTest()
-        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "SponzaSandbox")
-    //: RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "ShadowsSandbox")
+        //: RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "SponzaSandbox")
+        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "ShadowsSandbox")
 
     {
         Razix::RZInput::SelectGLFWInputManager();
@@ -28,59 +28,30 @@ public:
 
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
-    #ifdef RAZIX_PLATFORM_WINDOWS
-        Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::D3D12);
-    #elif defined RAZIX_PLATFORM_MACOS
-        Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::VULKAN);
-    #endif
+        Razix::Graphics::RZGraphicsContext::SetRenderAPI(Razix::Graphics::RenderAPI::D3D12);
         //-------------------------------------------------------------------------------------
 
         // Init Graphics Context
         //-------------------------------------------------------------------------------------
         // Creating the Graphics Context and Initialize it
         RAZIX_CORE_INFO("Creating Graphics Context...");
-        Razix::Gfx::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
+        Razix::Graphics::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
         RAZIX_CORE_INFO("Initializing Graphics Context...");
-        Razix::Gfx::RZGraphicsContext::GetContext()->Init();
+        Razix::Graphics::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
-
-        // Testing Reflection system
-        {
-            const TypeMetaData* meta = RZTypeRegistry::getTypeMetaData<TransformComponent>();
-            if (meta) {
-                RAZIX_INFO("Reflecting type... {0}", meta->name);
-                RAZIX_TRACE("\t @typeName: {0}", meta->typeName);
-                RAZIX_TRACE("\t @size    : {0}", meta->size);
-                RAZIX_TRACE("\t @members : {0}", meta->members.size());
-
-                for (u32 i = 0; i < meta->members.size(); i++) {
-                    const MemberMetaData& memberMeta = meta->members[i];
-                    RAZIX_TRACE("\t @name    : {0}", memberMeta.name);
-                    RAZIX_TRACE("\t @typeName: {0}", memberMeta.typeName);
-                    RAZIX_TRACE("\t @size    : {0}", memberMeta.size);
-                    RAZIX_TRACE("\t @offset  : {0}", memberMeta.offset);
-                }
-            }
-        }
     }
 
     void OnStart() override
     {
-        int n = 5;
-        int n_ = rzstl::bitmanip::flipBits(n);
-        RAZIX_INFO("ans: {0}", n | n_);
-
-
-    #if 0
         // Testing the HeapAllocator
         {
             Razix::Memory::RZHeapAllocator heapAlloc;
             RAZIX_INFO("Allocating 16 Mb of Heap memory");
-            heapAlloc.init(static_cast<size_t>(16_Mib));
+            heapAlloc.init(static_cast<size_t>(16 * 1024 * 1024));
 
-            void* alloc_1 = heapAlloc.allocate(245_Kib, 16);
-            void* alloc_2 = heapAlloc.allocate(128_Kib, 16);
-            void* alloc_3 = heapAlloc.allocate(512_Kib, 16);
+            void* alloc_1 = heapAlloc.allocate(245 * 1024, 16);
+            void* alloc_2 = heapAlloc.allocate(128 * 1024, 16);
+            void* alloc_3 = heapAlloc.allocate(512 * 1024, 16);
 
             heapAlloc.deallocate(alloc_1);
             heapAlloc.deallocate(alloc_2);
@@ -108,13 +79,12 @@ public:
             //Razix::Memory::RZRingAllocator<std::unique_ptr<Graphics::RZCommandBuffer>> frame_command_buffers;
             //frame_command_buffers.init(3);
             //for (uint32_t i = 0; i < 45; i++) {
-            //    frame_command_buffers.put(std::make_unique<Graphics::RZCommandBuffer>(Razix::Gfx::RZCommandBuffer::Create()));
+            //    frame_command_buffers.put(std::make_unique<Graphics::RZCommandBuffer>(Razix::Graphics::RZCommandBuffer::Create()));
             //    RAZIX_TRACE("Ring buffer value at : {0} | head : {1}, tail : {2}", fmt::ptr(frame_command_buffers.get()), frame_command_buffers.getHead(), frame_command_buffers.getTail());
             //    if (frame_command_buffers.isFull())
             //        RAZIX_WARN("Ring Allocator is Full!");
             //}
         }
-
 
         // Add a directional light for test
         auto lightEnitties = RZSceneManager::Get().getCurrentScene()->GetComponentsOfType<Razix::LightComponent>();
@@ -145,13 +115,14 @@ public:
             }
         }
 
+    #if 0
         // PBR materials test
         {
             int nrRows    = 7;
             int nrColumns = 7;
-            float spacing   = 2.5f;
+            int spacing   = 2.5f;
 
-            Razix::Gfx::MaterialProperties mat;
+            Razix::Graphics::MaterialProperties mat;
             mat.albedoColor      = glm::vec3(1.0f, 0.3f, 0.75f);
             mat.ambientOcclusion = 1.0f;
 
@@ -189,5 +160,17 @@ Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
     return new MemoryTest();
 }
 
-RAZIX_PLATFORM_MAIN
+int main(int argc, char** argv)
+{
+    EngineMain(argc, argv);
+
+    while (Razix::RZApplication::Get().RenderFrame()) {}
+
+    Razix::RZApplication::Get().Quit();
+    Razix::RZApplication::Get().SaveApp();
+
+    EngineExit();
+
+    return EXIT_SUCCESS;
+}
 #endif
