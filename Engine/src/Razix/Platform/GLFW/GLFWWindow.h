@@ -17,6 +17,7 @@ namespace Razix {
 
         inline unsigned int getWidth() const override { return m_Data.Width; }
         inline unsigned int getHeight() const override { return m_Data.Height; }
+        void                setTitle(const char* title) override;
 
         // Window Attributes
         inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
@@ -40,10 +41,12 @@ namespace Razix {
 
         struct WindowData
         {
-            std::string  Title{};
-            unsigned int Width{}, Height{};
-            bool         Vsync = false;
-
+            std::string     Title;
+            u32             Width;
+            u32             Height;
+            u32             wScale;
+            u32             hScale;
+            bool            Vsync;
             EventCallbackFn EventCallback;
         } m_Data;    // Call me old fashioned, Bitch!!!
     };

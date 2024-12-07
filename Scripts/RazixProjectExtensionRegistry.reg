@@ -10,7 +10,7 @@ Windows Registry Editor Version 5.00
 
 ; Add the default Icon path
 [HKEY_CLASSES_ROOT\Razix.ProjectFile\DefaultIcon]
-@="\"C:\\Dev\\Game Engines\\Razix\\Engine\\content\\Logos\\RazixLogo64.ico\""
+@="\"%~dp0..\\Engine\\content\\Logos\\RazixLogo64.ico\""
 
 ; Add default open behaviour
 [HKEY_CLASSES_ROOT\Razix.ProjectFile\shell]
@@ -19,8 +19,8 @@ Windows Registry Editor Version 5.00
 [HKEY_CLASSES_ROOT\Razix.ProjectFile\shell\open]
 @="Open"
 ; Icon for open command option
-"Icon"="\"C:\\Dev\\Game Engines\\Razix\\Engine\\content\\Logos\\RazixLogo64.ico\""
+"Icon"="\"%~dp0..\\Engine\\content\\Logos\\RazixLogo64.ico\""
 
 ; Passing the filename as a command line argument with a -f flag to the Razix Game Application
 [HKEY_CLASSES_ROOT\Razix.ProjectFile\shell\open\command]
-@="\"C:\\Dev\\Game Engines\\Razix\\bin\\Debug-windows-x86_64\\Sandbox.exe\" -f \"%1\""
+@="\"%~dp0..\\bin\\Debug-windows-x86_64\\Sandbox.exe\" -f \"%1\""

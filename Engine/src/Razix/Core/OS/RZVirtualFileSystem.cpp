@@ -4,9 +4,7 @@
 #include "RZVirtualFileSystem.h"
 
 #include "Razix/Core/OS/RZFileSystem.h"
-// TODO: Try to remove RZEngine.h from here
-#include "Razix/Core/RZEngine.h"
-#include "Razix/Core/RZSplashScreen.h"
+#include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
 #include "Razix/Utilities/RZStringUtilities.h"
 
@@ -17,21 +15,25 @@ namespace Razix {
         // Instance is automatically created once the system is Started Up
         RAZIX_CORE_INFO("[Virtual File System] Starting Up Virtual File System...");
 
-        Razix::RZSplashScreen::Get().setLogString("STATIC_INITIALIZATION: Starting VFS...");
+        Razix::RZSplashScreen::Get().setLogString("Starting VFS...");
 
         // Static Initialization load basic paths + root paths in consoles
-        //  1.1. Mount engine specific Paths
-        auto& rootDir = RZEngine::Get().getEngineInstallationDir();
-        RZVirtualFileSystem::Get().mount("RazixRoot", rootDir + std::string("/Engine/"));
-        RZVirtualFileSystem::Get().mount("RazixSource", rootDir + std::string("/Engine/src/"));
-        RZVirtualFileSystem::Get().mount("RazixContent", rootDir + std::string("/Engine/content/"));
-        RZVirtualFileSystem::Get().mount("RazixShaders", rootDir + std::string("/Engine/content/Shaders/Razix"));
-        RZVirtualFileSystem::Get().mount("RazixFG", rootDir + std::string("/Engine/content/FrameGraphs"));
+        // Mount engine specific Paths from the ./Engine/... given by the env variable RAZIX_ROOT_DIR
+        RZVirtualFileSystem::Get().mount("RazixRoot", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/"));
+        RZVirtualFileSystem::Get().mount("RazixContent", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/"));
+        RZVirtualFileSystem::Get().mount("RazixConfig", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/config/"));
+        RZVirtualFileSystem::Get().mount("RazixFonts", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/Fonts/"));
+        RZVirtualFileSystem::Get().mount("RazixFG", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/FrameGraphs/"));
+        RZVirtualFileSystem::Get().mount("RazixLogos", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/Logos/"));
+        RZVirtualFileSystem::Get().mount("RazixShaders", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/Shaders/Razix/"));
+        RZVirtualFileSystem::Get().mount("RazixCompiledShaders", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/Shaders/Compiled/"));
+        RZVirtualFileSystem::Get().mount("RazixSplash", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/Splash/"));
+        RZVirtualFileSystem::Get().mount("RazixTextures", RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/Textures/"));
     }
 
     void RZVirtualFileSystem::ShutDown()
     {
-        RAZIX_CORE_ERROR("[Virtual File System] Shutting Down Virtual File System");
+        RAZIX_CORE_INFO("[Virtual File System] Shutting Down Virtual File System");
     }
 
     void RZVirtualFileSystem::mount(const std::string& virtualPath, const std::string& physicalPath)
@@ -111,11 +113,11 @@ namespace Razix {
         return resolvePhysicalPath(path, physicalPath) ? RZFileSystem::ReadTextFile(physicalPath) : nullptr;
     }
 
-    bool RZVirtualFileSystem::writeFile(const std::string& path, u8* buffer)
+    bool RZVirtualFileSystem::writeFile(const std::string& path, u8* buffer, i64 size)
     {
         // RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
         std::string physicalPath;
-        return resolvePhysicalPath(path, physicalPath) ? RZFileSystem::WriteFile(physicalPath, buffer) : false;
+        return resolvePhysicalPath(path, physicalPath) ? RZFileSystem::WriteFile(physicalPath, buffer, size) : false;
     }
 
     bool RZVirtualFileSystem::writeTextFile(const std::string& path, const std::string& text)

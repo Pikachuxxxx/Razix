@@ -1,19 +1,20 @@
 #pragma once
 
-#include "Razix/Graphics/Loaders/RZMeshLoader.h"
-#include "Razix/Graphics/Materials/RZMaterial.h"
-#include "Razix/Graphics/RZMesh.h"
-#include "Razix/Graphics/RZMeshFactory.h"
+#include "Razix/Gfx/Loaders/RZMeshLoader.h"
+#include "Razix/Gfx/Materials/RZMaterial.h"
+#include "Razix/Gfx/RZGraphicsCompileConfig.h"
+#include "Razix/Gfx/RZMesh.h"
+#include "Razix/Gfx/RZMeshFactory.h"
 
 #include <cereal/cereal.hpp>
 
 namespace Razix {
 
-    namespace Graphics {
+    namespace Gfx {
         class RZMesh;
         enum MeshPrimitive : int;
         class RZMaterial;
-    }    // namespace Graphics
+    }    // namespace Gfx
 
     /**
      * Mesh renderer component references a mesh that will taken by the render to render a mesh on the 3D scene
@@ -25,8 +26,8 @@ namespace Razix {
      */
     struct RAZIX_API MeshRendererComponent
     {
-        Graphics::RZMesh*       Mesh;
-        Graphics::MeshPrimitive primitive;
+        Gfx::RZMesh*       Mesh;
+        Gfx::MeshPrimitive primitive;
 
         glm::mat4 PreviousWorldTransform;    // Run-time variable for storing the previous frame world matrix
 
@@ -35,8 +36,8 @@ namespace Razix {
 
         MeshRendererComponent();
         MeshRendererComponent(const std::string& filePath);
-        MeshRendererComponent(Graphics::MeshPrimitive primitive);
-        MeshRendererComponent(Graphics::RZMesh* mesh);
+        MeshRendererComponent(Gfx::MeshPrimitive primitive);
+        MeshRendererComponent(Gfx::RZMesh* mesh);
         MeshRendererComponent(const MeshRendererComponent&) = default;
 
         template<class Archive>
@@ -44,17 +45,17 @@ namespace Razix {
         {
             int prim = -1;
             archive(cereal::make_nvp("Primitive", prim));
-            primitive = Graphics::MeshPrimitive(prim);
+            primitive = Gfx::MeshPrimitive(prim);
 
             if (prim >= 0)
-                Mesh = Graphics::MeshFactory::CreatePrimitive(primitive);
+                Mesh = Gfx::MeshFactory::CreatePrimitive(primitive);
             std::string meshName;
             archive(cereal::make_nvp("MeshName", meshName));
             std::string meshPath;
             archive(cereal::make_nvp("MeshPath", meshPath));
 
             if (!Mesh || !meshPath.empty())
-                Mesh = Razix::Graphics::loadMesh(meshPath);
+                Mesh = Razix::Gfx::loadMesh(meshPath);
 
             if (Mesh) {
                 Mesh->setName(meshName);
@@ -64,10 +65,12 @@ namespace Razix {
             // Load/Create a new Material (override the save location)
             std::string materialPath;
             archive(cereal::make_nvp("MaterialPath", materialPath));
+#if !DISABLE_MATERIALS_LOADING
             if (!materialPath.empty()) {
                 // Since we have the path to a material file load it, deserialize it and create the material
                 Mesh->getMaterial()->loadFromFile(materialPath);
             }
+#endif
         }
 
         template<class Archive>

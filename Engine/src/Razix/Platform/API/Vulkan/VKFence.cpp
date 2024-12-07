@@ -7,7 +7,7 @@
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         VKFence::VKFence(bool isSignalled /*= true*/)
             : m_IsSignaled(isSignalled)
@@ -87,5 +87,5 @@ namespace Razix {
 
             reset();
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

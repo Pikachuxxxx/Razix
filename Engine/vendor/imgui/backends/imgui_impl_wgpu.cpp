@@ -14,8 +14,8 @@
 // (minor and older changes stripped away, please see git history for details)
 //  2021-01-28: Initial version.
 
-#include "imgui.h"
 #include "imgui_impl_wgpu.h"
+#include "imgui.h"
 #include <limits.h>
 #include <webgpu/webgpu.h>
 
@@ -25,22 +25,22 @@
 extern ImGuiID ImHashData(const void* data_p, size_t data_size, ImU32 seed = 0);
 
 // WebGPU data
-static WGPUDevice               g_wgpuDevice = NULL;
-static WGPUTextureFormat        g_renderTargetFormat = WGPUTextureFormat_Undefined;
-static WGPURenderPipeline       g_pipelineState = NULL;
+static WGPUDevice         g_wgpuDevice         = NULL;
+static WGPUTextureFormat  g_renderTargetFormat = WGPUTextureFormat_Undefined;
+static WGPURenderPipeline g_pipelineState      = NULL;
 
 struct RenderResources
 {
-    WGPUTexture         FontTexture;            // Font texture
-    WGPUTextureView     FontTextureView;        // Texture view for font texture
-    WGPUSampler         Sampler;                // Sampler for the font texture
-    WGPUBuffer          Uniforms;               // Shader uniforms
-    WGPUBindGroup       CommonBindGroup;        // Resources bind-group to bind the common resources to pipeline
-    WGPUBindGroupLayout ImageBindGroupLayout;   // Bind group layout for image textures
-    ImGuiStorage        ImageBindGroups;        // Resources bind-group to bind the font/image resources to pipeline (this is a key->value map)
-    WGPUBindGroup       ImageBindGroup;         // Default font-resource of Dear ImGui
+    WGPUTexture         FontTexture;             // Font texture
+    WGPUTextureView     FontTextureView;         // Texture view for font texture
+    WGPUSampler         Sampler;                 // Sampler for the font texture
+    WGPUBuffer          Uniforms;                // Shader uniforms
+    WGPUBindGroup       CommonBindGroup;         // Resources bind-group to bind the common resources to pipeline
+    WGPUBindGroupLayout ImageBindGroupLayout;    // Bind group layout for image textures
+    ImGuiStorage        ImageBindGroups;         // Resources bind-group to bind the font/image resources to pipeline (this is a key->value map)
+    WGPUBindGroup       ImageBindGroup;          // Default font-resource of Dear ImGui
 };
-static RenderResources  g_resources;
+static RenderResources g_resources;
 
 struct FrameResources
 {
@@ -51,9 +51,9 @@ struct FrameResources
     int         IndexBufferSize;
     int         VertexBufferSize;
 };
-static FrameResources*  g_pFrameResources = NULL;
-static unsigned int     g_numFramesInFlight = 0;
-static unsigned int     g_frameIndex = UINT_MAX;
+static FrameResources* g_pFrameResources   = NULL;
+static unsigned int    g_numFramesInFlight = 0;
+static unsigned int    g_frameIndex        = UINT_MAX;
 
 struct Uniforms
 {
@@ -84,48 +84,8 @@ void main()
 }
 */
 static uint32_t __glsl_shader_vert_spv[] =
-{
-    0x07230203,0x00010000,0x00080007,0x0000002c,0x00000000,0x00020011,0x00000001,0x0006000b,
-    0x00000001,0x4c534c47,0x6474732e,0x3035342e,0x00000000,0x0003000e,0x00000000,0x00000001,
-    0x000a000f,0x00000000,0x00000004,0x6e69616d,0x00000000,0x0000000b,0x0000000f,0x00000015,
-    0x0000001b,0x00000023,0x00030003,0x00000002,0x000001c2,0x00040005,0x00000004,0x6e69616d,
-    0x00000000,0x00030005,0x00000009,0x00000000,0x00050006,0x00000009,0x00000000,0x6f6c6f43,
-    0x00000072,0x00040006,0x00000009,0x00000001,0x00005655,0x00030005,0x0000000b,0x0074754f,
-    0x00040005,0x0000000f,0x6c6f4361,0x0000726f,0x00030005,0x00000015,0x00565561,0x00060005,
-    0x00000019,0x505f6c67,0x65567265,0x78657472,0x00000000,0x00060006,0x00000019,0x00000000,
-    0x505f6c67,0x7469736f,0x006e6f69,0x00030005,0x0000001b,0x00000000,0x00050005,0x0000001d,
-    0x6e617274,0x726f6673,0x0000006d,0x00040006,0x0000001d,0x00000000,0x0070766d,0x00030005,
-    0x0000001f,0x00000000,0x00040005,0x00000023,0x736f5061,0x00000000,0x00040047,0x0000000b,
-    0x0000001e,0x00000000,0x00040047,0x0000000f,0x0000001e,0x00000002,0x00040047,0x00000015,
-    0x0000001e,0x00000001,0x00050048,0x00000019,0x00000000,0x0000000b,0x00000000,0x00030047,
-    0x00000019,0x00000002,0x00040048,0x0000001d,0x00000000,0x00000005,0x00050048,0x0000001d,
-    0x00000000,0x00000023,0x00000000,0x00050048,0x0000001d,0x00000000,0x00000007,0x00000010,
-    0x00030047,0x0000001d,0x00000002,0x00040047,0x0000001f,0x00000022,0x00000000,0x00040047,
-    0x0000001f,0x00000021,0x00000000,0x00040047,0x00000023,0x0000001e,0x00000000,0x00020013,
-    0x00000002,0x00030021,0x00000003,0x00000002,0x00030016,0x00000006,0x00000020,0x00040017,
-    0x00000007,0x00000006,0x00000004,0x00040017,0x00000008,0x00000006,0x00000002,0x0004001e,
-    0x00000009,0x00000007,0x00000008,0x00040020,0x0000000a,0x00000003,0x00000009,0x0004003b,
-    0x0000000a,0x0000000b,0x00000003,0x00040015,0x0000000c,0x00000020,0x00000001,0x0004002b,
-    0x0000000c,0x0000000d,0x00000000,0x00040020,0x0000000e,0x00000001,0x00000007,0x0004003b,
-    0x0000000e,0x0000000f,0x00000001,0x00040020,0x00000011,0x00000003,0x00000007,0x0004002b,
-    0x0000000c,0x00000013,0x00000001,0x00040020,0x00000014,0x00000001,0x00000008,0x0004003b,
-    0x00000014,0x00000015,0x00000001,0x00040020,0x00000017,0x00000003,0x00000008,0x0003001e,
-    0x00000019,0x00000007,0x00040020,0x0000001a,0x00000003,0x00000019,0x0004003b,0x0000001a,
-    0x0000001b,0x00000003,0x00040018,0x0000001c,0x00000007,0x00000004,0x0003001e,0x0000001d,
-    0x0000001c,0x00040020,0x0000001e,0x00000002,0x0000001d,0x0004003b,0x0000001e,0x0000001f,
-    0x00000002,0x00040020,0x00000020,0x00000002,0x0000001c,0x0004003b,0x00000014,0x00000023,
-    0x00000001,0x0004002b,0x00000006,0x00000025,0x00000000,0x0004002b,0x00000006,0x00000026,
-    0x3f800000,0x00050036,0x00000002,0x00000004,0x00000000,0x00000003,0x000200f8,0x00000005,
-    0x0004003d,0x00000007,0x00000010,0x0000000f,0x00050041,0x00000011,0x00000012,0x0000000b,
-    0x0000000d,0x0003003e,0x00000012,0x00000010,0x0004003d,0x00000008,0x00000016,0x00000015,
-    0x00050041,0x00000017,0x00000018,0x0000000b,0x00000013,0x0003003e,0x00000018,0x00000016,
-    0x00050041,0x00000020,0x00000021,0x0000001f,0x0000000d,0x0004003d,0x0000001c,0x00000022,
-    0x00000021,0x0004003d,0x00000008,0x00000024,0x00000023,0x00050051,0x00000006,0x00000027,
-    0x00000024,0x00000000,0x00050051,0x00000006,0x00000028,0x00000024,0x00000001,0x00070050,
-    0x00000007,0x00000029,0x00000027,0x00000028,0x00000025,0x00000026,0x00050091,0x00000007,
-    0x0000002a,0x00000022,0x00000029,0x00050041,0x00000011,0x0000002b,0x0000001b,0x0000000d,
-    0x0003003e,0x0000002b,0x0000002a,0x000100fd,0x00010038
-};
+    {
+        0x07230203, 0x00010000, 0x00080007, 0x0000002c, 0x00000000, 0x00020011, 0x00000001, 0x0006000b, 0x00000001, 0x4c534c47, 0x6474732e, 0x3035342e, 0x00000000, 0x0003000e, 0x00000000, 0x00000001, 0x000a000f, 0x00000000, 0x00000004, 0x6e69616d, 0x00000000, 0x0000000b, 0x0000000f, 0x00000015, 0x0000001b, 0x00000023, 0x00030003, 0x00000002, 0x000001c2, 0x00040005, 0x00000004, 0x6e69616d, 0x00000000, 0x00030005, 0x00000009, 0x00000000, 0x00050006, 0x00000009, 0x00000000, 0x6f6c6f43, 0x00000072, 0x00040006, 0x00000009, 0x00000001, 0x00005655, 0x00030005, 0x0000000b, 0x0074754f, 0x00040005, 0x0000000f, 0x6c6f4361, 0x0000726f, 0x00030005, 0x00000015, 0x00565561, 0x00060005, 0x00000019, 0x505f6c67, 0x65567265, 0x78657472, 0x00000000, 0x00060006, 0x00000019, 0x00000000, 0x505f6c67, 0x7469736f, 0x006e6f69, 0x00030005, 0x0000001b, 0x00000000, 0x00050005, 0x0000001d, 0x6e617274, 0x726f6673, 0x0000006d, 0x00040006, 0x0000001d, 0x00000000, 0x0070766d, 0x00030005, 0x0000001f, 0x00000000, 0x00040005, 0x00000023, 0x736f5061, 0x00000000, 0x00040047, 0x0000000b, 0x0000001e, 0x00000000, 0x00040047, 0x0000000f, 0x0000001e, 0x00000002, 0x00040047, 0x00000015, 0x0000001e, 0x00000001, 0x00050048, 0x00000019, 0x00000000, 0x0000000b, 0x00000000, 0x00030047, 0x00000019, 0x00000002, 0x00040048, 0x0000001d, 0x00000000, 0x00000005, 0x00050048, 0x0000001d, 0x00000000, 0x00000023, 0x00000000, 0x00050048, 0x0000001d, 0x00000000, 0x00000007, 0x00000010, 0x00030047, 0x0000001d, 0x00000002, 0x00040047, 0x0000001f, 0x00000022, 0x00000000, 0x00040047, 0x0000001f, 0x00000021, 0x00000000, 0x00040047, 0x00000023, 0x0000001e, 0x00000000, 0x00020013, 0x00000002, 0x00030021, 0x00000003, 0x00000002, 0x00030016, 0x00000006, 0x00000020, 0x00040017, 0x00000007, 0x00000006, 0x00000004, 0x00040017, 0x00000008, 0x00000006, 0x00000002, 0x0004001e, 0x00000009, 0x00000007, 0x00000008, 0x00040020, 0x0000000a, 0x00000003, 0x00000009, 0x0004003b, 0x0000000a, 0x0000000b, 0x00000003, 0x00040015, 0x0000000c, 0x00000020, 0x00000001, 0x0004002b, 0x0000000c, 0x0000000d, 0x00000000, 0x00040020, 0x0000000e, 0x00000001, 0x00000007, 0x0004003b, 0x0000000e, 0x0000000f, 0x00000001, 0x00040020, 0x00000011, 0x00000003, 0x00000007, 0x0004002b, 0x0000000c, 0x00000013, 0x00000001, 0x00040020, 0x00000014, 0x00000001, 0x00000008, 0x0004003b, 0x00000014, 0x00000015, 0x00000001, 0x00040020, 0x00000017, 0x00000003, 0x00000008, 0x0003001e, 0x00000019, 0x00000007, 0x00040020, 0x0000001a, 0x00000003, 0x00000019, 0x0004003b, 0x0000001a, 0x0000001b, 0x00000003, 0x00040018, 0x0000001c, 0x00000007, 0x00000004, 0x0003001e, 0x0000001d, 0x0000001c, 0x00040020, 0x0000001e, 0x00000002, 0x0000001d, 0x0004003b, 0x0000001e, 0x0000001f, 0x00000002, 0x00040020, 0x00000020, 0x00000002, 0x0000001c, 0x0004003b, 0x00000014, 0x00000023, 0x00000001, 0x0004002b, 0x00000006, 0x00000025, 0x00000000, 0x0004002b, 0x00000006, 0x00000026, 0x3f800000, 0x00050036, 0x00000002, 0x00000004, 0x00000000, 0x00000003, 0x000200f8, 0x00000005, 0x0004003d, 0x00000007, 0x00000010, 0x0000000f, 0x00050041, 0x00000011, 0x00000012, 0x0000000b, 0x0000000d, 0x0003003e, 0x00000012, 0x00000010, 0x0004003d, 0x00000008, 0x00000016, 0x00000015, 0x00050041, 0x00000017, 0x00000018, 0x0000000b, 0x00000013, 0x0003003e, 0x00000018, 0x00000016, 0x00050041, 0x00000020, 0x00000021, 0x0000001f, 0x0000000d, 0x0004003d, 0x0000001c, 0x00000022, 0x00000021, 0x0004003d, 0x00000008, 0x00000024, 0x00000023, 0x00050051, 0x00000006, 0x00000027, 0x00000024, 0x00000000, 0x00050051, 0x00000006, 0x00000028, 0x00000024, 0x00000001, 0x00070050, 0x00000007, 0x00000029, 0x00000027, 0x00000028, 0x00000025, 0x00000026, 0x00050091, 0x00000007, 0x0000002a, 0x00000022, 0x00000029, 0x00050041, 0x00000011, 0x0000002b, 0x0000001b, 0x0000000d, 0x0003003e, 0x0000002b, 0x0000002a, 0x000100fd, 0x00010038};
 
 // glsl_shader.frag, compiled with:
 // # glslangValidator -V -x -o glsl_shader.frag.u32 glsl_shader.frag
@@ -141,36 +101,8 @@ void main()
 }
 */
 static uint32_t __glsl_shader_frag_spv[] =
-{
-    0x07230203,0x00010000,0x00080007,0x00000023,0x00000000,0x00020011,0x00000001,0x0006000b,
-    0x00000001,0x4c534c47,0x6474732e,0x3035342e,0x00000000,0x0003000e,0x00000000,0x00000001,
-    0x0007000f,0x00000004,0x00000004,0x6e69616d,0x00000000,0x00000009,0x0000000d,0x00030010,
-    0x00000004,0x00000007,0x00030003,0x00000002,0x000001c2,0x00040005,0x00000004,0x6e69616d,
-    0x00000000,0x00040005,0x00000009,0x6c6f4366,0x0000726f,0x00030005,0x0000000b,0x00000000,
-    0x00050006,0x0000000b,0x00000000,0x6f6c6f43,0x00000072,0x00040006,0x0000000b,0x00000001,
-    0x00005655,0x00030005,0x0000000d,0x00006e49,0x00030005,0x00000015,0x00000074,0x00030005,
-    0x00000019,0x00000073,0x00040047,0x00000009,0x0000001e,0x00000000,0x00040047,0x0000000d,
-    0x0000001e,0x00000000,0x00040047,0x00000015,0x00000022,0x00000001,0x00040047,0x00000015,
-    0x00000021,0x00000000,0x00040047,0x00000019,0x00000022,0x00000000,0x00040047,0x00000019,
-    0x00000021,0x00000001,0x00020013,0x00000002,0x00030021,0x00000003,0x00000002,0x00030016,
-    0x00000006,0x00000020,0x00040017,0x00000007,0x00000006,0x00000004,0x00040020,0x00000008,
-    0x00000003,0x00000007,0x0004003b,0x00000008,0x00000009,0x00000003,0x00040017,0x0000000a,
-    0x00000006,0x00000002,0x0004001e,0x0000000b,0x00000007,0x0000000a,0x00040020,0x0000000c,
-    0x00000001,0x0000000b,0x0004003b,0x0000000c,0x0000000d,0x00000001,0x00040015,0x0000000e,
-    0x00000020,0x00000001,0x0004002b,0x0000000e,0x0000000f,0x00000000,0x00040020,0x00000010,
-    0x00000001,0x00000007,0x00090019,0x00000013,0x00000006,0x00000001,0x00000000,0x00000000,
-    0x00000000,0x00000001,0x00000000,0x00040020,0x00000014,0x00000000,0x00000013,0x0004003b,
-    0x00000014,0x00000015,0x00000000,0x0002001a,0x00000017,0x00040020,0x00000018,0x00000000,
-    0x00000017,0x0004003b,0x00000018,0x00000019,0x00000000,0x0003001b,0x0000001b,0x00000013,
-    0x0004002b,0x0000000e,0x0000001d,0x00000001,0x00040020,0x0000001e,0x00000001,0x0000000a,
-    0x00050036,0x00000002,0x00000004,0x00000000,0x00000003,0x000200f8,0x00000005,0x00050041,
-    0x00000010,0x00000011,0x0000000d,0x0000000f,0x0004003d,0x00000007,0x00000012,0x00000011,
-    0x0004003d,0x00000013,0x00000016,0x00000015,0x0004003d,0x00000017,0x0000001a,0x00000019,
-    0x00050056,0x0000001b,0x0000001c,0x00000016,0x0000001a,0x00050041,0x0000001e,0x0000001f,
-    0x0000000d,0x0000001d,0x0004003d,0x0000000a,0x00000020,0x0000001f,0x00050057,0x00000007,
-    0x00000021,0x0000001c,0x00000020,0x00050085,0x00000007,0x00000022,0x00000012,0x00000021,
-    0x0003003e,0x00000009,0x00000022,0x000100fd,0x00010038
-};
+    {
+        0x07230203, 0x00010000, 0x00080007, 0x00000023, 0x00000000, 0x00020011, 0x00000001, 0x0006000b, 0x00000001, 0x4c534c47, 0x6474732e, 0x3035342e, 0x00000000, 0x0003000e, 0x00000000, 0x00000001, 0x0007000f, 0x00000004, 0x00000004, 0x6e69616d, 0x00000000, 0x00000009, 0x0000000d, 0x00030010, 0x00000004, 0x00000007, 0x00030003, 0x00000002, 0x000001c2, 0x00040005, 0x00000004, 0x6e69616d, 0x00000000, 0x00040005, 0x00000009, 0x6c6f4366, 0x0000726f, 0x00030005, 0x0000000b, 0x00000000, 0x00050006, 0x0000000b, 0x00000000, 0x6f6c6f43, 0x00000072, 0x00040006, 0x0000000b, 0x00000001, 0x00005655, 0x00030005, 0x0000000d, 0x00006e49, 0x00030005, 0x00000015, 0x00000074, 0x00030005, 0x00000019, 0x00000073, 0x00040047, 0x00000009, 0x0000001e, 0x00000000, 0x00040047, 0x0000000d, 0x0000001e, 0x00000000, 0x00040047, 0x00000015, 0x00000022, 0x00000001, 0x00040047, 0x00000015, 0x00000021, 0x00000000, 0x00040047, 0x00000019, 0x00000022, 0x00000000, 0x00040047, 0x00000019, 0x00000021, 0x00000001, 0x00020013, 0x00000002, 0x00030021, 0x00000003, 0x00000002, 0x00030016, 0x00000006, 0x00000020, 0x00040017, 0x00000007, 0x00000006, 0x00000004, 0x00040020, 0x00000008, 0x00000003, 0x00000007, 0x0004003b, 0x00000008, 0x00000009, 0x00000003, 0x00040017, 0x0000000a, 0x00000006, 0x00000002, 0x0004001e, 0x0000000b, 0x00000007, 0x0000000a, 0x00040020, 0x0000000c, 0x00000001, 0x0000000b, 0x0004003b, 0x0000000c, 0x0000000d, 0x00000001, 0x00040015, 0x0000000e, 0x00000020, 0x00000001, 0x0004002b, 0x0000000e, 0x0000000f, 0x00000000, 0x00040020, 0x00000010, 0x00000001, 0x00000007, 0x00090019, 0x00000013, 0x00000006, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000001, 0x00000000, 0x00040020, 0x00000014, 0x00000000, 0x00000013, 0x0004003b, 0x00000014, 0x00000015, 0x00000000, 0x0002001a, 0x00000017, 0x00040020, 0x00000018, 0x00000000, 0x00000017, 0x0004003b, 0x00000018, 0x00000019, 0x00000000, 0x0003001b, 0x0000001b, 0x00000013, 0x0004002b, 0x0000000e, 0x0000001d, 0x00000001, 0x00040020, 0x0000001e, 0x00000001, 0x0000000a, 0x00050036, 0x00000002, 0x00000004, 0x00000000, 0x00000003, 0x000200f8, 0x00000005, 0x00050041, 0x00000010, 0x00000011, 0x0000000d, 0x0000000f, 0x0004003d, 0x00000007, 0x00000012, 0x00000011, 0x0004003d, 0x00000013, 0x00000016, 0x00000015, 0x0004003d, 0x00000017, 0x0000001a, 0x00000019, 0x00050056, 0x0000001b, 0x0000001c, 0x00000016, 0x0000001a, 0x00050041, 0x0000001e, 0x0000001f, 0x0000000d, 0x0000001d, 0x0004003d, 0x0000000a, 0x00000020, 0x0000001f, 0x00050057, 0x00000007, 0x00000021, 0x0000001c, 0x00000020, 0x00050085, 0x00000007, 0x00000022, 0x00000012, 0x00000021, 0x0003003e, 0x00000009, 0x00000022, 0x000100fd, 0x00010038};
 
 static void SafeRelease(ImDrawIdx*& res)
 {
@@ -255,27 +187,27 @@ static void SafeRelease(FrameResources& res)
 static WGPUProgrammableStageDescriptor ImGui_ImplWGPU_CreateShaderModule(uint32_t* binary_data, uint32_t binary_data_size)
 {
     WGPUShaderModuleSPIRVDescriptor spirv_desc = {};
-    spirv_desc.chain.sType = WGPUSType_ShaderModuleSPIRVDescriptor;
-    spirv_desc.codeSize = binary_data_size;
-    spirv_desc.code = binary_data;
+    spirv_desc.chain.sType                     = WGPUSType_ShaderModuleSPIRVDescriptor;
+    spirv_desc.codeSize                        = binary_data_size;
+    spirv_desc.code                            = binary_data;
 
     WGPUShaderModuleDescriptor desc;
     desc.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&spirv_desc);
 
     WGPUProgrammableStageDescriptor stage_desc = {};
-    stage_desc.module = wgpuDeviceCreateShaderModule(g_wgpuDevice, &desc);
-    stage_desc.entryPoint = "main";
+    stage_desc.module                          = wgpuDeviceCreateShaderModule(g_wgpuDevice, &desc);
+    stage_desc.entryPoint                      = "main";
     return stage_desc;
 }
 
 static WGPUBindGroup ImGui_ImplWGPU_CreateImageBindGroup(WGPUBindGroupLayout layout, WGPUTextureView texture)
 {
-    WGPUBindGroupEntry image_bg_entries[] = { { 0, 0, 0, 0, 0, texture } };
+    WGPUBindGroupEntry image_bg_entries[] = {{0, 0, 0, 0, 0, texture}};
 
     WGPUBindGroupDescriptor image_bg_descriptor = {};
-    image_bg_descriptor.layout = layout;
-    image_bg_descriptor.entryCount = sizeof(image_bg_entries) / sizeof(WGPUBindGroupEntry);
-    image_bg_descriptor.entries = image_bg_entries;
+    image_bg_descriptor.layout                  = layout;
+    image_bg_descriptor.entryCount              = sizeof(image_bg_entries) / sizeof(WGPUBindGroupEntry);
+    image_bg_descriptor.entries                 = image_bg_entries;
     return wgpuDeviceCreateBindGroup(g_wgpuDevice, &image_bg_descriptor);
 }
 
@@ -289,12 +221,12 @@ static void ImGui_ImplWGPU_SetupRenderState(ImDrawData* draw_data, WGPURenderPas
         float T = draw_data->DisplayPos.y;
         float B = draw_data->DisplayPos.y + draw_data->DisplaySize.y;
         float mvp[4][4] =
-        {
-            { 2.0f/(R-L),   0.0f,           0.0f,       0.0f },
-            { 0.0f,         2.0f/(T-B),     0.0f,       0.0f },
-            { 0.0f,         0.0f,           0.5f,       0.0f },
-            { (R+L)/(L-R),  (T+B)/(B-T),    0.5f,       1.0f },
-        };
+            {
+                {2.0f / (R - L), 0.0f, 0.0f, 0.0f},
+                {0.0f, 2.0f / (T - B), 0.0f, 0.0f},
+                {0.0f, 0.0f, 0.5f, 0.0f},
+                {(R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f},
+            };
         wgpuQueueWriteBuffer(wgpuDeviceGetDefaultQueue(g_wgpuDevice), g_resources.Uniforms, 0, mvp, sizeof(mvp));
     }
 
@@ -310,7 +242,7 @@ static void ImGui_ImplWGPU_SetupRenderState(ImDrawData* draw_data, WGPURenderPas
     wgpuRenderPassEncoderSetBindGroup(ctx, 0, g_resources.CommonBindGroup, 0, NULL);
 
     // Setup blend factor
-    WGPUColor blend_color = { 0.f, 0.f, 0.f, 0.f };
+    WGPUColor blend_color = {0.f, 0.f, 0.f, 0.f};
     wgpuRenderPassEncoderSetBlendColor(ctx, &blend_color);
 }
 
@@ -324,44 +256,40 @@ void ImGui_ImplWGPU_RenderDrawData(ImDrawData* draw_data, WGPURenderPassEncoder 
 
     // FIXME: Assuming that this only gets called once per frame!
     // If not, we can't just re-allocate the IB or VB, we'll have to do a proper allocator.
-    g_frameIndex = g_frameIndex + 1;
+    g_frameIndex       = g_frameIndex + 1;
     FrameResources* fr = &g_pFrameResources[g_frameIndex % g_numFramesInFlight];
 
     // Create and grow vertex/index buffers if needed
-    if (fr->VertexBuffer == NULL || fr->VertexBufferSize < draw_data->TotalVtxCount)
-    {
+    if (fr->VertexBuffer == NULL || fr->VertexBufferSize < draw_data->TotalVtxCount) {
         SafeRelease(fr->VertexBuffer);
         SafeRelease(fr->VertexBufferHost);
         fr->VertexBufferSize = draw_data->TotalVtxCount + 5000;
 
         WGPUBufferDescriptor vb_desc =
-        {
-            NULL,
-            "Dear ImGui Vertex buffer",
-            WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex,
-            fr->VertexBufferSize * sizeof(ImDrawVert),
-            false
-        };
+            {
+                NULL,
+                "Dear ImGui Vertex buffer",
+                WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex,
+                fr->VertexBufferSize * sizeof(ImDrawVert),
+                false};
         fr->VertexBuffer = wgpuDeviceCreateBuffer(g_wgpuDevice, &vb_desc);
         if (!fr->VertexBuffer)
             return;
 
         fr->VertexBufferHost = new ImDrawVert[fr->VertexBufferSize];
     }
-    if (fr->IndexBuffer == NULL || fr->IndexBufferSize < draw_data->TotalIdxCount)
-    {
+    if (fr->IndexBuffer == NULL || fr->IndexBufferSize < draw_data->TotalIdxCount) {
         SafeRelease(fr->IndexBuffer);
         SafeRelease(fr->IndexBufferHost);
         fr->IndexBufferSize = draw_data->TotalIdxCount + 10000;
 
         WGPUBufferDescriptor ib_desc =
-        {
-            NULL,
-            "Dear ImGui Index buffer",
-            WGPUBufferUsage_CopyDst | WGPUBufferUsage_Index,
-            fr->IndexBufferSize * sizeof(ImDrawIdx),
-            false
-        };
+            {
+                NULL,
+                "Dear ImGui Index buffer",
+                WGPUBufferUsage_CopyDst | WGPUBufferUsage_Index,
+                fr->IndexBufferSize * sizeof(ImDrawIdx),
+                false};
         fr->IndexBuffer = wgpuDeviceCreateBuffer(g_wgpuDevice, &ib_desc);
         if (!fr->IndexBuffer)
             return;
@@ -370,55 +298,46 @@ void ImGui_ImplWGPU_RenderDrawData(ImDrawData* draw_data, WGPURenderPassEncoder 
     }
 
     // Upload vertex/index data into a single contiguous GPU buffer
-    ImDrawVert* vtx_dst = (ImDrawVert*)fr->VertexBufferHost;
-    ImDrawIdx* idx_dst = (ImDrawIdx*)fr->IndexBufferHost;
-    for (int n = 0; n < draw_data->CmdListsCount; n++)
-    {
+    ImDrawVert* vtx_dst = (ImDrawVert*) fr->VertexBufferHost;
+    ImDrawIdx*  idx_dst = (ImDrawIdx*) fr->IndexBufferHost;
+    for (int n = 0; n < draw_data->CmdListsCount; n++) {
         const ImDrawList* cmd_list = draw_data->CmdLists[n];
         memcpy(vtx_dst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
         memcpy(idx_dst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
         vtx_dst += cmd_list->VtxBuffer.Size;
         idx_dst += cmd_list->IdxBuffer.Size;
     }
-    int64_t vb_write_size = ((char*)vtx_dst - (char*)fr->VertexBufferHost + 3) & ~3;
-    int64_t ib_write_size = ((char*)idx_dst - (char*)fr->IndexBufferHost  + 3) & ~3;
+    int64_t vb_write_size = ((char*) vtx_dst - (char*) fr->VertexBufferHost + 3) & ~3;
+    int64_t ib_write_size = ((char*) idx_dst - (char*) fr->IndexBufferHost + 3) & ~3;
     wgpuQueueWriteBuffer(wgpuDeviceGetDefaultQueue(g_wgpuDevice), fr->VertexBuffer, 0, fr->VertexBufferHost, vb_write_size);
-    wgpuQueueWriteBuffer(wgpuDeviceGetDefaultQueue(g_wgpuDevice), fr->IndexBuffer,  0, fr->IndexBufferHost,  ib_write_size);
+    wgpuQueueWriteBuffer(wgpuDeviceGetDefaultQueue(g_wgpuDevice), fr->IndexBuffer, 0, fr->IndexBufferHost, ib_write_size);
 
     // Setup desired render state
     ImGui_ImplWGPU_SetupRenderState(draw_data, pass_encoder, fr);
 
     // Render command lists
     // (Because we merged all buffers into a single one, we maintain our own offset into them)
-    int global_vtx_offset = 0;
-    int global_idx_offset = 0;
-    ImVec2 clip_off = draw_data->DisplayPos;
-    for (int n = 0; n < draw_data->CmdListsCount; n++)
-    {
+    int    global_vtx_offset = 0;
+    int    global_idx_offset = 0;
+    ImVec2 clip_off          = draw_data->DisplayPos;
+    for (int n = 0; n < draw_data->CmdListsCount; n++) {
         const ImDrawList* cmd_list = draw_data->CmdLists[n];
-        for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
-        {
+        for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++) {
             const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
-            if (pcmd->UserCallback != NULL)
-            {
+            if (pcmd->UserCallback != NULL) {
                 // User callback, registered via ImDrawList::AddCallback()
                 // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
                 if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
                     ImGui_ImplWGPU_SetupRenderState(draw_data, pass_encoder, fr);
                 else
                     pcmd->UserCallback(cmd_list, pcmd);
-            }
-            else
-            {
+            } else {
                 // Bind custom texture
                 auto bind_group = g_resources.ImageBindGroups.GetVoidPtr(ImHashData(&pcmd->TextureId, sizeof(ImTextureID)));
-                if (bind_group)
-                {
-                    wgpuRenderPassEncoderSetBindGroup(pass_encoder, 1, (WGPUBindGroup)bind_group, 0, NULL);
-                }
-                else
-                {
-                    WGPUBindGroup image_bind_group = ImGui_ImplWGPU_CreateImageBindGroup(g_resources.ImageBindGroupLayout, (WGPUTextureView)pcmd->TextureId);
+                if (bind_group) {
+                    wgpuRenderPassEncoderSetBindGroup(pass_encoder, 1, (WGPUBindGroup) bind_group, 0, NULL);
+                } else {
+                    WGPUBindGroup image_bind_group = ImGui_ImplWGPU_CreateImageBindGroup(g_resources.ImageBindGroupLayout, (WGPUTextureView) pcmd->TextureId);
                     g_resources.ImageBindGroups.SetVoidPtr(ImHashData(&pcmd->TextureId, sizeof(ImTextureID)), image_bind_group);
                     wgpuRenderPassEncoderSetBindGroup(pass_encoder, 1, image_bind_group, 0, NULL);
                 }
@@ -441,9 +360,9 @@ void ImGui_ImplWGPU_RenderDrawData(ImDrawData* draw_data, WGPURenderPassEncoder 
 static WGPUBuffer ImGui_ImplWGPU_CreateBufferFromData(const WGPUDevice& device, const void* data, uint64_t size, WGPUBufferUsage usage)
 {
     WGPUBufferDescriptor descriptor = {};
-    descriptor.size = size;
-    descriptor.usage = usage | WGPUBufferUsage_CopyDst;
-    WGPUBuffer buffer = wgpuDeviceCreateBuffer(device, &descriptor);
+    descriptor.size                 = size;
+    descriptor.usage                = usage | WGPUBufferUsage_CopyDst;
+    WGPUBuffer buffer               = wgpuDeviceCreateBuffer(device, &descriptor);
 
     WGPUQueue queue = wgpuDeviceGetDefaultQueue(g_wgpuDevice);
     wgpuQueueWriteBuffer(queue, buffer, 0, data, size);
@@ -453,62 +372,62 @@ static WGPUBuffer ImGui_ImplWGPU_CreateBufferFromData(const WGPUDevice& device, 
 static void ImGui_ImplWGPU_CreateFontsTexture()
 {
     // Build texture atlas
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO&       io = ImGui::GetIO();
     unsigned char* pixels;
-    int width, height, size_pp;
+    int            width, height, size_pp;
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &size_pp);
 
     // Upload texture to graphics system
     {
         WGPUTextureDescriptor tex_desc = {};
-        tex_desc.label = "Dear ImGui Font Texture";
-        tex_desc.dimension = WGPUTextureDimension_2D;
-        tex_desc.size.width = width;
-        tex_desc.size.height = height;
-        tex_desc.size.depth = 1;
-        tex_desc.sampleCount = 1;
-        tex_desc.format = WGPUTextureFormat_RGBA8Unorm;
-        tex_desc.mipLevelCount = 1;
-        tex_desc.usage = WGPUTextureUsage_CopyDst | WGPUTextureUsage_Sampled;
-        g_resources.FontTexture = wgpuDeviceCreateTexture(g_wgpuDevice, &tex_desc);
+        tex_desc.label                 = "Dear ImGui Font Texture";
+        tex_desc.dimension             = WGPUTextureDimension_2D;
+        tex_desc.size.width            = width;
+        tex_desc.size.height           = height;
+        tex_desc.size.depth            = 1;
+        tex_desc.sampleCount           = 1;
+        tex_desc.format                = WGPUTextureFormat_RGBA8Unorm;
+        tex_desc.mipLevelCount         = 1;
+        tex_desc.usage                 = WGPUTextureUsage_CopyDst | WGPUTextureUsage_Sampled;
+        g_resources.FontTexture        = wgpuDeviceCreateTexture(g_wgpuDevice, &tex_desc);
 
         WGPUTextureViewDescriptor tex_view_desc = {};
-        tex_view_desc.format = WGPUTextureFormat_RGBA8Unorm;
-        tex_view_desc.dimension = WGPUTextureViewDimension_2D;
-        tex_view_desc.baseMipLevel = 0;
-        tex_view_desc.mipLevelCount = 1;
-        tex_view_desc.baseArrayLayer = 0;
-        tex_view_desc.arrayLayerCount = 1;
-        tex_view_desc.aspect = WGPUTextureAspect_All;
-        g_resources.FontTextureView = wgpuTextureCreateView(g_resources.FontTexture, &tex_view_desc);
+        tex_view_desc.format                    = WGPUTextureFormat_RGBA8Unorm;
+        tex_view_desc.dimension                 = WGPUTextureViewDimension_2D;
+        tex_view_desc.baseMipLevel              = 0;
+        tex_view_desc.mipLevelCount             = 1;
+        tex_view_desc.baseArrayLayer            = 0;
+        tex_view_desc.arrayLayerCount           = 1;
+        tex_view_desc.aspect                    = WGPUTextureAspect_All;
+        g_resources.FontTextureView             = wgpuTextureCreateView(g_resources.FontTexture, &tex_view_desc);
     }
 
     // Upload texture data
     {
-        WGPUBuffer staging_buffer = ImGui_ImplWGPU_CreateBufferFromData(g_wgpuDevice, pixels, (uint32_t)(width * size_pp * height), WGPUBufferUsage_CopySrc);
+        WGPUBuffer staging_buffer = ImGui_ImplWGPU_CreateBufferFromData(g_wgpuDevice, pixels, (uint32_t) (width * size_pp * height), WGPUBufferUsage_CopySrc);
 
-        WGPUBufferCopyView bufferCopyView = {};
-        bufferCopyView.buffer = staging_buffer;
-        bufferCopyView.layout.offset = 0;
-        bufferCopyView.layout.bytesPerRow = width * size_pp;
+        WGPUBufferCopyView bufferCopyView  = {};
+        bufferCopyView.buffer              = staging_buffer;
+        bufferCopyView.layout.offset       = 0;
+        bufferCopyView.layout.bytesPerRow  = width * size_pp;
         bufferCopyView.layout.rowsPerImage = height;
 
         WGPUTextureCopyView textureCopyView = {};
-        textureCopyView.texture = g_resources.FontTexture;
-        textureCopyView.mipLevel = 0;
-        textureCopyView.origin = { 0, 0, 0 };
+        textureCopyView.texture             = g_resources.FontTexture;
+        textureCopyView.mipLevel            = 0;
+        textureCopyView.origin              = {0, 0, 0};
 #if !defined(__EMSCRIPTEN__) || HAS_EMSCRIPTEN_VERSION(2, 0, 14)
         textureCopyView.aspect = WGPUTextureAspect_All;
 #endif
 
-        WGPUExtent3D copySize = { (uint32_t)width, (uint32_t)height, 1 };
+        WGPUExtent3D copySize = {(uint32_t) width, (uint32_t) height, 1};
 
         WGPUCommandEncoderDescriptor enc_desc = {};
-        WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(g_wgpuDevice, &enc_desc);
+        WGPUCommandEncoder           encoder  = wgpuDeviceCreateCommandEncoder(g_wgpuDevice, &enc_desc);
         wgpuCommandEncoderCopyBufferToTexture(encoder, &bufferCopyView, &textureCopyView, &copySize);
         WGPUCommandBufferDescriptor cmd_buf_desc = {};
-        WGPUCommandBuffer copy = wgpuCommandEncoderFinish(encoder, &cmd_buf_desc);
-        WGPUQueue queue = wgpuDeviceGetDefaultQueue(g_wgpuDevice);
+        WGPUCommandBuffer           copy         = wgpuCommandEncoderFinish(encoder, &cmd_buf_desc);
+        WGPUQueue                   queue        = wgpuDeviceGetDefaultQueue(g_wgpuDevice);
         wgpuQueueSubmit(queue, 1, &copy);
 
         wgpuCommandEncoderRelease(encoder);
@@ -518,12 +437,12 @@ static void ImGui_ImplWGPU_CreateFontsTexture()
     // Create the associated sampler
     {
         WGPUSamplerDescriptor sampler_desc = {};
-        sampler_desc.minFilter = WGPUFilterMode_Linear;
-        sampler_desc.magFilter = WGPUFilterMode_Linear;
-        sampler_desc.mipmapFilter = WGPUFilterMode_Linear;
-        sampler_desc.addressModeU = WGPUAddressMode_Repeat;
-        sampler_desc.addressModeV = WGPUAddressMode_Repeat;
-        sampler_desc.addressModeW = WGPUAddressMode_Repeat;
+        sampler_desc.minFilter             = WGPUFilterMode_Linear;
+        sampler_desc.magFilter             = WGPUFilterMode_Linear;
+        sampler_desc.mipmapFilter          = WGPUFilterMode_Linear;
+        sampler_desc.addressModeU          = WGPUAddressMode_Repeat;
+        sampler_desc.addressModeV          = WGPUAddressMode_Repeat;
+        sampler_desc.addressModeW          = WGPUAddressMode_Repeat;
 #if !defined(__EMSCRIPTEN__) || HAS_EMSCRIPTEN_VERSION(2, 0, 14)
         sampler_desc.maxAnisotropy = 1;
 #endif
@@ -532,19 +451,18 @@ static void ImGui_ImplWGPU_CreateFontsTexture()
 
     // Store our identifier
     static_assert(sizeof(ImTextureID) >= sizeof(g_resources.FontTexture), "Can't pack descriptor handle into TexID, 32-bit not supported yet.");
-    io.Fonts->SetTexID((ImTextureID)g_resources.FontTextureView);
+    io.Fonts->SetTexID((ImTextureID) g_resources.FontTextureView);
 }
 
 static void ImGui_ImplWGPU_CreateUniformBuffer()
 {
     WGPUBufferDescriptor ub_desc =
-    {
-        NULL,
-        "Dear ImGui Uniform buffer",
-        WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform,
-        sizeof(Uniforms),
-        false
-    };
+        {
+            NULL,
+            "Dear ImGui Uniform buffer",
+            WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform,
+            sizeof(Uniforms),
+            false};
     g_resources.Uniforms = wgpuDeviceCreateBuffer(g_wgpuDevice, &ub_desc);
 }
 
@@ -557,19 +475,19 @@ bool ImGui_ImplWGPU_CreateDeviceObjects()
 
     // Create render pipeline
     WGPURenderPipelineDescriptor graphics_pipeline_desc = {};
-    graphics_pipeline_desc.primitiveTopology = WGPUPrimitiveTopology_TriangleList;
-    graphics_pipeline_desc.sampleCount = 1;
-    graphics_pipeline_desc.sampleMask = UINT_MAX;
+    graphics_pipeline_desc.primitiveTopology            = WGPUPrimitiveTopology_TriangleList;
+    graphics_pipeline_desc.sampleCount                  = 1;
+    graphics_pipeline_desc.sampleMask                   = UINT_MAX;
 
     WGPUBindGroupLayoutEntry common_bg_layout_entries[2] = {};
-    common_bg_layout_entries[0].binding = 0;
-    common_bg_layout_entries[0].visibility = WGPUShaderStage_Vertex;
+    common_bg_layout_entries[0].binding                  = 0;
+    common_bg_layout_entries[0].visibility               = WGPUShaderStage_Vertex;
 #if !defined(__EMSCRIPTEN__) || HAS_EMSCRIPTEN_VERSION(2, 0, 14)
     common_bg_layout_entries[0].buffer.type = WGPUBufferBindingType_Uniform;
 #else
     common_bg_layout_entries[0].type = WGPUBindingType_UniformBuffer;
 #endif
-    common_bg_layout_entries[1].binding = 1;
+    common_bg_layout_entries[1].binding    = 1;
     common_bg_layout_entries[1].visibility = WGPUShaderStage_Fragment;
 #if !defined(__EMSCRIPTEN__) || HAS_EMSCRIPTEN_VERSION(2, 0, 14)
     common_bg_layout_entries[1].sampler.type = WGPUSamplerBindingType_Filtering;
@@ -578,86 +496,86 @@ bool ImGui_ImplWGPU_CreateDeviceObjects()
 #endif
 
     WGPUBindGroupLayoutEntry image_bg_layout_entries[1] = {};
-    image_bg_layout_entries[0].binding = 0;
-    image_bg_layout_entries[0].visibility = WGPUShaderStage_Fragment;
+    image_bg_layout_entries[0].binding                  = 0;
+    image_bg_layout_entries[0].visibility               = WGPUShaderStage_Fragment;
 #if !defined(__EMSCRIPTEN__) || HAS_EMSCRIPTEN_VERSION(2, 0, 14)
-    image_bg_layout_entries[0].texture.sampleType = WGPUTextureSampleType_Float;
+    image_bg_layout_entries[0].texture.sampleType    = WGPUTextureSampleType_Float;
     image_bg_layout_entries[0].texture.viewDimension = WGPUTextureViewDimension_2D;
 #else
     image_bg_layout_entries[0].type = WGPUBindingType_SampledTexture;
 #endif
 
     WGPUBindGroupLayoutDescriptor common_bg_layout_desc = {};
-    common_bg_layout_desc.entryCount = 2;
-    common_bg_layout_desc.entries = common_bg_layout_entries;
+    common_bg_layout_desc.entryCount                    = 2;
+    common_bg_layout_desc.entries                       = common_bg_layout_entries;
 
     WGPUBindGroupLayoutDescriptor image_bg_layout_desc = {};
-    image_bg_layout_desc.entryCount = 1;
-    image_bg_layout_desc.entries = image_bg_layout_entries;
+    image_bg_layout_desc.entryCount                    = 1;
+    image_bg_layout_desc.entries                       = image_bg_layout_entries;
 
     WGPUBindGroupLayout bg_layouts[2];
     bg_layouts[0] = wgpuDeviceCreateBindGroupLayout(g_wgpuDevice, &common_bg_layout_desc);
     bg_layouts[1] = wgpuDeviceCreateBindGroupLayout(g_wgpuDevice, &image_bg_layout_desc);
 
     WGPUPipelineLayoutDescriptor layout_desc = {};
-    layout_desc.bindGroupLayoutCount = 2;
-    layout_desc.bindGroupLayouts = bg_layouts;
-    graphics_pipeline_desc.layout = wgpuDeviceCreatePipelineLayout(g_wgpuDevice, &layout_desc);
+    layout_desc.bindGroupLayoutCount         = 2;
+    layout_desc.bindGroupLayouts             = bg_layouts;
+    graphics_pipeline_desc.layout            = wgpuDeviceCreatePipelineLayout(g_wgpuDevice, &layout_desc);
 
     // Create the vertex shader
     WGPUProgrammableStageDescriptor vertex_shader_desc = ImGui_ImplWGPU_CreateShaderModule(__glsl_shader_vert_spv, sizeof(__glsl_shader_vert_spv) / sizeof(uint32_t));
-    graphics_pipeline_desc.vertexStage = vertex_shader_desc;
+    graphics_pipeline_desc.vertexStage                 = vertex_shader_desc;
 
     // Vertex input configuration
     WGPUVertexAttributeDescriptor attribute_binding_desc[] =
-    {
-        { WGPUVertexFormat_Float2,     (uint64_t)IM_OFFSETOF(ImDrawVert, pos), 0 },
-        { WGPUVertexFormat_Float2,     (uint64_t)IM_OFFSETOF(ImDrawVert, uv),  1 },
-        { WGPUVertexFormat_UChar4Norm, (uint64_t)IM_OFFSETOF(ImDrawVert, col), 2 },
-    };
+        {
+            {WGPUVertexFormat_Float2, (uint64_t) IM_OFFSETOF(ImDrawVert, pos), 0},
+            {WGPUVertexFormat_Float2, (uint64_t) IM_OFFSETOF(ImDrawVert, uv), 1},
+            {WGPUVertexFormat_UChar4Norm, (uint64_t) IM_OFFSETOF(ImDrawVert, col), 2},
+        };
 
     WGPUVertexBufferLayoutDescriptor buffer_binding_desc;
-    buffer_binding_desc.arrayStride = sizeof(ImDrawVert);
-    buffer_binding_desc.stepMode = WGPUInputStepMode_Vertex;
+    buffer_binding_desc.arrayStride    = sizeof(ImDrawVert);
+    buffer_binding_desc.stepMode       = WGPUInputStepMode_Vertex;
     buffer_binding_desc.attributeCount = 3;
-    buffer_binding_desc.attributes = attribute_binding_desc;
+    buffer_binding_desc.attributes     = attribute_binding_desc;
 
     WGPUVertexStateDescriptor vertex_state_desc = {};
-    vertex_state_desc.indexFormat = WGPUIndexFormat_Undefined;
-    vertex_state_desc.vertexBufferCount = 1;
-    vertex_state_desc.vertexBuffers = &buffer_binding_desc;
+    vertex_state_desc.indexFormat               = WGPUIndexFormat_Undefined;
+    vertex_state_desc.vertexBufferCount         = 1;
+    vertex_state_desc.vertexBuffers             = &buffer_binding_desc;
 
     graphics_pipeline_desc.vertexState = &vertex_state_desc;
 
     // Create the pixel shader
     WGPUProgrammableStageDescriptor pixel_shader_desc = ImGui_ImplWGPU_CreateShaderModule(__glsl_shader_frag_spv, sizeof(__glsl_shader_frag_spv) / sizeof(uint32_t));
-    graphics_pipeline_desc.fragmentStage = &pixel_shader_desc;
+    graphics_pipeline_desc.fragmentStage              = &pixel_shader_desc;
 
     // Create the blending setup
     WGPUColorStateDescriptor color_state = {};
     {
-        color_state.format = g_renderTargetFormat;
+        color_state.format               = g_renderTargetFormat;
         color_state.alphaBlend.operation = WGPUBlendOperation_Add;
         color_state.alphaBlend.srcFactor = WGPUBlendFactor_SrcAlpha;
         color_state.alphaBlend.dstFactor = WGPUBlendFactor_OneMinusSrcAlpha;
         color_state.colorBlend.operation = WGPUBlendOperation_Add;
         color_state.colorBlend.srcFactor = WGPUBlendFactor_SrcAlpha;
         color_state.colorBlend.dstFactor = WGPUBlendFactor_OneMinusSrcAlpha;
-        color_state.writeMask = WGPUColorWriteMask_All;
+        color_state.writeMask            = WGPUColorWriteMask_All;
 
-        graphics_pipeline_desc.colorStateCount = 1;
-        graphics_pipeline_desc.colorStates = &color_state;
+        graphics_pipeline_desc.colorStateCount        = 1;
+        graphics_pipeline_desc.colorStates            = &color_state;
         graphics_pipeline_desc.alphaToCoverageEnabled = false;
     }
 
     // Create the rasterizer state
     WGPURasterizationStateDescriptor raster_desc = {};
     {
-        raster_desc.cullMode = WGPUCullMode_None;
-        raster_desc.frontFace = WGPUFrontFace_CW;
-        raster_desc.depthBias = 0;
-        raster_desc.depthBiasClamp = 0;
-        raster_desc.depthBiasSlopeScale = 0;
+        raster_desc.cullMode                      = WGPUCullMode_None;
+        raster_desc.frontFace                     = WGPUFrontFace_CW;
+        raster_desc.depthBias                     = 0;
+        raster_desc.depthBiasClamp                = 0;
+        raster_desc.depthBiasSlopeScale           = 0;
         graphics_pipeline_desc.rasterizationState = &raster_desc;
     }
 
@@ -665,19 +583,19 @@ bool ImGui_ImplWGPU_CreateDeviceObjects()
     WGPUDepthStencilStateDescriptor depth_desc = {};
     {
         // Configure disabled state
-        depth_desc.format = WGPUTextureFormat_Undefined;
-        depth_desc.depthWriteEnabled = true;
-        depth_desc.depthCompare = WGPUCompareFunction_Always;
-        depth_desc.stencilReadMask = 0;
-        depth_desc.stencilWriteMask = 0;
-        depth_desc.stencilBack.compare = WGPUCompareFunction_Always;
-        depth_desc.stencilBack.failOp = WGPUStencilOperation_Keep;
-        depth_desc.stencilBack.depthFailOp = WGPUStencilOperation_Keep;
-        depth_desc.stencilBack.passOp = WGPUStencilOperation_Keep;
-        depth_desc.stencilFront.compare = WGPUCompareFunction_Always;
-        depth_desc.stencilFront.failOp = WGPUStencilOperation_Keep;
+        depth_desc.format                   = WGPUTextureFormat_Undefined;
+        depth_desc.depthWriteEnabled        = true;
+        depth_desc.depthCompare             = WGPUCompareFunction_Always;
+        depth_desc.stencilReadMask          = 0;
+        depth_desc.stencilWriteMask         = 0;
+        depth_desc.stencilBack.compare      = WGPUCompareFunction_Always;
+        depth_desc.stencilBack.failOp       = WGPUStencilOperation_Keep;
+        depth_desc.stencilBack.depthFailOp  = WGPUStencilOperation_Keep;
+        depth_desc.stencilBack.passOp       = WGPUStencilOperation_Keep;
+        depth_desc.stencilFront.compare     = WGPUCompareFunction_Always;
+        depth_desc.stencilFront.failOp      = WGPUStencilOperation_Keep;
         depth_desc.stencilFront.depthFailOp = WGPUStencilOperation_Keep;
-        depth_desc.stencilFront.passOp = WGPUStencilOperation_Keep;
+        depth_desc.stencilFront.passOp      = WGPUStencilOperation_Keep;
 
         // No depth buffer corresponds to no configuration
         graphics_pipeline_desc.depthStencilState = NULL;
@@ -690,20 +608,20 @@ bool ImGui_ImplWGPU_CreateDeviceObjects()
 
     // Create resource bind group
     WGPUBindGroupEntry common_bg_entries[] =
-    {
-        { 0, g_resources.Uniforms, 0, sizeof(Uniforms), 0, 0 },
-        { 1, 0, 0, 0, g_resources.Sampler, 0 },
-    };
+        {
+            {0, g_resources.Uniforms, 0, sizeof(Uniforms), 0, 0},
+            {1, 0, 0, 0, g_resources.Sampler, 0},
+        };
 
     WGPUBindGroupDescriptor common_bg_descriptor = {};
-    common_bg_descriptor.layout = bg_layouts[0];
-    common_bg_descriptor.entryCount = sizeof(common_bg_entries) / sizeof(WGPUBindGroupEntry);
-    common_bg_descriptor.entries = common_bg_entries;
-    g_resources.CommonBindGroup = wgpuDeviceCreateBindGroup(g_wgpuDevice, &common_bg_descriptor);
-    g_resources.ImageBindGroupLayout = bg_layouts[1];
+    common_bg_descriptor.layout                  = bg_layouts[0];
+    common_bg_descriptor.entryCount              = sizeof(common_bg_entries) / sizeof(WGPUBindGroupEntry);
+    common_bg_descriptor.entries                 = common_bg_entries;
+    g_resources.CommonBindGroup                  = wgpuDeviceCreateBindGroup(g_wgpuDevice, &common_bg_descriptor);
+    g_resources.ImageBindGroupLayout             = bg_layouts[1];
 
     WGPUBindGroup image_bind_group = ImGui_ImplWGPU_CreateImageBindGroup(bg_layouts[1], g_resources.FontTextureView);
-    g_resources.ImageBindGroup = image_bind_group;
+    g_resources.ImageBindGroup     = image_bind_group;
     g_resources.ImageBindGroups.SetVoidPtr(ImHashData(&g_resources.FontTextureView, sizeof(ImTextureID)), image_bind_group);
 
     SafeRelease(vertex_shader_desc.module);
@@ -722,7 +640,7 @@ void ImGui_ImplWGPU_InvalidateDeviceObjects()
     SafeRelease(g_resources);
 
     ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->SetTexID(NULL); // We copied g_pFontTextureView to io.Fonts->TexID so let's clear that as well.
+    io.Fonts->SetTexID(NULL);    // We copied g_pFontTextureView to io.Fonts->TexID so let's clear that as well.
 
     for (unsigned int i = 0; i < g_numFramesInFlight; i++)
         SafeRelease(g_pFrameResources[i]);
@@ -731,34 +649,33 @@ void ImGui_ImplWGPU_InvalidateDeviceObjects()
 bool ImGui_ImplWGPU_Init(WGPUDevice device, int num_frames_in_flight, WGPUTextureFormat rt_format)
 {
     // Setup back-end capabilities flags
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO& io            = ImGui::GetIO();
     io.BackendRendererName = "imgui_impl_webgpu";
-    io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;  // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
+    io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;    // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
 
-    g_wgpuDevice = device;
+    g_wgpuDevice         = device;
     g_renderTargetFormat = rt_format;
-    g_pFrameResources = new FrameResources[num_frames_in_flight];
-    g_numFramesInFlight = num_frames_in_flight;
-    g_frameIndex = UINT_MAX;
+    g_pFrameResources    = new FrameResources[num_frames_in_flight];
+    g_numFramesInFlight  = num_frames_in_flight;
+    g_frameIndex         = UINT_MAX;
 
-    g_resources.FontTexture = NULL;
-    g_resources.FontTextureView = NULL;
-    g_resources.Sampler = NULL;
-    g_resources.Uniforms = NULL;
-    g_resources.CommonBindGroup = NULL;
+    g_resources.FontTexture          = NULL;
+    g_resources.FontTextureView      = NULL;
+    g_resources.Sampler              = NULL;
+    g_resources.Uniforms             = NULL;
+    g_resources.CommonBindGroup      = NULL;
     g_resources.ImageBindGroupLayout = NULL;
     g_resources.ImageBindGroups.Data.reserve(100);
     g_resources.ImageBindGroup = NULL;
 
     // Create buffers with a default size (they will later be grown as needed)
-    for (int i = 0; i < num_frames_in_flight; i++)
-    {
-        FrameResources* fr = &g_pFrameResources[i];
-        fr->IndexBuffer = NULL;
-        fr->VertexBuffer = NULL;
-        fr->IndexBufferHost = NULL;
+    for (int i = 0; i < num_frames_in_flight; i++) {
+        FrameResources* fr   = &g_pFrameResources[i];
+        fr->IndexBuffer      = NULL;
+        fr->VertexBuffer     = NULL;
+        fr->IndexBufferHost  = NULL;
         fr->VertexBufferHost = NULL;
-        fr->IndexBufferSize = 10000;
+        fr->IndexBufferSize  = 10000;
         fr->VertexBufferSize = 5000;
     }
 
@@ -769,10 +686,10 @@ void ImGui_ImplWGPU_Shutdown()
 {
     ImGui_ImplWGPU_InvalidateDeviceObjects();
     delete[] g_pFrameResources;
-    g_pFrameResources = NULL;
-    g_wgpuDevice = NULL;
+    g_pFrameResources   = NULL;
+    g_wgpuDevice        = NULL;
     g_numFramesInFlight = 0;
-    g_frameIndex = UINT_MAX;
+    g_frameIndex        = UINT_MAX;
 }
 
 void ImGui_ImplWGPU_NewFrame()

@@ -6,25 +6,31 @@
 #include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
-        VKIndexBuffer::VKIndexBuffer(u32* data, u32 count, BufferUsage bufferUsage RZ_DEBUG_NAME_TAG_E_ARG)
-            : VKBuffer(bufferUsage, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, count * sizeof(u32), (const void*) data RZ_DEBUG_E_ARG_NAME)
+        VKIndexBuffer::VKIndexBuffer(const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
+            : VKBuffer(desc.usage, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, desc.count * RAZIX_INDICES_SIZE, (const void*) desc.data RZ_DEBUG_E_ARG_NAME)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_IndexCount = count;
+            m_Desc       = desc;
+            m_IndexCount = desc.count;
+        }
+
+        RAZIX_CLEANUP_RESOURCE_IMPL(VKIndexBuffer)
+        {
+            destroy();
         }
 
         void VKIndexBuffer::Bind(RZDrawCommandBufferHandle cmdBuffer /*= nullptr*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
-            vkCmdBindIndexBuffer(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), m_Buffer, 0, VK_INDEX_TYPE_UINT32);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
+            vkCmdBindIndexBuffer(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), m_Buffer, 0, RAZIX_INDICES_FORMAT_VK);
         }
 
-        void VKIndexBuffer::Destroy()
+        void VKIndexBuffer::destroy()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -41,7 +47,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            Destroy();
+            destroy();
             VKBuffer::resize(size, data RZ_DEBUG_NAME_TAG_STR_E_ARG("Add a name here stupid"));
         }
 
@@ -82,5 +88,5 @@ namespace Razix {
             VKBuffer::invalidate(m_BufferSize);
         }
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

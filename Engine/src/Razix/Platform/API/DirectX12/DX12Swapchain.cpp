@@ -5,9 +5,9 @@
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-    #include "Razix/Platform/API/DirectX12/D3D12Utilities.h"
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
     #include "Razix/Platform/API/DirectX12/DX12Texture.h"
+    #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
 
     #include <GLFW/glfw3.h>
     #define GLFW_EXPOSE_NATIVE_WIN32
@@ -20,7 +20,7 @@
 using namespace Microsoft::WRL;
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         //--------------------------------------------------------------------------------------
 
@@ -140,6 +140,8 @@ namespace Razix {
 
                 m_SwapchainImageTextures.push_back(handle);
                 m_SwapchainD3DHandles[i] = backBuffer;
+
+                D3D12_TAG_OBJECT(backBuffer, L"swapchain backbuffer");
             }
         }
 
@@ -151,6 +153,11 @@ namespace Razix {
                 m_Swapchain->Release();
                 m_Swapchain = nullptr;
             }
+
+            for (u32 i = 0; i < m_SwapchainImageCount; i++)
+                D3D_SAFE_RELEASE(m_SwapchainD3DHandles[i]);
+
+            m_SwapchainRTVHeap->Release();
         }
 
         void DX12Swapchain::Flip()
@@ -161,6 +168,27 @@ namespace Razix {
         void DX12Swapchain::OnResize(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (m_Width == width && m_Height == height)
+                return;
+
+            m_IsResized  = true;
+            m_IsResizing = true;
+
+            m_Width  = width;
+            m_Height = height;
+
+            Destroy();
+
+            for (u32 i = 0; i < m_SwapchainImageCount; i++)
+                D3D_SAFE_RELEASE(m_SwapchainD3DHandles[i]);
+
+            m_SwapchainImageTextures.clear();
+
+            m_Swapchain = VK_NULL_HANDLE;
+
+            Init(width, height);
+            m_IsResizing = false;
         }
 
         u32 DX12Swapchain::acquireBackBuffer()
@@ -171,8 +199,8 @@ namespace Razix {
 
         void DX12Swapchain::present()
         {
-            u32 syncInterval = g_GraphicsFeaturesSettings.EnableVSync ? 1 : 0;
-            u32 presentFlags = !g_GraphicsFeaturesSettings.EnableVSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
+            u32 syncInterval = g_GraphicsFeatures.EnableVSync ? 1 : 0;
+            u32 presentFlags = !g_GraphicsFeatures.EnableVSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
             CHECK_HRESULT(m_Swapchain->Present(0, DXGI_PRESENT_ALLOW_TEARING));
 
             m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_SwapchainImageCount;
@@ -180,22 +208,27 @@ namespace Razix {
 
         void DX12Swapchain::clearWithColor(ID3D12GraphicsCommandList2* commandList, glm::vec4 color)
         {
-            D3D12Utilities::TransitionResource(commandList, m_SwapchainD3DHandles[m_AcquiredBackBufferImageIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+            DX12Utilities::TransitionResource(commandList, m_SwapchainD3DHandles[m_AcquiredBackBufferImageIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
             auto rtv = getCurrentBackBufferRTVHandle();
             commandList->ClearRenderTargetView(rtv, &color[0], 0, nullptr);
+        }
+
+        void DX12Swapchain::prepareAsRenderTarget(ID3D12GraphicsCommandList2* commandList)
+        {
+            DX12Utilities::TransitionResource(commandList, m_SwapchainD3DHandles[m_AcquiredBackBufferImageIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
         }
 
         D3D12_CPU_DESCRIPTOR_HANDLE DX12Swapchain::getCurrentBackBufferRTVHandle()
         {
             D3D12_CPU_DESCRIPTOR_HANDLE rtv = m_SwapchainRTVHeap->GetCPUDescriptorHandleForHeapStart();
             // The handle is offset from the beginning of the descriptor heap based on the current back buffer index and the size of the descriptor
-            D3D12Utilities::GetCPUDescriptorOffsetHandle(rtv, m_AcquiredBackBufferImageIndex, m_RTVDescriptorSize);
+            DX12Utilities::GetCPUDescriptorOffsetHandle(rtv, m_AcquiredBackBufferImageIndex, m_RTVDescriptorSize);
             return rtv;
         }
 
         //--------------------------------------------------------------------------------------
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

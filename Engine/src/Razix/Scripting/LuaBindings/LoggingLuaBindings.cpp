@@ -3,23 +3,41 @@
 // clang-format on
 #include "Razix/Scripting/RZLuaScriptHandler.h"
 
-#include "Razix/Core/RZApplication.h"
-#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Core/App/RZApplication.h"
+#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 
 namespace Razix {
     namespace Scripting {
 
         void RZLuaScriptHandler::bindLoggingAPI()
         {
-            auto log = m_State.create_table("RZLog");
+            lua_State* L = m_State;
 
-            log.set_function("Trace", [&](sol::this_state s, std::string_view message) { RAZIX_TRACE(message); });
+            LUA_CREATE_TABLE(L, "RZLog");
 
-            log.set_function("Info", [&](sol::this_state s, std::string_view message) { RAZIX_INFO(message); });
+            LUA_REGISTER_GLOBAL_FUNCTION(L, "RZLog", Trace, {
+                const char* message = luaL_checkstring(L, 1);
+                RAZIX_TRACE(message);
+                return 0;
+            });
 
-            log.set_function("Warn", [&](sol::this_state s, std::string_view message) { RAZIX_WARN(message); });
+            LUA_REGISTER_GLOBAL_FUNCTION(L, "RZLog", Info, {
+                const char* message = luaL_checkstring(L, 1);
+                RAZIX_INFO(message);
+                return 0;
+            });
 
-            log.set_function("Error", [&](sol::this_state s, std::string_view message) { RAZIX_ERROR(message); });
+            LUA_REGISTER_GLOBAL_FUNCTION(L, "RZLog", Warn, {
+                const char* message = luaL_checkstring(L, 1);
+                RAZIX_WARN(message);
+                return 0;
+            });
+
+            LUA_REGISTER_GLOBAL_FUNCTION(L, "RZLog", Error, {
+                const char* message = luaL_checkstring(L, 1);
+                RAZIX_ERROR(message);
+                return 0;
+            });
         }
     }    // namespace Scripting
 }    // namespace Razix

@@ -2,9 +2,9 @@
 
 #include "RZSTL/smart_pointers.h"
 
-#include "Razix/Graphics/RHI/API/RZSwapchain.h"
-#include "Razix/Graphics/RHI/API/RZTexture.h"
-#include "Razix/Graphics/RHI/RHI.h"
+#include "Razix/Gfx/RHI/API/RZSwapchain.h"
+#include "Razix/Gfx/RHI/API/RZTexture.h"
+#include "Razix/Gfx/RHI/RHI.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
@@ -13,7 +13,7 @@
     #include <vulkan/vulkan.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         // Forward declaration
         class VKFence;
@@ -98,6 +98,6 @@ namespace Razix {
             /* creates the image views for the swapchain */
             std::vector<VkImageView> createSwapImageViews(std::vector<VkImage> swapImages);
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

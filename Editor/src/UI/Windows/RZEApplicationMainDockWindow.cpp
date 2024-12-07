@@ -17,7 +17,7 @@
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Scene/RZEntity.h"
 
-#include "Razix/Graphics/RZMeshFactory.h"
+#include "Razix/Gfx/RZMeshFactory.h"
 #include "Razix/Scene/Components/HierarchyComponent.h"
 #include "Razix/Scene/Components/MeshRendererComponent.h"
 #include "Razix/Scene/Components/TransformComponent.h"
@@ -28,7 +28,6 @@
 
 // clang-format off
 #include <imgui.h>
-#include <ImGui/plugins/ImGuizmo.h>
 // clang-format on
 
 namespace Razix {
@@ -163,17 +162,17 @@ namespace Razix {
 
         void RZEApplicationMainDockWindowCentralWidget::set_TranslateGuizmo()
         {
-            RZApplication::Get().setGuizmoOperation(ImGuizmo::TRANSLATE);
+            RZApplication::Get().setGuizmoOperation(Guizmo::TRANSLATE);
         }
 
         void RZEApplicationMainDockWindowCentralWidget::set_RotateGuizmo()
         {
-            RZApplication::Get().setGuizmoOperation(ImGuizmo::ROTATE);
+            RZApplication::Get().setGuizmoOperation(Guizmo::ROTATE);
         }
 
         void RZEApplicationMainDockWindowCentralWidget::set_ScaleGuizmo()
         {
-            RZApplication::Get().setGuizmoOperation(ImGuizmo::SCALE);
+            RZApplication::Get().setGuizmoOperation(Guizmo::SCALE);
         }
 
         void RZEApplicationMainDockWindowCentralWidget::toggle_WorldLocal()
@@ -182,13 +181,13 @@ namespace Razix {
                 World_vs_LocalButton->setIcon(QIcon(":/rzeditor/local_icon.png"));
                 World_vs_LocalButton->setIconSize(QSize(20, 20));
 
-                RZApplication::Get().setGuizmoMode(ImGuizmo::LOCAL);
+                RZApplication::Get().setGuizmoMode(Guizmo::LOCAL);
 
             } else {
                 World_vs_LocalButton->setIcon(QIcon(":/rzeditor/world_icon.png"));
                 World_vs_LocalButton->setIconSize(QSize(20, 20));
 
-                RZApplication::Get().setGuizmoMode(ImGuizmo::WORLD);
+                RZApplication::Get().setGuizmoMode(Guizmo::WORLD);
             }
         }
 
@@ -208,23 +207,23 @@ namespace Razix {
         {
             auto& worldSettings = RZEngine::Get().getWorldSettings();
             // Remove other shading mode flags before setting this
-            worldSettings.debugFlags &= ~(Graphics::RendererDebugFlag_VisWireframe | Graphics::RendererDebugFlag_VisQuadOverDraw);
+            worldSettings.debugFlags &= ~(Gfx::RendererDebugFlag_VisWireframe | Gfx::RendererDebugFlag_VisQuadOverDraw);
         }
 
         void RZEApplicationMainDockWindowCentralWidget::set_WireframeMode()
         {
             auto& worldSettings = RZEngine::Get().getWorldSettings();
             // Remove other shading mode flags before setting this
-            worldSettings.debugFlags &= ~(Graphics::RendererDebugFlag_VisQuadOverDraw);
-            worldSettings.debugFlags |= Graphics::RendererDebugFlag_VisWireframe;
+            worldSettings.debugFlags &= ~(Gfx::RendererDebugFlag_VisQuadOverDraw);
+            worldSettings.debugFlags |= Gfx::RendererDebugFlag_VisWireframe;
         }
 
         void RZEApplicationMainDockWindowCentralWidget::set_QuadoverdrawMode()
         {
             auto& worldSettings = RZEngine::Get().getWorldSettings();
             // Remove other shading mode flags before setting this
-            worldSettings.debugFlags &= ~(Graphics::RendererDebugFlag_VisWireframe);
-            worldSettings.debugFlags |= Graphics::RendererDebugFlag_VisQuadOverDraw;
+            worldSettings.debugFlags &= ~(Gfx::RendererDebugFlag_VisWireframe);
+            worldSettings.debugFlags |= Gfx::RendererDebugFlag_VisQuadOverDraw;
         }
 
         //-----------------------------------------------------------------------------------------------

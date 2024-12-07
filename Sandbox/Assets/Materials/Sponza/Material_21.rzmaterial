@@ -1,9 +1,9 @@
 {
     "Material_21": {
         "Name": "Material_21",
-        "Albedo": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Models/Sponza/755318871556304029.jpg",
-        "Normal": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Models/Sponza/3827035219084910048.jpg",
-        "Metallic": "C:/Dev/Game Engines/Razix/Sandbox/Assets/Models/Sponza/2411100444841994089.jpg",
+        "Albedo": "X:/GameEngines/Razix/Sandbox/Assets/Models/Sponza/755318871556304029.jpg",
+        "Normal": "X:/GameEngines/Razix/Sandbox/Assets/Models/Sponza/3827035219084910048.jpg",
+        "Metallic": "X:/GameEngines/Razix/Sandbox/Assets/Models/Sponza/2411100444841994089.jpg",
         "Roughness": "",
         "Ao": "",
         "Emissive": "",

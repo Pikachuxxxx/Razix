@@ -2,45 +2,26 @@
 include 'Scripts/premake/common/vendor_includes.lua'
 -- Internal libraies include dirs
 include 'Scripts/premake/common/internal_includes.lua'
+-- common include dirs
+include 'Scripts/premake/common/common_include_dirs.lua'
 ------------------------------------------------------------------------------
 -- Shaders a separate project to build as cache
+include 'razix_shaders_build.lua'
+------------------------------------------------------------------------------
+-- Engine Config files
 group "Engine/content"
-    project "Shaders"
+    project "Config"
         kind "Utility"
 
         files
-        { 
-            -- Shader files
-            -- GLSL
-            "content/Shaders/GLSL/**.glsl",
-            "content/Shaders/GLSL/**.vert",
-            "content/Shaders/GLSL/**.geom",
-            "content/Shaders/GLSL/**.frag",
-            "content/Shaders/GLSL/**.comp",
-            -- HLSL
-            "content/Shaders/HLSL/**.hlsl",
-            -- PSSL
-            "content/Shaders/PSSL/**.pssl",
-            "content/Shaders/PSSL/**.h",
-            "content/Shaders/PSSL/**.hs",
-            -- Cg
-            "content/Shaders/CG/**.cg",
-            -- Razix Shader File
-            "content/Shaders/Razix/**.rzsf"
+        {
+            -- ini files
+            "content/config/**.ini"
         }
-    filter "system:windows"
-        -- TODO Add as rules, every shader file type will have it's own rule
-        -- Don't build the shaders, they are compiled by the engine once and cached
-       filter { "files:**.glsl or **.hlsl or **.pssl or **.cg or **.rzsf"}
-            flags { "ExcludeFromBuild" }
 
-        -- Build GLSL files based on their extension
-        filter {"files:**.vert or **.frag or **.geom"}
-            removeflags "ExcludeFromBuild"
-            buildmessage 'Compiling glsl shader : %{file.name}'
-            buildcommands 'glslc.exe -I "%{wks.location}/../Engine/content/Shaders/GLSL" "%{file.directory}/%{file.name}" -o "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv" '
-            buildoutputs "%{wks.location}/../Engine/content/Shaders/Compiled/SPIRV/%{file.name }.spv"
-group""
+        filter { "files:**.ini"}
+            flags { "ExcludeFromBuild" }
+group"" 
 ------------------------------------------------------------------------------
 -- Frame Graph resources data for editing in VS
 group "Engine/content"
@@ -57,7 +38,6 @@ group "Engine/content"
 
         filter { "files:**.json"}
             flags { "ExcludeFromBuild" }
-
 group"" 
 ------------------------------------------------------------------------------
 group "Engine"
@@ -65,11 +45,6 @@ group "Engine"
 project "Razix"
     kind "SharedLib"
     language "C++"
-        -- Debugging directory = where the main premake5.lua is located
-    debugdir "%{wks.location}../"
-
-    pchheader "src/rzxpch.h"
-    pchsource "src/rzxpch.cpp"
 
     -- Razix Engine defines (Global)
     defines
@@ -81,7 +56,6 @@ project "Razix"
         "RAZIX_BUILD_CONFIG=" .. outputdir,
         -- Renderer
         "RAZIX_RENDERER_RAZIX",
-        "RAZIX_RENDERER_FALCOR",
         "RAZIX_RAY_TRACE_RENDERER_RAZIX",
         "RAZIX_RAY_TRACE_RENDERER_OPTIX",
         "RAZIX_RAY_TRACE_RENDERER_EMBREE",
@@ -116,7 +90,12 @@ project "Razix"
         "internal/",
         "src/",
         "src/Razix",
-        -- Vendor
+        "%{wks.location}/../Engine",
+        "%{wks.location}/../Engine/src",
+        "%{wks.location}/../Engine/src/Razix",
+        "%{wks.location}/../Engine/internal",
+        "%{wks.location}/../Engine/internal/RazixMemory",
+        "%{wks.location}/../Engine/internal/RZSTL",
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
@@ -132,11 +111,12 @@ project "Razix"
         "%{IncludeDir.optick}",
         "%{IncludeDir.Jolt}",
         "%{IncludeDir.json}",
+        "%{IncludeDir.D3D12MA}",
+        "%{IncludeDir.dxc}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
-        -- API related
-        -- Vulkan
-        "%{VulkanSDK}",
+        -- Experimental Vendor
+        "%{ExperimentalIncludeDir.Eigen}",
         -- Internal libraries
         "%{InternalIncludeDir.RazixMemory}",
         "%{InternalIncludeDir.RZSTL}",
@@ -181,25 +161,26 @@ project "Razix"
     filter { "files:vendor/**"}
         warnings "Off"
 
+
     -------------------------------------
     -- Razix Project settings for Windows
     -------------------------------------
     filter "system:windows"
-        cppdialect "C++20"
+        cppdialect (engine_global_config.cpp_dialect)
         staticruntime "off"
         systemversion "latest"
         disablewarnings { 4307, 4267, 4275, 4715, 4554 } -- Disabling the 4275 cause this will propagate into everything ig, also 4715 = not returinign values from all control paths is usually done deliberately hence fuck this warning
         characterset ("MBCS")
         editandcontinue "Off"
+        
+        pchheader "rzxpch.h"
+        pchsource "src/rzxpch.cpp"
 
          -- Enable AVX, AVX2, Bit manipulation Instruction set (-mbmi)
          -- because GCC uses fused-multiply-add (fma) instruction by default, if it is available. Clang, on the contrary, doesn't use them by default, even if it is available, so we enable it explicityly
         -- Only works with GCC and Clang
         --buildoptions { "-mavx", "-mavx2", "-mbmi", "-march=haswell"}--, "-mavx512f -mavx512dq -mavx512bw -mavx512vbmi -mavx512vbmi2 -mavx512vl"}
         --buildoptions {"/-fsanitize=address"}
-
-        pchheader "rzxpch.h"
-        pchsource "src/rzxpch.cpp"
 
         -- Build options for Windows / Visual Studio (MSVC)
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
@@ -224,7 +205,6 @@ project "Razix"
             -- API
             -- "RAZIX_RENDER_API_OPENGL", // OpenGL is deprecated in Razix
             "RAZIX_RENDER_API_VULKAN",
-            -- "RAZIX_RENDER_API_DIRECTX11", // No Longer supported, only advanced APIs
             "RAZIX_RENDER_API_DIRECTX12",
             -- Windows / Visual Studio
             "WIN32_LEAN_AND_MEAN",
@@ -250,14 +230,9 @@ project "Razix"
             "src/Razix/Platform/GLFW/*.cpp",
 
             -- Platform supported Graphics API implementatioon
-            -- "src/Razix/Platform/API/OpenGL/*.h",
-            -- "src/Razix/Platform/API/OpenGL/*.cpp",
 
             "src/Razix/Platform/API/Vulkan/*.h",
             "src/Razix/Platform/API/Vulkan/*.cpp",
-
-            -- "src/Razix/Platform/API/DirectX11/*.h",
-            -- "src/Razix/Platform/API/DirectX11/*.cpp",
 
             "src/Razix/Platform/API/DirectX12/*.h",
             "src/Razix/Platform/API/DirectX12/*.cpp",
@@ -269,26 +244,200 @@ project "Razix"
         -- Windows specific incldue directories
         includedirs
         {
-             VulkanSDK .. "/include"
+            VulkanSDK .. "/include",
+            "%{wks.location}/../Engine/vendor/winpix/Include/WinPixEventRuntime"
         }
 
         -- Windows specific library directories
         libdirs
         {
-            VulkanSDK .. "/Lib"
+            VulkanSDK .. "/Lib",
+            "%{wks.location}/../Engine/vendor/winpix/bin/x64",
+            "%{wks.location}/../Engine/vendor/dxc/lib/x64",
         }
 
         -- Windows specific linkage libraries (DirectX inlcude and library paths are implicityly added by Visual Studio, hence we need not add anything explicityly)
         links
         {
             "Dbghelp",
-            -- Redner API
+            -- Render API
             "vulkan-1",
             "d3d11",
             "d3d12",
             "dxgi",
             "dxguid",
-            "D3DCompiler"
+            "D3DCompiler",
+            "dxcompiler"
+        }
+
+        -- Copy the DLLs to bin dir
+        postbuildcommands 
+        {
+            -- copy windows pix dlls
+            '{COPY} "%{wks.location}../Engine/vendor/winpix/bin/x64/WinPixEventRuntime.dll" "%{cfg.targetdir}"',
+            '{COPY} "%{wks.location}../Engine/vendor/winpix/bin/x64/WinPixEventRuntime_UAP.dll" "%{cfg.targetdir}"',
+            -- Copy the DXC dlls 
+            '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxcompiler.dll" "%{cfg.targetdir}"',
+            '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxil.dll" "%{cfg.targetdir}"',
+                -- we are using RAZIX_ROOT_DIR for now
+            -- Copy the engine conten folder with subdirs: config, Fonts, FrameGraphs, Logos, Shaders/Compiled, Splash, Textures
+            -- [Docs]: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/robocopy
+            -- /E: Copies subdirectories. This option automatically includes empty directories.
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/config" "%{cfg.targetdir}"/Engine/content/config',
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/Fonts" "%{cfg.targetdir}"/Engine/content/Fonts',
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/FrameGraphs" "%{cfg.targetdir}"/Engine/content/FrameGraphs',
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/Logos" "%{cfg.targetdir}"/Engine/content/Logos',
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/Shaders/Compiled" "%{cfg.targetdir}"/Engine/content/Shaders/Compiled',
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/Shaders/Razix" "%{cfg.targetdir}"/Engine/content/Shaders/Razix',
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/Splash" "%{cfg.targetdir}"/Engine/content/Splash',
+            --'robocopy /E /MIR "%{wks.location}../Engine/content/Textures" "%{cfg.targetdir}"/Engine/content/Textures'
+        }
+        
+    -------------------------------------
+    -- Razix Project settings for MacOS
+    -------------------------------------
+    filter "system:macosx"
+        cppdialect "C++17"
+        staticruntime "off"
+        systemversion "latest"
+
+        --pchheader "rzxpch.h"
+        --pchsource "src/rzxpch.cpp"
+
+        linkoptions { "-rpath @executable_path/libRazix.dylib" }
+
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_MACOS",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_USE_GLFW_WINDOWS",
+            "RAZIX_IMGUI",
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "RAZIX_RENDER_API_METAL",
+            "TRACY_ENABLE"
+        }
+
+        -- Windows specific source files for compilation
+        files
+        {
+            -- platform sepecific implementatioon
+            "src/Razix/Platform/MacOS/*.h",
+            "src/Razix/Platform/MacOS/*.cpp",
+            
+            "src/Razix/Platform/Unix/*.h",
+            "src/Razix/Platform/Unix/*.cpp",
+
+            "src/Razix/Platform/GLFW/*.h",
+            "src/Razix/Platform/GLFW/*.cpp",
+
+            "src/Razix/Platform/API/Vulkan/*.h",
+            "src/Razix/Platform/API/Vulkan/*.cpp",
+
+            "src/Razix/Platform/API/Metal/*.h",
+            "src/Razix/Platform/API/Metal/*.cpp",
+
+            -- Vendor source files
+            "vendor/glad/src/glad.c"
+        }
+    
+        removefiles
+        {
+            --"src/rzxpch.cpp"
+        }
+        
+        -- Windows specific incldue directories
+        includedirs
+        {
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+            "./",
+            "../"
+        }
+
+        libdirs
+        {
+            VulkanSDK .. "/lib"
+        }
+
+        -- Windows specific linkage libraries (DirectX inlcude and library paths are implicityly added by Visual Studio, hence we need not add anything explicityly)
+        links
+        {
+            -- Render API
+            "vulkan",
+            "IOKit.framework",
+            "CoreFoundation.framework",
+            "CoreVideo.framework",
+            "CoreGraphics.framework",
+            "AppKit.framework",
+            "SystemConfiguration.framework"
+        }
+        
+        -- Apple Clang compiler options
+        buildoptions
+        {
+            "-Wno-error=switch-enum"
+        }
+        
+                
+        -- TEMP TEMP TEMP TEMP TEMP
+        postbuildcommands
+        {
+            -- copy vulkan DLL until we use volk
+            '{COPY}  "%{VulkanSDK}/lib/libvulkan.dylib" "%{cfg.targetdir}/libvulkan.dylib"',
+            '{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.targetdir}/libvulkan.1.dylib"'
+            -- we are using RAZIX_ROOT_DIR for now
+            -- Copy the engine content folder with subdirectories: config, Fonts, FrameGraphs, Logos, Shaders/Compiled, Splash, Textures
+            -- [Docs]: https://linux.die.net/man/1/rsync
+            -- we need to create the directories manually unlike robocopy
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/config/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/Fonts/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/FrameGraphs/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/Logos/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/Shaders/Compiled/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/Shaders/Razix/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/Splash/"',
+            --'mkdir -p "%{cfg.targetdir}/Engine/content/Textures/"',
+            -- -a: Archive mode, preserves symbolic links, permissions, timestamps, etc.
+            -- --delete: Ensures the destination matches the source exactly (like /MIR in robocopy)
+            --'rsync -a --delete "%{wks.location}/../Engine/content/config/" "%{cfg.targetdir}/Engine/content/config/"',
+            --'rsync -a --delete "%{wks.location}/../Engine/content/Fonts/" "%{cfg.targetdir}/Engine/content/Fonts/"',
+            --'rsync -a --delete "%{wks.location}/../Engine/content/FrameGraphs/" "%{cfg.targetdir}/Engine/content/FrameGraphs/"',
+            --'rsync -a --delete "%{wks.location}/../Engine/content/Logos/" "%{cfg.targetdir}/Engine/content/Logos/"',
+            --'rsync -a --delete "%{wks.location}/../Engine/content/Shaders/Compiled/" "%{cfg.targetdir}/Engine/content/Shaders/Compiled/"',
+            --'rsync -a --delete "%{wks.location}/../Engine/content/Shaders/Razix/" "%{cfg.targetdir}/Engine/content/Shaders/Razix/"',
+            --'rsync -a --delete "%{wks.location}/../Engine/content/Splash/" "%{cfg.targetdir}/Engine/content/Splash/"',
+            --'rsync -a --delete "%{wks.location}/../Engine/content/Textures/" "%{cfg.targetdir}/Engine/content/Textures/"'
+        }
+        
+        filter "files:**.c"
+            flags { "NoPCH" }
+        filter "files:**.m"
+            flags { "NoPCH" }
+        filter "files:**.mm"
+            flags { "NoPCH" }
+
+    -------------------------------------
+    -- Razix Project settings for iOS
+    -------------------------------------
+    filter "system:ios"
+		targetextension ".app"
+        
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_IOS",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_IMGUI",
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "RAZIX_RENDER_API_METAL",
+            "TRACY_ENABLE"
         }
 
     -- Config settings for Razix Engine project
@@ -298,11 +447,27 @@ project "Razix"
         runtime "Debug"
         optimize "Off"
 
+        filter "system:windows"
+            links
+            {
+                "WinPixEventRuntime",
+                "WinPixEventRuntime_UAP"
+            }
+        filter {}
+
     filter "configurations:Release"
         defines { "RAZIX_RELEASE", "NDEBUG" }
         optimize "Speed"
         symbols "On"
         runtime "Release"
+        
+        filter "system:windows"
+            links
+            {
+                "WinPixEventRuntime",
+                "WinPixEventRuntime_UAP"
+            }
+        filter {}
 
     filter "configurations:Distribution"
         defines { "RAZIX_DISTRIBUTION", "NDEBUG" }

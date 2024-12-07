@@ -5,7 +5,7 @@
 // clang-format on
 
 #include <Razix.h>
-#include <Razix/Core/RazixVersion.h>
+#include <Razix/Core/Version/RazixVersion.h>
 #include <Razix/Platform/API/Vulkan/VKContext.h>
 
 #include <vulkan/vulkan.h>
@@ -77,10 +77,15 @@ public:
         //-------------------------------------------------------------------------------------
         // Creating the Graphics Context and Initialize it
         RAZIX_CORE_INFO("Creating Graphics Context...");
-        Graphics::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
+        Gfx::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
         RAZIX_CORE_INFO("Initializing Graphics Context...");
-        Graphics::RZGraphicsContext::GetContext()->Init();
+        Gfx::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
+
+        //-------------------------------------------------------------------------------------
+        // Override the Graphics API here! for testing
+        Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::VULKAN);
+        //---------------------------------------------------------------------------------
 
         vulkanWindow->Init();
 
@@ -88,8 +93,8 @@ public:
 
         Razix::RZApplication::Get().Init();
 
-        VkSurfaceKHR                surface = QVulkanInstance::surfaceForWindow(vulkanWindow);
-        Razix::Graphics::VKContext* context = static_cast<Razix::Graphics::VKContext*>(Razix::Graphics::RZGraphicsContext::GetContext());
+        VkSurfaceKHR           surface = QVulkanInstance::surfaceForWindow(vulkanWindow);
+        Razix::Gfx::VKContext* context = static_cast<Razix::Gfx::VKContext*>(Razix::Gfx::RZGraphicsContext::GetContext());
         context->CreateSurface(&surface);
         context->SetupDeviceAndSC();
 
@@ -214,29 +219,6 @@ int main(int argc, char** argv)
 
     // Set Fusion style for editor
     qrzeditorApp->setStyle(QStyleFactory::create("Fusion"));
-    // modify palette to dark
-    QPalette darkPalette;
-    darkPalette.setColor(QPalette::Window, QColor(15, 15, 15));
-    darkPalette.setColor(QPalette::WindowText, Qt::white);
-    darkPalette.setColor(QPalette::Disabled, QPalette::WindowText, QColor(127, 127, 127));
-    darkPalette.setColor(QPalette::Base, QColor(24, 24, 24));
-    darkPalette.setColor(QPalette::AlternateBase, QColor(66, 66, 66));
-    darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
-    darkPalette.setColor(QPalette::ToolTipText, Qt::white);
-    darkPalette.setColor(QPalette::Text, Qt::white);
-    darkPalette.setColor(QPalette::Disabled, QPalette::Text, QColor(127, 127, 127));
-    darkPalette.setColor(QPalette::Dark, QColor(35, 35, 35));
-    darkPalette.setColor(QPalette::Shadow, QColor(20, 20, 20));
-    darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::ButtonText, Qt::white);
-    darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(127, 127, 127));
-    darkPalette.setColor(QPalette::BrightText, Qt::red);
-    darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::Disabled, QPalette::Highlight, QColor(80, 80, 80));
-    darkPalette.setColor(QPalette::HighlightedText, Qt::white);
-    darkPalette.setColor(QPalette::Disabled, QPalette::HighlightedText, QColor(127, 127, 127));
-    qrzeditorApp->setPalette(darkPalette);
 
     // UE5 like style from qss
     QFile file(":/rzeditor/styles/ue.qss");
@@ -263,14 +245,6 @@ int main(int argc, char** argv)
     mainWindow->setWindowState(Qt::WindowMaximized);
     //mainWindow->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
     mainWindow->getCentralWidget()->setProjectPathDir(projectBrowserDialog->getProjectPath());
-
-    mainWindow->setStyleSheet(R"(
-    QMainWindow::separator {
-      width: 10px;
-      height: 10px;
-      background-color: #F00;
-    }
-  )");
 
     // Set Title Bar project and engine version
     mainWindow->getTitleBar()->setProjectName(projectBrowserDialog->getProjectName().c_str());

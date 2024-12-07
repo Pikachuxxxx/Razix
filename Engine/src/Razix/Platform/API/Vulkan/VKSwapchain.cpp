@@ -14,7 +14,7 @@
 #include <glfw/glfw3.h>
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         static void GetQueueCheckpointDataNV(VkQueue queue, u32* pCheckpointDataCount, VkCheckpointDataNV* pCheckPointData)
         {
@@ -162,7 +162,7 @@ namespace Razix {
             //            if (format.format == VK_FORMAT_R8G8B8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
 
             for (const auto& format: m_SwapSurfaceProperties.formats) {
-                if (format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+                if (format.format == VK_FORMAT_B8G8R8A8_UNORM /*VK_FORMAT_B8G8R8A8_SRGB*/ && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
                     m_ColorFormat = format.format;
                     return format;
                 }
@@ -174,7 +174,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            if (g_GraphicsFeaturesSettings.EnableVSync)
+            if (g_GraphicsFeatures.EnableVSync)
                 return VK_PRESENT_MODE_FIFO_KHR;    // VSync
 
             // Choose the right kind of image presentation mode for the  swapchain images
@@ -426,7 +426,7 @@ namespace Razix {
             std::vector<VkCommandBuffer> cmdBuffs;
             for (sz i = 0; i < submitInfo.commandBufferCount; i++) {
                 auto& handle    = commandQueue[i];
-                auto  apiBuffer = RZResourceManager::Get().getDrawCommandBuffer(handle)->getAPIBuffer();
+                auto  apiBuffer = RZResourceManager::Get().getDrawCommandBufferResource(handle)->getAPIBuffer();
                 cmdBuffs.push_back(*((VkCommandBuffer*) apiBuffer));
             }
 
@@ -536,7 +536,7 @@ namespace Razix {
             std::vector<VkCommandBuffer> cmdBuffs;
             for (sz i = 0; i < submitInfo.commandBufferCount; i++) {
                 auto& handle    = commandQueue[i];
-                auto  apiBuffer = RZResourceManager::Get().getDrawCommandBuffer(handle)->getAPIBuffer();
+                auto  apiBuffer = RZResourceManager::Get().getDrawCommandBufferResource(handle)->getAPIBuffer();
                 cmdBuffs.push_back(*((VkCommandBuffer*) apiBuffer));
             }
             submitInfo.pCommandBuffers = cmdBuffs.data();
@@ -585,5 +585,5 @@ namespace Razix {
 
             m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_SwapchainImageCount;
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -4,7 +4,7 @@
 #include "VKUniformBuffer.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         VKUniformBuffer::VKUniformBuffer(const RZBufferDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
             : VKBuffer(desc.usage, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, desc.size, desc.data RZ_DEBUG_E_ARG_NAME)
@@ -47,5 +47,5 @@ namespace Razix {
             VKBuffer::invalidate(m_BufferSize);
         }
 
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

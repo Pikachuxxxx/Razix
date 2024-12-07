@@ -7,7 +7,7 @@
 #include "razix/Platform/API/Vulkan/VKUtilities.h"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         VKSemaphore::VKSemaphore(RZ_DEBUG_NAME_TAG_S_ARG)
         {
@@ -36,5 +36,5 @@ namespace Razix {
         {
             return &m_Handles[idx];
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

@@ -7,25 +7,27 @@
     #include <execution>
 #endif
 
+#include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
-#include "Razix/Core/RZApplication.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 #include "Razix/Scene/RZEntity.h"
 
-#include "Razix/Graphics/Materials/RZMaterial.h"
-#include "Razix/Graphics/RHI/API/RZDrawCommandBuffer.h"
-#include "Razix/Graphics/RHI/API/RZDescriptorSet.h"
-#include "Razix/Graphics/RHI/API/RZPipeline.h"
-#include "Razix/Graphics/RHI/API/RZShader.h"
-#include "Razix/Graphics/RHI/RHI.h"
-#include "Razix/Graphics/RZMesh.h"
-#include "Razix/Graphics/RZMeshFactory.h"
-#include "Razix/Graphics/Renderers/RZSystemBinding.h"
+#include "Razix/Gfx/Materials/RZMaterial.h"
+#include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
+#include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
+#include "Razix/Gfx/RHI/API/RZPipeline.h"
+#include "Razix/Gfx/RHI/API/RZShader.h"
+#include "Razix/Gfx/RHI/RHI.h"
+#include "Razix/Gfx/RZMesh.h"
+#include "Razix/Gfx/RZMeshFactory.h"
+#include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
 #include <entt.hpp>
 
 namespace Razix {
+
+    // TODO: Draw compaction for scene drawing all meshes are updated into large enough buffer adn we supply bnidless access and arguments to acces into it and do culling adn write to indirect args to draw meshlets using VB + HiZ + 2 Pass Occlusion Culling --> Tiled Forward PBR -> DS skin
 
     RZScene::RZScene()
     {
@@ -111,21 +113,21 @@ namespace Razix {
         }
     }
 
-    void RZScene::drawScene(Graphics::RZPipelineHandle pipeline, SceneDrawGeometryMode geometryMode)
+    void RZScene::drawScene(Gfx::RZPipelineHandle pipeline, SceneDrawGeometryMode geometryMode)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
-        auto cmdBuffer = Graphics::RHI::GetCurrentCommandBuffer();
+        auto cmdBuffer = Gfx::RHI::GetCurrentCommandBuffer();
 
-        auto  shaderHandle    = Graphics::RZResourceManager::Get().getPipelineResource(pipeline)->getDesc().shader;
-        auto& sceneDrawParams = Graphics::RZResourceManager::Get().getShaderResource(shaderHandle)->getSceneDrawParams();
+        auto  shaderHandle    = Gfx::RZResourceManager::Get().getPipelineResource(pipeline)->getDesc().shader;
+        auto& sceneDrawParams = Gfx::RZResourceManager::Get().getShaderResource(shaderHandle)->getSceneDrawParams();
 
         u32 startSetIdx = 0;
 
         //-----------------------------
         // Frame Data
         if (sceneDrawParams.enableFrameData) {
-            Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, Graphics::RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
+            Gfx::RHI::BindDescriptorSet(pipeline, cmdBuffer, Gfx::RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
             startSetIdx++;
         }
         //-----------------------------
@@ -138,20 +140,20 @@ namespace Razix {
         // Scene Lighting Data
         if (sceneDrawParams.enableLights) {
             //RAZIX_ASSERT(startSetIdx == BindingTable_System::SET_IDX_LIGHTING_DATA, "[Scene] Binding renderer system lighting data at wrong index!");
-            Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, Graphics::RHI::Get().getSceneLightsDataSet(), startSetIdx);
+            Gfx::RHI::BindDescriptorSet(pipeline, cmdBuffer, Gfx::RHI::Get().getSceneLightsDataSet(), startSetIdx);
             startSetIdx++;
         }
         //-----------------------------
         // User Sets
         if (sceneDrawParams.userSets.size() > 0)
-            Graphics::RHI::BindUserDescriptorSets(pipeline, cmdBuffer, sceneDrawParams.userSets, startSetIdx);
+            Gfx::RHI::BindUserDescriptorSets(pipeline, cmdBuffer, sceneDrawParams.userSets, startSetIdx);
         //-----------------------------
 
         if (geometryMode == SceneDrawGeometryMode::SceneGeometry) {
             RAZIX_PROFILE_SCOPEC("Draw Scene Geometry", RZ_PROFILE_COLOR_SCENE);
 
             entt::basic_group mesh_group  = m_Registry.group<MeshRendererComponent>(entt::get<TransformComponent>);
-            u32               meshesCount = mesh_group.size();
+            u32               meshesCount = static_cast<u32>(mesh_group.size());
 
             if (m_LastMeshesCount != meshesCount)
                 m_LastMeshesCount = meshesCount;
@@ -167,8 +169,8 @@ namespace Razix {
                 glm::mat4 transform = mesh_trans.GetGlobalTransform();
 
                 //-----------------------------
-                Graphics::RZPushConstant modelMatrixPC;
-                modelMatrixPC.shaderStage = Graphics::ShaderStage::Vertex;
+                Gfx::RZPushConstant modelMatrixPC;
+                modelMatrixPC.shaderStage = Gfx::ShaderStage::Vertex;
                 modelMatrixPC.offset      = 0;
                 struct PCD
                 {
@@ -181,16 +183,16 @@ namespace Razix {
                     modelMatrixPC.size = sceneDrawParams.overridePushConstantDataSize;
                     modelMatrixPC.data = sceneDrawParams.overridePushConstantData;
                 }
-                Graphics::RHI::BindPushConstant(pipeline, cmdBuffer, modelMatrixPC);
+                Gfx::RHI::BindPushConstant(pipeline, cmdBuffer, modelMatrixPC);
                 //-----------------------------
-                Graphics::RZMaterial* mat = nullptr;
+                Gfx::RZMaterial* mat = nullptr;
 
                 if (sceneDrawParams.enableMaterials) {    // @ BindingTable_System::SET_IDX_MATERIAL_DATA Only UBO is uploaded
                     mat = mrc.Mesh->getMaterial();
                     if (!mat)
                         return;
                     mat->Bind();
-                    Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
+                    Gfx::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
                 }
 
                 mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
@@ -202,7 +204,7 @@ namespace Razix {
                 //    Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
                 ////-----------------------------
 
-                Graphics::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
+                Gfx::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
             });
 
 #else
@@ -218,8 +220,8 @@ namespace Razix {
                 glm::mat4 transform = mesh_trans.GetGlobalTransform();
 
                 //-----------------------------
-                Graphics::RZPushConstant modelMatrixPC;
-                modelMatrixPC.shaderStage = Graphics::ShaderStage::Vertex;
+                Gfx::RZPushConstant modelMatrixPC;
+                modelMatrixPC.shaderStage = Gfx::ShaderStage::Vertex;
                 modelMatrixPC.offset      = 0;
 
                 struct PCD
@@ -235,7 +237,7 @@ namespace Razix {
                     modelMatrixPC.size = sceneDrawParams.overridePushConstantDataSize;
                     modelMatrixPC.data = sceneDrawParams.overridePushConstantData;
                 }
-                Graphics::RHI::BindPushConstant(pipeline, cmdBuffer, modelMatrixPC);
+                Gfx::RHI::BindPushConstant(pipeline, cmdBuffer, modelMatrixPC);
 
                 // Now this is uploaded to the GPU update the previous world matrix
                 {
@@ -243,35 +245,41 @@ namespace Razix {
                 }
 
                 //-----------------------------
-                Graphics::RZMaterial* mat = nullptr;
+                Gfx::RZMaterial* mat = nullptr;
 
                 if (sceneDrawParams.enableMaterials) {    // @ BindingTable_System::SET_IDX_MATERIAL_DATA Only UBO is uploaded
                     mat = mrc.Mesh->getMaterial();
                     if (!mat)
                         continue;
                     mat->Bind();
-                    Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
+                    Gfx::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
                 }
 
-                mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
-                mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
+                // AOS Deprecated
+                //Graphics::RZResourceManager::Get().getVertexBufferResource(mrc.Mesh->getVertexBufferHandle())->Bind(cmdBuffer);
+                //Graphics::RZResourceManager::Get().getIndexBufferResource(mrc.Mesh->getIndexBufferHandle())->Bind(cmdBuffer);
 
-                Graphics::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
+                mrc.Mesh->bindVBsAndIB(cmdBuffer);
+
+                Gfx::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
             }
 #endif
         } else if (geometryMode == SceneDrawGeometryMode::Cubemap) {
             if (!m_Cube)
-                m_Cube = Graphics::MeshFactory::CreatePrimitive(Graphics::Cube);
+                m_Cube = Gfx::MeshFactory::CreatePrimitive(Gfx::Cube);
 
-            m_Cube->getVertexBuffer()->Bind(cmdBuffer);
-            m_Cube->getIndexBuffer()->Bind(cmdBuffer);
+            // AOS Deprecated
+            //Graphics::RZResourceManager::Get().getVertexBufferResource(m_Cube->getVertexBufferHandle())->Bind(cmdBuffer);
+            //Graphics::RZResourceManager::Get().getIndexBufferResource(m_Cube->getIndexBufferHandle())->Bind(cmdBuffer);
+
+            m_Cube->bindVBsAndIB(cmdBuffer);
 
             // TODO: Bind mat and desc sets and PCs
 
-            Graphics::RHI::DrawIndexed(cmdBuffer, m_Cube->getIndexCount());
+            Gfx::RHI::DrawIndexed(cmdBuffer, m_Cube->getIndexCount());
 
         } else if (geometryMode == SceneDrawGeometryMode::ScreenQuad) {
-            Graphics::RHI::Draw(cmdBuffer, 3);
+            Gfx::RHI::Draw(cmdBuffer, 3);
 
         } else if (geometryMode == SceneDrawGeometryMode::UI) {
             // If we ever have engine UI system other than ImGui we handle it's drawing here
@@ -285,13 +293,17 @@ namespace Razix {
     {
         // Meshes
         auto mrcs = this->GetComponentsOfType<MeshRendererComponent>();
-        for (auto& mesh: mrcs)
-            mesh.Mesh->Destroy();
+        for (auto& mesh: mrcs) {
+            if (mesh.Mesh)
+                mesh.Mesh->Destroy();
+        }
 
         // Sprites
         auto sprites = this->GetComponentsOfType<SpriteRendererComponent>();
-        for (auto& sprite: sprites)
-            sprite.Sprite->destroy();
+        for (auto& sprite: sprites) {
+            if (sprite.Sprite)
+                sprite.Sprite->destroy();
+        }
     }
 
     RZEntity RZScene::createEntity(const std::string& name /*= std::string()*/)
@@ -395,6 +407,7 @@ namespace Razix {
         }
         //}
         // This will cause a not all control paths return a value warning, it's fine cause it doesn't make the engine to run without a camera!
+        return m_DefaultSceneCameraToAvoidCompileErrors;
     }
 
     // Serialization Functions
@@ -419,6 +432,6 @@ namespace Razix {
     void RZScene::OnComponentAdded(RZEntity entity, T& component)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-        m_Registry.on_construct<T>().connect<&T::OnConstruct>();
+        m_Registry.template on_construct<T>().template connect<&T::OnConstruct>();
     }
 }    // namespace Razix

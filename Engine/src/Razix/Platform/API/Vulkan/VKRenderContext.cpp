@@ -20,9 +20,7 @@
 #include <imgui/imgui.h>
 
 namespace Razix {
-    namespace Graphics {
-
-        static constexpr u32 MAX_DESCRIPTOR_SET_COUNT = 2500;
+    namespace Gfx {
 
         static void CmdBeginRenderingKHR(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo)
         {
@@ -77,6 +75,7 @@ namespace Razix {
                 ImGui::Text("Device Type        : %s", std::string(VKDevice::Get().getPhysicalDevice()->getPhysicalDeviceTypeString(m_PhysicalDeviceProperties.deviceType)).c_str());
                 ImGui::Text("Driver Version     : %d.%d.%d", VK_VERSION_MAJOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_MINOR(m_PhysicalDeviceProperties.driverVersion), VK_VERSION_PATCH(m_PhysicalDeviceProperties.driverVersion));
 
+#if RAZIX_USE_VMA
                 ImGui::Separator();
 
                 auto gpuMemProps = VKDevice::Get().getPhysicalDevice()->getMemoryProperties();
@@ -106,6 +105,7 @@ namespace Razix {
                     VmaTotalStatistics totalStats{};
                     vmaCalculateStatistics(VKDevice::Get().getVMA(), &totalStats);
                 }
+#endif
             }
             ImGui::End();
         }
@@ -114,14 +114,14 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            m_DrawCommandBuffers.set_capacity(MAX_SWAPCHAIN_BUFFERS);
-            m_CommandPool.set_capacity(MAX_SWAPCHAIN_BUFFERS);
+            m_DrawCommandBuffers.resize(MAX_SWAPCHAIN_BUFFERS);
+            m_GraphicsCommandPool.resize(MAX_SWAPCHAIN_BUFFERS);
 
             for (u32 i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
-                auto pool                  = RZResourceManager::Get().createCommandAllocator(PoolType::kGraphics);
-                m_CommandPool[i]           = pool;
+                auto pool                  = RZResourceManager::Get().createCommandPool(PoolType::kGraphics);
+                m_GraphicsCommandPool[i]   = pool;
                 m_DrawCommandBuffers[i]    = RZResourceManager::Get().createDrawCommandBuffer(pool);
-                auto commandBufferResource = RZResourceManager::Get().getDrawCommandBuffer(m_DrawCommandBuffers[i]);
+                auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(m_DrawCommandBuffers[i]);
                 commandBufferResource->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Frame Draw Command Buffer: #" + std::to_string(i)));
             }
 
@@ -161,7 +161,7 @@ namespace Razix {
             // Begin recording to the command buffer
             m_CurrentCommandBuffer = cmdBuffer;
 
-            auto commandBufferResource = RZResourceManager::Get().getDrawCommandBuffer(m_CurrentCommandBuffer);
+            auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(m_CurrentCommandBuffer);
             commandBufferResource->BeginRecording();
         }
 
@@ -170,10 +170,10 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // End the command buffer recording
-            auto commandBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             commandBufferResource->EndRecording();
             // Stack up the recorded command buffers for execution
-            m_CommandQueue.push_back(cmdBuffer);
+            m_GraphicsCommandQueue.push_back(cmdBuffer);
         }
 
         void VKRenderContext::SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
@@ -208,8 +208,8 @@ namespace Razix {
             m_Context->getSwapchain()->present(waitSemaphore ? *(VkSemaphore*) waitSemaphore->getHandle(frameIdx) : VK_NULL_HANDLE);
 #endif
 
-            m_Context->getSwapchain()->submitGraphicsAndFlip(m_CommandQueue);
-            m_CommandQueue.clear();
+            m_Context->getSwapchain()->submitGraphicsAndFlip(m_GraphicsCommandQueue);
+            m_GraphicsCommandQueue.clear();
         }
 
         void VKRenderContext::BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)
@@ -226,7 +226,7 @@ namespace Razix {
             //static_cast<VKPipeline*>(pp)->getPipelineLayout();
 
             const auto vkDescSet         = static_cast<const VKDescriptorSet*>(descriptorSet)->getDescriptorSet();
-            auto       cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto       cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), setIdx, 1, &vkDescSet, 0, nullptr);
         }
 
@@ -245,7 +245,7 @@ namespace Razix {
                     numDesciptorSets++;
                 }
             }
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), startSetIdx, numDesciptorSets, m_DescriptorSetPool, 0, nullptr);
         }
 
@@ -265,7 +265,7 @@ namespace Razix {
                     numDesciptorSets++;
                 }
             }
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), startSetIdx, numDesciptorSets, m_DescriptorSetPool, 0, nullptr);
         }
 
@@ -281,7 +281,7 @@ namespace Razix {
             scissorRect.extent.width  = width;
             scissorRect.extent.height = height;
 
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdSetScissor(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), 0, 1, &scissorRect);
         }
 
@@ -294,7 +294,7 @@ namespace Razix {
             // Bind the Bindless Descriptor Set
             if (VKDevice::Get().isBindlessSupported()) {
                 const auto set               = VKDevice::Get().getBindlessDescriptorSet();
-                auto       cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+                auto       cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
                 vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START, 1, &set, 0, nullptr);
             }
         }
@@ -355,13 +355,13 @@ namespace Razix {
 
                 if (attachment.second.clear) {
                     attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
-                    attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_NONE;
+                    attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 } else {
                     attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff we render on top of what was rendered previously
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 }
 
-                auto clearColor = Graphics::ClearColorFromPreset(attachment.second.clearColor);
+                auto clearColor = Gfx::ClearColorFromPreset(attachment.second.clearColor);
 
                 memcpy(attachInfo.clearValue.color.float32, &clearColor, sizeof(glm::vec4));
                 colorAttachments.push_back(attachInfo);
@@ -391,7 +391,7 @@ namespace Razix {
 
                 if (clearDepth) {
                     attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
-                    attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_NONE;
+                    attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 } else {
                     attachInfo.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;    // Well don't discard stuff we render on top of what was presented previously
                     attachInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -400,7 +400,7 @@ namespace Razix {
                 renderingInfoKHR.pDepthAttachment  = &attachInfo;
             }
 
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             CmdBeginRenderingKHR(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), &renderingInfoKHR);
         }
 
@@ -408,7 +408,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             CmdEndRenderingKHR(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer());
         }
 
@@ -430,6 +430,7 @@ namespace Razix {
             // Note: dstSet for each descriptor set write is left at zero as this is ignored when using push descriptors
 
             for (auto& desc: descriptors) {
+                RAZIX_UNREF_VAR(desc);
                 VkWriteDescriptorSet writeSet{};
 
                 for (auto& descriptor: descriptors) {
@@ -475,7 +476,7 @@ namespace Razix {
 
                 writeDescriptorSets.push_back(writeSet);
             }
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             CmdPushDescriptorSetKHR(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), 0, static_cast<u32>(writeDescriptorSets.size()), writeDescriptorSets.data());
         }
 
@@ -485,7 +486,7 @@ namespace Razix {
 
             RZEngine::Get().GetStatistics().NumDrawCalls++;
             RZEngine::Get().GetStatistics().Draws++;
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdDraw(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), count, 1, 0, 0);
         }
 
@@ -495,8 +496,17 @@ namespace Razix {
 
             RZEngine::Get().GetStatistics().NumDrawCalls++;
             RZEngine::Get().GetStatistics().IndexedDraws++;
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdDrawIndexed(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+        }
+
+        void VKRenderContext::DispatchAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 groupX, u32 groupY, u32 groupZ)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            RZEngine::Get().GetStatistics().ComputeDispatches++;
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
+            vkCmdDispatch(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), groupX, groupY, groupZ);
         }
 
         void VKRenderContext::DestroyAPIImpl()
@@ -529,7 +539,7 @@ namespace Razix {
             auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
 
             //for (auto& pushConstant: pushConstants) {
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdPushConstants(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), static_cast<VKPipeline*>(pp)->getPipelineLayout(), VKUtilities::ShaderStageToVK(pushConstant.shaderStage), pushConstant.offset, pushConstant.size, pushConstant.data);
             //}
         }
@@ -541,7 +551,7 @@ namespace Razix {
             f32 depthBiasConstant = 1.25f;
             // Slope depth bias factor, applied depending on polygon's slope
             f32  depthBiasSlope    = 1.75f;
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdSetDepthBias(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), depthBiasConstant, 0.0f, depthBiasSlope);
         }
 
@@ -577,7 +587,7 @@ namespace Razix {
             barrier.subresourceRange.baseArrayLayer = textureResource->getCurrentArrayLayer();
             barrier.subresourceRange.layerCount     = textureResource->getLayersCount();
 
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdPipelineBarrier(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.startExecutionStage), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.endExecutionStage), 0, 0, nullptr, 0, nullptr, 1, &barrier);
         }
 
@@ -598,7 +608,7 @@ namespace Razix {
             barrier.offset                = 0;
             barrier.size                  = vkBuffer->getSize();
 
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdPipelineBarrier(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.startExecutionStage), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.endExecutionStage), 0, 0, nullptr, 1, &barrier, 0, nullptr);
         }
 
@@ -620,7 +630,7 @@ namespace Razix {
             imageCopyRegion.extent.height             = vkSrcTexture->getHeight();
             imageCopyRegion.extent.depth              = 1;
 
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdCopyImage(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), vkSrcTexture->getImage(), /*vkSrcTexture->getLayout()*/ VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, vkDstTexture->getImage(), /*vkDstTexture->getLayout()*/ VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
         }
 
@@ -632,13 +642,13 @@ namespace Razix {
 
             VkViewport viewport = {};
             viewport.x          = static_cast<f32>(x);
-            viewport.y          = static_cast<f32>(y);
+            viewport.y          = static_cast<f32>(height) - static_cast<f32>(y);
             viewport.width      = static_cast<f32>(width);
-            viewport.height     = static_cast<f32>(height);
+            viewport.height     = -static_cast<f32>(height);    // (-) to match with DX12
             viewport.minDepth   = 0.0f;
             viewport.maxDepth   = 1.0f;
 
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdSetViewport(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), 0, 1, &viewport);
         }
 
@@ -648,9 +658,9 @@ namespace Razix {
 
             auto func = (PFN_vkCmdSetCheckpointNV) vkGetDeviceProcAddr(VKDevice::Get().getDevice(), "vkCmdSetCheckpointNV");
             if (func != nullptr) {
-                auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBuffer(cmdBuffer);
+                auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
                 func(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), markerData);
             }
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

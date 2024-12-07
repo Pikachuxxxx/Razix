@@ -1,4 +1,4 @@
-\    // clang-format off
+// clang-format off
 #include "rzxpch.h"
 // clang-format on
 #include "GLFWWindow.h"
@@ -9,7 +9,7 @@
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Events/RZKeyEvent.h"
 #include "Razix/Events/RZMouseEvent.h"
-#include "Razix/Utilities/LoadImage.h"
+#include "Razix/Utilities/RZLoadImage.h"
 
 #if defined RAZIX_RENDER_API_OPENGL || RAZIX_RENDER_API_VULKAN
 // clang-format off
@@ -18,11 +18,22 @@
 // clang-format on
 #endif
 
-#include "Razix/Graphics/RHI/API/RZGraphicsContext.h"
+#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 
-    namespace Razix
-{
+namespace Razix {
     static bool sGLFWInitialized = false;
+
+    //typedef void (* GLFWwindowsizefun)(GLFWwindow*,int,int);
+    //    template <typename Fn>
+    //    GLFWwindowsizefun SetWindowSizeCallback(GLFWwindow* handle, Fn func) {
+    //        auto closure = [](GLFWwindow* window, int width, int height) -> void {
+    //            auto og = (Fn*) glfwGetWindowUserPointer(window); // store where this comes from
+    //            (*og)(width, height);
+    //        };
+    //
+    //        glfwSetWindowUserPointer(handle, &func);
+    //        return glfwSetWindowSizeCallback(handle, closure);
+    //    }
 
     GLFWWindow::GLFWWindow(const WindowProperties& properties)
     {
@@ -42,20 +53,13 @@
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-#if defined(RAZIX_RENDER_API_OPENGL) || defined(RAZIX_RENDER_API_VULKAN)
-        if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::OPENGL || Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
-            glfwPollEvents();
+#if defined(RAZIX_RENDER_API_VULKAN) || defined(RAZIX_RENDER_API_DIRECTX12)
+        glfwPollEvents();
 #endif    // RAZIX_RENDER_API_OPENGL
     }
 
     void GLFWWindow::SetVSync(bool enabled)
     {
-        if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::OPENGL) {
-            if (enabled)
-                glfwSwapInterval(1);
-            else
-                glfwSwapInterval(0);
-        }
         m_Data.Vsync = enabled;
     }
 
@@ -66,8 +70,6 @@
 
     void GLFWWindow::SetWindowIcon()
     {
-        u8* pixels = nullptr;
-
         // 64-bit logo
         std::vector<GLFWimage> images;
         GLFWimage              image64{};
@@ -96,6 +98,11 @@
     {
         sGLFWInitialized = false;
         Shutdown();
+    }
+
+    void GLFWWindow::setTitle(const char* title)
+    {
+        glfwSetWindowTitle(m_Window, title);
     }
 
     RZWindow* GLFWWindow::GLFWConstructionFunc(const WindowProperties& properties)
@@ -127,7 +134,7 @@
         }
 
 #ifdef RAZIX_RENDER_API_OPENGL
-        if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::OPENGL) {
+        if (Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::OPENGL) {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -137,28 +144,65 @@
         }
 #endif
 
-#ifdef RAZIX_RENDER_API_VULKAN
-        if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN) {
+#if defined RAZIX_RENDER_API_VULKAN || defined RAZIX_RENDER_API_DIRECTX12
+        if (Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::VULKAN || Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::D3D12) {
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
             glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         }
 
 #endif
         m_Window = glfwCreateWindow((int) properties.Width, (int) properties.Height, properties.Title.c_str(), nullptr, nullptr);
+        
+        // update with DPI
+        float xscale, yscale;
+        glfwGetWindowContentScale(m_Window, &xscale, &yscale);
+        m_Data.wScale = int(xscale);
+        m_Data.hScale = int(yscale);
+        
+        m_Data.Width *= m_Data.wScale;
+        m_Data.Height *= m_Data.hScale;
+        
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
 
         //std::string icon = std::string(STRINGIZE(RAZIX_ROOT_DIR)) + std::string("/Razix/src/Razix/Embedded/RazixLogo.png");
         SetWindowIcon();
 
+        // The problem with using capture list here is the user_data is a global state, it's not per callback function and that will not properly capture the modified lambda with the necessary args and maintain their lifetime properly
         // Setting up event callbacks function via the dispatcher
+        //        SetWindowSizeCallback(m_Window, [&](int width, int height) {
+        //
+        //            m_Data.Width  = width;
+        //            m_Data.Height = height;
+        //
+        //            RZWindowResizeEvent event(width, height);
+        //            m_Data.EventCallback(event);
+        //        });
+
+        // Handle high DPI-monitors (only Primary for now)
+        glfwSetWindowContentScaleCallback(m_Window, [](GLFWwindow* window, float xscale, float yscale){
+            WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
+
+            data.wScale = xscale;
+            data.hScale = yscale;
+            
+            data.Width *= data.wScale;
+            data.Height *= data.hScale;
+
+            RZWindowResizeEvent event(data.Width, data.Height);
+            data.EventCallback(event);
+        });
+        
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
             WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
             data.Width  = width;
             data.Height = height;
+            
+            data.Width *= data.wScale;
+            data.Height *= data.hScale;
 
-            RZWindowResizeEvent event(width, height);
+            RZWindowResizeEvent event(data.Width, data.Height);
             data.EventCallback(event);
         });
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Graphics/RHI/RHI.h"
+#include "Razix/Gfx/RHI/RHI.h"
 
 #include "Razix/Platform/API/Vulkan/VKContext.h"
 
@@ -9,7 +9,7 @@
  */
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         const u32 kMAX_DESCRIPTORS_BINDABLE_PER_FRAME = 16;
 
@@ -35,6 +35,7 @@ namespace Razix {
             void         BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx) override;
             void         DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT) override;
             void         DrawIndexedAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0) override;
+            void         DispatchAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 groupX, u32 groupY, u32 groupZ) override;
             void         DestroyAPIImpl() override;
             void         OnResizeAPIImpl(u32 width, u32 height) override;
             void         BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant) override;
@@ -58,5 +59,5 @@ namespace Razix {
         private:
             void SetCmdCheckpointImpl(RZDrawCommandBufferHandle cmdBuffer, void* markerData);
         };
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix

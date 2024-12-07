@@ -114,7 +114,7 @@ project "RazixEditor"
         "RazixAssetPacker",
         -- Editor Vendor
         "QGoodWindow",
-        "qspdlog",
+        --"qspdlog", -- Disabled due to C++20 requirement
         "QtADS",
         "toolwindowmanager"
     }
@@ -177,7 +177,7 @@ project "RazixEditor"
        warnings "Off"
 
        filter "system:windows"
-       cppdialect "C++20"
+       cppdialect (engine_global_config.cpp_dialect)
        staticruntime "off"
        systemversion "latest"
        -- entrypoint "WinMainCRTStartup"
@@ -218,12 +218,14 @@ project "RazixEditor"
 
        disablewarnings { 4307, 4267, 4275, 4715, 4554, 4141, 4996 } -- Disabling the 4275 cause this will propagate into everything ig, also 4715 = not returinign values from all control paths is usually done deliberately hence fuck this warning
 
-    print(qtpath)
-
     -- TODO: Add post build command to copy QT DLLs and Plugins folder
 
     --postbuildcommands {
     --}
+    
+    filter "system:macosx"
+        qtbinpath "/opt/homebrew/opt/qt@5/bin"
+        qtpath "/opt/homebrew/opt/qt@5"
 
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }

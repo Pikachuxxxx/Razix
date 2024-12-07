@@ -10,13 +10,12 @@
 #include <QToolBar>
 
 #include <DockManager.h>
-#include <qspdlog/qspdlog.hpp>
 
 #include "UI/Windows/RZEMainWindowCentralWidget.h"
 #include "UI/Windows/RZEMaterialEditor.h"
 #include "UI/Windows/RZERendererSettingsUIWindow.h"
 
-#include "Razix/Core/RZApplication.h"
+#include "Razix/Core/App/RZApplication.h"
 
 namespace Razix {
     namespace Editor {
@@ -47,8 +46,6 @@ namespace Razix {
 
             void setProjectPathDir(const std::string& path) { m_ProjectPathDir = path; }
             void restoreLayout() { Layout_Restore(); }
-
-            inline spdlog::sink_ptr getConsolerLoggerSink() { return m_ConsoleLogWidget->sink(); }
 
         signals:
             void OnEntityAddedToScene();
@@ -90,7 +87,6 @@ namespace Razix {
 
             // Windows
             RZERendererSettingsUIWindow* m_WorldSettingsWindow;
-            QSpdLog*                m_ConsoleLogWidget;
 
             std::string m_ProjectPathDir;
 

@@ -5,10 +5,10 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
-    #include "Razix/Core/RZApplication.h"
+    #include "Razix/Core/App/RZApplication.h"
+    #include "Razix/Core/Profiling/RZProfiling.h"
     #include "Razix/Core/RZEngine.h"
-    #include "Razix/Core/RZProfiling.h"
-    #include "Razix/Core/RazixVersion.h"
+    #include "Razix/Core/Version/RazixVersion.h"
     #include "Razix/Platform/API/Vulkan/VKDevice.h"
     #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
@@ -16,12 +16,14 @@
 
     #include <glfw/glfw3.h>
     #include <vulkan/vulkan.h>
-    #include <vulkan/vulkan_win32.h>
+    #ifdef RAZIX_PLATFORM_WINDOWS
+        #include <vulkan/vulkan_win32.h>
+    #endif
 
     #define VK_LAYER_KHRONOS_VALIDATION_NAME "VK_LAYER_KHRONOS_validation"
 
 namespace Razix {
-    namespace Graphics {
+    namespace Gfx {
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Load the functions dynamically to create the DebugUtilsMessenger
@@ -99,6 +101,7 @@ namespace Razix {
 
     #endif    // RAZIX_DISTRIBUTION
 
+    #if RAZIX_USE_VMA
             // Now create the Vulkan Memory Allocator (VMA)
             //initialize the memory allocator
             VmaAllocatorCreateInfo allocatorInfo = {};
@@ -109,14 +112,14 @@ namespace Razix {
                 RAZIX_CORE_ERROR("[VMA] Failed to create VMA allocator!");
             else
                 RAZIX_CORE_TRACE("[VMA] Succesfully created VMA allocator!");
+    #endif
 
             //-----------------------------------------------------
             // Get some memory properties of the selected physical device
             auto gpuMemProps = VKDevice::Get().getPhysicalDevice()->getMemoryProperties();
 
             // Calculate total VRAM by summing up memory heap sizes
-            VkDeviceSize totalVRAM          = 0;
-            VkDeviceSize totalCPUMappedVRAM = 0;
+            VkDeviceSize totalVRAM = 0;
             for (uint32_t i = 0; i < gpuMemProps.memoryHeapCount; ++i) {
                 VkMemoryHeap memoryHeap = gpuMemProps.memoryHeaps[i];
                 // Consider only heaps with device-local memory flag
@@ -131,6 +134,7 @@ namespace Razix {
 
             // TODO: Use the memory type to find it's corresponding heap and print it's capacity + filter for specific memory types and cross check with total VRAM and mappable VRAM
 
+    #if RAZIX_USE_VMA
             //-----------------------------------------------------
             // Total statistics of VMA
             VmaTotalStatistics totalStats{};
@@ -153,6 +157,7 @@ namespace Razix {
 
             // Free the allocated stats string
             vmaFreeStatsString(VKDevice::Get().getVMA(), statsString);
+    #endif
         }
 
         void VKContext::createInstance()
@@ -170,6 +175,9 @@ namespace Razix {
             VkInstanceCreateInfo instanceCI{};
             instanceCI.sType            = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
             instanceCI.pApplicationInfo = &appInfo;
+    #ifdef __APPLE__
+            instanceCI.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    #endif
 
             // To track if there is any issue with instance creation we supply the pNext with the `VkDebugUtilsMessengerCreateInfoEXT`
             m_DebugCI                 = {};
@@ -238,7 +246,7 @@ namespace Razix {
             for (u32 i = 0; i < glfwExtensionsCount; i++) {
                 RAZIX_CORE_TRACE("\t");
                 int j = 0;
-                while (*(glfwExtensions[i] + j) != NULL) {
+                while (*(glfwExtensions[i] + j) != 0) {
                     std::cout << *(glfwExtensions[i] + j);
                     j++;
                 }
@@ -248,9 +256,17 @@ namespace Razix {
 
             // Bundle all the required extensions into a vector and return it
             std::vector<cstr> extensions(glfwExtensions, glfwExtensions + glfwExtensionsCount);
+    #ifdef RAZIX_PLATFORM_WINDOWS
             extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+    #elif defined RAZIX_PLATFORM_MACOS
+            extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+    #endif
             extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
             extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+
+            // instance extension
+            extensions.push_back("VK_EXT_debug_report");
+
             // Add any custom extension from the list of supported extensions that you need and are not included by GLFW
             if (m_EnabledValidationLayer)
                 extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -303,8 +319,10 @@ namespace Razix {
             // TODO: Add option to choose minimum severity level and use <=> to select levels
             // TODO: Formate the message id and stuff for colors etc
 
-            // ENABLE THIS WHEN DOING A RENDER DOC CAPTURE!
+            // ENABLE THIS WHEN DOING A RENDER DOC CAPTURE! -> API validation is to be disabled and will be done by the config file we pass a different config file for RDC runs
             //return VK_FALSE;
+
+            if (!RZEngine::Get().getGlobalEngineSettings().EnableAPIValidation) return VK_FALSE;
 
             //if (!message_severity)
             //    return VK_FALSE;
@@ -345,6 +363,6 @@ namespace Razix {
     #endif
             return VK_FALSE;
         }
-    }    // namespace Graphics
+    }    // namespace Gfx
 }    // namespace Razix
 #endif

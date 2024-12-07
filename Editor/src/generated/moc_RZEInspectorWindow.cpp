@@ -24,7 +24,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Razix__Editor__RZEInspectorWindow_t {
     QByteArrayData data[16];
-    char stringdata0[299];
+    char stringdata0[294];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -37,23 +37,23 @@ QT_MOC_LITERAL(0, 0, 33), // "Razix::Editor::RZEInspectorWi..."
 QT_MOC_LITERAL(1, 34, 24), // "InspectorPropertyChanged"
 QT_MOC_LITERAL(2, 59, 0), // ""
 QT_MOC_LITERAL(3, 60, 22), // "OnMeshMaterialSelected"
-QT_MOC_LITERAL(4, 83, 21), // "Graphics::RZMaterial*"
-QT_MOC_LITERAL(5, 105, 8), // "material"
-QT_MOC_LITERAL(6, 114, 10), // "OnNameEdit"
-QT_MOC_LITERAL(7, 125, 16), // "OnEntitySelected"
-QT_MOC_LITERAL(8, 142, 8), // "RZEntity"
-QT_MOC_LITERAL(9, 151, 6), // "entity"
-QT_MOC_LITERAL(10, 158, 29), // "ShowComponentsUtilContextMenu"
-QT_MOC_LITERAL(11, 188, 18), // "AddCameraComponent"
-QT_MOC_LITERAL(12, 207, 17), // "AddLightComponent"
-QT_MOC_LITERAL(13, 225, 21), // "AddLuaScriptComponent"
-QT_MOC_LITERAL(14, 247, 24), // "AddMeshRendererComponent"
-QT_MOC_LITERAL(15, 272, 26) // "AddSpriteRendererComponent"
+QT_MOC_LITERAL(4, 83, 16), // "Gfx::RZMaterial*"
+QT_MOC_LITERAL(5, 100, 8), // "material"
+QT_MOC_LITERAL(6, 109, 10), // "OnNameEdit"
+QT_MOC_LITERAL(7, 120, 16), // "OnEntitySelected"
+QT_MOC_LITERAL(8, 137, 8), // "RZEntity"
+QT_MOC_LITERAL(9, 146, 6), // "entity"
+QT_MOC_LITERAL(10, 153, 29), // "ShowComponentsUtilContextMenu"
+QT_MOC_LITERAL(11, 183, 18), // "AddCameraComponent"
+QT_MOC_LITERAL(12, 202, 17), // "AddLightComponent"
+QT_MOC_LITERAL(13, 220, 21), // "AddLuaScriptComponent"
+QT_MOC_LITERAL(14, 242, 24), // "AddMeshRendererComponent"
+QT_MOC_LITERAL(15, 267, 26) // "AddSpriteRendererComponent"
 
     },
     "Razix::Editor::RZEInspectorWindow\0"
     "InspectorPropertyChanged\0\0"
-    "OnMeshMaterialSelected\0Graphics::RZMaterial*\0"
+    "OnMeshMaterialSelected\0Gfx::RZMaterial*\0"
     "material\0OnNameEdit\0OnEntitySelected\0"
     "RZEntity\0entity\0ShowComponentsUtilContextMenu\0"
     "AddCameraComponent\0AddLightComponent\0"
@@ -113,7 +113,7 @@ void Razix::Editor::RZEInspectorWindow::qt_static_metacall(QObject *_o, QMetaObj
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->InspectorPropertyChanged(); break;
-        case 1: _t->OnMeshMaterialSelected((*reinterpret_cast< Graphics::RZMaterial*(*)>(_a[1]))); break;
+        case 1: _t->OnMeshMaterialSelected((*reinterpret_cast< Gfx::RZMaterial*(*)>(_a[1]))); break;
         case 2: _t->OnNameEdit(); break;
         case 3: _t->OnEntitySelected((*reinterpret_cast< RZEntity(*)>(_a[1]))); break;
         case 4: _t->ShowComponentsUtilContextMenu(); break;
@@ -134,7 +134,7 @@ void Razix::Editor::RZEInspectorWindow::qt_static_metacall(QObject *_o, QMetaObj
             }
         }
         {
-            using _t = void (RZEInspectorWindow::*)(Graphics::RZMaterial * );
+            using _t = void (RZEInspectorWindow::*)(Gfx::RZMaterial * );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&RZEInspectorWindow::OnMeshMaterialSelected)) {
                 *result = 1;
                 return;
@@ -190,7 +190,7 @@ void Razix::Editor::RZEInspectorWindow::InspectorPropertyChanged()
 }
 
 // SIGNAL 1
-void Razix::Editor::RZEInspectorWindow::OnMeshMaterialSelected(Graphics::RZMaterial * _t1)
+void Razix::Editor::RZEInspectorWindow::OnMeshMaterialSelected(Gfx::RZMaterial * _t1)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
     QMetaObject::activate(this, &staticMetaObject, 1, _a);

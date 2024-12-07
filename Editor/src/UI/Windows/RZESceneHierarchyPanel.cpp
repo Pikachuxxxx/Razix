@@ -6,7 +6,6 @@
 #include <QTreeWidget>
 
 #include <glm/glm.hpp>
-#include <sol/sol.hpp>
 
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZEngine.h"
