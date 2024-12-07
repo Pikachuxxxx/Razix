@@ -183,8 +183,8 @@ namespace Razix {
         glfwSetWindowContentScaleCallback(m_Window, [](GLFWwindow* window, float xscale, float yscale){
             WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
-            data.wScale = xscale;
-            data.hScale = yscale;
+            data.wScale = static_cast<u32>(xscale);
+            data.hScale = static_cast<u32>(yscale);
             
             data.Width *= data.wScale;
             data.Height *= data.hScale;
