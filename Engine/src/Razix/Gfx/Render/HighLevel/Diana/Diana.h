@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Gfx/Diana/RZRenderDataStructs.h"
+#include "Razix/Gfx/Render/HighLevel/Diana/RZRenderDataStructs.h"
 
 namespace Razix {
 

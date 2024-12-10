@@ -73,9 +73,7 @@ static int AttachConsole(void)
 /* Windows Entry point - WinMain */
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 static int EngineMain(int argc, char** argv)
-{
-    Razix::CrashDumpHandler::Initialize();
-    
+{    
     // Read the command line arguments
     static std::vector<cstr> args;
     for (int32_t i = 1; i < argc; i++) {
@@ -157,9 +155,7 @@ static void EngineExit()
 /* Windows Entry point - WinMain */
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 static int EngineMain(int argc, char** argv)
-{
-    Razix::CrashDumpHandler::Initialize();
-    
+{    
     // Read the command line arguments
     static std::vector<cstr> args;
     for (int32_t i = 1; i < argc; i++) {
