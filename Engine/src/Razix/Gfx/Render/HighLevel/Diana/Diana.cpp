@@ -1,7 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "DianaRenderer.h"
+#include "Diana.h"
 
 namespace Razix {
     namespace Gfx {
