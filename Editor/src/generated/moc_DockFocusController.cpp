@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'DockFocusController.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.16)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -13,7 +13,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'DockFocusController.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.16. It"
+#error "This file was generated using the moc from 5.15.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -97,7 +97,7 @@ void ads::CDockFocusController::qt_static_metacall(QObject *_o, QMetaObject::Cal
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
         auto *_t = static_cast<CDockFocusController *>(_o);
-        (void)_t;
+        Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->onApplicationFocusChanged((*reinterpret_cast< QWidget*(*)>(_a[1])),(*reinterpret_cast< QWidget*(*)>(_a[2]))); break;
         case 1: _t->onFocusWindowChanged((*reinterpret_cast< QWindow*(*)>(_a[1]))); break;

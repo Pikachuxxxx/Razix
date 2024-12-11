@@ -108,7 +108,7 @@ namespace Razix {
                         if (descriptor.bindingInfo.type == DescriptorType::kUniformBuffer)
                             descriptor.uniformBuffer = viewProjLayerUBO;
                     }
-                    auto set = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Env map conversion set : #" + std::to_string(i)), false);
+                    auto set = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Env map conversion set : #" + std::to_string(i)));
                     envMapSets.push_back(set);
                 }
             }
@@ -264,7 +264,7 @@ namespace Razix {
                         if (descriptor.bindingInfo.type == DescriptorType::kUniformBuffer)
                             descriptor.uniformBuffer = viewProjLayerUBO;
                     }
-                    auto set = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Irradiance map conversion set : #" + std::to_string(i)), false);
+                    auto set = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Irradiance map conversion set : #" + std::to_string(i)));
                     envMapSets.push_back(set);
                 }
             }
@@ -409,7 +409,7 @@ namespace Razix {
                         if (descriptor.bindingInfo.type == DescriptorType::kUniformBuffer)
                             descriptor.uniformBuffer = viewProjLayerUBO;
                     }
-                    auto set = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Pre Filtered Map conversion set : #" + std::to_string(i)), false);
+                    auto set = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Pre Filtered Map conversion set : #" + std::to_string(i)));
                     envMapSets.push_back(set);
                 }
             }

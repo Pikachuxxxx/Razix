@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'AutoHideDockContainer.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.16)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -13,7 +13,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'AutoHideDockContainer.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.16. It"
+#error "This file was generated using the moc from 5.15.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -65,7 +65,7 @@ void ads::CAutoHideDockContainer::qt_static_metacall(QObject *_o, QMetaObject::C
 #ifndef QT_NO_PROPERTIES
     if (_c == QMetaObject::ReadProperty) {
         auto *_t = static_cast<CAutoHideDockContainer *>(_o);
-        (void)_t;
+        Q_UNUSED(_t)
         void *_v = _a[0];
         switch (_id) {
         case 0: *reinterpret_cast< int*>(_v) = _t->sideBarLocation(); break;
@@ -75,10 +75,10 @@ void ads::CAutoHideDockContainer::qt_static_metacall(QObject *_o, QMetaObject::C
     } else if (_c == QMetaObject::ResetProperty) {
     }
 #endif // QT_NO_PROPERTIES
-    (void)_o;
-    (void)_id;
-    (void)_c;
-    (void)_a;
+    Q_UNUSED(_o);
+    Q_UNUSED(_id);
+    Q_UNUSED(_c);
+    Q_UNUSED(_a);
 }
 
 QT_INIT_METAOBJECT const QMetaObject ads::CAutoHideDockContainer::staticMetaObject = { {

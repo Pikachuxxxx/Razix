@@ -20,14 +20,14 @@ namespace Razix {
             Razix::RZSplashScreen::Get().setLogString("Starting Shader Library...");
 
             // TEST SHADERS
-            //loadBuiltInShader(ShaderBuiltin::HelloTextureTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTextureTest.rzsf");
-            //loadBuiltInShader(ShaderBuiltin::HelloTriangleTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTriangleTest.rzsf");
-            //loadBuiltInShader(ShaderBuiltin::WaveIntrinsicsTest, "//RazixContent/Shaders/Razix/Shader.Builtin.WaveIntrinsicsTest.rzsf");
+            loadBuiltInShader(ShaderBuiltin::HelloTextureTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTextureTest.rzsf");
+            loadBuiltInShader(ShaderBuiltin::HelloTriangleTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTriangleTest.rzsf");
+            loadBuiltInShader(ShaderBuiltin::WaveIntrinsicsTest, "//RazixContent/Shaders/Razix/Shader.Builtin.WaveIntrinsicsTest.rzsf");
             //
             //// TESTING VIS BUFFER GEN SHADER
             //loadBuiltInShader(ShaderBuiltin::VisibilityBufferFill, "//RazixContent/Shaders/Razix/Shader.Builtin.VisibilityBufferFill.rzsf");
 
-            //return;
+            return;
 
             // TODO: Load shader caches and partition them into RZShader which is a derivative of RZAsset. so this also a discussion for another day
             // Pre-load some shaders

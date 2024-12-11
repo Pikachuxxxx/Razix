@@ -39,7 +39,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
 
-#define HELLO_TRIANGLE_TEST 0
+#define HELLO_TRIANGLE_TEST 1
 
 namespace Razix {
 
@@ -448,7 +448,7 @@ namespace Razix {
                 return;
 
             // Update calls passes
-            m_CSMPass.updateCascades(scene);
+            //m_CSMPass.updateCascades(scene);
 
             // Main Frame Graph World Rendering Loop
             {

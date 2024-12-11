@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'DockOverlay.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.16)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -13,7 +13,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'DockOverlay.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.16. It"
+#error "This file was generated using the moc from 5.15.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -57,10 +57,10 @@ static const uint qt_meta_data_ads__CDockOverlay[] = {
 
 void ads::CDockOverlay::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
-    (void)_o;
-    (void)_id;
-    (void)_c;
-    (void)_a;
+    Q_UNUSED(_o);
+    Q_UNUSED(_id);
+    Q_UNUSED(_c);
+    Q_UNUSED(_a);
 }
 
 QT_INIT_METAOBJECT const QMetaObject ads::CDockOverlay::staticMetaObject = { {
@@ -148,7 +148,7 @@ void ads::CDockOverlayCross::qt_static_metacall(QObject *_o, QMetaObject::Call _
 #ifndef QT_NO_PROPERTIES
     if (_c == QMetaObject::ReadProperty) {
         auto *_t = static_cast<CDockOverlayCross *>(_o);
-        (void)_t;
+        Q_UNUSED(_t)
         void *_v = _a[0];
         switch (_id) {
         case 0: *reinterpret_cast< QString*>(_v) = _t->iconColors(); break;
@@ -161,7 +161,7 @@ void ads::CDockOverlayCross::qt_static_metacall(QObject *_o, QMetaObject::Call _
         }
     } else if (_c == QMetaObject::WriteProperty) {
         auto *_t = static_cast<CDockOverlayCross *>(_o);
-        (void)_t;
+        Q_UNUSED(_t)
         void *_v = _a[0];
         switch (_id) {
         case 0: _t->setIconColors(*reinterpret_cast< QString*>(_v)); break;
@@ -175,10 +175,10 @@ void ads::CDockOverlayCross::qt_static_metacall(QObject *_o, QMetaObject::Call _
     } else if (_c == QMetaObject::ResetProperty) {
     }
 #endif // QT_NO_PROPERTIES
-    (void)_o;
-    (void)_id;
-    (void)_c;
-    (void)_a;
+    Q_UNUSED(_o);
+    Q_UNUSED(_id);
+    Q_UNUSED(_c);
+    Q_UNUSED(_a);
 }
 
 QT_INIT_METAOBJECT const QMetaObject ads::CDockOverlayCross::staticMetaObject = { {
