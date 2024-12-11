@@ -46,7 +46,7 @@ project "Razix"
     kind "SharedLib"
     language "C++"
 
-    -- Razix Engine defines (Global)
+    -- Razix Engine defines (Global
     defines
     {
         --Razix

@@ -275,6 +275,53 @@ namespace Razix {
                 return 0;
             }
 
+            Razix::Gfx::DescriptorType DXToEngineDescriptorType(D3D_SHADER_INPUT_TYPE inputType)
+            {
+                switch (inputType) {
+                    case D3D_SIT_CBUFFER:
+                        return DescriptorType::kUniformBuffer;
+                        break;
+                    //case D3D_SIT_TBUFFER:
+                    //    break;
+                    case D3D_SIT_TEXTURE:
+                        return DescriptorType::kTexture;
+                        break;
+                    case D3D_SIT_SAMPLER:
+                        return DescriptorType::kSampler;
+                        break;
+                    case D3D_SIT_UAV_RWTYPED:
+                        return DescriptorType::kRWTyped;
+                        break;
+                    case D3D_SIT_STRUCTURED:
+                        return DescriptorType::kStructured;
+                        break;
+                    case D3D_SIT_UAV_RWSTRUCTURED:
+                        return DescriptorType::kRWStructured;
+                        break;
+                    case D3D_SIT_BYTEADDRESS:
+                        return DescriptorType::kByteAddress;
+                        break;
+                    case D3D_SIT_UAV_RWBYTEADDRESS:
+                        return DescriptorType::kRWByteAddress;
+                        break;
+                    case D3D_SIT_UAV_APPEND_STRUCTURED:
+                        return DescriptorType::kAppendStructured;
+                        break;
+                    case D3D_SIT_UAV_CONSUME_STRUCTURED:
+                        return DescriptorType::kConsumeStructured;
+                        break;
+                    case D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER:
+                        return DescriptorType::kRWStructuredCounter;
+                        break;
+                    case D3D_SIT_RTACCELERATIONSTRUCTURE:
+                        return DescriptorType::kRTAccelerationStructure;
+                        break;
+                    default:
+                        return DescriptorType::kNone;
+                        break;
+                }
+            }
+
             // Pipeline Info
 
             D3D12_PRIMITIVE_TOPOLOGY_TYPE DrawTypeToDX12(Razix::Gfx::DrawType type)
@@ -354,7 +401,7 @@ namespace Razix {
             }
 
         }    // namespace DX12Utilities
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix
 
 #endif

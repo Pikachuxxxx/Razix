@@ -168,7 +168,7 @@ namespace Razix {
 
                             auto &type = binding_info["type"];
                             if (!type.empty())
-                                bindingInfo.type = std::string(type) == "ImageSamplerCombined" ? DescriptorType::ImageSamplerCombined : DescriptorType::UniformBuffer;
+                                bindingInfo.type = std::string(type) == "ImageSamplerCombined" ? DescriptorType::kImageSamplerCombined : DescriptorType::kUniformBuffer;
 
                             auto &stage = binding_info["stage"];
                             if (!stage.empty())

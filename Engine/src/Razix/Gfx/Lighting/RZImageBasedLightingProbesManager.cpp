@@ -103,9 +103,9 @@ namespace Razix {
                 for (auto& setInfo: setInfos) {
                     // Fill the descriptors with buffers and textures
                     for (auto& descriptor: setInfo.second) {
-                        if (descriptor.bindingInfo.type == Gfx::DescriptorType::ImageSamplerCombined)
+                        if (descriptor.bindingInfo.type == Gfx::DescriptorType::kImageSamplerCombined)
                             descriptor.texture = equirectangularMapHandle;
-                        if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer)
+                        if (descriptor.bindingInfo.type == DescriptorType::kUniformBuffer)
                             descriptor.uniformBuffer = viewProjLayerUBO;
                     }
                     auto set = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Env map conversion set : #" + std::to_string(i)), false);
@@ -259,9 +259,9 @@ namespace Razix {
                 for (auto& setInfo: setInfos) {
                     // Fill the descriptors with buffers and textures
                     for (auto& descriptor: setInfo.second) {
-                        if (descriptor.bindingInfo.type == Gfx::DescriptorType::ImageSamplerCombined)
+                        if (descriptor.bindingInfo.type == Gfx::DescriptorType::kImageSamplerCombined)
                             descriptor.texture = cubeMap;
-                        if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer)
+                        if (descriptor.bindingInfo.type == DescriptorType::kUniformBuffer)
                             descriptor.uniformBuffer = viewProjLayerUBO;
                     }
                     auto set = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Irradiance map conversion set : #" + std::to_string(i)), false);
@@ -404,9 +404,9 @@ namespace Razix {
                 for (auto& setInfo: setInfos) {
                     // Fill the descriptors with buffers and textures
                     for (auto& descriptor: setInfo.second) {
-                        if (descriptor.bindingInfo.type == Gfx::DescriptorType::ImageSamplerCombined)
+                        if (descriptor.bindingInfo.type == Gfx::DescriptorType::kImageSamplerCombined)
                             descriptor.texture = cubeMap;
-                        if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer)
+                        if (descriptor.bindingInfo.type == DescriptorType::kUniformBuffer)
                             descriptor.uniformBuffer = viewProjLayerUBO;
                     }
                     auto set = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Pre Filtered Map conversion set : #" + std::to_string(i)), false);

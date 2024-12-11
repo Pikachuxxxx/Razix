@@ -218,15 +218,35 @@ namespace Razix {
                     RAZIX_CORE_TRACE("[DX12] [Shader Input Bind Desc] \t Space: {0}", shaderInputBindDesc.Space);
                     RAZIX_CORE_TRACE("[DX12] [Shader Input Bind Desc] \t uID: {0}", shaderInputBindDesc.uID);
 
-                    //0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0
+                    RZDescriptor rzDescriptor = {};
+                    u32          heapIdx      = 0;
 
-                    RZDescriptor* rzDescriptor = new RZDescriptor;
-                    u32           setIndex     = 0;
+                    DescriptorBindingInfo bindingInfo = {};
+                    bindingInfo.stage                 = csoSource.first;
+                    bindingInfo.location.binding      = shaderInputBindDesc.BindPoint;
+                    bindingInfo.location.set          = shaderInputBindDesc.Space;
+                    bindingInfo.count                 = shaderInputBindDesc.BindCount;
+                    bindingInfo.type                  = DX12Utilities::DXToEngineDescriptorType(shaderInputBindDesc.Type);
 
-                    auto& descriptors_in_set = m_DescriptorsPerHeap[setIndex];
-                    descriptors_in_set.push_back(std::move(*rzDescriptor));
+                    rzDescriptor.name        = shaderInputBindDesc.Name;
+                    rzDescriptor.typeName    = shaderInputBindDesc.Type;
+                    rzDescriptor.bindingInfo = bindingInfo;
+                    rzDescriptor.size        = 0;
+                    rzDescriptor.offset      = 0;
 
-                    delete rzDescriptor;
+                    // fill the members
+                    //for (sz i = 0; i < ; i++) {
+                    //    RZShaderBufferMemberInfo memberInfo{};
+                    //    memberInfo.fullName = rzDescriptor.name + "." + descriptor.block.members[i].name;
+                    //    memberInfo.name     = descriptor.block.members[i].name;
+                    //    memberInfo.offset   = descriptor.block.members[i].offset;
+                    //    memberInfo.size     = descriptor.block.members[i].size;
+                    //
+                    //    rzDescriptor.uboMembers.push_back(std::move(memberInfo));
+                    //}
+
+                    auto& descriptor_heap = m_DescriptorsPerHeap[heapIdx];
+                    descriptor_heap.push_back(rzDescriptor);
                 }
 
     // Print some debug info

@@ -1,12 +1,8 @@
 #version 450
 /*
- * Razix Engine GLSL Vertex Shader File
- * Vertex shader to render a cascaded depth texture onto a Texture2DArray
+ * Razix Engine HLSL Vertex Shader File
+ * Vertex shader to render a depth texture onto a 2D Texture
  */
- // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_separate_shader_objects.txt Read this for why this extension is enables for all glsl shaders
-#extension GL_ARB_separate_shader_objects : enable
-// This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
-#extension GL_ARB_shading_language_420pack : enable
 // This extension enables ussage og gl_Layer in the Vertex Shader stage itself instead of using GS 
 // also needs VK_EXT_shader_viewport_index_layer device extension enabled and layersCount in VkRenderingInfo
 #extension GL_ARB_shader_viewport_layer_array : enable
@@ -23,9 +19,8 @@ layout(location = 4) in vec3 inTangent;
 // view projection matrix
 layout(set = 0, binding = 0) uniform ViewProjectionSystemUBO
 {
-    mat4 viewProj;
-    int layer;
-} vp_layer;
+    mat4 mat;
+} LightSpaceMatrix;
 layout (push_constant) uniform ModelPushConstantData{
     mat4 worldTransform;
     mat4 previousWorldTransform;
@@ -38,6 +33,5 @@ out gl_PerVertex
 //------------------------------------------------------------------------------
 void main()
 {
-    gl_Layer = vp_layer.layer;
-    gl_Position = vp_layer.viewProj * model_pc_data.worldTransform * vec4(inPosition, 1.0f);
+    gl_Position = LightSpaceMatrix.mat * model_pc_data.worldTransform * vec4(inPosition, 1.0f);
 }

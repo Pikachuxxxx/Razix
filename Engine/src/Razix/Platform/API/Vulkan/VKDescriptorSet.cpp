@@ -13,7 +13,7 @@
 namespace Razix {
     namespace Gfx {
 
-        VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition RZ_DEBUG_NAME_TAG_E_ARG)
+        VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG)
             : m_DescriptorPool(VK_NULL_HANDLE)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -73,10 +73,10 @@ namespace Razix {
             m_ImageInfoPool          = new VkDescriptorImageInfo[MAX_IMAGE_INFOS];
             m_WriteDescriptorSetPool = new VkWriteDescriptorSet[MAX_WRITE_DESCTIPTORS];
 
-            UpdateSet(descriptors, layoutTransition);
+            UpdateSet(descriptors);
         }
 
-        void VKDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition)
+        void VKDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
@@ -86,20 +86,11 @@ namespace Razix {
                 int index      = 0;
 
                 for (auto& descriptor: descriptors) {
-                    if (descriptor.bindingInfo.type == DescriptorType::ImageSamplerCombined) {
+                    if (descriptor.bindingInfo.type == DescriptorType::kImageSamplerCombined) {
                         const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
 
                         if (texturePtr) {
                             VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
-
-#if 0
-                        if (descriptor.texture->getType() == TextureType::Texture_2D) {
-                            auto vkImage = static_cast<VKRenderTexture*>(descriptor.texture);
-                            if (layoutTransition) {
-                                VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-                            }
-                        }
-#endif
 
                             m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                             m_ImageInfoPool[imageIndex].imageView   = des.imageView;

@@ -39,7 +39,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
 
-#define HELLO_TRIANGLE_TEST 1
+#define HELLO_TRIANGLE_TEST 0
 
 namespace Razix {
 
@@ -62,7 +62,7 @@ namespace Razix {
             //-------------------------------
             // [TEST] WAVE INTRINSICE
             //-------------------------------
-            m_WaveInstrinsicsTestPass.addPass(m_FrameGraph, scene, &settings);
+            //m_WaveInstrinsicsTestPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // Vis Buffer Fill Pass
@@ -199,7 +199,6 @@ namespace Razix {
             //-------------------------------
             m_PBRDeferredPass.addPass(m_FrameGraph, scene, &settings);
     #endif
-
 
             //-------------------------------
             // PBR Forward Pass
@@ -421,7 +420,7 @@ namespace Razix {
             m_FrameGraph.compile();
 
             // Dump the Frame Graph for visualization
-            // NOTE: Careful this won't write to the Engire directory this is inside bin and build artifact
+            // NOTE: Careful this won't write to the Engine directory this is inside bin and build artifact
             // FIXME: Find a way to map VFS to OG Engine path pre-copy or idk just umm...be careful I guess
             std::string outPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/FrameGraphs", outPath, true);
@@ -445,11 +444,11 @@ namespace Razix {
                 m_IsFGFilePathDirty = false;
             }
 
-            //if (m_FrameGraphBuildingInProgress)
-            //    return;
+            if (m_FrameGraphBuildingInProgress)
+                return;
 
             // Update calls passes
-            //m_CSMPass.updateCascades(scene);
+            m_CSMPass.updateCascades(scene);
 
             // Main Frame Graph World Rendering Loop
             {
@@ -947,7 +946,7 @@ namespace Razix {
                     if (!Gfx::RHI::Get().getFrameDataSet()) {
                         RZDescriptor descriptor{};
                         descriptor.bindingInfo.location.binding = 0;
-                        descriptor.bindingInfo.type             = DescriptorType::UniformBuffer;
+                        descriptor.bindingInfo.type             = DescriptorType::kUniformBuffer;
                         descriptor.bindingInfo.stage            = ShaderStage::Vertex;    // Add support for Pixel shader stage as well
                         descriptor.uniformBuffer                = frameDataBufferHandle;
                         auto m_FrameDataSet                     = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set Global"));
@@ -1006,7 +1005,7 @@ namespace Razix {
                     if (!Gfx::RHI::Get().getSceneLightsDataSet()) {
                         RZDescriptor lightsData_descriptor{};
                         lightsData_descriptor.bindingInfo.location.binding = 0;
-                        lightsData_descriptor.bindingInfo.type             = DescriptorType::UniformBuffer;
+                        lightsData_descriptor.bindingInfo.type             = DescriptorType::kUniformBuffer;
                         lightsData_descriptor.bindingInfo.stage            = ShaderStage::Pixel;
                         lightsData_descriptor.uniformBuffer                = lightsDataBuffer;
 

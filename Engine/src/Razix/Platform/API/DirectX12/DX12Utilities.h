@@ -119,6 +119,9 @@ namespace Razix {
             u32         GetFormatSize(DXGI_FORMAT format);
             u32         PushBufferLayout(DXGI_FORMAT format, const std::string& name, RZBufferLayout& layout);
 
+            // Descriptor
+            DescriptorType DXToEngineDescriptorType(D3D_SHADER_INPUT_TYPE inputType);
+
             // PipelineInfo
             /**
              * Converts the draw type that is used to draw geometry into DX12 enum value
@@ -139,7 +142,7 @@ namespace Razix {
             // I3DXXXX* ShaderStageToDX12(Razix::Gfx::ShaderStage stage);
 
         }    // namespace DX12Utilities
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix
 
 #endif

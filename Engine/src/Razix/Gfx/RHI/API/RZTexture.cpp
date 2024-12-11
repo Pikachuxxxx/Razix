@@ -112,7 +112,7 @@ namespace Razix {
             descriptor.bindingInfo.location.binding = 0;
             descriptor.bindingInfo.count            = 1;
             descriptor.bindingInfo.stage            = ShaderStage::Pixel;
-            descriptor.bindingInfo.type             = DescriptorType::ImageSamplerCombined;
+            descriptor.bindingInfo.type             = DescriptorType::kImageSamplerCombined;
             descriptor.texture                      = this->m_Handle;
 
             if (!m_DescriptorSet)

@@ -349,7 +349,7 @@ namespace Razix {
                     pc.bindingInfo.location.set     = 0;    // Doesn't make sense for PushConstants
                     pc.bindingInfo.stage            = spvSource.first;
                     pc.bindingInfo.count            = 1;
-                    pc.bindingInfo.type             = DescriptorType::UniformBuffer;
+                    pc.bindingInfo.type             = DescriptorType::kUniformBuffer;
                     for (sz i = 0; i < pushConstant->member_count; i++) {
                         auto                     member = pushConstant->members[i];
                         RZShaderBufferMemberInfo mem{};

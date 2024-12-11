@@ -434,7 +434,7 @@ namespace Razix {
                 VkWriteDescriptorSet writeSet{};
 
                 for (auto& descriptor: descriptors) {
-                    if (descriptor.bindingInfo.type == DescriptorType::ImageSamplerCombined) {
+                    if (descriptor.bindingInfo.type == DescriptorType::kImageSamplerCombined) {
                         const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
 
                         VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());

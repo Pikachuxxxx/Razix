@@ -1,6 +1,6 @@
 {
     "Razix Scene": {
-        "UUID": "\u0007’&J¨Y‡¨mwwwmwß™",
+        "UUID": "ÜnS∏\ft±™mwwwmwß™",
         "SceneName": "default Scene",
         "Total Entities": 1
     },
@@ -9,7 +9,7 @@
     "value2": 1,
     "value3": 0,
     "value4": {
-        "UUID": "x˘;˚Å€N˜ªôfp+W_Ñ"
+        "UUID": "d\n\u001A∫@µD!Æ6%f0Ïÿí"
     },
     "value5": 1,
     "value6": 0,
@@ -104,7 +104,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.894892692565918,
+            "AspectRatio": 1.7777777910232545,
             "BgColor": {
                 "value0": 0.0,
                 "value1": 0.0,

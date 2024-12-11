@@ -58,7 +58,6 @@ namespace Razix {
     //{
     //    Razix::RZUUID uuid1;
     //    std::string   prettyStr = uuid1.prettyString();
-
     //    Razix::RZUUID uuid2(prettyStr);
     //    EXPECT_EQ(uuid1, uuid2) << "String constructor failed to recreate the UUID from its string representation.";
     //}
@@ -69,7 +68,6 @@ namespace Razix {
     //{
     //    Razix::RZUUID uuid1;
     //    std::string   prettyStr = uuid1.prettyString();
-
     //    Razix::RZUUID uuid2 = Razix::RZUUID::FromPrettyStrFactory(prettyStr);
     //    EXPECT_EQ(uuid1, uuid2) << "FromPrettyStrFactory failed to recreate the UUID from its pretty string representation.";
     //}

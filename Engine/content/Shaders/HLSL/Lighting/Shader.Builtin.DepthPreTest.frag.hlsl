@@ -1,7 +1,7 @@
 #version 450
 /*
  * Razix Engine GLSL Vertex Shader File
- * Fragment shader to render a cascaded depth texture onto a Texture2DArray
+ * Fragment shader to render a depth texture onto a Texture2D
  */
  // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_separate_shader_objects.txt Read this for why this extension is enables for all glsl shaders
 #extension GL_ARB_separate_shader_objects : enable

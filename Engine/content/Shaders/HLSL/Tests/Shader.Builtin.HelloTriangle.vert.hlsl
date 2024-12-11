@@ -1,6 +1,6 @@
 /*
- * Razix Engine GLSL Vertex Shader File
- * Default Vertex Shader that can be used for rendering basic geometry with vertex colors and use a texture as well
+ * Razix Engine HLSL Vertex Shader File
+ * Vertex Shader that can be used for rendering a Hello Triangle for testing
  */
 //------------------------------------------------------------------------------
 #include "../../ShaderCommon/ShaderInclude.Builtin.ShaderLangCommon.h"
@@ -9,17 +9,14 @@
 //------------------------------------------------------------------------------
 struct VSOut
 {
-    float4 Position   : SV_POSITION;
-    float4 Color      : COLOR0;
+    float4 Position : SV_POSITION;
+    float4 Color    : COLOR0;
+    float2 UV       : TEXCOORD0;
 };
 //------------------------------------------------------------------------------
 VSOut VS_MAIN(uint VertexIndex : SV_VertexID)
 {
     VSOut vso;
-
-    // Screen Quad 
-    //vso.UV = float2((VertexIndex << 1) & 2, VertexIndex & 2);
-	//vso.Position = float4(vso.UV * 2.0f - 1.0f, 0.0f, 1.0f);
 
     // Define the triangle vertices in normalized device coordinates (NDC)
      float2 positions[3] = {
@@ -35,10 +32,19 @@ VSOut VS_MAIN(uint VertexIndex : SV_VertexID)
         float4(0.0f, 0.0f, 1.0f, 1.0f)  // Blue
     };
 
+    // https://learn.microsoft.com/en-us/windows/win32/direct3d9/texture-coordinates
+    // top-left     : (0, 0)
+    // bottom-right : (1, 1)
+    float2 uv[3] = {
+        float2(0.0f, 1.0f),
+        float2(0.5f, 0.0f),
+        float2(1.0f, 1.0f) 
+    };
+
+
     vso.Position = float4(positions[VertexIndex], 0.0f, 1.0f);
     vso.Color = colors[VertexIndex];
-    // Not using as this is getting optimized out in PS
-    //vso.UV = positions[VertexIndex] * 0.5f + 0.5f;
+    vso.UV = uv[VertexIndex];
 
     return vso;
 }

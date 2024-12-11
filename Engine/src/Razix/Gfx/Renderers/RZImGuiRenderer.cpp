@@ -128,7 +128,7 @@ namespace Razix {
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == Gfx::DescriptorType::ImageSamplerCombined)
+                    if (descriptor.bindingInfo.type == Gfx::DescriptorType::kImageSamplerCombined)
                         descriptor.texture = m_FontAtlasTexture;
                 }
                 m_FontAtlasDescriptorSet = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGui Font Atlas Desc Set"));

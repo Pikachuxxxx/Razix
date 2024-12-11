@@ -832,10 +832,10 @@ namespace Razix {
             VkDescriptorType DescriptorTypeToVK(Razix::Gfx::DescriptorType descriptorType)
             {
                 switch (descriptorType) {
-                    case Razix::Gfx::DescriptorType::UniformBuffer:
+                    case Razix::Gfx::DescriptorType::kUniformBuffer:
                         return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                         break;
-                    case Razix::Gfx::DescriptorType::ImageSamplerCombined:
+                    case Razix::Gfx::DescriptorType::kImageSamplerCombined:
                         return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                         break;
                     default:
@@ -946,10 +946,10 @@ namespace Razix {
 
                 switch (type) {
                     case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                        return DescriptorType::ImageSamplerCombined;
+                        return DescriptorType::kImageSamplerCombined;
                         break;
                     case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                        return DescriptorType::UniformBuffer;
+                        return DescriptorType::kUniformBuffer;
                         break;
                     default:
                         return DescriptorType::kNone;
@@ -957,7 +957,7 @@ namespace Razix {
                 }
 
                 // FIXME: Make this return something like NONE and cause a ASSERT_ERROR
-                return DescriptorType::UniformBuffer;
+                return DescriptorType::kUniformBuffer;
             }
 
             //-----------------------------------------------------------------------------------
