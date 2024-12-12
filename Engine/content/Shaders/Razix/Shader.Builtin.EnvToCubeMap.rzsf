@@ -1,18 +1,17 @@
 /*
  * Razix Shader File (Builtin shader)
  * Shader.Builtin.EnvToCubeMap.rzsf : Converts a equirectangular environment map to Cubemap
- * Copyright Razix Engine 2024by Pikachuxxxx (Phani Srikar)
+ * Copyright Razix Engine 2024 by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.EnvToCubeMap.vert.spv
-    #endif
+    #include Shader.Builtin.EnvToCubeMap.vert
 #end
 
-// Including the default fragment shader
+#shader geometry
+    #include Shader.Builtin.EnvToCubeMap.geom
+#end
+
 #shader fragment
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.EnvToCubeMap.frag.spv
-    #endif
+    #include Shader.Builtin.EnvToCubeMap.frag
 #end

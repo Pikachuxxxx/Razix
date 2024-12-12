@@ -237,7 +237,7 @@ namespace Razix {
 
             RZPushConstant model{};    //RZResourceManager::Get().getShaderResource(m_OverrideGlobalRHIShader)->getPushConstants()[0];
             model.name        = "ImGui model mat";
-            model.shaderStage = ShaderStage::Vertex;
+            model.shaderStage = ShaderStage::kVertex;
             model.size        = sizeof(PushConstBlock);
             model.data        = &pushConstBlock;
 

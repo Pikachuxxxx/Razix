@@ -170,7 +170,7 @@ namespace Razix {
 
                 //-----------------------------
                 Gfx::RZPushConstant modelMatrixPC;
-                modelMatrixPC.shaderStage = Gfx::ShaderStage::Vertex;
+                modelMatrixPC.shaderStage = Gfx::ShaderStage::kVertex;
                 modelMatrixPC.offset      = 0;
                 struct PCD
                 {
@@ -221,7 +221,7 @@ namespace Razix {
 
                 //-----------------------------
                 Gfx::RZPushConstant modelMatrixPC;
-                modelMatrixPC.shaderStage = Gfx::ShaderStage::Vertex;
+                modelMatrixPC.shaderStage = Gfx::ShaderStage::kVertex;
                 modelMatrixPC.offset      = 0;
 
                 struct PCD

@@ -846,32 +846,22 @@ namespace Razix {
 
             VkShaderStageFlagBits ShaderStageToVK(Razix::Gfx::ShaderStage stage)
             {
-                switch (stage) {
-                    case Razix::Gfx::ShaderStage::NONE:
-                        return VK_SHADER_STAGE_ALL;
-                        break;
-                    case Razix::Gfx::ShaderStage::Vertex:
-                        return VK_SHADER_STAGE_VERTEX_BIT;
-                        break;
-                    case Razix::Gfx::ShaderStage::Pixel:
-                        return VK_SHADER_STAGE_FRAGMENT_BIT;
-                        break;
-                    case Razix::Gfx::ShaderStage::Geometry:
-                        return VK_SHADER_STAGE_GEOMETRY_BIT;
-                        break;
-                    case Razix::Gfx::ShaderStage::TCS:
-                        return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-                        break;
-                    case Razix::Gfx::ShaderStage::TES:
-                        return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-                        break;
-                    case Razix::Gfx::ShaderStage::Compute:
-                        return VK_SHADER_STAGE_COMPUTE_BIT;
-                        break;
-                    default:
-                        return VK_SHADER_STAGE_ALL_GRAPHICS;
-                        break;
-                }
+                int result = 0;
+
+                if ((stage & Razix::Gfx::ShaderStage::kVertex) == Razix::Gfx::ShaderStage::kVertex)
+                    result |= VK_SHADER_STAGE_VERTEX_BIT;
+                if ((stage & Razix::Gfx::ShaderStage::kPixel) == Razix::Gfx::ShaderStage::kPixel)
+                    result |= VK_SHADER_STAGE_FRAGMENT_BIT;
+                if ((stage & Razix::Gfx::ShaderStage::kGeometry) == Razix::Gfx::ShaderStage::kGeometry)
+                    result |= VK_SHADER_STAGE_GEOMETRY_BIT;
+                if ((stage & Razix::Gfx::ShaderStage::kTesselationControl) == Razix::Gfx::ShaderStage::kTesselationControl)
+                    result |= VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+                if ((stage & Razix::Gfx::ShaderStage::kTesselationEvaluation) == Razix::Gfx::ShaderStage::kTesselationEvaluation)
+                    result |= VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+                if ((stage & Razix::Gfx::ShaderStage::kCompute) == Razix::Gfx::ShaderStage::kCompute)
+                    result |= VK_SHADER_STAGE_COMPUTE_BIT;
+
+                return (VkShaderStageFlagBits) result;
             }
 
             u32 GetStrideFromVulkanFormat(VkFormat format)
@@ -1018,5 +1008,5 @@ namespace Razix {
                     return VK_ERROR_EXTENSION_NOT_PRESENT;
             }
         }    // namespace VKUtilities
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

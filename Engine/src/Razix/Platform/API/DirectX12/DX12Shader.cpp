@@ -167,7 +167,7 @@ namespace Razix {
                 //--------------------------
                 // Get the vertex input desc
                 //--------------------------
-                if (csoSource.first == ShaderStage::Vertex) {
+                if (csoSource.first == ShaderStage::kVertex) {
                     m_VertexInputStride = 0;
 
                     // TODO: Fill D3D12_INPUT_ELEMENT_DESC

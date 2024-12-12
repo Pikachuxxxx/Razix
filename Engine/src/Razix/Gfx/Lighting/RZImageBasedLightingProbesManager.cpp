@@ -1,3 +1,4 @@
+
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -64,8 +65,7 @@ namespace Razix {
             equiMapTextureDesc.wrapping   = Wrapping::CLAMP_TO_EDGE;
             equiMapTextureDesc.filtering  = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
             equiMapTextureDesc.enableMips = false;
-            ;
-            equiMapTextureDesc.dataSize = sizeof(float);
+            equiMapTextureDesc.dataSize   = sizeof(float);
 
             RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture(equiMapTextureDesc);
 
@@ -126,8 +126,6 @@ namespace Razix {
             pipelineInfo.colorAttachmentFormats = {Gfx::TextureFormat::RGBA32F};
             RZPipelineHandle envMapPipeline     = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
-
             RZTextureDesc cubeMapTextureDesc{};
             cubeMapTextureDesc.name       = "Texture.Imported.HDR.EnvMap",
             cubeMapTextureDesc.width      = dim;
@@ -166,23 +164,24 @@ namespace Razix {
                 //RZ_GET_RAW_RESOURCE(VertexBuffer, cubeMesh->getVertexBufferHandle())->Bind(cmdBuffer);
                 //RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->Bind(cmdBuffer);
 
-                cubeMesh->bindVBsAndIB(cmdBuffer);
+                //cubeMesh->bindVBsAndIB(cmdBuffer);
 
                 // Bind the Bindless Env map texture 2d
 
-                u32            idx = equirectangularMapHandle.getIndex();
-                RZPushConstant pc;
-                pc.size        = sizeof(u32);
-                pc.shaderStage = ShaderStage::Pixel;
-                pc.data        = &idx;
+                //u32            idx = equirectangularMapHandle.getIndex();
+                //RZPushConstant pc;
+                //pc.size        = sizeof(u32);
+                //pc.shaderStage = ShaderStage::Pixel;
+                //pc.data        = &idx;
 
                 //RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
 
-                for (u32 i = 0; i < layerCount; i++) {
-                    RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
-                    //RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
-                    RHI::DrawIndexed(cmdBuffer, RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->getCount(), 1, 0, 0, 0);
-                }
+                //for (u32 i = 0; i < layerCount; i++) {
+                //    //RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
+                //    //RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
+                //    //RHI::DrawIndexed(cmdBuffer, RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->getCount(), 1, 0, 0, 0);
+                //}
+                RHI::Draw(cmdBuffer, 4);
 
                 RHI::EndRendering(cmdBuffer);
                 RAZIX_MARK_END()
@@ -194,12 +193,12 @@ namespace Razix {
             //RZTexture* envCubeMap = RZResourceManager::Get().getPool<RZTexture>().get(cubeMapHandle);
             //envCubeMap->GenerateMips();
 
-            for (sz i = 0; i < envMapSets.size(); i++) {
-                envMapSets[i]->Destroy();
-                RZResourceManager::Get().destroyUniformBuffer(UBOs[i]);
-            }
+            //for (sz i = 0; i < envMapSets.size(); i++) {
+            //    envMapSets[i]->Destroy();
+            //    RZResourceManager::Get().destroyUniformBuffer(UBOs[i]);
+            //}
             RZResourceManager::Get().destroyPipeline(envMapPipeline);
-            cubeMesh->Destroy();
+            //cubeMesh->Destroy();
 
             return cubeMapHandle;
         }
@@ -471,7 +470,7 @@ namespace Razix {
                         } data{};
                         data.roughness = roughness;
                         RZPushConstant pc;
-                        pc.shaderStage = ShaderStage::Pixel;
+                        pc.shaderStage = ShaderStage::kPixel;
                         pc.data        = &data;
                         pc.size        = sizeof(PCData);
 

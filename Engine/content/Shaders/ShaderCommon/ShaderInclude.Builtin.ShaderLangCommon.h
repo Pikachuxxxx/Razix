@@ -1,6 +1,9 @@
 /**
  * ShaderLangCommon - provides common interface to support multiple shader languages cross-compilation from HLSL source
  */
+// https://anteru.net/blog/2016/mapping-between-HLSL-and-GLSL/
+
+ //   [[vk::builtin("PointSize")]]    // https://github.com/KhronosGroup/glslang/issues/1188
 
 #ifdef __GLSL__    // GLSL - shading language for Vulkan (SPIRV) & OpenGL.
 

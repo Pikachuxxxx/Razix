@@ -23,14 +23,20 @@ namespace Razix {
             loadBuiltInShader(ShaderBuiltin::HelloTextureTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTextureTest.rzsf");
             loadBuiltInShader(ShaderBuiltin::HelloTriangleTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTriangleTest.rzsf");
             loadBuiltInShader(ShaderBuiltin::WaveIntrinsicsTest, "//RazixContent/Shaders/Razix/Shader.Builtin.WaveIntrinsicsTest.rzsf");
+            loadBuiltInShader(ShaderBuiltin::GSCubeTest, "//RazixContent/Shaders/Razix/Shader.Builtin.GSCubeTest.rzsf");
             //
-            //// TESTING VIS BUFFER GEN SHADER
+            // TESTING VIS BUFFER GEN SHADER
             //loadBuiltInShader(ShaderBuiltin::VisibilityBufferFill, "//RazixContent/Shaders/Razix/Shader.Builtin.VisibilityBufferFill.rzsf");
-
-            return;
 
             // TODO: Load shader caches and partition them into RZShader which is a derivative of RZAsset. so this also a discussion for another day
             // Pre-load some shaders
+            //-------------------------------------------------------------------
+            // Utility Shaders (Graphics + Compute)
+            // Environment to CubeMap
+            loadBuiltInShader(ShaderBuiltin::EnvToCubemap, "//RazixContent/Shaders/Razix/Shader.Builtin.EnvToCubeMap.rzsf");
+            return;
+            loadBuiltInShader(ShaderBuiltin::GenerateIrradianceMap, "//RazixContent/Shaders/Razix/Shader.Builtin.GenerateIrradianceMap.rzsf");
+            loadBuiltInShader(ShaderBuiltin::GeneratePreFilteredMap, "//RazixContent/Shaders/Razix/Shader.Builtin.GeneratePreFilteredMap.rzsf");
             //-------------------------------------------------------------------
             // Basic shaders
             //loadBuiltInShader(ShaderBuiltin::Default, "//RazixContent/Shaders/Razix/Shader.Builtin.Default.rzsf");
@@ -45,7 +51,7 @@ namespace Razix {
             loadBuiltInShader(ShaderBuiltin::Composition, "//RazixContent/Shaders/Razix/Shader.Builtin.Composition.rzsf");
             //-------------------------------------------------------------------
             // Rendering
-            //loadBuiltInShader(ShaderBuiltin::VisibilityBufferFill, "//RazixContent/Shaders/Razix/Shader.Builtin.VisibilityBufferFill.rzsf");
+            loadBuiltInShader(ShaderBuiltin::VisibilityBufferFill, "//RazixContent/Shaders/Razix/Shader.Builtin.VisibilityBufferFill.rzsf");
             //-------------------------------------------------------------------
             // Lighting
             loadBuiltInShader(ShaderBuiltin::DepthPreTest, "//RazixContent/Shaders/Razix/Shader.Builtin.DepthPreTest.rzsf");
@@ -63,12 +69,6 @@ namespace Razix {
             //loadBuiltInShader(ShaderBuiltin::TAAResolve, "//RazixContent/Shaders/Razix/Shader.Builtin.TAAResolve.rzsf");
             loadBuiltInShader(ShaderBuiltin::FXAA, "//RazixContent/Shaders/Razix/Shader.Builtin.FXAA.rzsf");
             loadBuiltInShader(ShaderBuiltin::Tonemap, "//RazixContent/Shaders/Razix/Shader.Builtin.Tonemap.rzsf");
-            //-------------------------------------------------------------------
-            // Utility Shaders (Graphics + Compute)
-            // Env to CubeMap
-            loadBuiltInShader(ShaderBuiltin::EnvToCubemap, "//RazixContent/Shaders/Razix/Shader.Builtin.EnvToCubeMap.rzsf");
-            loadBuiltInShader(ShaderBuiltin::GenerateIrradianceMap, "//RazixContent/Shaders/Razix/Shader.Builtin.GenerateIrradianceMap.rzsf");
-            loadBuiltInShader(ShaderBuiltin::GeneratePreFilteredMap, "//RazixContent/Shaders/Razix/Shader.Builtin.GeneratePreFilteredMap.rzsf");
             //------------------------------------------------------------------
             // Debug Shaders
             loadBuiltInShader(ShaderBuiltin::DebugPoint, "//RazixContent/Shaders/Razix/Shader.Builtin.DebugPoint.rzsf");
@@ -77,7 +77,7 @@ namespace Razix {
             //loadBuiltInShader(ShaderBuiltin::Sprite, "//RazixContent/Shaders/Razix/Shader.Builtin.Sprite.rzsf");
             //loadBuiltInShader(ShaderBuiltin::SpriteTextured, "//RazixContent/Shaders/Razix/Shader.Builtin.SpriteTextured.rzsf");
             //-------------------------------------------------------------------
-            // Utility Shaders aka Math
+            // Math
             //-------------------------------------------------------------------
         }
 

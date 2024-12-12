@@ -69,7 +69,7 @@ namespace Razix {
 
             // Break the shader into lines
             std::vector<std::string>           lines = Razix::Utilities::GetLines(rzsfSource);
-            ShaderStage                        stage = ShaderStage::NONE;
+            ShaderStage                        stage = ShaderStage::kNone;
             std::map<ShaderStage, std::string> shaders;
 
             for (u32 i = 0; i < lines.size(); i++) {
@@ -78,15 +78,15 @@ namespace Razix {
 
                 if (Razix::Utilities::StartsWith(str, "#shader")) {
                     if (Razix::Utilities::StringContains(str, "vertex")) {
-                        stage                                           = ShaderStage::Vertex;
+                        stage                                           = ShaderStage::kVertex;
                         std::map<ShaderStage, std::string>::iterator it = shaders.begin();
                         shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));
                     } else if (Razix::Utilities::StringContains(str, "geometry")) {
-                        stage                                           = ShaderStage::Geometry;
+                        stage                                           = ShaderStage::kGeometry;
                         std::map<ShaderStage, std::string>::iterator it = shaders.begin();
                         shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));
                     } else if (Razix::Utilities::StringContains(str, "fragment")) {
-                        stage                                           = ShaderStage::Pixel;
+                        stage                                           = ShaderStage::kPixel;
                         std::map<ShaderStage, std::string>::iterator it = shaders.begin();
                         shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));
                     }

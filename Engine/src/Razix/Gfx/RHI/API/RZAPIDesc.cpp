@@ -337,13 +337,13 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         static std::unordered_map<std::string, Razix::Gfx::ShaderStage> ShaderStageStringMap = {
-            {"NONE", Razix::Gfx::ShaderStage::NONE},
-            {"VERTEX", Razix::Gfx::ShaderStage::Vertex},
-            {"PIXEL", Razix::Gfx::ShaderStage::Pixel},
-            {"COMPUTE", Razix::Gfx::ShaderStage::Compute},
-            {"GEOMETRY", Razix::Gfx::ShaderStage::Geometry},
-            {"TCS", Razix::Gfx::ShaderStage::TCS},
-            {"TES", Razix::Gfx::ShaderStage::TES}};
+            {"NONE", Razix::Gfx::ShaderStage::kNone},
+            {"VERTEX", Razix::Gfx::ShaderStage::kVertex},
+            {"PIXEL", Razix::Gfx::ShaderStage::kPixel},
+            {"COMPUTE", Razix::Gfx::ShaderStage::kCompute},
+            {"GEOMETRY", Razix::Gfx::ShaderStage::kGeometry},
+            {"TCS", Razix::Gfx::ShaderStage::kTesselationControl},
+            {"TES", Razix::Gfx::ShaderStage::kTesselationEvaluation}};
 
         Razix::Gfx::ShaderStage StringToShaderStage(const std::string& str)
         {

@@ -16,6 +16,7 @@ namespace Razix {
             //------------------------------
             // TEST PASSES
             HelloTriangleTest,     //Test shaders
+            GSCubeTest,            //Test shaders
             HelloTextureTest,      //Test shaders
             WaveIntrinsicsTest,    //Test shaders
             //------------------------------

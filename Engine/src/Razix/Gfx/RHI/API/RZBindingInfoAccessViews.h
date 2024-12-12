@@ -22,7 +22,7 @@ namespace Razix {
          * We encode them into 32 bytes before we pass them off to framegraph as flags
          */
 
-        enum class ShaderStage;
+        enum ShaderStage;
 
         /* What type of data does the descriptor set member represent */
         enum class DescriptorType : u32

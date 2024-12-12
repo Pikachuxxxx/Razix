@@ -57,19 +57,29 @@ namespace Razix {
             //-------------------------------
             // [TEST] HELLO TRIANGLE
             //-------------------------------
-            m_HelloTriangleTestPass.addPass(m_FrameGraph, scene, &settings);
+            //m_HelloTriangleTestPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // [TEST] WAVE INTRINSICE
             //-------------------------------
             //m_WaveInstrinsicsTestPass.addPass(m_FrameGraph, scene, &settings);
 
+            // These are system level code passes so always enabled
+            uploadFrameData(scene, settings);
+            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
+
+            //-------------------------------
+            // [TEST] GS CUBE
+            //-------------------------------
+            m_GSCubeTestPass.addPass(m_FrameGraph, scene, &settings);
+
             //-------------------------------
             // Vis Buffer Fill Pass
             //-------------------------------
             //m_VisBufferFillPass.addPass(m_FrameGraph, scene, &settings);
-
+            return;
 #else
+
             m_FrameGraphBuildingInProgress = true;
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
@@ -107,11 +117,11 @@ namespace Razix {
 
             // Load the Skybox and Global Light Probes
             // FIXME: This is hard coded make this a user land material
-            m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/sunset.hdr");
-            m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
-            m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
+            m_GlobalLightProbes.skybox = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/sunset.hdr");
+            //m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
+            //m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph
-            importGlobalLightProbes(m_GlobalLightProbes);
+            //importGlobalLightProbes(m_GlobalLightProbes);
 
             //-----------------------------------------------------------------------------------
             // Misc Variables
@@ -138,7 +148,6 @@ namespace Razix {
             m_SceneAABB = {glm::vec3(-76.83, -5.05, -47.31), glm::vec3(71.99, 57.17, 44.21)};
             const Maths::RZGrid sceneGrid(m_SceneAABB);
 
-            // These are system level code passes so always enabled
             uploadFrameData(scene, settings);
             uploadLightsData(scene, settings);
 
@@ -444,8 +453,8 @@ namespace Razix {
                 m_IsFGFilePathDirty = false;
             }
 
-            if (m_FrameGraphBuildingInProgress)
-                return;
+            //if (m_FrameGraphBuildingInProgress)
+            //    return;
 
             // Update calls passes
             //m_CSMPass.updateCascades(scene);
@@ -947,7 +956,7 @@ namespace Razix {
                         RZDescriptor descriptor{};
                         descriptor.bindingInfo.location.binding = 0;
                         descriptor.bindingInfo.type             = DescriptorType::kUniformBuffer;
-                        descriptor.bindingInfo.stage            = ShaderStage::Vertex;    // Add support for Pixel shader stage as well
+                        descriptor.bindingInfo.stage            = ShaderStage(ShaderStage::kGeometry);    // Add support for Pixel shader stage as well
                         descriptor.uniformBuffer                = frameDataBufferHandle;
                         auto m_FrameDataSet                     = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set Global"));
                         Gfx::RHI::Get().setFrameDataSet(m_FrameDataSet);
@@ -1006,7 +1015,7 @@ namespace Razix {
                         RZDescriptor lightsData_descriptor{};
                         lightsData_descriptor.bindingInfo.location.binding = 0;
                         lightsData_descriptor.bindingInfo.type             = DescriptorType::kUniformBuffer;
-                        lightsData_descriptor.bindingInfo.stage            = ShaderStage::Pixel;
+                        lightsData_descriptor.bindingInfo.stage            = ShaderStage::kPixel;
                         lightsData_descriptor.uniformBuffer                = lightsDataBuffer;
 
                         auto m_SceneLightsDataDescriptorSet = RZDescriptorSet::Create({lightsData_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Scene Lights Set Global"));

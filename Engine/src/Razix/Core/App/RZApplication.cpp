@@ -245,9 +245,8 @@ namespace Razix {
 
     bool RZApplication::OnKeyPress(RZKeyPressedEvent& e)
     {
-        RAZIX_CORE_INFO("Keypress event {0}", e.ToString());
-#if 0
- auto ctx = ImGui::GetCurrentContext();
+#if 1
+        auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                 = ImGui::GetIO();
             io.KeysDown[e.GetKeyCode()] = true;
@@ -258,8 +257,8 @@ namespace Razix {
 
     bool RZApplication::OnKeyRelease(RZKeyReleasedEvent& e)
     {
-#if 0
- auto ctx = ImGui::GetCurrentContext();
+#if 1
+        auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                 = ImGui::GetIO();
             io.KeysDown[e.GetKeyCode()] = false;
@@ -374,7 +373,7 @@ namespace Razix {
         }
 
         // Update the Engine systems
-        //Update(m_Timestep);
+        Update(m_Timestep);
         m_Updates++;
 
         // Render the Graphics

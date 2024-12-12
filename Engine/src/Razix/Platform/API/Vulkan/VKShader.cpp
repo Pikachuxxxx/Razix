@@ -28,10 +28,10 @@ namespace Razix {
     namespace Gfx {
 
         std::unordered_map<ShaderStage, const char*> ShaderStageEntryPointNameMap = {
-            {ShaderStage::Vertex, "VS_MAIN"},
-            {ShaderStage::Pixel, "PS_MAIN"},
-            {ShaderStage::Compute, "CS_MAIN"},
-            {ShaderStage::Geometry, "GS_MAIN"}};
+            {ShaderStage::kVertex, "VS_MAIN"},
+            {ShaderStage::kPixel, "PS_MAIN"},
+            {ShaderStage::kCompute, "CS_MAIN"},
+            {ShaderStage::kGeometry, "GS_MAIN"}};
 
         // TODO: Move these to VKUtilites
 
@@ -172,7 +172,7 @@ namespace Razix {
                 //result = spvReflectEnumerateInputVariables(&module, &var_count, input_vars);
 
                 // Vertex Input attributes
-                if (spvSource.first == ShaderStage::Vertex) {
+                if (spvSource.first == ShaderStage::kVertex) {
                     m_VertexInputStride = 0;
 
                     //std::cout << "---------------------------------------------" << std::endl;

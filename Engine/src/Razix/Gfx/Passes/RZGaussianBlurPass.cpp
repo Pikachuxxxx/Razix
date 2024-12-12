@@ -138,7 +138,7 @@ namespace Razix {
                     RZPushConstant pc;
                     pc.size        = sizeof(GaussianBlurPCData);
                     pc.data        = &pcData;
-                    pc.shaderStage = ShaderStage::Pixel;
+                    pc.shaderStage = ShaderStage::kPixel;
                     RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), pc);
 
                     scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);

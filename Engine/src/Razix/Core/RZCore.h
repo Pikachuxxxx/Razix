@@ -353,7 +353,6 @@ public:                                                  \
 #define RAZIX_TYPE_HAS_SUB_TYPE_V(T, U) \
     has_##U##_v<T>
 
-
 #define RAZIX_CHECK_IF_TYPE_IS_DEFINED(T, msg) static_assert(std::is_class_v<T>(), msg)
 
 /**
@@ -382,15 +381,40 @@ public:                                                  \
  * Bitwise OR and AND for enum class type
  */
 #define RAZIX_ENUM_CLASS_BITWISE_COMPATIBLE(E)                                      \
-    E operator|(E a, E b)                                                           \
+    static E operator|(E a, E b)                                                    \
     {                                                                               \
         return static_cast<E>(static_cast<unsigned>(a) | static_cast<unsigned>(b)); \
     }                                                                               \
                                                                                     \
-    E operator&(E a, E b)                                                           \
+    static E operator&(E a, E b)                                                    \
     {                                                                               \
         return static_cast<E>(static_cast<unsigned>(a) & static_cast<unsigned>(b)); \
+    }                                                                               \
+                                                                                    \
+    static bool operator!(E a)                                                      \
+    {                                                                               \
+        return static_cast<unsigned>(a) == 0;                                       \
+    }                                                                               \
+                                                                                    \
+    static bool operator&&(E a, E b)                                                \
+    {                                                                               \
+        return static_cast<unsigned>(a) && static_cast<unsigned>(b);                \
+    }                                                                               \
+                                                                                    \
+    static bool operator||(E a, E b)                                                \
+    {                                                                               \
+        return static_cast<unsigned>(a) || static_cast<unsigned>(b);                \
     }
+
+//bool operator|(E a, E b)                                                        \
+    //{                                                                               \
+    //    return static_cast<unsigned>(a) | static_cast<unsigned>(b);                 \
+    //}                                                                               \
+    //                                                                                \
+    //bool operator&(E a, E b)                                                        \
+    //{                                                                               \
+    //    return static_cast<unsigned>(a) & static_cast<unsigned>(b);                 \
+    //}
 
 // Warning push/pop as per compiler convention
 // MSVC-specific: __pragma(warning(push)) etc.
@@ -423,7 +447,7 @@ public:                                                  \
 /**
  * Memory Related stuff & Alignment Macros
  */
-#define RZ_ALIGN_ARB(n, a) (((size_t) (n) + ((size_t) (a) - 1)) & ~(size_t) ((a) - 1))    // 'a' needs to be a power of 2
+#define RZ_ALIGN_ARB(n, a) (((size_t) (n) + ((size_t) (a) -1)) & ~(size_t) ((a) -1))    // 'a' needs to be a power of 2
 
 #define RZ_ALIGN_64K(n) ((((size_t) (n)) + 0xffff) & ~0xffff)
 
@@ -439,7 +463,7 @@ public:                                                  \
 #define RZ_ALIGN_4(n)   ((((size_t) (n)) + 3) & ~3)
 #define RZ_ALIGN_2(n)   ((((size_t) (n)) + 1) & ~1)
 
-#define RZ_IS_ALIGNED_ARB(n, a) (((size_t) (n) & ((size_t) (a) - 1)) == 0)    // 'a' needs to be a power of 2
+#define RZ_IS_ALIGNED_ARB(n, a) (((size_t) (n) & ((size_t) (a) -1)) == 0)    // 'a' needs to be a power of 2
 
 #define RZ_IS_ALIGNED_512(n) (((size_t) (n) & 511) == 0)
 #define RZ_IS_ALIGNED_256(n) (((size_t) (n) & 255) == 0)
@@ -451,7 +475,7 @@ public:                                                  \
 #define RZ_IS_ALIGNED_4(n)   (((size_t) (n) & 3) == 0)
 #define RZ_IS_ALIGNED_2(n)   (((size_t) (n) & 1) == 0)
 
-#define RZ_ALIGN_DOWN_ARB(n, a) ((size_t) (n) & ~(size_t) ((a) - 1))    // 'a' needs to be a power of 2
+#define RZ_ALIGN_DOWN_ARB(n, a) ((size_t) (n) & ~(size_t) ((a) -1))    // 'a' needs to be a power of 2
 
 #define RZ_ALIGN_DOWN_512(n) (size_t(n) & ~511)
 #define RZ_ALIGN_DOWN_256(n) (size_t(n) & ~255)
