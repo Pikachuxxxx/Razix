@@ -92,7 +92,7 @@ namespace Razix {
 
                     // We want to a single draw-call since, using a cube mesh will need a single draw-call we keep it to that constrain
                     // We invoke a point per face and turn that into a face
-                    Gfx::RHI::Draw(cmdBuffer, 1);
+                    Gfx::RHI::Draw(cmdBuffer, 6);
 
                     RHI::EndRendering(cmdBuffer);
 

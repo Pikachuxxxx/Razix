@@ -28,6 +28,7 @@
 
 // Test/Demo Passes
 #include "Razix/Gfx/Passes/Tests/RZGeomShadersCubeTestPass.h"
+#include "Razix/Gfx/Passes/Tests/RZHelloTextureTestPass.h"
 #include "Razix/Gfx/Passes/Tests/RZHelloTriangleTestPass.h"
 #include "Razix/Gfx/Passes/Tests/RZWaveInstrinsicsTestPass.h"
 
@@ -132,6 +133,7 @@ namespace Razix {
             //-------------------------------------------
             // TEST PASSES
             RZHelloTriangleTestPass   m_HelloTriangleTestPass;
+            RZHelloTextureTestPass    m_HelloTextureTestPass;
             RZWaveInstrinsicsTestPass m_WaveInstrinsicsTestPass;
             RZGeomShadersCubeTestPass m_GSCubeTestPass;
             //-------------------------------------------

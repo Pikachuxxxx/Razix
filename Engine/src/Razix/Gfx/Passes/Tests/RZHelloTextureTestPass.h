@@ -17,7 +17,7 @@ namespace Razix {
 
         private:
             RZPipelineHandle m_Pipeline;
-            RZTextureHandle  m_TextTextreHandle;
+            RZTextureHandle  m_TestTextureHandle;
         };
     }    // namespace Gfx
 }    // namespace Razix

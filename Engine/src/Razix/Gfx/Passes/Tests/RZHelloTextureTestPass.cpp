@@ -52,19 +52,16 @@ namespace Razix {
             testTexDesc.filePath   = "//RazixContent/Textures/TestCheckerMap.png";
             testTexDesc.filtering  = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
             testTexDesc.wrapping   = Wrapping::REPEAT;
-            m_TextTextreHandle     = RZResourceManager::Get().createTexture(testTexDesc);
+            m_TestTextureHandle    = RZResourceManager::Get().createTexture(testTexDesc);
 
-            struct HelloTextureData
+            struct HelloTexturePassData
             {
                 FrameGraph::RZFrameGraphResource Depth;
-                FrameGraph::RZFrameGraphResource TestTexture;
             };
 
-            framegraph.getBlackboard().add<HelloTextureData>().TestTexture = framegraph.import <FrameGraph::RZFrameGraphTexture>(testTexDesc.name, CAST_TO_FG_TEX_DESC testTexDesc, {m_TextTextreHandle});
-
-            framegraph.getBlackboard().add<HelloTextureData>() = framegraph.addCallbackPass<HelloTextureData>(
+            framegraph.addCallbackPass<HelloTexturePassData>(
                 "[Test] Pass.Builtin.Code.HelloTexture",
-                [&](HelloTextureData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](HelloTexturePassData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
 #ifdef __APPLE__    // Metal cannot draw without a depth attachment
@@ -76,9 +73,11 @@ namespace Razix {
                     depthTextureDesc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
                     depthTextureDesc.type      = TextureType::Texture_Depth;
                     data.Depth                 = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
+
+                    data.Depth = builder.write(data.Depth);
 #endif
                 },
-                [=](const HelloTextureData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const HelloTexturePassData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("[Test] Hello Texture Pass");
@@ -105,7 +104,9 @@ namespace Razix {
                         descriptor = shaderBindVars["g_TestTexture"];    // Must match the name in shader
                         // Sampler is static and set on the RootSignature Directly
                         if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(data.TestTexture).getHandle();
+                            descriptor->texture = m_TestTextureHandle;
+
+                        // Vulkan will create a default sampler if not found
 
                         RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
                     }
@@ -129,7 +130,7 @@ namespace Razix {
         void RZHelloTextureTestPass::destroy()
         {
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
-            RZResourceManager::Get().destroyTexture(m_TextTextreHandle);
+            RZResourceManager::Get().destroyTexture(m_TestTextureHandle);
         }
     }    // namespace Gfx
 }    // namespace Razix
