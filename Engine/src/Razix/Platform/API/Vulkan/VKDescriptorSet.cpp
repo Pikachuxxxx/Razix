@@ -70,8 +70,8 @@ namespace Razix {
 
             // TODO: No point in having these pools for DescriptorXXXInfo we can have a temporary one in the loop
             m_BufferInfoPool         = new VkDescriptorBufferInfo[MAX_BUFFER_INFOS];
-            m_ImageInfoPool          = new VkDescriptorImageInfo[MAX_IMAGE_INFOS];
-            m_WriteDescriptorSetPool = new VkWriteDescriptorSet[MAX_WRITE_DESCTIPTORS];
+            m_ImageInfoPool          = new VkDescriptorImageInfo[MAX_COMBINED_IMAGE_INFOS];
+            m_WriteDescriptorSetPool = new VkWriteDescriptorSet[MAX_WRITE_DESCRIPTORS];
 
             UpdateSet(descriptors);
         }
@@ -81,65 +81,132 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
             int descriptorWritesCount = 0;
-            {
-                int imageIndex = 0;
-                int index      = 0;
+            int imageWriteIdx         = 0;
+            int uniformBufferWriteIdx = 0;
 
-                for (auto& descriptor: descriptors) {
-                    if (descriptor.bindingInfo.type == DescriptorType::kImageSamplerCombined) {
-                        const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
-
-                        if (texturePtr) {
-                            VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
-
-                            m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                            m_ImageInfoPool[imageIndex].imageView   = des.imageView;
-                            m_ImageInfoPool[imageIndex].sampler     = des.sampler;
-                        } else {
-                            m_ImageInfoPool[imageIndex].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-                            m_ImageInfoPool[imageIndex].imageView   = VK_NULL_HANDLE;
-                            m_ImageInfoPool[imageIndex].sampler     = VKTexture::CreateImageSampler();    // Use some default sampler!
-                        }
-
-                        VkWriteDescriptorSet writeDescriptorSet{};
-                        writeDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                        writeDescriptorSet.dstSet          = m_DescriptorSet;
-                        writeDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                        writeDescriptorSet.dstBinding      = descriptor.bindingInfo.location.binding;
-                        writeDescriptorSet.pImageInfo      = &m_ImageInfoPool[imageIndex];
-                        writeDescriptorSet.descriptorCount = 1;
-
-                        m_WriteDescriptorSetPool[descriptorWritesCount] = writeDescriptorSet;
-                        imageIndex++;
-                        descriptorWritesCount++;
-                    } else {
-                        // TODO: Don't use buffer members use a single one for the entire uniform buffer
-                        //for (sz i = 0; i < descriptor.uboMembers.size(); i++) {
+            for (auto& descriptor: descriptors) {
+                switch (descriptor.bindingInfo.type) {
+                    case DescriptorType::kUniformBuffer: {
                         auto uboresource = RZResourceManager::Get().getUniformBufferResource(descriptor.uniformBuffer);
                         auto buffer      = static_cast<VKUniformBuffer*>(uboresource);
                         if (buffer) {
-                            m_BufferInfoPool[index].buffer = buffer->getBuffer();
-                            m_BufferInfoPool[index].offset = descriptor.offset;
-                            m_BufferInfoPool[index].range  = buffer->getSize();
+                            m_BufferInfoPool[uniformBufferWriteIdx].buffer = buffer->getBuffer();
+                            m_BufferInfoPool[uniformBufferWriteIdx].offset = descriptor.offset;
+                            m_BufferInfoPool[uniformBufferWriteIdx].range  = buffer->getSize();
                         } else {
-                            m_BufferInfoPool[index].buffer = VK_NULL_HANDLE;
-                            m_BufferInfoPool[index].offset = 0;
-                            m_BufferInfoPool[index].range  = VK_WHOLE_SIZE;
+                            m_BufferInfoPool[uniformBufferWriteIdx].buffer = VK_NULL_HANDLE;
+                            m_BufferInfoPool[uniformBufferWriteIdx].offset = 0;
+                            m_BufferInfoPool[uniformBufferWriteIdx].range  = VK_WHOLE_SIZE;
                         }
-                        //}
 
                         VkWriteDescriptorSet writeDescriptorSet{};
                         writeDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
                         writeDescriptorSet.dstSet          = m_DescriptorSet;
                         writeDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                         writeDescriptorSet.dstBinding      = descriptor.bindingInfo.location.binding;
-                        writeDescriptorSet.pBufferInfo     = &m_BufferInfoPool[index];
+                        writeDescriptorSet.pBufferInfo     = &m_BufferInfoPool[uniformBufferWriteIdx];
                         writeDescriptorSet.descriptorCount = 1;
 
                         m_WriteDescriptorSetPool[descriptorWritesCount] = writeDescriptorSet;
-                        index++;
+                        uniformBufferWriteIdx++;
                         descriptorWritesCount++;
-                    }
+                    } break;
+                    case DescriptorType::kImageSamplerCombined: {
+                        const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
+
+                        if (texturePtr) {
+                            VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
+
+                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                            m_ImageInfoPool[imageWriteIdx].imageView   = des.imageView;
+                            m_ImageInfoPool[imageWriteIdx].sampler     = des.sampler;
+                        } else {
+                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                            m_ImageInfoPool[imageWriteIdx].imageView   = VK_NULL_HANDLE;
+                            m_ImageInfoPool[imageWriteIdx].sampler     = VKTexture::CreateImageSampler();    // Use some default sampler!
+                        }
+
+                        VkWriteDescriptorSet writeDescriptorSet = {};
+                        writeDescriptorSet.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                        writeDescriptorSet.dstSet               = m_DescriptorSet;
+                        writeDescriptorSet.descriptorType       = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                        writeDescriptorSet.dstBinding           = descriptor.bindingInfo.location.binding;
+                        writeDescriptorSet.pImageInfo           = &m_ImageInfoPool[imageWriteIdx];
+                        writeDescriptorSet.descriptorCount      = 1;
+
+                        m_WriteDescriptorSetPool[descriptorWritesCount] = writeDescriptorSet;
+                        imageWriteIdx++;
+                        descriptorWritesCount++;
+                    } break;
+                    case DescriptorType::kTexture: {
+                        const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
+
+                        if (texturePtr) {
+                            VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
+
+                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                            m_ImageInfoPool[imageWriteIdx].imageView   = des.imageView;
+                        } else {
+                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                            m_ImageInfoPool[imageWriteIdx].imageView   = VK_NULL_HANDLE;
+                        }
+
+                        VkWriteDescriptorSet writeDescriptorSet = {};
+                        writeDescriptorSet.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                        writeDescriptorSet.dstSet               = m_DescriptorSet;
+                        writeDescriptorSet.descriptorType       = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;    // Texture
+                        writeDescriptorSet.dstBinding           = descriptor.bindingInfo.location.binding;
+                        writeDescriptorSet.pImageInfo           = &m_ImageInfoPool[imageWriteIdx];
+                        writeDescriptorSet.descriptorCount      = 1;
+
+                        m_WriteDescriptorSetPool[descriptorWritesCount] = writeDescriptorSet;
+                        imageWriteIdx++;
+                        descriptorWritesCount++;
+                    } break;
+                    case DescriptorType::kSampler: {
+                        const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
+
+                        if (texturePtr) {
+                            VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
+
+                            m_ImageInfoPool[imageWriteIdx].sampler = des.sampler;
+                        } else {
+                            m_ImageInfoPool[imageWriteIdx].sampler = VKTexture::CreateImageSampler();    // Use some default sampler!
+                        }
+
+                        VkWriteDescriptorSet writeDescriptorSet = {};
+                        writeDescriptorSet.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                        writeDescriptorSet.dstSet               = m_DescriptorSet;
+                        writeDescriptorSet.descriptorType       = VK_DESCRIPTOR_TYPE_SAMPLER;
+                        writeDescriptorSet.dstBinding           = descriptor.bindingInfo.location.binding;
+                        writeDescriptorSet.pImageInfo           = &m_ImageInfoPool[imageWriteIdx];
+                        writeDescriptorSet.descriptorCount      = 1;
+
+                        m_WriteDescriptorSetPool[descriptorWritesCount] = writeDescriptorSet;
+                        imageWriteIdx++;
+                        descriptorWritesCount++;
+                    } break;
+                    case DescriptorType::kRWTyped:
+                        break;
+                    case DescriptorType::kStructured:
+                        break;
+                    case DescriptorType::kRWStructured:
+                        break;
+                    case DescriptorType::kByteAddress:
+                        break;
+                    case DescriptorType::kRWByteAddress:
+                        break;
+                    case DescriptorType::kAppendStructured:
+                        break;
+                    case DescriptorType::kConsumeStructured:
+                        break;
+                    case DescriptorType::kRWStructuredCounter:
+                        break;
+                    case DescriptorType::kRTAccelerationStructure:
+                        break;
+                    default:
+                        RAZIX_CORE_ERROR("[VULKAN] Unknow descriptor type!");
+                        break;
                 }
             }
             vkUpdateDescriptorSets(VKDevice::Get().getDevice(), descriptorWritesCount, m_WriteDescriptorSetPool, 0, nullptr);

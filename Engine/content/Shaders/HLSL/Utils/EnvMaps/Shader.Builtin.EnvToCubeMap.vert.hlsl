@@ -20,14 +20,7 @@ struct VSOut
 //------------------------------------------------------------------------------
 VSOut VS_MAIN(uint id : SV_VertexID)
 {
-    float2 ndc[4] = {
-        float2(-1.0, -1.0),
-        float2(-1.0,  1.0),
-        float2( 1.0, -1.0),
-        float2( 1.0,  1.0)
-    };
-
     VSOut output;
-    output.Position = float4(ndc[id], 0.0, 1.0);
+    output.Position = float4(0.0f, 0.0f, 0.0, 1.0);
     return output;
 }

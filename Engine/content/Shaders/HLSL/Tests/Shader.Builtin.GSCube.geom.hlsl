@@ -10,7 +10,6 @@
 struct GSIn
 {
     float4 Position: SV_POSITION;
-    float PointSize: PSIZE;
     uint FaceIdx: BLENDINDICES;
 };
 //------------------------------------------------------------------------------
@@ -19,8 +18,6 @@ struct GSIn
 struct GSOut
 {
     float4 Position : SV_POSITION;                  // Final screen-space position
-    [[vk::builtin("PointSize")]] // https://github.com/KhronosGroup/glslang/issues/1188
-    float PointSize : PSIZE;
     uint   RTIndex  : SV_RenderTargetArrayIndex;    // Cubemap face index
     float3 WorldDir : TEXCOORD0;                    // Cubemap direction
 };
@@ -63,20 +60,19 @@ void GS_MAIN(point GSIn input[1], inout TriangleStream<GSOut> Stream)
         uint idx1 = TriangleIndices[faceIdx][triIdx * 3 + 1];
         uint idx2 = TriangleIndices[faceIdx][triIdx * 3 + 2];
 
-        // Set the position, RTIndex, PointSize, and WorldDir for each vertex
         gsOutput[0].Position = mul(frame_info.camera.projection, mul(frame_info.camera.view, float4(CubeCorners[idx0], 1.0f)));
         gsOutput[0].RTIndex = faceIdx;
-        gsOutput[0].PointSize = input[0].PointSize;
+        //gsOutput[0].PointSize = input[0].PointSize;
         gsOutput[0].WorldDir = CubeCorners[idx0];
 
         gsOutput[1].Position = mul(frame_info.camera.projection, mul(frame_info.camera.view, float4(CubeCorners[idx1], 1.0f)));
         gsOutput[1].RTIndex = faceIdx;
-        gsOutput[1].PointSize = input[0].PointSize;
+        //gsOutput[1].PointSize = input[0].PointSize;
         gsOutput[1].WorldDir = CubeCorners[idx1];
 
         gsOutput[2].Position = mul(frame_info.camera.projection, mul(frame_info.camera.view, float4(CubeCorners[idx2], 1.0f)));
         gsOutput[2].RTIndex = faceIdx;
-        gsOutput[2].PointSize = input[0].PointSize;
+        //gsOutput[2].PointSize = input[0].PointSize;
         gsOutput[2].WorldDir = CubeCorners[idx2];
 
         // Append the triangle to the stream

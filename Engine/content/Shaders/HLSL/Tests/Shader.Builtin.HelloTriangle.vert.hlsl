@@ -41,7 +41,6 @@ VSOut VS_MAIN(uint VertexIndex : SV_VertexID)
         float2(1.0f, 1.0f) 
     };
 
-
     vso.Position = float4(positions[VertexIndex], 0.0f, 1.0f);
     vso.Color = colors[VertexIndex];
     vso.UV = uv[VertexIndex];

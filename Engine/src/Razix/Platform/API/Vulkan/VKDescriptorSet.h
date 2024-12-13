@@ -8,10 +8,12 @@
 
 namespace Razix {
     namespace Gfx {
-
-    #define MAX_BUFFER_INFOS      32
-    #define MAX_IMAGE_INFOS       32
-    #define MAX_WRITE_DESCTIPTORS 32
+        // TODO: Query and fill these based on device props API
+    #define MAX_BUFFER_INFOS         32
+    #define MAX_COMBINED_IMAGE_INFOS 32
+    #define MAX_TEXTURE_INFOS        32
+    #define MAX_SAMPLER_INFOS        32
+    #define MAX_WRITE_DESCRIPTORS    32 * 4
 
         /* Vulkan implementation of the descriptor sets, these are used to bind/map the uniform, storage and image resources to shaders */
         class VKDescriptorSet : public RZDescriptorSet
@@ -28,7 +30,7 @@ namespace Razix {
             VkDescriptorPool        m_DescriptorPool         = {}; /* The descriptor pool from which the descriptor sets will be allocated from                                */
             VkDescriptorSet         m_DescriptorSet          = {}; /* Each frame gets a descriptor set that helps in mapping the necessary data to the shader slots            */
             VkDescriptorBufferInfo* m_BufferInfoPool         = nullptr;
-            VkDescriptorImageInfo*  m_ImageInfoPool          = nullptr;
+            VkDescriptorImageInfo*  m_ImageInfoPool          = nullptr;    // Currently contains both CombinedImageSampler/Texture/Sampler descriptors
             VkWriteDescriptorSet*   m_WriteDescriptorSetPool = nullptr;
             VkDescriptorSetLayout   setLayout;
         };

@@ -12,7 +12,6 @@
 struct VSOut 
 {
     float4 Position: SV_POSITION;
-    float PointSize: PSIZE;
     uint FaceIdx: BLENDINDICES;
 };
 //------------------------------------------------------------------------------
@@ -23,8 +22,8 @@ struct VSOut
 VSOut VS_MAIN(uint id : SV_VertexID)
 {
     VSOut output;
+
     output.Position = float4(0.0f, 0.0f, 0.0, 1.0);
-    output.PointSize = 16.0f;
     output.FaceIdx = id;
     return output;
 }

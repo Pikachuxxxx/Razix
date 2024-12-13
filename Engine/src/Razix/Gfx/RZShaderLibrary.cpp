@@ -20,8 +20,8 @@ namespace Razix {
             Razix::RZSplashScreen::Get().setLogString("Starting Shader Library...");
 
             // TEST SHADERS
-            loadBuiltInShader(ShaderBuiltin::HelloTextureTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTextureTest.rzsf");
             loadBuiltInShader(ShaderBuiltin::HelloTriangleTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTriangleTest.rzsf");
+            loadBuiltInShader(ShaderBuiltin::HelloTextureTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTextureTest.rzsf");
             loadBuiltInShader(ShaderBuiltin::WaveIntrinsicsTest, "//RazixContent/Shaders/Razix/Shader.Builtin.WaveIntrinsicsTest.rzsf");
             loadBuiltInShader(ShaderBuiltin::GSCubeTest, "//RazixContent/Shaders/Razix/Shader.Builtin.GSCubeTest.rzsf");
             //
@@ -100,7 +100,8 @@ namespace Razix {
             desc.libraryID = shaderID;
             // name will be auto-resolved from the shader file path
 
-            RZShaderHandle shader      = RZResourceManager::Get().createShader(desc);
+            RZShaderHandle shader = RZResourceManager::Get().createShader(desc);
+
             m_BuiltinShaders[shaderID] = shader;
 
             m_BuiltinShadersReverseNameMap[Utilities::RemoveFilePathExtension(Utilities::GetFileName(shaderPath))] = shaderID;

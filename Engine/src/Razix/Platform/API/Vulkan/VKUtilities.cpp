@@ -829,21 +829,6 @@ namespace Razix {
                 return VK_COMPARE_OP_LESS_OR_EQUAL;
             }
 
-            VkDescriptorType DescriptorTypeToVK(Razix::Gfx::DescriptorType descriptorType)
-            {
-                switch (descriptorType) {
-                    case Razix::Gfx::DescriptorType::kUniformBuffer:
-                        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                        break;
-                    case Razix::Gfx::DescriptorType::kImageSamplerCombined:
-                        return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                        break;
-                    default:
-                        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                        break;
-                }
-            }
-
             VkShaderStageFlagBits ShaderStageToVK(Razix::Gfx::ShaderStage stage)
             {
                 int result = 0;
@@ -941,13 +926,53 @@ namespace Razix {
                     case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                         return DescriptorType::kUniformBuffer;
                         break;
+                    case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                        return DescriptorType::kTexture;
+                        break;
+                    case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLER:
+                        return DescriptorType::kSampler;
+                        break;
                     default:
+                        RAZIX_CORE_ERROR("[VULKAN] SpvReflectDescriptorType is not resolved!");
                         return DescriptorType::kNone;
                         break;
                 }
 
                 // FIXME: Make this return something like NONE and cause a ASSERT_ERROR
-                return DescriptorType::kUniformBuffer;
+                // return DescriptorType::kUniformBuffer;
+                RAZIX_CORE_ERROR("[VULKAN] SpvReflectDescriptorType is not resolved!");
+                return DescriptorType::kNone;
+            }
+
+            VkDescriptorType DescriptorTypeToVK(Razix::Gfx::DescriptorType descriptorType)
+            {
+                switch (descriptorType) {
+                    case Razix::Gfx::DescriptorType::kUniformBuffer:
+                        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                        break;
+                    case Razix::Gfx::DescriptorType::kImageSamplerCombined:
+                        return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                        break;
+                    default:
+                        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                        break;
+                    case Razix::Gfx::DescriptorType::kTexture:
+                        return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+                        break;
+                    case Razix::Gfx::DescriptorType::kSampler:
+                        return VK_DESCRIPTOR_TYPE_SAMPLER;
+                    case Razix::Gfx::DescriptorType::kRWTyped:
+                    case Razix::Gfx::DescriptorType::kStructured:
+                    case Razix::Gfx::DescriptorType::kRWStructured:
+                    case Razix::Gfx::DescriptorType::kByteAddress:
+                    case Razix::Gfx::DescriptorType::kRWByteAddress:
+                    case Razix::Gfx::DescriptorType::kAppendStructured:
+                    case Razix::Gfx::DescriptorType::kConsumeStructured:
+                    case Razix::Gfx::DescriptorType::kRWStructuredCounter:
+                    case Razix::Gfx::DescriptorType::kRTAccelerationStructure:
+                        return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                        break;
+                }
             }
 
             //-----------------------------------------------------------------------------------

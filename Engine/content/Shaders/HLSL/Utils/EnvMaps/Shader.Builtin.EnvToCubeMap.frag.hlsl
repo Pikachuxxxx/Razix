@@ -8,8 +8,8 @@
 #include <Utils/ShaderInclude.Builtin.Color.h>
 //------------------------------------------------------------------------------
 // Texture and sampler bindings
-//Texture2D HDRTexture : register(t0); // Equirectangular HDR texture
-//SamplerState HDRSampler : register(s0); // Sampler for the HDR texture
+Texture2D HDRTexture : register(t1); // Equirectangular HDR texture
+SamplerState HDRSampler : register(s2); // Sampler for the HDR texture
 
 // Pixel Shader Input
 struct PSIn
@@ -34,11 +34,11 @@ float4 PS_MAIN(PSIn input) : SV_Target
     float3 worldDir = normalize(input.WorldDir);
 
     // Convert the world direction to spherical coordinates for sampling
-    //float2 uv = SampleSphericalMap(worldDir);
+    float2 uv = SampleSphericalMap(worldDir);
 
     // Sample the HDR texture using computed spherical UVs
-    //float4 hdrColor = HDRTexture.Sample(HDRSampler, uv);
+    float4 hdrColor = HDRTexture.Sample(HDRSampler, uv);
 
     // Output the HDR color for this cubemap face
-    return float4(RandomColorHash(45), 1.0f);
+    return hdrColor;//float4(hdrColor, 1.0f);
 }

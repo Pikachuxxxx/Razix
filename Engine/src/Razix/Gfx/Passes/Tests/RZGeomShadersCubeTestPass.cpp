@@ -59,14 +59,14 @@ namespace Razix {
                 [&](GSCubeData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    RZTextureDesc depthTextureDesc;
-                    depthTextureDesc.name      = "SceneDepth";
-                    depthTextureDesc.width     = RZApplication::Get().getWindow()->getWidth();
-                    depthTextureDesc.height    = RZApplication::Get().getWindow()->getHeight();
-                    depthTextureDesc.format    = TextureFormat::DEPTH16_UNORM;
-                    depthTextureDesc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
-                    depthTextureDesc.type      = TextureType::Texture_Depth;
-                    data.Depth                 = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
+                    RZTextureDesc depthTextureDesc = {};
+                    depthTextureDesc.name          = "SceneDepth";
+                    depthTextureDesc.width         = RZApplication::Get().getWindow()->getWidth();
+                    depthTextureDesc.height        = RZApplication::Get().getWindow()->getHeight();
+                    depthTextureDesc.format        = TextureFormat::DEPTH16_UNORM;
+                    depthTextureDesc.filtering     = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
+                    depthTextureDesc.type          = TextureType::Texture_Depth;
+                    data.Depth                     = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
                 },
                 [=](const GSCubeData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -76,7 +76,7 @@ namespace Razix {
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    RenderingInfo info{};
+                    RenderingInfo info    = {};
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {{Gfx::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::OpaqueBlack}}};
                     info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
@@ -92,7 +92,7 @@ namespace Razix {
 
                     // We want to a single draw-call since, using a cube mesh will need a single draw-call we keep it to that constrain
                     // We invoke a point per face and turn that into a face
-                    Gfx::RHI::Draw(cmdBuffer, NUM_CUBE_FACES);
+                    Gfx::RHI::Draw(cmdBuffer, 1);
 
                     RHI::EndRendering(cmdBuffer);
 

@@ -1,4 +1,3 @@
-
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -41,13 +40,15 @@ namespace Razix {
         static const glm::mat4 kCaptureViews[]{
             glm::lookAt(glm::vec3{0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}),      // +X
             glm::lookAt(glm::vec3{0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}),     // -X
-            glm::lookAt(glm::vec3{0.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}),     // +Y
-            glm::lookAt(glm::vec3{0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}),       // -Y
+            glm::lookAt(glm::vec3{0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}),       // -Y // Y IS FLIPPED IN DX12 SO WE FLIP IT HERE!
+            glm::lookAt(glm::vec3{0.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}),     // +Y // Y IS FLIPPED IN DX12 SO WE FLIP IT HERE!
             glm::lookAt(glm::vec3{0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}),      // +Z
             glm::lookAt(glm::vec3{0.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, -1.0f, 0.0f})};    // -Z
 
         RZTextureHandle RZImageBasedLightingProbesManager::convertEquirectangularToCubemap(const std::string& hdrFilePath)
         {
+            // This is only when we use a VS+PS to render to different layers of a RT
+            // We are currently switched back to using VS+GS+PS and in future we will use a CS so no need of this
             // https://www.reddit.com/r/vulkan/comments/mtx6ar/gl_layer_value_assigned_in_vertex_shader_but/
             // https://www.reddit.com/r/vulkan/comments/xec0vg/multilayered_rendering_to_create_a_cubemap/
 
@@ -55,17 +56,17 @@ namespace Razix {
             u32  width, height, bpp;
             f32* pixels = Razix::Utilities::LoadImageDataFloat(hdrFilePath, &width, &height, &bpp);
 
-            RZTextureDesc equiMapTextureDesc{};
-            equiMapTextureDesc.name       = "HDR Cube Map Texture";
-            equiMapTextureDesc.width      = width;
-            equiMapTextureDesc.height     = height;
-            equiMapTextureDesc.data       = pixels;
-            equiMapTextureDesc.size       = (width * height * 4 * sizeof(float));
-            equiMapTextureDesc.format     = TextureFormat::RGBA32F;
-            equiMapTextureDesc.wrapping   = Wrapping::CLAMP_TO_EDGE;
-            equiMapTextureDesc.filtering  = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
-            equiMapTextureDesc.enableMips = false;
-            equiMapTextureDesc.dataSize   = sizeof(float);
+            RZTextureDesc equiMapTextureDesc = {};
+            equiMapTextureDesc.name          = "HDR Cube Map Texture";
+            equiMapTextureDesc.width         = width;
+            equiMapTextureDesc.height        = height;
+            equiMapTextureDesc.data          = pixels;
+            equiMapTextureDesc.size          = (width * height * 4 * sizeof(float));
+            equiMapTextureDesc.format        = TextureFormat::RGBA32F;
+            equiMapTextureDesc.wrapping      = Wrapping::CLAMP_TO_EDGE;
+            equiMapTextureDesc.filtering     = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
+            equiMapTextureDesc.enableMips    = false;
+            equiMapTextureDesc.dataSize      = sizeof(float);
 
             RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture(equiMapTextureDesc);
 
@@ -103,7 +104,7 @@ namespace Razix {
                 for (auto& setInfo: setInfos) {
                     // Fill the descriptors with buffers and textures
                     for (auto& descriptor: setInfo.second) {
-                        if (descriptor.bindingInfo.type == Gfx::DescriptorType::kImageSamplerCombined)
+                        if (descriptor.bindingInfo.type == Gfx::DescriptorType::kTexture || descriptor.bindingInfo.type == Gfx::DescriptorType::kSampler)
                             descriptor.texture = equirectangularMapHandle;
                         if (descriptor.bindingInfo.type == DescriptorType::kUniformBuffer)
                             descriptor.uniformBuffer = viewProjLayerUBO;
@@ -113,32 +114,32 @@ namespace Razix {
                 }
             }
 
-            u32 dim = 512;
+            constexpr u32 dim = 512;
 
             // Create the Pipeline
-            Gfx::RZPipelineDesc pipelineInfo{};
+            Gfx::RZPipelineDesc pipelineInfo    = {};
             pipelineInfo.name                   = "Pipeline.EnvMapGen";
             pipelineInfo.cullMode               = Gfx::CullMode::None;
-            pipelineInfo.drawType               = Gfx::DrawType::Triangle;
+            pipelineInfo.drawType               = Gfx::DrawType::Point;
             pipelineInfo.shader                 = shaderHandle;
             pipelineInfo.transparencyEnabled    = true;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.colorAttachmentFormats = {Gfx::TextureFormat::RGBA32F};
             RZPipelineHandle envMapPipeline     = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            RZTextureDesc cubeMapTextureDesc{};
-            cubeMapTextureDesc.name       = "Texture.Imported.HDR.EnvMap",
-            cubeMapTextureDesc.width      = dim;
-            cubeMapTextureDesc.height     = dim;
-            cubeMapTextureDesc.layers     = 6;
-            cubeMapTextureDesc.type       = TextureType::Texture_CubeMap;
-            cubeMapTextureDesc.format     = TextureFormat::RGBA32F;
-            cubeMapTextureDesc.filtering  = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
-            cubeMapTextureDesc.enableMips = false;
+            RZTextureDesc cubeMapTextureDesc = {};
+            cubeMapTextureDesc.name          = "Texture.Imported.HDR.EnvMap",
+            cubeMapTextureDesc.width         = dim;
+            cubeMapTextureDesc.height        = dim;
+            cubeMapTextureDesc.layers        = 6;
+            cubeMapTextureDesc.type          = TextureType::Texture_CubeMap;
+            cubeMapTextureDesc.format        = TextureFormat::RGBA32F;
+            cubeMapTextureDesc.filtering     = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
+            cubeMapTextureDesc.enableMips    = false;
 
             RZTextureHandle cubeMapHandle = RZResourceManager::Get().createTexture(cubeMapTextureDesc);
 
-            u32 layerCount = 6;
+            constexpr u32 layerCount = 6;
 
             // Begin rendering
             auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer();
@@ -163,25 +164,22 @@ namespace Razix {
                 // AOS Deprecated
                 //RZ_GET_RAW_RESOURCE(VertexBuffer, cubeMesh->getVertexBufferHandle())->Bind(cmdBuffer);
                 //RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->Bind(cmdBuffer);
-
                 //cubeMesh->bindVBsAndIB(cmdBuffer);
 
                 // Bind the Bindless Env map texture 2d
-
                 //u32            idx = equirectangularMapHandle.getIndex();
                 //RZPushConstant pc;
                 //pc.size        = sizeof(u32);
                 //pc.shaderStage = ShaderStage::Pixel;
                 //pc.data        = &idx;
-
                 //RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
 
-                //for (u32 i = 0; i < layerCount; i++) {
-                //    //RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
-                //    //RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
-                //    //RHI::DrawIndexed(cmdBuffer, RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->getCount(), 1, 0, 0, 0);
-                //}
-                RHI::Draw(cmdBuffer, 4);
+                for (u32 i = 0; i < layerCount; i++) {
+                    RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
+                    //RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
+                    //RHI::DrawIndexed(cmdBuffer, RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->getCount(), 1, 0, 0, 0);
+                    RHI::Draw(cmdBuffer, 1);
+                }
 
                 RHI::EndRendering(cmdBuffer);
                 RAZIX_MARK_END()

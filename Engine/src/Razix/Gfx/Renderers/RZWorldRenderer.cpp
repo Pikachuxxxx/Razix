@@ -62,11 +62,13 @@ namespace Razix {
             //-------------------------------
             // [TEST] WAVE INTRINSICE
             //-------------------------------
-            //m_WaveInstrinsicsTestPass.addPass(m_FrameGraph, scene, &settings);
+            m_WaveInstrinsicsTestPass.addPass(m_FrameGraph, scene, &settings);
 
             // These are system level code passes so always enabled
             uploadFrameData(scene, settings);
             auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
+
+            m_GlobalLightProbes.skybox = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/sunset.hdr");
 
             //-------------------------------
             // [TEST] GS CUBE

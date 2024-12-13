@@ -49,6 +49,31 @@ namespace Razix {
             static RAZIX_API TextureType   StringToType(const std::string& str);
         };
 
+        // TODO: USE THIS!!! Remove sampling from RZTextureDesc
+        struct RZSamplerDesc
+        {
+            Wrapping  wrapping         = Wrapping::REPEAT; /* Wrap mode of the texture in memory                            */
+            Filtering filtering        = Filtering{};      /* Filtering mode of the texture                                 */
+            f32       minLOD           = 0;
+            f32       maxLOD           = 1.0f;
+            f32       maxAnisotripy    = 1.0f;
+            bool      enableAnisotropy = true;
+        };
+
+        enum class SamplerPresets
+        {
+            kDefaultGeneric = 0,
+            kMipMap,
+            kAnisotropic,
+            kDiffuseTexSampler,
+            kNormalMapSampler,
+            kNonColorSampler,
+            kColorSampler,
+            COUNT
+        };
+
+        //static RZSamplerDesc g_SamplerPresets[SamplerPresets::COUNT] = {};
+
         /* Used for creating Vertex (VB_), Index(IB_) or Constant buffers(CB_) */
         struct RZBufferDesc
         {

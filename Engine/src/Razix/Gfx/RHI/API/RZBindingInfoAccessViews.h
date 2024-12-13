@@ -29,7 +29,7 @@ namespace Razix {
         {
             kNone          = UINT32_MAX,    // TODO: Remove this?
             kUniformBuffer = 0,
-            kImageSamplerCombined,    // (combined image sampler, Vulkan only)
+            kImageSamplerCombined,    // (combined image sampler, Vulkan only) // Not Recommended for usage!
             kTexture,
             kSampler,
             kRWTyped,    // ??? IDK why/what this is
