@@ -9,7 +9,7 @@ namespace Razix {
         /* Forward declaring types to reduce include file complexity */
         class RZTexture;
         class RZUniformBuffer;
-        enum ShaderStage;
+        enum ShaderStage: u32;
 
         /* The format of the input variables in the shader */
         enum class VertexInputFormat : u32

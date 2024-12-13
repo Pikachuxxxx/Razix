@@ -13,7 +13,7 @@ namespace Razix {
 
         // Forward Declarations
         class RZShader;
-        enum ShaderStage;
+        enum ShaderStage: u32;
         enum class ShaderBuiltin : u32;
 
         // Graphics API
