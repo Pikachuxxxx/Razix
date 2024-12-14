@@ -108,7 +108,9 @@ namespace Razix {
         /* Information necessary to create the pipeline */
         struct RZPipelineDesc
         {
-            std::string                name                   = "$UNNAMED_PIPELINE_RESOURCE";  /* Name of the texture                                                         */
+            std::string                name                   = "$UNNAMED_PIPELINE_RESOURCE";  /* Name of the texture
+                                                                                                */
+            PipelineType pipelineType = PipelineType::kGraphics;                               /* Type of pipeline graphics/compute */
             RZShaderHandle             shader                 = {};                            /* Shader used by the Pipeline                                                 */
             std::vector<TextureFormat> colorAttachmentFormats = {};                            /* color attachments used by this pipeline, that we write to                   */
             TextureFormat              depthFormat            = TextureFormat::DEPTH32F;       /* depth attachment format for this pipeline                                   */
