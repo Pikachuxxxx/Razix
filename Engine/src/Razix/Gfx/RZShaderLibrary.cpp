@@ -23,7 +23,7 @@ namespace Razix {
             loadBuiltInShader(ShaderBuiltin::HelloTriangleTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTriangleTest.rzsf");
             loadBuiltInShader(ShaderBuiltin::HelloTextureTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTextureTest.rzsf");
             loadBuiltInShader(ShaderBuiltin::WaveIntrinsicsTest, "//RazixContent/Shaders/Razix/Shader.Builtin.WaveIntrinsicsTest.rzsf");
-            loadBuiltInShader(ShaderBuiltin::GSCubeTest, "//RazixContent/Shaders/Razix/Shader.Builtin.GSCubeTest.rzsf");
+//            loadBuiltInShader(ShaderBuiltin::GSCubeTest, "//RazixContent/Shaders/Razix/Shader.Builtin.GSCubeTest.rzsf");
             //
             // TESTING VIS BUFFER GEN SHADER
             //loadBuiltInShader(ShaderBuiltin::VisibilityBufferFill, "//RazixContent/Shaders/Razix/Shader.Builtin.VisibilityBufferFill.rzsf");

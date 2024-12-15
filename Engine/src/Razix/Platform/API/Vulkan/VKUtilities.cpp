@@ -932,6 +932,9 @@ namespace Razix {
                     case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLER:
                         return DescriptorType::kSampler;
                         break;
+                    case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                        return DescriptorType::kRWTexture;
+                        break;
                     default:
                         RAZIX_CORE_ERROR("[VULKAN] SpvReflectDescriptorType is not resolved!");
                         return DescriptorType::kNone;
@@ -958,6 +961,9 @@ namespace Razix {
                         break;
                     case Razix::Gfx::DescriptorType::kTexture:
                         return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+                        break;
+                    case Razix::Gfx::DescriptorType::kRWTexture:
+                        return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
                         break;
                     case Razix::Gfx::DescriptorType::kSampler:
                         return VK_DESCRIPTOR_TYPE_SAMPLER;

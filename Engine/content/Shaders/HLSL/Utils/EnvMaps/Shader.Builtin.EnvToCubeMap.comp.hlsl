@@ -3,14 +3,17 @@
  * Compute shader to convert equi-rectangular hdr file to cube map, write directly to the cubemap
  */
 //------------------------------------------------------------------------------
-Texture2D HDRTexture : register(t1); // Equirectangular HDR texture
-SamplerState HDRSampler : register(s2); // Sampler for the HDR texture
-RWTexture2DArray<float4> CubeMapRT: register(u3);
+#include <Common/ShaderInclude.Builtin.FrameData.h>
 //------------------------------------------------------------------------------
-cbuffer Constants : register(b0)
+//Texture2D HDRTexture : register(t1); // Equirectangular HDR texture
+//SamplerState HDRSampler : register(s2); // Sampler for the HDR texture
+RWTexture2DArray<float4> CubeMapRT: register(u1);
+//------------------------------------------------------------------------------
+cbuffer Constants : register(b2)
 {
-    uint cubeFaceSize; // Width and height of each cubemap face
-    uint mipLevel;     // Current mipmap level
+    float4x4 view;
+    float4x4 projection;
+    uint2 cubeFaceSize;
 };
 //------------------------------------------------------------------------------
 [numthreads(32, 32, 1)]

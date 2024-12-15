@@ -381,7 +381,8 @@ project "Razix"
         -- Apple Clang compiler options
         buildoptions
         {
-            "-Wno-error=switch-enum"
+            "-Wno-error=switch-enum",
+            "-Wswitch", "-Wswitch-enum"
         }
         
                 

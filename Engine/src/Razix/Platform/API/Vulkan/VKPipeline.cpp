@@ -38,7 +38,8 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdBindPipeline(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+            VkPipelineBindPoint bindPoint = m_Desc.pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
+            vkCmdBindPipeline(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, m_Pipeline);
         }
 
         void VKPipeline::initGraphics(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
@@ -252,6 +253,7 @@ namespace Razix {
             auto shader = RZResourceManager::Get().getPool<RZShader>().get(m_Desc.shader);
 
             VkComputePipelineCreateInfo computePipelineCI = {};
+            computePipelineCI.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
             computePipelineCI.layout = m_PipelineLayout;
             computePipelineCI.flags = 0;
             computePipelineCI.stage = static_cast<VKShader*>(shader)->getShaderStages()[0]; // CS is the only stage for this shader

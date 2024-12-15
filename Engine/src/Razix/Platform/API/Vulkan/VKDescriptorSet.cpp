@@ -83,6 +83,8 @@ namespace Razix {
             int descriptorWritesCount = 0;
             int imageWriteIdx         = 0;
             int uniformBufferWriteIdx = 0;
+            
+            // Fix the code duplication
 
             for (auto& descriptor: descriptors) {
                 switch (descriptor.bindingInfo.type) {
@@ -155,6 +157,31 @@ namespace Razix {
                         writeDescriptorSet.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
                         writeDescriptorSet.dstSet               = m_DescriptorSet;
                         writeDescriptorSet.descriptorType       = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;    // Texture
+                        writeDescriptorSet.dstBinding           = descriptor.bindingInfo.location.binding;
+                        writeDescriptorSet.pImageInfo           = &m_ImageInfoPool[imageWriteIdx];
+                        writeDescriptorSet.descriptorCount      = 1;
+
+                        m_WriteDescriptorSetPool[descriptorWritesCount] = writeDescriptorSet;
+                        imageWriteIdx++;
+                        descriptorWritesCount++;
+                    } break;
+                    case DescriptorType::kRWTexture: {
+                        const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
+
+                        if (texturePtr) {
+                            VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
+
+                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                            m_ImageInfoPool[imageWriteIdx].imageView   = des.imageView;
+                        } else {
+                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                            m_ImageInfoPool[imageWriteIdx].imageView   = VK_NULL_HANDLE;
+                        }
+
+                        VkWriteDescriptorSet writeDescriptorSet = {};
+                        writeDescriptorSet.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                        writeDescriptorSet.dstSet               = m_DescriptorSet;
+                        writeDescriptorSet.descriptorType       = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;    // RW Texture
                         writeDescriptorSet.dstBinding           = descriptor.bindingInfo.location.binding;
                         writeDescriptorSet.pImageInfo           = &m_ImageInfoPool[imageWriteIdx];
                         writeDescriptorSet.descriptorCount      = 1;

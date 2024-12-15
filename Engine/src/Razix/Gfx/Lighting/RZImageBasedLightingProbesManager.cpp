@@ -73,12 +73,27 @@ namespace Razix {
             std::vector<RZDescriptorSet*>      envMapSets;
             std::vector<RZUniformBufferHandle> UBOs;
 
+            constexpr u32 dim = 512;
+            
             struct ViewProjLayerUBOData
             {
                 alignas(16) glm::mat4 view       = glm::mat4(1.0f);
                 alignas(16) glm::mat4 projection = glm::mat4(1.0f);
-                alignas(4) int layer             = 0;
+                alignas(16) glm::ivec2 cubeFaceSize = {dim, dim};
             } uboData;
+            
+            RZTextureDesc cubeMapTextureDesc = {};
+            cubeMapTextureDesc.name          = "Texture.Imported.HDR.EnvMap",
+            cubeMapTextureDesc.width         = dim;
+            cubeMapTextureDesc.height        = dim;
+            cubeMapTextureDesc.layers        = 6;
+            cubeMapTextureDesc.type          = TextureType::Texture_CubeMap;
+            cubeMapTextureDesc.format        = TextureFormat::RGBA32F;
+            cubeMapTextureDesc.filtering     = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
+            cubeMapTextureDesc.enableMips    = false;
+
+            RZTextureHandle cubeMapHandle = RZResourceManager::Get().createTexture(cubeMapTextureDesc);
+
 
             // FIXME: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behavior is unknown, yet!
 
@@ -90,7 +105,6 @@ namespace Razix {
                 uboData.view             = kCaptureViews[i];
                 uboData.projection       = kCubeProjection;
                 uboData.projection[1][1] = -1;
-                uboData.layer            = i;
 
                 RZBufferDesc vplBufferDesc{};
                 vplBufferDesc.name = "ViewProjLayerUBOData : #" + std::to_string(i);
@@ -104,41 +118,42 @@ namespace Razix {
                 for (auto& setInfo: setInfos) {
                     // Fill the descriptors with buffers and textures
                     for (auto& descriptor: setInfo.second) {
-                        if (descriptor.bindingInfo.type == Gfx::DescriptorType::kTexture || descriptor.bindingInfo.type == Gfx::DescriptorType::kSampler)
+                        if(descriptor.name == "HDRTexture")
                             descriptor.texture = equirectangularMapHandle;
-                        if (descriptor.bindingInfo.type == DescriptorType::kUniformBuffer)
+                        if(descriptor.name == "HDRSampler")
+                            descriptor.texture = equirectangularMapHandle;
+                        if(descriptor.name == "CubeMapRT")
+                            descriptor.texture = cubeMapHandle;
+                        if(descriptor.name == "Constants")
                             descriptor.uniformBuffer = viewProjLayerUBO;
+                        // TODO: Re-write this cluster fuck code using some kind of binning cache hash_map using shader resource names
+                        // TODO: Or use something like...
+//                        switch(descriptor.bindingInfo.type){
+//                            case Gfx::DescriptorType::kTexture:
+//                            case  Gfx::DescriptorType::kSampler:
+//                                if(descriptor.name == "HDRTexture")
+//                                descriptor.texture = equirectangularMapHandle;
+//                                break;
+//                            case DescriptorType::kUniformBuffer:
+//                                descriptor.uniformBuffer = viewProjLayerUBO;
+//                                break;
+//                            default:
+//                                break;
+//                        }
                     }
                     auto set = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Env map conversion set : #" + std::to_string(i)));
                     envMapSets.push_back(set);
                 }
+                
             }
-
-            constexpr u32 dim = 512;
 
             // Create the Pipeline
             Gfx::RZPipelineDesc pipelineInfo    = {};
             pipelineInfo.name                   = "Pipeline.EnvMapGen";
-            pipelineInfo.cullMode               = Gfx::CullMode::None;
-            pipelineInfo.drawType               = Gfx::DrawType::Point;
+            pipelineInfo.pipelineType           = PipelineType::kCompute;
             pipelineInfo.shader                 = shaderHandle;
-            pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.colorAttachmentFormats = {Gfx::TextureFormat::RGBA32F};
             RZPipelineHandle envMapPipeline     = RZResourceManager::Get().createPipeline(pipelineInfo);
-
-            RZTextureDesc cubeMapTextureDesc = {};
-            cubeMapTextureDesc.name          = "Texture.Imported.HDR.EnvMap",
-            cubeMapTextureDesc.width         = dim;
-            cubeMapTextureDesc.height        = dim;
-            cubeMapTextureDesc.layers        = 6;
-            cubeMapTextureDesc.type          = TextureType::Texture_CubeMap;
-            cubeMapTextureDesc.format        = TextureFormat::RGBA32F;
-            cubeMapTextureDesc.filtering     = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
-            cubeMapTextureDesc.enableMips    = false;
-
-            RZTextureHandle cubeMapHandle = RZResourceManager::Get().createTexture(cubeMapTextureDesc);
-
+ 
             constexpr u32 layerCount = 6;
 
             // Begin rendering
@@ -148,23 +163,7 @@ namespace Razix {
 
                 RAZIX_MARK_BEGIN("Cubemap", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f))
 
-                RenderingInfo info{};
-                info.resolution       = Resolution::kCustom;
-                info.colorAttachments = {
-                    {cubeMapHandle, {true, ClearColorPresets::TransparentBlack}}};
-                info.extent = {dim, dim};
-                //------------------------------------------------
-                // NOTE: This is very important for layers to work
-                info.layerCount = 6;
-                //------------------------------------------------
-                RHI::BeginRendering(cmdBuffer, info);
-
                 RHI::BindPipeline(envMapPipeline, cmdBuffer);
-
-                // AOS Deprecated
-                //RZ_GET_RAW_RESOURCE(VertexBuffer, cubeMesh->getVertexBufferHandle())->Bind(cmdBuffer);
-                //RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->Bind(cmdBuffer);
-                //cubeMesh->bindVBsAndIB(cmdBuffer);
 
                 // Bind the Bindless Env map texture 2d
                 //u32            idx = equirectangularMapHandle.getIndex();
@@ -177,11 +176,8 @@ namespace Razix {
                 for (u32 i = 0; i < layerCount; i++) {
                     RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
                     //RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
-                    //RHI::DrawIndexed(cmdBuffer, RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->getCount(), 1, 0, 0, 0);
-                    RHI::Draw(cmdBuffer, 1);
+                    RHI::Dispatch(cmdBuffer, dim, dim, layerCount);
                 }
-
-                RHI::EndRendering(cmdBuffer);
                 RAZIX_MARK_END()
                 RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }

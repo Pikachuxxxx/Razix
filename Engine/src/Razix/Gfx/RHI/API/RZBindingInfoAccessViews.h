@@ -31,6 +31,7 @@ namespace Razix {
             kUniformBuffer = 0,
             kImageSamplerCombined,    // (combined image sampler, Vulkan only) // Not Recommended for usage!
             kTexture,
+            kRWTexture,
             kSampler,
             kRWTyped,    // ??? IDK why/what this is
             kStructured,
