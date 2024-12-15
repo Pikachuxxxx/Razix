@@ -25,7 +25,7 @@ namespace Razix {
 
         // This is the only exception of using enum
         /* The stage which the shader corresponds to in the graphics pipeline */
-        enum ShaderStage
+        enum ShaderStage: u32
         {
             kNone                  = 0,
             kVertex                = 1 << 0,

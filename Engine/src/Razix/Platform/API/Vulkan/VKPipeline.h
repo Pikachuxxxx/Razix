@@ -17,7 +17,8 @@ namespace Razix {
 
             void Bind(RZDrawCommandBufferHandle cmdBuffer) override;
 
-            void init(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
+            void initGraphics(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
+            void initCompute(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
 
             inline const VkPipeline&       getPipeline() const { return m_Pipeline; }
             inline const VkPipelineLayout& getPipelineLayout() const { return m_PipelineLayout; }

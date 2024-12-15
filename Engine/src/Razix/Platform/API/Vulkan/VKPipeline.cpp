@@ -21,7 +21,9 @@ namespace Razix {
             auto shader      = RZResourceManager::Get().getPool<RZShader>().get(m_Desc.shader);
             m_PipelineLayout = static_cast<VKShader*>(shader)->getPipelineLayout();
 
-            init(pipelineInfo RZ_DEBUG_E_ARG_NAME);
+            if(pipelineInfo.pipelineType == PipelineType::kGraphics)
+                initGraphics(pipelineInfo RZ_DEBUG_E_ARG_NAME);
+            else initCompute(pipelineInfo RZ_DEBUG_E_ARG_NAME);
         }
 
         RAZIX_CLEANUP_RESOURCE_IMPL(VKPipeline)
@@ -39,7 +41,7 @@ namespace Razix {
             vkCmdBindPipeline(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
         }
 
-        void VKPipeline::init(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
+        void VKPipeline::initGraphics(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -241,6 +243,23 @@ namespace Razix {
                 RAZIX_CORE_ERROR("[Vulkan] Cannot create graphics pipeline!");
             else
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created graphics pipeline!");
+
+            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_PIPELINE, (uint64_t) m_Pipeline);
+        }
+    
+        void VKPipeline::initCompute(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
+        {
+            auto shader = RZResourceManager::Get().getPool<RZShader>().get(m_Desc.shader);
+
+            VkComputePipelineCreateInfo computePipelineCI = {};
+            computePipelineCI.layout = m_PipelineLayout;
+            computePipelineCI.flags = 0;
+            computePipelineCI.stage = static_cast<VKShader*>(shader)->getShaderStages()[0]; // CS is the only stage for this shader
+            
+            if (VK_CHECK_RESULT(vkCreateComputePipelines(VKDevice::Get().getDevice(), VK_NULL_HANDLE, 1, &computePipelineCI, nullptr, &m_Pipeline)))
+                RAZIX_CORE_ERROR("[Vulkan] Cannot create compute pipeline!");
+            else
+                RAZIX_CORE_TRACE("[Vulkan] Successfully created compute pipeline!");
 
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_PIPELINE, (uint64_t) m_Pipeline);
         }
