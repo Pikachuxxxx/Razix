@@ -322,6 +322,24 @@ namespace Razix {
                 }
             }
 
+            D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapTypeToDX12(DescriptorHeapType heapType)
+            {
+                switch (heapType) {
+                    case Razix::Gfx::DescriptorHeapType::kCbvUavSrvHeap:
+                        return D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+                        break;
+                    case Razix::Gfx::DescriptorHeapType::kSamplerHeap:
+                        return D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+                        break;
+                    case Razix::Gfx::DescriptorHeapType::kRenderTargetHeap:
+                        return D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+                        break;
+                    case Razix::Gfx::DescriptorHeapType::kDepthStencilHeap:
+                        return D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+                        break;
+                }
+            }
+
             // Pipeline Info
 
             D3D12_PRIMITIVE_TOPOLOGY_TYPE DrawTypeToDX12(Razix::Gfx::DrawType type)

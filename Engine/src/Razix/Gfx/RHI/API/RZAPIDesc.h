@@ -15,6 +15,11 @@ namespace Razix {
         class RZShader;
         enum ShaderStage;
         enum class ShaderBuiltin : u32;
+        enum class DescriptorHeapType;
+        struct RZDescriptor;
+
+        // Constants
+        constexpr u32 kInvalidSetIdx = ~0;
 
         // Graphics API
 
@@ -93,6 +98,14 @@ namespace Razix {
             std::string   name = "$UNNAMED_SHADER"; /* Name of the shader */
             std::string   filePath;
             ShaderBuiltin libraryID;
+        };
+
+        struct RZDescriptorSetDesc
+        {
+            std::string               name = "$UNNAMED_DESCRIPTOR_HEAP"; /* Name of the descriptor heap */
+            DescriptorHeapType        heapType;
+            std::vector<RZDescriptor> descriptors;
+            u32                       setIdx = kInvalidSetIdx;
         };
 
         // TODO: Add presets to select blending like Additive, Subtractive etc as in PhotoShop + util methods

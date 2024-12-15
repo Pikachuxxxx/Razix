@@ -166,7 +166,7 @@ namespace Razix {
                 s_APIInstance->BindPipelineImpl(pipeline, cmdBuffer);
             }
             /* Binds a descriptor set to the given PSO at the specified set index */
-            RAZIX_FORCE_INLINE static void BindDescriptorSet(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
+            RAZIX_FORCE_INLINE static void BindDescriptorSet(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZDescriptorSetHandle descriptorSet, u32 setIdx)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Bind Descriptor Set at Idx");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -174,20 +174,12 @@ namespace Razix {
                 s_APIInstance->BindDescriptorSetAPImpl(pipeline, cmdBuffer, descriptorSet, setIdx);
             }
             /* Binds vector of descriptor sets to the given PSO from a starting set index */
-            RAZIX_FORCE_INLINE static void BindUserDescriptorSets(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx = 0)
+            RAZIX_FORCE_INLINE static void BindUserDescriptorSets(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSetHandle>& descriptorSets, u32 startSetIdx = 0)
             {
                 RAZIX_PROFILE_GPU_SCOPE("Bind Descriptor Sets");
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                 s_APIInstance->BindUserDescriptorSetsAPImpl(pipeline, cmdBuffer, descriptorSets, startSetIdx);
-            }
-            /* Binds array of descriptor sets to the given PSO from a starting set index */
-            RAZIX_FORCE_INLINE static void BindUserDescriptorSets(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx = 0)
-            {
-                RAZIX_PROFILE_GPU_SCOPE("Bind Descriptor Sets");
-                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-                s_APIInstance->BindUserDescriptorSetsAPImpl(pipeline, cmdBuffer, descriptorSets, totalSets, startSetIdx);
             }
             /* Binds a push/root constant to the PSO */
             RAZIX_FORCE_INLINE static void BindPushConstant(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant)

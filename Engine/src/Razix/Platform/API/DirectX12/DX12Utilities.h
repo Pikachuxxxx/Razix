@@ -16,11 +16,14 @@ namespace Razix {
         enum class BlendOp;
         enum class BlendFactor;
         enum class CompareOp;
-        enum ShaderStage;
         enum class DescriptorType : u32;
         enum class ImageLayout : u32;
         enum class PipelineStage : u32;
         enum class MemoryAccessMask : u32;
+        enum class DescriptorHeapType;
+
+        enum ShaderStage;
+
         class RZBufferLayout;
 
         namespace DX12Utilities {
@@ -121,6 +124,8 @@ namespace Razix {
 
             // Descriptor
             DescriptorType DXToEngineDescriptorType(D3D_SHADER_INPUT_TYPE inputType);
+
+            D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapTypeToDX12(DescriptorHeapType heapType);
 
             // PipelineInfo
             /**

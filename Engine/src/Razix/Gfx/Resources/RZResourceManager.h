@@ -77,6 +77,8 @@ private:                                                                        
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(DrawCommandBuffer, RZCommandPoolHandle pool)
             //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(DescriptorSet, const RZDescriptorSetDesc& desc)
+            //-----------------------------------------------------------------------------------
         };
 
 #define RZ_GET_RESOURCE_MANAGER()      RZResourceManager::Get()

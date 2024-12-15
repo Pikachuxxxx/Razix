@@ -50,6 +50,15 @@ namespace Razix {
             MAT4ARRAY
         };
 
+        enum class DescriptorHeapType
+        {
+            kCbvUavSrvHeap,
+            kSamplerHeap,
+            kRenderTargetHeap,
+            kDepthStencilHeap,
+            COUNT
+        };
+
         /* Vertex Input binding information describes the input layout format of the Vertex data sent to the Input Assembly and input variable binding and location for input shader variable */
         struct RAZIX_MEM_ALIGN_16 RZVertexInputBindingInfo
         {
@@ -129,32 +138,34 @@ namespace Razix {
         // https://github.com/ARM-software/vulkan_best_practice_for_mobile_developers/blob/master/samples/performance/descriptor_management/descriptor_management_tutorial.md
         // [Transient Resource System] https://logins.github.io/graphics/2021/05/31/RenderGraphs.html#:~:text=Transient%20Resource%20System,are%20also%20called%20transient%20resources.
 
-        const u32 kInvalidSetIdx = ~0;
-
         /* Shader pointer kind of variable that refers to a bunch of buffers or an image resources and their layout/binding information */
-        class RAZIX_API RZDescriptorSet : public RZRoot
+        class RAZIX_API RZDescriptorSet : public IRZResource<RZDescriptorSet>
         {
         public:
             RZDescriptorSet() = default;
-            RAZIX_VIRTUAL_DESCTURCTOR(RZDescriptorSet)
+            RAZIX_VIRTUAL_DESCTURCTOR(RZDescriptorSet);
 
+            GET_INSTANCE_SIZE;
+
+            /* Updates the descriptor set with the given descriptors */
+            virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors) = 0;
+
+            RAZIX_INLINE u32  getSetIdx() { return m_Desc.setIdx; }
+            RAZIX_INLINE void setSetIdx(u32 idx) { m_Desc.setIdx = idx; }
+
+        protected:
+            RZDescriptorSetDesc m_Desc;
+
+        private:
             /**
              * Creates the Razix Descriptor set with the given descriptors, it encapsulates the resource per set for all the shader stages
              * @note : As the name suggest the descriptor set contains a set of descriptor resources, along with the data and their binding information
              * 
              * @param descriptor The list of descriptor resources that will be uploaded by the set to various shader stages
              */
-            static RZDescriptorSet* Create(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG);
+            static RZDescriptorSet* Create(void* where, const RZDescriptorSetDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
 
-            /* Updates the descriptor set with the given descriptors */
-            virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors) = 0;
-            virtual void Destroy() const                                         = 0;
-
-            RAZIX_INLINE u32  getSetIdx() { return m_SetIdx; }
-            RAZIX_INLINE void setSetIdx(u32 idx) { m_SetIdx = idx; }
-
-        protected:
-            u32 m_SetIdx = kInvalidSetIdx;
+            friend class RZResourceManager;
         };
     }    // namespace Gfx
 }    // namespace Razix

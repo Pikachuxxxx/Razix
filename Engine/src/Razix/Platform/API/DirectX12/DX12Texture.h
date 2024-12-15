@@ -24,8 +24,11 @@ namespace Razix {
             int32_t ReadPixels(u32 x, u32 y) override;
             void*   GetAPIHandlePtr() const override;
 
+            RAZIX_INLINE D3D12_SHADER_RESOURCE_VIEW_DESC getSrv() const { return m_Srv; }
+
         private:
-            ID3D12Resource* m_ResourceHandle;
+            ID3D12Resource*                 m_ResourceHandle;
+            D3D12_SHADER_RESOURCE_VIEW_DESC m_Srv;
         };
     }    // namespace Gfx
 }    // namespace Razix

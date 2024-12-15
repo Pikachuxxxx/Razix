@@ -13,13 +13,14 @@
 namespace Razix {
     namespace Gfx {
 
-        VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG)
+        VKDescriptorSet::VKDescriptorSet(const RZDescriptorSetDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
             : m_DescriptorPool(VK_NULL_HANDLE)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            m_Desc = desc;
             // This also works for set index since all the descriptors will have the same set idx
-            m_SetIdx = descriptors[0].bindingInfo.location.set;
+            //m_Desc.setIdx = desc.descriptors[0].bindingInfo.location.set;
 
             // Descriptor sets can't be created directly, they must be allocated from a pool like command buffers i.e. use a descriptor pool to allocate the descriptor sets
             // We first need to describe which descriptor types our descriptor sets are going to contain and how many of them, we allocate a pool for each type of descriptor
@@ -28,7 +29,7 @@ namespace Razix {
 
             std::vector<VkDescriptorSetLayoutBinding> setLayoutBindingInfos;
 
-            for (auto descriptor: descriptors) {
+            for (auto descriptor: m_Desc.descriptors) {
                 VkDescriptorSetLayoutBinding setLayoutBindingInfo = {};
                 setLayoutBindingInfo.binding                      = descriptor.bindingInfo.location.binding;
                 setLayoutBindingInfo.descriptorCount              = 1;    // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array, if any (useful for Animation aka JointTransforms)
@@ -73,7 +74,8 @@ namespace Razix {
             m_ImageInfoPool          = new VkDescriptorImageInfo[MAX_COMBINED_IMAGE_INFOS];
             m_WriteDescriptorSetPool = new VkWriteDescriptorSet[MAX_WRITE_DESCRIPTORS];
 
-            UpdateSet(descriptors);
+            // Initial update
+            UpdateSet(m_Desc.descriptors);
         }
 
         void VKDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors)
@@ -187,23 +189,14 @@ namespace Razix {
                         descriptorWritesCount++;
                     } break;
                     case DescriptorType::kRWTyped:
-                        break;
                     case DescriptorType::kStructured:
-                        break;
                     case DescriptorType::kRWStructured:
-                        break;
                     case DescriptorType::kByteAddress:
-                        break;
                     case DescriptorType::kRWByteAddress:
-                        break;
                     case DescriptorType::kAppendStructured:
-                        break;
                     case DescriptorType::kConsumeStructured:
-                        break;
                     case DescriptorType::kRWStructuredCounter:
-                        break;
                     case DescriptorType::kRTAccelerationStructure:
-                        break;
                     default:
                         RAZIX_CORE_ERROR("[VULKAN] Unknow descriptor type!");
                         break;
@@ -212,9 +205,12 @@ namespace Razix {
             vkUpdateDescriptorSets(VKDevice::Get().getDevice(), descriptorWritesCount, m_WriteDescriptorSetPool, 0, nullptr);
         }
 
-        void VKDescriptorSet::Destroy() const
+        //-------------------------------------------------------------------------------------------
+        RAZIX_CLEANUP_RESOURCE_IMPL(VKDescriptorSet)
         {
             vkDestroyDescriptorSetLayout(VKDevice::Get().getDevice(), setLayout, nullptr);
         }
+        //-------------------------------------------------------------------------------------------
+
     }    // namespace Gfx
 }    // namespace Razix

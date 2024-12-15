@@ -15,7 +15,7 @@ namespace Razix {
         {
             NONE   = -1,
             VULKAN = 1,    // Working
-            D3D12  = 3,    // [WIP]
+            D3D12  = 3,    // [WIP] // PC & XBOX
             GXM    = 4,    // Not Supported yet! (PSVita)
             GCM    = 5,    // Not Supported yet! (PS3)
             AGC,
