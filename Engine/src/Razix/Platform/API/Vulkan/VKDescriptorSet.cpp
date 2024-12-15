@@ -83,7 +83,7 @@ namespace Razix {
             int descriptorWritesCount = 0;
             int imageWriteIdx         = 0;
             int uniformBufferWriteIdx = 0;
-            
+
             // Fix the code duplication
 
             for (auto& descriptor: descriptors) {
@@ -171,7 +171,7 @@ namespace Razix {
                         if (texturePtr) {
                             VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
 
-                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_GENERAL;    // load from resource??
                             m_ImageInfoPool[imageWriteIdx].imageView   = des.imageView;
                         } else {
                             m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;

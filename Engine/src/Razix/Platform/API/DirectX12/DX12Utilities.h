@@ -16,7 +16,7 @@ namespace Razix {
         enum class BlendOp;
         enum class BlendFactor;
         enum class CompareOp;
-        enum ShaderStage;
+        enum ShaderStage : u32;
         enum class DescriptorType : u32;
         enum class ImageLayout : u32;
         enum class PipelineStage : u32;

@@ -51,6 +51,7 @@
     // Profilers
     #include <Tracy.hpp>
     // GLM
+    #define GLM_FORCE_LEFT_HANDED
     #include <glm/glm.hpp>
     // Cereal
     #include <cereal/cereal.hpp>

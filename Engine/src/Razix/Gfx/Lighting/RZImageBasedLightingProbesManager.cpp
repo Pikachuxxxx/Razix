@@ -25,6 +25,7 @@
 
 #include "Razix/Utilities/RZLoadImage.h"
 
+#define GLM_FORCE_LEFT_HANDED
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <vulkan/vulkan.h>
@@ -34,6 +35,8 @@
 namespace Razix {
     namespace Gfx {
 
+        // TODO: These can be be moved to shader and use SV_DispatchThreadID.z to directly index onto,
+        // no need of a uniform buffer, we can just pass AABB if needed in future for local cubemaps
         static const auto kCubeProjection =
             glm::perspective(glm::radians(90.0f), 1.0f, 0.0f, 1.0f);
 
@@ -70,30 +73,28 @@ namespace Razix {
 
             RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture(equiMapTextureDesc);
 
-            std::vector<RZDescriptorSet*>      envMapSets;
-            std::vector<RZUniformBufferHandle> UBOs;
+            RZDescriptorSet*      envMapSet = nullptr;
+            RZUniformBufferHandle UBO;
 
             constexpr u32 dim = 512;
-            
+
             struct ViewProjLayerUBOData
             {
-                alignas(16) glm::mat4 view       = glm::mat4(1.0f);
-                alignas(16) glm::mat4 projection = glm::mat4(1.0f);
-                alignas(16) glm::ivec2 cubeFaceSize = {dim, dim};
+                glm::ivec2 cubeFaceSize = {dim, dim};
+                u32        mipLevel     = 0;
             } uboData;
-            
+
             RZTextureDesc cubeMapTextureDesc = {};
             cubeMapTextureDesc.name          = "Texture.Imported.HDR.EnvMap",
             cubeMapTextureDesc.width         = dim;
             cubeMapTextureDesc.height        = dim;
             cubeMapTextureDesc.layers        = 6;
-            cubeMapTextureDesc.type          = TextureType::Texture_CubeMap;
+            cubeMapTextureDesc.type          = TextureType::Texture_RW2DArray;
             cubeMapTextureDesc.format        = TextureFormat::RGBA32F;
             cubeMapTextureDesc.filtering     = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
             cubeMapTextureDesc.enableMips    = false;
 
             RZTextureHandle cubeMapHandle = RZResourceManager::Get().createTexture(cubeMapTextureDesc);
-
 
             // FIXME: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behavior is unknown, yet!
 
@@ -101,59 +102,36 @@ namespace Razix {
             auto shaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::EnvToCubemap);
             auto shader       = RZResourceManager::Get().getShaderResource(shaderHandle);
             auto setInfos     = shader->getDescriptorsPerHeapMap();
-            for (int i = 0; i < 6; i++) {
-                uboData.view             = kCaptureViews[i];
-                uboData.projection       = kCubeProjection;
-                uboData.projection[1][1] = -1;
 
-                RZBufferDesc vplBufferDesc{};
-                vplBufferDesc.name = "ViewProjLayerUBOData : #" + std::to_string(i);
-                vplBufferDesc.size = sizeof(ViewProjLayerUBOData);
-                vplBufferDesc.data = &uboData;
+            RZBufferDesc vplBufferDesc{};
+            vplBufferDesc.name = "ViewProjLayerUBOData";
+            vplBufferDesc.size = sizeof(ViewProjLayerUBOData);
+            vplBufferDesc.data = &uboData;
 
-                RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer(vplBufferDesc);
+            RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer(vplBufferDesc);
 
-                UBOs.push_back(viewProjLayerUBO);
-
-                for (auto& setInfo: setInfos) {
-                    // Fill the descriptors with buffers and textures
-                    for (auto& descriptor: setInfo.second) {
-                        if(descriptor.name == "HDRTexture")
-                            descriptor.texture = equirectangularMapHandle;
-                        if(descriptor.name == "HDRSampler")
-                            descriptor.texture = equirectangularMapHandle;
-                        if(descriptor.name == "CubeMapRT")
-                            descriptor.texture = cubeMapHandle;
-                        if(descriptor.name == "Constants")
-                            descriptor.uniformBuffer = viewProjLayerUBO;
-                        // TODO: Re-write this cluster fuck code using some kind of binning cache hash_map using shader resource names
-                        // TODO: Or use something like...
-//                        switch(descriptor.bindingInfo.type){
-//                            case Gfx::DescriptorType::kTexture:
-//                            case  Gfx::DescriptorType::kSampler:
-//                                if(descriptor.name == "HDRTexture")
-//                                descriptor.texture = equirectangularMapHandle;
-//                                break;
-//                            case DescriptorType::kUniformBuffer:
-//                                descriptor.uniformBuffer = viewProjLayerUBO;
-//                                break;
-//                            default:
-//                                break;
-//                        }
-                    }
-                    auto set = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Env map conversion set : #" + std::to_string(i)));
-                    envMapSets.push_back(set);
+            for (auto& setInfo: setInfos) {
+                // Fill the descriptors with buffers and textures
+                for (auto& descriptor: setInfo.second) {
+                    if (descriptor.name == "HDRTexture")
+                        descriptor.texture = equirectangularMapHandle;
+                    if (descriptor.name == "HDRSampler")
+                        descriptor.texture = equirectangularMapHandle;
+                    if (descriptor.name == "CubeMapRT")
+                        descriptor.texture = cubeMapHandle;
+                    if (descriptor.name == "Constants")
+                        descriptor.uniformBuffer = viewProjLayerUBO;
                 }
-                
+                envMapSet = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Env map conversion set"));
             }
 
             // Create the Pipeline
-            Gfx::RZPipelineDesc pipelineInfo    = {};
-            pipelineInfo.name                   = "Pipeline.EnvMapGen";
-            pipelineInfo.pipelineType           = PipelineType::kCompute;
-            pipelineInfo.shader                 = shaderHandle;
-            RZPipelineHandle envMapPipeline     = RZResourceManager::Get().createPipeline(pipelineInfo);
- 
+            Gfx::RZPipelineDesc pipelineInfo = {};
+            pipelineInfo.name                = "Pipeline.EnvMapGen";
+            pipelineInfo.pipelineType        = PipelineType::kCompute;
+            pipelineInfo.shader              = shaderHandle;
+            RZPipelineHandle envMapPipeline  = RZResourceManager::Get().createPipeline(pipelineInfo);
+
             constexpr u32 layerCount = 6;
 
             // Begin rendering
@@ -173,11 +151,8 @@ namespace Razix {
                 //pc.data        = &idx;
                 //RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
 
-                for (u32 i = 0; i < layerCount; i++) {
-                    RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
-                    //RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
-                    RHI::Dispatch(cmdBuffer, dim, dim, layerCount);
-                }
+                RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSet, BindingTable_System::SET_IDX_SYSTEM_START);
+                RHI::Dispatch(cmdBuffer, dim, dim, layerCount);
                 RAZIX_MARK_END()
                 RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
@@ -206,7 +181,7 @@ namespace Razix {
             irradianceMapTextureDesc.width         = dim;
             irradianceMapTextureDesc.height        = dim;
             irradianceMapTextureDesc.layers        = 6;
-            irradianceMapTextureDesc.type          = TextureType::Texture_CubeMap;
+            irradianceMapTextureDesc.type          = TextureType::Texture_RW2DArray;
             irradianceMapTextureDesc.format        = TextureFormat::RGBA32F;
             irradianceMapTextureDesc.wrapping      = Wrapping::CLAMP_TO_EDGE;
             irradianceMapTextureDesc.filtering     = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};

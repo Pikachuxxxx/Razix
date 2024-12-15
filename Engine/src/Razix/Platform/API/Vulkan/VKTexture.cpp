@@ -452,18 +452,21 @@ namespace Razix {
             VkImageCreateFlags flags{0};
             if (desc.type == TextureType::Texture_CubeMap || desc.type == TextureType::Texture_CubeMapArray)
                 flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-                // https://www.reddit.com/r/vulkan/comments/pc87in/whats_the_correct_way_to_create_a_2d_image_array/
-                // VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT
-                // This makes is so that you can use a sampler2DArray with a 3D image.
-                //else if (desc.type == TextureType::Texture_2DArray)
-                //    flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
+            // https://www.reddit.com/r/vulkan/comments/pc87in/whats_the_correct_way_to_create_a_2d_image_array/
+            // VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT
+            // This makes is so that you can use a sampler2DArray with a 3D image.
+            //else if (desc.type == TextureType::Texture_2DArray)
+            //    flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
+
+            if (desc.type == TextureType::Texture_RW1D || desc.type == TextureType::Texture_RW2D || desc.type == TextureType::Texture_RW2DArray || desc.type == TextureType::Texture_RW3D)
+                usageBit = VkImageUsageFlagBits(usageBit | VK_IMAGE_USAGE_STORAGE_BIT);
 
                 // Create the Vulkan Image and it's memory and Bind them together
                 // We use a simple optimal tiling options
 #if !RAZIX_USE_VMA
-            VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
+            VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
 #else
-            VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_VMAAllocation, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
+            VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_VMAAllocation, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
 #endif
 
             //  There are two transitions we need to handle:
@@ -493,7 +496,6 @@ namespace Razix {
             //
             //    VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
             //}
-
             VKUtilities::CopyDataToGPUTextureResource(pixels, m_Image, m_Desc.width, m_Desc.height, m_Size);
 
             // Delete and clean up any temp stuff
@@ -516,6 +518,7 @@ namespace Razix {
                 m_AspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
 
             // TODO: Support loading multiple images into multiple layers/depths
+            // TODO: RWTexture2DArray should be translatable into a CUBE_MAP_VIEW_BIT
             // Create the Image view for the Vulkan image (uses color bit)
             m_ImageViews.push_back(CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_TotalMipLevels, VKUtilities::TextureTypeToVKViewType(desc.type), m_AspectBit, desc.layers, 0, 0 RZ_DEBUG_E_ARG_NAME));
 
@@ -541,6 +544,8 @@ namespace Razix {
             return true;
         }
 
+        // TODO: Clean up the repeated shit in init and load functions
+
         void VKTexture::init(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_ASSERT_MESSAGE(desc.width && desc.height, "[VULKAN] cannot create texture with null widht/height.");
@@ -558,11 +563,17 @@ namespace Razix {
             VkImageCreateFlags flags{0};
             if (desc.type == TextureType::Texture_CubeMap || desc.type == TextureType::Texture_CubeMapArray)
                 flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-                // https://www.reddit.com/r/vulkan/comments/pc87in/whats_the_correct_way_to_create_a_2d_image_array/
-                // VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT
-                // This makes is so that you can use a sampler2DArray with a 3D image.
-                //else if (desc.type == TextureType::Texture_2DArray)
-                //    flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
+            // https://www.reddit.com/r/vulkan/comments/pc87in/whats_the_correct_way_to_create_a_2d_image_array/
+            // VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT
+            // This makes is so that you can use a sampler2DArray with a 3D image.
+            //else if (desc.type == TextureType::Texture_2DArray)
+            //    flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
+
+            bool storageImage = false;
+            if (desc.type == TextureType::Texture_RW1D || desc.type == TextureType::Texture_RW2D || desc.type == TextureType::Texture_RW2DArray || desc.type == TextureType::Texture_RW3D) {
+                storageImage = true;
+                usageBit     = VkImageUsageFlagBits(usageBit | VK_IMAGE_USAGE_STORAGE_BIT);
+            }
 
 // Create the Vulkan Image and it's memory and Bind them together
 // We use a simple optimal tiling options
@@ -597,9 +608,10 @@ namespace Razix {
             m_ImageSampler           = CreateImageSampler(VKUtilities::TextureFilterToVK(m_Desc.filtering.magFilter), VKUtilities::TextureFilterToVK(m_Desc.filtering.minFilter), 0.0f, static_cast<f32>(m_TotalMipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_Desc.wrapping), VKUtilities::TextureWrapToVK(m_Desc.wrapping), VKUtilities::TextureWrapToVK(m_Desc.wrapping) RZ_DEBUG_E_ARG_NAME);
 
             //if (!m_Desc.enableMips)
-            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, m_TotalMipLevels, desc.layers);
+            VkImageLayout finalLayout = storageImage ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, finalLayout, m_TotalMipLevels, desc.layers);
 
-            m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            m_ImageLayout = finalLayout;
 
             updateDescriptor();
         }

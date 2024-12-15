@@ -250,15 +250,19 @@ namespace Razix {
             {
                 switch (type) {
                     case TextureType::Texture_1D:
+                    case TextureType::Texture_RW1D:
                         return VK_IMAGE_TYPE_1D;
                     case TextureType::Texture_2D:
+                    case TextureType::Texture_RW2D:
                     case TextureType::Texture_2DArray:
+                    case TextureType::Texture_RW2DArray:
                     case TextureType::Texture_Depth:
                     case TextureType::Texture_CubeMap:
                     case TextureType::Texture_CubeMapArray:
                     case TextureType::Texture_SwapchainImage:
                         return VK_IMAGE_TYPE_2D;
                     case TextureType::Texture_3D:
+                    case TextureType::Texture_RW3D:
                         return VK_IMAGE_TYPE_3D;
                     default:
                         RAZIX_CORE_WARN("[Texture] Unsupported Texture Type");
@@ -271,10 +275,13 @@ namespace Razix {
             {
                 switch (type) {
                     case TextureType::Texture_1D:
+                    case TextureType::Texture_RW1D:
                         return VK_IMAGE_VIEW_TYPE_1D;
                     case TextureType::Texture_2D:
+                    case TextureType::Texture_RW2D:
                         return VK_IMAGE_VIEW_TYPE_2D;
                     case TextureType::Texture_2DArray:
+                    case TextureType::Texture_RW2DArray:
                         return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
                     case TextureType::Texture_Depth:
                         return VK_IMAGE_VIEW_TYPE_2D;
@@ -285,6 +292,7 @@ namespace Razix {
                     case TextureType::Texture_SwapchainImage:
                         return VK_IMAGE_VIEW_TYPE_2D;
                     case TextureType::Texture_3D:
+                    case TextureType::Texture_RW3D:
                         return VK_IMAGE_VIEW_TYPE_3D;
                     default:
                         RAZIX_CORE_WARN("[Texture] Unsupported Texture View Type");
