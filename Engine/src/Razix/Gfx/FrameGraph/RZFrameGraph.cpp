@@ -276,7 +276,7 @@ namespace Razix {
 
                         auto &attachment_info = output["attachment_info"];
 
-                        AttachmentInfo attachInfo{};
+                        RenderTargetAttachmentInfo attachInfo{};
                         bool           hasAttachmentInfo = false;
                         if (!attachment_info.empty()) {
                             hasAttachmentInfo = true;

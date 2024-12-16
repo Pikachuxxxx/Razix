@@ -174,17 +174,17 @@ namespace Razix {
             }
         }
 
-        RAZIX_NO_DISCARD u32 AttachmentInfo::encode()
+        RAZIX_NO_DISCARD u32 RenderTargetAttachmentInfo::encode()
         {
             return EncodeAttachmentInfo(*this);
         }
 
-        RAZIX_NO_DISCARD AttachmentInfo::operator u32() const
+        RAZIX_NO_DISCARD RenderTargetAttachmentInfo::operator u32() const
         {
             return EncodeAttachmentInfo(*this);
         }
 
-        RAZIX_NO_DISCARD u32 EncodeAttachmentInfo(AttachmentInfo info)
+        RAZIX_NO_DISCARD u32 EncodeAttachmentInfo(RenderTargetAttachmentInfo info)
         {
             uint32_t bits{0};
             bits = glm::bitfieldInsert(bits, (u32) info.clear, kClearBitsOffset, kClearBits);
@@ -196,9 +196,9 @@ namespace Razix {
             return bits;
         }
 
-        AttachmentInfo DecodeAttachmentInfo(u32 bits)
+        RenderTargetAttachmentInfo DecodeAttachmentInfo(u32 bits)
         {
-            AttachmentInfo info{};
+            RenderTargetAttachmentInfo info{};
             info.clear      = glm::bitfieldExtract(bits, kClearBitsOffset, kClearBits);
             info.clearColor = (ClearColorPresets) glm::bitfieldExtract(bits, kClearColorBitsOffset, kClearColorBits);
             info.bindingIdx = glm::bitfieldExtract(bits, kBindingRTBitsOffset, kBindingRTBits);

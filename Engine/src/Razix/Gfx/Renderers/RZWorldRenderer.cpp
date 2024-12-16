@@ -66,14 +66,15 @@ namespace Razix {
 
             // These are system level code passes so always enabled
             uploadFrameData(scene, settings);
-//            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
+            //            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
 
-            m_GlobalLightProbes.skybox = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/sunset.hdr");
+            m_GlobalLightProbes.skybox  = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//Assets/Textures/HDR/newport_loft.hdr");
+            m_GlobalLightProbes.diffuse = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
 
             //-------------------------------
             // [TEST] GS CUBE
             //-------------------------------
-//            m_GSCubeTestPass.addPass(m_FrameGraph, scene, &settings);
+            //            m_GSCubeTestPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // [TEST] HELLO TEXTURE

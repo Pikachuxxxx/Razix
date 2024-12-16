@@ -52,7 +52,7 @@ namespace Razix {
                 FrameGraph::RZFrameGraphResource Depth;
             };
 
-//            auto& frameData = framegraph.getBlackboard().get<FrameData>();
+            // auto& frameData = framegraph.getBlackboard().get<FrameData>();
 
             framegraph.getBlackboard().add<GSCubeData>() = framegraph.addCallbackPass<GSCubeData>(
                 "[Test] Pass.Builtin.Code.GSCube",

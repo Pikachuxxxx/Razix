@@ -548,7 +548,7 @@ namespace Razix {
 
         void VKTexture::init(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
-            RAZIX_ASSERT_MESSAGE(desc.width && desc.height, "[VULKAN] cannot create texture with null widht/height.");
+            RAZIX_ASSERT_MESSAGE(desc.width && desc.height, "[VULKAN] cannot create texture with null width/height.");
 
             m_TotalMipLevels = 1;
             if (m_Desc.enableMips)
@@ -569,8 +569,9 @@ namespace Razix {
             //else if (desc.type == TextureType::Texture_2DArray)
             //    flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
 
+            // TODO: Use < or > symbols than this cluster fuck code of multiple ||s
             bool storageImage = false;
-            if (desc.type == TextureType::Texture_RW1D || desc.type == TextureType::Texture_RW2D || desc.type == TextureType::Texture_RW2DArray || desc.type == TextureType::Texture_RW3D) {
+            if (desc.type == TextureType::Texture_RW1D || desc.type == TextureType::Texture_RW2D || desc.type == TextureType::Texture_RW2DArray || desc.type == TextureType::Texture_RW3D || desc.type == TextureType::Texture_RW3D) {
                 storageImage = true;
                 usageBit     = VkImageUsageFlagBits(usageBit | VK_IMAGE_USAGE_STORAGE_BIT);
             }

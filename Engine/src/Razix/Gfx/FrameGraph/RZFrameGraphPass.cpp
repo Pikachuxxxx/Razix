@@ -67,7 +67,7 @@ namespace Razix {
                 auto &writeResourceIDs = node.getOutputResources();
                 for (auto &writeResourceID: writeResourceIDs) {
                     // Get the attachment info
-                    AttachmentInfo attachmentInfo{};
+                    RenderTargetAttachmentInfo attachmentInfo{};
                     if (writeResourceID.flags != kFlagsNone)
                         attachmentInfo = DecodeAttachmentInfo(writeResourceID.flags);
 

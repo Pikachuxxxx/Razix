@@ -1,18 +1,9 @@
 /*
- * Razix Shader File 
- * Shader.Builtin.GenerateIrradianceMap.rzsf : Generate the irradiance map from the cubemap
- * Copyright Razix Engine 2024by Pikachuxxxx (Phani Srikar)
+ * Razix Shader File (Builtin shader)
+ * Shader.Builtin.GenerateIrradianceMap.rzsf : Generate the irradiance map from the cubemap using a compute shader
+ * Copyright Razix Engine 2024 by Pikachuxxxx (Phani Srikar)
  */
 
-#shader vertex
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.EnvToCubeMap.vert.spv
-    #endif
+#shader compute
+    #include Shader.Builtin.GenerateIrradianceMap.comp
 #end
-
-// Including the default fragment shader
-#shader fragment
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.ConvoluteCubeMap.frag.spv
-    #endif
-#end#pragma once

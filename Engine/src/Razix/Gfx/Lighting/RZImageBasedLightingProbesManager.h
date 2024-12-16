@@ -22,7 +22,9 @@ namespace Razix {
 
             static RZTextureHandle convertEquirectangularToCubemap(const std::string& hdrFilePath);
             static RZTextureHandle generateIrradianceMap(RZTextureHandle cubeMap);
+#if 0
             static RZTextureHandle generatePreFilteredMap(RZTextureHandle cubeMap);
+#endif
         };
     }    // namespace Gfx
 }    // namespace Razix

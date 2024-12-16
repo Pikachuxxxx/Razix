@@ -16,6 +16,7 @@ namespace Razix {
             Texture_RW3D,
             Texture_Depth,
             Texture_CubeMap,
+            Texture_RWCubeMap,    // SRV is a CubeMap and UAV will be a RW@DArray view, special case
             Texture_CubeMapArray,
             Texture_SwapchainImage,
             COUNT
@@ -93,6 +94,7 @@ namespace Razix {
             "Texture_RW3D",
             "Texture_Depth",
             "Texture_CubeMap",
+            "Texture_RWCubeMap",
             "Texture_CubeMapArray",
             "Texture_SwapchainImage"};
 

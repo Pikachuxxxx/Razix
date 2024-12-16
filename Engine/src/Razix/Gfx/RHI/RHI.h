@@ -72,8 +72,8 @@ namespace Razix {
         {
             Resolution                                              resolution       = Resolution::kCustom; /* Resolution preset at which the scene will be rendered at         */
             glm::uvec2                                              extent           = {0, 0};              /* Viewport extents (used only when Resolution is set to custom)    */
-            std::vector<std::pair<RZTextureHandle, AttachmentInfo>> colorAttachments = {};                  /* List of attachments, texture and it's attachment info            */
-            std::pair<RZTextureHandle, AttachmentInfo>              depthAttachment  = {};                  /* The depth attachment and it's info                               */
+            std::vector<std::pair<RZTextureHandle, RenderTargetAttachmentInfo>> colorAttachments = {};                  /* List of attachments, texture and it's attachment info            */
+            std::pair<RZTextureHandle, RenderTargetAttachmentInfo>              depthAttachment  = {};                  /* The depth attachment and it's info                               */
             int                                                     layerCount       = 1;                   /* Total layers to render onto, needed for gl_Layer to work         */
             bool                                                    resize           = false;               /* Whether or not to enable resizing                                */
         };

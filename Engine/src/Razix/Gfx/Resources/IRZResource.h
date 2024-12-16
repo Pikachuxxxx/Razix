@@ -46,6 +46,33 @@
 namespace Razix {
     namespace Gfx {
 
+        //-----------------------------------------------------------------------------------
+
+        /**
+         * Preset for Resource Bind views
+         * For the initial stage of requirements we start off 
+         * with a enum and expand to a POD struct in future
+         */
+
+        /**
+         * Resource view hints provide a way to bind the resource views as needed
+         * these hints can be created at initialization time, and during bind time 
+         * to dynamically select the necessary view 
+         * 
+         * For ex. we can have a RWCubeMap viewed as Texture2DArray using the UAV hint 
+         * when writing to via compute shader and as a CubeMap using the SRV hint 
+         * while drawing a skybox, this is handled internally by the resource abstraction
+         */
+        enum ResourceViewHint : u8
+        {
+            kSRV,
+            kUAV,    // typically a RW resource
+            kRTV,
+            kDSV
+        };
+
+        //-----------------------------------------------------------------------------------
+
         template<typename T>
         class IRZResource
         {
@@ -86,12 +113,15 @@ namespace Razix {
             inline RZHandle<T>&       getHandle() { return m_Handle; }
             inline void               setHandle(const RZHandle<T>& handle) { m_Handle = handle; }
             inline RZUUID&            getUUID() { return m_UUID; }
+            inline ResourceViewHint   getResourceViewHints() { return m_ResourceViewHint; }
+            inline void               setResourceViewHints(ResourceViewHint hints) { m_ResourceViewHint = hints; }
 
         protected:
             rzstl::ReferenceCounter m_AtomicRefCounter = {};
             RZUUID                  m_UUID             = {};
             RZHandle<T>             m_Handle           = {};
             std::string             m_ResourceName     = "$UNNAMED_RESOURCE$";
+            ResourceViewHint        m_ResourceViewHint = kSRV;
         };
 
 #if 0
