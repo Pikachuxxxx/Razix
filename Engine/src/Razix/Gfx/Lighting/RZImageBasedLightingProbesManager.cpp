@@ -80,12 +80,15 @@ namespace Razix {
             cubeMapTextureDesc.width         = CUBEMAP_DIM;
             cubeMapTextureDesc.height        = CUBEMAP_DIM;
             cubeMapTextureDesc.layers        = CUBEMAP_LAYERS;
-            cubeMapTextureDesc.type          = TextureType::Texture_RW2DArray;
+            cubeMapTextureDesc.type          = TextureType::Texture_RWCubeMap;
             cubeMapTextureDesc.format        = TextureFormat::RGBA16F;
             cubeMapTextureDesc.filtering     = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
             cubeMapTextureDesc.enableMips    = false;
 
             RZTextureHandle cubeMapHandle = RZResourceManager::Get().createTexture(cubeMapTextureDesc);
+            // Since it has both UAV and SRV, vulkan will internall specialize the creating a UAV with the type of RWTexture2DArray since
+            // an actual RWTextureCube doesn't exist in shading languages
+            RZResourceManager::Get().getTextureResource(cubeMapHandle)->setResourceViewHints(ResourceViewHint::kSRV | ResourceViewHint::kUAV);
 
             // Load the shader
             auto shaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::EnvToCubemap);

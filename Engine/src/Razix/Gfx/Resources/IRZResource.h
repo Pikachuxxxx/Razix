@@ -62,13 +62,17 @@ namespace Razix {
          * For ex. we can have a RWCubeMap viewed as Texture2DArray using the UAV hint 
          * when writing to via compute shader and as a CubeMap using the SRV hint 
          * while drawing a skybox, this is handled internally by the resource abstraction
+         * 
+         * get/setResourceViewHints are used during descriptor heap bind time to bind the apt
+         * resource view and is exposed to client to select it explicitly, the shader reflection 
+         * API will also provide it's own hints to make this automatic
          */
         enum ResourceViewHint : u8
         {
-            kSRV,
-            kUAV,    // typically a RW resource
-            kRTV,
-            kDSV
+            kSRV = 1 << 0,
+            kUAV = 1 << 1,    // typically a RW resource
+            kRTV = 1 << 2,
+            kDSV = 1 << 3
         };
 
         //-----------------------------------------------------------------------------------
@@ -113,15 +117,15 @@ namespace Razix {
             inline RZHandle<T>&       getHandle() { return m_Handle; }
             inline void               setHandle(const RZHandle<T>& handle) { m_Handle = handle; }
             inline RZUUID&            getUUID() { return m_UUID; }
-            inline ResourceViewHint   getResourceViewHints() { return m_ResourceViewHint; }
-            inline void               setResourceViewHints(ResourceViewHint hints) { m_ResourceViewHint = hints; }
+            inline u8                 getResourceViewHints() { return m_ResourceViewHint; }
+            inline void               setResourceViewHints(u8 hints) { m_ResourceViewHint = hints; }
 
         protected:
             rzstl::ReferenceCounter m_AtomicRefCounter = {};
             RZUUID                  m_UUID             = {};
             RZHandle<T>             m_Handle           = {};
             std::string             m_ResourceName     = "$UNNAMED_RESOURCE$";
-            ResourceViewHint        m_ResourceViewHint = kSRV;
+            u8                      m_ResourceViewHint = kSRV;
         };
 
 #if 0

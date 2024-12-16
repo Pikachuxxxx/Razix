@@ -9,7 +9,7 @@ namespace Razix {
         /* Forward declaring types to reduce include file complexity */
         class RZTexture;
         class RZUniformBuffer;
-        enum ShaderStage: u32;
+        enum ShaderStage : u32;
 
         /* The format of the input variables in the shader */
         enum class VertexInputFormat : u32
@@ -80,6 +80,7 @@ namespace Razix {
             RZTextureHandle                       texture;
             std::vector<RZShaderBufferMemberInfo> uboMembers;
             DescriptorBindingInfo                 bindingInfo;
+            ResourceViewHint                      reflectedResourceViewHint;
             ///////////////////////////////////////////////////
             // NOT USED, ONLY FOR REFLECTION VERIFICATION WITH THE BINDING RESOURCE
             u32 size   = 0;    //? The size of the descriptor data, can also be extracted from UBO/Texture??
