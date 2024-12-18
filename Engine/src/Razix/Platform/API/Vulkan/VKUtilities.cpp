@@ -336,10 +336,6 @@ namespace Razix {
                     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
                 else
                     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                barrier.subresourceRange.baseMipLevel   = 0;
-                barrier.subresourceRange.levelCount     = mipLevels;
-                barrier.subresourceRange.baseArrayLayer = 0;
-                barrier.subresourceRange.layerCount     = layerCount;
 
                 VkPipelineStageFlags sourceStage      = 0;
                 VkPipelineStageFlags destinationStage = 0;
@@ -403,19 +399,19 @@ namespace Razix {
                 }
 
                 // Use a pipeline barrier to make sure the transition is done properly
-                vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+                //vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
                 // Transition image layout for layer and all mips at once
-                //for (u32 layer = 0; layer < layerCount; layer++) {
-                //    //for (u32 mipLevel = 0; mipLevel < mipLevels; mipLevel++) {
-                //    barrier.subresourceRange.baseMipLevel   = 0;
-                //    barrier.subresourceRange.levelCount     = mipLevels;    // ????? shouldn't it be total num of nips
-                //    barrier.subresourceRange.baseArrayLayer = layer;
-                //    barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;    // ????? shouldn't it be total num of layers
-                //    // Use a pipeline barrier to make sure the transition is done properly
-                //    vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
-                //    //}
-                //}
+                for (u32 layer = 0; layer < layerCount; layer++) {
+                    for (u32 mip = 0; mip < mipLevels; mip++) {
+                        barrier.subresourceRange.baseMipLevel   = mip;
+                        barrier.subresourceRange.levelCount     = 1;
+                        barrier.subresourceRange.baseArrayLayer = layer;
+                        barrier.subresourceRange.layerCount     = 1;
+                        // Use a pipeline barrier to make sure the transition is done properly
+                        vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+                    }
+                }
 
                 // End the buffer
                 VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);

@@ -159,7 +159,7 @@ namespace Razix {
 
         //-----------------------------------------------------------------------------------
 
-        void VKTexture::GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, u32 mipLevels, u32 layers /* = 1*/)
+        void VKTexture::GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, u32 mipLevels, u32 layers)
         {
             VkFormatProperties formatProperties;
             vkGetPhysicalDeviceFormatProperties(VKDevice::Get().getGPU(), imageFormat, &formatProperties);
@@ -169,7 +169,7 @@ namespace Razix {
             }
 
             for (size_t layerIdx = 0; layerIdx < layers; layerIdx++) {
-                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Generating Mips", Utilities::GenerateHashedColor4(225u));
+                VkCommandBuffer      commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Generating Mips", Utilities::GenerateHashedColor4(225u));
                 VkImageMemoryBarrier barrier{};
                 barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
                 barrier.image                           = image;
@@ -177,7 +177,7 @@ namespace Razix {
                 barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                 barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
                 barrier.subresourceRange.baseArrayLayer = static_cast<u32>(layerIdx);
-                barrier.subresourceRange.layerCount     = layers;
+                barrier.subresourceRange.layerCount     = 1;
                 barrier.subresourceRange.levelCount     = 1;
 
                 int32_t mipWidth  = texWidth;
@@ -207,12 +207,12 @@ namespace Razix {
                     blit.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
                     blit.srcSubresource.mipLevel       = i - 1;
                     blit.srcSubresource.baseArrayLayer = static_cast<u32>(layerIdx);
-                    blit.srcSubresource.layerCount     = layers;
+                    blit.srcSubresource.layerCount     = 1;
                     blit.dstOffsets[0]                 = {0, 0, 0};
                     blit.dstOffsets[1]                 = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1};
                     blit.dstSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
                     blit.dstSubresource.mipLevel       = i;
-                    blit.dstSubresource.baseArrayLayer = 0;
+                    blit.dstSubresource.baseArrayLayer = static_cast<u32>(layerIdx);
                     blit.dstSubresource.layerCount     = 1;
 
                     vkCmdBlitImage(commandBuffer,
@@ -484,15 +484,24 @@ namespace Razix {
             //      1. Undefined -> transfer destination: transfer writes that don't need to wait on anything
             //          1.1 Copy image from transfer staging buffer to the Image buffer on DEVICE
             //      2. Transfer destination -> shader reading: shader reads should wait on transfer writes, specifically the shader reads in the fragment shader, because that's where we're going to use the texture
-            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_TotalMipLevels, m_Desc.layers);
-
+            VkImageLayout firstTransitionLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             // Copy the data to GPU, if there is some
-            if (desc.data)
+            if (desc.data) {
+                firstTransitionLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, firstTransitionLayout, m_TotalMipLevels, m_Desc.layers);
                 VKUtilities::CopyDataToGPUTextureResource(m_Desc.data, m_Image, m_Desc.width, m_Desc.height, m_Desc.size, m_CurrentMipRenderingLevel, m_Desc.layers, m_BaseArrayLayer);
+            } else {
+                firstTransitionLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;    // used to generate mips just in case
+                VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, firstTransitionLayout, m_TotalMipLevels, m_Desc.layers);
+
+                // DEBUG: Testing if mips and all layers can successfully transition to another layout
+                //VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), firstTransitionLayout, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, m_TotalMipLevels, m_Desc.layers);
+
+            }
 
             delete desc.data;
 
-            // DEBUG: Generate on demand atleast while I'm debugging
+            // DEBUG: Generate on demand at least while I'm debugging
             //if (m_Desc.enableMips)
             //    VKTexture::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels, m_Desc.layers);
 
@@ -530,7 +539,7 @@ namespace Razix {
             ////////////////////////////////////////
 
             VkImageLayout finalLayout = (m_ResourceViewHint & kUAV) == kUAV ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, finalLayout, m_TotalMipLevels, desc.layers);
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), firstTransitionLayout, finalLayout, m_TotalMipLevels, desc.layers);
             m_ImageLayout = finalLayout;
         }
 
