@@ -222,7 +222,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
             VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
             const auto vkDescSet         = static_cast<const VKDescriptorSet*>(descriptorSet)->getDescriptorSet();
@@ -236,7 +236,7 @@ namespace Razix {
 
             u32 numDesciptorSets = 0;
 
-            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
             VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
             for (auto descriptorSet: descriptorSets) {
@@ -256,7 +256,7 @@ namespace Razix {
 
             u32 numDesciptorSets = 0;
 
-            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
             VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
             for (u32 i = 0; i < totalSets; i++) {
@@ -291,7 +291,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
             VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
             // Bind the Bindless Descriptor Set
@@ -340,17 +340,17 @@ namespace Razix {
 
                 // Fill the color attachments first
                 VkRenderingAttachmentInfoKHR attachInfo{};
-                attachInfo.sType     = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
-                auto apiHandle       = static_cast<VkDescriptorImageInfo*>(colorAttachment->GetAPIHandlePtr());
-                attachInfo.imageView = apiHandle->imageView;
+                attachInfo.sType      = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
+                VKTexture* backendPtr = static_cast<VKTexture*>(colorAttachment);
+                attachInfo.imageView  = backendPtr->getRTVImageView();
 
                 // Don't do this here, done manually bu the FG and user land code
 
                 if (colorAttachment->getFormat() == TextureFormat::SCREEN) {
                     auto vkImage = static_cast<VKTexture*>(colorAttachment);
-                    if (vkImage->getImageLayout() != VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL) {
-                        VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
-                        vkImage->setImageLayout(VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
+                    if (vkImage->getImageLayout() != VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+                        VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+                        vkImage->setImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
                     }
                     attachInfo.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                 } else
@@ -421,7 +421,7 @@ namespace Razix {
 
             std::vector<VkWriteDescriptorSet> writeDescriptorSets;
 
-            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
             VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
             int descriptorWritesCount = 0;

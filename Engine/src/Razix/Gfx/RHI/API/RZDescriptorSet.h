@@ -80,7 +80,6 @@ namespace Razix {
             RZTextureHandle                       texture                   = {};
             std::vector<RZShaderBufferMemberInfo> uboMembers                = {};
             DescriptorBindingInfo                 bindingInfo               = {};
-            ResourceViewHint                      reflectedResourceViewHint = kSRV;
             ///////////////////////////////////////////////////
             // TODO: Investigate if to move resourceHint from IRZResource to here
             // NOT USED, ONLY FOR REFLECTION VERIFICATION WITH THE BINDING RESOURCE

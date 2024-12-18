@@ -117,11 +117,11 @@ namespace Razix {
                         const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
 
                         if (texturePtr) {
-                            VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
+                            const VKTexture* backendPtr = static_cast<const VKTexture*>(texturePtr);
 
                             m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                            m_ImageInfoPool[imageWriteIdx].imageView   = des.imageView;
-                            m_ImageInfoPool[imageWriteIdx].sampler     = des.sampler;
+                            m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getSRVImageView();
+                            m_ImageInfoPool[imageWriteIdx].sampler     = backendPtr->getSampler();
                         } else {
                             m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
                             m_ImageInfoPool[imageWriteIdx].imageView   = VK_NULL_HANDLE;
@@ -141,13 +141,15 @@ namespace Razix {
                         descriptorWritesCount++;
                     } break;
                     case DescriptorType::kTexture: {
-                        const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
+                        RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
 
                         if (texturePtr) {
-                            VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
+                            VKTexture* backendPtr = static_cast<VKTexture*>(texturePtr);
+                            // transition to SHADER_READ_ONLY_OPTIMAL
+                            backendPtr->transitonImageLayoutToSRV();
 
                             m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                            m_ImageInfoPool[imageWriteIdx].imageView   = des.imageView;
+                            m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getSRVImageView();
                         } else {
                             m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
                             m_ImageInfoPool[imageWriteIdx].imageView   = VK_NULL_HANDLE;
@@ -166,13 +168,14 @@ namespace Razix {
                         descriptorWritesCount++;
                     } break;
                     case DescriptorType::kRWTexture: {
-                        const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
+                        RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
 
                         if (texturePtr) {
-                            VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
+                            VKTexture* backendPtr = static_cast<VKTexture*>(texturePtr);
+                            backendPtr->transitonImageLayoutToUAV();
 
                             m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_GENERAL;    // load from resource??
-                            m_ImageInfoPool[imageWriteIdx].imageView   = des.imageView;
+                            m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getUAVImageView();
                         } else {
                             m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
                             m_ImageInfoPool[imageWriteIdx].imageView   = VK_NULL_HANDLE;
@@ -194,9 +197,8 @@ namespace Razix {
                         const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
 
                         if (texturePtr) {
-                            VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
-
-                            m_ImageInfoPool[imageWriteIdx].sampler = des.sampler;
+                            const VKTexture* backendPtr            = static_cast<const VKTexture*>(texturePtr);
+                            m_ImageInfoPool[imageWriteIdx].sampler = backendPtr->getSampler();
                         } else {
                             m_ImageInfoPool[imageWriteIdx].sampler = VKTexture::CreateImageSampler();    // Use some default sampler!
                         }

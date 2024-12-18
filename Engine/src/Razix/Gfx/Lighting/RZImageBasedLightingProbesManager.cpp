@@ -36,14 +36,14 @@ namespace Razix {
     namespace Gfx {
 
 #define CUBEMAP_LAYERS            6
-#define CUBEMAP_DIM               512
+#define CUBEMAP_DIM               1024
 #define IRRADIANCE_MAP_DIM        32
 #define DISPATCH_THREAD_GROUP_DIM 32
 
         // TODO: Use this via a RootConstant or PushConstant along with the texture bindless id
         struct EnvMapGenUBOData
         {
-            glm::ivec2 cubeFaceSize = {CUBEMAP_DIM, CUBEMAP_DIM};
+            glm::ivec2 cubeFaceSize = {-1, -1};
             u32        mipLevel     = 0;
         } uboData;
 
@@ -73,22 +73,22 @@ namespace Razix {
             RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture(equiMapTextureDesc);
 
             RZDescriptorSet*      envMapSet = nullptr;
-            RZUniformBufferHandle UBO;
+            RZUniformBufferHandle UBO       = {};
 
-            RZTextureDesc cubeMapTextureDesc = {};
-            cubeMapTextureDesc.name          = "Texture.Imported.HDR.EnvMap",
-            cubeMapTextureDesc.width         = CUBEMAP_DIM;
-            cubeMapTextureDesc.height        = CUBEMAP_DIM;
-            cubeMapTextureDesc.layers        = CUBEMAP_LAYERS;
-            cubeMapTextureDesc.type          = TextureType::kRWCubeMap;
-            cubeMapTextureDesc.format        = TextureFormat::RGBA16F;
-            cubeMapTextureDesc.filtering     = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
-            cubeMapTextureDesc.enableMips    = false;
+            // Since it has both UAV and SRV, vulkan will internally specialize the creating a UAV with the type of RWTexture2DArray since
+            // an actual RWTextureCube doesn't exist in shading languages
+            RZTextureDesc cubeMapTextureDesc         = {};
+            cubeMapTextureDesc.name                  = "Texture.Imported.HDR.EnvMap",
+            cubeMapTextureDesc.width                 = CUBEMAP_DIM;
+            cubeMapTextureDesc.height                = CUBEMAP_DIM;
+            cubeMapTextureDesc.layers                = CUBEMAP_LAYERS;
+            cubeMapTextureDesc.type                  = TextureType::kRWCubeMap;
+            cubeMapTextureDesc.format                = TextureFormat::RGBA16F;
+            cubeMapTextureDesc.filtering             = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
+            cubeMapTextureDesc.initResourceViewHints = ResourceViewHint::kSRV | ResourceViewHint::kUAV;
+            cubeMapTextureDesc.enableMips            = false;
 
             RZTextureHandle cubeMapHandle = RZResourceManager::Get().createTexture(cubeMapTextureDesc);
-            // Since it has both UAV and SRV, vulkan will internall specialize the creating a UAV with the type of RWTexture2DArray since
-            // an actual RWTextureCube doesn't exist in shading languages
-            RZResourceManager::Get().getTextureResource(cubeMapHandle)->setResourceViewHints(ResourceViewHint::kSRV | ResourceViewHint::kUAV);
 
             // Load the shader
             auto shaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::EnvToCubemap);
@@ -98,6 +98,9 @@ namespace Razix {
             RZBufferDesc vplBufferDesc{};
             vplBufferDesc.name = "EnvMapUBOData";
             vplBufferDesc.size = sizeof(EnvMapGenUBOData);
+            //--------------
+            uboData.cubeFaceSize = {CUBEMAP_DIM, CUBEMAP_DIM};
+            //--------------
             vplBufferDesc.data = &uboData;
 
             RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer(vplBufferDesc);
@@ -150,16 +153,17 @@ namespace Razix {
 
         RZTextureHandle RZImageBasedLightingProbesManager::generateIrradianceMap(RZTextureHandle cubeMap)
         {
-            RZTextureDesc irradianceMapTextureDesc = {};
-            irradianceMapTextureDesc.name          = "Texture.IrradianceMap";
-            irradianceMapTextureDesc.width         = IRRADIANCE_MAP_DIM;
-            irradianceMapTextureDesc.height        = IRRADIANCE_MAP_DIM;
-            irradianceMapTextureDesc.layers        = CUBEMAP_LAYERS;
-            irradianceMapTextureDesc.type          = TextureType::kRW2DArray;
-            irradianceMapTextureDesc.format        = TextureFormat::RGBA16F;
-            irradianceMapTextureDesc.wrapping      = Wrapping::kClampToEdge;
-            irradianceMapTextureDesc.filtering     = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
-            irradianceMapTextureDesc.enableMips    = false;
+            RZTextureDesc irradianceMapTextureDesc         = {};
+            irradianceMapTextureDesc.name                  = "Texture.IrradianceMap";
+            irradianceMapTextureDesc.width                 = IRRADIANCE_MAP_DIM;
+            irradianceMapTextureDesc.height                = IRRADIANCE_MAP_DIM;
+            irradianceMapTextureDesc.layers                = CUBEMAP_LAYERS;
+            irradianceMapTextureDesc.type                  = TextureType::kRWCubeMap;
+            irradianceMapTextureDesc.format                = TextureFormat::RGBA16F;
+            irradianceMapTextureDesc.wrapping              = Wrapping::kClampToEdge;
+            irradianceMapTextureDesc.filtering             = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
+            irradianceMapTextureDesc.enableMips            = false;
+            irradianceMapTextureDesc.initResourceViewHints = ResourceViewHint::kSRV | ResourceViewHint::kUAV;
 
             RZTextureHandle irradianceMapHandle = RZResourceManager::Get().createTexture(irradianceMapTextureDesc);
 
@@ -175,6 +179,9 @@ namespace Razix {
             RZBufferDesc vplBufferDesc{};
             vplBufferDesc.name = "ViewProjLayerUBOData";
             vplBufferDesc.size = sizeof(EnvMapGenUBOData);
+            //--------------
+            uboData.cubeFaceSize = {IRRADIANCE_MAP_DIM, IRRADIANCE_MAP_DIM};
+            //--------------
             vplBufferDesc.data = &uboData;
 
             RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer(vplBufferDesc);
@@ -196,15 +203,10 @@ namespace Razix {
 
             // Create the Pipeline
             Gfx::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.name                   = "Pipeline.Irradiance";
-            pipelineInfo.pipelineType           = PipelineType::kCompute;
-            pipelineInfo.cullMode               = Gfx::CullMode::None;
-            pipelineInfo.drawType               = Gfx::DrawType::Triangle;
-            pipelineInfo.shader                 = cubemapConvolutionShaderHandle;
-            pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.colorAttachmentFormats = {Gfx::TextureFormat::RGBA32F};
-            RZPipelineHandle envMapPipeline     = RZResourceManager::Get().createPipeline(pipelineInfo);
+            pipelineInfo.name               = "Pipeline.Irradiance";
+            pipelineInfo.pipelineType       = PipelineType::kCompute;
+            pipelineInfo.shader             = cubemapConvolutionShaderHandle;
+            RZPipelineHandle envMapPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             // Begin rendering
             auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer();

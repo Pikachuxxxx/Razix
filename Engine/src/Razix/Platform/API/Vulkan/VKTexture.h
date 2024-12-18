@@ -136,15 +136,20 @@ namespace Razix {
             /* Updates into the global bindless pool */
             virtual void UploadToBindlessSet() override;
 
+            void transitonImageLayoutToSRV();
+            void transitonImageLayoutToUAV();
+
             RAZIX_INLINE VkImageLayout getImageLayout() const { return m_ImageLayout; }
             RAZIX_INLINE void          setImageLayout(VkImageLayout layout) { m_ImageLayout = layout; }
             RAZIX_INLINE VkImage       getImage() const { return m_Image; };
             RAZIX_INLINE VkImageView   getSRVImageView() const { return m_ResourceViews[m_BaseArrayLayer][m_CurrentMipRenderingLevel].srv; }
             RAZIX_INLINE VkImageView   getUAVImageView() const { return m_ResourceViews[m_BaseArrayLayer][m_CurrentMipRenderingLevel].uav; }
             RAZIX_INLINE VkImageView   getDSVImageView() const { return m_ResourceViews[m_BaseArrayLayer][m_CurrentMipRenderingLevel].dsv; }
+            RAZIX_INLINE VkImageView   getRTVImageView() const { return m_ResourceViews[m_BaseArrayLayer][m_CurrentMipRenderingLevel].rtv; }
             RAZIX_INLINE VkImageView   getSRVImageView(u32 layer, u32 mip) const { return m_ResourceViews[layer][mip].srv; }
             RAZIX_INLINE VkImageView   getUAVImageView(u32 layer, u32 mip) const { return m_ResourceViews[layer][mip].uav; }
             RAZIX_INLINE VkImageView   getDSVImageView(u32 layer, u32 mip) const { return m_ResourceViews[layer][mip].dsv; }
+            RAZIX_INLINE VkImageView   getRTVImageView(u32 layer, u32 mip) const { return m_ResourceViews[layer][mip].rtv; }
             RAZIX_DEPRECATED("VkSampler is depricated in VKTexture class, it will be separated soon!")
             RAZIX_INLINE VkSampler      getSampler() const { return m_ImageSampler; }
             RAZIX_INLINE VkDeviceMemory getDeviceMemory() const { return m_ImageMemory; }
@@ -172,7 +177,6 @@ namespace Razix {
 
             // split into more does one thing functions
             void initializeBackendHandles(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
-            void loadImageDataFromBuffer();
             void loadImageDataFromFile();
         };
     }    // namespace Gfx

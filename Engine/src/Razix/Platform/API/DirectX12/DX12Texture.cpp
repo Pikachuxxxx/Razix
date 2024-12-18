@@ -12,10 +12,6 @@ namespace Razix {
         {
         }
 
-        DX12Texture::DX12Texture(const RZTextureDesc& desc, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG)
-        {
-        }
-
         DX12Texture::DX12Texture(ID3D12Resource* backbuffer)
             : m_ResourceHandle(backbuffer)
         {
@@ -24,6 +20,11 @@ namespace Razix {
         void* DX12Texture::GetAPIHandlePtr() const
         {
             return m_ResourceHandle;
+        }
+
+        void DX12Texture::Resize(u32 width, u32 height)
+        {
+            throw std::logic_error("The method or operation is not implemented.");
         }
 
         int32_t DX12Texture::ReadPixels(u32 x, u32 y)

@@ -569,7 +569,6 @@ namespace Razix {
 
                     for (auto& textureHandle: texturePool.getHandles()) {
                         auto textureResource = RZResourceManager::Get().getTextureResource(textureHandle);
-                        ImGui::Image(textureResource->getDescriptorSet(), ImVec2(100, 100));
                         ImGui::Text("%s", textureResource->getDescription().name.c_str());
                     }
                 }

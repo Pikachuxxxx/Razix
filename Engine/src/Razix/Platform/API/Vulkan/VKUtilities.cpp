@@ -258,6 +258,7 @@ namespace Razix {
                     case TextureType::kRW2DArray:
                     case TextureType::kDepth:
                     case TextureType::kCubeMap:
+                    case TextureType::kRWCubeMap:
                     case TextureType::kCubeMapArray:
                     case TextureType::kSwapchainImage:
                         return VK_IMAGE_TYPE_2D;
@@ -286,6 +287,7 @@ namespace Razix {
                     case TextureType::kDepth:
                         return VK_IMAGE_VIEW_TYPE_2D;
                     case TextureType::kCubeMap:
+                    case TextureType::kRWCubeMap:
                         return VK_IMAGE_VIEW_TYPE_CUBE;
                     case TextureType::kCubeMapArray:
                         return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;

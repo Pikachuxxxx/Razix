@@ -69,12 +69,12 @@ float3 tangentToWorld(const float3 v, const float3 N, const float3 S, const floa
 //------------------------------------------------------------------------------
 // TODO: Optimization - use SH 
 // [Source]: copied from https://github.com/Nadrin/PBR/blob/master/data/shaders/hlsl/irmap.hlsl
-[numthreads(32, 32, 1)]
+[numthreads(32, 32, 1)]	
 void CS_MAIN(uint3 DTid: SV_DispatchThreadID)
 {
     uint faceIdx = DTid.z; // on CPU we have RHI::Dispatch(W/32, H/32, NUM_FACES = 6)
     uint2 localCoord = DTid.xy;
-    float2 uv = float2(localCoord) / float2(cubeFaceSize);
+    float2 uv = float2(localCoord) / float2(cubeFaceSize); // center it
     float3 N = UVToDirection(uv, faceIdx);
 
     float3 S, T;
@@ -84,13 +84,13 @@ void CS_MAIN(uint3 DTid: SV_DispatchThreadID)
 	// As a small optimization this also includes Lambertian BRDF assuming perfectly white surface (albedo of 1.0)
 	// so we don't need to normalize in PBR fragment shader (so technically it encodes exitant radiance rather than irradiance).
 	float3 irradiance = 0.0;
-	for(uint i=0; i<NumSamples; ++i) {
+	for(uint i = 0; i < NumSamples; ++i) {
 		float2 u  = sampleHammersley(i);
 		float3 Li = tangentToWorld(sampleHemisphere(u.x, u.y), N, S, T);
 		float cosTheta = max(0.0, dot(Li, N));
 
 		// PIs here cancel out because of division by pdf.
-		irradiance += 2.0 * EnvCubeMap.SampleLevel(IrradianceSampler, Li, 0).rgb * cosTheta;
+		irradiance += 2.0 * EnvCubeMap.SampleLevel(IrradianceSampler, -Li, 0).rgb * cosTheta;
 	}
 	irradiance /= float(NumSamples);
     IrradianceMap[DTid] = float4(irradiance, 1.0f);

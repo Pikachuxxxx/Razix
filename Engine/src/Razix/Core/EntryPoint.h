@@ -53,27 +53,44 @@ static int AttachConsole(void)
     //
     #include <windows.h>
 
-    #define RAZIX_PLATFORM_MAIN                                                                           \
-        int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) \
-        {                                                                                                 \
-            AttachConsole();                                                                              \
-            ShowWindow(GetConsoleWindow(), SW_SHOW);                                                      \
-            EngineMain(__argc, __argv);                                                                   \
-            while (Razix::RZApplication::Get().RenderFrame()) {                                           \
-            }                                                                                             \
-                                                                                                          \
-            Razix::RZApplication::Get().Quit();                                                           \
-            Razix::RZApplication::Get().SaveApp();                                                        \
-                                                                                                          \
-            EngineExit();                                                                                 \
-            FreeConsole();                                                                                \
-            return EXIT_SUCCESS;                                                                          \
-        }
+    #ifdef RAZIX_DISTRIBUTION
+        #define RAZIX_PLATFORM_MAIN                                                                           \
+            int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) \
+            {                                                                                                 \
+                AttachConsole();                                                                              \
+                ShowWindow(GetConsoleWindow(), SW_SHOW);                                                      \
+                EngineMain(__argc, __argv);                                                                   \
+                while (Razix::RZApplication::Get().RenderFrame()) {                                           \
+                }                                                                                             \
+                                                                                                              \
+                Razix::RZApplication::Get().Quit();                                                           \
+                Razix::RZApplication::Get().SaveApp();                                                        \
+                                                                                                              \
+                EngineExit();                                                                                 \
+                FreeConsole();                                                                                \
+                return EXIT_SUCCESS;                                                                          \
+            }
+    #else
+        #define RAZIX_PLATFORM_MAIN                                 \
+            int main(int argc, char** argv)                         \
+            {                                                       \
+                EngineMain(argc, argv);                             \
+                while (Razix::RZApplication::Get().RenderFrame()) { \
+                }                                                   \
+                                                                    \
+                Razix::RZApplication::Get().Quit();                 \
+                Razix::RZApplication::Get().SaveApp();              \
+                                                                    \
+                EngineExit();                                       \
+                return EXIT_SUCCESS;                                \
+            }
+
+    #endif
 
 /* Windows Entry point - WinMain */
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 static int EngineMain(int argc, char** argv)
-{    
+{
     // Read the command line arguments
     static std::vector<cstr> args;
     for (int32_t i = 1; i < argc; i++) {
@@ -155,7 +172,7 @@ static void EngineExit()
 /* Windows Entry point - WinMain */
 //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 static int EngineMain(int argc, char** argv)
-{    
+{
     // Read the command line arguments
     static std::vector<cstr> args;
     for (int32_t i = 1; i < argc; i++) {

@@ -37,7 +37,7 @@ namespace Razix {
             bool          enableMips            = false;                       /* Whether or not to generate mip maps or not for the texture    */
             bool          flipX                 = false;                       /* Flip the texture on X-axis during load                        */
             bool          flipY                 = true;                        /* Flip the texture on Y-axis during load                        */
-            u8            initResourceViewHints = 0;                           /* Hints to create different resource views internally           */
+            u8            initResourceViewHints = 1;                           /* (Default: SRV) Hints to create different resource views       */
             u32           dataSize              = sizeof(unsigned char);       /* data size of each pixel, HDR data vs normal pixel data        */
             std::string   filePath              = "";                          /* Filepath to load texture from, empty if not                   */
 
