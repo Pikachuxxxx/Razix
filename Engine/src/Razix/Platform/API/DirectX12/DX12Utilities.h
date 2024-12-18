@@ -86,7 +86,7 @@ namespace Razix {
             //-----------------------------------------------------------------------------------
 
             /* Creates a command buffer for single time use */
-            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer();
+            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color);
             /* Ends the recording of the single time command buffer */
             void EndSingleTimeCommandBuffer(ID3D12GraphicsCommandList2* commandList);
 

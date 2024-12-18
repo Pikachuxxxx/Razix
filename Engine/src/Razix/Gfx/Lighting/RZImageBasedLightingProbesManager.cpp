@@ -86,7 +86,7 @@ namespace Razix {
             cubeMapTextureDesc.format                = TextureFormat::RGBA16F;
             cubeMapTextureDesc.filtering             = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
             cubeMapTextureDesc.initResourceViewHints = ResourceViewHint::kSRV | ResourceViewHint::kUAV;
-            cubeMapTextureDesc.enableMips            = false;
+            cubeMapTextureDesc.enableMips            = true;
 
             RZTextureHandle cubeMapHandle = RZResourceManager::Get().createTexture(cubeMapTextureDesc);
 
@@ -128,7 +128,7 @@ namespace Razix {
             RZPipelineHandle envMapPipeline  = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             // Begin rendering
-            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer();
+            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("Environment Cubemap generation", glm::vec4(0.25f));
             {
                 RHI::SetCmdBuffer(cmdBuffer);
 
@@ -143,7 +143,10 @@ namespace Razix {
             }
             RZResourceManager::Get().destroyTexture(equirectangularMapHandle);
 
-            // TODO!!: Generate mip maps from first mip face
+            //Generate mip maps from first mip face
+            auto cubeMapTexture = RZResourceManager::Get().getTextureResource(cubeMapHandle);
+            cubeMapTexture->GenerateMips();
+
             if (envMapSet)
                 envMapSet->Destroy();
             RZResourceManager::Get().destroyPipeline(envMapPipeline);
@@ -209,7 +212,7 @@ namespace Razix {
             RZPipelineHandle envMapPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             // Begin rendering
-            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer();
+            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("Irradiance Cubemap generation", glm::vec4(0.5f));
             {
                 RHI::SetCmdBuffer(cmdBuffer);
 

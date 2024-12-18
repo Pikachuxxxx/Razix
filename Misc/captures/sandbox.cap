@@ -5,23 +5,24 @@
         "commandLine": "",
         "environment": [
         ],
-        "executable": "C:\\Dev\\Game Engines\\Razix\\bin\\Debug-windows-x86_64\\Sandbox.exe",
+        "executable": "X:\\Game Engines\\Razix\\bin\\Debug-windows-x86_64\\Sandbox.exe",
         "inject": false,
-        "numQueuedFrames": 0,
+        "numQueuedFrames": 1,
         "options": {
             "allowFullscreen": true,
             "allowVSync": true,
-            "apiValidation": false,
-            "captureAllCmdLists": false,
-            "captureCallstacks": false,
-            "captureCallstacksOnlyDraws": false,
+            "apiValidation": true,
+            "captureAllCmdLists": true,
+            "captureCallstacks": true,
+            "captureCallstacksOnlyDraws": true,
             "debugOutputMute": true,
             "delayForDebugger": 0,
-            "hookIntoChildren": false,
-            "refAllResources": false,
-            "verifyBufferAccess": false
+            "hookIntoChildren": true,
+            "refAllResources": true,
+            "softMemoryLimit": 0,
+            "verifyBufferAccess": true
         },
         "queuedFrameCap": 0,
-        "workingDir": "C:/Dev/Game Engines/Razix/build"
+        "workingDir": "X:/Game Engines/Razix"
     }
 }

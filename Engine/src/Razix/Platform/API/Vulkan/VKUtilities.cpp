@@ -27,7 +27,7 @@ namespace Razix {
                 VKBuffer transferBuffer = VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, cpuData RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging buffer to copy to Device only GPU buffer"));
                 {
                     // 1.1 Copy from staging buffer to Image
-                    VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+                    VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Copy Data to GPU Buffer", glm::vec4(0.9f, 0.76f, 0.54f, 1.0f));
 
                     VkBufferCopy region = {};
                     region.srcOffset    = 0;
@@ -47,7 +47,7 @@ namespace Razix {
                 VKBuffer* stagingBuffer = new VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<u32>(size), cpuData RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer for VKTexture"));
 
                 // 1.1 Copy from staging buffer to Image
-                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Copy Data to GPU Texture", glm::vec4(0.3f, 0.16f, 0.74f, 1.0f));
 
                 VkBufferImageCopy region               = {};
                 region.bufferOffset                    = 0;
@@ -323,7 +323,7 @@ namespace Razix {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                 // Begin the buffer since this done for computability with shader pipeline stages we use pipeline barrier to synchronize the transition
-                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Image Layout Transition", glm::vec4(0.25f, 0.5f, 0.75, 1.0f));
 
                 VkImageMemoryBarrier barrier = {};
                 barrier.sType                = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -340,16 +340,6 @@ namespace Razix {
                 barrier.subresourceRange.levelCount     = mipLevels;
                 barrier.subresourceRange.baseArrayLayer = 0;
                 barrier.subresourceRange.layerCount     = layerCount;
-
-                //if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL || newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL) {
-                //    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-
-                //    if (format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT) {
-                //        barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
-                //    }
-                //} else {
-                //    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                //}
 
                 VkPipelineStageFlags sourceStage      = 0;
                 VkPipelineStageFlags destinationStage = 0;
@@ -414,6 +404,18 @@ namespace Razix {
 
                 // Use a pipeline barrier to make sure the transition is done properly
                 vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+                // Transition image layout for layer and all mips at once
+                //for (u32 layer = 0; layer < layerCount; layer++) {
+                //    //for (u32 mipLevel = 0; mipLevel < mipLevels; mipLevel++) {
+                //    barrier.subresourceRange.baseMipLevel   = 0;
+                //    barrier.subresourceRange.levelCount     = mipLevels;    // ????? shouldn't it be total num of nips
+                //    barrier.subresourceRange.baseArrayLayer = layer;
+                //    barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;    // ????? shouldn't it be total num of layers
+                //    // Use a pipeline barrier to make sure the transition is done properly
+                //    vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+                //    //}
+                //}
 
                 // End the buffer
                 VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
@@ -588,7 +590,7 @@ namespace Razix {
             // Single Time Command Buffer Utility Functions
             //-----------------------------------------------------------------------------------
 
-            VkCommandBuffer BeginSingleTimeCommandBuffer()
+            VkCommandBuffer BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -608,12 +610,16 @@ namespace Razix {
 
                 VK_CHECK_RESULT(vkBeginCommandBuffer(commandBuffer, &beginInfo));
 
+                CmdBeginDebugUtilsLabelEXT(commandBuffer, commandUsage, color);
+
                 return commandBuffer;
             }
 
             void EndSingleTimeCommandBuffer(VkCommandBuffer commandBuffer)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                CmdEndDebugUtilsLabelEXT(commandBuffer);
 
                 VK_CHECK_RESULT(vkEndCommandBuffer(commandBuffer));
 

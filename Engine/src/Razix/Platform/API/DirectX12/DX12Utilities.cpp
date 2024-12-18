@@ -75,7 +75,7 @@ namespace Razix {
     #endif
             }
 
-            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer()
+            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color)
             {
                 auto device = Gfx::DX12Context::Get()->getDevice();
 
@@ -94,11 +94,15 @@ namespace Razix {
                 // retrieved when the command list is executed.
                 CHECK_HRESULT(commandList->SetPrivateDataInterface(__uuidof(ID3D12CommandAllocator), commandAllocator));
 
+                CmdBeginLabel(commandList, commandUsage, color);
+
                 return commandList;
             }
 
             void EndSingleTimeCommandBuffer(ID3D12GraphicsCommandList2* commandList)
             {
+                CmdEndLabel(commandList);
+
                 // Execute and wait until this work is done
                 commandList->Close();
 
@@ -156,7 +160,7 @@ namespace Razix {
                 auto            copyCommandQueue      = Gfx::DX12Context::Get()->getCopyQueue();
                 ID3D12Resource* pIntermediateResource = nullptr;
 
-                auto commandList = BeginSingleTimeCommandBuffer();
+                auto commandList = BeginSingleTimeCommandBuffer("Update Buffer Resource", glm::vec4(0.23, 0.45, 0.76f, 1.0f));
 
                 // Create an committed resource for the upload.
                 if (bufferData) {

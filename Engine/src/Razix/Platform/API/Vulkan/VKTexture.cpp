@@ -3,12 +3,16 @@
 // clang-format on
 #include "VKTexture.h"
 
+#include "Razix/Core/Markers/RZMarkers.h"
+
 #include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
 #include "Razix/Platform/API/Vulkan/VKBuffer.h"
 #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
 #include "Razix/Utilities/RZLoadImage.h"
+
+#include "Razix/Utilities/RZColorUtilities.h"
 
 #include <vendor/stb/stb_image_write.h>
 
@@ -165,7 +169,7 @@ namespace Razix {
             }
 
             for (size_t layerIdx = 0; layerIdx < layers; layerIdx++) {
-                VkCommandBuffer      commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Generating Mips", Utilities::GenerateHashedColor4(225u));
                 VkImageMemoryBarrier barrier{};
                 barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
                 barrier.image                           = image;
@@ -287,9 +291,7 @@ namespace Razix {
             m_Desc.format = TextureFormat::SCREEN;
             m_ImageLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-            // (0, 0) since swapchain has no layers and mips
-            m_ResourceViews[0][0]
-                .rtv = imageView;
+            m_FullResourceView.rtv = imageView;
         }
 
         //-------------------------------------------------------------------------------------------
@@ -304,7 +306,7 @@ namespace Razix {
 
             for (u32 l = 1; l < m_Desc.layers; l++) {
                 for (u32 m = 1; m < m_TotalMipLevels; m++) {
-                    auto uav = m_ResourceViews[l][m].uav;
+                    auto uav = m_LayerMipResourceViews[l][m].uav;
                     if (uav != VK_NULL_HANDLE)
                         vkDestroyImageView(VKDevice::Get().getDevice(), uav, nullptr);
                 }
@@ -346,7 +348,7 @@ namespace Razix {
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
             {
                 // 1.1 Copy from staging buffer to Image
-                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Read Pixels", glm::vec4(0.0f));
 
                 // TODO: Support layers and depth
                 VkBufferImageCopy region               = {};
@@ -382,7 +384,9 @@ namespace Razix {
             m_Desc.enableMips = true;
             m_TotalMipLevels  = static_cast<u32>(std::floor(std::log2(std::max(m_Desc.width, m_Desc.height)))) + 1;
 
-            VKTexture::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels);
+            VKTexture::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels, m_Desc.layers);
+
+            //initMipViewsPerFace();
         }
 
         void VKTexture::UploadToBindlessSet()
@@ -471,16 +475,15 @@ namespace Razix {
 // Create the Vulkan Image and it's memory and Bind them together
 // We use a simple optimal tiling options
 #if !RAZIX_USE_VMA
-            VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
+            VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
 #else
-            VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_VMAAllocation, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
+            VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_VMAAllocation, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
 #endif
 
             //  There are two transitions we need to handle:
             //      1. Undefined -> transfer destination: transfer writes that don't need to wait on anything
             //          1.1 Copy image from transfer staging buffer to the Image buffer on DEVICE
             //      2. Transfer destination -> shader reading: shader reads should wait on transfer writes, specifically the shader reads in the fragment shader, because that's where we're going to use the texture
-
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_TotalMipLevels, m_Desc.layers);
 
             // Copy the data to GPU, if there is some
@@ -489,8 +492,9 @@ namespace Razix {
 
             delete desc.data;
 
-            if (m_Desc.enableMips)
-                VKTexture::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels, m_Desc.layers);
+            // DEBUG: Generate on demand atleast while I'm debugging
+            //if (m_Desc.enableMips)
+            //    VKTexture::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels, m_Desc.layers);
 
             // Create the Image view for the Vulkan image (uses color bit)
             if (desc.format == TextureFormat::DEPTH32F || desc.format == TextureFormat::DEPTH16_UNORM || m_Desc.format == TextureFormat::DEPTH_STENCIL) {
@@ -500,31 +504,23 @@ namespace Razix {
                 m_AspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
 
             // We handle a special case here for RWTextureCube, we create both a SRV and UAV with different settings
+            // Create the Image view for every layer at 0 mip as default Shader Resource View
+            // We store the initial full resource view
             if (desc.type == TextureType::kRWCubeMap) {
                 if ((m_ResourceViewHint & kSRV) == kSRV)
-                    m_ResourceViews[RAZIX_TEXTURE_DEFAULT_ARRAY_LAYER][RAZIX_TEXTURE_DEFAULT_MIP_IDX].srv = CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_TotalMipLevels, VKUtilities::TextureTypeToVKViewType(TextureType::kCubeMap), m_AspectBit, desc.layers, 0, 0 RZ_DEBUG_E_ARG_NAME);
+                    m_FullResourceView.srv = CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_TotalMipLevels, VKUtilities::TextureTypeToVKViewType(TextureType::kCubeMap), m_AspectBit, desc.layers, RAZIX_TEXTURE_DEFAULT_ARRAY_LAYER, RAZIX_TEXTURE_DEFAULT_MIP_IDX RZ_DEBUG_E_ARG_NAME);
                 if ((m_ResourceViewHint & kUAV) == kUAV)
-                    m_ResourceViews[RAZIX_TEXTURE_DEFAULT_ARRAY_LAYER][RAZIX_TEXTURE_DEFAULT_MIP_IDX].uav = CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_TotalMipLevels, VKUtilities::TextureTypeToVKViewType(TextureType::kRW2DArray), m_AspectBit, desc.layers, 0, 0 RZ_DEBUG_E_ARG_NAME);
+                    m_FullResourceView.uav = CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_TotalMipLevels, VKUtilities::TextureTypeToVKViewType(TextureType::kRW2DArray), m_AspectBit, desc.layers, RAZIX_TEXTURE_DEFAULT_ARRAY_LAYER, RAZIX_TEXTURE_DEFAULT_MIP_IDX RZ_DEBUG_E_ARG_NAME);
 
             } else {
-                // Create the Image view at the 0 layer and 0 mip as a Shader Resource View default
                 if ((m_ResourceViewHint & kSRV) == kSRV)
-                    m_ResourceViews[RAZIX_TEXTURE_DEFAULT_ARRAY_LAYER][RAZIX_TEXTURE_DEFAULT_MIP_IDX].srv = CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_TotalMipLevels, VKUtilities::TextureTypeToVKViewType(desc.type), m_AspectBit, desc.layers, 0, 0 RZ_DEBUG_E_ARG_NAME);
+                    m_FullResourceView.srv = CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_TotalMipLevels, VKUtilities::TextureTypeToVKViewType(desc.type), m_AspectBit, desc.layers, RAZIX_TEXTURE_DEFAULT_ARRAY_LAYER, RAZIX_TEXTURE_DEFAULT_MIP_IDX RZ_DEBUG_E_ARG_NAME);
                 if ((m_ResourceViewHint & kUAV) == kUAV)
-                    m_ResourceViews[RAZIX_TEXTURE_DEFAULT_ARRAY_LAYER][RAZIX_TEXTURE_DEFAULT_MIP_IDX].uav = CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_TotalMipLevels, VKUtilities::TextureTypeToVKViewType(desc.type), m_AspectBit, desc.layers, 0, 0 RZ_DEBUG_E_ARG_NAME);
+                    m_FullResourceView.uav = m_FullResourceView.srv;
             }
 
-            if (m_Desc.enableMips) {
-                for (u32 l = 1; l < m_Desc.layers; l++) {
-                    for (u32 m = 1; m < m_TotalMipLevels; m++) {
-                        auto imageView = VKTexture::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_TotalMipLevels, VKUtilities::TextureTypeToVKViewType(desc.type), m_AspectBit, desc.layers, l, m);
-                        if ((m_ResourceViewHint & kSRV) == kSRV)
-                            m_ResourceViews[l][m].srv = imageView;
-                        if ((m_ResourceViewHint & kUAV) == kUAV)
-                            m_ResourceViews[l][m].uav = imageView;
-                    }
-                }
-            }
+            if (m_Desc.enableMips)
+                initMipViewsPerFace();
 
             ////////////////////////////////////////
             // DEPRECATED, soon to be removed!
@@ -550,6 +546,23 @@ namespace Razix {
             // Here the format for the texture is extracted based on bits per pixel
             m_Desc.format = Razix::Gfx::RZTexture::BitsToTextureFormat(RAZIX_TEXTURE_BITS_PER_PIXEL);    // everything is a 4-byte by default
             m_Desc.size   = static_cast<u64>(m_Desc.width * m_Desc.height * RAZIX_TEXTURE_BITS_PER_PIXEL * m_Desc.dataSize);
+        }
+
+        void VKTexture::initMipViewsPerFace()
+        {
+            // TODO: for each face per mip we have a 2D image view, if user wants' a more complicated view for
+            // instance a 2DArray view from layer 2:4 and mips 2:11 they need to use the explicit API
+            // The current setup is just to read each view as a 2D image
+
+            for (u32 l = 0; l < m_Desc.layers; l++) {
+                for (u32 m = 1; m < m_TotalMipLevels; m++) {
+                    auto imageView = VKTexture::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_TotalMipLevels, VKUtilities::TextureTypeToVKViewType(TextureType::k2D), m_AspectBit, 1, l, m);
+                    if ((m_ResourceViewHint & kSRV) == kSRV)
+                        m_LayerMipResourceViews[l][m - 1].srv = imageView;
+                    if ((m_ResourceViewHint & kUAV) == kUAV)
+                        m_LayerMipResourceViews[l][m - 1].uav = imageView;
+                }
+            }
         }
 
         //-----------------------------------------------------------------------------------
