@@ -168,6 +168,8 @@ namespace Razix {
                 RAZIX_CORE_ERROR("Texture image format does not support linear blitting!");
             }
 
+            VKUtilities::TransitionImageLayout(image, imageFormat, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels, layers);
+
             for (size_t layerIdx = 0; layerIdx < layers; layerIdx++) {
                 VkCommandBuffer      commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Generating Mips", Utilities::GenerateHashedColor4(225u));
                 VkImageMemoryBarrier barrier{};
@@ -386,7 +388,9 @@ namespace Razix {
 
             VKTexture::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels, m_Desc.layers);
 
-            //initMipViewsPerFace();
+            initMipViewsPerFace();
+
+            m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         }
 
         void VKTexture::UploadToBindlessSet()
@@ -496,7 +500,6 @@ namespace Razix {
 
                 // DEBUG: Testing if mips and all layers can successfully transition to another layout
                 //VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), firstTransitionLayout, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, m_TotalMipLevels, m_Desc.layers);
-
             }
 
             delete desc.data;

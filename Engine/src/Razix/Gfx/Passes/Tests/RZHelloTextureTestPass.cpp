@@ -51,7 +51,8 @@ namespace Razix {
             testTexDesc.enableMips = false;
             testTexDesc.filePath   = "//RazixContent/Textures/TestCheckerMap.png";
             testTexDesc.filtering  = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
-            testTexDesc.wrapping   = Wrapping::kRepeat;
+            testTexDesc.wrapping   = Wrapping::kClampToBorder;
+            testTexDesc.flipY      = false;
             m_TestTextureHandle    = RZResourceManager::Get().createTexture(testTexDesc);
 
             struct HelloTexturePassData
