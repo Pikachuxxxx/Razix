@@ -14,6 +14,29 @@ namespace Razix {
 
         // TODO: Just as we generate one image view per mip do the same per each layer
 
+        struct ImageResourceView
+        {
+            VkImageView uav = VK_NULL_HANDLE;
+            VkImageView srv = VK_NULL_HANDLE;
+            VkImageView rtv = VK_NULL_HANDLE;    // for swapchain
+            VkImageView dsv = VK_NULL_HANDLE;
+
+            void destroy() const
+            {
+                if (uav != VK_NULL_HANDLE)
+                    vkDestroyImageView(VKDevice::Get().getDevice(), uav, nullptr);
+
+                if (srv != VK_NULL_HANDLE)
+                    vkDestroyImageView(VKDevice::Get().getDevice(), srv, nullptr);
+
+                if (rtv != VK_NULL_HANDLE)
+                    vkDestroyImageView(VKDevice::Get().getDevice(), rtv, nullptr);
+
+                if (dsv != VK_NULL_HANDLE)
+                    vkDestroyImageView(VKDevice::Get().getDevice(), dsv, nullptr);
+            }
+        };
+
         /* Vulkan implementation of the RZTexture class */
         class VKTexture final : public RZTexture
         {
@@ -95,73 +118,62 @@ namespace Razix {
 
         public:
             VKTexture(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
-            VKTexture(const RZTextureDesc& desc, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG);
-            VKTexture(VkImage image, VkImageView imageView);
-            ~VKTexture() {}
 
             //---------------------------------------
             /* Releases the IRZResource */
             RAZIX_CLEANUP_RESOURCE
             //---------------------------------------
 
-            /* Binds the texture object to the given slot */
-            void Bind(u32 slot) override {}
-            /* Unbinds the texture object to the given slot */
-            void Unbind(u32 slot) override {}
             /* Resize the texture mostly useful for RTs and DRTs */
-            void Resize(u32 width, u32 height) override;
-            /* Gets the handle to the Vulkan texture i.e. Vulkan Image Descriptor */
-            void* GetAPIHandlePtr() const override { return (void*) &m_Descriptors[m_CurrentMipRenderingLevel]; }
+            virtual void Resize(u32 width, u32 height) override;
+            /* Gets the handle to the Vulkan texture i.e. vkImage handle */
+            virtual void* GetAPIHandlePtr() const override { return (void*) &m_Image; }
             // TODO: Add support for reading z/array layer
             /* Reads the pixels from the Image (supports only 2D as of now!) in a particular mip */
-            int32_t      ReadPixels(u32 x, u32 y) override;
+            virtual int32_t ReadPixels(u32 x, u32 y) override;
+            /* Generated mips maps per face */
             virtual void GenerateMips() override;
-
             /* Updates into the global bindless pool */
-            void UploadToBindlessSet() override;
-            /* Updates the descriptor about Vulkan image, it's sampler, View and layout */
-            RAZIX_INLINE void updateDescriptor();
-            /* Gets the layout of the image ex. depth or optimal etc. */
-            RAZIX_INLINE VkImageLayout getLayout() { return m_ImageLayout; }
-            /* Sets the vulkan image layout */
-            void setImageLayout(VkImageLayout layout)
-            {
-                m_ImageLayout = layout;
-                updateDescriptor();
-                // TODO: Update the Bindless descriptor set
-            }
-            /* Gets the descriptor info about the Vulkan Texture object in a particular mip level */
-            RAZIX_INLINE VkDescriptorImageInfo getDescriptor() { return m_Descriptors[m_CurrentMipRenderingLevel]; }
-            /* Gets the vulkan image object */
-            RAZIX_INLINE VkImage getImage() const { return m_Image; };
-            /* Gets the image view of the Vulkan image in a particular mip level */
-            RAZIX_INLINE VkImageView getImageView() const { return m_ImageViews[m_CurrentMipRenderingLevel]; }
-            /* Gets the sampler for the Vulkan image */
-            RAZIX_INLINE VkSampler getSampler() const { return m_ImageSampler; }
-            /* Gets the Vulkan image memory handle */
-            RAZIX_INLINE VkDeviceMemory getMemory() const { return m_ImageMemory; }
+            virtual void UploadToBindlessSet() override;
+
+            RAZIX_INLINE VkImageLayout getImageLayout() const { return m_ImageLayout; }
+            RAZIX_INLINE void          setImageLayout(VkImageLayout layout) { m_ImageLayout = layout; }
+            RAZIX_INLINE VkImage       getImage() const { return m_Image; };
+            RAZIX_INLINE VkImageView   getSRVImageView() const { return m_ResourceViews[m_BaseArrayLayer][m_CurrentMipRenderingLevel].srv; }
+            RAZIX_INLINE VkImageView   getUAVImageView() const { return m_ResourceViews[m_BaseArrayLayer][m_CurrentMipRenderingLevel].uav; }
+            RAZIX_INLINE VkImageView   getDSVImageView() const { return m_ResourceViews[m_BaseArrayLayer][m_CurrentMipRenderingLevel].dsv; }
+            RAZIX_INLINE VkImageView   getSRVImageView(u32 layer, u32 mip) const { return m_ResourceViews[layer][mip].srv; }
+            RAZIX_INLINE VkImageView   getUAVImageView(u32 layer, u32 mip) const { return m_ResourceViews[layer][mip].uav; }
+            RAZIX_INLINE VkImageView   getDSVImageView(u32 layer, u32 mip) const { return m_ResourceViews[layer][mip].dsv; }
+            RAZIX_DEPRECATED("VkSampler is depricated in VKTexture class, it will be separated soon!")
+            RAZIX_INLINE VkSampler      getSampler() const { return m_ImageSampler; }
+            RAZIX_INLINE VkDeviceMemory getDeviceMemory() const { return m_ImageMemory; }
     #if RAZIX_USE_VMA
-            /* Gets the VMA allocation for the buffer */
             RAZIX_INLINE VmaAllocation getVMAAllocation() const { return m_VMAAllocation; }
     #endif
 
         private:
-            VkImage                            m_Image           = VK_NULL_HANDLE;            /* Vulkan image handle for the Texture object                                      */
-            VkSampler                          m_ImageSampler    = VK_NULL_HANDLE;            /* Sampler information used by shaders to sample the texture                       */
-            std::vector<VkImageView>           m_ImageViews      = {};                        /* Image views for the image, all faces & mips need a view to look into the image  */
-            std::vector<VkDescriptorImageInfo> m_Descriptors     = {};                        /* Descriptors info encapsulation the image, it's views and the sampler            */
-            VkImageLayout                      m_ImageLayout     = VK_IMAGE_LAYOUT_UNDEFINED; /* Layout aka usage description of the image                                       */
-            bool                               m_DeleteImageData = false;                     /* Whether or not to delete image intermediate data                                */
-            VkImageAspectFlagBits              m_AspectBit       = VK_IMAGE_ASPECT_NONE;      /* Aspect bit of the image                                                         */
-            VkDeviceMemory                     m_ImageMemory     = VK_NULL_HANDLE;            /* Handle to the image memory               */
+            VkImage m_Image = VK_NULL_HANDLE;
+            RAZIX_DEPRECATED("vkSampler is depricated in VKTexture class, it will be separated soon!")
+            VkSampler             m_ImageSampler                                                    = VK_NULL_HANDLE;
+            ImageResourceView     m_ResourceViews[RAZIX_MAX_TEXTURE_LAYERS][RAZIX_MAX_TEXTURE_MIPS] = {};
+            VkImageLayout         m_ImageLayout                                                     = VK_IMAGE_LAYOUT_UNDEFINED;
+            bool                  m_DeleteImageData                                                 = false;
+            VkImageAspectFlagBits m_AspectBit                                                       = VK_IMAGE_ASPECT_NONE;
+            VkDeviceMemory        m_ImageMemory                                                     = VK_NULL_HANDLE;
     #if RAZIX_USE_VMA
-            VmaAllocation m_VMAAllocation = {}; /* Holds the VMA allocation state info       */
+            VmaAllocation m_VMAAllocation = {};
     #endif
 
         private:
-            /* Creates the 2D Texture--> Image, view, sampler and performs layout transition and staged buffer copy operations */
-            bool load(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
-            void init(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
+            // specialized constructor for swapchain class only
+            friend class VKSwapchain;
+            VKTexture(VkImage image, VkImageView imageView);
+
+            // split into more does one thing functions
+            void initializeBackendHandles(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
+            void loadImageDataFromBuffer();
+            void loadImageDataFromFile();
         };
     }    // namespace Gfx
 }    // namespace Razix

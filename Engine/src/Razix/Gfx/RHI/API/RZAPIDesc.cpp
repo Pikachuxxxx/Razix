@@ -87,28 +87,28 @@ namespace Razix {
         std::string RZTextureDesc::TypeToString(TextureType type)
         {
             switch (type) {
-                case Razix::Gfx::TextureType::Texture_2D:
+                case Razix::Gfx::TextureType::k2D:
                     return "2D";
                     break;
-                case Razix::Gfx::TextureType::Texture_3D:
+                case Razix::Gfx::TextureType::k3D:
                     return "3D";
                     break;
-                case Razix::Gfx::TextureType::Texture_CubeMap:
+                case Razix::Gfx::TextureType::kCubeMap:
                     return "CubeMap";
                     break;
-                case Razix::Gfx::TextureType::Texture_Depth:
+                case Razix::Gfx::TextureType::kDepth:
                     return "Depth";
                     break;
-                case Razix::Gfx::TextureType::Texture_SwapchainImage:
+                case Razix::Gfx::TextureType::kSwapchainImage:
                     return "Swapchain Image";
                     break;
-                case TextureType::Texture_1D:
+                case TextureType::k1D:
                     return "1D";
                     break;
-                case TextureType::Texture_2DArray:
+                case TextureType::k2DArray:
                     return "2D Array";
                     break;
-                case TextureType::Texture_CubeMapArray:
+                case TextureType::kCubeMapArray:
                     return "CubeMap Array";
                     break;
                 default:
@@ -155,14 +155,14 @@ namespace Razix {
 
         static std::unordered_map<std::string, Gfx::TextureType> StringTextureTypeMap = {
 
-            {"Texture_1D", Gfx::TextureType::Texture_1D},
-            {"Texture_2D", Gfx::TextureType::Texture_2D},
-            {"Texture_2DArray", Gfx::TextureType::Texture_2DArray},
-            {"Texture_3D", Gfx::TextureType::Texture_3D},
-            {"Texture_Depth", Gfx::TextureType::Texture_Depth},
-            {"Texture_CubeMap", Gfx::TextureType::Texture_CubeMap},
-            {"Texture_CubeMapArray", Gfx::TextureType::Texture_CubeMapArray},
-            {"Texture_SwapchainImage", Gfx::TextureType::Texture_SwapchainImage}};
+            {"Texture_1D", Gfx::TextureType::k1D},
+            {"Texture_2D", Gfx::TextureType::k2D},
+            {"Texture_2DArray", Gfx::TextureType::k2DArray},
+            {"Texture_3D", Gfx::TextureType::k3D},
+            {"Texture_Depth", Gfx::TextureType::kDepth},
+            {"Texture_CubeMap", Gfx::TextureType::kCubeMap},
+            {"Texture_CubeMapArray", Gfx::TextureType::kCubeMapArray},
+            {"Texture_SwapchainImage", Gfx::TextureType::kSwapchainImage}};
 
         Razix::Gfx::TextureType RZTextureDesc::StringToType(const std::string& str)
         {
@@ -274,10 +274,10 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         static std::unordered_map<std::string, Razix::Gfx::Wrapping> TextureWrapModeStringMap = {
-            {"REPEAT", Razix::Gfx::Wrapping::REPEAT},
-            {"MIRRORED_REPEAT", Razix::Gfx::Wrapping::MIRRORED_REPEAT},
-            {"CLAMP_TO_EDGE", Razix::Gfx::Wrapping::CLAMP_TO_EDGE},
-            {"CLAMP_TO_BORDER", Razix::Gfx::Wrapping::CLAMP_TO_BORDER}};
+            {"REPEAT", Razix::Gfx::Wrapping::kRepeat},
+            {"MIRRORED_REPEAT", Razix::Gfx::Wrapping::kMirroredRepeat},
+            {"CLAMP_TO_EDGE", Razix::Gfx::Wrapping::kClampToEdge},
+            {"CLAMP_TO_BORDER", Razix::Gfx::Wrapping::kClampToBorder}};
 
         Razix::Gfx::Wrapping StringToWrapping(const std::string& str)
         {
@@ -287,8 +287,8 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         static std::unordered_map<std::string, Razix::Gfx::Filtering::Mode> TextureFiletingModeStringMap = {
-            {"LINEAR", Razix::Gfx::Filtering::Mode::LINEAR},
-            {"NEAREST", Razix::Gfx::Filtering::Mode::NEAREST}};
+            {"LINEAR", Razix::Gfx::Filtering::Mode::kFilterModeLinear},
+            {"NEAREST", Razix::Gfx::Filtering::Mode::kFilterModeNearest}};
 
         Razix::Gfx::Filtering::Mode StringToFilteringMode(const std::string& str)
         {

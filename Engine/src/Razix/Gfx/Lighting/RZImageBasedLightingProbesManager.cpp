@@ -65,8 +65,8 @@ namespace Razix {
             equiMapTextureDesc.data          = pixels;
             equiMapTextureDesc.size          = (width * height * 4 * sizeof(float));
             equiMapTextureDesc.format        = TextureFormat::RGBA32F;
-            equiMapTextureDesc.wrapping      = Wrapping::CLAMP_TO_EDGE;
-            equiMapTextureDesc.filtering     = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
+            equiMapTextureDesc.wrapping      = Wrapping::kClampToEdge;
+            equiMapTextureDesc.filtering     = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
             equiMapTextureDesc.enableMips    = false;
             equiMapTextureDesc.dataSize      = sizeof(float);
 
@@ -80,9 +80,9 @@ namespace Razix {
             cubeMapTextureDesc.width         = CUBEMAP_DIM;
             cubeMapTextureDesc.height        = CUBEMAP_DIM;
             cubeMapTextureDesc.layers        = CUBEMAP_LAYERS;
-            cubeMapTextureDesc.type          = TextureType::Texture_RWCubeMap;
+            cubeMapTextureDesc.type          = TextureType::kRWCubeMap;
             cubeMapTextureDesc.format        = TextureFormat::RGBA16F;
-            cubeMapTextureDesc.filtering     = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
+            cubeMapTextureDesc.filtering     = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
             cubeMapTextureDesc.enableMips    = false;
 
             RZTextureHandle cubeMapHandle = RZResourceManager::Get().createTexture(cubeMapTextureDesc);
@@ -155,10 +155,10 @@ namespace Razix {
             irradianceMapTextureDesc.width         = IRRADIANCE_MAP_DIM;
             irradianceMapTextureDesc.height        = IRRADIANCE_MAP_DIM;
             irradianceMapTextureDesc.layers        = CUBEMAP_LAYERS;
-            irradianceMapTextureDesc.type          = TextureType::Texture_RW2DArray;
+            irradianceMapTextureDesc.type          = TextureType::kRW2DArray;
             irradianceMapTextureDesc.format        = TextureFormat::RGBA16F;
-            irradianceMapTextureDesc.wrapping      = Wrapping::CLAMP_TO_EDGE;
-            irradianceMapTextureDesc.filtering     = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
+            irradianceMapTextureDesc.wrapping      = Wrapping::kClampToEdge;
+            irradianceMapTextureDesc.filtering     = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
             irradianceMapTextureDesc.enableMips    = false;
 
             RZTextureHandle irradianceMapHandle = RZResourceManager::Get().createTexture(irradianceMapTextureDesc);

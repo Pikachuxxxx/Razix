@@ -77,7 +77,7 @@ namespace Razix {
                         auto writeResourceTextureHandle = resources.get<RZFrameGraphTexture>(writeResourceID.id).getHandle();
                         // Distinguish b/w Depth and color texture
                         auto &textureDesc = resources.getDescriptor<RZFrameGraphTexture>(writeResourceID.id);
-                        if (textureDesc.type == TextureType::Texture_Depth)
+                        if (textureDesc.type == TextureType::kDepth)
                             info.depthAttachment = {writeResourceTextureHandle, attachmentInfo};
                         else
                             info.colorAttachments.push_back({writeResourceTextureHandle, attachmentInfo});

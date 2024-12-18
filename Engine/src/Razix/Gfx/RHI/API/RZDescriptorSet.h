@@ -53,35 +53,36 @@ namespace Razix {
         /* Vertex Input binding information describes the input layout format of the Vertex data sent to the Input Assembly and input variable binding and location for input shader variable */
         struct RAZIX_MEM_ALIGN_16 RZVertexInputBindingInfo
         {
-            u32               binding  = 0; /* Binding slot to which the input shader variable is bound to  */
-            u32               location = 0; /* Location ID of the input shader variable                     */
-            VertexInputFormat format;       /* The format of the vertex input data                          */
-            u32               offset = 0;   /* The offset/stride in the vertex data cluster for each vertex */
+            u32               binding  = 0;                          /* Binding slot to which the input shader variable is bound to  */
+            u32               location = 0;                          /* Location ID of the input shader variable                     */
+            VertexInputFormat format   = VertexInputFormat::R8_UINT; /* The format of the vertex input data                          */
+            u32               offset   = 0;                          /* The offset/stride in the vertex data cluster for each vertex */
         };
 
         /* Information about the uniform buffer members */
         struct RAZIX_MEM_ALIGN_16 RZShaderBufferMemberInfo
         {
-            std::string    name;         /* The name of the member variable                                      */
-            std::string    fullName;     /* The complete name of the member including uniform buffer as prefix   */
-            u32            size   = 0;   /* The size of the member                                               */
-            u32            offset = 0;   /* The offset of the member in the uniform buffer from the first member */
-            ShaderDataType type;         /* The type of the member, this can be used to resolve the format       */
-            u32            _padding = 0; /* Padding variable to pad the structure to 16-byte alignment           */
+            std::string    name     = "";                  /* The name of the member variable                                      */
+            std::string    fullName = "";                  /* The complete name of the member including uniform buffer as prefix   */
+            u32            size     = 0;                   /* The size of the member                                               */
+            u32            offset   = 0;                   /* The offset of the member in the uniform buffer from the first member */
+            ShaderDataType type     = ShaderDataType::INT; /* The type of the member, this can be used to resolve the format       */
+            u32            _padding = 0;                   /* Padding variable to pad the structure to 16-byte alignment           */
         };
 
         // TODO: Add support for texture arrays
         /* A descriptor describes the shader resource. Stored details about the binding, the data and other necessary information to create the set of descriptor resources */
         struct RAZIX_MEM_ALIGN_16 RZDescriptor
         {
-            std::string                           typeName = "DESCRIPTOR_UNNAMED";
-            std::string                           name;
-            RZUniformBufferHandle                 uniformBuffer;
-            RZTextureHandle                       texture;
-            std::vector<RZShaderBufferMemberInfo> uboMembers;
-            DescriptorBindingInfo                 bindingInfo;
-            ResourceViewHint                      reflectedResourceViewHint;
+            std::string                           name                      = "DESCRIPTOR_UNNAMED";
+            std::string                           typeName                  = "DESCRIPTOR_UNNAMED";
+            RZUniformBufferHandle                 uniformBuffer             = {};
+            RZTextureHandle                       texture                   = {};
+            std::vector<RZShaderBufferMemberInfo> uboMembers                = {};
+            DescriptorBindingInfo                 bindingInfo               = {};
+            ResourceViewHint                      reflectedResourceViewHint = kSRV;
             ///////////////////////////////////////////////////
+            // TODO: Investigate if to move resourceHint from IRZResource to here
             // NOT USED, ONLY FOR REFLECTION VERIFICATION WITH THE BINDING RESOURCE
             u32 size   = 0;    //? The size of the descriptor data, can also be extracted from UBO/Texture??
             u32 offset = 0;    //? I don't think this is needed
@@ -89,15 +90,15 @@ namespace Razix {
 
         struct RAZIX_MEM_ALIGN_16 RZPushConstant
         {
-            std::string                           typeName = "PUSH_CONSTANT_UNNAMED";
-            std::string                           name;
-            std::vector<RZShaderBufferMemberInfo> structMembers;
-            void*                                 data = nullptr;
-            DescriptorBindingInfo                 bindingInfo;
-            u32                                   size   = 0;
-            u32                                   offset = 0;
-            ShaderStage                           shaderStage;
-            u32                                   _padding = 0;
+            std::string                           typeName      = "$PUSH_CONSTANT_TYPE_UNNAMED";
+            std::string                           name          = "$PUSH_CONSTANT_UNNAMED";
+            std::vector<RZShaderBufferMemberInfo> structMembers = {};
+            void*                                 data          = nullptr;
+            DescriptorBindingInfo                 bindingInfo   = {};
+            u32                                   size          = 0;
+            u32                                   offset        = 0;
+            ShaderStage                           shaderStage   = ShaderStage(0);
+            u32                                   _padding      = 0;
 
             RZPushConstant() {}
             RZPushConstant(const std::string& name, ShaderStage stage, u8* data, u32 size, u32 offset)
@@ -151,7 +152,7 @@ namespace Razix {
             virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors) = 0;
             virtual void Destroy() const                                         = 0;
 
-            RAZIX_INLINE u32  getSetIdx() { return m_SetIdx; }
+            RAZIX_INLINE u32  getSetIdx() const { return m_SetIdx; }
             RAZIX_INLINE void setSetIdx(u32 idx) { m_SetIdx = idx; }
 
         protected:

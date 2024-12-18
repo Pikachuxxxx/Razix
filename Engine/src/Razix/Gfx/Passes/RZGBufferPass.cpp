@@ -84,7 +84,7 @@ namespace Razix {
                     gbufferTexturesDesc.name   = "gBuffer0";
                     gbufferTexturesDesc.width  = RZApplication::Get().getWindow()->getWidth();
                     gbufferTexturesDesc.height = RZApplication::Get().getWindow()->getHeight();
-                    gbufferTexturesDesc.type   = TextureType::Texture_2D;
+                    gbufferTexturesDesc.type   = TextureType::k2D;
                     gbufferTexturesDesc.format = TextureFormat::RGBA16F;
 
                     data.GBuffer0 = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
@@ -101,8 +101,8 @@ namespace Razix {
 
                     gbufferTexturesDesc.name      = "SceneDepth";
                     gbufferTexturesDesc.format    = TextureFormat::DEPTH32F;
-                    gbufferTexturesDesc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
-                    gbufferTexturesDesc.type      = TextureType::Texture_Depth;
+                    gbufferTexturesDesc.filtering = {Filtering::Mode::kFilterModeNearest, Filtering::Mode::kFilterModeNearest},
+                    gbufferTexturesDesc.type      = TextureType::kDepth;
                     data.GBufferDepth             = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
                     data.GBuffer0       = builder.write(data.GBuffer0);

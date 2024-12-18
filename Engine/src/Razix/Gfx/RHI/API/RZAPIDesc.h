@@ -30,9 +30,9 @@ namespace Razix {
             u32           layers                = 1;                           /* The array Layers of the texture used for Arrays and CubeMaps  */
             void*         data                  = nullptr;                     /* The Data uses to initialize the Texture with                  */
             u32           size                  = 0;                           /* Total size of pixel data used for initialization              */
-            TextureType   type                  = TextureType::Texture_2D;     /* The type of the Texture                                       */
+            TextureType   type                  = TextureType::k2D;            /* The type of the Texture                                       */
             TextureFormat format                = TextureFormat::RGBA16F;      /* The format of the texture                                     */
-            Wrapping      wrapping              = Wrapping::REPEAT;            /* Wrap mode of the texture in memory                            */
+            Wrapping      wrapping              = Wrapping::kRepeat;           /* Wrap mode of the texture in memory                            */
             Filtering     filtering             = Filtering{};                 /* Filtering mode of the texture                                 */
             bool          enableMips            = false;                       /* Whether or not to generate mip maps or not for the texture    */
             bool          flipX                 = false;                       /* Flip the texture on X-axis during load                        */
@@ -53,11 +53,11 @@ namespace Razix {
         // TODO: USE THIS!!! Remove sampling from RZTextureDesc
         struct RZSamplerDesc
         {
-            Wrapping  wrapping         = Wrapping::REPEAT; /* Wrap mode of the texture in memory                            */
-            Filtering filtering        = Filtering{};      /* Filtering mode of the texture                                 */
-            f32       minLOD           = 0;
+            Wrapping  wrapping         = Wrapping::kRepeat;
+            Filtering filtering        = Filtering{};
+            f32       minLOD           = 0.0f;
             f32       maxLOD           = 1.0f;
-            f32       maxAnisotripy    = 1.0f;
+            f32       maxAnisotropy    = 1.0f;
             bool      enableAnisotropy = true;
         };
 

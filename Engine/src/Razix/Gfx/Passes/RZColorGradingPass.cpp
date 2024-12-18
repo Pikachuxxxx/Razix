@@ -52,7 +52,7 @@ namespace Razix {
                     colorGradedImageDesc.name   = "ColorGradedSceneHDR";
                     colorGradedImageDesc.width  = RZApplication::Get().getWindow()->getWidth();
                     colorGradedImageDesc.height = RZApplication::Get().getWindow()->getHeight();
-                    colorGradedImageDesc.type   = TextureType::Texture_2D;
+                    colorGradedImageDesc.type   = TextureType::k2D;
                     colorGradedImageDesc.format = TextureFormat::RGBA16F;
 
                     data.colorGradedSceneHDR = builder.create<FrameGraph::RZFrameGraphTexture>(colorGradedImageDesc.name, CAST_TO_FG_TEX_DESC colorGradedImageDesc);

@@ -21,22 +21,12 @@ namespace Razix {
         {
         }
 
-        void DX12Texture::Bind(u32 slot)
-        {
-            throw std::logic_error("The method or operation is not implemented.");
-        }
-
         void* DX12Texture::GetAPIHandlePtr() const
         {
             return m_ResourceHandle;
         }
 
         int32_t DX12Texture::ReadPixels(u32 x, u32 y)
-        {
-            throw std::logic_error("The method or operation is not implemented.");
-        }
-
-        void DX12Texture::Unbind(u32 slot)
         {
             throw std::logic_error("The method or operation is not implemented.");
         }

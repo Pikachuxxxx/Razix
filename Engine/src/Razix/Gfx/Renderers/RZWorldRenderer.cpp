@@ -96,8 +96,8 @@ namespace Razix {
             brdfDesc.name                                    = "BrdfLUT";
             brdfDesc.enableMips                              = false;
             brdfDesc.filePath                                = "//RazixContent/Textures/Texture.Builtin.BrdfLUT.png";
-            brdfDesc.filtering                               = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
-            brdfDesc.wrapping                                = Wrapping::REPEAT;
+            brdfDesc.filtering                               = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
+            brdfDesc.wrapping                                = Wrapping::kRepeat;
             m_BRDFfLUTTextureHandle                          = RZResourceManager::Get().createTexture(brdfDesc);
             m_FrameGraph.getBlackboard().add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(brdfDesc.name, CAST_TO_FG_TEX_DESC brdfDesc, {m_BRDFfLUTTextureHandle});
 
@@ -106,7 +106,7 @@ namespace Razix {
             noiseDesc.name                                                        = "VolumetricCloudsNoise";
             noiseDesc.enableMips                                                  = false;
             noiseDesc.filePath                                                    = "//RazixContent/Textures/Texture.Builtin.VolumetricCloudsNoise.png";
-            noiseDesc.wrapping                                                    = Wrapping::REPEAT;
+            noiseDesc.wrapping                                                    = Wrapping::kRepeat;
             m_NoiseTextureHandle                                                  = RZResourceManager::Get().createTexture(noiseDesc);
             m_FrameGraph.getBlackboard().add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(noiseDesc.name, CAST_TO_FG_TEX_DESC noiseDesc, {m_NoiseTextureHandle});
 
@@ -116,8 +116,8 @@ namespace Razix {
             colorGradingNeutralLUTDesc.enableMips                                  = false;
             colorGradingNeutralLUTDesc.flipY                                       = true;
             colorGradingNeutralLUTDesc.filePath                                    = "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png";
-            colorGradingNeutralLUTDesc.filtering                                   = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
-            colorGradingNeutralLUTDesc.wrapping                                    = Wrapping::REPEAT;
+            colorGradingNeutralLUTDesc.filtering                                   = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
+            colorGradingNeutralLUTDesc.wrapping                                    = Wrapping::kRepeat;
             m_ColorGradingNeutralLUTHandle                                         = RZResourceManager::Get().createTexture(colorGradingNeutralLUTDesc);
             m_FrameGraph.getBlackboard().add<FX::ColorGradingLUTData>().neutralLUT = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(colorGradingNeutralLUTDesc.name, CAST_TO_FG_TEX_DESC colorGradingNeutralLUTDesc, {m_ColorGradingNeutralLUTHandle});
 

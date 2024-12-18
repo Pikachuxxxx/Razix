@@ -227,16 +227,16 @@ namespace Razix {
             VkSamplerAddressMode TextureWrapToVK(const Wrapping wrap)
             {
                 switch (wrap) {
-                    case Wrapping::REPEAT:
+                    case Wrapping::kRepeat:
                         return VK_SAMPLER_ADDRESS_MODE_REPEAT;
                         break;
-                    case Wrapping::MIRRORED_REPEAT:
+                    case Wrapping::kMirroredRepeat:
                         return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
                         break;
-                    case Wrapping::CLAMP_TO_EDGE:
+                    case Wrapping::kClampToEdge:
                         return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
                         break;
-                    case Wrapping::CLAMP_TO_BORDER:
+                    case Wrapping::kClampToBorder:
                         return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
                         break;
                     default:
@@ -249,20 +249,20 @@ namespace Razix {
             VkImageType TextureTypeToVK(const TextureType type)
             {
                 switch (type) {
-                    case TextureType::Texture_1D:
-                    case TextureType::Texture_RW1D:
+                    case TextureType::k1D:
+                    case TextureType::kRW1D:
                         return VK_IMAGE_TYPE_1D;
-                    case TextureType::Texture_2D:
-                    case TextureType::Texture_RW2D:
-                    case TextureType::Texture_2DArray:
-                    case TextureType::Texture_RW2DArray:
-                    case TextureType::Texture_Depth:
-                    case TextureType::Texture_CubeMap:
-                    case TextureType::Texture_CubeMapArray:
-                    case TextureType::Texture_SwapchainImage:
+                    case TextureType::k2D:
+                    case TextureType::kRW2D:
+                    case TextureType::k2DArray:
+                    case TextureType::kRW2DArray:
+                    case TextureType::kDepth:
+                    case TextureType::kCubeMap:
+                    case TextureType::kCubeMapArray:
+                    case TextureType::kSwapchainImage:
                         return VK_IMAGE_TYPE_2D;
-                    case TextureType::Texture_3D:
-                    case TextureType::Texture_RW3D:
+                    case TextureType::k3D:
+                    case TextureType::kRW3D:
                         return VK_IMAGE_TYPE_3D;
                     default:
                         RAZIX_CORE_WARN("[Texture] Unsupported Texture Type");
@@ -274,25 +274,25 @@ namespace Razix {
             VkImageViewType TextureTypeToVKViewType(const TextureType type)
             {
                 switch (type) {
-                    case TextureType::Texture_1D:
-                    case TextureType::Texture_RW1D:
+                    case TextureType::k1D:
+                    case TextureType::kRW1D:
                         return VK_IMAGE_VIEW_TYPE_1D;
-                    case TextureType::Texture_2D:
-                    case TextureType::Texture_RW2D:
+                    case TextureType::k2D:
+                    case TextureType::kRW2D:
                         return VK_IMAGE_VIEW_TYPE_2D;
-                    case TextureType::Texture_2DArray:
-                    case TextureType::Texture_RW2DArray:
+                    case TextureType::k2DArray:
+                    case TextureType::kRW2DArray:
                         return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-                    case TextureType::Texture_Depth:
+                    case TextureType::kDepth:
                         return VK_IMAGE_VIEW_TYPE_2D;
-                    case TextureType::Texture_CubeMap:
+                    case TextureType::kCubeMap:
                         return VK_IMAGE_VIEW_TYPE_CUBE;
-                    case TextureType::Texture_CubeMapArray:
+                    case TextureType::kCubeMapArray:
                         return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
-                    case TextureType::Texture_SwapchainImage:
+                    case TextureType::kSwapchainImage:
                         return VK_IMAGE_VIEW_TYPE_2D;
-                    case TextureType::Texture_3D:
-                    case TextureType::Texture_RW3D:
+                    case TextureType::k3D:
+                    case TextureType::kRW3D:
                         return VK_IMAGE_VIEW_TYPE_3D;
                     default:
                         RAZIX_CORE_WARN("[Texture] Unsupported Texture View Type");
@@ -304,10 +304,10 @@ namespace Razix {
             VkFilter TextureFilterToVK(const Filtering::Mode filter)
             {
                 switch (filter) {
-                    case Filtering::Mode::LINEAR:
+                    case Filtering::Mode::kFilterModeLinear:
                         return VK_FILTER_LINEAR;
                         break;
-                    case Filtering::Mode::NEAREST:
+                    case Filtering::Mode::kFilterModeNearest:
                         return VK_FILTER_NEAREST;
                         break;
                     default:

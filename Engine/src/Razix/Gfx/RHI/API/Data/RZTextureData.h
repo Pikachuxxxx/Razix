@@ -6,19 +6,19 @@ namespace Razix {
         /* The type of the texture */
         enum class TextureType
         {
-            Texture_1D = 0,
-            Texture_2D,
-            Texture_2DArray,
-            Texture_3D,
-            Texture_RW1D,
-            Texture_RW2D,
-            Texture_RW2DArray,
-            Texture_RW3D,
-            Texture_Depth,
-            Texture_CubeMap,
-            Texture_RWCubeMap,    // SRV is a CubeMap and UAV will be a RW@DArray view, special case
-            Texture_CubeMapArray,
-            Texture_SwapchainImage,
+            k1D = 0,
+            k2D,
+            k2DArray,
+            k3D,
+            kRW1D,
+            kRW2D,
+            kRW2DArray,
+            kRW3D,
+            kDepth,
+            kCubeMap,
+            kRWCubeMap,    // SRV is a CubeMap and UAV will be a RW2DArray view, special case handling of image views in backend
+            kCubeMapArray,
+            kSwapchainImage,
             COUNT
         };
 
@@ -56,10 +56,10 @@ namespace Razix {
         /* Wrap mode for the texture texels */
         enum class Wrapping
         {
-            REPEAT,
-            MIRRORED_REPEAT,
-            CLAMP_TO_EDGE,
-            CLAMP_TO_BORDER,
+            kRepeat,
+            kMirroredRepeat,
+            kClampToEdge,
+            kClampToBorder,
             COUNT
         };
 
@@ -68,12 +68,12 @@ namespace Razix {
         {
             enum class Mode
             {
-                LINEAR,
-                NEAREST,
+                kFilterModeLinear,
+                kFilterModeNearest,
                 COUNT
             };
-            Mode minFilter = Mode::NEAREST;
-            Mode magFilter = Mode::NEAREST;
+            Mode minFilter = Mode::kFilterModeNearest;
+            Mode magFilter = Mode::kFilterModeNearest;
 
             Filtering() {}
             Filtering(Mode min, Mode max)
@@ -139,8 +139,8 @@ namespace Razix {
 
         static const char* FitleringModeNames[] =
             {
-                "LINEAR",
-                "NEAREST"};
+                "FilterModeLinear",
+                "FilterModeNearest"};
 
         RAZIX_ENUM_NAMES_ASSERT(FitleringModeNames, Filtering::Mode);
 

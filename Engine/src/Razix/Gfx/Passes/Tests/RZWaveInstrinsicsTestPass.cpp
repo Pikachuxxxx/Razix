@@ -81,8 +81,8 @@ namespace Razix {
                     depthTextureDesc.width     = RZApplication::Get().getWindow()->getWidth();
                     depthTextureDesc.height    = RZApplication::Get().getWindow()->getHeight();
                     depthTextureDesc.format    = TextureFormat::DEPTH16_UNORM;
-                    depthTextureDesc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
-                    depthTextureDesc.type      = TextureType::Texture_Depth;
+                    depthTextureDesc.filtering = {Filtering::Mode::kFilterModeNearest, Filtering::Mode::kFilterModeNearest},
+                    depthTextureDesc.type      = TextureType::kDepth;
                     data.Depth                 = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
 #endif
 
