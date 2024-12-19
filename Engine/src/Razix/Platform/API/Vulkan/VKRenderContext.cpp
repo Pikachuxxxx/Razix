@@ -385,8 +385,8 @@ namespace Razix {
 
                 // Fill the color attachments first
                 attachInfo.sType                 = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
-                VkDescriptorImageInfo* apiHandle = (VkDescriptorImageInfo*) (depthAttachment->GetAPIHandlePtr());
-                attachInfo.imageView             = apiHandle->imageView;
+                VKTexture* backendPtr = static_cast<VKTexture*>(depthAttachment);
+                attachInfo.imageView             = backendPtr->getDSVImageView();
 
                 attachInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
 
