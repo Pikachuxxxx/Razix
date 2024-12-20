@@ -107,10 +107,6 @@ project "Sandbox"
         systemversion "latest"
         -- entrypoint "WinMainCRTStartup"
 
-        -- for efficient debugging 
-        filter "configurations:Debug"
-            kind "ConsoleApp"
-
         -- Build options for Windows / Visual Studio (MSVC)
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
         buildoptions

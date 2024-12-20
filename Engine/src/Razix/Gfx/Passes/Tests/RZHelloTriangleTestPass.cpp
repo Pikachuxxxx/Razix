@@ -63,6 +63,7 @@ namespace Razix {
                     depthTextureDesc.format    = TextureFormat::DEPTH16_UNORM;
                     depthTextureDesc.filtering = {Filtering::Mode::kFilterModeNearest, Filtering::Mode::kFilterModeNearest},
                     depthTextureDesc.type      = TextureType::kDepth;
+                    depthTextureDesc.initResourceViewHints = kDSV;
                     data.Depth                 = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
 #endif
                 },
