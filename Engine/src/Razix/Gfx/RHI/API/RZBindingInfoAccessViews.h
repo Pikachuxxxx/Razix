@@ -33,7 +33,7 @@ namespace Razix {
             kTexture,
             kRWTexture,
             kSampler,
-            kRWTyped,    // ??? IDK why/what this is
+            kRWTyped,    // ??? IDK why/what this is, I think this the same as RWDataBuffer in PSSL, takes in generic data types
             kStructured,
             kRWStructured,
             kByteAddress,
@@ -46,6 +46,7 @@ namespace Razix {
         };
 
         //-----------------------------------------------------------------------------------
+        // BINDLESS RENDERING BACKEND HELPERS
 
         /* Descriptor binding location in the shader (set/space, binding) */
         struct RAZIX_MEM_ALIGN_16 BindingLocation

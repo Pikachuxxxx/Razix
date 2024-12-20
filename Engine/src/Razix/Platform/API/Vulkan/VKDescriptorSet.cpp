@@ -120,7 +120,7 @@ namespace Razix {
                             const VKTexture* backendPtr = static_cast<const VKTexture*>(texturePtr);
 
                             m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                            m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getSRVImageView();
+                            m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getFullSRVImageView();
                             m_ImageInfoPool[imageWriteIdx].sampler     = backendPtr->getSampler();
                         } else {
                             m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -149,7 +149,7 @@ namespace Razix {
                             backendPtr->transitonImageLayoutToSRV();
 
                             m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                            m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getSRVImageView();
+                            m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getFullSRVImageView();
                         } else {
                             m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
                             m_ImageInfoPool[imageWriteIdx].imageView   = VK_NULL_HANDLE;
@@ -175,7 +175,7 @@ namespace Razix {
                             backendPtr->transitonImageLayoutToUAV();
 
                             m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_GENERAL;    // load from resource??
-                            m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getUAVImageView();
+                            m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getFullUAVImageView();
                         } else {
                             m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
                             m_ImageInfoPool[imageWriteIdx].imageView   = VK_NULL_HANDLE;

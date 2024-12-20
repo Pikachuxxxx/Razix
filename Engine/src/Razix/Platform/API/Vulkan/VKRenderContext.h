@@ -49,6 +49,7 @@ namespace Razix {
             void         EndRenderingImpl(RZDrawCommandBufferHandle cmdBuffer) override;
             void         InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo) override;
             void         InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo) override;
+            //void         TransitionImageLayoutImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, )
             void         CopyTextureResourceImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle) override;
             RZSwapchain* GetSwapchainImpl() override;
 

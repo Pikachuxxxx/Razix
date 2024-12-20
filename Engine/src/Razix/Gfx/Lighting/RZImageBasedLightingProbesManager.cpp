@@ -51,6 +51,7 @@ namespace Razix {
         {
             // This is only when we use a VS+PS to render to different layers of a RT
             // We are currently switched back to using VS+GS+PS and in future we will use a CS so no need of this
+            // 12/21/2024: we have switched to using CS now, GS are inefficient and won't be goood for dynamic cubemaps
             // https://www.reddit.com/r/vulkan/comments/mtx6ar/gl_layer_value_assigned_in_vertex_shader_but/
             // https://www.reddit.com/r/vulkan/comments/xec0vg/multilayered_rendering_to_create_a_cubemap/
 

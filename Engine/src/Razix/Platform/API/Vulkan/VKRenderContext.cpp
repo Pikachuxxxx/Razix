@@ -342,7 +342,7 @@ namespace Razix {
                 VkRenderingAttachmentInfoKHR attachInfo{};
                 attachInfo.sType      = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
                 VKTexture* backendPtr = static_cast<VKTexture*>(colorAttachment);
-                attachInfo.imageView  = backendPtr->getRTVImageView();
+                attachInfo.imageView  = backendPtr->getFullRTVImageView();
 
                 // Don't do this here, done manually bu the FG and user land code
 

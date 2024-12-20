@@ -32,23 +32,20 @@ namespace Razix {
         class RAZIX_API RZTexture : public IRZResource<RZTexture>
         {
         public:
-            // TODO: Turn this into a macro to create a non-public class
-            RZTexture() {}
             RAZIX_VIRTUAL_DESCTURCTOR(RZTexture)
-            RAZIX_NONCOPYABLE_CLASS(RZTexture)
 
             GET_INSTANCE_SIZE;
 
             static u32           CalculateMipMapCount(u32 width, u32 height);
             static TextureFormat BitsToTextureFormat(u32 bits);
 
-            virtual void    Resize(u32 width, u32 height) = 0;
-            virtual void*   GetAPIHandlePtr() const       = 0;
-            virtual int32_t ReadPixels(u32 x, u32 y)      = 0;
+            virtual void  Resize(u32 width, u32 height) = 0;
+            virtual void* GetAPIHandlePtr() const       = 0;
+            // TODO: Add support for reading z/array layer
             // TODO: Extend this to set data at desired mip level and array index
-            virtual void SetData(const void* pixels) {}
-            virtual void GenerateMips() {}
-            virtual void UploadToBindlessSet() {}
+            virtual void    GenerateMips() {}
+            virtual void    UploadToBindlessSet() {}
+            virtual int32_t ReadPixels(u32 x, u32 y) = 0;
 
             inline const RZTextureDesc& getDescription() const { return m_Desc; }
             inline const std::string&   getName() const { return m_Desc.name; }

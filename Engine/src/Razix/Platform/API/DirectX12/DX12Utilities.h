@@ -16,11 +16,11 @@ namespace Razix {
         enum class BlendOp;
         enum class BlendFactor;
         enum class CompareOp;
-        enum ShaderStage : u32;
         enum class DescriptorType : u32;
-        enum class ImageLayout : u32;
-        enum class PipelineStage : u32;
-        enum class MemoryAccessMask : u32;
+        enum ShaderStage : u32;
+        enum ImageLayout : u32;
+        enum PipelineStage : u32;
+        enum MemoryAccessMask : u32;
         class RZBufferLayout;
 
         namespace DX12Utilities {

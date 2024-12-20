@@ -232,6 +232,13 @@ public:                                                  \
     RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
     RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)
 
+#define RAZIX_PRIVATE_INSTANTIABLE_CLASS(type_identifier) \
+private:                                                  \
+    type_identifier()                                     \
+    {                                                     \
+    }                                                     \
+    RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier)
+
 // Deprecation error macros
 #ifdef _MSC_VER
     #define RAZIX_DEPRECATED(msg_str) __declspec(deprecated(msg_str))

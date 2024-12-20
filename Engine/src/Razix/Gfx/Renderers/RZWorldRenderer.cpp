@@ -74,7 +74,7 @@ namespace Razix {
             //-------------------------------
             // [TEST] GS CUBE
             //-------------------------------
-            //            m_GSCubeTestPass.addPass(m_FrameGraph, scene, &settings);
+            // m_GSCubeTestPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // [TEST] HELLO TEXTURE
