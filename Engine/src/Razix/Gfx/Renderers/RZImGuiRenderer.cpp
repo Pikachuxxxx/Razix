@@ -120,7 +120,6 @@ namespace Razix {
             imguiFontTextureDesc.size     = uploadSize;
             imguiFontTextureDesc.type     = TextureType::k2D;
             imguiFontTextureDesc.format   = TextureFormat::RGBA8;
-            imguiFontTextureDesc.wrapping = Wrapping::kClampToEdge;
 
             m_FontAtlasTexture = RZResourceManager::Get().createTexture(imguiFontTextureDesc);
 
@@ -350,7 +349,6 @@ namespace Razix {
             fontAtlasDesc.data          = fontData;
             fontAtlasDesc.type          = TextureType::k2D;
             fontAtlasDesc.format        = TextureFormat::RGBA8;
-            fontAtlasDesc.wrapping      = Wrapping::kClampToEdge;
 
             m_FontAtlasTexture = RZResourceManager::Get().createTexture(fontAtlasDesc);
         }

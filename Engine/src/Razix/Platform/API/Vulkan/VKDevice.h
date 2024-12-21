@@ -11,7 +11,6 @@
     #endif
     #include <vulkan/vulkan.h>
 
-
 // Enable any device specific extensions
 // Ex. VK_KHR_RAY_TRACING etc.
 static std::vector<cstr> deviceExtensions = {
@@ -26,7 +25,7 @@ static std::vector<cstr> deviceExtensions = {
     VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
     VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
     #ifdef __APPLE__
-        VK_EXT_ROBUSTNESS_2_EXTENSION_NAME,
+    VK_EXT_ROBUSTNESS_2_EXTENSION_NAME,
     VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
     #endif
     //VK_GOOGLE_HLSL_FUNCTIONALITY1_EXTENSION_NAME,
@@ -34,8 +33,6 @@ static std::vector<cstr> deviceExtensions = {
     // On the fly Push Descriptors similar to PushConstants
     //"VK_NV_device_diagnostic_checkpoints"
 };
-
-// [To be read]: https://vulkan-tutorial.com/Compute_Shader
 
 namespace Razix {
     namespace Gfx {
@@ -85,6 +82,7 @@ namespace Razix {
             RAZIX_INLINE int32_t                          getAsyncComputeQueueFamilyIndex() const { return m_QueueFamilyIndices.AsyncCompute; }
             RAZIX_INLINE int32_t                          getTransferQueueFamilyIndex() const { return m_QueueFamilyIndices.Transfer; }
             RAZIX_INLINE VkPhysicalDeviceProperties       getProperties() const { return m_PhysicalDeviceProperties; };
+            RAZIX_INLINE VkPhysicalDeviceFeatures         getFeatures() const { return m_PhysicalDeviceFeatures; };
             RAZIX_INLINE VkPhysicalDeviceMemoryProperties getMemoryProperties() const { return m_MemoryProperties; }
 
         private:
@@ -93,7 +91,7 @@ namespace Razix {
             std::unordered_set<std::string>      m_SupportedExtensions;
             std::vector<VkDeviceQueueCreateInfo> m_QueueCreateInfos;
             VkPhysicalDevice                     m_PhysicalDevice;
-            VkPhysicalDeviceFeatures             m_Features;
+            VkPhysicalDeviceFeatures             m_PhysicalDeviceFeatures;
             VkPhysicalDeviceProperties           m_PhysicalDeviceProperties;
             VkPhysicalDeviceMemoryProperties     m_MemoryProperties;
 
@@ -114,47 +112,43 @@ namespace Razix {
             bool init();
             void destroy();
 
-            /* Gets the actual physical device GPU adapter */
-            RAZIX_INLINE const rzstl::Ref<VKPhysicalDevice>& getPhysicalDevice() const { return m_PhysicalDevice; }
-            /* Get the graphics command pool for single time command buffers. DON'T USE THIS FOR FRAME RELATED OPERATIONS. */
-            RAZIX_INLINE const rzstl::Ref<VKCommandPool>& getSingleTimeGraphicsCommandPool() const { return m_CommandPool; }
-            RAZIX_INLINE VkDevice                         getDevice() const { return m_Device; };
-            RAZIX_INLINE VkPhysicalDevice                 getGPU() const { return m_PhysicalDevice->getVulkanPhysicalDevice(); };
-            RAZIX_INLINE VkQueue                          getGraphicsQueue() const { return m_GraphicsQueue; };
-            RAZIX_INLINE VkQueue                          getPresentQueue() const { return m_PresentQueue; };
-            RAZIX_INLINE VkQueue                          getAsyncComputeQueue() const { return m_AsyncComputeQueue; };
-            RAZIX_INLINE VkQueue                          getTransferQueue() const { return m_TransferQueue; };
-            RAZIX_INLINE VkQueryPool                      getPipelineStatsQueryPool() const { return m_PipelineStatsQueryPool; }
-            RAZIX_INLINE VkDescriptorPool                 getGlobalDescriptorPool() const { return m_GlobalDescriptorPool; }
-            RAZIX_INLINE VkDescriptorPool                 getBindlessDescriptorPool() const { return m_BindlessDescriptorPool; }
-            RAZIX_INLINE VkDescriptorSet                  getBindlessDescriptorSet() const { return m_BindlessDescriptorSet; }
-            RAZIX_INLINE VkDescriptorSetLayout            getBindlessSetLayout() const { return m_BindlessSetLayout; }
-            RAZIX_INLINE bool                             isBindlessSupported() const { return m_IsBindlessSupported; }
-            RAZIX_INLINE VkPhysicalDeviceProperties2      getGPUProperties2() const { return m_PhysicalDeviceProperties2; };
+            inline const rzstl::Ref<VKPhysicalDevice>& getPhysicalDevice() const { return m_PhysicalDevice; }
+            inline const rzstl::Ref<VKCommandPool>&    getSingleTimeGraphicsCommandPool() const { return m_CommandPool; }
+            inline VkDevice                            getDevice() const { return m_Device; };
+            inline VkPhysicalDevice                    getGPU() const { return m_PhysicalDevice->getVulkanPhysicalDevice(); };
+            inline VkQueue                             getGraphicsQueue() const { return m_GraphicsQueue; };
+            inline VkQueue                             getPresentQueue() const { return m_PresentQueue; };
+            inline VkQueue                             getAsyncComputeQueue() const { return m_AsyncComputeQueue; };
+            inline VkQueue                             getTransferQueue() const { return m_TransferQueue; };
+            inline VkQueryPool                         getPipelineStatsQueryPool() const { return m_PipelineStatsQueryPool; }
+            inline VkDescriptorPool                    getGlobalDescriptorPool() const { return m_GlobalDescriptorPool; }
+            inline VkDescriptorPool                    getBindlessDescriptorPool() const { return m_BindlessDescriptorPool; }
+            inline VkDescriptorSet                     getBindlessDescriptorSet() const { return m_BindlessDescriptorSet; }
+            inline VkDescriptorSetLayout               getBindlessSetLayout() const { return m_BindlessSetLayout; }
+            inline bool                                isBindlessSupported() const { return m_IsBindlessSupported; }
+            inline VkPhysicalDeviceProperties2         getGPUProperties2() const { return m_PhysicalDeviceProperties2; };
     #if RAZIX_USE_VMA
-            /* Gets the Vulkan Memory Allocator */
-            RAZIX_INLINE VmaAllocator& getVMA() { return m_VMAllocator; }
+            inline VmaAllocator& getVMA() { return m_VMAllocator; }
     #endif
 
         private:
-            VkDevice                     m_Device                 = VK_NULL_HANDLE; /* Vulkan handle to abstracted device                                               */
-            VkQueue                      m_GraphicsQueue          = VK_NULL_HANDLE; /* GPU queue on which graphics commands are submitted                               */
-            VkQueue                      m_PresentQueue           = VK_NULL_HANDLE; /* GPU queue on which presentation commands are submitted                           */
-            VkQueue                      m_AsyncComputeQueue      = VK_NULL_HANDLE; /* GPU queue on which async compute commands are submitted                          */
-            VkQueue                      m_TransferQueue          = VK_NULL_HANDLE; /* GPU queue on which transfer commands are submitted                               */
-            rzstl::Ref<VKPhysicalDevice> m_PhysicalDevice         = {};             /* List of available GPUs on the machine                                            */
-            rzstl::Ref<VKCommandPool>    m_CommandPool            = {};             /* Global Command pool from which the command buffers are allocated from            */
-            VkDescriptorPool             m_GlobalDescriptorPool   = VK_NULL_HANDLE; /* Global descriptor pool from which normal descriptor sets are allocated from      */
-            VkDescriptorPool             m_BindlessDescriptorPool = VK_NULL_HANDLE; /* Global descriptor pool from which bindless descriptor sets are allocated from    */
-            VkDescriptorSetLayout        m_BindlessSetLayout      = VK_NULL_HANDLE; /* Global set layout for Bindless descriptor set                                    */
-            VkDescriptorSet              m_BindlessDescriptorSet  = VK_NULL_HANDLE; /* Global Bindless descriptor set to which bindless textures are mapped to          */
-            VkQueryPool                  m_TimestampsQueryPool    = VK_NULL_HANDLE; /* Query pool for allocating timestamps                                             */
-            VkQueryPool                  m_PipelineStatsQueryPool = VK_NULL_HANDLE; /* Query pool for allocating pipeline stats                                         */
-            bool                         m_IsBindlessSupported    = false;          /* Whether or not Bindless is supported on the machine                              */
-            VkPhysicalDeviceProperties2  m_PhysicalDeviceProperties2;               /* Selected GPU physical Device properties                                          */
-
+            VkDevice                     m_Device                    = VK_NULL_HANDLE; /* Vulkan handle to abstracted device                                               */
+            VkQueue                      m_GraphicsQueue             = VK_NULL_HANDLE; /* GPU queue on which graphics commands are submitted                               */
+            VkQueue                      m_PresentQueue              = VK_NULL_HANDLE; /* GPU queue on which presentation commands are submitted                           */
+            VkQueue                      m_AsyncComputeQueue         = VK_NULL_HANDLE; /* GPU queue on which async compute commands are submitted                          */
+            VkQueue                      m_TransferQueue             = VK_NULL_HANDLE; /* GPU queue on which transfer commands are submitted                               */
+            rzstl::Ref<VKPhysicalDevice> m_PhysicalDevice            = {};             /* List of available GPUs on the machine                                            */
+            rzstl::Ref<VKCommandPool>    m_CommandPool               = {};             /* Global Command pool from which the command buffers are allocated from            */
+            VkDescriptorPool             m_GlobalDescriptorPool      = VK_NULL_HANDLE; /* Global descriptor pool from which normal descriptor sets are allocated from      */
+            VkDescriptorPool             m_BindlessDescriptorPool    = VK_NULL_HANDLE; /* Global descriptor pool from which bindless descriptor sets are allocated from    */
+            VkDescriptorSetLayout        m_BindlessSetLayout         = VK_NULL_HANDLE; /* Global set layout for Bindless descriptor set                                    */
+            VkDescriptorSet              m_BindlessDescriptorSet     = VK_NULL_HANDLE; /* Global Bindless descriptor set to which bindless textures are mapped to          */
+            VkQueryPool                  m_TimestampsQueryPool       = VK_NULL_HANDLE; /* Query pool for allocating timestamps                                             */
+            VkQueryPool                  m_PipelineStatsQueryPool    = VK_NULL_HANDLE; /* Query pool for allocating pipeline stats                                         */
+            bool                         m_IsBindlessSupported       = false;          /* Whether or not Bindless is supported on the machine                              */
+            VkPhysicalDeviceProperties2  m_PhysicalDeviceProperties2 = {};             /* Selected GPU physical Device properties                                          */
     #if RAZIX_USE_VMA
-            VmaAllocator m_VMAllocator = VK_NULL_HANDLE; /* Vulkan Memory Allocator for managing GPU heap                                    */
+            VmaAllocator m_VMAllocator = VK_NULL_HANDLE;
     #endif
         };
     }    // namespace Gfx

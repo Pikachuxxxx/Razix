@@ -50,8 +50,6 @@ namespace Razix {
             testTexDesc.name       = "TestCheckerTexture";
             testTexDesc.enableMips = false;
             testTexDesc.filePath   = "//RazixContent/Textures/TestCheckerMap.png";
-            testTexDesc.filtering  = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
-            testTexDesc.wrapping   = Wrapping::kClampToBorder;
             testTexDesc.flipY      = false;
             m_TestTextureHandle    = RZResourceManager::Get().createTexture(testTexDesc);
 
@@ -67,14 +65,14 @@ namespace Razix {
 
 #ifdef __APPLE__    // Metal cannot draw without a depth attachment
                     RZTextureDesc depthTextureDesc;
-                    depthTextureDesc.name      = "SceneDepth";
-                    depthTextureDesc.width     = RZApplication::Get().getWindow()->getWidth();
-                    depthTextureDesc.height    = RZApplication::Get().getWindow()->getHeight();
-                    depthTextureDesc.format    = TextureFormat::DEPTH16_UNORM;
-                    depthTextureDesc.filtering = {Filtering::Mode::kFilterModeNearest, Filtering::Mode::kFilterModeNearest},
-                    depthTextureDesc.type      = TextureType::kDepth;
+                    depthTextureDesc.name                  = "SceneDepth";
+                    depthTextureDesc.width                 = RZApplication::Get().getWindow()->getWidth();
+                    depthTextureDesc.height                = RZApplication::Get().getWindow()->getHeight();
+                    depthTextureDesc.format                = TextureFormat::DEPTH16_UNORM;
+                    depthTextureDesc.filtering             = {Filtering::Mode::kFilterModeNearest, Filtering::Mode::kFilterModeNearest},
+                    depthTextureDesc.type                  = TextureType::kDepth;
                     depthTextureDesc.initResourceViewHints = kDSV;
-                    data.Depth                 = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
+                    data.Depth                             = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
 
                     data.Depth = builder.write(data.Depth);
 #endif
@@ -104,7 +102,7 @@ namespace Razix {
                         RZDescriptor* descriptor = nullptr;
 
                         descriptor = shaderBindVars["g_TestTexture"];    // Must match the name in shader
-                        // Sampler is static and set on the RootSignature Directly
+                        // TODO: Sampler is static and set on the RootSignature Directly
                         if (descriptor)
                             descriptor->texture = m_TestTextureHandle;
 

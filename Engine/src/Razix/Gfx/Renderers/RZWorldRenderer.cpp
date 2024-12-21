@@ -68,8 +68,8 @@ namespace Razix {
             uploadFrameData(scene, settings);
             //            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
 
-            m_GlobalLightProbes.skybox  = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//Assets/Textures/HDR/newport_loft.hdr");
-            m_GlobalLightProbes.diffuse = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
+            //m_GlobalLightProbes.skybox  = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//Assets/Textures/HDR/newport_loft.hdr");
+            //m_GlobalLightProbes.diffuse = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
 
             //-------------------------------
             // [TEST] GS CUBE

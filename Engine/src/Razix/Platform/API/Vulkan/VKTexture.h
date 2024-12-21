@@ -70,8 +70,6 @@ namespace Razix {
             inline VkImageView   getLayerMipUAVImageView(u32 layer, u32 mip) const { return m_LayerMipResourceViews[layer][mip].uav; }
             inline VkImageView   getLayerMipDSVImageView(u32 layer, u32 mip) const { return m_LayerMipResourceViews[layer][mip].dsv; }
             inline VkImageView   getLayerMipRTVImageView(u32 layer, u32 mip) const { return m_LayerMipResourceViews[layer][mip].rtv; }
-            RAZIX_DEPRECATED("VkSampler is depricated in VKTexture class, it will be separated soon!")
-            inline VkSampler getSampler() const { return m_ImageSampler; }
     #if RAZIX_USE_VMA
             inline VmaAllocation getVMAAllocation() const { return m_ImageMemoryWrapper.vmaAllocation; }
     #else
@@ -79,9 +77,7 @@ namespace Razix {
     #endif
 
         private:
-            VkImage m_Image = VK_NULL_HANDLE;
-            RAZIX_DEPRECATED("vkSampler is depricated in VKTexture class, it will be separated soon!")
-            VkSampler                                m_ImageSampler                                                            = VK_NULL_HANDLE;
+            VkImage                                  m_Image                                                                   = VK_NULL_HANDLE;
             VKImageResourceView                      m_FullResourceView                                                        = {};
             VKImageResourceView                      m_LayerMipResourceViews[RAZIX_MAX_TEXTURE_LAYERS][RAZIX_MAX_TEXTURE_MIPS] = {};
             VkImageLayout                            m_FinalImageLayout                                                        = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -95,7 +91,6 @@ namespace Razix {
             friend class VKSwapchain;
             VKTexture(VkImage image, VkImageView imageView);
 
-            // TODO: split into more does one thing functions
             void               initializeBackendHandles(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
             void               loadImageDataInfoFromFile();
             void               evaluateMipsCount();
@@ -108,7 +103,6 @@ namespace Razix {
             void               createSpecializedRWCubemapViews();
             void               createFullResourceViews();
             void               createMipViewsPerFace();
-            void               createSamplerHandle();
             bool               isDepthFormat();
             bool               isRWImage();
         };

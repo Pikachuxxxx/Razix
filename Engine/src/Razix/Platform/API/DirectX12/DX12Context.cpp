@@ -200,6 +200,8 @@ namespace Razix {
             m_Swapchain = rzstl::CreateUniqueRef<DX12Swapchain>(m_Window->getWidth(), m_Window->getHeight());
 
             D3D12_TAG_OBJECT(m_Device, L"Device");
+
+            PostGraphicsContextInit();
         }
 
         void DX12Context::Destroy()

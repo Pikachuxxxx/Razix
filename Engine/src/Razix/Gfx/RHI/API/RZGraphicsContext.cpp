@@ -19,6 +19,10 @@
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
 #endif
 
+#include "Razix/Gfx/RHI/API/RZSampler.h"
+
+#include "Razix/Gfx/Materials/RZMaterial.h"
+#include "Razix/Gfx/RZShaderLibrary.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
 namespace Razix {
@@ -59,14 +63,33 @@ namespace Razix {
 
         void RZGraphicsContext::Release()
         {
-            // Shutdown the Resource System
-            Gfx::RZResourceManager::Get().ShutDown();
+            PreGraphicsContextDestroy();
 
             if (s_Context) {
                 s_Context->Destroy();
                 delete s_Context;    // This is causing unnecessary crashes
                 s_Context = nullptr;
             }
+        }
+
+        void RZGraphicsContext::PostGraphicsContextInit()
+        {
+            RAZIX_CORE_TRACE("[RHI] Creating Sampler Presets");
+            Gfx::RZSampler::CreateSamplerPresets();
+
+            RAZIX_CORE_TRACE("[RHI] Creating Default Texture");
+
+            Gfx::RZMaterial::InitDefaultTexture();
+        }
+
+        void RZGraphicsContext::PreGraphicsContextDestroy()
+        {
+            Gfx::RZSampler::DestroySamplerPresets();
+            Gfx::RZMaterial::ReleaseDefaultTexture();
+
+            // Render subsystems cleanup
+            Gfx::RZShaderLibrary::Get().ShutDown();
+            Gfx::RZResourceManager::Get().ShutDown();
         }
 
         RZGraphicsContext* RZGraphicsContext::GetContext()

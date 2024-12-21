@@ -168,7 +168,9 @@
 
 #define CAST_TO_FG_DESC(t)  (Razix::Gfx::FrameGraph::t::Desc)
 #define CAST_TO_FG_TEX_DESC (Razix::Gfx::FrameGraph::RZFrameGraphTexture::Desc)
+#define CAST_TO_FG_SAMP_DESC (Razix::Gfx::FrameGraph::RZFrameGraphSampler::Desc)
 #define CAST_TO_FG_BUF_DESC (Razix::Gfx::FrameGraph::RZFrameGraphBuffer::Desc)
+
 
 // right bit shift (useful for converting integer based color to hex)
 #define RZ_BIT_SHIFT(x) (1 << x)

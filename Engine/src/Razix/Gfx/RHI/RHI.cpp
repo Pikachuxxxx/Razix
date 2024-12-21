@@ -5,9 +5,7 @@
 
 #include "Razix/Core/App/RZApplication.h"
 
-#include "Razix/Gfx/Materials/RZMaterial.h"
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
-#include "Razix/Gfx/RZShaderLibrary.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL
     #include "Razix/Platform/API/OpenGL/GLRenderContext.h"
@@ -30,8 +28,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            RAZIX_CORE_INFO("Creating API Renderer...");
-            RAZIX_CORE_INFO("\t Backend API : {0}", Gfx::RZGraphicsContext::GetRenderAPIString());
+            RAZIX_CORE_INFO("[RHI]Creating API Renderer...");
+            RAZIX_CORE_INFO("[RHI]\t Backend API : {0}", Gfx::RZGraphicsContext::GetRenderAPIString());
 
             switch (Gfx::RZGraphicsContext::GetRenderAPI()) {
 #ifdef RAZIX_RENDER_API_OPENGL
@@ -49,10 +47,7 @@ namespace Razix {
 
         void RHI::Release()
         {
-            Gfx::RZMaterial::ReleaseDefaultTexture();
-            // Shutting down the shader library
-            Gfx::RZShaderLibrary::Get().ShutDown();
-
+ 
             s_APIInstance->DestroyAPIImpl();
             delete s_APIInstance;
 

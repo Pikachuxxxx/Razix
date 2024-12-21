@@ -76,7 +76,6 @@ namespace Razix {
                     sceneDepthTexturesDesc.name          = "SceneDepth";
                     sceneDepthTexturesDesc.width         = RZApplication::Get().getWindow()->getWidth();
                     sceneDepthTexturesDesc.height        = RZApplication::Get().getWindow()->getHeight();
-                    sceneDepthTexturesDesc.filtering     = {Filtering::Mode::kFilterModeNearest, Filtering::Mode::kFilterModeNearest},
                     sceneDepthTexturesDesc.type          = TextureType::kDepth;
                     sceneDepthTexturesDesc.format        = TextureFormat::DEPTH32F;
                     data.sceneDepth                      = builder.create<FrameGraph::RZFrameGraphTexture>(sceneDepthTexturesDesc.name, CAST_TO_FG_TEX_DESC sceneDepthTexturesDesc);

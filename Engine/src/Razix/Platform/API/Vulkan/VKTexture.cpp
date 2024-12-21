@@ -23,7 +23,7 @@ namespace Razix {
         {
             m_Desc = desc;
 
-            // update the IRZResource with initialization time hints
+            // updates the IRZResource with initialization time hints
             setResourceViewHints(m_Desc.initResourceViewHints);
 
             evaluateMipsCount();
@@ -31,9 +31,9 @@ namespace Razix {
             initializeBackendHandles(m_Desc RZ_DEBUG_E_ARG_NAME);
         }
 
-        // Special swapchain class helper initializer
+        // Special swapchain class helper constructor
         VKTexture::VKTexture(VkImage image, VkImageView imageView)
-            : m_Image(image), m_ImageSampler(VK_NULL_HANDLE)
+            : m_Image(image)
         {
             // This way of creating usually means one this, it's a SWAPCHAIN IMAGE
             m_Desc.type        = TextureType::kSwapchainImage;
@@ -50,9 +50,6 @@ namespace Razix {
             // swapchain resource deletion is handled by the context
             if (m_Desc.type == TextureType::kSwapchainImage)
                 return;
-
-            if (m_ImageSampler != VK_NULL_HANDLE)
-                vkDestroySampler(VKDevice::Get().getDevice(), m_ImageSampler, nullptr);
 
             m_FullResourceView.destroy();
 
@@ -240,12 +237,10 @@ namespace Razix {
             } else
                 createFullResourceViews();
 
-            createSamplerHandle();
-
             if (m_OldImageLayout != m_FinalImageLayout) {
                 VkImageLayout m_FinalImageLayout = (m_ResourceViewHint & kUAV) == kUAV ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, m_FinalImageLayout, m_TotalMipLevels, desc.layers);
             }
+                VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, m_FinalImageLayout, m_TotalMipLevels, desc.layers);
         }
 
         void VKTexture::loadImageDataInfoFromFile()
@@ -303,11 +298,9 @@ namespace Razix {
         VkImageAspectFlags VKTexture::resolveAspectFlags()
         {
             VkImageAspectFlags aspectFlags = {};
-            if (isDepthFormat()) {
-                // WARNING: SIDE EFFECT OF THE FUNCTION, will be removed when we separate VkSampelr so fine to leave it here for time being
-                m_Desc.filtering = {Filtering::Mode::kFilterModeNearest, Filtering::Mode::kFilterModeNearest};
-                aspectFlags      = VK_IMAGE_ASPECT_DEPTH_BIT;
-            } else
+            if (isDepthFormat())
+                aspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
+            else
                 aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
 
             return aspectFlags;
@@ -413,27 +406,6 @@ namespace Razix {
                         m_LayerMipResourceViews[l][m].uav = imageView;
                 }
             }
-        }
-
-        void VKTexture::createSamplerHandle()
-        {
-            ////////////////////////////////////////
-            // DEPRECATED, soon to be removed!
-            // Create a sampler view for the image
-            auto                             physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();
-            VKUtilities::VKCreateSamplerDesc samplerDesc         = {};
-            samplerDesc.magFilter                                = VKUtilities::TextureFilterToVK(m_Desc.filtering.magFilter);
-            samplerDesc.minFilter                                = VKUtilities::TextureFilterToVK(m_Desc.filtering.minFilter);
-            samplerDesc.anisotropyEnable                         = true;
-            samplerDesc.minLod                                   = 0.0f;
-            samplerDesc.maxLod                                   = static_cast<f32>(m_TotalMipLevels);
-            samplerDesc.maxAnisotropy                            = physicalDeviceProps.limits.maxSamplerAnisotropy;
-            samplerDesc.modeU                                    = VKUtilities::TextureWrapToVK(m_Desc.wrapping);
-            samplerDesc.modeV                                    = VKUtilities::TextureWrapToVK(m_Desc.wrapping);
-            samplerDesc.modeW                                    = VKUtilities::TextureWrapToVK(m_Desc.wrapping);
-
-            m_ImageSampler = VKUtilities::CreateImageSampler(samplerDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
-            ////////////////////////////////////////
         }
 
         bool VKTexture::isDepthFormat()

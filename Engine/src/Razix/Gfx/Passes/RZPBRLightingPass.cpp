@@ -79,7 +79,6 @@ namespace Razix {
 
                     textureDesc.name       = "SceneDepth";
                     textureDesc.format     = TextureFormat::DEPTH32F;
-                    textureDesc.filtering  = {Filtering::Mode::kFilterModeNearest, Filtering::Mode::kFilterModeNearest},
                     textureDesc.type       = TextureType::kDepth;
                     textureDesc.enableMips = false;
 

@@ -100,7 +100,6 @@ namespace Razix {
             noiseTextureDesc.size       = static_cast<u32>(ssaoNoise.size()) * sizeof(glm::vec4);
             noiseTextureDesc.type       = TextureType::k2D;
             noiseTextureDesc.format     = TextureFormat::RGBA16F;
-            noiseTextureDesc.wrapping   = Wrapping::kRepeat;
             noiseTextureDesc.enableMips = false;
             noiseTextureDesc.dataSize   = sizeof(float);
             auto ssaoNoiseTexture       = Gfx::RZResourceManager::Get().createTexture(noiseTextureDesc);

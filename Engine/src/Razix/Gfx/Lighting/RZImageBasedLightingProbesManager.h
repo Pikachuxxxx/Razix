@@ -4,6 +4,7 @@ namespace Razix {
     namespace Gfx {
 
         // https://0fps.net/2013/07/09/texture-atlases-wrapping-and-mip-mapping/
+        // 
         // FIXME: resolve visible dots artifact, enable mips for source env cubemap and resolve darkening issue in pre-filtered cubemap specular mapping
 
         /**

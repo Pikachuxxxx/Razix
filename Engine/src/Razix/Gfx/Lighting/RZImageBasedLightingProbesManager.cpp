@@ -8,6 +8,7 @@
 #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
 #include "Razix/Gfx/RHI/API/RZPipeline.h"
+#include "Razix/Gfx/RHI/API/RZSampler.h"
 #include "Razix/Gfx/RHI/API/RZShader.h"
 #include "Razix/Gfx/RHI/API/RZTexture.h"
 #include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
@@ -49,47 +50,41 @@ namespace Razix {
 
         RZTextureHandle RZImageBasedLightingProbesManager::convertEquirectangularToCubemap(const std::string& hdrFilePath)
         {
-            // This is only when we use a VS+PS to render to different layers of a RT
+            // This is only when we use a VS+PS to render to different layers of a RT (only Vulkan/AGC no HLSL support)
+            //  --> https://www.reddit.com/r/vulkan/comments/mtx6ar/gl_layer_value_assigned_in_vertex_shader_but/
+            //  --> https://www.reddit.com/r/vulkan/comments/xec0vg/multilayered_rendering_to_create_a_cubemap/
             // We are currently switched back to using VS+GS+PS and in future we will use a CS so no need of this
-            // 12/21/2024: we have switched to using CS now, GS are inefficient and won't be goood for dynamic cubemaps
-            // https://www.reddit.com/r/vulkan/comments/mtx6ar/gl_layer_value_assigned_in_vertex_shader_but/
-            // https://www.reddit.com/r/vulkan/comments/xec0vg/multilayered_rendering_to_create_a_cubemap/
+            // 12/21/2024: we have switched to using CS now, GS are inefficient and won't be good for dynamic CubeMaps
 
             // First create the 2D Equirectangular texture
             u32  width, height, bpp;
             f32* pixels = Razix::Utilities::LoadImageDataFloat(hdrFilePath, &width, &height, &bpp);
 
-            RZTextureDesc equiMapTextureDesc = {};
-            equiMapTextureDesc.name          = "HDR Cube Map Texture";
-            equiMapTextureDesc.width         = width;
-            equiMapTextureDesc.height        = height;
-            equiMapTextureDesc.data          = pixels;
-            equiMapTextureDesc.size          = (width * height * 4 * sizeof(float));
-            equiMapTextureDesc.format        = TextureFormat::RGBA32F;
-            equiMapTextureDesc.wrapping      = Wrapping::kClampToEdge;
-            equiMapTextureDesc.filtering     = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
-            equiMapTextureDesc.enableMips    = false;
-            equiMapTextureDesc.dataSize      = sizeof(float);
-
+            RZTextureDesc equiMapTextureDesc         = {};
+            equiMapTextureDesc.name                  = "HDR Equirectangular Texture";
+            equiMapTextureDesc.width                 = width;
+            equiMapTextureDesc.height                = height;
+            equiMapTextureDesc.data                  = pixels;
+            equiMapTextureDesc.size                  = (width * height * 4 * sizeof(float));
+            equiMapTextureDesc.format                = TextureFormat::RGBA32F;
+            equiMapTextureDesc.enableMips            = false;
+            equiMapTextureDesc.dataSize              = sizeof(float);    // HDR mode
             RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture(equiMapTextureDesc);
 
             RZDescriptorSet*      envMapSet = nullptr;
             RZUniformBufferHandle UBO       = {};
-
             // Since it has both UAV and SRV, vulkan will internally specialize the creating a UAV with the type of RWTexture2DArray since
             // an actual RWTextureCube doesn't exist in shading languages
             RZTextureDesc cubeMapTextureDesc         = {};
-            cubeMapTextureDesc.name                  = "Texture.Imported.HDR.EnvMap",
+            cubeMapTextureDesc.name                  = "Texture.Imported.HDR.EnvCubeMap",
             cubeMapTextureDesc.width                 = CUBEMAP_DIM;
             cubeMapTextureDesc.height                = CUBEMAP_DIM;
             cubeMapTextureDesc.layers                = CUBEMAP_LAYERS;
             cubeMapTextureDesc.type                  = TextureType::kRWCubeMap;
             cubeMapTextureDesc.format                = TextureFormat::RGBA16F;
-            cubeMapTextureDesc.filtering             = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
             cubeMapTextureDesc.initResourceViewHints = ResourceViewHint::kSRV | ResourceViewHint::kUAV;
             cubeMapTextureDesc.enableMips            = true;
-
-            RZTextureHandle cubeMapHandle = RZResourceManager::Get().createTexture(cubeMapTextureDesc);
+            RZTextureHandle cubeMapHandle            = RZResourceManager::Get().createTexture(cubeMapTextureDesc);
 
             // Load the shader
             auto shaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::EnvToCubemap);
@@ -112,7 +107,7 @@ namespace Razix {
                     if (descriptor.name == "HDRTexture")
                         descriptor.texture = equirectangularMapHandle;
                     if (descriptor.name == "HDRSampler")
-                        descriptor.texture = equirectangularMapHandle;
+                        descriptor.sampler = Gfx::g_SamplerPresets[(u32) SamplerPresets::kDefaultGeneric];
                     if (descriptor.name == "CubeMapRT")
                         descriptor.texture = cubeMapHandle;
                     if (descriptor.name == "Constants")
@@ -164,8 +159,6 @@ namespace Razix {
             irradianceMapTextureDesc.layers                = CUBEMAP_LAYERS;
             irradianceMapTextureDesc.type                  = TextureType::kRWCubeMap;
             irradianceMapTextureDesc.format                = TextureFormat::RGBA16F;
-            irradianceMapTextureDesc.wrapping              = Wrapping::kClampToEdge;
-            irradianceMapTextureDesc.filtering             = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
             irradianceMapTextureDesc.enableMips            = false;
             irradianceMapTextureDesc.initResourceViewHints = ResourceViewHint::kSRV | ResourceViewHint::kUAV;
 
@@ -196,7 +189,7 @@ namespace Razix {
                     if (descriptor.name == "EnvCubeMap")
                         descriptor.texture = cubeMap;
                     if (descriptor.name == "IrradianceSampler")
-                        descriptor.texture = cubeMap;
+                        descriptor.sampler = Gfx::g_SamplerPresets[(u32) SamplerPresets::kDefaultGeneric];
                     if (descriptor.name == "IrradianceMap")
                         descriptor.texture = irradianceMapHandle;
                     if (descriptor.name == "Constants")

@@ -5,6 +5,7 @@
 
 #include "Razix/Platform/API/Vulkan/VKDevice.h"
 #include "Razix/Platform/API/Vulkan/VKRenderContext.h"
+#include "Razix/Platform/API/Vulkan/VKSampler.h"
 #include "Razix/Platform/API/Vulkan/VKSwapchain.h"
 #include "Razix/Platform/API/Vulkan/VKTexture.h"
 #include "Razix/Platform/API/Vulkan/VKUniformBuffer.h"
@@ -28,7 +29,7 @@ namespace Razix {
 
             std::vector<VkDescriptorSetLayoutBinding> setLayoutBindingInfos;
 
-            for (auto descriptor: descriptors) {
+            for (auto& descriptor: descriptors) {
                 VkDescriptorSetLayoutBinding setLayoutBindingInfo = {};
                 setLayoutBindingInfo.binding                      = descriptor.bindingInfo.location.binding;
                 setLayoutBindingInfo.descriptorCount              = 1;    // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array, if any (useful for Animation aka JointTransforms)
@@ -119,9 +120,10 @@ namespace Razix {
                         if (texturePtr) {
                             const VKTexture* backendPtr = static_cast<const VKTexture*>(texturePtr);
 
-                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                            m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getFullSRVImageView();
-                            m_ImageInfoPool[imageWriteIdx].sampler     = backendPtr->getSampler();
+                            m_ImageInfoPool[imageWriteIdx].imageLayout          = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                            m_ImageInfoPool[imageWriteIdx].imageView            = backendPtr->getFullSRVImageView();
+                            VKUtilities::VKCreateSamplerDesc defaultSamplerDesc = {};
+                            m_ImageInfoPool[imageWriteIdx].sampler              = VKUtilities::CreateImageSampler(defaultSamplerDesc RZ_DEBUG_NAME_TAG_STR_E_ARG("Default Combined Sampler"));
                         } else {
                             m_ImageInfoPool[imageWriteIdx].imageLayout          = VK_IMAGE_LAYOUT_UNDEFINED;
                             m_ImageInfoPool[imageWriteIdx].imageView            = VK_NULL_HANDLE;
@@ -195,14 +197,14 @@ namespace Razix {
                         descriptorWritesCount++;
                     } break;
                     case DescriptorType::kSampler: {
-                        const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
+                        const RZSampler* samplerPtr = RZResourceManager::Get().getPool<RZSampler>().get(descriptor.sampler);
 
-                        if (texturePtr) {
-                            const VKTexture* backendPtr            = static_cast<const VKTexture*>(texturePtr);
+                        if (samplerPtr) {
+                            const VKSampler* backendPtr            = static_cast<const VKSampler*>(samplerPtr);
                             m_ImageInfoPool[imageWriteIdx].sampler = backendPtr->getSampler();
                         } else {
                             VKUtilities::VKCreateSamplerDesc defaultSamplerDesc = {};
-                            m_ImageInfoPool[imageWriteIdx].sampler              = VKUtilities::CreateImageSampler(defaultSamplerDesc RZ_DEBUG_NAME_TAG_STR_E_ARG("Default Sampler"));
+                            m_ImageInfoPool[imageWriteIdx].sampler              = VKUtilities::CreateImageSampler(defaultSamplerDesc RZ_DEBUG_NAME_TAG_STR_E_ARG("DefaultSampler"));
                         }
 
                         VkWriteDescriptorSet writeDescriptorSet = {};

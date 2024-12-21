@@ -23,25 +23,21 @@ namespace Razix {
         // TODO: Add checks for data members based on type, ex. Texture_CubeMap must have layers > 1 etc.
         struct RZTextureDesc
         {
-            std::string   name                  = "$UNNAMED_TEXTURE_RESOURCE"; /* Name of the texture                                           */
-            u32           width                 = 0;                           /*  The Width of the texture                                     */
-            u32           height                = 0;                           /* The Height of the texture                                     */
-            u32           depth                 = 1;                           /* The depth of the texture used only for 3D textures            */
-            u32           layers                = 1;                           /* The array Layers of the texture used for Arrays and CubeMaps  */
-            void*         data                  = nullptr;                     /* The Data uses to initialize the Texture with                  */
-            u32           size                  = 0;                           /* Total size of pixel data used for initialization              */
-            TextureType   type                  = TextureType::k2D;            /* The type of the Texture                                       */
-            TextureFormat format                = TextureFormat::RGBA16F;      /* The format of the texture                                     */
-            Wrapping      wrapping              = Wrapping::kRepeat;           /* Wrap mode of the texture in memory                            */
-            Filtering     filtering             = Filtering{};                 /* Filtering mode of the texture                                 */
-            bool          enableMips            = false;                       /* Whether or not to generate mip maps or not for the texture    */
-            bool          flipX                 = false;                       /* Flip the texture on X-axis during load                        */
-            bool          flipY                 = true;                        /* Flip the texture on Y-axis during load                        */
-            u8            initResourceViewHints = 1;                           /* (Default: SRV) Hints to create different resource views       */
-            u32           dataSize              = sizeof(unsigned char);       /* data size of each pixel, HDR data vs normal pixel data        */
-            std::string   filePath              = "";                          /* Filepath to load texture from, empty if not                   */
-
-            // TODO: move them with below functions or to some util class
+            std::string   name                  = "$UNNAMED_TEXTURE_RESOURCE";
+            u32           width                 = 0;
+            u32           height                = 0;
+            u32           depth                 = 1;
+            u32           layers                = 1;
+            void*         data                  = nullptr;
+            u32           size                  = 0;
+            TextureType   type                  = TextureType::k2D;
+            TextureFormat format                = TextureFormat::RGBA16F;
+            bool          enableMips            = false;
+            bool          flipX                 = false;
+            bool          flipY                 = true;
+            u8            initResourceViewHints = 1;
+            u32           dataSize              = sizeof(unsigned char);
+            std::string   filePath              = "";
 
             static RAZIX_API std::string FormatToString(const Gfx::TextureFormat format);
             static RAZIX_API std::string TypeToString(TextureType type);
@@ -50,49 +46,52 @@ namespace Razix {
             static RAZIX_API TextureType   StringToType(const std::string& str);
         };
 
-        // TODO: USE THIS!!! Remove sampling from RZTextureDesc
         struct RZSamplerDesc
         {
-            Wrapping  wrapping         = Wrapping::kRepeat;
-            Filtering filtering        = Filtering{};
-            f32       minLOD           = 0.0f;
-            f32       maxLOD           = 1.0f;
-            f32       maxAnisotropy    = 1.0f;
-            bool      enableAnisotropy = true;
-        };
+            std::string name             = "$UNNAMED_SAMPLER";
+            Wrapping    wrapping         = Wrapping::kRepeat;
+            Filtering   filtering        = Filtering{};
+            f32         minLOD           = 0.0f;
+            f32         maxLOD           = 1.0f;
+            f32         maxAnisotropy    = 1.0f;
+            bool        enableAnisotropy = true;
 
-        enum class SamplerPresets
-        {
-            kDefaultGeneric = 0,
-            kMipMap,
-            kAnisotropic,
-            kDiffuseTexSampler,
-            kNormalMapSampler,
-            kNonColorSampler,
-            kColorSampler,
-            COUNT
+            RZSamplerDesc(const std::string& name             = "$UNNAMED_SAMPLER",
+                Wrapping                     wrapping         = Wrapping::kRepeat,
+                Filtering                    filtering        = Filtering{},
+                f32                          minLOD           = 0.0f,
+                f32                          maxLOD           = 1.0f,
+                f32                          maxAnisotropy    = 1.0f,
+                bool                         enableAnisotropy = false)
+                : name(name),
+                  wrapping(wrapping),
+                  filtering(filtering),
+                  minLOD(minLOD),
+                  maxLOD(maxLOD),
+                  maxAnisotropy(maxAnisotropy),
+                  enableAnisotropy(enableAnisotropy)
+            {
+            }
         };
-
-        //static RZSamplerDesc g_SamplerPresets[SamplerPresets::COUNT] = {};
 
         /* Used for creating Vertex (VB_), Index(IB_) or Constant buffers(CB_) */
         struct RZBufferDesc
         {
-            std::string name = "$UNNAMED_BUFFER"; /* Name of the buffer */
+            std::string name = "$UNNAMED_BUFFER";
             union
             {
-                u32 size = 0; /* The size of the vertex buffer         */
-                u32 count;    /* The count of the index buffer         */
+                u32 size = 0;
+                u32 count;
             };
-            void*          data                  = nullptr;             /* vertex data to fill the buffer with                             */
-            BufferUsage    usage                 = BufferUsage::Static; /* Usage of the vertex buffer                                      */
-            RZBufferLayout layout                = {};                  /* Layout of buffer on how elements have been stored in the buffer */
-            u8             initResourceViewHints = 0;                   /* Hints to create different resource views internally           */
+            void*          data                  = nullptr;
+            BufferUsage    usage                 = BufferUsage::Static;
+            RZBufferLayout layout                = {};
+            u8             initResourceViewHints = 0;
         };
 
         struct RZShaderDesc
         {
-            std::string   name = "$UNNAMED_SHADER"; /* Name of the shader */
+            std::string   name = "$UNNAMED_SHADER";
             std::string   filePath;
             ShaderBuiltin libraryID;
         };
@@ -110,26 +109,25 @@ namespace Razix {
         /* Information necessary to create the pipeline */
         struct RZPipelineDesc
         {
-            std::string                name                   = "$UNNAMED_PIPELINE_RESOURCE";  /* Name of the texture
-                                                                                                */
-            PipelineType               pipelineType           = PipelineType::kGraphics;       /* Type of pipeline graphics/compute */
-            RZShaderHandle             shader                 = {};                            /* Shader used by the Pipeline                                                 */
-            std::vector<TextureFormat> colorAttachmentFormats = {};                            /* color attachments used by this pipeline, that we write to                   */
-            TextureFormat              depthFormat            = TextureFormat::DEPTH32F;       /* depth attachment format for this pipeline                                   */
-            CullMode                   cullMode               = CullMode::Front;               /* geometry cull mode                                                          */
-            PolygonMode                polygonMode            = PolygonMode::Fill;             /* polygons fill mode                                                          */
-            DrawType                   drawType               = DrawType::Triangle;            /* draw primitive used to draw the geometry                                    */
-            bool                       transparencyEnabled    = true;                          /* whether or not to enable transparency while blending colors                 */
-            bool                       depthBiasEnabled       = false;                         /* whether or not to enable depth bias when writing to depth texture           */
-            bool                       depthTestEnabled       = true;                          /* whether or not to enable depth testing                                      */
-            bool                       depthWriteEnabled      = true;                          /* whether or not to enable wiring depth target                                */
-            BlendFactor                colorSrc               = BlendFactor::SrcAlpha;         /* color source blend factor                                                   */
-            BlendFactor                colorDst               = BlendFactor::OneMinusSrcAlpha; /* color destination colour factor                                             */
-            BlendOp                    colorOp                = BlendOp::Add;                  /* blend operation uses when 2 colors are to mixed in the pixel shader stage   */
-            BlendFactor                alphaSrc               = BlendFactor::One;              /* blend factor for alpha of the source color                                  */
-            BlendFactor                alphaDst               = BlendFactor::One;              /* blend factor for alpha of the destination color                             */
-            BlendOp                    alphaOp                = BlendOp::Add;                  /* blend operation when mixing alpha of the 2 colors in pixel shader stage     */
-            CompareOp                  depthOp                = CompareOp::Less;               /* depth operation comparison function                                         */
+            std::string                name                   = "$UNNAMED_PIPELINE_RESOURCE";
+            PipelineType               pipelineType           = PipelineType::kGraphics;
+            RZShaderHandle             shader                 = {};
+            std::vector<TextureFormat> colorAttachmentFormats = {};
+            TextureFormat              depthFormat            = TextureFormat::DEPTH32F;
+            CullMode                   cullMode               = CullMode::Front;
+            PolygonMode                polygonMode            = PolygonMode::Fill;
+            DrawType                   drawType               = DrawType::Triangle;
+            bool                       transparencyEnabled    = true;
+            bool                       depthBiasEnabled       = false;
+            bool                       depthTestEnabled       = true;
+            bool                       depthWriteEnabled      = true;
+            BlendFactor                colorSrc               = BlendFactor::SrcAlpha;
+            BlendFactor                colorDst               = BlendFactor::OneMinusSrcAlpha;
+            BlendOp                    colorOp                = BlendOp::Add;
+            BlendFactor                alphaSrc               = BlendFactor::One;
+            BlendFactor                alphaDst               = BlendFactor::One;
+            BlendOp                    alphaOp                = BlendOp::Add;
+            CompareOp                  depthOp                = CompareOp::Less;
         };
 
         //-----------------------------------------------------------------------------------

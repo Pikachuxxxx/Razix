@@ -53,10 +53,10 @@ namespace Razix {
         /* Vertex Input binding information describes the input layout format of the Vertex data sent to the Input Assembly and input variable binding and location for input shader variable */
         struct RAZIX_MEM_ALIGN_16 RZVertexInputBindingInfo
         {
-            u32               binding  = 0;                          /* Binding slot to which the input shader variable is bound to  */
-            u32               location = 0;                          /* Location ID of the input shader variable                     */
-            VertexInputFormat format   = VertexInputFormat::R8_UINT; /* The format of the vertex input data                          */
-            u32               offset   = 0;                          /* The offset/stride in the vertex data cluster for each vertex */
+            u32               binding      = 0;                          /* Binding slot to which the input shader variable is bound to  */
+            u32               location     = 0;                          /* Location ID of the input shader variable                     */
+            VertexInputFormat vertexFormat = VertexInputFormat::R8_UINT; /* The format of the vertex input data                          */
+            u32               offset       = 0;                          /* The offset/stride in the vertex data cluster for each vertex */
         };
 
         /* Information about the uniform buffer members */
@@ -74,17 +74,27 @@ namespace Razix {
         /* A descriptor describes the shader resource. Stored details about the binding, the data and other necessary information to create the set of descriptor resources */
         struct RAZIX_MEM_ALIGN_16 RZDescriptor
         {
-            std::string                           name                      = "DESCRIPTOR_UNNAMED";
-            std::string                           typeName                  = "DESCRIPTOR_UNNAMED";
-            RZUniformBufferHandle                 uniformBuffer             = {};
-            RZTextureHandle                       texture                   = {};
-            std::vector<RZShaderBufferMemberInfo> uboMembers                = {};
-            DescriptorBindingInfo                 bindingInfo               = {};
+            std::string name     = "$DESCRIPTOR_UNNAMED";
+            std::string typeName = "$DESCRIPTOR_TYPE_UNNAMED";
+            union
+            {
+                RZUniformBufferHandle uniformBuffer = {};
+                RZTextureHandle       texture;
+                RZSamplerHandle       sampler;
+            };
+            std::vector<RZShaderBufferMemberInfo> uboMembers  = {};
+            DescriptorBindingInfo                 bindingInfo = {};
             ///////////////////////////////////////////////////
             // TODO: Investigate if to move resourceHint from IRZResource to here
             // NOT USED, ONLY FOR REFLECTION VERIFICATION WITH THE BINDING RESOURCE
             u32 size   = 0;    //? The size of the descriptor data, can also be extracted from UBO/Texture??
             u32 offset = 0;    //? I don't think this is needed
+
+            // since RZHandle has custom copy and move constructors and operators this make RZHandle non-trivially copyable
+            // so we need to define this on our own for union to work or make this type trivial again
+            RZDescriptor() {}
+            RZDescriptor(const RZDescriptor& other);
+            RZDescriptor& operator=(const RZDescriptor& other);
         };
 
         struct RAZIX_MEM_ALIGN_16 RZPushConstant
@@ -151,8 +161,8 @@ namespace Razix {
             virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors) = 0;
             virtual void Destroy() const                                         = 0;
 
-            RAZIX_INLINE u32  getSetIdx() const { return m_SetIdx; }
-            RAZIX_INLINE void setSetIdx(u32 idx) { m_SetIdx = idx; }
+            inline u32  getSetIdx() const { return m_SetIdx; }
+            inline void setSetIdx(u32 idx) { m_SetIdx = idx; }
 
         protected:
             u32 m_SetIdx = kInvalidSetIdx;

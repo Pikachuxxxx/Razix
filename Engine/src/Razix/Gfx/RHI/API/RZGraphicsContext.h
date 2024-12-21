@@ -57,6 +57,8 @@ namespace Razix {
             static void Create(const WindowProperties& properties, RZWindow* window);
             /* Release the graphics context object and it's resources */
             static void Release();
+            static void PostGraphicsContextInit();
+            static void PreGraphicsContextDestroy();
 
             /* Initializes the underlying Graphics API for rendering */
             virtual void Init() = 0;

@@ -101,7 +101,6 @@ namespace Razix {
 
                     gbufferTexturesDesc.name      = "SceneDepth";
                     gbufferTexturesDesc.format    = TextureFormat::DEPTH32F;
-                    gbufferTexturesDesc.filtering = {Filtering::Mode::kFilterModeNearest, Filtering::Mode::kFilterModeNearest},
                     gbufferTexturesDesc.type      = TextureType::kDepth;
                     data.GBufferDepth             = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 

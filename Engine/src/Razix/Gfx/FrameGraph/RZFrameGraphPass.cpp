@@ -1,4 +1,5 @@
 
+
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -33,7 +34,7 @@
 #include "Razix/Gfx/Passes/Data/GlobalData.h"
 
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-
+#include "Razix/Gfx/Resources/RZFrameGraphSampler.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
@@ -103,16 +104,21 @@ namespace Razix {
                     // One possible solution is to use Global ShaderBindVars table per set, we pass the shader to a global table which will give it's bind vars and we can update it there
 
                     // Distinguish b/w texture and buffer resource
+                    // Get the ResourceNode name, bind will be successful if it matches with descriptor name
                     if (resources.verifyType<RZFrameGraphTexture>(readResourceID.id)) {
                         auto readResourceTextureHandle = resources.get<RZFrameGraphTexture>(readResourceID.id).getHandle();
-                        // Get the ResourceNode name, bind will be successful if it matches with descriptor name
-                        auto descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphTexture>(readResourceID.id)];
+                        auto descriptor                = shaderBindVars[resources.getResourceName<RZFrameGraphTexture>(readResourceID.id)];
                         if (descriptor)
                             descriptor->texture = readResourceTextureHandle;
+                    }
+                    if (resources.verifyType<RZFrameGraphSampler>(readResourceID.id)) {
+                        auto readResourceTextureHandle = resources.get<RZFrameGraphSampler>(readResourceID.id).getHandle();
+                        auto descriptor                = shaderBindVars[resources.getResourceName<RZFrameGraphSampler>(readResourceID.id)];
+                        if (descriptor)
+                            descriptor->sampler = readResourceTextureHandle;
                     } else {
                         auto readResourceBufferHandle = resources.get<RZFrameGraphBuffer>(readResourceID.id).getHandle();
-                        // Get the ResourceNode name, bind will be successful if it matches with descriptor name
-                        auto descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphTexture>(readResourceID.id)];
+                        auto descriptor               = shaderBindVars[resources.getResourceName<RZFrameGraphTexture>(readResourceID.id)];
                         if (descriptor)
                             descriptor->uniformBuffer = readResourceBufferHandle;
                     }
@@ -143,5 +149,5 @@ namespace Razix {
                 RZResourceManager::Get().getShaderResource(m_shader)->updateBindVarsHeaps();
             }
         }    // namespace FrameGraph
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

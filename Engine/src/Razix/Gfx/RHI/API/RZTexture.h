@@ -57,8 +57,6 @@ namespace Razix {
             inline TextureType          getType() const { return m_Desc.type; }
             inline TextureFormat        getFormat() const { return m_Desc.format; }
             inline std::string          getPath() const { return m_Desc.filePath; }
-            inline Filtering            getFilterMode() const { return m_Desc.filtering; }
-            inline Wrapping             getWrapMode() const { return m_Desc.wrapping; }
             inline u32                  getCurrentMipLevel() const { return m_CurrentMipRenderingLevel; }
             inline void                 setCurrentMipLevel(u32 idx) { m_CurrentMipRenderingLevel = idx; }
             inline u32                  getCurrentArrayLayer() const { return m_BaseArrayLayer; }
@@ -75,8 +73,6 @@ namespace Razix {
 
         private:
             static void Create(void* where, const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
-            RAZIX_DEPRECATED("CreateFromFile is deprecated pass the filepath via RZTextureDesc struct itself! soon to be removed")
-            static void CreateFromFile(void* where, const RZTextureDesc& desc, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG);
 
             // only resource manager can create an instance of this class
             friend class RZResourceManager;
