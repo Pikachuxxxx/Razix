@@ -123,9 +123,10 @@ namespace Razix {
                             m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getFullSRVImageView();
                             m_ImageInfoPool[imageWriteIdx].sampler     = backendPtr->getSampler();
                         } else {
-                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-                            m_ImageInfoPool[imageWriteIdx].imageView   = VK_NULL_HANDLE;
-                            m_ImageInfoPool[imageWriteIdx].sampler     = VKTexture::CreateImageSampler();    // Use some default sampler!
+                            m_ImageInfoPool[imageWriteIdx].imageLayout          = VK_IMAGE_LAYOUT_UNDEFINED;
+                            m_ImageInfoPool[imageWriteIdx].imageView            = VK_NULL_HANDLE;
+                            VKUtilities::VKCreateSamplerDesc defaultSamplerDesc = {};
+                            m_ImageInfoPool[imageWriteIdx].sampler              = VKUtilities::CreateImageSampler(defaultSamplerDesc RZ_DEBUG_NAME_TAG_STR_E_ARG("Default Sampler"));
                         }
 
                         VkWriteDescriptorSet writeDescriptorSet = {};
@@ -200,7 +201,8 @@ namespace Razix {
                             const VKTexture* backendPtr            = static_cast<const VKTexture*>(texturePtr);
                             m_ImageInfoPool[imageWriteIdx].sampler = backendPtr->getSampler();
                         } else {
-                            m_ImageInfoPool[imageWriteIdx].sampler = VKTexture::CreateImageSampler();    // Use some default sampler!
+                            VKUtilities::VKCreateSamplerDesc defaultSamplerDesc = {};
+                            m_ImageInfoPool[imageWriteIdx].sampler              = VKUtilities::CreateImageSampler(defaultSamplerDesc RZ_DEBUG_NAME_TAG_STR_E_ARG("Default Sampler"));
                         }
 
                         VkWriteDescriptorSet writeDescriptorSet = {};

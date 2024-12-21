@@ -73,61 +73,25 @@ namespace Razix {
             // Texture Utility Static Functions
             //-----------------------------------------------------------------------------------
 
-            void CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG)
+            VKImageHandles CreateImageMemoryHandles(VKCreateImageDesc desc RZ_DEBUG_NAME_TAG_E_ARG)
             {
+                VKImageHandles handles = {};
+
                 // We pass the image as reference because we need the memory for it as well
                 VkImageCreateInfo imageInfo = {};
                 imageInfo.sType             = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-                imageInfo.imageType         = imageType;
-                imageInfo.extent            = {width, height, depth};
-                imageInfo.mipLevels         = mipLevels;
-                imageInfo.format            = format;
-                imageInfo.tiling            = tiling;
+                imageInfo.imageType         = desc.imageType;
+                imageInfo.extent            = {desc.width, desc.height, desc.depth};
+                imageInfo.mipLevels         = desc.mipLevels;
+                imageInfo.format            = desc.format;
+                imageInfo.tiling            = desc.tiling;
                 imageInfo.initialLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
-                imageInfo.usage             = usage;
+                imageInfo.usage             = desc.usage;
                 imageInfo.samples           = VK_SAMPLE_COUNT_1_BIT;
                 imageInfo.sharingMode       = VK_SHARING_MODE_EXCLUSIVE;
-                imageInfo.arrayLayers       = arrayLayers;
-
-                imageInfo.flags = flags;
-
-                // Create the image
-                VK_CHECK_RESULT(vkCreateImage(VKDevice::Get().getDevice(), &imageInfo, nullptr, &image));
-
-                // Get the memory requirements for the image and allocate memory for it
-                VkMemoryRequirements memRequirements;
-                vkGetImageMemoryRequirements(VKDevice::Get().getDevice(), image, &memRequirements);
-
-                VkMemoryAllocateInfo allocInfo = {};
-                allocInfo.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-                allocInfo.allocationSize       = memRequirements.size;
-                allocInfo.memoryTypeIndex      = VKDevice::Get().getPhysicalDevice().get()->getMemoryTypeIndex(memRequirements.memoryTypeBits, properties);
-
-                VK_CHECK_RESULT(vkAllocateMemory(VKDevice::Get().getDevice(), &allocInfo, nullptr, &imageMemory));
-                // Bind the image memory with the image
-                VK_CHECK_RESULT(vkBindImageMemory(VKDevice::Get().getDevice(), image, imageMemory, 0));
-
-                VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_IMAGE, (uint64_t) image);
-                VK_TAG_OBJECT(bufferName + std::string("Memory"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) imageMemory);
-            }
-
+                imageInfo.arrayLayers       = desc.arrayLayers;
+                imageInfo.flags             = desc.flags;
 #if RAZIX_USE_VMA
-            void CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VmaAllocation& vmaAllocation, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG)
-            {
-                // We pass the image as reference because we need the memory for it as well
-                VkImageCreateInfo imageInfo = {};
-                imageInfo.sType             = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-                imageInfo.imageType         = imageType;
-                imageInfo.extent            = {width, height, depth};
-                imageInfo.mipLevels         = mipLevels;
-                imageInfo.format            = format;
-                imageInfo.tiling            = tiling;
-                imageInfo.initialLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
-                imageInfo.usage             = usage;
-                imageInfo.samples           = VK_SAMPLE_COUNT_1_BIT;
-                imageInfo.sharingMode       = VK_SHARING_MODE_EXCLUSIVE;
-                imageInfo.arrayLayers       = arrayLayers;
-                imageInfo.flags             = flags;
 
                 VmaAllocationInfo allocationInfo{};
 
@@ -135,39 +99,57 @@ namespace Razix {
                 // TODO: make this selection smart or customizable by user
                 //RZ_TODO("Make this selection smart or customizable by user");
                 vmaallocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-                // We will almost never read back from GPU, and we always use s staging buffer to copy to GPU, so it's always Device Local
+                // We will almost never read back from GPU, and we always use a staging buffer to copy to GPU, so it's always Device Local
                 vmaallocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT |
                                      VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
-                vmaallocInfo.requiredFlags = properties;
+                vmaallocInfo.requiredFlags = desc.properties;
                 //allocate the buffer
-                VK_CHECK_RESULT(vmaCreateImage(VKDevice::Get().getVMA(), &imageInfo, &vmaallocInfo, &image, &vmaAllocation, &allocationInfo));
+                VK_CHECK_RESULT(vmaCreateImage(VKDevice::Get().getVMA(), &imageInfo, &vmaallocInfo, &handles.image, &handles.memoryWrapper.vmaAllocation, &allocationInfo));
 
-                VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_IMAGE, (uint64_t) image);
+                VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_IMAGE, (uint64_t) handles.image);
 
     #ifdef RAZIX_DEBUG
-                vmaSetAllocationName(VKDevice::Get().getVMA(), vmaAllocation RZ_DEBUG_E_ARG_NAME.c_str());
+                vmaSetAllocationName(VKDevice::Get().getVMA(), handles.memoryWrapper.vmaAllocation RZ_DEBUG_E_ARG_NAME.c_str());
     #endif
 
-                // TODO: Get allocated memory stats from which pool etc. and attach that to RZMemoryManager
-                //Memory::RZMemAllocInfo memAllocInfo{};
-            }
+#else
+                // Create the image
+                VK_CHECK_RESULT(vkCreateImage(VKDevice::Get().getDevice(), &imageInfo, nullptr, &handles.image));
+                VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_IMAGE, (uint64_t) handles.image);
+
+                // Get the memory requirements for the image and allocate memory for it
+                VkMemoryRequirements memRequirements;
+                vkGetImageMemoryRequirements(VKDevice::Get().getDevice(), handles.image, &memRequirements);
+
+                VkMemoryAllocateInfo allocInfo = {};
+                allocInfo.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+                allocInfo.allocationSize       = memRequirements.size;
+                allocInfo.memoryTypeIndex      = VKDevice::Get().getPhysicalDevice().get()->getMemoryTypeIndex(memRequirements.memoryTypeBits, desc.properties);
+
+                VK_CHECK_RESULT(vkAllocateMemory(VKDevice::Get().getDevice(), &allocInfo, nullptr, &handles.memoryWrapper.nativeAllocation));
+                // Bind the image memory with the image
+                VK_CHECK_RESULT(vkBindImageMemory(VKDevice::Get().getDevice(), desc, handles.image, handles.memoryWrapper.nativeAllocation, 0));
+
+                VK_TAG_OBJECT(bufferName + std::string("Memory"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) handles.memoryWrapper.nativeAllocation);
 #endif
+                return handles;
+            }
 
             //-----------------------------------------------------------------------------------
 
-            VkImageView CreateImageView(VkImage image, VkFormat format, u32 mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, u32 layerCount, u32 baseArrayLayer, u32 baseMipLevel /*= 0*/ RZ_DEBUG_NAME_TAG_E_ARG)
+            VkImageView CreateImageView(VKCreateImageViewDesc desc RZ_DEBUG_NAME_TAG_E_ARG)
             {
                 VkImageViewCreateInfo viewInfo           = {};
                 viewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-                viewInfo.image                           = image;
-                viewInfo.viewType                        = viewType;
-                viewInfo.format                          = format;
+                viewInfo.image                           = desc.image;
+                viewInfo.viewType                        = desc.viewType;
+                viewInfo.format                          = desc.format;
                 viewInfo.components                      = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
-                viewInfo.subresourceRange.aspectMask     = aspectMask;
-                viewInfo.subresourceRange.baseMipLevel   = baseMipLevel;
+                viewInfo.subresourceRange.aspectMask     = desc.aspectMask;
+                viewInfo.subresourceRange.baseMipLevel   = desc.baseMipLevel;
                 viewInfo.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
-                viewInfo.subresourceRange.baseArrayLayer = baseArrayLayer;
-                viewInfo.subresourceRange.layerCount     = layerCount;
+                viewInfo.subresourceRange.baseArrayLayer = desc.baseArrayLayer;
+                viewInfo.subresourceRange.layerCount     = desc.layerCount;
 
                 VkImageView imageView;
                 VK_CHECK_RESULT(vkCreateImageView(VKDevice::Get().getDevice(), &viewInfo, nullptr, &imageView));
@@ -179,26 +161,26 @@ namespace Razix {
 
             //-----------------------------------------------------------------------------------
 
-            VkSampler CreateImageSampler(VkFilter magFilter /*= VK_FILTER_LINEAR*/, VkFilter minFilter /*= VK_FILTER_LINEAR*/, f32 minLod /*= 0.0f*/, f32 maxLod /*= 1.0f*/, bool anisotropyEnable /*= false*/, f32 maxAnisotropy /*= 1.0f*/, VkSamplerAddressMode modeU /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/, VkSamplerAddressMode modeV /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/, VkSamplerAddressMode modeW /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/ RZ_DEBUG_NAME_TAG_E_ARG)
+            VkSampler CreateImageSampler(VKCreateSamplerDesc desc RZ_DEBUG_NAME_TAG_E_ARG)
             {
                 VkSampler           sampler;
                 VkSamplerCreateInfo samplerInfo     = {};
                 samplerInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-                samplerInfo.magFilter               = magFilter;
-                samplerInfo.minFilter               = minFilter;
+                samplerInfo.magFilter               = desc.magFilter;
+                samplerInfo.minFilter               = desc.minFilter;
                 samplerInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-                samplerInfo.addressModeU            = modeU;
-                samplerInfo.addressModeV            = modeV;
-                samplerInfo.addressModeW            = modeW;
-                samplerInfo.maxAnisotropy           = maxAnisotropy;
-                samplerInfo.anisotropyEnable        = anisotropyEnable;
+                samplerInfo.addressModeU            = desc.modeU;
+                samplerInfo.addressModeV            = desc.modeV;
+                samplerInfo.addressModeW            = desc.modeW;
+                samplerInfo.maxAnisotropy           = desc.maxAnisotropy;
+                samplerInfo.anisotropyEnable        = desc.anisotropyEnable;
                 samplerInfo.unnormalizedCoordinates = VK_FALSE;
                 samplerInfo.compareEnable           = VK_TRUE;
                 samplerInfo.borderColor             = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
                 samplerInfo.mipLodBias              = 0.0f;
                 samplerInfo.compareOp               = VK_COMPARE_OP_LESS;
-                samplerInfo.minLod                  = minLod;
-                samplerInfo.maxLod                  = maxLod;
+                samplerInfo.minLod                  = desc.minLod;
+                samplerInfo.maxLod                  = desc.maxLod;
 
                 VK_CHECK_RESULT(vkCreateSampler(VKDevice::Get().getDevice(), &samplerInfo, nullptr, &sampler));
 

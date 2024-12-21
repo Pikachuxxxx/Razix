@@ -64,7 +64,7 @@ namespace Razix {
 #endif
             //-----------------------------------------------------------------------------------
             // VkResult enums and their error descriptions map
-            std::unordered_map<VkResult, std::string> ErrorDescriptions = {
+            static std::unordered_map<VkResult, std::string> ErrorDescriptions = {
                 {VK_SUCCESS, "Command successfully completed"},
                 {VK_NOT_READY, "A fence or query has not yet completed"},
                 {VK_TIMEOUT, "A wait operation has not completed in the specified time"},
@@ -102,7 +102,7 @@ namespace Razix {
                 {VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT, "An operation on a swapchain created with VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT failed as it did not have exlusive full-screen access. This may occur due to implementation-dependent reasons, outside of the application's control."},
                 {VK_ERROR_UNKNOWN, "An unknown error has occurred; either the application has provided invalid input, or an implementation failure has occurred."}};
 
-            bool VulkanCheckErrorStatus(VkResult x, cstr function, cstr file, int line)
+            static bool VulkanCheckErrorStatus(VkResult x, cstr function, cstr file, int line)
             {
                 if (x != VK_SUCCESS) {
                     //std::cout << "\033[1;31;49m **Vulkan Function Call Error** Description : \033[0m" << ErrorDescriptions[x] << " \033[2;90;49m [at Line : " << line << " in File : " << file << "\033[0m]" << std::endl;
@@ -125,14 +125,66 @@ namespace Razix {
             // Texture/Image utility Functions
             //-----------------------------------------------------------------------------------
 
-            void CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG);
+            typedef struct VKImageMemoryBackendWrapper
+            {
 #if RAZIX_USE_VMA
-            void CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VmaAllocation& vmaAllocation, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG);
+                VmaAllocation vmaAllocation;
+#else
+                VkDeviceMemory nativeAllocation;
 #endif
+            } VKImageMemoryBackendWrapper;
 
-            VkImageView CreateImageView(VkImage image, VkFormat format, u32 mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, u32 layerCount, u32 baseArrayLayer = 0, u32 baseMipLevel = 0 RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "someImageView! NAME IT !!! LAZY ASS MF#$"));
+            typedef struct VKImageHandles
+            {
+                VkImage                     image;
+                VKImageMemoryBackendWrapper memoryWrapper;
+            } VKImageHandles;
 
-            VkSampler CreateImageSampler(VkFilter magFilter = VK_FILTER_LINEAR, VkFilter minFilter = VK_FILTER_LINEAR, f32 minLod = 0.0f, f32 maxLod = 1.0f, bool anisotropyEnable = false, f32 maxAnisotropy = 1.0f, VkSamplerAddressMode modeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VkSamplerAddressMode modeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE RZ_DEBUG_NAME_TAG_E_ARG RZ_DEBUG_NAME_TAG_STR_S_ARG(= "someImageSampler! NAME IT !!! LAZY ASS MF#$"));
+            typedef struct VKCreateImageDesc
+            {
+                u32                   width;
+                u32                   height;
+                u32                   depth;
+                u32                   mipLevels;
+                u32                   arrayLayers;
+                VkFormat              format;
+                VkImageType           imageType;
+                VkImageTiling         tiling;
+                VkImageUsageFlags     usage;
+                VkMemoryPropertyFlags properties;
+                VkImageCreateFlags    flags;
+            } VKCreateImageDesc;
+
+            typedef struct VKCreateImageViewDesc
+            {
+                VkImage            image;
+                VkFormat           format;
+                VkImageViewType    viewType;
+                VkImageAspectFlags aspectMask;
+                u32                mipLevels;
+                u32                baseMipLevel;
+                u32                layerCount;
+                u32                baseArrayLayer;
+            } VKCreateImageViewDesc;
+
+            typedef struct VKCreateSamplerDesc
+            {
+                VkFilter             magFilter        = VK_FILTER_LINEAR;
+                VkFilter             minFilter        = VK_FILTER_LINEAR;
+                bool                 anisotropyEnable = false;
+                f32                  minLod           = 0.0f;
+                f32                  maxLod           = 1.0f;
+                f32                  maxAnisotropy    = 1.0f;
+                VkSamplerAddressMode modeU            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+                VkSamplerAddressMode modeV            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+                VkSamplerAddressMode modeW            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+            } VKCreateSamplerDesc;
+
+            VKImageHandles CreateImageMemoryHandles(VKCreateImageDesc desc RZ_DEBUG_NAME_TAG_E_ARG);
+
+            VkImageView CreateImageView(VKCreateImageViewDesc desc RZ_DEBUG_NAME_TAG_E_ARG);
+
+            VkSampler CreateImageSampler(VKCreateSamplerDesc desc RZ_DEBUG_NAME_TAG_E_ARG);
 
             void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, u32 mipLevels, u32 layers);
 

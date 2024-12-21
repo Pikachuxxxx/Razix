@@ -118,7 +118,7 @@ namespace Razix {
                     if (descriptor.name == "Constants")
                         descriptor.uniformBuffer = viewProjLayerUBO;
                 }
-                envMapSet = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Env map conversion set"));
+                envMapSet = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("convertEquirectangularToCubemap set"));
             }
 
             // Create the Pipeline
@@ -146,7 +146,7 @@ namespace Razix {
 
             //Generate mip maps from first mip face
             auto cubeMapTexture = RZResourceManager::Get().getTextureResource(cubeMapHandle);
-            cubeMapTexture->GenerateMips();
+            cubeMapTexture->GenerateMipsAndViews();
 
             if (envMapSet)
                 envMapSet->Destroy();
@@ -202,7 +202,7 @@ namespace Razix {
                     if (descriptor.name == "Constants")
                         descriptor.uniformBuffer = viewProjLayerUBO;
                 }
-                envMapSet = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Env map conversion set"));
+                envMapSet = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("generateIrradianceMap set"));
             }
 
             // Create the Pipeline

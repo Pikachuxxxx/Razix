@@ -348,9 +348,9 @@ namespace Razix {
 
                 if (colorAttachment->getFormat() == TextureFormat::SCREEN) {
                     auto vkImage = static_cast<VKTexture*>(colorAttachment);
-                    if (vkImage->getImageLayout() != VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+                    if (vkImage->getImageLayoutValue() != VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
                         VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-                        vkImage->setImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+                        vkImage->setImageLayoutValue(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
                     }
                     attachInfo.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                 } else
@@ -384,9 +384,9 @@ namespace Razix {
                 }
 
                 // Fill the color attachments first
-                attachInfo.sType                 = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
+                attachInfo.sType      = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
                 VKTexture* backendPtr = static_cast<VKTexture*>(depthAttachment);
-                attachInfo.imageView             = backendPtr->getDSVImageView();
+                attachInfo.imageView  = backendPtr->getFullDSVImageView();
 
                 attachInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
 
@@ -568,7 +568,7 @@ namespace Razix {
             VKTexture* vkTexture       = static_cast<VKTexture*>(textureResource);
 
             // Update with the new layout
-            vkTexture->setImageLayout((VkImageLayout) VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.dstLayout));
+            vkTexture->setImageLayoutValue((VkImageLayout) VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.dstLayout));
 
             VkImageMemoryBarrier barrier = {};
             barrier.sType                = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;

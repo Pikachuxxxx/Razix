@@ -43,7 +43,7 @@ namespace Razix {
             virtual void* GetAPIHandlePtr() const       = 0;
             // TODO: Add support for reading z/array layer
             // TODO: Extend this to set data at desired mip level and array index
-            virtual void    GenerateMips() {}
+            virtual void    GenerateMipsAndViews() {}
             virtual void    UploadToBindlessSet() {}
             virtual int32_t ReadPixels(u32 x, u32 y) = 0;
 

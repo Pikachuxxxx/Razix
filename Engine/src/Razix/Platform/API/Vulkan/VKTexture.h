@@ -6,6 +6,7 @@
 
     #include "Razix/Platform/API/Vulkan/VKBuffer.h"
     #include "Razix/Platform/API/Vulkan/VKDevice.h"
+    #include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
     #include <vulkan/vulkan.h>
 
@@ -51,45 +52,43 @@ namespace Razix {
 
             virtual void    Resize(u32 width, u32 height) override;
             virtual void*   GetAPIHandlePtr() const override { return (void*) &m_Image; }
-            virtual void    GenerateMips() override;
+            virtual void    GenerateMipsAndViews() override;
             virtual void    UploadToBindlessSet() override;
             virtual int32_t ReadPixels(u32 x, u32 y) override;
 
             void transitonImageLayoutToSRV();
             void transitonImageLayoutToUAV();
 
-            inline VkImageLayout getImageLayout() const { return m_ImageLayout; }
-            // TODO: call it overrideImageLayoutValue(...) since it has no actual responsibility?
-            inline void        setImageLayout(VkImageLayout layout) { m_ImageLayout = layout; }
-            inline VkImage     getImage() const { return m_Image; };
-            inline VkImageView getFullSRVImageView() const { return m_FullResourceView.srv; }
-            inline VkImageView getFullUAVImageView() const { return m_FullResourceView.uav; }
-            inline VkImageView getFullDSVImageView() const { return m_FullResourceView.dsv; }
-            inline VkImageView getFullRTVImageView() const { return m_FullResourceView.rtv; }
-            inline VkImageView getLayerMipSRVImageView(u32 layer, u32 mip) const { return m_LayerMipResourceViews[layer][mip].srv; }
-            inline VkImageView getLayerMipUAVImageView(u32 layer, u32 mip) const { return m_LayerMipResourceViews[layer][mip].uav; }
-            inline VkImageView getLayerMipDSVImageView(u32 layer, u32 mip) const { return m_LayerMipResourceViews[layer][mip].dsv; }
-            inline VkImageView getLayerMipRTVImageView(u32 layer, u32 mip) const { return m_LayerMipResourceViews[layer][mip].rtv; }
+            inline VkImageLayout getImageLayoutValue() const { return m_FinalImageLayout; }
+            inline void          setImageLayoutValue(VkImageLayout layout) { m_FinalImageLayout = layout; }
+            inline VkImage       getImage() const { return m_Image; };
+            inline VkImageView   getFullSRVImageView() const { return m_FullResourceView.srv; }
+            inline VkImageView   getFullUAVImageView() const { return m_FullResourceView.uav; }
+            inline VkImageView   getFullDSVImageView() const { return m_FullResourceView.dsv; }
+            inline VkImageView   getFullRTVImageView() const { return m_FullResourceView.rtv; }
+            inline VkImageView   getLayerMipSRVImageView(u32 layer, u32 mip) const { return m_LayerMipResourceViews[layer][mip].srv; }
+            inline VkImageView   getLayerMipUAVImageView(u32 layer, u32 mip) const { return m_LayerMipResourceViews[layer][mip].uav; }
+            inline VkImageView   getLayerMipDSVImageView(u32 layer, u32 mip) const { return m_LayerMipResourceViews[layer][mip].dsv; }
+            inline VkImageView   getLayerMipRTVImageView(u32 layer, u32 mip) const { return m_LayerMipResourceViews[layer][mip].rtv; }
             RAZIX_DEPRECATED("VkSampler is depricated in VKTexture class, it will be separated soon!")
-            inline VkSampler      getSampler() const { return m_ImageSampler; }
-            inline VkDeviceMemory getDeviceMemory() const { return m_ImageMemory; }
+            inline VkSampler getSampler() const { return m_ImageSampler; }
     #if RAZIX_USE_VMA
-            inline VmaAllocation getVMAAllocation() const { return m_VMAAllocation; }
+            inline VmaAllocation getVMAAllocation() const { return m_ImageMemoryWrapper.vmaAllocation; }
+    #else
+            inline VkDeviceMemory getDeviceMemory() const { return m_ImageMemoryWrapper.nativeAllocation; }
     #endif
 
         private:
             VkImage m_Image = VK_NULL_HANDLE;
             RAZIX_DEPRECATED("vkSampler is depricated in VKTexture class, it will be separated soon!")
-            VkSampler             m_ImageSampler                                                            = VK_NULL_HANDLE;
-            VKImageResourceView   m_FullResourceView                                                        = {};
-            VKImageResourceView   m_LayerMipResourceViews[RAZIX_MAX_TEXTURE_LAYERS][RAZIX_MAX_TEXTURE_MIPS] = {};
-            VkImageLayout         m_ImageLayout                                                             = VK_IMAGE_LAYOUT_UNDEFINED;
-            bool                  m_DeleteImageData                                                         = false;
-            VkImageAspectFlagBits m_AspectBit                                                               = VK_IMAGE_ASPECT_NONE;
-            VkDeviceMemory        m_ImageMemory                                                             = VK_NULL_HANDLE;
-    #if RAZIX_USE_VMA
-            VmaAllocation m_VMAAllocation = {};
-    #endif
+            VkSampler                                m_ImageSampler                                                            = VK_NULL_HANDLE;
+            VKImageResourceView                      m_FullResourceView                                                        = {};
+            VKImageResourceView                      m_LayerMipResourceViews[RAZIX_MAX_TEXTURE_LAYERS][RAZIX_MAX_TEXTURE_MIPS] = {};
+            VkImageLayout                            m_FinalImageLayout                                                        = VK_IMAGE_LAYOUT_UNDEFINED;
+            VkImageLayout                            m_OldImageLayout                                                          = VK_IMAGE_LAYOUT_UNDEFINED;    // For internal state tracking only
+            bool                                     m_DeleteImageData                                                         = false;
+            VkImageAspectFlags                       m_AspectFlags                                                             = VK_IMAGE_ASPECT_NONE;
+            VKUtilities::VKImageMemoryBackendWrapper m_ImageMemoryWrapper                                                      = {};
 
         private:
             // specialized constructor for swapchain class only
@@ -97,9 +96,21 @@ namespace Razix {
             VKTexture(VkImage image, VkImageView imageView);
 
             // TODO: split into more does one thing functions
-            void initializeBackendHandles(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
-            void initMipViewsPerFace();
-            void loadImageDataFromFile();
+            void               initializeBackendHandles(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
+            void               loadImageDataInfoFromFile();
+            void               evaluateMipsCount();
+            VkImageUsageFlags  resolveUsageFlags();
+            VkImageCreateFlags resolveCreateFlags();
+            VkImageAspectFlags resolveAspectFlags();
+            void               createVkImageHandleWithDesc(VkImageCreateFlags flags, VkImageUsageFlags usageBits RZ_DEBUG_NAME_TAG_E_ARG);
+            void               copyInitDataToGPU();
+            void               loadImageDataFromFile();
+            void               createSpecializedRWCubemapViews();
+            void               createFullResourceViews();
+            void               createMipViewsPerFace();
+            void               createSamplerHandle();
+            bool               isDepthFormat();
+            bool               isRWImage();
         };
     }    // namespace Gfx
 }    // namespace Razix
