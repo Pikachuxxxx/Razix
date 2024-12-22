@@ -573,7 +573,7 @@ static constexpr float operator""_inKib(unsigned long long int x)
 
 /* Whether or not to use VMA as memory backend */
 #ifdef RAZIX_PLATFORM_WINDOWS
-    #define RAZIX_USE_VMA 0
+    #define RAZIX_USE_VMA 1
 #elif RAZIX_PLATFORM_MACOS
     #define RAZIX_USE_VMA 0    // Still porting WIP, so disabled idk if the SDK has it
 #endif
