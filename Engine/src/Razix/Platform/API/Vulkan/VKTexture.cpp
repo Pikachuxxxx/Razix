@@ -271,7 +271,7 @@ namespace Razix {
             else
                 usageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-            if (usageFlags == VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT && m_ResourceViewHint != kDSV) {
+            if ((usageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) == VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT && m_ResourceViewHint != kDSV) {
                 RAZIX_CORE_ERROR("[Vulkan] Depth Texture is being created without a DSV hint, depth write image view will cause a crash! provide correct resource view hint during texture initialization");
                 RAZIX_DEBUG_BREAK();
             }

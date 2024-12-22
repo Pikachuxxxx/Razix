@@ -46,16 +46,14 @@ namespace Razix {
             pipelineInfo.name                   = "[Test] Pipeline.WaveIntrinsics";
             pipelineInfo.shader                 = shader;
             pipelineInfo.colorAttachmentFormats = {TextureFormat::SCREEN};
-#ifdef __APPLE__    // Metal cannot draw without a depth attachment
-            pipelineInfo.depthFormat = TextureFormat::DEPTH16_UNORM;
-#endif
-            pipelineInfo.cullMode            = Gfx::CullMode::None;
-            pipelineInfo.drawType            = Gfx::DrawType::Triangle;
-            pipelineInfo.depthTestEnabled    = false;
-            pipelineInfo.depthWriteEnabled   = false;
-            pipelineInfo.transparencyEnabled = false;
-            pipelineInfo.depthBiasEnabled    = false;
-            m_Pipeline                       = RZResourceManager::Get().createPipeline(pipelineInfo);
+            pipelineInfo.depthFormat            = TextureFormat::DEPTH16_UNORM;
+            pipelineInfo.cullMode               = Gfx::CullMode::None;
+            pipelineInfo.drawType               = Gfx::DrawType::Triangle;
+            pipelineInfo.depthTestEnabled       = false;
+            pipelineInfo.depthWriteEnabled      = false;
+            pipelineInfo.transparencyEnabled    = false;
+            pipelineInfo.depthBiasEnabled       = false;
+            m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             struct WaveIntrinsicsData
             {
@@ -75,24 +73,24 @@ namespace Razix {
                 [&](WaveIntrinsicsData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-#ifdef __APPLE__    // Metal cannot draw without a depth attachment
                     RZTextureDesc depthTextureDesc;
-                    depthTextureDesc.name      = "SceneDepth";
-                    depthTextureDesc.width     = RZApplication::Get().getWindow()->getWidth();
-                    depthTextureDesc.height    = RZApplication::Get().getWindow()->getHeight();
-                    depthTextureDesc.format    = TextureFormat::DEPTH16_UNORM;
-                    depthTextureDesc.type      = TextureType::kDepth;
+                    depthTextureDesc.name                  = "SceneDepth";
+                    depthTextureDesc.width                 = RZApplication::Get().getWindow()->getWidth();
+                    depthTextureDesc.height                = RZApplication::Get().getWindow()->getHeight();
+                    depthTextureDesc.format                = TextureFormat::DEPTH16_UNORM;
+                    depthTextureDesc.type                  = TextureType::kDepth;
                     depthTextureDesc.initResourceViewHints = kDSV;
-                    data.Depth                 = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
-#endif
+                    data.Depth                             = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
 
-                   //RZBufferDesc DebugDataBufferDesc{};
-                   //DebugDataBufferDesc.name  = "WaveIntrinsicsConstantBufferData";
-                   //DebugDataBufferDesc.size  = sizeof(SSAOParamsData);
-                   //DebugDataBufferDesc.usage = BufferUsage::PersistentStream;
-                   //data.DebugBuffer          = builder.create<FrameGraph::RZFrameGraphBuffer>(DebugDataBufferDesc.name, CAST_TO_FG_BUF_DESC DebugDataBufferDesc);
-                   //
-                   //data.DebugBuffer = builder.write(data.DebugBuffer);
+                    data.Depth = builder.write(data.Depth);
+
+                    //RZBufferDesc DebugDataBufferDesc{};
+                    //DebugDataBufferDesc.name  = "WaveIntrinsicsConstantBufferData";
+                    //DebugDataBufferDesc.size  = sizeof(SSAOParamsData);
+                    //DebugDataBufferDesc.usage = BufferUsage::PersistentStream;
+                    //data.DebugBuffer          = builder.create<FrameGraph::RZFrameGraphBuffer>(DebugDataBufferDesc.name, CAST_TO_FG_BUF_DESC DebugDataBufferDesc);
+                    //
+                    //data.DebugBuffer = builder.write(data.DebugBuffer);
                 },
                 [=](const WaveIntrinsicsData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -105,10 +103,8 @@ namespace Razix {
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {{Gfx::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::OpaqueBlack}}};
-#ifdef __APPLE__    // Metal cannot draw without a depth attachment
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
-#endif
-                    info.resize = true;
+                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
+                    info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
 
