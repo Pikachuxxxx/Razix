@@ -101,7 +101,7 @@ namespace Razix {
             for (u32 i = 0; i < m_SwapchainImageCount; i++)
                 RZResourceManager::Get().destroyTexture(m_SwapchainImageTextures[i]);
             m_SwapchainImageTextures.clear();
-            m_SwapchainImageCount = m_SwapchainImageTextures.size();
+            m_SwapchainImageCount = static_cast<u32>(m_SwapchainImageTextures.size());
         }
 
         void VKSwapchain::Flip()

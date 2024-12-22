@@ -126,13 +126,11 @@ namespace Razix {
                             m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                             m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getFullSRVImageView();
                             RAZIX_CORE_ERROR("[Vulkan] found CombinedImageSampler resource, using a default sampler, refrain from using this type");
-                            VKUtilities::VKCreateSamplerDesc defaultSamplerDesc = {};
                             m_ImageInfoPool[imageWriteIdx].sampler              = m_DefaultSampler;
                         } else {
                             RAZIX_CORE_ERROR("[Vulkan] No sampler resource provided, using a default sampler");
                             m_ImageInfoPool[imageWriteIdx].imageLayout          = VK_IMAGE_LAYOUT_UNDEFINED;
                             m_ImageInfoPool[imageWriteIdx].imageView            = VK_NULL_HANDLE;
-                            VKUtilities::VKCreateSamplerDesc defaultSamplerDesc = {};
                             m_ImageInfoPool[imageWriteIdx].sampler              = m_DefaultSampler;
                         }
 
@@ -209,7 +207,6 @@ namespace Razix {
                             m_ImageInfoPool[imageWriteIdx].sampler = backendPtr->getSampler();
                         } else {
                             RAZIX_CORE_ERROR("[Vulkan] No sampler resource provided, using a default sampler");
-                            VKUtilities::VKCreateSamplerDesc defaultSamplerDesc = {};
                             m_ImageInfoPool[imageWriteIdx].sampler              = m_DefaultSampler;
                         }
 
