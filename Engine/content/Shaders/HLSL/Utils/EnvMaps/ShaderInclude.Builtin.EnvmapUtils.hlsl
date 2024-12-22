@@ -32,7 +32,7 @@ float2 DirectionToEquirectangularUV(float3 dir)
 
     float2 uv;
     uv.x = 0.5f + phi / (2.0f * PI); // Map to [0, 1]
-    uv.y = 0.5f - theta / PI;       // Map to [0, 1]
+    uv.y = 0.5f - theta / PI;        // Map to [0, 1]
     return uv;
 }
 #endif
