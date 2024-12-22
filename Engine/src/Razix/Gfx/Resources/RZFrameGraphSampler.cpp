@@ -24,7 +24,7 @@ namespace Razix {
 
             void RZFrameGraphSampler::destroy(const Desc& desc, void* transientAllocator)
             {
-                //RZResourceManager::Get().releaseSampler(m_SamplerHandle);
+                RZResourceManager::Get().destroySampler(m_SamplerHandle);
             }
 
             std::string RZFrameGraphSampler::toString(const Desc& desc)

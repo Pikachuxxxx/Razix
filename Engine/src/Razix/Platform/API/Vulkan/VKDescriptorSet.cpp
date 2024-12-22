@@ -49,18 +49,18 @@ namespace Razix {
             // So even though they are already created in VKShader doing it again will not cause any binding issues, also cause
             // of this Shader and Descriptors API can stay decoupled which is a super good thing in terms of design which can spiral
             // into cyclic dependency real quick especially shaders and sets
-            if (VK_CHECK_RESULT(vkCreateDescriptorSetLayout(VKDevice::Get().getDevice(), &layoutInfo, nullptr, &setLayout)))
+            if (VK_CHECK_RESULT(vkCreateDescriptorSetLayout(VKDevice::Get().getDevice(), &layoutInfo, nullptr, &m_SetLayout)))
                 RAZIX_CORE_ERROR("[Vulkan] Failed to create descriptor set layout!");
             else
                 RAZIX_CORE_TRACE("[Vulkan] Successfully created descriptor set layout");
 
-            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, (uint64_t) setLayout)
+            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, (uint64_t) m_SetLayout)
 
             VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
             descriptorSetAllocateInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
             descriptorSetAllocateInfo.descriptorPool     = VKDevice::Get().getGlobalDescriptorPool();
             descriptorSetAllocateInfo.descriptorSetCount = 1;
-            descriptorSetAllocateInfo.pSetLayouts        = &setLayout;
+            descriptorSetAllocateInfo.pSetLayouts        = &m_SetLayout;
 
             if (VK_CHECK_RESULT(vkAllocateDescriptorSets(VKDevice::Get().getDevice(), &descriptorSetAllocateInfo, &m_DescriptorSet)))
                 RAZIX_CORE_ERROR("[Vulkan] Failed to create descriptor sets!");
@@ -74,6 +74,9 @@ namespace Razix {
             m_ImageInfoPool          = new VkDescriptorImageInfo[MAX_COMBINED_IMAGE_INFOS];
             m_WriteDescriptorSetPool = new VkWriteDescriptorSet[MAX_WRITE_DESCRIPTORS];
 
+            VKUtilities::VKCreateSamplerDesc defaultSamplerDesc = {};
+            m_DefaultSampler                                    = VKUtilities::CreateImageSampler(defaultSamplerDesc RZ_DEBUG_NAME_TAG_STR_E_ARG("Default Combined Sampler"));
+
             UpdateSet(descriptors);
         }
 
@@ -85,7 +88,7 @@ namespace Razix {
             int imageWriteIdx         = 0;
             int uniformBufferWriteIdx = 0;
 
-            // Fix the code duplication
+            // TODO: Fix the code duplication
 
             for (auto& descriptor: descriptors) {
                 switch (descriptor.bindingInfo.type) {
@@ -120,15 +123,17 @@ namespace Razix {
                         if (texturePtr) {
                             const VKTexture* backendPtr = static_cast<const VKTexture*>(texturePtr);
 
-                            m_ImageInfoPool[imageWriteIdx].imageLayout          = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                            m_ImageInfoPool[imageWriteIdx].imageView            = backendPtr->getFullSRVImageView();
+                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                            m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getFullSRVImageView();
+                            RAZIX_CORE_ERROR("[Vulkan] found CombinedImageSampler resource, using a default sampler, refrain from using this type");
                             VKUtilities::VKCreateSamplerDesc defaultSamplerDesc = {};
-                            m_ImageInfoPool[imageWriteIdx].sampler              = VKUtilities::CreateImageSampler(defaultSamplerDesc RZ_DEBUG_NAME_TAG_STR_E_ARG("Default Combined Sampler"));
+                            m_ImageInfoPool[imageWriteIdx].sampler              = m_DefaultSampler;
                         } else {
+                            RAZIX_CORE_ERROR("[Vulkan] No sampler resource provided, using a default sampler");
                             m_ImageInfoPool[imageWriteIdx].imageLayout          = VK_IMAGE_LAYOUT_UNDEFINED;
                             m_ImageInfoPool[imageWriteIdx].imageView            = VK_NULL_HANDLE;
                             VKUtilities::VKCreateSamplerDesc defaultSamplerDesc = {};
-                            m_ImageInfoPool[imageWriteIdx].sampler              = VKUtilities::CreateImageSampler(defaultSamplerDesc RZ_DEBUG_NAME_TAG_STR_E_ARG("Default Sampler"));
+                            m_ImageInfoPool[imageWriteIdx].sampler              = m_DefaultSampler;
                         }
 
                         VkWriteDescriptorSet writeDescriptorSet = {};
@@ -203,8 +208,9 @@ namespace Razix {
                             const VKSampler* backendPtr            = static_cast<const VKSampler*>(samplerPtr);
                             m_ImageInfoPool[imageWriteIdx].sampler = backendPtr->getSampler();
                         } else {
+                            RAZIX_CORE_ERROR("[Vulkan] No sampler resource provided, using a default sampler");
                             VKUtilities::VKCreateSamplerDesc defaultSamplerDesc = {};
-                            m_ImageInfoPool[imageWriteIdx].sampler              = VKUtilities::CreateImageSampler(defaultSamplerDesc RZ_DEBUG_NAME_TAG_STR_E_ARG("DefaultSampler"));
+                            m_ImageInfoPool[imageWriteIdx].sampler              = m_DefaultSampler;
                         }
 
                         VkWriteDescriptorSet writeDescriptorSet = {};
@@ -247,7 +253,10 @@ namespace Razix {
 
         void VKDescriptorSet::Destroy() const
         {
-            vkDestroyDescriptorSetLayout(VKDevice::Get().getDevice(), setLayout, nullptr);
+            if (m_DefaultSampler != VK_NULL_HANDLE)
+                vkDestroySampler(VKDevice::Get().getDevice(), m_DefaultSampler, nullptr);
+
+            vkDestroyDescriptorSetLayout(VKDevice::Get().getDevice(), m_SetLayout, nullptr);
         }
     }    // namespace Gfx
 }    // namespace Razix

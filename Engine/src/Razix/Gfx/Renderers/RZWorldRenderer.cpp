@@ -35,11 +35,11 @@
 
 #include "Razix/Scene/RZScene.h"
 
+#include "Razix/Gfx/RZGraphicsCompileConfig.h"
+
 #include <imgui/imgui.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
-
-#define HELLO_TRIANGLE_TEST 1
 
 namespace Razix {
 
@@ -52,7 +52,7 @@ namespace Razix {
 
         void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
         {
-#if HELLO_TRIANGLE_TEST
+#if ENABLE_TEST_PASSES
 
             //-------------------------------
             // [TEST] HELLO TRIANGLE
@@ -502,10 +502,12 @@ namespace Razix {
 
             m_FrameGraphBuildingInProgress = true;
 
-#if HELLO_TRIANGLE_TEST
+#if ENABLE_TEST_PASSES
             m_HelloTriangleTestPass.destroy();
+            m_HelloTextureTestPass.destroy();
+            m_WaveInstrinsicsTestPass.destroy();
 
-            m_VisBufferFillPass.destroy();
+            //m_VisBufferFillPass.destroy();
 #else
 
             // Destroy Imported Resources

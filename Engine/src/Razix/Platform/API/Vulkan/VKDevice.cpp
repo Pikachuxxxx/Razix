@@ -14,6 +14,7 @@
     #if RAZIX_USE_VMA
         // VMA
         #define VMA_IMPLEMENTATION
+        #define VMA_DEBUG_LOG
         #include <vma/vk_mem_alloc.h>
     #endif
 

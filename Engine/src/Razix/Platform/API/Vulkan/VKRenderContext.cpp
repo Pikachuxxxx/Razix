@@ -241,13 +241,13 @@ namespace Razix {
 
             for (auto descriptorSet: descriptorSets) {
                 if (descriptorSet) {
-                    auto vkDescSet                        = static_cast<VKDescriptorSet*>(descriptorSet);
-                    m_DescriptorSetPool[numDesciptorSets] = vkDescSet->getDescriptorSet();
+                    auto vkDescSet                             = static_cast<VKDescriptorSet*>(descriptorSet);
+                    m_DescriptorSetCachePool[numDesciptorSets] = vkDescSet->getDescriptorSet();
                     numDesciptorSets++;
                 }
             }
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), startSetIdx, numDesciptorSets, m_DescriptorSetPool, 0, nullptr);
+            vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), startSetIdx, numDesciptorSets, m_DescriptorSetCachePool, 0, nullptr);
         }
 
         void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)
@@ -262,13 +262,13 @@ namespace Razix {
             for (u32 i = 0; i < totalSets; i++) {
                 auto set = descriptorSets[i];
                 if (set) {
-                    const auto vkDescSet                  = static_cast<const VKDescriptorSet*>(set);
-                    m_DescriptorSetPool[numDesciptorSets] = vkDescSet->getDescriptorSet();
+                    const auto vkDescSet                       = static_cast<const VKDescriptorSet*>(set);
+                    m_DescriptorSetCachePool[numDesciptorSets] = vkDescSet->getDescriptorSet();
                     numDesciptorSets++;
                 }
             }
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), startSetIdx, numDesciptorSets, m_DescriptorSetPool, 0, nullptr);
+            vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), startSetIdx, numDesciptorSets, m_DescriptorSetCachePool, 0, nullptr);
         }
 
         void VKRenderContext::SetScissorRectImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
@@ -346,7 +346,7 @@ namespace Razix {
 
                 // Don't do this here, done manually bu the FG and user land code
 
-                if (colorAttachment->getFormat() == TextureFormat::SCREEN) {
+                if (colorAttachment->getFormat() != TextureFormat::SCREEN) {
                     auto vkImage = static_cast<VKTexture*>(colorAttachment);
                     if (vkImage->getImageLayoutValue() != VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
                         VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
@@ -517,6 +517,11 @@ namespace Razix {
         void VKRenderContext::DestroyAPIImpl()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            for (u32 i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
+                RZResourceManager::Get().destroyCommandPool(m_GraphicsCommandPool[i]);
+                RZResourceManager::Get().destroyDrawCommandBuffer(m_DrawCommandBuffers[i]);
+            }
         }
 
         void VKRenderContext::OnResizeAPIImpl(u32 width, u32 height)

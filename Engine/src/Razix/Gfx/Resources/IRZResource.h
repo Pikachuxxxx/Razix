@@ -87,17 +87,7 @@ namespace Razix {
             }
 
             // Note: Shouldn't this be Virtual?
-            virtual ~IRZResource()
-            {
-                auto refValue = m_AtomicRefCounter.Unref();
-                if (refValue > 0) {
-                    RAZIX_CORE_ERROR("Resource ${0}$ has no References! | UUID : {1} | pool idx : {2} !!! NEEDS TO BE RELEASED FROM POOL !!!", m_ResourceName, m_UUID.prettyString(), m_Handle.getIndex());
-                    // TODO: Since this has no references Inform the pool it belongs to deallocate it's memory
-                    // TODO: Release this from memory!???
-                    // TODO: Should this be in Handle instead (think makes more sense, since we only deal with raw pointers ref counting doesn't actually work?)? and what happens if we pass around references of handles does ref counting still work?
-                    //RZResourceManager::Get().getPool<T>().release(getHandle());
-                }
-            }
+            virtual ~IRZResource() {}
 
             virtual void DestroyResource() = 0;
 

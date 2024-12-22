@@ -10,6 +10,8 @@
 namespace Razix {
     namespace Gfx {
 
+#define RZ_SWAP_IMAGE_RES_NAME "$RazixSwapchainBackBuffer$"
+
         /* Forward decelerations */
         class RZTexture;           /* The texture2D to which the swap images are stored as */
         class RZDrawCommandBuffer; /* The command buffer that will be submitted for execution */
@@ -32,7 +34,8 @@ namespace Razix {
             /* Initializes the swapchain and it's resources */
             virtual void Init(u32 width, u32 height) = 0;
             /* Destroys the swapchain and it's resources */
-            virtual void Destroy() = 0;
+            virtual void Destroy()                 = 0;
+            virtual void DestroyBackBufferImages() = 0;
             /* Flips the swapchain images for presentation, typically used while doing d32/triple buffered rendering */
             virtual void Flip() = 0;
             /* Recreates the swapchain on window resize or for offline rendering */

@@ -43,6 +43,7 @@ namespace Razix {
 
             void  Init(u32 width, u32 height) override;
             void  Destroy() override;
+            void  DestroyBackBufferImages() override;
             void  Flip() override;
             void  OnResize(u32 width, u32 height) override;
             void* GetAPIHandle() override { return &m_Swapchain; }
@@ -71,16 +72,17 @@ namespace Razix {
             VkSwapchainKHR         getSwapchain() const { return m_Swapchain; }
 
         private:
-            VkSwapchainKHR               m_Swapchain                                   = VK_NULL_HANDLE; /* Vulkan handle for swapchain, since it's a part of WSI we need the extension provided by Khronos   */
-            VkSwapchainKHR               m_OldSwapChain                                = VK_NULL_HANDLE; /* Caching old swapchain, requires when we need to re-create swapchain                               */
-            SwapSurfaceProperties        m_SwapSurfaceProperties                       = {};             /* Swapchain surface properties                                                                      */
-            VkSurfaceFormatKHR           m_SurfaceFormat                               = {};             /* Selected Swapchain image format and color space of the swapchain image                            */
-            VkPresentModeKHR             m_PresentMode                                 = {};             /* The presentation mode for the swapchain images                                                    */
-            VkExtent2D                   m_SwapchainExtent                             = {};             /* The extent of the swapchain images                                                                */
-            u32                          m_SwapchainImageCount                         = {};             /* Total number of swapchain images being used                                                       */
-            std::vector<RZTextureHandle> m_SwapchainImageTextures                      = {};             /* Swapchain images stored as engine 2D texture                                                      */
-            VkFormat                     m_ColorFormat                                 = {};             /* Color format of the screen                                                                        */
-            FrameSyncData_VK             m_FramesSyncData[RAZIX_MAX_SWAP_IMAGES_COUNT] = {};             /* Frame sync primitives                                                                             */
+            VkSwapchainKHR               m_Swapchain                                   = VK_NULL_HANDLE;
+            VkSwapchainKHR               m_OldSwapChain                                = VK_NULL_HANDLE;
+            SwapSurfaceProperties        m_SwapSurfaceProperties                       = {};
+            VkSurfaceFormatKHR           m_SurfaceFormat                               = {};
+            VkPresentModeKHR             m_PresentMode                                 = {};
+            VkExtent2D                   m_SwapchainExtent                             = {};
+            u32                          m_SwapchainImageCount                         = {};
+            std::vector<RZTextureHandle> m_SwapchainImageTextures                      = {};
+            VkFormat                     m_ColorFormat                                 = {};
+            FrameSyncData_VK             m_FramesSyncData[RAZIX_MAX_SWAP_IMAGES_COUNT] = {};
+            std::vector<VkImageView>     m_ImageViews                                  = {};
 
         private:
             /* Queries the swapchain properties such as presentation modes supported, surface formats and capabilities */
@@ -97,6 +99,8 @@ namespace Razix {
             std::vector<VkImage> retrieveSwapchainImages();
             /* creates the image views for the swapchain */
             std::vector<VkImageView> createSwapImageViews(std::vector<VkImage> swapImages);
+            void                     destroyFrameSyncPrimitives();
+            void                     destroyFrameSycnBackBuffers();
         };
     }    // namespace Gfx
 }    // namespace Razix

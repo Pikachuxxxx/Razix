@@ -61,6 +61,11 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            // destroy the user descriptor sets
+            for (size_t i = 0; i < m_SceneParams.userSets.size(); i++)
+                m_SceneParams.userSets[i]->Destroy();
+            m_SceneParams.userSets.clear();
+
             // Destroy the pipeline layout
             vkDestroyPipelineLayout(VKDevice::Get().getDevice(), m_PipelineLayout, nullptr);
 

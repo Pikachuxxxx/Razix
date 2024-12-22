@@ -122,8 +122,8 @@ namespace Razix {
 
         void RZHelloTextureTestPass::destroy()
         {
-            RZResourceManager::Get().destroyPipeline(m_Pipeline);
             RZResourceManager::Get().destroyTexture(m_TestTextureHandle);
+            RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
     }    // namespace Gfx
 }    // namespace Razix

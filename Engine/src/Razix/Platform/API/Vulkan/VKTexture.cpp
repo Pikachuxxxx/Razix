@@ -36,6 +36,7 @@ namespace Razix {
             : m_Image(image)
         {
             // This way of creating usually means one this, it's a SWAPCHAIN IMAGE
+            m_Desc.name        = "$RazixSwapchainBackBuffer$";
             m_Desc.type        = TextureType::kSwapchainImage;
             m_Desc.format      = TextureFormat::SCREEN;
             m_FinalImageLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -47,7 +48,7 @@ namespace Razix {
 
         RAZIX_CLEANUP_RESOURCE_IMPL(VKTexture)
         {
-            // swapchain resource deletion is handled by the context
+            // swapchain images are destroyed using VkDestroySwapchainKHR
             if (m_Desc.type == TextureType::kSwapchainImage)
                 return;
 
@@ -200,6 +201,13 @@ namespace Razix {
 
         void VKTexture::initializeBackendHandles(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
+            // swapchain images are destroyed using VkDestroySwapchainKHR
+            if (m_Desc.type == TextureType::kSwapchainImage)
+                return;
+
+            if (bufferName == "$UNNAMED_TEXTURE_RESOURCE")
+                RAZIX_DEBUG_BREAK();
+
             if (!desc.filePath.empty())
                 loadImageDataInfoFromFile();
 

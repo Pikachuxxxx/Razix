@@ -35,6 +35,27 @@ namespace Razix {
         // The Engine uses Vulkan aS the default render API
         RenderAPI RZGraphicsContext::s_RenderAPI = RenderAPI::VULKAN;
 
+        /**
+         * Razix Gfx StartUp and Shutdown flow 
+         * Graphics Context 
+         * 1. Gfx::RZResourceManager::Get().StartUp();
+         * 2.   RZSwapchain textures
+         * 3.   Context -> Create + Init --> PostGraphicsContextInit() --> SamplerPresets + Default Material
+         * 4. RHI::Create
+         * 5. Render Frame
+         * 6. RHI::Release
+         * 7.   Destroy Swapchain back buffers
+         * 8.   GraphicsContext::Release
+         * 9.       PreGraphicsContextDestroy
+         * 10.          SamplerPresets + Default Material Destroy
+         * 11.          ShaderLibrary Shutdown
+         * 12.          Gfx::RZResourceManager::Get().ShutDown();
+         * 13.  s_Context->Destroy() -> Destroy swapchain/device and instance/context 
+         */
+
+        // [Inconsistency!] Swapchain release happens in RHI but creation is done in GraphicsContext::Init()
+        // [Inconsistency!] ShaderLibrary startup happens in RZEngine::PostGraphicsIgnition but clean up happens in GraphicsContext::Release
+
         void RZGraphicsContext::Create(const WindowProperties& properties, RZWindow* window)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -78,7 +99,6 @@ namespace Razix {
             Gfx::RZSampler::CreateSamplerPresets();
 
             RAZIX_CORE_TRACE("[RHI] Creating Default Texture");
-
             Gfx::RZMaterial::InitDefaultTexture();
         }
 

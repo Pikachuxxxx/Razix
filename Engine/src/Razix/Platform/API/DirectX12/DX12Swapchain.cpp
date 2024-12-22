@@ -136,12 +136,12 @@ namespace Razix {
                 new (where) DX12Texture(backBuffer);
                 IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
                 resource->setHandle(handle);
-                resource->setName("Swapchain Image");
+                resource->setName(RZ_SWAP_IMAGE_RES_NAME);
 
                 m_SwapchainImageTextures.push_back(handle);
                 m_SwapchainD3DHandles[i] = backBuffer;
 
-                D3D12_TAG_OBJECT(backBuffer, L"swapchain backbuffer");
+                D3D12_TAG_OBJECT(backBuffer, L"$RazixSwapchainBackBuffer$");
             }
         }
 
@@ -149,15 +149,20 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            if (m_Swapchain) {
-                m_Swapchain->Release();
-                m_Swapchain = nullptr;
-            }
+            D3D_SAFE_RELEASE(m_Swapchain)
 
             for (u32 i = 0; i < m_SwapchainImageCount; i++)
                 D3D_SAFE_RELEASE(m_SwapchainD3DHandles[i]);
 
-            m_SwapchainRTVHeap->Release();
+            D3D_SAFE_RELEASE(m_SwapchainRTVHeap)
+        }
+
+        void DX12Swapchain::DestroyBackBufferImages()
+        {
+            for (u32 i = 0; i < m_SwapchainImageCount; i++)
+                D3D_SAFE_RELEASE(m_SwapchainD3DHandles[i]);
+
+            D3D_SAFE_RELEASE(m_SwapchainRTVHeap)
         }
 
         void DX12Swapchain::Flip()

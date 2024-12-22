@@ -47,7 +47,15 @@ namespace Razix {
 
         void RHI::Release()
         {
- 
+            // destroy frame data and light descriptor sets
+            if (s_APIInstance->m_FrameDataSet)
+                s_APIInstance->m_FrameDataSet->Destroy();
+            if (s_APIInstance->m_SceneLightsDataSet)
+                s_APIInstance->m_SceneLightsDataSet->Destroy();
+
+            // Destroy Swapchain back buffer resources first
+            GetSwapchain()->DestroyBackBufferImages();
+
             s_APIInstance->DestroyAPIImpl();
             delete s_APIInstance;
 
