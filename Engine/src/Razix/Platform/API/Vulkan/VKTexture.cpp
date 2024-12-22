@@ -239,8 +239,8 @@ namespace Razix {
 
             if (m_OldImageLayout != m_FinalImageLayout) {
                 VkImageLayout m_FinalImageLayout = (m_ResourceViewHint & kUAV) == kUAV ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            }
                 VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, m_FinalImageLayout, m_TotalMipLevels, desc.layers);
+            }
         }
 
         void VKTexture::loadImageDataInfoFromFile()
@@ -376,9 +376,9 @@ namespace Razix {
             if ((m_ResourceViewHint & kSRV) == kSRV)
                 m_FullResourceView.srv = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
             if ((m_ResourceViewHint & kUAV) == kUAV)
-                m_FullResourceView.uav = m_FullResourceView.srv;    // TODO: make sure it has storage flags bit set
+                m_FullResourceView.uav = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));    // TODO: make sure it has storage flags bit set
             if ((m_ResourceViewHint & kDSV) == kDSV)
-                m_FullResourceView.dsv = m_FullResourceView.srv;    // TODO: make sure it has depth bit flags set
+                m_FullResourceView.dsv = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));    // TODO: make sure it has depth bit flags set
         }
 
         void VKTexture::createMipViewsPerFace()

@@ -128,7 +128,7 @@ namespace Razix {
 
                 VK_CHECK_RESULT(vkAllocateMemory(VKDevice::Get().getDevice(), &allocInfo, nullptr, &handles.memoryWrapper.nativeAllocation));
                 // Bind the image memory with the image
-                VK_CHECK_RESULT(vkBindImageMemory(VKDevice::Get().getDevice(), desc, handles.image, handles.memoryWrapper.nativeAllocation, 0));
+                VK_CHECK_RESULT(vkBindImageMemory(VKDevice::Get().getDevice(), handles.image, handles.memoryWrapper.nativeAllocation, 0));
 
                 VK_TAG_OBJECT(bufferName + std::string("Memory"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) handles.memoryWrapper.nativeAllocation);
 #endif

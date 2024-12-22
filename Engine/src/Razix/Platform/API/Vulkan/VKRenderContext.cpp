@@ -387,6 +387,7 @@ namespace Razix {
                 attachInfo.sType      = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
                 VKTexture* backendPtr = static_cast<VKTexture*>(depthAttachment);
                 attachInfo.imageView  = backendPtr->getFullDSVImageView();
+                RAZIX_ASSERT(attachInfo.imageView != VK_NULL_HANDLE, "[Vulkan] Attatching a depth image without a image view (DSV) check your setup!");
 
                 attachInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
 
