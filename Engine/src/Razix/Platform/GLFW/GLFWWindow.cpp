@@ -143,6 +143,10 @@ namespace Razix {
     #endif
         }
 #endif
+        
+#ifdef __APPLE__
+        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+#endif
 
 #if defined RAZIX_RENDER_API_VULKAN || defined RAZIX_RENDER_API_DIRECTX12
         if (Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::VULKAN || Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::D3D12) {
@@ -154,13 +158,12 @@ namespace Razix {
         m_Window = glfwCreateWindow((int) properties.Width, (int) properties.Height, properties.Title.c_str(), nullptr, nullptr);
         
         // update with DPI
-        float xscale, yscale;
-        glfwGetWindowContentScale(m_Window, &xscale, &yscale);
-        m_Data.wScale = int(xscale);
-        m_Data.hScale = int(yscale);
-        
-        m_Data.Width *= m_Data.wScale;
-        m_Data.Height *= m_Data.hScale;
+//        float xscale, yscale;
+//        glfwGetWindowContentScale(m_Window, &xscale, &yscale);
+//        m_Data.wScale = int(xscale);
+//        m_Data.hScale = int(yscale);
+//        m_Data.Width *= m_Data.wScale;
+//        m_Data.Height *= m_Data.hScale;
         
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
@@ -180,18 +183,18 @@ namespace Razix {
         //        });
 
         // Handle high DPI-monitors (only Primary for now)
-        glfwSetWindowContentScaleCallback(m_Window, [](GLFWwindow* window, float xscale, float yscale){
-            WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
-
-            data.wScale = static_cast<u32>(xscale);
-            data.hScale = static_cast<u32>(yscale);
-            
-            data.Width *= data.wScale;
-            data.Height *= data.hScale;
-
-            RZWindowResizeEvent event(data.Width, data.Height);
-            data.EventCallback(event);
-        });
+//        glfwSetWindowContentScaleCallback(m_Window, [](GLFWwindow* window, float xscale, float yscale){
+//            WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
+//
+//            data.wScale = static_cast<u32>(xscale);
+//            data.hScale = static_cast<u32>(yscale);
+//            
+//            data.Width *= data.wScale;
+//            data.Height *= data.hScale;
+//
+//            RZWindowResizeEvent event(data.Width, data.Height);
+//            data.EventCallback(event);
+//        });
         
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
             WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
@@ -199,8 +202,8 @@ namespace Razix {
             data.Width  = width;
             data.Height = height;
             
-            data.Width *= data.wScale;
-            data.Height *= data.hScale;
+//            data.Width *= data.wScale;
+//            data.Height *= data.hScale;
 
             RZWindowResizeEvent event(data.Width, data.Height);
             data.EventCallback(event);

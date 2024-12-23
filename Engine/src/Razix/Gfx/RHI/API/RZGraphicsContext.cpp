@@ -88,7 +88,7 @@ namespace Razix {
 
             if (s_Context) {
                 s_Context->Destroy();
-                delete s_Context;    // This is causing unnecessary crashes
+//                delete s_Context;    // This is causing unnecessary crashes
                 s_Context = nullptr;
             }
         }
@@ -122,9 +122,6 @@ namespace Razix {
             }
 
             switch (s_RenderAPI) {
-#ifdef RAZIX_RENDER_API_OPENGL
-                case Razix::Gfx::RenderAPI::OPENGL: return static_cast<OpenGLContext*>(s_Context); break;
-#endif
 #ifdef RAZIX_RENDER_API_VULKAN
                 case Razix::Gfx::RenderAPI::VULKAN: return static_cast<VKContext*>(s_Context); break;
 #endif

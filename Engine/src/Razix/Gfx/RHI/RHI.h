@@ -86,7 +86,7 @@ namespace Razix {
          * and other operations that doesn't require the underlying API, since renderers do not actually need that we use this high-level abstraction
          * over the supported APIs to make things look simple and easier to interact with
          */
-        class RAZIX_API RHI : public RZRoot
+        class RAZIX_API RHI
         {
         public:
             RHI()          = default;

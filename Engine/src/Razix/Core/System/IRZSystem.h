@@ -14,7 +14,7 @@ namespace Razix {
 	 * An Interface for Engine Systems, Managers, Libraries and Factories
 	 */
     template<typename T>
-    class RAZIX_API IRZSystem : public RZRoot
+    class RAZIX_API IRZSystem
     {
     public:
         IRZSystem()          = default;

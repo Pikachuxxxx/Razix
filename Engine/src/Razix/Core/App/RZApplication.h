@@ -74,7 +74,7 @@ namespace Razix {
     // TODO!!!: Add budget info to RZApplication and RZFrameGraph
 
     /* Creates an Razix Application (Used as the base for Editor, Sandbox and Game Project) */
-    class RAZIX_API RZApplication : public RZRoot
+    class RAZIX_API RZApplication
     {
     public:
         static std::mutex              m;

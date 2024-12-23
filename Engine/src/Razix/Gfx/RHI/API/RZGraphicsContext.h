@@ -45,7 +45,7 @@ namespace Razix {
         /**
          * The Graphics Context that manages the context of the underlying graphics API
          */
-        class RAZIX_API RZGraphicsContext : public RZRoot
+        class RAZIX_API RZGraphicsContext
         {
         public:
             /**

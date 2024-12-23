@@ -42,7 +42,7 @@ namespace Razix {
 
     /* Window Interface for Desktop systems */
     // TODO: Add methods for all the window properties in the WindowProperties Constructor to be get/set in here
-    class RAZIX_API RZWindow : public RZRoot
+    class RAZIX_API RZWindow
     {
     public:
         using EventCallbackFn = std::function<void(RZEvent&)>;
