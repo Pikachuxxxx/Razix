@@ -2,7 +2,6 @@ project "assimp"
   kind "StaticLib"
   language "C++"
   cppdialect (engine_global_config.cpp_dialect)
-  staticruntime "on"
 
   defines {
       -- "SWIG",

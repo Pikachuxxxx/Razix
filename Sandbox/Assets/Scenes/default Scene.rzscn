@@ -1,6 +1,6 @@
 {
     "Razix Scene": {
-        "UUID": "8b3a211e-60a6-4137-a506-a02414590c7a",
+        "UUID": "a702abb8-fbb4-4f7c-8a05-2e1dd60e913f",
         "SceneName": "default Scene",
         "Total Entities": 1
     },
@@ -78,9 +78,9 @@
                 "z": 0.7343000173568726
             },
             "Up": {
-                "x": -0.08485201001167298,
-                "y": 0.992004930973053,
-                "z": 0.09341476112604141
+                "x": -0.08485201746225357,
+                "y": 0.9920049905776978,
+                "z": 0.09341476857662201
             },
             "Right": {
                 "x": -0.7402181029319763,
@@ -104,7 +104,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.681222677230835,
+            "AspectRatio": 1.6439499855041505,
             "BgColor": {
                 "value0": 0.0,
                 "value1": 0.0,
