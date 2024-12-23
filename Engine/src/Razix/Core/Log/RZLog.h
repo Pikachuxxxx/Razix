@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Razix/Core/RZCore.h"
-#include "Razix/Core/RZRoot.h"
-
 #include <spdlog/logger.h>
 
 namespace Razix {

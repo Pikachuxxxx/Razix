@@ -1,24 +1,21 @@
-#if 1
-    #pragma once
+#pragma once
 
-    #include "Razix/Core/RZRoot.h"
+#include "Razix/Core/RZCore.h"
 
-    #include "Razix/Core/RZCore.h"
+#include "Razix/Events/RZEvent.h"
 
-    #include "Razix/Events/RZEvent.h"
+#include "Razix/Gfx/Cameras/Camera3D.h"
+#include "Razix/Gfx/RHI/RHI.h"
+#include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
-    #include "Razix/Gfx/Cameras/Camera3D.h"
-    #include "Razix/Gfx/RHI/RHI.h"
-    #include "Razix/Gfx/Renderers/RZSystemBinding.h"
+#include "Razix/Scene/RZScene.h"
 
-    #include "Razix/Scene/RZScene.h"
+#include "Razix/Scene/RZSceneCamera.h"
 
-    #include "Razix/Scene/RZSceneCamera.h"
+#include "Razix/Utilities/RZTimer.h"
+#include "Razix/Utilities/RZTimestep.h"
 
-    #include "Razix/Utilities/RZTimer.h"
-    #include "Razix/Utilities/RZTimestep.h"
-
-    #include <string>
+#include <string>
 
 namespace Razix {
 
@@ -79,4 +76,3 @@ namespace Razix {
         };
     }    // namespace Gfx
 }    // namespace Razix
-#endif

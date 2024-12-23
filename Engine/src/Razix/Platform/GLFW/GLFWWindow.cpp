@@ -169,7 +169,9 @@ namespace Razix {
         glfwSetWindowUserPointer(m_Window, &m_Data);
 
         //std::string icon = std::string(STRINGIZE(RAZIX_ROOT_DIR)) + std::string("/Razix/src/Razix/Embedded/RazixLogo.png");
+#ifndef __APPLE__
         SetWindowIcon();
+#endif
 
         // The problem with using capture list here is the user_data is a global state, it's not per callback function and that will not properly capture the modified lambda with the necessary args and maintain their lifetime properly
         // Setting up event callbacks function via the dispatcher
