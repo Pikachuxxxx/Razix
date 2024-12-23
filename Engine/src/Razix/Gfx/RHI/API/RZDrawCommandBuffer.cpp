@@ -54,12 +54,13 @@ namespace Razix {
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
 #ifdef RAZIX_RENDER_API_VULKAN
             if (Gfx::RZGraphicsContext::GetRenderAPI() == RenderAPI::VULKAN)
-                return VKUtilities::EndSingleTimeCommandBuffer(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer());
+                VKUtilities::EndSingleTimeCommandBuffer(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer());
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
             if (Gfx::RZGraphicsContext::GetRenderAPI() == RenderAPI::D3D12)
-                return DX12Utilities::EndSingleTimeCommandBuffer(static_cast<DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList());
+                DX12Utilities::EndSingleTimeCommandBuffer(static_cast<DX12DrawCommandBuffer*>(cmdBufferResource)->getD3DCommandList());
 #endif
+            RZResourceManager::Get().destroyDrawCommandBuffer(cmdBuffer);
         }
 
         void RZDrawCommandBuffer::Create(void* where, RZCommandPoolHandle pool)

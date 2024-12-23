@@ -54,8 +54,8 @@ namespace Razix {
 
             m_FullResourceView.destroy();
 
-            for (u32 l = 1; l < m_Desc.layers; l++) {
-                for (u32 m = 1; m < m_TotalMipLevels; m++) {
+            for (u32 l = 0; l < m_Desc.layers; l++) {
+                for (u32 m = 0; m < m_TotalMipLevels; m++) {
                     m_LayerMipResourceViews[l][m].destroy();
                 }
             }
@@ -92,7 +92,7 @@ namespace Razix {
 
             VKUtilities::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels, m_Desc.layers);
 
-            createMipViewsPerFace();
+            //createMipViewsPerFace();
 
             m_OldImageLayout   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             m_FinalImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

@@ -18,10 +18,10 @@
 
 #elif defined __HLSL__    // HLSL - DirectX backend shading language.
 
-    #define PUSH_CONSTANT(T)                     \
-        cbuffer T##Buffer : register(b1, space0) \
-        {                                        \
-            T pcData;                            \
+    #define PUSH_CONSTANT(T) \
+        cbuffer T##Buffer    \
+        {                    \
+            T pcData;        \
         };
     #define GET_PUSH_CONSTANT(mem) pcData.mem
 

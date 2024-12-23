@@ -73,7 +73,6 @@ namespace Razix {
             RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture(equiMapTextureDesc);
 
             RZDescriptorSet*      envMapSet = nullptr;
-            RZUniformBufferHandle UBO       = {};
             // Since it has both UAV and SRV, vulkan will internally specialize the creating a UAV with the type of RWTexture2DArray since
             // an actual RWTextureCube doesn't exist in shading languages
             RZTextureDesc cubeMapTextureDesc         = {};
@@ -147,6 +146,7 @@ namespace Razix {
             if (envMapSet)
                 envMapSet->Destroy();
             RZResourceManager::Get().destroyPipeline(envMapPipeline);
+            RZResourceManager::Get().destroyUniformBuffer(viewProjLayerUBO);
 
             return cubeMapHandle;
         }
@@ -172,7 +172,6 @@ namespace Razix {
 
             // Create the View Projection buffer
             RZDescriptorSet*      envMapSet = nullptr;
-            RZUniformBufferHandle UBO;
 
             RZBufferDesc vplBufferDesc{};
             vplBufferDesc.name = "ViewProjLayerUBOData";
@@ -226,6 +225,7 @@ namespace Razix {
             if (envMapSet)
                 envMapSet->Destroy();
             RZResourceManager::Get().destroyPipeline(envMapPipeline);
+            RZResourceManager::Get().destroyUniformBuffer(viewProjLayerUBO);
 
             return irradianceMapHandle;
         }
@@ -249,18 +249,7 @@ namespace Razix {
             auto           setInfos                 = shader->getDescriptorsPerHeapMap();
 
             // Create the View Projection buffer
-            RZDescriptorSet*      envMapSet = nullptr;
-            RZUniformBufferHandle UBO       = {};
-
-            RZBufferDesc vplBufferDesc{};
-            vplBufferDesc.name = "ViewProjLayerUBOData";
-            vplBufferDesc.size = sizeof(EnvMapGenUBOData);
-            //--------------
-            uboData.cubeFaceSize = {IRRADIANCE_MAP_DIM, IRRADIANCE_MAP_DIM};
-            //--------------
-            vplBufferDesc.data = &uboData;
-
-            RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer(vplBufferDesc);
+            RZDescriptorSet* envMapSet = nullptr;
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
@@ -271,8 +260,6 @@ namespace Razix {
                         descriptor.sampler = Gfx::g_SamplerPresets[(u32) SamplerPresets::kDefaultGeneric];
                     if (descriptor.name == "PreFitleredMap")
                         descriptor.texture = preFilteredMapHandle;
-                    if (descriptor.name == "Constants")
-                        descriptor.uniformBuffer = viewProjLayerUBO;
                 }
                 envMapSet = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("generateIrradianceMap set"));
             }
@@ -284,30 +271,36 @@ namespace Razix {
             pipelineInfo.shader              = cubemapConvolutionShader;
             RZPipelineHandle envMapPipeline  = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            u32 MaxMipLevels = RZTexture::CalculateMipMapCount(PREFILTERED_MAP_DIM, PREFILTERED_MAP_DIM);
+            struct PushConstant
+            {
+                glm::vec2 cubeFaceSize = {PREFILTERED_MAP_DIM, PREFILTERED_MAP_DIM};
+                float     roughness    = 0.0f;
+                u32       mipLevel     = 0;
+            } data{};
 
             // Begin rendering
             auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("PreFiltering CubeMap", glm::vec4(0.6f, 0.8f, 0.3f, 1.0f));
             {
-                for (u32 mip = 0; mip < MaxMipLevels; mip++) {
-                    u32 mipWidth  = static_cast<u32>(PREFILTERED_MAP_DIM * std::pow(0.5, mip));
-                    u32 mipHeight = static_cast<u32>(PREFILTERED_MAP_DIM * std::pow(0.5, mip));
+                u32 MaxMipLevels = RZTexture::CalculateMipMapCount(PREFILTERED_MAP_DIM, PREFILTERED_MAP_DIM);
 
-                    RHI::BindPipeline(envMapPipeline, cmdBuffer);
+                for (u32 layer = 0; layer < CUBEMAP_LAYERS; layer++) {
+                    for (u32 mip = 0; mip < MaxMipLevels; mip++) {
+                        u32 mipWidth  = static_cast<u32>(PREFILTERED_MAP_DIM * std::pow(0.5, mip));
+                        u32 mipHeight = static_cast<u32>(PREFILTERED_MAP_DIM * std::pow(0.5, mip));
 
-                    for (u32 i = 0; i < CUBEMAP_LAYERS; i++) {
+                        RHI::BindPipeline(envMapPipeline, cmdBuffer);
+
                         RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSet, BindingTable_System::SET_IDX_SYSTEM_START);
 
+                        // This example will use push constants
                         float roughness = (float) mip / (float) (MaxMipLevels - 1);
-                        struct PCData
-                        {
-                            float roughness = 0.0f;
-                        } data{};
-                        data.roughness = roughness;
-                        RZPushConstant pc;
-                        pc.shaderStage = ShaderStage::kPixel;
-                        pc.data        = &data;
-                        pc.size        = sizeof(PCData);
+                        data.roughness  = roughness;
+                        data.mipLevel   = mip;
+
+                        RZPushConstant pc = {};
+                        pc.shaderStage    = ShaderStage::kCompute;
+                        pc.data           = &data;
+                        pc.size           = sizeof(PushConstant);
 
                         RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
 
@@ -319,7 +312,6 @@ namespace Razix {
             preFilteredMap->setCurrentMipLevel(0);
             if (envMapSet)
                 envMapSet->Destroy();
-            RZResourceManager::Get().destroyUniformBuffer(UBO);
             RZResourceManager::Get().destroyPipeline(envMapPipeline);
 
             return preFilteredMapHandle;

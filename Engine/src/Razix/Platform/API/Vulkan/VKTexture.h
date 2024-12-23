@@ -25,13 +25,16 @@ namespace Razix {
 
             void destroy() const
             {
-                if (uav != VK_NULL_HANDLE)
+                // FIXME: Fix this nasty clean up bug
+                if (uav != VK_NULL_HANDLE) {
                     vkDestroyImageView(VKDevice::Get().getDevice(), uav, nullptr);
+                }
 
-                if (srv != VK_NULL_HANDLE)
+                if (srv != VK_NULL_HANDLE && uav != srv) {
                     vkDestroyImageView(VKDevice::Get().getDevice(), srv, nullptr);
+                }
 
-                if (rtv != VK_NULL_HANDLE)
+                if (rtv != VK_NULL_HANDLE && uav != srv && uav != rtv)
                     vkDestroyImageView(VKDevice::Get().getDevice(), rtv, nullptr);
 
                 if (dsv != VK_NULL_HANDLE)
