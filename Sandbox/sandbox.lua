@@ -161,7 +161,6 @@ project "Sandbox"
 
 		xcodebuildsettings
 		{
-			['ARCHS'] = false,
 			['CODE_SIGN_IDENTITY'] = 'Mac Developer',
             ['PRODUCT_BUNDLE_IDENTIFIER'] = settings.bundle_identifier,
 			['INFOPLIST_FILE'] = '../Engine/src/Razix/Platform/MacOS/Info.plist',
@@ -227,7 +226,6 @@ project "Sandbox"
 
 		xcodebuildsettings
 		{
-			['ARCHS'] = false,
 			['CODE_SIGN_IDENTITY'] = 'Mac Developer',
             ['PRODUCT_BUNDLE_IDENTIFIER'] = settings.bundle_identifier,
 			['INFOPLIST_FILE'] = '../Engine/src/Razix/Platform/iOS/Info.plist',

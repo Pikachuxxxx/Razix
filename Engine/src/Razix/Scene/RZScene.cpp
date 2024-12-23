@@ -424,7 +424,6 @@ namespace Razix {
     {
         std::string uuid_string;
         archive(cereal::make_nvp("UUID", uuid_string));
-//        m_SceneUUID = RZUUID::FromStrFactory(uuid_string);
         archive(cereal::make_nvp("SceneName", m_SceneName));
     }
 
