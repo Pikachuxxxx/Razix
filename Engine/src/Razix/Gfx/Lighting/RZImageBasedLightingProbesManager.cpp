@@ -39,6 +39,7 @@ namespace Razix {
 #define CUBEMAP_LAYERS            6
 #define CUBEMAP_DIM               1024
 #define IRRADIANCE_MAP_DIM        32
+#define PREFILTERED_MAP_DIM       128
 #define DISPATCH_THREAD_GROUP_DIM 32
 
         // TODO: Use this via a RootConstant or PushConstant along with the texture bindless id
@@ -188,7 +189,7 @@ namespace Razix {
                 for (auto& descriptor: setInfo.second) {
                     if (descriptor.name == "EnvCubeMap")
                         descriptor.texture = cubeMap;
-                    if (descriptor.name == "IrradianceSampler")
+                    if (descriptor.name == "EnvCubeSampler")
                         descriptor.sampler = Gfx::g_SamplerPresets[(u32) SamplerPresets::kDefaultGeneric];
                     if (descriptor.name == "IrradianceMap")
                         descriptor.texture = irradianceMapHandle;
@@ -228,134 +229,76 @@ namespace Razix {
 
             return irradianceMapHandle;
         }
-#if 0
+
         RZTextureHandle RZImageBasedLightingProbesManager::generatePreFilteredMap(RZTextureHandle cubeMap)
         {
-            u32 dim = 128;
-
             RZTextureDesc preFilteredMapTextureDesc{};
             preFilteredMapTextureDesc.name       = "Texture.PreFilteredMap";
-            preFilteredMapTextureDesc.width      = dim;
-            preFilteredMapTextureDesc.height     = dim;
+            preFilteredMapTextureDesc.width      = PREFILTERED_MAP_DIM;
+            preFilteredMapTextureDesc.height     = PREFILTERED_MAP_DIM;
             preFilteredMapTextureDesc.layers     = 6;
-            preFilteredMapTextureDesc.type       = TextureType::Texture_CubeMap;
+            preFilteredMapTextureDesc.type       = TextureType::kRWCubeMap;
             preFilteredMapTextureDesc.format     = TextureFormat::RGBA32F;
-            preFilteredMapTextureDesc.wrapping   = Wrapping::CLAMP_TO_EDGE;
-            preFilteredMapTextureDesc.filtering  = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
             preFilteredMapTextureDesc.enableMips = true;
-
             RZTextureHandle preFilteredMapHandle = RZResourceManager::Get().createTexture(preFilteredMapTextureDesc);
-
-            RZTexture* preFilteredMap = RZResourceManager::Get().getPool<RZTexture>().get(preFilteredMapHandle);
+            RZTexture*      preFilteredMap       = RZResourceManager::Get().getPool<RZTexture>().get(preFilteredMapHandle);
 
             // Load the shader for converting plain cube map to irradiance map by convolution
             RZShaderHandle cubemapConvolutionShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GeneratePreFilteredMap);
             auto           shader                   = RZResourceManager::Get().getShaderResource(cubemapConvolutionShader);
+            auto           setInfos                 = shader->getDescriptorsPerHeapMap();
 
             // Create the View Projection buffer
+            RZDescriptorSet*      envMapSet = nullptr;
+            RZUniformBufferHandle UBO       = {};
 
-            std::vector<RZDescriptorSet*>      envMapSets;
-            std::vector<RZUniformBufferHandle> UBOs;
+            RZBufferDesc vplBufferDesc{};
+            vplBufferDesc.name = "ViewProjLayerUBOData";
+            vplBufferDesc.size = sizeof(EnvMapGenUBOData);
+            //--------------
+            uboData.cubeFaceSize = {IRRADIANCE_MAP_DIM, IRRADIANCE_MAP_DIM};
+            //--------------
+            vplBufferDesc.data = &uboData;
 
-            struct ViewProjLayerUBOData
-            {
-                alignas(16) glm::mat4 view       = glm::mat4(1.0f);
-                alignas(16) glm::mat4 projection = glm::mat4(1.0f);
-                alignas(4) int layer             = 0;
-            } uboData;
+            RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer(vplBufferDesc);
 
-            // TODO: Disable layout transition when creating Env Map Texture, this causes the Mip 0 to be UNDEFINED, the reason for this weird behavior is unknown
-
-            // Load the shader
-            auto setInfos = shader->getDescriptorsPerHeapMap();
-            for (int i = 0; i < 6; i++) {
-                uboData.view             = kCaptureViews[i];
-                uboData.projection       = kCubeProjection;
-                uboData.projection[1][1] = -1;
-                uboData.layer            = i;
-
-                RZBufferDesc vplBufferDesc{};
-                vplBufferDesc.name = "ViewProjLayerUBOData : #" + std::to_string(i);
-                vplBufferDesc.size = sizeof(ViewProjLayerUBOData);
-                vplBufferDesc.data = &uboData;
-
-                RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer(vplBufferDesc);
-                UBOs.push_back(viewProjLayerUBO);
-
-                //for (auto& setInfo: setInfos) {
-                //    // Fill the descriptors with buffers and textures
-                //    for (auto& descriptor: setInfo.second) {
-                //        if (descriptor.bindingInfo.type == DescriptorType::UNIFORM_BUFFER)
-                //            descriptor.uniformBuffer = viewProjLayerUBO;
-                //    }
-                //    auto set = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Pre Filtered Map conversion set : #" + std::to_string(i)), false);
-                //    envMapSets.push_back(set);
-                //}
-
-                for (auto& setInfo: setInfos) {
-                    // Fill the descriptors with buffers and textures
-                    for (auto& descriptor: setInfo.second) {
-                        if (descriptor.bindingInfo.type == Gfx::DescriptorType::kImageSamplerCombined)
-                            descriptor.texture = cubeMap;
-                        if (descriptor.bindingInfo.type == DescriptorType::kUniformBuffer)
-                            descriptor.uniformBuffer = viewProjLayerUBO;
-                    }
-                    auto set = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("Pre Filtered Map conversion set : #" + std::to_string(i)));
-                    envMapSets.push_back(set);
+            for (auto& setInfo: setInfos) {
+                // Fill the descriptors with buffers and textures
+                for (auto& descriptor: setInfo.second) {
+                    if (descriptor.name == "EnvCubeMap")
+                        descriptor.texture = cubeMap;
+                    if (descriptor.name == "EnvCubeSampler")
+                        descriptor.sampler = Gfx::g_SamplerPresets[(u32) SamplerPresets::kDefaultGeneric];
+                    if (descriptor.name == "PreFitleredMap")
+                        descriptor.texture = preFilteredMapHandle;
+                    if (descriptor.name == "Constants")
+                        descriptor.uniformBuffer = viewProjLayerUBO;
                 }
+                envMapSet = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("generateIrradianceMap set"));
             }
 
             // Create the Pipeline
-            Gfx::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.name                   = "Pipeline.PreFilteredMap";
-            pipelineInfo.cullMode               = Gfx::CullMode::None;
-            pipelineInfo.drawType               = Gfx::DrawType::Triangle;
-            pipelineInfo.shader                 = cubemapConvolutionShader;
-            pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.colorAttachmentFormats = {Gfx::TextureFormat::RGBA32F};
-            RZPipelineHandle envMapPipeline     = RZResourceManager::Get().createPipeline(pipelineInfo);
+            Gfx::RZPipelineDesc pipelineInfo = {};
+            pipelineInfo.name                = "Pipeline.PreFilteredMap";
+            pipelineInfo.pipelineType        = PipelineType::kCompute;
+            pipelineInfo.shader              = cubemapConvolutionShader;
+            RZPipelineHandle envMapPipeline  = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            RZMesh* cubeMesh = MeshFactory::CreatePrimitive(MeshPrimitive::Cube);
-
-            u32 layerCount   = 6;
-            u32 maxMipLevels = RZTexture::calculateMipMapCount(dim, dim);
+            u32 MaxMipLevels = RZTexture::CalculateMipMapCount(PREFILTERED_MAP_DIM, PREFILTERED_MAP_DIM);
 
             // Begin rendering
-            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer();
+            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("PreFiltering CubeMap", glm::vec4(0.6f, 0.8f, 0.3f, 1.0f));
             {
-                RHI::SetCmdBuffer(cmdBuffer);
-
-                RAZIX_MARK_BEGIN("PreFiltering cubemap", glm::vec4(0.8f, 0.8f, 0.3f, 1.0f))
-
-                for (u32 mip = 0; mip < maxMipLevels; mip++) {
-                    u32 mipWidth  = static_cast<u32>(dim * std::pow(0.5, mip));
-                    u32 mipHeight = static_cast<u32>(dim * std::pow(0.5, mip));
-
-                    RenderingInfo info{};
-                    info.resolution       = Resolution::kCustom;
-                    info.colorAttachments = {
-                        {preFilteredMapHandle, {true, ClearColorPresets::TransparentBlack}}};
-                    info.extent = {mipWidth, mipHeight};
-                    // NOTE: This is very important for layers to work
-                    info.layerCount = 6;
-
-                    preFilteredMap->setCurrentMipLevel(mip);
-                    RHI::BeginRendering(cmdBuffer, info);
+                for (u32 mip = 0; mip < MaxMipLevels; mip++) {
+                    u32 mipWidth  = static_cast<u32>(PREFILTERED_MAP_DIM * std::pow(0.5, mip));
+                    u32 mipHeight = static_cast<u32>(PREFILTERED_MAP_DIM * std::pow(0.5, mip));
 
                     RHI::BindPipeline(envMapPipeline, cmdBuffer);
 
-                    // AOS Deprecated
-                    //RZ_GET_RAW_RESOURCE(VertexBuffer, cubeMesh->getVertexBufferHandle())->Bind(cmdBuffer);
-                    //RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->Bind(cmdBuffer);
+                    for (u32 i = 0; i < CUBEMAP_LAYERS; i++) {
+                        RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSet, BindingTable_System::SET_IDX_SYSTEM_START);
 
-                    cubeMesh->bindVBsAndIB(cmdBuffer);
-
-                    for (u32 i = 0; i < layerCount; i++) {
-                        RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSets[i], BindingTable_System::SET_IDX_SYSTEM_START);
-                        //RHI::EnableBindlessTextures(envMapPipeline, cmdBuffer);
-
-                        float roughness = (float) mip / (float) (maxMipLevels - 1);
+                        float roughness = (float) mip / (float) (MaxMipLevels - 1);
                         struct PCData
                         {
                             float roughness = 0.0f;
@@ -368,26 +311,18 @@ namespace Razix {
 
                         RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
 
-                        RHI::DrawIndexed(cmdBuffer, RZ_GET_RAW_RESOURCE(IndexBuffer, cubeMesh->getIndexBufferHandle())->getCount(), 1, 0, 0, 0);
+                        RHI::Dispatch(cmdBuffer, PREFILTERED_MAP_DIM / DISPATCH_THREAD_GROUP_DIM, PREFILTERED_MAP_DIM / DISPATCH_THREAD_GROUP_DIM, 1);
                     }
-                    RHI::EndRendering(cmdBuffer);
                 }
-
-                RAZIX_MARK_END()
                 RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
             preFilteredMap->setCurrentMipLevel(0);
-
-            for (sz i = 0; i < envMapSets.size(); i++) {
-                envMapSets[i]->Destroy();
-                RZResourceManager::Get().destroyUniformBuffer(UBOs[i]);
-            }
+            if (envMapSet)
+                envMapSet->Destroy();
+            RZResourceManager::Get().destroyUniformBuffer(UBO);
             RZResourceManager::Get().destroyPipeline(envMapPipeline);
-            cubeMesh->Destroy();
 
             return preFilteredMapHandle;
         }
-
-#endif
     }    // namespace Gfx
 }    // namespace Razix

@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 TextureCube EnvCubeMap : register(t0); // Environment Cubemap
 SamplerState EnvCubeSampler : register(s1); // Sampler for the HDR texture
-RWTexture2DArray<float4> PrefitleredMap : register(u2);
+RWTexture2DArray<float4> PreFitleredMap : register(u2);
 //------------------------------------------------------------------------------
 cbuffer Constants : register(b3)
 {
@@ -31,5 +31,5 @@ void CS_MAIN(uint3 DTid: SV_DispatchThreadID)
     float2 uv = float2(localCoord) / float2(cubeFaceSize);
     float3 N = UVToDirection(uv, faceIdx);
 
-    PrefitleredMap[DTid] = float4(N, 1.0f);
+    PreFitleredMap[DTid] = float4(N, 1.0f);
 }
