@@ -54,11 +54,7 @@ namespace Razix {
 
             m_FullResourceView.destroy();
 
-            for (u32 l = 0; l < m_Desc.layers; l++) {
-                for (u32 m = 0; m < m_TotalMipLevels; m++) {
-                    m_LayerMipResourceViews[l][m].destroy();
-                }
-            }
+            destroyMipViewsPerFace();
 
 #if !RAZIX_USE_VMA
             if (m_Image != VK_NULL_HANDLE)
@@ -92,7 +88,8 @@ namespace Razix {
 
             VKUtilities::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels, m_Desc.layers);
 
-            //createMipViewsPerFace();
+            destroyMipViewsPerFace();
+            createMipViewsPerFace();
 
             m_OldImageLayout   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             m_FinalImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -404,14 +401,19 @@ namespace Razix {
 
             for (u32 l = 0; l < m_Desc.layers; l++) {
                 for (u32 m = 0; m < m_TotalMipLevels; m++) {
-                    imageViewDesc.baseMipLevel   = m;
-                    imageViewDesc.baseArrayLayer = l;
-                    imageViewDesc.mipLevels      = m == 0 ? m_TotalMipLevels : 1;    // only views at 0 mip stores all mips together
-                    auto imageView               = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
-                    if ((m_ResourceViewHint & kSRV) == kSRV)
-                        m_LayerMipResourceViews[l][m].srv = imageView;
-                    if ((m_ResourceViewHint & kUAV) == kUAV)
-                        m_LayerMipResourceViews[l][m].uav = imageView;
+                    imageViewDesc.baseMipLevel        = m;
+                    imageViewDesc.baseArrayLayer      = l;
+                    imageViewDesc.mipLevels           = m == 0 ? m_TotalMipLevels : 1;    // only views at 0 mip stores all mips together
+                    m_LayerMipResourceViews[l][m].srv = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
+                }
+            }
+        }
+
+        void VKTexture::destroyMipViewsPerFace()
+        {
+            for (u32 l = 0; l < m_Desc.layers; l++) {
+                for (u32 m = 0; m < m_TotalMipLevels; m++) {
+                    m_LayerMipResourceViews[l][m].destroy();
                 }
             }
         }

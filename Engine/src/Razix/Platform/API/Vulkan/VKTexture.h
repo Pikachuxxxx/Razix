@@ -106,6 +106,7 @@ namespace Razix {
             void               createSpecializedRWCubemapViews();
             void               createFullResourceViews();
             void               createMipViewsPerFace();
+            void               destroyMipViewsPerFace();
             bool               isDepthFormat();
             bool               isRWImage();
         };
