@@ -66,6 +66,7 @@ static int AttachConsole(void)
             Razix::RZApplication::Get().SaveApp();                                                        \
                                                                                                           \
             EngineExit();                                                                                 \
+            system("pause");                                                                              \
             FreeConsole();                                                                                \
             return EXIT_SUCCESS;                                                                          \
         }

@@ -37,8 +37,8 @@ namespace Razix {
             pipelineInfo.depthFormat            = TextureFormat::DEPTH16_UNORM;
             pipelineInfo.cullMode               = Gfx::CullMode::None;
             pipelineInfo.drawType               = Gfx::DrawType::Triangle;
-            pipelineInfo.depthTestEnabled       = false;
-            pipelineInfo.depthWriteEnabled      = false;
+            pipelineInfo.depthTestEnabled       = true;
+            pipelineInfo.depthWriteEnabled      = true;
             pipelineInfo.transparencyEnabled    = false;
             pipelineInfo.depthBiasEnabled       = false;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);

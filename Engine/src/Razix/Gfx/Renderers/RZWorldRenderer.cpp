@@ -68,9 +68,9 @@ namespace Razix {
             uploadFrameData(scene, settings);
             //            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
 
-            m_GlobalLightProbes.skybox  = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//Assets/Textures/HDR/newport_loft.hdr");
-            m_GlobalLightProbes.diffuse = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
-            //m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
+            m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//Assets/Textures/HDR/newport_loft.hdr");
+            m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
+            m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
 
             //-------------------------------
             // [TEST] GS CUBE
@@ -511,13 +511,13 @@ namespace Razix {
             //m_VisBufferFillPass.destroy();
             RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.skybox);
             RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.diffuse);
+            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.specular);
 #else
 
             // Destroy Imported Resources
             RZResourceManager::Get().destroyTexture(m_NoiseTextureHandle);
             RZResourceManager::Get().destroyTexture(m_BRDFfLUTTextureHandle);
             RZResourceManager::Get().destroyTexture(m_ColorGradingNeutralLUTHandle);
-            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.specular);
 
             // Destroy Renderers
             m_ImGuiRenderer.Destroy();
