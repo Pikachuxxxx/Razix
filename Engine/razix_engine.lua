@@ -69,9 +69,7 @@ project "Razix"
     {
         "src/**.h",
         "src/**.c",
-        "src/**.cpp",
-        "src/**.inl",
-        "src/**.tpp"
+        "src/**.cpp"
         -- vendor
         --"vendor/tracy/TracyClient.cpp",
     }

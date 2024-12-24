@@ -54,7 +54,6 @@
     #include <glm/glm.hpp>
     // Cereal
     #include <cereal/cereal.hpp>
-
     // Physics Engine
     // The Jolt headers don't include Jolt.h. Always include Jolt.h before including any other Jolt header.
     // You can use Jolt.h in your pre compiled header to speed up compilation.

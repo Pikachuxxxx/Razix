@@ -229,9 +229,8 @@ namespace Razix {
 
             if (desc.data) {
                 loadImageDataFromFile();
-                //delete (u8*) m_Desc.data;
+                delete (u8*) m_Desc.data;
             }
-            // initial layout transition to a generic state
 
             if (m_Desc.enableMips) {
                 VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, VK_IMAGE_LAYOUT_GENERAL, m_TotalMipLevels, desc.layers);

@@ -47,9 +47,3 @@
 #define in_Gib(x) (x / (1 << 30))
 #define in_Mib(x) (x / (1 << 20))
 #define in_Kib(x) (x / 1024)
-
-/**
- * custom new and delete operators
- */
-
-#include "RZMemoryOverrides.h"

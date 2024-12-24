@@ -36,11 +36,11 @@
 namespace Razix {
     namespace Gfx {
 
-#define CUBEMAP_LAYERS            6
-#define CUBEMAP_DIM               1024
-#define IRRADIANCE_MAP_DIM        32
-#define PREFILTERED_MAP_DIM       128
-#define DISPATCH_THREAD_GROUP_DIM 32
+#define CUBEMAP_LAYERS                6
+#define CUBEMAP_DIM                   1024
+#define IRRADIANCE_MAP_DIM            32
+#define PREFILTERED_MAP_DIM           CUBEMAP_DIM
+#define IBL_DISPATCH_THREAD_GROUP_DIM 32
 
         // TODO: Use this via a RootConstant or PushConstant along with the texture bindless id
         struct EnvMapGenUBOData
@@ -72,7 +72,7 @@ namespace Razix {
             equiMapTextureDesc.dataSize              = sizeof(float);    // HDR mode
             RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture(equiMapTextureDesc);
 
-            RZDescriptorSet*      envMapSet = nullptr;
+            RZDescriptorSet* envMapSet = nullptr;
             // Since it has both UAV and SRV, vulkan will internally specialize the creating a UAV with the type of RWTexture2DArray since
             // an actual RWTextureCube doesn't exist in shading languages
             RZTextureDesc cubeMapTextureDesc         = {};
@@ -133,7 +133,7 @@ namespace Razix {
                 RHI::BindPipeline(envMapPipeline, cmdBuffer);
 
                 RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSet, BindingTable_System::SET_IDX_SYSTEM_START);
-                RHI::Dispatch(cmdBuffer, CUBEMAP_DIM / DISPATCH_THREAD_GROUP_DIM, CUBEMAP_DIM / DISPATCH_THREAD_GROUP_DIM, CUBEMAP_LAYERS);
+                RHI::Dispatch(cmdBuffer, CUBEMAP_DIM / IBL_DISPATCH_THREAD_GROUP_DIM, CUBEMAP_DIM / IBL_DISPATCH_THREAD_GROUP_DIM, CUBEMAP_LAYERS);
                 RAZIX_MARK_END()
                 RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
@@ -171,7 +171,7 @@ namespace Razix {
             auto           setInfos                       = shader->getDescriptorsPerHeapMap();
 
             // Create the View Projection buffer
-            RZDescriptorSet*      envMapSet = nullptr;
+            RZDescriptorSet* envMapSet = nullptr;
 
             RZBufferDesc vplBufferDesc{};
             vplBufferDesc.name = "ViewProjLayerUBOData";
@@ -216,7 +216,7 @@ namespace Razix {
 
                 RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSet, BindingTable_System::SET_IDX_SYSTEM_START);
 
-                RHI::Dispatch(cmdBuffer, IRRADIANCE_MAP_DIM / DISPATCH_THREAD_GROUP_DIM, IRRADIANCE_MAP_DIM / DISPATCH_THREAD_GROUP_DIM, CUBEMAP_LAYERS);
+                RHI::Dispatch(cmdBuffer, IRRADIANCE_MAP_DIM / IBL_DISPATCH_THREAD_GROUP_DIM, IRRADIANCE_MAP_DIM / IBL_DISPATCH_THREAD_GROUP_DIM, CUBEMAP_LAYERS);
 
                 RAZIX_MARK_END()
                 RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
@@ -233,15 +233,16 @@ namespace Razix {
         RZTextureHandle RZImageBasedLightingProbesManager::generatePreFilteredMap(RZTextureHandle cubeMap)
         {
             RZTextureDesc preFilteredMapTextureDesc{};
-            preFilteredMapTextureDesc.name       = "Texture.PreFilteredMap";
-            preFilteredMapTextureDesc.width      = PREFILTERED_MAP_DIM;
-            preFilteredMapTextureDesc.height     = PREFILTERED_MAP_DIM;
-            preFilteredMapTextureDesc.layers     = 6;
-            preFilteredMapTextureDesc.type       = TextureType::kRWCubeMap;
-            preFilteredMapTextureDesc.format     = TextureFormat::RGBA32F;
-            preFilteredMapTextureDesc.enableMips = true;
-            RZTextureHandle preFilteredMapHandle = RZResourceManager::Get().createTexture(preFilteredMapTextureDesc);
-            RZTexture*      preFilteredMap       = RZResourceManager::Get().getPool<RZTexture>().get(preFilteredMapHandle);
+            preFilteredMapTextureDesc.name                  = "Texture.PreFilteredMap";
+            preFilteredMapTextureDesc.width                 = PREFILTERED_MAP_DIM;
+            preFilteredMapTextureDesc.height                = PREFILTERED_MAP_DIM;
+            preFilteredMapTextureDesc.layers                = 6;
+            preFilteredMapTextureDesc.type                  = TextureType::kRWCubeMap;
+            preFilteredMapTextureDesc.format                = TextureFormat::RGBA16F;
+            preFilteredMapTextureDesc.initResourceViewHints = ResourceViewHint::kSRV | ResourceViewHint::kUAV;
+            preFilteredMapTextureDesc.enableMips            = true;
+            RZTextureHandle preFilteredMapHandle            = RZResourceManager::Get().createTexture(preFilteredMapTextureDesc);
+            RZTexture*      preFilteredMap                  = RZResourceManager::Get().getPool<RZTexture>().get(preFilteredMapHandle);
 
             // Load the shader for converting plain cube map to irradiance map by convolution
             RZShaderHandle cubemapConvolutionShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GeneratePreFilteredMap);
@@ -258,10 +259,10 @@ namespace Razix {
                         descriptor.texture = cubeMap;
                     if (descriptor.name == "EnvCubeSampler")
                         descriptor.sampler = Gfx::g_SamplerPresets[(u32) SamplerPresets::kDefaultGeneric];
-                    if (descriptor.name == "PreFitleredMap")
+                    if (descriptor.name == "PreFilteredMap")
                         descriptor.texture = preFilteredMapHandle;
                 }
-                envMapSet = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("generateIrradianceMap set"));
+                envMapSet = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("generatePreFiltered set"));
             }
 
             // Create the Pipeline
@@ -273,40 +274,44 @@ namespace Razix {
 
             struct PushConstant
             {
-                glm::vec2 cubeFaceSize = {PREFILTERED_MAP_DIM, PREFILTERED_MAP_DIM};
-                float     roughness    = 0.0f;
-                u32       mipLevel     = 0;
-            } data{};
+                glm::vec2 cubeFaceSize;
+                float     roughness;
+                u32       mipLevel;
+            } data = {};
 
             // Begin rendering
             auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("PreFiltering CubeMap", glm::vec4(0.6f, 0.8f, 0.3f, 1.0f));
             {
+                // copy at mip level 0
+                RHI::CopyTextureResource(cmdBuffer, preFilteredMapHandle, cubeMap);
+
                 u32 MaxMipLevels = RZTexture::CalculateMipMapCount(PREFILTERED_MAP_DIM, PREFILTERED_MAP_DIM);
 
-                for (u32 layer = 0; layer < CUBEMAP_LAYERS; layer++) {
-                    for (u32 mip = 0; mip < MaxMipLevels; mip++) {
-                        u32 mipWidth  = static_cast<u32>(PREFILTERED_MAP_DIM * std::pow(0.5, mip));
-                        u32 mipHeight = static_cast<u32>(PREFILTERED_MAP_DIM * std::pow(0.5, mip));
+                //const float deltaRoughness = 1.0f / std::max(float(MaxMipLevels - 1), 1.0f);
+                //for (u32 level = 1, size = (PREFILTERED_MAP_DIM / 2); level < MaxMipLevels; ++level, size /= 2) {
+                //    const u32   numGroups      = std::max<u32>(1, size / IBL_DISPATCH_THREAD_GROUP_DIM);
+                //    const float spmapRoughness = level * deltaRoughness;
+                //}
 
-                        RHI::BindPipeline(envMapPipeline, cmdBuffer);
-
-                        RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSet, BindingTable_System::SET_IDX_SYSTEM_START);
-
-                        // This example will use push constants
-                        float roughness = (float) mip / (float) (MaxMipLevels - 1);
-                        data.roughness  = roughness;
-                        data.mipLevel   = mip;
-
-                        RZPushConstant pc = {};
-                        pc.shaderStage    = ShaderStage::kCompute;
-                        pc.data           = &data;
-                        pc.size           = sizeof(PushConstant);
-
-                        RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
-
-                        RHI::Dispatch(cmdBuffer, PREFILTERED_MAP_DIM / DISPATCH_THREAD_GROUP_DIM, PREFILTERED_MAP_DIM / DISPATCH_THREAD_GROUP_DIM, 1);
-                    }
-                }
+                //for (u32 layer = 0; layer < CUBEMAP_LAYERS; layer++) {
+                //    for (u32 mip = 0; mip < MaxMipLevels; mip++) {
+                //        u32 mipWidth  = static_cast<u32>(PREFILTERED_MAP_DIM * std::pow(0.5, mip));
+                //        u32 mipHeight = static_cast<u32>(PREFILTERED_MAP_DIM * std::pow(0.5, mip));
+                //        RHI::BindPipeline(envMapPipeline, cmdBuffer);
+                //        RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSet, BindingTable_System::SET_IDX_SYSTEM_START);
+                //        // This example will use push constants
+                //        float roughness   = (float) mip / (float) (MaxMipLevels - 1);
+                //        data.roughness    = roughness;
+                //        data.mipLevel     = mip;
+                //        data.cubeFaceSize = {PREFILTERED_MAP_DIM, PREFILTERED_MAP_DIM};
+                //        RZPushConstant pc = {};
+                //        pc.shaderStage    = ShaderStage::kCompute;
+                //        pc.data           = &data;
+                //        pc.size           = sizeof(PushConstant);
+                //        RHI::BindPushConstant(envMapPipeline, cmdBuffer, pc);
+                //        RHI::Dispatch(cmdBuffer, PREFILTERED_MAP_DIM / IBL_DISPATCH_THREAD_GROUP_DIM, PREFILTERED_MAP_DIM / IBL_DISPATCH_THREAD_GROUP_DIM, CUBEMAP_LAYERS);
+                //    }
+                //}
                 RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuffer);
             }
             preFilteredMap->setCurrentMipLevel(0);

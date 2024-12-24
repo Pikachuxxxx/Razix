@@ -627,21 +627,37 @@ namespace Razix {
             auto srcTextureResource = RZResourceManager::Get().getTextureResource(srcTexture);
             auto vkSrcTexture       = static_cast<VKTexture*>(srcTextureResource);
 
+            VKUtilities::TransitionImageLayout(vkSrcTexture->getImage(), VKUtilities::TextureFormatToVK(vkSrcTexture->getFormat()), vkSrcTexture->getImageLayoutValue(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkSrcTexture->getMipsCount(), vkSrcTexture->getLayersCount());
+
             auto dstTextureResource = RZResourceManager::Get().getTextureResource(dstTexture);
             auto vkDstTexture       = static_cast<VKTexture*>(dstTextureResource);
 
-            // TODO: Supports all kinds of texture type copies
-            VkImageCopy imageCopyRegion               = {};
-            imageCopyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            imageCopyRegion.srcSubresource.layerCount = 1;
-            imageCopyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            imageCopyRegion.dstSubresource.layerCount = 1;
-            imageCopyRegion.extent.width              = vkSrcTexture->getWidth();
-            imageCopyRegion.extent.height             = vkSrcTexture->getHeight();
-            imageCopyRegion.extent.depth              = 1;
+            VKUtilities::TransitionImageLayout(vkDstTexture->getImage(), VKUtilities::TextureFormatToVK(vkDstTexture->getFormat()), vkDstTexture->getImageLayoutValue(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vkDstTexture->getMipsCount(), vkDstTexture->getLayersCount());
+
+            // TODO: Support non-color images as well
+            VkImageCopy imageCopyRegion                   = {};
+            imageCopyRegion.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageCopyRegion.srcSubresource.layerCount     = vkSrcTexture->getLayersCount();
+            imageCopyRegion.srcSubresource.baseArrayLayer = vkSrcTexture->getCurrentArrayLayer();
+            imageCopyRegion.srcSubresource.mipLevel       = vkSrcTexture->getCurrentMipLevel();
+
+            imageCopyRegion.dstSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageCopyRegion.dstSubresource.layerCount     = vkDstTexture->getLayersCount();
+            imageCopyRegion.dstSubresource.baseArrayLayer = vkDstTexture->getCurrentArrayLayer();
+            imageCopyRegion.dstSubresource.mipLevel       = vkDstTexture->getCurrentMipLevel();
+            imageCopyRegion.extent.width                  = vkSrcTexture->getWidth();
+            imageCopyRegion.extent.height                 = vkSrcTexture->getHeight();
+            imageCopyRegion.extent.depth                  = 1;
 
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdCopyImage(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), vkSrcTexture->getImage(), /*vkSrcTexture->getLayout()*/ VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, vkDstTexture->getImage(), /*vkDstTexture->getLayout()*/ VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
+            vkCmdCopyImage(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), vkSrcTexture->getImage(), /*vkSrcTexture->getLayout()*/ VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkDstTexture->getImage(), /*vkDstTexture->getLayout()*/ VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
+
+            // restore the dst and src image layouts to original state aka shader read only optimal
+            //vkDstTexture->setImageLayoutValue(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            //VKUtilities::TransitionImageLayout(vkDstTexture->getImage(), VKUtilities::TextureFormatToVK(vkDstTexture->getFormat()), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vkDstTexture->getImageLayoutValue(), vkDstTexture->getMipsCount(), vkDstTexture->getLayersCount());
+
+            //vkSrcTexture->setImageLayoutValue(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            //VKUtilities::TransitionImageLayout(vkSrcTexture->getImage(), VKUtilities::TextureFormatToVK(vkSrcTexture->getFormat()), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkSrcTexture->getImageLayoutValue(), vkSrcTexture->getMipsCount(), vkSrcTexture->getLayersCount());
         }
 
         void VKRenderContext::SetViewportImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
