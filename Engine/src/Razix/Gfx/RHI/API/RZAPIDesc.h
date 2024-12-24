@@ -13,7 +13,7 @@ namespace Razix {
 
         // Forward Declarations
         class RZShader;
-        enum ShaderStage: u32;
+        enum ShaderStage : u32;
         enum class ShaderBuiltin : u32;
         enum class DescriptorHeapType;
         struct RZDescriptor;
@@ -123,7 +123,7 @@ namespace Razix {
         {
             std::string                name                   = "$UNNAMED_PIPELINE_RESOURCE";  /* Name of the texture
                                                                                                 */
-            PipelineType pipelineType = PipelineType::kGraphics;                               /* Type of pipeline graphics/compute */
+            PipelineType               pipelineType           = PipelineType::kGraphics;       /* Type of pipeline graphics/compute */
             RZShaderHandle             shader                 = {};                            /* Shader used by the Pipeline                                                 */
             std::vector<TextureFormat> colorAttachmentFormats = {};                            /* color attachments used by this pipeline, that we write to                   */
             TextureFormat              depthFormat            = TextureFormat::DEPTH32F;       /* depth attachment format for this pipeline                                   */
