@@ -308,6 +308,11 @@ namespace Razix {
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+                if (newLayout == oldLayout) {
+                    RAZIX_CORE_WARN("[Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this.");
+                    return;
+                }
+
                 // Begin the buffer since this done for computability with shader pipeline stages we use pipeline barrier to synchronize the transition
                 VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Image Layout Transition", glm::vec4(0.25f, 0.5f, 0.75, 1.0f));
 

@@ -184,14 +184,14 @@ namespace Razix {
 
         void VKTexture::transitonImageLayoutToSRV()
         {
-            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_FinalImageLayout, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, m_TotalMipLevels, m_Desc.layers);
             setImageLayoutValue(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, m_FinalImageLayout, m_TotalMipLevels, m_Desc.layers);
         }
 
         void VKTexture::transitonImageLayoutToUAV()
         {
-            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_FinalImageLayout, VK_IMAGE_LAYOUT_GENERAL, m_TotalMipLevels, m_Desc.layers);
             setImageLayoutValue(VK_IMAGE_LAYOUT_GENERAL);
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, m_FinalImageLayout, m_TotalMipLevels, m_Desc.layers);
         }
 
         //-------------------------------------------------------------------------------------------
@@ -225,27 +225,28 @@ namespace Razix {
             //      1. Undefined -> transfer destination: transfer writes that don't need to wait on anything
             //          1.1 Copy image from transfer staging buffer to the Image buffer on DEVICE
             //      2. Transfer destination -> shader reading: shader reads should wait on transfer writes, specifically the shader reads in the fragment shader, because that's where we're going to use the texture
+            m_OldImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
             if (desc.data) {
                 loadImageDataFromFile();
-                delete (u8*) m_Desc.data;
+                //delete (u8*) m_Desc.data;
             }
-
             // initial layout transition to a generic state
-            m_OldImageLayout = VK_IMAGE_LAYOUT_GENERAL;
-            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, m_OldImageLayout, m_TotalMipLevels, m_Desc.layers);
 
-            if (m_Desc.enableMips)
+            if (m_Desc.enableMips) {
+                VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, VK_IMAGE_LAYOUT_GENERAL, m_TotalMipLevels, desc.layers);
+                m_OldImageLayout = VK_IMAGE_LAYOUT_GENERAL;
                 GenerateMipsAndViews();
+            }
 
             if (desc.type == TextureType::kRWCubeMap) {
                 createSpecializedRWCubemapViews();
             } else
                 createFullResourceViews();
 
-            if (m_OldImageLayout != m_FinalImageLayout) {
-                VkImageLayout m_FinalImageLayout = (m_ResourceViewHint & kUAV) == kUAV ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, m_FinalImageLayout, m_TotalMipLevels, desc.layers);
-            }
+            VkImageLayout m_FinalImageLayout = (m_ResourceViewHint & kUAV) == kUAV ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, m_FinalImageLayout, m_TotalMipLevels, desc.layers);
+            m_OldImageLayout = m_FinalImageLayout;
         }
 
         void VKTexture::loadImageDataInfoFromFile()
