@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IRZAllocator.h"
+#include "RZMemoryFunctions.h"
 
 #include <cstdint>
 #include <mutex>
