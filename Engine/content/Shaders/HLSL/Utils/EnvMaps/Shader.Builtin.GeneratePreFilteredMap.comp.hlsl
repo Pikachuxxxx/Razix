@@ -20,6 +20,21 @@ struct PushConstant
 PUSH_CONSTANT(PushConstant);
 //------------------------------------------------------------------------------
 // Helper functions
+float3 SampleDirUV(float2 st, uint face)
+{
+    //uv = uv * 2.0f - 1.0f; // Map UV from [0, 1] to [-1, 1]
+    float2 uv = (2.0 * float2(st.x, st.y)) - float2(1.0f, 1.0f);
+    // Map UV coordinates to 3D direction for each cubemap face
+    float3 dir;
+    if(face == 0) dir = float3(-1.0, uv.y,  uv.x);  // -X
+    else if(face == 1)      dir = float3(1.0,  uv.y, -uv.x);  // +X
+    else if(face == 2) dir = float3(uv.x, 1.0, -uv.y);   // +Y
+    else if(face == 3) dir = float3(uv.x, -1.0, uv.y);   // -Y
+    else if(face == 4) dir = float3(-uv.x, uv.y, -1.0);  // -Z  
+    else if(face == 5) dir = float3(uv.x, uv.y, 1.0);    // +Z
+    return normalize(dir);
+}
+
 
 //------------------------------------------------------------------------------
 // TODO: Optimization - use SH 
@@ -32,7 +47,7 @@ void CS_MAIN(uint3 DTid: SV_DispatchThreadID)
     uint2 localCoord = DTid.xy;
     float2 uv = float2(localCoord) / float2(GET_PUSH_CONSTANT(cubeFaceSize));
     
-    float3 N = UVToDirection(uv, faceIdx);
+    float3 N = SampleDirUV(uv, faceIdx);
 
     float3 S, T;
 	computeBasisVectors(N, S, T);

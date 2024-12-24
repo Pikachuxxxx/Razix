@@ -594,7 +594,7 @@ namespace Razix {
                 barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
             barrier.subresourceRange.baseMipLevel   = textureResource->getCurrentMipLevel();
             barrier.subresourceRange.levelCount     = textureResource->getMipsCount();
-            barrier.subresourceRange.baseArrayLayer = textureResource->getCurrentArrayLayer();
+            barrier.subresourceRange.baseArrayLayer = textureResource->getBaseArrayLayer();
             barrier.subresourceRange.layerCount     = textureResource->getLayersCount();
 
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
@@ -638,12 +638,12 @@ namespace Razix {
             VkImageCopy imageCopyRegion                   = {};
             imageCopyRegion.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
             imageCopyRegion.srcSubresource.layerCount     = vkSrcTexture->getLayersCount();
-            imageCopyRegion.srcSubresource.baseArrayLayer = vkSrcTexture->getCurrentArrayLayer();
+            imageCopyRegion.srcSubresource.baseArrayLayer = vkSrcTexture->getBaseArrayLayer();
             imageCopyRegion.srcSubresource.mipLevel       = vkSrcTexture->getCurrentMipLevel();
 
             imageCopyRegion.dstSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
             imageCopyRegion.dstSubresource.layerCount     = vkDstTexture->getLayersCount();
-            imageCopyRegion.dstSubresource.baseArrayLayer = vkDstTexture->getCurrentArrayLayer();
+            imageCopyRegion.dstSubresource.baseArrayLayer = vkDstTexture->getBaseArrayLayer();
             imageCopyRegion.dstSubresource.mipLevel       = vkDstTexture->getCurrentMipLevel();
             imageCopyRegion.extent.width                  = vkSrcTexture->getWidth();
             imageCopyRegion.extent.height                 = vkSrcTexture->getHeight();

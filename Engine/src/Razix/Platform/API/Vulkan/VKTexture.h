@@ -73,6 +73,10 @@ namespace Razix {
             inline VkImageView   getLayerMipUAVImageView(u32 layer, u32 mip) const { return m_LayerMipResourceViews[layer][mip].uav; }
             inline VkImageView   getLayerMipDSVImageView(u32 layer, u32 mip) const { return m_LayerMipResourceViews[layer][mip].dsv; }
             inline VkImageView   getLayerMipRTVImageView(u32 layer, u32 mip) const { return m_LayerMipResourceViews[layer][mip].rtv; }
+            inline VkImageView   getMipSRVImageView(u32 mip) const { return m_PerMipResourceViews[mip].srv; }
+            inline VkImageView   getMipUAVImageView(u32 mip) const { return m_PerMipResourceViews[mip].uav; }
+            inline VkImageView   getMipDSVImageView(u32 mip) const { return m_PerMipResourceViews[mip].dsv; }
+            inline VkImageView   getMipRTVImageView(u32 mip) const { return m_PerMipResourceViews[mip].rtv; }
     #if RAZIX_USE_VMA
             inline VmaAllocation getVMAAllocation() const { return m_ImageMemoryWrapper.vmaAllocation; }
     #else
@@ -80,14 +84,15 @@ namespace Razix {
     #endif
 
         private:
-            VkImage                                  m_Image                                                                   = VK_NULL_HANDLE;
-            VKImageResourceView                      m_FullResourceView                                                        = {};
-            VKImageResourceView                      m_LayerMipResourceViews[RAZIX_MAX_TEXTURE_LAYERS][RAZIX_MAX_TEXTURE_MIPS] = {};
-            VkImageLayout                            m_FinalImageLayout                                                        = VK_IMAGE_LAYOUT_UNDEFINED;
-            VkImageLayout                            m_OldImageLayout                                                          = VK_IMAGE_LAYOUT_UNDEFINED;    // For internal state tracking only
-            bool                                     m_DeleteImageData                                                         = false;
-            VkImageAspectFlags                       m_AspectFlags                                                             = VK_IMAGE_ASPECT_NONE;
-            VKUtilities::VKImageMemoryBackendWrapper m_ImageMemoryWrapper                                                      = {};
+            VkImage                                  m_Image                                                     = VK_NULL_HANDLE;
+            VKImageResourceView                      m_FullResourceView                                          = {};
+            VKImageResourceView                      m_LayerMipResourceViews[RZ_TEX_MAX_LAYERS][RZ_MAX_TEX_MIPS] = {};
+            VKImageResourceView                      m_PerMipResourceViews[RZ_MAX_TEX_MIPS]                      = {};
+            VkImageLayout                            m_FinalImageLayout                                          = VK_IMAGE_LAYOUT_UNDEFINED;
+            VkImageLayout                            m_OldImageLayout                                            = VK_IMAGE_LAYOUT_UNDEFINED;    // For internal state tracking only
+            bool                                     m_DeleteImageData                                           = false;
+            VkImageAspectFlags                       m_AspectFlags                                               = VK_IMAGE_ASPECT_NONE;
+            VKUtilities::VKImageMemoryBackendWrapper m_ImageMemoryWrapper                                        = {};
 
         private:
             // specialized constructor for swapchain class only
@@ -107,6 +112,8 @@ namespace Razix {
             void               createFullResourceViews();
             void               createMipViewsPerFace();
             void               destroyMipViewsPerFace();
+            void               createMipViewsFullFace();
+            void               destroyMipViewsFullFace();
             bool               isDepthFormat();
             bool               isRWImage();
         };

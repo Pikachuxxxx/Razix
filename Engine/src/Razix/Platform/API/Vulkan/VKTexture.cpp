@@ -55,6 +55,7 @@ namespace Razix {
             m_FullResourceView.destroy();
 
             destroyMipViewsPerFace();
+            destroyMipViewsFullFace();
 
 #if !RAZIX_USE_VMA
             if (m_Image != VK_NULL_HANDLE)
@@ -90,6 +91,9 @@ namespace Razix {
 
             destroyMipViewsPerFace();
             createMipViewsPerFace();
+
+            destroyMipViewsFullFace();
+            createMipViewsFullFace();
 
             m_OldImageLayout   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             m_FinalImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -143,7 +147,7 @@ namespace Razix {
 
             // Works only on Texture2D type for now!
 
-            VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::ReadBack, VK_BUFFER_USAGE_TRANSFER_DST_BIT, m_Desc.width * m_Desc.height * RAZIX_TEXTURE_BITS_PER_PIXEL, nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"));
+            VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::ReadBack, VK_BUFFER_USAGE_TRANSFER_DST_BIT, m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL, nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"));
 
             // Change the image layout from shader read only optimal to transfer source
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
@@ -169,7 +173,7 @@ namespace Razix {
             }
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-            char* data = new char[m_Desc.width * m_Desc.height * RAZIX_TEXTURE_BITS_PER_PIXEL];
+            char* data = new char[m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL];
             m_TransferBuffer.map();
             data = (char*) m_TransferBuffer.getMappedRegion();
             // Read and return the pixel value
@@ -258,8 +262,8 @@ namespace Razix {
             else
                 m_Desc.data = Razix::Utilities::LoadImageData(m_Desc.filePath, &m_Desc.width, &m_Desc.height, &m_BitsPerPixel, m_Desc.flipY);
             // Here the format for the texture is extracted based on bits per pixel
-            m_Desc.format = Razix::Gfx::RZTexture::BitsToTextureFormat(RAZIX_TEXTURE_BITS_PER_PIXEL);    // everything is a 4-byte by default
-            m_Desc.size   = static_cast<u32>(m_Desc.width * m_Desc.height * RAZIX_TEXTURE_BITS_PER_PIXEL * m_Desc.dataSize);
+            m_Desc.format = Razix::Gfx::RZTexture::BitsToTextureFormat(RZ_TEX_BITS_PER_PIXEL);    // everything is a 4-byte by default
+            m_Desc.size   = static_cast<u32>(m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL * m_Desc.dataSize);
         }
 
         void VKTexture::evaluateMipsCount()
@@ -349,9 +353,9 @@ namespace Razix {
             imageViewDesc.format                             = VKUtilities::TextureFormatToVK(m_Desc.format);
             imageViewDesc.aspectMask                         = m_AspectFlags;
             imageViewDesc.mipLevels                          = m_TotalMipLevels;
-            imageViewDesc.baseMipLevel                       = RAZIX_TEXTURE_DEFAULT_MIP_IDX;
+            imageViewDesc.baseMipLevel                       = RZ_TEX_DEFAULT_MIP_IDX;
             imageViewDesc.layerCount                         = m_Desc.layers;
-            imageViewDesc.baseArrayLayer                     = RAZIX_TEXTURE_DEFAULT_ARRAY_LAYER;
+            imageViewDesc.baseArrayLayer                     = RZ_TEX_DEFAULT_ARRAY_LAYER;
 
             if ((m_ResourceViewHint & kSRV) == kSRV) {
                 imageViewDesc.viewType = VKUtilities::TextureTypeToVKViewType(TextureType::kCubeMap);
@@ -374,9 +378,9 @@ namespace Razix {
             imageViewDesc.viewType                           = VKUtilities::TextureTypeToVKViewType(m_Desc.type);
             imageViewDesc.aspectMask                         = m_AspectFlags;
             imageViewDesc.mipLevels                          = m_TotalMipLevels;
-            imageViewDesc.baseMipLevel                       = RAZIX_TEXTURE_DEFAULT_MIP_IDX;
+            imageViewDesc.baseMipLevel                       = RZ_TEX_DEFAULT_MIP_IDX;
             imageViewDesc.layerCount                         = m_Desc.layers;
-            imageViewDesc.baseArrayLayer                     = RAZIX_TEXTURE_DEFAULT_ARRAY_LAYER;
+            imageViewDesc.baseArrayLayer                     = RZ_TEX_DEFAULT_ARRAY_LAYER;
 
             if ((m_ResourceViewHint & kSRV) == kSRV)
                 m_FullResourceView.srv = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
@@ -416,6 +420,40 @@ namespace Razix {
                     m_LayerMipResourceViews[l][m].destroy();
                 }
             }
+        }
+
+        void VKTexture::createMipViewsFullFace()
+        {
+            // so we bind something fun here, we bind RW2DArraysViews but at different mip levels
+            // But Razix cannot create these views, it can currently make only 2D views....
+            // So we extend the ResourceHints to be more robust with some API functions to make it possible
+            // But until we come across another scenario we specialize this case, create them in backend for RWCubeMapArray type
+            // call it something like VkImageView m_PerMipArrayViews[NUM_MIPS] and bind it as needed
+
+            VKUtilities::VKCreateImageViewDesc imageViewDesc = {};
+            imageViewDesc.image                              = m_Image;
+            imageViewDesc.format                             = VKUtilities::TextureFormatToVK(m_Desc.format);
+            imageViewDesc.aspectMask                         = m_AspectFlags;
+            imageViewDesc.layerCount                         = m_Desc.layers;
+
+            for (u32 m = 0; m < m_TotalMipLevels; m++) {
+                imageViewDesc.baseMipLevel   = m;
+                imageViewDesc.baseArrayLayer = 0;
+                imageViewDesc.mipLevels      = m_TotalMipLevels;
+                //imageViewDesc.mipLevels      = m == 0 ? m_TotalMipLevels : 1;
+
+                imageViewDesc.viewType       = VKUtilities::TextureTypeToVKViewType(TextureType::k2DArray);
+                m_PerMipResourceViews[m].srv = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
+
+                imageViewDesc.viewType       = VKUtilities::TextureTypeToVKViewType(TextureType::kRW2DArray);
+                m_PerMipResourceViews[m].uav = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
+            }
+        }
+
+        void VKTexture::destroyMipViewsFullFace()
+        {
+            for (u32 m = 0; m < m_TotalMipLevels; m++)
+                m_PerMipResourceViews[m].destroy();
         }
 
         bool VKTexture::isDepthFormat()

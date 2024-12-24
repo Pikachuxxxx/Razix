@@ -12,11 +12,11 @@
 namespace Razix {
     namespace Gfx {
 
-#define RAZIX_TEXTURE_DEFAULT_ARRAY_LAYER 0
-#define RAZIX_TEXTURE_DEFAULT_MIP_IDX     0
-#define RAZIX_TEXTURE_BITS_PER_PIXEL      4
-#define RAZIX_MAX_TEXTURE_LAYERS          64    // MAX HARD LIMIT
-#define RAZIX_MAX_TEXTURE_MIPS            16    // 8k texture 7680x4320 (rounded off for brevity)
+#define RZ_TEX_DEFAULT_ARRAY_LAYER 0
+#define RZ_TEX_DEFAULT_MIP_IDX     0
+#define RZ_TEX_BITS_PER_PIXEL      4
+#define RZ_TEX_MAX_LAYERS          64    // MAX HARD LIMIT
+#define RZ_MAX_TEX_MIPS            16    // 8k texture 7680x4320 (rounded off for brevity)
 
         // Forward Declaration
         struct RZTextureDesc;
@@ -59,7 +59,7 @@ namespace Razix {
             inline std::string          getPath() const { return m_Desc.filePath; }
             inline u32                  getCurrentMipLevel() const { return m_CurrentMipRenderingLevel; }
             inline void                 setCurrentMipLevel(u32 idx) { m_CurrentMipRenderingLevel = idx; }
-            inline u32                  getCurrentArrayLayer() const { return m_BaseArrayLayer; }
+            inline u32                  getBaseArrayLayer() const { return m_BaseArrayLayer; }
             inline void                 setCurrentArrayLayer(u32 idx) { m_BaseArrayLayer = idx; }
             inline u32                  getLayersCount() const { return m_Desc.layers; }
             inline u32                  getMipsCount() const { return m_TotalMipLevels; }
@@ -67,9 +67,9 @@ namespace Razix {
         protected:
             RZTextureDesc m_Desc                     = {};
             u32           m_TotalMipLevels           = 1;
-            u32           m_CurrentMipRenderingLevel = RAZIX_TEXTURE_DEFAULT_MIP_IDX;
-            u32           m_BaseArrayLayer           = RAZIX_TEXTURE_DEFAULT_ARRAY_LAYER;
-            u32           m_BitsPerPixel             = RAZIX_TEXTURE_BITS_PER_PIXEL;
+            u32           m_CurrentMipRenderingLevel = RZ_TEX_DEFAULT_MIP_IDX;
+            u32           m_BaseArrayLayer           = RZ_TEX_DEFAULT_ARRAY_LAYER;
+            u32           m_BitsPerPixel             = RZ_TEX_BITS_PER_PIXEL;
 
         private:
             static void Create(void* where, const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
