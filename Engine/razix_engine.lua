@@ -45,6 +45,7 @@ group "Engine"
 project "Razix"
     kind "SharedLib"
     language "C++"
+    staticruntime "off"
 
     -- Razix Engine defines (Global
     defines
@@ -68,9 +69,7 @@ project "Razix"
     {
         "src/**.h",
         "src/**.c",
-        "src/**.cpp",
-        "src/**.inl",
-        "src/**.tpp"
+        "src/**.cpp"
         -- vendor
         --"vendor/tracy/TracyClient.cpp",
     }
@@ -167,7 +166,6 @@ project "Razix"
     -------------------------------------
     filter "system:windows"
         cppdialect (engine_global_config.cpp_dialect)
-        staticruntime "off"
         systemversion "latest"
         disablewarnings { 4307, 4267, 4275, 4715, 4554 } -- Disabling the 4275 cause this will propagate into everything ig, also 4715 = not returinign values from all control paths is usually done deliberately hence fuck this warning
         characterset ("MBCS")
@@ -187,7 +185,8 @@ project "Razix"
         buildoptions
         {
             "/MP", "/bigobj", "/Zi", 
-            "/WX" -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
+            "/WX"
+            -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
         }
 
         linkoptions
@@ -298,7 +297,6 @@ project "Razix"
     -------------------------------------
     filter "system:macosx"
         cppdialect "C++17"
-        staticruntime "off"
         systemversion "latest"
 
         --pchheader "rzxpch.h"
@@ -381,7 +379,8 @@ project "Razix"
         -- Apple Clang compiler options
         buildoptions
         {
-            "-Wno-error=switch-enum"
+            "-Wno-error=switch-enum",
+            "-Wswitch", "-Wswitch-enum"
         }
         
                 

@@ -74,10 +74,8 @@ namespace Razix {
                     textureDesc.name      = "SceneHDR";
                     textureDesc.width     = ResolutionToExtentsMap[Resolution::k1440p].x;
                     textureDesc.height    = ResolutionToExtentsMap[Resolution::k1440p].y;
-                    textureDesc.type      = TextureType::Texture_2D;
+                    textureDesc.type      = TextureType::k2D;
                     textureDesc.format    = TextureFormat::RGBA16F;
-                    textureDesc.wrapping  = Wrapping::CLAMP_TO_EDGE;
-                    textureDesc.filtering = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
 
                     data.sceneHDR = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 

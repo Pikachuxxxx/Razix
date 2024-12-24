@@ -4,7 +4,7 @@ namespace Razix {
     /**
      * Provides a OS independent interface to Interact with the files stored on the host
      */
-    class RAZIX_API RZFileSystem : public RZRoot
+    class RAZIX_API RZFileSystem
     {
     public:
         /**

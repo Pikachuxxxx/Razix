@@ -9,7 +9,7 @@ typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimeStamp;
 #endif
 
 namespace Razix {
-    class RAZIX_API RZTimer : public RZRoot
+    class RAZIX_API RZTimer
     {
     public:
         RZTimer();

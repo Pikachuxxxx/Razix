@@ -12,7 +12,6 @@
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
-#include "Razix/Gfx/RHI/API/RZFramebuffer.h"
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 #include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
 #include "Razix/Gfx/RHI/API/RZPipeline.h"
@@ -119,9 +118,8 @@ namespace Razix {
             imguiFontTextureDesc.height   = (u32) texHeight;
             imguiFontTextureDesc.data     = fontData;
             imguiFontTextureDesc.size     = uploadSize;
-            imguiFontTextureDesc.type     = TextureType::Texture_2D;
+            imguiFontTextureDesc.type     = TextureType::k2D;
             imguiFontTextureDesc.format   = TextureFormat::RGBA8;
-            imguiFontTextureDesc.wrapping = Wrapping::CLAMP_TO_EDGE;
 
             m_FontAtlasTexture = RZResourceManager::Get().createTexture(imguiFontTextureDesc);
 
@@ -349,9 +347,8 @@ namespace Razix {
             fontAtlasDesc.width         = (u32) texWidth;
             fontAtlasDesc.height        = (u32) texHeight;
             fontAtlasDesc.data          = fontData;
-            fontAtlasDesc.type          = TextureType::Texture_2D;
+            fontAtlasDesc.type          = TextureType::k2D;
             fontAtlasDesc.format        = TextureFormat::RGBA8;
-            fontAtlasDesc.wrapping      = Wrapping::CLAMP_TO_EDGE;
 
             m_FontAtlasTexture = RZResourceManager::Get().createTexture(fontAtlasDesc);
         }

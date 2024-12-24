@@ -89,6 +89,10 @@ namespace Razix {
                         stage                                           = ShaderStage::kPixel;
                         std::map<ShaderStage, std::string>::iterator it = shaders.begin();
                         shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));
+                    } else if (Razix::Utilities::StringContains(str, "compute")) {
+                        stage                                           = ShaderStage::kCompute;
+                        std::map<ShaderStage, std::string>::iterator it = shaders.begin();
+                        shaders.insert(it, std::pair<ShaderStage, std::string>(stage, ""));
                     }
                 }
 #if 0

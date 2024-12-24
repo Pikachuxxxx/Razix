@@ -17,7 +17,7 @@ namespace Razix {
         /**
          * DirectX12 fence for managing CPU-GPU & GPU-GPU synchronization
          */
-        class DX12Fence final : public RZRoot
+        class DX12Fence final
         {
         public:
             /**

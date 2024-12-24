@@ -54,7 +54,7 @@ namespace Razix {
      * Thus, the probability to find a duplicate within 103 trillion version-4 UUIDs is one in a billion.
      */
 
-    class RAZIX_API RZUUID : public RZRoot
+    class RAZIX_API RZUUID
     {
     public:
         /* Defining the format type of RZUUID (we will use a union with bytes for easier calculation) */

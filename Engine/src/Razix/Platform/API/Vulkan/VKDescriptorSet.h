@@ -36,7 +36,8 @@ namespace Razix {
             VkDescriptorBufferInfo* m_BufferInfoPool         = nullptr;
             VkDescriptorImageInfo*  m_ImageInfoPool          = nullptr;    // Currently contains both CombinedImageSampler/Texture/Sampler descriptors
             VkWriteDescriptorSet*   m_WriteDescriptorSetPool = nullptr;
-            VkDescriptorSetLayout   setLayout;
+            VkDescriptorSetLayout   m_SetLayout              = VK_NULL_HANDLE;
+            VkSampler               m_DefaultSampler         = VK_NULL_HANDLE;
         };
     }    // namespace Gfx
 }    // namespace Razix

@@ -1,4 +1,4 @@
-
+ 
 -- Configuration settings
 include 'Scripts/premake/common/premake-config.lua'
 -- Engine tool include directories
@@ -136,7 +136,7 @@ workspace ( settings.workspace_name )
         architecture "x86_64"
     elseif Arch == "x86" then
         architecture "x86"
-    elseif Arch == "ARM64" then
+    elseif Arch == "arm64" then
         architecture "ARM64"
     end
 

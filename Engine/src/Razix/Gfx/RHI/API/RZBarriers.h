@@ -13,9 +13,8 @@ namespace Razix {
          * Pipeline Barriers
          */
 
-        // TODO: Support OR and AND operations for enum values
-
-        enum class PipelineStage : u32
+        /* The order of enums is how the GPU execution takes place */
+        enum PipelineStage : u32
         {
             kTopOfPipe = 0,
             kDrawIndirect,
@@ -34,25 +33,29 @@ namespace Razix {
             kTransfer,
             kMeshShader,
             kTaskShader,
-            kBottomOfPipe
+            kBottomOfPipe,
+            PipelineStage_COUNT
         };
 
-        enum class ImageLayout : u32
+        enum ImageLayout : u32
         {
-            kUndefined = 0,
-            kGeneral,
-            kColorAttachmentOptimal,
-            kDepthStencilAttachmentOptimal,
-            kDepthStencilReadOnlyOptimal,
-            kShaderReadOnlyOptimal,
-            kTransferSrcOptimal,
-            kTransferDstOptimal,
-            kPresentationEngine
+            kNewlyCreated,
+            kGeneric,
+            kSwapchain,
+            kColorRenderTarget,
+            kDepthRenderTarget,
+            kDepthStencilRenderTarget,
+            kDepthStencilReadOnly,
+            kShaderAttachment,
+            kAttachment,
+            kTransferSource,
+            kTransferDestination,
+            ImageLayout_COUNT
         };
 
-        enum class MemoryAccessMask : u32
+        enum MemoryAccessMask : u32
         {
-            kNone = 0,
+            kMemoryAccessNone = 0,
             kIndirectCommandReadBit,
             kIndexBufferDataReadBit,
             kVertexAttributeReadBit,
@@ -70,7 +73,8 @@ namespace Razix {
             kHostReadBit,
             kHostWriteBit,
             kMemoryReadBit,
-            kMemoryWriteBit
+            kMemoryWriteBit,
+            MemoryAccessMask_COUNT
         };
 
         struct PipelineBarrierInfo

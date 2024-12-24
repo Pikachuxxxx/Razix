@@ -61,6 +61,11 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            // destroy the user descriptor sets
+            for (size_t i = 0; i < m_SceneParams.userSets.size(); i++)
+                m_SceneParams.userSets[i]->Destroy();
+            m_SceneParams.userSets.clear();
+
             // Destroy the pipeline layout
             vkDestroyPipelineLayout(VKDevice::Get().getDevice(), m_PipelineLayout, nullptr);
 
@@ -157,7 +162,7 @@ namespace Razix {
                 // Generate reflection data for a shader
                 SpvReflectShaderModule module;
                 SpvReflectResult       result = spvReflectCreateShaderModule(fileSize, spvByteCode, &module);
-                RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect SPIRV shader - ({0})!", virtualPath);
+                RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect SPIRV shader - (%s)!", virtualPath);
 
                 delete spvByteCode;
 

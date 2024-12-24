@@ -40,7 +40,7 @@ namespace Razix {
         /**
          * Mesh represents the cluster of vertex and index data which is essentially the building block of a 3D Model which will be rendered onto a scene in one draw call
          */
-        class RAZIX_API RZMesh : public RZRoot
+        class RAZIX_API RZMesh
         {
         public:
             /* Creates a empty mesh */
@@ -81,28 +81,29 @@ namespace Razix {
             void Destroy();
             void bindVBsAndIB(RZDrawCommandBufferHandle cmdBuffer);
 
-            void               setName(const char* name);
-            void               setName(std::string name);
-            RAZIX_INLINE const std::string&   getName() const { return m_Name; }
-            RAZIX_INLINE RZMaterial*          getMaterial() { return m_Material; }
-            RAZIX_INLINE void                 setMaterial(RZMaterial* mat) { m_Material = mat; }
-            RAZIX_INLINE RZVertexBufferHandle getVertexBufferHandle(uint8_t attribIndex) { return m_VertexBuffers[attribIndex]; }
-            RAZIX_INLINE RZIndexBufferHandle  getIndexBufferHandle() { return m_IndexBuffer; }
-            RAZIX_INLINE u32                  getVerticesCount() const { return m_VertexCount; }
-            RAZIX_INLINE u32                  getIndexCount() const { return m_IndexCount; }
-            RAZIX_INLINE void                 setIndexCount(u32 count) { m_IndexCount = count; }
-            RAZIX_INLINE void                 setVertexCount(u32 count) { m_VertexCount = count; }
-            RAZIX_INLINE std::string getPath() { return m_MeshPath; }
-            RAZIX_INLINE void        setPath(std::string path) { m_MeshPath = path; }
-            RAZIX_INLINE Maths::AABB getBoundingBox() { return m_BoundingBox; }
-            RAZIX_INLINE glm::vec3 getMaxExtents() { return m_BoundingBox.max; }
-            RAZIX_INLINE void      setMaxExtents(glm::vec3 extents) { m_BoundingBox.max = extents; }
-            RAZIX_INLINE glm::vec3 getMinExtents() { return m_BoundingBox.min; }
-            RAZIX_INLINE void      setMinExtents(glm::vec3 extents) { m_BoundingBox.min = extents; }
-            RAZIX_INLINE u32       getBaseIndex() { return m_BaseIndex; }
-            RAZIX_INLINE u32       getBaseVertex() { return m_BaseVertex; }
-            RAZIX_INLINE void      setBaseIndex(u32 count) { m_BaseIndex = count; }
-            RAZIX_INLINE void      setBaseVertex(u32 count) { m_BaseVertex = count; }
+            inline const std::string&   getName() const { return m_Name; }
+            inline void                 setName(const char* name) { m_Name = std::string(name); }
+            inline void                 setName(std::string name) { m_Name = name; }
+            inline RZMaterial*          getMaterial() { return m_Material; }
+            inline void                 setMaterial(RZMaterial* mat) { m_Material = mat; }
+            inline RZVertexBufferHandle getVertexBufferHandle(uint8_t attribIndex) { return m_VertexBuffers[attribIndex]; }
+            inline RZIndexBufferHandle  getIndexBufferHandle() { return m_IndexBuffer; }
+            inline u32                  getVerticesCount() const { return m_VertexCount; }
+            inline void                 setVertexCount(u32 count) { m_VertexCount = count; }
+            inline u32                  getIndexCount() const { return m_IndexCount; }
+            inline void                 setIndexCount(u32 count) { m_IndexCount = count; }
+            inline std::string          getPath() { return m_MeshPath; }
+            inline void                 setPath(std::string path) { m_MeshPath = path; }
+            inline Maths::AABB          getBoundingBox() { return m_BoundingBox; }
+            inline void                 setBoundingBox(Maths::AABB aabb) { m_BoundingBox = aabb; }
+            inline glm::vec3            getMaxExtents() { return m_BoundingBox.max; }
+            inline void                 setMaxExtents(glm::vec3 extents) { m_BoundingBox.max = extents; }
+            inline glm::vec3            getMinExtents() { return m_BoundingBox.min; }
+            inline void                 setMinExtents(glm::vec3 extents) { m_BoundingBox.min = extents; }
+            inline u32                  getBaseVertex() { return m_BaseVertex; }
+            inline void                 setBaseVertex(u32 count) { m_BaseVertex = count; }
+            inline u32                  getBaseIndex() { return m_BaseIndex; }
+            inline void                 setBaseIndex(u32 count) { m_BaseIndex = count; }
 
         private:
             std::string         m_Name        = "SM_Primitive.Cube"; /* The name of the mesh                                       */

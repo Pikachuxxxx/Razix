@@ -9,11 +9,9 @@
 #include "Razix/Core/RZEngine.h"
 
 #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
-#include "Razix/Gfx/RHI/API/RZFramebuffer.h"
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 #include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
 #include "Razix/Gfx/RHI/API/RZPipeline.h"
-#include "Razix/Gfx/RHI/API/RZRenderPass.h"
 #include "Razix/Gfx/RHI/API/RZSwapchain.h"
 #include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
 #include "Razix/Gfx/RHI/API/RZVertexBuffer.h"

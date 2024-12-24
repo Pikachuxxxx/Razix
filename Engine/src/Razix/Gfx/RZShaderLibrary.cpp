@@ -1,3 +1,4 @@
+
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -23,7 +24,7 @@ namespace Razix {
             loadBuiltInShader(ShaderBuiltin::HelloTriangleTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTriangleTest.rzsf");
             loadBuiltInShader(ShaderBuiltin::HelloTextureTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTextureTest.rzsf");
             loadBuiltInShader(ShaderBuiltin::WaveIntrinsicsTest, "//RazixContent/Shaders/Razix/Shader.Builtin.WaveIntrinsicsTest.rzsf");
-            loadBuiltInShader(ShaderBuiltin::GSCubeTest, "//RazixContent/Shaders/Razix/Shader.Builtin.GSCubeTest.rzsf");
+//            loadBuiltInShader(ShaderBuiltin::GSCubeTest, "//RazixContent/Shaders/Razix/Shader.Builtin.GSCubeTest.rzsf");
             //
             // TESTING VIS BUFFER GEN SHADER
             //loadBuiltInShader(ShaderBuiltin::VisibilityBufferFill, "//RazixContent/Shaders/Razix/Shader.Builtin.VisibilityBufferFill.rzsf");
@@ -34,9 +35,9 @@ namespace Razix {
             // Utility Shaders (Graphics + Compute)
             // Environment to CubeMap
             loadBuiltInShader(ShaderBuiltin::EnvToCubemap, "//RazixContent/Shaders/Razix/Shader.Builtin.EnvToCubeMap.rzsf");
-            return;
             loadBuiltInShader(ShaderBuiltin::GenerateIrradianceMap, "//RazixContent/Shaders/Razix/Shader.Builtin.GenerateIrradianceMap.rzsf");
             loadBuiltInShader(ShaderBuiltin::GeneratePreFilteredMap, "//RazixContent/Shaders/Razix/Shader.Builtin.GeneratePreFilteredMap.rzsf");
+            return;
             //-------------------------------------------------------------------
             // Basic shaders
             //loadBuiltInShader(ShaderBuiltin::Default, "//RazixContent/Shaders/Razix/Shader.Builtin.Default.rzsf");

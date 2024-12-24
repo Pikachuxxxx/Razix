@@ -7,7 +7,11 @@ project "RazixMemory"
         "src/**.h",
         "src/**.c",
         "src/**.cpp",
-        "include/**.h"
+        "include/**.h",
+        -- vendor
+        "vendor/**.c",
+        "vendor/**.cpp",
+        "vendor/**.h"
     }
 
     externalincludedirs
@@ -18,7 +22,12 @@ project "RazixMemory"
      includedirs
     {
         "./include",
-        "vendor/tlsf"
+        "vendor"
+    }
+
+    removefiles
+    {
+        "vendor/mmgr/**"
     }
 
     filter "system:windows"
@@ -28,8 +37,12 @@ project "RazixMemory"
         
         defines
         {
-            "RAZIX_PLATFORM_WINDOWS"
+            "RAZIX_PLATFORM_WINDOWS",
+            "_CRT_SECURE_NO_WARNINGS"
         }
+
+        disablewarnings { 4302, 4311} 
+
         
     filter "system:macosx"
         cppdialect (engine_global_config.cpp_dialect)

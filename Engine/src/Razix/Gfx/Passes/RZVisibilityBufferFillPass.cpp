@@ -68,7 +68,7 @@ namespace Razix {
                     visBufferTexturesDesc.name          = "VisBuffer";
                     visBufferTexturesDesc.width         = RZApplication::Get().getWindow()->getWidth();
                     visBufferTexturesDesc.height        = RZApplication::Get().getWindow()->getHeight();
-                    visBufferTexturesDesc.type          = TextureType::Texture_2D;
+                    visBufferTexturesDesc.type          = TextureType::k2D;
                     visBufferTexturesDesc.format        = TextureFormat::RGBA8;
                     data.visBuffer                      = builder.create<FrameGraph::RZFrameGraphTexture>(visBufferTexturesDesc.name, CAST_TO_FG_TEX_DESC visBufferTexturesDesc);
 
@@ -76,8 +76,7 @@ namespace Razix {
                     sceneDepthTexturesDesc.name          = "SceneDepth";
                     sceneDepthTexturesDesc.width         = RZApplication::Get().getWindow()->getWidth();
                     sceneDepthTexturesDesc.height        = RZApplication::Get().getWindow()->getHeight();
-                    sceneDepthTexturesDesc.filtering     = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
-                    sceneDepthTexturesDesc.type          = TextureType::Texture_Depth;
+                    sceneDepthTexturesDesc.type          = TextureType::kDepth;
                     sceneDepthTexturesDesc.format        = TextureFormat::DEPTH32F;
                     data.sceneDepth                      = builder.create<FrameGraph::RZFrameGraphTexture>(sceneDepthTexturesDesc.name, CAST_TO_FG_TEX_DESC sceneDepthTexturesDesc);
 

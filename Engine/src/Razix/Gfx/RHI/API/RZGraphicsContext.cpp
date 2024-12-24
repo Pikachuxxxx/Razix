@@ -19,6 +19,10 @@
     #include "Razix/Platform/API/DirectX12/DX12Context.h"
 #endif
 
+#include "Razix/Gfx/RHI/API/RZSampler.h"
+
+#include "Razix/Gfx/Materials/RZMaterial.h"
+#include "Razix/Gfx/RZShaderLibrary.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
 namespace Razix {
@@ -30,6 +34,27 @@ namespace Razix {
         RZGraphicsContext* RZGraphicsContext::s_Context = nullptr;
         // The Engine uses Vulkan aS the default render API
         RenderAPI RZGraphicsContext::s_RenderAPI = RenderAPI::VULKAN;
+
+        /**
+         * Razix Gfx StartUp and Shutdown flow 
+         * Graphics Context 
+         * 1. Gfx::RZResourceManager::Get().StartUp();
+         * 2.   RZSwapchain textures
+         * 3.   Context -> Create + Init --> PostGraphicsContextInit() --> SamplerPresets + Default Material
+         * 4. RHI::Create
+         * 5. Render Frame
+         * 6. RHI::Release
+         * 7.   Destroy Swapchain back buffers
+         * 8.   GraphicsContext::Release
+         * 9.       PreGraphicsContextDestroy
+         * 10.          SamplerPresets + Default Material Destroy
+         * 11.          ShaderLibrary Shutdown
+         * 12.          Gfx::RZResourceManager::Get().ShutDown();
+         * 13.  s_Context->Destroy() -> Destroy swapchain/device and instance/context 
+         */
+
+        // [Inconsistency!] Swapchain release happens in RHI but creation is done in GraphicsContext::Init()
+        // [Inconsistency!] ShaderLibrary startup happens in RZEngine::PostGraphicsIgnition but clean up happens in GraphicsContext::Release
 
         void RZGraphicsContext::Create(const WindowProperties& properties, RZWindow* window)
         {
@@ -59,14 +84,32 @@ namespace Razix {
 
         void RZGraphicsContext::Release()
         {
-            // Shutdown the Resource System
-            Gfx::RZResourceManager::Get().ShutDown();
+            PreGraphicsContextDestroy();
 
             if (s_Context) {
                 s_Context->Destroy();
-                delete s_Context;    // This is causing unnecessary crashes
+//                delete s_Context;    // This is causing unnecessary crashes
                 s_Context = nullptr;
             }
+        }
+
+        void RZGraphicsContext::PostGraphicsContextInit()
+        {
+            RAZIX_CORE_TRACE("[RHI] Creating Sampler Presets");
+            Gfx::RZSampler::CreateSamplerPresets();
+
+            RAZIX_CORE_TRACE("[RHI] Creating Default Texture");
+            Gfx::RZMaterial::InitDefaultTexture();
+        }
+
+        void RZGraphicsContext::PreGraphicsContextDestroy()
+        {
+            Gfx::RZSampler::DestroySamplerPresets();
+            Gfx::RZMaterial::ReleaseDefaultTexture();
+
+            // Render subsystems cleanup
+            Gfx::RZShaderLibrary::Get().ShutDown();
+            Gfx::RZResourceManager::Get().ShutDown();
         }
 
         RZGraphicsContext* RZGraphicsContext::GetContext()
@@ -79,9 +122,6 @@ namespace Razix {
             }
 
             switch (s_RenderAPI) {
-#ifdef RAZIX_RENDER_API_OPENGL
-                case Razix::Gfx::RenderAPI::OPENGL: return static_cast<OpenGLContext*>(s_Context); break;
-#endif
 #ifdef RAZIX_RENDER_API_VULKAN
                 case Razix::Gfx::RenderAPI::VULKAN: return static_cast<VKContext*>(s_Context); break;
 #endif

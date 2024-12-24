@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Razix/Core/RZDebugConfig.h"
-#include "Razix/Core/RZRoot.h"
 
 #include "Razix/Gfx/Resources/IRZResource.h"
 

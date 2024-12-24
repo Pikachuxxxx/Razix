@@ -16,7 +16,7 @@ namespace Razix {
             RZRingAllocator()  = default;
             ~RZRingAllocator() = default;
 
-            void init(size_t size) override;
+            void init(size_t size) override;    
             void shutdown() override;
 
             void* allocate(size_t size, size_t alignment) override;

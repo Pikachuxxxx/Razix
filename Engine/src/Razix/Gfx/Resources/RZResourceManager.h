@@ -63,6 +63,8 @@ private:                                                                        
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(Texture, const RZTextureDesc& desc)
             //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(Sampler, const RZSamplerDesc& desc)
+            //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(Shader, const RZShaderDesc& desc)
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(Pipeline, const RZPipelineDesc& desc)
@@ -72,6 +74,7 @@ private:                                                                        
             RAZIX_REGISTER_RESOURCE_POOL(VertexBuffer, const RZBufferDesc& desc)
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(IndexBuffer, const RZBufferDesc& desc)
+
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(CommandPool, PoolType type)
             //-----------------------------------------------------------------------------------

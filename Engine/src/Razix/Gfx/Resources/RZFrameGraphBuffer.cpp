@@ -22,7 +22,7 @@ namespace Razix {
 
             void RZFrameGraphBuffer::destroy(const Desc& desc, void* transientAllocator)
             {
-                //static_cast<FrameGraph::RZTransientResources*>(transientAllocator)->releaseBuffer(desc, m_Buffer);
+                RZResourceManager::Get().destroyUniformBuffer(m_BufferHandle);
             }
 
             std::string RZFrameGraphBuffer::toString(const Desc& desc)
@@ -66,5 +66,5 @@ namespace Razix {
                 //                    return;
             }
         }    // namespace FrameGraph
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

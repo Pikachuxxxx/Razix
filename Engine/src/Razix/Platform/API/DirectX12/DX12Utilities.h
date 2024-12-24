@@ -17,13 +17,10 @@ namespace Razix {
         enum class BlendFactor;
         enum class CompareOp;
         enum class DescriptorType : u32;
-        enum class ImageLayout : u32;
-        enum class PipelineStage : u32;
-        enum class MemoryAccessMask : u32;
-        enum class DescriptorHeapType;
-
-        enum ShaderStage;
-
+        enum ShaderStage : u32;
+        enum ImageLayout : u32;
+        enum PipelineStage : u32;
+        enum MemoryAccessMask : u32;
         class RZBufferLayout;
 
         namespace DX12Utilities {
@@ -89,7 +86,7 @@ namespace Razix {
             //-----------------------------------------------------------------------------------
 
             /* Creates a command buffer for single time use */
-            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer();
+            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color);
             /* Ends the recording of the single time command buffer */
             void EndSingleTimeCommandBuffer(ID3D12GraphicsCommandList2* commandList);
 

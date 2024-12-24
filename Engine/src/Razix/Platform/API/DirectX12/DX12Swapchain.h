@@ -27,6 +27,7 @@ namespace Razix {
 
             void  Init(u32 width, u32 height) override;
             void  Destroy() override;
+            void  DestroyBackBufferImages() override;
             void  Flip() override;
             void  OnResize(u32 width, u32 height) override;
             void* GetAPIHandle() override { return &m_Swapchain; }

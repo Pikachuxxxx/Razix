@@ -1,4 +1,3 @@
-
 #include <Razix.h>
 
 using namespace Razix;

@@ -287,9 +287,8 @@ namespace Razix {
                         textureDesc.width    = kShadowMapSize;
                         textureDesc.height   = kShadowMapSize;
                         textureDesc.layers   = kNumCascades;
-                        textureDesc.type     = TextureType::Texture_2DArray;
+                        textureDesc.type     = TextureType::k2DArray;
                         textureDesc.format   = TextureFormat::DEPTH32F;
-                        textureDesc.wrapping = Wrapping::CLAMP_TO_BORDER;
 
                         subpassData.cascadeOutput = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMapArray", CAST_TO_FG_TEX_DESC textureDesc);
                     }

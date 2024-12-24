@@ -61,6 +61,8 @@ namespace Razix {
             if (RZApplication::Get().getAppType() == AppType::GAME) {
                 SetupDeviceAndSC();
             }
+
+            PostGraphicsContextInit();
         }
 
         void VKContext::Destroy()
