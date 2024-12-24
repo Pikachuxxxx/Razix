@@ -35,11 +35,11 @@
 
 #include "Razix/Scene/RZScene.h"
 
+#include "Razix/Gfx/RZGraphicsCompileConfig.h"
+
 #include <imgui/imgui.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
-
-#define HELLO_TRIANGLE_TEST 1
 
 namespace Razix {
 
@@ -52,7 +52,7 @@ namespace Razix {
 
         void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
         {
-#if HELLO_TRIANGLE_TEST
+#if ENABLE_TEST_PASSES
 
             //-------------------------------
             // [TEST] HELLO TRIANGLE
@@ -64,12 +64,31 @@ namespace Razix {
             //-------------------------------
             m_WaveInstrinsicsTestPass.addPass(m_FrameGraph, scene, &settings);
 
+            // These are system level code passes so always enabled
+            uploadFrameData(scene, settings);
+            //            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
+
+            m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//Assets/Textures/HDR/newport_loft.hdr");
+            m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
+            m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
+
+            //-------------------------------
+            // [TEST] GS CUBE
+            //-------------------------------
+            // m_GSCubeTestPass.addPass(m_FrameGraph, scene, &settings);
+
+            //-------------------------------
+            // [TEST] HELLO TEXTURE
+            //-------------------------------
+            m_HelloTextureTestPass.addPass(m_FrameGraph, scene, &settings);
+
             //-------------------------------
             // Vis Buffer Fill Pass
             //-------------------------------
             //m_VisBufferFillPass.addPass(m_FrameGraph, scene, &settings);
-
+            return;
 #else
+
             m_FrameGraphBuildingInProgress = true;
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
@@ -78,8 +97,8 @@ namespace Razix {
             brdfDesc.name                                    = "BrdfLUT";
             brdfDesc.enableMips                              = false;
             brdfDesc.filePath                                = "//RazixContent/Textures/Texture.Builtin.BrdfLUT.png";
-            brdfDesc.filtering                               = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
-            brdfDesc.wrapping                                = Wrapping::REPEAT;
+            brdfDesc.filtering                               = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
+            brdfDesc.wrapping                                = Wrapping::kRepeat;
             m_BRDFfLUTTextureHandle                          = RZResourceManager::Get().createTexture(brdfDesc);
             m_FrameGraph.getBlackboard().add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(brdfDesc.name, CAST_TO_FG_TEX_DESC brdfDesc, {m_BRDFfLUTTextureHandle});
 
@@ -88,7 +107,7 @@ namespace Razix {
             noiseDesc.name                                                        = "VolumetricCloudsNoise";
             noiseDesc.enableMips                                                  = false;
             noiseDesc.filePath                                                    = "//RazixContent/Textures/Texture.Builtin.VolumetricCloudsNoise.png";
-            noiseDesc.wrapping                                                    = Wrapping::REPEAT;
+            noiseDesc.wrapping                                                    = Wrapping::kRepeat;
             m_NoiseTextureHandle                                                  = RZResourceManager::Get().createTexture(noiseDesc);
             m_FrameGraph.getBlackboard().add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(noiseDesc.name, CAST_TO_FG_TEX_DESC noiseDesc, {m_NoiseTextureHandle});
 
@@ -98,8 +117,8 @@ namespace Razix {
             colorGradingNeutralLUTDesc.enableMips                                  = false;
             colorGradingNeutralLUTDesc.flipY                                       = true;
             colorGradingNeutralLUTDesc.filePath                                    = "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png";
-            colorGradingNeutralLUTDesc.filtering                                   = {Filtering::Mode::LINEAR, Filtering::Mode::LINEAR};
-            colorGradingNeutralLUTDesc.wrapping                                    = Wrapping::REPEAT;
+            colorGradingNeutralLUTDesc.filtering                                   = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
+            colorGradingNeutralLUTDesc.wrapping                                    = Wrapping::kRepeat;
             m_ColorGradingNeutralLUTHandle                                         = RZResourceManager::Get().createTexture(colorGradingNeutralLUTDesc);
             m_FrameGraph.getBlackboard().add<FX::ColorGradingLUTData>().neutralLUT = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(colorGradingNeutralLUTDesc.name, CAST_TO_FG_TEX_DESC colorGradingNeutralLUTDesc, {m_ColorGradingNeutralLUTHandle});
 
@@ -107,11 +126,11 @@ namespace Razix {
 
             // Load the Skybox and Global Light Probes
             // FIXME: This is hard coded make this a user land material
-            m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/sunset.hdr");
-            m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
-            m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
+            m_GlobalLightProbes.skybox = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/sunset.hdr");
+            //m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
+            //m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph
-            importGlobalLightProbes(m_GlobalLightProbes);
+            //importGlobalLightProbes(m_GlobalLightProbes);
 
             //-----------------------------------------------------------------------------------
             // Misc Variables
@@ -138,7 +157,6 @@ namespace Razix {
             m_SceneAABB = {glm::vec3(-76.83, -5.05, -47.31), glm::vec3(71.99, 57.17, 44.21)};
             const Maths::RZGrid sceneGrid(m_SceneAABB);
 
-            // These are system level code passes so always enabled
             uploadFrameData(scene, settings);
             uploadLightsData(scene, settings);
 
@@ -199,7 +217,6 @@ namespace Razix {
             //-------------------------------
             m_PBRDeferredPass.addPass(m_FrameGraph, scene, &settings);
     #endif
-
 
             //-------------------------------
             // PBR Forward Pass
@@ -421,7 +438,7 @@ namespace Razix {
             m_FrameGraph.compile();
 
             // Dump the Frame Graph for visualization
-            // NOTE: Careful this won't write to the Engire directory this is inside bin and build artifact
+            // NOTE: Careful this won't write to the Engine directory this is inside bin and build artifact
             // FIXME: Find a way to map VFS to OG Engine path pre-copy or idk just umm...be careful I guess
             std::string outPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/FrameGraphs", outPath, true);
@@ -486,19 +503,21 @@ namespace Razix {
 
             m_FrameGraphBuildingInProgress = true;
 
-#if HELLO_TRIANGLE_TEST
+#if ENABLE_TEST_PASSES
             m_HelloTriangleTestPass.destroy();
+            m_HelloTextureTestPass.destroy();
+            m_WaveInstrinsicsTestPass.destroy();
 
-            m_VisBufferFillPass.destroy();
+            //m_VisBufferFillPass.destroy();
+            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.skybox);
+            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.diffuse);
+            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.specular);
 #else
 
             // Destroy Imported Resources
             RZResourceManager::Get().destroyTexture(m_NoiseTextureHandle);
             RZResourceManager::Get().destroyTexture(m_BRDFfLUTTextureHandle);
             RZResourceManager::Get().destroyTexture(m_ColorGradingNeutralLUTHandle);
-            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.skybox);
-            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.diffuse);
-            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.specular);
 
             // Destroy Renderers
             m_ImGuiRenderer.Destroy();
@@ -553,7 +572,6 @@ namespace Razix {
 
                     for (auto& textureHandle: texturePool.getHandles()) {
                         auto textureResource = RZResourceManager::Get().getTextureResource(textureHandle);
-                        ImGui::Image(textureResource->getDescriptorSet(), ImVec2(100, 100));
                         ImGui::Text("%s", textureResource->getDescription().name.c_str());
                     }
                 }
@@ -947,8 +965,8 @@ namespace Razix {
                     if (!Gfx::RHI::Get().getFrameDataSet()) {
                         RZDescriptor descriptor{};
                         descriptor.bindingInfo.location.binding = 0;
-                        descriptor.bindingInfo.type             = DescriptorType::UniformBuffer;
-                        descriptor.bindingInfo.stage            = ShaderStage::Vertex;    // Add support for Pixel shader stage as well
+                        descriptor.bindingInfo.type             = DescriptorType::kUniformBuffer;
+                        descriptor.bindingInfo.stage            = ShaderStage(ShaderStage::kGeometry);    // Add support for Pixel shader stage as well
                         descriptor.uniformBuffer                = frameDataBufferHandle;
                         auto m_FrameDataSet                     = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set Global"));
                         Gfx::RHI::Get().setFrameDataSet(m_FrameDataSet);
@@ -1006,8 +1024,8 @@ namespace Razix {
                     if (!Gfx::RHI::Get().getSceneLightsDataSet()) {
                         RZDescriptor lightsData_descriptor{};
                         lightsData_descriptor.bindingInfo.location.binding = 0;
-                        lightsData_descriptor.bindingInfo.type             = DescriptorType::UniformBuffer;
-                        lightsData_descriptor.bindingInfo.stage            = ShaderStage::Pixel;
+                        lightsData_descriptor.bindingInfo.type             = DescriptorType::kUniformBuffer;
+                        lightsData_descriptor.bindingInfo.stage            = ShaderStage::kPixel;
                         lightsData_descriptor.uniformBuffer                = lightsDataBuffer;
 
                         auto m_SceneLightsDataDescriptorSet = RZDescriptorSet::Create({lightsData_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Scene Lights Set Global"));

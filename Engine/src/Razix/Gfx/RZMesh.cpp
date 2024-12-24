@@ -164,15 +164,6 @@ namespace Razix {
             *this = RZMesh(vertices, indicesVec);
         }
 
-        void RZMesh::setName(const char* name)
-        {
-            m_Name = std::string(name);
-        }
-        void RZMesh::setName(std::string name)
-        {
-            m_Name = name;
-        }
-
 #if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
         void RZMesh::GenerateNormals(RZVertex* vertices, u32 vertexCount, u32* indices, u32 indexCount)
         {

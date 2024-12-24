@@ -245,9 +245,8 @@ namespace Razix {
 
     bool RZApplication::OnKeyPress(RZKeyPressedEvent& e)
     {
-        RAZIX_CORE_INFO("Keypress event {0}", e.ToString());
-#if 0
- auto ctx = ImGui::GetCurrentContext();
+#if 1
+        auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                 = ImGui::GetIO();
             io.KeysDown[e.GetKeyCode()] = true;
@@ -258,8 +257,8 @@ namespace Razix {
 
     bool RZApplication::OnKeyRelease(RZKeyReleasedEvent& e)
     {
-#if 0
- auto ctx = ImGui::GetCurrentContext();
+#if 1
+        auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                 = ImGui::GetIO();
             io.KeysDown[e.GetKeyCode()] = false;
@@ -315,8 +314,10 @@ namespace Razix {
         m_EventDispatcher.registerCallback<RZKeyPressedEvent>(RAZIX_BIND_CB_EVENT_FN(OnKeyPress));
         m_EventDispatcher.registerCallback<RZKeyReleasedEvent>(RAZIX_BIND_CB_EVENT_FN(OnKeyRelease));
 
-
+        //-----------------
+        // Start the Engine Client side!
         Start();
+        //-----------------
     }
 
     bool RZApplication::RenderFrame()
@@ -372,7 +373,7 @@ namespace Razix {
         }
 
         // Update the Engine systems
-        //Update(m_Timestep);
+        Update(m_Timestep);
         m_Updates++;
 
         // Render the Graphics
@@ -443,7 +444,7 @@ namespace Razix {
         // Extract the project UUID as as string and convert it back to the RZUUID
         std::string uuid_string;
         archive(cereal::make_nvp("Project ID", uuid_string));
-        m_ProjectID = RZUUID::FromStrFactory(uuid_string);
+//        m_ProjectID = RZUUID::FromStrFactory(uuid_string);
 
         // Load the scenes from the project file for the engine to load and present
         RAZIX_CORE_TRACE("Loading Scenes...");
@@ -459,7 +460,7 @@ namespace Razix {
         RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}", m_Window->getWidth(), m_Window->getHeight());
         archive(cereal::make_nvp("Project Name", m_ProjectName));
         archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
-        archive(cereal::make_nvp("Project ID", m_ProjectID.bytes()));
+        archive(cereal::make_nvp("Project ID", m_ProjectID.prettyString()));
         archive(cereal::make_nvp("Render API", (u32) Gfx::RZGraphicsContext::GetRenderAPI()));
         archive(cereal::make_nvp("Width", m_Window->getWidth()));
         archive(cereal::make_nvp("Height", m_Window->getHeight()));

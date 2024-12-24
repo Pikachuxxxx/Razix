@@ -92,7 +92,7 @@ namespace Razix {
                     textureDesc.name       = "GaussianBlurredTex";
                     textureDesc.width      = ResolutionToExtentsMap[Resolution::k1440p].x;
                     textureDesc.height     = ResolutionToExtentsMap[Resolution::k1440p].y;
-                    textureDesc.type       = TextureType::Texture_2D;
+                    textureDesc.type       = TextureType::k2D;
                     textureDesc.format     = TextureFormat::RGBA16F;
                     textureDesc.enableMips = false;
 
@@ -138,7 +138,7 @@ namespace Razix {
                     RZPushConstant pc;
                     pc.size        = sizeof(GaussianBlurPCData);
                     pc.data        = &pcData;
-                    pc.shaderStage = ShaderStage::Pixel;
+                    pc.shaderStage = ShaderStage::kPixel;
                     RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), pc);
 
                     scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);

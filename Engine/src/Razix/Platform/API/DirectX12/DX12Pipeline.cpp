@@ -103,8 +103,8 @@ namespace Razix {
             D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
             psoDesc.InputLayout                        = {inputDescs.data(), dx12ShaderResource->getVertexAttribDescriptionsCount()};
             psoDesc.pRootSignature                     = m_pRootSignature;
-            psoDesc.VS                                 = CD3DX12_SHADER_BYTECODE(dx12ShaderResource->getShaderStageBlob(ShaderStage::Vertex));
-            psoDesc.PS                                 = CD3DX12_SHADER_BYTECODE(dx12ShaderResource->getShaderStageBlob(ShaderStage::Pixel));
+            psoDesc.VS                                 = CD3DX12_SHADER_BYTECODE(dx12ShaderResource->getShaderStageBlob(ShaderStage::kVertex));
+            psoDesc.PS                                 = CD3DX12_SHADER_BYTECODE(dx12ShaderResource->getShaderStageBlob(ShaderStage::kPixel));
             psoDesc.RasterizerState                    = rasterizerStateDesc;
             psoDesc.BlendState                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
             psoDesc.DepthStencilState                  = depthStencilDesc;

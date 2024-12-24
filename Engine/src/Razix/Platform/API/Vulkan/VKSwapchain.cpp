@@ -55,7 +55,7 @@ namespace Razix {
             std::vector<VkImage> images = retrieveSwapchainImages();
 
             // Create image view for the retrieved swapchain images
-            std::vector<VkImageView> imageView = createSwapImageViews(images);
+            m_ImageViews = createSwapImageViews(images);
 
             // Encapsulate the swapchain images and image views in a RZTexture2D
             m_SwapchainImageTextures.clear();
@@ -64,10 +64,10 @@ namespace Razix {
 
                 RZHandle<RZTexture> handle;
                 void*               where = RZResourceManager::Get().getPool<RZTexture>().obtain(handle);
-                new (where) VKTexture(images[i], imageView[i]);
+                new (where) VKTexture(images[i], m_ImageViews[i]);
                 IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
                 resource->setHandle(handle);
-                resource->setName("Swapchain Image");
+                resource->setName(RZ_SWAP_IMAGE_RES_NAME);
 
                 m_SwapchainImageTextures.push_back(handle);
             }
@@ -80,22 +80,28 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            // Delete the frame data
-            for (auto& frame: m_FramesSyncData) {
-                //frame.mainCommandBuffer->Reset();
-                vkDestroySemaphore(VKDevice::Get().getDevice(), frame.imageAvailableSemaphore, nullptr);
-                vkDestroySemaphore(VKDevice::Get().getDevice(), frame.renderingDoneSemaphore, nullptr);
-                //vkDestroyFence(VKDevice::Get().getDevice(), frame.renderFence, nullptr);
-                frame.renderFence.reset();
-            }
+            destroyFrameSyncPrimitives();
+            DestroyBackBufferImages();
 
-            for (u32 i = 0; i < m_SwapchainImageCount; i++) {
-                //auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
-                //tex->Release(false);
-                RZResourceManager::Get().destroyTexture(m_SwapchainImageTextures[i]);
+            if (m_Swapchain != VK_NULL_HANDLE)
+                vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
+        }
+
+        void VKSwapchain::DestroyBackBufferImages()
+        {
+            for (size_t i = 0; i < m_ImageViews.size(); i++) {
+                auto& view = m_ImageViews[i];
+                if (view != VK_NULL_HANDLE) {
+                    vkDestroyImageView(VKDevice::Get().getDevice(), view, nullptr);
+                    view = VK_NULL_HANDLE;
+                }
             }
+            m_ImageViews.clear();
+
+            for (u32 i = 0; i < m_SwapchainImageCount; i++)
+                RZResourceManager::Get().destroyTexture(m_SwapchainImageTextures[i]);
             m_SwapchainImageTextures.clear();
-            vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
+            m_SwapchainImageCount = static_cast<u32>(m_SwapchainImageTextures.size());
         }
 
         void VKSwapchain::Flip()
@@ -120,12 +126,8 @@ namespace Razix {
 
             m_OldSwapChain = m_Swapchain;
 
-            for (u32 i = 0; i < m_SwapchainImageCount; i++) {
-                //auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
-                //tex->Release(false);
-                RZResourceManager::Get().destroyTexture(m_SwapchainImageTextures[i]);
-            }
-            m_SwapchainImageTextures.clear();
+            destroyFrameSyncPrimitives();
+            DestroyBackBufferImages();
 
             m_Swapchain = VK_NULL_HANDLE;
 
@@ -310,6 +312,15 @@ namespace Razix {
             return swapchainImageViews;
         }
 
+        void VKSwapchain::destroyFrameSyncPrimitives()
+        {
+            for (auto& frame: m_FramesSyncData) {
+                vkDestroySemaphore(VKDevice::Get().getDevice(), frame.imageAvailableSemaphore, nullptr);
+                vkDestroySemaphore(VKDevice::Get().getDevice(), frame.renderingDoneSemaphore, nullptr);
+                frame.renderFence.reset();
+            }
+        }
+
         void VKSwapchain::createFrameData()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -364,42 +375,11 @@ namespace Razix {
 
                 if (result == VK_ERROR_OUT_OF_DATE_KHR) {
                     vkDeviceWaitIdle(VKDevice::Get().getDevice());
-                    //Destroy();
-
-                    for (u32 i = 0; i < m_SwapchainImageCount; i++) {
-                        //auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
-                        //tex->Release(false);
-                        RZResourceManager::Get().destroyTexture(m_SwapchainImageTextures[i]);
-                    }
-                    m_SwapchainImageTextures.clear();
-                    vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
-
-                    // Create the KHR Swapchain
-                    createSwapchain();
-
-                    // Retrieve and create the swapchain images
-                    std::vector<VkImage> images = retrieveSwapchainImages();
-
-                    // Create image view for the retrieved swapchain images
-                    std::vector<VkImageView> imageView = createSwapImageViews(images);
-
-                    // Encapsulate the swapchain images and image views in a RZTexture2D
-                    m_SwapchainImageTextures.clear();
-                    for (u32 i = 0; i < m_SwapchainImageCount; i++) {
-                        VKUtilities::TransitionImageLayout(images[i], m_ColorFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-
-                        RZHandle<RZTexture> handle;
-                        void*               where = RZResourceManager::Get().getPool<RZTexture>().obtain(handle);
-                        new (where) VKTexture(images[i], imageView[i]);
-                        IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
-                        resource->setHandle(handle);
-                        resource->setName("Swapchain Image");
-
-                        m_SwapchainImageTextures.push_back(handle);
-                    }
+                    destroyFrameSyncPrimitives();
+                    DestroyBackBufferImages();
+                    Init(m_SwapchainExtent.width, m_SwapchainExtent.height);
 
                     VK_CHECK_RESULT(vkAcquireNextImageKHR(VKDevice::Get().getDevice(), m_Swapchain, UINT64_MAX, frameData.imageAvailableSemaphore, VK_NULL_HANDLE, &m_AcquiredBackBufferImageIndex));
-                    //VK_CHECK_RESULT(vkResetFences(VKDevice::Get().getDevice(), 1, &frameData.renderFence));
                     frameData.renderFence->reset();
 
                     return m_AcquiredBackBufferImageIndex;
@@ -448,7 +428,7 @@ namespace Razix {
             {
                 auto result = vkQueueSubmit(VKDevice::Get().getGraphicsQueue(), 1, &submitInfo, frameData.renderFence->getVKFence());
                 VK_CHECK_RESULT(result);
-#if 0
+#if ENABLE_NV_CHECKPOINT_DEBUGGING
                 if (result == VK_ERROR_DEVICE_LOST) {
                     u32 checkpointDataCount = 0;
                     GetQueueCheckpointDataNV(VKDevice::Get().getGraphicsQueue(), &checkpointDataCount, nullptr);
@@ -474,12 +454,6 @@ namespace Razix {
 
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            //auto& frameData = getCurrentFrameSyncData();
-
-            //auto currentVKImage = static_cast<Graphics::VKTexture2D*>(m_SwapchainImageTextures[m_AcquireImageIndex])->getImage();
-
-            //VKUtilities::TransitionImageLayout(currentVKImage, m_ColorFormat, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-
             VkPresentInfoKHR present{};
             present.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
             present.pNext              = VK_NULL_HANDLE;
@@ -490,21 +464,6 @@ namespace Razix {
             present.pWaitSemaphores    = &waitSemaphore;
             present.pResults           = VK_NULL_HANDLE;
             auto error                 = vkQueuePresentKHR(VKDevice::Get().getPresentQueue(), &present);
-
-            //if (error == VK_ERROR_OUT_OF_DATE_KHR || error == VK_SUBOPTIMAL_KHR || m_IsResized) {
-            //    m_IsResized = !m_IsResized;
-            //    //VKContext::Get()->waitIdle();
-            //    vkDeviceWaitIdle(VKDevice::Get().getDevice());
-            //    for (u32 i = 0; i < m_SwapchainImageCount; i++) {
-            //        auto tex = static_cast<RZTexture*>(m_SwapchainImageTextures[i]);
-            //        tex->Release(false);
-            //        delete m_SwapchainImageTextures[i];
-            //    }
-            //    m_SwapchainImageTextures.clear();
-            //    vkDestroySwapchainKHR(VKDevice::Get().getDevice(), m_Swapchain, nullptr);
-            //    Init(m_Width, m_Height);
-            //    return;
-            //}
 
             if (error == VK_ERROR_OUT_OF_DATE_KHR) {
                 vkDeviceWaitIdle(VKDevice::Get().getDevice());

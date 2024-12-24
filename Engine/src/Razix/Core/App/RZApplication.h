@@ -19,8 +19,6 @@
 
 #include "Razix/Gfx/RHI/API/RZSwapchain.h"
 
-#include "Razix/Gfx/RHI/RZGPUProfiler.h"
-
 // glm
 #include <glm/glm.hpp>
 
@@ -74,7 +72,7 @@ namespace Razix {
     // TODO!!!: Add budget info to RZApplication and RZFrameGraph
 
     /* Creates an Razix Application (Used as the base for Editor, Sandbox and Game Project) */
-    class RAZIX_API RZApplication : public RZRoot
+    class RAZIX_API RZApplication
     {
     public:
         static std::mutex              m;
@@ -215,10 +213,7 @@ namespace Razix {
         Guizmo::OPERATION         m_GuizmoOperation;
         Guizmo::MODE              m_GuizmoMode;
         f32                       m_GuizmoSnapAmount = 0.0f;
-        Gfx::RZGPUProfiler        m_GPUProfiler;
         bool                      m_EnableGuizmoEditing = false;
-        std::mutex                m_RenderThreadMutex;
-        std::thread               m_RenderThread;
         RZEventDispatcher         m_EventDispatcher;
 
     private:

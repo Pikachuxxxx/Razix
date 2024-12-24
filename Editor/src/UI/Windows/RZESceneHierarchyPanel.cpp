@@ -9,7 +9,6 @@
 
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZEngine.h"
-#include "Razix/Core/RZRoot.h"
 #include "Razix/Scene/Components/RZComponents.h"
 #include "Razix/Scene/RZEntity.h"
 #include "Razix/Scene/RZScene.h"

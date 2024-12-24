@@ -13,13 +13,15 @@
 #include "Razix/Gfx/FrameGraph/RZFrameGraphPass.h"
 
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
+#include "Razix/Gfx/Resources/RZFrameGraphSampler.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Scene/RZScene.h"
 
 #include <nlohmann/json.hpp>
-using json = nlohmann::json;
+using json = nlohmann::json;    // use other lib that said it was faster than this on github
 
+// TODO: Move this to a more cohesive place
 static std::unordered_map<std::string, Razix::Gfx::Resolution> StringToResolutionsMap = {
     {"k1080p", Razix::Gfx::Resolution::k1080p},
     {"k1440p", Razix::Gfx::Resolution::k1440p},
@@ -40,6 +42,8 @@ static std::unordered_map<std::string, Razix::Gfx::ClearColorPresets> StringToCo
 namespace Razix {
     namespace Gfx {
         namespace FrameGraph {
+
+            // TODO: Too much Code duplication clean this shit!
 
             //-----------------------------------------------------------------------------------
             // Frame Graph Class
@@ -92,16 +96,6 @@ namespace Razix {
                         if (!layers.empty())
                             desc.layers = layers.get<int>();
 
-                        auto &wrapping = import_res["wrapping"];
-                        if (!wrapping.empty())
-                            desc.wrapping = StringToWrapping(wrapping);
-
-                        auto &filtering = import_res["filtering"];
-                        if (!filtering.empty()) {
-                            desc.filtering.minFilter = StringToFilteringMode(filtering["min"]);
-                            desc.filtering.minFilter = StringToFilteringMode(filtering["mag"]);
-                        }
-
                         auto &enableMips = import_res["enable_mips"];
                         if (!enableMips.empty())
                             desc.enableMips = enableMips.get<bool>();
@@ -128,6 +122,23 @@ namespace Razix {
                         // Create the buffer resource
                         auto bufferHandle = RZResourceManager::Get().createUniformBuffer(desc);
                         resource          = import <RZFrameGraphBuffer>(desc.name, CAST_TO_FG_BUF_DESC desc, {bufferHandle});
+                    } else if (std::string(type) == "Sampler") {
+                        RZSamplerDesc desc{};
+                        desc.name = std::string(resourceName);
+
+                        auto &wrapping = import_res["wrapping"];
+                        if (!wrapping.empty())
+                            desc.wrapping = StringToWrapping(wrapping);
+
+                        auto &filtering = import_res["filtering"];
+                        if (!filtering.empty()) {
+                            desc.filtering.minFilter = StringToFilteringMode(filtering["min"]);
+                            desc.filtering.minFilter = StringToFilteringMode(filtering["mag"]);
+                        }
+
+                        // Create the Sampler resource
+                        auto samplerHandle = RZResourceManager::Get().createSampler(desc);
+                        resource           = import <RZFrameGraphSampler>(desc.name, CAST_TO_FG_SAMP_DESC desc, {samplerHandle});
                     }
                     // we skip else cause imported resources can't be a reference
 
@@ -168,7 +179,7 @@ namespace Razix {
 
                             auto &type = binding_info["type"];
                             if (!type.empty())
-                                bindingInfo.type = std::string(type) == "ImageSamplerCombined" ? DescriptorType::ImageSamplerCombined : DescriptorType::UniformBuffer;
+                                bindingInfo.type = std::string(type) == "ImageSamplerCombined" ? DescriptorType::kImageSamplerCombined : DescriptorType::kUniformBuffer;
 
                             auto &stage = binding_info["stage"];
                             if (!stage.empty())
@@ -217,16 +228,6 @@ namespace Razix {
                             if (!layers.empty())
                                 desc.layers = layers.get<int>();
 
-                            auto &wrapping = input["wrapping"];
-                            if (!wrapping.empty())
-                                desc.wrapping = StringToWrapping(wrapping);
-
-                            auto &filtering = input["filtering"];
-                            if (!filtering.empty()) {
-                                desc.filtering.minFilter = StringToFilteringMode(filtering["min"]);
-                                desc.filtering.minFilter = StringToFilteringMode(filtering["mag"]);
-                            }
-
                             auto &enableMips = input["enable_mips"];
                             if (!enableMips.empty())
                                 desc.enableMips = enableMips.get<bool>();
@@ -255,6 +256,26 @@ namespace Razix {
                             // Mark the input resource as read for the current pass and pass the attachment info
                             builder.read(resource, hasBindingInfo ? EncodeDescriptorBindingInfo(bindingInfo) : kFlagsNone);
 
+                        } else if (std::string(type) == "Sampler") {
+                            RZSamplerDesc desc{};
+                            desc.name = std::string(resourceName);
+
+                            auto &wrapping = input["wrapping"];
+                            if (!wrapping.empty())
+                                desc.wrapping = StringToWrapping(wrapping);
+
+                            auto &filtering = input["filtering"];
+                            if (!filtering.empty()) {
+                                desc.filtering.minFilter = StringToFilteringMode(filtering["min"]);
+                                desc.filtering.minFilter = StringToFilteringMode(filtering["mag"]);
+                            }
+
+                            // Create the Sampler resource
+                            auto samplerHandle = RZResourceManager::Get().createSampler(desc);
+                            resource           = import <RZFrameGraphSampler>(desc.name, CAST_TO_FG_SAMP_DESC desc, {samplerHandle});
+                            // Mark the input resource as read for the current pass and pass the attachment info
+                            builder.read(resource, hasBindingInfo ? EncodeDescriptorBindingInfo(bindingInfo) : kFlagsNone);
+
                         } else {
                             // This is a reference which means some pass node has this, in code driven we search blackboard which stores a struct of resources it uses, without actually touching RZPassNode
                             // But here we have access to RZPassNode and data driven can't use types for access hence we search each RZPassNode for resource using the string ID
@@ -276,8 +297,8 @@ namespace Razix {
 
                         auto &attachment_info = output["attachment_info"];
 
-                        AttachmentInfo attachInfo{};
-                        bool           hasAttachmentInfo = false;
+                        RenderTargetAttachmentInfo attachInfo{};
+                        bool                       hasAttachmentInfo = false;
                         if (!attachment_info.empty()) {
                             hasAttachmentInfo = true;
                             auto &clear       = attachment_info["clear"];
@@ -329,16 +350,6 @@ namespace Razix {
                             auto layers = output["layers"];
                             if (!layers.empty())
                                 desc.layers = layers.get<int>();
-
-                            auto &wrapping = output["wrapping"];
-                            if (!wrapping.empty())
-                                desc.wrapping = StringToWrapping(wrapping);
-
-                            auto &filtering = output["filtering"];
-                            if (!filtering.empty()) {
-                                desc.filtering.minFilter = StringToFilteringMode(filtering["min"]);
-                                desc.filtering.minFilter = StringToFilteringMode(filtering["mag"]);
-                            }
 
                             auto &enableMips = output["enable_mips"];
                             if (!enableMips.empty())
@@ -928,5 +939,5 @@ namespace Razix {
             {
             }
         }    // namespace FrameGraph
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

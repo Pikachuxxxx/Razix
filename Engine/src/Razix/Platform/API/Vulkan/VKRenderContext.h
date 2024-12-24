@@ -51,10 +51,11 @@ namespace Razix {
             void         InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo) override;
             void         CopyTextureResourceImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle) override;
             RZSwapchain* GetSwapchainImpl() override;
+            //void         TransitionImageLayoutImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, )
 
         private:
             VKContext*      m_Context; /* Reference to the Vulkan context, we store it to avoid multiple calls */
-            VkDescriptorSet m_DescriptorSetPool[kMAX_DESCRIPTORS_BINDABLE_PER_FRAME];
+            VkDescriptorSet m_DescriptorSetCachePool[kMAX_DESCRIPTORS_BINDABLE_PER_FRAME];
 
         private:
             void SetCmdCheckpointImpl(RZDrawCommandBufferHandle cmdBuffer, void* markerData);

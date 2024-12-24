@@ -9,7 +9,7 @@ namespace Razix {
         /* Forward declaring types to reduce include file complexity */
         class RZTexture;
         class RZUniformBuffer;
-        enum class ShaderStage;
+        enum ShaderStage : u32;
 
         /* The format of the input variables in the shader */
         enum class VertexInputFormat : u32
@@ -53,50 +53,61 @@ namespace Razix {
         /* Vertex Input binding information describes the input layout format of the Vertex data sent to the Input Assembly and input variable binding and location for input shader variable */
         struct RAZIX_MEM_ALIGN_16 RZVertexInputBindingInfo
         {
-            u32               binding  = 0; /* Binding slot to which the input shader variable is bound to  */
-            u32               location = 0; /* Location ID of the input shader variable                     */
-            VertexInputFormat format;       /* The format of the vertex input data                          */
-            u32               offset = 0;   /* The offset/stride in the vertex data cluster for each vertex */
+            u32               binding      = 0;                          /* Binding slot to which the input shader variable is bound to  */
+            u32               location     = 0;                          /* Location ID of the input shader variable                     */
+            VertexInputFormat vertexFormat = VertexInputFormat::R8_UINT; /* The format of the vertex input data                          */
+            u32               offset       = 0;                          /* The offset/stride in the vertex data cluster for each vertex */
         };
 
         /* Information about the uniform buffer members */
         struct RAZIX_MEM_ALIGN_16 RZShaderBufferMemberInfo
         {
-            std::string    name;         /* The name of the member variable                                      */
-            std::string    fullName;     /* The complete name of the member including uniform buffer as prefix   */
-            u32            size   = 0;   /* The size of the member                                               */
-            u32            offset = 0;   /* The offset of the member in the uniform buffer from the first member */
-            ShaderDataType type;         /* The type of the member, this can be used to resolve the format       */
-            u32            _padding = 0; /* Padding variable to pad the structure to 16-byte alignment           */
+            std::string    name     = "";                  /* The name of the member variable                                      */
+            std::string    fullName = "";                  /* The complete name of the member including uniform buffer as prefix   */
+            u32            size     = 0;                   /* The size of the member                                               */
+            u32            offset   = 0;                   /* The offset of the member in the uniform buffer from the first member */
+            ShaderDataType type     = ShaderDataType::INT; /* The type of the member, this can be used to resolve the format       */
+            u32            _padding = 0;                   /* Padding variable to pad the structure to 16-byte alignment           */
         };
 
         // TODO: Add support for texture arrays
         /* A descriptor describes the shader resource. Stored details about the binding, the data and other necessary information to create the set of descriptor resources */
         struct RAZIX_MEM_ALIGN_16 RZDescriptor
         {
-            std::string                           typeName = "DESCRIPTOR_UNNAMED";
-            std::string                           name;
-            RZUniformBufferHandle                 uniformBuffer;
-            RZTextureHandle                       texture;
-            std::vector<RZShaderBufferMemberInfo> uboMembers;
-            DescriptorBindingInfo                 bindingInfo;
+            std::string name     = "$DESCRIPTOR_UNNAMED";
+            std::string typeName = "$DESCRIPTOR_TYPE_UNNAMED";
+            union
+            {
+                RZUniformBufferHandle uniformBuffer = {};
+                RZTextureHandle       texture;
+                RZSamplerHandle       sampler;
+            };
+            std::vector<RZShaderBufferMemberInfo> uboMembers  = {};
+            DescriptorBindingInfo                 bindingInfo = {};
             ///////////////////////////////////////////////////
+            // TODO: Investigate if to move resourceHint from IRZResource to here
             // NOT USED, ONLY FOR REFLECTION VERIFICATION WITH THE BINDING RESOURCE
             u32 size   = 0;    //? The size of the descriptor data, can also be extracted from UBO/Texture??
             u32 offset = 0;    //? I don't think this is needed
+
+            // since RZHandle has custom copy and move constructors and operators this make RZHandle non-trivially copyable
+            // so we need to define this on our own for union to work or make this type trivial again
+            RZDescriptor() {}
+            RZDescriptor(const RZDescriptor& other);
+            RZDescriptor& operator=(const RZDescriptor& other);
         };
 
         struct RAZIX_MEM_ALIGN_16 RZPushConstant
         {
-            std::string                           typeName = "PUSH_CONSTANT_UNNAMED";
-            std::string                           name;
-            std::vector<RZShaderBufferMemberInfo> structMembers;
-            void*                                 data = nullptr;
-            DescriptorBindingInfo                 bindingInfo;
-            u32                                   size   = 0;
-            u32                                   offset = 0;
-            ShaderStage                           shaderStage;
-            u32                                   _padding = 0;
+            std::string                           typeName      = "$PUSH_CONSTANT_TYPE_UNNAMED";
+            std::string                           name          = "$PUSH_CONSTANT_UNNAMED";
+            std::vector<RZShaderBufferMemberInfo> structMembers = {};
+            void*                                 data          = nullptr;
+            DescriptorBindingInfo                 bindingInfo   = {};
+            u32                                   size          = 0;
+            u32                                   offset        = 0;
+            ShaderStage                           shaderStage   = ShaderStage(0);
+            u32                                   _padding      = 0;
 
             RZPushConstant() {}
             RZPushConstant(const std::string& name, ShaderStage stage, u8* data, u32 size, u32 offset)
@@ -132,7 +143,7 @@ namespace Razix {
         const u32 kInvalidSetIdx = ~0;
 
         /* Shader pointer kind of variable that refers to a bunch of buffers or an image resources and their layout/binding information */
-        class RAZIX_API RZDescriptorSet : public RZRoot
+        class RAZIX_API RZDescriptorSet
         {
         public:
             RZDescriptorSet() = default;
@@ -144,14 +155,14 @@ namespace Razix {
              * 
              * @param descriptor The list of descriptor resources that will be uploaded by the set to various shader stages
              */
-            static RZDescriptorSet* Create(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG, bool layoutTransition = true);
+            static RZDescriptorSet* Create(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG);
 
             /* Updates the descriptor set with the given descriptors */
-            virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors, bool layoutTransition = true) = 0;
-            virtual void Destroy() const                                                                       = 0;
+            virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors) = 0;
+            virtual void Destroy() const                                         = 0;
 
-            RAZIX_INLINE u32  getSetIdx() { return m_SetIdx; }
-            RAZIX_INLINE void setSetIdx(u32 idx) { m_SetIdx = idx; }
+            inline u32  getSetIdx() const { return m_SetIdx; }
+            inline void setSetIdx(u32 idx) { m_SetIdx = idx; }
 
         protected:
             u32 m_SetIdx = kInvalidSetIdx;

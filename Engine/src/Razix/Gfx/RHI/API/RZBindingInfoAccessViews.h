@@ -22,19 +22,31 @@ namespace Razix {
          * We encode them into 32 bytes before we pass them off to framegraph as flags
          */
 
-        enum class ShaderStage;
+        enum ShaderStage : u32;
 
         /* What type of data does the descriptor set member represent */
         enum class DescriptorType : u32
         {
-            kNone                = u32_max,
-            UniformBuffer        = 0,
-            ImageSamplerCombined = 1,    // (combined image sampler)
+            kNone          = UINT32_MAX,    // TODO: Remove this?
+            kUniformBuffer = 0,
+            kImageSamplerCombined,    // (combined image sampler, Vulkan only) // Not Recommended for usage!
+            kTexture,
+            kRWTexture,
+            kSampler,
+            kRWTyped,    // ??? IDK why/what this is, I think this the same as RWDataBuffer in PSSL, takes in generic data types
+            kStructured,
+            kRWStructured,
+            kByteAddress,
+            kRWByteAddress,
+            kAppendStructured,
+            kConsumeStructured,
+            kRWStructuredCounter,
+            kRTAccelerationStructure,
             COUNT
-            // TODO: Add more types like STORAGE_BUFFER, STORAGE_IMAGE, UNIFORM_TEXEL etc.
         };
 
         //-----------------------------------------------------------------------------------
+        // BINDLESS RENDERING BACKEND HELPERS
 
         /* Descriptor binding location in the shader (set/space, binding) */
         struct RAZIX_MEM_ALIGN_16 BindingLocation
@@ -92,14 +104,8 @@ namespace Razix {
 
         glm::vec4 ClearColorFromPreset(ClearColorPresets preset);
 
-        enum class DepthClearColor
-        {
-            ZeroToOne,
-            OneToZero
-        };
-
         /* Gives information for the attachment Info */
-        struct RAZIX_MEM_ALIGN_16 AttachmentInfo
+        struct RAZIX_MEM_ALIGN_16 RenderTargetAttachmentInfo
         {
             bool              clear      = true;                                /* Whether or not to clear the particular attachment              */
             ClearColorPresets clearColor = ClearColorPresets::TransparentBlack; /* Clear color with which the attachment is cleared               */
@@ -110,9 +116,10 @@ namespace Razix {
             RAZIX_NO_DISCARD u32 encode();
             RAZIX_NO_DISCARD     operator u32() const;
         };
-        RAZIX_NO_DISCARD u32 EncodeAttachmentInfo(AttachmentInfo info);
-        AttachmentInfo       DecodeAttachmentInfo(u32 bits);
+        RAZIX_NO_DISCARD u32       EncodeAttachmentInfo(RenderTargetAttachmentInfo info);
+        RenderTargetAttachmentInfo DecodeAttachmentInfo(u32 bits);
 
         //-----------------------------------------------------------------------------------
+
     }    // namespace Gfx
 }    // namespace Razix

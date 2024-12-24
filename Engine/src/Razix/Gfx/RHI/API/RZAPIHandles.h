@@ -6,6 +6,7 @@ namespace Razix {
     namespace Gfx {
 
         // Forward declaration
+        // RHI
         class RZTexture;
         class RZVertexBuffer;
         class RZIndexBuffer;
@@ -16,7 +17,9 @@ namespace Razix {
         class RZDrawCommandBuffer;
         class RZCommandPool;
         class RZDescriptorSet;
+        class RZSampler;
 
+        // Non-RHI
         class RZMesh;
         class RZMaterial;
         struct RZDecal;
@@ -32,6 +35,7 @@ namespace Razix {
         using RZDrawCommandBufferHandle = RZHandle<Gfx::RZDrawCommandBuffer>;
         using RZCommandPoolHandle       = RZHandle<Gfx::RZCommandPool>;
         using RZDescriptorSetHandle     = RZHandle<Gfx::RZDescriptorSet>;
+        using RZSamplerHandle           = RZHandle<Gfx::RZSampler>;
         // High-level graphics primitives Handles
         using RZMeshHandle     = RZHandle<Gfx::RZMesh>;
         using RZMaterialHandle = RZHandle<Gfx::RZMaterial>;

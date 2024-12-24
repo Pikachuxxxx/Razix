@@ -62,6 +62,7 @@ namespace Razix {
             ID3D12CommandQueue*             m_CopyQueue;               /* GPU queue to submit copy command lists, for temporary and persistent resource copies */
             ID3D12CommandQueue*             m_SingleTimeGraphicsQueue; /* Graphics queue to submit single time command lists, for copy/single frame operations etc */
             rzstl::UniqueRef<DX12Swapchain> m_Swapchain;               /* Handle to the Razix-DX12 swapchain abstraction     */
+            ID3D12DescriptorHeap*           m_SamplerHeap = nullptr;
         };
     }    // namespace Gfx
 }    // namespace Razix

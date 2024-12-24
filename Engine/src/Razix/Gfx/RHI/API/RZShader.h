@@ -23,17 +23,18 @@ namespace Razix {
         class RZShaderLibrary;
         enum class ShaderBuiltin : u32;
 
+        // This is the only exception of using enum
         /* The stage which the shader corresponds to in the graphics pipeline */
-        enum class ShaderStage
+        enum ShaderStage: u32
         {
-            NONE = -1,
-            Vertex,
-            Pixel,
-            Compute,
-            Geometry,
-            TCS,
-            TES,
-            COUNT
+            kNone                  = 0,
+            kVertex                = 1 << 0,
+            kPixel                 = 1 << 1,
+            kCompute               = 1 << 2,
+            kGeometry              = 1 << 3,
+            kTesselationControl    = 1 << 4,
+            kTesselationEvaluation = 1 << 5,
+            COUNT                  = 6
         };
 
         /* Used the engine to find the right shader cache based on shader file name, forward declaring future API feature */

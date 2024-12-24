@@ -98,9 +98,8 @@ namespace Razix {
             noiseTextureDesc.height     = 4;
             noiseTextureDesc.data       = ssaoNoise.data();
             noiseTextureDesc.size       = static_cast<u32>(ssaoNoise.size()) * sizeof(glm::vec4);
-            noiseTextureDesc.type       = TextureType::Texture_2D;
+            noiseTextureDesc.type       = TextureType::k2D;
             noiseTextureDesc.format     = TextureFormat::RGBA16F;
-            noiseTextureDesc.wrapping   = Wrapping::REPEAT;
             noiseTextureDesc.enableMips = false;
             noiseTextureDesc.dataSize   = sizeof(float);
             auto ssaoNoiseTexture       = Gfx::RZResourceManager::Get().createTexture(noiseTextureDesc);
@@ -117,7 +116,7 @@ namespace Razix {
                     textureDesc.name        = "SSAOPreBlurTexture";
                     textureDesc.width       = ResolutionToExtentsMap[Resolution::k1440p].x;
                     textureDesc.height      = ResolutionToExtentsMap[Resolution::k1440p].y;
-                    textureDesc.type        = TextureType::Texture_2D;
+                    textureDesc.type        = TextureType::k2D;
                     textureDesc.format      = TextureFormat::R32F;
                     data.SSAOPreBlurTexture = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 

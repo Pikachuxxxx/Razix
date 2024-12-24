@@ -28,10 +28,10 @@ namespace Razix {
     namespace Gfx {
 
         std::unordered_map<ShaderStage, const char*> ShaderStageEntryPointNameMap = {
-            {ShaderStage::Vertex, "VS_MAIN"},
-            {ShaderStage::Pixel, "PS_MAIN"},
-            {ShaderStage::Compute, "CS_MAIN"},
-            {ShaderStage::Geometry, "GS_MAIN"}};
+            {ShaderStage::kVertex, "VS_MAIN"},
+            {ShaderStage::kPixel, "PS_MAIN"},
+            {ShaderStage::kCompute, "CS_MAIN"},
+            {ShaderStage::kGeometry, "GS_MAIN"}};
 
         // TODO: Move these to VKUtilites
 
@@ -60,6 +60,11 @@ namespace Razix {
         RAZIX_CLEANUP_RESOURCE_IMPL(VKShader)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // destroy the user descriptor sets
+            for (size_t i = 0; i < m_SceneParams.userSets.size(); i++)
+                m_SceneParams.userSets[i]->Destroy();
+            m_SceneParams.userSets.clear();
 
             // Destroy the pipeline layout
             vkDestroyPipelineLayout(VKDevice::Get().getDevice(), m_PipelineLayout, nullptr);
@@ -157,7 +162,7 @@ namespace Razix {
                 // Generate reflection data for a shader
                 SpvReflectShaderModule module;
                 SpvReflectResult       result = spvReflectCreateShaderModule(fileSize, spvByteCode, &module);
-                RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect SPIRV shader - ({0})!", virtualPath);
+                RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect SPIRV shader - (%s)!", virtualPath);
 
                 delete spvByteCode;
 
@@ -172,7 +177,7 @@ namespace Razix {
                 //result = spvReflectEnumerateInputVariables(&module, &var_count, input_vars);
 
                 // Vertex Input attributes
-                if (spvSource.first == ShaderStage::Vertex) {
+                if (spvSource.first == ShaderStage::kVertex) {
                     m_VertexInputStride = 0;
 
                     //std::cout << "---------------------------------------------" << std::endl;
@@ -349,7 +354,7 @@ namespace Razix {
                     pc.bindingInfo.location.set     = 0;    // Doesn't make sense for PushConstants
                     pc.bindingInfo.stage            = spvSource.first;
                     pc.bindingInfo.count            = 1;
-                    pc.bindingInfo.type             = DescriptorType::UniformBuffer;
+                    pc.bindingInfo.type             = DescriptorType::kUniformBuffer;
                     for (sz i = 0; i < pushConstant->member_count; i++) {
                         auto                     member = pushConstant->members[i];
                         RZShaderBufferMemberInfo mem{};

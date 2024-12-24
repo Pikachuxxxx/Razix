@@ -170,7 +170,7 @@ namespace Razix {
 
                 //-----------------------------
                 Gfx::RZPushConstant modelMatrixPC;
-                modelMatrixPC.shaderStage = Gfx::ShaderStage::Vertex;
+                modelMatrixPC.shaderStage = Gfx::ShaderStage::kVertex;
                 modelMatrixPC.offset      = 0;
                 struct PCD
                 {
@@ -221,7 +221,7 @@ namespace Razix {
 
                 //-----------------------------
                 Gfx::RZPushConstant modelMatrixPC;
-                modelMatrixPC.shaderStage = Gfx::ShaderStage::Vertex;
+                modelMatrixPC.shaderStage = Gfx::ShaderStage::kVertex;
                 modelMatrixPC.offset      = 0;
 
                 struct PCD
@@ -414,7 +414,7 @@ namespace Razix {
     template<class Archive>
     void RZScene::save(Archive& archive) const
     {
-        archive(cereal::make_nvp("UUID", m_SceneUUID.bytes()));
+        archive(cereal::make_nvp("UUID", m_SceneUUID.prettyString()));
         archive(cereal::make_nvp("SceneName", m_SceneName));
         archive(cereal::make_nvp("Total Entities", (u32) m_Registry.alive()));
     }
@@ -424,7 +424,6 @@ namespace Razix {
     {
         std::string uuid_string;
         archive(cereal::make_nvp("UUID", uuid_string));
-        m_SceneUUID = RZUUID::FromStrFactory(uuid_string);
         archive(cereal::make_nvp("SceneName", m_SceneName));
     }
 

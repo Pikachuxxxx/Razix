@@ -2,6 +2,12 @@
 
 namespace Razix {
     namespace Gfx {
+    
+        enum class PipelineType
+        {
+            kGraphics,
+            kCompute
+        };
 
         /* Culling mode describes which face of the polygon will be culled */
         enum class CullMode

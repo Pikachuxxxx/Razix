@@ -12,7 +12,6 @@
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
-#include "Razix/Gfx/RHI/API/RZFramebuffer.h"
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 #include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
 #include "Razix/Gfx/RHI/API/RZPipeline.h"
@@ -119,16 +118,15 @@ namespace Razix {
             imguiFontTextureDesc.height   = (u32) texHeight;
             imguiFontTextureDesc.data     = fontData;
             imguiFontTextureDesc.size     = uploadSize;
-            imguiFontTextureDesc.type     = TextureType::Texture_2D;
+            imguiFontTextureDesc.type     = TextureType::k2D;
             imguiFontTextureDesc.format   = TextureFormat::RGBA8;
-            imguiFontTextureDesc.wrapping = Wrapping::CLAMP_TO_EDGE;
 
             m_FontAtlasTexture = RZResourceManager::Get().createTexture(imguiFontTextureDesc);
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == Gfx::DescriptorType::ImageSamplerCombined)
+                    if (descriptor.bindingInfo.type == Gfx::DescriptorType::kImageSamplerCombined)
                         descriptor.texture = m_FontAtlasTexture;
                 }
                 m_FontAtlasDescriptorSet = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("ImGui Font Atlas Desc Set"));
@@ -237,7 +235,7 @@ namespace Razix {
 
             RZPushConstant model{};    //RZResourceManager::Get().getShaderResource(m_OverrideGlobalRHIShader)->getPushConstants()[0];
             model.name        = "ImGui model mat";
-            model.shaderStage = ShaderStage::Vertex;
+            model.shaderStage = ShaderStage::kVertex;
             model.size        = sizeof(PushConstBlock);
             model.data        = &pushConstBlock;
 
@@ -349,9 +347,8 @@ namespace Razix {
             fontAtlasDesc.width         = (u32) texWidth;
             fontAtlasDesc.height        = (u32) texHeight;
             fontAtlasDesc.data          = fontData;
-            fontAtlasDesc.type          = TextureType::Texture_2D;
+            fontAtlasDesc.type          = TextureType::k2D;
             fontAtlasDesc.format        = TextureFormat::RGBA8;
-            fontAtlasDesc.wrapping      = Wrapping::CLAMP_TO_EDGE;
 
             m_FontAtlasTexture = RZResourceManager::Get().createTexture(fontAtlasDesc);
         }

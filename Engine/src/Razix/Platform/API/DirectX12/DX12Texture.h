@@ -14,17 +14,21 @@ namespace Razix {
         {
         public:
             DX12Texture(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
-            DX12Texture(const RZTextureDesc& desc, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG);
-            DX12Texture(ID3D12Resource* backbuffer);
             ~DX12Texture() {}
 
-            void    DestroyResource() override;
-            void    Bind(u32 slot) override;
-            void    Unbind(u32 slot) override;
+            //---------------------------------------
+            /* Releases the IRZResource */
+            RAZIX_CLEANUP_RESOURCE
+            //---------------------------------------
+
+            void    Resize(u32 width, u32 height) override;
             int32_t ReadPixels(u32 x, u32 y) override;
             void*   GetAPIHandlePtr() const override;
 
         private:
+            friend class DX12Swapchain;
+            DX12Texture(ID3D12Resource* backbuffer);    // only for swapchain
+
             ID3D12Resource* m_ResourceHandle;
         };
     }    // namespace Gfx

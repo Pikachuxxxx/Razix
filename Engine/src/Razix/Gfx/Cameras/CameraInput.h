@@ -10,7 +10,7 @@ namespace Razix {
         /**
          * Controls the Camera Input to update it by interacting with the Engine Input system 
          */
-        class RAZIX_API CameraInput : public RZRoot
+        class RAZIX_API CameraInput
         {
         public:
             CameraInput()          = default;

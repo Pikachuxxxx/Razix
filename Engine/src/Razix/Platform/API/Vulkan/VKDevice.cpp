@@ -14,6 +14,7 @@
     #if RAZIX_USE_VMA
         // VMA
         #define VMA_IMPLEMENTATION
+        #define VMA_DEBUG_LOG
         #include <vma/vk_mem_alloc.h>
     #endif
 
@@ -52,6 +53,7 @@ namespace Razix {
         // Physical Device
         //-----------------------------------------------------------------------------------
         // TODO: Decouple the constructor into separate functions
+        static float queuePriority[1] = {1.0f};
 
         VKPhysicalDevice::VKPhysicalDevice()
             : m_PhysicalDevice(VK_NULL_HANDLE)
@@ -115,13 +117,12 @@ namespace Razix {
 
             //! BUG: I guess in Distribution mode the set has 2 elements or something is happening such that the queue priority for other element is nan and not 0 as we have provided
             std::set<int32_t> uniqueQueueFamilies = {m_QueueFamilyIndices.Graphics, m_QueueFamilyIndices.Present /*, m_QueueFamilyIndices.AsyncCompute, m_QueueFamilyIndices.Transfer*/};
-            f32               queuePriority       = 1.0f;
             for (u32 queueFamily: uniqueQueueFamilies) {
                 VkDeviceQueueCreateInfo queueCreateInfo{};
                 queueCreateInfo.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
                 queueCreateInfo.queueFamilyIndex = queueFamily;
                 queueCreateInfo.queueCount       = 1;
-                queueCreateInfo.pQueuePriorities = &queuePriority;
+                queueCreateInfo.pQueuePriorities = queuePriority;
                 m_QueueCreateInfos.push_back(queueCreateInfo);
             }
         }

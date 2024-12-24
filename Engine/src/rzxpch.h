@@ -36,7 +36,6 @@
     #include "Razix/Core/RZCore.h"
     #include "Razix/Core/RZDataTypes.h"
     #include "Razix/Core/RZDebugConfig.h"
-    #include "Razix/Core/RZRoot.h"
     #include "Razix/Gfx/RHI/API/RZAPIDesc.h"
     #include "Razix/Gfx/RHI/API/RZAPIHandles.h"
     #include "Razix/Gfx/Resources/IRZResource.h"
@@ -51,10 +50,10 @@
     // Profilers
     #include <Tracy.hpp>
     // GLM
+    #define GLM_FORCE_LEFT_HANDED
     #include <glm/glm.hpp>
     // Cereal
     #include <cereal/cereal.hpp>
-
     // Physics Engine
     // The Jolt headers don't include Jolt.h. Always include Jolt.h before including any other Jolt header.
     // You can use Jolt.h in your pre compiled header to speed up compilation.

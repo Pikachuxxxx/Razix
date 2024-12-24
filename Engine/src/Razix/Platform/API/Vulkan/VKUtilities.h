@@ -21,11 +21,11 @@ namespace Razix {
         enum class BlendOp;
         enum class BlendFactor;
         enum class CompareOp;
-        enum class ShaderStage;
         enum class DescriptorType : u32;
-        enum class ImageLayout : u32;
-        enum class PipelineStage : u32;
-        enum class MemoryAccessMask : u32;
+        enum ShaderStage : u32;
+        enum ImageLayout : u32;
+        enum PipelineStage : u32;
+        enum MemoryAccessMask : u32;
         class RZBufferLayout;
 
         namespace VKUtilities {
@@ -102,10 +102,6 @@ namespace Razix {
                 {VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT, "An operation on a swapchain created with VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT failed as it did not have exlusive full-screen access. This may occur due to implementation-dependent reasons, outside of the application's control."},
                 {VK_ERROR_UNKNOWN, "An unknown error has occurred; either the application has provided invalid input, or an implementation failure has occurred."}};
 
-            /* 
-             * Error reporting for Vulkan results
-             * @returns True, if any error has occurred
-             */
             static bool VulkanCheckErrorStatus(VkResult x, cstr function, cstr file, int line)
             {
                 if (x != VK_SUCCESS) {
@@ -118,7 +114,7 @@ namespace Razix {
             }
 
             //-----------------------------------------------------------------------------------
-
+            // CPU to GPU staging copy utilities
             /**
              * Copies data from CPU to GPU only visible buffer using a staging buffer
              */
@@ -129,74 +125,93 @@ namespace Razix {
             // Texture/Image utility Functions
             //-----------------------------------------------------------------------------------
 
-            /**
-             * Engine format to Vulkan conversion
-             *
-             * @param format Engine format to convert to
-             * @param sRGB Whether or not to convert it to sRGB format
-             * @returns Vulkan texture format
-             */
-            VkFormat TextureFormatToVK(const TextureFormat format, bool srgb = false);
+            typedef struct VKImageMemoryBackendWrapper
+            {
+#if RAZIX_USE_VMA
+                VmaAllocation vmaAllocation;
+#else
+                VkDeviceMemory nativeAllocation;
+#endif
+            } VKImageMemoryBackendWrapper;
 
-            /**
-             * Engine wrap mode to Vulkan conversion
-             * 
-             * @param wrap The Wrapping mode to convert to
-             * @returns Vulkan Wrap mode
-             */
-            VkSamplerAddressMode TextureWrapToVK(const Wrapping wrap);
+            typedef struct VKImageHandles
+            {
+                VkImage                     image;
+                VKImageMemoryBackendWrapper memoryWrapper;
+            } VKImageHandles;
 
-            /**
-             * Engine Type to Vulkan Type conversion
-             * 
-             * @param type The type of the texture
-             * @returns Vulkan image type
-             */
-            VkImageType TextureTypeToVK(const TextureType type);
+            typedef struct VKCreateImageDesc
+            {
+                u32                   width;
+                u32                   height;
+                u32                   depth;
+                u32                   mipLevels;
+                u32                   arrayLayers;
+                VkFormat              format;
+                VkImageType           imageType;
+                VkImageTiling         tiling;
+                VkImageUsageFlags     usage;
+                VkMemoryPropertyFlags properties;
+                VkImageCreateFlags    flags;
+            } VKCreateImageDesc;
 
-            /**
-             * Engine Type to Vulkan image view type
-             * 
-             * @param type The type of the texture
-             * @returns Vulkan image view type
-             */
-            VkImageViewType TextureTypeToVKViewType(const TextureType type);
+            typedef struct VKCreateImageViewDesc
+            {
+                VkImage            image;
+                VkFormat           format;
+                VkImageViewType    viewType;
+                VkImageAspectFlags aspectMask;
+                u32                mipLevels;
+                u32                baseMipLevel;
+                u32                layerCount;
+                u32                baseArrayLayer;
+            } VKCreateImageViewDesc;
 
-            /**
-             * Converts from Engine filtering mode to Vulkan filter
-             * 
-             * @param filter The min/mag filter mode to convert to
-             * @returns Vulkan filter mode
-             */
-            VkFilter TextureFilterToVK(const Filtering::Mode filter);
+            typedef struct VKCreateSamplerDesc
+            {
+                VkFilter             magFilter        = VK_FILTER_LINEAR;
+                VkFilter             minFilter        = VK_FILTER_LINEAR;
+                bool                 anisotropyEnable = false;
+                f32                  minLod           = 0.0f;
+                f32                  maxLod           = 1.0f;
+                f32                  maxAnisotropy    = 1.0f;
+                VkSamplerAddressMode modeU            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+                VkSamplerAddressMode modeV            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+                VkSamplerAddressMode modeW            = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+            } VKCreateSamplerDesc;
 
-            /**
-             * Transitions the image layout from one layout to another for better storage on GPU
-             */
+            VKImageHandles CreateImageMemoryHandles(VKCreateImageDesc desc RZ_DEBUG_NAME_TAG_E_ARG);
+
+            VkImageView CreateImageView(VKCreateImageViewDesc desc RZ_DEBUG_NAME_TAG_E_ARG);
+
+            VkSampler CreateImageSampler(VKCreateSamplerDesc desc RZ_DEBUG_NAME_TAG_E_ARG);
+
+            void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, u32 mipLevels, u32 layers);
+
             void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, u32 mipLevels = 1, u32 layerCount = 1);
 
-            /**
-             * 
-             */
+            VkFormat TextureFormatToVK(const TextureFormat format, bool srgb = false);
+
+            VkSamplerAddressMode TextureWrapToVK(const Wrapping wrap);
+
+            VkImageType TextureTypeToVK(const TextureType type);
+
+            VkImageViewType TextureTypeToVKViewType(const TextureType type);
+
+            VkFilter TextureFilterToVK(const Filtering::Mode filter);
+
             u32 EngineImageLayoutToVK(ImageLayout layout);
 
-            /**
-             * 
-             */
             u32 EngineMemoryAcsessMaskToVK(MemoryAccessMask mask);
 
-            /**
-             * 
-             */
             u32 EnginePipelineStageToVK(PipelineStage ppstage);
 
             //-----------------------------------------------------------------------------------
             // Single Time Command Buffer utility functions
             //-----------------------------------------------------------------------------------
 
-            /* Creates a command buffer for single time use */
-            VkCommandBuffer BeginSingleTimeCommandBuffer();
-            /* Ends the recording of the single time command buffer */
+            VkCommandBuffer BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color);
+            /* Ends the recording of the single time command buffer, submits and waits until execution is done */
             void EndSingleTimeCommandBuffer(VkCommandBuffer commandBuffer);
 
             //-----------------------------------------------------------------------------------
@@ -210,14 +225,7 @@ namespace Razix {
             //-----------------------------------------------------------------------------------
 
             // PipelineInfo
-            /**
-             * Converts the draw type that is used to draw geometry into Vulkan enum value
-             * for the pipeline
-             * 
-             * @param type The primitive draw type, value is one of POINT, TRIANGLES and LINE
-             * 
-             * @returns Vulkan equivalent value of primitive topology 
-             */
+
             VkPrimitiveTopology DrawTypeToVK(Razix::Gfx::DrawType type);
 
             VkCullModeFlags CullModeToVK(Razix::Gfx::CullMode cullMode);
@@ -234,10 +242,12 @@ namespace Razix {
 
             VkShaderStageFlagBits ShaderStageToVK(Razix::Gfx::ShaderStage stage);
 
-            u32            GetStrideFromVulkanFormat(VkFormat format);
-            u32            PushBufferLayout(VkFormat format, const std::string& name, RZBufferLayout& layout);
             DescriptorType VKToEngineDescriptorType(SpvReflectDescriptorType type);
 
+            u32 GetStrideFromVulkanFormat(VkFormat format);
+
+            u32 PushBufferLayout(VkFormat format, const std::string& name, RZBufferLayout& layout);
+
         }    // namespace VKUtilities
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

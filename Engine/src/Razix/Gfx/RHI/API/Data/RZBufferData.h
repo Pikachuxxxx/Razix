@@ -18,7 +18,7 @@ namespace Razix {
         //RAZIX_ENUM_CLASS_BITWISE_COMPATIBLE(BufferUsage)
 
         /* Buffer Usage Additional flags for memory types */
-        enum BufferUsageAFlags
+        enum class BufferUsageAFlags
         {
             // These are more explicit types
             GPUOnly = 0,

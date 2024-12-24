@@ -15,8 +15,10 @@ namespace Razix {
         {
             //------------------------------
             // TEST PASSES
-            HelloTriangleTest,    //Test shader
-            WaveIntrinsicsTest,
+            HelloTriangleTest,     //Test shaders
+            GSCubeTest,            //Test shaders
+            HelloTextureTest,      //Test shaders
+            WaveIntrinsicsTest,    //Test shaders
             //------------------------------
             Default,
             Skybox,
@@ -47,8 +49,14 @@ namespace Razix {
             TAAResolve,
             FXAA,
             Tonemap,
+            //---
             COUNT
         };
+
+#define REGISTER_USER_SHADER_ENUM_MEMBER(EnumType, memberName) \
+    ShaderUserRegistered memberName;
+
+#define REGISTER_USER_SHADER(EnumType, ShaderPath)
 
         /**
          * Manages the shaders instances and loads them nicely and gives their references all over the engine
@@ -64,8 +72,8 @@ namespace Razix {
             /* Shuts down the Shader Library releases all the shaders held by it */
             void ShutDown();
 
-            void loadBuiltInShader(ShaderBuiltin shaderID, std::string shaderPath);
             void reloadShadersFromDisk();
+            void loadBuiltInShader(ShaderBuiltin shaderID, std::string shaderPath);
 
             RZShaderHandle getBuiltInShader(ShaderBuiltin builtInShaderName);
             RZShaderHandle getBuiltInShader(std::string shaderName);
@@ -74,6 +82,8 @@ namespace Razix {
         public:
             std::unordered_map<ShaderBuiltin, RZShaderHandle> m_BuiltinShaders;
             std::unordered_map<std::string, ShaderBuiltin>    m_BuiltinShadersReverseNameMap;
+            //std::unordered_map<ShaderBuiltin, RZShaderHandle> m_UserShaders;
+            //std::unordered_map<std::string, ShaderBuiltin>    m_UserShadersReverseNameMap;
         };
     }    // namespace Gfx
 }    // namespace Razix

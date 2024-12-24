@@ -8,7 +8,6 @@
 #include "Razix/Gfx/Materials/RZMaterial.h"
 
 #include "Razix/Core/Memory/RZCPUMemoryManager.h"
-#include "Razix/Gfx/RHI/RZGPUMemoryManager.h"
 
 #include "Razix/Utilities/RZiniParser.h"
 
@@ -99,7 +98,6 @@ namespace Razix {
 
         // Ignite the shader library after the Graphics has been initialized (Shutdown by RHI when being destroyed)
         Gfx::RZShaderLibrary::Get().StartUp();
-        //Graphics::RZMaterial::InitDefaultTexture();
     }
 
     void RZEngine::ShutDown()

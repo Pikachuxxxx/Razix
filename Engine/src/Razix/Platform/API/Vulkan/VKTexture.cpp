@@ -3,270 +3,17 @@
 // clang-format on
 #include "VKTexture.h"
 
+#include "Razix/Core/Markers/RZMarkers.h"
+
 #include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
-#include "Razix/Platform/API/Vulkan/VKBuffer.h"
-#include "Razix/Platform/API/Vulkan/VKUtilities.h"
-
+#include "Razix/Utilities/RZColorUtilities.h"
 #include "Razix/Utilities/RZLoadImage.h"
-
-#include "Razix/Platform/API/Vulkan/VKUtilities.h"
 
 #include <vendor/stb/stb_image_write.h>
 
 namespace Razix {
     namespace Gfx {
-
-        //-----------------------------------------------------------------------------------
-        // Texture Utility Static Functions
-        //-----------------------------------------------------------------------------------
-
-        void VKTexture::CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG)
-        {
-            // We pass the image as reference because we need the memory for it as well
-            VkImageCreateInfo imageInfo = {};
-            imageInfo.sType             = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-            imageInfo.imageType         = imageType;
-            imageInfo.extent            = {width, height, depth};
-            imageInfo.mipLevels         = mipLevels;
-            imageInfo.format            = format;
-            imageInfo.tiling            = tiling;
-            imageInfo.initialLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
-            imageInfo.usage             = usage;
-            imageInfo.samples           = VK_SAMPLE_COUNT_1_BIT;
-            imageInfo.sharingMode       = VK_SHARING_MODE_EXCLUSIVE;
-            imageInfo.arrayLayers       = arrayLayers;
-
-            imageInfo.flags = flags;
-
-            // Create the image
-            VK_CHECK_RESULT(vkCreateImage(VKDevice::Get().getDevice(), &imageInfo, nullptr, &image));
-
-            // Get the memory requirements for the image and allocate memory for it
-            VkMemoryRequirements memRequirements;
-            vkGetImageMemoryRequirements(VKDevice::Get().getDevice(), image, &memRequirements);
-
-            VkMemoryAllocateInfo allocInfo = {};
-            allocInfo.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-            allocInfo.allocationSize       = memRequirements.size;
-            allocInfo.memoryTypeIndex      = VKDevice::Get().getPhysicalDevice().get()->getMemoryTypeIndex(memRequirements.memoryTypeBits, properties);
-
-            VK_CHECK_RESULT(vkAllocateMemory(VKDevice::Get().getDevice(), &allocInfo, nullptr, &imageMemory));
-            // Bind the image memory with the image
-            VK_CHECK_RESULT(vkBindImageMemory(VKDevice::Get().getDevice(), image, imageMemory, 0));
-
-            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_IMAGE, (uint64_t) image);
-            VK_TAG_OBJECT(bufferName + std::string("Memory"), VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t) imageMemory);
-        }
-
-#if RAZIX_USE_VMA
-        void VKTexture::CreateImage(u32 width, u32 height, u32 depth, u32 mipLevels, VkFormat format, VkImageType imageType, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VmaAllocation& vmaAllocation, u32 arrayLayers, VkImageCreateFlags flags RZ_DEBUG_NAME_TAG_E_ARG)
-        {
-            // We pass the image as reference because we need the memory for it as well
-            VkImageCreateInfo imageInfo = {};
-            imageInfo.sType             = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-            imageInfo.imageType         = imageType;
-            imageInfo.extent            = {width, height, depth};
-            imageInfo.mipLevels         = mipLevels;
-            imageInfo.format            = format;
-            imageInfo.tiling            = tiling;
-            imageInfo.initialLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
-            imageInfo.usage             = usage;
-            imageInfo.samples           = VK_SAMPLE_COUNT_1_BIT;
-            imageInfo.sharingMode       = VK_SHARING_MODE_EXCLUSIVE;
-            imageInfo.arrayLayers       = arrayLayers;
-            imageInfo.flags             = flags;
-
-            VmaAllocationInfo allocationInfo{};
-
-            VmaAllocationCreateInfo vmaallocInfo = {};
-            // TODO: make this selection smart or customizable by user
-            //RZ_TODO("Make this selection smart or customizable by user");
-            vmaallocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-            // We will almost never read back from GPU, and we always use s staging buffer to copy to GPU, so it's always Device Local
-            vmaallocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT |
-                                 VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
-            vmaallocInfo.requiredFlags = properties;
-            //allocate the buffer
-            VK_CHECK_RESULT(vmaCreateImage(VKDevice::Get().getVMA(), &imageInfo, &vmaallocInfo, &image, &vmaAllocation, &allocationInfo));
-
-            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_IMAGE, (uint64_t) image);
-
-    #ifdef RAZIX_DEBUG
-            vmaSetAllocationName(VKDevice::Get().getVMA(), vmaAllocation RZ_DEBUG_E_ARG_NAME.c_str());
-    #endif
-
-            // TODO: Get allocated memory stats from which pool etc. and attach that to RZMemoryManager
-            //Memory::RZMemAllocInfo memAllocInfo{};
-        }
-#endif
-
-        //-----------------------------------------------------------------------------------
-
-        VkImageView VKTexture::CreateImageView(VkImage image, VkFormat format, u32 mipLevels, VkImageViewType viewType, VkImageAspectFlags aspectMask, u32 layerCount, u32 baseArrayLayer, u32 baseMipLevel /*= 0*/ RZ_DEBUG_NAME_TAG_E_ARG)
-        {
-            VkImageViewCreateInfo viewInfo           = {};
-            viewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            viewInfo.image                           = image;
-            viewInfo.viewType                        = viewType;
-            viewInfo.format                          = format;
-            viewInfo.components                      = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
-            viewInfo.subresourceRange.aspectMask     = aspectMask;
-            viewInfo.subresourceRange.baseMipLevel   = baseMipLevel;
-            viewInfo.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
-            viewInfo.subresourceRange.baseArrayLayer = baseArrayLayer;
-            viewInfo.subresourceRange.layerCount     = layerCount;
-
-            VkImageView imageView;
-            VK_CHECK_RESULT(vkCreateImageView(VKDevice::Get().getDevice(), &viewInfo, nullptr, &imageView));
-
-            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_IMAGE_VIEW, (uint64_t) imageView);
-
-            return imageView;
-        }
-
-        //-----------------------------------------------------------------------------------
-
-        VkSampler VKTexture::CreateImageSampler(VkFilter magFilter /*= VK_FILTER_LINEAR*/, VkFilter minFilter /*= VK_FILTER_LINEAR*/, f32 minLod /*= 0.0f*/, f32 maxLod /*= 1.0f*/, bool anisotropyEnable /*= false*/, f32 maxAnisotropy /*= 1.0f*/, VkSamplerAddressMode modeU /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/, VkSamplerAddressMode modeV /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/, VkSamplerAddressMode modeW /*= VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE*/ RZ_DEBUG_NAME_TAG_E_ARG)
-        {
-            VkSampler           sampler;
-            VkSamplerCreateInfo samplerInfo     = {};
-            samplerInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-            samplerInfo.magFilter               = magFilter;
-            samplerInfo.minFilter               = minFilter;
-            samplerInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-            samplerInfo.addressModeU            = modeU;
-            samplerInfo.addressModeV            = modeV;
-            samplerInfo.addressModeW            = modeW;
-            samplerInfo.maxAnisotropy           = maxAnisotropy;
-            samplerInfo.anisotropyEnable        = anisotropyEnable;
-            samplerInfo.unnormalizedCoordinates = VK_FALSE;
-            samplerInfo.compareEnable           = VK_TRUE;
-            samplerInfo.borderColor             = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-            samplerInfo.mipLodBias              = 0.0f;
-            samplerInfo.compareOp               = VK_COMPARE_OP_LESS;
-            samplerInfo.minLod                  = minLod;
-            samplerInfo.maxLod                  = maxLod;
-
-            VK_CHECK_RESULT(vkCreateSampler(VKDevice::Get().getDevice(), &samplerInfo, nullptr, &sampler));
-
-            VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_SAMPLER, (uint64_t) sampler);
-
-            return sampler;
-        }
-
-        //-----------------------------------------------------------------------------------
-
-        void VKTexture::GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, u32 mipLevels, u32 layers /* = 1*/)
-        {
-            VkFormatProperties formatProperties;
-            vkGetPhysicalDeviceFormatProperties(VKDevice::Get().getGPU(), imageFormat, &formatProperties);
-
-            if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
-                RAZIX_CORE_ERROR("Texture image format does not support linear blitting!");
-            }
-
-            for (size_t layerIdx = 0; layerIdx < layers; layerIdx++) {
-                VkCommandBuffer      commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
-                VkImageMemoryBarrier barrier{};
-                barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-                barrier.image                           = image;
-                barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-                barrier.subresourceRange.baseArrayLayer = static_cast<u32>(layerIdx);
-                barrier.subresourceRange.layerCount     = layers;
-                barrier.subresourceRange.levelCount     = 1;
-
-                int32_t mipWidth  = texWidth;
-                int32_t mipHeight = texHeight;
-
-                for (u32 i = 1; i < mipLevels; i++) {
-#if 1
-                    barrier.subresourceRange.baseMipLevel = i - 1;
-                    barrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-                    barrier.newLayout                     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                    barrier.srcAccessMask                 = VK_ACCESS_TRANSFER_WRITE_BIT;
-                    barrier.dstAccessMask                 = VK_ACCESS_TRANSFER_READ_BIT;
-
-                    vkCmdPipelineBarrier(commandBuffer,
-                        VK_PIPELINE_STAGE_TRANSFER_BIT,
-                        VK_PIPELINE_STAGE_TRANSFER_BIT,
-                        0,
-                        0,
-                        nullptr,
-                        0,
-                        nullptr,
-                        1,
-                        &barrier);
-#endif
-
-                    VkImageBlit blit{};
-                    blit.srcOffsets[0]                 = {0, 0, 0};
-                    blit.srcOffsets[1]                 = {mipWidth, mipHeight, 1};
-                    blit.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-                    blit.srcSubresource.mipLevel       = i - 1;
-                    blit.srcSubresource.baseArrayLayer = static_cast<u32>(layerIdx);
-                    blit.srcSubresource.layerCount     = layers;
-                    blit.dstOffsets[0]                 = {0, 0, 0};
-                    blit.dstOffsets[1]                 = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1};
-                    blit.dstSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-                    blit.dstSubresource.mipLevel       = i;
-                    blit.dstSubresource.baseArrayLayer = 0;
-                    blit.dstSubresource.layerCount     = 1;
-
-                    vkCmdBlitImage(commandBuffer,
-                        image,
-                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                        image,
-                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                        1,
-                        &blit,
-                        VK_FILTER_LINEAR);
-
-#if 1
-                    barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                    barrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                    barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-                    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-                    vkCmdPipelineBarrier(commandBuffer,
-                        VK_PIPELINE_STAGE_TRANSFER_BIT,
-                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                        0,
-                        0,
-                        nullptr,
-                        0,
-                        nullptr,
-                        1,
-                        &barrier);
-#endif
-
-                    if (mipWidth > 1)
-                        mipWidth /= 2;
-                    if (mipHeight > 1)
-                        mipHeight /= 2;
-                }
-
-                barrier.subresourceRange.baseMipLevel = mipLevels - 1;
-                barrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-                barrier.newLayout                     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                barrier.srcAccessMask                 = VK_ACCESS_TRANSFER_WRITE_BIT;
-                barrier.dstAccessMask                 = VK_ACCESS_SHADER_READ_BIT;
-
-                vkCmdPipelineBarrier(commandBuffer,
-                    VK_PIPELINE_STAGE_TRANSFER_BIT,
-                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                    0,
-                    0,
-                    nullptr,
-                    0,
-                    nullptr,
-                    1,
-                    &barrier);
-                VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
-            }
-        }
 
         //-----------------------------------------------------------------------------------
         // VKTexture
@@ -276,105 +23,116 @@ namespace Razix {
         {
             m_Desc = desc;
 
-            // Build a render target texture here if the data is nullptr
-            if (m_Desc.data == nullptr) {
-                init(m_Desc RZ_DEBUG_E_ARG_NAME);
-            } else {
-                bool loadResult = load(m_Desc RZ_DEBUG_E_ARG_NAME);
-                RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0}", desc.name);
-            }
+            // updates the IRZResource with initialization time hints
+            setResourceViewHints(m_Desc.initResourceViewHints);
+
+            evaluateMipsCount();
+
+            initializeBackendHandles(m_Desc RZ_DEBUG_E_ARG_NAME);
         }
 
-        VKTexture::VKTexture(const RZTextureDesc& desc, const std::string& filePath RZ_DEBUG_NAME_TAG_E_ARG)
-        {
-            m_Desc        = desc;
-            m_VirtualPath = filePath;
-
-            m_Desc.enableMips = true;
-
-            // Build a render target texture here if the data is nullptr
-            bool loadResult = load(m_Desc RZ_DEBUG_E_ARG_NAME);
-            RAZIX_CORE_ASSERT(loadResult, "[Vulkan] Failed to load Texture data! Name : {0}", m_Desc.name);
-        }
-
+        // Special swapchain class helper constructor
         VKTexture::VKTexture(VkImage image, VkImageView imageView)
-            : m_Image(image), m_ImageSampler(VK_NULL_HANDLE)
+            : m_Image(image)
         {
-            m_ImageViews.push_back(imageView);
-
             // This way of creating usually means one this, it's a SWAPCHAIN IMAGE
-            m_Desc.type = TextureType::Texture_SwapchainImage;
+            m_Desc.name        = "$RazixSwapchainBackBuffer$";
+            m_Desc.type        = TextureType::kSwapchainImage;
+            m_Desc.format      = TextureFormat::SCREEN;
+            m_FinalImageLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-            updateDescriptor();
+            m_FullResourceView.rtv = imageView;
         }
 
         //-------------------------------------------------------------------------------------------
+
         RAZIX_CLEANUP_RESOURCE_IMPL(VKTexture)
         {
-            if (m_Desc.type == TextureType::Texture_SwapchainImage)
+            // swapchain images are destroyed using VkDestroySwapchainKHR
+            if (m_Desc.type == TextureType::kSwapchainImage)
                 return;
 
-            if (m_ImageSampler != VK_NULL_HANDLE)
-                vkDestroySampler(VKDevice::Get().getDevice(), m_ImageSampler, nullptr);
+            m_FullResourceView.destroy();
 
-            for (u32 i = 0; i < m_ImageViews.size(); i++)
-                if (m_ImageViews[i] != VK_NULL_HANDLE)
-                    vkDestroyImageView(VKDevice::Get().getDevice(), m_ImageViews[i], nullptr);
+            destroyMipViewsPerFace();
+            destroyMipViewsFullFace();
 
 #if !RAZIX_USE_VMA
             if (m_Image != VK_NULL_HANDLE)
                 vkDestroyImage(VKDevice::Get().getDevice(), m_Image, nullptr);
 
-            if (m_ImageMemory != VK_NULL_HANDLE)
-                vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemory, nullptr);
+            if (m_ImageMemoryWrapper.nativeAllocation != VK_NULL_HANDLE)
+                vkFreeMemory(VKDevice::Get().getDevice(), m_ImageMemoryWrapper.nativeAllocation, nullptr);
 #else
-            vmaDestroyImage(VKDevice::Get().getVMA(), m_Image, m_VMAAllocation);
+            vmaDestroyImage(VKDevice::Get().getVMA(), m_Image, m_ImageMemoryWrapper.vmaAllocation);
 #endif
-
-            m_ImageViews.clear();
-            m_Descriptors.clear();
             m_CurrentMipRenderingLevel = 0;
+            m_BaseArrayLayer           = 0;
         }
+
         //-------------------------------------------------------------------------------------------
+
+        void VKTexture::Resize(u32 width, u32 height)
+        {
+            m_Desc.width  = width;
+            m_Desc.height = height;
+
+            DestroyResource();
+
+            initializeBackendHandles(m_Desc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
+        }
+
+        void VKTexture::GenerateMipsAndViews()
+        {
+            m_Desc.enableMips = true;
+            m_TotalMipLevels  = static_cast<u32>(std::floor(std::log2(std::max(m_Desc.width, m_Desc.height)))) + 1;
+
+            VKUtilities::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels, m_Desc.layers);
+
+            destroyMipViewsPerFace();
+            createMipViewsPerFace();
+
+            destroyMipViewsFullFace();
+            createMipViewsFullFace();
+
+            m_OldImageLayout   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            m_FinalImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        }
 
         void VKTexture::UploadToBindlessSet()
         {
             // Now if Bindless is available Bind to it
             if (VKDevice::Get().isBindlessSupported()) {
-                auto& descriptor = m_Descriptors[0];
+                RZDescriptor descriptor = {};
 
                 VkDescriptorImageInfo imageInfo{};
-                imageInfo.imageLayout = descriptor.imageLayout;
-                imageInfo.imageView   = descriptor.imageView;
-                imageInfo.sampler     = descriptor.sampler;
+                imageInfo.imageLayout = m_FinalImageLayout;
+                imageInfo.imageView   = getFullSRVImageView();
+                // No combined image samplers
 
                 u32 bindingIdx = BindingTable_System::BINDING_IDX_BINDLESS_RESOURCES_START;
 
                 switch (m_Desc.type) {
-                    case TextureType::Texture_1D:
-                    case TextureType::Texture_Depth:
-                    case TextureType::Texture_2D:
-                    case TextureType::Texture_2DArray:
+                    case TextureType::k2D:
+                    case TextureType::k2DArray:
                         bindingIdx = BindingTable_System::BINDING_IDX_GLOBAL_BINDLESS_TEXTURES_2D_BINDING_IDX;
                         break;
-                    case TextureType::Texture_3D:
+                    case TextureType::k3D:
                         bindingIdx = BindingTable_System::BINDING_IDX_GLOBAL_BINDLESS_TEXTURES_3D_BINDING_IDX;
                         break;
-                    case TextureType::Texture_CubeMap:
-                    case TextureType::Texture_CubeMapArray:
+                    case TextureType::kCubeMap:
+                    case TextureType::kCubeMapArray:
                         bindingIdx = BindingTable_System::BINDING_IDX_GLOBAL_BINDLESS_TEXTURES_CUBEMAP_BINDING_IDX;
                         break;
-                    case TextureType::Texture_SwapchainImage:
-                    case TextureType::COUNT:
+                    default:
                         break;
                 }
 
                 VkWriteDescriptorSet writeDescriptorSet{};
-                writeDescriptorSet.sType          = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                writeDescriptorSet.dstSet         = VKDevice::Get().getBindlessDescriptorSet();
-                writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;    // for R/W write texture this will be STORAGE_IMAGE with different binding idx
-                writeDescriptorSet.dstBinding     = bindingIdx;
-                //BindingTable_System::BINDING_IDX_BINDLESS_RESOURCES_START;
+                writeDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                writeDescriptorSet.dstSet          = VKDevice::Get().getBindlessDescriptorSet();
+                writeDescriptorSet.descriptorType  = VKUtilities::DescriptorTypeToVK(DescriptorType::kTexture);    // for R/W write texture this will be a UAV, if a RWCubeMap
+                writeDescriptorSet.dstBinding      = bindingIdx;
                 writeDescriptorSet.dstArrayElement = getHandle().getIndex();    // RZTexturePool index is allocated to this as the binding index in the global_texture_xxxyyy_array
                 writeDescriptorSet.pImageInfo      = &imageInfo;
                 writeDescriptorSet.descriptorCount = 1;    // Single Texture array
@@ -383,259 +141,26 @@ namespace Razix {
             }
         }
 
-        RAZIX_INLINE void VKTexture::updateDescriptor()
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            m_Descriptors.resize(1);
-
-            m_Descriptors[0].sampler     = m_ImageSampler;
-            m_Descriptors[0].imageView   = m_ImageViews[0];
-            m_Descriptors[0].imageLayout = m_ImageLayout;
-
-            if (m_Desc.enableMips) {
-                // Not useful while binding (textureLod), only useful when rendering to desired mip level
-                for (u32 i = 1; i < m_TotalMipLevels; i++) {
-                    VkDescriptorImageInfo descriptor{};
-                    descriptor.sampler     = m_ImageSampler;
-                    descriptor.imageView   = m_ImageViews[i];
-                    descriptor.imageLayout = m_ImageLayout;
-                    m_Descriptors.push_back(descriptor);
-                }
-            }
-        }
-
-#define BPP 4
-
-        bool VKTexture::load(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            u8* pixels = nullptr;
-
-            if (desc.data != nullptr) {
-                pixels = (u8*) desc.data;
-                m_Size = VkDeviceSize(m_Desc.size);
-                RAZIX_CORE_ASSERT(m_Size, "[Vulkan] Size of pixel data provided is 0! check again");
-            } else {
-                if (m_VirtualPath != "" && m_VirtualPath != "NULL") {
-                    u32 bpp;
-                    // Width and Height are extracted here
-                    // TODO: Support loading floating point Image data
-                    pixels = Razix::Utilities::LoadImageData(m_VirtualPath, &m_Desc.width, &m_Desc.height, &bpp, m_Desc.flipY);
-                    // Here the format for the texture is extracted based on bits per pixel
-                    m_Desc.format = Razix::Gfx::RZTexture::bitsToTextureFormat(BPP);
-                    // Size of the texture
-                    m_Size = static_cast<u64>(m_Desc.width * m_Desc.height * BPP * m_Desc.dataSize);
-                }
-            }
-
-            if (pixels == nullptr)
-                return false;
-
-            // Create a Staging buffer (Transfer from source) to transfer texture data from HOST memory to DEVICE memory
-            //VKBuffer* stagingBuffer = new VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<u32>(m_Size), pixels RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer VKTexture"));
-            //if (m_DeleteImageData)
-            //    delete[] pixels;
-
-            m_TotalMipLevels = 1;
-            if (desc.enableMips)
-                m_TotalMipLevels = static_cast<u32>(std::floor(std::log2(std::max(m_Desc.width, m_Desc.height)))) + 1;
-
-            VkImageUsageFlagBits usageBit{};
-            if (desc.format == TextureFormat::DEPTH32F || desc.format == TextureFormat::DEPTH16_UNORM || desc.format == TextureFormat::DEPTH_STENCIL)
-                usageBit = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-            else
-                usageBit = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-            VkImageCreateFlags flags{0};
-            if (desc.type == TextureType::Texture_CubeMap || desc.type == TextureType::Texture_CubeMapArray)
-                flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-            // https://www.reddit.com/r/vulkan/comments/pc87in/whats_the_correct_way_to_create_a_2d_image_array/
-            // VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT
-            // This makes is so that you can use a sampler2DArray with a 3D image.
-            //else if (desc.type == TextureType::Texture_2DArray)
-            //    flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
-
-            // Create the Vulkan Image and it's memory and Bind them together
-            // We use a simple optimal tiling options
-#if !RAZIX_USE_VMA
-            VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
-#else
-            VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_VMAAllocation, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
-#endif
-
-            //  There are two transitions we need to handle:
-            //      1. Undefined -> transfer destination: transfer writes that don't need to wait on anything
-            //          1.1 Copy image from transfer staging buffer to the Image buffer on DEVICE
-            //      2. Transfer destination -> shader reading: shader reads should wait on transfer writes, specifically the shader reads in the fragment shader, because that's where we're going to use the texture
-
-            // 1. Transfer layout to copy data from transfer buffer
-            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_TotalMipLevels);
-
-            //{
-            //    // 1.1 Copy from staging buffer to Image
-            //    VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
-            //
-            //    VkBufferImageCopy region               = {};
-            //    region.bufferOffset                    = 0;
-            //    region.bufferRowLength                 = 0;
-            //    region.bufferImageHeight               = 0;
-            //    region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-            //    region.imageSubresource.mipLevel       = 0;
-            //    region.imageSubresource.baseArrayLayer = 0;
-            //    region.imageSubresource.layerCount     = 1;
-            //    region.imageOffset                     = {0, 0, 0};
-            //    region.imageExtent                     = {m_Desc.width, m_Desc.height, 1};
-            //
-            //    vkCmdCopyBufferToImage(commandBuffer, stagingBuffer->getBuffer(), m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-            //
-            //    VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
-            //}
-
-            VKUtilities::CopyDataToGPUTextureResource(pixels, m_Image, m_Desc.width, m_Desc.height, m_Size);
-
-            // Delete and clean up any temp stuff
-            //stagingBuffer->destroy();
-            //delete stagingBuffer;
-
-            if (m_DeleteImageData)
-                delete pixels;
-
-            // 2. Transition from transfer to shader layout (This causing some error, some kind of unnecessary layout transition for the mip maps)
-            //VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_TotalMipLevels);
-
-            // This barrier transitions the last mip level from VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-            if (m_Desc.enableMips)
-                GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels, m_Desc.layers);
-
-            if (desc.format == TextureFormat::DEPTH32F || desc.format == TextureFormat::DEPTH16_UNORM || desc.format == TextureFormat::DEPTH_STENCIL)
-                m_AspectBit = VK_IMAGE_ASPECT_DEPTH_BIT;
-            else
-                m_AspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
-
-            // TODO: Support loading multiple images into multiple layers/depths
-            // Create the Image view for the Vulkan image (uses color bit)
-            m_ImageViews.push_back(CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_TotalMipLevels, VKUtilities::TextureTypeToVKViewType(desc.type), m_AspectBit, desc.layers, 0, 0 RZ_DEBUG_E_ARG_NAME));
-
-            if (m_Desc.enableMips) {
-                for (u32 i = 1; i < m_TotalMipLevels; i++)
-                    m_ImageViews.push_back(VKTexture::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_TotalMipLevels, VKUtilities::TextureTypeToVKViewType(desc.type), m_AspectBit, desc.layers, 0, i RZ_DEBUG_E_ARG_NAME));
-            }
-
-            // Now since we have copied it properly we know the image is accessible from the DEVICE
-            m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-            // Create a sampler view for the image
-            auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();
-            m_ImageSampler           = CreateImageSampler(VKUtilities::TextureFilterToVK(m_Desc.filtering.magFilter), VKUtilities::TextureFilterToVK(m_Desc.filtering.minFilter), 0.0f, static_cast<f32>(m_TotalMipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_Desc.wrapping), VKUtilities::TextureWrapToVK(m_Desc.wrapping), VKUtilities::TextureWrapToVK(m_Desc.wrapping) RZ_DEBUG_E_ARG_NAME);
-
-            // Generate Mip Maps will take care of it I guess
-            if (!m_Desc.enableMips)
-                VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, m_TotalMipLevels, desc.layers);
-
-            // Update the Image descriptor with the created view and sampler
-            updateDescriptor();
-
-            return true;
-        }
-
-        void VKTexture::init(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
-        {
-            RAZIX_ASSERT_MESSAGE(desc.width && desc.height, "[VULKAN] cannot create texture with null widht/height.");
-
-            m_TotalMipLevels = 1;
-            if (m_Desc.enableMips)
-                m_TotalMipLevels = static_cast<u32>(std::floor(std::log2(std::max(m_Desc.width, m_Desc.height)))) + 1;
-
-            VkImageUsageFlagBits usageBit{};
-            if (m_Desc.format == TextureFormat::DEPTH32F || m_Desc.format == TextureFormat::DEPTH16_UNORM || m_Desc.format == TextureFormat::DEPTH_STENCIL)
-                usageBit = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-            else
-                usageBit = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-            VkImageCreateFlags flags{0};
-            if (desc.type == TextureType::Texture_CubeMap || desc.type == TextureType::Texture_CubeMapArray)
-                flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-            // https://www.reddit.com/r/vulkan/comments/pc87in/whats_the_correct_way_to_create_a_2d_image_array/
-            // VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT
-            // This makes is so that you can use a sampler2DArray with a 3D image.
-            //else if (desc.type == TextureType::Texture_2DArray)
-            //    flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
-
-// Create the Vulkan Image and it's memory and Bind them together
-// We use a simple optimal tiling options
-#if !RAZIX_USE_VMA
-            VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_ImageMemory, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
-#else
-            VKTexture::CreateImage(m_Desc.width, m_Desc.height, m_Desc.depth, m_TotalMipLevels, VKUtilities::TextureFormatToVK(m_Desc.format), VKUtilities::TextureTypeToVK(m_Desc.type), VK_IMAGE_TILING_OPTIMAL, usageBit | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Image, m_VMAAllocation, m_Desc.layers, flags RZ_DEBUG_E_ARG_NAME);
-#endif
-
-            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_TotalMipLevels, m_Desc.layers);
-
-            if (m_Desc.enableMips)
-                VKTexture::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels);
-
-            // Create the Image view for the Vulkan image (uses color bit)
-            if (desc.format == TextureFormat::DEPTH32F || desc.format == TextureFormat::DEPTH16_UNORM || m_Desc.format == TextureFormat::DEPTH_STENCIL) {
-                m_Desc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
-                m_AspectBit      = VK_IMAGE_ASPECT_DEPTH_BIT;
-            } else
-                m_AspectBit = VK_IMAGE_ASPECT_COLOR_BIT;
-
-            // Create the Image view for the Vulkan image (uses color bit)
-            m_ImageViews.push_back(CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_TotalMipLevels, VKUtilities::TextureTypeToVKViewType(desc.type), m_AspectBit, desc.layers, 0, 0 RZ_DEBUG_E_ARG_NAME));
-
-            if (m_Desc.enableMips) {
-                for (u32 i = 1; i < m_TotalMipLevels; i++)
-                    m_ImageViews.push_back(VKTexture::CreateImageView(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_TotalMipLevels, VKUtilities::TextureTypeToVKViewType(desc.type), m_AspectBit, desc.layers, 0, i));
-            }
-
-            // Create a sampler view for the image
-            auto physicalDeviceProps = VKDevice::Get().getPhysicalDevice().get()->getProperties();
-            m_ImageSampler           = CreateImageSampler(VKUtilities::TextureFilterToVK(m_Desc.filtering.magFilter), VKUtilities::TextureFilterToVK(m_Desc.filtering.minFilter), 0.0f, static_cast<f32>(m_TotalMipLevels), true, physicalDeviceProps.limits.maxSamplerAnisotropy, VKUtilities::TextureWrapToVK(m_Desc.wrapping), VKUtilities::TextureWrapToVK(m_Desc.wrapping), VKUtilities::TextureWrapToVK(m_Desc.wrapping) RZ_DEBUG_E_ARG_NAME);
-
-            //if (!m_Desc.enableMips)
-            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, m_TotalMipLevels, desc.layers);
-
-            m_ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-            updateDescriptor();
-        }
-
-        void VKTexture::Resize(u32 width, u32 height)
-        {
-            m_Desc.width  = width;
-            m_Desc.height = height;
-
-            DestroyResource();
-            //m_TransferBuffer.setUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT);
-            //m_TransferBuffer.setSize(width * height * 4);
-            //m_TransferBuffer.init(NULL RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"));
-
-            init(m_Desc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
-        }
-
         int32_t VKTexture::ReadPixels(u32 x, u32 y)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Works only on Texture2D type for now!
 
-            VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::ReadBack, VK_BUFFER_USAGE_TRANSFER_DST_BIT, m_Desc.width * m_Desc.height * 4, nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"));
+            VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::ReadBack, VK_BUFFER_USAGE_TRANSFER_DST_BIT, m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL, nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"));
 
             // Change the image layout from shader read only optimal to transfer source
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
             {
                 // 1.1 Copy from staging buffer to Image
-                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer();
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Read Pixels", glm::vec4(0.0f));
 
                 // TODO: Support layers and depth
                 VkBufferImageCopy region               = {};
                 region.bufferOffset                    = 0;
                 region.bufferRowLength                 = m_Desc.width;
                 region.bufferImageHeight               = m_Desc.width;
-                region.imageSubresource.aspectMask     = m_AspectBit;
+                region.imageSubresource.aspectMask     = m_AspectFlags;
                 region.imageSubresource.mipLevel       = m_CurrentMipRenderingLevel;
                 region.imageSubresource.baseArrayLayer = 0;
                 region.imageSubresource.layerCount     = 1;
@@ -648,23 +173,305 @@ namespace Razix {
             }
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-            void* data = new char[m_Desc.width * m_Desc.height * 4];
+            char* data = new char[m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL];
             m_TransferBuffer.map();
-            data = m_TransferBuffer.getMappedRegion();
+            data = (char*) m_TransferBuffer.getMappedRegion();
             // Read and return the pixel value
             int32_t pixel_value = ((int32_t*) data)[(x) + (m_Desc.width * y)];
             m_TransferBuffer.unMap();
+            delete[] data;
 
             return pixel_value;
         }
 
-        void VKTexture::GenerateMips()
-        {
-            m_Desc.enableMips = true;
-            m_TotalMipLevels  = static_cast<u32>(std::floor(std::log2(std::max(m_Desc.width, m_Desc.height)))) + 1;
+        //-------------------------------------------------------------------------------------------
 
-            VKTexture::GenerateMipmaps(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_Desc.width, m_Desc.height, m_TotalMipLevels);
+        void VKTexture::transitonImageLayoutToSRV()
+        {
+            setImageLayoutValue(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, m_FinalImageLayout, m_TotalMipLevels, m_Desc.layers);
         }
+
+        void VKTexture::transitonImageLayoutToUAV()
+        {
+            setImageLayoutValue(VK_IMAGE_LAYOUT_GENERAL);
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, m_FinalImageLayout, m_TotalMipLevels, m_Desc.layers);
+        }
+
+        //-------------------------------------------------------------------------------------------
+
+        void VKTexture::initializeBackendHandles(const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
+        {
+            // swapchain images are destroyed using VkDestroySwapchainKHR
+            if (m_Desc.type == TextureType::kSwapchainImage)
+                return;
+
+            if (bufferName == "$UNNAMED_TEXTURE_RESOURCE")
+                RAZIX_DEBUG_BREAK();
+
+            if (!desc.filePath.empty())
+                loadImageDataInfoFromFile();
+
+            RAZIX_ASSERT_MESSAGE(desc.width && desc.height, "[VULKAN] cannot create texture with null width/height.");
+
+            if (isDepthFormat() && ((m_ResourceViewHint & kDSV) != kDSV))
+                RAZIX_ASSERT_MESSAGE(false, "[Vulkan] image is depth depth format but doesn't have a kDSV resource hint! Cannot view the image until a proper resourve view is set");
+
+            VkImageCreateFlags flags = resolveCreateFlags();
+
+            VkImageUsageFlags usageFlags = resolveUsageFlags();
+
+            m_AspectFlags = resolveAspectFlags();
+
+            createVkImageHandleWithDesc(flags, usageFlags RZ_DEBUG_E_ARG_NAME);
+
+            //  There are two transitions we need to handle:
+            //      1. Undefined -> transfer destination: transfer writes that don't need to wait on anything
+            //          1.1 Copy image from transfer staging buffer to the Image buffer on DEVICE
+            //      2. Transfer destination -> shader reading: shader reads should wait on transfer writes, specifically the shader reads in the fragment shader, because that's where we're going to use the texture
+            m_OldImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+            if (desc.data) {
+                loadImageDataFromFile();
+                delete (u8*) m_Desc.data;
+            }
+
+            if (m_Desc.enableMips) {
+                VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, VK_IMAGE_LAYOUT_GENERAL, m_TotalMipLevels, desc.layers);
+                m_OldImageLayout = VK_IMAGE_LAYOUT_GENERAL;
+                GenerateMipsAndViews();
+            }
+
+            if (desc.type == TextureType::kRWCubeMap) {
+                createSpecializedRWCubemapViews();
+            } else
+                createFullResourceViews();
+
+            VkImageLayout m_FinalImageLayout = (m_ResourceViewHint & kUAV) == kUAV ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, m_FinalImageLayout, m_TotalMipLevels, desc.layers);
+            m_OldImageLayout = m_FinalImageLayout;
+        }
+
+        void VKTexture::loadImageDataInfoFromFile()
+        {
+            if (m_Desc.filePath.empty())
+                return;
+
+            if (m_Desc.dataSize == sizeof(float))
+                m_Desc.data = (u8*) Razix::Utilities::LoadImageDataFloat(m_Desc.filePath, &m_Desc.width, &m_Desc.height, &m_BitsPerPixel);
+            else
+                m_Desc.data = Razix::Utilities::LoadImageData(m_Desc.filePath, &m_Desc.width, &m_Desc.height, &m_BitsPerPixel, m_Desc.flipY);
+            // Here the format for the texture is extracted based on bits per pixel
+            m_Desc.format = Razix::Gfx::RZTexture::BitsToTextureFormat(RZ_TEX_BITS_PER_PIXEL);    // everything is a 4-byte by default
+            m_Desc.size   = static_cast<u32>(m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL * m_Desc.dataSize);
+        }
+
+        void VKTexture::evaluateMipsCount()
+        {
+            if (m_Desc.enableMips)
+                m_TotalMipLevels = RZTexture::CalculateMipMapCount(m_Desc.width, m_Desc.height);
+        }
+
+        VkImageUsageFlags VKTexture::resolveUsageFlags()
+        {
+            VkImageUsageFlags usageFlags = {};
+            if (m_Desc.format == TextureFormat::DEPTH32F || m_Desc.format == TextureFormat::DEPTH16_UNORM || m_Desc.format == TextureFormat::DEPTH_STENCIL)
+                usageFlags = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+            else
+                usageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+            if ((usageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) == VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT && m_ResourceViewHint != kDSV) {
+                RAZIX_CORE_ERROR("[Vulkan] Depth Texture is being created without a DSV hint, depth write image view will cause a crash! provide correct resource view hint during texture initialization");
+                RAZIX_DEBUG_BREAK();
+            }
+
+            // if the texture is a RW resource we add an extra flag to enable writing to it from shaders, we also check if it can be a UAV, did the user specify the enable flag
+            if ((m_ResourceViewHint & kUAV) == kUAV) usageFlags = VkImageUsageFlagBits(VK_IMAGE_USAGE_STORAGE_BIT | usageFlags);
+
+            constexpr VkImageUsageFlagBits additionalDefaultFlagBits = VkImageUsageFlagBits(VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+
+            return VkImageUsageFlags(usageFlags | additionalDefaultFlagBits);
+        }
+
+        VkImageCreateFlags VKTexture::resolveCreateFlags()
+        {
+            VkImageCreateFlags flags = 0;
+            if (m_Desc.type == TextureType::kCubeMap || m_Desc.type == TextureType::kCubeMapArray || m_Desc.type == TextureType::kRWCubeMap)
+                flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+            // https://www.reddit.com/r/vulkan/comments/pc87in/whats_the_correct_way_to_create_a_2d_image_array/
+            // TODO: Investigate if this is necessary and enable it later
+            // VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT
+            return flags;
+        }
+
+        VkImageAspectFlags VKTexture::resolveAspectFlags()
+        {
+            VkImageAspectFlags aspectFlags = {};
+            if (isDepthFormat())
+                aspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
+            else
+                aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
+
+            return aspectFlags;
+        }
+
+        void VKTexture::createVkImageHandleWithDesc(VkImageCreateFlags flags, VkImageUsageFlags usageFlags RZ_DEBUG_NAME_TAG_E_ARG)
+        {
+            VKUtilities::VKCreateImageDesc imageDesc = {};
+            imageDesc.width                          = m_Desc.width;
+            imageDesc.height                         = m_Desc.height;
+            imageDesc.depth                          = m_Desc.depth;
+            imageDesc.mipLevels                      = m_TotalMipLevels;
+            imageDesc.arrayLayers                    = m_Desc.layers;
+            imageDesc.format                         = VKUtilities::TextureFormatToVK(m_Desc.format);
+            imageDesc.imageType                      = VKUtilities::TextureTypeToVK(m_Desc.type);
+            imageDesc.tiling                         = VK_IMAGE_TILING_OPTIMAL;
+            imageDesc.usage                          = usageFlags;
+            imageDesc.properties                     = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+            imageDesc.flags                          = flags;
+
+            auto handles = VKUtilities::CreateImageMemoryHandles(imageDesc RZ_DEBUG_E_ARG_NAME);
+
+            m_Image              = handles.image;
+            m_ImageMemoryWrapper = handles.memoryWrapper;
+        }
+
+        void VKTexture::loadImageDataFromFile()
+        {
+            m_OldImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, m_OldImageLayout, m_TotalMipLevels, m_Desc.layers);
+            VKUtilities::CopyDataToGPUTextureResource(m_Desc.data, m_Image, m_Desc.width, m_Desc.height, m_Desc.size, m_CurrentMipRenderingLevel, m_Desc.layers, m_BaseArrayLayer);
+        }
+
+        void VKTexture::createSpecializedRWCubemapViews()
+        {
+            // We handle a special case here for RWTextureCube, we create both a SRV and UAV with different settings
+            // Create the Image view for every layer at 0 mip as default Shader Resource View
+            // We store the initial full resource view
+            VKUtilities::VKCreateImageViewDesc imageViewDesc = {};
+            imageViewDesc.image                              = m_Image;
+            imageViewDesc.format                             = VKUtilities::TextureFormatToVK(m_Desc.format);
+            imageViewDesc.aspectMask                         = m_AspectFlags;
+            imageViewDesc.mipLevels                          = m_TotalMipLevels;
+            imageViewDesc.baseMipLevel                       = RZ_TEX_DEFAULT_MIP_IDX;
+            imageViewDesc.layerCount                         = m_Desc.layers;
+            imageViewDesc.baseArrayLayer                     = RZ_TEX_DEFAULT_ARRAY_LAYER;
+
+            if ((m_ResourceViewHint & kSRV) == kSRV) {
+                imageViewDesc.viewType = VKUtilities::TextureTypeToVKViewType(TextureType::kCubeMap);
+                m_FullResourceView.srv = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
+            }
+            if ((m_ResourceViewHint & kUAV) == kUAV) {
+                imageViewDesc.viewType = VKUtilities::TextureTypeToVKViewType(TextureType::kRW2DArray);
+                m_FullResourceView.uav = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
+            }
+        }
+
+        void VKTexture::createFullResourceViews()
+        {
+            // TODO: Use this methods for further customization, currently a single setup works for all resource view types
+            // we might need to customize the aspect and create flags for more restrictive behavior
+
+            VKUtilities::VKCreateImageViewDesc imageViewDesc = {};
+            imageViewDesc.image                              = m_Image;
+            imageViewDesc.format                             = VKUtilities::TextureFormatToVK(m_Desc.format);
+            imageViewDesc.viewType                           = VKUtilities::TextureTypeToVKViewType(m_Desc.type);
+            imageViewDesc.aspectMask                         = m_AspectFlags;
+            imageViewDesc.mipLevels                          = m_TotalMipLevels;
+            imageViewDesc.baseMipLevel                       = RZ_TEX_DEFAULT_MIP_IDX;
+            imageViewDesc.layerCount                         = m_Desc.layers;
+            imageViewDesc.baseArrayLayer                     = RZ_TEX_DEFAULT_ARRAY_LAYER;
+
+            if ((m_ResourceViewHint & kSRV) == kSRV)
+                m_FullResourceView.srv = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
+            if ((m_ResourceViewHint & kUAV) == kUAV)
+                m_FullResourceView.uav = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));    // TODO: make sure it has storage flags bit set
+            if ((m_ResourceViewHint & kDSV) == kDSV)
+                m_FullResourceView.dsv = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));    // TODO: make sure it has depth bit flags set
+        }
+
+        void VKTexture::createMipViewsPerFace()
+        {
+            // TODO: for each face per mip we have a 2D image view, if user wants' a more complicated view for
+            // instance a 2DArray view from layer 2:4 and mips 2:11 they need to use the explicit API
+            // The current setup is just to read each view as a 2D image
+
+            VKUtilities::VKCreateImageViewDesc imageViewDesc = {};
+            imageViewDesc.image                              = m_Image;
+            imageViewDesc.format                             = VKUtilities::TextureFormatToVK(m_Desc.format);
+            imageViewDesc.viewType                           = VKUtilities::TextureTypeToVKViewType(TextureType::k2D);    // all mips/layer views are just 2D images
+            imageViewDesc.aspectMask                         = m_AspectFlags;
+            imageViewDesc.layerCount                         = 1;    // since we just have a single 2D image per mip per face
+
+            for (u32 l = 0; l < m_Desc.layers; l++) {
+                for (u32 m = 0; m < m_TotalMipLevels; m++) {
+                    imageViewDesc.baseMipLevel        = m;
+                    imageViewDesc.baseArrayLayer      = l;
+                    imageViewDesc.mipLevels           = m == 0 ? m_TotalMipLevels : 1;    // only views at 0 mip stores all mips together
+                    m_LayerMipResourceViews[l][m].srv = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
+                }
+            }
+        }
+
+        void VKTexture::destroyMipViewsPerFace()
+        {
+            for (u32 l = 0; l < m_Desc.layers; l++) {
+                for (u32 m = 0; m < m_TotalMipLevels; m++) {
+                    m_LayerMipResourceViews[l][m].destroy();
+                }
+            }
+        }
+
+        void VKTexture::createMipViewsFullFace()
+        {
+            // so we bind something fun here, we bind RW2DArraysViews but at different mip levels
+            // But Razix cannot create these views, it can currently make only 2D views....
+            // So we extend the ResourceHints to be more robust with some API functions to make it possible
+            // But until we come across another scenario we specialize this case, create them in backend for RWCubeMapArray type
+            // call it something like VkImageView m_PerMipArrayViews[NUM_MIPS] and bind it as needed
+
+            VKUtilities::VKCreateImageViewDesc imageViewDesc = {};
+            imageViewDesc.image                              = m_Image;
+            imageViewDesc.format                             = VKUtilities::TextureFormatToVK(m_Desc.format);
+            imageViewDesc.aspectMask                         = m_AspectFlags;
+            imageViewDesc.layerCount                         = m_Desc.layers;
+
+            for (u32 m = 0; m < m_TotalMipLevels; m++) {
+                imageViewDesc.baseMipLevel   = m;
+                imageViewDesc.baseArrayLayer = 0;
+                imageViewDesc.mipLevels      = m_TotalMipLevels;
+                //imageViewDesc.mipLevels      = m == 0 ? m_TotalMipLevels : 1;
+
+                imageViewDesc.viewType       = VKUtilities::TextureTypeToVKViewType(TextureType::k2DArray);
+                m_PerMipResourceViews[m].srv = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
+
+                imageViewDesc.viewType       = VKUtilities::TextureTypeToVKViewType(TextureType::kRW2DArray);
+                m_PerMipResourceViews[m].uav = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));
+            }
+        }
+
+        void VKTexture::destroyMipViewsFullFace()
+        {
+            for (u32 m = 0; m < m_TotalMipLevels; m++)
+                m_PerMipResourceViews[m].destroy();
+        }
+
+        bool VKTexture::isDepthFormat()
+        {
+            if (m_Desc.format == TextureFormat::DEPTH32F || m_Desc.format == TextureFormat::DEPTH16_UNORM || m_Desc.format == TextureFormat::DEPTH_STENCIL)
+                return true;
+            else
+                return false;
+        }
+
+        bool VKTexture::isRWImage()
+        {
+            if (m_Desc.type == TextureType::kRW1D || m_Desc.type == TextureType::kRW2D || m_Desc.type == TextureType::kRW2DArray || m_Desc.type == TextureType::kRW3D || m_Desc.type == TextureType::kRWCubeMap)
+                return true;
+            else
+                return false;
+        }
+
         //-----------------------------------------------------------------------------------
     }    // namespace Gfx
 }    // namespace Razix

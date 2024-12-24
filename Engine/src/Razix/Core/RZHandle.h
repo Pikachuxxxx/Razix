@@ -40,17 +40,21 @@ namespace Razix {
 
         RZHandle& operator=(RZHandle&& handle)
         {
-            m_Index      = handle.m_Index;
-            m_Generation = handle.m_Generation;
+            if (this != &handle) {
+                m_Index             = handle.m_Index;
+                m_Generation        = handle.m_Generation;
+                handle.m_Index      = 0;
+                handle.m_Generation = 0;
+            }
             return *this;
         }
 
         inline bool isValid() const { return m_Generation != 0; }
 
-        inline u32  getIndex() { return m_Index; }
+        inline u32  getIndex() const { return m_Index; }
         inline void setIndex(u32 index) { m_Index = index; }
 
-        inline u32  getGeneration() { return m_Generation; }
+        inline u32  getGeneration() const { return m_Generation; }
         inline void setGeneration(u32 gen) { m_Generation = gen; }
 
         friend bool operator!=(RZHandle const& h1, RZHandle const& h2)

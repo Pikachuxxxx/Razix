@@ -222,12 +222,12 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
-            //static_cast<VKPipeline*>(pp)->getPipelineLayout();
+            auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
             const auto vkDescSet         = static_cast<const VKDescriptorSet*>(descriptorSet)->getDescriptorSet();
             auto       cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), setIdx, 1, &vkDescSet, 0, nullptr);
+            vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), setIdx, 1, &vkDescSet, 0, nullptr);
         }
 
         void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)
@@ -236,17 +236,18 @@ namespace Razix {
 
             u32 numDesciptorSets = 0;
 
-            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
             for (auto descriptorSet: descriptorSets) {
                 if (descriptorSet) {
-                    auto vkDescSet                        = static_cast<VKDescriptorSet*>(descriptorSet);
-                    m_DescriptorSetPool[numDesciptorSets] = vkDescSet->getDescriptorSet();
+                    auto vkDescSet                             = static_cast<VKDescriptorSet*>(descriptorSet);
+                    m_DescriptorSetCachePool[numDesciptorSets] = vkDescSet->getDescriptorSet();
                     numDesciptorSets++;
                 }
             }
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), startSetIdx, numDesciptorSets, m_DescriptorSetPool, 0, nullptr);
+            vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), startSetIdx, numDesciptorSets, m_DescriptorSetCachePool, 0, nullptr);
         }
 
         void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)
@@ -255,18 +256,19 @@ namespace Razix {
 
             u32 numDesciptorSets = 0;
 
-            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
             for (u32 i = 0; i < totalSets; i++) {
                 auto set = descriptorSets[i];
                 if (set) {
-                    const auto vkDescSet                  = static_cast<const VKDescriptorSet*>(set);
-                    m_DescriptorSetPool[numDesciptorSets] = vkDescSet->getDescriptorSet();
+                    const auto vkDescSet                       = static_cast<const VKDescriptorSet*>(set);
+                    m_DescriptorSetCachePool[numDesciptorSets] = vkDescSet->getDescriptorSet();
                     numDesciptorSets++;
                 }
             }
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), startSetIdx, numDesciptorSets, m_DescriptorSetPool, 0, nullptr);
+            vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), startSetIdx, numDesciptorSets, m_DescriptorSetCachePool, 0, nullptr);
         }
 
         void VKRenderContext::SetScissorRectImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
@@ -289,13 +291,14 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
             // Bind the Bindless Descriptor Set
             if (VKDevice::Get().isBindlessSupported()) {
                 const auto set               = VKDevice::Get().getBindlessDescriptorSet();
                 auto       cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-                vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START, 1, &set, 0, nullptr);
+                vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START, 1, &set, 0, nullptr);
             }
         }
 
@@ -337,17 +340,17 @@ namespace Razix {
 
                 // Fill the color attachments first
                 VkRenderingAttachmentInfoKHR attachInfo{};
-                attachInfo.sType     = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
-                auto apiHandle       = static_cast<VkDescriptorImageInfo*>(colorAttachment->GetAPIHandlePtr());
-                attachInfo.imageView = apiHandle->imageView;
+                attachInfo.sType      = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
+                VKTexture* backendPtr = static_cast<VKTexture*>(colorAttachment);
+                attachInfo.imageView  = backendPtr->getFullRTVImageView();
 
                 // Don't do this here, done manually bu the FG and user land code
 
-                if (colorAttachment->getFormat() == TextureFormat::SCREEN) {
+                if (colorAttachment->getFormat() != TextureFormat::SCREEN) {
                     auto vkImage = static_cast<VKTexture*>(colorAttachment);
-                    if (vkImage->getLayout() != VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL) {
-                        VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
-                        vkImage->setImageLayout(VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL);
+                    if (vkImage->getImageLayoutValue() != VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+                        VKUtilities::TransitionImageLayout(vkImage->getImage(), VKUtilities::TextureFormatToVK(vkImage->getFormat()), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+                        vkImage->setImageLayoutValue(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
                     }
                     attachInfo.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                 } else
@@ -381,9 +384,10 @@ namespace Razix {
                 }
 
                 // Fill the color attachments first
-                attachInfo.sType                 = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
-                VkDescriptorImageInfo* apiHandle = (VkDescriptorImageInfo*) (depthAttachment->GetAPIHandlePtr());
-                attachInfo.imageView             = apiHandle->imageView;
+                attachInfo.sType      = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
+                VKTexture* backendPtr = static_cast<VKTexture*>(depthAttachment);
+                attachInfo.imageView  = backendPtr->getFullDSVImageView();
+                RAZIX_ASSERT(attachInfo.imageView != VK_NULL_HANDLE, "[Vulkan] Attatching a depth image without a image view (DSV) check your setup!");
 
                 attachInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
 
@@ -418,7 +422,8 @@ namespace Razix {
 
             std::vector<VkWriteDescriptorSet> writeDescriptorSets;
 
-            auto pp = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
+            VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
             int descriptorWritesCount = 0;
             int imageIndex            = 0;
@@ -434,7 +439,7 @@ namespace Razix {
                 VkWriteDescriptorSet writeSet{};
 
                 for (auto& descriptor: descriptors) {
-                    if (descriptor.bindingInfo.type == DescriptorType::ImageSamplerCombined) {
+                    if (descriptor.bindingInfo.type == DescriptorType::kImageSamplerCombined) {
                         const RZTexture* texturePtr = RZResourceManager::Get().getPool<RZTexture>().get(descriptor.texture);
 
                         VkDescriptorImageInfo& des = *static_cast<VkDescriptorImageInfo*>(texturePtr->GetAPIHandlePtr());
@@ -477,7 +482,7 @@ namespace Razix {
                 writeDescriptorSets.push_back(writeSet);
             }
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            CmdPushDescriptorSetKHR(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, static_cast<VKPipeline*>(pp)->getPipelineLayout(), 0, static_cast<u32>(writeDescriptorSets.size()), writeDescriptorSets.data());
+            CmdPushDescriptorSetKHR(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), 0, static_cast<u32>(writeDescriptorSets.size()), writeDescriptorSets.data());
         }
 
         void VKRenderContext::DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType /*= DataType::UNSIGNED_INT*/)
@@ -512,6 +517,11 @@ namespace Razix {
         void VKRenderContext::DestroyAPIImpl()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            for (u32 i = 0; i < MAX_SWAPCHAIN_BUFFERS; i++) {
+                RZResourceManager::Get().destroyCommandPool(m_GraphicsCommandPool[i]);
+                RZResourceManager::Get().destroyDrawCommandBuffer(m_DrawCommandBuffers[i]);
+            }
         }
 
         void VKRenderContext::OnResizeAPIImpl(u32 width, u32 height)
@@ -564,7 +574,7 @@ namespace Razix {
             VKTexture* vkTexture       = static_cast<VKTexture*>(textureResource);
 
             // Update with the new layout
-            vkTexture->setImageLayout((VkImageLayout) VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.dstLayout));
+            vkTexture->setImageLayoutValue((VkImageLayout) VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.dstLayout));
 
             VkImageMemoryBarrier barrier = {};
             barrier.sType                = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -584,7 +594,7 @@ namespace Razix {
                 barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
             barrier.subresourceRange.baseMipLevel   = textureResource->getCurrentMipLevel();
             barrier.subresourceRange.levelCount     = textureResource->getMipsCount();
-            barrier.subresourceRange.baseArrayLayer = textureResource->getCurrentArrayLayer();
+            barrier.subresourceRange.baseArrayLayer = textureResource->getBaseArrayLayer();
             barrier.subresourceRange.layerCount     = textureResource->getLayersCount();
 
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
@@ -617,21 +627,37 @@ namespace Razix {
             auto srcTextureResource = RZResourceManager::Get().getTextureResource(srcTexture);
             auto vkSrcTexture       = static_cast<VKTexture*>(srcTextureResource);
 
+            VKUtilities::TransitionImageLayout(vkSrcTexture->getImage(), VKUtilities::TextureFormatToVK(vkSrcTexture->getFormat()), vkSrcTexture->getImageLayoutValue(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkSrcTexture->getMipsCount(), vkSrcTexture->getLayersCount());
+
             auto dstTextureResource = RZResourceManager::Get().getTextureResource(dstTexture);
             auto vkDstTexture       = static_cast<VKTexture*>(dstTextureResource);
 
-            // TODO: Supports all kinds of texture type copies
-            VkImageCopy imageCopyRegion               = {};
-            imageCopyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            imageCopyRegion.srcSubresource.layerCount = 1;
-            imageCopyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            imageCopyRegion.dstSubresource.layerCount = 1;
-            imageCopyRegion.extent.width              = vkSrcTexture->getWidth();
-            imageCopyRegion.extent.height             = vkSrcTexture->getHeight();
-            imageCopyRegion.extent.depth              = 1;
+            VKUtilities::TransitionImageLayout(vkDstTexture->getImage(), VKUtilities::TextureFormatToVK(vkDstTexture->getFormat()), vkDstTexture->getImageLayoutValue(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vkDstTexture->getMipsCount(), vkDstTexture->getLayersCount());
+
+            // TODO: Support non-color images as well
+            VkImageCopy imageCopyRegion                   = {};
+            imageCopyRegion.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageCopyRegion.srcSubresource.layerCount     = vkSrcTexture->getLayersCount();
+            imageCopyRegion.srcSubresource.baseArrayLayer = vkSrcTexture->getBaseArrayLayer();
+            imageCopyRegion.srcSubresource.mipLevel       = vkSrcTexture->getCurrentMipLevel();
+
+            imageCopyRegion.dstSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageCopyRegion.dstSubresource.layerCount     = vkDstTexture->getLayersCount();
+            imageCopyRegion.dstSubresource.baseArrayLayer = vkDstTexture->getBaseArrayLayer();
+            imageCopyRegion.dstSubresource.mipLevel       = vkDstTexture->getCurrentMipLevel();
+            imageCopyRegion.extent.width                  = vkSrcTexture->getWidth();
+            imageCopyRegion.extent.height                 = vkSrcTexture->getHeight();
+            imageCopyRegion.extent.depth                  = 1;
 
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdCopyImage(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), vkSrcTexture->getImage(), /*vkSrcTexture->getLayout()*/ VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, vkDstTexture->getImage(), /*vkDstTexture->getLayout()*/ VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
+            vkCmdCopyImage(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), vkSrcTexture->getImage(), /*vkSrcTexture->getLayout()*/ VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkDstTexture->getImage(), /*vkDstTexture->getLayout()*/ VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
+
+            // restore the dst and src image layouts to original state aka shader read only optimal
+            //vkDstTexture->setImageLayoutValue(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            //VKUtilities::TransitionImageLayout(vkDstTexture->getImage(), VKUtilities::TextureFormatToVK(vkDstTexture->getFormat()), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vkDstTexture->getImageLayoutValue(), vkDstTexture->getMipsCount(), vkDstTexture->getLayersCount());
+
+            //vkSrcTexture->setImageLayoutValue(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            //VKUtilities::TransitionImageLayout(vkSrcTexture->getImage(), VKUtilities::TextureFormatToVK(vkSrcTexture->getFormat()), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkSrcTexture->getImageLayoutValue(), vkSrcTexture->getMipsCount(), vkSrcTexture->getLayersCount());
         }
 
         void VKRenderContext::SetViewportImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)

@@ -23,7 +23,7 @@ namespace Razix {
          * A Sprite is a 2D renderable that can be used to draw textures, particles effects, fonts and anything in 2D
          */
         // TODO: Refactor the sprite class to use the same default VBO, IBO, Shaders and Vertex Data use some static methods to use that cause Transform will be used by the Renderer by them
-        class RAZIX_API RZSprite : public RZRoot
+        class RAZIX_API RZSprite
         {
         public:
             RZSprite();

@@ -65,10 +65,8 @@ namespace Razix {
                     shadowTextureDesc.name       = "ShadowMap";
                     shadowTextureDesc.width      = kShadowMapSize;
                     shadowTextureDesc.height     = kShadowMapSize;
-                    shadowTextureDesc.type       = TextureType::Texture_Depth;
+                    shadowTextureDesc.type       = TextureType::kDepth;
                     shadowTextureDesc.format     = TextureFormat::DEPTH32F;
-                    shadowTextureDesc.wrapping   = Wrapping::CLAMP_TO_BORDER;
-                    shadowTextureDesc.filtering  = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST};
                     shadowTextureDesc.enableMips = false;
 
                     data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("ShadowMap", CAST_TO_FG_TEX_DESC shadowTextureDesc);

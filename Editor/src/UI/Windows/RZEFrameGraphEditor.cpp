@@ -923,7 +923,7 @@ namespace Razix {
             connect(ui.textureType, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureTypeSelected()));
             for (u32 i = 0; i < (u32) Razix::Gfx::TextureType::COUNT; i++)
                 ui.textureType->addItem(Razix::Gfx::TextureTypeNames[i]);
-            ui.textureType->setCurrentIndex((u32) Razix::Gfx::TextureType::Texture_2D);
+            ui.textureType->setCurrentIndex((u32) Razix::Gfx::TextureType::k2D);
 
             connect(ui.textureFormat, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureFormatSelected()));
             for (u32 i = 0; i < (u32) Razix::Gfx::TextureFormat::COUNT; i++)
@@ -933,17 +933,17 @@ namespace Razix {
             connect(ui.wrapMode, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureWrapModeSelected()));
             for (u32 i = 0; i < (u32) Razix::Gfx::Wrapping::COUNT; i++)
                 ui.wrapMode->addItem(Razix::Gfx::WrappingNames[i]);
-            ui.wrapMode->setCurrentIndex((u32) Razix::Gfx::Wrapping::CLAMP_TO_EDGE);
+            ui.wrapMode->setCurrentIndex((u32) Razix::Gfx::Wrapping::kClampToEdge);
 
             connect(ui.filterModeMin, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureFilteringMinModeSelected()));
             for (u32 i = 0; i < (u32) Razix::Gfx::Filtering::Mode::COUNT; i++)
                 ui.filterModeMin->addItem(Razix::Gfx::FitleringModeNames[i]);
-            ui.filterModeMin->setCurrentIndex((u32) Razix::Gfx::Filtering::Mode::LINEAR);
+            ui.filterModeMin->setCurrentIndex((u32) Razix::Gfx::Filtering::Mode::kFilterModeLinear);
 
             connect(ui.filterModeMag, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTextureFilteringMagModeSelected()));
             for (u32 i = 0; i < (u32) Razix::Gfx::Filtering::Mode::COUNT; i++)
                 ui.filterModeMag->addItem(Razix::Gfx::FitleringModeNames[i]);
-            ui.filterModeMag->setCurrentIndex((u32) Razix::Gfx::Filtering::Mode::LINEAR);
+            ui.filterModeMag->setCurrentIndex((u32) Razix::Gfx::Filtering::Mode::kFilterModeLinear);
 
             connect(ui.enableMips, SIGNAL(stateChanged(int)), this, SLOT(OnEnableMips()));
             connect(ui.isHDR, SIGNAL(stateChanged(int)), this, SLOT(OnEnableIsHDR()));

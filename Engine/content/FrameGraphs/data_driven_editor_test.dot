@@ -3,18 +3,13 @@ graph [style=invis, rankdir="TB" ordering=out, splines=spline]
 node [shape=record, fontname="helvetica", fontsize=10, margin="0.2,0.03"]
 
 P0 [label=<{ {<B>[Test] Pass.Builtin.Code.HelloTriangle</B>} | {&#x2605; Refs: 0<BR/> Index: 0} }> style="rounded,filled", fillcolor=orange]
-P1 [label=<{ {<B>[Test] Pass.Builtin.Code.WaveIntrinsics</B>} | {&#x2605; Refs: 0<BR/> Index: 1} }> style="rounded,filled", fillcolor=orange]
 
 
 P0 -> { } [color=orangered]
-P1 -> { } [color=orangered]
 
 
 subgraph cluster_0 {
 P0 
-}
-subgraph cluster_1 {
-P1 
 }
 
 subgraph cluster_imported_resources {
