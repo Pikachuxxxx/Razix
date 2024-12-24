@@ -1,14 +1,14 @@
 <br>
 <img width=200" align="left" src="https://github.com/Pikachuxxxx/Razix/blob/master/Branding/RazixLogo.png"> <h1> Razix Engine </h1>
-Razix is a High Performance Research Engine for production pipeline with emphasis on experimenting with different rendering techniques. Razix supports Windows, Mac, Linux, PSVita and PS3 systems.
+Razix is a High Performance Engine for experimenting with different rendering techniques. Razix supports Windows, Mac, Linux. 
 
  ---
 
-|:warning: WARNING:Currently Razix is WIP and the renderer is undergoing major design overhaul thread with caution while using, check the RoadMap below for release information |
+|:warning: WARNING:Currently Razix is WIP and the renderer is undergoing major design overhaul, so thread with caution while using, check the RoadMap below for release information |
 | --- |
 
 # About
-Cross-Platform 2D and 3D engine with multi render API support (Vulkan, DirectX 12). Supports a wide range of Renders with extreme emphasis on scene optimization and implementing state-of-the art rendering techniques. The engine architecture supports a very educational and optimized design.
+Razix is a cross-Platform 3D engine with multi render API support (Vulkan, DirectX 12). It's being built on a new design principle of **"Everything is as asset"** to replace traditonal gameobject and ECS systems and primarily focusing on making a game one day soon. I have a game idea that I'll be showcasing using the engine in 2025 hopefully, eventually I hope razix will be mature enough one day. It's also my portfolio.
 
 View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Architecture notes on Draw.io](https://drive.google.com/file/d/1y5ZFf-h02z3cx6WmUzR8giKScvORzmwx/view?usp=sharing)
 
@@ -16,7 +16,7 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 - Built using C++17. (Engine will be reverted back to C++14 once entt/sol have been removed and only Jolt will be compiled in C++17 mode)
 	- C++14 over C++11 because `constexpr` and `sizeof` and improved `lamdbas` are needed for framegraph.
 - Support for Windows, Linux, macOS.
-- Support for OpenGL, Vulkan & DirectX 12.
+- Support for Vulkan & DirectX 12.
 - **Data Driven** Framegraph based on EA's frostbite engine (based on [skaarj
 1989's Framegraph implementation](https://github.com/skaarj1989/FrameGraph))  
     - **Uses Custom [Node Graph Editor](https://github.com/Pikachuxxxx/QtNodeGraph)**
@@ -29,7 +29,7 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 - Level Editor & tools built using QT
 - Multi Physics engine support.
 - 3D physics using Jolt.
-- Basic lua scripting support for entities.
+- Basic lua scripting support
 - Extremely detailed profiling using Tracy and RenderDoc integrated
 - Supports GLSL, HLSL shading languages to create custom materials + Custom Razix Shaders files for easy compilation
 - Resource Pool base management and custom asset format
