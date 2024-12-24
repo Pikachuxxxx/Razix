@@ -218,19 +218,20 @@ namespace Razix {
             pp->Bind(cmdBuffer);
         }
 
-        void VKRenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
+        void VKRenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZDescriptorSetHandle descriptorSet, u32 setIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
             VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
-            const auto vkDescSet         = static_cast<const VKDescriptorSet*>(descriptorSet)->getDescriptorSet();
+            auto       descSetResource   = RZResourceManager::Get().getDescriptorSetResource(descriptorSet);
+            const auto vkDescSet         = static_cast<const VKDescriptorSet*>(descSetResource)->getDescriptorSet();
             auto       cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), setIdx, 1, &vkDescSet, 0, nullptr);
         }
 
-        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)
+        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSetHandle>& descriptorSets, u32 startSetIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -239,30 +240,10 @@ namespace Razix {
             auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
             VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
-            for (auto descriptorSet: descriptorSets) {
-                if (descriptorSet) {
-                    auto vkDescSet                             = static_cast<VKDescriptorSet*>(descriptorSet);
-                    m_DescriptorSetCachePool[numDesciptorSets] = vkDescSet->getDescriptorSet();
-                    numDesciptorSets++;
-                }
-            }
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), startSetIdx, numDesciptorSets, m_DescriptorSetCachePool, 0, nullptr);
-        }
-
-        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            u32 numDesciptorSets = 0;
-
-            auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
-            VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
-
-            for (u32 i = 0; i < totalSets; i++) {
-                auto set = descriptorSets[i];
-                if (set) {
-                    const auto vkDescSet                       = static_cast<const VKDescriptorSet*>(set);
+            for (auto& descriptorSetHandle: descriptorSets) {
+                auto descSetResource = RZResourceManager::Get().getDescriptorSetResource(descriptorSetHandle);
+                if (descSetResource) {
+                    auto vkDescSet                             = static_cast<VKDescriptorSet*>(descSetResource);
                     m_DescriptorSetCachePool[numDesciptorSets] = vkDescSet->getDescriptorSet();
                     numDesciptorSets++;
                 }

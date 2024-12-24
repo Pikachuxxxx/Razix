@@ -70,12 +70,12 @@ namespace Razix {
          */
         struct RenderingInfo
         {
-            Resolution                                              resolution       = Resolution::kCustom; /* Resolution preset at which the scene will be rendered at         */
-            glm::uvec2                                              extent           = {0, 0};              /* Viewport extents (used only when Resolution is set to custom)    */
+            Resolution                                                          resolution       = Resolution::kCustom; /* Resolution preset at which the scene will be rendered at         */
+            glm::uvec2                                                          extent           = {0, 0};              /* Viewport extents (used only when Resolution is set to custom)    */
             std::vector<std::pair<RZTextureHandle, RenderTargetAttachmentInfo>> colorAttachments = {};                  /* List of attachments, texture and it's attachment info            */
             std::pair<RZTextureHandle, RenderTargetAttachmentInfo>              depthAttachment  = {};                  /* The depth attachment and it's info                               */
-            int                                                     layerCount       = 1;                   /* Total layers to render onto, needed for gl_Layer to work         */
-            bool                                                    resize           = false;               /* Whether or not to enable resizing                                */
+            int                                                                 layerCount       = 1;                   /* Total layers to render onto, needed for gl_Layer to work         */
+            bool                                                                resize           = false;               /* Whether or not to enable resizing                                */
         };
 
         /* Command Queue is a collection of command buffers that will be submitted for execution at once */
@@ -330,13 +330,13 @@ namespace Razix {
             }
 
             /* Gets the frame data descriptor set */
-            RAZIX_FORCE_INLINE const RZDescriptorSet* getFrameDataSet() const { return m_FrameDataSet; }
+            RAZIX_FORCE_INLINE RZDescriptorSetHandle getFrameDataSet() const { return m_FrameDataSet; }
             /* Set the frame data descriptor set */
-            RAZIX_FORCE_INLINE void setFrameDataSet(RZDescriptorSet* set) { m_FrameDataSet = set; }
+            RAZIX_FORCE_INLINE void setFrameDataSet(RZDescriptorSetHandle set) { m_FrameDataSet = set; }
             /* Gets the scene light data descriptor set */
-            RAZIX_FORCE_INLINE const RZDescriptorSet* getSceneLightsDataSet() const { return m_SceneLightsDataSet; }
+            RAZIX_FORCE_INLINE const RZDescriptorSetHandle getSceneLightsDataSet() const { return m_SceneLightsDataSet; }
             /* Set the scene light data descriptor set */
-            RAZIX_FORCE_INLINE void setSceneLightsDataSet(RZDescriptorSet* set) { m_SceneLightsDataSet = set; }
+            RAZIX_FORCE_INLINE void setSceneLightsDataSet(RZDescriptorSetHandle set) { m_SceneLightsDataSet = set; }
             /* Gets the width of the current RHI rendering extents */
             RAZIX_FORCE_INLINE const u32& getWidth() { return m_Width; }
             /* Gets the height of the current RHI rendering extents */
@@ -356,9 +356,8 @@ namespace Razix {
             virtual void         SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)                                                                              = 0;
             virtual void         PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                                        = 0;
             virtual void         BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)                                                                                                  = 0;
-            virtual void         BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)                                         = 0;
-            virtual void         BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)                = 0;
-            virtual void         BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)              = 0;
+            virtual void         BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZDescriptorSetHandle descriptorSet, u32 setIdx)                                          = 0;
+            virtual void         BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSetHandle>& descriptorSets, u32 startSetIdx)           = 0;
             virtual void         BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant)                                                             = 0;
             virtual void         DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT)                                                                          = 0;
             virtual void         DrawIndexedAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0)               = 0;
@@ -390,8 +389,8 @@ namespace Razix {
             std::vector<RZDrawCommandBufferHandle> m_DrawCommandBuffers;
             std::vector<RZCommandPoolHandle>       m_GraphicsCommandPool;
             std::vector<RZCommandPoolHandle>       m_ComputeCommandPool;
-            RZDescriptorSet*                       m_FrameDataSet       = nullptr;
-            RZDescriptorSet*                       m_SceneLightsDataSet = nullptr;
+            RZDescriptorSetHandle                  m_FrameDataSet       = {};
+            RZDescriptorSetHandle                  m_SceneLightsDataSet = {};
         };
     }    // namespace Gfx
 }    // namespace Razix
