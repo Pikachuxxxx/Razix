@@ -285,9 +285,6 @@ namespace Razix {
 
                 for (u32 layer = 0; layer < CUBEMAP_LAYERS; layer++) {
                     for (u32 mip = 0; mip < MaxMipLevels; mip++) {
-                        u32 mipWidth  = static_cast<u32>(PREFILTERED_MAP_DIM * std::pow(0.5, mip));
-                        u32 mipHeight = static_cast<u32>(PREFILTERED_MAP_DIM * std::pow(0.5, mip));
-
                         RHI::BindPipeline(envMapPipeline, cmdBuffer);
 
                         RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSet, BindingTable_System::SET_IDX_SYSTEM_START);
