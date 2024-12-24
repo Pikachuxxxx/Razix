@@ -106,7 +106,7 @@ namespace Razix {
             std::string               name = "$UNNAMED_DESCRIPTOR_HEAP"; /* Name of the descriptor heap */
             DescriptorHeapType        heapType;
             std::vector<RZDescriptor> descriptors;
-            u32                       setIdx = kInvalidSetIdx;
+            u32                       setIdx = kInvalidSetIdx;    // Set by the Shader Reflection, for util purposes only
         };
 
         // TODO: Add presets to select blending like Additive, Subtractive etc as in PhotoShop + util methods

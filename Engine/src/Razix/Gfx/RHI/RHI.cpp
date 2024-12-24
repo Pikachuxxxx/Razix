@@ -7,10 +7,6 @@
 
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 
-#ifdef RAZIX_RENDER_API_OPENGL
-    #include "Razix/Platform/API/OpenGL/GLRenderContext.h"
-#endif
-
 #ifdef RAZIX_RENDER_API_VULKAN
     #include "Razix/Platform/API/Vulkan/VKRenderContext.h"
 #endif

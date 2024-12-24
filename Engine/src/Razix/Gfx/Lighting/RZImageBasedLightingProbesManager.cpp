@@ -49,6 +49,8 @@ namespace Razix {
             u32        mipLevel     = 0;
         } uboData;
 
+        // - [ ] Fix this file to use descriptor handles, this is the first stage of integration and proceed to other parts of engine from here
+
         RZTextureHandle RZImageBasedLightingProbesManager::convertEquirectangularToCubemap(const std::string& hdrFilePath)
         {
             // This is only when we use a VS+PS to render to different layers of a RT (only Vulkan/AGC no HLSL support)
@@ -72,7 +74,6 @@ namespace Razix {
             equiMapTextureDesc.dataSize              = sizeof(float);    // HDR mode
             RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture(equiMapTextureDesc);
 
-            RZDescriptorSet* envMapSet = nullptr;
             // Since it has both UAV and SRV, vulkan will internally specialize the creating a UAV with the type of RWTexture2DArray since
             // an actual RWTextureCube doesn't exist in shading languages
             RZTextureDesc cubeMapTextureDesc         = {};
@@ -86,24 +87,22 @@ namespace Razix {
             cubeMapTextureDesc.enableMips            = true;
             RZTextureHandle cubeMapHandle            = RZResourceManager::Get().createTexture(cubeMapTextureDesc);
 
-            // Load the shader
-            auto shaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::EnvToCubemap);
-            auto shader       = RZResourceManager::Get().getShaderResource(shaderHandle);
-            auto setInfos     = shader->getDescriptorsPerHeapMap();
-
-            RZBufferDesc vplBufferDesc{};
-            vplBufferDesc.name = "EnvMapUBOData";
-            vplBufferDesc.size = sizeof(EnvMapGenUBOData);
-            //--------------
-            uboData.cubeFaceSize = {CUBEMAP_DIM, CUBEMAP_DIM};
-            //--------------
-            vplBufferDesc.data = &uboData;
-
+            RZBufferDesc vplBufferDesc             = {};
+            vplBufferDesc.name                     = "EnvMapUBOData";
+            vplBufferDesc.size                     = sizeof(EnvMapGenUBOData);
+            uboData.cubeFaceSize                   = {CUBEMAP_DIM, CUBEMAP_DIM};
+            vplBufferDesc.data                     = &uboData;
             RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer(vplBufferDesc);
 
-            for (auto& setInfo: setInfos) {
+            // Load the shader
+            auto shaderHandle       = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::EnvToCubemap);
+            auto shader             = RZResourceManager::Get().getShaderResource(shaderHandle);
+            auto descriptorHeapsMap = shader->getDescriptorsPerHeapMap();
+
+            RZDescriptorSetHandle envMapSet = {};
+            for (auto& heap: descriptorHeapsMap) {
                 // Fill the descriptors with buffers and textures
-                for (auto& descriptor: setInfo.second) {
+                for (auto& descriptor: heap.second) {
                     if (descriptor.name == "HDRTexture")
                         descriptor.texture = equirectangularMapHandle;
                     if (descriptor.name == "HDRSampler")
@@ -113,7 +112,11 @@ namespace Razix {
                     if (descriptor.name == "Constants")
                         descriptor.uniformBuffer = viewProjLayerUBO;
                 }
-                envMapSet = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("convertEquirectangularToCubemap set"));
+                RZDescriptorSetDesc descSetCreateDesc = {};
+                descSetCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;    // TODO: FUCK! Damn the samplers separate into different heap on shaders and CPU side
+                descSetCreateDesc.name                = "DescriptorSet.EquirectangularToCubeMap";
+                descSetCreateDesc.descriptors         = heap.second;
+                envMapSet                             = RZResourceManager::Get().createDescriptorSet(descSetCreateDesc);
             }
 
             // Create the Pipeline
@@ -143,8 +146,7 @@ namespace Razix {
             auto cubeMapTexture = RZResourceManager::Get().getTextureResource(cubeMapHandle);
             cubeMapTexture->GenerateMipsAndViews();
 
-            if (envMapSet)
-                envMapSet->Destroy();
+            RZResourceManager::Get().destroyDescriptorSet(envMapSet);
             RZResourceManager::Get().destroyPipeline(envMapPipeline);
             RZResourceManager::Get().destroyUniformBuffer(viewProjLayerUBO);
 
@@ -168,24 +170,22 @@ namespace Razix {
             // Load the shader for converting plain cube map to irradiance map by convolution
             RZShaderHandle cubemapConvolutionShaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GenerateIrradianceMap);
             auto           shader                         = RZResourceManager::Get().getShaderResource(cubemapConvolutionShaderHandle);
-            auto           setInfos                       = shader->getDescriptorsPerHeapMap();
+            auto           descriptorHeapsMap             = shader->getDescriptorsPerHeapMap();
 
             // Create the View Projection buffer
             RZDescriptorSet* envMapSet = nullptr;
 
             RZBufferDesc vplBufferDesc{};
-            vplBufferDesc.name = "ViewProjLayerUBOData";
-            vplBufferDesc.size = sizeof(EnvMapGenUBOData);
-            //--------------
+            vplBufferDesc.name   = "ViewProjLayerUBOData";
+            vplBufferDesc.size   = sizeof(EnvMapGenUBOData);
             uboData.cubeFaceSize = {IRRADIANCE_MAP_DIM, IRRADIANCE_MAP_DIM};
-            //--------------
-            vplBufferDesc.data = &uboData;
+            vplBufferDesc.data   = &uboData;
 
             RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer(vplBufferDesc);
 
-            for (auto& setInfo: setInfos) {
+            for (auto& heap: descriptorHeapsMap) {
                 // Fill the descriptors with buffers and textures
-                for (auto& descriptor: setInfo.second) {
+                for (auto& descriptor: heap.second) {
                     if (descriptor.name == "EnvCubeMap")
                         descriptor.texture = cubeMap;
                     if (descriptor.name == "EnvCubeSampler")
@@ -195,7 +195,7 @@ namespace Razix {
                     if (descriptor.name == "Constants")
                         descriptor.uniformBuffer = viewProjLayerUBO;
                 }
-                envMapSet = Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("generateIrradianceMap set"));
+                envMapSet = Gfx::RZDescriptorSet::Create(heap.second RZ_DEBUG_NAME_TAG_STR_E_ARG("generateIrradianceMap set"));
             }
 
             // Create the Pipeline
@@ -247,7 +247,7 @@ namespace Razix {
             // Load the shader for converting plain cube map to irradiance map by convolution
             RZShaderHandle cubemapConvolutionShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GeneratePreFilteredMap);
             auto           shader                   = RZResourceManager::Get().getShaderResource(cubemapConvolutionShader);
-            auto           setInfos                 = shader->getDescriptorsPerHeapMap();
+            auto           descriptorHeapsMap       = shader->getDescriptorsPerHeapMap();
 
             // Create the View Projection buffer
             std::vector<RZDescriptorSet*> PrefilteredMapPerMipHeaps = {};
@@ -258,9 +258,9 @@ namespace Razix {
                 // Create a heap with different SRV/UAV attached
                 preFilteredMap->setCurrentMipLevel(mipLevel);
 
-                for (auto& setInfo: setInfos) {
+                for (auto& heap: descriptorHeapsMap) {
                     // Fill the descriptors with buffers and textures
-                    for (auto& descriptor: setInfo.second) {
+                    for (auto& descriptor: heap.second) {
                         if (descriptor.name == "EnvCubeMap")
                             descriptor.texture = cubeMap;
                         if (descriptor.name == "EnvCubeSampler")
@@ -268,7 +268,7 @@ namespace Razix {
                         if (descriptor.name == "PreFilteredMap")
                             descriptor.texture = preFilteredMapHandle;
                     }
-                    PrefilteredMapPerMipHeaps.push_back(Gfx::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("generatePreFiltered set" + std::to_string(mipLevel))));
+                    PrefilteredMapPerMipHeaps.push_back(Gfx::RZDescriptorSet::Create(heap.second RZ_DEBUG_NAME_TAG_STR_E_ARG("generatePreFiltered set" + std::to_string(mipLevel))));
                 }
             }
             preFilteredMap->setCurrentMipLevel(0);
@@ -293,7 +293,6 @@ namespace Razix {
             auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("PreFiltering CubeMap", glm::vec4(0.6f, 0.8f, 0.3f, 1.0f));
             {
                 for (u32 mipLevel = 0, mipSize = PREFILTERED_MAP_DIM; mipLevel < MaxMipLevels; mipLevel++, mipSize /= 2) {
-
                     // so we bind something fun here, we bind RW2DArraysViews but at different mip levels
                     // But Razix cannot create these views, it can currently make only 2D views....
                     // So we extend the ResourceHints to be more robust with some API functions to make it possible
@@ -303,7 +302,7 @@ namespace Razix {
                     RHI::BindPipeline(envMapPipeline, cmdBuffer);
                     RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, PrefilteredMapPerMipHeaps[mipLevel], BindingTable_System::SET_IDX_SYSTEM_START);
                     // This example will use push constants
-                    data.roughness = (float) mipLevel / (float) (MaxMipLevels - 1);
+                    data.roughness    = (float) mipLevel / (float) (MaxMipLevels - 1);
                     data.mipLevel     = mipLevel;
                     data.cubeFaceSize = {mipSize, mipSize};
                     RZPushConstant pc = {};
