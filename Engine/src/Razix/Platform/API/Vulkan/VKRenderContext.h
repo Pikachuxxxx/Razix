@@ -26,7 +26,6 @@ namespace Razix {
         protected:
             void         InitAPIImpl() override;
             void         AcquireImageAPIImpl(RZSemaphore* signalSemaphore) override;
-            void         SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores) override;
             void         BeginAPIImpl(RZDrawCommandBufferHandle cmdBuffer) override;
             void         SubmitImpl(RZDrawCommandBufferHandle cmdBuffer) override;
             void         PresentAPIImpl(RZSemaphore* waitSemaphore) override;
@@ -50,7 +49,6 @@ namespace Razix {
             void         InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo) override;
             void         CopyTextureResourceImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle) override;
             RZSwapchain* GetSwapchainImpl() override;
-            //void         TransitionImageLayoutImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, )
 
         private:
             VKContext*      m_Context; /* Reference to the Vulkan context, we store it to avoid multiple calls */

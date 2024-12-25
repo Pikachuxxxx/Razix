@@ -142,7 +142,7 @@ namespace Razix {
 
         /* Encapsulating the descriptors of a set along with the setID */
         using DescriptorsPerHeapMap = std::map<u32, std::vector<RZDescriptor>>;
-        using DescriptorSets        = std::vector<Gfx::RZDescriptorSet*>;    // vector IDx == set Idx
+        using DescriptorSets        = std::vector<Gfx::RZDescriptorSetHandle>;    // vector IDx == set Idx
 
         // https://www.reddit.com/r/vulkan/comments/ybmld8/how_expensive_is_descriptor_set_creationupdate/
         // https://gist.github.com/nanokatze/bb03a486571e13a7b6a8709368bd87cf
@@ -174,8 +174,9 @@ namespace Razix {
              * 
              * @param descriptor The list of descriptor resources that will be uploaded by the set to various shader stages
              */
-            static RZDescriptorSet* Create(void* where, const RZDescriptorSetDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
+            static void Create(void* where, const RZDescriptorSetDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
 
+            // only resource manager can create an instance of this class
             friend class RZResourceManager;
         };
     }    // namespace Gfx

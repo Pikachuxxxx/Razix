@@ -4,7 +4,7 @@
 
 #include "RZSTL/smart_pointers.h"
 
-#include "Razix/Gfx/Renderers/IRZRenderer.h"
+#include "Razix/Gfx/Renderers/IRZRendererProxy.h"
 
 #include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
 #include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
@@ -75,27 +75,22 @@ namespace Razix {
          * 
          * Note: Uses Batched rendering to draw points/lines in a single draw call
          */
-        class RAZIX_API RZDebugRenderer : public IRZRenderer
+        class RAZIX_API RZDebugRendererProxy : public IRZRendererProxy
         {
         public:
-            RZDebugRenderer()  = default;
-            ~RZDebugRenderer() = default;
+            RZDebugRendererProxy()  = default;
+            ~RZDebugRendererProxy() = default;
 
-            static RZDebugRenderer* Get();
+            static RZDebugRendererProxy* Get();
 
             //-------------------------------------------------------------
-            // IRZRenderer
+            // IRZRendererProxy
 
             void Init() override;
-
             void Begin(RZScene* scene) override;
-
             void Draw(RZDrawCommandBufferHandle cmdBuffer) override;
-
             void End() override;
-
             void Resize(u32 width, u32 height) override {}
-
             void Destroy() override;
 
             //-------------------------------------------------------------
@@ -140,7 +135,7 @@ namespace Razix {
             static void GenDrawLine(bool dt, const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour);
 
         private:
-            static RZDebugRenderer* s_Instance;
+            static RZDebugRendererProxy* s_Instance;
 
             struct DebugDrawList
             {
@@ -152,11 +147,9 @@ namespace Razix {
             DebugDrawList m_DrawList;
             DebugDrawList m_DrawListNDT;
 
-            RZPipelineHandle m_LinePipeline = {};
-
-            // VBs and IBs
             u32                  m_PointIndexCount = 0;
             u32                  m_LineIndexCount  = 0;
+            RZPipelineHandle     m_LinePipeline    = {};
             RZIndexBufferHandle  m_PointIBO        = {};
             RZVertexBufferHandle m_PointVBO        = {};
             RZIndexBufferHandle  m_LineIBO         = {};

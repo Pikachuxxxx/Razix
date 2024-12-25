@@ -2,7 +2,7 @@
 #include "rzxpch.h"
 // clang-format on
 
-#include "RZDebugRenderer.h"
+#include "RZDebugRendererProxy.h"
 
 #include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/Markers/RZMarkers.h"
@@ -26,7 +26,7 @@
 
 namespace Razix {
     namespace Gfx {
-        RZDebugRenderer* RZDebugRenderer::s_Instance = nullptr;
+        RZDebugRendererProxy* RZDebugRendererProxy::s_Instance = nullptr;
 
         static const u32 MaxPoints                  = 10000;
         static const u32 MaxPointVertices           = MaxPoints * 4;
@@ -40,15 +40,15 @@ namespace Razix {
         static const uint32_t RENDERER_LINE_SIZE        = sizeof(Razix::Gfx::LineVertexData) * 4;
         static const uint32_t RENDERER_LINE_BUFFER_SIZE = RENDERER_LINE_SIZE * MaxLineVertices;
 
-        Razix::Gfx::RZDebugRenderer* RZDebugRenderer::Get()
+        Razix::Gfx::RZDebugRendererProxy* RZDebugRendererProxy::Get()
         {
             if (s_Instance == nullptr)
-                s_Instance = new RZDebugRenderer;
+                s_Instance = new RZDebugRendererProxy;
             return s_Instance;
         }
 
         //---------------------------------------------------------------------------------------------------------------
-        void RZDebugRenderer::Init()
+        void RZDebugRendererProxy::Init()
         {
             m_PointShader                       = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugPoint);
             Gfx::RZPipelineDesc pipelineInfo    = {};
@@ -132,7 +132,7 @@ namespace Razix {
             delete[] line_indices;
         }
 
-        void RZDebugRenderer::Begin(RZScene* scene)
+        void RZDebugRendererProxy::Begin(RZScene* scene)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -219,7 +219,7 @@ namespace Razix {
             }
         }
 
-        void RZDebugRenderer::Draw(RZDrawCommandBufferHandle cmdBuffer)
+        void RZDebugRendererProxy::Draw(RZDrawCommandBufferHandle cmdBuffer)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -254,7 +254,7 @@ namespace Razix {
             }
         }
 
-        void RZDebugRenderer::End()
+        void RZDebugRendererProxy::End()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -269,7 +269,7 @@ namespace Razix {
             RAZIX_MARK_END();
         }
 
-        void RZDebugRenderer::Destroy()
+        void RZDebugRendererProxy::Destroy()
         {
             RZResourceManager::Get().destroyPipeline(m_LinePipeline);
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
@@ -285,7 +285,7 @@ namespace Razix {
 
         //---------------------------------------------------------------------------------------------------------------
         //Draw Point (circle)
-        void RZDebugRenderer::GenDrawPoint(bool dt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
+        void RZDebugRendererProxy::GenDrawPoint(bool dt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -295,25 +295,25 @@ namespace Razix {
                 s_Instance->m_DrawList.m_DebugPoints.emplace_back(pos, point_radius, colour);
         }
         //---------------------------------------------------------------------------------------------------------------
-        void RZDebugRenderer::DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour)
+        void RZDebugRendererProxy::DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             GenDrawPoint(false, pos, point_radius, glm::vec4(colour, 1.0f));
         }
-        void RZDebugRenderer::DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             GenDrawPoint(false, pos, point_radius, colour);
         }
-        void RZDebugRenderer::DrawPointDT(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour)
+        void RZDebugRendererProxy::DrawPointDT(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             GenDrawPoint(true, pos, point_radius, glm::vec4(colour, 1.0f));
         }
-        void RZDebugRenderer::DrawPointDT(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawPointDT(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -323,7 +323,7 @@ namespace Razix {
         //---------------------------------------------------------------------------------------------------------------
 
         //Draw Line with a given thickness
-        void RZDebugRenderer::GenDrawThickLine(bool DT, const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
+        void RZDebugRendererProxy::GenDrawThickLine(bool DT, const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -332,25 +332,25 @@ namespace Razix {
             else
                 s_Instance->m_DrawList.m_DebugThickLines.emplace_back(start, end, colour);
         }
-        void RZDebugRenderer::DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour)
+        void RZDebugRendererProxy::DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             GenDrawThickLine(false, start, end, line_width, glm::vec4(colour, 1.0f));
         }
-        void RZDebugRenderer::DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             GenDrawThickLine(false, start, end, line_width, colour);
         }
-        void RZDebugRenderer::DrawThickLineDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour)
+        void RZDebugRendererProxy::DrawThickLineDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             GenDrawThickLine(true, start, end, line_width, glm::vec4(colour, 1.0f));
         }
-        void RZDebugRenderer::DrawThickLineDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawThickLineDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -358,7 +358,7 @@ namespace Razix {
         }
 
         //Draw line with thickness of 1 screen pixel regardless of distance from camera
-        void RZDebugRenderer::GenDrawLine(bool dt, const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
+        void RZDebugRendererProxy::GenDrawLine(bool dt, const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -367,32 +367,32 @@ namespace Razix {
             else
                 s_Instance->m_DrawList.m_DebugLines.emplace_back(start, end, colour);
         }
-        void RZDebugRenderer::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour)
+        void RZDebugRendererProxy::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             GenDrawLine(false, start, end, glm::vec4(colour, 1.0f));
         }
-        void RZDebugRenderer::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             GenDrawLine(false, start, end, colour);
         }
-        void RZDebugRenderer::DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour)
+        void RZDebugRendererProxy::DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             GenDrawLine(true, start, end, glm::vec4(colour, 1.0f));
         }
-        void RZDebugRenderer::DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             GenDrawLine(true, start, end, colour);
         }
 
-        void RZDebugRenderer::DrawAABB(const Maths::AABB& box, const glm::vec4& edgeColour, bool cornersOnly /*= false*/, f32 width /*= 0.02f*/)
+        void RZDebugRendererProxy::DrawAABB(const Maths::AABB& box, const glm::vec4& edgeColour, bool cornersOnly /*= false*/, f32 width /*= 0.02f*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -421,7 +421,7 @@ namespace Razix {
             DrawLine(v7, v8, edgeColour);
         }
 
-        void RZDebugRenderer::DrawGrid(u32 dimension, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawGrid(u32 dimension, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -432,7 +432,7 @@ namespace Razix {
             }
         }
 
-        void RZDebugRenderer::DrawLight(Gfx::RZLight* light, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawLight(Gfx::RZLight* light, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -454,27 +454,27 @@ namespace Razix {
             }
         }
 
-        void RZDebugRenderer::DrawFrustum(const Maths::RZFrustum& frustum, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawFrustum(const Maths::RZFrustum& frustum, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             const auto* vertices = frustum.getVertices();
 
-            RZDebugRenderer::DrawLine(vertices[0], vertices[1], colour);
-            RZDebugRenderer::DrawLine(vertices[1], vertices[2], colour);
-            RZDebugRenderer::DrawLine(vertices[2], vertices[3], colour);
-            RZDebugRenderer::DrawLine(vertices[3], vertices[0], colour);
-            RZDebugRenderer::DrawLine(vertices[4], vertices[5], colour);
-            RZDebugRenderer::DrawLine(vertices[5], vertices[6], colour);
-            RZDebugRenderer::DrawLine(vertices[6], vertices[7], colour);
-            RZDebugRenderer::DrawLine(vertices[7], vertices[4], colour);
-            RZDebugRenderer::DrawLine(vertices[0], vertices[4], colour);
-            RZDebugRenderer::DrawLine(vertices[1], vertices[5], colour);
-            RZDebugRenderer::DrawLine(vertices[2], vertices[6], colour);
-            RZDebugRenderer::DrawLine(vertices[3], vertices[7], colour);
+            RZDebugRendererProxy::DrawLine(vertices[0], vertices[1], colour);
+            RZDebugRendererProxy::DrawLine(vertices[1], vertices[2], colour);
+            RZDebugRendererProxy::DrawLine(vertices[2], vertices[3], colour);
+            RZDebugRendererProxy::DrawLine(vertices[3], vertices[0], colour);
+            RZDebugRendererProxy::DrawLine(vertices[4], vertices[5], colour);
+            RZDebugRendererProxy::DrawLine(vertices[5], vertices[6], colour);
+            RZDebugRendererProxy::DrawLine(vertices[6], vertices[7], colour);
+            RZDebugRendererProxy::DrawLine(vertices[7], vertices[4], colour);
+            RZDebugRendererProxy::DrawLine(vertices[0], vertices[4], colour);
+            RZDebugRendererProxy::DrawLine(vertices[1], vertices[5], colour);
+            RZDebugRendererProxy::DrawLine(vertices[2], vertices[6], colour);
+            RZDebugRendererProxy::DrawLine(vertices[3], vertices[7], colour);
         }
 
-        void RZDebugRenderer::DrawFrustum(const glm::mat4& mat, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawFrustum(const glm::mat4& mat, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -483,21 +483,21 @@ namespace Razix {
 
             const auto* vertices = frustum.getVertices();
 
-            RZDebugRenderer::DrawLine(vertices[0], vertices[1], colour);
-            RZDebugRenderer::DrawLine(vertices[1], vertices[2], colour);
-            RZDebugRenderer::DrawLine(vertices[2], vertices[3], colour);
-            RZDebugRenderer::DrawLine(vertices[3], vertices[0], colour);
-            RZDebugRenderer::DrawLine(vertices[4], vertices[5], colour);
-            RZDebugRenderer::DrawLine(vertices[5], vertices[6], colour);
-            RZDebugRenderer::DrawLine(vertices[6], vertices[7], colour);
-            RZDebugRenderer::DrawLine(vertices[7], vertices[4], colour);
-            RZDebugRenderer::DrawLine(vertices[0], vertices[4], colour);
-            RZDebugRenderer::DrawLine(vertices[1], vertices[5], colour);
-            RZDebugRenderer::DrawLine(vertices[2], vertices[6], colour);
-            RZDebugRenderer::DrawLine(vertices[3], vertices[7], colour);
+            RZDebugRendererProxy::DrawLine(vertices[0], vertices[1], colour);
+            RZDebugRendererProxy::DrawLine(vertices[1], vertices[2], colour);
+            RZDebugRendererProxy::DrawLine(vertices[2], vertices[3], colour);
+            RZDebugRendererProxy::DrawLine(vertices[3], vertices[0], colour);
+            RZDebugRendererProxy::DrawLine(vertices[4], vertices[5], colour);
+            RZDebugRendererProxy::DrawLine(vertices[5], vertices[6], colour);
+            RZDebugRendererProxy::DrawLine(vertices[6], vertices[7], colour);
+            RZDebugRendererProxy::DrawLine(vertices[7], vertices[4], colour);
+            RZDebugRendererProxy::DrawLine(vertices[0], vertices[4], colour);
+            RZDebugRendererProxy::DrawLine(vertices[1], vertices[5], colour);
+            RZDebugRendererProxy::DrawLine(vertices[2], vertices[6], colour);
+            RZDebugRendererProxy::DrawLine(vertices[3], vertices[7], colour);
         }
 
-        void RZDebugRenderer::DrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -519,7 +519,7 @@ namespace Razix {
             }
         }
 
-        void RZDebugRenderer::DrawCylinder(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawCylinder(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -545,7 +545,7 @@ namespace Razix {
             }
         }
 
-        void RZDebugRenderer::DrawCapsule(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawCapsule(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -584,7 +584,7 @@ namespace Razix {
             }
         }
 
-        void RZDebugRenderer::DrawArc(int numVerts, float radius, const glm::vec3& start, const glm::vec3& end, const glm::vec3& eulerRotation, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawArc(int numVerts, float radius, const glm::vec3& start, const glm::vec3& end, const glm::vec3& eulerRotation, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -609,7 +609,7 @@ namespace Razix {
             }
         }
 
-        void RZDebugRenderer::DrawSphere(f32 radius, const glm::vec3& position, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawSphere(f32 radius, const glm::vec3& position, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -624,7 +624,7 @@ namespace Razix {
             DrawCircle(50, radius, position, glm::vec3(0.0f, 0.0f, -45.0f), colour);
         }
 
-        void RZDebugRenderer::DrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const glm::vec3& position, const glm::vec3& rotation, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const glm::vec3& position, const glm::vec3& rotation, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

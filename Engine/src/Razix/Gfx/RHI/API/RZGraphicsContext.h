@@ -56,14 +56,14 @@ namespace Razix {
              */
             static void Create(const WindowProperties& properties, RZWindow* window);
             /* Release the graphics context object and it's resources */
-            static void Release();
+            static void Destroy();
             static void PostGraphicsContextInit();
             static void PreGraphicsContextDestroy();
 
             /* Initializes the underlying Graphics API for rendering */
             virtual void Init() = 0;
             //! Only here the Destroy method is in PascalCase rest of the API must maintain a camelCase destroy
-            virtual void Destroy() = 0;
+            virtual void DestroyContext() = 0;
             /* Clears the screen with the given color */
             virtual void ClearWithColor(f32 r, f32 g, f32 b) = 0;
 

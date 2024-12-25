@@ -61,10 +61,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            // destroy the user descriptor sets
-            for (size_t i = 0; i < m_SceneParams.userSets.size(); i++)
-                m_SceneParams.userSets[i]->Destroy();
-            m_SceneParams.userSets.clear();
+            destroyUserDescriptorSets();
 
             // Destroy the pipeline layout
             vkDestroyPipelineLayout(VKDevice::Get().getDevice(), m_PipelineLayout, nullptr);
@@ -100,17 +97,14 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            // Destroy them and then clear them
-            for (size_t i = 0; i < m_SceneParams.userSets.size(); i++)
-                m_SceneParams.userSets[i]->Destroy();
-            m_SceneParams.userSets.clear();
+            destroyUserDescriptorSets();
 
             // Create the Descriptor Sets for the Shader
             // We skip if they're system sets like FrameData, SceneLightsData and Material which are managed by RHI and Scene
-            for (auto& setInfo: m_DescriptorsPerHeap) {
+            for (auto& heap: m_DescriptorsPerHeap) {
                 // Skip creating some sets!
                 // We skip the system sets such as FrameData, SceneLightsData and Material Data
-                auto& descriptor = setInfo.second[0];
+                auto& descriptor = heap.second[0];
 
                 if (descriptor.name == "FrameData") {
                     m_SceneParams.enableFrameData = true;
@@ -125,10 +119,16 @@ namespace Razix {
                     continue;
                 }
                 // TODO: Add support for m_SceneParams.enableBindless
-                m_SceneParams.userSets.push_back(RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG(getShaderFilePath())));
+                RZDescriptorSetDesc descSetCreateDesc = {};
+                descSetCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
+                descSetCreateDesc.name                = "DescriptorSet." + getShaderFilePath();
+                descSetCreateDesc.descriptors         = heap.second;
+                auto setHandle                        = RZResourceManager::Get().createDescriptorSet(descSetCreateDesc);
+
+                m_SceneParams.userSets.push_back(setHandle);
 
                 // Add all descriptors of user sets into a named map
-                for (auto& descr: setInfo.second)
+                for (auto& descr: heap.second)
                     m_BindVars.m_BindMap.insert({descr.name, &descr});
             }
         }
@@ -478,6 +478,15 @@ namespace Razix {
 
                 delete spvByteCode;
             }
+        }
+
+        void VKShader::destroyUserDescriptorSets()
+        {
+            for (size_t i = 0; i < m_SceneParams.userSets.size(); i++) {
+                auto& setHandle = m_SceneParams.userSets[i];
+                RZResourceManager::Get().destroyDescriptorSet(setHandle);
+            }
+            m_SceneParams.userSets.clear();
         }
     }    // namespace Gfx
 }    // namespace Razix

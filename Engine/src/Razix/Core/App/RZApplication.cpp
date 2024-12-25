@@ -766,7 +766,7 @@ namespace Razix {
 
         // FIXME: This is fucked up I'm not cleaning stuff for editor mode
         if (RZApplication::Get().getAppType() == AppType::GAME)
-            Gfx::RHI::Release();
+            Gfx::RHI::Destroy();
 
         RAZIX_CORE_ERROR("Closing Application!");
     }

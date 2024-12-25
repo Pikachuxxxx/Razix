@@ -82,12 +82,12 @@ namespace Razix {
             }
         }
 
-        void RZGraphicsContext::Release()
+        void RZGraphicsContext::DestroyContext()
         {
             PreGraphicsContextDestroy();
 
             if (s_Context) {
-                s_Context->Destroy();
+                s_Context->DestroyContext();
 //                delete s_Context;    // This is causing unnecessary crashes
                 s_Context = nullptr;
             }

@@ -100,12 +100,6 @@ namespace Razix {
             DX12Utilities::TransitionResource(commandListD3D, DX12Context::Get()->getSwapchain()->getCurrentD3DBackbufferResource(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
         }
 
-        RAZIX_DEPRECATED("[Razix Deprecated!] SubmitWork is no longer used, use RHI::Submit(RZDrawCommandBuffer*) to submit draw commands & execute work on CPU.")
-        void DX12RenderContext::SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
-        {
-            RAZIX_UNIMPLEMENTED_METHOD
-        }
-
         void DX12RenderContext::SubmitImpl(RZDrawCommandBufferHandle cmdBuffer)
         {
             auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);

@@ -176,28 +176,6 @@ namespace Razix {
             m_GraphicsCommandQueue.push_back(cmdBuffer);
         }
 
-        void VKRenderContext::SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-#if 0
-            auto frameIdx     = RHI::Get().GetSwapchain()->getCurrentImageIndex();
-            auto prevFrameIdx = frameIdx > 0 ? frameIdx - 1 : 2;
-
-            std::vector<VkSemaphore> vkWaitSemaphores(waitSemaphores.size());
-            for (sz i = 0; i < waitSemaphores.size(); i++)
-                vkWaitSemaphores[i] = *(VkSemaphore*) waitSemaphores[i]->getHandle(prevFrameIdx);
-
-            std::vector<VkSemaphore> vkSignalSemaphores(signalSemaphores.size());
-            for (sz i = 0; i < signalSemaphores.size(); i++)
-                vkSignalSemaphores[i] = *(VkSemaphore*) signalSemaphores[i]->getHandle(frameIdx);
-            
-            m_Context->getSwapchain()->queueSubmit(m_CommandQueue, vkWaitSemaphores, vkSignalSemaphores);
-            
-            m_CommandQueue.clear();
-#endif
-        }
-
         void VKRenderContext::PresentAPIImpl(RZSemaphore* waitSemaphore)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -325,7 +303,7 @@ namespace Razix {
                 VKTexture* backendPtr = static_cast<VKTexture*>(colorAttachment);
                 attachInfo.imageView  = backendPtr->getFullRTVImageView();
 
-                // Don't do this here, done manually bu the FG and user land code
+                // Don't do this here, done manually by the FG and user land code
 
                 if (colorAttachment->getFormat() != TextureFormat::SCREEN) {
                     auto vkImage = static_cast<VKTexture*>(colorAttachment);

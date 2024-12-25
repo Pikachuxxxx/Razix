@@ -22,7 +22,6 @@ namespace Razix {
         protected:
             void         InitAPIImpl() override;
             void         AcquireImageAPIImpl(RZSemaphore* signalSemaphore) override;
-            void         SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores) override;
             void         BeginAPIImpl(RZDrawCommandBufferHandle cmdBuffer) override;
             void         SubmitImpl(RZDrawCommandBufferHandle cmdBuffer) override;
             void         PresentAPIImpl(RZSemaphore* waitSemaphore) override;

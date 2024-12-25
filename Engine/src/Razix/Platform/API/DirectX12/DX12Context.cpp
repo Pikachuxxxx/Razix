@@ -204,7 +204,7 @@ namespace Razix {
             PostGraphicsContextInit();
         }
 
-        void DX12Context::Destroy()
+        void DX12Context::DestroyContext()
         {
     #if RAZIX_DEBUG
             if (m_DXGIDebug) {

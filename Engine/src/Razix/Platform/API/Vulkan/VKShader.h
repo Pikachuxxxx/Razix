@@ -47,6 +47,8 @@ namespace Razix {
         private:
             void reflectShader();
             void createShaderModules();
+            void destroyUserDescriptorSets();
+
         };
     }    // namespace Gfx
 }    // namespace Razix
