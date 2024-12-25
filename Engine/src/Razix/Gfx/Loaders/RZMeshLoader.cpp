@@ -144,7 +144,7 @@ namespace Razix {
         RZMaterial* loadMaterial(const std::string& materialName, const std::string& folderName)
         {
 #if DISABLE_MATERIALS_LOADING
-            return GetDefaultMaterial();
+            return RZMaterial::GetDefaultMaterial();
 #else
 
             if (materialName == "DefaultMaterial")

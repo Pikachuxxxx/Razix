@@ -97,6 +97,7 @@ namespace Razix {
             static void Destroy();
 
             static RHI& Get();
+            static const RHI* GetPointer();
 
             static void Init();
             static void OnResize(u32 width, u32 height);

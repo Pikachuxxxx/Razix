@@ -27,7 +27,7 @@
 
 namespace Razix {
 
-    // TODO: Draw compaction for scene drawing all meshes are updated into large enough buffer adn we supply bnidless access and arguments to acces into it and do culling adn write to indirect args to draw meshlets using VB + HiZ + 2 Pass Occlusion Culling --> Tiled Forward PBR -> DS skin
+    // TODO: Draw compaction for scene drawing all meshes are updated into large enough buffer and we supply bindless access and arguments to access into it and do culling and write to indirect args to draw meshlets using VB + HiZ + 2 Pass Occlusion Culling --> Tiled Forward PBR -> DS skin
 
     RZScene::RZScene()
     {
@@ -158,56 +158,6 @@ namespace Razix {
             if (m_LastMeshesCount != meshesCount)
                 m_LastMeshesCount = meshesCount;
 
-#if PARALLELIZE_SCENE_RENDERING
-            std::for_each(std::execution::par, mesh_group.begin(), mesh_group.end(), [&mesh_group, &sceneDrawParams, &pipeline, &cmdBuffer](entt::entity entity) {
-                const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
-
-                if (!mrc.Mesh)
-                    return;
-
-                // Bind push constants, VBO, IBO and draw
-                glm::mat4 transform = mesh_trans.GetGlobalTransform();
-
-                //-----------------------------
-                Gfx::RZPushConstant modelMatrixPC;
-                modelMatrixPC.shaderStage = Gfx::ShaderStage::kVertex;
-                modelMatrixPC.offset      = 0;
-                struct PCD
-                {
-                    glm::mat4 mat;
-                } pcData{};
-                pcData.mat         = transform;
-                modelMatrixPC.size = sizeof(PCD);
-                modelMatrixPC.data = &pcData;
-                if (sceneDrawParams.overridePushConstantData != nullptr) {
-                    modelMatrixPC.size = sceneDrawParams.overridePushConstantDataSize;
-                    modelMatrixPC.data = sceneDrawParams.overridePushConstantData;
-                }
-                Gfx::RHI::BindPushConstant(pipeline, cmdBuffer, modelMatrixPC);
-                //-----------------------------
-                Gfx::RZMaterial* mat = nullptr;
-
-                if (sceneDrawParams.enableMaterials) {    // @ BindingTable_System::SET_IDX_MATERIAL_DATA Only UBO is uploaded
-                    mat = mrc.Mesh->getMaterial();
-                    if (!mat)
-                        return;
-                    mat->Bind();
-                    Gfx::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
-                }
-
-                mrc.Mesh->getVertexBuffer()->Bind(cmdBuffer);
-                mrc.Mesh->getIndexBuffer()->Bind(cmdBuffer);
-
-                ////-----------------------------
-                //// Material Data
-                //if (sceneDrawParams.enableMaterials)
-                //    Graphics::RHI::BindDescriptorSet(pipeline, cmdBuffer, mat->getDescriptorSet(), BindingTable_System::SET_IDX_MATERIAL_DATA);
-                ////-----------------------------
-
-                Gfx::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
-            });
-
-#else
             for (auto entity: mesh_group) {
                 RAZIX_PROFILE_SCOPEC("Draw Mesh Group", RZ_PROFILE_COLOR_SCENE);
                 // Draw the mesh renderer components
@@ -263,18 +213,11 @@ namespace Razix {
 
                 Gfx::RHI::DrawIndexed(cmdBuffer, mrc.Mesh->getIndexCount());
             }
-#endif
         } else if (geometryMode == SceneDrawGeometryMode::Cubemap) {
             if (!m_Cube)
                 m_Cube = Gfx::MeshFactory::CreatePrimitive(Gfx::Cube);
 
-            // AOS Deprecated
-            //Graphics::RZResourceManager::Get().getVertexBufferResource(m_Cube->getVertexBufferHandle())->Bind(cmdBuffer);
-            //Graphics::RZResourceManager::Get().getIndexBufferResource(m_Cube->getIndexBufferHandle())->Bind(cmdBuffer);
-
             m_Cube->bindVBsAndIB(cmdBuffer);
-
-            // TODO: Bind mat and desc sets and PCs
 
             Gfx::RHI::DrawIndexed(cmdBuffer, m_Cube->getIndexCount());
 
@@ -296,13 +239,6 @@ namespace Razix {
         for (auto& mesh: mrcs) {
             if (mesh.Mesh)
                 mesh.Mesh->Destroy();
-        }
-
-        // Sprites
-        auto sprites = this->GetComponentsOfType<SpriteRendererComponent>();
-        for (auto& sprite: sprites) {
-            if (sprite.Sprite)
-                sprite.Sprite->destroy();
         }
     }
 

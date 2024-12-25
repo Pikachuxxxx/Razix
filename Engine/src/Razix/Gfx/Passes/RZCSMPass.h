@@ -40,10 +40,10 @@ namespace Razix {
             static glm::mat4            buildDirLightMatrix(const glm::mat4& inversedViewProj, const glm::vec3& lightDirection, u32 shadowMapSize, f32 splitDist, f32 lastSplitDist);
 
         private:
-            RZPipelineHandle     m_Pipeline                  = {};
-            std::vector<Cascade> m_Cascades                  = {};
-            RZDescriptorSet*     m_CascadeSets[kNumCascades] = {};
-            RZTextureHandle      m_CSMArrayHandle;
+            RZPipelineHandle      m_Pipeline                  = {};
+            std::vector<Cascade>  m_Cascades                  = {};
+            RZDescriptorSetHandle m_CascadeSets[kNumCascades] = {};
+            RZTextureHandle       m_CSMArrayHandle            = {};
 
         private:
             CascadeSubPassData addCascadePass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, CascadeSubPassData subpassData, u32 cascadeIdx);

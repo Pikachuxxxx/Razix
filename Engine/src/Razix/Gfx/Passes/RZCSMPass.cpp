@@ -283,12 +283,12 @@ namespace Razix {
                     // Create the resource only on first pass, render to the same resource again and again
                     if (cascadeIdx == 0) {
                         RZTextureDesc textureDesc{};
-                        textureDesc.name     = "CascadedShadowMapArray";
-                        textureDesc.width    = kShadowMapSize;
-                        textureDesc.height   = kShadowMapSize;
-                        textureDesc.layers   = kNumCascades;
-                        textureDesc.type     = TextureType::k2DArray;
-                        textureDesc.format   = TextureFormat::DEPTH32F;
+                        textureDesc.name   = "CascadedShadowMapArray";
+                        textureDesc.width  = kShadowMapSize;
+                        textureDesc.height = kShadowMapSize;
+                        textureDesc.layers = kNumCascades;
+                        textureDesc.type   = TextureType::k2DArray;
+                        textureDesc.format = TextureFormat::DEPTH32F;
 
                         subpassData.cascadeOutput = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMapArray", CAST_TO_FG_TEX_DESC textureDesc);
                     }
@@ -317,9 +317,15 @@ namespace Razix {
                     if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
                         auto& shaderBindVars = RZResourceManager::Get().getShaderResource(shader)->getBindVars();
 
-                        auto descriptor           = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(data.vpLayer)];
-                        descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.vpLayer).getHandle();
-                        m_CascadeSets[cascadeIdx] = RZDescriptorSet::Create({*descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("CSM VPLayer # " + std::to_string(cascadeIdx)));
+                        auto descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(data.vpLayer)];
+                        if (descriptor)
+                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.vpLayer).getHandle();
+
+                        RZDescriptorSetDesc setDesc = {};
+                        setDesc.name                = "CSM VPLayer # " + std::to_string(cascadeIdx);
+                        setDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
+                        setDesc.descriptors.push_back(*descriptor);
+                        m_CascadeSets[cascadeIdx] = RZResourceManager::Get().createDescriptorSet(setDesc);
                     }
 
                     auto lightVPHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.vpLayer).getHandle();

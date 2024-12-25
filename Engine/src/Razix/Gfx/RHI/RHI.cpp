@@ -67,6 +67,12 @@ namespace Razix {
             return *s_APIInstance;
         }
 
+        const RHI* RHI::GetPointer()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+            return s_APIInstance;
+        }
+
         void RHI::Init()
         {
             RAZIX_PROFILE_GPU_SCOPE("Init Rendering");

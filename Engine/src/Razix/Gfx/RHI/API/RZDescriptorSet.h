@@ -3,6 +3,8 @@
 #include "Razix/Core/RZDebugConfig.h"
 #include "Razix/Gfx/RHI/API/RZBindingInfoAccessViews.h"
 
+#include "Razix/Gfx/RHI/API/RZAPIDesc.h"
+
 namespace Razix {
     namespace Gfx {
 

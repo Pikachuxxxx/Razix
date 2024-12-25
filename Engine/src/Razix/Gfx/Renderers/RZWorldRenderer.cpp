@@ -22,6 +22,8 @@
 
 #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
+#include "Razix/Gfx/RHI/API/RZShader.h"
+#include "Razix/Gfx/RHI/API/RZTexture.h"
 #include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
 
 #include "Razix/Gfx/Renderers/RZDebugRendererProxy.h"
@@ -963,10 +965,6 @@ namespace Razix {
                     }
 
                     if (!Gfx::RHI::Get().getFrameDataSet().isValid()) {
-                        RZDescriptorSetDesc setCreateDesc = {};
-                        setCreateDesc.name                = "DescriptorSet.GlobalFrameData";
-                        setCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
-
                         RZDescriptor descriptor                 = {};
                         descriptor.name                         = "Descriptor.FrameDataUBO";
                         descriptor.bindingInfo.location.binding = 0;
@@ -974,6 +972,9 @@ namespace Razix {
                         descriptor.bindingInfo.stage            = ShaderStage(ShaderStage::kVertex);
                         descriptor.uniformBuffer                = frameDataBufferHandle;
 
+                        RZDescriptorSetDesc setCreateDesc = {};
+                        setCreateDesc.name                = "DescriptorSet.GlobalFrameData";
+                        setCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
                         setCreateDesc.descriptors.push_back(descriptor);
                         setCreateDesc.setIdx = BindingTable_System::SET_IDX_FRAME_DATA;
 
@@ -1029,10 +1030,6 @@ namespace Razix {
                     }
 
                     if (!Gfx::RHI::Get().getSceneLightsDataSet().isValid()) {
-                        RZDescriptorSetDesc setCreateDesc = {};
-                        setCreateDesc.name                = "DescriptorSet.SceneLightsData";
-                        setCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
-
                         RZDescriptor descriptor                 = {};
                         descriptor.name                         = "Descriptor.SceneLightsDataUBO";
                         descriptor.bindingInfo.location.binding = 0;
@@ -1040,7 +1037,10 @@ namespace Razix {
                         descriptor.bindingInfo.stage            = ShaderStage(ShaderStage::kPixel);
                         descriptor.uniformBuffer                = lightsDataBuffer;
 
-                        setCreateDesc.setIdx = BindingTable_System::SET_IDX_FRAME_DATA;
+                        RZDescriptorSetDesc setCreateDesc = {};
+                        setCreateDesc.name                = "DescriptorSet.SceneLightsData";
+                        setCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
+                        setCreateDesc.setIdx              = BindingTable_System::SET_IDX_FRAME_DATA;
                         setCreateDesc.descriptors.push_back(descriptor);
 
                         auto m_SceneLightsDataSet = RZResourceManager::Get().createDescriptorSet(setCreateDesc);
