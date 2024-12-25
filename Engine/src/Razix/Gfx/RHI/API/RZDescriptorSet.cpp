@@ -52,6 +52,7 @@ namespace Razix {
 #ifdef RAZIX_RENDER_API_DIRECTX12
                 case Razix::Gfx::RenderAPI::D3D12: new (where) DX12DescriptorSet(desc RZ_DEBUG_E_ARG_NAME); break;
 #endif
+                default:break;
             }
         }
     }    // namespace Gfx
