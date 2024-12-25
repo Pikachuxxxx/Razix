@@ -553,10 +553,6 @@ namespace Razix {
 
         void RZWorldRenderer::OnImGui()
         {
-            //auto texHandle   = m_CSMPass.getCSMArrayTex();
-            //auto texResource = RZResourceManager::Get().getTextureResource(texHandle);
-            //texResource->setCurrentArrayLayer(0);
-            //
             if (ImGui::Begin("FrameGraph Debug")) {
                 if (ImGui::CollapsingHeader("PBR Deferred Lighting")) {
                     ImGui::SliderFloat("biasScale :", &m_PBRDeferredPass.biasScale, 0.0001f, 0.1f);
@@ -958,11 +954,12 @@ namespace Razix {
                     }
 
                     // This is for when we hot-reload the frame graph
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
-                        auto& set = Gfx::RHI::Get().getFrameDataSet();
-                        RZResourceManager::Get().destroyDescriptorSet(set);
-                        Gfx::RHI::Get().setFrameDataSet(set);
-                    }
+                    //if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    //    auto& set = Gfx::RHI::Get().getFrameDataSet();
+                    //    if (set.isValid())
+                    //        RZResourceManager::Get().destroyDescriptorSet(set);
+                    //    Gfx::RHI::Get().setFrameDataSet(set);
+                    //}
 
                     if (!Gfx::RHI::Get().getFrameDataSet().isValid()) {
                         RZDescriptor descriptor                 = {};
@@ -1023,11 +1020,12 @@ namespace Razix {
                     RZResourceManager::Get().getUniformBufferResource(lightsDataBuffer)->SetData(sizeof(GPULightsData), &gpuLightsData);
 
                     // This is for when we hot-reload the frame graph
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
-                        auto& set = Gfx::RHI::Get().getSceneLightsDataSet();
-                        RZResourceManager::Get().destroyDescriptorSet(set);
-                        Gfx::RHI::Get().setSceneLightsDataSet(set);
-                    }
+                    //if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    //    auto& set = Gfx::RHI::Get().getSceneLightsDataSet();
+                    //    if (set.isValid())
+                    //        RZResourceManager::Get().destroyDescriptorSet(set);
+                    //    Gfx::RHI::Get().setSceneLightsDataSet(set);
+                    //}
 
                     if (!Gfx::RHI::Get().getSceneLightsDataSet().isValid()) {
                         RZDescriptor descriptor                 = {};

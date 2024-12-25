@@ -22,7 +22,7 @@ public:                                                                         
                                                                                            \
 public:                                                                                    \
     RZ##resourceName##Handle create##resourceName(__VA_ARGS__);                            \
-    void                     destroy##resourceName(RZ##resourceName##Handle handle);       \
+    void                     destroy##resourceName(RZ##resourceName##Handle& handle);      \
     RZ##resourceName*        get##resourceName##Resource(RZ##resourceName##Handle handle); \
                                                                                            \
 private:                                                                                   \

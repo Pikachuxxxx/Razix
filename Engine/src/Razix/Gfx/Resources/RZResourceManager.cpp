@@ -62,7 +62,7 @@
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);                                                                                                                          \
         CREATE_UTIL(RZ##resourceName, m_##resourceName##Pool);                                                                                                                       \
     }                                                                                                                                                                                \
-    void RZResourceManager::destroy##resourceName(RZ##resourceName##Handle handle)                                                                                                   \
+    void RZResourceManager::destroy##resourceName(RZ##resourceName##Handle& handle)                                                                                                   \
     {                                                                                                                                                                                \
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);                                                                                                                          \
         DESTROY_UTIL(m_##resourceName##Pool, std::string("[Resource Manager] Attempting to release ") + std::string(#resourceName) + std::string(" resource with Invalid handle!")); \
@@ -73,7 +73,7 @@
     }
 
 #define RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS_DESTROY_GET(resourceName)                                                                                                                 \
-    void RZResourceManager::destroy##resourceName(RZ##resourceName##Handle handle)                                                                                                   \
+    void RZResourceManager::destroy##resourceName(RZ##resourceName##Handle& handle)                                                                                                  \
     {                                                                                                                                                                                \
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);                                                                                                                          \
         DESTROY_UTIL(m_##resourceName##Pool, std::string("[Resource Manager] Attempting to release ") + std::string(#resourceName) + std::string(" resource with Invalid handle!")); \
