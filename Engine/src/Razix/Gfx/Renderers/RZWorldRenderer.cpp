@@ -66,13 +66,9 @@ namespace Razix {
             //-------------------------------
             m_WaveInstrinsicsTestPass.addPass(m_FrameGraph, scene, &settings);
 
-            // These are system level code passes so always enabled
-            uploadFrameData(scene, settings);
-            //            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
-
-            m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//Assets/Textures/HDR/newport_loft.hdr");
-            m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
-            m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
+            //m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//Assets/Textures/HDR/newport_loft.hdr");
+            //m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
+            //m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
 
             //-------------------------------
             // [TEST] GS CUBE
@@ -82,7 +78,7 @@ namespace Razix {
             //-------------------------------
             // [TEST] HELLO TEXTURE
             //-------------------------------
-            m_HelloTextureTestPass.addPass(m_FrameGraph, scene, &settings);
+            //m_HelloTextureTestPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // Vis Buffer Fill Pass
@@ -159,6 +155,7 @@ namespace Razix {
             m_SceneAABB = {glm::vec3(-76.83, -5.05, -47.31), glm::vec3(71.99, 57.17, 44.21)};
             const Maths::RZGrid sceneGrid(m_SceneAABB);
 
+            // These are system level code passes so always enabled
             uploadFrameData(scene, settings);
             uploadLightsData(scene, settings);
 
@@ -507,13 +504,13 @@ namespace Razix {
 
 #if ENABLE_TEST_PASSES
             m_HelloTriangleTestPass.destroy();
-            m_HelloTextureTestPass.destroy();
+            //m_HelloTextureTestPass.destroy();
             m_WaveInstrinsicsTestPass.destroy();
 
             //m_VisBufferFillPass.destroy();
-            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.skybox);
-            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.diffuse);
-            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.specular);
+            //RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.skybox);
+            //RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.diffuse);
+            //RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.specular);
 #else
 
             // Destroy Imported Resources

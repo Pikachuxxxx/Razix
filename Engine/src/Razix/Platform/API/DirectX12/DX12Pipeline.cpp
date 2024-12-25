@@ -112,6 +112,7 @@ namespace Razix {
             psoDesc.PrimitiveTopologyType              = DX12Utilities::DrawTypeToDX12(desc.drawType);
             psoDesc.NumRenderTargets                   = desc.colorAttachmentFormats.size();
             psoDesc.RTVFormats[0]                      = DXGI_FORMAT_R8G8B8A8_UNORM;
+            //psoDesc.DSVFormat                          = DXGI_FORMAT_D16_UNORM;
             psoDesc.SampleDesc.Count                   = 1;
 
             CHECK_HRESULT(DX12Context::Get()->getDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_PipelineState)));
