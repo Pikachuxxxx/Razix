@@ -58,7 +58,7 @@ namespace Razix {
             delete s_APIInstance;
 
             // Release the context at last
-            Gfx::RZGraphicsContext::GetContext()->DestroyContext();
+            Gfx::RZGraphicsContext::GetContext()->Destroy();
         }
 
         RHI& RHI::Get()

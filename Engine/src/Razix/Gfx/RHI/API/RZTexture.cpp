@@ -4,18 +4,11 @@
 #include "RZTexture.h"
 
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
-
-#ifdef RAZIX_RENDER_API_OPENGL
-    #include "Razix/Platform/API/OpenGL/OpenGLTexture.h"
-#endif
+#include "Razix/Gfx/RHI/API/RZShader.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
     #include "Razix/Platform/API/Vulkan/VKTexture.h"
 #endif
-
-#include "Razix/Gfx/RHI/API/RZShader.h"
-
-#include "Razix/Gfx/Resources/IRZResource.h"
 
 namespace Razix {
     namespace Gfx {

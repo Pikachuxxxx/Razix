@@ -4,6 +4,7 @@
 #include "Razix/Gfx/RHI/API/RZBindingInfoAccessViews.h"
 
 #include "Razix/Gfx/RHI/API/RZAPIDesc.h"
+#include "Razix/Gfx/Resources/IRZResource.h"
 
 namespace Razix {
     namespace Gfx {

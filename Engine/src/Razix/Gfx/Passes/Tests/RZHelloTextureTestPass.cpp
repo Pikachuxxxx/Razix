@@ -100,7 +100,6 @@ namespace Razix {
                             descriptor->texture = m_TestTextureHandle;
 
                         // Vulkan will create a default sampler if not found
-
                         RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
                     }
 
