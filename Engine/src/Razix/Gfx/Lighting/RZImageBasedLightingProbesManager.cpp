@@ -221,7 +221,7 @@ namespace Razix {
             preFilteredMapTextureDesc.name                  = "Texture.PreFilteredMap";
             preFilteredMapTextureDesc.width                 = PREFILTERED_MAP_DIM;
             preFilteredMapTextureDesc.height                = PREFILTERED_MAP_DIM;
-            preFilteredMapTextureDesc.layers                = 6;
+            preFilteredMapTextureDesc.layers                = CUBEMAP_LAYERS;
             preFilteredMapTextureDesc.type                  = TextureType::kRWCubeMap;
             preFilteredMapTextureDesc.format                = TextureFormat::RGBA16F;
             preFilteredMapTextureDesc.initResourceViewHints = ResourceViewHint::kSRV | ResourceViewHint::kUAV;
