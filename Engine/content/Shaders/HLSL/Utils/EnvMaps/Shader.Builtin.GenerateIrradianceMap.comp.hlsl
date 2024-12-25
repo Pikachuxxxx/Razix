@@ -3,7 +3,8 @@
  * Compute shader to convert a cubemap to Irradiance map
  */
 //------------------------------------------------------------------------------
-#include <Utils/EnvMaps/ShaderInclude.Builtin.EnvmapUtils.hlsl>
+#define GEN_IRRADIANCE
+#include <Utils/EnvMaps/ShaderInclude.Builtin.EnvmapUtils.h>
 //------------------------------------------------------------------------------
 TextureCube EnvCubeMap : register(t0); // Environment Cubemap
 SamplerState EnvCubeSampler : register(s1); // Sampler for the HDR texture

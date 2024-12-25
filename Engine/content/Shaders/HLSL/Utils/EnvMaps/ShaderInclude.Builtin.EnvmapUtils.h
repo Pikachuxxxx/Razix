@@ -5,8 +5,15 @@
 //------------------------------------------------------------------------------
 // Reference: https://github.com/Nadrin/PBR/
 
-static const uint NumSamples = 1024;
+#ifdef GEN_IRRADIANCE
+static const uint  NumSamples    = 64 * 1024;
 static const float InvNumSamples = 1.0 / float(NumSamples);
+#elif defined      GEN_PREFILTERED
+static const uint  NumSamples    = 1024;
+static const float InvNumSamples = 1.0 / float(NumSamples);
+#else
+    #error define either GEN_IRRADIANCE or GEN_PREFILTERED before the EnvMapUtils.h include file
+#endif
 
 // Global View Projection matrices
 float3 UVToDirection(float2 st, uint face)
