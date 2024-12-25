@@ -896,6 +896,7 @@ namespace Razix {
                 [&](FrameData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
+                    // TODO: convert this to struct form
                     data.frameData = builder.create<FrameGraph::RZFrameGraphBuffer>("FrameData", {"FrameData", sizeof(GPUFrameData), 0, BufferUsage::PersistentStream});
 
                     data.frameData = builder.write(data.frameData);
@@ -958,15 +959,25 @@ namespace Razix {
                     if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
                         auto& set = Gfx::RHI::Get().getFrameDataSet();
                         RZResourceManager::Get().destroyDescriptorSet(set);
+                        Gfx::RHI::Get().setFrameDataSet(set);
                     }
 
-                    if (!Gfx::RHI::Get().getFrameDataSet()) {
-                        RZDescriptor descriptor{};
+                    if (!Gfx::RHI::Get().getFrameDataSet().isValid()) {
+                        RZDescriptorSetDesc setCreateDesc = {};
+                        setCreateDesc.name                = "DescriptorSet.GlobalFrameData";
+                        setCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
+
+                        RZDescriptor descriptor                 = {};
+                        descriptor.name                         = "Descriptor.FrameDataUBO";
                         descriptor.bindingInfo.location.binding = 0;
                         descriptor.bindingInfo.type             = DescriptorType::kUniformBuffer;
-                        descriptor.bindingInfo.stage            = ShaderStage(ShaderStage::kGeometry);    // Add support for Pixel shader stage as well
+                        descriptor.bindingInfo.stage            = ShaderStage(ShaderStage::kVertex);
                         descriptor.uniformBuffer                = frameDataBufferHandle;
-                        auto m_FrameDataSet                     = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set Global"));
+
+                        setCreateDesc.descriptors.push_back(descriptor);
+                        setCreateDesc.setIdx = BindingTable_System::SET_IDX_FRAME_DATA;
+
+                        auto m_FrameDataSet = RZResourceManager::Get().createDescriptorSet(setCreateDesc);
                         Gfx::RHI::Get().setFrameDataSet(m_FrameDataSet);
                     }
                     RAZIX_MARK_END();
@@ -983,6 +994,7 @@ namespace Razix {
                 [&](SceneLightsData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
+                    // TODO: convert this to struct form
                     data.lightsDataBuffer = builder.create<FrameGraph::RZFrameGraphBuffer>("SceneLightsData", {"SceneLightsData", sizeof(GPULightsData), 0, BufferUsage::PersistentStream});
                     data.lightsDataBuffer = builder.write(data.lightsDataBuffer);
                 },
@@ -999,9 +1011,7 @@ namespace Razix {
                     for (auto entity: group) {
                         const auto& [lightComponent, transformComponent] = group.get<LightComponent, TransformComponent>(entity);
 
-                        // Set the Position of the light using this transform component
                         lightComponent.light.getLightData().position = transformComponent.Translation;
-                        //lightComponent.light.setDirection(glm::vec3(glm::degrees(transformComponent.Rotation.x), glm::degrees(transformComponent.Rotation.y), glm::degrees(transformComponent.Rotation.z)));
                         lightComponent.light.setDirection(lightComponent.light.getLightData().position);
                         gpuLightsData.lightData[gpuLightsData.numLights] = lightComponent.light.getLightData();
 
@@ -1013,21 +1023,28 @@ namespace Razix {
 
                     // This is for when we hot-reload the frame graph
                     if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
-                        auto set = Gfx::RHI::Get().getSceneLightsDataSet();
-                        if (set)
-                            set->Destroy();
-                        Gfx::RHI::Get().setSceneLightsDataSet(nullptr);
+                        auto& set = Gfx::RHI::Get().getSceneLightsDataSet();
+                        RZResourceManager::Get().destroyDescriptorSet(set);
+                        Gfx::RHI::Get().setSceneLightsDataSet(set);
                     }
 
-                    if (!Gfx::RHI::Get().getSceneLightsDataSet()) {
-                        RZDescriptor lightsData_descriptor{};
-                        lightsData_descriptor.bindingInfo.location.binding = 0;
-                        lightsData_descriptor.bindingInfo.type             = DescriptorType::kUniformBuffer;
-                        lightsData_descriptor.bindingInfo.stage            = ShaderStage::kPixel;
-                        lightsData_descriptor.uniformBuffer                = lightsDataBuffer;
+                    if (!Gfx::RHI::Get().getSceneLightsDataSet().isValid()) {
+                        RZDescriptorSetDesc setCreateDesc = {};
+                        setCreateDesc.name                = "DescriptorSet.SceneLightsData";
+                        setCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
 
-                        auto m_SceneLightsDataDescriptorSet = RZDescriptorSet::Create({lightsData_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Scene Lights Set Global"));
-                        Gfx::RHI::Get().setSceneLightsDataSet(m_SceneLightsDataDescriptorSet);
+                        RZDescriptor descriptor                 = {};
+                        descriptor.name                         = "Descriptor.SceneLightsDataUBO";
+                        descriptor.bindingInfo.location.binding = 0;
+                        descriptor.bindingInfo.type             = DescriptorType::kUniformBuffer;
+                        descriptor.bindingInfo.stage            = ShaderStage(ShaderStage::kPixel);
+                        descriptor.uniformBuffer                = lightsDataBuffer;
+
+                        setCreateDesc.setIdx = BindingTable_System::SET_IDX_FRAME_DATA;
+                        setCreateDesc.descriptors.push_back(descriptor);
+
+                        auto m_SceneLightsDataSet = RZResourceManager::Get().createDescriptorSet(setCreateDesc);
+                        Gfx::RHI::Get().setSceneLightsDataSet(m_SceneLightsDataSet);
                     }
                     RAZIX_MARK_END();
                     RAZIX_TIME_STAMP_END();

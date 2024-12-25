@@ -133,7 +133,6 @@ namespace Razix {
 
             auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("Environment Cubemap generation", glm::vec4(0.25f));
             {
-                RHI::SetCmdBuffer(cmdBuffer);
                 RHI::BindPipeline(envMapPipeline, cmdBuffer);
                 RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSet, BindingTable_System::SET_IDX_SYSTEM_START);
                 RHI::Dispatch(cmdBuffer, CUBEMAP_DIM / IBL_DISPATCH_THREAD_GROUP_DIM, CUBEMAP_DIM / IBL_DISPATCH_THREAD_GROUP_DIM, CUBEMAP_LAYERS);
@@ -203,7 +202,6 @@ namespace Razix {
 
             auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("Irradiance Cubemap generation", glm::vec4(0.5f));
             {
-                RHI::SetCmdBuffer(cmdBuffer);
                 RHI::BindPipeline(envMapPipeline, cmdBuffer);
                 RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSet, BindingTable_System::SET_IDX_SYSTEM_START);
                 RHI::Dispatch(cmdBuffer, IRRADIANCE_MAP_DIM / IBL_DISPATCH_THREAD_GROUP_DIM, IRRADIANCE_MAP_DIM / IBL_DISPATCH_THREAD_GROUP_DIM, CUBEMAP_LAYERS);
