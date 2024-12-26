@@ -345,6 +345,39 @@ namespace Razix {
                 }
             }
 
+            D3D12_SHADER_VISIBILITY ShaderStageToVisibility(ShaderStage stage)
+            {
+                switch (stage) {
+                    case kVertex:
+                        return D3D12_SHADER_VISIBILITY_VERTEX;
+                        break;
+                    case kPixel:
+                        return D3D12_SHADER_VISIBILITY_PIXEL;
+                        break;
+                    case kCompute:
+                        return D3D12_SHADER_VISIBILITY_ALL;    // Ahhh ik weird right but since once stage this works!
+                        break;
+                    case kGeometry:
+                        return D3D12_SHADER_VISIBILITY_GEOMETRY;
+                        break;
+                    case kTesselationControl:
+                        return D3D12_SHADER_VISIBILITY_DOMAIN;
+                        break;
+                    case kTesselationEvaluation:
+                        return D3D12_SHADER_VISIBILITY_HULL;
+                        break;
+                    case kAmplification:
+                        return D3D12_SHADER_VISIBILITY_AMPLIFICATION;
+                        break;
+                    case kMesh:
+                        return D3D12_SHADER_VISIBILITY_MESH;
+                        break;
+                    default:
+                        return D3D12_SHADER_VISIBILITY_ALL;
+                        break;
+                }
+            }
+
             // Pipeline Info
 
             D3D12_PRIMITIVE_TOPOLOGY_TYPE DrawTypeToDX12(Razix::Gfx::DrawType type)

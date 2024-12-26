@@ -29,6 +29,7 @@ namespace Razix {
         private:
             std::map<ShaderStage, ID3DBlob*>      m_ShaderStageBlobs;
             std::vector<D3D12_INPUT_ELEMENT_DESC> m_VertexInputAttributeDescriptions;
+            std::vector<D3D12_ROOT_PARAMETER>     m_RootParams;
 
         private:
             // https://simoncoenen.com/blog/programming/graphics/DxcCompiling

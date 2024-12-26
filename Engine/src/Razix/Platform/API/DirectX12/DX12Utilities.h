@@ -124,6 +124,8 @@ namespace Razix {
 
             D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapTypeToDX12(DescriptorHeapType heapType);
 
+            D3D12_SHADER_VISIBILITY ShaderStageToVisibility(ShaderStage stage);
+
             // PipelineInfo
             /**
              * Converts the draw type that is used to draw geometry into DX12 enum value

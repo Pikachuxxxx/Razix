@@ -265,8 +265,7 @@ namespace Razix {
                     break;
                 }
 
-                RZDescriptor rzDescriptor = {};
-                u32          heapIdx      = shaderInputBindDesc.Space;
+                u32 heapIdx = shaderInputBindDesc.Space;
 
                 DescriptorBindingInfo bindingInfo = {};
                 bindingInfo.stage                 = stage;
@@ -275,9 +274,10 @@ namespace Razix {
                 bindingInfo.count                 = shaderInputBindDesc.BindCount;
                 bindingInfo.type                  = DX12Utilities::DXToEngineDescriptorType(shaderInputBindDesc.Type);
 
-                rzDescriptor.name        = shaderInputBindDesc.Name;
-                rzDescriptor.typeName    = shaderInputBindDesc.Type;
-                rzDescriptor.bindingInfo = bindingInfo;
+                RZDescriptor rzDescriptor = {};
+                rzDescriptor.name         = shaderInputBindDesc.Name;
+                rzDescriptor.typeName     = shaderInputBindDesc.Type;
+                rzDescriptor.bindingInfo  = bindingInfo;
 
                 auto& descriptor_heap = m_DescriptorsPerHeap[heapIdx];
                 descriptor_heap.push_back(rzDescriptor);
@@ -286,6 +286,32 @@ namespace Razix {
 
         void DX12Shader::createRootSigParams()
         {
+            // First we deal with all the bindable resources
+            // create the D3D12_ROOT_PARAMETER_TYPE for each bound resources
+
+            for (auto& heap: m_DescriptorsPerHeap) {
+                D3D12_ROOT_PARAMETER param                            = {};
+                param.ParameterType                                   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+                param.DescriptorTable.NumDescriptorRanges             = heap.second.size();
+                std::vector<D3D12_DESCRIPTOR_RANGE> descritptorRange  = {};
+                for (auto& descriptor: heap.second) {
+                    // ASSUMPTION: This is weird but we assume all the descriptors in a heap have the same stage and enforce it, if not thing will crash
+                    param.ShaderVisibility = DX12Utilities::ShaderStageToVisibility(descriptor.bindingInfo.stage);
+                    D3D12_DESCRIPTOR_RANGE range = {};
+                    range.NumDescriptors         = descriptor.bindingInfo.count;
+                }
+                param.DescriptorTable.pDescriptorRanges
+            }
+
+            // Next push constants: here it'll be a cbuffer as a 32bit constant
+            for (u32 i = 0; i < m_PushConstants.size(); i++) {
+                D3D12_ROOT_PARAMETER param = {};
+                param.ParameterType        = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+                param.ShaderVisibility     = DX12Utilities::ShaderStageToVisibility(m_PushConstants[i].bindingInfo.stage);
+                // param.Constants.Num32BitValues = ;// need the size from reflection data or cap it off at 256/128 bytes??
+            }
+
+            // No inline CBV, SRV, UAV will be used in engine, this is equivalent to Vulkan push descriptors
         }
 
         void DX12Shader::createShaderModules()

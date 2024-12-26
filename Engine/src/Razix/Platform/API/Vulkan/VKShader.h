@@ -40,8 +40,7 @@ namespace Razix {
             std::map<ShaderStage, VkPipelineShaderStageCreateInfo>   m_ShaderCreateInfos;                /* Shader module abstractions that will be used while creating the pipeline to bind the shaders             */
             std::vector<VkPushConstantRange>                         m_VKPushConstants;                  /* Encapsulates the push constants in the shaders                                                           */
             VkPipelineLayout                                         m_PipelineLayout;                   /* Pipeline layout encapsulates the descriptor sets and push constants info for creating graphics pipeline  */
-            bool                                                m_PotentiallyBindless = false;
-
+            bool                                                     m_PotentiallyBindless = false;
 
         private:
             void reflectShader();

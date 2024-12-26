@@ -38,7 +38,9 @@ namespace Razix {
             kGeometry              = 1 << 3,
             kTesselationControl    = 1 << 4,
             kTesselationEvaluation = 1 << 5,
-            COUNT                  = 6
+            kAmplification         = 1 << 6,
+            kMesh                  = 1 << 7,
+            ShaderStage_COUNT      = 6
         };
 
         /* Used the engine to find the right shader cache based on shader file name, forward declaring future API feature */
