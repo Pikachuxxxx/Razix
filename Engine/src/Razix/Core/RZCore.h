@@ -166,11 +166,10 @@
 // Function Bind macro
 #define RAZIX_BIND_CB_EVENT_FN(x) std::bind(&Razix::RZApplication::x, this, std::placeholders::_1)
 
-#define CAST_TO_FG_DESC(t)  (Razix::Gfx::FrameGraph::t::Desc)
-#define CAST_TO_FG_TEX_DESC (Razix::Gfx::FrameGraph::RZFrameGraphTexture::Desc)
+#define CAST_TO_FG_DESC(t)   (Razix::Gfx::FrameGraph::t::Desc)
+#define CAST_TO_FG_TEX_DESC  (Razix::Gfx::FrameGraph::RZFrameGraphTexture::Desc)
 #define CAST_TO_FG_SAMP_DESC (Razix::Gfx::FrameGraph::RZFrameGraphSampler::Desc)
-#define CAST_TO_FG_BUF_DESC (Razix::Gfx::FrameGraph::RZFrameGraphBuffer::Desc)
-
+#define CAST_TO_FG_BUF_DESC  (Razix::Gfx::FrameGraph::RZFrameGraphBuffer::Desc)
 
 // right bit shift (useful for converting integer based color to hex)
 #define RZ_BIT_SHIFT(x) (1 << x)
@@ -577,6 +576,9 @@ static constexpr float operator""_inKib(unsigned long long int x)
 #elif RAZIX_PLATFORM_MACOS
     #define RAZIX_USE_VMA 0    // Still porting WIP, so disabled idk if the SDK has it
 #endif
+
+/* Total No.Of Render Targets = typically a Max of 8 (as supported by most APIs) */
+#define RAZIX_MAX_RENDER_TARGETS 8
 
 /* Size of indices in Razix Engine, change here for global configuration */
 #define RAZIX_INDICES_SIZE         sizeof(u32)    // we use 32-bit indices for now

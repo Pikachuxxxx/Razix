@@ -5,6 +5,9 @@
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
     #include <d3d12.h>
+    // Don't use the windows SDK includes, use the latest from vendor
+    #include <vendor/dxc/inc/d3d12shader.h>
+    #include <vendor/dxc/inc/dxcapi.h>
 
 namespace Razix {
     namespace Gfx {
@@ -17,10 +20,7 @@ namespace Razix {
 
             RAZIX_CLEANUP_RESOURCE
 
-            void Bind() const override;
-            void Unbind() const override;
-            void CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) override;
-            void GenerateDescriptorHeaps() override;
+            virtual void GenerateUserDescriptorHeaps() override;
 
             RAZIX_INLINE const std::vector<D3D12_INPUT_ELEMENT_DESC>& getVertexAttribDescriptions() const { return m_VertexInputAttributeDescriptions; }
             RAZIX_INLINE u32                                          getVertexAttribDescriptionsCount() const { return m_VertexInputAttributeDescriptions.size(); }
@@ -33,6 +33,9 @@ namespace Razix {
         private:
             // https://simoncoenen.com/blog/programming/graphics/DxcCompiling
             void reflectShader();
+            void reflectVertexInputParams(ID3D12ShaderReflection* shaderReflection, D3D12_SHADER_DESC shaderDesc);
+            void reflectDescriptorTables(ShaderStage stage, ID3D12ShaderReflection* shaderReflection, D3D12_SHADER_DESC shaderDesc);
+            void createRootSigParams();
             void createShaderModules();
         };
     }    // namespace Gfx

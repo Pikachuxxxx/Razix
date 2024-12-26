@@ -8,6 +8,10 @@
 namespace Razix {
     namespace Gfx {
 
+#define PUSH_CONSTANT_REFLECTION_NAME_PREFIX "PushConstant"
+#define PUSH_CONSTANT_REFLECTION_NAME_VK     PUSH_CONSTANT_REFLECTION_NAME_PREFIX
+#define PUSH_CONSTANT_REFLECTION_NAME_DX12   "PushConstantBuffer"
+
         struct SceneDrawParams
         {
             bool           enableFrameData              = false;
@@ -25,7 +29,7 @@ namespace Razix {
 
         // This is the only exception of using enum
         /* The stage which the shader corresponds to in the graphics pipeline */
-        enum ShaderStage: u32
+        enum ShaderStage : u32
         {
             kNone                  = 0,
             kVertex                = 1 << 0,
@@ -61,6 +65,12 @@ namespace Razix {
             }
         };
 
+        static std::unordered_map<ShaderStage, const char*> g_ShaderStageEntryPointNameMap = {
+            {ShaderStage::kVertex, "VS_MAIN"},
+            {ShaderStage::kPixel, "PS_MAIN"},
+            {ShaderStage::kCompute, "CS_MAIN"},
+            {ShaderStage::kGeometry, "GS_MAIN"}};
+
         /* 
          * Razix Shader that will be passed to the GPU at various stages 
          * 
@@ -91,47 +101,33 @@ namespace Razix {
              */
             static std::map<ShaderStage, std::string> ParseRZSF(const std::string& filePath);
 
-            /* Bind the shader to the pipeline */
-            virtual void Bind() const = 0;
-            /* Unbind the shader from the pipeline */
-            virtual void Unbind() const = 0;
-            /* Cross compile shaders from src type to current API shader language */
-            virtual void CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType) = 0;
-            /* Generates descriptor sets, useful when resize events or shader reload occurs */
-            virtual void GenerateDescriptorHeaps() = 0;
+            /* Generates user descriptor sets that are not created/bound by the engine implicitly */
+            virtual void GenerateUserDescriptorHeaps() = 0;
 
-            /* Gets the name of the shader file */
-            RAZIX_INLINE const std::string& getName() const { return m_Desc.name; }
-            /* Gets the input stride of the vertex layout */
-            RAZIX_INLINE const u32& getInputStride() const { return m_VertexInputStride; }
-            /* Gets per set descriptors info */
-            RAZIX_INLINE DescriptorsPerHeapMap getDescriptorsPerHeapMap() { return m_DescriptorsPerHeap; }
-            /* Gets the push constants in the shader */
-            RAZIX_INLINE std::vector<RZPushConstant>& getPushConstants() { return m_PushConstants; }
-            /* Gets the scene draw parameters */
-            RAZIX_INLINE const SceneDrawParams& getSceneDrawParams() { return m_SceneParams; }
-            RAZIX_INLINE void                   overrideSceneDrawParams(SceneDrawParams& sceneDrawParams) { m_SceneParams = sceneDrawParams; }
-            /* Gets the bind variables for shader */
-            RAZIX_INLINE ShaderBindVars& getBindVars() { return m_BindVars; }
-            RAZIX_INLINE void            setBindVars(ShaderBindVars& vars) { m_BindVars = vars; }
+            inline const std::string&    getName() const { return m_Desc.name; }
+            inline const u32&            getInputStride() const { return m_VertexInputStride; }
+            inline DescriptorsPerHeapMap getDescriptorsPerHeapMap() { return m_DescriptorsPerHeap; }
+            // TODO: Instead of one PushConstant per entire shader, have one per shader stage instead, implement it when it comes to that
+            inline std::vector<RZPushConstant>& getPushConstants(ShaderStage stage) { return m_PushConstants; }
+            inline const SceneDrawParams&       getSceneDrawParams() { return m_SceneParams; }
+            inline void                         overrideSceneDrawParams(SceneDrawParams& sceneDrawParams) { m_SceneParams = sceneDrawParams; }
+            inline ShaderBindVars&              getBindVars() { return m_BindVars; }
+            inline void                         setBindVars(ShaderBindVars& vars) { m_BindVars = vars; }
+            inline std::string                  getShaderFilePath() const { return m_Desc.filePath; }
+
             /* Updates the descriptor sets with the bind variables aka filled descriptors */
             void updateBindVarsHeaps();
 
-            RAZIX_INLINE std::string getShaderFilePath() const { return m_Desc.filePath; }
-            RAZIX_DEPRECATED("Since m_Desc already contains this info, this is redundant.")
-            RAZIX_INLINE void setShaderFilePath(std::string val) { m_Desc.filePath = val; }
-            // TODO: Expose internal Vertex Attributes and Layout functions in a engine wide style
-
         protected:
             RZShaderDesc                       m_Desc       = {};
-            ShaderSourceType                   m_SourceType = ShaderSourceType::SPIRV; /* The source type of the shader                                                                            */
-            std::map<ShaderStage, std::string> m_ParsedRZSF;                           /* The razix shader file that was parsed                                                                    */
-            RZBufferLayout                     m_BufferLayout;                         /* Detailed description of the input data format of the vertex buffer that has been extracted from shader   */
-            DescriptorsPerHeapMap              m_DescriptorsPerHeap;                   /* Encapsulates the descriptors corresponding to a set with binding and resource information                */
-            ShaderBindVars                     m_BindVars;                             /* Descriptors and name maps for updating descriptors                                                       */
-            SceneDrawParams                    m_SceneParams;                          /* Some params to help with scene drawing                                                                   */
-            std::vector<RZPushConstant>        m_PushConstants;                        /* The list of the the push constants                                                                       */
-            u32                                m_VertexInputStride = 0;                /* The stride of the vertex data that is extracted from the information                                     */
+            ShaderSourceType                   m_SourceType = ShaderSourceType::SPIRV;
+            std::map<ShaderStage, std::string> m_ParsedRZSF;
+            RZBufferLayout                     m_BufferLayout;
+            DescriptorsPerHeapMap              m_DescriptorsPerHeap;
+            ShaderBindVars                     m_BindVars;
+            SceneDrawParams                    m_SceneParams;
+            std::vector<RZPushConstant>        m_PushConstants;
+            u32                                m_VertexInputStride = 0;
 
         private:
             /**

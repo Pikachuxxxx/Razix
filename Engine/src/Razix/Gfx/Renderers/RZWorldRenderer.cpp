@@ -66,24 +66,16 @@ namespace Razix {
             //-------------------------------
             m_WaveInstrinsicsTestPass.addPass(m_FrameGraph, scene, &settings);
 
-            //m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//Assets/Textures/HDR/newport_loft.hdr");
-            //m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
-            //m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
-
-            //-------------------------------
-            // [TEST] GS CUBE
-            //-------------------------------
-            // m_GSCubeTestPass.addPass(m_FrameGraph, scene, &settings);
-
             //-------------------------------
             // [TEST] HELLO TEXTURE
             //-------------------------------
             //m_HelloTextureTestPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
-            // Vis Buffer Fill Pass
+            // [TEST] GS CUBE
             //-------------------------------
-            //m_VisBufferFillPass.addPass(m_FrameGraph, scene, &settings);
+            // m_GSCubeTestPass.addPass(m_FrameGraph, scene, &settings);
+
             return;
 #else
 
@@ -183,6 +175,11 @@ namespace Razix {
             // [ ] CSM PAss
             //-------------------------------
             m_CSMPass.addPass(m_FrameGraph, scene, &settings);
+
+            //-------------------------------
+            // Vis Buffer Fill Pass
+            //-------------------------------
+            //m_VisBufferFillPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // GBuffer Pass
@@ -504,13 +501,8 @@ namespace Razix {
 
 #if ENABLE_TEST_PASSES
             m_HelloTriangleTestPass.destroy();
-            //m_HelloTextureTestPass.destroy();
             m_WaveInstrinsicsTestPass.destroy();
-
-            //m_VisBufferFillPass.destroy();
-            //RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.skybox);
-            //RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.diffuse);
-            //RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.specular);
+            //m_HelloTextureTestPass.destroy();
 #else
 
             // Destroy Imported Resources
@@ -528,6 +520,7 @@ namespace Razix {
     #else
             m_PBRLightingPass.destroy();
     #endif
+            //m_VisBufferFillPass.destroy();
             m_SkyboxPass.destroy();
             m_ShadowPass.destroy();
             m_GBufferPass.destroy();

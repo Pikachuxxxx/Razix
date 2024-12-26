@@ -27,8 +27,9 @@ namespace Razix {
         /* What type of data does the descriptor set member represent */
         enum class DescriptorType : u32
         {
-            kNone          = UINT32_MAX,    // TODO: Remove this?
+            kNone          = UINT32_MAX,
             kUniformBuffer = 0,
+            kPushConstant,
             kImageSamplerCombined,    // (combined image sampler, Vulkan only) // Not Recommended for usage!
             kTexture,
             kRWTexture,

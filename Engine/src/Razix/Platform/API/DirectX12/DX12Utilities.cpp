@@ -322,6 +322,7 @@ namespace Razix {
                         break;
                     default:
                         return DescriptorType::kNone;
+                        RAZIX_CORE_ERROR("[DX12] None descriptor type specified! you're doomed check your code/shaders properly.");
                         break;
                 }
             }

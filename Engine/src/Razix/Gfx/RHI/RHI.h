@@ -96,7 +96,7 @@ namespace Razix {
             static void Create(u32 width, u32 height);
             static void Destroy();
 
-            static RHI& Get();
+            static RHI&       Get();
             static const RHI* GetPointer();
 
             static void Init();
@@ -140,7 +140,9 @@ namespace Razix {
             static void SetScissorRect(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height);
 
             // Misc
-            static RZSwapchain*              GetSwapchain();
+            // FIXME: Don't expose this at all, write simple wrappers, we hardly need the current image index or the swap image RTV
+            static RZSwapchain* GetSwapchain();
+            /* Returns the current draw command buffer to record onto from a ring buffer */
             static RZDrawCommandBufferHandle GetCurrentCommandBuffer();
 
             inline RZDescriptorSetHandle       getFrameDataSet() const { return m_FrameDataSet; }
@@ -182,12 +184,14 @@ namespace Razix {
         protected:
             static RHI* s_APIInstance;
 
-            std::string                            m_RendererTitle; /* The name of the renderer API that is being used */
-            u32                                    m_Width      = 0;
-            u32                                    m_Height     = 0;
-            u32                                    m_PrevWidth  = 0;
-            u32                                    m_PrevHeight = 0;
-            CommandQueue                           m_GraphicsCommandQueue; /* The queue of recorded commands that needs execution */
+            std::string  m_RendererTitle; /* The name of the renderer API that is being used */
+            u32          m_Width      = 0;
+            u32          m_Height     = 0;
+            u32          m_PrevWidth  = 0;
+            u32          m_PrevHeight = 0;
+            CommandQueue m_GraphicsCommandQueue; /* The queue of recorded commands that needs execution */
+            // TODO: Move all these to Diana, these setups are internally customized by the high-level renderer, only util functions exist here no low-level logic must exist
+
             RZDrawCommandBufferHandle              m_CurrentCommandBuffer;
             std::vector<RZDrawCommandBufferHandle> m_DrawCommandBuffers;
             std::vector<RZCommandPoolHandle>       m_GraphicsCommandPool;

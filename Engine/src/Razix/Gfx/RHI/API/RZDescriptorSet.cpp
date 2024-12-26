@@ -18,6 +18,8 @@ namespace Razix {
 
         GET_INSTANCE_SIZE_IMPL(DescriptorSet);
 
+        //-------------------------------------------------------------------------------------------
+
         RZDescriptor::RZDescriptor(const RZDescriptor& other)
             : name(other.name), typeName(other.typeName), uboMembers(other.uboMembers), bindingInfo(other.bindingInfo), size(other.size), offset(other.offset)
         {
@@ -52,7 +54,7 @@ namespace Razix {
 #ifdef RAZIX_RENDER_API_DIRECTX12
                 case Razix::Gfx::RenderAPI::D3D12: new (where) DX12DescriptorSet(desc RZ_DEBUG_E_ARG_NAME); break;
 #endif
-                default:break;
+                default: break;
             }
         }
     }    // namespace Gfx
