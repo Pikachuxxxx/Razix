@@ -3,32 +3,20 @@
  * Default Vertex Shader that can be used for rendering basic geometry
  */
 //------------------------------------------------------------------------------
-#include "../ShaderCommon/ShaderInclude.Builtin.ShaderLangCommon.h"
+#include <ShaderInclude.Builtin.ShaderLangCommon.h>
 //------------------------------------------------------------------------------
 // Includes
-#include "Common/ShaderInclude.Builtin.FrameData.h"
-//------------------------------------------------------------------------------
-
-// Vertex Input
-struct VSIn
-{
-    float3 inPosition   : POSITION;
-    float4 inColor      : COLOR;
-    float2 inTexCoord   : TEXCOORD;
-    float3 inNormal     : NORMAL;
-};
+#include <Common/ShaderInclude.Builtin.FrameData.h>
+#include <Common/ShaderInclude.Builtin.VertexInput.h>
 //------------------------------------------------------------------------------
 // Buffers and Root Constants
 // The model push constant
-// TODO: Make this a root constant
-struct ModelPushConstantData 
+struct PushConstant 
 {
     float4x4 worldTransform;
     float4x4 previousWorldTransform;
 };
-
-PUSH_CONSTANT(ModelPushConstantData);
-
+PUSH_CONSTANT(PushConstant);
 //------------------------------------------------------------------------------
 struct VSOut
 {
@@ -36,6 +24,7 @@ struct VSOut
     float4 Color      : COLOR;
     float2 UV         : TEXCOORD;
     float3 Normal     : NORMAL;
+    float3 Tangent    : TANGENT;
 };
 //------------------------------------------------------------------------------
 VSOut VS_MAIN(VSIn vsIn)
@@ -46,6 +35,10 @@ VSOut VS_MAIN(VSIn vsIn)
     transformedPos = mul(frame_info.camera.view, transformedPos);
     transformedPos = mul(frame_info.camera.projection, transformedPos);
     vso.Position = transformedPos;
+    vso.Color = vsIn.inColor;
+    vso.UV = vsIn.inTexCoord;
+    vso.Normal = vsIn.inNormal;
+    vso.Tangent = vsIn.inTangent;
 
     return vso;
 }

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Razix/Core/Memory/RZMemoryBudgets.h"
+#include "Razix/Core/RZDepartments.h"
+
 /**
 * FrameGraph is an alias for Render Graph which controls the entire frame and it's rendering process
 * Based on : Copyright (c) Dawid Kurek, GitHub : skaarj1989 [https://github.com/skaarj1989/FrameGraph] MIT license. 
@@ -68,6 +71,8 @@ namespace Razix {
                 std::vector<RZFrameGraphResourceAcessView> m_Writes;               /* List of all the resources view that are written by this node  */
                 bool                                       m_IsStandAlone = false; /* Whether or no the pass is stand alone                         */
                 bool                                       m_IsDataDriven = false; /* Whether or no the it's data driven                            */
+                Department                                 m_Department;           /* The department this pass belongs to */
+                Memory::BudgetInfo                         m_CurrentPassBudget;    /* Pass current budget tracking */
 
             private:
                 /**
@@ -82,5 +87,5 @@ namespace Razix {
                 RZFrameGraphResource registerResourceForWrite(RZFrameGraphResource id, u32 flags);
             };
         }    // namespace FrameGraph
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

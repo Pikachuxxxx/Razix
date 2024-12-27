@@ -24,7 +24,7 @@ namespace Razix {
             loadBuiltInShader(ShaderBuiltin::HelloTriangleTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTriangleTest.rzsf");
             loadBuiltInShader(ShaderBuiltin::HelloTextureTest, "//RazixContent/Shaders/Razix/Shader.Builtin.HelloTextureTest.rzsf");
             loadBuiltInShader(ShaderBuiltin::WaveIntrinsicsTest, "//RazixContent/Shaders/Razix/Shader.Builtin.WaveIntrinsicsTest.rzsf");
-//            loadBuiltInShader(ShaderBuiltin::GSCubeTest, "//RazixContent/Shaders/Razix/Shader.Builtin.GSCubeTest.rzsf");
+            loadBuiltInShader(ShaderBuiltin::GSCubeTest, "//RazixContent/Shaders/Razix/Shader.Builtin.GSCubeTest.rzsf");
             //
             // TESTING VIS BUFFER GEN SHADER
             //loadBuiltInShader(ShaderBuiltin::VisibilityBufferFill, "//RazixContent/Shaders/Razix/Shader.Builtin.VisibilityBufferFill.rzsf");
@@ -37,6 +37,10 @@ namespace Razix {
             loadBuiltInShader(ShaderBuiltin::EnvToCubemap, "//RazixContent/Shaders/Razix/Shader.Builtin.EnvToCubeMap.rzsf");
             loadBuiltInShader(ShaderBuiltin::GenerateIrradianceMap, "//RazixContent/Shaders/Razix/Shader.Builtin.GenerateIrradianceMap.rzsf");
             loadBuiltInShader(ShaderBuiltin::GeneratePreFilteredMap, "//RazixContent/Shaders/Razix/Shader.Builtin.GeneratePreFilteredMap.rzsf");
+            //-------------------------------------------------------------------
+            // REFACTORING
+            loadBuiltInShader(ShaderBuiltin::DepthPreTest, "//RazixContent/Shaders/Razix/Shader.Builtin.DepthPreTest.rzsf");
+            //-------------------------------------------------------------------
             return;
             //-------------------------------------------------------------------
             // Basic shaders
@@ -55,7 +59,6 @@ namespace Razix {
             loadBuiltInShader(ShaderBuiltin::VisibilityBufferFill, "//RazixContent/Shaders/Razix/Shader.Builtin.VisibilityBufferFill.rzsf");
             //-------------------------------------------------------------------
             // Lighting
-            loadBuiltInShader(ShaderBuiltin::DepthPreTest, "//RazixContent/Shaders/Razix/Shader.Builtin.DepthPreTest.rzsf");
             loadBuiltInShader(ShaderBuiltin::GBuffer, "//RazixContent/Shaders/Razix/Shader.Builtin.GBuffer.rzsf");
             //loadBuiltInShader(ShaderBuiltin::DeferredDecals, "//RazixContent/Shaders/Razix/Shader.Builtin.DeferredDecals.rzsf");
             loadBuiltInShader(ShaderBuiltin::CSM, "//RazixContent/Shaders/Razix/Shader.Builtin.CSM.rzsf");

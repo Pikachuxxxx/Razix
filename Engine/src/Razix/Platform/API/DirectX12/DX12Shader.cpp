@@ -290,17 +290,17 @@ namespace Razix {
             // create the D3D12_ROOT_PARAMETER_TYPE for each bound resources
 
             for (auto& heap: m_DescriptorsPerHeap) {
-                D3D12_ROOT_PARAMETER param                            = {};
-                param.ParameterType                                   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-                param.DescriptorTable.NumDescriptorRanges             = heap.second.size();
-                std::vector<D3D12_DESCRIPTOR_RANGE> descritptorRange  = {};
+                D3D12_ROOT_PARAMETER param                           = {};
+                param.ParameterType                                  = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+                param.DescriptorTable.NumDescriptorRanges            = heap.second.size();
+                std::vector<D3D12_DESCRIPTOR_RANGE> descritptorRange = {};
                 for (auto& descriptor: heap.second) {
                     // ASSUMPTION: This is weird but we assume all the descriptors in a heap have the same stage and enforce it, if not thing will crash
-                    param.ShaderVisibility = DX12Utilities::ShaderStageToVisibility(descriptor.bindingInfo.stage);
+                    param.ShaderVisibility       = DX12Utilities::ShaderStageToVisibility(descriptor.bindingInfo.stage);
                     D3D12_DESCRIPTOR_RANGE range = {};
                     range.NumDescriptors         = descriptor.bindingInfo.count;
                 }
-                param.DescriptorTable.pDescriptorRanges
+                //param.DescriptorTable.pDescriptorRanges
             }
 
             // Next push constants: here it'll be a cbuffer as a 32bit constant

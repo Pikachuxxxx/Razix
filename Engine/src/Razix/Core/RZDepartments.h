@@ -14,7 +14,7 @@ namespace Razix {
      * |------------------|-----------------------------------------------------------------------------------------
      * | Core             | Global Initialization, GPU uploads (GlobalFrameData, GPULights...) etc.              
      * | Environment      | GBuffer Passes (Static, Decals, Deformable Surfaces), Water Simulation, Volumetric Fog  
-     * | Character        | GBuffer for Animated Characters, Hair Strand Simulation, Object Shadows                 
+     * | Character        | GBuffer for Animated Characters, Hair Strand Simulation                 
      * | Lighting         | Volumetric Clouds, Shadow Maps, Apply Lighting, Lens Flares, Fog                        
      * | RayTracing       | Ray-Traced Reflections, Ray-Tracing Updates, Blended Ray Tracing                        
      * | VFX              | GPU Particles, Alpha Rendering, Post Alpha Effects, Decals (Spawned)                    

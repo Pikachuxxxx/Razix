@@ -76,39 +76,34 @@ namespace Razix {
             //-------------------------------
             // m_GSCubeTestPass.addPass(m_FrameGraph, scene, &settings);
 
-            return;
+            m_FrameGraphBuildingInProgress = false;
 #else
 
             m_FrameGraphBuildingInProgress = true;
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
-            RZTextureDesc brdfDesc{};
-            brdfDesc.name                                    = "BrdfLUT";
+            RZTextureDesc brdfDesc                           = {};
+            brdfDesc.name                                    = "BrdfLUT";    // must match shader
             brdfDesc.enableMips                              = false;
             brdfDesc.filePath                                = "//RazixContent/Textures/Texture.Builtin.BrdfLUT.png";
-            brdfDesc.filtering                               = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
-            brdfDesc.wrapping                                = Wrapping::kRepeat;
             m_BRDFfLUTTextureHandle                          = RZResourceManager::Get().createTexture(brdfDesc);
             m_FrameGraph.getBlackboard().add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(brdfDesc.name, CAST_TO_FG_TEX_DESC brdfDesc, {m_BRDFfLUTTextureHandle});
 
             // Noise texture LUT
-            RZTextureDesc noiseDesc{};
-            noiseDesc.name                                                        = "VolumetricCloudsNoise";
+            RZTextureDesc noiseDesc                                               = {};
+            noiseDesc.name                                                        = "VolumetricCloudsNoise";    // must match shader
             noiseDesc.enableMips                                                  = false;
             noiseDesc.filePath                                                    = "//RazixContent/Textures/Texture.Builtin.VolumetricCloudsNoise.png";
-            noiseDesc.wrapping                                                    = Wrapping::kRepeat;
             m_NoiseTextureHandle                                                  = RZResourceManager::Get().createTexture(noiseDesc);
             m_FrameGraph.getBlackboard().add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(noiseDesc.name, CAST_TO_FG_TEX_DESC noiseDesc, {m_NoiseTextureHandle});
 
             // Import the color grading LUT
-            RZTextureDesc colorGradingNeutralLUTDesc{};
-            colorGradingNeutralLUTDesc.name                                        = "ColorGradingUnreal_Neutral_LUT16";
+            RZTextureDesc colorGradingNeutralLUTDesc                               = {};
+            colorGradingNeutralLUTDesc.name                                        = "ColorGradingUnreal_Neutral_LUT16";    // must match shader
             colorGradingNeutralLUTDesc.enableMips                                  = false;
             colorGradingNeutralLUTDesc.flipY                                       = true;
             colorGradingNeutralLUTDesc.filePath                                    = "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png";
-            colorGradingNeutralLUTDesc.filtering                                   = {Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear};
-            colorGradingNeutralLUTDesc.wrapping                                    = Wrapping::kRepeat;
             m_ColorGradingNeutralLUTHandle                                         = RZResourceManager::Get().createTexture(colorGradingNeutralLUTDesc);
             m_FrameGraph.getBlackboard().add<FX::ColorGradingLUTData>().neutralLUT = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(colorGradingNeutralLUTDesc.name, CAST_TO_FG_TEX_DESC colorGradingNeutralLUTDesc, {m_ColorGradingNeutralLUTHandle});
 
@@ -116,15 +111,16 @@ namespace Razix {
 
             // Load the Skybox and Global Light Probes
             // FIXME: This is hard coded make this a user land material
-            m_GlobalLightProbes.skybox = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/sunset.hdr");
-            //m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
-            //m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
+            m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/sunset.hdr");
+            m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
+            m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph
-            //importGlobalLightProbes(m_GlobalLightProbes);
+            importGlobalLightProbes(m_GlobalLightProbes);
 
             //-----------------------------------------------------------------------------------
             // Misc Variables
 
+            // Jitter samples for TAA
             for (int i = 0; i < NUM_HALTON_SAMPLES_TAA_JITTER; ++i) {
                 // Generate jitter using Halton sequence with bases 2 and 3 for X and Y respectively
                 m_TAAJitterHaltonSamples[i].x = 2.0f * (f32) (HaltonSequence(i + 1, 2) - 1.0f);    // Centering the jitter around (0,0)
@@ -134,18 +130,6 @@ namespace Razix {
             }
 
             //-----------------------------------------------------------------------------------
-
-            // Cull Lights (Directional + Point) on CPU against camera Frustum First
-            // TODO: Get the list of lights in the scene and cull them against the camera frustum and disable ActiveComponent for culled lights, but for now we can just ignore that
-            auto                 group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);
-            std::vector<RZLight> sceneLights;
-            for (auto& entity: group)
-                sceneLights.push_back(group.get<LightComponent>(entity).light);
-
-            // Pass the Scene AABB and Grid info for GI + Tiled lighting
-            // TODO: Make this dynamic as scene glows larger
-            m_SceneAABB = {glm::vec3(-76.83, -5.05, -47.31), glm::vec3(71.99, 57.17, 44.21)};
-            const Maths::RZGrid sceneGrid(m_SceneAABB);
 
             // These are system level code passes so always enabled
             uploadFrameData(scene, settings);
@@ -171,6 +155,8 @@ namespace Razix {
             //-------------------------------
             m_ShadowPass.addPass(m_FrameGraph, scene, &settings);
 
+    #ifdef ENABLE_EACH_PASS_AS_WE_FIX
+
             //-------------------------------
             // [ ] CSM PAss
             //-------------------------------
@@ -187,7 +173,7 @@ namespace Razix {
             m_GBufferPass.addPass(m_FrameGraph, scene, &settings);
             GBufferData& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
 
-    #if !ENABLE_FORWARD_RENDERING
+        #if !ENABLE_FORWARD_RENDERING
             //-------------------------------
             // SSAO Pass
             //-------------------------------
@@ -212,14 +198,14 @@ namespace Razix {
             // PBR Deferred Pass
             //-------------------------------
             m_PBRDeferredPass.addPass(m_FrameGraph, scene, &settings);
-    #endif
+        #endif
 
-            //-------------------------------
-            // PBR Forward Pass
-            //-------------------------------
-    #if ENABLE_FORWARD_RENDERING
+                //-------------------------------
+                // PBR Forward Pass
+                //-------------------------------
+        #if ENABLE_FORWARD_RENDERING
             m_PBRLightingPass.addPass(m_FrameGraph, scene, settings);
-    #endif
+        #endif
             SceneData& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
@@ -426,6 +412,7 @@ namespace Razix {
             // Composition Pass
             //-------------------------------
             m_CompositePass.addPass(m_FrameGraph, scene, &settings);
+    #endif
 
 #endif
 
@@ -458,8 +445,8 @@ namespace Razix {
                 m_IsFGFilePathDirty = false;
             }
 
-            //if (m_FrameGraphBuildingInProgress)
-            //    return;
+            if (m_FrameGraphBuildingInProgress)
+                return;
 
             // Update calls passes
             //m_CSMPass.updateCascades(scene);
@@ -467,11 +454,10 @@ namespace Razix {
             // Main Frame Graph World Rendering Loop
             {
                 // Acquire Image to render onto
-
                 Gfx::RHI::AcquireImage(nullptr);
 
                 // Begin Recording  onto the command buffer, select one as per the frame idx
-                RHI::Begin(Gfx::RHI::GetCurrentCommandBuffer());
+                Gfx::RHI::Begin(Gfx::RHI::GetCurrentCommandBuffer());
 
                 // Begin Frame Marker
                 RAZIX_MARK_BEGIN("Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(RHI::GetSwapchain()->getCurrentFrameIndex()) + " ]", glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
@@ -511,22 +497,22 @@ namespace Razix {
             RZResourceManager::Get().destroyTexture(m_ColorGradingNeutralLUTHandle);
 
             // Destroy Renderers
-            m_ImGuiRenderer.Destroy();
-            RZDebugRendererProxy::Get()->Destroy();
+            // m_ImGuiRenderer.Destroy();
+            // RZDebugRendererProxy::Get()->Destroy();
 
             // Destroy Passes
     #if !ENABLE_FORWARD_RENDERING
-            m_PBRDeferredPass.destroy();
+                // m_PBRDeferredPass.destroy();
     #else
             m_PBRLightingPass.destroy();
     #endif
             //m_VisBufferFillPass.destroy();
-            m_SkyboxPass.destroy();
+            // m_SkyboxPass.destroy();
+            // m_GBufferPass.destroy();
+            // m_SSAOPass.destroy();
+            // m_GaussianBlurPass.destroy();
+            // m_CompositePass.destroy();
             m_ShadowPass.destroy();
-            m_GBufferPass.destroy();
-            m_SSAOPass.destroy();
-            m_GaussianBlurPass.destroy();
-            m_CompositePass.destroy();
 
 #endif
 

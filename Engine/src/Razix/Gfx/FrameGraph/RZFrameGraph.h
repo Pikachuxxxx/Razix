@@ -280,6 +280,13 @@ namespace Razix {
 
                 /* Ensures that this pass is not culled during the frame graph compilation phase, single/hanging passes cans till exist and be executed */
                 RZPassResourceBuilder &setAsStandAlonePass();
+                RZPassResourceBuilder &setDepartment(Department dept);
+                RZPassResourceBuilder &setCPUTime(f32 time);
+
+                Department         getDepartment();
+                Memory::BudgetInfo getPassCurrentBudget();
+                f32                getPassCurrentCPUTimeBudget();
+                u32                getPassCurrentMemoryBudget();
 
             private:
                 RZFrameGraph &m_FrameGraph; /* Reference to the FrameGraph                                   */
@@ -354,5 +361,5 @@ namespace Razix {
             };
             //-----------------------------------------------------------------------------------
         }    // namespace FrameGraph
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

@@ -125,7 +125,7 @@ namespace Razix {
             RZPBRLightingPass          m_PBRLightingPass;
             RZSkyboxPass               m_SkyboxPass;
             RZGaussianBlurPass         m_GaussianBlurPass;
-            RZImGuiRendererProxy            m_ImGuiRenderer;
+            RZImGuiRendererProxy       m_ImGuiRenderer;
             RZTAAResolvePass           m_TAAResolvePass;
             RZFXAAPass                 m_FXAAPass;
             RZToneMapPass              m_TonemapPass;
@@ -142,7 +142,6 @@ namespace Razix {
 
             // Other Variables
             u32         m_FrameCount                                            = 0;
-            Maths::AABB m_SceneAABB                                             = {};
             glm::vec2   m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
             glm::mat4   m_PreviousViewProj                                      = {};
             glm::vec2   m_Jitter                                                = {};

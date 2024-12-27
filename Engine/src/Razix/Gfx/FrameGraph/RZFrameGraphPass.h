@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Razix/Core/Memory/RZMemoryBudgets.h"
-#include "Razix/Core/RZDepartments.h"
-
 #include "Razix/Gfx/RHI/API/RZAPIHandles.h"
 
 namespace Razix {
@@ -57,10 +54,6 @@ namespace Razix {
 
                 virtual void operator()(RZPassNode &node, RZPassResourceDirectory &resources)  = 0;
                 virtual void resize(RZPassResourceDirectory &resources, u32 width, u32 height) = 0;
-
-            protected:
-                Department         m_Department; /* The department this pass belongs to */
-                Memory::BudgetInfo m_PassBudget; /* Pass current budget tracking */
             };
 
             /* Encapsulation of the pass lambda and its data, the best way to store lambdas as members is using templates */
@@ -117,5 +110,5 @@ namespace Razix {
                 void resize(RZPassResourceDirectory &resources, u32 width, u32 height) override;
             };
         }    // namespace FrameGraph
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix
