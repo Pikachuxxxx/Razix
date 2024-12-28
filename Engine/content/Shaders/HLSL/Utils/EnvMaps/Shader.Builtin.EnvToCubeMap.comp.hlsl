@@ -3,7 +3,8 @@
  * Compute shader to convert equi-rectangular hdr file to cube map, write directly to the cubemap
  */
 //------------------------------------------------------------------------------
-#include <Utils/EnvMaps/ShaderInclude.Builtin.EnvmapUtils.hlsl>
+#define GEN_ENVMAP // siomn
+#include <Utils/EnvMaps/ShaderInclude.Builtin.EnvmapUtils.h>
 //------------------------------------------------------------------------------
 Texture2D HDRTexture : register(t0); // Equirectangular HDR texture
 SamplerState HDRSampler : register(s1); // Sampler for the HDR texture
