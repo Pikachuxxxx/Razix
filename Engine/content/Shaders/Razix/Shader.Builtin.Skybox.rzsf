@@ -1,18 +1,13 @@
-﻿/*
+/*
  * Razix Shader File 
- * skybox.rzsf : Render a skybox in the scene
- * Copyright Razix Engine 2024by Pikachuxxxx (Phani Srikar)
+ * skybox.rzsf : Renders a skybox in the scene using a cubemap texture
+ * Copyright Razix Engine 2024 by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.Skybox.vert.spv
-    #endif
+    #include Shader.Builtin.Skybox.vert
 #end
 
-// Including the default fragment shader
 #shader fragment
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.Skybox.frag.spv
-    #endif
+    #include Shader.Builtin.Skybox.frag
 #end
