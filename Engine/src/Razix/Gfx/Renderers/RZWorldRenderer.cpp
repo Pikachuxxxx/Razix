@@ -135,7 +135,7 @@ namespace Razix {
             uploadFrameData(scene, settings);
             uploadLightsData(scene, settings);
 
-            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
+//            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
 
             //-----------------------------------------------------------------------------------
 
@@ -155,6 +155,8 @@ namespace Razix {
             //-------------------------------
             m_ShadowPass.addPass(m_FrameGraph, scene, &settings);
 
+            m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
+            
     #ifdef ENABLE_EACH_PASS_AS_WE_FIX
 
             //-------------------------------

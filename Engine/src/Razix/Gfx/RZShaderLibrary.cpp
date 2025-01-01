@@ -40,6 +40,7 @@ namespace Razix {
             //-------------------------------------------------------------------
             // REFACTORING
             loadBuiltInShader(ShaderBuiltin::DepthPreTest, "//RazixContent/Shaders/Razix/Shader.Builtin.DepthPreTest.rzsf");
+            loadBuiltInShader(ShaderBuiltin::Skybox, "//RazixContent/Shaders/Razix/Shader.Builtin.Skybox.rzsf");
             //-------------------------------------------------------------------
             return;
             //-------------------------------------------------------------------
