@@ -63,7 +63,7 @@ namespace Razix {
              * @param vertices The vertices that comprises the mesh
              * optimiseThreshold The default threshold to be set for mesh optimizer to optimize the vertex data
              */
-            RZMesh(const std::vector<u32>& indices, const std::vector<RZVertex>& vertices, f32 optimiseThreshold = 1.0f);
+            RZMesh(const std::vector<u32>& indices, const std::vector<RZVertex>& vertices);
 #endif
 
             RZMesh(RZVertexBufferHandle vertexBuffer[VERTEX_ATTRIBS_COUNT], RZIndexBufferHandle indexBuffer, u32 vtxcount, u32 idxcount);
@@ -120,6 +120,8 @@ namespace Razix {
 #else
             RZVertexBufferHandle m_VertexBuffers[VERTEX_ATTRIBS_COUNT] = {}; /* The Vertex Buffers for each vertex attrib                 */
 #endif
+            
+            void initMeshFromVectors(const RZVertex& vertices, const std::vector<u32>& indices);
         };
     }    // namespace Gfx
 }    // namespace Razix

@@ -62,10 +62,10 @@ namespace Razix {
             auto& frameDataBlock  = framegraph.getBlackboard().get<FrameData>();
             auto& lightProbesData = framegraph.getBlackboard().get<GlobalLightProbeData>();
             auto& volumetricData  = framegraph.getBlackboard().get<VolumetricCloudsData>();
-            auto& sceneData       = framegraph.getBlackboard().get<SceneData>();
+//            auto& sceneData       = framegraph.getBlackboard().get<SceneData>();
 
-            //framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
-            framegraph.addCallbackPass(
+            framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
+//            framegraph.addCallbackPass(
                 "Pass.Builtin.Code.Skybox",
                 [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
@@ -75,9 +75,26 @@ namespace Razix {
                     builder.read(lightProbesData.diffuseIrradianceMap);
                     builder.read(lightProbesData.specularPreFilteredMap);
                     builder.read(volumetricData.noiseTexture);
-
-                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
-                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
+                    
+                    RZTextureDesc textureDesc = {};
+                    textureDesc.name   = "SceneHDR";
+                    textureDesc.width  = ResolutionToExtentsMap[Resolution::k1440p].x;
+                    textureDesc.height = ResolutionToExtentsMap[Resolution::k1440p].y;
+                    textureDesc.type   = TextureType::k2D;
+                    textureDesc.format = TextureFormat::RGBA16F;
+                    textureDesc.initResourceViewHints = kSRV | kRTV;
+                    data.sceneHDR      = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
+                    data.sceneHDR      = builder.write(data.sceneHDR);
+                    
+                    textureDesc = {};
+                    textureDesc.name    = "SceneDepth";
+                    textureDesc.format  = TextureFormat::DEPTH32F;
+                    textureDesc.type    = TextureType::kDepth;
+                    textureDesc.width   = ResolutionToExtentsMap[Resolution::k1440p].x;
+                    textureDesc.height  = ResolutionToExtentsMap[Resolution::k1440p].y;
+                    textureDesc.initResourceViewHints = kDSV;
+                    data.sceneDepth     = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
+                    data.sceneDepth     = builder.write(data.sceneDepth);
 
 #if ENABLE_DATA_DRIVEN_FG_PASSES
                 //builder.read(framegraph.getBlackboard().getID("SceneHDR"));
@@ -99,8 +116,8 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneDepth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
                     info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);

@@ -12,8 +12,8 @@ struct PsIn
 };
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-TextureCube<float4> environmentMap : register(t0, space0);
-SamplerState g_Sampler : register(s1, space0);
+TextureCube<float4> environmentMap : register(t0, space1);
+SamplerState g_Sampler : register(s1, space1);
 //------------------------------------------------------------------------------
 float4 PS_MAIN(PsIn input) : SV_TARGET
 {

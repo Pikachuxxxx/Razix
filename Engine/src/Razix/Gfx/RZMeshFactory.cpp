@@ -98,10 +98,10 @@ namespace Razix {
             RZMesh* CreatePlane(f32 width, f32 height, const glm::vec4 color /*= glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)*/)
             {
                 RZVertex data{};
-                data.Position.reserve(NUM_QUAD_VERTS);
-                data.Color.reserve(NUM_QUAD_VERTS);
-                data.UV.reserve(NUM_QUAD_VERTS);
-                data.Normal.reserve(NUM_QUAD_VERTS);
+                data.Position.resize(NUM_QUAD_VERTS);
+                data.Color.resize(NUM_QUAD_VERTS);
+                data.UV.resize(NUM_QUAD_VERTS);
+                data.Normal.resize(NUM_QUAD_VERTS);
 
                 glm::vec3 normal = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -148,10 +148,10 @@ namespace Razix {
                 //  |/      |/
                 //  v2------v3
                 RZVertex data{};
-                data.Position.reserve(NUM_CUBE_VERTS);
-                data.Color.reserve(NUM_CUBE_VERTS);
-                data.UV.reserve(NUM_CUBE_VERTS);
-                data.Normal.reserve(NUM_CUBE_VERTS);
+                data.Position.resize(NUM_CUBE_VERTS);
+                data.Color.resize(NUM_CUBE_VERTS);
+                data.UV.resize(NUM_CUBE_VERTS);
+                data.Normal.resize(NUM_CUBE_VERTS);
 
                 data.Position[0]  = glm::vec3(1.0f, 1.0f, 1.0f);
                 data.Color[0]     = glm::vec4(0.0f);
@@ -241,10 +241,10 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(data, indices, 36);
 
-                auto        shader                  = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
-                RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
-                forwardRendererMaterial->createDescriptorSet();
-                mesh->setMaterial(forwardRendererMaterial);
+//                auto        shader                  = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
+//                RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
+//                forwardRendererMaterial->createDescriptorSet();
+//                mesh->setMaterial(forwardRendererMaterial);
 
                 return mesh;
             }
