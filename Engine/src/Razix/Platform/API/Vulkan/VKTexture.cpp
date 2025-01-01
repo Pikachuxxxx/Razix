@@ -388,6 +388,8 @@ namespace Razix {
                 m_FullResourceView.uav = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));    // TODO: make sure it has storage flags bit set
             if ((m_ResourceViewHint & kDSV) == kDSV)
                 m_FullResourceView.dsv = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));    // TODO: make sure it has depth bit flags set
+            if ((m_ResourceViewHint & kRTV) == kRTV)
+                m_FullResourceView.rtv = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));    // TODO: make sure it has render target flags set
         }
 
         void VKTexture::createMipViewsPerFace()

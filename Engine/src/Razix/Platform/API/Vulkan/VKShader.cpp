@@ -91,7 +91,7 @@ namespace Razix {
                 descSetCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
                 descSetCreateDesc.name                = "DescriptorSet." + getShaderFilePath();
                 descSetCreateDesc.descriptors         = heap.second;
-                descSetCreateDesc.setIdx              = BindingTable_System::SET_IDX_SYSTEM_START;
+                descSetCreateDesc.setIdx              = descriptor.bindingInfo.location.set;
                 auto setHandle                        = RZResourceManager::Get().createDescriptorSet(descSetCreateDesc);
 
                 m_SceneParams.userSets.push_back(setHandle);
