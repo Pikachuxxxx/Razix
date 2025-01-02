@@ -22,7 +22,7 @@ void CS_MAIN(uint3 DTid: SV_DispatchThreadID)
     uint faceIdx = DTid.z; // on CPU we have RHI::Dispatch(W/32, H/32, NUM_FACES = 6)
     uint2 localCoord = DTid.xy;
     float2 uv = float2(localCoord) / float2(cubeFaceSize);
-
+    
     float3 direction = UVToDirection(uv, faceIdx);
     float2 eqUV = DirectionToEquirectangularUV(direction);
     float4 hdrColor = HDRTexture.SampleLevel(HDRSampler, eqUV, mipLevel);
