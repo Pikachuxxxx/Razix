@@ -72,7 +72,7 @@ namespace Razix {
             this->Position = lerp3(this->Position, TargetMovement, 0.9f, static_cast<f32>(deltaTime));
 
             // Gradually reduce the velocity over time to create the lingering effect
-//            Velocity *= DampingFactor;
+            Velocity *= DampingFactor;
 
             // Mouse movement handling
             auto mX = RZInput::GetMouseX();
