@@ -39,7 +39,8 @@ namespace Razix {
             // Build the pipeline here for this pass
             pipelineInfo.name                   = "Pipeline.Composition";
             pipelineInfo.shader                 = compositionShader;
-            pipelineInfo.colorAttachmentFormats = {TextureFormat::BGRA8_UNORM};
+            pipelineInfo.colorAttachmentFormats = {TextureFormat::SCREEN};
+            pipelineInfo.depthFormat            = TextureFormat::DEPTH16_UNORM;
             pipelineInfo.cullMode               = Gfx::CullMode::None;
             pipelineInfo.drawType               = Gfx::DrawType::Triangle;
             pipelineInfo.transparencyEnabled    = false;
@@ -51,7 +52,18 @@ namespace Razix {
 
             // Get the final output
             FrameGraph::RZFrameGraphResource FinalOutputRenderTarget = framegraph.getBlackboard().getFinalOutputID();
-#if 1
+            
+#if __APPLE__
+            RZTextureDesc depthTextureDesc         = {};
+            depthTextureDesc.name                  = "SwapchainDepthDummy";
+            depthTextureDesc.width                 = RZApplication::Get().getWindow()->getWidth();
+            depthTextureDesc.height                = RZApplication::Get().getWindow()->getHeight();
+            depthTextureDesc.format                = TextureFormat::DEPTH16_UNORM;
+            depthTextureDesc.type                  = TextureType::kDepth;
+            depthTextureDesc.initResourceViewHints = kDSV;
+            m_AppleNeedsADepthTexture              = RZResourceManager::Get().createTexture(depthTextureDesc);
+#endif
+            
             framegraph.addCallbackPass(
                 "Pass.Builtin.Code.Composition",
                 [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
@@ -85,6 +97,9 @@ namespace Razix {
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {
                         {Gfx::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::OpaqueBlack}}};
+#if __APPLE__
+                    info.depthAttachment  = {m_AppleNeedsADepthTexture, {true, ClearColorPresets::DepthOneToZero}};
+#endif
                     info.resize = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
@@ -102,11 +117,13 @@ namespace Razix {
                 [=](FrameGraph::RZPassResourceDirectory& resources, u32 width, u32 height) {
                     RZGraphicsContext::GetContext()->Wait();
                 });
-#endif
         }
 
         void RZCompositionPass::destroy()
         {
+#if __APPLE__
+            RZResourceManager::Get().destroyTexture(m_AppleNeedsADepthTexture);
+#endif
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
     }    // namespace Gfx

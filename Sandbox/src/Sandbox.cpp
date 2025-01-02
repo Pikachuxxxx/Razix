@@ -34,6 +34,15 @@ public:
 
     void OnStart() override
     {
+        // Add a default camera to the scene if it doesn't have one
+        auto scene = RZSceneManager::Get().getCurrentScene();
+        if(scene) {
+            if(!scene->GetComponentsOfType<CameraComponent>().size()) {
+                auto camera = scene->createEntity("PrimaryCamera");
+                camera.AddComponent<CameraComponent>();
+            }
+        }
+            
     }
 
     void OnRender() override

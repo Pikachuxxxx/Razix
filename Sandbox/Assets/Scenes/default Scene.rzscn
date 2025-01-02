@@ -1,6 +1,6 @@
 {
     "Razix Scene": {
-        "UUID": "5dd732a7-41a6-431b-a0d2-8c0fa2e65394",
+        "UUID": "200fbaf2-1407-45c7-ac3d-b610bc636cf3",
         "SceneName": "default Scene",
         "Total Entities": 1
     },
@@ -68,9 +68,9 @@
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": 6.9859724044799809,
-                "y": 1.2248375415802003,
-                "z": -5.622624397277832
+                "x": 1.8224539756774903,
+                "y": 0.8446833491325378,
+                "z": -6.275851249694824
             },
             "Front": {
                 "x": -0.6669912934303284,
@@ -104,7 +104,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.5864661931991578,
+            "AspectRatio": 1.7777777910232545,
             "BgColor": {
                 "value0": 0.0,
                 "value1": 0.0,

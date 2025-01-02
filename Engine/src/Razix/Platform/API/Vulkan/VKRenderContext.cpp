@@ -265,9 +265,9 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            VkRenderingInfoKHR renderingInfoKHR{};
-            renderingInfoKHR.sType             = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
-            renderingInfoKHR.renderArea.offset = {0, 0};
+            VkRenderingInfoKHR renderingInfoKHR = {};
+            renderingInfoKHR.sType              = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
+            renderingInfoKHR.renderArea.offset  = {0, 0};
 
             if (renderingInfo.resolution == Resolution::kCustom)
                 renderingInfoKHR.renderArea.extent = {renderingInfo.extent.x, renderingInfo.extent.y};
@@ -304,7 +304,6 @@ namespace Razix {
                 attachInfo.imageView  = backendPtr->getFullRTVImageView();
 
                 // Don't do this here, done manually by the FG and user land code
-
                 if (colorAttachment->getFormat() != TextureFormat::SCREEN) {
                     auto vkImage = static_cast<VKTexture*>(colorAttachment);
                     if (vkImage->getImageLayoutValue() != VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {

@@ -409,13 +409,12 @@ namespace Razix {
                 });
 
             sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
-
+    #endif
             //-------------------------------
             // Composition Pass
             //-------------------------------
+            m_FrameGraph.getBlackboard().setFinalOutputName("SceneHDR");
             m_CompositePass.addPass(m_FrameGraph, scene, &settings);
-    #endif
-
 #endif
 
             // Compile the Frame Graph
@@ -513,7 +512,7 @@ namespace Razix {
             // m_GBufferPass.destroy();
             // m_SSAOPass.destroy();
             // m_GaussianBlurPass.destroy();
-            // m_CompositePass.destroy();
+            m_CompositePass.destroy();
             m_ShadowPass.destroy();
 
 #endif

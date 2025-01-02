@@ -327,7 +327,7 @@ namespace Razix {
             if (!RZEngine::Get().getGlobalEngineSettings().EnableAPIValidation) return VK_FALSE;
 
             //if (!message_severity)
-            //    return VK_FALSE;
+                return VK_FALSE;
 
             // Disable layout errors!
             //if (callback_data->messageIdNumber == 1303270965)
