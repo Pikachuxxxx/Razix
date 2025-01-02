@@ -146,6 +146,7 @@ namespace Razix {
                         scene->drawScene(m_Pipeline, SceneDrawGeometryMode::Cubemap);
                     } else
                     {
+                        
                         // Since no skybox, we update the directional light direction
 //                        auto lights = scene->GetComponentsOfType<LightComponent>();
 //                        // We use the first found directional light
