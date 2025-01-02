@@ -240,6 +240,9 @@ namespace Razix {
             if (mesh.Mesh)
                 mesh.Mesh->Destroy();
         }
+        
+        if(m_Cube)
+            m_Cube->Destroy();
     }
 
     RZEntity RZScene::createEntity(const std::string& name /*= std::string()*/)

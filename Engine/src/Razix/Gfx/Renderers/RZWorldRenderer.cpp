@@ -493,9 +493,13 @@ namespace Razix {
 #else
 
             // Destroy Imported Resources
-            RZResourceManager::Get().destroyTexture(m_NoiseTextureHandle);
-            RZResourceManager::Get().destroyTexture(m_BRDFfLUTTextureHandle);
-            RZResourceManager::Get().destroyTexture(m_ColorGradingNeutralLUTHandle);
+//            RZResourceManager::Get().destroyTexture(m_NoiseTextureHandle);
+//            RZResourceManager::Get().destroyTexture(m_BRDFfLUTTextureHandle);
+//            RZResourceManager::Get().destroyTexture(m_ColorGradingNeutralLUTHandle);
+            
+            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.diffuse);
+            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.specular);
+            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.skybox);
 
             // Destroy Renderers
             // m_ImGuiRenderer.Destroy();
@@ -508,7 +512,7 @@ namespace Razix {
             m_PBRLightingPass.destroy();
     #endif
             //m_VisBufferFillPass.destroy();
-            // m_SkyboxPass.destroy();
+             m_SkyboxPass.destroy();
             // m_GBufferPass.destroy();
             // m_SSAOPass.destroy();
             // m_GaussianBlurPass.destroy();

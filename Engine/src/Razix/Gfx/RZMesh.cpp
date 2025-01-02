@@ -240,7 +240,13 @@ namespace Razix {
             // It might only be using some part of a big VB/IB so we leave it to the resource manager + RefCounter to release VB/IB
             //m_VertexBuffer->Destroy();
             //m_IndexBuffer->Destroy();
-            m_Material->Destroy();
+            for (uint32_t i = 0; i < VERTEX_ATTRIBS_COUNT; i++) {
+                auto& vertexBuffer = m_VertexBuffers[i];
+                Gfx::RZResourceManager::Get().destroyVertexBuffer(vertexBuffer);
+            }
+            Gfx::RZResourceManager::Get().destroyIndexBuffer(m_IndexBuffer);
+            if(m_Material)
+                m_Material->Destroy();
         }
 
         void RZMesh::bindVBsAndIB(RZDrawCommandBufferHandle cmdBuffer)

@@ -6,11 +6,11 @@
 // Reference: https://github.com/Nadrin/PBR/
 
 #if defined GEN_IRRADIANCE
-static const uint  NumSamples    = 64 * 1024;
-static const float InvNumSamples = 1.0 / float(NumSamples);
+    static const uint  NumSamples    = 64 * 1024;
+    static const float InvNumSamples = 1.0 / float(NumSamples);
 #elif defined      GEN_PREFILTERED || defined GEN_ENVMAP
-static const uint  NumSamples    = 1024;
-static const float InvNumSamples = 1.0 / float(NumSamples);
+    static const uint  NumSamples    = 1024;
+    static const float InvNumSamples = 1.0 / float(NumSamples);
 #else
     #error define either GEN_IRRADIANCE or GEN_PREFILTERED/GEN_ENVMAP before the EnvMapUtils.h include file
 #endif
@@ -24,8 +24,8 @@ float3 UVToDirection(float2 st, uint face)
     float3 dir;
     if(face == 0)      dir = float3(-1.0, uv.y,  uv.x);     // -X
     else if(face == 1) dir = float3(1.0,  uv.y, -uv.x);     // +X
-    else if(face == 2) dir = float3(-uv.x, 1.0, uv.y);       // +Y
-    else if(face == 3) dir = float3(-uv.x, -1.0, -uv.y);     // -Y
+    else if(face == 2) dir = float3(-uv.x, 1.0, uv.y);      // +Y
+    else if(face == 3) dir = float3(-uv.x, -1.0, -uv.y);    // -Y
     else if(face == 4) dir = float3(-uv.x, uv.y, -1.0);     // -Z
     else if(face == 5) dir = float3(uv.x, uv.y, 1.0);       // +Z
     return normalize(dir);
