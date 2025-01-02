@@ -23,7 +23,10 @@ VSOut VS_MAIN(VSIn vsIn)
     vs_out.PixelLocalPosTime.w = frame_info.time;
 
     float4x4 rotView = frame_info.camera.view;
-    rotView[3] = float4(0.0, 0.0, 0.0, 1.0); // Zero out the translation component
+    rotView[0][3] = 0.0;
+    rotView[1][3] = 0.0;
+    rotView[2][3] = 0.0;
+    rotView[3][3] = 1.0;
     
     float4 cameraPos = mul(rotView, float4(vs_out.PixelLocalPosTime.xyz, 1.0));
     float4 clipPos = mul(frame_info.camera.projection, cameraPos);

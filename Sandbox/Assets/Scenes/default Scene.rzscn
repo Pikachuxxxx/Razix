@@ -1,6 +1,6 @@
 {
     "Razix Scene": {
-        "UUID": "200fbaf2-1407-45c7-ac3d-b610bc636cf3",
+        "UUID": "d2960e31-0ff3-4bcb-8764-672a0a8ace0e",
         "SceneName": "default Scene",
         "Total Entities": 1
     },
@@ -68,9 +68,9 @@
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": 1.8224539756774903,
-                "y": 0.8446833491325378,
-                "z": -6.275851249694824
+                "x": 45588.30078125,
+                "y": 8625.2919921875,
+                "z": -50191.08203125
             },
             "Front": {
                 "x": -0.6669912934303284,
