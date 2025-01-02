@@ -43,7 +43,7 @@ namespace Razix {
 
             Gfx::RZPipelineDesc pipelineInfo{};
             pipelineInfo.name                   = "Skybox.Pipeline";
-            pipelineInfo.cullMode               = Gfx::CullMode::Front;
+            pipelineInfo.cullMode               = Gfx::CullMode::Back;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Gfx::DrawType::Triangle;
             pipelineInfo.shader                 = skyboxShader;
@@ -51,7 +51,7 @@ namespace Razix {
             pipelineInfo.colorAttachmentFormats = {Gfx::TextureFormat::RGBA16F};
             pipelineInfo.depthFormat            = Gfx::TextureFormat::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
-            pipelineInfo.depthWriteEnabled      = false;
+            pipelineInfo.depthWriteEnabled      = true;
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
 
@@ -116,8 +116,8 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneDepth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneDepth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
                     info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
