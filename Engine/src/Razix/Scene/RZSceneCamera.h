@@ -3,7 +3,7 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Gfx/Cameras/Camera3D.h"
 
-#include "Razix/Maths/RZFrustum.h"
+#include "Razix/Math/RZFrustum.h"
 
 #include <glm/glm.hpp>
 

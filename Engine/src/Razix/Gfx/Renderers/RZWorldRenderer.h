@@ -35,7 +35,7 @@
 // Renderers
 #include "Razix/Gfx/Renderers/RZImGuiRendererProxy.h"
 
-#include "Razix/Maths/RZGrid.h"
+#include "Razix/Math/RZGrid.h"
 
 #include "Razix/Gfx/Renderers/RZRendererSettings.h"
 

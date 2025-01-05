@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Razix/Gfx/RZVertexFormat.h"
-#include "Razix/Maths/AABB.h"
+#include "Razix/Math/AABB.h"
 
 namespace Razix {
     namespace Gfx {

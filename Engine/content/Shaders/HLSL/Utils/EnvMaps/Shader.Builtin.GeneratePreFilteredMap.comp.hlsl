@@ -5,7 +5,7 @@
 //------------------------------------------------------------------------------
 #include <ShaderInclude.Builtin.ShaderLangCommon.h>
 //------------------------------------------------------------------------------
-#define GEN_PREFILTERED
+#include <Razix/Shared/RZShaderCompitability.h>
 #include <Utils/EnvMaps/ShaderInclude.Builtin.EnvmapUtils.h>
 //------------------------------------------------------------------------------
 TextureCube EnvCubeMap : register(t0);                 
@@ -54,7 +54,8 @@ void CS_MAIN(uint3 DTid: SV_DispatchThreadID)
 	computeBasisVectors(N, S, T);
 
     const float CUBEMAP_LAYERS = 6.0f;
-    float wt = 4.0f * Math::PI / (CUBEMAP_LAYERS * (float)GET_PUSH_CONSTANT(cubeFaceSize) * (float)GET_PUSH_CONSTANT(cubeFaceSize));
+    float wt = 4.0f * Razix::Math::PI / (CUBEMAP_LAYERS * (float)GET_PUSH_CONSTANT(cubeFaceSize) *
+                                         (float)GET_PUSH_CONSTANT(cubeFaceSize));
 
     float3 color = 0;
 	float weight = 0;
@@ -62,8 +63,8 @@ void CS_MAIN(uint3 DTid: SV_DispatchThreadID)
 
     // Convolve environment map using GGX NDF importance sampling.
 	// Weight by cosine term since Epic claims it generally improves quality.
-	for(uint i=0; i<NumSamples; ++i) {
-		float2 u = sampleHammersley(i);
+	for(uint i=0; i< NumEnvMapSamples; ++i) {
+        float2 u = Razix::Math::ImportanceSampling::HammersleySequence2DFastSample(i, NumEnvMapSamples);
 		float3 Lh = tangentToWorld(sampleGGX(u.x, u.y, GET_PUSH_CONSTANT(roughness)), N, S, T);
 
 		// Compute incident direction (Li) by reflecting viewing direction (Lo) around half-vector (Lh).
@@ -81,7 +82,7 @@ void CS_MAIN(uint3 DTid: SV_DispatchThreadID)
 			float pdf = ndfGGX(cosLh, GET_PUSH_CONSTANT(roughness)) * 0.25;
 
 			// Solid angle associated with this sample.
-			float ws = 1.0 / (NumSamples * pdf);
+			float ws = 1.0 / (NumEnvMapSamples * pdf);
 
 			// Mip level to sample from.
 			float mipLevel = max(0.5 * log2(ws / wt) + 1.0, 0.0);

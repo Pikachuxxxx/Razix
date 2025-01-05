@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Maths/AABB.h"
+#include "Razix/Math/AABB.h"
 
 #include "glm/common.hpp"
 #include "glm/vec3.hpp"

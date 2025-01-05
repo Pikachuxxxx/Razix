@@ -6,7 +6,7 @@
 
 #include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
-#include "Razix/Maths/RZGrid.h"
+#include "Razix/Math/RZGrid.h"
 
 namespace Razix {
     namespace Gfx {

@@ -30,7 +30,7 @@ namespace Razix {
             /* A single dimensional low-discrepancy radical inverse sequence for base p */
             f32 RadicalInverseVanDerCorputSample(u32 index, u32 base)
             {
-                
+                return 0;
             }
 
             // All these functions internally reuse the RadicalInverse_VDC for higher dimensions
@@ -43,16 +43,16 @@ namespace Razix {
              */
             f32 HaltonSequenceSample(u32 index, u32 base)
             {
-                
+                return 0;
             }
             f32 HammersleySequenceSample(u32 index, u32 base, u32 totalSamples)
             {
-                
+                return 0;
             }
             /* [x_i/N, RadicalInverseVanDerCorput(index, base = 2) or Halton @ base = 2] */
             vec2 HammersleySequence2DSample(u32 index, u32 totalSamples)
             {
-                
+                return vec2(0, 0);
             }
             /**
              * Faster HammersleySequence2D(index, DIM = 2) bitwise trick
@@ -60,7 +60,7 @@ namespace Razix {
              */
             vec2 HammersleySequence2DFastSample(u32 index, u32 totalSamples)
             {
-                
+                return vec2(0, 0);
             }
 
             //----------------------------
@@ -76,7 +76,7 @@ namespace Razix {
         
             vec3 HemisphereCosSample(float u, float v)
             {
-                
+                return vec3(0, 0, 0);
             }
 
         }

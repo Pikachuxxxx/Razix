@@ -30,8 +30,8 @@
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
-#include "Razix/Maths/ImportanceSampling.h"
-#include "Razix/Maths/RZGrid.h"
+#include "Razix/Math/ImportanceSampling.h"
+#include "Razix/Math/RZGrid.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 

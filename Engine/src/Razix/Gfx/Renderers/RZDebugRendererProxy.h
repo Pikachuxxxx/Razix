@@ -9,8 +9,8 @@
 #include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
 #include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
 
-#include "Razix/Maths/AABB.h"
-#include "Razix/Maths/RZFrustum.h"
+#include "Razix/Math/AABB.h"
+#include "Razix/Math/RZFrustum.h"
 
 namespace Razix {
     namespace Gfx {
