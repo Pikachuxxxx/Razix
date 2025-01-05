@@ -30,7 +30,7 @@
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
-#include "Razix/Maths/HaltonSeq.h"
+#include "Razix/Maths/ImportanceSampling.h"
 #include "Razix/Maths/RZGrid.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
@@ -123,8 +123,8 @@ namespace Razix {
             // Jitter samples for TAA
             for (int i = 0; i < NUM_HALTON_SAMPLES_TAA_JITTER; ++i) {
                 // Generate jitter using Halton sequence with bases 2 and 3 for X and Y respectively
-                m_TAAJitterHaltonSamples[i].x = 2.0f * (f32) (HaltonSequence(i + 1, 2) - 1.0f);    // Centering the jitter around (0,0)
-                m_TAAJitterHaltonSamples[i].y = 2.0f * (f32) (HaltonSequence(i + 1, 3) - 1.0f);
+                m_TAAJitterHaltonSamples[i].x = 2.0f * (f32) (Math::ImportanceSampling::HaltonSequenceSample(i + 1, 2) - 1.0f);    // Centering the jitter around (0,0)
+                m_TAAJitterHaltonSamples[i].y = 2.0f * (f32) (Math::ImportanceSampling::HaltonSequenceSample(i + 1, 3) - 1.0f);
                 m_TAAJitterHaltonSamples[i].x /= RZApplication::Get().getWindow()->getWidth();
                 m_TAAJitterHaltonSamples[i].y /= RZApplication::Get().getWindow()->getHeight();
             }
