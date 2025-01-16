@@ -2,7 +2,7 @@
 <img width=200" align="left" src="https://github.com/Pikachuxxxx/Razix/blob/master/Branding/RazixLogo.png"> <h1> Razix Engine </h1>
 Razix is a High Performance Engine for experimenting with different rendering techniques. Razix supports Windows, Mac, Linux. 
 
- ---
+[<img src="https://api.gitsponsors.com/api/badge/img?id=276377205" height="20">](https://api.gitsponsors.com/api/badge/link?p=y2MSBlsWQ2vKmknE1UCLQHKuzcTxRYxUIo2OaXiX9zusEBKqes0EPuCgbnSW2lfRj5FSDuUws5QGXjfLKSkfnw==)
 
 |:warning: WARNING:Currently Razix is WIP and the renderer is undergoing major design overhaul, so thread with caution while using, check the RoadMap below for release information |
 | --- |
