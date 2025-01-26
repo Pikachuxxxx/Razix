@@ -9,10 +9,6 @@
 
 #include "Razix/Utilities/RZStringUtilities.h"
 
-#ifdef RAZIX_RENDER_API_OPENGL
-    #include "Razix/Platform/API/OpenGL/OpenGLShader.h"
-#endif
-
 #ifdef RAZIX_RENDER_API_VULKAN
     #include "Razix/Platform/API/Vulkan/VKShader.h"
 #endif
@@ -34,13 +30,6 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             switch (Gfx::RZGraphicsContext::GetRenderAPI()) {
-#ifdef RAZIX_RENDER_API_OPENGL
-                case Razix::Gfx::RenderAPI::OPENGL:
-                    new (where) OpenGLShader(desc);
-                    ShaderBindaryFileExtension = "";
-                    break;
-
-#endif
 #ifdef RAZIX_RENDER_API_VULKAN
                 case Razix::Gfx::RenderAPI::VULKAN:
                     ShaderBindaryFileExtension = ".spv";
@@ -119,8 +108,11 @@ else if (Razix::Utilities::StartsWith(str, "#ifdef")) {
         {
             // Since we update the descriptors in each set using references we can just iterate though all sets and update them normally
             // Only update the userSets
-            for (auto& set: m_SceneParams.userSets)
-                set->UpdateSet(m_DescriptorsPerHeap[set->getSetIdx()]);
+            for (auto& set: m_SceneParams.userSets) {
+                auto setResource = RZResourceManager::Get().getDescriptorSetResource(set);
+                if (setResource)
+                    setResource->UpdateSet(m_DescriptorsPerHeap[setResource->getSetIdx()]);
+            }
         }
     }    // namespace Gfx
 }    // namespace Razix

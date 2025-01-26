@@ -30,7 +30,7 @@ namespace Razix {
             ~DX12Context() {}
 
             void Init() override;
-            void Destroy() override;
+            void DestroyContext() override;
             void ClearWithColor(f32 r, f32 g, f32 b) override;
 
             void Wait() override {}

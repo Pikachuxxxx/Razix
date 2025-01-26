@@ -22,9 +22,11 @@
 
 #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
+#include "Razix/Gfx/RHI/API/RZShader.h"
+#include "Razix/Gfx/RHI/API/RZTexture.h"
 #include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
 
-#include "Razix/Gfx/Renderers/RZDebugRenderer.h"
+#include "Razix/Gfx/Renderers/RZDebugRendererProxy.h"
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
@@ -64,28 +66,16 @@ namespace Razix {
             //-------------------------------
             m_WaveInstrinsicsTestPass.addPass(m_FrameGraph, scene, &settings);
 
-            // These are system level code passes so always enabled
-            uploadFrameData(scene, settings);
-            //            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
-
-            m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//Assets/Textures/HDR/newport_loft.hdr");
-            m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
-            m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
+            //-------------------------------
+            // [TEST] HELLO TEXTURE
+            //-------------------------------
+            //m_HelloTextureTestPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // [TEST] GS CUBE
             //-------------------------------
             // m_GSCubeTestPass.addPass(m_FrameGraph, scene, &settings);
 
-            //-------------------------------
-            // [TEST] HELLO TEXTURE
-            //-------------------------------
-            m_HelloTextureTestPass.addPass(m_FrameGraph, scene, &settings);
-
-            //-------------------------------
-            // Vis Buffer Fill Pass
-            //-------------------------------
-            //m_VisBufferFillPass.addPass(m_FrameGraph, scene, &settings);
             return;
 #else
 
@@ -157,6 +147,7 @@ namespace Razix {
             m_SceneAABB = {glm::vec3(-76.83, -5.05, -47.31), glm::vec3(71.99, 57.17, 44.21)};
             const Maths::RZGrid sceneGrid(m_SceneAABB);
 
+            // These are system level code passes so always enabled
             uploadFrameData(scene, settings);
             uploadLightsData(scene, settings);
 
@@ -184,6 +175,11 @@ namespace Razix {
             // [ ] CSM PAss
             //-------------------------------
             m_CSMPass.addPass(m_FrameGraph, scene, &settings);
+
+            //-------------------------------
+            // Vis Buffer Fill Pass
+            //-------------------------------
+            //m_VisBufferFillPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // GBuffer Pass
@@ -275,7 +271,7 @@ namespace Razix {
                 [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    RZDebugRenderer::Get()->Init();
+                    RZDebugRendererProxy::Get()->Init();
 
                     // TODO: Make these read/write safe, use hasID from blackboard and only then enable these passes
                     // or register the Scene RTs similar to FinalOutputTarget to get this working safely
@@ -293,26 +289,26 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
 
                     // Origin point
-                    RZDebugRenderer::DrawPoint(glm::vec3(0.0f), 0.1f);
+                    RZDebugRendererProxy::DrawPoint(glm::vec3(0.0f), 0.1f);
 
                     // X, Y, Z lines
-                    RZDebugRenderer::DrawLine(glm::vec3(-100.0f, 0.0f, 0.0f), glm::vec3(100.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-                    RZDebugRenderer::DrawLine(glm::vec3(0.0f, -100.0f, 0.0f), glm::vec3(0.0f, 100.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-                    RZDebugRenderer::DrawLine(glm::vec3(0.0f, 0.0f, -100.0f), glm::vec3(0.0f, 0.0f, 100.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+                    RZDebugRendererProxy::DrawLine(glm::vec3(-100.0f, 0.0f, 0.0f), glm::vec3(100.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRendererProxy::DrawLine(glm::vec3(0.0f, -100.0f, 0.0f), glm::vec3(0.0f, 100.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    RZDebugRendererProxy::DrawLine(glm::vec3(0.0f, 0.0f, -100.0f), glm::vec3(0.0f, 0.0f, 100.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
                     // Grid
-                    RZDebugRenderer::DrawGrid(25, glm::vec4(0.75f));
+                    RZDebugRendererProxy::DrawGrid(25, glm::vec4(0.75f));
 
                     // Draw all lights in the scene
                     auto lights = scene->GetComponentsOfType<LightComponent>();
                     for (auto& lightComponent: lights) {
-                        RZDebugRenderer::DrawLight(&lights[0].light, glm::vec4(0.8f, 0.65f, 0.0f, 1.0f));
+                        RZDebugRendererProxy::DrawLight(&lights[0].light, glm::vec4(0.8f, 0.65f, 0.0f, 1.0f));
                     }
 
                     // Draw CSM frustums
                     auto cascades = m_CSMPass.getCascades();
                     for (u32 i = 0; i < cascades.size(); i++) {
-                        RZDebugRenderer::DrawFrustum(cascades[i].viewProjMatrix, glm::vec4(0.72f, 0.85f, 0.1f * i, 1.0f));
+                        RZDebugRendererProxy::DrawFrustum(cascades[i].viewProjMatrix, glm::vec4(0.72f, 0.85f, 0.1f * i, 1.0f));
                     }
 
                     // Draw predefined light matrix
@@ -330,12 +326,12 @@ namespace Razix {
                     glm::mat4 lightProjection = glm::ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
                     lightProjection[1][1] *= -1;
                     auto lightViewProj = lightProjection * lightView;
-                    RZDebugRenderer::DrawFrustum(lightViewProj, glm::vec4(0.863f, 0.28f, 0.21f, 1.0f));
+                    RZDebugRendererProxy::DrawFrustum(lightViewProj, glm::vec4(0.863f, 0.28f, 0.21f, 1.0f));
 
                     // Draw all camera frustums
                     auto cameras = scene->GetComponentsOfType<CameraComponent>();
                     for (auto& camComponents: cameras) {
-                        RZDebugRenderer::DrawFrustum(camComponents.Camera.getFrustum(), glm::vec4(0.2f, 0.85f, 0.1f, 1.0f));
+                        RZDebugRendererProxy::DrawFrustum(camComponents.Camera.getFrustum(), glm::vec4(0.2f, 0.85f, 0.1f, 1.0f));
                     }
 
                     // Draw AABBs for all the Meshes in the Scene
@@ -348,10 +344,10 @@ namespace Razix {
                         glm::mat4 transform = mesh_trans.GetGlobalTransform();
 
                         if (mrc.Mesh && mrc.enableBoundingBoxes)
-                            RZDebugRenderer::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                            RZDebugRendererProxy::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
                     }
 
-                    RZDebugRenderer::Get()->Begin(scene);
+                    RZDebugRendererProxy::Get()->Begin(scene);
 
                     //auto sceneHDR   = m_FrameGraph.getBlackboard().getID("SceneHDR");
                     //auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
@@ -370,11 +366,11 @@ namespace Razix {
 
                     RHI::BeginRendering(cmdBuffer, info);
 
-                    RZDebugRenderer::Get()->Draw(cmdBuffer);
+                    RZDebugRendererProxy::Get()->Draw(cmdBuffer);
 
                     RHI::EndRendering(cmdBuffer);
 
-                    RZDebugRenderer::Get()->End();
+                    RZDebugRendererProxy::Get()->End();
                     RAZIX_TIME_STAMP_END();
                 });
 
@@ -505,13 +501,8 @@ namespace Razix {
 
 #if ENABLE_TEST_PASSES
             m_HelloTriangleTestPass.destroy();
-            m_HelloTextureTestPass.destroy();
             m_WaveInstrinsicsTestPass.destroy();
-
-            //m_VisBufferFillPass.destroy();
-            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.skybox);
-            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.diffuse);
-            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.specular);
+            //m_HelloTextureTestPass.destroy();
 #else
 
             // Destroy Imported Resources
@@ -521,7 +512,7 @@ namespace Razix {
 
             // Destroy Renderers
             m_ImGuiRenderer.Destroy();
-            RZDebugRenderer::Get()->Destroy();
+            RZDebugRendererProxy::Get()->Destroy();
 
             // Destroy Passes
     #if !ENABLE_FORWARD_RENDERING
@@ -529,6 +520,7 @@ namespace Razix {
     #else
             m_PBRLightingPass.destroy();
     #endif
+            //m_VisBufferFillPass.destroy();
             m_SkyboxPass.destroy();
             m_ShadowPass.destroy();
             m_GBufferPass.destroy();
@@ -551,10 +543,6 @@ namespace Razix {
 
         void RZWorldRenderer::OnImGui()
         {
-            //auto texHandle   = m_CSMPass.getCSMArrayTex();
-            //auto texResource = RZResourceManager::Get().getTextureResource(texHandle);
-            //texResource->setCurrentArrayLayer(0);
-            //
             if (ImGui::Begin("FrameGraph Debug")) {
                 if (ImGui::CollapsingHeader("PBR Deferred Lighting")) {
                     ImGui::SliderFloat("biasScale :", &m_PBRDeferredPass.biasScale, 0.0001f, 0.1f);
@@ -896,6 +884,7 @@ namespace Razix {
                 [&](FrameData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
+                    // TODO: convert this to struct form
                     data.frameData = builder.create<FrameGraph::RZFrameGraphBuffer>("FrameData", {"FrameData", sizeof(GPUFrameData), 0, BufferUsage::PersistentStream});
 
                     data.frameData = builder.write(data.frameData);
@@ -955,20 +944,28 @@ namespace Razix {
                     }
 
                     // This is for when we hot-reload the frame graph
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
-                        auto set = Gfx::RHI::Get().getFrameDataSet();
-                        if (set)
-                            set->Destroy();
-                        Gfx::RHI::Get().setFrameDataSet(nullptr);
-                    }
+                    //if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    //    auto& set = Gfx::RHI::Get().getFrameDataSet();
+                    //    if (set.isValid())
+                    //        RZResourceManager::Get().destroyDescriptorSet(set);
+                    //    Gfx::RHI::Get().setFrameDataSet(set);
+                    //}
 
-                    if (!Gfx::RHI::Get().getFrameDataSet()) {
-                        RZDescriptor descriptor{};
+                    if (!Gfx::RHI::Get().getFrameDataSet().isValid()) {
+                        RZDescriptor descriptor                 = {};
+                        descriptor.name                         = "Descriptor.FrameDataUBO";
                         descriptor.bindingInfo.location.binding = 0;
                         descriptor.bindingInfo.type             = DescriptorType::kUniformBuffer;
-                        descriptor.bindingInfo.stage            = ShaderStage(ShaderStage::kGeometry);    // Add support for Pixel shader stage as well
+                        descriptor.bindingInfo.stage            = ShaderStage(ShaderStage::kVertex);
                         descriptor.uniformBuffer                = frameDataBufferHandle;
-                        auto m_FrameDataSet                     = RZDescriptorSet::Create({descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Frame Data Set Global"));
+
+                        RZDescriptorSetDesc setCreateDesc = {};
+                        setCreateDesc.name                = "DescriptorSet.GlobalFrameData";
+                        setCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
+                        setCreateDesc.descriptors.push_back(descriptor);
+                        setCreateDesc.setIdx = BindingTable_System::SET_IDX_FRAME_DATA;
+
+                        auto m_FrameDataSet = RZResourceManager::Get().createDescriptorSet(setCreateDesc);
                         Gfx::RHI::Get().setFrameDataSet(m_FrameDataSet);
                     }
                     RAZIX_MARK_END();
@@ -985,6 +982,7 @@ namespace Razix {
                 [&](SceneLightsData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
+                    // TODO: convert this to struct form
                     data.lightsDataBuffer = builder.create<FrameGraph::RZFrameGraphBuffer>("SceneLightsData", {"SceneLightsData", sizeof(GPULightsData), 0, BufferUsage::PersistentStream});
                     data.lightsDataBuffer = builder.write(data.lightsDataBuffer);
                 },
@@ -1001,9 +999,7 @@ namespace Razix {
                     for (auto entity: group) {
                         const auto& [lightComponent, transformComponent] = group.get<LightComponent, TransformComponent>(entity);
 
-                        // Set the Position of the light using this transform component
                         lightComponent.light.getLightData().position = transformComponent.Translation;
-                        //lightComponent.light.setDirection(glm::vec3(glm::degrees(transformComponent.Rotation.x), glm::degrees(transformComponent.Rotation.y), glm::degrees(transformComponent.Rotation.z)));
                         lightComponent.light.setDirection(lightComponent.light.getLightData().position);
                         gpuLightsData.lightData[gpuLightsData.numLights] = lightComponent.light.getLightData();
 
@@ -1014,22 +1010,29 @@ namespace Razix {
                     RZResourceManager::Get().getUniformBufferResource(lightsDataBuffer)->SetData(sizeof(GPULightsData), &gpuLightsData);
 
                     // This is for when we hot-reload the frame graph
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
-                        auto set = Gfx::RHI::Get().getSceneLightsDataSet();
-                        if (set)
-                            set->Destroy();
-                        Gfx::RHI::Get().setSceneLightsDataSet(nullptr);
-                    }
+                    //if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    //    auto& set = Gfx::RHI::Get().getSceneLightsDataSet();
+                    //    if (set.isValid())
+                    //        RZResourceManager::Get().destroyDescriptorSet(set);
+                    //    Gfx::RHI::Get().setSceneLightsDataSet(set);
+                    //}
 
-                    if (!Gfx::RHI::Get().getSceneLightsDataSet()) {
-                        RZDescriptor lightsData_descriptor{};
-                        lightsData_descriptor.bindingInfo.location.binding = 0;
-                        lightsData_descriptor.bindingInfo.type             = DescriptorType::kUniformBuffer;
-                        lightsData_descriptor.bindingInfo.stage            = ShaderStage::kPixel;
-                        lightsData_descriptor.uniformBuffer                = lightsDataBuffer;
+                    if (!Gfx::RHI::Get().getSceneLightsDataSet().isValid()) {
+                        RZDescriptor descriptor                 = {};
+                        descriptor.name                         = "Descriptor.SceneLightsDataUBO";
+                        descriptor.bindingInfo.location.binding = 0;
+                        descriptor.bindingInfo.type             = DescriptorType::kUniformBuffer;
+                        descriptor.bindingInfo.stage            = ShaderStage(ShaderStage::kPixel);
+                        descriptor.uniformBuffer                = lightsDataBuffer;
 
-                        auto m_SceneLightsDataDescriptorSet = RZDescriptorSet::Create({lightsData_descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("Scene Lights Set Global"));
-                        Gfx::RHI::Get().setSceneLightsDataSet(m_SceneLightsDataDescriptorSet);
+                        RZDescriptorSetDesc setCreateDesc = {};
+                        setCreateDesc.name                = "DescriptorSet.SceneLightsData";
+                        setCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
+                        setCreateDesc.setIdx              = BindingTable_System::SET_IDX_FRAME_DATA;
+                        setCreateDesc.descriptors.push_back(descriptor);
+
+                        auto m_SceneLightsDataSet = RZResourceManager::Get().createDescriptorSet(setCreateDesc);
+                        Gfx::RHI::Get().setSceneLightsDataSet(m_SceneLightsDataSet);
                     }
                     RAZIX_MARK_END();
                     RAZIX_TIME_STAMP_END();

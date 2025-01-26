@@ -65,7 +65,7 @@ namespace Razix {
             PostGraphicsContextInit();
         }
 
-        void VKContext::Destroy()
+        void VKContext::DestroyContext()
         {
             // Destroy the swapchain
             m_Swapchain->Destroy();

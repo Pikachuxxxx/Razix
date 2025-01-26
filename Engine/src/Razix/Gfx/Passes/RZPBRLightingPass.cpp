@@ -11,6 +11,7 @@
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 #include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
 #include "Razix/Gfx/RHI/API/RZPipeline.h"
+#include "Razix/Gfx/RHI/API/RZShader.h"
 #include "Razix/Gfx/RHI/API/RZTexture.h"
 #include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
 #include "Razix/Gfx/RHI/API/RZVertexBuffer.h"

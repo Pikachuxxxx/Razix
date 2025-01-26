@@ -22,6 +22,10 @@ namespace Razix {
         private:
             ID3D12PipelineState* m_PipelineState  = nullptr;
             ID3D12RootSignature* m_pRootSignature = nullptr;
+
+        private:
+            void initGraphics(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
+            void initCompute(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG);
         };
     }    // namespace Gfx
 }    // namespace Razix

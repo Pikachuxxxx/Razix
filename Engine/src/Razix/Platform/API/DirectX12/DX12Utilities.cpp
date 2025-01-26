@@ -322,6 +322,58 @@ namespace Razix {
                         break;
                     default:
                         return DescriptorType::kNone;
+                        RAZIX_CORE_ERROR("[DX12] None descriptor type specified! you're doomed check your code/shaders properly.");
+                        break;
+                }
+            }
+
+            D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapTypeToDX12(DescriptorHeapType heapType)
+            {
+                switch (heapType) {
+                    case Razix::Gfx::DescriptorHeapType::kCbvUavSrvHeap:
+                        return D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+                        break;
+                    case Razix::Gfx::DescriptorHeapType::kSamplerHeap:
+                        return D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+                        break;
+                    case Razix::Gfx::DescriptorHeapType::kRenderTargetHeap:
+                        return D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+                        break;
+                    case Razix::Gfx::DescriptorHeapType::kDepthStencilHeap:
+                        return D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+                        break;
+                }
+            }
+
+            D3D12_SHADER_VISIBILITY ShaderStageToVisibility(ShaderStage stage)
+            {
+                switch (stage) {
+                    case kVertex:
+                        return D3D12_SHADER_VISIBILITY_VERTEX;
+                        break;
+                    case kPixel:
+                        return D3D12_SHADER_VISIBILITY_PIXEL;
+                        break;
+                    case kCompute:
+                        return D3D12_SHADER_VISIBILITY_ALL;    // Ahhh ik weird right but since once stage this works!
+                        break;
+                    case kGeometry:
+                        return D3D12_SHADER_VISIBILITY_GEOMETRY;
+                        break;
+                    case kTesselationControl:
+                        return D3D12_SHADER_VISIBILITY_DOMAIN;
+                        break;
+                    case kTesselationEvaluation:
+                        return D3D12_SHADER_VISIBILITY_HULL;
+                        break;
+                    case kAmplification:
+                        return D3D12_SHADER_VISIBILITY_AMPLIFICATION;
+                        break;
+                    case kMesh:
+                        return D3D12_SHADER_VISIBILITY_MESH;
+                        break;
+                    default:
+                        return D3D12_SHADER_VISIBILITY_ALL;
                         break;
                 }
             }

@@ -3,6 +3,9 @@
 #include "Razix/Core/RZDebugConfig.h"
 #include "Razix/Gfx/RHI/API/RZBindingInfoAccessViews.h"
 
+#include "Razix/Gfx/RHI/API/RZAPIDesc.h"
+#include "Razix/Gfx/Resources/IRZResource.h"
+
 namespace Razix {
     namespace Gfx {
 
@@ -50,27 +53,35 @@ namespace Razix {
             MAT4ARRAY
         };
 
+        enum class DescriptorHeapType
+        {
+            kCbvUavSrvHeap,
+            kSamplerHeap,
+            kRenderTargetHeap,
+            kDepthStencilHeap,
+            COUNT
+        };
+
         /* Vertex Input binding information describes the input layout format of the Vertex data sent to the Input Assembly and input variable binding and location for input shader variable */
         struct RAZIX_MEM_ALIGN_16 RZVertexInputBindingInfo
         {
-            u32               binding      = 0;                          /* Binding slot to which the input shader variable is bound to  */
-            u32               location     = 0;                          /* Location ID of the input shader variable                     */
-            VertexInputFormat vertexFormat = VertexInputFormat::R8_UINT; /* The format of the vertex input data                          */
-            u32               offset       = 0;                          /* The offset/stride in the vertex data cluster for each vertex */
+            u32               binding      = 0;
+            u32               location     = 0;
+            VertexInputFormat vertexFormat = VertexInputFormat::R8_UINT;
+            u32               offset       = 0;
         };
 
         /* Information about the uniform buffer members */
         struct RAZIX_MEM_ALIGN_16 RZShaderBufferMemberInfo
         {
-            std::string    name     = "";                  /* The name of the member variable                                      */
-            std::string    fullName = "";                  /* The complete name of the member including uniform buffer as prefix   */
-            u32            size     = 0;                   /* The size of the member                                               */
-            u32            offset   = 0;                   /* The offset of the member in the uniform buffer from the first member */
-            ShaderDataType type     = ShaderDataType::INT; /* The type of the member, this can be used to resolve the format       */
-            u32            _padding = 0;                   /* Padding variable to pad the structure to 16-byte alignment           */
+            std::string    name     = "";
+            std::string    fullName = "";
+            u32            size     = 0;
+            u32            offset   = 0;
+            ShaderDataType type     = ShaderDataType::INT;
+            u32            _padding = 0;
         };
 
-        // TODO: Add support for texture arrays
         /* A descriptor describes the shader resource. Stored details about the binding, the data and other necessary information to create the set of descriptor resources */
         struct RAZIX_MEM_ALIGN_16 RZDescriptor
         {
@@ -84,14 +95,12 @@ namespace Razix {
             };
             std::vector<RZShaderBufferMemberInfo> uboMembers  = {};
             DescriptorBindingInfo                 bindingInfo = {};
+            u32                                   size        = 0;
+            u32                                   offset      = 0;
             ///////////////////////////////////////////////////
-            // TODO: Investigate if to move resourceHint from IRZResource to here
-            // NOT USED, ONLY FOR REFLECTION VERIFICATION WITH THE BINDING RESOURCE
-            u32 size   = 0;    //? The size of the descriptor data, can also be extracted from UBO/Texture??
-            u32 offset = 0;    //? I don't think this is needed
 
-            // since RZHandle has custom copy and move constructors and operators this make RZHandle non-trivially copyable
-            // so we need to define this on our own for union to work or make this type trivial again
+            // since RZHandle has custom copy and move constructors and operators, it make RZHandle non-trivially copyable
+            // so we need to define copy constructors for the union to work and make this type trivial again
             RZDescriptor() {}
             RZDescriptor(const RZDescriptor& other);
             RZDescriptor& operator=(const RZDescriptor& other);
@@ -133,39 +142,42 @@ namespace Razix {
 
         /* Encapsulating the descriptors of a set along with the setID */
         using DescriptorsPerHeapMap = std::map<u32, std::vector<RZDescriptor>>;
-        using DescriptorSets        = std::vector<Gfx::RZDescriptorSet*>;    // vector IDx == set Idx
+        using DescriptorSets        = std::vector<Gfx::RZDescriptorSetHandle>;    // vector IDx == set Idx
 
         // https://www.reddit.com/r/vulkan/comments/ybmld8/how_expensive_is_descriptor_set_creationupdate/
         // https://gist.github.com/nanokatze/bb03a486571e13a7b6a8709368bd87cf
         // https://github.com/ARM-software/vulkan_best_practice_for_mobile_developers/blob/master/samples/performance/descriptor_management/descriptor_management_tutorial.md
         // [Transient Resource System] https://logins.github.io/graphics/2021/05/31/RenderGraphs.html#:~:text=Transient%20Resource%20System,are%20also%20called%20transient%20resources.
 
-        const u32 kInvalidSetIdx = ~0;
-
         /* Shader pointer kind of variable that refers to a bunch of buffers or an image resources and their layout/binding information */
-        class RAZIX_API RZDescriptorSet
+        class RAZIX_API RZDescriptorSet : public IRZResource<RZDescriptorSet>
         {
         public:
             RZDescriptorSet() = default;
-            RAZIX_VIRTUAL_DESCTURCTOR(RZDescriptorSet)
+            RAZIX_VIRTUAL_DESCTURCTOR(RZDescriptorSet);
 
+            GET_INSTANCE_SIZE;
+
+            /* Updates the descriptor set with the given descriptors */
+            virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors) = 0;
+
+            RAZIX_INLINE u32  getSetIdx() const { return m_Desc.setIdx; }
+            RAZIX_INLINE void setSetIdx(u32 idx) { m_Desc.setIdx = idx; }
+
+        protected:
+            RZDescriptorSetDesc m_Desc;
+
+        private:
             /**
              * Creates the Razix Descriptor set with the given descriptors, it encapsulates the resource per set for all the shader stages
              * @note : As the name suggest the descriptor set contains a set of descriptor resources, along with the data and their binding information
              * 
              * @param descriptor The list of descriptor resources that will be uploaded by the set to various shader stages
              */
-            static RZDescriptorSet* Create(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG);
+            static void Create(void* where, const RZDescriptorSetDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
 
-            /* Updates the descriptor set with the given descriptors */
-            virtual void UpdateSet(const std::vector<RZDescriptor>& descriptors) = 0;
-            virtual void Destroy() const                                         = 0;
-
-            inline u32  getSetIdx() const { return m_SetIdx; }
-            inline void setSetIdx(u32 idx) { m_SetIdx = idx; }
-
-        protected:
-            u32 m_SetIdx = kInvalidSetIdx;
+            // only resource manager can create an instance of this class
+            friend class RZResourceManager;
         };
     }    // namespace Gfx
 }    // namespace Razix

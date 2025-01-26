@@ -14,13 +14,14 @@
 namespace Razix {
     namespace Gfx {
 
-        VKDescriptorSet::VKDescriptorSet(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG)
+        VKDescriptorSet::VKDescriptorSet(const RZDescriptorSetDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
             : m_DescriptorPool(VK_NULL_HANDLE)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            m_Desc = desc;
             // This also works for set index since all the descriptors will have the same set idx
-            m_SetIdx = descriptors[0].bindingInfo.location.set;
+            //m_Desc.setIdx = desc.descriptors[0].bindingInfo.location.set;
 
             // Descriptor sets can't be created directly, they must be allocated from a pool like command buffers i.e. use a descriptor pool to allocate the descriptor sets
             // We first need to describe which descriptor types our descriptor sets are going to contain and how many of them, we allocate a pool for each type of descriptor
@@ -29,7 +30,7 @@ namespace Razix {
 
             std::vector<VkDescriptorSetLayoutBinding> setLayoutBindingInfos;
 
-            for (auto& descriptor: descriptors) {
+            for (auto descriptor: m_Desc.descriptors) {
                 VkDescriptorSetLayoutBinding setLayoutBindingInfo = {};
                 setLayoutBindingInfo.binding                      = descriptor.bindingInfo.location.binding;
                 setLayoutBindingInfo.descriptorCount              = 1;    // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array, if any (useful for Animation aka JointTransforms)
@@ -77,7 +78,8 @@ namespace Razix {
             VKUtilities::VKCreateSamplerDesc defaultSamplerDesc = {};
             m_DefaultSampler                                    = VKUtilities::CreateImageSampler(defaultSamplerDesc RZ_DEBUG_NAME_TAG_STR_E_ARG("Default Combined Sampler"));
 
-            UpdateSet(descriptors);
+            // Initial update
+            UpdateSet(m_Desc.descriptors);
         }
 
         void VKDescriptorSet::UpdateSet(const std::vector<RZDescriptor>& descriptors)
@@ -87,8 +89,6 @@ namespace Razix {
             int descriptorWritesCount = 0;
             int imageWriteIdx         = 0;
             int uniformBufferWriteIdx = 0;
-
-            // TODO: Fix the code duplication
 
             for (auto& descriptor: descriptors) {
                 switch (descriptor.bindingInfo.type) {
@@ -233,23 +233,14 @@ namespace Razix {
                         descriptorWritesCount++;
                     } break;
                     case DescriptorType::kRWTyped:
-                        break;
                     case DescriptorType::kStructured:
-                        break;
                     case DescriptorType::kRWStructured:
-                        break;
                     case DescriptorType::kByteAddress:
-                        break;
                     case DescriptorType::kRWByteAddress:
-                        break;
                     case DescriptorType::kAppendStructured:
-                        break;
                     case DescriptorType::kConsumeStructured:
-                        break;
                     case DescriptorType::kRWStructuredCounter:
-                        break;
                     case DescriptorType::kRTAccelerationStructure:
-                        break;
                     default:
                         RAZIX_CORE_ERROR("[VULKAN] Unknow descriptor type!");
                         break;
@@ -258,7 +249,8 @@ namespace Razix {
             vkUpdateDescriptorSets(VKDevice::Get().getDevice(), descriptorWritesCount, m_WriteDescriptorSetPool, 0, nullptr);
         }
 
-        void VKDescriptorSet::Destroy() const
+        //-------------------------------------------------------------------------------------------
+        RAZIX_CLEANUP_RESOURCE_IMPL(VKDescriptorSet)
         {
             if (m_DefaultSampler != VK_NULL_HANDLE)
                 vkDestroySampler(VKDevice::Get().getDevice(), m_DefaultSampler, nullptr);

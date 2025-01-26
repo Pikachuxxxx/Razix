@@ -19,12 +19,16 @@ namespace Razix {
         class VKDescriptorSet : public RZDescriptorSet
         {
         public:
-            VKDescriptorSet(const std::vector<RZDescriptor>& descriptors RZ_DEBUG_NAME_TAG_E_ARG);
+            VKDescriptorSet(const RZDescriptorSetDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
+
+            //---------------------------------------
+            /* Releases the IRZResource */
+            RAZIX_CLEANUP_RESOURCE
+            //---------------------------------------
 
             void UpdateSet(const std::vector<RZDescriptor>& descriptors) override;
-            void Destroy() const override;
 
-            inline const VkDescriptorSet& getDescriptorSet() const { return m_DescriptorSet; }
+            RAZIX_INLINE const VkDescriptorSet& getDescriptorSet() const { return m_DescriptorSet; }
 
         private:
             VkDescriptorPool        m_DescriptorPool         = {}; /* The descriptor pool from which the descriptor sets will be allocated from                                */

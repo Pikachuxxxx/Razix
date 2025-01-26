@@ -11,6 +11,7 @@
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 #include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
 #include "Razix/Gfx/RHI/API/RZPipeline.h"
+#include "Razix/Gfx/RHI/API/RZShader.h"
 #include "Razix/Gfx/RHI/API/RZTexture.h"
 #include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
 #include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
@@ -19,7 +20,6 @@
 
 #include "Razix/Gfx/RZMesh.h"
 #include "Razix/Gfx/RZMeshFactory.h"
-
 #include "Razix/Gfx/RZShaderLibrary.h"
 
 #include "Razix/Gfx/Materials/RZMaterial.h"
@@ -27,12 +27,10 @@
 #include "Razix/Gfx/Passes/Data/FrameData.h"
 
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
-#include "Razix/Scene/Components/RZComponents.h"
-
 #include "Razix/Scene/RZScene.h"
+#include "Razix/Scene/Components/RZComponents.h"
 
 #include "Razix/Utilities/RZColorUtilities.h"
 

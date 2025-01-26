@@ -33,7 +33,7 @@
 #include "Razix/Gfx/Passes/Tests/RZWaveInstrinsicsTestPass.h"
 
 // Renderers
-#include "Razix/Gfx/Renderers/RZImGuiRenderer.h"
+#include "Razix/Gfx/Renderers/RZImGuiRendererProxy.h"
 
 #include "Razix/Maths/RZGrid.h"
 
@@ -125,7 +125,7 @@ namespace Razix {
             RZPBRLightingPass          m_PBRLightingPass;
             RZSkyboxPass               m_SkyboxPass;
             RZGaussianBlurPass         m_GaussianBlurPass;
-            RZImGuiRenderer            m_ImGuiRenderer;
+            RZImGuiRendererProxy            m_ImGuiRenderer;
             RZTAAResolvePass           m_TAAResolvePass;
             RZFXAAPass                 m_FXAAPass;
             RZToneMapPass              m_TonemapPass;

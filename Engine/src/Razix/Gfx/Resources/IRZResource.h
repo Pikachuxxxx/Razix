@@ -69,10 +69,12 @@ namespace Razix {
          */
         enum ResourceViewHint : u8
         {
-            kSRV = 1 << 0,
-            kUAV = 1 << 1,    // typically a RW resource
-            kRTV = 1 << 2,
-            kDSV = 1 << 3
+            kSRV     = 1 << 0,
+            kUAV     = 1 << 1,    // typically a RW resource
+            kRTV     = 1 << 2,
+            kDSV     = 1 << 3,
+            kCBV     = 1 << 4,
+            kSampler = 1 << 5
         };
 
         //-----------------------------------------------------------------------------------

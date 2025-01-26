@@ -27,6 +27,9 @@ build/
 Engine/content/Shaders/Compiled/
 Engine/content/Shaders/Generated/
 
+#ignore QT generated Files
+Editor/src/generated/
+
 /Sandbox/LargeScenesSandbox.razixproject
 /Sandbox/Assets/Models/BistroExterior.glb
 /Sandbox/Assets/Models/BattleOfTrashGods.gltf

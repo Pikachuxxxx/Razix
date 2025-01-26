@@ -61,8 +61,7 @@ namespace Razix {
                     depthTextureDesc.type                  = TextureType::kDepth;
                     depthTextureDesc.initResourceViewHints = kDSV;
                     data.Depth                             = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
-
-                    data.Depth = builder.write(data.Depth);
+                    data.Depth                             = builder.write(data.Depth);
                 },
                 [=](const HelloTriangleData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -70,7 +69,7 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("[Test] Hello Triangle Pass");
                     RAZIX_MARK_BEGIN("[Test] Pass.Builtin.Code.HelloTriangle", Utilities::GenerateHashedColor4(69u));
 
-                    auto cmdBuffer = RHI::GetCurrentCommandBuffer();
+                    auto cmdBuffer = Gfx::RHI::GetCurrentCommandBuffer();
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
@@ -78,15 +77,15 @@ namespace Razix {
                     info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
                     info.resize           = true;
 
-                    RHI::BeginRendering(cmdBuffer, info);
+                    Gfx::RHI::BeginRendering(cmdBuffer, info);
 
                     // Bind pipeline and stuff
-                    RHI::BindPipeline(m_Pipeline, cmdBuffer);
+                    Gfx::RHI::BindPipeline(m_Pipeline, cmdBuffer);
 
-                    // Draw 3 vertices
-                    Gfx::RHI::Draw(cmdBuffer, 3);
+                    constexpr u32 NumTriangleVerts = 3;
+                    Gfx::RHI::Draw(cmdBuffer, NumTriangleVerts);
 
-                    RHI::EndRendering(cmdBuffer);
+                    Gfx::RHI::EndRendering(cmdBuffer);
 
                     RAZIX_MARK_END();
                     RAZIX_TIME_STAMP_END();

@@ -51,8 +51,6 @@
 #include "Razix/Gfx/RZMesh.h"
 #include "Razix/Gfx/RZMeshFactory.h"
 
-#include "Razix/Gfx/RZSprite.h"
-
 // Scene
 #include "Razix/Scene/Components/RZComponents.h"
 #include "Razix/Scene/RZEntity.h"

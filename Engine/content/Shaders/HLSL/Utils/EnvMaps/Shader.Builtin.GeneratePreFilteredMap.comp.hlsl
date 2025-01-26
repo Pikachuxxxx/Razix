@@ -5,7 +5,8 @@
 //------------------------------------------------------------------------------
 #include <ShaderInclude.Builtin.ShaderLangCommon.h>
 //------------------------------------------------------------------------------
-#include <Utils/EnvMaps/ShaderInclude.Builtin.EnvmapUtils.hlsl>
+#define GEN_PREFILTERED
+#include <Utils/EnvMaps/ShaderInclude.Builtin.EnvmapUtils.h>
 //------------------------------------------------------------------------------
 TextureCube EnvCubeMap : register(t0);                 
 SamplerState EnvCubeSampler : register(s1);            
