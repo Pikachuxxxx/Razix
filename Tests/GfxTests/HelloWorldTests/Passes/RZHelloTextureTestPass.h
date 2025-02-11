@@ -16,8 +16,9 @@ namespace Razix {
             void destroy() override;
 
         private:
-            RZPipelineHandle m_Pipeline;
             RZTextureHandle  m_TestTextureHandle;
+            RZShaderHandle   m_Shader;
+            RZPipelineHandle m_Pipeline;
         };
     }    // namespace Gfx
 }    // namespace Razix

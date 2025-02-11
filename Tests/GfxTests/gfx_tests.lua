@@ -1,19 +1,11 @@
 -- common include dirs
 include 'Scripts/premake/common/common_include_dirs.lua'
 
-project "GfxTests"
+function ApplyGfxTestSettings()
     kind "ConsoleApp"
     language "C++"
     cppdialect (engine_global_config.cpp_dialect)
     staticruntime "off"
-
-    files
-    {
-        "../TestCommon/**.h",
-        "../TestCommon/**.cpp",
-        "./**.cpp",
-        "./**.h"
-    }
 
     links
     {
@@ -21,44 +13,6 @@ project "GfxTests"
     }
 
     includedirs
-    {
-        "%{wks.location}/../Engine",
-        "%{wks.location}/../Engine/src",
-        "%{wks.location}/../Engine/src/Razix",
-        "%{wks.location}/../Engine/internal",
-        "%{wks.location}/../Engine/internal/RazixMemory",
-        "%{wks.location}/../Engine/internal/RZSTL",
-        "%{IncludeDir.GLFW}",
-        "%{IncludeDir.Glad}",
-        "%{IncludeDir.stb}",
-        "%{IncludeDir.glm}",
-        "%{IncludeDir.ImGui}",
-        "%{IncludeDir.spdlog}",
-        "%{IncludeDir.cereal}",
-        "%{IncludeDir.SPIRVReflect}",
-        "%{IncludeDir.SPIRVCross}",
-        "%{IncludeDir.entt}",
-        "%{IncludeDir.lua}",
-        "%{IncludeDir.tracy}",
-        "%{IncludeDir.optick}",
-        "%{IncludeDir.Jolt}",
-        "%{IncludeDir.json}",
-        "%{IncludeDir.D3D12MA}",
-        "%{IncludeDir.dxc}",
-        "%{IncludeDir.Razix}",
-        "%{IncludeDir.vendor}",
-        -- Experimental Vendor
-        "%{ExperimentalIncludeDir.Eigen}",
-        -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}",
-        "%{InternalIncludeDir.RZSTL}",
-        -- googletest vendor
-        "%{wks.location}/../Tests/",
-        "%{wks.location}/../Tests/vendor/googletest/googletest",
-        "%{wks.location}/../Tests/vendor/googletest/googletest/include"
-    }
-
-    externalincludedirs
     {
         "%{wks.location}/../Engine",
         "%{wks.location}/../Engine/src",
@@ -177,7 +131,11 @@ project "GfxTests"
         symbols "Off"
         optimize "Full"
         runtime "Release"
+end
 
+group "Tests/GfxTests"
+    include "HelloWorldTests/hello_world_tests.lua"
+group ""
 ------------------------------------------------------------------------------
 -- GFX TEST SHADERS
 

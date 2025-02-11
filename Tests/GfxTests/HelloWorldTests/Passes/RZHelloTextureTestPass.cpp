@@ -1,4 +1,3 @@
-#if 0
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -28,12 +27,16 @@ namespace Razix {
         void RZHelloTextureTestPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Create the shader and the pipeline
-            auto shader = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ColorGrading);
+            RZShaderDesc desc = {};
+            desc.filePath     = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTextureTest.rzsf";
+            desc.libraryID    = ShaderBuiltin::Default;
+            desc.name         = "HelloTriangle";
+            m_Shader          = RZResourceManager::Get().createShader(desc);
 
             RZPipelineDesc pipelineInfo{};
             // Build the pipeline here for this pass
             pipelineInfo.name                   = "[Test] Pipeline.HelloTexture";
-            pipelineInfo.shader                 = shader;
+            pipelineInfo.shader                 = m_Shader;
             pipelineInfo.colorAttachmentFormats = {TextureFormat::SCREEN};
             pipelineInfo.depthFormat            = TextureFormat::DEPTH16_UNORM;
             pipelineInfo.cullMode               = Gfx::CullMode::None;
@@ -83,7 +86,7 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
-                    info.colorAttachments = {{Gfx::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::OpaqueBlack}}};
+                    info.colorAttachments = {{Gfx::RHI::GetSwapchain()->GetCurrentBackBufferImage(), {true, ClearColorPresets::OpaqueBlack}}};
                     info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
                     info.resize           = true;
 
@@ -91,7 +94,7 @@ namespace Razix {
 
                     // Bind descriptor sets and resources
                     if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
-                        auto& shaderBindVars = RZResourceManager::Get().getShaderResource(shader)->getBindVars();
+                        auto& shaderBindVars = RZResourceManager::Get().getShaderResource(m_Shader)->getBindVars();
 
                         RZDescriptor* descriptor = nullptr;
 
@@ -101,10 +104,10 @@ namespace Razix {
                             descriptor->texture = m_TestTextureHandle;
 
                         // Vulkan will create a default sampler if not found
-                        RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
+                        RZResourceManager::Get().getShaderResource(m_Shader)->updateBindVarsHeaps();
                     }
 
-                    auto& sceneDrawParams = Gfx::RZResourceManager::Get().getShaderResource(shader)->getSceneDrawParams();
+                    auto& sceneDrawParams = Gfx::RZResourceManager::Get().getShaderResource(m_Shader)->getSceneDrawParams();
                     Gfx::RHI::BindUserDescriptorSets(m_Pipeline, cmdBuffer, sceneDrawParams.userSets, 0);
 
                     // Bind pipeline and stuff
@@ -123,8 +126,8 @@ namespace Razix {
         void RZHelloTextureTestPass::destroy()
         {
             RZResourceManager::Get().destroyTexture(m_TestTextureHandle);
+            RZResourceManager::Get().destroyShader(m_Shader);
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
     }    // namespace Gfx
 }    // namespace Razix
-#endif

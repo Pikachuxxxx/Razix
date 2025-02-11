@@ -96,5 +96,4 @@ namespace Razix {
         float psnr          = 10.0f * std::log10((maxPixelValue * maxPixelValue) / mse);
         return psnr;
     }
-
 }    // namespace Razix

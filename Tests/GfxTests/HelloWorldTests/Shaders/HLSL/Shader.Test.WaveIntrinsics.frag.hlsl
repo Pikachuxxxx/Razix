@@ -23,7 +23,7 @@ float4 PS_MAIN(PSIn psIn) : SV_TARGET
 {
     float4 outputColor;
 
-    uint waveMode = 1; // TESTING until Razix DX12 backend supports descriptor sets 
+    uint waveMode = 3; // HARDCODED TESTING until Razix DX12 backend supports descriptor sets 
     uint laneSize = WaveGetLaneCount();
 
     // Add grid-like texture pattern

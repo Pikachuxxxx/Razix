@@ -3,14 +3,14 @@
 
 #include <TestCommon/GfxTestsBase.h>
 
-#include "Passes/RZHelloTriangleTestPass.h"
+#include "Passes/RZHelloTextureTestPass.h"
 
 using namespace Razix;
 
-class HelloTriangleTest final : public RZGfxTestAppBase
+class HelloTextureTest final : public RZGfxTestAppBase
 {
 public:
-    HelloTriangleTest(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_DEFAULT, const std::string& appName = "RazixGfxTestApp")
+    HelloTextureTest(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_DEFAULT, const std::string& appName = "RazixGfxTestApp")
         : RZGfxTestAppBase(projectRoot, numFrames, appName)
     {
     }
@@ -18,15 +18,15 @@ public:
     void OnStart() override
     {
         RZEngine::Get().getWorldRenderer().clearFrameGraph();
-        RZEngine::Get().getWorldRenderer().pushRenderPass(&helloTriangleTestPass, nullptr, &RZEngine::Get().getWorldSettings());
+        RZEngine::Get().getWorldRenderer().pushRenderPass(&helloTextureTestPass, nullptr, &RZEngine::Get().getWorldSettings());
         RAZIX_CORE_INFO("Compiling FrameGraph ....");
         RZEngine::Get().getWorldRenderer().getFrameGraph().compile();
 
         std::string testsRootPath;
         RZVirtualFileSystem::Get().resolvePhysicalPath("//TestsRoot/GfxTests/", testsRootPath, true);
 
-        SetGoldenImagePath(testsRootPath + "GoldenImages/GoldenImageHelloTriangle_1280_720.ppm");
-        SetScreenshotPath(testsRootPath + "TestImages/HelloTriangle_1280_720.ppm");
+        SetGoldenImagePath(testsRootPath + "GoldenImages/GoldenImageHelloTexture_1280_720.ppm");
+        SetScreenshotPath(testsRootPath + "TestImages/HelloTexture_1280_720.ppm");
 
         RZGfxTestAppBase::OnStart();
     }
@@ -35,22 +35,22 @@ public:
     {
         Gfx::RZGraphicsContext::GetContext()->Wait();
 
-        helloTriangleTestPass.destroy();
+        helloTextureTestPass.destroy();
         RZGfxTestAppBase::OnQuit();
     }
 
 private:
-    Razix::Gfx::RZHelloTriangleTestPass helloTriangleTestPass;
+    Razix::Gfx::RZHelloTextureTestPass helloTextureTestPass;
 };
 
 static RZGfxTestAppBase* s_GfxTestBaseApp = NULL;
-Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
+Razix::RZApplication*    Razix::CreateApplication(int argc, char** argv)
 {
-    s_GfxTestBaseApp = new HelloTriangleTest(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Tests/")));
+    s_GfxTestBaseApp = new HelloTextureTest(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Tests/")));
     return s_GfxTestBaseApp;
 }
 
-class HelloTriangleTests : public ::testing::Test
+class HelloTextureTests : public ::testing::Test
 {
 protected:
     void SetUp() override
@@ -62,7 +62,7 @@ protected:
     }
 };
 
-TEST_F(HelloTriangleTests, HelloTriangle)
+TEST_F(HelloTextureTests, HelloTexture)
 {
     int result = EngineTestLoop();
 
