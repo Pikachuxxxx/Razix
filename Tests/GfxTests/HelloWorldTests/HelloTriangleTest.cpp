@@ -13,7 +13,7 @@ using namespace Razix;
 class HelloTriangleTestBase final : public RZGfxTestAppBase
 {
 public:
-    HelloTriangleTestBase(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_INF, const std::string& appName = "RazixGfxTestApp::HelloTriangle")
+    HelloTriangleTestBase(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_INF, const std::string& appName = "RazixGfxTestApp")
         : RZGfxTestAppBase(projectRoot, numFrames, appName) {}
 
     void OnStart() override
