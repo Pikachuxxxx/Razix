@@ -18,8 +18,11 @@
         #include <vma/vk_mem_alloc.h>
     #endif
 
+template class Razix::RZSingleton<Razix::Gfx::VKDevice>;
+
 namespace Razix {
     namespace Gfx {
+    
 
         // Helper class for pNext layers Injection
         class PNextChain

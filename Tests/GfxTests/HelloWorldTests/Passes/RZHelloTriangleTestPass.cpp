@@ -8,6 +8,8 @@ namespace Razix {
             // Create the shader and the pipeline
             RZShaderDesc desc = {};
             desc.filePath     = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTriangleTest.rzsf";
+            desc.libraryID = ShaderBuiltin::Default;
+            desc.name = "HelloTriangle";
             m_Shader          = RZResourceManager::Get().createShader(desc);
 
             RZPipelineDesc pipelineInfo{};

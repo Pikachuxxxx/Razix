@@ -80,7 +80,7 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         template<typename T>
-        class IRZResource
+        class RAZIX_API IRZResource
         {
         public:
             IRZResource()

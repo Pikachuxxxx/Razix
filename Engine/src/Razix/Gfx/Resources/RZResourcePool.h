@@ -17,7 +17,7 @@ namespace Razix {
         template<typename U>
         class IRZResource;
 
-        class RZResourcePool
+        class RAZIX_API RZResourcePool
         {
         public:
             RZResourcePool()  = default;

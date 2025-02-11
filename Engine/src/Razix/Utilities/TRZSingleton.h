@@ -9,16 +9,12 @@ namespace Razix {
      * @note [Design Suggested in Game Engine Architecture by Jason Gregory at p.199-201]
      */
     template<class T>
-    class RZSingleton
+    class RAZIX_API RZSingleton
     {
     public:
         /* Gets the reference to the Singleton Object */
-        static T& Get()
-        {
-            static T instance;
-            return instance;
-        }
-
+        static T& Get();
+        
     protected:
         RZSingleton() {}
         ~RZSingleton() {}

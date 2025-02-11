@@ -1,8 +1,8 @@
 {
     "Razix Application": {
-        "Project Name": "SponzaSandbox",
+        "Project Name": "RazixGfxTestApp::HelloTriangle",
         "Engine Version": "0.43.0",
-        "Project ID": "716a0c20-91f5-4bd4-82f5-8711cb9db438",
+        "Project ID": "7ee3c6cb-e5ab-4bbe-92f6-0a4d8c01ee25",
         "Render API": 1,
         "Width": 1280,
         "Height": 720,

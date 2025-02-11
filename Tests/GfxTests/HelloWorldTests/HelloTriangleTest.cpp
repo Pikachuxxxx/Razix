@@ -1,5 +1,3 @@
-#pragma once
-
 #include <Razix.h>
 #include <gtest/gtest.h>
 
