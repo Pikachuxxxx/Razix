@@ -1,14 +1,14 @@
 ﻿
 /*
  * Razix Shader File 
- * Shader.Builtin.WaveIntrinsics.rzsf : Test shader for Wave Instrinsics
- * Copyright Razix Engine 2025  by Pikachuxxxx (Phani Srikar)
+ * Shader.Test.WaveIntrinsics.rzsf : Test shader for Wave Instrinsics
+ * Copyright Razix Engine 2025 by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex
-    #include Shader.Builtin.HelloTriangle.vert
+    #include Shader.Test.HelloTriangle.vert
 #end
 
 #shader fragment
-    #include Shader.Builtin.WaveIntrinsics.frag
+    #include Shader.Test.WaveIntrinsics.frag
 #end

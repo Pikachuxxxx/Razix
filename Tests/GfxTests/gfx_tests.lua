@@ -135,25 +135,23 @@ end
 
 group "Tests/GfxTests"
     include "HelloWorldTests/hello_world_tests.lua"
+
+    -- GFX TEST SHADERS
+    project "TestShaders"
+        kind "Utility"
+
+        files
+        { 
+            -- Shader files
+            "../../../Engine/content/Shaders/ShaderCommon/**",
+            -- HLSL - primary language for all platforms shader gen
+            "HelloWorldTests/Shaders/HLSL/**.hlsl",
+            "HelloWorldTests/Shaders/HLSL/**.hlsli",
+            "HelloWorldTests/Shaders/HLSL/**.vert.hlsl",
+            "HelloWorldTests/Shaders/HLSL/**.geom.hlsl",
+            "HelloWorldTests/Shaders/HLSL/**.frag.hlsl",
+            "HelloWorldTests/Shaders/HLSL/**.comp.hlsl",
+            -- Razix Shader File
+            "HelloWorldTests/Shaders/Razix/**.rzsf",
+        }
 group ""
-------------------------------------------------------------------------------
--- GFX TEST SHADERS
-
-project "TestShaders"
-    kind "Utility"
-
-    files
-    { 
-        -- Shader files
-        "../../../Engine/content/Shaders/ShaderCommon/**",
-        -- HLSL - primary language for all platforms shader gen
-        "HelloWorldTests/Shaders/HLSL/**.hlsl",
-        "HelloWorldTests/Shaders/HLSL/**.hlsli",
-        "HelloWorldTests/Shaders/HLSL/**.vert.hlsl",
-        "HelloWorldTests/Shaders/HLSL/**.geom.hlsl",
-        "HelloWorldTests/Shaders/HLSL/**.frag.hlsl",
-        "HelloWorldTests/Shaders/HLSL/**.comp.hlsl",
-        -- Razix Shader File
-        "HelloWorldTests/Shaders/Razix/**.rzsf",
-    }
-------------------------------------------------------------------------------

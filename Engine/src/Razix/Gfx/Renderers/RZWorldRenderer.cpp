@@ -58,6 +58,7 @@ namespace Razix {
         {
             m_FrameGraphBuildingInProgress = true;
 
+#ifdef ENABLE_EACH_PASS_AS_WE_FIX
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
             RZTextureDesc brdfDesc                           = {};
@@ -134,7 +135,6 @@ namespace Razix {
 
             m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
 
-#ifdef ENABLE_EACH_PASS_AS_WE_FIX
 
             //-------------------------------
             // [ ] CSM PAss
@@ -386,12 +386,12 @@ namespace Razix {
                 });
 
             sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
-#endif
             //-------------------------------
             // Composition Pass
             //-------------------------------
             m_FrameGraph.getBlackboard().setFinalOutputName("SceneHDR");
             m_CompositePass.addPass(m_FrameGraph, scene, &settings);
+#endif
 
             // Compile the Frame Graph
             RAZIX_CORE_INFO("Compiling FrameGraph ....");
@@ -482,11 +482,7 @@ namespace Razix {
             // Destroy Frame Graph Transient Resources
             m_FrameGraph.destroy();
 
-#if ENABLE_TEST_PASSES
-            m_HelloTriangleTestPass.destroy();
-            m_WaveInstrinsicsTestPass.destroy();
-            //m_HelloTextureTestPass.destroy();
-#else
+
             // Destroy Renderers
             // m_ImGuiRenderer.Destroy();
             // RZDebugRendererProxy::Get()->Destroy();
@@ -504,8 +500,6 @@ namespace Razix {
             // m_GaussianBlurPass.destroy();
             m_CompositePass.destroy();
             m_ShadowPass.destroy();
-
-#endif
 
             // Wait for GPU to be done
             Gfx::RZGraphicsContext::GetContext()->Wait();

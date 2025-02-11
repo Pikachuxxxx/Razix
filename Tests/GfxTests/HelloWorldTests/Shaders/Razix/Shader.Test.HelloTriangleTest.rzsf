@@ -1,13 +1,13 @@
 ﻿/*
  * Razix Shader File 
- * Shader.Builtin.HelloTriangle.rzsf : Test shader to render a hello triangle 
- * Copyright Razix Engine 2025  by Pikachuxxxx (Phani Srikar)
+ * Shader.Test.HelloTriangle.rzsf : Test shader to render a hello triangle 
+ * Copyright Razix Engine 2025 by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex
-    #include Shader.Builtin.HelloTriangle.vert
+    #include Shader.Test.HelloTriangle.vert
 #end
 
 #shader fragment
-    #include Shader.Builtin.HelloTriangle.frag
+    #include Shader.Test.HelloTriangle.frag
 #end

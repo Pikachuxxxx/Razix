@@ -1,10 +1,6 @@
 #pragma once
 
-#include "Razix/Gfx/Passes/IRZPass.h"
-
-#include "Razix/Gfx/Passes/Data/GlobalData.h"
-
-#include "Razix/Gfx/Renderers/RZSystemBinding.h"
+#include <Razix.h>
 
 namespace Razix {
     namespace Gfx {

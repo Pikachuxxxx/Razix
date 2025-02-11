@@ -32,3 +32,19 @@ project "GfxTest-HelloTextureTest"
         "./HelloTextureTest.cpp",
     }
     ApplyGfxTestSettings()
+------------------------------------------------------------------------------
+project "GfxTest-WaveIntrinsicsTest"
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect (engine_global_config.cpp_dialect)
+    staticruntime "off"
+
+    files
+    {
+        "../../TestCommon/*.h",
+        "../../TestCommon/*.cpp",
+        "./Passes/RZWaveIntrinsicsTestPass.h",
+        "./Passes/RZWaveIntrinsicsTestPass.cpp",
+        "./WaveIntrinsicsTest.cpp",
+    }
+    ApplyGfxTestSettings()

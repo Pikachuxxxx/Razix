@@ -1,38 +1,9 @@
-#if 0
-// clang-format off
-#include "rzxpch.h"
-// clang-format on
-#include "RZWaveInstrinsicsTestPass.h"
-
-#include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/Markers/RZMarkers.h"
-#include "Razix/Core/RZEngine.h"
-
-#include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
-#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
-#include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
-#include "Razix/Gfx/RHI/API/RZPipeline.h"
-#include "Razix/Gfx/RHI/API/RZShader.h"
-#include "Razix/Gfx/RHI/API/RZTexture.h"
-#include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
-#include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
-
-#include "Razix/Gfx/RHI/RHI.h"
-
-#include "Razix/Gfx/RZShaderLibrary.h"
-
-#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
-#include "Razix/Gfx/Resources/RZResourceManager.h"
-
-#include "Razix/Scene/RZScene.h"
-
-#include "Razix/Utilities/RZColorUtilities.h"
+#include "RZWaveIntrinsicsTestPass.h"
 
 namespace Razix {
     namespace Gfx {
 
-        void RZWaveInstrinsicsTestPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZWaveIntrinsicsTestPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             if (!g_GraphicsFeatures.SupportsWaveIntrinsics) {
                 RAZIX_CORE_ERROR("[FrameGraph] Wave Intrinsics not supported on this GPU!");
@@ -40,12 +11,16 @@ namespace Razix {
             }
 
             // Create the shader and the pipeline
-            auto shader = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ColorGrading);
+            RZShaderDesc desc = {};
+            desc.filePath     = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.WaveIntrinsicsTest.rzsf";
+            desc.libraryID    = ShaderBuiltin::Default;
+            desc.name         = "WaveIntrinsics";
+            m_Shader          = RZResourceManager::Get().createShader(desc);
 
             RZPipelineDesc pipelineInfo{};
             // Build the pipeline here for this pass
             pipelineInfo.name                   = "[Test] Pipeline.WaveIntrinsics";
-            pipelineInfo.shader                 = shader;
+            pipelineInfo.shader                 = m_Shader;
             pipelineInfo.colorAttachmentFormats = {TextureFormat::SCREEN};
             pipelineInfo.depthFormat            = TextureFormat::DEPTH16_UNORM;
             pipelineInfo.cullMode               = Gfx::CullMode::None;
@@ -73,7 +48,7 @@ namespace Razix {
                 "[Test] Pass.Builtin.Code.WaveIntrinsics",
                 [&](WaveIntrinsicsData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
-#if __APPLE__
+
                     RZTextureDesc depthTextureDesc;
                     depthTextureDesc.name                  = "SceneDepth";
                     depthTextureDesc.width                 = RZApplication::Get().getWindow()->getWidth();
@@ -83,7 +58,6 @@ namespace Razix {
                     depthTextureDesc.initResourceViewHints = kDSV;
                     data.Depth                             = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
                     data.Depth                             = builder.write(data.Depth);
-#endif
                     //RZBufferDesc DebugDataBufferDesc{};
                     //DebugDataBufferDesc.name  = "WaveIntrinsicsConstantBufferData";
                     //DebugDataBufferDesc.size  = sizeof(SSAOParamsData);
@@ -102,10 +76,8 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
-                    info.colorAttachments = {{Gfx::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::OpaqueBlack}}};
-#ifdef __APPLE__
+                    info.colorAttachments = {{Gfx::RHI::GetSwapchain()->GetCurrentBackBufferImage(), {true, ClearColorPresets::OpaqueBlack}}};
                     info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
-#endif
                     info.resize = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
@@ -145,11 +117,12 @@ namespace Razix {
                 });
         }
 
-        void RZWaveInstrinsicsTestPass::destroy()
+        void RZWaveIntrinsicsTestPass::destroy()
         {
-            if (g_GraphicsFeatures.SupportsWaveIntrinsics)
+            if (g_GraphicsFeatures.SupportsWaveIntrinsics) {
+                RZResourceManager::Get().destroyShader(m_Shader);
                 RZResourceManager::Get().destroyPipeline(m_Pipeline);
+            }
         }
     }    // namespace Gfx
 }    // namespace Razix
-#endif

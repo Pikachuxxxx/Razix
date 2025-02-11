@@ -1,15 +1,11 @@
 #pragma once
 
-#include "Razix/Gfx/Passes/IRZPass.h"
-
-#include "Razix/Gfx/Passes/Data/GlobalData.h"
-
-#include "Razix/Gfx/Renderers/RZSystemBinding.h"
+#include <Razix.h>
 
 namespace Razix {
     namespace Gfx {
 
-        class RZWaveInstrinsicsTestPass : public IRZPass
+        class RZWaveIntrinsicsTestPass : public IRZPass
         {
         public:
             void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
@@ -17,6 +13,7 @@ namespace Razix {
 
         private:
             RZPipelineHandle m_Pipeline;
+            RZShaderHandle   m_Shader;
         };
     }    // namespace Gfx
 }    // namespace Razix

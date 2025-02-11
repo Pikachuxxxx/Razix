@@ -1,25 +1,4 @@
-// clang-format off
-#include "rzxpch.h"
-// clang-format on
 #include "RZHelloTextureTestPass.h"
-
-#include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/Markers/RZMarkers.h"
-#include "Razix/Core/RZEngine.h"
-
-#include "Razix/Gfx/RHI/API/RZPipeline.h"
-#include "Razix/Gfx/RHI/API/RZShader.h"
-
-#include "Razix/Gfx/RHI/RHI.h"
-
-#include "Razix/Gfx/RZShaderLibrary.h"
-
-#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
-
-#include "Razix/Scene/RZScene.h"
-
-#include "Razix/Utilities/RZColorUtilities.h"
 
 namespace Razix {
     namespace Gfx {
@@ -30,7 +9,7 @@ namespace Razix {
             RZShaderDesc desc = {};
             desc.filePath     = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTextureTest.rzsf";
             desc.libraryID    = ShaderBuiltin::Default;
-            desc.name         = "HelloTriangle";
+            desc.name         = "HelloTexture";
             m_Shader          = RZResourceManager::Get().createShader(desc);
 
             RZPipelineDesc pipelineInfo{};

@@ -35,6 +35,57 @@ namespace Razix {
         fclose(file);
     }
 
+    static bool read_ppm(const char* filename, uint32_t* width, uint32_t* height, uint8_t** pixels)
+    {
+        FILE* file = fopen(filename, "rb");
+        if (!file) {
+            RAZIX_ERROR("Failed to open PPM file: %s\n", filename);
+            return false;
+        }
+
+        // Read the PPM header (magic number, width, height, and max color value)
+        char magic[3];
+        if (fscanf(file, "%2s", magic) != 1 || magic[0] != 'P' || magic[1] != '6') {
+            RAZIX_ERROR("Invalid PPM format in file: %s\n", filename);
+            fclose(file);
+            return false;
+        }
+
+        int ch;
+        while ((ch = fgetc(file)) == '#') {
+            while ((ch = fgetc(file)) != '\n' && ch != EOF)
+                ;    // Skip to end of comment
+        }
+
+        if (fscanf(file, "%d %d", width, height) != 2) {
+            RAZIX_ERROR("Failed to read image dimensions in file: %s\n", filename);
+            fclose(file);
+            return false;
+        }
+
+        int max_color_value;
+        if (fscanf(file, "%d", &max_color_value) != 1 || max_color_value != 255) {
+            RAZIX_ERROR("Invalid max color value in file: %s\n", filename);
+            fclose(file);
+            return false;
+        }
+
+        while ((ch = fgetc(file)) == '\n' || ch == ' ')
+            ;
+
+        *pixels = (uint8_t*) malloc(*width * *height * 3);
+        if (!*pixels) {
+            RAZIX_ERROR("Failed to allocate memory for pixel data\n");
+            fclose(file);
+            return false;
+        }
+
+        fread(*pixels, 1, *width * *height * 3, file);
+
+        fclose(file);
+        return true;
+    }
+
     void RZGfxTestAppBase::SetGoldenImagePath(const std::string& path)
     {
         m_GoldenImagePath = path;
@@ -70,30 +121,48 @@ namespace Razix {
 
     float RZGfxTestAppBase::CalculatePSNR(const std::string& capturedImagePath, const std::string& goldenImagePath)
     {
-        u32 capturedImgWidth  = 0;
-        u32 capturedImgHeight = 0;
-        u32 capturedImgBpp    = 0;
-        u32 goldenImgWidth    = 0;
-        u32 goldenImgHeight   = 0;
-        u32 goldenImgBpp      = 0;
+        u32      capturedImgWidth   = 0;
+        u32      capturedImgHeight  = 0;
+        u32      goldenImgWidth     = 0;
+        u32      goldenImgHeight    = 0;
+        uint8_t* captureImagePixels = NULL;
+        uint8_t* goldenImagePixels  = NULL;
 
-        u8* capturedImageData = Razix::Utilities::LoadImageData(capturedImagePath, &capturedImgWidth, &capturedImgHeight, &capturedImgBpp);
-        u8* goldenImageData   = Razix::Utilities::LoadImageData(goldenImagePath, &goldenImgWidth, &goldenImgHeight, &goldenImgBpp);
+        if (!read_ppm(capturedImagePath.c_str(), &capturedImgWidth, &capturedImgHeight, &captureImagePixels))
+            return 100.0f;
 
-        float mse = 0.0f;
+        if (!read_ppm(goldenImagePath.c_str(), &goldenImgWidth, &goldenImgHeight, &goldenImagePixels))
+            return 100.0f;
 
-        // Compute MSE (Mean Squared Error)
-        for (uint32_t i = 0; i < capturedImgWidth * capturedImgHeight; i++) {
-            float diff = (float) capturedImageData[i] - (float) goldenImageData[i];
-            mse += diff * diff;
+        if ((capturedImgWidth != goldenImgWidth) && (capturedImgHeight != goldenImgHeight))
+            return 100.0f;
+
+        int total_pixels        = capturedImgWidth * capturedImgHeight;
+        int total_squared_error = 0;
+
+        // Calculate the squared error for each pixel
+        for (int i = 0; i < total_pixels; i++) {
+            for (int j = 0; j < 3; j++) {    // 3 channels: R, G, B
+                int index = i * 3 + j;
+                int diff  = captureImagePixels[index] - goldenImagePixels[index];
+                total_squared_error += diff * diff;
+            }
         }
 
-        mse /= (capturedImgWidth * capturedImgHeight);
+        free(captureImagePixels);
+        free(goldenImagePixels);
 
-        // Calculate PSNR (Peak Signal-to-Noise Ratio)
-        if (mse == 0) return 0.0f;    // Images are identical
-        float maxPixelValue = 255.0f;                                   // For 8-bit images
-        float psnr          = 10.0f * std::log10((maxPixelValue * maxPixelValue) / mse);
+        float mse = (float) total_squared_error / (total_pixels * 3);
+
+        // If MSE is 0, return infinite PSNR (perfect match)
+        if (mse == 0.0f) {
+            return 0.0f;    // it should be INF but for brevity we return 0
+        }
+
+        // Compute PSNR
+        float max_pixel_value = 255.0f;    // Max value for 8-bit color channels (0-255)
+        float psnr            = 10.0f * log10((max_pixel_value * max_pixel_value) / mse);
+
         return psnr;
     }
 }    // namespace Razix

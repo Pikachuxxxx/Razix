@@ -40,7 +40,7 @@ namespace Razix {
         } GraphicsFeatures;
 
         /* Global instance for Graphics Device level features */
-        extern GraphicsFeatures g_GraphicsFeatures;
+        RAZIX_API extern GraphicsFeatures g_GraphicsFeatures;
 
         /**
          * The Graphics Context that manages the context of the underlying graphics API
