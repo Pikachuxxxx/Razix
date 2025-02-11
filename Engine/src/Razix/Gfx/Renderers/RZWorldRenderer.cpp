@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZWorldRenderer.h"
 
-#define ENABLE_TEST_PASSES           0
+#define ENABLE_TEST_PASSES           1
 #define ENABLE_CODE_DRIVEN_FG_PASSES 0
 #define ENABLE_FORWARD_RENDERING     0
 
@@ -136,7 +136,7 @@ namespace Razix {
             uploadFrameData(scene, settings);
             uploadLightsData(scene, settings);
 
-//            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
+            //            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
 
             //-----------------------------------------------------------------------------------
 
@@ -157,7 +157,7 @@ namespace Razix {
             m_ShadowPass.addPass(m_FrameGraph, scene, &settings);
 
             m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
-            
+
     #ifdef ENABLE_EACH_PASS_AS_WE_FIX
 
             //-------------------------------
@@ -487,21 +487,14 @@ namespace Razix {
 
             m_FrameGraphBuildingInProgress = true;
 
+            // Destroy Frame Graph Transient Resources
+            m_FrameGraph.destroy();
+
 #if ENABLE_TEST_PASSES
             m_HelloTriangleTestPass.destroy();
             m_WaveInstrinsicsTestPass.destroy();
             //m_HelloTextureTestPass.destroy();
 #else
-
-            // Destroy Imported Resources
-//            RZResourceManager::Get().destroyTexture(m_NoiseTextureHandle);
-//            RZResourceManager::Get().destroyTexture(m_BRDFfLUTTextureHandle);
-//            RZResourceManager::Get().destroyTexture(m_ColorGradingNeutralLUTHandle);
-            
-            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.diffuse);
-            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.specular);
-            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.skybox);
-
             // Destroy Renderers
             // m_ImGuiRenderer.Destroy();
             // RZDebugRendererProxy::Get()->Destroy();
@@ -513,7 +506,7 @@ namespace Razix {
             m_PBRLightingPass.destroy();
     #endif
             //m_VisBufferFillPass.destroy();
-             m_SkyboxPass.destroy();
+            m_SkyboxPass.destroy();
             // m_GBufferPass.destroy();
             // m_SSAOPass.destroy();
             // m_GaussianBlurPass.destroy();
@@ -521,9 +514,6 @@ namespace Razix {
             m_ShadowPass.destroy();
 
 #endif
-
-            // Destroy Frame Graph Transient Resources
-            m_FrameGraph.destroy();
 
             // Wait for GPU to be done
             Gfx::RZGraphicsContext::GetContext()->Wait();

@@ -31,8 +31,8 @@ namespace Razix {
             f32 RadicalInverseVanDerCorputSample(u32 index, u32 base)
             {
                 f32 inverseBase = 1.0f / base;
-                f32 result = 0.0f;
-                f32 fraction = inverseBase;
+                f32 result      = 0.0f;
+                f32 fraction    = inverseBase;
 
                 while (index > 0) {
                     // Reflect the digits across the decimal point in the given base
@@ -42,15 +42,16 @@ namespace Razix {
                 }
                 return result;
             }
-        
-            float RadicalInverseVdCBase2(uint bits) {
-                 bits = (bits << 16u) | (bits >> 16u);
-                 bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
-                 bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
-                 bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
-                 bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
-                 return float(bits) * 2.3283064365386963e-10; // / 0x100000000
-             }
+
+            float RadicalInverseVdCBase2(uint bits)
+            {
+                bits = (bits << 16u) | (bits >> 16u);
+                bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+                bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+                bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+                bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+                return float(bits) * 2.3283064365386963e-10f;    // / 0x100000000
+            }
 
             // All these functions internally reuse the RadicalInverse_VDC for higher dimensions
             // Prefer Hammersley to Halton when total no. of samples are known in advance
@@ -67,13 +68,13 @@ namespace Razix {
             f32 HammersleySequenceSample(u32 index, u32 base, u32 totalSamples)
             {
                 if (base == 1)
-                     return (f32)index / (f32)totalSamples;
-                 return RadicalInverseVanDerCorputSample(index, base);
+                    return (f32) index / (f32) totalSamples;
+                return RadicalInverseVanDerCorputSample(index, base);
             }
             /* [x_i/N, RadicalInverseVanDerCorput(index, base = 2) or Halton @ base = 2] */
             vec2 HammersleySequence2DSample(u32 index, u32 totalSamples)
             {
-                return vec2((f32)index / (f32)totalSamples, RadicalInverseVanDerCorputSample(index, 2));
+                return vec2((f32) index / (f32) totalSamples, RadicalInverseVanDerCorputSample(index, 2));
             }
             /**
              * Faster HammersleySequence2D(index, DIM = 2) bitwise trick
@@ -91,21 +92,20 @@ namespace Razix {
             // See: "Physically Based Rendering" 2nd ed., section 13.6.1.
             vec3 HemisphereUniformSample(float u, float v)
             {
-                float phi = v * 2.0 * PI;
-                float cosTheta = 1.0 - u;
-                float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
-                return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
-            }
-        
-            vec3 HemisphereCosSample(float u, float v)
-            {
-                float phi = v * 2.0 * PI;
-                float cosTheta = sqrt(1.0 - u);
-                float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+                float phi      = v * 2.0f * PI;
+                float cosTheta = 1.0f - u;
+                float sinTheta = (float) sqrt(1.0f - cosTheta * cosTheta);
                 return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
             }
 
-        }
-    }
-}
+            vec3 HemisphereCosSample(float u, float v)
+            {
+                float phi      = v * 2.0f * PI;
+                float cosTheta = (float) sqrt(1.0f - u);
+                float sinTheta = (float) sqrt(1.0f - cosTheta * cosTheta);
+                return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+            }
+        }    // namespace ImportanceSampling
+    }        // namespace Math
+}    // namespace Razix
 #endif
