@@ -17,10 +17,6 @@ namespace Razix {
             : RZApplication(projectRoot, appName), m_NumFrames(numFrames), m_CurrentFrame(0)
         {
             RZApplication::Init();
-
-            if (m_GoldenImagePath.empty()) {
-                RAZIX_WARN("Golden Image path not set. Screenshot testing will be skipped.");
-            }
         }
 
         virtual ~RZTestApplication() {}

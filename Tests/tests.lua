@@ -13,4 +13,16 @@ group "Tests"
         include "vendor/googletest/googletest.lua"
     group ""
 
+    project "Run All Tests"
+	kind "Utility"
+
+	postbuildmessage "Running All Tests"
+
+	postbuildcommands
+	{
+		"\"%{wks.location}../bin/%{outputdir}/EngineTests.exe\"",
+		"\"%{wks.location}../bin/%{outputdir}/IgnitionTests.exe\"",
+	}
+
 group ""
+

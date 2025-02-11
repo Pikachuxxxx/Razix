@@ -1,4 +1,4 @@
-project "test_hello_triangle"
+project "GfxTests"
     kind "ConsoleApp"
     language "C++"
     cppdialect (engine_global_config.cpp_dialect)
@@ -16,7 +16,11 @@ project "test_hello_triangle"
     includedirs
     {
         "%{wks.location}/../Engine",
+        "%{wks.location}/../Engine/src",
         "%{wks.location}/../Engine/src/Razix",
+        "%{wks.location}/../Engine/internal",
+        "%{wks.location}/../Engine/internal/RazixMemory",
+        "%{wks.location}/../Engine/internal/RZSTL",
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
@@ -31,13 +35,31 @@ project "test_hello_triangle"
         "%{IncludeDir.tracy}",
         "%{IncludeDir.optick}",
         "%{IncludeDir.Jolt}",
+        "%{IncludeDir.json}",
+        "%{IncludeDir.D3D12MA}",
+        "%{IncludeDir.dxc}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
+        -- Experimental Vendor
+        "%{ExperimentalIncludeDir.Eigen}",
         -- Internal libraries
         "%{InternalIncludeDir.RazixMemory}",
         "%{InternalIncludeDir.RZSTL}",
-        "%{InternalIncludeDir.EASTL}",
-        "%{InternalIncludeDir.EABase}"
+        -- googletest vendor
+        "%{wks.location}/../Tests/",
+        "%{wks.location}/../Tests/vendor/googletest/googletest",
+        "%{wks.location}/../Tests/vendor/googletest/googletest/include"
+    }
+
+    defines
+    {
+        "RAZIX_TEST"
+    }
+
+    links
+    {
+        "Razix", -- Razix DLL
+        "googletest"
     }
 
     filter "system:windows"
@@ -59,6 +81,30 @@ project "test_hello_triangle"
             "_DISABLE_EXTENDED_ALIGNED_STORAGE",
             "_SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING",
             "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING"
+        }
+
+        disablewarnings
+        {
+            "4996"
+        }
+
+    filter "system:macosx"
+        cppdialect "C++17"
+        staticruntime "off"
+        systemversion "latest"
+
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_MACOS",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_USE_GLFW_WINDOWS",
+            "RAZIX_ROOT_DIR="  .. root_dir,
+            "RAZIX_IMGUI",
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "RAZIX_RENDER_API_METAL",
+            "TRACY_ENABLE"
         }
 
     filter "configurations:Debug"

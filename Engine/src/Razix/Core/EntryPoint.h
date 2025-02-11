@@ -124,13 +124,15 @@ static int EngineMain(int argc, char** argv)
     return EXIT_SUCCESS;
 }
 
-static void EngineExit()
+static int EngineExit()
 {
     // Shutdown the Engine
     Razix::RZEngine::Get().ShutDown();
 
     // Shutdown the Engine systems
     Razix::Debug::RZLog::Shutdown();
+
+    return 0;
 }
 
 #elif defined RAZIX_PLATFORM_MACOS
@@ -206,13 +208,15 @@ static int EngineMain(int argc, char** argv)
     return EXIT_SUCCESS;
 }
 
-static void EngineExit()
+static int EngineExit()
 {
     // Shutdown the Engine
     Razix::RZEngine::Get().ShutDown();
 
     // Shutdown the Engine systems
     Razix::Debug::RZLog::Shutdown();
+
+    return 0;
 }
 
 #endif
