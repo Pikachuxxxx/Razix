@@ -102,7 +102,6 @@ namespace Razix {
             RAZIX_INLINE std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
             RAZIX_INLINE void        setFrameGraphFilePath(std::string val);
 
-            inline void                   getReadbackSwapchainThisFrame() const { m_ReadSwapchainThisFrame; }
             inline void                   setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
             inline const TextureReadback& getSwapchainReadback() { return m_LastSwapchainReadback; }
 

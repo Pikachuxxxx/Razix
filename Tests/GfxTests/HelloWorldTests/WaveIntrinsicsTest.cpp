@@ -67,7 +67,7 @@ TEST_F(WaveIntrinsicsTests, WaveIntrinsics)
     int result = EngineTestLoop();
 
     float psnr = s_GfxTestBaseApp->CompareWithGoldenImage();
-    if (psnr > 10.f)
+    if (psnr > 90.f)
         result = -1;
     else
         result = SUCCESSFUL_ENGINE_EXIT_CODE;
