@@ -78,8 +78,8 @@ namespace Razix {
                     
                     RZTextureDesc textureDesc = {};
                     textureDesc.name   = "SceneHDR";
-                    textureDesc.width  = ResolutionToExtentsMap[Resolution::k1440p].x;
-                    textureDesc.height = ResolutionToExtentsMap[Resolution::k1440p].y;
+                    textureDesc.width  = g_ResolutionToExtentsMap[Resolution::k1440p].x;
+                    textureDesc.height = g_ResolutionToExtentsMap[Resolution::k1440p].y;
                     textureDesc.type   = TextureType::k2D;
                     textureDesc.format = TextureFormat::RGBA16F;
                     textureDesc.initResourceViewHints = kSRV | kRTV;
@@ -90,8 +90,8 @@ namespace Razix {
                     textureDesc.name    = "SceneDepth";
                     textureDesc.format  = TextureFormat::DEPTH32F;
                     textureDesc.type    = TextureType::kDepth;
-                    textureDesc.width   = ResolutionToExtentsMap[Resolution::k1440p].x;
-                    textureDesc.height  = ResolutionToExtentsMap[Resolution::k1440p].y;
+                    textureDesc.width   = g_ResolutionToExtentsMap[Resolution::k1440p].x;
+                    textureDesc.height  = g_ResolutionToExtentsMap[Resolution::k1440p].y;
                     textureDesc.initResourceViewHints = kDSV;
                     data.sceneDepth     = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
                     data.sceneDepth     = builder.write(data.sceneDepth);

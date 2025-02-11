@@ -24,8 +24,6 @@
 #include "Razix/Gfx/RHI/API/RZSwapchain.h"
 #include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
 
-#include "Razix/Gfx/RHI/API/Data/RZPipelineData.h"
-
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 namespace Razix {

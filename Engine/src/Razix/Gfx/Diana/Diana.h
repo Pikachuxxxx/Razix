@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Gfx/Render/HighLevel/Diana/RZRenderDataStructs.h"
+#include "Razix/Gfx/GfxData.h"
 
 namespace Razix {
 
@@ -34,5 +34,5 @@ namespace Razix {
             DrawData*    ExtractBatchDrawData(Batch* batch);
             DrawData*    ExtractDrawableDrawData(Drawable* drawable);
         }    // namespace Diana
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

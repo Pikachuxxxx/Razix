@@ -2,7 +2,6 @@
 
 #include "Razix/Gfx/Resources/IRZResource.h"
 
-#include "Razix/Gfx/RHI/API/RZBufferLayout.h"
 #include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
 
 namespace Razix {
@@ -27,33 +26,6 @@ namespace Razix {
         class RZShaderLibrary;
         enum class ShaderBuiltin : u32;
 
-        // This is the only exception of using enum
-        /* The stage which the shader corresponds to in the graphics pipeline */
-        enum ShaderStage : u32
-        {
-            kNone                  = 0,
-            kVertex                = 1 << 0,
-            kPixel                 = 1 << 1,
-            kCompute               = 1 << 2,
-            kGeometry              = 1 << 3,
-            kTesselationControl    = 1 << 4,
-            kTesselationEvaluation = 1 << 5,
-            kAmplification         = 1 << 6,
-            kMesh                  = 1 << 7,
-            ShaderStage_COUNT      = 6
-        };
-
-        /* Used the engine to find the right shader cache based on shader file name, forward declaring future API feature */
-        enum class ShaderSourceType
-        {
-            NONE = -1,
-            GLSL,
-            SPIRV,
-            HLSL,
-            PSSL,
-            CG
-        };
-
         struct ShaderBindVars
         {
             std::unordered_map<std::string, RZDescriptor*> m_BindMap; /* Holds the references to the descriptors in m_DescriptorsPerHeap using a string map */
@@ -66,12 +38,6 @@ namespace Razix {
                     return nullptr;
             }
         };
-
-        static std::unordered_map<ShaderStage, const char*> g_ShaderStageEntryPointNameMap = {
-            {ShaderStage::kVertex, "VS_MAIN"},
-            {ShaderStage::kPixel, "PS_MAIN"},
-            {ShaderStage::kCompute, "CS_MAIN"},
-            {ShaderStage::kGeometry, "GS_MAIN"}};
 
         /* 
          * Razix Shader that will be passed to the GPU at various stages 

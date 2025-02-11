@@ -274,7 +274,7 @@ namespace Razix {
             else if (renderingInfo.resolution == Resolution::kWindow)
                 renderingInfoKHR.renderArea.extent = {m_Width, m_Height};
             else {
-                auto& res                          = ResolutionToExtentsMap[renderingInfo.resolution];
+                auto& res                          = g_ResolutionToExtentsMap[renderingInfo.resolution];
                 renderingInfoKHR.renderArea.extent = {res.x, res.y};
             }
 
@@ -443,7 +443,7 @@ namespace Razix {
             CmdPushDescriptorSetKHR(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), 0, static_cast<u32>(writeDescriptorSets.size()), writeDescriptorSets.data());
         }
 
-        void VKRenderContext::DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType /*= DataType::UNSIGNED_INT*/)
+        void VKRenderContext::DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DrawDataType /*= DataType::UNSIGNED_INT*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

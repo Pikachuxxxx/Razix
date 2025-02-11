@@ -166,7 +166,7 @@ namespace Razix {
             else if (renderingInfo.resolution == Resolution::kWindow)
                 viewPortExtents = {m_Width, m_Height};
             else {
-                auto& res       = ResolutionToExtentsMap[renderingInfo.resolution];
+                auto& res       = g_ResolutionToExtentsMap[renderingInfo.resolution];
                 viewPortExtents = {res.x, res.y};
             }
 
@@ -202,7 +202,7 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
-        void DX12RenderContext::DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType datayType /*= DataType::UNSIGNED_INT*/)
+        void DX12RenderContext::DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DrawDataType datayType /*= DataType::UNSIGNED_INT*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

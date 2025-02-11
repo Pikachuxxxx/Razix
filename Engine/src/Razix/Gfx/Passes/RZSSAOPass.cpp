@@ -114,8 +114,8 @@ namespace Razix {
                     // We use a single channel f32 texture
                     RZTextureDesc textureDesc{};
                     textureDesc.name        = "SSAOPreBlurTexture";
-                    textureDesc.width       = ResolutionToExtentsMap[Resolution::k1440p].x;
-                    textureDesc.height      = ResolutionToExtentsMap[Resolution::k1440p].y;
+                    textureDesc.width       = g_ResolutionToExtentsMap[Resolution::k1440p].x;
+                    textureDesc.height      = g_ResolutionToExtentsMap[Resolution::k1440p].y;
                     textureDesc.type        = TextureType::k2D;
                     textureDesc.format      = TextureFormat::R32F;
                     data.SSAOPreBlurTexture = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);

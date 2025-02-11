@@ -8,21 +8,6 @@
 
 namespace Razix {
     namespace Gfx {
-
-        // Forward Declarations for reducing cyclic dependency
-        enum class DrawType;
-        enum class CullMode;
-        enum class PolygonMode;
-        enum class BlendOp;
-        enum class BlendFactor;
-        enum class CompareOp;
-        enum class DescriptorType : u32;
-        enum ShaderStage : u32;
-        enum ImageLayout : u32;
-        enum PipelineStage : u32;
-        enum MemoryAccessMask : u32;
-        class RZBufferLayout;
-
         namespace DX12Utilities {
 
     #define D3D_SAFE_RELEASE(x) \

@@ -5,8 +5,6 @@
 
 #include "Razix/Gfx/FrameGraph/RZFrameGraphResource.h"
 
-#include "Razix/Gfx/RHI/API/RZAPIDesc.h"
-#include "Razix/Gfx/RHI/API/RZBindingInfoAccessViews.h"
 #include "Razix/Gfx/RHI/API/RZTexture.h"
 #include "Razix/Gfx/RHI/RHI.h"
 

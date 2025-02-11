@@ -6,10 +6,7 @@
 
 #include "Razix/Core/Profiling/RZProfiling.h"
 
-#include "Razix/Gfx/RHI/API/RZAPIHandles.h"
-#include "Razix/Gfx/RHI/API/RZBarriers.h"
-#include "Razix/Gfx/RHI/API/RZBindingInfoAccessViews.h"
-#include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
+#include "Razix/Gfx/GfxData.h"
 
 namespace Razix {
     namespace Gfx {
@@ -21,65 +18,6 @@ namespace Razix {
         class RZDescriptorSet;
         class RZSemaphore;
         struct RZPushConstant;
-
-        enum class DataType
-        {
-            FLOAT,
-            UNSIGNED_INT,
-            UNSIGNED_BYTE
-        };
-
-        /* Rendering Resolution of the render targets */
-        enum class Resolution : u32
-        {
-            k1080p = 0,  /* native 1920x1080 full HD resolution                                 */
-            k1440p,      /* native 2K resolution 2560x1440 rendering                            */
-            k4KUpscaled, /* Upscaled using FSR/DLSS                                             */
-            k4KNative,   /* native 3840x2160 rendering                                          */
-            kWindow,     /* Selects the resolution dynamically based on the presentation window */
-            kCustom,     /* Custom resolution for rendering                                     */
-            COUNT
-        };
-
-        static const char* ResolutionNames[] =
-            {
-                "k1080p",
-                "k1440p",
-                "k4KUpscaled",
-                "k4KNative",
-                "kWindow",
-                "kCustom"};
-
-        RAZIX_ENUM_NAMES_ASSERT(ResolutionNames, Resolution);
-
-        static std::unordered_map<Resolution, glm::uvec2> ResolutionToExtentsMap = {
-            {Resolution::k1080p, glm::uvec2(1920, 1080)},
-            {Resolution::k1440p, glm::uvec2(2560, 1440)},
-            {Resolution::k4KUpscaled, glm::uvec2(3840, 2160)},
-            {Resolution::k4KNative, glm::uvec2(3840, 2160)}};
-
-        /* Final target FPS */
-        enum class TargetFPS
-        {
-            k60  = 60,
-            k120 = 120
-        };
-
-        /**
-         * Rendering info is used by the GPU know the RTs, DRTs and viewport info etc.
-         */
-        struct RenderingInfo
-        {
-            Resolution                                                          resolution       = Resolution::kCustom; /* Resolution preset at which the scene will be rendered at         */
-            glm::uvec2                                                          extent           = {0, 0};              /* Viewport extents (used only when Resolution is set to custom)    */
-            std::vector<std::pair<RZTextureHandle, RenderTargetAttachmentInfo>> colorAttachments = {};                  /* List of attachments, texture and it's attachment info            */
-            std::pair<RZTextureHandle, RenderTargetAttachmentInfo>              depthAttachment  = {};                  /* The depth attachment and it's info                               */
-            int                                                                 layerCount       = 1;                   /* Total layers to render onto, needed for gl_Layer to work         */
-            bool                                                                resize           = false;               /* Whether or not to enable resizing                                */
-        };
-
-        /* Command Queue is a collection of command buffers that will be submitted for execution at once */
-        typedef std::vector<RZDrawCommandBufferHandle> CommandQueue;
 
         /* The Razix RHI (Render Hardware Interface) provides a interface and a set of common methods that abstracts over other APIs rendering implementation
          * The Renderers creates from the provided IRZRenderer interface of Razix uses this to perform command recording/submission sets binding
@@ -117,7 +55,7 @@ namespace Razix {
             static void EnableBindlessTextures(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer);
 
             // Draws & Dispatches
-            static void Draw(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType dataType = DataType::UNSIGNED_INT);
+            static void Draw(RZDrawCommandBufferHandle cmdBuffer, u32 count, DrawDataType dataType = DrawDataType::UNSIGNED_INT);
             static void DrawIndexed(RZDrawCommandBufferHandle cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0);
             // TODO: Use AsyncCommandBufferHandle
             static void Dispatch(RZDrawCommandBufferHandle cmdBuffer, u32 groupX, u32 groupY, u32 groupZ);
@@ -164,7 +102,7 @@ namespace Razix {
             virtual void         BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZDescriptorSetHandle descriptorSet, u32 setIdx)                                          = 0;
             virtual void         BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSetHandle>& descriptorSets, u32 startSetIdx)           = 0;
             virtual void         BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant)                                                             = 0;
-            virtual void         DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType datayType = DataType::UNSIGNED_INT)                                                                          = 0;
+            virtual void         DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DrawDataType datayType = DrawDataType::UNSIGNED_INT)                                                                  = 0;
             virtual void         DrawIndexedAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0)               = 0;
             virtual void         DispatchAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 groupX, u32 groupY, u32 groupZ)                                                                                          = 0;
             virtual void         DestroyAPIImpl()                                                                                                                                                                  = 0;

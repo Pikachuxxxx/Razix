@@ -3,9 +3,6 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDebugConfig.h"
 
-#include "Razix/Gfx/RHI/API/Data/RZBufferData.h"
-#include "Razix/Gfx/RHI/API/RZBufferLayout.h"
-
 namespace Razix {
     namespace Gfx {
 

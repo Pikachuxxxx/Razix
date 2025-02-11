@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Razix/Gfx/RHI/API/RZAPIHandles.h"
-
 namespace Razix {
     struct SceneDrawParams;
 }

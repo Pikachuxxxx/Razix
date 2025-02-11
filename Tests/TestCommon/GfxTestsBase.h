@@ -103,6 +103,9 @@ namespace Razix {
         {
             bool success = false;
             // TODO: Use RHI to capture and readback the u8* imagedata to m_ScreenShotPath location
+            // We take what is visible i.e. we capture the swapchain 
+
+
             return success;
         }
 

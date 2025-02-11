@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZPipeline.h"
 
-#include "Razix/Gfx/RHI/API/RZAPIDesc.h"
+
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 
 #ifdef RAZIX_RENDER_API_OPENGL

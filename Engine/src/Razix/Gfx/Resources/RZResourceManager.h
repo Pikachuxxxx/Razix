@@ -4,8 +4,7 @@
 
 #include "Razix/Gfx/Resources/RZResourcePool.h"
 
-#include "Razix/Gfx/RHI/API/RZAPIDesc.h"
-#include "Razix/Gfx/RHI/API/RZAPIHandles.h"
+#include "Razix/Gfx/GfxData.h"
 
 #include "Razix/Utilities/TRZSingleton.h"
 

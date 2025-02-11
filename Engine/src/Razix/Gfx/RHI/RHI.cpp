@@ -163,7 +163,7 @@ namespace Razix {
         //------------------------------------------------------------------------
         // Draws & Dispatches
 
-        void RHI::Draw(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType dataType)
+        void RHI::Draw(RZDrawCommandBufferHandle cmdBuffer, u32 count, DrawDataType dataType)
         {
             RAZIX_PROFILE_GPU_SCOPE("Draw");
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

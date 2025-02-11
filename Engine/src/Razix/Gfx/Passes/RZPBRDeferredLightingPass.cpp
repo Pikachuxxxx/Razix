@@ -73,8 +73,8 @@ namespace Razix {
 
                     RZTextureDesc textureDesc{};
                     textureDesc.name   = "SceneHDR";
-                    textureDesc.width  = ResolutionToExtentsMap[Resolution::k1440p].x;
-                    textureDesc.height = ResolutionToExtentsMap[Resolution::k1440p].y;
+                    textureDesc.width  = g_ResolutionToExtentsMap[Resolution::k1440p].x;
+                    textureDesc.height = g_ResolutionToExtentsMap[Resolution::k1440p].y;
                     textureDesc.type   = TextureType::k2D;
                     textureDesc.format = TextureFormat::RGBA16F;
 

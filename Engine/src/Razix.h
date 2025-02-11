@@ -29,9 +29,7 @@
 #include "Razix/Events/RZMouseEvent.h"
 
 // Graphics API
-#include "Razix/Gfx/RHI/API/RZAPIDesc.h"
-#include "Razix/Gfx/RHI/API/RZAPIHandles.h"
-#include "Razix/Gfx/RHI/API/RZBufferLayout.h"
+
 #include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
 #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"

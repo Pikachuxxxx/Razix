@@ -5,10 +5,10 @@
 
 #include "Razix/Gfx/Resources/IRZResource.h"
 
-#include "Razix/Gfx/RHI/API/Data/RZTextureData.h"
+
 #include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
 
-#include "Razix/Gfx/RHI/API/RZAPIDesc.h"
+
 
 namespace Razix {
     namespace Gfx {
