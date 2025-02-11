@@ -3,6 +3,7 @@
 // clang-format on
 #include "RZWorldRenderer.h"
 
+#define ENABLE_TEST_PASSES           0
 #define ENABLE_CODE_DRIVEN_FG_PASSES 0
 #define ENABLE_FORWARD_RENDERING     0
 
