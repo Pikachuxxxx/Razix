@@ -152,6 +152,10 @@ workspace ( settings.workspace_name )
 
     apply_engine_global_config()
 
+    ------------------------------------------------------------------------------
+    -- Shaders build rules (declared at last for tests and demos to pickup)
+    include 'Engine/razix_shaders_build_rules.lua'
+
     -- Build scripts for the Razix vendor dependencies
     group "Dependencies"
         include "Engine/vendor/cereal/cereal.lua"
@@ -246,3 +250,4 @@ workspace ( settings.workspace_name )
     --------------------------------------------------------------------------------
     -- Tests
     include "Tests/tests.lua"
+

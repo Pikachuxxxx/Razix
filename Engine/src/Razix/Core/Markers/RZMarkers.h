@@ -18,9 +18,9 @@
 
 #endif
 
-void BeginMarker(const std::string& name, glm::vec4 color);
-void InsertMarker(const std::string& name, glm::vec4 color);
-void EndMarker();
+RAZIX_API void BeginMarker(const std::string& name, glm::vec4 color);
+RAZIX_API void InsertMarker(const std::string& name, glm::vec4 color);
+RAZIX_API void EndMarker();
 
 //------------------------------------------------------------------------
 // CPU timestamp markers

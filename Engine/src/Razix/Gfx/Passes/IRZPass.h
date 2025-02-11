@@ -20,7 +20,7 @@ namespace Razix {
         class RZTexture;
         class RZDescriptorSet;
 
-        class IRZPass
+        class RAZIX_API IRZPass
         {
         public:
             IRZPass()          = default;

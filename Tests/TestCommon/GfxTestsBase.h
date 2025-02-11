@@ -6,6 +6,7 @@
 namespace Razix {
 
 #define TEST_APP_NUM_FRAMES_DEFAULT 120
+#define TEST_APP_NUM_FRAMES_INF     UINT32_MAX
 
     /**
      * Base class for Graphics testing applications
@@ -13,25 +14,43 @@ namespace Razix {
     class RZGfxTestAppBase : public RZApplication
     {
     public:
-        RZTestApplication(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_DEFAULT, const std::string& appName = "Razix Gfx Test App")
+        RZGfxTestAppBase(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_DEFAULT, const std::string& appName = "RazixGfxTestApp")
             : RZApplication(projectRoot, appName), m_NumFrames(numFrames), m_CurrentFrame(0)
         {
+            Razix::RZInput::SelectGLFWInputManager();
             RZApplication::Init();
+
+            //-------------------------------------------------------------------------------------
+            // Override the Graphics API here! for testing
+#ifdef RAZIX_PLATFORM_WINDOWS
+            Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::VULKAN);
+#elif defined RAZIX_PLATFORM_MACOS
+            Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::VULKAN);
+#endif
+            //-------------------------------------------------------------------------------------
+
+            // Init Graphics Context
+            //-------------------------------------------------------------------------------------
+            // Creating the Graphics Context and Initialize it
+            RAZIX_CORE_INFO("Creating Graphics Context...");
+            Razix::Gfx::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
+            RAZIX_CORE_INFO("Initializing Graphics Context...");
+            Razix::Gfx::RZGraphicsContext::GetContext()->Init();
+            //-------------------------------------------------------------------------------------
+
+            // Mount the tests root directory to load test specific resources
+            RZVirtualFileSystem::Get().mount("TestsRoot", projectRoot);
         }
 
-        virtual ~RZTestApplication() {}
+        virtual ~RZGfxTestAppBase() {}
 
-        bool RenderFrame() override
+        void OnRender() override final
         {
             if (m_CurrentFrame >= m_NumFrames) {
                 // Request app to close
                 RZApplication::Get().setAppState(AppState::Closing);
             }
-
-            bool result = RZApplication::Get().RenderFrame();
             m_CurrentFrame++;
-
-            return result;
         }
 
         void SetGoldenImagePath(const std::string& path)
@@ -54,12 +73,12 @@ namespace Razix {
             float mse = 0.0f;
 
             // Compute MSE (Mean Squared Error)
-            for (int i = 0; i < width * height; i++) {
-                float diff = capturedImageData.data[i] - goldenImageData.data[i];
+            for (uint32_t i = 0; i < capturedImgWidth * capturedImgHeight; i++) {
+                float diff = (float) capturedImageData[i] - (float) goldenImageData[i];
                 mse += diff * diff;
             }
 
-            mse /= (width * height);
+            mse /= (capturedImgWidth * capturedImgHeight);
 
             // Calculate PSNR (Peak Signal-to-Noise Ratio)
             if (mse == 0) return std::numeric_limits<float>::infinity();    // Images are identical
@@ -94,3 +113,15 @@ namespace Razix {
         std::string m_ScreenShotPath;  /* Path to the screenshot image for comparison   */
     };
 }    // namespace Razix
+
+static int EngineTestLoop(void)
+{
+    EngineMain(0, NULL);
+    while (Razix::RZApplication::Get().RenderFrame()) {}
+
+    Razix::RZApplication::Get().Quit();
+    Razix::RZApplication::Get().SaveApp();
+
+    int result = EngineExit();
+    return result;
+}

@@ -12,6 +12,7 @@
 #include "Razix/Core/System/IRZSystem.h"
 #include "Razix/Core/UUID/RZUUID.h"
 #include "Razix/Core/Version/RazixVersion.h"
+#include "Razix/Core/Markers/RZMarkers.h"
 
 // Core/OS
 #include "Razix/Core/OS/RZFileSystem.h"
@@ -44,6 +45,9 @@
 
 #include "Razix/Gfx/RHI/RHI.h"
 
+#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
+#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
+
 // Graphics/Cameras
 #include "Razix/Gfx/Cameras/Camera3D.h"
 
@@ -63,6 +67,8 @@
 #include "Razix/Utilities/RZTimer.h"
 #include "Razix/Utilities/RZTimestep.h"
 #include "Razix/Utilities/TRZSingleton.h"
+#include "Razix/Utilities/RZColorUtilities.h"
+
 
 // Internal
 // Razix Memory

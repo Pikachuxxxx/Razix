@@ -291,6 +291,7 @@ namespace Razix {
         Razix::RZSplashScreen::Get().setLogString("Building FrameGraph...");
 
 #endif
+        // TODO: Put this somewhere else?
         Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
 
         m_CurrentState = AppState::Running;
@@ -569,10 +570,10 @@ namespace Razix {
 
     void RZApplication::Quit()
     {
-        Razix::RZEngine::Get().getWorldRenderer().destroy();
-
         // Client side quit customization
         OnQuit();
+
+        Razix::RZEngine::Get().getWorldRenderer().destroy();
 
         // Save the scene and the Application
         RZSceneManager::Get().saveAllScenes();

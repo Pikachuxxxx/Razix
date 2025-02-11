@@ -3,7 +3,6 @@
 // clang-format on
 #include "RZWorldRenderer.h"
 
-#define ENABLE_TEST_PASSES           1
 #define ENABLE_CODE_DRIVEN_FG_PASSES 0
 #define ENABLE_FORWARD_RENDERING     0
 
@@ -55,31 +54,6 @@ namespace Razix {
 
         void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
         {
-#if ENABLE_TEST_PASSES
-
-            //-------------------------------
-            // [TEST] HELLO TRIANGLE
-            //-------------------------------
-            m_HelloTriangleTestPass.addPass(m_FrameGraph, scene, &settings);
-
-            //-------------------------------
-            // [TEST] WAVE INTRINSICE
-            //-------------------------------
-            m_WaveInstrinsicsTestPass.addPass(m_FrameGraph, scene, &settings);
-
-            //-------------------------------
-            // [TEST] HELLO TEXTURE
-            //-------------------------------
-            //m_HelloTextureTestPass.addPass(m_FrameGraph, scene, &settings);
-
-            //-------------------------------
-            // [TEST] GS CUBE
-            //-------------------------------
-            // m_GSCubeTestPass.addPass(m_FrameGraph, scene, &settings);
-
-            m_FrameGraphBuildingInProgress = false;
-#else
-
             m_FrameGraphBuildingInProgress = true;
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
@@ -140,14 +114,14 @@ namespace Razix {
 
             //-----------------------------------------------------------------------------------
 
-    #if ENABLE_DATA_DRIVEN_FG_PASSES
+#if ENABLE_DATA_DRIVEN_FG_PASSES
             //-------------------------------
             // Data Driven Frame Graph
             //-------------------------------
 
             if (!getFrameGraphFilePath().empty())
                 RAZIX_ASSERT(m_FrameGraph.parse(getFrameGraphFilePath()), "[Frame Graph] Failed to parse graph!");
-    #endif
+#endif
             // Testing disabled shadows
             //settings.renderFeatures &= ~RendererFeature_Shadows;
 
@@ -158,7 +132,7 @@ namespace Razix {
 
             m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
 
-    #ifdef ENABLE_EACH_PASS_AS_WE_FIX
+#ifdef ENABLE_EACH_PASS_AS_WE_FIX
 
             //-------------------------------
             // [ ] CSM PAss
@@ -176,7 +150,7 @@ namespace Razix {
             m_GBufferPass.addPass(m_FrameGraph, scene, &settings);
             GBufferData& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
 
-        #if !ENABLE_FORWARD_RENDERING
+    #if !ENABLE_FORWARD_RENDERING
             //-------------------------------
             // SSAO Pass
             //-------------------------------
@@ -201,14 +175,14 @@ namespace Razix {
             // PBR Deferred Pass
             //-------------------------------
             m_PBRDeferredPass.addPass(m_FrameGraph, scene, &settings);
-        #endif
+    #endif
 
-                //-------------------------------
-                // PBR Forward Pass
-                //-------------------------------
-        #if ENABLE_FORWARD_RENDERING
+            //-------------------------------
+            // PBR Forward Pass
+            //-------------------------------
+    #if ENABLE_FORWARD_RENDERING
             m_PBRLightingPass.addPass(m_FrameGraph, scene, settings);
-        #endif
+    #endif
             SceneData& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
@@ -410,13 +384,12 @@ namespace Razix {
                 });
 
             sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
-    #endif
+#endif
             //-------------------------------
             // Composition Pass
             //-------------------------------
             m_FrameGraph.getBlackboard().setFinalOutputName("SceneHDR");
             m_CompositePass.addPass(m_FrameGraph, scene, &settings);
-#endif
 
             // Compile the Frame Graph
             RAZIX_CORE_INFO("Compiling FrameGraph ....");
@@ -836,6 +809,16 @@ namespace Razix {
         {
             m_IsFGFilePathDirty  = true;
             m_FrameGraphFilePath = val;
+        }
+
+        void RZWorldRenderer::clearFrameGraph()
+        {
+            m_FrameGraph.destroy();
+        }
+
+        void RZWorldRenderer::pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings)
+        {
+            pass->addPass(m_FrameGraph, scene, settings);
         }
 
         //--------------------------------------------------------------------------

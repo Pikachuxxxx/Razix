@@ -4,9 +4,9 @@
  * [Source]: https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/Samples/Desktop/D3D12SM6WaveIntrinsics
  */
 //------------------------------------------------------------------------------
-#include "../../ShaderCommon/ShaderInclude.Builtin.ShaderLangCommon.h"
+#include <ShaderInclude.Builtin.ShaderLangCommon.h>
 //------------------------------------------------------------------------------
-#include "../Math/ShaderInclude.Builtin.Patterns.h"
+#include <Math/ShaderInclude.Builtin.Patterns.h>
 //------------------------------------------------------------------------------
 struct PSIn
 {

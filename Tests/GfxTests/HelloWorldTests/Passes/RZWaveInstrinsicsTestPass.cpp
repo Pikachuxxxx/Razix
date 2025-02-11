@@ -1,3 +1,4 @@
+#if 0
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -39,7 +40,7 @@ namespace Razix {
             }
 
             // Create the shader and the pipeline
-            auto shader = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::WaveIntrinsicsTest);
+            auto shader = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ColorGrading);
 
             RZPipelineDesc pipelineInfo{};
             // Build the pipeline here for this pass
@@ -151,3 +152,4 @@ namespace Razix {
         }
     }    // namespace Gfx
 }    // namespace Razix
+#endif

@@ -1,25 +1,4 @@
-// clang-format off
-#include "rzxpch.h"
-// clang-format on
 #include "RZHelloTriangleTestPass.h"
-
-#include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/Markers/RZMarkers.h"
-#include "Razix/Core/RZEngine.h"
-
-#include "Razix/Gfx/RHI/API/RZPipeline.h"
-#include "Razix/Gfx/RHI/API/RZShader.h"
-
-#include "Razix/Gfx/RHI/RHI.h"
-
-#include "Razix/Gfx/RZShaderLibrary.h"
-
-#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
-
-#include "Razix/Scene/RZScene.h"
-
-#include "Razix/Utilities/RZColorUtilities.h"
 
 namespace Razix {
     namespace Gfx {
@@ -27,12 +6,14 @@ namespace Razix {
         void RZHelloTriangleTestPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Create the shader and the pipeline
-            auto shader = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::HelloTriangleTest);
+            RZShaderDesc desc = {};
+            desc.filePath     = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTriangleTest.rzsf";
+            m_Shader          = RZResourceManager::Get().createShader(desc);
 
             RZPipelineDesc pipelineInfo{};
             // Build the pipeline here for this pass
             pipelineInfo.name                   = "[Test] Pipeline.HelloTriangle";
-            pipelineInfo.shader                 = shader;
+            pipelineInfo.shader                 = m_Shader;
             pipelineInfo.colorAttachmentFormats = {TextureFormat::SCREEN};
             pipelineInfo.depthFormat            = TextureFormat::DEPTH16_UNORM;
             pipelineInfo.cullMode               = Gfx::CullMode::None;
@@ -64,8 +45,6 @@ namespace Razix {
                     data.Depth                             = builder.write(data.Depth);
                 },
                 [=](const HelloTriangleData& data, FrameGraph::RZPassResourceDirectory& resources) {
-                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
                     RAZIX_TIME_STAMP_BEGIN("[Test] Hello Triangle Pass");
                     RAZIX_MARK_BEGIN("[Test] Pass.Builtin.Code.HelloTriangle", Utilities::GenerateHashedColor4(69u));
 
@@ -94,6 +73,7 @@ namespace Razix {
 
         void RZHelloTriangleTestPass::destroy()
         {
+            RZResourceManager::Get().destroyShader(m_Shader);
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
     }    // namespace Gfx

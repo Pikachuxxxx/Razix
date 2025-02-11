@@ -210,7 +210,7 @@ namespace Razix {
                 std::vector<RZPassNode>      m_PassNodes;        /* List of all the pass nodes in the frame graph                             */
                 std::vector<RZResourceNode>  m_ResourceNodes;    /* List of the all the resources nodes (including clones) in the frame graph */
                 std::vector<RZResourceEntry> m_ResourceRegistry; /* List of Resource entries for each unique resource in the frame graph      */
-                RZBlackboard                 m_Blackboard;       /* Blackboard stores a database of per pass node resources  */
+                RZBlackboard                 m_Blackboard;       /* Blackboard stores a database of per pass node resources                   */
 
                 static bool m_IsFirstFrame;
 
@@ -238,7 +238,7 @@ namespace Razix {
              * Frame Graph Pass resource Builder Class
              * used for creating pass resources and marking them as read/write for a PassNode
              */
-            class RZPassResourceBuilder final
+            class RAZIX_API RZPassResourceBuilder final
             {
                 friend class RZFrameGraph;
 
@@ -313,7 +313,7 @@ namespace Razix {
              * Now you might ask why we have getDescriptor in FG class, we only prevent
              * illegal access of resources not it's Desc, logically also it's fine if you think about it
              */
-            class RZPassResourceDirectory
+            class RAZIX_API RZPassResourceDirectory
             {
                 friend class RZFrameGraph;
 

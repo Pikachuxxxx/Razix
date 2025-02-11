@@ -1,3 +1,4 @@
+#if 0
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -31,7 +32,7 @@ namespace Razix {
         void RZGeomShadersCubeTestPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Create the shader and the pipeline
-            auto shader = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GSCubeTest);
+            auto shader = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ColorGrading);
 
             RZPipelineDesc pipelineInfo{};
             // Build the pipeline here for this pass
@@ -106,3 +107,4 @@ namespace Razix {
         }
     }    // namespace Gfx
 }    // namespace Razix
+#endif

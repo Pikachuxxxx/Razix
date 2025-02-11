@@ -8,20 +8,14 @@ group "Tests"
         include "EngineTests/engine_tests.lua"
     group ""
 
+    group "Tests/GfxTests"
+        include "GfxTests/gfx_tests.lua"
+    group ""
+
     -- Tests Vendor
     group "Tests/vendor"
         include "vendor/googletest/googletest.lua"
     group ""
-
-    project "Run All Tests"
-	kind "Utility"
-
-	postbuildmessage "Running All Tests"
-
-	postbuildcommands
-	{
-		"\"%{wks.location}../bin/%{outputdir}/EngineTests.exe\""
-	}
 
 group ""
 

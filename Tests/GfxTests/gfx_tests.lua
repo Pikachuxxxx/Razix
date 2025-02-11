@@ -1,11 +1,17 @@
+-- common include dirs
+include 'Scripts/premake/common/common_include_dirs.lua'
+
 project "GfxTests"
     kind "ConsoleApp"
     language "C++"
     cppdialect (engine_global_config.cpp_dialect)
+    staticruntime "off"
 
     files
     {
-        "test.cpp"
+        "../TestCommon/**.h",
+        "./**.cpp",
+        "./**.h"
     }
 
     links
@@ -14,6 +20,44 @@ project "GfxTests"
     }
 
     includedirs
+    {
+        "%{wks.location}/../Engine",
+        "%{wks.location}/../Engine/src",
+        "%{wks.location}/../Engine/src/Razix",
+        "%{wks.location}/../Engine/internal",
+        "%{wks.location}/../Engine/internal/RazixMemory",
+        "%{wks.location}/../Engine/internal/RZSTL",
+        "%{IncludeDir.GLFW}",
+        "%{IncludeDir.Glad}",
+        "%{IncludeDir.stb}",
+        "%{IncludeDir.glm}",
+        "%{IncludeDir.ImGui}",
+        "%{IncludeDir.spdlog}",
+        "%{IncludeDir.cereal}",
+        "%{IncludeDir.SPIRVReflect}",
+        "%{IncludeDir.SPIRVCross}",
+        "%{IncludeDir.entt}",
+        "%{IncludeDir.lua}",
+        "%{IncludeDir.tracy}",
+        "%{IncludeDir.optick}",
+        "%{IncludeDir.Jolt}",
+        "%{IncludeDir.json}",
+        "%{IncludeDir.D3D12MA}",
+        "%{IncludeDir.dxc}",
+        "%{IncludeDir.Razix}",
+        "%{IncludeDir.vendor}",
+        -- Experimental Vendor
+        "%{ExperimentalIncludeDir.Eigen}",
+        -- Internal libraries
+        "%{InternalIncludeDir.RazixMemory}",
+        "%{InternalIncludeDir.RZSTL}",
+        -- googletest vendor
+        "%{wks.location}/../Tests/",
+        "%{wks.location}/../Tests/vendor/googletest/googletest",
+        "%{wks.location}/../Tests/vendor/googletest/googletest/include"
+    }
+
+    externalincludedirs
     {
         "%{wks.location}/../Engine",
         "%{wks.location}/../Engine/src",
@@ -88,6 +132,12 @@ project "GfxTests"
             "4996"
         }
 
+        includedirs
+        {
+            VulkanSDK .. "/include",
+            "%{wks.location}/../Engine/vendor/winpix/Include/WinPixEventRuntime"
+        }
+
     filter "system:macosx"
         cppdialect "C++17"
         staticruntime "off"
@@ -124,3 +174,25 @@ project "GfxTests"
         symbols "Off"
         optimize "Full"
         runtime "Release"
+
+------------------------------------------------------------------------------
+-- GFX TEST SHADERS
+
+project "TestShaders"
+    kind "Utility"
+
+    files
+    { 
+        -- Shader files
+        "../../../Engine/content/Shaders/ShaderCommon/**",
+        -- HLSL - primary language for all platforms shader gen
+        "HelloWorldTests/Shaders/HLSL/**.hlsl",
+        "HelloWorldTests/Shaders/HLSL/**.hlsli",
+        "HelloWorldTests/Shaders/HLSL/**.vert.hlsl",
+        "HelloWorldTests/Shaders/HLSL/**.geom.hlsl",
+        "HelloWorldTests/Shaders/HLSL/**.frag.hlsl",
+        "HelloWorldTests/Shaders/HLSL/**.comp.hlsl",
+        -- Razix Shader File
+        "HelloWorldTests/Shaders/Razix/**.rzsf",
+    }
+------------------------------------------------------------------------------

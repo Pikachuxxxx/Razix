@@ -26,12 +26,6 @@
 #include "Razix/Gfx/Passes/RZTonemapPass.h"
 #include "Razix/Gfx/Passes/RZVisibilityBufferFillPass.h"
 
-// Test/Demo Passes
-#include "Razix/Gfx/Passes/Tests/RZGeomShadersCubeTestPass.h"
-#include "Razix/Gfx/Passes/Tests/RZHelloTextureTestPass.h"
-#include "Razix/Gfx/Passes/Tests/RZHelloTriangleTestPass.h"
-#include "Razix/Gfx/Passes/Tests/RZWaveInstrinsicsTestPass.h"
-
 // Renderers
 #include "Razix/Gfx/Renderers/RZImGuiRendererProxy.h"
 
@@ -108,6 +102,9 @@ namespace Razix {
             RAZIX_INLINE std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
             RAZIX_INLINE void        setFrameGraphFilePath(std::string val);
 
+            void clearFrameGraph();
+            void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings);
+
         private:
             FrameGraph::RZFrameGraph m_FrameGraph;
             // Frame Graph Import Data
@@ -130,12 +127,6 @@ namespace Razix {
             RZFXAAPass                 m_FXAAPass;
             RZToneMapPass              m_TonemapPass;
             RZCompositionPass          m_CompositePass;
-            //-------------------------------------------
-            // TEST PASSES
-            RZHelloTriangleTestPass   m_HelloTriangleTestPass;
-            RZHelloTextureTestPass    m_HelloTextureTestPass;
-            RZWaveInstrinsicsTestPass m_WaveInstrinsicsTestPass;
-            RZGeomShadersCubeTestPass m_GSCubeTestPass;
             //-------------------------------------------
 
             //RZColorGradingPass        m_ColorGradingPass;

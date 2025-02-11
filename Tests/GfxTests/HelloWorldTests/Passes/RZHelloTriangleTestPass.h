@@ -1,10 +1,6 @@
 #pragma once
 
-#include "Razix/Gfx/Passes/IRZPass.h"
-
-#include "Razix/Gfx/Passes/Data/GlobalData.h"
-
-#include "Razix/Gfx/Renderers/RZSystemBinding.h"
+#include <Razix.h>
 
 namespace Razix {
     namespace Gfx {
@@ -17,6 +13,7 @@ namespace Razix {
 
         private:
             RZPipelineHandle m_Pipeline;
+            RZShaderHandle   m_Shader;
         };
     }    // namespace Gfx
 }    // namespace Razix

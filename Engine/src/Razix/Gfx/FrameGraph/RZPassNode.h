@@ -19,7 +19,7 @@ namespace Razix {
         namespace FrameGraph {
 
             /* Defines a pass node in the frame graph */
-            class RZPassNode final : public RZGraphNode
+            class RAZIX_API RZPassNode final : public RZGraphNode
             {
                 // Since we deleted the public constructor of RZGraphNode because we stated that only FrameGraph
                 // can create nodes we keep that promise by making FrameGraph a friend
