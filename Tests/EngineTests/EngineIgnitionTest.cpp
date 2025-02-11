@@ -75,7 +75,7 @@ protected:
 
 TEST_F(EngineIgnitionTests, ignite_and_shutdown)
 {
-    EngineMain(__argc, __argv);
+    EngineMain(0, NULL);
     while (Razix::RZApplication::Get().RenderFrame()) {}
 
     Razix::RZApplication::Get().Quit();
