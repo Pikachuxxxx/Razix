@@ -102,6 +102,10 @@ namespace Razix {
             RAZIX_INLINE std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
             RAZIX_INLINE void        setFrameGraphFilePath(std::string val);
 
+            inline void                   getReadbackSwapchainThisFrame() const { m_ReadSwapchainThisFrame; }
+            inline void                   setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
+            inline const TextureReadback& getSwapchainReadback() { return m_LastSwapchainReadback; }
+
             void clearFrameGraph();
             void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings);
 
@@ -127,9 +131,9 @@ namespace Razix {
             RZFXAAPass                 m_FXAAPass;
             RZToneMapPass              m_TonemapPass;
             RZCompositionPass          m_CompositePass;
-            //-------------------------------------------
 
-            //RZColorGradingPass        m_ColorGradingPass;
+            // swapchain texture readback (mostly used only for tests)
+            TextureReadback m_LastSwapchainReadback;
 
             // Other Variables
             u32         m_FrameCount                                            = 0;
@@ -139,6 +143,7 @@ namespace Razix {
             glm::vec2   m_PreviousJitter                                        = {};
             bool        m_FrameGraphBuildingInProgress                          = true;
             bool        m_IsFGFilePathDirty                                     = false;
+            bool        m_ReadSwapchainThisFrame                                = false;
             std::string m_FrameGraphFilePath                                    = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
             //std::string m_FrameGraphFilePath           = "//RazixFG/Graphs/FrameGraph.User.EditorTest.json";
 

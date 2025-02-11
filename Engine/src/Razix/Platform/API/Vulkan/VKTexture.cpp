@@ -150,7 +150,7 @@ namespace Razix {
             VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::ReadBack, VK_BUFFER_USAGE_TRANSFER_DST_BIT, m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL, nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"));
 
             // Change the image layout from shader read only optimal to transfer source
-            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_FinalImageLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
             {
                 // 1.1 Copy from staging buffer to Image
                 VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Read Pixels", glm::vec4(0.0f));
@@ -171,7 +171,7 @@ namespace Razix {
 
                 VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
             }
-            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_FinalImageLayout);
 
             char* data = new char[m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL];
             m_TransferBuffer.map();
@@ -263,7 +263,7 @@ namespace Razix {
                 m_Desc.data = Razix::Utilities::LoadImageData(m_Desc.filePath, &m_Desc.width, &m_Desc.height, &m_BitsPerPixel, m_Desc.flipY);
             // Here the format for the texture is extracted based on bits per pixel
             m_Desc.format = Razix::Gfx::RZTexture::BitsToTextureFormat(RZ_TEX_BITS_PER_PIXEL);    // everything is a 4-byte by default
-            m_Desc.size   = static_cast<u32>(m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL * m_Desc.dataSize);
+            m_Desc.size   = static_cast<u32>(m_Desc.width * m_Desc.height * RZ_TEX_CHANNELS_PER_PIXEL * m_Desc.dataSize);
         }
 
         void VKTexture::evaluateMipsCount()

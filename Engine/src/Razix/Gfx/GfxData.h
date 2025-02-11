@@ -535,7 +535,7 @@ namespace Razix {
             DescriptorType  type;
             ShaderStage     stage;
             BindingLocation location = {};
-            u32             count    = 1; 
+            u32             count    = 1;
 
             RAZIX_NO_DISCARD u32 encode();
             RAZIX_NO_DISCARD     operator u32() const;
@@ -544,11 +544,11 @@ namespace Razix {
         /* Gives information for the attachment Info */
         struct RAZIX_MEM_ALIGN_16 RenderTargetAttachmentInfo
         {
-            bool              clear      = true;                               
+            bool              clear      = true;
             ClearColorPresets clearColor = ClearColorPresets::TransparentBlack;
-            u32               bindingIdx = 0;                                  
-            u32               mip        = 0;                                  
-            u32               layer      = 0;                                  
+            u32               bindingIdx = 0;
+            u32               mip        = 0;
+            u32               layer      = 0;
 
             RAZIX_NO_DISCARD u32 encode();
             RAZIX_NO_DISCARD     operator u32() const;
@@ -559,12 +559,12 @@ namespace Razix {
          */
         struct RenderingInfo
         {
-            Resolution                                                          resolution       = Resolution::kCustom; 
-            glm::uvec2                                                          extent           = {0, 0};              
-            std::vector<std::pair<RZTextureHandle, RenderTargetAttachmentInfo>> colorAttachments = {};                  
-            std::pair<RZTextureHandle, RenderTargetAttachmentInfo>              depthAttachment  = {};                  
-            int                                                                 layerCount       = 1;                   
-            bool                                                                resize           = false;               
+            Resolution                                                          resolution       = Resolution::kCustom;
+            glm::uvec2                                                          extent           = {0, 0};
+            std::vector<std::pair<RZTextureHandle, RenderTargetAttachmentInfo>> colorAttachments = {};
+            std::pair<RZTextureHandle, RenderTargetAttachmentInfo>              depthAttachment  = {};
+            int                                                                 layerCount       = 1;
+            bool                                                                resize           = false;
         };
 
         /* Command Queue is a collection of command buffers that will be submitted for execution at once */
@@ -738,7 +738,7 @@ namespace Razix {
                 RAZIX_ASSERT(false, "Unkown buffer element layout type!");
             }
 
-             template<>
+            template<>
             void push<int8_t>(const std::string& name, bool normalized)
             {
                 pushImpl(name, BufferFormat::R8_INT, sizeof(int8_t), normalized);
@@ -884,7 +884,7 @@ namespace Razix {
         {
             RZMaterialHandle material;
             RZMeshHandle     mesh;
-            glm::mat4        transform;
+            uint32_t         transformID;
         };
 
         using Drawables = std::vector<Drawable>;
@@ -922,8 +922,17 @@ namespace Razix {
         struct DrawCommandLists
         {
         };
+        
+        struct TextureReadback
+        {
+            void*    data;
+            uint32_t width;
+            uint32_t height;
+            uint32_t bits_per_pixel;
+        };
 
         //-----------------------------------------------------------------------------------
+        // [Source] : https://twitter.com/SebAaltonen/status/1597135035811106816
 
         static std::unordered_map<ShaderStage, const char*> g_ShaderStageEntryPointNameMap = {
             {ShaderStage::kVertex, "VS_MAIN"},
@@ -936,31 +945,6 @@ namespace Razix {
             {Resolution::k1440p, glm::uvec2(2560, 1440)},
             {Resolution::k4KUpscaled, glm::uvec2(3840, 2160)},
             {Resolution::k4KNative, glm::uvec2(3840, 2160)}};
-
-        RAZIX_NO_DISCARD u32       EncodeBindingLocation(BindingLocation info);
-        BindingLocation            DecodeBindingLocation(u32 bits);
-        RAZIX_NO_DISCARD u32       EncodeDescriptorBindingInfo(DescriptorBindingInfo info);
-        DescriptorBindingInfo      DecodeDescriptorBindingInfo(u32 bits);
-        RAZIX_NO_DISCARD u32       EncodeAttachmentInfo(RenderTargetAttachmentInfo info);
-        RenderTargetAttachmentInfo DecodeAttachmentInfo(u32 bits);
-        glm::vec4                  ClearColorFromPreset(ClearColorPresets preset);
-
-        /* utility functions for frame graph parsing to convert string to enums */
-        CompareOp       StringToCompareOp(const std::string& str);
-        DrawType        StringToDrawType(const std::string& str);
-        PolygonMode     StringToPolygonMode(const std::string& str);
-        CullMode        StringToCullMode(const std::string& str);
-        BlendOp         StringToBlendOp(const std::string& str);
-        TextureFormat   StringToTextureFormat(const std::string& str);
-        TextureType     StringToTextureType(const std::string& str);
-        Wrapping        StringToWrapping(const std::string& str);
-        Filtering::Mode StringToFilteringMode(const std::string& str);
-        BlendFactor     StringToBlendFactor(const std::string& str);
-        BufferUsage     StringToBufferUsage(const std::string& str);
-        ShaderStage     StringToShaderStage(const std::string& str);
-
-        //-----------------------------------------------------------------------------------
-        // [Source] : https://twitter.com/SebAaltonen/status/1597135035811106816
 
         static const char* ClearColorPresetsNames[] =
             {
@@ -1132,6 +1116,30 @@ namespace Razix {
                 "AccelerationStructure"};
 
         RAZIX_ENUM_NAMES_ASSERT(BufferTypeNames, BufferType);
+
+        //-----------------------------------------------------------------------------------
+
+        RAZIX_NO_DISCARD u32       EncodeBindingLocation(BindingLocation info);
+        BindingLocation            DecodeBindingLocation(u32 bits);
+        RAZIX_NO_DISCARD u32       EncodeDescriptorBindingInfo(DescriptorBindingInfo info);
+        DescriptorBindingInfo      DecodeDescriptorBindingInfo(u32 bits);
+        RAZIX_NO_DISCARD u32       EncodeAttachmentInfo(RenderTargetAttachmentInfo info);
+        RenderTargetAttachmentInfo DecodeAttachmentInfo(u32 bits);
+        glm::vec4                  ClearColorFromPreset(ClearColorPresets preset);
+
+        /* utility functions for frame graph parsing to convert string to enums */
+        CompareOp       StringToCompareOp(const std::string& str);
+        DrawType        StringToDrawType(const std::string& str);
+        PolygonMode     StringToPolygonMode(const std::string& str);
+        CullMode        StringToCullMode(const std::string& str);
+        BlendOp         StringToBlendOp(const std::string& str);
+        TextureFormat   StringToTextureFormat(const std::string& str);
+        TextureType     StringToTextureType(const std::string& str);
+        Wrapping        StringToWrapping(const std::string& str);
+        Filtering::Mode StringToFilteringMode(const std::string& str);
+        BlendFactor     StringToBlendFactor(const std::string& str);
+        BufferUsage     StringToBufferUsage(const std::string& str);
+        ShaderStage     StringToShaderStage(const std::string& str);
 
     }    // namespace Gfx
 }    // namespace Razix

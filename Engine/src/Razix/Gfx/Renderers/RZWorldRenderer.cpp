@@ -12,6 +12,8 @@
 #include "Razix/Core/Markers/RZMarkers.h"
 #include "Razix/Core/RZEngine.h"
 
+#include "Razix/Gfx/RZGraphicsCompileConfig.h"
+
 #include "Razix/Gfx/FrameGraph/RZBlackboard.h"
 #include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
@@ -37,7 +39,7 @@
 
 #include "Razix/Scene/RZScene.h"
 
-#include "Razix/Gfx/RZGraphicsCompileConfig.h"
+#include "Razix/Utilities/RZColorUtilities.h"
 
 #include <imgui/imgui.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
@@ -423,9 +425,6 @@ namespace Razix {
             if (m_FrameGraphBuildingInProgress)
                 return;
 
-            // Update calls passes
-            //m_CSMPass.updateCascades(scene);
-
             // Main Frame Graph World Rendering Loop
             {
                 // Acquire Image to render onto
@@ -446,6 +445,21 @@ namespace Razix {
                 // Submit the render queue before presenting next
                 Gfx::RHI::Submit(Gfx::RHI::GetCurrentCommandBuffer());
 
+                // swapchain capture is done before presentation
+                if (m_ReadSwapchainThisFrame) {
+                    m_ReadSwapchainThisFrame = false;
+
+                    // Wait for rendering to be done before capturing
+                    RZGraphicsContext::GetContext()->Wait();
+
+                    // Use a single time command buffer to this
+                    RZDrawCommandBufferHandle cmdBuff = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("Swapchain Capture", Utilities::GenerateHashedColor4(24u));
+
+                    m_LastSwapchainReadback = RHI::InsertTextureReadback(cmdBuff, RHI::GetSwapchain()->GetCurrentBackBufferImage());
+
+                    RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuff);
+                }
+
                 // Present the image to presentation engine as soon as rendering to SCOLOR_ATTACHMENT is done
                 Gfx::RHI::Present(nullptr);
             }
@@ -454,6 +468,11 @@ namespace Razix {
         void RZWorldRenderer::destroy()
         {
             m_FrameCount = 0;
+
+            if (m_LastSwapchainReadback.data) {
+                free(m_LastSwapchainReadback.data);
+                m_LastSwapchainReadback.data = NULL;
+            }
 
             // Wait for rendering to be done before halting
             Gfx::RZGraphicsContext::GetContext()->Wait();

@@ -47,7 +47,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            switch ((bits * 8)) {
+            switch ((bits)) {
                 case 8:
                     return TextureFormat::R8;
                 case 16:

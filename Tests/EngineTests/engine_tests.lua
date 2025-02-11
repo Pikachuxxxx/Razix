@@ -9,6 +9,8 @@ project "EngineTests"
 
     files
     {
+        "../TestCommon/**.h",
+        "../TestCommon/**.cpp",
         "./*.cpp",
         "./**.cpp"
     }

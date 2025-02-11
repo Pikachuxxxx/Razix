@@ -94,7 +94,7 @@ namespace Razix {
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {
-                        {Gfx::RHI::GetSwapchain()->GetCurrentImage(), {true, ClearColorPresets::OpaqueBlack}}};
+                        {Gfx::RHI::GetSwapchain()->GetCurrentBackBufferImage(), {true, ClearColorPresets::OpaqueBlack}}};
 #if __APPLE__
                     info.depthAttachment  = {m_AppleNeedsADepthTexture, {true, ClearColorPresets::DepthOneToZero}};
 #endif

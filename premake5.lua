@@ -115,6 +115,8 @@ workspace ( settings.workspace_name )
     startproject "Sandbox"
     flags 'MultiProcessorCompile' --(this won't work with clang)
 
+    editandcontinue "Off"
+
     -- Use clang on windows
     --toolset "clang"
 
@@ -153,7 +155,7 @@ workspace ( settings.workspace_name )
     apply_engine_global_config()
 
     ------------------------------------------------------------------------------
-    -- Shaders build rules (declared at last for tests and demos to pickup)
+    -- Shaders build rules (declared at start for tests and demos to pickup)
     include 'Engine/razix_shaders_build_rules.lua'
 
     -- Build scripts for the Razix vendor dependencies

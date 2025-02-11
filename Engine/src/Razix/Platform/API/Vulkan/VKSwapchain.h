@@ -18,6 +18,7 @@ namespace Razix {
         // Forward declaration
         class VKFence;
 
+        // TODO: Move this to VKRenderContext similar to how DX12RenderContext works
         struct FrameSyncData_VK
         {
             VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
@@ -44,7 +45,6 @@ namespace Razix {
             void  Init(u32 width, u32 height) override;
             void  Destroy() override;
             void  DestroyBackBufferImages() override;
-            void  Flip() override;
             void  OnResize(u32 width, u32 height) override;
             void* GetAPIHandle() override { return &m_Swapchain; }
 
@@ -61,7 +61,7 @@ namespace Razix {
             void submitCompute();
 
             RZTextureHandle   GetImage(u32 index) override { return m_SwapchainImageTextures[index]; }
-            RZTextureHandle   GetCurrentImage() override { return m_SwapchainImageTextures[m_AcquiredBackBufferImageIndex]; }
+            RZTextureHandle   GetCurrentBackBufferImage() override { return m_SwapchainImageTextures[m_AcquiredBackBufferImageIndex]; }
             sz                GetSwapchainImageCount() override { return m_SwapchainImageCount; }
             FrameSyncData_VK& getCurrentFrameSyncDataVK()
             {
@@ -85,19 +85,12 @@ namespace Razix {
             std::vector<VkImageView>     m_ImageViews                                  = {};
 
         private:
-            /* Queries the swapchain properties such as presentation modes supported, surface formats and capabilities */
-            void querySwapSurfaceProperties();
-            /* Choose the best swapchain image surface format and color space after querying the supported properties */
-            VkSurfaceFormatKHR chooseSurfaceFomat();
-            /* Choose the required present modes by checking the supported present modes */
-            VkPresentModeKHR choosePresentMode();
-            /* Gets the swapchain image extents */
-            VkExtent2D chooseSwapExtent();
-            /* Creates the swapchain */
-            void createSwapchain();
-            /* Retrieves the Swapchain images */
-            std::vector<VkImage> retrieveSwapchainImages();
-            /* creates the image views for the swapchain */
+            void                     querySwapSurfaceProperties();
+            VkSurfaceFormatKHR       chooseSurfaceFomat();
+            VkPresentModeKHR         choosePresentMode();
+            VkExtent2D               chooseSwapExtent();
+            void                     createSwapchain();
+            std::vector<VkImage>     retrieveSwapchainImages();
             std::vector<VkImageView> createSwapImageViews(std::vector<VkImage> swapImages);
             void                     destroyFrameSyncPrimitives();
             void                     destroyFrameSycnBackBuffers();

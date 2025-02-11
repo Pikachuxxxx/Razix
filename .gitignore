@@ -30,6 +30,9 @@ Engine/content/Shaders/Generated/
 #ignore QT generated Files
 Editor/src/generated/
 
+# Test Images
+Tests/GfxTests/TestImages/
+
 /Sandbox/LargeScenesSandbox.razixproject
 /Sandbox/Assets/Models/BistroExterior.glb
 /Sandbox/Assets/Models/BattleOfTrashGods.gltf

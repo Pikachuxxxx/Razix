@@ -305,6 +305,14 @@ namespace Razix {
 
             return static_cast<RZSwapchain*>(DX12Context::Get()->getSwapchain().get());
         }
+
+        Razix::Gfx::TextureReadback DX12RenderContext::InsertTextureReadbackImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture)
+        {
+            RAZIX_UNIMPLEMENTED_METHOD;
+            TextureReadback readback = {};
+            return readback;
+        }
+
     }    // namespace Gfx
 }    // namespace Razix
 

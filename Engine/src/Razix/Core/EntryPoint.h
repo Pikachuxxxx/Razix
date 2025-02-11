@@ -7,6 +7,8 @@
 
 #include "Razix/Core/Crashdump/RZCrashdumpHandler.h"
 
+#define SUCCESSFUL_ENGINE_EXIT_CODE 0
+
 /* Using the forward declared the application creating function, that we assume was defined on the client side */
 extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
 

@@ -5,17 +5,14 @@
 
 #include "Razix/Gfx/Resources/IRZResource.h"
 
-
-#include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
-
-
-
 namespace Razix {
     namespace Gfx {
 
 #define RZ_TEX_DEFAULT_ARRAY_LAYER 0
 #define RZ_TEX_DEFAULT_MIP_IDX     0
-#define RZ_TEX_BITS_PER_PIXEL      4
+#define RZ_TEX_BITS_PER_PIXEL      32
+#define RZ_TEX_CHANNELS_PER_PIXEL  4
+#define RZ_TEX_BITS_PER_CHANNELS   8
 #define RZ_TEX_MAX_LAYERS          64    // MAX HARD LIMIT
 #define RZ_MAX_TEX_MIPS            16    // 8k texture 7680x4320 (rounded off for brevity)
 

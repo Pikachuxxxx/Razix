@@ -230,6 +230,14 @@ namespace Razix {
             return s_APIInstance->CopyTextureResourceImpl(cmdBuffer, dstTexture, srcTextureHandle);
         }
 
+        Razix::Gfx::TextureReadback RHI::InsertTextureReadback(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture)
+        {
+            RAZIX_PROFILE_GPU_SCOPE("Texture Readback");
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            return s_APIInstance->InsertTextureReadbackImpl(cmdBuffer, texture);
+        }
+
         //------------------------------------------------------------------------
         // Pipeline
         void RHI::SetDepthBias(RZDrawCommandBufferHandle cmdBuffer)

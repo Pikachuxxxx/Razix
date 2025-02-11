@@ -6,7 +6,7 @@
 namespace Razix {
 
 #define TEST_APP_NUM_FRAMES_DEFAULT 120
-#define TEST_APP_NUM_FRAMES_INF     UINT32_MAX
+#define TEST_APP_NUM_FRAMES_INF     INT32_MAX - 1
 
     /**
      * Base class for Graphics testing applications
@@ -40,12 +40,24 @@ namespace Razix {
 
             // Mount the tests root directory to load test specific resources
             RZVirtualFileSystem::Get().mount("TestsRoot", projectRoot);
+
+            RZFileSystem::CreateDir(projectRoot + "/GfxTests/TestImages/");
         }
 
         virtual ~RZGfxTestAppBase() {}
 
-        void OnRender() override final
+        void OnStart() override
         {
+        }
+
+        void OnRender() override
+        {
+            RAZIX_INFO("Current Frame: {0}", m_CurrentFrame);
+
+            if (m_CurrentFrame == 10) {
+                RZEngine::Get().getWorldRenderer().setReadbackSwapchainThisFrame();
+            }
+
             if (m_CurrentFrame >= m_NumFrames) {
                 // Request app to close
                 RZApplication::Get().setAppState(AppState::Closing);
@@ -53,67 +65,27 @@ namespace Razix {
             m_CurrentFrame++;
         }
 
-        void SetGoldenImagePath(const std::string& path)
+        void OnQuit() override
         {
-            m_GoldenImagePath = path;
+            m_SwapchainReadback = RZEngine::Get().getWorldRenderer().getSwapchainReadback();
+
+            if (!WriteScreenshot()) RAZIX_ERROR("Failed to write swapchain capture readback texture!");
         }
 
-        float CalculatePSNR(const std::string& capturedImagePath, const std::string& goldenImagePath)
-        {
-            u32 capturedImgWidth  = 0;
-            u32 capturedImgHeight = 0;
-            u32 capturedImgBpp    = 0;
-            u32 goldenImgWidth    = 0;
-            u32 goldenImgHeight   = 0;
-            u32 goldenImgBpp      = 0;
-
-            u8* capturedImageData = Razix::Utilities::LoadImageData(capturedImagePath, &capturedImgWidth, &capturedImgHeight, &capturedImgBpp);
-            u8* goldenImageData   = Razix::Utilities::LoadImageData(goldenImagePath, &goldenImgWidth, &goldenImgHeight, &goldenImgBpp);
-
-            float mse = 0.0f;
-
-            // Compute MSE (Mean Squared Error)
-            for (uint32_t i = 0; i < capturedImgWidth * capturedImgHeight; i++) {
-                float diff = (float) capturedImageData[i] - (float) goldenImageData[i];
-                mse += diff * diff;
-            }
-
-            mse /= (capturedImgWidth * capturedImgHeight);
-
-            // Calculate PSNR (Peak Signal-to-Noise Ratio)
-            if (mse == 0) return std::numeric_limits<float>::infinity();    // Images are identical
-            float maxPixelValue = 255.0f;                                   // For 8-bit images
-            float psnr          = 10.0f * std::log10((maxPixelValue * maxPixelValue) / mse);
-            return psnr;
-        }
-
-        float CompareWithGoldenImage()
-        {
-            if (m_GoldenImagePath.empty()) {
-                RAZIX_ERROR("Golden image path is not set!");
-                return -1.0f;
-            }
-
-            float psnr = 0.0f;
-            psnr       = CalculatePSNR(m_ScreenShotPath, m_GoldenImagePath);
-            return psnr;
-        }
-
-        bool TakeScreenshot()
-        {
-            bool success = false;
-            // TODO: Use RHI to capture and readback the u8* imagedata to m_ScreenShotPath location
-            // We take what is visible i.e. we capture the swapchain 
-
-
-            return success;
-        }
+        void  SetGoldenImagePath(const std::string& path);
+        void  SetScreenshotPath(const std::string& path);
+        float CompareWithGoldenImage();
 
     protected:
-        int         m_NumFrames;       /* Number of frames to run for the test          */
-        int         m_CurrentFrame;    /* Current frame number in the test              */
-        std::string m_GoldenImagePath; /* Path to the golden image for comparison       */
-        std::string m_ScreenShotPath;  /* Path to the screenshot image for comparison   */
+        i32                  m_NumFrames;
+        i32                  m_CurrentFrame;
+        std::string          m_GoldenImagePath;
+        std::string          m_ScreenShotPath;
+        Gfx::TextureReadback m_SwapchainReadback;
+
+    private:
+        bool  WriteScreenshot();
+        float CalculatePSNR(const std::string& capturedImagePath, const std::string& goldenImagePath);
     };
 }    // namespace Razix
 

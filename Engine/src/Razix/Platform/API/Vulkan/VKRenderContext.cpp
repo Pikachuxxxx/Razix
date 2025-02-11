@@ -646,5 +646,58 @@ namespace Razix {
                 func(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), markerData);
             }
         }
+
+        Razix::Gfx::TextureReadback VKRenderContext::InsertTextureReadbackImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture)
+        {
+            TextureReadback readback = {};
+
+            const RZTexture*     textureResource = RZResourceManager::Get().getTextureResource(texture);
+            const RZTextureDesc& desc            = textureResource->getDescription();
+
+            const VKTexture* backendResource = static_cast<const VKTexture*>(textureResource);
+
+            const u32 readbackSize = desc.width * desc.height * RZ_TEX_BITS_PER_PIXEL;
+
+            VKBuffer textureReadbackTransferBuffer = VKBuffer(BufferUsage::ReadBack, VK_BUFFER_USAGE_TRANSFER_DST_BIT, readbackSize, nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"));
+
+            VkImageLayout initialLayout = backendResource->getImageLayoutValue();
+
+            VKUtilities::TransitionImageLayout(backendResource->getImage(), VKUtilities::TextureFormatToVK(desc.format), initialLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+            {
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Read Pixels", glm::vec4(1.0f, 0.45f, 0.64f, 1.0f));
+
+                VkImageAspectFlags aspectFlags = backendResource->getAspectFlags();
+
+                // TODO: Support layers and depth
+                VkBufferImageCopy region               = {};
+                region.bufferOffset                    = 0;
+                region.bufferRowLength                 = desc.width;
+                region.bufferImageHeight               = desc.width;
+                region.imageSubresource.aspectMask     = aspectFlags != 0 ? aspectFlags : VK_IMAGE_ASPECT_COLOR_BIT;
+                region.imageSubresource.mipLevel       = textureResource->getCurrentMipLevel();
+                region.imageSubresource.baseArrayLayer = 0;
+                region.imageSubresource.layerCount     = 1;
+                region.imageOffset                     = {0, 0, 0};
+                region.imageExtent                     = {desc.width, desc.height, 1};
+
+                vkCmdCopyImageToBuffer(commandBuffer, backendResource->getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, textureReadbackTransferBuffer.getBuffer(), 1, &region);
+
+                VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
+            }
+            VKUtilities::TransitionImageLayout(backendResource->getImage(), VKUtilities::TextureFormatToVK(desc.format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, initialLayout);
+
+            readback.data = malloc(readbackSize);
+            textureReadbackTransferBuffer.map();
+            memcpy(readback.data, textureReadbackTransferBuffer.getMappedRegion(), readbackSize);
+            textureReadbackTransferBuffer.unMap();
+
+            textureReadbackTransferBuffer.destroy();
+
+            readback.width          = desc.width;
+            readback.height         = desc.height;
+            readback.bits_per_pixel = RZ_TEX_BITS_PER_PIXEL;
+
+            return readback;
+        }
     }    // namespace Gfx
 }    // namespace Razix

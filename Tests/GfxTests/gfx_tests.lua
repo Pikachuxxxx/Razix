@@ -10,6 +10,7 @@ project "GfxTests"
     files
     {
         "../TestCommon/**.h",
+        "../TestCommon/**.cpp",
         "./**.cpp",
         "./**.h"
     }
@@ -107,6 +108,8 @@ project "GfxTests"
     }
 
     filter "system:windows"
+        editandcontinue "Off"
+
         defines
         {
             -- Engine
