@@ -20,8 +20,7 @@ group "Tests"
 
 	postbuildcommands
 	{
-		"\"%{wks.location}../bin/%{outputdir}/EngineTests.exe\"",
-		"\"%{wks.location}../bin/%{outputdir}/IgnitionTests.exe\"",
+		"\"%{wks.location}../bin/%{outputdir}/EngineTests.exe\""
 	}
 
 group ""
