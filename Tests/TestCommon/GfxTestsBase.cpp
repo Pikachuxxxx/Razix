@@ -2,7 +2,7 @@
 
 namespace Razix {
 
-    static void write_texture_readback_to_ppm(Gfx::TextureReadback* texture, const char* filename)
+    static void WiteSwapchainTextureReadbackToPPM(Gfx::TextureReadback* texture, const char* filename)
     {
         if (!texture || !texture->data || texture->bits_per_pixel != 32) {
             return;
@@ -35,7 +35,7 @@ namespace Razix {
         fclose(file);
     }
 
-    static bool read_ppm(const char* filename, uint32_t* width, uint32_t* height, uint8_t** pixels)
+    static bool ReadPPM(const char* filename, uint32_t* width, uint32_t* height, uint8_t** pixels)
     {
         FILE* file = fopen(filename, "rb");
         if (!file) {
@@ -86,6 +86,8 @@ namespace Razix {
         return true;
     }
 
+    //-----------------------------------------------------------------------------------
+
     void RZGfxTestAppBase::SetGoldenImagePath(const std::string& path)
     {
         m_GoldenImagePath = path;
@@ -112,7 +114,7 @@ namespace Razix {
     {
         bool success = false;
         if (m_SwapchainReadback.data) {
-            write_texture_readback_to_ppm(&m_SwapchainReadback, m_ScreenShotPath.c_str());
+            WiteSwapchainTextureReadbackToPPM(&m_SwapchainReadback, m_ScreenShotPath.c_str());
             success = true;
         }
 
@@ -128,10 +130,10 @@ namespace Razix {
         uint8_t* captureImagePixels = NULL;
         uint8_t* goldenImagePixels  = NULL;
 
-        if (!read_ppm(capturedImagePath.c_str(), &capturedImgWidth, &capturedImgHeight, &captureImagePixels))
+        if (!ReadPPM(capturedImagePath.c_str(), &capturedImgWidth, &capturedImgHeight, &captureImagePixels))
             return 100.0f;
 
-        if (!read_ppm(goldenImagePath.c_str(), &goldenImgWidth, &goldenImgHeight, &goldenImagePixels))
+        if (!ReadPPM(goldenImagePath.c_str(), &goldenImgWidth, &goldenImgHeight, &goldenImagePixels))
             return 100.0f;
 
         if ((capturedImgWidth != goldenImgWidth) && (capturedImgHeight != goldenImgHeight))

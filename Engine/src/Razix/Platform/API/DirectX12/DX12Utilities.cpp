@@ -195,6 +195,35 @@ namespace Razix {
                 pIntermediateResource->Release();
             }
 
+            D3D12_RESOURCE_STATES EngineImageLayoutToDX12(ImageLayout layout)
+            {
+                switch (layout) {
+                    case ImageLayout::kNewlyCreated:
+                        return D3D12_RESOURCE_STATE_COMMON;
+                    case ImageLayout::kGeneric:
+                        return D3D12_RESOURCE_STATE_COMMON;
+                    case ImageLayout::kSwapchain:
+                        return D3D12_RESOURCE_STATE_PRESENT;
+                    case ImageLayout::kColorRenderTarget:
+                        return D3D12_RESOURCE_STATE_RENDER_TARGET;
+                    case ImageLayout::kDepthRenderTarget:
+                    case ImageLayout::kDepthStencilRenderTarget:
+                        return D3D12_RESOURCE_STATE_DEPTH_WRITE;
+                    case ImageLayout::kDepthStencilReadOnly:
+                        return D3D12_RESOURCE_STATE_DEPTH_READ;
+                    case ImageLayout::kShaderRead:
+                        return D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+                    case ImageLayout::kShaderWrite:
+                        return D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+                    case ImageLayout::kTransferSource:
+                        return D3D12_RESOURCE_STATE_COPY_SOURCE;
+                    case ImageLayout::kTransferDestination:
+                        return D3D12_RESOURCE_STATE_COPY_DEST;
+                    default:
+                        return D3D12_RESOURCE_STATE_COMMON;
+                }
+            }
+
             void GetCPUDescriptorOffsetHandle(_Out_ D3D12_CPU_DESCRIPTOR_HANDLE& handle, INT offsetInDescriptors, UINT descriptorIncrementSize)
             {
                 handle.ptr = SIZE_T(INT64(handle.ptr) + INT64(offsetInDescriptors) * INT64(descriptorIncrementSize));

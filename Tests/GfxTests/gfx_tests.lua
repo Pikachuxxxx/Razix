@@ -175,7 +175,7 @@ end
 group "Tests/GfxTests"
     include "HelloWorldTests/hello_world_tests.lua"
 
-    -- GFX TEST SHADERS
+    -- GFX TEST SHADERS, all gfx tests can use this project to build and manage HLSL/Razix shaders
     project "TestShaders"
         kind "Utility"
 

@@ -18,7 +18,7 @@ namespace Razix {
     namespace Gfx {
 
         // Function to convert const char* to LPCWSTR
-        LPCWSTR ConvertToLPCWSTR(const char* str)
+        static LPCWSTR ConvertToLPCWSTR(const char* str)
         {
             // Calculate the number of wide characters required
             int wideCharLength = MultiByteToWideChar(CP_ACP, 0, str, -1, nullptr, 0);

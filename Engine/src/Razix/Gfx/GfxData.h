@@ -391,22 +391,6 @@ namespace Razix {
             PipelineStage_COUNT
         };
 
-        enum ImageLayout : u32
-        {
-            kNewlyCreated,
-            kGeneric,
-            kSwapchain,
-            kColorRenderTarget,
-            kDepthRenderTarget,
-            kDepthStencilRenderTarget,
-            kDepthStencilReadOnly,
-            kShaderAttachment,
-            kAttachment,
-            kTransferSource,
-            kTransferDestination,
-            ImageLayout_COUNT
-        };
-
         enum MemoryAccessMask : u32
         {
             kMemoryAccessNone = 0,
@@ -429,6 +413,22 @@ namespace Razix {
             kMemoryReadBit,
             kMemoryWriteBit,
             MemoryAccessMask_COUNT
+        };
+
+        enum class ImageLayout : u32
+        {
+            kNewlyCreated,
+            kGeneric,
+            kSwapchain,
+            kColorRenderTarget,
+            kDepthRenderTarget,
+            kDepthStencilRenderTarget,
+            kDepthStencilReadOnly,
+            kShaderRead,
+            kShaderWrite,
+            kTransferSource,
+            kTransferDestination,
+            COUNT
         };
 
         enum class DrawDataType
@@ -922,7 +922,7 @@ namespace Razix {
         struct DrawCommandLists
         {
         };
-        
+
         struct TextureReadback
         {
             void*    data;

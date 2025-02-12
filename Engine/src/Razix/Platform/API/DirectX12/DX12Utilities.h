@@ -86,6 +86,8 @@ namespace Razix {
 
             void UpdateBufferResource(ID3D12Resource** pDestinationResource, size_t bufferSize, const void* bufferData);
 
+            D3D12_RESOURCE_STATES EngineImageLayoutToDX12(ImageLayout layout);
+
             //-----------------------------------------------------------------------------------
             // Texture/Image utility Functions
             //-----------------------------------------------------------------------------------

@@ -50,7 +50,7 @@ namespace Razix {
 
             // Get the final output
             FrameGraph::RZFrameGraphResource FinalOutputRenderTarget = framegraph.getBlackboard().getFinalOutputID();
-            
+
 #if __APPLE__
             RZTextureDesc depthTextureDesc         = {};
             depthTextureDesc.name                  = "SwapchainDepthDummy";
@@ -61,7 +61,7 @@ namespace Razix {
             depthTextureDesc.initResourceViewHints = kDSV;
             m_AppleNeedsADepthTexture              = RZResourceManager::Get().createTexture(depthTextureDesc);
 #endif
-            
+
             framegraph.addCallbackPass(
                 "Pass.Builtin.Code.Composition",
                 [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
@@ -76,6 +76,8 @@ namespace Razix {
 
                     RAZIX_TIME_STAMP_BEGIN("Composition Pass");
                     RAZIX_MARK_BEGIN("Pass.Builtin.Code.Composition", glm::vec4(0.5f));
+
+                    Gfx::RHI::InsertImageMemoryBarrier(Gfx::RHI::GetCurrentCommandBuffer(), resources.get<FrameGraph::RZFrameGraphTexture>(FinalOutputRenderTarget).getHandle(), ImageLayout::kColorRenderTarget, ImageLayout::kShaderRead);
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
@@ -96,7 +98,7 @@ namespace Razix {
                     info.colorAttachments = {
                         {Gfx::RHI::GetSwapchain()->GetCurrentBackBufferImage(), {true, ClearColorPresets::OpaqueBlack}}};
 #if __APPLE__
-                    info.depthAttachment  = {m_AppleNeedsADepthTexture, {true, ClearColorPresets::DepthOneToZero}};
+                    info.depthAttachment = {m_AppleNeedsADepthTexture, {true, ClearColorPresets::DepthOneToZero}};
 #endif
                     info.resize = true;
 
@@ -108,6 +110,8 @@ namespace Razix {
                     scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);
 
                     RHI::EndRendering(cmdBuffer);
+
+                    Gfx::RHI::InsertImageMemoryBarrier(Gfx::RHI::GetCurrentCommandBuffer(), resources.get<FrameGraph::RZFrameGraphTexture>(FinalOutputRenderTarget).getHandle(), ImageLayout::kShaderRead, ImageLayout::kColorRenderTarget);
 
                     RAZIX_MARK_END();
                     RAZIX_TIME_STAMP_END();

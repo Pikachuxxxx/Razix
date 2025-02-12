@@ -187,9 +187,19 @@ namespace Razix {
         {
         }
 
-        void DX12RenderContext::InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)
+        void DX12RenderContext::InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, ImageLayout oldLayout, ImageLayout newLayout)
         {
-            RAZIX_UNIMPLEMENTED_METHOD
+            D3D12_RESOURCE_BARRIER barrier = {};
+            barrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            barrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+            barrier.Transition.pResource   = NULL;    // TODO: Use Texture backend handle here
+            barrier.Transition.StateBefore = DX12Utilities::EngineImageLayoutToDX12(oldLayout);
+            barrier.Transition.StateAfter  = DX12Utilities::EngineImageLayoutToDX12(newLayout);
+            barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+            auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
+            auto commandListD3D        = (ID3D12GraphicsCommandList2*) commandBufferResource->getAPIBuffer();
+            commandListD3D->ResourceBarrier(1, &barrier);
         }
 
         void DX12RenderContext::InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
