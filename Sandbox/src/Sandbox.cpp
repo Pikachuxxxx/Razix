@@ -7,7 +7,7 @@ class Sandbox : public Razix::RZApplication
 public:
     Sandbox()
         : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "SponzaSandbox")
-//        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "ShadowsSandbox")
+    //        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "ShadowsSandbox")
 
     {
         Razix::RZInput::SelectGLFWInputManager();
@@ -36,13 +36,32 @@ public:
     {
         // Add a default camera to the scene if it doesn't have one
         auto scene = RZSceneManager::Get().getCurrentScene();
-        if(scene) {
-            if(!scene->GetComponentsOfType<CameraComponent>().size()) {
+        if (scene) {
+            if (!scene->GetComponentsOfType<CameraComponent>().size()) {
                 auto camera = scene->createEntity("PrimaryCamera");
                 camera.AddComponent<CameraComponent>();
             }
+
+            if (!scene->GetComponentsOfType<MeshRendererComponent>().size()) {
+                // Add 5 spheres
+                float spacing = 0.25;
+                for (uint32_t i = 0; i < 5; i++) {
+                    auto sphereMesh = scene->createEntity("Sphere_" + std::to_string(i));
+                    sphereMesh.AddComponent<MeshRendererComponent>(Gfx::MeshPrimitive::Sphere);
+                    auto& transform = sphereMesh.GetComponent<TransformComponent>();
+                    transform.Translation.z += spacing * i;
+                    transform.Scale *= 0.25f;
+                }
+            }
+
+            if (!scene->GetComponentsOfType<LightComponent>().size()) {
+                auto sun = scene->createEntity("Sun");
+                sun.AddComponent<LightComponent>();
+                auto& transform = sun.GetComponent<TransformComponent>();
+
+                transform.Translation = {1.0f, 1.0f, 1.0f};
+            }
         }
-            
     }
 
     void OnRender() override

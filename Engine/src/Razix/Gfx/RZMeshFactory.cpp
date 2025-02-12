@@ -309,10 +309,10 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(data, indices);
 
-                auto        shader                  = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
-                RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
-                forwardRendererMaterial->createDescriptorSet();
-                mesh->setMaterial(forwardRendererMaterial);
+                //auto        shader                  = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
+                //RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
+                //forwardRendererMaterial->createDescriptorSet();
+                //mesh->setMaterial(forwardRendererMaterial);
 
                 return mesh;
             }
