@@ -52,19 +52,18 @@ namespace Razix {
 
             // Create the Pipeline
             Gfx::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.name                = "Pipeline.GBuffer ";
-            pipelineInfo.cullMode            = Gfx::CullMode::Front;
-            pipelineInfo.shader              = shader;
-            pipelineInfo.drawType            = Gfx::DrawType::Triangle;
-            pipelineInfo.transparencyEnabled = false;    // Deferred Shading historically doesn't support transparency so we disable it
-            pipelineInfo.depthBiasEnabled    = false;
-            pipelineInfo.depthTestEnabled    = true;
-            // Using 32 bit f32ing point formats to support HDR colors
+            pipelineInfo.name                   = "Pipeline.GBuffer";
+            pipelineInfo.cullMode               = Gfx::CullMode::Front;
+            pipelineInfo.shader                 = shader;
+            pipelineInfo.drawType               = Gfx::DrawType::Triangle;
+            pipelineInfo.transparencyEnabled    = false;    // Deferred Shading historically doesn't support transparency so we disable it
+            pipelineInfo.depthBiasEnabled       = false;
+            pipelineInfo.depthTestEnabled       = true;
             pipelineInfo.colorAttachmentFormats = {
                 Gfx::TextureFormat::RGBA16F,
                 Gfx::TextureFormat::RGBA16F,
                 Gfx::TextureFormat::RGBA16F,
-                Gfx::TextureFormat::RG16F,
+                Gfx::TextureFormat::RG16F,    // Velocity Buffer
             };
             pipelineInfo.depthFormat = Gfx::TextureFormat::DEPTH32F;
 
@@ -99,10 +98,10 @@ namespace Razix {
                     gbufferTexturesDesc.format = TextureFormat::RG16F;
                     data.VelocityBuffer        = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    gbufferTexturesDesc.name      = "SceneDepth";
-                    gbufferTexturesDesc.format    = TextureFormat::DEPTH32F;
-                    gbufferTexturesDesc.type      = TextureType::kDepth;
-                    data.GBufferDepth             = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    gbufferTexturesDesc.name   = "SceneDepth";
+                    gbufferTexturesDesc.format = TextureFormat::DEPTH32F;
+                    gbufferTexturesDesc.type   = TextureType::kDepth;
+                    data.GBufferDepth          = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
                     data.GBuffer0       = builder.write(data.GBuffer0);
                     data.GBuffer1       = builder.write(data.GBuffer1);

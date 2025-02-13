@@ -46,8 +46,32 @@
 #include <imgui_internal.h>
 
 namespace Razix {
-
     namespace Gfx {
+
+        static void ExportFrameGraphVisFile(const FrameGraph::RZFrameGraph& framegraph)
+        {
+            auto        now   = std::chrono::system_clock::now();
+            std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+            std::tm     local_tm;
+#if defined(_MSC_VER)    // For MSVC (Windows)
+            localtime_s(&local_tm, &now_c);
+#else    // For GCC/Clang (Linux/macOS)
+            localtime_r(&now_c, &local_tm);
+#endif
+            std::ostringstream timestamp;
+            timestamp << std::put_time(&local_tm, "%Y_%m_%d_%H_%M_%S");
+
+            std::string outPath;
+            RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/FrameGraphs", outPath, true);
+
+            // Construct the filename with the timestamp
+            std::string filename = outPath + "/fg_debug_draw_test_" + timestamp.str() + ".dot";
+
+            RAZIX_CORE_INFO("Exporting FrameGraph .... to ({0})", filename);
+
+            std::ofstream os(filename);
+            os << framegraph;
+        }
 
         /**
          * Notes:
@@ -112,7 +136,7 @@ namespace Razix {
             uploadFrameData(scene, settings);
             uploadLightsData(scene, settings);
 
-            //            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
+            auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
 
             //-----------------------------------------------------------------------------------
 
@@ -132,6 +156,120 @@ namespace Razix {
             //-------------------------------
             m_ShadowPass.addPass(m_FrameGraph, scene, &settings);
 
+            //-------------------------------
+            // Debug Scene Pass
+            //-------------------------------
+            m_FrameGraph.getBlackboard().add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
+                "Pass.Builtin.Code.DebugDraw",
+                [&](SceneData& sceneData, FrameGraph::RZPassResourceBuilder& builder) {
+                    builder.setAsStandAlonePass();
+
+                    RZDebugRendererProxy::Get().Init();
+
+                    RZTextureDesc textureDesc         = {};
+                    textureDesc.name                  = "SceneHDR";
+                    textureDesc.width                 = g_ResolutionToExtentsMap[Resolution::k1440p].x;
+                    textureDesc.height                = g_ResolutionToExtentsMap[Resolution::k1440p].y;
+                    textureDesc.type                  = TextureType::k2D;
+                    textureDesc.format                = TextureFormat::RGBA16F;
+                    textureDesc.initResourceViewHints = kSRV | kRTV;
+                    textureDesc.enableMips            = false;
+                    sceneData.sceneHDR                = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
+
+                    textureDesc.name                  = "SceneDepth";
+                    textureDesc.format                = TextureFormat::DEPTH32F;
+                    textureDesc.type                  = TextureType::kDepth;
+                    textureDesc.initResourceViewHints = kDSV;
+                    sceneData.sceneDepth              = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
+
+                    builder.read(frameDataBlock.frameData);
+
+                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
+                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
+                },
+                [=](const SceneData& sceneData, FrameGraph::RZPassResourceDirectory& resources) {
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                    RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
+
+                    // Origin point
+                    RZDebugRendererProxy::DrawPoint(glm::vec3(0.0f), 0.25f);
+
+                    // X, Y, Z lines
+                    RZDebugRendererProxy::DrawLine(glm::vec3(-100.0f, 0.0f, 0.0f), glm::vec3(100.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRendererProxy::DrawLine(glm::vec3(0.0f, -100.0f, 0.0f), glm::vec3(0.0f, 100.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    RZDebugRendererProxy::DrawLine(glm::vec3(0.0f, 0.0f, -100.0f), glm::vec3(0.0f, 0.0f, 100.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+
+                    // Grid
+                    RZDebugRendererProxy::DrawGrid(125, glm::vec4(0.75f));
+
+                    // Draw all lights in the scene
+                    auto lights = scene->GetComponentsOfType<LightComponent>();
+                    for (auto& lightComponent: lights) {
+                        RZDebugRendererProxy::DrawLight(&lights[0].light, glm::vec4(0.8f, 0.65f, 0.0f, 1.0f));
+                    }
+
+                    // Draw predefined light matrix
+                    // Use the first directional light and currently only one Dir Light casts shadows, multiple just won't do anything in the scene not even light contribution
+                    RZLight dir_light;
+                    for (auto& light: lights) {
+                        if (light.light.getType() == LightType::DIRECTIONAL) {
+                            dir_light = light.light;
+                            break;
+                        }
+                    }
+
+                    glm::mat4 lightView  = glm::lookAt(dir_light.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                    float     near_plane = -50.0f, far_plane = 50.0f;
+                    glm::mat4 lightProjection = glm::ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
+                    lightProjection[1][1] *= -1;
+                    auto lightViewProj = lightProjection * lightView;
+                    RZDebugRendererProxy::DrawFrustum(lightViewProj, glm::vec4(0.863f, 0.28f, 0.21f, 1.0f));
+
+                    // Draw all camera frustums
+                    auto cameras = scene->GetComponentsOfType<CameraComponent>();
+                    for (auto& camComponents: cameras) {
+                        RZDebugRendererProxy::DrawFrustum(camComponents.Camera.getFrustum(), glm::vec4(0.2f, 0.85f, 0.1f, 1.0f));
+                    }
+
+                    // Draw AABBs for all the Meshes in the Scene
+                    auto mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
+                    for (auto entity: mesh_group) {
+                        // Draw the mesh renderer components
+                        const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
+
+                        // Bind push constants, VBO, IBO and draw
+                        glm::mat4 transform = mesh_trans.GetGlobalTransform();
+
+                        if (mrc.Mesh && mrc.enableBoundingBoxes)
+                            RZDebugRendererProxy::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    }
+
+                    RZDebugRendererProxy::Get().Begin(scene);
+
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
+                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
+
+                    RenderingInfo info{};
+                    info.resolution       = Resolution::kWindow;
+                    info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
+                    info.resize           = true;
+
+                    auto cmdBuffer = RHI::GetCurrentCommandBuffer();
+
+                    RHI::BeginRendering(cmdBuffer, info);
+
+                    RZDebugRendererProxy::Get().Draw(cmdBuffer);
+
+                    RHI::EndRendering(cmdBuffer);
+
+                    RZDebugRendererProxy::Get().End();
+                    RAZIX_TIME_STAMP_END();
+                });
+
+            SceneData& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
+
             m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
 
 #ifdef ENABLE_EACH_PASS_AS_WE_FIX
@@ -142,15 +280,15 @@ namespace Razix {
             m_CSMPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
-            // Vis Buffer Fill Pass
-            //-------------------------------
-            //m_VisBufferFillPass.addPass(m_FrameGraph, scene, &settings);
-
-            //-------------------------------
             // GBuffer Pass
             //-------------------------------
             m_GBufferPass.addPass(m_FrameGraph, scene, &settings);
             GBufferData& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
+
+            //-------------------------------
+            // Vis Buffer Fill Pass
+            //-------------------------------
+            m_VisBufferFillPass.addPass(m_FrameGraph, scene, &settings);
 
     #if !ENABLE_FORWARD_RENDERING
             //-------------------------------
@@ -229,119 +367,6 @@ namespace Razix {
              */
 
             //-------------------------------
-            // Debug Scene Pass
-            //-------------------------------
-            m_FrameGraph.addCallbackPass(
-                "Pass.Builtin.Code.Debug",
-                [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
-                    builder.setAsStandAlonePass();
-
-                    RZDebugRendererProxy::Get()->Init();
-
-                    // TODO: Make these read/write safe, use hasID from blackboard and only then enable these passes
-                    // or register the Scene RTs similar to FinalOutputTarget to get this working safely
-
-                    builder.read(frameDataBlock.frameData);
-                    builder.read(sceneData.sceneHDR);
-                    builder.read(sceneData.sceneDepth);
-
-                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
-                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
-                },
-                [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
-                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-                    RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
-
-                    // Origin point
-                    RZDebugRendererProxy::DrawPoint(glm::vec3(0.0f), 0.1f);
-
-                    // X, Y, Z lines
-                    RZDebugRendererProxy::DrawLine(glm::vec3(-100.0f, 0.0f, 0.0f), glm::vec3(100.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-                    RZDebugRendererProxy::DrawLine(glm::vec3(0.0f, -100.0f, 0.0f), glm::vec3(0.0f, 100.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-                    RZDebugRendererProxy::DrawLine(glm::vec3(0.0f, 0.0f, -100.0f), glm::vec3(0.0f, 0.0f, 100.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-
-                    // Grid
-                    RZDebugRendererProxy::DrawGrid(25, glm::vec4(0.75f));
-
-                    // Draw all lights in the scene
-                    auto lights = scene->GetComponentsOfType<LightComponent>();
-                    for (auto& lightComponent: lights) {
-                        RZDebugRendererProxy::DrawLight(&lights[0].light, glm::vec4(0.8f, 0.65f, 0.0f, 1.0f));
-                    }
-
-                    // Draw CSM frustums
-                    auto cascades = m_CSMPass.getCascades();
-                    for (u32 i = 0; i < cascades.size(); i++) {
-                        RZDebugRendererProxy::DrawFrustum(cascades[i].viewProjMatrix, glm::vec4(0.72f, 0.85f, 0.1f * i, 1.0f));
-                    }
-
-                    // Draw predefined light matrix
-                    // Use the first directional light and currently only one Dir Light casts shadows, multiple just won't do anything in the scene not even light contribution
-                    RZLight dir_light;
-                    for (auto& light: lights) {
-                        if (light.light.getType() == LightType::DIRECTIONAL) {
-                            dir_light = light.light;
-                            break;
-                        }
-                    }
-
-                    glm::mat4 lightView  = glm::lookAt(dir_light.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-                    float     near_plane = -50.0f, far_plane = 50.0f;
-                    glm::mat4 lightProjection = glm::ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
-                    lightProjection[1][1] *= -1;
-                    auto lightViewProj = lightProjection * lightView;
-                    RZDebugRendererProxy::DrawFrustum(lightViewProj, glm::vec4(0.863f, 0.28f, 0.21f, 1.0f));
-
-                    // Draw all camera frustums
-                    auto cameras = scene->GetComponentsOfType<CameraComponent>();
-                    for (auto& camComponents: cameras) {
-                        RZDebugRendererProxy::DrawFrustum(camComponents.Camera.getFrustum(), glm::vec4(0.2f, 0.85f, 0.1f, 1.0f));
-                    }
-
-                    // Draw AABBs for all the Meshes in the Scene
-                    auto mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
-                    for (auto entity: mesh_group) {
-                        // Draw the mesh renderer components
-                        const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
-
-                        // Bind push constants, VBO, IBO and draw
-                        glm::mat4 transform = mesh_trans.GetGlobalTransform();
-
-                        if (mrc.Mesh && mrc.enableBoundingBoxes)
-                            RZDebugRendererProxy::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-                    }
-
-                    RZDebugRendererProxy::Get()->Begin(scene);
-
-                    //auto sceneHDR   = m_FrameGraph.getBlackboard().getID("SceneHDR");
-                    //auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
-
-                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
-                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
-
-                    RenderingInfo info{};
-                    info.resolution       = Resolution::kCustom;
-                    info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
-                    info.resize           = true;
-
-                    auto cmdBuffer = RHI::GetCurrentCommandBuffer();
-
-                    RHI::BeginRendering(cmdBuffer, info);
-
-                    RZDebugRendererProxy::Get()->Draw(cmdBuffer);
-
-                    RHI::EndRendering(cmdBuffer);
-
-                    RZDebugRendererProxy::Get()->End();
-                    RAZIX_TIME_STAMP_END();
-                });
-
-            sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
-
-            //-------------------------------
             // ImGui Pass
             //-------------------------------
             m_FrameGraph.addCallbackPass(
@@ -401,11 +426,7 @@ namespace Razix {
             // Dump the Frame Graph for visualization
             // NOTE: Careful this won't write to the Engine directory this is inside bin and build artifact
             // FIXME: Find a way to map VFS to OG Engine path pre-copy or idk just umm...be careful I guess
-            std::string outPath;
-            RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/FrameGraphs", outPath, true);
-            RAZIX_CORE_INFO("Exporting FrameGraph .... to ({0})", outPath);
-            std::ofstream os(outPath + "/data_driven_editor_test.dot");
-            os << m_FrameGraph;
+            ExportFrameGraphVisFile(m_FrameGraph);
 
             m_FrameGraphBuildingInProgress = false;
         }
@@ -485,7 +506,7 @@ namespace Razix {
 
             // Destroy Renderers
             // m_ImGuiRenderer.Destroy();
-            // RZDebugRendererProxy::Get()->Destroy();
+            RZDebugRendererProxy::Get().Destroy();
 
             // Destroy Passes
 #if !ENABLE_FORWARD_RENDERING
@@ -542,279 +563,28 @@ namespace Razix {
                 static bool showMemStats       = true;
                 static bool showRHIStats       = true;
 
-                {
+                {    // RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
                     RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
 
-                    // Main menu for Game view tools
-                    {
-                        if (ImGui::BeginMainMenuBar()) {
-                            if (ImGui::BeginMenu(ICON_FA_WRENCH " Tools")) {
-                                if (ImGui::MenuItem(ICON_FA_TASKS " FG resource Viewer", nullptr, showResourceViewer)) {
-                                    showResourceViewer = !showResourceViewer;
-                                }
-                                if (ImGui::MenuItem(ICON_FA_MONEY_BILL " Frame Budgets", nullptr, showBudgets)) {
-                                    showBudgets = !showBudgets;
-                                }
-                                if (ImGui::MenuItem(ICON_FA_MEMORY " Memory Stats", nullptr, showMemStats)) {
-                                    showMemStats = !showMemStats;
-                                }
-                                if (ImGui::MenuItem(ICON_FA_MEMORY " RHI Memory Stats", nullptr, showRHIStats)) {
-                                    showRHIStats = !showRHIStats;
-                                }
-                                ImGui::EndMenu();
+                    if (ImGui::BeginMainMenuBar()) {
+                        if (ImGui::BeginMenu(ICON_FA_WRENCH " Tools")) {
+                            if (ImGui::MenuItem(ICON_FA_TASKS " FG resource Viewer", nullptr, showResourceViewer)) {
+                                showResourceViewer = !showResourceViewer;
                             }
-                            ImGui::EndMainMenuBar();
-                        }
-                    }
-
-                    // Framegraph resource viewer
-                    {
-                        if (showResourceViewer) {
-#if 1
-
-                            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-                            ImGui::SetNextWindowBgAlpha(0.8f);
-
-                            if (ImGui::Begin("[Engine Tool] Frame Graph Resources Viewer")) {
-                                // Hacks to rotate text in ImGui. From https://github.com/ocornut/imgui/issues/1286#issue-251214314
-                                int  rotation_start_index;
-                                auto ImRotateStart = [&]() { rotation_start_index = ImGui::GetWindowDrawList()->VtxBuffer.Size; };
-                                auto ImRotateEnd   = [&](float rad, ImVec2 center) {
-                                    float s = sin(rad), c = cos(rad);
-                                    center = ImRotate(center, s, c) - center;
-
-                                    auto& buf = ImGui::GetWindowDrawList()->VtxBuffer;
-                                    for (int i = rotation_start_index; i < buf.Size; i++)
-                                        buf[i].pos = ImRotate(buf[i].pos, s, c) - center;
-                                };
-
-                                i32 passIndex = 0;
-
-                                auto passNodesSize = RZEngine::Get().getWorldRenderer().getFrameGraph().getPassNodesSize();
-
-                                float  passNameHeight    = 400.0f;
-                                float  resourceNameWidth = 400.0f;
-                                ImVec2 boxSize           = ImVec2(25.0f, ImGui::GetTextLineHeightWithSpacing() * 1.25f);
-                                float  width             = (int) passNodesSize * boxSize.x + resourceNameWidth;
-                                float  height            = 800;
-
-                                ImGui::BeginChild("Table", ImVec2(width, height));
-                                ImDrawList* pCmd = ImGui::GetWindowDrawList();
-
-                                ImVec2 cursor      = ImGui::GetCursorScreenPos();
-                                ImVec2 passNamePos = cursor + ImVec2(resourceNameWidth, 0);
-
-                                for (u32 i = 0; i < passNodesSize; i++) {
-                                    const auto& passNode         = RZEngine::Get().getWorldRenderer().getFrameGraph().getPassNode(i);
-                                    const auto& passNodeName     = passNode.getName();
-                                    const auto& passNodeGraphIdx = passNode.getID();
-
-                                    ImRect itemRect(passNamePos + ImVec2(passIndex * boxSize.x, 0.0f), passNamePos + ImVec2((passIndex + 1) * boxSize.x, passNameHeight));
-                                    pCmd->AddLine(itemRect.Max, itemRect.Max + ImVec2(0, height), ImColor(1.0f, 1.0f, 1.0f, 0.2f));
-                                    ImRotateStart();
-                                    ImVec2 size = ImGui::CalcTextSize(passNodeName.c_str());
-                                    pCmd->AddText(itemRect.Max - ImVec2(size.x, 0), ImColor(1.0f, 1.0f, 1.0f), passNodeName.c_str());
-                                    ImRotateEnd(glm::pi<float>() * 2.2f, itemRect.Max + ImVec2(boxSize.x, 0));
-                                    ImGui::ItemAdd(itemRect, passIndex);
-                                    bool passActive = ImGui::IsItemHovered();
-                                    if (passActive) {
-                                        ImGui::BeginTooltip();
-                                        {
-                                            ImGui::Text("Name           : %s", passNodeName.c_str());
-                                            ImGui::Text("Graph ID       : %d", passNodeGraphIdx);
-                                            ImGui::Text("Reads          : %zu", passNode.getInputResources().size());
-                                            ImGui::Text("Writes         : %zu", passNode.getOutputResources().size());
-                                            ImGui::Text("Standalone     : %s", passNode.isStandAlone() ? "true" : "false");
-                                            ImGui::Text("Data driven    : %s", passNode.isDataDriven() ? "true" : "false");
-                                        }
-                                        ImGui::EndTooltip();
-                                    }
-                                    ++passIndex;
-                                }
-
-                                cursor += ImVec2(0.0f, passNameHeight);
-                                ImVec2 resourceAccessPos = cursor + ImVec2(resourceNameWidth, 0.0f);
-
-                                //std::unordered_map<GraphicsResource*, int> resourceToIndex;
-                                //auto resourceNodes = RZEngine::Get().getWorldRenderer().getFrameGraph().getResourcesNodes();
-
-                                auto resourceNodesSize = RZEngine::Get().getWorldRenderer().getFrameGraph().getResourceNodesSize();
-
-    #if 1
-                                for (u32 i = 0; i < resourceNodesSize; i++) {
-                                    u32 idx = i;
-                                    //resourceNode.getResourceEntryId();
-                                    auto& resourceEntry = RZEngine::Get().getWorldRenderer().getFrameGraph().getResourceEntry((Gfx::FrameGraph::RZFrameGraphResource) idx);
-                                    //if(resourceEntry.getModel<Graphics::FrameGraph::RZFrameGraphTexture>())
-
-                                    if (resourceEntry.isImported())
-                                        continue;
-
-                                    //const auto pFirstPass = resourceEntry.getProducerNode();
-                                    //const auto pLastPass  = resourceEntry.getLastNode();
-                                    // if (pFirstPass == nullptr || pLastPass == nullptr)
-                                    //     continue;
-
-                                    u32 firstPassOffset = idx;
-                                    u32 lastPassOffset  = 0;
-
-                                    ImRect itemRect(resourceAccessPos + ImVec2(firstPassOffset * boxSize.x + 1, idx * boxSize.y + 1), resourceAccessPos + ImVec2((lastPassOffset + 1) * boxSize.x - 1, (idx + 1) * boxSize.y - 1));
-                                    ImGui::ItemAdd(itemRect, idx);
-                                    bool isHovered = ImGui::IsItemHovered();
-
-                                    if (isHovered) {
-                                        ImGui::BeginTooltip();
-                                        //ImGui::Text("%s", resourceNode.getName());
-                                        //
-                                        //if (pResource->Type == RGResourceType::Texture) {
-                                        //    const TextureDesc& desc = static_cast<const RGTexture*>(pResource)->Desc;
-                                        //    ImGui::Text("Res: %dx%dx%d", desc.Width, desc.Height, desc.DepthOrArraySize);
-                                        //    ImGui::Text("Fmt: %s", RHI::GetFormatInfo(desc.Format).pName);
-                                        //    ImGui::Text("Mips: %d", desc.Mips);
-                                        //    ImGui::Text("Size: %s", Math::PrettyPrintDataSize(RHI::GetTextureByteSize(desc.Format, desc.Width, desc.Height, desc.DepthOrArraySize)).c_str());
-                                        //} else if (pResource->Type == RGResourceType::Buffer) {
-                                        //    const BufferDesc& desc = static_cast<const RGBuffer*>(pResource)->Desc;
-                                        //    ImGui::Text("Size: %s", Math::PrettyPrintDataSize(desc.Size).c_str());
-                                        //    ImGui::Text("Fmt: %s", RHI::GetFormatInfo(desc.Format).pName);
-                                        //    ImGui::Text("Stride: %d", desc.ElementSize);
-                                        //    ImGui::Text("Elements: %d", desc.NumElements());
-                                        //}
-                                        ImGui::EndTooltip();
-                                    }
-
-                                    pCmd->AddRectFilled(itemRect.Min, itemRect.Max, ImColor(0.5f, 0.6f, 1.0f));
-
-                                    ImColor boxColor = ImColor(1.0f, 1.0f, 1.0f, 0.5f);
-
-                                    //bool isActivePass = false;
-                                    //if (pActivePass) {
-                                    //    auto it = std::find_if(pActivePass->Accesses.begin(), pActivePass->Accesses.end(), [pResource](const RGPass::ResourceAccess& access) {
-                                    //        return access.pResource == pResource;
-                                    //    });
-                                    //
-                                    //    if (it != pActivePass->Accesses.end()) {
-                                    //        isActivePass                         = true;
-                                    //        const RGPass::ResourceAccess& access = *it;
-                                    //        if (ResourceState::HasWriteResourceState(access.Access))
-                                    //            boxColor = ImColor(1.0f, 0.5f, 0.1f, 0.8f);
-                                    //        else
-                                    //            boxColor = ImColor(0.0f, 0.9f, 0.3f, 0.8f);
-                                    //    }
-                                    //}
-
-                                    if (isHovered)
-                                        pCmd->AddRectFilled(itemRect.Min, itemRect.Max, boxColor);
-                                }
-    #endif
-
-                                // for (auto& resource: resourceToIndex)
-                                //     pCmd->AddText(ImVec2(cursor.x, cursor.y + resource.second * boxSize.y), ImColor(1.0f, 1.0f, 1.0f), resource.first->GetName());
-
-                                ImGui::EndChild();
+                            if (ImGui::MenuItem(ICON_FA_MONEY_BILL " Frame Budgets", nullptr, showBudgets)) {
+                                showBudgets = !showBudgets;
                             }
-                            ImGui::End();
-#endif
-                            ImGui::PopStyleColor(1);
-                        }
-                    }
-
-                    // Frame Budgets
-                    {
-                        if (showBudgets) {
-                            if (ImGui::Begin("[Engine Tool] Frame Budgets")) {
-                                ImGui::BeginTable("#FrameBudgetsTable", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg);
-                                {
-                                    // Declare columns
-                                    ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide, 150.0f);
-                                    ImGui::TableSetupColumn("Time (Ms)", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide, 150.0f);
-                                    ImGui::TableSetupColumn("Budget (Ms)", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide, 150.0f);
-                                    ImGui::TableSetupColumn("Memory (MiB)", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide, 150.0f);
-                                    ImGui::TableSetupColumn("Budget (MiB)", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide, 150.0f);
-                                    ImGui::TableHeadersRow();
-
-                                    ImGui::TableNextRow(ImGuiTableRowFlags_None, 20);
-                                    ImGui::TableNextColumn();
-
-                                    if (ImGui::TreeNode("Art")) {
-                                        ImGui::Indent();
-                                        {
-                                            ImGui::TableNextRow(ImGuiTableRowFlags_None, 20);
-                                            ImGui::TableNextColumn();
-
-                                            ImGui::Text("Depth");
-                                            ImGui::TableNextColumn();
-                                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0.75, 0, 1));
-                                            {
-                                                ImGui::Text("2.4");
-                                            }
-                                            ImGui::PopStyleColor(1);
-                                            ImGui::TableNextColumn();
-                                            ImGui::Text("1.2");
-                                        }
-                                        ImGui::Unindent();
-
-                                        ImGui::TreePop();
-                                    }
-                                    ImGui::TableSetColumnIndex(0);
-                                    ImGui::TableNextColumn();
-                                    ImGui::Text("2.4");
-                                    ImGui::TableNextColumn();
-                                    ImGui::Text("1.2");
-                                    //for (int row = 0; row < 4; row++) {
-                                    //    ImGui::TableNextRow();
-                                    //    for (int column = 0; column < 3; column++) {
-                                    //        ImGui::TableSetColumnIndex(column);
-                                    //        ImGui::Text("Row %d Column %d", row, column);
-                                    //    }
-                                    //}
-                                    ImGui::EndTable();
-                                }
+                            if (ImGui::MenuItem(ICON_FA_MEMORY " Memory Stats", nullptr, showMemStats)) {
+                                showMemStats = !showMemStats;
                             }
-                            ImGui::End();
-                        }
-                    }
-
-                    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-                    // Memory Stats
-                    {
-                        if (showMemStats) {
-                            ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
-                            ImGui::SetNextWindowBgAlpha(1.0f);    // Transparent background
-                            ImGui::SetNextWindowSize(ImVec2((f32) RZApplication::Get().getWindow()->getWidth(), 150.0f));
-                            ImGui::SetNextWindowPos(ImVec2(0.0f, (f32) RZApplication::Get().getWindow()->getHeight() - 50), ImGuiCond_Always);
-                            ImGui::Begin("##MemStats", 0, window_flags);
-                            {
-                                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 0, 1));
-                                ImGui::Text(ICON_FA_MEMORY "  GPU Memory: %4.2f", RZEngine::Get().GetStatistics().TotalGPUMemory);
-                                ImGui::PopStyleColor(1);
-                                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
-                                ImGui::Text(ICON_FA_BALANCE_SCALE " Used GPU Memory: %4.2f |", RZEngine::Get().GetStatistics().GPUMemoryUsed);
-                                ImGui::PopStyleColor(1);
-
-                                ImGui::SameLine();
-                                std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-                                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
-                                ImGui::Text(ICON_FA_CLOCK " current date/time : %s ", std::ctime(&end_time));
-                                ImGui::PopStyleColor(1);
-
-                                ImGui::SameLine();
-
-                                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
-                                std::string engineBuildVersionFull = RazixVersion.getVersionString() + "." + RazixVersion.getReleaseStageString();
-                                ImGui::Text("| Engine build version : %s | ", engineBuildVersionFull.c_str());
-                                ImGui::PopStyleColor(1);
-
-                                ImGui::SameLine();
-
-                                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
-                                ImGui::Text(ICON_FA_ID_CARD " project UUID : %s", RZApplication::Get().getProjectUUID().prettyString().c_str());
-                                ImGui::PopStyleColor(1);
+                            if (ImGui::MenuItem(ICON_FA_MEMORY " RHI Memory Stats", nullptr, showRHIStats)) {
+                                showRHIStats = !showRHIStats;
                             }
-                            ImGui::End();
+                            ImGui::EndMenu();
                         }
+                        ImGui::EndMainMenuBar();
                     }
-                    ImGui::PopStyleVar(1);
-                }
+                }    // RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
             }
         }
 

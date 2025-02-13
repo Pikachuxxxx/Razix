@@ -23,12 +23,7 @@
 #include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
 #include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
 
-#include "Razix/Gfx/FrameGraph/RZBlackboard.h"
-#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
-
 #include "Razix/Gfx/RZShaderLibrary.h"
-
-#include "Razix/Utilities/RZTimestep.h"
 
 // Imgui
 #include <imgui.h>
@@ -45,18 +40,18 @@ namespace Razix {
 
         void RZImGuiRendererProxy::Init()
         {
-            m_RendererName = "ImGui Renderer";
+            m_RendererName = "ImGuiProxyRenderer";
 
             m_ScreenBufferWidth  = RZApplication::Get().getWindow()->getWidth();
             m_ScreenBufferHeight = RZApplication::Get().getWindow()->getHeight();
 
-            createImGuiContext();
+            setupImGuiContext();
 
-            createImGuiFlags();
+            setupImGuiFlags();
 
             setupImGuiStyle();
 
-            createRenderResources();
+            setupResources();
 
             loadImGuiFonts();
 
@@ -193,7 +188,7 @@ namespace Razix {
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
 
-        void RZImGuiRendererProxy::createImGuiContext()
+        void RZImGuiRendererProxy::setupImGuiContext()
         {
             // Configure ImGui
             // Setup Dear ImGui context
@@ -201,7 +196,7 @@ namespace Razix {
             ImGui::CreateContext();
         }
 
-        void RZImGuiRendererProxy::createImGuiFlags()
+        void RZImGuiRendererProxy::setupImGuiFlags()
         {
             ImGuiIO& io = ImGui::GetIO();
             (void) io;
@@ -234,7 +229,7 @@ namespace Razix {
             style.Colors[ImGuiCol_ButtonActive]     = ImVec4(1.0f, 0.43f, 0.0f, 0.8f);
         }
 
-        void RZImGuiRendererProxy::createRenderResources()
+        void RZImGuiRendererProxy::setupResources()
         {
             m_ImGuiShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ImGui);
 
@@ -331,7 +326,7 @@ namespace Razix {
             atlas[0].SetTexID(set_2);
         }
 
-        void RZImGuiRendererProxy::uploadUIFont(const std::string& fontPath)
+        void RZImGuiRendererProxy::uploadCustomUIFont(const std::string& fontPath)
         {
             std::string physicalPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath(fontPath, physicalPath);

@@ -12,6 +12,8 @@
 #include "Razix/Math/AABB.h"
 #include "Razix/Math/RZFrustum.h"
 
+#include "Razix/Utilities/TRZSingleton.h"
+
 namespace Razix {
     namespace Gfx {
 
@@ -75,13 +77,11 @@ namespace Razix {
          * 
          * Note: Uses Batched rendering to draw points/lines in a single draw call
          */
-        class RAZIX_API RZDebugRendererProxy : public IRZRendererProxy
+        class RAZIX_API RZDebugRendererProxy : public IRZRendererProxy, public RZSingleton<RZDebugRendererProxy>
         {
         public:
             RZDebugRendererProxy()  = default;
             ~RZDebugRendererProxy() = default;
-
-            static RZDebugRendererProxy* Get();
 
             //-------------------------------------------------------------
             // IRZRendererProxy
@@ -135,7 +135,6 @@ namespace Razix {
             static void GenDrawLine(bool dt, const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour);
 
         private:
-            static RZDebugRendererProxy* s_Instance;
 
             struct DebugDrawList
             {

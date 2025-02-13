@@ -38,8 +38,8 @@ namespace Razix {
 
         void RZSkyboxPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
-            auto skyboxShader           = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Skybox);
-//            auto proceduralSkyboxShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ProceduralSkybox);
+            auto skyboxShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Skybox);
+            //            auto proceduralSkyboxShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ProceduralSkybox);
 
             Gfx::RZPipelineDesc pipelineInfo{};
             pipelineInfo.name                   = "Skybox.Pipeline";
@@ -55,17 +55,16 @@ namespace Razix {
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-//            pipelineInfo.name    = "ProceduralSkybox.Pipeline";
-//            pipelineInfo.shader  = proceduralSkyboxShader;
-//            m_ProceduralPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
+            //            pipelineInfo.name    = "ProceduralSkybox.Pipeline";
+            //            pipelineInfo.shader  = proceduralSkyboxShader;
+            //            m_ProceduralPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             auto& frameDataBlock  = framegraph.getBlackboard().get<FrameData>();
             auto& lightProbesData = framegraph.getBlackboard().get<GlobalLightProbeData>();
             auto& volumetricData  = framegraph.getBlackboard().get<VolumetricCloudsData>();
-//            auto& sceneData       = framegraph.getBlackboard().get<SceneData>();
+            auto& sceneData       = framegraph.getBlackboard().get<SceneData>();
 
-            framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
-//            framegraph.addCallbackPass(
+            framegraph.addCallbackPass(
                 "Pass.Builtin.Code.Skybox",
                 [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
@@ -75,34 +74,9 @@ namespace Razix {
                     builder.read(lightProbesData.diffuseIrradianceMap);
                     builder.read(lightProbesData.specularPreFilteredMap);
                     builder.read(volumetricData.noiseTexture);
-                    
-                    RZTextureDesc textureDesc = {};
-                    textureDesc.name   = "SceneHDR";
-                    textureDesc.width  = g_ResolutionToExtentsMap[Resolution::k1440p].x;
-                    textureDesc.height = g_ResolutionToExtentsMap[Resolution::k1440p].y;
-                    textureDesc.type   = TextureType::k2D;
-                    textureDesc.format = TextureFormat::RGBA16F;
-                    textureDesc.initResourceViewHints = kSRV | kRTV;
-                    data.sceneHDR      = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
-                    data.sceneHDR      = builder.write(data.sceneHDR);
-                    
-                    textureDesc = {};
-                    textureDesc.name    = "SceneDepth";
-                    textureDesc.format  = TextureFormat::DEPTH32F;
-                    textureDesc.type    = TextureType::kDepth;
-                    textureDesc.width   = g_ResolutionToExtentsMap[Resolution::k1440p].x;
-                    textureDesc.height  = g_ResolutionToExtentsMap[Resolution::k1440p].y;
-                    textureDesc.initResourceViewHints = kDSV;
-                    data.sceneDepth     = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
-                    data.sceneDepth     = builder.write(data.sceneDepth);
 
-#if ENABLE_DATA_DRIVEN_FG_PASSES
-                //builder.read(framegraph.getBlackboard().getID("SceneHDR"));
-                //builder.read(framegraph.getBlackboard().getID("SceneDepth"));
-
-                //data.sceneHDR = builder.write(framegraph.getBlackboard().getID("SceneHDR"));
-                //data.depth     = builder.write(framegraph.getBlackboard().getID("SceneDepth"));
-#endif
+                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
+                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
                 },
                 [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -116,8 +90,8 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneDepth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
                     info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
@@ -132,47 +106,45 @@ namespace Razix {
 
                             Gfx::RZResourceManager::Get().getShaderResource(skyboxShader)->updateBindVarsHeaps();
                         } else {
-//                            auto& shaderBindVars = Gfx::RZResourceManager::Get().getShaderResource(proceduralSkyboxShader)->getBindVars();
-//                            auto  descriptor     = shaderBindVars["NoiseTexture"];
-//                            if (descriptor)
-//                                descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(volumetricData.noiseTexture).getHandle();
-//
-//                            Gfx::RZResourceManager::Get().getShaderResource(proceduralSkyboxShader)->updateBindVarsHeaps();
+                            //                            auto& shaderBindVars = Gfx::RZResourceManager::Get().getShaderResource(proceduralSkyboxShader)->getBindVars();
+                            //                            auto  descriptor     = shaderBindVars["NoiseTexture"];
+                            //                            if (descriptor)
+                            //                                descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(volumetricData.noiseTexture).getHandle();
+                            //
+                            //                            Gfx::RZResourceManager::Get().getShaderResource(proceduralSkyboxShader)->updateBindVarsHeaps();
                         }
                     }
 
                     if (!settings->useProceduralSkybox) {
                         Gfx::RHI::BindPipeline(m_Pipeline, cmdBuffer);
                         scene->drawScene(m_Pipeline, SceneDrawGeometryMode::Cubemap);
-                    } else
-                    {
-                        
+                    } else {
                         // Since no skybox, we update the directional light direction
-//                        auto lights = scene->GetComponentsOfType<LightComponent>();
-//                        // We use the first found directional light
-//                        // TODO: Cache this
-//                        RZLight dirLight;
-//                        for (auto& lc: lights) {
-//                            if (lc.light.getType() == LightType::DIRECTIONAL)
-//                                dirLight = lc.light;
-//                            break;
-//                        }
-//                        struct PCData
-//                        {
-//                            glm::vec3 worldSpaceLightPos;
-//                            //u32       noiseTextureIdx;
-//                        } data{};
-//                        // FIXME: Use direction
-//                        data.worldSpaceLightPos = dirLight.getPosition();
-//                        //data.noiseTextureIdx    = resources.get<FrameGraph::RZFrameGraphTexture>(volumetricData.noiseTexture).getHandle().getIndex();
-//                        RZPushConstant pc;
-//                        pc.data        = &data;
-//                        pc.size        = sizeof(PCData);
-//                        pc.shaderStage = ShaderStage::kPixel;
-//
-//                        Gfx::RHI::BindPipeline(m_ProceduralPipeline, cmdBuffer);
-//                        RHI::BindPushConstant(m_ProceduralPipeline, cmdBuffer, pc);
-//                        scene->drawScene(m_ProceduralPipeline, SceneDrawGeometryMode::Cubemap);
+                        //                        auto lights = scene->GetComponentsOfType<LightComponent>();
+                        //                        // We use the first found directional light
+                        //                        // TODO: Cache this
+                        //                        RZLight dirLight;
+                        //                        for (auto& lc: lights) {
+                        //                            if (lc.light.getType() == LightType::DIRECTIONAL)
+                        //                                dirLight = lc.light;
+                        //                            break;
+                        //                        }
+                        //                        struct PCData
+                        //                        {
+                        //                            glm::vec3 worldSpaceLightPos;
+                        //                            //u32       noiseTextureIdx;
+                        //                        } data{};
+                        //                        // FIXME: Use direction
+                        //                        data.worldSpaceLightPos = dirLight.getPosition();
+                        //                        //data.noiseTextureIdx    = resources.get<FrameGraph::RZFrameGraphTexture>(volumetricData.noiseTexture).getHandle().getIndex();
+                        //                        RZPushConstant pc;
+                        //                        pc.data        = &data;
+                        //                        pc.size        = sizeof(PCData);
+                        //                        pc.shaderStage = ShaderStage::kPixel;
+                        //
+                        //                        Gfx::RHI::BindPipeline(m_ProceduralPipeline, cmdBuffer);
+                        //                        RHI::BindPushConstant(m_ProceduralPipeline, cmdBuffer, pc);
+                        //                        scene->drawScene(m_ProceduralPipeline, SceneDrawGeometryMode::Cubemap);
                     }
 
                     RHI::EndRendering(cmdBuffer);
@@ -184,7 +156,7 @@ namespace Razix {
         void RZSkyboxPass::destroy()
         {
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
-//            RZResourceManager::Get().destroyPipeline(m_ProceduralPipeline);
+            //            RZResourceManager::Get().destroyPipeline(m_ProceduralPipeline);
         }
     }    // namespace Gfx
 }    // namespace Razix

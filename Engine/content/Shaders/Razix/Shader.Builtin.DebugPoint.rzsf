@@ -5,13 +5,9 @@
  */
 
 #shader vertex
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.DebugPoint.vert.spv
-    #endif
+    #include Shader.Builtin.DebugPoint.vert
 #end
 
 #shader fragment
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.DebugPoint.frag.spv
-    #endif
+    #include Shader.Builtin.DebugPoint.frag
 #end

@@ -21,6 +21,8 @@ namespace Razix {
         class RZTexture;
         class RZDescriptorSet;
 
+        // - [ ] Separate Texture and Sampler for font texture in Shader
+
         /**
          * ImGui renderer proxy for the Razix engine, manages everything necessary for UI elements
          * 
@@ -66,12 +68,12 @@ namespace Razix {
             PushConstant          m_PushConstantData       = {};
 
         private:
-            void createImGuiContext();
-            void createImGuiFlags();
+            void setupImGuiContext();
+            void setupImGuiFlags();
             void setupImGuiStyle();
-            void createRenderResources();
+            void setupResources();
             void loadImGuiFonts();
-            void uploadUIFont(const std::string& fontPath);
+            void uploadCustomUIFont(const std::string& fontPath);
         };
     }    // namespace Gfx
 }    // namespace Razix

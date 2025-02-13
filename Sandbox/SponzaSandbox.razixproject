@@ -2,10 +2,10 @@
     "Razix Application": {
         "Project Name": "SponzaSandbox",
         "Engine Version": "0.43.0",
-        "Project ID": "70980cf9-5d10-49ee-a825-546190fbe391",
+        "Project ID": "f413ce32-edae-4858-9252-be8ea3221bf3",
         "Render API": 1,
-        "Width": 1335,
-        "Height": 769,
+        "Width": 1360,
+        "Height": 789,
         "Scenes": [
             "//Scenes/default Scene.rzscn"
         ]

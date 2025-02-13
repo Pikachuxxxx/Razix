@@ -44,13 +44,13 @@ public:
 
             if (!scene->GetComponentsOfType<MeshRendererComponent>().size()) {
                 // Add 5 spheres
-                float spacing = 0.25;
+                float spacing = 1.0;
                 for (uint32_t i = 0; i < 5; i++) {
                     auto sphereMesh = scene->createEntity("Sphere_" + std::to_string(i));
                     sphereMesh.AddComponent<MeshRendererComponent>(Gfx::MeshPrimitive::Sphere);
                     auto& transform = sphereMesh.GetComponent<TransformComponent>();
                     transform.Translation.z += spacing * i;
-                    transform.Scale *= 0.25f;
+                    transform.Scale *= 0.50f;
                 }
             }
 

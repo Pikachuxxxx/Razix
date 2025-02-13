@@ -5,7 +5,7 @@ node [shape=record, fontname="helvetica", fontsize=10, margin="0.2,0.03"]
 P0 [label=<{ {<B>Pass.Builtin.Code.FrameDataUpload</B>} | {&#x2605; Refs: 1<BR/> Index: 0} }> style="rounded,filled", fillcolor=orange]
 P1 [label=<{ {<B>Pass.Builtin.Code.SceneLightsDataUpload</B>} | {&#x2605; Refs: 1<BR/> Index: 1} }> style="rounded,filled", fillcolor=orange]
 P2 [label=<{ {<B>Pass.Builtin.Code.RenderShadows</B>} | {&#x2605; Refs: 2<BR/> Index: 2} }> style="rounded,filled", fillcolor=orange]
-P3 [label=<{ {<B>Pass.Builtin.Code.VisibilityBufferFill</B>} | {&#x2605; Refs: 2<BR/> Index: 3} }> style="rounded,filled", fillcolor=orange]
+P3 [label=<{ {<B>Pass.Builtin.Code.DebugDraw</B>} | {&#x2605; Refs: 2<BR/> Index: 3} }> style="rounded,filled", fillcolor=orange]
 P4 [label=<{ {<B>Pass.Builtin.Code.Skybox</B>} | {&#x2605; Refs: 2<BR/> Index: 4} }> style="rounded,filled", fillcolor=orange]
 P5 [label=<{ {<B>Pass.Builtin.Code.Composition</B>} | {&#x2605; Refs: 0<BR/> Index: 5} }> style="rounded,filled", fillcolor=orange]
 
@@ -19,16 +19,16 @@ R6_1 [label=<{ {<B>FrameData</B><BR/>size : 384 bytes} | {Index: 6<BR/>Refs : 2}
 R7_1 [label=<{ {<B>SceneLightsData</B><BR/>size : 10256 bytes} | {Index: 7<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R8_1 [label=<{ {<B>ShadowMap</B><BR/>(4096, 4096) - BGRA8_UNORM [Depth]} | {Index: 8<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 R9_1 [label=<{ {<B>LightSpaceMatrix</B><BR/>size : 64 bytes} | {Index: 9<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R10_1 [label=<{ {<B>VisBuffer</B><BR/>(1360, 789) - RGBA8 [2D]} | {Index: 10<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R11_1 [label=<{ {<B>SceneDepth</B><BR/>(1360, 789) - BGRA8_UNORM [Depth]} | {Index: 11<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
-R12_1 [label=<{ {<B>SceneHDR</B><BR/>(2560, 1440) - RGBA16F [2D]} | {Index: 12<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
-R13_1 [label=<{ {<B>SceneDepth</B><BR/>(2560, 1440) - BGRA8_UNORM [Depth]} | {Index: 13<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
+R10_1 [label=<{ {<B>SceneHDR</B><BR/>(2560, 1440) - RGBA16F [2D]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R11_1 [label=<{ {<B>SceneDepth</B><BR/>(2560, 1440) - BGRA8_UNORM [Depth]} | {Index: 11<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R10_2 [label=<{ {<B>SceneHDR</B>   <FONT>v2</FONT><BR/>(2560, 1440) - RGBA16F [2D]} | {Index: 10<BR/>Refs : 1} }> style=filled, fillcolor=skyblue]
+R11_2 [label=<{ {<B>SceneDepth</B>   <FONT>v2</FONT><BR/>(2560, 1440) - BGRA8_UNORM [Depth]} | {Index: 11<BR/>Refs : 0} }> style=filled, fillcolor=skyblue]
 
 P0 -> { R6_1 } [color=orangered]
 P1 -> { R7_1 } [color=orangered]
 P2 -> { R8_1 R9_1 } [color=orangered]
 P3 -> { R10_1 R11_1 } [color=orangered]
-P4 -> { R12_1 R13_1 } [color=orangered]
+P4 -> { R10_2 R11_2 } [color=orangered]
 P5 -> { } [color=orangered]
 
 R0_1 -> { } [color=olivedrab3]
@@ -41,10 +41,10 @@ R6_1 -> { P3 P4 } [color=olivedrab3]
 R7_1 -> { } [color=olivedrab3]
 R8_1 -> { } [color=olivedrab3]
 R9_1 -> { } [color=olivedrab3]
-R10_1 -> { } [color=olivedrab3]
-R11_1 -> { } [color=olivedrab3]
-R12_1 -> { P5 } [color=olivedrab3]
-R13_1 -> { } [color=olivedrab3]
+R10_1 -> { P4 } [color=olivedrab3]
+R11_1 -> { P4 } [color=olivedrab3]
+R10_2 -> { P5 } [color=olivedrab3]
+R11_2 -> { } [color=olivedrab3]
 
 subgraph cluster_0 {
 P0 R6_1 
@@ -59,7 +59,7 @@ subgraph cluster_3 {
 P3 R10_1 R11_1 
 }
 subgraph cluster_4 {
-P4 R12_1 R13_1 
+P4 
 }
 subgraph cluster_5 {
 P5 

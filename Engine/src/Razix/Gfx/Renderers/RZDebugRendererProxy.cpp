@@ -26,7 +26,6 @@
 
 namespace Razix {
     namespace Gfx {
-        RZDebugRendererProxy* RZDebugRendererProxy::s_Instance = nullptr;
 
         static const u32 MaxPoints                  = 10000;
         static const u32 MaxPointVertices           = MaxPoints * 4;
@@ -39,13 +38,6 @@ namespace Razix {
         static const uint32_t MaxLineIndices            = MaxLines * 6;
         static const uint32_t RENDERER_LINE_SIZE        = sizeof(Razix::Gfx::LineVertexData) * 4;
         static const uint32_t RENDERER_LINE_BUFFER_SIZE = RENDERER_LINE_SIZE * MaxLineVertices;
-
-        Razix::Gfx::RZDebugRendererProxy* RZDebugRendererProxy::Get()
-        {
-            if (s_Instance == nullptr)
-                s_Instance = new RZDebugRendererProxy;
-            return s_Instance;
-        }
 
         //---------------------------------------------------------------------------------------------------------------
         void RZDebugRendererProxy::Init()
@@ -290,9 +282,9 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             if (dt)
-                s_Instance->m_DrawListNDT.m_DebugPoints.emplace_back(pos, point_radius, colour);
+                RZDebugRendererProxy::Get().m_DrawListNDT.m_DebugPoints.emplace_back(pos, point_radius, colour);
             else
-                s_Instance->m_DrawList.m_DebugPoints.emplace_back(pos, point_radius, colour);
+                RZDebugRendererProxy::Get().m_DrawList.m_DebugPoints.emplace_back(pos, point_radius, colour);
         }
         //---------------------------------------------------------------------------------------------------------------
         void RZDebugRendererProxy::DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour)
@@ -328,9 +320,9 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             if (DT)
-                s_Instance->m_DrawListNDT.m_DebugThickLines.emplace_back(start, end, colour);
+                RZDebugRendererProxy::Get().m_DrawListNDT.m_DebugThickLines.emplace_back(start, end, colour);
             else
-                s_Instance->m_DrawList.m_DebugThickLines.emplace_back(start, end, colour);
+                RZDebugRendererProxy::Get().m_DrawList.m_DebugThickLines.emplace_back(start, end, colour);
         }
         void RZDebugRendererProxy::DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour)
         {
@@ -363,9 +355,9 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             if (dt)
-                s_Instance->m_DrawListNDT.m_DebugLines.emplace_back(start, end, colour);
+                RZDebugRendererProxy::Get().m_DrawListNDT.m_DebugLines.emplace_back(start, end, colour);
             else
-                s_Instance->m_DrawList.m_DebugLines.emplace_back(start, end, colour);
+                RZDebugRendererProxy::Get().m_DrawList.m_DebugLines.emplace_back(start, end, colour);
         }
         void RZDebugRendererProxy::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour)
         {
