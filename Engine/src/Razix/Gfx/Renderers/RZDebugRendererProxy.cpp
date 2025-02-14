@@ -27,101 +27,34 @@
 namespace Razix {
     namespace Gfx {
 
-        static const u32 MaxPoints                  = 10000;
-        static const u32 MaxPointVertices           = MaxPoints * 4;
-        static const u32 MaxPointIndices            = MaxPoints * 6;
-        static const u32 RENDERER_POINT_SIZE        = sizeof(Razix::Gfx::PointVertexData) * 4;
-        static const u32 RENDERER_POINT_BUFFER_SIZE = RENDERER_POINT_SIZE * MaxPointVertices;
+        static const u32 MaxQuadVerts = 4;
+        static const u32 MaxLineVerts = 2;
 
-        static const uint32_t MaxLines                  = 10000;
-        static const uint32_t MaxLineVertices           = MaxLines * 2;
-        static const uint32_t MaxLineIndices            = MaxLines * 6;
-        static const uint32_t RENDERER_LINE_SIZE        = sizeof(Razix::Gfx::LineVertexData) * 4;
-        static const uint32_t RENDERER_LINE_BUFFER_SIZE = RENDERER_LINE_SIZE * MaxLineVertices;
+        static const u32 MaxPoints                     = 10000;
+        static const u32 MaxPointVertices              = MaxPoints * MaxQuadVerts;    // 4 vertices per quad
+        static const u32 MaxPointIndices               = MaxPoints * 6;               // 6 indices per quad
+        static const u32 PointPositionDataSize         = sizeof(glm::vec4);
+        static const u32 PointColorDataSize            = sizeof(glm::vec4);
+        static const u32 PointPositionVertexBufferSize = PointPositionDataSize * MaxPointVertices;
+        static const u32 PointColorVertexBufferSize    = PointColorDataSize * MaxPointVertices;
+
+        static const uint32_t MaxLines                     = 10000;
+        static const uint32_t MaxLineVertices              = MaxLines * MaxLineVerts;    // 2 vertices per line
+        static const uint32_t MaxLineIndices               = MaxLines * 2;               // 6 indices per quad since we draw a line as a very thin quad
+        static const u32      LinePositionDataSize         = sizeof(glm::vec4);
+        static const u32      LineColorDataSize            = sizeof(glm::vec4);
+        static const u32      LinePositionVertexBufferSize = LinePositionDataSize * MaxLineVertices;
+        static const u32      LineColorVertexBufferSize    = LineColorDataSize * MaxLineVertices;
 
         //---------------------------------------------------------------------------------------------------------------
         void RZDebugRendererProxy::Init()
         {
-            m_PointShader                       = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugPoint);
-            Gfx::RZPipelineDesc pipelineInfo    = {};
-            pipelineInfo.name                   = "Pipeline.DebugRender::Points(DT)";
-            pipelineInfo.cullMode               = Gfx::CullMode::None;
-            pipelineInfo.depthBiasEnabled       = false;
-            pipelineInfo.drawType               = Gfx::DrawType::Triangle;
-            pipelineInfo.shader                 = m_PointShader;
-            pipelineInfo.transparencyEnabled    = true;
-            pipelineInfo.colorAttachmentFormats = {Gfx::TextureFormat::RGBA16F};
-            pipelineInfo.depthFormat            = Gfx::TextureFormat::DEPTH32F;
-            pipelineInfo.depthTestEnabled       = true;
-            pipelineInfo.depthWriteEnabled      = true;
-            pipelineInfo.depthOp                = CompareOp::LessOrEqual;
-            // Points Pipeline
-            m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
-
-            // Change the polygon mode for drawing lines
-            m_LineShader             = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugLine);
-            pipelineInfo.name        = "Pipeline.DebugRenderer::Lines(DT)";
-            pipelineInfo.shader      = m_LineShader;
-            pipelineInfo.cullMode    = CullMode::None;
-            pipelineInfo.polygonMode = PolygonMode::Fill;
-            pipelineInfo.drawType    = DrawType::Line;
-            // Line Pipeline
-            m_LinePipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
+            createPipelines();
 
             // Create the VBOs and IBOs
             // Points - Create a large enough to hold a large amount of points
-
-            RZBufferDesc pointVBDesc = {};
-            pointVBDesc.name         = "VB_Points";
-            pointVBDesc.usage        = BufferUsage::PersistentStream;
-            pointVBDesc.size         = RENDERER_POINT_BUFFER_SIZE;
-            pointVBDesc.data         = nullptr;
-            m_PointVBO               = RZResourceManager::Get().createVertexBuffer(pointVBDesc);
-
-            RZBufferDesc lineVBDesc = {};
-            lineVBDesc.name         = "VB_Lines";
-            lineVBDesc.usage        = BufferUsage::PersistentStream;
-            lineVBDesc.size         = RENDERER_LINE_BUFFER_SIZE;
-            lineVBDesc.data         = nullptr;
-            m_LineVBO               = RZResourceManager::Get().createVertexBuffer(lineVBDesc);
-
-            u32* indices = new u32[MaxPointIndices];
-            u32  offset  = 0;
-            for (u32 i = 0; i < MaxPointIndices; i += 6) {
-                indices[i]     = offset + 0;
-                indices[i + 1] = offset + 1;
-                indices[i + 2] = offset + 2;
-
-                indices[i + 3] = offset + 2;
-                indices[i + 4] = offset + 3;
-                indices[i + 5] = offset + 0;
-
-                offset += 4;
-            }
-
-            RZBufferDesc pointIBDesc = {};
-            pointIBDesc.name         = "IB_Points";
-            pointIBDesc.usage        = BufferUsage::Static;
-            pointIBDesc.count        = MaxPointIndices;
-            pointIBDesc.data         = indices;
-            m_PointIBO               = RZResourceManager::Get().createIndexBuffer(pointIBDesc);
-
-            delete[] indices;
-
-            u32* line_indices = new u32[MaxLineIndices];
-
-            for (uint32_t i = 0; i < MaxLineIndices; i++) {
-                line_indices[i] = i;
-            }
-
-            RZBufferDesc lineIBDesc = {};
-            lineIBDesc.name         = "IB_Lines";
-            lineIBDesc.usage        = BufferUsage::Static;
-            lineIBDesc.count        = MaxLineIndices;
-            lineIBDesc.data         = line_indices;
-            m_LineIBO               = RZResourceManager::Get().createIndexBuffer(lineIBDesc);
-
-            delete[] line_indices;
+            createPointBufferResources();
+            createLineBufferResources();
         }
 
         void RZDebugRendererProxy::Begin(RZScene* scene)
@@ -140,73 +73,81 @@ namespace Razix {
             // POINTS
             {
                 // Prepare the points VBO and IBO and update them
-                auto pointVBResource = RZResourceManager::Get().getVertexBufferResource(m_PointVBO);
-                auto pointIBResource = RZResourceManager::Get().getIndexBufferResource(m_PointIBO);
 
-                pointVBResource->Bind(cmdBuffer);
+                auto pointPositionVBResource = RZResourceManager::Get().getVertexBufferResource(m_PointPosition_VB);
+                auto pointColorVBResource    = RZResourceManager::Get().getVertexBufferResource(m_PointColor_VB);
 
                 // Map the VBO
-                pointVBResource->Map(RENDERER_POINT_SIZE * static_cast<u32>(m_DrawList.m_DebugPoints.size()));
-                PointVertexData* pointsVertexData = (PointVertexData*) pointVBResource->GetMappedBuffer();
+                pointPositionVBResource->Map(PointPositionDataSize * static_cast<u32>(m_DrawList.m_DebugPoints.size()) * MaxQuadVerts);
+                glm::vec3* pointsVertexData = (glm::vec3*) pointPositionVBResource->GetMappedBuffer();
 
+                pointColorVBResource->Map(PointColorDataSize * static_cast<u32>(m_DrawList.m_DebugPoints.size()) * MaxQuadVerts);
+                glm::vec3* pointsColorData = (glm::vec3*) pointColorVBResource->GetMappedBuffer();
+
+                u32 pointIdx = 0;
                 for (auto& point: m_DrawList.m_DebugPoints) {
                     glm::vec3 right = point.size * sceneCamera.getRight();
                     glm::vec3 up    = point.size * sceneCamera.getUp();
 
-                    pointsVertexData->vertex = glm::vec4(point.p1 - right - up, 1.0f);    // + glm::vec3(-point.size, -point.size, 0.0f));
-                    pointsVertexData->colour = point.col;
-                    pointsVertexData->size   = {point.size, 0.0f};
-                    pointsVertexData->uv     = {-1.0f, -1.0f};
-                    pointsVertexData++;
+                    // Define the four corners of the quad
+                    glm::vec4 quadPositions[4] = {
+                        glm::vec4(point.p1 - right - up, 1.0f),    // Bottom-left
+                        glm::vec4(point.p1 + right - up, 1.0f),    // Bottom-right
+                        glm::vec4(point.p1 + right + up, 1.0f),    // Top-right
+                        glm::vec4(point.p1 - right + up, 1.0f)     // Top-left
+                    };
 
-                    pointsVertexData->vertex = glm::vec4(point.p1 + right - up, 1.0f);    //(point.p1 + glm::vec3(point.size, -point.size, 0.0f));
-                    pointsVertexData->colour = point.col;
-                    pointsVertexData->size   = {point.size, 0.0f};
-                    pointsVertexData->uv     = {1.0f, -1.0f};
-                    pointsVertexData++;
+                    glm::vec2 quadUVs[4] = {
+                        {-1.0f, -1.0f},
+                        {1.0f, -1.0f},
+                        {1.0f, 1.0f},
+                        {-1.0f, 1.0f}};
 
-                    pointsVertexData->vertex = glm::vec4(point.p1 + right + up, 1.0f);    //(point.p1 + glm::vec3(point.size, point.size, 0.0f));
-                    pointsVertexData->colour = point.col;
-                    pointsVertexData->size   = {point.size, 0.0f};
-                    pointsVertexData->uv     = {1.0f, 1.0f};
-                    pointsVertexData++;
+                    for (int i = 0; i < 4; i++) {
+                        pointsVertexData[pointIdx] = quadPositions[i];
+                        pointsColorData[pointIdx]  = point.col;
+                        pointIdx++;
+                    }
 
-                    pointsVertexData->vertex = glm::vec4(point.p1 - right + up, 1.0f);    // (point.p1 + glm::vec3(-point.size, point.size, 0.0f));
-                    pointsVertexData->colour = point.col;
-                    pointsVertexData->size   = {point.size, 0.0f};
-                    pointsVertexData->uv     = {-1.0f, 1.0f};
-                    pointsVertexData++;
-
-                    m_PointIndexCount += 6;
+                    m_PointIndexCount += 6;    // For quad rendering
                 }
 
-                pointVBResource->UnMap();
+                pointPositionVBResource->UnMap();
+                pointColorVBResource->UnMap();
+
+                auto pointIBResource = RZResourceManager::Get().getIndexBufferResource(m_PointIB);
                 pointIBResource->setCount(m_PointIndexCount);
             }
 
             // LINES
             {
-                auto lineVBResource = RZResourceManager::Get().getVertexBufferResource(m_LineVBO);
-                auto lineIBResource = RZResourceManager::Get().getIndexBufferResource(m_LineIBO);
+                auto linePositionVBResource = RZResourceManager::Get().getVertexBufferResource(m_LinePosition_VB);
+                auto lineColorVBResource    = RZResourceManager::Get().getVertexBufferResource(m_LineColor_VB);
 
-                lineVBResource->Bind(cmdBuffer);
+                // Map the VBOs
+                linePositionVBResource->Map(LinePositionDataSize * static_cast<u32>(m_DrawList.m_DebugLines.size()) * MaxLineVertices);
+                glm::vec4* linePositionData = static_cast<glm::vec4*>(linePositionVBResource->GetMappedBuffer());
 
-                lineVBResource->Map(RENDERER_LINE_SIZE * static_cast<u32>(m_DrawList.m_DebugLines.size()));
-                LineVertexData* lineVtxData = (LineVertexData*) lineVBResource->GetMappedBuffer();
+                lineColorVBResource->Map(LineColorDataSize * static_cast<u32>(m_DrawList.m_DebugLines.size()) * MaxLineVertices);
+                glm::vec4* lineColorData = static_cast<glm::vec4*>(lineColorVBResource->GetMappedBuffer());
 
+                u32 lineIdx = 0;
                 for (auto& line: m_DrawList.m_DebugLines) {
-                    lineVtxData->vertex = glm::vec4(line.p1, 1.0f);
-                    lineVtxData->colour = line.col;
-                    lineVtxData++;
+                    linePositionData[lineIdx] = glm::vec4(line.p1, 1.0f);
+                    lineColorData[lineIdx]    = line.col;
+                    lineIdx++;
 
-                    lineVtxData->vertex = glm::vec4(line.p2, 1.0f);
-                    lineVtxData->colour = line.col;
-                    lineVtxData++;
+                    linePositionData[lineIdx] = glm::vec4(line.p2, 1.0f);
+                    lineColorData[lineIdx]    = line.col;
+                    lineIdx++;
 
                     m_LineIndexCount += 2;
                 }
 
-                lineVBResource->UnMap();
+                linePositionVBResource->UnMap();
+                lineColorVBResource->UnMap();
+
+                auto lineIBResource = RZResourceManager::Get().getIndexBufferResource(m_LineIB);
                 lineIBResource->setCount(m_LineIndexCount);
             }
         }
@@ -217,14 +158,17 @@ namespace Razix {
 
             // Points
             {
-                RHI::BindPipeline(m_Pipeline, cmdBuffer);
+                RHI::BindPipeline(m_PointPipeline, cmdBuffer);
 
-                Gfx::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
+                Gfx::RHI::BindDescriptorSet(m_PointPipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
 
-                auto pointVBResource = RZResourceManager::Get().getVertexBufferResource(m_PointVBO);
-                auto pointIBResource = RZResourceManager::Get().getIndexBufferResource(m_PointIBO);
+                auto pointPositionVBResource = RZResourceManager::Get().getVertexBufferResource(m_PointPosition_VB);
+                auto pointColorVBResource    = RZResourceManager::Get().getVertexBufferResource(m_PointColor_VB);
 
-                pointVBResource->Bind(cmdBuffer);
+                auto pointIBResource = RZResourceManager::Get().getIndexBufferResource(m_PointIB);
+
+                pointPositionVBResource->Bind(cmdBuffer, 0);
+                pointColorVBResource->Bind(cmdBuffer, 1);
                 pointIBResource->Bind(cmdBuffer);
 
                 RHI::DrawIndexed(cmdBuffer, m_PointIndexCount);
@@ -234,12 +178,14 @@ namespace Razix {
             {
                 RHI::BindPipeline(m_LinePipeline, cmdBuffer);
 
-                Gfx::RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
+                Gfx::RHI::BindDescriptorSet(m_LinePipeline, cmdBuffer, RHI::Get().getFrameDataSet(), BindingTable_System::SET_IDX_FRAME_DATA);
 
-                auto lineVBResource = RZResourceManager::Get().getVertexBufferResource(m_LineVBO);
-                auto lineIBResource = RZResourceManager::Get().getIndexBufferResource(m_LineIBO);
+                auto linePositionVBResource = RZResourceManager::Get().getVertexBufferResource(m_LinePosition_VB);
+                auto lineColorVBResource    = RZResourceManager::Get().getVertexBufferResource(m_LineColor_VB);
+                auto lineIBResource         = RZResourceManager::Get().getIndexBufferResource(m_LineIB);
 
-                lineVBResource->Bind(cmdBuffer);
+                linePositionVBResource->Bind(cmdBuffer, 0);
+                lineColorVBResource->Bind(cmdBuffer, 1);
                 lineIBResource->Bind(cmdBuffer);
 
                 RHI::DrawIndexed(cmdBuffer, m_LineIndexCount);
@@ -264,124 +210,199 @@ namespace Razix {
         void RZDebugRendererProxy::Destroy()
         {
             RZResourceManager::Get().destroyPipeline(m_LinePipeline);
-            RZResourceManager::Get().destroyPipeline(m_Pipeline);
-
-            RZResourceManager::Get().destroyIndexBuffer(m_PointIBO);
-            RZResourceManager::Get().destroyVertexBuffer(m_PointVBO);
-            RZResourceManager::Get().destroyIndexBuffer(m_LineIBO);
-            RZResourceManager::Get().destroyVertexBuffer(m_LineVBO);
+            RZResourceManager::Get().destroyPipeline(m_PointPipeline);
 
             RZResourceManager::Get().destroyShader(m_PointShader);
             RZResourceManager::Get().destroyShader(m_LineShader);
+
+            RZResourceManager::Get().destroyIndexBuffer(m_LineIB);
+            RZResourceManager::Get().destroyVertexBuffer(m_LinePosition_VB);
+            RZResourceManager::Get().destroyVertexBuffer(m_LineColor_VB);
+
+            RZResourceManager::Get().destroyIndexBuffer(m_PointIB);
+            RZResourceManager::Get().destroyVertexBuffer(m_PointPosition_VB);
+            RZResourceManager::Get().destroyVertexBuffer(m_PointColor_VB);
         }
 
         //---------------------------------------------------------------------------------------------------------------
-        //Draw Point (circle)
-        void RZDebugRendererProxy::GenDrawPoint(bool dt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
+
+        void RZDebugRendererProxy::createPipelines()
         {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+            m_PointShader                       = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugPoint);
+            Gfx::RZPipelineDesc pipelineInfo    = {};
+            pipelineInfo.name                   = "Pipeline.DebugRender::Points(DT)";
+            pipelineInfo.cullMode               = Gfx::CullMode::None;
+            pipelineInfo.depthBiasEnabled       = false;
+            pipelineInfo.drawType               = Gfx::DrawType::Triangle;
+            pipelineInfo.shader                 = m_PointShader;
+            pipelineInfo.transparencyEnabled    = true;
+            pipelineInfo.colorAttachmentFormats = {Gfx::TextureFormat::RGBA16F};
+            pipelineInfo.depthFormat            = Gfx::TextureFormat::DEPTH32F;
+            pipelineInfo.depthTestEnabled       = true;
+            pipelineInfo.depthWriteEnabled      = true;
+            pipelineInfo.depthOp                = CompareOp::LessOrEqual;
+            // Points Pipeline
+            m_PointPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            if (dt)
-                RZDebugRendererProxy::Get().m_DrawListNDT.m_DebugPoints.emplace_back(pos, point_radius, colour);
-            else
-                RZDebugRendererProxy::Get().m_DrawList.m_DebugPoints.emplace_back(pos, point_radius, colour);
+            // Change the polygon mode for drawing lines
+            m_LineShader             = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DebugLine);
+            pipelineInfo.name        = "Pipeline.DebugRenderer::Lines(DT)";
+            pipelineInfo.shader      = m_LineShader;
+            pipelineInfo.cullMode    = CullMode::None;
+            pipelineInfo.polygonMode = PolygonMode::Fill;
+            pipelineInfo.drawType    = DrawType::Line;
+            // Line Pipeline
+            m_LinePipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
         }
+
+        void RZDebugRendererProxy::createPointBufferResources()
+        {
+            RZBufferDesc pointVBDesc = {};
+            pointVBDesc.data         = nullptr;
+            pointVBDesc.usage        = BufferUsage::PersistentStream;
+
+            pointVBDesc.name   = "VB_Points::Positions";
+            pointVBDesc.size   = PointPositionVertexBufferSize;
+            m_PointPosition_VB = RZResourceManager::Get().createVertexBuffer(pointVBDesc);
+
+            pointVBDesc.name = "VB_Points::Colors";
+            pointVBDesc.size = PointColorVertexBufferSize;
+            m_PointColor_VB  = RZResourceManager::Get().createVertexBuffer(pointVBDesc);
+
+            //----------------------------------------
+
+            u32* indices = (u32*) Razix::Memory::RZMalloc(MaxPointIndices * sizeof(u32));
+            u32  offset  = 0;
+            for (u32 i = 0; i < MaxPointIndices; i += 6) {
+                indices[i]     = offset + 0;
+                indices[i + 1] = offset + 1;
+                indices[i + 2] = offset + 2;
+
+                indices[i + 3] = offset + 2;
+                indices[i + 4] = offset + 3;
+                indices[i + 5] = offset + 0;
+
+                offset += 4;
+            }
+
+            RZBufferDesc pointIBDesc = {};
+            pointIBDesc.name         = "IB_Points";
+            pointIBDesc.usage        = BufferUsage::Static;
+            pointIBDesc.count        = MaxPointIndices;
+            pointIBDesc.data         = indices;
+            m_PointIB                = RZResourceManager::Get().createIndexBuffer(pointIBDesc);
+
+            Razix::Memory::RZFree(indices);
+        }
+
+        void RZDebugRendererProxy::createLineBufferResources()
+        {
+            RZBufferDesc lineVBDesc = {};
+            lineVBDesc.usage        = BufferUsage::PersistentStream;
+            lineVBDesc.data         = nullptr;
+
+            lineVBDesc.name   = "VB_Lines::Positions";
+            lineVBDesc.size   = LinePositionVertexBufferSize;
+            m_LinePosition_VB = RZResourceManager::Get().createVertexBuffer(lineVBDesc);
+
+            lineVBDesc.name = "VB_Lines::Colors";
+            lineVBDesc.size = LinePositionVertexBufferSize;
+            m_LineColor_VB  = RZResourceManager::Get().createVertexBuffer(lineVBDesc);
+
+            //----------------------------------------
+
+            u32* line_indices = (u32*) Razix::Memory::RZMalloc(MaxLineIndices * sizeof(u32));
+
+            for (uint32_t i = 0; i < MaxLineIndices; i++) {
+                line_indices[i] = i;
+            }
+
+            RZBufferDesc lineIBDesc = {};
+            lineIBDesc.name         = "IB_Lines";
+            lineIBDesc.usage        = BufferUsage::Static;
+            lineIBDesc.count        = MaxLineIndices;
+            lineIBDesc.data         = line_indices;
+            m_LineIB                = RZResourceManager::Get().createIndexBuffer(lineIBDesc);
+
+            Memory::RZFree(line_indices);
+        }
+
         //---------------------------------------------------------------------------------------------------------------
+        // Public API
+
         void RZDebugRendererProxy::DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            GenDrawPoint(false, pos, point_radius, glm::vec4(colour, 1.0f));
+            PopulatePointsDrawList(false, pos, point_radius, glm::vec4(colour, 1.0f));
         }
         void RZDebugRendererProxy::DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            GenDrawPoint(false, pos, point_radius, colour);
+            PopulatePointsDrawList(false, pos, point_radius, colour);
         }
         void RZDebugRendererProxy::DrawPointDT(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            GenDrawPoint(true, pos, point_radius, glm::vec4(colour, 1.0f));
+            PopulatePointsDrawList(true, pos, point_radius, glm::vec4(colour, 1.0f));
         }
         void RZDebugRendererProxy::DrawPointDT(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            GenDrawPoint(true, pos, point_radius, colour);
+            PopulatePointsDrawList(true, pos, point_radius, colour);
         }
 
-        //---------------------------------------------------------------------------------------------------------------
-
-        //Draw Line with a given thickness
-        void RZDebugRendererProxy::GenDrawThickLine(bool DT, const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            if (DT)
-                RZDebugRendererProxy::Get().m_DrawListNDT.m_DebugThickLines.emplace_back(start, end, colour);
-            else
-                RZDebugRendererProxy::Get().m_DrawList.m_DebugThickLines.emplace_back(start, end, colour);
-        }
         void RZDebugRendererProxy::DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            GenDrawThickLine(false, start, end, line_width, glm::vec4(colour, 1.0f));
+            PopulateThickLinesDrawList(false, start, end, line_width, glm::vec4(colour, 1.0f));
         }
         void RZDebugRendererProxy::DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            GenDrawThickLine(false, start, end, line_width, colour);
+            PopulateThickLinesDrawList(false, start, end, line_width, colour);
         }
         void RZDebugRendererProxy::DrawThickLineDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            GenDrawThickLine(true, start, end, line_width, glm::vec4(colour, 1.0f));
+            PopulateThickLinesDrawList(true, start, end, line_width, glm::vec4(colour, 1.0f));
         }
         void RZDebugRendererProxy::DrawThickLineDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            GenDrawThickLine(true, start, end, line_width, colour);
+            PopulateThickLinesDrawList(true, start, end, line_width, colour);
         }
 
-        //Draw line with thickness of 1 screen pixel regardless of distance from camera
-        void RZDebugRendererProxy::GenDrawLine(bool dt, const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            if (dt)
-                RZDebugRendererProxy::Get().m_DrawListNDT.m_DebugLines.emplace_back(start, end, colour);
-            else
-                RZDebugRendererProxy::Get().m_DrawList.m_DebugLines.emplace_back(start, end, colour);
-        }
         void RZDebugRendererProxy::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            GenDrawLine(false, start, end, glm::vec4(colour, 1.0f));
+            PopulateLinesDrawList(false, start, end, glm::vec4(colour, 1.0f));
         }
         void RZDebugRendererProxy::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            GenDrawLine(false, start, end, colour);
+            PopulateLinesDrawList(false, start, end, colour);
         }
         void RZDebugRendererProxy::DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            GenDrawLine(true, start, end, glm::vec4(colour, 1.0f));
+            PopulateLinesDrawList(true, start, end, glm::vec4(colour, 1.0f));
         }
         void RZDebugRendererProxy::DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            GenDrawLine(true, start, end, colour);
+            PopulateLinesDrawList(true, start, end, colour);
         }
 
         void RZDebugRendererProxy::DrawAABB(const Maths::AABB& box, const glm::vec4& edgeColour, bool cornersOnly /*= false*/, f32 width /*= 0.02f*/)
@@ -639,5 +660,38 @@ namespace Razix {
                 //DrawPoint(endPoint,0.1f, colour);
             }
         }
+
+        //---------------------------------------------------------------------------------------------------------------
+        // Populate DrawList functions
+        void RZDebugRendererProxy::PopulateLinesDrawList(bool dt, const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (dt)
+                RZDebugRendererProxy::Get().m_DrawListNDT.m_DebugLines.emplace_back(start, end, colour);
+            else
+                RZDebugRendererProxy::Get().m_DrawList.m_DebugLines.emplace_back(start, end, colour);
+        }
+
+        void RZDebugRendererProxy::PopulatePointsDrawList(bool dt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (dt)
+                RZDebugRendererProxy::Get().m_DrawListNDT.m_DebugPoints.emplace_back(pos, point_radius, colour);
+            else
+                RZDebugRendererProxy::Get().m_DrawList.m_DebugPoints.emplace_back(pos, point_radius, colour);
+        }
+
+        void RZDebugRendererProxy::PopulateThickLinesDrawList(bool DT, const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (DT)
+                RZDebugRendererProxy::Get().m_DrawListNDT.m_DebugThickLines.emplace_back(start, end, colour);
+            else
+                RZDebugRendererProxy::Get().m_DrawList.m_DebugThickLines.emplace_back(start, end, colour);
+        }
+
     }    // namespace Gfx
 }    // namespace Razix

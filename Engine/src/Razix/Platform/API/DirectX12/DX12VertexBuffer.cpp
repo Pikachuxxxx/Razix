@@ -55,12 +55,12 @@ namespace Razix {
             D3D_SAFE_RELEASE(m_VertexBufferResource);
         }
 
-        void DX12VertexBuffer::Bind(RZDrawCommandBufferHandle cmdBuffer)
+        void DX12VertexBuffer::Bind(RZDrawCommandBufferHandle cmdBuffer, uint32_t binding)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             auto commandListD3D = (ID3D12GraphicsCommandList2*) Gfx::RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer)->getAPIBuffer();
-            commandListD3D->IASetVertexBuffers(0, 1, &m_VertexBufferView);
+            commandListD3D->IASetVertexBuffers(binding, 1, &m_VertexBufferView);
         }
 
         void DX12VertexBuffer::Flush()

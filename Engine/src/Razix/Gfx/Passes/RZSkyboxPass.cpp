@@ -51,7 +51,7 @@ namespace Razix {
             pipelineInfo.colorAttachmentFormats = {Gfx::TextureFormat::RGBA16F};
             pipelineInfo.depthFormat            = Gfx::TextureFormat::DEPTH32F;
             pipelineInfo.depthTestEnabled       = true;
-            pipelineInfo.depthWriteEnabled      = true;
+            pipelineInfo.depthWriteEnabled      = false;
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
 
@@ -90,8 +90,8 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
+                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
                     info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);

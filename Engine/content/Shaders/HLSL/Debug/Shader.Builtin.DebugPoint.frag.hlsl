@@ -7,8 +7,7 @@
 struct VSInput
 {
     float4 Color: COLOR;
-    float2 Size:TEXCOORD0;
-    float2 UV: TEXCOORD1;
+    float2 UV: TEXCOORD0;
 };
 //------------------------------------------------------------------------------
 

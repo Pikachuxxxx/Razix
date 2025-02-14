@@ -47,31 +47,7 @@ namespace Razix {
                 col  = colour;
             }
         };
-
-        struct LineVertexData
-        {
-            glm::vec4 vertex;
-            glm::vec4 colour;
-
-            bool operator==(const LineVertexData& other) const
-            {
-                return vertex == other.vertex && colour == other.colour;
-            }
-        };
-
-        struct PointVertexData
-        {
-            glm::vec4 vertex;
-            glm::vec4 colour;
-            glm::vec2 uv;
-            glm::vec2 size;
-
-            bool operator==(const PointVertexData& other) const
-            {
-                return vertex == other.vertex && colour == other.colour && size == other.size && uv == other.uv;
-            }
-        };
-
+   
         /**
          * Draws debug geometry in the scene to help with visualization and debugging
          * 
@@ -94,6 +70,7 @@ namespace Razix {
             void Destroy() override;
 
             //-------------------------------------------------------------
+            // Debug Draw Public API
 
             //Draw Point (very small circle)
             static void DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour);
@@ -128,14 +105,13 @@ namespace Razix {
             static void DrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec4& colour);
             static void DrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const glm::vec3& position, const glm::vec3& rotation, const glm::vec4& colour);
 
-        protected:
+        private:
             //Actual functions managing data parsing to save code bloat - called by public functions
-            static void GenDrawPoint(bool dt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour);
-            static void GenDrawThickLine(bool dt, const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour);
-            static void GenDrawLine(bool dt, const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour);
+            static void PopulatePointsDrawList(bool dt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour);
+            static void PopulateThickLinesDrawList(bool dt, const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour);
+            static void PopulateLinesDrawList(bool dt, const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour);
 
         private:
-
             struct DebugDrawList
             {
                 std::vector<Line>  m_DebugLines;
@@ -146,15 +122,25 @@ namespace Razix {
             DebugDrawList m_DrawList;
             DebugDrawList m_DrawListNDT;
 
-            u32                  m_PointIndexCount = 0;
+            RZPipelineHandle m_LinePipeline  = {};
+            RZPipelineHandle m_PointPipeline = {};
+            RZShaderHandle   m_LineShader    = {};
+            RZShaderHandle   m_PointShader   = {};
+
             u32                  m_LineIndexCount  = 0;
-            RZPipelineHandle     m_LinePipeline    = {};
-            RZIndexBufferHandle  m_PointIBO        = {};
-            RZVertexBufferHandle m_PointVBO        = {};
-            RZIndexBufferHandle  m_LineIBO         = {};
-            RZVertexBufferHandle m_LineVBO         = {};
-            RZShaderHandle       m_LineShader      = {};
-            RZShaderHandle       m_PointShader     = {};
+            RZIndexBufferHandle  m_LineIB         = {};
+            RZVertexBufferHandle m_LinePosition_VB = {};
+            RZVertexBufferHandle m_LineColor_VB    = {};
+
+            u32                  m_PointIndexCount  = 0;
+            RZIndexBufferHandle  m_PointIB         = {};
+            RZVertexBufferHandle m_PointPosition_VB = {};
+            RZVertexBufferHandle m_PointColor_VB    = {};
+
+        private:
+            void createPipelines();
+            void createPointBufferResources();
+            void createLineBufferResources();
         };
     }    // namespace Gfx
 }    // namespace Razix

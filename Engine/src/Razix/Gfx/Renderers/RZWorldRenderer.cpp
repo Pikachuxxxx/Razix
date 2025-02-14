@@ -59,7 +59,7 @@ namespace Razix {
             localtime_r(&now_c, &local_tm);
 #endif
             std::ostringstream timestamp;
-            timestamp << std::put_time(&local_tm, "%Y_%m_%d_%H_%M_%S");
+            timestamp << std::put_time(&local_tm, "%Y_%m_%d_%H_%M");
 
             std::string outPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/FrameGraphs", outPath, true);
@@ -72,6 +72,8 @@ namespace Razix {
             std::ofstream os(filename);
             os << framegraph;
         }
+
+        //-------------------------------------------------------------------------------------------
 
         /**
          * Notes:
@@ -420,7 +422,7 @@ namespace Razix {
             m_CompositePass.addPass(m_FrameGraph, scene, &settings);
 
             // Compile the Frame Graph
-            RAZIX_CORE_INFO("Compiling FrameGraph ....");
+            RAZIX_CORE_INFO("Compiling FrameGraph....");
             m_FrameGraph.compile();
 
             // Dump the Frame Graph for visualization
