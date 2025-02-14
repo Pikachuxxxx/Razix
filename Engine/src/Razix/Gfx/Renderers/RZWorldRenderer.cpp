@@ -195,7 +195,7 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
 
                     // Origin point
-                    RZDebugRendererProxy::DrawPoint(glm::vec3(0.0f), 0.25f);
+                    //RZDebugRendererProxy::DrawPoint(glm::vec3(0.0f), 0.25f);
 
                     // X, Y, Z lines
                     RZDebugRendererProxy::DrawLine(glm::vec3(-100.0f, 0.0f, 0.0f), glm::vec3(100.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
@@ -254,8 +254,8 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
-                    info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
+                    info.colorAttachments = {{rt, {true, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {dt, {true, ClearColorPresets::DepthOneToZero}};
                     info.resize           = true;
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
