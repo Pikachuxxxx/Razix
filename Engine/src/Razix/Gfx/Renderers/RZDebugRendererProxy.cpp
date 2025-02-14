@@ -197,11 +197,13 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             m_DrawList.m_DebugPoints.clear();
-            m_DrawListNDT.m_DebugPoints.clear();
+            m_DrawList.m_DebugLines.clear();
+            m_DrawList.m_DebugThickLines.clear();
             m_PointIndexCount = 0;
 
-            m_DrawList.m_DebugLines.clear();
+            m_DrawListNDT.m_DebugPoints.clear();
             m_DrawListNDT.m_DebugLines.clear();
+            m_DrawListNDT.m_DebugThickLines.clear();
             m_LineIndexCount = 0;
 
             RAZIX_MARK_END();
