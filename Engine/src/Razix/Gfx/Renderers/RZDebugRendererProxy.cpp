@@ -68,8 +68,6 @@ namespace Razix {
 
             RAZIX_MARK_BEGIN("Debug Renderer Pass", glm::vec4(0.0f, 0.85f, 0.0f, 1.0f));
 
-            auto cmdBuffer = RHI::GetCurrentCommandBuffer();
-
             // POINTS
             {
                 // Prepare the points VBO and IBO and update them
@@ -96,12 +94,6 @@ namespace Razix {
                         glm::vec4(point.p1 + right + up, 1.0f),    // Top-right
                         glm::vec4(point.p1 - right + up, 1.0f)     // Top-left
                     };
-
-                    glm::vec2 quadUVs[4] = {
-                        {-1.0f, -1.0f},
-                        {1.0f, -1.0f},
-                        {1.0f, 1.0f},
-                        {-1.0f, 1.0f}};
 
                     for (int i = 0; i < 4; i++) {
                         pointsVertexData[pointIdx] = quadPositions[i];
@@ -213,10 +205,7 @@ namespace Razix {
         {
             RZResourceManager::Get().destroyPipeline(m_LinePipeline);
             RZResourceManager::Get().destroyPipeline(m_PointPipeline);
-
-            RZResourceManager::Get().destroyShader(m_PointShader);
-            RZResourceManager::Get().destroyShader(m_LineShader);
-
+            
             RZResourceManager::Get().destroyIndexBuffer(m_LineIB);
             RZResourceManager::Get().destroyVertexBuffer(m_LinePosition_VB);
             RZResourceManager::Get().destroyVertexBuffer(m_LineColor_VB);
@@ -308,7 +297,7 @@ namespace Razix {
             m_LinePosition_VB = RZResourceManager::Get().createVertexBuffer(lineVBDesc);
 
             lineVBDesc.name = "VB_Lines::Colors";
-            lineVBDesc.size = LinePositionVertexBufferSize;
+            lineVBDesc.size = LineColorVertexBufferSize;
             m_LineColor_VB  = RZResourceManager::Get().createVertexBuffer(lineVBDesc);
 
             //----------------------------------------
@@ -694,6 +683,5 @@ namespace Razix {
             else
                 RZDebugRendererProxy::Get().m_DrawList.m_DebugThickLines.emplace_back(start, end, colour);
         }
-
     }    // namespace Gfx
 }    // namespace Razix

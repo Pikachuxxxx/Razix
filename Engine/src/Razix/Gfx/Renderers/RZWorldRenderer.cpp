@@ -207,10 +207,6 @@ namespace Razix {
 
                     // Draw all lights in the scene
                     auto lights = scene->GetComponentsOfType<LightComponent>();
-                    for (auto& lightComponent: lights) {
-                        RZDebugRendererProxy::DrawLight(&lights[0].light, glm::vec4(0.8f, 0.65f, 0.0f, 1.0f));
-                    }
-
                     // Draw predefined light matrix
                     // Use the first directional light and currently only one Dir Light casts shadows, multiple just won't do anything in the scene not even light contribution
                     RZLight dir_light;
@@ -269,8 +265,6 @@ namespace Razix {
                     RZDebugRendererProxy::Get().End();
                     RAZIX_TIME_STAMP_END();
                 });
-
-            SceneData& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
 
