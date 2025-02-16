@@ -265,6 +265,51 @@ namespace Razix {
                     RZDebugRendererProxy::Get().End();
                     RAZIX_TIME_STAMP_END();
                 });
+            
+            auto sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
+            
+            //-------------------------------
+            // ImGui Pass
+            //-------------------------------
+            m_FrameGraph.addCallbackPass(
+                "Pass.Builtin.Code.ImGui",
+                [&](auto&, FrameGraph::RZPassResourceBuilder& builder) {
+                    builder.setAsStandAlonePass();
+
+                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
+                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
+
+                    m_ImGuiRenderer.Init();
+                },
+                [&](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                    RAZIX_TIME_STAMP_BEGIN("ImGui Pass");
+
+                    m_ImGuiRenderer.Begin(scene);
+
+                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
+                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
+
+                    //auto sceneHDR   = m_FrameGraph.getBlackboard().getID("SceneHDR");
+                    //auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
+
+                    RenderingInfo info{};
+                    info.resolution       = Resolution::kWindow;
+                    info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
+                    info.resize           = true;
+
+                    RHI::BeginRendering(Gfx::RHI::GetCurrentCommandBuffer(), info);
+
+                    if (settings.renderFeatures & RendererFeature_ImGui)
+                        m_ImGuiRenderer.Draw(Gfx::RHI::GetCurrentCommandBuffer());
+
+                    m_ImGuiRenderer.End();
+                    RAZIX_TIME_STAMP_END();
+                });
+
+            sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
 
@@ -362,51 +407,7 @@ namespace Razix {
              * Workaround: have unique resources names
              */
 
-            //-------------------------------
-            // ImGui Pass
-            //-------------------------------
-            m_FrameGraph.addCallbackPass(
-                "Pass.Builtin.Code.ImGui",
-                [&](auto&, FrameGraph::RZPassResourceBuilder& builder) {
-                    builder.setAsStandAlonePass();
-
-                    builder.read(sceneData.sceneHDR);
-                    builder.read(sceneData.sceneDepth);
-
-                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
-                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
-
-                    m_ImGuiRenderer.Init();
-                },
-                [&](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
-                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-                    RAZIX_TIME_STAMP_BEGIN("ImGui Pass");
-
-                    m_ImGuiRenderer.Begin(scene);
-
-                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
-                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
-
-                    //auto sceneHDR   = m_FrameGraph.getBlackboard().getID("SceneHDR");
-                    //auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
-
-                    RenderingInfo info{};
-                    info.resolution       = Resolution::kWindow;
-                    info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
-                    info.resize           = true;
-
-                    RHI::BeginRendering(Gfx::RHI::GetCurrentCommandBuffer(), info);
-
-                    if (settings.renderFeatures & RendererFeature_ImGui)
-                        m_ImGuiRenderer.Draw(Gfx::RHI::GetCurrentCommandBuffer());
-
-                    m_ImGuiRenderer.End();
-                    RAZIX_TIME_STAMP_END();
-                });
-
-            sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
+            
 #endif
 
             //-------------------------------

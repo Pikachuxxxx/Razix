@@ -53,7 +53,7 @@ namespace Razix {
 
             setupResources();
 
-            loadImGuiFonts();
+//            loadImGuiFonts();
 
             if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::VULKAN)
                 ImGui_ImplGlfw_InitForVulkan((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
