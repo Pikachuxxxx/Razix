@@ -1,11 +1,8 @@
-#if 1
-    #pragma once
+#pragma once
 
-    #include "Razix/Gfx/Renderers/IRZRendererProxy.h"
+#include "Razix/Gfx/Renderers/IRZRendererProxy.h"
 
-    #include <imgui/plugins/IconsFontAwesome5.h>
-
-    #include <glm/glm.hpp>
+#include <glm/glm.hpp>
 
 namespace Razix {
 
@@ -67,4 +64,3 @@ namespace Razix {
         };
     }    // namespace Gfx
 }    // namespace Razix
-#endif

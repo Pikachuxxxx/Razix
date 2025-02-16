@@ -41,9 +41,9 @@
 
 #include "Razix/Utilities/RZColorUtilities.h"
 
-#include <imgui/imgui.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui_internal.h>
+#include <imgui/imgui.h>
+#include <imgui/plugins/IconsFontAwesome5.h>
 
 namespace Razix {
     namespace Gfx {
@@ -515,7 +515,7 @@ namespace Razix {
             m_CompositePass.destroy();
             m_ShadowPass.destroy();
 
-            // Wait for GPU to be done 
+            // Wait for GPU to be done
             Gfx::RZGraphicsContext::GetContext()->Wait();
         }
 
@@ -578,6 +578,47 @@ namespace Razix {
                         ImGui::EndMainMenuBar();
                     }
                 }    // RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
+
+                //==========================================================================
+
+                // Memory Stats
+                {
+                    if (showMemStats) {
+                        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
+                        ImGui::SetNextWindowBgAlpha(1.0f);    // Transparent background
+                        ImGui::SetNextWindowSize(ImVec2((f32) RZApplication::Get().getWindow()->getWidth(), 150.0f));
+                        ImGui::SetNextWindowPos(ImVec2(0.0f, (f32) RZApplication::Get().getWindow()->getHeight() - 50), ImGuiCond_Always);
+                        ImGui::Begin("##MemStats", 0, window_flags);
+                        {
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 0, 1));
+                            ImGui::Text(ICON_FA_MEMORY "  GPU Memory: %4.2f", RZEngine::Get().GetStatistics().TotalGPUMemory);
+                            ImGui::PopStyleColor(1);
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+                            ImGui::Text(ICON_FA_BALANCE_SCALE " Used GPU Memory: %4.2f |", RZEngine::Get().GetStatistics().GPUMemoryUsed);
+                            ImGui::PopStyleColor(1);
+
+                            ImGui::SameLine();
+                            std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                            ImGui::Text(ICON_FA_CLOCK " current date/time : %s ", std::ctime(&end_time));
+                            ImGui::PopStyleColor(1);
+
+                            ImGui::SameLine();
+
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                            std::string engineBuildVersionFull = RazixVersion.getVersionString() + "." + RazixVersion.getReleaseStageString();
+                            ImGui::Text("| Engine build version : %s | ", engineBuildVersionFull.c_str());
+                            ImGui::PopStyleColor(1);
+
+                            ImGui::SameLine();
+
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                            ImGui::Text(ICON_FA_ID_CARD " project UUID : %s", RZApplication::Get().getProjectUUID().prettyString().c_str());
+                            ImGui::PopStyleColor(1);
+                        }
+                        ImGui::End();
+                    }
+                }
             }
         }
 

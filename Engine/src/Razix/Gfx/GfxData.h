@@ -690,6 +690,7 @@ namespace Razix {
             bool          enableMips            = false;
             bool          flipX                 = false;
             bool          flipY                 = true;
+            bool          ownsInitData          = true;
             u8            initResourceViewHints = 1;
             u32           dataSize              = sizeof(unsigned char);
             std::string   filePath              = "";

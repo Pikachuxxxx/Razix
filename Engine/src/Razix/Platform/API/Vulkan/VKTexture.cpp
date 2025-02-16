@@ -233,7 +233,8 @@ namespace Razix {
 
             if (desc.data) {
                 loadImageDataFromFile();
-             //   delete m_Desc.data;
+                if (m_Desc.ownsInitData)
+                    delete m_Desc.data;
             }
 
             if (m_Desc.enableMips) {

@@ -28,8 +28,8 @@
 // Imgui
 #include <imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
-#include <imgui/plugins/ImGuizmo.h>    // SetDrawList
-#include <imgui_internal.h>
+#include <imgui/plugins/IconsFontAwesome5.h>
+//#include <imgui/plugins/ImGuizmo.h>    // SetDrawList
 
 #ifdef RAZIX_RENDER_API_VULKAN
     #include <vulkan/vulkan.h>
@@ -131,7 +131,7 @@ namespace Razix {
             int32_t indexOffset  = 0;
             for (u32 i = 0; i < (u32) imDrawData->CmdListsCount; ++i) {
                 ImDrawList* cmd_list = imDrawData->CmdLists[i];
-                ImGuizmo::SetDrawlist(cmd_list);
+                //ImGuizmo::SetDrawlist(cmd_list);
                 for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++) {
                     const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
                     // pcmd->GetTexID(); // Use this to bind the appropriate descriptor set
@@ -205,7 +205,6 @@ namespace Razix {
             (void) io;
 
             // Configure ImGui flags
-            io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
             //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         }
 
@@ -289,7 +288,7 @@ namespace Razix {
             icons_config.MergeMode  = true;
             icons_config.PixelSnapH = true;
             // https://github.com/ocornut/imgui/issues/1259
-            icons_config.FontDataOwnedByAtlas = false;
+            icons_config.FontDataOwnedByAtlas = true;    // False Not working!!!
             std::string trueFontPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/Fonts/" + std::string(FONT_ICON_FILE_NAME_FAS), trueFontPath);
             io.Fonts->AddFontFromFileTTF(trueFontPath.c_str(), 12.0f, &icons_config, icons_ranges);
@@ -305,6 +304,7 @@ namespace Razix {
             imguiFontTextureDesc.height                = (u32) texHeight;
             imguiFontTextureDesc.data                  = fontData;
             imguiFontTextureDesc.size                  = uploadSize;
+            imguiFontTextureDesc.ownsInitData          = false;
             imguiFontTextureDesc.type                  = TextureType::k2D;
             imguiFontTextureDesc.initResourceViewHints = kSRV;
             imguiFontTextureDesc.format                = TextureFormat::RGBA8;
