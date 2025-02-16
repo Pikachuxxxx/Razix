@@ -104,10 +104,6 @@ namespace Razix {
             m_SwapchainImageCount = static_cast<u32>(m_SwapchainImageTextures.size());
         }
 
-        void VKSwapchain::Flip()
-        {
-        }
-
         void VKSwapchain::OnResize(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -231,7 +227,7 @@ namespace Razix {
             swcCI.imageColorSpace                                     = m_SurfaceFormat.colorSpace;
             swcCI.imageExtent                                         = m_SwapchainExtent;
             swcCI.imageArrayLayers                                    = 1;
-            swcCI.imageUsage                                          = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+            swcCI.imageUsage                                          = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
             VKPhysicalDevice::QueueFamilyIndices indices              = VKDevice::Get().getPhysicalDevice().get()->getQueueFamilyIndices();
             u32                                  queueFamilyIndices[] = {static_cast<u32>(indices.Graphics), static_cast<u32>(indices.Present)};
 

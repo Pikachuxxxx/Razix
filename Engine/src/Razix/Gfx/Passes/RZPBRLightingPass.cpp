@@ -11,6 +11,7 @@
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 #include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
 #include "Razix/Gfx/RHI/API/RZPipeline.h"
+#include "Razix/Gfx/RHI/API/RZShader.h"
 #include "Razix/Gfx/RHI/API/RZTexture.h"
 #include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
 #include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
@@ -70,8 +71,8 @@ namespace Razix {
 
                     RZTextureDesc textureDesc{};
                     textureDesc.name   = "SceneHDR";
-                    textureDesc.width  = ResolutionToExtentsMap[Resolution::k1440p].x;
-                    textureDesc.height = ResolutionToExtentsMap[Resolution::k1440p].y;
+                    textureDesc.width  = g_ResolutionToExtentsMap[Resolution::k1440p].x;
+                    textureDesc.height = g_ResolutionToExtentsMap[Resolution::k1440p].y;
                     textureDesc.type   = TextureType::k2D;
                     textureDesc.format = TextureFormat::RGBA16F;
 

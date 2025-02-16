@@ -23,7 +23,7 @@ namespace Razix {
             RAZIX_CLEANUP_RESOURCE
             //---------------------------------------
 
-            void  Bind(RZDrawCommandBufferHandle cmdBuffer) override;
+            void  Bind(RZDrawCommandBufferHandle cmdBuffer, uint32_t binding = 0) override;
             void  Flush() override;
             void* GetMappedBuffer() override;
             void  Invalidate() override;

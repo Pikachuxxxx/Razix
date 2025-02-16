@@ -1,0 +1,13 @@
+{
+    "Razix Application": {
+        "Project Name": "RazixEngineTestApp",
+        "Engine Version": "0.43.0",
+        "Project ID": "38dd78c3-d045-49c3-91c2-b9f8bd7014de",
+        "Render API": 1,
+        "Width": 1280,
+        "Height": 720,
+        "Scenes": [
+            "//Scenes/default Scene.rzscn"
+        ]
+    }
+}

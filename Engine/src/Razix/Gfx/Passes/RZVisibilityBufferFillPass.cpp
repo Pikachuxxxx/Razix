@@ -11,6 +11,7 @@
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 #include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
 #include "Razix/Gfx/RHI/API/RZPipeline.h"
+#include "Razix/Gfx/RHI/API/RZShader.h"
 #include "Razix/Gfx/RHI/API/RZTexture.h"
 #include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
 #include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
@@ -19,7 +20,6 @@
 
 #include "Razix/Gfx/RZMesh.h"
 #include "Razix/Gfx/RZMeshFactory.h"
-
 #include "Razix/Gfx/RZShaderLibrary.h"
 
 #include "Razix/Gfx/Materials/RZMaterial.h"
@@ -27,11 +27,9 @@
 #include "Razix/Gfx/Passes/Data/FrameData.h"
 
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
-
 #include "Razix/Scene/RZScene.h"
 
 #include "Razix/Utilities/RZColorUtilities.h"
@@ -64,21 +62,23 @@ namespace Razix {
                 [&](VisBufferData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    RZTextureDesc visBufferTexturesDesc = {};
-                    visBufferTexturesDesc.name          = "VisBuffer";
-                    visBufferTexturesDesc.width         = RZApplication::Get().getWindow()->getWidth();
-                    visBufferTexturesDesc.height        = RZApplication::Get().getWindow()->getHeight();
-                    visBufferTexturesDesc.type          = TextureType::k2D;
-                    visBufferTexturesDesc.format        = TextureFormat::RGBA8;
-                    data.visBuffer                      = builder.create<FrameGraph::RZFrameGraphTexture>(visBufferTexturesDesc.name, CAST_TO_FG_TEX_DESC visBufferTexturesDesc);
+                    RZTextureDesc visBufferTexturesDesc         = {};
+                    visBufferTexturesDesc.name                  = "VisBuffer";
+                    visBufferTexturesDesc.width                 = RZApplication::Get().getWindow()->getWidth();
+                    visBufferTexturesDesc.height                = RZApplication::Get().getWindow()->getHeight();
+                    visBufferTexturesDesc.type                  = TextureType::k2D;
+                    visBufferTexturesDesc.format                = TextureFormat::RGBA8;
+                    visBufferTexturesDesc.initResourceViewHints = kSRV | kRTV;
+                    data.visBuffer                              = builder.create<FrameGraph::RZFrameGraphTexture>(visBufferTexturesDesc.name, CAST_TO_FG_TEX_DESC visBufferTexturesDesc);
 
-                    RZTextureDesc sceneDepthTexturesDesc = {};
-                    sceneDepthTexturesDesc.name          = "SceneDepth";
-                    sceneDepthTexturesDesc.width         = RZApplication::Get().getWindow()->getWidth();
-                    sceneDepthTexturesDesc.height        = RZApplication::Get().getWindow()->getHeight();
-                    sceneDepthTexturesDesc.type          = TextureType::kDepth;
-                    sceneDepthTexturesDesc.format        = TextureFormat::DEPTH32F;
-                    data.sceneDepth                      = builder.create<FrameGraph::RZFrameGraphTexture>(sceneDepthTexturesDesc.name, CAST_TO_FG_TEX_DESC sceneDepthTexturesDesc);
+                    RZTextureDesc sceneDepthTexturesDesc         = {};
+                    sceneDepthTexturesDesc.name                  = "SceneDepth";
+                    sceneDepthTexturesDesc.width                 = RZApplication::Get().getWindow()->getWidth();
+                    sceneDepthTexturesDesc.height                = RZApplication::Get().getWindow()->getHeight();
+                    sceneDepthTexturesDesc.type                  = TextureType::kDepth;
+                    sceneDepthTexturesDesc.format                = TextureFormat::DEPTH32F;
+                    sceneDepthTexturesDesc.initResourceViewHints = kDSV;
+                    data.sceneDepth                              = builder.create<FrameGraph::RZFrameGraphTexture>(sceneDepthTexturesDesc.name, CAST_TO_FG_TEX_DESC sceneDepthTexturesDesc);
 
                     // This resource is created and written by this pass
                     data.visBuffer  = builder.write(data.visBuffer);

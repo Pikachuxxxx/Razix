@@ -36,7 +36,7 @@ static std::vector<cstr> deviceExtensions = {
 
 namespace Razix {
     namespace Gfx {
-
+    
         // TODO: Move these either to RZGraphicsContext or make a new RZGPUDevice class
         constexpr u32    k_gpu_time_queries_per_frame = 32;   /* Max number of queries that can be made in a frame          */
         static const u32 kGLOBAL_MAX_SETS             = 1024; /* Max number of global descriptor resources                  */

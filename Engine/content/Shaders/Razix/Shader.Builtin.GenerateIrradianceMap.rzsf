@@ -1,7 +1,7 @@
 /*
  * Razix Shader File (Builtin shader)
  * Shader.Builtin.GenerateIrradianceMap.rzsf : Generate the irradiance map from the cubemap using a compute shader
- * Copyright Razix Engine 2024 by Pikachuxxxx (Phani Srikar)
+ * Copyright Razix Engine 2025  by Pikachuxxxx (Phani Srikar)
  */
 
 #shader compute

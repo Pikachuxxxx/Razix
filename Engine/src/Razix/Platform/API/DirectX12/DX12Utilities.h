@@ -8,21 +8,6 @@
 
 namespace Razix {
     namespace Gfx {
-
-        // Forward Declarations for reducing cyclic dependency
-        enum class DrawType;
-        enum class CullMode;
-        enum class PolygonMode;
-        enum class BlendOp;
-        enum class BlendFactor;
-        enum class CompareOp;
-        enum class DescriptorType : u32;
-        enum ShaderStage : u32;
-        enum ImageLayout : u32;
-        enum PipelineStage : u32;
-        enum MemoryAccessMask : u32;
-        class RZBufferLayout;
-
         namespace DX12Utilities {
 
     #define D3D_SAFE_RELEASE(x) \
@@ -101,6 +86,8 @@ namespace Razix {
 
             void UpdateBufferResource(ID3D12Resource** pDestinationResource, size_t bufferSize, const void* bufferData);
 
+            D3D12_RESOURCE_STATES EngineImageLayoutToDX12(ImageLayout layout);
+
             //-----------------------------------------------------------------------------------
             // Texture/Image utility Functions
             //-----------------------------------------------------------------------------------
@@ -121,6 +108,10 @@ namespace Razix {
 
             // Descriptor
             DescriptorType DXToEngineDescriptorType(D3D_SHADER_INPUT_TYPE inputType);
+
+            D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapTypeToDX12(DescriptorHeapType heapType);
+
+            D3D12_SHADER_VISIBILITY ShaderStageToVisibility(ShaderStage stage);
 
             // PipelineInfo
             /**

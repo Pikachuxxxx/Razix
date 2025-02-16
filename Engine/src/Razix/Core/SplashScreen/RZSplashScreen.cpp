@@ -6,6 +6,8 @@
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 #include "Razix/Core/Version/RazixVersion.h"
 
+template class Razix::RZSingleton<Razix::RZSplashScreen>;
+
 #ifdef RAZIX_PLATFORM_WINDOWS
 namespace Razix {
     // Window Class Construction for the static singleton variable

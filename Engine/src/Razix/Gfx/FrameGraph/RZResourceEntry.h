@@ -38,7 +38,7 @@ namespace Razix {
              * This is why the T passes as resource is neither directly the Graphics API nor is just the Handle<U> because by itself it's of no use
              * Hence we have wrappers around Handle<U> and pass that wrapper FrameGraphTResource as T to the EntryPoint class
              */
-            class RZResourceEntry final
+            class RAZIX_API RZResourceEntry final
             {
                 // Only Frame Graph can create these and store
                 friend class RZFrameGraph;
@@ -64,7 +64,7 @@ namespace Razix {
                  * Implementation for concept
                  */
                 template<typename T>
-                struct Model final : Concept
+                struct RAZIX_API Model final : Concept
                 {
                     /**
                      * constructor for type, usually a pointer is stored but here we are taking a universal reference + a data member which we enforce rules on it to have

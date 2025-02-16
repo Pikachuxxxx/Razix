@@ -36,8 +36,7 @@
     #include "Razix/Core/RZCore.h"
     #include "Razix/Core/RZDataTypes.h"
     #include "Razix/Core/RZDebugConfig.h"
-    #include "Razix/Gfx/RHI/API/RZAPIDesc.h"
-    #include "Razix/Gfx/RHI/API/RZAPIHandles.h"
+    #include "Razix/Gfx/GfxData.h"
     #include "Razix/Gfx/Resources/IRZResource.h"
 
     //-----Engine Internal-----//

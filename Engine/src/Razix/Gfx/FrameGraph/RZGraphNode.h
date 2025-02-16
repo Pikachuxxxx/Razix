@@ -15,7 +15,7 @@ namespace Razix {
              * A node can be 2 types either a pass that executed some code by binding resources or the resource itself
              * Input/output resources are represented in the graph as nodes in addition to the pass nodes
              */
-            class RZGraphNode
+            class RAZIX_API RZGraphNode
             {
             public:
                 // We don't want anyone except the frame graph to create graph nodes

@@ -176,28 +176,6 @@ namespace Razix {
             m_GraphicsCommandQueue.push_back(cmdBuffer);
         }
 
-        void VKRenderContext::SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-#if 0
-            auto frameIdx     = RHI::Get().GetSwapchain()->getCurrentImageIndex();
-            auto prevFrameIdx = frameIdx > 0 ? frameIdx - 1 : 2;
-
-            std::vector<VkSemaphore> vkWaitSemaphores(waitSemaphores.size());
-            for (sz i = 0; i < waitSemaphores.size(); i++)
-                vkWaitSemaphores[i] = *(VkSemaphore*) waitSemaphores[i]->getHandle(prevFrameIdx);
-
-            std::vector<VkSemaphore> vkSignalSemaphores(signalSemaphores.size());
-            for (sz i = 0; i < signalSemaphores.size(); i++)
-                vkSignalSemaphores[i] = *(VkSemaphore*) signalSemaphores[i]->getHandle(frameIdx);
-            
-            m_Context->getSwapchain()->queueSubmit(m_CommandQueue, vkWaitSemaphores, vkSignalSemaphores);
-            
-            m_CommandQueue.clear();
-#endif
-        }
-
         void VKRenderContext::PresentAPIImpl(RZSemaphore* waitSemaphore)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -218,19 +196,20 @@ namespace Razix {
             pp->Bind(cmdBuffer);
         }
 
-        void VKRenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
+        void VKRenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZDescriptorSetHandle descriptorSet, u32 setIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
             VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
-            const auto vkDescSet         = static_cast<const VKDescriptorSet*>(descriptorSet)->getDescriptorSet();
+            auto       descSetResource   = RZResourceManager::Get().getDescriptorSetResource(descriptorSet);
+            const auto vkDescSet         = static_cast<const VKDescriptorSet*>(descSetResource)->getDescriptorSet();
             auto       cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), setIdx, 1, &vkDescSet, 0, nullptr);
         }
 
-        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)
+        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSetHandle>& descriptorSets, u32 startSetIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -239,30 +218,10 @@ namespace Razix {
             auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
             VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
-            for (auto descriptorSet: descriptorSets) {
-                if (descriptorSet) {
-                    auto vkDescSet                             = static_cast<VKDescriptorSet*>(descriptorSet);
-                    m_DescriptorSetCachePool[numDesciptorSets] = vkDescSet->getDescriptorSet();
-                    numDesciptorSets++;
-                }
-            }
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), startSetIdx, numDesciptorSets, m_DescriptorSetCachePool, 0, nullptr);
-        }
-
-        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            u32 numDesciptorSets = 0;
-
-            auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
-            VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
-
-            for (u32 i = 0; i < totalSets; i++) {
-                auto set = descriptorSets[i];
-                if (set) {
-                    const auto vkDescSet                       = static_cast<const VKDescriptorSet*>(set);
+            for (auto& descriptorSetHandle: descriptorSets) {
+                auto descSetResource = RZResourceManager::Get().getDescriptorSetResource(descriptorSetHandle);
+                if (descSetResource) {
+                    auto vkDescSet                             = static_cast<VKDescriptorSet*>(descSetResource);
                     m_DescriptorSetCachePool[numDesciptorSets] = vkDescSet->getDescriptorSet();
                     numDesciptorSets++;
                 }
@@ -306,16 +265,16 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            VkRenderingInfoKHR renderingInfoKHR{};
-            renderingInfoKHR.sType             = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
-            renderingInfoKHR.renderArea.offset = {0, 0};
+            VkRenderingInfoKHR renderingInfoKHR = {};
+            renderingInfoKHR.sType              = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
+            renderingInfoKHR.renderArea.offset  = {0, 0};
 
             if (renderingInfo.resolution == Resolution::kCustom)
                 renderingInfoKHR.renderArea.extent = {renderingInfo.extent.x, renderingInfo.extent.y};
             else if (renderingInfo.resolution == Resolution::kWindow)
                 renderingInfoKHR.renderArea.extent = {m_Width, m_Height};
             else {
-                auto& res                          = ResolutionToExtentsMap[renderingInfo.resolution];
+                auto& res                          = g_ResolutionToExtentsMap[renderingInfo.resolution];
                 renderingInfoKHR.renderArea.extent = {res.x, res.y};
             }
 
@@ -344,8 +303,7 @@ namespace Razix {
                 VKTexture* backendPtr = static_cast<VKTexture*>(colorAttachment);
                 attachInfo.imageView  = backendPtr->getFullRTVImageView();
 
-                // Don't do this here, done manually bu the FG and user land code
-
+                // Don't do this here, done manually by the FG and user land code
                 if (colorAttachment->getFormat() != TextureFormat::SCREEN) {
                     auto vkImage = static_cast<VKTexture*>(colorAttachment);
                     if (vkImage->getImageLayoutValue() != VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
@@ -485,7 +443,7 @@ namespace Razix {
             CmdPushDescriptorSetKHR(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), 0, static_cast<u32>(writeDescriptorSets.size()), writeDescriptorSets.data());
         }
 
-        void VKRenderContext::DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType /*= DataType::UNSIGNED_INT*/)
+        void VKRenderContext::DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DrawDataType /*= DataType::UNSIGNED_INT*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -565,7 +523,7 @@ namespace Razix {
             vkCmdSetDepthBias(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), depthBiasConstant, 0.0f, depthBiasSlope);
         }
 
-        void VKRenderContext::InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)
+        void VKRenderContext::InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, ImageLayout oldLayout, ImageLayout newLayout)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -574,17 +532,15 @@ namespace Razix {
             VKTexture* vkTexture       = static_cast<VKTexture*>(textureResource);
 
             // Update with the new layout
-            vkTexture->setImageLayoutValue((VkImageLayout) VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.dstLayout));
+            vkTexture->setImageLayoutValue((VkImageLayout) VKUtilities::EngineImageLayoutToVK(newLayout));
 
             VkImageMemoryBarrier barrier = {};
             barrier.sType                = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            barrier.oldLayout            = (VkImageLayout) VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.srcLayout);
-            barrier.newLayout            = (VkImageLayout) VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.dstLayout);
+            barrier.oldLayout            = (VkImageLayout) VKUtilities::EngineImageLayoutToVK(oldLayout);
+            barrier.newLayout            = (VkImageLayout) VKUtilities::EngineImageLayoutToVK(newLayout);
             barrier.srcQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
             barrier.dstQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
             barrier.image                = vkTexture->getImage();
-            barrier.srcAccessMask        = VKUtilities::EngineMemoryAcsessMaskToVK(imgBarrierInfo.srcAccess);
-            barrier.dstAccessMask        = VKUtilities::EngineMemoryAcsessMaskToVK(imgBarrierInfo.dstAccess);
 
             auto format = VKUtilities::TextureFormatToVK(vkTexture->getFormat());
 
@@ -597,8 +553,83 @@ namespace Razix {
             barrier.subresourceRange.baseArrayLayer = textureResource->getBaseArrayLayer();
             barrier.subresourceRange.layerCount     = textureResource->getLayersCount();
 
+            VkPipelineStageFlags srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            VkPipelineStageFlags dstStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+
+            // Automatic stage deduction
+            if (oldLayout == newLayout) {
+                // Pure memory barrier (no layout transition)
+                if (oldLayout == ImageLayout::kShaderWrite) {
+                    barrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+                    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                    srcStage              = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    dstStage              = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                } else if (oldLayout == ImageLayout::kShaderRead || oldLayout == ImageLayout::kGeneric) {
+                    barrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+                    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+                    srcStage              = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    dstStage              = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                }
+            } else if (oldLayout == ImageLayout::kNewlyCreated && newLayout == ImageLayout::kTransferDestination) {
+                barrier.srcAccessMask = 0;
+                barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                srcStage              = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                dstStage              = VK_PIPELINE_STAGE_TRANSFER_BIT;
+            } else if (oldLayout == ImageLayout::kTransferDestination && newLayout == ImageLayout::kShaderRead) {
+                barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                srcStage              = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                dstStage              = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+            } else if (oldLayout == ImageLayout::kShaderRead && newLayout == ImageLayout::kShaderWrite) {
+                barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                barrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+                srcStage              = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                dstStage              = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+            } else if (oldLayout == ImageLayout::kShaderWrite && newLayout == ImageLayout::kShaderRead) {
+                barrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+                barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                srcStage              = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                dstStage              = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+            } else if (oldLayout == ImageLayout::kNewlyCreated && newLayout == ImageLayout::kColorRenderTarget) {
+                barrier.srcAccessMask = 0;
+                barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                srcStage              = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                dstStage              = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            } else if (oldLayout == ImageLayout::kColorRenderTarget && newLayout == ImageLayout::kSwapchain) {
+                barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                barrier.dstAccessMask = 0;
+                srcStage              = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+                dstStage              = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+            } else if (oldLayout == ImageLayout::kDepthStencilRenderTarget && newLayout == ImageLayout::kDepthStencilReadOnly) {
+                barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+                barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                srcStage              = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+                dstStage              = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+            } else if (oldLayout == ImageLayout::kNewlyCreated && newLayout == ImageLayout::kDepthStencilRenderTarget) {
+                barrier.srcAccessMask = 0;
+                barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+                srcStage              = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                dstStage              = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+            } else {
+                // fall back for undefined transitions
+                barrier.srcAccessMask = 0;
+                barrier.dstAccessMask = 0;
+                srcStage              = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+                dstStage              = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+            }
+
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdPipelineBarrier(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.startExecutionStage), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.endExecutionStage), 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+            for (u32 layer = 0; layer < textureResource->getLayersCount(); layer++) {
+                for (u32 mip = 0; mip < textureResource->getMipsCount(); mip++) {
+                    barrier.subresourceRange.baseMipLevel   = mip;
+                    barrier.subresourceRange.levelCount     = 1;
+                    barrier.subresourceRange.baseArrayLayer = layer;
+                    barrier.subresourceRange.layerCount     = 1;
+                    // Use a pipeline barrier to make sure the transition is done properly
+                    vkCmdPipelineBarrier(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), srcStage, dstStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+                }
+            }
         }
 
         void VKRenderContext::InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
@@ -687,6 +718,59 @@ namespace Razix {
                 auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
                 func(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), markerData);
             }
+        }
+
+        Razix::Gfx::TextureReadback VKRenderContext::InsertTextureReadbackImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture)
+        {
+            TextureReadback readback = {};
+
+            const RZTexture*     textureResource = RZResourceManager::Get().getTextureResource(texture);
+            const RZTextureDesc& desc            = textureResource->getDescription();
+
+            const VKTexture* backendResource = static_cast<const VKTexture*>(textureResource);
+
+            const u32 readbackSize = desc.width * desc.height * RZ_TEX_BITS_PER_PIXEL;
+
+            VKBuffer textureReadbackTransferBuffer = VKBuffer(BufferUsage::ReadBack, VK_BUFFER_USAGE_TRANSFER_DST_BIT, readbackSize, nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"));
+
+            VkImageLayout initialLayout = backendResource->getImageLayoutValue();
+
+            VKUtilities::TransitionImageLayout(backendResource->getImage(), VKUtilities::TextureFormatToVK(desc.format), initialLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+            {
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Read Pixels", glm::vec4(1.0f, 0.45f, 0.64f, 1.0f));
+
+                VkImageAspectFlags aspectFlags = backendResource->getAspectFlags();
+
+                // TODO: Support layers and depth
+                VkBufferImageCopy region               = {};
+                region.bufferOffset                    = 0;
+                region.bufferRowLength                 = desc.width;
+                region.bufferImageHeight               = desc.width;
+                region.imageSubresource.aspectMask     = aspectFlags != 0 ? aspectFlags : VK_IMAGE_ASPECT_COLOR_BIT;
+                region.imageSubresource.mipLevel       = textureResource->getCurrentMipLevel();
+                region.imageSubresource.baseArrayLayer = 0;
+                region.imageSubresource.layerCount     = 1;
+                region.imageOffset                     = {0, 0, 0};
+                region.imageExtent                     = {desc.width, desc.height, 1};
+
+                vkCmdCopyImageToBuffer(commandBuffer, backendResource->getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, textureReadbackTransferBuffer.getBuffer(), 1, &region);
+
+                VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
+            }
+            VKUtilities::TransitionImageLayout(backendResource->getImage(), VKUtilities::TextureFormatToVK(desc.format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, initialLayout);
+
+            readback.data = malloc(readbackSize);
+            textureReadbackTransferBuffer.map();
+            memcpy(readback.data, textureReadbackTransferBuffer.getMappedRegion(), readbackSize);
+            textureReadbackTransferBuffer.unMap();
+
+            textureReadbackTransferBuffer.destroy();
+
+            readback.width          = desc.width;
+            readback.height         = desc.height;
+            readback.bits_per_pixel = RZ_TEX_BITS_PER_PIXEL;
+
+            return readback;
         }
     }    // namespace Gfx
 }    // namespace Razix

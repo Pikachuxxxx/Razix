@@ -1,7 +1,7 @@
 /*
  * Razix Shader File 
  * Shader.Builtin.GeneratePreFilteredMap.rzsf : Generate the pre-filtered map from the cubemap using a CS
- * Copyright Razix Engine 2024 by Pikachuxxxx (Phani Srikar)
+ * Copyright Razix Engine 2025  by Pikachuxxxx (Phani Srikar)
  */
 
 #shader compute

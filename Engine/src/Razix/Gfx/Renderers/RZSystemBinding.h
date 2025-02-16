@@ -24,6 +24,7 @@ enum BindingTable_System : u32
     // Set Indices
     SET_IDX_FRAME_DATA       = 0,
     SET_IDX_SYSTEM_START     = SET_IDX_FRAME_DATA,
+    SET_IDX_IMGUI_DATA       = SET_IDX_FRAME_DATA,
     SET_IDX_MATERIAL_DATA    = 1,
     SET_IDX_LIGHTING_DATA    = 2,
     SET_IDX_SHADOW_DATA      = 3,

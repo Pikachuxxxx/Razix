@@ -622,15 +622,16 @@ namespace Razix {
                     // https://stackoverflow.com/questions/43680182/what-is-stdinvoke-in-c
                     std::invoke(*pass.m_Exec, pass, resources);
 
+                    // TODO: enable this when transient resources backend is done
                     /**
                      * Current nodes resources can still be used by other nodes so we check
                      * for the EntryPoints and see at all the resources to check which are done with this
                      * the m_Last will keep track of which node will require this resource, if this pass is done
                      * then all the resources in the framegraph that depend on this can be deleted safely
                      */
-                    for (auto &entry: m_ResourceRegistry)
-                        if (entry.m_Last == &pass && entry.isTransient())
-                            entry.getConcept()->destroy(transientAllocator);
+                    //for (auto &entry: m_ResourceRegistry)
+                    //    if (entry.m_Last == &pass && entry.isTransient())
+                    //        entry.getConcept()->destroy(transientAllocator);
                 }
 
                 // End first frame identifier
@@ -878,6 +879,11 @@ namespace Razix {
             // RZPassResourceBuilder Class
             //-----------------------------------------------------------------------------------
 
+            RZPassResourceBuilder::RZPassResourceBuilder(RZFrameGraph &frameGraph, RZPassNode &passNode)
+                : m_FrameGraph(frameGraph), m_PassNode{passNode}
+            {
+            }
+
             RZFrameGraphResource RZPassResourceBuilder::read(RZFrameGraphResource id, u32 flags /*= kFlagsNone*/)
             {
                 RAZIX_ASSERT(m_FrameGraph.isValid(id), "Invalid resource");
@@ -925,9 +931,36 @@ namespace Razix {
                 return *this;
             }
 
-            RZPassResourceBuilder::RZPassResourceBuilder(RZFrameGraph &frameGraph, RZPassNode &passNode)
-                : m_FrameGraph(frameGraph), m_PassNode{passNode}
+            RZPassResourceBuilder &RZPassResourceBuilder::setDepartment(Department dept)
             {
+                m_PassNode.m_Department = dept;
+                return *this;
+            }
+
+            RZPassResourceBuilder &RZPassResourceBuilder::setCPUTime(f32 time)
+            {
+                m_PassNode.m_CurrentPassBudget.CPUframeBudget = time;
+                return *this;
+            }
+
+            Department RZPassResourceBuilder::getDepartment()
+            {
+                return m_PassNode.m_Department;
+            }
+
+            Memory::BudgetInfo RZPassResourceBuilder::getPassCurrentBudget()
+            {
+                return m_PassNode.m_CurrentPassBudget;
+            }
+
+            f32 RZPassResourceBuilder::getPassCurrentCPUTimeBudget()
+            {
+                return m_PassNode.m_CurrentPassBudget.CPUframeBudget;
+            }
+
+            u32 RZPassResourceBuilder::getPassCurrentMemoryBudget()
+            {
+                return m_PassNode.m_CurrentPassBudget.MemoryBudget;
             }
 
             //-----------------------------------------------------------------------------------

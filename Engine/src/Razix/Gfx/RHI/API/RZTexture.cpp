@@ -4,18 +4,11 @@
 #include "RZTexture.h"
 
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
-
-#ifdef RAZIX_RENDER_API_OPENGL
-    #include "Razix/Platform/API/OpenGL/OpenGLTexture.h"
-#endif
+#include "Razix/Gfx/RHI/API/RZShader.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
     #include "Razix/Platform/API/Vulkan/VKTexture.h"
 #endif
-
-#include "Razix/Gfx/RHI/API/RZShader.h"
-
-#include "Razix/Gfx/Resources/IRZResource.h"
 
 namespace Razix {
     namespace Gfx {
@@ -54,7 +47,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            switch ((bits * 8)) {
+            switch ((bits)) {
                 case 8:
                     return TextureFormat::R8;
                 case 16:

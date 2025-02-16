@@ -1,7 +1,7 @@
 /*
  * Razix Shader File 
  * Shader.Builtin.GBuffer.rzsf : Generate the G-Buffer onto Pos, Normal, Spec, Metallic, Roughness, AO & Emissive Render Targets + Scene Depth
- * Copyright Razix Engine 2024by Pikachuxxxx (Phani Srikar)
+ * Copyright Razix Engine 2025 by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex

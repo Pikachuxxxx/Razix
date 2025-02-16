@@ -3,9 +3,6 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDebugConfig.h"
 
-#include "Razix/Gfx/RHI/API/Data/RZBufferData.h"
-#include "Razix/Gfx/RHI/API/RZBufferLayout.h"
-
 namespace Razix {
     namespace Gfx {
 
@@ -26,7 +23,7 @@ namespace Razix {
              * 
              * @param The Command Buffer that will be used to bind/draw with
              */
-            virtual void Bind(RZDrawCommandBufferHandle cmdBuffer) = 0;
+            virtual void Bind(RZDrawCommandBufferHandle cmdBuffer, uint32_t binding = 0) = 0;
             /* Unbinds the vertex buffer */
             virtual void Unbind() = 0;
             /* Sets the data with some offset */

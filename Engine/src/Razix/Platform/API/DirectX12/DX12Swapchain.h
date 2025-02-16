@@ -28,7 +28,6 @@ namespace Razix {
             void  Init(u32 width, u32 height) override;
             void  Destroy() override;
             void  DestroyBackBufferImages() override;
-            void  Flip() override;
             void  OnResize(u32 width, u32 height) override;
             void* GetAPIHandle() override { return &m_Swapchain; }
 
@@ -36,22 +35,22 @@ namespace Razix {
             void                        present();
             void                        clearWithColor(ID3D12GraphicsCommandList2* commandList, glm::vec4 color);
             void                        prepareAsRenderTarget(ID3D12GraphicsCommandList2* commandList);
-            D3D12_CPU_DESCRIPTOR_HANDLE getCurrentBackBufferRTVHandle();
             ID3D12Resource*             getCurrentD3DBackbufferResource() { return m_SwapchainD3DHandles[m_AcquiredBackBufferImageIndex]; }
+            D3D12_CPU_DESCRIPTOR_HANDLE getCurrentBackBufferRTVHandle();
 
             RZTextureHandle GetImage(u32 index) override { return m_SwapchainImageTextures[index]; }
-            RZTextureHandle GetCurrentImage() override { return m_SwapchainImageTextures[m_AcquiredBackBufferImageIndex]; }
+            RZTextureHandle GetCurrentBackBufferImage() override { return m_SwapchainImageTextures[m_AcquiredBackBufferImageIndex]; }
             sz              GetSwapchainImageCount() override { return m_SwapchainImageCount; }
 
         private:
-            IDXGISwapChain4*             m_Swapchain                                        = nullptr;                     /* Handle to DXGI swapchain */
-            u32                          m_SwapchainImageCount                              = 0;                           /* Total number of swapchain images being used  */
-            std::vector<RZTextureHandle> m_SwapchainImageTextures                           = {};                          /* Swapchain images stored as engine 2D texture */
-            ID3D12Resource*              m_SwapchainD3DHandles[RAZIX_MAX_SWAP_IMAGES_COUNT] = {};                          /* Swapchain images stored as d3d resources */
-            HWND                         m_HWNDHandle                                       = NULL;                        /* Windows Handle */
-            ID3D12DescriptorHeap*        m_SwapchainRTVHeap                                 = nullptr;                     /* Descriptor Heap from which the swapchain back buffers are allocated from */
-            u32                          m_RTVDescriptorSize                                = 0;                           /* Size of the descriptor in the heap */
-            const u32                    m_BackbuffersCount                                 = RAZIX_MAX_SWAP_IMAGES_COUNT; /* Number of swapchain back buffers  */
+            IDXGISwapChain4*             m_Swapchain                                        = nullptr;
+            u32                          m_SwapchainImageCount                              = 0;
+            std::vector<RZTextureHandle> m_SwapchainImageTextures                           = {};
+            ID3D12Resource*              m_SwapchainD3DHandles[RAZIX_MAX_SWAP_IMAGES_COUNT] = {};
+            HWND                         m_HWNDHandle                                       = NULL;
+            ID3D12DescriptorHeap*        m_SwapchainRTVHeap                                 = nullptr;
+            u32                          m_RTVDescriptorSize                                = 0;
+            const u32                    m_BackbuffersCount                                 = RAZIX_MAX_SWAP_IMAGES_COUNT;
         };
 
     }    // namespace Gfx

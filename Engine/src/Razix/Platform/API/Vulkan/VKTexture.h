@@ -62,6 +62,8 @@ namespace Razix {
             void transitonImageLayoutToSRV();
             void transitonImageLayoutToUAV();
 
+            inline VkImageAspectFlags getAspectFlags() const { return m_AspectFlags; }
+
             inline VkImageLayout getImageLayoutValue() const { return m_FinalImageLayout; }
             inline void          setImageLayoutValue(VkImageLayout layout) { m_FinalImageLayout = layout; }
             inline VkImage       getImage() const { return m_Image; };

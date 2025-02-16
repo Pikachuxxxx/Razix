@@ -51,6 +51,8 @@ namespace Razix {
             pipelineInfo.cullMode            = Gfx::CullMode::Back;
             pipelineInfo.drawType            = Gfx::DrawType::Triangle;
             pipelineInfo.shader              = shader;
+            pipelineInfo.depthTestEnabled    = true;
+            pipelineInfo.depthWriteEnabled   = true;
             pipelineInfo.transparencyEnabled = false;
             pipelineInfo.depthBiasEnabled    = false;
             pipelineInfo.depthFormat         = {Gfx::TextureFormat::DEPTH32F};
@@ -59,17 +61,19 @@ namespace Razix {
             framegraph.getBlackboard().add<SimpleShadowPassData>() = framegraph.addCallbackPass<SimpleShadowPassData>(
                 "Pass.Builtin.Code.RenderShadows",
                 [&](SimpleShadowPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
-                    builder.setAsStandAlonePass();
+                    builder
+                        .setAsStandAlonePass()
+                        .setDepartment(Department::Lighting);
 
-                    RZTextureDesc shadowTextureDesc{};
-                    shadowTextureDesc.name       = "ShadowMap";
-                    shadowTextureDesc.width      = kShadowMapSize;
-                    shadowTextureDesc.height     = kShadowMapSize;
-                    shadowTextureDesc.type       = TextureType::kDepth;
-                    shadowTextureDesc.format     = TextureFormat::DEPTH32F;
-                    shadowTextureDesc.enableMips = false;
-
-                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("ShadowMap", CAST_TO_FG_TEX_DESC shadowTextureDesc);
+                    RZTextureDesc shadowTextureDesc         = {};
+                    shadowTextureDesc.name                  = "ShadowMap";
+                    shadowTextureDesc.width                 = kShadowMapSize;
+                    shadowTextureDesc.height                = kShadowMapSize;
+                    shadowTextureDesc.type                  = TextureType::kDepth;
+                    shadowTextureDesc.format                = TextureFormat::DEPTH32F;
+                    shadowTextureDesc.initResourceViewHints = ResourceViewHint::kDSV | ResourceViewHint::kSRV;
+                    shadowTextureDesc.enableMips            = false;
+                    data.shadowMap                          = builder.create<FrameGraph::RZFrameGraphTexture>(shadowTextureDesc.name, CAST_TO_FG_TEX_DESC shadowTextureDesc);
 
                     data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData), 0, BufferUsage::PersistentStream});
 
@@ -78,8 +82,6 @@ namespace Razix {
                 },
                 [=](const SimpleShadowPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-                    return;
 
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Shadows);
 
@@ -102,7 +104,6 @@ namespace Razix {
 
                     glm::mat4 lightView       = glm::lookAt(dir_light.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                     glm::mat4 lightProjection = glm::perspective(60.0f, 1.0f, 0.1f, 100.0f);
-                    //(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
                     lightProjection[1][1] *= -1;
                     light_data.lightViewProj = lightProjection * lightView;
 
@@ -132,8 +133,7 @@ namespace Razix {
 
                     // Draw calls
                     // Get the meshes from the Scene and render them
-                    if (IS_BIT_SET(settings->renderFeatures, RendererFeature_Shadows))
-                        scene->drawScene(m_Pipeline, SceneDrawGeometryMode::SceneGeometry);
+                    scene->drawScene(m_Pipeline, SceneDrawGeometryMode::SceneGeometry);
 
                     // End Rendering
                     RHI::EndRendering(cmdBuffer);

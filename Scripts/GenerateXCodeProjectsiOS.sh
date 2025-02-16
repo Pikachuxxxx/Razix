@@ -9,7 +9,7 @@ echo "|_| \_\__,_/___|_/_/\_\ |_____|_| |_|\__, |_|_| |_|\___|"
 echo "                                     |___/              "
 echo "                      🚧  🚧  🚧                         "
 echo " Premake Build System CLI for Razix Engine - v0.4.3.dev "
-echo "       @ 2024 copyright Pikachuxxxx - Phani Srikar      "
+echo "       @ 2025 copyright Pikachuxxxx - Phani Srikar      "
 echo 
 echo Welcome to Razix-Premake-Build CLI tool...
 echo Generates XCode project files for both MacOS/iOS

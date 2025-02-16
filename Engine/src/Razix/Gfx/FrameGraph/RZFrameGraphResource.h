@@ -21,7 +21,7 @@ namespace Razix {
              * Dawid Kurek (skaarj1989) named it AccessDeclaration, it kinda makes sense as we have declaration on how to access the FrameGraphResource
              * but I feel having a name like Frame Graph Resource Access View makes it more readable
              */
-            struct RZFrameGraphResourceAcessView
+            struct RAZIX_API RZFrameGraphResourceAcessView
             {
                 RZFrameGraphResource id    = -1;         /* Unique ID of the resource                            */
                 u32                  flags = kFlagsNone; /* Flags on how to view the resource from rendering POV */

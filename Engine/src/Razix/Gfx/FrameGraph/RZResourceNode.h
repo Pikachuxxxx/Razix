@@ -16,7 +16,7 @@ namespace Razix {
 
             constexpr u32 kResourceInitialVersion{1u};
 
-            class RZResourceNode final : public RZGraphNode
+            class RAZIX_API RZResourceNode final : public RZGraphNode
             {
             private:
                 friend class RZFrameGraph;

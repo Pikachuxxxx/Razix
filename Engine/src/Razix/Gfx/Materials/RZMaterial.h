@@ -11,60 +11,47 @@ namespace Razix {
         class RAZIX_API RZMaterial
         {
         public:
-            /* Crates the material with the given shader and it's properties */
             RZMaterial(RZShaderHandle shader);
-            virtual ~RZMaterial() {}
+            ~RZMaterial() {}
 
             void Destroy();
 
             /* Creates a 1x1 default pink 2D texture */
-            static void InitDefaultTexture();
-            /* Destroys the default texture created */
+            static void            InitDefaultTexture();
             static void            ReleaseDefaultTexture();
             static RZTextureHandle GetDefaultTexture() { return s_DefaultTexture; }
-            /* Static Getter and setter for the material workflow */
-            WorkFlow          getWorkflow() { return (Gfx::WorkFlow) m_MaterialData.m_MaterialProperties.workflow; }
-            RAZIX_INLINE void setWorkflow(WorkFlow workflow) { m_MaterialData.m_MaterialProperties.workflow = (u32) workflow; }
+            static RZMaterial*     GetDefaultMaterial();
 
-            /* Overrides the default material properties and textures by loading the material file and de-serializing it */
+            void Bind(RZPipeline* pipeline = nullptr, RZDrawCommandBufferHandle cmdBuffer = {});
+
             void loadFromFile(const std::string& path);
             void saveToFile(const std::string& path = "");
             void loadMaterialTexturesFromFiles(MaterialTexturePaths paths);
             void createDescriptorSet();
 
-            RAZIX_INLINE MaterialTextures& getTextures() { return m_MaterialData.m_MaterialTextures; }
-            void                           setTextures(MaterialTextures& textures);
-
-            RAZIX_INLINE const MaterialProperties& getProperties() const { return m_MaterialData.m_MaterialProperties; }
-            void                                   setProperties(MaterialProperties& props);
-
-            RAZIX_INLINE const MaterialTexturePaths& getTexturePaths() const { return m_MaterialData.m_MaterialTexturePaths; }
-            void                                     setTexturePaths(MaterialTexturePaths& paths);
-
-            void Bind(RZPipeline* pipeline = nullptr, RZDrawCommandBufferHandle cmdBuffer = {});
-
-            RAZIX_INLINE bool& getTexturesUpdated() { return m_TexturesUpdated; }
-            RAZIX_INLINE void  setTexturesUpdated(bool isUpdated) { m_TexturesUpdated = isUpdated; }
-
-            RAZIX_INLINE std::string getName() { return m_MaterialData.m_Name; }
-            void                     setName(const std::string& name);
-
-            RAZIX_INLINE RZDescriptorSet* getDescriptorSet() { return m_DescriptorSet; }
+            inline std::string                 getName() { return m_MaterialData.m_Name; }
+            inline void                        setName(const std::string& name) { strcpy(m_MaterialData.m_Name, name.c_str()); }
+            inline const MaterialTextures&     getTextures() const { return m_MaterialData.m_MaterialTextures; }
+            inline void                        setTextures(MaterialTextures& textures);
+            inline const MaterialProperties&   getProperties() const { return m_MaterialData.m_MaterialProperties; }
+            inline void                        setProperties(MaterialProperties& props);
+            inline const MaterialTexturePaths& getTexturePaths() const { return m_MaterialData.m_MaterialTexturePaths; }
+            inline void                        setTexturePaths(MaterialTexturePaths& paths);
+            inline bool                        getTexturesUpdated() const { return m_TexturesUpdated; }
+            inline void                        setTexturesUpdated(bool isUpdated) { m_TexturesUpdated = isUpdated; }
+            inline RZDescriptorSetHandle       getDescriptorSet() { return m_DescriptorSet; }
+            inline WorkFlow                    getWorkflow() const { return (Gfx::WorkFlow) m_MaterialData.m_MaterialProperties.workflow; }
+            inline void                        setWorkflow(WorkFlow workflow) { m_MaterialData.m_MaterialProperties.workflow = (u32) workflow; }
 
         private:
-            //RZPipeline*                   m_Pipeline; // Diffifult to be own as Material can't have knowledge of the RTs in a pass and RZPipeline needs that before hand along with shader
-
             static RZTextureHandle s_DefaultTexture;
-            MaterialData           m_MaterialData;
-            RZShaderHandle         m_Shader                = {};
-            RZDescriptorSet*       m_DescriptorSet         = nullptr;
-            RZUniformBufferHandle  m_MaterialPropertiesUBO = {};
-            bool                   m_TexturesUpdated       = false;
+            static RZMaterial*     s_DefaultMaterial;
+
+            MaterialData          m_MaterialData          = {};
+            RZShaderHandle        m_Shader                = {};
+            RZDescriptorSetHandle m_DescriptorSet         = {};
+            RZUniformBufferHandle m_MaterialPropertiesUBO = {};
+            bool                  m_TexturesUpdated       = false;
         };
-
-        static RZMaterial* DefaultMaterial = nullptr;
-
-        RZMaterial* GetDefaultMaterial();
-
     }    // namespace Gfx
 }    // namespace Razix

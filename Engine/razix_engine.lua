@@ -5,9 +5,6 @@ include 'Scripts/premake/common/internal_includes.lua'
 -- common include dirs
 include 'Scripts/premake/common/common_include_dirs.lua'
 ------------------------------------------------------------------------------
--- Shaders a separate project to build as cache
-include 'razix_shaders_build.lua'
-------------------------------------------------------------------------------
 -- Engine Config files
 group "Engine/content"
     project "Config"
@@ -38,6 +35,27 @@ group "Engine/content"
 
         filter { "files:**.json"}
             flags { "ExcludeFromBuild" }
+group"" 
+------------------------------------------------------------------------------
+group "Engine/content"
+    project "Shaders"
+        kind "Utility"
+
+        files
+        { 
+            -- Shader common files
+            "content/Shaders/ShaderCommon/**",
+            -- HLSL - primary language for all platforms shader gen
+            "content/Shaders/HLSL/**.h",
+            "content/Shaders/HLSL/**.hlsl",
+            "content/Shaders/HLSL/**.hlsli",
+            "content/Shaders/HLSL/**.vert.hlsl",
+            "content/Shaders/HLSL/**.geom.hlsl",
+            "content/Shaders/HLSL/**.frag.hlsl",
+            "content/Shaders/HLSL/**.comp.hlsl",
+            -- Razix Shader File
+            "content/Shaders/Razix/**.rzsf",
+        }
 group"" 
 ------------------------------------------------------------------------------
 group "Engine"

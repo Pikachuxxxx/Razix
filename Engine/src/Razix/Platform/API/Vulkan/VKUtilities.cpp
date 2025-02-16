@@ -357,7 +357,7 @@ namespace Razix {
                     barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
                     sourceStage           = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
                 } else {
-                    RAZIX_CORE_WARN("[Vulkan] Unsupported layout transition!");
+                    RAZIX_CORE_WARN("[Vulkan] Unsupported vulkan layout transition!");
                 }
 
                 // set up destination properties
@@ -678,11 +678,11 @@ namespace Razix {
                     case ImageLayout::kDepthStencilReadOnly:
                         return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
                         break;
-                    case ImageLayout::kShaderAttachment:
+                    case ImageLayout::kShaderRead:
                         return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                         break;
-                    case ImageLayout::kAttachment:
-                        return VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
+                    case ImageLayout::kShaderWrite:
+                        return VK_IMAGE_LAYOUT_GENERAL;
                         break;
                     case ImageLayout::kTransferSource:
                         return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
@@ -691,6 +691,7 @@ namespace Razix {
                         return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
                         break;
                     default:
+                        RAZIX_CORE_ERROR("[Vulkan] Unknown image layout");
                         return VK_IMAGE_LAYOUT_UNDEFINED;
                         break;
                 }

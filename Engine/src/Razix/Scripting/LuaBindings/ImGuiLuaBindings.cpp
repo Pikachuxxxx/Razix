@@ -3,8 +3,6 @@
 // clang-format on
 #include "Razix/Scripting/RZLuaScriptHandler.h"
 
-#include <imgui.h>
-
 namespace Razix {
     namespace Scripting {
 

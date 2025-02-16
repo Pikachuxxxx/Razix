@@ -26,16 +26,10 @@
 #include "Razix/Gfx/Passes/RZTonemapPass.h"
 #include "Razix/Gfx/Passes/RZVisibilityBufferFillPass.h"
 
-// Test/Demo Passes
-#include "Razix/Gfx/Passes/Tests/RZGeomShadersCubeTestPass.h"
-#include "Razix/Gfx/Passes/Tests/RZHelloTextureTestPass.h"
-#include "Razix/Gfx/Passes/Tests/RZHelloTriangleTestPass.h"
-#include "Razix/Gfx/Passes/Tests/RZWaveInstrinsicsTestPass.h"
-
 // Renderers
-#include "Razix/Gfx/Renderers/RZImGuiRenderer.h"
+#include "Razix/Gfx/Renderers/RZImGuiRendererProxy.h"
 
-#include "Razix/Maths/RZGrid.h"
+#include "Razix/Math/RZGrid.h"
 
 #include "Razix/Gfx/Renderers/RZRendererSettings.h"
 
@@ -108,6 +102,12 @@ namespace Razix {
             RAZIX_INLINE std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
             RAZIX_INLINE void        setFrameGraphFilePath(std::string val);
 
+            inline void                   setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
+            inline const TextureReadback& getSwapchainReadback() { return m_LastSwapchainReadback; }
+
+            void clearFrameGraph();
+            void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings);
+
         private:
             FrameGraph::RZFrameGraph m_FrameGraph;
             // Frame Graph Import Data
@@ -125,30 +125,23 @@ namespace Razix {
             RZPBRLightingPass          m_PBRLightingPass;
             RZSkyboxPass               m_SkyboxPass;
             RZGaussianBlurPass         m_GaussianBlurPass;
-            RZImGuiRenderer            m_ImGuiRenderer;
             RZTAAResolvePass           m_TAAResolvePass;
             RZFXAAPass                 m_FXAAPass;
             RZToneMapPass              m_TonemapPass;
             RZCompositionPass          m_CompositePass;
-            //-------------------------------------------
-            // TEST PASSES
-            RZHelloTriangleTestPass   m_HelloTriangleTestPass;
-            RZHelloTextureTestPass    m_HelloTextureTestPass;
-            RZWaveInstrinsicsTestPass m_WaveInstrinsicsTestPass;
-            RZGeomShadersCubeTestPass m_GSCubeTestPass;
-            //-------------------------------------------
 
-            //RZColorGradingPass        m_ColorGradingPass;
+            // swapchain texture readback (mostly used only for tests)
+            TextureReadback m_LastSwapchainReadback;
 
             // Other Variables
             u32         m_FrameCount                                            = 0;
-            Maths::AABB m_SceneAABB                                             = {};
             glm::vec2   m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
             glm::mat4   m_PreviousViewProj                                      = {};
             glm::vec2   m_Jitter                                                = {};
             glm::vec2   m_PreviousJitter                                        = {};
             bool        m_FrameGraphBuildingInProgress                          = true;
             bool        m_IsFGFilePathDirty                                     = false;
+            bool        m_ReadSwapchainThisFrame                                = false;
             std::string m_FrameGraphFilePath                                    = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
             //std::string m_FrameGraphFilePath           = "//RazixFG/Graphs/FrameGraph.User.EditorTest.json";
 

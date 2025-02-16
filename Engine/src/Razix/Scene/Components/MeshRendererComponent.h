@@ -62,10 +62,10 @@ namespace Razix {
                 Mesh->setPath(meshPath);
             }
 
+#if !DISABLE_MATERIALS_LOADING
             // Load/Create a new Material (override the save location)
             std::string materialPath;
             archive(cereal::make_nvp("MaterialPath", materialPath));
-#if !DISABLE_MATERIALS_LOADING
             if (!materialPath.empty()) {
                 // Since we have the path to a material file load it, deserialize it and create the material
                 Mesh->getMaterial()->loadFromFile(materialPath);
@@ -81,9 +81,12 @@ namespace Razix {
                 archive(cereal::make_nvp("MeshName", Mesh->getName()));
                 archive(cereal::make_nvp("MeshPath", Mesh->getPath()));
 
-                auto matPath = "//Assets/Materials/" + Mesh->getMaterial()->getName() + ".rzmaterial";
-                archive(cereal::make_nvp("MaterialPath", matPath));
-                Mesh->getMaterial()->saveToFile();
+                archive(cereal::make_nvp("MaterialPath", "DUMMY"));
+                if (Mesh->getMaterial()) {
+                    auto matPath = "//Assets/Materials/" + Mesh->getMaterial()->getName() + ".rzmaterial";
+                    archive(cereal::make_nvp("MaterialPath", matPath));
+                    Mesh->getMaterial()->saveToFile();
+                }
             } else {
                 std::string Dummy = "Dummy";
                 archive(cereal::make_nvp("MeshName", Dummy));

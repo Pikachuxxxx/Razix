@@ -1,0 +1,13 @@
+﻿/*
+ * Razix Shader File 
+ * Shader.Test.HelloTexture.rzsf : Test shader to render a triangle with a texture
+ * Copyright Razix Engine 2025 by Pikachuxxxx (Phani Srikar)
+ */
+
+#shader vertex
+    #include Shader.Test.HelloTriangle.vert
+#end
+
+#shader fragment
+    #include Shader.Test.HelloTexture.frag
+#end

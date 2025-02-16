@@ -165,11 +165,6 @@ namespace Razix {
             D3D_SAFE_RELEASE(m_SwapchainRTVHeap)
         }
 
-        void DX12Swapchain::Flip()
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-        }
-
         void DX12Swapchain::OnResize(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

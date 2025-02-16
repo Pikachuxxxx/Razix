@@ -31,7 +31,7 @@
 #include <backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/plugins/IconsFontAwesome5.h>
-#include <imgui/plugins/ImGuizmo.h>
+//#include <imgui/plugins/ImGuizmo.h>
 
 #include <cereal/archives/json.hpp>
 
@@ -41,7 +41,7 @@
 
 #include <entt.hpp>
 
-//#define WIP_DX12_RENDERER
+#define ENABLE_IMGUI_EVENT_DATA_CAPTURE 0
 
 namespace Razix {
     RZApplication* RZApplication::s_AppInstance = nullptr;
@@ -189,9 +189,8 @@ namespace Razix {
         auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             // Resize ImGui
-            ImGuiIO& io    = ImGui::GetIO();
-            io.DisplaySize = ImVec2(static_cast<f32>(e.GetWidth()), static_cast<f32>(e.GetHeight()));
-            //io.DisplaySize             = ImVec2(static_cast<f32>(2560), static_cast<f32>(1440));
+            ImGuiIO& io                = ImGui::GetIO();
+            io.DisplaySize             = ImVec2(static_cast<f32>(e.GetWidth()), static_cast<f32>(e.GetHeight()));
             io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
         }
 
@@ -208,7 +207,7 @@ namespace Razix {
 
     bool RZApplication::OnMouseMoved(RZMouseMovedEvent& e)
     {
-#if 1
+#if ENABLE_IMGUI_EVENT_DATA_CAPTURE
         auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io = ImGui::GetIO();
@@ -220,7 +219,7 @@ namespace Razix {
 
     bool RZApplication::OnMouseButtonPressed(RZMouseButtonPressedEvent& e)
     {
-#if 1
+#if ENABLE_IMGUI_EVENT_DATA_CAPTURE
         auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                          = ImGui::GetIO();
@@ -233,7 +232,7 @@ namespace Razix {
 
     bool RZApplication::OnMouseButtonReleased(RZMouseButtonReleasedEvent& e)
     {
-#if 1
+#if ENABLE_IMGUI_EVENT_DATA_CAPTURE
         auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                          = ImGui::GetIO();
@@ -245,7 +244,7 @@ namespace Razix {
 
     bool RZApplication::OnKeyPress(RZKeyPressedEvent& e)
     {
-#if 1
+#if ENABLE_IMGUI_EVENT_DATA_CAPTURE
         auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                 = ImGui::GetIO();
@@ -257,7 +256,7 @@ namespace Razix {
 
     bool RZApplication::OnKeyRelease(RZKeyReleasedEvent& e)
     {
-#if 1
+#if ENABLE_IMGUI_EVENT_DATA_CAPTURE
         auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
             ImGuiIO& io                 = ImGui::GetIO();
@@ -292,6 +291,7 @@ namespace Razix {
         Razix::RZSplashScreen::Get().setLogString("Building FrameGraph...");
 
 #endif
+        // TODO: Put this somewhere else?
         Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
 
         m_CurrentState = AppState::Running;
@@ -299,8 +299,6 @@ namespace Razix {
         Razix::RZSplashScreen::Get().setLogString("Starting Razix Application...");
 
         Razix::RZSplashScreen::Get().ShutDown();
-
-        //m_GPUProfiler.Init(&RZCPUMemoryManager::Get().getSystemAllocator(), RAZIX_MAX_FRAMES, 32);
 
         // Window close event
         m_EventDispatcher.registerCallback<WindowCloseEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowClose));
@@ -381,13 +379,10 @@ namespace Razix {
         m_Frames++;
 
         // RenderGUI
-        //RenderGUI();
+        RenderGUI();
 
         // Update the window and it's surface/video out
         m_Window->OnWindowUpdate();
-
-        // FLip the swap chain to present the rendered image
-        //swapchain->Flip();
 
         {
             RAZIX_PROFILE_SCOPEC("RZApplication::TimeStepUpdates", RZ_PROFILE_COLOR_APPLICATION);
@@ -444,7 +439,7 @@ namespace Razix {
         // Extract the project UUID as as string and convert it back to the RZUUID
         std::string uuid_string;
         archive(cereal::make_nvp("Project ID", uuid_string));
-//        m_ProjectID = RZUUID::FromStrFactory(uuid_string);
+        //        m_ProjectID = RZUUID::FromStrFactory(uuid_string);
 
         // Load the scenes from the project file for the engine to load and present
         RAZIX_CORE_TRACE("Loading Scenes...");
@@ -522,21 +517,15 @@ namespace Razix {
 
         // Client App Update
         OnUpdate(dt);
-
-        //m_GPUProfiler.update();
-
-#if 1
-
-#endif
     }
 
     void RZApplication::Render()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        Razix::RZEngine::Get().getWorldRenderer().drawFrame(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
-
         OnRender();
+
+        Razix::RZEngine::Get().getWorldRenderer().drawFrame(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
     }
 
     void RZApplication::RenderGUI()
@@ -546,11 +535,6 @@ namespace Razix {
         auto ctx = ImGui::GetCurrentContext();
         if (!ctx)
             return;
-
-#ifdef RAZIX_RENDER_API_OPENGL
-        if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::OPENGL)
-            ImGui_ImplOpenGL3_NewFrame();
-#endif
 
         // TODO: Well GLFW needs to be removed at some point and we need to use native functions
         if (RZApplication::Get().getAppType() == AppType::GAME)
@@ -563,9 +547,9 @@ namespace Razix {
         (void) io;
 
         ImGui::NewFrame();
-        ImGuizmo::BeginFrame();
+        //ImGuizmo::BeginFrame();
 
-        ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+        //ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
         // World Renderer Tools
         RZEngine::Get().getWorldRenderer().OnImGui();
@@ -580,11 +564,51 @@ namespace Razix {
         // Client side
         OnImGui();
 
-        auto currentScene = RZSceneManager::Get().getCurrentScene();
-
         // Engine App GUI
+        renderEngineStatsOnImGui();
+    }
+
+    void RZApplication::Quit()
+    {
+        // Client side quit customization
+        OnQuit();
+
+        Razix::RZEngine::Get().getWorldRenderer().destroy();
+
+        // Save the scene and the Application
+        RZSceneManager::Get().saveAllScenes();
+        RZSceneManager::Get().destroyAllScenes();
+        SaveApp();
+
+        // FIXME: This is fucked up I'm not cleaning stuff for editor mode
+        if (RZApplication::Get().getAppType() == AppType::GAME)
+            Gfx::RHI::Destroy();
+
+        RAZIX_CORE_ERROR("Closing Application!");
+    }
+
+    void RZApplication::SaveApp()
+    {
+        // Save the app data before closing
+        RAZIX_CORE_WARN("Saving project...");
+        std::string               projectFullPath = m_ProjectPath + m_ProjectName + std::string(".razixproject");
+        std::ofstream             opAppStream(projectFullPath);
+        cereal::JSONOutputArchive saveArchive(opAppStream);
+        saveArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
+    }
+
+    void RZApplication::renderEngineImGuiElements()
+    {
+        renderRuntimeAssetsIconsOnImGui();
+        renderEngineStatsOnImGui();
+    }
+
+    void RZApplication::renderRuntimeAssetsIconsOnImGui()
+    {
+#if 0
         // Guizmo Controls for an Entity
         if (m_EnableGuizmoEditing) {
+            auto currentScene = RZSceneManager::Get().getCurrentScene();
             //auto&          registry     = currentScene->getRegistry();
             //auto           cameraView   = registry.view<CameraComponent>();
             //RZSceneCamera* cam          = nullptr;
@@ -593,20 +617,20 @@ namespace Razix {
             //    cam = &cameraView.get<CameraComponent>(cameraView.front()).Camera;
             //}
 
-            auto& cam = currentScene->getSceneCamera();
+//            auto& cam = currentScene->getSceneCamera();
 
             // Guizmo Editing Here
             TransformComponent& tc              = m_GuizmoEntity.GetComponent<TransformComponent>();
             glm::mat4           transformMatrix = tc.GetLocalTransform();
-            glm::mat4           deltaMatrix     = glm::mat4(1.0f);
+//            glm::mat4           deltaMatrix     = glm::mat4(1.0f);
 
             //ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, glm::value_ptr(transformMatrix));
 
             // https://github.com/CedricGuillemet/ImGuizmo/issues/237
-            ImGuizmo::Manipulate(glm::value_ptr(cam.getViewMatrix()), glm::value_ptr(cam.getProjectionRaw()), (ImGuizmo::OPERATION) m_GuizmoOperation, (ImGuizmo::MODE) m_GuizmoMode, glm::value_ptr(transformMatrix), glm::value_ptr(deltaMatrix), &m_GuizmoSnapAmount);
+            //ImGuizmo::Manipulate(glm::value_ptr(cam.getViewMatrix()), glm::value_ptr(cam.getProjectionRaw()), (ImGuizmo::OPERATION) m_GuizmoOperation, (ImGuizmo::MODE) m_GuizmoMode, glm::value_ptr(transformMatrix), glm::value_ptr(deltaMatrix), &m_GuizmoSnapAmount);
 
             f32 matrixTranslation[3], matrixRotation[3], matrixScale[3];
-            ImGuizmo::DecomposeMatrixToComponents(&(transformMatrix[0][0]), matrixTranslation, matrixRotation, matrixScale);
+            //ImGuizmo::DecomposeMatrixToComponents(&(transformMatrix[0][0]), matrixTranslation, matrixRotation, matrixScale);
 
             tc.Translation = glm::vec3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
             tc.Rotation    = glm::vec3(glm::radians(matrixRotation[0]), glm::radians(matrixRotation[1]), glm::radians(matrixRotation[2]));
@@ -614,72 +638,18 @@ namespace Razix {
             tc.Transform   = transformMatrix;
         }
 
-        ImGui::SetNextWindowBgAlpha(0.1f);    // Transparent background
-        ImGui::Begin("Icons Test");
-        {
-            ImGui::Text(ICON_FA_PAINT_BRUSH "  Paint");    // use string literal concatenation
-            ImGui::Button(ICON_FA_WATER);
-
-            ImGui::Button(ICON_FA_CAMERA);
-        }
-        ImGui::End();
-
         // TODO: As for Icons of the components or any other entities we will get them using the entt
         // Get their position in the worldspace and check it against the camera frustum and
         // convert it to screen space and render a non-clickable ImGui::Button with the FontIcon as image
-
-        // Icons for Components
-#if 0
- {
-            auto& registry   = RZSceneManager::Get().getCurrentScene()->getRegistry();
-            auto& scnCam     = RZSceneManager::Get().getCurrentScene()->getSceneCamera();
-            auto  LightGroup = registry.group<LightComponent>(entt::get<TransformComponent>);
-
-            ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs;
-            ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-            ImGui::SetNextWindowBgAlpha(0.0f);    // Transparent background
-            ImGui::SetNextWindowSize(ImVec2((f32) getWindow()->getWidth(), (f32) getWindow()->getHeight()));
-            ImGui::Begin("Icons", 0, window_flags);
-
-            for (auto entity: LightGroup) {
-                const auto& [component, trans] = LightGroup.template get<LightComponent, TransformComponent>(entity);
-
-                glm::vec3 pos = trans.Translation;
-
-                glm::vec2  screenPos         = pos;
-                const auto transformMat      = trans.GetWorldTransform();
-                auto       screenSpaceCoords = glm::project(pos, scnCam.getViewMatrix() * transformMat, scnCam.getProjection(), glm::vec4(0.0f, 0.0f, getWindow()->getWidth(), getWindow()->getHeight()));
-                ImGui::SetCursorPos({screenSpaceCoords.x, screenSpaceCoords.y});
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.7f, 0.7f, 0.0f));
-
-                ImGui::Button(ICON_FA_LIGHTBULB);
-
-                ImGui::PopStyleColor();
-            }
-
-            auto entities = currentScene->GetComponentsOfType<TransformComponent>();
-            for (auto& entity: entities) {
-                glm::vec3 pos = entity.Translation;
-
-                glm::vec2 screenPos         = pos;
-                auto      transformMat      = entity.GetWorldTransform();
-                auto      screenSpaceCoords = glm::project(pos, scnCam.getViewMatrix() * transformMat, scnCam.getProjection(), glm::vec4(0.0f, 0.0f, getWindow()->getWidth(), getWindow()->getHeight()));
-                ImGui::SetCursorPos({screenSpaceCoords.x, screenSpaceCoords.y});
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.7f, 0.7f, 0.0f));
-
-                ImGui::Button(ICON_FA_CANNABIS);
-
-                ImGui::PopStyleColor();
-            }
-
-            ImGui::End();
-        }
 #endif
+    }
 
+    void RZApplication::renderEngineStatsOnImGui()
+    {
         // Engine Stats
         {
             // Engine stats
-            ImGuiWindowFlags     window_flags     = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
+            ImGuiWindowFlags     window_flags     = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
             const f32            DISTANCE         = 10.0f;
             const ImGuiViewport* viewport         = ImGui::GetMainViewport();
             ImVec2               work_area_pos    = viewport->WorkPos;    // Use work area to avoid menu-bar/task-bar, if any!
@@ -687,7 +657,6 @@ namespace Razix {
             ImVec2               window_pos       = ImVec2((1 & 1) ? (work_area_pos.x + work_area_size.x - DISTANCE) : (work_area_pos.x + DISTANCE), (1 & 2) ? (work_area_pos.y + work_area_size.y - DISTANCE) : (work_area_pos.y + DISTANCE));
             ImVec2               window_pos_pivot = ImVec2((1 & 1) ? 1.0f : 0.0f, (1 & 2) ? 1.0f : 0.0f);
             ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-            ImGui::SetNextWindowViewport(viewport->ID);
             ImGui::SetNextWindowBgAlpha(0.35f);    // Transparent background
 
             ImGui::Begin("Engine Stats", 0, window_flags);
@@ -745,39 +714,7 @@ namespace Razix {
             }
             ImGui::End();
         }
-
-        // GPU Profiler Pipeline Stats
-        //m_GPUProfiler.onImGuiDraw();
-
         ImGui::Render();
     }
 
-    void RZApplication::Quit()
-    {
-        Razix::RZEngine::Get().getWorldRenderer().destroy();
-
-        // Client side quit customization
-        OnQuit();
-
-        // Save the scene and the Application
-        RZSceneManager::Get().saveAllScenes();
-        RZSceneManager::Get().destroyAllScenes();
-        SaveApp();
-
-        // FIXME: This is fucked up I'm not cleaning stuff for editor mode
-        if (RZApplication::Get().getAppType() == AppType::GAME)
-            Gfx::RHI::Release();
-
-        RAZIX_CORE_ERROR("Closing Application!");
-    }
-
-    void RZApplication::SaveApp()
-    {
-        // Save the app data before closing
-        RAZIX_CORE_WARN("Saving project...");
-        std::string               projectFullPath = m_ProjectPath + m_ProjectName + std::string(".razixproject");
-        std::ofstream             opAppStream(projectFullPath);
-        cereal::JSONOutputArchive saveArchive(opAppStream);
-        saveArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
-    }
 }    // namespace Razix

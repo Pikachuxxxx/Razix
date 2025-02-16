@@ -9,6 +9,8 @@ project "EngineTests"
 
     files
     {
+        "../TestCommon/**.h",
+        "../TestCommon/**.cpp",
         "./*.cpp",
         "./**.cpp"
     }
@@ -51,6 +53,7 @@ project "EngineTests"
         "%{InternalIncludeDir.RazixMemory}",
         "%{InternalIncludeDir.RZSTL}",
         -- googletest vendor
+        "%{wks.location}/../Tests/",
         "%{wks.location}/../Tests/vendor/googletest/googletest",
         "%{wks.location}/../Tests/vendor/googletest/googletest/include"
     }
@@ -88,6 +91,7 @@ project "EngineTests"
         "%{InternalIncludeDir.RazixMemory}",
         "%{InternalIncludeDir.RZSTL}",
         -- googletest vendor
+        "%{wks.location}/../Tests/",
         "%{wks.location}/../Tests/vendor/googletest/googletest",
         "%{wks.location}/../Tests/vendor/googletest/googletest/include"
     }

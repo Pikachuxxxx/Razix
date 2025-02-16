@@ -33,6 +33,7 @@ namespace Razix {
                      */
                     m_VMAAllocFlags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
                     m_UsageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+                    break;
                 }
                 case BufferUsage::Staging:
                     /**
@@ -98,7 +99,7 @@ namespace Razix {
                 RAZIX_CORE_ASSERT((res == VK_SUCCESS), "[Vulkan] Failed to map buffer!");
             }
 #else
-            if (m_Usage == BufferUsage::Staging) {
+            if (m_Usage == BufferUsage::Staging || m_Usage == BufferUsage::ReadBack) {
                 res = vmaMapMemory(VKDevice::Get().getVMA(), m_VMAAllocation, &m_Mapped);
                 RAZIX_CORE_ASSERT((res == VK_SUCCESS), "[VMA] Failed to map buffer!");
             }
@@ -115,7 +116,7 @@ namespace Razix {
                 vkUnmapMemory(VKDevice::Get().getDevice(), m_BufferMemory);
             }
 #else
-            if (m_Usage == BufferUsage::Staging && m_Mapped)
+            if ((m_Usage == BufferUsage::Staging || m_Usage == BufferUsage::ReadBack) && m_Mapped)
                 vmaUnmapMemory(VKDevice::Get().getVMA(), m_VMAAllocation);
 #endif
             m_Mapped = nullptr;
