@@ -104,7 +104,7 @@ namespace Razix {
         void Quit();
 
         /* Save the application */
-        void SaveApp() const;
+        void SaveApp();
 
         /**
          * Renders the frame and displays the graphics and updates the window

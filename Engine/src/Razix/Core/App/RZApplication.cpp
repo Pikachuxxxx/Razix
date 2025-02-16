@@ -587,7 +587,7 @@ namespace Razix {
         RAZIX_CORE_ERROR("Closing Application!");
     }
 
-    void RZApplication::SaveApp() const
+    void RZApplication::SaveApp()
     {
         // Save the app data before closing
         RAZIX_CORE_WARN("Saving project...");
@@ -605,6 +605,7 @@ namespace Razix {
 
     void RZApplication::renderRuntimeAssetsIconsOnImGui()
     {
+#if 0
         // Guizmo Controls for an Entity
         if (m_EnableGuizmoEditing) {
             auto currentScene = RZSceneManager::Get().getCurrentScene();
@@ -616,12 +617,12 @@ namespace Razix {
             //    cam = &cameraView.get<CameraComponent>(cameraView.front()).Camera;
             //}
 
-            auto& cam = currentScene->getSceneCamera();
+//            auto& cam = currentScene->getSceneCamera();
 
             // Guizmo Editing Here
             TransformComponent& tc              = m_GuizmoEntity.GetComponent<TransformComponent>();
             glm::mat4           transformMatrix = tc.GetLocalTransform();
-            glm::mat4           deltaMatrix     = glm::mat4(1.0f);
+//            glm::mat4           deltaMatrix     = glm::mat4(1.0f);
 
             //ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, glm::value_ptr(transformMatrix));
 
@@ -640,6 +641,7 @@ namespace Razix {
         // TODO: As for Icons of the components or any other entities we will get them using the entt
         // Get their position in the worldspace and check it against the camera frustum and
         // convert it to screen space and render a non-clickable ImGui::Button with the FontIcon as image
+#endif
     }
 
     void RZApplication::renderEngineStatsOnImGui()

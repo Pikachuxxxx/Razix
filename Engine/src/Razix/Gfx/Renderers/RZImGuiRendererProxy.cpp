@@ -94,10 +94,10 @@ namespace Razix {
             }
 
             imguiVB->UnMap();
-            //imguiVB->Flush();
+            imguiVB->Flush();
 
             imguiIB->UnMap();
-            //imguiIB->Flush();
+            imguiIB->Flush();
         }
 
         void RZImGuiRendererProxy::Draw(RZDrawCommandBufferHandle cmdBuffer)
@@ -250,7 +250,6 @@ namespace Razix {
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             constexpr u32 MaxBufferSize = 16_Mib;
-            constexpr u32 MaxQuadVerts  = 6;
 
             RZBufferDesc vertexBufferDesc = {};
             vertexBufferDesc.name         = "VB_ImGui";
