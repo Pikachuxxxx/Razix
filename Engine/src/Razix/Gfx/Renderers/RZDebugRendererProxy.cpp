@@ -76,10 +76,10 @@ namespace Razix {
                 auto pointColorVBResource    = RZResourceManager::Get().getVertexBufferResource(m_PointColor_VB);
 
                 // Map the VBO
-                pointPositionVBResource->Map(PointPositionDataSize * static_cast<u32>(m_DrawList.m_DebugPoints.size()) * MaxQuadVerts);
+                pointPositionVBResource->Map(PointPositionVertexBufferSize);
                 glm::vec3* pointsVertexData = (glm::vec3*) pointPositionVBResource->GetMappedBuffer();
 
-                pointColorVBResource->Map(PointColorDataSize * static_cast<u32>(m_DrawList.m_DebugPoints.size()) * MaxQuadVerts);
+                pointColorVBResource->Map(PointColorVertexBufferSize);
                 glm::vec3* pointsColorData = (glm::vec3*) pointColorVBResource->GetMappedBuffer();
 
                 u32 pointIdx = 0;
@@ -117,10 +117,10 @@ namespace Razix {
                 auto lineColorVBResource    = RZResourceManager::Get().getVertexBufferResource(m_LineColor_VB);
 
                 // Map the VBOs
-                linePositionVBResource->Map(LinePositionDataSize * static_cast<u32>(m_DrawList.m_DebugLines.size()) * MaxLineVertices);
+                linePositionVBResource->Map(LinePositionVertexBufferSize);
                 glm::vec4* linePositionData = static_cast<glm::vec4*>(linePositionVBResource->GetMappedBuffer());
 
-                lineColorVBResource->Map(LineColorDataSize * static_cast<u32>(m_DrawList.m_DebugLines.size()) * MaxLineVertices);
+                lineColorVBResource->Map(LineColorVertexBufferSize);
                 glm::vec4* lineColorData = static_cast<glm::vec4*>(lineColorVBResource->GetMappedBuffer());
 
                 u32 lineIdx = 0;
@@ -205,7 +205,7 @@ namespace Razix {
         {
             RZResourceManager::Get().destroyPipeline(m_LinePipeline);
             RZResourceManager::Get().destroyPipeline(m_PointPipeline);
-            
+
             RZResourceManager::Get().destroyIndexBuffer(m_LineIB);
             RZResourceManager::Get().destroyVertexBuffer(m_LinePosition_VB);
             RZResourceManager::Get().destroyVertexBuffer(m_LineColor_VB);

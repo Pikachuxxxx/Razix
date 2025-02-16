@@ -6,8 +6,8 @@
 //------------------------------------------------------------------------------
 struct VSInput
 {
-    float2 UV: TEXCOORD;
-    float4 Color: COLOR;
+    float2 UV: TEXCOORD0;
+    float4 Color: COLOR0;
 };
 //------------------------------------------------------------------------------
 Texture2D g_FontTexture : register(t0, space0);

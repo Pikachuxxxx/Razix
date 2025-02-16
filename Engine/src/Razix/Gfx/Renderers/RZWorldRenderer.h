@@ -125,7 +125,6 @@ namespace Razix {
             RZPBRLightingPass          m_PBRLightingPass;
             RZSkyboxPass               m_SkyboxPass;
             RZGaussianBlurPass         m_GaussianBlurPass;
-            RZImGuiRendererProxy       m_ImGuiRenderer;
             RZTAAResolvePass           m_TAAResolvePass;
             RZFXAAPass                 m_FXAAPass;
             RZToneMapPass              m_TonemapPass;

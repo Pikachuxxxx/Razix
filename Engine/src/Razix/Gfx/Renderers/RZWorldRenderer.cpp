@@ -265,9 +265,9 @@ namespace Razix {
                     RZDebugRendererProxy::Get().End();
                     RAZIX_TIME_STAMP_END();
                 });
-            
-            auto sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
-            
+
+            auto& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
+
             //-------------------------------
             // ImGui Pass
             //-------------------------------
@@ -276,23 +276,20 @@ namespace Razix {
                 [&](auto&, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
-                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
+                    builder.read(sceneData.sceneHDR);
+                    builder.read(sceneData.sceneDepth);
 
-                    m_ImGuiRenderer.Init();
+                    RZImGuiRendererProxy::Get().Init();
                 },
                 [&](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("ImGui Pass");
 
-                    m_ImGuiRenderer.Begin(scene);
+                    RZImGuiRendererProxy::Get().Begin(scene);
 
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
-
-                    //auto sceneHDR   = m_FrameGraph.getBlackboard().getID("SceneHDR");
-                    //auto sceneDepth = m_FrameGraph.getBlackboard().getID("SceneDepth");
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
@@ -303,15 +300,15 @@ namespace Razix {
                     RHI::BeginRendering(Gfx::RHI::GetCurrentCommandBuffer(), info);
 
                     if (settings.renderFeatures & RendererFeature_ImGui)
-                        m_ImGuiRenderer.Draw(Gfx::RHI::GetCurrentCommandBuffer());
+                        RZImGuiRendererProxy::Get().Draw(Gfx::RHI::GetCurrentCommandBuffer());
 
-                    m_ImGuiRenderer.End();
+                    RZImGuiRendererProxy::Get().End();
                     RAZIX_TIME_STAMP_END();
                 });
 
             sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
-            m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
+            //m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
 
 #ifdef ENABLE_EACH_PASS_AS_WE_FIX
 
@@ -407,7 +404,6 @@ namespace Razix {
              * Workaround: have unique resources names
              */
 
-            
 #endif
 
             //-------------------------------
@@ -502,7 +498,7 @@ namespace Razix {
             m_FrameGraph.destroy();
 
             // Destroy Renderers
-            // m_ImGuiRenderer.Destroy();
+            RZImGuiRendererProxy::Get().Destroy();
             RZDebugRendererProxy::Get().Destroy();
 
             // Destroy Passes
@@ -519,7 +515,7 @@ namespace Razix {
             m_CompositePass.destroy();
             m_ShadowPass.destroy();
 
-            // Wait for GPU to be done
+            // Wait for GPU to be done 
             Gfx::RZGraphicsContext::GetContext()->Wait();
         }
 

@@ -53,7 +53,7 @@ namespace Razix {
 
             setupResources();
 
-//            loadImGuiFonts();
+            loadImGuiFonts();
 
             if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::VULKAN)
                 ImGui_ImplGlfw_InitForVulkan((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
@@ -77,8 +77,8 @@ namespace Razix {
 
             auto imguiVB = RZResourceManager::Get().getVertexBufferResource(m_ImGuiVBO);
             auto imguiIB = RZResourceManager::Get().getIndexBufferResource(m_ImGuiIBO);
-            imguiVB->Map();
-            imguiIB->Map();
+            imguiVB->Map(vertexBufferSize, 0);
+            imguiIB->Map(indexBufferSize, 0);
 
             // Upload vertex and index data to the GPU
             ImDrawVert* vtxDst = (ImDrawVert*) imguiVB->GetMappedBuffer();
@@ -94,7 +94,10 @@ namespace Razix {
             }
 
             imguiVB->UnMap();
+            //imguiVB->Flush();
+
             imguiIB->UnMap();
+            //imguiIB->Flush();
         }
 
         void RZImGuiRendererProxy::Draw(RZDrawCommandBufferHandle cmdBuffer)
@@ -110,9 +113,9 @@ namespace Razix {
             RHI::SetViewport(cmdBuffer, 0, 0, (u32) io.DisplaySize.x, (u32) io.DisplaySize.y);
 
             m_PushConstantData.scale         = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
-            m_PushConstantData.translate     = glm::vec2(-1.0f);
+            m_PushConstantData.translate     = glm::vec2(-1.0f, -1.0f);
             RZPushConstant imguiPushConstant = {};
-            imguiPushConstant.name           = "ImGui PushConstant";
+            imguiPushConstant.name           = "PushConstant";
             imguiPushConstant.shaderStage    = ShaderStage::kVertex;
             imguiPushConstant.size           = sizeof(PushConstant);
             imguiPushConstant.data           = &m_PushConstantData;
@@ -140,16 +143,17 @@ namespace Razix {
                     // So I don't see putting such hacky stuff in here, I don't want to be a bitch about making everything super decoupled,
                     // When life gives you oranges that taste like lemonade you still consume them, this doesn't affect the performance at all
                     // Just deal with this cause everything else was done manually, we'll see if this is a issue when we use multi-viewports, until then Cyao BITCH!!!
-                    RHI::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (u32) (pcmd->ClipRect.z - pcmd->ClipRect.x), (u32) (pcmd->ClipRect.w - pcmd->ClipRect.y));
+                    //RHI::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (u32) (pcmd->ClipRect.z - pcmd->ClipRect.x), (u32) (pcmd->ClipRect.w - pcmd->ClipRect.y));
 
 #ifdef RAZIX_RENDER_API_VULKAN
                     RZEngine::Get().GetStatistics().NumDrawCalls++;
                     RZEngine::Get().GetStatistics().IndexedDraws++;
 
-                    // FIXME: RZAPIRenderer::DrawIndexed(cmdBuffer, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
-                    VkCommandBuffer* cmdBuf = (VkCommandBuffer*) (cmdBufferResource->getAPIBuffer());
+                    //FIXME: RZAPIRenderer::DrawIndexed(cmdBuffer, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
+                    //RHI::DrawIndexed(cmdBuffer, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
+                    VkCommandBuffer cmdBuf = *(VkCommandBuffer*) (cmdBufferResource->getAPIBuffer());
                     if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::VULKAN)
-                        vkCmdDrawIndexed(*cmdBuf, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
+                        vkCmdDrawIndexed(cmdBuf, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
 #endif
                     indexOffset += pcmd->ElemCount;
                 }
@@ -184,7 +188,6 @@ namespace Razix {
             RZResourceManager::Get().destroyVertexBuffer(m_ImGuiVBO);
             RZResourceManager::Get().destroyTexture(m_FontAtlasTexture);
             RZResourceManager::Get().destroyDescriptorSet(m_FontAtlasDescriptorSet);
-            RZResourceManager::Get().destroyShader(m_ImGuiShader);
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
 
@@ -247,21 +250,21 @@ namespace Razix {
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            constexpr u32 MaxBufferSize = 64_Mib;
+            constexpr u32 MaxBufferSize = 16_Mib;
             constexpr u32 MaxQuadVerts  = 6;
 
             RZBufferDesc vertexBufferDesc = {};
             vertexBufferDesc.name         = "VB_ImGui";
             vertexBufferDesc.usage        = BufferUsage::PersistentStream;
             vertexBufferDesc.size         = MaxBufferSize;
-            vertexBufferDesc.data         = nullptr;
+            vertexBufferDesc.data         = NULL;
             m_ImGuiVBO                    = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
 
             RZBufferDesc indexBufferDesc = {};
             indexBufferDesc.name         = "IB_ImGui";
             indexBufferDesc.usage        = BufferUsage::PersistentStream;
-            indexBufferDesc.count        = MaxBufferSize * MaxQuadVerts;
-            indexBufferDesc.data         = nullptr;
+            indexBufferDesc.count        = MaxBufferSize;
+            indexBufferDesc.data         = NULL;
             m_ImGuiIBO                   = RZResourceManager::Get().createIndexBuffer(indexBufferDesc);
         }
 
@@ -279,36 +282,41 @@ namespace Razix {
 
             // Add icon fonts to ImGui
             io.Fonts->AddFontDefault();
+
             // merge in icons from Font Awesome
             static const ImWchar icons_ranges[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
             ImFontConfig         icons_config;
             icons_config.MergeMode  = true;
             icons_config.PixelSnapH = true;
+            // https://github.com/ocornut/imgui/issues/1259
+            icons_config.FontDataOwnedByAtlas = false;
             std::string trueFontPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/Fonts/" + std::string(FONT_ICON_FILE_NAME_FAS), trueFontPath);
             io.Fonts->AddFontFromFileTTF(trueFontPath.c_str(), 12.0f, &icons_config, icons_ranges);
 
-            unsigned char* fontData;
+            unsigned char* fontData = NULL;
             int            texWidth, texHeight;
             io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
             u32 uploadSize = texWidth * texHeight * 4 * sizeof(char);
 
-            RZTextureDesc imguiFontTextureDesc{};
-            imguiFontTextureDesc.name   = "Texture.ImGui.AwesomeFontIconAtlas";
-            imguiFontTextureDesc.width  = (u32) texWidth;
-            imguiFontTextureDesc.height = (u32) texHeight;
-            imguiFontTextureDesc.data   = fontData;
-            imguiFontTextureDesc.size   = uploadSize;
-            imguiFontTextureDesc.type   = TextureType::k2D;
-            imguiFontTextureDesc.format = TextureFormat::RGBA8;
+            RZTextureDesc imguiFontTextureDesc         = {};
+            imguiFontTextureDesc.name                  = "Texture.ImGui.AwesomeFontIconAtlas";
+            imguiFontTextureDesc.width                 = (u32) texWidth;
+            imguiFontTextureDesc.height                = (u32) texHeight;
+            imguiFontTextureDesc.data                  = fontData;
+            imguiFontTextureDesc.size                  = uploadSize;
+            imguiFontTextureDesc.type                  = TextureType::k2D;
+            imguiFontTextureDesc.initResourceViewHints = kSRV;
+            imguiFontTextureDesc.format                = TextureFormat::RGBA8;
 
             m_FontAtlasTexture = RZResourceManager::Get().createTexture(imguiFontTextureDesc);
 
             for (auto& setInfo: setInfos) {
                 // Fill the descriptors with buffers and textures
                 for (auto& descriptor: setInfo.second) {
-                    if (descriptor.bindingInfo.type == Gfx::DescriptorType::kImageSamplerCombined)
+                    if (descriptor.bindingInfo.type == Gfx::DescriptorType::kTexture)
                         descriptor.texture = m_FontAtlasTexture;
+                    // sampler use a default one
                 }
 
                 RZDescriptorSetDesc descSetCreateDesc = {};

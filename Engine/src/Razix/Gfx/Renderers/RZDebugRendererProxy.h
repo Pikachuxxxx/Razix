@@ -56,8 +56,6 @@ namespace Razix {
         class RAZIX_API RZDebugRendererProxy : public IRZRendererProxy, public RZSingleton<RZDebugRendererProxy>
         {
         public:
-            RZDebugRendererProxy()  = default;
-            ~RZDebugRendererProxy() = default;
 
             //-------------------------------------------------------------
             // IRZRendererProxy

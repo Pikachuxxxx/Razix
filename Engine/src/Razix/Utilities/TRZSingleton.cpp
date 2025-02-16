@@ -9,6 +9,7 @@
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 #include "Razix/Gfx/RZShaderLibrary.h"
 #include "Razix/Gfx/Renderers/RZDebugRendererProxy.h"
+#include "Razix/Gfx/Renderers/RZImGuiRendererProxy.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 #include "Razix/Scene/RZSceneManager.h"
 #include "Razix/Scripting/RZLuaScriptHandler.h"
@@ -35,6 +36,7 @@ namespace Razix {
     template class Razix::RZSingleton<Razix::RZSceneManager>;
     template class Razix::RZSingleton<Razix::Scripting::RZLuaScriptHandler>;
     template class Razix::RZSingleton<Razix::Gfx::RZDebugRendererProxy>;
+    template class Razix::RZSingleton<Razix::Gfx::RZImGuiRendererProxy>;
 
 #ifdef RAZIX_RENDER_API_VULKAN
     template class Razix::RZSingleton<Razix::Gfx::VKDevice>;

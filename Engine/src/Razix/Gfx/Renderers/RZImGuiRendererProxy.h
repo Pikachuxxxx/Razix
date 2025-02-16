@@ -32,7 +32,7 @@ namespace Razix {
          * Note: Used GLFW for events, once engine wide common Input-platform system is done we can use that to redirect events to ImGui controls 
          * such as for consoles etc.
          */
-        class RAZIX_API RZImGuiRendererProxy : public IRZRendererProxy
+        class RAZIX_API RZImGuiRendererProxy : public IRZRendererProxy, public RZSingleton<RZImGuiRendererProxy>
         {
         private:
             struct PushConstant
@@ -41,17 +41,7 @@ namespace Razix {
                 glm::vec2 translate;
             };
 
-            struct ImGuiVertex
-            {
-                glm::vec2 pos;
-                glm::vec2 uv;
-                glm::vec4 color;
-            };
-
         public:
-            RZImGuiRendererProxy() {}
-            ~RZImGuiRendererProxy() {}
-
             void Init() override;
             void Begin(RZScene* scene) override;
             void Draw(RZDrawCommandBufferHandle cmdBuffer) override;

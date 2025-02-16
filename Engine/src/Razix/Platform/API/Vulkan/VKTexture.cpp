@@ -173,13 +173,13 @@ namespace Razix {
             }
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_FinalImageLayout);
 
-            char* data = new char[m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL];
+            char* data = (char*) Memory::RZMalloc(m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL * sizeof(char));
             m_TransferBuffer.map();
             data = (char*) m_TransferBuffer.getMappedRegion();
             // Read and return the pixel value
             int32_t pixel_value = ((int32_t*) data)[(x) + (m_Desc.width * y)];
             m_TransferBuffer.unMap();
-            delete[] data;
+            Memory::RZFree(data);
 
             return pixel_value;
         }
@@ -233,7 +233,7 @@ namespace Razix {
 
             if (desc.data) {
                 loadImageDataFromFile();
-                delete (u8*) m_Desc.data;
+             //   delete m_Desc.data;
             }
 
             if (m_Desc.enableMips) {

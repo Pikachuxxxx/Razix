@@ -224,6 +224,13 @@ namespace Razix {
                         m_VertexInputAttributeDescriptions.push_back(verextInputattribDesc3);
 
                         m_VertexInputStride = 20;
+
+                        m_VertexInputBindingDescriptions.clear();
+                        VkVertexInputBindingDescription vertexBindingDescription{};
+                        vertexBindingDescription.binding   = 0;
+                        vertexBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+                        vertexBindingDescription.stride    = sizeof(ImDrawVert);
+                        m_VertexInputBindingDescriptions.push_back(vertexBindingDescription);
                     }
                 }
 

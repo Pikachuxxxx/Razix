@@ -379,7 +379,7 @@ namespace Razix {
         m_Frames++;
 
         // RenderGUI
-        //RenderGUI();
+        RenderGUI();
 
         // Update the window and it's surface/video out
         m_Window->OnWindowUpdate();
@@ -587,7 +587,7 @@ namespace Razix {
         RAZIX_CORE_ERROR("Closing Application!");
     }
 
-    void RZApplication::SaveApp()
+    void RZApplication::SaveApp() const
     {
         // Save the app data before closing
         RAZIX_CORE_WARN("Saving project...");
