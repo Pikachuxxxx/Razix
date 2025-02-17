@@ -254,9 +254,9 @@ namespace Razix {
             }
             // TODO!!: Support more workflows, or read it from material file itself! IMPORVE THIS!!!
             if (m_MaterialData.m_MaterialProperties.isUsingMetallicMap && !m_MaterialData.m_MaterialProperties.isUsingRoughnessMap && !m_MaterialData.m_MaterialProperties.isUsingAOMap)
-                m_MaterialData.m_MaterialProperties.workflow = (u32) WorkFlow::WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED;
+                m_MaterialData.m_MaterialProperties.workflow = (u32) WorkFlow::WORKFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED;
             else
-                m_MaterialData.m_MaterialProperties.workflow = (u32) WorkFlow::WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE;
+                m_MaterialData.m_MaterialProperties.workflow = (u32) WorkFlow::WORKFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE;
 
             // Update the properties buffer
             setProperties(m_MaterialData.m_MaterialProperties);

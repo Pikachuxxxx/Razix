@@ -1,43 +1,40 @@
-#version 450
 /*
- * Razix Engine GLSL Vertex Shader File
- * Vertex shader to render a depth texture onto a Texture2D
+ * Razix Engine HLSL Vertex Shader File
+ * Vertex shader to render a depth texture onto a Texture2DArray
  */
- // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_separate_shader_objects.txt Read this for why this extension is enables for all glsl shaders
-#extension GL_ARB_separate_shader_objects : enable
-// This extension is enabled for additional glsl features introduced after 420 check https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shading_language_420pack.txt for more details
-#extension GL_ARB_shading_language_420pack : enable
-// This extension enables ussage of gl_Layer in the Vertex Shader stage itself instead of using GS 
-// also needs VK_EXT_shader_viewport_index_layer device extension enabled and layersCount in VkRenderingInfo
-#extension GL_ARB_shader_viewport_layer_array : enable
-
 //------------------------------------------------------------------------------
-// Vertex Input
-layout(location = 0) in vec3 inPosition;
-layout(location = 1) in vec4 inColor;   // this is not needed for all types of meshes, but since we use a common vertex shader we need this too
-layout(location = 2) in vec2 inTexCoord;
-layout(location = 3) in vec3 inNormal;
-layout(location = 4) in vec3 inTangent;
+#include <ShaderInclude.Builtin.ShaderLangCommon.h>
+//------------------------------------------------------------------------------
+#include <Common/ShaderInclude.Builtin.VertexInput.h>
 //------------------------------------------------------------------------------
 // Uniforms and Push Constants 
 // view projection matrix
-layout(set = 0, binding = 0) uniform ViewProjectionArrayUBO
+cbuffer LightSpaceMatrix: register(b0, space0)
 {
-    mat4 mat;
-    int layer;
-} VPLayer;
-layout (push_constant) uniform ModelPushConstantData{
-    mat4 worldTransform;
-    mat4 previousWorldTransform;
-}model_pc_data;
- //------------------------------------------------------------------------------ 
-out gl_PerVertex
-{
-    vec4 gl_Position;
+    float4x4 lightSpaceMat;
 };
-//------------------------------------------------------------------------------
-void main()
+
+struct PushConstant 
 {
-    gl_Layer = VPLayer.layer;
-    gl_Position = VPLayer.mat * model_pc_data.worldTransform * vec4(inPosition, 1.0f);
+    float4x4 worldTransform;
+    float4x4 previousWorldTransform;
+};
+PUSH_CONSTANT(PushConstant);
+//------------------------------------------------------------------------------
+struct VSOut 
+{
+    
+    float4 Position: SV_POSITION;
+    uint Layer: SV_RenderTargetArrayIndex;
+};
+
+VSOut VS_MAIN(VSIn vsInput)
+{
+    VSOut output;
+
+    float4 transformedPos = mul(GET_PUSH_CONSTANT(worldTransform), float4(vsInput.inPosition, 1.0f));
+    output.Position = mul(lightSpaceMat, transformedPos);
+    output.Layer = 0; // Pass this from where?
+
+    return output;
 }

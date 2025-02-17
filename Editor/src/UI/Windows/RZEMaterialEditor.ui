@@ -332,22 +332,22 @@ border-style:solid;</string>
        </property>
        <item>
         <property name="text">
-         <string>WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED (BGR)</string>
+         <string>WORKFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED (BGR)</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE</string>
+         <string>WORKFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>WORLFLOW_PBR_SPECULAR_GLOSS_COMBINED</string>
+         <string>WORKFLOW_PBR_SPECULAR_GLOSS_COMBINED</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>WORLFLOW_PBR_SPECULAR_GLOSS_SEPARATE</string>
+         <string>WORKFLOW_PBR_SPECULAR_GLOSS_SEPARATE</string>
         </property>
        </item>
        <item>
@@ -357,7 +357,7 @@ border-style:solid;</string>
        </item>
        <item>
         <property name="text">
-         <string>WORLFLOW_LIT_PHONG</string>
+         <string>WORKFLOW_LIT_PHONG</string>
         </property>
        </item>
       </widget>

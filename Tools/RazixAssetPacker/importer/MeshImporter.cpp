@@ -64,7 +64,7 @@ namespace Razix {
                 if (extension == "gltf" || extension == "glb")
                     m_IsGlTF = true;
 
-                // Let's make a bold assumption here if the model is of GLTF format it has WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED in BGR order
+                // Let's make a bold assumption here if the model is of GLTF format it has WORKFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED in BGR order
 
                 std::cout << "Importing Mesh...\n";
 
@@ -297,7 +297,7 @@ namespace Razix {
             {
                 // Base Color
                 {
-                    //material.m_MaterialProperties.workflow = (u32) Razix::Gfx::WorkFlow::WORLFLOW_LIT_PHONG;
+                    //material.m_MaterialProperties.workflow = (u32) Razix::Gfx::WorkFlow::WORKFLOW_LIT_PHONG;
 
                     bool base_color_texture_found = findTexurePath(materialsDirectory, aiMat, aiTextureType_DIFFUSE, 0, material.m_MaterialTexturePaths.albedo);
                     if (base_color_texture_found)
@@ -318,7 +318,7 @@ namespace Razix {
                      * If it's a GlTF we use a combined metallic roughness AO texture so 
                      */
                     if (m_IsGlTF) {
-                        material.m_MaterialProperties.workflow = (u32) Razix::Gfx::WorkFlow::WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED;
+                        material.m_MaterialProperties.workflow = (u32) Razix::Gfx::WorkFlow::WORKFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED;
 
                         bool metal_roughness_texture_found = findTexurePath(materialsDirectory, aiMat, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, material.m_MaterialTexturePaths.metallicRoughnessAO);
                         if (metal_roughness_texture_found)
@@ -340,7 +340,7 @@ namespace Razix {
                         }
 
                     } else {
-                        material.m_MaterialProperties.workflow = (u32) Razix::Gfx::WorkFlow::WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE;
+                        material.m_MaterialProperties.workflow = (u32) Razix::Gfx::WorkFlow::WORKFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE;
 
                         bool roughness_texture_found = findTexurePath(materialsDirectory, aiMat, aiTextureType_SHININESS, 0, material.m_MaterialTexturePaths.roughness);
                         if (roughness_texture_found)

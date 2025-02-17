@@ -23,9 +23,7 @@ PUSH_CONSTANT(PushConstant);
 //------------------------------------------------------------------------------
 struct VSOut 
 {
-    
-    float4 OutPosition: SV_POSITION;
-    uint OutLayer: SV_RenderTargetArrayIndex;
+    float4 Position: SV_POSITION;
 };
 
 VSOut VS_MAIN(VSIn vsInput)
@@ -33,8 +31,7 @@ VSOut VS_MAIN(VSIn vsInput)
     VSOut output;
 
     float4 transformedPos = mul(GET_PUSH_CONSTANT(worldTransform), float4(vsInput.inPosition, 1.0f));
-    output.OutPosition = mul(lightSpaceMat, transformedPos);
-    output.OutLayer = 0;
+    output.Position = mul(lightSpaceMat, transformedPos);
 
     return output;
 }

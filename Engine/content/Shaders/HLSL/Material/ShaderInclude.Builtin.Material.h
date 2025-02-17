@@ -61,7 +61,7 @@ namespace MaterialTextures {
     Texture2D emissiveMap : register(t6, space1);
     Texture2D aoMap : register(t7, space1);
 
-    SamplerState linearSampler : register(s0, space1);
+    SamplerState linearSampler : register(s8, space1);
 }    // namespace MaterialTextures
 //----------------------------------------------------------------------------
 // Helper Functions
