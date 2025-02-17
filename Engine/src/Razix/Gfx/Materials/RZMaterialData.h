@@ -17,12 +17,12 @@ namespace Razix {
         /* The type of workflow used by the material for authoring the materials for the different lighting models */
         enum class WorkFlow : u32
         {
-            WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED,    // In the order of BGR components! AO = r, Roughness = g, Metal = b
-            WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE,
-            WORLFLOW_PBR_SPECULAR_GLOSS_COMBINED,
-            WORLFLOW_PBR_SPECULAR_GLOSS_SEPARATE,
+            WORKFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED,    // In the order of BGR components! AO = r, Roughness = g, Metal = b
+            WORKFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE,
+            WORKFLOW_PBR_SPECULAR_GLOSS_COMBINED,
+            WORKFLOW_PBR_SPECULAR_GLOSS_SEPARATE,
             WORKFLOW_UNLIT,
-            WORLFLOW_LIT_PHONG
+            WORKFLOW_LIT_PHONG
         };
 
         // TODO: Make this work with bool
@@ -42,7 +42,7 @@ namespace Razix {
             bool      _padding2[4]      = {};
             glm::vec2 uvScale           = {1.0f, 1.0f};
             u32       visible           = true;
-            u32       workflow          = (u32) WorkFlow::WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED;    // Default for GLTF models which are primary source for Razix
+            u32       workflow          = (u32) WorkFlow::WORKFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED;    // Default for GLTF models which are primary source for Razix
             // TODO: Use these as bindless array indices
             u32 isUsingAlbedoMap    = false;
             u32 isUsingNormalMap    = false;
@@ -91,7 +91,6 @@ namespace Razix {
             char ao[250]        = {};
         };
 
-#if 1
         struct MaterialData
         {
             char                 m_Name[250]            = "MT_PBR.Lit.Default";
@@ -103,7 +102,6 @@ namespace Razix {
             template<typename Archive>
             void save(Archive& archive) const
             {
-    #if 1
                 archive(cereal::make_nvp("Name", std::string(m_Name)),
                     cereal::make_nvp("Albedo", m_MaterialTexturePaths.albedo ? std::string(m_MaterialTexturePaths.albedo) : ""),
                     cereal::make_nvp("Normal", m_MaterialTexturePaths.normal ? std::string(m_MaterialTexturePaths.normal) : ""),
@@ -121,7 +119,6 @@ namespace Razix {
                     cereal::make_nvp("isUsingNormalMap", m_MaterialProperties.isUsingNormalMap),
                     cereal::make_nvp("isUsingAOMap", m_MaterialProperties.isUsingAOMap),
                     cereal::make_nvp("isUsingEmissiveMap", m_MaterialProperties.isUsingEmissiveMap));
-    #endif
             }
 
             template<typename Archive>
@@ -136,7 +133,6 @@ namespace Razix {
                 std::string ao;
                 std::string name;
 
-    #if 1
                 archive(cereal::make_nvp("Name", name),
                     cereal::make_nvp("Albedo", albedo),
                     cereal::make_nvp("Normal", normal),
@@ -163,9 +159,7 @@ namespace Razix {
                 memcpy(m_MaterialTexturePaths.normal, normal.c_str(), 250);
                 memcpy(m_MaterialTexturePaths.roughness, roughness.c_str(), 250);
                 memcpy(m_MaterialTexturePaths.specular, specular.c_str(), 250);
-    #endif
             }
         };
-#endif
     }    // namespace Gfx
 }    // namespace Razix

@@ -5,7 +5,6 @@
 //------------------------------------------------------------------------------
 #include <ShaderInclude.Builtin.ShaderLangCommon.h>
 //------------------------------------------------------------------------------
-// Includes
 #include <Common/ShaderInclude.Builtin.VertexInput.h>
 //------------------------------------------------------------------------------
 // Uniforms and Push Constants 

@@ -5,13 +5,9 @@
  */
 
 #shader vertex
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.Mesh.vert.spv
-    #endif
+    #include Shader.Builtin.Mesh.vert
 #end
 
 #shader fragment
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.GBuffer.frag.spv
-    #endif
+    #include Compiled/SPIRV/Shader.Builtin.GBuffer.frag
 #end

@@ -63,7 +63,7 @@ namespace Razix {
                 Gfx::TextureFormat::RGBA16F,
                 Gfx::TextureFormat::RGBA16F,
                 Gfx::TextureFormat::RGBA16F,
-                Gfx::TextureFormat::RG16F,    // Velocity Buffer
+                //Gfx::TextureFormat::RG16F,    // Velocity Buffer
             };
             pipelineInfo.depthFormat = Gfx::TextureFormat::DEPTH32F;
 
@@ -94,10 +94,6 @@ namespace Razix {
                     gbufferTexturesDesc.name = "gBuffer2";
                     data.GBuffer2            = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    gbufferTexturesDesc.name   = "VelocityBuffer";
-                    gbufferTexturesDesc.format = TextureFormat::RG16F;
-                    data.VelocityBuffer        = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
-
                     gbufferTexturesDesc.name   = "SceneDepth";
                     gbufferTexturesDesc.format = TextureFormat::DEPTH32F;
                     gbufferTexturesDesc.type   = TextureType::kDepth;
@@ -123,7 +119,9 @@ namespace Razix {
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer0).getHandle(), {true, ClearColorPresets::TransparentBlack}},
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer1).getHandle(), {true, ClearColorPresets::TransparentBlack}},
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer2).getHandle(), {true, ClearColorPresets::TransparentBlack}},
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.VelocityBuffer).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                        // DISABLED VELOCITY BUFFER
+                        //{resources.get<FrameGraph::RZFrameGraphTexture>(data.VelocityBuffer).getHandle(), {true, ClearColorPresets::TransparentBlack}},
+                    };
                     info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBufferDepth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
                     info.resize          = true;
 
