@@ -19,7 +19,7 @@ enum WorkFlow : uint
 
 //----------------------------------------------------------------------------
 // Material Data
-cbuffer MaterialData : register(b0, space1)
+cbuffer Material : register(b0, space1)
 {
     float3 baseColor;
     float3 normal;
@@ -30,9 +30,9 @@ cbuffer MaterialData : register(b0, space1)
     float  opacity;
     float  ambientOcclusion;
     float2 uvScale;
-    bool   visible;
     uint   workflow;
 
+    bool   visible;
     bool isUsingAlbedoMap;
     bool isUsingNormalMap;
     bool isUsingMetallicMap;
@@ -48,7 +48,7 @@ cbuffer MaterialData : register(b0, space1)
     uint SpecularMapIdx;
     uint EmissiveMapIdx;
     uint AOMapIdx;
-}
+};
 
 //----------------------------------------------------------------------------
 // Material Textures

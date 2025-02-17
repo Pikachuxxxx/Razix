@@ -36,6 +36,8 @@ project "SpirvCross"
         "spirv_reflect.hpp"
     }
 
+    warnings "off"
+
     -- Cinfig settings for Razix Engine project
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }

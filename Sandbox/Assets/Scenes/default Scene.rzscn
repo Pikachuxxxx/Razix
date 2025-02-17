@@ -1,6 +1,6 @@
 {
     "Razix Scene": {
-        "UUID": "425355a2-a859-422c-a838-85cd722497ab",
+        "UUID": "dd8382a4-a46c-4c92-93b2-bd7ea4c00ce6",
         "SceneName": "default Scene",
         "Total Entities": 7
     },
@@ -15,31 +15,31 @@
     "value8": 7,
     "value9": 0,
     "value10": {
-        "UUID": "d\n\u001Aï¿½@ï¿½D!ï¿½6"
+        "UUID": ")[ï¿½ï¿½ï¿½ï¿½C>"
     },
     "value11": 1,
     "value12": {
-        "UUID": "/%ï¿½ï¿½']IJï¿½1"
+        "UUID": "ï¿½\bï¿½\tC{D\u0003ï¿½ï"
     },
     "value13": 2,
     "value14": {
-        "UUID": "ï¿½ï¿½Û¹ï¿½GFï¿½"
+        "UUID": "M_}\u0003.\u0015A#ï¿½ï¿½oï"
     },
     "value15": 3,
     "value16": {
-        "UUID": "ï¿½ï¿½ï¿½+ï¿½ï¿½"
+        "UUID": "ï¿½ï¿½p\r-ï¿½Alï¿"
     },
     "value17": 4,
     "value18": {
-        "UUID": "ï¿½Xï¿½ï¿½`Dï¿½"
+        "UUID": "ï¿½ï¿½dFï¿½ï¿½N\u0016"
     },
     "value19": 5,
     "value20": {
-        "UUID": "2ï¿½<tï¿½ï¿½F3ï¿"
+        "UUID": "Ñ„|ï¿½dï¿½Nï¿½ï¿"
     },
     "value21": 6,
     "value22": {
-        "UUID": "ï¿½.IØ¥ï¿½MTï¿½G"
+        "UUID": "\u001EJï¿½ï¿½ï¿½ï¿½O\u000B"
     },
     "value23": 7,
     "value24": 0,
@@ -129,27 +129,27 @@
             "z": 0.0
         },
         "Scale": {
-            "x": 0.25,
-            "y": 0.25,
-            "z": 0.25
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
         },
         "Transform": {
             "value0": {
-                "value0": 0.25,
+                "value0": 0.5,
                 "value1": 0.0,
                 "value2": 0.0,
                 "value3": 0.0
             },
             "value1": {
                 "value0": 0.0,
-                "value1": 0.25,
+                "value1": 0.5,
                 "value2": 0.0,
                 "value3": 0.0
             },
             "value2": {
                 "value0": 0.0,
                 "value1": 0.0,
-                "value2": 0.25,
+                "value2": 0.5,
                 "value3": 0.0
             },
             "value3": {
@@ -165,7 +165,7 @@
         "Translation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.25
+            "z": 1.0
         },
         "Rotation": {
             "x": 0.0,
@@ -173,33 +173,33 @@
             "z": 0.0
         },
         "Scale": {
-            "x": 0.25,
-            "y": 0.25,
-            "z": 0.25
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
         },
         "Transform": {
             "value0": {
-                "value0": 0.25,
+                "value0": 0.5,
                 "value1": 0.0,
                 "value2": 0.0,
                 "value3": 0.0
             },
             "value1": {
                 "value0": 0.0,
-                "value1": 0.25,
+                "value1": 0.5,
                 "value2": 0.0,
                 "value3": 0.0
             },
             "value2": {
                 "value0": 0.0,
                 "value1": 0.0,
-                "value2": 0.25,
+                "value2": 0.5,
                 "value3": 0.0
             },
             "value3": {
                 "value0": 0.0,
                 "value1": 0.0,
-                "value2": 0.25,
+                "value2": 1.0,
                 "value3": 1.0
             }
         }
@@ -209,7 +209,7 @@
         "Translation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.5
+            "z": 2.0
         },
         "Rotation": {
             "x": 0.0,
@@ -217,33 +217,33 @@
             "z": 0.0
         },
         "Scale": {
-            "x": 0.25,
-            "y": 0.25,
-            "z": 0.25
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
         },
         "Transform": {
             "value0": {
-                "value0": 0.25,
+                "value0": 0.5,
                 "value1": 0.0,
                 "value2": 0.0,
                 "value3": 0.0
             },
             "value1": {
                 "value0": 0.0,
-                "value1": 0.25,
+                "value1": 0.5,
                 "value2": 0.0,
                 "value3": 0.0
             },
             "value2": {
                 "value0": 0.0,
                 "value1": 0.0,
-                "value2": 0.25,
+                "value2": 0.5,
                 "value3": 0.0
             },
             "value3": {
                 "value0": 0.0,
                 "value1": 0.0,
-                "value2": 0.5,
+                "value2": 2.0,
                 "value3": 1.0
             }
         }
@@ -253,7 +253,7 @@
         "Translation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 0.75
+            "z": 3.0
         },
         "Rotation": {
             "x": 0.0,
@@ -261,33 +261,33 @@
             "z": 0.0
         },
         "Scale": {
-            "x": 0.25,
-            "y": 0.25,
-            "z": 0.25
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
         },
         "Transform": {
             "value0": {
-                "value0": 0.25,
+                "value0": 0.5,
                 "value1": 0.0,
                 "value2": 0.0,
                 "value3": 0.0
             },
             "value1": {
                 "value0": 0.0,
-                "value1": 0.25,
+                "value1": 0.5,
                 "value2": 0.0,
                 "value3": 0.0
             },
             "value2": {
                 "value0": 0.0,
                 "value1": 0.0,
-                "value2": 0.25,
+                "value2": 0.5,
                 "value3": 0.0
             },
             "value3": {
                 "value0": 0.0,
                 "value1": 0.0,
-                "value2": 0.75,
+                "value2": 3.0,
                 "value3": 1.0
             }
         }
@@ -297,7 +297,7 @@
         "Translation": {
             "x": 0.0,
             "y": 0.0,
-            "z": 1.0
+            "z": 4.0
         },
         "Rotation": {
             "x": 0.0,
@@ -305,33 +305,33 @@
             "z": 0.0
         },
         "Scale": {
-            "x": 0.25,
-            "y": 0.25,
-            "z": 0.25
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
         },
         "Transform": {
             "value0": {
-                "value0": 0.25,
+                "value0": 0.5,
                 "value1": 0.0,
                 "value2": 0.0,
                 "value3": 0.0
             },
             "value1": {
                 "value0": 0.0,
-                "value1": 0.25,
+                "value1": 0.5,
                 "value2": 0.0,
                 "value3": 0.0
             },
             "value2": {
                 "value0": 0.0,
                 "value1": 0.0,
-                "value2": 0.25,
+                "value2": 0.5,
                 "value3": 0.0
             },
             "value3": {
                 "value0": 0.0,
                 "value1": 0.0,
-                "value2": 1.0,
+                "value2": 4.0,
                 "value3": 1.0
             }
         }
@@ -386,32 +386,32 @@
         "isPrimary": true,
         "Camera": {
             "Position": {
-                "x": 18.748655319213868,
-                "y": -2.881747245788574,
-                "z": -16.83344268798828
+                "x": -4.152470588684082,
+                "y": -32.438270568847659,
+                "z": 32.5914306640625
             },
             "Front": {
-                "x": -0.7573030591011047,
-                "y": 0.08764813840389252,
-                "z": 0.647155225276947
+                "x": 0.06224684789776802,
+                "y": 0.7604060769081116,
+                "z": -0.6464581489562988
             },
             "Up": {
-                "x": 0.06663264334201813,
-                "y": 0.9961515665054321,
-                "z": -0.05694109573960304
+                "x": -0.07288169860839844,
+                "y": 0.649448037147522,
+                "z": 0.7569052577018738
             },
             "Right": {
-                "x": -0.6496554017066956,
-                "y": 0.0,
-                "z": -0.7602287530899048
+                "x": 0.9953962564468384,
+                "y": -0.0,
+                "z": 0.0958457663655281
             },
             "WorldUp": {
                 "x": 0.0,
                 "y": 1.0,
                 "z": 0.0
             },
-            "Yaw": 139.484375,
-            "Pitch": 5.0283203125,
+            "Yaw": -84.5,
+            "Pitch": 49.5,
             "Zoom": 45.0,
             "MovementSpeed": 0.02500000037252903,
             "MouseSensitivity": 0.25,
@@ -422,7 +422,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.9374369382858277,
+            "AspectRatio": 1.7777777910232545,
             "BgColor": {
                 "value0": 0.0,
                 "value1": 0.0,
@@ -437,70 +437,35 @@
         "Primitive": 2,
         "MeshName": "SM_Primitive.Cube",
         "MeshPath": "",
-        "MaterialPath": {
-            "value0": 68,
-            "value1": 85,
-            "value2": 77,
-            "value3": 77,
-            "value4": 89,
-            "value5": 0
-        }
+        "MaterialPath": "//Assets/Materials/MT_PBR.Lit.Default.rzmaterial"
     },
     "value60": 2,
     "value61": {
         "Primitive": 2,
         "MeshName": "SM_Primitive.Cube",
         "MeshPath": "",
-        "MaterialPath": {
-            "value0": 68,
-            "value1": 85,
-            "value2": 77,
-            "value3": 77,
-            "value4": 89,
-            "value5": 0
-        }
+        "MaterialPath": "//Assets/Materials/MT_PBR.Lit.Default.rzmaterial"
     },
     "value62": 3,
     "value63": {
         "Primitive": 2,
         "MeshName": "SM_Primitive.Cube",
         "MeshPath": "",
-        "MaterialPath": {
-            "value0": 68,
-            "value1": 85,
-            "value2": 77,
-            "value3": 77,
-            "value4": 89,
-            "value5": 0
-        }
+        "MaterialPath": "//Assets/Materials/MT_PBR.Lit.Default.rzmaterial"
     },
     "value64": 4,
     "value65": {
         "Primitive": 2,
         "MeshName": "SM_Primitive.Cube",
         "MeshPath": "",
-        "MaterialPath": {
-            "value0": 68,
-            "value1": 85,
-            "value2": 77,
-            "value3": 77,
-            "value4": 89,
-            "value5": 0
-        }
+        "MaterialPath": "//Assets/Materials/MT_PBR.Lit.Default.rzmaterial"
     },
     "value66": 5,
     "value67": {
         "Primitive": 2,
         "MeshName": "SM_Primitive.Cube",
         "MeshPath": "",
-        "MaterialPath": {
-            "value0": 68,
-            "value1": 85,
-            "value2": 77,
-            "value3": 77,
-            "value4": 89,
-            "value5": 0
-        }
+        "MaterialPath": "//Assets/Materials/MT_PBR.Lit.Default.rzmaterial"
     },
     "value68": 0,
     "value69": 1,

@@ -76,19 +76,20 @@ namespace Razix {
         template<class Archive>
         void save(Archive& archive) const
         {
+            const std::string Dummy = "Dummy";
+
             archive(cereal::make_nvp("Primitive", primitive));
             if (Mesh) {
                 archive(cereal::make_nvp("MeshName", Mesh->getName()));
                 archive(cereal::make_nvp("MeshPath", Mesh->getPath()));
 
-                archive(cereal::make_nvp("MaterialPath", "DUMMY"));
                 if (Mesh->getMaterial()) {
                     auto matPath = "//Assets/Materials/" + Mesh->getMaterial()->getName() + ".rzmaterial";
                     archive(cereal::make_nvp("MaterialPath", matPath));
                     Mesh->getMaterial()->saveToFile();
-                }
+                } else
+                    archive(cereal::make_nvp("MaterialPath", Dummy));
             } else {
-                std::string Dummy = "Dummy";
                 archive(cereal::make_nvp("MeshName", Dummy));
                 archive(cereal::make_nvp("MeshPath", Dummy));
                 archive(cereal::make_nvp("MaterialPath", Dummy));

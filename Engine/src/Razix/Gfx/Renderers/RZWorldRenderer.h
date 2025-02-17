@@ -18,7 +18,6 @@
 #include "Razix/Gfx/Passes/RZGIPass.h"
 #include "Razix/Gfx/Passes/RZGaussianBlurPass.h"
 #include "Razix/Gfx/Passes/RZPBRDeferredLightingPass.h"
-#include "Razix/Gfx/Passes/RZPBRLightingPass.h"
 #include "Razix/Gfx/Passes/RZSSAOPass.h"
 #include "Razix/Gfx/Passes/RZShadowPass.h"
 #include "Razix/Gfx/Passes/RZSkyboxPass.h"
@@ -122,7 +121,6 @@ namespace Razix {
             RZGBufferPass              m_GBufferPass;
             RZSSAOPass                 m_SSAOPass;
             RZPBRDeferredLightingPass  m_PBRDeferredPass;
-            RZPBRLightingPass          m_PBRLightingPass;
             RZSkyboxPass               m_SkyboxPass;
             RZGaussianBlurPass         m_GaussianBlurPass;
             RZTAAResolvePass           m_TAAResolvePass;

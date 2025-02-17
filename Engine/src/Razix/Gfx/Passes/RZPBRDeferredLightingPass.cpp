@@ -149,11 +149,6 @@ namespace Razix {
                         if (descriptor)
                             descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer2).getHandle();
 
-                        // Scene SSAO Texture
-                        //descriptor = shaderBindVars["SSAOSceneTexture"];
-                        //if (descriptor)
-                        //    descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(ssaoData.SSAOSceneTexture).getHandle();
-
                         // CSM Array Texture
                         descriptor = shaderBindVars["CSMArray"];
                         if (descriptor)
@@ -172,22 +167,12 @@ namespace Razix {
                     struct PCData
                     {
                         glm::vec3 CameraViewPos;
-                        bool      visCascades = true;
-                        bool      _padding[3] = {0, 0, 0};
-                        glm::mat4 camView;
                         f32       dt;
-                        f32       biasScale = 0.005f;
-                        f32       maxBias   = 0.0005f;
-                    } pcData{};
+                        glm::mat4 camView;
+                    } pcData             = {};
                     pcData.CameraViewPos = scene->getSceneCamera().getPosition();
-                    if (IS_BIT_SET(settings->debugFlags, RendererDebugFlag_VisCSMCascades))
-                        pcData.visCascades = true;
-                    else
-                        pcData.visCascades = false;
-                    pcData.camView   = scene->getSceneCamera().getViewMatrix();
-                    pcData.dt        = RZEngine::Get().GetStatistics().DeltaTime;
-                    pcData.biasScale = biasScale;
-                    pcData.maxBias   = maxBias;
+                    pcData.camView       = scene->getSceneCamera().getViewMatrix();
+                    pcData.dt            = RZEngine::Get().GetStatistics().DeltaTime;
                     RZPushConstant pc;
                     pc.size        = sizeof(PCData);
                     pc.data        = &pcData;

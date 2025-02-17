@@ -12,10 +12,6 @@ namespace Razix {
         class RZPBRDeferredLightingPass : public IRZPass
         {
         public:
-            // TODO: Move these to light component settings, all shadow related settings must be under the LightRendererComponent
-            f32 biasScale = 0.1f;
-            f32 maxBias   = 0.005f;
-
             void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
             void destroy() override;
 

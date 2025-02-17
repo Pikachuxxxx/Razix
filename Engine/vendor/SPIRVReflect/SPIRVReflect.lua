@@ -25,6 +25,8 @@ project "SPIRVReflect"
         "./"
     }
 
+    warnings "off"
+
     filter "system:linux"
         pic "On"
 

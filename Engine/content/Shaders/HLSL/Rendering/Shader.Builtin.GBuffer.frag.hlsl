@@ -22,7 +22,6 @@ struct PSOut
      float4 GBuffer1 : SV_Target1;
      float4 GBuffer2 : SV_Target2;
 };
-
 //------------------------------------------------------------------------------
 PSOut PS_MAIN(PSIn input)
 {

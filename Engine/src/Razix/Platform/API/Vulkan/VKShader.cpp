@@ -82,7 +82,7 @@ namespace Razix {
                     m_SceneParams.enableMaterials = true;
                     continue;
 
-                } else if (descriptor.name == "SceneLightsData") {
+                } else if (descriptor.name == "SceneLights") {
                     m_SceneParams.enableLights = true;
                     continue;
                 }

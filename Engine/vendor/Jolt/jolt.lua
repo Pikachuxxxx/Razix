@@ -4,7 +4,7 @@ project "Jolt"
     cppdialect "C++17" -- Exception as Jolt was initially authored using C++17
     staticruntime "off"
 
-     includedirs
+    includedirs
     {
          "./",
          "./Jolt"

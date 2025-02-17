@@ -473,10 +473,8 @@ namespace Razix {
             Default,
             Skybox,
             ProceduralSkybox,
-            PBRLighting,
-            PBRIBL,
-            PBRDeferredLighting,
             GBuffer,
+            PBRDeferredLighting,
             //----------------
             VisibilityBufferFill,
             //----------------

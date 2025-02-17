@@ -46,8 +46,10 @@ public:
                 // Add 5 spheres
                 float spacing = 1.0;
                 for (uint32_t i = 0; i < 5; i++) {
-                    auto sphereMesh = scene->createEntity("Sphere_" + std::to_string(i));
-                    sphereMesh.AddComponent<MeshRendererComponent>(Gfx::MeshPrimitive::Sphere);
+                    auto  sphereMesh    = scene->createEntity("Sphere_" + std::to_string(i));
+                    auto& meshComponent = sphereMesh.AddComponent<MeshRendererComponent>(Gfx::MeshPrimitive::Sphere);
+                    //auto material = meshComponent.Mesh->getMaterial();
+                    //material->getProperties().roughnessColor
                     auto& transform = sphereMesh.GetComponent<TransformComponent>();
                     transform.Translation.z += spacing * i;
                     transform.Scale *= 0.50f;

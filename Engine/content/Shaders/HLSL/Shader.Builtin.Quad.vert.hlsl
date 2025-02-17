@@ -10,7 +10,7 @@
 struct VSOutput
 {
     float4 position : SV_POSITION;
-    float2 uv : TEXCOORD0;
+    float2 UV : TEXCOORD0;
 };
 
 //------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ VSOutput VS_MAIN(uint vertexID : SV_VertexID)
     float x = float((vertexID << 1) & 2);
     float y = float(vertexID & 2);
     float2 uv = float2(x, y);
-    vs_out.uv = uv;
+    vs_out.UV = uv;
 
     // Set the final vertex position
     vs_out.position = float4(uv * 2.0f - 1.0f, 0.0f, 1.0f);

@@ -45,8 +45,8 @@ namespace Razix {
                 archive(cereal::make_nvp("direction", m_LightData.direction));
                 archive(cereal::make_nvp("color", m_LightData.color));
                 archive(cereal::make_nvp("intensity", m_LightData.intensity));
-                archive(cereal::make_nvp("constant", m_LightData.constant));
-                archive(cereal::make_nvp("linear", m_LightData.linear));
+                archive(cereal::make_nvp("constant", m_LightData.constantAttenuation));
+                archive(cereal::make_nvp("linear", m_LightData.linearAttenuation));
                 archive(cereal::make_nvp("quadratic", m_LightData.quadratic));
                 archive(cereal::make_nvp("innerConeAngle", m_LightData.innerConeAngle));
                 archive(cereal::make_nvp("outerConeAngle", m_LightData.outerConeAngle));

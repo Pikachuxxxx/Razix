@@ -98,10 +98,10 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(data, indices, 6);
 
-                auto        shader                  = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
-                RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
-                forwardRendererMaterial->createDescriptorSet();
-                mesh->setMaterial(forwardRendererMaterial);
+                auto        shader                  = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
+                RZMaterial* gbufferMaterial = new RZMaterial(shader);
+                gbufferMaterial->createDescriptorSet();
+                mesh->setMaterial(gbufferMaterial);
 
                 return mesh;
             }
@@ -209,10 +209,10 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(data, indices, 36);
 
-//                auto        shader                  = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
-//                RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
-//                forwardRendererMaterial->createDescriptorSet();
-//                mesh->setMaterial(forwardRendererMaterial);
+                auto        shader                  = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
+                RZMaterial* gbufferMaterial = new RZMaterial(shader);
+                gbufferMaterial->createDescriptorSet();
+                mesh->setMaterial(gbufferMaterial);
 
                 return mesh;
             }
@@ -277,13 +277,13 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(data, indices);
 
-                //auto        shader                  = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
-                //RZMaterial* forwardRendererMaterial = new RZMaterial(shader);
-                //forwardRendererMaterial->createDescriptorSet();
-                //mesh->setMaterial(forwardRendererMaterial);
+                auto        shader                  = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
+                RZMaterial* gbufferMaterial = new RZMaterial(shader);
+                gbufferMaterial->createDescriptorSet();
+                mesh->setMaterial(gbufferMaterial);
 
                 return mesh;
             }
         }    // namespace MeshFactory
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

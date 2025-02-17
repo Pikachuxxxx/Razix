@@ -202,7 +202,7 @@ namespace Razix {
 
         glm::mat4 m_Projection      = glm::mat4(1.0f);
         f32       m_PerspectiveFOV  = glm::radians(45.0f);
-        f32       m_PerspectiveNear = 0.1f, m_PerspectiveFar = 100.0f;
+        f32       m_PerspectiveNear = 0.1f, m_PerspectiveFar = 1000.0f;
 
         f32 m_OrthographicSize = 10.0f;
         f32 m_OrthographicNear = -1.0f, m_OrthographicFar = 1.0f;
