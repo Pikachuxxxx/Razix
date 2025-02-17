@@ -92,7 +92,6 @@ namespace Razix {
             VKImageResourceView                      m_PerMipResourceViews[RZ_MAX_TEX_MIPS]                      = {};
             VkImageLayout                            m_FinalImageLayout                                          = VK_IMAGE_LAYOUT_UNDEFINED;
             VkImageLayout                            m_OldImageLayout                                            = VK_IMAGE_LAYOUT_UNDEFINED;    // For internal state tracking only
-            bool                                     m_DeleteImageData                                           = false;
             VkImageAspectFlags                       m_AspectFlags                                               = VK_IMAGE_ASPECT_NONE;
             VKUtilities::VKImageMemoryBackendWrapper m_ImageMemoryWrapper                                        = {};
 

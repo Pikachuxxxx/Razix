@@ -22,10 +22,20 @@ struct PushConstant
 };
 PUSH_CONSTANT(PushConstant);
 //------------------------------------------------------------------------------
-float4 VS_MAIN(VSIn vsInput) : SV_POSITION
+struct VSOut 
 {
-    float4 transformedPos = mul(GET_PUSH_CONSTANT(worldTransform), float4(vsInput.inPosition, 1.0f));
-    transformedPos = mul(lightSpaceMat, transformedPos);
+    
+    float4 OutPosition: SV_POSITION;
+    uint OutLayer: SV_RenderTargetArrayIndex;
+};
 
-    return transformedPos;
+VSOut VS_MAIN(VSIn vsInput)
+{
+    VSOut output;
+
+    float4 transformedPos = mul(GET_PUSH_CONSTANT(worldTransform), float4(vsInput.inPosition, 1.0f));
+    output.OutPosition = mul(lightSpaceMat, transformedPos);
+    output.OutLayer = 0;
+
+    return output;
 }

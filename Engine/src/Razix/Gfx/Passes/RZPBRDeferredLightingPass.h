@@ -16,9 +16,6 @@ namespace Razix {
             f32 biasScale = 0.1f;
             f32 maxBias   = 0.005f;
 
-            RZPBRDeferredLightingPass() {}
-            ~RZPBRDeferredLightingPass() {}
-
             void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
             void destroy() override;
 

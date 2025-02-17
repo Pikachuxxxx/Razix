@@ -117,6 +117,7 @@ namespace Razix {
                         if (descriptor)
                             descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightVP).getHandle();
 
+
                         RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
                     }
 

@@ -64,7 +64,6 @@ namespace Razix {
             auto& globalLightProbes    = framegraph.getBlackboard().get<GlobalLightProbeData>();
             auto& brdfData             = framegraph.getBlackboard().get<BRDFData>();
             auto& gbufferData          = framegraph.getBlackboard().get<GBufferData>();
-            //auto& ssaoData             = framegraph.getBlackboard().get<FX::SSAOData>();
 
             framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "Pass.Builtin.Code.PBRDeferredLighting",
@@ -80,7 +79,7 @@ namespace Razix {
 
                     data.sceneHDR = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
-                    data.sceneHDR   = builder.write(data.sceneHDR);
+                    builder.read(data.sceneHDR);
                     data.sceneDepth = builder.write(gbufferData.GBufferDepth);
 
                     builder.read(frameDataBlock.frameData);
@@ -96,7 +95,6 @@ namespace Razix {
                     builder.read(gbufferData.GBuffer0);
                     builder.read(gbufferData.GBuffer1);
                     builder.read(gbufferData.GBuffer2);
-                    //builder.read(ssaoData.SSAOSceneTexture);
                 },
                 [=](const SceneData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

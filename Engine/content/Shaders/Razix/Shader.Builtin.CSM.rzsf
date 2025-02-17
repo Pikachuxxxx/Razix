@@ -1,17 +1,13 @@
 /*
  * Razix Shader File 
  * Shader.Builtin.CSM.rzsf : Generate Cascaded Shadow Depth Maps
- * Copyright Razix Engine 2025  by Pikachuxxxx (Phani Srikar)
+ * Copyright Razix Engine 2025 by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.DepthArrayPreTest.vert.spv
-    #endif
+    #include Shader.Builtin.DepthArrayPreTest.vert
 #end
 
 #shader fragment
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.DepthPreTest.frag.spv
-    #endif
+    #include Shader.Builtin.DepthPreTest.frag
 #end
