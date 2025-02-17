@@ -198,7 +198,7 @@ namespace Razix {
                         // Find the material properties UBO and assign it's UBO to this slot
                         if (descriptor.bindingInfo.type == Gfx::DescriptorType::kUniformBuffer) {
                             descriptor.uniformBuffer = m_MaterialPropertiesUBO;
-                        } else if (descriptor.bindingInfo.type == Gfx::DescriptorType::kImageSamplerCombined) {
+                        } else if (descriptor.bindingInfo.type == Gfx::DescriptorType::kTexture) {
                             // Choose the mat textures based on the workflow & preset
                             switch (descriptor.bindingInfo.location.binding) {
                                 case TextureBindingTable::BINDING_IDX_TEX_ALBEDO:

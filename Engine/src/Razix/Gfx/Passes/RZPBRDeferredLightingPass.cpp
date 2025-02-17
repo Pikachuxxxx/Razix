@@ -82,6 +82,7 @@ namespace Razix {
 
                     data.sceneHDR   = builder.write(data.sceneHDR);
                     data.sceneDepth = gbufferData.GBufferDepth;
+                    builder.read(data.sceneDepth);
 
                     builder.read(frameDataBlock.frameData);
                     builder.read(sceneLightsDataBlock.lightsDataBuffer);
@@ -104,6 +105,7 @@ namespace Razix {
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneDepth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 

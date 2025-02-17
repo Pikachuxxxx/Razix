@@ -61,7 +61,7 @@ namespace Razix {
 
             auto& frameDataBlock  = framegraph.getBlackboard().get<FrameData>();
             auto& lightProbesData = framegraph.getBlackboard().get<GlobalLightProbeData>();
-            auto& volumetricData  = framegraph.getBlackboard().get<VolumetricCloudsData>();
+//            auto& volumetricData  = framegraph.getBlackboard().get<VolumetricCloudsData>();
             auto& sceneData       = framegraph.getBlackboard().get<SceneData>();
 
             framegraph.addCallbackPass(

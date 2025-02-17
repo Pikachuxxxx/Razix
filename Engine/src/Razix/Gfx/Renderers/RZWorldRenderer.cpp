@@ -164,7 +164,6 @@ namespace Razix {
             // GBuffer Pass
             //-------------------------------
             m_GBufferPass.addPass(m_FrameGraph, scene, &settings);
-            GBufferData& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
 
             //-------------------------------
             // PBR Deferred Pass
