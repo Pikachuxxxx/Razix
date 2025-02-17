@@ -93,11 +93,12 @@ namespace Razix {
                 idxDst += cmd_list->IdxBuffer.Size;
             }
 
-            imguiVB->UnMap();
             imguiVB->Flush();
+            imguiVB->Invalidate();
 
-            imguiIB->UnMap();
             imguiIB->Flush();
+            imguiIB->Invalidate();
+
         }
 
         void RZImGuiRendererProxy::Draw(RZDrawCommandBufferHandle cmdBuffer)
