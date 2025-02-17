@@ -129,7 +129,7 @@ namespace Razix {
             for (int i = 0; i < NUM_HALTON_SAMPLES_TAA_JITTER; ++i) {
                 // Generate jitter using Halton sequence with bases 2 and 3 for X and Y respectively
                 m_TAAJitterHaltonSamples[i].x = 2.0f * (f32) (Math::ImportanceSampling::HaltonSequenceSample(i + 1, 2) - 1.0f);    // Centering the jitter around (0,0)
-                m_TAAJitterHaltonSamples[i].y = 2.0f * (f32) (Math::ImportanceSampling::HaltonSequenceSample(i + 1, 3) - 1.0f);
+                m_TAAJitterHaltonSamples[i].y = 2.0f * (f32) (Math::ImportanceSampling::HaltonSequenceSample(i + 1, 3) - 1.0f);    // Centering the jitter around (0,0)
                 m_TAAJitterHaltonSamples[i].x /= RZApplication::Get().getWindow()->getWidth();
                 m_TAAJitterHaltonSamples[i].y /= RZApplication::Get().getWindow()->getHeight();
             }
@@ -152,8 +152,6 @@ namespace Razix {
             if (!getFrameGraphFilePath().empty())
                 RAZIX_ASSERT(m_FrameGraph.parse(getFrameGraphFilePath()), "[Frame Graph] Failed to parse graph!");
 #endif
-            // Testing disabled shadows
-            //settings.renderFeatures &= ~RendererFeature_Shadows;
 
             //-------------------------------
             // Simple Shadow map Pass
@@ -245,7 +243,7 @@ namespace Razix {
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
 
-                    RenderingInfo info{};
+                    RenderingInfo info    = {};
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
                     info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
@@ -276,7 +274,7 @@ namespace Razix {
 
                     RZImGuiRendererProxy::Get().Init();
                 },
-                [&](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("ImGui Pass");
@@ -286,7 +284,7 @@ namespace Razix {
                     auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
                     auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
 
-                    RenderingInfo info{};
+                    RenderingInfo info    = {};
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
                     info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
@@ -303,84 +301,10 @@ namespace Razix {
 
             sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
-            m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
-
-#ifdef ENABLE_EACH_PASS_AS_WE_FIX
-
-            //-------------------------------
-            // [ ] CSM PAss
-            //-------------------------------
-            m_CSMPass.addPass(m_FrameGraph, scene, &settings);
-
-            //-------------------------------
-            // Vis Buffer Fill Pass
-            //-------------------------------
-            m_VisBufferFillPass.addPass(m_FrameGraph, scene, &settings);
-
-            //-------------------------------
-            // SSAO Pass
-            //-------------------------------
-            //settings.renderFeatures |= RendererFeature_SSAO;
-            settings.renderFeatures &= ~RendererFeature_SSAO;
-            //if (settings.renderFeatures & RendererFeature_SSAO)
-            //    settings.renderFeatures |= RendererFeature_SSAO;
-            //m_SSAOPass.addPass(m_FrameGraph, scene, &settings);
-
-            //-------------------------------
-            // Gaussian Blur Pass - SSAO
-            //-------------------------------
-            //auto& ssaoData = m_FrameGraph.getBlackboard().get<FX::SSAOData>();
-            //m_GaussianBlurPass.setTwoPassFilter(false);
-            //m_GaussianBlurPass.setBlurRadius(1.0f);
-            //m_GaussianBlurPass.setFilterTap(GaussianTap::Five);
-            //m_GaussianBlurPass.setInputTexture(ssaoData.SSAOPreBlurTexture);
-            //m_GaussianBlurPass.addPass(m_FrameGraph, scene, &settings);
-            //ssaoData.SSAOSceneTexture = m_GaussianBlurPass.getOutputTexture();
-
-            SceneData& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
-
             //-------------------------------
             // Skybox Pass
             //-------------------------------
             m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
-            sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
-
-            //-------------------------------
-            // [] Color Grading LUT Pass
-            //-------------------------------
-            //m_ColorGradingPass.addPass(m_FrameGraph, scene, &settings);
-
-            //-------------------------------
-            // [] TAA Resolve Pass
-            //-------------------------------
-            //m_TAAResolvePass.addPass(m_FrameGraph, scene, &settings);
-            //sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
-
-            //-------------------------------
-            // Tonemapping Pass
-            //-------------------------------
-            m_TonemapPass.addPass(m_FrameGraph, scene, &settings);
-            sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
-
-            //-------------------------------
-            // FXAA Pass
-            //-------------------------------
-            m_FXAAPass.addPass(m_FrameGraph, scene, &settings);
-            sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
-
-            /**
-             * These code driven passes only work with the Render Targets names SceneHDR and SceneDepth, 
-             * as of now they are necessary to be found and we will write to them!!!
-             * 
-             * Basically for data driven passes you need data!
-             * 
-             * Potential BUG: cloning of resources in StringBased blackboard won't track older read/write IDs FIX IT! 
-             * BUG: CLONING DOESN'T WORK IN DATA DRIVEN RENDERING!!!
-             * PLAUSIBLE DESING FIX: Use the version prefix when adding to blackboard and use that while retrieving this way we can have uniqueness in the unordered map
-             * Workaround: have unique resources names
-             */
-
-#endif
 
             //-------------------------------
             // Composition Pass
@@ -483,8 +407,6 @@ namespace Razix {
             m_PBRDeferredPass.destroy();
             m_SkyboxPass.destroy();
             // m_VisBufferFillPass.destroy();
-            // m_SSAOPass.destroy();
-            // m_GaussianBlurPass.destroy();
             m_CompositePass.destroy();
 
             // Wait for GPU to be done
@@ -517,69 +439,68 @@ namespace Razix {
                 static bool showMemStats       = true;
                 static bool showRHIStats       = true;
 
-                {    // RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
-                    RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
+                // RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
+                RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
 
-                    if (ImGui::BeginMainMenuBar()) {
-                        if (ImGui::BeginMenu(ICON_FA_WRENCH " Tools")) {
-                            if (ImGui::MenuItem(ICON_FA_TASKS " FG resource Viewer", nullptr, showResourceViewer)) {
-                                showResourceViewer = !showResourceViewer;
-                            }
-                            if (ImGui::MenuItem(ICON_FA_MONEY_BILL " Frame Budgets", nullptr, showBudgets)) {
-                                showBudgets = !showBudgets;
-                            }
-                            if (ImGui::MenuItem(ICON_FA_MEMORY " Memory Stats", nullptr, showMemStats)) {
-                                showMemStats = !showMemStats;
-                            }
-                            if (ImGui::MenuItem(ICON_FA_MEMORY " RHI Memory Stats", nullptr, showRHIStats)) {
-                                showRHIStats = !showRHIStats;
-                            }
-                            ImGui::EndMenu();
+                if (ImGui::BeginMainMenuBar()) {
+                    if (ImGui::BeginMenu(ICON_FA_WRENCH " Tools")) {
+                        if (ImGui::MenuItem(ICON_FA_TASKS " FG resource Viewer", nullptr, showResourceViewer)) {
+                            showResourceViewer = !showResourceViewer;
                         }
-                        ImGui::EndMainMenuBar();
+                        if (ImGui::MenuItem(ICON_FA_MONEY_BILL " Frame Budgets", nullptr, showBudgets)) {
+                            showBudgets = !showBudgets;
+                        }
+                        if (ImGui::MenuItem(ICON_FA_MEMORY " Memory Stats", nullptr, showMemStats)) {
+                            showMemStats = !showMemStats;
+                        }
+                        if (ImGui::MenuItem(ICON_FA_MEMORY " RHI Memory Stats", nullptr, showRHIStats)) {
+                            showRHIStats = !showRHIStats;
+                        }
+                        ImGui::EndMenu();
                     }
-                }    // RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
+                    ImGui::EndMainMenuBar();
+                }
+                // RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
 
                 //==========================================================================
 
                 // Memory Stats
-                {
-                    if (showMemStats) {
-                        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
-                        ImGui::SetNextWindowBgAlpha(1.0f);    // Transparent background
-                        ImGui::SetNextWindowSize(ImVec2((f32) RZApplication::Get().getWindow()->getWidth(), 150.0f));
-                        ImGui::SetNextWindowPos(ImVec2(0.0f, (f32) RZApplication::Get().getWindow()->getHeight() - 50), ImGuiCond_Always);
-                        ImGui::Begin("##MemStats", 0, window_flags);
-                        {
-                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 0, 1));
-                            ImGui::Text(ICON_FA_MEMORY "  GPU Memory: %4.2f", RZEngine::Get().GetStatistics().TotalGPUMemory);
-                            ImGui::PopStyleColor(1);
-                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
-                            ImGui::Text(ICON_FA_BALANCE_SCALE " Used GPU Memory: %4.2f |", RZEngine::Get().GetStatistics().GPUMemoryUsed);
-                            ImGui::PopStyleColor(1);
+                if (showMemStats) {
+                    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
+                    ImGui::SetNextWindowBgAlpha(1.0f);    // Transparent background
+                    ImGui::SetNextWindowSize(ImVec2((f32) RZApplication::Get().getWindow()->getWidth(), 150.0f));
+                    ImGui::SetNextWindowPos(ImVec2(0.0f, (f32) RZApplication::Get().getWindow()->getHeight() - 50), ImGuiCond_Always);
+                    ImGui::Begin("##MemStats", 0, window_flags);
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 0, 1));
+                        ImGui::Text(ICON_FA_MEMORY "  GPU Memory: %4.2f", RZEngine::Get().GetStatistics().TotalGPUMemory);
+                        ImGui::PopStyleColor(1);
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+                        ImGui::Text(ICON_FA_BALANCE_SCALE " Used GPU Memory: %4.2f |", RZEngine::Get().GetStatistics().GPUMemoryUsed);
+                        ImGui::PopStyleColor(1);
 
-                            ImGui::SameLine();
-                            std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
-                            ImGui::Text(ICON_FA_CLOCK " current date/time : %s ", std::ctime(&end_time));
-                            ImGui::PopStyleColor(1);
+                        ImGui::SameLine();
+                        std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                        ImGui::Text(ICON_FA_CLOCK " current date/time : %s ", std::ctime(&end_time));
+                        ImGui::PopStyleColor(1);
 
-                            ImGui::SameLine();
+                        ImGui::SameLine();
 
-                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
-                            std::string engineBuildVersionFull = RazixVersion.getVersionString() + "." + RazixVersion.getReleaseStageString();
-                            ImGui::Text("| Engine build version : %s | ", engineBuildVersionFull.c_str());
-                            ImGui::PopStyleColor(1);
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                        std::string engineBuildVersionFull = RazixVersion.getVersionString() + "." + RazixVersion.getReleaseStageString();
+                        ImGui::Text("| Engine build version : %s | ", engineBuildVersionFull.c_str());
+                        ImGui::PopStyleColor(1);
 
-                            ImGui::SameLine();
+                        ImGui::SameLine();
 
-                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
-                            ImGui::Text(ICON_FA_ID_CARD " project UUID : %s", RZApplication::Get().getProjectUUID().prettyString().c_str());
-                            ImGui::PopStyleColor(1);
-                        }
-                        ImGui::End();
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                        ImGui::Text(ICON_FA_ID_CARD " project UUID : %s", RZApplication::Get().getProjectUUID().prettyString().c_str());
+                        ImGui::PopStyleColor(1);
                     }
+                    ImGui::End();
                 }
+                // Memory Stats
             }
         }
 

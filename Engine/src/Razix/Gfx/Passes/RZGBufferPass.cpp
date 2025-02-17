@@ -114,7 +114,7 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("GBuffer Pass");
                     RAZIX_MARK_BEGIN("GBuffer Pass", glm::vec4(1.0f, 0.6f, 0.0f, 1.0f));
 
-                    RenderingInfo info{};
+                    RenderingInfo info    = {};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.colorAttachments = {
                         {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer0).getHandle(), {true, ClearColorPresets::TransparentBlack}},

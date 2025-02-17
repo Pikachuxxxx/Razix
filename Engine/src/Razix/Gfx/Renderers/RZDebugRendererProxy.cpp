@@ -104,8 +104,11 @@ namespace Razix {
                     m_PointIndexCount += 6;    // For quad rendering
                 }
 
-                pointPositionVBResource->UnMap();
-                pointColorVBResource->UnMap();
+                pointPositionVBResource->Flush();
+                pointPositionVBResource->Invalidate();
+
+                pointColorVBResource->Flush();
+                pointColorVBResource->Invalidate();
 
                 auto pointIBResource = RZResourceManager::Get().getIndexBufferResource(m_PointIB);
                 pointIBResource->setCount(m_PointIndexCount);
@@ -136,8 +139,11 @@ namespace Razix {
                     m_LineIndexCount += 2;
                 }
 
-                linePositionVBResource->UnMap();
-                lineColorVBResource->UnMap();
+                linePositionVBResource->Flush();
+                linePositionVBResource->Invalidate();
+
+                lineColorVBResource->Flush();
+                lineColorVBResource->Invalidate();
 
                 auto lineIBResource = RZResourceManager::Get().getIndexBufferResource(m_LineIB);
                 lineIBResource->setCount(m_LineIndexCount);
