@@ -44,6 +44,8 @@
 #include <imgui/imgui.h>
 #include <imgui/plugins/IconsFontAwesome5.h>
 
+// TODO: Test per frame write for RT and read only for shader like resource and use caspture by reference for execute lambda in fg functions
+
 namespace Razix {
     namespace Gfx {
 
@@ -607,14 +609,6 @@ namespace Razix {
                         m_PreviousViewProj = gpuData.camera.projection * gpuData.camera.view;
                     }
 
-                    // This is for when we hot-reload the frame graph
-                    //if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
-                    //    auto& set = Gfx::RHI::Get().getFrameDataSet();
-                    //    if (set.isValid())
-                    //        RZResourceManager::Get().destroyDescriptorSet(set);
-                    //    Gfx::RHI::Get().setFrameDataSet(set);
-                    //}
-
                     if (!Gfx::RHI::Get().getFrameDataSet().isValid()) {
                         RZDescriptor descriptor                 = {};
                         descriptor.name                         = "Descriptor.FrameDataUBO";
@@ -636,8 +630,6 @@ namespace Razix {
                     RAZIX_TIME_STAMP_END();
                 });
         }
-
-        //--------------------------------------------------------------------------
 
         void RZWorldRenderer::uploadLightsData(RZScene* scene, RZRendererSettings& settings)
         {
@@ -672,14 +664,6 @@ namespace Razix {
                     // update and upload the UBO
                     auto lightsDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightsDataBuffer).getHandle();
                     RZResourceManager::Get().getUniformBufferResource(lightsDataBuffer)->SetData(sizeof(GPULightsData), &gpuLightsData);
-
-                    // This is for when we hot-reload the frame graph
-                    //if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
-                    //    auto& set = Gfx::RHI::Get().getSceneLightsDataSet();
-                    //    if (set.isValid())
-                    //        RZResourceManager::Get().destroyDescriptorSet(set);
-                    //    Gfx::RHI::Get().setSceneLightsDataSet(set);
-                    //}
 
                     if (!Gfx::RHI::Get().getSceneLightsDataSet().isValid()) {
                         RZDescriptor descriptor                 = {};

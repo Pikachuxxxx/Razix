@@ -50,6 +50,8 @@ namespace Razix {
                  */
                 struct Concept
                 {
+                    virtual ~Concept() = default;
+
                     virtual void create(void *transientAllocator)  = 0;
                     virtual void destroy(void *transientAllocator) = 0;
 
@@ -190,5 +192,5 @@ namespace Razix {
             };
             //-----------------------------------------------------------------------------------
         }    // namespace FrameGraph
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

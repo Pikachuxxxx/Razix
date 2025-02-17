@@ -45,7 +45,7 @@ namespace Razix {
         {
             auto pbrShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRDeferredLighting);
 
-            Gfx::RZPipelineDesc pipelineInfo{};
+            Gfx::RZPipelineDesc pipelineInfo    = {};
             pipelineInfo.name                   = "Pipeline.PBRDeferredLighting";
             pipelineInfo.cullMode               = Gfx::CullMode::None;
             pipelineInfo.depthBiasEnabled       = false;

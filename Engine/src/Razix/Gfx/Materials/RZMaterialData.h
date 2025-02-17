@@ -155,14 +155,20 @@ namespace Razix {
                     cereal::make_nvp("isUsingAOMap", m_MaterialProperties.isUsingAOMap),
                     cereal::make_nvp("isUsingEmissiveMap", m_MaterialProperties.isUsingEmissiveMap));
 
-                memcpy(m_Name, name.c_str(), 250);
-                memcpy(m_MaterialTexturePaths.albedo, albedo.c_str(), 250);
-                memcpy(m_MaterialTexturePaths.ao, ao.c_str(), 250);
-                memcpy(m_MaterialTexturePaths.emissive, emissive.c_str(), 250);
-                memcpy(m_MaterialTexturePaths.metallic, metallic.c_str(), 250);
-                memcpy(m_MaterialTexturePaths.normal, normal.c_str(), 250);
-                memcpy(m_MaterialTexturePaths.roughness, roughness.c_str(), 250);
-                memcpy(m_MaterialTexturePaths.specular, specular.c_str(), 250);
+                auto safe_strncpy = [](char* dest, const std::string& src, size_t maxLength) {
+                    std::strncpy(dest, src.c_str(), maxLength);
+                    dest[maxLength] = '\0';    // Ensure null termination
+                };
+
+                // Copy safely using the helper function
+                safe_strncpy(m_Name, name, sizeof(m_Name) - 1);
+                safe_strncpy(m_MaterialTexturePaths.albedo, albedo, sizeof(m_MaterialTexturePaths.albedo) - 1);
+                safe_strncpy(m_MaterialTexturePaths.ao, ao, sizeof(m_MaterialTexturePaths.ao) - 1);
+                safe_strncpy(m_MaterialTexturePaths.emissive, emissive, sizeof(m_MaterialTexturePaths.emissive) - 1);
+                safe_strncpy(m_MaterialTexturePaths.metallic, metallic, sizeof(m_MaterialTexturePaths.metallic) - 1);
+                safe_strncpy(m_MaterialTexturePaths.normal, normal, sizeof(m_MaterialTexturePaths.normal) - 1);
+                safe_strncpy(m_MaterialTexturePaths.roughness, roughness, sizeof(m_MaterialTexturePaths.roughness) - 1);
+                safe_strncpy(m_MaterialTexturePaths.specular, specular, sizeof(m_MaterialTexturePaths.specular) - 1);
             }
         };
     }    // namespace Gfx
