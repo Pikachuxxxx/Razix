@@ -24,7 +24,6 @@ namespace Razix {
             static RZMesh* cubeMesh   = nullptr;
             static RZMesh* sphereMesh = nullptr;
 
-#if 1
             RZMesh* CreatePrimitive(MeshPrimitive primitive)
             {
                 switch (primitive) {
@@ -60,37 +59,6 @@ namespace Razix {
                 }
                 return nullptr;
             }
-#endif
-
-            //RZMesh* CreatePrimitive(MeshPrimitive primitive)
-            //{
-            //    switch (primitive) {
-            //        case MeshPrimitive::Plane:
-            //            return CreatePlane();
-            //            break;
-            //        case MeshPrimitive::ScreenQuad:
-            //            return CreateScreenQuad();
-            //            break;
-            //        case MeshPrimitive::Cube:
-            //            return CreateCube();
-            //            break;
-            //        case MeshPrimitive::Pyramid:
-            //            RAZIX_UNIMPLEMENTED_METHOD
-            //            break;
-            //        case MeshPrimitive::Sphere:
-            //            return CreateSphere();
-            //            break;
-            //        case MeshPrimitive::Capsule:
-            //            RAZIX_UNIMPLEMENTED_METHOD
-            //            break;
-            //        case MeshPrimitive::Cylinder:
-            //            RAZIX_UNIMPLEMENTED_METHOD
-            //            break;
-            //        default:
-            //            break;
-            //    }
-            //    return nullptr;
-            //}
 
 #define NUM_QUAD_VERTS 4
 #define NUM_CUBE_VERTS 24

@@ -1,6 +1,6 @@
 {
     "Razix Scene": {
-        "UUID": "4550c92c-2e62-4ad8-aeb6-d40782fd1550",
+        "UUID": "425355a2-a859-422c-a838-85cd722497ab",
         "SceneName": "default Scene",
         "Total Entities": 7
     },
@@ -422,7 +422,7 @@
             "OrthographicSize": 10.0,
             "OrthographicNearClip": -1.0,
             "OrthographicFarClip": 1.0,
-            "AspectRatio": 1.894892692565918,
+            "AspectRatio": 1.9374369382858277,
             "BgColor": {
                 "value0": 0.0,
                 "value1": 0.0,

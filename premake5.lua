@@ -70,18 +70,6 @@ if os.target() == "windows" then
     os.execute(set_env_tools)
 end
 
-
--- QT SDK - 5.15.2
-QTDIR = os.getenv("QTDIR")
-
-if (QTDIR == nil or QTDIR == '') then
-    print("QTDIR Enviroment variable is not found! Please check your development environment settings")
-    print("Exiting... fix and regenerate project files again!")
-    os.exit()
-else
-    print("QTDIR found at : " .. QTDIR)
-end
-
 -- Using the command line to get the selected architecture
 Arch = ""
 
@@ -199,23 +187,7 @@ workspace ( settings.workspace_name )
 
     -- Build Script for Razix Editor
     --------------------------------------------------------------------------------
-    group "Editor"
-        include "Editor/razix_editor.lua"
-    group ""
-
-    -- in-house extension libraries for Razix Editor
-    group "Editor/internal"
-        include "Editor/internal/QtNodeGraph/QtNodeGraph_razix.lua"
-    group ""
-
-    -- Editor vendors
-    group "Editor/vendor"
-        include "Editor/vendor/QGoodWindow/QGoodWindow.lua"
-        -- Disabled due to C++20 requirement
-        -- include "Editor/vendor/qspdlog/qspdlog.lua"
-        include "Editor/vendor/QtADS/QtADS.lua"
-        include "Editor/vendor/toolwindowmanager/toolwindowmanager.lua"
-    group ""
+    -- TODO: We will be using blender so VS tool and CLI tools will be added here
 
     --------------------------------------------------------------------------------
     -- Build script for Razix Game Framework

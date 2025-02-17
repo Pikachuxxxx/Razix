@@ -159,6 +159,12 @@ namespace Razix {
             m_ShadowPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
+            // GBuffer Pass
+            //-------------------------------
+            m_GBufferPass.addPass(m_FrameGraph, scene, &settings);
+            GBufferData& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
+
+            //-------------------------------
             // Debug Scene Pass
             //-------------------------------
             m_FrameGraph.getBlackboard().add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
@@ -316,12 +322,6 @@ namespace Razix {
             // [ ] CSM PAss
             //-------------------------------
             m_CSMPass.addPass(m_FrameGraph, scene, &settings);
-
-            //-------------------------------
-            // GBuffer Pass
-            //-------------------------------
-            m_GBufferPass.addPass(m_FrameGraph, scene, &settings);
-            GBufferData& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
 
             //-------------------------------
             // Vis Buffer Fill Pass
@@ -508,8 +508,8 @@ namespace Razix {
             m_PBRLightingPass.destroy();
 #endif
             //m_VisBufferFillPass.destroy();
-            m_SkyboxPass.destroy();
-            // m_GBufferPass.destroy();
+            //m_SkyboxPass.destroy();
+            m_GBufferPass.destroy();
             // m_SSAOPass.destroy();
             // m_GaussianBlurPass.destroy();
             m_CompositePass.destroy();
@@ -526,17 +526,6 @@ namespace Razix {
         void RZWorldRenderer::OnImGui()
         {
             if (ImGui::Begin("FrameGraph Debug")) {
-                if (ImGui::CollapsingHeader("PBR Deferred Lighting")) {
-                    ImGui::SliderFloat("biasScale :", &m_PBRDeferredPass.biasScale, 0.0001f, 0.1f);
-                    ImGui::SliderFloat("mxScale :", &m_PBRDeferredPass.maxBias, 0.0001f, 0.1f);
-                    static bool visCascades = false;
-                    ImGui::Checkbox("Vis Cascaded :", &visCascades);
-                    if (visCascades)
-                        RZEngine::Get().getWorldSettings().debugFlags |= RendererDebugFlag_VisCSMCascades;
-                    else
-                        RZEngine::Get().getWorldSettings().debugFlags &= ~RendererDebugFlag_VisCSMCascades;
-                }
-
                 if (ImGui::CollapsingHeader("Debug Texture Pool View (All)")) {
                     auto& texturePool = RZResourceManager::Get().getPool<RZTexture>();
 

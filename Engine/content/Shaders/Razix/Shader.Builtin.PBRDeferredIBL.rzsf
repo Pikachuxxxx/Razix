@@ -4,13 +4,9 @@
  */
 
 #shader vertex
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.Quad.vert.spv
-    #endif
+    #include Shader.Builtin.Quad.vert
 #end
 
 #shader fragment
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.PBRDeferredIBL.frag.spv
-    #endif
+    #include Shader.Builtin.PBRDeferredIBL.frag
 #end

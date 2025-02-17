@@ -148,7 +148,7 @@ namespace Razix {
 #else
 
             if (materialName == "DefaultMaterial")
-                return GetDefaultMaterial();
+                return RZMaterial::GetDefaultMaterial();
 
             auto        shader   = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRIBL);
             RZMaterial* material = new RZMaterial(shader);

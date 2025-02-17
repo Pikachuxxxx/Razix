@@ -7,7 +7,6 @@
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
-#include "Razix/Gfx/RHI/RHI.h"
 #include "Razix/Gfx/RZShaderLibrary.h"
 
 #include "Razix/Gfx/FrameGraph/RZFrameGraphPass.h"
@@ -22,7 +21,7 @@
 using json = nlohmann::json;    // use other lib that said it was faster than this on github
 
 // TODO: Move this to a more cohesive place
-static std::unordered_map<std::string, Razix::Gfx::Resolution> StringToResolutionsMap = {
+static std::unordered_map<std::string, Razix::Gfx::Resolution> s_StringToResolutionsMap = {
     {"k1080p", Razix::Gfx::Resolution::k1080p},
     {"k1440p", Razix::Gfx::Resolution::k1440p},
     {"k4KUpscaled", Razix::Gfx::Resolution::k4KUpscaled},
@@ -30,7 +29,7 @@ static std::unordered_map<std::string, Razix::Gfx::Resolution> StringToResolutio
     {"kWindow", Razix::Gfx::Resolution::kWindow},
     {"kCustom", Razix::Gfx::Resolution::kCustom}};
 
-static std::unordered_map<std::string, Razix::Gfx::ClearColorPresets> StringToColorPreset = {
+static std::unordered_map<std::string, Razix::Gfx::ClearColorPresets> s_StringToColorPreset = {
     {"OpaqueBlack", Razix::Gfx::ClearColorPresets::OpaqueBlack},
     {"OpaqueWhite", Razix::Gfx::ClearColorPresets::OpaqueWhite},
     {"TransparentBlack", Razix::Gfx::ClearColorPresets::TransparentBlack},
@@ -307,7 +306,7 @@ namespace Razix {
 
                             auto &clear_color = attachment_info["clear_color"];
                             if (!clear_color.empty())
-                                attachInfo.clearColor = StringToColorPreset[clear_color];
+                                attachInfo.clearColor = s_StringToColorPreset[clear_color];
 
                             auto &binding_idx = attachment_info["binding_idx"];
                             if (!binding_idx.empty())
@@ -517,7 +516,7 @@ namespace Razix {
 
                 auto &renderInfo = data["rendering_info"];
                 RAZIX_ASSERT(!renderInfo.empty(), "[Frame Graph] Missing Rendering info in pass description!");
-                Resolution resolution = StringToResolutionsMap[renderInfo["resolution"]];
+                Resolution resolution = s_StringToResolutionsMap[renderInfo["resolution"]];
                 bool       resize     = renderInfo["resize"].get<bool>();
                 auto      &extents    = renderInfo["extents"];
                 glm::vec2  extent     = glm::vec2(0.0f);

@@ -245,7 +245,7 @@ namespace Razix {
                 Gfx::RZResourceManager::Get().destroyVertexBuffer(vertexBuffer);
             }
             Gfx::RZResourceManager::Get().destroyIndexBuffer(m_IndexBuffer);
-            if(m_Material)
+            if (m_Material)
                 m_Material->Destroy();
         }
 
@@ -254,14 +254,14 @@ namespace Razix {
             // TODO: Improve buffer layout, use reflected buffer layout to bind only those VB that have not been optimized out.
 
             Gfx::RZResourceManager::Get().getIndexBufferResource(m_IndexBuffer)->Bind(cmdBuffer);
-            for (uint32_t i = 0; i < 1; i++) {
+            for (uint32_t i = 0; i < VERTEX_ATTRIBS_COUNT; i++) {
                 auto& vertexBuffer = m_VertexBuffers[i];
                 if (vertexBuffer.isValid())
-                    Gfx::RZResourceManager::Get().getVertexBufferResource(vertexBuffer)->Bind(cmdBuffer);
+                    Gfx::RZResourceManager::Get().getVertexBufferResource(vertexBuffer)->Bind(cmdBuffer, i);
             }
         }
-        
-    void RZMesh::initMeshFromVectors(const RZVertex& vertices, const std::vector<u32>& indices)
+
+        void RZMesh::initMeshFromVectors(const RZVertex& vertices, const std::vector<u32>& indices)
         {
             RZEngine::Get().GetStatistics().MeshesRendered++;
 
@@ -334,6 +334,6 @@ namespace Razix {
                 m_VertexBuffers[VERTEX_ATTRIBS_TAN_IDX] = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
             }
         }
-        
+
     }    // namespace Gfx
 }    // namespace Razix

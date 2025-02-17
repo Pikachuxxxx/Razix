@@ -79,14 +79,14 @@ namespace Razix {
                 [&](GBufferData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    RZTextureDesc gbufferTexturesDesc{};
-                    gbufferTexturesDesc.name   = "gBuffer0";
-                    gbufferTexturesDesc.width  = RZApplication::Get().getWindow()->getWidth();
-                    gbufferTexturesDesc.height = RZApplication::Get().getWindow()->getHeight();
-                    gbufferTexturesDesc.type   = TextureType::k2D;
-                    gbufferTexturesDesc.format = TextureFormat::RGBA16F;
-
-                    data.GBuffer0 = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    RZTextureDesc gbufferTexturesDesc         = {};
+                    gbufferTexturesDesc.name                  = "gBuffer0";
+                    gbufferTexturesDesc.width                 = RZApplication::Get().getWindow()->getWidth();
+                    gbufferTexturesDesc.height                = RZApplication::Get().getWindow()->getHeight();
+                    gbufferTexturesDesc.type                  = TextureType::k2D;
+                    gbufferTexturesDesc.initResourceViewHints = kSRV | kRTV;
+                    gbufferTexturesDesc.format                = TextureFormat::RGBA16F;
+                    data.GBuffer0                             = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
                     gbufferTexturesDesc.name = "gBuffer1";
                     data.GBuffer1            = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
@@ -94,10 +94,11 @@ namespace Razix {
                     gbufferTexturesDesc.name = "gBuffer2";
                     data.GBuffer2            = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    gbufferTexturesDesc.name   = "SceneDepth";
-                    gbufferTexturesDesc.format = TextureFormat::DEPTH32F;
-                    gbufferTexturesDesc.type   = TextureType::kDepth;
-                    data.GBufferDepth          = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    gbufferTexturesDesc.name                  = "SceneDepth";
+                    gbufferTexturesDesc.format                = TextureFormat::DEPTH32F;
+                    gbufferTexturesDesc.type                  = TextureType::kDepth;
+                    gbufferTexturesDesc.initResourceViewHints = kDSV;
+                    data.GBufferDepth                         = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
                     data.GBuffer0       = builder.write(data.GBuffer0);
                     data.GBuffer1       = builder.write(data.GBuffer1);

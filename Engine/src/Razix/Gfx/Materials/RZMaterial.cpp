@@ -280,6 +280,9 @@ namespace Razix {
             memcpy(&m_MaterialData.m_MaterialProperties, &props, sizeof(MaterialProperties));
             auto materialBuffer = RZResourceManager::Get().getUniformBufferResource(m_MaterialPropertiesUBO);
             materialBuffer->SetData(sizeof(MaterialProperties), &m_MaterialData.m_MaterialProperties);
+
+            materialBuffer->Flush();         // Let the GPU know to see these changes
+            materialBuffer->Invalidate();    // Invalidate stale GPU caches to fill new flushed data
         }
 
         void RZMaterial::setTexturePaths(MaterialTexturePaths& paths)

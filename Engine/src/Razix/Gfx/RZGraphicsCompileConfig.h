@@ -1,6 +1,6 @@
 #pragma once
 
-#define DISABLE_MATERIALS_LOADING 1
+#define DISABLE_MATERIALS_LOADING 0
 
 #define ENABLE_RENDERING 1
 
