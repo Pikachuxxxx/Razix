@@ -428,8 +428,6 @@ namespace Razix {
         {
             m_FrameCount++;
 
-            m_CSMPass.updateCascades(scene);
-
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             if (m_IsFGFilePathDirty) {
