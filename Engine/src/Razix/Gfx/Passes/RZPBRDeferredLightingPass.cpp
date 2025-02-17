@@ -46,7 +46,7 @@ namespace Razix {
             auto pbrShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRDeferredLighting);
 
             Gfx::RZPipelineDesc pipelineInfo{};
-            pipelineInfo.name                   = "PBR Deferred Lighting Pipeline";
+            pipelineInfo.name                   = "Pipeline.PBRDeferredLighting";
             pipelineInfo.cullMode               = Gfx::CullMode::None;
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.drawType               = Gfx::DrawType::Triangle;
@@ -60,41 +60,40 @@ namespace Razix {
             auto& frameDataBlock       = framegraph.getBlackboard().get<FrameData>();
             auto& sceneLightsDataBlock = framegraph.getBlackboard().get<SceneLightsData>();
             auto& shadowData           = framegraph.getBlackboard().get<SimpleShadowPassData>();
-            auto& csmData              = framegraph.getBlackboard().get<CSMData>();
-            auto& globalLightProbes    = framegraph.getBlackboard().get<GlobalLightProbeData>();
-            auto& brdfData             = framegraph.getBlackboard().get<BRDFData>();
-            auto& gbufferData          = framegraph.getBlackboard().get<GBufferData>();
+            //auto& csmData              = framegraph.getBlackboard().get<CSMData>();
+            auto& globalLightProbes = framegraph.getBlackboard().get<GlobalLightProbeData>();
+            auto& brdfData          = framegraph.getBlackboard().get<BRDFData>();
+            auto& gbufferData       = framegraph.getBlackboard().get<GBufferData>();
 
             framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "Pass.Builtin.Code.PBRDeferredLighting",
                 [&](SceneData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    RZTextureDesc textureDesc{};
-                    textureDesc.name   = "SceneHDR";
-                    textureDesc.width  = g_ResolutionToExtentsMap[Resolution::k1440p].x;
-                    textureDesc.height = g_ResolutionToExtentsMap[Resolution::k1440p].y;
-                    textureDesc.type   = TextureType::k2D;
-                    textureDesc.format = TextureFormat::RGBA16F;
+                    RZTextureDesc textureDesc         = {};
+                    textureDesc.name                  = "SceneHDR";
+                    textureDesc.width                 = g_ResolutionToExtentsMap[Resolution::k1440p].x;
+                    textureDesc.height                = g_ResolutionToExtentsMap[Resolution::k1440p].y;
+                    textureDesc.type                  = TextureType::k2D;
+                    textureDesc.initResourceViewHints = kSRV | kRTV;
+                    textureDesc.format                = TextureFormat::RGBA16F;
 
                     data.sceneHDR = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
-                    builder.read(data.sceneHDR);
-                    data.sceneDepth = builder.write(gbufferData.GBufferDepth);
+                    data.sceneHDR   = builder.write(data.sceneHDR);
+                    data.sceneDepth = gbufferData.GBufferDepth;
 
                     builder.read(frameDataBlock.frameData);
                     builder.read(sceneLightsDataBlock.lightsDataBuffer);
                     builder.read(shadowData.shadowMap);
                     builder.read(shadowData.lightVP);
-                    builder.read(csmData.cascadedShadowMaps);
-                    builder.read(csmData.viewProjMatrices);
                     builder.read(globalLightProbes.environmentMap);
                     builder.read(globalLightProbes.diffuseIrradianceMap);
                     builder.read(globalLightProbes.specularPreFilteredMap);
-                    builder.read(brdfData.lut);
                     builder.read(gbufferData.GBuffer0);
                     builder.read(gbufferData.GBuffer1);
                     builder.read(gbufferData.GBuffer2);
+                    builder.read(brdfData.lut);
                 },
                 [=](const SceneData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -150,14 +149,14 @@ namespace Razix {
                             descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer2).getHandle();
 
                         // CSM Array Texture
-                        descriptor = shaderBindVars["CSMArray"];
-                        if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(csmData.cascadedShadowMaps).getHandle();
+                        //descriptor = shaderBindVars["CSMArray"];
+                        //if (descriptor)
+                        //    descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(csmData.cascadedShadowMaps).getHandle();
 
-                        // CSM Matrices
-                        descriptor = shaderBindVars["CSMMatrices"];
-                        if (descriptor)
-                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(csmData.viewProjMatrices).getHandle();
+                        //// CSM Matrices
+                        //descriptor = shaderBindVars["CSMMatrices"];
+                        //if (descriptor)
+                        //    descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(csmData.viewProjMatrices).getHandle();
 
                         RZResourceManager::Get().getShaderResource(pbrShader)->updateBindVarsHeaps();
                     }
@@ -177,7 +176,7 @@ namespace Razix {
                     pc.size        = sizeof(PCData);
                     pc.data        = &pcData;
                     pc.shaderStage = ShaderStage::kPixel;
-                    RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), pc);
+                    //RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), pc);
 
                     scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);
 
@@ -190,8 +189,6 @@ namespace Razix {
         void RZPBRDeferredLightingPass::destroy()
         {
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
-            //m_PBRBindingSet->Destroy();
-            //m_PBRPassBindingUBO->Destroy();
         }
     }    // namespace Gfx
 }    // namespace Razix

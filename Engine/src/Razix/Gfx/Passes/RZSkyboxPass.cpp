@@ -73,7 +73,6 @@ namespace Razix {
                     builder.read(lightProbesData.environmentMap);
                     builder.read(lightProbesData.diffuseIrradianceMap);
                     builder.read(lightProbesData.specularPreFilteredMap);
-                    builder.read(volumetricData.noiseTexture);
 
                     builder.read(sceneData.sceneHDR);
                     builder.read(sceneData.sceneDepth);

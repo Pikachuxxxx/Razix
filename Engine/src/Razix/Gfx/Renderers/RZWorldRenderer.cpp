@@ -4,7 +4,6 @@
 #include "RZWorldRenderer.h"
 
 #define ENABLE_CODE_DRIVEN_FG_PASSES 0
-#define ENABLE_FORWARD_RENDERING     0
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
@@ -84,31 +83,34 @@ namespace Razix {
         {
             m_FrameGraphBuildingInProgress = true;
 
-            // Upload buffers/textures Data to the FrameGraph and GPU initially
-            // Upload BRDF look up texture to the GPU
-            RZTextureDesc brdfDesc                           = {};
-            brdfDesc.name                                    = "BrdfLUT";    // must match shader
-            brdfDesc.enableMips                              = false;
-            brdfDesc.filePath                                = "//RazixContent/Textures/Texture.Builtin.BrdfLUT.png";
-            m_BRDFfLUTTextureHandle                          = RZResourceManager::Get().createTexture(brdfDesc);
-            m_FrameGraph.getBlackboard().add<BRDFData>().lut = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(brdfDesc.name, CAST_TO_FG_TEX_DESC brdfDesc, {m_BRDFfLUTTextureHandle});
-
             // Noise texture LUT
-            RZTextureDesc noiseDesc                                               = {};
-            noiseDesc.name                                                        = "VolumetricCloudsNoise";    // must match shader
-            noiseDesc.enableMips                                                  = false;
-            noiseDesc.filePath                                                    = "//RazixContent/Textures/Texture.Builtin.VolumetricCloudsNoise.png";
-            m_NoiseTextureHandle                                                  = RZResourceManager::Get().createTexture(noiseDesc);
-            m_FrameGraph.getBlackboard().add<VolumetricCloudsData>().noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(noiseDesc.name, CAST_TO_FG_TEX_DESC noiseDesc, {m_NoiseTextureHandle});
+            RZTextureDesc noiseDesc     = {};
+            noiseDesc.name              = "VolumetricCloudsNoise";    // must match shader
+            noiseDesc.enableMips        = false;
+            noiseDesc.filePath          = "//RazixContent/Textures/Texture.Builtin.VolumetricCloudsNoise.png";
+            m_NoiseTextureHandle        = RZResourceManager::Get().createTexture(noiseDesc);
+            auto& volumetricData        = m_FrameGraph.getBlackboard().add<VolumetricCloudsData>();
+            volumetricData.noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(noiseDesc.name, CAST_TO_FG_TEX_DESC noiseDesc, {m_NoiseTextureHandle});
 
             // Import the color grading LUT
-            RZTextureDesc colorGradingNeutralLUTDesc                               = {};
-            colorGradingNeutralLUTDesc.name                                        = "ColorGradingUnreal_Neutral_LUT16";    // must match shader
-            colorGradingNeutralLUTDesc.enableMips                                  = false;
-            colorGradingNeutralLUTDesc.flipY                                       = true;
-            colorGradingNeutralLUTDesc.filePath                                    = "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png";
-            m_ColorGradingNeutralLUTHandle                                         = RZResourceManager::Get().createTexture(colorGradingNeutralLUTDesc);
-            m_FrameGraph.getBlackboard().add<FX::ColorGradingLUTData>().neutralLUT = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(colorGradingNeutralLUTDesc.name, CAST_TO_FG_TEX_DESC colorGradingNeutralLUTDesc, {m_ColorGradingNeutralLUTHandle});
+            RZTextureDesc colorGradingNeutralLUTDesc = {};
+            colorGradingNeutralLUTDesc.name          = "ColorGradingUnreal_Neutral_LUT16";    // must match shader
+            colorGradingNeutralLUTDesc.enableMips    = false;
+            colorGradingNeutralLUTDesc.flipY         = true;
+            colorGradingNeutralLUTDesc.filePath      = "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png";
+            m_ColorGradingNeutralLUTHandle           = RZResourceManager::Get().createTexture(colorGradingNeutralLUTDesc);
+            auto& colorGradingLUTSData               = m_FrameGraph.getBlackboard().add<FX::ColorGradingLUTData>();
+            colorGradingLUTSData.neutralLUT          = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(colorGradingNeutralLUTDesc.name, CAST_TO_FG_TEX_DESC colorGradingNeutralLUTDesc, {m_ColorGradingNeutralLUTHandle});
+
+            // Upload buffers/textures Data to the FrameGraph and GPU initially
+            // Upload BRDF look up texture to the GPU
+            RZTextureDesc brdfDesc  = {};
+            brdfDesc.name           = "BrdfLUT";    // must match shader
+            brdfDesc.enableMips     = false;
+            brdfDesc.filePath       = "//RazixContent/Textures/Texture.Builtin.BrdfLUT.png";
+            m_BRDFfLUTTextureHandle = RZResourceManager::Get().createTexture(brdfDesc);
+            auto& brdfData          = m_FrameGraph.getBlackboard().add<BRDFData>();
+            brdfData.lut            = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(brdfDesc.name, CAST_TO_FG_TEX_DESC brdfDesc, {m_BRDFfLUTTextureHandle});
 
             //-----------------------------------------------------------------------------------
 
@@ -165,37 +167,26 @@ namespace Razix {
             GBufferData& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
 
             //-------------------------------
+            // PBR Deferred Pass
+            //-------------------------------
+            m_PBRDeferredPass.addPass(m_FrameGraph, scene, &settings);
+            auto& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
+
+            //-------------------------------
             // Debug Scene Pass
             //-------------------------------
-            m_FrameGraph.getBlackboard().add<SceneData>() = m_FrameGraph.addCallbackPass<SceneData>(
+            m_FrameGraph.addCallbackPass(
                 "Pass.Builtin.Code.DebugDraw",
-                [&](SceneData& sceneData, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZDebugRendererProxy::Get().Init();
 
-                    RZTextureDesc textureDesc         = {};
-                    textureDesc.name                  = "SceneHDR";
-                    textureDesc.width                 = g_ResolutionToExtentsMap[Resolution::k1440p].x;
-                    textureDesc.height                = g_ResolutionToExtentsMap[Resolution::k1440p].y;
-                    textureDesc.type                  = TextureType::k2D;
-                    textureDesc.format                = TextureFormat::RGBA16F;
-                    textureDesc.initResourceViewHints = kSRV | kRTV;
-                    textureDesc.enableMips            = false;
-                    sceneData.sceneHDR                = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
-
-                    textureDesc.name                  = "SceneDepth";
-                    textureDesc.format                = TextureFormat::DEPTH32F;
-                    textureDesc.type                  = TextureType::kDepth;
-                    textureDesc.initResourceViewHints = kDSV;
-                    sceneData.sceneDepth              = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
-
                     builder.read(frameDataBlock.frameData);
-
-                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
-                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
+                    builder.read(sceneData.sceneHDR);
+                    builder.read(sceneData.sceneDepth);
                 },
-                [=](const SceneData& sceneData, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
@@ -256,8 +247,8 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
-                    info.colorAttachments = {{rt, {true, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {dt, {true, ClearColorPresets::DepthOneToZero}};
+                    info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
                     info.resize           = true;
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
@@ -271,8 +262,6 @@ namespace Razix {
                     RZDebugRendererProxy::Get().End();
                     RAZIX_TIME_STAMP_END();
                 });
-
-            auto& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
             // ImGui Pass
@@ -314,7 +303,7 @@ namespace Razix {
 
             sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
-            //m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
+            m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
 
 #ifdef ENABLE_EACH_PASS_AS_WE_FIX
 
@@ -328,7 +317,6 @@ namespace Razix {
             //-------------------------------
             m_VisBufferFillPass.addPass(m_FrameGraph, scene, &settings);
 
-    #if !ENABLE_FORWARD_RENDERING
             //-------------------------------
             // SSAO Pass
             //-------------------------------
@@ -349,18 +337,6 @@ namespace Razix {
             //m_GaussianBlurPass.addPass(m_FrameGraph, scene, &settings);
             //ssaoData.SSAOSceneTexture = m_GaussianBlurPass.getOutputTexture();
 
-            //-------------------------------
-            // PBR Deferred Pass
-            //-------------------------------
-            m_PBRDeferredPass.addPass(m_FrameGraph, scene, &settings);
-    #endif
-
-            //-------------------------------
-            // PBR Forward Pass
-            //-------------------------------
-    #if ENABLE_FORWARD_RENDERING
-            m_PBRLightingPass.addPass(m_FrameGraph, scene, settings);
-    #endif
             SceneData& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
@@ -502,18 +478,14 @@ namespace Razix {
             RZDebugRendererProxy::Get().Destroy();
 
             // Destroy Passes
-#if !ENABLE_FORWARD_RENDERING
-            // m_PBRDeferredPass.destroy();
-#else
-            m_PBRLightingPass.destroy();
-#endif
-            //m_VisBufferFillPass.destroy();
-            //m_SkyboxPass.destroy();
+            m_ShadowPass.destroy();
             m_GBufferPass.destroy();
+            m_PBRDeferredPass.destroy();
+            m_SkyboxPass.destroy();
+            // m_VisBufferFillPass.destroy();
             // m_SSAOPass.destroy();
             // m_GaussianBlurPass.destroy();
             m_CompositePass.destroy();
-            m_ShadowPass.destroy();
 
             // Wait for GPU to be done
             Gfx::RZGraphicsContext::GetContext()->Wait();
