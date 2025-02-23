@@ -31,8 +31,8 @@
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
-#include "Razix/Math/ImportanceSampling.h"
 #include "Razix/Math/Grid.h"
+#include "Razix/Math/ImportanceSampling.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 
@@ -172,6 +172,11 @@ namespace Razix {
             auto& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
+            // Skybox Pass
+            //-------------------------------
+            m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
+
+            //-------------------------------
             // Debug Scene Pass
             //-------------------------------
             m_FrameGraph.addCallbackPass(
@@ -214,7 +219,7 @@ namespace Razix {
                     }
 
                     float4x4 lightView  = lookAt(dir_light.getPosition(), float3(0.0f), float3(0.0f, 1.0f, 0.0f));
-                    float     near_plane = -50.0f, far_plane = 50.0f;
+                    float    near_plane = -50.0f, far_plane = 50.0f;
                     float4x4 lightProjection = ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
                     lightProjection[1][1] *= -1;
                     auto lightViewProj = lightProjection * lightView;
@@ -301,11 +306,6 @@ namespace Razix {
                 });
 
             sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
-
-            //-------------------------------
-            // Skybox Pass
-            //-------------------------------
-            m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
             // Composition Pass

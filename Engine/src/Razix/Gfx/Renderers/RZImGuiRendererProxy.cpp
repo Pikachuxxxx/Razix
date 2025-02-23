@@ -98,7 +98,6 @@ namespace Razix {
 
             imguiIB->Flush();
             imguiIB->Invalidate();
-
         }
 
         void RZImGuiRendererProxy::Draw(RZDrawCommandBufferHandle cmdBuffer)
@@ -245,8 +244,8 @@ namespace Razix {
             pipelineInfo.depthBiasEnabled       = false;
             pipelineInfo.colorAttachmentFormats = {Gfx::TextureFormat::RGBA16F};
             pipelineInfo.depthFormat            = Gfx::TextureFormat::DEPTH32F;
-            pipelineInfo.depthTestEnabled       = true;
-            pipelineInfo.depthWriteEnabled      = true;
+            pipelineInfo.depthTestEnabled       = false;
+            pipelineInfo.depthWriteEnabled      = false;
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
 

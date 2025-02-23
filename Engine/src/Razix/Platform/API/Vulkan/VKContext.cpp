@@ -322,7 +322,7 @@ namespace Razix {
             // TODO: Formate the message id and stuff for colors etc
 
             // ENABLE THIS WHEN DOING A RENDER DOC CAPTURE! -> API validation is to be disabled and will be done by the config file we pass a different config file for RDC runs
-            //return VK_FALSE;
+            return VK_FALSE;
 
             if (!RZEngine::Get().getGlobalEngineSettings().EnableAPIValidation) return VK_FALSE;
 

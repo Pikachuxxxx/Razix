@@ -19,7 +19,7 @@ namespace Razix {
     RAZIX_FORCE_INLINE float4x4 RZSceneCamera::getProjection()
     {
         float4x4 proj = m_Projection;
-        //if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
+        //if (Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::VULKAN)
         //    proj[1][1] *= -1;
 
         return proj;
