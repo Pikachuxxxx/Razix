@@ -72,17 +72,17 @@ namespace Razix {
                 return RadicalInverseVanDerCorputSample(index, base);
             }
             /* [x_i/N, RadicalInverseVanDerCorput(index, base = 2) or Halton @ base = 2] */
-            vec2 HammersleySequence2DSample(u32 index, u32 totalSamples)
+            float2 HammersleySequence2DSample(u32 index, u32 totalSamples)
             {
-                return vec2((f32) index / (f32) totalSamples, RadicalInverseVanDerCorputSample(index, 2));
+                return float2((f32) index / (f32) totalSamples, RadicalInverseVanDerCorputSample(index, 2));
             }
             /**
              * Faster HammersleySequence2D(index, DIM = 2) bitwise trick
              * based on http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
              */
-            vec2 HammersleySequence2DFastSample(u32 index, u32 totalSamples)
+            float2 HammersleySequence2DFastSample(u32 index, u32 totalSamples)
             {
-                return vec2(f32(index) / f32(totalSamples), RadicalInverseVdCBase2(index));
+                return float2(f32(index) / f32(totalSamples), RadicalInverseVdCBase2(index));
             }
 
             //----------------------------
@@ -90,20 +90,20 @@ namespace Razix {
             // pass the Hammersley2D/Halton2D sequence points for sampling over the hemisphere
             // Uniformly sample point on a hemisphere.
             // See: "Physically Based Rendering" 2nd ed., section 13.6.1.
-            vec3 HemisphereUniformSample(float u, float v)
+            float3 HemisphereUniformSample(float u, float v)
             {
                 float phi      = v * 2.0f * PI;
                 float cosTheta = 1.0f - u;
                 float sinTheta = (float) sqrt(1.0f - cosTheta * cosTheta);
-                return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+                return float3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
             }
 
-            vec3 HemisphereCosSample(float u, float v)
+            float3 HemisphereCosSample(float u, float v)
             {
                 float phi      = v * 2.0f * PI;
                 float cosTheta = (float) sqrt(1.0f - u);
                 float sinTheta = (float) sqrt(1.0f - cosTheta * cosTheta);
-                return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+                return float3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
             }
         }    // namespace ImportanceSampling
     }        // namespace Math
