@@ -32,15 +32,16 @@ PSOut PS_MAIN(PSIn input)
     float roughness = Mat_getRoughnessColor(uv);
     float ao = Mat_getAOColor(uv);
 
-    // Write the Normals to the GBuffer0  
+    // Write the Normals to the GBuffer0 
+#ifdef __GLSL__
+    // Due to viewport flipping in vulkan, flip normals too
+    input.Normal.y = -input.Normal.y;
+#endif
     float3 N_Surface = normalize(input.Normal);
     float3 N = normalize(Mat_getNormalMapNormals(uv, input.Position.xyz, N_Surface));
 
     PSOut output;
-#ifdef __GLSL__
-    // Due to viewport flipping in vulkan, flip normals too
-    N = -N;
-#endif
+
     output.GBuffer0 = float4(N, metallic);
     output.GBuffer1 = float4(albedo.rgb, roughness);
     output.GBuffer2 = float4(input.Position.xyz, ao);
