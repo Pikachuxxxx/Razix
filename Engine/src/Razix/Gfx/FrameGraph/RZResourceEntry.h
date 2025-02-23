@@ -48,7 +48,7 @@ namespace Razix {
                 /**
                  * Concept is used to enforce certain rules in Type Erasure, like a fake interface for all types without making anyone derive from them
                  */
-                struct Concept
+                struct RAZIX_API Concept
                 {
                     virtual ~Concept() = default;
 

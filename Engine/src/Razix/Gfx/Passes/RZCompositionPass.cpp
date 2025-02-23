@@ -75,7 +75,7 @@ namespace Razix {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("Composition Pass");
-                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.Composition", glm::vec4(0.5f));
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.Composition", float4(0.5f));
 
                     Gfx::RHI::InsertImageMemoryBarrier(Gfx::RHI::GetCurrentCommandBuffer(), resources.get<FrameGraph::RZFrameGraphTexture>(FinalOutputRenderTarget).getHandle(), ImageLayout::kColorRenderTarget, ImageLayout::kShaderRead);
 

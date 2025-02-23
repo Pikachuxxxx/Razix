@@ -153,7 +153,7 @@ namespace Razix {
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_FinalImageLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
             {
                 // 1.1 Copy from staging buffer to Image
-                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Read Pixels", glm::vec4(0.0f));
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Read Pixels", float4(0.0f));
 
                 // TODO: Support layers and depth
                 VkBufferImageCopy region               = {};

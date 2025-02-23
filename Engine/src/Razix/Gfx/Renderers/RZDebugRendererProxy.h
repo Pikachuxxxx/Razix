@@ -10,7 +10,7 @@
 #include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
 
 #include "Razix/Math/AABB.h"
-#include "Razix/Math/RZFrustum.h"
+#include "Razix/Math/Frustum.h"
 
 #include "Razix/Utilities/TRZSingleton.h"
 
@@ -22,11 +22,11 @@ namespace Razix {
 
         struct Line
         {
-            glm::vec3 p1;
-            glm::vec3 p2;
-            glm::vec4 col;
+            float3 p1;
+            float3 p2;
+            float4 col;
 
-            Line(const glm::vec3& pos1, const glm::vec3& pos2, const glm::vec4& colour)
+            Line(const float3& pos1, const float3& pos2, const float4& colour)
             {
                 p1  = pos1;
                 p2  = pos2;
@@ -36,11 +36,11 @@ namespace Razix {
 
         struct Point
         {
-            glm::vec3 p1;
-            glm::vec4 col;
+            float3 p1;
+            float4 col;
             float     size;
 
-            Point(const glm::vec3& pos1, float s, const glm::vec4& colour)
+            Point(const float3& pos1, float s, const float4& colour)
             {
                 p1   = pos1;
                 size = s;
@@ -71,43 +71,43 @@ namespace Razix {
             // Debug Draw Public API
 
             //Draw Point (very small circle)
-            static void DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour);
-            static void DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-            static void DrawPointDT(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour);
-            static void DrawPointDT(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+            static void DrawPoint(const float3& pos, f32 point_radius, const float3& colour);
+            static void DrawPoint(const float3& pos, f32 point_radius, const float4& colour = float4(1.0f, 1.0f, 1.0f, 1.0f));
+            static void DrawPointDT(const float3& pos, f32 point_radius, const float3& colour);
+            static void DrawPointDT(const float3& pos, f32 point_radius, const float4& colour = float4(1.0f, 1.0f, 1.0f, 1.0f));
 
             //Draw Line with a given thickness
-            static void DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour);
-            static void DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-            static void DrawThickLineDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour);
-            static void DrawThickLineDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+            static void DrawThickLine(const float3& start, const float3& end, f32 line_width, const float3& colour);
+            static void DrawThickLine(const float3& start, const float3& end, f32 line_width, const float4& colour = float4(1.0f, 1.0f, 1.0f, 1.0f));
+            static void DrawThickLineDT(const float3& start, const float3& end, f32 line_width, const float3& colour);
+            static void DrawThickLineDT(const float3& start, const float3& end, f32 line_width, const float4& colour = float4(1.0f, 1.0f, 1.0f, 1.0f));
 
             //Draw line with thickness of 1 screen pixel regardless of distance from camera
-            static void DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour);
-            static void DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-            static void DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour);
-            static void DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+            static void DrawLine(const float3& start, const float3& end, const float3& colour);
+            static void DrawLine(const float3& start, const float3& end, const float4& colour = float4(1.0f, 1.0f, 1.0f, 1.0f));
+            static void DrawLineDT(const float3& start, const float3& end, const float3& colour);
+            static void DrawLineDT(const float3& start, const float3& end, const float4& colour = float4(1.0f, 1.0f, 1.0f, 1.0f));
 
-            static void DrawAABB(const Maths::AABB& box, const glm::vec4& edgeColour, bool cornersOnly = false, f32 width = 0.02f);
-            static void DrawGrid(u32 dimension, const glm::vec4& colour);
+            static void DrawAABB(const Maths::AABB& box, const float4& edgeColour, bool cornersOnly = false, f32 width = 0.02f);
+            static void DrawGrid(u32 dimension, const float4& colour);
 
-            static void DrawLight(Gfx::RZLight* light, const glm::vec4& colour);
-            static void DrawFrustum(const Maths::RZFrustum& frustum, const glm::vec4& colour);
-            static void DrawFrustum(const glm::mat4& mat, const glm::vec4& colour);
-            static void DrawCylinder(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour);
-            static void DrawCapsule(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour);
+            static void DrawLight(Gfx::RZLight* light, const float4& colour);
+            static void DrawFrustum(const Maths::RZFrustum& frustum, const float4& colour);
+            static void DrawFrustum(const float4x4& mat, const float4& colour);
+            static void DrawCylinder(const float3& position, const float3& eulerRotation, float height, float radius, const float4& colour);
+            static void DrawCapsule(const float3& position, const float3& eulerRotation, float height, float radius, const float4& colour);
 
-            static void DrawArc(int numVerts, float radius, const glm::vec3& start, const glm::vec3& end, const glm::vec3& eulerRotation, const glm::vec4& colour);
+            static void DrawArc(int numVerts, float radius, const float3& start, const float3& end, const float3& eulerRotation, const float4& colour);
 
-            static void DrawSphere(f32 radius, const glm::vec3& position, const glm::vec4& colour);
-            static void DrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec4& colour);
-            static void DrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const glm::vec3& position, const glm::vec3& rotation, const glm::vec4& colour);
+            static void DrawSphere(f32 radius, const float3& position, const float4& colour);
+            static void DrawCircle(int numVerts, f32 radius, const float3& position, const float3& eulerRotation, const float4& colour);
+            static void DrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const float3& position, const float3& rotation, const float4& colour);
 
         private:
             //Actual functions managing data parsing to save code bloat - called by public functions
-            static void PopulatePointsDrawList(bool dt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour);
-            static void PopulateThickLinesDrawList(bool dt, const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour);
-            static void PopulateLinesDrawList(bool dt, const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour);
+            static void PopulatePointsDrawList(bool dt, const float3& pos, f32 point_radius, const float4& colour);
+            static void PopulateThickLinesDrawList(bool dt, const float3& start, const float3& end, f32 line_width, const float4& colour);
+            static void PopulateLinesDrawList(bool dt, const float3& start, const float3& end, const float4& colour);
 
         private:
             struct DebugDrawList

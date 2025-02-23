@@ -63,7 +63,7 @@ namespace Razix {
 #define NUM_QUAD_VERTS 4
 #define NUM_CUBE_VERTS 24
 
-            RZMesh* CreatePlane(f32 width, f32 height, const glm::vec4 color /*= glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)*/)
+            RZMesh* CreatePlane(f32 width, f32 height, const float4 color /*= float4(1.0f, 1.0f, 1.0f, 1.0f)*/)
             {
                 RZVertex data{};
                 data.Position.resize(NUM_QUAD_VERTS);
@@ -71,26 +71,26 @@ namespace Razix {
                 data.UV.resize(NUM_QUAD_VERTS);
                 data.Normal.resize(NUM_QUAD_VERTS);
 
-                glm::vec3 normal = glm::vec3(0.0f, 1.0f, 0.0f);
+                float3 normal = float3(0.0f, 1.0f, 0.0f);
 
-                data.Position[0] = glm::vec3(-width / 2.0f, -1.0f, -height / 2.0f);
+                data.Position[0] = float3(-width / 2.0f, -1.0f, -height / 2.0f);
                 data.Color[0]    = color;
-                data.UV[0]       = glm::vec2(0.0f, 0.0f);
+                data.UV[0]       = float2(0.0f, 0.0f);
                 data.Normal[0]   = normal;
 
-                data.Position[1] = glm::vec3(-width / 2.0f, -1.0f, height / 2.0f);
+                data.Position[1] = float3(-width / 2.0f, -1.0f, height / 2.0f);
                 data.Color[1]    = color;
-                data.UV[1]       = glm::vec2(0.0f, 1.0f);
+                data.UV[1]       = float2(0.0f, 1.0f);
                 data.Normal[1]   = normal;
 
-                data.Position[2] = glm::vec3(width / 2.0f, -1.0f, height / 2.0f);
+                data.Position[2] = float3(width / 2.0f, -1.0f, height / 2.0f);
                 data.Color[2]    = color;
-                data.UV[2]       = glm::vec2(1.0f, 1.0f);
+                data.UV[2]       = float2(1.0f, 1.0f);
                 data.Normal[2]   = normal;
 
-                data.Position[3] = glm::vec3(width / 2.0f, -1.0f, -height / 2.0f);
+                data.Position[3] = float3(width / 2.0f, -1.0f, -height / 2.0f);
                 data.Color[3]    = color;
-                data.UV[3]       = glm::vec2(1.0f, 0.0f);
+                data.UV[3]       = float2(1.0f, 0.0f);
                 data.Normal[3]   = normal;
 
                 u32 indices[6]{
@@ -121,87 +121,87 @@ namespace Razix {
                 data.UV.resize(NUM_CUBE_VERTS);
                 data.Normal.resize(NUM_CUBE_VERTS);
 
-                data.Position[0]  = glm::vec3(1.0f, 1.0f, 1.0f);
-                data.Color[0]     = glm::vec4(0.0f);
-                data.Normal[0]    = glm::vec3(0.0f, 0.0f, 1.0f);
-                data.Position[1]  = glm::vec3(-1.0f, 1.0f, 1.0f);
-                data.Color[1]     = glm::vec4(0.0f);
-                data.Normal[1]    = glm::vec3(0.0f, 0.0f, 1.0f);
-                data.Position[2]  = glm::vec3(-1.0f, -1.0f, 1.0f);
-                data.Color[2]     = glm::vec4(0.0f);
-                data.Normal[2]    = glm::vec3(0.0f, 0.0f, 1.0f);
-                data.Position[3]  = glm::vec3(1.0f, -1.0f, 1.0f);
-                data.Color[3]     = glm::vec4(0.0f);
-                data.Normal[3]    = glm::vec3(0.0f, 0.0f, 1.0f);
-                data.Position[4]  = glm::vec3(1.0f, 1.0f, 1.0f);
-                data.Color[4]     = glm::vec4(0.0f);
-                data.Normal[4]    = glm::vec3(1.0f, 0.0f, 0.0f);
-                data.Position[5]  = glm::vec3(1.0f, -1.0f, 1.0f);
-                data.Color[5]     = glm::vec4(0.0f);
-                data.Normal[5]    = glm::vec3(1.0f, 0.0f, 0.0f);
-                data.Position[6]  = glm::vec3(1.0f, -1.0f, -1.0f);
-                data.Color[6]     = glm::vec4(0.0f);
-                data.Normal[6]    = glm::vec3(1.0f, 0.0f, 0.0f);
-                data.Position[7]  = glm::vec3(1.0f, 1.0f, -1.0f);
-                data.Color[7]     = glm::vec4(0.0f);
-                data.UV[7]        = glm::vec2(0.0f, 1.0f);
-                data.Normal[7]    = glm::vec3(1.0f, 0.0f, 0.0f);
-                data.Position[8]  = glm::vec3(1.0f, 1.0f, 1.0f);
-                data.Color[8]     = glm::vec4(0.0f);
-                data.Normal[8]    = glm::vec3(0.0f, 1.0f, 0.0f);
-                data.Position[9]  = glm::vec3(1.0f, 1.0f, -1.0f);
-                data.Color[9]     = glm::vec4(0.0f);
-                data.Normal[9]    = glm::vec3(0.0f, 1.0f, 0.0f);
-                data.Position[10] = glm::vec3(-1.0f, 1.0f, -1.0f);
-                data.Color[10]    = glm::vec4(0.0f);
-                data.UV[10]       = glm::vec2(0.0f, 1.0f);
-                data.Normal[10]   = glm::vec3(0.0f, 1.0f, 0.0f);
-                data.Position[11] = glm::vec3(-1.0f, 1.0f, 1.0f);
-                data.Color[11]    = glm::vec4(0.0f);
-                data.Normal[11]   = glm::vec3(0.0f, 1.0f, 0.0f);
-                data.Position[12] = glm::vec3(-1.0f, 1.0f, 1.0f);
-                data.Color[12]    = glm::vec4(0.0f);
-                data.Normal[12]   = glm::vec3(-1.0f, 0.0f, 0.0f);
-                data.Position[13] = glm::vec3(-1.0f, 1.0f, -1.0f);
-                data.Color[13]    = glm::vec4(0.0f);
-                data.Normal[13]   = glm::vec3(-1.0f, 0.0f, 0.0f);
-                data.Position[14] = glm::vec3(-1.0f, -1.0f, -1.0f);
-                data.Color[14]    = glm::vec4(0.0f);
-                data.Normal[14]   = glm::vec3(-1.0f, 0.0f, 0.0f);
-                data.Position[15] = glm::vec3(-1.0f, -1.0f, 1.0f);
-                data.Color[15]    = glm::vec4(0.0f);
-                data.Normal[15]   = glm::vec3(-1.0f, 0.0f, 0.0f);
-                data.Position[16] = glm::vec3(-1.0f, -1.0f, -1.0f);
-                data.Color[16]    = glm::vec4(0.0f);
-                data.Normal[16]   = glm::vec3(0.0f, -1.0f, 0.0f);
-                data.Position[17] = glm::vec3(1.0f, -1.0f, -1.0f);
-                data.Color[17]    = glm::vec4(0.0f);
-                data.Normal[17]   = glm::vec3(0.0f, -1.0f, 0.0f);
-                data.Position[18] = glm::vec3(1.0f, -1.0f, 1.0f);
-                data.Color[18]    = glm::vec4(0.0f);
-                data.Normal[18]   = glm::vec3(0.0f, -1.0f, 0.0f);
-                data.Position[19] = glm::vec3(-1.0f, -1.0f, 1.0f);
-                data.Color[19]    = glm::vec4(0.0f);
-                data.Normal[19]   = glm::vec3(0.0f, -1.0f, 0.0f);
-                data.Position[20] = glm::vec3(1.0f, -1.0f, -1.0f);
-                data.Color[20]    = glm::vec4(0.0f);
-                data.Normal[20]   = glm::vec3(0.0f, 0.0f, -1.0f);
-                data.Position[21] = glm::vec3(-1.0f, -1.0f, -1.0f);
-                data.Color[21]    = glm::vec4(0.0f);
-                data.Normal[21]   = glm::vec3(0.0f, 0.0f, -1.0f);
-                data.Position[22] = glm::vec3(-1.0f, 1.0f, -1.0f);
-                data.Color[22]    = glm::vec4(0.0f);
-                data.Normal[22]   = glm::vec3(0.0f, 0.0f, -1.0f);
-                data.Position[23] = glm::vec3(1.0f, 1.0f, -1.0f);
-                data.Color[23]    = glm::vec4(0.0f);
-                data.Normal[23]   = glm::vec3(0.0f, 0.0f, -1.0f);
+                data.Position[0]  = float3(1.0f, 1.0f, 1.0f);
+                data.Color[0]     = float4(0.0f);
+                data.Normal[0]    = float3(0.0f, 0.0f, 1.0f);
+                data.Position[1]  = float3(-1.0f, 1.0f, 1.0f);
+                data.Color[1]     = float4(0.0f);
+                data.Normal[1]    = float3(0.0f, 0.0f, 1.0f);
+                data.Position[2]  = float3(-1.0f, -1.0f, 1.0f);
+                data.Color[2]     = float4(0.0f);
+                data.Normal[2]    = float3(0.0f, 0.0f, 1.0f);
+                data.Position[3]  = float3(1.0f, -1.0f, 1.0f);
+                data.Color[3]     = float4(0.0f);
+                data.Normal[3]    = float3(0.0f, 0.0f, 1.0f);
+                data.Position[4]  = float3(1.0f, 1.0f, 1.0f);
+                data.Color[4]     = float4(0.0f);
+                data.Normal[4]    = float3(1.0f, 0.0f, 0.0f);
+                data.Position[5]  = float3(1.0f, -1.0f, 1.0f);
+                data.Color[5]     = float4(0.0f);
+                data.Normal[5]    = float3(1.0f, 0.0f, 0.0f);
+                data.Position[6]  = float3(1.0f, -1.0f, -1.0f);
+                data.Color[6]     = float4(0.0f);
+                data.Normal[6]    = float3(1.0f, 0.0f, 0.0f);
+                data.Position[7]  = float3(1.0f, 1.0f, -1.0f);
+                data.Color[7]     = float4(0.0f);
+                data.UV[7]        = float2(0.0f, 1.0f);
+                data.Normal[7]    = float3(1.0f, 0.0f, 0.0f);
+                data.Position[8]  = float3(1.0f, 1.0f, 1.0f);
+                data.Color[8]     = float4(0.0f);
+                data.Normal[8]    = float3(0.0f, 1.0f, 0.0f);
+                data.Position[9]  = float3(1.0f, 1.0f, -1.0f);
+                data.Color[9]     = float4(0.0f);
+                data.Normal[9]    = float3(0.0f, 1.0f, 0.0f);
+                data.Position[10] = float3(-1.0f, 1.0f, -1.0f);
+                data.Color[10]    = float4(0.0f);
+                data.UV[10]       = float2(0.0f, 1.0f);
+                data.Normal[10]   = float3(0.0f, 1.0f, 0.0f);
+                data.Position[11] = float3(-1.0f, 1.0f, 1.0f);
+                data.Color[11]    = float4(0.0f);
+                data.Normal[11]   = float3(0.0f, 1.0f, 0.0f);
+                data.Position[12] = float3(-1.0f, 1.0f, 1.0f);
+                data.Color[12]    = float4(0.0f);
+                data.Normal[12]   = float3(-1.0f, 0.0f, 0.0f);
+                data.Position[13] = float3(-1.0f, 1.0f, -1.0f);
+                data.Color[13]    = float4(0.0f);
+                data.Normal[13]   = float3(-1.0f, 0.0f, 0.0f);
+                data.Position[14] = float3(-1.0f, -1.0f, -1.0f);
+                data.Color[14]    = float4(0.0f);
+                data.Normal[14]   = float3(-1.0f, 0.0f, 0.0f);
+                data.Position[15] = float3(-1.0f, -1.0f, 1.0f);
+                data.Color[15]    = float4(0.0f);
+                data.Normal[15]   = float3(-1.0f, 0.0f, 0.0f);
+                data.Position[16] = float3(-1.0f, -1.0f, -1.0f);
+                data.Color[16]    = float4(0.0f);
+                data.Normal[16]   = float3(0.0f, -1.0f, 0.0f);
+                data.Position[17] = float3(1.0f, -1.0f, -1.0f);
+                data.Color[17]    = float4(0.0f);
+                data.Normal[17]   = float3(0.0f, -1.0f, 0.0f);
+                data.Position[18] = float3(1.0f, -1.0f, 1.0f);
+                data.Color[18]    = float4(0.0f);
+                data.Normal[18]   = float3(0.0f, -1.0f, 0.0f);
+                data.Position[19] = float3(-1.0f, -1.0f, 1.0f);
+                data.Color[19]    = float4(0.0f);
+                data.Normal[19]   = float3(0.0f, -1.0f, 0.0f);
+                data.Position[20] = float3(1.0f, -1.0f, -1.0f);
+                data.Color[20]    = float4(0.0f);
+                data.Normal[20]   = float3(0.0f, 0.0f, -1.0f);
+                data.Position[21] = float3(-1.0f, -1.0f, -1.0f);
+                data.Color[21]    = float4(0.0f);
+                data.Normal[21]   = float3(0.0f, 0.0f, -1.0f);
+                data.Position[22] = float3(-1.0f, 1.0f, -1.0f);
+                data.Color[22]    = float4(0.0f);
+                data.Normal[22]   = float3(0.0f, 0.0f, -1.0f);
+                data.Position[23] = float3(1.0f, 1.0f, -1.0f);
+                data.Color[23]    = float4(0.0f);
+                data.Normal[23]   = float3(0.0f, 0.0f, -1.0f);
 
                 // UVs
                 for (int i = 0; i < 6; i++) {
-                    data.UV[i * 4 + 0] = glm::vec2(0.0f, 0.0f);
-                    data.UV[i * 4 + 1] = glm::vec2(1.0f, 0.0f);
-                    data.UV[i * 4 + 2] = glm::vec2(1.0f, 1.0f);
-                    data.UV[i * 4 + 3] = glm::vec2(0.0f, 1.0f);
+                    data.UV[i * 4 + 0] = float2(0.0f, 0.0f);
+                    data.UV[i * 4 + 1] = float2(1.0f, 0.0f);
+                    data.UV[i * 4 + 2] = float2(1.0f, 1.0f);
+                    data.UV[i * 4 + 3] = float2(0.0f, 1.0f);
                 }
 
                 u32 indices[36]{
@@ -245,9 +245,9 @@ namespace Razix {
                         f32 s = static_cast<f32>(j / sectorCount);
                         f32 t = static_cast<f32>(i / stackCount);
 
-                        data.Position.push_back(glm::vec3(x, y, z));
-                        data.UV.push_back(glm::vec2(s, t));
-                        data.Normal.push_back(glm::normalize(glm::vec3(x, y, z)));
+                        data.Position.push_back(float3(x, y, z));
+                        data.UV.push_back(float2(s, t));
+                        data.Normal.push_back(normalize(float3(x, y, z)));
                     }
                 }
 

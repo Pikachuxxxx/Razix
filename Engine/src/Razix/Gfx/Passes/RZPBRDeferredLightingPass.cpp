@@ -99,7 +99,7 @@ namespace Razix {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("Deferred Lighting (PBR)");
-                    RAZIX_MARK_BEGIN("Pass.Builtin.PBRDeferredLighting", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+                    RAZIX_MARK_BEGIN("Pass.Builtin.PBRDeferredLighting", float4(1.0f, 0.5f, 0.0f, 1.0f));
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;
@@ -165,9 +165,9 @@ namespace Razix {
 
                     struct PCData
                     {
-                        glm::vec3 CameraViewPos;
+                        float3 CameraViewPos;
                         f32       dt;
-                        glm::mat4 camView;
+                        float4x4 camView;
                     } pcData             = {};
                     pcData.CameraViewPos = scene->getSceneCamera().getPosition();
                     pcData.camView       = scene->getSceneCamera().getViewMatrix();

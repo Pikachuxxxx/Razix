@@ -1,12 +1,5 @@
 #pragma once
 
-// Std. Includes
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <vector>
-
 namespace Razix {
     namespace Gfx {
         // Default camera values
@@ -31,7 +24,7 @@ namespace Razix {
         {
         public:
             // Constructor with vectors
-            Camera3D(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), f32 yaw = YAW, f32 pitch = PITCH);
+            Camera3D(float3 position = float3(0.0f, 0.0f, 0.0f), float3 up = float3(0.0f, 1.0f, 0.0f), f32 yaw = YAW, f32 pitch = PITCH);
             // Constructor with scalar values
             Camera3D(f32 posX, f32 posY, f32 posZ, f32 upX, f32 upY, f32 upZ, f32 yaw, f32 pitch);
             // Update the camera movement in the world space
@@ -43,90 +36,89 @@ namespace Razix {
             // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
             void processMouseScroll(f32 yoffset);
 
-            RAZIX_INLINE const glm::vec3& getPosition() const { return Position; }
-            void                          setPosition(glm::vec3 vector)
+            inline const float3& getPosition() const { return Position; }
+            void                 setPosition(float3 vector)
             {
                 Position       = vector;
                 TargetMovement = Position;
                 updateCameraVectors();
             }
 
-            RAZIX_INLINE const glm::vec3& getForward() const { return Front; }
-            void                          setForward(glm::vec3 vector)
+            inline const float3& getForward() const { return Front; }
+            void                 setForward(float3 vector)
             {
                 Front = vector;
                 updateCameraVectors();
             }
 
-            RAZIX_INLINE const glm::vec3& getUp() const { return Up; }
-            void                          setUp(glm::vec3 vector)
+            inline const float3& getUp() const { return Up; }
+            void                 setUp(float3 vector)
             {
                 Up = vector;
                 updateCameraVectors();
             }
 
-            RAZIX_INLINE const glm::vec3& getRight() const { return Right; }
-            void                          setRight(glm::vec3 vector)
+            inline const float3& getRight() const { return Right; }
+            void                 setRight(float3 vector)
             {
                 Right = vector;
                 updateCameraVectors();
             }
 
-            RAZIX_INLINE const glm::vec3& getWorldUp() const { return WorldUp; }
-            void                          setWorldUp(glm::vec3 vector)
+            inline const float3& getWorldUp() const { return WorldUp; }
+            void                 setWorldUp(float3 vector)
             {
                 WorldUp = vector;
                 updateCameraVectors();
             }
 
-            RAZIX_INLINE const f32& getYaw() const { return Yaw; }
-            void                    setYaw(f32 value)
+            inline const f32& getYaw() const { return Yaw; }
+            void              setYaw(f32 value)
             {
                 Yaw = value;
                 updateCameraVectors();
             }
 
-            RAZIX_INLINE const f32& getPitch() const { return Pitch; }
-            void                    setPitch(f32 value)
+            inline const f32& getPitch() const { return Pitch; }
+            void              setPitch(f32 value)
             {
                 Pitch = value;
                 updateCameraVectors();
             }
 
-            RAZIX_INLINE const f32& getZoom() const { return Zoom; }
-            void                    setZoom(f32 value)
+            inline const f32& getZoom() const { return Zoom; }
+            void              setZoom(f32 value)
             {
                 Zoom = value;
                 updateCameraVectors();
             }
 
-            RAZIX_INLINE const f32& getSpeed() const { return MovementSpeed; }
-            void                    setSpeed(f32 speed)
+            inline const f32& getSpeed() const { return MovementSpeed; }
+            void              setSpeed(f32 speed)
             {
                 MovementSpeed = speed;
                 updateCameraVectors();
             }
 
-            RAZIX_INLINE const f32& getSensitivity() const { return MouseSensitivity; }
-            void                    setSensitivity(f32 sensitivity)
+            inline const f32& getSensitivity() const { return MouseSensitivity; }
+            void              setSensitivity(f32 sensitivity)
             {
                 MouseSensitivity = sensitivity;
                 updateCameraVectors();
             }
 
             // Returns the view matrix calculated using Euler Angles and the LookAt Matrix
-            RAZIX_FORCE_INLINE glm::mat4 getViewMatrix();
-
-            glm::mat4 getViewMatrixLH();
-            glm::mat4 getViewMatrixRH();
+            inline float4x4 getViewMatrix() const;
+            inline float4x4 getViewMatrixLH() const;
+            inline float4x4 getViewMatrixRH() const;
 
         private:
             // Camera Attributes
-            glm::vec3 Position;
-            glm::vec3 Front = {-0.1, -0.18, -0.88};
-            glm::vec3 Up;
-            glm::vec3 Right;
-            glm::vec3 WorldUp;
+            float3 Position;
+            float3 Front = {-0.1, -0.18, -0.88};
+            float3 Up;
+            float3 Right;
+            float3 WorldUp;
             // Euler Angles
             f32 Yaw   = YAW;
             f32 Pitch = PITCH;
@@ -137,9 +129,9 @@ namespace Razix {
 
             f32 m_OldX = 0, m_OldY = 0;
 
-            glm::vec3 TargetMovement = glm::vec3(0.0f);
-            glm::vec3 Velocity       = glm::vec3(0.0f);    // Stores the current movement velocity
-            float     DampingFactor  = 0.85f;              // Controls how quickly movement slows down
+            float3 TargetMovement = float3(0.0f);
+            float3 Velocity       = float3(0.0f);    // Stores the current movement velocity
+            float  DampingFactor  = 0.85f;           // Controls how quickly movement slows down
 
         private:
             // Calculates the front vector from the Camera's (updated) Euler Angles

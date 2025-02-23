@@ -86,7 +86,7 @@ namespace Razix {
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Shadows);
 
                     RAZIX_TIME_STAMP_BEGIN("Shadow Pass");
-                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.RenderShadows", glm::vec4(0.65, 0.73, 0.22f, 1.0f));
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.RenderShadows", float4(0.65, 0.73, 0.22f, 1.0f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
@@ -102,8 +102,8 @@ namespace Razix {
                         }
                     }
 
-                    glm::mat4 lightView       = glm::lookAt(dir_light.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-                    glm::mat4 lightProjection = glm::perspective(60.0f, 1.0f, 0.1f, 100.0f);
+                    float4x4 lightView       = lookAt(dir_light.getPosition(), float3(0.0f), float3(0.0f, 1.0f, 0.0f));
+                    float4x4 lightProjection = perspective(60.0f, 1.0f, 0.1f, 100.0f);
                     lightProjection[1][1] *= -1;
                     light_data.lightViewProj = lightProjection * lightView;
 

@@ -27,7 +27,7 @@ namespace Razix {
 
             RAZIX_API RZMesh* CreatePrimitive(MeshPrimitive primitive);
 
-            RZMesh* CreatePlane(f32 width = 10.0f, f32 height = 10.0f, const glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+            RZMesh* CreatePlane(f32 width = 10.0f, f32 height = 10.0f, const float4 color = float4(1.0f, 1.0f, 1.0f, 1.0f));
             RZMesh* CreateCube();
             RZMesh* CreatePyramid();
             RZMesh* CreateSphere(u32 xSegments = 64, u32 ySegments = 64);

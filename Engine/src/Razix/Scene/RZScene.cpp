@@ -67,7 +67,7 @@ namespace Razix {
         entt::basic_group nonHierarchyTransformsView = m_Registry.group<TransformComponent>(entt::exclude<HierarchyComponent>);
         for (auto& entity: nonHierarchyTransformsView) {
             RAZIX_PROFILE_SCOPEC("Update Entities without children", RZ_PROFILE_COLOR_SCENE);
-            m_Registry.get<TransformComponent>(entity).SetWorldTransform(glm::mat4(1.0f));
+            m_Registry.get<TransformComponent>(entity).SetWorldTransform(float4x4(1.0f));
         }
 
         // Now Recursively update the Entities with children
@@ -95,11 +95,11 @@ namespace Razix {
                     if (parentTransform) {
                         transform->SetWorldTransform(parentTransform->GetWorldTransform());
                     } else {
-                        transform->SetWorldTransform(glm::mat4(1.0f));
+                        transform->SetWorldTransform(float4x4(1.0f));
                     }
                 }
             } else {
-                transform->SetWorldTransform(glm::mat4(1.0f));
+                transform->SetWorldTransform(float4x4(1.0f));
             }
 
             entt::entity child = hierarchy->First;
@@ -167,7 +167,7 @@ namespace Razix {
                     continue;
 
                 // Bind push constants, VBO, IBO and draw
-                glm::mat4 transform = mesh_trans.GetGlobalTransform();
+                float4x4 transform = mesh_trans.GetGlobalTransform();
 
                 //-----------------------------
                 Gfx::RZPushConstant modelMatrixPC;
@@ -176,8 +176,8 @@ namespace Razix {
 
                 struct PCD
                 {
-                    glm::mat4 worldTransform;
-                    glm::mat4 previousWorldTransform;
+                    float4x4 worldTransform;
+                    float4x4 previousWorldTransform;
                 } pcData{};
                 pcData.worldTransform = transform;
                 pcData.worldTransform = mrc.PreviousWorldTransform;

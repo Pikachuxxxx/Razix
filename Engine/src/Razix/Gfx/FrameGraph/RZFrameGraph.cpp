@@ -519,7 +519,7 @@ namespace Razix {
                 Resolution resolution = s_StringToResolutionsMap[renderInfo["resolution"]];
                 bool       resize     = renderInfo["resize"].get<bool>();
                 auto      &extents    = renderInfo["extents"];
-                glm::vec2  extent     = glm::vec2(0.0f);
+                float2  extent     = float2(0.0f);
                 if (!extents.empty()) {
                     extent.x = extents["x"].get<float>();
                     extent.y = extents["y"].get<float>();

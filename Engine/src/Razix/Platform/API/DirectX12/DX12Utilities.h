@@ -62,8 +62,8 @@ namespace Razix {
             //-----------------------------------------------------------------------------------
             // Markers for API Debugging in Graphics debugger Tools (PIX/RenderDoc)
 
-            void CmdBeginLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, glm::vec4 color);
-            void CmdInsertLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, glm::vec4 color);
+            void CmdBeginLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, float4 color);
+            void CmdInsertLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, float4 color);
             void CmdEndLabel(ID3D12GraphicsCommandList2* commandList);
 
             //-----------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ namespace Razix {
             //-----------------------------------------------------------------------------------
 
             /* Creates a command buffer for single time use */
-            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color);
+            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer(const std::string commandUsage, float4 color);
             /* Ends the recording of the single time command buffer */
             void EndSingleTimeCommandBuffer(ID3D12GraphicsCommandList2* commandList);
 

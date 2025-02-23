@@ -22,11 +22,11 @@ namespace Razix {
             RAZIX_INLINE LightData& getLightData() { return m_LightData; }
             void                    setLightType(LightType type);
 
-            RAZIX_INLINE glm::vec3 getColor() { return m_LightData.color; }
-            void                   setColor(glm::vec3 color) { m_LightData.color = color; }
+            RAZIX_INLINE float3 getColor() { return m_LightData.color; }
+            void                   setColor(float3 color) { m_LightData.color = color; }
 
-            RAZIX_INLINE glm::vec3 getDirection() { return glm::vec3(m_LightData.direction); }
-            void                   setDirection(const glm::vec3& direction) { m_LightData.direction = glm::vec4(direction, 1.0f); }
+            RAZIX_INLINE float3 getDirection() { return float3(m_LightData.direction); }
+            void                   setDirection(const float3& direction) { m_LightData.direction = float4(direction, 1.0f); }
 
             RAZIX_INLINE f32 getRadius() { return m_LightData.range; }
             void             setRadius(f32 radius) { m_LightData.range = radius; }
@@ -34,7 +34,7 @@ namespace Razix {
             RAZIX_INLINE f32 getIntensity() { return m_LightData.intensity; }
             void             setIntensity(f32 value) { m_LightData.intensity = value; }
 
-            RAZIX_INLINE const glm::vec3& getPosition() const { return m_LightData.position; }
+            RAZIX_INLINE const float3& getPosition() const { return m_LightData.position; }
 
             template<class Archive>
             void serialize(Archive& archive)

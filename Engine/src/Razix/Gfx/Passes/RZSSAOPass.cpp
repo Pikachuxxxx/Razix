@@ -67,25 +67,25 @@ namespace Razix {
             std::uniform_real_distribution<float> rndDist(0.0f, 1.0f);
 
             // Sample kernel
-            std::vector<glm::vec4> ssaoKernel(SSAO_KERNEL_SIZE);
+            std::vector<float4> ssaoKernel(SSAO_KERNEL_SIZE);
             for (uint32_t i = 0; i < SSAO_KERNEL_SIZE; ++i) {
-                glm::vec3 sample(rndDist(rndEngine) * 2.0 - 1.0, rndDist(rndEngine) * 2.0 - 1.0, rndDist(rndEngine));
-                sample = glm::normalize(sample);
+                float3 sample(rndDist(rndEngine) * 2.0 - 1.0, rndDist(rndEngine) * 2.0 - 1.0, rndDist(rndEngine));
+                sample = normalize(sample);
                 sample *= rndDist(rndEngine);
                 float scale   = float(i) / float(SSAO_KERNEL_SIZE);
                 scale         = lerp(0.1f, 1.0f, scale * scale);
-                ssaoKernel[i] = glm::vec4(sample * scale, 0.0f);
+                ssaoKernel[i] = float4(sample * scale, 0.0f);
             }
 
             // Random noise
-            std::vector<glm::vec4> ssaoNoise(SSAO_NOISE_DIM * SSAO_NOISE_DIM);
+            std::vector<float4> ssaoNoise(SSAO_NOISE_DIM * SSAO_NOISE_DIM);
             for (uint32_t i = 0; i < static_cast<uint32_t>(ssaoNoise.size()); i++) {
-                ssaoNoise[i] = glm::vec4(rndDist(rndEngine) * 2.0f - 1.0f, rndDist(rndEngine) * 2.0f - 1.0f, 0.0f, 0.0f);
+                ssaoNoise[i] = float4(rndDist(rndEngine) * 2.0f - 1.0f, rndDist(rndEngine) * 2.0f - 1.0f, 0.0f, 0.0f);
             }
             // SSAO kernel samples buffer
             RZBufferDesc samplesBufferDesc{};
             samplesBufferDesc.name     = "Kernel";
-            samplesBufferDesc.size     = static_cast<u32>(ssaoKernel.size()) * sizeof(glm::vec4);
+            samplesBufferDesc.size     = static_cast<u32>(ssaoKernel.size()) * sizeof(float4);
             samplesBufferDesc.data     = ssaoKernel.data();
             samplesBufferDesc.usage    = BufferUsage::Static;
             auto ssaoKernelBuffer      = Gfx::RZResourceManager::Get().createUniformBuffer(samplesBufferDesc);
@@ -97,7 +97,7 @@ namespace Razix {
             noiseTextureDesc.width      = 4;
             noiseTextureDesc.height     = 4;
             noiseTextureDesc.data       = ssaoNoise.data();
-            noiseTextureDesc.size       = static_cast<u32>(ssaoNoise.size()) * sizeof(glm::vec4);
+            noiseTextureDesc.size       = static_cast<u32>(ssaoNoise.size()) * sizeof(float4);
             noiseTextureDesc.type       = TextureType::k2D;
             noiseTextureDesc.format     = TextureFormat::RGBA16F;
             noiseTextureDesc.enableMips = false;
@@ -141,7 +141,7 @@ namespace Razix {
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_SSAO);
 
                     RAZIX_TIME_STAMP_BEGIN("SSAO");
-                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.FX.SSAO", glm::vec4(178.0f, 190.0f, 181.0f, 255.0f) / 255.0f);
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.FX.SSAO", float4(178.0f, 190.0f, 181.0f, 255.0f) / 255.0f);
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;
@@ -188,7 +188,7 @@ namespace Razix {
                     SSAOParamsData ssaoData{};
                     ssaoData.radius     = 1.0f;
                     ssaoData.bias       = 0.025f;
-                    ssaoData.resolution = glm::vec2(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+                    ssaoData.resolution = float2(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
                     auto& cam           = scene->getSceneCamera();
                     // TODO: Bind FrameData @ slot 0
                     ssaoData.camViewPos       = cam.getPosition();

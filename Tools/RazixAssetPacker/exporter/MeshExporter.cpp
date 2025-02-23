@@ -136,7 +136,7 @@ namespace Razix {
 
                         // write positions
                         BINBlobHeader h;
-                        h.stride = sizeof(glm::vec3);
+                        h.stride = sizeof(float3);
                         strcpy(h.typeName, "POSITION:R32G32B32");
                         u32 writeSize = import_result.vertices.Position.size();
                         h.size        = writeSize > 0 ? submesh.vertex_count * h.stride : 0;
@@ -146,7 +146,7 @@ namespace Razix {
 
                         // Color
                         h        = {};
-                        h.stride = sizeof(glm::vec4);
+                        h.stride = sizeof(float4);
                         strcpy(h.typeName, "COLOR:R32G32B32A32");
                         writeSize = import_result.vertices.Color.size();
                         h.size    = writeSize > 0 ? submesh.vertex_count * h.stride : 0;
@@ -156,7 +156,7 @@ namespace Razix {
 
                         // UV
                         h        = {};
-                        h.stride = sizeof(glm::vec2);
+                        h.stride = sizeof(float2);
                         strcpy(h.typeName, "TEXCOORD:R32G32");
                         writeSize = import_result.vertices.UV.size();
                         h.size    = writeSize > 0 ? submesh.vertex_count * h.stride : 0;
@@ -166,7 +166,7 @@ namespace Razix {
 
                         // Normal
                         h        = {};
-                        h.stride = sizeof(glm::vec3);
+                        h.stride = sizeof(float3);
                         strcpy(h.typeName, "NORMAL:R32G32B32");
                         writeSize = import_result.vertices.Normal.size();
                         h.size    = writeSize > 0 ? submesh.vertex_count * h.stride : 0;
@@ -176,7 +176,7 @@ namespace Razix {
 
                         // Tangent
                         h        = {};
-                        h.stride = sizeof(glm::vec3);
+                        h.stride = sizeof(float3);
                         strcpy(h.typeName, "TANGENT:R32G32B32");
                         writeSize = import_result.vertices.Tangent.size();
                         h.size    = writeSize > 0 ? submesh.vertex_count * h.stride : 0;

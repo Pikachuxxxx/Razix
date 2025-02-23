@@ -117,7 +117,7 @@ namespace Razix {
             m_Cascades = buildCascades(scene->getSceneCamera(), -dirLight[0].light.getPosition(), kNumCascades, kSplitLambda, kShadowMapSize);
         }
 
-        std::vector<Cascade> RZCSMPass::buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize)
+        std::vector<Cascade> RZCSMPass::buildCascades(RZSceneCamera camera, float3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -129,7 +129,7 @@ namespace Razix {
 
             // Get the cascade splits
             const auto cascadeSplits = buildCascadeSplits(numCascades, lambda, camera.getPerspectiveNearClip(), clipRange);
-            const auto invViewProj   = glm::inverse((camera.getProjection() * camera.getViewMatrix()));    // This is causing a flip
+            const auto invViewProj   = inverse((camera.getProjection() * camera.getViewMatrix()));    // This is causing a flip
 
             auto lastSplitDist = 0.0f;
 
@@ -172,29 +172,29 @@ namespace Razix {
             return cascadeSplits;
         }
 
-        Razix::Gfx::FrustumCorners RZCSMPass::buildFrustumCorners(const glm::mat4& inversedViewProj, f32 splitDist, f32 lastSplitDist)
+        Razix::Gfx::FrustumCorners RZCSMPass::buildFrustumCorners(const float4x4& inversedViewProj, f32 splitDist, f32 lastSplitDist)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // clang-format off
             FrustumCorners frustumCorners{
                 // Near
-                glm::vec3{-1.0f,  1.0f, -1.0f}, // TL
-                glm::vec3{ 1.0f,  1.0f, -1.0f}, // TR
-                glm::vec3{ 1.0f, -1.0f, -1.0f}, // BR
-                glm::vec3{-1.0f, -1.0f, -1.0f}, // BL
+                float3{-1.0f,  1.0f, -1.0f}, // TL
+                float3{ 1.0f,  1.0f, -1.0f}, // TR
+                float3{ 1.0f, -1.0f, -1.0f}, // BR
+                float3{-1.0f, -1.0f, -1.0f}, // BL
                 // Far
-                glm::vec3{-1.0f,  1.0f,  1.0f}, // TL
-                glm::vec3{ 1.0f,  1.0f,  1.0f}, // TR
-                glm::vec3{ 1.0f, -1.0f,  1.0f}, // BR
-                glm::vec3{-1.0f, -1.0f,  1.0f}  // BL
+                float3{-1.0f,  1.0f,  1.0f}, // TL
+                float3{ 1.0f,  1.0f,  1.0f}, // TR
+                float3{ 1.0f, -1.0f,  1.0f}, // BR
+                float3{-1.0f, -1.0f,  1.0f}  // BL
             };
             // clang-format on
 
             // Project frustum corners into world space
             for (auto& p: frustumCorners) {
-                const auto temp = inversedViewProj * glm::vec4{p, 1.0f};
-                p               = glm::vec3{temp} / temp.w;
+                const auto temp = inversedViewProj * float4{p, 1.0f};
+                p               = float3{temp} / temp.w;
             }
             for (u32 i{0}; i < 4; ++i) {
                 const auto cornerRay     = frustumCorners[i + 4] - frustumCorners[i];
@@ -210,28 +210,28 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            glm::vec3 center{0.0f};
+            float3 center{0.0f};
             for (const auto& p: frustumCorners)
                 center += p;
             center /= frustumCorners.size();
 
             auto radius = 0.0f;
             for (const auto& p: frustumCorners) {
-                const auto distance = glm::length(p - center);
-                radius              = glm::max(radius, distance);
+                const auto distance = length(p - center);
+                radius              = max(radius, distance);
             }
-            radius = glm::ceil(radius * 16.0f) / 16.0f;
+            radius = ceil(radius * 16.0f) / 16.0f;
             return std::make_tuple(center, radius);
         }
 
-        void RZCSMPass::eliminateShimmering(glm::mat4& projection, const glm::mat4& view, u32 shadowMapSize)
+        void RZCSMPass::eliminateShimmering(float4x4& projection, const float4x4& view, u32 shadowMapSize)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto shadowOrigin = projection * view * glm::vec4{glm::vec3{0.0f}, 1.0f};
+            auto shadowOrigin = projection * view * float4{float3{0.0f}, 1.0f};
             shadowOrigin *= (static_cast<f32>(shadowMapSize) / 2.0f);
 
-            const auto roundedOrigin = glm::round(shadowOrigin);
+            const auto roundedOrigin = round(shadowOrigin);
             auto       roundOffset   = roundedOrigin - shadowOrigin;
             roundOffset              = roundOffset * 2.0f / static_cast<f32>(shadowMapSize);
             roundOffset.z            = 0.0f;
@@ -239,22 +239,22 @@ namespace Razix {
             projection[3] += roundOffset;
         }
 
-        glm::mat4 RZCSMPass::buildDirLightMatrix(const glm::mat4& inversedViewProj, const glm::vec3& lightDirection, u32 shadowMapSize, f32 splitDist, f32 lastSplitDist)
+        float4x4 RZCSMPass::buildDirLightMatrix(const float4x4& inversedViewProj, const float3& lightDirection, u32 shadowMapSize, f32 splitDist, f32 lastSplitDist)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             const auto frustumCorners   = buildFrustumCorners(inversedViewProj, splitDist, lastSplitDist);
             const auto [center, radius] = measureFrustum(frustumCorners);
 
-            const auto maxExtents = glm::vec3{radius};
+            const auto maxExtents = float3{radius};
             const auto minExtents = -maxExtents;
 
-            const auto eye        = center - glm::normalize(lightDirection) * -minExtents.z;
-            const auto view       = glm::lookAt(eye, center, {0.0f, 1.0f, 0.0f});
-            auto       projection = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, -(maxExtents - minExtents).z, (maxExtents - minExtents).z);
-            //projection            = glm::mat4(1.0f);
+            const auto eye        = center - normalize(lightDirection) * -minExtents.z;
+            const auto view       = lookAt(eye, center, {0.0f, 1.0f, 0.0f});
+            auto       projection = ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, -(maxExtents - minExtents).z, (maxExtents - minExtents).z);
+            //projection            = float4x4(1.0f);
             //if (maxExtents.z != 0)
-            //    projection = glm::perspective(60.0f, (maxExtents.x - minExtents.x) / (maxExtents.y - minExtents.y), minExtents.z, maxExtents.z);
+            //    projection = perspective(60.0f, (maxExtents.x - minExtents.x) / (maxExtents.y - minExtents.y), minExtents.z, maxExtents.z);
 
             if (Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::VULKAN)
                 projection[1][1] *= -1;
@@ -265,7 +265,7 @@ namespace Razix {
 
         struct LightVPLayerData
         {
-            glm::mat4 viewProj = {};
+            float4x4 viewProj = {};
             i32       layer    = 0;
         };
 
@@ -310,7 +310,7 @@ namespace Razix {
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Shadows);
 
                     RAZIX_TIME_STAMP_BEGIN("CSM Pass # " + std::to_string(cascadeIdx));
-                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.CSM # " + std::to_string(cascadeIdx), glm::vec4(0.35, 0.44, 0.96f, 1.0f));
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.CSM # " + std::to_string(cascadeIdx), float4(0.35, 0.44, 0.96f, 1.0f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 

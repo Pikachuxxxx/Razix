@@ -6,7 +6,7 @@
 
 #include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
-#include "Razix/Math/RZGrid.h"
+#include "Razix/Math/Grid.h"
 
 namespace Razix {
     namespace Gfx {
@@ -43,7 +43,7 @@ namespace Razix {
             } m_PropagationGPUResources[kDefaultNumPropagations];
 
         private:
-            ReflectiveShadowMapData     addRSMPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, const glm::mat4& lightViewProj, glm::vec3 lightIntensity);
+            ReflectiveShadowMapData     addRSMPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, const float4x4& lightViewProj, float3 lightIntensity);
             LightPropagationVolumesData addRadianceInjectionPass(FrameGraph::RZFrameGraph& framegraph, const ReflectiveShadowMapData& RSM, const Maths::RZGrid& grid);
             LightPropagationVolumesData addRadiancePropagationPass(FrameGraph::RZFrameGraph& framegraph, const LightPropagationVolumesData& LPV, const Maths::RZGrid& grid, u32 propagationIdx);
         };

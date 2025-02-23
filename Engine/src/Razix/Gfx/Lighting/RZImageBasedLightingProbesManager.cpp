@@ -45,13 +45,13 @@ namespace Razix {
         // TODO: Use this via a RootConstant or PushConstant along with the texture bindless id
         struct EnvMapGenUBOData
         {
-            glm::ivec2 cubeFaceSize = {-1, -1};
+            int2 cubeFaceSize = {-1, -1};
             u32        mipLevel     = 0;
         } uboData;
 
         struct PushConstant
         {
-            glm::ivec2 cubeFaceSize;
+            int2 cubeFaceSize;
             float      roughness;
             u32        mipLevel;
         } data = {};
@@ -131,7 +131,7 @@ namespace Razix {
             pipelineInfo.shader              = shaderHandle;
             RZPipelineHandle envMapPipeline  = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("Environment Cubemap generation", glm::vec4(0.25f));
+            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("Environment Cubemap generation", float4(0.25f));
             {
                 RHI::BindPipeline(envMapPipeline, cmdBuffer);
                 RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSet, BindingTable_System::SET_IDX_SYSTEM_START);
@@ -200,7 +200,7 @@ namespace Razix {
             pipelineInfo.shader             = cubemapConvolutionShaderHandle;
             RZPipelineHandle envMapPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("Irradiance Cubemap generation", glm::vec4(0.5f));
+            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("Irradiance Cubemap generation", float4(0.5f));
             {
                 RHI::BindPipeline(envMapPipeline, cmdBuffer);
                 RHI::BindDescriptorSet(envMapPipeline, cmdBuffer, envMapSet, BindingTable_System::SET_IDX_SYSTEM_START);
@@ -265,7 +265,7 @@ namespace Razix {
             pipelineInfo.shader              = cubemapConvolutionShader;
             RZPipelineHandle envMapPipeline  = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("PreFiltering CubeMap", glm::vec4(0.6f, 0.8f, 0.3f, 1.0f));
+            auto cmdBuffer = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("PreFiltering CubeMap", float4(0.6f, 0.8f, 0.3f, 1.0f));
             {
                 for (u32 mipLevel = 0, mipSize = PREFILTERED_MAP_DIM; mipLevel < MaxMipLevels; mipLevel++, mipSize /= 2) {
                     // so we bind something fun here, we bind RW2DArraysViews but at different mip levels

@@ -38,7 +38,7 @@ namespace Razix {
     #endif    // RAZIX_DISTRIBUTION
             }
 
-            void CmdBeginLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, glm::vec4 color)
+            void CmdBeginLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, float4 color)
             {
     #ifndef RAZIX_DISTRIBUTION
 
@@ -50,7 +50,7 @@ namespace Razix {
     #endif
             }
 
-            void CmdInsertLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, glm::vec4 color)
+            void CmdInsertLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, float4 color)
             {
     #ifndef RAZIX_DISTRIBUTION
 
@@ -75,7 +75,7 @@ namespace Razix {
     #endif
             }
 
-            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color)
+            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer(const std::string commandUsage, float4 color)
             {
                 auto device = Gfx::DX12Context::Get()->getDevice();
 
@@ -160,7 +160,7 @@ namespace Razix {
                 auto            copyCommandQueue      = Gfx::DX12Context::Get()->getCopyQueue();
                 ID3D12Resource* pIntermediateResource = nullptr;
 
-                auto commandList = BeginSingleTimeCommandBuffer("Update Buffer Resource", glm::vec4(0.23, 0.45, 0.76f, 1.0f));
+                auto commandList = BeginSingleTimeCommandBuffer("Update Buffer Resource", float4(0.23, 0.45, 0.76f, 1.0f));
 
                 // Create an committed resource for the upload.
                 if (bufferData) {
@@ -293,13 +293,13 @@ namespace Razix {
                         layout.push<f32>(name);
                         break;
                     case DXGI_FORMAT_R32G32_FLOAT:
-                        layout.push<glm::vec2>(name);
+                        layout.push<float2>(name);
                         break;
                     case DXGI_FORMAT_R32G32B32_FLOAT:
-                        layout.push<glm::vec3>(name);
+                        layout.push<float3>(name);
                         break;
                     case DXGI_FORMAT_R32G32B32A32_FLOAT:
-                        layout.push<glm::vec4>(name);
+                        layout.push<float4>(name);
                         break;
                     default:
                         RAZIX_CORE_ERROR("Unsupported Format {0}", format);

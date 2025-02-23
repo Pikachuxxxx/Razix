@@ -83,7 +83,7 @@ namespace Razix {
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Skybox);
 
                     RAZIX_TIME_STAMP_BEGIN("Skybox Pass");
-                    RAZIX_MARK_BEGIN("Skybox pass", glm::vec4(0.33f, 0.45f, 1.0f, 1.0f));
+                    RAZIX_MARK_BEGIN("Skybox pass", float4(0.33f, 0.45f, 1.0f, 1.0f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
@@ -130,7 +130,7 @@ namespace Razix {
                         //                        }
                         //                        struct PCData
                         //                        {
-                        //                            glm::vec3 worldSpaceLightPos;
+                        //                            float3 worldSpaceLightPos;
                         //                            //u32       noiseTextureIdx;
                         //                        } data{};
                         //                        // FIXME: Use direction

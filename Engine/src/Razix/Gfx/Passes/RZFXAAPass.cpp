@@ -85,9 +85,9 @@ namespace Razix {
                     }
 
                     // Push constant data for sending in the tone map mode
-                    auto           res = glm::vec2(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
+                    auto           res = float2(RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight());
                     RZPushConstant pc;
-                    pc.size        = sizeof(glm::vec2);
+                    pc.size        = sizeof(float2);
                     pc.data        = &(res);
                     pc.shaderStage = ShaderStage::kPixel;
                     RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);

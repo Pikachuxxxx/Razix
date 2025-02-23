@@ -28,14 +28,14 @@ struct RadianceInjectionUBOData
     int       RSMResolution;
     f32       CellSize;
     char      _padding[5];
-    glm::vec3 MinCorner;
+    float3 MinCorner;
     char      _padding_;
-    glm::vec3 GridSize;
+    float3 GridSize;
     //char       _padding__;
 };
 
 struct RadiancePropagationUBOData
 {
-    glm::vec3 GridSize;
+    float3 GridSize;
     char      _padding;
 };

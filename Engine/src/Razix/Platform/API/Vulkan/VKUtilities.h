@@ -19,9 +19,9 @@ namespace Razix {
             // Defines to help with debugging (can be disabled in prod builds)
             // Vulkan Debug Markers
 
-            void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, glm::vec4 color);
+            void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, float4 color);
 
-            void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, glm::vec4 color);
+            void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, float4 color);
 
             void CmdEndDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer);
 
@@ -196,7 +196,7 @@ namespace Razix {
             // Single Time Command Buffer utility functions
             //-----------------------------------------------------------------------------------
 
-            VkCommandBuffer BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color);
+            VkCommandBuffer BeginSingleTimeCommandBuffer(const std::string commandUsage, float4 color);
             /* Ends the recording of the single time command buffer, submits and waits until execution is done */
             void EndSingleTimeCommandBuffer(VkCommandBuffer commandBuffer);
 

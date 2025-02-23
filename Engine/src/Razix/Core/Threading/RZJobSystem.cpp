@@ -114,7 +114,7 @@ namespace Razix {
             auto numCores = std::thread::hardware_concurrency();
 
             // Calculate the actual number of worker threads we want:
-            numThreads = glm::max(1U, numCores - 1);
+            numThreads = max(1U, numCores - 1);
 
             for (u32 threadID = 0; threadID < numThreads; ++threadID) {
                 std::thread worker([threadID] {

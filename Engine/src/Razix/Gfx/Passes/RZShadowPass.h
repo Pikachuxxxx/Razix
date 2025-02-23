@@ -9,7 +9,7 @@ namespace Razix {
 
         struct LightVPUBOData
         {
-            glm::mat4 lightViewProj;
+            float4x4 lightViewProj;
         };
 
         struct OmniDirectionalShadowPassData

@@ -12,11 +12,11 @@ namespace Razix {
         {
             float     radius           = 1.0f;
             float     bias             = 0.025f;
-            glm::vec2 resolution       = {};
-            glm::vec3 camViewPos       = {};
+            float2 resolution       = {};
+            float3 camViewPos       = {};
             float     _padding         = 0.0f;
-            glm::mat4 viewMatrix       = {};
-            glm::mat4 projectionMatrix = {};
+            float4x4 viewMatrix       = {};
+            float4x4 projectionMatrix = {};
         };
 
         class RZSSAOPass : public IRZPass

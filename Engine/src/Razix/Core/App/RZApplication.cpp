@@ -35,10 +35,6 @@
 
 #include <cereal/archives/json.hpp>
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform.hpp>
-
 #include <entt.hpp>
 
 #define ENABLE_IMGUI_EVENT_DATA_CAPTURE 0
@@ -621,20 +617,20 @@ namespace Razix {
 
             // Guizmo Editing Here
             TransformComponent& tc              = m_GuizmoEntity.GetComponent<TransformComponent>();
-            glm::mat4           transformMatrix = tc.GetLocalTransform();
-//            glm::mat4           deltaMatrix     = glm::mat4(1.0f);
+            float4x4           transformMatrix = tc.GetLocalTransform();
+//            float4x4           deltaMatrix     = float4x4(1.0f);
 
-            //ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, glm::value_ptr(transformMatrix));
+            //ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, value_ptr(transformMatrix));
 
             // https://github.com/CedricGuillemet/ImGuizmo/issues/237
-            //ImGuizmo::Manipulate(glm::value_ptr(cam.getViewMatrix()), glm::value_ptr(cam.getProjectionRaw()), (ImGuizmo::OPERATION) m_GuizmoOperation, (ImGuizmo::MODE) m_GuizmoMode, glm::value_ptr(transformMatrix), glm::value_ptr(deltaMatrix), &m_GuizmoSnapAmount);
+            //ImGuizmo::Manipulate(value_ptr(cam.getViewMatrix()), value_ptr(cam.getProjectionRaw()), (ImGuizmo::OPERATION) m_GuizmoOperation, (ImGuizmo::MODE) m_GuizmoMode, value_ptr(transformMatrix), value_ptr(deltaMatrix), &m_GuizmoSnapAmount);
 
             f32 matrixTranslation[3], matrixRotation[3], matrixScale[3];
             //ImGuizmo::DecomposeMatrixToComponents(&(transformMatrix[0][0]), matrixTranslation, matrixRotation, matrixScale);
 
-            tc.Translation = glm::vec3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
-            tc.Rotation    = glm::vec3(glm::radians(matrixRotation[0]), glm::radians(matrixRotation[1]), glm::radians(matrixRotation[2]));
-            tc.Scale       = glm::vec3(matrixScale[0], matrixScale[1], matrixScale[2]);
+            tc.Translation = float3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
+            tc.Rotation    = float3(radians(matrixRotation[0]), radians(matrixRotation[1]), radians(matrixRotation[2]));
+            tc.Scale       = float3(matrixScale[0], matrixScale[1], matrixScale[2]);
             tc.Transform   = transformMatrix;
         }
 

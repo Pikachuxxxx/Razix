@@ -142,7 +142,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
 
                     // Begin Command Buffer Recording
                     RHI::Begin(cmdBuf);
-                    RAZIX_MARK_BEGIN("Bloom Upsample Pass" + std::to_string(mipindex), glm::vec4(0.25, 0.23, 0.86f, 1.0f));
+                    RAZIX_MARK_BEGIN("Bloom Upsample Pass" + std::to_string(mipindex), float4(0.25, 0.23, 0.86f, 1.0f));
 
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT     = false;
@@ -199,7 +199,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
                 });
 
             mip.mip  = pass.bloomMip;
-            mip.size = glm::vec2(bloomSourceMip.size.x, bloomSourceMip.size.y) * 2.0f;
+            mip.size = float2(bloomSourceMip.size.x, bloomSourceMip.size.y) * 2.0f;
             return mip;
         }
 
@@ -261,7 +261,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
 
                     // Begin Command Buffer Recording
                     RHI::Begin(cmdBuf);
-                    RAZIX_MARK_BEGIN("Bloom Downsample Pass" + std::to_string(mipindex), glm::vec4(0.85, 0.23, 0.56f, 1.0f));
+                    RAZIX_MARK_BEGIN("Bloom Downsample Pass" + std::to_string(mipindex), float4(0.85, 0.23, 0.56f, 1.0f));
 
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT     = false;
@@ -298,7 +298,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
 
                     struct PCD
                     {
-                        glm::vec2 resoulution{};
+                        float2 resoulution{};
                     } pcData{};
                     pcData.resoulution  = info.extent;
                     downsampleData.data = &pcData;
@@ -318,7 +318,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
                 });
 
             mip.mip  = pass.bloomMip;
-            mip.size = glm::vec2(bloomSourceMip.size.x, bloomSourceMip.size.y) * 0.5f;
+            mip.size = float2(bloomSourceMip.size.x, bloomSourceMip.size.y) * 0.5f;
             return mip;
         }
 
@@ -379,7 +379,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
                     auto cmdBuf = bloomSceneMixGpuResources.cmdBuffers[RHI::GetSwapchain()->getCurrentFrameIndex()];
 
                     RHI::Begin(cmdBuf);
-                    RAZIX_MARK_BEGIN("Bloom Mix Tonemap", glm::vec4(0.05, 0.83, 0.66f, 1.0f));
+                    RAZIX_MARK_BEGIN("Bloom Mix Tonemap", float4(0.05, 0.83, 0.66f, 1.0f));
 
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT = false;

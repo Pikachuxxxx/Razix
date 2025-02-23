@@ -16,7 +16,7 @@ static_assert(kNumCascades <= 4);
 constexpr f32 kSplitLambda = 0.81f;
 
 // clang-format off
-const glm::mat4 kBiasMatrix
+const float4x4 kBiasMatrix
 {
     0.5, 0.0, 0.0, 0.0,
     0.0, 0.5, 0.0, 0.0,
@@ -27,12 +27,12 @@ const glm::mat4 kBiasMatrix
 
 struct alignas(4) CascadesMatrixData
 {
-    glm::vec4 splitDepth                     = {};
-    glm::mat4 viewProjMatrices[kNumCascades] = {};
+    float4 splitDepth                     = {};
+    float4x4 viewProjMatrices[kNumCascades] = {};
 };
 
 struct alignas(16) Cascade
 {
     f32       splitDepth     = 0.0f;
-    glm::mat4 viewProjMatrix = glm::mat4(1.0f);
+    float4x4 viewProjMatrix = float4x4(1.0f);
 };

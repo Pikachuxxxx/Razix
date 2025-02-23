@@ -63,7 +63,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
 
-            RAZIX_MARK_BEGIN("ImGui Pass", glm::vec4(1.0f, 7.0f, 0.0f, 1.0f));
+            RAZIX_MARK_BEGIN("ImGui Pass", float4(1.0f, 7.0f, 0.0f, 1.0f));
 
             ImDrawData* imDrawData = ImGui::GetDrawData();
             if (!imDrawData)
@@ -113,8 +113,8 @@ namespace Razix {
 
             RHI::SetViewport(cmdBuffer, 0, 0, (u32) io.DisplaySize.x, (u32) io.DisplaySize.y);
 
-            m_PushConstantData.scale         = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
-            m_PushConstantData.translate     = glm::vec2(-1.0f, -1.0f);
+            m_PushConstantData.scale         = float2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
+            m_PushConstantData.translate     = float2(-1.0f, -1.0f);
             RZPushConstant imguiPushConstant = {};
             imguiPushConstant.name           = "PushConstant";
             imguiPushConstant.shaderStage    = ShaderStage::kVertex;

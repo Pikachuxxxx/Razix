@@ -24,7 +24,7 @@ namespace Razix {
 
         GET_INSTANCE_SIZE_IMPL(DrawCommandBuffer)
 
-        RZDrawCommandBufferHandle RZDrawCommandBuffer::BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color)
+        RZDrawCommandBufferHandle RZDrawCommandBuffer::BeginSingleTimeCommandBuffer(const std::string commandUsage, float4 color)
         {
             RZHandle<RZDrawCommandBuffer> handle;
             void*                         where = RZResourceManager::Get().getPool<RZDrawCommandBuffer>().obtain(handle);

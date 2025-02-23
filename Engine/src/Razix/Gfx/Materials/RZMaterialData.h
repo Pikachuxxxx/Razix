@@ -30,20 +30,20 @@ namespace Razix {
         /* Material properties (16-byte aligned as per optimal GPU requirements) */
         struct alignas(16) MaterialProperties
         {
-            glm::vec3 albedoColor  = glm::vec3(1.0f, 1.0f, 1.0f);
-            bool      _padding0[4] = {};
+            float3 albedoColor  = float3(1.0f, 1.0f, 1.0f);
+            bool   _padding0[4] = {};
 
-            glm::vec3 normal            = glm::vec3(0.0f, 1.0f, 0.0f);
-            f32       emissiveIntensity = 1.0f;
+            float3 normal            = float3(0.0f, 1.0f, 0.0f);
+            f32    emissiveIntensity = 1.0f;
 
             f32 metallicColor  = 1.0f;
             f32 roughnessColor = 0.025f;
             f32 specularColor  = 1.0f;
             f32 opacity        = 1.0f;
 
-            f32       ambientOcclusion = 1.0f;
-            glm::vec2 uvScale          = {1.0f, 1.0f};
-            u32       workflow         = (u32) WorkFlow::WORKFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED;    // Default for GLTF models which are primary source for Razix
+            f32    ambientOcclusion = 1.0f;
+            float2 uvScale          = {1.0f, 1.0f};
+            u32    workflow         = (u32) WorkFlow::WORKFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED;    // Default for GLTF models which are primary source for Razix
 
             u32 visible = true;
             // TODO: Use these as bindless array indices
@@ -56,13 +56,13 @@ namespace Razix {
             u32 isUsingAOMap        = false;
             //------------------------------
             // RUNTIME STUFF
-            u32 AlbedoMapIdx    = u16_max;
-            u32 NormalMapIdx    = u16_max;
-            u32 MetallicMapIdx  = u16_max;
-            u32 RoughnessMapIdx = u16_max;
-            u32 SpecularIdx     = u16_max;
-            u32 EmissiveMapIdx  = u16_max;
-            u32 AOMapIdx        = u16_max;
+            u32 AlbedoMapIdx    = UINT16_MAX;
+            u32 NormalMapIdx    = UINT16_MAX;
+            u32 MetallicMapIdx  = UINT16_MAX;
+            u32 RoughnessMapIdx = UINT16_MAX;
+            u32 SpecularIdx     = UINT16_MAX;
+            u32 EmissiveMapIdx  = UINT16_MAX;
+            u32 AOMapIdx        = UINT16_MAX;
             u32 _padding1;
         };
 

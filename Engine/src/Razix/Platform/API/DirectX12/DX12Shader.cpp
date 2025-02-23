@@ -87,23 +87,23 @@ namespace Razix {
                 case DXGI_FORMAT_R32_FLOAT:
                     return sizeof(FLOAT);
                 case DXGI_FORMAT_R32G32_FLOAT:
-                    return sizeof(glm::vec2);
+                    return sizeof(float2);
                 case DXGI_FORMAT_R32G32B32_FLOAT:
-                    return sizeof(glm::vec3);
+                    return sizeof(float3);
                 case DXGI_FORMAT_R32G32B32A32_FLOAT:
-                    return sizeof(glm::vec4);
+                    return sizeof(float4);
                 case DXGI_FORMAT_R32G32_SINT:
-                    return sizeof(glm::ivec2);
+                    return sizeof(int2);
                 case DXGI_FORMAT_R32G32B32_SINT:
-                    return sizeof(glm::ivec3);
+                    return sizeof(int3);
                 case DXGI_FORMAT_R32G32B32A32_SINT:
-                    return sizeof(glm::ivec4);
+                    return sizeof(int4);
                 case DXGI_FORMAT_R32G32_UINT:
-                    return sizeof(glm::uvec2);
+                    return sizeof(uint2);
                 case DXGI_FORMAT_R32G32B32_UINT:
-                    return sizeof(glm::uvec3);
+                    return sizeof(uint3);
                 case DXGI_FORMAT_R32G32B32A32_UINT:
-                    return sizeof(glm::uvec4);    //Need uintvec?
+                    return sizeof(uint4);    //Need uintvec?
                 case DXGI_FORMAT_R32_UINT:
                     return sizeof(u32);
                 default:

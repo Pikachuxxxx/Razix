@@ -112,7 +112,7 @@ namespace Razix {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("GBuffer Pass");
-                    RAZIX_MARK_BEGIN("GBuffer Pass", glm::vec4(1.0f, 0.6f, 0.0f, 1.0f));
+                    RAZIX_MARK_BEGIN("GBuffer Pass", float4(1.0f, 0.6f, 0.0f, 1.0f));
 
                     RenderingInfo info    = {};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};

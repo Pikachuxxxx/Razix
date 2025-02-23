@@ -34,8 +34,8 @@ namespace Razix {
         private:
             struct PushConstant
             {
-                glm::vec2 scale;
-                glm::vec2 translate;
+                float2 scale;
+                float2 translate;
             };
 
         public:

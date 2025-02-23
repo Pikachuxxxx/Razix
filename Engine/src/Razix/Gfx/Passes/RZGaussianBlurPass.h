@@ -22,7 +22,7 @@ namespace Razix {
         {
             u32       filterTap;
             f32       blurRadius;
-            glm::vec2 direction;
+            float2 direction;
         };
 
         class RZGaussianBlurPass : public IRZPass

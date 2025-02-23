@@ -42,10 +42,10 @@ namespace Razix {
         void RZGIPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Use this to get the Reflective shadow map cascade
-            glm::mat4 rsmLightViewProj;
+            float4x4 rsmLightViewProj;
 
             // RSM pass
-            ReflectiveShadowMapData RSM = addRSMPass(framegraph, scene, rsmLightViewProj, glm::vec3(3.0f));
+            ReflectiveShadowMapData RSM = addRSMPass(framegraph, scene, rsmLightViewProj, float3(3.0f));
 
             // Add this to the blackboard
             framegraph.getBlackboard().add<ReflectiveShadowMapData>(RSM);
@@ -73,7 +73,7 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD;
         }
 
-        ReflectiveShadowMapData RZGIPass::addRSMPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, const glm::mat4& lightViewProj, glm::vec3 lightIntensity)
+        ReflectiveShadowMapData RZGIPass::addRSMPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, const float4x4& lightViewProj, float3 lightIntensity)
         {
             auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
 
@@ -151,7 +151,7 @@ namespace Razix {
                         std::string RenderPassName = "RSM Pass";
                     } checkpointData;
 
-                    RAZIX_MARK_BEGIN("ReflectiveShadowMap", glm::vec4(.23f, .45f, .76f, 1.0f))
+                    RAZIX_MARK_BEGIN("ReflectiveShadowMap", float4(.23f, .45f, .76f, 1.0f))
 
                     RenderingInfo info{};
                     info.colorAttachments = {
@@ -196,7 +196,7 @@ namespace Razix {
                         const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
 
                         // Bind push constants, VBO, IBO and draw
-                        glm::mat4 transform = mesh_trans.GetGlobalTransform();
+                        float4x4 transform = mesh_trans.GetGlobalTransform();
 
                         //-----------------------------
                         // Get the shader from the Mesh Material later
@@ -205,7 +205,7 @@ namespace Razix {
 
                         struct PCD
                         {
-                            glm::mat4 mat;
+                            float4x4 mat;
                         } pcData{};
                         pcData.mat       = transform;
                         modelMatrix.data = &pcData;
@@ -317,7 +317,7 @@ namespace Razix {
                         std::string RenderPassName = "Radiance Injection Pass";
                     } checkpointData;
 
-                    RAZIX_MARK_BEGIN("Radiance Injection", glm::vec4(.53f, .45f, .76f, 1.0f))
+                    RAZIX_MARK_BEGIN("Radiance Injection", float4(.53f, .45f, .76f, 1.0f))
 
         #if 1
                     static bool setsCreated = false;
@@ -452,7 +452,7 @@ namespace Razix {
                         std::string RenderPassName = "Radiance Propagation Pass";
                     } checkpointData;
 
-                    RAZIX_MARK_BEGIN("Radiance Propagation", glm::vec4(.53f, .45f, .16f, 1.0f))
+                    RAZIX_MARK_BEGIN("Radiance Propagation", float4(.53f, .45f, .16f, 1.0f))
 
                     if (!m_PropagationGPUResources[propagationIdx].PropagationDescriptorSet) {
                         auto setInfos = RZResourceManager::Get().getShaderResource(shader)->getDescriptorsPerHeapMap();

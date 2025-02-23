@@ -1,5 +1,5 @@
-#pragma once
-#pragma once
+#ifndef APPLICATION_H
+#define APPLICATION_H
 
 #include "RZSTL/smart_pointers.h"
 #include "Razix/Core/OS/RZWindow.h"
@@ -18,9 +18,6 @@
 #include "Razix/Utilities/TRZSingleton.h"
 
 #include "Razix/Gfx/RHI/API/RZSwapchain.h"
-
-// glm
-#include <glm/glm.hpp>
 
 // Cereal
 #pragma warning(push, 0)
@@ -151,7 +148,7 @@ namespace Razix {
         virtual void OnResize(u32 width, u32 height) {}
 
         inline RZWindow*         getWindow() { return m_Window; }
-        inline glm::vec2         getWindowSize() const { return glm::vec2(m_Window->getWidth(), m_Window->getHeight()); }
+        inline float2         getWindowSize() const { return float2(m_Window->getWidth(), m_Window->getHeight()); }
         inline std::string       getAppName() const { return m_ProjectName; }
         inline std::string       getProjectRoot() const { return m_ProjectPath; }
         inline void              setProjectRoot(const std::string& projPath) { m_ProjectPath = projPath; }
@@ -245,3 +242,5 @@ namespace Razix {
      */
     RZApplication* CreateApplication(int argc, char** argv);
 }    // namespace Razix
+
+#endif    // APPLICATION_H

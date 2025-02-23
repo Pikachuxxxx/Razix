@@ -45,7 +45,7 @@ namespace Razix {
         {
             u32       tapFilter;
             f32       blurRadius;
-            glm::vec2 direction;
+            float2 direction;
         };
 
         void RZGaussianBlurPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
@@ -105,7 +105,7 @@ namespace Razix {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("GaussianBlur");
-                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.FX.GaussianBlur", glm::vec4(178.0f, 190.0f, 181.0f, 255.0f) / 255.0f);
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.FX.GaussianBlur", float4(178.0f, 190.0f, 181.0f, 255.0f) / 255.0f);
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;
@@ -132,7 +132,7 @@ namespace Razix {
 
                     GaussianBlurPCData pcData{};
                     pcData.blurRadius = blurRadius;
-                    pcData.direction  = direction == GaussianDirection::Horizontal ? glm::vec2(1, 0) : glm::vec2(0, 1);
+                    pcData.direction  = direction == GaussianDirection::Horizontal ? float2(1, 0) : float2(0, 1);
                     pcData.tapFilter  = (u32) filterTap;
 
                     RZPushConstant pc;

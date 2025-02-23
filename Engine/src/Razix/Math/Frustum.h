@@ -12,9 +12,9 @@ namespace Razix {
             RZFrustum()  = default;
             ~RZFrustum() = default;
 
-            void build(glm::mat4 VP);
+            void build(float4x4 VP);
 
-            bool IsInside(const glm::vec3& point) const
+            bool IsInside(const float3& point) const
             {
                 /*for (const auto& plane: m_Planes) {
                 if (plane.Distance(point) < 0.0f)
@@ -24,11 +24,11 @@ namespace Razix {
                 return true;
             }
 
-            const glm::vec3* getVertices() const { return m_Vertices; }
+            const float3* getVertices() const { return m_Vertices; }
 
         private:
             //Plane     m_Planes[NUM_FRUSTUM_PLANES];
-            glm::vec3 m_Vertices[NUM_FRUSTUM_VERTICES];
+            float3 m_Vertices[NUM_FRUSTUM_VERTICES];
         };
     }    // namespace Maths
 }    // namespace Razix

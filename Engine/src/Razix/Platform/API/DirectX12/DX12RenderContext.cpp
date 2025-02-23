@@ -160,7 +160,7 @@ namespace Razix {
 
             // TODO: Clear the RTs and DTs + bind the actual RT textures to render onto and set the viewport etc
 
-            glm::ivec2 viewPortExtents;
+            int2 viewPortExtents;
             if (renderingInfo.resolution == Resolution::kCustom)
                 viewPortExtents = {renderingInfo.extent.x, renderingInfo.extent.y};
             else if (renderingInfo.resolution == Resolution::kWindow)

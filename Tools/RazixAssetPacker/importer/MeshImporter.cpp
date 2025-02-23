@@ -171,19 +171,19 @@ namespace Razix {
                             rootNode->children[i].name     = scene->mMeshes[i]->mName.C_Str();
                         }
 
-                        result.submeshes[i].max_extents = glm::vec3(temp_mesh->mVertices[0].x, temp_mesh->mVertices[0].y, temp_mesh->mVertices[0].z);
-                        result.submeshes[i].min_extents = glm::vec3(temp_mesh->mVertices[0].x, temp_mesh->mVertices[0].y, temp_mesh->mVertices[0].z);
+                        result.submeshes[i].max_extents = float3(temp_mesh->mVertices[0].x, temp_mesh->mVertices[0].y, temp_mesh->mVertices[0].z);
+                        result.submeshes[i].min_extents = float3(temp_mesh->mVertices[0].x, temp_mesh->mVertices[0].y, temp_mesh->mVertices[0].z);
 
                         // Read vertex data
                         //#if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
                         for (uint32_t k = 0; k < scene->mMeshes[i]->mNumVertices; k++) {
-                            result.vertices.Position[vertex_index] = glm::vec3(temp_mesh->mVertices[k].x, temp_mesh->mVertices[k].y, temp_mesh->mVertices[k].z);
-                            glm::vec3 n                            = glm::vec3(temp_mesh->mNormals[k].x, temp_mesh->mNormals[k].y, temp_mesh->mNormals[k].z);
+                            result.vertices.Position[vertex_index] = float3(temp_mesh->mVertices[k].x, temp_mesh->mVertices[k].y, temp_mesh->mVertices[k].z);
+                            float3 n                            = float3(temp_mesh->mNormals[k].x, temp_mesh->mNormals[k].y, temp_mesh->mNormals[k].z);
                             result.vertices.Normal[vertex_index]   = n;
 
                             if (temp_mesh->mTangents) {
-                                glm::vec3 t = glm::vec3(temp_mesh->mTangents[k].x, temp_mesh->mTangents[k].y, temp_mesh->mTangents[k].z);
-                                glm::vec3 b = glm::vec3(temp_mesh->mBitangents[k].x, temp_mesh->mBitangents[k].y, temp_mesh->mBitangents[k].z);
+                                float3 t = float3(temp_mesh->mTangents[k].x, temp_mesh->mTangents[k].y, temp_mesh->mTangents[k].z);
+                                float3 b = float3(temp_mesh->mBitangents[k].x, temp_mesh->mBitangents[k].y, temp_mesh->mBitangents[k].z);
 
                                 // @NOTE: Assuming right handed coordinate space
                                 if (glm::dot(glm::cross(n, t), b) < 0.0f)
@@ -194,7 +194,7 @@ namespace Razix {
                             }
 
                             if (temp_mesh->HasTextureCoords(0))
-                                result.vertices.UV[vertex_index] = glm::vec2(temp_mesh->mTextureCoords[0][k].x, temp_mesh->mTextureCoords[0][k].y);
+                                result.vertices.UV[vertex_index] = float2(temp_mesh->mTextureCoords[0][k].x, temp_mesh->mTextureCoords[0][k].y);
 
                             if (result.vertices.Position[vertex_index].x > result.submeshes[i].max_extents.x)
                                 result.submeshes[i].max_extents.x = result.vertices.Position[vertex_index].x;
@@ -230,7 +230,7 @@ namespace Razix {
                         //// UV
                         //for (uint32_t k = 0; k < temp_mesh->mNumVertices; k++) {
                         //    if (temp_mesh->HasTextureCoords(0))
-                        //        result.vertices.UV[vertex_index] = glm::vec2(temp_mesh->mTextureCoords[0][k].x, temp_mesh->mTextureCoords[0][k].y);
+                        //        result.vertices.UV[vertex_index] = float2(temp_mesh->mTextureCoords[0][k].x, temp_mesh->mTextureCoords[0][k].y);
 
                         //    if (result.vertices.Position[vertex_index].x > result.submeshes[i].max_extents.x)
                         //        result.submeshes[i].max_extents.x = result.vertices.Position[vertex_index].x;
@@ -308,7 +308,7 @@ namespace Razix {
                         // Diffuse color, use AI_MATKEY_COLOR_TRANSPARENT for opacity later
                         aiReturn base_color_factor_found = aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, base_color);
 
-                        material.m_MaterialProperties.albedoColor = glm::vec4(base_color.r, base_color.g, base_color.b, base_color.a);
+                        material.m_MaterialProperties.albedoColor = float4(base_color.r, base_color.g, base_color.b, base_color.a);
                     }
                 }
 
@@ -433,8 +433,8 @@ namespace Razix {
                         aiQuaternion rotation;
                         node->mChildren[i]->mTransformation.Decompose(scale, rotation, translation);
 
-                        child.translation = glm::vec3(translation.x, translation.y, translation.z);
-                        child.scale       = glm::vec3(scale.x, scale.y, scale.z);
+                        child.translation = float3(translation.x, translation.y, translation.z);
+                        child.scale       = float3(scale.x, scale.y, scale.z);
                         child.rotation    = glm::quat(rotation.w, rotation.x, rotation.y, rotation.z);
 
                         extractHierarchy(&child, node->mChildren[i], scene, ++depthIndex);

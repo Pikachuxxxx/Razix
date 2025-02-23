@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 
-#include <glm/glm.hpp>
-
 #include "Razix/AssetSystem/RZAssetFileSpec.h"
 
 #include "Razix/Gfx/Materials/RZMaterialData.h"

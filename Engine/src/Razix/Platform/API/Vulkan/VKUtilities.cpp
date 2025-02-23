@@ -28,7 +28,7 @@ namespace Razix {
                 VKBuffer transferBuffer = VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, cpuData RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging buffer to copy to Device only GPU buffer"));
                 {
                     // 1.1 Copy from staging buffer to Image
-                    VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Copy Data to GPU Buffer", glm::vec4(0.9f, 0.76f, 0.54f, 1.0f));
+                    VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Copy Data to GPU Buffer", float4(0.9f, 0.76f, 0.54f, 1.0f));
 
                     VkBufferCopy region = {};
                     region.srcOffset    = 0;
@@ -48,7 +48,7 @@ namespace Razix {
                 VKBuffer* stagingBuffer = new VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<u32>(size), cpuData RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer for VKTexture"));
 
                 // 1.1 Copy from staging buffer to Image
-                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Copy Data to GPU Texture", glm::vec4(0.3f, 0.16f, 0.74f, 1.0f));
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Copy Data to GPU Texture", float4(0.3f, 0.16f, 0.74f, 1.0f));
 
                 VkBufferImageCopy region               = {};
                 region.bufferOffset                    = 0;
@@ -314,7 +314,7 @@ namespace Razix {
                 }
 
                 // Begin the buffer since this done for computability with shader pipeline stages we use pipeline barrier to synchronize the transition
-                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Image Layout Transition", glm::vec4(0.25f, 0.5f, 0.75, 1.0f));
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Image Layout Transition", float4(0.25f, 0.5f, 0.75, 1.0f));
 
                 VkImageMemoryBarrier barrier = {};
                 barrier.sType                = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -830,7 +830,7 @@ namespace Razix {
             // Single Time Command Buffer Utility Functions
             //-----------------------------------------------------------------------------------
 
-            VkCommandBuffer BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color)
+            VkCommandBuffer BeginSingleTimeCommandBuffer(const std::string commandUsage, float4 color)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -1115,23 +1115,23 @@ namespace Razix {
                     case VK_FORMAT_R32_SFLOAT:
                         return sizeof(float);
                     case VK_FORMAT_R32G32_SFLOAT:
-                        return sizeof(glm::vec2);
+                        return sizeof(float2);
                     case VK_FORMAT_R32G32B32_SFLOAT:
-                        return sizeof(glm::vec3);
+                        return sizeof(float3);
                     case VK_FORMAT_R32G32B32A32_SFLOAT:
-                        return sizeof(glm::vec4);
+                        return sizeof(float4);
                     case VK_FORMAT_R32G32_SINT:
-                        return sizeof(glm::ivec2);
+                        return sizeof(int2);
                     case VK_FORMAT_R32G32B32_SINT:
-                        return sizeof(glm::ivec3);
+                        return sizeof(int3);
                     case VK_FORMAT_R32G32B32A32_SINT:
-                        return sizeof(glm::ivec4);
+                        return sizeof(int4);
                     case VK_FORMAT_R32G32_UINT:
-                        return sizeof(glm::uvec2);
+                        return sizeof(uint2);
                     case VK_FORMAT_R32G32B32_UINT:
-                        return sizeof(glm::uvec3);
+                        return sizeof(uint3);
                     case VK_FORMAT_R32G32B32A32_UINT:
-                        return sizeof(glm::uvec4);    //Need uintvec?
+                        return sizeof(uint4);    //Need uintvec?
                     case VK_FORMAT_R32_UINT:
                         return sizeof(u32);
                     default:
@@ -1155,13 +1155,13 @@ namespace Razix {
                         layout.push<float>(name);
                         break;
                     case VK_FORMAT_R32G32_SFLOAT:
-                        layout.push<glm::vec2>(name);
+                        layout.push<float2>(name);
                         break;
                     case VK_FORMAT_R32G32B32_SFLOAT:
-                        layout.push<glm::vec3>(name);
+                        layout.push<float3>(name);
                         break;
                     case VK_FORMAT_R32G32B32A32_SFLOAT:
-                        layout.push<glm::vec4>(name);
+                        layout.push<float4>(name);
                         break;
                     default:
                         RAZIX_CORE_ERROR("Unsupported Format {0}", format);
@@ -1241,7 +1241,7 @@ namespace Razix {
             // Debug Utils
             //-----------------------------------------------------------------------------------
 
-            void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, glm::vec4 color)
+            void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, float4 color)
             {
                 VkDebugUtilsLabelEXT label{};
                 label.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
@@ -1255,7 +1255,7 @@ namespace Razix {
                 //    RAZIX_CORE_ERROR("CmdBeginDebugUtilsLabelEXT Function not found");
             }
 
-            void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, glm::vec4 color)
+            void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, float4 color)
             {
                 VkDebugUtilsLabelEXT label{};
                 label.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;

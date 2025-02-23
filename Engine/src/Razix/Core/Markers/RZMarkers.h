@@ -18,8 +18,8 @@
 
 #endif
 
-RAZIX_API void BeginMarker(const std::string& name, glm::vec4 color);
-RAZIX_API void InsertMarker(const std::string& name, glm::vec4 color);
+RAZIX_API void BeginMarker(const std::string& name, float4 color);
+RAZIX_API void InsertMarker(const std::string& name, float4 color);
 RAZIX_API void EndMarker();
 
 //------------------------------------------------------------------------

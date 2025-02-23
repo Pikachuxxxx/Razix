@@ -33,16 +33,16 @@ namespace Razix {
         static const u32 MaxPoints                     = 10000;
         static const u32 MaxPointVertices              = MaxPoints * MaxQuadVerts;    // 4 vertices per quad
         static const u32 MaxPointIndices               = MaxPoints * 6;               // 6 indices per quad
-        static const u32 PointPositionDataSize         = sizeof(glm::vec4);
-        static const u32 PointColorDataSize            = sizeof(glm::vec4);
+        static const u32 PointPositionDataSize         = sizeof(float4);
+        static const u32 PointColorDataSize            = sizeof(float4);
         static const u32 PointPositionVertexBufferSize = PointPositionDataSize * MaxPointVertices;
         static const u32 PointColorVertexBufferSize    = PointColorDataSize * MaxPointVertices;
 
         static const uint32_t MaxLines                     = 10000;
         static const uint32_t MaxLineVertices              = MaxLines * MaxLineVerts;    // 2 vertices per line
         static const uint32_t MaxLineIndices               = MaxLines * 2;               // 6 indices per quad since we draw a line as a very thin quad
-        static const u32      LinePositionDataSize         = sizeof(glm::vec4);
-        static const u32      LineColorDataSize            = sizeof(glm::vec4);
+        static const u32      LinePositionDataSize         = sizeof(float4);
+        static const u32      LineColorDataSize            = sizeof(float4);
         static const u32      LinePositionVertexBufferSize = LinePositionDataSize * MaxLineVertices;
         static const u32      LineColorVertexBufferSize    = LineColorDataSize * MaxLineVertices;
 
@@ -66,7 +66,7 @@ namespace Razix {
 
             auto& sceneCamera = scene->getSceneCamera();
 
-            RAZIX_MARK_BEGIN("Debug Renderer Pass", glm::vec4(0.0f, 0.85f, 0.0f, 1.0f));
+            RAZIX_MARK_BEGIN("Debug Renderer Pass", float4(0.0f, 0.85f, 0.0f, 1.0f));
 
             // POINTS
             {
@@ -77,22 +77,22 @@ namespace Razix {
 
                 // Map the VBO
                 pointPositionVBResource->Map(PointPositionVertexBufferSize);
-                glm::vec3* pointsVertexData = (glm::vec3*) pointPositionVBResource->GetMappedBuffer();
+                float3* pointsVertexData = (float3*) pointPositionVBResource->GetMappedBuffer();
 
                 pointColorVBResource->Map(PointColorVertexBufferSize);
-                glm::vec3* pointsColorData = (glm::vec3*) pointColorVBResource->GetMappedBuffer();
+                float3* pointsColorData = (float3*) pointColorVBResource->GetMappedBuffer();
 
                 u32 pointIdx = 0;
                 for (auto& point: m_DrawList.m_DebugPoints) {
-                    glm::vec3 right = point.size * sceneCamera.getRight();
-                    glm::vec3 up    = point.size * sceneCamera.getUp();
+                    float3 right = point.size * sceneCamera.getRight();
+                    float3 up    = point.size * sceneCamera.getUp();
 
                     // Define the four corners of the quad
-                    glm::vec4 quadPositions[4] = {
-                        glm::vec4(point.p1 - right - up, 1.0f),    // Bottom-left
-                        glm::vec4(point.p1 + right - up, 1.0f),    // Bottom-right
-                        glm::vec4(point.p1 + right + up, 1.0f),    // Top-right
-                        glm::vec4(point.p1 - right + up, 1.0f)     // Top-left
+                    float4 quadPositions[4] = {
+                        float4(point.p1 - right - up, 1.0f),    // Bottom-left
+                        float4(point.p1 + right - up, 1.0f),    // Bottom-right
+                        float4(point.p1 + right + up, 1.0f),    // Top-right
+                        float4(point.p1 - right + up, 1.0f)     // Top-left
                     };
 
                     for (int i = 0; i < 4; i++) {
@@ -121,18 +121,18 @@ namespace Razix {
 
                 // Map the VBOs
                 linePositionVBResource->Map(LinePositionVertexBufferSize);
-                glm::vec4* linePositionData = static_cast<glm::vec4*>(linePositionVBResource->GetMappedBuffer());
+                float4* linePositionData = static_cast<float4*>(linePositionVBResource->GetMappedBuffer());
 
                 lineColorVBResource->Map(LineColorVertexBufferSize);
-                glm::vec4* lineColorData = static_cast<glm::vec4*>(lineColorVBResource->GetMappedBuffer());
+                float4* lineColorData = static_cast<float4*>(lineColorVBResource->GetMappedBuffer());
 
                 u32 lineIdx = 0;
                 for (auto& line: m_DrawList.m_DebugLines) {
-                    linePositionData[lineIdx] = glm::vec4(line.p1, 1.0f);
+                    linePositionData[lineIdx] = float4(line.p1, 1.0f);
                     lineColorData[lineIdx]    = line.col;
                     lineIdx++;
 
-                    linePositionData[lineIdx] = glm::vec4(line.p2, 1.0f);
+                    linePositionData[lineIdx] = float4(line.p2, 1.0f);
                     lineColorData[lineIdx]    = line.col;
                     lineIdx++;
 
@@ -327,94 +327,94 @@ namespace Razix {
         //---------------------------------------------------------------------------------------------------------------
         // Public API
 
-        void RZDebugRendererProxy::DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour)
+        void RZDebugRendererProxy::DrawPoint(const float3& pos, f32 point_radius, const float3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            PopulatePointsDrawList(false, pos, point_radius, glm::vec4(colour, 1.0f));
+            PopulatePointsDrawList(false, pos, point_radius, float4(colour, 1.0f));
         }
-        void RZDebugRendererProxy::DrawPoint(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawPoint(const float3& pos, f32 point_radius, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             PopulatePointsDrawList(false, pos, point_radius, colour);
         }
-        void RZDebugRendererProxy::DrawPointDT(const glm::vec3& pos, f32 point_radius, const glm::vec3& colour)
+        void RZDebugRendererProxy::DrawPointDT(const float3& pos, f32 point_radius, const float3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            PopulatePointsDrawList(true, pos, point_radius, glm::vec4(colour, 1.0f));
+            PopulatePointsDrawList(true, pos, point_radius, float4(colour, 1.0f));
         }
-        void RZDebugRendererProxy::DrawPointDT(const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawPointDT(const float3& pos, f32 point_radius, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             PopulatePointsDrawList(true, pos, point_radius, colour);
         }
 
-        void RZDebugRendererProxy::DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour)
+        void RZDebugRendererProxy::DrawThickLine(const float3& start, const float3& end, f32 line_width, const float3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            PopulateThickLinesDrawList(false, start, end, line_width, glm::vec4(colour, 1.0f));
+            PopulateThickLinesDrawList(false, start, end, line_width, float4(colour, 1.0f));
         }
-        void RZDebugRendererProxy::DrawThickLine(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawThickLine(const float3& start, const float3& end, f32 line_width, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             PopulateThickLinesDrawList(false, start, end, line_width, colour);
         }
-        void RZDebugRendererProxy::DrawThickLineDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec3& colour)
+        void RZDebugRendererProxy::DrawThickLineDT(const float3& start, const float3& end, f32 line_width, const float3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            PopulateThickLinesDrawList(true, start, end, line_width, glm::vec4(colour, 1.0f));
+            PopulateThickLinesDrawList(true, start, end, line_width, float4(colour, 1.0f));
         }
-        void RZDebugRendererProxy::DrawThickLineDT(const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawThickLineDT(const float3& start, const float3& end, f32 line_width, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             PopulateThickLinesDrawList(true, start, end, line_width, colour);
         }
 
-        void RZDebugRendererProxy::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour)
+        void RZDebugRendererProxy::DrawLine(const float3& start, const float3& end, const float3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            PopulateLinesDrawList(false, start, end, glm::vec4(colour, 1.0f));
+            PopulateLinesDrawList(false, start, end, float4(colour, 1.0f));
         }
-        void RZDebugRendererProxy::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawLine(const float3& start, const float3& end, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             PopulateLinesDrawList(false, start, end, colour);
         }
-        void RZDebugRendererProxy::DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec3& colour)
+        void RZDebugRendererProxy::DrawLineDT(const float3& start, const float3& end, const float3& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            PopulateLinesDrawList(true, start, end, glm::vec4(colour, 1.0f));
+            PopulateLinesDrawList(true, start, end, float4(colour, 1.0f));
         }
-        void RZDebugRendererProxy::DrawLineDT(const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawLineDT(const float3& start, const float3& end, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             PopulateLinesDrawList(true, start, end, colour);
         }
 
-        void RZDebugRendererProxy::DrawAABB(const Maths::AABB& box, const glm::vec4& edgeColour, bool cornersOnly /*= false*/, f32 width /*= 0.02f*/)
+        void RZDebugRendererProxy::DrawAABB(const Maths::AABB& box, const float4& edgeColour, bool cornersOnly /*= false*/, f32 width /*= 0.02f*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // 8 vertices
-            glm::vec3 v1(box.min.x, box.min.y, box.min.z);
-            glm::vec3 v2(box.min.x, box.min.y, box.max.z);
-            glm::vec3 v3(box.min.x, box.max.y, box.min.z);
-            glm::vec3 v4(box.min.x, box.max.y, box.max.z);
-            glm::vec3 v5(box.max.x, box.min.y, box.min.z);
-            glm::vec3 v6(box.max.x, box.min.y, box.max.z);
-            glm::vec3 v7(box.max.x, box.max.y, box.min.z);
-            glm::vec3 v8(box.max.x, box.max.y, box.max.z);
+            float3 v1(box.min.x, box.min.y, box.min.z);
+            float3 v2(box.min.x, box.min.y, box.max.z);
+            float3 v3(box.min.x, box.max.y, box.min.z);
+            float3 v4(box.min.x, box.max.y, box.max.z);
+            float3 v5(box.max.x, box.min.y, box.min.z);
+            float3 v6(box.max.x, box.min.y, box.max.z);
+            float3 v7(box.max.x, box.max.y, box.min.z);
+            float3 v8(box.max.x, box.max.y, box.max.z);
 
             // 12 edges
             DrawLine(v1, v2, edgeColour);
@@ -431,28 +431,28 @@ namespace Razix {
             DrawLine(v7, v8, edgeColour);
         }
 
-        void RZDebugRendererProxy::DrawGrid(u32 dimension, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawGrid(u32 dimension, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             float pos = float(dimension) / 2.0f;
             for (float x = -(float) dimension / 2.0f; x <= (float) dimension / 2.0f; x++) {
-                DrawLine(glm::vec3(x, 0, -pos), glm::vec3(x, 0, pos), colour);
-                DrawLine(glm::vec3(-pos, 0, x), glm::vec3(pos, 0, x), colour);
+                DrawLine(float3(x, 0, -pos), float3(x, 0, pos), colour);
+                DrawLine(float3(-pos, 0, x), float3(pos, 0, x), colour);
             }
         }
 
-        void RZDebugRendererProxy::DrawLight(Gfx::RZLight* light, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawLight(Gfx::RZLight* light, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // Directional
             if (light->getType() == LightType::DIRECTIONAL) {
-                glm::vec3 offset(0.0f, 0.1f, 0.0f);
-                auto      lightPos = glm::normalize(-light->getPosition());
-                DrawLine(glm::vec3(light->getPosition()) + offset, glm::vec3(lightPos * 2.0f) + offset, colour);
-                DrawLine(glm::vec3(light->getPosition()) - offset, glm::vec3(lightPos * 2.0f) - offset, colour);
-                DrawLine(glm::vec3(light->getPosition()), glm::vec3(lightPos * 2.0f), colour);
+                float3 offset(0.0f, 0.1f, 0.0f);
+                auto      lightPos = normalize(-light->getPosition());
+                DrawLine(float3(light->getPosition()) + offset, float3(lightPos * 2.0f) + offset, colour);
+                DrawLine(float3(light->getPosition()) - offset, float3(lightPos * 2.0f) - offset, colour);
+                DrawLine(float3(light->getPosition()), float3(lightPos * 2.0f), colour);
                 //DrawCone(20, 4, 30.0f, 1.5f, (light->getPosition() - (light->getDirection()) * 1.5f), rotation, colour);
             }
             //// Spot
@@ -464,7 +464,7 @@ namespace Razix {
             }
         }
 
-        void RZDebugRendererProxy::DrawFrustum(const Maths::RZFrustum& frustum, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawFrustum(const Maths::RZFrustum& frustum, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -484,7 +484,7 @@ namespace Razix {
             RZDebugRendererProxy::DrawLine(vertices[3], vertices[7], colour);
         }
 
-        void RZDebugRendererProxy::DrawFrustum(const glm::mat4& mat, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawFrustum(const float4x4& mat, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -507,41 +507,41 @@ namespace Razix {
             RZDebugRendererProxy::DrawLine(vertices[3], vertices[7], colour);
         }
 
-        void RZDebugRendererProxy::DrawCircle(int numVerts, f32 radius, const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawCircle(int numVerts, f32 radius, const float3& position, const float3& eulerRotation, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             f32 sectorAngle = 360.0f / f32(numVerts);
 
-            glm::quat rotation = glm::quat(glm::vec3(glm::radians(eulerRotation.x), glm::radians(eulerRotation.y), glm::radians(eulerRotation.z)));
+            quat rotation = quat(float3(radians(eulerRotation.x), radians(eulerRotation.y), radians(eulerRotation.z)));
 
             for (f32 angle = 0; angle <= 360.0f; angle += sectorAngle) {
-                f32       cx      = cos(glm::radians(angle)) * radius;
-                f32       cy      = sin(glm::radians(angle)) * radius;
-                glm::vec3 current = glm::vec3(cx, cy, 0.0f);
+                f32       cx      = cos(radians(angle)) * radius;
+                f32       cy      = sin(radians(angle)) * radius;
+                float3 current = float3(cx, cy, 0.0f);
 
-                f32       nx   = cos(glm::radians(angle + sectorAngle)) * radius;
-                f32       ny   = sin(glm::radians(angle + sectorAngle)) * radius;
-                glm::vec3 next = glm::vec3(nx, ny, 0.0f);
+                f32       nx   = cos(radians(angle + sectorAngle)) * radius;
+                f32       ny   = sin(radians(angle + sectorAngle)) * radius;
+                float3 next = float3(nx, ny, 0.0f);
 
                 //DrawPoint(position + (current), 0.05, colour);
                 DrawLine(position + (rotation * current), position + (rotation * next), colour);
             }
         }
 
-        void RZDebugRendererProxy::DrawCylinder(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawCylinder(const float3& position, const float3& eulerRotation, float height, float radius, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            glm::quat rotation = glm::quat(glm::vec3(glm::radians(eulerRotation.x), glm::radians(eulerRotation.y), glm::radians(eulerRotation.z)));
+            quat rotation = quat(float3(radians(eulerRotation.x), radians(eulerRotation.y), radians(eulerRotation.z)));
 
-            glm::vec3 up = (rotation * glm::vec3(0.0f, 1.0f, 0.0f));
+            float3 up = (rotation * float3(0.0f, 1.0f, 0.0f));
 
-            glm::vec3 topSphereCentre    = position + up * (height * 0.5f);
-            glm::vec3 bottomSphereCentre = position - up * (height * 0.5f);
+            float3 topSphereCentre    = position + up * (height * 0.5f);
+            float3 bottomSphereCentre = position - up * (height * 0.5f);
 
-            DrawCircle(20, radius, topSphereCentre, eulerRotation + glm::vec3(90.0f, 0.0f, 0.0f), colour);
-            DrawCircle(20, radius, bottomSphereCentre, eulerRotation + glm::vec3(90.0f, 0.0f, 0.0f), colour);
+            DrawCircle(20, radius, topSphereCentre, eulerRotation + float3(90.0f, 0.0f, 0.0f), colour);
+            DrawCircle(20, radius, bottomSphereCentre, eulerRotation + float3(90.0f, 0.0f, 0.0f), colour);
 
             // Draw 10 arcs
             // Sides
@@ -550,109 +550,109 @@ namespace Razix {
                 float z = cos(step * i) * radius;
                 float x = sin(step * i) * radius;
 
-                glm::vec3 offset = rotation * glm::vec4(x, 0.0f, z, 0.0f);
+                float3 offset = rotation * float4(x, 0.0f, z, 0.0f);
                 DrawLine(bottomSphereCentre + offset, topSphereCentre + offset, colour);
             }
         }
 
-        void RZDebugRendererProxy::DrawCapsule(const glm::vec3& position, const glm::vec3& eulerRotation, float height, float radius, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawCapsule(const float3& position, const float3& eulerRotation, float height, float radius, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            glm::quat rotation = glm::quat(glm::vec3(glm::radians(eulerRotation.x), glm::radians(eulerRotation.y), glm::radians(eulerRotation.z)));
+            quat rotation = quat(float3(radians(eulerRotation.x), radians(eulerRotation.y), radians(eulerRotation.z)));
 
-            glm::vec3 up = (rotation * glm::vec3(0.0f, 1.0f, 0.0f));
+            float3 up = (rotation * float3(0.0f, 1.0f, 0.0f));
 
-            glm::vec3 topSphereCentre    = position + up * (height * 0.5f);
-            glm::vec3 bottomSphereCentre = position - up * (height * 0.5f);
+            float3 topSphereCentre    = position + up * (height * 0.5f);
+            float3 bottomSphereCentre = position - up * (height * 0.5f);
 
-            DrawCircle(20, radius, topSphereCentre, eulerRotation + glm::vec3(90.0f, 0.0f, 0.0f), colour);
-            DrawCircle(20, radius, bottomSphereCentre, eulerRotation + glm::vec3(90.0f, 0.0f, 0.0f), colour);
+            DrawCircle(20, radius, topSphereCentre, eulerRotation + float3(90.0f, 0.0f, 0.0f), colour);
+            DrawCircle(20, radius, bottomSphereCentre, eulerRotation + float3(90.0f, 0.0f, 0.0f), colour);
 
             // Draw 10 arcs
             // Sides
             f32 sectorAngle = 360.0f / f32(10.0f);
             for (f32 angle = 0; angle <= 360.0f; angle += sectorAngle) {
-                f32 x = cos(glm::radians(angle)) * radius;
-                f32 z = sin(glm::radians(angle)) * radius;
+                f32 x = cos(radians(angle)) * radius;
+                f32 z = sin(radians(angle)) * radius;
 
-                glm::vec3 offset = rotation * glm::vec4(x, 0.0f, z, 0.0f);
+                float3 offset = rotation * float4(x, 0.0f, z, 0.0f);
                 DrawLine(bottomSphereCentre + offset, topSphereCentre + offset, colour);
 
                 if (angle <= 180.0f) {
-                    float z2 = cos(glm::radians(angle + 180.0f)) * radius;
-                    float x2 = sin(glm::radians(angle + 180.0f)) * radius;
+                    float z2 = cos(radians(angle + 180.0f)) * radius;
+                    float x2 = sin(radians(angle + 180.0f)) * radius;
 
-                    glm::vec3 offset2 = rotation * glm::vec4(x2, 0.0f, z2, 0.0f);
+                    float3 offset2 = rotation * float4(x2, 0.0f, z2, 0.0f);
                     // Top HemiShpere
                     DrawArc(20, radius, topSphereCentre + offset, topSphereCentre + offset2, eulerRotation, colour);
-                    DrawPoint(topSphereCentre + offset2, 0.1f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                    DrawPoint(topSphereCentre + offset2, 0.1f, float4(0.0f, 0.0f, 0.0f, 1.0f));
                     // Bottom Hemisphere
-                    //DebugDrawArc(20, radius, bottomSphereCentre + offset, bottomSphereCentre + offset, eulerRotation + glm::vec3(180.0f, 0.0f, 0.0f), colour);
-                    DrawPoint(bottomSphereCentre + offset2, 0.1f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                    //DebugDrawArc(20, radius, bottomSphereCentre + offset, bottomSphereCentre + offset, eulerRotation + float3(180.0f, 0.0f, 0.0f), colour);
+                    DrawPoint(bottomSphereCentre + offset2, 0.1f, float4(0.0f, 0.0f, 0.0f, 1.0f));
                 }
             }
         }
 
-        void RZDebugRendererProxy::DrawArc(int numVerts, float radius, const glm::vec3& start, const glm::vec3& end, const glm::vec3& eulerRotation, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawArc(int numVerts, float radius, const float3& start, const float3& end, const float3& eulerRotation, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             f32 sectorAngle = 180.0f / f32(numVerts);
 
-            glm::quat rotation = glm::quat(glm::vec3(glm::radians(eulerRotation.x), glm::radians(eulerRotation.y), glm::radians(eulerRotation.z)));
+            quat rotation = quat(float3(radians(eulerRotation.x), radians(eulerRotation.y), radians(eulerRotation.z)));
 
-            glm::vec3 arcCentre = (start + end) * 0.5f;
+            float3 arcCentre = (start + end) * 0.5f;
             arcCentre           = arcCentre - (radius * 0.5f);
             for (f32 angle = 0; angle <= 180.0f; angle += sectorAngle) {
-                f32       cx      = cos(glm::radians(angle)) * radius;
-                f32       cy      = sin(glm::radians(angle)) * radius;
-                glm::vec3 current = glm::vec3(cx, cy, 0.0f);
+                f32       cx      = cos(radians(angle)) * radius;
+                f32       cy      = sin(radians(angle)) * radius;
+                float3 current = float3(cx, cy, 0.0f);
 
-                f32       nx   = cos(glm::radians(angle + sectorAngle)) * radius;
-                f32       ny   = sin(glm::radians(angle + sectorAngle)) * radius;
-                glm::vec3 next = glm::vec3(nx, ny, 0.0f);
+                f32       nx   = cos(radians(angle + sectorAngle)) * radius;
+                f32       ny   = sin(radians(angle + sectorAngle)) * radius;
+                float3 next = float3(nx, ny, 0.0f);
 
                 //DrawPoint(position + (current), 0.05, colour);
                 DrawLine(arcCentre + (rotation * current), arcCentre + (rotation * next), colour);
-                DrawPoint(arcCentre + (rotation * current), 0.1f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                DrawPoint(arcCentre + (rotation * current), 0.1f, float4(0.0f, 0.0f, 0.0f, 1.0f));
             }
         }
 
-        void RZDebugRendererProxy::DrawSphere(f32 radius, const glm::vec3& position, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawSphere(f32 radius, const float3& position, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            DrawCircle(50, radius, position, glm::vec3(90.0f, 0.0f, 0.0f), colour);
-            DrawCircle(50, radius, position, glm::vec3(45.0f, 0.0f, 0.0f), colour);
-            DrawCircle(50, radius, position, glm::vec3(-45.0f, 0.0f, 0.0f), colour);
-            DrawCircle(50, radius, position, glm::vec3(0.0f, 90.0f, 0.0f), colour);
-            DrawCircle(50, radius, position, glm::vec3(0.0f, 45.0f, 0.0f), colour);
-            DrawCircle(50, radius, position, glm::vec3(00.0f, -45.0f, 0.0f), colour);
-            DrawCircle(50, radius, position, glm::vec3(0.0f, 0.0f, 90.0f), colour);
-            DrawCircle(50, radius, position, glm::vec3(0.0f, 0.0f, 45.0f), colour);
-            DrawCircle(50, radius, position, glm::vec3(0.0f, 0.0f, -45.0f), colour);
+            DrawCircle(50, radius, position, float3(90.0f, 0.0f, 0.0f), colour);
+            DrawCircle(50, radius, position, float3(45.0f, 0.0f, 0.0f), colour);
+            DrawCircle(50, radius, position, float3(-45.0f, 0.0f, 0.0f), colour);
+            DrawCircle(50, radius, position, float3(0.0f, 90.0f, 0.0f), colour);
+            DrawCircle(50, radius, position, float3(0.0f, 45.0f, 0.0f), colour);
+            DrawCircle(50, radius, position, float3(00.0f, -45.0f, 0.0f), colour);
+            DrawCircle(50, radius, position, float3(0.0f, 0.0f, 90.0f), colour);
+            DrawCircle(50, radius, position, float3(0.0f, 0.0f, 45.0f), colour);
+            DrawCircle(50, radius, position, float3(0.0f, 0.0f, -45.0f), colour);
         }
 
-        void RZDebugRendererProxy::DrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const glm::vec3& position, const glm::vec3& rotation, const glm::vec4& colour)
+        void RZDebugRendererProxy::DrawCone(int numCircleVerts, int numLinesToCircle, f32 angle, f32 length, const float3& position, const float3& rotation, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            f32       radius       = tan(glm::radians(angle * 0.5f)) * length;
-            glm::quat quatRotation = glm::quat(glm::vec3(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z)));
+            f32       radius       = tan(radians(angle * 0.5f)) * length;
+            quat quatRotation = quat(float3(radians(rotation.x), radians(rotation.y), radians(rotation.z)));
 
-            glm::vec3 forward     = -(quatRotation * glm::vec3(0.0f, 0.0f, -1.0f));
-            glm::vec3 endPosition = position + forward * length;
+            float3 forward     = -(quatRotation * float3(0.0f, 0.0f, -1.0f));
+            float3 endPosition = position + forward * length;
             DrawCircle(numCircleVerts, radius, endPosition, rotation, colour);
 
             // FIXME: Use the draw circle logic and get the points on the circle and draw lines to it from the origin
             f32 sectorAngle = 360.0f / f32(numLinesToCircle);
             for (f32 sec_angle = 0; sec_angle <= 360.0f; sec_angle += sectorAngle) {
-                f32 cx = cos(glm::radians(sec_angle)) * radius;
-                f32 cy = sin(glm::radians(sec_angle)) * radius;
+                f32 cx = cos(radians(sec_angle)) * radius;
+                f32 cy = sin(radians(sec_angle)) * radius;
 
-                glm::vec3 point    = glm::vec3(cx, cy, 0.0f);
-                glm::vec3 endPoint = endPosition + point;
+                float3 point    = float3(cx, cy, 0.0f);
+                float3 endPoint = endPosition + point;
                 DrawLine(position, endPoint, colour);
                 //DrawPoint(endPoint,0.1f, colour);
             }
@@ -660,7 +660,7 @@ namespace Razix {
 
         //---------------------------------------------------------------------------------------------------------------
         // Populate DrawList functions
-        void RZDebugRendererProxy::PopulateLinesDrawList(bool dt, const glm::vec3& start, const glm::vec3& end, const glm::vec4& colour)
+        void RZDebugRendererProxy::PopulateLinesDrawList(bool dt, const float3& start, const float3& end, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -670,7 +670,7 @@ namespace Razix {
                 RZDebugRendererProxy::Get().m_DrawList.m_DebugLines.emplace_back(start, end, colour);
         }
 
-        void RZDebugRendererProxy::PopulatePointsDrawList(bool dt, const glm::vec3& pos, f32 point_radius, const glm::vec4& colour)
+        void RZDebugRendererProxy::PopulatePointsDrawList(bool dt, const float3& pos, f32 point_radius, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -680,7 +680,7 @@ namespace Razix {
                 RZDebugRendererProxy::Get().m_DrawList.m_DebugPoints.emplace_back(pos, point_radius, colour);
         }
 
-        void RZDebugRendererProxy::PopulateThickLinesDrawList(bool DT, const glm::vec3& start, const glm::vec3& end, f32 line_width, const glm::vec4& colour)
+        void RZDebugRendererProxy::PopulateThickLinesDrawList(bool DT, const float3& start, const float3& end, f32 line_width, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

@@ -28,7 +28,7 @@
 // Renderers
 #include "Razix/Gfx/Renderers/RZImGuiRendererProxy.h"
 
-#include "Razix/Math/RZGrid.h"
+#include "Razix/Math/Grid.h"
 
 #include "Razix/Gfx/Renderers/RZRendererSettings.h"
 
@@ -133,10 +133,10 @@ namespace Razix {
 
             // Other Variables
             u32         m_FrameCount                                            = 0;
-            glm::vec2   m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
-            glm::mat4   m_PreviousViewProj                                      = {};
-            glm::vec2   m_Jitter                                                = {};
-            glm::vec2   m_PreviousJitter                                        = {};
+            float2   m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
+            float4x4   m_PreviousViewProj                                      = {};
+            float2   m_Jitter                                                = {};
+            float2   m_PreviousJitter                                        = {};
             bool        m_FrameGraphBuildingInProgress                          = true;
             bool        m_IsFGFilePathDirty                                     = false;
             bool        m_ReadSwapchainThisFrame                                = false;

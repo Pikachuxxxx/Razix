@@ -32,7 +32,7 @@
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Math/ImportanceSampling.h"
-#include "Razix/Math/RZGrid.h"
+#include "Razix/Math/Grid.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 
@@ -192,15 +192,15 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
 
                     // Origin point
-                    //RZDebugRendererProxy::DrawPoint(glm::vec3(0.0f), 0.25f);
+                    //RZDebugRendererProxy::DrawPoint(float3(0.0f), 0.25f);
 
                     // X, Y, Z lines
-                    RZDebugRendererProxy::DrawLine(glm::vec3(-100.0f, 0.0f, 0.0f), glm::vec3(100.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-                    RZDebugRendererProxy::DrawLine(glm::vec3(0.0f, -100.0f, 0.0f), glm::vec3(0.0f, 100.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-                    RZDebugRendererProxy::DrawLine(glm::vec3(0.0f, 0.0f, -100.0f), glm::vec3(0.0f, 0.0f, 100.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+                    RZDebugRendererProxy::DrawLine(float3(-100.0f, 0.0f, 0.0f), float3(100.0f, 0.0f, 0.0f), float4(1.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugRendererProxy::DrawLine(float3(0.0f, -100.0f, 0.0f), float3(0.0f, 100.0f, 0.0f), float4(0.0f, 1.0f, 0.0f, 1.0f));
+                    RZDebugRendererProxy::DrawLine(float3(0.0f, 0.0f, -100.0f), float3(0.0f, 0.0f, 100.0f), float4(0.0f, 0.0f, 1.0f, 1.0f));
 
                     // Grid
-                    RZDebugRendererProxy::DrawGrid(125, glm::vec4(0.75f));
+                    RZDebugRendererProxy::DrawGrid(125, float4(0.75f));
 
                     // Draw all lights in the scene
                     auto lights = scene->GetComponentsOfType<LightComponent>();
@@ -214,17 +214,17 @@ namespace Razix {
                         }
                     }
 
-                    glm::mat4 lightView  = glm::lookAt(dir_light.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                    float4x4 lightView  = lookAt(dir_light.getPosition(), float3(0.0f), float3(0.0f, 1.0f, 0.0f));
                     float     near_plane = -50.0f, far_plane = 50.0f;
-                    glm::mat4 lightProjection = glm::ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
+                    float4x4 lightProjection = ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
                     lightProjection[1][1] *= -1;
                     auto lightViewProj = lightProjection * lightView;
-                    RZDebugRendererProxy::DrawFrustum(lightViewProj, glm::vec4(0.863f, 0.28f, 0.21f, 1.0f));
+                    RZDebugRendererProxy::DrawFrustum(lightViewProj, float4(0.863f, 0.28f, 0.21f, 1.0f));
 
                     // Draw all camera frustums
                     auto cameras = scene->GetComponentsOfType<CameraComponent>();
                     for (auto& camComponents: cameras) {
-                        RZDebugRendererProxy::DrawFrustum(camComponents.Camera.getFrustum(), glm::vec4(0.2f, 0.85f, 0.1f, 1.0f));
+                        RZDebugRendererProxy::DrawFrustum(camComponents.Camera.getFrustum(), float4(0.2f, 0.85f, 0.1f, 1.0f));
                     }
 
                     // Draw AABBs for all the Meshes in the Scene
@@ -234,10 +234,10 @@ namespace Razix {
                         const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
 
                         // Bind push constants, VBO, IBO and draw
-                        glm::mat4 transform = mesh_trans.GetGlobalTransform();
+                        float4x4 transform = mesh_trans.GetGlobalTransform();
 
                         if (mrc.Mesh && mrc.enableBoundingBoxes)
-                            RZDebugRendererProxy::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                            RZDebugRendererProxy::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), float4(0.0f, 1.0f, 0.0f, 1.0f));
                     }
 
                     RZDebugRendererProxy::Get().Begin(scene);
@@ -351,7 +351,7 @@ namespace Razix {
                 Gfx::RHI::Begin(Gfx::RHI::GetCurrentCommandBuffer());
 
                 // Begin Frame Marker
-                RAZIX_MARK_BEGIN("Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(RHI::GetSwapchain()->getCurrentFrameIndex()) + " ]", glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+                RAZIX_MARK_BEGIN("Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(RHI::GetSwapchain()->getCurrentFrameIndex()) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
 
                 // Execute the Frame Graph passes
                 m_FrameGraph.execute(nullptr);
@@ -559,7 +559,7 @@ namespace Razix {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("Upload FrameData");
-                    RAZIX_MARK_BEGIN("Upload FrameData", glm::vec4(0.8f, 0.2f, 0.15f, 1.0f));
+                    RAZIX_MARK_BEGIN("Upload FrameData", float4(0.8f, 0.2f, 0.15f, 1.0f));
 
                     GPUFrameData gpuData{};
                     gpuData.time += gpuData.deltaTime;
@@ -580,7 +580,7 @@ namespace Razix {
                     sceneCam.setAspectRatio(f32(RZApplication::Get().getWindow()->getWidth()) / f32(RZApplication::Get().getWindow()->getHeight()));
 
                     // clang-format off
-                    glm::mat4 jitterMatrix = glm::mat4(
+                    float4x4 jitterMatrix = float4x4(
                         1.0, 0.0, 0.0, 0.0,
                         0.0, 1.0, 0.0, 0.0,
                         0.0, 0.0, 1.0, 0.0,
@@ -591,9 +591,9 @@ namespace Razix {
                     //auto jitteredProjMatrix = sceneCam.getProjection() * jitterMatrix;
 
                     gpuData.camera.projection         = sceneCam.getProjection();
-                    gpuData.camera.inversedProjection = glm::inverse(gpuData.camera.projection);
+                    gpuData.camera.inversedProjection = inverse(gpuData.camera.projection);
                     gpuData.camera.view               = sceneCam.getViewMatrix();
-                    gpuData.camera.inversedView       = glm::inverse(gpuData.camera.view);
+                    gpuData.camera.inversedView       = inverse(gpuData.camera.view);
                     gpuData.camera.prevViewProj       = m_PreviousViewProj;
                     gpuData.camera.fov                = sceneCam.getPerspectiveVerticalFOV();
                     gpuData.camera.nearPlane          = sceneCam.getPerspectiveNearClip();
@@ -646,7 +646,7 @@ namespace Razix {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("Upload SceneLights");
-                    RAZIX_MARK_BEGIN("Upload SceneLights", glm::vec4(0.2f, 0.2f, 0.75f, 1.0f));
+                    RAZIX_MARK_BEGIN("Upload SceneLights", float4(0.2f, 0.2f, 0.75f, 1.0f));
 
                     GPULightsData gpuLightsData{};
 

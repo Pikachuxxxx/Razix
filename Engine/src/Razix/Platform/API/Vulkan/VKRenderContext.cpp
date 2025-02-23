@@ -324,7 +324,7 @@ namespace Razix {
 
                 auto clearColor = Gfx::ClearColorFromPreset(attachment.second.clearColor);
 
-                memcpy(attachInfo.clearValue.color.float32, &clearColor, sizeof(glm::vec4));
+                memcpy(attachInfo.clearValue.color.float32, &clearColor, sizeof(float4));
                 colorAttachments.push_back(attachInfo);
             }
 
@@ -737,7 +737,7 @@ namespace Razix {
 
             VKUtilities::TransitionImageLayout(backendResource->getImage(), VKUtilities::TextureFormatToVK(desc.format), initialLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
             {
-                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Read Pixels", glm::vec4(1.0f, 0.45f, 0.64f, 1.0f));
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Read Pixels", float4(1.0f, 0.45f, 0.64f, 1.0f));
 
                 VkImageAspectFlags aspectFlags = backendResource->getAspectFlags();
 

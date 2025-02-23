@@ -558,7 +558,7 @@ namespace Razix {
         struct RenderingInfo
         {
             Resolution                                                          resolution       = Resolution::kCustom;
-            glm::uvec2                                                          extent           = {0, 0};
+            uint2                                                               extent           = {0, 0};
             std::vector<std::pair<RZTextureHandle, RenderTargetAttachmentInfo>> colorAttachments = {};
             std::pair<RZTextureHandle, RenderTargetAttachmentInfo>              depthAttachment  = {};
             int                                                                 layerCount       = 1;
@@ -738,9 +738,9 @@ namespace Razix {
             }
 
             template<>
-            void push<int8_t>(const std::string& name, bool normalized)
+            void push<i8>(const std::string& name, bool normalized)
             {
-                pushImpl(name, BufferFormat::R8_INT, sizeof(int8_t), normalized);
+                pushImpl(name, BufferFormat::R8_INT, sizeof(i8), normalized);
             }
 
             template<>
@@ -750,9 +750,9 @@ namespace Razix {
             }
 
             template<>
-            void push<int32_t>(const std::string& name, bool normalized)
+            void push<i32>(const std::string& name, bool normalized)
             {
-                pushImpl(name, BufferFormat::R32_INT, sizeof(int32_t), normalized);
+                pushImpl(name, BufferFormat::R32_INT, sizeof(i32), normalized);
             }
 
             template<>
@@ -768,37 +768,37 @@ namespace Razix {
             }
 
             template<>
-            void push<glm::vec2>(const std::string& name, bool normalized)
+            void push<float2>(const std::string& name, bool normalized)
             {
                 pushImpl(name, BufferFormat::R32G32_FLOAT, sizeof(f32) * 2, normalized);
             }
 
             template<>
-            void push<glm::vec3>(const std::string& name, bool normalized)
+            void push<float3>(const std::string& name, bool normalized)
             {
                 pushImpl(name, BufferFormat::R32G32B32_FLOAT, sizeof(f32) * 3, normalized);
             }
 
             template<>
-            void push<glm::vec4>(const std::string& name, bool normalized)
+            void push<float4>(const std::string& name, bool normalized)
             {
                 pushImpl(name, BufferFormat::R32G32B32A32_FLOAT, sizeof(f32) * 4, normalized);
             }
 
             template<>
-            void push<glm::ivec2>(const std::string& name, bool normalized)
+            void push<int2>(const std::string& name, bool normalized)
             {
                 pushImpl(name, BufferFormat::R32G32_INT, sizeof(int) * 2, normalized);
             }
 
             template<>
-            void push<glm::ivec3>(const std::string& name, bool normalized)
+            void push<int3>(const std::string& name, bool normalized)
             {
                 pushImpl(name, BufferFormat::R32G32B32_INT, sizeof(int) * 3, normalized);
             }
 
             template<>
-            void push<glm::ivec4>(const std::string& name, bool normalized)
+            void push<int4>(const std::string& name, bool normalized)
             {
                 pushImpl(name, BufferFormat::R32G32B32A32_INT, sizeof(int) * 4, normalized);
             }
@@ -939,11 +939,11 @@ namespace Razix {
             {ShaderStage::kCompute, "CS_MAIN"},
             {ShaderStage::kGeometry, "GS_MAIN"}};
 
-        static std::unordered_map<Resolution, glm::uvec2> g_ResolutionToExtentsMap = {
-            {Resolution::k1080p, glm::uvec2(1920, 1080)},
-            {Resolution::k1440p, glm::uvec2(2560, 1440)},
-            {Resolution::k4KUpscaled, glm::uvec2(3840, 2160)},
-            {Resolution::k4KNative, glm::uvec2(3840, 2160)}};
+        static std::unordered_map<Resolution, uint2> g_ResolutionToExtentsMap = {
+            {Resolution::k1080p, uint2(1920, 1080)},
+            {Resolution::k1440p, uint2(2560, 1440)},
+            {Resolution::k4KUpscaled, uint2(3840, 2160)},
+            {Resolution::k4KNative, uint2(3840, 2160)}};
 
         static const char* ClearColorPresetsNames[] =
             {
@@ -1124,7 +1124,7 @@ namespace Razix {
         DescriptorBindingInfo      DecodeDescriptorBindingInfo(u32 bits);
         RAZIX_NO_DISCARD u32       EncodeAttachmentInfo(RenderTargetAttachmentInfo info);
         RenderTargetAttachmentInfo DecodeAttachmentInfo(u32 bits);
-        glm::vec4                  ClearColorFromPreset(ClearColorPresets preset);
+        float4                     ClearColorFromPreset(ClearColorPresets preset);
 
         /* utility functions for frame graph parsing to convert string to enums */
         CompareOp       StringToCompareOp(const std::string& str);

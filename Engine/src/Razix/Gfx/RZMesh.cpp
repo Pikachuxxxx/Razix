@@ -57,11 +57,11 @@ namespace Razix {
             auto vertexBufferResource = RZResourceManager::Get().getVertexBufferResource(m_VertexBuffer);
             // TODO: Add buffer layout by reflecting from the shader
             RZBufferLayout layout;
-            layout.push<glm::vec3>("Position");
-            layout.push<glm::vec4>("Color");
-            layout.push<glm::vec2>("UV");
-            layout.push<glm::vec3>("Normal");
-            layout.push<glm::vec3>("Tangent");
+            layout.push<float3>("Position");
+            layout.push<float4>("Color");
+            layout.push<float2>("UV");
+            layout.push<float3>("Normal");
+            layout.push<float3>("Tangent");
             vertexBufferResource->AddBufferLayout(layout);
 
             m_Vertices.clear();
@@ -98,10 +98,10 @@ namespace Razix {
 #if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
         void RZMesh::GenerateNormals(RZVertex* vertices, u32 vertexCount, u32* indices, u32 indexCount)
         {
-            glm::vec3* normals = new glm::vec3[vertexCount];
+            float3* normals = new float3[vertexCount];
 
             for (u32 i = 0; i < vertexCount; ++i)
-                normals[i] = glm::vec3();
+                normals[i] = float3();
 
             if (indices) {
                 for (u32 i = 0; i < indexCount; i += 3) {
@@ -109,7 +109,7 @@ namespace Razix {
                     const int b = indices[i + 1];
                     const int c = indices[i + 2];
 
-                    const glm::vec3 _normal = glm::cross((vertices[b].Position - vertices[a].Position), (vertices[c].Position - vertices[a].Position));
+                    const float3 _normal = cross((vertices[b].Position - vertices[a].Position), (vertices[c].Position - vertices[a].Position));
 
                     normals[a] += _normal;
                     normals[b] += _normal;
@@ -118,11 +118,11 @@ namespace Razix {
             } else {
                 // It's just a list of triangles, so generate face normals
                 for (u32 i = 0; i < vertexCount; i += 3) {
-                    glm::vec3& a = vertices[i].Position;
-                    glm::vec3& b = vertices[i + 1].Position;
-                    glm::vec3& c = vertices[i + 2].Position;
+                    float3& a = vertices[i].Position;
+                    float3& b = vertices[i + 1].Position;
+                    float3& c = vertices[i + 2].Position;
 
-                    const glm::vec3 _normal = glm::cross(b - a, c - a);
+                    const float3 _normal = cross(b - a, c - a);
 
                     normals[i]     = _normal;
                     normals[i + 1] = _normal;
@@ -131,20 +131,20 @@ namespace Razix {
             }
 
             for (u32 i = 0; i < vertexCount; ++i)
-                vertices[i].Normal = glm::normalize(normals[i]);
+                vertices[i].Normal = normalize(normals[i]);
 
             delete[] normals;
         }
 
-        static glm::vec3 GenerateTangent(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec2& ta, const glm::vec2& tb, const glm::vec2& tc)
+        static float3 GenerateTangent(const float3& a, const float3& b, const float3& c, const float2& ta, const float2& tb, const float2& tc)
         {
-            const glm::vec2 coord1 = tb - ta;
-            const glm::vec2 coord2 = tc - ta;
+            const float2 coord1 = tb - ta;
+            const float2 coord2 = tc - ta;
 
-            const glm::vec3 vertex1 = b - a;
-            const glm::vec3 vertex2 = c - a;
+            const float3 vertex1 = b - a;
+            const float3 vertex2 = c - a;
 
-            const glm::vec3 axis = glm::vec3(vertex1 * coord2.y - vertex2 * coord1.y);
+            const float3 axis = float3(vertex1 * coord2.y - vertex2 * coord1.y);
 
             const f32 factor = 1.0f / (coord1.x * coord2.y - coord2.x * coord1.y);
 
@@ -153,10 +153,10 @@ namespace Razix {
 
         void RZMesh::GenerateTangents(RZVertex* vertices, u32 vertexCount, u32* indices, u32 indexCount)
         {
-            glm::vec3* tangents = new glm::vec3[vertexCount];
+            float3* tangents = new float3[vertexCount];
 
             for (u32 i = 0; i < vertexCount; ++i)
-                tangents[i] = glm::vec3();
+                tangents[i] = float3();
 
             if (indices) {
                 for (u32 i = 0; i < indexCount; i += 3) {
@@ -164,7 +164,7 @@ namespace Razix {
                     int b = indices[i + 1];
                     int c = indices[i + 2];
 
-                    const glm::vec3 tangent = GenerateTangent(vertices[a].Position, vertices[b].Position, vertices[c].Position, vertices[a].UV, vertices[b].UV, vertices[c].UV);
+                    const float3 tangent = GenerateTangent(vertices[a].Position, vertices[b].Position, vertices[c].Position, vertices[a].UV, vertices[b].UV, vertices[c].UV);
 
                     tangents[a] += tangent;
                     tangents[b] += tangent;
@@ -172,7 +172,7 @@ namespace Razix {
                 }
             } else {
                 for (u32 i = 0; i < vertexCount; i += 3) {
-                    const glm::vec3 tangent = GenerateTangent(vertices[i].Position, vertices[i + 1].Position, vertices[i + 2].Position, vertices[i].UV, vertices[i + 1].UV, vertices[i + 2].UV);
+                    const float3 tangent = GenerateTangent(vertices[i].Position, vertices[i + 1].Position, vertices[i + 2].Position, vertices[i].UV, vertices[i + 1].UV, vertices[i + 2].UV);
 
                     tangents[i] += tangent;
                     tangents[i + 1] += tangent;
@@ -180,7 +180,7 @@ namespace Razix {
                 }
             }
             for (u32 i = 0; i < vertexCount; ++i)
-                vertices[i].Tangent = glm::normalize(tangents[i]);
+                vertices[i].Tangent = normalize(tangents[i]);
 
             delete[] tangents;
         }
@@ -188,33 +188,33 @@ namespace Razix {
         void RZMesh::GenerateTangentsAndBiTangents(RZVertex* vertices, u32 vertexCount, u32* indices, u32 numIndices)
         {
             for (int i = 0; i < vertexCount; i++) {
-                vertices[i].Tangent   = glm::vec3(0.0f);
-                vertices[i].BiTangent = glm::vec3(0.0f);
+                vertices[i].Tangent   = float3(0.0f);
+                vertices[i].BiTangent = float3(0.0f);
             }
 
             for (uint32_t i = 0; i < numIndices; i += 3) {
-                glm::vec3 v0 = vertices[indices[i]].Position;
-                glm::vec3 v1 = vertices[indices[i + 1]].Position;
-                glm::vec3 v2 = vertices[indices[i + 2]].Position;
+                float3 v0 = vertices[indices[i]].Position;
+                float3 v1 = vertices[indices[i + 1]].Position;
+                float3 v2 = vertices[indices[i + 2]].Position;
 
-                glm::vec2 uv0 = vertices[indices[i]].UV;
-                glm::vec2 uv1 = vertices[indices[i + 1]].UV;
-                glm::vec2 uv2 = vertices[indices[i + 2]].UV;
+                float2 uv0 = vertices[indices[i]].UV;
+                float2 uv1 = vertices[indices[i + 1]].UV;
+                float2 uv2 = vertices[indices[i + 2]].UV;
 
-                glm::vec3 n0 = vertices[indices[i]].Normal;
-                glm::vec3 n1 = vertices[indices[i + 1]].Normal;
-                glm::vec3 n2 = vertices[indices[i + 2]].Normal;
+                float3 n0 = vertices[indices[i]].Normal;
+                float3 n1 = vertices[indices[i + 1]].Normal;
+                float3 n2 = vertices[indices[i + 2]].Normal;
 
-                glm::vec3 edge1 = v1 - v0;
-                glm::vec3 edge2 = v2 - v0;
+                float3 edge1 = v1 - v0;
+                float3 edge2 = v2 - v0;
 
-                glm::vec2 deltaUV1 = uv1 - uv0;
-                glm::vec2 deltaUV2 = uv2 - uv0;
+                float2 deltaUV1 = uv1 - uv0;
+                float2 deltaUV2 = uv2 - uv0;
 
                 float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
-                glm::vec3 tangent   = f * (deltaUV2.y * edge1 - deltaUV1.y * edge2);
-                glm::vec3 BiTangent = f * (-deltaUV2.x * edge1 + deltaUV1.x * edge2);
+                float3 tangent   = f * (deltaUV2.y * edge1 - deltaUV1.y * edge2);
+                float3 BiTangent = f * (-deltaUV2.x * edge1 + deltaUV1.x * edge2);
 
                 // Store tangent and BiTangent for each vertex of the triangle
                 vertices[indices[i]].Tangent += tangent;
@@ -228,8 +228,8 @@ namespace Razix {
 
             // Normalize the tangent and BiTangent vectors
             for (uint32_t i = 0; i < vertexCount; i++) {
-                vertices[i].Tangent   = glm::normalize(vertices[i].Tangent);
-                vertices[i].BiTangent = glm::normalize(vertices[i].BiTangent);
+                vertices[i].Tangent   = normalize(vertices[i].Tangent);
+                vertices[i].BiTangent = normalize(vertices[i].BiTangent);
             }
         }
 #endif
@@ -290,7 +290,7 @@ namespace Razix {
                 vertexBufferDesc.name                   = "VB_POSITION_" + m_Name;
                 vertexBufferDesc.data                   = (void*) vertices.Position.data();
                 vertexBufferDesc.usage                  = BufferUsage::Static;
-                vertexBufferDesc.size                   = sizeof(glm::vec3) * static_cast<u32>(m_VertexCount);
+                vertexBufferDesc.size                   = sizeof(float3) * static_cast<u32>(m_VertexCount);
                 m_VertexBuffers[VERTEX_ATTRIBS_POS_IDX] = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
             }
 
@@ -300,7 +300,7 @@ namespace Razix {
                 vertexBufferDesc.name                   = "VB_COLOR_" + m_Name;
                 vertexBufferDesc.data                   = (void*) vertices.Color.data();
                 vertexBufferDesc.usage                  = BufferUsage::Static;
-                vertexBufferDesc.size                   = sizeof(glm::vec4) * static_cast<u32>(m_VertexCount);
+                vertexBufferDesc.size                   = sizeof(float4) * static_cast<u32>(m_VertexCount);
                 m_VertexBuffers[VERTEX_ATTRIBS_COL_IDX] = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
             }
 
@@ -310,7 +310,7 @@ namespace Razix {
                 vertexBufferDesc.name                  = "VB_TEXCOORD_" + m_Name;
                 vertexBufferDesc.data                  = (void*) vertices.UV.data();
                 vertexBufferDesc.usage                 = BufferUsage::Static;
-                vertexBufferDesc.size                  = sizeof(glm::vec2) * static_cast<u32>(m_VertexCount);
+                vertexBufferDesc.size                  = sizeof(float2) * static_cast<u32>(m_VertexCount);
                 m_VertexBuffers[VERTEX_ATTRIBS_UV_IDX] = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
             }
 
@@ -320,7 +320,7 @@ namespace Razix {
                 vertexBufferDesc.name                   = "VB_NORMAL_" + m_Name;
                 vertexBufferDesc.data                   = (void*) vertices.Normal.data();
                 vertexBufferDesc.usage                  = BufferUsage::Static;
-                vertexBufferDesc.size                   = sizeof(glm::vec3) * static_cast<u32>(m_VertexCount);
+                vertexBufferDesc.size                   = sizeof(float3) * static_cast<u32>(m_VertexCount);
                 m_VertexBuffers[VERTEX_ATTRIBS_NOR_IDX] = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
             }
 
@@ -330,7 +330,7 @@ namespace Razix {
                 vertexBufferDesc.name                   = "VB_TANGENT_" + m_Name;
                 vertexBufferDesc.data                   = (void*) vertices.Tangent.data();
                 vertexBufferDesc.usage                  = BufferUsage::Static;
-                vertexBufferDesc.size                   = sizeof(glm::vec3) * static_cast<u32>(m_VertexCount);
+                vertexBufferDesc.size                   = sizeof(float3) * static_cast<u32>(m_VertexCount);
                 m_VertexBuffers[VERTEX_ATTRIBS_TAN_IDX] = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
             }
         }

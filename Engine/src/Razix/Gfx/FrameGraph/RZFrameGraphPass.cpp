@@ -47,7 +47,7 @@ namespace Razix {
     namespace Gfx {
         namespace FrameGraph {
 
-            RZFrameGraphDataPass::RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawGeometryMode geometryMode, Resolution res, bool resize, glm::vec2 extents, u32 layers)
+            RZFrameGraphDataPass::RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawGeometryMode geometryMode, Resolution res, bool resize, float2 extents, u32 layers)
                 : m_shader(shader), m_pipeline(pipeline), m_geometryMode(geometryMode), m_resolution(res), m_enableResize(resize), m_extent(extents), m_layers(layers)
             {
             }
@@ -57,7 +57,7 @@ namespace Razix {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                 // Since this a debug color we don't care much but see if we can use the color from the Frame Graph Editor here
-                RAZIX_MARK_BEGIN(node.getName(), glm::vec4(((double) rand()) / RAND_MAX, ((double) rand()) / RAND_MAX, ((double) rand()) / RAND_MAX, 1.0f));
+                RAZIX_MARK_BEGIN(node.getName(), float4(((double) rand()) / RAND_MAX, ((double) rand()) / RAND_MAX, ((double) rand()) / RAND_MAX, 1.0f));
 
                 // Rendering Info, use all the writable resources in the pass node to render onto
                 RenderingInfo info{};

@@ -8,8 +8,8 @@
 // [x] Finish the notes theory
 // [x] C++ code & publish notes
 // [x] Re-use engine header files in shader --> Setup common file to use proper types etc. using a RZDataTypes.h file to help with type conversion
-// [] Verify IBL gen on windows using renderdoc
-// [] Fix resource cleanup bug with SkyboxPass
+// [x] Verify IBL gen on windows using renderdoc
+// [x] Fix resource cleanup bug with SkyboxPass
 
 // This file will be shared in shaders so no cpp file...unless we move these to a seperate project called Shared that build as HLSL and Engine linkable libraries we will use header only implementation files that are shader b/w engine and shaders
 namespace Razix {

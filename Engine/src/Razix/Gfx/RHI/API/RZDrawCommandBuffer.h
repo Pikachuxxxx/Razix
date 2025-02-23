@@ -32,7 +32,7 @@ namespace Razix {
 
             GET_INSTANCE_SIZE;
 
-            static RZDrawCommandBufferHandle BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color);
+            static RZDrawCommandBufferHandle BeginSingleTimeCommandBuffer(const std::string commandUsage, float4 color);
             static void                      EndSingleTimeCommandBuffer(RZDrawCommandBufferHandle cmdBuffer);
 
             /* Initializes the command buffer and creates them */

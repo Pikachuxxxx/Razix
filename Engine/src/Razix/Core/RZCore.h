@@ -185,6 +185,12 @@
 #define IS_BIT_NOT_SET(val, b) (val & b) != b
 #define IS_BIT_SET(val, b)     (val & b) == b
 
+#define BIT_INSERT(bits, value, offset, size) \
+    ((bits & ~(((1u << (size)) - 1u) << (offset))) | ((value & ((1u << (size)) - 1u)) << (offset)))
+
+#define BIT_EXTRACT(bits, offset, size) \
+    ((bits >> (offset)) & ((1u << (size)) - 1u))
+
 // Convert hex to character
 #define HEX2CHR(m_hex) ((m_hex >= '0' && m_hex <= '9') ? (m_hex - '0') : ((m_hex >= 'A' && m_hex <= 'F') ? (10 + m_hex - 'A') : ((m_hex >= 'a' && m_hex <= 'f') ? (10 + m_hex - 'a') : 0)))
 

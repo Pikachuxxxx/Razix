@@ -103,7 +103,7 @@ namespace Razix {
             u32 index = RZResourcePool::allocateResource();
             handle.setIndex(index);
             handle.setGeneration(++index);
-            if (index != u32_max) {
+            if (index != UINT32_MAX) {
                 T* resource = getInternal(handle);
                 TracyAlloc(resource, m_ResourceSize);
                 return resource;

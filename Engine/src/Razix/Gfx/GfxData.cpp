@@ -3,10 +3,6 @@
 // clang-format on
 #include "GfxData.h"
 
-#include <glm/integer.hpp>    // bitfield{Insert/Extract}
-
-// Modified from Source: https://github.com/skaarj1989/SupernovaEngine/blob/57f0fba69b36de45255971080ea082bea8219cbb/modules/Renderer/WorldRenderer/src/FrameGraphResourceAccess.cpp (MIT License)
-
 namespace Razix {
     namespace Gfx {
 
@@ -151,6 +147,8 @@ namespace Razix {
             {"Line", Razix::Gfx::PolygonMode::Line},
             {"Point", Razix::Gfx::PolygonMode::Point}};
 
+        // Modified from Source: https://github.com/skaarj1989/SupernovaEngine/blob/57f0fba69b36de45255971080ea082bea8219cbb/modules/Renderer/WorldRenderer/src/FrameGraphResourceAccess.cpp (MIT License)
+
         /**
          * BindingLocation : 9 bits
          * 
@@ -212,21 +210,11 @@ namespace Razix {
         constexpr auto kMipsBitsOffset       = kBindingRTBits + kBindingRTBitsOffset;
         constexpr auto kLayerBitsOffset      = kMipsBits + kMipsBitsOffset;
 
-        RAZIX_NO_DISCARD u32 BindingLocation::encode()
-        {
-            return EncodeBindingLocation(*this);
-        }
-
-        RAZIX_NO_DISCARD BindingLocation::operator u32() const
-        {
-            return EncodeBindingLocation(*this);
-        }
-
         RAZIX_NO_DISCARD u32 EncodeBindingLocation(BindingLocation info)
         {
             uint32_t bits{0};
-            bits = glm::bitfieldInsert(bits, info.set, kSetIndexOffset, kSetIndexBits);
-            bits = glm::bitfieldInsert(bits, info.binding, kBindingIndexOffset, kBindingIndexBits);
+            bits = BIT_INSERT(bits, info.set, kSetIndexOffset, kSetIndexBits);
+            bits = BIT_INSERT(bits, info.binding, kBindingIndexOffset, kBindingIndexBits);
 
             return bits;
         }
@@ -234,29 +222,19 @@ namespace Razix {
         Razix::Gfx::BindingLocation DecodeBindingLocation(u32 bits)
         {
             BindingLocation info{};
-            info.set     = glm::bitfieldExtract(bits, kSetIndexOffset, kSetIndexBits);
-            info.binding = glm::bitfieldExtract(bits, kBindingIndexOffset, kBindingIndexBits);
+            info.set     = BIT_EXTRACT(bits, kSetIndexOffset, kSetIndexBits);
+            info.binding = BIT_EXTRACT(bits, kBindingIndexOffset, kBindingIndexBits);
 
             return info;
-        }
-
-        RAZIX_NO_DISCARD u32 DescriptorBindingInfo::encode()
-        {
-            return EncodeDescriptorBindingInfo(*this);
-        }
-
-        RAZIX_NO_DISCARD DescriptorBindingInfo::operator u32() const
-        {
-            return EncodeDescriptorBindingInfo(*this);
         }
 
         RAZIX_NO_DISCARD u32 EncodeDescriptorBindingInfo(DescriptorBindingInfo info)
         {
             uint32_t bits{0};
-            bits = glm::bitfieldInsert(bits, (u32) info.type, kTypeOffset, kTypeBits);
-            bits = glm::bitfieldInsert(bits, (u32) info.stage, kStageOffset, kStageBits);
-            bits = glm::bitfieldInsert(bits, (u32) EncodeBindingLocation(info.location), kBindingLocOffset, kBindingLocationBits);
-            bits = glm::bitfieldInsert(bits, (u32) info.count, kCountOffset, kCountBits);
+            bits = BIT_INSERT(bits, (u32) info.type, kTypeOffset, kTypeBits);
+            bits = BIT_INSERT(bits, (u32) info.stage, kStageOffset, kStageBits);
+            bits = BIT_INSERT(bits, (u32) EncodeBindingLocation(info.location), kBindingLocOffset, kBindingLocationBits);
+            bits = BIT_INSERT(bits, (u32) info.count, kCountOffset, kCountBits);
 
             return bits;
         }
@@ -264,32 +242,22 @@ namespace Razix {
         Razix::Gfx::DescriptorBindingInfo DecodeDescriptorBindingInfo(u32 bits)
         {
             DescriptorBindingInfo info{};
-            info.type     = (DescriptorType) glm::bitfieldExtract(bits, kTypeOffset, kTypeBits);
-            info.stage    = (ShaderStage) glm::bitfieldExtract(bits, kStageOffset, kStageBits);
-            info.location = DecodeBindingLocation(glm::bitfieldExtract(bits, kBindingLocOffset, kBindingLocationBits));
-            info.count    = glm::bitfieldExtract(bits, kCountOffset, kCountBits);
+            info.type     = (DescriptorType) BIT_EXTRACT(bits, kTypeOffset, kTypeBits);
+            info.stage    = (ShaderStage) BIT_EXTRACT(bits, kStageOffset, kStageBits);
+            info.location = DecodeBindingLocation(BIT_EXTRACT(bits, kBindingLocOffset, kBindingLocationBits));
+            info.count    = BIT_EXTRACT(bits, kCountOffset, kCountBits);
 
             return info;
-        }
-
-        RAZIX_NO_DISCARD u32 RenderTargetAttachmentInfo::encode()
-        {
-            return EncodeAttachmentInfo(*this);
-        }
-
-        RAZIX_NO_DISCARD RenderTargetAttachmentInfo::operator u32() const
-        {
-            return EncodeAttachmentInfo(*this);
         }
 
         RAZIX_NO_DISCARD u32 EncodeAttachmentInfo(RenderTargetAttachmentInfo info)
         {
             uint32_t bits{0};
-            bits = glm::bitfieldInsert(bits, (u32) info.clear, kClearBitsOffset, kClearBits);
-            bits = glm::bitfieldInsert(bits, (u32) info.clearColor, kClearColorBitsOffset, kClearColorBits);
-            bits = glm::bitfieldInsert(bits, info.bindingIdx, kBindingRTBitsOffset, kBindingRTBits);
-            bits = glm::bitfieldInsert(bits, info.mip, kMipsBitsOffset, kMipsBits);
-            bits = glm::bitfieldInsert(bits, info.layer, kLayerBitsOffset, kLayerBits);
+            bits = BIT_INSERT(bits, (u32) info.clear, kClearBitsOffset, kClearBits);
+            bits = BIT_INSERT(bits, (u32) info.clearColor, kClearColorBitsOffset, kClearColorBits);
+            bits = BIT_INSERT(bits, info.bindingIdx, kBindingRTBitsOffset, kBindingRTBits);
+            bits = BIT_INSERT(bits, info.mip, kMipsBitsOffset, kMipsBits);
+            bits = BIT_INSERT(bits, info.layer, kLayerBitsOffset, kLayerBits);
 
             return bits;
         }
@@ -297,43 +265,43 @@ namespace Razix {
         RenderTargetAttachmentInfo DecodeAttachmentInfo(u32 bits)
         {
             RenderTargetAttachmentInfo info{};
-            info.clear      = glm::bitfieldExtract(bits, kClearBitsOffset, kClearBits);
-            info.clearColor = (ClearColorPresets) glm::bitfieldExtract(bits, kClearColorBitsOffset, kClearColorBits);
-            info.bindingIdx = glm::bitfieldExtract(bits, kBindingRTBitsOffset, kBindingRTBits);
-            info.mip        = glm::bitfieldExtract(bits, kMipsBitsOffset, kMipsBits);
-            info.layer      = glm::bitfieldExtract(bits, kLayerBitsOffset, kLayerBits);
+            info.clear      = BIT_EXTRACT(bits, kClearBitsOffset, kClearBits);
+            info.clearColor = (ClearColorPresets) BIT_EXTRACT(bits, kClearColorBitsOffset, kClearColorBits);
+            info.bindingIdx = BIT_EXTRACT(bits, kBindingRTBitsOffset, kBindingRTBits);
+            info.mip        = BIT_EXTRACT(bits, kMipsBitsOffset, kMipsBits);
+            info.layer      = BIT_EXTRACT(bits, kLayerBitsOffset, kLayerBits);
 
             return info;
         }
 
         //-----------------------------------------------------------------------------------
 
-        glm::vec4 ClearColorFromPreset(ClearColorPresets preset)
+        float4 ClearColorFromPreset(ClearColorPresets preset)
         {
             switch (preset) {
                 case Razix::Gfx::ClearColorPresets::OpaqueBlack:
-                    return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                    return float4(0.0f, 0.0f, 0.0f, 1.0f);
                     break;
                 case Razix::Gfx::ClearColorPresets::OpaqueWhite:
-                    return glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+                    return float4(1.0f, 1.0f, 1.0f, 1.0f);
                     break;
                 case Razix::Gfx::ClearColorPresets::TransparentBlack:
-                    return glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+                    return float4(0.0f, 0.0f, 0.0f, 0.0f);
                     break;
                 case Razix::Gfx::ClearColorPresets::TransparentWhite:
-                    return glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
+                    return float4(1.0f, 1.0f, 1.0f, 0.0f);
                     break;
                 case Razix::Gfx::ClearColorPresets::Pink:
-                    return glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+                    return float4(1.0f, 0.0f, 1.0f, 1.0f);
                     break;
                 case Razix::Gfx::ClearColorPresets::DepthZeroToOne:
-                    return glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+                    return float4(0.0f, 1.0f, 0.0f, 0.0f);
                     break;
                 case Razix::Gfx::ClearColorPresets::DepthOneToZero:
-                    return glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+                    return float4(1.0f, 0.0f, 0.0f, 0.0f);
                     break;
                 default:
-                    return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                    return float4(0.0f, 0.0f, 0.0f, 1.0f);
                     break;
             }
         }
@@ -548,7 +516,7 @@ namespace Razix {
                     break;
             }
         }
-        
+
         void RZBufferLayout::pushImpl(const std::string& name, BufferFormat format, u32 size, bool Normalised)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
