@@ -4,8 +4,11 @@
  */
 //------------------------------------------------------------------------------
 #include <ShaderInclude.Builtin.ShaderLangCommon.h>
-//------------------------------------------------------------------------------
+//-------------------------------
 #include <Material/ShaderInclude.Builtin.Material.h>
+//-------------------------------
+// Color Utils (Debug only)
+#include <Utils/ShaderInclude.Builtin.Color.h>
 //------------------------------------------------------------------------------ 
 struct PSIn
 {
@@ -23,7 +26,7 @@ struct PSOut
      float4 GBuffer2 : SV_Target2;
 };
 //------------------------------------------------------------------------------
-PSOut PS_MAIN(PSIn input)
+PSOut PS_MAIN(PSIn input, uint primitiveID: SV_PrimitiveID)
 {
     float2 uv = float2(input.UV.x, input.UV.y);
 
@@ -42,10 +45,9 @@ PSOut PS_MAIN(PSIn input)
 
     PSOut output;
 
-    output.GBuffer0 = float4(N, metallic);
+    output.GBuffer0 = float4(RandomColorHash(primitiveID), metallic);
     output.GBuffer1 = float4(albedo.rgb, roughness);
     output.GBuffer2 = float4(input.Position.xyz, ao);
 
     return output;
 }
-//------------------------------------------------------------------------------

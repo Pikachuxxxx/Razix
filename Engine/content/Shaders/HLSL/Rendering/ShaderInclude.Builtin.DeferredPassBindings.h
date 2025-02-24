@@ -6,7 +6,7 @@
 // Lights Data
 #include <Lighting/ShaderInclude.Builtin.Light.h>
 //-------------------------------
-// Vertex Input
+// Vertex Input from Quad.vert
 struct VSOutput
 {
     float2 UV : TEXCOORD0;

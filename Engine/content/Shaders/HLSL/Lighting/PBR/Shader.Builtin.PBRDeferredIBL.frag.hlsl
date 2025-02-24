@@ -10,9 +10,6 @@
 //-------------------------------
 // PBR - BRDF helper functions
 //#include <Lighting/PBR/ShaderInclude.Builtin.DisneyBRDF.h>
-//-------------------------------
-// Color Utils (Debug only)
-//#include <Utils/ShaderInclude.Builtin.Color.h>
 //------------------------------------------------------------------------------
 // Final Render targets 
 struct PSOut
