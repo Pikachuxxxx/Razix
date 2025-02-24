@@ -108,9 +108,9 @@ namespace Razix {
             }
 
             // Returns the view matrix calculated using Euler Angles and the LookAt Matrix
-            inline float4x4 getViewMatrix() const;
-            inline float4x4 getViewMatrixLH() const;
-            inline float4x4 getViewMatrixRH() const;
+            float4x4 getViewMatrix() const;
+            float4x4 getViewMatrixLH() const;
+            float4x4 getViewMatrixRH() const;
 
         private:
             // Camera Attributes
