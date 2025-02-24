@@ -68,9 +68,6 @@ namespace Razix {
             std::vector<cstr> getRequiredExtensions() const;
             /* Sets the debug messenger this is used to record instance creation and deletion */
             void setupDebugMessenger();
-
-            /* Vulkan debug callback reporting function */
-            static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data);
         };
 
     }    // namespace Gfx

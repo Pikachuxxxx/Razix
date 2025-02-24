@@ -234,6 +234,8 @@ namespace Razix {
 
             u32 PushBufferLayout(VkFormat format, const std::string& name, RZBufferLayout& layout);
 
+            std::string VulkanObjectTypeString(VkObjectType type);
+
         }    // namespace VKUtilities
     }        // namespace Gfx
 }    // namespace Razix

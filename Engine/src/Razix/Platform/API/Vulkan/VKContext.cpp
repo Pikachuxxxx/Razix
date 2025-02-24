@@ -11,12 +11,12 @@
     #include "Razix/Core/Version/RazixVersion.h"
     #include "Razix/Platform/API/Vulkan/VKDevice.h"
     #include "Razix/Platform/API/Vulkan/VKUtilities.h"
-
-    #define VK_USE_PLATFORM_WIN32_KHR
+    #include "Razix/Utilities/RZStringUtilities.h"
 
     #include <glfw/glfw3.h>
     #include <vulkan/vulkan.h>
     #ifdef RAZIX_PLATFORM_WINDOWS
+        #define VK_USE_PLATFORM_WIN32_KHR
         #include <vulkan/vulkan_win32.h>
     #endif
 
@@ -24,6 +24,81 @@
 
 namespace Razix {
     namespace Gfx {
+
+        static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)
+        {
+    #ifndef RAZIX_DISTRIBUTION
+
+            if (!RZEngine::Get().getGlobalEngineSettings().EnableAPIValidation) return VK_FALSE;
+
+            std::string severity;
+            if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+                severity = "ERROR";
+            } else if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+                severity = "WARNING";
+            } else if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
+                severity = "INFO";
+            } else {
+                severity = "VERBOSE";
+            }
+
+            std::ostringstream logMessage;
+            logMessage << "\n==============================================================\n";
+            logMessage << "Vulkan Validation Message\n";
+
+            const int labelWidth = 12;
+            logMessage << std::left << std::setw(labelWidth) << "Severity"
+                       << " : " << severity << "\n";
+            logMessage << std::left << std::setw(labelWidth) << "Message ID"
+                       << " : " << callback_data->messageIdNumber << "\n";
+            logMessage << std::left << std::setw(labelWidth) << "ID Name"
+                       << " : " << callback_data->pMessageIdName << "\n";
+
+            if (callback_data->objectCount > 0) {
+                logMessage << std::left << std::setw(labelWidth) << "Objects"
+                           << " :\n";
+                for (uint32_t i = 0; i < callback_data->objectCount; ++i) {
+                    logMessage << "  " << std::left << std::setw(labelWidth - 2) << ("Object " + std::to_string(i)) << " :\n";
+                    logMessage << "    " << std::left << std::setw(labelWidth - 4) << "Handle"
+                               << " : 0x" << std::hex << callback_data->pObjects[i].objectHandle << std::dec << "\n";
+                    logMessage << "    " << std::left << std::setw(labelWidth - 4) << "Name"
+                               << " : " << (callback_data->pObjects[i].pObjectName ? callback_data->pObjects[i].pObjectName : "N/A") << "\n";
+                    logMessage << "    " << std::left << std::setw(labelWidth - 4) << "Type"
+                               << " : " << VKUtilities::VulkanObjectTypeString(callback_data->pObjects[i].objectType) << "\n";
+                }
+            }
+
+            std::string message = callback_data->pMessage;
+            auto        parts   = Utilities::SplitString(message, '|');
+            logMessage << std::left << std::setw(labelWidth) << "Description"
+                       << " :\n";
+
+            if (parts.size() >= 3) {
+                logMessage << "  " << std::left << std::setw(labelWidth - 2) << "Error Code"
+                           << " : " << parts[0].substr(0, parts[0].find_last_of(']') + 1) << "\n";
+
+                logMessage << "  " << std::left << std::setw(labelWidth - 2) << "MessageID"
+                           << " : " << parts[1].substr(parts[1].find("MessageID = ")) << "\n";
+
+                logMessage << "  " << std::left << std::setw(labelWidth - 2) << "Details"
+                           << " : " << parts[2] << "\n";
+            } else {
+                logMessage << "  " << message << "\n";
+            }
+
+            if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+                RAZIX_CORE_ERROR("{}", logMessage.str());
+            } else if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+                RAZIX_CORE_WARN("{}", logMessage.str());
+            } else if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
+                RAZIX_CORE_INFO("{}", logMessage.str());
+            } else {
+                RAZIX_CORE_TRACE("{}", logMessage.str());
+            }
+
+    #endif
+            return VK_FALSE;
+        }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Load the functions dynamically to create the DebugUtilsMessenger
@@ -184,8 +259,13 @@ namespace Razix {
             // To track if there is any issue with instance creation we supply the pNext with the `VkDebugUtilsMessengerCreateInfoEXT`
             m_DebugCI                 = {};
             m_DebugCI.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-            m_DebugCI.messageSeverity = /*VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | */ VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-            m_DebugCI.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+            m_DebugCI.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+                                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+            m_DebugCI.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                                    VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                                    VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
             m_DebugCI.pfnUserCallback = debugCallback;
 
             instanceCI.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &m_DebugCI;
@@ -310,60 +390,6 @@ namespace Razix {
                 m_Surface = *(VkSurfaceKHR*) window;
     #endif
             }
-        }
-
-        VKAPI_ATTR VkBool32 VKAPI_CALL VKContext::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)
-        {
-    #ifndef RAZIX_DISTRIBUTION
-            // Select prefix depending on flags passed to the callback
-            // Note that multiple flags may be set for a single validation message
-            // Error that may result in undefined behavior
-            // TODO: Add option to choose minimum severity level and use <=> to select levels
-            // TODO: Formate the message id and stuff for colors etc
-
-            // ENABLE THIS WHEN DOING A RENDER DOC CAPTURE! -> API validation is to be disabled and will be done by the config file we pass a different config file for RDC runs
-            //return VK_FALSE;
-
-            if (!RZEngine::Get().getGlobalEngineSettings().EnableAPIValidation) return VK_FALSE;
-
-            //if (!message_severity)
-            //return VK_FALSE;
-
-            // Disable layout errors!
-            //if (callback_data->messageIdNumber == 1303270965)
-            //    return VK_FALSE;
-
-            for (sz i = 0; i < callback_data->objectCount; i++) {
-                if (callback_data->pObjects[i].pObjectName)
-                    RAZIX_CORE_ERROR("[VULKAN] OBJECT HANDLE NAME : {0}", callback_data->pObjects[i].pObjectName);
-            }
-
-            if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-                std::cout << "\033[1;31m ***************************************************************** \033[0m" << std::endl;
-                std::cout << "\033[1;32m[VULKAN] \033[1;31m - Validation ERROR : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage << std::endl;
-                std::cout << "\033[1;31m ***************************************************************** \033[0m" << std::endl;
-            }
-            // Warnings may hint at unexpected / non-spec API usage
-            if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-                std::cout << "\033[1;33m ***************************************************************** \033[0m" << std::endl;
-                std::cout << "\033[1;32m[VULKAN] \033[1;33m - Validation WARNING : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage << std::endl;
-                std::cout << "\033[1;33m ***************************************************************** \033[0m" << std::endl;
-            }
-            // Informal messages that may become handy during debugging
-            if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
-                std::cout << "\033[1;36m ***************************************************************** \033[0m" << std::endl;
-                std::cout << "\033[1;32m[VULKAN] \033[1;36m - Validation INFO : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage << std::endl;
-                std::cout << "\033[1;36m ***************************************************************** \033[0m" << std::endl;
-            }
-            // Diagnostic info from the Vulkan loader and layers
-            // Usually not helpful in terms of API usage, but may help to debug layer and loader problems
-            if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-                std::cout << "\033[1;35m*****************************************************************" << std::endl;
-                std::cout << "\033[1;32m[VULKAN] \033[1;35m - DEBUG : \033[0m \nmessage ID : " << callback_data->messageIdNumber << "\nID Name : " << callback_data->pMessageIdName << "\nMessage : " << callback_data->pMessage << std::endl;
-                std::cout << "\033[1;35m*****************************************************************" << std::endl;
-            }
-    #endif
-            return VK_FALSE;
         }
     }    // namespace Gfx
 }    // namespace Razix
