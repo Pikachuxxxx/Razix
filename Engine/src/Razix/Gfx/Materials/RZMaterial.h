@@ -22,7 +22,7 @@ namespace Razix {
             static RZTextureHandle GetDefaultTexture() { return s_DefaultTexture; }
             static RZMaterial*     GetDefaultMaterial();
 
-            void Bind(RZPipeline* pipeline = nullptr, RZDrawCommandBufferHandle cmdBuffer = {});
+            void Bind(RZDrawCommandBufferHandle cmdBuffer = {});
 
             void loadFromFile(const std::string& path);
             void saveToFile(const std::string& path = "");
@@ -49,6 +49,7 @@ namespace Razix {
 
             MaterialData          m_MaterialData          = {};
             RZShaderHandle        m_Shader                = {};
+            RZPipelineHandle      m_Pipeline              = {};
             RZDescriptorSetHandle m_DescriptorSet         = {};
             RZUniformBufferHandle m_MaterialPropertiesUBO = {};
             bool                  m_TexturesUpdated       = false;

@@ -25,6 +25,8 @@ namespace Razix {
         RZTextureHandle RZMaterial::s_DefaultTexture  = {};
         RZMaterial*     RZMaterial::s_DefaultMaterial = nullptr;
 
+        //-----------------------------------------------------------------------------------
+
         RZMaterial::RZMaterial(RZShaderHandle shader)
         {
             m_Shader = shader;
@@ -290,7 +292,7 @@ namespace Razix {
             memcpy(&m_MaterialData.m_MaterialTexturePaths, &paths, sizeof(paths));
         }
 
-        void RZMaterial::Bind(RZPipeline* pipeline /*= nullptr*/, RZDrawCommandBufferHandle cmdBuffer /*= nullptr*/)
+        void RZMaterial::Bind(RZDrawCommandBufferHandle cmdBuffer /*= {}*/)
         {
             //  Check if the descriptor sets need to be built or updated and do that by deleting it and creating a new one
             if (!m_DescriptorSet.isValid() || getTexturesUpdated()) {
@@ -315,6 +317,8 @@ namespace Razix {
             // it easy for get info about Culling too, using this we can easily get the System Sets and Bind them
             // For now since we use the same shader we can just let the renderer Bind it and the material will give the Renderer necessary Sets to bind
         }
+
+        //-----------------------------------------------------------------------------------
 
         void MaterialTextures::Destroy()
         {

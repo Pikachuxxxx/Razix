@@ -1341,7 +1341,6 @@ namespace Razix {
                     default: return "UNKNOWN";
                 }
             }
-
         }    // namespace VKUtilities
     }        // namespace Gfx
 }    // namespace Razix

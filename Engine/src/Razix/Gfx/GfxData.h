@@ -511,8 +511,6 @@ namespace Razix {
         /**
          * So we can either bind a resource as attachment or pass the Binding info struct 
          * Razix already has these 2 structs in the Graphics API everywhere
-         * 
-         * These structs have been loaned from RZDescriptorSet.h and RHI.h and
          */
 
         /**
