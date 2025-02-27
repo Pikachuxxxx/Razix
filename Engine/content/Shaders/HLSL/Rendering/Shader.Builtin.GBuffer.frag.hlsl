@@ -12,7 +12,7 @@
 //------------------------------------------------------------------------------ 
 struct PSIn
 {
-    float4 Position   : SV_Position;
+    float4 WorldPos   : POSITION0;
     float4 Color      : COLOR0;
     float2 UV         : TEXCOORD0;
     float3 Normal     : NORMAL0;
@@ -41,13 +41,13 @@ PSOut PS_MAIN(PSIn input, uint primitiveID: SV_PrimitiveID)
     input.Normal.y = -input.Normal.y;
 #endif
     float3 N_Surface = normalize(input.Normal);
-    float3 N = normalize(Mat_getNormalMapNormals(uv, input.Position.xyz, N_Surface));
+    float3 N = normalize(Mat_getNormalMapNormals(uv, input.WorldPos.xyz, N_Surface));
 
     PSOut output;
 
-    output.GBuffer0 = float4(RandomColorHash(primitiveID), metallic);
+    output.GBuffer0 = float4(N, metallic);
     output.GBuffer1 = float4(albedo.rgb, roughness);
-    output.GBuffer2 = float4(input.Position.xyz, ao);
+    output.GBuffer2 = float4(input.WorldPos.xyz, ao);
 
     return output;
 }

@@ -1,7 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZPBRDeferredLightingPass.h"
+#include "RZPBRDeferredShadingPass.h"
 
 #include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/Markers/RZMarkers.h"
@@ -41,7 +41,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZPBRDeferredLightingPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZPBRDeferredShadingPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             auto pbrShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRDeferredLighting);
 
@@ -99,13 +99,13 @@ namespace Razix {
                 [=](const SceneData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    RAZIX_TIME_STAMP_BEGIN("Deferred Lighting (PBR)");
-                    RAZIX_MARK_BEGIN("Pass.Builtin.PBRDeferredLighting", float4(1.0f, 0.5f, 0.0f, 1.0f));
+                    RAZIX_TIME_STAMP_BEGIN("Deferred Shading (PBR)");
+                    RAZIX_MARK_BEGIN("Pass.Builtin.DeferredShading", float4(1.0f, 0.5f, 0.0f, 1.0f));
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneDepth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
+                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneDepth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.resize           = true;
 
@@ -167,8 +167,8 @@ namespace Razix {
 
                     struct PCData
                     {
-                        float3 CameraViewPos;
-                        f32       dt;
+                        float3   CameraViewPos;
+                        f32      dt;
                         float4x4 camView;
                     } pcData             = {};
                     pcData.CameraViewPos = scene->getSceneCamera().getPosition();
@@ -178,7 +178,7 @@ namespace Razix {
                     pc.size        = sizeof(PCData);
                     pc.data        = &pcData;
                     pc.shaderStage = ShaderStage::kPixel;
-                    //RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), pc);
+                    RHI::BindPushConstant(m_Pipeline, RHI::GetCurrentCommandBuffer(), pc);
 
                     scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);
 
@@ -188,7 +188,7 @@ namespace Razix {
                 });
         }
 
-        void RZPBRDeferredLightingPass::destroy()
+        void RZPBRDeferredShadingPass::destroy()
         {
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }

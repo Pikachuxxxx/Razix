@@ -3,13 +3,13 @@
 //----------------------------------------------------------------------------
 // Constants and Defines
 // Max no of lights in the scene
-#define MAX_LIGHTS 1024
+#define MAX_LIGHTS 128
 //----------------------------------------------------------------------------
 // Type of the Light (enum)
 enum LightType : uint
 {
     DIRECTIONAL = 0,
-    Point       = 1,
+    POINT       = 1,
     SPOT        = 2,
     AREA,    // Not Supported!
     FLASH    // Not Supported!
@@ -36,7 +36,7 @@ struct LightData
 cbuffer SceneLights : register(b0, space0)
 {
     uint      numLights;
-    LightData data[MAX_LIGHTS];
+    LightData lightData[MAX_LIGHTS];
 };
 //----------------------------------------------------------------------------
 #endif

@@ -8,5 +8,5 @@
 #end
 
 #shader fragment
-    #include Shader.Builtin.PBRDeferredIBL.frag
+    #include Shader.Builtin.DeferredShading.frag
 #end

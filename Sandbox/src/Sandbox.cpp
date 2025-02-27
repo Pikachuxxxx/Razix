@@ -43,16 +43,34 @@ public:
             }
 
             if (!scene->GetComponentsOfType<MeshRendererComponent>().size()) {
-                // Add 5 spheres
-                float spacing = 1.0;
-                for (uint32_t i = 0; i < 5; i++) {
-                    auto  sphereMesh    = scene->createEntity("Sphere_" + std::to_string(i));
-                    auto& meshComponent = sphereMesh.AddComponent<MeshRendererComponent>(Gfx::MeshPrimitive::Sphere);
-                    //auto material = meshComponent.Mesh->getMaterial();
-                    //material->getProperties().roughnessColor
-                    auto& transform = sphereMesh.GetComponent<TransformComponent>();
-                    transform.Translation.z += spacing * i;
-                    transform.Scale *= 0.50f;
+                // PBR materials test
+
+                int   nrRows    = 7;
+                int   nrColumns = 7;
+                float spacing   = 2.5f;
+
+                Razix::Gfx::MaterialProperties mat;
+                mat.albedoColor      = glm::vec3(1.0f, 0.3f, 0.75f);
+                mat.ambientOcclusion = 1.0f;
+
+                for (int row = 0; row < nrRows; ++row) {
+                    float metallic = (float) row / (float) nrRows;
+                    for (int col = 0; col < nrColumns; ++col) {
+                        float roughness                                             = glm::clamp((float) col / (float) nrColumns, 0.075f, 1.0f);
+                        auto  pos                                                   = glm::vec3((col - (nrColumns / 2)) * spacing, (row - (nrRows / 2)) * spacing, 0.0f);
+                        auto  sphereEntity                                          = RZSceneManager::Get().getCurrentScene()->createEntity("Sphere");
+                        sphereEntity.GetComponent<TransformComponent>().Translation = pos;
+                        sphereEntity.GetComponent<TransformComponent>().Scale       = glm::vec3(0.75f);
+                        auto& mrc                                                   = sphereEntity.AddComponent<MeshRendererComponent>(Gfx::MeshPrimitive::Sphere);
+                        auto  material                                              = mrc.Mesh->getMaterial();
+                        mat.metallicColor                                           = metallic;
+                        mat.roughnessColor                                          = roughness;
+                        material->setProperties(mat);
+                        // Save to file (assign a new and unique name)
+                        auto name = "PBR_Test_Mat_M_" + std::to_string(metallic) + "_R_" + std::to_string(roughness);
+                        material->setName(name);
+                        material->saveToFile();
+                    }
                 }
             }
 

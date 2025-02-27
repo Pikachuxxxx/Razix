@@ -21,6 +21,7 @@ PUSH_CONSTANT(PushConstant);
 struct VSOut
 {
     float4 Position   : SV_POSITION;
+    float4 WorldPos   : POSITION0;
     float4 Color      : COLOR;
     float2 UV         : TEXCOORD;
     float3 Normal     : NORMAL;
@@ -35,6 +36,7 @@ VSOut VS_MAIN(VSIn vsIn)
     transformedPos = mul(frame_info.camera.view, transformedPos);
     transformedPos = mul(frame_info.camera.projection, transformedPos);
     vso.Position = transformedPos;
+    vso.WorldPos = transformedPos;
     vso.Color = vsIn.inColor;
     vso.UV = vsIn.inTexCoord;
     vso.Normal = vsIn.inNormal;

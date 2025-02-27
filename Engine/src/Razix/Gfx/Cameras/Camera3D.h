@@ -131,7 +131,7 @@ namespace Razix {
 
             float3 TargetMovement = float3(0.0f);
             float3 Velocity       = float3(0.0f);    // Stores the current movement velocity
-            float  DampingFactor  = 0.85f;           // Controls how quickly movement slows down
+            float  DampingFactor  = 0.90f;           // Controls how quickly movement slows down
 
         private:
             // Calculates the front vector from the Camera's (updated) Euler Angles
