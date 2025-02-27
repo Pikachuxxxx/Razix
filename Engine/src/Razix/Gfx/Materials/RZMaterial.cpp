@@ -99,7 +99,6 @@ namespace Razix {
             }
             setProperties(matData.m_MaterialProperties);
             loadMaterialTexturesFromFiles(matData.m_MaterialTexturePaths);
-            createDescriptorSet();
         }
 
         void RZMaterial::saveToFile(const std::string& path)

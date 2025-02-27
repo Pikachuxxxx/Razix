@@ -28,15 +28,16 @@ namespace Razix {
             void saveToFile(const std::string& path = "");
             void loadMaterialTexturesFromFiles(MaterialTexturePaths paths);
             void createDescriptorSet();
-
+            
+            void                        setProperties(MaterialProperties& props);
+            void                        setTexturePaths(MaterialTexturePaths& paths);
+            
             inline std::string                 getName() { return m_MaterialData.m_Name; }
             inline void                        setName(const std::string& name) { strcpy(m_MaterialData.m_Name, name.c_str()); }
             inline const MaterialTextures&     getTextures() const { return m_MaterialData.m_MaterialTextures; }
             inline void                        setTextures(MaterialTextures& textures);
             inline const MaterialProperties&   getProperties() const { return m_MaterialData.m_MaterialProperties; }
-            inline void                        setProperties(MaterialProperties& props);
             inline const MaterialTexturePaths& getTexturePaths() const { return m_MaterialData.m_MaterialTexturePaths; }
-            inline void                        setTexturePaths(MaterialTexturePaths& paths);
             inline bool                        getTexturesUpdated() const { return m_TexturesUpdated; }
             inline void                        setTexturesUpdated(bool isUpdated) { m_TexturesUpdated = isUpdated; }
             inline RZDescriptorSetHandle       getDescriptorSet() { return m_DescriptorSet; }
