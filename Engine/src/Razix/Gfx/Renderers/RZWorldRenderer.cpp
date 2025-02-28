@@ -83,6 +83,8 @@ namespace Razix {
 
         void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
         {
+            memset(&m_LastSwapchainReadback, 0, sizeof(TextureReadback));
+            
             m_FrameGraphBuildingInProgress = true;
 
             // Noise texture LUT
