@@ -20,27 +20,22 @@ namespace Razix {
     namespace Gfx {
         namespace MeshFactory {
 
-            static RZMesh* planeMesh  = nullptr;
-            static RZMesh* cubeMesh   = nullptr;
-            static RZMesh* sphereMesh = nullptr;
+            // Materials are not duplicating when we have single instance
+            //static RZMesh* planeMesh  = nullptr;
+            //static RZMesh* cubeMesh   = nullptr;
+            //static RZMesh* sphereMesh = nullptr;
 
             RZMesh* CreatePrimitive(MeshPrimitive primitive)
             {
                 switch (primitive) {
                     case MeshPrimitive::Plane: {
-                        if (planeMesh == nullptr)
-                            planeMesh = CreatePlane();
-                        return planeMesh;
+                        return CreatePlane();
                     }
                     case MeshPrimitive::Cube: {
-                        if (cubeMesh == nullptr)
-                            cubeMesh = CreateCube();
-                        return cubeMesh;
+                        return CreateCube();
                     }
                     case MeshPrimitive::Sphere: {
-                        if (sphereMesh == nullptr)
-                            sphereMesh = CreateSphere();
-                        return sphereMesh;
+                        return CreateSphere();
                     }
                     case MeshPrimitive::Pyramid:
                         RAZIX_UNIMPLEMENTED_METHOD
@@ -52,9 +47,7 @@ namespace Razix {
                         RAZIX_UNIMPLEMENTED_METHOD
                         break;
                     default: {
-                        if (cubeMesh == nullptr)
-                            cubeMesh = CreateCube();
-                        return cubeMesh;
+                        return CreateCube();
                     }
                 }
                 return nullptr;
@@ -98,7 +91,7 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(data, indices, 6);
 
-                auto        shader                  = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
+                auto        shader          = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
                 RZMaterial* gbufferMaterial = new RZMaterial(shader);
                 gbufferMaterial->createDescriptorSet();
                 mesh->setMaterial(gbufferMaterial);
@@ -209,7 +202,7 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(data, indices, 36);
 
-                auto        shader                  = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
+                auto        shader          = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
                 RZMaterial* gbufferMaterial = new RZMaterial(shader);
                 gbufferMaterial->createDescriptorSet();
                 mesh->setMaterial(gbufferMaterial);
@@ -277,7 +270,7 @@ namespace Razix {
 
                 RZMesh* mesh = new RZMesh(data, indices);
 
-                auto        shader                  = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
+                auto        shader          = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
                 RZMaterial* gbufferMaterial = new RZMaterial(shader);
                 gbufferMaterial->createDescriptorSet();
                 mesh->setMaterial(gbufferMaterial);

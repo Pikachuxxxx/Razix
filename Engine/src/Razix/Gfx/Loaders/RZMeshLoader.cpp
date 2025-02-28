@@ -150,7 +150,7 @@ namespace Razix {
             if (materialName == "DefaultMaterial")
                 return RZMaterial::GetDefaultMaterial();
 
-            auto        shader   = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRDeferredLighting);
+            auto        shader   = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
             RZMaterial* material = new RZMaterial(shader);
             material->setName(materialName);
 

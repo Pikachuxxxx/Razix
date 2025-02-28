@@ -33,13 +33,14 @@ VSOut VS_MAIN(VSIn vsIn)
     VSOut vso;
 
     float4 transformedPos = mul(GET_PUSH_CONSTANT(worldTransform), float4(vsIn.inPosition, 1.0f));
+    vso.WorldPos = transformedPos;
+
     transformedPos = mul(frame_info.camera.view, transformedPos);
     transformedPos = mul(frame_info.camera.projection, transformedPos);
     vso.Position = transformedPos;
-    vso.WorldPos = transformedPos;
     vso.Color = vsIn.inColor;
     vso.UV = vsIn.inTexCoord;
-    vso.Normal = vsIn.inNormal;
+    vso.Normal = vsIn.inNormal; // this should be normal matrix scaled
     vso.Tangent = vsIn.inTangent;
 
     return vso;

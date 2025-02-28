@@ -245,7 +245,7 @@ namespace Razix {
                     }
                     RZDescriptorSetDesc descSetCreateDesc = {};
                     descSetCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
-                    descSetCreateDesc.name                = "DescriptorSet.Material";
+                    descSetCreateDesc.name                = "DescriptorSet.Material_" + std::to_string(m_MaterialPropertiesUBO.getIndex());
                     descSetCreateDesc.descriptors         = heap.second;
                     m_DescriptorSet                       = RZResourceManager::Get().createDescriptorSet(descSetCreateDesc);
                 }

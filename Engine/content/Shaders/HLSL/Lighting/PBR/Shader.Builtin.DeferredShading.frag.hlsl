@@ -5,8 +5,6 @@
 //------------------------------------------------------------------------------
 #include <ShaderInclude.Builtin.ShaderLangCommon.h>
 //------------------------------------------------------------------------------
-// Scene Lights
-#include <Lighting/ShaderInclude.Builtin.Light.h>
 // GBuffer Deferred resource bindings
 #include <Rendering/ShaderInclude.Builtin.DeferredPassBindings.h>
 //-------------------------------
@@ -36,7 +34,6 @@ PSOut PS_MAIN(VSOutput input)
 
     float3 N = Normal_Metallic.rgb;
     float3 V = normalize((GET_PUSH_CONSTANT(camViewPos) - worldPos));
-    float3 R = reflect(-V, Normal_Metallic.rgb);
 
     // calculate reflectance at normal incidence; if dielectric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    

@@ -79,7 +79,7 @@ public:
                 sun.AddComponent<LightComponent>();
                 auto& transform = sun.GetComponent<TransformComponent>();
 
-                transform.Translation = {1.0f, 1.0f, 1.0f};
+                transform.Translation = {1.0f, 5.0f, 1.0f};
             }
         }
     }
