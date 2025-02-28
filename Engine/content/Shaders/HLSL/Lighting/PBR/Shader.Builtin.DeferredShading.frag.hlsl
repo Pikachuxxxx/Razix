@@ -81,7 +81,7 @@ PSOut PS_MAIN(VSOutput input)
     float3 irradiance = IrradianceMap.Sample(cubeSampler, N).rgb;
     float3 diffuseIndirect = irradiance * albedo;
 
-    const float MAX_REFLECTION_LOD = 5.0f;
+    const float MAX_REFLECTION_LOD = 7.0f;
     float3 prefilteredColor = PreFilteredMap.SampleLevel(cubeSampler, R,  roughness * MAX_REFLECTION_LOD).rgb;    
     float2 brdf  = BrdfLUT.Sample(linearSampler, float2(max(dot(N, V), 0.0), roughness)).rg;
     float3 specularIndirect = prefilteredColor * (F * brdf.x + brdf.y);

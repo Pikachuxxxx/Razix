@@ -155,7 +155,7 @@ namespace Razix {
                         //if (descriptor)
                         //    descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(csmData.cascadedShadowMaps).getHandle();
 
-                        //// CSM Matrices
+                        // CSM Matrices
                         //descriptor = shaderBindVars["CSMMatrices"];
                         //if (descriptor)
                         //    descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(csmData.viewProjMatrices).getHandle();

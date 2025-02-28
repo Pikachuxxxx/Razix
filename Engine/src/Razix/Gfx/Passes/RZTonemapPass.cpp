@@ -83,10 +83,10 @@ namespace Razix {
                     RHI::BindPipeline(m_Pipeline, cmdBuffer);
 
                     // Push constant data for sending in the tone map mode
-                    RZPushConstant pc;
-                    pc.size        = sizeof(u32);
-                    pc.data        = &(settings->tonemapMode);
-                    pc.shaderStage = ShaderStage::kPixel;
+                    RZPushConstant pc = {};
+                    pc.size           = sizeof(u32);
+                    pc.data           = &(settings->tonemapMode);
+                    pc.shaderStage    = ShaderStage::kPixel;
                     RHI::BindPushConstant(m_Pipeline, cmdBuffer, pc);
 
                     scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);
