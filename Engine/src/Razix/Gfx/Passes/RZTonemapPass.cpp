@@ -48,8 +48,6 @@ namespace Razix {
                 "Pass.Builtin.Code.Tonemap",
                 [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.read(sceneData.sceneHDR);
-
-                    sceneData.sceneHDR = builder.write(sceneData.sceneHDR);
                 },
                 [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

@@ -177,6 +177,11 @@ namespace Razix {
             m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
 
             //-------------------------------
+            // Tonemap Pass
+            //-------------------------------
+            //m_TonemapPass.addPass(m_FrameGraph, scene, &settings);
+
+            //-------------------------------
             // Debug Scene Pass
             //-------------------------------
             m_FrameGraph.addCallbackPass(
@@ -407,7 +412,7 @@ namespace Razix {
             m_GBufferPass.destroy();
             m_PBRDeferredPass.destroy();
             m_SkyboxPass.destroy();
-            // m_VisBufferFillPass.destroy();
+            m_TonemapPass.destroy();
             m_CompositePass.destroy();
 
             // Wait for GPU to be done
@@ -440,7 +445,6 @@ namespace Razix {
                 static bool showMemStats       = true;
                 static bool showRHIStats       = true;
 
-                // RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
                 RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
 
                 if (ImGui::BeginMainMenuBar()) {
@@ -461,7 +465,6 @@ namespace Razix {
                     }
                     ImGui::EndMainMenuBar();
                 }
-                // RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE)
 
                 //==========================================================================
 

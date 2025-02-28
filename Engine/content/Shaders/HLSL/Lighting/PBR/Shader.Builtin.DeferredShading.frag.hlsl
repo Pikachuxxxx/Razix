@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 // GBuffer Deferred resource bindings
 #include <Rendering/ShaderInclude.Builtin.DeferredPassBindings.h>
+#include <Rendering/FX/ShaderInclude.Builtin.TonemappingFuncs.h>
 //-------------------------------
 // PBR - BRDF helper functions
 #include <Lighting/PBR/ShaderInclude.Builtin.CookTorranceBRDF.h>
@@ -71,8 +72,6 @@ PSOut PS_MAIN(VSOutput input)
         Lo += brdf * Li * NdotL;
     }
 
-    float3 ambientLighting;
-
     // IBL ambient lighting (diffuse + specular contribution)
     float3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0f), F0, roughness);
     float3 kS = F;
@@ -87,11 +86,12 @@ PSOut PS_MAIN(VSOutput input)
     float2 brdf  = BrdfLUT.Sample(linearSampler, float2(max(dot(N, V), 0.0), roughness)).rg;
     float3 specularIndirect = prefilteredColor * (F * brdf.x + brdf.y);
 
-    float3 ambient = (kD * diffuseIndirect + specularIndirect) * ao;
-    float3 color = ambient + Lo;
+    float3 ambientLighting = (kD * diffuseIndirect + specularIndirect) * ao;
+    float3 color = ambientLighting + Lo;
 
-    // Reinhard Tonemapping
-    color = color / (color + float3(1.0f, 1.0f, 1.0f));
+    // Tonemap here cause I'm lazy to add another pass
+    color = TonemapFuncs::Filmic(color);
+    // Gamma correction
     float gammaFactor = 1.0f / 2.2f;
     color = pow(color, float3(gammaFactor, gammaFactor, gammaFactor)); 
 	

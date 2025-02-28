@@ -96,10 +96,10 @@ namespace Razix {
             void OnImGui();
 
             // Getters/Setters
-            FrameGraph::RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
+            inline FrameGraph::RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
 
-            RAZIX_INLINE std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
-            RAZIX_INLINE void        setFrameGraphFilePath(std::string val);
+            inline std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
+            void               setFrameGraphFilePath(std::string val);
 
             inline void                   setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
             inline const TextureReadback& getSwapchainReadback() { return m_LastSwapchainReadback; }
@@ -113,30 +113,25 @@ namespace Razix {
             RZTextureHandle m_BRDFfLUTTextureHandle;
             RZTextureHandle m_NoiseTextureHandle;
             RZTextureHandle m_ColorGradingNeutralLUTHandle;
-            LightProbe      m_GlobalLightProbes{};
+            LightProbe      m_GlobalLightProbes;
             // List of all passes, renderers and data in the frame graph
-            RZShadowPass               m_ShadowPass;
-            RZCSMPass                  m_CSMPass;
-            RZVisibilityBufferFillPass m_VisBufferFillPass;
-            RZGBufferPass              m_GBufferPass;
-            RZSSAOPass                 m_SSAOPass;
-            RZPBRDeferredShadingPass  m_PBRDeferredPass;
-            RZSkyboxPass               m_SkyboxPass;
-            RZGaussianBlurPass         m_GaussianBlurPass;
-            RZTAAResolvePass           m_TAAResolvePass;
-            RZFXAAPass                 m_FXAAPass;
-            RZToneMapPass              m_TonemapPass;
-            RZCompositionPass          m_CompositePass;
+            RZShadowPass             m_ShadowPass;
+            RZGBufferPass            m_GBufferPass;
+            RZSSAOPass               m_SSAOPass;
+            RZPBRDeferredShadingPass m_PBRDeferredPass;
+            RZSkyboxPass             m_SkyboxPass;
+            RZToneMapPass            m_TonemapPass;
+            RZCompositionPass        m_CompositePass;
 
             // swapchain texture readback (mostly used only for tests)
-            TextureReadback m_LastSwapchainReadback;
+            TextureReadback m_LastSwapchainReadback = {};
 
             // Other Variables
             u32         m_FrameCount                                            = 0;
-            float2   m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
-            float4x4   m_PreviousViewProj                                      = {};
-            float2   m_Jitter                                                = {};
-            float2   m_PreviousJitter                                        = {};
+            float2      m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
+            float4x4    m_PreviousViewProj                                      = {};
+            float2      m_Jitter                                                = {};
+            float2      m_PreviousJitter                                        = {};
             bool        m_FrameGraphBuildingInProgress                          = true;
             bool        m_IsFGFilePathDirty                                     = false;
             bool        m_ReadSwapchainThisFrame                                = false;
@@ -144,15 +139,7 @@ namespace Razix {
             //std::string m_FrameGraphFilePath           = "//RazixFG/Graphs/FrameGraph.User.EditorTest.json";
 
         private:
-            /**
-             * Imports the Global skybox, diffuse and specular light probes into the scene
-             * 
-             * @param globalLightProbe The global light probe that will be imported into the scene
-             */
             void importGlobalLightProbes(LightProbe globalLightProbe);
-            /**
-             * Culls the scene lights against the Main Camera frustum
-             */
             void cullLights(Maths::RZFrustum& frustum);
             void uploadFrameData(RZScene* scene, RZRendererSettings& settings);
             void uploadLightsData(RZScene* scene, RZRendererSettings& settings);
