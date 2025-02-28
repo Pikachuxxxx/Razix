@@ -34,6 +34,7 @@ PSOut PS_MAIN(VSOutput input)
 
     float3 N = Normal_Metallic.rgb;
     float3 V = normalize((GET_PUSH_CONSTANT(camViewPos) - worldPos));
+    float3 R = reflect(-V, N);
 
     // calculate reflectance at normal incidence; if dielectric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
@@ -41,6 +42,7 @@ PSOut PS_MAIN(VSOutput input)
     F0 = lerp(F0, albedo, metallic);
 
     // Rendering equation - solve for BRDF
+    // Direct Lighting - output radiance
     float3 Lo = float3(0.0f, 0.0f, 0.0f);
 
     for(int i = 0; i < numLights; ++i)
@@ -57,7 +59,7 @@ PSOut PS_MAIN(VSOutput input)
         else if(light.type == POINT) {
             L = normalize(light.position - worldPos);
             float distance    = length(light.position - worldPos);
-            attenuation = 1.0 / (distance * distance);
+            attenuation = 1.0f / (distance * distance);
         }
         float3 H = normalize(L + V);
         float3 Li = light.color * attenuation;
@@ -69,15 +71,29 @@ PSOut PS_MAIN(VSOutput input)
         Lo += brdf * Li * NdotL;
     }
 
-    // IBL ambient lighting (diffuse + specular contribution)
-    //float3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
-    //float3 kS = F;
-    //float3 kD = 1.0 - kS;
-    //kD *= 1.0 - metallic;
+    float3 ambientLighting;
 
-    // testing non-IBL ambient
-    float3 ambient = albedo * ao;
+    // IBL ambient lighting (diffuse + specular contribution)
+    float3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0f), F0, roughness);
+    float3 kS = F;
+    float3 kD = 1.0 - kS;
+    kD *= 1.0 - metallic;
+    
+    float3 irradiance = IrradianceMap.Sample(cubeSampler, N).rgb;
+    float3 diffuseIndirect = irradiance * albedo;
+
+    const float MAX_REFLECTION_LOD = 5.0f;
+    float3 prefilteredColor = PreFilteredMap.SampleLevel(cubeSampler, R,  roughness * MAX_REFLECTION_LOD).rgb;    
+    float2 brdf  = BrdfLUT.Sample(linearSampler, float2(max(dot(N, V), 0.0), roughness)).rg;
+    float3 specularIndirect = prefilteredColor * (F * brdf.x + brdf.y);
+
+    float3 ambient = (kD * diffuseIndirect + specularIndirect) * ao;
     float3 color = ambient + Lo;
+
+    // Reinhard Tonemapping
+    color = color / (color + float3(1.0f, 1.0f, 1.0f));
+    float gammaFactor = 1.0f / 2.2f;
+    color = pow(color, float3(gammaFactor, gammaFactor, gammaFactor)); 
 	
     PSOut output;
     output.SceneColor = float4(color, 1.0f);

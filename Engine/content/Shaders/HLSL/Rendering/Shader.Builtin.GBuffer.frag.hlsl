@@ -38,7 +38,7 @@ PSOut PS_MAIN(PSIn input, uint primitiveID: SV_PrimitiveID)
     // Write the Normals to the GBuffer0 
 #ifdef __GLSL__
     // Due to viewport flipping in vulkan, flip normals too
-    input.Normal.y = -input.Normal.y;
+    //input.Normal.y = -input.Normal.y;
 #endif
     float3 N_Surface = normalize(input.Normal);
     float3 N = normalize(Mat_getNormalMapNormals(uv, input.WorldPos.xyz, N_Surface));
