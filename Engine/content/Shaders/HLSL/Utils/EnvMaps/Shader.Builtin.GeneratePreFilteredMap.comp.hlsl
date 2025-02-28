@@ -29,8 +29,8 @@ float3 SampleDirUV(float2 st, uint face)
     float3 dir;
     if(face == 0) dir = float3(-1.0, uv.y,  uv.x);  // -X
     else if(face == 1)      dir = float3(1.0,  uv.y, -uv.x);  // +X
-    else if(face == 2) dir = float3(uv.x, 1.0, -uv.y);   // +Y
-    else if(face == 3) dir = float3(uv.x, -1.0, uv.y);   // -Y
+    else if(face == 2) dir = float3(-uv.x, -1.0, -uv.y);   // -Y
+    else if(face == 3) dir = float3(-uv.x, 1.0, uv.y);   // +Y
     else if(face == 4) dir = float3(-uv.x, uv.y, -1.0);  // -Z  
     else if(face == 5) dir = float3(uv.x, uv.y, 1.0);    // +Z
     return normalize(dir);
