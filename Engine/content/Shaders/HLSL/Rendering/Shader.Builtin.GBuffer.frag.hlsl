@@ -28,7 +28,7 @@ struct PSOut
 //------------------------------------------------------------------------------
 PSOut PS_MAIN(PSIn input, uint primitiveID: SV_PrimitiveID)
 {
-    float2 uv = float2(input.UV.x, input.UV.y);
+    float2 uv = float2(input.UV.x, 1.0f - input.UV.y);
 
     float3 albedo = Mat_getAlbedoColor(uv);
     float metallic = Mat_getMetallicColor(uv);

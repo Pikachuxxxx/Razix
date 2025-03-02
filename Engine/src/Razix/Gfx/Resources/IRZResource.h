@@ -74,7 +74,9 @@ namespace Razix {
             kRTV     = 1 << 2,
             kDSV     = 1 << 3,
             kCBV     = 1 << 4,
-            kSampler = 1 << 5
+            kSampler = 1 << 5,
+            kTransferSrc = 1 << 6,
+            kTransferDst = 1 << 7,
         };
 
         //-----------------------------------------------------------------------------------

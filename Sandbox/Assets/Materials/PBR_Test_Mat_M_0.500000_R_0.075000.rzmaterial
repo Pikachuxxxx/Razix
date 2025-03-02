@@ -1,0 +1,25 @@
+{
+    "$MATERIAL": {
+        "Name": "PBR_Test_Mat_M_0.500000_R_0.075000",
+        "Albedo": "",
+        "Normal": "",
+        "Metallic": "",
+        "Roughness": "",
+        "Ao": "",
+        "Emissive": "",
+        "albedoColor": {
+            "x": 1.0,
+            "y": 0.30000001192092898,
+            "z": 0.75
+        },
+        "roughnessColor": 0.07500000298023224,
+        "metallicColor": 0.5,
+        "emissiveColor": 1.0,
+        "isUsingAlbedoMap": 0,
+        "isUsingMetallicMap": 0,
+        "isUsingRoughnessMap": 0,
+        "isUsingNormalMap": 0,
+        "isUsingAOMap": 0,
+        "isUsingEmissiveMap": 0
+    }
+}

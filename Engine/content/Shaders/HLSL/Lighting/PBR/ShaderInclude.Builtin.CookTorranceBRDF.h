@@ -48,7 +48,7 @@ float3 FresnelSchlick(float cosTheta, float3 F0)
 //----------------------------------------------------------------------------
 float3 FresnelSchlickRoughness(float cosTheta, float3 F0, float roughness)
 {
-    return F0 + (max(float3(1.0f - roughness, 1.0f - roughness, 1.0f - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 7.5);
+    return F0 + (max(float3(1.0f - roughness, 1.0f - roughness, 1.0f - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 //----------------------------------------------------------------------------
 float3 CookTorranceBRDF(float3 L, float3 V, float3 N, float3 F0, float3 albedo, float metallic, float roughness)

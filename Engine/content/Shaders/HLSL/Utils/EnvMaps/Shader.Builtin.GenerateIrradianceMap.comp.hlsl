@@ -33,14 +33,14 @@ void CS_MAIN(uint3 DTid: SV_DispatchThreadID)
 	// As a small optimization this also includes Lambertian BRDF assuming perfectly white surface (albedo of 1.0)
 	// so we don't need to normalize in PBR fragment shader (so technically it encodes exitant radiance rather than irradiance).
 	float3 irradiance = 0.0;
-	for(uint i = 0; i < NumEnvMapSamples; ++i) {
-        float2 u  = Razix::Math::ImportanceSampling::HammersleySequence2DFastSample(i, NumEnvMapSamples);
+	for(uint i = 0; i < NumIrradianceMapSamples; ++i) {
+        float2 u  = Razix::Math::ImportanceSampling::HammersleySequence2DFastSample(i, NumIrradianceMapSamples);
         float3 Li = tangentToWorld(Razix::Math::ImportanceSampling::HemisphereUniformSample(u.x, u.y), N, S, T);
 		float cosTheta = max(0.0, dot(Li, N));
 
 		// PIs here cancel out because of division by pdf
 		irradiance += 2.0 * EnvCubeMap.SampleLevel(EnvCubeSampler, -Li, 0).rgb * cosTheta;
 	}
-	irradiance /= float(NumEnvMapSamples);
+	irradiance /= float(NumIrradianceMapSamples);
     IrradianceMap[DTid] = float4(irradiance, 1.0f);
 }

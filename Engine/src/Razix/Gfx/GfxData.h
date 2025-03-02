@@ -125,27 +125,6 @@ namespace Razix {
             R32G32B32A32_float
         };
 
-        /* The shader data type */
-        enum class ShaderDataType : u32
-        {
-            NONE,
-            FLOAT32,
-            VEC2,
-            VEC3,
-            VEC4,
-            IVEC2,
-            IVEC3,
-            IVEC4,
-            MAT3,
-            MAT4,
-            INT32,
-            INT,
-            UINT,
-            BOOL,
-            STRUCT,
-            MAT4ARRAY
-        };
-
         enum class DescriptorHeapType
         {
             kCbvUavSrvHeap,
@@ -173,6 +152,8 @@ namespace Razix {
             kSwapchainImage,
             COUNT
         };
+    
+        // TODO: Collapse all Format enums into a single enum, maybe use TinyImageFormat if needed be
 
         /* The format of the Texture resource */
         enum class TextureFormat
@@ -224,6 +205,27 @@ namespace Razix {
             R32G32B32A32_UINT,
             R32G32B32A32_FLOAT,
             COUNT
+        };
+    
+        /* The shader data type */
+        enum class ShaderDataType : u32
+        {
+            NONE,
+            FLOAT32,
+            VEC2,
+            VEC3,
+            VEC4,
+            IVEC2,
+            IVEC3,
+            IVEC4,
+            MAT3,
+            MAT4,
+            INT32,
+            INT,
+            UINT,
+            BOOL,
+            STRUCT,
+            MAT4ARRAY
         };
 
         /* Wrap mode for the texture texels */
