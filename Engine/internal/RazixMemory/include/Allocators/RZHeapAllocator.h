@@ -7,7 +7,7 @@
 namespace Razix {
     namespace Memory {
 
-        class RZHeapAllocator : public IRZAllocator
+        class RZHeapAllocator final : public IRZAllocator
         {
         public:
             RZHeapAllocator()  = default;

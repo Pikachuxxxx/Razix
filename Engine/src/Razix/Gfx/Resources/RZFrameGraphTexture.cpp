@@ -41,30 +41,30 @@ namespace Razix {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                 // TODO: Handle other types of layout based using automatic deduction inside frame graph
-//                RZTexture* textureResource = RZResourceManager::Get().getPool<RZTexture>().get(m_TextureHandle);
-//                RZTextureDesc textureDesc = CAST_TO_FG_TEX_DESC desc;
-//                   
-//                   // Determine the appropriate layout for reading based on texture type and flags
-//                   ImageLayout newLayout = ImageLayout::kShaderRead;
-//                   
-//                   // Special cases for different texture types
-//                   if (textureDesc.format == TextureFormat::Depth24S8 ||
-//                       textureDesc.format == TextureFormat::Depth32F ||
-//                       textureDesc.format == TextureFormat::D32FS8)
-//                   {
-//                       // Depth textures should use depth read-only layout when read
-//                       newLayout = ImageLayout::kDepthStencilReadOnly;
-//                   }
-//                   else if (flags & READ_FLAG_TRANSFER_SRC)
-//                   {
-//                       // When being read as a transfer source
-//                       newLayout = ImageLayout::kTransferSource;
-//                   }
+                RZTexture* textureResource = RZResourceManager::Get().getPool<RZTexture>().get(m_TextureHandle);
+                RZTextureDesc textureDesc = CAST_TO_FG_TEX_DESC desc;
                    
-                   // Get current layout from the resource and transition if needed
-//                   ImageLayout oldLayout = textureResource->getCurrentLayout();
-//                       RZDrawCommandBufferHandle cmdBuffer = RHI::Get().GetCurrentCommandBuffer();
-//                RHI::InsertImageMemoryBarrier(cmdBuffer, m_TextureHandle, ImageLayout::kColorRenderTarget, ImageLayout::kShaderRead);
+                   // Determine the appropriate layout for reading based on texture type and flags
+                   ImageLayout newLayout = ImageLayout::kShaderRead;
+                   
+                   // Special cases for different texture types
+                if (textureDesc.format == TextureFormat::DEPTH32F ||
+                    textureDesc.format == TextureFormat::DEPTH_STENCIL ||
+                    textureDesc.format == TextureFormat::DEPTH16_UNORM)
+                   {
+                       // Depth textures should use depth read-only layout when read
+                       newLayout = ImageLayout::kDepthStencilReadOnly;
+                   }
+                else if (textureDesc.initResourceViewHints == kTransferSrc)
+                   {
+                       // When being read as a transfer source
+                       newLayout = ImageLayout::kTransferSource;
+                   }
+                   
+                // Get current layout from the resource and transition if needed
+                ImageLayout oldLayout = textureResource->getCurrentLayout();
+                RZDrawCommandBufferHandle cmdBuffer = RHI::Get().GetCurrentCommandBuffer();
+                RHI::InsertImageMemoryBarrier(cmdBuffer, m_TextureHandle, ImageLayout::kColorRenderTarget, ImageLayout::kShaderRead);
                 
             }
 

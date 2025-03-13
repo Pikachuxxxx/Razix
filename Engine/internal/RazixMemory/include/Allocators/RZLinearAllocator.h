@@ -6,7 +6,7 @@
 
 namespace Razix {
     namespace Memory {
-        class RZLinearAllocator : public IRZAllocator
+        class RZLinearAllocator final : public IRZAllocator
         {
         public:
             RZLinearAllocator() = default;

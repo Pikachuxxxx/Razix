@@ -14,7 +14,7 @@ namespace Razix {
         {
         public:
             IRZAllocator()  = default;
-            ~IRZAllocator() = default;    // Get rid of v-table
+            virtual ~IRZAllocator() = default;
 
             /* Initialize the allocator */
             virtual void init(size_t size) = 0;

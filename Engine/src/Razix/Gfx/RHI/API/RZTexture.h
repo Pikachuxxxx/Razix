@@ -61,6 +61,7 @@ namespace Razix {
             inline void                 setCurrentArrayLayer(u32 idx) { m_BaseArrayLayer = idx; }
             inline u32                  getLayersCount() const { return m_Desc.layers; }
             inline u32                  getMipsCount() const { return m_TotalMipLevels; }
+            inline ImageLayout          getCurrentLayout() const { return m_CurrentLayout; }
 
         protected:
             RZTextureDesc m_Desc                     = {};
@@ -68,6 +69,7 @@ namespace Razix {
             u32           m_CurrentMipRenderingLevel = RZ_TEX_DEFAULT_MIP_IDX;
             u32           m_BaseArrayLayer           = RZ_TEX_DEFAULT_ARRAY_LAYER;
             u32           m_BitsPerPixel             = RZ_TEX_BITS_PER_PIXEL;
+            ImageLayout   m_CurrentLayout            = ImageLayout::kNewlyCreated;
 
         private:
             static void Create(void* where, const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
