@@ -368,30 +368,10 @@ namespace Razix {
 
         void VKContext::CreateSurface(void* window)
         {
-            if (RZApplication::Get().getAppType() == AppType::GAME) {
-                if (glfwCreateWindowSurface(m_Instance, (GLFWwindow*) window, nullptr, &m_Surface))
-                    RAZIX_CORE_ERROR("[Vulkan] Failed to create surface!");
-                else
-                    RAZIX_CORE_TRACE("[Vulkan] Succesfully created surface!");
-            } else {    // Editor Instance
-
-                // if the app type is editor create a custom surface based on the OS
-    #ifdef RAZIX_PLATFORM_WINDOWS
-                //HWND*                       hwndPtr = (HWND*) window;
-                //HWND                        hwnd    = *hwndPtr;
-                //VkWin32SurfaceCreateInfoKHR createInfo{};
-                //createInfo.sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-                //createInfo.hwnd      = hwnd;
-                //createInfo.hinstance = GetModuleHandle(nullptr);
-
-                //if (vkCreateWin32SurfaceKHR(m_Instance, &createInfo, nullptr, &m_Surface))
-                //    RAZIX_CORE_ERROR("[Vulkan] Failed to create surface! for native window");
-                //else
-                //    RAZIX_CORE_TRACE("[Vulkan] Successfully created surface for native window!");
-
-                m_Surface = *(VkSurfaceKHR*) window;
-    #endif
-            }
+            if (glfwCreateWindowSurface(m_Instance, (GLFWwindow*) window, nullptr, &m_Surface))
+                RAZIX_CORE_ERROR("[Vulkan] Failed to create surface!");
+            else
+                RAZIX_CORE_TRACE("[Vulkan] Succesfully created surface!");
         }
     }    // namespace Gfx
 }    // namespace Razix
