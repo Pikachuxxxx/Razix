@@ -38,7 +38,7 @@ namespace Razix {
 
 #define CUBEMAP_LAYERS                6
 #define CUBEMAP_DIM                   1024
-#define IRRADIANCE_MAP_DIM            32
+#define IRRADIANCE_MAP_DIM            64
 #define PREFILTERED_MAP_DIM           128
 #define IBL_DISPATCH_THREAD_GROUP_DIM 32
 

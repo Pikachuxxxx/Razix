@@ -88,7 +88,7 @@ namespace Razix {
                     builder.read(sceneLightsDataBlock.lightsDataBuffer);
                     builder.read(shadowData.shadowMap);
                     builder.read(shadowData.lightVP);
-                    builder.read(globalLightProbes.environmentMap);
+//                    builder.read(globalLightProbes.environmentMap);
                     builder.read(globalLightProbes.diffuseIrradianceMap);
                     builder.read(globalLightProbes.specularPreFilteredMap);
                     builder.read(gbufferData.GBuffer0);

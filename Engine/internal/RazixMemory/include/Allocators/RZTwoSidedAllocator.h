@@ -7,7 +7,7 @@
 namespace Razix {
     namespace Memory {
 
-        class RZTwoSidedAllocator : public IRZAllocator
+        class RZTwoSidedAllocator final : public IRZAllocator
         {
         public:
             RZTwoSidedAllocator()  = default;
