@@ -4,8 +4,6 @@
 
 #include "Internal/RazixMemory/include/Allocators/RZHeapAllocator.h"
 
-#include <tracy/Tracy.hpp>
-
 // [Source] : https://github.com/PacktPublishing/Mastering-Graphics-Programming-with-Vulkan/blob/2ad4e94a0e003d37dd3dbef46cc033a483f133d6/source/raptor/foundation/data_structures.hpp
 // TODO: since RZResourcePool is only used by the typed version of this, remove it and make the template allocator simpler and use a RZLinearAllocator, this allocator ir provided the by central CPU and GPU allocators for the engine
 
@@ -106,7 +104,6 @@ namespace Razix {
             handle.setGeneration(++index);
             if (index != UINT32_MAX) {
                 T* resource = getInternal(handle);
-                TracyAlloc(resource, m_ResourceSize);
                 return resource;
             }
 
@@ -119,7 +116,6 @@ namespace Razix {
             T* resource = getInternal(handle);
             resource->DestroyResource();
             handle.setGeneration(0);
-            TracyFree(resource);
             RZResourcePool::releaseResource(handle.getIndex());
         }
 

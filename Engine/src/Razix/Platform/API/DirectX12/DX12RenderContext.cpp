@@ -52,7 +52,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
             DX12Utilities::LoadPIXRuntime();
     #endif
 

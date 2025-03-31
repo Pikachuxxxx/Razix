@@ -146,7 +146,7 @@ project "Razix"
     {
         "glfw",
         "imgui",
-        "spdlog", -- Being linked staically by RazixMemory (Only include this in debug and release build exempt this in Distribution build)
+        "spdlog", -- Being linked staically by RazixMemory (Only include this in debug and release build exempt this in GoldMaster build)
         "SPIRVReflect",
         "SPIRVCross",
         "meshoptimizer",
@@ -486,8 +486,8 @@ project "Razix"
             }
         filter {}
 
-    filter "configurations:Distribution"
-        defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
+    filter "configurations:GoldMaster"
+        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
         symbols "On"
         optimize "Full"
         runtime "Release"

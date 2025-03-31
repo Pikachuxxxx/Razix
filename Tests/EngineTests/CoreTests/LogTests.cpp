@@ -77,6 +77,8 @@ namespace Razix {
             }
         };
 
+#ifndef RAZIX_GOLD_MASTER
+
         TEST_F(RZLogTests, LogMessageOrder)
         {
             auto mockSink = std::make_shared<MockSink>();
@@ -203,8 +205,8 @@ namespace Razix {
             EXPECT_EQ(messages.size(), 1) << "No messages should be logged after shutdown.";
         }
 
+#else
         // Test that logging doesn't occur when in distribution mode
-#ifdef RAZIX_DISTRIBUTION
         TEST_F(RZLogTests, DistributionModeLogging)
         {
             auto mockSink = std::make_shared<MockSink>();

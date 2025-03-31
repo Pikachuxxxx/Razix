@@ -45,7 +45,7 @@ project "RZSTL"
         symbols "On"
         runtime "Release"
 
-    filter "configurations:Distribution"
-        defines { "RAZIX_DISTRIBUTION" }
+    filter "configurations:GoldMaster"
+        defines { "RAZIX_GOLD_MASTER" }
         symbols "Off"
         optimize "Full"

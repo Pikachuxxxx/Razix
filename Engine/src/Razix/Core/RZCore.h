@@ -141,10 +141,10 @@
             }                                                                                                        \
         }
 #else
-    #define RAZIX_CORE_ASSERT(x, ...)            x
-    #define RAZIX_ASSERT(x, ...)                 x
-    #define RAZIX_ASSERT_NO_MESSAGE(condition)   condition
-    #define RAZIX_ASSERT_MESSAGE(condition, ...) condition
+    #define RAZIX_CORE_ASSERT(x, ...)
+    #define RAZIX_ASSERT(x, ...)
+    #define RAZIX_ASSERT_NO_MESSAGE(condition)
+    #define RAZIX_ASSERT_MESSAGE(condition, ...)
 #endif
 
 // Max number of objects in a scene

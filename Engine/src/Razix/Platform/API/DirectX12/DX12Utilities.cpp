@@ -19,7 +19,7 @@
     // d3dx12 Helper stuff
     #include <vendor/d3dx12/d3dx12.h>
 
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
         #include <pix3.h>
     #endif
 
@@ -31,16 +31,16 @@ namespace Razix {
 
             void LoadPIXRuntime()
             {
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
                 WinPixEventRuntimeModule = LoadLibrary("WinPixEventRuntime.dll");
                 if (!WinPixEventRuntimeModule)
                     RAZIX_CORE_WARN("[D3D12] could not load WinPixEventRuntime.");
-    #endif    // RAZIX_DISTRIBUTION
+    #endif    // RAZIX_GOLD_MASTER
             }
 
             void CmdBeginLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, float4 color)
             {
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
 
                 if (!WinPixEventRuntimeModule)
                     return;
@@ -52,7 +52,7 @@ namespace Razix {
 
             void CmdInsertLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, float4 color)
             {
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
 
                 if (!WinPixEventRuntimeModule)
                     return;
@@ -65,7 +65,7 @@ namespace Razix {
 
             void CmdEndLabel(ID3D12GraphicsCommandList2* commandList)
             {
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
 
                 if (!WinPixEventRuntimeModule)
                     return;

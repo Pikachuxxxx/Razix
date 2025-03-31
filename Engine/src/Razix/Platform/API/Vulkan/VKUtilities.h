@@ -28,7 +28,7 @@ namespace Razix {
             // Vulkan Tagging
             VkResult CreateDebugObjName(const std::string& name, VkObjectType type, uint64_t handle);
 
-#ifndef RAZIX_DISTRIBUTION
+#ifndef RAZIX_GOLD_MASTER
 
     #define VK_BEGIN_MARKER(cmdBuf, name, labelColor) VKUtilities::CmdBeginDebugUtilsLabelEXT(cmdBuf, name, labelColor);
 

@@ -84,7 +84,7 @@ namespace Razix {
         void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
         {
             memset(&m_LastSwapchainReadback, 0, sizeof(TextureReadback));
-            
+
             m_FrameGraphBuildingInProgress = true;
 
             // Noise texture LUT
@@ -324,10 +324,12 @@ namespace Razix {
             RAZIX_CORE_INFO("Compiling FrameGraph....");
             m_FrameGraph.compile();
 
+#ifndef RAZIX_GOLD_MASTER
             // Dump the Frame Graph for visualization
             // NOTE: Careful this won't write to the Engine directory this is inside bin and build artifact
             // FIXME: Find a way to map VFS to OG Engine path pre-copy or idk just umm...be careful I guess
             ExportFrameGraphVisFile(m_FrameGraph);
+#endif
 
             m_FrameGraphBuildingInProgress = false;
         }

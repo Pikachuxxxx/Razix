@@ -32,7 +32,7 @@ project "meshoptimizer"
         runtime "Release"
         optimize "on"
 
-    filter "configurations:Distribution"
+    filter "configurations:GoldMaster"
         runtime "Release"
         symbols "Off"
         optimize "Full"

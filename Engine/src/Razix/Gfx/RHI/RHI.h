@@ -1,7 +1,5 @@
 #pragma once
 
-#include <tracy/Tracy.hpp>
-
 #include "RZSTL/ring_buffer.h"
 
 #include "Razix/Core/Profiling/RZProfiling.h"

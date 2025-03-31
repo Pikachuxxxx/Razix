@@ -32,19 +32,12 @@ namespace Razix {
         // Load the memory budgets
         RAZIX_CORE_INFO("Loading Department/Global Budgets...");
         bool success = Memory::ParseBudgetFile("//RazixConfig/RazixDepartmentBudgets.ini");
-
-        // TODO: maybe use RAZIX_CORE_ASSERT
-        if (success)
-            RAZIX_CORE_INFO("Department/Global Budgets Load Success!");
-        else {
-            RAZIX_CORE_ERROR("Department/Global Budgets Load Failed! Defaulting...");
-        }
+        RAZIX_CORE_ASSERT(success, "Department/Global Budgets Load Failed!");
 
         // TODO: Load the Map the default world renderer settings file...the scene can override this
         Utilities::RZiniParser worldSettingsParser;
         success = worldSettingsParser.parse("//RazixConfig/DefaultWorldRendererSettings.ini");
-        if (success)
-            RAZIX_CORE_INFO("Default World Renderer Settings Load Success!");
+        RAZIX_CORE_ASSERT(success, "Default World Renderer Settings Load Success!");
 
         // TODO: Temp code remove this!!!
         //std::this_thread::sleep_for(std::chrono::milliseconds(1000));

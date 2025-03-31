@@ -137,7 +137,7 @@ workspace ( settings.workspace_name )
     {
         "Debug",
         "Release",
-        "Distribution"
+        "GoldMaster"
     }
 
     apply_engine_global_config()

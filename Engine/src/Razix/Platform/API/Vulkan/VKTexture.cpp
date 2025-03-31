@@ -206,16 +206,12 @@ namespace Razix {
             if (m_Desc.type == TextureType::kSwapchainImage)
                 return;
 
-            if (bufferName == "$UNNAMED_TEXTURE_RESOURCE")
-                RAZIX_DEBUG_BREAK();
-
             if (!desc.filePath.empty())
                 loadImageDataInfoFromFile();
 
             RAZIX_ASSERT_MESSAGE(desc.width && desc.height, "[VULKAN] cannot create texture with null width/height.");
 
-            if (isDepthFormat() && ((m_ResourceViewHint & kDSV) != kDSV))
-                RAZIX_ASSERT_MESSAGE(false, "[Vulkan] image is depth depth format but doesn't have a kDSV resource hint! Cannot view the image until a proper resourve view is set");
+            RAZIX_ASSERT_MESSAGE(!(isDepthFormat() && ((m_ResourceViewHint & kDSV) != kDSV)), "[Vulkan] image is depth depth format but doesn't have a kDSV resource hint! Cannot view the image until a proper resourve view is set");
 
             VkImageCreateFlags flags = resolveCreateFlags();
 
@@ -234,7 +230,7 @@ namespace Razix {
             if (desc.data) {
                 loadImageDataFromFile();
                 if (m_Desc.ownsInitData)
-                    delete (u8*)m_Desc.data;
+                    delete (u8*) m_Desc.data;
             }
 
             if (m_Desc.enableMips) {

@@ -41,7 +41,7 @@ namespace Razix {
             return BuildConfig::DEBUG;
 #elif RAZIX_RELEASE
             return BuildConfig::RELEASE;
-#elif RAZIX_DISTRIBUTION
+#elif RAZIX_GOLD_MASTER
             return BuildConfig::DISTRIBUTION;
 #endif
         }

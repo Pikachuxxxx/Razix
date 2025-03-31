@@ -27,7 +27,7 @@ namespace Razix {
 
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)
         {
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
 
             // ENABLE THIS WHEN DOING A RENDER DOC CAPTURE! -> API validation is to be disabled and will be done by the config file we pass a different config file for RDC runs
             return VK_FALSE;
@@ -170,7 +170,7 @@ namespace Razix {
             // Create the swapchain (will be auto initialized)
             m_Swapchain = rzstl::CreateUniqueRef<VKSwapchain>(m_Window->getWidth(), m_Window->getHeight());
 
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
         #if RZ_PROFILER_OPTICK
             auto device         = VKDevice::Get().getDevice();
             auto physicalDevice = VKDevice::Get().getGPU();
@@ -179,7 +179,7 @@ namespace Razix {
             OPTICK_GPU_INIT_VULKAN(&device, &physicalDevice, &queuefam, &numQueues, 1, nullptr);
         #endif    // RZ_PROFILER_OPTICK
 
-    #endif    // RAZIX_DISTRIBUTION
+    #endif    // RAZIX_GOLD_MASTER
 
     #if RAZIX_USE_VMA
             // Now create the Vulkan Memory Allocator (VMA)

@@ -23,7 +23,7 @@
 // Graphics API will have separate colors for different parts such as for draw commands, pipeline binds etc.
 #define RZ_PROFILE_COLOR_GRAPHICS_API_DRAW_CALLS 0x8B0000
 
-#ifndef RAZIX_DISTRIBUTION
+#ifndef RAZIX_GOLD_MASTER
     // Tracy
     #if RZ_PROFILER_TRACY
         #define TRACY_CALLSTACK 1
@@ -96,7 +96,7 @@
     #endif
 #endif
 
-#ifdef RAZIX_DISTRIBUTION
+#ifdef RAZIX_GOLD_MASTER
     #define RAZIX_PROFILE_SCOPE(name)
     #define RAZIX_PROFILE_SCOPEC(name, color)
     #define RAZIX_PROFILE_FUNCTION()

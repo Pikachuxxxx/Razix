@@ -43,27 +43,27 @@ namespace Razix {
                 // No need of memory or transitions barriers if it's a imported resource, it's always a read only resource! since we IMPORT DATA!
 
                 // TODO: Handle other types of layout based using automatic deduction inside frame graph
-                //RZTexture*    textureResource = RZResourceManager::Get().getPool<RZTexture>().get(m_TextureHandle);
-                //RZTextureDesc textureDesc     = CAST_TO_FG_TEX_DESC desc;
+                RZTexture*    textureResource = RZResourceManager::Get().getPool<RZTexture>().get(m_TextureHandle);
+                RZTextureDesc textureDesc     = CAST_TO_FG_TEX_DESC desc;
 
-                //// Determine the appropriate layout for reading based on texture type and flags
-                //ImageLayout newLayout = ImageLayout::kShaderRead;
+                // Determine the appropriate layout for reading based on texture type and flags
+                ImageLayout newLayout = ImageLayout::kShaderRead;
 
-                //// Special cases for different texture types
-                //if (textureDesc.format == TextureFormat::DEPTH32F ||
-                //    textureDesc.format == TextureFormat::DEPTH_STENCIL ||
-                //    textureDesc.format == TextureFormat::DEPTH16_UNORM) {
-                //    // Depth textures should use depth read-only layout when read
-                //    newLayout = ImageLayout::kDepthStencilReadOnly;
-                //} else if (textureDesc.initResourceViewHints == kTransferSrc) {
-                //    // When being read as a transfer source
-                //    newLayout = ImageLayout::kTransferSource;
-                //}
+                // Special cases for different texture types
+                if (textureDesc.format == TextureFormat::DEPTH32F ||
+                    textureDesc.format == TextureFormat::DEPTH_STENCIL ||
+                    textureDesc.format == TextureFormat::DEPTH16_UNORM) {
+                    // Depth textures should use depth read-only layout when read
+                    newLayout = ImageLayout::kDepthStencilReadOnly;
+                } else if ((textureDesc.initResourceViewHints & kTransferSrc) == kTransferSrc) {
+                    // When being read as a transfer source
+                    newLayout = ImageLayout::kTransferSource;
+                }
 
-                //// Get current layout from the resource and transition if needed
-                //ImageLayout               oldLayout = textureResource->getCurrentLayout();
-                //RZDrawCommandBufferHandle cmdBuffer = RHI::Get().GetCurrentCommandBuffer();
-                //RHI::InsertImageMemoryBarrier(cmdBuffer, m_TextureHandle, ImageLayout::kColorRenderTarget, ImageLayout::kShaderRead);
+                // Get current layout from the resource and transition if needed
+                ImageLayout               oldLayout = textureResource->getCurrentLayout();
+                RZDrawCommandBufferHandle cmdBuffer = RHI::Get().GetCurrentCommandBuffer();
+                RHI::InsertImageMemoryBarrier(cmdBuffer, m_TextureHandle, ImageLayout::kColorRenderTarget, ImageLayout::kShaderRead);
             }
 
             void RZFrameGraphTexture::preWrite(const Desc& desc, uint32_t flags)

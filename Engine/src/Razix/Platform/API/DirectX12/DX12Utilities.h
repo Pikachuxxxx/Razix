@@ -16,7 +16,7 @@ namespace Razix {
             x = nullptr;        \
         }
 
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
 
         #define D3D12_TAG_OBJECT(handle, name) handle->SetName(name);
     #else

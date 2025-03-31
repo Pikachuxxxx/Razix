@@ -142,7 +142,7 @@ namespace Razix {
 
 // Update VMA for Budget Queries
 #if RAZIX_USE_VMA
-    #ifndef RAZIX_DISTRIBUTION    // Only for debugging purposes
+    #ifndef RAZIX_GOLD_MASTER    // Only for debugging purposes
             vmaSetCurrentFrameIndex(VKDevice::Get().getVMA(), RHI::Get().GetSwapchain()->getCurrentFrameIndex());
 
                 // Get Heap Statistics
