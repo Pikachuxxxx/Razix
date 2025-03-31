@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 namespace Razix {
     namespace Gfx {
 
@@ -33,11 +31,11 @@ namespace Razix {
                 void preRead(const Desc& desc, uint32_t flags);
                 void preWrite(const Desc& desc, uint32_t flags);
 
-                Gfx::RZTextureHandle getHandle() { return m_TextureHandle; }
+                Gfx::RZTextureHandle getHandle() const { return m_TextureHandle; }
 
             public:
                 Gfx::RZTextureHandle m_TextureHandle;
             };
         }    // namespace FrameGraph
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix
