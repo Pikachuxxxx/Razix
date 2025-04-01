@@ -519,7 +519,7 @@ namespace Razix {
                 Resolution resolution = s_StringToResolutionsMap[renderInfo["resolution"]];
                 bool       resize     = renderInfo["resize"].get<bool>();
                 auto      &extents    = renderInfo["extents"];
-                float2  extent     = float2(0.0f);
+                float2     extent     = float2(0.0f);
                 if (!extents.empty()) {
                     extent.x = extents["x"].get<float>();
                     extent.y = extents["y"].get<float>();
@@ -609,11 +609,14 @@ namespace Razix {
 
                     // Call pre read and pre write functions on the resource before the execute function
                     // Safety of existence is taken care in the ResourceEntry class
+                    // Skip if they are imported resource, since imported resources are always Read only data!
                     for (auto &&[id, flags]: pass.m_Reads) {
-                        getResourceEntry(id).getConcept()->preRead(flags);
+                        if (getResourceEntry(id).isTransient())
+                            getResourceEntry(id).getConcept()->preRead(flags);
                     }
                     for (auto &&[id, flags]: pass.m_Writes) {
-                        getResourceEntry(id).getConcept()->preWrite(flags);
+                        if (getResourceEntry(id).isTransient())
+                            getResourceEntry(id).getConcept()->preWrite(flags);
                     }
 
                     // call the ExecuteFunc (same for Code and DataDriven passes)
