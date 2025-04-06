@@ -138,6 +138,7 @@ namespace Razix {
                 engineConfigParser.getValue<bool>("Rendering", "EnableAPIValidation", m_EngineSettings.EnableAPIValidation);
                 engineConfigParser.getValue<bool>("Rendering", "EnableMSAA", m_EngineSettings.EnableMSAA);
                 engineConfigParser.getValue<bool>("Rendering", "EnableBindless", m_EngineSettings.EnableBindless);
+                engineConfigParser.getValue<bool>("Rendering", "EnableBarrierLogging", m_EngineSettings.EnableBarrierLogging);
 
                 int perfMode = 0;
                 engineConfigParser.getValue<int>("Rendering", "PerfMode", perfMode);

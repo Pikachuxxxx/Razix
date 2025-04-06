@@ -151,7 +151,10 @@ namespace Razix {
 
                         if (texturePtr) {
                             VKTexture* backendPtr = static_cast<VKTexture*>(texturePtr);
-                            backendPtr->transitonImageLayoutToSRV();
+                            // only if it's not a UAV at all
+                            ResourceViewHint viewHints = (ResourceViewHint) backendPtr->getDescription().initResourceViewHints;
+                            if ((viewHints & kUAV) != kUAV)
+                                backendPtr->transitonImageLayoutToSRV();
 
                             m_ImageInfoPool[imageWriteIdx].imageLayout = backendPtr->getImageLayoutValue();
                             m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getFullSRVImageView();

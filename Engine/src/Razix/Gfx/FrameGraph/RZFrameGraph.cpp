@@ -564,7 +564,7 @@ namespace Razix {
                 }
 
                 // Calculate resources lifetime:
-                // TODO: Improve this!
+                // TODO: Implement this!
 
                 for (auto &pass: m_PassNodes) {
                     if (pass.m_RefCount == 0) continue;
@@ -595,7 +595,7 @@ namespace Razix {
                     for (const auto &id: pass.m_Creates)
                         getResourceEntry(id).getConcept()->create(transientAllocator);
 
-                    // Call pre read and pre write functions on the resource before the execute function
+                    // Call pre-read and pre-write functions on the resource before the execute function
                     // Safety of existence is taken care in the ResourceEntry class
                     // Skip if they are imported resource, since imported resources are always Read only data!
                     for (auto &&[id, flags]: pass.m_Reads) {
