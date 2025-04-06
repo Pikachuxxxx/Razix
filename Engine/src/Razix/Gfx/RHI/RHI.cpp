@@ -89,6 +89,14 @@ namespace Razix {
             s_APIInstance->OnResizeAPIImpl(width, height);
         }
 
+        void RHI::FlushPendingWork()
+        {
+            RAZIX_PROFILE_GPU_SCOPE("FlushPendingWork");
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            s_APIInstance->FlushPendingWorkImpl();
+        }
+
         //------------------------------------------------------------------------
         // Command Recording & Submission
         void RHI::AcquireImage(RZSemaphore* signalSemaphore)

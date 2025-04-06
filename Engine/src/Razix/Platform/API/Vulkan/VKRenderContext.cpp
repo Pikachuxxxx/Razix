@@ -523,195 +523,198 @@ namespace Razix {
             vkCmdSetDepthBias(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), depthBiasConstant, 0.0f, depthBiasSlope);
         }
 
-    void VKRenderContext::InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, ImageLayout oldLayout, ImageLayout newLayout)
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-        // Get the actual resource
-        RZTexture* textureResource = RZResourceManager::Get().getPool<RZTexture>().get(texture);
-        VKTexture* vkTexture       = static_cast<VKTexture*>(textureResource);
-
-        // Update with the new layout
-        vkTexture->setImageLayoutValue((VkImageLayout) VKUtilities::EngineImageLayoutToVK(newLayout));
-
-        VkImageMemoryBarrier barrier = {};
-        barrier.sType                = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        barrier.oldLayout            = (VkImageLayout) VKUtilities::EngineImageLayoutToVK(oldLayout);
-        barrier.newLayout            = (VkImageLayout) VKUtilities::EngineImageLayoutToVK(newLayout);
-        barrier.srcQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
-        barrier.dstQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
-        barrier.image                = vkTexture->getImage();
-
-        auto format = VKUtilities::TextureFormatToVK(vkTexture->getFormat());
-
-        // Handle depth/stencil aspect masks
-        if (format >= 124 && format <= 130)    // All possible depth formats
+        void VKRenderContext::InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, ImageLayout oldLayout, ImageLayout newLayout)
         {
-            barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-            
-            // Check if format has stencil component
-            if (format == VK_FORMAT_D24_UNORM_S8_UINT || format == VK_FORMAT_D32_SFLOAT_S8_UINT)
-                barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
-        }
-        else
-            barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        
-        barrier.subresourceRange.baseMipLevel   = textureResource->getCurrentMipLevel();
-        barrier.subresourceRange.levelCount     = textureResource->getMipsCount();
-        barrier.subresourceRange.baseArrayLayer = textureResource->getBaseArrayLayer();
-        barrier.subresourceRange.layerCount     = textureResource->getLayersCount();
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-        // Determine access masks and pipeline stages based on layouts
-        VkAccessFlags srcAccessMask = 0;
-        VkAccessFlags dstAccessMask = 0;
-        VkPipelineStageFlags srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-        VkPipelineStageFlags dstStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+            // Get the actual resource
+            RZTexture* textureResource = RZResourceManager::Get().getPool<RZTexture>().get(texture);
+            VKTexture* vkTexture       = static_cast<VKTexture*>(textureResource);
 
-        // Source access mask - what operations must complete before the barrier
-        switch (oldLayout)
-        {
-            case ImageLayout::kNewlyCreated:
-                srcAccessMask = 0;
-                srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-                break;
-                
-            case ImageLayout::kGeneric:
-                srcAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
-                srcStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-                break;
-                
-            case ImageLayout::kColorRenderTarget:
-                srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-                srcStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-                break;
-                
-            case ImageLayout::kDepthRenderTarget:
-            case ImageLayout::kDepthStencilRenderTarget:
-                srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-                srcStage = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-                break;
-                
-            case ImageLayout::kDepthStencilReadOnly:
-                srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-                srcStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-                break;
-                
-            case ImageLayout::kShaderRead:
-                srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
-                srcStage = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
-                           VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
-                           VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
-                break;
-                
-            case ImageLayout::kShaderWrite:
-                srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-                srcStage = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
-                           VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
-                           VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
-                break;
-                
-            case ImageLayout::kTransferSource:
-                srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-                srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-                break;
-                
-            case ImageLayout::kTransferDestination:
-                srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-                srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-                break;
-                
-            case ImageLayout::kSwapchain:
-                srcAccessMask = 0;
-                srcStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-                break;
-                
-            default:
-                srcAccessMask = 0;
-                srcStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-                break;
-        }
+            // Update current layout with the new layout
+            textureResource->setCurrentLayout(newLayout);
+            vkTexture->setImageLayoutValue((VkImageLayout) VKUtilities::EngineImageLayoutToVK(newLayout));
 
-        // Destination access mask - operations that wait for the barrier
-        switch (newLayout)
-        {
-            case ImageLayout::kGeneric:
-                dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
-                dstStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-                break;
-                
-            case ImageLayout::kColorRenderTarget:
-                dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
-                dstStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-                break;
-                
-            case ImageLayout::kDepthRenderTarget:
-            case ImageLayout::kDepthStencilRenderTarget:
-                dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-                dstStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-                break;
-                
-            case ImageLayout::kDepthStencilReadOnly:
-                dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_SHADER_READ_BIT;
-                dstStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
-                           VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT |
-                           VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-                break;
-                
-            case ImageLayout::kShaderRead:
-                dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-                dstStage = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
-                           VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
-                           VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
-                break;
-                
-            case ImageLayout::kShaderWrite:
-                dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-                dstStage = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
-                           VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
-                           VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
-                break;
-                
-            case ImageLayout::kTransferSource:
-                dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-                dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-                break;
-                
-            case ImageLayout::kTransferDestination:
-                dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-                dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-                break;
-                
-            case ImageLayout::kSwapchain:
-                dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-                dstStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-                break;
-                
-            default:
-                dstAccessMask = 0;
-                dstStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-                break;
-        }
+            VkImageMemoryBarrier barrier = {};
+            barrier.sType                = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            barrier.oldLayout            = (VkImageLayout) VKUtilities::EngineImageLayoutToVK(oldLayout);
+            barrier.newLayout            = (VkImageLayout) VKUtilities::EngineImageLayoutToVK(newLayout);
+            barrier.srcQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
+            barrier.dstQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
+            barrier.image                = vkTexture->getImage();
 
-        barrier.srcAccessMask = srcAccessMask;
-        barrier.dstAccessMask = dstAccessMask;
+            auto format = VKUtilities::TextureFormatToVK(vkTexture->getFormat());
 
-        auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
+            // Handle depth/stencil aspect masks
+            if (format >= 124 && format <= 130)    // All possible depth formats
+            {
+                barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
-        for (u32 layer = 0; layer < textureResource->getLayersCount(); layer++) {
-            for (u32 mip = 0; mip < textureResource->getMipsCount(); mip++) {
-                barrier.subresourceRange.baseMipLevel   = mip;
-                barrier.subresourceRange.levelCount     = 1;
-                barrier.subresourceRange.baseArrayLayer = layer;
-                barrier.subresourceRange.layerCount     = 1;
-                // Use a pipeline barrier to make sure the transition is done properly
-                vkCmdPipelineBarrier(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(),
-                                     srcStage, dstStage, 0,
-                                     0, nullptr,
-                                     0, nullptr,
-                                     1, &barrier);
+                // Check if format has stencil component
+                if (format == VK_FORMAT_D24_UNORM_S8_UINT || format == VK_FORMAT_D32_SFLOAT_S8_UINT)
+                    barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            } else
+                barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+            barrier.subresourceRange.baseMipLevel   = textureResource->getCurrentMipLevel();
+            barrier.subresourceRange.levelCount     = textureResource->getMipsCount();
+            barrier.subresourceRange.baseArrayLayer = textureResource->getBaseArrayLayer();
+            barrier.subresourceRange.layerCount     = textureResource->getLayersCount();
+
+            // Determine access masks and pipeline stages based on layouts
+            VkAccessFlags        srcAccessMask = 0;
+            VkAccessFlags        dstAccessMask = 0;
+            VkPipelineStageFlags srcStage      = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            VkPipelineStageFlags dstStage      = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+
+            // Source access mask - what operations must complete before the barrier
+            switch (oldLayout) {
+                case ImageLayout::kNewlyCreated:
+                    srcAccessMask = 0;
+                    srcStage      = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                    break;
+
+                case ImageLayout::kGeneric:
+                    srcAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+                    break;
+
+                case ImageLayout::kColorRenderTarget:
+                    srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+                    break;
+
+                case ImageLayout::kDepthRenderTarget:
+                case ImageLayout::kDepthStencilRenderTarget:
+                    srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+                    break;
+
+                case ImageLayout::kDepthStencilReadOnly:
+                    srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+                    break;
+
+                case ImageLayout::kShaderRead:
+                    srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
+                               VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
+                               VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    break;
+
+                case ImageLayout::kShaderWrite:
+                    srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
+                               VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
+                               VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    break;
+
+                case ImageLayout::kTransferSource:
+                    srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                    break;
+
+                case ImageLayout::kTransferDestination:
+                    srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                    break;
+
+                case ImageLayout::kSwapchain:
+                    srcAccessMask = 0;
+                    srcStage      = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+                    break;
+
+                default:
+                    srcAccessMask = 0;
+                    srcStage      = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+                    break;
+            }
+
+            // Destination access mask - operations that wait for the barrier
+            switch (newLayout) {
+                case ImageLayout::kGeneric:
+                    dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+                    break;
+
+                case ImageLayout::kColorRenderTarget:
+                    dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+                    break;
+
+                case ImageLayout::kDepthRenderTarget:
+                case ImageLayout::kDepthStencilRenderTarget:
+                    dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+                    break;
+
+                case ImageLayout::kDepthStencilReadOnly:
+                    dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_SHADER_READ_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+                               VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT |
+                               VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                    break;
+
+                case ImageLayout::kShaderRead:
+                    dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
+                               VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
+                               VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    break;
+
+                case ImageLayout::kShaderWrite:
+                    dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
+                               VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
+                               VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    break;
+
+                case ImageLayout::kTransferSource:
+                    dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                    break;
+
+                case ImageLayout::kTransferDestination:
+                    dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                    break;
+
+                case ImageLayout::kSwapchain:
+                    dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+                    break;
+
+                default:
+                    dstAccessMask = 0;
+                    dstStage      = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+                    break;
+            }
+
+            barrier.srcAccessMask = srcAccessMask;
+            barrier.dstAccessMask = dstAccessMask;
+
+            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
+
+            for (u32 layer = 0; layer < textureResource->getLayersCount(); layer++) {
+                for (u32 mip = 0; mip < textureResource->getMipsCount(); mip++) {
+                    barrier.subresourceRange.baseMipLevel   = mip;
+                    barrier.subresourceRange.levelCount     = 1;
+                    barrier.subresourceRange.baseArrayLayer = layer;
+                    barrier.subresourceRange.layerCount     = 1;
+                    // Use a pipeline barrier to make sure the transition is done properly
+                    vkCmdPipelineBarrier(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(),
+                        srcStage,
+                        dstStage,
+                        0,
+                        0,
+                        nullptr,
+                        0,
+                        nullptr,
+                        1,
+                        &barrier);
+                }
             }
         }
-    }
 
         void VKRenderContext::InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
         {
@@ -763,13 +766,6 @@ namespace Razix {
 
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdCopyImage(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), vkSrcTexture->getImage(), /*vkSrcTexture->getLayout()*/ VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkDstTexture->getImage(), /*vkDstTexture->getLayout()*/ VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
-
-            // restore the dst and src image layouts to original state aka shader read only optimal
-            //vkDstTexture->setImageLayoutValue(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-            //VKUtilities::TransitionImageLayout(vkDstTexture->getImage(), VKUtilities::TextureFormatToVK(vkDstTexture->getFormat()), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vkDstTexture->getImageLayoutValue(), vkDstTexture->getMipsCount(), vkDstTexture->getLayersCount());
-
-            //vkSrcTexture->setImageLayoutValue(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-            //VKUtilities::TransitionImageLayout(vkSrcTexture->getImage(), VKUtilities::TextureFormatToVK(vkSrcTexture->getFormat()), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkSrcTexture->getImageLayoutValue(), vkSrcTexture->getMipsCount(), vkSrcTexture->getLayersCount());
         }
 
         void VKRenderContext::SetViewportImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
@@ -840,7 +836,7 @@ namespace Razix {
             }
             VKUtilities::TransitionImageLayout(backendResource->getImage(), VKUtilities::TextureFormatToVK(desc.format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, initialLayout);
 
-            readback.data = malloc(readbackSize);
+            readback.data = Memory::RZMalloc(readbackSize);
             textureReadbackTransferBuffer.map();
             memcpy(readback.data, textureReadbackTransferBuffer.getMappedRegion(), readbackSize);
             textureReadbackTransferBuffer.unMap();
@@ -853,5 +849,11 @@ namespace Razix {
 
             return readback;
         }
+
+        void VKRenderContext::FlushPendingWorkImpl()
+        {
+            vkDeviceWaitIdle(VKDevice::Get().getDevice());
+        }
+
     }    // namespace Gfx
 }    // namespace Razix

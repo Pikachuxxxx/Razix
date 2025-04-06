@@ -152,7 +152,7 @@ namespace Razix {
             kSwapchainImage,
             COUNT
         };
-    
+
         // TODO: Collapse all Format enums into a single enum, maybe use TinyImageFormat if needed be
 
         /* The format of the Texture resource */
@@ -206,7 +206,7 @@ namespace Razix {
             R32G32B32A32_FLOAT,
             COUNT
         };
-    
+
         /* The shader data type */
         enum class ShaderDataType : u32
         {
@@ -944,6 +944,22 @@ namespace Razix {
             {Resolution::k1440p, uint2(2560, 1440)},
             {Resolution::k4KUpscaled, uint2(3840, 2160)},
             {Resolution::k4KNative, uint2(3840, 2160)}};
+
+        static const char* ImageLayoutNames[] =
+            {
+                "NewlyCreated",
+                "Generic",
+                "Swapchain",
+                "ColorRenderTarget",
+                "DepthRenderTarget",
+                "DepthStencilRenderTarget",
+                "DepthStencilReadOnly",
+                "ShaderRead",
+                "ShaderWrite",
+                "TransferSource",
+                "TransferDestination"};
+
+        RAZIX_ENUM_NAMES_ASSERT(ImageLayoutNames, ImageLayout);
 
         static const char* ClearColorPresetsNames[] =
             {

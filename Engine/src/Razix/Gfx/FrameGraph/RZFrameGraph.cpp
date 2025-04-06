@@ -602,6 +602,9 @@ namespace Razix {
                     // Only it it's executable and not culled
                     if (!pass.canExecute()) continue;
 
+                    RAZIX_CORE_INFO("=============PASS START=================");
+                    RAZIX_CORE_INFO("[Pass] executing pass: {0}", pass.m_Name);
+
                     // Call create for all the resources created by this node : Lazy Allocation --> helps with memory aliasing (pass transient resources)
                     // Even for Data Driven passes this works be cause we create the RZFrameGraphTexture/Buffer while parsing the JSON graph and we have a pseudo SetupFunc
                     for (const auto &id: pass.m_Creates)
@@ -634,6 +637,8 @@ namespace Razix {
                     //for (auto &entry: m_ResourceRegistry)
                     //    if (entry.m_Last == &pass && entry.isTransient())
                     //        entry.getConcept()->destroy(transientAllocator);
+
+                    RAZIX_CORE_INFO("=============PASS END===================");
                 }
 
                 // End first frame identifier

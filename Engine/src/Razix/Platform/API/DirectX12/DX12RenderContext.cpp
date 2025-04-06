@@ -323,6 +323,10 @@ namespace Razix {
             return readback;
         }
 
+        void DX12RenderContext::FlushPendingWorkImpl()
+        {
+            RAZIX_UNIMPLEMENTED_METHOD
+        }
     }    // namespace Gfx
 }    // namespace Razix
 

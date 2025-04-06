@@ -62,6 +62,7 @@ namespace Razix {
             inline u32                  getLayersCount() const { return m_Desc.layers; }
             inline u32                  getMipsCount() const { return m_TotalMipLevels; }
             inline ImageLayout          getCurrentLayout() const { return m_CurrentLayout; }
+            inline void                 setCurrentLayout(ImageLayout layout) { m_CurrentLayout = layout; }
 
         protected:
             RZTextureDesc m_Desc                     = {};

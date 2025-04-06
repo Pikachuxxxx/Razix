@@ -18,8 +18,9 @@ namespace Razix {
         struct RZPushConstant;
 
         // TODO: Compile this into a C dynamic library that Razix.dll links with
-        // TODO: Move Platform/API/Vulkan and DirectX12 to here and name it RHI_Backend and compile RHI as one C11 big library
-        // https://github.com/Pikachuxxxx/Razix/issues/384
+        // TODO: Move Platform/API/Vulkan and DirectX12 to here and use dispatch tables to load the RHI.dll dynamically, RHI is part of engine and the implementation DLLs can be hot swapped
+        // we can separate RHI_entry.dll and load the RHI_vk/RHI_dx12/RHI_shipping_backend.dll as needed but It's fine if the engine has some interface like RHI dispatch table.
+        // More Info on design: https://github.com/Pikachuxxxx/Razix/issues/384
 
         /* The Razix RHI (Render Hardware Interface) provides a interface and a set of common methods that abstracts over other APIs rendering implementation
          * The Renderers creates from the provided IRZRenderer interface of Razix uses this to perform command recording/submission sets binding
@@ -41,6 +42,9 @@ namespace Razix {
 
             static void Init();
             static void OnResize(u32 width, u32 height);
+
+            // Debug Flush Test
+            static void FlushPendingWork();
 
             // Command Recording & Submission
             static void
@@ -121,6 +125,7 @@ namespace Razix {
             virtual void            InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo) = 0;
             virtual void            CopyTextureResourceImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)                                                        = 0;
             virtual TextureReadback InsertTextureReadbackImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture)                                                                                           = 0;
+            virtual void            FlushPendingWorkImpl()                                                                                                                                                            = 0;
             virtual RZSwapchain*    GetSwapchainImpl()                                                                                                                                                                = 0;
 
         protected:

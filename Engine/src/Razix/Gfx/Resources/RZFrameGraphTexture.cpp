@@ -53,7 +53,10 @@ namespace Razix {
                 }
 
                 ImageLayout oldLayout = textureResource->getCurrentLayout();
+                RAZIX_CORE_INFO("[ReadBarrier::Texture] resource name: {0} | old layout: {1} | new layout: {2}", textureDesc.name, ImageLayoutNames[(u32) oldLayout], ImageLayoutNames[(u32) newLayout]);
                 RHI::InsertImageMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_TextureHandle, oldLayout, newLayout);
+
+                //RHI::Get().FlushPendingWork();
             }
 
             void RZFrameGraphTexture::preWrite(const Desc& desc, uint32_t flags)
@@ -63,15 +66,15 @@ namespace Razix {
                 RZTexture*    textureResource = RZResourceManager::Get().getPool<RZTexture>().get(m_TextureHandle);
                 RZTextureDesc textureDesc     = CAST_TO_FG_TEX_DESC desc;
 
-                ImageLayout newLayout = ImageLayout::kShaderWrite;
+                ImageLayout newLayout = ImageLayout::kColorRenderTarget;
 
                 if (textureDesc.format == TextureFormat::DEPTH32F ||
                     textureDesc.format == TextureFormat::DEPTH16_UNORM) {
                     newLayout = ImageLayout::kDepthStencilRenderTarget;
                 } else if (textureDesc.format == TextureFormat::DEPTH_STENCIL) {
                     newLayout = ImageLayout::kDepthRenderTarget;
-                } else if ((textureDesc.initResourceViewHints & kRTV) == kRTV) {
-                    newLayout = ImageLayout::kColorRenderTarget;
+                } else if ((textureDesc.initResourceViewHints & kUAV) == kUAV) {
+                    newLayout = ImageLayout::kShaderWrite;
                 } else if ((textureDesc.initResourceViewHints & kTransferDst) == kTransferDst) {
                     newLayout = ImageLayout::kTransferDestination;
                 } else if (textureDesc.format == TextureFormat::SCREEN) {
@@ -79,7 +82,10 @@ namespace Razix {
                 }
 
                 ImageLayout oldLayout = textureResource->getCurrentLayout();
+                RAZIX_CORE_INFO("[WriteBarrier::Texture] resource name: {0} | old layout: {1} | new layout: {2}", textureDesc.name, ImageLayoutNames[(u32) oldLayout], ImageLayoutNames[(u32) newLayout]);
                 RHI::InsertImageMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_TextureHandle, oldLayout, newLayout);
+
+                //RHI::Get().FlushPendingWork();
             }
         }    // namespace FrameGraph
     }        // namespace Gfx
