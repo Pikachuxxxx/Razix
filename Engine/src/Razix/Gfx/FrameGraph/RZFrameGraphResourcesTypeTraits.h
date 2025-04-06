@@ -43,13 +43,17 @@ namespace Razix {
              * But, Hey! we at least know what to check for! but just not on what so we'll at least specify that
              */
 
+            // Mandatory checks
+            // Checks for Sub types - Desc
+            RAZIX_CHECK_TYPE_HAS_SUBTYPE(T, Desc);
+            // functions
             RAZIX_CHECK_TYPE_HAS_FUNCTION(T, create);
             RAZIX_CHECK_TYPE_HAS_FUNCTION(T, destroy);
+            // Optional functions
+            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, resize);
+            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, preRead)
+            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, preWrite)
             RAZIX_CHECK_TYPE_HAS_FUNCTION(T, toString);
-
-            // Checks for Sub types - Desc
-
-            RAZIX_CHECK_TYPE_HAS_SUBTYPE(T, Desc);
 
             /**
              * How to know if it's a valid resource (the one that is being passes as universal reference to the concept class)
@@ -95,5 +99,5 @@ namespace Razix {
 #define ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE template<typename T, typename = std::enable_if_t<is_acceptible_frame_graph_resource<T>()>>
 
         }    // namespace FrameGraph
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

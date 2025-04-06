@@ -136,7 +136,7 @@ namespace Razix {
             // Create the Vulkan instance to interface with the Vulkan library
             createInstance();
 
-            if (RZApplication::Get().getAppType() == AppType::GAME) {
+            if (RZApplication::Get().getAppType() == AppType::kGame) {
                 SetupDeviceAndSC();
             }
 
@@ -292,7 +292,7 @@ namespace Razix {
             // Create the debug utils
             setupDebugMessenger();
 
-            if (RZApplication::Get().getAppType() == AppType::GAME) {
+            if (RZApplication::Get().getAppType() == AppType::kGame) {
                 CreateSurface((GLFWwindow*) m_Window->GetNativeWindow());
             }
         }

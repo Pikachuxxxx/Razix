@@ -74,6 +74,8 @@ namespace Razix {
 
         void VKTexture::Resize(u32 width, u32 height)
         {
+            if (!m_Desc.allowResize) return;
+
             m_Desc.width  = width;
             m_Desc.height = height;
 
@@ -245,6 +247,8 @@ namespace Razix {
                 createFullResourceViews();
 
             VkImageLayout m_FinalImageLayout = (m_ResourceViewHint & kUAV) == kUAV ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            if ((m_ResourceViewHint & kDSV) == kDSV)
+                m_FinalImageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, m_FinalImageLayout, m_TotalMipLevels, desc.layers);
             m_OldImageLayout = m_FinalImageLayout;
         }

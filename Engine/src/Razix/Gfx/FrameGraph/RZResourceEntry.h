@@ -13,9 +13,6 @@ namespace Razix {
     namespace Gfx {
         namespace FrameGraph {
 
-            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, preRead)
-            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, preWrite)
-
             // [Type Erasure] Source 1 : https://madptr.com/posts/2023-06-24-typeerasureintro/
             // [SFINAE] Source 1 : https://en.cppreference.com/w/cpp/language/sfinae
             // [SFINAE] Source 2 :  https://www.cppstories.com/2016/02/notes-on-c-sfinae/
@@ -58,6 +55,8 @@ namespace Razix {
                     // Optional functions so we don't check for existence of these functions on the type rather on model before calling them
                     virtual void preRead(uint32_t flags)  = 0;
                     virtual void preWrite(uint32_t flags) = 0;
+
+                    virtual void resize(u32 width, u32 height) = 0;
 
                     virtual std::string toString() const = 0;
                 };
@@ -121,6 +120,13 @@ namespace Razix {
                         // Since these functions are optional for a resource to have and not enforce we check here before calling them
                         if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, preWrite))
                             resource.preWrite(descriptor, flags);
+                    }
+
+                    void resize(u32 width, u32 height)
+                    {
+                        // Since these functions are optional for a resource to have and not enforce we check here before calling them
+                        if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, resize))
+                            resource.resize(width, height);
                     }
 
                     std::string toString() const final

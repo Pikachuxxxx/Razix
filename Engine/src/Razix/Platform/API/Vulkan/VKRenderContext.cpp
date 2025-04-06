@@ -291,12 +291,6 @@ namespace Razix {
             for (auto& attachment: renderingInfo.colorAttachments) {
                 RZTexture* colorAttachment = RZResourceManager::Get().getPool<RZTexture>().get(attachment.first);
 
-                // Resize attachments when resized
-                if (renderingInfo.resize) {
-                    if (m_Width != colorAttachment->getWidth() || m_Height != colorAttachment->getHeight())
-                        colorAttachment->Resize(renderingInfoKHR.renderArea.extent.width, renderingInfoKHR.renderArea.extent.height);
-                }
-
                 // Fill the color attachments first
                 VkRenderingAttachmentInfoKHR attachInfo{};
                 attachInfo.sType      = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
@@ -335,11 +329,6 @@ namespace Razix {
             VkRenderingAttachmentInfoKHR attachInfo{};
             if (renderingInfo.depthAttachment.first.isValid()) {
                 RZTexture* depthAttachment = RZResourceManager::Get().getPool<RZTexture>().get(renderingInfo.depthAttachment.first);
-                // Depth attachment resize
-                if (renderingInfo.resize) {
-                    if (m_Width != depthAttachment->getWidth() || m_Height != depthAttachment->getHeight())
-                        depthAttachment->Resize(renderingInfoKHR.renderArea.extent.width, renderingInfoKHR.renderArea.extent.height);
-                }
 
                 // Fill the color attachments first
                 attachInfo.sType      = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
@@ -486,11 +475,15 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            m_IsResizing = true;
+
             m_Width  = width;
             m_Height = height;
 
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
             m_Context->getSwapchain().get()->OnResize(width, height);
+
+            m_IsResizing = false;
         }
 
         RZSwapchain* VKRenderContext::GetSwapchainImpl()
@@ -852,6 +845,8 @@ namespace Razix {
 
         void VKRenderContext::FlushPendingWorkImpl()
         {
+            Gfx::RHI::EndRendering(Gfx::RHI::GetCurrentCommandBuffer());
+            Gfx::RHI::Submit(Gfx::RHI::GetCurrentCommandBuffer());
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
         }
 

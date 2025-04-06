@@ -85,14 +85,13 @@ namespace Razix {
                 Gfx::RZPipelineHandle        pipeline;
                 Razix::SceneDrawGeometryMode geometryMode;
                 Resolution                   resolution;
-                bool                         enableResize;
-                float2                    extent;
+                float2                       extent;
                 u32                          layers;
             };
 
             struct RZFrameGraphDataPass final : IRZFrameGraphPass
             {
-                RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawGeometryMode geometryMode, Resolution res, bool resize, float2 extents, u32 layers);
+                RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawGeometryMode geometryMode, Resolution res, float2 extents, u32 layers);
 
                 RAZIX_VIRTUAL_DESCTURCTOR(RZFrameGraphDataPass)
 
@@ -100,8 +99,7 @@ namespace Razix {
                 Gfx::RZPipelineHandle        m_pipeline;
                 Razix::SceneDrawGeometryMode m_geometryMode;
                 Resolution                   m_resolution;
-                bool                         m_enableResize;
-                float2                    m_extent;
+                float2                       m_extent;
                 u32                          m_layers;
 
                 void operator()(RZPassNode &node, RZPassResourceDirectory &resources) override;

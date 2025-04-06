@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 namespace Razix {
     namespace Gfx {
         namespace FrameGraph {
@@ -14,16 +12,16 @@ namespace Razix {
                 void create(const Desc& desc, void* transientAllocator);
                 void destroy(const Desc& desc, void* transientAllocator);
 
-                static std::string toString(const Desc& desc);
-
                 void preRead(const Desc& desc, uint32_t flags);
                 void preWrite(const Desc& desc, uint32_t flags);
 
-                Gfx::RZUniformBufferHandle getHandle() { return m_BufferHandle; }
+                static std::string toString(const Desc& desc);
+
+                Gfx::RZUniformBufferHandle getHandle() const { return m_BufferHandle; }
 
             public:
                 Gfx::RZUniformBufferHandle m_BufferHandle;
             };
         }    // namespace FrameGraph
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

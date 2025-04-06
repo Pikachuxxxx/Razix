@@ -1,4 +1,4 @@
-// clang-format off
+\    // clang-format off
 #include "rzxpch.h"
 // clang-format on
 #include "RZFrameGraphBuffer.h"
@@ -8,7 +8,8 @@
 #include "Razix/Gfx/RHI/API/RZShader.h"
 #include "Razix/Gfx/RHI/RHI.h"
 
-namespace Razix {
+    namespace Razix
+{
     namespace Gfx {
         namespace FrameGraph {
 
@@ -21,11 +22,6 @@ namespace Razix {
             void RZFrameGraphBuffer::destroy(const Desc& desc, void* transientAllocator)
             {
                 RZResourceManager::Get().destroyUniformBuffer(m_BufferHandle);
-            }
-
-            std::string RZFrameGraphBuffer::toString(const Desc& desc)
-            {
-                return "size : " + std::to_string(desc.size) + " bytes";
             }
 
             void RZFrameGraphBuffer::preRead(const Desc& desc, uint32_t flags)
@@ -62,6 +58,11 @@ namespace Razix {
                 //                    DescriptorBindingInfo info = Gfx::DecodeDescriptorBindingInfo(flags);
                 //                else
                 //                    return;
+            }
+
+            std::string RZFrameGraphBuffer::toString(const Desc& desc)
+            {
+                return "size : " + std::to_string(desc.size) + " bytes";
             }
         }    // namespace FrameGraph
     }        // namespace Gfx

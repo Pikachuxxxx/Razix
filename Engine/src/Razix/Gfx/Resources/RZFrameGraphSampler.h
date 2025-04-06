@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 namespace Razix {
     namespace Gfx {
 
@@ -17,10 +15,10 @@ namespace Razix {
                 void create(const Desc& desc, void* transientAllocator);
                 void destroy(const Desc& desc, void* transientAllocator);
 
-                static std::string toString(const Desc& desc);
-
                 void preRead(const Desc& desc, uint32_t flags);
                 void preWrite(const Desc& desc, uint32_t flags);
+
+                static std::string toString(const Desc& desc);
 
                 Gfx::RZSamplerHandle getHandle() const { return m_SamplerHandle; }
 

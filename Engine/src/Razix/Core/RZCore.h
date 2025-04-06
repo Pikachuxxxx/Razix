@@ -291,6 +291,9 @@ private:                                                  \
     #define RAZIX_FORCE_INLINE __attribute__((always_inline))
 #endif
 
+#define RAZIX_LIKELY   [[likely]]
+#define RAZIX_UNLIKELY [[unlikely]]
+
 /**
  * We need ways to emulate pure virtual function verification
  * We use SFINAE idiom and type traits as the base concept to do this 

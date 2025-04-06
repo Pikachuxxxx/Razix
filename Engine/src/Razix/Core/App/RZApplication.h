@@ -58,12 +58,12 @@ namespace Razix {
     /* The type of the application (Editor or Game) */
     enum class AppType
     {
-        EDITOR,
-        GAME,
+        kGame,
+        kTool,
         // Networking mode
-        EDITOR_CLIENT,    // connect to the engine via network
-        GAME_CLIENT,      // Razix app where the game is in client mode
-        GAME_SERVER       // either used as standalone server or central server
+        kToolServer,    // Serves data to the engine via network to edit runtime data
+        kGameClient,    // Razix app where the game is in client mode, can talk to another game server or tool server
+        kGameServer     // either used as standalone server or central server
     };
 
     // TODO!!!: Add budget info to RZApplication and RZFrameGraph
@@ -148,7 +148,7 @@ namespace Razix {
         virtual void OnResize(u32 width, u32 height) {}
 
         inline RZWindow*         getWindow() { return m_Window; }
-        inline float2         getWindowSize() const { return float2(m_Window->getWidth(), m_Window->getHeight()); }
+        inline float2            getWindowSize() const { return float2(m_Window->getWidth(), m_Window->getHeight()); }
         inline std::string       getAppName() const { return m_ProjectName; }
         inline std::string       getProjectRoot() const { return m_ProjectPath; }
         inline void              setProjectRoot(const std::string& projPath) { m_ProjectPath = projPath; }
@@ -169,22 +169,15 @@ namespace Razix {
             m_GuizmoEntity        = entity;
             m_EnableGuizmoEditing = true;
         }
-#ifdef RAZIX_PLATFORM_WINDOWS
-        inline void setViewportHWND(HWND hwnd) { viewportHWND = hwnd; }
-        inline HWND getViewportHWND() { return viewportHWND; }
-#endif
 
         // Application Save and Load Functions
         RAZIX_DEFINE_SAVE_LOAD
 
     private:
-#ifdef RAZIX_PLATFORM_WINDOWS
-        HWND viewportHWND;
-#endif
         static RZApplication* s_AppInstance;
 
         AppState                  m_CurrentState        = AppState::Loading;
-        AppType                   m_appType             = AppType::GAME;
+        AppType                   m_appType             = AppType::kGame;
         std::string               m_ProjectName         = "";
         std::string               m_ProjectPath         = "";
         u32                       m_RenderAPI           = 1;    // Vulkan

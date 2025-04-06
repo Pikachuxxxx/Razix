@@ -74,7 +74,6 @@ namespace Razix {
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {{rt, {true, ClearColorPresets::OpaqueBlack}}};
-                    info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
 

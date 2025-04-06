@@ -77,6 +77,7 @@ namespace Razix {
                     textureDesc.type                  = TextureType::k2D;
                     textureDesc.initResourceViewHints = kSRV | kRTV;
                     textureDesc.format                = TextureFormat::RGBA16F;
+                    textureDesc.allowResize           = true;
 
                     data.sceneHDR = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
@@ -88,7 +89,6 @@ namespace Razix {
                     builder.read(sceneLightsDataBlock.lightsDataBuffer);
                     builder.read(shadowData.shadowMap);
                     builder.read(shadowData.lightVP);
-//                    builder.read(globalLightProbes.environmentMap);
                     builder.read(globalLightProbes.diffuseIrradianceMap);
                     builder.read(globalLightProbes.specularPreFilteredMap);
                     builder.read(gbufferData.GBuffer0);
@@ -107,7 +107,6 @@ namespace Razix {
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
                     info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneDepth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize           = true;
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 

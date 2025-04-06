@@ -346,7 +346,6 @@ namespace Razix {
                     // !!! VERY IMPORTANT !!!
                     info.layerCount = kNumCascades;
                     /////////////////////////////////
-                    info.resize = false;
                     RHI::BeginRendering(cmdBuffer, info);
 
                     RHI::BindPipeline(m_Pipeline, cmdBuffer);

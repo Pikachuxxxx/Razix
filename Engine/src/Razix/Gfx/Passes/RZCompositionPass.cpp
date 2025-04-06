@@ -98,8 +98,6 @@ namespace Razix {
 #if __APPLE__
                     info.depthAttachment = {m_AppleNeedsADepthTexture, {true, ClearColorPresets::DepthOneToZero}};
 #endif
-                    info.resize = true;
-
                     RHI::BeginRendering(cmdBuffer, info);
 
                     // Bind pipeline and stuff

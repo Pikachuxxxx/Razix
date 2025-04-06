@@ -86,6 +86,7 @@ namespace Razix {
                     gbufferTexturesDesc.type                  = TextureType::k2D;
                     gbufferTexturesDesc.initResourceViewHints = kSRV | kRTV;
                     gbufferTexturesDesc.format                = TextureFormat::RGBA16F;
+                    gbufferTexturesDesc.allowResize           = true;
                     data.GBuffer0                             = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
                     gbufferTexturesDesc.name = "gBuffer1";
@@ -124,7 +125,6 @@ namespace Razix {
                         //{resources.get<FrameGraph::RZFrameGraphTexture>(data.VelocityBuffer).getHandle(), {true, ClearColorPresets::TransparentBlack}},
                     };
                     info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBufferDepth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
-                    info.resize          = true;
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 

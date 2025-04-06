@@ -127,7 +127,6 @@ namespace Razix {
                     info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.shadowMap).getHandle(), {true, ClearColorPresets::OpaqueBlack}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     info.layerCount      = 1;
-                    info.resize          = false;
                     RHI::BeginRendering(cmdBuffer, info);
 
                     RHI::BindPipeline(m_Pipeline, cmdBuffer);

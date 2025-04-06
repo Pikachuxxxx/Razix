@@ -68,6 +68,7 @@ namespace Razix {
                     visBufferTexturesDesc.height                = RZApplication::Get().getWindow()->getHeight();
                     visBufferTexturesDesc.type                  = TextureType::k2D;
                     visBufferTexturesDesc.format                = TextureFormat::RGBA8;
+                    visBufferTexturesDesc.allowResize           = true;
                     visBufferTexturesDesc.initResourceViewHints = kSRV | kRTV;
                     data.visBuffer                              = builder.create<FrameGraph::RZFrameGraphTexture>(visBufferTexturesDesc.name, CAST_TO_FG_TEX_DESC visBufferTexturesDesc);
 
@@ -77,6 +78,7 @@ namespace Razix {
                     sceneDepthTexturesDesc.height                = RZApplication::Get().getWindow()->getHeight();
                     sceneDepthTexturesDesc.type                  = TextureType::kDepth;
                     sceneDepthTexturesDesc.format                = TextureFormat::DEPTH32F;
+                    sceneDepthTexturesDesc.allowResize           = true;
                     sceneDepthTexturesDesc.initResourceViewHints = kDSV;
                     data.sceneDepth                              = builder.create<FrameGraph::RZFrameGraphTexture>(sceneDepthTexturesDesc.name, CAST_TO_FG_TEX_DESC sceneDepthTexturesDesc);
 
@@ -102,7 +104,6 @@ namespace Razix {
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {{rt, {true, ClearColorPresets::OpaqueBlack}}};
                     info.depthAttachment  = {depthRT, {true, ClearColorPresets::DepthZeroToOne}};
-                    info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
 

@@ -26,10 +26,12 @@ namespace Razix {
                 void create(const Desc& desc, void* transientAllocator);
                 void destroy(const Desc& desc, void* transientAllocator);
 
-                static std::string toString(const Desc& desc);
+                void preRead(const Desc& desc, u32 flags);
+                void preWrite(const Desc& desc, u32 flags);
 
-                void preRead(const Desc& desc, uint32_t flags);
-                void preWrite(const Desc& desc, uint32_t flags);
+                void resize(u32 width, u32 height);
+
+                static std::string toString(const Desc& desc);
 
                 Gfx::RZTextureHandle getHandle() const { return m_TextureHandle; }
 

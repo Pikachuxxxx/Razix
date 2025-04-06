@@ -194,7 +194,7 @@ namespace Razix {
             Gfx::RHI::OnResize(e.GetWidth(), e.GetHeight());
 
             // Resize the frame graph resource before resizing the RHI
-            Razix::RZEngine::Get().getWorldRenderer().getFrameGraph().resize(e.GetWidth(), e.GetHeight());
+            Razix::RZEngine::Get().getWorldRenderer().OnResize(e.GetWidth(), e.GetHeight());
         }
 
         OnResize(e.GetWidth(), e.GetHeight());
@@ -319,7 +319,7 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
         RAZIX_PROFILE_FRAMEMARKER("RZApplication Main Thread");
 
-        if (RZApplication::Get().getAppType() != AppType::GAME) {
+        if (RZApplication::Get().getAppType() != AppType::kGame) {
             // Wait until Editor sends data
             std::unique_lock<std::mutex> lk(m);
             halt_execution.wait(lk, [] {
@@ -331,7 +331,7 @@ namespace Razix {
             halt_execution.notify_one();
         }
 
-        // TODO: Add Time stamp Queries for calculating GPU time here
+        // TODO: Add Time stamp Queries for calculating GPU time
 
         // Calculate the delta time
         f32 now = m_Timer->GetElapsedS();
@@ -402,6 +402,117 @@ namespace Razix {
         return m_CurrentState != AppState::Closing;
     }
 
+    void RZApplication::Start()
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
+        OnStart();
+
+        // Run the OnStart method for all the scripts in the scene
+        if (RZSceneManager::Get().getCurrentScene())
+            RZEngine::Get().getScriptHandler().OnStart(RZSceneManager::Get().getCurrentScene());
+    }
+
+    void RZApplication::Update(const RZTimestep& dt)
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
+        // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
+        // Update the renderer stuff here
+        // Update Scene Graph here
+        RZSceneManager::Get().getCurrentScene()->update();
+        // Update the Scene Camera Here
+        RZSceneManager::Get().getCurrentScene()->getSceneCamera().update(dt.GetTimestepMs());
+
+        auto ctx = ImGui::GetCurrentContext();
+        if (ctx) {
+            // Update ImGui
+            ImGuiIO& io                = ImGui::GetIO();
+            io.DisplaySize             = ImVec2(static_cast<f32>(getWindow()->getWidth()), static_cast<f32>(getWindow()->getHeight()));
+            io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+        }
+
+        // Update the Runtime Systems only on Game Application type
+        //if (m_appType == AppType::GAME) {
+        // Run the OnUpdate for all the scripts
+        // FIXME: Enable this when the data driven rendering is finished
+        //if (RZSceneManager::Get().getCurrentScene())
+        //    RZEngine::Get().getScriptHandler().OnUpdate(RZSceneManager::Get().getCurrentScene(), dt);
+
+        // TODO: Update the Physics Engine here
+        /*RZEngine::Get().getPhysicsEngine().update(dt); */
+        //}
+
+        // Client App Update
+        OnUpdate(dt);
+    }
+
+    void RZApplication::Render()
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
+        OnRender();
+
+        Razix::RZEngine::Get().getWorldRenderer().drawFrame(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
+    }
+
+    void RZApplication::RenderGUI()
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
+
+        auto ctx = ImGui::GetCurrentContext();
+        if (!ctx)
+            return;
+
+        // TODO: Well GLFW needs to be removed at some point and we need to use native functions
+        if (RZApplication::Get().getAppType() == AppType::kGame)
+            ImGui_ImplGlfw_NewFrame();
+
+        // FIXME: https://github.com/ocornut/imgui/issues/6064
+
+        // Update ImGui
+        ImGuiIO& io = ImGui::GetIO();
+        (void) io;
+
+        ImGui::NewFrame();
+        //ImGuizmo::BeginFrame();
+
+        //ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+
+        // World Renderer Tools
+        RZEngine::Get().getWorldRenderer().OnImGui();
+
+        // RHI Stats
+        Razix::Gfx::RHI::Get().OnImGui();
+
+        // User GUI
+        if (RZSceneManager::Get().getCurrentScene())
+            RZEngine::Get().getScriptHandler().OnImGui(RZSceneManager::Get().getCurrentScene());
+
+        // Client side
+        OnImGui();
+
+        // Engine App GUI
+        renderEngineStatsOnImGui();
+    }
+
+    void RZApplication::Quit()
+    {
+        // Client side quit customization
+        OnQuit();
+
+        Razix::RZEngine::Get().getWorldRenderer().destroy();
+
+        // Save the scene and the Application
+        RZSceneManager::Get().saveAllScenes();
+        RZSceneManager::Get().destroyAllScenes();
+        SaveApp();
+
+        Gfx::RHI::Destroy();
+
+        RAZIX_CORE_ERROR("Closing Application!");
+    }
+
     /* Application Serialization */
     // Load mechanism for the RZApplication class
     template<class Archive>
@@ -464,121 +575,6 @@ namespace Razix {
             newPaths.push_back(path);
         }
         archive(cereal::make_nvp("Scenes", newPaths));
-    }
-
-    void RZApplication::Start()
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
-
-        OnStart();
-
-        // Run the OnStart method for all the scripts in the scene
-        if (RZSceneManager::Get().getCurrentScene())
-            RZEngine::Get().getScriptHandler().OnStart(RZSceneManager::Get().getCurrentScene());
-    }
-
-    void RZApplication::Update(const RZTimestep& dt)
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
-
-        // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
-        // Update the renderer stuff here
-        // Update Scene Graph here
-        RZSceneManager::Get().getCurrentScene()->update();
-        // Update the Scene Camera Here
-        RZSceneManager::Get().getCurrentScene()->getSceneCamera().update(dt.GetTimestepMs());
-
-        auto ctx = ImGui::GetCurrentContext();
-        if (ctx) {
-            // Update ImGui
-            ImGuiIO& io = ImGui::GetIO();
-            (void) io;
-            // TODO: get the resolution from RHI before updating this
-            io.DisplaySize             = ImVec2(static_cast<f32>(getWindow()->getWidth()), static_cast<f32>(getWindow()->getHeight()));
-            io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-        }
-
-        // Update the Runtime Systems only on Game Application type
-        //if (m_appType == AppType::GAME) {
-        // Run the OnUpdate for all the scripts
-        // FIXME: Enable this when the data driven rendering is finished
-        //if (RZSceneManager::Get().getCurrentScene())
-        //    RZEngine::Get().getScriptHandler().OnUpdate(RZSceneManager::Get().getCurrentScene(), dt);
-
-        // TODO: Update the Physics Engine here
-        /*RZEngine::Get().getPhysicsEngine().update(dt); */
-        //}
-
-        // Client App Update
-        OnUpdate(dt);
-    }
-
-    void RZApplication::Render()
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
-
-        OnRender();
-
-        Razix::RZEngine::Get().getWorldRenderer().drawFrame(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
-    }
-
-    void RZApplication::RenderGUI()
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
-
-        auto ctx = ImGui::GetCurrentContext();
-        if (!ctx)
-            return;
-
-        // TODO: Well GLFW needs to be removed at some point and we need to use native functions
-        if (RZApplication::Get().getAppType() == AppType::GAME)
-            ImGui_ImplGlfw_NewFrame();
-
-        // FIXME: https://github.com/ocornut/imgui/issues/6064
-
-        // Update ImGui
-        ImGuiIO& io = ImGui::GetIO();
-        (void) io;
-
-        ImGui::NewFrame();
-        //ImGuizmo::BeginFrame();
-
-        //ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-
-        // World Renderer Tools
-        RZEngine::Get().getWorldRenderer().OnImGui();
-
-        // RHI Memory Stats (Available in Editor mode also)
-        Razix::Gfx::RHI::Get().OnImGui();
-
-        // User GUI
-        if (RZSceneManager::Get().getCurrentScene())
-            RZEngine::Get().getScriptHandler().OnImGui(RZSceneManager::Get().getCurrentScene());
-
-        // Client side
-        OnImGui();
-
-        // Engine App GUI
-        renderEngineStatsOnImGui();
-    }
-
-    void RZApplication::Quit()
-    {
-        // Client side quit customization
-        OnQuit();
-
-        Razix::RZEngine::Get().getWorldRenderer().destroy();
-
-        // Save the scene and the Application
-        RZSceneManager::Get().saveAllScenes();
-        RZSceneManager::Get().destroyAllScenes();
-        SaveApp();
-
-        // FIXME: This is fucked up I'm not cleaning stuff for editor mode
-        if (RZApplication::Get().getAppType() == AppType::GAME)
-            Gfx::RHI::Destroy();
-
-        RAZIX_CORE_ERROR("Closing Application!");
     }
 
     void RZApplication::SaveApp()

@@ -75,7 +75,6 @@ namespace Razix {
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {
                         {resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle(), {false, ClearColorPresets::OpaqueBlack}}};
-                    info.resize = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
 

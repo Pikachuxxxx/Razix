@@ -25,11 +25,6 @@ namespace Razix {
                 RZResourceManager::Get().destroySampler(m_SamplerHandle);
             }
 
-            std::string RZFrameGraphSampler::toString(const Desc& desc)
-            {
-                return desc.name;
-            }
-
             void RZFrameGraphSampler::preRead(const Desc& desc, uint32_t flags)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -38,6 +33,11 @@ namespace Razix {
             void RZFrameGraphSampler::preWrite(const Desc& desc, uint32_t flags)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+            }
+
+            std::string RZFrameGraphSampler::toString(const Desc& desc)
+            {
+                return desc.name;
             }
         }    // namespace FrameGraph
     }        // namespace Gfx

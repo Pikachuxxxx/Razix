@@ -55,6 +55,7 @@ namespace Razix {
         private:
             VKContext*      m_Context; /* Reference to the Vulkan context, we store it to avoid multiple calls */
             VkDescriptorSet m_DescriptorSetCachePool[kMAX_DESCRIPTORS_BINDABLE_PER_FRAME];
+            bool            m_IsResizing = false;
 
         private:
             void SetCmdCheckpointImpl(RZDrawCommandBufferHandle cmdBuffer, void* markerData);

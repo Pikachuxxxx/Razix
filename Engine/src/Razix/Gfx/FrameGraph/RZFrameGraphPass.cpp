@@ -47,8 +47,8 @@ namespace Razix {
     namespace Gfx {
         namespace FrameGraph {
 
-            RZFrameGraphDataPass::RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawGeometryMode geometryMode, Resolution res, bool resize, float2 extents, u32 layers)
-                : m_shader(shader), m_pipeline(pipeline), m_geometryMode(geometryMode), m_resolution(res), m_enableResize(resize), m_extent(extents), m_layers(layers)
+            RZFrameGraphDataPass::RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawGeometryMode geometryMode, Resolution res, float2 extents, u32 layers)
+                : m_shader(shader), m_pipeline(pipeline), m_geometryMode(geometryMode), m_resolution(res), m_extent(extents), m_layers(layers)
             {
             }
 
@@ -62,7 +62,6 @@ namespace Razix {
                 // Rendering Info, use all the writable resources in the pass node to render onto
                 RenderingInfo info{};
                 info.resolution = m_resolution;
-                info.resize     = m_enableResize;
                 info.extent     = m_extent;
                 info.layerCount = m_layers;
 

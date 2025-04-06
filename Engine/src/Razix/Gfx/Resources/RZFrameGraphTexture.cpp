@@ -29,14 +29,6 @@ namespace Razix {
                 RZResourceManager::Get().destroyTexture(m_TextureHandle);
             }
 
-            std::string RZFrameGraphTexture::toString(const Desc& desc)
-            {
-                if (desc.layers > 1)
-                    return "(" + std::to_string(int(desc.width)) + ", " + std::to_string(int(desc.height)) + ", " + std::to_string(desc.layers) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
-                else
-                    return "(" + std::to_string(int(desc.width)) + ", " + std::to_string(int(desc.height)) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
-            }
-
             void RZFrameGraphTexture::preRead(const Desc& desc, uint32_t flags)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -87,6 +79,21 @@ namespace Razix {
                     RAZIX_CORE_INFO("[WriteBarrier::Texture] resource name: {0} | old layout: {1} | new layout: {2}", textureDesc.name, ImageLayoutNames[(u32) oldLayout], ImageLayoutNames[(u32) newLayout]);
                 RHI::InsertImageMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_TextureHandle, oldLayout, newLayout);
             }
+
+            void RZFrameGraphTexture::resize(u32 width, u32 height)
+            {
+                RZTexture* textureResource = RZResourceManager::Get().getPool<RZTexture>().get(m_TextureHandle);
+                textureResource->Resize(width, height);
+            }
+
+            std::string RZFrameGraphTexture::toString(const Desc& desc)
+            {
+                if (desc.layers > 1)
+                    return "(" + std::to_string(int(desc.width)) + ", " + std::to_string(int(desc.height)) + ", " + std::to_string(desc.layers) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
+                else
+                    return "(" + std::to_string(int(desc.width)) + ", " + std::to_string(int(desc.height)) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
+            }
+
         }    // namespace FrameGraph
     }        // namespace Gfx
 }    // namespace Razix

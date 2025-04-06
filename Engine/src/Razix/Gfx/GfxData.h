@@ -562,7 +562,6 @@ namespace Razix {
             std::vector<std::pair<RZTextureHandle, RenderTargetAttachmentInfo>> colorAttachments = {};
             std::pair<RZTextureHandle, RenderTargetAttachmentInfo>              depthAttachment  = {};
             int                                                                 layerCount       = 1;
-            bool                                                                resize           = false;
         };
 
         /* Command Queue is a collection of command buffers that will be submitted for execution at once */
@@ -689,6 +688,7 @@ namespace Razix {
             bool          flipX                 = false;
             bool          flipY                 = true;
             bool          ownsInitData          = true;
+            bool          allowResize           = false;
             u8            initResourceViewHints = 1;
             u32           dataSize              = sizeof(unsigned char);
             std::string   filePath              = "";

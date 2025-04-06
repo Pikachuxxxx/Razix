@@ -95,6 +95,8 @@ namespace Razix {
             /* ImGui rendering for the world renderer */
             void OnImGui();
 
+            void OnResize(u32 width, u32 height);
+
             // Getters/Setters
             inline FrameGraph::RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
 

@@ -514,7 +514,7 @@ namespace Razix {
 
                 // First create the FrameGraphPass (Data) and create a pass node
                 // Now that the checks are done, let's create the pass and PassNode
-                auto *pass = new RZFrameGraphDataPass(shader, pipeline, geomMode, resolution, resize, extent, layers);
+                auto *pass = new RZFrameGraphDataPass(shader, pipeline, geomMode, resolution, extent, layers);
                 // Create the PassNode in the graph
                 RZPassNode &passNode = createPassNode(std::string_view(passNameStr), std::unique_ptr<RZFrameGraphDataPass>(pass));
                 // Mark as data driven
@@ -639,6 +639,10 @@ namespace Razix {
                 for (auto &pass: m_PassNodes) {
                     // Only it it's executable and not culled
                     if (!pass.canExecute()) continue;
+
+                    for (const auto &id: pass.m_Creates)
+                        if (getResourceEntry(id).isTransient())
+                            getResourceEntry(id).getConcept()->resize(width, height);
 
                     // call the ResizeFunc
                     RZPassResourceDirectory resources{*this, pass};

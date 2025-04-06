@@ -111,7 +111,6 @@ namespace Razix {
                     info.resolution       = Resolution::kCustom;
                     info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.blur).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize           = true;
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 

@@ -474,6 +474,9 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            if (m_IsResizing)
+                return;
+
             // Submit and Flip the Graphics Queue
             VkResult result;
 
