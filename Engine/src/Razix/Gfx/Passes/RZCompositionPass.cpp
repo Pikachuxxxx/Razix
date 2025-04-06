@@ -77,8 +77,6 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("Composition Pass");
                     RAZIX_MARK_BEGIN("Pass.Builtin.Code.Composition", float4(0.5f));
 
-                    Gfx::RHI::InsertImageMemoryBarrier(Gfx::RHI::GetCurrentCommandBuffer(), resources.get<FrameGraph::RZFrameGraphTexture>(FinalOutputRenderTarget).getHandle(), ImageLayout::kColorRenderTarget, ImageLayout::kShaderRead);
-
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
                     if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
@@ -110,8 +108,6 @@ namespace Razix {
                     scene->drawScene(m_Pipeline, SceneDrawGeometryMode::ScreenQuad);
 
                     RHI::EndRendering(cmdBuffer);
-
-                    Gfx::RHI::InsertImageMemoryBarrier(Gfx::RHI::GetCurrentCommandBuffer(), resources.get<FrameGraph::RZFrameGraphTexture>(FinalOutputRenderTarget).getHandle(), ImageLayout::kShaderRead, ImageLayout::kColorRenderTarget);
 
                     RAZIX_MARK_END();
                     RAZIX_TIME_STAMP_END();

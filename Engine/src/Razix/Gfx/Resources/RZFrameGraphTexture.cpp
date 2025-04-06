@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZFrameGraphTexture.h"
 
+#include "Razix/Core/RZEngine.h"
+
 #include "Razix/Gfx/FrameGraph/RZFrameGraphResource.h"
 
 #include "Razix/Gfx/RHI/API/RZTexture.h"
@@ -53,10 +55,9 @@ namespace Razix {
                 }
 
                 ImageLayout oldLayout = textureResource->getCurrentLayout();
-                RAZIX_CORE_INFO("[ReadBarrier::Texture] resource name: {0} | old layout: {1} | new layout: {2}", textureDesc.name, ImageLayoutNames[(u32) oldLayout], ImageLayoutNames[(u32) newLayout]);
+                if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
+                    RAZIX_CORE_INFO("[ReadBarrier::Texture] resource name: {0} | old layout: {1} | new layout: {2}", textureDesc.name, ImageLayoutNames[(u32) oldLayout], ImageLayoutNames[(u32) newLayout]);
                 RHI::InsertImageMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_TextureHandle, oldLayout, newLayout);
-
-                //RHI::Get().FlushPendingWork();
             }
 
             void RZFrameGraphTexture::preWrite(const Desc& desc, uint32_t flags)
@@ -82,10 +83,9 @@ namespace Razix {
                 }
 
                 ImageLayout oldLayout = textureResource->getCurrentLayout();
-                RAZIX_CORE_INFO("[WriteBarrier::Texture] resource name: {0} | old layout: {1} | new layout: {2}", textureDesc.name, ImageLayoutNames[(u32) oldLayout], ImageLayoutNames[(u32) newLayout]);
+                if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
+                    RAZIX_CORE_INFO("[WriteBarrier::Texture] resource name: {0} | old layout: {1} | new layout: {2}", textureDesc.name, ImageLayoutNames[(u32) oldLayout], ImageLayoutNames[(u32) newLayout]);
                 RHI::InsertImageMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_TextureHandle, oldLayout, newLayout);
-
-                //RHI::Get().FlushPendingWork();
             }
         }    // namespace FrameGraph
     }        // namespace Gfx

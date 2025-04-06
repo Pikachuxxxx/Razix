@@ -194,8 +194,9 @@ namespace Razix {
                     RZDebugRendererProxy::Get().Init();
 
                     builder.read(frameDataBlock.frameData);
-                    builder.read(sceneData.sceneHDR);
-                    builder.read(sceneData.sceneDepth);
+
+                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
+                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
                 },
                 [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -282,8 +283,8 @@ namespace Razix {
                 [&](auto&, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    builder.read(sceneData.sceneHDR);
-                    builder.read(sceneData.sceneDepth);
+                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
+                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
 
                     RZImGuiRendererProxy::Get().Init();
                 },
@@ -353,7 +354,7 @@ namespace Razix {
             // Main Frame Graph World Rendering Loop
             {
                 // Acquire Image to render onto
-                Gfx::RHI::AcquireImage(nullptr);
+                Gfx::RHI::AcquireImage(NULL);
 
                 // Begin Recording  onto the command buffer, select one as per the frame idx
                 Gfx::RHI::Begin(Gfx::RHI::GetCurrentCommandBuffer());
@@ -362,7 +363,7 @@ namespace Razix {
                 RAZIX_MARK_BEGIN("Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(RHI::GetSwapchain()->getCurrentFrameIndex()) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
 
                 // Execute the Frame Graph passes
-                m_FrameGraph.execute(nullptr);
+                m_FrameGraph.execute(NULL);
 
                 // End Frame Marker
                 RAZIX_MARK_END();
@@ -386,7 +387,7 @@ namespace Razix {
                 }
 
                 // Present the image to presentation engine as soon as rendering to SCOLOR_ATTACHMENT is done
-                Gfx::RHI::Present(nullptr);
+                Gfx::RHI::Present(NULL);
             }
         }
 
@@ -453,16 +454,16 @@ namespace Razix {
 
                 if (ImGui::BeginMainMenuBar()) {
                     if (ImGui::BeginMenu(ICON_FA_WRENCH " Tools")) {
-                        if (ImGui::MenuItem(ICON_FA_TASKS " FG resource Viewer", nullptr, showResourceViewer)) {
+                        if (ImGui::MenuItem(ICON_FA_TASKS " FG resource Viewer", NULL, showResourceViewer)) {
                             showResourceViewer = !showResourceViewer;
                         }
-                        if (ImGui::MenuItem(ICON_FA_MONEY_BILL " Frame Budgets", nullptr, showBudgets)) {
+                        if (ImGui::MenuItem(ICON_FA_MONEY_BILL " Frame Budgets", NULL, showBudgets)) {
                             showBudgets = !showBudgets;
                         }
-                        if (ImGui::MenuItem(ICON_FA_MEMORY " Memory Stats", nullptr, showMemStats)) {
+                        if (ImGui::MenuItem(ICON_FA_MEMORY " Memory Stats", NULL, showMemStats)) {
                             showMemStats = !showMemStats;
                         }
-                        if (ImGui::MenuItem(ICON_FA_MEMORY " RHI Memory Stats", nullptr, showRHIStats)) {
+                        if (ImGui::MenuItem(ICON_FA_MEMORY " RHI Memory Stats", NULL, showRHIStats)) {
                             showRHIStats = !showRHIStats;
                         }
                         ImGui::EndMenu();

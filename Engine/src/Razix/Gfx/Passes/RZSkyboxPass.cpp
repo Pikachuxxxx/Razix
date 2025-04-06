@@ -61,8 +61,8 @@ namespace Razix {
 
             auto& frameDataBlock  = framegraph.getBlackboard().get<FrameData>();
             auto& lightProbesData = framegraph.getBlackboard().get<GlobalLightProbeData>();
-//            auto& volumetricData  = framegraph.getBlackboard().get<VolumetricCloudsData>();
-            auto& sceneData       = framegraph.getBlackboard().get<SceneData>();
+            //            auto& volumetricData  = framegraph.getBlackboard().get<VolumetricCloudsData>();
+            auto& sceneData = framegraph.getBlackboard().get<SceneData>();
 
             framegraph.addCallbackPass(
                 "Pass.Builtin.Code.Skybox",
@@ -74,8 +74,8 @@ namespace Razix {
                     builder.read(lightProbesData.diffuseIrradianceMap);
                     builder.read(lightProbesData.specularPreFilteredMap);
 
-                    builder.read(sceneData.sceneHDR);
-                    builder.read(sceneData.sceneDepth);
+                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
+                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
                 },
                 [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

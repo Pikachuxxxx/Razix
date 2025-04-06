@@ -362,7 +362,6 @@ namespace Razix {
             worldRenderer.destroy();
             Razix::Gfx::FrameGraph::RZFrameGraph::ResetFirstFrame();
             worldRenderer.buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
-
             RAZIX_CORE_INFO("FrameGraph reload Done!");
         }
 
@@ -497,7 +496,6 @@ namespace Razix {
             // TODO: get the resolution from RHI before updating this
             io.DisplaySize             = ImVec2(static_cast<f32>(getWindow()->getWidth()), static_cast<f32>(getWindow()->getHeight()));
             io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-            //io.DisplayFramebufferScale = ImVec2(static_cast<f32>(io.DisplaySize.x / 2560.0f), static_cast<f32>(io.DisplaySize.y / 1440.0f));
         }
 
         // Update the Runtime Systems only on Game Application type
@@ -712,5 +710,4 @@ namespace Razix {
         }
         ImGui::Render();
     }
-
 }    // namespace Razix

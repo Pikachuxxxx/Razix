@@ -1142,6 +1142,23 @@ namespace Razix {
         RenderTargetAttachmentInfo DecodeAttachmentInfo(u32 bits);
         float4                     ClearColorFromPreset(ClearColorPresets preset);
 
+        static std::unordered_map<std::string, Razix::Gfx::Resolution> StringToResolutionsMap = {
+            {"k1080p", Razix::Gfx::Resolution::k1080p},
+            {"k1440p", Razix::Gfx::Resolution::k1440p},
+            {"k4KUpscaled", Razix::Gfx::Resolution::k4KUpscaled},
+            {"k4KNative", Razix::Gfx::Resolution::k4KNative},
+            {"kWindow", Razix::Gfx::Resolution::kWindow},
+            {"kCustom", Razix::Gfx::Resolution::kCustom}};
+
+        static std::unordered_map<std::string, Razix::Gfx::ClearColorPresets> StringToColorPreset = {
+            {"OpaqueBlack", Razix::Gfx::ClearColorPresets::OpaqueBlack},
+            {"OpaqueWhite", Razix::Gfx::ClearColorPresets::OpaqueWhite},
+            {"TransparentBlack", Razix::Gfx::ClearColorPresets::TransparentBlack},
+            {"TransparentWhite", Razix::Gfx::ClearColorPresets::TransparentWhite},
+            {"Pink", Razix::Gfx::ClearColorPresets::Pink},
+            {"DepthZeroToOne", Razix::Gfx::ClearColorPresets::DepthZeroToOne},
+            {"DepthOneToZero", Razix::Gfx::ClearColorPresets::DepthOneToZero}};
+
         /* utility functions for frame graph parsing to convert string to enums */
         CompareOp       StringToCompareOp(const std::string& str);
         DrawType        StringToDrawType(const std::string& str);

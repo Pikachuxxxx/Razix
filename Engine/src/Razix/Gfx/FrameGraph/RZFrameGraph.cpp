@@ -6,6 +6,7 @@
 
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
+#include "Razix/Core/RZEngine.h"
 
 #include "Razix/Gfx/RZShaderLibrary.h"
 
@@ -19,24 +20,6 @@
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;    // use other lib that said it was faster than this on github
-
-// TODO: Move this to a more cohesive place
-static std::unordered_map<std::string, Razix::Gfx::Resolution> s_StringToResolutionsMap = {
-    {"k1080p", Razix::Gfx::Resolution::k1080p},
-    {"k1440p", Razix::Gfx::Resolution::k1440p},
-    {"k4KUpscaled", Razix::Gfx::Resolution::k4KUpscaled},
-    {"k4KNative", Razix::Gfx::Resolution::k4KNative},
-    {"kWindow", Razix::Gfx::Resolution::kWindow},
-    {"kCustom", Razix::Gfx::Resolution::kCustom}};
-
-static std::unordered_map<std::string, Razix::Gfx::ClearColorPresets> s_StringToColorPreset = {
-    {"OpaqueBlack", Razix::Gfx::ClearColorPresets::OpaqueBlack},
-    {"OpaqueWhite", Razix::Gfx::ClearColorPresets::OpaqueWhite},
-    {"TransparentBlack", Razix::Gfx::ClearColorPresets::TransparentBlack},
-    {"TransparentWhite", Razix::Gfx::ClearColorPresets::TransparentWhite},
-    {"Pink", Razix::Gfx::ClearColorPresets::Pink},
-    {"DepthZeroToOne", Razix::Gfx::ClearColorPresets::DepthZeroToOne},
-    {"DepthOneToZero", Razix::Gfx::ClearColorPresets::DepthOneToZero}};
 
 namespace Razix {
     namespace Gfx {
@@ -306,7 +289,7 @@ namespace Razix {
 
                             auto &clear_color = attachment_info["clear_color"];
                             if (!clear_color.empty())
-                                attachInfo.clearColor = s_StringToColorPreset[clear_color];
+                                attachInfo.clearColor = StringToColorPreset[clear_color];
 
                             auto &binding_idx = attachment_info["binding_idx"];
                             if (!binding_idx.empty())
@@ -516,7 +499,7 @@ namespace Razix {
 
                 auto &renderInfo = data["rendering_info"];
                 RAZIX_ASSERT(!renderInfo.empty(), "[Frame Graph] Missing Rendering info in pass description!");
-                Resolution resolution = s_StringToResolutionsMap[renderInfo["resolution"]];
+                Resolution resolution = StringToResolutionsMap[renderInfo["resolution"]];
                 bool       resize     = renderInfo["resize"].get<bool>();
                 auto      &extents    = renderInfo["extents"];
                 float2     extent     = float2(0.0f);
@@ -602,8 +585,10 @@ namespace Razix {
                     // Only it it's executable and not culled
                     if (!pass.canExecute()) continue;
 
-                    RAZIX_CORE_INFO("=============PASS START=================");
-                    RAZIX_CORE_INFO("[Pass] executing pass: {0}", pass.m_Name);
+                    if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging) {
+                        RAZIX_CORE_INFO("=============PASS START=================");
+                        RAZIX_CORE_INFO("[Pass] executing pass: {0}", pass.m_Name);
+                    }
 
                     // Call create for all the resources created by this node : Lazy Allocation --> helps with memory aliasing (pass transient resources)
                     // Even for Data Driven passes this works be cause we create the RZFrameGraphTexture/Buffer while parsing the JSON graph and we have a pseudo SetupFunc
@@ -638,7 +623,8 @@ namespace Razix {
                     //    if (entry.m_Last == &pass && entry.isTransient())
                     //        entry.getConcept()->destroy(transientAllocator);
 
-                    RAZIX_CORE_INFO("=============PASS END===================");
+                    if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
+                        RAZIX_CORE_INFO("=============PASS END===================");
                 }
 
                 // End first frame identifier
