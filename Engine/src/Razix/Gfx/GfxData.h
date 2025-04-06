@@ -433,6 +433,16 @@ namespace Razix {
             COUNT
         };
 
+        enum class BufferBarrierType
+        {
+            CPUToGPU,
+            GPUToCPU,
+            TransferDstToShaderRead,
+            ShaderReadToShaderWrite,
+            ShaderWriteToShaderRead,
+            COUNT
+        };
+
         enum class DrawDataType
         {
             FLOAT,
@@ -944,6 +954,15 @@ namespace Razix {
             {Resolution::k1440p, uint2(2560, 1440)},
             {Resolution::k4KUpscaled, uint2(3840, 2160)},
             {Resolution::k4KNative, uint2(3840, 2160)}};
+
+        static const char* BufferBarrierTypeNames[] = {
+            "CPUToGPU",
+            "GPUToCPU",
+            "TransferWriteToShaderRead",
+            "ShaderReadToShaderWrite",
+            "ShaderWriteToShaderRead"};
+
+        RAZIX_ENUM_NAMES_ASSERT(BufferBarrierTypeNames, BufferBarrierType);
 
         static const char* ImageLayoutNames[] =
             {

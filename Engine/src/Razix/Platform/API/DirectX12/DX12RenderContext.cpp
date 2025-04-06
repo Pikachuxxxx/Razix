@@ -202,7 +202,7 @@ namespace Razix {
             commandListD3D->ResourceBarrier(1, &barrier);
         }
 
-        void DX12RenderContext::InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
+        void DX12RenderContext::InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, BufferBarrierType barrierType)
         {
             RAZIX_UNIMPLEMENTED_METHOD
         }

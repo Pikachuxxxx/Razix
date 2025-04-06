@@ -42,7 +42,7 @@ namespace Razix {
             void            BeginRenderingImpl(RZDrawCommandBufferHandle cmdBuffer, const RenderingInfo& renderingInfo) override;
             void            EndRenderingImpl(RZDrawCommandBufferHandle cmdBuffer) override;
             void            InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, ImageLayout oldLayout, ImageLayout newLayout) override;
-            void            InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo) override;
+            void            InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, BufferBarrierType barrierType) override;
             void            CopyTextureResourceImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle) override;
             TextureReadback InsertTextureReadbackImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture) override;
             void            FlushPendingWorkImpl() override;

@@ -220,12 +220,12 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
             s_APIInstance->InsertImageMemoryBarrierImpl(cmdBuffer, texture, oldLayout, newLayout);
         }
-        void RHI::InsertBufferMemoryBarrier(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
+        void RHI::InsertBufferMemoryBarrier(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, BufferBarrierType barrierType)
         {
             RAZIX_PROFILE_GPU_SCOPE("Insert Buffer Memory Barrier");
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            s_APIInstance->InsertBufferMemoryBarrierImpl(cmdBuffer, buffer, pipelineBarrierInfo, bufBarrierInfo);
+            s_APIInstance->InsertBufferMemoryBarrierImpl(cmdBuffer, buffer, barrierType);
         }
 
         //------------------------------------------------------------------------

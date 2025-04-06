@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZFrameGraphBuffer.h"
 
+#include "Razix/Core/RZEngine.h"
+
 #include "Razix/Gfx/FrameGraph/RZFrameGraphResource.h"
 
 #include "Razix/Gfx/RHI/API/RZShader.h"
@@ -28,36 +30,46 @@
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                // Unlike images they are already in proper and fixed state
+                RZUniformBuffer* bufferResource = RZResourceManager::Get().getPool<RZUniformBuffer>().get(m_BufferHandle);
+                RZBufferDesc bufferDesc         = CAST_TO_FG_BUF_DESC desc;
 
-                //PipelineStage endStage;
-                //if (info.stage == ShaderStage::Vertex)
-                //    endStage = PipelineStage::kVertexShader;
-                //else if (info.stage == ShaderStage::Pixel)
-                //    endStage = PipelineStage::kFragmentShader;
-                //else if (info.stage == ShaderStage::Compute)
-                //    endStage = PipelineStage::kComputeShader;
-                //
-                //Graphics::RHI::InsertBufferMemoryBarrier(Graphics::RHI::GetCurrentCommandBuffer(), m_BufferHandle, {.startExecutionStage = PipelineStage::kTopOfPipe, .endExecutionStage = endStage}, {.srcAccess = MemoryAccessMask::})
+                BufferBarrierType barrierType = BufferBarrierType::CPUToGPU;
 
-                // Get the Biding info from the flags
-                //                if (flags != FrameGraph::kFlagsNone)
-                //                    DescriptorBindingInfo info = Gfx::DecodeDescriptorBindingInfo(flags);
-                //                else
-                //                    return;
+                if ((bufferDesc.initResourceViewHints & kSRV) == kSRV) {
+                    barrierType = BufferBarrierType::ShaderWriteToShaderRead;
+                } else if ((bufferDesc.initResourceViewHints & kCBV) == kCBV) {
+                    barrierType = BufferBarrierType::CPUToGPU;
+                } else if ((bufferDesc.initResourceViewHints & kTransferSrc) == kTransferSrc) {
+                    barrierType = BufferBarrierType::TransferDstToShaderRead;
+                }
+
+                if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
+                    RAZIX_CORE_INFO("[ReadBarrier::Buffer] resource name: {0} | barrier type: {1}", bufferDesc.name, BufferBarrierTypeNames[(u32) barrierType]);
+
+                RHI::InsertBufferMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_BufferHandle, barrierType);
             }
 
             void RZFrameGraphBuffer::preWrite(const Desc& desc, uint32_t flags)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                // Unlike images they are already in proper and fixed state
+                RZUniformBuffer* bufferResource = RZResourceManager::Get().getPool<RZUniformBuffer>().get(m_BufferHandle);
+                RZBufferDesc bufferDesc         = CAST_TO_FG_BUF_DESC desc;
 
-                // Get the Biding info from the flags
-                //                if (flags != FrameGraph::kFlagsNone)
-                //                    DescriptorBindingInfo info = Gfx::DecodeDescriptorBindingInfo(flags);
-                //                else
-                //                    return;
+                BufferBarrierType barrierType = BufferBarrierType::CPUToGPU;
+
+                if ((bufferDesc.initResourceViewHints & kUAV) == kUAV) {
+                    barrierType = BufferBarrierType::ShaderReadToShaderWrite;
+                } else if ((bufferDesc.initResourceViewHints & kTransferDst) == kTransferDst) {
+                    barrierType = BufferBarrierType::CPUToGPU;    // typically CPU writes before transfer
+                } else if ((bufferDesc.initResourceViewHints & kCBV) == kCBV) {
+                    barrierType = BufferBarrierType::CPUToGPU;
+                }
+
+                if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
+                    RAZIX_CORE_INFO("[WriteBarrier::Buffer] resource name: {0} | barrier type: {1}", bufferDesc.name, BufferBarrierTypeNames[(u32) barrierType]);
+
+                RHI::InsertBufferMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_BufferHandle, barrierType);
             }
 
             std::string RZFrameGraphBuffer::toString(const Desc& desc)

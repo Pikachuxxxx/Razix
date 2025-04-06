@@ -709,25 +709,82 @@ namespace Razix {
             }
         }
 
-        void VKRenderContext::InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
+        void VKRenderContext::InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, BufferBarrierType barrierType)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             RZUniformBuffer* bufferResource = RZResourceManager::Get().getPool<RZUniformBuffer>().get(buffer);
             VKUniformBuffer* vkBuffer       = static_cast<VKUniformBuffer*>(bufferResource);
 
-            VkBufferMemoryBarrier barrier = {};
-            barrier.sType                 = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-            barrier.srcAccessMask         = VKUtilities::EngineMemoryAcsessMaskToVK(bufBarrierInfo.srcAccess);
-            barrier.dstAccessMask         = VKUtilities::EngineMemoryAcsessMaskToVK(bufBarrierInfo.dstAccess);
-            barrier.srcQueueFamilyIndex   = VK_QUEUE_FAMILY_IGNORED;
-            barrier.dstQueueFamilyIndex   = VK_QUEUE_FAMILY_IGNORED;
-            barrier.buffer                = vkBuffer->getBuffer();
-            barrier.offset                = 0;
-            barrier.size                  = vkBuffer->getSize();
+            VkBufferMemoryBarrier barrier{};
+            barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.buffer              = vkBuffer->getBuffer();
+            barrier.offset              = 0;
+            barrier.size                = vkBuffer->getSize();
+
+            VkPipelineStageFlags srcStage  = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            VkPipelineStageFlags dstStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+            VkAccessFlags        srcAccess = 0;
+            VkAccessFlags        dstAccess = 0;
+
+            switch (barrierType) {
+                case BufferBarrierType::CPUToGPU:
+                    srcStage  = VK_PIPELINE_STAGE_HOST_BIT;
+                    dstStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+                    srcAccess = VK_ACCESS_HOST_WRITE_BIT;
+                    dstAccess = VK_ACCESS_UNIFORM_READ_BIT;
+                    break;
+
+                case BufferBarrierType::GPUToCPU:
+                    srcStage  = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    dstStage  = VK_PIPELINE_STAGE_HOST_BIT;
+                    srcAccess = VK_ACCESS_SHADER_WRITE_BIT;
+                    dstAccess = VK_ACCESS_HOST_READ_BIT;
+                    break;
+
+                case BufferBarrierType::TransferDstToShaderRead:
+                    srcStage  = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                    dstStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                    srcAccess = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    dstAccess = VK_ACCESS_SHADER_READ_BIT;
+                    break;
+
+                case BufferBarrierType::ShaderReadToShaderWrite:
+                    srcStage  = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                    dstStage  = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                    srcAccess = VK_ACCESS_SHADER_READ_BIT;
+                    dstAccess = VK_ACCESS_SHADER_WRITE_BIT;
+                    break;
+
+                case BufferBarrierType::ShaderWriteToShaderRead:
+                    srcStage  = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    dstStage  = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    srcAccess = VK_ACCESS_SHADER_WRITE_BIT;
+                    dstAccess = VK_ACCESS_SHADER_READ_BIT;
+                    break;
+
+                default:
+                    RAZIX_CORE_WARN("Unknown BufferBarrierType passed to InsertBufferMemoryBarrierImpl.");
+                    break;
+            }
+
+            barrier.srcAccessMask = srcAccess;
+            barrier.dstAccessMask = dstAccess;
 
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdPipelineBarrier(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.startExecutionStage), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.endExecutionStage), 0, 0, nullptr, 1, &barrier, 0, nullptr);
+            vkCmdPipelineBarrier(
+                static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(),
+                srcStage,
+                dstStage,
+                0,
+                0,
+                nullptr,
+                1,
+                &barrier,
+                0,
+                nullptr);
         }
 
         void VKRenderContext::CopyTextureResourceImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTexture)
