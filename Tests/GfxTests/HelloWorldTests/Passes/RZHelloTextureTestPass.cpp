@@ -67,7 +67,6 @@ namespace Razix {
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {{Gfx::RHI::GetSwapchain()->GetCurrentBackBufferImage(), {true, ClearColorPresets::OpaqueBlack}}};
                     info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
-                    info.resize           = true;
 
                     RHI::BeginRendering(cmdBuffer, info);
 

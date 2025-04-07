@@ -66,7 +66,6 @@ namespace Razix {
 #ifdef __APPLE__
                     info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
 #endif
-                    info.resize = true;
 
                     Gfx::RHI::BeginRendering(cmdBuffer, info);
 

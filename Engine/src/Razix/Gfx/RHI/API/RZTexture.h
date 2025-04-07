@@ -46,6 +46,7 @@ namespace Razix {
             virtual int32_t ReadPixels(u32 x, u32 y) = 0;
 
             inline const RZTextureDesc& getDescription() const { return m_Desc; }
+            inline void setDescription(const RZTextureDesc& desc) { m_Desc = desc; }
             inline const std::string&   getName() const { return m_Desc.name; }
             inline u32                  getWidth() const { return m_Desc.width; }
             inline u32                  getHeight() const { return m_Desc.height; }

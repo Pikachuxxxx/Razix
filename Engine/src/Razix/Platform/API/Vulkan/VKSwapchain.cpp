@@ -68,6 +68,16 @@ namespace Razix {
                 IRZResource<RZTexture>* resource = (IRZResource<RZTexture>*) where;
                 resource->setHandle(handle);
                 resource->setName(RZ_SWAP_IMAGE_RES_NAME);
+                
+                RZTexture* textureResource = RZResourceManager::Get().getPool<RZTexture>().get(handle);
+                RZTextureDesc backbufferDesc = textureResource->getDescription();
+                backbufferDesc.width = width;
+                backbufferDesc.height = height;
+                backbufferDesc.allowResize = true;
+                backbufferDesc.initResourceViewHints = kRTV;
+                backbufferDesc.type = TextureType::kSwapchainImage;
+                backbufferDesc.format = TextureFormat::SCREEN;
+                textureResource->setDescription(backbufferDesc);
 
                 m_SwapchainImageTextures.push_back(handle);
             }
