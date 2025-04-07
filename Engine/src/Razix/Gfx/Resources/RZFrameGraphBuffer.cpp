@@ -1,4 +1,4 @@
-\    // clang-format off
+// clang-format off
 #include "rzxpch.h"
 // clang-format on
 #include "RZFrameGraphBuffer.h"
@@ -25,15 +25,16 @@
             {
                 RZResourceManager::Get().destroyUniformBuffer(m_BufferHandle);
             }
+        
+            // TODO: use a combination of BufferUsage and resourceViewHints to deduce, we don't have ImageLayout and needs to do more intelligent tracking to deducte barrier types
 
             void RZFrameGraphBuffer::preRead(const Desc& desc, uint32_t flags)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                RZUniformBuffer* bufferResource = RZResourceManager::Get().getPool<RZUniformBuffer>().get(m_BufferHandle);
                 RZBufferDesc bufferDesc         = CAST_TO_FG_BUF_DESC desc;
 
-                BufferBarrierType barrierType = BufferBarrierType::CPUToGPU;
+                BufferBarrierType barrierType = BufferBarrierType::ShaderWriteToShaderRead;
 
                 if ((bufferDesc.initResourceViewHints & kSRV) == kSRV) {
                     barrierType = BufferBarrierType::ShaderWriteToShaderRead;
@@ -53,15 +54,14 @@
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                RZUniformBuffer* bufferResource = RZResourceManager::Get().getPool<RZUniformBuffer>().get(m_BufferHandle);
                 RZBufferDesc bufferDesc         = CAST_TO_FG_BUF_DESC desc;
 
-                BufferBarrierType barrierType = BufferBarrierType::CPUToGPU;
+                BufferBarrierType barrierType = BufferBarrierType::ShaderReadToShaderWrite;
 
                 if ((bufferDesc.initResourceViewHints & kUAV) == kUAV) {
                     barrierType = BufferBarrierType::ShaderReadToShaderWrite;
                 } else if ((bufferDesc.initResourceViewHints & kTransferDst) == kTransferDst) {
-                    barrierType = BufferBarrierType::CPUToGPU;    // typically CPU writes before transfer
+                    barrierType = BufferBarrierType::CPUToGPU;
                 } else if ((bufferDesc.initResourceViewHints & kCBV) == kCBV) {
                     barrierType = BufferBarrierType::CPUToGPU;
                 }

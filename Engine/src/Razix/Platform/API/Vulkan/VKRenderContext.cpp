@@ -694,7 +694,7 @@ namespace Razix {
                     barrier.subresourceRange.levelCount     = 1;
                     barrier.subresourceRange.baseArrayLayer = layer;
                     barrier.subresourceRange.layerCount     = 1;
-                    // Use a pipeline barrier to make sure the transition is done properly
+
                     vkCmdPipelineBarrier(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(),
                         srcStage,
                         dstStage,
@@ -732,7 +732,7 @@ namespace Razix {
             switch (barrierType) {
                 case BufferBarrierType::CPUToGPU:
                     srcStage  = VK_PIPELINE_STAGE_HOST_BIT;
-                    dstStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+                    dstStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
                     srcAccess = VK_ACCESS_HOST_WRITE_BIT;
                     dstAccess = VK_ACCESS_UNIFORM_READ_BIT;
                     break;
@@ -746,14 +746,14 @@ namespace Razix {
 
                 case BufferBarrierType::TransferDstToShaderRead:
                     srcStage  = VK_PIPELINE_STAGE_TRANSFER_BIT;
-                    dstStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                    dstStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
                     srcAccess = VK_ACCESS_TRANSFER_WRITE_BIT;
                     dstAccess = VK_ACCESS_SHADER_READ_BIT;
                     break;
 
                 case BufferBarrierType::ShaderReadToShaderWrite:
-                    srcStage  = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-                    dstStage  = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                    srcStage  = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    dstStage  = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
                     srcAccess = VK_ACCESS_SHADER_READ_BIT;
                     dstAccess = VK_ACCESS_SHADER_WRITE_BIT;
                     break;

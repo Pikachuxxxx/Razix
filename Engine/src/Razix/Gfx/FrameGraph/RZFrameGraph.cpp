@@ -500,7 +500,8 @@ namespace Razix {
                 auto &renderInfo = data["rendering_info"];
                 RAZIX_ASSERT(!renderInfo.empty(), "[Frame Graph] Missing Rendering info in pass description!");
                 Resolution resolution = StringToResolutionsMap[renderInfo["resolution"]];
-                bool       resize     = renderInfo["resize"].get<bool>();
+                // TODO: Remove this from JSON files as well, reminder!
+//                bool       resize     = renderInfo["resize"].get<bool>();
                 auto      &extents    = renderInfo["extents"];
                 float2     extent     = float2(0.0f);
                 if (!extents.empty()) {
