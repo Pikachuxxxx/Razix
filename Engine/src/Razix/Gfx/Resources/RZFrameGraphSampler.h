@@ -7,9 +7,8 @@ namespace Razix {
 
         namespace FrameGraph {
 
-            class RZFrameGraphSampler
+            struct RZFrameGraphSampler
             {
-            public:
                 typedef RZSamplerDesc Desc;
 
                 void create(const Desc& desc, void* transientAllocator);
@@ -22,7 +21,7 @@ namespace Razix {
 
                 Gfx::RZSamplerHandle getHandle() const { return m_SamplerHandle; }
 
-            public:
+                // public for initializer list support
                 Gfx::RZSamplerHandle m_SamplerHandle;
             };
         }    // namespace FrameGraph

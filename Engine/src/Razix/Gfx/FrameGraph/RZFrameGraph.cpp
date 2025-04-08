@@ -501,9 +501,9 @@ namespace Razix {
                 RAZIX_ASSERT(!renderInfo.empty(), "[Frame Graph] Missing Rendering info in pass description!");
                 Resolution resolution = StringToResolutionsMap[renderInfo["resolution"]];
                 // TODO: Remove this from JSON files as well, reminder!
-//                bool       resize     = renderInfo["resize"].get<bool>();
-                auto      &extents    = renderInfo["extents"];
-                float2     extent     = float2(0.0f);
+                //                bool       resize     = renderInfo["resize"].get<bool>();
+                auto  &extents = renderInfo["extents"];
+                float2 extent  = float2(0.0f);
                 if (!extents.empty()) {
                     extent.x = extents["x"].get<float>();
                     extent.y = extents["y"].get<float>();
@@ -581,13 +581,16 @@ namespace Razix {
 
             void RZFrameGraph::execute(void *transientAllocator)
             {
+                if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
+                    RAZIX_CORE_INFO("***************Frame Graph EXEC START***************");
+
                 // Iterate though all passes and call their ExecuteFunc
                 for (auto &pass: m_PassNodes) {
                     // Only it it's executable and not culled
                     if (!pass.canExecute()) continue;
 
                     if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging) {
-                        RAZIX_CORE_INFO("=============PASS START=================");
+                        RAZIX_CORE_INFO("===============PASS START===============");
                         RAZIX_CORE_INFO("[Pass] executing pass: {0}", pass.m_Name);
                     }
 
@@ -627,6 +630,9 @@ namespace Razix {
                     if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                         RAZIX_CORE_INFO("=============PASS END===================");
                 }
+
+                if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
+                    RAZIX_CORE_INFO("***************Frame Graph EXEC END***************");
 
                 // End first frame identifier
                 RZFrameGraph::m_IsFirstFrame = false;

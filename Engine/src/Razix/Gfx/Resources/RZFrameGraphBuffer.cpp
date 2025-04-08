@@ -10,8 +10,7 @@
 #include "Razix/Gfx/RHI/API/RZShader.h"
 #include "Razix/Gfx/RHI/RHI.h"
 
-    namespace Razix
-{
+namespace Razix {
     namespace Gfx {
         namespace FrameGraph {
 
@@ -25,14 +24,14 @@
             {
                 RZResourceManager::Get().destroyUniformBuffer(m_BufferHandle);
             }
-        
+
             // TODO: use a combination of BufferUsage and resourceViewHints to deduce, we don't have ImageLayout and needs to do more intelligent tracking to deducte barrier types
 
             void RZFrameGraphBuffer::preRead(const Desc& desc, uint32_t flags)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                RZBufferDesc bufferDesc         = CAST_TO_FG_BUF_DESC desc;
+                RZBufferDesc bufferDesc = CAST_TO_FG_BUF_DESC desc;
 
                 BufferBarrierType barrierType = BufferBarrierType::ShaderWriteToShaderRead;
 
@@ -44,17 +43,22 @@
                     barrierType = BufferBarrierType::TransferDstToShaderRead;
                 }
 
+                // TODO: Fix using redundant barriers for buffer reads and writes
+                //if (m_LastReadBarrier == m_LastWriteBarrier) return;
+
                 if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                     RAZIX_CORE_INFO("[ReadBarrier::Buffer] resource name: {0} | barrier type: {1}", bufferDesc.name, BufferBarrierTypeNames[(u32) barrierType]);
 
                 RHI::InsertBufferMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_BufferHandle, barrierType);
+
+                m_LastReadBarrier = barrierType;
             }
 
             void RZFrameGraphBuffer::preWrite(const Desc& desc, uint32_t flags)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                RZBufferDesc bufferDesc         = CAST_TO_FG_BUF_DESC desc;
+                RZBufferDesc bufferDesc = CAST_TO_FG_BUF_DESC desc;
 
                 BufferBarrierType barrierType = BufferBarrierType::ShaderReadToShaderWrite;
 
@@ -66,10 +70,15 @@
                     barrierType = BufferBarrierType::CPUToGPU;
                 }
 
+                // TODO: Fix using redundant barriers for buffer reads and writes
+                //if (m_LastWriteBarrier == m_LastReadBarrier) return;
+
                 if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                     RAZIX_CORE_INFO("[WriteBarrier::Buffer] resource name: {0} | barrier type: {1}", bufferDesc.name, BufferBarrierTypeNames[(u32) barrierType]);
 
                 RHI::InsertBufferMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_BufferHandle, barrierType);
+
+                m_LastWriteBarrier = barrierType;
             }
 
             std::string RZFrameGraphBuffer::toString(const Desc& desc)

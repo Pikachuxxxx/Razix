@@ -83,13 +83,13 @@ namespace Razix {
                 ssaoNoise[i] = float4(rndDist(rndEngine) * 2.0f - 1.0f, rndDist(rndEngine) * 2.0f - 1.0f, 0.0f, 0.0f);
             }
             // SSAO kernel samples buffer
-            RZBufferDesc samplesBufferDesc{};
-            samplesBufferDesc.name     = "Kernel";
-            samplesBufferDesc.size     = static_cast<u32>(ssaoKernel.size()) * sizeof(float4);
-            samplesBufferDesc.data     = ssaoKernel.data();
-            samplesBufferDesc.usage    = BufferUsage::Static;
-            auto ssaoKernelBuffer      = Gfx::RZResourceManager::Get().createUniformBuffer(samplesBufferDesc);
-            ssaoData.SSAOKernelSamples = framegraph.import <FrameGraph::RZFrameGraphBuffer>(samplesBufferDesc.name, CAST_TO_FG_BUF_DESC samplesBufferDesc, {ssaoKernelBuffer});
+            RZBufferDesc samplesBufferDesc = {};
+            samplesBufferDesc.name         = "Kernel";
+            samplesBufferDesc.size         = static_cast<u32>(ssaoKernel.size()) * sizeof(float4);
+            samplesBufferDesc.data         = ssaoKernel.data();
+            samplesBufferDesc.usage        = BufferUsage::Static;
+            auto ssaoKernelBuffer          = Gfx::RZResourceManager::Get().createUniformBuffer(samplesBufferDesc);
+            ssaoData.SSAOKernelSamples     = framegraph.import <FrameGraph::RZFrameGraphBuffer>(samplesBufferDesc.name, CAST_TO_FG_BUF_DESC samplesBufferDesc, {ssaoKernelBuffer});
 
             // SSAO Noise texture
             RZTextureDesc noiseTextureDesc{};

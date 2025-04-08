@@ -4,10 +4,13 @@ namespace Razix {
     namespace Gfx {
         namespace FrameGraph {
 
-            class RZFrameGraphBuffer
+            struct RZFrameGraphBuffer
             {
-            public:
                 typedef RZBufferDesc Desc;
+
+                RZFrameGraphBuffer() = default;
+                RZFrameGraphBuffer(Gfx::RZUniformBufferHandle handle)
+                    : m_BufferHandle(handle) {}
 
                 void create(const Desc& desc, void* transientAllocator);
                 void destroy(const Desc& desc, void* transientAllocator);
@@ -19,8 +22,10 @@ namespace Razix {
 
                 Gfx::RZUniformBufferHandle getHandle() const { return m_BufferHandle; }
 
-            public:
+            private:
                 Gfx::RZUniformBufferHandle m_BufferHandle;
+                Gfx::BufferBarrierType     m_LastReadBarrier;
+                Gfx::BufferBarrierType     m_LastWriteBarrier;
             };
         }    // namespace FrameGraph
     }        // namespace Gfx

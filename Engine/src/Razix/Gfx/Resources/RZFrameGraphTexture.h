@@ -18,9 +18,8 @@ namespace Razix {
              * This is a fake typeless interface for various types of resources used by the FG
              */
 
-            class RZFrameGraphTexture
+            struct RZFrameGraphTexture
             {
-            public:
                 typedef RZTextureDesc Desc;
 
                 void create(const Desc& desc, void* transientAllocator);
@@ -35,7 +34,7 @@ namespace Razix {
 
                 Gfx::RZTextureHandle getHandle() const { return m_TextureHandle; }
 
-            public:
+                // public for initializer list support
                 Gfx::RZTextureHandle m_TextureHandle;
             };
         }    // namespace FrameGraph
