@@ -75,6 +75,7 @@ namespace Razix {
                     bufferDesc.name         = "CB_CascadesMatrixData";
                     bufferDesc.size         = sizeof(CascadesMatrixData);
                     bufferDesc.data         = nullptr;
+                    bufferDesc.initResourceViewHints = ResourceViewHint::kCBV;
                     bufferDesc.usage        = BufferUsage::PersistentStream;
 
                     data.viewProjMatrices = builder.create<FrameGraph::RZFrameGraphBuffer>("CB_CascadesMatrixData", CAST_TO_FG_BUF_DESC bufferDesc);
@@ -297,6 +298,7 @@ namespace Razix {
                     bufferDesc.name         = "VPLayer";
                     bufferDesc.size         = sizeof(LightVPLayerData);
                     bufferDesc.data         = nullptr;
+                    bufferDesc.initResourceViewHints = ResourceViewHint::kCBV;
                     bufferDesc.usage        = BufferUsage::PersistentStream;
 
                     subpassData.vpLayer = builder.create<FrameGraph::RZFrameGraphBuffer>("VPLayer", CAST_TO_FG_BUF_DESC bufferDesc);

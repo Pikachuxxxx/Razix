@@ -43,9 +43,6 @@ namespace Razix {
                     barrierType = BufferBarrierType::TransferDstToShaderRead;
                 }
 
-                // TODO: Fix using redundant barriers for buffer reads and writes
-                //if (m_LastReadBarrier == m_LastWriteBarrier) return;
-
                 if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                     RAZIX_CORE_INFO("[ReadBarrier::Buffer] resource name: {0} | barrier type: {1}", bufferDesc.name, BufferBarrierTypeNames[(u32) barrierType]);
 
@@ -70,8 +67,9 @@ namespace Razix {
                     barrierType = BufferBarrierType::CPUToGPU;
                 }
 
-                // TODO: Fix using redundant barriers for buffer reads and writes
-                //if (m_LastWriteBarrier == m_LastReadBarrier) return;
+                // doesn't make sense to wait until CPU write then it's being read by a shader
+                // there was already a barrier inserted when we started writing to it in preRead
+                if (barrierType == BufferBarrierType::CPUToGPU) return;
 
                 if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                     RAZIX_CORE_INFO("[WriteBarrier::Buffer] resource name: {0} | barrier type: {1}", bufferDesc.name, BufferBarrierTypeNames[(u32) barrierType]);

@@ -554,8 +554,13 @@ namespace Razix {
                 [&](FrameData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    // TODO: convert this to struct form
-                    data.frameData = builder.create<FrameGraph::RZFrameGraphBuffer>("FrameData", {"FrameData", sizeof(GPUFrameData), 0, BufferUsage::PersistentStream});
+                    RZBufferDesc framedataBufferDesc          = {};
+                    framedataBufferDesc.name                  = "FrameData";
+                    framedataBufferDesc.size                  = sizeof(GPUFrameData);
+                    framedataBufferDesc.data                  = NULL;
+                    framedataBufferDesc.initResourceViewHints = kCBV;
+                    framedataBufferDesc.usage                 = BufferUsage::PersistentStream;
+                    data.frameData                            = builder.create<FrameGraph::RZFrameGraphBuffer>(framedataBufferDesc.name, CAST_TO_FG_BUF_DESC framedataBufferDesc);
 
                     data.frameData = builder.write(data.frameData);
                 },
@@ -642,9 +647,14 @@ namespace Razix {
                 [&](SceneLightsData& data, FrameGraph::RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    // TODO: convert this to struct form
-                    data.lightsDataBuffer = builder.create<FrameGraph::RZFrameGraphBuffer>("SceneLightsData", {"SceneLightsData", sizeof(GPULightsData), 0, BufferUsage::PersistentStream});
-                    data.lightsDataBuffer = builder.write(data.lightsDataBuffer);
+                    RZBufferDesc lightdataBufferDesc          = {};
+                    lightdataBufferDesc.name                  = "SceneLightsData";
+                    lightdataBufferDesc.size                  = sizeof(GPULightsData);
+                    lightdataBufferDesc.data                  = NULL;
+                    lightdataBufferDesc.initResourceViewHints = kCBV;
+                    lightdataBufferDesc.usage                 = BufferUsage::PersistentStream;
+                    data.lightsDataBuffer                     = builder.create<FrameGraph::RZFrameGraphBuffer>(lightdataBufferDesc.name, CAST_TO_FG_BUF_DESC lightdataBufferDesc);
+                    data.lightsDataBuffer                     = builder.write(data.lightsDataBuffer);
                 },
                 [=](const SceneLightsData& data, FrameGraph::RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

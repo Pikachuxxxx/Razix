@@ -254,9 +254,10 @@ namespace Razix {
 
         void RZDebugRendererProxy::createPointBufferResources()
         {
-            RZBufferDesc pointVBDesc = {};
-            pointVBDesc.data         = nullptr;
-            pointVBDesc.usage        = BufferUsage::PersistentStream;
+            RZBufferDesc pointVBDesc          = {};
+            pointVBDesc.data                  = nullptr;
+            pointVBDesc.usage                 = BufferUsage::PersistentStream;
+            pointVBDesc.initResourceViewHints = kCBV;
 
             pointVBDesc.name   = "VB_Points::Positions";
             pointVBDesc.size   = PointPositionVertexBufferSize;
@@ -282,21 +283,23 @@ namespace Razix {
                 offset += 4;
             }
 
-            RZBufferDesc pointIBDesc = {};
-            pointIBDesc.name         = "IB_Points";
-            pointIBDesc.usage        = BufferUsage::Static;
-            pointIBDesc.count        = MaxPointIndices;
-            pointIBDesc.data         = indices;
-            m_PointIB                = RZResourceManager::Get().createIndexBuffer(pointIBDesc);
+            RZBufferDesc pointIBDesc          = {};
+            pointIBDesc.name                  = "IB_Points";
+            pointIBDesc.usage                 = BufferUsage::Static;
+            pointIBDesc.count                 = MaxPointIndices;
+            pointIBDesc.data                  = indices;
+            pointIBDesc.initResourceViewHints = ResourceViewHint::kCBV;
+            m_PointIB                         = RZResourceManager::Get().createIndexBuffer(pointIBDesc);
 
             Razix::Memory::RZFree(indices);
         }
 
         void RZDebugRendererProxy::createLineBufferResources()
         {
-            RZBufferDesc lineVBDesc = {};
-            lineVBDesc.usage        = BufferUsage::PersistentStream;
-            lineVBDesc.data         = nullptr;
+            RZBufferDesc lineVBDesc          = {};
+            lineVBDesc.usage                 = BufferUsage::PersistentStream;
+            lineVBDesc.data                  = nullptr;
+            lineVBDesc.initResourceViewHints = kCBV;
 
             lineVBDesc.name   = "VB_Lines::Positions";
             lineVBDesc.size   = LinePositionVertexBufferSize;
@@ -314,12 +317,13 @@ namespace Razix {
                 line_indices[i] = i;
             }
 
-            RZBufferDesc lineIBDesc = {};
-            lineIBDesc.name         = "IB_Lines";
-            lineIBDesc.usage        = BufferUsage::Static;
-            lineIBDesc.count        = MaxLineIndices;
-            lineIBDesc.data         = line_indices;
-            m_LineIB                = RZResourceManager::Get().createIndexBuffer(lineIBDesc);
+            RZBufferDesc lineIBDesc          = {};
+            lineIBDesc.name                  = "IB_Lines";
+            lineIBDesc.usage                 = BufferUsage::Static;
+            lineIBDesc.count                 = MaxLineIndices;
+            lineIBDesc.data                  = line_indices;
+            lineIBDesc.initResourceViewHints = kCBV;
+            m_LineIB                         = RZResourceManager::Get().createIndexBuffer(lineIBDesc);
 
             Memory::RZFree(line_indices);
         }
@@ -449,7 +453,7 @@ namespace Razix {
             // Directional
             if (light->getType() == LightType::DIRECTIONAL) {
                 float3 offset(0.0f, 0.1f, 0.0f);
-                auto      lightPos = normalize(-light->getPosition());
+                auto   lightPos = normalize(-light->getPosition());
                 DrawLine(float3(light->getPosition()) + offset, float3(lightPos * 2.0f) + offset, colour);
                 DrawLine(float3(light->getPosition()) - offset, float3(lightPos * 2.0f) - offset, colour);
                 DrawLine(float3(light->getPosition()), float3(lightPos * 2.0f), colour);
@@ -516,12 +520,12 @@ namespace Razix {
             quat rotation = quat(float3(radians(eulerRotation.x), radians(eulerRotation.y), radians(eulerRotation.z)));
 
             for (f32 angle = 0; angle <= 360.0f; angle += sectorAngle) {
-                f32       cx      = cos(radians(angle)) * radius;
-                f32       cy      = sin(radians(angle)) * radius;
+                f32    cx      = cos(radians(angle)) * radius;
+                f32    cy      = sin(radians(angle)) * radius;
                 float3 current = float3(cx, cy, 0.0f);
 
-                f32       nx   = cos(radians(angle + sectorAngle)) * radius;
-                f32       ny   = sin(radians(angle + sectorAngle)) * radius;
+                f32    nx   = cos(radians(angle + sectorAngle)) * radius;
+                f32    ny   = sin(radians(angle + sectorAngle)) * radius;
                 float3 next = float3(nx, ny, 0.0f);
 
                 //DrawPoint(position + (current), 0.05, colour);
@@ -603,14 +607,14 @@ namespace Razix {
             quat rotation = quat(float3(radians(eulerRotation.x), radians(eulerRotation.y), radians(eulerRotation.z)));
 
             float3 arcCentre = (start + end) * 0.5f;
-            arcCentre           = arcCentre - (radius * 0.5f);
+            arcCentre        = arcCentre - (radius * 0.5f);
             for (f32 angle = 0; angle <= 180.0f; angle += sectorAngle) {
-                f32       cx      = cos(radians(angle)) * radius;
-                f32       cy      = sin(radians(angle)) * radius;
+                f32    cx      = cos(radians(angle)) * radius;
+                f32    cy      = sin(radians(angle)) * radius;
                 float3 current = float3(cx, cy, 0.0f);
 
-                f32       nx   = cos(radians(angle + sectorAngle)) * radius;
-                f32       ny   = sin(radians(angle + sectorAngle)) * radius;
+                f32    nx   = cos(radians(angle + sectorAngle)) * radius;
+                f32    ny   = sin(radians(angle + sectorAngle)) * radius;
                 float3 next = float3(nx, ny, 0.0f);
 
                 //DrawPoint(position + (current), 0.05, colour);
@@ -638,7 +642,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            f32       radius       = tan(radians(angle * 0.5f)) * length;
+            f32  radius       = tan(radians(angle * 0.5f)) * length;
             quat quatRotation = quat(float3(radians(rotation.x), radians(rotation.y), radians(rotation.z)));
 
             float3 forward     = -(quatRotation * float3(0.0f, 0.0f, -1.0f));

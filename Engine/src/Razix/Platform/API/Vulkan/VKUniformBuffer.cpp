@@ -11,6 +11,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            // updates the IRZResource with initialization time hints
+            setResourceViewHints(m_Desc.initResourceViewHints);
             m_Desc = desc;
         }
 
@@ -18,12 +20,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            //u32 align       = VKDevice::Get().getPhysicalDevice()->getProperties().limits.nonCoherentAtomSize;
-            //u32 alignedSize = Razix::Memory::RZMemAlign(size, align);
             VKBuffer::setData(size, data);
-            //invalidate(alignedSize);
-            //flush(alignedSize);
-            //VKBuffer::unMap();
         }
 
         void VKUniformBuffer::DestroyResource()
@@ -46,6 +43,5 @@ namespace Razix {
 
             VKBuffer::invalidate(m_BufferSize);
         }
-
     }    // namespace Gfx
 }    // namespace Razix

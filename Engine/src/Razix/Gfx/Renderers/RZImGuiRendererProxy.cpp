@@ -251,19 +251,21 @@ namespace Razix {
 
             constexpr u32 MaxBufferSize = 16_Mib;
 
-            RZBufferDesc vertexBufferDesc = {};
-            vertexBufferDesc.name         = "VB_ImGui";
-            vertexBufferDesc.usage        = BufferUsage::PersistentStream;
-            vertexBufferDesc.size         = MaxBufferSize;
-            vertexBufferDesc.data         = NULL;
-            m_ImGuiVBO                    = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
+            RZBufferDesc vertexBufferDesc          = {};
+            vertexBufferDesc.name                  = "VB_ImGui";
+            vertexBufferDesc.usage                 = BufferUsage::PersistentStream;
+            vertexBufferDesc.size                  = MaxBufferSize;
+            vertexBufferDesc.data                  = NULL;
+            vertexBufferDesc.initResourceViewHints = kCBV;
+            m_ImGuiVBO                             = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
 
-            RZBufferDesc indexBufferDesc = {};
-            indexBufferDesc.name         = "IB_ImGui";
-            indexBufferDesc.usage        = BufferUsage::PersistentStream;
-            indexBufferDesc.count        = MaxBufferSize;
-            indexBufferDesc.data         = NULL;
-            m_ImGuiIBO                   = RZResourceManager::Get().createIndexBuffer(indexBufferDesc);
+            RZBufferDesc indexBufferDesc          = {};
+            indexBufferDesc.name                  = "IB_ImGui";
+            indexBufferDesc.usage                 = BufferUsage::PersistentStream;
+            indexBufferDesc.count                 = MaxBufferSize;
+            indexBufferDesc.data                  = NULL;
+            indexBufferDesc.initResourceViewHints = kCBV;
+            m_ImGuiIBO                            = RZResourceManager::Get().createIndexBuffer(indexBufferDesc);
         }
 
         void RZImGuiRendererProxy::loadImGuiFonts()

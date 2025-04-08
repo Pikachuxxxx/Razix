@@ -1,0 +1,2688 @@
+ Razix App          [09:18:00] :: Starting Up Engine Application Logger 
+ Razix Core         [09:18:00] :: [Virtual File System] Starting Up Virtual File System... 
+ Razix Core         [09:18:00] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Engine/ 
+ Razix Core         [09:18:00] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Engine/content/ 
+ Razix Core         [09:18:00] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Engine/content/config/ 
+ Razix Core         [09:18:00] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Engine/content/Fonts/ 
+ Razix Core         [09:18:00] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Engine/content/FrameGraphs/ 
+ Razix Core         [09:18:00] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Engine/content/Logos/ 
+ Razix Core         [09:18:00] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Engine/content/Shaders/Razix/ 
+ Razix Core         [09:18:00] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Engine/content/Shaders/Compiled/ 
+ Razix Core         [09:18:00] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Engine/content/Splash/ 
+ Razix Core         [09:18:00] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Engine/content/Textures/ 
+ Razix Core         [09:18:01] :: *********************************** 
+ Razix Core         [09:18:01] :: *          Igniting Engine....    * 
+ Razix Core         [09:18:01] :: *********************************** 
+ Razix Core         [09:18:01] :: Engine Stats : [Version : 0.43.0 , Release Stage : Development, Release Date : 16-9-2023] 
+ Razix Core         [09:18:01] :: Loading Department/Global Budgets... 
+ Razix Core         [09:18:01] :: [Scene Manager] Starting Up Scene Manager 
+ Razix Core         [09:18:01] :: [Lua Script Manager] Starting Up Lua Script Handler 
+ Razix Core         [09:18:01] :: *********************************** 
+ Razix Core         [09:18:01] :: *          Engine Ignited!        * 
+ Razix Core         [09:18:01] :: *********************************** 
+ Razix Core         [09:18:01] :: Engine Ingnited in : 41.1942 ms 
+ Razix Core         [09:18:01] :: Creating Windows OS instance 
+ Razix Core         [09:18:01] :: System OS : Debug-windows-x86_64 
+ Razix App          [09:18:01] :: Creating Razix Sandbox Application 
+ Razix Core         [09:18:01] :: Project file path : X:/Game Engines/Razix/Sandbox/ 
+ Razix Core         [09:18:01] :: [Application] command line args for project file path and name are not set...using App args to resolve *.razixproject 
+ Razix Core         [09:18:01] :: [Application] Opening the project file de-serialization... from RZApplication resolved path: X:/Game Engines/Razix/Sandbox//SponzaSandbox.razixproject 
+ Razix Core         [09:18:01] :: Mounting file systems... for Project at : X:/Game Engines/Razix/Sandbox/ 
+ Razix Core         [09:18:01] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Sandbox/ 
+ Razix Core         [09:18:01] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Sandbox//Assets 
+ Razix Core         [09:18:01] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Sandbox//Assets/Meshes 
+ Razix Core         [09:18:01] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Sandbox//Assets/Scenes 
+ Razix Core         [09:18:01] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Sandbox//Assets/Scripts 
+ Razix Core         [09:18:01] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Sandbox//Assets/Sounds 
+ Razix Core         [09:18:01] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Sandbox//Assets/Textures 
+ Razix Core         [09:18:01] :: [Virtual File System] Mounting file path at : X:/Game Engines/Razix/Sandbox//Assets/Materials 
+ Razix Core         [09:18:01] :: Loading project file... 
+ Razix Core         [09:18:01] :: Loading Scenes... 
+ Razix Core         [09:18:01] :: 	 scene : //Scenes/default Scene.rzscn 
+ Razix Core         [09:18:01] :: Creating Window... 
+ 				 Title : SponzaSandbox | Razix Engine - 0.43.0 [Development] <Vulkan> |  Debug-windows-x86_64 (Width : 1395, Height : 671) 
+ Razix Core         [09:18:01] :: Creating Graphics Context... 
+ Razix Core         [09:18:01] :: [Resource Manager] Starting Up Resource Manager 
+ Razix Core         [09:18:01] :: Initializing Graphics Context... 
+ Razix Core         [09:18:01] :: [Vulkan] GLFW loaded extensions count : 2 
+ Razix Core         [09:18:01] :: Available Instance Extensions:
+ 
+ Razix Core         [09:18:01] :: 	 VK_KHR_device_group_creation 
+ 
+ Razix Core         [09:18:01] :: 	 VK_KHR_display 
+ 
+ Razix Core         [09:18:01] :: 	 VK_KHR_external_fence_capabilities 
+ 
+ Razix Core         [09:18:01] :: 	 VK_KHR_external_memory_capabilities 
+ 
+ Razix Core         [09:18:01] :: 	 VK_KHR_external_semaphore_capabilities 
+ 
+ Razix Core         [09:18:01] :: 	 VK_KHR_get_display_properties2 
+ 
+ Razix Core         [09:18:01] :: 	 VK_KHR_get_physical_device_properties2 
+ 
+ Razix Core         [09:18:01] :: 	 VK_KHR_get_surface_capabilities2 
+ 
+ Razix Core         [09:18:01] :: 	 VK_KHR_surface 
+ 
+ Razix Core         [09:18:01] :: 	 VK_KHR_surface_protected_capabilities 
+ 
+ Razix Core         [09:18:01] :: 	 VK_KHR_win32_surface 
+ 
+ Razix Core         [09:18:01] :: 	 VK_EXT_debug_report 
+ 
+ Razix Core         [09:18:01] :: 	 VK_EXT_debug_utils 
+ 
+ Razix Core         [09:18:01] :: 	 VK_EXT_direct_mode_display 
+ 
+ Razix Core         [09:18:01] :: 	 VK_EXT_surface_maintenance1 
+ 
+ Razix Core         [09:18:01] :: 	 VK_EXT_swapchain_colorspace 
+ 
+ Razix Core         [09:18:01] :: 	 VK_NV_external_memory_capabilities 
+ 
+ Razix Core         [09:18:01] :: 	 VK_KHR_portability_enumeration 
+ 
+ Razix Core         [09:18:01] :: 	 VK_LUNARG_direct_driver_loading 
+ 
+ Razix Core         [09:18:01] :: GLFW Requested Extensions are : 
+ 
+ Razix Core         [09:18:01] :: 	 
+ Razix Core         [09:18:01] :: 	 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  No valid vk_loader_settings.json file found, no loader settings will be active
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_app_package_manifest_path: Failed to find mapping layers packages by family name
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Checking for Layer Manifest files in Registry at HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ImplicitLayers
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_add_json_entry: Located json file "C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\nv-vk64.json" from PnP registry: E
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\Program Files\RenderDoc\renderdoc.json" from registry "HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ImplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\Program Files\NVIDIA Corporation\Nsight Graphics 2024.1.1\target\windows-desktop-nomad-x64\VK_LAYER_NV_nomad_release_public_2024_1_1.json" from registry "HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ImplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\Program Files\NVIDIA Corporation\Nsight Graphics 2024.1.1\target\windows-desktop-nomad-x64\VK_LAYER_NV_GPU_Trace_release_public_2024_1_1.json" from registry "HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ImplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\Program Files (x86)\Steam\SteamOverlayVulkanLayer64.json" from registry "HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ImplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\Program Files (x86)\Steam\SteamFossilizeVulkanLayer64.json" from registry "HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ImplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\Program Files (x86)\Epic Games\Launcher\Portal\Extras\Overlay\EOSOverlayVkLayer-Win32.json" from registry "HKEY_CURRENT_USER\SOFTWARE\Khronos\Vulkan\ImplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\Program Files (x86)\Epic Games\Launcher\Portal\Extras\Overlay\EOSOverlayVkLayer-Win64.json" from registry "HKEY_CURRENT_USER\SOFTWARE\Khronos\Vulkan\ImplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\nv-vk64.json (file version 1.0.1)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\Program Files\RenderDoc\renderdoc.json (file version 1.1.2)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\Program Files\NVIDIA Corporation\Nsight Graphics 2024.1.1\target\windows-desktop-nomad-x64\VK_LAYER_NV_nomad_release_public_2024_1_1.json (file version 1.1.0)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\Program Files\NVIDIA Corporation\Nsight Graphics 2024.1.1\target\windows-desktop-nomad-x64\VK_LAYER_NV_GPU_Trace_release_public_2024_1_1.json (file version 1.1.0)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\Program Files (x86)\Steam\SteamOverlayVulkanLayer64.json (file version 1.0.0)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\Program Files (x86)\Steam\SteamFossilizeVulkanLayer64.json (file version 1.0.0)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\Program Files (x86)\Epic Games\Launcher\Portal\Extras\Overlay\EOSOverlayVkLayer-Win32.json (file version 1.1.2)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\Program Files (x86)\Epic Games\Launcher\Portal\Extras\Overlay\EOSOverlayVkLayer-Win64.json (file version 1.1.2)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Checking for Layer Manifest files in Registry at HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_device_registry_files: opening device PCI\VEN_10DE&DEV_1F15&SUBSYS_12AA1462&REV_A1\4&25a4fd47&0&0008
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_device_registry_entry: Device ID(3) Does not contain a value for "VulkanExplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_device_registry_files: Opening child device 4 - DISPLAY\ACR06D7\5&21E1A6A7&0&UID4352
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : VERBOSE
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_device_registry_files: GUID for 4 is not SoftwareComponent skipping
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_device_registry_files: opening device PCI\VEN_8086&DEV_3E9B&SUBSYS_12AA1462&REV_00\3&11583659&1&10
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_device_registry_entry: Device ID(1) Does not contain a value for "VulkanExplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_device_registry_files: Opening child device 5 - SWD\DRIVERENUM\CUI&4&210E04F9&0
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_device_registry_entry: Device ID(5) Does not contain a value for "VulkanExplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_device_registry_files: Opening child device 6 - SWD\DRIVERENUM\MSDK_COMPONENT&4&210E04F9&0
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_device_registry_entry: Device ID(6) Does not contain a value for "VulkanExplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_device_registry_files: Opening child device 7 - DISPLAY\AUO80ED\4&210E04F9&0&UID265988
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : VERBOSE
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_device_registry_files: GUID for 7 is not SoftwareComponent skipping
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_device_registry_files: found no registry files
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\VulkanSDK\1.3.275.0\Bin\VkLayer_api_dump.json" from registry "HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\VulkanSDK\1.3.275.0\Bin\VkLayer_gfxreconstruct.json" from registry "HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\VulkanSDK\1.3.275.0\Bin\VkLayer_khronos_synchronization2.json" from registry "HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\VulkanSDK\1.3.275.0\Bin\VkLayer_khronos_validation.json" from registry "HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\VulkanSDK\1.3.275.0\Bin\VkLayer_monitor.json" from registry "HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\VulkanSDK\1.3.275.0\Bin\VkLayer_screenshot.json" from registry "HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\VulkanSDK\1.3.275.0\Bin\VkLayer_khronos_profiles.json" from registry "HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Located json file "C:\VulkanSDK\1.3.275.0\Bin\VkLayer_khronos_shader_object.json" from registry "HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers"
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\VulkanSDK\1.3.275.0\Bin\VkLayer_api_dump.json (file version 1.2.0)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\VulkanSDK\1.3.275.0\Bin\VkLayer_gfxreconstruct.json (file version 1.2.0)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\VulkanSDK\1.3.275.0\Bin\VkLayer_khronos_synchronization2.json (file version 1.2.0)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\VulkanSDK\1.3.275.0\Bin\VkLayer_khronos_validation.json (file version 1.2.0)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\VulkanSDK\1.3.275.0\Bin\VkLayer_monitor.json (file version 1.0.0)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\VulkanSDK\1.3.275.0\Bin\VkLayer_screenshot.json (file version 1.2.0)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\VulkanSDK\1.3.275.0\Bin\VkLayer_khronos_profiles.json (file version 1.2.1)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found manifest file C:\VulkanSDK\1.3.275.0\Bin\VkLayer_khronos_shader_object.json (file version 1.2.0)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_get_app_package_manifest_path: Failed to find mapping layers packages by family name
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Checking for Driver Manifest files in Registry at HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\Drivers
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_add_json_entry: Located json file "C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\nv-vk64.json" from PnP registry: E
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  windows_add_json_entry: Located json file "C:\WINDOWS\System32\DriverStore\FileRepository\iigd_dch.inf_amd64_1f23cc3010479d40\igvk64.json" from PnP registry: E
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found no registry files in HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\Drivers
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found ICD manifest file C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\nv-vk64.json, version 1.0.1
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : VERBOSE
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Searching for ICD drivers named .\nvoglv64.dll
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Found ICD manifest file C:\WINDOWS\System32\DriverStore\FileRepository\iigd_dch.inf_amd64_1f23cc3010479d40\igvk64.json, version 1.0.0
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : VERBOSE
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Searching for ICD drivers named .\igvk64.dll
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : VERBOSE
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Loading layer library C:\VulkanSDK\1.3.275.0\Bin\.\VkLayer_khronos_validation.dll
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Insert instance layer "VK_LAYER_KHRONOS_validation" (C:\VulkanSDK\1.3.275.0\Bin\.\VkLayer_khronos_validation.dll)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : VERBOSE
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Loading layer library C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\.\nvoglv64.dll
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Insert instance layer "VK_LAYER_NV_gr2608" (C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\.\nvoglv64.dll)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : VERBOSE
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Loading layer library C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\.\nvoglv64.dll
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Insert instance layer "VK_LAYER_NV_optimus" (C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\.\nvoglv64.dll)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  vkCreateInstance layer callstack setup to:
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+     <Application>
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+       ||
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+     <Loader>
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+       ||
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+     VK_LAYER_NV_optimus
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Type: Implicit
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Enabled By: Implicit Layer
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+                 Disable Env Var:  DISABLE_LAYER_NV_OPTIMUS_1
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Manifest: C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\nv-vk64.json
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Library:  C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\.\nvoglv64.dll
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+       ||
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+     VK_LAYER_NV_gr2608
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Type: Implicit
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Enabled By: Implicit Layer
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+                 Disable Env Var:  DISABLE_LAYER_NV_GR2608_1
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Manifest: C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\nv-vk64.json
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Library:  C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\.\nvoglv64.dll
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+       ||
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+     VK_LAYER_KHRONOS_validation
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Type: Explicit
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Enabled By: By the Application
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Manifest: C:\VulkanSDK\1.3.275.0\Bin\VkLayer_khronos_validation.json
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Library:  C:\VulkanSDK\1.3.275.0\Bin\.\VkLayer_khronos_validation.dll
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+       ||
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+     <Drivers>
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 601872502
+ID Name      : WARNING-CreateInstance-status-message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Error Code : Validation Information: [ WARNING-CreateInstance-status-message ]
+  MessageID  : MessageID = 0x23dfd876 
+  Details    :  vkCreateInstance():  Khronos Validation Layer Active:
+    Settings File: None. Default location is X:\Game Engines\Razix\vk_layer_settings.txt.
+    Current Enables: None.
+    Current Disables: None.
+
+ 
+ Razix Core         [09:18:01] :: [Vulkan] Succesfully created Instance! 
+ Razix Core         [09:18:01] :: [Vulkan] Succesfully created debug messenger! 
+ Razix Core         [09:18:01] :: [Vulkan] Succesfully created surface! 
+ Razix Core         [09:18:01] :: [Vulkan] GPUs found         : 2 
+ Razix Core         [09:18:01] :: [Vulkan] Vulkan API Version : 1.4.303 
+ Razix Core         [09:18:01] :: [Vulkan] GPU Name           : NVIDIA GeForce RTX 2060 
+ Razix Core         [09:18:01] :: [Vulkan] Vendor ID          : 4318 
+ Razix Core         [09:18:01] :: [Vulkan] Device Type        : DISCRETE GPU 
+ Razix Core         [09:18:01] :: [Vulkan] Driver Version     : 572.64.0 
+ Razix Core         [09:18:01] :: Selected physical device has 234 extensions 
+ Razix Core         [09:18:01] ::   VK_KHR_16bit_storage 
+ Razix Core         [09:18:01] ::   VK_KHR_8bit_storage 
+ Razix Core         [09:18:01] ::   VK_KHR_acceleration_structure 
+ Razix Core         [09:18:01] ::   VK_KHR_bind_memory2 
+ Razix Core         [09:18:01] ::   VK_KHR_buffer_device_address 
+ Razix Core         [09:18:01] ::   VK_KHR_calibrated_timestamps 
+ Razix Core         [09:18:01] ::   VK_KHR_compute_shader_derivatives 
+ Razix Core         [09:18:01] ::   VK_KHR_cooperative_matrix 
+ Razix Core         [09:18:01] ::   VK_KHR_copy_commands2 
+ Razix Core         [09:18:01] ::   VK_KHR_create_renderpass2 
+ Razix Core         [09:18:01] ::   VK_KHR_dedicated_allocation 
+ Razix Core         [09:18:01] ::   VK_KHR_deferred_host_operations 
+ Razix Core         [09:18:01] ::   VK_KHR_depth_stencil_resolve 
+ Razix Core         [09:18:01] ::   VK_KHR_descriptor_update_template 
+ Razix Core         [09:18:01] ::   VK_KHR_device_group 
+ Razix Core         [09:18:01] ::   VK_KHR_draw_indirect_count 
+ Razix Core         [09:18:01] ::   VK_KHR_driver_properties 
+ Razix Core         [09:18:01] ::   VK_KHR_dynamic_rendering 
+ Razix Core         [09:18:01] ::   VK_KHR_dynamic_rendering_local_read 
+ Razix Core         [09:18:01] ::   VK_KHR_external_fence 
+ Razix Core         [09:18:01] ::   VK_KHR_external_fence_win32 
+ Razix Core         [09:18:01] ::   VK_KHR_external_memory 
+ Razix Core         [09:18:01] ::   VK_KHR_external_memory_win32 
+ Razix Core         [09:18:01] ::   VK_KHR_external_semaphore 
+ Razix Core         [09:18:01] ::   VK_KHR_external_semaphore_win32 
+ Razix Core         [09:18:01] ::   VK_KHR_format_feature_flags2 
+ Razix Core         [09:18:01] ::   VK_KHR_fragment_shader_barycentric 
+ Razix Core         [09:18:01] ::   VK_KHR_fragment_shading_rate 
+ Razix Core         [09:18:01] ::   VK_KHR_get_memory_requirements2 
+ Razix Core         [09:18:01] ::   VK_KHR_global_priority 
+ Razix Core         [09:18:01] ::   VK_KHR_image_format_list 
+ Razix Core         [09:18:01] ::   VK_KHR_imageless_framebuffer 
+ Razix Core         [09:18:01] ::   VK_KHR_index_type_uint8 
+ Razix Core         [09:18:01] ::   VK_KHR_line_rasterization 
+ Razix Core         [09:18:01] ::   VK_KHR_load_store_op_none 
+ Razix Core         [09:18:01] ::   VK_KHR_maintenance1 
+ Razix Core         [09:18:01] ::   VK_KHR_maintenance2 
+ Razix Core         [09:18:01] ::   VK_KHR_maintenance3 
+ Razix Core         [09:18:01] ::   VK_KHR_maintenance4 
+ Razix Core         [09:18:01] ::   VK_KHR_maintenance5 
+ Razix Core         [09:18:01] ::   VK_KHR_maintenance6 
+ Razix Core         [09:18:01] ::   VK_KHR_maintenance7 
+ Razix Core         [09:18:01] ::   VK_KHR_map_memory2 
+ Razix Core         [09:18:01] ::   VK_KHR_multiview 
+ Razix Core         [09:18:01] ::   VK_KHR_pipeline_binary 
+ Razix Core         [09:18:01] ::   VK_KHR_pipeline_executable_properties 
+ Razix Core         [09:18:01] ::   VK_KHR_pipeline_library 
+ Razix Core         [09:18:01] ::   VK_KHR_present_id 
+ Razix Core         [09:18:01] ::   VK_KHR_present_wait 
+ Razix Core         [09:18:01] ::   VK_KHR_push_descriptor 
+ Razix Core         [09:18:01] ::   VK_KHR_ray_query 
+ Razix Core         [09:18:01] ::   VK_KHR_ray_tracing_maintenance1 
+ Razix Core         [09:18:01] ::   VK_KHR_ray_tracing_pipeline 
+ Razix Core         [09:18:01] ::   VK_KHR_ray_tracing_position_fetch 
+ Razix Core         [09:18:01] ::   VK_KHR_relaxed_block_layout 
+ Razix Core         [09:18:01] ::   VK_KHR_sampler_mirror_clamp_to_edge 
+ Razix Core         [09:18:01] ::   VK_KHR_sampler_ycbcr_conversion 
+ Razix Core         [09:18:01] ::   VK_KHR_separate_depth_stencil_layouts 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_atomic_int64 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_clock 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_draw_parameters 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_expect_assume 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_float16_int8 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_float_controls 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_float_controls2 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_integer_dot_product 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_maximal_reconvergence 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_non_semantic_info 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_quad_control 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_relaxed_extended_instruction 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_subgroup_extended_types 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_subgroup_rotate 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_subgroup_uniform_control_flow 
+ Razix Core         [09:18:01] ::   VK_KHR_shader_terminate_invocation 
+ Razix Core         [09:18:01] ::   VK_KHR_spirv_1_4 
+ Razix Core         [09:18:01] ::   VK_KHR_storage_buffer_storage_class 
+ Razix Core         [09:18:01] ::   VK_KHR_swapchain 
+ Razix Core         [09:18:01] ::   VK_KHR_swapchain_mutable_format 
+ Razix Core         [09:18:01] ::   VK_KHR_synchronization2 
+ Razix Core         [09:18:01] ::   VK_KHR_timeline_semaphore 
+ Razix Core         [09:18:01] ::   VK_KHR_uniform_buffer_standard_layout 
+ Razix Core         [09:18:01] ::   VK_KHR_variable_pointers 
+ Razix Core         [09:18:01] ::   VK_KHR_vertex_attribute_divisor 
+ Razix Core         [09:18:01] ::   VK_KHR_video_decode_h264 
+ Razix Core         [09:18:01] ::   VK_KHR_video_decode_h265 
+ Razix Core         [09:18:01] ::   VK_KHR_video_decode_queue 
+ Razix Core         [09:18:01] ::   VK_KHR_video_encode_h264 
+ Razix Core         [09:18:01] ::   VK_KHR_video_encode_h265 
+ Razix Core         [09:18:01] ::   VK_KHR_video_encode_queue 
+ Razix Core         [09:18:01] ::   VK_KHR_video_maintenance1 
+ Razix Core         [09:18:01] ::   VK_KHR_video_queue 
+ Razix Core         [09:18:01] ::   VK_KHR_vulkan_memory_model 
+ Razix Core         [09:18:01] ::   VK_KHR_win32_keyed_mutex 
+ Razix Core         [09:18:01] ::   VK_KHR_workgroup_memory_explicit_layout 
+ Razix Core         [09:18:01] ::   VK_KHR_zero_initialize_workgroup_memory 
+ Razix Core         [09:18:01] ::   VK_EXT_4444_formats 
+ Razix Core         [09:18:01] ::   VK_EXT_attachment_feedback_loop_dynamic_state 
+ Razix Core         [09:18:01] ::   VK_EXT_attachment_feedback_loop_layout 
+ Razix Core         [09:18:01] ::   VK_EXT_blend_operation_advanced 
+ Razix Core         [09:18:01] ::   VK_EXT_border_color_swizzle 
+ Razix Core         [09:18:01] ::   VK_EXT_buffer_device_address 
+ Razix Core         [09:18:01] ::   VK_EXT_calibrated_timestamps 
+ Razix Core         [09:18:01] ::   VK_EXT_color_write_enable 
+ Razix Core         [09:18:01] ::   VK_EXT_conditional_rendering 
+ Razix Core         [09:18:01] ::   VK_EXT_conservative_rasterization 
+ Razix Core         [09:18:01] ::   VK_EXT_custom_border_color 
+ Razix Core         [09:18:01] ::   VK_EXT_depth_bias_control 
+ Razix Core         [09:18:01] ::   VK_EXT_depth_clamp_control 
+ Razix Core         [09:18:01] ::   VK_EXT_depth_clamp_zero_one 
+ Razix Core         [09:18:01] ::   VK_EXT_depth_clip_control 
+ Razix Core         [09:18:01] ::   VK_EXT_depth_clip_enable 
+ Razix Core         [09:18:01] ::   VK_EXT_depth_range_unrestricted 
+ Razix Core         [09:18:01] ::   VK_EXT_descriptor_buffer 
+ Razix Core         [09:18:01] ::   VK_EXT_descriptor_indexing 
+ Razix Core         [09:18:01] ::   VK_EXT_device_fault 
+ Razix Core         [09:18:01] ::   VK_EXT_device_generated_commands 
+ Razix Core         [09:18:01] ::   VK_EXT_discard_rectangles 
+ Razix Core         [09:18:01] ::   VK_EXT_dynamic_rendering_unused_attachments 
+ Razix Core         [09:18:01] ::   VK_EXT_extended_dynamic_state 
+ Razix Core         [09:18:01] ::   VK_EXT_extended_dynamic_state2 
+ Razix Core         [09:18:01] ::   VK_EXT_extended_dynamic_state3 
+ Razix Core         [09:18:01] ::   VK_EXT_external_memory_host 
+ Razix Core         [09:18:01] ::   VK_EXT_fragment_shader_interlock 
+ Razix Core         [09:18:01] ::   VK_EXT_full_screen_exclusive 
+ Razix Core         [09:18:01] ::   VK_EXT_global_priority 
+ Razix Core         [09:18:01] ::   VK_EXT_global_priority_query 
+ Razix Core         [09:18:01] ::   VK_EXT_graphics_pipeline_library 
+ Razix Core         [09:18:01] ::   VK_EXT_hdr_metadata 
+ Razix Core         [09:18:01] ::   VK_EXT_host_image_copy 
+ Razix Core         [09:18:01] ::   VK_EXT_host_query_reset 
+ Razix Core         [09:18:01] ::   VK_EXT_image_2d_view_of_3d 
+ Razix Core         [09:18:01] ::   VK_EXT_image_robustness 
+ Razix Core         [09:18:01] ::   VK_EXT_image_sliced_view_of_3d 
+ Razix Core         [09:18:01] ::   VK_EXT_image_view_min_lod 
+ Razix Core         [09:18:01] ::   VK_EXT_index_type_uint8 
+ Razix Core         [09:18:01] ::   VK_EXT_inline_uniform_block 
+ Razix Core         [09:18:01] ::   VK_EXT_legacy_vertex_attributes 
+ Razix Core         [09:18:01] ::   VK_EXT_line_rasterization 
+ Razix Core         [09:18:01] ::   VK_EXT_load_store_op_none 
+ Razix Core         [09:18:01] ::   VK_EXT_memory_budget 
+ Razix Core         [09:18:01] ::   VK_EXT_memory_priority 
+ Razix Core         [09:18:01] ::   VK_EXT_mesh_shader 
+ Razix Core         [09:18:01] ::   VK_EXT_multi_draw 
+ Razix Core         [09:18:01] ::   VK_EXT_mutable_descriptor_type 
+ Razix Core         [09:18:01] ::   VK_EXT_nested_command_buffer 
+ Razix Core         [09:18:01] ::   VK_EXT_non_seamless_cube_map 
+ Razix Core         [09:18:01] ::   VK_EXT_opacity_micromap 
+ Razix Core         [09:18:01] ::   VK_EXT_pageable_device_local_memory 
+ Razix Core         [09:18:01] ::   VK_EXT_pci_bus_info 
+ Razix Core         [09:18:01] ::   VK_EXT_pipeline_creation_cache_control 
+ Razix Core         [09:18:01] ::   VK_EXT_pipeline_creation_feedback 
+ Razix Core         [09:18:01] ::   VK_EXT_pipeline_library_group_handles 
+ Razix Core         [09:18:01] ::   VK_EXT_pipeline_robustness 
+ Razix Core         [09:18:01] ::   VK_EXT_post_depth_coverage 
+ Razix Core         [09:18:01] ::   VK_EXT_primitive_topology_list_restart 
+ Razix Core         [09:18:01] ::   VK_EXT_primitives_generated_query 
+ Razix Core         [09:18:01] ::   VK_EXT_private_data 
+ Razix Core         [09:18:01] ::   VK_EXT_provoking_vertex 
+ Razix Core         [09:18:01] ::   VK_EXT_queue_family_foreign 
+ Razix Core         [09:18:01] ::   VK_EXT_robustness2 
+ Razix Core         [09:18:01] ::   VK_EXT_sample_locations 
+ Razix Core         [09:18:01] ::   VK_EXT_sampler_filter_minmax 
+ Razix Core         [09:18:01] ::   VK_EXT_scalar_block_layout 
+ Razix Core         [09:18:01] ::   VK_EXT_separate_stencil_usage 
+ Razix Core         [09:18:01] ::   VK_EXT_shader_atomic_float 
+ Razix Core         [09:18:01] ::   VK_EXT_shader_demote_to_helper_invocation 
+ Razix Core         [09:18:01] ::   VK_EXT_shader_image_atomic_int64 
+ Razix Core         [09:18:01] ::   VK_EXT_shader_module_identifier 
+ Razix Core         [09:18:01] ::   VK_EXT_shader_object 
+ Razix Core         [09:18:01] ::   VK_EXT_shader_replicated_composites 
+ Razix Core         [09:18:01] ::   VK_EXT_shader_subgroup_ballot 
+ Razix Core         [09:18:01] ::   VK_EXT_shader_subgroup_vote 
+ Razix Core         [09:18:01] ::   VK_EXT_shader_viewport_index_layer 
+ Razix Core         [09:18:01] ::   VK_EXT_subgroup_size_control 
+ Razix Core         [09:18:01] ::   VK_EXT_swapchain_maintenance1 
+ Razix Core         [09:18:01] ::   VK_EXT_texel_buffer_alignment 
+ Razix Core         [09:18:01] ::   VK_EXT_tooling_info 
+ Razix Core         [09:18:01] ::   VK_EXT_transform_feedback 
+ Razix Core         [09:18:01] ::   VK_EXT_vertex_attribute_divisor 
+ Razix Core         [09:18:01] ::   VK_EXT_vertex_input_dynamic_state 
+ Razix Core         [09:18:01] ::   VK_EXT_ycbcr_2plane_444_formats 
+ Razix Core         [09:18:01] ::   VK_EXT_ycbcr_image_arrays 
+ Razix Core         [09:18:01] ::   VK_NV_acquire_winrt_display 
+ Razix Core         [09:18:01] ::   VK_NV_clip_space_w_scaling 
+ Razix Core         [09:18:01] ::   VK_NV_cluster_acceleration_structure 
+ Razix Core         [09:18:01] ::   VK_NV_compute_shader_derivatives 
+ Razix Core         [09:18:01] ::   VK_NV_cooperative_matrix 
+ Razix Core         [09:18:01] ::   VK_NV_cooperative_vector 
+ Razix Core         [09:18:01] ::   VK_NV_copy_memory_indirect 
+ Razix Core         [09:18:01] ::   VK_NV_corner_sampled_image 
+ Razix Core         [09:18:01] ::   VK_NV_coverage_reduction_mode 
+ Razix Core         [09:18:01] ::   VK_NV_cuda_kernel_launch 
+ Razix Core         [09:18:01] ::   VK_NV_dedicated_allocation 
+ Razix Core         [09:18:01] ::   VK_NV_dedicated_allocation_image_aliasing 
+ Razix Core         [09:18:01] ::   VK_NV_descriptor_pool_overallocation 
+ Razix Core         [09:18:01] ::   VK_NV_device_diagnostic_checkpoints 
+ Razix Core         [09:18:01] ::   VK_NV_device_diagnostics_config 
+ Razix Core         [09:18:01] ::   VK_NV_device_generated_commands 
+ Razix Core         [09:18:01] ::   VK_NV_device_generated_commands_compute 
+ Razix Core         [09:18:01] ::   VK_NV_external_memory 
+ Razix Core         [09:18:01] ::   VK_NV_external_memory_win32 
+ Razix Core         [09:18:01] ::   VK_NV_fill_rectangle 
+ Razix Core         [09:18:01] ::   VK_NV_fragment_coverage_to_color 
+ Razix Core         [09:18:01] ::   VK_NV_fragment_shader_barycentric 
+ Razix Core         [09:18:01] ::   VK_NV_fragment_shading_rate_enums 
+ Razix Core         [09:18:01] ::   VK_NV_framebuffer_mixed_samples 
+ Razix Core         [09:18:01] ::   VK_NV_geometry_shader_passthrough 
+ Razix Core         [09:18:01] ::   VK_NV_inherited_viewport_scissor 
+ Razix Core         [09:18:01] ::   VK_NV_linear_color_attachment 
+ Razix Core         [09:18:01] ::   VK_NV_low_latency 
+ Razix Core         [09:18:01] ::   VK_NV_low_latency2 
+ Razix Core         [09:18:01] ::   VK_NV_memory_decompression 
+ Razix Core         [09:18:01] ::   VK_NV_mesh_shader 
+ Razix Core         [09:18:01] ::   VK_NV_partitioned_acceleration_structure 
+ Razix Core         [09:18:01] ::   VK_NV_present_metering 
+ Razix Core         [09:18:01] ::   VK_NV_raw_access_chains 
+ Razix Core         [09:18:01] ::   VK_NV_ray_tracing 
+ Razix Core         [09:18:01] ::   VK_NV_ray_tracing_invocation_reorder 
+ Razix Core         [09:18:01] ::   VK_NV_representative_fragment_test 
+ Razix Core         [09:18:01] ::   VK_NV_sample_mask_override_coverage 
+ Razix Core         [09:18:01] ::   VK_NV_scissor_exclusive 
+ Razix Core         [09:18:01] ::   VK_NV_shader_atomic_float16_vector 
+ Razix Core         [09:18:01] ::   VK_NV_shader_image_footprint 
+ Razix Core         [09:18:01] ::   VK_NV_shader_sm_builtins 
+ Razix Core         [09:18:01] ::   VK_NV_shader_subgroup_partitioned 
+ Razix Core         [09:18:01] ::   VK_NV_shading_rate_image 
+ Razix Core         [09:18:01] ::   VK_NV_viewport_array2 
+ Razix Core         [09:18:01] ::   VK_NV_viewport_swizzle 
+ Razix Core         [09:18:01] ::   VK_NV_win32_keyed_mutex 
+ Razix Core         [09:18:01] ::   VK_NVX_binary_import 
+ Razix Core         [09:18:01] ::   VK_NVX_image_view_handle 
+ Razix Core         [09:18:01] ::   VK_NVX_multiview_per_view_attributes 
+ Razix Core         [09:18:01] ::   VK_AMD_buffer_marker 
+ Razix Core         [09:18:01] ::   VK_GOOGLE_user_type 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Inserted device layer "VK_LAYER_KHRONOS_validation" (C:\VulkanSDK\1.3.275.0\Bin\.\VkLayer_khronos_validation.dll)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Inserted device layer "VK_LAYER_NV_gr2608" (C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\.\nvoglv64.dll)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Inserted device layer "VK_LAYER_NV_optimus" (C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\.\nvoglv64.dll)
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  vkCreateDevice layer callstack setup to:
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+     <Application>
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+       ||
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+     <Loader>
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+       ||
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+     VK_LAYER_NV_optimus
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Type: Implicit
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Enabled By: Implicit Layer
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+                 Disable Env Var:  DISABLE_LAYER_NV_OPTIMUS_1
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Manifest: C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\nv-vk64.json
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Library:  C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\.\nvoglv64.dll
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+       ||
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+     VK_LAYER_NV_gr2608
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Type: Implicit
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Enabled By: Implicit Layer
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+                 Disable Env Var:  DISABLE_LAYER_NV_GR2608_1
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Manifest: C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\nv-vk64.json
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Library:  C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\.\nvoglv64.dll
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+       ||
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+     VK_LAYER_KHRONOS_validation
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Type: Explicit
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Enabled By: By the Application
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Manifest: C:\VulkanSDK\1.3.275.0\Bin\VkLayer_khronos_validation.json
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+             Library:  C:\VulkanSDK\1.3.275.0\Bin\.\VkLayer_khronos_validation.dll
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+       ||
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+     <Device>
+ 
+ Razix Core         [09:18:01] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : INFO
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+         Using "NVIDIA GeForce RTX 2060" with driver: "C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\.\nvoglv64.dll"
+ 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created logical device! 
+ Razix Core         [09:18:02] :: [Vulkan] Swap images count : %d 
+ Razix Core         [09:18:02] :: [Vulkan] Swapchain created successfully! 
+ Razix Core         [09:18:02] :: [Vulkan] Swapchain images 3 have been retrieved successfully! 
+ Razix Core         [09:18:02] :: [Vulkan] Swap Image view (id= 0 ) succesfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] Swap Image view (id= 1 ) succesfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] Swap Image view (id= 2 ) succesfully created! 
+ Razix Core         [09:18:02] :: [VMA] Succesfully created VMA allocator! 
+ Razix Core         [09:18:02] :: Total GPU VRAM : 6.024414 Gib 
+ Razix Core         [09:18:02] :: Heap Idx : 0, budget : 4.6523438 Gib 
+ Razix Core         [09:18:02] :: Heap Idx : 1, budget : 6.338025 Gib 
+ Razix Core         [09:18:02] :: Heap Idx : 2, budget : 0.1671875 Gib 
+ Razix Core         [09:18:02] :: [RHI] Creating Sampler Presets 
+ Razix Core         [09:18:02] :: [RHI] Creating Default Texture 
+ Razix Core         [09:18:02] :: *********************************** 
+ Razix Core         [09:18:02] :: *   Post Graphics Ignition....    * 
+ Razix Core         [09:18:02] :: *********************************** 
+ Razix Core         [09:18:02] :: [Shader Library] Starting Up Shader Library to load shaders 
+ Razix Core         [09:18:02] :: Parsing .rzsf shader : //RazixContent/Shaders/Razix/Shader.Builtin.EnvToCubeMap.rzsf 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created pipeline layout! 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: Parsing .rzsf shader : //RazixContent/Shaders/Razix/Shader.Builtin.GenerateIrradianceMap.rzsf 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created pipeline layout! 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: Parsing .rzsf shader : //RazixContent/Shaders/Razix/Shader.Builtin.GeneratePreFilteredMap.rzsf 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created pipeline layout! 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: Parsing .rzsf shader : //RazixContent/Shaders/Razix/Shader.Builtin.DepthPreTest.rzsf 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created pipeline layout! 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: Parsing .rzsf shader : //RazixContent/Shaders/Razix/Shader.Builtin.Skybox.rzsf 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created pipeline layout! 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: Parsing .rzsf shader : //RazixContent/Shaders/Razix/Shader.Builtin.Composition.rzsf 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created pipeline layout! 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: Parsing .rzsf shader : //RazixContent/Shaders/Razix/Shader.Builtin.VisibilityBufferFill.rzsf 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created pipeline layout! 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: Parsing .rzsf shader : //RazixContent/Shaders/Razix/Shader.Builtin.ImGui.rzsf 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created pipeline layout! 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: Parsing .rzsf shader : //RazixContent/Shaders/Razix/Shader.Builtin.DebugPoint.rzsf 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created pipeline layout! 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: Parsing .rzsf shader : //RazixContent/Shaders/Razix/Shader.Builtin.DebugLine.rzsf 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created pipeline layout! 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: Parsing .rzsf shader : //RazixContent/Shaders/Razix/Shader.Builtin.GBuffer.rzsf 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created pipeline layout! 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: Parsing .rzsf shader : //RazixContent/Shaders/Razix/Shader.Builtin.DeferredShading.rzsf 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created pipeline layout! 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: Parsing .rzsf shader : //RazixContent/Shaders/Razix/Shader.Builtin.Tonemap.rzsf 
+ Razix Core         [09:18:02] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : ERROR
+Message ID   : -151742878
+ID Name      : VUID-VkDescriptorSetLayoutCreateInfo-binding-00279
+Description  :
+  Error Code : Validation Error: [ VUID-VkDescriptorSetLayoutCreateInfo-binding-00279 ]
+  MessageID  : MessageID = 0xf6f49662 
+  Details    :  vkCreateDescriptorSetLayout(): pCreateInfo->pBindings[1].binding is duplicated at pBindings[0].binding. The Vulkan spec states: If the perStageDescriptorSet feature is not enabled, or flags does not contain VK_DESCRIPTOR_SET_LAYOUT_CREATE_PER_STAGE_BIT_NV, then the VkDescriptorSetLayoutBinding::binding members of the elements of the pBindings array must each have different values (https://vulkan.lunarg.com/doc/view/1.3.275.0/windows/1.3-extensions/vkspec.html#VUID-VkDescriptorSetLayoutCreateInfo-binding-00279)
+ 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : ERROR
+Message ID   : -405619238
+ID Name      : VUID-VkWriteDescriptorSet-descriptorType-00319
+Objects      :
+  Object 0   :
+    Handle   : 0x4e4775000000006e
+    Name     : DescriptorSet.//RazixContent/Shaders/Razix/Shader.Builtin.Tonemap.rzsf
+    Type     : VK_OBJECT_TYPE_DESCRIPTOR_SET
+  Object 1   :
+    Handle   : 0x8f1c31000000006d
+    Name     : DescriptorSet.//RazixContent/Shaders/Razix/Shader.Builtin.Tonemap.rzsf
+    Type     : VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT
+Description  :
+  Error Code : Validation Error: [ VUID-VkWriteDescriptorSet-descriptorType-00319 ]
+  MessageID  : MessageID = 0xe7d2bdda 
+  Details    :  vkUpdateDescriptorSets(): pDescriptorWrites[1].descriptorType (VK_DESCRIPTOR_TYPE_SAMPLER) is different from pBinding[0].descriptorType (VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) of VkDescriptorSet 0x4e4775000000006e[DescriptorSet.//RazixContent/Shaders/Razix/Shader.Builtin.Tonemap.rzsf] allocated with VkDescriptorSetLayout 0x8f1c31000000006d[DescriptorSet.//RazixContent/Shaders/Razix/Shader.Builtin.Tonemap.rzsf]. The Vulkan spec states: descriptorType must match the type of dstBinding within dstSet (https://vulkan.lunarg.com/doc/view/1.3.275.0/windows/1.3-extensions/vkspec.html#VUID-VkWriteDescriptorSet-descriptorType-00319)
+ 
+ Razix Core         [09:18:02] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : ERROR
+Message ID   : -151742878
+ID Name      : VUID-VkDescriptorSetLayoutCreateInfo-binding-00279
+Description  :
+  Error Code : Validation Error: [ VUID-VkDescriptorSetLayoutCreateInfo-binding-00279 ]
+  MessageID  : MessageID = 0xf6f49662 
+  Details    :  vkCreateDescriptorSetLayout(): pCreateInfo->pBindings[1].binding is duplicated at pBindings[0].binding. The Vulkan spec states: If the perStageDescriptorSet feature is not enabled, or flags does not contain VK_DESCRIPTOR_SET_LAYOUT_CREATE_PER_STAGE_BIT_NV, then the VkDescriptorSetLayoutBinding::binding members of the elements of the pBindings array must each have different values (https://vulkan.lunarg.com/doc/view/1.3.275.0/windows/1.3-extensions/vkspec.html#VUID-VkDescriptorSetLayoutCreateInfo-binding-00279)
+ 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created pipeline layout! 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created shader module 
+ Razix Core         [09:18:02] :: [RHI]Creating API Renderer... 
+ Razix Core         [09:18:02] :: [RHI]	 Backend API : Vulkan 
+ Razix Core         [09:18:02] :: [Scene] Loading scene from - //Scenes/default Scene.rzscn (X:/Game Engines/Razix/Sandbox//Assets/Scenes/default Scene.rzscn) 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:02] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:02] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:02] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:03] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:03] :: [Scene Manager] - Enqueued Scene Index : default Scene, Name : 4294967295 
+ Razix Core         [09:18:03] :: [Scene Manager] - Scene switched to : default Scene 
+ Razix Core         [09:18:04] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:04] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:04] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:04] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:04] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:04] :: [Vulkan] Successfully created compute pipeline! 
+ Razix Core         [09:18:04] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:04] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:04] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:04] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:04] :: [Vulkan] Successfully created compute pipeline! 
+ Razix Core         [09:18:05] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:05] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:05] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:05] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:05] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:05] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:05] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:05] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:05] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:05] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:05] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:05] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:05] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:05] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:05] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:05] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:05] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:05] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:05] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:05] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:05] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:05] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:05] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:05] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:05] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:05] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:05] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:05] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:05] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:05] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:05] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:05] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:05] :: [Vulkan] Successfully created compute pipeline! 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created graphics pipeline! 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created graphics pipeline! 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created graphics pipeline! 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created graphics pipeline! 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created graphics pipeline! 
+ Razix Core         [09:18:08] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : ERROR
+Message ID   : 115483881
+ID Name      : VUID-VkShaderModuleCreateInfo-pCode-08740
+Description  :
+  Error Code : Validation Error: [ VUID-VkShaderModuleCreateInfo-pCode-08740 ]
+  MessageID  : MessageID = 0x6e224e9 
+  Details    :  vkCreateGraphicsPipelines(): pCreateInfos[0].pStages[1] SPIR-V Capability DemoteToHelperInvocationEXT was declared, but one of the following requirements is required (VkPhysicalDeviceVulkan13Features::shaderDemoteToHelperInvocation OR VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT::shaderDemoteToHelperInvocation). The Vulkan spec states: If pCode is a pointer to SPIR-V code, and pCode declares any of the capabilities listed in the SPIR-V Environment appendix, one of the corresponding requirements must be satisfied (https://vulkan.lunarg.com/doc/view/1.3.275.0/windows/1.3-extensions/vkspec.html#VUID-VkShaderModuleCreateInfo-pCode-08740)
+ 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created graphics pipeline! 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created graphics pipeline! 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created graphics pipeline! 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created graphics pipeline! 
+ Razix Core         [09:18:08] :: Compiling FrameGraph.... 
+ Razix Core         [09:18:08] :: Exporting FrameGraph .... to (X:/Game Engines/Razix/Engine/content//FrameGraphs/fg_debug_draw_test_2025_04_08_09_18.dot) 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:08] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:08] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] Successfully created descriptor set layout 
+ Razix Core         [09:18:08] :: [Vulkan] Descriptor sets successfully created! 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: [Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this. 
+ Razix Core         [09:18:08] :: [Vulkan] No sampler resource provided, using a default sampler 
+ Razix Core         [09:18:08] :: FPS : 1 (dt: 7328.162ms) 
+ Razix Core         [09:18:08] :: FPS : 1 (dt: 121.74272ms) 
+ Razix Core         [09:18:08] :: FPS : 1 (dt: 11.098862ms) 
+ Razix Core         [09:18:08] :: FPS : 1 (dt: 9.401798ms) 
+ Razix Core         [09:18:08] :: FPS : 1 (dt: 10.233402ms) 
+ Razix Core         [09:18:08] :: FPS : 1 (dt: 10.045052ms) 
+ Razix Core         [09:18:08] :: FPS : 1 (dt: 9.292603ms) 
+ Razix Core         [09:18:09] :: FPS : 81 (dt: 5.987644ms) 
+ Razix Core         [09:18:10] :: FPS : 154 (dt: 7.6265335ms) 
+ Razix Core         [09:18:11] :: FPS : 123 (dt: 579.9818ms) 
+ Razix Core         [09:18:12] :: FPS : 71 (dt: 6.8063736ms) 
+ Razix Core         [09:18:13] :: FPS : 154 (dt: 6.7853928ms) 
+ Razix Core         [09:18:14] :: FPS : 153 (dt: 6.5555573ms) 
+ Razix Core         [09:18:15] :: FPS : 153 (dt: 6.2332153ms) 
+ Razix Core         [09:18:16] :: FPS : 141 (dt: 6.0224533ms) 
+ Razix Core         [09:18:17] :: FPS : 152 (dt: 6.798744ms) 
+ Razix Core         [09:18:18] :: FPS : 152 (dt: 6.8893433ms) 
+ Razix Core         [09:18:19] :: FPS : 152 (dt: 6.2847137ms) 
+ Razix Core         [09:18:20] :: FPS : 147 (dt: 6.8187714ms) 
+ Razix Core         [09:18:21] :: FPS : 147 (dt: 6.750107ms) 
+ Razix Core         [09:18:22] :: FPS : 141 (dt: 6.6108704ms) 
+ Razix Core         [09:18:23] :: FPS : 146 (dt: 6.044388ms) 
+ Razix Core         [09:18:24] :: FPS : 147 (dt: 6.8264008ms) 
+ Razix Core         [09:18:25] :: FPS : 146 (dt: 7.396698ms) 
+ Razix Core         [09:18:26] :: FPS : 139 (dt: 7.5645447ms) 
+ Razix Core         [09:18:27] :: FPS : 139 (dt: 7.0152283ms) 
+ Razix Core         [09:18:28] :: FPS : 144 (dt: 6.1454773ms) 
+ Razix Core         [09:18:29] :: FPS : 133 (dt: 15.686035ms) 
+ Razix Core         [09:18:30] :: FPS : 127 (dt: 8.649826ms) 
+ Razix Core         [09:18:31] :: FPS : 133 (dt: 7.7323914ms) 
+ Razix Core         [09:18:32] :: FPS : 136 (dt: 7.1163177ms) 
+ Razix Core         [09:18:33] :: FPS : 139 (dt: 7.9479218ms) 
+ Razix Core         [09:18:34] :: FPS : 138 (dt: 6.7863464ms) 
+ Razix Core         [09:18:35] :: FPS : 129 (dt: 8.003235ms) 
+ Razix Core         [09:18:36] :: FPS : 128 (dt: 8.563995ms) 
+ Razix Core         [09:18:37] :: FPS : 138 (dt: 6.4811707ms) 
+ Razix Core         [09:18:38] :: FPS : 146 (dt: 6.412506ms) 
+ Razix Core         [09:18:39] :: FPS : 142 (dt: 6.465912ms) 
+ Razix Core         [09:18:40] :: FPS : 139 (dt: 6.439209ms) 
+ Razix Core         [09:18:41] :: FPS : 136 (dt: 6.626129ms) 
+ Razix Core         [09:18:42] :: FPS : 141 (dt: 7.5531006ms) 
+ Razix Core         [09:18:43] :: FPS : 136 (dt: 7.4386597ms) 
+ Razix Core         [09:18:44] :: FPS : 138 (dt: 6.958008ms) 
+ Razix Core         [09:18:45] :: FPS : 145 (dt: 6.9885254ms) 
+ Razix Core         [09:18:46] :: FPS : 150 (dt: 6.919861ms) 
+ Razix Core         [09:18:47] :: FPS : 144 (dt: 7.095337ms) 
+ Razix Core         [09:18:48] :: FPS : 139 (dt: 6.629944ms) 
+ Razix Core         [09:18:49] :: FPS : 145 (dt: 7.0343018ms) 
+ Razix Core         [09:18:50] :: FPS : 145 (dt: 6.4888ms) 
+ Razix Core         [09:18:51] :: FPS : 144 (dt: 5.79834ms) 
+ Razix Core         [09:18:52] :: FPS : 143 (dt: 6.8092346ms) 
+ Razix Core         [09:18:53] :: FPS : 146 (dt: 6.954193ms) 
+ Razix Core         [09:18:54] :: FPS : 142 (dt: 6.866455ms) 
+ Razix Core         [09:18:55] :: [Scene] Saving scene to - //Scenes/default Scene.rzscn (X:/Game Engines/Razix/Sandbox//Assets/Scenes/default Scene.rzscn) 
+ Razix Core         [09:18:55] :: Saving project... 
+ Razix App          [09:18:55] :: Window Resize override sandbox application! | W : 1395, H : 671 
+ Razix Core         [09:18:55] :: [Shader Library] Shutting Down Shader Library 
+ Razix Core         [09:18:55] :: [Resource Manager] Shutting Down Resource Manager 
+ Razix Core         [09:18:55] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : VERBOSE
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Unloading layer library C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\.\nvoglv64.dll
+ 
+ Razix Core         [09:18:55] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : VERBOSE
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Unloading layer library C:\WINDOWS\System32\DriverStore\FileRepository\nvmii.inf_amd64_bdd8567dfe2bb710\.\nvoglv64.dll
+ 
+ Razix Core         [09:18:55] :: 
+==============================================================
+Vulkan Validation Message
+Severity     : VERBOSE
+Message ID   : 0
+ID Name      : Loader Message
+Objects      :
+  Object 0   :
+    Handle   : 0x23c2eff3eb0
+    Name     : N/A
+    Type     : VK_OBJECT_TYPE_INSTANCE
+Description  :
+  Unloading layer library C:\VulkanSDK\1.3.275.0\Bin\.\VkLayer_khronos_validation.dll
+ 
+ Razix Core         [09:18:55] :: Closing Application! 
+ Razix Core         [09:18:55] :: Saving project... 
+ Razix App          [09:18:55] :: Window Resize override sandbox application! | W : 1395, H : 671 
+ Razix Core         [09:18:55] :: *********************************** 
+ Razix Core         [09:18:55] :: *    Shutting down Engine....     * 
+ Razix Core         [09:18:55] :: *********************************** 
+ Razix Core         [09:18:55] :: [Lua Script Manager] Shutting Lua Script Handler 
+ Razix Core         [09:18:55] :: [Scene Manager] Shutting Down Scene Manager 
+ Razix Core         [09:18:55] :: [Virtual File System] Shutting Down Virtual File System 
+ Razix Core         [09:18:55] :: *********************************** 
+ Razix Core         [09:18:55] :: *    Engine Shutdown Complete!    * 
+ Razix Core         [09:18:55] :: *********************************** 
+ Razix Core         [09:18:55] :: Shutting down Logging System 

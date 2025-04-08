@@ -46,14 +46,14 @@ namespace Razix {
         struct EnvMapGenUBOData
         {
             int2 cubeFaceSize = {-1, -1};
-            u32        mipLevel     = 0;
+            u32  mipLevel     = 0;
         } uboData;
 
         struct PushConstant
         {
-            int2 cubeFaceSize;
-            float      roughness;
-            u32        mipLevel;
+            int2  cubeFaceSize;
+            float roughness;
+            u32   mipLevel;
         } data = {};
 
         // - [ ] Fix this file to use descriptor handles, this is the first stage of integration and proceed to other parts of engine from here
@@ -99,6 +99,7 @@ namespace Razix {
             vplBufferDesc.size                     = sizeof(EnvMapGenUBOData);
             uboData.cubeFaceSize                   = {CUBEMAP_DIM, CUBEMAP_DIM};
             vplBufferDesc.data                     = &uboData;
+            vplBufferDesc.initResourceViewHints    = kCBV;
             RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer(vplBufferDesc);
 
             auto shaderHandle       = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::EnvToCubemap);
@@ -164,11 +165,12 @@ namespace Razix {
             irradianceMapTextureDesc.initResourceViewHints = ResourceViewHint::kSRV | ResourceViewHint::kUAV;
             RZTextureHandle irradianceMapHandle            = RZResourceManager::Get().createTexture(irradianceMapTextureDesc);
 
-            RZBufferDesc vplBufferDesc{};
+            RZBufferDesc vplBufferDesc             = {};
             vplBufferDesc.name                     = "ViewProjLayerUBOData";
             vplBufferDesc.size                     = sizeof(EnvMapGenUBOData);
             uboData.cubeFaceSize                   = {IRRADIANCE_MAP_DIM, IRRADIANCE_MAP_DIM};
             vplBufferDesc.data                     = &uboData;
+            vplBufferDesc.initResourceViewHints    = kCBV;
             RZUniformBufferHandle viewProjLayerUBO = RZResourceManager::Get().createUniformBuffer(vplBufferDesc);
 
             RZShaderHandle cubemapConvolutionShaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GenerateIrradianceMap);
