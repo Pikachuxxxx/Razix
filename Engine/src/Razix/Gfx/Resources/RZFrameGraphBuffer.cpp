@@ -25,7 +25,7 @@ namespace Razix {
                 RZResourceManager::Get().destroyUniformBuffer(m_BufferHandle);
             }
 
-            // TODO: use a combination of BufferUsage and resourceViewHints to deduce, we don't have ImageLayout and needs to do more intelligent tracking to deducte barrier types
+            // TODO: use a combination of BufferUsage and resourceViewHints to deduce, we don't have ImageLayout and needs to do more intelligent tracking to deduce barrier types
 
             void RZFrameGraphBuffer::preRead(const Desc& desc, uint32_t flags)
             {
@@ -33,11 +33,9 @@ namespace Razix {
 
                 RZBufferDesc bufferDesc = CAST_TO_FG_BUF_DESC desc;
 
-                BufferBarrierType barrierType = BufferBarrierType::ShaderWriteToShaderRead;
+                BufferBarrierType barrierType = BufferBarrierType::ShaderReadOnly;
 
-                if ((bufferDesc.initResourceViewHints & kSRV) == kSRV) {
-                    barrierType = BufferBarrierType::ShaderWriteToShaderRead;
-                } else if ((bufferDesc.initResourceViewHints & kCBV) == kCBV) {
+                if ((bufferDesc.initResourceViewHints & kCBV) == kCBV) {    // use a dirtyFlags to check if it's dirty
                     barrierType = BufferBarrierType::CPUToGPU;
                 } else if ((bufferDesc.initResourceViewHints & kTransferSrc) == kTransferSrc) {
                     barrierType = BufferBarrierType::TransferDstToShaderRead;
@@ -62,9 +60,9 @@ namespace Razix {
                 if ((bufferDesc.initResourceViewHints & kUAV) == kUAV) {
                     barrierType = BufferBarrierType::ShaderReadToShaderWrite;
                 } else if ((bufferDesc.initResourceViewHints & kTransferDst) == kTransferDst) {
-                    barrierType = BufferBarrierType::CPUToGPU;
+                    barrierType = BufferBarrierType::TransferDstToShaderRead;
                 } else if ((bufferDesc.initResourceViewHints & kCBV) == kCBV) {
-                    barrierType = BufferBarrierType::CPUToGPU;
+                    barrierType = BufferBarrierType::ShaderReadOnly;
                 }
 
                 // doesn't make sense to wait until CPU write then it's being read by a shader

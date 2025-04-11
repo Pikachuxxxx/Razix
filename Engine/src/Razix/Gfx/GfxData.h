@@ -440,6 +440,7 @@ namespace Razix {
             TransferDstToShaderRead,
             ShaderReadToShaderWrite,
             ShaderWriteToShaderRead,
+            ShaderReadOnly,
             COUNT
         };
 
@@ -960,7 +961,9 @@ namespace Razix {
             "GPUToCPU",
             "TransferWriteToShaderRead",
             "ShaderReadToShaderWrite",
-            "ShaderWriteToShaderRead"};
+            "ShaderWriteToShaderRead",
+            "ShaderReadOnly"
+        };
 
         RAZIX_ENUM_NAMES_ASSERT(BufferBarrierTypeNames, BufferBarrierType);
 
