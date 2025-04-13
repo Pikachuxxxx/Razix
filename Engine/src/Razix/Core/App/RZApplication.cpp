@@ -37,6 +37,8 @@
 
 #include <entt.hpp>
 
+#include <glfw/glfw3.h>
+
 #define ENABLE_IMGUI_EVENT_DATA_CAPTURE 0
 
 namespace Razix {
