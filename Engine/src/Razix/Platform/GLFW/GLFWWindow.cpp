@@ -163,8 +163,8 @@ namespace Razix {
             GLFWmonitor*       primary = monitors[PRIMARY_MONITOR_IDX];
             const GLFWvidmode* mode    = glfwGetVideoMode(primary);
             if (mode) {
-                m_Data.Width  = std::min(properties.Width, static_cast<u32>(mode->width));
-                m_Data.Height = std::min(properties.Height, static_cast<u32>(mode->height));
+                m_Data.Width  = std::min(properties.Width, static_cast<u32>(mode->width - 200));
+                m_Data.Height = std::min(properties.Height, static_cast<u32>(mode->height - 200));
             }
         }
 

@@ -177,6 +177,7 @@ project "Razix"
     -- Disable warning for vendor
     filter { "files:vendor/**"}
         warnings "Off"
+        buildoptions "-w"
 
 
     -------------------------------------
@@ -398,7 +399,7 @@ project "Razix"
         buildoptions
         {
             "-Wno-error=switch-enum",
-            "-Wswitch", "-Wswitch-enum"
+            "-Wno-switch", "-Wno-switch-enum"
         }
         
                 
