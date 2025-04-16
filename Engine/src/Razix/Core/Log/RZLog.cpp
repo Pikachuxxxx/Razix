@@ -13,7 +13,9 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
-#define ENABLE_FILE_LOGGING 1
+#ifndef __APPLE__ // disabled until I find a good solution cause apple is a bitch about creating files and directories without proper permissions
+    #define ENABLE_FILE_LOGGING 1
+#endif
 
 #define LOG_MSG_PATTERN "%^ %n [%T] :: %v %$"
 
@@ -42,8 +44,14 @@ namespace Razix {
 
         void RZLog::StartUp()
         {
-#ifndef RAZIX_GOLD_MASTER
+#if !defined (RAZIX_GOLD_MASTER) && defined (ENABLE_FILE_LOGGING)
+    #if defined (__APPLE__) || defined (__UNIX__)
+            int res = mkdir("Logs", 0755);
+            RAZIX_ASSERT(!res, "Failed to crate log directory, check your permissions!");
+#else
             std::filesystem::create_directories("Logs");
+#endif
+            
 #endif
 
             // ----------------- CORE LOGGER SETUP -----------------
