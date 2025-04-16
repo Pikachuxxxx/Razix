@@ -160,13 +160,6 @@ workspace ( settings.workspace_name )
         include "Engine/vendor/Jolt/jolt.lua"
     group ""
 
-    -- Razix Tools Vendor dependencies
-    group "Dependencies/Tools"
-        include "Tools/RazixAssetPacker/vendor/assimp/assimp.lua"
-        include "Tools/RazixAssetPacker/vendor/meshoptimizer/meshoptimizer.lua"
-        include "Tools/RazixAssetPacker/vendor/OpenFBX/OpenFBX.lua"
-    group ""
-
     -- Experimental
     group "Dependencies/Experimental"
         include "Engine/vendor/Experimental/eigen/eigen.lua"
@@ -203,14 +196,6 @@ workspace ( settings.workspace_name )
 
     --------------------------------------------------------------------------------
     -- Engine related tools
-    group "Tools"
-        include "Tools/RazixAssetPacker/razix_tool_asset_packer.lua"
-    group ""
-
-    group "Tools/CLI"
-        include "Tools/RazixAssetPacker/razix_tool_asset_packer_cli.lua"
-    group""
-
     group "Tools/Build"
         -- premake scripts Utility project for in IDE management
         include "Tools/Building/premake/premake_regenerate_proj_files.lua"

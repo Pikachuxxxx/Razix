@@ -581,8 +581,10 @@ namespace Razix {
 
             void RZFrameGraph::execute(void *transientAllocator)
             {
+#ifndef RAZIX_GOLD_MASTER
                 if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                     RAZIX_CORE_INFO("***************Frame Graph EXEC START***************");
+#endif
 
                 // Iterate though all passes and call their ExecuteFunc
                 for (auto &pass: m_PassNodes) {
@@ -627,12 +629,16 @@ namespace Razix {
                     //    if (entry.m_Last == &pass && entry.isTransient())
                     //        entry.getConcept()->destroy(transientAllocator);
 
+#ifndef RAZIX_GOLD_MASTER
                     if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                         RAZIX_CORE_INFO("=============PASS END===================");
+#endif
                 }
 
+#ifndef RAZIX_GOLD_MASTER
                 if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                     RAZIX_CORE_INFO("***************Frame Graph EXEC END***************");
+#endif
 
                 // End first frame identifier
                 RZFrameGraph::m_IsFirstFrame = false;

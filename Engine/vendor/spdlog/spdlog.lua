@@ -1,4 +1,4 @@
-project "meshoptimizer"
+project "spdlog"
 	kind "StaticLib"
 	language "C++"
 	cppdialect (engine_global_config.cpp_dialect)

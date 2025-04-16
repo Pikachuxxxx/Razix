@@ -41,9 +41,10 @@ namespace Razix {
                     barrierType = BufferBarrierType::TransferDstToShaderRead;
                 }
 
+#ifndef RAZIX_GOLD_MASTER
                 if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                     RAZIX_CORE_INFO("[ReadBarrier::Buffer] resource name: {0} | barrier type: {1}", bufferDesc.name, BufferBarrierTypeNames[(u32) barrierType]);
-
+#endif
                 RHI::InsertBufferMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_BufferHandle, barrierType);
 
                 m_LastReadBarrier = barrierType;
@@ -69,9 +70,10 @@ namespace Razix {
                 // there was already a barrier inserted when we started writing to it in preRead
                 if (barrierType == BufferBarrierType::CPUToGPU) return;
 
+#ifndef RAZIX_GOLD_MASTER
                 if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                     RAZIX_CORE_INFO("[WriteBarrier::Buffer] resource name: {0} | barrier type: {1}", bufferDesc.name, BufferBarrierTypeNames[(u32) barrierType]);
-
+#endif
                 RHI::InsertBufferMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_BufferHandle, barrierType);
 
                 m_LastWriteBarrier = barrierType;

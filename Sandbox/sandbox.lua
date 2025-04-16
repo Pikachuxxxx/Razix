@@ -77,8 +77,6 @@ project "Sandbox"
        "spdlog",
        "SPIRVReflect",
        "SPIRVCross",
-       "meshoptimizer",
-       "OpenFBX",
        "lua",
        "optick",
        "Jolt",

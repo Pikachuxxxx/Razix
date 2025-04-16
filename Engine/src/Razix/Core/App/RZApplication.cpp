@@ -320,6 +320,8 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
         RAZIX_PROFILE_FRAMEMARKER("RZApplication Main Thread");
+        // Naming threads have been inspired from mamoniem on twitter, can't find the particular tweet
+        RAZIX_PROFILE_SETTHREADNAME("MainThread::Kratos");
 
         if (RZApplication::Get().getAppType() != AppType::kGame) {
             // Wait until Editor sends data

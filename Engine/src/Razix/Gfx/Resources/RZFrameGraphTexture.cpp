@@ -47,8 +47,10 @@ namespace Razix {
                 }
 
                 ImageLayout oldLayout = textureResource->getCurrentLayout();
+#ifndef RAZIX_GOLD_MASTER
                 if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                     RAZIX_CORE_INFO("[ReadBarrier::Texture] resource name: {0} | old layout: {1} | new layout: {2}", textureDesc.name, ImageLayoutNames[(u32) oldLayout], ImageLayoutNames[(u32) newLayout]);
+#endif
                 RHI::InsertImageMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_TextureHandle, oldLayout, newLayout);
             }
 
@@ -75,8 +77,10 @@ namespace Razix {
                 }
 
                 ImageLayout oldLayout = textureResource->getCurrentLayout();
+#ifndef RAZIX_GOLD_MASTER
                 if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                     RAZIX_CORE_INFO("[WriteBarrier::Texture] resource name: {0} | old layout: {1} | new layout: {2}", textureDesc.name, ImageLayoutNames[(u32) oldLayout], ImageLayoutNames[(u32) newLayout]);
+#endif
                 RHI::InsertImageMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_TextureHandle, oldLayout, newLayout);
             }
 

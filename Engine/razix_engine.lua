@@ -149,8 +149,6 @@ project "Razix"
         "spdlog", -- Being linked staically by RazixMemory (Only include this in debug and release build exempt this in GoldMaster build)
         "SPIRVReflect",
         "SPIRVCross",
-        "meshoptimizer",
-        "OpenFBX", 
         "lua",
         "optick",
         "tracy",
