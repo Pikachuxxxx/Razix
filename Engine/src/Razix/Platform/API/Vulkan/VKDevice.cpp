@@ -22,7 +22,6 @@ template class Razix::RZSingleton<Razix::Gfx::VKDevice>;
 
 namespace Razix {
     namespace Gfx {
-    
 
         // Helper class for pNext layers Injection
         class PNextChain
@@ -152,6 +151,13 @@ namespace Razix {
 
         u32 VKPhysicalDevice::getMemoryTypeIndex(u32 typeBits, VkMemoryPropertyFlags properties) const
         {
+            // Selects a memory type index that is both supported by the resource(typeBits)
+            // and provides the requested properties (e.g. HOST_VISIBLE, HOST_COHERENT).
+            // Iterates through each bit in typeBits from vkGetBuffer/MemoryMemoryRequirements,
+            // checking if the corresponding memory type's propertyFlags include all of properties.
+            // Asserts and returns UINT32_MAX if no suitable type is found.
+            // However, it does not directly provide the heap index of the memory type.
+            // The memoryTypeBits bitmask just tells you which memory types are compatible out of the available ones in your device.
             for (u32 i = 0; i < m_MemoryProperties.memoryTypeCount; i++) {
                 if ((typeBits & 1) == 1) {
                     if ((m_MemoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
