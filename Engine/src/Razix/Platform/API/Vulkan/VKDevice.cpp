@@ -225,11 +225,11 @@ namespace Razix {
             // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VK_EXT_robustness2.html
             // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkPhysicalDeviceRobustness2FeaturesEXT.html
             // Enable Null Descriptor writes
-            VkPhysicalDeviceRobustness2FeaturesEXT robustness2Features{};
-            robustness2Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT;
-            // Just like DirectX12 this enables passing null descriptors to vkUpdateDescriptorSets and treats as if no descriptors were bound
-            robustness2Features.nullDescriptor = VK_TRUE;
-            pNextFeaturesChain.inject(robustness2Features);
+            //VkPhysicalDeviceRobustness2FeaturesEXT robustness2Features = {};
+            //robustness2Features.sType                                  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT;
+            //// Just like DirectX12 this enables passing null descriptors to vkUpdateDescriptorSets and treats as if no descriptors were bound
+            //robustness2Features.nullDescriptor = VK_TRUE;
+            //pNextFeaturesChain.inject(robustness2Features);
 
             // Query bindless extension, called Descriptor Indexing (https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_EXT_descriptor_indexing.html)
             VkPhysicalDeviceDescriptorIndexingFeatures indexing_features{};
@@ -237,16 +237,17 @@ namespace Razix {
             pNextFeaturesChain.inject(indexing_features);
 
             // Enable Dynamic Rendering
-            VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeatures{};
-            dynamicRenderingFeatures.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR;
-            dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+            VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeatures = {};
+            dynamicRenderingFeatures.sType                                       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR;
+            dynamicRenderingFeatures.dynamicRendering                            = VK_TRUE;
             pNextFeaturesChain.inject(dynamicRenderingFeatures);
 
-            VkPhysicalDeviceFeatures2 device_features{};
-            device_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+            VkPhysicalDeviceFeatures2 device_features = {};
+            device_features.sType                     = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
             // Get all injections and query for support
             device_features.pNext = pNextFeaturesChain.getHead();
             vkGetPhysicalDeviceFeatures2(getGPU(), &device_features);
+            device_features.pNext = pNextFeaturesChain.getHead();
 
             // Run-time check, hence done after all injections
             // Check if Bindless feature is supported by the GPU
@@ -254,15 +255,14 @@ namespace Razix {
             // as some entries in the bindless array will be empty, and SpirV runtime descriptors.
             m_IsBindlessSupported = indexing_features.descriptorBindingPartiallyBound && indexing_features.runtimeDescriptorArray;
 
-            if (m_IsBindlessSupported) {
-                // Notify the global scope that engine supports bindless
+            // Notify the global scope that engine supports bindless
+            if (m_IsBindlessSupported)
                 g_GraphicsFeatures.SupportsBindless = true;
 
-                indexing_features.descriptorBindingPartiallyBound = VK_TRUE;
-                indexing_features.runtimeDescriptorArray          = VK_TRUE;
-            }
+                //if (robustness2Features.nullDescriptor)
+                //    g_GraphicsFeatures.SupportsNullIndexDescriptors = false;
 
-            // Enable Device Features
+                // Enable Device Features
     #ifndef __APPLE__
             device_features.features.geometryShader          = VK_TRUE;
             device_features.features.samplerAnisotropy       = VK_TRUE;
@@ -481,16 +481,20 @@ namespace Razix {
                 VK_CHECK_RESULT(vkAllocateDescriptorSets(m_Device, &alloc_info, &m_BindlessDescriptorSet));
                 VK_TAG_OBJECT("Bindless Set", VK_OBJECT_TYPE_DESCRIPTOR_SET, (uint64_t) m_BindlessDescriptorSet)
             }
+
+            m_DummyResources.create(m_Device, getGPU());
+
             return true;
         }
 
         void VKDevice::destroy()
         {
+            m_DummyResources.destroy(m_Device);
+
             // Destroy VMA
     #if RAZIX_USE_VMA
             vmaDestroyAllocator(m_VMAllocator);
     #endif
-
             vkDestroyDescriptorPool(m_Device, m_GlobalDescriptorPool, nullptr);
             vkDestroyDescriptorPool(m_Device, m_BindlessDescriptorPool, nullptr);
             vkDestroyDescriptorSetLayout(m_Device, m_BindlessSetLayout, nullptr);
@@ -501,6 +505,117 @@ namespace Razix {
             vkDestroyCommandPool(m_Device, m_CommandPool->getVKPool(), nullptr);
             // Destroy the logical device
             vkDestroyDevice(m_Device, nullptr);
+        }
+
+        static uint32_t FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties)
+        {
+            VkPhysicalDeviceMemoryProperties memProps;
+            vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProps);
+
+            for (uint32_t i = 0; i < memProps.memoryTypeCount; i++) {
+                if ((typeFilter & (1 << i)) && (memProps.memoryTypes[i].propertyFlags & properties) == properties)
+                    return i;
+            }
+        }
+
+        void DummyVKResources::create(VkDevice device, VkPhysicalDevice physicalDevice)
+        {
+            // 1. Dummy Buffer
+            {
+                VkBufferCreateInfo bufferInfo{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+                bufferInfo.size        = 16;
+                bufferInfo.usage       = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+                bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+                VK_CHECK_RESULT(vkCreateBuffer(device, &bufferInfo, nullptr, &dummyBuffer));
+
+                VkMemoryRequirements memReq;
+                vkGetBufferMemoryRequirements(device, dummyBuffer, &memReq);
+
+                VkMemoryAllocateInfo allocInfo{VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO};
+                allocInfo.allocationSize  = memReq.size;
+                allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memReq.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+                VK_CHECK_RESULT(vkAllocateMemory(device, &allocInfo, nullptr, &dummyBufferMemory));
+                VK_CHECK_RESULT(vkBindBufferMemory(device, dummyBuffer, dummyBufferMemory, 0));
+            }
+
+            // 2. Dummy Image + View
+            {
+                VkImageCreateInfo imageInfo{VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
+                imageInfo.imageType   = VK_IMAGE_TYPE_2D;
+                imageInfo.format      = VK_FORMAT_R8G8B8A8_UNORM;
+                imageInfo.extent      = {1, 1, 1};
+                imageInfo.mipLevels   = 1;
+                imageInfo.arrayLayers = 1;
+                imageInfo.samples     = VK_SAMPLE_COUNT_1_BIT;
+                imageInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
+                imageInfo.usage =
+                    VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                    VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                    VK_IMAGE_USAGE_SAMPLED_BIT |
+                    VK_IMAGE_USAGE_STORAGE_BIT |
+                    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
+                    VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT |
+                    VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+                imageInfo.initialLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+                VK_CHECK_RESULT(vkCreateImage(device, &imageInfo, nullptr, &dummyImage));
+
+                VkMemoryRequirements memReq;
+                vkGetImageMemoryRequirements(device, dummyImage, &memReq);
+
+                VkMemoryAllocateInfo allocInfo{VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO};
+                allocInfo.allocationSize  = memReq.size;
+                allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+                VK_CHECK_RESULT(vkAllocateMemory(device, &allocInfo, nullptr, &dummyImageMemory));
+                VK_CHECK_RESULT(vkBindImageMemory(device, dummyImage, dummyImageMemory, 0));
+
+                VkImageViewCreateInfo viewInfo{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
+                viewInfo.image                           = dummyImage;
+                viewInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
+                viewInfo.format                          = imageInfo.format;
+                viewInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                viewInfo.subresourceRange.baseMipLevel   = 0;
+                viewInfo.subresourceRange.levelCount     = 1;
+                viewInfo.subresourceRange.baseArrayLayer = 0;
+                viewInfo.subresourceRange.layerCount     = 1;
+
+                VK_CHECK_RESULT(vkCreateImageView(device, &viewInfo, nullptr, &dummyImageView));
+            }
+
+            // 3. Dummy Sampler
+            {
+                VkSamplerCreateInfo samplerInfo{VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
+                samplerInfo.magFilter               = VK_FILTER_NEAREST;
+                samplerInfo.minFilter               = VK_FILTER_NEAREST;
+                samplerInfo.addressModeU            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+                samplerInfo.addressModeV            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+                samplerInfo.addressModeW            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+                samplerInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+                samplerInfo.borderColor             = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+                samplerInfo.unnormalizedCoordinates = VK_FALSE;
+
+                VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &dummySampler));
+            }
+        }
+
+        void DummyVKResources::destroy(VkDevice device) const
+        {
+            if (dummySampler)
+                vkDestroySampler(device, dummySampler, nullptr);
+            if (dummyImageView)
+                vkDestroyImageView(device, dummyImageView, nullptr);
+            if (dummyImage)
+                vkDestroyImage(device, dummyImage, nullptr);
+            if (dummyImageMemory)
+                vkFreeMemory(device, dummyImageMemory, nullptr);
+            if (dummyBuffer)
+                vkDestroyBuffer(device, dummyBuffer, nullptr);
+            if (dummyBufferMemory)
+                vkFreeMemory(device, dummyBufferMemory, nullptr);
         }
     }    // namespace Gfx
 }    // namespace Razix

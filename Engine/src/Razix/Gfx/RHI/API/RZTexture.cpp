@@ -17,6 +17,31 @@ namespace Razix {
         // Texture
         //-----------------------------------------------------------------------------------
 
+        RZTextureHandle RZTexture::s_DefaultTexture = {};
+
+        void RZTexture::InitDefaultTexture()
+        {
+            u8* pinkTextureDataRaw = new u8[4];    // A8B8G8R8
+            pinkTextureDataRaw[0]  = 0xff;
+            pinkTextureDataRaw[1]  = 0x00;
+            pinkTextureDataRaw[2]  = 0xff;
+            pinkTextureDataRaw[3]  = 0xff;
+
+            RZTextureDesc pinkDefDesc{};
+            pinkDefDesc.name   = "Texture.Builtin.Default.Pink.1x1";
+            pinkDefDesc.width  = 1;
+            pinkDefDesc.height = 1;
+            pinkDefDesc.data   = pinkTextureDataRaw;
+            pinkDefDesc.size   = sizeof(u8) * 4;
+            pinkDefDesc.format = TextureFormat::RGBA8;
+            s_DefaultTexture   = RZResourceManager::Get().createTexture(pinkDefDesc);
+        }
+
+        void RZTexture::ReleaseDefaultTexture()
+        {
+            RZResourceManager::Get().destroyTexture(s_DefaultTexture);
+        }
+
         class DX12Texture
         {};
         GET_INSTANCE_SIZE_IMPL(Texture)

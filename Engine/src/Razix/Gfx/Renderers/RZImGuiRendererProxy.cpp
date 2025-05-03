@@ -94,10 +94,7 @@ namespace Razix {
             }
 
             imguiVB->Flush();
-            imguiVB->Invalidate();
-
             imguiIB->Flush();
-            imguiIB->Invalidate();
         }
 
         void RZImGuiRendererProxy::Draw(RZDrawCommandBufferHandle cmdBuffer)

@@ -5,6 +5,7 @@
 
 #include "Razix/Core/Markers/RZMarkers.h"
 
+#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 #include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
 #include "Razix/Utilities/RZColorUtilities.h"
@@ -104,7 +105,7 @@ namespace Razix {
         void VKTexture::UploadToBindlessSet()
         {
             // Now if Bindless is available Bind to it
-            if (VKDevice::Get().isBindlessSupported()) {
+            if (g_GraphicsFeatures.SupportsBindless) {
                 RZDescriptor descriptor = {};
 
                 VkDescriptorImageInfo imageInfo{};

@@ -34,6 +34,11 @@ namespace Razix {
 
             GET_INSTANCE_SIZE;
 
+            /* Creates a 1x1 default pink 2D texture */
+            static void                   InitDefaultTexture();
+            static void                   ReleaseDefaultTexture();
+            static inline RZTextureHandle GetDefaultTexture() { return s_DefaultTexture; }
+
             static u32           CalculateMipMapCount(u32 width, u32 height);
             static TextureFormat BitsToTextureFormat(u32 bits);
 
@@ -46,7 +51,7 @@ namespace Razix {
             virtual int32_t ReadPixels(u32 x, u32 y) = 0;
 
             inline const RZTextureDesc& getDescription() const { return m_Desc; }
-            inline void setDescription(const RZTextureDesc& desc) { m_Desc = desc; }
+            inline void                 setDescription(const RZTextureDesc& desc) { m_Desc = desc; }
             inline const std::string&   getName() const { return m_Desc.name; }
             inline u32                  getWidth() const { return m_Desc.width; }
             inline u32                  getHeight() const { return m_Desc.height; }
@@ -75,6 +80,8 @@ namespace Razix {
 
         private:
             static void Create(void* where, const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
+
+            static RZTextureHandle s_DefaultTexture;
 
             // only resource manager can create an instance of this class
             friend class RZResourceManager;

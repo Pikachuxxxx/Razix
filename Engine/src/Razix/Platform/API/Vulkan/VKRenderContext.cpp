@@ -254,7 +254,7 @@ namespace Razix {
             VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
             // Bind the Bindless Descriptor Set
-            if (VKDevice::Get().isBindlessSupported()) {
+            if (g_GraphicsFeatures.SupportsBindless) {
                 const auto set               = VKDevice::Get().getBindlessDescriptorSet();
                 auto       cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
                 vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START, 1, &set, 0, nullptr);

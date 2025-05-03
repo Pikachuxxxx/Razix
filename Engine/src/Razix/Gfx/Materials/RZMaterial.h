@@ -16,11 +16,7 @@ namespace Razix {
 
             void Destroy();
 
-            /* Creates a 1x1 default pink 2D texture */
-            static void            InitDefaultTexture();
-            static void            ReleaseDefaultTexture();
-            static RZTextureHandle GetDefaultTexture() { return s_DefaultTexture; }
-            static RZMaterial*     GetDefaultMaterial();
+            static RZMaterial* GetDefaultMaterial();
 
             void Bind(RZDrawCommandBufferHandle cmdBuffer = {});
 
@@ -28,10 +24,10 @@ namespace Razix {
             void saveToFile(const std::string& path = "");
             void loadMaterialTexturesFromFiles(MaterialTexturePaths paths);
             void createDescriptorSet();
-            
-            void                        setProperties(MaterialProperties& props);
-            void                        setTexturePaths(MaterialTexturePaths& paths);
-            
+
+            void setProperties(MaterialProperties& props);
+            void setTexturePaths(MaterialTexturePaths& paths);
+
             inline std::string                 getName() { return m_MaterialData.m_Name; }
             inline void                        setName(const std::string& name) { strcpy(m_MaterialData.m_Name, name.c_str()); }
             inline const MaterialTextures&     getTextures() const { return m_MaterialData.m_MaterialTextures; }
@@ -45,8 +41,7 @@ namespace Razix {
             inline void                        setWorkflow(WorkFlow workflow) { m_MaterialData.m_MaterialProperties.workflow = (u32) workflow; }
 
         private:
-            static RZTextureHandle s_DefaultTexture;
-            static RZMaterial*     s_DefaultMaterial;
+            static RZMaterial* s_DefaultMaterial;
 
             MaterialData          m_MaterialData          = {};
             RZShaderHandle        m_Shader                = {};

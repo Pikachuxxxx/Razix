@@ -29,14 +29,15 @@ namespace Razix {
          */
         typedef struct GraphicsFeatures
         {
-            bool EnableVSync            = false; /* No V-Sync by default we don't cap the frame rate */
-            bool TesselateTerrain       = true;
-            bool SupportsBindless       = true;
-            bool SupportsWaveIntrinsics = false;
-            bool SupportsShaderModel6   = false;
-            u32  MaxBindlessTextures    = 4096;
-            u32  MinLaneWidth           = 0;
-            u32  MaxLaneWidth           = 0;
+            bool EnableVSync                  = false; /* No V-Sync by default we don't cap the frame rate */
+            bool TesselateTerrain             = true;
+            bool SupportsBindless             = true;
+            bool SupportsWaveIntrinsics       = false;
+            bool SupportsShaderModel6         = false;
+            bool SupportsNullIndexDescriptors = false;
+            u32  MaxBindlessTextures          = 4096;
+            u32  MinLaneWidth                 = 0;
+            u32  MaxLaneWidth                 = 0;
         } GraphicsFeatures;
 
         /* Global instance for Graphics Device level features */

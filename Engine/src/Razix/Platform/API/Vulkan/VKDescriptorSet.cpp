@@ -100,7 +100,7 @@ namespace Razix {
                             m_BufferInfoPool[uniformBufferWriteIdx].offset = descriptor.offset;
                             m_BufferInfoPool[uniformBufferWriteIdx].range  = buffer->getSize();
                         } else {
-                            m_BufferInfoPool[uniformBufferWriteIdx].buffer = VK_NULL_HANDLE;
+                            m_BufferInfoPool[uniformBufferWriteIdx].buffer = VKDevice::Get().GetDummyBuffer();
                             m_BufferInfoPool[uniformBufferWriteIdx].offset = 0;
                             m_BufferInfoPool[uniformBufferWriteIdx].range  = VK_WHOLE_SIZE;
                         }
@@ -129,8 +129,8 @@ namespace Razix {
                             m_ImageInfoPool[imageWriteIdx].sampler = m_DefaultSampler;
                         } else {
                             RAZIX_CORE_WARN("[Vulkan] No sampler resource provided, using a default sampler");
-                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-                            m_ImageInfoPool[imageWriteIdx].imageView   = VK_NULL_HANDLE;
+                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+                            m_ImageInfoPool[imageWriteIdx].imageView   = VKDevice::Get().GetDummyImageView();
                             m_ImageInfoPool[imageWriteIdx].sampler     = m_DefaultSampler;
                         }
 
@@ -159,8 +159,8 @@ namespace Razix {
                             m_ImageInfoPool[imageWriteIdx].imageLayout = backendPtr->getImageLayoutValue();
                             m_ImageInfoPool[imageWriteIdx].imageView   = backendPtr->getFullSRVImageView();
                         } else {
-                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-                            m_ImageInfoPool[imageWriteIdx].imageView   = VK_NULL_HANDLE;
+                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+                            m_ImageInfoPool[imageWriteIdx].imageView   = VKDevice::Get().GetDummyImageView();
                         }
 
                         VkWriteDescriptorSet writeDescriptorSet = {};
@@ -196,8 +196,8 @@ namespace Razix {
                             m_ImageInfoPool[imageWriteIdx].imageLayout = backendPtr->getImageLayoutValue();
                             m_ImageInfoPool[imageWriteIdx].imageView   = imgView;
                         } else {
-                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-                            m_ImageInfoPool[imageWriteIdx].imageView   = VK_NULL_HANDLE;
+                            m_ImageInfoPool[imageWriteIdx].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+                            m_ImageInfoPool[imageWriteIdx].imageView   = VKDevice::Get().GetDummyImageView();
                         }
 
                         VkWriteDescriptorSet writeDescriptorSet = {};

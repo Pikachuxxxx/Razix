@@ -99,13 +99,13 @@ namespace Razix {
             Gfx::RZSampler::CreateSamplerPresets();
 
             RAZIX_CORE_TRACE("[RHI] Creating Default Texture");
-            //Gfx::RZMaterial::InitDefaultTexture();
+            Gfx::RZTexture::InitDefaultTexture();
         }
 
         void RZGraphicsContext::PreGraphicsContextDestroy()
         {
             Gfx::RZSampler::DestroySamplerPresets();
-            //Gfx::RZMaterial::ReleaseDefaultTexture();
+            Gfx::RZTexture::ReleaseDefaultTexture();
 
             // Render subsystems cleanup
             Gfx::RZShaderLibrary::Get().ShutDown();

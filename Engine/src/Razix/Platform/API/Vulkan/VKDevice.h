@@ -24,8 +24,8 @@ static std::vector<cstr> deviceExtensions = {
     VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME,
     VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
     VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
-    #ifdef __APPLE__
     VK_EXT_ROBUSTNESS_2_EXTENSION_NAME,
+    #ifdef __APPLE__
     VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
     #endif
     //VK_GOOGLE_HLSL_FUNCTIONALITY1_EXTENSION_NAME,
@@ -53,7 +53,7 @@ namespace Razix {
                 int32_t AsyncCompute = -1;
                 int32_t Transfer     = -1;
 
-                bool isComplete()
+                bool isComplete() const
                 {
                     return Graphics > -1 && Present > -1 && AsyncCompute > -1 && Transfer > -1;
                 }
@@ -63,15 +63,8 @@ namespace Razix {
             VKPhysicalDevice();
             ~VKPhysicalDevice();
 
-            bool isDeviceSuitable(VkPhysicalDevice gpu);
-            /* 
-             * Checks the Physical Device for the provided list of extension availability
-             * 
-             * @param extensionName The extension to check for, if it's supported by the GPU
-             * @returns True, if the extension is supported
-             */
-            bool isExtensionSupported(const std::string& extensionName) const;
-
+            bool        isDeviceSuitable(VkPhysicalDevice gpu);
+            bool        isExtensionSupported(const std::string& extensionName) const;
             u32         getMemoryTypeIndex(u32 typeBits, VkMemoryPropertyFlags properties) const;
             std::string getPhysicalDeviceTypeString(VkPhysicalDeviceType type) const;
 
@@ -101,6 +94,21 @@ namespace Razix {
             void findQueueFamilyIndices(VkSurfaceKHR surface);
         };
 
+        struct DummyVKResources
+        {
+            VkBuffer       dummyBuffer       = VK_NULL_HANDLE;
+            VkDeviceMemory dummyBufferMemory = VK_NULL_HANDLE;
+
+            VkImage        dummyImage       = VK_NULL_HANDLE;
+            VkDeviceMemory dummyImageMemory = VK_NULL_HANDLE;
+            VkImageView    dummyImageView   = VK_NULL_HANDLE;
+
+            VkSampler dummySampler = VK_NULL_HANDLE;
+
+            void create(VkDevice device, VkPhysicalDevice physicalDevice);
+            void destroy(VkDevice device) const;
+        };
+
         /* The logical device handle */
         //TODO: Add all get sets methods of physical GPU to VKDevice to reduce coupling and call routing/code complexity, this purely done to improve readability
         class VKDevice : public RZSingleton<VKDevice>
@@ -125,31 +133,37 @@ namespace Razix {
             inline VkDescriptorPool                    getBindlessDescriptorPool() const { return m_BindlessDescriptorPool; }
             inline VkDescriptorSet                     getBindlessDescriptorSet() const { return m_BindlessDescriptorSet; }
             inline VkDescriptorSetLayout               getBindlessSetLayout() const { return m_BindlessSetLayout; }
-            inline bool                                isBindlessSupported() const { return m_IsBindlessSupported; }
             inline VkPhysicalDeviceProperties2         getGPUProperties2() const { return m_PhysicalDeviceProperties2; };
+            inline VkBuffer                            GetDummyBuffer() const { return m_DummyResources.dummyBuffer; }
+            inline VkImageView                         GetDummyImageView() const { return m_DummyResources.dummyImageView; }
+            inline VkSampler                           GetDummySampler() const { return m_DummyResources.dummySampler; }
     #if RAZIX_USE_VMA
             inline VmaAllocator& getVMA() { return m_VMAllocator; }
     #endif
 
         private:
-            VkDevice                     m_Device                    = VK_NULL_HANDLE; /* Vulkan handle to abstracted device                                               */
-            VkQueue                      m_GraphicsQueue             = VK_NULL_HANDLE; /* GPU queue on which graphics commands are submitted                               */
-            VkQueue                      m_PresentQueue              = VK_NULL_HANDLE; /* GPU queue on which presentation commands are submitted                           */
-            VkQueue                      m_AsyncComputeQueue         = VK_NULL_HANDLE; /* GPU queue on which async compute commands are submitted                          */
-            VkQueue                      m_TransferQueue             = VK_NULL_HANDLE; /* GPU queue on which transfer commands are submitted                               */
-            rzstl::Ref<VKPhysicalDevice> m_PhysicalDevice            = {};             /* List of available GPUs on the machine                                            */
-            rzstl::Ref<VKCommandPool>    m_CommandPool               = {};             /* Global Command pool from which the command buffers are allocated from            */
-            VkDescriptorPool             m_GlobalDescriptorPool      = VK_NULL_HANDLE; /* Global descriptor pool from which normal descriptor sets are allocated from      */
-            VkDescriptorPool             m_BindlessDescriptorPool    = VK_NULL_HANDLE; /* Global descriptor pool from which bindless descriptor sets are allocated from    */
-            VkDescriptorSetLayout        m_BindlessSetLayout         = VK_NULL_HANDLE; /* Global set layout for Bindless descriptor set                                    */
-            VkDescriptorSet              m_BindlessDescriptorSet     = VK_NULL_HANDLE; /* Global Bindless descriptor set to which bindless textures are mapped to          */
-            VkQueryPool                  m_TimestampsQueryPool       = VK_NULL_HANDLE; /* Query pool for allocating timestamps                                             */
-            VkQueryPool                  m_PipelineStatsQueryPool    = VK_NULL_HANDLE; /* Query pool for allocating pipeline stats                                         */
-            bool                         m_IsBindlessSupported       = false;          /* Whether or not Bindless is supported on the machine                              */
-            VkPhysicalDeviceProperties2  m_PhysicalDeviceProperties2 = {};             /* Selected GPU physical Device properties                                          */
+            VkDevice                     m_Device                    = VK_NULL_HANDLE;
+            VkQueue                      m_GraphicsQueue             = VK_NULL_HANDLE;
+            VkQueue                      m_PresentQueue              = VK_NULL_HANDLE;
+            VkQueue                      m_AsyncComputeQueue         = VK_NULL_HANDLE;
+            VkQueue                      m_TransferQueue             = VK_NULL_HANDLE;
+            rzstl::Ref<VKPhysicalDevice> m_PhysicalDevice            = {};
+            rzstl::Ref<VKCommandPool>    m_CommandPool               = {};
+            VkDescriptorPool             m_GlobalDescriptorPool      = VK_NULL_HANDLE;
+            VkDescriptorPool             m_BindlessDescriptorPool    = VK_NULL_HANDLE;
+            VkDescriptorSetLayout        m_BindlessSetLayout         = VK_NULL_HANDLE;
+            VkDescriptorSet              m_BindlessDescriptorSet     = VK_NULL_HANDLE;
+            VkQueryPool                  m_TimestampsQueryPool       = VK_NULL_HANDLE;
+            VkQueryPool                  m_PipelineStatsQueryPool    = VK_NULL_HANDLE;
+            bool                         m_IsBindlessSupported       = false;
+            VkPhysicalDeviceProperties2  m_PhysicalDeviceProperties2 = {};
+            DummyVKResources             m_DummyResources            = {};
     #if RAZIX_USE_VMA
             VmaAllocator m_VMAllocator = VK_NULL_HANDLE;
     #endif
+        private:
+            void createDummyResources();
+            void destroyDummyResources();
         };
     }    // namespace Gfx
 }    // namespace Razix
