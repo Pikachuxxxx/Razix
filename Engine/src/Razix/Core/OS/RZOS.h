@@ -29,7 +29,7 @@ namespace Razix {
 		 * Controls the Application lifecycle
 		 * Should be Implemented OS so as to give the OS control over the application
 		 */
-        virtual void Run() = 0;
+        virtual void Begin() = 0;
 
     protected:
         /* The global OS instance for the Engine to call */

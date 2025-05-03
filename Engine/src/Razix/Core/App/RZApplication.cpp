@@ -28,6 +28,8 @@
 
 #include "Razix/Scene/Components/TransformComponent.h"
 
+#include "Razix/Platform/API/Vulkan/VKDevice.h"
+
 #include <backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/plugins/IconsFontAwesome5.h>
@@ -264,7 +266,7 @@ namespace Razix {
         return true;
     }
 
-    void RZApplication::Run()
+    void RZApplication::Begin()
     {
         Razix::RZSplashScreen::Get().setLogString("Initializing RHI...");
 
@@ -336,6 +338,10 @@ namespace Razix {
         }
 
         // TODO: Add Time stamp Queries for calculating GPU time
+
+        VkPhysicalDeviceProperties props = {};
+        vkGetPhysicalDeviceProperties(Gfx::VKDevice::Get().getGPU(), &props);
+        RAZIX_CORE_INFO("[Vulkan] GPU Name           : {0}", std::string(props.deviceName));
 
         // Calculate the delta time
         f32 now = m_Timer->GetElapsedS();

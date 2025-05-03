@@ -120,7 +120,7 @@ static int EngineMain(int argc, char** argv)
     Razix::RZEngine::Get().PostGraphicsIgnite();
 
     // Run the  Application with the master controlled given to the OS
-    windowsOS->Run();
+    windowsOS->Begin();
     windowsOS.release();
 
     return EXIT_SUCCESS;
@@ -204,7 +204,7 @@ static int EngineMain(int argc, char** argv)
     Razix::RZEngine::Get().PostGraphicsIgnite();
 
     // Run the  Application with the master controlled given to the OS
-    macosOS->Run();
+    macosOS->Begin();
     macosOS.release();
 
     return EXIT_SUCCESS;

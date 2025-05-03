@@ -95,7 +95,7 @@ namespace Razix {
         void Init();
 
         /* Starts the Engine Runtime systems */
-        void Run();
+        void Begin();
 
         /* Quits the application and releases any resources held by it */
         void Quit();

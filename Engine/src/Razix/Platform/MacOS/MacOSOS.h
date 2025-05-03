@@ -1,4 +1,4 @@
-#pragma once
+    #pragma once
 
 #include "Razix/Core/OS/RZOS.h"
 
@@ -19,6 +19,6 @@ namespace Razix {
 		 * By doing this the OS is lending it's resources to the engine while still keeping in control of 
 		 * the application to preserve it's master status over the application that it permits to run
 		 */
-        void Run() override;
+        void Begin() override;
     };
 }    // namespace Razix
