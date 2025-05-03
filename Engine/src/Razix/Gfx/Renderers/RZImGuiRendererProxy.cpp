@@ -92,9 +92,6 @@ namespace Razix {
                 vtxDst += cmd_list->VtxBuffer.Size;
                 idxDst += cmd_list->IdxBuffer.Size;
             }
-
-            imguiVB->Flush();
-            imguiIB->Flush();
         }
 
         void RZImGuiRendererProxy::Draw(RZDrawCommandBufferHandle cmdBuffer)

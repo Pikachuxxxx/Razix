@@ -507,17 +507,6 @@ namespace Razix {
             vkDestroyDevice(m_Device, nullptr);
         }
 
-        static uint32_t FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties)
-        {
-            VkPhysicalDeviceMemoryProperties memProps;
-            vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProps);
-
-            for (uint32_t i = 0; i < memProps.memoryTypeCount; i++) {
-                if ((typeFilter & (1 << i)) && (memProps.memoryTypes[i].propertyFlags & properties) == properties)
-                    return i;
-            }
-        }
-
         void DummyVKResources::create(VkDevice device, VkPhysicalDevice physicalDevice)
         {
             // 1. Dummy Buffer
@@ -534,7 +523,7 @@ namespace Razix {
 
                 VkMemoryAllocateInfo allocInfo{VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO};
                 allocInfo.allocationSize  = memReq.size;
-                allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memReq.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                allocInfo.memoryTypeIndex = VKDevice::Get().getPhysicalDevice()->getMemoryTypeIndex(memReq.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
                 VK_CHECK_RESULT(vkAllocateMemory(device, &allocInfo, nullptr, &dummyBufferMemory));
                 VK_CHECK_RESULT(vkBindBufferMemory(device, dummyBuffer, dummyBufferMemory, 0));
@@ -568,7 +557,7 @@ namespace Razix {
 
                 VkMemoryAllocateInfo allocInfo{VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO};
                 allocInfo.allocationSize  = memReq.size;
-                allocInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+                allocInfo.memoryTypeIndex = VKDevice::Get().getPhysicalDevice()->getMemoryTypeIndex(memReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
                 VK_CHECK_RESULT(vkAllocateMemory(device, &allocInfo, nullptr, &dummyImageMemory));
                 VK_CHECK_RESULT(vkBindImageMemory(device, dummyImage, dummyImageMemory, 0));
