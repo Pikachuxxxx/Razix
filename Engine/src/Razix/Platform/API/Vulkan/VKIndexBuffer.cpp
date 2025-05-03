@@ -35,8 +35,6 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             if (m_IsBufferMapped) {
-                VKBuffer::invalidate(m_BufferSize);
-                VKBuffer::flush(m_BufferSize);
                 VKBuffer::unMap();
                 m_IsBufferMapped = false;
             }

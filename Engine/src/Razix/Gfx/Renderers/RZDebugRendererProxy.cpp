@@ -105,10 +105,7 @@ namespace Razix {
                 }
 
                 pointPositionVBResource->Flush();
-                pointPositionVBResource->Invalidate();
-
                 pointColorVBResource->Flush();
-                pointColorVBResource->Invalidate();
 
                 auto pointIBResource = RZResourceManager::Get().getIndexBufferResource(m_PointIB);
                 pointIBResource->setCount(m_PointIndexCount);
@@ -140,10 +137,7 @@ namespace Razix {
                 }
 
                 linePositionVBResource->Flush();
-                linePositionVBResource->Invalidate();
-
                 lineColorVBResource->Flush();
-                lineColorVBResource->Invalidate();
 
                 auto lineIBResource = RZResourceManager::Get().getIndexBufferResource(m_LineIB);
                 lineIBResource->setCount(m_LineIndexCount);
