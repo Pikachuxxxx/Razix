@@ -30,35 +30,70 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            // Input management
-            if (RZInput::IsKeyHeld(KeyCode::Key::Up) || RZInput::IsKeyHeld(KeyCode::Key::W))
-                processKeyboard(FORWARD, deltaTime);
-            if (RZInput::IsKeyHeld(KeyCode::Key::Down) || RZInput::IsKeyHeld(KeyCode::Key::S))
-                processKeyboard(BACKWARD, deltaTime);
-            if (RZInput::IsKeyHeld(KeyCode::Key::Right) || RZInput::IsKeyHeld(KeyCode::Key::D))
-                processKeyboard(RIGHT, deltaTime);
-            if (RZInput::IsKeyHeld(KeyCode::Key::Left) || RZInput::IsKeyHeld(KeyCode::Key::A))
-                processKeyboard(LEFT, deltaTime);
+            // Prefer a Controller if connected or else fallback to mouse and keyboard
+            if (RZInput::IsGamepadConnected()) {
+                f32 leftX = RZInput::GetJoyLeftStickHorizontal();
+                f32 leftY = RZInput::GetJoyLeftStickVertical();
 
-            // Update position with lerping effect using the Velocity
-            TargetMovement = this->Position + Velocity;
-            this->Position = Math::lerp3(this->Position, TargetMovement, 0.6f, static_cast<f32>(deltaTime));
+                MovementSpeed = 0.01f;
 
-            // Gradually reduce the velocity over time to create the lingering effect
-            Velocity *= DampingFactor;
+                const f32                 deadZone      = 0.15f;
+                Camera_Movement_Direction direction     = {};
+                glm::vec3                 abs_direction = {};
 
-            // Mouse movement handling
-            auto mX = RZInput::GetMouseX();
-            auto mY = RZInput::GetMouseY();
+                if (fabs(leftY) > deadZone) {
+                    direction = (leftY < 0.0f ? FORWARD : BACKWARD);
+                    abs_direction.y += leftY;
+                }
+                if (fabs(leftX) > deadZone) {
+                    direction = (leftX < 0.0f ? LEFT : RIGHT);
+                    abs_direction.x += leftX;
+                }
 
-            f32 deltaX = mX - m_OldX;
-            f32 deltaY = mY - m_OldY;
+                if (glm::length(abs_direction) > 0.0f)
+                    processKeyboard(direction, deltaTime);
 
-            if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonRight))
-                processMouseMovement(deltaX, deltaY);
+                f32 rightX = RZInput::GetJoyRightStickHorizontal();
+                f32 rightY = RZInput::GetJoyRightStickVertical();
 
-            m_OldX = mX;
-            m_OldY = mY;
+                if (fabs(rightX) > deadZone || fabs(rightY) > deadZone)
+                    processMouseMovement(rightX * 7.5f, rightY * 7.5f);
+
+                TargetMovement = this->Position + Velocity;
+                this->Position = Math::lerp3(this->Position, TargetMovement, 0.6f, static_cast<f32>(deltaTime));
+                Velocity *= DampingFactor;
+
+            } else {
+                // Input management
+                if (RZInput::IsKeyHeld(KeyCode::Key::Up) || RZInput::IsKeyHeld(KeyCode::Key::W))
+                    processKeyboard(FORWARD, deltaTime);
+                if (RZInput::IsKeyHeld(KeyCode::Key::Down) || RZInput::IsKeyHeld(KeyCode::Key::S))
+                    processKeyboard(BACKWARD, deltaTime);
+                if (RZInput::IsKeyHeld(KeyCode::Key::Right) || RZInput::IsKeyHeld(KeyCode::Key::D))
+                    processKeyboard(RIGHT, deltaTime);
+                if (RZInput::IsKeyHeld(KeyCode::Key::Left) || RZInput::IsKeyHeld(KeyCode::Key::A))
+                    processKeyboard(LEFT, deltaTime);
+
+                // Update position with lerping effect using the Velocity
+                TargetMovement = this->Position + Velocity;
+                this->Position = Math::lerp3(this->Position, TargetMovement, 0.6f, static_cast<f32>(deltaTime));
+
+                // Gradually reduce the velocity over time to create the lingering effect
+                Velocity *= DampingFactor;
+
+                // Mouse movement handling
+                auto mX = RZInput::GetMouseX();
+                auto mY = RZInput::GetMouseY();
+
+                f32 deltaX = mX - m_OldX;
+                f32 deltaY = mY - m_OldY;
+
+                if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonRight))
+                    processMouseMovement(deltaX, deltaY);
+
+                m_OldX = mX;
+                m_OldY = mY;
+            }
         }
 
         void Camera3D::processKeyboard(Camera_Movement_Direction direction, d32 deltaTime)

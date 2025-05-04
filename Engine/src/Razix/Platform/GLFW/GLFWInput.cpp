@@ -12,7 +12,7 @@
 
 namespace Razix {
     // Temporarily creating Input directly from GLFW
-    Razix::RZInput* Razix::RZInput::sInstance = nullptr;
+    Razix::RZInput* Razix::RZInput::s_Instance = nullptr;
 
     bool GLFWInput::IsKeyPressedImpl(int keycode)
     {
@@ -103,6 +103,76 @@ namespace Razix {
 
         auto [x, y] = GetMousePositionImpl();
         return y;
+    }
+
+    bool GLFWInput::IsGamepadConnectedImpl()
+    {
+        return glfwJoystickPresent(GLFW_JOYSTICK_1) && glfwJoystickIsGamepad(GLFW_JOYSTICK_1);
+    }
+
+    static GLFWgamepadstate GetGamepadState()
+    {
+        GLFWgamepadstate state = {};
+        if (glfwJoystickIsGamepad(GLFW_JOYSTICK_1)) {
+            glfwGetGamepadState(GLFW_JOYSTICK_1, &state);
+        }
+        return state;
+    }
+
+    f32 GLFWInput::GetJoyLeftStickHorizontalImpl()
+    {
+        return GetGamepadState().axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+    }
+
+    f32 GLFWInput::GetJoyLeftStickVerticalImpl()
+    {
+        return GetGamepadState().axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+    }
+
+    f32 GLFWInput::GetJoyRightStickHorizontalImpl()
+    {
+        return GetGamepadState().axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
+    }
+
+    f32 GLFWInput::GetJoyRightStickVerticalImpl()
+    {
+        return GetGamepadState().axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
+    }
+
+    f32 GLFWInput::GetJoyDPadHorizontalImpl()
+    {
+        const auto state = GetGamepadState();
+        int        left  = state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT] == GLFW_PRESS ? -1 : 0;
+        int        right = state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT] == GLFW_PRESS ? 1 : 0;
+        return static_cast<f32>(left + right);
+    }
+
+    f32 GLFWInput::GetJoyDPadVerticalImpl()
+    {
+        const auto state = GetGamepadState();
+        int        up    = state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP] == GLFW_PRESS ? -1 : 0;
+        int        down  = state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN] == GLFW_PRESS ? 1 : 0;
+        return static_cast<f32>(up + down);
+    }
+
+    bool GLFWInput::IsCrossPressedImpl()
+    {
+        return GetGamepadState().buttons[GLFW_GAMEPAD_BUTTON_A] == GLFW_PRESS;
+    }
+
+    bool GLFWInput::IsCirclePressedImpl()
+    {
+        return GetGamepadState().buttons[GLFW_GAMEPAD_BUTTON_B] == GLFW_PRESS;
+    }
+
+    bool GLFWInput::IsTrianglePressedImpl()
+    {
+        return GetGamepadState().buttons[GLFW_GAMEPAD_BUTTON_Y] == GLFW_PRESS;
+    }
+
+    bool GLFWInput::IsSquarePressedImpl()
+    {
+        return GetGamepadState().buttons[GLFW_GAMEPAD_BUTTON_X] == GLFW_PRESS;
     }
 
 }    // namespace Razix

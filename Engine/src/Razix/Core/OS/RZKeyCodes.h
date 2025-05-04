@@ -146,5 +146,28 @@ namespace Razix {
             ButtonMiddle = 2,
             NoCursor     = 3
         };
+
+        enum class JoyButtons : u32
+        {
+            X,    // Cross
+            O,    // Circle
+            S,    // Square
+            T,    // Triangle
+            DpadLeft,
+            DpadRight,
+            DpadUp,
+            DpadDown,
+            L1,
+            L2,
+            L3,
+            R1,
+            R2,
+            R3,
+            Home,    // PS button
+            Options,
+            Share,
+            Mute,
+            TouchPad
+        };
     }    // namespace KeyCode
 }    // namespace Razix

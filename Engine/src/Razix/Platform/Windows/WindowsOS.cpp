@@ -26,7 +26,7 @@ namespace Razix {
         //RZInput::SelectGLFWInputManager();
 #else
         WindowsWindow::Construct();
-        Razix::RZInput* Razix::RZInput::sInstance = new WindowsInput();
+        Razix::RZInput* Razix::RZInput::s_Instance = new WindowsInput();
 #endif
     }
 

@@ -7,5 +7,5 @@
 
 void Razix::RZInput::SelectGLFWInputManager()
 {
-    sInstance = new GLFWInput;
+    s_Instance = new GLFWInput;
 }
