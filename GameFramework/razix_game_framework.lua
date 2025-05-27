@@ -5,7 +5,7 @@ include 'Scripts/premake/common/internal_includes.lua'
 ------------------------------------------------------------------------------
 -- Game Framework project
 project "GameFramework"
-    kind "ConsoleApp"
+    kind "WindowedApp"
     language "C++"
 
     -- Game source files

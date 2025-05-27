@@ -1,21 +1,22 @@
 #ifdef _WIN32
-namespace tracy {
+namespace tracy
+{
     bool DiscoveryAVX()
     {
-    #ifdef __AVX__
+#ifdef __AVX__
         return true;
-    #else
+#else
         return false;
-    #endif
+#endif
     }
 
     bool DiscoveryAVX2()
     {
-    #ifdef __AVX2__
+#ifdef __AVX2__
         return true;
-    #else
+#else
         return false;
-    #endif
+#endif
     }
-}    // namespace tracy
+}
 #endif

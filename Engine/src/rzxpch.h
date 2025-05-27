@@ -49,7 +49,7 @@
 
 //-----3rd Party-----//
 // Profilers
-#include <Tracy.hpp>
+#include <tracy/Tracy.hpp>
 // GLM
 //  Managed by Engine Math.h
 // Cereal

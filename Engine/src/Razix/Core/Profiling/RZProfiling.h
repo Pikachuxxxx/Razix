@@ -4,7 +4,7 @@
 
 // Profilers cannot be switched at runtime and need to be decided before compile time itself
 // Note: Using a profiler especially tracy increases the memory consumption monotonically, it's not a memory leak!
-#define RZ_PROFILER_TRACY   0
+#define RZ_PROFILER_TRACY   1
 #define RZ_PROFILER_OPTICK  0
 #define RZ_PROFILER_NVSIGHT 0
 

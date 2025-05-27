@@ -7,7 +7,7 @@
 namespace tracy
 {
 
-#pragma pack( 1 )
+#pragma pack( push, 1 )
 template<typename T, class CompareDefault = std::less<T>>
 class SortedVector
 {
@@ -85,7 +85,14 @@ public:
 
     tracy_force_inline void clear() { v.clear(); sortedEnd = 0; }
 
+    tracy_force_inline T* erase( T* begin, T* end )
+    {
+        assert( is_sorted() );
+        return v.erase( begin, end );
+    }
+
     tracy_force_inline void sort() { sort( CompareDefault() ); }
+    tracy_force_inline void ensure_sorted() { if( !is_sorted() ) sort(); }
 
     template<class Compare>
     void sort( Compare comp )
@@ -111,7 +118,7 @@ private:
     uint32_t sortedEnd;
 };
 
-#pragma pack()
+#pragma pack( pop )
 
 enum { SortedVectorSize = sizeof( SortedVector<int> ) };
 
