@@ -47,15 +47,12 @@ project "RazixMemory"
     filter "system:macosx"
         cppdialect (engine_global_config.cpp_dialect)
         staticruntime "off"
-        systemversion "latest"
-        
+        systemversion "14.0"
         defines
         {
             "RAZIX_PLATFORM_MACOSX",
             "RAZIX_PLATFORM_UNIX"
         }
-        
-
 
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }

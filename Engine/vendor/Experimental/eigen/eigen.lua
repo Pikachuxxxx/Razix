@@ -1,5 +1,5 @@
 project "Eigen"
-	kind "StaticLib"
+	kind "None"
 	language "C++"
 	cppdialect (engine_global_config.cpp_dialect)
 	staticruntime "off"

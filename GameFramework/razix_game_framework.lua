@@ -74,17 +74,18 @@ project "GameFramework"
        "RZSTL"
     }
 
-   defines
-   {
+    defines
+    {
        --"SPDLOG_COMPILED_LIB"
-   }
+    }
 
-   filter { "files:**.lua or *.razixproject or **.rzscn"}
+    filter { "files:**.lua or *.razixproject or **.rzscn"}
         flags { "ExcludeFromBuild"}
 
 
-   -- Disable warning for vendor
-   filter { "files:vendor/**"}
+     -- Disable warning for vendor
+
+    filter { "files:vendor/**"}
        warnings "Off"
 
     filter "system:windows"
@@ -124,7 +125,7 @@ project "GameFramework"
     filter "system:macosx"
         cppdialect "C++17"
         staticruntime "off"
-        systemversion "latest"
+        systemversion "14.0"
 
         defines
         {

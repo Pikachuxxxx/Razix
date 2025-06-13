@@ -136,7 +136,7 @@ project "EngineTests"
     filter "system:macosx"
         cppdialect "C++17"
         staticruntime "off"
-        systemversion "latest"
+        systemversion "14.0"
 
         defines
         {

@@ -314,8 +314,7 @@ project "Razix"
     -------------------------------------
     filter "system:macosx"
         cppdialect "C++17"
-        systemversion "latest"
-
+        systemversion "14.0" 
         --pchheader "rzxpch.h"
         --pchsource "src/rzxpch.cpp"
 

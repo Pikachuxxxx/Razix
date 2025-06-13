@@ -1,7 +1,7 @@
 project "SpirvCross"
     kind "StaticLib"
     language "C++"
-    systemversion "latest"
+    --systemversion "latest"
     cppdialect (engine_global_config.cpp_dialect)
     staticruntime "off"
 

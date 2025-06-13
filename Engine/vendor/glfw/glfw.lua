@@ -20,8 +20,9 @@ project "GLFW"
         }
     
     filter "system:macosx"
+        systemversion "14.0"
         defines { "_GLFW_COCOA" }
-         files
+        files
     	{
 		"src/**.m"
 	}
