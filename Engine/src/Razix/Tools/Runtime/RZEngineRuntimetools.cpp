@@ -115,6 +115,21 @@ namespace Razix {
                 ImGui::SetTooltip("%s", "TEST TOOLTIP");
         }
 
+        void DrawLifetimeCellFromPassRange(const ImVec2& origin, uint32_t startPassIdx, uint32_t numPasses, float rowY)
+        {
+            float xOffset = FrameGraphStyle::LabelPanelSpace +
+                            FrameGraphStyle::LabelColumnOffsetX * 2 +
+                            PassLabelStyle::Spacing +
+                            (startPassIdx * (PassLabelStyle::BoxWidth + (PassLabelStyle::Spacing * 2)));
+
+            ImVec2 cellOrigin = origin + ImVec2(xOffset, rowY);
+
+            float cellWidth = (LifetimeCellStyle::CellWidth * numPasses) +
+                              ((PassLabelStyle::Spacing * 2) * (numPasses - 1));
+
+            DrawLifetimeCell(cellOrigin, cellWidth, LifetimeCellStyle::CellHeight);
+        }
+
         void DrawSimulatedBarriers(ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, const std::vector<SimulatedBarrier>& barriers)
         {
             for (const auto& barrier: barriers) {
@@ -228,9 +243,7 @@ namespace Razix {
                 const auto& resNode = frameGraph.getResourceNode(compiledResourceEntryPoints[ry]);
                 draw->AddText(row_p0 + ImVec2(ResourcePanelStyle::TextOffsetX, ResourcePanelStyle::TextOffsetY), ResourcePanelStyle::TextColor, resNode.getName().c_str());
 
-                ImVec2   cellOrigin = origin + ImVec2(FrameGraphStyle::LabelPanelSpace + (FrameGraphStyle::LabelColumnOffsetX * 2) + PassLabelStyle::Spacing, (ry + 2) * FrameGraphStyle::CellSize);
-                uint32_t Passes     = 3;
-                DrawLifetimeCell(cellOrigin, ((LifetimeCellStyle::CellWidth * Passes) + ((PassLabelStyle::Spacing * 2) * (Passes - 1))), LifetimeCellStyle::CellHeight);
+                DrawLifetimeCellFromPassRange(origin, ry, 3, (ry + 2) * FrameGraphStyle::CellSize);
 
                 ImVec2 mouse = ImGui::GetMousePos();
                 if (mouse.x >= row_p0.x && mouse.x <= row_p1.x && mouse.y >= row_p0.y && mouse.y <= row_p1.y) {
