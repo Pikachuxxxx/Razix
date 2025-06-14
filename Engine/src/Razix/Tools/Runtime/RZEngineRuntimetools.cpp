@@ -21,15 +21,6 @@ namespace Razix {
         //---------------------------------------------------------------------------------------------------------------------
         // Style Definitions
 
-        struct CellStyle
-        {
-            constexpr static float Roundness       = 4.0f;
-            constexpr static float BorderThickness = 1.0f;
-            constexpr static ImU32 Color           = IM_COL32(255, 192, 203, 200);    // Light pink w/ alpha
-            constexpr static ImU32 HoverColor      = IM_COL32(255, 182, 193, 255);    // Slightly darker
-            constexpr static ImU32 BorderColor     = IM_COL32(255, 160, 170, 255);
-        };
-
         struct BarrierStyle
         {
             constexpr static ImU32 ReadFillColor    = IM_COL32(80, 150, 255, 64);
@@ -52,8 +43,18 @@ namespace Razix {
             constexpr static float BoxRounding     = 4.0f;
             constexpr static float BorderThickness = 1.5f;
             constexpr static float Spacing         = 10.0f;
-            constexpr static float LineGap         = 8.0f;
             constexpr static float MaxTextWidth    = 150.0f;
+            constexpr static float BoxWidth        = PassLabelStyle::MaxTextWidth + 2.0f * PassLabelStyle::PaddingX;
+        };
+
+        struct LifetimeCellStyle
+        {
+            constexpr static float Roundness       = 4.0f;
+            constexpr static float BorderThickness = 1.0f;
+            constexpr static ImU32 Color           = IM_COL32(255, 192, 203, 200);    // Light pink w/ alpha
+            constexpr static ImU32 HoverColor      = IM_COL32(255, 182, 193, 255);    // Slightly darker
+            constexpr static ImU32 BorderColor     = IM_COL32(255, 160, 170, 255);
+            constexpr static float CellWidth       = PassLabelStyle::BoxWidth;
         };
 
         struct ResourcePanelStyle
@@ -85,10 +86,10 @@ namespace Razix {
             ImVec2 mouse   = ImGui::GetMousePos();
             bool   hovered = mouse.x >= min.x && mouse.x <= max.x && mouse.y >= min.y && mouse.y <= max.y;
 
-            ImU32 color = hovered ? CellStyle::HoverColor : CellStyle::Color;
+            ImU32 color = hovered ? LifetimeCellStyle::HoverColor : LifetimeCellStyle::Color;
 
-            drawList->AddRectFilled(min, max, color, CellStyle::Roundness);
-            drawList->AddRect(min, max, CellStyle::BorderColor, CellStyle::Roundness, 0, CellStyle::BorderThickness);
+            drawList->AddRectFilled(min, max, color, LifetimeCellStyle::Roundness);
+            drawList->AddRect(min, max, LifetimeCellStyle::BorderColor, LifetimeCellStyle::Roundness, 0, LifetimeCellStyle::BorderThickness);
 
             if (hovered)
                 ImGui::SetTooltip("%s", "TEST TOOLTIP");
@@ -130,10 +131,9 @@ namespace Razix {
             float y           = origin.y;
             float totalHeight = (resourcesCount + 2) * cellHeight;
             float x           = origin.x + 25.0f;
-            float boxWidth    = PassLabelStyle::MaxTextWidth + 2.0f * PassLabelStyle::PaddingX;
 
             draw->AddLine(ImVec2(x, y), ImVec2(x, y + totalHeight), PassLabelStyle::ColumnLineColor);
-            x += PassLabelStyle::LineGap;
+            x += PassLabelStyle::Spacing;
 
             const auto& compiledPassNodes = frameGraph.getCompiledPassNodes();
             for (uint32_t i = 0; i < compiledPassNodes.size(); ++i) {
@@ -142,13 +142,13 @@ namespace Razix {
 
                 float  boxHeight = ImGui::GetFontSize() + 2.0f * PassLabelStyle::PaddingY;
                 ImVec2 p0        = ImVec2(x, y);
-                ImVec2 p1        = ImVec2(x + boxWidth, y + boxHeight);
+                ImVec2 p1        = ImVec2(x + PassLabelStyle::BoxWidth, y + boxHeight);
 
                 draw->AddRectFilled(p0, p1, PassLabelStyle::BgColor, PassLabelStyle::BoxRounding);
                 draw->AddRect(p0, p1, PassLabelStyle::BorderColor, PassLabelStyle::BoxRounding, 0, PassLabelStyle::BorderThickness);
 
                 ImVec2 textSize = ImGui::CalcTextSize(label.c_str());
-                ImVec2 textPos  = ImVec2(p0.x + (boxWidth - textSize.x) * 0.5f, p0.y + PassLabelStyle::PaddingY);
+                ImVec2 textPos  = ImVec2(p0.x + (PassLabelStyle::BoxWidth - textSize.x) * 0.5f, p0.y + PassLabelStyle::PaddingY);
                 draw->AddText(ImVec2(textPos.x + 1, textPos.y + 1), PassLabelStyle::ShadowColor, label.c_str());
                 draw->AddText(textPos, PassLabelStyle::TextColor, label.c_str());
 
@@ -171,7 +171,7 @@ namespace Razix {
                     ImGui::EndTooltip();
                 }
 
-                float line_x = x + boxWidth + PassLabelStyle::LineGap;
+                float line_x = x + PassLabelStyle::BoxWidth + PassLabelStyle::Spacing;
                 draw->AddLine(ImVec2(line_x, y), ImVec2(line_x, y + totalHeight), PassLabelStyle::ColumnLineColor);
                 x = line_x + PassLabelStyle::Spacing;
             }
@@ -225,6 +225,12 @@ namespace Razix {
                 const auto& resNode = frameGraph.getResourceNode(compiledResourceEntryPoints[ry]);
                 draw->AddText(row_p0 + ImVec2(10.0f, 8.0f), ResourcePanelStyle::TextColor, resNode.getName().c_str());
 
+                // Draw the lifetime cell per resource
+                ImVec2 cellOrigin = origin + ImVec2(panelWidth + (25.0f * 2) + PassLabelStyle::Spacing, (ry + 2) * cellSize);
+                // TODO: When drawing cell that spawns across multiple passes account for spacing (delta spacing * 2)
+                uint32_t Passes = 3;
+                DrawLifetimeCell(cellOrigin, ((LifetimeCellStyle::CellWidth * Passes) + ((PassLabelStyle::Spacing * 2) * (Passes - 1))), 18.0f);
+
                 ImVec2 mouse = ImGui::GetMousePos();
                 if (mouse.x >= row_p0.x && mouse.x <= row_p1.x && mouse.y >= row_p0.y && mouse.y <= row_p1.y) {
                     ImGui::BeginTooltip();
@@ -238,11 +244,7 @@ namespace Razix {
                 }
             }
 
-            DrawPassLabels(frameGraph, draw, origin + ImVec2(panelWidth + 20.0f, 0), cellSize, cellSize, maxRows);
-
-            //for (int i = 0; i < 5; ++i) {
-            //    DrawLifetimeCell(ImVec2(origin.x + i * (80.0f + 6.0f), origin.y), 80.0f, 18.0f);
-            //}
+            DrawPassLabels(frameGraph, draw, origin + ImVec2(panelWidth + 25.0f, 0), cellSize, cellSize, maxRows);
 
             float drawnHeight = (maxRows + 2) * cellSize + topPadding;
             ImGui::Dummy(ImVec2(panelWidth + 10.0f, drawnHeight));
