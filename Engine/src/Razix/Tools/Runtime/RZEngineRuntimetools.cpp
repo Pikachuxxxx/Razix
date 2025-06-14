@@ -29,6 +29,11 @@ namespace Razix {
             constexpr static ImU32 WriteBorderColor = IM_COL32(255, 80, 150, 255);
             constexpr static float BorderThickness  = 2.5f;
             constexpr static float CornerRounding   = 3.0f;
+            constexpr static float BoxPaddingX      = 6.0f;
+            constexpr static float BoxPaddingY      = 4.0f;
+            constexpr static float InnerPaddingX    = 6.0f;
+            constexpr static float InnerPaddingY    = 4.0f;
+            constexpr static float LabelOffsetY     = 3.0f;
         };
 
         struct PassLabelStyle
@@ -44,28 +49,43 @@ namespace Razix {
             constexpr static float BorderThickness = 1.5f;
             constexpr static float Spacing         = 10.0f;
             constexpr static float MaxTextWidth    = 150.0f;
-            constexpr static float BoxWidth        = PassLabelStyle::MaxTextWidth + 2.0f * PassLabelStyle::PaddingX;
+            constexpr static float BoxWidth        = MaxTextWidth + 2.0f * PaddingX;
         };
 
         struct LifetimeCellStyle
         {
             constexpr static float Roundness       = 4.0f;
             constexpr static float BorderThickness = 1.0f;
-            constexpr static ImU32 Color           = IM_COL32(255, 192, 203, 200);    // Light pink w/ alpha
-            constexpr static ImU32 HoverColor      = IM_COL32(255, 182, 193, 255);    // Slightly darker
+            constexpr static ImU32 Color           = IM_COL32(255, 192, 203, 200);
+            constexpr static ImU32 HoverColor      = IM_COL32(255, 182, 193, 255);
             constexpr static ImU32 BorderColor     = IM_COL32(255, 160, 170, 255);
             constexpr static float CellWidth       = PassLabelStyle::BoxWidth;
+            constexpr static float CellHeight      = 18.0f;
         };
 
         struct ResourcePanelStyle
         {
-            constexpr static ImU32 BgColorEven      = IM_COL32(50, 50, 60, 255);
-            constexpr static ImU32 BgColorOdd       = IM_COL32(40, 40, 50, 255);
-            constexpr static ImU32 BorderColor      = IM_COL32(120, 120, 120, 255);
-            constexpr static ImU32 TextColor        = IM_COL32(220, 220, 255, 255);
-            constexpr static ImU32 HeaderBgColor    = IM_COL32(100, 80, 150, 255);
-            constexpr static ImU32 BarrierBgColor   = IM_COL32(255, 125, 125, 100);
-            constexpr static ImU32 BarrierTextColor = IM_COL32(255, 255, 200, 255);
+            constexpr static ImU32 BgColorEven        = IM_COL32(50, 50, 60, 255);
+            constexpr static ImU32 BgColorOdd         = IM_COL32(40, 40, 50, 255);
+            constexpr static ImU32 BorderColor        = IM_COL32(120, 120, 120, 255);
+            constexpr static ImU32 TextColor          = IM_COL32(220, 220, 255, 255);
+            constexpr static ImU32 HeaderBgColor      = IM_COL32(100, 80, 150, 255);
+            constexpr static ImU32 BarrierBgColor     = IM_COL32(255, 125, 125, 100);
+            constexpr static ImU32 BarrierTextColor   = IM_COL32(255, 255, 200, 255);
+            constexpr static float TextOffsetX        = 10.0f;
+            constexpr static float TextOffsetY        = 8.0f;
+            constexpr static float BarrierTextOffsetY = 6.0f;
+            constexpr static float HeaderHeight       = 24.0f;
+        };
+
+        struct FrameGraphStyle
+        {
+            constexpr static float TopPadding         = 20.0f;
+            constexpr static float CellSize           = 24.0f;
+            constexpr static float LabelPanelSpace    = 300.0f;
+            constexpr static float LabelPanelOffset   = 20.0f;
+            constexpr static float BarrierRowOffset   = 2.0f;
+            constexpr static float LabelColumnOffsetX = 25.0f;
         };
 
         //---------------------------------------------------------------------------------------------------------------------
@@ -95,18 +115,14 @@ namespace Razix {
                 ImGui::SetTooltip("%s", "TEST TOOLTIP");
         }
 
-        void DrawSimulatedBarriers(ImDrawList*   draw,
-            ImVec2                               origin,
-            float                                cellWidth,
-            float                                cellHeight,
-            const std::vector<SimulatedBarrier>& barriers)
+        void DrawSimulatedBarriers(ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, const std::vector<SimulatedBarrier>& barriers)
         {
             for (const auto& barrier: barriers) {
                 const float x = origin.x + (barrier.passIdx + 1) * cellWidth;
                 const float y = origin.y + (barrier.resourceIdx + 1) * cellHeight;
 
-                ImVec2 p0 = ImVec2(x + 6, y + 4);
-                ImVec2 p1 = ImVec2(x + cellWidth - 6, y + cellHeight - 4);
+                ImVec2 p0 = ImVec2(x + BarrierStyle::InnerPaddingX, y + BarrierStyle::InnerPaddingY);
+                ImVec2 p1 = ImVec2(x + cellWidth - BarrierStyle::InnerPaddingX, y + cellHeight - BarrierStyle::InnerPaddingY);
 
                 const ImU32 fillColor   = barrier.isWrite ? BarrierStyle::WriteFillColor : BarrierStyle::ReadFillColor;
                 const ImU32 borderColor = barrier.isWrite ? BarrierStyle::WriteBorderColor : BarrierStyle::ReadBorderColor;
@@ -115,22 +131,17 @@ namespace Razix {
                 draw->AddRectFilled(p0, p1, fillColor, BarrierStyle::CornerRounding);
                 draw->AddRect(p0, p1, borderColor, BarrierStyle::CornerRounding, 0, BarrierStyle::BorderThickness);
 
-                ImVec2 labelPos = ImVec2((p0.x + p1.x) * 0.5f, p0.y + 3);
+                ImVec2 labelPos = ImVec2((p0.x + p1.x) * 0.5f, p0.y + BarrierStyle::LabelOffsetY);
                 ImVec2 textSize = ImGui::CalcTextSize(label);
                 draw->AddText(ImVec2(labelPos.x - textSize.x * 0.5f, labelPos.y), borderColor, label);
             }
         }
 
-        void DrawPassLabels(const Gfx::FrameGraph::RZFrameGraph& frameGraph,
-            ImDrawList*                                          draw,
-            ImVec2                                               origin,
-            float                                                cellWidth,
-            float                                                cellHeight,
-            uint32_t                                             resourcesCount)
+        void DrawPassLabels(const Gfx::FrameGraph::RZFrameGraph& frameGraph, ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, uint32_t resourcesCount)
         {
             float y           = origin.y;
             float totalHeight = (resourcesCount + 2) * cellHeight;
-            float x           = origin.x + 25.0f;
+            float x           = origin.x + FrameGraphStyle::LabelColumnOffsetX;
 
             draw->AddLine(ImVec2(x, y), ImVec2(x, y + totalHeight), PassLabelStyle::ColumnLineColor);
             x += PassLabelStyle::Spacing;
@@ -177,7 +188,6 @@ namespace Razix {
             }
         }
 
-        // Call site: top-level draw function
         void OnImGuiDrawFrameGraphVis(const Gfx::FrameGraph::RZFrameGraph& frameGraph)
         {
             ImGui::SetNextWindowBgAlpha(1.0f);
@@ -185,51 +195,42 @@ namespace Razix {
 
             ImGui::Text("Welcome to Frame Graph resource viz! Your one stop viewer for Transient resources/Barriers and memory usage of a Frame.");
 
-            const float topPadding = 20.0f;
-            const float cellSize   = 24.0f;
-            const float labelSpace = 300.0f;
-            const float panelWidth = labelSpace - 20.0f;
-
             std::vector<uint32_t> compiledResourceEntryPoints = frameGraph.getCompiledResourceEntries();
             uint32_t              resourceCount               = compiledResourceEntryPoints.size();
 
             ImDrawList* draw   = ImGui::GetWindowDrawList();
-            ImVec2      origin = ImGui::GetCursorScreenPos() + ImVec2(0, topPadding);
+            ImVec2      origin = ImGui::GetCursorScreenPos() + ImVec2(0, FrameGraphStyle::TopPadding);
 
-            float    contentHeight  = ImGui::GetContentRegionAvail().y - topPadding;
-            uint32_t maxVisibleRows = static_cast<uint32_t>(contentHeight / cellSize);
+            float    contentHeight  = ImGui::GetContentRegionAvail().y - FrameGraphStyle::TopPadding;
+            uint32_t maxVisibleRows = static_cast<uint32_t>(contentHeight / FrameGraphStyle::CellSize);
             uint32_t maxRows        = std::min(resourceCount, maxVisibleRows > 1 ? maxVisibleRows - 2 : 0);
 
-            // Header
             ImVec2 p0 = origin;
-            ImVec2 p1 = origin + ImVec2(panelWidth, cellSize);
+            ImVec2 p1 = origin + ImVec2(FrameGraphStyle::LabelPanelSpace - FrameGraphStyle::LabelPanelOffset, FrameGraphStyle::CellSize);
             draw->AddRectFilled(p0, p1, ResourcePanelStyle::HeaderBgColor);
             draw->AddRect(p0, p1, ResourcePanelStyle::BorderColor);
-            draw->AddText(p0 + ImVec2(10.0f, 8.0f), IM_COL32_WHITE, "[Resource/Passes]");
+            draw->AddText(p0 + ImVec2(ResourcePanelStyle::TextOffsetX, ResourcePanelStyle::TextOffsetY), IM_COL32_WHITE, "[Resource/Passes]");
 
-            // Barrier label
-            p0 = origin + ImVec2(0, cellSize);
-            p1 = p0 + ImVec2(panelWidth, cellSize);
+            p0 = origin + ImVec2(0, FrameGraphStyle::CellSize);
+            p1 = p0 + ImVec2(FrameGraphStyle::LabelPanelSpace - FrameGraphStyle::LabelPanelOffset, FrameGraphStyle::CellSize);
             draw->AddRectFilled(p0, p1, ResourcePanelStyle::BarrierBgColor);
             draw->AddRect(p0, p1, ResourcePanelStyle::BorderColor);
-            draw->AddText(p0 + ImVec2(10.0f, 6.0f), ResourcePanelStyle::BarrierTextColor, "[Barriers]");
+            draw->AddText(p0 + ImVec2(ResourcePanelStyle::TextOffsetX, ResourcePanelStyle::BarrierTextOffsetY), ResourcePanelStyle::BarrierTextColor, "[Barriers]");
 
             for (uint32_t ry = 0; ry < maxRows; ++ry) {
-                ImVec2 row_p0 = origin + ImVec2(0, (ry + 2) * cellSize);
-                ImVec2 row_p1 = row_p0 + ImVec2(panelWidth, cellSize);
+                ImVec2 row_p0 = origin + ImVec2(0, (ry + 2) * FrameGraphStyle::CellSize);
+                ImVec2 row_p1 = row_p0 + ImVec2(FrameGraphStyle::LabelPanelSpace - FrameGraphStyle::LabelPanelOffset, FrameGraphStyle::CellSize);
 
                 ImU32 bgColor = (ry % 2 == 0) ? ResourcePanelStyle::BgColorEven : ResourcePanelStyle::BgColorOdd;
                 draw->AddRectFilled(row_p0, row_p1, bgColor);
                 draw->AddRect(row_p0, row_p1, ResourcePanelStyle::BorderColor);
 
                 const auto& resNode = frameGraph.getResourceNode(compiledResourceEntryPoints[ry]);
-                draw->AddText(row_p0 + ImVec2(10.0f, 8.0f), ResourcePanelStyle::TextColor, resNode.getName().c_str());
+                draw->AddText(row_p0 + ImVec2(ResourcePanelStyle::TextOffsetX, ResourcePanelStyle::TextOffsetY), ResourcePanelStyle::TextColor, resNode.getName().c_str());
 
-                // Draw the lifetime cell per resource
-                ImVec2 cellOrigin = origin + ImVec2(panelWidth + (25.0f * 2) + PassLabelStyle::Spacing, (ry + 2) * cellSize);
-                // TODO: When drawing cell that spawns across multiple passes account for spacing (delta spacing * 2)
-                uint32_t Passes = 3;
-                DrawLifetimeCell(cellOrigin, ((LifetimeCellStyle::CellWidth * Passes) + ((PassLabelStyle::Spacing * 2) * (Passes - 1))), 18.0f);
+                ImVec2   cellOrigin = origin + ImVec2(FrameGraphStyle::LabelPanelSpace + (FrameGraphStyle::LabelColumnOffsetX * 2) + PassLabelStyle::Spacing, (ry + 2) * FrameGraphStyle::CellSize);
+                uint32_t Passes     = 3;
+                DrawLifetimeCell(cellOrigin, ((LifetimeCellStyle::CellWidth * Passes) + ((PassLabelStyle::Spacing * 2) * (Passes - 1))), LifetimeCellStyle::CellHeight);
 
                 ImVec2 mouse = ImGui::GetMousePos();
                 if (mouse.x >= row_p0.x && mouse.x <= row_p1.x && mouse.y >= row_p0.y && mouse.y <= row_p1.y) {
@@ -244,10 +245,9 @@ namespace Razix {
                 }
             }
 
-            DrawPassLabels(frameGraph, draw, origin + ImVec2(panelWidth + 25.0f, 0), cellSize, cellSize, maxRows);
+            DrawPassLabels(frameGraph, draw, origin + ImVec2(FrameGraphStyle::LabelPanelSpace + FrameGraphStyle::LabelColumnOffsetX, 0), FrameGraphStyle::CellSize, FrameGraphStyle::CellSize, maxRows);
 
-            float drawnHeight = (maxRows + 2) * cellSize + topPadding;
-            ImGui::Dummy(ImVec2(panelWidth + 10.0f, drawnHeight));
+            float drawnHeight = (maxRows + 2) * FrameGraphStyle::CellSize + FrameGraphStyle::TopPadding;
             ImGui::End();
         }
 
