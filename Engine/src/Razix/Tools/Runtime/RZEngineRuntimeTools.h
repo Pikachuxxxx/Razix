@@ -6,7 +6,7 @@ namespace Razix {
         struct ToolsDrawConfig
         {
             bool showStatusBar             = true;
-            bool showFrameGraphResourceVis = false;
+            bool showFrameGraphResourceVis = true;
             bool showEngineBudgetBook      = false;
             bool showRHIStats              = false;
             bool showResourcePoolsBook     = false;

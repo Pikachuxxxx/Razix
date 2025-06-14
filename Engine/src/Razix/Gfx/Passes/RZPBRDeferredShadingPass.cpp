@@ -68,7 +68,9 @@ namespace Razix {
             framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "Pass.Builtin.Code.PBRDeferredLighting",
                 [&](SceneData& data, FrameGraph::RZPassResourceBuilder& builder) {
-                    builder.setAsStandAlonePass();
+                    builder
+                        .setAsStandAlonePass()
+                        .setDepartment(Department::Lighting);
 
                     RZTextureDesc textureDesc         = {};
                     textureDesc.name                  = "SceneHDR";

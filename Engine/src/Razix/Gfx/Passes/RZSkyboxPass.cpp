@@ -67,7 +67,9 @@ namespace Razix {
             framegraph.addCallbackPass(
                 "Pass.Builtin.Code.Skybox",
                 [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
-                    builder.setAsStandAlonePass();
+                    builder
+                        .setAsStandAlonePass()
+                        .setDepartment(Department::Environment);
 
                     builder.read(frameDataBlock.frameData);
                     builder.read(lightProbesData.environmentMap);

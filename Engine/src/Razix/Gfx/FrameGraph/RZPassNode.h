@@ -18,7 +18,6 @@ namespace Razix {
     namespace Gfx {
         namespace FrameGraph {
 
-            /* Defines a pass node in the frame graph */
             class RAZIX_API RZPassNode final : public RZGraphNode
             {
                 // Since we deleted the public constructor of RZGraphNode because we stated that only FrameGraph
@@ -29,35 +28,25 @@ namespace Razix {
                 friend class RZPassResourceBuilder;
                 friend class RZPassResourceDirectory;
 
-                /**
-                 * Creates a pass node using a name, id and a lambda execution function
-                 */
                 RZPassNode(const std::string_view name, u32 id, std::unique_ptr<IRZFrameGraphPass>&& exec);
 
             public:
-                /* To check whether or no this node has a copy of the resource already created or not */
-                bool
-                canCreateResouce(RZFrameGraphResource resourceID) const;
-                /* Used to check whether the given resource ID is allowed to be read by the node or not */
-                bool canReadResouce(RZFrameGraphResource resourceID) const;
-                /* Used to check whether the given resource ID is allowed to write by the node or not */
-                bool canWriteResouce(RZFrameGraphResource resourceID) const;
-                /* Whether or not the pass is stand alone */
-                RAZIX_INLINE bool isStandAlone() const { return m_IsStandAlone; }
-                /* Whether or not the pass is data driven */
-                RAZIX_INLINE bool isDataDriven() const { return m_IsDataDriven; }
-                /** 
-                 * To check whether or not to be culled
-                 * if either the node has refcount > 0 or is stand alone it shouldn't be culled and allowed to be executed 
-                 */
+                // TODO: Make these inline as well?
                 bool canExecute() const;
+                bool canCreateResouce(RZFrameGraphResource resourceID) const;
+                bool canReadResouce(RZFrameGraphResource resourceID) const;
+                bool canWriteResouce(RZFrameGraphResource resourceID) const;
 
-                RAZIX_INLINE const std::vector<RZFrameGraphResource>& getCreatResources() const { return m_Creates; }
-                RAZIX_INLINE const std::vector<RZFrameGraphResourceAcessView>& getInputResources() const { return m_Reads; }
-                RAZIX_INLINE const std::vector<RZFrameGraphResourceAcessView>& getOutputResources() const { return m_Writes; }
+                inline const std::vector<RZFrameGraphResource>&          getCreatResources() const { return m_Creates; }
+                inline const std::vector<RZFrameGraphResourceAcessView>& getInputResources() const { return m_Reads; }
+                inline const std::vector<RZFrameGraphResourceAcessView>& getOutputResources() const { return m_Writes; }
+                inline bool                                              isStandAlone() const { return m_IsStandAlone; }
+                inline bool                                              isDataDriven() const { return m_IsDataDriven; }
+                inline Department                                        getDepartment() const { return m_Department; }
+                inline const Memory::BudgetInfo&                         getCurrentPassBudget() const { return m_CurrentPassBudget; }
 
             private:
-                std::unique_ptr<IRZFrameGraphPass> m_Exec; /* The execution lambda function to be called for the pass */
+                std::unique_ptr<IRZFrameGraphPass> m_Exec;
                 // TODO: Implement this
                 //std::unique_ptr<RZFrameGraphPassConcept> m_Update; /* The update lambda function to be called for the pass */
 
@@ -66,24 +55,16 @@ namespace Razix {
                  * but storing them in the PassNode will only allocate memory when needed by pass, this helps with memory aliasing and deferred creation
                  */
 
-                std::vector<RZFrameGraphResource>          m_Creates;              /* List of all the resources created on this node                */
-                std::vector<RZFrameGraphResourceAcessView> m_Reads;                /* List of all the resource views that are read by this node     */
-                std::vector<RZFrameGraphResourceAcessView> m_Writes;               /* List of all the resources view that are written by this node  */
-                bool                                       m_IsStandAlone = false; /* Whether or no the pass is stand alone                         */
-                bool                                       m_IsDataDriven = false; /* Whether or no the it's data driven                            */
-                Department                                 m_Department;           /* The department this pass belongs to */
-                Memory::BudgetInfo                         m_CurrentPassBudget;    /* Pass current budget tracking */
+                std::vector<RZFrameGraphResource>          m_Creates;
+                std::vector<RZFrameGraphResourceAcessView> m_Reads;
+                std::vector<RZFrameGraphResourceAcessView> m_Writes;
+                bool                                       m_IsStandAlone      = false;
+                bool                                       m_IsDataDriven      = false;
+                Department                                 m_Department        = Department::NONE;
+                Memory::BudgetInfo                         m_CurrentPassBudget = {};
 
             private:
-                /**
-                 * Marks a resource as read for the current pass node
-                 * Store it's flags to create an access view
-                 */
                 RZFrameGraphResource registerResourceForRead(RZFrameGraphResource id, u32 flags);
-                /**
-                 * Marks a resource as write for the current pass node
-                 * Store it's flags to create an access view
-                 */
                 RZFrameGraphResource registerResourceForWrite(RZFrameGraphResource id, u32 flags);
             };
         }    // namespace FrameGraph

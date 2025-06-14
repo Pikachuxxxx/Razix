@@ -77,7 +77,9 @@ namespace Razix {
             framegraph.getBlackboard().add<GBufferData>() = framegraph.addCallbackPass<GBufferData>(
                 "Pass.Builtin.Code.GBuffer",
                 [&](GBufferData& data, FrameGraph::RZPassResourceBuilder& builder) {
-                    builder.setAsStandAlonePass();
+                    builder
+                        .setAsStandAlonePass()
+                        .setDepartment(Department::Environment);
 
                     RZTextureDesc gbufferTexturesDesc         = {};
                     gbufferTexturesDesc.name                  = "gBuffer0";

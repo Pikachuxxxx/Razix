@@ -9,6 +9,8 @@
 
 #include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
+#include "Razix/Utilities/RZStringUtilities.h"
+
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui/imgui.h>
 #include <imgui/plugins/IconsFontAwesome5.h>
@@ -57,29 +59,7 @@ namespace Razix {
             }
         }
 
-        void DrawCyberpunkLifetimes(ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, const std::vector<std::pair<u32, u32>>& lifetimes, u32 passCount, float offsetX)
-        {
-            const ImU32 lifetime_bg_color = IM_COL32(0, 255, 200, 90);     // Neon aqua glow
-            const ImU32 lifetime_border   = IM_COL32(0, 255, 255, 180);    // Cyan outline
-            const float border_thickness  = 1.8f;
-            const float rounding          = 5.0f;
-            const float glow_padding      = 2.0f;
-        }
-
-        // Sample pass names
-        static const std::vector<std::string> kPassNames = {
-            "DepthOnly", "GBuffer", "DeferredLighting", "TAA", "ToneMapping", "Debug", "ImGuI"};
-        static const std::vector<float> kPassDurations = {
-            1.0f,
-            1.0f,
-            1.0f,
-            0.5f,
-            0.5f,
-            1.0f,
-            1.0f,
-        };
-        void DrawPassLabels(ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, u32 resourcesCount,
-            const std::vector<std::string>& passNames, const std::vector<float>& passDurations)
+        static void DrawPassLabels(const Gfx::FrameGraph::RZFrameGraph& frameGraph, ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, u32 resourcesCount)
         {
             const ImU32 label_text_color   = IM_COL32(230, 255, 230, 255);    // Minty green
             const ImU32 label_shadow_color = IM_COL32(20, 20, 20, 180);
@@ -98,9 +78,9 @@ namespace Razix {
             float total_label_height = (resourcesCount + 2) * cellHeight;
 
             // Max text width for fixed-size label boxes
-            float max_text_width = 0.0f;
-            for (const auto& label: passNames)
-                max_text_width = std::max(max_text_width, ImGui::CalcTextSize(label.c_str()).x);
+            float max_text_width = 150.0f;
+            //for (const auto& label: passNames)
+            //max_text_width = std::max(max_text_width, ImGui::CalcTextSize(label.c_str()).x);
 
             const float box_width = max_text_width + 2.0f * padding_x;
 
@@ -110,10 +90,15 @@ namespace Razix {
             draw->AddLine(ImVec2(x, origin.y), ImVec2(x, origin.y + total_label_height), column_line_color);
             x += line_gap;
 
-            for (u32 i = 0; i < passNames.size(); ++i) {
-                const std::string& label      = passNames[i];
-                float              duration   = passDurations[i];
-                float              box_height = ImGui::GetFontSize() + 2.0f * padding_y;
+            // Get the final list of compiled pass names after culling
+            auto compiledPassNodes     = frameGraph.getCompiledPassNodes();
+            u32  compiledPassNodesSize = compiledPassNodes.size();
+
+            for (u32 i = 0; i < compiledPassNodesSize; ++i) {
+                const Gfx::FrameGraph::RZPassNode& passNode   = frameGraph.getPassNode(compiledPassNodes[i]);
+                const std::string&                 label      = Utilities::GetFilePathExtension(passNode.getName());
+                float                              duration   = 1.0f;    //passDurations[i];
+                float                              box_height = ImGui::GetFontSize() + 2.0f * padding_y;
 
                 ImVec2 p0 = ImVec2(x, y);
                 ImVec2 p1 = ImVec2(x + box_width, y + box_height);
@@ -130,8 +115,26 @@ namespace Razix {
 
                 // Tooltip on hover
                 ImVec2 mouse = ImGui::GetMousePos();
-                if (mouse.x >= p0.x && mouse.x <= p1.x && mouse.y >= p0.y && mouse.y <= p1.y)
-                    ImGui::SetTooltip("Duration: %.2f ms\nTimeline: %.1f%%", duration, duration * 100.0f / 16.6f);
+                if (mouse.x >= p0.x && mouse.x <= p1.x && mouse.y >= p0.y && mouse.y <= p1.y) {
+                    ImGui::BeginTooltip();
+                    ImGui::Text("Pass ID        : %u", passNode.getID());
+                    ImGui::Separator();
+                    ImGui::Text("Total Creates  : %d", passNode.getCreatResources().size());
+                    ImGui::Text("Reads          : %d", passNode.getInputResources().size());
+                    ImGui::Text("Writes         : %d", passNode.getOutputResources().size());
+                    ImGui::Separator();
+                    Department           dept     = passNode.getDepartment();
+                    const DepartmentInfo deptInfo = s_DepartmentInfo.at(dept);
+                    ImGui::Text("Department     : %s", deptInfo.debugName);
+                    ImGui::Separator();
+                    const auto& budget = passNode.getCurrentPassBudget();
+                    ImGui::Text("CPU Budget     : %.2f ms", budget.CPUframeBudget);
+                    ImGui::Text("Memory Budget  : %u MiB", budget.MemoryBudget);
+                    ImGui::Separator();
+                    ImGui::Text("Duration ID    : %u", duration);
+                    ImGui::Text("Timeline       : %f", (duration * 100.0f / 16.67f));
+                    ImGui::EndTooltip();
+                }
 
                 // Draw vertical line after this box
                 float line_x = x + box_width + line_gap;
@@ -153,7 +156,8 @@ namespace Razix {
                 const float label_space = 300.0f;
                 const float panel_width = label_space - 20.0f;
 
-                const u32 resource_count = frameGraph.getResourceNodesSize();
+                std::vector<u32> compiledResourceEntryPoints = frameGraph.getCompiledResourceEntries();
+                const u32        resource_count              = compiledResourceEntryPoints.size();
 
                 ImDrawList* draw   = ImGui::GetWindowDrawList();
                 ImVec2      origin = ImGui::GetCursorScreenPos() + ImVec2(0, top_padding);
@@ -176,7 +180,7 @@ namespace Razix {
                 ImVec2 header_p1 = origin + ImVec2(panel_width, cell_size);
                 draw->AddRectFilled(header_p0, header_p1, header_bg_color);
                 draw->AddRect(header_p0, header_p1, border_color);
-                draw->AddText(ImVec2(header_p0.x + 10.0f, header_p0.y + 8.0f), IM_COL32_WHITE, ICON_FA_BOX_OPEN " Resource/Passes");
+                draw->AddText(ImVec2(header_p0.x + 10.0f, header_p0.y + 8.0f), IM_COL32_WHITE, "[Resource/Passes]");
 
                 // Barrier row
                 ImVec2 barrier_row_p0 = origin + ImVec2(0, cell_size);
@@ -194,19 +198,27 @@ namespace Razix {
                     draw->AddRectFilled(row_p0, row_p1, bg_col);
                     draw->AddRect(row_p0, row_p1, border_color);
 
-                    const std::string& name     = frameGraph.getResourceName(ry);
-                    ImVec2             text_pos = ImVec2(row_p0.x + 10.0f, row_p0.y + 8.0f);
-                    draw->AddText(text_pos, text_color, name.c_str());
+                    const Gfx::FrameGraph::RZResourceNode& resNode  = frameGraph.getResourceNode(compiledResourceEntryPoints[ry]);
+                    ImVec2                                 text_pos = ImVec2(row_p0.x + 10.0f, row_p0.y + 8.0f);
+                    draw->AddText(text_pos, text_color, resNode.getName().c_str());
 
                     ImVec2 mouse = ImGui::GetMousePos();
                     if (mouse.x >= row_p0.x && mouse.x <= row_p1.x &&
                         mouse.y >= row_p0.y && mouse.y <= row_p1.y) {
-                        ImGui::SetTooltip("Resource ID: %u\nUsage: Transient\nMemory: 1.2 MB", ry);
+                        ImGui::BeginTooltip();
+                        ImGui::Text("Resource ID    : %u", resNode.getID());
+                        ImGui::Separator();
+                        ImGui::Text("EntryPoint ID  : %u", resNode.getResourceEntryId());
+                        ImGui::Text("Version        : %u", resNode.getVersion());
+                        ImGui::Text("RefCount       : %u", resNode.getRefCount());
+                        ImGui::Text("CompiledResIdx : %u", compiledResourceEntryPoints[ry]);
+                        ImGui::Separator();
+                        ImGui::EndTooltip();
                     }
                 }
 
                 // Pass names along top X-axis
-                DrawPassLabels(draw, origin + ImVec2(panel_width + 20.0f, 0), cell_size, cell_size, max_rows, kPassNames, kPassDurations);
+                DrawPassLabels(frameGraph, draw, origin + ImVec2(panel_width + 20.0f, 0), cell_size, cell_size, max_rows);
 
                 float drawn_height = (max_rows + 2) * cell_size + top_padding;
                 ImGui::Dummy(ImVec2(panel_width + 10.0f, drawn_height));
@@ -257,33 +269,17 @@ namespace Razix {
 
         void OnImGuiDrawEngineTools(ToolsDrawConfig& drawConfig)
         {
-            //-------------------------------------------------------------------
-            // Engine ImGui Tools will be rendered here
-
             RAZIX_PROFILE_SCOPEC("Engine Tools", RZ_PROFILE_COLOR_CORE);
 
             if (ImGui::BeginMainMenuBar()) {
                 if (ImGui::BeginMenu(ICON_FA_WRENCH " Tools")) {
-                    if (ImGui::MenuItem(ICON_FA_TASKS " FG Resource Vis", NULL, drawConfig.showFrameGraphResourceVis)) {
-                        drawConfig.showFrameGraphResourceVis = !drawConfig.showFrameGraphResourceVis;
-                    }
-                    if (ImGui::MenuItem(ICON_FA_MONEY_BILL " Frame Budgets", NULL, drawConfig.showEngineBudgetBook)) {
-                        drawConfig.showEngineBudgetBook = !drawConfig.showEngineBudgetBook;
-                    }
-
-                    if (ImGui::MenuItem(ICON_FA_MEMORY " RHI Memory Stats", NULL, drawConfig.showRHIStats)) {
-                        drawConfig.showRHIStats = !drawConfig.showRHIStats;
-                    }
-
-                    //-----------------------
-                    ImGui::Separator();
-                    //-----------------------
-
+                    ImGui::MenuItem(ICON_FA_TASKS " FG Resource Vis", NULL, &drawConfig.showFrameGraphResourceVis);
+                    ImGui::MenuItem(ICON_FA_MONEY_BILL " Frame Budgets", NULL, drawConfig.showEngineBudgetBook);
+                    ImGui::MenuItem(ICON_FA_MEMORY " RHI Memory Stats", NULL, drawConfig.showRHIStats);
                     ImGui::EndMenu();
                 }
                 ImGui::EndMainMenuBar();
             }
-            //-------------------------------------------------------------------
 
             if (drawConfig.showStatusBar)
                 OnImGuiDrawStatusBar();

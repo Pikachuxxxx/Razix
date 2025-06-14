@@ -517,7 +517,7 @@ namespace Razix {
                 // Now that the checks are done, let's create the pass and PassNode
                 auto *pass = new RZFrameGraphDataPass(shader, pipeline, geomMode, resolution, extent, layers);
                 // Create the PassNode in the graph
-                RZPassNode &passNode = createPassNode(std::string_view(passNameStr), std::unique_ptr<RZFrameGraphDataPass>(pass));
+                RZPassNode &passNode = createPassNodeRef(std::string_view(passNameStr), std::unique_ptr<RZFrameGraphDataPass>(pass));
                 // Mark as data driven
                 passNode.m_IsDataDriven = true;
                 auto isStandAlonePass   = data["is_standalone"];
@@ -529,9 +529,13 @@ namespace Razix {
 
             void RZFrameGraph::compile()
             {
-                // TODO: Build the descriptors set tables using the flags during compilation phase
+                m_CompiledPassIndices.clear();
+                m_CompiledResourceIndices.clear();
+                m_ResourceLifetimes.clear();
+                m_ResourceLifetimes.resize(m_ResourceNodes.size());
 
                 // Set the read and write passes
+                // Build ref counts and producer links
                 for (auto &pass: m_PassNodes) {
                     pass.m_RefCount = static_cast<int32_t>(pass.m_Writes.size());
                     for (auto &[id, flags]: pass.m_Reads) {
@@ -544,38 +548,80 @@ namespace Razix {
                     }
                 }
 
-                // Culling
+                //  Cull unused resources and their producer passes
                 std::stack<RZResourceNode *> unreferencedResources;
                 for (auto &node: m_ResourceNodes)
-                    if (node.m_RefCount == 0) unreferencedResources.push(&node);
+                    if (node.m_RefCount == 0)
+                        unreferencedResources.push(&node);
 
                 while (!unreferencedResources.empty()) {
                     auto *unreferencedResource = unreferencedResources.top();
                     unreferencedResources.pop();
                     RZPassNode *producer{unreferencedResource->m_Producer};
-                    if (producer == nullptr || producer->isStandAlone()) continue;
 
-                    assert(producer->m_RefCount >= 1);
+                    if (producer == nullptr || producer->isStandAlone())
+                        continue;
+
+                    /**
+                     * If a resource is unreferenced (i.e., no passes read from it), then we check its producer pass.
+                     * If that pass is not standalone (like a presentation pass), and all its output resources are dead,
+                     * then that pass itself becomes unreferenced and can be culled.
+                     *
+                     * When we cull a pass, we must also decrement the ref count of all the resources it reads.
+                     * This may trigger recursive culling of earlier resources and passes in the graph.
+                     */
+
+                    // Ensure this pass was still considered "alive" when we reached here
+                    RAZIX_CORE_ASSERT(producer->m_RefCount >= 1, "The producer of the resource being culled must have at least one reference remaining, this indicates a bug with ref counting");
+
+                    // Decrement the reference count of the producer pass.
+                    // If this was the last live output of the pass, then the pass is no longer used by anyone.
                     if (--producer->m_RefCount == 0) {
-                        for (auto &[id, flags]: producer->m_Reads) {
-                            auto &node = m_ResourceNodes[id];
-                            if (--node.m_RefCount == 0) unreferencedResources.push(&node);
+                        // This pass has become unreferenced and can now be culled.
+                        // As a result, we must update the resources it read as well,
+                        // because those inputs are no longer needed if this pass is gone.
+
+                        for (auto &[readResID, _]: producer->m_Reads) {
+                            auto &readNode = m_ResourceNodes[readResID];
+
+                            // Decrement the reference count of the input resource.
+                            // If this was the last pass reading from it, then the resource is now dead too.
+                            if (--readNode.m_RefCount == 0) {
+                                // Add this resource to the stack of unreferenced resources to be processed.
+                                // This triggers recursive culling of its producer pass if needed.
+                                unreferencedResources.push(&readNode);
+                            }
                         }
                     }
                 }
 
-                // Calculate resources lifetime:
-                // TODO: Implement this!
+                // Cache compiled resource + pass indices
+                for (u32 resID = 0; resID < m_ResourceNodes.size(); ++resID) {
+                    if (m_ResourceNodes[resID].m_RefCount > 0) {
+                        m_CompiledResourceIndices.push_back(resID);
+
+                        // Cache compiled resource nodes entries uniquely
+                        u32 version = m_ResourceNodes[resID].m_Version;
+                        if (version == 1)
+                            m_CompiledResourceEntries.push_back(resID);
+                    }
+                }
+
+                for (u32 passID = 0; passID < m_PassNodes.size(); ++passID)
+                    if (m_PassNodes[passID].m_RefCount > 0)
+                        m_CompiledPassIndices.push_back(passID);
+
+                // TODO: Implement Resource Lifetimes
 
                 for (auto &pass: m_PassNodes) {
                     if (pass.m_RefCount == 0) continue;
 
                     for (auto id: pass.m_Creates)
-                        getResourceEntry(id).m_Producer = &pass;
+                        getResourceEntryRef(id).m_Producer = &pass;
                     for (auto &[id, flags]: pass.m_Writes)
-                        getResourceEntry(id).m_Last = &pass;
+                        getResourceEntryRef(id).m_Last = &pass;
                     for (auto &[id, flags]: pass.m_Reads)
-                        getResourceEntry(id).m_Last = &pass;
+                        getResourceEntryRef(id).m_Last = &pass;
                 }
             }
 
@@ -599,18 +645,18 @@ namespace Razix {
                     // Call create for all the resources created by this node : Lazy Allocation --> helps with memory aliasing (pass transient resources)
                     // Even for Data Driven passes this works be cause we create the RZFrameGraphTexture/Buffer while parsing the JSON graph and we have a pseudo SetupFunc
                     for (const auto &id: pass.m_Creates)
-                        getResourceEntry(id).getConcept()->create(transientAllocator);
+                        getResourceEntryRef(id).getConcept()->create(transientAllocator);
 
                     // Call pre-read and pre-write functions on the resource before the execute function
                     // Safety of existence is taken care in the ResourceEntry class
                     // Skip if they are imported resource, since imported resources are always Read only data!
                     for (auto &&[id, flags]: pass.m_Reads) {
-                        if (getResourceEntry(id).isTransient())
-                            getResourceEntry(id).getConcept()->preRead(flags);
+                        if (getResourceEntryRef(id).isTransient())
+                            getResourceEntryRef(id).getConcept()->preRead(flags);
                     }
                     for (auto &&[id, flags]: pass.m_Writes) {
-                        if (getResourceEntry(id).isTransient())
-                            getResourceEntry(id).getConcept()->preWrite(flags);
+                        if (getResourceEntryRef(id).isTransient())
+                            getResourceEntryRef(id).getConcept()->preWrite(flags);
                     }
 
                     // call the ExecuteFunc (same for Code and DataDriven passes)
@@ -654,8 +700,8 @@ namespace Razix {
                     if (!pass.canExecute()) continue;
 
                     for (const auto &id: pass.m_Creates)
-                        if (getResourceEntry(id).isTransient())
-                            getResourceEntry(id).getConcept()->resize(width, height);
+                        if (getResourceEntryRef(id).isTransient())
+                            getResourceEntryRef(id).getConcept()->resize(width, height);
 
                     // call the ResizeFunc
                     RZPassResourceDirectory resources{*this, pass};
@@ -822,20 +868,20 @@ namespace Razix {
 
             bool RZFrameGraph::isValid(RZFrameGraphResource id)
             {
-                const auto &node     = getResourceNode(id);
+                const auto &node     = getResourceNodeRef(id);
                 auto       &resource = m_ResourceRegistry[node.m_ResourceEntryID];
                 return node.m_Version == resource.m_Version;
             }
 
-            RZResourceNode &RZFrameGraph::getResourceNode(RZFrameGraphResource id)
+            RZResourceNode &RZFrameGraph::getResourceNodeRef(RZFrameGraphResource id)
             {
                 assert(id < m_ResourceNodes.size());
                 return m_ResourceNodes[id];
             }
 
-            RZResourceEntry &RZFrameGraph::getResourceEntry(RZFrameGraphResource id)
+            RZResourceEntry &RZFrameGraph::getResourceEntryRef(RZFrameGraphResource id)
             {
-                const auto &node = getResourceNode(id);
+                const auto &node = getResourceNodeRef(id);
                 assert(node.m_ResourceEntryID < m_ResourceRegistry.size());
                 return m_ResourceRegistry[node.m_ResourceEntryID];
             }
@@ -853,13 +899,26 @@ namespace Razix {
                 return resNode.getName();
             }
 
-            RZPassNode &RZFrameGraph::createPassNode(const std::string_view name, std::unique_ptr<IRZFrameGraphPass> &&base)
+            const RZResourceNode &RZFrameGraph::getResourceNode(RZFrameGraphResource id) const
+            {
+                assert(id < m_ResourceNodes.size());
+                return m_ResourceNodes[id];
+            }
+
+            const RZResourceEntry &RZFrameGraph::getResourceEntry(RZFrameGraphResource id) const
+            {
+                const auto &node = getResourceNode(id);
+                assert(node.m_ResourceEntryID < m_ResourceRegistry.size());
+                return m_ResourceRegistry[node.m_ResourceEntryID];
+            }
+
+            RZPassNode &RZFrameGraph::createPassNodeRef(const std::string_view name, std::unique_ptr<IRZFrameGraphPass> &&base)
             {
                 const auto id = static_cast<u32>(m_PassNodes.size());
                 return m_PassNodes.emplace_back(RZPassNode(name, id, std::move(base)));
             }
 
-            RZResourceNode &RZFrameGraph::createResourceNode(const std::string_view name, u32 resourceID)
+            RZResourceNode &RZFrameGraph::createResourceNodeRef(const std::string_view name, u32 resourceID)
             {
                 const auto id = static_cast<u32>(m_ResourceNodes.size());
                 return m_ResourceNodes.emplace_back(RZResourceNode(name, id, resourceID, kResourceInitialVersion));
@@ -868,7 +927,7 @@ namespace Razix {
             RZFrameGraphResource RZFrameGraph::cloneResource(RZFrameGraphResource id)
             {
                 // Get the OG resource and increase it's version
-                const auto &node = getResourceNode(id);
+                const auto &node = getResourceNodeRef(id);
                 assert(node.m_ResourceEntryID < m_ResourceRegistry.size());
                 auto &entry = m_ResourceRegistry[node.m_ResourceEntryID];
                 entry.m_Version++;
@@ -910,7 +969,7 @@ namespace Razix {
                 RAZIX_ASSERT(m_FrameGraph.isValid(id), "Invalid resource");
 
                 // If it writes to an imported resource mark this pass as stand alone pass
-                if (m_FrameGraph.getResourceEntry(id).isImported())
+                if (m_FrameGraph.getResourceEntryRef(id).isImported())
                     setAsStandAlonePass();
 
                 RZFrameGraphResource writeID{id};

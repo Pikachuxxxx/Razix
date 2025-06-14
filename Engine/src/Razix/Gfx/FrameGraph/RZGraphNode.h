@@ -10,11 +10,7 @@
 namespace Razix {
     namespace Gfx {
         namespace FrameGraph {
-            /**
-             * A node in the graph(frame graph) is nothing but a vertex in the graph DS
-             * A node can be 2 types either a pass that executed some code by binding resources or the resource itself
-             * Input/output resources are represented in the graph as nodes in addition to the pass nodes
-             */
+
             class RAZIX_API RZGraphNode
             {
             public:
@@ -35,18 +31,16 @@ namespace Razix {
 
                 inline const std::string& getName() const { return m_Name; }
                 inline u32                getID() const { return m_ID; }
+                inline u32                getRefCount() const { return m_RefCount; }
 
             protected:
-                /**
-                 * Creates a node of type (Pass or Resource) using a name and unique ID 
-                 */
                 RZGraphNode(const std::string_view name, u32 id);
 
             protected:
-                std::string m_Name;          /* Name of the Node                                                                                                    */
-                u32         m_ID       = -1; /* Unique ID (should be name it RZFrameGraphResource?), matches an vector index in FG (m_PassNodes or m_ResourceNodes) */
-                i32         m_RefCount = 0;  /* References count to this node in the graph                                                                          */
+                std::string m_Name;
+                u32         m_ID       = -1;
+                i32         m_RefCount = 0;
             };
         }    // namespace FrameGraph
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

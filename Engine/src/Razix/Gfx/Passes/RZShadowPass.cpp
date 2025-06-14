@@ -86,7 +86,7 @@ namespace Razix {
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Shadows);
 
                     RAZIX_TIME_STAMP_BEGIN("Shadow Pass");
-                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.RenderShadows", float4(0.65, 0.73, 0.22f, 1.0f));
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.RenderDepth", float4(0.65, 0.73, 0.22f, 1.0f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
@@ -116,7 +116,6 @@ namespace Razix {
                         auto descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(data.lightVP)];
                         if (descriptor)
                             descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightVP).getHandle();
-
 
                         RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
                     }

@@ -60,7 +60,15 @@ namespace Razix {
         const char* friendlyName; /* User-friendly name         */
     };
 
-    const static std::unordered_map<Department, DepartmentInfo> s_DepartmentInfo = {
+    struct DepartmentHasher
+    {
+        std::size_t operator()(Department dept) const noexcept
+        {
+            return static_cast<std::size_t>(dept);
+        }
+    };
+
+    const static std::unordered_map<Department, DepartmentInfo, DepartmentHasher> s_DepartmentInfo = {
         {Department::NONE, {"None", "Unowned by anyone"}},
         {Department::Core, {"Core", "Core Systems (Engine/Rendering related)"}},
         {Department::Environment, {"Environment", "Environment"}},

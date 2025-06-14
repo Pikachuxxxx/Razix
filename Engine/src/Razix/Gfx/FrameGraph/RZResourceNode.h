@@ -30,6 +30,7 @@ namespace Razix {
 
             public:
                 inline u32 getResourceEntryId() const { return m_ResourceEntryID; }
+                inline u32 getVersion() const { return m_Version; }
 
             private:
                 const u32   m_ResourceEntryID = 0;                       /* Index to resource entry point (m_resourceRegistry in FrameGraph)                                    */
@@ -38,5 +39,5 @@ namespace Razix {
                 RZPassNode* m_Last            = nullptr;                 /* Next Pass Node that will read this resource, used to create edges in graph                          */
             };
         }    // namespace FrameGraph
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

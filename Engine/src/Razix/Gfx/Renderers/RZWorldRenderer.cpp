@@ -187,7 +187,9 @@ namespace Razix {
             m_FrameGraph.addCallbackPass(
                 "Pass.Builtin.Code.DebugDraw",
                 [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
-                    builder.setAsStandAlonePass();
+                    builder
+                        .setAsStandAlonePass()
+                        .setDepartment(Department::Debug);
 
                     RZDebugRendererProxy::Get().Init();
 
@@ -278,7 +280,9 @@ namespace Razix {
             m_FrameGraph.addCallbackPass(
                 "Pass.Builtin.Code.ImGui",
                 [&](auto&, FrameGraph::RZPassResourceBuilder& builder) {
-                    builder.setAsStandAlonePass();
+                    builder
+                        .setAsStandAlonePass()
+                        .setDepartment(Department::UI);
 
                     sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
                     sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
@@ -426,8 +430,7 @@ namespace Razix {
 
             // TESTING IMGUI RUNTIME TOOLS CONFIG!
             // This will be owned by RZEngine
-            Tools::ToolsDrawConfig drawConfig    = {};
-            drawConfig.showFrameGraphResourceVis = true;
+            static Tools::ToolsDrawConfig drawConfig = {};
 
             Tools::OnImGuiDrawEngineTools(drawConfig);
 #endif
@@ -480,7 +483,9 @@ namespace Razix {
             m_FrameGraph.getBlackboard().add<FrameData>() = m_FrameGraph.addCallbackPass<FrameData>(
                 "Pass.Builtin.Code.FrameDataUpload",
                 [&](FrameData& data, FrameGraph::RZPassResourceBuilder& builder) {
-                    builder.setAsStandAlonePass();
+                    builder
+                        .setAsStandAlonePass()
+                        .setDepartment(Department::Core);
 
                     RZBufferDesc framedataBufferDesc          = {};
                     framedataBufferDesc.name                  = "FrameData";
@@ -573,7 +578,9 @@ namespace Razix {
             m_FrameGraph.getBlackboard().add<SceneLightsData>() = m_FrameGraph.addCallbackPass<SceneLightsData>(
                 "Pass.Builtin.Code.SceneLightsDataUpload",
                 [&](SceneLightsData& data, FrameGraph::RZPassResourceBuilder& builder) {
-                    builder.setAsStandAlonePass();
+                    builder
+                        .setAsStandAlonePass()
+                        .setDepartment(Department::Core);
 
                     RZBufferDesc lightdataBufferDesc          = {};
                     lightdataBufferDesc.name                  = "SceneLightsData";

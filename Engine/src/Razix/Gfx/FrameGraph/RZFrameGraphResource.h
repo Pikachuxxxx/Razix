@@ -13,10 +13,12 @@ namespace Razix {
     namespace Gfx {
         namespace FrameGraph {
 
-            using RZFrameGraphResource = int32_t;
+            typedef i32 RZFrameGraphResource;
 
             constexpr u32 kFlagsNone = ~0;
 
+            // TODO: Remove this as we hardly use it, we don't manage descriptors sets and resource views via FG its done via RHI itself
+            // even if we make RZResourceView it will be managed via a global RHI API instead of embedding it this way
             /**
              * Dawid Kurek (skaarj1989) named it AccessDeclaration, it kinda makes sense as we have declaration on how to access the FrameGraphResource
              * but I feel having a name like Frame Graph Resource Access View makes it more readable
@@ -37,5 +39,5 @@ namespace Razix {
                 }
             };
         }    // namespace FrameGraph
-    }    // namespace Gfx
+    }        // namespace Gfx
 }    // namespace Razix

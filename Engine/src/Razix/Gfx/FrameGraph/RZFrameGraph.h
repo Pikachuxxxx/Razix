@@ -9,6 +9,12 @@ namespace Razix {
     namespace Gfx {
         namespace FrameGraph {
 
+            struct ResourceLifetime
+            {
+                u32 start = UINT32_MAX;
+                u32 end   = 0;
+            };
+
             /**
              * How does a pass gets the PassNode?
              * 
@@ -75,7 +81,7 @@ namespace Razix {
                     // Now that the checks are done, let's create the pass and PassNode
                     auto *pass = new RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc>(std::forward<ExecuteFunc>(executeFunc), std::forward<ResizeFunc>(resizeFunc));
                     // Create the PassNode in the graph
-                    RZPassNode &passNode = createPassNode(name, std::unique_ptr<RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc>>(pass));
+                    RZPassNode &passNode = createPassNodeRef(name, std::unique_ptr<RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc>>(pass));
 
                     // Create a builder for this PassNode
                     // SetupFunc gets PassNode via RZPassResourceBuilder and ExecFunc gets PassNode via RZPassResourceDirectory
@@ -129,7 +135,7 @@ namespace Razix {
                     const uint32_t resourceId = static_cast<uint32_t>(m_ResourceRegistry.size());
                     m_ResourceRegistry.emplace_back(RZResourceEntry{resourceId, std::forward<typename T::Desc>(desc), std::forward<T>(resource), kResourceInitialVersion, true});    // Non-empty T constructor
                     // Create the node for this resource in the graph
-                    RZFrameGraphResource id = createResourceNode(name, resourceId).m_ID;
+                    RZFrameGraphResource id = createResourceNodeRef(name, resourceId).m_ID;
 
                     // Register the name, this makes code based frame graph pass resources compatible with data driven passes
                     m_Blackboard.add(std::string(name), id);
@@ -140,7 +146,7 @@ namespace Razix {
                 /* Gets the resource descriptor */
                 ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE const typename T::Desc &getDescriptor(RZFrameGraphResource id)
                 {
-                    return getResourceEntry(id).getDescriptor<T>();
+                    return getResourceEntryRef(id).getDescriptor<T>();
                 }
 
 #if 0    // RISKY TO CALL WITHOUT PASS_NODE VERFICATION
@@ -154,49 +160,44 @@ namespace Razix {
 #endif
                 // TODO: clean this cluster fuck order of methods
 
-                /* parse the frame graph from a given JSON file */
-                bool parse(const std::string &path);
-                /* Parses a Built in/User defined pass from a file */
                 RAZIX_NO_DISCARD RZPassNode &parsePass(const std::string &passPath);
-                /* Compiles the Frame Graph passes and culls any unused passes/resources */
-                void compile();
-                /* Executes the Frame Graph passes */
-                void execute(void *transientAllocator);
-                /* Resize the frame graph */
-                void resize(u32 width, u32 height);
-                /* Exports it GraphViz format */
-                void exportToGraphViz(std::ostream &) const;
-                /* Exports it in GraphViz format to given location */
-                void exportToGraphViz(const std::string &location) const;
-                /* Destroy the frame graph and it's resources */
-                void destroy();
 
-                /* Tell whether or no the current resource is valid to read/write */
+                bool parse(const std::string &path);
+                void compile();
+                void execute(void *transientAllocator);
+                void resize(u32 width, u32 height);
+                void exportToGraphViz(std::ostream &) const;
+                void exportToGraphViz(const std::string &location) const;
+                void destroy();
                 bool isValid(RZFrameGraphResource id);
-                /* Gets the pass node */
-                const RZPassNode &getPassNode(u32 idx) const { return m_PassNodes[idx]; }
-                /* Get the resource node for a given frame graph resource */
-                RZResourceNode &getResourceNode(RZFrameGraphResource id);
-                /* Get the resource entry for a given frame graph resource */
-                RZResourceEntry &getResourceEntry(RZFrameGraphResource id);
-                /* Gets the blackboard database */
-                RZBlackboard &getBlackboard() { return m_Blackboard; }
+
+                const std::string     &getResourceName(RZFrameGraphResource id) const;
+                const RZResourceNode  &getResourceNode(RZFrameGraphResource id) const;
+                const RZResourceEntry &getResourceEntry(RZFrameGraphResource id) const;
+
+                inline RZBlackboard     &getBlackboard() { return m_Blackboard; }
+                inline const RZPassNode &getPassNode(u32 idx) const { return m_PassNodes[idx]; }
+                inline static void       ResetFirstFrame() { m_IsFirstFrame = true; }
+                inline static bool       IsFirstFrame() { return m_IsFirstFrame; }
+                inline u32               getPassNodesSize() const { return static_cast<u32>(m_PassNodes.size()); }
+                inline u32               getResourceNodesSize() const { return static_cast<u32>(m_ResourceNodes.size()); }
+                inline u32               getCompiledResourceEntriesSize() const { return static_cast<u32>(m_CompiledResourceEntries.size()); }
+                std::vector<u32>         getCompiledResourceEntries() const { return m_CompiledResourceEntries; }
+                std::vector<u32>         getCompiledResourceNodes() const { return m_CompiledResourceIndices; }
+                std::vector<u32>         getCompiledPassNodes() const { return m_CompiledPassIndices; }
 
                 // Export function to dot format for GraphViz
                 friend std::ostream &operator<<(std::ostream &, const RZFrameGraph &);
 
-                const std::string &getResourceName(RZFrameGraphResource id) const;
-
-                inline static void ResetFirstFrame() { m_IsFirstFrame = true; }
-                inline static bool IsFirstFrame() { return m_IsFirstFrame; }
-                inline u32         getPassNodesSize() const { return static_cast<u32>(m_PassNodes.size()); }
-                inline u32         getResourceNodesSize() const { return static_cast<u32>(m_ResourceNodes.size()); }
-
             private:
-                std::vector<RZPassNode>      m_PassNodes;        /* List of all the pass nodes in the frame graph                             */
-                std::vector<RZResourceNode>  m_ResourceNodes;    /* List of the all the resources nodes (including clones) in the frame graph */
-                std::vector<RZResourceEntry> m_ResourceRegistry; /* List of Resource entries for each unique resource in the frame graph      */
-                RZBlackboard                 m_Blackboard;       /* Blackboard stores a database of per pass node resources                   */
+                std::vector<RZPassNode>       m_PassNodes;
+                std::vector<RZResourceNode>   m_ResourceNodes;
+                std::vector<RZResourceEntry>  m_ResourceRegistry;
+                RZBlackboard                  m_Blackboard;
+                std::vector<u32>              m_CompiledPassIndices;
+                std::vector<u32>              m_CompiledResourceIndices;
+                std::vector<u32>              m_CompiledResourceEntries;
+                std::vector<ResourceLifetime> m_ResourceLifetimes;
 
                 static bool m_IsFirstFrame;
 
@@ -207,12 +208,14 @@ namespace Razix {
                     const auto resourceId = static_cast<uint32_t>(m_ResourceRegistry.size());
                     m_ResourceRegistry.emplace_back(RZResourceEntry{resourceId, std::forward<typename T::Desc>(desc), T{}, kResourceInitialVersion, false});    // Empty T{} constructor because it's not an imported resource
                     // Create the node for this resource in the graph
-                    RZFrameGraphResource id = createResourceNode(name, resourceId).m_ID;
+                    RZFrameGraphResource id = createResourceNodeRef(name, resourceId).m_ID;
                     return id;
                 }
 
-                RAZIX_NO_DISCARD RZPassNode          &createPassNode(const std::string_view name, std::unique_ptr<IRZFrameGraphPass> &&func);
-                RAZIX_NO_DISCARD RZResourceNode      &createResourceNode(const std::string_view name, u32 resourceID);
+                RZResourceNode                       &getResourceNodeRef(RZFrameGraphResource id);
+                RZResourceEntry                      &getResourceEntryRef(RZFrameGraphResource id);
+                RAZIX_NO_DISCARD RZPassNode          &createPassNodeRef(const std::string_view name, std::unique_ptr<IRZFrameGraphPass> &&func);
+                RAZIX_NO_DISCARD RZResourceNode      &createResourceNodeRef(const std::string_view name, u32 resourceID);
                 RAZIX_NO_DISCARD RZFrameGraphResource cloneResource(RZFrameGraphResource id);
                 static RZPassResourceBuilder         *CreateBuilder(RZFrameGraph &fg, RZPassNode &passNode);
             };
@@ -311,14 +314,14 @@ namespace Razix {
                 {
                     RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
                     // This is a safe way that doesn't violate the design of the frame graph PassNodes
-                    return m_FrameGraph.getResourceEntry(id).get<T>();
+                    return m_FrameGraph.getResourceEntryRef(id).get<T>();
                 }
 
                 ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE const typename T::Desc &getDescriptor(RZFrameGraphResource id) const
                 {
                     RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
                     // This is a safe way that doesn't violate the design of the frame graph PassNodes
-                    return m_FrameGraph.getResourceEntry(id).getDescriptor<T>();
+                    return m_FrameGraph.getResourceEntryRef(id).getDescriptor<T>();
                 }
 
                 /* Verifies the type of the resource ID */
@@ -326,7 +329,7 @@ namespace Razix {
                 {
                     RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
                     // This is a safe way that doesn't violate the design of the frame graph PassNodes
-                    auto res = m_FrameGraph.getResourceEntry(id).getModel<T>();
+                    auto res = m_FrameGraph.getResourceEntryRef(id).getModel<T>();
                     return res ? true : false;
                 }
 
@@ -335,7 +338,7 @@ namespace Razix {
                 {
                     RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
                     // This is a safe way that doesn't violate the design of the frame graph PassNodes
-                    return m_FrameGraph.getResourceNode(id).getName();
+                    return m_FrameGraph.getResourceNodeRef(id).getName();
                 }
 
             private:
