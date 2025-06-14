@@ -92,6 +92,10 @@ namespace Razix {
                 vtxDst += cmd_list->VtxBuffer.Size;
                 idxDst += cmd_list->IdxBuffer.Size;
             }
+
+            // TODO: Enable only on NVidia GPUs
+            imguiVB->Flush();
+            imguiIB->Flush();
         }
 
         void RZImGuiRendererProxy::Draw(RZDrawCommandBufferHandle cmdBuffer)

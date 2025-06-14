@@ -840,17 +840,17 @@ namespace Razix {
                 return m_ResourceRegistry[node.m_ResourceEntryID];
             }
 
-            const std::string &RZFrameGraph::getResourceName(RZFrameGraphResource id)
-            {
-                assert(id < m_ResourceNodes.size());
-                auto &resNode = m_ResourceNodes[id];
-                return resNode.getName();
-            }
-
             std::ostream &operator<<(std::ostream &os, const RZFrameGraph &fg)
             {
                 fg.exportToGraphViz(os);
                 return os;
+            }
+
+            const std::string &RZFrameGraph::getResourceName(RZFrameGraphResource id) const
+            {
+                assert(id < m_ResourceNodes.size());
+                auto &resNode = m_ResourceNodes[id];
+                return resNode.getName();
             }
 
             RZPassNode &RZFrameGraph::createPassNode(const std::string_view name, std::unique_ptr<IRZFrameGraphPass> &&base)

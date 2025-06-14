@@ -152,6 +152,8 @@ namespace Razix {
                     return getResourceEntry(id).get<T>();
                 }
 #endif
+                // TODO: clean this cluster fuck order of methods
+
                 /* parse the frame graph from a given JSON file */
                 bool parse(const std::string &path);
                 /* Parses a Built in/User defined pass from a file */
@@ -183,28 +185,12 @@ namespace Razix {
                 // Export function to dot format for GraphViz
                 friend std::ostream &operator<<(std::ostream &, const RZFrameGraph &);
 
-                const std::string &getResourceName(RZFrameGraphResource id);
+                const std::string &getResourceName(RZFrameGraphResource id) const;
 
-                RAZIX_INLINE static void ResetFirstFrame()
-                {
-                    m_IsFirstFrame = true;
-                }
-                RAZIX_INLINE static bool IsFirstFrame()
-                {
-                    return m_IsFirstFrame;
-                }
-
-                // TODO: Add was resized
-
-                RAZIX_INLINE u32 getPassNodesSize()
-                {
-                    return static_cast<u32>(m_PassNodes.size());
-                }
-
-                RAZIX_INLINE u32 getResourceNodesSize()
-                {
-                    return static_cast<u32>(m_ResourceNodes.size());
-                }
+                inline static void ResetFirstFrame() { m_IsFirstFrame = true; }
+                inline static bool IsFirstFrame() { return m_IsFirstFrame; }
+                inline u32         getPassNodesSize() const { return static_cast<u32>(m_PassNodes.size()); }
+                inline u32         getResourceNodesSize() const { return static_cast<u32>(m_ResourceNodes.size()); }
 
             private:
                 std::vector<RZPassNode>      m_PassNodes;        /* List of all the pass nodes in the frame graph                             */

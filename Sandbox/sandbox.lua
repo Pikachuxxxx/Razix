@@ -7,6 +7,7 @@ include 'Scripts/premake/common/common_include_dirs.lua'
 ------------------------------------------------------------------------------
 -- Sanbox Game project
 project "Sandbox"
+    -- TODO: Make this Windowed app only for Dist/NVIM builds
     kind "WindowedApp"
     language "C++"
 

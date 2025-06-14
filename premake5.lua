@@ -103,8 +103,6 @@ workspace ( settings.workspace_name )
     startproject "Sandbox"
     flags 'MultiProcessorCompile' --(this won't work with clang)
 
-    editandcontinue "Off"
-
     -- Use clang on windows
     --toolset "clang"
 

@@ -186,7 +186,7 @@ project "Razix"
         systemversion "latest"
         disablewarnings { 4307, 4267, 4275, 4715, 4554 } -- Disabling the 4275 cause this will propagate into everything ig, also 4715 = not returinign values from all control paths is usually done deliberately hence fuck this warning
         characterset ("MBCS")
-        editandcontinue "Off"
+        editandcontinue "On"
         
         pchheader "rzxpch.h"
         pchsource "src/rzxpch.cpp"
@@ -201,14 +201,14 @@ project "Razix"
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
         buildoptions
         {
-            "/MP", "/bigobj", "/Zi", 
+            "/MP", "/bigobj", "/ZI", 
             "/WX"
             -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
         }
 
         linkoptions
         {
-            --"/NODEFAULTLIB:libcpmt.lib" ,"/NODEFAULTLIB:msvcprt.lib", "/NODEFAULTLIB:libcpmtd.lib", "/NODEFAULTLIB:msvcprtd.lib"
+            "/INCREMENTAL"--"/NODEFAULTLIB:libcpmt.lib" ,"/NODEFAULTLIB:msvcprt.lib", "/NODEFAULTLIB:libcpmtd.lib", "/NODEFAULTLIB:msvcprtd.lib"
         }
 
         -- Windows specific defines
