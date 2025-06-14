@@ -17,6 +17,58 @@
 
 namespace Razix {
     namespace Tools {
+
+        //---------------------------------------------------------------------------------------------------------------------
+        // Style Definitions
+
+        struct CellStyle
+        {
+            constexpr static float Roundness       = 4.0f;
+            constexpr static float BorderThickness = 1.0f;
+            constexpr static ImU32 Color           = IM_COL32(255, 192, 203, 200);    // Light pink w/ alpha
+            constexpr static ImU32 HoverColor      = IM_COL32(255, 182, 193, 255);    // Slightly darker
+            constexpr static ImU32 BorderColor     = IM_COL32(255, 160, 170, 255);
+        };
+
+        struct BarrierStyle
+        {
+            constexpr static ImU32 ReadFillColor    = IM_COL32(80, 150, 255, 64);
+            constexpr static ImU32 WriteFillColor   = IM_COL32(255, 80, 150, 64);
+            constexpr static ImU32 ReadBorderColor  = IM_COL32(80, 150, 255, 255);
+            constexpr static ImU32 WriteBorderColor = IM_COL32(255, 80, 150, 255);
+            constexpr static float BorderThickness  = 2.5f;
+            constexpr static float CornerRounding   = 3.0f;
+        };
+
+        struct PassLabelStyle
+        {
+            constexpr static ImU32 TextColor       = IM_COL32(230, 255, 230, 255);
+            constexpr static ImU32 ShadowColor     = IM_COL32(20, 20, 20, 180);
+            constexpr static ImU32 BgColor         = IM_COL32(60, 80, 60, 200);
+            constexpr static ImU32 BorderColor     = IM_COL32(100, 220, 100, 255);
+            constexpr static ImU32 ColumnLineColor = IM_COL32(100, 100, 100, 120);
+            constexpr static float PaddingX        = 6.0f;
+            constexpr static float PaddingY        = 3.0f;
+            constexpr static float BoxRounding     = 4.0f;
+            constexpr static float BorderThickness = 1.5f;
+            constexpr static float Spacing         = 10.0f;
+            constexpr static float LineGap         = 8.0f;
+            constexpr static float MaxTextWidth    = 150.0f;
+        };
+
+        struct ResourcePanelStyle
+        {
+            constexpr static ImU32 BgColorEven      = IM_COL32(50, 50, 60, 255);
+            constexpr static ImU32 BgColorOdd       = IM_COL32(40, 40, 50, 255);
+            constexpr static ImU32 BorderColor      = IM_COL32(120, 120, 120, 255);
+            constexpr static ImU32 TextColor        = IM_COL32(220, 220, 255, 255);
+            constexpr static ImU32 HeaderBgColor    = IM_COL32(100, 80, 150, 255);
+            constexpr static ImU32 BarrierBgColor   = IM_COL32(255, 125, 125, 100);
+            constexpr static ImU32 BarrierTextColor = IM_COL32(255, 255, 200, 255);
+        };
+
+        //---------------------------------------------------------------------------------------------------------------------
+
         struct SimulatedBarrier
         {
             uint32_t resourceIdx;
@@ -24,21 +76,30 @@ namespace Razix {
             bool     isWrite;
         };
 
-        static void DrawSimulatedBarriers(ImDrawList* draw,
-            ImVec2                                    origin,
-            float                                     cellWidth,
-            float                                     cellHeight,
-            const std::vector<SimulatedBarrier>&      barriers,
-            const std::vector<std::string>&           passNames,
-            const std::vector<std::string>&           resourceNames)
+        void DrawLifetimeCell(const ImVec2& pos, float width, float height)
         {
-            const ImU32 readBorderColor  = IM_COL32(80, 150, 255, 255);
-            const ImU32 writeBorderColor = IM_COL32(255, 80, 150, 255);
-            const ImU32 readFillColor    = IM_COL32(80, 150, 255, 64);
-            const ImU32 writeFillColor   = IM_COL32(255, 80, 150, 64);
-            const float borderThick      = 2.5f;
-            const float cornerRounding   = 3.0f;
+            ImDrawList* drawList = ImGui::GetWindowDrawList();
+            ImVec2      min      = pos;
+            ImVec2      max      = ImVec2(pos.x + width, pos.y + height);
 
+            ImVec2 mouse   = ImGui::GetMousePos();
+            bool   hovered = mouse.x >= min.x && mouse.x <= max.x && mouse.y >= min.y && mouse.y <= max.y;
+
+            ImU32 color = hovered ? CellStyle::HoverColor : CellStyle::Color;
+
+            drawList->AddRectFilled(min, max, color, CellStyle::Roundness);
+            drawList->AddRect(min, max, CellStyle::BorderColor, CellStyle::Roundness, 0, CellStyle::BorderThickness);
+
+            if (hovered)
+                ImGui::SetTooltip("%s", "TEST TOOLTIP");
+        }
+
+        void DrawSimulatedBarriers(ImDrawList*   draw,
+            ImVec2                               origin,
+            float                                cellWidth,
+            float                                cellHeight,
+            const std::vector<SimulatedBarrier>& barriers)
+        {
             for (const auto& barrier: barriers) {
                 const float x = origin.x + (barrier.passIdx + 1) * cellWidth;
                 const float y = origin.y + (barrier.resourceIdx + 1) * cellHeight;
@@ -46,12 +107,12 @@ namespace Razix {
                 ImVec2 p0 = ImVec2(x + 6, y + 4);
                 ImVec2 p1 = ImVec2(x + cellWidth - 6, y + cellHeight - 4);
 
-                const ImU32 fillColor   = barrier.isWrite ? writeFillColor : readFillColor;
-                const ImU32 borderColor = barrier.isWrite ? writeBorderColor : readBorderColor;
+                const ImU32 fillColor   = barrier.isWrite ? BarrierStyle::WriteFillColor : BarrierStyle::ReadFillColor;
+                const ImU32 borderColor = barrier.isWrite ? BarrierStyle::WriteBorderColor : BarrierStyle::ReadBorderColor;
                 const char* label       = barrier.isWrite ? "W" : "R";
 
-                draw->AddRectFilled(p0, p1, fillColor, cornerRounding);
-                draw->AddRect(p0, p1, borderColor, cornerRounding, 0, borderThick);
+                draw->AddRectFilled(p0, p1, fillColor, BarrierStyle::CornerRounding);
+                draw->AddRect(p0, p1, borderColor, BarrierStyle::CornerRounding, 0, BarrierStyle::BorderThickness);
 
                 ImVec2 labelPos = ImVec2((p0.x + p1.x) * 0.5f, p0.y + 3);
                 ImVec2 textSize = ImGui::CalcTextSize(label);
@@ -59,170 +120,132 @@ namespace Razix {
             }
         }
 
-        static void DrawPassLabels(const Gfx::FrameGraph::RZFrameGraph& frameGraph, ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, u32 resourcesCount)
+        void DrawPassLabels(const Gfx::FrameGraph::RZFrameGraph& frameGraph,
+            ImDrawList*                                          draw,
+            ImVec2                                               origin,
+            float                                                cellWidth,
+            float                                                cellHeight,
+            uint32_t                                             resourcesCount)
         {
-            const ImU32 label_text_color   = IM_COL32(230, 255, 230, 255);    // Minty green
-            const ImU32 label_shadow_color = IM_COL32(20, 20, 20, 180);
-            const ImU32 label_bg_color     = IM_COL32(60, 80, 60, 200);       // Dark greenish background
-            const ImU32 label_border_color = IM_COL32(100, 220, 100, 255);    // Bright mint border
-            const ImU32 column_line_color  = IM_COL32(100, 100, 100, 120);
+            float y           = origin.y;
+            float totalHeight = (resourcesCount + 2) * cellHeight;
+            float x           = origin.x + 25.0f;
+            float boxWidth    = PassLabelStyle::MaxTextWidth + 2.0f * PassLabelStyle::PaddingX;
 
-            const float padding_x             = 6.0f;
-            const float padding_y             = 3.0f;
-            const float rounding              = 4.0f;
-            const float border_thickness      = 1.5f;
-            const float spacing_between_boxes = 10.0f;
-            const float line_gap              = 8.0f;    // gap between line and box
+            draw->AddLine(ImVec2(x, y), ImVec2(x, y + totalHeight), PassLabelStyle::ColumnLineColor);
+            x += PassLabelStyle::LineGap;
 
-            float y                  = origin.y;
-            float total_label_height = (resourcesCount + 2) * cellHeight;
+            const auto& compiledPassNodes = frameGraph.getCompiledPassNodes();
+            for (uint32_t i = 0; i < compiledPassNodes.size(); ++i) {
+                const auto&        passNode = frameGraph.getPassNode(compiledPassNodes[i]);
+                const std::string& label    = Utilities::GetFilePathExtension(passNode.getName());
 
-            // Max text width for fixed-size label boxes
-            float max_text_width = 150.0f;
-            //for (const auto& label: passNames)
-            //max_text_width = std::max(max_text_width, ImGui::CalcTextSize(label.c_str()).x);
+                float  boxHeight = ImGui::GetFontSize() + 2.0f * PassLabelStyle::PaddingY;
+                ImVec2 p0        = ImVec2(x, y);
+                ImVec2 p1        = ImVec2(x + boxWidth, y + boxHeight);
 
-            const float box_width = max_text_width + 2.0f * padding_x;
+                draw->AddRectFilled(p0, p1, PassLabelStyle::BgColor, PassLabelStyle::BoxRounding);
+                draw->AddRect(p0, p1, PassLabelStyle::BorderColor, PassLabelStyle::BoxRounding, 0, PassLabelStyle::BorderThickness);
 
-            float x = origin.x + 25.0f;
+                ImVec2 textSize = ImGui::CalcTextSize(label.c_str());
+                ImVec2 textPos  = ImVec2(p0.x + (boxWidth - textSize.x) * 0.5f, p0.y + PassLabelStyle::PaddingY);
+                draw->AddText(ImVec2(textPos.x + 1, textPos.y + 1), PassLabelStyle::ShadowColor, label.c_str());
+                draw->AddText(textPos, PassLabelStyle::TextColor, label.c_str());
 
-            // Draw first vertical line
-            draw->AddLine(ImVec2(x, origin.y), ImVec2(x, origin.y + total_label_height), column_line_color);
-            x += line_gap;
-
-            // Get the final list of compiled pass names after culling
-            auto compiledPassNodes     = frameGraph.getCompiledPassNodes();
-            u32  compiledPassNodesSize = compiledPassNodes.size();
-
-            for (u32 i = 0; i < compiledPassNodesSize; ++i) {
-                const Gfx::FrameGraph::RZPassNode& passNode   = frameGraph.getPassNode(compiledPassNodes[i]);
-                const std::string&                 label      = Utilities::GetFilePathExtension(passNode.getName());
-                float                              duration   = 1.0f;    //passDurations[i];
-                float                              box_height = ImGui::GetFontSize() + 2.0f * padding_y;
-
-                ImVec2 p0 = ImVec2(x, y);
-                ImVec2 p1 = ImVec2(x + box_width, y + box_height);
-
-                // Label background and border
-                draw->AddRectFilled(p0, p1, label_bg_color, rounding);
-                draw->AddRect(p0, p1, label_border_color, rounding, 0, border_thickness);
-
-                // Centered text
-                ImVec2 text_size = ImGui::CalcTextSize(label.c_str());
-                ImVec2 text_pos  = ImVec2(p0.x + (box_width - text_size.x) * 0.5f, p0.y + padding_y);
-                draw->AddText(ImVec2(text_pos.x + 1, text_pos.y + 1), label_shadow_color, label.c_str());
-                draw->AddText(text_pos, label_text_color, label.c_str());
-
-                // Tooltip on hover
                 ImVec2 mouse = ImGui::GetMousePos();
                 if (mouse.x >= p0.x && mouse.x <= p1.x && mouse.y >= p0.y && mouse.y <= p1.y) {
                     ImGui::BeginTooltip();
                     ImGui::Text("Pass ID        : %u", passNode.getID());
                     ImGui::Separator();
-                    ImGui::Text("Total Creates  : %d", passNode.getCreatResources().size());
+                    ImGui::Text("Creates        : %d", passNode.getCreatResources().size());
                     ImGui::Text("Reads          : %d", passNode.getInputResources().size());
                     ImGui::Text("Writes         : %d", passNode.getOutputResources().size());
                     ImGui::Separator();
-                    Department           dept     = passNode.getDepartment();
-                    const DepartmentInfo deptInfo = s_DepartmentInfo.at(dept);
-                    ImGui::Text("Department     : %s", deptInfo.debugName);
+                    auto                  dept = passNode.getDepartment();
+                    const DepartmentInfo& info = s_DepartmentInfo.at(dept);
+                    ImGui::Text("Department     : %s", info.debugName);
                     ImGui::Separator();
-                    const auto& budget = passNode.getCurrentPassBudget();
+                    auto& budget = passNode.getCurrentPassBudget();
                     ImGui::Text("CPU Budget     : %.2f ms", budget.CPUframeBudget);
                     ImGui::Text("Memory Budget  : %u MiB", budget.MemoryBudget);
-                    ImGui::Separator();
-                    ImGui::Text("Duration ID    : %u", duration);
-                    ImGui::Text("Timeline       : %f", (duration * 100.0f / 16.67f));
                     ImGui::EndTooltip();
                 }
 
-                // Draw vertical line after this box
-                float line_x = x + box_width + line_gap;
-                draw->AddLine(ImVec2(line_x, origin.y), ImVec2(line_x, origin.y + total_label_height), column_line_color);
-
-                // Advance x: box + spacing + line
-                x = line_x + spacing_between_boxes;
+                float line_x = x + boxWidth + PassLabelStyle::LineGap;
+                draw->AddLine(ImVec2(line_x, y), ImVec2(line_x, y + totalHeight), PassLabelStyle::ColumnLineColor);
+                x = line_x + PassLabelStyle::Spacing;
             }
         }
 
+        // Call site: top-level draw function
         void OnImGuiDrawFrameGraphVis(const Gfx::FrameGraph::RZFrameGraph& frameGraph)
         {
             ImGui::SetNextWindowBgAlpha(1.0f);
-            if (ImGui::Begin("Frame Graph Resource Viewer##FGResourceVis")) {
-                ImGui::Text("Welcome to Frame Graph resource viz! Your one stop viewer for Transient resources/Barriers and memory usage of a Frame.");
+            if (!ImGui::Begin("Frame Graph Resource Viewer##FGResourceVis")) return;
 
-                const float top_padding = 20.0f;
-                const float cell_size   = 24.0f;
-                const float label_space = 300.0f;
-                const float panel_width = label_space - 20.0f;
+            ImGui::Text("Welcome to Frame Graph resource viz! Your one stop viewer for Transient resources/Barriers and memory usage of a Frame.");
 
-                std::vector<u32> compiledResourceEntryPoints = frameGraph.getCompiledResourceEntries();
-                const u32        resource_count              = compiledResourceEntryPoints.size();
+            const float topPadding = 20.0f;
+            const float cellSize   = 24.0f;
+            const float labelSpace = 300.0f;
+            const float panelWidth = labelSpace - 20.0f;
 
-                ImDrawList* draw   = ImGui::GetWindowDrawList();
-                ImVec2      origin = ImGui::GetCursorScreenPos() + ImVec2(0, top_padding);
+            std::vector<uint32_t> compiledResourceEntryPoints = frameGraph.getCompiledResourceEntries();
+            uint32_t              resourceCount               = compiledResourceEntryPoints.size();
 
-                float content_region_height = ImGui::GetContentRegionAvail().y - top_padding;
-                u32   max_visible_rows      = static_cast<u32>(content_region_height / cell_size);
-                u32   max_rows              = std::min(resource_count, max_visible_rows > 1 ? max_visible_rows - 2 : 0);
+            ImDrawList* draw   = ImGui::GetWindowDrawList();
+            ImVec2      origin = ImGui::GetCursorScreenPos() + ImVec2(0, topPadding);
 
-                // Colors
-                const ImU32 bg_color_even      = IM_COL32(50, 50, 60, 255);
-                const ImU32 bg_color_odd       = IM_COL32(40, 40, 50, 255);
-                const ImU32 border_color       = IM_COL32(120, 120, 120, 255);
-                const ImU32 text_color         = IM_COL32(220, 220, 255, 255);
-                const ImU32 barrier_bg_color   = IM_COL32(255, 125, 125, 100);
-                const ImU32 barrier_text_color = IM_COL32(255, 255, 200, 255);
-                const ImU32 header_bg_color    = IM_COL32(100, 80, 150, 255);
+            float    contentHeight  = ImGui::GetContentRegionAvail().y - topPadding;
+            uint32_t maxVisibleRows = static_cast<uint32_t>(contentHeight / cellSize);
+            uint32_t maxRows        = std::min(resourceCount, maxVisibleRows > 1 ? maxVisibleRows - 2 : 0);
 
-                // Header row
-                ImVec2 header_p0 = origin;
-                ImVec2 header_p1 = origin + ImVec2(panel_width, cell_size);
-                draw->AddRectFilled(header_p0, header_p1, header_bg_color);
-                draw->AddRect(header_p0, header_p1, border_color);
-                draw->AddText(ImVec2(header_p0.x + 10.0f, header_p0.y + 8.0f), IM_COL32_WHITE, "[Resource/Passes]");
+            // Header
+            ImVec2 p0 = origin;
+            ImVec2 p1 = origin + ImVec2(panelWidth, cellSize);
+            draw->AddRectFilled(p0, p1, ResourcePanelStyle::HeaderBgColor);
+            draw->AddRect(p0, p1, ResourcePanelStyle::BorderColor);
+            draw->AddText(p0 + ImVec2(10.0f, 8.0f), IM_COL32_WHITE, "[Resource/Passes]");
 
-                // Barrier row
-                ImVec2 barrier_row_p0 = origin + ImVec2(0, cell_size);
-                ImVec2 barrier_row_p1 = barrier_row_p0 + ImVec2(panel_width, cell_size);
-                draw->AddRectFilled(barrier_row_p0, barrier_row_p1, barrier_bg_color);
-                draw->AddRect(barrier_row_p0, barrier_row_p1, border_color);
-                draw->AddText(ImVec2(barrier_row_p0.x + 10.0f, barrier_row_p0.y + 6.0f), barrier_text_color, "[Barriers]");
+            // Barrier label
+            p0 = origin + ImVec2(0, cellSize);
+            p1 = p0 + ImVec2(panelWidth, cellSize);
+            draw->AddRectFilled(p0, p1, ResourcePanelStyle::BarrierBgColor);
+            draw->AddRect(p0, p1, ResourcePanelStyle::BorderColor);
+            draw->AddText(p0 + ImVec2(10.0f, 6.0f), ResourcePanelStyle::BarrierTextColor, "[Barriers]");
 
-                // Resource rows
-                for (u32 ry = 0; ry < max_rows; ++ry) {
-                    ImVec2 row_p0 = origin + ImVec2(0, (ry + 2) * cell_size);
-                    ImVec2 row_p1 = row_p0 + ImVec2(panel_width, cell_size);
+            for (uint32_t ry = 0; ry < maxRows; ++ry) {
+                ImVec2 row_p0 = origin + ImVec2(0, (ry + 2) * cellSize);
+                ImVec2 row_p1 = row_p0 + ImVec2(panelWidth, cellSize);
 
-                    ImU32 bg_col = (ry % 2 == 0) ? bg_color_even : bg_color_odd;
-                    draw->AddRectFilled(row_p0, row_p1, bg_col);
-                    draw->AddRect(row_p0, row_p1, border_color);
+                ImU32 bgColor = (ry % 2 == 0) ? ResourcePanelStyle::BgColorEven : ResourcePanelStyle::BgColorOdd;
+                draw->AddRectFilled(row_p0, row_p1, bgColor);
+                draw->AddRect(row_p0, row_p1, ResourcePanelStyle::BorderColor);
 
-                    const Gfx::FrameGraph::RZResourceNode& resNode  = frameGraph.getResourceNode(compiledResourceEntryPoints[ry]);
-                    ImVec2                                 text_pos = ImVec2(row_p0.x + 10.0f, row_p0.y + 8.0f);
-                    draw->AddText(text_pos, text_color, resNode.getName().c_str());
+                const auto& resNode = frameGraph.getResourceNode(compiledResourceEntryPoints[ry]);
+                draw->AddText(row_p0 + ImVec2(10.0f, 8.0f), ResourcePanelStyle::TextColor, resNode.getName().c_str());
 
-                    ImVec2 mouse = ImGui::GetMousePos();
-                    if (mouse.x >= row_p0.x && mouse.x <= row_p1.x &&
-                        mouse.y >= row_p0.y && mouse.y <= row_p1.y) {
-                        ImGui::BeginTooltip();
-                        ImGui::Text("Resource ID    : %u", resNode.getID());
-                        ImGui::Separator();
-                        ImGui::Text("EntryPoint ID  : %u", resNode.getResourceEntryId());
-                        ImGui::Text("Version        : %u", resNode.getVersion());
-                        ImGui::Text("RefCount       : %u", resNode.getRefCount());
-                        ImGui::Text("CompiledResIdx : %u", compiledResourceEntryPoints[ry]);
-                        ImGui::Separator();
-                        ImGui::EndTooltip();
-                    }
+                ImVec2 mouse = ImGui::GetMousePos();
+                if (mouse.x >= row_p0.x && mouse.x <= row_p1.x && mouse.y >= row_p0.y && mouse.y <= row_p1.y) {
+                    ImGui::BeginTooltip();
+                    ImGui::Text("Resource ID    : %u", resNode.getID());
+                    ImGui::Separator();
+                    ImGui::Text("EntryPoint ID  : %u", resNode.getResourceEntryId());
+                    ImGui::Text("Version        : %u", resNode.getVersion());
+                    ImGui::Text("RefCount       : %u", resNode.getRefCount());
+                    ImGui::Text("CompiledResIdx : %u", compiledResourceEntryPoints[ry]);
+                    ImGui::EndTooltip();
                 }
-
-                // Pass names along top X-axis
-                DrawPassLabels(frameGraph, draw, origin + ImVec2(panel_width + 20.0f, 0), cell_size, cell_size, max_rows);
-
-                float drawn_height = (max_rows + 2) * cell_size + top_padding;
-                ImGui::Dummy(ImVec2(panel_width + 10.0f, drawn_height));
             }
+
+            DrawPassLabels(frameGraph, draw, origin + ImVec2(panelWidth + 20.0f, 0), cellSize, cellSize, maxRows);
+
+            //for (int i = 0; i < 5; ++i) {
+            //    DrawLifetimeCell(ImVec2(origin.x + i * (80.0f + 6.0f), origin.y), 80.0f, 18.0f);
+            //}
+
+            float drawnHeight = (maxRows + 2) * cellSize + topPadding;
+            ImGui::Dummy(ImVec2(panelWidth + 10.0f, drawnHeight));
             ImGui::End();
         }
 
