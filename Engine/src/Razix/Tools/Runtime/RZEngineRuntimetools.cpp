@@ -98,7 +98,7 @@ namespace Razix {
             bool     isWrite;
         };
 
-        void DrawLifetimeCell(const ImVec2& pos, float width, float height, u32 mode)
+        void DrawLifetimeCell(const ImVec2& pos, float width, float height, Gfx::RZResourceLifetime lifetime)
         {
             ImDrawList* drawList = ImGui::GetWindowDrawList();
             ImVec2      min      = pos;
@@ -107,15 +107,15 @@ namespace Razix {
             ImVec2 mouse   = ImGui::GetMousePos();
             bool   hovered = mouse.x >= min.x && mouse.x <= max.x && mouse.y >= min.y && mouse.y <= max.y;
 
-            ImU32 fillColor   = mode == 0 ? BarrierStyle::ReadFillColor : BarrierStyle::WriteFillColor;
-            ImU32 borderColor = mode == 0 ? BarrierStyle::ReadBorderColor : BarrierStyle::WriteBorderColor;
+            ImU32 fillColor   = lifetime.Mode == Gfx::LifeTimeMode::kRead ? BarrierStyle::ReadFillColor : BarrierStyle::WriteFillColor;
+            ImU32 borderColor = lifetime.Mode == Gfx::LifeTimeMode::kRead ? BarrierStyle::ReadBorderColor : BarrierStyle::WriteBorderColor;
 
             // Fill and border
             drawList->AddRectFilled(min, max, fillColor, LifetimeCellStyle::Roundness);
             drawList->AddRect(min, max, borderColor, LifetimeCellStyle::Roundness, 0, LifetimeCellStyle::BorderThickness);
 
             // Center the text
-            const char* label    = (mode == 0) ? "Read" : "Write";
+            const char* label    = lifetime.Mode == Gfx::LifeTimeMode::kRead ? "Read" : "Write";
             ImVec2      textSize = ImGui::CalcTextSize(label);
             ImVec2      textPos  = ImVec2(
                 min.x + (width - textSize.x) * 0.5f,
@@ -125,12 +125,14 @@ namespace Razix {
             // Tooltip
             if (hovered) {
                 ImGui::BeginTooltip();
-                ImGui::Text("Mode : %s", label);
+                ImGui::Text("StartPassID : %u", lifetime.StartPassID);
+                ImGui::Text("EndPassID   : %u", lifetime.EndPassID);
+                ImGui::Text("EntryID     : %u", lifetime.ResourceEntryID);
                 ImGui::EndTooltip();
             }
         }
 
-        void DrawLifetimeCellFromPassRange(const ImVec2& origin, uint32_t startPassIdx, uint32_t numPasses, float rowY, u32 mode)
+        void DrawLifetimeCellFromPassRange(const ImVec2& origin, uint32_t startPassIdx, uint32_t numPasses, float rowY, Gfx::RZResourceLifetime lifetime)
         {
             float xOffset = FrameGraphStyle::LabelPanelSpace +
                             FrameGraphStyle::LabelColumnOffsetX * 2 +
@@ -142,7 +144,7 @@ namespace Razix {
             float cellWidth = (LifetimeCellStyle::CellWidth * numPasses) +
                               ((PassLabelStyle::Spacing * 2) * (numPasses - 1));
 
-            DrawLifetimeCell(cellOrigin, cellWidth, LifetimeCellStyle::CellHeight, mode);
+            DrawLifetimeCell(cellOrigin, cellWidth, LifetimeCellStyle::CellHeight, lifetime);
         }
 
         void DrawSimulatedBarriers(ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, const std::vector<SimulatedBarrier>& barriers)
@@ -261,7 +263,7 @@ namespace Razix {
                     const auto&                 lifetimes = resEntry.getLifetimes();
 
                     for (auto& lifetime: lifetimes) {
-                        DrawLifetimeCellFromPassRange(origin, lifetime.StartPassID, lifetime.EndPassID - lifetime.StartPassID + 1, (ry + 2) * FrameGraphStyle::CellSize, (u32) lifetime.Mode);
+                        DrawLifetimeCellFromPassRange(origin, lifetime.StartPassID, lifetime.EndPassID - lifetime.StartPassID + 1, (ry + 2) * FrameGraphStyle::CellSize, lifetime);
                     }
 
                     ImVec2 mouse = ImGui::GetMousePos();

@@ -594,15 +594,16 @@ namespace Razix {
 
             // Cache compiled resource + pass indices
             for (u32 resID = 0; resID < m_ResourceNodes.size(); ++resID) {
-                if (m_ResourceNodes[resID].m_RefCount > 0) {
-                    m_CompiledResourceIndices.push_back(resID);
+                // Dirty tricks to fix life times
+                //if (m_ResourceNodes[resID].m_RefCount > 0) {
+                m_CompiledResourceIndices.push_back(resID);
 
-                    // Cache compiled resource nodes entries uniquely
-                    const RZResourceEntry &entry   = getResourceEntry(resID);
-                    u32                    version = m_ResourceNodes[resID].m_Version;
-                    if (version == 1)
-                        m_CompiledResourceEntries.push_back(entry.m_ID);
-                }
+                // Cache compiled resource nodes entries uniquely
+                const RZResourceEntry &entry   = getResourceEntry(resID);
+                u32                    version = m_ResourceNodes[resID].m_Version;
+                if (version == 1)
+                    m_CompiledResourceEntries.push_back(entry.m_ID);
+                //}
             }
 
             struct Interval
@@ -1051,7 +1052,7 @@ namespace Razix {
                  * which serve no runtime purpose. Instead, we skip the read registration
                  * and directly clone + write:
                  */
-                m_PassNode.registerResourceForRead(id, flags);
+                //m_PassNode.registerResourceForRead(id, flags);
                 // we're writing to the same existing external resource so clone it before writing to it
                 writeID = m_PassNode.registerResourceForWrite(m_FrameGraph.cloneResource(id), flags);
             }
