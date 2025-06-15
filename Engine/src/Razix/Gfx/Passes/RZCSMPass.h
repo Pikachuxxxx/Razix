@@ -2,7 +2,7 @@
 
 #include "Razix/Gfx/Passes/IRZPass.h"
 
-#include "Razix/Gfx/Passes/Data/CSMData.h"
+#include "Razix/Gfx/Passes/Data/GlobalData.h"
 
 namespace Razix {
     class RZSceneCamera;
@@ -37,7 +37,7 @@ namespace Razix {
             static FrustumCorners       buildFrustumCorners(const float4x4& inversedViewProj, f32 splitDist, f32 lastSplitDist);
             static auto                 measureFrustum(const FrustumCorners& frustumCorners);
             static void                 eliminateShimmering(float4x4& projection, const float4x4& view, u32 shadowMapSize);
-            static float4x4            buildDirLightMatrix(const float4x4& inversedViewProj, const float3& lightDirection, u32 shadowMapSize, f32 splitDist, f32 lastSplitDist);
+            static float4x4             buildDirLightMatrix(const float4x4& inversedViewProj, const float3& lightDirection, u32 shadowMapSize, f32 splitDist, f32 lastSplitDist);
 
         private:
             RZPipelineHandle      m_Pipeline                  = {};

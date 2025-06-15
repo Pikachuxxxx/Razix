@@ -231,6 +231,13 @@ namespace Razix {
             //robustness2Features.nullDescriptor = VK_TRUE;
             //pNextFeaturesChain.inject(robustness2Features);
 
+            // All 11/12/13 features go here
+
+            VkPhysicalDeviceVulkan13Features                          vk13Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES};
+            VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT demoteEXT{
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES_EXT};
+            pNextFeaturesChain.inject(demoteEXT);
+
             // Query bindless extension, called Descriptor Indexing (https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_EXT_descriptor_indexing.html)
             VkPhysicalDeviceDescriptorIndexingFeatures indexing_features{};
             indexing_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
@@ -248,6 +255,9 @@ namespace Razix {
             device_features.pNext = pNextFeaturesChain.getHead();
             vkGetPhysicalDeviceFeatures2(getGPU(), &device_features);
             device_features.pNext = pNextFeaturesChain.getHead();
+
+            vk13Features.shaderDemoteToHelperInvocation = VK_TRUE;
+            demoteEXT.shaderDemoteToHelperInvocation    = VK_TRUE;
 
             // Run-time check, hence done after all injections
             // Check if Bindless feature is supported by the GPU

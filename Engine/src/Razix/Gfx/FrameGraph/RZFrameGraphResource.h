@@ -14,6 +14,8 @@ namespace Razix {
 
         typedef i32 RZFrameGraphResource;
 
+        constexpr u32 kInitFGResource = 0xDEAFBEEF;
+
         constexpr u32 kFlagsNone = ~0;
 
         // TODO: Remove this as we hardly use it, we don't manage descriptors sets and resource views via FG its done via RHI itself

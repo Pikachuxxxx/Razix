@@ -23,7 +23,6 @@
 #include "Razix/Gfx/RZMeshFactory.h"
 #include "Razix/Gfx/RZShaderLibrary.h"
 
-#include "Razix/Gfx/Passes/Data/FrameData.h"
 #include "Razix/Gfx/Passes/Data/GlobalData.h"
 
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
@@ -55,18 +54,19 @@ namespace Razix {
             pipelineInfo.depthOp                = CompareOp::LessOrEqual;
             m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            //            pipelineInfo.name    = "ProceduralSkybox.Pipeline";
-            //            pipelineInfo.shader  = proceduralSkyboxShader;
-            //            m_ProceduralPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
+            // pipelineInfo.name    = "ProceduralSkybox.Pipeline";
+            // pipelineInfo.shader  = proceduralSkyboxShader;
+            // m_ProceduralPipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
+            // auto& volumetricData  = framegraph.getBlackboard().get<VolumetricCloudsData>();
 
             auto& frameDataBlock  = framegraph.getBlackboard().get<FrameData>();
             auto& lightProbesData = framegraph.getBlackboard().get<GlobalLightProbeData>();
-            //            auto& volumetricData  = framegraph.getBlackboard().get<VolumetricCloudsData>();
-            auto& sceneData = framegraph.getBlackboard().get<SceneData>();
+            auto& sceneData       = framegraph.getBlackboard().get<SceneData>();
+            auto& gBufferData     = framegraph.getBlackboard().get<GBufferData>();
 
-            framegraph.addCallbackPass(
+            framegraph.getBlackboard().add<SkyboxPassData>() = framegraph.addCallbackPass<SkyboxPassData>(
                 "Pass.Builtin.Code.Skybox",
-                [&](auto& data, RZPassResourceBuilder& builder) {
+                [&](SkyboxPassData& data, RZPassResourceBuilder& builder) {
                     builder
                         .setAsStandAlonePass()
                         .setDepartment(Department::Environment);
@@ -75,11 +75,12 @@ namespace Razix {
                     builder.read(lightProbesData.environmentMap);
                     builder.read(lightProbesData.diffuseIrradianceMap);
                     builder.read(lightProbesData.specularPreFilteredMap);
+                    builder.read(gBufferData.GBufferDepth);
 
-                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
-                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
+                    sceneData.SceneHDR = builder.write(sceneData.SceneHDR);
+                    data.SceneHDR      = sceneData.SceneHDR;
                 },
-                [=](const auto& data, RZPassResourceDirectory& resources) {
+                [=](const SkyboxPassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Skybox);
@@ -91,8 +92,8 @@ namespace Razix {
 
                     RenderingInfo info    = {};
                     info.resolution       = Resolution::kWindow;
-                    info.colorAttachments = {{resources.get<RZFrameGraphTexture>(sceneData.sceneHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {resources.get<RZFrameGraphTexture>(sceneData.sceneDepth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
+                    info.colorAttachments = {{resources.get<RZFrameGraphTexture>(data.SceneHDR).getHandle(), {false, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {resources.get<RZFrameGraphTexture>(gBufferData.GBufferDepth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
 
                     RHI::BeginRendering(cmdBuffer, info);
 
@@ -156,7 +157,7 @@ namespace Razix {
         void RZSkyboxPass::destroy()
         {
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
-            //            RZResourceManager::Get().destroyPipeline(m_ProceduralPipeline);
+            // RZResourceManager::Get().destroyPipeline(m_ProceduralPipeline);
         }
     }    // namespace Gfx
 }    // namespace Razix

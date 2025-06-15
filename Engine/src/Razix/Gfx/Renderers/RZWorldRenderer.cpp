@@ -18,8 +18,7 @@
 
 #include "Razix/Gfx/Lighting/RZImageBasedLightingProbesManager.h"
 
-#include "Razix/Gfx/Passes/Data/BRDFData.h"
-#include "Razix/Gfx/Passes/Data/FrameData.h"
+#include "Razix/Gfx/Passes/Data/GlobalData.h"
 
 #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
@@ -101,7 +100,7 @@ namespace Razix {
             colorGradingNeutralLUTDesc.flipY         = true;
             colorGradingNeutralLUTDesc.filePath      = "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png";
             m_ColorGradingNeutralLUTHandle           = RZResourceManager::Get().createTexture(colorGradingNeutralLUTDesc);
-            auto& colorGradingLUTSData               = m_FrameGraph.getBlackboard().add<FX::ColorGradingLUTData>();
+            auto& colorGradingLUTSData               = m_FrameGraph.getBlackboard().add<ColorGradingLUTData>();
             colorGradingLUTSData.neutralLUT          = m_FrameGraph.import <RZFrameGraphTexture>(colorGradingNeutralLUTDesc.name, CAST_TO_FG_TEX_DESC colorGradingNeutralLUTDesc, {m_ColorGradingNeutralLUTHandle});
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
@@ -164,6 +163,7 @@ namespace Razix {
             // GBuffer Pass
             //-------------------------------
             m_GBufferPass.addPass(m_FrameGraph, scene, &settings);
+            auto& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
 
             //-------------------------------
             // PBR Deferred Pass
@@ -184,9 +184,9 @@ namespace Razix {
             //-------------------------------
             // Debug Scene Pass
             //-------------------------------
-            m_FrameGraph.addCallbackPass(
+            m_FrameGraph.getBlackboard().add<DebugPassData>() = m_FrameGraph.addCallbackPass<DebugPassData>(
                 "Pass.Builtin.Code.DebugDraw",
-                [&](auto& data, RZPassResourceBuilder& builder) {
+                [&](DebugPassData& data, RZPassResourceBuilder& builder) {
                     builder
                         .setAsStandAlonePass()
                         .setDepartment(Department::Debug);
@@ -195,10 +195,13 @@ namespace Razix {
 
                     builder.read(frameDataBlock.frameData);
 
-                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
-                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
+                    sceneData.SceneHDR = builder.write(sceneData.SceneHDR);
+                    data.DebugRT       = sceneData.SceneHDR;
+
+                    gBufferData.GBufferDepth = builder.write(gBufferData.GBufferDepth);
+                    data.DebugDRT            = gBufferData.GBufferDepth;
                 },
-                [=](const auto& data, RZPassResourceDirectory& resources) {
+                [=](const DebugPassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
@@ -254,8 +257,8 @@ namespace Razix {
 
                     RZDebugRendererProxy::Get().Begin(scene);
 
-                    auto rt = resources.get<RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
-                    auto dt = resources.get<RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
+                    auto rt = resources.get<RZFrameGraphTexture>(data.DebugRT).getHandle();
+                    auto dt = resources.get<RZFrameGraphTexture>(data.DebugDRT).getHandle();
 
                     RenderingInfo info    = {};
                     info.resolution       = Resolution::kWindow;
@@ -277,32 +280,31 @@ namespace Razix {
             //-------------------------------
             // ImGui Pass
             //-------------------------------
-            m_FrameGraph.addCallbackPass(
+
+            m_FrameGraph.getBlackboard().add<ImGuiPassData>() = m_FrameGraph.addCallbackPass<ImGuiPassData>(
                 "Pass.Builtin.Code.ImGui",
-                [&](auto&, RZPassResourceBuilder& builder) {
+                [&](ImGuiPassData& data, RZPassResourceBuilder& builder) {
                     builder
                         .setAsStandAlonePass()
                         .setDepartment(Department::UI);
 
-                    sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
-                    sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
+                    sceneData.SceneHDR = builder.write(sceneData.SceneHDR);
+                    data.ImGuiRT       = sceneData.SceneHDR;
 
                     RZImGuiRendererProxy::Get().Init();
                 },
-                [=](const auto&, RZPassResourceDirectory& resources) {
+                [=](const ImGuiPassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("ImGui Pass");
 
                     RZImGuiRendererProxy::Get().Begin(scene);
 
-                    auto rt = resources.get<RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
-                    auto dt = resources.get<RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
+                    auto rt = resources.get<RZFrameGraphTexture>(data.ImGuiRT).getHandle();
 
                     RenderingInfo info    = {};
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
 
                     RHI::BeginRendering(Gfx::RHI::GetCurrentCommandBuffer(), info);
 

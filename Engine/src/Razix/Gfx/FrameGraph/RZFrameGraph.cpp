@@ -1,4 +1,4 @@
-// clang-format off
+﻿// clang-format off
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -598,19 +598,20 @@ namespace Razix {
                     m_CompiledResourceIndices.push_back(resID);
 
                     // Cache compiled resource nodes entries uniquely
-                    u32 version = m_ResourceNodes[resID].m_Version;
+                    const RZResourceEntry &entry   = getResourceEntry(resID);
+                    u32                    version = m_ResourceNodes[resID].m_Version;
                     if (version == 1)
-                        m_CompiledResourceEntries.push_back(resID);
+                        m_CompiledResourceEntries.push_back(entry.m_ID);
                 }
             }
 
             struct Interval
-                        {
-                            u32          lo, hi;
-                            u32          entryID;
-                            LifeTimeMode mode;
-                        };
-                        std::map<u32, std::vector<Interval>> intervals;
+            {
+                u32          lo, hi;
+                u32          entryID;
+                LifeTimeMode mode;
+            };
+            std::map<u32, std::vector<Interval>> intervals;
             // track last seen pass for each (entryID, mode)
             std::map<u32, u32> lastSeen;
 
@@ -623,34 +624,34 @@ namespace Razix {
 
                 auto touch = [&](const u32 &resId, LifeTimeMode mode) {
                     u32              entryId  = getResourceNodeRef(resId).getResourceEntryId();
-//                    RZResourceEntry &resEntry = getResourceEntryRef(entryId);
-                    u32              key      = entryId;
+                    RZResourceEntry &resEntry = getResourceEntryRef(entryId);
+                    //u32              key      = entryId;
+                    u32 key = (entryId << 2) | static_cast<u32>(mode);
 
-//                    auto &ints   = resEntry.getLifetimesRef();
-                    auto &ints   = intervals[key];
-                    auto  itLast = lastSeen.find(key);
+                    auto &realints = resEntry.getLifetimesRef();
+                    auto &ints     = intervals[key];
+                    auto  itLast   = lastSeen.find(key);
 
                     if (itLast != lastSeen.end() && passID == itLast->second + 1) {
                         // extend existing interval
-//                        ints.back().EndPassID = passID;
-                        ints.back().hi = passID;
+                        realints.back().EndPassID = passID;
+                        ints.back().hi            = passID;
                     } else {
                         // start new interval
-//                        ints.push_back(RZResourceLifetime{entryId, passID, passID, mode});
+                        realints.push_back(RZResourceLifetime{entryId, passID, passID, mode});
                         ints.push_back(Interval{passID, passID, entryId, mode});
                     }
                     lastSeen[key] = passID;
                 };
 
-                for (auto resId: pass.m_Creates) touch(resId, LifeTimeMode::kWrite);
                 for (auto &[resId, flags]: pass.m_Writes) touch(resId, LifeTimeMode::kWrite);
                 for (auto &[resId, flags]: pass.m_Reads) touch(resId, LifeTimeMode::kRead);
             }
 
             for (auto &kv: intervals) {
-                u32   entryID = kv.first;
+                u32   entryID = kv.first >> 2;
                 auto &vec     = kv.second;
-            
+
                 // FIXME: enryID doesn't match with resourceName IDs because of multiple versions, we need to use compiledEntryIds
                 // As they are stored per V1 resources and represent entryIDs more accurately, not sure how to solve that problem here
                 RAZIX_CORE_INFO("ResourceEntryID: {} | Name: {}", entryID, getResourceEntryName(entryID));
@@ -686,6 +687,7 @@ namespace Razix {
                 for (const auto &id: pass.m_Creates)
                     getResourceEntryRef(id).getConcept()->create(transientAllocator);
 
+                // TODO: To reduce unnecessary barries use version boundary changes to skip over some
                 // Call pre-read and pre-write functions on the resource before the execute function
                 // Safety of existence is taken care in the ResourceEntry class
                 // Skip if they are imported resource, since imported resources are always Read only data!
@@ -1031,10 +1033,24 @@ namespace Razix {
                 writeID = m_PassNode.registerResourceForWrite(id, flags);
             else {
                 /**
-                     * If it's writing to a resource not created by this PassNode
-                     * then, it must first be able to read from it and then write to 
-                     * a clone of the same resource 
-                     */
+                  * Old Usage:
+                  * If it's writing to a resource not created by this PassNode
+                  * then, it must first be able to read from it and then write to 
+                  * a clone of the same resource 
+                  */
+                /**
+                 * [2025-06-15]
+                 * Registering the same id for a read immediately before cloning
+                 * and writing to it doesn't make sense:
+                 *  - You mark the original resource "read" in this pass,
+                 *  - Immediately clone it and write to the clone,
+                 *  - You never actually consume that "read" lifetime on the original.
+                 *
+                 * This leads to back‑to‑back touches on the original entry in the
+                 * same pass, producing zero length or duplicate lifetime segments
+                 * which serve no runtime purpose. Instead, we skip the read registration
+                 * and directly clone + write:
+                 */
                 m_PassNode.registerResourceForRead(id, flags);
                 // we're writing to the same existing external resource so clone it before writing to it
                 writeID = m_PassNode.registerResourceForWrite(m_FrameGraph.cloneResource(id), flags);

@@ -40,12 +40,12 @@ namespace Razix {
 
             m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
-            auto& colorGradingLUTData = framegraph.getBlackboard().get<FX::ColorGradingLUTData>();
+            auto& colorGradingLUTData = framegraph.getBlackboard().get<ColorGradingLUTData>();
             auto& sceneData           = framegraph.getBlackboard().get<SceneData>();
 
-            framegraph.getBlackboard().add<FX::ColorGradingData>() = framegraph.addCallbackPass<FX::ColorGradingData>(
+            framegraph.getBlackboard().add<ColorGradingData>() = framegraph.addCallbackPass<ColorGradingData>(
                 "Pass.Builtin.Code.LUTColorGrading",
-                [&](FX::ColorGradingData& data, RZPassResourceBuilder& builder) {
+                [&](ColorGradingData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc colorGradedImageDesc{};
@@ -57,13 +57,12 @@ namespace Razix {
 
                     data.colorGradedSceneHDR = builder.create<RZFrameGraphTexture>(colorGradedImageDesc.name, CAST_TO_FG_TEX_DESC colorGradedImageDesc);
 
-                    builder.read(sceneData.sceneHDR);
-                    builder.read(sceneData.sceneDepth);
+                    builder.read(sceneData.SceneHDR);
                     builder.read(colorGradingLUTData.neutralLUT);
 
                     data.colorGradedSceneHDR = builder.write(data.colorGradedSceneHDR);
                 },
-                [=](const FX::ColorGradingData& data, RZPassResourceDirectory& resources) {
+                [=](const ColorGradingData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RAZIX_MARK_BEGIN("Pass.Builtin.Code.LUTColorGrading", Utilities::GenerateHashedColor4(29u));
 
@@ -86,7 +85,7 @@ namespace Razix {
 
                         auto scene_descriptor = shaderBindVars["SceneHDRSource"];
                         if (scene_descriptor)
-                            scene_descriptor->texture = resources.get<RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
+                            scene_descriptor->texture = resources.get<RZFrameGraphTexture>(sceneData.SceneHDR).getHandle();
 
                         auto lut_descriptor = shaderBindVars["NeutralLUT"];
                         if (lut_descriptor)

@@ -15,7 +15,6 @@
 #include "Razix/Gfx/Passes/RZCompositionPass.h"
 #include "Razix/Gfx/Passes/RZFXAAPass.h"
 #include "Razix/Gfx/Passes/RZGBufferPass.h"
-#include "Razix/Gfx/Passes/RZGIPass.h"
 #include "Razix/Gfx/Passes/RZGaussianBlurPass.h"
 #include "Razix/Gfx/Passes/RZPBRDeferredShadingPass.h"
 #include "Razix/Gfx/Passes/RZSSAOPass.h"

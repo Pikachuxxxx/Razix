@@ -66,7 +66,7 @@ void RZBloomPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRen
             // Do a bunch of Down Sampling and Up Samplings on the scene Texture
             // Start with down sampling, use the Source texture as the first mip
             BloomMip sourceMip{-1};
-            sourceMip.mip  = forwardSceneData.sceneHDR;
+            sourceMip.mip  = forwardSceneData.SceneHDR;
             sourceMip.size = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
             for (u32 i = 0; i < NUM_BLOOM_MIPS; ++i)
                 sourceMip = downsample(framegraph, sourceMip, scene, i);
@@ -368,7 +368,7 @@ void RZBloomPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRen
                     builder.setAsStandAlonePass();
 
                     builder.read(bloomData.bloomTexture);
-                    builder.read(forwardSceneData.sceneHDR);
+                    builder.read(forwardSceneData.SceneHDR);
                     builder.read(forwardSceneData.sceneLDR);
 
                     //data.ldrOutput = builder.write(data.ldrOutput);
@@ -388,7 +388,7 @@ void RZBloomPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRen
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 if (descriptor.bindingInfo.location.binding == 0)
-                                    descriptor.texture = resources.get<RZFrameGraphTexture>(forwardSceneData.sceneHDR).getHandle();
+                                    descriptor.texture = resources.get<RZFrameGraphTexture>(forwardSceneData.SceneHDR).getHandle();
                                 else if (descriptor.bindingInfo.location.binding == 1)
                                     descriptor.texture = resources.get<RZFrameGraphTexture>(bloomData.bloomTexture).getHandle();
                             }

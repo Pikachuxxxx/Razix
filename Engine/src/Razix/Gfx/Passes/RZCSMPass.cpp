@@ -24,9 +24,6 @@
 #include "Razix/Gfx/RZMeshFactory.h"
 #include "Razix/Gfx/RZShaderLibrary.h"
 
-#include "Razix/Gfx/Passes/Data/FrameData.h"
-#include "Razix/Gfx/Passes/Data/GlobalData.h"
-
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 

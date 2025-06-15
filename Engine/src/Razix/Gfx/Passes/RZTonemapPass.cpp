@@ -47,7 +47,7 @@ namespace Razix {
             framegraph.addCallbackPass(
                 "Pass.Builtin.Code.Tonemap",
                 [&](auto& data, RZPassResourceBuilder& builder) {
-                    builder.read(sceneData.sceneHDR);
+                    builder.read(sceneData.SceneHDR);
                 },
                 [=](const auto& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -66,7 +66,7 @@ namespace Razix {
 
                         descriptor = shaderBindVars["SceneHDRRenderTarget"];
                         if (descriptor)
-                            descriptor->texture = resources.get<RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
+                            descriptor->texture = resources.get<RZFrameGraphTexture>(sceneData.SceneHDR).getHandle();
 
                         RZResourceManager::Get().getShaderResource(tonemapShader)->updateBindVarsHeaps();
                     }
@@ -74,7 +74,7 @@ namespace Razix {
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {
-                        {resources.get<RZFrameGraphTexture>(sceneData.sceneHDR).getHandle(), {false, ClearColorPresets::OpaqueBlack}}};
+                        {resources.get<RZFrameGraphTexture>(sceneData.SceneHDR).getHandle(), {false, ClearColorPresets::OpaqueBlack}}};
 
                     RHI::BeginRendering(cmdBuffer, info);
 

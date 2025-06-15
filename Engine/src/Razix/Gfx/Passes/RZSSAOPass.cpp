@@ -23,7 +23,6 @@
 #include "Razix/Gfx/RZMeshFactory.h"
 #include "Razix/Gfx/RZShaderLibrary.h"
 
-#include "Razix/Gfx/Passes/Data/FrameData.h"
 #include "Razix/Gfx/Passes/Data/GlobalData.h"
 
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
@@ -60,7 +59,7 @@ namespace Razix {
             auto& frameDataBlock = framegraph.getBlackboard().get<FrameData>();
             auto& gbufferData    = framegraph.getBlackboard().get<GBufferData>();
 
-            auto& ssaoData = framegraph.getBlackboard().add<FX::SSAOImportData>();
+            auto& ssaoData = framegraph.getBlackboard().add<SSAOImportData>();
 
             // Generate some data to pass to SSAO shader
             std::default_random_engine            rndEngine((unsigned) time(nullptr));
@@ -106,9 +105,9 @@ namespace Razix {
             ssaoData.SSAONoiseTexture   = framegraph.import <RZFrameGraphTexture>(noiseTextureDesc.name, CAST_TO_FG_TEX_DESC noiseTextureDesc, {ssaoNoiseTexture});
 
             framegraph.getBlackboard()
-                .add<FX::SSAOData>() = framegraph.addCallbackPass<FX::SSAOData>(
+                .add<SSAOData>() = framegraph.addCallbackPass<SSAOData>(
                 "Pass.Builtin.Code.FX.SSAO",
-                [&](FX::SSAOData& data, RZPassResourceBuilder& builder) {
+                [&](SSAOData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     // We use a single channel f32 texture
@@ -135,7 +134,7 @@ namespace Razix {
                     builder.read(gbufferData.GBuffer0);
                     builder.read(gbufferData.GBufferDepth);
                 },
-                [=](const FX::SSAOData& data, RZPassResourceDirectory& resources) {
+                [=](const SSAOData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_SSAO);

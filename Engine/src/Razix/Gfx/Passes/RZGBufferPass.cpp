@@ -24,10 +24,11 @@
 
 #include "Razix/Gfx/Materials/RZMaterial.h"
 
-#include "Razix/Gfx/Passes/Data/FrameData.h"
+#include "Razix/Gfx/Passes/Data/GlobalData.h"
+
+#include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
@@ -103,11 +104,10 @@ namespace Razix {
                     gbufferTexturesDesc.initResourceViewHints = kDSV;
                     data.GBufferDepth                         = builder.create<RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
-                    data.GBuffer0       = builder.write(data.GBuffer0);
-                    data.GBuffer1       = builder.write(data.GBuffer1);
-                    data.GBuffer2       = builder.write(data.GBuffer2);
-                    data.VelocityBuffer = builder.write(data.VelocityBuffer);
-                    data.GBufferDepth   = builder.write(data.GBufferDepth);
+                    data.GBuffer0     = builder.write(data.GBuffer0);
+                    data.GBuffer1     = builder.write(data.GBuffer1);
+                    data.GBuffer2     = builder.write(data.GBuffer2);
+                    data.GBufferDepth = builder.write(data.GBufferDepth);
 
                     builder.read(frameDataBlock.frameData);
                 },

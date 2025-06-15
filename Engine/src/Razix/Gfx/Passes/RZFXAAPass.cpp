@@ -43,15 +43,16 @@ namespace Razix {
 
             auto& sceneData = framegraph.getBlackboard().get<SceneData>();
 
-            framegraph.addCallbackPass<FX::TAAResolveData>(
+            framegraph.addCallbackPass<TAAResolveData>(
                 "Pass.Builtin.Code.FXAA",
-                [&](FX::TAAResolveData& data, RZPassResourceBuilder& builder) {
+                [&](TAAResolveData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    builder.read(sceneData.sceneHDR);
-                    sceneData.sceneHDR = builder.write(sceneData.sceneHDR);
+                    builder.read(sceneData.SceneHDR);
+                    // This might be wrong usage of the API
+                    data.sourceTexture = builder.write(sceneData.SceneHDR);
                 },
-                [=](const FX::TAAResolveData& data, RZPassResourceDirectory& resources) {
+                [=](const TAAResolveData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_FXAA);
@@ -61,7 +62,7 @@ namespace Razix {
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    auto accumulationRT = resources.get<RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
+                    auto accumulationRT = resources.get<RZFrameGraphTexture>(data.sourceTexture).getHandle();
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
@@ -78,7 +79,7 @@ namespace Razix {
 
                         auto currentTexDescriptor = shaderBindVars["SceneTexture"];
                         if (currentTexDescriptor)
-                            currentTexDescriptor->texture = resources.get<RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
+                            currentTexDescriptor->texture = resources.get<RZFrameGraphTexture>(sceneData.SceneHDR).getHandle();
 
                         RZResourceManager::Get().getShaderResource(fxaaShader)->updateBindVarsHeaps();
                     }
