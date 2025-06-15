@@ -1,4 +1,4 @@
-﻿// clang-format off
+// clang-format off
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
@@ -604,8 +604,15 @@ namespace Razix {
                 }
             }
 
+            struct Interval
+                        {
+                            u32          lo, hi;
+                            u32          entryID;
+                            LifeTimeMode mode;
+                        };
+                        std::map<u32, std::vector<Interval>> intervals;
             // track last seen pass for each (entryID, mode)
-            std::unordered_map<u32, u32> lastSeen;
+            std::map<u32, u32> lastSeen;
 
             for (u32 passID = 0; passID < m_PassNodes.size(); ++passID) {
                 const auto &pass = m_PassNodes[passID];
@@ -616,18 +623,21 @@ namespace Razix {
 
                 auto touch = [&](const u32 &resId, LifeTimeMode mode) {
                     u32              entryId  = getResourceNodeRef(resId).getResourceEntryId();
-                    RZResourceEntry &resEntry = getResourceEntryRef(entryId);
+//                    RZResourceEntry &resEntry = getResourceEntryRef(entryId);
                     u32              key      = entryId;
 
-                    auto &ints   = resEntry.getLifetimesRef();
+//                    auto &ints   = resEntry.getLifetimesRef();
+                    auto &ints   = intervals[key];
                     auto  itLast = lastSeen.find(key);
 
                     if (itLast != lastSeen.end() && passID == itLast->second + 1) {
                         // extend existing interval
-                        ints.back().EndPassID = passID;
+//                        ints.back().EndPassID = passID;
+                        ints.back().hi = passID;
                     } else {
                         // start new interval
-                        ints.push_back(RZResourceLifetime{entryId, passID, passID, mode});
+//                        ints.push_back(RZResourceLifetime{entryId, passID, passID, mode});
+                        ints.push_back(Interval{passID, passID, entryId, mode});
                     }
                     lastSeen[key] = passID;
                 };
@@ -637,20 +647,21 @@ namespace Razix {
                 for (auto &[resId, flags]: pass.m_Reads) touch(resId, LifeTimeMode::kRead);
             }
 
-            //for (auto &kv: intervals) {
-            //    u32   entryID = kv.first;
-            //    auto &vec     = kv.second;
-            //
-            //    // FIXME: enryID doesn't match with resourceName IDs because of multiple versions, we need to use compiledEntryIds
-            //    // As they are stored per V1 resources and represent entryIDs more accurately, not sure how to solve that problem here
-            //    RAZIX_CORE_INFO("ResourceEntryID: {} | Name: {}", entryID, getResourceEntryName(entryID));
-            //    for (auto &intv: vec)
-            //        RAZIX_CORE_WARN("    Interval [{} ... {}], nodeID={}, mode={}",
-            //            intv.lo,
-            //            intv.hi,
-            //            intv.entryID,
-            //            intv.mode);
-            //}
+            for (auto &kv: intervals) {
+                u32   entryID = kv.first;
+                auto &vec     = kv.second;
+            
+                // FIXME: enryID doesn't match with resourceName IDs because of multiple versions, we need to use compiledEntryIds
+                // As they are stored per V1 resources and represent entryIDs more accurately, not sure how to solve that problem here
+                RAZIX_CORE_INFO("ResourceEntryID: {} | Name: {}", entryID, getResourceEntryName(entryID));
+                for (auto &intv: vec)
+                    RAZIX_CORE_WARN("    Interval [{} ... {}], nodeID={}, mode={}",
+                        intv.lo,
+                        intv.hi,
+                        intv.entryID,
+                        intv.mode);
+            }
+            RAZIX_CORE_INFO("");
         }
 
         void RZFrameGraph::execute(void *transientAllocator)
