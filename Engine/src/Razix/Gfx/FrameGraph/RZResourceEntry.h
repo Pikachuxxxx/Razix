@@ -162,6 +162,9 @@ namespace Razix {
                 return getModel<T>()->descriptor;
             }
 
+            const std::vector<RZResourceLifetime> &getLifetimes() const { return m_Lifetimes; }
+            std::vector<RZResourceLifetime>       &getLifetimesRef() { return m_Lifetimes; }
+
             RAZIX_NO_DISCARD u32  getVersion() const { return m_Version; }
             RAZIX_NO_DISCARD bool isImported() const { return m_Imported; }
             RAZIX_NO_DISCARD bool isTransient() const { return !m_Imported; }
@@ -170,11 +173,10 @@ namespace Razix {
             //---------------------------------
             std::unique_ptr<Concept> m_Concept; /* Type Erased implementation class */
             //---------------------------------
-            const u32  m_ID;               /* Index of the resource, usually same as FreamGraphResource to identify it   */
-            const bool m_Imported = false; /* Whether or not the resource has been imported                              */
-            u32        m_Version;          /* Version of the cloned resource                                             */
-            //RZPassNode *m_Producer = nullptr; /* Pass Node who writes to this resources                                     */
-            //RZPassNode *m_Last     = nullptr; /* Next Pass Node that will read this resource                                */
+            const u32                       m_ID;
+            const bool                      m_Imported = false;
+            u32                             m_Version; /* Version of the latest cloned resource */
+            std::vector<RZResourceLifetime> m_Lifetimes;
 
         private:
             template<typename T>

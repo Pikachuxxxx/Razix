@@ -44,9 +44,8 @@ namespace Razix {
             kWrite
         };
 
-        struct RZResourceNodeLifetime
+        struct RZResourceLifetime
         {
-            u32          NodeID;
             u32          ResourceEntryID;
             u32          StartPassID;
             u32          EndPassID;
