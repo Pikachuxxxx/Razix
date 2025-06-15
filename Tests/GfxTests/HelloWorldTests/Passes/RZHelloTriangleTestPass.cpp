@@ -3,7 +3,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZHelloTriangleTestPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZHelloTriangleTestPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Create the shader and the pipeline
             RZShaderDesc desc = {};
@@ -34,12 +34,12 @@ namespace Razix {
 
             struct HelloTriangleData
             {
-                FrameGraph::RZFrameGraphResource Depth;
+                RZFrameGraphResource Depth;
             };
 
             framegraph.getBlackboard().add<HelloTriangleData>() = framegraph.addCallbackPass<HelloTriangleData>(
                 "[Test] Pass.Builtin.Code.HelloTriangle",
-                [&](HelloTriangleData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](HelloTriangleData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
 #ifdef __APPLE__
@@ -50,11 +50,11 @@ namespace Razix {
                     depthTextureDesc.format                = TextureFormat::DEPTH16_UNORM;
                     depthTextureDesc.type                  = TextureType::kDepth;
                     depthTextureDesc.initResourceViewHints = kDSV;
-                    data.Depth                             = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
+                    data.Depth                             = builder.create<RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
                     data.Depth                             = builder.write(data.Depth);
 #endif
                 },
-                [=](const HelloTriangleData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const HelloTriangleData& data, RZPassResourceDirectory& resources) {
                     RAZIX_TIME_STAMP_BEGIN("[Test] Hello Triangle Pass");
                     RAZIX_MARK_BEGIN("[Test] Pass.Builtin.Code.HelloTriangle", Utilities::GenerateHashedColor4(69u));
 
@@ -64,7 +64,7 @@ namespace Razix {
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {{Gfx::RHI::GetSwapchain()->GetCurrentBackBufferImage(), {true, ClearColorPresets::OpaqueBlack}}};
 #ifdef __APPLE__
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
+                    info.depthAttachment = {resources.get<RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
 #endif
 
                     Gfx::RHI::BeginRendering(cmdBuffer, info);

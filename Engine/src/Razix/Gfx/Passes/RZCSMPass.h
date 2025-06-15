@@ -14,8 +14,8 @@ namespace Razix {
 
         struct CascadeSubPassData
         {
-            FrameGraph::RZFrameGraphResource cascadeOutput;
-            FrameGraph::RZFrameGraphResource vpLayer;
+            RZFrameGraphResource cascadeOutput;
+            RZFrameGraphResource vpLayer;
         };
 
         class RZCSMPass : public IRZPass
@@ -24,7 +24,7 @@ namespace Razix {
             RZCSMPass() {}
             ~RZCSMPass() {}
 
-            void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
+            void addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
             void destroy() override;
 
             void updateCascades(Razix::RZScene* scene);
@@ -46,7 +46,7 @@ namespace Razix {
             RZTextureHandle       m_CSMArrayHandle            = {};
 
         private:
-            CascadeSubPassData addCascadePass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, CascadeSubPassData subpassData, u32 cascadeIdx);
+            CascadeSubPassData addCascadePass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, CascadeSubPassData subpassData, u32 cascadeIdx);
         };
     }    // namespace Gfx
 }    // namespace Razix

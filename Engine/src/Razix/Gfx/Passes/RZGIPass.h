@@ -17,7 +17,7 @@ namespace Razix {
             RZGIPass() = default;
             ~RZGIPass() {}
 
-            void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
+            void addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
             void destroy() override;
 
             void setGrid(const Maths::RZGrid& grid) { m_Grid = grid; }
@@ -43,9 +43,9 @@ namespace Razix {
             } m_PropagationGPUResources[kDefaultNumPropagations];
 
         private:
-            ReflectiveShadowMapData     addRSMPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, const float4x4& lightViewProj, float3 lightIntensity);
-            LightPropagationVolumesData addRadianceInjectionPass(FrameGraph::RZFrameGraph& framegraph, const ReflectiveShadowMapData& RSM, const Maths::RZGrid& grid);
-            LightPropagationVolumesData addRadiancePropagationPass(FrameGraph::RZFrameGraph& framegraph, const LightPropagationVolumesData& LPV, const Maths::RZGrid& grid, u32 propagationIdx);
+            ReflectiveShadowMapData     addRSMPass(RZFrameGraph& framegraph, Razix::RZScene* scene, const float4x4& lightViewProj, float3 lightIntensity);
+            LightPropagationVolumesData addRadianceInjectionPass(RZFrameGraph& framegraph, const ReflectiveShadowMapData& RSM, const Maths::RZGrid& grid);
+            LightPropagationVolumesData addRadiancePropagationPass(RZFrameGraph& framegraph, const LightPropagationVolumesData& LPV, const Maths::RZGrid& grid, u32 propagationIdx);
         };
     }    // namespace Gfx
 }    // namespace Razix

@@ -38,7 +38,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZCSMPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZCSMPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             /**
              * In CSM we render to a TextureArray Depth map, we select the render layer using gl_Layer or API (setCurrentArrayLayer), but the shaders remain the same as normal shadow map generation
@@ -68,7 +68,7 @@ namespace Razix {
             // Since the above texture passes are cascaded we do an extra pass to constantly update the data into a buffer after all the cascade calculations are done whilst filling the TextureArray2D
             auto& pass = framegraph.addCallbackPass<CSMData>(
                 "Upload Cascade Matrices (post CSM calculation)",
-                [&](CSMData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](CSMData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
                     // Create the final cascaded VP data here after rendering the depth texture array, in fact this pass can be parallelized before the we render the depth maps
                     RZBufferDesc bufferDesc = {};
@@ -78,17 +78,17 @@ namespace Razix {
                     bufferDesc.initResourceViewHints = ResourceViewHint::kCBV;
                     bufferDesc.usage        = BufferUsage::PersistentStream;
 
-                    data.viewProjMatrices = builder.create<FrameGraph::RZFrameGraphBuffer>("CB_CascadesMatrixData", CAST_TO_FG_BUF_DESC bufferDesc);
+                    data.viewProjMatrices = builder.create<RZFrameGraphBuffer>("CB_CascadesMatrixData", CAST_TO_FG_BUF_DESC bufferDesc);
 
                     data.viewProjMatrices = builder.write(data.viewProjMatrices);
                 },
-                [=](const CSMData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const CSMData& data, RZPassResourceDirectory& resources) {
                     CascadesMatrixData uboData{};
                     for (u32 i = 0; i < kNumCascades; ++i) {
                         uboData.splitDepth[i]       = m_Cascades[i].splitDepth;
                         uboData.viewProjMatrices[i] = m_Cascades[i].viewProjMatrix;
                     }
-                    auto vpbufferHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.viewProjMatrices).getHandle();
+                    auto vpbufferHandle = resources.get<RZFrameGraphBuffer>(data.viewProjMatrices).getHandle();
                     RZResourceManager::Get().getUniformBufferResource(vpbufferHandle)->SetData(sizeof(CascadesMatrixData), &uboData);
                 });
             csmData.viewProjMatrices = pass.viewProjMatrices;
@@ -270,7 +270,7 @@ namespace Razix {
             i32       layer    = 0;
         };
 
-        CascadeSubPassData RZCSMPass::addCascadePass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, CascadeSubPassData subpassData, u32 cascadeIdx)
+        CascadeSubPassData RZCSMPass::addCascadePass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, CascadeSubPassData subpassData, u32 cascadeIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -278,7 +278,7 @@ namespace Razix {
 
             auto& pass = framegraph.addCallbackPass<CascadeSubPassData>(
                 "Pass.Builtin.Code.CSM # " + std::to_string(cascadeIdx),
-                [&](CascadeSubPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](CascadeSubPassData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     // Create the resource only on first pass, render to the same resource again and again
@@ -291,7 +291,7 @@ namespace Razix {
                         textureDesc.type   = TextureType::k2DArray;
                         textureDesc.format = TextureFormat::DEPTH32F;
 
-                        subpassData.cascadeOutput = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMapArray", CAST_TO_FG_TEX_DESC textureDesc);
+                        subpassData.cascadeOutput = builder.create<RZFrameGraphTexture>("CascadedShadowMapArray", CAST_TO_FG_TEX_DESC textureDesc);
                     }
 
                     RZBufferDesc bufferDesc = {};
@@ -301,12 +301,12 @@ namespace Razix {
                     bufferDesc.initResourceViewHints = ResourceViewHint::kCBV;
                     bufferDesc.usage        = BufferUsage::PersistentStream;
 
-                    subpassData.vpLayer = builder.create<FrameGraph::RZFrameGraphBuffer>("VPLayer", CAST_TO_FG_BUF_DESC bufferDesc);
+                    subpassData.vpLayer = builder.create<RZFrameGraphBuffer>("VPLayer", CAST_TO_FG_BUF_DESC bufferDesc);
 
                     data.cascadeOutput = builder.write(subpassData.cascadeOutput);
                     data.vpLayer       = builder.write(subpassData.vpLayer);
                 },
-                [=](const CascadeSubPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const CascadeSubPassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Shadows);
@@ -316,12 +316,12 @@ namespace Razix {
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    if (RZFrameGraph::IsFirstFrame()) {
                         auto& shaderBindVars = RZResourceManager::Get().getShaderResource(shader)->getBindVars();
 
-                        auto descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(data.vpLayer)];
+                        auto descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphBuffer>(data.vpLayer)];
                         if (descriptor)
-                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.vpLayer).getHandle();
+                            descriptor->uniformBuffer = resources.get<RZFrameGraphBuffer>(data.vpLayer).getHandle();
 
                         RZDescriptorSetDesc setDesc = {};
                         setDesc.name                = "CSM VPLayer # " + std::to_string(cascadeIdx);
@@ -330,7 +330,7 @@ namespace Razix {
                         m_CascadeSets[cascadeIdx] = RZResourceManager::Get().createDescriptorSet(setDesc);
                     }
 
-                    auto lightVPHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.vpLayer).getHandle();
+                    auto lightVPHandle = resources.get<RZFrameGraphBuffer>(data.vpLayer).getHandle();
 
                     LightVPLayerData lightVPData{};
                     lightVPData.layer    = cascadeIdx;
@@ -341,7 +341,7 @@ namespace Razix {
                     // Begin Rendering
                     RenderingInfo info{};    // No color attachment
                     info.resolution      = Resolution::kCustom;
-                    m_CSMArrayHandle     = resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOutput).getHandle();
+                    m_CSMArrayHandle     = resources.get<RZFrameGraphTexture>(data.cascadeOutput).getHandle();
                     info.depthAttachment = {m_CSMArrayHandle, {cascadeIdx == 0 ? true : false, ClearColorPresets::DepthOneToZero}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     /////////////////////////////////

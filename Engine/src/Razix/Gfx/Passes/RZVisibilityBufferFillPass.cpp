@@ -37,7 +37,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZVisibilityBufferFillPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZVisibilityBufferFillPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Create the shader and the pipeline
             auto shader = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::VisibilityBufferFill);
@@ -59,7 +59,7 @@ namespace Razix {
 
             framegraph.getBlackboard().add<VisBufferData>() = framegraph.addCallbackPass<VisBufferData>(
                 "Pass.Builtin.Code.VisibilityBufferFill",
-                [&](VisBufferData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](VisBufferData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc visBufferTexturesDesc         = {};
@@ -70,7 +70,7 @@ namespace Razix {
                     visBufferTexturesDesc.format                = TextureFormat::RGBA8;
                     visBufferTexturesDesc.allowResize           = true;
                     visBufferTexturesDesc.initResourceViewHints = kSRV | kRTV;
-                    data.visBuffer                              = builder.create<FrameGraph::RZFrameGraphTexture>(visBufferTexturesDesc.name, CAST_TO_FG_TEX_DESC visBufferTexturesDesc);
+                    data.visBuffer                              = builder.create<RZFrameGraphTexture>(visBufferTexturesDesc.name, CAST_TO_FG_TEX_DESC visBufferTexturesDesc);
 
                     RZTextureDesc sceneDepthTexturesDesc         = {};
                     sceneDepthTexturesDesc.name                  = "SceneDepth";
@@ -80,7 +80,7 @@ namespace Razix {
                     sceneDepthTexturesDesc.format                = TextureFormat::DEPTH32F;
                     sceneDepthTexturesDesc.allowResize           = true;
                     sceneDepthTexturesDesc.initResourceViewHints = kDSV;
-                    data.sceneDepth                              = builder.create<FrameGraph::RZFrameGraphTexture>(sceneDepthTexturesDesc.name, CAST_TO_FG_TEX_DESC sceneDepthTexturesDesc);
+                    data.sceneDepth                              = builder.create<RZFrameGraphTexture>(sceneDepthTexturesDesc.name, CAST_TO_FG_TEX_DESC sceneDepthTexturesDesc);
 
                     // This resource is created and written by this pass
                     data.visBuffer  = builder.write(data.visBuffer);
@@ -88,7 +88,7 @@ namespace Razix {
 
                     builder.read(frameDataBlock.frameData);
                 },
-                [=](const VisBufferData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const VisBufferData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("Vis.Buffer Fill Pass");
@@ -96,8 +96,8 @@ namespace Razix {
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    RZTextureHandle rt      = resources.get<FrameGraph::RZFrameGraphTexture>(data.visBuffer).getHandle();
-                    RZTextureHandle depthRT = resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneDepth).getHandle();
+                    RZTextureHandle rt      = resources.get<RZFrameGraphTexture>(data.visBuffer).getHandle();
+                    RZTextureHandle depthRT = resources.get<RZFrameGraphTexture>(data.sceneDepth).getHandle();
 
                     // TODO: Render at fixed resolution
                     RenderingInfo info{};
@@ -111,7 +111,7 @@ namespace Razix {
                     RHI::BindPipeline(m_Pipeline, cmdBuffer);
 
                     // Update descriptors on first frame
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    if (RZFrameGraph::IsFirstFrame()) {
                         RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
                     }
 

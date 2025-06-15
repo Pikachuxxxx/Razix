@@ -152,7 +152,7 @@ namespace Razix {
             }
         }
 
-        void DrawPassLabels(const Gfx::FrameGraph::RZFrameGraph& frameGraph, ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, uint32_t resourcesCount)
+        void DrawPassLabels(const Gfx::RZFrameGraph& frameGraph, ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, uint32_t resourcesCount)
         {
             float y           = origin.y;
             float totalHeight = (resourcesCount + 2) * cellHeight;
@@ -203,7 +203,7 @@ namespace Razix {
             }
         }
 
-        void OnImGuiDrawFrameGraphVis(const Gfx::FrameGraph::RZFrameGraph& frameGraph)
+        void OnImGuiDrawFrameGraphVis(const Gfx::RZFrameGraph& frameGraph)
         {
             ImGui::SetNextWindowBgAlpha(1.0f);
             if (!ImGui::Begin("Frame Graph Resource Viewer##FGResourceVis")) return;
@@ -240,7 +240,7 @@ namespace Razix {
                 draw->AddRectFilled(row_p0, row_p1, bgColor);
                 draw->AddRect(row_p0, row_p1, ResourcePanelStyle::BorderColor);
 
-                const auto& resNode = frameGraph.getResourceNode(compiledResourceEntryPoints[ry]);
+                const Gfx::RZResourceNode& resNode = frameGraph.getResourceNode(compiledResourceEntryPoints[ry]);
                 draw->AddText(row_p0 + ImVec2(ResourcePanelStyle::TextOffsetX, ResourcePanelStyle::TextOffsetY), ResourcePanelStyle::TextColor, resNode.getName().c_str());
 
                 DrawLifetimeCellFromPassRange(origin, ry, 3, (ry + 2) * FrameGraphStyle::CellSize);
@@ -323,7 +323,7 @@ namespace Razix {
                 OnImGuiDrawStatusBar();
 
             if (drawConfig.showFrameGraphResourceVis) {
-                const Gfx::FrameGraph::RZFrameGraph& fg = RZEngine::Get().getWorldRenderer().getFrameGraph();
+                const Gfx::RZFrameGraph& fg = RZEngine::Get().getWorldRenderer().getFrameGraph();
                 OnImGuiDrawFrameGraphVis(fg);
             }
         }

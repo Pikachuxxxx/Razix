@@ -8,7 +8,7 @@
 
 struct FrameData
 {
-    Razix::Gfx::FrameGraph::RZFrameGraphResource frameData;
+    Razix::Gfx::RZFrameGraphResource frameData;
 };
 
 struct GPUCameraFrameData

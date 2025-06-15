@@ -4,8 +4,8 @@
 
 struct CSMData
 {
-    Razix::Gfx::FrameGraph::RZFrameGraphResource cascadedShadowMaps;
-    Razix::Gfx::FrameGraph::RZFrameGraphResource viewProjMatrices;
+    Razix::Gfx::RZFrameGraphResource cascadedShadowMaps;
+    Razix::Gfx::RZFrameGraphResource viewProjMatrices;
 };
 
 constexpr u32 kShadowMapSize = 4096;

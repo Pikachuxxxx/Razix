@@ -12,8 +12,6 @@
 
 namespace Razix {
     namespace Gfx {
-        namespace FrameGraph {
-
             void RZFrameGraphSampler::create(const Desc& desc, void* transientAllocator)
             {
                 if (!m_SamplerHandle.isValid())
@@ -39,6 +37,5 @@ namespace Razix {
             {
                 return desc.name;
             }
-        }    // namespace FrameGraph
     }        // namespace Gfx
 }    // namespace Razix

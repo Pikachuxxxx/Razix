@@ -364,7 +364,7 @@ namespace Razix {
             Gfx::RZShaderLibrary::Get().reloadShadersFromDisk();
             auto& worldRenderer = Razix::RZEngine::Get().getWorldRenderer();
             worldRenderer.destroy();
-            Razix::Gfx::FrameGraph::RZFrameGraph::ResetFirstFrame();
+            Razix::Gfx::RZFrameGraph::ResetFirstFrame();
             worldRenderer.buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
             RAZIX_CORE_INFO("FrameGraph reload Done!");
         }

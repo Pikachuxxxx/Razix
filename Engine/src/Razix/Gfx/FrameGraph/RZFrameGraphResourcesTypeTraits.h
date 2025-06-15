@@ -9,15 +9,14 @@
 
 namespace Razix {
     namespace Gfx {
-        namespace FrameGraph {
 
-            // [SFINAE] Source 1 :  https://www.cppstories.com/2016/02/notes-on-c-sfinae/
-            // [SFINAE] Source 2 :  https://jguegant.github.io/blogs/tech/sfinae-introduction.html
+        // [SFINAE] Source 1 :  https://www.cppstories.com/2016/02/notes-on-c-sfinae/
+        // [SFINAE] Source 2 :  https://jguegant.github.io/blogs/tech/sfinae-introduction.html
 
-            // This basically has same implementation effect as what Dawid Kurek, (GitHub : skaarj1989) wrote, I just renamed stuff and made them more readable
-            // Also the implementation is very much same as Dawid Kurek's and has minor changes from what I understood by reading the blogs online
+        // This basically has same implementation effect as what Dawid Kurek, (GitHub : skaarj1989) wrote, I just renamed stuff and made them more readable
+        // Also the implementation is very much same as Dawid Kurek's and has minor changes from what I understood by reading the blogs online
 
-            /**
+        /**
              * We need ways to emulate pure virtual function verification
              * We use SFINAE idiom and type traits as the base concept to do this 
              * 
@@ -36,50 +35,50 @@ namespace Razix {
              * Note: For more info on how these macros work read RZCore.h
              */
 
-            // Checks for Functions - Create, Destroy, toString
+        // Checks for Functions - Create, Destroy, toString
 
-            /**
+        /**
              * Note: T is still undefined and is specified by frame graph users to define custom types for wrapping Graphics API handles,
              * But, Hey! we at least know what to check for! but just not on what so we'll at least specify that
              */
 
-            // Mandatory checks
-            // Checks for Sub types - Desc
-            RAZIX_CHECK_TYPE_HAS_SUBTYPE(T, Desc);
-            // functions
-            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, create);
-            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, destroy);
-            // Optional functions
-            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, resize);
-            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, preRead)
-            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, preWrite)
-            RAZIX_CHECK_TYPE_HAS_FUNCTION(T, toString);
+        // Mandatory checks
+        // Checks for Sub types - Desc
+        RAZIX_CHECK_TYPE_HAS_SUBTYPE(T, Desc);
+        // functions
+        RAZIX_CHECK_TYPE_HAS_FUNCTION(T, create);
+        RAZIX_CHECK_TYPE_HAS_FUNCTION(T, destroy);
+        // Optional functions
+        RAZIX_CHECK_TYPE_HAS_FUNCTION(T, resize);
+        RAZIX_CHECK_TYPE_HAS_FUNCTION(T, preRead)
+        RAZIX_CHECK_TYPE_HAS_FUNCTION(T, preWrite)
+        RAZIX_CHECK_TYPE_HAS_FUNCTION(T, toString);
 
-            /**
+        /**
              * How to know if it's a valid resource (the one that is being passes as universal reference to the concept class)
              * 
              * These are the conditions it must satisfy, if not it will fail and we will not generate overload sets!
              * 
              * Ofc we can also throw compile time errors for that type and not wait until instantiation time
              */
-            template<typename T>
-            constexpr bool is_acceptible_frame_graph_resource()
-            {
-                // Report compile time errors with messages if the type doesn't conform to concept
-                static_assert(RAZIX_TYPE_HAS_SUB_TYPE_V(T, Desc), "Type doesn't have a subtype named Desc");
-                static_assert(RAZIX_TYPE_HAS_FUNCTION_V(T, create), "Type doesn't have a function named create");
-                static_assert(RAZIX_TYPE_HAS_FUNCTION_V(T, destroy), "Type doesn't have a function named destroy");
+        template<typename T>
+        constexpr bool is_acceptible_frame_graph_resource()
+        {
+            // Report compile time errors with messages if the type doesn't conform to concept
+            static_assert(RAZIX_TYPE_HAS_SUB_TYPE_V(T, Desc), "Type doesn't have a subtype named Desc");
+            static_assert(RAZIX_TYPE_HAS_FUNCTION_V(T, create), "Type doesn't have a function named create");
+            static_assert(RAZIX_TYPE_HAS_FUNCTION_V(T, destroy), "Type doesn't have a function named destroy");
 
-                return std::is_default_constructible_v<T> &&
-                       std::is_move_constructible_v<T> &&
-                       RAZIX_TYPE_HAS_SUB_TYPE_V(T, Desc) &&
-                       RAZIX_TYPE_HAS_FUNCTION_V(T, create) &&
-                       RAZIX_TYPE_HAS_FUNCTION_V(T, destroy);
-            }
+            return std::is_default_constructible_v<T> &&
+                   std::is_move_constructible_v<T> &&
+                   RAZIX_TYPE_HAS_SUB_TYPE_V(T, Desc) &&
+                   RAZIX_TYPE_HAS_FUNCTION_V(T, create) &&
+                   RAZIX_TYPE_HAS_FUNCTION_V(T, destroy);
+        }
 
 #define ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE template<typename T, typename = std::enable_if_t<is_acceptible_frame_graph_resource<T>()>>
 
-            /**
+        /**
              * Okay using type erasure we will register wrapper frame graph resource types using template Type T
              * now on this T we can use the above checks to report any missing functions - Solution for fake pure virtual func checks
              * 
@@ -89,7 +88,7 @@ namespace Razix {
              * 
              */
 
-            /**
+        /**
              * overload sets will be generated if T when evaluated by is_acceptible_frame_graph_resource is true
              * using SFINAE for conditionally removing functions from the candidate set 
              * 
@@ -98,6 +97,5 @@ namespace Razix {
              */
 #define ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE template<typename T, typename = std::enable_if_t<is_acceptible_frame_graph_resource<T>()>>
 
-        }    // namespace FrameGraph
-    }        // namespace Gfx
+    }    // namespace Gfx
 }    // namespace Razix

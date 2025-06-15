@@ -41,7 +41,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZPBRDeferredShadingPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZPBRDeferredShadingPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             auto pbrShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::PBRDeferredLighting);
 
@@ -67,7 +67,7 @@ namespace Razix {
 
             framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "Pass.Builtin.Code.PBRDeferredLighting",
-                [&](SceneData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](SceneData& data, RZPassResourceBuilder& builder) {
                     builder
                         .setAsStandAlonePass()
                         .setDepartment(Department::Lighting);
@@ -81,7 +81,7 @@ namespace Razix {
                     textureDesc.format                = TextureFormat::RGBA16F;
                     textureDesc.allowResize           = true;
 
-                    data.sceneHDR = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
+                    data.sceneHDR = builder.create<RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
                     data.sceneHDR   = builder.write(data.sceneHDR);
                     data.sceneDepth = gbufferData.GBufferDepth;
@@ -98,7 +98,7 @@ namespace Razix {
                     builder.read(gbufferData.GBuffer2);
                     builder.read(brdfData.lut);
                 },
-                [=](const SceneData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const SceneData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("Deferred Shading (PBR)");
@@ -106,60 +106,60 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.sceneDepth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
+                    info.colorAttachments = {{resources.get<RZFrameGraphTexture>(data.sceneHDR).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {resources.get<RZFrameGraphTexture>(data.sceneDepth).getHandle(), {false, ClearColorPresets::DepthOneToZero}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
                     // Set the Descriptor Set once rendering starts
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    if (RZFrameGraph::IsFirstFrame()) {
                         auto& shaderBindVars = RZResourceManager::Get().getShaderResource(pbrShader)->getBindVars();
 
                         RZDescriptor* descriptor = nullptr;
 
-                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap)];
+                        descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphTexture>(shadowData.shadowMap)];
                         if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
+                            descriptor->texture = resources.get<RZFrameGraphTexture>(shadowData.shadowMap).getHandle();
 
-                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP)];
+                        descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphBuffer>(shadowData.lightVP)];
                         if (descriptor)
-                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
+                            descriptor->uniformBuffer = resources.get<RZFrameGraphBuffer>(shadowData.lightVP).getHandle();
 
-                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap)];
+                        descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap)];
                         if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap).getHandle();
+                            descriptor->texture = resources.get<RZFrameGraphTexture>(globalLightProbes.diffuseIrradianceMap).getHandle();
 
-                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap)];
+                        descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap)];
                         if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap).getHandle();
+                            descriptor->texture = resources.get<RZFrameGraphTexture>(globalLightProbes.specularPreFilteredMap).getHandle();
 
-                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(brdfData.lut)];
+                        descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphTexture>(brdfData.lut)];
                         if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(brdfData.lut).getHandle();
+                            descriptor->texture = resources.get<RZFrameGraphTexture>(brdfData.lut).getHandle();
 
                         // Bind the GBuffer textures
-                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer0)];
+                        descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphTexture>(gbufferData.GBuffer0)];
                         if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer0).getHandle();
+                            descriptor->texture = resources.get<RZFrameGraphTexture>(gbufferData.GBuffer0).getHandle();
 
-                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer1)];
+                        descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphTexture>(gbufferData.GBuffer1)];
                         if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer1).getHandle();
+                            descriptor->texture = resources.get<RZFrameGraphTexture>(gbufferData.GBuffer1).getHandle();
 
-                        descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer2)];
+                        descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphTexture>(gbufferData.GBuffer2)];
                         if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(gbufferData.GBuffer2).getHandle();
+                            descriptor->texture = resources.get<RZFrameGraphTexture>(gbufferData.GBuffer2).getHandle();
 
                         // CSM Array Texture
                         //descriptor = shaderBindVars["CSMArray"];
                         //if (descriptor)
-                        //    descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(csmData.cascadedShadowMaps).getHandle();
+                        //    descriptor->texture = resources.get<RZFrameGraphTexture>(csmData.cascadedShadowMaps).getHandle();
 
                         // CSM Matrices
                         //descriptor = shaderBindVars["CSMMatrices"];
                         //if (descriptor)
-                        //    descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(csmData.viewProjMatrices).getHandle();
+                        //    descriptor->uniformBuffer = resources.get<RZFrameGraphBuffer>(csmData.viewProjMatrices).getHandle();
 
                         RZResourceManager::Get().getShaderResource(pbrShader)->updateBindVarsHeaps();
                     }

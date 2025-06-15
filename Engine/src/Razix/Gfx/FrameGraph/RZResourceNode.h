@@ -12,32 +12,29 @@
 
 namespace Razix {
     namespace Gfx {
-        namespace FrameGraph {
+        constexpr u32 kResourceInitialVersion{1u};
 
-            constexpr u32 kResourceInitialVersion{1u};
+        class RAZIX_API RZResourceNode final : public RZGraphNode
+        {
+        private:
+            friend class RZFrameGraph;
 
-            class RAZIX_API RZResourceNode final : public RZGraphNode
-            {
-            private:
-                friend class RZFrameGraph;
-
-                /**
+            /**
                  * Create a resource node with a name, it's unique ID in the graph and ID to resource entry for the recourse it refers to and it's version
                  * 
                  * Because the resources can be cloned and have multiple instance in the graph they need another ID to point to it's entry point in FG
                  */
-                RZResourceNode(const std::string_view name, u32 id, u32 resourceID, u32 version);
+            RZResourceNode(const std::string_view name, u32 id, u32 resourceID, u32 version);
 
-            public:
-                inline u32 getResourceEntryId() const { return m_ResourceEntryID; }
-                inline u32 getVersion() const { return m_Version; }
+        public:
+            inline u32 getResourceEntryId() const { return m_ResourceEntryID; }
+            inline u32 getVersion() const { return m_Version; }
 
-            private:
-                const u32   m_ResourceEntryID = 0;                       /* Index to resource entry point (m_resourceRegistry in FrameGraph)                                    */
-                const u32   m_Version         = kResourceInitialVersion; /* Same resource can be read/written multiple time, in that case we maintain version no for each clone */
-                RZPassNode* m_Producer        = nullptr;                 /* Pass Node who writes to this resources, used to create edges in graph                               */
-                RZPassNode* m_Last            = nullptr;                 /* Next Pass Node that will read this resource, used to create edges in graph                          */
-            };
-        }    // namespace FrameGraph
-    }        // namespace Gfx
+        private:
+            const u32   m_ResourceEntryID = 0;                       /* Index to resource entry point (m_resourceRegistry in FrameGraph)                                    */
+            const u32   m_Version         = kResourceInitialVersion; /* Same resource can be read/written multiple time, in that case we maintain version no for each clone */
+            RZPassNode* m_Producer        = nullptr;                 /* Pass Node who writes to this resources, used to create edges in graph                               */
+            RZPassNode* m_Last            = nullptr;                 /* Next Pass Node that will read this resource, used to create edges in graph                          */
+        };
+    }    // namespace Gfx
 }    // namespace Razix

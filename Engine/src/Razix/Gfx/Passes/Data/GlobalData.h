@@ -17,28 +17,28 @@ namespace Razix {
 
         struct GlobalLightProbeData
         {
-            Razix::Gfx::FrameGraph::RZFrameGraphResource environmentMap;
-            Razix::Gfx::FrameGraph::RZFrameGraphResource diffuseIrradianceMap;
-            Razix::Gfx::FrameGraph::RZFrameGraphResource specularPreFilteredMap;
+            Razix::Gfx::RZFrameGraphResource environmentMap;
+            Razix::Gfx::RZFrameGraphResource diffuseIrradianceMap;
+            Razix::Gfx::RZFrameGraphResource specularPreFilteredMap;
         };
 
         struct VolumetricCloudsData
         {
-            Razix::Gfx::FrameGraph::RZFrameGraphResource noiseTexture;
+            Razix::Gfx::RZFrameGraphResource noiseTexture;
         };
 
         // Default pass data types
 
         struct SceneData
         {
-            FrameGraph::RZFrameGraphResource sceneHDR;
-            FrameGraph::RZFrameGraphResource sceneLDR;
-            FrameGraph::RZFrameGraphResource sceneDepth;
+            RZFrameGraphResource sceneHDR;
+            RZFrameGraphResource sceneLDR;
+            RZFrameGraphResource sceneDepth;
         };
 
         struct SceneLightsData
         {
-            FrameGraph::RZFrameGraphResource lightsDataBuffer;
+            RZFrameGraphResource lightsDataBuffer;
         };
 
         /**
@@ -56,29 +56,29 @@ namespace Razix {
          */
         struct SimpleShadowPassData
         {
-            FrameGraph::RZFrameGraphResource shadowMap;    // Depth texture to store the shadow map data
-            FrameGraph::RZFrameGraphResource lightVP;
+            RZFrameGraphResource shadowMap;    // Depth texture to store the shadow map data
+            RZFrameGraphResource lightVP;
         };
 
         struct VisBufferData
         {
-            FrameGraph::RZFrameGraphResource visBuffer;    // stores the Primitive_ID, Instance_ID/Draw_ID & alpha mask in a u32 screen space map
-            FrameGraph::RZFrameGraphResource sceneDepth;
+            RZFrameGraphResource visBuffer;    // stores the Primitive_ID, Instance_ID/Draw_ID & alpha mask in a u32 screen space map
+            RZFrameGraphResource sceneDepth;
         };
 
         namespace FX {
 
             struct SSAOData
             {
-                FrameGraph::RZFrameGraphResource SSAOPreBlurTexture;
-                FrameGraph::RZFrameGraphResource SSAOSceneTexture;
-                FrameGraph::RZFrameGraphResource SSAOParams;
+                RZFrameGraphResource SSAOPreBlurTexture;
+                RZFrameGraphResource SSAOSceneTexture;
+                RZFrameGraphResource SSAOParams;
             };
 
             struct SSAOImportData
             {
-                FrameGraph::RZFrameGraphResource SSAONoiseTexture;
-                FrameGraph::RZFrameGraphResource SSAOKernelSamples;
+                RZFrameGraphResource SSAONoiseTexture;
+                RZFrameGraphResource SSAOKernelSamples;
             };
 
             /**
@@ -86,20 +86,20 @@ namespace Razix {
              */
             struct ColorGradingLUTData
             {
-                FrameGraph::RZFrameGraphResource neutralLUT;
+                RZFrameGraphResource neutralLUT;
             };
 
             struct ColorGradingData
             {
-                FrameGraph::RZFrameGraphResource colorGradedSceneHDR;
-                FrameGraph::RZFrameGraphResource colorGradedSceneLDR;
+                RZFrameGraphResource colorGradedSceneHDR;
+                RZFrameGraphResource colorGradedSceneLDR;
             };
 
             struct TAAResolveData
             {
-                FrameGraph::RZFrameGraphResource sourceTexture;
-                FrameGraph::RZFrameGraphResource historyTexture;
-                FrameGraph::RZFrameGraphResource accumulationTexture;
+                RZFrameGraphResource sourceTexture;
+                RZFrameGraphResource historyTexture;
+                RZFrameGraphResource accumulationTexture;
             };
         }    // namespace FX
     }    // namespace Gfx

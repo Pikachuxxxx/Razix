@@ -47,7 +47,7 @@
 namespace Razix {
     namespace Gfx {
 
-        static void ExportFrameGraphVisFile(const FrameGraph::RZFrameGraph& framegraph)
+        static void ExportFrameGraphVisFile(const RZFrameGraph& framegraph)
         {
             auto        now   = std::chrono::system_clock::now();
             std::time_t now_c = std::chrono::system_clock::to_time_t(now);
@@ -92,7 +92,7 @@ namespace Razix {
             noiseDesc.filePath          = "//RazixContent/Textures/Texture.Builtin.VolumetricCloudsNoise.png";
             m_NoiseTextureHandle        = RZResourceManager::Get().createTexture(noiseDesc);
             auto& volumetricData        = m_FrameGraph.getBlackboard().add<VolumetricCloudsData>();
-            volumetricData.noiseTexture = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(noiseDesc.name, CAST_TO_FG_TEX_DESC noiseDesc, {m_NoiseTextureHandle});
+            volumetricData.noiseTexture = m_FrameGraph.import <RZFrameGraphTexture>(noiseDesc.name, CAST_TO_FG_TEX_DESC noiseDesc, {m_NoiseTextureHandle});
 
             // Import the color grading LUT
             RZTextureDesc colorGradingNeutralLUTDesc = {};
@@ -102,7 +102,7 @@ namespace Razix {
             colorGradingNeutralLUTDesc.filePath      = "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png";
             m_ColorGradingNeutralLUTHandle           = RZResourceManager::Get().createTexture(colorGradingNeutralLUTDesc);
             auto& colorGradingLUTSData               = m_FrameGraph.getBlackboard().add<FX::ColorGradingLUTData>();
-            colorGradingLUTSData.neutralLUT          = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(colorGradingNeutralLUTDesc.name, CAST_TO_FG_TEX_DESC colorGradingNeutralLUTDesc, {m_ColorGradingNeutralLUTHandle});
+            colorGradingLUTSData.neutralLUT          = m_FrameGraph.import <RZFrameGraphTexture>(colorGradingNeutralLUTDesc.name, CAST_TO_FG_TEX_DESC colorGradingNeutralLUTDesc, {m_ColorGradingNeutralLUTHandle});
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
@@ -112,7 +112,7 @@ namespace Razix {
             brdfDesc.filePath       = "//RazixContent/Textures/Texture.Builtin.BrdfLUT.png";
             m_BRDFfLUTTextureHandle = RZResourceManager::Get().createTexture(brdfDesc);
             auto& brdfData          = m_FrameGraph.getBlackboard().add<BRDFData>();
-            brdfData.lut            = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>(brdfDesc.name, CAST_TO_FG_TEX_DESC brdfDesc, {m_BRDFfLUTTextureHandle});
+            brdfData.lut            = m_FrameGraph.import <RZFrameGraphTexture>(brdfDesc.name, CAST_TO_FG_TEX_DESC brdfDesc, {m_BRDFfLUTTextureHandle});
 
             //-----------------------------------------------------------------------------------
 
@@ -186,7 +186,7 @@ namespace Razix {
             //-------------------------------
             m_FrameGraph.addCallbackPass(
                 "Pass.Builtin.Code.DebugDraw",
-                [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](auto& data, RZPassResourceBuilder& builder) {
                     builder
                         .setAsStandAlonePass()
                         .setDepartment(Department::Debug);
@@ -198,7 +198,7 @@ namespace Razix {
                     sceneData.sceneHDR   = builder.write(sceneData.sceneHDR);
                     sceneData.sceneDepth = builder.write(sceneData.sceneDepth);
                 },
-                [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const auto& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
@@ -254,8 +254,8 @@ namespace Razix {
 
                     RZDebugRendererProxy::Get().Begin(scene);
 
-                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
-                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
+                    auto rt = resources.get<RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
+                    auto dt = resources.get<RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
 
                     RenderingInfo info    = {};
                     info.resolution       = Resolution::kWindow;
@@ -279,7 +279,7 @@ namespace Razix {
             //-------------------------------
             m_FrameGraph.addCallbackPass(
                 "Pass.Builtin.Code.ImGui",
-                [&](auto&, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](auto&, RZPassResourceBuilder& builder) {
                     builder
                         .setAsStandAlonePass()
                         .setDepartment(Department::UI);
@@ -289,15 +289,15 @@ namespace Razix {
 
                     RZImGuiRendererProxy::Get().Init();
                 },
-                [=](const auto&, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const auto&, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("ImGui Pass");
 
                     RZImGuiRendererProxy::Get().Begin(scene);
 
-                    auto rt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
-                    auto dt = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
+                    auto rt = resources.get<RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
+                    auto dt = resources.get<RZFrameGraphTexture>(sceneData.sceneDepth).getHandle();
 
                     RenderingInfo info    = {};
                     info.resolution       = Resolution::kWindow;
@@ -343,7 +343,7 @@ namespace Razix {
 
             if (m_IsFGFilePathDirty) {
                 destroy();
-                FrameGraph::RZFrameGraph::ResetFirstFrame();
+                RZFrameGraph::ResetFirstFrame();
                 buildFrameGraph(settings, RZSceneManager::Get().getCurrentScene());
                 m_IsFGFilePathDirty = false;
             }
@@ -471,9 +471,9 @@ namespace Razix {
             DiffuseDesc.name  = "IrradianceMap";
             SpecularDesc.name = "PreFilteredMap";
 
-            globalLightProbeData.environmentMap         = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("EnvironmentMap", CAST_TO_FG_TEX_DESC SkyboxDesc, {globalLightProbe.skybox});
-            globalLightProbeData.diffuseIrradianceMap   = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("IrradianceMap", CAST_TO_FG_TEX_DESC DiffuseDesc, {globalLightProbe.diffuse});
-            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <FrameGraph::RZFrameGraphTexture>("PreFilteredMap", CAST_TO_FG_TEX_DESC SpecularDesc, {globalLightProbe.specular});
+            globalLightProbeData.environmentMap         = m_FrameGraph.import <RZFrameGraphTexture>("EnvironmentMap", CAST_TO_FG_TEX_DESC SkyboxDesc, {globalLightProbe.skybox});
+            globalLightProbeData.diffuseIrradianceMap   = m_FrameGraph.import <RZFrameGraphTexture>("IrradianceMap", CAST_TO_FG_TEX_DESC DiffuseDesc, {globalLightProbe.diffuse});
+            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <RZFrameGraphTexture>("PreFilteredMap", CAST_TO_FG_TEX_DESC SpecularDesc, {globalLightProbe.specular});
         }
 
         //--------------------------------------------------------------------------
@@ -482,7 +482,7 @@ namespace Razix {
         {
             m_FrameGraph.getBlackboard().add<FrameData>() = m_FrameGraph.addCallbackPass<FrameData>(
                 "Pass.Builtin.Code.FrameDataUpload",
-                [&](FrameData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](FrameData& data, RZPassResourceBuilder& builder) {
                     builder
                         .setAsStandAlonePass()
                         .setDepartment(Department::Core);
@@ -493,11 +493,11 @@ namespace Razix {
                     framedataBufferDesc.data                  = NULL;
                     framedataBufferDesc.initResourceViewHints = kCBV;
                     framedataBufferDesc.usage                 = BufferUsage::PersistentStream;
-                    data.frameData                            = builder.create<FrameGraph::RZFrameGraphBuffer>(framedataBufferDesc.name, CAST_TO_FG_BUF_DESC framedataBufferDesc);
+                    data.frameData                            = builder.create<RZFrameGraphBuffer>(framedataBufferDesc.name, CAST_TO_FG_BUF_DESC framedataBufferDesc);
 
                     data.frameData = builder.write(data.frameData);
                 },
-                [=](const FrameData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const FrameData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("Upload FrameData");
@@ -542,7 +542,7 @@ namespace Razix {
                     gpuData.camera.farPlane           = sceneCam.getPerspectiveFarClip();
 
                     // update and upload the UBO
-                    auto frameDataBufferHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.frameData).getHandle();
+                    auto frameDataBufferHandle = resources.get<RZFrameGraphBuffer>(data.frameData).getHandle();
                     RZResourceManager::Get().getUniformBufferResource(frameDataBufferHandle)->SetData(sizeof(GPUFrameData), &gpuData);
 
                     // Since upload is done update the variables to store the previous data
@@ -577,7 +577,7 @@ namespace Razix {
         {
             m_FrameGraph.getBlackboard().add<SceneLightsData>() = m_FrameGraph.addCallbackPass<SceneLightsData>(
                 "Pass.Builtin.Code.SceneLightsDataUpload",
-                [&](SceneLightsData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](SceneLightsData& data, RZPassResourceBuilder& builder) {
                     builder
                         .setAsStandAlonePass()
                         .setDepartment(Department::Core);
@@ -588,10 +588,10 @@ namespace Razix {
                     lightdataBufferDesc.data                  = NULL;
                     lightdataBufferDesc.initResourceViewHints = kCBV;
                     lightdataBufferDesc.usage                 = BufferUsage::PersistentStream;
-                    data.lightsDataBuffer                     = builder.create<FrameGraph::RZFrameGraphBuffer>(lightdataBufferDesc.name, CAST_TO_FG_BUF_DESC lightdataBufferDesc);
+                    data.lightsDataBuffer                     = builder.create<RZFrameGraphBuffer>(lightdataBufferDesc.name, CAST_TO_FG_BUF_DESC lightdataBufferDesc);
                     data.lightsDataBuffer                     = builder.write(data.lightsDataBuffer);
                 },
-                [=](const SceneLightsData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const SceneLightsData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("Upload SceneLights");
@@ -611,7 +611,7 @@ namespace Razix {
                         gpuLightsData.numLights++;
                     }
                     // update and upload the UBO
-                    auto lightsDataBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightsDataBuffer).getHandle();
+                    auto lightsDataBuffer = resources.get<RZFrameGraphBuffer>(data.lightsDataBuffer).getHandle();
                     RZResourceManager::Get().getUniformBufferResource(lightsDataBuffer)->SetData(sizeof(GPULightsData), &gpuLightsData);
 
                     if (!Gfx::RHI::Get().getSceneLightsDataSet().isValid()) {

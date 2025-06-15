@@ -29,7 +29,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZCompositionPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZCompositionPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             auto compositionShader = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Composition);
 
@@ -49,7 +49,7 @@ namespace Razix {
             m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
 
             // Get the final output
-            FrameGraph::RZFrameGraphResource FinalOutputRenderTarget = framegraph.getBlackboard().getFinalOutputID();
+            RZFrameGraphResource FinalOutputRenderTarget = framegraph.getBlackboard().getFinalOutputID();
 
 #if __APPLE__
             RZTextureDesc depthTextureDesc         = {};
@@ -64,14 +64,14 @@ namespace Razix {
 
             framegraph.addCallbackPass(
                 "Pass.Builtin.Code.Composition",
-                [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](auto& data, RZPassResourceBuilder& builder) {
                     // Set this as a standalone pass (should not be culled)
                     builder.setAsStandAlonePass();
 
                     // Read the Final RT from where ever it's given from
                     builder.read(FinalOutputRenderTarget);
                 },
-                [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const auto& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("Composition Pass");
@@ -79,14 +79,14 @@ namespace Razix {
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    if (RZFrameGraph::IsFirstFrame()) {
                         auto& shaderBindVars = RZResourceManager::Get().getShaderResource(compositionShader)->getBindVars();
 
                         RZDescriptor* descriptor = nullptr;
 
                         descriptor = shaderBindVars["CompositionTarget"];
                         if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(FinalOutputRenderTarget).getHandle();
+                            descriptor->texture = resources.get<RZFrameGraphTexture>(FinalOutputRenderTarget).getHandle();
 
                         RZResourceManager::Get().getShaderResource(compositionShader)->updateBindVarsHeaps();
                     }
@@ -110,7 +110,7 @@ namespace Razix {
                     RAZIX_MARK_END();
                     RAZIX_TIME_STAMP_END();
                 },
-                [=](FrameGraph::RZPassResourceDirectory& resources, u32 width, u32 height) {
+                [=](RZPassResourceDirectory& resources, u32 width, u32 height) {
                     RZGraphicsContext::GetContext()->Wait();
                 });
         }

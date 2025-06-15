@@ -98,7 +98,7 @@ namespace Razix {
             void OnResize(u32 width, u32 height);
 
             // Getters/Setters
-            inline FrameGraph::RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
+            inline RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
 
             inline std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
             void               setFrameGraphFilePath(std::string val);
@@ -110,7 +110,7 @@ namespace Razix {
             void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings);
 
         private:
-            FrameGraph::RZFrameGraph m_FrameGraph;
+            RZFrameGraph m_FrameGraph;
             // Frame Graph Import Data
             RZTextureHandle m_BRDFfLUTTextureHandle;
             RZTextureHandle m_NoiseTextureHandle;

@@ -11,33 +11,46 @@
 
 namespace Razix {
     namespace Gfx {
-        namespace FrameGraph {
 
-            typedef i32 RZFrameGraphResource;
+        typedef i32 RZFrameGraphResource;
 
-            constexpr u32 kFlagsNone = ~0;
+        constexpr u32 kFlagsNone = ~0;
 
-            // TODO: Remove this as we hardly use it, we don't manage descriptors sets and resource views via FG its done via RHI itself
-            // even if we make RZResourceView it will be managed via a global RHI API instead of embedding it this way
-            /**
+        // TODO: Remove this as we hardly use it, we don't manage descriptors sets and resource views via FG its done via RHI itself
+        // even if we make RZResourceView it will be managed via a global RHI API instead of embedding it this way
+        /**
              * Dawid Kurek (skaarj1989) named it AccessDeclaration, it kinda makes sense as we have declaration on how to access the FrameGraphResource
              * but I feel having a name like Frame Graph Resource Access View makes it more readable
              */
-            struct RAZIX_API RZFrameGraphResourceAcessView
+        struct RAZIX_API RZFrameGraphResourceAcessView
+        {
+            RZFrameGraphResource id    = -1;         /* Unique ID of the resource                            */
+            u32                  flags = kFlagsNone; /* Flags on how to view the resource from rendering POV */
+
+            RZFrameGraphResourceAcessView(RZFrameGraphResource _id, u32 _flags)
+                : id(_id), flags(_flags)
             {
-                RZFrameGraphResource id    = -1;         /* Unique ID of the resource                            */
-                u32                  flags = kFlagsNone; /* Flags on how to view the resource from rendering POV */
+            }
 
-                RZFrameGraphResourceAcessView(RZFrameGraphResource _id, u32 _flags)
-                    : id(_id), flags(_flags)
-                {
-                }
+            bool operator==(const RZFrameGraphResourceAcessView& view) const
+            {
+                return id == view.id;
+            }
+        };
 
-                bool operator==(const RZFrameGraphResourceAcessView& view) const
-                {
-                    return id == view.id;
-                }
-            };
-        }    // namespace FrameGraph
-    }        // namespace Gfx
+        enum class LifeTimeMode
+        {
+            kRead,
+            kWrite
+        };
+
+        struct RZResourceNodeLifetime
+        {
+            u32          NodeID;
+            u32          ResourceEntryID;
+            u32          StartPassID;
+            u32          EndPassID;
+            LifeTimeMode Mode;
+        };
+    }    // namespace Gfx
 }    // namespace Razix

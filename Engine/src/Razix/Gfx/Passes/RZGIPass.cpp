@@ -39,7 +39,7 @@ namespace Razix {
 
 #if 0
 
-        void RZGIPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZGIPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Use this to get the Reflective shadow map cascade
             float4x4 rsmLightViewProj;
@@ -73,7 +73,7 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD;
         }
 
-        ReflectiveShadowMapData RZGIPass::addRSMPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, const float4x4& lightViewProj, float3 lightIntensity)
+        ReflectiveShadowMapData RZGIPass::addRSMPass(RZFrameGraph& framegraph, Razix::RZScene* scene, const float4x4& lightViewProj, float3 lightIntensity)
         {
             auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
 
@@ -105,7 +105,7 @@ namespace Razix {
 
             auto& data = framegraph.addCallbackPass<ReflectiveShadowMapData>(
                 "Reflective Shadow Map",
-                [&](ReflectiveShadowMapData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](ReflectiveShadowMapData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc textureDesc{
@@ -116,22 +116,22 @@ namespace Razix {
                         .format = TextureFormat::RGBA16F};
 
                     // Create the output RTs
-                    data.position = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Position", CAST_TO_FG_TEX_DESC textureDesc);
+                    data.position = builder.create<RZFrameGraphTexture>("RSM/Position", CAST_TO_FG_TEX_DESC textureDesc);
 
                     textureDesc.name = "RSM/Normal";
 
-                    data.normal = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Normal", CAST_TO_FG_TEX_DESC textureDesc);
+                    data.normal = builder.create<RZFrameGraphTexture>("RSM/Normal", CAST_TO_FG_TEX_DESC textureDesc);
 
                     textureDesc.name = "RSM/Flux";
 
-                    data.flux = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Flux", CAST_TO_FG_TEX_DESC textureDesc);
+                    data.flux = builder.create<RZFrameGraphTexture>("RSM/Flux", CAST_TO_FG_TEX_DESC textureDesc);
 
                     textureDesc.name      = "RSM/Depth";
                     textureDesc.format    = TextureFormat::DEPTH32F;
                     textureDesc.filtering = {Filtering::Mode::NEAREST, Filtering::Mode::NEAREST},
                     textureDesc.type      = TextureType::Texture_Depth;
 
-                    data.depth = builder.create<FrameGraph::RZFrameGraphTexture>("RSM/Depth", CAST_TO_FG_TEX_DESC textureDesc);
+                    data.depth = builder.create<RZFrameGraphTexture>("RSM/Depth", CAST_TO_FG_TEX_DESC textureDesc);
 
                     data.position = builder.write(data.position);
                     data.normal   = builder.write(data.normal);
@@ -140,7 +140,7 @@ namespace Razix {
 
                     builder.read(frameblockData.frameData);
                 },
-                [=](const ReflectiveShadowMapData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const ReflectiveShadowMapData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto cmdBuffer = m_RSMCmdBuffers[RHI::GetSwapchain()->getCurrentFrameIndex()];
@@ -155,12 +155,12 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.position).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 0
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.normal).getHandle(), {true, ClearColorPresets::TransparentBlack}},      // location = 1
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.flux).getHandle(), {true, ClearColorPresets::TransparentBlack}},        // location = 2
+                        {resources.get<RZFrameGraphTexture>(data.position).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 0
+                        {resources.get<RZFrameGraphTexture>(data.normal).getHandle(), {true, ClearColorPresets::TransparentBlack}},      // location = 1
+                        {resources.get<RZFrameGraphTexture>(data.flux).getHandle(), {true, ClearColorPresets::TransparentBlack}},        // location = 2
 
                     };
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.depth).getHandle(), {true}};
+                    info.depthAttachment = {resources.get<RZFrameGraphTexture>(data.depth).getHandle(), {true}};
                     info.extent          = {kRSMResolution, kRSMResolution};
                     info.resize          = false;
 
@@ -178,7 +178,7 @@ namespace Razix {
                             if (setInfo.first == BindingTable_System::SET_IDX_SYSTEM_START) {
                                 for (auto& descriptor: setInfo.second) {
                                     if (descriptor.bindingInfo.type == DescriptorType::UniformBuffer) {
-                                        descriptor.uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(frameblockData.frameData).getHandle();
+                                        descriptor.uniformBuffer = resources.get<RZFrameGraphBuffer>(frameblockData.frameData).getHandle();
                                         m_MVPDescriptorSet       = Graphics::RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG("MVP GI Pass Set"));
                                     }
                                 }
@@ -238,7 +238,7 @@ namespace Razix {
             return data;
         }
 
-        LightPropagationVolumesData RZGIPass::addRadianceInjectionPass(FrameGraph::RZFrameGraph& framegraph, const ReflectiveShadowMapData& RSM, const Maths::RZGrid& grid)
+        LightPropagationVolumesData RZGIPass::addRadianceInjectionPass(RZFrameGraph& framegraph, const ReflectiveShadowMapData& RSM, const Maths::RZGrid& grid)
         {
             // FIXME!!!: invert the RT as vulkan need inverted Y
 
@@ -279,7 +279,7 @@ namespace Razix {
 
             const LightPropagationVolumesData data = framegraph.addCallbackPass<LightPropagationVolumesData>(
                 "Radiance Injection",
-                [&](LightPropagationVolumesData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](LightPropagationVolumesData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     builder.read(RSM.position);
@@ -295,17 +295,17 @@ namespace Razix {
                         .format = TextureFormat::RGBA16F};
 
                     // Create the resource for this pass
-                    data.r           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", CAST_TO_FG_TEX_DESC textureDesc);
+                    data.r           = builder.create<RZFrameGraphTexture>("SH/R", CAST_TO_FG_TEX_DESC textureDesc);
                     textureDesc.name = "SH/G";
-                    data.g           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", CAST_TO_FG_TEX_DESC textureDesc);
+                    data.g           = builder.create<RZFrameGraphTexture>("SH/G", CAST_TO_FG_TEX_DESC textureDesc);
                     textureDesc.name = "SH/B";
-                    data.b           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", CAST_TO_FG_TEX_DESC textureDesc);
+                    data.b           = builder.create<RZFrameGraphTexture>("SH/B", CAST_TO_FG_TEX_DESC textureDesc);
 
                     data.r = builder.write(data.r);
                     data.g = builder.write(data.g);
                     data.b = builder.write(data.b);
                 },
-                [=](const LightPropagationVolumesData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const LightPropagationVolumesData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
     #if 1
@@ -330,13 +330,13 @@ namespace Razix {
                                 } else {
                                     switch (descriptor.bindingInfo.location.binding) {
                                         case 1:
-                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(RSM.position).getHandle();
+                                            descriptor.texture = resources.get<RZFrameGraphTexture>(RSM.position).getHandle();
                                             break;
                                         case 2:
-                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(RSM.normal).getHandle();
+                                            descriptor.texture = resources.get<RZFrameGraphTexture>(RSM.normal).getHandle();
                                             break;
                                         case 3:
-                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(RSM.flux).getHandle();
+                                            descriptor.texture = resources.get<RZFrameGraphTexture>(RSM.flux).getHandle();
                                             break;
                                     }
                                 }
@@ -351,9 +351,9 @@ namespace Razix {
                     info.extent           = {grid.size.x, grid.size.y};
                     info.layerCount       = 1;    //grid.size.z; // Since we are using 3D texture they only have a single layer
                     info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 0 // SH_R
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 1 // SH_G
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 2 // SH_B
+                        {resources.get<RZFrameGraphTexture>(data.r).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 0 // SH_R
+                        {resources.get<RZFrameGraphTexture>(data.g).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 1 // SH_G
+                        {resources.get<RZFrameGraphTexture>(data.b).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 2 // SH_B
                     };
 
                     RHI::BeginRendering(cmdBuffer, info);
@@ -386,7 +386,7 @@ namespace Razix {
             return data;
         }
 
-        LightPropagationVolumesData RZGIPass::addRadiancePropagationPass(FrameGraph::RZFrameGraph& framegraph, const LightPropagationVolumesData& LPV, const Maths::RZGrid& grid, u32 propagationIdx)
+        LightPropagationVolumesData RZGIPass::addRadiancePropagationPass(RZFrameGraph& framegraph, const LightPropagationVolumesData& LPV, const Maths::RZGrid& grid, u32 propagationIdx)
         {
             // First order of business get the shader
             auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default);
@@ -415,7 +415,7 @@ namespace Razix {
 
             const auto& data = framegraph.addCallbackPass<LightPropagationVolumesData>(
                 "Radiance Propagation #" + std::to_string(propagationIdx),
-                [&](LightPropagationVolumesData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](LightPropagationVolumesData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     builder.read(LPV.r);
@@ -431,17 +431,17 @@ namespace Razix {
                         .format = TextureFormat::RGBA16F};
 
                     // Create the resource for this pass
-                    data.r           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/R", CAST_TO_FG_TEX_DESC textureDesc);
+                    data.r           = builder.create<RZFrameGraphTexture>("SH/R", CAST_TO_FG_TEX_DESC textureDesc);
                     textureDesc.name = "SH/G";
-                    data.g           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/G", CAST_TO_FG_TEX_DESC textureDesc);
+                    data.g           = builder.create<RZFrameGraphTexture>("SH/G", CAST_TO_FG_TEX_DESC textureDesc);
                     textureDesc.name = "SH/B";
-                    data.b           = builder.create<FrameGraph::RZFrameGraphTexture>("SH/B", CAST_TO_FG_TEX_DESC textureDesc);
+                    data.b           = builder.create<RZFrameGraphTexture>("SH/B", CAST_TO_FG_TEX_DESC textureDesc);
 
                     data.r = builder.write(data.r);
                     data.g = builder.write(data.g);
                     data.b = builder.write(data.b);
                 },
-                [=](const LightPropagationVolumesData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const LightPropagationVolumesData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto cmdBuffer = m_RadiancePropagationCmdBuffers[RHI::GetSwapchain()->getCurrentFrameIndex()];
@@ -463,13 +463,13 @@ namespace Razix {
                                 } else {
                                     switch (descriptor.bindingInfo.location.binding) {
                                         case 1:
-                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(LPV.r).getHandle();
+                                            descriptor.texture = resources.get<RZFrameGraphTexture>(LPV.r).getHandle();
                                             break;
                                         case 2:
-                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(LPV.g).getHandle();
+                                            descriptor.texture = resources.get<RZFrameGraphTexture>(LPV.g).getHandle();
                                             break;
                                         case 3:
-                                            descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(LPV.b).getHandle();
+                                            descriptor.texture = resources.get<RZFrameGraphTexture>(LPV.b).getHandle();
                                             break;
                                     }
                                 }
@@ -482,9 +482,9 @@ namespace Razix {
                     info.extent           = {grid.size.x, grid.size.y};
                     info.layerCount       = 1;    //grid.size.z; // Since we are using 3D texture they only have a single layer
                     info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.r).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 0 // SH_R
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.g).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 1 // SH_G
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.b).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 2 // SH_B
+                        {resources.get<RZFrameGraphTexture>(data.r).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 0 // SH_R
+                        {resources.get<RZFrameGraphTexture>(data.g).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 1 // SH_G
+                        {resources.get<RZFrameGraphTexture>(data.b).getHandle(), {true, ClearColorPresets::TransparentBlack}},    // location = 2 // SH_B
                     };
 
                     RHI::BeginRendering(cmdBuffer, info);

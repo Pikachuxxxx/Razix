@@ -24,7 +24,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZFXAAPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZFXAAPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Create the shader and the pipeline
             auto fxaaShader = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::FXAA);
@@ -45,13 +45,13 @@ namespace Razix {
 
             framegraph.addCallbackPass<FX::TAAResolveData>(
                 "Pass.Builtin.Code.FXAA",
-                [&](FX::TAAResolveData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](FX::TAAResolveData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     builder.read(sceneData.sceneHDR);
                     sceneData.sceneHDR = builder.write(sceneData.sceneHDR);
                 },
-                [=](const FX::TAAResolveData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const FX::TAAResolveData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_FXAA);
@@ -61,7 +61,7 @@ namespace Razix {
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    auto accumulationRT = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
+                    auto accumulationRT = resources.get<RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
@@ -73,12 +73,12 @@ namespace Razix {
                     RHI::BindPipeline(m_Pipeline, cmdBuffer);
 
                     // Update descriptors on first frame
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    if (RZFrameGraph::IsFirstFrame()) {
                         auto& shaderBindVars = RZResourceManager::Get().getShaderResource(fxaaShader)->getBindVars();
 
                         auto currentTexDescriptor = shaderBindVars["SceneTexture"];
                         if (currentTexDescriptor)
-                            currentTexDescriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
+                            currentTexDescriptor->texture = resources.get<RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
 
                         RZResourceManager::Get().getShaderResource(fxaaShader)->updateBindVarsHeaps();
                     }

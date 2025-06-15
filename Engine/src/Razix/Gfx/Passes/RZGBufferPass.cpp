@@ -37,7 +37,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZGBufferPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZGBufferPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // First order of business get the shader
             auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
@@ -76,7 +76,7 @@ namespace Razix {
 
             framegraph.getBlackboard().add<GBufferData>() = framegraph.addCallbackPass<GBufferData>(
                 "Pass.Builtin.Code.GBuffer",
-                [&](GBufferData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](GBufferData& data, RZPassResourceBuilder& builder) {
                     builder
                         .setAsStandAlonePass()
                         .setDepartment(Department::Environment);
@@ -89,19 +89,19 @@ namespace Razix {
                     gbufferTexturesDesc.initResourceViewHints = kSRV | kRTV;
                     gbufferTexturesDesc.format                = TextureFormat::RGBA16F;
                     gbufferTexturesDesc.allowResize           = true;
-                    data.GBuffer0                             = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    data.GBuffer0                             = builder.create<RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
                     gbufferTexturesDesc.name = "gBuffer1";
-                    data.GBuffer1            = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    data.GBuffer1            = builder.create<RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
                     gbufferTexturesDesc.name = "gBuffer2";
-                    data.GBuffer2            = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    data.GBuffer2            = builder.create<RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
                     gbufferTexturesDesc.name                  = "SceneDepth";
                     gbufferTexturesDesc.format                = TextureFormat::DEPTH32F;
                     gbufferTexturesDesc.type                  = TextureType::kDepth;
                     gbufferTexturesDesc.initResourceViewHints = kDSV;
-                    data.GBufferDepth                         = builder.create<FrameGraph::RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
+                    data.GBufferDepth                         = builder.create<RZFrameGraphTexture>(gbufferTexturesDesc.name, CAST_TO_FG_TEX_DESC gbufferTexturesDesc);
 
                     data.GBuffer0       = builder.write(data.GBuffer0);
                     data.GBuffer1       = builder.write(data.GBuffer1);
@@ -111,7 +111,7 @@ namespace Razix {
 
                     builder.read(frameDataBlock.frameData);
                 },
-                [=](const GBufferData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const GBufferData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("GBuffer Pass");
@@ -120,13 +120,13 @@ namespace Razix {
                     RenderingInfo info    = {};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
                     info.colorAttachments = {
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer0).getHandle(), {true, ClearColorPresets::TransparentBlack}},
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer1).getHandle(), {true, ClearColorPresets::TransparentBlack}},
-                        {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBuffer2).getHandle(), {true, ClearColorPresets::TransparentBlack}},
+                        {resources.get<RZFrameGraphTexture>(data.GBuffer0).getHandle(), {true, ClearColorPresets::TransparentBlack}},
+                        {resources.get<RZFrameGraphTexture>(data.GBuffer1).getHandle(), {true, ClearColorPresets::TransparentBlack}},
+                        {resources.get<RZFrameGraphTexture>(data.GBuffer2).getHandle(), {true, ClearColorPresets::TransparentBlack}},
                         // DISABLED VELOCITY BUFFER
-                        //{resources.get<FrameGraph::RZFrameGraphTexture>(data.VelocityBuffer).getHandle(), {true, ClearColorPresets::TransparentBlack}},
+                        //{resources.get<RZFrameGraphTexture>(data.VelocityBuffer).getHandle(), {true, ClearColorPresets::TransparentBlack}},
                     };
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.GBufferDepth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
+                    info.depthAttachment = {resources.get<RZFrameGraphTexture>(data.GBufferDepth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 

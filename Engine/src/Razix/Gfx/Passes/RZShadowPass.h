@@ -14,8 +14,8 @@ namespace Razix {
 
         struct OmniDirectionalShadowPassData
         {
-            FrameGraph::RZFrameGraphResource shadowMap;       /* Cube Depth texture to store the shadow map data                    */
-            FrameGraph::RZFrameGraphResource lightVPMatrices; /* The light view proj matrices to look at all sides of the cubemap   */
+            RZFrameGraphResource shadowMap;       /* Cube Depth texture to store the shadow map data                    */
+            RZFrameGraphResource lightVPMatrices; /* The light view proj matrices to look at all sides of the cubemap   */
         };
 
         // TODO: Implement this https://www.fabiensanglard.net/shadowmappingPCF/index.php
@@ -23,7 +23,7 @@ namespace Razix {
         class RZShadowPass : public IRZPass
         {
         public:
-            void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
+            void addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
             void destroy() override;
 
         private:

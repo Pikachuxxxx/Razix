@@ -11,14 +11,13 @@
 
 namespace Razix {
     namespace Gfx {
-        namespace FrameGraph {
 
-            // [Type Erasure] Source 1 : https://madptr.com/posts/2023-06-24-typeerasureintro/
-            // [SFINAE] Source 1 : https://en.cppreference.com/w/cpp/language/sfinae
-            // [SFINAE] Source 2 :  https://www.cppstories.com/2016/02/notes-on-c-sfinae/
-            // [SFINAE] Source 3 :  https://jguegant.github.io/blogs/tech/sfinae-introduction.html
+        // [Type Erasure] Source 1 : https://madptr.com/posts/2023-06-24-typeerasureintro/
+        // [SFINAE] Source 1 : https://en.cppreference.com/w/cpp/language/sfinae
+        // [SFINAE] Source 2 :  https://www.cppstories.com/2016/02/notes-on-c-sfinae/
+        // [SFINAE] Source 3 :  https://jguegant.github.io/blogs/tech/sfinae-introduction.html
 
-            /**
+        /**
              * Type Erasure class to hold different types of Graphics API resources using a wrapped class under one umbrella
              * 
              * So instead of calling a interface we use types to resolve the implementation and call stuff
@@ -35,39 +34,39 @@ namespace Razix {
              * This is why the T passes as resource is neither directly the Graphics API nor is just the Handle<U> because by itself it's of no use
              * Hence we have wrappers around Handle<U> and pass that wrapper FrameGraphTResource as T to the EntryPoint class
              */
-            class RAZIX_API RZResourceEntry final
-            {
-                // Only Frame Graph can create these and store
-                friend class RZFrameGraph;
-                // To verify if we are accessing a valid type or not
-                friend class RZPassResourceDirectory;
+        class RAZIX_API RZResourceEntry final
+        {
+            // Only Frame Graph can create these and store
+            friend class RZFrameGraph;
+            // To verify if we are accessing a valid type or not
+            friend class RZPassResourceDirectory;
 
-                /**
+            /**
                  * Concept is used to enforce certain rules in Type Erasure, like a fake interface for all types without making anyone derive from them
                  */
-                struct RAZIX_API Concept
-                {
-                    virtual ~Concept() = default;
+            struct RAZIX_API Concept
+            {
+                virtual ~Concept() = default;
 
-                    virtual void create(void *transientAllocator)  = 0;
-                    virtual void destroy(void *transientAllocator) = 0;
+                virtual void create(void *transientAllocator)  = 0;
+                virtual void destroy(void *transientAllocator) = 0;
 
-                    // Optional functions so we don't check for existence of these functions on the type rather on model before calling them
-                    virtual void preRead(uint32_t flags)  = 0;
-                    virtual void preWrite(uint32_t flags) = 0;
+                // Optional functions so we don't check for existence of these functions on the type rather on model before calling them
+                virtual void preRead(uint32_t flags)  = 0;
+                virtual void preWrite(uint32_t flags) = 0;
 
-                    virtual void resize(u32 width, u32 height) = 0;
+                virtual void resize(u32 width, u32 height) = 0;
 
-                    virtual std::string toString() const = 0;
-                };
+                virtual std::string toString() const = 0;
+            };
 
-                /**
+            /**
                  * Implementation for concept
                  */
-                template<typename T>
-                struct RAZIX_API Model final : Concept
-                {
-                    /**
+            template<typename T>
+            struct RAZIX_API Model final : Concept
+            {
+                /**
                      * constructor for type, usually a pointer is stored but here we are taking a universal reference + a data member which we enforce rules on it to have
                      * 
                      * Since this is designed specifically for the Graphics API they need a Desc to create them, now hiding the Handle as a pointer and using this entry to 
@@ -81,12 +80,12 @@ namespace Razix {
                      * and will reject non-matching overloads for types without any error, SFINAE's safe failure can choose the different
                      * paths during compile time to tell whether a type has a method/sub type or not and these compile time expression can be used for final evaluation
                      */
-                    Model(typename T::Desc &&desc, T &&obj)
-                        : descriptor(std::move(desc)), resource(std::move(obj))
-                    {
-                    }
+                Model(typename T::Desc &&desc, T &&obj)
+                    : descriptor(std::move(desc)), resource(std::move(obj))
+                {
+                }
 
-                    /**
+                /**
                      * We pass an extra argument only possible through model,this extra arg comes from the frame graph that is needed by the FrameGraphTResource
                      * This is a little deviation from the Concept signature, since actual FG resource creation happens at frame graph and these methods are called later
                      * it is allowed to be different and this descriptor (T::Desc) is actually need to create the Graphics API and this is the only way to pass to it from FG
@@ -94,109 +93,107 @@ namespace Razix {
                      * FrameGraph common create calls this create and some args from the first method are passed here later
                      */
 
-                    void create(void *transientAllocator) final
-                    {
-                        resource.create(descriptor, transientAllocator);
-                    }
+                void create(void *transientAllocator) final
+                {
+                    resource.create(descriptor, transientAllocator);
+                }
 
-                    void destroy(void *transientAllocator) final
-                    {
-                        resource.destroy(descriptor, transientAllocator);
-                    }
+                void destroy(void *transientAllocator) final
+                {
+                    resource.destroy(descriptor, transientAllocator);
+                }
 
-                    /**
+                /**
                      * The flags are given to concept from frame graph when which as passes as args to the read/write methods of the FrameGraph class
                      */
 
-                    void preRead(uint32_t flags)
-                    {
-                        // Since these functions are optional for a resource to have and not enforce we check here before calling them
-                        if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, preRead))
-                            resource.preRead(descriptor, flags);
-                    }
-
-                    void preWrite(uint32_t flags)
-                    {
-                        // Since these functions are optional for a resource to have and not enforce we check here before calling them
-                        if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, preWrite))
-                            resource.preWrite(descriptor, flags);
-                    }
-
-                    void resize(u32 width, u32 height)
-                    {
-                        // Since these functions are optional for a resource to have and not enforce we check here before calling them
-                        if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, resize))
-                            resource.resize(width, height);
-                    }
-
-                    std::string toString() const final
-                    {
-                        if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, toString))
-                            return resource.toString(descriptor);
-                        else
-                            return "XXXX";
-                    }
-
-                    T                      resource;   /* Resource handle              */
-                    const typename T::Desc descriptor; /* Resource creation descriptor */
-                };
-
-            public:
-                /* Only Frame Graph can create the resources */
-                RAZIX_DELETE_PUBLIC_CONSTRUCTOR(RZResourceEntry)
-
-                RAZIX_NONCOPYABLE_CLASS(RZResourceEntry)
-                // Same reason as RZGraphicsNode
-                RAZIX_DEFAULT_MOVABLE_CLASS(RZResourceEntry)
-
-                /* Type checks ignored here because we do it before create them */
-
-                template<typename T>
-                RAZIX_NO_DISCARD T &get()
+                void preRead(uint32_t flags)
                 {
-                    return getModel<T>()->resource;
+                    // Since these functions are optional for a resource to have and not enforce we check here before calling them
+                    if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, preRead))
+                        resource.preRead(descriptor, flags);
                 }
 
-                template<typename T>
-                const typename T::Desc &getDescriptor() const
+                void preWrite(uint32_t flags)
                 {
-                    return getModel<T>()->descriptor;
+                    // Since these functions are optional for a resource to have and not enforce we check here before calling them
+                    if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, preWrite))
+                        resource.preWrite(descriptor, flags);
                 }
 
-                RAZIX_NO_DISCARD u32  getVersion() const { return m_Version; }
-                RAZIX_NO_DISCARD bool isImported() const { return m_Imported; }
-                RAZIX_NO_DISCARD bool isTransient() const { return !m_Imported; }
-
-            private:
-                //---------------------------------
-                std::unique_ptr<Concept> m_Concept; /* Type Erased implementation class */
-                //---------------------------------
-                const u32   m_ID;                 /* Index of the resource, usually same as FreamGraphResource to identify it   */
-                const bool  m_Imported = false;   /* Whether or not the resource has been imported                              */
-                u32         m_Version;            /* Version of the cloned resource                                             */
-                RZPassNode *m_Producer = nullptr; /* Pass Node who writes to this resources                                     */
-                RZPassNode *m_Last     = nullptr; /* Next Pass Node that will read this resource                                */
-
-            private:
-                template<typename T>
-                RZResourceEntry(u32 id, typename T::Desc &&desc, T &&obj, u32 version, bool imported = false)
-                    : m_ID(id), m_Concept{std::make_unique<Model<T>>(std::forward<typename T::Desc>(desc), std::forward<T>(obj))}, m_Version(version), m_Imported(imported)
+                void resize(u32 width, u32 height)
                 {
+                    // Since these functions are optional for a resource to have and not enforce we check here before calling them
+                    if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, resize))
+                        resource.resize(width, height);
                 }
 
-                template<typename T>
-                RAZIX_NO_DISCARD Model<T> *getModel() const
+                std::string toString() const final
                 {
-                    auto *model = dynamic_cast<Model<T> *>(m_Concept.get());
-                    return model;
+                    if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, toString))
+                        return resource.toString(descriptor);
+                    else
+                        return "XXXX";
                 }
 
-                RAZIX_NO_DISCARD Concept *getConcept() const
-                {
-                    return m_Concept.get();
-                }
+                T                      resource;   /* Resource handle              */
+                const typename T::Desc descriptor; /* Resource creation descriptor */
             };
-            //-----------------------------------------------------------------------------------
-        }    // namespace FrameGraph
-    }        // namespace Gfx
+
+        public:
+            /* Only Frame Graph can create the resources */
+            RAZIX_DELETE_PUBLIC_CONSTRUCTOR(RZResourceEntry)
+
+            RAZIX_NONCOPYABLE_CLASS(RZResourceEntry)
+            // Same reason as RZGraphicsNode
+            RAZIX_DEFAULT_MOVABLE_CLASS(RZResourceEntry)
+
+            /* Type checks ignored here because we do it before create them */
+
+            template<typename T>
+            RAZIX_NO_DISCARD T &get()
+            {
+                return getModel<T>()->resource;
+            }
+
+            template<typename T>
+            const typename T::Desc &getDescriptor() const
+            {
+                return getModel<T>()->descriptor;
+            }
+
+            RAZIX_NO_DISCARD u32  getVersion() const { return m_Version; }
+            RAZIX_NO_DISCARD bool isImported() const { return m_Imported; }
+            RAZIX_NO_DISCARD bool isTransient() const { return !m_Imported; }
+
+        private:
+            //---------------------------------
+            std::unique_ptr<Concept> m_Concept; /* Type Erased implementation class */
+            //---------------------------------
+            const u32  m_ID;               /* Index of the resource, usually same as FreamGraphResource to identify it   */
+            const bool m_Imported = false; /* Whether or not the resource has been imported                              */
+            u32        m_Version;          /* Version of the cloned resource                                             */
+            //RZPassNode *m_Producer = nullptr; /* Pass Node who writes to this resources                                     */
+            //RZPassNode *m_Last     = nullptr; /* Next Pass Node that will read this resource                                */
+
+        private:
+            template<typename T>
+            RZResourceEntry(u32 id, typename T::Desc &&desc, T &&obj, u32 version, bool imported = false)
+                : m_ID(id), m_Concept{std::make_unique<Model<T>>(std::forward<typename T::Desc>(desc), std::forward<T>(obj))}, m_Version(version), m_Imported(imported)
+            {
+            }
+
+            template<typename T>
+            RAZIX_NO_DISCARD Model<T> *getModel() const
+            {
+                auto *model = dynamic_cast<Model<T> *>(m_Concept.get());
+                return model;
+            }
+
+            RAZIX_NO_DISCARD Concept *getConcept() const
+            {
+                return m_Concept.get();
+            }
+        };
+    }    // namespace Gfx
 }    // namespace Razix

@@ -38,7 +38,7 @@ namespace Razix {
 
         struct GaussianBlurOutput
         {
-            FrameGraph::RZFrameGraphResource blur;
+            RZFrameGraphResource blur;
         };
 
         struct GaussianBlurPCData
@@ -48,7 +48,7 @@ namespace Razix {
             float2 direction;
         };
 
-        void RZGaussianBlurPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZGaussianBlurPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             auto gaussiabBlurShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GaussianBlur);
 
@@ -79,13 +79,13 @@ namespace Razix {
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
 
-        FrameGraph::RZFrameGraphResource RZGaussianBlurPass::addBlurPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, FrameGraph::RZFrameGraphResource inputTexture, f32 blurRadius, GaussianTap filterTap, GaussianDirection direction)
+        RZFrameGraphResource RZGaussianBlurPass::addBlurPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, RZFrameGraphResource inputTexture, f32 blurRadius, GaussianTap filterTap, GaussianDirection direction)
         {
             auto gaussiabBlurShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GaussianBlur);
 
             auto& pass = framegraph.addCallbackPass<GaussianBlurOutput>(
                 "Pass.Builtin.Code.FX.GaussianBlur",
-                [&](GaussianBlurOutput& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](GaussianBlurOutput& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc textureDesc{};
@@ -96,12 +96,12 @@ namespace Razix {
                     textureDesc.format     = TextureFormat::RGBA16F;
                     textureDesc.enableMips = false;
 
-                    data.blur = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
+                    data.blur = builder.create<RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
                     builder.read(inputTexture);
                     data.blur = builder.write(data.blur);
                 },
-                [=](const GaussianBlurOutput& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const GaussianBlurOutput& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("GaussianBlur");
@@ -109,20 +109,20 @@ namespace Razix {
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.blur).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                    info.colorAttachments = {{resources.get<RZFrameGraphTexture>(data.blur).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
                     // Set the Descriptor Set once rendering starts
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    if (RZFrameGraph::IsFirstFrame()) {
                         auto& shaderBindVars = RZResourceManager::Get().getShaderResource(gaussiabBlurShader)->getBindVars();
 
                         RZDescriptor* descriptor = nullptr;
 
                         descriptor = shaderBindVars["inputTexture"];
                         if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(inputTexture).getHandle();
+                            descriptor->texture = resources.get<RZFrameGraphTexture>(inputTexture).getHandle();
 
                         RZResourceManager::Get().getShaderResource(gaussiabBlurShader)->updateBindVarsHeaps();
                     }

@@ -4,5 +4,5 @@
 
 struct BRDFData
 {
-    Razix::Gfx::FrameGraph::RZFrameGraphResource lut;
+    Razix::Gfx::RZFrameGraphResource lut;
 };

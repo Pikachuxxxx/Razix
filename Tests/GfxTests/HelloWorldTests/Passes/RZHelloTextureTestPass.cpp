@@ -3,7 +3,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZHelloTextureTestPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZHelloTextureTestPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Create the shader and the pipeline
             RZShaderDesc desc = {};
@@ -36,12 +36,12 @@ namespace Razix {
 
             struct HelloTexturePassData
             {
-                FrameGraph::RZFrameGraphResource Depth;
+                RZFrameGraphResource Depth;
             };
 
             framegraph.addCallbackPass<HelloTexturePassData>(
                 "[Test] Pass.Builtin.Code.HelloTexture",
-                [&](HelloTexturePassData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](HelloTexturePassData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc depthTextureDesc;
@@ -51,11 +51,11 @@ namespace Razix {
                     depthTextureDesc.format                = TextureFormat::DEPTH16_UNORM;
                     depthTextureDesc.type                  = TextureType::kDepth;
                     depthTextureDesc.initResourceViewHints = kDSV;
-                    data.Depth                             = builder.create<FrameGraph::RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
+                    data.Depth                             = builder.create<RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
 
                     data.Depth = builder.write(data.Depth);
                 },
-                [=](const HelloTexturePassData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const HelloTexturePassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("[Test] Hello Texture Pass");
@@ -66,12 +66,12 @@ namespace Razix {
                     RenderingInfo info{};
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {{Gfx::RHI::GetSwapchain()->GetCurrentBackBufferImage(), {true, ClearColorPresets::OpaqueBlack}}};
-                    info.depthAttachment  = {resources.get<FrameGraph::RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
+                    info.depthAttachment  = {resources.get<RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
 
                     RHI::BeginRendering(cmdBuffer, info);
 
                     // Bind descriptor sets and resources
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    if (RZFrameGraph::IsFirstFrame()) {
                         auto& shaderBindVars = RZResourceManager::Get().getShaderResource(m_Shader)->getBindVars();
 
                         RZDescriptor* descriptor = nullptr;

@@ -4,11 +4,11 @@
 
 struct GBufferData
 {
-    Razix::Gfx::FrameGraph::RZFrameGraphResource GBuffer0;
-    Razix::Gfx::FrameGraph::RZFrameGraphResource GBuffer1;
-    Razix::Gfx::FrameGraph::RZFrameGraphResource GBuffer2;
-    Razix::Gfx::FrameGraph::RZFrameGraphResource VelocityBuffer;
-    Razix::Gfx::FrameGraph::RZFrameGraphResource GBufferDepth;
+    Razix::Gfx::RZFrameGraphResource GBuffer0;
+    Razix::Gfx::RZFrameGraphResource GBuffer1;
+    Razix::Gfx::RZFrameGraphResource GBuffer2;
+    Razix::Gfx::RZFrameGraphResource VelocityBuffer;
+    Razix::Gfx::RZFrameGraphResource GBufferDepth;
 };
 
 // Output from Fragment Shader or Output to Framebuffer attachments

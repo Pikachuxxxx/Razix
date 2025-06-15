@@ -39,7 +39,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZShadowPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZShadowPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Load the shader
             auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DepthPreTest);
@@ -60,7 +60,7 @@ namespace Razix {
 
             framegraph.getBlackboard().add<SimpleShadowPassData>() = framegraph.addCallbackPass<SimpleShadowPassData>(
                 "Pass.Builtin.Code.RenderShadows",
-                [&](SimpleShadowPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](SimpleShadowPassData& data, RZPassResourceBuilder& builder) {
                     builder
                         .setAsStandAlonePass()
                         .setDepartment(Department::Lighting);
@@ -73,14 +73,14 @@ namespace Razix {
                     shadowTextureDesc.format                = TextureFormat::DEPTH32F;
                     shadowTextureDesc.initResourceViewHints = ResourceViewHint::kDSV | ResourceViewHint::kSRV;
                     shadowTextureDesc.enableMips            = false;
-                    data.shadowMap                          = builder.create<FrameGraph::RZFrameGraphTexture>(shadowTextureDesc.name, CAST_TO_FG_TEX_DESC shadowTextureDesc);
+                    data.shadowMap                          = builder.create<RZFrameGraphTexture>(shadowTextureDesc.name, CAST_TO_FG_TEX_DESC shadowTextureDesc);
 
-                    data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData), 0, BufferUsage::PersistentStream});
+                    data.lightVP = builder.create<RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData), 0, BufferUsage::PersistentStream});
 
                     data.shadowMap = builder.write(data.shadowMap);
                     data.lightVP   = builder.write(data.lightVP);
                 },
-                [=](const SimpleShadowPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const SimpleShadowPassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Shadows);
@@ -107,15 +107,15 @@ namespace Razix {
                     lightProjection[1][1] *= -1;
                     light_data.lightViewProj = lightProjection * lightView;
 
-                    auto lightVPHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightVP).getHandle();
+                    auto lightVPHandle = resources.get<RZFrameGraphBuffer>(data.lightVP).getHandle();
                     RZResourceManager::Get().getUniformBufferResource(lightVPHandle)->SetData(sizeof(LightVPUBOData), &light_data);
 
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    if (RZFrameGraph::IsFirstFrame()) {
                         auto& shaderBindVars = RZResourceManager::Get().getShaderResource(shader)->getBindVars();
 
-                        auto descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(data.lightVP)];
+                        auto descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphBuffer>(data.lightVP)];
                         if (descriptor)
-                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightVP).getHandle();
+                            descriptor->uniformBuffer = resources.get<RZFrameGraphBuffer>(data.lightVP).getHandle();
 
                         RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
                     }
@@ -123,7 +123,7 @@ namespace Razix {
                     // Begin Rendering
                     RenderingInfo info{};    // No color attachment
                     info.resolution      = Resolution::kCustom;
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.shadowMap).getHandle(), {true, ClearColorPresets::OpaqueBlack}};
+                    info.depthAttachment = {resources.get<RZFrameGraphTexture>(data.shadowMap).getHandle(), {true, ClearColorPresets::OpaqueBlack}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     info.layerCount      = 1;
                     RHI::BeginRendering(cmdBuffer, info);

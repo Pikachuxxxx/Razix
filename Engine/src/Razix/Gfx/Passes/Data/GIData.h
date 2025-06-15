@@ -10,17 +10,17 @@ constexpr auto kDefaultNumPropagations  = 6;
 
 struct ReflectiveShadowMapData
 {
-    Razix::Gfx::FrameGraph::RZFrameGraphResource position;
-    Razix::Gfx::FrameGraph::RZFrameGraphResource normal;
-    Razix::Gfx::FrameGraph::RZFrameGraphResource flux;
-    Razix::Gfx::FrameGraph::RZFrameGraphResource depth;
+    Razix::Gfx::RZFrameGraphResource position;
+    Razix::Gfx::RZFrameGraphResource normal;
+    Razix::Gfx::RZFrameGraphResource flux;
+    Razix::Gfx::RZFrameGraphResource depth;
 };
 
 struct LightPropagationVolumesData
 {
-    Razix::Gfx::FrameGraph::RZFrameGraphResource r;
-    Razix::Gfx::FrameGraph::RZFrameGraphResource g;
-    Razix::Gfx::FrameGraph::RZFrameGraphResource b;
+    Razix::Gfx::RZFrameGraphResource r;
+    Razix::Gfx::RZFrameGraphResource g;
+    Razix::Gfx::RZFrameGraphResource b;
 };
 
 struct RadianceInjectionUBOData
