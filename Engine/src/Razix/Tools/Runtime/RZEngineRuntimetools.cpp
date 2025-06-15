@@ -183,9 +183,9 @@ namespace Razix {
                     ImGui::BeginTooltip();
                     ImGui::Text("Pass ID        : %u", passNode.getID());
                     ImGui::Separator();
-                    ImGui::Text("Creates        : %d", passNode.getCreatResources().size());
-                    ImGui::Text("Reads          : %d", passNode.getInputResources().size());
-                    ImGui::Text("Writes         : %d", passNode.getOutputResources().size());
+                    ImGui::Text("Creates        : %zu", passNode.getCreatResources().size());
+                    ImGui::Text("Reads          : %zu", passNode.getInputResources().size());
+                    ImGui::Text("Writes         : %zu", passNode.getOutputResources().size());
                     ImGui::Separator();
                     auto                  dept = passNode.getDepartment();
                     const DepartmentInfo& info = s_DepartmentInfo.at(dept);
@@ -206,61 +206,60 @@ namespace Razix {
         void OnImGuiDrawFrameGraphVis(const Gfx::RZFrameGraph& frameGraph)
         {
             ImGui::SetNextWindowBgAlpha(1.0f);
-            if (!ImGui::Begin("Frame Graph Resource Viewer##FGResourceVis")) return;
-
-            ImGui::Text("Welcome to Frame Graph resource viz! Your one stop viewer for Transient resources/Barriers and memory usage of a Frame.");
-
-            std::vector<uint32_t> compiledResourceEntryPoints = frameGraph.getCompiledResourceEntries();
-            uint32_t              resourceCount               = compiledResourceEntryPoints.size();
-
-            ImDrawList* draw   = ImGui::GetWindowDrawList();
-            ImVec2      origin = ImGui::GetCursorScreenPos() + ImVec2(0, FrameGraphStyle::TopPadding);
-
-            float    contentHeight  = ImGui::GetContentRegionAvail().y - FrameGraphStyle::TopPadding;
-            uint32_t maxVisibleRows = static_cast<uint32_t>(contentHeight / FrameGraphStyle::CellSize);
-            uint32_t maxRows        = std::min(resourceCount, maxVisibleRows > 1 ? maxVisibleRows - 2 : 0);
-
-            ImVec2 p0 = origin;
-            ImVec2 p1 = origin + ImVec2(FrameGraphStyle::LabelPanelSpace - FrameGraphStyle::LabelPanelOffset, FrameGraphStyle::CellSize);
-            draw->AddRectFilled(p0, p1, ResourcePanelStyle::HeaderBgColor);
-            draw->AddRect(p0, p1, ResourcePanelStyle::BorderColor);
-            draw->AddText(p0 + ImVec2(ResourcePanelStyle::TextOffsetX, ResourcePanelStyle::TextOffsetY), IM_COL32_WHITE, "[Resource/Passes]");
-
-            p0 = origin + ImVec2(0, FrameGraphStyle::CellSize);
-            p1 = p0 + ImVec2(FrameGraphStyle::LabelPanelSpace - FrameGraphStyle::LabelPanelOffset, FrameGraphStyle::CellSize);
-            draw->AddRectFilled(p0, p1, ResourcePanelStyle::BarrierBgColor);
-            draw->AddRect(p0, p1, ResourcePanelStyle::BorderColor);
-            draw->AddText(p0 + ImVec2(ResourcePanelStyle::TextOffsetX, ResourcePanelStyle::BarrierTextOffsetY), ResourcePanelStyle::BarrierTextColor, "[Barriers]");
-
-            for (uint32_t ry = 0; ry < maxRows; ++ry) {
-                ImVec2 row_p0 = origin + ImVec2(0, (ry + 2) * FrameGraphStyle::CellSize);
-                ImVec2 row_p1 = row_p0 + ImVec2(FrameGraphStyle::LabelPanelSpace - FrameGraphStyle::LabelPanelOffset, FrameGraphStyle::CellSize);
-
-                ImU32 bgColor = (ry % 2 == 0) ? ResourcePanelStyle::BgColorEven : ResourcePanelStyle::BgColorOdd;
-                draw->AddRectFilled(row_p0, row_p1, bgColor);
-                draw->AddRect(row_p0, row_p1, ResourcePanelStyle::BorderColor);
-
-                const Gfx::RZResourceNode& resNode = frameGraph.getResourceNode(compiledResourceEntryPoints[ry]);
-                draw->AddText(row_p0 + ImVec2(ResourcePanelStyle::TextOffsetX, ResourcePanelStyle::TextOffsetY), ResourcePanelStyle::TextColor, resNode.getName().c_str());
-
-                DrawLifetimeCellFromPassRange(origin, ry, 3, (ry + 2) * FrameGraphStyle::CellSize);
-
-                ImVec2 mouse = ImGui::GetMousePos();
-                if (mouse.x >= row_p0.x && mouse.x <= row_p1.x && mouse.y >= row_p0.y && mouse.y <= row_p1.y) {
-                    ImGui::BeginTooltip();
-                    ImGui::Text("Resource ID    : %u", resNode.getID());
-                    ImGui::Separator();
-                    ImGui::Text("EntryPoint ID  : %u", resNode.getResourceEntryId());
-                    ImGui::Text("Version        : %u", resNode.getVersion());
-                    ImGui::Text("RefCount       : %u", resNode.getRefCount());
-                    ImGui::Text("CompiledResIdx : %u", compiledResourceEntryPoints[ry]);
-                    ImGui::EndTooltip();
+            if (ImGui::Begin("Frame Graph Resource Viewer##FGResourceVis")) {
+                
+                ImGui::Text("Welcome to Frame Graph resource viz! Your one stop viewer for Transient resources/Barriers and memory usage of a Frame.");
+                
+                std::vector<u32> compiledResourceEntryPoints = frameGraph.getCompiledResourceEntries();
+                u32              resourceCount               = static_cast<u32>(compiledResourceEntryPoints.size());
+                
+                ImDrawList* draw   = ImGui::GetWindowDrawList();
+                ImVec2      origin = ImGui::GetCursorScreenPos() + ImVec2(0, FrameGraphStyle::TopPadding);
+                
+                float    contentHeight  = ImGui::GetContentRegionAvail().y - FrameGraphStyle::TopPadding;
+                uint32_t maxVisibleRows = static_cast<uint32_t>(contentHeight / FrameGraphStyle::CellSize);
+                uint32_t maxRows        = std::min(resourceCount, maxVisibleRows > 1 ? maxVisibleRows - 2 : 0);
+                
+                ImVec2 p0 = origin;
+                ImVec2 p1 = origin + ImVec2(FrameGraphStyle::LabelPanelSpace - FrameGraphStyle::LabelPanelOffset, FrameGraphStyle::CellSize);
+                draw->AddRectFilled(p0, p1, ResourcePanelStyle::HeaderBgColor);
+                draw->AddRect(p0, p1, ResourcePanelStyle::BorderColor);
+                draw->AddText(p0 + ImVec2(ResourcePanelStyle::TextOffsetX, ResourcePanelStyle::TextOffsetY), IM_COL32_WHITE, "[Resource/Passes]");
+                
+                p0 = origin + ImVec2(0, FrameGraphStyle::CellSize);
+                p1 = p0 + ImVec2(FrameGraphStyle::LabelPanelSpace - FrameGraphStyle::LabelPanelOffset, FrameGraphStyle::CellSize);
+                draw->AddRectFilled(p0, p1, ResourcePanelStyle::BarrierBgColor);
+                draw->AddRect(p0, p1, ResourcePanelStyle::BorderColor);
+                draw->AddText(p0 + ImVec2(ResourcePanelStyle::TextOffsetX, ResourcePanelStyle::BarrierTextOffsetY), ResourcePanelStyle::BarrierTextColor, "[Barriers]");
+                
+                for (uint32_t ry = 0; ry < maxRows; ++ry) {
+                    ImVec2 row_p0 = origin + ImVec2(0, (ry + 2) * FrameGraphStyle::CellSize);
+                    ImVec2 row_p1 = row_p0 + ImVec2(FrameGraphStyle::LabelPanelSpace - FrameGraphStyle::LabelPanelOffset, FrameGraphStyle::CellSize);
+                    
+                    ImU32 bgColor = (ry % 2 == 0) ? ResourcePanelStyle::BgColorEven : ResourcePanelStyle::BgColorOdd;
+                    draw->AddRectFilled(row_p0, row_p1, bgColor);
+                    draw->AddRect(row_p0, row_p1, ResourcePanelStyle::BorderColor);
+                    
+                    const auto& resNode = frameGraph.getResourceNode(compiledResourceEntryPoints[ry]);
+                    draw->AddText(row_p0 + ImVec2(ResourcePanelStyle::TextOffsetX, ResourcePanelStyle::TextOffsetY), ResourcePanelStyle::TextColor, resNode.getName().c_str());
+                    
+                    DrawLifetimeCellFromPassRange(origin, ry, 3, (ry + 2) * FrameGraphStyle::CellSize);
+                    
+                    ImVec2 mouse = ImGui::GetMousePos();
+                    if (mouse.x >= row_p0.x && mouse.x <= row_p1.x && mouse.y >= row_p0.y && mouse.y <= row_p1.y) {
+                        ImGui::BeginTooltip();
+                        ImGui::Text("Resource ID    : %u", resNode.getID());
+                        ImGui::Separator();
+                        ImGui::Text("EntryPoint ID  : %u", resNode.getResourceEntryId());
+                        ImGui::Text("Version        : %u", resNode.getVersion());
+                        ImGui::Text("RefCount       : %u", resNode.getRefCount());
+                        ImGui::Text("CompiledResIdx : %u", compiledResourceEntryPoints[ry]);
+                        ImGui::EndTooltip();
+                    }
                 }
+                
+                DrawPassLabels(frameGraph, draw, origin + ImVec2(FrameGraphStyle::LabelPanelSpace + FrameGraphStyle::LabelColumnOffsetX, 0), FrameGraphStyle::CellSize, FrameGraphStyle::CellSize, maxRows);
             }
-
-            DrawPassLabels(frameGraph, draw, origin + ImVec2(FrameGraphStyle::LabelPanelSpace + FrameGraphStyle::LabelColumnOffsetX, 0), FrameGraphStyle::CellSize, FrameGraphStyle::CellSize, maxRows);
-
-            float drawnHeight = (maxRows + 2) * FrameGraphStyle::CellSize + FrameGraphStyle::TopPadding;
             ImGui::End();
         }
 
