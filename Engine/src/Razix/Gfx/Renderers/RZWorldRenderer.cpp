@@ -290,6 +290,9 @@ namespace Razix {
 
                     sceneData.SceneHDR = builder.write(sceneData.SceneHDR);
                     data.ImGuiRT       = sceneData.SceneHDR;
+                    
+                    gBufferData.GBufferDepth = builder.write(gBufferData.GBufferDepth);
+                    data.ImGuiDRT            = gBufferData.GBufferDepth;
 
                     RZImGuiRendererProxy::Get().Init();
                 },
@@ -301,10 +304,12 @@ namespace Razix {
                     RZImGuiRendererProxy::Get().Begin(scene);
 
                     auto rt = resources.get<RZFrameGraphTexture>(data.ImGuiRT).getHandle();
+                    auto dt = resources.get<RZFrameGraphTexture>(data.ImGuiDRT).getHandle();
 
                     RenderingInfo info    = {};
                     info.resolution       = Resolution::kWindow;
                     info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
+                    info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
 
                     RHI::BeginRendering(Gfx::RHI::GetCurrentCommandBuffer(), info);
 
