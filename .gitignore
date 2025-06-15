@@ -31,8 +31,6 @@ compile_commands.json
 Engine/content/Shaders/Compiled/
 Engine/content/Shaders/Generated/
 Engine/content/FrameGraphs/*.dot
-Engine/content/FrameGraphs/PNG/
-Engine/content/FrameGraphs/SVG/
 #ignore QT generated Files
 Editor/src/generated/
 

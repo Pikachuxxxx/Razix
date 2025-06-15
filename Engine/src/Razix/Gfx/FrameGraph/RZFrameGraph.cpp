@@ -542,6 +542,7 @@ namespace Razix {
                 for (auto &[id, flags]: pass.m_Writes) {
                     auto &written      = m_ResourceNodes[id];
                     written.m_Producer = &pass;
+                    written.m_RefCount++;
                 }
             }
 
@@ -594,16 +595,15 @@ namespace Razix {
 
             // Cache compiled resource + pass indices
             for (u32 resID = 0; resID < m_ResourceNodes.size(); ++resID) {
-                // Dirty tricks to fix life times
-                //if (m_ResourceNodes[resID].m_RefCount > 0) {
-                m_CompiledResourceIndices.push_back(resID);
+                if (m_ResourceNodes[resID].m_RefCount > 0) {
+                    m_CompiledResourceIndices.push_back(resID);
 
-                // Cache compiled resource nodes entries uniquely
-                const RZResourceEntry &entry   = getResourceEntry(resID);
-                u32                    version = m_ResourceNodes[resID].m_Version;
-                if (version == 1)
-                    m_CompiledResourceEntries.push_back(entry.m_ID);
-                //}
+                    // Cache compiled resource nodes entries uniquely
+                    const RZResourceEntry &entry   = getResourceEntry(resID);
+                    u32                    version = m_ResourceNodes[resID].m_Version;
+                    if (version == 1)
+                        m_CompiledResourceEntries.push_back(entry.m_ID);
+                }
             }
 
             struct Interval
