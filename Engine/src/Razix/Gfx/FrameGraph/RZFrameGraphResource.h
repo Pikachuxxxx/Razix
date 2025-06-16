@@ -43,7 +43,9 @@ namespace Razix {
         enum class LifeTimeMode
         {
             kRead,
-            kWrite
+            kWrite,
+            kCoarse,
+            kImported
         };
 
         struct RZResourceLifetime

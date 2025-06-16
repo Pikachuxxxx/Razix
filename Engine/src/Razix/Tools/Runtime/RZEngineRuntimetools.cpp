@@ -54,14 +54,18 @@ namespace Razix {
 
         struct LifetimeCellStyle
         {
-            constexpr static ImU32 TextColor       = IM_COL32(230, 255, 230, 255);
-            constexpr static float Roundness       = 4.0f;
-            constexpr static float BorderThickness = 1.0f;
-            constexpr static ImU32 Color           = IM_COL32(255, 192, 203, 200);
-            constexpr static ImU32 HoverColor      = IM_COL32(255, 182, 193, 255);
-            constexpr static ImU32 BorderColor     = IM_COL32(255, 160, 170, 255);
-            constexpr static float CellWidth       = PassLabelStyle::BoxWidth;
-            constexpr static float CellHeight      = 18.0f;
+            constexpr static ImU32 TextColor                 = IM_COL32(230, 255, 230, 255);
+            constexpr static float Roundness                 = 4.0f;
+            constexpr static float BorderThickness           = 1.0f;
+            constexpr static ImU32 Color                     = IM_COL32(255, 192, 203, 200);
+            constexpr static ImU32 HoverColor                = IM_COL32(255, 182, 193, 255);
+            constexpr static ImU32 BorderColor               = IM_COL32(255, 160, 170, 255);
+            constexpr static float CellWidth                 = PassLabelStyle::BoxWidth;
+            constexpr static float CellHeight                = 18.0f;
+            constexpr static ImU32 CoarseLifetimeBgColor     = IM_COL32(200, 120, 20, 180);    // Amber-orange
+            constexpr static ImU32 CoarseLifetimeBorderColor = IM_COL32(255, 180, 50, 255);    // Slightly brighter orange
+            constexpr static ImU32 ImportedBgColor           = IM_COL32(120, 30, 200, 180);    // Neon violet/magenta
+            constexpr static ImU32 ImportedBorderColor       = IM_COL32(180, 80, 255, 255);    // Bright popping edge
         };
 
         struct ResourcePanelStyle
@@ -110,17 +114,26 @@ namespace Razix {
             ImU32 fillColor   = lifetime.Mode == Gfx::LifeTimeMode::kRead ? BarrierStyle::ReadFillColor : BarrierStyle::WriteFillColor;
             ImU32 borderColor = lifetime.Mode == Gfx::LifeTimeMode::kRead ? BarrierStyle::ReadBorderColor : BarrierStyle::WriteBorderColor;
 
+            if (lifetime.Mode == Gfx::LifeTimeMode::kCoarse) {
+                fillColor   = LifetimeCellStyle::CoarseLifetimeBgColor;
+                borderColor = LifetimeCellStyle::CoarseLifetimeBorderColor;
+            } else if (lifetime.Mode == Gfx::LifeTimeMode::kImported) {
+                fillColor   = LifetimeCellStyle::ImportedBgColor;
+                borderColor = LifetimeCellStyle::ImportedBorderColor;
+            }
             // Fill and border
             drawList->AddRectFilled(min, max, fillColor, LifetimeCellStyle::Roundness);
             drawList->AddRect(min, max, borderColor, LifetimeCellStyle::Roundness, 0, LifetimeCellStyle::BorderThickness);
 
-            // Center the text
-            const char* label    = lifetime.Mode == Gfx::LifeTimeMode::kRead ? "Read" : "Write";
-            ImVec2      textSize = ImGui::CalcTextSize(label);
-            ImVec2      textPos  = ImVec2(
-                min.x + (width - textSize.x) * 0.5f,
-                min.y + (height - textSize.y) * 0.5f);
-            drawList->AddText(textPos, LifetimeCellStyle::TextColor, label);
+            if (lifetime.Mode == Gfx::LifeTimeMode::kRead || lifetime.Mode == Gfx::LifeTimeMode::kWrite) {
+                const char* label = lifetime.Mode == Gfx::LifeTimeMode::kRead ? "Read" : "Write";
+                // Center the text
+                ImVec2 textSize = ImGui::CalcTextSize(label);
+                ImVec2 textPos  = ImVec2(
+                    min.x + (width - textSize.x) * 0.5f,
+                    min.y + (height - textSize.y) * 0.5f);
+                drawList->AddText(textPos, LifetimeCellStyle::TextColor, label);
+            }
 
             // Tooltip
             if (hovered) {
@@ -256,15 +269,36 @@ namespace Razix {
                     draw->AddRectFilled(row_p0, row_p1, bgColor);
                     draw->AddRect(row_p0, row_p1, ResourcePanelStyle::BorderColor);
 
-                    const auto& resNode = frameGraph.getResourceNode(compiledResourceEntryPoints[ry]);
+                    u32 resEntryID = compiledResourceEntryPoints[ry];
+
+                    const auto& resNode = frameGraph.getResourceNode(resEntryID);
                     draw->AddText(row_p0 + ImVec2(ResourcePanelStyle::TextOffsetX, ResourcePanelStyle::TextOffsetY), ResourcePanelStyle::TextColor, resNode.getName().c_str());
 
-                    const Gfx::RZResourceEntry& resEntry  = frameGraph.getResourceEntry(compiledResourceEntryPoints[ry]);
-                    const auto&                 lifetimes = resEntry.getLifetimes();
+                    const Gfx::RZResourceEntry& resEntry = frameGraph.getResourceEntry(resEntryID);
+
+#ifdef FG_USE_FINE_GRAINED_LIFETIMES
+                    const auto& lifetimes = resEntry.getLifetimes();
 
                     for (auto& lifetime: lifetimes) {
                         DrawLifetimeCellFromPassRange(origin, lifetime.StartPassID, lifetime.EndPassID - lifetime.StartPassID + 1, (ry + 2) * FrameGraphStyle::CellSize, lifetime);
                     }
+#else
+                    Gfx::RZResourceLifetime lifetime = {};
+                    lifetime.Mode                    = Gfx::LifeTimeMode::kCoarse;
+                    lifetime.ResourceEntryID         = resEntryID;
+                    lifetime.StartPassID             = resEntry.getProducerPassNode().getID();
+                    lifetime.EndPassID               = resEntry.getLastPassNode().getID();
+
+                    // They exist throughout the frame! and are mostly Read-Only cause no point in import write modifiable data?
+                    if (resEntry.isImported()) {
+                        const auto& compiledPassNodesSize = frameGraph.getCompiledPassNodes().size();
+                        lifetime.StartPassID              = 0;
+                        lifetime.EndPassID                = compiledPassNodesSize - 1;
+                        lifetime.Mode                     = Gfx::LifeTimeMode::kImported;
+                    }
+
+                    DrawLifetimeCellFromPassRange(origin, lifetime.StartPassID, lifetime.EndPassID - lifetime.StartPassID + 1, (ry + 2) * FrameGraphStyle::CellSize, lifetime);
+#endif
 
                     ImVec2 mouse = ImGui::GetMousePos();
                     if (mouse.x >= row_p0.x && mouse.x <= row_p1.x && mouse.y >= row_p0.y && mouse.y <= row_p1.y) {

@@ -542,7 +542,6 @@ namespace Razix {
                 for (auto &[id, flags]: pass.m_Writes) {
                     auto &written      = m_ResourceNodes[id];
                     written.m_Producer = &pass;
-                    written.m_RefCount++;
                 }
             }
 
@@ -606,6 +605,8 @@ namespace Razix {
                 }
             }
 
+#ifdef FG_USE_FINE_GRAINED_LIFETIMES
+
             struct Interval
             {
                 u32          lo, hi;
@@ -664,6 +665,26 @@ namespace Razix {
                         intv.mode);
             }
             RAZIX_CORE_INFO("");
+#else
+
+            for (u32 passID = 0; passID < m_PassNodes.size(); ++passID) {
+                auto &pass = m_PassNodes[passID];
+                if (pass.m_RefCount == 0) continue;
+
+                // Store final culled passes in a array
+                m_CompiledPassIndices.push_back(passID);
+
+                // Create coarse lifetimes
+                for (auto id: pass.m_Creates)
+                    getResourceEntryRef(id).m_Producer = &pass;
+                for (auto &[id, flags]: pass.m_Writes)
+                    getResourceEntryRef(id).m_Last = &pass;
+                for (auto& [id, flags] : pass.m_Reads) {
+                    auto& entryRef = getResourceEntryRef(id);
+                    entryRef.m_Last = &pass;
+                }
+            }
+#endif
         }
 
         void RZFrameGraph::execute(void *transientAllocator)
@@ -1052,7 +1073,7 @@ namespace Razix {
                  * which serve no runtime purpose. Instead, we skip the read registration
                  * and directly clone + write:
                  */
-                //m_PassNode.registerResourceForRead(id, flags);
+                m_PassNode.registerResourceForRead(id, flags);
                 // we're writing to the same existing external resource so clone it before writing to it
                 writeID = m_PassNode.registerResourceForWrite(m_FrameGraph.cloneResource(id), flags);
             }

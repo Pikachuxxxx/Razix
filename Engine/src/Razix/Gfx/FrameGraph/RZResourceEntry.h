@@ -162,8 +162,14 @@ namespace Razix {
                 return getModel<T>()->descriptor;
             }
 
+#ifdef FG_USE_FINE_GRAINED_LIFETIMES
             const std::vector<RZResourceLifetime> &getLifetimes() const { return m_Lifetimes; }
             std::vector<RZResourceLifetime>       &getLifetimesRef() { return m_Lifetimes; }
+#else
+            const RZPassNode &getProducerPassNode() const { return *m_Producer; }
+            const RZPassNode &getLastPassNode() const { return *m_Last; }
+
+#endif
 
             RAZIX_NO_DISCARD u32  getVersion() const { return m_Version; }
             RAZIX_NO_DISCARD bool isImported() const { return m_Imported; }
@@ -173,10 +179,16 @@ namespace Razix {
             //---------------------------------
             std::unique_ptr<Concept> m_Concept; /* Type Erased implementation class */
             //---------------------------------
-            const u32                       m_ID;
-            const bool                      m_Imported = false;
-            u32                             m_Version; /* Version of the latest cloned resource */
+            const u32  m_ID;
+            const bool m_Imported = false;
+            u32        m_Version; /* Version of the latest cloned resource */
+
+#ifdef FG_USE_FINE_GRAINED_LIFETIMES
             std::vector<RZResourceLifetime> m_Lifetimes;
+#else
+            RZPassNode *m_Producer;
+            RZPassNode *m_Last;
+#endif
 
         private:
             template<typename T>
