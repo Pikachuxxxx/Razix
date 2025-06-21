@@ -1,11 +1,11 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "Diana.h"
+#include "House.h"
 
 namespace Razix {
     namespace Gfx {
-        namespace Diana {
+        namespace House {
 
             Razix::RZWorld* BuildRazixWorld(RZScene* scenes, RZSceneView* views)
             {
@@ -38,6 +38,6 @@ namespace Razix {
             {
                 return nullptr;
             }
-        }    // namespace Diana
+        }    // namespace House
     }        // namespace Gfx
 }    // namespace Razix

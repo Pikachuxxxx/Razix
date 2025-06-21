@@ -1,5 +1,4 @@
 ﻿// clang-format off
-// clang-format off
 #include "rzxpch.h"
 // clang-format on
 #include "RZFrameGraph.h"
