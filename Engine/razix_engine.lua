@@ -186,7 +186,6 @@ project "Razix"
         systemversion "latest"
         disablewarnings { 4307, 4267, 4275, 4715, 4554 } -- Disabling the 4275 cause this will propagate into everything ig, also 4715 = not returinign values from all control paths is usually done deliberately hence fuck this warning
         characterset ("MBCS")
-        editandcontinue "On"
         
         pchheader "rzxpch.h"
         pchsource "src/rzxpch.cpp"
@@ -201,14 +200,14 @@ project "Razix"
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
         buildoptions
         {
-            "/MP", "/bigobj", "/ZI", 
+            "/MP", "/bigobj", 
             "/WX"
             -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
         }
 
         linkoptions
         {
-            "/INCREMENTAL"--"/NODEFAULTLIB:libcpmt.lib" ,"/NODEFAULTLIB:msvcprt.lib", "/NODEFAULTLIB:libcpmtd.lib", "/NODEFAULTLIB:msvcprtd.lib"
+            "/WX:NO" -- until I figure out incremental disabling in release mode
         }
 
         -- Windows specific defines
@@ -461,6 +460,7 @@ project "Razix"
         symbols "On"
         runtime "Debug"
         optimize "Off"
+        editandcontinue "On"
 
         filter "system:windows"
             links
@@ -468,13 +468,19 @@ project "Razix"
                 "WinPixEventRuntime",
                 "WinPixEventRuntime_UAP"
             }
+            buildoptions { "/ZI"}
+            linkoptions
+            {
+                "/INCREMENTAL",--"/NODEFAULTLIB:libcpmt.lib" ,"/NODEFAULTLIB:msvcprt.lib", "/NODEFAULTLIB:libcpmtd.lib", "/NODEFAULTLIB:msvcprtd.lib"
+            }
         filter {}
 
     filter "configurations:Release"
         defines { "RAZIX_RELEASE", "NDEBUG" }
-        optimize "Speed"
         symbols "On"
         runtime "Release"
+        optimize "Speed"
+        editandcontinue "Off"
         
         filter "system:windows"
             links
@@ -486,7 +492,8 @@ project "Razix"
 
     filter "configurations:GoldMaster"
         defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
-        symbols "On"
-        optimize "Full"
+        symbols "Off"
         runtime "Release"
+        optimize "Full"
+        editandcontinue "Off"
 group""

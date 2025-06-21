@@ -8,7 +8,8 @@ group "Tests"
         location "GfxTestRunner"
 
         postbuildcommands {
-            "python ../../Scripts/test_runner.py Debug"
+            'cd /d "%{wks.location}/../"',
+            'python "%{wks.location}/../Scripts/test_runner.py" %{cfg.buildcfg}'
         }
 
     -- TODO: Hello Triangle Test - SS test buy comparing to Golden Imags
