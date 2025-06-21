@@ -13,7 +13,7 @@ test_names = [
 DEFAULT_CONFIG = "Debug"
 DEFAULT_PLATFORM = "windows-x86_64"
 VALID_CONFIGS = ["Debug", "Release", "GoldMaster"]
-VALID_PLATFORMS = ["windows-x86_64", "macos-arm64", "prospero"]
+VALID_PLATFORMS = ["windows-x86_64", "macosx-ARM64", "Prospero"]
 
 # -------------------------------------------------------------------
 # Safe print that won't crash on non-ASCII terminals (like MSBuild)
@@ -29,7 +29,7 @@ def parse_args():
     parser.add_argument("config", nargs="?", default=DEFAULT_CONFIG, choices=VALID_CONFIGS,
         help="Build config (Debug, Release, GoldMaster). Default is Debug uwu")
     parser.add_argument("platform", nargs="?", default=DEFAULT_PLATFORM, choices=VALID_PLATFORMS,
-        help="Platform (windows-x86_64, macos-arm64, prospero). Default is windows-x86_64 owo")
+        help="Platform (windows-x86_64, macosx-ARM64, Prospero). Default is windows-x86_64 owo")
     parser.add_argument("--verbose", action="store_true", help="Show test output in console, teehee~")
     return parser.parse_args()
 
