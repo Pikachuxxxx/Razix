@@ -52,7 +52,7 @@ namespace Razix {
              */
 
             // Create the Pipeline
-            Gfx::RZPipelineDesc pipelineInfo{};
+            Gfx::RZPipelineDesc pipelineInfo    = {};
             pipelineInfo.name                   = "Pipeline.GBuffer";
             pipelineInfo.cullMode               = Gfx::CullMode::Front;
             pipelineInfo.shader                 = shader;

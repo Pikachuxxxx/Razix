@@ -18,68 +18,69 @@ namespace Razix {
         };
 
         static RZSamplerDesc g_SamplerCreateDescPresets[u32(SamplerPresets::COUNT)] = {
-            RZSamplerDesc(
+            RZSamplerDesc{
                 "DefaultGenericSampler",
                 Wrapping::kRepeat,
                 Filtering(Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear),
                 0.0f,
                 1.0f,
                 1.0f,
-                false),
+                false},
 
-            RZSamplerDesc(
+            RZSamplerDesc{
                 "MipMapSampler",
                 Wrapping::kRepeat,
                 Filtering(Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear),
                 0.0f,
                 1.0f,
                 1.0f,
-                false),
+                false},
 
-            RZSamplerDesc(
+            RZSamplerDesc{
                 "AnisotropicSampler",
                 Wrapping::kClampToEdge,
                 Filtering(Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear),
                 0.0f,
                 1.0f,
                 16.0f,    // Enable high anisotropic filtering
-                true),
+                true},
 
-            RZSamplerDesc(
+            RZSamplerDesc{
                 "DiffuseTexSampler",
                 Wrapping::kRepeat,
                 Filtering(Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear),
                 0.0f,
                 1.0f,
                 1.0f,
-                false),
+                false},
 
-            RZSamplerDesc(
+            RZSamplerDesc{
                 "NormalMapSampler",
                 Wrapping::kRepeat,
                 Filtering(Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear),
                 0.0f,
                 1.0f,
                 1.0f,
-                false),
+                false},
 
-            RZSamplerDesc(
+            RZSamplerDesc{
                 "NonColorSampler",
                 Wrapping::kClampToBorder,
                 Filtering(Filtering::Mode::kFilterModeNearest, Filtering::Mode::kFilterModeNearest),
                 0.0f,
                 1.0f,
                 1.0f,
-                false),
+                false},
 
-            RZSamplerDesc(
+            RZSamplerDesc{
                 "ColorSampler",
                 Wrapping::kClampToEdge,
                 Filtering(Filtering::Mode::kFilterModeLinear, Filtering::Mode::kFilterModeLinear),
                 0.0f,
                 1.0f,
                 1.0f,
-                false)};
+                false},
+        };
 
         static RZSamplerHandle g_SamplerPresets[u32(SamplerPresets::COUNT)] = {};
 

@@ -5,6 +5,12 @@
 namespace Razix {
     namespace Gfx {
 
+        // TODO: Re-write this in C-Friendly way
+        // No classes, no enum class, no functions at all in this file, move it to a new GfxUitls.h
+        // use ENUM_NAME_COUNT as last member of each enum instead of COUNT and enum class
+        // and whatever necessary to make this a c-compatible header and no .cpp counterpart
+        // Any C++ utils like NameMaps and Static asserts will reside in GfxUtils.h and not part of RHI library
+
         // Forward declaration
         // RHI
         class RZTexture;
@@ -43,6 +49,7 @@ namespace Razix {
         // Null Handle
         using RZNullHandle = RZHandle<void>;
 
+        // FIXME: NO constexpr constants in source, unless they are expressions, use #defines instead
         // Constants
         constexpr u32 kInvalidSetIdx = ~0;
 
@@ -719,24 +726,7 @@ namespace Razix {
             f32         minLOD           = 0.0f;
             f32         maxLOD           = 1.0f;
             f32         maxAnisotropy    = 1.0f;
-            bool        enableAnisotropy = true;
-
-            RZSamplerDesc(const std::string& name             = "$UNNAMED_SAMPLER",
-                Wrapping                     wrapping         = Wrapping::kRepeat,
-                Filtering                    filtering        = Filtering{},
-                f32                          minLOD           = 0.0f,
-                f32                          maxLOD           = 1.0f,
-                f32                          maxAnisotropy    = 1.0f,
-                bool                         enableAnisotropy = false)
-                : name(name),
-                  wrapping(wrapping),
-                  filtering(filtering),
-                  minLOD(minLOD),
-                  maxLOD(maxLOD),
-                  maxAnisotropy(maxAnisotropy),
-                  enableAnisotropy(enableAnisotropy)
-            {
-            }
+            bool        enableAnisotropy = false;
         };
 
         /* Vertex buffer layout describes the layout of the buffer data that is being uploaded to the GPU to be consumed by the Input Assembler */
@@ -962,8 +952,7 @@ namespace Razix {
             "TransferWriteToShaderRead",
             "ShaderReadToShaderWrite",
             "ShaderWriteToShaderRead",
-            "ShaderReadOnly"
-        };
+            "ShaderReadOnly"};
 
         RAZIX_ENUM_NAMES_ASSERT(BufferBarrierTypeNames, BufferBarrierType);
 

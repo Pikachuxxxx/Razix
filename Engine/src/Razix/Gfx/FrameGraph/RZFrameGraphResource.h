@@ -15,8 +15,7 @@ namespace Razix {
         typedef i32 RZFrameGraphResource;
 
         constexpr u32 kInitFGResource = 0xDEAFBEEF;
-
-        constexpr u32 kFlagsNone = ~0;
+        constexpr u32 kFlagsNone      = ~0;
 
         // TODO: Remove this as we hardly use it, we don't manage descriptors sets and resource views via FG its done via RHI itself
         // even if we make RZResourceView it will be managed via a global RHI API instead of embedding it this way
@@ -42,10 +41,10 @@ namespace Razix {
 
         enum class LifeTimeMode
         {
-            kRead,
-            kWrite,
             kCoarse,
-            kImported
+            kImported,
+            kRead,     // Fine grained
+            kWrite,    // Fine grained
         };
 
         struct RZResourceLifetime

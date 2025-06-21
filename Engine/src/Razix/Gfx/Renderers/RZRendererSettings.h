@@ -2,6 +2,7 @@
 
 namespace Razix {
     namespace Gfx {
+
 #define NUM_HALTON_SAMPLES_TAA_JITTER 16
 
         // Renderer Settings + Debug flags
@@ -70,16 +71,12 @@ namespace Razix {
 
         struct RZRendererSettings
         {
-            u32 renderFeatures{RendererFeature_Default};
+            u32 renderFeatures = RendererFeature_Default;
             struct
             {
-                f32 radius{0.005f};
-                f32 strength{0.04f};
+                f32 radius   = 0.005f;
+                f32 strength = 0.04f;
             } bloomConfig;
-            struct
-            {
-                int32_t numPropagations{6};
-            } globalIlluminationConfig;
             u32                  debugFlags{0u};
             TonemapMode          tonemapMode         = ACES;
             Antialising          aaMode              = NoAA;
