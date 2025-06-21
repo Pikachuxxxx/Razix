@@ -5,7 +5,6 @@ group "Tests"
     project "GfxTestRunner"
         kind "Utility"
         language "C++" -- or just omit if not compiling anything
-        location "GfxTestRunner"
 
         postbuildcommands {
             'cd /d "%{wks.location}/../"',
