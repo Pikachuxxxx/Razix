@@ -166,14 +166,23 @@ namespace Razix {
             const std::vector<RZResourceLifetime>& getLifetimes() const { return m_Lifetimes; }
             std::vector<RZResourceLifetime>&       getLifetimesRef() { return m_Lifetimes; }
 #else
-            const RZPassNode& getProducerPassNode() const { return *m_Producer; }
-            const RZPassNode& getLastPassNode() const { return *m_Last; }
+            inline const RZPassNode& getProducerPassNode() const { return *m_Producer; }
+            inline const RZPassNode& getLastPassNode() const { return *m_Last; }
 
 #endif
+            inline RZResourceLifetime getCoarseLifetime() const
+            {
+                Gfx::RZResourceLifetime lifetime = {};
+                lifetime.Mode                    = Gfx::LifeTimeMode::kCoarse;
+                lifetime.ResourceEntryID         = m_ID;
+                lifetime.StartPassID             = !isImported() ? m_Producer->getID() : 0;
+                lifetime.EndPassID               = !isImported() ? m_Last->getID() : UINT32_MAX;
+                return lifetime;
+            }
 
-            RAZIX_NO_DISCARD u32  getVersion() const { return m_Version; }
-            RAZIX_NO_DISCARD bool isImported() const { return m_Imported; }
-            RAZIX_NO_DISCARD bool isTransient() const { return !m_Imported; }
+            RAZIX_NO_DISCARD inline u32  getVersion() const { return m_Version; }
+            RAZIX_NO_DISCARD inline bool isImported() const { return m_Imported; }
+            RAZIX_NO_DISCARD inline bool isTransient() const { return !m_Imported; }
 
         private:
             //---------------------------------

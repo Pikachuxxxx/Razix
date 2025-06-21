@@ -16,11 +16,63 @@ namespace Razix {
             u32 end;
         };
 
+        // List sorted by end lifetime
         class AliasingEndTimeQueue
         {
-            void insert(u32 groupID, u32 end) {}
-            void update(u32 groupID, u32 newEnd) {}
-            u32  findFirstFree(u32 begin) const { return UINT32_MAX; }
+        public:
+            // Append ad maintain sorted blocks via insertion sort
+            void insert(u32 groupID, u32 end)
+            {
+                AliasingPriorityEntry entry{groupID, end};
+                m_Entries.emplace_back(entry);
+                // Insertion sort just for the last element
+                u32 i = m_Count;
+                while (i > 0 && m_Entries[i - 1].end > end) {
+                    std::swap(m_Entries[i], m_Entries[i - 1]);
+                    --i;
+                }
+                ++m_Count;
+            }
+
+            // Update groups end-time: linear search and adjust position
+            void update(u32 groupID, u32 newEnd)
+            {
+                for (u32 i = 0; i < m_Count; ++i) {
+                    if (m_Entries[i].groupID == groupID) {
+                        m_Entries[i].end = newEnd;
+                        // Bubble sort to correct position
+                        u32 j = i;
+                        // Move right if too small
+                        while (j + 1 < m_Count && m_Entries[j].end > m_Entries[j + 1].end) {
+                            std::swap(m_Entries[j], m_Entries[j + 1]);
+                            ++j;
+                        }
+
+                        while (j > 0 && m_Entries[j - 1].end > m_Entries[j].end) {
+                            std::swap(m_Entries[j - 1], m_Entries[j]);
+                            --j;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            u32 findFirstFree(u32 begin) const
+            {
+                // TODO: Make this SIMD version
+                for (u32 i = 0; i < m_Count; ++i) {
+                    if (m_Entries[i].end <= begin) {
+                        return m_Entries[i].end;
+                    }
+                }
+                return UINT32_MAX;
+            }
+
+            void reset()
+            {
+                m_Entries.clear();
+                m_Count = 0;
+            }
 
         private:
             std::vector<AliasingPriorityEntry> m_Entries;
@@ -29,6 +81,26 @@ namespace Razix {
 
         class AliasingGroup
         {
+        public:
+            AliasingGroup(u32 id)
+                : m_GroupID(id) {}
+
+            bool fits(const RZResourceLifetime lifetime) const
+            {
+                return lifetime.StartPassID > m_MaxEnd;
+            }
+
+            void add(const RZResourceLifetime& lifetime)
+            {
+                m_ResourceEntryIDs.push_back(lifetime.ResourceEntryID);
+                m_MaxEnd = std::max(m_MaxEnd, lifetime.EndPassID);
+            }
+
+            u32 id() const { return m_GroupID; }
+            u32 end() const { return m_MaxEnd; }
+
+            const std::vector<u32>& getResourceEntryIDs() const { return m_ResourceEntryIDs; }
+
         private:
             u32              m_GroupID = UINT32_MAX;
             u32              m_MaxEnd  = 0;
@@ -38,12 +110,51 @@ namespace Razix {
         class AliasingBook
         {
         public:
-            void build() {}
-            void clear() {}
+            void build(std::vector<RZResourceLifetime> lifetimes)
+            {
+                // Sort by start for linear-scan optimality
+                std::sort(lifetimes.begin(), lifetimes.end(), [](RZResourceLifetime& a, RZResourceLifetime& b) {
+                    return a.StartPassID < b.StartPassID;
+                });
+                size_t N = lifetimes.size();
+                m_Groups.reserve(64);
+                m_Queue = AliasingEndTimeQueue();
+
+                for (auto& lif: lifetimes) {
+                    // Find earliest-ending group that frees before lif.start
+                    uint32_t gid = m_Queue.findFirstFree(lif.StartPassID);
+                    if (gid != UINT32_MAX && m_Groups[gid].fits(lif)) {
+                        m_Groups[gid].add(lif);
+                        m_Queue.update(gid, lif.EndPassID);
+                        m_ResourceToGroup[lif.ResourceEntryID] = gid;
+                    } else {
+                        uint32_t newId = m_Groups.size();
+                        m_Groups.emplace_back(newId);
+                        m_Groups.back().add(lif);
+                        m_Queue.insert(newId, lif.EndPassID);
+                        m_ResourceToGroup[lif.ResourceEntryID] = newId;
+                    }
+                }
+            }
+
+            void reset()
+            {
+                m_Groups.clear();
+                m_Queue.reset();
+            }
+
+            const std::vector<AliasingGroup>& getGroups() const { return m_Groups; }
+
+            u32 getGroupIDForResource(u32 resourceID) const
+            {
+                auto it = m_ResourceToGroup.find(resourceID);
+                return (it != m_ResourceToGroup.end()) ? it->second : UINT32_MAX;
+            }
 
         private:
-            std::vector<AliasingGroup> m_Groups;
-            AliasingEndTimeQueue       m_Queue;
+            std::vector<AliasingGroup>   m_Groups;
+            AliasingEndTimeQueue         m_Queue;
+            std::unordered_map<u32, u32> m_ResourceToGroup;
         };
 
         //----------------------------------------------------------------------------------
@@ -195,6 +306,8 @@ namespace Razix {
             // Export function to dot format for GraphViz
             friend std::ostream& operator<<(std::ostream&, const RZFrameGraph&);
 
+            const AliasingBook& getAliasBook() const { return m_TestAliasbook; }
+
         private:
             std::vector<RZPassNode>      m_PassNodes;
             std::vector<RZResourceNode>  m_ResourceNodes;
@@ -203,6 +316,8 @@ namespace Razix {
             std::vector<u32>             m_CompiledPassIndices;
             std::vector<u32>             m_CompiledResourceIndices;
             std::vector<u32>             m_CompiledResourceEntries;
+
+            AliasingBook m_TestAliasbook;
 
             static bool m_IsFirstFrame;
 

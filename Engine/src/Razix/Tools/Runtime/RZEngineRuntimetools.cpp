@@ -9,6 +9,7 @@
 
 #include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
+#include "Razix/Utilities/RZColorUtilities.h"
 #include "Razix/Utilities/RZStringUtilities.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
@@ -57,14 +58,15 @@ namespace Razix {
             constexpr static ImU32 TextColor                 = IM_COL32(230, 255, 230, 255);
             constexpr static float Roundness                 = 4.0f;
             constexpr static float BorderThickness           = 1.0f;
+            constexpr static float BorderSaturation          = 1.25;
             constexpr static ImU32 Color                     = IM_COL32(255, 192, 203, 200);
             constexpr static ImU32 HoverColor                = IM_COL32(255, 182, 193, 255);
             constexpr static ImU32 BorderColor               = IM_COL32(255, 160, 170, 255);
             constexpr static float CellWidth                 = PassLabelStyle::BoxWidth;
             constexpr static float CellHeight                = 18.0f;
-            constexpr static ImU32 CoarseLifetimeBgColor     = IM_COL32(200, 120, 20, 180);    // Amber-orange
+            constexpr static ImU32 CoarseLifetimeBgColor     = IM_COL32(200, 120, 20, 150);    // Amber-orange
             constexpr static ImU32 CoarseLifetimeBorderColor = IM_COL32(255, 180, 50, 255);    // Slightly brighter orange
-            constexpr static ImU32 ImportedBgColor           = IM_COL32(120, 30, 200, 180);    // Neon violet/magenta
+            constexpr static ImU32 ImportedBgColor           = IM_COL32(120, 30, 200, 120);    // Neon violet/magenta
             constexpr static ImU32 ImportedBorderColor       = IM_COL32(180, 80, 255, 255);    // Bright popping edge
         };
 
@@ -85,15 +87,21 @@ namespace Razix {
 
         struct FrameGraphStyle
         {
-            constexpr static float TopPadding         = 20.0f;
-            constexpr static float CellSize           = 24.0f;
-            constexpr static float LabelPanelSpace    = 300.0f;
-            constexpr static float LabelPanelOffset   = 20.0f;
-            constexpr static float BarrierRowOffset   = 2.0f;
-            constexpr static float LabelColumnOffsetX = 25.0f;
+            constexpr static float  TopPadding         = 60.0f;
+            constexpr static float  CellSize           = 24.0f;
+            constexpr static float  LabelPanelSpace    = 300.0f;
+            constexpr static float  LabelPanelOffset   = 20.0f;
+            constexpr static float  BarrierRowOffset   = 2.0f;
+            constexpr static float  LabelColumnOffsetX = 25.0f;
+            constexpr static float  LegendSpacing      = 10.0f;
+            constexpr static float  TextSpacing        = 4.0f;
+            constexpr static ImVec2 LegendBoxSize      = ImVec2(12, 12);
         };
 
         //---------------------------------------------------------------------------------------------------------------------
+
+        constexpr u32 MAGIC_VICODIN = 0x8426346;
+        constexpr u32 MAGIC_BIRTHDAY = 0xBAD59F3;    // Gregory House was born June 11, 1959
 
         struct SimulatedBarrier
         {
@@ -102,7 +110,31 @@ namespace Razix {
             bool     isWrite;
         };
 
-        void DrawLifetimeCell(const ImVec2& pos, float width, float height, Gfx::RZResourceLifetime lifetime)
+        ImU32 GetAliasGroupColor(u32 groupID)
+        {
+            float3 color = Utilities::GenerateHashedColor(groupID * MAGIC_VICODIN);
+
+            u8 r = static_cast<u8>(color.x * 255.0f);
+            u8 g = static_cast<u8>(color.y * 255.0f);
+            u8 b = static_cast<u8>(color.z * 255.0f);
+            u8 a = 120;
+
+            return IM_COL32(r, g, b, a);
+        }
+
+        ImU32 GetAliasGroupColorBoder(u32 groupID)
+        {
+            float3 color = Utilities::GenerateHashedColor(groupID * MAGIC_VICODIN);
+
+            u8 r = static_cast<u8>(color.x * LifetimeCellStyle::BorderSaturation * 255.0f);
+            u8 g = static_cast<u8>(color.y * LifetimeCellStyle::BorderSaturation * 255.0f);
+            u8 b = static_cast<u8>(color.z * LifetimeCellStyle::BorderSaturation * 255.0f);
+            u8 a = 200;
+
+            return IM_COL32(r, g, b, a);
+        }
+
+        void DrawLifetimeCell(const ImVec2& pos, float width, float height, Gfx::RZResourceLifetime lifetime, u32 groupID)
         {
             ImDrawList* drawList = ImGui::GetWindowDrawList();
             ImVec2      min      = pos;
@@ -115,8 +147,13 @@ namespace Razix {
             ImU32 borderColor = lifetime.Mode == Gfx::LifeTimeMode::kRead ? BarrierStyle::ReadBorderColor : BarrierStyle::WriteBorderColor;
 
             if (lifetime.Mode == Gfx::LifeTimeMode::kCoarse) {
-                fillColor   = LifetimeCellStyle::CoarseLifetimeBgColor;
-                borderColor = LifetimeCellStyle::CoarseLifetimeBorderColor;
+                if (groupID != UINT32_MAX) {
+                    fillColor   = GetAliasGroupColor(groupID);
+                    borderColor = GetAliasGroupColorBoder(groupID);
+                } else {
+                    fillColor   = LifetimeCellStyle::CoarseLifetimeBgColor;
+                    borderColor = LifetimeCellStyle::CoarseLifetimeBorderColor;
+                }
             } else if (lifetime.Mode == Gfx::LifeTimeMode::kImported) {
                 fillColor   = LifetimeCellStyle::ImportedBgColor;
                 borderColor = LifetimeCellStyle::ImportedBorderColor;
@@ -145,7 +182,7 @@ namespace Razix {
             }
         }
 
-        void DrawLifetimeCellFromPassRange(const ImVec2& origin, uint32_t startPassIdx, uint32_t numPasses, float rowY, Gfx::RZResourceLifetime lifetime)
+        void DrawLifetimeCellFromPassRange(const ImVec2& origin, uint32_t startPassIdx, uint32_t numPasses, float rowY, Gfx::RZResourceLifetime lifetime, u32 groupID)
         {
             float xOffset = FrameGraphStyle::LabelPanelSpace +
                             FrameGraphStyle::LabelColumnOffsetX * 2 +
@@ -157,7 +194,7 @@ namespace Razix {
             float cellWidth = (LifetimeCellStyle::CellWidth * numPasses) +
                               ((PassLabelStyle::Spacing * 2) * (numPasses - 1));
 
-            DrawLifetimeCell(cellOrigin, cellWidth, LifetimeCellStyle::CellHeight, lifetime);
+            DrawLifetimeCell(cellOrigin, cellWidth, LifetimeCellStyle::CellHeight, lifetime, groupID);
         }
 
         void DrawSimulatedBarriers(ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, const std::vector<SimulatedBarrier>& barriers)
@@ -249,6 +286,30 @@ namespace Razix {
                 uint32_t maxVisibleRows = static_cast<uint32_t>(contentHeight / FrameGraphStyle::CellSize);
                 uint32_t maxRows        = std::min(resourceCount, maxVisibleRows > 1 ? maxVisibleRows - 2 : 0);
 
+                ImGui::Spacing();
+                ImGui::Text("Legend:");
+
+                ImVec2 legendOrigin   = ImGui::GetCursorScreenPos();
+                ImVec2 cursor         = legendOrigin;
+                auto   DrawLegendItem = [&](const char* label, ImU32 bgColor, ImU32 borderColor) {
+                    // Draw color box
+                    draw->AddRectFilled(cursor, cursor + FrameGraphStyle::LegendBoxSize, bgColor);
+                    draw->AddRect(cursor, cursor + FrameGraphStyle::LegendBoxSize, borderColor);
+
+                    // Draw label
+                    ImVec2 textPos = cursor + ImVec2(FrameGraphStyle::LegendBoxSize.x + FrameGraphStyle::TextSpacing, 0);
+                    draw->AddText(textPos, LifetimeCellStyle::TextColor, label);
+
+                    // Advance cursor
+                    ImVec2 textSize = ImGui::CalcTextSize(label);
+                    cursor.x        = textPos.x + textSize.x + FrameGraphStyle::LegendSpacing;
+                };
+
+                DrawLegendItem("Coarse Lifetime", LifetimeCellStyle::CoarseLifetimeBgColor, LifetimeCellStyle::CoarseLifetimeBorderColor);
+                DrawLegendItem("Imported", LifetimeCellStyle::ImportedBgColor, LifetimeCellStyle::ImportedBorderColor);
+                DrawLegendItem("Read Barrier", BarrierStyle::ReadFillColor, BarrierStyle::ReadBorderColor);
+                DrawLegendItem("Write Barrier", BarrierStyle::WriteFillColor, BarrierStyle::WriteBorderColor);
+
                 ImVec2 p0 = origin;
                 ImVec2 p1 = origin + ImVec2(FrameGraphStyle::LabelPanelSpace - FrameGraphStyle::LabelPanelOffset, FrameGraphStyle::CellSize);
                 draw->AddRectFilled(p0, p1, ResourcePanelStyle::HeaderBgColor);
@@ -283,11 +344,8 @@ namespace Razix {
                         DrawLifetimeCellFromPassRange(origin, lifetime.StartPassID, lifetime.EndPassID - lifetime.StartPassID + 1, (ry + 2) * FrameGraphStyle::CellSize, lifetime);
                     }
 #else
-                    Gfx::RZResourceLifetime lifetime = {};
-                    lifetime.Mode                    = Gfx::LifeTimeMode::kCoarse;
-                    lifetime.ResourceEntryID         = resEntryID;
-                    lifetime.StartPassID             = resEntry.getProducerPassNode().getID();
-                    lifetime.EndPassID               = resEntry.getLastPassNode().getID();
+                    Razix::Gfx::RZResourceLifetime lifetime = {};
+                    lifetime                                = resEntry.getCoarseLifetime();
 
                     // They exist throughout the frame! and are mostly Read-Only cause no point in import write modifiable data?
                     if (resEntry.isImported()) {
@@ -297,13 +355,15 @@ namespace Razix {
                         lifetime.Mode             = Gfx::LifeTimeMode::kImported;
                     }
 
-                    DrawLifetimeCellFromPassRange(origin, lifetime.StartPassID, lifetime.EndPassID - lifetime.StartPassID + 1, (ry + 2) * FrameGraphStyle::CellSize, lifetime);
+                    u32 groupID = frameGraph.getAliasBook().getGroupIDForResource(resEntryID);
+                    DrawLifetimeCellFromPassRange(origin, lifetime.StartPassID, lifetime.EndPassID - lifetime.StartPassID + 1, (ry + 2) * FrameGraphStyle::CellSize, lifetime, groupID);
 #endif
 
                     ImVec2 mouse = ImGui::GetMousePos();
                     if (mouse.x >= row_p0.x && mouse.x <= row_p1.x && mouse.y >= row_p0.y && mouse.y <= row_p1.y) {
                         ImGui::BeginTooltip();
                         ImGui::Text("Resource ID    : %u", resNode.getID());
+                        ImGui::Text("Aliasing group : %u", groupID);
                         ImGui::Separator();
                         ImGui::Text("EntryPoint ID  : %u", resNode.getResourceEntryId());
                         ImGui::Text("Version        : %u", resNode.getVersion());

@@ -692,6 +692,35 @@ namespace Razix {
                 }
             }
 #endif
+
+            // Once lifetimes are determined we can create aliasing groups
+            m_TestAliasbook.reset();
+
+            std::vector<RZResourceLifetime> flatResEntries;
+            for (const auto& entry: m_CompiledResourceEntries) {
+                flatResEntries.push_back(m_ResourceRegistry[entry].getCoarseLifetime());
+            }
+            m_TestAliasbook.build(flatResEntries);
+
+            auto& groups = m_TestAliasbook.getGroups();
+            for (u32 i = 0; i < groups.size(); i++) {
+                const auto& group    = groups[i];
+                const auto& entryIDs = group.getResourceEntryIDs();
+
+                if (entryIDs.size() >= 1) {
+                    std::ostringstream oss;
+                    oss << "+------------------------+\n";
+                    oss << "| Aliasing Group " << i << "      |\n";
+                    oss << "+------------------------+\n";
+
+                    for (u32 id: entryIDs) {
+                        oss << "| Entry ID: " << std::setw(13) << std::left << id << "|\n";
+                    }
+
+                    oss << "+------------------------+\n";
+                    RAZIX_CORE_TRACE("\n{0}", oss.str());
+                }
+            }
         }
 
         void RZFrameGraph::execute(void* transientAllocator)
