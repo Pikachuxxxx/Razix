@@ -514,7 +514,14 @@ namespace Razix {
 
             // First create the FrameGraphPass (Data) and create a pass node
             // Now that the checks are done, let's create the pass and PassNode
-            auto* pass = new RZFrameGraphDataPass(shader, pipeline, geomMode, resolution, extent, layers);
+            FrameGraphDataPassDesc desc = {};
+            desc.shader                 = shader;
+            desc.pipeline               = pipeline;
+            desc.geometryMode           = geomMode;
+            desc.resolution             = resolution;
+            desc.extent                 = extent;
+            desc.layers                 = layers;
+            auto* pass                  = new RZFrameGraphDataPass(desc);
             // Create the PassNode in the graph
             RZPassNode& passNode = createPassNodeRef(std::string_view(passNameStr), std::unique_ptr<RZFrameGraphDataPass>(pass));
             // Mark as data driven
@@ -534,7 +541,7 @@ namespace Razix {
             // Set the read and write passes
             // Build ref counts and producer links
             for (auto& pass: m_PassNodes) {
-                pass.m_RefCount = static_cast<int32_t>(pass.m_Writes.size());
+                pass.m_RefCount = static_cast<u32>(pass.m_Writes.size());
                 for (auto& [id, flags]: pass.m_Reads) {
                     auto& consumed = m_ResourceNodes[id];
                     consumed.m_RefCount++;

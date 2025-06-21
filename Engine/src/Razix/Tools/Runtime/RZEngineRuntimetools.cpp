@@ -291,10 +291,10 @@ namespace Razix {
 
                     // They exist throughout the frame! and are mostly Read-Only cause no point in import write modifiable data?
                     if (resEntry.isImported()) {
-                        const auto& compiledPassNodesSize = frameGraph.getCompiledPassNodes().size();
-                        lifetime.StartPassID              = 0;
-                        lifetime.EndPassID                = compiledPassNodesSize - 1;
-                        lifetime.Mode                     = Gfx::LifeTimeMode::kImported;
+                        u32 compiledPassNodesSize = static_cast<u32>(frameGraph.getCompiledPassNodes().size());
+                        lifetime.StartPassID      = 0;
+                        lifetime.EndPassID        = compiledPassNodesSize - 1;
+                        lifetime.Mode             = Gfx::LifeTimeMode::kImported;
                     }
 
                     DrawLifetimeCellFromPassRange(origin, lifetime.StartPassID, lifetime.EndPassID - lifetime.StartPassID + 1, (ry + 2) * FrameGraphStyle::CellSize, lifetime);

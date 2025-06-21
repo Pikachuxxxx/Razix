@@ -43,8 +43,8 @@
 namespace Razix {
     namespace Gfx {
 
-        RZFrameGraphDataPass::RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawGeometryMode geometryMode, Resolution res, float2 extents, u32 layers)
-            : m_shader(shader), m_pipeline(pipeline), m_geometryMode(geometryMode), m_resolution(res), m_extent(extents), m_layers(layers)
+        RZFrameGraphDataPass::RZFrameGraphDataPass(FrameGraphDataPassDesc desc)
+            : m_Desc(desc)
         {
         }
 
@@ -57,9 +57,9 @@ namespace Razix {
 
             // Rendering Info, use all the writable resources in the pass node to render onto
             RenderingInfo info{};
-            info.resolution = m_resolution;
-            info.extent     = m_extent;
-            info.layerCount = m_layers;
+            info.resolution = m_Desc.resolution;
+            info.extent     = m_Desc.extent;
+            info.layerCount = m_Desc.layers;
 
             auto& writeResourceIDs = node.getOutputResources();
             for (auto& writeResourceID: writeResourceIDs) {
@@ -84,9 +84,9 @@ namespace Razix {
 
             RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
-            RHI::BindPipeline(m_pipeline, RHI::GetCurrentCommandBuffer());
+            RHI::BindPipeline(m_Desc.pipeline, RHI::GetCurrentCommandBuffer());
 
-            auto& shaderBindVars = Gfx::RZResourceManager::Get().getShaderResource(m_shader)->getBindVars();
+            auto& shaderBindVars = Gfx::RZResourceManager::Get().getShaderResource(m_Desc.shader)->getBindVars();
 
             // Bind the input resources before drawing the scene
             auto& readResourceIDs = node.getInputResources();
@@ -120,16 +120,16 @@ namespace Razix {
                 }
             }
 
-            Gfx::RZResourceManager::Get().getShaderResource(m_shader)->setBindVars(shaderBindVars);
+            Gfx::RZResourceManager::Get().getShaderResource(m_Desc.shader)->setBindVars(shaderBindVars);
 
             // TODO: Find a better way to update stuff only once that too on first frame
             // Update the Bind vars only on the first frame
             //static bool FirstFrame = true;
             if (RZFrameGraph::IsFirstFrame())
-                RZResourceManager::Get().getShaderResource(m_shader)->updateBindVarsHeaps();
+                RZResourceManager::Get().getShaderResource(m_Desc.shader)->updateBindVarsHeaps();
 
             // Based on the geometry mode, draw the scene
-            RZSceneManager::Get().getCurrentScene()->drawScene(m_pipeline, m_geometryMode);
+            RZSceneManager::Get().getCurrentScene()->drawScene(m_Desc.pipeline, m_Desc.geometryMode);
 
             RHI::EndRendering(RHI::GetCurrentCommandBuffer());
             RAZIX_MARK_END();
@@ -142,7 +142,7 @@ namespace Razix {
             // TODO: [High Priority] Resize all "Input" texture resources and only then re-generate the descriptor sets
 
             // Update/Regenerate the descriptors table on resize
-            RZResourceManager::Get().getShaderResource(m_shader)->updateBindVarsHeaps();
+            RZResourceManager::Get().getShaderResource(m_Desc.shader)->updateBindVarsHeaps();
         }
     }    // namespace Gfx
 }    // namespace Razix
