@@ -92,6 +92,8 @@ namespace Razix {
 static int EngineTestLoop(void)
 {
     EngineMain(0, NULL);
+    Razix::RZEngine::Get().setEngineInTestMode();
+
     while (Razix::RZApplication::Get().RenderFrame()) {}
 
     Razix::RZApplication::Get().Quit();

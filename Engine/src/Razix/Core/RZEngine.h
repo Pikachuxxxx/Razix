@@ -76,6 +76,7 @@ namespace Razix {
         Scripting::RZLuaScriptHandler m_LuaScriptHandlerSystem; /* Lua Script Handling Engine System for managing and executing scrip components	*/
         Gfx::RZWorldRenderer          m_WorldRenderer;          /* Razix world renderer that build and renders the frame graph passes in the scene  */
         Gfx::RZShaderLibrary          m_ShaderLibrary;          /* Shader library that pre-loads shaders into memory                                */
+        bool                          m_IsEngineInTestMode = false;
 
     public:
         /* Starts up the Engine and it's sub-systems */
@@ -88,6 +89,9 @@ namespace Razix {
         void Run();
         /* Loads and fills the Engine config Settings */
         void LoadEngineConfigFile();
+
+        RAZIX_INLINE bool isEngineInTestMode() const { return m_IsEngineInTestMode; }
+        void              setEngineInTestMode() { m_IsEngineInTestMode = true; }
 
         /* Gets the command line parser */
         RAZIX_INLINE RZCommandLineParser getCommandLineParser() { return m_CommandLineParser; }

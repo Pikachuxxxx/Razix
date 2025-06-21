@@ -465,12 +465,11 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
         auto ctx = ImGui::GetCurrentContext();
-        if (!ctx)
+        if (!ctx || RZEngine::Get().isEngineInTestMode())
             return;
 
         // TODO: Well GLFW needs to be removed at some point and we need to use native functions
-        if (RZApplication::Get().getAppType() == AppType::kGame)
-            ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
 
         // FIXME: https://github.com/ocornut/imgui/issues/6064
 
