@@ -47,23 +47,6 @@ namespace Razix {
             return UINT32_MAX;
         }
 
-        void AliasingEndTimeQueue::reset()
-        {
-            m_Entries.clear();
-            m_Count = 0;
-        }
-
-        bool AliasingGroup::fits(const RZResourceLifetime lifetime) const
-        {
-            return lifetime.StartPassID > m_MaxEnd;
-        }
-
-        void AliasingGroup::add(const RZResourceLifetime& lifetime)
-        {
-            m_ResourceEntryIDs.push_back(lifetime.ResourceEntryID);
-            m_MaxEnd = std::max(m_MaxEnd, lifetime.EndPassID);
-        }
-
         void AliasingBook::build(std::vector<RZResourceLifetime> lifetimes)
         {
             std::sort(lifetimes.begin(), lifetimes.end(), [](RZResourceLifetime& a, RZResourceLifetime& b) {
@@ -87,12 +70,6 @@ namespace Razix {
                     m_ResourceToGroup[lif.ResourceEntryID] = newId;
                 }
             }
-        }
-
-        void AliasingBook::reset()
-        {
-            m_Groups.clear();
-            m_Queue.reset();
         }
 
     }    // namespace Gfx

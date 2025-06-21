@@ -6,7 +6,6 @@ namespace Razix {
     namespace Gfx {
 
         struct AliasingPriorityEntry
-
         {
             u32 groupID;
             u32 end;
@@ -18,7 +17,12 @@ namespace Razix {
             void insert(u32 groupID, u32 end);
             void update(u32 groupID, u32 newEnd);
             u32  findFirstFree(u32 begin) const;
-            void reset();
+
+            inline void AliasingEndTimeQueue::reset()
+            {
+                m_Entries.clear();
+                m_Count = 0;
+            }
 
         private:
             std::vector<AliasingPriorityEntry> m_Entries;
@@ -28,12 +32,22 @@ namespace Razix {
         class AliasingGroup
         {
         public:
-            AliasingGroup(u32 id);
-            bool                    fits(const RZResourceLifetime lifetime) const;
-            void                    add(const RZResourceLifetime& lifetime);
-            u32                     id() const;
-            u32                     end() const;
-            const std::vector<u32>& getResourceEntryIDs() const;
+            AliasingGroup(u32 id)
+                : m_GroupID(id), m_MaxEnd(0) {}
+
+            inline bool AliasingGroup::fits(const RZResourceLifetime lifetime) const
+            {
+                return lifetime.StartPassID > m_MaxEnd;
+            }
+
+            inline void AliasingGroup::add(const RZResourceLifetime& lifetime)
+            {
+                m_ResourceEntryIDs.push_back(lifetime.ResourceEntryID);
+                m_MaxEnd = std::max(m_MaxEnd, lifetime.EndPassID);
+            }
+            inline u32                     id() const { return m_GroupID; }
+            inline u32                     end() const { return m_MaxEnd; }
+            inline const std::vector<u32>& getResourceEntryIDs() const { return m_ResourceEntryIDs; }
 
         private:
             u32              m_GroupID = UINT32_MAX;
@@ -44,10 +58,15 @@ namespace Razix {
         class AliasingBook
         {
         public:
-            void                              build(std::vector<RZResourceLifetime> lifetimes);
-            void                              reset();
-            const std::vector<AliasingGroup>& getGroups() const;
-            u32                               getGroupIDForResource(u32 resourceID) const;
+            void build(std::vector<RZResourceLifetime> lifetimes);
+
+            inline void AliasingBook::reset()
+            {
+                m_Groups.clear();
+                m_Queue.reset();
+            }
+            inline const std::vector<AliasingGroup>& getGroups() const { return m_Groups; }
+            inline u32                               getGroupIDForResource(u32 resourceID) const { return m_ResourceToGroup.at(resourceID); }
 
         private:
             std::vector<AliasingGroup>   m_Groups;
