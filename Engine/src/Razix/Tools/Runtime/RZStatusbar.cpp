@@ -12,7 +12,5 @@
 namespace Razix {
     namespace Tools {
 
-
-
     }    // namespace Tools
 }    // namespace Razix

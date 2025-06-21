@@ -10,21 +10,21 @@
 enum class MemoryTag
 {
     // Common Tags
-    GRAPHICS, 
-    CORE, 
-    APPLICATION, 
+    GRAPHICS,
+    CORE,
+    APPLICATION,
     SCENE,
-    PHYSICS, 
-    SCRIPTING, 
+    PHYSICS,
+    SCRIPTING,
     COMMON,
-    UNKNOWN, 
-    // VERY IMPORTANT TAGS !!! 
+    UNKNOWN,
+    // VERY IMPORTANT TAGS !!!
     THREAD_GLOBAL,
     THREAD_SHARED
 };
 
 enum class MemoryLife
 {
-    Transient,  // Per-frame allocations will use a Bump/Ring based frame allocator
-    Persistent  // These kind of allocations use a Pool based on memory Tag and alloc properties
+    Transient,    // Per-frame allocations will use a Bump/Ring based frame allocator
+    Persistent    // These kind of allocations use a Pool based on memory Tag and alloc properties
 };

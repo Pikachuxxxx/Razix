@@ -9,9 +9,9 @@
 // We will use a geom shader to generate the vertices so we don't need any input in this case
 //------------------------------------------------------------------------------
 // Vertex Shader Stage Output
-struct VSOut 
+struct VSOut
 {
-    float4 Position: SV_POSITION;
+    float4 Position : SV_POSITION;
 };
 //------------------------------------------------------------------------------
 // Uniforms and Push Constants

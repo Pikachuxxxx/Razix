@@ -13,10 +13,11 @@ struct PsIn
 };
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-Texture2D CompositionTarget : register(t0, space0);
+Texture2D    CompositionTarget : register(t0, space0);
 SamplerState g_ColorSampler : register(s1, space0);
 //------------------------------------------------------------------------------
-float4 PS_MAIN(PsIn input) : SV_TARGET
+float4 PS_MAIN(PsIn input)
+    : SV_TARGET
 {
     float4 result = CompositionTarget.Sample(g_ColorSampler, input.uv);
 

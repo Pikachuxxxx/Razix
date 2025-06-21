@@ -23,10 +23,10 @@ namespace Razix {
             void                    setLightType(LightType type);
 
             RAZIX_INLINE float3 getColor() { return m_LightData.color; }
-            void                   setColor(float3 color) { m_LightData.color = color; }
+            void                setColor(float3 color) { m_LightData.color = color; }
 
             RAZIX_INLINE float3 getDirection() { return float3(m_LightData.direction); }
-            void                   setDirection(const float3& direction) { m_LightData.direction = float4(direction, 1.0f); }
+            void                setDirection(const float3& direction) { m_LightData.direction = float4(direction, 1.0f); }
 
             RAZIX_INLINE f32 getRadius() { return m_LightData.range; }
             void             setRadius(f32 radius) { m_LightData.range = radius; }

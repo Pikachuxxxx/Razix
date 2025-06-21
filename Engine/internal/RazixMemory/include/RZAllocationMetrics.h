@@ -40,7 +40,6 @@ struct RZMemCellAllocInfo : public RZMemClusterAllocInfo
 
 struct RZMemView
 {
-
 };
 
 struct RZMemAllocSnapshot

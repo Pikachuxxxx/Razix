@@ -12,9 +12,6 @@
 // Buffers
 //------------------------------------------------------------------------------
 
-[numthreads (VB_SHADE_TILE_SZ, VB_SHADE_TILE_SZ, 1)]
-void CS_MAIN(uint3 globalThreadID: SV_DispatchThreadID, uint3 tileThreadID: SV_GroupThreadID, uint3 groupID: SV_GroupID) 
-{
-    
+[numthreads(VB_SHADE_TILE_SZ, VB_SHADE_TILE_SZ, 1)] void CS_MAIN(uint3 globalThreadID : SV_DispatchThreadID, uint3 tileThreadID : SV_GroupThreadID, uint3 groupID : SV_GroupID) {
     GroupMemoryBarrierWithGroupSync();
 }

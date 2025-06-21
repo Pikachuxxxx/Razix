@@ -29,7 +29,7 @@ quat qPitch = angleAxis(Rotation.x, float3(1, 0, 0));
 
     Transform = float4x4(1.0f);
 
-    quat rotationQuat{};
+    quat     rotationQuat{};
     float4x4 rotationMatrix = float4x4(1.0f);
     // Convert the Euler angles into
     rotationQuat   = quat(Rotation);
@@ -46,7 +46,7 @@ float4x4 Razix::TransformComponent::GetLocalTransform()
 {
     Transform = float4x4(1.0f);
 
-    quat rotationQuat{};
+    quat     rotationQuat{};
     float4x4 rotationMatrix = float4x4(1.0f);
     // Convert the Euler angles into
     rotationQuat   = quat(Rotation);

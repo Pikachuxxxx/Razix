@@ -49,26 +49,26 @@ namespace Razix {
 
             RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(IRZFrameGraphPass)
 
-            virtual void operator()(RZPassNode &node, RZPassResourceDirectory &resources)  = 0;
-            virtual void resize(RZPassResourceDirectory &resources, u32 width, u32 height) = 0;
+            virtual void operator()(RZPassNode& node, RZPassResourceDirectory& resources)  = 0;
+            virtual void resize(RZPassResourceDirectory& resources, u32 width, u32 height) = 0;
         };
 
         /* Encapsulation of the pass lambda and its data, the best way to store lambdas as members is using templates */
         template<typename Data, typename ExecuteFunc, typename ResizeFunc>    // done in FG so redundant here, typename = std::enable_if_t<is_valid_pass_exec_function<ExecuteFunc>()>> // Checks for the signature of the exec function
         struct RZFrameGraphCodePass final : IRZFrameGraphPass
         {
-            explicit RZFrameGraphCodePass(ExecuteFunc &&exec, ResizeFunc &&resize)
+            explicit RZFrameGraphCodePass(ExecuteFunc&& exec, ResizeFunc&& resize)
                 : execFunction{std::forward<ExecuteFunc>(exec)}, resizeFunction{std::forward<ResizeFunc>(resize)} {}
 
             RAZIX_VIRTUAL_DESCTURCTOR(RZFrameGraphCodePass)
 
-            void operator()(RZPassNode &node, RZPassResourceDirectory &resources) override
+            void operator()(RZPassNode& node, RZPassResourceDirectory& resources) override
             {
                 // Note: Node isn't is used here it's for the RZFrameGraphDataPass
                 execFunction(data, resources);
             }
 
-            void resize(RZPassResourceDirectory &resources, u32 width, u32 height) override
+            void resize(RZPassResourceDirectory& resources, u32 width, u32 height) override
             {
                 resizeFunction(resources, width, height);
             }
@@ -101,8 +101,8 @@ namespace Razix {
             float2                       m_extent;
             u32                          m_layers;
 
-            void operator()(RZPassNode &node, RZPassResourceDirectory &resources) override;
-            void resize(RZPassResourceDirectory &resources, u32 width, u32 height) override;
+            void operator()(RZPassNode& node, RZPassResourceDirectory& resources) override;
+            void resize(RZPassResourceDirectory& resources, u32 width, u32 height) override;
         };
     }    // namespace Gfx
 }    // namespace Razix

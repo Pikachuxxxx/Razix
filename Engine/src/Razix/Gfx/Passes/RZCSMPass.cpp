@@ -68,12 +68,12 @@ namespace Razix {
                 [&](CSMData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
                     // Create the final cascaded VP data here after rendering the depth texture array, in fact this pass can be parallelized before the we render the depth maps
-                    RZBufferDesc bufferDesc = {};
-                    bufferDesc.name         = "CB_CascadesMatrixData";
-                    bufferDesc.size         = sizeof(CascadesMatrixData);
-                    bufferDesc.data         = nullptr;
+                    RZBufferDesc bufferDesc          = {};
+                    bufferDesc.name                  = "CB_CascadesMatrixData";
+                    bufferDesc.size                  = sizeof(CascadesMatrixData);
+                    bufferDesc.data                  = nullptr;
                     bufferDesc.initResourceViewHints = ResourceViewHint::kCBV;
-                    bufferDesc.usage        = BufferUsage::PersistentStream;
+                    bufferDesc.usage                 = BufferUsage::PersistentStream;
 
                     data.viewProjMatrices = builder.create<RZFrameGraphBuffer>("CB_CascadesMatrixData", CAST_TO_FG_BUF_DESC bufferDesc);
 
@@ -264,7 +264,7 @@ namespace Razix {
         struct LightVPLayerData
         {
             float4x4 viewProj = {};
-            i32       layer    = 0;
+            i32      layer    = 0;
         };
 
         CascadeSubPassData RZCSMPass::addCascadePass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, CascadeSubPassData subpassData, u32 cascadeIdx)
@@ -291,12 +291,12 @@ namespace Razix {
                         subpassData.cascadeOutput = builder.create<RZFrameGraphTexture>("CascadedShadowMapArray", CAST_TO_FG_TEX_DESC textureDesc);
                     }
 
-                    RZBufferDesc bufferDesc = {};
-                    bufferDesc.name         = "VPLayer";
-                    bufferDesc.size         = sizeof(LightVPLayerData);
-                    bufferDesc.data         = nullptr;
+                    RZBufferDesc bufferDesc          = {};
+                    bufferDesc.name                  = "VPLayer";
+                    bufferDesc.size                  = sizeof(LightVPLayerData);
+                    bufferDesc.data                  = nullptr;
                     bufferDesc.initResourceViewHints = ResourceViewHint::kCBV;
-                    bufferDesc.usage        = BufferUsage::PersistentStream;
+                    bufferDesc.usage                 = BufferUsage::PersistentStream;
 
                     subpassData.vpLayer = builder.create<RZFrameGraphBuffer>("VPLayer", CAST_TO_FG_BUF_DESC bufferDesc);
 

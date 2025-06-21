@@ -10,11 +10,11 @@ namespace Razix {
 
         struct SSAOParamsData
         {
-            float     radius           = 1.0f;
-            float     bias             = 0.025f;
-            float2 resolution       = {};
-            float3 camViewPos       = {};
-            float     _padding         = 0.0f;
+            float    radius           = 1.0f;
+            float    bias             = 0.025f;
+            float2   resolution       = {};
+            float3   camViewPos       = {};
+            float    _padding         = 0.0f;
             float4x4 viewMatrix       = {};
             float4x4 projectionMatrix = {};
         };

@@ -38,7 +38,7 @@ namespace Razix {
         {
             float3 p1;
             float4 col;
-            float     size;
+            float  size;
 
             Point(const float3& pos1, float s, const float4& colour)
             {
@@ -47,7 +47,7 @@ namespace Razix {
                 col  = colour;
             }
         };
-   
+
         /**
          * Draws debug geometry in the scene to help with visualization and debugging
          * 
@@ -56,7 +56,6 @@ namespace Razix {
         class RAZIX_API RZDebugRendererProxy : public IRZRendererProxy, public RZSingleton<RZDebugRendererProxy>
         {
         public:
-
             //-------------------------------------------------------------
             // IRZRendererProxy
 
@@ -126,12 +125,12 @@ namespace Razix {
             RZShaderHandle   m_PointShader   = {};
 
             u32                  m_LineIndexCount  = 0;
-            RZIndexBufferHandle  m_LineIB         = {};
+            RZIndexBufferHandle  m_LineIB          = {};
             RZVertexBufferHandle m_LinePosition_VB = {};
             RZVertexBufferHandle m_LineColor_VB    = {};
 
             u32                  m_PointIndexCount  = 0;
-            RZIndexBufferHandle  m_PointIB         = {};
+            RZIndexBufferHandle  m_PointIB          = {};
             RZVertexBufferHandle m_PointPosition_VB = {};
             RZVertexBufferHandle m_PointColor_VB    = {};
 

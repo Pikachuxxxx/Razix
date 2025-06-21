@@ -15,9 +15,9 @@ namespace Razix {
      */
     struct RAZIX_API TransformComponent
     {
-        float3 Translation = {0.0f, 0.0f, 0.0f};
-        float3 Rotation    = {0, 0, 0}; /* Stores the Rotation in radians */
-        float3 Scale       = {1.0f, 1.0f, 1.0f};
+        float3   Translation = {0.0f, 0.0f, 0.0f};
+        float3   Rotation    = {0, 0, 0}; /* Stores the Rotation in radians */
+        float3   Scale       = {1.0f, 1.0f, 1.0f};
         float4x4 Transform   = float4x4(1.0);
         // TODO: Serialize this?
         float4x4 WorldMatrix = float4x4(1.0);
@@ -31,7 +31,7 @@ namespace Razix {
         float4x4 GetGlobalTransform();
         float4x4 GetLocalTransform();
         float4x4 GetWorldTransform() { return GetGlobalTransform(); }
-        void      SetWorldTransform(float4x4 matrix) { WorldMatrix = matrix; }
+        void     SetWorldTransform(float4x4 matrix) { WorldMatrix = matrix; }
 
         template<typename Archive>
         void serialize(Archive& archive)

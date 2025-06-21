@@ -1,6 +1,6 @@
 #ifndef _FRAME_DATA_GLSL_
 #define _FRAME_DATA_GLSL_
-// TODO: Use engine file instead via Razix/Shared/ShaderCompatibility.h 
+// TODO: Use engine file instead via Razix/Shared/ShaderCompatibility.h
 //----------------------------------------------------------------------------
 // TODO: Don't redefine this, use from Engine source
 struct Camera
@@ -102,4 +102,4 @@ float4 getProjectionViewSpacePosition(float4 pos)
     return jitterWorldPos;
 }
 
-#endif // _FRAME_DATA_GLSL_
+#endif    // _FRAME_DATA_GLSL_

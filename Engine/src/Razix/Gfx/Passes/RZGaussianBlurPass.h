@@ -20,8 +20,8 @@ namespace Razix {
 
         struct GaussianGPUPCData
         {
-            u32       filterTap;
-            f32       blurRadius;
+            u32    filterTap;
+            f32    blurRadius;
             float2 direction;
         };
 
@@ -44,11 +44,11 @@ namespace Razix {
 
             // TODO: Utility method to set direction
         private:
-            RZPipelineHandle                 m_Pipeline      = {};
-            bool                             m_IsTwoPass     = true;
-            f32                              m_BlurRadius    = 1.0f;
-            GaussianTap                      m_FilterTap     = GaussianTap::Five;
-            GaussianDirection                m_Direction     = GaussianDirection::Horizontal;
+            RZPipelineHandle     m_Pipeline      = {};
+            bool                 m_IsTwoPass     = true;
+            f32                  m_BlurRadius    = 1.0f;
+            GaussianTap          m_FilterTap     = GaussianTap::Five;
+            GaussianDirection    m_Direction     = GaussianDirection::Horizontal;
             RZFrameGraphResource m_InputTexture  = {-1};
             RZFrameGraphResource m_OutputTexture = {-1};
 

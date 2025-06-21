@@ -10,7 +10,8 @@ struct VSInput
 };
 //------------------------------------------------------------------------------
 
-float4 PS_MAIN(VSInput input) : SV_TARGET
+float4 PS_MAIN(VSInput input)
+    : SV_TARGET
 {
-	return input.Color;
+    return input.Color;
 }

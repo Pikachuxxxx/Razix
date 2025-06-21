@@ -7,12 +7,12 @@
 // clang-format on
 #include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/Log/RZLog.h"
+#include "Razix/Core/Markers/RZMarkers.h"
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 #include "Razix/Core/System/IRZSystem.h"
 #include "Razix/Core/UUID/RZUUID.h"
 #include "Razix/Core/Version/RazixVersion.h"
-#include "Razix/Core/Markers/RZMarkers.h"
 
 // Core/OS
 #include "Razix/Core/OS/RZFileSystem.h"
@@ -59,14 +59,13 @@
 #include "Razix/Scene/RZScene.h"
 
 // Utilities
+#include "Razix/Utilities/RZColorUtilities.h"
 #include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/RZLoadImage.h"
 #include "Razix/Utilities/RZStringUtilities.h"
 #include "Razix/Utilities/RZTimer.h"
 #include "Razix/Utilities/RZTimestep.h"
 #include "Razix/Utilities/TRZSingleton.h"
-#include "Razix/Utilities/RZColorUtilities.h"
-
 
 // Internal
 // Razix Memory

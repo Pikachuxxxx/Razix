@@ -9,20 +9,20 @@ namespace Razix {
         // https://www.shadertoy.com/view/sdG3zz
         float3 GenerateHashedColor(u32 p)
         {
-            p              = 1103515245U * ((p >> 1U) ^ (p));
-            u32        h32 = 1103515245U * ((p) ^ (p >> 3U));
-            u32        n   = h32 ^ (h32 >> 16);
+            p         = 1103515245U * ((p >> 1U) ^ (p));
+            u32   h32 = 1103515245U * ((p) ^ (p >> 3U));
+            u32   n   = h32 ^ (h32 >> 16);
             uint3 rz  = uint3(n, n * 16807U, n * 48271U);
             return float3(rz & uint3(0x7fffffffU)) / float(0x7fffffff);
         }
 
         float4 GenerateHashedColor4(u32 p)
         {
-            p                = 1103515245U * ((p >> 1U) ^ (p));
-            u32        h32   = 1103515245U * ((p) ^ (p >> 3U));
-            u32        n     = h32 ^ (h32 >> 16);
-            uint3 rz    = uint3(n, n * 16807U, n * 48271U);
-            float3  color = float3(rz & uint3(0x7fffffffU)) / float(0x7fffffff);
+            p            = 1103515245U * ((p >> 1U) ^ (p));
+            u32    h32   = 1103515245U * ((p) ^ (p >> 3U));
+            u32    n     = h32 ^ (h32 >> 16);
+            uint3  rz    = uint3(n, n * 16807U, n * 48271U);
+            float3 color = float3(rz & uint3(0x7fffffffU)) / float(0x7fffffff);
             return float4(color, 1.0f);
         }
 

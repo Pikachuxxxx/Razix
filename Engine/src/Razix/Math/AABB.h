@@ -9,7 +9,7 @@ namespace Razix {
 
             float3 getExtent() const;
             float3 getCenter() const;
-            f32       getRadius() const;
+            f32    getRadius() const;
 
             AABB transform(const float4x4& m) const;
 

@@ -100,9 +100,9 @@ namespace Razix {
             inline void                setPath(std::string path) { m_MeshPath = path; }
             inline Maths::AABB         getBoundingBox() { return m_BoundingBox; }
             inline void                setBoundingBox(Maths::AABB aabb) { m_BoundingBox = aabb; }
-            inline float3           getMaxExtents() { return m_BoundingBox.max; }
+            inline float3              getMaxExtents() { return m_BoundingBox.max; }
             inline void                setMaxExtents(float3 extents) { m_BoundingBox.max = extents; }
-            inline float3           getMinExtents() { return m_BoundingBox.min; }
+            inline float3              getMinExtents() { return m_BoundingBox.min; }
             inline void                setMinExtents(float3 extents) { m_BoundingBox.min = extents; }
             inline u32                 getBaseVertex() { return m_BaseVertex; }
             inline void                setBaseVertex(u32 count) { m_BaseVertex = count; }

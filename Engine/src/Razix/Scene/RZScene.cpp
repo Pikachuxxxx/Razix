@@ -119,7 +119,7 @@ namespace Razix {
 
         auto cmdBuffer = Gfx::RHI::GetCurrentCommandBuffer();
 
-        auto shaderHandle    = Gfx::RZResourceManager::Get().getPipelineResource(pipeline)->getDesc().shader;
+        auto  shaderHandle    = Gfx::RZResourceManager::Get().getPipelineResource(pipeline)->getDesc().shader;
         auto& sceneDrawParams = Gfx::RZResourceManager::Get().getShaderResource(shaderHandle)->getSceneDrawParams();
 
         u32 startSetIdx = 0;
@@ -240,8 +240,8 @@ namespace Razix {
             if (mesh.Mesh)
                 mesh.Mesh->Destroy();
         }
-        
-        if(m_Cube)
+
+        if (m_Cube)
             m_Cube->Destroy();
     }
 

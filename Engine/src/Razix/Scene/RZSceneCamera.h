@@ -88,7 +88,7 @@ namespace Razix {
         }
 
         RAZIX_INLINE const float4& getBgColor() const { return m_BgColor; }
-        RAZIX_INLINE void             setBgColor(const float4& color) { m_BgColor = color; }
+        RAZIX_INLINE void          setBgColor(const float4& color) { m_BgColor = color; }
 
         RAZIX_INLINE const Maths::RZFrustum& getFrustum() const { return m_CameraFrustum; }
 
@@ -201,8 +201,8 @@ namespace Razix {
         ProjectionType m_ProjectionType = ProjectionType::Perspective;
 
         float4x4 m_Projection      = float4x4(1.0f);
-        f32       m_PerspectiveFOV  = radians(45.0f);
-        f32       m_PerspectiveNear = 0.1f, m_PerspectiveFar = 1000.0f;
+        f32      m_PerspectiveFOV  = radians(45.0f);
+        f32      m_PerspectiveNear = 0.1f, m_PerspectiveFar = 1000.0f;
 
         f32 m_OrthographicSize = 10.0f;
         f32 m_OrthographicNear = -1.0f, m_OrthographicFar = 1.0f;

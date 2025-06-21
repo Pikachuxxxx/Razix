@@ -19,4 +19,3 @@
 #ifdef RAZIX_CALLER
     #define RAZIX_CALLING_CONVENTION __cdecl
 #endif
-

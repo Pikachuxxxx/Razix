@@ -32,7 +32,7 @@ cbuffer Material : register(b0, space1)
     float2 uvScale;
     uint   workflow;
 
-    bool   visible;
+    bool visible;
     bool isUsingAlbedoMap;
     bool isUsingNormalMap;
     bool isUsingMetallicMap;

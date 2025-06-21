@@ -48,7 +48,7 @@ namespace Razix {
         {
         }
 
-        void RZFrameGraphDataPass::operator()(RZPassNode &node, RZPassResourceDirectory &resources)
+        void RZFrameGraphDataPass::operator()(RZPassNode& node, RZPassResourceDirectory& resources)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -61,8 +61,8 @@ namespace Razix {
             info.extent     = m_extent;
             info.layerCount = m_layers;
 
-            auto &writeResourceIDs = node.getOutputResources();
-            for (auto &writeResourceID: writeResourceIDs) {
+            auto& writeResourceIDs = node.getOutputResources();
+            for (auto& writeResourceID: writeResourceIDs) {
                 // Get the attachment info
                 RenderTargetAttachmentInfo attachmentInfo{};
                 if (writeResourceID.flags != kFlagsNone)
@@ -73,7 +73,7 @@ namespace Razix {
                     // TODO: Use the layer and mip to set the current mip and array layer of the resource
                     auto writeResourceTextureHandle = resources.get<RZFrameGraphTexture>(writeResourceID.id).getHandle();
                     // Distinguish b/w Depth and color texture
-                    auto &textureDesc = resources.getDescriptor<RZFrameGraphTexture>(writeResourceID.id);
+                    auto& textureDesc = resources.getDescriptor<RZFrameGraphTexture>(writeResourceID.id);
                     if (textureDesc.type == TextureType::kDepth)
                         info.depthAttachment = {writeResourceTextureHandle, attachmentInfo};
                     else
@@ -86,11 +86,11 @@ namespace Razix {
 
             RHI::BindPipeline(m_pipeline, RHI::GetCurrentCommandBuffer());
 
-            auto &shaderBindVars = Gfx::RZResourceManager::Get().getShaderResource(m_shader)->getBindVars();
+            auto& shaderBindVars = Gfx::RZResourceManager::Get().getShaderResource(m_shader)->getBindVars();
 
             // Bind the input resources before drawing the scene
-            auto &readResourceIDs = node.getInputResources();
-            for (auto &readResourceID: readResourceIDs) {
+            auto& readResourceIDs = node.getInputResources();
+            for (auto& readResourceID: readResourceIDs) {
                 // Get the Binding info
                 DescriptorBindingInfo bindingInfo{};
                 if (readResourceID.flags != kFlagsNone)
@@ -135,7 +135,7 @@ namespace Razix {
             RAZIX_MARK_END();
         }
 
-        void RZFrameGraphDataPass::resize(RZPassResourceDirectory &resources, u32 width, u32 height)
+        void RZFrameGraphDataPass::resize(RZPassResourceDirectory& resources, u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

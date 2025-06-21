@@ -4,27 +4,29 @@
 
 #if defined(RAZIX_DEBUG) && defined(RAZIX_PLATFORM_MACOS)
 
-#include <csignal>       // For signal handling (sigaction, SIGSEGV, etc.)
-#include <iostream>      // For std::cerr and std::cout
-#include <fstream>       // For writing to a file (std::ofstream)
-#include <ctime>         // For generating timestamps (std::time, std::strftime)
-#include <mach/mach.h>   // For macOS-specific thread and register access (mach_thread_state_t)
-#include <sys/types.h>   // For process and thread types (pid_t, etc.)
-#include <unistd.h>      // For getpid (process ID)
-#include <exception>     // For handling specific exceptions like EXC_BAD_ACCESS
-#include <mach/exc.h>         // For EXC_BAD_ACCESS, EXC_MASK_BAD_ACCESS, etc.
+    #include <csignal>        // For signal handling (sigaction, SIGSEGV, etc.)
+    #include <ctime>          // For generating timestamps (std::time, std::strftime)
+    #include <exception>      // For handling specific exceptions like EXC_BAD_ACCESS
+    #include <fstream>        // For writing to a file (std::ofstream)
+    #include <iostream>       // For std::cerr and std::cout
+    #include <mach/exc.h>     // For EXC_BAD_ACCESS, EXC_MASK_BAD_ACCESS, etc.
+    #include <mach/mach.h>    // For macOS-specific thread and register access (mach_thread_state_t)
+    #include <sys/types.h>    // For process and thread types (pid_t, etc.)
+    #include <unistd.h>       // For getpid (process ID)
 
 namespace Razix::CrashDumpHandler {
 
-    static void writeToOutput(std::ostream& output, const std::string& message) {
+    static void writeToOutput(std::ostream& output, const std::string& message)
+    {
         output << message;
-        std::cout << message; // Simultaneously print to console
+        std::cout << message;    // Simultaneously print to console
     }
 
     // Function to write crash dump to file and console
-    static void writeCrashDump(const std::string& exception, const std::string& description, const siginfo_t* info, ucontext_t* context) {
+    static void writeCrashDump(const std::string& exception, const std::string& description, const siginfo_t* info, ucontext_t* context)
+    {
         std::time_t now = std::time(nullptr);
-        char filename[64];
+        char        filename[64];
         std::strftime(filename, sizeof(filename), "%Y-%m-%d_%H-%M-%S.crashdump", std::localtime(&now));
 
         std::ofstream dumpFile(filename);
@@ -44,17 +46,17 @@ namespace Razix::CrashDumpHandler {
 
         // Write register and thread information (ARM64 specific)
         write("Control Registers:\n");
-        write("RIP = 0x" + std::to_string(context->uc_mcontext->__ss.__pc) + "\n"); // Program Counter (equivalent of RIP)
-        write("RSP = 0x" + std::to_string(context->uc_mcontext->__ss.__sp) + "\n"); // Stack Pointer
-        write("FP  = 0x" + std::to_string(context->uc_mcontext->__ss.__fp) + "\n"); // Frame Pointer
-        write("CPSR = 0x" + std::to_string(context->uc_mcontext->__ss.__cpsr) + "\n\n"); // Current Program Status Register
+        write("RIP = 0x" + std::to_string(context->uc_mcontext->__ss.__pc) + "\n");         // Program Counter (equivalent of RIP)
+        write("RSP = 0x" + std::to_string(context->uc_mcontext->__ss.__sp) + "\n");         // Stack Pointer
+        write("FP  = 0x" + std::to_string(context->uc_mcontext->__ss.__fp) + "\n");         // Frame Pointer
+        write("CPSR = 0x" + std::to_string(context->uc_mcontext->__ss.__cpsr) + "\n\n");    // Current Program Status Register
 
         write("Integer Registers:\n");
-        for (int i = 0; i < 29; ++i) { // ARM64 has 29 general-purpose registers (x0-x28)
+        for (int i = 0; i < 29; ++i) {    // ARM64 has 29 general-purpose registers (x0-x28)
             write("X" + std::to_string(i) + " = 0x" + std::to_string(context->uc_mcontext->__ss.__x[i]) + "\n");
         }
         write("X29 (FP) = 0x" + std::to_string(context->uc_mcontext->__ss.__fp) + "\n");
-        write("X30 (LR) = 0x" + std::to_string(context->uc_mcontext->__ss.__lr) + "\n"); // Link Register
+        write("X30 (LR) = 0x" + std::to_string(context->uc_mcontext->__ss.__lr) + "\n");    // Link Register
 
         // Signal-specific information
         write("\nAttempt to access memory address: 0x" + std::to_string(reinterpret_cast<uintptr_t>(info->si_addr)) + "\n");
@@ -65,13 +67,14 @@ namespace Razix::CrashDumpHandler {
     }
 
     // Mach exception handler
-    static kern_return_t exceptionHandler(exception_type_t exception, exception_data_t code, mach_msg_type_number_t codeCount) {
+    static kern_return_t exceptionHandler(exception_type_t exception, exception_data_t code, mach_msg_type_number_t codeCount)
+    {
         if (exception == EXC_BAD_ACCESS) {
             std::cerr << "EXC_BAD_ACCESS: Invalid memory access detected!" << std::endl;
 
             // Capture relevant information (code, address, etc.)
-//            uint64_t address = code[0]; // address causing the issue
-//            uint64_t accessType = code[1]; // type of access (read/write)
+            //            uint64_t address = code[0]; // address causing the issue
+            //            uint64_t accessType = code[1]; // type of access (read/write)
 
             // Write crash dump to file
             std::string description = "EXC_BAD_ACCESS: Invalid memory access.";
@@ -85,16 +88,17 @@ namespace Razix::CrashDumpHandler {
     }
 
     // Signal handler for crash handling
-    static void signalHandler(int signal, siginfo_t* info, void* context) {
+    static void signalHandler(int signal, siginfo_t* info, void* context)
+    {
         std::string description;
         switch (signal) {
-            case SIGSEGV: // Segmentation Fault
+            case SIGSEGV:    // Segmentation Fault
                 description = "Segmentation fault or invalid memory access.";
                 break;
-            case SIGFPE: // Floating-point exception (e.g., division by zero)
+            case SIGFPE:    // Floating-point exception (e.g., division by zero)
                 description = "Floating point exception (e.g., division by zero).";
                 break;
-            case SIGILL: // Illegal instruction
+            case SIGILL:    // Illegal instruction
                 description = "Illegal instruction.";
                 break;
             default:
@@ -110,14 +114,15 @@ namespace Razix::CrashDumpHandler {
     }
 
     // Setup Mach exception handler and signal handlers
-    void Initialize() {
+    void Initialize()
+    {
         // Set up Mach exception handler
         exception_mask_t mask = EXC_MASK_BAD_ACCESS;
-        mach_port_t exceptionPort;
+        mach_port_t      exceptionPort;
         task_set_exception_ports(mach_task_self(), mask, exceptionPort, EXCEPTION_DEFAULT, THREAD_STATE_NONE);
 
         struct sigaction sa;
-        sa.sa_flags = SA_SIGINFO;
+        sa.sa_flags     = SA_SIGINFO;
         sa.sa_sigaction = signalHandler;
         sigemptyset(&sa.sa_mask);
 
@@ -137,10 +142,11 @@ namespace Razix::CrashDumpHandler {
     }
 
     // Cross-platform WriteCrashDump function
-    void WriteCrashDump(int signal, const std::string& description) {
+    void WriteCrashDump(int signal, const std::string& description)
+    {
         // For macOS, this is automatically handled by the signal and Mach exception handlers.
     }
 
-}
+}    // namespace Razix::CrashDumpHandler
 
 #endif

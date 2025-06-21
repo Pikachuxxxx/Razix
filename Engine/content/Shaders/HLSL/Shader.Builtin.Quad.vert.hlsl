@@ -20,8 +20,8 @@ VSOutput VS_MAIN(uint vertexID : SV_VertexID)
     VSOutput vs_out;
 
     // Calculate UV coordinates based on vertexID
-    float x = float((vertexID << 1) & 2);
-    float y = float(vertexID & 2);
+    float  x  = float((vertexID << 1) & 2);
+    float  y  = float(vertexID & 2);
     float2 uv = float2(x, y);
     vs_out.UV = uv;
 

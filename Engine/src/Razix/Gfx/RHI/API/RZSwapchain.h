@@ -29,9 +29,9 @@ namespace Razix {
              */
             static RZSwapchain* Create(u32 width, u32 height);
 
-            virtual void Init(u32 width, u32 height) = 0;
-            virtual void Destroy()                 = 0;
-            virtual void DestroyBackBufferImages() = 0;
+            virtual void Init(u32 width, u32 height)     = 0;
+            virtual void Destroy()                       = 0;
+            virtual void DestroyBackBufferImages()       = 0;
             virtual void OnResize(u32 width, u32 height) = 0;
 
             /* Gets the swapchain image at the given index */

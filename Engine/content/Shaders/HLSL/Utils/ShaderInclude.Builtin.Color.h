@@ -8,15 +8,14 @@
  */
 float3 RandomColorHash(uint p)
 {
-    p = 1103515245U * ((p >> 1U) ^ p);
-    uint h32 = 1103515245U * (p ^ (p >> 3U));
-    uint n = h32 ^ (h32 >> 16);
-    uint3 rz = uint3(n, n * 16807U, n * 48271U);
+    p         = 1103515245U * ((p >> 1U) ^ p);
+    uint  h32 = 1103515245U * (p ^ (p >> 3U));
+    uint  n   = h32 ^ (h32 >> 16);
+    uint3 rz  = uint3(n, n * 16807U, n * 48271U);
     return float3(
         float(rz.x & 0x7fffffffU) / 0x7fffffff,
         float(rz.y & 0x7fffffffU) / 0x7fffffff,
-        float(rz.z & 0x7fffffffU) / 0x7fffffff
-    );
+        float(rz.z & 0x7fffffffU) / 0x7fffffff);
 }
 //---------------------------------------------------------
 // [Source]: https://gamedev.stackexchange.com/questions/92015/optimized-linear-to-srgb-glsl

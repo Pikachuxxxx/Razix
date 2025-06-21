@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RZSTL/bits.h"
 #include "RZSTL/config.h"
 #include "RZSTL/constexpr_map.h"
 #include "RZSTL/map.h"
@@ -9,7 +10,6 @@
 #include "RZSTL/string.h"
 #include "RZSTL/unordered_map.h"
 #include "RZSTL/vector.h"
-#include "RZSTL/bits.h"
 
 #include "RZMemoryFunctions.h"
 

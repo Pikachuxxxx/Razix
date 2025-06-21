@@ -12,30 +12,30 @@
 
 namespace Razix {
     namespace Gfx {
-            void RZFrameGraphSampler::create(const Desc& desc, void* transientAllocator)
-            {
-                if (!m_SamplerHandle.isValid())
-                    m_SamplerHandle = RZResourceManager::Get().createSampler(desc);
-            }
+        void RZFrameGraphSampler::create(const Desc& desc, void* transientAllocator)
+        {
+            if (!m_SamplerHandle.isValid())
+                m_SamplerHandle = RZResourceManager::Get().createSampler(desc);
+        }
 
-            void RZFrameGraphSampler::destroy(const Desc& desc, void* transientAllocator)
-            {
-                RZResourceManager::Get().destroySampler(m_SamplerHandle);
-            }
+        void RZFrameGraphSampler::destroy(const Desc& desc, void* transientAllocator)
+        {
+            RZResourceManager::Get().destroySampler(m_SamplerHandle);
+        }
 
-            void RZFrameGraphSampler::preRead(const Desc& desc, uint32_t flags)
-            {
-                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-            }
+        void RZFrameGraphSampler::preRead(const Desc& desc, uint32_t flags)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+        }
 
-            void RZFrameGraphSampler::preWrite(const Desc& desc, uint32_t flags)
-            {
-                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-            }
+        void RZFrameGraphSampler::preWrite(const Desc& desc, uint32_t flags)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+        }
 
-            std::string RZFrameGraphSampler::toString(const Desc& desc)
-            {
-                return desc.name;
-            }
-    }        // namespace Gfx
+        std::string RZFrameGraphSampler::toString(const Desc& desc)
+        {
+            return desc.name;
+        }
+    }    // namespace Gfx
 }    // namespace Razix

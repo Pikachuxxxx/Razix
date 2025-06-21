@@ -290,7 +290,7 @@ namespace Razix {
 
                     sceneData.SceneHDR = builder.write(sceneData.SceneHDR);
                     data.ImGuiRT       = sceneData.SceneHDR;
-                    
+
                     gBufferData.GBufferDepth = builder.write(gBufferData.GBufferDepth);
                     data.ImGuiDRT            = gBufferData.GBufferDepth;
 

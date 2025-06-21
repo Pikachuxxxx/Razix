@@ -8,15 +8,15 @@
 // Vertex Input
 struct VSIn
 {
-    float3 inPosition   : POSITION;
-    float4 inColor      : COLOR;
-    float2 inTexCoord   : TEXCOORD;
-    float3 inNormal     : NORMAL;
+    float3 inPosition : POSITION;
+    float4 inColor : COLOR;
+    float2 inTexCoord : TEXCOORD;
+    float3 inNormal : NORMAL;
 };
 //------------------------------------------------------------------------------
 // Buffers and Root Constants
 // The view projection matrix
-cbuffer ViewProjectionBuffer : register (b0, space0)
+cbuffer ViewProjectionBuffer : register(b0, space0)
 {
     matrix view;
     matrix proj;
@@ -31,10 +31,10 @@ cbuffer ModelPushConstantData : register(b1, space0)
 //------------------------------------------------------------------------------
 struct VSOut
 {
-    float4 Position   : SV_POSITION;
-    float4 Color      : COLOR;
-    float2 UV         : TEXCOORD;
-    float3 Normal     : NORMAL;
+    float4 Position : SV_POSITION;
+    float4 Color : COLOR;
+    float2 UV : TEXCOORD;
+    float3 Normal : NORMAL;
 };
 //------------------------------------------------------------------------------
 VSOut VS_MAIN(VSIn vsIn)
@@ -42,12 +42,12 @@ VSOut VS_MAIN(VSIn vsIn)
     VSOut vso;
 
     float4 transformedPos = mul(worldTransform, float4(vsIn.inPosition, 1.0f));
-    transformedPos = mul(view, transformedPos);
-    transformedPos = mul(proj, transformedPos);
-    vso.Position = transformedPos;
-    vso.Color = vsIn.inColor;
-    vso.UV = vsIn.inTexCoord;
-    vso.Normal = vsIn.inNormal;
+    transformedPos        = mul(view, transformedPos);
+    transformedPos        = mul(proj, transformedPos);
+    vso.Position          = transformedPos;
+    vso.Color             = vsIn.inColor;
+    vso.UV                = vsIn.inTexCoord;
+    vso.Normal            = vsIn.inNormal;
 
     return vso;
 }

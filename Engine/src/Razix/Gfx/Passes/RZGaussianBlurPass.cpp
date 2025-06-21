@@ -42,8 +42,8 @@ namespace Razix {
 
         struct GaussianBlurPCData
         {
-            u32       tapFilter;
-            f32       blurRadius;
+            u32    tapFilter;
+            f32    blurRadius;
             float2 direction;
         };
 

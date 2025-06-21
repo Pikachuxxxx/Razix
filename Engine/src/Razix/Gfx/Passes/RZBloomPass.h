@@ -15,7 +15,7 @@ namespace Razix {
         struct BloomMip
         {
             RZFrameGraphResource mip{-1};
-            float2                        size;
+            float2               size;
         };
 
         constexpr u32 NUM_BLOOM_MIPS = 5;

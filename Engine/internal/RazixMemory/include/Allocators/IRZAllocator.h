@@ -13,7 +13,7 @@ namespace Razix {
         class IRZAllocator
         {
         public:
-            IRZAllocator()  = default;
+            IRZAllocator()          = default;
             virtual ~IRZAllocator() = default;
 
             /* Initialize the allocator */

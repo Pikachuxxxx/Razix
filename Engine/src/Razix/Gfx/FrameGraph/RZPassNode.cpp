@@ -8,7 +8,7 @@
 namespace Razix {
     namespace Gfx {
 
-        RAZIX_NO_DISCARD static bool hasId(const std::vector<RZFrameGraphResource> &v, RZFrameGraphResource id)
+        RAZIX_NO_DISCARD static bool hasId(const std::vector<RZFrameGraphResource>& v, RZFrameGraphResource id)
         {
 #if __cpp_lib_ranges
             return std::ranges::find(v, id) != v.cend();
@@ -17,9 +17,9 @@ namespace Razix {
 #endif
         }
 
-        RAZIX_NO_DISCARD static bool hasId(const std::vector<RZFrameGraphResourceAcessView> &v, RZFrameGraphResource id)
+        RAZIX_NO_DISCARD static bool hasId(const std::vector<RZFrameGraphResourceAcessView>& v, RZFrameGraphResource id)
         {
-            const auto match = [id](const auto &e) { return e.id == id; };
+            const auto match = [id](const auto& e) { return e.id == id; };
 
 #if __cpp_lib_ranges
             return std::ranges::find_if(v, match) != v.cend();
@@ -35,7 +35,7 @@ namespace Razix {
 
         //---------------------------------------------------------------------------
 
-        RZPassNode::RZPassNode(const std::string_view name, u32 id, std::unique_ptr<IRZFrameGraphPass> &&exec)
+        RZPassNode::RZPassNode(const std::string_view name, u32 id, std::unique_ptr<IRZFrameGraphPass>&& exec)
             : RZGraphNode{name, id}, m_Exec{std::move(exec)}
         {
             m_Creates.reserve(10);

@@ -25,8 +25,7 @@ namespace Razix {
     X(LuaScript)        \
     X(AssetRef)         \
     X(AssetBuilt)       \
-    X(UserDataContainer)  // Generic asset type to store some generic data for gameplay/scripting (ex. PlayerHealthStats/EnemyNPCTypes/Weapons/RegionalPowerups) basically can have anything like Enums, Structs, Vectors etc.
-
+    X(UserDataContainer)    // Generic asset type to store some generic data for gameplay/scripting (ex. PlayerHealthStats/EnemyNPCTypes/Weapons/RegionalPowerups) basically can have anything like Enums, Structs, Vectors etc.
 
         enum class AssetType
         {

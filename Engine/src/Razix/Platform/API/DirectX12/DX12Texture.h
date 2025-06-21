@@ -32,7 +32,7 @@ namespace Razix {
             DX12Texture(ID3D12Resource* backbuffer);    // only for swapchain
 
             D3D12_SHADER_RESOURCE_VIEW_DESC m_Srv;
-            ID3D12Resource* m_ResourceHandle;
+            ID3D12Resource*                 m_ResourceHandle;
         };
     }    // namespace Gfx
 }    // namespace Razix

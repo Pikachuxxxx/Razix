@@ -1,6 +1,5 @@
 #include "RZSTL/bits.h"
 
-
 namespace Razix {
     namespace rzstl {
         namespace bitmanip {

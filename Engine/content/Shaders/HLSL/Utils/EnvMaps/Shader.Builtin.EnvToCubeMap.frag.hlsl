@@ -8,27 +8,28 @@
 #include <Utils/ShaderInclude.Builtin.Color.h>
 //------------------------------------------------------------------------------
 // Texture and sampler bindings
-Texture2D HDRTexture : register(t1); // Equirectangular HDR texture
-SamplerState HDRSampler : register(s2); // Sampler for the HDR texture
+Texture2D    HDRTexture : register(t1);    // Equirectangular HDR texture
+SamplerState HDRSampler : register(s2);    // Sampler for the HDR texture
 
 // Pixel Shader Input
 struct PSIn
 {
-    float3 WorldDir : TEXCOORD0;                    // Cubemap direction
+    float3 WorldDir : TEXCOORD0;    // Cubemap direction
 };
 
 // Function to sample the equirectangular map
 float2 SampleSphericalMap(float3 v)
 {
-    const float2 invAtan = float2(0.1591, 0.3183); // Precomputed for atan2 and asin scaling
-    float2 uv = float2(atan2(v.z, v.x), asin(v.y)); // Spherical coordinates
-    uv *= invAtan; // Scale to [0,1] range
+    const float2 invAtan = float2(0.1591, 0.3183);                // Precomputed for atan2 and asin scaling
+    float2       uv      = float2(atan2(v.z, v.x), asin(v.y));    // Spherical coordinates
+    uv *= invAtan;                                                // Scale to [0,1] range
     uv += 0.5;
     return uv;
 }
 
 // Pixel Shader Main Function
-float4 PS_MAIN(PSIn input) : SV_Target
+float4 PS_MAIN(PSIn input)
+    : SV_Target
 {
     // Normalize the incoming world direction
     float3 worldDir = normalize(input.WorldDir);
@@ -40,5 +41,5 @@ float4 PS_MAIN(PSIn input) : SV_Target
     float4 hdrColor = HDRTexture.Sample(HDRSampler, uv);
 
     // Output the HDR color for this cubemap face
-    return hdrColor;//float4(hdrColor, 1.0f);
+    return hdrColor;    //float4(hdrColor, 1.0f);
 }

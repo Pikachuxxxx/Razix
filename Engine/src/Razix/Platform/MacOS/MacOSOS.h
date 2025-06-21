@@ -1,4 +1,4 @@
-    #pragma once
+#pragma once
 
 #include "Razix/Core/OS/RZOS.h"
 

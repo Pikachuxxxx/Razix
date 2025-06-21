@@ -14,7 +14,7 @@ struct VSOutput
 };
 //------------------------------------------------------------------------------
 // GBuffer Deferred resource bindings
-Texture2D SceneHDRRenderTarget : register(t0);
+Texture2D    SceneHDRRenderTarget : register(t0);
 SamplerState linearSampler : register(s0);
 //------------------------------------------------------------------------------
 // Push constants
@@ -24,7 +24,7 @@ struct PushConstantData
 };
 PUSH_CONSTANT(PushConstantData);
 //------------------------------------------------------------------------------
-// Final Render targets 
+// Final Render targets
 struct PSOut
 {
     float4 SceneColor : SV_Target0;
@@ -32,12 +32,11 @@ struct PSOut
 //------------------------------------------------------------------------------
 PSOut PS_MAIN(VSOutput input)
 {
-    float2 uv = float2(input.UV.x, input.UV.y);
+    float2 uv     = float2(input.UV.x, input.UV.y);
     float3 result = SceneHDRRenderTarget.Sample(linearSampler, uv).rgb;
-    
+
     // Tonemap
-    switch(GET_PUSH_CONSTANT(tonemapMode))
-    {
+    switch (GET_PUSH_CONSTANT(tonemapMode)) {
         case 0:
             result = TonemapFuncs::ACES(result);
             break;
@@ -63,10 +62,10 @@ PSOut PS_MAIN(VSOutput input)
             result = TonemapFuncs::Unreal(result);
             break;
         case 8:
-            result = result; // No tonemapping
+            result = result;    // No tonemapping
             break;
     }
-    
+
     PSOut output;
     output.SceneColor = float4(result, 1.0f);
     return output;

@@ -14,8 +14,9 @@ struct PSIn
     float2 UV : TEXCOORD;
     float3 Normal : NORMAL;
 };
- //------------------------------------------------------------------------------
-float4 PS_MAIN(PSIn input, uint primivitveID : SV_PrimitiveID, uint instanceID : SV_InstanceID) : SV_TARGET
+//------------------------------------------------------------------------------
+float4 PS_MAIN(PSIn input, uint primivitveID : SV_PrimitiveID, uint instanceID : SV_InstanceID)
+    : SV_TARGET
 {
     // only opaque geometry for now
     // Using instance ID for now instead of drawID

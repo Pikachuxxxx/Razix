@@ -14,11 +14,11 @@ enum LightType : u32
 
 struct RAZIX_MEM_ALIGN_16 LightData
 {
-    alignas(16) float3 position     = float3(1.0f);
+    alignas(16) float3 position        = float3(1.0f);
     alignas(4) f32 range               = 10.0f;
-    alignas(16) float3 color        = float3(1.0f);
+    alignas(16) float3 color           = float3(1.0f);
     alignas(4) f32 intensity           = 1.0f;
-    alignas(16) float4 direction    = float4(1.0f);
+    alignas(16) float4 direction       = float4(1.0f);
     alignas(4) f32 constantAttenuation = 1.0f;
     alignas(4) f32 linearAttenuation   = 0.09f;
     alignas(4) f32 quadratic           = 0.032f;

@@ -48,8 +48,8 @@ namespace Razix {
             {
                 virtual ~Concept() = default;
 
-                virtual void create(void *transientAllocator)  = 0;
-                virtual void destroy(void *transientAllocator) = 0;
+                virtual void create(void* transientAllocator)  = 0;
+                virtual void destroy(void* transientAllocator) = 0;
 
                 // Optional functions so we don't check for existence of these functions on the type rather on model before calling them
                 virtual void preRead(uint32_t flags)  = 0;
@@ -80,7 +80,7 @@ namespace Razix {
                      * and will reject non-matching overloads for types without any error, SFINAE's safe failure can choose the different
                      * paths during compile time to tell whether a type has a method/sub type or not and these compile time expression can be used for final evaluation
                      */
-                Model(typename T::Desc &&desc, T &&obj)
+                Model(typename T::Desc&& desc, T&& obj)
                     : descriptor(std::move(desc)), resource(std::move(obj))
                 {
                 }
@@ -93,12 +93,12 @@ namespace Razix {
                      * FrameGraph common create calls this create and some args from the first method are passed here later
                      */
 
-                void create(void *transientAllocator) final
+                void create(void* transientAllocator) final
                 {
                     resource.create(descriptor, transientAllocator);
                 }
 
-                void destroy(void *transientAllocator) final
+                void destroy(void* transientAllocator) final
                 {
                     resource.destroy(descriptor, transientAllocator);
                 }
@@ -151,23 +151,23 @@ namespace Razix {
             /* Type checks ignored here because we do it before create them */
 
             template<typename T>
-            RAZIX_NO_DISCARD T &get()
+            RAZIX_NO_DISCARD T& get()
             {
                 return getModel<T>()->resource;
             }
 
             template<typename T>
-            const typename T::Desc &getDescriptor() const
+            const typename T::Desc& getDescriptor() const
             {
                 return getModel<T>()->descriptor;
             }
 
 #ifdef FG_USE_FINE_GRAINED_LIFETIMES
-            const std::vector<RZResourceLifetime> &getLifetimes() const { return m_Lifetimes; }
-            std::vector<RZResourceLifetime>       &getLifetimesRef() { return m_Lifetimes; }
+            const std::vector<RZResourceLifetime>& getLifetimes() const { return m_Lifetimes; }
+            std::vector<RZResourceLifetime>&       getLifetimesRef() { return m_Lifetimes; }
 #else
-            const RZPassNode &getProducerPassNode() const { return *m_Producer; }
-            const RZPassNode &getLastPassNode() const { return *m_Last; }
+            const RZPassNode& getProducerPassNode() const { return *m_Producer; }
+            const RZPassNode& getLastPassNode() const { return *m_Last; }
 
 #endif
 
@@ -186,25 +186,25 @@ namespace Razix {
 #ifdef FG_USE_FINE_GRAINED_LIFETIMES
             std::vector<RZResourceLifetime> m_Lifetimes;
 #else
-            RZPassNode *m_Producer;
-            RZPassNode *m_Last;
+            RZPassNode* m_Producer;
+            RZPassNode* m_Last;
 #endif
 
         private:
             template<typename T>
-            RZResourceEntry(u32 id, typename T::Desc &&desc, T &&obj, u32 version, bool imported = false)
+            RZResourceEntry(u32 id, typename T::Desc&& desc, T&& obj, u32 version, bool imported = false)
                 : m_ID(id), m_Concept{std::make_unique<Model<T>>(std::forward<typename T::Desc>(desc), std::forward<T>(obj))}, m_Version(version), m_Imported(imported)
             {
             }
 
             template<typename T>
-            RAZIX_NO_DISCARD Model<T> *getModel() const
+            RAZIX_NO_DISCARD Model<T>* getModel() const
             {
-                auto *model = dynamic_cast<Model<T> *>(m_Concept.get());
+                auto* model = dynamic_cast<Model<T>*>(m_Concept.get());
                 return model;
             }
 
-            RAZIX_NO_DISCARD Concept *getConcept() const
+            RAZIX_NO_DISCARD Concept* getConcept() const
             {
                 return m_Concept.get();
             }

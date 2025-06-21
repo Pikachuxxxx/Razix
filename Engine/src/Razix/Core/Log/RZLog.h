@@ -58,7 +58,7 @@ namespace Razix {
     #define RAZIX_CORE_WARN(...)
     #define RAZIX_CORE_ERROR(...)
 
-    // Application Logging
+// Application Logging
     #define RAZIX_TRACE(...)
     #define RAZIX_INFO(...)
     #define RAZIX_WARN(...)

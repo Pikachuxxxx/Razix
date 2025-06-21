@@ -9,7 +9,7 @@ namespace Razix {
         class RZLinearAllocator final : public IRZAllocator
         {
         public:
-            RZLinearAllocator() = default;
+            RZLinearAllocator()  = default;
             ~RZLinearAllocator() = default;
 
             void init(size_t size) override;
@@ -18,12 +18,12 @@ namespace Razix {
 
             void* allocate(size_t size, size_t alignment) override;
             /* This allocator does not allocate on a per-pointer basis */
-            void  deallocate(void* ptr) override {}
+            void deallocate(void* ptr) override {}
 
             void clear() { m_AllocatedSize = 0; }
 
         private:
-            uint8_t* m_Chunk    = nullptr;
+            uint8_t* m_Chunk         = nullptr;
             size_t   m_AllocatedSize = 0;
             size_t   m_TotalSize     = 0;
         };

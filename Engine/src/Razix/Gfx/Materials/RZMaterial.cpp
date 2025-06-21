@@ -22,7 +22,7 @@
 namespace Razix {
     namespace Gfx {
 
-        RZMaterial*     RZMaterial::s_DefaultMaterial = nullptr;
+        RZMaterial* RZMaterial::s_DefaultMaterial = nullptr;
 
         //-----------------------------------------------------------------------------------
 

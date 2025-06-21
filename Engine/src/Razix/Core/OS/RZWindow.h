@@ -61,7 +61,7 @@ namespace Razix {
         virtual void OnWindowUpdate() = 0;
 
         /* Process the Input polling */
-        virtual void ProcessInput() {};
+        virtual void ProcessInput(){};
 
         virtual void Destroy() = 0;
 

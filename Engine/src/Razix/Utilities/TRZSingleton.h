@@ -33,7 +33,7 @@ namespace Razix {
     public:
         /* Gets the reference to the Singleton Object */
         static T& Get();
-        
+
     protected:
         RZSingleton() {}
         ~RZSingleton() {}

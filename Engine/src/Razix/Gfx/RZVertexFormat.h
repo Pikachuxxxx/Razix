@@ -76,21 +76,21 @@ namespace Razix {
         struct RZSkeletalVertex
         {
 #if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
-            float3  Position;
-            float2  UV;
-            float3  Normal;
-            float3  Tangent;
-            float3  BiTangent;
-            int4 BoneIndices; /* Indices of the bones that this vertex will be affected by, total bones = MAX_BONES_COUNT */
-            float3  BoneWeights;
+            float3 Position;
+            float2 UV;
+            float3 Normal;
+            float3 Tangent;
+            float3 BiTangent;
+            int4   BoneIndices; /* Indices of the bones that this vertex will be affected by, total bones = MAX_BONES_COUNT */
+            float3 BoneWeights;
 #endif
-            std::vector<float3>  Position;
-            std::vector<float2>  UV;
-            std::vector<float3>  Normal;
-            std::vector<float3>  Tangent;
-            std::vector<float3>  BiTangent;
-            std::vector<int4> BoneIndices;
-            std::vector<float3>  BoneWeights;
+            std::vector<float3> Position;
+            std::vector<float2> UV;
+            std::vector<float3> Normal;
+            std::vector<float3> Tangent;
+            std::vector<float3> BiTangent;
+            std::vector<int4>   BoneIndices;
+            std::vector<float3> BoneWeights;
 
             void setSize(uint32_t sz)
             {

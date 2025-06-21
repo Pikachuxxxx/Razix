@@ -3,8 +3,8 @@
 
 #include "RZSTL/ref_counter.h"
 
-#include <memory>
 #include <functional>
+#include <memory>
 
 #undef CUSTOM_SMART_PTR
 //#define CUSTOM_SMART_PTR
