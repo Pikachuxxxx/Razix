@@ -548,7 +548,7 @@ namespace Razix {
         // Extract the project UUID as as string and convert it back to the RZUUID
         std::string uuid_string;
         archive(cereal::make_nvp("Project ID", uuid_string));
-        //        m_ProjectID = RZUUID::FromStrFactory(uuid_string);
+        m_ProjectID = RZUUID::FromPrettyStrFactory(uuid_string);
 
         // Load the scenes from the project file for the engine to load and present
         RAZIX_CORE_TRACE("Loading Scenes...");

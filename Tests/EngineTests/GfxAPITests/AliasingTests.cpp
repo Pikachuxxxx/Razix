@@ -7,20 +7,6 @@
 namespace Razix {
     using namespace Gfx;
 
-    class AliaisngTests : public ::testing::Test
-    {
-    protected:
-        void SetUp() override
-        {
-            // Setup code before each test runs (if needed)
-        }
-
-        void TearDown() override
-        {
-            // Cleanup code after each test runs (if needed)
-        }
-    };
-
     TEST(AliaisngTests, AliasingEndTimeQueueTestInsertAndFind)
     {
         AliasingEndTimeQueue queue;
