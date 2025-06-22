@@ -7,13 +7,13 @@ namespace Razix {
 
         class RZFrameGraph;
 
-        struct AliasingPriorityEntry
+        struct RAZIX_API AliasingPriorityEntry
         {
             u32 groupID;
             u32 end;
         };
 
-        class AliasingEndTimeQueue
+        class RAZIX_API AliasingEndTimeQueue
         {
         public:
             void insert(u32 groupID, u32 end);
@@ -31,7 +31,7 @@ namespace Razix {
             u32                                m_Count = 0;
         };
 
-        class AliasingGroup
+        class RAZIX_API AliasingGroup
         {
         public:
             AliasingGroup(u32 id)
@@ -50,7 +50,7 @@ namespace Razix {
             inline u32                     id() const { return m_GroupID; }
             inline u32                     end() const { return m_MaxEnd; }
             inline const std::vector<u32>& getResourceEntryIDs() const { return m_ResourceEntryIDs; }
-            inline u32                     getResourceEntriesSize() const { return m_ResourceEntryIDs.size(); }
+            inline u32                     getResourceEntriesSize() const { return static_cast<u32>(m_ResourceEntryIDs.size()); }
 
         private:
             u32              m_GroupID = UINT32_MAX;
@@ -59,7 +59,7 @@ namespace Razix {
         };
 
         // TODO: Sort groups by resource types! no mix and match allowed
-        class AliasingBook
+        class RAZIX_API AliasingBook
         {
         public:
             void build(std::vector<RZResourceLifetime> lifetimes);
@@ -85,7 +85,7 @@ namespace Razix {
             std::unordered_map<u32, u32> m_ResourceToGroup;
         };
 
-        class RZTransientAllocator
+        class RAZIX_API RZTransientAllocator
         {
         public:
             RZTransientAllocator(const RZFrameGraph& fg)

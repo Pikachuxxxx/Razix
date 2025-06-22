@@ -59,7 +59,7 @@ namespace Razix {
 
             for (u32 i = 0; i < m_Count; ++i) {
                 if (m_Entries[i].end <= begin) {
-                    return m_Entries[i].end;
+                    return m_Entries[i].groupID;
                 }
             }
             return UINT32_MAX;
