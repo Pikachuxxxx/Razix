@@ -534,6 +534,8 @@ namespace Razix {
 
         void RZFrameGraph::compile()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             m_CompiledPassIndices.clear();
             m_CompiledResourceIndices.clear();
 
@@ -681,26 +683,38 @@ namespace Razix {
                 m_CompiledPassIndices.push_back(passID);
 
                 // Create coarse lifetimes
-                for (auto id: pass.m_Creates)
-                    getResourceEntryRef(id).m_Producer = &pass;
-                for (auto& [id, flags]: pass.m_Writes)
-                    getResourceEntryRef(id).m_Last = &pass;
+                for (auto id: pass.m_Creates) {
+                    auto& entryRef      = getResourceEntryRef(id);
+                    entryRef.m_ResType  = getResourceType(id);
+                    entryRef.m_Producer = &pass;
+                }
+                for (auto& [id, flags]: pass.m_Writes) {
+                    auto& entryRef     = getResourceEntryRef(id);
+                    entryRef.m_ResType = getResourceType(id);
+                    entryRef.m_Last    = &pass;
+                }
                 for (auto& [id, flags]: pass.m_Reads) {
-                    auto& entryRef  = getResourceEntryRef(id);
-                    entryRef.m_Last = &pass;
+                    auto& entryRef     = getResourceEntryRef(id);
+                    entryRef.m_ResType = getResourceType(id);
+                    entryRef.m_Last    = &pass;
                 }
             }
 #endif
 
-            // Once lifetimes are determined we can create aliasing groups
+            // Once lifetimes are determined we can create aliasing groups for Transient Resourcees Only
             for (const auto& entry: m_CompiledResourceEntries) {
-                m_TransientAllocator.registerLifetime(m_ResourceRegistry[entry].getCoarseLifetime());
+                auto& entryRef = getResourceEntryRef(entry);
+                if (entryRef.isTransient())
+                    m_TransientAllocator.registerLifetime(m_ResourceRegistry[entry].getCoarseLifetime());
             }
-
         }
 
-        void RZFrameGraph::execute(void* transientAllocator)
+        void RZFrameGraph::execute()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            m_TransientAllocator.beginFrame();
+
 #ifndef RAZIX_GOLD_MASTER
             if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                 RAZIX_CORE_INFO("***************Frame Graph EXEC START***************");
@@ -718,10 +732,16 @@ namespace Razix {
 
                 // Call create for all the resources created by this node : Lazy Allocation --> helps with memory aliasing (pass transient resources)
                 // Even for Data Driven passes this works be cause we create the RZFrameGraphTexture/Buffer while parsing the JSON graph and we have a pseudo SetupFunc
-                for (const auto& id: pass.m_Creates)
-                    getResourceEntryRef(id).getConcept()->create(transientAllocator);
+                for (const auto& id: pass.m_Creates) {
+                    RZResourceEntry& resEntryRef = getResourceEntryRef(id);
+                    if (resEntryRef.isTransient()) {
+                        resEntryRef.getConcept()->create(&m_TransientAllocator);
+                    } else {
+                        resEntryRef.getConcept()->create(NULL);
+                    }
+                }
 
-                // TODO: To reduce unnecessary barries use version boundary changes to skip over some
+                // TODO: To reduce unnecessary barriers use version boundary changes to skip over some
                 // Call pre-read and pre-write functions on the resource before the execute function
                 // Safety of existence is taken care in the ResourceEntry class
                 // Skip if they are imported resource, since imported resources are always Read only data!
@@ -739,16 +759,15 @@ namespace Razix {
                 // https://stackoverflow.com/questions/43680182/what-is-stdinvoke-in-c
                 std::invoke(*pass.m_Exec, pass, resources);
 
-                // TODO: enable this when transient resources backend is done
                 /**
-                     * Current nodes resources can still be used by other nodes so we check
-                     * for the EntryPoints and see at all the resources to check which are done with this
-                     * the m_Last will keep track of which node will require this resource, if this pass is done
-                     * then all the resources in the framegraph that depend on this can be deleted safely
-                     */
-                //for (auto &entry: m_ResourceRegistry)
-                //    if (entry.m_Last == &pass && entry.isTransient())
-                //        entry.getConcept()->destroy(transientAllocator);
+                  * Current nodes resources can still be used by other nodes so we check
+                  * for the EntryPoints and see at all the resources to check which are done with this
+                  * the m_Last will keep track of which node will require this resource, if this pass is done
+                  * then all the resources in the framegraph that depend on this can be deleted safely
+                  */
+                for (auto& entry: m_ResourceRegistry)
+                    if (entry.m_Last == &pass && entry.isTransient())
+                        entry.getConcept()->destroy(&m_TransientAllocator);
 
 #ifndef RAZIX_GOLD_MASTER
                 if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
@@ -760,6 +779,8 @@ namespace Razix {
             if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                 RAZIX_CORE_INFO("***************Frame Graph EXEC END***************");
 #endif
+
+            m_TransientAllocator.endFrame();
 
             // End first frame identifier
             RZFrameGraph::m_IsFirstFrame = false;
@@ -931,8 +952,11 @@ namespace Razix {
 
         void RZFrameGraph::destroy()
         {
+            m_TransientAllocator.destroy();
+
             for (auto& entry: m_ResourceRegistry)
-                entry.getConcept()->destroy(nullptr);
+                if (entry.isImported())
+                    entry.getConcept()->destroy(NULL);
 
             m_PassNodes.clear();
             m_ResourceNodes.clear();
@@ -1025,6 +1049,16 @@ namespace Razix {
             const auto cloneId = static_cast<u32>(m_ResourceNodes.size());
             m_ResourceNodes.emplace_back(RZResourceNode(node.m_Name, cloneId, node.m_ResourceEntryID, entry.getVersion()));
             return cloneId;
+        }
+
+        FGResourceType RZFrameGraph::getResourceType(u32 id) const
+        {
+            if (verifyResourceType<RZFrameGraphTexture>(id))
+                return FGResourceType::kFGTexture;
+            else if (verifyResourceType<RZFrameGraphBuffer>(id))
+                return FGResourceType::kFGBuffer;
+            else if (verifyResourceType<RZFrameGraphSampler>(id))
+                return FGResourceType::kFGSampler;
         }
 
         RZPassResourceBuilder* RZFrameGraph::CreateBuilder(RZFrameGraph& fg, RZPassNode& passNode)

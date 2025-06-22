@@ -47,6 +47,13 @@ namespace Razix {
             kWrite,    // Fine grained
         };
 
+        enum FGResourceType
+        {
+            kFGTexture,
+            kFGBuffer,
+            kFGSampler
+        };
+
         struct RZResourceLifetime
         {
             u32          ResourceEntryID;

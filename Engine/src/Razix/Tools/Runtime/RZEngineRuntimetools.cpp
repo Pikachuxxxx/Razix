@@ -271,6 +271,8 @@ namespace Razix {
 
         void OnImGuiDrawFrameGraphVis(const Gfx::RZFrameGraph& frameGraph)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             ImGui::SetNextWindowBgAlpha(1.0f);
             if (ImGui::Begin("Frame Graph Resource Viewer##FGResourceVis")) {
                 ImGui::Text("Welcome to Frame Graph resource viz! Your one stop viewer for Transient resources/Barriers and memory usage of a Frame.");
@@ -381,6 +383,8 @@ namespace Razix {
 
         void OnImGuiDrawStatusBar()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
             ImGui::SetNextWindowBgAlpha(1.0f);
             ImGui::SetNextWindowSize(ImVec2((f32) RZApplication::Get().getWindow()->getWidth(), 150.0f));

@@ -46,9 +46,11 @@ namespace Razix {
         {
             friend class RZPassResourceBuilder;
             friend class RZPassResourceDirectory;
+            friend class RZTransientAllocator;
 
         public:
-            RZFrameGraph() {}
+            RZFrameGraph()
+                : m_TransientAllocator(*this) {}
             // We don't want dangling frame graph resources and nodes
             RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZFrameGraph)
 
@@ -131,7 +133,7 @@ namespace Razix {
             RAZIX_NO_DISCARD RZPassNode& parsePass(const std::string& passPath);
 
             void compile();
-            void execute(void* transientAllocator);
+            void execute();
             void resize(u32 width, u32 height);
             void exportToGraphViz(std::ostream&) const;
             void exportToGraphViz(const std::string& location) const;
@@ -143,23 +145,25 @@ namespace Razix {
             const RZResourceNode&  getResourceNode(RZFrameGraphResource id) const;
             const RZResourceEntry& getResourceEntry(RZFrameGraphResource id) const;
 
-            inline RZBlackboard&     getBlackboard() { return m_Blackboard; }
-            inline const RZPassNode& getPassNode(u32 idx) const { return m_PassNodes[idx]; }
-            inline static void       ResetFirstFrame() { m_IsFirstFrame = true; }
-            inline static bool       IsFirstFrame() { return m_IsFirstFrame; }
-            inline u32               getPassNodesSize() const { return static_cast<u32>(m_PassNodes.size()); }
-            inline u32               getResourceNodesSize() const { return static_cast<u32>(m_ResourceNodes.size()); }
-            inline u32               getCompiledResourceEntriesSize() const { return static_cast<u32>(m_CompiledResourceEntries.size()); }
-            std::vector<u32>         getCompiledResourceEntries() const { return m_CompiledResourceEntries; }
-            std::vector<u32>         getCompiledResourceNodes() const { return m_CompiledResourceIndices; }
-            std::vector<u32>         getCompiledPassNodes() const { return m_CompiledPassIndices; }
+            inline RZBlackboard&               getBlackboard() { return m_Blackboard; }
+            inline const RZPassNode&           getPassNode(u32 idx) const { return m_PassNodes[idx]; }
+            inline static void                 ResetFirstFrame() { m_IsFirstFrame = true; }
+            inline static bool                 IsFirstFrame() { return m_IsFirstFrame; }
+            inline u32                         getPassNodesSize() const { return static_cast<u32>(m_PassNodes.size()); }
+            inline u32                         getResourceNodesSize() const { return static_cast<u32>(m_ResourceNodes.size()); }
+            inline u32                         getCompiledResourceEntriesSize() const { return static_cast<u32>(m_CompiledResourceEntries.size()); }
+            inline std::vector<u32>            getCompiledResourceEntries() const { return m_CompiledResourceEntries; }
+            inline std::vector<u32>            getCompiledResourceNodes() const { return m_CompiledResourceIndices; }
+            inline std::vector<u32>            getCompiledPassNodes() const { return m_CompiledPassIndices; }
+            inline const AliasingBook&         getAliasBook() const { return m_TransientAllocator.getAliasBook(); }
+            inline const RZTransientAllocator* getTransientAllocatorPtr() const { return &m_TransientAllocator; }
 
             // Export function to dot format for GraphViz
             friend std::ostream& operator<<(std::ostream&, const RZFrameGraph&);
 
-            const AliasingBook& getAliasBook() const { return m_TransientAllocator.getAliasBook(); }
-
         private:
+            static bool m_IsFirstFrame;
+
             std::vector<RZPassNode>      m_PassNodes;
             std::vector<RZResourceNode>  m_ResourceNodes;
             std::vector<RZResourceEntry> m_ResourceRegistry;
@@ -169,9 +173,16 @@ namespace Razix {
             std::vector<u32>             m_CompiledResourceEntries;
             RZTransientAllocator         m_TransientAllocator;
 
-            static bool m_IsFirstFrame;
-
         private:
+            template<typename T>
+            bool verifyResourceType(u32 id) const
+            {
+                const auto res = getResourceEntry(id).getModel<T>();
+                return res ? true : false;
+            }
+
+            FGResourceType getResourceType(u32 id) const;
+
             ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD RZFrameGraphResource createResource(const std::string_view name, typename T::Desc&& desc)
             {
                 // Create a new Resource entry
@@ -195,9 +206,9 @@ namespace Razix {
         // RZPassResourceBuilder Class
         //-----------------------------------------------------------------------------------
         /**
-             * Frame Graph Pass resource Builder Class
-             * used for creating pass resources and marking them as read/write for a PassNode
-             */
+          * Frame Graph Pass resource Builder Class
+          * used for creating pass resources and marking them as read/write for a PassNode
+          */
         class RAZIX_API RZPassResourceBuilder final
         {
             friend class RZFrameGraph;
@@ -223,19 +234,7 @@ namespace Razix {
                 return m_PassNode.m_Creates.emplace_back(id);
             }
 
-            /**
-              * Marks the resource as a readable resources for the current pass node
-              * 
-              * @param id ID of the FrameGraphResource which u32
-              * @param flags Binding info can be passes as flags to manage descriptor tables and barriers
-              */
-            RZFrameGraphResource read(RZFrameGraphResource id, u32 flags = kFlagsNone);
-            /**
-              * Marks the resource as a writable (render target) resources for the current pass node
-              * 
-              * @param id ID of the FrameGraphResource which u32
-              * @param flags Binding info can be passes as flags to manage descriptor tables and barriers
-              */
+            RZFrameGraphResource                  read(RZFrameGraphResource id, u32 flags = kFlagsNone);
             RAZIX_NO_DISCARD RZFrameGraphResource write(RZFrameGraphResource id, u32 flags = kFlagsNone);
 
             /* Ensures that this pass is not culled during the frame graph compilation phase, single/hanging passes cans till exist and be executed */
@@ -280,7 +279,6 @@ namespace Razix {
         public:
             RAZIX_DELETE_PUBLIC_CONSTRUCTOR(RZPassResourceDirectory);
 
-            /* Gets the resource that is read/write by the current pass */
             ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD T& get(RZFrameGraphResource id)
             {
                 RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
@@ -295,7 +293,6 @@ namespace Razix {
                 return m_FrameGraph.getResourceEntryRef(id).getDescriptor<T>();
             }
 
-            /* Verifies the type of the resource ID */
             ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD bool verifyType(RZFrameGraphResource id)
             {
                 RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
@@ -304,7 +301,6 @@ namespace Razix {
                 return res ? true : false;
             }
 
-            /* Gets the resource name using the resource ID, this ie because we don't know if T::Desc will have a name member or not */
             ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD const std::string& getResourceName(RZFrameGraphResource id)
             {
                 RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");

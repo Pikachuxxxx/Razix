@@ -29,6 +29,8 @@ namespace Razix {
             /* Invalidate caches to read back new data to CPU */
             virtual void Invalidate() = 0;
 
+            inline const RZBufferDesc& getDescription() const { return m_Desc; }
+
         protected:
             RZBufferDesc m_Desc;
             bool         m_LastDirty = false;

@@ -48,8 +48,8 @@ namespace Razix {
             {
                 virtual ~Concept() = default;
 
-                virtual void create(void* transientAllocator)  = 0;
-                virtual void destroy(void* transientAllocator) = 0;
+                virtual void create(const void* transientAllocator)  = 0;
+                virtual void destroy(const void* transientAllocator) = 0;
 
                 // Optional functions so we don't check for existence of these functions on the type rather on model before calling them
                 virtual void preRead(uint32_t flags)  = 0;
@@ -80,8 +80,8 @@ namespace Razix {
                      * and will reject non-matching overloads for types without any error, SFINAE's safe failure can choose the different
                      * paths during compile time to tell whether a type has a method/sub type or not and these compile time expression can be used for final evaluation
                      */
-                Model(typename T::Desc&& desc, T&& obj)
-                    : descriptor(std::move(desc)), resource(std::move(obj))
+                Model(typename T::Desc&& desc, T&& obj, u32 id)
+                    : descriptor(std::move(desc)), resource(std::move(obj)), m_ID(id)
                 {
                 }
 
@@ -93,14 +93,14 @@ namespace Razix {
                      * FrameGraph common create calls this create and some args from the first method are passed here later
                      */
 
-                void create(void* transientAllocator) final
+                void create(const void* transientAllocator) final
                 {
-                    resource.create(descriptor, transientAllocator);
+                    resource.create(descriptor, m_ID, transientAllocator);
                 }
 
-                void destroy(void* transientAllocator) final
+                void destroy(const void* transientAllocator) final
                 {
-                    resource.destroy(descriptor, transientAllocator);
+                    resource.destroy(m_ID, transientAllocator);
                 }
 
                 /**
@@ -138,6 +138,7 @@ namespace Razix {
 
                 T                      resource;   /* Resource handle              */
                 const typename T::Desc descriptor; /* Resource creation descriptor */
+                u32                    m_ID;       /* ID of the resource entry, used to identify the resource in the frame graph */
             };
 
         public:
@@ -180,18 +181,20 @@ namespace Razix {
                 return lifetime;
             }
 
-            RAZIX_NO_DISCARD inline u32  getVersion() const { return m_Version; }
-            RAZIX_NO_DISCARD inline bool isImported() const { return m_Imported; }
-            RAZIX_NO_DISCARD inline bool isTransient() const { return !m_Imported; }
+            RAZIX_NO_DISCARD inline u32            getVersion() const { return m_Version; }
+            RAZIX_NO_DISCARD inline bool           isImported() const { return m_Imported; }
+            RAZIX_NO_DISCARD inline bool           isTransient() const { return !m_Imported; }
+            RAZIX_NO_DISCARD inline u32            getID() const { return m_ID; }
+            RAZIX_NO_DISCARD inline FGResourceType getResourceType() const { return m_ResType; }
 
         private:
             //---------------------------------
             std::unique_ptr<Concept> m_Concept; /* Type Erased implementation class */
             //---------------------------------
-            const u32  m_ID;
-            const bool m_Imported = false;
-            u32        m_Version; /* Version of the latest cloned resource */
-
+            const u32      m_ID;
+            const bool     m_Imported = false;
+            u32            m_Version; /* Version of the latest cloned resource */
+            FGResourceType m_ResType;
 #ifdef FG_USE_FINE_GRAINED_LIFETIMES
             std::vector<RZResourceLifetime> m_Lifetimes;
 #else
@@ -202,7 +205,7 @@ namespace Razix {
         private:
             template<typename T>
             RZResourceEntry(u32 id, typename T::Desc&& desc, T&& obj, u32 version, bool imported = false)
-                : m_ID(id), m_Concept{std::make_unique<Model<T>>(std::forward<typename T::Desc>(desc), std::forward<T>(obj))}, m_Version(version), m_Imported(imported)
+                : m_ID(id), m_Concept{std::make_unique<Model<T>>(std::forward<typename T::Desc>(desc), std::forward<T>(obj), id)}, m_Version(version), m_Imported(imported)
             {
             }
 

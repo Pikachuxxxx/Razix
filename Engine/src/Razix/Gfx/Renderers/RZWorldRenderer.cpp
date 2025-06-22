@@ -370,7 +370,7 @@ namespace Razix {
                 RAZIX_MARK_BEGIN("Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(RHI::GetSwapchain()->getCurrentFrameIndex()) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
 
                 // Execute the Frame Graph passes
-                m_FrameGraph.execute(NULL);
+                m_FrameGraph.execute();
 
                 // End Frame Marker
                 RAZIX_MARK_END();

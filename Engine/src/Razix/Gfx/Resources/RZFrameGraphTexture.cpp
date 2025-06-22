@@ -14,17 +14,30 @@
 
 namespace Razix {
     namespace Gfx {
-        // TODO: Use a TransientResourcePool to allocate transient resources
 
-        void RZFrameGraphTexture::create(const Desc& desc, void* transientAllocator)
+        void RZFrameGraphTexture::create(const Desc& desc, u32 id, const void* transientAllocator)
         {
-            if (!m_TextureHandle.isValid())
-                m_TextureHandle = RZResourceManager::Get().createTexture(desc);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (transientAllocator)
+                m_TextureHandle = TRANSIENT_ALLOCATOR_CAST(transientAllocator)->acquireTransientTexture(desc, id);
+            else {
+                // If no transient allocator is provided, we create a imported persistent resource only ONCE!
+                if (!m_TextureHandle.isValid())
+                    m_TextureHandle = RZResourceManager::Get().createTexture(desc);
+            }
         }
 
-        void RZFrameGraphTexture::destroy(const Desc& desc, void* transientAllocator)
+        void RZFrameGraphTexture::destroy(u32 id, const void* transientAllocator)
         {
-            RZResourceManager::Get().destroyTexture(m_TextureHandle);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (transientAllocator)
+                TRANSIENT_ALLOCATOR_CAST(transientAllocator)->releaseTransientTexture(m_TextureHandle, id);
+            else {
+                if (m_TextureHandle.isValid())
+                    RZResourceManager::Get().destroyTexture(m_TextureHandle);
+            }
         }
 
         void RZFrameGraphTexture::preRead(const Desc& desc, uint32_t flags)

@@ -13,15 +13,29 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZFrameGraphBuffer::create(const Desc& desc, void* transientAllocator)
+        void RZFrameGraphBuffer::create(const Desc& desc, u32 id, const void* transientAllocator)
         {
-            if (!m_BufferHandle.isValid())
-                m_BufferHandle = RZResourceManager::Get().createUniformBuffer(desc);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (transientAllocator)
+                m_BufferHandle = TRANSIENT_ALLOCATOR_CAST(transientAllocator)->acquireTransientBuffer(desc, id);
+            else {
+                // If no transient allocator is provided, we create a imported persistent resource only ONCE!
+                if (!m_BufferHandle.isValid())
+                    m_BufferHandle = RZResourceManager::Get().createUniformBuffer(desc);
+            }
         }
 
-        void RZFrameGraphBuffer::destroy(const Desc& desc, void* transientAllocator)
+        void RZFrameGraphBuffer::destroy(u32 id, const void* transientAllocator)
         {
-            RZResourceManager::Get().destroyUniformBuffer(m_BufferHandle);
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (transientAllocator)
+                TRANSIENT_ALLOCATOR_CAST(transientAllocator)->releaseTransientBuffer(m_BufferHandle, id);
+            else {
+                if (m_BufferHandle.isValid())
+                    RZResourceManager::Get().destroyUniformBuffer(m_BufferHandle);
+            }
         }
 
         // TODO: use a combination of BufferUsage and resourceViewHints to deduce, we don't have ImageLayout and needs to do more intelligent tracking to deduce barrier types

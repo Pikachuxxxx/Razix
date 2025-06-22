@@ -5,6 +5,8 @@
 namespace Razix {
     namespace Gfx {
 
+        class RZFrameGraph;
+
         struct AliasingPriorityEntry
         {
             u32 groupID;
@@ -48,6 +50,7 @@ namespace Razix {
             inline u32                     id() const { return m_GroupID; }
             inline u32                     end() const { return m_MaxEnd; }
             inline const std::vector<u32>& getResourceEntryIDs() const { return m_ResourceEntryIDs; }
+            inline u32                     getResourceEntriesSize() const { return m_ResourceEntryIDs.size(); }
 
         private:
             u32              m_GroupID = UINT32_MAX;
@@ -55,6 +58,7 @@ namespace Razix {
             std::vector<u32> m_ResourceEntryIDs;
         };
 
+        // TODO: Sort groups by resource types! no mix and match allowed
         class AliasingBook
         {
         public:
@@ -66,7 +70,14 @@ namespace Razix {
                 m_Queue.reset();
             }
             inline const std::vector<AliasingGroup>& getGroups() const { return m_Groups; }
-            inline u32                               getGroupIDForResource(u32 resourceID) const { return m_ResourceToGroup.at(resourceID); }
+            inline u32                               getGroupIDForResource(u32 resourceID) const
+            {
+                auto it = m_ResourceToGroup.find(resourceID);
+                if (it != m_ResourceToGroup.end()) {
+                    return it->first;
+                } else
+                    return UINT32_MAX;
+            }
 
         private:
             std::vector<AliasingGroup>   m_Groups;
@@ -77,34 +88,36 @@ namespace Razix {
         class RZTransientAllocator
         {
         public:
+            RZTransientAllocator(const RZFrameGraph& fg)
+                : m_FrameGraph(fg) {}
+            // TODO: This uses the compiled resource entries and their descriptions to build aliased resources for the frame
+            // TODO: For now it uses their default RHI API but once we have aliasable resources, we can use the extended RHI API to alias
             void beginFrame();
             void endFrame();
 
-            void registerLifetime(const RZResourceLifetime& lifetime)
-            {
-                m_RegisteredLifetimes.push_back(lifetime);
-            }
-            void bakeLifetimes();
-
+            // Frees memory for all resources held by this allocator from ResourceManager
             void destroy();
 
-            RZTextureHandle acquireTransientTexture(const RZTextureDesc& desc);
-            void            releaseTransientTexture(RZTextureHandle handle);
+            RZTextureHandle       acquireTransientTexture(const RZTextureDesc& desc, u32 id);
+            void                  releaseTransientTexture(RZTextureHandle handle, u32 id);
+            RZUniformBufferHandle acquireTransientBuffer(const RZBufferDesc& desc, u32 id);
+            void                  releaseTransientBuffer(RZUniformBufferHandle handle, u32 id);
+            RZSamplerHandle       acquireTransientSampler(const RZSamplerDesc& desc, u32 id);
+            void                  releaseTransientSampler(RZSamplerHandle handle, u32 id);
 
-            RZUniformBufferHandle acquireTransientBuffer(const RZBufferDesc& desc);
-            void                  releaseTransientBuffer(RZUniformBufferHandle handle);
-
-            RZSamplerHandle acquireTransientSampler(const RZSamplerDesc& desc);
-            void            releaseTransientSampler(RZSamplerHandle handle);
-            
-            const AliasingBook& getAliasBook() const { return m_AliasingBook; }
+            inline void                registerLifetime(const RZResourceLifetime& lifetime) { m_RegisteredLifetimes.push_back(lifetime); }
+            inline const AliasingBook& getAliasBook() const { return m_AliasingBook; }
 
         private:
-            AliasingBook                                                m_AliasingBook;
-            std::vector<RZResourceLifetime>                             m_RegisteredLifetimes;
-            std::unordered_map<u32, std::vector<RZTextureHandle>>       m_TextureCache;
-            std::unordered_map<u32, std::vector<RZUniformBufferHandle>> m_BufferCache;
-            std::unordered_map<u32, RZSamplerHandle>                    m_SamplerCache;
+            AliasingBook                                   m_AliasingBook;
+            std::vector<RZResourceLifetime>                m_RegisteredLifetimes;
+            std::unordered_map<u32, RZTextureHandle>       m_TextureCache;
+            std::unordered_map<u32, RZUniformBufferHandle> m_BufferCache;
+            std::unordered_map<u32, RZSamplerHandle>       m_SamplerCache;
+            const Gfx::RZFrameGraph&                       m_FrameGraph;
         };
+
+#define TRANSIENT_ALLOCATOR_CAST(x) ((RZTransientAllocator*) x)
+
     }    // namespace Gfx
 }    // namespace Razix

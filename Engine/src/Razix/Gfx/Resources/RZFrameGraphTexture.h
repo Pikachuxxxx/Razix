@@ -20,8 +20,8 @@ namespace Razix {
         {
             typedef RZTextureDesc Desc;
 
-            void create(const Desc& desc, void* transientAllocator);
-            void destroy(const Desc& desc, void* transientAllocator);
+            void create(const Desc& desc, u32 id, const void* transientAllocator);
+            void destroy(u32 id, const void* transientAllocator);
 
             void preRead(const Desc& desc, u32 flags);
             void preWrite(const Desc& desc, u32 flags);
