@@ -2,6 +2,65 @@
 
 for verions 0.4x.yy.Dev
 
+#### Version - 0.49.0 [Development] - 23/06/2025
+
+##### Major Changes
+*   Added Transient Resource Allocator skeleton with aliasing support
+*   Refactored FrameGraph:
+    *   Added lifetime tracking to FGResources
+    *   Determined aliasing groups per resource entry
+    *   Implemented per-frame transient resource reuse
+*   Added UUID fix: consistent pretty string ↔ byte conversion (Fixes #340)
+*   Renamed "Diana" to "House" for scene-to-GPU data synthesis architecture
+*   Unified Gfx structs and added handles across graphics API
+*   Switched Vulkan backend to use HLSL
+*   Removed QT-based editor; switching to Blender-based asset workflow
+*   Moved STL, memory, and Core into monolithic libraries
+
+##### Frame Graph Visualizer Tool (FGVisTool)
+*   Lifetime visualization with pass-based lifetime cells
+*   Improved styling and layout consistency
+*   Removed hardcoded constants
+*   Debug utilities for dangling/dangling-writeonly entries
+*   Proper aliasing group detection and visualization
+
+##### DX12 Backend Preparation & Restore
+These changes provide a stable Vulkan baseline for DX12 backend porting:
+*   Restored Debug Draw and ImGui passes for Vulkan
+*   Restored basic PBR IBL deferred rendering pipeline:
+    *   Materials with SoA layout
+    *   GBuffer
+    *   PBR + IBL using CookTorrance
+    *   Tonemapping pass
+*   Restored HelloTriangle, HelloTexture, and Wave Intrinsics tests
+*   Enabled GLM compatibility mode to use float4x4 etc. with HLSL style (#401)
+
+##### Barriers and Resource Synchronization
+*   Automatic barrier system implemented for Frame Graph resources (#400)
+*   Fixed bugs with memory/layout barriers on resized attachments (#405)
+*   Removed redundant buffer memory barriers (#407)
+
+##### Testing Framework & Gfx Tests
+*   Added GfxTestRunner with automatic test registration
+*   Engine GFX tests:
+    *   Screenshot comparison (RMS error)
+    *   PPM golden image output
+    *   Hello World graphics tests (x3)
+*   Existing unit tests pass without failure
+
+##### Serialization & Logging
+*   Fixed UUID pretty string (de)serialization bug (#340)
+*   Added logging-to-file system (#404)
+
+##### Miscellaneous Fixes & Improvements
+*   Added basic DualSense controller support
+*   Minor engine cleanups
+    *   Window resize bugs
+    *   Script/test infra for Mac and CI
+*   Fixed crash when project resolution > monitor resolution (#410)
+*   Removed unwanted/redundant engine code
+
+
 #### Version - 0.43.0 [Development] - 16/09/2023
     - Graphics API uses handles and resource manager/pools
     - improved frame graph; data-driven frame graph wip;
