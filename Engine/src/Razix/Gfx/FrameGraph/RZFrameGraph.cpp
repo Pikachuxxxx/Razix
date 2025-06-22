@@ -1057,7 +1057,7 @@ namespace Razix {
                 return FGResourceType::kFGTexture;
             else if (verifyResourceType<RZFrameGraphBuffer>(id))
                 return FGResourceType::kFGBuffer;
-            else if (verifyResourceType<RZFrameGraphSampler>(id))
+            else
                 return FGResourceType::kFGSampler;
         }
 
