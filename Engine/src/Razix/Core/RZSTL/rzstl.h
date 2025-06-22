@@ -1,17 +1,17 @@
 #pragma once
 
-#include "RZSTL/bits.h"
-#include "RZSTL/config.h"
-#include "RZSTL/constexpr_map.h"
-#include "RZSTL/map.h"
-#include "RZSTL/ref_counter.h"
-#include "RZSTL/ring_buffer.h"
-#include "RZSTL/smart_pointers.h"
-#include "RZSTL/string.h"
-#include "RZSTL/unordered_map.h"
-#include "RZSTL/vector.h"
+#include "Razix/Core/RZSTL/bits.h"
+#include "Razix/Core/RZSTL/config.h"
+#include "Razix/Core/RZSTL/constexpr_map.h"
+#include "Razix/Core/RZSTL/map.h"
+#include "Razix/Core/RZSTL/ref_counter.h"
+#include "Razix/Core/RZSTL/ring_buffer.h"
+#include "Razix/Core/RZSTL/smart_pointers.h"
+#include "Razix/Core/RZSTL/string.h"
+#include "Razix/Core/RZSTL/unordered_map.h"
+#include "Razix/Core/RZSTL/vector.h"
 
-#include "RZMemoryFunctions.h"
+#include "Razix/Core/Memory/RZMemoryFunctions.h"
 
 namespace Razix {
     // Namespace to switch C++ STL with other STLs

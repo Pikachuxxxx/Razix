@@ -1,6 +1,0 @@
-[submodule "vendor/EASTL"]
-	path = vendor/EASTL
-	url = https://github.com/electronicarts/EASTL.git
-[submodule "vendor/EABase"]
-	path = vendor/EABase
-	url = https://github.com/electronicarts/EABase.git

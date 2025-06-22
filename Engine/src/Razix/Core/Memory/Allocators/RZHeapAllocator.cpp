@@ -1,11 +1,14 @@
-#include "Allocators/RZHeapAllocator.h"
+// clang-format off
+#include "rzxpch.h"
+// clang-format on
+#include "RZHeapAllocator.h"
 
-#include "RZAllocationMetrics.h"
-#include "RZMemoryFunctions.h"
+#include "Razix/Core/Memory/RZAllocationMetrics.h"
+#include "Razix/Core/Memory/RZMemoryFunctions.h"
 
 #include <iostream>
 
-#include "tlsf/tlsf.h"
+#include "Razix/Core/Memory/vendor/tlsf/tlsf.h"
 
 namespace Razix {
     namespace Memory {

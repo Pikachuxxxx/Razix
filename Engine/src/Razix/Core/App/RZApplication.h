@@ -1,7 +1,7 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "RZSTL/smart_pointers.h"
+#include "Razix/Core/RZSTL/smart_pointers.h"
 #include "Razix/Core/OS/RZWindow.h"
 #include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/RZCore.h"

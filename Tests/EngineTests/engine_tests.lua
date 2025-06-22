@@ -49,9 +49,6 @@ project "EngineTests"
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
         "%{ExperimentalIncludeDir.Eigen}",
-        -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}",
-        "%{InternalIncludeDir.RZSTL}",
         -- googletest vendor
         "%{wks.location}/../Tests/",
         "%{wks.location}/../Tests/vendor/googletest/googletest",
@@ -87,9 +84,6 @@ project "EngineTests"
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
         "%{ExperimentalIncludeDir.Eigen}",
-        -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}",
-        "%{InternalIncludeDir.RZSTL}",
         -- googletest vendor
         "%{wks.location}/../Tests/",
         "%{wks.location}/../Tests/vendor/googletest/googletest",

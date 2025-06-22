@@ -1,3 +1,6 @@
+// clang-format off
+#include "rzxpch.h"
+// clang-format on
 #include "RZMemoryFunctions.h"
 
 #ifdef RAZIX_PLATFORM_WINDOWS

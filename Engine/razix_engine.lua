@@ -1,7 +1,5 @@
 -- Razix Engine vendor Common Inlcudes 
 include 'Scripts/premake/common/vendor_includes.lua'
--- Internal libraies include dirs
-include 'Scripts/premake/common/internal_includes.lua'
 -- common include dirs
 include 'Scripts/premake/common/common_include_dirs.lua'
 ------------------------------------------------------------------------------
@@ -93,9 +91,11 @@ project "Razix"
     }
 
     -- Lazily add the platform files based on OS config
+	-- Also remove the core module, they are compiled as a library
     removefiles
     {
-        "src/Razix/Platform/**"
+        "src/Razix/Platform/**",
+        "src/Razix/Core/Memory/vendor/mmgr/mmgr.cpp"
     }
 
     -- For MacOS
@@ -134,11 +134,6 @@ project "Razix"
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
         "%{ExperimentalIncludeDir.Eigen}",
-        -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}",
-        "%{InternalIncludeDir.RZSTL}",
-        "%{InternalIncludeDir.EASTL}",
-        "%{InternalIncludeDir.EABase}"
     }
 
     -- Razix engine external linkage libraries (Global)
@@ -155,10 +150,6 @@ project "Razix"
         "Jolt",
         -- Shaders
         "Shaders",
-        -- Razix Internal Libraries 
-        -- 1. Razix Memory
-        "RazixMemory",
-        "RZSTL"
     }
 
     flags 
@@ -173,10 +164,15 @@ project "Razix"
         flags  { 'NoPCH' }
 
     -- Disable warning for vendor
-    filter { "files:vendor/**"}
+    filter { "files:vendor/**" }
         warnings "Off"
-        buildoptions "-w"
+    filter { "files:src/Razix/Core/Memory/vendor/**" }
+        warnings "Off"
 
+    filter { "files:src/Razix/Core/Memory/vendor/mmgr/mmgr.cpp" }
+        warnings "Off"
+        removeflags { "FatalWarnings" }
+        disablewarnings {4311, 4302, 4477}
 
     -------------------------------------
     -- Razix Project settings for Windows
@@ -201,7 +197,6 @@ project "Razix"
         buildoptions
         {
             "/MP", "/bigobj", 
-            "/WX"
             -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
         }
 
@@ -497,3 +492,5 @@ project "Razix"
         optimize "Full"
         editandcontinue "Off"
 group""
+
+

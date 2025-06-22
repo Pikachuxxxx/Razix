@@ -1,7 +1,7 @@
 #ifndef RZSTL_SMART_POINTER_H
 #define RZSTL_SMART_POINTER_H
 
-#include "RZSTL/ref_counter.h"
+#include "Razix/Core/RZSTL/ref_counter.h"
 
 #include <functional>
 #include <memory>

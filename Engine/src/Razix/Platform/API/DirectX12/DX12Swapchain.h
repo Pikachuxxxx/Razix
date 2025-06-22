@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RZSTL/smart_pointers.h"
+#include "Razix/Core/RZSTL/smart_pointers.h"
 
 #include "Razix/Gfx/RHI/API/RZSwapchain.h"
 #include "Razix/Gfx/RHI/API/RZTexture.h"

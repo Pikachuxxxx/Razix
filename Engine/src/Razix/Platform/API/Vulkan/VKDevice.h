@@ -2,7 +2,7 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
-    #include "RZSTL/smart_pointers.h"
+    #include "Razix/Core/RZSTL/smart_pointers.h"
     #include "Razix/Platform/API/Vulkan/VKCommandPool.h"
     #include "Razix/Utilities/TRZSingleton.h"
 

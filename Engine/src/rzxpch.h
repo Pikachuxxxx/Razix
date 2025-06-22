@@ -40,12 +40,10 @@
 #include "Razix/Gfx/GfxData.h"
 #include "Razix/Gfx/Resources/IRZResource.h"
 #include "Razix/Math/Math.h"
-
-//-----Engine Internal-----//
 // Razix Memory
-#include "internal/RazixMemory/include/RZMemory.h"
+#include "Razix/Core/Memory/RZMemory.h"
 // Razix STL
-#include "internal/RZSTL/include/RZSTL/rzstl.h"
+#include "Razix/Core/RZSTL/rzstl.h"
 
 //-----3rd Party-----//
 // Profilers

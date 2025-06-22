@@ -2,7 +2,7 @@
 
 // Modified from Source: https://github.com/jmorton06/Lumos/blob/main/Lumos/Source/Lumos/Graphics/Renderers/DebugRenderer.cpp // MIT License
 
-#include "RZSTL/smart_pointers.h"
+#include "Razix/Core/RZSTL/smart_pointers.h"
 
 #include "Razix/Gfx/Renderers/IRZRendererProxy.h"
 

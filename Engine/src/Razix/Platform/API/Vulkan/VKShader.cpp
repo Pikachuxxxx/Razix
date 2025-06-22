@@ -17,7 +17,7 @@
 
 #include "Razix/Utilities/RZStringUtilities.h"
 
-#include "internal/RazixMemory/include/RZMemoryFunctions.h"
+#include "Razix/Core/Memory/RZMemoryFunctions.h"
 
 #include <SPIRVReflect/common/output_stream.h>
 #include <glm/glm.hpp>

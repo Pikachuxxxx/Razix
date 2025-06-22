@@ -163,13 +163,6 @@ workspace ( settings.workspace_name )
         include "Engine/vendor/Experimental/eigen/eigen.lua"
     group ""
 
-    -- Build Script for Razix Engine (Internal)
-    --------------------------------------------------------------------------------
-    group "Engine/internal"
-        include "Engine/internal/RazixMemory/razixmemory.lua"
-        include "Engine/internal/RZSTL/rzstl.lua"
-    group ""
-
     -- Build Script for Razix Engine (Core)
     --------------------------------------------------------------------------------
     group "Engine"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RZSTL/smart_pointers.h"
+#include "Razix/Core/RZSTL/smart_pointers.h"
 
 #include "Razix/Core/OS/RZWindow.h"
 

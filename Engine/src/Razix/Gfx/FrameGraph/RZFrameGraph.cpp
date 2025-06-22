@@ -958,6 +958,9 @@ namespace Razix {
                 if (entry.isImported())
                     entry.getConcept()->destroy(NULL);
 
+            m_CompiledPassIndices.clear();
+            m_CompiledResourceIndices.clear();
+
             m_PassNodes.clear();
             m_ResourceNodes.clear();
             m_ResourceRegistry.clear();
@@ -974,14 +977,14 @@ namespace Razix {
 
         RZResourceNode& RZFrameGraph::getResourceNodeRef(RZFrameGraphResource id)
         {
-            assert(id < m_ResourceNodes.size());
+            RAZIX_CORE_ASSERT(id < m_ResourceNodes.size(), "id overflows resource nodes")
             return m_ResourceNodes[id];
         }
 
         RZResourceEntry& RZFrameGraph::getResourceEntryRef(RZFrameGraphResource id)
         {
             const auto& node = getResourceNodeRef(id);
-            assert(node.m_ResourceEntryID < m_ResourceRegistry.size());
+            RAZIX_CORE_ASSERT(node.m_ResourceEntryID < m_ResourceRegistry.size(), "resource entry ID overflows entry registry")
             return m_ResourceRegistry[node.m_ResourceEntryID];
         }
 
@@ -993,7 +996,7 @@ namespace Razix {
 
         const std::string& RZFrameGraph::getResourceName(RZFrameGraphResource id) const
         {
-            assert(id < m_ResourceNodes.size());
+            RAZIX_CORE_ASSERT(id < m_ResourceNodes.size(), "id overflows resource nodes")
             auto& resNode = m_ResourceNodes[id];
             return resNode.getName();
         }
@@ -1002,7 +1005,7 @@ namespace Razix {
 
         const std::string& RZFrameGraph::getResourceEntryName(RZFrameGraphResource id) const
         {
-            assert(id < m_ResourceNodes.size());
+            RAZIX_CORE_ASSERT(id < m_ResourceNodes.size(), "id overflows resource nodes")
             for (u32 i = 0; i < m_ResourceNodes.size(); i++) {
                 auto& resNode = m_ResourceNodes[id];
                 if (resNode.getResourceEntryId() == id)
@@ -1013,14 +1016,14 @@ namespace Razix {
 
         const RZResourceNode& RZFrameGraph::getResourceNode(RZFrameGraphResource id) const
         {
-            assert(id < m_ResourceNodes.size());
+            RAZIX_CORE_ASSERT(id < m_ResourceNodes.size(), "id overflows resource nodes")
             return m_ResourceNodes[id];
         }
 
         const RZResourceEntry& RZFrameGraph::getResourceEntry(RZFrameGraphResource id) const
         {
             const auto& node = getResourceNode(id);
-            assert(node.m_ResourceEntryID < m_ResourceRegistry.size());
+            RAZIX_CORE_ASSERT(node.m_ResourceEntryID < m_ResourceRegistry.size(), "resource entry ID overflows entry registry")
             return m_ResourceRegistry[node.m_ResourceEntryID];
         }
 
@@ -1040,7 +1043,7 @@ namespace Razix {
         {
             // Get the OG resource and increase it's version
             const auto& node = getResourceNodeRef(id);
-            assert(node.m_ResourceEntryID < m_ResourceRegistry.size());
+            RAZIX_CORE_ASSERT(node.m_ResourceEntryID < m_ResourceRegistry.size(), "resource entry ID overflows entry registry")
             auto& entry = m_ResourceRegistry[node.m_ResourceEntryID];
             entry.m_Version++;
 

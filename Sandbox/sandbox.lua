@@ -1,7 +1,5 @@
 -- Razix Engine vendor Common Inlcudes 
 include 'Scripts/premake/common/vendor_includes.lua'
--- Internal libraies include dirs
-include 'Scripts/premake/common/internal_includes.lua'
 -- common include dirs
 include 'Scripts/premake/common/common_include_dirs.lua'
 ------------------------------------------------------------------------------
@@ -60,11 +58,6 @@ project "Sandbox"
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
         "%{ExperimentalIncludeDir.Eigen}",
-        -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}",
-        "%{InternalIncludeDir.RZSTL}",
-        "%{InternalIncludeDir.EASTL}",
-        "%{InternalIncludeDir.EABase}"
     }
 
    -- Razix Application linkage libraries
@@ -82,9 +75,6 @@ project "Sandbox"
        "optick",
        "Jolt",
        --"tracy",
-       -- Internal
-       "RazixMemory",
-       "RZSTL"
    }
 
    defines

@@ -1,7 +1,5 @@
 -- Razix Engine vendor Common Inlcudes 
 include 'Scripts/premake/common/vendor_includes.lua'
--- Internal libraies include dirs
-include 'Scripts/premake/common/internal_includes.lua'
 
 project "googletest"
     kind "StaticLib"

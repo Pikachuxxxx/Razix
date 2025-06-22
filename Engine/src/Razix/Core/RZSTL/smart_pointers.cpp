@@ -1,4 +1,7 @@
-#include "RZSTL/smart_pointers.h"
+// clang-format off
+#include "rzxpch.h"
+// clang-format on
+#include "smart_pointers.h"
 
 namespace Razix {
     namespace rzstl {

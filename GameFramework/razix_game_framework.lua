@@ -1,7 +1,5 @@
 -- Razix Engine vendor Common Inlcudes 
 include 'Scripts/premake/common/vendor_includes.lua'
--- Internal libraies include dirs
-include 'Scripts/premake/common/internal_includes.lua'
 ------------------------------------------------------------------------------
 -- Game Framework project
 project "GameFramework"
@@ -47,11 +45,6 @@ project "GameFramework"
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
         "%{ExperimentalIncludeDir.Eigen}",
-        -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}",
-        "%{InternalIncludeDir.RZSTL}",
-        "%{InternalIncludeDir.EASTL}",
-        "%{InternalIncludeDir.EABase}"
     }
 
     -- Razix Application linkage libraries
@@ -69,9 +62,6 @@ project "GameFramework"
        "optick",
        "Jolt",
        --"tracy",
-       -- Internal
-       "RazixMemory",
-       "RZSTL"
     }
 
     defines

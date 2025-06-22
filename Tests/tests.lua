@@ -1,18 +1,15 @@
-include 'Scripts/premake/common/internal_includes.lua'
-
 group "Tests"
     
-    project "GfxTestRunner"
-        kind "Utility"
-        language "C++" -- or just omit if not compiling anything
-
-        postbuildcommands {
-            'cd /d "%{wks.location}/../"',
-            'python "%{wks.location}/../Scripts/test_runner.py" %{cfg.buildcfg}'
-        }
-
-    -- TODO: Hello Triangle Test - SS test buy comparing to Golden Imags
-    --include "HelloTriangle/test_hello_triangle.lua"
+    -- Enable this on demand for ease of use
+    --project "GfxTestRunner"
+    --    kind "Utility"
+    --    language "C++" -- or just omit if not compiling anything
+    --
+    --    postbuildcommands {
+    --        'cd /d "%{wks.location}/../"',
+    --        'python "%{wks.location}/../Scripts/test_runner.py" %{cfg.buildcfg}'
+    --    }
+    --
     -- Engine Tests
     group "Tests/EngineTests"
         include "EngineTests/engine_tests.lua"

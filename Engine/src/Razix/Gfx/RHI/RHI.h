@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RZSTL/ring_buffer.h"
+#include "Razix/Core/RZSTL/ring_buffer.h"
 
 #include "Razix/Core/Profiling/RZProfiling.h"
 

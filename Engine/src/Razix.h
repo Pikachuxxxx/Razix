@@ -69,9 +69,9 @@
 
 // Internal
 // Razix Memory
-#include "RZMemory.h"
+#include "Razix/Core/Memory/RZMemory.h"
 // Razix STL
-#include "RZSTL/rzstl.h"
+#include "Razix/Core/RZSTL/rzstl.h"
 
 #include <imgui/imgui.h>
 

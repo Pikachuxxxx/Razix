@@ -1,6 +1,6 @@
 #pragma once
 
-#include "internal/RazixMemory/include/RZAllocators.h"
+#include "Razix/Core/Memory/RZAllocators.h"
 
 #include "Razix/Utilities/TRZSingleton.h"
 

@@ -133,7 +133,7 @@ namespace Razix {
             float4x4    m_PreviousViewProj                                      = {};
             float2      m_Jitter                                                = {};
             float2      m_PreviousJitter                                        = {};
-            bool        m_FrameGraphBuildingInProgress                          = true;
+            bool        m_FrameGraphBuildingInProgress                          = false;
             bool        m_IsFGFilePathDirty                                     = false;
             bool        m_ReadSwapchainThisFrame                                = false;
             std::string m_FrameGraphFilePath                                    = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";

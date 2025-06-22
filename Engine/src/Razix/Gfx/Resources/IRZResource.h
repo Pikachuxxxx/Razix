@@ -5,7 +5,7 @@
 #include "Razix/Core/UUID/RZUUID.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
-#include "RZSTL/smart_pointers.h"
+#include "Razix/Core/RZSTL/smart_pointers.h"
 
 #define GET_INSTANCE_SIZE static u32 GetInstanceSize()
 

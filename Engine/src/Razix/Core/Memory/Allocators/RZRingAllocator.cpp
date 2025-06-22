@@ -1,4 +1,7 @@
-#include "Allocators/RZRingAllocator.h"
+// clang-format off
+#include "rzxpch.h"
+// clang-format on
+#include "RZRingAllocator.h"
 
 namespace Razix {
     namespace Memory {

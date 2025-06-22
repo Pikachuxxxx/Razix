@@ -1,4 +1,7 @@
-#include "RZSTL/rzstl.h"
+// clang-format off
+#include "rzxpch.h"
+// clang-format on
+#include "rzstl.h"
 
 // This file is used to implement and EASTL based implementations
 

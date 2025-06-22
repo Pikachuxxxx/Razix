@@ -1,7 +1,10 @@
-#include "Allocators/RZStackAllocator.h"
+// clang-format off
+#include "rzxpch.h"
+// clang-format on
+#include "RZStackAllocator.h"
 
-#include "RZAllocationMetrics.h"
-#include "RZMemoryFunctions.h"
+#include "Razix/Core/Memory/RZAllocationMetrics.h"
+#include "Razix/Core/Memory/RZMemoryFunctions.h"
 
 #include <iostream>
 

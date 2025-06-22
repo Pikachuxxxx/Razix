@@ -290,7 +290,8 @@ namespace Razix {
 
 #endif
         // TODO: Put this somewhere else?
-        Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
+        if (RZEngine::Get().isEngineInTestMode() == false)
+            Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
 
         m_CurrentState = AppState::Running;
 

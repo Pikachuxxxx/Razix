@@ -1,17 +1,16 @@
-#ifndef RZSTL_VECTOR_H
-#define RZSTL_VECTOR_H
+#ifndef RZSTL_RING_BUFFER_H
+#define RZSTL_RING_BUFFER_H
 
-#include "RZSTL/config.h"
+#include "Razix/Core/RZSTL/config.h"
 
 namespace Razix {
     // Namespace to switch C++ STL with other STLs
     namespace rzstl {
 
-        class vector
+        class ring_buffer
         {
         };
 
     }    // namespace rzstl
 }    // namespace Razix
-
 #endif

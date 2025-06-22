@@ -348,7 +348,7 @@ namespace Razix {
 
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            if (m_IsFGFilePathDirty) {
+            if (m_IsFGFilePathDirty) { 
                 destroy();
                 RZFrameGraph::ResetFirstFrame();
                 buildFrameGraph(settings, RZSceneManager::Get().getCurrentScene());

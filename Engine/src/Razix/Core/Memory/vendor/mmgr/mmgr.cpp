@@ -1,3 +1,6 @@
+// clang-format off
+#include "rzxpch.h"
+// clang-format on
 // ---------------------------------------------------------------------------------------------------------------------------------
 //                                                      
 //                                                      
@@ -170,21 +173,37 @@ static	const	unsigned int	paddingSize            = 4;
 // The BEOS assert added by Arvid Norberg <arvid@iname.com>.
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-#ifdef	WIN32
-	#ifdef	_DEBUG
-	#define	m_assert(x) if ((x) == false) __asm { int 3 }
-	#else
-	#define	m_assert(x) {}
-	#endif
+#if defined(_WIN32)
+    #include <intrin.h>
+    #define m_debug_break() __debugbreak()
+#elif defined(__GNUC__) || defined(__clang__)
+    #define m_debug_break() __builtin_trap()
+#else
+    #define m_debug_break() *((volatile int*) 0) = 0    // fallback: crash
+#endif
+
+#if defined(_WIN32)
+    #ifdef _DEBUG
+        #define m_assert(x)                \
+            do {                           \
+                if (!(x)) m_debug_break(); \
+            } while (0)
+    #else
+        #define m_assert(x) ((void) 0)
+    #endif
 #elif defined(__BEOS__)
-	#ifdef DEBUG
-		extern void debugger(const char *message);
-		#define	m_assert(x) if ((x) == false) debugger("mmgr: assert failed")
-	#else
-		#define m_assert(x) {}
-	#endif
-#else	// Linux uses assert, which we can use safely, since it doesn't bring up a dialog within the program.
-	#define	m_assert(cond) assert(cond)
+    #ifdef DEBUG
+extern void debugger(const char* message);
+        #define m_assert(x)                                \
+            do {                                           \
+                if (!(x)) debugger("mmgr: assert failed"); \
+            } while (0)
+    #else
+        #define m_assert(x) ((void) 0)
+    #endif
+#else
+    #include <assert.h>
+    #define m_assert(x) assert(x)
 #endif
 
 // ---------------------------------------------------------------------------------------------------------------------------------
