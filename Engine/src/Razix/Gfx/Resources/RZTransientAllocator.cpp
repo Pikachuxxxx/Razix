@@ -5,6 +5,30 @@
 
 namespace Razix {
     namespace Gfx {
+    
+    /*
+     m_TestAliasbook.build(flatResEntries);
+
+     auto& groups = m_TestAliasbook.getGroups();
+     for (u32 i = 0; i < groups.size(); i++) {
+         const auto& group    = groups[i];
+         const auto& entryIDs = group.getResourceEntryIDs();
+
+         if (entryIDs.size() >= 1) {
+             std::ostringstream oss;
+             oss << "+------------------------+\n";
+             oss << "| Aliasing Group " << i << "      |\n";
+             oss << "+------------------------+\n";
+
+             for (u32 id: entryIDs) {
+                 oss << "| Entry ID: " << std::setw(13) << std::left << id << "|\n";
+             }
+
+             oss << "+------------------------+\n";
+             RAZIX_CORE_TRACE("\n{0}", oss.str());
+         }
+     }
+     */
 
         void AliasingEndTimeQueue::insert(u32 groupID, u32 end)
         {
@@ -52,7 +76,6 @@ namespace Razix {
             std::sort(lifetimes.begin(), lifetimes.end(), [](RZResourceLifetime& a, RZResourceLifetime& b) {
                 return a.StartPassID < b.StartPassID;
             });
-            size_t N = lifetimes.size();
             m_Groups.reserve(64);
             m_Queue = AliasingEndTimeQueue();
 
@@ -63,7 +86,7 @@ namespace Razix {
                     m_Queue.update(gid, lif.EndPassID);
                     m_ResourceToGroup[lif.ResourceEntryID] = gid;
                 } else {
-                    uint32_t newId = m_Groups.size();
+                    u32 newId = static_cast<u32>(m_Groups.size());
                     m_Groups.emplace_back(newId);
                     m_Groups.back().add(lif);
                     m_Queue.insert(newId, lif.EndPassID);

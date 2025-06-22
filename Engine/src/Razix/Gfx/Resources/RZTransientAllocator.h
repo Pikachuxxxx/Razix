@@ -18,7 +18,7 @@ namespace Razix {
             void update(u32 groupID, u32 newEnd);
             u32  findFirstFree(u32 begin) const;
 
-            inline void AliasingEndTimeQueue::reset()
+            inline void reset()
             {
                 m_Entries.clear();
                 m_Count = 0;
@@ -26,7 +26,7 @@ namespace Razix {
 
         private:
             std::vector<AliasingPriorityEntry> m_Entries;
-            sz                                 m_Count = 0;
+            u32                                m_Count = 0;
         };
 
         class AliasingGroup
@@ -35,12 +35,12 @@ namespace Razix {
             AliasingGroup(u32 id)
                 : m_GroupID(id), m_MaxEnd(0) {}
 
-            inline bool AliasingGroup::fits(const RZResourceLifetime lifetime) const
+            inline bool fits(const RZResourceLifetime lifetime) const
             {
                 return lifetime.StartPassID > m_MaxEnd;
             }
 
-            inline void AliasingGroup::add(const RZResourceLifetime& lifetime)
+            inline void add(const RZResourceLifetime& lifetime)
             {
                 m_ResourceEntryIDs.push_back(lifetime.ResourceEntryID);
                 m_MaxEnd = std::max(m_MaxEnd, lifetime.EndPassID);
@@ -60,7 +60,7 @@ namespace Razix {
         public:
             void build(std::vector<RZResourceLifetime> lifetimes);
 
-            inline void AliasingBook::reset()
+            inline void reset()
             {
                 m_Groups.clear();
                 m_Queue.reset();
@@ -80,7 +80,10 @@ namespace Razix {
             void beginFrame();
             void endFrame();
 
-            void registerLifetime(const RZResourceLifetime& lifetime);
+            void registerLifetime(const RZResourceLifetime& lifetime)
+            {
+                m_RegisteredLifetimes.push_back(lifetime);
+            }
             void bakeLifetimes();
 
             void destroy();
@@ -93,6 +96,8 @@ namespace Razix {
 
             RZSamplerHandle acquireTransientSampler(const RZSamplerDesc& desc);
             void            releaseTransientSampler(RZSamplerHandle handle);
+            
+            const AliasingBook& getAliasBook() const { return m_AliasingBook; }
 
         private:
             AliasingBook                                                m_AliasingBook;

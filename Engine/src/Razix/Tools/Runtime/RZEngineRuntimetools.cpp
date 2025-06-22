@@ -101,7 +101,6 @@ namespace Razix {
         //---------------------------------------------------------------------------------------------------------------------
 
         constexpr u32 MAGIC_VICODIN = 0x8426346;
-        constexpr u32 MAGIC_BIRTHDAY = 0xBAD59F3;    // Gregory House was born June 11, 1959
 
         struct SimulatedBarrier
         {

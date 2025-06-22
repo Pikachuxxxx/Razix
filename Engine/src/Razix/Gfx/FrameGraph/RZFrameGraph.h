@@ -5,6 +5,8 @@
 #include "Razix/Gfx/FrameGraph/RZResourceEntry.h"
 #include "Razix/Gfx/FrameGraph/RZResourceNode.h"
 
+#include "Razix/Gfx/Resources/RZTransientAllocator.h"
+
 namespace Razix {
     namespace Gfx {
 
@@ -155,7 +157,7 @@ namespace Razix {
             // Export function to dot format for GraphViz
             friend std::ostream& operator<<(std::ostream&, const RZFrameGraph&);
 
-            const AliasingBook& getAliasBook() const { return m_TestAliasbook; }
+            const AliasingBook& getAliasBook() const { return m_TransientAllocator.getAliasBook(); }
 
         private:
             std::vector<RZPassNode>      m_PassNodes;
@@ -165,8 +167,7 @@ namespace Razix {
             std::vector<u32>             m_CompiledPassIndices;
             std::vector<u32>             m_CompiledResourceIndices;
             std::vector<u32>             m_CompiledResourceEntries;
-
-            AliasingBook m_TestAliasbook;
+            RZTransientAllocator         m_TransientAllocator;
 
             static bool m_IsFirstFrame;
 
