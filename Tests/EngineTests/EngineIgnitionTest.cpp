@@ -75,6 +75,10 @@ protected:
 
 TEST_F(EngineIgnitionTests, ignite_and_shutdown)
 {
+#ifdef RAZIX_BUILD_GITHUB_CI
+    GTEST_SKIP() << "Skipping RTX test on GitHub Actions (no GPU)";
+#endif
+
     EngineMain(0, NULL);
     while (Razix::RZApplication::Get().RenderFrame()) {}
 
