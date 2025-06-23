@@ -2,8 +2,8 @@
 <img width=200" align="left" src="https://github.com/Pikachuxxxx/Razix/blob/master/Branding/RazixLogo.png"> <h1> Razix Engine </h1>
 Razix is a High Performance Engine for experimenting with different rendering techniques. Razix supports Windows, Mac, Linux. 
 
-
 THIS ENGINE IS BEING MADE FOR A GAME< not a generic engine, I'll have the GDD/Story etc. soon here!
+
 
 # About
 Razix is a cross-Platform 3D engine with multi render API support (Vulkan, DirectX 12). It's being built on a new design principle of **"Everything is as asset"** to replace traditonal 
