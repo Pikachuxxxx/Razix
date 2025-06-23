@@ -20,6 +20,8 @@
 namespace Razix {
     namespace Gfx {
 
+        // DUMMY COMMENT TO RE-OPEN DX12 Backend PR
+
         // Use the Windows Advanced Rasterization Platform (WARP) for device creation.
         static constexpr bool g_UseWarp = false;    // Preferable with older GPUs
 
