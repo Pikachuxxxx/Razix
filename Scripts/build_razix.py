@@ -3,6 +3,13 @@ import os
 import platform
 import subprocess
 import sys
+import multiprocessing
+import glob
+
+# These project names (without extension) will be skipped
+BLACKLISTED_PROJECTS = {
+    "Premake Re-Generate Project Files",
+}
 
 def run_command(cmd, cwd=None):
     try:
@@ -30,20 +37,72 @@ def build_windows(config):
                     "/m"
                 ])
 
-def build_macos(config):
-    # Recursively find all .xcodeproj in ./build
-    for root, _, files in os.walk("./build"):
-        for file in files:
-            if file.endswith(".xcodeproj"):
-                project_name = file
-                project_path = os.path.join(root, file)
+def has_xcode_targets(xcodeproj_path):
+    try:
+        result = subprocess.run(
+            ["xcodebuild", "-list", "-project", xcodeproj_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=5
+        )
+        if result.returncode != 0:
+            print(f"[WARN] Could not query targets for {xcodeproj_path}")
+            return False
 
-                run_command([
-                    "xcodebuild",
-                    "-project", project_path,
-                    "-configuration", config,
-                    "build"
-                ])
+        # Look for section like:
+        # Targets:
+        #     Target1
+        return "Targets:\n" in result.stdout or re.search(r"Targets:\s*\n\s+\w+", result.stdout)
+
+    except Exception as e:
+        print(f"[ERROR] Failed to inspect {xcodeproj_path}: {e}")
+        return False
+
+def output_exists_for(project_name, config):
+    bin_path = os.path.abspath(f"./bin/{config}-macosx-ARM64")
+
+    # Try to find a matching .dylib or .app or binary
+    patterns = [
+        f"lib{project_name}.dylib",    # dynamic lib
+        f"{project_name}.app",         # macOS bundle
+        f"{project_name}"              # plain binary
+    ]
+
+    for pattern in patterns:
+        if glob.glob(os.path.join(bin_path, pattern)):
+            return True
+    return False
+
+def build_macos(config):
+    build_dir = "./build"
+    for entry in os.listdir(build_dir):
+        if entry.endswith(".xcodeproj"):
+            project_path = os.path.join(build_dir, entry)
+            project_name = os.path.splitext(entry)[0]
+            if not has_xcode_targets(project_path):
+                print(f"[INFO] Skipping {project_path} (no targets found)")
+                continue
+            
+            if output_exists_for(project_name, config):
+                print(f"[INFO] Skipping {project_name} (already built)")
+                continue
+            
+            if project_name in BLACKLISTED_PROJECTS:
+                print(f"[INFO] Skipping {project_name} (blacklisted)")
+                continue
+            
+            jobs = str(multiprocessing.cpu_count())
+            print(f"[INFO] Using -jobs {jobs} for parallel compilation")
+
+            print(f"[INFO] Building Xcode project: {project_path}")
+            run_command([
+                "xcodebuild",
+                "-project", project_path,
+                "-configuration", config,
+                "build",
+                "-jobs", jobs,
+            ])
 
 def main():
     parser = argparse.ArgumentParser(description="Cross-platform project builder")

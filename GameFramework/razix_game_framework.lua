@@ -116,7 +116,9 @@ project "GameFramework"
         cppdialect "C++17"
         staticruntime "off"
         systemversion "14.0"
-
+        xcodebuildsettings {
+            ["GENERATE_INFOPLIST_FILE"] = "YES"
+        }
         defines
         {
             -- Engine

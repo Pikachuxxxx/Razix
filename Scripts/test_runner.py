@@ -70,6 +70,19 @@ def run_tests(config, platform, verbose):
         exe_path = os.path.join(bin_root, f"{name}.exe" if platform.startswith("windows") else name)
         log_path = os.path.join(results_dir, f"{name}.log")
 
+        if platform.startswith("macos"):
+            lib_path = os.path.abspath(f"./bin/{config}-macosx-ARM64")
+            
+            if not os.path.exists(os.path.join(lib_path, "libRazix.dylib")):
+                print(f"[WARNING] libRazix.dylib not found in {lib_path}")
+
+            env = os.environ.copy()
+            prev_dyld = env.get("DYLD_LIBRARY_PATH", "")
+            combined_dyld = f"{lib_path}:{prev_dyld}" if prev_dyld else lib_path
+            env["DYLD_LIBRARY_PATH"] = combined_dyld
+
+            print(f"[INFO] Set DYLD_LIBRARY_PATH={combined_dyld}")
+
         if not os.path.exists(exe_path):
             print(os.getcwd())
             print(exe_path)
@@ -80,7 +93,7 @@ def run_tests(config, platform, verbose):
         try:
             with open(log_path, "w") as log_file:
                 safe_print(f"  ~(*^‿^)~ Launching test: {name}")
-                subprocess.run([exe_path], stdout=log_file, stderr=subprocess.STDOUT, check=True)
+                subprocess.run([exe_path], stdout=log_file, stderr=subprocess.STDOUT, check=True, env=env if platform.startswith("macos") else None)
             print_result(name, "pass")
             if verbose:
                 safe_print("    (づ｡◕‿‿◕｡)づ showing log content ~\n")
