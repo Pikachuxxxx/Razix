@@ -42,3 +42,11 @@ newaction
 		print("done.")
 	end
 }
+
+newaction {
+    trigger     = "rungfxtests",
+    description = "Runs all Gfx test executables",
+    execute     = function ()
+        os.execute("python Scripts/run_gfx_tests.py")
+    end
+}

@@ -20,8 +20,8 @@ namespace Razix {
          */
         struct RZSimpleVertex
         {
-            glm::vec4 Position;
-            glm::vec2 TexCoords;
+            float4 Position;
+            float2 TexCoords;
         };
 
 #define VERTEX_ATTRIBS_COUNT 0x5
@@ -38,25 +38,25 @@ namespace Razix {
         struct RZVertex
         {
 #if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
-            glm::vec3 Position;
-            glm::vec4 Color;
-            glm::vec2 UV;
-            glm::vec3 Normal;
-            glm::vec3 Tangent;
+            float3 Position;
+            float4 Color;
+            float2 UV;
+            float3 Normal;
+            float3 Tangent;
 
             RZVertex()
-                : Position(glm::vec3(0.0f)), Color(glm::vec4(0.0f)), UV(glm::vec2(0.0f)), Normal(glm::vec3(0.0f)), Tangent(glm::vec3(0.0f)) {}
+                : Position(float3(0.0f)), Color(float4(0.0f)), UV(float2(0.0f)), Normal(float3(0.0f)), Tangent(float3(0.0f)) {}
 
             bool operator==(const RZVertex& other) const
             {
                 return Position == other.Position && UV == other.UV && Color == other.Color && Normal == other.Normal && Tangent == other.Tangent;
             }
 #endif
-            std::vector<glm::vec3> Position;
-            std::vector<glm::vec4> Color;
-            std::vector<glm::vec2> UV;
-            std::vector<glm::vec3> Normal;
-            std::vector<glm::vec3> Tangent;
+            std::vector<float3> Position;
+            std::vector<float4> Color;
+            std::vector<float2> UV;
+            std::vector<float3> Normal;
+            std::vector<float3> Tangent;
 
             void setSize(uint32_t sz)
             {
@@ -76,21 +76,21 @@ namespace Razix {
         struct RZSkeletalVertex
         {
 #if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
-            glm::vec3  Position;
-            glm::vec2  UV;
-            glm::vec3  Normal;
-            glm::vec3  Tangent;
-            glm::vec3  BiTangent;
-            glm::ivec4 BoneIndices; /* Indices of the bones that this vertex will be affected by, total bones = MAX_BONES_COUNT */
-            glm::vec3  BoneWeights;
+            float3 Position;
+            float2 UV;
+            float3 Normal;
+            float3 Tangent;
+            float3 BiTangent;
+            int4   BoneIndices; /* Indices of the bones that this vertex will be affected by, total bones = MAX_BONES_COUNT */
+            float3 BoneWeights;
 #endif
-            std::vector<glm::vec3>  Position;
-            std::vector<glm::vec2>  UV;
-            std::vector<glm::vec3>  Normal;
-            std::vector<glm::vec3>  Tangent;
-            std::vector<glm::vec3>  BiTangent;
-            std::vector<glm::ivec4> BoneIndices;
-            std::vector<glm::vec3>  BoneWeights;
+            std::vector<float3> Position;
+            std::vector<float2> UV;
+            std::vector<float3> Normal;
+            std::vector<float3> Tangent;
+            std::vector<float3> BiTangent;
+            std::vector<int4>   BoneIndices;
+            std::vector<float3> BoneWeights;
 
             void setSize(uint32_t sz)
             {
@@ -114,7 +114,7 @@ namespace std {
     {
         sz operator()(Razix::Gfx::RZVertex const& vertex) const
         {
-            return ((hash<glm::vec3>()(vertex.Position) ^ (hash<glm::vec2>()(vertex.UV) << 1) ^ (hash<glm::vec4>()(vertex.Color) << 1) ^ (hash<glm::vec3>()(vertex.Normal) << 1) ^ (hash<glm::vec3>()(vertex.Tangent) << 1)));
+            return ((hash<float3>()(vertex.Position) ^ (hash<float2>()(vertex.UV) << 1) ^ (hash<float4>()(vertex.Color) << 1) ^ (hash<float3>()(vertex.Normal) << 1) ^ (hash<float3>()(vertex.Tangent) << 1)));
         }
     };
 }    // namespace std

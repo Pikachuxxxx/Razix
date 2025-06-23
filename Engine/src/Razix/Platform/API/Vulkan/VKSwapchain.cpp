@@ -69,6 +69,17 @@ namespace Razix {
                 resource->setHandle(handle);
                 resource->setName(RZ_SWAP_IMAGE_RES_NAME);
 
+                RZTexture*    textureResource        = RZResourceManager::Get().getPool<RZTexture>().get(handle);
+                RZTextureDesc backbufferDesc         = textureResource->getDescription();
+                backbufferDesc.width                 = width;
+                backbufferDesc.height                = height;
+                backbufferDesc.allowResize           = true;
+                backbufferDesc.ownsInitData          = false;
+                backbufferDesc.initResourceViewHints = kRTV;
+                backbufferDesc.type                  = TextureType::kSwapchainImage;
+                backbufferDesc.format                = TextureFormat::SCREEN;
+                textureResource->setDescription(backbufferDesc);
+
                 m_SwapchainImageTextures.push_back(handle);
             }
 
@@ -102,10 +113,6 @@ namespace Razix {
                 RZResourceManager::Get().destroyTexture(m_SwapchainImageTextures[i]);
             m_SwapchainImageTextures.clear();
             m_SwapchainImageCount = static_cast<u32>(m_SwapchainImageTextures.size());
-        }
-
-        void VKSwapchain::Flip()
-        {
         }
 
         void VKSwapchain::OnResize(u32 width, u32 height)
@@ -161,8 +168,6 @@ namespace Razix {
 
             // Get the right color space
             // Get the right image format for the swapchain images to present mode
-            //            if (format.format == VK_FORMAT_R8G8B8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
-
             for (const auto& format: m_SwapSurfaceProperties.formats) {
                 if (format.format == VK_FORMAT_B8G8R8A8_UNORM /*VK_FORMAT_B8G8R8A8_SRGB*/ && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
                     m_ColorFormat = format.format;
@@ -231,7 +236,7 @@ namespace Razix {
             swcCI.imageColorSpace                                     = m_SurfaceFormat.colorSpace;
             swcCI.imageExtent                                         = m_SwapchainExtent;
             swcCI.imageArrayLayers                                    = 1;
-            swcCI.imageUsage                                          = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+            swcCI.imageUsage                                          = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
             VKPhysicalDevice::QueueFamilyIndices indices              = VKDevice::Get().getPhysicalDevice().get()->getQueueFamilyIndices();
             u32                                  queueFamilyIndices[] = {static_cast<u32>(indices.Graphics), static_cast<u32>(indices.Present)};
 
@@ -384,8 +389,8 @@ namespace Razix {
 
                     return m_AcquiredBackBufferImageIndex;
                 }
-            } else if (result != VK_SUCCESS)
-                RAZIX_CORE_ERROR("[Vulkan] Failed to acquire swap chain image!");
+            }
+            RAZIX_CORE_ASSERT(result == VK_SUCCESS, "[Vulkan] Failed to acquire swap chain image!");
 
             return m_AcquiredBackBufferImageIndex;
         }
@@ -477,6 +482,9 @@ namespace Razix {
         void VKSwapchain::submitGraphicsAndFlip(CommandQueue& commandQueue)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (m_IsResizing)
+                return;
 
             // Submit and Flip the Graphics Queue
             VkResult result;

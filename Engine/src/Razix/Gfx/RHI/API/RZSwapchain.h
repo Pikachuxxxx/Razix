@@ -5,8 +5,6 @@
 
 #include "Razix/Core/OS/RZWindow.h"
 
-#include "Razix/Gfx/RHI/API/RZAPIHandles.h"
-
 namespace Razix {
     namespace Gfx {
 
@@ -31,20 +29,15 @@ namespace Razix {
              */
             static RZSwapchain* Create(u32 width, u32 height);
 
-            /* Initializes the swapchain and it's resources */
-            virtual void Init(u32 width, u32 height) = 0;
-            /* Destroys the swapchain and it's resources */
-            virtual void Destroy()                 = 0;
-            virtual void DestroyBackBufferImages() = 0;
-            /* Flips the swapchain images for presentation, typically used while doing d32/triple buffered rendering */
-            virtual void Flip() = 0;
-            /* Recreates the swapchain on window resize or for offline rendering */
+            virtual void Init(u32 width, u32 height)     = 0;
+            virtual void Destroy()                       = 0;
+            virtual void DestroyBackBufferImages()       = 0;
             virtual void OnResize(u32 width, u32 height) = 0;
 
             /* Gets the swapchain image at the given index */
             virtual RZTextureHandle GetImage(u32 index) = 0;
             /* Gets the current image that is ready for rendering */
-            virtual RZTextureHandle GetCurrentImage() = 0;
+            virtual RZTextureHandle GetCurrentBackBufferImage() = 0;
             /* Gets the count of total number of images in the swapchain */
             virtual sz GetSwapchainImageCount() = 0;
 

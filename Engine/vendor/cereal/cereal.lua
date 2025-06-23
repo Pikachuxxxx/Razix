@@ -1,5 +1,5 @@
 project "cereal"
-	kind "StaticLib"
+	kind "None"
 	language "C++"
 	cppdialect (engine_global_config.cpp_dialect)
 	staticruntime "off"
@@ -28,7 +28,7 @@ project "cereal"
         runtime "Release"
         optimize "on"
 
-    filter "configurations:Distribution"
+    filter "configurations:GoldMaster"
         runtime "Release"
         symbols "Off"
         optimize "Full"

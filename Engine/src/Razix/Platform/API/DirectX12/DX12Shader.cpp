@@ -19,12 +19,51 @@
 
     #include <d3dcompiler.h>
 
-    // Don't use the windows SDK includes, use the latest from vendor
-    #include <vendor/dxc/inc/d3d12shader.h>
-    #include <vendor/dxc/inc/dxcapi.h>
-
 namespace Razix {
     namespace Gfx {
+
+        static void printShaderReflectionInstructionInfo(D3D12_SHADER_DESC shaderDesc)
+        {
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t InstructionCount: {0}", shaderDesc.InstructionCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TempRegisterCount: {0}", shaderDesc.TempRegisterCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TempArrayCount: {0}", shaderDesc.TempArrayCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t DefCount: {0}", shaderDesc.DefCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t DclCount: {0}", shaderDesc.DclCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TextureNormalInstructions: {0}", shaderDesc.TextureNormalInstructions);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TextureLoadInstructions: {0}", shaderDesc.TextureLoadInstructions);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TextureCompInstructions: {0}", shaderDesc.TextureCompInstructions);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TextureBiasInstructions: {0}", shaderDesc.TextureBiasInstructions);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TextureGradientInstructions: {0}", shaderDesc.TextureGradientInstructions);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t FloatInstructionCount: {0}", shaderDesc.FloatInstructionCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t IntInstructionCount: {0}", shaderDesc.IntInstructionCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t UintInstructionCount: {0}", shaderDesc.UintInstructionCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t StaticFlowControlCount: {0}", shaderDesc.StaticFlowControlCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t DynamicFlowControlCount: {0}", shaderDesc.DynamicFlowControlCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t MacroInstructionCount: {0}", shaderDesc.MacroInstructionCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t ArrayInstructionCount: {0}", shaderDesc.ArrayInstructionCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t CutInstructionCount: {0}", shaderDesc.CutInstructionCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t EmitInstructionCount: {0}", shaderDesc.EmitInstructionCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t GSOutputTopology: {0}", shaderDesc.GSOutputTopology);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t GSMaxOutputVertexCount: {0}", shaderDesc.GSMaxOutputVertexCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t InputPrimitive: {0}", shaderDesc.InputPrimitive);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t PatchConstantParameters: {0}", shaderDesc.PatchConstantParameters);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t cGSInstanceCount: {0}", shaderDesc.cGSInstanceCount);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t cControlPoints: {0}", shaderDesc.cControlPoints);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t HSOutputPrimitive: {0}", shaderDesc.HSOutputPrimitive);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t HSPartitioning: {0}", shaderDesc.HSPartitioning);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TessellatorDomain: {0}", shaderDesc.TessellatorDomain);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t cBarrierInstructions: {0}", shaderDesc.cBarrierInstructions);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t cInterlockedInstructions: {0}", shaderDesc.cInterlockedInstructions);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t cTextureStoreInstructions: {0}", shaderDesc.cTextureStoreInstructions);
+        }
+
+        static void printResourcesInfo(D3D12_SHADER_DESC shaderDesc)
+        {
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t ConstantBuffers: {0}", shaderDesc.ConstantBuffers);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t BoundResources: {0}", shaderDesc.BoundResources);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t InputParameters: {0}", shaderDesc.InputParameters);
+            RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t OutputParameters: {0}", shaderDesc.OutputParameters);
+        }
 
         // Mask represents the number of components in binary form.
         // ex. float3 would be represented by 7 (0xb111), float2 by 3
@@ -48,23 +87,23 @@ namespace Razix {
                 case DXGI_FORMAT_R32_FLOAT:
                     return sizeof(FLOAT);
                 case DXGI_FORMAT_R32G32_FLOAT:
-                    return sizeof(glm::vec2);
+                    return sizeof(float2);
                 case DXGI_FORMAT_R32G32B32_FLOAT:
-                    return sizeof(glm::vec3);
+                    return sizeof(float3);
                 case DXGI_FORMAT_R32G32B32A32_FLOAT:
-                    return sizeof(glm::vec4);
+                    return sizeof(float4);
                 case DXGI_FORMAT_R32G32_SINT:
-                    return sizeof(glm::ivec2);
+                    return sizeof(int2);
                 case DXGI_FORMAT_R32G32B32_SINT:
-                    return sizeof(glm::ivec3);
+                    return sizeof(int3);
                 case DXGI_FORMAT_R32G32B32A32_SINT:
-                    return sizeof(glm::ivec4);
+                    return sizeof(int4);
                 case DXGI_FORMAT_R32G32_UINT:
-                    return sizeof(glm::uvec2);
+                    return sizeof(uint2);
                 case DXGI_FORMAT_R32G32B32_UINT:
-                    return sizeof(glm::uvec3);
+                    return sizeof(uint3);
                 case DXGI_FORMAT_R32G32B32A32_UINT:
-                    return sizeof(glm::uvec4);    //Need uintvec?
+                    return sizeof(uint4);    //Need uintvec?
                 case DXGI_FORMAT_R32_UINT:
                     return sizeof(u32);
                 default:
@@ -75,24 +114,23 @@ namespace Razix {
             return 0;
         }
 
+        //-----------------------------------------------------------------------------------
+
         DX12Shader::DX12Shader(const RZShaderDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             m_Desc = desc;
 
-            // Attach the binary extension before loading shaders
-            setShaderFilePath(desc.filePath);
-
             m_Desc.name = Razix::Utilities::GetFileName(desc.filePath);
 
             // Read the *.rzsf shader file to get the necessary shader stages and it's corresponding compiled shader file virtual path
             m_ParsedRZSF = RZShader::ParseRZSF(desc.filePath);
 
-            CrossCompileShaders(m_ParsedRZSF, ShaderSourceType::HLSL);
-
             // Reflect the shaders using SPIR-V Reflect to extract the necessary information about descriptors and inputs to the shaders
             reflectShader();
+
+            createRootSigParams();
 
             // Create the shader modules and the pipeline shader stage create infos that will be bound to the pipeline
             createShaderModules();
@@ -105,29 +143,7 @@ namespace Razix {
                 D3D_SAFE_RELEASE(m_ShaderStageBlobs[csoSource.first]);
         }
 
-        void DX12Shader::Bind() const
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            RAZIX_UNIMPLEMENTED_METHOD
-        }
-
-        void DX12Shader::Unbind() const
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            RAZIX_UNIMPLEMENTED_METHOD
-        }
-
-        void DX12Shader::CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            if (srcType != ShaderSourceType::SPIRV)
-                return;
-        }
-
-        void DX12Shader::GenerateDescriptorHeaps()
+        void DX12Shader::GenerateUserDescriptorHeaps()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
         }
@@ -161,135 +177,23 @@ namespace Razix {
                 ID3D12ShaderReflection* shaderReflection = nullptr;
                 CHECK_HRESULT(shaderReflectionUtils->CreateReflection(&shaderSourceBuffer, IID_PPV_ARGS(&shaderReflection)));
                 // Get the shader desc reflection data
-                D3D12_SHADER_DESC shaderDesc{};
+                D3D12_SHADER_DESC shaderDesc = {};
                 CHECK_HRESULT(shaderReflection->GetDesc(&shaderDesc));
 
                 //--------------------------
                 // Get the vertex input desc
                 //--------------------------
-                if (csoSource.first == ShaderStage::kVertex) {
-                    m_VertexInputStride = 0;
-
-                    // TODO: Fill D3D12_INPUT_ELEMENT_DESC
-                    for (u32 i = 0; i < shaderDesc.InputParameters; ++i) {
-                        D3D12_SIGNATURE_PARAMETER_DESC paramDesc;
-                        CHECK_HRESULT(shaderReflection->GetInputParameterDesc(i, &paramDesc));
-                        RAZIX_CORE_INFO("[DX12] [Shader Reflection] Input Params: {0} type: {1} elements/register: {2}", paramDesc.SemanticName, paramDesc.ComponentType, paramDesc.Register);
-
-                        u32 componentCount = GetComponentCount(paramDesc.Mask);
-                        RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t input param component count : {0}", componentCount);
-                        DXGI_FORMAT format     = DX12Utilities::GetFormatFromComponentType(paramDesc.ComponentType, componentCount);
-                        u32         formatSize = DX12Utilities::GetFormatSize(format);
-
-                        D3D12_INPUT_ELEMENT_DESC inputElement = {};
-                        inputElement.SemanticName             = paramDesc.SemanticName;
-                        inputElement.SemanticIndex            = paramDesc.SemanticIndex;
-                        inputElement.Format                   = format;
-                        inputElement.InputSlot                = 0;
-                        inputElement.AlignedByteOffset        = D3D12_APPEND_ALIGNED_ELEMENT;
-                        inputElement.InputSlotClass           = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-                        inputElement.InstanceDataStepRate     = 0;
-
-                        m_VertexInputAttributeDescriptions.push_back(inputElement);
-
-                        // Store the buffer layout in engine friendly format
-                        DX12Utilities::PushBufferLayout(format, paramDesc.SemanticName, m_BufferLayout);
-
-                        // Store the stride for vertex data
-                        m_VertexInputStride += formatSize;
-                    }
-                }
+                if (csoSource.first == ShaderStage::kVertex)
+                    reflectVertexInputParams(shaderReflection, shaderDesc);
 
                 //--------------------------
                 // Reflect descriptor tables (Buffers/Textures etc.)
                 //--------------------------
-                for (u32 i = 0; i < shaderDesc.BoundResources; i++) {
-                    D3D12_SHADER_INPUT_BIND_DESC shaderInputBindDesc{};
-                    CHECK_HRESULT(shaderReflection->GetResourceBindingDesc(i, &shaderInputBindDesc));
+                reflectDescriptorTables(csoSource.first, shaderReflection, shaderDesc);
 
-                    RAZIX_CORE_TRACE("[DX12] [Shader Input Bind Desc] \t Name: {0}", shaderInputBindDesc.Name);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Input Bind Desc] \t Type: {0}", shaderInputBindDesc.Type);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Input Bind Desc] \t BindPoint: {0}", shaderInputBindDesc.BindPoint);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Input Bind Desc] \t BindCount: {0}", shaderInputBindDesc.BindCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Input Bind Desc] \t uFlags: {0}", shaderInputBindDesc.uFlags);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Input Bind Desc] \t ReturnType: {0}", shaderInputBindDesc.ReturnType);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Input Bind Desc] \t Dimension: {0}", shaderInputBindDesc.Dimension);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Input Bind Desc] \t NumSamples: {0}", shaderInputBindDesc.NumSamples);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Input Bind Desc] \t Space: {0}", shaderInputBindDesc.Space);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Input Bind Desc] \t uID: {0}", shaderInputBindDesc.uID);
+                // - [ ] Root Constants: should be of the name "PushConstantBuffer"
 
-                    RZDescriptor rzDescriptor = {};
-                    u32          heapIdx      = 0;
-
-                    DescriptorBindingInfo bindingInfo = {};
-                    bindingInfo.stage                 = csoSource.first;
-                    bindingInfo.location.binding      = shaderInputBindDesc.BindPoint;
-                    bindingInfo.location.set          = shaderInputBindDesc.Space;
-                    bindingInfo.count                 = shaderInputBindDesc.BindCount;
-                    bindingInfo.type                  = DX12Utilities::DXToEngineDescriptorType(shaderInputBindDesc.Type);
-
-                    rzDescriptor.name        = shaderInputBindDesc.Name;
-                    rzDescriptor.typeName    = shaderInputBindDesc.Type;
-                    rzDescriptor.bindingInfo = bindingInfo;
-                    rzDescriptor.size        = 0;
-                    rzDescriptor.offset      = 0;
-
-                    // fill the members
-                    //for (sz i = 0; i < ; i++) {
-                    //    RZShaderBufferMemberInfo memberInfo{};
-                    //    memberInfo.fullName = rzDescriptor.name + "." + descriptor.block.members[i].name;
-                    //    memberInfo.name     = descriptor.block.members[i].name;
-                    //    memberInfo.offset   = descriptor.block.members[i].offset;
-                    //    memberInfo.size     = descriptor.block.members[i].size;
-                    //
-                    //    rzDescriptor.uboMembers.push_back(std::move(memberInfo));
-                    //}
-
-                    auto& descriptor_heap = m_DescriptorsPerHeap[heapIdx];
-                    descriptor_heap.push_back(rzDescriptor);
-                }
-
-    // Print some debug info
-    #if RAZIX_DEBUG
-                {
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t ConstantBuffers: {0}", shaderDesc.ConstantBuffers);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t BoundResources: {0}", shaderDesc.BoundResources);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t InputParameters: {0}", shaderDesc.InputParameters);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t OutputParameters: {0}", shaderDesc.OutputParameters);
-                    RAZIX_CORE_TRACE("---------------------------------------------------");
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t InstructionCount: {0}", shaderDesc.InstructionCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TempRegisterCount: {0}", shaderDesc.TempRegisterCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TempArrayCount: {0}", shaderDesc.TempArrayCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t DefCount: {0}", shaderDesc.DefCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t DclCount: {0}", shaderDesc.DclCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TextureNormalInstructions: {0}", shaderDesc.TextureNormalInstructions);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TextureLoadInstructions: {0}", shaderDesc.TextureLoadInstructions);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TextureCompInstructions: {0}", shaderDesc.TextureCompInstructions);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TextureBiasInstructions: {0}", shaderDesc.TextureBiasInstructions);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TextureGradientInstructions: {0}", shaderDesc.TextureGradientInstructions);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t FloatInstructionCount: {0}", shaderDesc.FloatInstructionCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t IntInstructionCount: {0}", shaderDesc.IntInstructionCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t UintInstructionCount: {0}", shaderDesc.UintInstructionCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t StaticFlowControlCount: {0}", shaderDesc.StaticFlowControlCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t DynamicFlowControlCount: {0}", shaderDesc.DynamicFlowControlCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t MacroInstructionCount: {0}", shaderDesc.MacroInstructionCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t ArrayInstructionCount: {0}", shaderDesc.ArrayInstructionCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t CutInstructionCount: {0}", shaderDesc.CutInstructionCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t EmitInstructionCount: {0}", shaderDesc.EmitInstructionCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t GSOutputTopology: {0}", shaderDesc.GSOutputTopology);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t GSMaxOutputVertexCount: {0}", shaderDesc.GSMaxOutputVertexCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t InputPrimitive: {0}", shaderDesc.InputPrimitive);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t PatchConstantParameters: {0}", shaderDesc.PatchConstantParameters);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t cGSInstanceCount: {0}", shaderDesc.cGSInstanceCount);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t cControlPoints: {0}", shaderDesc.cControlPoints);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t HSOutputPrimitive: {0}", shaderDesc.HSOutputPrimitive);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t HSPartitioning: {0}", shaderDesc.HSPartitioning);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t TessellatorDomain: {0}", shaderDesc.TessellatorDomain);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t cBarrierInstructions: {0}", shaderDesc.cBarrierInstructions);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t cInterlockedInstructions: {0}", shaderDesc.cInterlockedInstructions);
-                    RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t cTextureStoreInstructions: {0}", shaderDesc.cTextureStoreInstructions);
-                }
-    #endif
+                // - [ ] Root Signature layout --> emulate VkDescriptorSetLayout and VkPipelineLayout but for RootSignature D3D12_ROOT_PARAMETER and HeapsLayout(custom object)
 
                 delete csoByteCode;
                 D3D_SAFE_RELEASE(csoBlob);
@@ -297,6 +201,117 @@ namespace Razix {
             }
 
             D3D_SAFE_RELEASE(shaderReflectionUtils);
+        }
+
+        //-----------------------------------------------------------------------------------
+
+        void DX12Shader::reflectVertexInputParams(ID3D12ShaderReflection* shaderReflection, D3D12_SHADER_DESC shaderDesc)
+        {
+            m_VertexInputStride = 0;
+
+            // TODO: Fill D3D12_INPUT_ELEMENT_DESC
+            for (u32 i = 0; i < shaderDesc.InputParameters; ++i) {
+                D3D12_SIGNATURE_PARAMETER_DESC paramDesc;
+                CHECK_HRESULT(shaderReflection->GetInputParameterDesc(i, &paramDesc));
+                RAZIX_CORE_INFO("[DX12] [Shader Reflection] Input Params: {0} type: {1} elements/register: {2}", paramDesc.SemanticName, paramDesc.ComponentType, paramDesc.Register);
+
+                u32 componentCount = GetComponentCount(paramDesc.Mask);
+                RAZIX_CORE_TRACE("[DX12] [Shader Reflection] \t input param component count : {0}", componentCount);
+                DXGI_FORMAT format     = DX12Utilities::GetFormatFromComponentType(paramDesc.ComponentType, componentCount);
+                u32         formatSize = DX12Utilities::GetFormatSize(format);
+
+                D3D12_INPUT_ELEMENT_DESC inputElement = {};
+                inputElement.SemanticName             = paramDesc.SemanticName;
+                inputElement.SemanticIndex            = paramDesc.SemanticIndex;
+                inputElement.Format                   = format;
+                inputElement.InputSlot                = 0;
+                inputElement.AlignedByteOffset        = D3D12_APPEND_ALIGNED_ELEMENT;
+                inputElement.InputSlotClass           = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+                inputElement.InstanceDataStepRate     = 0;
+
+                m_VertexInputAttributeDescriptions.push_back(inputElement);
+
+                // Store the buffer layout in engine friendly format
+                DX12Utilities::PushBufferLayout(format, paramDesc.SemanticName, m_BufferLayout);
+
+                // Store the stride for vertex data
+                m_VertexInputStride += formatSize;
+            }
+        }
+
+        void DX12Shader::reflectDescriptorTables(ShaderStage stage, ID3D12ShaderReflection* shaderReflection, D3D12_SHADER_DESC shaderDesc)
+        {
+            for (u32 i = 0; i < shaderDesc.BoundResources; i++) {
+                D3D12_SHADER_INPUT_BIND_DESC shaderInputBindDesc{};
+                CHECK_HRESULT(shaderReflection->GetResourceBindingDesc(i, &shaderInputBindDesc));
+
+                if (shaderInputBindDesc.Name == PUSH_CONSTANT_REFLECTION_NAME_DX12) {
+                    RAZIX_DEBUG_BREAK();
+
+                    RAZIX_CORE_TRACE("[DX12] Found Push Constant! skipping current bound resource... this cbuffer will be bound as a root constant");
+
+                    RZPushConstant pc{};
+                    pc.name                         = shaderInputBindDesc.Name;
+                    pc.shaderStage                  = stage;
+                    pc.data                         = nullptr;
+                    pc.size                         = 0;    // Set by user ig
+                    pc.offset                       = 0;    // Set by user ig
+                    pc.bindingInfo.location.binding = 0;    // Doesn't make sense for PushConstants
+                    pc.bindingInfo.location.set     = 0;    // Doesn't make sense for PushConstants
+                    pc.bindingInfo.stage            = stage;
+                    pc.bindingInfo.count            = 1;
+                    pc.bindingInfo.type             = DescriptorType::kPushConstant;
+                    m_PushConstants.push_back(pc);
+                    break;
+                }
+
+                u32 heapIdx = shaderInputBindDesc.Space;
+
+                DescriptorBindingInfo bindingInfo = {};
+                bindingInfo.stage                 = stage;
+                bindingInfo.location.binding      = shaderInputBindDesc.BindPoint;
+                bindingInfo.location.set          = heapIdx;
+                bindingInfo.count                 = shaderInputBindDesc.BindCount;
+                bindingInfo.type                  = DX12Utilities::DXToEngineDescriptorType(shaderInputBindDesc.Type);
+
+                RZDescriptor rzDescriptor = {};
+                rzDescriptor.name         = shaderInputBindDesc.Name;
+                rzDescriptor.typeName     = shaderInputBindDesc.Type;
+                rzDescriptor.bindingInfo  = bindingInfo;
+
+                auto& descriptor_heap = m_DescriptorsPerHeap[heapIdx];
+                descriptor_heap.push_back(rzDescriptor);
+            }
+        }
+
+        void DX12Shader::createRootSigParams()
+        {
+            // First we deal with all the bindable resources
+            // create the D3D12_ROOT_PARAMETER_TYPE for each bound resources
+
+            for (auto& heap: m_DescriptorsPerHeap) {
+                D3D12_ROOT_PARAMETER param                           = {};
+                param.ParameterType                                  = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+                param.DescriptorTable.NumDescriptorRanges            = heap.second.size();
+                std::vector<D3D12_DESCRIPTOR_RANGE> descritptorRange = {};
+                for (auto& descriptor: heap.second) {
+                    // ASSUMPTION: This is weird but we assume all the descriptors in a heap have the same stage and enforce it, if not thing will crash
+                    param.ShaderVisibility       = DX12Utilities::ShaderStageToVisibility(descriptor.bindingInfo.stage);
+                    D3D12_DESCRIPTOR_RANGE range = {};
+                    range.NumDescriptors         = descriptor.bindingInfo.count;
+                }
+                //param.DescriptorTable.pDescriptorRanges
+            }
+
+            // Next push constants: here it'll be a cbuffer as a 32bit constant
+            for (u32 i = 0; i < m_PushConstants.size(); i++) {
+                D3D12_ROOT_PARAMETER param = {};
+                param.ParameterType        = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+                param.ShaderVisibility     = DX12Utilities::ShaderStageToVisibility(m_PushConstants[i].bindingInfo.stage);
+                // param.Constants.Num32BitValues = ;// need the size from reflection data or cap it off at 256/128 bytes??
+            }
+
+            // No inline CBV, SRV, UAV will be used in engine, this is equivalent to Vulkan push descriptors
         }
 
         void DX12Shader::createShaderModules()

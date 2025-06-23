@@ -1,7 +1,8 @@
 #include "TracyMemory.hpp"
 
-namespace tracy {
+namespace tracy
+{
 
-    size_t memUsage = 0;
+std::atomic<int64_t> memUsage( 0 );
 
 }

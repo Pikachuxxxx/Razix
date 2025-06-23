@@ -4,8 +4,7 @@
 
 #include "Razix/Gfx/Resources/RZResourcePool.h"
 
-#include "Razix/Gfx/RHI/API/RZAPIDesc.h"
-#include "Razix/Gfx/RHI/API/RZAPIHandles.h"
+#include "Razix/Gfx/GfxData.h"
 
 #include "Razix/Utilities/TRZSingleton.h"
 
@@ -22,7 +21,7 @@ public:                                                                         
                                                                                            \
 public:                                                                                    \
     RZ##resourceName##Handle create##resourceName(__VA_ARGS__);                            \
-    void                     destroy##resourceName(RZ##resourceName##Handle handle);       \
+    void                     destroy##resourceName(RZ##resourceName##Handle& handle);      \
     RZ##resourceName*        get##resourceName##Resource(RZ##resourceName##Handle handle); \
                                                                                            \
 private:                                                                                   \
@@ -79,6 +78,8 @@ private:                                                                        
             RAZIX_REGISTER_RESOURCE_POOL(CommandPool, PoolType type)
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(DrawCommandBuffer, RZCommandPoolHandle pool)
+            //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(DescriptorSet, const RZDescriptorSetDesc& desc)
             //-----------------------------------------------------------------------------------
         };
 

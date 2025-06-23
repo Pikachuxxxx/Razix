@@ -6,7 +6,7 @@
 #include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/UUID/RZUUID.h"
 
-#include "Razix/Gfx/RHI/API/RZAPIHandles.h"
+#include "Razix/Gfx/GfxData.h"
 
 #include "Razix/Scene/RZSceneCamera.h"
 

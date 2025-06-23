@@ -5,10 +5,6 @@
 
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 
-#ifdef RAZIX_RENDER_API_OPENGL
-    #include "Razix/Platform/API/OpenGL/OpenGLCommandBuffer.h"
-#endif
-
 #ifdef RAZIX_RENDER_API_VULKAN
     #include "Razix/Platform/API/Vulkan/VKDrawCommandBuffer.h"
     #include "Razix/Platform/API/Vulkan/VKUtilities.h"
@@ -24,7 +20,7 @@ namespace Razix {
 
         GET_INSTANCE_SIZE_IMPL(DrawCommandBuffer)
 
-        RZDrawCommandBufferHandle RZDrawCommandBuffer::BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color)
+        RZDrawCommandBufferHandle RZDrawCommandBuffer::BeginSingleTimeCommandBuffer(const std::string commandUsage, float4 color)
         {
             RZHandle<RZDrawCommandBuffer> handle;
             void*                         where = RZResourceManager::Get().getPool<RZDrawCommandBuffer>().obtain(handle);
@@ -65,15 +61,10 @@ namespace Razix {
 
         void RZDrawCommandBuffer::Create(void* where, RZCommandPoolHandle pool)
         {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
             // Get the command pool API handle
             auto poolApiHandle = RZResourceManager::Get().getCommandPoolResource(pool)->getAPIHandle();
 
             switch (Gfx::RZGraphicsContext::GetRenderAPI()) {
-#ifdef RAZIX_RENDER_API_OPENGL
-                case Razix::Gfx::RenderAPI::OPENGL: new (where) OpenGLCommandBuffer(); break;
-#endif
 #ifdef RAZIX_RENDER_API_VULKAN
                 case Razix::Gfx::RenderAPI::VULKAN: new (where) VKDrawCommandBuffer(*(VkCommandPool*) (poolApiHandle)); break;
 #endif

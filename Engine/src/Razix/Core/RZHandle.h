@@ -2,8 +2,8 @@
 
 #include "Razix/Core/RZDataTypes.h"
 
-namespace Razix {
-
+    namespace Razix
+{
     // https://twitter.com/SebAaltonen/status/1534416275828514817
     // https://twitter.com/SebAaltonen/status/1535175559067713536
     /**
@@ -56,6 +56,12 @@ namespace Razix {
 
         inline u32  getGeneration() const { return m_Generation; }
         inline void setGeneration(u32 gen) { m_Generation = gen; }
+
+        inline void destroy()
+        {
+            m_Generation = 0;
+            m_Index      = 0;
+        }
 
         friend bool operator!=(RZHandle const& h1, RZHandle const& h2)
         {

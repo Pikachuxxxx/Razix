@@ -17,7 +17,7 @@
 
 #include "Razix/Utilities/RZStringUtilities.h"
 
-#include "internal/RazixMemory/include/RZMemoryFunctions.h"
+#include "Razix/Core/Memory/RZMemoryFunctions.h"
 
 #include <SPIRVReflect/common/output_stream.h>
 #include <glm/glm.hpp>
@@ -26,14 +26,6 @@
 
 namespace Razix {
     namespace Gfx {
-
-        std::unordered_map<ShaderStage, const char*> ShaderStageEntryPointNameMap = {
-            {ShaderStage::kVertex, "VS_MAIN"},
-            {ShaderStage::kPixel, "PS_MAIN"},
-            {ShaderStage::kCompute, "CS_MAIN"},
-            {ShaderStage::kGeometry, "GS_MAIN"}};
-
-        // TODO: Move these to VKUtilites
 
         VKShader::VKShader(const RZShaderDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
@@ -46,12 +38,10 @@ namespace Razix {
             // Read the *.rzsf shader file to get the necessary shader stages and it's corresponding compiled shader file virtual path
             m_ParsedRZSF = RZShader::ParseRZSF(desc.filePath);
 
-            // Cross compile the shaders if necessary to reflect it onto GLSL
-            // TODO: Make this shit dynamic!
-            CrossCompileShaders(m_ParsedRZSF, ShaderSourceType::SPIRV);
-
             // Reflect the shaders using SPIR-V Reflect to extract the necessary information about descriptors and inputs to the shaders
             reflectShader();
+
+            createLayoutHandles();
 
             // Create the shader modules and the pipeline shader stage create infos that will be bound to the pipeline
             createShaderModules();
@@ -61,10 +51,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            // destroy the user descriptor sets
-            for (size_t i = 0; i < m_SceneParams.userSets.size(); i++)
-                m_SceneParams.userSets[i]->Destroy();
-            m_SceneParams.userSets.clear();
+            destroyUserDescriptorSets();
 
             // Destroy the pipeline layout
             vkDestroyPipelineLayout(VKDevice::Get().getDevice(), m_PipelineLayout, nullptr);
@@ -74,43 +61,18 @@ namespace Razix {
                 vkDestroyShaderModule(VKDevice::Get().getDevice(), m_ShaderCreateInfos[spvSource.first].module, nullptr);
         }
 
-        void VKShader::Bind() const
+        void VKShader::GenerateUserDescriptorHeaps()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            RAZIX_UNIMPLEMENTED_METHOD
-        }
-
-        void VKShader::Unbind() const
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            RAZIX_UNIMPLEMENTED_METHOD
-        }
-
-        void VKShader::CrossCompileShaders(const std::map<ShaderStage, std::string>& sources, ShaderSourceType srcType)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            if (srcType != ShaderSourceType::SPIRV)
-                return;
-        }
-
-        void VKShader::GenerateDescriptorHeaps()
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            // Destroy them and then clear them
-            for (size_t i = 0; i < m_SceneParams.userSets.size(); i++)
-                m_SceneParams.userSets[i]->Destroy();
-            m_SceneParams.userSets.clear();
+            destroyUserDescriptorSets();
 
             // Create the Descriptor Sets for the Shader
             // We skip if they're system sets like FrameData, SceneLightsData and Material which are managed by RHI and Scene
-            for (auto& setInfo: m_DescriptorsPerHeap) {
+            for (auto& heap: m_DescriptorsPerHeap) {
                 // Skip creating some sets!
                 // We skip the system sets such as FrameData, SceneLightsData and Material Data
-                auto& descriptor = setInfo.second[0];
+                auto& descriptor = heap.second[0];
 
                 if (descriptor.name == "FrameData") {
                     m_SceneParams.enableFrameData = true;
@@ -120,18 +82,27 @@ namespace Razix {
                     m_SceneParams.enableMaterials = true;
                     continue;
 
-                } else if (descriptor.name == "SceneLightsData") {
+                } else if (descriptor.name == "SceneLights") {
                     m_SceneParams.enableLights = true;
                     continue;
                 }
                 // TODO: Add support for m_SceneParams.enableBindless
-                m_SceneParams.userSets.push_back(RZDescriptorSet::Create(setInfo.second RZ_DEBUG_NAME_TAG_STR_E_ARG(getShaderFilePath())));
+                RZDescriptorSetDesc descSetCreateDesc = {};
+                descSetCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
+                descSetCreateDesc.name                = "DescriptorSet." + getShaderFilePath();
+                descSetCreateDesc.descriptors         = heap.second;
+                descSetCreateDesc.setIdx              = descriptor.bindingInfo.location.set;
+                auto setHandle                        = RZResourceManager::Get().createDescriptorSet(descSetCreateDesc);
+
+                m_SceneParams.userSets.push_back(setHandle);
 
                 // Add all descriptors of user sets into a named map
-                for (auto& descr: setInfo.second)
+                for (auto& descr: heap.second)
                     m_BindVars.m_BindMap.insert({descr.name, &descr});
             }
         }
+
+        //-----------------------------------------------------------------------------------
 
         std::vector<VkPipelineShaderStageCreateInfo> VKShader::getShaderStages()
         {
@@ -147,8 +118,6 @@ namespace Razix {
         void VKShader::reflectShader()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            bool potentiallyBindless = false;
 
             // Reflect the SPIR-V shader to extract all the necessary information
             for (const auto& spvSource: m_ParsedRZSF) {
@@ -168,13 +137,6 @@ namespace Razix {
 
                 // SPIRV-Reflect uses similar API to Vulkan, first enumerate for the count and then create the container and the use the same functions to fill the container with the enumerated data
                 // Also SPIRV-Reflect API enums use same integer codes as Vulkan hence they can be type casted safely and they will work fine, this is guaranteed by the API hence we need not do extra conversions
-
-                // Enumerate and extract shaders input variables
-                //u32 var_count = 0;
-                //result             = spvReflectEnumerateInputVariables(&module, &var_count, NULL);
-                //RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect SPIRV Input variables - ({0})!", virtualPath);
-                //SpvReflectInterfaceVariable** input_vars = (SpvReflectInterfaceVariable**) Razix::Memory::RZMalloc(var_count * sizeof(SpvReflectInterfaceVariable));
-                //result = spvReflectEnumerateInputVariables(&module, &var_count, input_vars);
 
                 // Vertex Input attributes
                 if (spvSource.first == ShaderStage::kVertex) {
@@ -262,25 +224,20 @@ namespace Razix {
                         m_VertexInputAttributeDescriptions.push_back(verextInputattribDesc3);
 
                         m_VertexInputStride = 20;
+
+                        m_VertexInputBindingDescriptions.clear();
+                        VkVertexInputBindingDescription vertexBindingDescription{};
+                        vertexBindingDescription.binding   = 0;
+                        vertexBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+                        vertexBindingDescription.stride    = sizeof(ImDrawVert);
+                        m_VertexInputBindingDescriptions.push_back(vertexBindingDescription);
                     }
                 }
-                //delete[] input_vars;
-                //Razix::Memory::RZFree(input_vars);
-
-                // Uniform Buffers + Samplers
-                // Descriptor Bindings : These bindings describe where and what kind of resources are bound to the shaders at various stages, they also store the information of the nature of resource data that is bound
-                // Uniform variables usually have members and samplers none
-                //u32 descriptors_count = 0;
-                //result                     = spvReflectEnumerateDescriptorBindings(&module, &descriptors_count, nullptr);
-                //RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect descriptor bindings from SPIRV shader - ({0})", virtualPath);
-                //SpvReflectDescriptorBinding* pp_descriptor_bindings = new SpvReflectDescriptorBinding[descriptors_count];
-                ////(SpvReflectDescriptorBinding**) Razix::Memory::RZMalloc(var_count * sizeof(SpvReflectDescriptorBinding*));    //malloc(var_count * sizeof(SpvReflectDescriptorBinding*));
-                //result                                               = spvReflectEnumerateDescriptorBindings(&module, &descriptors_count, &pp_descriptor_bindings);
 
                 for (u32 i = 0; i < module.descriptor_binding_count; i++) {
                     SpvReflectDescriptorBinding descriptor = module.descriptor_bindings[i];
 
-                    RZDescriptor* rzDescriptor = new RZDescriptor;
+                    RZDescriptor rzDescriptor = {};
 
                     // First create the descriptor layout bindings, these describe where and what kind of resources are being bound to the shader per descriptor set
                     // Which means each descriptor set (i.e. for a given set ID) it stores a list of binding layouts in a map
@@ -302,49 +259,36 @@ namespace Razix {
                     bindingInfo.stage            = spvSource.first;
 
                     if (descriptor.count >= 1024)
-                        potentiallyBindless = true;
+                        m_PotentiallyBindless = true;
 
-                    rzDescriptor->bindingInfo = bindingInfo;
-                    rzDescriptor->name        = descriptor.name;
-                    rzDescriptor->offset      = descriptor.block.offset;
-                    rzDescriptor->size        = descriptor.block.size;
+                    rzDescriptor.bindingInfo = bindingInfo;
+                    rzDescriptor.name        = descriptor.name;
+                    rzDescriptor.offset      = descriptor.block.offset;
+                    rzDescriptor.size        = descriptor.block.size;
 
+#if ENABLE_THIS_IF_YOU_NEED_TO_INTERACT_WITH_UBO_MEMBERS
                     for (sz i = 0; i < descriptor.block.member_count; i++) {
                         RZShaderBufferMemberInfo memberInfo{};
-                        memberInfo.fullName = rzDescriptor->name + "." + descriptor.block.members[i].name;
+                        memberInfo.fullName = rzDescriptor.name + "." + descriptor.block.members[i].name;
                         memberInfo.name     = descriptor.block.members[i].name;
                         memberInfo.offset   = descriptor.block.members[i].offset;
                         memberInfo.size     = descriptor.block.members[i].size;
 
-                        rzDescriptor->uboMembers.push_back(std::move(memberInfo));
+                        rzDescriptor.uboMembers.push_back(std::move(memberInfo));
                     }
+#endif
 
                     auto& descriptors_in_set = m_DescriptorsPerHeap[descriptor.set];
-                    descriptors_in_set.push_back(std::move(*rzDescriptor));
-
-                    delete rzDescriptor;
+                    descriptors_in_set.push_back(rzDescriptor);
                 }
-                //delete[] pp_descriptor_bindings;
-                // FIXME: Investigate and delete this properly
-                //Razix::Memory::RZFree(pp_descriptor_bindings);
-
-                // Get info about push constants
-                //u32 push_constants_count = 0;
-                //spvReflectEnumeratePushConstantBlocks(&module, &push_constants_count, nullptr);
-                //RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect push constants from shader - ({0})", virtualPath);
-                //SpvReflectBlockVariable* pp_push_constant_blocks = new SpvReflectBlockVariable[push_constants_count];
-                ////(SpvReflectBlockVariable**) Razix::Memory::RZMalloc(var_count * sizeof(SpvReflectBlockVariable*));
-                //spvReflectEnumeratePushConstantBlocks(&module, &push_constants_count, &pp_push_constant_blocks);
 
                 // Create Push constants and store info about it
-                for (u32 i = 0; i < module.push_constant_block_count; i++) {
-                    SpvReflectBlockVariable* pushConstant = &module.push_constant_blocks[i];
-                    //std::cout << "Name      : " << pushConstant->name << std::endl;
-                    //std::cout << "Size      : " << pushConstant->size << std::endl;
-                    //std::cout << "Offset    : " << pushConstant->offset << std::endl;
-                    //RAZIX_CORE_TRACE("Push contant name : {0}", pushConstant->name);
+                u32 numPushConstants = module.push_constant_block_count;
+                RAZIX_CORE_ASSERT(numPushConstants <= 1, "[Vulkan] [Shader Reflection] Found more than one push constant in a single shader stage, this is unsupported bahaviour by the engine! Please use only one for each stage");
 
-                    RZPushConstant pc{};
+                for (u32 i = 0; i < numPushConstants; i++) {
+                    SpvReflectBlockVariable* pushConstant = &module.push_constant_blocks[0];
+                    RZPushConstant           pc{};
                     pc.name                         = pushConstant->name;
                     pc.shaderStage                  = spvSource.first;
                     pc.data                         = nullptr;
@@ -354,7 +298,7 @@ namespace Razix {
                     pc.bindingInfo.location.set     = 0;    // Doesn't make sense for PushConstants
                     pc.bindingInfo.stage            = spvSource.first;
                     pc.bindingInfo.count            = 1;
-                    pc.bindingInfo.type             = DescriptorType::kUniformBuffer;
+                    pc.bindingInfo.type             = DescriptorType::kPushConstant;
                     for (sz i = 0; i < pushConstant->member_count; i++) {
                         auto                     member = pushConstant->members[i];
                         RZShaderBufferMemberInfo mem{};
@@ -364,15 +308,28 @@ namespace Razix {
                         mem.size     = member.size;
                         pc.structMembers.push_back(std::move(mem));
                     }
-                    m_PushConstants.push_back(std::move(pc));
+                    m_PushConstants.push_back(pc);
                 }
-                //delete[] pp_push_constant_blocks;
-                //Razix::Memory::RZFree(pp_push_constant_blocks);
-                // Destroy the reflection data when no longer required
-                // FIXME: This is causing unnecessary crashes, investigate and resolve!
+
                 spvReflectDestroyShaderModule(&module);
             }
 
+            // Generate the Descriptor Sets
+            GenerateUserDescriptorHeaps();
+        }
+
+        void VKShader::createLayoutHandles()
+        {
+            createSetLayoutHandles();
+
+            createPipelineLayoutHandles();
+
+            if (m_PotentiallyBindless)
+                createBindlessPipelineLayoutHandles();
+        }
+
+        void VKShader::createSetLayoutHandles()
+        {
             // Create the Vulkan set layouts for each set ID with the descriptors (bindings) it has
             // Set layout describe how a particular descriptor and it's bindings are layed out
             for (const auto& setLayouts: m_VKSetBindingLayouts) {
@@ -389,7 +346,10 @@ namespace Razix {
 
                 VK_TAG_OBJECT(m_Desc.name, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, (uint64_t) setLayout)
             }
+        }
 
+        void VKShader::createPipelineLayoutHandles()
+        {
             std::vector<VkDescriptorSetLayout> descriptorLayouts;
             for (std::map<u32, VkDescriptorSetLayout>::iterator it = m_PerSetLayouts.begin(); it != m_PerSetLayouts.end(); ++it) {
                 descriptorLayouts.push_back(it->second);
@@ -418,33 +378,32 @@ namespace Razix {
 
             VK_TAG_OBJECT(m_Desc.name, VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64_t) m_PipelineLayout)
 
-            // Replace the Set a index BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START with the bindless set layout
-            if (potentiallyBindless) {
-                m_PerSetLayouts[BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START] = VKDevice::Get().getBindlessSetLayout();
-
-                std::vector<VkDescriptorSetLayout> descriptorLayoutsBindless;
-                for (std::map<u32, VkDescriptorSetLayout>::iterator it = m_PerSetLayouts.begin(); it != m_PerSetLayouts.end(); ++it) {
-                    descriptorLayoutsBindless.push_back(it->second);
-                }
-
-                pipelineLayoutCreateInfo                        = {};
-                pipelineLayoutCreateInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-                pipelineLayoutCreateInfo.setLayoutCount         = static_cast<u32>(descriptorLayoutsBindless.size());
-                pipelineLayoutCreateInfo.pSetLayouts            = descriptorLayoutsBindless.data();
-                pipelineLayoutCreateInfo.pushConstantRangeCount = u32(m_VKPushConstants.size());
-                pipelineLayoutCreateInfo.pPushConstantRanges    = m_VKPushConstants.data();
-
-                if (VK_CHECK_RESULT(vkCreatePipelineLayout(VKDevice::Get().getDevice(), &pipelineLayoutCreateInfo, VK_NULL_HANDLE, &m_PipelineLayout)))
-                    RAZIX_CORE_ERROR("[Vulkan] Failed to create bindless pipeline layout!");
-                else
-                    RAZIX_CORE_TRACE("[Vulkan] Successfully created bindless pipeline layout!");
-            }
-
             for (sz i = 0; i < descriptorLayouts.size(); i++)
                 vkDestroyDescriptorSetLayout(VKDevice::Get().getDevice(), descriptorLayouts[i], nullptr);
+        }
 
-            // Generate the Descriptor Sets
-            GenerateDescriptorHeaps();
+        void VKShader::createBindlessPipelineLayoutHandles()
+        {
+            // Replace the Set a index BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START with the bindless set layout
+
+            m_PerSetLayouts[BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START] = VKDevice::Get().getBindlessSetLayout();
+
+            std::vector<VkDescriptorSetLayout> descriptorLayoutsBindless;
+            for (std::map<u32, VkDescriptorSetLayout>::iterator it = m_PerSetLayouts.begin(); it != m_PerSetLayouts.end(); ++it) {
+                descriptorLayoutsBindless.push_back(it->second);
+            }
+
+            VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
+            pipelineLayoutCreateInfo.sType                      = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+            pipelineLayoutCreateInfo.setLayoutCount             = static_cast<u32>(descriptorLayoutsBindless.size());
+            pipelineLayoutCreateInfo.pSetLayouts                = descriptorLayoutsBindless.data();
+            pipelineLayoutCreateInfo.pushConstantRangeCount     = u32(m_VKPushConstants.size());
+            pipelineLayoutCreateInfo.pPushConstantRanges        = m_VKPushConstants.data();
+
+            if (VK_CHECK_RESULT(vkCreatePipelineLayout(VKDevice::Get().getDevice(), &pipelineLayoutCreateInfo, VK_NULL_HANDLE, &m_PipelineLayout)))
+                RAZIX_CORE_ERROR("[Vulkan] Failed to create bindless pipeline layout!");
+            else
+                RAZIX_CORE_TRACE("[Vulkan] Successfully created bindless pipeline layout!");
         }
 
         void VKShader::createShaderModules()
@@ -465,7 +424,7 @@ namespace Razix {
                 shaderModuleCI.pCode                    = spvByteCode;
 
                 m_ShaderCreateInfos[spvSource.first].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-                m_ShaderCreateInfos[spvSource.first].pName = ShaderStageEntryPointNameMap[spvSource.first];
+                m_ShaderCreateInfos[spvSource.first].pName = g_ShaderStageEntryPointNameMap[spvSource.first];
                 m_ShaderCreateInfos[spvSource.first].stage = VKUtilities::ShaderStageToVK(spvSource.first);
 
                 if (VK_CHECK_RESULT(vkCreateShaderModule(VKDevice::Get().getDevice(), &shaderModuleCI, nullptr, &m_ShaderCreateInfos[spvSource.first].module)))
@@ -478,6 +437,15 @@ namespace Razix {
 
                 delete spvByteCode;
             }
+        }
+
+        void VKShader::destroyUserDescriptorSets()
+        {
+            for (size_t i = 0; i < m_SceneParams.userSets.size(); i++) {
+                auto& setHandle = m_SceneParams.userSets[i];
+                RZResourceManager::Get().destroyDescriptorSet(setHandle);
+            }
+            m_SceneParams.userSets.clear();
         }
     }    // namespace Gfx
 }    // namespace Razix

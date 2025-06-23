@@ -1,4 +1,4 @@
-project "meshoptimizer"
+project "spdlog"
 	kind "StaticLib"
 	language "C++"
 	cppdialect (engine_global_config.cpp_dialect)
@@ -32,7 +32,7 @@ project "meshoptimizer"
         runtime "Release"
         optimize "on"
 
-    filter "configurations:Distribution"
+    filter "configurations:GoldMaster"
         runtime "Release"
         symbols "Off"
         optimize "Full"

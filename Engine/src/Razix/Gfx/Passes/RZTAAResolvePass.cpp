@@ -24,7 +24,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZTAAResolvePass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZTAAResolvePass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
 #if 0
             // Create the shader and the pipeline
@@ -43,9 +43,9 @@ namespace Razix {
             auto& sceneData = framegraph.getBlackboard().get<SceneData>();
 
             m_Pipeline                                           = RZResourceManager::Get().createPipeline(pipelineInfo);
-            framegraph.getBlackboard().add<FX::TAAResolveData>() = framegraph.addCallbackPass<FX::TAAResolveData>(
+            framegraph.getBlackboard().add<TAAResolveData>() = framegraph.addCallbackPass<TAAResolveData>(
                 "Pass.Builtin.Code.TAAResolve",
-                [&](FX::TAAResolveData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](TAAResolveData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     // Accumulation texture after TAA Resolve
@@ -57,7 +57,7 @@ namespace Razix {
                         .format = TextureFormat::RGBA16F};
 
                     // Set this as the final composition target to apply tone mapping onto
-                    sceneData.accumalationTexture = builder.create<FrameGraph::RZFrameGraphTexture>(accumalationTexDesc.name, CAST_TO_FG_TEX_DESC accumalationTexDesc);
+                    sceneData.accumalationTexture = builder.create<RZFrameGraphTexture>(accumalationTexDesc.name, CAST_TO_FG_TEX_DESC accumalationTexDesc);
                     framegraph.getBlackboard().setFinalOutputName(accumalationTexDesc.name);
 
                     sceneData.accumalationTexture = builder.write(sceneData.accumalationTexture);
@@ -69,23 +69,23 @@ namespace Razix {
                         .type   = TextureType::Texture_2D,
                         .format = TextureFormat::RGBA16F};
 
-                    sceneData.historyTexture = builder.create<FrameGraph::RZFrameGraphTexture>(historyTexDesc.name, CAST_TO_FG_TEX_DESC historyTexDesc);
+                    sceneData.historyTexture = builder.create<RZFrameGraphTexture>(historyTexDesc.name, CAST_TO_FG_TEX_DESC historyTexDesc);
 
                     sceneData.historyTexture = builder.write(sceneData.historyTexture);
 
-                    builder.read(sceneData.sceneHDR);
+                    builder.read(sceneData.SceneHDR);
                     builder.read(sceneData.sceneDepth);
 
                     data = sceneData;
                 },
-                [=](const FX::TAAResolveData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const TAAResolveData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RAZIX_TIME_STAMP_BEGIN("TAA Resolve");
                     RAZIX_MARK_BEGIN("TAA Resolve", Utilities::GenerateHashedColor4(96u));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    auto accumulationRT = resources.get<FrameGraph::RZFrameGraphTexture>(data.accumalationTexture).getHandle();
+                    auto accumulationRT = resources.get<RZFrameGraphTexture>(data.accumalationTexture).getHandle();
 
                     RenderingInfo info{
                         .resolution       = Resolution::kWindow,
@@ -98,17 +98,17 @@ namespace Razix {
                     RHI::BindPipeline(m_Pipeline, cmdBuffer);
 
                     // Update descriptors on first frame
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    if (RZFrameGraph::IsFirstFrame()) {
                         auto& shaderBindVars = RZResourceManager::Get().getShaderResource(shader)->getBindVars();
 
                         // Bind the current Scene Texture and History Texture from last frame
                         auto currentTexDescriptor = shaderBindVars["CurrentTexture"];
                         if (currentTexDescriptor)
-                            currentTexDescriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle();
+                            currentTexDescriptor->texture = resources.get<RZFrameGraphTexture>(sceneData.SceneHDR).getHandle();
 
                         auto historyTexDescriptor = shaderBindVars["HistoryTexture"];
                         if (historyTexDescriptor)
-                            historyTexDescriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(data.historyTexture).getHandle();
+                            historyTexDescriptor->texture = resources.get<RZFrameGraphTexture>(data.historyTexture).getHandle();
 
                         RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
                     }
@@ -118,7 +118,7 @@ namespace Razix {
                     RHI::EndRendering(cmdBuffer);
 
                     // Since we used the scene texture now copy it to the History Scene texture
-                    RHI::CopyTextureResource(RHI::GetCurrentCommandBuffer(), resources.get<FrameGraph::RZFrameGraphTexture>(data.historyTexture).getHandle(), resources.get<FrameGraph::RZFrameGraphTexture>(sceneData.sceneHDR).getHandle());
+                    RHI::CopyTextureResource(RHI::GetCurrentCommandBuffer(), resources.get<RZFrameGraphTexture>(data.historyTexture).getHandle(), resources.get<RZFrameGraphTexture>(sceneData.SceneHDR).getHandle());
 
                     RAZIX_MARK_END();
                     RAZIX_TIME_STAMP_END();

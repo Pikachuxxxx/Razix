@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef RAZIX_DISTRIBUTION
+#ifndef RAZIX_GOLD_MASTER
 
     #define RAZIX_MARK_BEGIN(name, labelColor) BeginMarker(name, labelColor);
 
@@ -18,14 +18,14 @@
 
 #endif
 
-void BeginMarker(const std::string& name, glm::vec4 color);
-void InsertMarker(const std::string& name, glm::vec4 color);
-void EndMarker();
+RAZIX_API void BeginMarker(const std::string& name, float4 color);
+RAZIX_API void InsertMarker(const std::string& name, float4 color);
+RAZIX_API void EndMarker();
 
 //------------------------------------------------------------------------
 // CPU timestamp markers
 
-#ifndef RAZIX_DISTRIBUTION
+#ifndef RAZIX_GOLD_MASTER
 
     #define RAZIX_TIME_STAMP_BEGIN(name) \
         const std::string Key   = name;  \

@@ -16,6 +16,8 @@
     #define PUSH_CONSTANT(T)       [[vk::push_constant]] T pcData
     #define GET_PUSH_CONSTANT(mem) pcData.mem
 
+    #define ATTRIB_EARLY_DEPTH [earlydepthstencil]
+
 #elif defined __HLSL__    // HLSL - DirectX backend shading language.
 
     #define PUSH_CONSTANT(T) \
@@ -25,14 +27,20 @@
         };
     #define GET_PUSH_CONSTANT(mem) pcData.mem
 
+    #define ATTRIB_EARLY_DEPTH [earlydepthstencil]
+
 #elif defined __PSSL__    // PSSL - PlayStation Shading Language for PlayStation consoles (PS4/PS5 etc.).
 
-    #define PUSH_CONSTANT(T)
+    #define PUSH_CONSTANT(T)       // same as HLSL ConstantBuffer<T>##Buffer, reflection will make us bind this every frame
     #define GET_PUSH_CONSTANT(mem) mem
+
+    #define ATTRIB_EARLY_DEPTH
 
 #elif defined __METAL__    // METAL - Metal shading language for Metal API for apple devices.
 
     #define PUSH_CONSTANT(T)
     #define GET_PUSH_CONSTANT(mem) mem
+
+    #define ATTRIB_EARLY_DEPTH
 
 #endif

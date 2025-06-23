@@ -3,11 +3,10 @@
  * Visibility Buffer: To pack both SV_PrimitiveID and InstanceID into a 32-bit texture, these is used later to interpolate and shade pixels
  */
 //------------------------------------------------------------------------------
-#include "../../../ShaderCommon/ShaderInclude.Builtin.ShaderLangCommon.h"
+#include <ShaderInclude.Builtin.ShaderLangCommon.h>
 //------------------------------------------------------------------------------
-#include "../../Math/ShaderInclude.Builtin.PackingUtils.h"
-
-#include "ShaderInclude.Builtin.VisibilityBufferCommon.h"
+#include <Math/ShaderInclude.Builtin.PackingUtils.h>
+#include <Rendering/VisibilityBuffer/ShaderInclude.Builtin.VisibilityBufferCommon.h>
 //------------------------------------------------------------------------------
 struct PSIn
 {
@@ -15,8 +14,9 @@ struct PSIn
     float2 UV : TEXCOORD;
     float3 Normal : NORMAL;
 };
- //------------------------------------------------------------------------------
-float4 PS_MAIN(PSIn input, uint primivitveID : SV_PrimitiveID, uint instanceID : SV_InstanceID) : SV_TARGET
+//------------------------------------------------------------------------------
+float4 PS_MAIN(PSIn input, uint primivitveID : SV_PrimitiveID, uint instanceID : SV_InstanceID)
+    : SV_TARGET
 {
     // only opaque geometry for now
     // Using instance ID for now instead of drawID

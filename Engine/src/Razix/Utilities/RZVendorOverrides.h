@@ -10,101 +10,101 @@
 namespace glm {
     // glm vectors
     template<class Archive>
-    void serialize(Archive& archive, glm::vec2& v)
+    void serialize(Archive& archive, float2& v)
     {
         archive(v.x, v.y);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::vec3& v)
+    void serialize(Archive& archive, float3& v)
     {
         archive(cereal::make_nvp("x", v.x), cereal::make_nvp("y", v.y), cereal::make_nvp("z", v.z));
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::vec4& v)
+    void serialize(Archive& archive, float4& v)
     {
         archive(v.x, v.y, v.z, v.w);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::ivec2& v)
+    void serialize(Archive& archive, int2& v)
     {
         archive(v.x, v.y);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::ivec3& v)
+    void serialize(Archive& archive, int3& v)
     {
         archive(v.x, v.y, v.z);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::ivec4& v)
+    void serialize(Archive& archive, int4& v)
     {
         archive(v.x, v.y, v.z, v.w);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::uvec2& v)
+    void serialize(Archive& archive, uint2& v)
     {
         archive(v.x, v.y);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::uvec3& v)
+    void serialize(Archive& archive, uint3& v)
     {
         archive(v.x, v.y, v.z);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::uvec4& v)
+    void serialize(Archive& archive, uint4& v)
     {
         archive(v.x, v.y, v.z, v.w);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::dvec2& v)
+    void serialize(Archive& archive, dvec2& v)
     {
         archive(v.x, v.y);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::dvec3& v)
+    void serialize(Archive& archive, dvec3& v)
     {
         archive(v.x, v.y, v.z);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::dvec4& v)
+    void serialize(Archive& archive, dvec4& v)
     {
         archive(v.x, v.y, v.z, v.w);
     }
 
     // glm matrices
     template<class Archive>
-    void serialize(Archive& archive, glm::mat2& m)
+    void serialize(Archive& archive, float2x2& m)
     {
         archive(m[0], m[1]);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::dmat2& m)
+    void serialize(Archive& archive, dmat2& m)
     {
         archive(m[0], m[1]);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::mat3& m)
+    void serialize(Archive& archive, float3x3& m)
     {
         archive(m[0], m[1], m[2]);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::mat4& m)
+    void serialize(Archive& archive, float4x4& m)
     {
         archive(m[0], m[1], m[2], m[3]);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::dmat4& m)
+    void serialize(Archive& archive, dmat4& m)
     {
         archive(m[0], m[1], m[2], m[3]);
     }
 
     // glm quats
     template<class Archive>
-    void serialize(Archive& archive, glm::quat& q)
+    void serialize(Archive& archive, quat& q)
     {
         archive(q.x, q.y, q.z, q.w);
     }
     template<class Archive>
-    void serialize(Archive& archive, glm::dquat& q)
+    void serialize(Archive& archive, dquat& q)
     {
         archive(q.x, q.y, q.z, q.w);
     }

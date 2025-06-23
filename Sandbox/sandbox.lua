@@ -1,12 +1,11 @@
 -- Razix Engine vendor Common Inlcudes 
 include 'Scripts/premake/common/vendor_includes.lua'
--- Internal libraies include dirs
-include 'Scripts/premake/common/internal_includes.lua'
 -- common include dirs
 include 'Scripts/premake/common/common_include_dirs.lua'
 ------------------------------------------------------------------------------
 -- Sanbox Game project
 project "Sandbox"
+    -- TODO: Make this Windowed app only for Dist/NVIM builds
     kind "WindowedApp"
     language "C++"
 
@@ -59,11 +58,6 @@ project "Sandbox"
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
         "%{ExperimentalIncludeDir.Eigen}",
-        -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}",
-        "%{InternalIncludeDir.RZSTL}",
-        "%{InternalIncludeDir.EASTL}",
-        "%{InternalIncludeDir.EABase}"
     }
 
    -- Razix Application linkage libraries
@@ -77,15 +71,10 @@ project "Sandbox"
        "spdlog",
        "SPIRVReflect",
        "SPIRVCross",
-       "meshoptimizer",
-       "OpenFBX",
        "lua",
        "optick",
        "Jolt",
        --"tracy",
-       -- Internal
-       "RazixMemory",
-       "RZSTL"
    }
 
    defines
@@ -143,7 +132,7 @@ project "Sandbox"
     filter "system:macosx"
         cppdialect "C++17"
         staticruntime "off"
-        systemversion "latest"
+        systemversion "14.0" 
 
         linkoptions { "-rpath @executable_path/libRazix.dylib" }
 
@@ -250,8 +239,8 @@ project "Sandbox"
         symbols "On"
         runtime "Release"
 
-    filter "configurations:Distribution"
-        defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
+    filter "configurations:GoldMaster"
+        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
         symbols "Off"
         optimize "Full"
         runtime "Release"

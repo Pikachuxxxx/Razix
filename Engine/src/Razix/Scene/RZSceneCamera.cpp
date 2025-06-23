@@ -16,16 +16,16 @@ namespace Razix {
         recalculateProjection();
     }
 
-    RAZIX_FORCE_INLINE glm::mat4 RZSceneCamera::getProjection()
+    RAZIX_FORCE_INLINE float4x4 RZSceneCamera::getProjection()
     {
-        glm::mat4 proj = m_Projection;
-        //if (Graphics::RZGraphicsContext::GetRenderAPI() == Graphics::RenderAPI::VULKAN)
+        float4x4 proj = m_Projection;
+        //if (Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::VULKAN)
         //    proj[1][1] *= -1;
 
         return proj;
     }
 
-    RAZIX_FORCE_INLINE glm::mat4 RZSceneCamera::getProjectionRaw()
+    RAZIX_FORCE_INLINE float4x4 RZSceneCamera::getProjectionRaw()
     {
         return m_Projection;
     }
@@ -66,14 +66,14 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
         if (m_ProjectionType == ProjectionType::Perspective) {
-            m_Projection = glm::perspective(m_PerspectiveFOV, m_AspectRatio, m_PerspectiveNear, m_PerspectiveFar);
+            m_Projection = perspective(m_PerspectiveFOV, m_AspectRatio, m_PerspectiveNear, m_PerspectiveFar);
         } else {
             f32 orthoLeft   = -m_OrthographicSize * m_AspectRatio * 0.5f;
             f32 orthoRight  = m_OrthographicSize * m_AspectRatio * 0.5f;
             f32 orthoBottom = -m_OrthographicSize * 0.5f;
             f32 orthoTop    = m_OrthographicSize * 0.5f;
 
-            m_Projection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, m_OrthographicNear, m_OrthographicFar);
+            m_Projection = ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, m_OrthographicNear, m_OrthographicFar);
         }
 
         m_CameraFrustum.build(m_Projection * getViewMatrix());

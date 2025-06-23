@@ -1,13 +1,122 @@
-#pragma once
+﻿#pragma once
 
+#include "Razix/Gfx/FrameGraph/RZFrameGraphResource.h"
 #include "Razix/Gfx/Lighting/LightData.h"
+#include "Razix/Scene/RZSceneCamera.h"
 
 namespace Razix {
     namespace Gfx {
 
-        /**
-         * Global light probes for PBR lighting
-         */
+        // Per‑Frame resources
+
+        struct FrameData
+        {
+            RZFrameGraphResource frameData;
+        };
+
+        struct GPUCameraFrameData
+        {
+            alignas(16) float4x4 projection;
+            alignas(16) float4x4 inversedProjection;
+            alignas(16) float4x4 view;
+            alignas(16) float4x4 inversedView;
+            alignas(16) float4x4 prevViewProj;
+            alignas(4) f32 fov;
+            alignas(4) f32 nearPlane;
+            alignas(4) f32 farPlane;
+            alignas(4) f32 _padding;
+        };
+
+        struct GPUFrameData
+        {
+            f32                time;
+            f32                deltaTime;
+            uint2              resolution;
+            GPUCameraFrameData camera;
+            u32                renderFeatures;
+            u32                debugFlags;
+            float2             jitterTAA;
+            float2             previousJitterTAA;
+        };
+
+        // Scene and G‑Buffer passes
+
+        struct SceneData
+        {
+            RZFrameGraphResource SceneHDR;
+            RZFrameGraphResource SceneLDR;
+        };
+
+        struct GBufferData
+        {
+            RZFrameGraphResource GBuffer0;
+            RZFrameGraphResource GBuffer1;
+            RZFrameGraphResource GBuffer2;
+            RZFrameGraphResource GBufferDepth;
+        };
+
+        struct VisBufferData
+        {
+            RZFrameGraphResource visBuffer;    // Primitive/Instance/Draw/Alpha mask
+            RZFrameGraphResource sceneDepth;
+        };
+
+        // Lighting & shadows
+
+        struct SceneLightsData
+        {
+            RZFrameGraphResource lightsDataBuffer;
+        };
+
+        struct GPULightsData
+        {
+            alignas(4) u32 numLights   = 0;
+            alignas(4) u32 _padding[3] = {0, 0, 0};
+            alignas(16) LightData lightData[MAX_LIGHTS];
+        };
+
+        struct SimpleShadowPassData
+        {
+            RZFrameGraphResource shadowMap;
+            RZFrameGraphResource lightVP;
+        };
+
+        struct CSMData
+        {
+            RZFrameGraphResource cascadedShadowMaps;
+            RZFrameGraphResource viewProjMatrices;
+        };
+
+        constexpr u32 kShadowMapSize = 4096;
+        constexpr u32 kNumCascades   = 4;
+        static_assert(kNumCascades <= 4);
+        constexpr f32 kSplitLambda = 0.81f;
+
+        // bias matrix for shadow UV transform
+        // clang-format off
+        const float4x4 kBiasMatrix
+        {
+            0.5, 0.0, 0.0, 0.0,
+            0.0, 0.5, 0.0, 0.0,
+            0.0, 0.0, 0.5, 0.0,
+            0.5, 0.5, 0.5, 1.0
+        };
+        // clang-format on
+
+        struct alignas(4) CascadesMatrixData
+        {
+            float4   splitDepth                     = {};
+            float4x4 viewProjMatrices[kNumCascades] = {};
+        };
+
+        struct alignas(16) Cascade
+        {
+            f32      splitDepth     = 0.0f;
+            float4x4 viewProjMatrix = float4x4(1.0f);
+        };
+
+        // PBR/IBL
+
         struct LightProbe
         {
             RZTextureHandle skybox;
@@ -17,90 +126,72 @@ namespace Razix {
 
         struct GlobalLightProbeData
         {
-            Razix::Gfx::FrameGraph::RZFrameGraphResource environmentMap;
-            Razix::Gfx::FrameGraph::RZFrameGraphResource diffuseIrradianceMap;
-            Razix::Gfx::FrameGraph::RZFrameGraphResource specularPreFilteredMap;
+            RZFrameGraphResource environmentMap;
+            RZFrameGraphResource diffuseIrradianceMap;
+            RZFrameGraphResource specularPreFilteredMap;
         };
+
+        struct SkyboxPassData
+        {
+            RZFrameGraphResource SceneHDR;
+        };
+
+        struct DebugPassData
+        {
+            RZFrameGraphResource DebugRT;
+            RZFrameGraphResource DebugDRT;
+        };
+
+        struct ImGuiPassData
+        {
+            RZFrameGraphResource ImGuiRT;
+            RZFrameGraphResource ImGuiDRT;
+        };
+
+        // Volumetrics
 
         struct VolumetricCloudsData
         {
-            Razix::Gfx::FrameGraph::RZFrameGraphResource noiseTexture;
+            RZFrameGraphResource noiseTexture;
         };
 
-        // Default pass data types
+        // Post Processing
 
-        struct SceneData
+        struct BRDFData
         {
-            FrameGraph::RZFrameGraphResource sceneHDR;
-            FrameGraph::RZFrameGraphResource sceneLDR;
-            FrameGraph::RZFrameGraphResource sceneDepth;
+            RZFrameGraphResource lut;
         };
 
-        struct SceneLightsData
+        struct SSAOImportData
         {
-            FrameGraph::RZFrameGraphResource lightsDataBuffer;
+            RZFrameGraphResource SSAONoiseTexture;
+            RZFrameGraphResource SSAOKernelSamples;
         };
 
-        /**
-         * Lights Data which will be uploaded to the GPU
-         */
-        struct GPULightsData
+        struct SSAOData
         {
-            alignas(4) u32 numLights   = 0;
-            alignas(4) u32 _padding[3] = {0, 0, 0};    // Will be consumed on GLSL so as to get 16 byte alignment, invisible variable on GLSL
-            alignas(16) LightData lightData[MAX_LIGHTS];
+            RZFrameGraphResource SSAOPreBlurTexture;
+            RZFrameGraphResource SSAOSceneTexture;
+            RZFrameGraphResource SSAOParams;
         };
 
-        /**
-         * Simple shadow map data
-         */
-        struct SimpleShadowPassData
+        struct ColorGradingLUTData
         {
-            FrameGraph::RZFrameGraphResource shadowMap;    // Depth texture to store the shadow map data
-            FrameGraph::RZFrameGraphResource lightVP;
+            RZFrameGraphResource neutralLUT;
         };
 
-        struct VisBufferData
+        struct ColorGradingData
         {
-            FrameGraph::RZFrameGraphResource visBuffer;    // stores the Primitive_ID, Instance_ID/Draw_ID & alpha mask in a u32 screen space map
-            FrameGraph::RZFrameGraphResource sceneDepth;
+            RZFrameGraphResource colorGradedSceneHDR;
+            RZFrameGraphResource colorGradedSceneLDR;
         };
 
-        namespace FX {
+        struct TAAResolveData
+        {
+            RZFrameGraphResource sourceTexture;
+            RZFrameGraphResource historyTexture;
+            RZFrameGraphResource accumulationTexture;
+        };
 
-            struct SSAOData
-            {
-                FrameGraph::RZFrameGraphResource SSAOPreBlurTexture;
-                FrameGraph::RZFrameGraphResource SSAOSceneTexture;
-                FrameGraph::RZFrameGraphResource SSAOParams;
-            };
-
-            struct SSAOImportData
-            {
-                FrameGraph::RZFrameGraphResource SSAONoiseTexture;
-                FrameGraph::RZFrameGraphResource SSAOKernelSamples;
-            };
-
-            /**
-             * Color Grading LUT
-             */
-            struct ColorGradingLUTData
-            {
-                FrameGraph::RZFrameGraphResource neutralLUT;
-            };
-
-            struct ColorGradingData
-            {
-                FrameGraph::RZFrameGraphResource colorGradedSceneHDR;
-                FrameGraph::RZFrameGraphResource colorGradedSceneLDR;
-            };
-
-            struct TAAResolveData
-            {
-                FrameGraph::RZFrameGraphResource sourceTexture;
-                FrameGraph::RZFrameGraphResource historyTexture;
-                FrameGraph::RZFrameGraphResource accumulationTexture;
-            };
-        }    // namespace FX
     }    // namespace Gfx
 }    // namespace Razix

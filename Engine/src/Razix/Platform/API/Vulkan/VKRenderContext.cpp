@@ -142,7 +142,7 @@ namespace Razix {
 
 // Update VMA for Budget Queries
 #if RAZIX_USE_VMA
-    #ifndef RAZIX_DISTRIBUTION    // Only for debugging purposes
+    #ifndef RAZIX_GOLD_MASTER    // Only for debugging purposes
             vmaSetCurrentFrameIndex(VKDevice::Get().getVMA(), RHI::Get().GetSwapchain()->getCurrentFrameIndex());
 
                 // Get Heap Statistics
@@ -176,28 +176,6 @@ namespace Razix {
             m_GraphicsCommandQueue.push_back(cmdBuffer);
         }
 
-        void VKRenderContext::SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-#if 0
-            auto frameIdx     = RHI::Get().GetSwapchain()->getCurrentImageIndex();
-            auto prevFrameIdx = frameIdx > 0 ? frameIdx - 1 : 2;
-
-            std::vector<VkSemaphore> vkWaitSemaphores(waitSemaphores.size());
-            for (sz i = 0; i < waitSemaphores.size(); i++)
-                vkWaitSemaphores[i] = *(VkSemaphore*) waitSemaphores[i]->getHandle(prevFrameIdx);
-
-            std::vector<VkSemaphore> vkSignalSemaphores(signalSemaphores.size());
-            for (sz i = 0; i < signalSemaphores.size(); i++)
-                vkSignalSemaphores[i] = *(VkSemaphore*) signalSemaphores[i]->getHandle(frameIdx);
-            
-            m_Context->getSwapchain()->queueSubmit(m_CommandQueue, vkWaitSemaphores, vkSignalSemaphores);
-            
-            m_CommandQueue.clear();
-#endif
-        }
-
         void VKRenderContext::PresentAPIImpl(RZSemaphore* waitSemaphore)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -218,19 +196,20 @@ namespace Razix {
             pp->Bind(cmdBuffer);
         }
 
-        void VKRenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
+        void VKRenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZDescriptorSetHandle descriptorSet, u32 setIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
             VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
-            const auto vkDescSet         = static_cast<const VKDescriptorSet*>(descriptorSet)->getDescriptorSet();
+            auto       descSetResource   = RZResourceManager::Get().getDescriptorSetResource(descriptorSet);
+            const auto vkDescSet         = static_cast<const VKDescriptorSet*>(descSetResource)->getDescriptorSet();
             auto       cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), setIdx, 1, &vkDescSet, 0, nullptr);
         }
 
-        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)
+        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSetHandle>& descriptorSets, u32 startSetIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -239,30 +218,10 @@ namespace Razix {
             auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
             VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
-            for (auto descriptorSet: descriptorSets) {
-                if (descriptorSet) {
-                    auto vkDescSet                             = static_cast<VKDescriptorSet*>(descriptorSet);
-                    m_DescriptorSetCachePool[numDesciptorSets] = vkDescSet->getDescriptorSet();
-                    numDesciptorSets++;
-                }
-            }
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), startSetIdx, numDesciptorSets, m_DescriptorSetCachePool, 0, nullptr);
-        }
-
-        void VKRenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            u32 numDesciptorSets = 0;
-
-            auto                pp        = RZResourceManager::Get().getPool<RZPipeline>().get(pipeline);
-            VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
-
-            for (u32 i = 0; i < totalSets; i++) {
-                auto set = descriptorSets[i];
-                if (set) {
-                    const auto vkDescSet                       = static_cast<const VKDescriptorSet*>(set);
+            for (auto& descriptorSetHandle: descriptorSets) {
+                auto descSetResource = RZResourceManager::Get().getDescriptorSetResource(descriptorSetHandle);
+                if (descSetResource) {
+                    auto vkDescSet                             = static_cast<VKDescriptorSet*>(descSetResource);
                     m_DescriptorSetCachePool[numDesciptorSets] = vkDescSet->getDescriptorSet();
                     numDesciptorSets++;
                 }
@@ -295,7 +254,7 @@ namespace Razix {
             VkPipelineBindPoint bindPoint = pp->getDesc().pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
             // Bind the Bindless Descriptor Set
-            if (VKDevice::Get().isBindlessSupported()) {
+            if (g_GraphicsFeatures.SupportsBindless) {
                 const auto set               = VKDevice::Get().getBindlessDescriptorSet();
                 auto       cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
                 vkCmdBindDescriptorSets(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), BindingTable_System::SET_IDX_BINDLESS_RESOURCES_START, 1, &set, 0, nullptr);
@@ -306,16 +265,16 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            VkRenderingInfoKHR renderingInfoKHR{};
-            renderingInfoKHR.sType             = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
-            renderingInfoKHR.renderArea.offset = {0, 0};
+            VkRenderingInfoKHR renderingInfoKHR = {};
+            renderingInfoKHR.sType              = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
+            renderingInfoKHR.renderArea.offset  = {0, 0};
 
             if (renderingInfo.resolution == Resolution::kCustom)
                 renderingInfoKHR.renderArea.extent = {renderingInfo.extent.x, renderingInfo.extent.y};
             else if (renderingInfo.resolution == Resolution::kWindow)
                 renderingInfoKHR.renderArea.extent = {m_Width, m_Height};
             else {
-                auto& res                          = ResolutionToExtentsMap[renderingInfo.resolution];
+                auto& res                          = g_ResolutionToExtentsMap[renderingInfo.resolution];
                 renderingInfoKHR.renderArea.extent = {res.x, res.y};
             }
 
@@ -332,20 +291,13 @@ namespace Razix {
             for (auto& attachment: renderingInfo.colorAttachments) {
                 RZTexture* colorAttachment = RZResourceManager::Get().getPool<RZTexture>().get(attachment.first);
 
-                // Resize attachments when resized
-                if (renderingInfo.resize) {
-                    if (m_Width != colorAttachment->getWidth() || m_Height != colorAttachment->getHeight())
-                        colorAttachment->Resize(renderingInfoKHR.renderArea.extent.width, renderingInfoKHR.renderArea.extent.height);
-                }
-
                 // Fill the color attachments first
                 VkRenderingAttachmentInfoKHR attachInfo{};
                 attachInfo.sType      = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
                 VKTexture* backendPtr = static_cast<VKTexture*>(colorAttachment);
                 attachInfo.imageView  = backendPtr->getFullRTVImageView();
 
-                // Don't do this here, done manually bu the FG and user land code
-
+                // Don't do this here, done manually by the FG and user land code
                 if (colorAttachment->getFormat() != TextureFormat::SCREEN) {
                     auto vkImage = static_cast<VKTexture*>(colorAttachment);
                     if (vkImage->getImageLayoutValue() != VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
@@ -366,7 +318,7 @@ namespace Razix {
 
                 auto clearColor = Gfx::ClearColorFromPreset(attachment.second.clearColor);
 
-                memcpy(attachInfo.clearValue.color.float32, &clearColor, sizeof(glm::vec4));
+                memcpy(attachInfo.clearValue.color.float32, &clearColor, sizeof(float4));
                 colorAttachments.push_back(attachInfo);
             }
 
@@ -377,11 +329,6 @@ namespace Razix {
             VkRenderingAttachmentInfoKHR attachInfo{};
             if (renderingInfo.depthAttachment.first.isValid()) {
                 RZTexture* depthAttachment = RZResourceManager::Get().getPool<RZTexture>().get(renderingInfo.depthAttachment.first);
-                // Depth attachment resize
-                if (renderingInfo.resize) {
-                    if (m_Width != depthAttachment->getWidth() || m_Height != depthAttachment->getHeight())
-                        depthAttachment->Resize(renderingInfoKHR.renderArea.extent.width, renderingInfoKHR.renderArea.extent.height);
-                }
 
                 // Fill the color attachments first
                 attachInfo.sType      = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
@@ -485,7 +432,7 @@ namespace Razix {
             CmdPushDescriptorSetKHR(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, static_cast<VKPipeline*>(pp)->getPipelineLayout(), 0, static_cast<u32>(writeDescriptorSets.size()), writeDescriptorSets.data());
         }
 
-        void VKRenderContext::DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType /*= DataType::UNSIGNED_INT*/)
+        void VKRenderContext::DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DrawDataType /*= DataType::UNSIGNED_INT*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -528,11 +475,15 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            m_IsResizing = true;
+
             m_Width  = width;
             m_Height = height;
 
             vkDeviceWaitIdle(VKDevice::Get().getDevice());
             m_Context->getSwapchain().get()->OnResize(width, height);
+
+            m_IsResizing = false;
         }
 
         RZSwapchain* VKRenderContext::GetSwapchainImpl()
@@ -565,7 +516,7 @@ namespace Razix {
             vkCmdSetDepthBias(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), depthBiasConstant, 0.0f, depthBiasSlope);
         }
 
-        void VKRenderContext::InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)
+        void VKRenderContext::InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, ImageLayout oldLayout, ImageLayout newLayout)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -573,53 +524,274 @@ namespace Razix {
             RZTexture* textureResource = RZResourceManager::Get().getPool<RZTexture>().get(texture);
             VKTexture* vkTexture       = static_cast<VKTexture*>(textureResource);
 
-            // Update with the new layout
-            vkTexture->setImageLayoutValue((VkImageLayout) VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.dstLayout));
+            // Update current layout with the new layout
+            textureResource->setCurrentLayout(newLayout);
+            vkTexture->setImageLayoutValue((VkImageLayout) VKUtilities::EngineImageLayoutToVK(newLayout));
 
             VkImageMemoryBarrier barrier = {};
             barrier.sType                = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            barrier.oldLayout            = (VkImageLayout) VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.srcLayout);
-            barrier.newLayout            = (VkImageLayout) VKUtilities::EngineImageLayoutToVK(imgBarrierInfo.dstLayout);
+            barrier.oldLayout            = (VkImageLayout) VKUtilities::EngineImageLayoutToVK(oldLayout);
+            barrier.newLayout            = (VkImageLayout) VKUtilities::EngineImageLayoutToVK(newLayout);
             barrier.srcQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
             barrier.dstQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
             barrier.image                = vkTexture->getImage();
-            barrier.srcAccessMask        = VKUtilities::EngineMemoryAcsessMaskToVK(imgBarrierInfo.srcAccess);
-            barrier.dstAccessMask        = VKUtilities::EngineMemoryAcsessMaskToVK(imgBarrierInfo.dstAccess);
 
             auto format = VKUtilities::TextureFormatToVK(vkTexture->getFormat());
 
+            // Handle depth/stencil aspect masks
             if (format >= 124 && format <= 130)    // All possible depth formats
+            {
                 barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-            else
+
+                // Check if format has stencil component
+                if (format == VK_FORMAT_D24_UNORM_S8_UINT || format == VK_FORMAT_D32_SFLOAT_S8_UINT)
+                    barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            } else
                 barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
             barrier.subresourceRange.baseMipLevel   = textureResource->getCurrentMipLevel();
             barrier.subresourceRange.levelCount     = textureResource->getMipsCount();
             barrier.subresourceRange.baseArrayLayer = textureResource->getBaseArrayLayer();
             barrier.subresourceRange.layerCount     = textureResource->getLayersCount();
 
+            // Determine access masks and pipeline stages based on layouts
+            VkAccessFlags        srcAccessMask = 0;
+            VkAccessFlags        dstAccessMask = 0;
+            VkPipelineStageFlags srcStage      = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            VkPipelineStageFlags dstStage      = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+
+            // Source access mask - what operations must complete before the barrier
+            switch (oldLayout) {
+                case ImageLayout::kNewlyCreated:
+                    srcAccessMask = 0;
+                    srcStage      = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                    break;
+
+                case ImageLayout::kGeneric:
+                    srcAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+                    break;
+
+                case ImageLayout::kColorRenderTarget:
+                    srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+                    break;
+
+                case ImageLayout::kDepthRenderTarget:
+                case ImageLayout::kDepthStencilRenderTarget:
+                    srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+                    break;
+
+                case ImageLayout::kDepthStencilReadOnly:
+                    srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+                    break;
+
+                case ImageLayout::kShaderRead:
+                    srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
+                               VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
+                               VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    break;
+
+                case ImageLayout::kShaderWrite:
+                    srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
+                               VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
+                               VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    break;
+
+                case ImageLayout::kTransferSource:
+                    srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                    break;
+
+                case ImageLayout::kTransferDestination:
+                    srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    srcStage      = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                    break;
+
+                case ImageLayout::kSwapchain:
+                    srcAccessMask = 0;
+                    srcStage      = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+                    break;
+
+                default:
+                    srcAccessMask = 0;
+                    srcStage      = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+                    break;
+            }
+
+            // Destination access mask - operations that wait for the barrier
+            switch (newLayout) {
+                case ImageLayout::kGeneric:
+                    dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+                    break;
+
+                case ImageLayout::kColorRenderTarget:
+                    dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+                    break;
+
+                case ImageLayout::kDepthRenderTarget:
+                case ImageLayout::kDepthStencilRenderTarget:
+                    dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+                    break;
+
+                case ImageLayout::kDepthStencilReadOnly:
+                    dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_SHADER_READ_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+                               VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT |
+                               VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+                    break;
+
+                case ImageLayout::kShaderRead:
+                    dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
+                               VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
+                               VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    break;
+
+                case ImageLayout::kShaderWrite:
+                    dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
+                               VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
+                               VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    break;
+
+                case ImageLayout::kTransferSource:
+                    dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                    break;
+
+                case ImageLayout::kTransferDestination:
+                    dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                    break;
+
+                case ImageLayout::kSwapchain:
+                    dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+                    dstStage      = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+                    break;
+
+                default:
+                    dstAccessMask = 0;
+                    dstStage      = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+                    break;
+            }
+
+            barrier.srcAccessMask = srcAccessMask;
+            barrier.dstAccessMask = dstAccessMask;
+
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdPipelineBarrier(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.startExecutionStage), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.endExecutionStage), 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+            for (u32 layer = 0; layer < textureResource->getLayersCount(); layer++) {
+                for (u32 mip = 0; mip < textureResource->getMipsCount(); mip++) {
+                    barrier.subresourceRange.baseMipLevel   = mip;
+                    barrier.subresourceRange.levelCount     = 1;
+                    barrier.subresourceRange.baseArrayLayer = layer;
+                    barrier.subresourceRange.layerCount     = 1;
+
+                    vkCmdPipelineBarrier(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(),
+                        srcStage,
+                        dstStage,
+                        0,
+                        0,
+                        nullptr,
+                        0,
+                        nullptr,
+                        1,
+                        &barrier);
+                }
+            }
         }
 
-        void VKRenderContext::InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
+        void VKRenderContext::InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, BufferBarrierType barrierType)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             RZUniformBuffer* bufferResource = RZResourceManager::Get().getPool<RZUniformBuffer>().get(buffer);
             VKUniformBuffer* vkBuffer       = static_cast<VKUniformBuffer*>(bufferResource);
 
-            VkBufferMemoryBarrier barrier = {};
-            barrier.sType                 = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-            barrier.srcAccessMask         = VKUtilities::EngineMemoryAcsessMaskToVK(bufBarrierInfo.srcAccess);
-            barrier.dstAccessMask         = VKUtilities::EngineMemoryAcsessMaskToVK(bufBarrierInfo.dstAccess);
-            barrier.srcQueueFamilyIndex   = VK_QUEUE_FAMILY_IGNORED;
-            barrier.dstQueueFamilyIndex   = VK_QUEUE_FAMILY_IGNORED;
-            barrier.buffer                = vkBuffer->getBuffer();
-            barrier.offset                = 0;
-            barrier.size                  = vkBuffer->getSize();
+            VkBufferMemoryBarrier barrier{};
+            barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.buffer              = vkBuffer->getBuffer();
+            barrier.offset              = 0;
+            barrier.size                = vkBuffer->getSize();
+
+            VkPipelineStageFlags srcStage  = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            VkPipelineStageFlags dstStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+            VkAccessFlags        srcAccess = 0;
+            VkAccessFlags        dstAccess = 0;
+
+            switch (barrierType) {
+                case BufferBarrierType::CPUToGPU:
+                    srcStage  = VK_PIPELINE_STAGE_HOST_BIT;
+                    dstStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    srcAccess = VK_ACCESS_HOST_WRITE_BIT;
+                    dstAccess = VK_ACCESS_UNIFORM_READ_BIT;
+                    break;
+
+                case BufferBarrierType::GPUToCPU:
+                    srcStage  = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    dstStage  = VK_PIPELINE_STAGE_HOST_BIT;
+                    srcAccess = VK_ACCESS_SHADER_WRITE_BIT;
+                    dstAccess = VK_ACCESS_HOST_READ_BIT;
+                    break;
+
+                case BufferBarrierType::TransferDstToShaderRead:
+                    srcStage  = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                    dstStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    srcAccess = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    dstAccess = VK_ACCESS_SHADER_READ_BIT;
+                    break;
+
+                case BufferBarrierType::ShaderReadToShaderWrite:
+                    srcStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    dstStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    srcAccess = VK_ACCESS_SHADER_READ_BIT;
+                    dstAccess = VK_ACCESS_SHADER_WRITE_BIT;
+                    break;
+
+                case BufferBarrierType::ShaderWriteToShaderRead:
+                    srcStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    dstStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    srcAccess = VK_ACCESS_SHADER_WRITE_BIT;
+                    dstAccess = VK_ACCESS_SHADER_READ_BIT;
+                    break;
+
+                case BufferBarrierType::ShaderReadOnly:
+                    srcStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    dstStage  = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    srcAccess = VK_ACCESS_SHADER_READ_BIT;
+                    dstAccess = VK_ACCESS_SHADER_READ_BIT;
+                    break;
+
+                default:
+                    RAZIX_CORE_WARN("Unknown BufferBarrierType passed to InsertBufferMemoryBarrierImpl.");
+                    break;
+            }
+
+            barrier.srcAccessMask = srcAccess;
+            barrier.dstAccessMask = dstAccess;
 
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            vkCmdPipelineBarrier(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.startExecutionStage), VKUtilities::EnginePipelineStageToVK(pipelineBarrierInfo.endExecutionStage), 0, 0, nullptr, 1, &barrier, 0, nullptr);
+            vkCmdPipelineBarrier(
+                static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(),
+                srcStage,
+                dstStage,
+                0,
+                0,
+                nullptr,
+                1,
+                &barrier,
+                0,
+                nullptr);
         }
 
         void VKRenderContext::CopyTextureResourceImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTexture)
@@ -651,13 +823,6 @@ namespace Razix {
 
             auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
             vkCmdCopyImage(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), vkSrcTexture->getImage(), /*vkSrcTexture->getLayout()*/ VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkDstTexture->getImage(), /*vkDstTexture->getLayout()*/ VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
-
-            // restore the dst and src image layouts to original state aka shader read only optimal
-            //vkDstTexture->setImageLayoutValue(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-            //VKUtilities::TransitionImageLayout(vkDstTexture->getImage(), VKUtilities::TextureFormatToVK(vkDstTexture->getFormat()), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vkDstTexture->getImageLayoutValue(), vkDstTexture->getMipsCount(), vkDstTexture->getLayersCount());
-
-            //vkSrcTexture->setImageLayoutValue(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-            //VKUtilities::TransitionImageLayout(vkSrcTexture->getImage(), VKUtilities::TextureFormatToVK(vkSrcTexture->getFormat()), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkSrcTexture->getImageLayoutValue(), vkSrcTexture->getMipsCount(), vkSrcTexture->getLayersCount());
         }
 
         void VKRenderContext::SetViewportImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)
@@ -688,5 +853,66 @@ namespace Razix {
                 func(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), markerData);
             }
         }
+
+        Razix::Gfx::TextureReadback VKRenderContext::InsertTextureReadbackImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture)
+        {
+            TextureReadback readback = {};
+
+            const RZTexture*     textureResource = RZResourceManager::Get().getTextureResource(texture);
+            const RZTextureDesc& desc            = textureResource->getDescription();
+
+            const VKTexture* backendResource = static_cast<const VKTexture*>(textureResource);
+
+            const u32 readbackSize = desc.width * desc.height * RZ_TEX_BITS_PER_PIXEL;
+
+            VKBuffer textureReadbackTransferBuffer = VKBuffer(BufferUsage::ReadBack, VK_BUFFER_USAGE_TRANSFER_DST_BIT, readbackSize, nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"));
+
+            VkImageLayout initialLayout = backendResource->getImageLayoutValue();
+
+            VKUtilities::TransitionImageLayout(backendResource->getImage(), VKUtilities::TextureFormatToVK(desc.format), initialLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+            {
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Read Pixels", float4(1.0f, 0.45f, 0.64f, 1.0f));
+
+                VkImageAspectFlags aspectFlags = backendResource->getAspectFlags();
+
+                // TODO: Support layers and depth
+                VkBufferImageCopy region               = {};
+                region.bufferOffset                    = 0;
+                region.bufferRowLength                 = desc.width;
+                region.bufferImageHeight               = desc.width;
+                region.imageSubresource.aspectMask     = aspectFlags != 0 ? aspectFlags : VK_IMAGE_ASPECT_COLOR_BIT;
+                region.imageSubresource.mipLevel       = textureResource->getCurrentMipLevel();
+                region.imageSubresource.baseArrayLayer = 0;
+                region.imageSubresource.layerCount     = 1;
+                region.imageOffset                     = {0, 0, 0};
+                region.imageExtent                     = {desc.width, desc.height, 1};
+
+                vkCmdCopyImageToBuffer(commandBuffer, backendResource->getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, textureReadbackTransferBuffer.getBuffer(), 1, &region);
+
+                VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
+            }
+            VKUtilities::TransitionImageLayout(backendResource->getImage(), VKUtilities::TextureFormatToVK(desc.format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, initialLayout);
+
+            readback.data = Memory::RZMalloc(readbackSize);
+            textureReadbackTransferBuffer.map();
+            memcpy(readback.data, textureReadbackTransferBuffer.getMappedRegion(), readbackSize);
+            textureReadbackTransferBuffer.unMap();
+
+            textureReadbackTransferBuffer.destroy();
+
+            readback.width          = desc.width;
+            readback.height         = desc.height;
+            readback.bits_per_pixel = RZ_TEX_BITS_PER_PIXEL;
+
+            return readback;
+        }
+
+        void VKRenderContext::FlushPendingWorkImpl()
+        {
+            Gfx::RHI::EndRendering(Gfx::RHI::GetCurrentCommandBuffer());
+            Gfx::RHI::Submit(Gfx::RHI::GetCurrentCommandBuffer());
+            vkDeviceWaitIdle(VKDevice::Get().getDevice());
+        }
+
     }    // namespace Gfx
 }    // namespace Razix

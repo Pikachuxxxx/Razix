@@ -1,7 +1,7 @@
 /*
  * Razix Shader File 
  * Shader.Builtin.VisibilityBufferFill.rzsf : Generate the 32-bit Visibility buffer to store the alpha mask, draw id and primitive id
- * Copyright Razix Engine 2024 by Pikachuxxxx (Phani Srikar)
+ * Copyright Razix Engine 2025 by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex

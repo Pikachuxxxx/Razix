@@ -7,6 +7,7 @@
 // clang-format on
 #include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/Log/RZLog.h"
+#include "Razix/Core/Markers/RZMarkers.h"
 #include "Razix/Core/RZEngine.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 #include "Razix/Core/System/IRZSystem.h"
@@ -28,9 +29,7 @@
 #include "Razix/Events/RZMouseEvent.h"
 
 // Graphics API
-#include "Razix/Gfx/RHI/API/RZAPIDesc.h"
-#include "Razix/Gfx/RHI/API/RZAPIHandles.h"
-#include "Razix/Gfx/RHI/API/RZBufferLayout.h"
+
 #include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
 #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
@@ -44,6 +43,9 @@
 
 #include "Razix/Gfx/RHI/RHI.h"
 
+#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
+#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
+
 // Graphics/Cameras
 #include "Razix/Gfx/Cameras/Camera3D.h"
 
@@ -51,14 +53,13 @@
 #include "Razix/Gfx/RZMesh.h"
 #include "Razix/Gfx/RZMeshFactory.h"
 
-#include "Razix/Gfx/RZSprite.h"
-
 // Scene
 #include "Razix/Scene/Components/RZComponents.h"
 #include "Razix/Scene/RZEntity.h"
 #include "Razix/Scene/RZScene.h"
 
 // Utilities
+#include "Razix/Utilities/RZColorUtilities.h"
 #include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/RZLoadImage.h"
 #include "Razix/Utilities/RZStringUtilities.h"
@@ -68,9 +69,9 @@
 
 // Internal
 // Razix Memory
-#include "RZMemory.h"
+#include "Razix/Core/Memory/RZMemory.h"
 // Razix STL
-#include "RZSTL/rzstl.h"
+#include "Razix/Core/RZSTL/rzstl.h"
 
 #include <imgui/imgui.h>
 

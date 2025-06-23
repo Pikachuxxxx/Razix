@@ -40,37 +40,23 @@ namespace Razix {
         EXPECT_EQ(uuid1, uuid2) << "Copy constructor failed to create an equivalent UUID.";
     }
 
-    // Test case for FromStrFactory
-    TEST_F(RZUUIDTests, FromStrFactory)
+    // Test case for FromPrettyStrFactory
+    TEST_F(RZUUIDTests, FromPrettyStrFactory)
     {
         Razix::RZUUID uuid1;
         std::string   prettyStr = uuid1.prettyString();
-
-        Razix::RZUUID uuid2 = Razix::RZUUID::FromStrFactory(prettyStr);
-        EXPECT_EQ(uuid1, uuid2) << "FromStrFactory failed to recreate the UUID from its string representation.";
+        Razix::RZUUID uuid2     = Razix::RZUUID::FromPrettyStrFactory(prettyStr);
+        EXPECT_EQ(uuid1, uuid2) << "FromPrettyStrFactory failed to recreate the UUID from its pretty string representation.";
     }
 
-    // TOOD/FIXME/Note: unless we fix the pretty string to raw-bytes serialization/de-serialization bug in UUID these tests won't work
+    TEST_F(RZUUIDTests, DeserializeSerializePrettyStringRoundTrip)
+    {
+        std::string originalPretty    = "09471372-a82c-430c-b79a-be29e88e3577";
 
-    // FIXME: This is meant to be constructed from 16byte raw data and not from pretty string
-    // Test case for string conversion constructor
-    //TEST_F(RZUUIDTests, StringConstructor)
-    //{
-    //    Razix::RZUUID uuid1;
-    //    std::string   prettyStr = uuid1.prettyString();
-    //    Razix::RZUUID uuid2(prettyStr);
-    //    EXPECT_EQ(uuid1, uuid2) << "String constructor failed to recreate the UUID from its string representation.";
-    //}
-
-    // FIXME: This is meant to be constructed from 16byte raw data and not from pretty string
-    // Test case for FromPrettyStrFactory
-    //TEST_F(RZUUIDTests, FromPrettyStrFactory)
-    //{
-    //    Razix::RZUUID uuid1;
-    //    std::string   prettyStr = uuid1.prettyString();
-    //    Razix::RZUUID uuid2 = Razix::RZUUID::FromPrettyStrFactory(prettyStr);
-    //    EXPECT_EQ(uuid1, uuid2) << "FromPrettyStrFactory failed to recreate the UUID from its pretty string representation.";
-    //}
+        RZUUID      uuid              = RZUUID::FromPrettyStrFactory(originalPretty);
+        std::string regeneratedPretty = uuid.prettyString();
+        EXPECT_EQ(regeneratedPretty, originalPretty) << "Deserializes and Serialization pretty string round trip is not accurate";
+    }
 
     // Test case for equality operator
     TEST_F(RZUUIDTests, EqualityOperator)

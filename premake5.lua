@@ -6,6 +6,8 @@ include 'Scripts/premake/common/tool_includes.lua'
 -- System overrides to support PS4/PS5/PS3 and XBOX ONE/X/SERIES X and other hardware systems
 include 'Scripts/premake/extensions/system-overides.lua'
 
+EngineVersion "0.49.0.Dev"
+
 -- Workspace Settings
 settings = { }
 settings.workspace_name     = 'Razix'
@@ -68,18 +70,6 @@ if os.target() == "windows" then
     set_env_tools = run_as_admin .. "SETX RAZIX_SDK" .. root_dir .. "/Tools /m >nul 2>&1"
     os.execute(set_env)
     os.execute(set_env_tools)
-end
-
-
--- QT SDK - 5.15.2
-QTDIR = os.getenv("QTDIR")
-
-if (QTDIR == nil or QTDIR == '') then
-    print("QTDIR Enviroment variable is not found! Please check your development environment settings")
-    print("Exiting... fix and regenerate project files again!")
-    os.exit()
-else
-    print("QTDIR found at : " .. QTDIR)
 end
 
 -- Using the command line to get the selected architecture
@@ -147,10 +137,14 @@ workspace ( settings.workspace_name )
     {
         "Debug",
         "Release",
-        "Distribution"
+        "GoldMaster"
     }
 
     apply_engine_global_config()
+
+    ------------------------------------------------------------------------------
+    -- Shaders build rules (declared at start for tests and demos to pickup)
+    include 'Engine/razix_shaders_build_rules.lua'
 
     -- Build scripts for the Razix vendor dependencies
     group "Dependencies"
@@ -166,23 +160,9 @@ workspace ( settings.workspace_name )
         include "Engine/vendor/Jolt/jolt.lua"
     group ""
 
-    -- Razix Tools Vendor dependencies
-    group "Dependencies/Tools"
-        include "Tools/RazixAssetPacker/vendor/assimp/assimp.lua"
-        include "Tools/RazixAssetPacker/vendor/meshoptimizer/meshoptimizer.lua"
-        include "Tools/RazixAssetPacker/vendor/OpenFBX/OpenFBX.lua"
-    group ""
-
     -- Experimental
     group "Dependencies/Experimental"
         include "Engine/vendor/Experimental/eigen/eigen.lua"
-    group ""
-
-    -- Build Script for Razix Engine (Internal)
-    --------------------------------------------------------------------------------
-    group "Engine/internal"
-        include "Engine/internal/RazixMemory/razixmemory.lua"
-        include "Engine/internal/RZSTL/rzstl.lua"
     group ""
 
     -- Build Script for Razix Engine (Core)
@@ -193,23 +173,7 @@ workspace ( settings.workspace_name )
 
     -- Build Script for Razix Editor
     --------------------------------------------------------------------------------
-    group "Editor"
-        include "Editor/razix_editor.lua"
-    group ""
-
-    -- in-house extension libraries for Razix Editor
-    group "Editor/internal"
-        include "Editor/internal/QtNodeGraph/QtNodeGraph_razix.lua"
-    group ""
-
-    -- Editor vendors
-    group "Editor/vendor"
-        include "Editor/vendor/QGoodWindow/QGoodWindow.lua"
-        -- Disabled due to C++20 requirement
-        -- include "Editor/vendor/qspdlog/qspdlog.lua"
-        include "Editor/vendor/QtADS/QtADS.lua"
-        include "Editor/vendor/toolwindowmanager/toolwindowmanager.lua"
-    group ""
+    -- TODO: We will be using blender so VS tool and CLI tools will be added here
 
     --------------------------------------------------------------------------------
     -- Build script for Razix Game Framework
@@ -225,14 +189,6 @@ workspace ( settings.workspace_name )
 
     --------------------------------------------------------------------------------
     -- Engine related tools
-    group "Tools"
-        include "Tools/RazixAssetPacker/razix_tool_asset_packer.lua"
-    group ""
-
-    group "Tools/CLI"
-        include "Tools/RazixAssetPacker/razix_tool_asset_packer_cli.lua"
-    group""
-
     group "Tools/Build"
         -- premake scripts Utility project for in IDE management
         include "Tools/Building/premake/premake_regenerate_proj_files.lua"
@@ -246,3 +202,4 @@ workspace ( settings.workspace_name )
     --------------------------------------------------------------------------------
     -- Tests
     include "Tests/tests.lua"
+

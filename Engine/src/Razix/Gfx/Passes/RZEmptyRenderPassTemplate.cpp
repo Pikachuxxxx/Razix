@@ -24,7 +24,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZEmptyRenderPassTemplate::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZEmptyRenderPassTemplate::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Create the shader and the pipeline
             //auto shader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::);
@@ -40,10 +40,10 @@ namespace Razix {
             //m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
             framegraph.addCallbackPass(
                 "",
-                [&](auto& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](auto& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
                 },
-                [=](const auto& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const auto& data, RZPassResourceDirectory& resources) {
 #if 0
                     
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -62,7 +62,7 @@ namespace Razix {
                     RHI::BindPipeline(m_Pipeline, cmdBuffer);
 
                     // Update descriptors on first frame
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    if (RZFrameGraph::IsFirstFrame()) {
                         auto& shaderBindVars = RZResourceManager::Get().getShaderResource(shader)->getBindVars();
 
                         RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();

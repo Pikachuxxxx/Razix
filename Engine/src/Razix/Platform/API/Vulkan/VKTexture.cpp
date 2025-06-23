@@ -5,6 +5,7 @@
 
 #include "Razix/Core/Markers/RZMarkers.h"
 
+#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 #include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
 #include "Razix/Utilities/RZColorUtilities.h"
@@ -74,6 +75,8 @@ namespace Razix {
 
         void VKTexture::Resize(u32 width, u32 height)
         {
+            if (!m_Desc.allowResize) return;
+
             m_Desc.width  = width;
             m_Desc.height = height;
 
@@ -102,7 +105,7 @@ namespace Razix {
         void VKTexture::UploadToBindlessSet()
         {
             // Now if Bindless is available Bind to it
-            if (VKDevice::Get().isBindlessSupported()) {
+            if (g_GraphicsFeatures.SupportsBindless) {
                 RZDescriptor descriptor = {};
 
                 VkDescriptorImageInfo imageInfo{};
@@ -150,10 +153,10 @@ namespace Razix {
             VKBuffer m_TransferBuffer = VKBuffer(BufferUsage::ReadBack, VK_BUFFER_USAGE_TRANSFER_DST_BIT, m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL, nullptr RZ_DEBUG_NAME_TAG_STR_E_ARG("Transfer RT Buffer"));
 
             // Change the image layout from shader read only optimal to transfer source
-            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_FinalImageLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
             {
                 // 1.1 Copy from staging buffer to Image
-                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Read Pixels", glm::vec4(0.0f));
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Read Pixels", float4(0.0f));
 
                 // TODO: Support layers and depth
                 VkBufferImageCopy region               = {};
@@ -171,15 +174,15 @@ namespace Razix {
 
                 VKUtilities::EndSingleTimeCommandBuffer(commandBuffer);
             }
-            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_FinalImageLayout);
 
-            char* data = new char[m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL];
+            char* data = (char*) Memory::RZMalloc(m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL * sizeof(char));
             m_TransferBuffer.map();
             data = (char*) m_TransferBuffer.getMappedRegion();
             // Read and return the pixel value
             int32_t pixel_value = ((int32_t*) data)[(x) + (m_Desc.width * y)];
             m_TransferBuffer.unMap();
-            delete[] data;
+            Memory::RZFree(data);
 
             return pixel_value;
         }
@@ -206,16 +209,12 @@ namespace Razix {
             if (m_Desc.type == TextureType::kSwapchainImage)
                 return;
 
-            if (bufferName == "$UNNAMED_TEXTURE_RESOURCE")
-                RAZIX_DEBUG_BREAK();
-
             if (!desc.filePath.empty())
                 loadImageDataInfoFromFile();
 
             RAZIX_ASSERT_MESSAGE(desc.width && desc.height, "[VULKAN] cannot create texture with null width/height.");
 
-            if (isDepthFormat() && ((m_ResourceViewHint & kDSV) != kDSV))
-                RAZIX_ASSERT_MESSAGE(false, "[Vulkan] image is depth depth format but doesn't have a kDSV resource hint! Cannot view the image until a proper resourve view is set");
+            RAZIX_ASSERT_MESSAGE(!(isDepthFormat() && ((m_ResourceViewHint & kDSV) != kDSV)), "[Vulkan] image is depth depth format but doesn't have a kDSV resource hint! Cannot view the image until a proper resourve view is set");
 
             VkImageCreateFlags flags = resolveCreateFlags();
 
@@ -233,7 +232,8 @@ namespace Razix {
 
             if (desc.data) {
                 loadImageDataFromFile();
-                delete (u8*) m_Desc.data;
+                if (m_Desc.ownsInitData)
+                    delete (u8*) m_Desc.data;
             }
 
             if (m_Desc.enableMips) {
@@ -248,6 +248,8 @@ namespace Razix {
                 createFullResourceViews();
 
             VkImageLayout m_FinalImageLayout = (m_ResourceViewHint & kUAV) == kUAV ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            if ((m_ResourceViewHint & kDSV) == kDSV)
+                m_FinalImageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             VKUtilities::TransitionImageLayout(m_Image, VKUtilities::TextureFormatToVK(m_Desc.format), m_OldImageLayout, m_FinalImageLayout, m_TotalMipLevels, desc.layers);
             m_OldImageLayout = m_FinalImageLayout;
         }
@@ -263,7 +265,7 @@ namespace Razix {
                 m_Desc.data = Razix::Utilities::LoadImageData(m_Desc.filePath, &m_Desc.width, &m_Desc.height, &m_BitsPerPixel, m_Desc.flipY);
             // Here the format for the texture is extracted based on bits per pixel
             m_Desc.format = Razix::Gfx::RZTexture::BitsToTextureFormat(RZ_TEX_BITS_PER_PIXEL);    // everything is a 4-byte by default
-            m_Desc.size   = static_cast<u32>(m_Desc.width * m_Desc.height * RZ_TEX_BITS_PER_PIXEL * m_Desc.dataSize);
+            m_Desc.size   = static_cast<u32>(m_Desc.width * m_Desc.height * RZ_TEX_CHANNELS_PER_PIXEL * m_Desc.dataSize);
         }
 
         void VKTexture::evaluateMipsCount()
@@ -280,7 +282,7 @@ namespace Razix {
             else
                 usageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-            if ((usageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) == VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT && m_ResourceViewHint != kDSV) {
+            if ((usageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) == VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT && (m_ResourceViewHint & kDSV) != kDSV) {
                 RAZIX_CORE_ERROR("[Vulkan] Depth Texture is being created without a DSV hint, depth write image view will cause a crash! provide correct resource view hint during texture initialization");
                 RAZIX_DEBUG_BREAK();
             }
@@ -388,6 +390,8 @@ namespace Razix {
                 m_FullResourceView.uav = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));    // TODO: make sure it has storage flags bit set
             if ((m_ResourceViewHint & kDSV) == kDSV)
                 m_FullResourceView.dsv = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));    // TODO: make sure it has depth bit flags set
+            if ((m_ResourceViewHint & kRTV) == kRTV)
+                m_FullResourceView.rtv = VKUtilities::CreateImageView(imageViewDesc RZ_DEBUG_NAME_TAG_STR_E_ARG(m_Desc.name));    // TODO: make sure it has render target flags set
         }
 
         void VKTexture::createMipViewsPerFace()

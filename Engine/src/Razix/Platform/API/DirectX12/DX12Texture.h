@@ -25,11 +25,14 @@ namespace Razix {
             int32_t ReadPixels(u32 x, u32 y) override;
             void*   GetAPIHandlePtr() const override;
 
+            RAZIX_INLINE D3D12_SHADER_RESOURCE_VIEW_DESC getSrv() const { return m_Srv; }
+
         private:
             friend class DX12Swapchain;
             DX12Texture(ID3D12Resource* backbuffer);    // only for swapchain
 
-            ID3D12Resource* m_ResourceHandle;
+            D3D12_SHADER_RESOURCE_VIEW_DESC m_Srv;
+            ID3D12Resource*                 m_ResourceHandle;
         };
     }    // namespace Gfx
 }    // namespace Razix

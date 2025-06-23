@@ -4,7 +4,7 @@ project "Jolt"
     cppdialect "C++17" -- Exception as Jolt was initially authored using C++17
     staticruntime "off"
 
-     includedirs
+    includedirs
     {
          "./",
          "./Jolt"
@@ -39,8 +39,8 @@ project "Jolt"
         symbols "On"
         runtime "Release"
 
-    filter "configurations:Distribution"
-        defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
+    filter "configurations:GoldMaster"
+        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
         symbols "Off"
         optimize "Full"
         runtime "Release"

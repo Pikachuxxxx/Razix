@@ -1,20 +1,18 @@
+
 #pragma once
 
 #include "Razix/Core/Log/RZLog.h"
 
 #include "Razix/Gfx/Resources/IRZResource.h"
 
-#include "Razix/Gfx/RHI/API/Data/RZTextureData.h"
-#include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
-
-#include "Razix/Gfx/RHI/API/RZAPIDesc.h"
-
 namespace Razix {
     namespace Gfx {
 
 #define RZ_TEX_DEFAULT_ARRAY_LAYER 0
 #define RZ_TEX_DEFAULT_MIP_IDX     0
-#define RZ_TEX_BITS_PER_PIXEL      4
+#define RZ_TEX_BITS_PER_PIXEL      32
+#define RZ_TEX_CHANNELS_PER_PIXEL  4
+#define RZ_TEX_BITS_PER_CHANNELS   8
 #define RZ_TEX_MAX_LAYERS          64    // MAX HARD LIMIT
 #define RZ_MAX_TEX_MIPS            16    // 8k texture 7680x4320 (rounded off for brevity)
 
@@ -36,6 +34,11 @@ namespace Razix {
 
             GET_INSTANCE_SIZE;
 
+            /* Creates a 1x1 default pink 2D texture */
+            static void                   InitDefaultTexture();
+            static void                   ReleaseDefaultTexture();
+            static inline RZTextureHandle GetDefaultTexture() { return s_DefaultTexture; }
+
             static u32           CalculateMipMapCount(u32 width, u32 height);
             static TextureFormat BitsToTextureFormat(u32 bits);
 
@@ -48,6 +51,7 @@ namespace Razix {
             virtual int32_t ReadPixels(u32 x, u32 y) = 0;
 
             inline const RZTextureDesc& getDescription() const { return m_Desc; }
+            inline void                 setDescription(const RZTextureDesc& desc) { m_Desc = desc; }
             inline const std::string&   getName() const { return m_Desc.name; }
             inline u32                  getWidth() const { return m_Desc.width; }
             inline u32                  getHeight() const { return m_Desc.height; }
@@ -63,6 +67,8 @@ namespace Razix {
             inline void                 setCurrentArrayLayer(u32 idx) { m_BaseArrayLayer = idx; }
             inline u32                  getLayersCount() const { return m_Desc.layers; }
             inline u32                  getMipsCount() const { return m_TotalMipLevels; }
+            inline ImageLayout          getCurrentLayout() const { return m_CurrentLayout; }
+            inline void                 setCurrentLayout(ImageLayout layout) { m_CurrentLayout = layout; }
 
         protected:
             RZTextureDesc m_Desc                     = {};
@@ -70,9 +76,12 @@ namespace Razix {
             u32           m_CurrentMipRenderingLevel = RZ_TEX_DEFAULT_MIP_IDX;
             u32           m_BaseArrayLayer           = RZ_TEX_DEFAULT_ARRAY_LAYER;
             u32           m_BitsPerPixel             = RZ_TEX_BITS_PER_PIXEL;
+            ImageLayout   m_CurrentLayout            = ImageLayout::kNewlyCreated;
 
         private:
             static void Create(void* where, const RZTextureDesc& desc RZ_DEBUG_NAME_TAG_E_ARG);
+
+            static RZTextureHandle s_DefaultTexture;
 
             // only resource manager can create an instance of this class
             friend class RZResourceManager;

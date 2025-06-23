@@ -1,7 +1,7 @@
-#pragma once
-#pragma once
+#ifndef APPLICATION_H
+#define APPLICATION_H
 
-#include "RZSTL/smart_pointers.h"
+#include "Razix/Core/RZSTL/smart_pointers.h"
 #include "Razix/Core/OS/RZWindow.h"
 #include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/RZCore.h"
@@ -18,9 +18,6 @@
 #include "Razix/Utilities/TRZSingleton.h"
 
 #include "Razix/Gfx/RHI/API/RZSwapchain.h"
-
-// glm
-#include <glm/glm.hpp>
 
 // Cereal
 #pragma warning(push, 0)
@@ -61,12 +58,12 @@ namespace Razix {
     /* The type of the application (Editor or Game) */
     enum class AppType
     {
-        EDITOR,
-        GAME,
+        kGame,
+        kTool,
         // Networking mode
-        EDITOR_CLIENT,    // connect to the engine via network
-        GAME_CLIENT,      // Razix app where the game is in client mode
-        GAME_SERVER       // either used as standalone server or central server
+        kToolServer,    // Serves data to the engine via network to edit runtime data
+        kGameClient,    // Razix app where the game is in client mode, can talk to another game server or tool server
+        kGameServer     // either used as standalone server or central server
     };
 
     // TODO!!!: Add budget info to RZApplication and RZFrameGraph
@@ -86,19 +83,19 @@ namespace Razix {
          * @param projectRoot   The root location of the application
          * @param appName       The name of the Razix application
          */
-        RAZIX_CALL RZApplication(const std::string& projectRoot, const std::string& appName = "Razix App");
+        RZApplication(const std::string& projectRoot, const std::string& appName = "Razix App");
         /* Simple Virtual destructor */
         virtual ~RZApplication() {}
 
         /* Gets the static reference to the application instance */
-        inline static RZApplication& RAZIX_CALL Get() { return *s_AppInstance; }
+        inline static RZApplication& Get() { return *s_AppInstance; }
 
         // TODO: Have 2 inits ==> Static and Runtime
         /* Initializes the application and other runtime systems */
-        void RAZIX_CALL Init();
+        void Init();
 
         /* Starts the Engine Runtime systems */
-        void RAZIX_CALL Run();
+        void Begin();
 
         /* Quits the application and releases any resources held by it */
         void Quit();
@@ -126,62 +123,48 @@ namespace Razix {
          * Called before the application starts rendering
          * This is called after the application and all the Engine systems are Initialized and just before OnRender() is called
          */
-        virtual void RAZIX_CALL OnStart() {}
+        virtual void OnStart() {}
         /**
          * Updates the Engine systems for every engine timestep
          * 
          * @param dt The timestep taken for every frame
          */
-        virtual void RAZIX_CALL OnUpdate(const RZTimestep& dt) {}
+        virtual void OnUpdate(const RZTimestep& dt) {}
         /**
          * Calls the engine sub-systems to render the stuff calculated in OnFrame()
          * Begins the frame and submits the rendergraph to final display
          */
-        virtual void RAZIX_CALL OnRender() {}
+        virtual void OnRender() {}
         /**
          * Called before the application is quit
          */
-        virtual void RAZIX_CALL OnQuit() {}
+        virtual void OnQuit() {}
         /**
          * Called for Rendering ImGui UI
          */
-        virtual void RAZIX_CALL OnImGui() {}
+        virtual void OnImGui() {}
 
         // Event callbacks for client
-        virtual void RAZIX_CALL OnResize(u32 width, u32 height) {}
+        virtual void OnResize(u32 width, u32 height) {}
 
-        /* Returns a reference to the application window */
-        RAZIX_INLINE RZWindow* RAZIX_CALL getWindow() { return m_Window; }
-        /* Gets the window size */
-        RAZIX_INLINE glm::vec2 RAZIX_CALL getWindowSize() { return glm::vec2(m_Window->getWidth(), m_Window->getHeight()); }
-        /* Returns a reference to the Application instance */
-        RAZIX_INLINE std::string RAZIX_CALL getAppName() const { return m_ProjectName; }
-        /* Gets the razixproject and Assets root firectory */
-        RAZIX_INLINE std::string getProjectRoot() const { return m_ProjectPath; }
-        /* Sets the project root directory */
-        RAZIX_INLINE void setProjectRoot(const std::string& projPath) { m_ProjectPath = projPath; }
-        /* Gets the window properties */
-        RAZIX_INLINE WindowProperties& RAZIX_CALL getWindowProps() { return m_WindowProperties; }
-        /* Gets the application render loop timer */
-        RAZIX_INLINE RZTimer RAZIX_CALL getTimer() { return *m_Timer.get(); }
-        /* Get Project UUID */
-        RAZIX_INLINE RZUUID RAZIX_CALL getProjectUUID() { return m_ProjectID; }
-        RAZIX_INLINE void              setViewportWindow(RZWindow* viewportWindow) { m_Window = viewportWindow; }
-#ifdef RAZIX_PLATFORM_WINDOWS
-        RAZIX_INLINE void setViewportHWND(HWND hwnd) { viewportHWND = hwnd; }
-        RAZIX_INLINE HWND getViewportHWND() { return viewportHWND; }
-#endif
-        RAZIX_INLINE AppType getAppType() { return m_appType; }
-        RAZIX_INLINE void    setAppType(AppType appType) { m_appType = appType; }
-        // Guizmo Operations
-        RAZIX_INLINE void            disableGuizmoEditing() { m_EnableGuizmoEditing = false; }
-        RAZIX_INLINE void            setGuizmoOperation(Guizmo::OPERATION operation) { m_GuizmoOperation = operation; }
-        RAZIX_INLINE void            setGuizmoMode(Guizmo::MODE mode) { m_GuizmoMode = mode; }
-        RAZIX_INLINE void            setGuizmoSnapAmount(f32 snapAmount) { m_GuizmoSnapAmount = snapAmount; }
-        RAZIX_INLINE const AppState& getAppState() const { return m_CurrentState; }
-        RAZIX_INLINE void            setAppState(AppState state) { m_CurrentState = state; }
-
-        RAZIX_INLINE void setGuizmoForEntity(RZEntity& entity)
+        inline RZWindow*         getWindow() { return m_Window; }
+        inline float2            getWindowSize() const { return float2(m_Window->getWidth(), m_Window->getHeight()); }
+        inline std::string       getAppName() const { return m_ProjectName; }
+        inline std::string       getProjectRoot() const { return m_ProjectPath; }
+        inline void              setProjectRoot(const std::string& projPath) { m_ProjectPath = projPath; }
+        inline WindowProperties& getWindowProps() { return m_WindowProperties; }
+        inline RZTimer           getTimer() const { return *m_Timer.get(); }
+        inline RZUUID            getProjectUUID() const { return m_ProjectID; }
+        inline void              setViewportWindow(RZWindow* viewportWindow) { m_Window = viewportWindow; }
+        inline AppType           getAppType() const { return m_appType; }
+        inline void              setAppType(AppType appType) { m_appType = appType; }
+        inline void              disableGuizmoEditing() { m_EnableGuizmoEditing = false; }
+        inline void              setGuizmoOperation(Guizmo::OPERATION operation) { m_GuizmoOperation = operation; }
+        inline void              setGuizmoMode(Guizmo::MODE mode) { m_GuizmoMode = mode; }
+        inline void              setGuizmoSnapAmount(f32 snapAmount) { m_GuizmoSnapAmount = snapAmount; }
+        inline const AppState&   getAppState() const { return m_CurrentState; }
+        inline void              setAppState(AppState state) { m_CurrentState = state; }
+        inline void              setGuizmoForEntity(RZEntity& entity)
         {
             m_GuizmoEntity        = entity;
             m_EnableGuizmoEditing = true;
@@ -191,30 +174,28 @@ namespace Razix {
         RAZIX_DEFINE_SAVE_LOAD
 
     private:
-#ifdef RAZIX_PLATFORM_WINDOWS
-        HWND viewportHWND;
-#endif
-        static RZApplication*     s_AppInstance;                      /* The singleton instance of the application                */
-        AppState                  m_CurrentState = AppState::Loading; /* The current state of the application                     */
-        AppType                   m_appType      = AppType::GAME;     /* The type of the application                              */
-        std::string               m_ProjectName;                      /* The name of the application                              */
-        std::string               m_ProjectPath;                      /* The path of the Razix Project Assets folder              */
-        u32                       m_RenderAPI;                        /* The Render API being used to render the application      */
-        u32                       m_Frames  = 0;                      /* The number of frames per second                          */
-        u32                       m_Updates = 0;                      /* The number of updated per second                         */
-        rzstl::UniqueRef<RZTimer> m_Timer;                            /* The timer used to calculate the delta time and timesteps */
-        f32                       m_SecondTimer = 0;                  /* A secondary timer to count the ticks per second          */
-        RZTimestep                m_Timestep;                         /* The timesteps taken to update the application            */
-        RZWindow*                 m_Window = nullptr;                 /* The window that will be used to view graphics            */
-        WindowProperties          m_WindowProperties;                 /* The properties of the window to create with              */
-        RZUUID                    m_ProjectID;                        /* Project ID is a UUID to uniquely identify project        */
-        std::vector<std::string>  sceneFilePaths;
-        RZEntity                  m_GuizmoEntity;
-        Guizmo::OPERATION         m_GuizmoOperation;
-        Guizmo::MODE              m_GuizmoMode;
-        f32                       m_GuizmoSnapAmount = 0.0f;
+        static RZApplication* s_AppInstance;
+
+        AppState                  m_CurrentState        = AppState::Loading;
+        AppType                   m_appType             = AppType::kGame;
+        std::string               m_ProjectName         = "";
+        std::string               m_ProjectPath         = "";
+        u32                       m_RenderAPI           = 1;    // Vulkan
+        u32                       m_Frames              = 0;
+        u32                       m_Updates             = 0;
+        rzstl::UniqueRef<RZTimer> m_Timer               = nullptr;
+        f32                       m_SecondTimer         = 0;
+        RZTimestep                m_Timestep            = {};
+        RZWindow*                 m_Window              = nullptr;
+        WindowProperties          m_WindowProperties    = {};
+        RZUUID                    m_ProjectID           = {};
+        std::vector<std::string>  sceneFilePaths        = {};
+        RZEntity                  m_GuizmoEntity        = {};
+        Guizmo::OPERATION         m_GuizmoOperation     = Guizmo::TRANSLATE;
+        Guizmo::MODE              m_GuizmoMode          = Guizmo::WORLD;
+        f32                       m_GuizmoSnapAmount    = 0.0f;
         bool                      m_EnableGuizmoEditing = false;
-        RZEventDispatcher         m_EventDispatcher;
+        RZEventDispatcher         m_EventDispatcher     = {};
 
     private:
         /* Starts the application */
@@ -227,37 +208,20 @@ namespace Razix {
         void RenderGUI();
 
         // Event callbacks
-        /**
-         * Gets the Events from the engine, window and OS
-         * 
-         * @param event  The event received from all the sub-systems
-         */
         void OnEvent(RZEvent& event);
-
-        /**
-         * Called when the application is about to be closed
-         *
-         * @param e The window close event
-         *
-         * @returns True, if the window was closed successfully
-         */
         bool OnWindowClose(WindowCloseEvent& e);
-        /**
-         * Called when the window is resized
-         *
-         * @param e The window resize event
-         *
-         * @returns True, if the window was resized successfully
-         */
-        virtual bool OnWindowResize(RZWindowResizeEvent& e);
-
-        virtual bool OnMouseMoved(RZMouseMovedEvent& e);
-        virtual bool OnMouseButtonPressed(RZMouseButtonPressedEvent& e);
-        virtual bool OnMouseButtonReleased(RZMouseButtonReleasedEvent& e);
-        virtual bool OnKeyPress(RZKeyPressedEvent& e);
-        virtual bool OnKeyRelease(RZKeyReleasedEvent& e);
+        bool OnWindowResize(RZWindowResizeEvent& e);
+        bool OnMouseMoved(RZMouseMovedEvent& e);
+        bool OnMouseButtonPressed(RZMouseButtonPressedEvent& e);
+        bool OnMouseButtonReleased(RZMouseButtonReleasedEvent& e);
+        bool OnKeyPress(RZKeyPressedEvent& e);
+        bool OnKeyRelease(RZKeyReleasedEvent& e);
 
         RAZIX_NONCOPYABLE_CLASS(RZApplication);
+
+        void renderEngineImGuiElements();
+        void renderRuntimeAssetsIconsOnImGui();
+        void renderEngineStatsOnImGui();
     };
 
     /**
@@ -271,3 +235,5 @@ namespace Razix {
      */
     RZApplication* CreateApplication(int argc, char** argv);
 }    // namespace Razix
+
+#endif    // APPLICATION_H

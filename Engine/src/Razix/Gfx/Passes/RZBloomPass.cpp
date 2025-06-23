@@ -34,7 +34,7 @@ namespace Razix {
     namespace Gfx {
 
 #if 0
-void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+void RZBloomPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             SceneData forwardSceneData = framegraph.getBlackboard().get<SceneData>();
 
@@ -66,7 +66,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
             // Do a bunch of Down Sampling and Up Samplings on the scene Texture
             // Start with down sampling, use the Source texture as the first mip
             BloomMip sourceMip{-1};
-            sourceMip.mip  = forwardSceneData.sceneHDR;
+            sourceMip.mip  = forwardSceneData.SceneHDR;
             sourceMip.size = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
             for (u32 i = 0; i < NUM_BLOOM_MIPS; ++i)
                 sourceMip = downsample(framegraph, sourceMip, scene, i);
@@ -84,7 +84,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
             RAZIX_UNIMPLEMENTED_METHOD;
         }
 
-        BloomMip RZBloomPass::upsample(FrameGraph::RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex, RZRendererSettings* settings)
+        BloomMip RZBloomPass::upsample(RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex, RZRendererSettings* settings)
         {
             const auto name = "Bloom Upsample pass #" + std::to_string(mipindex);
 
@@ -92,7 +92,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
 
             struct BloomSubPassData
             {
-                FrameGraph::RZFrameGraphResource bloomMip;
+                RZFrameGraphResource bloomMip;
             };
 
             for (u32 j = 0; j < RAZIX_MAX_SWAP_IMAGES_COUNT; j++) {
@@ -114,7 +114,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
 
             auto& pass = framegraph.addCallbackPass<BloomSubPassData>(
                 name.c_str(),
-                [&](BloomSubPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](BloomSubPassData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc bloomMipDesc{
@@ -125,13 +125,13 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
                         .format = TextureFormat::RGBA16F,
                     };
 
-                    data.bloomMip = builder.create<FrameGraph::RZFrameGraphTexture>("Bloom Mip", CAST_TO_FG_TEX_DESC bloomMipDesc);
+                    data.bloomMip = builder.create<RZFrameGraphTexture>("Bloom Mip", CAST_TO_FG_TEX_DESC bloomMipDesc);
 
                     // Read the mip from the previous pass
                     builder.read(bloomSourceMip.mip);
                     data.bloomMip = builder.write(data.bloomMip);
                 },
-                [=](const BloomSubPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const BloomSubPassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     /**
@@ -142,7 +142,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
 
                     // Begin Command Buffer Recording
                     RHI::Begin(cmdBuf);
-                    RAZIX_MARK_BEGIN("Bloom Upsample Pass" + std::to_string(mipindex), glm::vec4(0.25, 0.23, 0.86f, 1.0f));
+                    RAZIX_MARK_BEGIN("Bloom Upsample Pass" + std::to_string(mipindex), float4(0.25, 0.23, 0.86f, 1.0f));
 
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT     = false;
@@ -151,7 +151,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
                         auto setInfos = RZResourceManager::Get().getShaderResource(Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default))->getDescriptorsPerHeapMap();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
-                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(bloomSourceMip.mip).getHandle();
+                                descriptor.texture = resources.get<RZFrameGraphTexture>(bloomSourceMip.mip).getHandle();
                             }
                             upsamplebBloomGpuResources[mipindex].bloomDescSet[0]->UpdateSet(setInfo.second);
                         }
@@ -162,7 +162,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
 
                     // Begin Rendering
                     RenderingInfo info{};
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.bloomMip).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                    info.colorAttachments = {{resources.get<RZFrameGraphTexture>(data.bloomMip).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
                     info.extent           = {bloomSourceMip.size.x, bloomSourceMip.size.y};
                     info.resize           = false;
                     RHI::BeginRendering(cmdBuf, info);
@@ -199,11 +199,11 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
                 });
 
             mip.mip  = pass.bloomMip;
-            mip.size = glm::vec2(bloomSourceMip.size.x, bloomSourceMip.size.y) * 2.0f;
+            mip.size = float2(bloomSourceMip.size.x, bloomSourceMip.size.y) * 2.0f;
             return mip;
         }
 
-        BloomMip RZBloomPass::downsample(FrameGraph::RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex)
+        BloomMip RZBloomPass::downsample(RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex)
         {
             const auto name = "Bloom Downsample pass #" + std::to_string(mipindex);
 
@@ -211,7 +211,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
 
             struct BloomSubPassData
             {
-                FrameGraph::RZFrameGraphResource bloomMip;
+                RZFrameGraphResource bloomMip;
             };
 
             for (u32 j = 0; j < RAZIX_MAX_SWAP_IMAGES_COUNT; j++) {
@@ -233,7 +233,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
 
             auto& pass = framegraph.addCallbackPass<BloomSubPassData>(
                 name.c_str(),
-                [&](BloomSubPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](BloomSubPassData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc bloomMipDesc{
@@ -244,13 +244,13 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
                         .format = TextureFormat::RGBA16F,
                     };
 
-                    data.bloomMip = builder.create<FrameGraph::RZFrameGraphTexture>("Bloom Mip", CAST_TO_FG_TEX_DESC bloomMipDesc);
+                    data.bloomMip = builder.create<RZFrameGraphTexture>("Bloom Mip", CAST_TO_FG_TEX_DESC bloomMipDesc);
 
                     // Read the mip from the previous pass
                     builder.read(bloomSourceMip.mip);
                     data.bloomMip = builder.write(data.bloomMip);
                 },
-                [=](const BloomSubPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const BloomSubPassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     /**
@@ -261,7 +261,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
 
                     // Begin Command Buffer Recording
                     RHI::Begin(cmdBuf);
-                    RAZIX_MARK_BEGIN("Bloom Downsample Pass" + std::to_string(mipindex), glm::vec4(0.85, 0.23, 0.56f, 1.0f));
+                    RAZIX_MARK_BEGIN("Bloom Downsample Pass" + std::to_string(mipindex), float4(0.85, 0.23, 0.56f, 1.0f));
 
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT     = false;
@@ -270,7 +270,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
                         auto setInfos = RZResourceManager::Get().getShaderResource(Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::Default))->getDescriptorsPerHeapMap();
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
-                                descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(bloomSourceMip.mip).getHandle();
+                                descriptor.texture = resources.get<RZFrameGraphTexture>(bloomSourceMip.mip).getHandle();
                             }
                             downsamplebBloomGpuResources[mipindex].bloomDescSet[0]->UpdateSet(setInfo.second);
                         }
@@ -281,7 +281,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
 
                     // Begin Rendering
                     RenderingInfo info{};
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.bloomMip).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                    info.colorAttachments = {{resources.get<RZFrameGraphTexture>(data.bloomMip).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
                     info.extent           = {bloomSourceMip.size.x, bloomSourceMip.size.y};
                     info.resize           = false;
                     RHI::BeginRendering(cmdBuf, info);
@@ -298,7 +298,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
 
                     struct PCD
                     {
-                        glm::vec2 resoulution{};
+                        float2 resoulution{};
                     } pcData{};
                     pcData.resoulution  = info.extent;
                     downsampleData.data = &pcData;
@@ -318,11 +318,11 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
                 });
 
             mip.mip  = pass.bloomMip;
-            mip.size = glm::vec2(bloomSourceMip.size.x, bloomSourceMip.size.y) * 0.5f;
+            mip.size = float2(bloomSourceMip.size.x, bloomSourceMip.size.y) * 0.5f;
             return mip;
         }
 
-        void RZBloomPass::mixScene(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZBloomPass::mixScene(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             for (u32 j = 0; j < RAZIX_MAX_SWAP_IMAGES_COUNT; j++) {
                 auto cmdBuffer = RZDrawCommandBuffer::Create();
@@ -359,27 +359,27 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
 
             struct TonemapData
             {
-                FrameGraph::RZFrameGraphResource ldrOutput;
+                RZFrameGraphResource ldrOutput;
             };
 
             framegraph.addCallbackPass<TonemapData>(
                 "Bloom Mix Tonemapping pass",
-                [&](TonemapData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](TonemapData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     builder.read(bloomData.bloomTexture);
-                    builder.read(forwardSceneData.sceneHDR);
+                    builder.read(forwardSceneData.SceneHDR);
                     builder.read(forwardSceneData.sceneLDR);
 
                     //data.ldrOutput = builder.write(data.ldrOutput);
                 },
-                [=](const TonemapData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const TonemapData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     auto cmdBuf = bloomSceneMixGpuResources.cmdBuffers[RHI::GetSwapchain()->getCurrentFrameIndex()];
 
                     RHI::Begin(cmdBuf);
-                    RAZIX_MARK_BEGIN("Bloom Mix Tonemap", glm::vec4(0.05, 0.83, 0.66f, 1.0f));
+                    RAZIX_MARK_BEGIN("Bloom Mix Tonemap", float4(0.05, 0.83, 0.66f, 1.0f));
 
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT = false;
@@ -388,9 +388,9 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
                         for (auto& setInfo: setInfos) {
                             for (auto& descriptor: setInfo.second) {
                                 if (descriptor.bindingInfo.location.binding == 0)
-                                    descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.sceneHDR).getHandle();
+                                    descriptor.texture = resources.get<RZFrameGraphTexture>(forwardSceneData.SceneHDR).getHandle();
                                 else if (descriptor.bindingInfo.location.binding == 1)
-                                    descriptor.texture = resources.get<FrameGraph::RZFrameGraphTexture>(bloomData.bloomTexture).getHandle();
+                                    descriptor.texture = resources.get<RZFrameGraphTexture>(bloomData.bloomTexture).getHandle();
                             }
                             bloomSceneMixGpuResources.bloomDescSet[0]->UpdateSet(setInfo.second);
                         }
@@ -400,7 +400,7 @@ void RZBloomPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* 
                     // Begin Rendering
                     RenderingInfo info{
                         .extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()},
-                        .colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(forwardSceneData.sceneLDR).getHandle(), {true, ClearColorPresets::OpaqueBlack}}},
+                        .colorAttachments = {{resources.get<RZFrameGraphTexture>(forwardSceneData.sceneLDR).getHandle(), {true, ClearColorPresets::OpaqueBlack}}},
                         .resize           = true};
                     RHI::BeginRendering(cmdBuf, info);
 

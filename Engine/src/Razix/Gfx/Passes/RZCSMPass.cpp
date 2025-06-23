@@ -24,9 +24,6 @@
 #include "Razix/Gfx/RZMeshFactory.h"
 #include "Razix/Gfx/RZShaderLibrary.h"
 
-#include "Razix/Gfx/Passes/Data/FrameData.h"
-#include "Razix/Gfx/Passes/Data/GlobalData.h"
-
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
@@ -38,7 +35,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZCSMPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZCSMPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             /**
              * In CSM we render to a TextureArray Depth map, we select the render layer using gl_Layer or API (setCurrentArrayLayer), but the shaders remain the same as normal shadow map generation
@@ -68,26 +65,27 @@ namespace Razix {
             // Since the above texture passes are cascaded we do an extra pass to constantly update the data into a buffer after all the cascade calculations are done whilst filling the TextureArray2D
             auto& pass = framegraph.addCallbackPass<CSMData>(
                 "Upload Cascade Matrices (post CSM calculation)",
-                [&](CSMData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](CSMData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
                     // Create the final cascaded VP data here after rendering the depth texture array, in fact this pass can be parallelized before the we render the depth maps
-                    RZBufferDesc bufferDesc = {};
-                    bufferDesc.name         = "CB_CascadesMatrixData";
-                    bufferDesc.size         = sizeof(CascadesMatrixData);
-                    bufferDesc.data         = nullptr;
-                    bufferDesc.usage        = BufferUsage::PersistentStream;
+                    RZBufferDesc bufferDesc          = {};
+                    bufferDesc.name                  = "CB_CascadesMatrixData";
+                    bufferDesc.size                  = sizeof(CascadesMatrixData);
+                    bufferDesc.data                  = nullptr;
+                    bufferDesc.initResourceViewHints = ResourceViewHint::kCBV;
+                    bufferDesc.usage                 = BufferUsage::PersistentStream;
 
-                    data.viewProjMatrices = builder.create<FrameGraph::RZFrameGraphBuffer>("CB_CascadesMatrixData", CAST_TO_FG_BUF_DESC bufferDesc);
+                    data.viewProjMatrices = builder.create<RZFrameGraphBuffer>("CB_CascadesMatrixData", CAST_TO_FG_BUF_DESC bufferDesc);
 
                     data.viewProjMatrices = builder.write(data.viewProjMatrices);
                 },
-                [=](const CSMData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const CSMData& data, RZPassResourceDirectory& resources) {
                     CascadesMatrixData uboData{};
                     for (u32 i = 0; i < kNumCascades; ++i) {
                         uboData.splitDepth[i]       = m_Cascades[i].splitDepth;
                         uboData.viewProjMatrices[i] = m_Cascades[i].viewProjMatrix;
                     }
-                    auto vpbufferHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.viewProjMatrices).getHandle();
+                    auto vpbufferHandle = resources.get<RZFrameGraphBuffer>(data.viewProjMatrices).getHandle();
                     RZResourceManager::Get().getUniformBufferResource(vpbufferHandle)->SetData(sizeof(CascadesMatrixData), &uboData);
                 });
             csmData.viewProjMatrices = pass.viewProjMatrices;
@@ -117,7 +115,7 @@ namespace Razix {
             m_Cascades = buildCascades(scene->getSceneCamera(), -dirLight[0].light.getPosition(), kNumCascades, kSplitLambda, kShadowMapSize);
         }
 
-        std::vector<Cascade> RZCSMPass::buildCascades(RZSceneCamera camera, glm::vec3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize)
+        std::vector<Cascade> RZCSMPass::buildCascades(RZSceneCamera camera, float3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -129,7 +127,7 @@ namespace Razix {
 
             // Get the cascade splits
             const auto cascadeSplits = buildCascadeSplits(numCascades, lambda, camera.getPerspectiveNearClip(), clipRange);
-            const auto invViewProj   = glm::inverse((camera.getProjection() * camera.getViewMatrix()));    // This is causing a flip
+            const auto invViewProj   = inverse((camera.getProjection() * camera.getViewMatrix()));    // This is causing a flip
 
             auto lastSplitDist = 0.0f;
 
@@ -172,29 +170,29 @@ namespace Razix {
             return cascadeSplits;
         }
 
-        Razix::Gfx::FrustumCorners RZCSMPass::buildFrustumCorners(const glm::mat4& inversedViewProj, f32 splitDist, f32 lastSplitDist)
+        Razix::Gfx::FrustumCorners RZCSMPass::buildFrustumCorners(const float4x4& inversedViewProj, f32 splitDist, f32 lastSplitDist)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             // clang-format off
             FrustumCorners frustumCorners{
                 // Near
-                glm::vec3{-1.0f,  1.0f, -1.0f}, // TL
-                glm::vec3{ 1.0f,  1.0f, -1.0f}, // TR
-                glm::vec3{ 1.0f, -1.0f, -1.0f}, // BR
-                glm::vec3{-1.0f, -1.0f, -1.0f}, // BL
+                float3{-1.0f,  1.0f, -1.0f}, // TL
+                float3{ 1.0f,  1.0f, -1.0f}, // TR
+                float3{ 1.0f, -1.0f, -1.0f}, // BR
+                float3{-1.0f, -1.0f, -1.0f}, // BL
                 // Far
-                glm::vec3{-1.0f,  1.0f,  1.0f}, // TL
-                glm::vec3{ 1.0f,  1.0f,  1.0f}, // TR
-                glm::vec3{ 1.0f, -1.0f,  1.0f}, // BR
-                glm::vec3{-1.0f, -1.0f,  1.0f}  // BL
+                float3{-1.0f,  1.0f,  1.0f}, // TL
+                float3{ 1.0f,  1.0f,  1.0f}, // TR
+                float3{ 1.0f, -1.0f,  1.0f}, // BR
+                float3{-1.0f, -1.0f,  1.0f}  // BL
             };
             // clang-format on
 
             // Project frustum corners into world space
             for (auto& p: frustumCorners) {
-                const auto temp = inversedViewProj * glm::vec4{p, 1.0f};
-                p               = glm::vec3{temp} / temp.w;
+                const auto temp = inversedViewProj * float4{p, 1.0f};
+                p               = float3{temp} / temp.w;
             }
             for (u32 i{0}; i < 4; ++i) {
                 const auto cornerRay     = frustumCorners[i + 4] - frustumCorners[i];
@@ -210,28 +208,28 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            glm::vec3 center{0.0f};
+            float3 center{0.0f};
             for (const auto& p: frustumCorners)
                 center += p;
             center /= frustumCorners.size();
 
             auto radius = 0.0f;
             for (const auto& p: frustumCorners) {
-                const auto distance = glm::length(p - center);
-                radius              = glm::max(radius, distance);
+                const auto distance = length(p - center);
+                radius              = max(radius, distance);
             }
-            radius = glm::ceil(radius * 16.0f) / 16.0f;
+            radius = ceil(radius * 16.0f) / 16.0f;
             return std::make_tuple(center, radius);
         }
 
-        void RZCSMPass::eliminateShimmering(glm::mat4& projection, const glm::mat4& view, u32 shadowMapSize)
+        void RZCSMPass::eliminateShimmering(float4x4& projection, const float4x4& view, u32 shadowMapSize)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto shadowOrigin = projection * view * glm::vec4{glm::vec3{0.0f}, 1.0f};
+            auto shadowOrigin = projection * view * float4{float3{0.0f}, 1.0f};
             shadowOrigin *= (static_cast<f32>(shadowMapSize) / 2.0f);
 
-            const auto roundedOrigin = glm::round(shadowOrigin);
+            const auto roundedOrigin = round(shadowOrigin);
             auto       roundOffset   = roundedOrigin - shadowOrigin;
             roundOffset              = roundOffset * 2.0f / static_cast<f32>(shadowMapSize);
             roundOffset.z            = 0.0f;
@@ -239,22 +237,22 @@ namespace Razix {
             projection[3] += roundOffset;
         }
 
-        glm::mat4 RZCSMPass::buildDirLightMatrix(const glm::mat4& inversedViewProj, const glm::vec3& lightDirection, u32 shadowMapSize, f32 splitDist, f32 lastSplitDist)
+        float4x4 RZCSMPass::buildDirLightMatrix(const float4x4& inversedViewProj, const float3& lightDirection, u32 shadowMapSize, f32 splitDist, f32 lastSplitDist)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             const auto frustumCorners   = buildFrustumCorners(inversedViewProj, splitDist, lastSplitDist);
             const auto [center, radius] = measureFrustum(frustumCorners);
 
-            const auto maxExtents = glm::vec3{radius};
+            const auto maxExtents = float3{radius};
             const auto minExtents = -maxExtents;
 
-            const auto eye        = center - glm::normalize(lightDirection) * -minExtents.z;
-            const auto view       = glm::lookAt(eye, center, {0.0f, 1.0f, 0.0f});
-            auto       projection = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, -(maxExtents - minExtents).z, (maxExtents - minExtents).z);
-            //projection            = glm::mat4(1.0f);
+            const auto eye        = center - normalize(lightDirection) * -minExtents.z;
+            const auto view       = lookAt(eye, center, {0.0f, 1.0f, 0.0f});
+            auto       projection = ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, -(maxExtents - minExtents).z, (maxExtents - minExtents).z);
+            //projection            = float4x4(1.0f);
             //if (maxExtents.z != 0)
-            //    projection = glm::perspective(60.0f, (maxExtents.x - minExtents.x) / (maxExtents.y - minExtents.y), minExtents.z, maxExtents.z);
+            //    projection = perspective(60.0f, (maxExtents.x - minExtents.x) / (maxExtents.y - minExtents.y), minExtents.z, maxExtents.z);
 
             if (Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::VULKAN)
                 projection[1][1] *= -1;
@@ -265,11 +263,11 @@ namespace Razix {
 
         struct LightVPLayerData
         {
-            glm::mat4 viewProj = {};
-            i32       layer    = 0;
+            float4x4 viewProj = {};
+            i32      layer    = 0;
         };
 
-        CascadeSubPassData RZCSMPass::addCascadePass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, CascadeSubPassData subpassData, u32 cascadeIdx)
+        CascadeSubPassData RZCSMPass::addCascadePass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, CascadeSubPassData subpassData, u32 cascadeIdx)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -277,52 +275,59 @@ namespace Razix {
 
             auto& pass = framegraph.addCallbackPass<CascadeSubPassData>(
                 "Pass.Builtin.Code.CSM # " + std::to_string(cascadeIdx),
-                [&](CascadeSubPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](CascadeSubPassData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     // Create the resource only on first pass, render to the same resource again and again
                     if (cascadeIdx == 0) {
                         RZTextureDesc textureDesc{};
-                        textureDesc.name     = "CascadedShadowMapArray";
-                        textureDesc.width    = kShadowMapSize;
-                        textureDesc.height   = kShadowMapSize;
-                        textureDesc.layers   = kNumCascades;
-                        textureDesc.type     = TextureType::k2DArray;
-                        textureDesc.format   = TextureFormat::DEPTH32F;
+                        textureDesc.name   = "CascadedShadowMapArray";
+                        textureDesc.width  = kShadowMapSize;
+                        textureDesc.height = kShadowMapSize;
+                        textureDesc.layers = kNumCascades;
+                        textureDesc.type   = TextureType::k2DArray;
+                        textureDesc.format = TextureFormat::DEPTH32F;
 
-                        subpassData.cascadeOutput = builder.create<FrameGraph::RZFrameGraphTexture>("CascadedShadowMapArray", CAST_TO_FG_TEX_DESC textureDesc);
+                        subpassData.cascadeOutput = builder.create<RZFrameGraphTexture>("CascadedShadowMapArray", CAST_TO_FG_TEX_DESC textureDesc);
                     }
 
-                    RZBufferDesc bufferDesc = {};
-                    bufferDesc.name         = "VPLayer";
-                    bufferDesc.size         = sizeof(LightVPLayerData);
-                    bufferDesc.data         = nullptr;
-                    bufferDesc.usage        = BufferUsage::PersistentStream;
+                    RZBufferDesc bufferDesc          = {};
+                    bufferDesc.name                  = "VPLayer";
+                    bufferDesc.size                  = sizeof(LightVPLayerData);
+                    bufferDesc.data                  = nullptr;
+                    bufferDesc.initResourceViewHints = ResourceViewHint::kCBV;
+                    bufferDesc.usage                 = BufferUsage::PersistentStream;
 
-                    subpassData.vpLayer = builder.create<FrameGraph::RZFrameGraphBuffer>("VPLayer", CAST_TO_FG_BUF_DESC bufferDesc);
+                    subpassData.vpLayer = builder.create<RZFrameGraphBuffer>("VPLayer", CAST_TO_FG_BUF_DESC bufferDesc);
 
                     data.cascadeOutput = builder.write(subpassData.cascadeOutput);
                     data.vpLayer       = builder.write(subpassData.vpLayer);
                 },
-                [=](const CascadeSubPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const CascadeSubPassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Shadows);
 
                     RAZIX_TIME_STAMP_BEGIN("CSM Pass # " + std::to_string(cascadeIdx));
-                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.CSM # " + std::to_string(cascadeIdx), glm::vec4(0.35, 0.44, 0.96f, 1.0f));
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.CSM # " + std::to_string(cascadeIdx), float4(0.35, 0.44, 0.96f, 1.0f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    if (RZFrameGraph::IsFirstFrame()) {
                         auto& shaderBindVars = RZResourceManager::Get().getShaderResource(shader)->getBindVars();
 
-                        auto descriptor           = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(data.vpLayer)];
-                        descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.vpLayer).getHandle();
-                        m_CascadeSets[cascadeIdx] = RZDescriptorSet::Create({*descriptor} RZ_DEBUG_NAME_TAG_STR_E_ARG("CSM VPLayer # " + std::to_string(cascadeIdx)));
+                        auto descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphBuffer>(data.vpLayer)];
+                        if (descriptor)
+                            descriptor->uniformBuffer = resources.get<RZFrameGraphBuffer>(data.vpLayer).getHandle();
+
+                        RZDescriptorSetDesc setDesc = {};
+                        setDesc.name                = "CSM VPLayer # " + std::to_string(cascadeIdx);
+                        setDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
+                        setDesc.descriptors.push_back(*descriptor);
+                        m_CascadeSets[cascadeIdx] = RZResourceManager::Get().createDescriptorSet(setDesc);
                     }
 
-                    auto lightVPHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.vpLayer).getHandle();
+                    auto lightVPHandle = resources.get<RZFrameGraphBuffer>(data.vpLayer).getHandle();
 
                     LightVPLayerData lightVPData{};
                     lightVPData.layer    = cascadeIdx;
@@ -333,14 +338,13 @@ namespace Razix {
                     // Begin Rendering
                     RenderingInfo info{};    // No color attachment
                     info.resolution      = Resolution::kCustom;
-                    m_CSMArrayHandle     = resources.get<FrameGraph::RZFrameGraphTexture>(data.cascadeOutput).getHandle();
+                    m_CSMArrayHandle     = resources.get<RZFrameGraphTexture>(data.cascadeOutput).getHandle();
                     info.depthAttachment = {m_CSMArrayHandle, {cascadeIdx == 0 ? true : false, ClearColorPresets::DepthOneToZero}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     /////////////////////////////////
                     // !!! VERY IMPORTANT !!!
                     info.layerCount = kNumCascades;
                     /////////////////////////////////
-                    info.resize = false;
                     RHI::BeginRendering(cmdBuffer, info);
 
                     RHI::BindPipeline(m_Pipeline, cmdBuffer);

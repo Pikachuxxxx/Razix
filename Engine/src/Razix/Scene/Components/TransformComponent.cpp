@@ -10,51 +10,51 @@
 
 // https://stackoverflow.com/questions/49609654/quaternion-based-first-person-view-camera
 
-glm::mat4 Razix::TransformComponent::GetGlobalTransform()
+float4x4 Razix::TransformComponent::GetGlobalTransform()
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
 #if 0
-glm::quat qPitch = glm::angleAxis(Rotation.x, glm::vec3(1, 0, 0));
-    glm::quat qYaw   = glm::angleAxis(Rotation.y, gl m::vec3(0, 1, 0));
-    glm::quat qRoll  = glm::angleAxis(Rotation.z, glm::vec3(0, 0, 1));
+quat qPitch = angleAxis(Rotation.x, float3(1, 0, 0));
+    quat qYaw   = angleAxis(Rotation.y, gl m::vec3(0, 1, 0));
+    quat qRoll  = angleAxis(Rotation.z, float3(0, 0, 1));
 
-    glm::quat orientation = qPitch * qYaw;
-    orientation           = glm::normalize(orientation);
+    quat orientation = qPitch * qYaw;
+    orientation           = normalize(orientation);
 
-    model = glm::translate(glm::mat4(1.0f), Translation);
-    model *= glm::eulerAngleYZX(Rotation.y, Rotation.x, Rotation.z);
-    model *= glm::scale(glm::mat4(1.0f), Scale);
+    model = translate(float4x4(1.0f), Translation);
+    model *= eulerAngleYZX(Rotation.y, Rotation.x, Rotation.z);
+    model *= scale(float4x4(1.0f), Scale);
 #endif
 
-    Transform = glm::mat4(1.0f);
+    Transform = float4x4(1.0f);
 
-    glm::quat rotationQuat{};
-    glm::mat4 rotationMatrix = glm::mat4(1.0f);
+    quat     rotationQuat{};
+    float4x4 rotationMatrix = float4x4(1.0f);
     // Convert the Euler angles into
-    rotationQuat   = glm::quat(Rotation);
-    rotationMatrix = glm::mat4_cast(rotationQuat);
+    rotationQuat   = quat(Rotation);
+    rotationMatrix = mat4_cast(rotationQuat);
 
-    Transform = glm::translate(Transform, Translation);
+    Transform = translate(Transform, Translation);
     Transform *= rotationMatrix;
-    Transform = glm::scale(Transform, Scale);
+    Transform = scale(Transform, Scale);
 
     return WorldMatrix * Transform;
 }
 
-glm::mat4 Razix::TransformComponent::GetLocalTransform()
+float4x4 Razix::TransformComponent::GetLocalTransform()
 {
-    Transform = glm::mat4(1.0f);
+    Transform = float4x4(1.0f);
 
-    glm::quat rotationQuat{};
-    glm::mat4 rotationMatrix = glm::mat4(1.0f);
+    quat     rotationQuat{};
+    float4x4 rotationMatrix = float4x4(1.0f);
     // Convert the Euler angles into
-    rotationQuat   = glm::quat(Rotation);
-    rotationMatrix = glm::mat4_cast(rotationQuat);
+    rotationQuat   = quat(Rotation);
+    rotationMatrix = mat4_cast(rotationQuat);
 
-    Transform = glm::translate(Transform, Translation);
+    Transform = translate(Transform, Translation);
     Transform *= rotationMatrix;
-    Transform = glm::scale(Transform, Scale);
+    Transform = scale(Transform, Scale);
 
     return Transform;
 }

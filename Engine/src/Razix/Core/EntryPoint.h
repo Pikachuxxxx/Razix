@@ -7,6 +7,8 @@
 
 #include "Razix/Core/Crashdump/RZCrashdumpHandler.h"
 
+#define SUCCESSFUL_ENGINE_EXIT_CODE 0
+
 /* Using the forward declared the application creating function, that we assume was defined on the client side */
 extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
 
@@ -118,19 +120,21 @@ static int EngineMain(int argc, char** argv)
     Razix::RZEngine::Get().PostGraphicsIgnite();
 
     // Run the  Application with the master controlled given to the OS
-    windowsOS->Run();
+    windowsOS->Begin();
     windowsOS.release();
 
     return EXIT_SUCCESS;
 }
 
-static void EngineExit()
+static int EngineExit()
 {
     // Shutdown the Engine
     Razix::RZEngine::Get().ShutDown();
 
     // Shutdown the Engine systems
     Razix::Debug::RZLog::Shutdown();
+
+    return 0;
 }
 
 #elif defined RAZIX_PLATFORM_MACOS
@@ -200,19 +204,21 @@ static int EngineMain(int argc, char** argv)
     Razix::RZEngine::Get().PostGraphicsIgnite();
 
     // Run the  Application with the master controlled given to the OS
-    macosOS->Run();
+    macosOS->Begin();
     macosOS.release();
 
     return EXIT_SUCCESS;
 }
 
-static void EngineExit()
+static int EngineExit()
 {
     // Shutdown the Engine
     Razix::RZEngine::Get().ShutDown();
 
     // Shutdown the Engine systems
     Razix::Debug::RZLog::Shutdown();
+
+    return 0;
 }
 
 #endif

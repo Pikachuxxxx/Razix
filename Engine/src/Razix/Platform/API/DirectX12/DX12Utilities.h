@@ -8,21 +8,6 @@
 
 namespace Razix {
     namespace Gfx {
-
-        // Forward Declarations for reducing cyclic dependency
-        enum class DrawType;
-        enum class CullMode;
-        enum class PolygonMode;
-        enum class BlendOp;
-        enum class BlendFactor;
-        enum class CompareOp;
-        enum class DescriptorType : u32;
-        enum ShaderStage : u32;
-        enum ImageLayout : u32;
-        enum PipelineStage : u32;
-        enum MemoryAccessMask : u32;
-        class RZBufferLayout;
-
         namespace DX12Utilities {
 
     #define D3D_SAFE_RELEASE(x) \
@@ -31,7 +16,7 @@ namespace Razix {
             x = nullptr;        \
         }
 
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
 
         #define D3D12_TAG_OBJECT(handle, name) handle->SetName(name);
     #else
@@ -77,8 +62,8 @@ namespace Razix {
             //-----------------------------------------------------------------------------------
             // Markers for API Debugging in Graphics debugger Tools (PIX/RenderDoc)
 
-            void CmdBeginLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, glm::vec4 color);
-            void CmdInsertLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, glm::vec4 color);
+            void CmdBeginLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, float4 color);
+            void CmdInsertLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, float4 color);
             void CmdEndLabel(ID3D12GraphicsCommandList2* commandList);
 
             //-----------------------------------------------------------------------------------
@@ -86,7 +71,7 @@ namespace Razix {
             //-----------------------------------------------------------------------------------
 
             /* Creates a command buffer for single time use */
-            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color);
+            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer(const std::string commandUsage, float4 color);
             /* Ends the recording of the single time command buffer */
             void EndSingleTimeCommandBuffer(ID3D12GraphicsCommandList2* commandList);
 
@@ -100,6 +85,8 @@ namespace Razix {
             void TransitionResource(ID3D12GraphicsCommandList2* commandList, ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);
 
             void UpdateBufferResource(ID3D12Resource** pDestinationResource, size_t bufferSize, const void* bufferData);
+
+            D3D12_RESOURCE_STATES EngineImageLayoutToDX12(ImageLayout layout);
 
             //-----------------------------------------------------------------------------------
             // Texture/Image utility Functions
@@ -121,6 +108,10 @@ namespace Razix {
 
             // Descriptor
             DescriptorType DXToEngineDescriptorType(D3D_SHADER_INPUT_TYPE inputType);
+
+            D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapTypeToDX12(DescriptorHeapType heapType);
+
+            D3D12_SHADER_VISIBILITY ShaderStageToVisibility(ShaderStage stage);
 
             // PipelineInfo
             /**

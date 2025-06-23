@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Razix/Gfx/RZVertexFormat.h"
-#include "Razix/Maths/AABB.h"
+#include "Razix/Math/AABB.h"
 
 namespace Razix {
     namespace Gfx {
@@ -63,7 +63,7 @@ namespace Razix {
              * @param vertices The vertices that comprises the mesh
              * optimiseThreshold The default threshold to be set for mesh optimizer to optimize the vertex data
              */
-            RZMesh(const std::vector<u32>& indices, const std::vector<RZVertex>& vertices, f32 optimiseThreshold = 1.0f);
+            RZMesh(const std::vector<u32>& indices, const std::vector<RZVertex>& vertices);
 #endif
 
             RZMesh(RZVertexBufferHandle vertexBuffer[VERTEX_ATTRIBS_COUNT], RZIndexBufferHandle indexBuffer, u32 vtxcount, u32 idxcount);
@@ -81,29 +81,33 @@ namespace Razix {
             void Destroy();
             void bindVBsAndIB(RZDrawCommandBufferHandle cmdBuffer);
 
-            inline const std::string&   getName() const { return m_Name; }
-            inline void                 setName(const char* name) { m_Name = std::string(name); }
-            inline void                 setName(std::string name) { m_Name = name; }
-            inline RZMaterial*          getMaterial() { return m_Material; }
-            inline void                 setMaterial(RZMaterial* mat) { m_Material = mat; }
+            inline const std::string& getName() const { return m_Name; }
+            inline void               setName(const char* name) { m_Name = std::string(name); }
+            inline void               setName(std::string name) { m_Name = name; }
+            inline RZMaterial*        getMaterial() { return m_Material; }
+            inline void               setMaterial(RZMaterial* mat) { m_Material = mat; }
+#if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
+            inline RZVertexBufferHandle getVertexBufferHandle() { return m_VertexBuffer; }
+#else
             inline RZVertexBufferHandle getVertexBufferHandle(uint8_t attribIndex) { return m_VertexBuffers[attribIndex]; }
-            inline RZIndexBufferHandle  getIndexBufferHandle() { return m_IndexBuffer; }
-            inline u32                  getVerticesCount() const { return m_VertexCount; }
-            inline void                 setVertexCount(u32 count) { m_VertexCount = count; }
-            inline u32                  getIndexCount() const { return m_IndexCount; }
-            inline void                 setIndexCount(u32 count) { m_IndexCount = count; }
-            inline std::string          getPath() { return m_MeshPath; }
-            inline void                 setPath(std::string path) { m_MeshPath = path; }
-            inline Maths::AABB          getBoundingBox() { return m_BoundingBox; }
-            inline void                 setBoundingBox(Maths::AABB aabb) { m_BoundingBox = aabb; }
-            inline glm::vec3            getMaxExtents() { return m_BoundingBox.max; }
-            inline void                 setMaxExtents(glm::vec3 extents) { m_BoundingBox.max = extents; }
-            inline glm::vec3            getMinExtents() { return m_BoundingBox.min; }
-            inline void                 setMinExtents(glm::vec3 extents) { m_BoundingBox.min = extents; }
-            inline u32                  getBaseVertex() { return m_BaseVertex; }
-            inline void                 setBaseVertex(u32 count) { m_BaseVertex = count; }
-            inline u32                  getBaseIndex() { return m_BaseIndex; }
-            inline void                 setBaseIndex(u32 count) { m_BaseIndex = count; }
+#endif
+            inline RZIndexBufferHandle getIndexBufferHandle() { return m_IndexBuffer; }
+            inline u32                 getVerticesCount() const { return m_VertexCount; }
+            inline void                setVertexCount(u32 count) { m_VertexCount = count; }
+            inline u32                 getIndexCount() const { return m_IndexCount; }
+            inline void                setIndexCount(u32 count) { m_IndexCount = count; }
+            inline std::string         getPath() { return m_MeshPath; }
+            inline void                setPath(std::string path) { m_MeshPath = path; }
+            inline Maths::AABB         getBoundingBox() { return m_BoundingBox; }
+            inline void                setBoundingBox(Maths::AABB aabb) { m_BoundingBox = aabb; }
+            inline float3              getMaxExtents() { return m_BoundingBox.max; }
+            inline void                setMaxExtents(float3 extents) { m_BoundingBox.max = extents; }
+            inline float3              getMinExtents() { return m_BoundingBox.min; }
+            inline void                setMinExtents(float3 extents) { m_BoundingBox.min = extents; }
+            inline u32                 getBaseVertex() { return m_BaseVertex; }
+            inline void                setBaseVertex(u32 count) { m_BaseVertex = count; }
+            inline u32                 getBaseIndex() { return m_BaseIndex; }
+            inline void                setBaseIndex(u32 count) { m_BaseIndex = count; }
 
         private:
             std::string         m_Name        = "SM_Primitive.Cube"; /* The name of the mesh                                       */
@@ -120,6 +124,8 @@ namespace Razix {
 #else
             RZVertexBufferHandle m_VertexBuffers[VERTEX_ATTRIBS_COUNT] = {}; /* The Vertex Buffers for each vertex attrib                 */
 #endif
+
+            void initMeshFromVectors(const RZVertex& vertices, const std::vector<u32>& indices);
         };
     }    // namespace Gfx
 }    // namespace Razix

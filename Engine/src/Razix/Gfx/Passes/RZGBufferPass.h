@@ -2,10 +2,6 @@
 
 #include "Razix/Gfx/Passes/IRZPass.h"
 
-#include "Razix/Gfx/Passes/Data/GBufferData.h"
-
-#include "Razix/Gfx/Renderers/RZSystemBinding.h"
-
 namespace Razix {
     namespace Gfx {
 
@@ -18,7 +14,7 @@ namespace Razix {
             RZGBufferPass() = default;
             ~RZGBufferPass() {}
 
-            void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
+            void addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
             void destroy() override;
 
         private:

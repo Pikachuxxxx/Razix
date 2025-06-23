@@ -9,13 +9,13 @@ namespace Razix {
 
         struct BloomPassData
         {
-            FrameGraph::RZFrameGraphResource bloomTexture;
+            RZFrameGraphResource bloomTexture;
         };
 
         struct BloomMip
         {
-            FrameGraph::RZFrameGraphResource mip{-1};
-            glm::vec2                        size;
+            RZFrameGraphResource mip{-1};
+            float2               size;
         };
 
         constexpr u32 NUM_BLOOM_MIPS = 5;
@@ -26,7 +26,7 @@ namespace Razix {
             RZBloomPass() {}
             ~RZBloomPass() {}
 
-            void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
+            void addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
 
             void destroy() override;
 
@@ -46,12 +46,12 @@ namespace Razix {
             RZMesh* m_ScreenQuadMesh;
 
         private:
-            BloomMip upsample(FrameGraph::RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex, RZRendererSettings* settings);
-            BloomMip downsample(FrameGraph::RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex);
+            BloomMip upsample(RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex, RZRendererSettings* settings);
+            BloomMip downsample(RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex);
             /**
              * Mixes the final bloom blurred texture with the scene HDR color render target
              */
-            void mixScene(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings);
+            void mixScene(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings);
         };
     }    // namespace Gfx
 }    // namespace Razix

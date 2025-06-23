@@ -5,7 +5,7 @@
 #include "Razix/Core/UUID/RZUUID.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
-#include "RZSTL/smart_pointers.h"
+#include "Razix/Core/RZSTL/smart_pointers.h"
 
 #define GET_INSTANCE_SIZE static u32 GetInstanceSize()
 
@@ -69,16 +69,20 @@ namespace Razix {
          */
         enum ResourceViewHint : u8
         {
-            kSRV = 1 << 0,
-            kUAV = 1 << 1,    // typically a RW resource
-            kRTV = 1 << 2,
-            kDSV = 1 << 3
+            kSRV         = 1 << 0,
+            kUAV         = 1 << 1,    // typically a RW resource
+            kRTV         = 1 << 2,
+            kDSV         = 1 << 3,
+            kCBV         = 1 << 4,
+            kSampler     = 1 << 5,
+            kTransferSrc = 1 << 6,
+            kTransferDst = 1 << 7,
         };
 
         //-----------------------------------------------------------------------------------
 
         template<typename T>
-        class IRZResource
+        class RAZIX_API IRZResource
         {
         public:
             IRZResource()

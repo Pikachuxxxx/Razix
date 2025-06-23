@@ -4,18 +4,11 @@
 #include "RZTexture.h"
 
 #include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
-
-#ifdef RAZIX_RENDER_API_OPENGL
-    #include "Razix/Platform/API/OpenGL/OpenGLTexture.h"
-#endif
+#include "Razix/Gfx/RHI/API/RZShader.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
     #include "Razix/Platform/API/Vulkan/VKTexture.h"
 #endif
-
-#include "Razix/Gfx/RHI/API/RZShader.h"
-
-#include "Razix/Gfx/Resources/IRZResource.h"
 
 namespace Razix {
     namespace Gfx {
@@ -23,6 +16,31 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
         // Texture
         //-----------------------------------------------------------------------------------
+
+        RZTextureHandle RZTexture::s_DefaultTexture = {};
+
+        void RZTexture::InitDefaultTexture()
+        {
+            u8* pinkTextureDataRaw = new u8[4];    // A8B8G8R8
+            pinkTextureDataRaw[0]  = 0xff;
+            pinkTextureDataRaw[1]  = 0x00;
+            pinkTextureDataRaw[2]  = 0xff;
+            pinkTextureDataRaw[3]  = 0xff;
+
+            RZTextureDesc pinkDefDesc{};
+            pinkDefDesc.name   = "Texture.Builtin.Default.Pink.1x1";
+            pinkDefDesc.width  = 1;
+            pinkDefDesc.height = 1;
+            pinkDefDesc.data   = pinkTextureDataRaw;
+            pinkDefDesc.size   = sizeof(u8) * 4;
+            pinkDefDesc.format = TextureFormat::RGBA8;
+            s_DefaultTexture   = RZResourceManager::Get().createTexture(pinkDefDesc);
+        }
+
+        void RZTexture::ReleaseDefaultTexture()
+        {
+            RZResourceManager::Get().destroyTexture(s_DefaultTexture);
+        }
 
         class DX12Texture
         {};
@@ -54,7 +72,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            switch ((bits * 8)) {
+            switch ((bits)) {
                 case 8:
                     return TextureFormat::R8;
                 case 16:

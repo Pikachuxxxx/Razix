@@ -1,7 +1,7 @@
 project "SpirvCross"
     kind "StaticLib"
     language "C++"
-    systemversion "latest"
+    --systemversion "latest"
     cppdialect (engine_global_config.cpp_dialect)
     staticruntime "off"
 
@@ -36,6 +36,8 @@ project "SpirvCross"
         "spirv_reflect.hpp"
     }
 
+    warnings "off"
+
     -- Cinfig settings for Razix Engine project
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }
@@ -49,8 +51,8 @@ project "SpirvCross"
         symbols "On"
         runtime "Release"
 
-    filter "configurations:Distribution"
-        defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
+    filter "configurations:GoldMaster"
+        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
         symbols "Off"
         optimize "Full"
         runtime "Release"

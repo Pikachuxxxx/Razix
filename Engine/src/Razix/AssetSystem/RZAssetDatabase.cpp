@@ -3,7 +3,6 @@
 // clang-format on
 #include "RZAssetDatabase.h"
 
-
 namespace Razix {
     namespace AssetSystem {
     }

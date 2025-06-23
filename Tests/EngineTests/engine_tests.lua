@@ -9,6 +9,8 @@ project "EngineTests"
 
     files
     {
+        "../TestCommon/**.h",
+        "../TestCommon/**.cpp",
         "./*.cpp",
         "./**.cpp"
     }
@@ -47,10 +49,8 @@ project "EngineTests"
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
         "%{ExperimentalIncludeDir.Eigen}",
-        -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}",
-        "%{InternalIncludeDir.RZSTL}",
         -- googletest vendor
+        "%{wks.location}/../Tests/",
         "%{wks.location}/../Tests/vendor/googletest/googletest",
         "%{wks.location}/../Tests/vendor/googletest/googletest/include"
     }
@@ -84,10 +84,8 @@ project "EngineTests"
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
         "%{ExperimentalIncludeDir.Eigen}",
-        -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}",
-        "%{InternalIncludeDir.RZSTL}",
         -- googletest vendor
+        "%{wks.location}/../Tests/",
         "%{wks.location}/../Tests/vendor/googletest/googletest",
         "%{wks.location}/../Tests/vendor/googletest/googletest/include"
     }
@@ -132,7 +130,7 @@ project "EngineTests"
     filter "system:macosx"
         cppdialect "C++17"
         staticruntime "off"
-        systemversion "latest"
+        systemversion "14.0"
 
         defines
         {
@@ -160,8 +158,8 @@ project "EngineTests"
         symbols "On"
         runtime "Release"
 
-    filter "configurations:Distribution"
-        defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
+    filter "configurations:GoldMaster"
+        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
         symbols "Off"
         optimize "Full"
         runtime "Release"

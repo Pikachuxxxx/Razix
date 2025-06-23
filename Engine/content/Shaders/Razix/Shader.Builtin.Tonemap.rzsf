@@ -1,18 +1,13 @@
 /*
  * Razix Shader File 
  * Shader.Builtin.ToneMapping.rzsf : Tonemaps the HDR RT to SDR range
- * Copyright Razix Engine 2024 by Pikachuxxxx (Phani Srikar)
+ * Copyright Razix Engine 2025 by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.Quad.vert.spv
-    #endif
+    #include Shader.Builtin.Quad.vert
 #end
 
-// Including the default fragment shader
 #shader fragment
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.Tonemap.frag.spv
-    #endif
+    #include Shader.Builtin.Tonemap.frag
 #end

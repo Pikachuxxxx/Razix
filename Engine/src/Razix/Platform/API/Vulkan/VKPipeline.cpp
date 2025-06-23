@@ -21,9 +21,10 @@ namespace Razix {
             auto shader      = RZResourceManager::Get().getPool<RZShader>().get(m_Desc.shader);
             m_PipelineLayout = static_cast<VKShader*>(shader)->getPipelineLayout();
 
-            if(pipelineInfo.pipelineType == PipelineType::kGraphics)
+            if (pipelineInfo.pipelineType == PipelineType::kGraphics)
                 initGraphics(pipelineInfo RZ_DEBUG_E_ARG_NAME);
-            else initCompute(pipelineInfo RZ_DEBUG_E_ARG_NAME);
+            else
+                initCompute(pipelineInfo RZ_DEBUG_E_ARG_NAME);
         }
 
         RAZIX_CLEANUP_RESOURCE_IMPL(VKPipeline)
@@ -37,8 +38,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            auto cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-            VkPipelineBindPoint bindPoint = m_Desc.pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
+            auto                cmdBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
+            VkPipelineBindPoint bindPoint         = m_Desc.pipelineType == PipelineType::kGraphics ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
             vkCmdBindPipeline(static_cast<VKDrawCommandBuffer*>(cmdBufferResource)->getBuffer(), bindPoint, m_Pipeline);
         }
 
@@ -247,17 +248,17 @@ namespace Razix {
 
             VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_PIPELINE, (uint64_t) m_Pipeline);
         }
-    
+
         void VKPipeline::initCompute(const RZPipelineDesc& pipelineInfo RZ_DEBUG_NAME_TAG_E_ARG)
         {
             auto shader = RZResourceManager::Get().getPool<RZShader>().get(m_Desc.shader);
 
             VkComputePipelineCreateInfo computePipelineCI = {};
-            computePipelineCI.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-            computePipelineCI.layout = m_PipelineLayout;
-            computePipelineCI.flags = 0;
-            computePipelineCI.stage = static_cast<VKShader*>(shader)->getShaderStages()[0]; // CS is the only stage for this shader
-            
+            computePipelineCI.sType                       = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+            computePipelineCI.layout                      = m_PipelineLayout;
+            computePipelineCI.flags                       = 0;
+            computePipelineCI.stage                       = static_cast<VKShader*>(shader)->getShaderStages()[0];    // CS is the only stage for this shader
+
             if (VK_CHECK_RESULT(vkCreateComputePipelines(VKDevice::Get().getDevice(), VK_NULL_HANDLE, 1, &computePipelineCI, nullptr, &m_Pipeline)))
                 RAZIX_CORE_ERROR("[Vulkan] Cannot create compute pipeline!");
             else

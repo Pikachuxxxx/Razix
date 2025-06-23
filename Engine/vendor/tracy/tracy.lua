@@ -10,9 +10,9 @@ project "Tracy"
         --"client/**.hpp",
         --"client/**.c",
         --"client/**.cpp",
-        "Tracy.hpp",
+        "public/tracy/Tracy.hpp",
         --"TracyC.h",
-        "TracyClient.cpp"
+        "public/TracyClient.cpp"
         --"TracyD3D11.hpp",
         --"TracyD3D12.hpp",
         --"TracyLua.hpp",
@@ -39,8 +39,8 @@ project "Tracy"
         symbols "On"
         runtime "Release"
 
-    filter "configurations:Distribution"
-        defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
+    filter "configurations:GoldMaster"
+        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
         symbols "Off"
         optimize "Full"
         runtime "Release"

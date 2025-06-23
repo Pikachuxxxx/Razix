@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Razix/Core/RZDataTypes.h"
+#include "Razix/Gfx/GfxData.h"
 #include "Razix/Utilities/RZVendorOverrides.h"
-
-#include "Razix/Gfx/RHI/API/RZAPIHandles.h"
 
 #include <cereal/cereal.hpp>
 #include <glm/glm.hpp>
@@ -19,32 +18,34 @@ namespace Razix {
         /* The type of workflow used by the material for authoring the materials for the different lighting models */
         enum class WorkFlow : u32
         {
-            WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED,    // In the order of BGR components! AO = r, Roughness = g, Metal = b
-            WORLFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE,
-            WORLFLOW_PBR_SPECULAR_GLOSS_COMBINED,
-            WORLFLOW_PBR_SPECULAR_GLOSS_SEPARATE,
+            WORKFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED,    // In the order of BGR components! AO = r, Roughness = g, Metal = b
+            WORKFLOW_PBR_METAL_ROUGHNESS_AO_SEPARATE,
+            WORKFLOW_PBR_SPECULAR_GLOSS_COMBINED,
+            WORKFLOW_PBR_SPECULAR_GLOSS_SEPARATE,
             WORKFLOW_UNLIT,
-            WORLFLOW_LIT_PHONG
+            WORKFLOW_LIT_PHONG
         };
 
         // TODO: Make this work with bool
         /* Material properties (16-byte aligned as per optimal GPU requirements) */
         struct alignas(16) MaterialProperties
         {
-            glm::vec3 albedoColor = glm::vec3(1.0f, 1.0f, 1.0f);
-            bool      _padding[4] = {};
-            glm::vec3 normal      = glm::vec3(0.0f, 1.0f, 0.0f);
-            //bool      _padding_[4]        = {1, 0, 1, 0};
-            f32       emissiveIntensity = 1.0f;
-            f32       metallicColor     = 1.0f;
-            f32       roughnessColor    = 0.025f;
-            f32       specularColor     = 1.0f;
-            f32       opacity           = 1.0f;
-            f32       ambientOcclusion  = 1.0f;
-            bool      _padding2[4]      = {};
-            glm::vec2 uvScale           = {1.0f, 1.0f};
-            u32       visible           = true;
-            u32       workflow          = (u32) WorkFlow::WORLFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED;    // Default for GLTF models which are primary source for Razix
+            float3 albedoColor  = float3(1.0f, 1.0f, 1.0f);
+            bool   _padding0[4] = {};
+
+            float3 normal            = float3(0.0f, 1.0f, 0.0f);
+            f32    emissiveIntensity = 1.0f;
+
+            f32 metallicColor  = 1.0f;
+            f32 roughnessColor = 0.025f;
+            f32 specularColor  = 1.0f;
+            f32 opacity        = 1.0f;
+
+            f32    ambientOcclusion = 1.0f;
+            float2 uvScale          = {1.0f, 1.0f};
+            u32    workflow         = (u32) WorkFlow::WORKFLOW_PBR_METAL_ROUGHNESS_AO_COMBINED;    // Default for GLTF models which are primary source for Razix
+
+            u32 visible = true;
             // TODO: Use these as bindless array indices
             u32 isUsingAlbedoMap    = false;
             u32 isUsingNormalMap    = false;
@@ -55,13 +56,14 @@ namespace Razix {
             u32 isUsingAOMap        = false;
             //------------------------------
             // RUNTIME STUFF
-            u32 AlbedoMapIdx    = u16_max;
-            u32 NormalMapIdx    = u16_max;
-            u32 MetallicMapIdx  = u16_max;
-            u32 RoughnessMapIdx = u16_max;
-            u32 SpecularIdx     = u16_max;
-            u32 EmissiveMapIdx  = u16_max;
-            u32 AOMapIdx        = u16_max;
+            u32 AlbedoMapIdx    = UINT16_MAX;
+            u32 NormalMapIdx    = UINT16_MAX;
+            u32 MetallicMapIdx  = UINT16_MAX;
+            u32 RoughnessMapIdx = UINT16_MAX;
+            u32 SpecularIdx     = UINT16_MAX;
+            u32 EmissiveMapIdx  = UINT16_MAX;
+            u32 AOMapIdx        = UINT16_MAX;
+            u32 _padding1;
         };
 
         /* lighting model textures */
@@ -93,7 +95,6 @@ namespace Razix {
             char ao[250]        = {};
         };
 
-#if 1
         struct MaterialData
         {
             char                 m_Name[250]            = "MT_PBR.Lit.Default";
@@ -105,7 +106,6 @@ namespace Razix {
             template<typename Archive>
             void save(Archive& archive) const
             {
-    #if 1
                 archive(cereal::make_nvp("Name", std::string(m_Name)),
                     cereal::make_nvp("Albedo", m_MaterialTexturePaths.albedo ? std::string(m_MaterialTexturePaths.albedo) : ""),
                     cereal::make_nvp("Normal", m_MaterialTexturePaths.normal ? std::string(m_MaterialTexturePaths.normal) : ""),
@@ -123,7 +123,6 @@ namespace Razix {
                     cereal::make_nvp("isUsingNormalMap", m_MaterialProperties.isUsingNormalMap),
                     cereal::make_nvp("isUsingAOMap", m_MaterialProperties.isUsingAOMap),
                     cereal::make_nvp("isUsingEmissiveMap", m_MaterialProperties.isUsingEmissiveMap));
-    #endif
             }
 
             template<typename Archive>
@@ -138,7 +137,6 @@ namespace Razix {
                 std::string ao;
                 std::string name;
 
-    #if 1
                 archive(cereal::make_nvp("Name", name),
                     cereal::make_nvp("Albedo", albedo),
                     cereal::make_nvp("Normal", normal),
@@ -157,17 +155,21 @@ namespace Razix {
                     cereal::make_nvp("isUsingAOMap", m_MaterialProperties.isUsingAOMap),
                     cereal::make_nvp("isUsingEmissiveMap", m_MaterialProperties.isUsingEmissiveMap));
 
-                memcpy(m_Name, name.c_str(), 250);
-                memcpy(m_MaterialTexturePaths.albedo, albedo.c_str(), 250);
-                memcpy(m_MaterialTexturePaths.ao, ao.c_str(), 250);
-                memcpy(m_MaterialTexturePaths.emissive, emissive.c_str(), 250);
-                memcpy(m_MaterialTexturePaths.metallic, metallic.c_str(), 250);
-                memcpy(m_MaterialTexturePaths.normal, normal.c_str(), 250);
-                memcpy(m_MaterialTexturePaths.roughness, roughness.c_str(), 250);
-                memcpy(m_MaterialTexturePaths.specular, specular.c_str(), 250);
-    #endif
+                auto safe_strncpy = [](char* dest, const std::string& src, size_t maxLength) {
+                    std::strncpy(dest, src.c_str(), maxLength);
+                    dest[maxLength] = '\0';    // Ensure null termination
+                };
+
+                // Copy safely using the helper function
+                safe_strncpy(m_Name, name, sizeof(m_Name) - 1);
+                safe_strncpy(m_MaterialTexturePaths.albedo, albedo, sizeof(m_MaterialTexturePaths.albedo) - 1);
+                safe_strncpy(m_MaterialTexturePaths.ao, ao, sizeof(m_MaterialTexturePaths.ao) - 1);
+                safe_strncpy(m_MaterialTexturePaths.emissive, emissive, sizeof(m_MaterialTexturePaths.emissive) - 1);
+                safe_strncpy(m_MaterialTexturePaths.metallic, metallic, sizeof(m_MaterialTexturePaths.metallic) - 1);
+                safe_strncpy(m_MaterialTexturePaths.normal, normal, sizeof(m_MaterialTexturePaths.normal) - 1);
+                safe_strncpy(m_MaterialTexturePaths.roughness, roughness, sizeof(m_MaterialTexturePaths.roughness) - 1);
+                safe_strncpy(m_MaterialTexturePaths.specular, specular, sizeof(m_MaterialTexturePaths.specular) - 1);
             }
         };
-#endif
     }    // namespace Gfx
 }    // namespace Razix

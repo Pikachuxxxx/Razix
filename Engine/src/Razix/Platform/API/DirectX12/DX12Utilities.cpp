@@ -19,7 +19,7 @@
     // d3dx12 Helper stuff
     #include <vendor/d3dx12/d3dx12.h>
 
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
         #include <pix3.h>
     #endif
 
@@ -31,16 +31,16 @@ namespace Razix {
 
             void LoadPIXRuntime()
             {
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
                 WinPixEventRuntimeModule = LoadLibrary("WinPixEventRuntime.dll");
                 if (!WinPixEventRuntimeModule)
                     RAZIX_CORE_WARN("[D3D12] could not load WinPixEventRuntime.");
-    #endif    // RAZIX_DISTRIBUTION
+    #endif    // RAZIX_GOLD_MASTER
             }
 
-            void CmdBeginLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, glm::vec4 color)
+            void CmdBeginLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, float4 color)
             {
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
 
                 if (!WinPixEventRuntimeModule)
                     return;
@@ -50,9 +50,9 @@ namespace Razix {
     #endif
             }
 
-            void CmdInsertLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, glm::vec4 color)
+            void CmdInsertLabel(ID3D12GraphicsCommandList2* commandList, const std::string& name, float4 color)
             {
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
 
                 if (!WinPixEventRuntimeModule)
                     return;
@@ -65,7 +65,7 @@ namespace Razix {
 
             void CmdEndLabel(ID3D12GraphicsCommandList2* commandList)
             {
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
 
                 if (!WinPixEventRuntimeModule)
                     return;
@@ -75,7 +75,7 @@ namespace Razix {
     #endif
             }
 
-            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color)
+            ID3D12GraphicsCommandList2* BeginSingleTimeCommandBuffer(const std::string commandUsage, float4 color)
             {
                 auto device = Gfx::DX12Context::Get()->getDevice();
 
@@ -160,7 +160,7 @@ namespace Razix {
                 auto            copyCommandQueue      = Gfx::DX12Context::Get()->getCopyQueue();
                 ID3D12Resource* pIntermediateResource = nullptr;
 
-                auto commandList = BeginSingleTimeCommandBuffer("Update Buffer Resource", glm::vec4(0.23, 0.45, 0.76f, 1.0f));
+                auto commandList = BeginSingleTimeCommandBuffer("Update Buffer Resource", float4(0.23, 0.45, 0.76f, 1.0f));
 
                 // Create an committed resource for the upload.
                 if (bufferData) {
@@ -193,6 +193,35 @@ namespace Razix {
                 // Wait until this operation is done
                 EndSingleTimeCommandBuffer(commandList);
                 pIntermediateResource->Release();
+            }
+
+            D3D12_RESOURCE_STATES EngineImageLayoutToDX12(ImageLayout layout)
+            {
+                switch (layout) {
+                    case ImageLayout::kNewlyCreated:
+                        return D3D12_RESOURCE_STATE_COMMON;
+                    case ImageLayout::kGeneric:
+                        return D3D12_RESOURCE_STATE_COMMON;
+                    case ImageLayout::kSwapchain:
+                        return D3D12_RESOURCE_STATE_PRESENT;
+                    case ImageLayout::kColorRenderTarget:
+                        return D3D12_RESOURCE_STATE_RENDER_TARGET;
+                    case ImageLayout::kDepthRenderTarget:
+                    case ImageLayout::kDepthStencilRenderTarget:
+                        return D3D12_RESOURCE_STATE_DEPTH_WRITE;
+                    case ImageLayout::kDepthStencilReadOnly:
+                        return D3D12_RESOURCE_STATE_DEPTH_READ;
+                    case ImageLayout::kShaderRead:
+                        return D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+                    case ImageLayout::kShaderWrite:
+                        return D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+                    case ImageLayout::kTransferSource:
+                        return D3D12_RESOURCE_STATE_COPY_SOURCE;
+                    case ImageLayout::kTransferDestination:
+                        return D3D12_RESOURCE_STATE_COPY_DEST;
+                    default:
+                        return D3D12_RESOURCE_STATE_COMMON;
+                }
             }
 
             void GetCPUDescriptorOffsetHandle(_Out_ D3D12_CPU_DESCRIPTOR_HANDLE& handle, INT offsetInDescriptors, UINT descriptorIncrementSize)
@@ -264,13 +293,13 @@ namespace Razix {
                         layout.push<f32>(name);
                         break;
                     case DXGI_FORMAT_R32G32_FLOAT:
-                        layout.push<glm::vec2>(name);
+                        layout.push<float2>(name);
                         break;
                     case DXGI_FORMAT_R32G32B32_FLOAT:
-                        layout.push<glm::vec3>(name);
+                        layout.push<float3>(name);
                         break;
                     case DXGI_FORMAT_R32G32B32A32_FLOAT:
-                        layout.push<glm::vec4>(name);
+                        layout.push<float4>(name);
                         break;
                     default:
                         RAZIX_CORE_ERROR("Unsupported Format {0}", format);
@@ -322,6 +351,58 @@ namespace Razix {
                         break;
                     default:
                         return DescriptorType::kNone;
+                        RAZIX_CORE_ERROR("[DX12] None descriptor type specified! you're doomed check your code/shaders properly.");
+                        break;
+                }
+            }
+
+            D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapTypeToDX12(DescriptorHeapType heapType)
+            {
+                switch (heapType) {
+                    case Razix::Gfx::DescriptorHeapType::kCbvUavSrvHeap:
+                        return D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+                        break;
+                    case Razix::Gfx::DescriptorHeapType::kSamplerHeap:
+                        return D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+                        break;
+                    case Razix::Gfx::DescriptorHeapType::kRenderTargetHeap:
+                        return D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+                        break;
+                    case Razix::Gfx::DescriptorHeapType::kDepthStencilHeap:
+                        return D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+                        break;
+                }
+            }
+
+            D3D12_SHADER_VISIBILITY ShaderStageToVisibility(ShaderStage stage)
+            {
+                switch (stage) {
+                    case kVertex:
+                        return D3D12_SHADER_VISIBILITY_VERTEX;
+                        break;
+                    case kPixel:
+                        return D3D12_SHADER_VISIBILITY_PIXEL;
+                        break;
+                    case kCompute:
+                        return D3D12_SHADER_VISIBILITY_ALL;    // Ahhh ik weird right but since once stage this works!
+                        break;
+                    case kGeometry:
+                        return D3D12_SHADER_VISIBILITY_GEOMETRY;
+                        break;
+                    case kTesselationControl:
+                        return D3D12_SHADER_VISIBILITY_DOMAIN;
+                        break;
+                    case kTesselationEvaluation:
+                        return D3D12_SHADER_VISIBILITY_HULL;
+                        break;
+                    case kAmplification:
+                        return D3D12_SHADER_VISIBILITY_AMPLIFICATION;
+                        break;
+                    case kMesh:
+                        return D3D12_SHADER_VISIBILITY_MESH;
+                        break;
+                    default:
+                        return D3D12_SHADER_VISIBILITY_ALL;
                         break;
                 }
             }

@@ -41,11 +41,11 @@ namespace Razix {
 
         struct WindowData
         {
-            std::string     Title;
-            u32             Width;
-            u32             Height;
-//            u32             wScale;
-//            u32             hScale;
+            std::string Title;
+            u32         Width;
+            u32         Height;
+            //            u32             wScale;
+            //            u32             hScale;
             bool            Vsync;
             EventCallbackFn EventCallback;
         } m_Data;    // Call me old fashioned, Bitch!!!

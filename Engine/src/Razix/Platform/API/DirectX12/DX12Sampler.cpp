@@ -10,12 +10,10 @@ namespace Razix {
 
         DX12Sampler::DX12Sampler(const RZSamplerDesc& desc RZ_DEBUG_NAME_TAG_E_ARG)
         {
-
         }
 
-         RAZIX_CLEANUP_RESOURCE_IMPL(DX12Sampler)
+        RAZIX_CLEANUP_RESOURCE_IMPL(DX12Sampler)
         {
-            
         }
 
     }    // namespace Gfx

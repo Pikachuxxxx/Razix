@@ -52,7 +52,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-    #ifndef RAZIX_DISTRIBUTION
+    #ifndef RAZIX_GOLD_MASTER
             DX12Utilities::LoadPIXRuntime();
     #endif
 
@@ -100,12 +100,6 @@ namespace Razix {
             DX12Utilities::TransitionResource(commandListD3D, DX12Context::Get()->getSwapchain()->getCurrentD3DBackbufferResource(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
         }
 
-        RAZIX_DEPRECATED("[Razix Deprecated!] SubmitWork is no longer used, use RHI::Submit(RZDrawCommandBuffer*) to submit draw commands & execute work on CPU.")
-        void DX12RenderContext::SubmitWorkImpl(std::vector<RZSemaphore*> waitSemaphores, std::vector<RZSemaphore*> signalSemaphores)
-        {
-            RAZIX_UNIMPLEMENTED_METHOD
-        }
-
         void DX12RenderContext::SubmitImpl(RZDrawCommandBufferHandle cmdBuffer)
         {
             auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
@@ -139,17 +133,12 @@ namespace Razix {
             pp->Bind(cmdBuffer);
         }
 
-        void DX12RenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet* descriptorSet, u32 setIdx)
+        void DX12RenderContext::BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZDescriptorSetHandle descriptorSet, u32 setIdx)
         {
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
-        void DX12RenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSet*>& descriptorSets, u32 startSetIdx)
-        {
-            RAZIX_UNIMPLEMENTED_METHOD
-        }
-
-        void DX12RenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const RZDescriptorSet** descriptorSets, u32 totalSets, u32 startSetIdx)
+        void DX12RenderContext::BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSetHandle>& descriptorSets, u32 startSetIdx)
         {
             RAZIX_UNIMPLEMENTED_METHOD
         }
@@ -171,13 +160,13 @@ namespace Razix {
 
             // TODO: Clear the RTs and DTs + bind the actual RT textures to render onto and set the viewport etc
 
-            glm::ivec2 viewPortExtents;
+            int2 viewPortExtents;
             if (renderingInfo.resolution == Resolution::kCustom)
                 viewPortExtents = {renderingInfo.extent.x, renderingInfo.extent.y};
             else if (renderingInfo.resolution == Resolution::kWindow)
                 viewPortExtents = {m_Width, m_Height};
             else {
-                auto& res       = ResolutionToExtentsMap[renderingInfo.resolution];
+                auto& res       = g_ResolutionToExtentsMap[renderingInfo.resolution];
                 viewPortExtents = {res.x, res.y};
             }
 
@@ -198,12 +187,22 @@ namespace Razix {
         {
         }
 
-        void DX12RenderContext::InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, PipelineBarrierInfo pipelineBarrierInfo, ImageMemoryBarrierInfo imgBarrierInfo)
+        void DX12RenderContext::InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, ImageLayout oldLayout, ImageLayout newLayout)
         {
-            RAZIX_UNIMPLEMENTED_METHOD
+            D3D12_RESOURCE_BARRIER barrier = {};
+            barrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            barrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+            barrier.Transition.pResource   = NULL;    // TODO: Use Texture backend handle here
+            barrier.Transition.StateBefore = DX12Utilities::EngineImageLayoutToDX12(oldLayout);
+            barrier.Transition.StateAfter  = DX12Utilities::EngineImageLayoutToDX12(newLayout);
+            barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+            auto commandBufferResource = RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
+            auto commandListD3D        = (ID3D12GraphicsCommandList2*) commandBufferResource->getAPIBuffer();
+            commandListD3D->ResourceBarrier(1, &barrier);
         }
 
-        void DX12RenderContext::InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, PipelineBarrierInfo pipelineBarrierInfo, BufferMemoryBarrierInfo bufBarrierInfo)
+        void DX12RenderContext::InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, BufferBarrierType barrierType)
         {
             RAZIX_UNIMPLEMENTED_METHOD
         }
@@ -213,7 +212,7 @@ namespace Razix {
             RAZIX_UNIMPLEMENTED_METHOD
         }
 
-        void DX12RenderContext::DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DataType datayType /*= DataType::UNSIGNED_INT*/)
+        void DX12RenderContext::DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DrawDataType datayType /*= DataType::UNSIGNED_INT*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -315,6 +314,18 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             return static_cast<RZSwapchain*>(DX12Context::Get()->getSwapchain().get());
+        }
+
+        Razix::Gfx::TextureReadback DX12RenderContext::InsertTextureReadbackImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture)
+        {
+            RAZIX_UNIMPLEMENTED_METHOD;
+            TextureReadback readback = {};
+            return readback;
+        }
+
+        void DX12RenderContext::FlushPendingWorkImpl()
+        {
+            RAZIX_UNIMPLEMENTED_METHOD
         }
     }    // namespace Gfx
 }    // namespace Razix

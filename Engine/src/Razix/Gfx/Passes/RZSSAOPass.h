@@ -10,13 +10,13 @@ namespace Razix {
 
         struct SSAOParamsData
         {
-            float     radius           = 1.0f;
-            float     bias             = 0.025f;
-            glm::vec2 resolution       = {};
-            glm::vec3 camViewPos       = {};
-            float     _padding         = 0.0f;
-            glm::mat4 viewMatrix       = {};
-            glm::mat4 projectionMatrix = {};
+            float    radius           = 1.0f;
+            float    bias             = 0.025f;
+            float2   resolution       = {};
+            float3   camViewPos       = {};
+            float    _padding         = 0.0f;
+            float4x4 viewMatrix       = {};
+            float4x4 projectionMatrix = {};
         };
 
         class RZSSAOPass : public IRZPass
@@ -25,7 +25,7 @@ namespace Razix {
             RZSSAOPass() {}
             ~RZSSAOPass() {}
 
-            void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
+            void addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
             void destroy() override;
 
         private:

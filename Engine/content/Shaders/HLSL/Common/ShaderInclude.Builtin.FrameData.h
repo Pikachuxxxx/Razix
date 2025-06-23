@@ -1,5 +1,6 @@
 #ifndef _FRAME_DATA_GLSL_
 #define _FRAME_DATA_GLSL_
+// TODO: Use engine file instead via Razix/Shared/ShaderCompatibility.h
 //----------------------------------------------------------------------------
 // TODO: Don't redefine this, use from Engine source
 struct Camera
@@ -15,7 +16,7 @@ struct Camera
 };
 //----------------------------------
 // TODO: Remove this struct
-struct Frameframe_info
+struct FrameInfo
 {
     float  time;
     float  deltaTime;
@@ -30,7 +31,7 @@ struct Frameframe_info
 #ifndef DISABLE_FRAME_DATA_BINDING
 cbuffer FrameData : register(b0, space0)
 {
-    Frameframe_info frame_info;
+    FrameInfo frame_info;
 };
 //----------------------------------------------------------------------------
 static const uint RendererFeature_Shadows    = 1 << 0;
@@ -101,4 +102,4 @@ float4 getProjectionViewSpacePosition(float4 pos)
     return jitterWorldPos;
 }
 
-#endif
+#endif    // _FRAME_DATA_GLSL_

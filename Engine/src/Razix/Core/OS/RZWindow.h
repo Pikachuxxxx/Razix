@@ -47,54 +47,30 @@ namespace Razix {
     public:
         using EventCallbackFn = std::function<void(RZEvent&)>;
 
-        /**
-         * Creates a Razix window with the given window properties
-         *
-         * @param properties A struct with the custom window properties
-         * @returns Handle to the Razix window
-         */
         static RZWindow* Create(const WindowProperties& properties = WindowProperties());
         static RZWindow* Create(void* nativeHandle, const WindowProperties& properties = WindowProperties());
         virtual ~RZWindow() {}
 
-        /* Called on Every Window Update */
         virtual void OnWindowUpdate() = 0;
 
-        /* Process the Input polling */
-        virtual void ProcessInput() {};
+        virtual void ProcessInput(){};
 
         virtual void Destroy() = 0;
 
-        /* Gets the Width of the window */
         virtual unsigned int getWidth() const = 0;
 
-        /* Gets the Height of the window */
         virtual unsigned int getHeight() const = 0;
 
         virtual void setTitle(const char* title) = 0;
 
-        // Window Attributes
-
-        /**
-		 * Set the event callback function for Window events
-		 * 
-		 * @param callback Pointer to the callback function 
-		 */
         virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 
-        /* Enables V - Sync */
         virtual void SetVSync(bool enabled) = 0;
 
-        /* Tells whether or not VSync was enabled or not */
         virtual bool IsVSync() const = 0;
 
-        /* Sets the window Icon */
         virtual void SetWindowIcon() = 0;
 
-        /**
-         * Gets the native window handle for the underlying OS
-         * @returns A pointer to the underlying OS native handle
-         */
         virtual void* GetNativeWindow() const = 0;
 
     protected:

@@ -15,7 +15,7 @@ namespace Razix {
         {
             NONE   = -1,
             VULKAN = 1,    // Working
-            D3D12  = 3,    // [WIP]
+            D3D12  = 3,    // [WIP] // PC & XBOX
             GXM    = 4,    // Not Supported yet! (PSVita)
             GCM    = 5,    // Not Supported yet! (PS3)
             AGC,
@@ -29,18 +29,19 @@ namespace Razix {
          */
         typedef struct GraphicsFeatures
         {
-            bool EnableVSync            = false; /* No V-Sync by default we don't cap the frame rate */
-            bool TesselateTerrain       = true;
-            bool SupportsBindless       = true;
-            bool SupportsWaveIntrinsics = false;
-            bool SupportsShaderModel6   = false;
-            u32  MaxBindlessTextures    = 4096;
-            u32  MinLaneWidth           = 0;
-            u32  MaxLaneWidth           = 0;
+            bool EnableVSync                  = false; /* No V-Sync by default we don't cap the frame rate */
+            bool TesselateTerrain             = true;
+            bool SupportsBindless             = true;
+            bool SupportsWaveIntrinsics       = false;
+            bool SupportsShaderModel6         = false;
+            bool SupportsNullIndexDescriptors = false;
+            u32  MaxBindlessTextures          = 4096;
+            u32  MinLaneWidth                 = 0;
+            u32  MaxLaneWidth                 = 0;
         } GraphicsFeatures;
 
         /* Global instance for Graphics Device level features */
-        extern GraphicsFeatures g_GraphicsFeatures;
+        RAZIX_API extern GraphicsFeatures g_GraphicsFeatures;
 
         /**
          * The Graphics Context that manages the context of the underlying graphics API
@@ -56,14 +57,14 @@ namespace Razix {
              */
             static void Create(const WindowProperties& properties, RZWindow* window);
             /* Release the graphics context object and it's resources */
-            static void Release();
+            static void Destroy();
             static void PostGraphicsContextInit();
             static void PreGraphicsContextDestroy();
 
             /* Initializes the underlying Graphics API for rendering */
             virtual void Init() = 0;
             //! Only here the Destroy method is in PascalCase rest of the API must maintain a camelCase destroy
-            virtual void Destroy() = 0;
+            virtual void DestroyContext() = 0;
             /* Clears the screen with the given color */
             virtual void ClearWithColor(f32 r, f32 g, f32 b) = 0;
 

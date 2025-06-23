@@ -1,10 +1,5 @@
 #pragma once
 
-#include "Razix/Core/Memory/RZMemoryBudgets.h"
-#include "Razix/Core/RZDepartments.h"
-
-#include "Razix/Gfx/RHI/API/RZAPIHandles.h"
-
 namespace Razix {
     struct SceneDrawParams;
 }
@@ -26,96 +21,82 @@ namespace Razix {
 */
 namespace Razix {
     namespace Gfx {
-        namespace FrameGraph {
 
-            // Forward Decelerations
-            class RZPassResourceDirectory;    // List of all Resources in the current pass node
-            class RZPassNode;
+        // Forward Decelerations
+        class RZPassResourceDirectory;    // List of all Resources in the current pass node
+        class RZPassNode;
 
-            /**
-             * This is type erasure all over again, the PassNode needs to store a lambda function to execute and some data to pass to the lambda
-             * now unlike resource entry, we don't need to know anything about the function or data that need to be passed it can be done discretely
-             * only while creating the function using FG we need to see if it's valid signature apart from that PassNode needs no other info,
-             * Now we don't have to call any specific method on these erased types so we don't need a complex manager class like ResourceEntry
-             * just simple () will do just fine on all pairs of Data Func pairs
-             * 
-             * So we create a pass class to store Data and a Func and since we call a common function operator() on it
-             * we can store a interface (aka Concept) class in the PassNode that will encapsulate this Func and Data 
-             * 
-             * Dawid Kurek names it concept as it's some form of Type Erasure but for me I like to see it as a simple interface
-             */
+        /**
+          * This is type erasure all over again, the PassNode needs to store a lambda function to execute and some data to pass to the lambda
+          * now unlike resource entry, we don't need to know anything about the function or data that need to be passed it can be done discretely
+          * only while creating the function using FG we need to see if it's valid signature apart from that PassNode needs no other info,
+          * Now we don't have to call any specific method on these erased types so we don't need a complex manager class like ResourceEntry
+          * just simple () will do just fine on all pairs of Data Func pairs
+          * 
+          * So we create a pass class to store Data and a Func and since we call a common function operator() on it
+          * we can store a interface (aka Concept) class in the PassNode that will encapsulate this Func and Data 
+          * 
+          * Dawid Kurek names it concept as it's some form of Type Erasure but for me I like to see it as a simple interface
+          */
 
-            /**
-             * Frame Graph pass is nothing but a Lambda function and we use a typeless way to call it for every pass node
-             */
-            struct IRZFrameGraphPass
+        /**
+          * Frame Graph pass is nothing but a Lambda function and we use a typeless way to call it for every pass node
+          */
+        struct IRZFrameGraphPass
+        {
+            IRZFrameGraphPass() {}
+            RAZIX_VIRTUAL_DESCTURCTOR(IRZFrameGraphPass)
+
+            RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(IRZFrameGraphPass)
+
+            virtual void operator()(RZPassNode& node, RZPassResourceDirectory& resources)  = 0;
+            virtual void resize(RZPassResourceDirectory& resources, u32 width, u32 height) = 0;
+        };
+
+        template<typename Data, typename ExecuteFunc, typename ResizeFunc>    
+        struct RZFrameGraphCodePass final : IRZFrameGraphPass
+        {
+            explicit RZFrameGraphCodePass(ExecuteFunc&& exec, ResizeFunc&& resize)
+                : execFunction{std::forward<ExecuteFunc>(exec)}, resizeFunction{std::forward<ResizeFunc>(resize)} {}
+
+            RAZIX_VIRTUAL_DESCTURCTOR(RZFrameGraphCodePass)
+
+            void operator()(RZPassNode& node, RZPassResourceDirectory& resources) override
             {
-                IRZFrameGraphPass() {}
-                RAZIX_VIRTUAL_DESCTURCTOR(IRZFrameGraphPass)
+                // Note: Node isn't is used here it's for the RZFrameGraphDataPass
+                execFunction(data, resources);
+            }
 
-                RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(IRZFrameGraphPass)
-
-                virtual void operator()(RZPassNode &node, RZPassResourceDirectory &resources)  = 0;
-                virtual void resize(RZPassResourceDirectory &resources, u32 width, u32 height) = 0;
-
-            protected:
-                Department         m_Department; /* The department this pass belongs to */
-                Memory::BudgetInfo m_PassBudget; /* Pass current budget tracking */
-            };
-
-            /* Encapsulation of the pass lambda and its data, the best way to store lambdas as members is using templates */
-            template<typename Data, typename ExecuteFunc, typename ResizeFunc>    // done in FG so redundant here, typename = std::enable_if_t<is_valid_pass_exec_function<ExecuteFunc>()>> // Checks for the signature of the exec function
-            struct RZFrameGraphCodePass final : IRZFrameGraphPass
+            void resize(RZPassResourceDirectory& resources, u32 width, u32 height) override
             {
-                explicit RZFrameGraphCodePass(ExecuteFunc &&exec, ResizeFunc &&resize)
-                    : execFunction{std::forward<ExecuteFunc>(exec)}, resizeFunction{std::forward<ResizeFunc>(resize)} {}
+                resizeFunction(resources, width, height);
+            }
 
-                RAZIX_VIRTUAL_DESCTURCTOR(RZFrameGraphCodePass)
+            ExecuteFunc execFunction;
+            ResizeFunc  resizeFunction;
+            Data        data{};
+        };
 
-                void operator()(RZPassNode &node, RZPassResourceDirectory &resources) override
-                {
-                    // Note: Node isn't is used here it's for the RZFrameGraphDataPass
-                    execFunction(data, resources);
-                }
+        struct FrameGraphDataPassDesc
+        {
+            Gfx::RZShaderHandle          shader;
+            Gfx::RZPipelineHandle        pipeline;
+            Razix::SceneDrawGeometryMode geometryMode;
+            Resolution                   resolution;
+            float2                       extent;
+            u32                          layers;
+        };
 
-                void resize(RZPassResourceDirectory &resources, u32 width, u32 height) override
-                {
-                    resizeFunction(resources, width, height);
-                }
+        struct RZFrameGraphDataPass final : IRZFrameGraphPass
+        {
+            RZFrameGraphDataPass(FrameGraphDataPassDesc desc);
 
-                ExecuteFunc execFunction;   /* Pass Execution function                                  */
-                ResizeFunc  resizeFunction; /* Pass Resize function                                     */
-                Data        data{};         /* Pass data that contains the list of FrameGraphResources  */
-            };
+            RAZIX_VIRTUAL_DESCTURCTOR(RZFrameGraphDataPass)
 
-            struct FrameGraphDataPassDesc
-            {
-                Gfx::RZShaderHandle          shader;
-                Gfx::RZPipelineHandle        pipeline;
-                Razix::SceneDrawGeometryMode geometryMode;
-                Resolution                   resolution;
-                bool                         enableResize;
-                glm::vec2                    extent;
-                u32                          layers;
-            };
+            FrameGraphDataPassDesc m_Desc;
 
-            struct RZFrameGraphDataPass final : IRZFrameGraphPass
-            {
-                RZFrameGraphDataPass(RZShaderHandle shader, RZPipelineHandle pipeline, Razix::SceneDrawGeometryMode geometryMode, Resolution res, bool resize, glm::vec2 extents, u32 layers);
-
-                RAZIX_VIRTUAL_DESCTURCTOR(RZFrameGraphDataPass)
-
-                Gfx::RZShaderHandle          m_shader;
-                Gfx::RZPipelineHandle        m_pipeline;
-                Razix::SceneDrawGeometryMode m_geometryMode;
-                Resolution                   m_resolution;
-                bool                         m_enableResize;
-                glm::vec2                    m_extent;
-                u32                          m_layers;
-
-                void operator()(RZPassNode &node, RZPassResourceDirectory &resources) override;
-                void resize(RZPassResourceDirectory &resources, u32 width, u32 height) override;
-            };
-        }    // namespace FrameGraph
+            void operator()(RZPassNode& node, RZPassResourceDirectory& resources) override;
+            void resize(RZPassResourceDirectory& resources, u32 width, u32 height) override;
+        };
     }    // namespace Gfx
 }    // namespace Razix

@@ -23,7 +23,6 @@
 #include "Razix/Gfx/RZMeshFactory.h"
 #include "Razix/Gfx/RZShaderLibrary.h"
 
-#include "Razix/Gfx/Passes/Data/FrameData.h"
 #include "Razix/Gfx/Passes/Data/GlobalData.h"
 
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
@@ -38,17 +37,17 @@ namespace Razix {
 
         struct GaussianBlurOutput
         {
-            FrameGraph::RZFrameGraphResource blur;
+            RZFrameGraphResource blur;
         };
 
         struct GaussianBlurPCData
         {
-            u32       tapFilter;
-            f32       blurRadius;
-            glm::vec2 direction;
+            u32    tapFilter;
+            f32    blurRadius;
+            float2 direction;
         };
 
-        void RZGaussianBlurPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZGaussianBlurPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             auto gaussiabBlurShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GaussianBlur);
 
@@ -79,51 +78,50 @@ namespace Razix {
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
 
-        FrameGraph::RZFrameGraphResource RZGaussianBlurPass::addBlurPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, FrameGraph::RZFrameGraphResource inputTexture, f32 blurRadius, GaussianTap filterTap, GaussianDirection direction)
+        RZFrameGraphResource RZGaussianBlurPass::addBlurPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, RZFrameGraphResource inputTexture, f32 blurRadius, GaussianTap filterTap, GaussianDirection direction)
         {
             auto gaussiabBlurShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GaussianBlur);
 
             auto& pass = framegraph.addCallbackPass<GaussianBlurOutput>(
                 "Pass.Builtin.Code.FX.GaussianBlur",
-                [&](GaussianBlurOutput& data, FrameGraph::RZPassResourceBuilder& builder) {
+                [&](GaussianBlurOutput& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     RZTextureDesc textureDesc{};
                     textureDesc.name       = "GaussianBlurredTex";
-                    textureDesc.width      = ResolutionToExtentsMap[Resolution::k1440p].x;
-                    textureDesc.height     = ResolutionToExtentsMap[Resolution::k1440p].y;
+                    textureDesc.width      = g_ResolutionToExtentsMap[Resolution::k1440p].x;
+                    textureDesc.height     = g_ResolutionToExtentsMap[Resolution::k1440p].y;
                     textureDesc.type       = TextureType::k2D;
                     textureDesc.format     = TextureFormat::RGBA16F;
                     textureDesc.enableMips = false;
 
-                    data.blur = builder.create<FrameGraph::RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
+                    data.blur = builder.create<RZFrameGraphTexture>(textureDesc.name, CAST_TO_FG_TEX_DESC textureDesc);
 
                     builder.read(inputTexture);
                     data.blur = builder.write(data.blur);
                 },
-                [=](const GaussianBlurOutput& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const GaussianBlurOutput& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RAZIX_TIME_STAMP_BEGIN("GaussianBlur");
-                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.FX.GaussianBlur", glm::vec4(178.0f, 190.0f, 181.0f, 255.0f) / 255.0f);
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.FX.GaussianBlur", float4(178.0f, 190.0f, 181.0f, 255.0f) / 255.0f);
 
                     RenderingInfo info{};
                     info.resolution       = Resolution::kCustom;
-                    info.colorAttachments = {{resources.get<FrameGraph::RZFrameGraphTexture>(data.blur).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
+                    info.colorAttachments = {{resources.get<RZFrameGraphTexture>(data.blur).getHandle(), {true, ClearColorPresets::TransparentBlack}}};
                     info.extent           = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    info.resize           = true;
 
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
                     // Set the Descriptor Set once rendering starts
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    if (RZFrameGraph::IsFirstFrame()) {
                         auto& shaderBindVars = RZResourceManager::Get().getShaderResource(gaussiabBlurShader)->getBindVars();
 
                         RZDescriptor* descriptor = nullptr;
 
                         descriptor = shaderBindVars["inputTexture"];
                         if (descriptor)
-                            descriptor->texture = resources.get<FrameGraph::RZFrameGraphTexture>(inputTexture).getHandle();
+                            descriptor->texture = resources.get<RZFrameGraphTexture>(inputTexture).getHandle();
 
                         RZResourceManager::Get().getShaderResource(gaussiabBlurShader)->updateBindVarsHeaps();
                     }
@@ -132,7 +130,7 @@ namespace Razix {
 
                     GaussianBlurPCData pcData{};
                     pcData.blurRadius = blurRadius;
-                    pcData.direction  = direction == GaussianDirection::Horizontal ? glm::vec2(1, 0) : glm::vec2(0, 1);
+                    pcData.direction  = direction == GaussianDirection::Horizontal ? float2(1, 0) : float2(0, 1);
                     pcData.tapFilter  = (u32) filterTap;
 
                     RZPushConstant pc;

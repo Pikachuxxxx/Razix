@@ -10,7 +10,7 @@ namespace Razix {
             std::string normalMapPath;
             std::string specularMapPath;
             std::string emissiveMapPath;
-            glm::vec4   color;
+            float4      color;
             f32         opacity;
             u32         normalThreshold;
             u32         layerPriority;

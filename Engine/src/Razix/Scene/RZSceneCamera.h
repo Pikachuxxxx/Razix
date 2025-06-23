@@ -3,7 +3,7 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Gfx/Cameras/Camera3D.h"
 
-#include "Razix/Maths/RZFrustum.h"
+#include "Razix/Math/Frustum.h"
 
 #include <glm/glm.hpp>
 
@@ -22,10 +22,10 @@ namespace Razix {
         RZSceneCamera();
         virtual ~RZSceneCamera() = default;
 
-        RAZIX_FORCE_INLINE glm::mat4 getViewProjection() { return getProjection() * getViewMatrix(); }
+        RAZIX_FORCE_INLINE float4x4 getViewProjection() { return getProjection() * getViewMatrix(); }
 
-        RAZIX_FORCE_INLINE glm::mat4 getProjection();
-        RAZIX_FORCE_INLINE glm::mat4 getProjectionRaw();
+        RAZIX_FORCE_INLINE float4x4 getProjection();
+        RAZIX_FORCE_INLINE float4x4 getProjectionRaw();
 
         void setPerspective(f32 verticalFOV, f32 nearClip, f32 farClip);
         void setOrthographic(f32 size, f32 nearClip, f32 farClip);
@@ -87,8 +87,8 @@ namespace Razix {
             recalculateProjection();
         }
 
-        RAZIX_INLINE const glm::vec4& getBgColor() const { return m_BgColor; }
-        RAZIX_INLINE void             setBgColor(const glm::vec4& color) { m_BgColor = color; }
+        RAZIX_INLINE const float4& getBgColor() const { return m_BgColor; }
+        RAZIX_INLINE void          setBgColor(const float4& color) { m_BgColor = color; }
 
         RAZIX_INLINE const Maths::RZFrustum& getFrustum() const { return m_CameraFrustum; }
 
@@ -128,7 +128,7 @@ namespace Razix {
         template<class Archive>
         void load(Archive& archive)
         {
-            glm::vec3 value;
+            float3 value;
             archive(cereal::make_nvp("Position", value));
             setPosition(value);
 
@@ -189,7 +189,7 @@ namespace Razix {
             archive(cereal::make_nvp("AspectRatio", fvalue));
             setAspectRatio(fvalue);
 
-            glm::vec4 bg_color;
+            float4 bg_color;
             archive(cereal::make_nvp("BgColor", bg_color));
             setBgColor(bg_color);
         }
@@ -200,16 +200,16 @@ namespace Razix {
     private:
         ProjectionType m_ProjectionType = ProjectionType::Perspective;
 
-        glm::mat4 m_Projection      = glm::mat4(1.0f);
-        f32       m_PerspectiveFOV  = glm::radians(45.0f);
-        f32       m_PerspectiveNear = 0.1f, m_PerspectiveFar = 100.0f;
+        float4x4 m_Projection      = float4x4(1.0f);
+        f32      m_PerspectiveFOV  = radians(45.0f);
+        f32      m_PerspectiveNear = 0.1f, m_PerspectiveFar = 1000.0f;
 
         f32 m_OrthographicSize = 10.0f;
         f32 m_OrthographicNear = -1.0f, m_OrthographicFar = 1.0f;
 
         f32 m_AspectRatio = 0.0f;
 
-        glm::vec4 m_BgColor = glm::vec4(0.0f);
+        float4 m_BgColor = float4(0.0f);
 
         Maths::RZFrustum m_CameraFrustum;
     };

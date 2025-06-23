@@ -1,11 +1,9 @@
 -- Razix Engine vendor Common Inlcudes 
 include 'Scripts/premake/common/vendor_includes.lua'
--- Internal libraies include dirs
-include 'Scripts/premake/common/internal_includes.lua'
 ------------------------------------------------------------------------------
 -- Game Framework project
 project "GameFramework"
-    kind "ConsoleApp"
+    kind "WindowedApp"
     language "C++"
 
     -- Game source files
@@ -47,11 +45,6 @@ project "GameFramework"
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
         "%{ExperimentalIncludeDir.Eigen}",
-        -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}",
-        "%{InternalIncludeDir.RZSTL}",
-        "%{InternalIncludeDir.EASTL}",
-        "%{InternalIncludeDir.EABase}"
     }
 
     -- Razix Application linkage libraries
@@ -65,28 +58,24 @@ project "GameFramework"
        "spdlog",
        "SPIRVReflect",
        "SPIRVCross",
-       "meshoptimizer",
-       "OpenFBX",
        "lua",
        "optick",
        "Jolt",
        --"tracy",
-       -- Internal
-       "RazixMemory",
-       "RZSTL"
     }
 
-   defines
-   {
+    defines
+    {
        --"SPDLOG_COMPILED_LIB"
-   }
+    }
 
-   filter { "files:**.lua or *.razixproject or **.rzscn"}
+    filter { "files:**.lua or *.razixproject or **.rzscn"}
         flags { "ExcludeFromBuild"}
 
 
-   -- Disable warning for vendor
-   filter { "files:vendor/**"}
+     -- Disable warning for vendor
+
+    filter { "files:vendor/**"}
        warnings "Off"
 
     filter "system:windows"
@@ -126,8 +115,10 @@ project "GameFramework"
     filter "system:macosx"
         cppdialect "C++17"
         staticruntime "off"
-        systemversion "latest"
-
+        systemversion "14.0"
+        xcodebuildsettings {
+            ["GENERATE_INFOPLIST_FILE"] = "YES"
+        }
         defines
         {
             -- Engine
@@ -155,8 +146,8 @@ project "GameFramework"
         symbols "On"
         runtime "Release"
 
-    filter "configurations:Distribution"
-        defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
+    filter "configurations:GoldMaster"
+        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
         symbols "Off"
         optimize "Full"
         runtime "Release"

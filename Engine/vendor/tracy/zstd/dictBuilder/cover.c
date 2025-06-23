@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Yann Collet, Facebook, Inc.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
@@ -31,15 +31,23 @@
 #endif
 
 #include "../common/mem.h" /* read */
-#include "../common/pool.h"
-#include "../common/threading.h"
+#include "../common/pool.h" /* POOL_ctx */
+#include "../common/threading.h" /* ZSTD_pthread_mutex_t */
 #include "../common/zstd_internal.h" /* includes zstd.h */
+#include "../common/bits.h" /* ZSTD_highbit32 */
 #include "../zdict.h"
 #include "cover.h"
 
 /*-*************************************
 *  Constants
 ***************************************/
+/**
+* There are 32bit indexes used to ref samples, so limit samples size to 4GB
+* on 64bit builds.
+* For 32bit builds we choose 1 GB.
+* Most 32bit platforms have 2GB user-mode addressable space and we allocate a large
+* contiguous buffer, so 1GB is already a high limit.
+*/
 #define COVER_MAX_SAMPLES_SIZE (sizeof(size_t) == 8 ? ((unsigned)-1) : ((unsigned)1 GB))
 #define COVER_DEFAULT_SPLITPOINT 1.0
 
@@ -47,7 +55,7 @@
 *  Console display
 ***************************************/
 #ifndef LOCALDISPLAYLEVEL
-static int g_displayLevel = 2;
+static int g_displayLevel = 0;
 #endif
 #undef  DISPLAY
 #define DISPLAY(...)                                                           \
@@ -70,7 +78,7 @@ static clock_t g_time = 0;
 #undef  LOCALDISPLAYUPDATE
 #define LOCALDISPLAYUPDATE(displayLevel, l, ...)                               \
   if (displayLevel >= l) {                                                     \
-    if ((clock() - g_time > g_refreshRate) || (displayLevel >= 4)) {             \
+    if ((clock() - g_time > g_refreshRate) || (displayLevel >= 4)) {           \
       g_time = clock();                                                        \
       DISPLAY(__VA_ARGS__);                                                    \
     }                                                                          \
@@ -293,9 +301,10 @@ static int WIN_CDECL COVER_strict_cmp8(const void *lp, const void *rp) {
  * Returns the first pointer in [first, last) whose element does not compare
  * less than value.  If no such element exists it returns last.
  */
-static const size_t *COVER_lower_bound(const size_t *first, const size_t *last,
+static const size_t *COVER_lower_bound(const size_t* first, const size_t* last,
                                        size_t value) {
-  size_t count = last - first;
+  size_t count = (size_t)(last - first);
+  assert(last >= first);
   while (count != 0) {
     size_t step = count / 2;
     const size_t *ptr = first;
@@ -534,14 +543,15 @@ static void COVER_ctx_destroy(COVER_ctx_t *ctx) {
 
 /**
  * Prepare a context for dictionary building.
- * The context is only dependent on the parameter `d` and can used multiple
+ * The context is only dependent on the parameter `d` and can be used multiple
  * times.
  * Returns 0 on success or error code on error.
  * The context must be destroyed with `COVER_ctx_destroy()`.
  */
 static size_t COVER_ctx_init(COVER_ctx_t *ctx, const void *samplesBuffer,
                           const size_t *samplesSizes, unsigned nbSamples,
-                          unsigned d, double splitPoint) {
+                          unsigned d, double splitPoint)
+{
   const BYTE *const samples = (const BYTE *)samplesBuffer;
   const size_t totalSamplesSize = COVER_sum(samplesSizes, nbSamples);
   /* Split samples into testing and training sets */
@@ -639,7 +649,7 @@ static size_t COVER_ctx_init(COVER_ctx_t *ctx, const void *samplesBuffer,
 
 void COVER_warnOnSmallCorpus(size_t maxDictSize, size_t nbDmers, int displayLevel)
 {
-  const double ratio = (double)nbDmers / maxDictSize;
+  const double ratio = (double)nbDmers / (double)maxDictSize;
   if (ratio >= 10) {
       return;
   }
@@ -725,7 +735,7 @@ static size_t COVER_buildDictionary(const COVER_ctx_t *ctx, U32 *freqs,
   return tail;
 }
 
-ZDICTLIB_API size_t ZDICT_trainFromBuffer_cover(
+ZDICTLIB_STATIC_API size_t ZDICT_trainFromBuffer_cover(
     void *dictBuffer, size_t dictBufferCapacity,
     const void *samplesBuffer, const size_t *samplesSizes, unsigned nbSamples,
     ZDICT_cover_params_t parameters)
@@ -735,7 +745,7 @@ ZDICTLIB_API size_t ZDICT_trainFromBuffer_cover(
   COVER_map_t activeDmers;
   parameters.splitPoint = 1.0;
   /* Initialize global data */
-  g_displayLevel = parameters.zParams.notificationLevel;
+  g_displayLevel = (int)parameters.zParams.notificationLevel;
   /* Checks */
   if (!COVER_checkParameters(parameters, dictBufferCapacity)) {
     DISPLAYLEVEL(1, "Cover parameters incorrect\n");
@@ -899,8 +909,10 @@ void COVER_best_start(COVER_best_t *best) {
  * Decrements liveJobs and signals any waiting threads if liveJobs == 0.
  * If this dictionary is the best so far save it and its parameters.
  */
-void COVER_best_finish(COVER_best_t *best, ZDICT_cover_params_t parameters,
-                              COVER_dictSelection_t selection) {
+void COVER_best_finish(COVER_best_t* best,
+                      ZDICT_cover_params_t parameters,
+                      COVER_dictSelection_t selection)
+{
   void* dict = selection.dictContent;
   size_t compressedSize = selection.totalCompressedSize;
   size_t dictSize = selection.dictSize;
@@ -943,9 +955,17 @@ void COVER_best_finish(COVER_best_t *best, ZDICT_cover_params_t parameters,
   }
 }
 
+static COVER_dictSelection_t setDictSelection(BYTE* buf, size_t s, size_t csz)
+{
+    COVER_dictSelection_t ds;
+    ds.dictContent = buf;
+    ds.dictSize = s;
+    ds.totalCompressedSize = csz;
+    return ds;
+}
+
 COVER_dictSelection_t COVER_dictSelectionError(size_t error) {
-    COVER_dictSelection_t selection = { NULL, 0, error };
-    return selection;
+    return setDictSelection(NULL, 0, error);
 }
 
 unsigned COVER_dictSelectionIsError(COVER_dictSelection_t selection) {
@@ -964,8 +984,8 @@ COVER_dictSelection_t COVER_selectDict(BYTE* customDictContent, size_t dictBuffe
   size_t largestCompressed = 0;
   BYTE* customDictContentEnd = customDictContent + dictContentSize;
 
-  BYTE * largestDictbuffer = (BYTE *)malloc(dictBufferCapacity);
-  BYTE * candidateDictBuffer = (BYTE *)malloc(dictBufferCapacity);
+  BYTE* largestDictbuffer = (BYTE*)malloc(dictBufferCapacity);
+  BYTE* candidateDictBuffer = (BYTE*)malloc(dictBufferCapacity);
   double regressionTolerance = ((double)params.shrinkDictMaxRegression / 100.0) + 1.00;
 
   if (!largestDictbuffer || !candidateDictBuffer) {
@@ -998,9 +1018,8 @@ COVER_dictSelection_t COVER_selectDict(BYTE* customDictContent, size_t dictBuffe
   }
 
   if (params.shrinkDict == 0) {
-    COVER_dictSelection_t selection = { largestDictbuffer, dictContentSize, totalCompressedSize };
     free(candidateDictBuffer);
-    return selection;
+    return setDictSelection(largestDictbuffer, dictContentSize, totalCompressedSize);
   }
 
   largestDict = dictContentSize;
@@ -1032,20 +1051,16 @@ COVER_dictSelection_t COVER_selectDict(BYTE* customDictContent, size_t dictBuffe
       return COVER_dictSelectionError(totalCompressedSize);
     }
 
-    if (totalCompressedSize <= largestCompressed * regressionTolerance) {
-      COVER_dictSelection_t selection = { candidateDictBuffer, dictContentSize, totalCompressedSize };
+    if ((double)totalCompressedSize <= (double)largestCompressed * regressionTolerance) {
       free(largestDictbuffer);
-      return selection;
+      return setDictSelection( candidateDictBuffer, dictContentSize, totalCompressedSize );
     }
     dictContentSize *= 2;
   }
   dictContentSize = largestDict;
   totalCompressedSize = largestCompressed;
-  {
-    COVER_dictSelection_t selection = { largestDictbuffer, dictContentSize, totalCompressedSize };
-    free(candidateDictBuffer);
-    return selection;
-  }
+  free(candidateDictBuffer);
+  return setDictSelection( largestDictbuffer, dictContentSize, totalCompressedSize );
 }
 
 /**
@@ -1108,7 +1123,7 @@ _cleanup:
   free(freqs);
 }
 
-ZDICTLIB_API size_t ZDICT_optimizeTrainFromBuffer_cover(
+ZDICTLIB_STATIC_API size_t ZDICT_optimizeTrainFromBuffer_cover(
     void* dictBuffer, size_t dictBufferCapacity, const void* samplesBuffer,
     const size_t* samplesSizes, unsigned nbSamples,
     ZDICT_cover_params_t* parameters)

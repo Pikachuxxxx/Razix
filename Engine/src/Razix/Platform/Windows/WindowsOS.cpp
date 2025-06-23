@@ -26,17 +26,17 @@ namespace Razix {
         //RZInput::SelectGLFWInputManager();
 #else
         WindowsWindow::Construct();
-        Razix::RZInput* Razix::RZInput::sInstance = new WindowsInput();
+        Razix::RZInput* Razix::RZInput::s_Instance = new WindowsInput();
 #endif
     }
 
-    void WindowsOS::Run()
+    void WindowsOS::Begin()
     {
         // TODO: Implement the Application life cycle here! in a more Robust way
         // Initialize the application with additional systems after application constructor is called with project name and VFS mounts
         //Razix::RZApplication::Get().Init();
         // Application auto Initialization by the Engine
-        Razix::RZApplication::Get().Run();
+        Razix::RZApplication::Get().Begin();
     }
 
 }    // namespace Razix

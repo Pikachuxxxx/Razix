@@ -16,7 +16,7 @@
     #include "Razix/Platform/API/DirectX12/DX12Utilities.h"
 #endif
 
-void BeginMarker(const std::string& name, glm::vec4 color)
+void BeginMarker(const std::string& name, float4 color)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -39,7 +39,7 @@ void BeginMarker(const std::string& name, glm::vec4 color)
     }
 }
 
-void InsertMarker(const std::string& name, glm::vec4 color)
+void InsertMarker(const std::string& name, float4 color)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

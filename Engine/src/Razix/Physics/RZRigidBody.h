@@ -12,14 +12,14 @@ namespace Razix {
 
         struct RigidBodyCreateSettings
         {
-            glm::vec3 InitialPosition;
-            glm::vec3 InitialRotation;
-            glm::vec3 HalfExtent;
-            f32       Restitution;
-            f32       Friction;
-            f32       Mass;
-            f32       InitialVelocity;
-            BodyType  Type;
+            float3   InitialPosition;
+            float3   InitialRotation;
+            float3   HalfExtent;
+            f32      Restitution;
+            f32      Friction;
+            f32      Mass;
+            f32      InitialVelocity;
+            BodyType Type;
         };
 
         class RAZIX_API RZRigidBody

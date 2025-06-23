@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZResourcePool.h"
 
-#include <internal/RazixMemory/include/RZMemoryFunctions.h>
+#include <Razix/Core/Memory/RZMemoryFunctions.h>
 
 #include "IRZResource.h"
 

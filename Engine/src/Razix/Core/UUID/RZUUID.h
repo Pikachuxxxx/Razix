@@ -104,19 +104,7 @@ namespace Razix {
 
         // Static factory methods to parse an RZUUID from its string representation
 
-        /**
-         * Creates a RZUUID from std::string
-         * 
-         * @param s The string representation of the UUID
-         */
-        static RZUUID FromStrFactory(const std::string& s);
         static RZUUID FromPrettyStrFactory(const std::string& s);
-        /**
-         * Creates a RZUUID raw character bytes
-         * 
-         * @param ray bytes representation of the UUID
-         */
-        static RZUUID FromStrFactory(cstr raw);
 
         /* Serializes the uuid to a byte string (16 bytes) */
         std::string bytes() const;
@@ -172,19 +160,11 @@ namespace Razix {
         u8 m_Data[16]; /* The 128-bit byte representation of the RZUUID */
 
     private:
-        /**
-         * Converts a 128-bits unsigned int to an UUIDv4 string representation.
-         * nUses SIMD via Intel's AVX2 instruction set.
-         */
+        static RZUUID FromStrFactory(cstr raw);
+        static RZUUID FromStrFactory(const std::string& s);
         static void inline m128iToString(__m128i x, char* mem);
-
-        /**
-         * Converts an UUIDv4 string representation to a 128-bits unsigned int.
-         * Uses SIMD via Intel's AVX2 instruction set.
-         */
         static __m128i inline stringTom128i(cstr mem);
-
-        static const std::string prettyStringToBytes(const std::string& prettyStr);
+        static const std::array<u8, 16> prettyStringToBytes(const std::string& prettyStr);
     };
 }    // namespace Razix
 

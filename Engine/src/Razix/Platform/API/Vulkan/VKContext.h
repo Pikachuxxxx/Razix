@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RZSTL/smart_pointers.h"
+#include "Razix/Core/RZSTL/smart_pointers.h"
 
 #include "Razix/Core/OS/RZWindow.h"
 
@@ -24,7 +24,7 @@ namespace Razix {
             VKContext(RZWindow* windowHandle);
 
             void Init() override;
-            void Destroy() override;
+            void DestroyContext() override;
             void ClearWithColor(f32 r, f32 g, f32 b) override {}
 
             void Wait() override;
@@ -68,9 +68,6 @@ namespace Razix {
             std::vector<cstr> getRequiredExtensions() const;
             /* Sets the debug messenger this is used to record instance creation and deletion */
             void setupDebugMessenger();
-
-            /* Vulkan debug callback reporting function */
-            static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data);
         };
 
     }    // namespace Gfx

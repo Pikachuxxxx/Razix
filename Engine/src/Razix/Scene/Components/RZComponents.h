@@ -11,7 +11,6 @@
 #include "Razix/Scene/Components/LightComponent.h"
 #include "Razix/Scene/Components/LuaScriptComponent.h"
 #include "Razix/Scene/Components/MeshRendererComponent.h"
-#include "Razix/Scene/Components/SpriteRendererComponent.h"
 #include "Razix/Scene/Components/TagComponent.h"
 #include "Razix/Scene/Components/TransformComponent.h"
 
@@ -21,4 +20,4 @@
 */
 
 // Register List of all components that razix implements that is used while serialization adn with entt
-#define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent, SpriteRendererComponent, MeshRendererComponent, LuaScriptComponent, LightComponent, HierarchyComponent
+#define RAZIX_COMPONENTS IDComponent, TagComponent, ActiveComponent, TransformComponent, CameraComponent, MeshRendererComponent, LuaScriptComponent, LightComponent, HierarchyComponent

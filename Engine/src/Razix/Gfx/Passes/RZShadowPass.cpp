@@ -39,7 +39,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZShadowPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZShadowPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Load the shader
             auto shader   = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::DepthPreTest);
@@ -51,6 +51,8 @@ namespace Razix {
             pipelineInfo.cullMode            = Gfx::CullMode::Back;
             pipelineInfo.drawType            = Gfx::DrawType::Triangle;
             pipelineInfo.shader              = shader;
+            pipelineInfo.depthTestEnabled    = true;
+            pipelineInfo.depthWriteEnabled   = true;
             pipelineInfo.transparencyEnabled = false;
             pipelineInfo.depthBiasEnabled    = false;
             pipelineInfo.depthFormat         = {Gfx::TextureFormat::DEPTH32F};
@@ -58,33 +60,33 @@ namespace Razix {
 
             framegraph.getBlackboard().add<SimpleShadowPassData>() = framegraph.addCallbackPass<SimpleShadowPassData>(
                 "Pass.Builtin.Code.RenderShadows",
-                [&](SimpleShadowPassData& data, FrameGraph::RZPassResourceBuilder& builder) {
-                    builder.setAsStandAlonePass();
+                [&](SimpleShadowPassData& data, RZPassResourceBuilder& builder) {
+                    builder
+                        .setAsStandAlonePass()
+                        .setDepartment(Department::Lighting);
 
-                    RZTextureDesc shadowTextureDesc{};
-                    shadowTextureDesc.name       = "ShadowMap";
-                    shadowTextureDesc.width      = kShadowMapSize;
-                    shadowTextureDesc.height     = kShadowMapSize;
-                    shadowTextureDesc.type       = TextureType::kDepth;
-                    shadowTextureDesc.format     = TextureFormat::DEPTH32F;
-                    shadowTextureDesc.enableMips = false;
+                    RZTextureDesc shadowTextureDesc         = {};
+                    shadowTextureDesc.name                  = "ShadowMap";
+                    shadowTextureDesc.width                 = kShadowMapSize;
+                    shadowTextureDesc.height                = kShadowMapSize;
+                    shadowTextureDesc.type                  = TextureType::kDepth;
+                    shadowTextureDesc.format                = TextureFormat::DEPTH32F;
+                    shadowTextureDesc.initResourceViewHints = ResourceViewHint::kDSV | ResourceViewHint::kSRV;
+                    shadowTextureDesc.enableMips            = false;
+                    data.shadowMap                          = builder.create<RZFrameGraphTexture>(shadowTextureDesc.name, CAST_TO_FG_TEX_DESC shadowTextureDesc);
 
-                    data.shadowMap = builder.create<FrameGraph::RZFrameGraphTexture>("ShadowMap", CAST_TO_FG_TEX_DESC shadowTextureDesc);
-
-                    data.lightVP = builder.create<FrameGraph::RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData), 0, BufferUsage::PersistentStream});
+                    data.lightVP = builder.create<RZFrameGraphBuffer>("LightSpaceMatrix", {"LightSpaceMatrix", sizeof(LightVPUBOData), 0, BufferUsage::PersistentStream});
 
                     data.shadowMap = builder.write(data.shadowMap);
                     data.lightVP   = builder.write(data.lightVP);
                 },
-                [=](const SimpleShadowPassData& data, FrameGraph::RZPassResourceDirectory& resources) {
+                [=](const SimpleShadowPassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-                    return;
 
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Shadows);
 
                     RAZIX_TIME_STAMP_BEGIN("Shadow Pass");
-                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.RenderShadows", glm::vec4(0.65, 0.73, 0.22f, 1.0f));
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.RenderDepth", float4(0.65, 0.73, 0.22f, 1.0f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
@@ -100,21 +102,20 @@ namespace Razix {
                         }
                     }
 
-                    glm::mat4 lightView       = glm::lookAt(dir_light.getPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-                    glm::mat4 lightProjection = glm::perspective(60.0f, 1.0f, 0.1f, 100.0f);
-                    //(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
+                    float4x4 lightView       = lookAt(dir_light.getPosition(), float3(0.0f), float3(0.0f, 1.0f, 0.0f));
+                    float4x4 lightProjection = perspective(60.0f, 1.0f, 0.1f, 100.0f);
                     lightProjection[1][1] *= -1;
                     light_data.lightViewProj = lightProjection * lightView;
 
-                    auto lightVPHandle = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightVP).getHandle();
+                    auto lightVPHandle = resources.get<RZFrameGraphBuffer>(data.lightVP).getHandle();
                     RZResourceManager::Get().getUniformBufferResource(lightVPHandle)->SetData(sizeof(LightVPUBOData), &light_data);
 
-                    if (FrameGraph::RZFrameGraph::IsFirstFrame()) {
+                    if (RZFrameGraph::IsFirstFrame()) {
                         auto& shaderBindVars = RZResourceManager::Get().getShaderResource(shader)->getBindVars();
 
-                        auto descriptor = shaderBindVars[resources.getResourceName<FrameGraph::RZFrameGraphBuffer>(data.lightVP)];
+                        auto descriptor = shaderBindVars[resources.getResourceName<RZFrameGraphBuffer>(data.lightVP)];
                         if (descriptor)
-                            descriptor->uniformBuffer = resources.get<FrameGraph::RZFrameGraphBuffer>(data.lightVP).getHandle();
+                            descriptor->uniformBuffer = resources.get<RZFrameGraphBuffer>(data.lightVP).getHandle();
 
                         RZResourceManager::Get().getShaderResource(shader)->updateBindVarsHeaps();
                     }
@@ -122,18 +123,16 @@ namespace Razix {
                     // Begin Rendering
                     RenderingInfo info{};    // No color attachment
                     info.resolution      = Resolution::kCustom;
-                    info.depthAttachment = {resources.get<FrameGraph::RZFrameGraphTexture>(data.shadowMap).getHandle(), {true, ClearColorPresets::OpaqueBlack}};
+                    info.depthAttachment = {resources.get<RZFrameGraphTexture>(data.shadowMap).getHandle(), {true, ClearColorPresets::OpaqueBlack}};
                     info.extent          = {kShadowMapSize, kShadowMapSize};
                     info.layerCount      = 1;
-                    info.resize          = false;
                     RHI::BeginRendering(cmdBuffer, info);
 
                     RHI::BindPipeline(m_Pipeline, cmdBuffer);
 
                     // Draw calls
                     // Get the meshes from the Scene and render them
-                    if (IS_BIT_SET(settings->renderFeatures, RendererFeature_Shadows))
-                        scene->drawScene(m_Pipeline, SceneDrawGeometryMode::SceneGeometry);
+                    scene->drawScene(m_Pipeline, SceneDrawGeometryMode::SceneGeometry);
 
                     // End Rendering
                     RHI::EndRendering(cmdBuffer);

@@ -23,9 +23,23 @@ build/
 *.DS_Store
 **.DS_Store
 
+# clangd 
+compile_commands.json
+.cache
+
 #ignore the compiled shaders they are per-gpu-isa
 Engine/content/Shaders/Compiled/
 Engine/content/Shaders/Generated/
+Engine/content/FrameGraphs/*.dot
+#ignore QT generated Files
+Editor/src/generated/
+
+# Ignore logs
+Logs/
+*.log
+
+# Test Images
+Tests/GfxTests/TestImages/
 
 /Sandbox/LargeScenesSandbox.razixproject
 /Sandbox/Assets/Models/BistroExterior.glb

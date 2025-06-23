@@ -3,68 +3,98 @@
 // clang-format on
 #include "RZFrameGraphBuffer.h"
 
+#include "Razix/Core/RZEngine.h"
+
 #include "Razix/Gfx/FrameGraph/RZFrameGraphResource.h"
 
-#include "Razix/Gfx/RHI/API/RZAPIDesc.h"
-#include "Razix/Gfx/RHI/API/RZBindingInfoAccessViews.h"
 #include "Razix/Gfx/RHI/API/RZShader.h"
 #include "Razix/Gfx/RHI/RHI.h"
 
 namespace Razix {
     namespace Gfx {
-        namespace FrameGraph {
 
-            void RZFrameGraphBuffer::create(const Desc& desc, void* transientAllocator)
-            {
+        void RZFrameGraphBuffer::create(const Desc& desc, u32 id, const void* transientAllocator)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (transientAllocator)
+                m_BufferHandle = TRANSIENT_ALLOCATOR_CAST(transientAllocator)->acquireTransientBuffer(desc, id);
+            else {
+                // If no transient allocator is provided, we create a imported persistent resource only ONCE!
                 if (!m_BufferHandle.isValid())
                     m_BufferHandle = RZResourceManager::Get().createUniformBuffer(desc);
             }
+        }
 
-            void RZFrameGraphBuffer::destroy(const Desc& desc, void* transientAllocator)
-            {
-                RZResourceManager::Get().destroyUniformBuffer(m_BufferHandle);
+        void RZFrameGraphBuffer::destroy(u32 id, const void* transientAllocator)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            if (transientAllocator)
+                TRANSIENT_ALLOCATOR_CAST(transientAllocator)->releaseTransientBuffer(m_BufferHandle, id);
+            else {
+                if (m_BufferHandle.isValid())
+                    RZResourceManager::Get().destroyUniformBuffer(m_BufferHandle);
+            }
+        }
+
+        // TODO: use a combination of BufferUsage and resourceViewHints to deduce, we don't have ImageLayout and needs to do more intelligent tracking to deduce barrier types
+
+        void RZFrameGraphBuffer::preRead(const Desc& desc, uint32_t flags)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            RZBufferDesc bufferDesc = CAST_TO_FG_BUF_DESC desc;
+
+            BufferBarrierType barrierType = BufferBarrierType::ShaderReadOnly;
+
+            if ((bufferDesc.initResourceViewHints & kCBV) == kCBV) {    // use a dirtyFlags to check if it's dirty
+                barrierType = BufferBarrierType::CPUToGPU;
+            } else if ((bufferDesc.initResourceViewHints & kTransferSrc) == kTransferSrc) {
+                barrierType = BufferBarrierType::TransferDstToShaderRead;
             }
 
-            std::string RZFrameGraphBuffer::toString(const Desc& desc)
-            {
-                return "size : " + std::to_string(desc.size) + " bytes";
+#ifndef RAZIX_GOLD_MASTER
+            if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
+                RAZIX_CORE_INFO("[ReadBarrier::Buffer] resource name: {0} | barrier type: {1}", bufferDesc.name, BufferBarrierTypeNames[(u32) barrierType]);
+#endif
+            RHI::InsertBufferMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_BufferHandle, barrierType);
+
+            m_LastReadBarrier = barrierType;
+        }
+
+        void RZFrameGraphBuffer::preWrite(const Desc& desc, uint32_t flags)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            RZBufferDesc bufferDesc = CAST_TO_FG_BUF_DESC desc;
+
+            BufferBarrierType barrierType = BufferBarrierType::ShaderReadToShaderWrite;
+
+            if ((bufferDesc.initResourceViewHints & kUAV) == kUAV) {
+                barrierType = BufferBarrierType::ShaderReadToShaderWrite;
+            } else if ((bufferDesc.initResourceViewHints & kTransferDst) == kTransferDst) {
+                barrierType = BufferBarrierType::TransferDstToShaderRead;
+            } else if ((bufferDesc.initResourceViewHints & kCBV) == kCBV) {
+                barrierType = BufferBarrierType::ShaderReadOnly;
             }
 
-            void RZFrameGraphBuffer::preRead(const Desc& desc, uint32_t flags)
-            {
-                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+            // doesn't make sense to wait until CPU write then it's being read by a shader
+            // there was already a barrier inserted when we started writing to it in preRead
+            if (barrierType == BufferBarrierType::CPUToGPU) return;
 
-                // Unlike images they are already in proper and fixed state
+#ifndef RAZIX_GOLD_MASTER
+            if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
+                RAZIX_CORE_INFO("[WriteBarrier::Buffer] resource name: {0} | barrier type: {1}", bufferDesc.name, BufferBarrierTypeNames[(u32) barrierType]);
+#endif
+            RHI::InsertBufferMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_BufferHandle, barrierType);
 
-                //PipelineStage endStage;
-                //if (info.stage == ShaderStage::Vertex)
-                //    endStage = PipelineStage::kVertexShader;
-                //else if (info.stage == ShaderStage::Pixel)
-                //    endStage = PipelineStage::kFragmentShader;
-                //else if (info.stage == ShaderStage::Compute)
-                //    endStage = PipelineStage::kComputeShader;
-                //
-                //Graphics::RHI::InsertBufferMemoryBarrier(Graphics::RHI::GetCurrentCommandBuffer(), m_BufferHandle, {.startExecutionStage = PipelineStage::kTopOfPipe, .endExecutionStage = endStage}, {.srcAccess = MemoryAccessMask::})
+            m_LastWriteBarrier = barrierType;
+        }
 
-                // Get the Biding info from the flags
-                //                if (flags != FrameGraph::kFlagsNone)
-                //                    DescriptorBindingInfo info = Gfx::DecodeDescriptorBindingInfo(flags);
-                //                else
-                //                    return;
-            }
-
-            void RZFrameGraphBuffer::preWrite(const Desc& desc, uint32_t flags)
-            {
-                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-                // Unlike images they are already in proper and fixed state
-
-                // Get the Biding info from the flags
-                //                if (flags != FrameGraph::kFlagsNone)
-                //                    DescriptorBindingInfo info = Gfx::DecodeDescriptorBindingInfo(flags);
-                //                else
-                //                    return;
-            }
-        }    // namespace FrameGraph
-    }        // namespace Gfx
+        std::string RZFrameGraphBuffer::toString(const Desc& desc)
+        {
+            return "size : " + std::to_string(desc.size) + " bytes";
+        }
+    }    // namespace Gfx
 }    // namespace Razix

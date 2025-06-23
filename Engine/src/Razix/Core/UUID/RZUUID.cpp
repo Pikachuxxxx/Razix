@@ -160,7 +160,7 @@ namespace Razix {
     RZUUID RZUUID::FromPrettyStrFactory(const std::string& s)
     {
         auto bytes = prettyStringToBytes(s);
-        return FromStrFactory(bytes.c_str());
+        return RZUUID(reinterpret_cast<const u8*>(bytes.data()));
     }
 
     std::string RZUUID::bytes() const
@@ -291,25 +291,27 @@ namespace Razix {
         return _mm256_castsi256_si128(a);
     }
 
-    const std::string RZUUID::prettyStringToBytes(const std::string& prettyStr)
+    const std::array<u8, 16> RZUUID::prettyStringToBytes(const std::string& prettyStr)
     {
         if (prettyStr.size() != 36) {
             RAZIX_CORE_ERROR("Invalid pretty string length");
         }
 
-        std::string bytes;
-        bytes.reserve(16);
+        std::array<u8, 16> bytes;
+        size_t             byteIndex = 0;
 
         for (size_t i = 0; i < prettyStr.size(); ++i) {
             if (prettyStr[i] == '-') continue;
-            if (!isxdigit(prettyStr[i])) {
+
+            if (i + 1 >= prettyStr.size() || !isxdigit(prettyStr[i]) || !isxdigit(prettyStr[i + 1])) {
                 RAZIX_CORE_ERROR("Invalid character in pretty string");
             }
 
-            char hexByte[3] = {prettyStr[i], prettyStr[++i], '\0'};
-            bytes.push_back(static_cast<char>(std::strtol(hexByte, nullptr, 16)));
+            char hexByte[3]    = {prettyStr[i], prettyStr[i + 1], '\0'};
+            bytes[byteIndex++] = static_cast<u8>(std::strtol(hexByte, nullptr, 16));
+            ++i;
         }
 
-        return bytes;
+         return bytes;
     }
 }    // namespace Razix

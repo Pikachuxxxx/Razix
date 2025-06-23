@@ -14,35 +14,21 @@
 namespace Razix {
     namespace Gfx {
 
-        // Forward Declarations for reducing cyclic dependency
-        enum class DrawType;
-        enum class CullMode;
-        enum class PolygonMode;
-        enum class BlendOp;
-        enum class BlendFactor;
-        enum class CompareOp;
-        enum class DescriptorType : u32;
-        enum ShaderStage : u32;
-        enum ImageLayout : u32;
-        enum PipelineStage : u32;
-        enum MemoryAccessMask : u32;
-        class RZBufferLayout;
-
         namespace VKUtilities {
 
             // Defines to help with debugging (can be disabled in prod builds)
             // Vulkan Debug Markers
 
-            void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, glm::vec4 color);
+            void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, float4 color);
 
-            void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, glm::vec4 color);
+            void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, float4 color);
 
             void CmdEndDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer);
 
             // Vulkan Tagging
             VkResult CreateDebugObjName(const std::string& name, VkObjectType type, uint64_t handle);
 
-#ifndef RAZIX_DISTRIBUTION
+#ifndef RAZIX_GOLD_MASTER
 
     #define VK_BEGIN_MARKER(cmdBuf, name, labelColor) VKUtilities::CmdBeginDebugUtilsLabelEXT(cmdBuf, name, labelColor);
 
@@ -210,7 +196,7 @@ namespace Razix {
             // Single Time Command Buffer utility functions
             //-----------------------------------------------------------------------------------
 
-            VkCommandBuffer BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color);
+            VkCommandBuffer BeginSingleTimeCommandBuffer(const std::string commandUsage, float4 color);
             /* Ends the recording of the single time command buffer, submits and waits until execution is done */
             void EndSingleTimeCommandBuffer(VkCommandBuffer commandBuffer);
 
@@ -247,6 +233,8 @@ namespace Razix {
             u32 GetStrideFromVulkanFormat(VkFormat format);
 
             u32 PushBufferLayout(VkFormat format, const std::string& name, RZBufferLayout& layout);
+
+            std::string VulkanObjectTypeString(VkObjectType type);
 
         }    // namespace VKUtilities
     }        // namespace Gfx

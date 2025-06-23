@@ -20,8 +20,9 @@ project "GLFW"
         }
     
     filter "system:macosx"
+        systemversion "14.0"
         defines { "_GLFW_COCOA" }
-         files
+        files
     	{
 		"src/**.m"
 	}
@@ -41,7 +42,7 @@ project "GLFW"
         runtime "Release"
         optimize "on"
 
-    filter "configurations:Distribution"
+    filter "configurations:GoldMaster"
         runtime "Release"
         symbols "Off"
         optimize "Full"

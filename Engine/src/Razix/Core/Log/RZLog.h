@@ -38,7 +38,7 @@ namespace Razix {
 }    // namespace Razix
 
 // Strip out the logging system in the distribution build
-#ifndef RAZIX_DISTRIBUTION
+#ifndef RAZIX_GOLD_MASTER
 
     // Core Engine Logging
     #define RAZIX_CORE_TRACE(...) ::Razix::Debug::RZLog::GetCoreLogger()->trace(__VA_ARGS__)
@@ -58,7 +58,7 @@ namespace Razix {
     #define RAZIX_CORE_WARN(...)
     #define RAZIX_CORE_ERROR(...)
 
-    // Application Logging
+// Application Logging
     #define RAZIX_TRACE(...)
     #define RAZIX_INFO(...)
     #define RAZIX_WARN(...)

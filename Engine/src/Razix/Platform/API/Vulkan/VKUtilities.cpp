@@ -28,7 +28,7 @@ namespace Razix {
                 VKBuffer transferBuffer = VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, cpuData RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging buffer to copy to Device only GPU buffer"));
                 {
                     // 1.1 Copy from staging buffer to Image
-                    VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Copy Data to GPU Buffer", glm::vec4(0.9f, 0.76f, 0.54f, 1.0f));
+                    VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Copy Data to GPU Buffer", float4(0.9f, 0.76f, 0.54f, 1.0f));
 
                     VkBufferCopy region = {};
                     region.srcOffset    = 0;
@@ -48,7 +48,7 @@ namespace Razix {
                 VKBuffer* stagingBuffer = new VKBuffer(BufferUsage::Staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, static_cast<u32>(size), cpuData RZ_DEBUG_NAME_TAG_STR_E_ARG("Staging Buffer for VKTexture"));
 
                 // 1.1 Copy from staging buffer to Image
-                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Copy Data to GPU Texture", glm::vec4(0.3f, 0.16f, 0.74f, 1.0f));
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Copy Data to GPU Texture", float4(0.3f, 0.16f, 0.74f, 1.0f));
 
                 VkBufferImageCopy region               = {};
                 region.bufferOffset                    = 0;
@@ -308,13 +308,11 @@ namespace Razix {
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                if (newLayout == oldLayout) {
-                    RAZIX_CORE_WARN("[Vulkan] SKIPPING...Image Layout Transition... found same old and new layout! Please check your barriers again or ignore this.");
+                if (newLayout == oldLayout)
                     return;
-                }
 
                 // Begin the buffer since this done for computability with shader pipeline stages we use pipeline barrier to synchronize the transition
-                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Image Layout Transition", glm::vec4(0.25f, 0.5f, 0.75, 1.0f));
+                VkCommandBuffer commandBuffer = VKUtilities::BeginSingleTimeCommandBuffer("Image Layout Transition", float4(0.25f, 0.5f, 0.75, 1.0f));
 
                 VkImageMemoryBarrier barrier = {};
                 barrier.sType                = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -357,7 +355,7 @@ namespace Razix {
                     barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
                     sourceStage           = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
                 } else {
-                    RAZIX_CORE_WARN("[Vulkan] Unsupported layout transition!");
+                    RAZIX_CORE_WARN("[Vulkan] Unsupported vulkan layout transition!");
                 }
 
                 // set up destination properties
@@ -678,11 +676,11 @@ namespace Razix {
                     case ImageLayout::kDepthStencilReadOnly:
                         return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
                         break;
-                    case ImageLayout::kShaderAttachment:
+                    case ImageLayout::kShaderRead:
                         return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                         break;
-                    case ImageLayout::kAttachment:
-                        return VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
+                    case ImageLayout::kShaderWrite:
+                        return VK_IMAGE_LAYOUT_GENERAL;
                         break;
                     case ImageLayout::kTransferSource:
                         return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
@@ -691,6 +689,7 @@ namespace Razix {
                         return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
                         break;
                     default:
+                        RAZIX_CORE_ERROR("[Vulkan] Unknown image layout");
                         return VK_IMAGE_LAYOUT_UNDEFINED;
                         break;
                 }
@@ -829,7 +828,7 @@ namespace Razix {
             // Single Time Command Buffer Utility Functions
             //-----------------------------------------------------------------------------------
 
-            VkCommandBuffer BeginSingleTimeCommandBuffer(const std::string commandUsage, glm::vec4 color)
+            VkCommandBuffer BeginSingleTimeCommandBuffer(const std::string commandUsage, float4 color)
             {
                 RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -1114,23 +1113,23 @@ namespace Razix {
                     case VK_FORMAT_R32_SFLOAT:
                         return sizeof(float);
                     case VK_FORMAT_R32G32_SFLOAT:
-                        return sizeof(glm::vec2);
+                        return sizeof(float2);
                     case VK_FORMAT_R32G32B32_SFLOAT:
-                        return sizeof(glm::vec3);
+                        return sizeof(float3);
                     case VK_FORMAT_R32G32B32A32_SFLOAT:
-                        return sizeof(glm::vec4);
+                        return sizeof(float4);
                     case VK_FORMAT_R32G32_SINT:
-                        return sizeof(glm::ivec2);
+                        return sizeof(int2);
                     case VK_FORMAT_R32G32B32_SINT:
-                        return sizeof(glm::ivec3);
+                        return sizeof(int3);
                     case VK_FORMAT_R32G32B32A32_SINT:
-                        return sizeof(glm::ivec4);
+                        return sizeof(int4);
                     case VK_FORMAT_R32G32_UINT:
-                        return sizeof(glm::uvec2);
+                        return sizeof(uint2);
                     case VK_FORMAT_R32G32B32_UINT:
-                        return sizeof(glm::uvec3);
+                        return sizeof(uint3);
                     case VK_FORMAT_R32G32B32A32_UINT:
-                        return sizeof(glm::uvec4);    //Need uintvec?
+                        return sizeof(uint4);    //Need uintvec?
                     case VK_FORMAT_R32_UINT:
                         return sizeof(u32);
                     default:
@@ -1154,13 +1153,13 @@ namespace Razix {
                         layout.push<float>(name);
                         break;
                     case VK_FORMAT_R32G32_SFLOAT:
-                        layout.push<glm::vec2>(name);
+                        layout.push<float2>(name);
                         break;
                     case VK_FORMAT_R32G32B32_SFLOAT:
-                        layout.push<glm::vec3>(name);
+                        layout.push<float3>(name);
                         break;
                     case VK_FORMAT_R32G32B32A32_SFLOAT:
-                        layout.push<glm::vec4>(name);
+                        layout.push<float4>(name);
                         break;
                     default:
                         RAZIX_CORE_ERROR("Unsupported Format {0}", format);
@@ -1240,7 +1239,7 @@ namespace Razix {
             // Debug Utils
             //-----------------------------------------------------------------------------------
 
-            void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, glm::vec4 color)
+            void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, float4 color)
             {
                 VkDebugUtilsLabelEXT label{};
                 label.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
@@ -1254,7 +1253,7 @@ namespace Razix {
                 //    RAZIX_CORE_ERROR("CmdBeginDebugUtilsLabelEXT Function not found");
             }
 
-            void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, glm::vec4 color)
+            void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer, const std::string& name, float4 color)
             {
                 VkDebugUtilsLabelEXT label{};
                 label.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
@@ -1264,8 +1263,8 @@ namespace Razix {
                 auto func = (PFN_vkCmdInsertDebugUtilsLabelEXT) vkGetInstanceProcAddr(VKContext::Get()->getInstance(), "vkCmdInsertDebugUtilsLabelEXT");
                 if (func != nullptr)
                     func(cmdBuffer, &label);
-                //else
-                //    RAZIX_CORE_ERROR("CmdInsertDebugUtilsLabelEXT Function not found");
+                else
+                    RAZIX_CORE_ERROR("CmdInsertDebugUtilsLabelEXT Function not found");
             }
 
             void CmdEndDebugUtilsLabelEXT(VkCommandBuffer cmdBuffer)
@@ -1273,8 +1272,8 @@ namespace Razix {
                 auto func = (PFN_vkCmdEndDebugUtilsLabelEXT) vkGetInstanceProcAddr(VKContext::Get()->getInstance(), "vkCmdEndDebugUtilsLabelEXT");
                 if (func != nullptr)
                     func(cmdBuffer);
-                //else
-                //    RAZIX_CORE_ERROR("CmdEndDebugUtilsLabelEXT Function not found");
+                else
+                    RAZIX_CORE_ERROR("CmdEndDebugUtilsLabelEXT Function not found");
             }
 
             VkResult CreateDebugObjName(const std::string& name, VkObjectType type, uint64_t handle)
@@ -1292,6 +1291,53 @@ namespace Razix {
                     return func(VKDevice::Get().getDevice(), &info);
                 else
                     return VK_ERROR_EXTENSION_NOT_PRESENT;
+            }
+
+            std::string VulkanObjectTypeString(VkObjectType type)
+            {
+                switch (type) {
+                    case VK_OBJECT_TYPE_UNKNOWN: return "VK_OBJECT_TYPE_UNKNOWN";
+                    case VK_OBJECT_TYPE_INSTANCE: return "VK_OBJECT_TYPE_INSTANCE";
+                    case VK_OBJECT_TYPE_PHYSICAL_DEVICE: return "VK_OBJECT_TYPE_PHYSICAL_DEVICE";
+                    case VK_OBJECT_TYPE_DEVICE: return "VK_OBJECT_TYPE_DEVICE";
+                    case VK_OBJECT_TYPE_QUEUE: return "VK_OBJECT_TYPE_QUEUE";
+                    case VK_OBJECT_TYPE_SEMAPHORE: return "VK_OBJECT_TYPE_SEMAPHORE";
+                    case VK_OBJECT_TYPE_COMMAND_BUFFER: return "VK_OBJECT_TYPE_COMMAND_BUFFER";
+                    case VK_OBJECT_TYPE_FENCE: return "VK_OBJECT_TYPE_FENCE";
+                    case VK_OBJECT_TYPE_DEVICE_MEMORY: return "VK_OBJECT_TYPE_DEVICE_MEMORY";
+                    case VK_OBJECT_TYPE_BUFFER: return "VK_OBJECT_TYPE_BUFFER";
+                    case VK_OBJECT_TYPE_IMAGE: return "VK_OBJECT_TYPE_IMAGE";
+                    case VK_OBJECT_TYPE_EVENT: return "VK_OBJECT_TYPE_EVENT";
+                    case VK_OBJECT_TYPE_QUERY_POOL: return "VK_OBJECT_TYPE_QUERY_POOL";
+                    case VK_OBJECT_TYPE_BUFFER_VIEW: return "VK_OBJECT_TYPE_BUFFER_VIEW";
+                    case VK_OBJECT_TYPE_IMAGE_VIEW: return "VK_OBJECT_TYPE_IMAGE_VIEW";
+                    case VK_OBJECT_TYPE_SHADER_MODULE: return "VK_OBJECT_TYPE_SHADER_MODULE";
+                    case VK_OBJECT_TYPE_PIPELINE_CACHE: return "VK_OBJECT_TYPE_PIPELINE_CACHE";
+                    case VK_OBJECT_TYPE_PIPELINE_LAYOUT: return "VK_OBJECT_TYPE_PIPELINE_LAYOUT";
+                    case VK_OBJECT_TYPE_RENDER_PASS: return "VK_OBJECT_TYPE_RENDER_PASS";
+                    case VK_OBJECT_TYPE_PIPELINE: return "VK_OBJECT_TYPE_PIPELINE";
+                    case VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT: return "VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT";
+                    case VK_OBJECT_TYPE_SAMPLER: return "VK_OBJECT_TYPE_SAMPLER";
+                    case VK_OBJECT_TYPE_DESCRIPTOR_POOL: return "VK_OBJECT_TYPE_DESCRIPTOR_POOL";
+                    case VK_OBJECT_TYPE_DESCRIPTOR_SET: return "VK_OBJECT_TYPE_DESCRIPTOR_SET";
+                    case VK_OBJECT_TYPE_FRAMEBUFFER: return "VK_OBJECT_TYPE_FRAMEBUFFER";
+                    case VK_OBJECT_TYPE_COMMAND_POOL: return "VK_OBJECT_TYPE_COMMAND_POOL";
+                    case VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION: return "VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION";
+                    case VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE: return "VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE";
+                    case VK_OBJECT_TYPE_SURFACE_KHR: return "VK_OBJECT_TYPE_SURFACE_KHR";
+                    case VK_OBJECT_TYPE_SWAPCHAIN_KHR: return "VK_OBJECT_TYPE_SWAPCHAIN_KHR";
+                    case VK_OBJECT_TYPE_DISPLAY_KHR: return "VK_OBJECT_TYPE_DISPLAY_KHR";
+                    case VK_OBJECT_TYPE_DISPLAY_MODE_KHR: return "VK_OBJECT_TYPE_DISPLAY_MODE_KHR";
+                    case VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT: return "VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT";
+                    case VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT: return "VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT";
+                    case VK_OBJECT_TYPE_VALIDATION_CACHE_EXT: return "VK_OBJECT_TYPE_VALIDATION_CACHE_EXT";
+                    case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV: return "VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV";
+                    case VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL: return "VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL";
+                    case VK_OBJECT_TYPE_DEFERRED_OPERATION_KHR: return "VK_OBJECT_TYPE_DEFERRED_OPERATION_KHR";
+                    case VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV: return "VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV";
+                    case VK_OBJECT_TYPE_PRIVATE_DATA_SLOT_EXT: return "VK_OBJECT_TYPE_PRIVATE_DATA_SLOT_EXT";
+                    default: return "UNKNOWN";
+                }
             }
         }    // namespace VKUtilities
     }        // namespace Gfx

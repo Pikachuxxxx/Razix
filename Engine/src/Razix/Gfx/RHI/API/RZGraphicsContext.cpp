@@ -82,13 +82,13 @@ namespace Razix {
             }
         }
 
-        void RZGraphicsContext::Release()
+        void RZGraphicsContext::Destroy()
         {
             PreGraphicsContextDestroy();
 
             if (s_Context) {
-                s_Context->Destroy();
-//                delete s_Context;    // This is causing unnecessary crashes
+                s_Context->DestroyContext();
+                //                delete s_Context;    // This is causing unnecessary crashes
                 s_Context = nullptr;
             }
         }
@@ -99,13 +99,13 @@ namespace Razix {
             Gfx::RZSampler::CreateSamplerPresets();
 
             RAZIX_CORE_TRACE("[RHI] Creating Default Texture");
-            Gfx::RZMaterial::InitDefaultTexture();
+            Gfx::RZTexture::InitDefaultTexture();
         }
 
         void RZGraphicsContext::PreGraphicsContextDestroy()
         {
             Gfx::RZSampler::DestroySamplerPresets();
-            Gfx::RZMaterial::ReleaseDefaultTexture();
+            Gfx::RZTexture::ReleaseDefaultTexture();
 
             // Render subsystems cleanup
             Gfx::RZShaderLibrary::Get().ShutDown();

@@ -1,17 +1,13 @@
 ﻿/*
  * Razix Shader File 
  * Shader.Builtin.ImGui.rzsf : Dear ImGui shaders for rendering UI elements
- * Copyright Razix Engine 2024by Pikachuxxxx (Phani Srikar)
+ * Copyright Razix Engine 2025 by Pikachuxxxx (Phani Srikar)
  */
 
 #shader vertex
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.ImGui.vert.spv
-    #endif
+    #include Shader.Builtin.ImGui.vert
 #end
 
 #shader fragment
-    #ifdef RAZIX_RENDER_API_VULKAN || RAZIX_RENDER_API_OPENGL
-        #include Compiled/SPIRV/Shader.Builtin.ImGui.frag.spv
-    #endif
+    #include Shader.Builtin.ImGui.frag
 #end

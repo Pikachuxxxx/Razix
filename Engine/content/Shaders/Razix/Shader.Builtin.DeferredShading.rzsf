@@ -1,0 +1,12 @@
+/*
+ * Razix Shader File 
+ * [PBR Deffered Rendering] Uses the PBR model to render the geometry using PBR Deffered IBL
+ */
+
+#shader vertex
+    #include Shader.Builtin.Quad.vert
+#end
+
+#shader fragment
+    #include Shader.Builtin.DeferredShading.frag
+#end

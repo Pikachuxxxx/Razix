@@ -24,11 +24,16 @@ namespace Razix {
              * @param data The data being stored in the uniform buffer
              */
             virtual void SetData(u32 size, const void* data) = 0;
-            virtual void Flush()                             = 0;
-            virtual void Invalidate()                        = 0;
+            /* FLush the caches for GPU to see the newly updated data from CPU */
+            virtual void Flush() = 0;
+            /* Invalidate caches to read back new data to CPU */
+            virtual void Invalidate() = 0;
+
+            inline const RZBufferDesc& getDescription() const { return m_Desc; }
 
         protected:
             RZBufferDesc m_Desc;
+            bool         m_LastDirty = false;
 
         private:
             /**

@@ -25,6 +25,8 @@ project "SPIRVReflect"
         "./"
     }
 
+    warnings "off"
+
     filter "system:linux"
         pic "On"
 
@@ -47,8 +49,8 @@ project "SPIRVReflect"
         symbols "On"
         runtime "Release"
 
-    filter "configurations:Distribution"
-        defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
+    filter "configurations:GoldMaster"
+        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
         symbols "Off"
         optimize "Full"
         runtime "Release"

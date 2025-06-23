@@ -1,0 +1,17 @@
+﻿/*
+ * Razix Shader File 
+ * Shader.Test.GSCubeTest.rzsf : Test shader to render a cube using a geometry shader
+ * Copyright Razix Engine 2025 by Pikachuxxxx (Phani Srikar)
+ */
+
+#shader vertex
+    #include Shader.Test.GSCube.vert
+#end
+
+#shader geometry
+    #include Shader.Test.GSCube.geom
+#end
+
+#shader fragment
+    #include Shader.Test.GSCube.frag
+#end

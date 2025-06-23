@@ -1,12 +1,7 @@
 -- Razix Engine vendor Common Inlcudes 
 include 'Scripts/premake/common/vendor_includes.lua'
--- Internal libraies include dirs
-include 'Scripts/premake/common/internal_includes.lua'
 -- common include dirs
 include 'Scripts/premake/common/common_include_dirs.lua'
-------------------------------------------------------------------------------
--- Shaders a separate project to build as cache
-include 'razix_shaders_build.lua'
 ------------------------------------------------------------------------------
 -- Engine Config files
 group "Engine/content"
@@ -38,6 +33,27 @@ group "Engine/content"
 
         filter { "files:**.json"}
             flags { "ExcludeFromBuild" }
+group"" 
+------------------------------------------------------------------------------
+group "Engine/content"
+    project "Shaders"
+        kind "Utility"
+
+        files
+        { 
+            -- Shader common files
+            "content/Shaders/ShaderCommon/**",
+            -- HLSL - primary language for all platforms shader gen
+            "content/Shaders/HLSL/**.h",
+            "content/Shaders/HLSL/**.hlsl",
+            "content/Shaders/HLSL/**.hlsli",
+            "content/Shaders/HLSL/**.vert.hlsl",
+            "content/Shaders/HLSL/**.geom.hlsl",
+            "content/Shaders/HLSL/**.frag.hlsl",
+            "content/Shaders/HLSL/**.comp.hlsl",
+            -- Razix Shader File
+            "content/Shaders/Razix/**.rzsf",
+        }
 group"" 
 ------------------------------------------------------------------------------
 group "Engine"
@@ -75,9 +91,11 @@ project "Razix"
     }
 
     -- Lazily add the platform files based on OS config
+	-- Also remove the core module, they are compiled as a library
     removefiles
     {
-        "src/Razix/Platform/**"
+        "src/Razix/Platform/**",
+        "src/Razix/Core/Memory/vendor/mmgr/mmgr.cpp"
     }
 
     -- For MacOS
@@ -116,11 +134,6 @@ project "Razix"
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
         "%{ExperimentalIncludeDir.Eigen}",
-        -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}",
-        "%{InternalIncludeDir.RZSTL}",
-        "%{InternalIncludeDir.EASTL}",
-        "%{InternalIncludeDir.EABase}"
     }
 
     -- Razix engine external linkage libraries (Global)
@@ -128,21 +141,15 @@ project "Razix"
     {
         "glfw",
         "imgui",
-        "spdlog", -- Being linked staically by RazixMemory (Only include this in debug and release build exempt this in Distribution build)
+        "spdlog", -- Being linked staically by RazixMemory (Only include this in debug and release build exempt this in GoldMaster build)
         "SPIRVReflect",
         "SPIRVCross",
-        "meshoptimizer",
-        "OpenFBX", 
         "lua",
         "optick",
         "tracy",
         "Jolt",
         -- Shaders
         "Shaders",
-        -- Razix Internal Libraries 
-        -- 1. Razix Memory
-        "RazixMemory",
-        "RZSTL"
     }
 
     flags 
@@ -157,9 +164,15 @@ project "Razix"
         flags  { 'NoPCH' }
 
     -- Disable warning for vendor
-    filter { "files:vendor/**"}
+    filter { "files:vendor/**" }
+        warnings "Off"
+    filter { "files:src/Razix/Core/Memory/vendor/**" }
         warnings "Off"
 
+    filter { "files:src/Razix/Core/Memory/vendor/mmgr/mmgr.cpp" }
+        warnings "Off"
+        removeflags { "FatalWarnings" }
+        disablewarnings {4311, 4302, 4477}
 
     -------------------------------------
     -- Razix Project settings for Windows
@@ -169,7 +182,6 @@ project "Razix"
         systemversion "latest"
         disablewarnings { 4307, 4267, 4275, 4715, 4554 } -- Disabling the 4275 cause this will propagate into everything ig, also 4715 = not returinign values from all control paths is usually done deliberately hence fuck this warning
         characterset ("MBCS")
-        editandcontinue "Off"
         
         pchheader "rzxpch.h"
         pchsource "src/rzxpch.cpp"
@@ -184,14 +196,13 @@ project "Razix"
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
         buildoptions
         {
-            "/MP", "/bigobj", "/Zi", 
-            "/WX"
+            "/MP", "/bigobj", 
             -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
         }
 
         linkoptions
         {
-            --"/NODEFAULTLIB:libcpmt.lib" ,"/NODEFAULTLIB:msvcprt.lib", "/NODEFAULTLIB:libcpmtd.lib", "/NODEFAULTLIB:msvcprtd.lib"
+            "/WX:NO" -- until I figure out incremental disabling in release mode
         }
 
         -- Windows specific defines
@@ -297,8 +308,7 @@ project "Razix"
     -------------------------------------
     filter "system:macosx"
         cppdialect "C++17"
-        systemversion "latest"
-
+        systemversion "14.0" 
         --pchheader "rzxpch.h"
         --pchsource "src/rzxpch.cpp"
 
@@ -380,7 +390,7 @@ project "Razix"
         buildoptions
         {
             "-Wno-error=switch-enum",
-            "-Wswitch", "-Wswitch-enum"
+            "-Wno-switch", "-Wno-switch-enum"
         }
         
                 
@@ -445,6 +455,7 @@ project "Razix"
         symbols "On"
         runtime "Debug"
         optimize "Off"
+        editandcontinue "On"
 
         filter "system:windows"
             links
@@ -452,13 +463,19 @@ project "Razix"
                 "WinPixEventRuntime",
                 "WinPixEventRuntime_UAP"
             }
+            buildoptions { "/ZI"}
+            linkoptions
+            {
+                "/INCREMENTAL",--"/NODEFAULTLIB:libcpmt.lib" ,"/NODEFAULTLIB:msvcprt.lib", "/NODEFAULTLIB:libcpmtd.lib", "/NODEFAULTLIB:msvcprtd.lib"
+            }
         filter {}
 
     filter "configurations:Release"
         defines { "RAZIX_RELEASE", "NDEBUG" }
-        optimize "Speed"
         symbols "On"
         runtime "Release"
+        optimize "Speed"
+        editandcontinue "Off"
         
         filter "system:windows"
             links
@@ -468,9 +485,12 @@ project "Razix"
             }
         filter {}
 
-    filter "configurations:Distribution"
-        defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
-        symbols "On"
-        optimize "Full"
+    filter "configurations:GoldMaster"
+        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
+        symbols "Off"
         runtime "Release"
+        optimize "Full"
+        editandcontinue "Off"
 group""
+
+

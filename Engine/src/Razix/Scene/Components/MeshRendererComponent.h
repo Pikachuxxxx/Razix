@@ -29,7 +29,7 @@ namespace Razix {
         Gfx::RZMesh*       Mesh;
         Gfx::MeshPrimitive primitive;
 
-        glm::mat4 PreviousWorldTransform;    // Run-time variable for storing the previous frame world matrix
+        float4x4 PreviousWorldTransform;    // Run-time variable for storing the previous frame world matrix
 
         bool enableBoundingBoxes = false;
         bool receiveShadows      = true;
@@ -62,10 +62,10 @@ namespace Razix {
                 Mesh->setPath(meshPath);
             }
 
+#if !DISABLE_MATERIALS_LOADING
             // Load/Create a new Material (override the save location)
             std::string materialPath;
             archive(cereal::make_nvp("MaterialPath", materialPath));
-#if !DISABLE_MATERIALS_LOADING
             if (!materialPath.empty()) {
                 // Since we have the path to a material file load it, deserialize it and create the material
                 Mesh->getMaterial()->loadFromFile(materialPath);
@@ -76,16 +76,20 @@ namespace Razix {
         template<class Archive>
         void save(Archive& archive) const
         {
+            const std::string Dummy = "Dummy";
+
             archive(cereal::make_nvp("Primitive", primitive));
             if (Mesh) {
                 archive(cereal::make_nvp("MeshName", Mesh->getName()));
                 archive(cereal::make_nvp("MeshPath", Mesh->getPath()));
 
-                auto matPath = "//Assets/Materials/" + Mesh->getMaterial()->getName() + ".rzmaterial";
-                archive(cereal::make_nvp("MaterialPath", matPath));
-                Mesh->getMaterial()->saveToFile();
+                if (Mesh->getMaterial()) {
+                    auto matPath = "//Assets/Materials/" + Mesh->getMaterial()->getName() + ".rzmaterial";
+                    archive(cereal::make_nvp("MaterialPath", matPath));
+                    Mesh->getMaterial()->saveToFile();
+                } else
+                    archive(cereal::make_nvp("MaterialPath", Dummy));
             } else {
-                std::string Dummy = "Dummy";
                 archive(cereal::make_nvp("MeshName", Dummy));
                 archive(cereal::make_nvp("MeshPath", Dummy));
                 archive(cereal::make_nvp("MaterialPath", Dummy));

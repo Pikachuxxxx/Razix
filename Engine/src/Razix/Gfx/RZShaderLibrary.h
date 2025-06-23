@@ -2,56 +2,12 @@
 
 #include "Razix/Utilities/TRZSingleton.h"
 
-#include "RZSTL/smart_pointers.h"
+#include "Razix/Core/RZSTL/smart_pointers.h"
 
-#include "Razix/Gfx/RHI/API/RZAPIHandles.h"
+#include "Razix/Gfx/GfxData.h"
 
 namespace Razix {
     namespace Gfx {
-
-        class RZShader;
-
-        enum class ShaderBuiltin : u32
-        {
-            //------------------------------
-            // TEST PASSES
-            HelloTriangleTest,     //Test shaders
-            GSCubeTest,            //Test shaders
-            HelloTextureTest,      //Test shaders
-            WaveIntrinsicsTest,    //Test shaders
-            //------------------------------
-            Default,
-            Skybox,
-            ProceduralSkybox,
-            PBRLighting,
-            PBRIBL,
-            PBRDeferredLighting,
-            GBuffer,
-            //----------------
-            VisibilityBufferFill,
-            //----------------
-            DeferredDecals,
-            Composition,
-            DepthPreTest,
-            CSM,
-            EnvToCubemap,
-            GenerateIrradianceMap,
-            GeneratePreFilteredMap,
-            Sprite,
-            SpriteTextured,
-            DebugPoint,
-            DebugLine,
-            ImGui,
-            // Post Processing FX
-            SSAO,
-            GaussianBlur,
-            ColorGrading,
-            TAAResolve,
-            FXAA,
-            Tonemap,
-            //---
-            COUNT
-        };
 
 #define REGISTER_USER_SHADER_ENUM_MEMBER(EnumType, memberName) \
     ShaderUserRegistered memberName;

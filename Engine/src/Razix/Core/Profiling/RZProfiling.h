@@ -3,7 +3,8 @@
 // TODO: https://nikitablack.github.io/post/how_to_use_vulkan_timestamp_queries/ use this to manually profile GPU timings
 
 // Profilers cannot be switched at runtime and need to be decided before compile time itself
-#define RZ_PROFILER_TRACY   1
+// Note: Using a profiler especially tracy increases the memory consumption monotonically, it's not a memory leak!
+#define RZ_PROFILER_TRACY   0
 #define RZ_PROFILER_OPTICK  0
 #define RZ_PROFILER_NVSIGHT 0
 
@@ -22,7 +23,7 @@
 // Graphics API will have separate colors for different parts such as for draw commands, pipeline binds etc.
 #define RZ_PROFILE_COLOR_GRAPHICS_API_DRAW_CALLS 0x8B0000
 
-#ifndef RAZIX_DISTRIBUTION
+#ifndef RAZIX_GOLD_MASTER
     // Tracy
     #if RZ_PROFILER_TRACY
         #define TRACY_CALLSTACK 1
@@ -68,8 +69,8 @@
         #define RAZIX_PROFILE_GPU_CONTEXT(context)    OPTICK_GPU_CONTEXT(context)
         #define RAZIX_PROFILE_GPU_SCOPE(name)         OPTICK_GPU_EVENT(name)
         #define RAZIX_PROFILE_GPU_SCOPEC(name, color) OPTICK_GPU_EVENT(name)
-        //#define RAZIX_PROFILE_GPU_FUNCTION()            OPTICK_GPU_EVENT(__FUNCTION__)
-        //#define RAZIX_PROFILE_GPU_FUNCTION(color)       OPTICK_GPU_EVENT(__FUNCTION__)
+    //#define RAZIX_PROFILE_GPU_FUNCTION()            OPTICK_GPU_EVENT(__FUNCTION__)
+    //#define RAZIX_PROFILE_GPU_FUNCTION(color)       OPTICK_GPU_EVENT(__FUNCTION__)
         #define RAZIX_PROFILE_GPU_FLIP(swapchain)     OPTICK_GPU_FLIP(swapchain)
 
         #define RAZIX_PROFILE_LOCK(type, var, name)
@@ -85,8 +86,8 @@
         #define RAZIX_PROFILE_GPU_CONTEXT(context)
         #define RAZIX_PROFILE_GPU_SCOPE(name)
         #define RAZIX_PROFILE_GPU_SCOPEC(name, color)
-        //#define RAZIX_PROFILE_GPU_FUNCTION()
-        //#define RAZIX_PROFILE_GPU_FUNCTION(color)
+    //#define RAZIX_PROFILE_GPU_FUNCTION()
+    //#define RAZIX_PROFILE_GPU_FUNCTION(color)
         #define RAZIX_PROFILE_GPU_FLIP(swapchain)
 
         #define RAZIX_PROFILE_LOCK(type, var, name)
@@ -95,7 +96,7 @@
     #endif
 #endif
 
-#ifdef RAZIX_DISTRIBUTION
+#ifdef RAZIX_GOLD_MASTER
     #define RAZIX_PROFILE_SCOPE(name)
     #define RAZIX_PROFILE_SCOPEC(name, color)
     #define RAZIX_PROFILE_FUNCTION()

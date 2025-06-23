@@ -23,9 +23,9 @@ namespace Razix {
     // Test for GenerateHashedColor
     TEST_F(RZColorUtilitiesTests, GenerateHashedColor)
     {
-        glm::vec3 color1 = Razix::Utilities::GenerateHashedColor(123);
-        glm::vec3 color2 = Razix::Utilities::GenerateHashedColor(123);
-        glm::vec3 color3 = Razix::Utilities::GenerateHashedColor(456);
+        float3 color1 = Razix::Utilities::GenerateHashedColor(123);
+        float3 color2 = Razix::Utilities::GenerateHashedColor(123);
+        float3 color3 = Razix::Utilities::GenerateHashedColor(456);
 
         // Verify determinism
         EXPECT_EQ(color1, color2) << "GenerateHashedColor should return consistent results for the same seed.";
@@ -45,9 +45,9 @@ namespace Razix {
     // Test for GenerateHashedColor4
     TEST_F(RZColorUtilitiesTests, GenerateHashedColor4)
     {
-        glm::vec4 color1 = Razix::Utilities::GenerateHashedColor4(123);
-        glm::vec4 color2 = Razix::Utilities::GenerateHashedColor4(123);
-        glm::vec4 color3 = Razix::Utilities::GenerateHashedColor4(456);
+        float4 color1 = Razix::Utilities::GenerateHashedColor4(123);
+        float4 color2 = Razix::Utilities::GenerateHashedColor4(123);
+        float4 color3 = Razix::Utilities::GenerateHashedColor4(456);
 
         // Verify determinism
         EXPECT_EQ(color1, color2) << "GenerateHashedColor4 should return consistent results for the same seed.";
@@ -69,7 +69,7 @@ namespace Razix {
     // Test for ColorToARGB
     TEST_F(RZColorUtilitiesTests, ColorToARGB)
     {
-        glm::vec4 color = glm::vec4(0.5f, 0.25f, 0.75f, 1.0f);    // RGBA format
+        float4 color = float4(0.5f, 0.25f, 0.75f, 1.0f);    // RGBA format
         uint32_t  argb  = Razix::Utilities::ColorToARGB(color);
 
         // Verify conversion to ARGB format

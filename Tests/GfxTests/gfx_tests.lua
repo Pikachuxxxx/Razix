@@ -1,22 +1,26 @@
-project "test_hello_triangle"
+-- common include dirs
+include 'Scripts/premake/common/common_include_dirs.lua'
+
+function ApplyGfxTestSettings()
     kind "ConsoleApp"
     language "C++"
     cppdialect (engine_global_config.cpp_dialect)
-
-    files
-    {
-        "test.cpp"
-    }
+    staticruntime "off"
 
     links
     {
-        "Razix"
+        "Razix",
+        "TestShaders"
     }
 
     includedirs
     {
         "%{wks.location}/../Engine",
+        "%{wks.location}/../Engine/src",
         "%{wks.location}/../Engine/src/Razix",
+        "%{wks.location}/../Engine/internal",
+        "%{wks.location}/../Engine/internal/RazixMemory",
+        "%{wks.location}/../Engine/internal/RZSTL",
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.stb}",
@@ -31,16 +35,68 @@ project "test_hello_triangle"
         "%{IncludeDir.tracy}",
         "%{IncludeDir.optick}",
         "%{IncludeDir.Jolt}",
+        "%{IncludeDir.json}",
+        "%{IncludeDir.D3D12MA}",
+        "%{IncludeDir.dxc}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
-        -- Internal libraries
-        "%{InternalIncludeDir.RazixMemory}",
-        "%{InternalIncludeDir.RZSTL}",
-        "%{InternalIncludeDir.EASTL}",
-        "%{InternalIncludeDir.EABase}"
+        -- Experimental Vendor
+        "%{ExperimentalIncludeDir.Eigen}",
+        -- googletest vendor
+        "%{wks.location}/../Tests/",
+        "%{wks.location}/../Tests/vendor/googletest/googletest",
+        "%{wks.location}/../Tests/vendor/googletest/googletest/include"
+    }
+    
+    externalincludedirs
+    {
+        "%{wks.location}/../Engine",
+        "%{wks.location}/../Engine/src",
+        "%{wks.location}/../Engine/src/Razix",
+        "%{wks.location}/../Engine/internal",
+        "%{wks.location}/../Engine/internal/RazixMemory",
+        "%{wks.location}/../Engine/internal/RZSTL",
+        "%{IncludeDir.GLFW}",
+        "%{IncludeDir.Glad}",
+        "%{IncludeDir.stb}",
+        "%{IncludeDir.glm}",
+        "%{IncludeDir.ImGui}",
+        "%{IncludeDir.spdlog}",
+        "%{IncludeDir.cereal}",
+        "%{IncludeDir.SPIRVReflect}",
+        "%{IncludeDir.SPIRVCross}",
+        "%{IncludeDir.entt}",
+        "%{IncludeDir.lua}",
+        "%{IncludeDir.tracy}",
+        "%{IncludeDir.optick}",
+        "%{IncludeDir.Jolt}",
+        "%{IncludeDir.json}",
+        "%{IncludeDir.D3D12MA}",
+        "%{IncludeDir.dxc}",
+        "%{IncludeDir.Razix}",
+        "%{IncludeDir.vendor}",
+        -- Experimental Vendor
+        "%{ExperimentalIncludeDir.Eigen}",
+        -- googletest vendor
+        "%{wks.location}/../Tests/",
+        "%{wks.location}/../Tests/vendor/googletest/googletest",
+        "%{wks.location}/../Tests/vendor/googletest/googletest/include"
+    }
+
+    defines
+    {
+        "RAZIX_TEST"
+    }
+
+    links
+    {
+        "Razix", -- Razix DLL
+        "googletest"
     }
 
     filter "system:windows"
+        editandcontinue "Off"
+
         defines
         {
             -- Engine
@@ -61,6 +117,36 @@ project "test_hello_triangle"
             "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING"
         }
 
+        disablewarnings
+        {
+            "4996"
+        }
+
+        includedirs
+        {
+            VulkanSDK .. "/include",
+            "%{wks.location}/../Engine/vendor/winpix/Include/WinPixEventRuntime"
+        }
+
+    filter "system:macosx"
+        cppdialect "C++17"
+        staticruntime "off"
+        systemversion "14.0"
+
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_MACOS",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_USE_GLFW_WINDOWS",
+            "RAZIX_ROOT_DIR="  .. root_dir,
+            "RAZIX_IMGUI",
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "RAZIX_RENDER_API_METAL",
+            "TRACY_ENABLE"
+        }
+
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }
         symbols "On"
@@ -73,8 +159,32 @@ project "test_hello_triangle"
         symbols "On"
         runtime "Release"
 
-    filter "configurations:Distribution"
-        defines { "RAZIX_DISTRIBUTION", "NDEBUG" }
+    filter "configurations:GoldMaster"
+        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
         symbols "Off"
         optimize "Full"
         runtime "Release"
+end
+
+group "Tests/GfxTests"
+    include "HelloWorldTests/hello_world_tests.lua"
+
+    -- GFX TEST SHADERS, all gfx tests can use this project to build and manage HLSL/Razix shaders
+    project "TestShaders"
+        kind "Utility"
+
+        files
+        { 
+            -- Shader files
+            "../../../Engine/content/Shaders/ShaderCommon/**",
+            -- HLSL - primary language for all platforms shader gen
+            "HelloWorldTests/Shaders/HLSL/**.hlsl",
+            "HelloWorldTests/Shaders/HLSL/**.hlsli",
+            "HelloWorldTests/Shaders/HLSL/**.vert.hlsl",
+            "HelloWorldTests/Shaders/HLSL/**.geom.hlsl",
+            "HelloWorldTests/Shaders/HLSL/**.frag.hlsl",
+            "HelloWorldTests/Shaders/HLSL/**.comp.hlsl",
+            -- Razix Shader File
+            "HelloWorldTests/Shaders/Razix/**.rzsf",
+        }
+group ""

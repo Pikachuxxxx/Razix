@@ -165,11 +165,6 @@ namespace Razix {
             D3D_SAFE_RELEASE(m_SwapchainRTVHeap)
         }
 
-        void DX12Swapchain::Flip()
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-        }
-
         void DX12Swapchain::OnResize(u32 width, u32 height)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -211,7 +206,7 @@ namespace Razix {
             m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_SwapchainImageCount;
         }
 
-        void DX12Swapchain::clearWithColor(ID3D12GraphicsCommandList2* commandList, glm::vec4 color)
+        void DX12Swapchain::clearWithColor(ID3D12GraphicsCommandList2* commandList, float4 color)
         {
             DX12Utilities::TransitionResource(commandList, m_SwapchainD3DHandles[m_AcquiredBackBufferImageIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 

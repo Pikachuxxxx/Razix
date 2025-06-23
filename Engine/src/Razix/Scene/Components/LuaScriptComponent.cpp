@@ -73,8 +73,7 @@ namespace Razix {
 
         if (m_OnStartFunc > -1) {
             bool success = CallLuaFunction(m_OnStartFunc);
-            if (!success)
-                RAZIX_CORE_ERROR("[Lua Script Manager] Error in OnStart: {0}", m_Filepath);
+            RAZIX_CORE_ASSERT(success, "[Lua Script Manager] Error in OnStart: {0}", m_Filepath);
         }
     }
 
@@ -84,8 +83,7 @@ namespace Razix {
 
         if (m_UpdateFunc > -1) {
             bool success = CallLuaFunction(m_UpdateFunc);
-            if (!success)
-                RAZIX_CORE_ERROR("[Lua Script Manager] Error in Update: {0}", m_Filepath);
+            RAZIX_CORE_ASSERT(success, "[Lua Script Manager] Error in Update: {0}", m_Filepath);
         }
     }
 
@@ -95,8 +93,7 @@ namespace Razix {
 
         if (m_OnImGuiFunc > -1) {
             bool success = CallLuaFunction(m_OnImGuiFunc);
-            if (!success)
-                RAZIX_CORE_ERROR("[Lua Script Manager] Error in OnImGui: {0}", m_Filepath);
+            RAZIX_CORE_ASSERT(success, "[Lua Script Manager] Error in OnImGui: {0}", m_Filepath);
         }
     }
 }    // namespace Razix

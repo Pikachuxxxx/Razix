@@ -20,14 +20,14 @@ namespace Razix {
         class RZTexture;
         class RZDescriptorSet;
 
-        class IRZPass
+        class RAZIX_API IRZPass
         {
         public:
             IRZPass()          = default;
             virtual ~IRZPass() = default;
 
-            // TODO: make FrameGraph::RZFrameGraph& a pointer too
-            virtual void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) = 0;
+            // TODO: make RZFrameGraph& a pointer too
+            virtual void addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) = 0;
 
             virtual void destroy() = 0;
         };

@@ -22,7 +22,7 @@
 //! Some style guide rules are waved off for RZEngine class
 namespace Razix {
 
-    // TODO: Engine will also manage the Grpahics Context and API Renderer initialization ==> Window and app context (in consoles) must be given to the OS abstraction rather than the Application class
+    // TODO: Engine will also manage the Graphics Context and API Renderer initialization ==> Window and app context (in consoles) must be given to the OS abstraction rather than the Application class
     // TODO: use this for stats CPU https://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
 
     /* The Engine class that Starts and Manages all the Engine back end and runtime systems */
@@ -30,9 +30,8 @@ namespace Razix {
     {
         // All internal type definition go here
     public:
-        // TODO: Hide this
+        // TODO: Hide this or move to RZEngineSettings.h
         bool isRZApplicationCreated = false;
-        /* Statistic about the current frame */
         struct Stats
         {
             f32 DeltaTime        = 0;    //[x]
@@ -68,49 +67,35 @@ namespace Razix {
             }
         };
 
-    private:
-        // TODO: Use a template method to get the systems automatically, hence use a system registration design for runtime and static systems with IRZSystem as parent
-        // Engine Systems
-        RZVirtualFileSystem           m_VirtualFileSystem;      /* The Virtual File Engine System for managing files								*/
-        RZSceneManager                m_SceneManagerSystem;     /* Scene Manager Engine System for managing scenes in game world					*/
-        Scripting::RZLuaScriptHandler m_LuaScriptHandlerSystem; /* Lua Script Handling Engine System for managing and executing scrip components	*/
-        Gfx::RZWorldRenderer          m_WorldRenderer;          /* Razix world renderer that build and renders the frame graph passes in the scene  */
-        Gfx::RZShaderLibrary          m_ShaderLibrary;          /* Shader library that pre-loads shaders into memory                                */
-
     public:
-        /* Starts up the Engine and it's sub-systems */
         void Ignite();
-        /* Post ignition after important engine systems, usually called after Gfx context and RZApp has been initialized */
         void PostGraphicsIgnite();
-        /* Shutdowns the engine and all the resources and systems */
         void ShutDown();
-        /* manages the Engine Runtime systems */
         void Run();
-        /* Loads and fills the Engine config Settings */
         void LoadEngineConfigFile();
 
-        /* Gets the command line parser */
-        RAZIX_INLINE RZCommandLineParser getCommandLineParser() { return m_CommandLineParser; }
-        /* Gets the Statistics of the current engine state */
-        RAZIX_INLINE Stats& GetStatistics() { return m_Stats; }
-        /* Reset Statistics of the current engine state */
-        RAZIX_INLINE void ResetStats() { m_Stats.reset(); }
-        /* Gets the World Renderer default global settings */
-        RAZIX_INLINE Gfx::RZRendererSettings& getWorldSettings() { return m_WorldSettings; }
-        /* Assigns the World Renderer default global settings */
-        RAZIX_INLINE void setWorldSettings(const Gfx::RZRendererSettings& settings) { m_WorldSettings = settings; }
-        /* Gets the Global Engine settings loaded from the ini file */
-        RAZIX_INLINE const EngineSettings& getGlobalEngineSettings() { return m_EngineSettings; }
-
-        // TODO: Use a template method to get the systems automatically, hence use a system registration design for runtime and static systems with IRZSystem as parent
-        RAZIX_INLINE Gfx::RZWorldRenderer& getWorldRenderer() { return m_WorldRenderer; }
-        RAZIX_INLINE Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
-        RAZIX_INLINE Gfx::RZShaderLibrary& getShaderLibrary() { return m_ShaderLibrary; }
+        inline bool                           isEngineInTestMode() const { return m_IsEngineInTestMode; }
+        inline void                           setEngineInTestMode() { m_IsEngineInTestMode = true; }
+        inline RZCommandLineParser            getCommandLineParser() { return m_CommandLineParser; }
+        inline Stats&                         GetStatistics() { return m_Stats; }
+        inline void                           ResetStats() { m_Stats.reset(); }
+        inline Gfx::RZRendererSettings&       getWorldSettings() { return m_WorldSettings; }
+        inline void                           setWorldSettings(const Gfx::RZRendererSettings& settings) { m_WorldSettings = settings; }
+        inline const EngineSettings&          getGlobalEngineSettings() { return m_EngineSettings; }
+        inline Gfx::RZWorldRenderer&          getWorldRenderer() { return m_WorldRenderer; }
+        inline Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
+        inline Gfx::RZShaderLibrary&          getShaderLibrary() { return m_ShaderLibrary; }
 
     private:
-        RZCommandLineParser     m_CommandLineParser; /* Razix command line args passed to app/engine                   */
-        Stats                   m_Stats;             /* Current frame basic statistics	                               */
-        Gfx::RZRendererSettings m_WorldSettings;     /* World Renderer Settings                                        */
-        EngineSettings          m_EngineSettings;    /* Global Engine wide settings                                    */
+        RZCommandLineParser           m_CommandLineParser;
+        Stats                         m_Stats;
+        Gfx::RZRendererSettings       m_WorldSettings;
+        EngineSettings                m_EngineSettings;
+        RZVirtualFileSystem           m_VirtualFileSystem;
+        RZSceneManager                m_SceneManagerSystem;
+        Scripting::RZLuaScriptHandler m_LuaScriptHandlerSystem;
+        Gfx::RZWorldRenderer          m_WorldRenderer;
+        Gfx::RZShaderLibrary          m_ShaderLibrary;
+        bool                          m_IsEngineInTestMode = false;
     };
 }    // namespace Razix

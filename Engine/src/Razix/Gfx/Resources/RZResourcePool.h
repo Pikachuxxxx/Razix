@@ -2,11 +2,10 @@
 
 #include "Razix/Core/RZHandle.h"
 
-#include "Internal/RazixMemory/include/Allocators/RZHeapAllocator.h"
-
-#include <tracy/Tracy.hpp>
+#include "Razix/Core/Memory/Allocators/RZHeapAllocator.h"
 
 // [Source] : https://github.com/PacktPublishing/Mastering-Graphics-Programming-with-Vulkan/blob/2ad4e94a0e003d37dd3dbef46cc033a483f133d6/source/raptor/foundation/data_structures.hpp
+// TODO: since RZResourcePool is only used by the typed version of this, remove it and make the template allocator simpler and use a RZLinearAllocator, this allocator ir provided the by central CPU and GPU allocators for the engine
 
 namespace Razix {
     namespace Gfx {
@@ -17,7 +16,7 @@ namespace Razix {
         template<typename U>
         class IRZResource;
 
-        class RZResourcePool
+        class RAZIX_API RZResourcePool
         {
         public:
             RZResourcePool()  = default;
@@ -66,7 +65,7 @@ namespace Razix {
         void RZResourcePoolTyped<T>::printResources()
         {
             if (m_FreeIndicesHead != 0) {
-                for (u32 i = 0; i < m_FreeIndicesHead; ++i) {
+                for (u32 i = 0; i < m_FreeIndicesHead; i++) {
                     RAZIX_CORE_TRACE("\tResource id={0}, name={1}\n", m_FreeIndices[i], ((IRZResource<T>*) accessResource(i))->getName().c_str());
                 }
             }
@@ -103,9 +102,8 @@ namespace Razix {
             u32 index = RZResourcePool::allocateResource();
             handle.setIndex(index);
             handle.setGeneration(++index);
-            if (index != u32_max) {
+            if (index != UINT32_MAX) {
                 T* resource = getInternal(handle);
-                TracyAlloc(resource, m_ResourceSize);
                 return resource;
             }
 
@@ -118,7 +116,6 @@ namespace Razix {
             T* resource = getInternal(handle);
             resource->DestroyResource();
             handle.setGeneration(0);
-            TracyFree(resource);
             RZResourcePool::releaseResource(handle.getIndex());
         }
 
