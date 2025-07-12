@@ -21,8 +21,8 @@ namespace Razix {
         addCommand("height", {"-h", "--height"}, 1, "Set window height");
         //-------------------------------------------------------
         // Dev Utils
-        addCommand("vulkan", {"--vulkan"}, 0, "Start the engine with Vulkan API.");
-        addCommand("dx12", {"--dx12"}, 0, "Start the engine with DirectX12 API.");
+        addCommand("vulkan", {"-vulkan"}, 0, "Start the engine with Vulkan API.");
+        addCommand("dx12", {"-dx12"}, 0, "Start the engine with DirectX12 API.");
     }
 
     void RZCommandLineParser::printHelp()
