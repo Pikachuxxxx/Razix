@@ -131,7 +131,7 @@ namespace Razix {
                     RHI::BeginRendering(RHI::GetCurrentCommandBuffer(), info);
 
                     RZPipelineHandle pipeline;
-                    if (IS_BIT_SET(settings->debugFlags, RendererDebugFlag_VisWireframe))
+                    if (settings->debugFlags.VisWireframe)
                         pipeline = m_WireframePipeline;
                     else
                         pipeline = m_Pipeline;

@@ -73,7 +73,7 @@ namespace Razix {
         struct RZRendererSettings
         {
             u32                  renderFeatures      = RendererFeature_Default;
-            u32                  debugFlags          = {0};
+            RendererDebugFlags   debugFlags          = {0};
             TonemapMode          tonemapMode         = ACES;
             Antialising          aaMode              = NoAA;
             SceneSamplingPattern samplingPattern     = Halton;

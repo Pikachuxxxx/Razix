@@ -7,6 +7,8 @@
 
 #include "Razix/Core/App/RZApplication.h"
 
+#include "Razix/Core/RZEngineSettings.h"
+
 namespace Razix {
     namespace Gfx {
 

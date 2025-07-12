@@ -348,7 +348,7 @@ namespace Razix {
 
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            if (m_IsFGFilePathDirty) { 
+            if (m_IsFGFilePathDirty) {
                 destroy();
                 RZFrameGraph::ResetFirstFrame();
                 buildFrameGraph(settings, RZSceneManager::Get().getCurrentScene());
@@ -514,7 +514,6 @@ namespace Razix {
                     gpuData.time += gpuData.deltaTime;
                     gpuData.deltaTime      = RZEngine::Get().GetStatistics().DeltaTime;
                     gpuData.resolution     = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    gpuData.debugFlags     = settings.debugFlags;
                     gpuData.renderFeatures = settings.renderFeatures;
 
                     m_Jitter = m_TAAJitterHaltonSamples[(m_FrameCount % NUM_HALTON_SAMPLES_TAA_JITTER)];
