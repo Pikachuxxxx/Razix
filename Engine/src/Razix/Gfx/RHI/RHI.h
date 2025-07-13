@@ -370,8 +370,8 @@ extern "C"
 
 #define rzRHI_CreateSyncobj    g_RHI.CreateSyncobj
 #define rzRHI_DestroySyncobj   g_RHI.DestroySyncobj
-#define rzRHI_CreateSwapchain  g_RHI.CreateSwapchain;
-#define rzRHI_DestroySwapchain g_RHI.DestroySwapchain;
+#define rzRHI_CreateSwapchain  g_RHI.CreateSwapchain
+#define rzRHI_DestroySwapchain g_RHI.DestroySwapchain
 
 #ifdef __cplusplus
 }

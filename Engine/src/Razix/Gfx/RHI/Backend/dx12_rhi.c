@@ -341,7 +341,6 @@ static void dx12_update_swapchain_rtvs(rz_gfx_swapchain* sc)
 {
     sc->imageCount = RAZIX_MAX_SWAP_IMAGES_COUNT;
     ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(sc->dx12.rtvHeap, &sc->dx12.rtvHeapStart.cpu);
-    ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(sc->dx12.rtvHeap, &sc->dx12.rtvHeapStart.gpu);
 
     for (uint32_t i = 0; i < sc->imageCount; ++i) {
         ID3D12Resource* d3dresource = NULL;
@@ -502,6 +501,11 @@ static void dx_GlobalCtxInit(void)
 
 static void dx_GlobalCtxDestroy(void)
 {
+    if (DX12Context.directQ) {
+        ID3D12CommandQueue_Release(DX12Context.directQ);
+        DX12Context.directQ = NULL;
+    }
+
     if (DX12Context.device9) {
         ID3D12Device9_Release(DX12Context.device9);
         DX12Context.device9 = NULL;
@@ -525,22 +529,22 @@ static void dx_GlobalCtxDestroy(void)
 
 static void dx_CreateSyncobjFn(void* where, rz_gfx_syncobj_type type)
 {
-    dx12_syncobj* syncobj = (dx12_syncobj*) where;
+    rz_gfx_syncobj* syncobj = (rz_gfx_syncobj*) where;
 
     // Create a fence for synchronization
-    CHECK_HR(ID3D12Device9_CreateFence(DX12Device, 0, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, (void**) &syncobj->fence));
-    if (syncobj->fence == NULL) {
+    CHECK_HR(ID3D12Device9_CreateFence(DX12Device, 0, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, (void**) &syncobj->dx12.fence));
+    if (syncobj->dx12.fence == NULL) {
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Fence");
         return;
     }
 
     if (type == RZ_GFX_SYNCOBJ_TYPE_CPU) {
         // Create an event handle for the fence
-        syncobj->eventHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
-        if (syncobj->eventHandle == NULL) {
+        syncobj->dx12.eventHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
+        if (syncobj->dx12.eventHandle == NULL) {
             RAZIX_RHI_LOG_ERROR("Failed to create event handle for D3D12 Fence");
-            ID3D12Fence_Release(syncobj->fence);
-            syncobj->fence = NULL;
+            ID3D12Fence_Release(syncobj->dx12.fence);
+            syncobj->dx12.fence = NULL;
         }
     }
 }
@@ -560,6 +564,16 @@ static void dx_DestroySyncobjFn(rz_gfx_syncobj* syncobj)
 
 static void dx12_CreateSwapchain(void* where, void* nativeWindowHandle, uint32_t width, uint32_t height)
 {
+    // we typically get a GLFWwinsow*
+    if (nativeWindowHandle == NULL) {
+        RAZIX_RHI_LOG_ERROR("Native window handle is NULL, cannot create swapchain");
+        return;
+    }
+    if (width == 0 || height == 0) {
+        RAZIX_RHI_LOG_ERROR("Invalid swapchain dimensions: %ux%u", width, height);
+        return;
+    }
+
     rz_gfx_swapchain* swapchain = (rz_gfx_swapchain*) where;
     memset(swapchain, 0, sizeof(rz_gfx_swapchain));
     swapchain->width       = width;
@@ -579,7 +593,7 @@ static void dx12_CreateSwapchain(void* where, void* nativeWindowHandle, uint32_t
     desc.Flags                 = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
     IDXGISwapChain1* swapchain1 = NULL;
-    CHECK_HR(IDXGIFactory7_CreateSwapChainForHwnd(DX12Context.factory7, (IUnknown*) DX12Context.directQ, (HWND) nativeWindowHandle, &desc, NULL, NULL, &swapchain1));
+    CHECK_HR(IDXGIFactory7_CreateSwapChainForHwnd(DX12Context.factory7, (IUnknown*) DX12Context.directQ, (HWND) swapchain->dx12.window, &desc, NULL, NULL, &swapchain1));
     if (swapchain1 == NULL) {
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Swapchain");
         return;

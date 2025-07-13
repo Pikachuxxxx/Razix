@@ -35,6 +35,12 @@
 
 #include "Razix/Utilities/RZColorUtilities.h"
 
+#ifdef RAZIX_PLATFORM_WINDOWS
+    #define GLFW_EXPOSE_NATIVE_WIN32
+    #include <GLFW/glfw3.h>
+    #include <GLFW/glfw3native.h>
+#endif
+
 namespace Razix {
     namespace Gfx {
 
@@ -70,9 +76,32 @@ namespace Razix {
         void RZWorldRenderer::create(RZWindow* window, u32 width, u32 height)
         {
             m_Window = window;
-
             // Create the swapchain
-            rzRHI_CreateSwapchain(&m_Swapchain, window, width, height);
+            GLFWwindow*   glfwWindow = static_cast<GLFWwindow*>(window->GetNativeWindow());
+            rz_render_api api        = rzGfxCtx_GetRenderAPI();
+
+#ifdef RAZIX_PLATFORM_WINDOWS
+            if (api == RZ_RENDER_API_D3D12) {
+                HWND hwnd = glfwGetWin32Window(glfwWindow);
+                rzRHI_CreateSwapchain(&m_Swapchain, &hwnd, width, height);
+            } else if (api == RZ_RENDER_API_VULKAN) {
+                VkSurfaceKHR surface = VK_NULL_HANDLE;
+                glfwCreateWindowSurface(g_GfxCtx.vk.instance, glfwWindow, nullptr, &surface);
+                rzRHI_CreateSwapchain(&m_Swapchain, &surface, width, height);
+            }
+
+#elif defined(RAZIX_PLATFORM_MACOS) || defined(RAZIX_PLATFORM_LINUX)
+            if (api == RZ_RENDER_API_VULKAN) {
+                VkSurfaceKHR surface = VK_NULL_HANDLE;
+                glfwCreateWindowSurface(rzVulkanGetInstance(), glfwWindow, nullptr, &surface);
+                rzRHI_CreateSwapchain(&m_Swapchain, &surface, width, height);
+            } else {
+                RAZIX_ASSERT(false && "Only Vulkan is supported on this platform!");
+            }
+
+#else
+    #error "Unsupported platform!"
+#endif
 
             // create frame sync primitives
             if (g_GraphicsFeatures.SupportsTimelineSemaphores) {
