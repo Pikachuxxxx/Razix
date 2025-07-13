@@ -69,6 +69,19 @@ namespace Razix {
 
         void RZWorldRenderer::create(RZWindow* window, u32 width, u32 height)
         {
+            m_Window = window;
+
+            // Create the swapchain
+            rzRHI_CreateSwapchain(&m_Swapchain, window, width, height);
+
+            // create frame sync primitives
+            if (g_GraphicsFeatures.SupportsTimelineSemaphores) {
+                rzRHI_CreateSyncobj(&m_RenderSync.frameSync.timelineSyncobj, RZ_GFX_SYNCOBJ_TYPE_CPU);
+            } else {
+                for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
+                    rzRHI_CreateSyncobj(&m_RenderSync.frameSync.inflightSyncobj[i], RZ_GFX_SYNCOBJ_TYPE_CPU);
+                }
+            }
         }
 
         void RZWorldRenderer::destroy()
@@ -100,6 +113,15 @@ namespace Razix {
             m_SkyboxPass.destroy();
             m_CompositePass.destroy();
 #endif
+            if (g_GraphicsFeatures.SupportsTimelineSemaphores) {
+                rzRHI_DestroySyncobj(&m_RenderSync.frameSync.timelineSyncobj);
+            } else {
+                for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
+                    rzRHI_DestroySyncobj(&m_RenderSync.frameSync.inflightSyncobj[i]);
+                }
+            }
+
+            rzRHI_DestroySwapchain(&m_Swapchain);
         }
 
         /**

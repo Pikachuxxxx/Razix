@@ -113,6 +113,7 @@ extern "C"
 #define RAZIX_INDICES_FORMAT_VK    VK_INDEX_TYPE_UINT32
 #define RAZIX_INDICES_FORMAT_D3D12 DXGI_FORMAT_R32_UINT
 #define RAZIX_INDICES_FORMAT_AGC   sce::Agc::IndexSize::k32
+#define RAZIX_SWAPCHAIN_FORMAT     RZ_GFX_FORMAT_B8G8R8A8_UNORM
 
     //---------------------------------------------------------------------------------------------
     // GFX/RHI types
@@ -128,24 +129,24 @@ extern "C"
     } rz_render_api;
 
     /**
-         * Preset for Resource Bind views
-         * For the initial stage of requirements we start off 
-         * with a enum and expand to a POD struct in future
-         */
+     * Preset for Resource Bind views
+     * For the initial stage of requirements we start off 
+     * with a enum and expand to a POD struct in future
+     */
 
     /**
-         * Resource view hints provide a way to bind the resource views as needed
-         * these hints can be created at initialization time, and during bind time 
-         * to dynamically select the necessary view 
-         * 
-         * For ex. we can have a RWCubeMap viewed as Texture2DArray using the UAV hint 
-         * when writing to via compute shader and as a CubeMap using the SRV hint 
-         * while drawing a skybox, this is handled internally by the resource abstraction
-         * 
-         * get/setResourceViewHints are used during descriptor heap bind time to bind the apt
-         * resource view and is exposed to client to select it explicitly, the shader reflection 
-         * API will also provide it's own hints to make this automatic
-         */
+     * Resource view hints provide a way to bind the resource views as needed
+     * these hints can be created at initialization time, and during bind time 
+     * to dynamically select the necessary view 
+     * 
+     * For ex. we can have a RWCubeMap viewed as Texture2DArray using the UAV hint 
+     * when writing to via compute shader and as a CubeMap using the SRV hint 
+     * while drawing a skybox, this is handled internally by the resource abstraction
+     * 
+     * get/setResourceViewHints are used during descriptor heap bind time to bind the apt
+     * resource view and is exposed to client to select it explicitly, the shader reflection 
+     * API will also provide it's own hints to make this automatic
+     */
     typedef enum rz_gfx_resource_view_hints
     {
         RZ_GFX_RESOURCE_VIEW_FLAG_NONE         = 0,
@@ -158,6 +159,80 @@ extern "C"
         RZ_GFX_RESOURCE_VIEW_FLAG_TRANSFER_SRC = 1 << 6,
         RZ_GFX_RESOURCE_VIEW_FLAG_TRANSFER_DST = 1 << 7,
     } rz_gfx_resource_view_hints;
+
+    typedef enum rz_gfx_syncobj_type
+    {
+        RZ_GFX_SYNCOBJ_TYPE_CPU,
+        RZ_GFX_SYNCOBJ_TYPE_GPU,
+    } rz_gfx_syncobj_type;
+
+    typedef enum rz_gfx_format
+    {
+        RZ_GFX_FORMAT_UNDEFINED = 0,
+
+        // 8-bit per channel
+        RZ_GFX_FORMAT_R8_UNORM,
+        RZ_GFX_FORMAT_R8G8_UNORM,
+        RZ_GFX_FORMAT_R8G8B8A8_UNORM,
+        RZ_GFX_FORMAT_B8G8R8A8_UNORM,
+
+        // sRGB
+        RZ_GFX_FORMAT_R8G8B8A8_SRGB,
+        RZ_GFX_FORMAT_B8G8R8A8_SRGB,
+
+        // 16-bit float
+        RZ_GFX_FORMAT_R16_FLOAT,
+        RZ_GFX_FORMAT_R16G16_FLOAT,
+        RZ_GFX_FORMAT_R16G16B16A16_FLOAT,
+
+        // 32-bit float
+        RZ_GFX_FORMAT_R32_FLOAT,
+        RZ_GFX_FORMAT_R32G32_FLOAT,
+        RZ_GFX_FORMAT_R32G32B32_FLOAT,
+        RZ_GFX_FORMAT_R32G32B32A32_FLOAT,
+
+        // Depth-Stencil
+        RZ_GFX_FORMAT_D16_UNORM,
+        RZ_GFX_FORMAT_D24_UNORM_S8_UINT,
+        RZ_GFX_FORMAT_D32_FLOAT,
+        RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT,
+
+        // Packed/Compressed formats (optional depending on support)
+        RZ_GFX_FORMAT_BC1_RGBA_UNORM,
+        RZ_GFX_FORMAT_BC3_RGBA_UNORM,
+        RZ_GFX_FORMAT_BC7_UNORM,
+        RZ_GFX_FORMAT_BC7_SRGB
+    } rz_gfx_format;
+
+    typedef enum rz_gfx_texture_type
+    {
+        RZ_GFX_TEXTURE_TYPE_UNDEFINED = 0,
+        RZ_GFX_TEXTURE_TYPE_1D,
+        RZ_GFX_TEXTURE_TYPE_2D,
+        RZ_GFX_TEXTURE_TYPE_3D,
+        RZ_GFX_TEXTURE_TYPE_CUBE,
+        RZ_GFX_TEXTURE_TYPE_1D_ARRAY,
+        RZ_GFX_TEXTURE_TYPE_2D_ARRAY,
+        RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY
+    } rz_gfx_texture_type;
+
+    /**
+      * Graphics Features as supported by the GPU, even though Engine supports them
+      * the GPU can override certain setting and query run-time info like LaneWidth etc.
+      */
+    typedef struct rz_gfx_features
+    {
+        bool     EnableVSync;
+        bool     TesselateTerrain;
+        bool     SupportsBindless;
+        bool     SupportsWaveIntrinsics;
+        bool     SupportsShaderModel6;
+        bool     SupportsNullIndexDescriptors;
+        bool     SupportsTimelineSemaphores;
+        uint32_t MaxBindlessTextures;
+        uint32_t MinLaneWidth;
+        uint32_t MaxLaneWidth;
+    } rz_gfx_features;
 
     typedef struct rz_gfx_resource
     {
@@ -178,18 +253,25 @@ extern "C"
             //vk_gfx_ctx vk;
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
-            //dx12_gfx_synocobj dx12;
+        dx12_syncobj dx12;
 #endif
     } rz_gfx_syncobj;
 
     typedef struct rz_gfx_texture
     {
         RAZIX_GFX_RESOURCE;
+        uint32_t            width;
+        uint32_t            height;
+        uint32_t            depth;
+        uint32_t            mipLevels;
+        uint32_t            arraySize;
+        rz_gfx_format       format;
+        rz_gfx_texture_type textureType;
 #ifdef RAZIX_RENDER_API_VULKAN
-            //vk_gfx_ctx vk;
+            //vk_syncobj vk;
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
-            //dx12_gfx_synocobj dx12;
+        dx12_texture dx12;
 #endif
     } rz_gfx_texture;
 
@@ -202,10 +284,10 @@ extern "C"
         uint32_t       currBackBufferIdx;
         rz_gfx_texture backbuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];
 #ifdef RAZIX_RENDER_API_VULKAN
-            //vk_gfx_swapchain vk;
+            //vk_swapchain vk;
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
-            //dx12_gfx_swapchain dx12;
+        dx12_swapchain dx12;
 #endif
     } rz_gfx_swapchain;
 
@@ -219,10 +301,10 @@ extern "C"
         union
         {
 #ifdef RAZIX_RENDER_API_VULKAN
-            vk_gfx_ctx vk;
+            vk_ctx vk;
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
-            dx12_gfx_ctx dx12;
+            dx12_ctx dx12;
 #endif
         };
 
@@ -247,6 +329,12 @@ extern "C"
     typedef void (*rzRHI_GlobalCtxInitFn)(void);
     typedef void (*rzRHI_GlobalCtxDestroyFn)(void);
 
+    typedef void (*rzRHI_CreateSyncobjFn)(void* where, rz_gfx_syncobj_type);
+    typedef void (*rzRHI_DestroySyncobjFn)(rz_gfx_syncobj*);
+
+    typedef void (*rzRHI_CreateSwapchainFn)(void* where, void*, uint32_t, uint32_t);
+    typedef void (*rzRHI_DestroySwapchainFn)(rz_gfx_swapchain*);
+
     /**
      * RHI API
      */
@@ -256,7 +344,13 @@ extern "C"
     {
         rzRHI_GlobalCtxInitFn    GlobalCtxInit;
         rzRHI_GlobalCtxDestroyFn GlobalCtxDestroy;
-        rzRHI_AcquireImageFn     AcquireImage;
+
+        rzRHI_CreateSyncobjFn    CreateSyncobj;
+        rzRHI_DestroySyncobjFn   DestroySyncobj;
+        rzRHI_CreateSwapchainFn  CreateSwapchain;
+        rzRHI_DestroySwapchainFn DestroySwapchain;
+
+        rzRHI_AcquireImageFn AcquireImage;
     } rz_rhi_api;
 
     //---------------------------------------------------------------------------------------------
@@ -267,9 +361,17 @@ extern "C"
     RAZIX_API extern rz_render_api g_RenderAPI;
     //---------------------------------
     RAZIX_API extern rz_rhi_api g_RHI;
+    //---------------------------------
+    RAZIX_API extern rz_gfx_features g_GraphicsFeatures;
+    //---------------------------------
 
 #define rzGfxCtx_GlobalCtxInit    g_RHI.GlobalCtxInit
 #define rzGfxCtx_GlobalCtxDestroy g_RHI.GlobalCtxDestroy
+
+#define rzRHI_CreateSyncobj    g_RHI.CreateSyncobj
+#define rzRHI_DestroySyncobj   g_RHI.DestroySyncobj
+#define rzRHI_CreateSwapchain  g_RHI.CreateSwapchain;
+#define rzRHI_DestroySwapchain g_RHI.DestroySwapchain;
 
 #ifdef __cplusplus
 }

@@ -4,10 +4,10 @@
 
     #include <vulkan/vulkan.h>
 
-typedef struct vk_gfx_ctx
+typedef struct vk_ctx
 {
     VkInstance instance;
-} vk_gfx_ctx;
+} vk_ctx;
 
 #endif    // RAZIX_RENDER_API_VULKAN
 #endif    // DX12_RHI_H

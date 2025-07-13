@@ -2,8 +2,9 @@
 
 rz_gfx_context g_GfxCtx = {0};
 // Default
-rz_render_api g_RenderAPI = RZ_RENDER_API_VULKAN;
-rz_rhi_api    g_RHI       = {0};
+rz_render_api   g_RenderAPI        = RZ_RENDER_API_VULKAN;
+rz_rhi_api      g_RHI              = {0};
+rz_gfx_features g_GraphicsFeatures = {0};
 
 // Defined in vk/dx12_rhi.c
 RAZIX_API extern const rz_rhi_api vk_rhi;

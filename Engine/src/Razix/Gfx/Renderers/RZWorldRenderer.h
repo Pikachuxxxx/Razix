@@ -126,6 +126,7 @@ namespace Razix {
             //RZToneMapPass            m_TonemapPass;
             //RZCompositionPass        m_CompositePass;
             //TextureReadback m_LastSwapchainReadback;
+            RZWindow*   m_Window                                                = NULL;
             u32         m_FrameCount                                            = 0;
             float2      m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
             float4x4    m_PreviousViewProj                                      = {};
@@ -146,16 +147,16 @@ namespace Razix {
                 } present_sync;    // won't be needing this in DX12
                 union
                 {
-                    rz_gfx_syncobj inflight_syncobj[RAZIX_MAX_FRAMES_IN_FLIGHT];
+                    rz_gfx_syncobj inflightSyncobj[RAZIX_MAX_FRAMES_IN_FLIGHT];
                     struct
                     {
-                        rz_gfx_syncobj   timeline_syncobj;
-                        rz_gfx_timestamp frame_syncpoint[RAZIX_MAX_FRAMES_IN_FLIGHT];    // last timeline value signaled for the given frame
-                        rz_gfx_timestamp global_syncpoint;
+                        rz_gfx_syncobj   timelineSyncobj;
+                        rz_gfx_timestamp frameTimestamps[RAZIX_MAX_FRAMES_IN_FLIGHT];
+                        rz_gfx_timestamp globalTimestamp;
                         uint32_t         _pad[8];
                     };
-                } frame_sync;
-            } renderer_sync;
+                } frameSync;    // supports both timeline and fences in vulkan based on VK_KHR_timeline_semaphore availability
+            } m_RenderSync;
             rz_gfx_swapchain m_Swapchain;
 
         private:

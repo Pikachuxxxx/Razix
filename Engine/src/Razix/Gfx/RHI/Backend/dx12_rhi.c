@@ -1,10 +1,14 @@
 #include "dx12_rhi.h"
 
-#include "Razix/Gfx/RHI/rhi.h"
+#include "Razix/Gfx/RHI/RHI.h"
 
 // TYpe friendly defines
 #define DX12Context g_GfxCtx.dx12
 #define DX12Device  g_GfxCtx.dx12.device9
+#define CHECK_HR(x) dx12_util_check_hresult((x), __func__, __FILE__, __LINE__)
+
+//---------------------------------------------------------------------------------------------
+// Internal types
 
 typedef struct
 {
@@ -26,7 +30,10 @@ static HRESULTDescriptionEntry hresult_errors[] = {
     {E_UNEXPECTED, "Unexpected failure"},
 };
 
-static const char* dx12_hresult_to_string(HRESULT hr)
+//---------------------------------------------------------------------------------------------
+// Util functions
+
+static const char* dx12_util_hresult_to_string(HRESULT hr)
 {
     size_t count = sizeof(hresult_errors) / sizeof(hresult_errors[0]);
     for (size_t i = 0; i < count; ++i) {
@@ -36,17 +43,15 @@ static const char* dx12_hresult_to_string(HRESULT hr)
     return "Unknown HRESULT error";
 }
 
-static bool dx12_check_hresult(HRESULT hr, const char* func, const char* file, int line)
+static bool dx12_util_check_hresult(HRESULT hr, const char* func, const char* file, int line)
 {
     if (hr != S_OK) {
-        const char* desc = dx12_hresult_to_string(hr);
+        const char* desc = dx12_util_hresult_to_string(hr);
         RAZIX_RHI_LOG_ERROR("[D3D12] HRESULT Error :: %s\n -> In function %s (%s:%d)\n", desc, func, file, line);
         return false;
     }
     return true;
 }
-
-#define CHECK_HR(x) dx12_check_hresult((x), __func__, __FILE__, __LINE__)
 
 static LPCWSTR dx12_util_string_to_lpcwstr(const char* input)
 {
@@ -64,6 +69,51 @@ static LPCWSTR dx12_util_string_to_lpcwstr(const char* input)
     }
     return wide_str;
 }
+
+static DXGI_FORMAT dx12_util_rz_gfx_format_to_dxgi_format(rz_gfx_format format)
+{
+    switch (format) {
+        // 8-bit per channel formats
+        case RZ_GFX_FORMAT_R8_UNORM: return DXGI_FORMAT_R8_UNORM;
+        case RZ_GFX_FORMAT_R8G8_UNORM: return DXGI_FORMAT_R8G8_UNORM;
+        case RZ_GFX_FORMAT_R8G8B8A8_UNORM: return DXGI_FORMAT_R8G8B8A8_UNORM;
+        case RZ_GFX_FORMAT_B8G8R8A8_UNORM: return DXGI_FORMAT_B8G8R8A8_UNORM;
+
+        // sRGB formats
+        case RZ_GFX_FORMAT_R8G8B8A8_SRGB: return DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        case RZ_GFX_FORMAT_B8G8R8A8_SRGB: return DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+
+        // 16-bit float formats
+        case RZ_GFX_FORMAT_R16_FLOAT: return DXGI_FORMAT_R16_FLOAT;
+        case RZ_GFX_FORMAT_R16G16_FLOAT: return DXGI_FORMAT_R16G16_FLOAT;
+        case RZ_GFX_FORMAT_R16G16B16A16_FLOAT: return DXGI_FORMAT_R16G16B16A16_FLOAT;
+
+        // 32-bit float formats
+        case RZ_GFX_FORMAT_R32_FLOAT: return DXGI_FORMAT_R32_FLOAT;
+        case RZ_GFX_FORMAT_R32G32_FLOAT: return DXGI_FORMAT_R32G32_FLOAT;
+        case RZ_GFX_FORMAT_R32G32B32_FLOAT: return DXGI_FORMAT_R32G32B32_FLOAT;
+        case RZ_GFX_FORMAT_R32G32B32A32_FLOAT: return DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+        // Depth-Stencil formats
+        case RZ_GFX_FORMAT_D16_UNORM: return DXGI_FORMAT_D16_UNORM;
+        case RZ_GFX_FORMAT_D24_UNORM_S8_UINT: return DXGI_FORMAT_D24_UNORM_S8_UINT;
+        case RZ_GFX_FORMAT_D32_FLOAT: return DXGI_FORMAT_D32_FLOAT;
+        case RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT: return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+
+        // Compressed formats
+        case RZ_GFX_FORMAT_BC1_RGBA_UNORM: return DXGI_FORMAT_BC1_UNORM;
+        case RZ_GFX_FORMAT_BC3_RGBA_UNORM: return DXGI_FORMAT_BC3_UNORM;
+        case RZ_GFX_FORMAT_BC7_UNORM: return DXGI_FORMAT_BC7_UNORM;
+        case RZ_GFX_FORMAT_BC7_SRGB: return DXGI_FORMAT_BC7_UNORM_SRGB;
+
+        // Default fallback
+        case RZ_GFX_FORMAT_UNDEFINED:
+        default: return DXGI_FORMAT_UNKNOWN;
+    }
+}
+
+//---------------------------------------------------------------------------------------------
+// Helper functions
 
 static IDXGIAdapter4* dx12_select_best_adapter(IDXGIFactory7* factory, D3D_FEATURE_LEVEL min_feat_level)
 {
@@ -140,7 +190,7 @@ static IDXGIAdapter4* dx12_select_best_adapter(IDXGIFactory7* factory, D3D_FEATU
     }
 }
 
-static void dx12_query_features(dx12_gfx_ctx* ctx)
+static void dx12_query_features(dx12_ctx* ctx)
 {
     ID3D12Device9*     device = ctx->device9;
     D3D12FeatureCache* f      = &ctx->features;
@@ -205,7 +255,7 @@ static void dx12_print_features(const D3D12FeatureCache* f)
 
 #ifdef _DEBUG
 // Before Device
-static void dx12_register_debug_interface(dx12_gfx_ctx* ctx)
+static void dx12_register_debug_interface(dx12_ctx* ctx)
 {
     if (SUCCEEDED(D3D12GetDebugInterface(&IID_ID3D12Debug3, (void**) &ctx->d3dDebug3))) {
         ID3D12Debug3_EnableDebugLayer(ctx->d3dDebug3);
@@ -218,7 +268,7 @@ static void dx12_register_debug_interface(dx12_gfx_ctx* ctx)
 }
 
 // After Device
-static void dx12_d3d12_register_info_queue(dx12_gfx_ctx* ctx)
+static void dx12_d3d12_register_info_queue(dx12_ctx* ctx)
 {
     if (!ctx->device9) {
         RAZIX_RHI_LOG_ERROR("[D3D12] D3D12 device is NULL; can't register info queue.");
@@ -238,7 +288,7 @@ static void dx12_d3d12_register_info_queue(dx12_gfx_ctx* ctx)
     }
 }
 
-static void dx12_dxgi_register_info_queue(dx12_gfx_ctx* ctx)
+static void dx12_dxgi_register_info_queue(dx12_ctx* ctx)
 {
     if (SUCCEEDED(DXGIGetDebugInterface1(0, &IID_IDXGIInfoQueue, (void**) &ctx->dxgiInfoQ))) {
         IDXGIInfoQueue* q = ctx->dxgiInfoQ;
@@ -252,7 +302,7 @@ static void dx12_dxgi_register_info_queue(dx12_gfx_ctx* ctx)
     }
 }
 
-static void dx12_track_dxgi_liveobjects(dx12_gfx_ctx* ctx)
+static void dx12_track_dxgi_liveobjects(dx12_ctx* ctx)
 {
     RAZIX_RHI_LOG_WARN("Tracking live DXGI objects. This will report all live objects at the end of the program.");
     if (SUCCEEDED(DXGIGetDebugInterface1(0, &IID_IDXGIDebug, (void**) &ctx->dxgiDebug))) {
@@ -265,7 +315,7 @@ static void dx12_track_dxgi_liveobjects(dx12_gfx_ctx* ctx)
     }
 }
 
-static void dx12_destroy_debug_handles(dx12_gfx_ctx* ctx)
+static void dx12_destroy_debug_handles(dx12_ctx* ctx)
 {
     if (ctx->d3dDebug3) {
         ID3D12Debug3_Release(ctx->d3dDebug3);
@@ -287,11 +337,96 @@ static void dx12_destroy_debug_handles(dx12_gfx_ctx* ctx)
 }
 #endif
 
+static void dx12_update_swapchain_rtvs(rz_gfx_swapchain* sc)
+{
+    sc->imageCount = RAZIX_MAX_SWAP_IMAGES_COUNT;
+    ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(sc->dx12.rtvHeap, &sc->dx12.rtvHeapStart.cpu);
+    ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(sc->dx12.rtvHeap, &sc->dx12.rtvHeapStart.gpu);
+
+    for (uint32_t i = 0; i < sc->imageCount; ++i) {
+        ID3D12Resource* d3dresource = NULL;
+        HRESULT         hr          = IDXGISwapChain4_GetBuffer(sc->dx12.swapchain4, i, &IID_ID3D12Resource, (void**) &d3dresource);
+        if (FAILED(hr)) {
+            RAZIX_RHI_LOG_ERROR("[D3D12] Failed to get backbuffer %u from swapchain (HRESULT = 0x%08X)", i, (unsigned int) hr);
+
+            for (uint32_t j = 0; j < i; ++j) {
+                if (sc->backbuffers[j].dx12.resource) {
+                    ID3D12Resource_Release(sc->backbuffers[j].dx12.resource);
+                    sc->backbuffers[j].dx12.resource = NULL;
+                }
+            }
+
+            ID3D12DescriptorHeap_Release(sc->dx12.rtvHeap);
+            IDXGISwapChain4_Release(sc->dx12.swapchain4);
+            memset(sc, 0, sizeof(dx12_swapchain));
+            return;
+        }
+
+        D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = sc->dx12.rtvHeapStart.cpu;
+        rtvHandle.ptr += (size_t) i * ID3D12Device9_GetDescriptorHandleIncrementSize(DX12Device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+        ID3D12Device9_CreateRenderTargetView(DX12Device, d3dresource, NULL, rtvHandle);
+        ID3D12Resource_SetName(d3dresource, dx12_util_string_to_lpcwstr("Swapchain Image"));
+
+        // This is the only place where a RZ_RESOURCE is manually created, instead of using the RZResourceManager
+        rz_gfx_texture texture     = {0};
+        dx12_texture   dxtexture   = {0};
+        texture.resource.name      = "$SWAPCHAIN_IMAGE$";
+        texture.resource.handle    = (rz_handle){i, i};
+        texture.resource.viewHints = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
+        dxtexture.resource         = d3dresource;
+        dxtexture.state            = D3D12_RESOURCE_STATE_PRESENT;
+        dxtexture.resView.rtv.cpu  = rtvHandle;
+        texture.dx12               = dxtexture;
+        texture.height             = sc->height;
+        texture.width              = sc->width;
+        texture.arraySize          = 1;
+        texture.mipLevels          = 1;
+        texture.format             = RAZIX_SWAPCHAIN_FORMAT;
+        texture.textureType        = RZ_GFX_TEXTURE_TYPE_2D;
+        sc->backbuffers[i]         = texture;
+    }
+}
+
+static void dx12_create_backbuffers(rz_gfx_swapchain* sc)
+{
+    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {0};
+    rtvHeapDesc.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+    rtvHeapDesc.NumDescriptors             = RAZIX_MAX_SWAP_IMAGES_COUNT;
+    rtvHeapDesc.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+
+    HRESULT hr = ID3D12Device9_CreateDescriptorHeap(DX12Device, &rtvHeapDesc, &IID_ID3D12DescriptorHeap, (void**) &sc->dx12.rtvHeap);
+    if (FAILED(hr) || sc->dx12.rtvHeap == NULL) {
+        RAZIX_RHI_LOG_ERROR("[D3D12] Failed to create RTV descriptor heap (HRESULT = 0x%08X)", (unsigned int) hr);
+        if (sc->dx12.swapchain4)
+            IDXGISwapChain4_Release(sc->dx12.swapchain4);
+        memset(sc, 0, sizeof(dx12_swapchain));
+        return;
+    }
+
+    dx12_update_swapchain_rtvs(sc);
+}
+
+static void dx12_destroy_backbuffers(rz_gfx_swapchain* sc)
+{
+    for (uint32_t i = 0; i < sc->imageCount; ++i) {
+        if (sc->backbuffers[i].dx12.resource) {
+            ID3D12Resource_Release(sc->backbuffers[i].dx12.resource);
+            sc->backbuffers[i].dx12.resource = NULL;
+        }
+    }
+
+    if (sc->dx12.rtvHeap) {
+        ID3D12DescriptorHeap_Release(sc->dx12.rtvHeap);
+        sc->dx12.rtvHeap = NULL;
+    }
+}
+
 //---------------------------------------------------------------------------------------------
+// Public API functions
 
 static void dx_GlobalCtxInit(void)
 {
-    RAZIX_RHI_LOG_INFO("Initializing DirectX 12 RHI");
     RAZIX_RHI_LOG_INFO("Creating DXGI factory");
 
     UINT createFactoryFlags = 0;
@@ -353,7 +488,16 @@ static void dx_GlobalCtxInit(void)
     }
     RAZIX_RHI_LOG_INFO("Created Global Direct Command Q");
 
-
+    g_GraphicsFeatures.EnableVSync                  = false;
+    g_GraphicsFeatures.TesselateTerrain             = false;
+    g_GraphicsFeatures.SupportsBindless             = DX12Context.features.options.ResourceBindingTier >= D3D12_RESOURCE_BINDING_TIER_3;
+    g_GraphicsFeatures.SupportsWaveIntrinsics       = true;
+    g_GraphicsFeatures.SupportsShaderModel6         = DX12Context.features.shaderModel.HighestShaderModel >= D3D_SHADER_MODEL_6_0;
+    g_GraphicsFeatures.SupportsNullIndexDescriptors = DX12Context.features.options5.SRVOnlyTiledResourceTier3;
+    g_GraphicsFeatures.SupportsTimelineSemaphores   = true;
+    g_GraphicsFeatures.MaxBindlessTextures          = 4096;
+    g_GraphicsFeatures.MinLaneWidth                 = DX12Context.features.options1.WaveLaneCountMin;
+    g_GraphicsFeatures.MaxLaneWidth                 = DX12Context.features.options1.WaveLaneCountMax;
 }
 
 static void dx_GlobalCtxDestroy(void)
@@ -379,10 +523,96 @@ static void dx_GlobalCtxDestroy(void)
 #endif
 }
 
+static void dx_CreateSyncobjFn(void* where, rz_gfx_syncobj_type type)
+{
+    dx12_syncobj* syncobj = (dx12_syncobj*) where;
+
+    // Create a fence for synchronization
+    CHECK_HR(ID3D12Device9_CreateFence(DX12Device, 0, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, (void**) &syncobj->fence));
+    if (syncobj->fence == NULL) {
+        RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Fence");
+        return;
+    }
+
+    if (type == RZ_GFX_SYNCOBJ_TYPE_CPU) {
+        // Create an event handle for the fence
+        syncobj->eventHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
+        if (syncobj->eventHandle == NULL) {
+            RAZIX_RHI_LOG_ERROR("Failed to create event handle for D3D12 Fence");
+            ID3D12Fence_Release(syncobj->fence);
+            syncobj->fence = NULL;
+        }
+    }
+}
+
+static void dx_DestroySyncobjFn(rz_gfx_syncobj* syncobj)
+{
+    if (syncobj->dx12.fence) {
+        ID3D12Fence_Release(syncobj->dx12.fence);
+        syncobj->dx12.fence = NULL;
+    }
+
+    if (syncobj->dx12.eventHandle) {
+        CloseHandle(syncobj->dx12.eventHandle);
+        syncobj->dx12.eventHandle = NULL;
+    }
+}
+
+static void dx12_CreateSwapchain(void* where, void* nativeWindowHandle, uint32_t width, uint32_t height)
+{
+    rz_gfx_swapchain* swapchain = (rz_gfx_swapchain*) where;
+    memset(swapchain, 0, sizeof(rz_gfx_swapchain));
+    swapchain->width       = width;
+    swapchain->height      = height;
+    swapchain->dx12.window = *(HWND*) nativeWindowHandle;
+
+    DXGI_SWAP_CHAIN_DESC1 desc = {0};
+    desc.Width                 = width;
+    desc.Height                = height;
+    desc.Format                = dx12_util_rz_gfx_format_to_dxgi_format(RAZIX_SWAPCHAIN_FORMAT);
+    desc.BufferUsage           = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    desc.BufferCount           = RAZIX_MAX_SWAP_IMAGES_COUNT;
+    desc.Scaling               = DXGI_SCALING_STRETCH;
+    desc.SwapEffect            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+    desc.SampleDesc.Count      = 1;    // No MSAA
+    desc.SampleDesc.Quality    = 0;
+    desc.Flags                 = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+
+    IDXGISwapChain1* swapchain1 = NULL;
+    CHECK_HR(IDXGIFactory7_CreateSwapChainForHwnd(DX12Context.factory7, (IUnknown*) DX12Context.directQ, (HWND) nativeWindowHandle, &desc, NULL, NULL, &swapchain1));
+    if (swapchain1 == NULL) {
+        RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Swapchain");
+        return;
+    }
+
+    CHECK_HR(IDXGISwapChain1_QueryInterface(swapchain1, &IID_IDXGISwapChain4, (void**) &swapchain->dx12.swapchain4));
+    IDXGISwapChain1_Release(swapchain1);
+
+    dx12_create_backbuffers(swapchain);
+}
+
+static void dx12_DestroySwapchain(rz_gfx_swapchain* sc)
+{
+    dx12_destroy_backbuffers(sc);
+
+    if (sc->dx12.swapchain4) {
+        IDXGISwapChain4_Release(sc->dx12.swapchain4);
+        sc->dx12.swapchain4 = NULL;
+    }
+
+    sc->dx12.imageCount         = 0;
+    sc->dx12.currentBufferIndex = 0;
+}
+
 //---------------------------------------------------------------------------------------------
+// Jump table
 
 rz_rhi_api dx12_rhi = {
-    .GlobalCtxInit    = dx_GlobalCtxInit,       // GlobalCtxInit
-    .GlobalCtxDestroy = dx_GlobalCtxDestroy,    // GlobalCtxDestroy
-    NULL,                                       // AcquireImage
+    .GlobalCtxInit    = dx_GlobalCtxInit,         // GlobalCtxInit
+    .GlobalCtxDestroy = dx_GlobalCtxDestroy,      // GlobalCtxDestroy
+    .CreateSyncobj    = dx_CreateSyncobjFn,       // CreateSyncobj
+    .DestroySyncobj   = dx_DestroySyncobjFn,      // DestroySyncobj
+    .CreateSwapchain  = dx12_CreateSwapchain,     // CreateSwapchain
+    .DestroySwapchain = dx12_DestroySwapchain,    // DestroySwapchain
+    NULL,                                         // AcquireImage
 };

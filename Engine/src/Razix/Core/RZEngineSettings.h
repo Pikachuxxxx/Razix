@@ -35,21 +35,4 @@ namespace Razix {
         int             MaxShadowCascades    = 4;
         int             MSAASamples          = 4;
     };
-
-    /**
-      * Graphics Features as supported by the GPU, even though Engine supports them
-      * the GPU can override certain setting and query run-time info like LaneWidth etc.
-      */
-    typedef struct GraphicsFeatures
-    {
-        bool EnableVSync                  = false; /* No V-Sync by default we don't cap the frame rate */
-        bool TesselateTerrain             = true;
-        bool SupportsBindless             = true;
-        bool SupportsWaveIntrinsics       = false;
-        bool SupportsShaderModel6         = false;
-        bool SupportsNullIndexDescriptors = false;
-        u32  MaxBindlessTextures          = 4096;
-        u32  MinLaneWidth                 = 0;
-        u32  MaxLaneWidth                 = 0;
-    } GraphicsFeatures;
 }    // namespace Razix

@@ -32,7 +32,7 @@ typedef struct D3D12FeatureCache
     bool     isCacheCoherentUMA;
 } D3D12FeatureCache;
 
-typedef struct dx12_gfx_ctx
+typedef struct dx12_ctx
 {
     IDXGIFactory7*      factory7;
     IDXGIAdapter4*      adapter4;
@@ -46,7 +46,42 @@ typedef struct dx12_gfx_ctx
     IDXGIInfoQueue*  dxgiInfoQ;
     IDXGIDebug*      dxgiDebug;
     #endif
-} dx12_gfx_ctx;
+} dx12_ctx;
+
+typedef struct dx12_syncobj
+{
+    ID3D12Fence* fence;
+    HANDLE       eventHandle;
+} dx12_syncobj;
+
+typedef struct dx12_descriptor_handles
+{
+    D3D12_CPU_DESCRIPTOR_HANDLE cpu;
+    D3D12_GPU_DESCRIPTOR_HANDLE gpu;
+} dx12_descriptor_handles;
+
+typedef struct dx12_texture
+{
+    ID3D12Resource*       resource;
+    D3D12_RESOURCE_STATES state;
+    union
+    {
+        dx12_descriptor_handles srv;
+        dx12_descriptor_handles uav;
+        dx12_descriptor_handles rtv;
+        dx12_descriptor_handles dsv;
+    } resView;
+} dx12_texture;
+
+typedef struct dx12_swapchain
+{
+    IDXGISwapChain4*        swapchain4;
+    uint32_t                imageCount;
+    HWND                    window;
+    uint32_t                currentBufferIndex;
+    ID3D12DescriptorHeap*   rtvHeap;
+    dx12_descriptor_handles rtvHeapStart;
+} dx12_swapchain;
 
 #endif    // RAZIX_RENDER_API_DIRECTX12
 #endif    // DX12_RHI_H
