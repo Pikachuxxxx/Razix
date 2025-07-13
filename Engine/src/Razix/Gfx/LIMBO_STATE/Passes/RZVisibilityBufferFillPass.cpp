@@ -96,8 +96,8 @@ namespace Razix {
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
-                    RZTextureHandle rt      = resources.get<RZFrameGraphTexture>(data.visBuffer).getHandle();
-                    RZTextureHandle depthRT = resources.get<RZFrameGraphTexture>(data.sceneDepth).getHandle();
+                    rz_texture_handle rt      = resources.get<RZFrameGraphTexture>(data.visBuffer).getHandle();
+                    rz_texture_handle depthRT = resources.get<RZFrameGraphTexture>(data.sceneDepth).getHandle();
 
                     // TODO: Render at fixed resolution
                     RenderingInfo info{};

@@ -11,7 +11,7 @@ namespace Razix {
     {
         RZSceneCamera           primaryCamera;
         LightsData              lightsData;
-        Gfx::RZTextureHandle    sceneRenderTarget;
+        Gfx::rz_texture_handle    sceneRenderTarget;
         Gfx::RZRendererSettings rendererSettings;
     };
 }    // namespace Razix

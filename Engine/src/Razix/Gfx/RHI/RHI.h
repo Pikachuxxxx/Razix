@@ -5,6 +5,27 @@
 #include <stdio.h>
 #include <time.h>
 
+#ifndef RAZIX_API
+
+    #if defined(RAZIX_PLATFORM_WINDOWS)
+        #if defined(RAZIX_EXPORT_SYMBOLS)
+            #define RAZIX_API __declspec(dllexport)
+        #else
+            #define RAZIX_API __declspec(dllimport)
+        #endif
+    #else
+        // GCC, Clang: use visibility attribute
+        #if __GNUC__ >= 4
+            #define RAZIX_API __attribute__((visibility("default")))
+        #else
+            #define RAZIX_API
+        #endif
+    #endif
+
+#endif    //  RAZIX_API
+
+#include "Razix/Core/RZHandle.h"
+
 #ifdef RAZIX_RENDER_API_DIRECTX12
     #include "Razix/Gfx/RHI/Backend/dx12_rhi.h"
 #endif
@@ -47,7 +68,6 @@ extern "C"
     #define RAZIX_RHI_LOG_ERROR(...)
     #define RAZIX_RHI_LOG_TRACE(...)
 #else
-
     #define RAZIX_RHI_LOG_INFO(fmt, ...) \
         printf(ANSI_COLOR_GREEN "[%s] [RHI/INFO]  " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
 
@@ -107,10 +127,52 @@ extern "C"
         RZ_RENDER_API_AGC,       // Not Supported yet! (PlayStation 5)
     } rz_render_api;
 
+    /**
+         * Preset for Resource Bind views
+         * For the initial stage of requirements we start off 
+         * with a enum and expand to a POD struct in future
+         */
+
+    /**
+         * Resource view hints provide a way to bind the resource views as needed
+         * these hints can be created at initialization time, and during bind time 
+         * to dynamically select the necessary view 
+         * 
+         * For ex. we can have a RWCubeMap viewed as Texture2DArray using the UAV hint 
+         * when writing to via compute shader and as a CubeMap using the SRV hint 
+         * while drawing a skybox, this is handled internally by the resource abstraction
+         * 
+         * get/setResourceViewHints are used during descriptor heap bind time to bind the apt
+         * resource view and is exposed to client to select it explicitly, the shader reflection 
+         * API will also provide it's own hints to make this automatic
+         */
+    typedef enum rz_gfx_resource_view_hints
+    {
+        RZ_GFX_RESOURCE_VIEW_FLAG_NONE         = 0,
+        RZ_GFX_RESOURCE_VIEW_FLAG_SRV          = 1 << 0,
+        RZ_GFX_RESOURCE_VIEW_FLAG_UAV          = 1 << 1,
+        RZ_GFX_RESOURCE_VIEW_FLAG_RTV          = 1 << 2,
+        RZ_GFX_RESOURCE_VIEW_FLAG_DSV          = 1 << 3,
+        RZ_GFX_RESOURCE_VIEW_FLAG_CBV          = 1 << 4,
+        RZ_GFX_RESOURCE_VIEW_FLAG_SAMPLER      = 1 << 5,
+        RZ_GFX_RESOURCE_VIEW_FLAG_TRANSFER_SRC = 1 << 6,
+        RZ_GFX_RESOURCE_VIEW_FLAG_TRANSFER_DST = 1 << 7,
+    } rz_gfx_resource_view_hints;
+
+    typedef struct rz_gfx_resource
+    {
+        const char*                name;
+        rz_handle                  handle;
+        rz_gfx_resource_view_hints viewHints;
+    } rz_gfx_resource;
+
+#define RAZIX_GFX_RESOURCE rz_gfx_resource resource
+
     typedef uint64_t rz_gfx_timestamp;
 
     typedef struct rz_gfx_syncobj
     {
+        RAZIX_GFX_RESOURCE;
         rz_gfx_timestamp waitTimestamp;
 #ifdef RAZIX_RENDER_API_VULKAN
             //vk_gfx_ctx vk;
@@ -120,12 +182,25 @@ extern "C"
 #endif
     } rz_gfx_syncobj;
 
+    typedef struct rz_gfx_texture
+    {
+        RAZIX_GFX_RESOURCE;
+#ifdef RAZIX_RENDER_API_VULKAN
+            //vk_gfx_ctx vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            //dx12_gfx_synocobj dx12;
+#endif
+    } rz_gfx_texture;
+
     typedef struct rz_gfx_swapchain
     {
-        uint32_t width;
-        uint32_t height;
-        uint32_t imageCount;
-        uint32_t currBackBufferIdx;
+        RAZIX_GFX_RESOURCE;
+        uint32_t       width;
+        uint32_t       height;
+        uint32_t       imageCount;
+        uint32_t       currBackBufferIdx;
+        rz_gfx_texture backbuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];
 #ifdef RAZIX_RENDER_API_VULKAN
             //vk_gfx_swapchain vk;
 #endif
@@ -156,11 +231,12 @@ extern "C"
     //---------------------------------------------------------------------------------------------
     // Gfx API
 
-    void rzGfxCtx_StartUp();
-    void rzGfxCtx_ShutDown();
+    RAZIX_API void rzGfxCtx_StartUp();
+    RAZIX_API void rzGfxCtx_ShutDown();
 
-    rz_render_api rzGfxCtx_GetRenderAPI();
-    void          rzGfxCtx_SetRenderAPI(rz_render_api api);
+    RAZIX_API rz_render_api rzGfxCtx_GetRenderAPI();
+    RAZIX_API void          rzGfxCtx_SetRenderAPI(rz_render_api api);
+    RAZIX_API const char*   rzGfxCtx_GetRenderAPIString();
 
     //---------------------------------------------------------------------------------------------
     // RHI Jump Table
@@ -169,6 +245,7 @@ extern "C"
      * Rendering API initialization like Instance, Device Creation etc. will happen here! one master place to start it all up!
      */
     typedef void (*rzRHI_GlobalCtxInitFn)(void);
+    typedef void (*rzRHI_GlobalCtxDestroyFn)(void);
 
     /**
      * RHI API
@@ -177,20 +254,22 @@ extern "C"
 
     typedef struct
     {
-        rzRHI_GlobalCtxInitFn GlobalCtxInit;
-        rzRHI_AcquireImageFn  AcquireImage;
+        rzRHI_GlobalCtxInitFn    GlobalCtxInit;
+        rzRHI_GlobalCtxDestroyFn GlobalCtxDestroy;
+        rzRHI_AcquireImageFn     AcquireImage;
     } rz_rhi_api;
 
     //---------------------------------------------------------------------------------------------
     // Globals
     //---------------------------------
-    extern rz_gfx_context g_GfxCtx;    // Global Graphics Context singleton instance
+    RAZIX_API extern rz_gfx_context g_GfxCtx;    // Global Graphics Context singleton instance
     //---------------------------------
-    extern rz_render_api g_RenderAPI;
+    RAZIX_API extern rz_render_api g_RenderAPI;
     //---------------------------------
-    extern rz_rhi_api g_RHI;
+    RAZIX_API extern rz_rhi_api g_RHI;
 
-    void rzGfxCtx_GlobalCtxInit();
+#define rzGfxCtx_GlobalCtxInit    g_RHI.GlobalCtxInit
+#define rzGfxCtx_GlobalCtxDestroy g_RHI.GlobalCtxDestroy
 
 #ifdef __cplusplus
 }

@@ -30,15 +30,13 @@
 
 // Graphics API
 #include "Razix/Gfx/RHI/RHI.h"
-#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 // Graphics/Cameras
 #include "Razix/Gfx/Cameras/Camera3D.h"
 
 // Graphics
-#include "Razix/Gfx/RZMesh.h"
-#include "Razix/Gfx/RZMeshFactory.h"
+//#include "Razix/Gfx/RZMesh.h"
+//#include "Razix/Gfx/RZMeshFactory.h"
 
 // Scene
 #include "Razix/Scene/Components/RZComponents.h"

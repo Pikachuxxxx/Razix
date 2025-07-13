@@ -235,7 +235,7 @@ namespace Razix {
     void RZApplication::Begin()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
-        // TODO: Job system and Engine Systems(run-time) Initialization
+
         Razix::RZSplashScreen::Get().setLogString("Loading Scene...");
         // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath: sceneFilePaths)
@@ -245,10 +245,13 @@ namespace Razix {
         RZSceneManager::Get().loadScene(0);
         Razix::RZSplashScreen::Get().setLogString("Scene Loading Successful...");
 
-        // TODO: Put this somewhere else?
-        Razix::RZSplashScreen::Get().setLogString("Building FrameGraph...");
-        if (RZEngine::Get().isEngineInTestMode() == false)
+        Razix::RZSplashScreen::Get().setLogString("Creating world renderer");
+        Razix::RZEngine::Get().getWorldRenderer().create(m_Window, m_Window->getWidth(), m_Window->getHeight());
+
+        if (RZEngine::Get().isEngineInTestMode() == false) {
+            Razix::RZSplashScreen::Get().setLogString("Building FrameGraph...");
             Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
+        }
 
         m_CurrentState = AppState::Running;
 
@@ -301,12 +304,12 @@ namespace Razix {
         // Reload shaders and FrameGraph resources
         if (RZInput::IsKeyPressed(Razix::KeyCode::Key::R)) {
             RAZIX_CORE_INFO("Reloading FrameGraph...");
-            Gfx::RZShaderLibrary::Get().reloadShadersFromDisk();
-            auto& worldRenderer = Razix::RZEngine::Get().getWorldRenderer();
-            worldRenderer.destroy();
-            Razix::Gfx::RZFrameGraph::ResetFirstFrame();
-            worldRenderer.buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
-            RAZIX_CORE_INFO("FrameGraph reload Done!");
+            //Gfx::RZShaderLibrary::Get().reloadShadersFromDisk();
+            //auto& worldRenderer = Razix::RZEngine::Get().getWorldRenderer();
+            //worldRenderer.destroy();
+            //Razix::Gfx::RZFrameGraph::ResetFirstFrame();
+            //worldRenderer.buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
+            //RAZIX_CORE_INFO("FrameGraph reload Done!");
         }
 
         // Update the Engine systems
@@ -376,17 +379,6 @@ namespace Razix {
             io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
         }
 
-        // Update the Runtime Systems only on Game Application type
-        //if (m_appType == AppType::GAME) {
-        // Run the OnUpdate for all the scripts
-        // FIXME: Enable this when the data driven rendering is finished
-        //if (RZSceneManager::Get().getCurrentScene())
-        //    RZEngine::Get().getScriptHandler().OnUpdate(RZSceneManager::Get().getCurrentScene(), dt);
-
-        // TODO: Update the Physics Engine here
-        /*RZEngine::Get().getPhysicsEngine().update(dt); */
-        //}
-
         // Client App Update
         OnUpdate(dt);
     }
@@ -425,9 +417,6 @@ namespace Razix {
         // World Renderer Tools
         RZEngine::Get().getWorldRenderer().OnImGui();
 
-        // RHI Stats
-        Razix::Gfx::RHI::Get().OnImGui();
-
         // User GUI
         if (RZSceneManager::Get().getCurrentScene())
             RZEngine::Get().getScriptHandler().OnImGui(RZSceneManager::Get().getCurrentScene());
@@ -450,8 +439,6 @@ namespace Razix {
         RZSceneManager::Get().saveAllScenes();
         RZSceneManager::Get().destroyAllScenes();
         SaveApp();
-
-        Gfx::RHI::Destroy();
 
         RAZIX_CORE_ERROR("Closing Application!");
     }
@@ -478,7 +465,7 @@ namespace Razix {
         //archive(cereal::make_nvp("Project Version", 0));
         archive(cereal::make_nvp("Render API", m_RenderAPI));
         // Set the render API from the De-serialized data
-        Gfx::RZGraphicsContext::SetRenderAPI((Gfx::RenderAPI) m_RenderAPI);
+        rzGfxCtx_SetRenderAPI((rz_render_api) m_RenderAPI);
         u32 Width, Height;
         archive(cereal::make_nvp("Width", Width));
         archive(cereal::make_nvp("Height", Height));
@@ -505,7 +492,7 @@ namespace Razix {
         archive(cereal::make_nvp("Project Name", m_ProjectName));
         archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
         archive(cereal::make_nvp("Project ID", m_ProjectID.prettyString()));
-        archive(cereal::make_nvp("Render API", (u32) Gfx::RZGraphicsContext::GetRenderAPI()));
+        archive(cereal::make_nvp("Render API", (u32) rzGfxCtx_GetRenderAPI()));
         archive(cereal::make_nvp("Width", m_Window->getWidth()));
         archive(cereal::make_nvp("Height", m_Window->getHeight()));
 

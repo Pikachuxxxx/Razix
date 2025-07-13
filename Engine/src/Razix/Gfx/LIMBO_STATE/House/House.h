@@ -29,13 +29,13 @@ namespace Razix {
          */
         namespace House {
 
-            RZWorld*  BuildRazixWorld(RZScene* scenes, RZSceneView* views);
-            Drawables BuildDrawables(RZWorld* world);
-            Batches   BuildBatches(Drawables* drawables);
-
-            RZSceneView* ExtractSceneViews(RZScene* scene);
-            DrawData*    ExtractBatchDrawData(Batch* batch);
-            DrawData*    ExtractDrawableDrawData(Drawable* drawable);
+            //RZWorld*  BuildRazixWorld(RZScene* scenes, RZSceneView* views);
+            //Drawables BuildDrawables(RZWorld* world);
+            //Batches   BuildBatches(Drawables* drawables);
+            //
+            //RZSceneView* ExtractSceneViews(RZScene* scene);
+            //DrawData*    ExtractBatchDrawData(Batch* batch);
+            //DrawData*    ExtractDrawableDrawData(Drawable* drawable);
         }    // namespace House
     }        // namespace Gfx
 }    // namespace Razix

@@ -7,15 +7,15 @@
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 #include "Razix/Core/RZEngine.h"
 
-#include "Razix/Gfx/RZShaderLibrary.h"
+//#include "Razix/Gfx/RZShaderLibrary.h"
+//
+//#include "Razix/Gfx/FrameGraph/RZFrameGraphPass.h"
+//
+//#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
+//#include "Razix/Gfx/Resources/RZFrameGraphSampler.h"
+//#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
-#include "Razix/Gfx/FrameGraph/RZFrameGraphPass.h"
-
-#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Gfx/Resources/RZFrameGraphSampler.h"
-#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
-
-#include "Razix/Scene/RZScene.h"
+//#include "Razix/Scene/RZScene.h"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;    // use other lib that said it was faster than this on github
@@ -34,6 +34,7 @@ namespace Razix {
 
         bool RZFrameGraph::parse(const std::string& path)
         {
+#if 0
             std::string physicalPath;
             if (!RZVirtualFileSystem::Get().resolvePhysicalPath(path, physicalPath))
                 return false;
@@ -374,12 +375,13 @@ namespace Razix {
             // Final Output RT name (pass this to FinalCompositionPass via Blackboard)
             auto finalOutput = data["final_output"];
             m_Blackboard.setFinalOutputName(finalOutput.empty() ? "SceneHDR" : finalOutput);
-
+#endif
             return true;
         }
 
         RZPassNode& RZFrameGraph::parsePass(const std::string& passPath)
         {
+#if 0
             std::string physicalPath;
             RAZIX_ASSERT(RZVirtualFileSystem::Get().resolvePhysicalPath(passPath, physicalPath), "Invalid Pass, please check again!");
 
@@ -511,23 +513,24 @@ namespace Razix {
             if (!layersCount.empty())
                 layers = layersCount.get<int>();
 
+#endif
             // First create the FrameGraphPass (Data) and create a pass node
             // Now that the checks are done, let's create the pass and PassNode
             FrameGraphDataPassDesc desc = {};
-            desc.shader                 = shader;
-            desc.pipeline               = pipeline;
-            desc.geometryMode           = geomMode;
-            desc.resolution             = resolution;
-            desc.extent                 = extent;
-            desc.layers                 = layers;
+            //desc.shader                 = shader;
+            //desc.pipeline               = pipeline;
+            //desc.geometryMode           = geomMode;
+            //desc.resolution             = resolution;
+            //desc.extent                 = extent;
+            //desc.layers                 = layers;
             auto* pass                  = new RZFrameGraphDataPass(desc);
             // Create the PassNode in the graph
-            RZPassNode& passNode = createPassNodeRef(std::string_view(passNameStr), std::unique_ptr<RZFrameGraphDataPass>(pass));
+            RZPassNode& passNode = createPassNodeRef(std::string_view("DUMMY"), std::unique_ptr<RZFrameGraphDataPass>(pass));
             // Mark as data driven
             passNode.m_IsDataDriven = true;
-            auto isStandAlonePass   = data["is_standalone"];
-            if (!isStandAlonePass.empty())
-                passNode.m_IsStandAlone = isStandAlonePass;
+            //auto isStandAlonePass   = data["is_standalone"];
+            //if (!isStandAlonePass.empty())
+            //    passNode.m_IsStandAlone = isStandAlonePass;
 
             return passNode;
         }

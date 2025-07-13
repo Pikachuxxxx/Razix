@@ -11,25 +11,25 @@
 #include "Razix/Core/Markers/RZMarkers.h"
 #include "Razix/Core/RZEngine.h"
 
-#include "Razix/Gfx/RZGraphicsCompileConfig.h"
+//#include "Razix/Gfx/FrameGraph/RZBlackboard.h"
+//#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
-#include "Razix/Gfx/FrameGraph/RZBlackboard.h"
-#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
+//#include "Razix/Gfx/Lighting/RZImageBasedLightingProbesManager.h"
 
-#include "Razix/Gfx/Lighting/RZImageBasedLightingProbesManager.h"
+//#include "Razix/Gfx/Passes/Data/GlobalData.h"
 
-#include "Razix/Gfx/Passes/Data/GlobalData.h"
+//#include "Razix/Gfx/Renderers/RZImGuiRendererProxy.h"
+//#include "Razix/Gfx/Renderers/RZDebugRendererProxy.h"
 
-#include "Razix/Gfx/Renderers/RZDebugRendererProxy.h"
-#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
+//#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
+//#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Math/Grid.h"
 #include "Razix/Math/ImportanceSampling.h"
 
-#include "Razix/Scene/Components/RZComponents.h"
+//#include "Razix/Scene/Components/RZComponents.h"
 
-#include "Razix/Scene/RZScene.h"
+//#include "Razix/Scene/RZScene.h"
 
 #include "Razix/Tools/Runtime/RZEngineRuntimeTools.h"
 
@@ -38,6 +38,7 @@
 namespace Razix {
     namespace Gfx {
 
+        /*
         static void ExportFrameGraphVisFile(const RZFrameGraph& framegraph)
         {
             auto        now   = std::chrono::system_clock::now();
@@ -62,28 +63,29 @@ namespace Razix {
             std::ofstream os(filename);
             os << framegraph;
         }
+        */
 
         //-------------------------------------------------------------------------------------------
 
         void RZWorldRenderer::create(RZWindow* window, u32 width, u32 height)
         {
-            rzGfxCtx_GlobalCtxInit();
         }
 
         void RZWorldRenderer::destroy()
         {
             m_FrameCount = 0;
 
-            if (m_LastSwapchainReadback.data) {
-                Memory::RZFree(m_LastSwapchainReadback.data);
-                m_LastSwapchainReadback.data = NULL;
-            }
+            //if (m_LastSwapchainReadback.data) {
+            //    Memory::RZFree(m_LastSwapchainReadback.data);
+            //    m_LastSwapchainReadback.data = NULL;
+            //}
 
             // Wait for rendering to be done before halting
             //Gfx::RZGraphicsContext::GetContext()->Wait();
 
             m_FrameGraphBuildingInProgress = true;
 
+#if RX_ENABLE_GFX
             // Destroy Frame Graph Transient Resources
             m_FrameGraph.destroy();
 
@@ -97,6 +99,7 @@ namespace Razix {
             m_PBRDeferredPass.destroy();
             m_SkyboxPass.destroy();
             m_CompositePass.destroy();
+#endif
         }
 
         /**
@@ -106,6 +109,7 @@ namespace Razix {
 
         void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
         {
+#if 0
             memset(&m_LastSwapchainReadback, 0, sizeof(TextureReadback));
 
             m_FrameGraphBuildingInProgress = true;
@@ -171,14 +175,14 @@ namespace Razix {
 
             //-----------------------------------------------------------------------------------
 
-#if ENABLE_DATA_DRIVEN_FG_PASSES
+    #if ENABLE_DATA_DRIVEN_FG_PASSES
             //-------------------------------
             // Data Driven Frame Graph
             //-------------------------------
 
             if (!getFrameGraphFilePath().empty())
                 RAZIX_ASSERT(m_FrameGraph.parse(getFrameGraphFilePath()), "[Frame Graph] Failed to parse graph!");
-#endif
+    #endif
 
             //-------------------------------
             // Simple Shadow map Pass
@@ -358,14 +362,15 @@ namespace Razix {
             RAZIX_CORE_INFO("Compiling FrameGraph....");
             m_FrameGraph.compile();
 
-#ifndef RAZIX_GOLD_MASTER
+    #ifndef RAZIX_GOLD_MASTER
             // Dump the Frame Graph for visualization
             // NOTE: Careful this won't write to the Engine directory this is inside bin and build artifact
             // FIXME: Find a way to map VFS to OG Engine path pre-copy or idk just umm...be careful I guess
             ExportFrameGraphVisFile(m_FrameGraph);
-#endif
+    #endif
 
             m_FrameGraphBuildingInProgress = false;
+#endif
         }
 
         void RZWorldRenderer::drawFrame(RZRendererSettings& settings, Razix::RZScene* scene)
@@ -374,17 +379,18 @@ namespace Razix {
 
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            if (m_IsFGFilePathDirty) {
-                destroy();
-                RZFrameGraph::ResetFirstFrame();
-                buildFrameGraph(settings, RZSceneManager::Get().getCurrentScene());
-                m_IsFGFilePathDirty = false;
-            }
+            //if (m_IsFGFilePathDirty) {
+            //    destroy();
+            //    RZFrameGraph::ResetFirstFrame();
+            //    buildFrameGraph(settings, RZSceneManager::Get().getCurrentScene());
+            //    m_IsFGFilePathDirty = false;
+            //}
 
             if (m_FrameGraphBuildingInProgress)
                 return;
 
-            // Main Frame Graph World Rendering Loop
+// Main Frame Graph World Rendering Loop
+#if 0
             {
                 // Acquire Image to render onto
                 Gfx::RHI::AcquireImage(NULL);
@@ -422,6 +428,7 @@ namespace Razix {
                 // Present the image to presentation engine as soon as rendering to SCOLOR_ATTACHMENT is done
                 Gfx::RHI::Present(NULL);
             }
+#endif
         }
 
         void RZWorldRenderer::OnUpdate(RZTimestep dt)
@@ -436,9 +443,11 @@ namespace Razix {
             // This will be owned by RZEngine
             static Tools::ToolsDrawConfig drawConfig = {};
 
-            Tools::OnImGuiDrawEngineTools(drawConfig);
+            //Tools::OnImGuiDrawEngineTools(drawConfig);
 #endif
         }
+
+#if 0
 
         void RZWorldRenderer::OnResize(u32 width, u32 height)
         {
@@ -638,5 +647,6 @@ namespace Razix {
                     RAZIX_TIME_STAMP_END();
                 });
         }
+#endif
     }    // namespace Gfx
 }    // namespace Razix

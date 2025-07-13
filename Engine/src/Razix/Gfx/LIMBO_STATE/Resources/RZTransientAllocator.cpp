@@ -91,6 +91,8 @@ namespace Razix {
             }
         }
 
+#if 0
+
         void RZTransientAllocator::beginFrame()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -185,24 +187,24 @@ namespace Razix {
             m_SamplerCache.clear();
         }
 
-        RZTextureHandle RZTransientAllocator::acquireTransientTexture(const RZTextureDesc& desc, u32 id)
+        rz_texture_handle RZTransientAllocator::acquireTransientTexture(const RZTextureDesc& desc, u32 id)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
             // pop the handle from cache
             // if handle doesn't exist create a new one, return it, will be cached when we release it
             auto it = m_TextureCache.find(id);
             if (it != m_TextureCache.end()) {
-                RZTextureHandle handle = it->second;
+                rz_texture_handle handle = it->second;
                 m_TextureCache.erase(it);
                 return handle;    // return the cached handle
             } else {
                 // create a new texture
-                RZTextureHandle handle = RZResourceManager::Get().createTexture(desc);
+                rz_texture_handle handle = RZResourceManager::Get().createTexture(desc);
                 return handle;
             }
         }
 
-        void RZTransientAllocator::releaseTransientTexture(RZTextureHandle handle, u32 id)
+        void RZTransientAllocator::releaseTransientTexture(rz_texture_handle handle, u32 id)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -248,5 +250,6 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
             m_SamplerCache[id] = handle;
         }
+#endif
     }    // namespace Gfx
 }    // namespace Razix

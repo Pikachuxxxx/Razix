@@ -2,30 +2,32 @@
 
 #include "Razix/Gfx/RHI/RHI.h"
 
-#include "Razix/Gfx/FrameGraph/RZBlackboard.h"
-#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
+#include "Razix/Utilities/RZTimestep.h"
+
+//#include "Razix/Gfx/FrameGraph/RZBlackboard.h"
+//#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
 // Passes Data
-#include "Razix/Gfx/Passes/Data/GlobalData.h"
+//#include "Razix/Gfx/Passes/Data/GlobalData.h"
 
 // Passes
-#include "Razix/Gfx/Passes/RZBloomPass.h"
-#include "Razix/Gfx/Passes/RZCSMPass.h"
-#include "Razix/Gfx/Passes/RZColorGradingPass.h"
-#include "Razix/Gfx/Passes/RZCompositionPass.h"
-#include "Razix/Gfx/Passes/RZFXAAPass.h"
-#include "Razix/Gfx/Passes/RZGBufferPass.h"
-#include "Razix/Gfx/Passes/RZGaussianBlurPass.h"
-#include "Razix/Gfx/Passes/RZPBRDeferredShadingPass.h"
-#include "Razix/Gfx/Passes/RZSSAOPass.h"
-#include "Razix/Gfx/Passes/RZShadowPass.h"
-#include "Razix/Gfx/Passes/RZSkyboxPass.h"
-#include "Razix/Gfx/Passes/RZTAAResolvePass.h"
-#include "Razix/Gfx/Passes/RZTonemapPass.h"
-#include "Razix/Gfx/Passes/RZVisibilityBufferFillPass.h"
+//#include "Razix/Gfx/Passes/IRZPass.h"
+//#include "Razix/Gfx/Passes/RZBloomPass.h"
+//#include "Razix/Gfx/Passes/RZCSMPass.h"
+//#include "Razix/Gfx/Passes/RZColorGradingPass.h"
+//#include "Razix/Gfx/Passes/RZCompositionPass.h"
+//#include "Razix/Gfx/Passes/RZFXAAPass.h"
+//#include "Razix/Gfx/Passes/RZGBufferPass.h"
+//#include "Razix/Gfx/Passes/RZGaussianBlurPass.h"
+//#include "Razix/Gfx/Passes/RZPBRDeferredShadingPass.h"
+//#include "Razix/Gfx/Passes/RZSSAOPass.h"
+//#include "Razix/Gfx/Passes/RZShadowPass.h"
+//#include "Razix/Gfx/Passes/RZSkyboxPass.h"
+//#include "Razix/Gfx/Passes/RZTAAResolvePass.h"
+//#include "Razix/Gfx/Passes/RZTonemapPass.h"
+//#include "Razix/Gfx/Passes/RZVisibilityBufferFillPass.h"
 
 // Renderers
-#include "Razix/Gfx/Renderers/RZImGuiRendererProxy.h"
 #include "Razix/Gfx/Renderers/RZRendererSettings.h"
 
 #include "Razix/Math/Grid.h"
@@ -96,43 +98,43 @@ namespace Razix {
             /* ImGui rendering for the world renderer */
             void OnImGui();
 
-            void OnResize(u32 width, u32 height);
+            void OnResize(u32 width, u32 height) {}
 
             // Getters/Setters
-            inline RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
+            //inline RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
 
-            inline std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
-            void               setFrameGraphFilePath(std::string val);
-
-            inline void                   setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
-            inline const TextureReadback& getSwapchainReadback() { return m_LastSwapchainReadback; }
-
-            void clearFrameGraph();
-            void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings);
+            //inline std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
+            //void               setFrameGraphFilePath(std::string val);
+            //
+            //inline void                   setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
+            //inline const TextureReadback& getSwapchainReadback() { return m_LastSwapchainReadback; }
+            //
+            //void clearFrameGraph();
+            //void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings);
 
         private:
-            RZFrameGraph             m_FrameGraph;
-            RZTextureHandle          m_BRDFfLUTTextureHandle;
-            RZTextureHandle          m_NoiseTextureHandle;
-            RZTextureHandle          m_ColorGradingNeutralLUTHandle;
-            LightProbe               m_GlobalLightProbes;
-            RZShadowPass             m_ShadowPass;
-            RZGBufferPass            m_GBufferPass;
-            RZSSAOPass               m_SSAOPass;
-            RZPBRDeferredShadingPass m_PBRDeferredPass;
-            RZSkyboxPass             m_SkyboxPass;
-            RZToneMapPass            m_TonemapPass;
-            RZCompositionPass        m_CompositePass;
-            TextureReadback          m_LastSwapchainReadback;
-            u32                      m_FrameCount                                            = 0;
-            float2                   m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
-            float4x4                 m_PreviousViewProj                                      = {};
-            float2                   m_Jitter                                                = {};
-            float2                   m_PreviousJitter                                        = {};
-            bool                     m_FrameGraphBuildingInProgress                          = false;
-            bool                     m_IsFGFilePathDirty                                     = false;
-            bool                     m_ReadSwapchainThisFrame                                = false;
-            std::string              m_FrameGraphFilePath                                    = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
+            //RZFrameGraph    m_FrameGraph;
+            //rz_texture_handle m_BRDFfLUTTextureHandle;
+            //rz_texture_handle m_NoiseTextureHandle;
+            //rz_texture_handle m_ColorGradingNeutralLUTHandle;
+            //LightProbe      m_GlobalLightProbes;
+            //RZShadowPass             m_ShadowPass;
+            //RZGBufferPass            m_GBufferPass;
+            //RZSSAOPass               m_SSAOPass;
+            //RZPBRDeferredShadingPass m_PBRDeferredPass;
+            //RZSkyboxPass             m_SkyboxPass;
+            //RZToneMapPass            m_TonemapPass;
+            //RZCompositionPass        m_CompositePass;
+            //TextureReadback m_LastSwapchainReadback;
+            u32         m_FrameCount                                            = 0;
+            float2      m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
+            float4x4    m_PreviousViewProj                                      = {};
+            float2      m_Jitter                                                = {};
+            float2      m_PreviousJitter                                        = {};
+            bool        m_FrameGraphBuildingInProgress                          = false;
+            bool        m_IsFGFilePathDirty                                     = false;
+            bool        m_ReadSwapchainThisFrame                                = false;
+            std::string m_FrameGraphFilePath                                    = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
             // Gfx resources
             struct RenderSyncPrimitives
             {
@@ -157,10 +159,10 @@ namespace Razix {
             rz_gfx_swapchain m_Swapchain;
 
         private:
-            void importGlobalLightProbes(LightProbe globalLightProbe);
-            void cullLights(Maths::RZFrustum& frustum);
-            void uploadFrameData(RZScene* scene, RZRendererSettings& settings);
-            void uploadLightsData(RZScene* scene, RZRendererSettings& settings);
+            //void importGlobalLightProbes(LightProbe globalLightProbe);
+            //void cullLights(Maths::RZFrustum& frustum);
+            //void uploadFrameData(RZScene* scene, RZRendererSettings& settings);
+            //void uploadLightsData(RZScene* scene, RZRendererSettings& settings);
         };
     }    // namespace Gfx
 }    // namespace Razix

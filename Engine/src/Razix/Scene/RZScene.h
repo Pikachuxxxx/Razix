@@ -6,22 +6,12 @@
 #include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/UUID/RZUUID.h"
 
-#include "Razix/Gfx/GfxData.h"
-
 #include "Razix/Scene/RZSceneCamera.h"
 
 namespace Razix {
 
     class RZEntity;
     struct CameraComponent;
-
-    namespace Gfx {
-        class RZPipeline;
-        class RZDescriptorSet;
-        class RZMesh;
-    }    // namespace Gfx
-
-    using RZDescriptorSets = std::vector<Gfx::RZDescriptorSet*>;
 
     enum class SceneDrawGeometryMode
     {
@@ -66,9 +56,9 @@ namespace Razix {
         void update();
         void updateTransform(entt::entity entity);
         /* Draws the Scene using the current bound command buffer, we need to set the Descriptor Sets, Being rendering onto the CmdBuffer and the Pipeline for this to work */
-        void drawScene(Gfx::RZPipelineHandle pipeline, SceneDrawGeometryMode geometryMode = SceneDrawGeometryMode::SceneGeometry);
+        //void drawScene(Gfx::RZPipelineHandle pipeline, SceneDrawGeometryMode geometryMode = SceneDrawGeometryMode::SceneGeometry);
         /* Draw Decals into the GBuffer Render Targets */
-        void drawDecals(Gfx::RZPipelineHandle pipeline);
+        //void drawDecals(Gfx::RZPipelineHandle pipeline);
 
         void Destroy();
 
@@ -92,14 +82,17 @@ namespace Razix {
         void reloadScene();
 
         /* Serialize the scene to the given file path */
-        void serialiseScene(const std::string& filePath);
+        void serialiseScene(const std::string& filePath){}
         /* De-Serialize the scene from the given file path */
-        void deSerialiseScene(const std::string& filePath);
+        void deSerialiseScene(const std::string& filePath){}
 
         /**
          * Gets the scene camera with which the world is rendered (if exists)
          */
-        RZSceneCamera& getSceneCamera();
+        RZSceneCamera& getSceneCamera()
+        {
+            return m_DefaultSceneCameraToAvoidCompileErrors;
+        }
 
         // TODO: Get the reference to the components instead
         template<typename T>
@@ -132,7 +125,7 @@ namespace Razix {
         std::string    m_ScenePath;                 /* The Path of the scene file                   */
         u32            m_LastMeshesCount = 0;
         RZSceneCamera  m_EditorModeCamera;
-        Gfx::RZMesh*   m_Cube = nullptr;
+        //Gfx::RZMesh*   m_Cube = nullptr;
         RZSceneCamera  m_DefaultSceneCameraToAvoidCompileErrors;
 
         friend class RZEntity;

@@ -10,17 +10,17 @@ using namespace Razix;
 class HelloTriangleTest final : public RZGfxTestAppBase
 {
 public:
-    HelloTriangleTest(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_DEFAULT, const std::string& appName = "RazixGfxTestApp")
+    HelloTriangleTest(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_INF, const std::string& appName = "RazixGfxTestApp")
         : RZGfxTestAppBase(projectRoot, numFrames, appName)
     {
     }
 
     void OnStart() override
     {
-        RZEngine::Get().getWorldRenderer().clearFrameGraph();
-        RZEngine::Get().getWorldRenderer().pushRenderPass(&helloTriangleTestPass, nullptr, &RZEngine::Get().getWorldSettings());
-        RAZIX_CORE_INFO("Compiling FrameGraph ....");
-        RZEngine::Get().getWorldRenderer().getFrameGraph().compile();
+        //RZEngine::Get().getWorldRenderer().clearFrameGraph();
+        //RZEngine::Get().getWorldRenderer().pushRenderPass(&helloTriangleTestPass, nullptr, &RZEngine::Get().getWorldSettings());
+        //RAZIX_CORE_INFO("Compiling FrameGraph ....");
+        //RZEngine::Get().getWorldRenderer().getFrameGraph().compile();
 
         std::string testsRootPath;
         RZVirtualFileSystem::Get().resolvePhysicalPath("//TestsRoot/GfxTests/", testsRootPath, true);
@@ -33,18 +33,18 @@ public:
 
     void OnQuit() override
     {
-        Gfx::RZGraphicsContext::GetContext()->Wait();
+        //Gfx::RZGraphicsContext::GetContext()->Wait();
 
-        helloTriangleTestPass.destroy();
+        //helloTriangleTestPass.destroy();
         RZGfxTestAppBase::OnQuit();
     }
 
 private:
-    Razix::Gfx::RZHelloTriangleTestPass helloTriangleTestPass;
+    //Razix::Gfx::RZHelloTriangleTestPass helloTriangleTestPass;
 };
 
 static RZGfxTestAppBase* s_GfxTestBaseApp = NULL;
-Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
+Razix::RZApplication*    Razix::CreateApplication(int argc, char** argv)
 {
     s_GfxTestBaseApp = new HelloTriangleTest(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Tests/")));
     return s_GfxTestBaseApp;

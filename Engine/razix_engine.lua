@@ -94,6 +94,10 @@ project "Razix"
 	-- Also remove the core module, they are compiled as a library
     removefiles
     {
+        --------------------------
+        -- just until we finish off RHI
+        "src/Razix/Gfx/LIMBO_STATE/**",
+        --------------------------
         "src/Razix/Platform/**",
         "src/Razix/Gfx/RHI/**",
         "src/Razix/Core/Memory/vendor/mmgr/mmgr.cpp",
@@ -151,6 +155,8 @@ project "Razix"
         "Jolt",
         -- Shaders
         "Shaders",
+        -- RHI
+        "RHI",
     }
 
     flags 

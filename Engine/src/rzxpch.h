@@ -37,8 +37,6 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZDebugConfig.h"
-#include "Razix/Gfx/GfxData.h"
-#include "Razix/Gfx/Resources/IRZResource.h"
 #include "Razix/Math/Math.h"
 // Razix Memory
 #include "Razix/Core/Memory/RZMemory.h"

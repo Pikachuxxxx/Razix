@@ -29,7 +29,7 @@ namespace Razix {
 
             void updateCascades(Razix::RZScene* scene);
 
-            RAZIX_INLINE RZTextureHandle getCSMArrayTex() const { return m_CSMArrayHandle; }
+            RAZIX_INLINE rz_texture_handle getCSMArrayTex() const { return m_CSMArrayHandle; }
             RAZIX_INLINE const auto&     getCascades() const { return m_Cascades; }
 
             static std::vector<Cascade> buildCascades(RZSceneCamera camera, float3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize);
@@ -43,7 +43,7 @@ namespace Razix {
             RZPipelineHandle      m_Pipeline                  = {};
             std::vector<Cascade>  m_Cascades                  = {};
             RZDescriptorSetHandle m_CascadeSets[kNumCascades] = {};
-            RZTextureHandle       m_CSMArrayHandle            = {};
+            rz_texture_handle       m_CSMArrayHandle            = {};
 
         private:
             CascadeSubPassData addCascadePass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings, CascadeSubPassData subpassData, u32 cascadeIdx);

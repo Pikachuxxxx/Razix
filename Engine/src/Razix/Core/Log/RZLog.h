@@ -46,14 +46,14 @@ extern "C"
 {
 #endif
 
-    void RZLog_CoreLog_Trace(const char* fmt, ...);
-    void RZLog_CoreLog_Info(const char* fmt, ...);
-    void RZLog_CoreLog_Warn(const char* fmt, ...);
-    void RZLog_CoreLog_Error(const char* fmt, ...);
-    void RZLog_AppLog_Trace(const char* fmt, ...);
-    void RZLog_AppLog_Info(const char* fmt, ...);
-    void RZLog_AppLog_Warn(const char* fmt, ...);
-    void RZLog_AppLog_Error(const char* fmt, ...);
+    RAZIX_API void RZLog_CoreLog_Trace(const char* fmt, ...);
+    RAZIX_API void RZLog_CoreLog_Info(const char* fmt, ...);
+    RAZIX_API void RZLog_CoreLog_Warn(const char* fmt, ...);
+    RAZIX_API void RZLog_CoreLog_Error(const char* fmt, ...);
+    RAZIX_API void RZLog_AppLog_Trace(const char* fmt, ...);
+    RAZIX_API void RZLog_AppLog_Info(const char* fmt, ...);
+    RAZIX_API void RZLog_AppLog_Warn(const char* fmt, ...);
+    RAZIX_API void RZLog_AppLog_Error(const char* fmt, ...);
 
 #ifdef __cplusplus
 }

@@ -5,53 +5,7 @@
 namespace Razix {
     namespace Gfx {
 
-        // TODO: Re-write this in C-Friendly way
-        // No classes, no enum class, no functions at all in this file, move it to a new GfxUitls.h
-        // use ENUM_NAME_COUNT as last member of each enum instead of COUNT and enum class
-        // and whatever necessary to make this a c-compatible header and no .cpp counterpart
-        // Any C++ utils like NameMaps and Static asserts will reside in GfxUtils.h and not part of RHI library
-
-        // Forward declaration
-        // RHI
-        class RZTexture;
-        class RZVertexBuffer;
-        class RZIndexBuffer;
-        class RZStorageBuffer;
-        class RZUniformBuffer;
-        class RZPipeline;
-        class RZShader;
-        class RZDrawCommandBuffer;
-        class RZCommandPool;
-        class RZDescriptorSet;
-        class RZSampler;
-
-        // Non-RHI
-        class RZMesh;
-        class RZMaterial;
-        struct RZDecal;
-
-        // Handles for Engine API types (Graphics)
-        using RZTextureHandle           = RZHandle<Gfx::RZTexture>;
-        using RZVertexBufferHandle      = RZHandle<Gfx::RZVertexBuffer>;
-        using RZIndexBufferHandle       = RZHandle<Gfx::RZIndexBuffer>;
-        using RZStorageBufferHandle     = RZHandle<Gfx::RZStorageBuffer>;
-        using RZUniformBufferHandle     = RZHandle<Gfx::RZUniformBuffer>;
-        using RZPipelineHandle          = RZHandle<Gfx::RZPipeline>;
-        using RZShaderHandle            = RZHandle<Gfx::RZShader>;
-        using RZDrawCommandBufferHandle = RZHandle<Gfx::RZDrawCommandBuffer>;
-        using RZCommandPoolHandle       = RZHandle<Gfx::RZCommandPool>;
-        using RZDescriptorSetHandle     = RZHandle<Gfx::RZDescriptorSet>;
-        using RZSamplerHandle           = RZHandle<Gfx::RZSampler>;
-        // High-level graphics primitives Handles
-        using RZMeshHandle     = RZHandle<Gfx::RZMesh>;
-        using RZMaterialHandle = RZHandle<Gfx::RZMaterial>;
-        using RZDecalHandle    = RZHandle<Gfx::RZDecal>;
-        // Null Handle
-        using RZNullHandle = RZHandle<void>;
-
-        // FIXME: NO constexpr constants in source, unless they are expressions, use #defines instead
-        // Constants
-        constexpr u32 kInvalidSetIdx = ~0;
+        typedef rz_handle rz_texture_handle;
 
         // This is the only exception of using enum
         /* The stage which the shader corresponds to in the graphics pipeline */
@@ -570,22 +524,6 @@ namespace Razix {
             RAZIX_NO_DISCARD     operator u32() const;
         };
 
-        /**
-         * Rendering info is used by the GPU know the RTs, DRTs and viewport info etc.
-         */
-        struct RenderingInfo
-        {
-            Resolution                                                          resolution       = Resolution::kCustom;
-            uint2                                                               extent           = {0, 0};
-            std::vector<std::pair<RZTextureHandle, RenderTargetAttachmentInfo>> colorAttachments = {};
-            std::pair<RZTextureHandle, RenderTargetAttachmentInfo>              depthAttachment  = {};
-            int                                                                 layerCount       = 1;
-        };
-
-        /* Command Queue is a collection of command buffers that will be submitted for execution at once */
-        typedef std::vector<RZDrawCommandBufferHandle> CommandQueue;
-
-        /* Filtering for the Texture */
         struct Filtering
         {
             enum class Mode
@@ -600,26 +538,6 @@ namespace Razix {
             Filtering() {}
             Filtering(Mode min, Mode max)
                 : minFilter(min), magFilter(max) {}
-        };
-
-        struct PipelineBarrierInfo
-        {
-            PipelineStage startExecutionStage;
-            PipelineStage endExecutionStage;
-        };
-
-        struct ImageMemoryBarrierInfo
-        {
-            MemoryAccessMask srcAccess;
-            MemoryAccessMask dstAccess;
-            ImageLayout      srcLayout;
-            ImageLayout      dstLayout;
-        };
-
-        struct BufferMemoryBarrierInfo
-        {
-            MemoryAccessMask srcAccess;
-            MemoryAccessMask dstAccess;
         };
 
         struct RAZIX_MEM_ALIGN_16 RZVertexInputBindingInfo
@@ -638,42 +556,6 @@ namespace Razix {
             u32            offset   = 0;
             ShaderDataType type     = ShaderDataType::INT;
             u32            _padding = 0;
-        };
-
-        struct RAZIX_MEM_ALIGN_16 RZDescriptor
-        {
-            std::string name     = "$DESCRIPTOR_UNNAMED";
-            std::string typeName = "$DESCRIPTOR_TYPE_UNNAMED";
-            union
-            {
-                RZUniformBufferHandle uniformBuffer = {};
-                RZTextureHandle       texture;
-                RZSamplerHandle       sampler;
-            };
-            std::vector<RZShaderBufferMemberInfo> uboMembers  = {};
-            DescriptorBindingInfo                 bindingInfo = {};
-            u32                                   size        = 0;
-            u32                                   offset      = 0;
-            ///////////////////////////////////////////////////
-
-            // since RZHandle has custom copy and move constructors and operators, it make RZHandle non-trivially copyable
-            // so we need to define copy constructors for the union to work and make this type trivial again
-            RZDescriptor() {}
-            RZDescriptor(const RZDescriptor& other);
-            RZDescriptor& operator=(const RZDescriptor& other);
-        };
-
-        struct RAZIX_MEM_ALIGN_16 RZPushConstant
-        {
-            std::string                           typeName      = "$PUSH_CONSTANT_TYPE_UNNAMED";
-            std::string                           name          = "$PUSH_CONSTANT_UNNAMED";
-            std::vector<RZShaderBufferMemberInfo> structMembers = {};
-            void*                                 data          = nullptr;
-            DescriptorBindingInfo                 bindingInfo   = {};
-            u32                                   size          = 0;
-            u32                                   offset        = 0;
-            ShaderStage                           shaderStage   = ShaderStage(0);
-            u32                                   _padding      = 0;
         };
 
         struct RAZIX_API BufferLayoutElement
@@ -840,20 +722,12 @@ namespace Razix {
             ShaderBuiltin libraryID;
         };
 
-        struct RZDescriptorSetDesc
-        {
-            std::string               name = "$UNNAMED_DESCRIPTOR_HEAP"; /* Name of the descriptor heap */
-            DescriptorHeapType        heapType;
-            std::vector<RZDescriptor> descriptors;
-            u32                       setIdx = kInvalidSetIdx;    // Set by the Shader Reflection, for util purposes only
-        };
-
         /* Information necessary to create the pipeline */
         struct RZPipelineDesc
         {
-            std::string                name                   = "$UNNAMED_PIPELINE_RESOURCE";
-            PipelineType               pipelineType           = PipelineType::kGraphics;
-            RZShaderHandle             shader                 = {};
+            std::string  name         = "$UNNAMED_PIPELINE_RESOURCE";
+            PipelineType pipelineType = PipelineType::kGraphics;
+            //RZShaderHandle             shader                 = {};
             std::vector<TextureFormat> colorAttachmentFormats = {};
             TextureFormat              depthFormat            = TextureFormat::DEPTH32F;
             CullMode                   cullMode               = CullMode::Front;
@@ -880,41 +754,41 @@ namespace Razix {
         /**
          * Drawable is a conversion of an actor/entity that will be rendered onto the scene
          */
-        struct Drawable
-        {
-            RZMaterialHandle material;
-            RZMeshHandle     mesh;
-            uint32_t         transformID;
-        };
+        // struct Drawable
+        // {
+        //     RZMaterialHandle material;
+        //     RZMeshHandle     mesh;
+        //     uint32_t         transformID;
+        // };
 
-        using Drawables = std::vector<Drawable>;
+        //using Drawables = std::vector<Drawable>;
 
         /**
          * Drawables are batched by their common VB/IB and material pools
          */
-        struct Batch
-        {
-            RZVertexBufferHandle vertexBuffer;
-            RZIndexBufferHandle  indexBuffer;
-            RZPipelineHandle     pso;
-        };
+        //  struct Batch
+        //  {
+        //      RZVertexBufferHandle vertexBuffer;
+        //      RZIndexBufferHandle  indexBuffer;
+        //      RZPipelineHandle     pso;
+        //  };
 
-        using Batches = std::vector<Batch>;
+        //  using Batches = std::vector<Batch>;
 
         /**
          * DrawData is use for Bindless Rendering 
          */
-        struct DrawData
-        {
-            u32 drawBatchIdx  = 0;
-            u32 drawableIdx   = 0;
-            u32 vertexCount   = 0;
-            u32 vertexOffset  = 0;
-            u32 indexCount    = 0;
-            u32 indexOffset   = 0;
-            u32 instanceCount = 0;
-            u32 _padding      = 0;
-        };
+        // struct DrawData
+        // {
+        //     u32 drawBatchIdx  = 0;
+        //     u32 drawableIdx   = 0;
+        //     u32 vertexCount   = 0;
+        //     u32 vertexOffset  = 0;
+        //     u32 indexCount    = 0;
+        //     u32 indexOffset   = 0;
+        //     u32 instanceCount = 0;
+        //     u32 _padding      = 0;
+        // };
 
         /**
          * Used to cache render commands for drawing batches b/w frames.

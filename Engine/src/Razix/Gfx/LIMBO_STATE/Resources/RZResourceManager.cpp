@@ -3,16 +3,6 @@
 // clang-format on
 #include "RZResourceManager.h"
 
-#include "Razix/Gfx/RHI/API/RZCommandPool.h"
-#include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
-#include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
-#include "Razix/Gfx/RHI/API/RZPipeline.h"
-#include "Razix/Gfx/RHI/API/RZSampler.h"
-#include "Razix/Gfx/RHI/API/RZShader.h"
-#include "Razix/Gfx/RHI/API/RZTexture.h"
-#include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
-#include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
-
 #include "Razix/Utilities/RZStringUtilities.h"
 
 #define CREATE_UTIL(type, pool)                                       \

@@ -119,9 +119,9 @@ namespace Razix {
 
         struct LightProbe
         {
-            RZTextureHandle skybox;
-            RZTextureHandle diffuse;
-            RZTextureHandle specular;
+            rz_texture_handle skybox;
+            rz_texture_handle diffuse;
+            rz_texture_handle specular;
         };
 
         struct GlobalLightProbeData

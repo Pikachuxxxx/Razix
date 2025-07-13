@@ -5,6 +5,7 @@
 namespace Razix {
     namespace Gfx {
 
+#if 0
         class RZHelloTriangleTestPass final : public IRZPass
         {
         public:
@@ -15,5 +16,6 @@ namespace Razix {
             RZPipelineHandle m_Pipeline;
             RZShaderHandle   m_Shader;
         };
+#endif
     }    // namespace Gfx
 }    // namespace Razix

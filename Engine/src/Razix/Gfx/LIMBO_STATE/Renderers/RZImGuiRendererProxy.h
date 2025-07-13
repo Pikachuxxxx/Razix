@@ -48,7 +48,7 @@ namespace Razix {
 
         private:
             RZDescriptorSetHandle m_FontAtlasDescriptorSet = {};
-            RZTextureHandle       m_FontAtlasTexture       = {};
+            rz_texture_handle       m_FontAtlasTexture       = {};
             RZVertexBufferHandle  m_ImGuiVBO               = {};
             RZIndexBufferHandle   m_ImGuiIBO               = {};
             RZShaderHandle        m_ImGuiShader            = {};

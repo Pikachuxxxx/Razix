@@ -9,6 +9,9 @@
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Events/RZKeyEvent.h"
 #include "Razix/Events/RZMouseEvent.h"
+
+#include "Razix/Gfx/RHI/RHI.h"
+
 #include "Razix/Utilities/RZLoadImage.h"
 
 #if defined RAZIX_RENDER_API_OPENGL || RAZIX_RENDER_API_VULKAN
@@ -17,8 +20,6 @@
     #include <GLFW/glfw3.h>
 // clang-format on
 #endif
-
-#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
 
 namespace Razix {
     static bool sGLFWInitialized = false;
@@ -132,19 +133,8 @@ namespace Razix {
             sGLFWInitialized = true;
         }
 
-#ifdef RAZIX_RENDER_API_OPENGL
-        if (Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::OPENGL) {
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    #ifdef __APPLE__
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
-    #endif
-        }
-#endif
-
 #if defined RAZIX_RENDER_API_VULKAN || defined RAZIX_RENDER_API_DIRECTX12
-        if (Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::VULKAN || Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::D3D12) {
+        if (rzGfxCtx_GetRenderAPI() == RZ_RENDER_API_VULKAN || rzGfxCtx_GetRenderAPI() == RZ_RENDER_API_D3D12) {
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
             glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         }

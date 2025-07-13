@@ -98,12 +98,12 @@ namespace Razix {
             // Frees memory for all resources held by this allocator from ResourceManager
             void destroy();
 
-            RZTextureHandle       acquireTransientTexture(const RZTextureDesc& desc, u32 id);
-            void                  releaseTransientTexture(RZTextureHandle handle, u32 id);
-            RZUniformBufferHandle acquireTransientBuffer(const RZBufferDesc& desc, u32 id);
-            void                  releaseTransientBuffer(RZUniformBufferHandle handle, u32 id);
-            RZSamplerHandle       acquireTransientSampler(const RZSamplerDesc& desc, u32 id);
-            void                  releaseTransientSampler(RZSamplerHandle handle, u32 id);
+            //rz_texture_handle       acquireTransientTexture(const RZTextureDesc& desc, u32 id);
+            //void                  releaseTransientTexture(rz_texture_handle handle, u32 id);
+            //RZUniformBufferHandle acquireTransientBuffer(const RZBufferDesc& desc, u32 id);
+            //void                  releaseTransientBuffer(RZUniformBufferHandle handle, u32 id);
+            //RZSamplerHandle       acquireTransientSampler(const RZSamplerDesc& desc, u32 id);
+            //void                  releaseTransientSampler(RZSamplerHandle handle, u32 id);
 
             inline void                registerLifetime(const RZResourceLifetime& lifetime) { m_RegisteredLifetimes.push_back(lifetime); }
             inline const AliasingBook& getAliasBook() const { return m_AliasingBook; }
@@ -111,9 +111,9 @@ namespace Razix {
         private:
             AliasingBook                                   m_AliasingBook;
             std::vector<RZResourceLifetime>                m_RegisteredLifetimes;
-            std::unordered_map<u32, RZTextureHandle>       m_TextureCache;
-            std::unordered_map<u32, RZUniformBufferHandle> m_BufferCache;
-            std::unordered_map<u32, RZSamplerHandle>       m_SamplerCache;
+            //std::unordered_map<u32, rz_texture_handle>       m_TextureCache;
+            //std::unordered_map<u32, RZUniformBufferHandle> m_BufferCache;
+            //std::unordered_map<u32, RZSamplerHandle>       m_SamplerCache;
             const Gfx::RZFrameGraph&                       m_FrameGraph;
         };
 

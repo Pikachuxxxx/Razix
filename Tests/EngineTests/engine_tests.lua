@@ -127,6 +127,12 @@ project "EngineTests"
             "4996"
         }
 
+        includedirs
+        {
+            VulkanSDK .. "/include",
+            "%{wks.location}/../Engine/vendor/winpix/Include/WinPixEventRuntime"
+        }
+
     filter "system:macosx"
         cppdialect "C++17"
         staticruntime "off"

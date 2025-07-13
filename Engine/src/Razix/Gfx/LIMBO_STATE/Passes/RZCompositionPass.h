@@ -25,7 +25,7 @@ namespace Razix {
 
         private:
             RZPipelineHandle m_Pipeline;
-            RZTextureHandle  m_AppleNeedsADepthTexture;
+            rz_texture_handle  m_AppleNeedsADepthTexture;
         };
     }    // namespace Gfx
 }    // namespace Razix

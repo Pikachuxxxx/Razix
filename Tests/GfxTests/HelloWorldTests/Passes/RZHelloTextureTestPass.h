@@ -12,7 +12,7 @@ namespace Razix {
             void destroy() override;
 
         private:
-            RZTextureHandle  m_TestTextureHandle;
+            rz_texture_handle  m_TestTextureHandle;
             RZShaderHandle   m_Shader;
             RZPipelineHandle m_Pipeline;
         };

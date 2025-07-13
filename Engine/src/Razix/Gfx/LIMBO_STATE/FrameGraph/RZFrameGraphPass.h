@@ -79,8 +79,8 @@ namespace Razix {
 
         struct FrameGraphDataPassDesc
         {
-            Gfx::RZShaderHandle          shader;
-            Gfx::RZPipelineHandle        pipeline;
+            //Gfx::RZShaderHandle          shader;
+            //Gfx::RZPipelineHandle        pipeline;
             Razix::SceneDrawGeometryMode geometryMode;
             Resolution                   resolution;
             float2                       extent;

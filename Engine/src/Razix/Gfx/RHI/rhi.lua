@@ -5,7 +5,7 @@ include 'Scripts/premake/common/common_include_dirs.lua'
 ------------------------------------------------------------------------------
 -- Sanbox Game project
 project "RHI"
-    kind "SharedLib"
+    kind "StaticLib"
     language "C"
 
     -- RHI source files
@@ -47,6 +47,11 @@ project "RHI"
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
         "%{ExperimentalIncludeDir.Eigen}",
+    }
+
+    defines
+    {
+        "RAZIX_EXPORT_SYMBOLS"
     }
 
     filter "system:windows"
@@ -101,10 +106,13 @@ project "RHI"
             "%{wks.location}/../Engine/vendor/dxc/lib/x64",
         }
 
+        linkoptions {
+            "/IGNORE:4006"
+        }
+
         -- Windows specific linkage libraries (DirectX inlcude and library paths are implicityly added by Visual Studio, hence we need not add anything explicityly)
         links
         {
-            "Dbghelp",
             -- Render API
             "vulkan-1",
             "d3d11",
@@ -115,7 +123,7 @@ project "RHI"
             "dxcompiler"
         }
 
-        disablewarnings { 4307, 4267, 4275, 4554, 4996 }
+        disablewarnings { 4307, 4267, 4275, 4554, 4996, 4006 }
         
     filter "system:macosx"
         staticruntime "off"

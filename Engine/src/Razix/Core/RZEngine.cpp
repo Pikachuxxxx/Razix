@@ -5,7 +5,9 @@
 
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 #include "Razix/Core/Version/RazixVersion.h"
-#include "Razix/Gfx/Materials/RZMaterial.h"
+#include "Razix/Core/Memory/RZMemoryBudgets.h"
+
+//#include "Razix/Gfx/Materials/RZMaterial.h"
 
 #include "Razix/Core/Memory/RZCPUMemoryManager.h"
 
@@ -88,7 +90,7 @@ namespace Razix {
         RAZIX_CORE_INFO("***********************************");
 
         // Ignite the shader library after the Graphics has been initialized (Shutdown by RHI when being destroyed)
-        Gfx::RZShaderLibrary::Get().StartUp();
+        //Gfx::RZShaderLibrary::Get().StartUp();
     }
 
     void RZEngine::ShutDown()

@@ -4,17 +4,19 @@
 
 #include "RZEngineRuntimeTools.h"
 
-#include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/RZEngine.h"
+#if 0
+    #include "Razix/Core/App/RZApplication.h"
+    #include "Razix/Core/RZEngine.h"
 
-#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
+//#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
-#include "Razix/Utilities/RZColorUtilities.h"
-#include "Razix/Utilities/RZStringUtilities.h"
+    #include "Razix/Utilities/RZColorUtilities.h"
+    #include "Razix/Utilities/RZStringUtilities.h"
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui/imgui.h>
-#include <imgui/plugins/IconsFontAwesome5.h>
+    #define IMGUI_DEFINE_MATH_OPERATORS
+    #include <imgui/imgui.h>
+    #include <imgui/plugins/IconsFontAwesome5.h>
+
 
 namespace Razix {
     namespace Tools {
@@ -338,13 +340,13 @@ namespace Razix {
 
                     const Gfx::RZResourceEntry& resEntry = frameGraph.getResourceEntry(resEntryID);
 
-#ifdef FG_USE_FINE_GRAINED_LIFETIMES
+    #ifdef FG_USE_FINE_GRAINED_LIFETIMES
                     const auto& lifetimes = resEntry.getLifetimes();
 
                     for (auto& lifetime: lifetimes) {
                         DrawLifetimeCellFromPassRange(origin, lifetime.StartPassID, lifetime.EndPassID - lifetime.StartPassID + 1, (ry + 2) * FrameGraphStyle::CellSize, lifetime);
                     }
-#else
+    #else
                     Razix::Gfx::RZResourceLifetime lifetime = {};
                     lifetime                                = resEntry.getCoarseLifetime();
 
@@ -358,7 +360,7 @@ namespace Razix {
 
                     u32 groupID = frameGraph.getAliasBook().getGroupIDForResource(resEntryID);
                     DrawLifetimeCellFromPassRange(origin, lifetime.StartPassID, lifetime.EndPassID - lifetime.StartPassID + 1, (ry + 2) * FrameGraphStyle::CellSize, lifetime, groupID);
-#endif
+    #endif
 
                     ImVec2 mouse = ImGui::GetMousePos();
                     if (mouse.x >= row_p0.x && mouse.x <= row_p1.x && mouse.y >= row_p0.y && mouse.y <= row_p1.y) {
@@ -446,3 +448,4 @@ namespace Razix {
         }
     }    // namespace Tools
 }    // namespace Razix
+#endif

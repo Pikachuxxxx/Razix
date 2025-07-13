@@ -69,13 +69,13 @@ namespace Razix {
         /* lighting model textures */
         struct MaterialTextures
         {
-            RZTextureHandle albedo;
-            RZTextureHandle normal;
-            RZTextureHandle metallic;
-            RZTextureHandle roughness;
-            RZTextureHandle specular;
-            RZTextureHandle emissive;
-            RZTextureHandle ao;
+            rz_texture_handle albedo;
+            rz_texture_handle normal;
+            rz_texture_handle metallic;
+            rz_texture_handle roughness;
+            rz_texture_handle specular;
+            rz_texture_handle emissive;
+            rz_texture_handle ao;
 
             void Destroy();
         };

@@ -7,8 +7,8 @@ namespace Razix {
             typedef RZBufferDesc Desc;
 
             RZFrameGraphBuffer() = default;
-            RZFrameGraphBuffer(Gfx::RZUniformBufferHandle handle)
-                : m_BufferHandle(handle) {}
+            //RZFrameGraphBuffer(Gfx::RZUniformBufferHandle handle)
+                //: m_BufferHandle(handle) {}
 
             void create(const Desc& desc, u32 id, const void* transientAllocator);
             void destroy(u32 id, const void* transientAllocator);
@@ -18,12 +18,12 @@ namespace Razix {
 
             static std::string toString(const Desc& desc);
 
-            Gfx::RZUniformBufferHandle getHandle() const { return m_BufferHandle; }
+            //Gfx::RZUniformBufferHandle getHandle() const { return m_BufferHandle; }
 
         private:
-            Gfx::RZUniformBufferHandle m_BufferHandle;
-            Gfx::BufferBarrierType     m_LastReadBarrier;
-            Gfx::BufferBarrierType     m_LastWriteBarrier;
+            //Gfx::RZUniformBufferHandle m_BufferHandle;
+            //Gfx::BufferBarrierType     m_LastReadBarrier;
+            //Gfx::BufferBarrierType     m_LastWriteBarrier;
         };
     }    // namespace Gfx
 }    // namespace Razix
