@@ -146,3 +146,89 @@ namespace Razix {
         }
     }    // namespace Debug
 }    // namespace Razix
+
+#define LOG_BUFFER_SIZE 2048
+
+static void FormatLogAndSend(const std::shared_ptr<spdlog::logger>& logger,
+    spdlog::level::level_enum                                       level,
+    const char*                                                     fmt,
+    va_list                                                         args)
+{
+    char buffer[LOG_BUFFER_SIZE];
+    vsnprintf(buffer, LOG_BUFFER_SIZE, fmt, args);
+
+    switch (level) {
+        case spdlog::level::trace: logger->trace(buffer); break;
+        case spdlog::level::info: logger->info(buffer); break;
+        case spdlog::level::warn: logger->warn(buffer); break;
+        case spdlog::level::err: logger->error(buffer); break;
+        default: break;
+    }
+}
+
+extern "C"
+{
+    void RZLog_CoreLog_Trace(const char* fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        FormatLogAndSend(Razix::Debug::RZLog::GetCoreLogger(), spdlog::level::trace, fmt, args);
+        va_end(args);
+    }
+
+    void RZLog_CoreLog_Info(const char* fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        FormatLogAndSend(Razix::Debug::RZLog::GetCoreLogger(), spdlog::level::info, fmt, args);
+        va_end(args);
+    }
+
+    void RZLog_CoreLog_Warn(const char* fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        FormatLogAndSend(Razix::Debug::RZLog::GetCoreLogger(), spdlog::level::warn, fmt, args);
+        va_end(args);
+    }
+
+    void RZLog_CoreLog_Error(const char* fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        FormatLogAndSend(Razix::Debug::RZLog::GetCoreLogger(), spdlog::level::err, fmt, args);
+        va_end(args);
+    }
+
+    void RZLog_AppLog_Trace(const char* fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        FormatLogAndSend(Razix::Debug::RZLog::GetApplicationLogger(), spdlog::level::trace, fmt, args);
+        va_end(args);
+    }
+
+    void RZLog_AppLog_Info(const char* fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        FormatLogAndSend(Razix::Debug::RZLog::GetApplicationLogger(), spdlog::level::info, fmt, args);
+        va_end(args);
+    }
+
+    void RZLog_AppLog_Warn(const char* fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        FormatLogAndSend(Razix::Debug::RZLog::GetApplicationLogger(), spdlog::level::warn, fmt, args);
+        va_end(args);
+    }
+
+    void RZLog_AppLog_Error(const char* fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        FormatLogAndSend(Razix::Debug::RZLog::GetApplicationLogger(), spdlog::level::err, fmt, args);
+        va_end(args);
+    }
+}

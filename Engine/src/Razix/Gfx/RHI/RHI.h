@@ -1,150 +1,198 @@
-#pragma once
+#ifndef RHI_H
+#define RHI_H
 
-#include "Razix/Core/RZSTL/ring_buffer.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <time.h>
 
-#include "Razix/Core/Profiling/RZProfiling.h"
+#ifdef RAZIX_RENDER_API_DIRECTX12
+    #include "Razix/Gfx/RHI/Backend/dx12_rhi.h"
+#endif
 
-#include "Razix/Gfx/GfxData.h"
+#ifdef RAZIX_RENDER_API_VULKAN
+    #include "Razix/Gfx/RHI/Backend/vk_rhi.h"
+#endif
 
-namespace Razix {
-    namespace Gfx {
+#ifdef __cplusplus
+extern "C"
+{
+#endif    // __cplusplus
 
-        class RZDrawCommandBuffer;
-        class RZPipeline;
-        class RZDescriptorSet;
-        class RZSwapchain;
-        class RZDescriptorSet;
-        class RZSemaphore;
-        struct RZPushConstant;
+// ANSI color codes
+#define ANSI_COLOR_RESET  "\x1b[0m"
+#define ANSI_COLOR_RED    "\x1b[31m"
+#define ANSI_COLOR_YELLOW "\x1b[33m"
+#define ANSI_COLOR_GREEN  "\x1b[32m"
+#define ANSI_COLOR_CYAN   "\x1b[36m"
+#define ANSI_COLOR_GRAY   "\x1b[90m"
 
-        // TODO: Compile this into a C dynamic library that Razix.dll links with
-        // TODO: Move Platform/API/Vulkan and DirectX12 to here and use dispatch tables to load the RHI.dll dynamically, RHI is part of engine and the implementation DLLs can be hot swapped
-        // we can separate RHI_entry.dll and load the RHI_vk/RHI_dx12/RHI_shipping_backend.dll as needed but It's fine if the engine has some interface like RHI dispatch table.
-        // More Info on design: https://github.com/Pikachuxxxx/Razix/issues/384
+    static inline const char* _rhi_log_timestamp()
+    {
+        static char buffer[64];
+        time_t      now = time(NULL);
+        struct tm   tm;
 
-        /* The Razix RHI (Render Hardware Interface) provides a interface and a set of common methods that abstracts over other APIs rendering implementation
-         * The Renderers creates from the provided IRZRenderer interface of Razix uses this to perform command recording/submission sets binding
-         * and other operations that doesn't require the underlying API, since renderers do not actually need that we use this high-level abstraction
-         * over the supported APIs to make things look simple and easier to interact with
-         */
-        class RAZIX_API RHI
+#ifdef _WIN32
+        localtime_s(&tm, &now);
+#else
+    localtime_r(&now, &tm);
+#endif
+        strftime(buffer, sizeof(buffer), "%H:%M:%S", &tm);
+        return buffer;
+    }
+
+#ifdef RAZIX_GOLD_MASTER
+    #define RAZIX_RHI_LOG_INFO(...)
+    #define RAZIX_RHI_LOG_WARN(...)
+    #define RAZIX_RHI_LOG_ERROR(...)
+    #define RAZIX_RHI_LOG_TRACE(...)
+#else
+
+    #define RAZIX_RHI_LOG_INFO(fmt, ...) \
+        printf(ANSI_COLOR_GREEN "[%s] [RHI/INFO]  " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+
+    #define RAZIX_RHI_LOG_WARN(fmt, ...) \
+        printf(ANSI_COLOR_YELLOW "[%s] [RHI/WARN]  " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+
+    #define RAZIX_RHI_LOG_ERROR(fmt, ...) \
+        printf(ANSI_COLOR_RED "[%s] [RHI/ERROR] " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+
+    #define RAZIX_RHI_LOG_TRACE(fmt, ...) \
+        printf(ANSI_COLOR_CYAN "[%s] [RHI/TRACE] " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+#endif    // RAZIX_GOLD_MASTER
+
+/****************************************************************************************************
+*                                         Graphics Settings                                        *
+****************************************************************************************************/
+
+/* Triple buffering is enabled by default */
+#define RAZIX_ENABLE_TRIPLE_BUFFERING
+/* The total number of images that the swapchain can render/present to, by default we use triple buffering, defaults to d32 buffering if disabled */
+#ifdef RAZIX_ENABLE_TRIPLE_BUFFERING
+    /* Frames in FLight defines the number of frames that will be rendered to while another frame is being presented (used for triple buffering)*/
+    #define RAZIX_MAX_FRAMES_IN_FLIGHT  3
+    #define RAZIX_MAX_SWAP_IMAGES_COUNT 3
+    #define RAZIX_MAX_FRAMES            RAZIX_MAX_SWAP_IMAGES_COUNT
+#elif
+    #define RAZIX_MAX_SWAP_IMAGES_COUNT 2
+#endif
+
+/* Whether or not to use VMA as memory backend */
+#ifdef RAZIX_PLATFORM_WINDOWS
+    #define RAZIX_USE_VMA 1
+#elif RAZIX_PLATFORM_MACOS
+    #define RAZIX_USE_VMA 0    // Still porting WIP, so disabled idk if the SDK has it
+#endif
+
+/* Total No.Of Render Targets = typically a Max of 8 (as supported by most APIs) */
+#define RAZIX_MAX_RENDER_TARGETS 8
+
+/* Size of indices in Razix Engine, change here for global configuration */
+#define RAZIX_INDICES_SIZE         sizeof(u32)    // we use 32-bit indices for now
+#define RAZIX_INDICES_FORMAT       R32_UINT
+#define RAZIX_INDICES_FORMAT_VK    VK_INDEX_TYPE_UINT32
+#define RAZIX_INDICES_FORMAT_D3D12 DXGI_FORMAT_R32_UINT
+#define RAZIX_INDICES_FORMAT_AGC   sce::Agc::IndexSize::k32
+
+    //---------------------------------------------------------------------------------------------
+    // GFX/RHI types
+
+    typedef enum rz_render_api
+    {
+        RZ_RENDER_API_NONE = -1,
+        RZ_RENDER_API_VULKAN,    // MacOS/Linux
+        RZ_RENDER_API_D3D12,     // [WIP] // PC & XBOX
+        RZ_RENDER_API_GXM,       // Not Supported yet! (PSVita)
+        RZ_RENDER_API_GCM,       // Not Supported yet! (PS3)
+        RZ_RENDER_API_AGC,       // Not Supported yet! (PlayStation 5)
+    } rz_render_api;
+
+    typedef uint64_t rz_gfx_timestamp;
+
+    typedef struct rz_gfx_syncobj
+    {
+        rz_gfx_timestamp waitTimestamp;
+#ifdef RAZIX_RENDER_API_VULKAN
+            //vk_gfx_ctx vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            //dx12_gfx_synocobj dx12;
+#endif
+    } rz_gfx_syncobj;
+
+    typedef struct rz_gfx_swapchain
+    {
+        uint32_t width;
+        uint32_t height;
+        uint32_t imageCount;
+        uint32_t currBackBufferIdx;
+#ifdef RAZIX_RENDER_API_VULKAN
+            //vk_gfx_swapchain vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            //dx12_gfx_swapchain dx12;
+#endif
+    } rz_gfx_swapchain;
+
+    typedef struct rz_gfx_context
+    {
+        uint32_t      width;
+        uint32_t      height;
+        uint32_t      frameIndex;
+        rz_render_api renderAPI;
+        // All global submission queues are managed within the internal contexts
+        union
         {
-        public:
-            RHI()          = default;
-            virtual ~RHI() = default;
-
-            // Lifecycle Management
-            static void Create(u32 width, u32 height);
-            static void Destroy();
-
-            static RHI&       Get();
-            static const RHI* GetPointer();
-
-            static void Init();
-            static void OnResize(u32 width, u32 height);
-
-            // Debug Flush Test
-            static void FlushPendingWork();
-
-            // Command Recording & Submission
-            static void
-                        AcquireImage(RZSemaphore* signalSemaphore);
-            static void Begin(RZDrawCommandBufferHandle cmdBuffer);
-            static void Submit(RZDrawCommandBufferHandle cmdBuffer);
-            static void Present(RZSemaphore* waitSemaphore);
-
-            // Binding
-            static void BindPipeline(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer);
-            static void BindDescriptorSet(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZDescriptorSetHandle descriptorSet, u32 setIdx);
-            static void BindUserDescriptorSets(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSetHandle>& descriptorSets, u32 startSetIdx = 0);
-            static void BindPushConstant(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant);
-            static void EnableBindlessTextures(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer);
-
-            // Draws & Dispatches
-            static void Draw(RZDrawCommandBufferHandle cmdBuffer, u32 count, DrawDataType dataType = DrawDataType::UNSIGNED_INT);
-            static void DrawIndexed(RZDrawCommandBufferHandle cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0);
-            // TODO: Use AsyncCommandBufferHandle
-            static void Dispatch(RZDrawCommandBufferHandle cmdBuffer, u32 groupX, u32 groupY, u32 groupZ);
-
-            // Render Pass
-            static void BeginRendering(RZDrawCommandBufferHandle cmdBuffer, const RenderingInfo& renderingInfo);
-            static void EndRendering(RZDrawCommandBufferHandle cmdBuffer);
-
-            // Memory Barriers
-            static void InsertImageMemoryBarrier(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, ImageLayout oldLayout, ImageLayout newLayout);
-            static void InsertBufferMemoryBarrier(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, BufferBarrierType barrierType);
-
-            // Resource Management
-            static void            CopyTextureResource(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle);
-            static TextureReadback InsertTextureReadback(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture);
-
-            // Pipeline
-            static void SetDepthBias(RZDrawCommandBufferHandle cmdBuffer);
-            static void SetViewport(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height);
-            static void SetScissorRect(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height);
-
-            // Misc
-            // FIXME: Don't expose this at all, write simple wrappers, we hardly need the current image index or the swap image RTV
-            static RZSwapchain* GetSwapchain();
-            /* Returns the current draw command buffer to record onto from a ring buffer */
-            static RZDrawCommandBufferHandle GetCurrentCommandBuffer();
-
-            // TODO: Move this to Diana or RZScene
-            inline RZDescriptorSetHandle       getFrameDataSet() const { return m_FrameDataSet; }
-            inline void                        setFrameDataSet(RZDescriptorSetHandle set) { m_FrameDataSet = set; }
-            inline const RZDescriptorSetHandle getSceneLightsDataSet() const { return m_SceneLightsDataSet; }
-            inline void                        setSceneLightsDataSet(RZDescriptorSetHandle set) { m_SceneLightsDataSet = set; }
-            inline const u32&                  getWidth() { return m_Width; }
-            inline const u32&                  getHeight() { return m_Height; }
-
-            virtual void OnImGui() = 0;
-
-        protected:
-            virtual void            InitAPIImpl()                                                                                                                                                           = 0;
-            virtual void            AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                                       = 0;
-            virtual void            BeginAPIImpl(RZDrawCommandBufferHandle cmdBuffer)                                                                                                                       = 0;
-            virtual void            SubmitImpl(RZDrawCommandBufferHandle cmdBuffer)                                                                                                                         = 0;
-            virtual void            PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                              = 0;
-            virtual void            BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)                                                                                        = 0;
-            virtual void            BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZDescriptorSetHandle descriptorSet, u32 setIdx)                                = 0;
-            virtual void            BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSetHandle>& descriptorSets, u32 startSetIdx) = 0;
-            virtual void            BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant)                                                   = 0;
-            virtual void            DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DrawDataType datayType = DrawDataType::UNSIGNED_INT)                                                        = 0;
-            virtual void            DrawIndexedAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0)     = 0;
-            virtual void            DispatchAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 groupX, u32 groupY, u32 groupZ)                                                                                = 0;
-            virtual void            DestroyAPIImpl()                                                                                                                                                        = 0;
-            virtual void            OnResizeAPIImpl(u32 width, u32 height)                                                                                                                                  = 0;
-            virtual void            SetDepthBiasImpl(RZDrawCommandBufferHandle cmdBuffer)                                                                                                                   = 0;
-            virtual void            SetScissorRectImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                    = 0;
-            virtual void            SetViewportImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                       = 0;
-            virtual void            EnableBindlessTexturesImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)                                                                              = 0;
-            virtual void            BindPushDescriptorsImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptor>& descriptors)                                   = 0;
-            virtual void            BeginRenderingImpl(RZDrawCommandBufferHandle cmdBuffer, const RenderingInfo& renderingInfo)                                                                             = 0;
-            virtual void            EndRenderingImpl(RZDrawCommandBufferHandle cmdBuffer)                                                                                                                   = 0;
-            virtual void            InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, ImageLayout oldLayout, ImageLayout newLayout)                                = 0;
-            virtual void            InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, BufferBarrierType barrierType)                                         = 0;
-            virtual void            CopyTextureResourceImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)                                              = 0;
-            virtual TextureReadback InsertTextureReadbackImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture)                                                                                 = 0;
-            virtual void            FlushPendingWorkImpl()                                                                                                                                                  = 0;
-            virtual RZSwapchain*    GetSwapchainImpl()                                                                                                                                                      = 0;
-
-        protected:
-            static RHI* s_APIInstance;
-
-            std::string  m_RendererTitle; /* The name of the renderer API that is being used */
-            u32          m_Width      = 0;
-            u32          m_Height     = 0;
-            u32          m_PrevWidth  = 0;
-            u32          m_PrevHeight = 0;
-            CommandQueue m_GraphicsCommandQueue; /* The queue of recorded commands that needs execution */
-            // TODO: Move all these to Diana, these setups are internally customized by the high-level renderer, only util functions exist here no low-level logic must exist
-
-            RZDrawCommandBufferHandle              m_CurrentCommandBuffer;
-            std::vector<RZDrawCommandBufferHandle> m_DrawCommandBuffers;
-            std::vector<RZCommandPoolHandle>       m_GraphicsCommandPool;
-            std::vector<RZCommandPoolHandle>       m_ComputeCommandPool;
-            RZDescriptorSetHandle                  m_FrameDataSet       = {};
-            RZDescriptorSetHandle                  m_SceneLightsDataSet = {};
+#ifdef RAZIX_RENDER_API_VULKAN
+            vk_gfx_ctx vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            dx12_gfx_ctx dx12;
+#endif
         };
-    }    // namespace Gfx
-}    // namespace Razix
+
+    } rz_gfx_context;
+
+    //---------------------------------------------------------------------------------------------
+    // Gfx API
+
+    void rzGfxCtx_StartUp();
+    void rzGfxCtx_ShutDown();
+
+    rz_render_api rzGfxCtx_GetRenderAPI();
+    void          rzGfxCtx_SetRenderAPI(rz_render_api api);
+
+    //---------------------------------------------------------------------------------------------
+    // RHI Jump Table
+
+    /**
+     * Rendering API initialization like Instance, Device Creation etc. will happen here! one master place to start it all up!
+     */
+    typedef void (*rzRHI_GlobalCtxInitFn)(void);
+
+    /**
+     * RHI API
+     */
+    typedef void (*rzRHI_AcquireImageFn)(rz_gfx_syncobj*);
+
+    typedef struct
+    {
+        rzRHI_GlobalCtxInitFn GlobalCtxInit;
+        rzRHI_AcquireImageFn  AcquireImage;
+    } rz_rhi_api;
+
+    //---------------------------------------------------------------------------------------------
+    // Globals
+    //---------------------------------
+    extern rz_gfx_context g_GfxCtx;    // Global Graphics Context singleton instance
+    //---------------------------------
+    extern rz_render_api g_RenderAPI;
+    //---------------------------------
+    extern rz_rhi_api g_RHI;
+
+    void rzGfxCtx_GlobalCtxInit();
+
+#ifdef __cplusplus
+}
+#endif    // __cplusplus
+#endif    // RHI_H

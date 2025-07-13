@@ -4,29 +4,18 @@ include 'Scripts/premake/common/vendor_includes.lua'
 include 'Scripts/premake/common/common_include_dirs.lua'
 ------------------------------------------------------------------------------
 -- Sanbox Game project
-project "Sandbox"
-    -- TODO: Make this Windowed app only for Dist/NVIM builds
-    kind "WindowedApp"
-    language "C++"
+project "RHI"
+    kind "SharedLib"
+    language "C"
 
-    buildoptions
-    {
-        -- Remove STL 
-        --"-nostdlib"
-    }
-
-    -- Game source files
+    -- RHI source files
     files
     {
-        "src/**.h",
-        "src/**.cpp",
-        -- Assets files for editing in VS
-        "Assets/Scripts/**.lua",
-        "*.razixproject",
-        "*Assets/Scenes/**.rzscn"
+        "**.h",
+        "**.c",
     }
 
-    -- Macos include paths
+    -- include paths
     externalincludedirs
     {
         "../Engine/src/Razix",
@@ -60,36 +49,6 @@ project "Sandbox"
         "%{ExperimentalIncludeDir.Eigen}",
     }
 
-   -- Razix Application linkage libraries
-   -- vendors (Tf am I linking these)
-   links
-   {
-       "Razix", -- Razix DLL
-        -- because of the client log macros this needs to be linked again because we didn't export the spdlog symbols first time
-       "glfw",
-       "imgui",
-       "spdlog",
-       "SPIRVReflect",
-       "SPIRVCross",
-       "lua",
-       "optick",
-       "Jolt",
-       --"tracy",
-   }
-
-   defines
-   {
-       --"SPDLOG_COMPILED_LIB"
-   }
-
-   filter { "files:**.lua or *.razixproject or **.rzscn"}
-        flags { "ExcludeFromBuild"}
-
-
-   -- Disable warning for vendor
-   filter { "files:vendor/**"}
-       warnings "Off"
-
     filter "system:windows"
         cppdialect (engine_global_config.cpp_dialect)
         staticruntime "off"
@@ -101,13 +60,6 @@ project "Sandbox"
         buildoptions
         {
             "/MP", "/bigobj"
-        }
-
-        -- Windows specific incldue directories
-        includedirs
-        {
-            VulkanSDK .. "/include",
-            "%{wks.location}/../Engine/vendor/winpix/Include/WinPixEventRuntime"
         }
 
         linkoptions
@@ -134,10 +86,38 @@ project "Sandbox"
             "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING"
         }
 
+        -- Windows specific incldue directories
+        includedirs
+        {
+            VulkanSDK .. "/include",
+            "%{wks.location}/../Engine/vendor/winpix/Include/WinPixEventRuntime"
+        }
+
+        -- Windows specific library directories
+        libdirs
+        {
+            VulkanSDK .. "/Lib",
+            "%{wks.location}/../Engine/vendor/winpix/bin/x64",
+            "%{wks.location}/../Engine/vendor/dxc/lib/x64",
+        }
+
+        -- Windows specific linkage libraries (DirectX inlcude and library paths are implicityly added by Visual Studio, hence we need not add anything explicityly)
+        links
+        {
+            "Dbghelp",
+            -- Render API
+            "vulkan-1",
+            "d3d11",
+            "d3d12",
+            "dxgi",
+            "dxguid",
+            "D3DCompiler",
+            "dxcompiler"
+        }
+
         disablewarnings { 4307, 4267, 4275, 4554, 4996 }
         
     filter "system:macosx"
-        cppdialect "C++17"
         staticruntime "off"
         systemversion "14.0" 
 
@@ -149,7 +129,6 @@ project "Sandbox"
         }
 
         embed {
-            "libRazix.dylib",
             "libvulkan.1.dylib"
         }
 
@@ -188,78 +167,6 @@ project "Sandbox"
             '{COPY}  "%{VulkanSDK}/lib/libvulkan.dylib" "%{cfg.buildtarget.bundlepath}/libvulkan.dylib"',
             '{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.buildtarget.bundlepath}/libvulkan.1.dylib"',
             '{COPY}  "%{wks.location}/../bin/%{outputdir}/libRazix.dylib" "%{cfg.buildtarget.bundlepath}/libRazix.dylib"'
-            --'install_name_tool -add_rpath "@executable_path/libRazix.dylib" "%{cfg.buildtarget.bundlepath}/Sandbox"'
-        }
-
-    filter "system:ios"
-        targetextension ".app"
-        
-        defines
-        {
-            -- Engine
-            "RAZIX_PLATFORM_IOS",
-            "RAZIX_PLATFORM_UNIX",
-            "RAZIX_IMGUI",
-            -- API
-            "RAZIX_RENDER_API_VULKAN",
-            "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE"
-        }
-
-        linkoptions { "-rpath @executable_path/libRazix.dylib" }
-
-            -- Windows specific incldue directories
-        includedirs
-        {
-            VulkanSDK .. "/include"
-        }
-        
-        externalincludedirs
-        {
-            VulkanSDK .. "/include",
-            "./",
-            "../"
-        }
-
-        libdirs
-        {
-            VulkanSDK .. "/lib"
-        }
-
-        -- Windows specific linkage libraries (DirectX inlcude and library paths are implicityly added by Visual Studio, hence we need not add anything explicityly)
-        links
-        {
-            -- Render API
-            "vulkan",
-            "IOKit.framework",
-            "CoreFoundation.framework",
-            "CoreVideo.framework",
-            "CoreGraphics.framework",
-            "AppKit.framework",
-            "SystemConfiguration.framework"
-        }
-        
-        -- Apple Clang compiler options
-        buildoptions
-        {
-            "-Wno-error=switch-enum",
-            "-Wno-switch", "-Wno-switch-enum"
-        }
-
-        xcodebuildresources { "IconAssets.xcassets", "libMoltenVK.dylib" }
-
-		xcodebuildsettings
-		{
-			['CODE_SIGN_IDENTITY'] = 'Mac Developer',
-            ['PRODUCT_BUNDLE_IDENTIFIER'] = settings.bundle_identifier,
-			['INFOPLIST_FILE'] = '../Engine/src/Razix/Platform/iOS/Info.plist',
-			['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon',
-			['CODE_SIGN_IDENTITY'] = ''
-        }
-
-        files 
-        {
-            "%{wks.location}/../Engine/src/Razix/Platform/iOS/IconAssets.xcassets"
         }
 
     filter "configurations:Debug"

@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Razix/Core/RZCore.h"
-#include <spdlog/logger.h>
+#ifdef __cplusplus
+
+    #include "Razix/Core/RZCore.h"
+    #include <spdlog/logger.h>
 
 namespace Razix {
     namespace Debug {
@@ -37,20 +39,40 @@ namespace Razix {
     }    // namespace Debug
 }    // namespace Razix
 
+#endif    // __cplusplus
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+    void RZLog_CoreLog_Trace(const char* fmt, ...);
+    void RZLog_CoreLog_Info(const char* fmt, ...);
+    void RZLog_CoreLog_Warn(const char* fmt, ...);
+    void RZLog_CoreLog_Error(const char* fmt, ...);
+    void RZLog_AppLog_Trace(const char* fmt, ...);
+    void RZLog_AppLog_Info(const char* fmt, ...);
+    void RZLog_AppLog_Warn(const char* fmt, ...);
+    void RZLog_AppLog_Error(const char* fmt, ...);
+
+#ifdef __cplusplus
+}
+#endif
+
 // Strip out the logging system in the distribution build
 #ifndef RAZIX_GOLD_MASTER
 
     // Core Engine Logging
-    #define RAZIX_CORE_TRACE(...) ::Razix::Debug::RZLog::GetCoreLogger()->trace(__VA_ARGS__)
-    #define RAZIX_CORE_INFO(...)  ::Razix::Debug::RZLog::GetCoreLogger()->info(__VA_ARGS__)
-    #define RAZIX_CORE_WARN(...)  ::Razix::Debug::RZLog::GetCoreLogger()->warn(__VA_ARGS__)
-    #define RAZIX_CORE_ERROR(...) ::Razix::Debug::RZLog::GetCoreLogger()->error(__VA_ARGS__)
+    #define RAZIX_CORE_TRACE(...) RZLog_CoreLog_Trace(__VA_ARGS__)
+    #define RAZIX_CORE_INFO(...)  RZLog_CoreLog_Info(__VA_ARGS__)
+    #define RAZIX_CORE_WARN(...)  RZLog_CoreLog_Warn(__VA_ARGS__)
+    #define RAZIX_CORE_ERROR(...) RZLog_CoreLog_Error(__VA_ARGS__)
 
     // Application Logging
-    #define RAZIX_TRACE(...) ::Razix::Debug::RZLog::GetApplicationLogger()->trace(__VA_ARGS__)
-    #define RAZIX_INFO(...)  ::Razix::Debug::RZLog::GetApplicationLogger()->info(__VA_ARGS__)
-    #define RAZIX_WARN(...)  ::Razix::Debug::RZLog::GetApplicationLogger()->warn(__VA_ARGS__)
-    #define RAZIX_ERROR(...) ::Razix::Debug::RZLog::GetApplicationLogger()->error(__VA_ARGS__)
+    #define RAZIX_TRACE(...) RZLog_AppLog_Trace(__VA_ARGS__)
+    #define RAZIX_INFO(...)  RZLog_AppLog_Info(__VA_ARGS__)
+    #define RAZIX_WARN(...)  RZLog_AppLog_Warn(__VA_ARGS__)
+    #define RAZIX_ERROR(...) RZLog_AppLog_Error(__VA_ARGS__)
 #else
 // Core Engine Logging
     #define RAZIX_CORE_TRACE(...)

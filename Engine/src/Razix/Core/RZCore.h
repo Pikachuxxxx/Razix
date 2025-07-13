@@ -562,39 +562,7 @@ static constexpr float operator""_inKib(unsigned long long int x)
     {
 #define RAZIX_CLEANUP_RESOURCE_IMPL_END }
 
-// TODO: Add Safe memory delete and unloading macros
-/****************************************************************************************************
- *                                         Graphics Settings                                        *
- ****************************************************************************************************/
-
-/* Triple buffering is enabled by default */
-#define RAZIX_ENABLE_TRIPLE_BUFFERING
-/* The total number of images that the swapchain can render/present to, by default we use triple buffering, defaults to d32 buffering if disabled */
-#ifdef RAZIX_ENABLE_TRIPLE_BUFFERING
-    /* Frames in FLight defines the number of frames that will be rendered to while another frame is being presented (used for triple buffering)*/
-    #define RAZIX_MAX_FRAMES_IN_FLIGHT  2
-    #define RAZIX_MAX_SWAP_IMAGES_COUNT 3
-    #define RAZIX_MAX_FRAMES            RAZIX_MAX_SWAP_IMAGES_COUNT
-#elif
-    #define RAZIX_MAX_SWAP_IMAGES_COUNT 2
-#endif
-
-/* Whether or not to use VMA as memory backend */
-#ifdef RAZIX_PLATFORM_WINDOWS
-    #define RAZIX_USE_VMA 1
-#elif RAZIX_PLATFORM_MACOS
-    #define RAZIX_USE_VMA 0    // Still porting WIP, so disabled idk if the SDK has it
-#endif
-
-/* Total No.Of Render Targets = typically a Max of 8 (as supported by most APIs) */
-#define RAZIX_MAX_RENDER_TARGETS 8
-
-/* Size of indices in Razix Engine, change here for global configuration */
-#define RAZIX_INDICES_SIZE         sizeof(u32)    // we use 32-bit indices for now
-#define RAZIX_INDICES_FORMAT       R32_UINT
-#define RAZIX_INDICES_FORMAT_VK    VK_INDEX_TYPE_UINT32
-#define RAZIX_INDICES_FORMAT_D3D12 DXGI_FORMAT_R32_UINT
-#define RAZIX_INDICES_FORMAT_AGC   sce::Agc::IndexSize::k32
+// TODO: Add Safe memory delete and unloading macro
 
 /****************************************************************************************************
  *                                         Vendor Settings                                          * 

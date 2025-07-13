@@ -39,9 +39,7 @@ namespace Razix {
         success = worldSettingsParser.parse("//RazixConfig/DefaultWorldRendererSettings.ini");
         RAZIX_CORE_ASSERT(success, "Default World Renderer Settings Load Success!");
 
-        // TODO: Temp code remove this!!!
-        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
+        // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
         //--------------------------------------------------------------------------
         // Start Up Memory Managers
         //--------------------------
@@ -54,6 +52,7 @@ namespace Razix {
 
         // 2. Sound Engine
         //Audio::RZSoundEngine::Get().StartUp();
+        // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
 
         // 3. Scene Manager
         RZSceneManager::Get().StartUp();
@@ -61,7 +60,8 @@ namespace Razix {
         // 4. Script Handler
         Scripting::RZLuaScriptHandler::Get().StartUp();
 
-        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        // 5. Graphics API (last one in the engine to fire up)
+        rzGfxCtx_StartUp();
 
         // Log after all the Engine systems have been successfully Started Up
         RAZIX_CORE_INFO("***********************************");
@@ -70,13 +70,11 @@ namespace Razix {
 
         Razix::RZSplashScreen::Get().setLogString("Engine Ignited!");
 
-        // TODO: Temp code remove this!!!
-        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
+        // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
         // Destroy the splash screen since the engine has Ignited successfully!
         //Razix::RZSplashScreen::Get().destroy();
+        // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
 
-        // TODO: Log the time take to initialize engine using Profiling macros
         auto                                   stop   = std::chrono::high_resolution_clock::now();
         std::chrono::duration<d32, std::milli> ms_d32 = (stop - start);
         RAZIX_CORE_INFO("Engine Ingnited in : {0} ms", ms_d32.count());
@@ -100,6 +98,9 @@ namespace Razix {
         RAZIX_CORE_ERROR("***********************************");
 
         // Shutting down all the sub-systems
+
+        // 5. Graphics API
+        rzGfxCtx_ShutDown();
 
         // Shutdown the lua script handle
         Scripting::RZLuaScriptHandler::Get().ShutDown();

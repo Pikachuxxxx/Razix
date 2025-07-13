@@ -26,10 +26,9 @@
 
 // Renderers
 #include "Razix/Gfx/Renderers/RZImGuiRendererProxy.h"
+#include "Razix/Gfx/Renderers/RZRendererSettings.h"
 
 #include "Razix/Math/Grid.h"
-
-#include "Razix/Gfx/Renderers/RZRendererSettings.h"
 
 // TODO: [HiZ] https://miketuritzin.com/post/hierarchical-depth-buffers/
 // TODO: [Random] https://www.jeremyong.com/cpp/2021/05/20/graphics-pipelines-for-young-bloods/
@@ -61,6 +60,7 @@
 namespace Razix {
     // Forward Declarations
     class RZScene;
+    class RZWindow;
 
     namespace Maths {
         class RZFrustum;
@@ -70,12 +70,16 @@ namespace Razix {
 
         /**
          * Razix World Renderer handles rendering everything in the scene, it build and compiles and frame graph and is responsible for execution
+         * Also holds the Gfx resources and controls rendering flow
          */
         class RAZIX_API RZWorldRenderer
         {
         public:
             RZWorldRenderer()  = default;
             ~RZWorldRenderer() = default;
+
+            void create(RZWindow* window, u32 width, u32 height);
+            void destroy();
 
             /**
              * Builds the frame graph using all the passes
@@ -85,8 +89,6 @@ namespace Razix {
             void buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene);
             /* draws the frame by executing the frame graph */
             void drawFrame(RZRendererSettings& settings, Razix::RZScene* scene);
-            /* Destroy frame graph passes and it's resources */
-            void destroy();
 
             /* On Update for world renderer passes */
             void OnUpdate(RZTimestep dt);
@@ -109,13 +111,11 @@ namespace Razix {
             void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings);
 
         private:
-            RZFrameGraph m_FrameGraph;
-            // Frame Graph Import Data
-            RZTextureHandle m_BRDFfLUTTextureHandle;
-            RZTextureHandle m_NoiseTextureHandle;
-            RZTextureHandle m_ColorGradingNeutralLUTHandle;
-            LightProbe      m_GlobalLightProbes;
-            // List of all passes, renderers and data in the frame graph
+            RZFrameGraph             m_FrameGraph;
+            RZTextureHandle          m_BRDFfLUTTextureHandle;
+            RZTextureHandle          m_NoiseTextureHandle;
+            RZTextureHandle          m_ColorGradingNeutralLUTHandle;
+            LightProbe               m_GlobalLightProbes;
             RZShadowPass             m_ShadowPass;
             RZGBufferPass            m_GBufferPass;
             RZSSAOPass               m_SSAOPass;
@@ -123,21 +123,38 @@ namespace Razix {
             RZSkyboxPass             m_SkyboxPass;
             RZToneMapPass            m_TonemapPass;
             RZCompositionPass        m_CompositePass;
+            TextureReadback          m_LastSwapchainReadback;
+            u32                      m_FrameCount                                            = 0;
+            float2                   m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
+            float4x4                 m_PreviousViewProj                                      = {};
+            float2                   m_Jitter                                                = {};
+            float2                   m_PreviousJitter                                        = {};
+            bool                     m_FrameGraphBuildingInProgress                          = false;
+            bool                     m_IsFGFilePathDirty                                     = false;
+            bool                     m_ReadSwapchainThisFrame                                = false;
+            std::string              m_FrameGraphFilePath                                    = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
+            // Gfx resources
+            struct RenderSyncPrimitives
+            {
+                struct
+                {
+                    rz_gfx_syncobj image_ready[RAZIX_MAX_SWAP_IMAGES_COUNT];
+                    rz_gfx_syncobj rendering_done[RAZIX_MAX_SWAP_IMAGES_COUNT];
 
-            // swapchain texture readback (mostly used only for tests)
-            TextureReadback m_LastSwapchainReadback = {};
-
-            // Other Variables
-            u32         m_FrameCount                                            = 0;
-            float2      m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
-            float4x4    m_PreviousViewProj                                      = {};
-            float2      m_Jitter                                                = {};
-            float2      m_PreviousJitter                                        = {};
-            bool        m_FrameGraphBuildingInProgress                          = false;
-            bool        m_IsFGFilePathDirty                                     = false;
-            bool        m_ReadSwapchainThisFrame                                = false;
-            std::string m_FrameGraphFilePath                                    = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
-            //std::string m_FrameGraphFilePath           = "//RazixFG/Graphs/FrameGraph.User.EditorTest.json";
+                } present_sync;    // won't be needing this in DX12
+                union
+                {
+                    rz_gfx_syncobj inflight_syncobj[RAZIX_MAX_FRAMES_IN_FLIGHT];
+                    struct
+                    {
+                        rz_gfx_syncobj   timeline_syncobj;
+                        rz_gfx_timestamp frame_syncpoint[RAZIX_MAX_FRAMES_IN_FLIGHT];    // last timeline value signaled for the given frame
+                        rz_gfx_timestamp global_syncpoint;
+                        uint32_t         _pad[8];
+                    };
+                } frame_sync;
+            } renderer_sync;
+            rz_gfx_swapchain m_Swapchain;
 
         private:
             void importGlobalLightProbes(LightProbe globalLightProbe);

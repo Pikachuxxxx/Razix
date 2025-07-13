@@ -20,12 +20,6 @@
 
 #include "Razix/Gfx/Passes/Data/GlobalData.h"
 
-#include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
-#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
-#include "Razix/Gfx/RHI/API/RZShader.h"
-#include "Razix/Gfx/RHI/API/RZTexture.h"
-#include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
-
 #include "Razix/Gfx/Renderers/RZDebugRendererProxy.h"
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
@@ -40,8 +34,6 @@
 #include "Razix/Tools/Runtime/RZEngineRuntimeTools.h"
 
 #include "Razix/Utilities/RZColorUtilities.h"
-
-// TODO: Test per frame write for RT and read only for shader like resource and use caspture by reference for execute lambda in fg functions
 
 namespace Razix {
     namespace Gfx {
@@ -72,6 +64,40 @@ namespace Razix {
         }
 
         //-------------------------------------------------------------------------------------------
+
+        void RZWorldRenderer::create(RZWindow* window, u32 width, u32 height)
+        {
+            rzGfxCtx_GlobalCtxInit();
+        }
+
+        void RZWorldRenderer::destroy()
+        {
+            m_FrameCount = 0;
+
+            if (m_LastSwapchainReadback.data) {
+                Memory::RZFree(m_LastSwapchainReadback.data);
+                m_LastSwapchainReadback.data = NULL;
+            }
+
+            // Wait for rendering to be done before halting
+            //Gfx::RZGraphicsContext::GetContext()->Wait();
+
+            m_FrameGraphBuildingInProgress = true;
+
+            // Destroy Frame Graph Transient Resources
+            m_FrameGraph.destroy();
+
+            // Destroy Renderers
+            RZImGuiRendererProxy::Get().Destroy();
+            RZDebugRendererProxy::Get().Destroy();
+
+            // Destroy Passes
+            m_ShadowPass.destroy();
+            m_GBufferPass.destroy();
+            m_PBRDeferredPass.destroy();
+            m_SkyboxPass.destroy();
+            m_CompositePass.destroy();
+        }
 
         /**
          * Notes:
@@ -396,35 +422,6 @@ namespace Razix {
                 // Present the image to presentation engine as soon as rendering to SCOLOR_ATTACHMENT is done
                 Gfx::RHI::Present(NULL);
             }
-        }
-
-        void RZWorldRenderer::destroy()
-        {
-            m_FrameCount = 0;
-
-            if (m_LastSwapchainReadback.data) {
-                Memory::RZFree(m_LastSwapchainReadback.data);
-                m_LastSwapchainReadback.data = NULL;
-            }
-
-            // Wait for rendering to be done before halting
-            Gfx::RZGraphicsContext::GetContext()->Wait();
-
-            m_FrameGraphBuildingInProgress = true;
-
-            // Destroy Frame Graph Transient Resources
-            m_FrameGraph.destroy();
-
-            // Destroy Renderers
-            RZImGuiRendererProxy::Get().Destroy();
-            RZDebugRendererProxy::Get().Destroy();
-
-            // Destroy Passes
-            m_ShadowPass.destroy();
-            m_GBufferPass.destroy();
-            m_PBRDeferredPass.destroy();
-            m_SkyboxPass.destroy();
-            m_CompositePass.destroy();
         }
 
         void RZWorldRenderer::OnUpdate(RZTimestep dt)

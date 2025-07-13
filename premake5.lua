@@ -171,6 +171,10 @@ workspace ( settings.workspace_name )
         include "Engine/razix_engine.lua"
     group ""
 
+    group"Engine/RHI"
+        include "Engine/src/Razix/Gfx/RHI/rhi.lua"
+    group""
+
     -- Build Script for Razix Editor
     --------------------------------------------------------------------------------
     -- TODO: We will be using blender so VS tool and CLI tools will be added here
