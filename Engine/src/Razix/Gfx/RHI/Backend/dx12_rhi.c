@@ -579,6 +579,7 @@ static void dx12_CreateSwapchain(void* where, void* nativeWindowHandle, uint32_t
     swapchain->width       = width;
     swapchain->height      = height;
     swapchain->dx12.window = *(HWND*) nativeWindowHandle;
+    swapchain->imageCount  = RAZIX_MAX_SWAP_IMAGES_COUNT;
 
     DXGI_SWAP_CHAIN_DESC1 desc = {0};
     desc.Width                 = width;
@@ -619,6 +620,19 @@ static void dx12_DestroySwapchain(rz_gfx_swapchain* sc)
 }
 
 //---------------------------------------------------------------------------------------------
+// RHI
+
+static void dx12_AcquireImage(rz_gfx_swapchain* sc)
+{
+    sc->dx12.currentBufferIndex = IDXGISwapChain4_GetCurrentBackBufferIndex(sc->dx12.swapchain4);
+}
+
+static void dx12_Present(rz_gfx_swapchain* sc)
+{
+    CHECK_HR(IDXGISwapChain4_Present(sc->dx12.swapchain4, 0, DXGI_PRESENT_ALLOW_TEARING));
+}
+
+//---------------------------------------------------------------------------------------------
 // Jump table
 
 rz_rhi_api dx12_rhi = {
@@ -628,5 +642,6 @@ rz_rhi_api dx12_rhi = {
     .DestroySyncobj   = dx_DestroySyncobjFn,      // DestroySyncobj
     .CreateSwapchain  = dx12_CreateSwapchain,     // CreateSwapchain
     .DestroySwapchain = dx12_DestroySwapchain,    // DestroySwapchain
-    NULL,                                         // AcquireImage
+    .AcquireImage     = dx12_AcquireImage,        // AcquireImage
+    .Present          = dx12_Present,             // Present
 };

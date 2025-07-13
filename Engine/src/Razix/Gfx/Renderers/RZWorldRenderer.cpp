@@ -440,12 +440,12 @@ namespace Razix {
             if (m_FrameGraphBuildingInProgress)
                 return;
 
-// Main Frame Graph World Rendering Loop
-#if 0
+            // Main Frame Graph World Rendering Loop
             {
                 // Acquire Image to render onto
-                Gfx::RHI::AcquireImage(NULL);
+                rzRHI_AcquireImage(&m_Swapchain);
 
+#if 0
                 // Begin Recording  onto the command buffer, select one as per the frame idx
                 Gfx::RHI::Begin(Gfx::RHI::GetCurrentCommandBuffer());
 
@@ -476,10 +476,10 @@ namespace Razix {
                     RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuff);
                 }
 
-                // Present the image to presentation engine as soon as rendering to SCOLOR_ATTACHMENT is done
-                Gfx::RHI::Present(NULL);
-            }
 #endif
+                // Present the image to presentation engine as soon as rendering to COLOR_ATTACHMENT is done
+                rzRHI_Present(&m_Swapchain);
+            }
         }
 
         void RZWorldRenderer::OnUpdate(RZTimestep dt)

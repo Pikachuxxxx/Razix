@@ -338,7 +338,8 @@ extern "C"
     /**
      * RHI API
      */
-    typedef void (*rzRHI_AcquireImageFn)(rz_gfx_syncobj*);
+    typedef void (*rzRHI_AcquireImageFn)(rz_gfx_swapchain*);
+    typedef void (*rzRHI_PresentFn)(rz_gfx_swapchain*);
 
     typedef struct
     {
@@ -351,6 +352,7 @@ extern "C"
         rzRHI_DestroySwapchainFn DestroySwapchain;
 
         rzRHI_AcquireImageFn AcquireImage;
+        rzRHI_PresentFn      Present;
     } rz_rhi_api;
 
     //---------------------------------------------------------------------------------------------
@@ -372,6 +374,9 @@ extern "C"
 #define rzRHI_DestroySyncobj   g_RHI.DestroySyncobj
 #define rzRHI_CreateSwapchain  g_RHI.CreateSwapchain
 #define rzRHI_DestroySwapchain g_RHI.DestroySwapchain
+
+#define rzRHI_AcquireImage g_RHI.AcquireImage
+#define rzRHI_Present      g_RHI.Present
 
 #ifdef __cplusplus
 }
