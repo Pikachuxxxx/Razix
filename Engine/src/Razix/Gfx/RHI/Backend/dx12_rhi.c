@@ -623,14 +623,23 @@ static void dx12_DestroySwapchain(rz_gfx_swapchain* sc)
 //---------------------------------------------------------------------------------------------
 // RHI
 
+static void rzRHI_FlushGPUWork(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* globalSyncpoint)
+{
+    if (!frameSyncobj || !frameSyncobj->dx12.fence || !globalSyncpoint)
+        return NULL;
+
+    rz_gfx_syncpoint signalValue = dx12_Signal(frameSyncobj, globalSyncpoint);
+    dx12_WaitOnPrevCmds(frameSyncobj, signalValue);
+}
+
 static void dx12_AcquireImage(rz_gfx_swapchain* sc)
 {
     sc->currBackBufferIdx = IDXGISwapChain4_GetCurrentBackBufferIndex(sc->dx12.swapchain4);
 }
 
-static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSync, rz_gfx_syncpoint waitSyncPoint)
+static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint waitSyncPoint)
 {
-    rz_gfx_syncpoint completed = ID3D12Fence_GetCompletedValue(frameSync->dx12.fence);
+    rz_gfx_syncpoint completed = ID3D12Fence_GetCompletedValue(frameSyncobj->dx12.fence);
 
 // Only verbose logging when diagnosing; treat waits as errors otherwise
 #if ENABLE_SYNC_LOGGING
@@ -639,20 +648,20 @@ static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSync, rz_gfx_syncpoin
 
     if (completed < waitSyncPoint) {
         // Set the fence event and check for failure
-        HRESULT hr = ID3D12Fence_SetEventOnCompletion(frameSync->dx12.fence, waitSyncPoint, frameSync->dx12.eventHandle);
+        HRESULT hr = ID3D12Fence_SetEventOnCompletion(frameSyncobj->dx12.fence, waitSyncPoint, frameSyncobj->dx12.eventHandle);
         if (FAILED(hr)) {
             RAZIX_RHI_LOG_ERROR("[WAIT ERR] SetEventOnCompletion(%llu) failed -> 0x%08X", waitSyncPoint, hr);
         }
 
         // Wait for the event and log errors only
-        DWORD result = WaitForSingleObject(frameSync->dx12.eventHandle, INFINITE);
+        DWORD result = WaitForSingleObject(frameSyncobj->dx12.eventHandle, INFINITE);
         if (result != WAIT_OBJECT_0) {
             RAZIX_RHI_LOG_ERROR("[WAIT ERR] WaitForSingleObject -> %s",
                 result == WAIT_TIMEOUT ? "WAIT_TIMEOUT" : "WAIT_FAILED");
         }
 
         // Verify fence advanced
-        rz_gfx_syncpoint new_completed = ID3D12Fence_GetCompletedValue(frameSync->dx12.fence);
+        rz_gfx_syncpoint new_completed = ID3D12Fence_GetCompletedValue(frameSyncobj->dx12.fence);
 #if ENABLE_SYNC_LOGGING
         RAZIX_RHI_LOG_WARN("[WAIT DONE] fence advanced to %llu (wanted >= %llu)", new_completed, waitSyncPoint);
 #else
@@ -746,6 +755,7 @@ rz_rhi_api dx12_rhi = {
     .DestroySwapchain = dx12_DestroySwapchain,    // DestroySwapchain
     .BeginFrame       = dx12_BeginFrame,          // BeginFrame
     .EndFrame         = dx12_EndFrame,            // EndFrame
+    .FlushGPUWork     = rzRHI_FlushGPUWork,       // FlushGPUWork
     .AcquireImage     = dx12_AcquireImage,        // AcquireImage
     .WaitOnPrevCmds   = dx12_WaitOnPrevCmds,      // WaitOnPrevCmds
     .Present          = dx12_Present,             // Present
