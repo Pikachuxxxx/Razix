@@ -218,6 +218,13 @@ extern "C"
         RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY
     } rz_gfx_texture_type;
 
+    typedef enum rz_gfx_cmdpool_type
+    {
+        RZ_GFX_CMDPOOL_TYPE_GRAPHICS,    // Graphics Command Pool
+        RZ_GFX_CMDPOOL_TYPE_COMPUTE,     // Compute Command Pool
+        RZ_GFX_CMDPOOL_TYPE_TRANSFER,    // Transfer Command Pool
+    } rz_gfx_cmdpool_type;
+
     /**
       * Graphics Features as supported by the GPU, even though Engine supports them
       * the GPU can override certain setting and query run-time info like LaneWidth etc.
@@ -270,7 +277,7 @@ extern "C"
         rz_gfx_format       format;
         rz_gfx_texture_type textureType;
 #ifdef RAZIX_RENDER_API_VULKAN
-            //vk_syncobj vk;
+            //vk_texture vk;
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
         dx12_texture dx12;
@@ -312,6 +319,37 @@ extern "C"
 
     } rz_gfx_context;
 
+    typedef struct rz_gfx_cmdpool
+    {
+        RAZIX_GFX_RESOURCE;
+        rz_gfx_cmdpool_type type;    // Type of the command pool, e.g. Graphics, Compute, Transfer
+        union
+        {
+#ifdef RAZIX_RENDER_API_VULKAN
+            vk_cmdpool vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            dx12_cmdpool dx12;
+#endif
+        };
+
+    } rz_gfx_cmdpool;
+
+    typedef struct rz_gfx_cmdbuf
+    {
+        RAZIX_GFX_RESOURCE;
+        union
+        {
+#ifdef RAZIX_RENDER_API_VULKAN
+            vk_cmdbuf vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            dx12_cmdbuf dx12;
+#endif
+        };
+
+    } rz_gfx_cmdbuf;
+
     //---------------------------------------------------------------------------------------------
     // Gfx API
 
@@ -337,6 +375,12 @@ extern "C"
     typedef void (*rzRHI_CreateSwapchainFn)(void* where, void*, uint32_t, uint32_t);
     typedef void (*rzRHI_DestroySwapchainFn)(rz_gfx_swapchain*);
 
+    typedef void (*rzRHI_CreateCmdPoolFn)(void* where, rz_gfx_cmdpool_type);
+    typedef void (*rzRHI_DestroyCmdPoolFn)(rz_gfx_cmdpool*);
+
+    typedef void (*rzRHI_CreateCmdBufFn)(void* where, rz_gfx_cmdpool*);
+    typedef void (*rzRHI_DestroyCmdBufFn)(rz_gfx_cmdbuf*);
+
     /**
      * RHI API
      */
@@ -347,11 +391,13 @@ extern "C"
     typedef void (*rzRHI_WaitOnPrevCmdsFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint);
     typedef void (*rzRHI_PresentFn)(const rz_gfx_swapchain*);
 
-    typedef void (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
-
-    typedef void (*rzRHI_ResizeSwapchainFn)(rz_gfx_swapchain*, uint32_t, uint32_t);
+    typedef void (*rzRHI_BeginCmdBufFn)(const rz_gfx_cmdbuf*);
+    typedef void (*rzRHI_EndCmdBufFn)(const rz_gfx_cmdbuf*);
+    typedef void (*rzRHI_SubmitCmdBufFn)(rz_gfx_cmdbuf*);
 
     typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
+    typedef void             (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
+    typedef void             (*rzRHI_ResizeSwapchainFn)(rz_gfx_swapchain*, uint32_t, uint32_t);
 
     typedef struct rz_rhi_api
     {
@@ -362,14 +408,25 @@ extern "C"
         rzRHI_DestroySyncobjFn   DestroySyncobj;
         rzRHI_CreateSwapchainFn  CreateSwapchain;
         rzRHI_DestroySwapchainFn DestroySwapchain;
-        rzRHI_BeginFrameFn       BeginFrame;
-        rzRHI_EndFrameFn         EndFrame;
-        rzRHI_AcquireImageFn     AcquireImage;
-        rzRHI_WaitOnPrevCmdsFn   WaitOnPrevCmds;
-        rzRHI_PresentFn          Present;
-        rzRHI_SignalGPUFn        SignalGPU;
-        rzRHI_FlushGPUWorkFn     FlushGPUWork;
-        rzRHI_ResizeSwapchainFn  ResizeSwapchain;
+        rzRHI_CreateCmdPoolFn    CreateCmdPool;
+        rzRHI_DestroyCmdPoolFn   DestroyCmdPool;
+        rzRHI_CreateCmdBufFn     CreateCmdBuf;
+        rzRHI_DestroyCmdBufFn    DestroyCmdBuf;
+
+        rzRHI_AcquireImageFn   AcquireImage;
+        rzRHI_WaitOnPrevCmdsFn WaitOnPrevCmds;
+        rzRHI_PresentFn        Present;
+        rzRHI_BeginCmdBufFn    BeginCmdBuf;
+        rzRHI_EndCmdBufFn      EndCmdBuf;
+        rzRHI_SubmitCmdBufFn   SubmitCmdBuf;
+        // ....
+
+        rzRHI_SignalGPUFn       SignalGPU;
+        rzRHI_FlushGPUWorkFn    FlushGPUWork;
+        rzRHI_ResizeSwapchainFn ResizeSwapchain;
+        //-----------------------------------------
+        rzRHI_BeginFrameFn BeginFrame;
+        rzRHI_EndFrameFn   EndFrame;
     } rz_rhi_api;
 
     //---------------------------------------------------------------------------------------------
@@ -391,14 +448,23 @@ extern "C"
 #define rzRHI_DestroySyncobj   g_RHI.DestroySyncobj
 #define rzRHI_CreateSwapchain  g_RHI.CreateSwapchain
 #define rzRHI_DestroySwapchain g_RHI.DestroySwapchain
-#define rzRHI_BeginFrame       g_RHI.BeginFrame
-#define rzRHI_EndFrame         g_RHI.EndFrame
-#define rzRHI_AcquireImage     g_RHI.AcquireImage
-#define rzRHI_WaitOnPrevCmds   g_RHI.WaitOnPrevCmds
-#define rzRHI_Present          g_RHI.Present
-#define rzRHI_SignalGPU        g_RHI.SignalGPU
-#define rzRHI_FlushGPUWork     g_RHI.FlushGPUWork
-#define rzRHI_ResizeSwapchain  g_RHI.ResizeSwapchain
+#define rzRHI_CreateCmdPool    g_RHI.CreateCmdPool
+#define rzRHI_DestroyCmdPool   g_RHI.DestroyCmdPool
+#define rzRHI_CreateCmdBuf     g_RHI.CreateCmdBuf
+#define rzRHI_DestroyCmdBuf    g_RHI.DestroyCmdBuf
+
+#define rzRHI_AcquireImage   g_RHI.AcquireImage
+#define rzRHI_WaitOnPrevCmds g_RHI.WaitOnPrevCmds
+#define rzRHI_Present        g_RHI.Present
+#define rzRHI_BeginCmdBuf    g_RHI.BeginCmdBuf
+#define rzRHI_EndCmdBuf      g_RHI.EndCmdBuf
+#define rzRHI_SubmitCmdBuf   g_RHI.SubmitCmdBuf
+
+#define rzRHI_SignalGPU       g_RHI.SignalGPU
+#define rzRHI_FlushGPUWork    g_RHI.FlushGPUWork
+#define rzRHI_ResizeSwapchain g_RHI.ResizeSwapchain
+#define rzRHI_BeginFrame      g_RHI.BeginFrame
+#define rzRHI_EndFrame        g_RHI.EndFrame
 
 #ifdef __cplusplus
 }

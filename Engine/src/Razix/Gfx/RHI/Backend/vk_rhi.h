@@ -9,5 +9,15 @@ typedef struct vk_ctx
     VkInstance instance;
 } vk_ctx;
 
+typedef struct vk_cmdpool
+{
+    VkCommandPool cmdPool;
+} vk_cmdpool;
+
+typedef struct vk_cmdbuf
+{
+    VkCommandBuffer cmdBuf;
+} vk_cmdbuf;
+
 #endif    // RAZIX_RENDER_API_VULKAN
-#endif    // DX12_RHI_H
+#endif    // vk_RHI_H

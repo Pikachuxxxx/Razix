@@ -6,6 +6,14 @@
 #define DX12Context g_GfxCtx.dx12
 #define DX12Device  g_GfxCtx.dx12.device9
 #define CHECK_HR(x) dx12_util_check_hresult((x), __func__, __FILE__, __LINE__)
+#ifndef RAZIX_GOLD_MASTER
+    #define TAG_OBJECT(resource, name)                                              \
+        if (resource) {                                                             \
+            resource->lpVtbl->SetName(resource, dx12_util_string_to_lpcwstr(name)); \
+        }
+#else
+TAG_OBJECT(resource, name)
+#endif
 
 //---------------------------------------------------------------------------------------------
 // Internal types
@@ -109,6 +117,16 @@ static DXGI_FORMAT dx12_util_rz_gfx_format_to_dxgi_format(rz_gfx_format format)
         // Default fallback
         case RZ_GFX_FORMAT_UNDEFINED:
         default: return DXGI_FORMAT_UNKNOWN;
+    }
+}
+
+static D3D12_COMMAND_LIST_TYPE dx12_util_rz_cmdpool_to_cmd_list_type(rz_gfx_cmdpool_type type)
+{
+    switch (type) {
+        case RZ_GFX_CMDPOOL_TYPE_GRAPHICS: return D3D12_COMMAND_LIST_TYPE_DIRECT;
+        case RZ_GFX_CMDPOOL_TYPE_COMPUTE: return D3D12_COMMAND_LIST_TYPE_COMPUTE;
+        case RZ_GFX_CMDPOOL_TYPE_TRANSFER: return D3D12_COMMAND_LIST_TYPE_COPY;
+        default: return D3D12_COMMAND_LIST_TYPE_DIRECT;    // Fallback to graphics
     }
 }
 
@@ -384,6 +402,8 @@ static void dx12_update_swapchain_rtvs(rz_gfx_swapchain* sc)
         texture.format             = RAZIX_SWAPCHAIN_FORMAT;
         texture.textureType        = RZ_GFX_TEXTURE_TYPE_2D;
         sc->backbuffers[i]         = texture;
+
+        TAG_OBJECT(d3dresource, "Swapchain Backbuffer Resource");
     }
 }
 
@@ -402,6 +422,7 @@ static void dx12_create_backbuffers(rz_gfx_swapchain* sc)
         memset(sc, 0, sizeof(dx12_swapchain));
         return;
     }
+    TAG_OBJECT(sc->dx12.rtvHeap, "Swapchain Heap");
 
     dx12_update_swapchain_rtvs(sc);
 }
@@ -487,6 +508,7 @@ static void dx_GlobalCtxInit(void)
         return;
     }
     RAZIX_RHI_LOG_INFO("Created Global Direct Command Q");
+    TAG_OBJECT(DX12Context.directQ, "Direct Command Q");
 
     g_GraphicsFeatures.EnableVSync                  = false;
     g_GraphicsFeatures.TesselateTerrain             = false;
@@ -548,6 +570,8 @@ static void dx_CreateSyncobjFn(void* where, rz_gfx_syncobj_type type)
             syncobj->dx12.fence = NULL;
         }
     }
+
+    TAG_OBJECT(DX12Context.directQ, "Syncobj");
 }
 
 static void dx_DestroySyncobjFn(rz_gfx_syncobj* syncobj)
@@ -620,6 +644,50 @@ static void dx12_DestroySwapchain(rz_gfx_swapchain* sc)
     sc->currBackBufferIdx = 0;
 }
 
+static void dx12_CreateCmdPool(void* where, rz_gfx_cmdpool_type type)
+{
+    rz_gfx_cmdpool* cmdPool = (rz_gfx_cmdpool*) where;
+
+    CHECK_HR(ID3D12Device9_CreateCommandAllocator(DX12Device, dx12_util_rz_cmdpool_to_cmd_list_type(type), &IID_ID3D12CommandAllocator, (void**) &cmdPool->dx12.cmdAlloc));
+    if (cmdPool->dx12.cmdAlloc == NULL) {
+        RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Command Allocator");
+        return;
+    }
+    cmdPool->type = type;
+    TAG_OBJECT(cmdPool->dx12.cmdAlloc, "D3D12 Command Allocator");
+}
+
+static void dx12_DestroyCmdPool(rz_gfx_cmdpool* cmdPool)
+{
+    if (cmdPool->dx12.cmdAlloc) {
+        ID3D12CommandAllocator_Release(cmdPool->dx12.cmdAlloc);
+        cmdPool->dx12.cmdAlloc = NULL;
+    }
+}
+
+static void dx12_CreateCmdBuf(void* where, rz_gfx_cmdpool* pool)
+{
+    rz_gfx_cmdbuf* cmdBuf = (rz_gfx_cmdbuf*) where;
+    cmdBuf->dx12.cmdAlloc = pool->dx12.cmdAlloc;
+
+    CHECK_HR(ID3D12Device9_CreateCommandList(DX12Device, 0, dx12_util_rz_cmdpool_to_cmd_list_type(pool->type), pool->dx12.cmdAlloc, NULL, &IID_ID3D12GraphicsCommandList4, (void**) &cmdBuf->dx12.cmdList));
+    if (cmdBuf->dx12.cmdList == NULL) {
+        RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Command List");
+        return;
+    }
+    // Immediately close it so that the first use can Reset() safely
+    CHECK_HR(ID3D12GraphicsCommandList_Close(cmdBuf->dx12.cmdList));
+    TAG_OBJECT(cmdBuf->dx12.cmdList, "D3D12 Command List");
+}
+
+static void dx12_DestroyCmdBuf(rz_gfx_cmdbuf* cmdBuf)
+{
+    if (cmdBuf->dx12.cmdList) {
+        ID3D12GraphicsCommandList4_Release(cmdBuf->dx12.cmdList);
+        cmdBuf->dx12.cmdList = NULL;
+    }
+}
+
 //---------------------------------------------------------------------------------------------
 // RHI
 
@@ -631,11 +699,6 @@ static void dx12_AcquireImage(rz_gfx_swapchain* sc)
 static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint waitSyncPoint)
 {
     rz_gfx_syncpoint completed = ID3D12Fence_GetCompletedValue(frameSyncobj->dx12.fence);
-
-// Only verbose logging when diagnosing; treat waits as errors otherwise
-#if ENABLE_SYNC_LOGGING
-    RAZIX_RHI_LOG_WARN("[WAIT] want=%llu; before completed=%llu", (uint64_t) waitSyncPoint, completed);
-#endif
 
     if (completed < waitSyncPoint) {
         // Set the fence event and check for failure
@@ -653,17 +716,9 @@ static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncp
 
         // Verify fence advanced
         rz_gfx_syncpoint new_completed = ID3D12Fence_GetCompletedValue(frameSyncobj->dx12.fence);
-#if ENABLE_SYNC_LOGGING
-        RAZIX_RHI_LOG_WARN("[WAIT DONE] fence advanced to %llu (wanted >= %llu)", new_completed, waitSyncPoint);
-#else
         if (new_completed < waitSyncPoint) {
             RAZIX_RHI_LOG_ERROR("[WAIT ERR] fence did not advance: completed=%llu, expected>=%llu", new_completed, waitSyncPoint);
         }
-#endif
-    } else {
-#if ENABLE_SYNC_LOGGING
-        RAZIX_RHI_LOG_WARN("[NO WAIT] fence (%llu) already >= %llu", completed, waitSyncPoint);
-#endif
     }
 }
 
@@ -672,15 +727,30 @@ static void dx12_Present(const rz_gfx_swapchain* sc)
     CHECK_HR(IDXGISwapChain4_Present(sc->dx12.swapchain4, 0, DXGI_PRESENT_ALLOW_TEARING));
 }
 
+static void dx12_BeginCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
+{
+    CHECK_HR(ID3D12CommandAllocator_Reset(cmdBuf->dx12.cmdAlloc));
+    CHECK_HR(ID3D12GraphicsCommandList_Reset(cmdBuf->dx12.cmdList, cmdBuf->dx12.cmdAlloc, NULL));
+}
+
+static void dx12_EndCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
+{
+    CHECK_HR(ID3D12GraphicsCommandList_Close(cmdBuf->dx12.cmdList));
+}
+
+static void dx12_SubmitCmdBuf(rz_gfx_cmdbuf* cmdBuf)
+{
+    ID3D12GraphicsCommandList* cmdLists[] = {cmdBuf->dx12.cmdList};
+    ID3D12CommandQueue_ExecuteCommandLists(DX12Context.directQ, 1, (ID3D12CommandList**) cmdLists);
+}
+
+// ....
+
 static rz_gfx_syncpoint dx12_Signal(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint* globalSyncPoint)
 {
     if (syncobj && syncobj->dx12.fence) {
         ID3D12Fence*     fence           = syncobj->dx12.fence;
         rz_gfx_syncpoint signalSyncpoint = ++(*globalSyncPoint);
-
-#if ENABLE_SYNC_LOGGING
-        RAZIX_RHI_LOG_WARN("[SIGNAL] signaling new global syncpoint: %llu | global_syncpoint: %llu", (uint64_t) signalSyncpoint, (uint64_t) globalSyncPoint);
-#endif
         CHECK_HR(ID3D12CommandQueue_Signal(DX12Context.directQ, fence, signalSyncpoint));
         return signalSyncpoint;
     }
@@ -718,46 +788,21 @@ static void dx12_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t 
 static void dx12_BeginFrame(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
 {
     (void) (globalSyncPoint);
-#if ENABLE_SYNC_LOGGING
-    RAZIX_RHI_LOG_ERROR("*************************FRAME BEGIN*************************/");
-
-    RAZIX_RHI_LOG_WARN("[Frame Begin] --- Old Current BackBuffer Index: %d", sc->currBackBufferIdx);
-#endif
-
     // This is reverse to what Vulkan does, we first wait for previous work to be done
     // and then acquire a new back buffer, because acquire is a GPU operation in vulkan,
     // here we just ask for index and wait on GPU until work is done and that back buffer is free to use
     dx12_AcquireImage(sc);
     uint32_t         frameIdx         = sc->currBackBufferIdx;
     rz_gfx_syncpoint currentSyncPoint = frameSyncPoints[frameIdx];
-
-#if ENABLE_SYNC_LOGGING
-    RAZIX_RHI_LOG_INFO("[Frame Begin] --- current syncpoint to wait on: %llu (frame_idx = %d)", currentSyncPoint, frameIdx);
-#endif
-
     dx12_WaitOnPrevCmds(frameSyncobj, currentSyncPoint);
-
-    // How to do this here? Done on client side perhaps?
-    // for API completion sake
-    // context->inflight_frame_idx  = frame_idx;
-    // context->current_syncobj_idx = frame_idx;
 }
 
 static void dx12_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
 {
     dx12_Present(sc);
-
     rz_gfx_syncpoint wait_value = dx12_Signal(frameSyncobj, globalSyncPoint);
     uint32_t         frame_idx  = sc->currBackBufferIdx;
     frameSyncPoints[frame_idx]  = wait_value;
-
-#if ENABLE_SYNC_LOGGING
-    RAZIX_RHI_LOG_WARN("[POST SIGNAL] updating_sync_point_to_wait_next: %llu (frame_idx = %d)", wait_value, frame_idx);
-#endif
-
-#if ENABLE_SYNC_LOGGING
-    RAZIX_RHI_LOG_ERROR("//-----------------------FRAME END-------------------------//");
-#endif
 }
 
 //---------------------------------------------------------------------------------------------
@@ -770,12 +815,20 @@ rz_rhi_api dx12_rhi = {
     .DestroySyncobj   = dx_DestroySyncobjFn,      // DestroySyncobj
     .CreateSwapchain  = dx12_CreateSwapchain,     // CreateSwapchain
     .DestroySwapchain = dx12_DestroySwapchain,    // DestroySwapchain
-    .BeginFrame       = dx12_BeginFrame,          // BeginFrame
-    .EndFrame         = dx12_EndFrame,            // EndFrame
+    .CreateCmdPool    = dx12_CreateCmdPool,       // CreateCmdPool
+    .DestroyCmdPool   = dx12_DestroyCmdPool,      // DestroyCmdPool
+    .CreateCmdBuf     = dx12_CreateCmdBuf,        // CreateCmdBuf
+    .DestroyCmdBuf    = dx12_DestroyCmdBuf,       // DestroyCmdBuf
     .AcquireImage     = dx12_AcquireImage,        // AcquireImage
     .WaitOnPrevCmds   = dx12_WaitOnPrevCmds,      // WaitOnPrevCmds
     .Present          = dx12_Present,             // Present
-    .SignalGPU        = dx12_Signal,              // Signal
-    .FlushGPUWork     = dx12_FlushGPUWork,        // FlushGPUWork
-    .ResizeSwapchain  = dx12_ResizeSwapchain,     // ResizeSwapchain
+    .BeginCmdBuf      = dx12_BeginCmdBuf,         // BeginCmdBuf
+    .EndCmdBuf        = dx12_EndCmdBuf,           // EndCmdBuf
+    .SubmitCmdBuf     = dx12_SubmitCmdBuf,        // SubmitCmdBuf
+
+    .SignalGPU       = dx12_Signal,             // Signal
+    .FlushGPUWork    = dx12_FlushGPUWork,       // FlushGPUWork
+    .ResizeSwapchain = dx12_ResizeSwapchain,    // ResizeSwapchain
+    .BeginFrame      = dx12_BeginFrame,         // BeginFrame
+    .EndFrame        = dx12_EndFrame,           // EndFrame
 };

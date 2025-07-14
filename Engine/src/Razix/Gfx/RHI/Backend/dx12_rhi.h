@@ -82,5 +82,16 @@ typedef struct dx12_swapchain
     dx12_descriptor_handles rtvHeapStart;
 } dx12_swapchain;
 
+typedef struct dx12_cmdpool
+{
+    ID3D12CommandAllocator* cmdAlloc;
+} dx12_cmdpool;
+
+typedef struct dx12_cmdbuf
+{
+    ID3D12CommandAllocator*    cmdAlloc;
+    ID3D12GraphicsCommandList* cmdList;
+} dx12_cmdbuf;
+
 #endif    // RAZIX_RENDER_API_DIRECTX12
 #endif    // DX12_RHI_H

@@ -95,7 +95,7 @@ namespace Razix {
 #elif defined(RAZIX_PLATFORM_MACOS) || defined(RAZIX_PLATFORM_LINUX)
             if (api == RZ_RENDER_API_VULKAN) {
                 VkSurfaceKHR surface = VK_NULL_HANDLE;
-                glfwCreateWindowSurface(rzVulkanGetInstance(), glfwWindow, nullptr, &surface);
+                glfwCreateWindowSurface(g_GfxCtx.vk.instance, glfwWindow, nullptr, &surface);
                 rzRHI_CreateSwapchain(&m_Swapchain, &surface, width, height);
             } else {
                 RAZIX_ASSERT(false && "Only Vulkan is supported on this platform!");
@@ -113,6 +113,11 @@ namespace Razix {
                     rzRHI_CreateSyncobj(&m_RenderSync.frameSync.inflightSyncobj[i], RZ_GFX_SYNCOBJ_TYPE_CPU);
                 }
             }
+
+            for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
+                rzRHI_CreateCmdPool(&m_InFlightCmdPool[i], RZ_GFX_CMDPOOL_TYPE_GRAPHICS);
+                rzRHI_CreateCmdBuf(&m_InFlightDrawCmdBuf[i], &m_InFlightCmdPool[i]);
+            }
         }
 
         void RZWorldRenderer::destroy()
@@ -120,12 +125,12 @@ namespace Razix {
             m_FrameCount = 0;
 
             //if (m_LastSwapchainReadback.data) {
-            //    Memory::RZFree(m_LastSwapchainReadback.data);
+            //    Memory::RZFree(m_LastSwapchainReadback.data);O.
             //    m_LastSwapchainReadback.data = NULL;
             //}
 
             // Wait for rendering to be done before halting
-            //Gfx::RZGraphicsContext::GetContext()->Wait();
+            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
 
             m_FrameGraphBuildingInProgress = true;
 
@@ -144,6 +149,11 @@ namespace Razix {
             m_SkyboxPass.destroy();
             m_CompositePass.destroy();
 #endif
+            for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
+                rzRHI_DestroyCmdBuf(&m_InFlightDrawCmdBuf[i]);
+                rzRHI_DestroyCmdPool(&m_InFlightCmdPool[i]);
+            }
+
             if (g_GraphicsFeatures.SupportsTimelineSemaphores) {
                 rzRHI_DestroySyncobj(&m_RenderSync.frameSync.timelineSyncobj);
             } else {
@@ -447,6 +457,26 @@ namespace Razix {
                 // Acquire Image to render onto
                 if (g_GraphicsFeatures.SupportsTimelineSemaphores)
                     rzRHI_BeginFrame(&m_Swapchain, &m_RenderSync.frameSync.timelineSyncobj, m_RenderSync.frameSync.frameTimestamps, &m_RenderSync.frameSync.globalTimestamp);
+
+                // In DirectX 12, the swapchain back buffer index currBackBufferIdx directly maps to the index of the image
+                // that is being presented/rendered to. This is because DXGI explicitly exposes the current back buffer index
+                // via IDXGISwapChain::GetCurrentBackBufferIndex(), and the driver guarantees image acquisition in strict
+                // presentation order (FIFO-like). As a result, synchronization objects like fences, command allocators, or
+                // timestamp slots are usually tracked and reused per back buffer index.
+                //
+                // In contrast, Vulkan allows more flexibility: the acquired image index from vkAcquireNextImageKHR may return
+                // any image in the swapchain (not necessarily in FIFO order). This requires applications to track resource
+                // usage and in-flight sync per acquired image, using a round-robin or per-image tracking model. Since Vulkan
+                // makes no guarantee about reuse pattern, it's incorrect to assume back buffer N will always follow N-1, hence
+                // a more generalized ring buffer or semaphore timeline sync tracking model is required.
+                // - DX12: Buffer index is reliable for indexing per-frame resources tracked per currBackBufferIdx.
+                // - Vulkan: Image acquisition is non-linear; sync and frame data must be tracked per imageIndex returned from vkAcquireNextImageKHR.
+                if (g_RenderAPI == RZ_RENDER_API_D3D12) {
+                    m_RenderSync.frameSync.inFlightSyncIdx = m_Swapchain.currBackBufferIdx;
+                }
+
+                rz_gfx_cmdbuf cmdBuffer = m_InFlightDrawCmdBuf[m_RenderSync.frameSync.inFlightSyncIdx];
+                rzRHI_BeginCmdBuf(&cmdBuffer);
 #if 0
                 // Begin Recording  onto the command buffer, select one as per the frame idx
                 Gfx::RHI::Begin(Gfx::RHI::GetCurrentCommandBuffer());
@@ -477,10 +507,15 @@ namespace Razix {
 
                     RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuff);
                 }
-
 #endif
+                rzRHI_EndCmdBuf(&cmdBuffer);
+                rzRHI_SubmitCmdBuf(&cmdBuffer);
+
                 // Present the image to presentation engine as soon as rendering to COLOR_ATTACHMENT is done
                 rzRHI_EndFrame(&m_Swapchain, &m_RenderSync.frameSync.timelineSyncobj, m_RenderSync.frameSync.frameTimestamps, &m_RenderSync.frameSync.globalTimestamp);
+
+                m_RenderSync.present_sync.currSyncpointIdx = (m_RenderSync.present_sync.currSyncpointIdx + 1) % RAZIX_MAX_SWAP_IMAGES_COUNT;
+                m_RenderSync.frameSync.inFlightSyncIdx     = (m_RenderSync.frameSync.inFlightSyncIdx + 1) % RAZIX_MAX_FRAMES_IN_FLIGHT;
             }
         }
 
