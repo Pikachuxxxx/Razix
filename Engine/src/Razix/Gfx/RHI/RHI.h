@@ -343,11 +343,13 @@ extern "C"
     typedef void (*rzRHI_BeginFrameFn)(rz_gfx_swapchain*, const rz_gfx_syncobj*, rz_gfx_syncpoint* frameSyncpoints, rz_gfx_syncpoint* globalSyncpoint);
     typedef void (*rzRHI_EndFrameFn)(const rz_gfx_swapchain*, const rz_gfx_syncobj*, rz_gfx_syncpoint* frameSyncpoints, rz_gfx_syncpoint* globalSyncpoint);
 
-    typedef void (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
-
     typedef void (*rzRHI_AcquireImageFn)(rz_gfx_swapchain*);
     typedef void (*rzRHI_WaitOnPrevCmdsFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint);
     typedef void (*rzRHI_PresentFn)(const rz_gfx_swapchain*);
+
+    typedef void (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
+
+    typedef void (*rzRHI_ResizeSwapchainFn)(rz_gfx_swapchain*, uint32_t, uint32_t);
 
     typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
 
@@ -355,21 +357,19 @@ extern "C"
     {
         rzRHI_GlobalCtxInitFn    GlobalCtxInit;
         rzRHI_GlobalCtxDestroyFn GlobalCtxDestroy;
-
+        //-----------------------------------------
         rzRHI_CreateSyncobjFn    CreateSyncobj;
         rzRHI_DestroySyncobjFn   DestroySyncobj;
         rzRHI_CreateSwapchainFn  CreateSwapchain;
         rzRHI_DestroySwapchainFn DestroySwapchain;
-
-        rzRHI_BeginFrameFn BeginFrame;
-        rzRHI_EndFrameFn   EndFrame;
-
-        rzRHI_FlushGPUWorkFn FlushGPUWork;
-
-        rzRHI_AcquireImageFn   AcquireImage;
-        rzRHI_WaitOnPrevCmdsFn WaitOnPrevCmds;
-        rzRHI_PresentFn        Present;
-        rzRHI_SignalGPUFn      SignalGPU;
+        rzRHI_BeginFrameFn       BeginFrame;
+        rzRHI_EndFrameFn         EndFrame;
+        rzRHI_AcquireImageFn     AcquireImage;
+        rzRHI_WaitOnPrevCmdsFn   WaitOnPrevCmds;
+        rzRHI_PresentFn          Present;
+        rzRHI_SignalGPUFn        SignalGPU;
+        rzRHI_FlushGPUWorkFn     FlushGPUWork;
+        rzRHI_ResizeSwapchainFn  ResizeSwapchain;
     } rz_rhi_api;
 
     //---------------------------------------------------------------------------------------------
@@ -391,15 +391,14 @@ extern "C"
 #define rzRHI_DestroySyncobj   g_RHI.DestroySyncobj
 #define rzRHI_CreateSwapchain  g_RHI.CreateSwapchain
 #define rzRHI_DestroySwapchain g_RHI.DestroySwapchain
-
-#define rzRHI_BeginFrame g_RHI.BeginFrame
-#define rzRHI_EndFrame   g_RHI.EndFrame
-
-#define rzRHI_FlushGPUWork   g_RHI.FlushGPUWork
-#define rzRHI_AcquireImage   g_RHI.AcquireImage
-#define rzRHI_WaitOnPrevCmds g_RHI.WaitOnPrevCmds
-#define rzRHI_Present        g_RHI.Present
-#define rzRHI_SignalGPU      g_RHI.SignalGPU
+#define rzRHI_BeginFrame       g_RHI.BeginFrame
+#define rzRHI_EndFrame         g_RHI.EndFrame
+#define rzRHI_AcquireImage     g_RHI.AcquireImage
+#define rzRHI_WaitOnPrevCmds   g_RHI.WaitOnPrevCmds
+#define rzRHI_Present          g_RHI.Present
+#define rzRHI_SignalGPU        g_RHI.SignalGPU
+#define rzRHI_FlushGPUWork     g_RHI.FlushGPUWork
+#define rzRHI_ResizeSwapchain  g_RHI.ResizeSwapchain
 
 #ifdef __cplusplus
 }

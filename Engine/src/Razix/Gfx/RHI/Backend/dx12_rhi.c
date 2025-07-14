@@ -623,15 +623,6 @@ static void dx12_DestroySwapchain(rz_gfx_swapchain* sc)
 //---------------------------------------------------------------------------------------------
 // RHI
 
-static void rzRHI_FlushGPUWork(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* globalSyncpoint)
-{
-    if (!frameSyncobj || !frameSyncobj->dx12.fence || !globalSyncpoint)
-        return NULL;
-
-    rz_gfx_syncpoint signalValue = dx12_Signal(frameSyncobj, globalSyncpoint);
-    dx12_WaitOnPrevCmds(frameSyncobj, signalValue);
-}
-
 static void dx12_AcquireImage(rz_gfx_swapchain* sc)
 {
     sc->currBackBufferIdx = IDXGISwapChain4_GetCurrentBackBufferIndex(sc->dx12.swapchain4);
@@ -696,6 +687,32 @@ static rz_gfx_syncpoint dx12_Signal(const rz_gfx_syncobj* syncobj, rz_gfx_syncpo
     return (rz_gfx_syncpoint) -1;
 }
 
+static void dx12_FlushGPUWork(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* globalSyncpoint)
+{
+    rz_gfx_syncpoint signalValue = dx12_Signal(frameSyncobj, globalSyncpoint);
+    dx12_WaitOnPrevCmds(frameSyncobj, signalValue);
+}
+
+static void dx12_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t height)
+{
+    sc->width = width;
+    sc->width = height;
+
+    for (uint32_t i = 0; i < sc->imageCount; ++i) {
+        if (sc->backbuffers[i].dx12.resource) {
+            ID3D12Resource_Release(sc->backbuffers[i].dx12.resource);
+            sc->backbuffers[i].dx12.resource = NULL;
+        }
+    }
+
+    DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
+    IDXGISwapChain4*     sc4           = sc->dx12.swapchain4;
+    IDXGISwapChain4_GetDesc(sc4, &swapChainDesc);
+    CHECK_HR(IDXGISwapChain4_ResizeBuffers(sc->dx12.swapchain4, sc->imageCount, sc->width, sc->height, dx12_util_rz_gfx_format_to_dxgi_format(RAZIX_SWAPCHAIN_FORMAT), swapChainDesc.Flags));
+
+    dx12_update_swapchain_rtvs(sc);
+}
+
 //---------------------------------------------------------------------------------------------
 
 static void dx12_BeginFrame(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
@@ -755,9 +772,10 @@ rz_rhi_api dx12_rhi = {
     .DestroySwapchain = dx12_DestroySwapchain,    // DestroySwapchain
     .BeginFrame       = dx12_BeginFrame,          // BeginFrame
     .EndFrame         = dx12_EndFrame,            // EndFrame
-    .FlushGPUWork     = rzRHI_FlushGPUWork,       // FlushGPUWork
     .AcquireImage     = dx12_AcquireImage,        // AcquireImage
     .WaitOnPrevCmds   = dx12_WaitOnPrevCmds,      // WaitOnPrevCmds
     .Present          = dx12_Present,             // Present
     .SignalGPU        = dx12_Signal,              // Signal
+    .FlushGPUWork     = dx12_FlushGPUWork,        // FlushGPUWork
+    .ResizeSwapchain  = dx12_ResizeSwapchain,     // ResizeSwapchain
 };

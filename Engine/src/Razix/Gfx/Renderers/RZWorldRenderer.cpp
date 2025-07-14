@@ -500,6 +500,16 @@ namespace Razix {
 #endif
         }
 
+        void RZWorldRenderer::OnResize(u32 width, u32 height)
+        {
+            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
+
+            // m_FrameGraph.resize(width, height);
+            rzRHI_ResizeSwapchain(&m_Swapchain, width, height);
+
+            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
+        }
+
 #if 0
 
         void RZWorldRenderer::OnResize(u32 width, u32 height)
