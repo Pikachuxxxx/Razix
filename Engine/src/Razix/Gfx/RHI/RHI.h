@@ -225,6 +225,28 @@ extern "C"
         RZ_GFX_CMDPOOL_TYPE_TRANSFER,    // Transfer Command Pool
     } rz_gfx_cmdpool_type;
 
+    typedef enum rz_gfx_resolution
+    {
+        RZ_GFX_RESOLUTION_1080p,       /* native HD resolution 1920x1080 rendering                            */
+        RZ_GFX_RESOLUTION_1440p,       /* native 2K resolution 2560x1440 rendering                            */
+        RZ_GFX_RESOLUTION_4K_UPSCALED, /* Upscaled using FSR/DLSS                                             */
+        RZ_GFX_RESOLUTION_4K_NATIVE,   /* native 3840x2160 rendering                                          */
+        RZ_GFX_RESOLUTION_WINDOW,      /* Selects the resolution dynamically based on the presentation window */
+        RZ_GFX_RESOLUTION_CUSTOM,      /* Custom resolution for rendering                                     */
+    } rz_gfx_resolution;
+
+    typedef enum rz_gfx_resource_state
+    {
+        RZ_GFX_RESOURCE_STATE_UNDEFINED = 0,
+        RZ_GFX_RESOURCE_STATE_RENDER_TARGET,
+        RZ_GFX_RESOURCE_STATE_SHADER_READ,
+        RZ_GFX_RESOURCE_STATE_COPY_SRC,
+        RZ_GFX_RESOURCE_STATE_COPY_DST,
+        RZ_GFX_RESOURCE_STATE_PRESENT,
+        RZ_GFX_RESOURCE_STATE_DEPTH_WRITE,
+        RZ_GFX_RESOURCE_STATE_GENERAL,
+    } rz_gfx_resource_state;
+
     /**
       * Graphics Features as supported by the GPU, even though Engine supports them
       * the GPU can override certain setting and query run-time info like LaneWidth etc.
@@ -350,6 +372,71 @@ extern "C"
 
     } rz_gfx_cmdbuf;
 
+    typedef struct rz_gfx_color_rgba
+    {
+        union
+        {
+            struct
+            {
+                float r;
+                float g;
+                float b;
+                float a;
+            };
+            float raw[4];
+        };
+    } rz_gfx_color_rgba;
+
+    typedef struct rz_gfx_color_rgb
+    {
+        union
+        {
+            struct
+            {
+                float r;
+                float g;
+                float b;
+            };
+            float raw[3];
+        };
+    } rz_gfx_color_rgb;
+
+    typedef struct rz_gfx_attachment
+    {
+        rz_gfx_color_rgba clearColor;
+        rz_gfx_texture*   texture;
+        uint8_t           mip;
+        uint8_t           layer;
+        bool              clear;
+    } gfx_attachment;
+
+#define RZ_EXTENTS_ELEM_COUNT 2
+
+    typedef struct rz_gfx_viewport
+    {
+        int32_t  x, y;
+        uint32_t width, height;
+        uint32_t minDepth;
+        uint32_t maxDepth;
+    } rz_gfx_viewport;
+
+    typedef struct rz_gfx_rect
+    {
+        int32_t  x, y;
+        uint32_t width, height;
+    } rz_gfx_rect;
+
+    typedef struct rz_gfx_renderpass
+    {
+        uint32_t          colorAttachmentsCount;
+        uint32_t          _pad0;
+        gfx_attachment    colorAttachments[RAZIX_MAX_RENDER_TARGETS];
+        gfx_attachment    depthAttachment;
+        uint32_t          extents[RZ_EXTENTS_ELEM_COUNT];
+        uint32_t          layers;
+        rz_gfx_resolution resolution;
+    } rz_gfx_renderpass;
+
     //---------------------------------------------------------------------------------------------
     // Gfx API
 
@@ -395,6 +482,14 @@ extern "C"
     typedef void (*rzRHI_EndCmdBufFn)(const rz_gfx_cmdbuf*);
     typedef void (*rzRHI_SubmitCmdBufFn)(rz_gfx_cmdbuf*);
 
+    typedef void (*rzRHI_BeginRenderPassFn)(const rz_gfx_cmdbuf*, rz_gfx_renderpass);
+    typedef void (*rzRHI_EndRenderPassFn)(const rz_gfx_cmdbuf*);
+
+    typedef void (*rzRHI_SetViewportFn)(rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewport);
+    typedef void (*rzRHI_SetScissorRectFn)(rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* rect);
+
+    typedef void (*rzRHI_InsertImageBarrierFn)(rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*, rz_gfx_resource_state, rz_gfx_resource_state);
+
     typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
     typedef void             (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
     typedef void             (*rzRHI_ResizeSwapchainFn)(rz_gfx_swapchain*, uint32_t, uint32_t);
@@ -413,12 +508,18 @@ extern "C"
         rzRHI_CreateCmdBufFn     CreateCmdBuf;
         rzRHI_DestroyCmdBufFn    DestroyCmdBuf;
 
-        rzRHI_AcquireImageFn   AcquireImage;
-        rzRHI_WaitOnPrevCmdsFn WaitOnPrevCmds;
-        rzRHI_PresentFn        Present;
-        rzRHI_BeginCmdBufFn    BeginCmdBuf;
-        rzRHI_EndCmdBufFn      EndCmdBuf;
-        rzRHI_SubmitCmdBufFn   SubmitCmdBuf;
+        rzRHI_AcquireImageFn       AcquireImage;
+        rzRHI_WaitOnPrevCmdsFn     WaitOnPrevCmds;
+        rzRHI_PresentFn            Present;
+        rzRHI_BeginCmdBufFn        BeginCmdBuf;
+        rzRHI_EndCmdBufFn          EndCmdBuf;
+        rzRHI_SubmitCmdBufFn       SubmitCmdBuf;
+        rzRHI_BeginRenderPassFn    BeginRenderPass;
+        rzRHI_EndRenderPassFn      EndRenderPass;
+        rzRHI_SetScissorRectFn     SetScissorRect;
+        rzRHI_SetViewportFn        SetViewport;
+        rzRHI_InsertImageBarrierFn InsertImageBarrier;
+
         // ....
 
         rzRHI_SignalGPUFn       SignalGPU;
@@ -453,12 +554,17 @@ extern "C"
 #define rzRHI_CreateCmdBuf     g_RHI.CreateCmdBuf
 #define rzRHI_DestroyCmdBuf    g_RHI.DestroyCmdBuf
 
-#define rzRHI_AcquireImage   g_RHI.AcquireImage
-#define rzRHI_WaitOnPrevCmds g_RHI.WaitOnPrevCmds
-#define rzRHI_Present        g_RHI.Present
-#define rzRHI_BeginCmdBuf    g_RHI.BeginCmdBuf
-#define rzRHI_EndCmdBuf      g_RHI.EndCmdBuf
-#define rzRHI_SubmitCmdBuf   g_RHI.SubmitCmdBuf
+#define rzRHI_AcquireImage       g_RHI.AcquireImage
+#define rzRHI_WaitOnPrevCmds     g_RHI.WaitOnPrevCmds
+#define rzRHI_Present            g_RHI.Present
+#define rzRHI_BeginCmdBuf        g_RHI.BeginCmdBuf
+#define rzRHI_EndCmdBuf          g_RHI.EndCmdBuf
+#define rzRHI_SubmitCmdBuf       g_RHI.SubmitCmdBuf
+#define rzRHI_BeginRenderPass    g_RHI.BeginRenderPass
+#define rzRHI_EndRenderPass      g_RHI.EndRenderPass
+#define rzRHI_SetScissorRect     g_RHI.SetScissorRect
+#define rzRHI_SetViewport        g_RHI.SetViewport
+#define rzRHI_InsertImageBarrier g_RHI.InsertImageBarrier
 
 #define rzRHI_SignalGPU       g_RHI.SignalGPU
 #define rzRHI_FlushGPUWork    g_RHI.FlushGPUWork

@@ -130,6 +130,20 @@ static D3D12_COMMAND_LIST_TYPE dx12_util_rz_cmdpool_to_cmd_list_type(rz_gfx_cmdp
     }
 }
 
+static D3D12_RESOURCE_STATES dx12_util_res_state_translate(rz_gfx_resource_state state)
+{
+    switch (state) {
+        case RZ_GFX_RESOURCE_STATE_RENDER_TARGET: return D3D12_RESOURCE_STATE_RENDER_TARGET;
+        case RZ_GFX_RESOURCE_STATE_SHADER_READ: return D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+        case RZ_GFX_RESOURCE_STATE_COPY_SRC: return D3D12_RESOURCE_STATE_COPY_SOURCE;
+        case RZ_GFX_RESOURCE_STATE_COPY_DST: return D3D12_RESOURCE_STATE_COPY_DEST;
+        case RZ_GFX_RESOURCE_STATE_PRESENT: return D3D12_RESOURCE_STATE_PRESENT;
+        case RZ_GFX_RESOURCE_STATE_DEPTH_WRITE: return D3D12_RESOURCE_STATE_DEPTH_WRITE;
+        case RZ_GFX_RESOURCE_STATE_GENERAL: return D3D12_RESOURCE_STATE_COMMON;
+        default: return D3D12_RESOURCE_STATE_COMMON;
+    }
+}
+
 //---------------------------------------------------------------------------------------------
 // Helper functions
 
@@ -670,7 +684,7 @@ static void dx12_CreateCmdBuf(void* where, rz_gfx_cmdpool* pool)
     rz_gfx_cmdbuf* cmdBuf = (rz_gfx_cmdbuf*) where;
     cmdBuf->dx12.cmdAlloc = pool->dx12.cmdAlloc;
 
-    CHECK_HR(ID3D12Device9_CreateCommandList(DX12Device, 0, dx12_util_rz_cmdpool_to_cmd_list_type(pool->type), pool->dx12.cmdAlloc, NULL, &IID_ID3D12GraphicsCommandList4, (void**) &cmdBuf->dx12.cmdList));
+    CHECK_HR(ID3D12Device9_CreateCommandList(DX12Device, 0, dx12_util_rz_cmdpool_to_cmd_list_type(pool->type), pool->dx12.cmdAlloc, NULL, &IID_ID3D12GraphicsCommandList, (void**) &cmdBuf->dx12.cmdList));
     if (cmdBuf->dx12.cmdList == NULL) {
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Command List");
         return;
@@ -683,7 +697,7 @@ static void dx12_CreateCmdBuf(void* where, rz_gfx_cmdpool* pool)
 static void dx12_DestroyCmdBuf(rz_gfx_cmdbuf* cmdBuf)
 {
     if (cmdBuf->dx12.cmdList) {
-        ID3D12GraphicsCommandList4_Release(cmdBuf->dx12.cmdList);
+        ID3D12GraphicsCommandList_Release(cmdBuf->dx12.cmdList);
         cmdBuf->dx12.cmdList = NULL;
     }
 }
@@ -738,14 +752,105 @@ static void dx12_EndCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
     CHECK_HR(ID3D12GraphicsCommandList_Close(cmdBuf->dx12.cmdList));
 }
 
-static void dx12_SubmitCmdBuf(rz_gfx_cmdbuf* cmdBuf)
+static void dx12_SubmitCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 {
     ID3D12GraphicsCommandList* cmdLists[] = {cmdBuf->dx12.cmdList};
     ID3D12CommandQueue_ExecuteCommandLists(DX12Context.directQ, 1, (ID3D12CommandList**) cmdLists);
 }
 
-// ....
+static void dx12_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_renderpass renderPass)
+{
+    ID3D12GraphicsCommandList* cmdList = cmdBuf->dx12.cmdList;
 
+    // Set Scissor and Rects
+    D3D12_VIEWPORT vp = {
+        .TopLeftX = 0,
+        .TopLeftY = 0,
+        .Width    = (FLOAT) renderPass.extents[0],
+        .Height   = (FLOAT) renderPass.extents[1],
+        .MinDepth = 0.0f,
+        .MaxDepth = 1.0f};
+    ID3D12GraphicsCommandList_RSSetViewports(cmdBuf->dx12.cmdList, 1, &vp);
+
+    D3D12_RECT scissor = {
+        .left   = 0,
+        .top    = 0,
+        .right  = (LONG) renderPass.extents[0],
+        .bottom = (LONG) renderPass.extents[1]};
+    ID3D12GraphicsCommandList_RSSetScissorRects(cmdBuf->dx12.cmdList, 1, &scissor);
+
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[RAZIX_MAX_RENDER_TARGETS] = {0};
+    uint32_t                    rtvCount                             = renderPass.colorAttachmentsCount;
+
+    for (uint32_t i = 0; i < rtvCount; ++i)
+        rtvHandles[i] = renderPass.colorAttachments[i].texture->dx12.resView.rtv.cpu;
+
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = {0};
+    bool                        hasDepth  = renderPass.depthAttachment.texture != NULL;
+
+    if (hasDepth) {
+        dsvHandle = renderPass.depthAttachment.texture->dx12.resView.dsv.cpu;
+    }
+
+    for (uint32_t i = 0; i < rtvCount; ++i) {
+        if (renderPass.colorAttachments[i].clear) {
+            float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+            memcpy(clearColor, renderPass.colorAttachments[i].clearColor.raw, sizeof(float) * 4);
+            ID3D12GraphicsCommandList_ClearRenderTargetView(cmdList, rtvHandles[i], clearColor, 0, NULL);
+        }
+    }
+
+    if (hasDepth && renderPass.depthAttachment.clear) {
+        ID3D12GraphicsCommandList_ClearDepthStencilView(cmdList, dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, NULL);
+    }
+
+    ID3D12GraphicsCommandList_OMSetRenderTargets(cmdList, rtvCount, rtvHandles, FALSE, hasDepth ? &dsvHandle : NULL);
+}
+
+static void dx12_EndRenderPass(const rz_gfx_cmdbuf* cmdBuf)
+{
+    // In DX12 there's no explicit EndRenderPass unless using newer RenderPass APIs.
+    // For basic OMSetRenderTargets path, this is a no-op.
+    (void) cmdBuf;
+}
+
+static void dx12_SetViewport(rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewport)
+{
+    D3D12_VIEWPORT vp = {
+        .TopLeftX = (FLOAT) viewport->x,
+        .TopLeftY = (FLOAT) viewport->y,
+        .Width    = (FLOAT) viewport->width,
+        .Height   = (FLOAT) viewport->height,
+        .MinDepth = (FLOAT) viewport->minDepth,
+        .MaxDepth = (FLOAT) viewport->maxDepth};
+    ID3D12GraphicsCommandList_RSSetViewports(cmdBuf->dx12.cmdList, 1, &vp);
+}
+
+static void dx12_SetScissorRect(rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* rect)
+{
+    D3D12_RECT scissor = {
+        .left   = (LONG) rect->x,
+        .top    = (LONG) rect->y,
+        .right  = (LONG) rect->x + rect->width,
+        .bottom = (LONG) rect->y + rect->height};
+    ID3D12GraphicsCommandList_RSSetScissorRects(cmdBuf->dx12.cmdList, 1, &scissor);
+}
+
+static void dx12_InsertImageBarrier(rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
+{
+    D3D12_RESOURCE_BARRIER barrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = texture->dx12.resource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,    // TODO: use mip/layer combo
+            .StateBefore = dx12_util_res_state_translate(beforeState),
+            .StateAfter  = dx12_util_res_state_translate(afterState),
+        }};
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 1, &barrier);
+}
+
+//---------------------------------------------------------------------------------------------
 static rz_gfx_syncpoint dx12_Signal(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint* globalSyncPoint)
 {
     if (syncobj && syncobj->dx12.fence) {
@@ -809,22 +914,27 @@ static void dx12_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* fram
 // Jump table
 
 rz_rhi_api dx12_rhi = {
-    .GlobalCtxInit    = dx_GlobalCtxInit,         // GlobalCtxInit
-    .GlobalCtxDestroy = dx_GlobalCtxDestroy,      // GlobalCtxDestroy
-    .CreateSyncobj    = dx_CreateSyncobjFn,       // CreateSyncobj
-    .DestroySyncobj   = dx_DestroySyncobjFn,      // DestroySyncobj
-    .CreateSwapchain  = dx12_CreateSwapchain,     // CreateSwapchain
-    .DestroySwapchain = dx12_DestroySwapchain,    // DestroySwapchain
-    .CreateCmdPool    = dx12_CreateCmdPool,       // CreateCmdPool
-    .DestroyCmdPool   = dx12_DestroyCmdPool,      // DestroyCmdPool
-    .CreateCmdBuf     = dx12_CreateCmdBuf,        // CreateCmdBuf
-    .DestroyCmdBuf    = dx12_DestroyCmdBuf,       // DestroyCmdBuf
-    .AcquireImage     = dx12_AcquireImage,        // AcquireImage
-    .WaitOnPrevCmds   = dx12_WaitOnPrevCmds,      // WaitOnPrevCmds
-    .Present          = dx12_Present,             // Present
-    .BeginCmdBuf      = dx12_BeginCmdBuf,         // BeginCmdBuf
-    .EndCmdBuf        = dx12_EndCmdBuf,           // EndCmdBuf
-    .SubmitCmdBuf     = dx12_SubmitCmdBuf,        // SubmitCmdBuf
+    .GlobalCtxInit      = dx_GlobalCtxInit,           // GlobalCtxInit
+    .GlobalCtxDestroy   = dx_GlobalCtxDestroy,        // GlobalCtxDestroy
+    .CreateSyncobj      = dx_CreateSyncobjFn,         // CreateSyncobj
+    .DestroySyncobj     = dx_DestroySyncobjFn,        // DestroySyncobj
+    .CreateSwapchain    = dx12_CreateSwapchain,       // CreateSwapchain
+    .DestroySwapchain   = dx12_DestroySwapchain,      // DestroySwapchain
+    .CreateCmdPool      = dx12_CreateCmdPool,         // CreateCmdPool
+    .DestroyCmdPool     = dx12_DestroyCmdPool,        // DestroyCmdPool
+    .CreateCmdBuf       = dx12_CreateCmdBuf,          // CreateCmdBuf
+    .DestroyCmdBuf      = dx12_DestroyCmdBuf,         // DestroyCmdBuf
+    .AcquireImage       = dx12_AcquireImage,          // AcquireImage
+    .WaitOnPrevCmds     = dx12_WaitOnPrevCmds,        // WaitOnPrevCmds
+    .Present            = dx12_Present,               // Present
+    .BeginCmdBuf        = dx12_BeginCmdBuf,           // BeginCmdBuf
+    .EndCmdBuf          = dx12_EndCmdBuf,             // EndCmdBuf
+    .SubmitCmdBuf       = dx12_SubmitCmdBuf,          // SubmitCmdBuf
+    .BeginRenderPass    = dx12_BeginRenderPass,       // BeginRenderPass
+    .EndRenderPass      = dx12_EndRenderPass,         // EndRenderPass
+    .SetViewport        = dx12_SetViewport,           // SetViewport
+    .SetScissorRect     = dx12_SetScissorRect,        // SetScissorRect
+    .InsertImageBarrier = dx12_InsertImageBarrier,    // InsertImageBarrier
 
     .SignalGPU       = dx12_Signal,             // Signal
     .FlushGPUWork    = dx12_FlushGPUWork,       // FlushGPUWork

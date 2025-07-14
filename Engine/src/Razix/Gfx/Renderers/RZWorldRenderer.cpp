@@ -477,6 +477,27 @@ namespace Razix {
 
                 rz_gfx_cmdbuf cmdBuffer = m_InFlightDrawCmdBuf[m_RenderSync.frameSync.inFlightSyncIdx];
                 rzRHI_BeginCmdBuf(&cmdBuffer);
+
+                rzRHI_InsertImageBarrier(&cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_PRESENT, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);
+
+                // TESTING CLEAR SCREEN TEST
+                rz_gfx_color_rgba clear_color = {{{0.5f + 0.5f * sinf(0.003f * m_FrameCount + 0.0f),
+                    0.5f + 0.5f * sinf(0.004f * m_FrameCount + 2.0f),
+                    0.5f + 0.5f * sinf(0.005f * m_FrameCount + 4.0f),
+                    1.0f}}};
+
+                rz_gfx_renderpass clear_pass              = {0};
+                clear_pass.colorAttachmentsCount          = 1;
+                clear_pass.colorAttachments[0].clearColor = clear_color;
+                clear_pass.colorAttachments[0].texture    = &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx];
+                clear_pass.colorAttachments[0].mip        = 0;
+                clear_pass.colorAttachments[0].layer      = 0;
+                clear_pass.colorAttachments[0].clear      = true;
+                clear_pass.extents[0]                     = m_Swapchain.width;
+                clear_pass.extents[1]                     = m_Swapchain.height;
+                clear_pass.resolution                     = RZ_GFX_RESOLUTION_WINDOW;
+                rzRHI_BeginRenderPass(&cmdBuffer, clear_pass);
+                rzRHI_EndRenderPass(&cmdBuffer);
 #if 0
                 // Begin Recording  onto the command buffer, select one as per the frame idx
                 Gfx::RHI::Begin(Gfx::RHI::GetCurrentCommandBuffer());
@@ -508,6 +529,8 @@ namespace Razix {
                     RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuff);
                 }
 #endif
+                rzRHI_InsertImageBarrier(&cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_RENDER_TARGET, RZ_GFX_RESOURCE_STATE_PRESENT);
+
                 rzRHI_EndCmdBuf(&cmdBuffer);
                 rzRHI_SubmitCmdBuf(&cmdBuffer);
 
