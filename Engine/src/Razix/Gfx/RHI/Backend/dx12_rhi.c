@@ -462,6 +462,7 @@ static void dx_GlobalCtxInit(void)
     }
 
 #ifdef RAZIX_DEBUG
+    // TODO: Use engine setting to enable/disable debugging
     // Register the D3D12 info queue after device creation
     dx12_d3d12_register_info_queue(&DX12Context);
     // Register the DXGI info queue
@@ -615,8 +616,8 @@ static void dx12_DestroySwapchain(rz_gfx_swapchain* sc)
         sc->dx12.swapchain4 = NULL;
     }
 
-    sc->dx12.imageCount         = 0;
-    sc->dx12.currentBufferIndex = 0;
+    sc->dx12.imageCount   = 0;
+    sc->currBackBufferIdx = 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -624,12 +625,113 @@ static void dx12_DestroySwapchain(rz_gfx_swapchain* sc)
 
 static void dx12_AcquireImage(rz_gfx_swapchain* sc)
 {
-    sc->dx12.currentBufferIndex = IDXGISwapChain4_GetCurrentBackBufferIndex(sc->dx12.swapchain4);
+    sc->currBackBufferIdx = IDXGISwapChain4_GetCurrentBackBufferIndex(sc->dx12.swapchain4);
 }
 
-static void dx12_Present(rz_gfx_swapchain* sc)
+static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSync, rz_gfx_syncpoint waitSyncPoint)
+{
+    rz_gfx_syncpoint completed = ID3D12Fence_GetCompletedValue(frameSync->dx12.fence);
+
+// Only verbose logging when diagnosing; treat waits as errors otherwise
+#if ENABLE_SYNC_LOGGING
+    RAZIX_RHI_LOG_WARN("[WAIT] want=%llu; before completed=%llu", (uint64_t) waitSyncPoint, completed);
+#endif
+
+    if (completed < waitSyncPoint) {
+        // Set the fence event and check for failure
+        HRESULT hr = ID3D12Fence_SetEventOnCompletion(frameSync->dx12.fence, waitSyncPoint, frameSync->dx12.eventHandle);
+        if (FAILED(hr)) {
+            RAZIX_RHI_LOG_ERROR("[WAIT ERR] SetEventOnCompletion(%llu) failed -> 0x%08X", waitSyncPoint, hr);
+        }
+
+        // Wait for the event and log errors only
+        DWORD result = WaitForSingleObject(frameSync->dx12.eventHandle, INFINITE);
+        if (result != WAIT_OBJECT_0) {
+            RAZIX_RHI_LOG_ERROR("[WAIT ERR] WaitForSingleObject -> %s",
+                result == WAIT_TIMEOUT ? "WAIT_TIMEOUT" : "WAIT_FAILED");
+        }
+
+        // Verify fence advanced
+        rz_gfx_syncpoint new_completed = ID3D12Fence_GetCompletedValue(frameSync->dx12.fence);
+#if ENABLE_SYNC_LOGGING
+        RAZIX_RHI_LOG_WARN("[WAIT DONE] fence advanced to %llu (wanted >= %llu)", new_completed, waitSyncPoint);
+#else
+        if (new_completed < waitSyncPoint) {
+            RAZIX_RHI_LOG_ERROR("[WAIT ERR] fence did not advance: completed=%llu, expected>=%llu", new_completed, waitSyncPoint);
+        }
+#endif
+    } else {
+#if ENABLE_SYNC_LOGGING
+        RAZIX_RHI_LOG_WARN("[NO WAIT] fence (%llu) already >= %llu", completed, waitSyncPoint);
+#endif
+    }
+}
+
+static void dx12_Present(const rz_gfx_swapchain* sc)
 {
     CHECK_HR(IDXGISwapChain4_Present(sc->dx12.swapchain4, 0, DXGI_PRESENT_ALLOW_TEARING));
+}
+
+static rz_gfx_syncpoint dx12_Signal(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint* globalSyncPoint)
+{
+    if (syncobj && syncobj->dx12.fence) {
+        ID3D12Fence*     fence           = syncobj->dx12.fence;
+        rz_gfx_syncpoint signalSyncpoint = ++(*globalSyncPoint);
+
+#if ENABLE_SYNC_LOGGING
+        RAZIX_RHI_LOG_WARN("[SIGNAL] signaling new global syncpoint: %llu | global_syncpoint: %llu", (uint64_t) signalSyncpoint, (uint64_t) globalSyncPoint);
+#endif
+        CHECK_HR(ID3D12CommandQueue_Signal(DX12Context.directQ, fence, signalSyncpoint));
+        return signalSyncpoint;
+    }
+    return (rz_gfx_syncpoint) -1;
+}
+
+//---------------------------------------------------------------------------------------------
+
+static void dx12_BeginFrame(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
+{
+    (void) (globalSyncPoint);
+#if ENABLE_SYNC_LOGGING
+    RAZIX_RHI_LOG_ERROR("*************************FRAME BEGIN*************************/");
+
+    RAZIX_RHI_LOG_WARN("[Frame Begin] --- Old Current BackBuffer Index: %d", sc->currBackBufferIdx);
+#endif
+
+    // This is reverse to what Vulkan does, we first wait for previous work to be done
+    // and then acquire a new back buffer, because acquire is a GPU operation in vulkan,
+    // here we just ask for index and wait on GPU until work is done and that back buffer is free to use
+    dx12_AcquireImage(sc);
+    uint32_t         frameIdx         = sc->currBackBufferIdx;
+    rz_gfx_syncpoint currentSyncPoint = frameSyncPoints[frameIdx];
+
+#if ENABLE_SYNC_LOGGING
+    RAZIX_RHI_LOG_INFO("[Frame Begin] --- current syncpoint to wait on: %llu (frame_idx = %d)", currentSyncPoint, frameIdx);
+#endif
+
+    dx12_WaitOnPrevCmds(frameSyncobj, currentSyncPoint);
+
+    // How to do this here? Done on client side perhaps?
+    // for API completion sake
+    // context->inflight_frame_idx  = frame_idx;
+    // context->current_syncobj_idx = frame_idx;
+}
+
+static void dx12_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
+{
+    dx12_Present(sc);
+
+    rz_gfx_syncpoint wait_value = dx12_Signal(frameSyncobj, globalSyncPoint);
+    uint32_t         frame_idx  = sc->currBackBufferIdx;
+    frameSyncPoints[frame_idx]  = wait_value;
+
+#if ENABLE_SYNC_LOGGING
+    RAZIX_RHI_LOG_WARN("[POST SIGNAL] updating_sync_point_to_wait_next: %llu (frame_idx = %d)", wait_value, frame_idx);
+#endif
+
+#if ENABLE_SYNC_LOGGING
+    RAZIX_RHI_LOG_ERROR("//-----------------------FRAME END-------------------------//");
+#endif
 }
 
 //---------------------------------------------------------------------------------------------
@@ -642,6 +744,10 @@ rz_rhi_api dx12_rhi = {
     .DestroySyncobj   = dx_DestroySyncobjFn,      // DestroySyncobj
     .CreateSwapchain  = dx12_CreateSwapchain,     // CreateSwapchain
     .DestroySwapchain = dx12_DestroySwapchain,    // DestroySwapchain
+    .BeginFrame       = dx12_BeginFrame,          // BeginFrame
+    .EndFrame         = dx12_EndFrame,            // EndFrame
     .AcquireImage     = dx12_AcquireImage,        // AcquireImage
+    .WaitOnPrevCmds   = dx12_WaitOnPrevCmds,      // WaitOnPrevCmds
     .Present          = dx12_Present,             // Present
+    .SignalGPU        = dx12_Signal,              // Signal
 };

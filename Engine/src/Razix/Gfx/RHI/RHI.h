@@ -39,6 +39,8 @@ extern "C"
 {
 #endif    // __cplusplus
 
+#define ENABLE_SYNC_LOGGING 0
+
 // ANSI color codes
 #define ANSI_COLOR_RESET  "\x1b[0m"
 #define ANSI_COLOR_RED    "\x1b[31m"
@@ -243,12 +245,12 @@ extern "C"
 
 #define RAZIX_GFX_RESOURCE rz_gfx_resource resource
 
-    typedef uint64_t rz_gfx_timestamp;
+    typedef uint64_t rz_gfx_syncpoint;
 
     typedef struct rz_gfx_syncobj
     {
         RAZIX_GFX_RESOURCE;
-        rz_gfx_timestamp waitTimestamp;
+        rz_gfx_syncpoint waitTimestamp;
 #ifdef RAZIX_RENDER_API_VULKAN
             //vk_gfx_ctx vk;
 #endif
@@ -338,10 +340,16 @@ extern "C"
     /**
      * RHI API
      */
-    typedef void (*rzRHI_AcquireImageFn)(rz_gfx_swapchain*);
-    typedef void (*rzRHI_PresentFn)(rz_gfx_swapchain*);
+    typedef void (*rzRHI_BeginFrameFn)(rz_gfx_swapchain*, const rz_gfx_syncobj*, rz_gfx_syncpoint*, rz_gfx_syncpoint*);
+    typedef void (*rzRHI_EndFrameFn)(const rz_gfx_swapchain*, const rz_gfx_syncobj*, rz_gfx_syncpoint*, rz_gfx_syncpoint*);
 
-    typedef struct
+    typedef void (*rzRHI_AcquireImageFn)(rz_gfx_swapchain*);
+    typedef void (*rzRHI_WaitOnPrevCmdsFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint);
+    typedef void (*rzRHI_PresentFn)(const rz_gfx_swapchain*);
+
+    typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
+
+    typedef struct rz_rhi_api
     {
         rzRHI_GlobalCtxInitFn    GlobalCtxInit;
         rzRHI_GlobalCtxDestroyFn GlobalCtxDestroy;
@@ -351,8 +359,13 @@ extern "C"
         rzRHI_CreateSwapchainFn  CreateSwapchain;
         rzRHI_DestroySwapchainFn DestroySwapchain;
 
-        rzRHI_AcquireImageFn AcquireImage;
-        rzRHI_PresentFn      Present;
+        rzRHI_BeginFrameFn BeginFrame;
+        rzRHI_EndFrameFn   EndFrame;
+
+        rzRHI_AcquireImageFn   AcquireImage;
+        rzRHI_WaitOnPrevCmdsFn WaitOnPrevCmds;
+        rzRHI_PresentFn        Present;
+        rzRHI_SignalGPUFn      SignalGPU;
     } rz_rhi_api;
 
     //---------------------------------------------------------------------------------------------
@@ -375,8 +388,13 @@ extern "C"
 #define rzRHI_CreateSwapchain  g_RHI.CreateSwapchain
 #define rzRHI_DestroySwapchain g_RHI.DestroySwapchain
 
-#define rzRHI_AcquireImage g_RHI.AcquireImage
-#define rzRHI_Present      g_RHI.Present
+#define rzRHI_BeginFrame g_RHI.BeginFrame
+#define rzRHI_EndFrame   g_RHI.EndFrame
+
+#define rzRHI_AcquireImage   g_RHI.AcquireImage
+#define rzRHI_WaitOnPrevCmds g_RHI.WaitOnPrevCmds
+#define rzRHI_Present        g_RHI.Present
+#define rzRHI_SignalGPU      g_RHI.SignalGPU
 
 #ifdef __cplusplus
 }

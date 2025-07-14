@@ -78,7 +78,6 @@ typedef struct dx12_swapchain
     IDXGISwapChain4*        swapchain4;
     uint32_t                imageCount;
     HWND                    window;
-    uint32_t                currentBufferIndex;
     ID3D12DescriptorHeap*   rtvHeap;
     dx12_descriptor_handles rtvHeapStart;
 } dx12_swapchain;

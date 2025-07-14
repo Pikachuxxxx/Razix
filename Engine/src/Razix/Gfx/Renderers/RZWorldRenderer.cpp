@@ -76,6 +76,8 @@ namespace Razix {
         void RZWorldRenderer::create(RZWindow* window, u32 width, u32 height)
         {
             m_Window = window;
+            memset(&m_RenderSync, 0, sizeof(RenderSyncPrimitives));
+
             // Create the swapchain
             GLFWwindow*   glfwWindow = static_cast<GLFWwindow*>(window->GetNativeWindow());
             rz_render_api api        = rzGfxCtx_GetRenderAPI();
@@ -443,8 +445,8 @@ namespace Razix {
             // Main Frame Graph World Rendering Loop
             {
                 // Acquire Image to render onto
-                rzRHI_AcquireImage(&m_Swapchain);
-
+                if (g_GraphicsFeatures.SupportsTimelineSemaphores)
+                    rzRHI_BeginFrame(&m_Swapchain, &m_RenderSync.frameSync.timelineSyncobj, m_RenderSync.frameSync.frameTimestamps, &m_RenderSync.frameSync.globalTimestamp);
 #if 0
                 // Begin Recording  onto the command buffer, select one as per the frame idx
                 Gfx::RHI::Begin(Gfx::RHI::GetCurrentCommandBuffer());
@@ -478,7 +480,7 @@ namespace Razix {
 
 #endif
                 // Present the image to presentation engine as soon as rendering to COLOR_ATTACHMENT is done
-                rzRHI_Present(&m_Swapchain);
+                rzRHI_EndFrame(&m_Swapchain, &m_RenderSync.frameSync.timelineSyncobj, m_RenderSync.frameSync.frameTimestamps, &m_RenderSync.frameSync.globalTimestamp);
             }
         }
 

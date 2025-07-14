@@ -151,8 +151,8 @@ namespace Razix {
                     struct
                     {
                         rz_gfx_syncobj   timelineSyncobj;
-                        rz_gfx_timestamp frameTimestamps[RAZIX_MAX_FRAMES_IN_FLIGHT];
-                        rz_gfx_timestamp globalTimestamp;
+                        rz_gfx_syncpoint frameTimestamps[RAZIX_MAX_FRAMES_IN_FLIGHT];
+                        rz_gfx_syncpoint globalTimestamp;
                         uint32_t         _pad[8];
                     };
                 } frameSync;    // supports both timeline and fences in vulkan based on VK_KHR_timeline_semaphore availability
