@@ -116,7 +116,9 @@ namespace Razix {
 
             for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
                 rzRHI_CreateCmdPool(&m_InFlightCmdPool[i], RZ_GFX_CMDPOOL_TYPE_GRAPHICS);
-                rzRHI_CreateCmdBuf(&m_InFlightDrawCmdBuf[i], &m_InFlightCmdPool[i]);
+                rz_gfx_cmdbuf_desc desc = {0};
+                desc.pool               = &m_InFlightCmdPool[i];
+                rzRHI_CreateCmdBuf(&m_InFlightDrawCmdBuf[i], desc);
             }
         }
 

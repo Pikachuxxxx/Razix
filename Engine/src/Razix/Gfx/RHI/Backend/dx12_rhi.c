@@ -409,12 +409,12 @@ static void dx12_update_swapchain_rtvs(rz_gfx_swapchain* sc)
         dxtexture.state            = D3D12_RESOURCE_STATE_PRESENT;
         dxtexture.resView.rtv.cpu  = rtvHandle;
         texture.dx12               = dxtexture;
-        texture.height             = sc->height;
-        texture.width              = sc->width;
-        texture.arraySize          = 1;
-        texture.mipLevels          = 1;
-        texture.format             = RAZIX_SWAPCHAIN_FORMAT;
-        texture.textureType        = RZ_GFX_TEXTURE_TYPE_2D;
+        texture.desc.height        = sc->height;
+        texture.desc.width         = sc->width;
+        texture.desc.arraySize     = 1;
+        texture.desc.mipLevels     = 1;
+        texture.desc.format        = RAZIX_SWAPCHAIN_FORMAT;
+        texture.desc.textureType   = RZ_GFX_TEXTURE_TYPE_2D;
         sc->backbuffers[i]         = texture;
 
         TAG_OBJECT(d3dresource, "Swapchain Backbuffer Resource");
@@ -679,12 +679,12 @@ static void dx12_DestroyCmdPool(rz_gfx_cmdpool* cmdPool)
     }
 }
 
-static void dx12_CreateCmdBuf(void* where, rz_gfx_cmdpool* pool)
+static void dx12_CreateCmdBuf(void* where, rz_gfx_cmdbuf_desc desc)
 {
     rz_gfx_cmdbuf* cmdBuf = (rz_gfx_cmdbuf*) where;
-    cmdBuf->dx12.cmdAlloc = pool->dx12.cmdAlloc;
+    cmdBuf->dx12.cmdAlloc = desc.pool->dx12.cmdAlloc;
 
-    CHECK_HR(ID3D12Device9_CreateCommandList(DX12Device, 0, dx12_util_rz_cmdpool_to_cmd_list_type(pool->type), pool->dx12.cmdAlloc, NULL, &IID_ID3D12GraphicsCommandList, (void**) &cmdBuf->dx12.cmdList));
+    CHECK_HR(ID3D12Device9_CreateCommandList(DX12Device, 0, dx12_util_rz_cmdpool_to_cmd_list_type(desc.pool->type), desc.pool->dx12.cmdAlloc, NULL, &IID_ID3D12GraphicsCommandList, (void**) &cmdBuf->dx12.cmdList));
     if (cmdBuf->dx12.cmdList == NULL) {
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Command List");
         return;
@@ -766,8 +766,8 @@ static void dx12_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_renderpass 
     D3D12_VIEWPORT vp = {
         .TopLeftX = 0,
         .TopLeftY = 0,
-        .Width    = (FLOAT) renderPass.extents[0],
-        .Height   = (FLOAT) renderPass.extents[1],
+        .Width    = (FLOAT) RAZIX_X(renderPass.extents),
+        .Height   = (FLOAT) RAZIX_Y(renderPass.extents),
         .MinDepth = 0.0f,
         .MaxDepth = 1.0f};
     ID3D12GraphicsCommandList_RSSetViewports(cmdBuf->dx12.cmdList, 1, &vp);
@@ -775,8 +775,8 @@ static void dx12_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_renderpass 
     D3D12_RECT scissor = {
         .left   = 0,
         .top    = 0,
-        .right  = (LONG) renderPass.extents[0],
-        .bottom = (LONG) renderPass.extents[1]};
+        .right  = (LONG) RAZIX_X(renderPass.extents),
+        .bottom = (LONG) RAZIX_Y(renderPass.extents)};
     ID3D12GraphicsCommandList_RSSetScissorRects(cmdBuf->dx12.cmdList, 1, &scissor);
 
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[RAZIX_MAX_RENDER_TARGETS] = {0};

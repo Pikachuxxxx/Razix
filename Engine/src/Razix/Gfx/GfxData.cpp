@@ -5,6 +5,7 @@
 
 namespace Razix {
     namespace Gfx {
+#if 0
 
         static std::unordered_map<std::string, Razix::Gfx::CullMode> CullModeStringMap = {
             {"Back", Razix::Gfx::CullMode::Back},
@@ -524,5 +525,6 @@ namespace Razix {
             m_Elements.push_back({name, format, m_Stride, Normalised});
             m_Stride += size;
         }
+#endif
     }    // namespace Gfx
 }    // namespace Razix

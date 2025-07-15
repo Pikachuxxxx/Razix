@@ -93,5 +93,15 @@ typedef struct dx12_cmdbuf
     ID3D12GraphicsCommandList* cmdList;
 } dx12_cmdbuf;
 
+typedef struct dx12_shader
+{
+    ID3DBlob*                 bytecode;
+    ID3D12ShaderReflection*   reflection;
+    D3D12_SHADER_BYTECODE     bytecodeDesc;
+    uint32_t                  numParams;
+    uint32_t                  numStaticSamplers;
+
+}dx12_shader;
+
 #endif    // RAZIX_RENDER_API_DIRECTX12
 #endif    // DX12_RHI_H

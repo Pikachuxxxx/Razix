@@ -3,9 +3,9 @@
 // clang-format on
 #include "RZEngine.h"
 
+#include "Razix/Core/Memory/RZMemoryBudgets.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 #include "Razix/Core/Version/RazixVersion.h"
-#include "Razix/Core/Memory/RZMemoryBudgets.h"
 
 //#include "Razix/Gfx/Materials/RZMaterial.h"
 
@@ -155,7 +155,7 @@ namespace Razix {
 
                 int FPS = 0;
                 engineConfigParser.getValue<int>("Rendering", "TargetFPS", FPS);
-                m_EngineSettings.TargetFPSCap = (Gfx::TargetFPS) FPS;
+                m_EngineSettings.TargetFPSCap = (rz_gfx_target_fps) FPS;
 
                 engineConfigParser.getValue<int>("Rendering", "MaxShadowCascades", m_EngineSettings.MaxShadowCascades);
                 engineConfigParser.getValue<int>("Rendering", "MSAASamples", m_EngineSettings.MSAASamples);
