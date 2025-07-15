@@ -724,11 +724,11 @@ extern "C"
 
     typedef struct rz_gfx_attachment
     {
-        rz_gfx_color_rgba clearColor;
-        rz_gfx_texture*   texture;
-        uint8_t           mip;
-        uint8_t           layer;
-        bool              clear;
+        rz_gfx_color_rgba     clearColor;
+        const rz_gfx_texture* texture;
+        uint8_t               mip;
+        uint8_t               layer;
+        bool                  clear;
     } gfx_attachment;
 
     typedef struct rz_gfx_viewport
@@ -756,28 +756,117 @@ extern "C"
         rz_gfx_resolution resolution;
     } rz_gfx_renderpass;
 
+    typedef struct rz_gfx_descriptor_heap_desc
+    {
+        const char*                 name;
+        rz_gfx_descriptor_heap_type heap_type;
+        uint32_t                    descriptor_count;
+    } rz_gfx_descriptor_heap_desc;
+
+    typedef struct rz_gfx_descriptor_heap
+    {
+        RAZIX_GFX_RESOURCE;
+        rz_gfx_descriptor_heap_desc desc;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_descriptor_heap vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_descriptor_heap dx12;
+#endif
+    } rz_gfx_descriptor_heap;
+
+    typedef struct rz_gfx_binding_location
+    {
+        uint32_t binding;
+        uint32_t space;
+    } rz_gfx_binding_location;
+
+    typedef struct rz_gfx_descriptor
+    {
+        const char*             name;
+        rz_gfx_binding_location location;
+        rz_gfx_descriptor_type  type;
+        uint32_t                arraySize;
+        uint32_t                sizeInBytes;
+        uint32_t                offsetInBytes;
+        uint32_t                memberCount;
+    } rz_gfx_descriptor;
+
+    typedef struct rz_gfx_descriptor_table_desc
+    {
+        uint32_t           tableIndex;
+        rz_gfx_descriptor* descriptors;
+        uint32_t           descriptorCount;
+    } rz_gfx_descriptor_table_desc;
+
+    typedef struct rz_gfx_root_constant_desc
+    {
+        rz_gfx_binding_location location;
+        uint32_t                sizeInBytes;
+        uint32_t                offsetInBytes;
+        rz_gfx_shader_stage     shaderStage;
+        const char*             typeNameStr;
+    } rz_gfx_root_constant_desc;
+
+    typedef struct rz_gfx_root_signature_desc
+    {
+        rz_gfx_descriptor_table_desc* descriptorTables;
+        uint32_t                      descriptorTableCount;
+
+        rz_gfx_root_constant_desc* rootConstants;
+        uint32_t                   rootConstantCount;
+    } rz_gfx_root_signature_desc;
+
+    typedef struct rz_gfx_descriptor_table
+    {
+        RAZIX_GFX_RESOURCE;
+        rz_gfx_descriptor_table_desc desc;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_descriptor_table vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_descriptor_table dx12;
+#endif
+    } rz_gfx_descriptor_table;
+
+    typedef struct rz_gfx_root_signature
+    {
+        RAZIX_GFX_RESOURCE;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_root_signature vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_root_signature dx12;
+#endif
+    } rz_gfx_root_signature;
+
     typedef struct rz_gfx_shader_desc
     {
         const char* name;
         const char* rzsfPath;
-
     } rz_gfx_shader_desc;
 
     typedef struct rz_gfx_shader
     {
         RAZIX_GFX_RESOURCE;
-        rz_gfx_shader_stage stage;
-        rz_gfx_shader_desc  desc;
+        rz_gfx_shader_desc    desc;
+        rz_gfx_root_signature rootSignature;
         union
         {
 #ifdef RAZIX_RENDER_API_VULKAN
-                //vk_shader vk;
+            vk_shader vk;
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
             dx12_shader dx12;
 #endif
         };
     } rz_gfx_shader;
+
+    typedef struct rz_gfx_shader_reflection
+    {
+        rz_gfx_shader*             shader;
+        rz_gfx_root_signature_desc rootSigDesc;
+    } rz_gfx_shader_reflection;
 
     //---------------------------------------------------------------------------------------------
     // Gfx API
@@ -810,6 +899,18 @@ extern "C"
     typedef void (*rzRHI_CreateCmdBufFn)(void* where, rz_gfx_cmdbuf_desc desc);
     typedef void (*rzRHI_DestroyCmdBufFn)(rz_gfx_cmdbuf*);
 
+    typedef void                     (*rzRHI_CreateShaderFn)(void* where, const rz_gfx_shader_desc* desc);
+    typedef void                     (*rzRHI_DestroyShaderFn)(rz_gfx_shader* shader);
+    typedef rz_gfx_shader_reflection (*rzRHI_ReflectShaderFn)(const rz_gfx_shader* shaderDesc);
+
+    typedef void (*rzRHI_CreateDescriptorHeapFn)(void* where, const rz_gfx_descriptor_heap_desc* desc);
+    typedef void (*rzRHI_DestroyDescriptorHeapFn)(rz_gfx_descriptor_heap*);
+
+    typedef void (*rzRHI_CreateDescriptorTableFn)(void* where, const rz_gfx_descriptor_table_desc* desc);
+
+    typedef void (*rzRHI_CreateRootSignatureFn)(void* where, const rz_gfx_root_signature_desc* desc);
+    typedef void (*rzRHI_DestroyRootSignatureFn)(rz_gfx_root_signature*);
+
     /**
      * RHI API
      */
@@ -841,14 +942,22 @@ extern "C"
         rzRHI_GlobalCtxInitFn    GlobalCtxInit;
         rzRHI_GlobalCtxDestroyFn GlobalCtxDestroy;
         //-----------------------------------------
-        rzRHI_CreateSyncobjFn    CreateSyncobj;
-        rzRHI_DestroySyncobjFn   DestroySyncobj;
-        rzRHI_CreateSwapchainFn  CreateSwapchain;
-        rzRHI_DestroySwapchainFn DestroySwapchain;
-        rzRHI_CreateCmdPoolFn    CreateCmdPool;
-        rzRHI_DestroyCmdPoolFn   DestroyCmdPool;
-        rzRHI_CreateCmdBufFn     CreateCmdBuf;
-        rzRHI_DestroyCmdBufFn    DestroyCmdBuf;
+        rzRHI_CreateSyncobjFn         CreateSyncobj;
+        rzRHI_DestroySyncobjFn        DestroySyncobj;
+        rzRHI_CreateSwapchainFn       CreateSwapchain;
+        rzRHI_DestroySwapchainFn      DestroySwapchain;
+        rzRHI_CreateCmdPoolFn         CreateCmdPool;
+        rzRHI_DestroyCmdPoolFn        DestroyCmdPool;
+        rzRHI_CreateCmdBufFn          CreateCmdBuf;
+        rzRHI_DestroyCmdBufFn         DestroyCmdBuf;
+        rzRHI_CreateShaderFn          CreateShader;
+        rzRHI_DestroyShaderFn         DestroyShader;
+        rzRHI_ReflectShaderFn         ReflectShader;
+        rzRHI_CreateDescriptorHeapFn  CreateDescriptorHeap;
+        rzRHI_DestroyDescriptorHeapFn DestroyDescriptorHeap;
+        rzRHI_CreateDescriptorTableFn CreateDescriptorTable;
+        rzRHI_CreateRootSignatureFn   CreateRootSignature;
+        rzRHI_DestroyRootSignatureFn  DestroyRootSignature;
 
         rzRHI_AcquireImageFn       AcquireImage;
         rzRHI_WaitOnPrevCmdsFn     WaitOnPrevCmds;
@@ -887,14 +996,22 @@ extern "C"
 #define rzGfxCtx_GlobalCtxInit    g_RHI.GlobalCtxInit
 #define rzGfxCtx_GlobalCtxDestroy g_RHI.GlobalCtxDestroy
 
-#define rzRHI_CreateSyncobj    g_RHI.CreateSyncobj
-#define rzRHI_DestroySyncobj   g_RHI.DestroySyncobj
-#define rzRHI_CreateSwapchain  g_RHI.CreateSwapchain
-#define rzRHI_DestroySwapchain g_RHI.DestroySwapchain
-#define rzRHI_CreateCmdPool    g_RHI.CreateCmdPool
-#define rzRHI_DestroyCmdPool   g_RHI.DestroyCmdPool
-#define rzRHI_CreateCmdBuf     g_RHI.CreateCmdBuf
-#define rzRHI_DestroyCmdBuf    g_RHI.DestroyCmdBuf
+#define rzRHI_CreateSyncobj         g_RHI.CreateSyncobj
+#define rzRHI_DestroySyncobj        g_RHI.DestroySyncobj
+#define rzRHI_CreateSwapchain       g_RHI.CreateSwapchain
+#define rzRHI_DestroySwapchain      g_RHI.DestroySwapchain
+#define rzRHI_CreateCmdPool         g_RHI.CreateCmdPool
+#define rzRHI_DestroyCmdPool        g_RHI.DestroyCmdPool
+#define rzRHI_CreateCmdBuf          g_RHI.CreateCmdBuf
+#define rzRHI_DestroyCmdBuf         g_RHI.DestroyCmdBuf
+#define rzRHI_CreateShader          g_RHI.CreateShader
+#define rzRHI_DestroyShader         g_RHI.DestroyShader
+#define rzRHI_ReflectShader         g_RHI.ReflectShader
+#define rzRHI_CreateDescriptorHeap  g_RHI.CreateDescriptorHeap
+#define rzRHI_DestroyDescriptorHeap g_RHI.DestroyDescriptorHeap
+#define rzRHI_CreateDescriptorTable g_RHI.CreateDescriptorTable
+#define rzRHI_CreateRootSignature   g_RHI.CreateRootSignature
+#define rzRHI_DestroyRootSignature  g_RHI.DestroyRootSignature
 
 #define rzRHI_AcquireImage       g_RHI.AcquireImage
 #define rzRHI_WaitOnPrevCmds     g_RHI.WaitOnPrevCmds

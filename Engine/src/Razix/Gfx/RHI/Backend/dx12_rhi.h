@@ -93,15 +93,31 @@ typedef struct dx12_cmdbuf
     ID3D12GraphicsCommandList* cmdList;
 } dx12_cmdbuf;
 
+typedef struct dx12_descriptor_heap
+{
+    ID3D12DescriptorHeap*   heap;
+    dx12_descriptor_handles descriptorWriteOffset;
+    uint32_t                descriptorSize;
+} dx12_descriptor_heap;
+
+typedef struct dx12_descriptor_table
+{
+    ID3D12DescriptorHeap*   heap;
+    dx12_descriptor_handles handles;
+    uint32_t                descriptorSize;
+} dx12_descriptor_table;
+
+typedef struct dx12_root_signature
+{
+    ID3D12RootSignature* root_signature;
+} dx12_root_signature;
+
 typedef struct dx12_shader
 {
-    ID3DBlob*                 bytecode;
-    ID3D12ShaderReflection*   reflection;
-    D3D12_SHADER_BYTECODE     bytecodeDesc;
-    uint32_t                  numParams;
-    uint32_t                  numStaticSamplers;
-
-}dx12_shader;
+    ID3DBlob*               bytecode;
+    ID3D12ShaderReflection* reflection;
+    D3D12_SHADER_BYTECODE   bytecodeDesc;
+} dx12_shader;
 
 #endif    // RAZIX_RENDER_API_DIRECTX12
 #endif    // DX12_RHI_H
