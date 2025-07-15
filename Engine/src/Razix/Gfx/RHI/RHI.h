@@ -571,6 +571,7 @@ extern "C"
         bool     SupportsShaderModel6;
         bool     SupportsNullIndexDescriptors;
         bool     SupportsTimelineSemaphores;
+        bool     SupportsBindlessRendering;
         uint32_t MaxBindlessTextures;
         uint32_t MinLaneWidth;
         uint32_t MaxLaneWidth;
@@ -639,10 +640,11 @@ extern "C"
 
     typedef struct rz_gfx_context
     {
-        uint32_t      width;
-        uint32_t      height;
-        uint32_t      frameIndex;
-        rz_render_api renderAPI;
+        uint32_t              width;
+        uint32_t              height;
+        uint32_t              frameIndex;
+        rz_render_api         renderAPI;
+        rz_gfx_root_signature bindlessRootSig;
         // All global submission queues are managed within the internal contexts
         union
         {
@@ -847,8 +849,7 @@ extern "C"
     typedef struct rz_gfx_shader
     {
         RAZIX_GFX_RESOURCE;
-        rz_gfx_shader_desc    desc;
-        rz_gfx_root_signature rootSignature;
+        rz_gfx_shader_desc desc;
         union
         {
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -908,6 +909,9 @@ extern "C"
 
     typedef void (*rzRHI_CreateRootSignatureFn)(void* where, const rz_gfx_root_signature_desc* desc);
     typedef void (*rzRHI_DestroyRootSignatureFn)(rz_gfx_root_signature*);
+
+    typedef void (*rzRHI_CreateBindlessRootSignatureFn)(void* where, const rz_gfx_root_signature_desc* desc);
+    typedef void (*rzRHI_DestroyBindlessRootSignatureFn)(rz_gfx_root_signature*);
 
     /**
      * RHI API
