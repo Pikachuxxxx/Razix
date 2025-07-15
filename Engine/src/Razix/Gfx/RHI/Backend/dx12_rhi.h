@@ -36,7 +36,7 @@ typedef struct dx12_ctx
 {
     IDXGIFactory7*      factory7;
     IDXGIAdapter4*      adapter4;
-    ID3D12Device9*      device9;
+    ID3D12Device10*     device10;
     D3D_FEATURE_LEVEL   featureLevel;
     D3D12FeatureCache   features;
     ID3D12CommandQueue* directQ;

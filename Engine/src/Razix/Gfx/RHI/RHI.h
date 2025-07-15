@@ -6,7 +6,6 @@
 #include <time.h>
 
 #ifndef RAZIX_API
-
     #if defined(RAZIX_PLATFORM_WINDOWS)
         #if defined(RAZIX_EXPORT_SYMBOLS)
             #define RAZIX_API __declspec(dllexport)
@@ -21,7 +20,6 @@
             #define RAZIX_API
         #endif
     #endif
-
 #endif    //  RAZIX_API
 
 #include "Razix/Core/RZHandle.h"
