@@ -125,6 +125,11 @@ extern "C"
 #define RAZIX_Z(v)               ((v)[2])
 #define RAZIX_W(v)               ((v)[3])
 
+#define RAZIX_MAX_SHADER_SOURCE_SIZE 1024 * 1024
+#define RAZIX_MAX_LINE_LENGTH        1024
+#define RAZIX_MAX_SHADER_STAGES      RZ_GFX_SHADER_STAGE_COUNT
+#define RAZIX_MAX_INCLUDE_DEPTH      16
+
     //---------------------------------------------------------------------------------------------
     // GFX/RHI types
 
@@ -330,24 +335,21 @@ extern "C"
 
     typedef enum rz_gfx_shader_stage
     {
-        RZ_GFX_SHADER_STAGE_NONE = 0,
-        RZ_GFX_SHADER_STAGE_VERTEX,
-        RZ_GFX_SHADER_STAGE_TESSELLATION_CONTROL,
-        RZ_GFX_SHADER_STAGE_TESSELLATION_EVALUATION,
-        RZ_GFX_SHADER_STAGE_GEOMETRY,
-        RZ_GFX_SHADER_STAGE_PIXEL,
-        RZ_GFX_SHADER_STAGE_COMPUTE,
-        RZ_GFX_SHADER_STAGE_RAY_TRACING_HIT,
-        RZ_GFX_SHADER_STAGE_RAY_TRACING_MISS,
-        RZ_GFX_SHADER_STAGE_RAY_TRACING_INTERSECTION,
-        RZ_GFX_SHADER_STAGE_RAY_TRACING_GENERATION,
-        RZ_GFX_SHADER_STAGE_RAY_TRACING_ANY_HIT,
-        RZ_GFX_SHADER_STAGE_RAY_TRACING_CLOSEST_HIT,
-        RZ_GFX_SHADER_STAGE_RAY_TRACING_CALLABLE,
-        RZ_GFX_SHADER_STAGE_RAY_TRACING_SHADER_TABLE,
-        RZ_GFX_SHADER_STAGE_TASK,
-        RZ_GFX_SHADER_STAGE_MESH,
-        RZ_GFX_SHADER_STAGE_COUNT
+        RZ_GFX_SHADER_STAGE_NONE                    = 0,
+        RZ_GFX_SHADER_STAGE_VERTEX                  = 1 << 0,
+        RZ_GFX_SHADER_STAGE_GEOMETRY                = 1 << 1,
+        RZ_GFX_SHADER_STAGE_TESSELLATION_CONTROL    = 1 << 2,
+        RZ_GFX_SHADER_STAGE_TESSELLATION_EVALUATION = 1 << 3,
+        RZ_GFX_SHADER_STAGE_PIXEL                   = 1 << 4,
+        RZ_GFX_SHADER_STAGE_COMPUTE                 = 1 << 5,
+        RZ_GFX_SHADER_STAGE_RAY_GEN                 = 1 << 6,
+        RZ_GFX_SHADER_STAGE_RAY_MISS                = 1 << 7,
+        RZ_GFX_SHADER_STAGE_RAY_CLOSEST_HIT         = 1 << 8,
+        RZ_GFX_SHADER_STAGE_RAY_ANY_HIT             = 1 << 9,
+        RZ_GFX_SHADER_STAGE_RAY_CALLABLE            = 1 << 10,
+        RZ_GFX_SHADER_STAGE_TASK                    = 1 << 11,
+        RZ_GFX_SHADER_STAGE_MESH                    = 1 << 12,
+        RZ_GFX_SHADER_STAGE_COUNT                   = 13
     } rz_gfx_shader_stage;
 
     typedef enum rz_gfx_shader_data_type
@@ -393,7 +395,8 @@ extern "C"
     typedef enum rz_gfx_pipeline_type
     {
         RZ_GFX_PIPELINE_TYPE_GRAPHICS = 0,
-        RZ_GFX_PIPELINE_TYPE_COMPUTE
+        RZ_GFX_PIPELINE_TYPE_COMPUTE,
+        RZ_GFX_PIPELINE_TYPE_RAYTRACING,
     } rz_gfx_pipeline_type;
 
     typedef enum rz_gfx_cull_mode_type
@@ -558,6 +561,17 @@ extern "C"
         RZ_GFX_TARGET_FPS_120 = 120
     } rz_gfx_target_fps;
 
+    typedef rz_handle rz_gfx_texture_handle;
+    typedef rz_handle rz_gfx_cmdbuf_handle;
+    typedef rz_handle rz_gfx_root_signature_handle;
+    typedef rz_handle rz_gfx_shader_handle;
+    typedef rz_handle rz_gfx_swapchain_handle;
+    typedef rz_handle rz_gfx_syncobj_handle;
+    typedef rz_handle rz_gfx_cmdpool_handle;
+    typedef rz_handle rz_gfx_descriptor_heap_handle;
+    typedef rz_handle rz_gfx_descriptor_table_handle;
+    typedef rz_handle rz_gfx_pipeline_handle;
+
     /**
       * Graphics Features as supported by the GPU, even though Engine supports them
       * the GPU can override certain setting and query run-time info like LaneWidth etc.
@@ -640,11 +654,10 @@ extern "C"
 
     typedef struct rz_gfx_context
     {
-        uint32_t              width;
-        uint32_t              height;
-        uint32_t              frameIndex;
-        rz_render_api         renderAPI;
-        rz_gfx_root_signature bindlessRootSig;
+        uint32_t      width;
+        uint32_t      height;
+        uint32_t      frameIndex;
+        rz_render_api renderAPI;
         // All global submission queues are managed within the internal contexts
         union
         {
@@ -812,9 +825,8 @@ extern "C"
     {
         rz_gfx_descriptor_table_desc* descriptorTables;
         uint32_t                      descriptorTableCount;
-
-        rz_gfx_root_constant_desc* rootConstants;
-        uint32_t                   rootConstantCount;
+        rz_gfx_root_constant_desc*    rootConstants;
+        uint32_t                      rootConstantCount;
     } rz_gfx_root_signature_desc;
 
     typedef struct rz_gfx_descriptor_table
@@ -840,16 +852,57 @@ extern "C"
 #endif
     } rz_gfx_root_signature;
 
+    typedef struct rz_gfx_shader_stage_file
+    {
+        rz_gfx_shader_stage stage;
+        const char*         filePath;    // Path to .cso/.spv/etc
+    } rz_gfx_shader_stage_file;
+
     typedef struct rz_gfx_shader_desc
     {
-        const char* name;
-        const char* rzsfPath;
+        const char*          name;
+        rz_gfx_pipeline_type pipelineType;
+
+        union
+        {
+            struct
+            {
+                rz_gfx_shader_stage_file vs;
+                rz_gfx_shader_stage_file ps;
+                rz_gfx_shader_stage_file gs;
+                rz_gfx_shader_stage_file tcs;
+                rz_gfx_shader_stage_file tes;
+            } raster;
+
+            struct
+            {
+                rz_gfx_shader_stage_file cs;
+            } compute;
+
+            struct
+            {
+                rz_gfx_shader_stage_file task;
+                rz_gfx_shader_stage_file mesh;
+                rz_gfx_shader_stage_file ps;
+            } mesh;
+
+            struct
+            {
+                rz_gfx_shader_stage_file rgen;
+                rz_gfx_shader_stage_file miss;
+                rz_gfx_shader_stage_file chit;
+                rz_gfx_shader_stage_file ahit;
+                rz_gfx_shader_stage_file callable;
+            } raytracing;
+        };
     } rz_gfx_shader_desc;
 
     typedef struct rz_gfx_shader
     {
         RAZIX_GFX_RESOURCE;
-        rz_gfx_shader_desc desc;
+        rz_gfx_shader_desc           desc;
+        rz_gfx_root_signature_handle rootSignature;
+        uint32_t                     shaderStageMask;
         union
         {
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -861,11 +914,21 @@ extern "C"
         };
     } rz_gfx_shader;
 
-    typedef struct rz_gfx_shader_reflection
+    // TODO: Pipeline create desc and pipeline structs
+    typedef struct rz_gfx_pipeline_desc
     {
-        rz_gfx_shader*             shader;
-        rz_gfx_root_signature_desc rootSigDesc;
-    } rz_gfx_shader_reflection;
+        const char*                  name;
+        rz_gfx_pipeline_type         type;
+        rz_gfx_shader_handle         shader;
+        rz_gfx_root_signature_handle rootSignature;
+        rz_gfx_cull_mode_type        cullMode;
+        rz_gfx_polygon_mode_type     polygonMode;
+        bool                         depthTestEnabled;
+        bool                         depthWriteEnabled;
+        bool                         stencilTestEnabled;
+        bool                         blendEnabled;
+        rz_gfx_blend_presets         blendPreset;
+    } rz_gfx_pipeline_desc;
 
     //---------------------------------------------------------------------------------------------
     // Gfx API
@@ -876,6 +939,8 @@ extern "C"
     RAZIX_API rz_render_api rzGfxCtx_GetRenderAPI();
     RAZIX_API void          rzGfxCtx_SetRenderAPI(rz_render_api api);
     RAZIX_API const char*   rzGfxCtx_GetRenderAPIString();
+
+    RAZIX_API rz_gfx_shader_stage rzGfx_StringToShaderStage(const char* stage);
 
     //---------------------------------------------------------------------------------------------
     // RHI Jump Table
@@ -898,20 +963,17 @@ extern "C"
     typedef void (*rzRHI_CreateCmdBufFn)(void* where, rz_gfx_cmdbuf_desc desc);
     typedef void (*rzRHI_DestroyCmdBufFn)(rz_gfx_cmdbuf*);
 
-    typedef void                     (*rzRHI_CreateShaderFn)(void* where, const rz_gfx_shader_desc* desc);
-    typedef void                     (*rzRHI_DestroyShaderFn)(rz_gfx_shader* shader);
-    typedef rz_gfx_shader_reflection (*rzRHI_ReflectShaderFn)(const rz_gfx_shader* shaderDesc);
+    typedef void                  (*rzRHI_CreateShaderFn)(void* where, rz_gfx_shader_desc desc);
+    typedef void                  (*rzRHI_DestroyShaderFn)(rz_gfx_shader* shader);
+    typedef rz_gfx_root_signature (*rzRHI_ReflectShaderFn)(const rz_gfx_shader* shaderDesc);
 
-    typedef void (*rzRHI_CreateDescriptorHeapFn)(void* where, const rz_gfx_descriptor_heap_desc* desc);
-    typedef void (*rzRHI_DestroyDescriptorHeapFn)(rz_gfx_descriptor_heap*);
-
-    typedef void (*rzRHI_CreateDescriptorTableFn)(void* where, const rz_gfx_descriptor_table_desc* desc);
-
-    typedef void (*rzRHI_CreateRootSignatureFn)(void* where, const rz_gfx_root_signature_desc* desc);
+    typedef void (*rzRHI_CreateRootSignatureFn)(void* where, rz_gfx_root_signature_desc desc);
     typedef void (*rzRHI_DestroyRootSignatureFn)(rz_gfx_root_signature*);
 
-    typedef void (*rzRHI_CreateBindlessRootSignatureFn)(void* where, const rz_gfx_root_signature_desc* desc);
-    typedef void (*rzRHI_DestroyBindlessRootSignatureFn)(rz_gfx_root_signature*);
+    typedef void (*rzRHI_CreateDescriptorHeapFn)(void* where, rz_gfx_descriptor_heap_desc desc);
+    typedef void (*rzRHI_DestroyDescriptorHeapFn)(rz_gfx_descriptor_heap*);
+
+    typedef void (*rzRHI_CreateDescriptorTableFn)(void* where, rz_gfx_descriptor_table_desc desc);
 
     /**
      * RHI API
@@ -944,22 +1006,23 @@ extern "C"
         rzRHI_GlobalCtxInitFn    GlobalCtxInit;
         rzRHI_GlobalCtxDestroyFn GlobalCtxDestroy;
         //-----------------------------------------
-        rzRHI_CreateSyncobjFn         CreateSyncobj;
-        rzRHI_DestroySyncobjFn        DestroySyncobj;
-        rzRHI_CreateSwapchainFn       CreateSwapchain;
-        rzRHI_DestroySwapchainFn      DestroySwapchain;
-        rzRHI_CreateCmdPoolFn         CreateCmdPool;
-        rzRHI_DestroyCmdPoolFn        DestroyCmdPool;
-        rzRHI_CreateCmdBufFn          CreateCmdBuf;
-        rzRHI_DestroyCmdBufFn         DestroyCmdBuf;
-        rzRHI_CreateShaderFn          CreateShader;
-        rzRHI_DestroyShaderFn         DestroyShader;
-        rzRHI_ReflectShaderFn         ReflectShader;
+        rzRHI_CreateSyncobjFn        CreateSyncobj;
+        rzRHI_DestroySyncobjFn       DestroySyncobj;
+        rzRHI_CreateSwapchainFn      CreateSwapchain;
+        rzRHI_DestroySwapchainFn     DestroySwapchain;
+        rzRHI_CreateCmdPoolFn        CreateCmdPool;
+        rzRHI_DestroyCmdPoolFn       DestroyCmdPool;
+        rzRHI_CreateCmdBufFn         CreateCmdBuf;
+        rzRHI_DestroyCmdBufFn        DestroyCmdBuf;
+        rzRHI_CreateShaderFn         CreateShader;
+        rzRHI_DestroyShaderFn        DestroyShader;
+        rzRHI_ReflectShaderFn        ReflectShader;
+        rzRHI_CreateRootSignatureFn  CreateRootSignature;
+        rzRHI_DestroyRootSignatureFn DestroyRootSignature;
+        //....
         rzRHI_CreateDescriptorHeapFn  CreateDescriptorHeap;
         rzRHI_DestroyDescriptorHeapFn DestroyDescriptorHeap;
         rzRHI_CreateDescriptorTableFn CreateDescriptorTable;
-        rzRHI_CreateRootSignatureFn   CreateRootSignature;
-        rzRHI_DestroyRootSignatureFn  DestroyRootSignature;
 
         rzRHI_AcquireImageFn       AcquireImage;
         rzRHI_WaitOnPrevCmdsFn     WaitOnPrevCmds;

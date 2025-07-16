@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Gfx/GfxData.h"
+#include "Razix/Gfx/GfxUtil.h"
 
 namespace Razix {
     namespace Gfx {
@@ -18,10 +18,10 @@ namespace Razix {
             u32         layerPriority;
 
             // Runtime instance of the textures
-           rz_texture_handle diffuseMap;
-           rz_texture_handle normalMap;
-           rz_texture_handle specularMap;
-           rz_texture_handle emissiveMap;
+            rz_gfx_texture_handle diffuseMap;
+            rz_gfx_texture_handle normalMap;
+            rz_gfx_texture_handle specularMap;
+            rz_gfx_texture_handle emissiveMap;
 
             template<class Archive>
             void load(Archive& archive)

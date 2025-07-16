@@ -56,3 +56,12 @@ const char* rzGfxCtx_GetRenderAPIString()
         default: return "None"; break;
     }
 }
+
+rz_gfx_shader_stage rzGfx_StringToShaderStage(const char* stage)
+{
+    if (strstr(stage, "vertex")) return RZ_GFX_SHADER_STAGE_VERTEX;
+    if (strstr(stage, "geometry")) return RZ_GFX_SHADER_STAGE_GEOMETRY;
+    if (strstr(stage, "fragment")) return RZ_GFX_SHADER_STAGE_PIXEL;
+    if (strstr(stage, "compute")) return RZ_GFX_SHADER_STAGE_COMPUTE;
+    return RZ_GFX_SHADER_STAGE_NONE;
+}

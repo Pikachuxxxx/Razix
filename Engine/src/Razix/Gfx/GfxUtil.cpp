@@ -1,10 +1,91 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "GfxData.h"
+#include "GfxUtil.h"
 
 namespace Razix {
     namespace Gfx {
+
+        static std::string ShaderBindaryFileExtension;
+        static std::string ShaderBindaryFileDirectory;
+
+        std::map<rz_gfx_shader_stage, std::string> ParseRZSF(const std::string& filePath)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            RAZIX_CORE_TRACE("Parsing .rzsf shader : {0}", filePath);
+
+            std::map<rz_gfx_shader_stage, std::string> shaders;
+#if 0
+            std::string rzsfSource = RZVirtualFileSystem::Get().readTextFile(filePath);
+
+            // Break the shader into lines
+            std::vector<std::string>           lines = Razix::Utilities::GetLines(rzsfSource);
+            rz_gfx_shader_stage                        stage = rz_gfx_shader_stage::kNone;
+
+            for (u32 i = 0; i < lines.size(); i++) {
+                std::string str = std::string(lines[i]);
+                str             = Utilities::TrimWhitespaces(str);
+
+                if (Razix::Utilities::StartsWith(str, "#shader")) {
+                    if (Razix::Utilities::StringContains(str, "vertex")) {
+                        stage                                           = rz_gfx_shader_stage::kVertex;
+                        std::map<rz_gfx_shader_stage, std::string>::iterator it = shaders.begin();
+                        shaders.insert(it, std::pair<rz_gfx_shader_stage, std::string>(stage, ""));
+                    } else if (Razix::Utilities::StringContains(str, "geometry")) {
+                        stage                                           = rz_gfx_shader_stage::kGeometry;
+                        std::map<rz_gfx_shader_stage, std::string>::iterator it = shaders.begin();
+                        shaders.insert(it, std::pair<rz_gfx_shader_stage, std::string>(stage, ""));
+                    } else if (Razix::Utilities::StringContains(str, "fragment")) {
+                        stage                                           = rz_gfx_shader_stage::kPixel;
+                        std::map<rz_gfx_shader_stage, std::string>::iterator it = shaders.begin();
+                        shaders.insert(it, std::pair<rz_gfx_shader_stage, std::string>(stage, ""));
+                    } else if (Razix::Utilities::StringContains(str, "compute")) {
+                        stage                                           = rz_gfx_shader_stage::kCompute;
+                        std::map<rz_gfx_shader_stage, std::string>::iterator it = shaders.begin();
+                        shaders.insert(it, std::pair<rz_gfx_shader_stage, std::string>(stage, ""));
+                    }
+                }
+    #if 0
+// TODO: Add token parsing for #elif defined
+else if (Razix::Utilities::StartsWith(str, "#ifdef")) {
+                    std::string rem                  = "#ifdef ";
+                    str                              = Utilities::RemoveStringRange(str, 0, 7);
+                    str                              = Razix::Utilities::RemoveSpaces(str);
+                    std::vector<std::string> defines = Razix::Utilities::SplitString(str, "||");
+                } else
+    #endif
+
+                switch (Gfx::RZGraphicsContext::GetRenderAPI()) {
+    #ifdef RAZIX_RENDER_API_VULKAN
+                    case Razix::Gfx::RenderAPI::VULKAN:
+                        ShaderBindaryFileExtension = ".spv";
+                        ShaderBindaryFileDirectory = "Compiled/SPIRV/";
+                        new (where) VKShader(desc RZ_DEBUG_E_ARG_NAME);
+                        break;
+    #endif
+    #ifdef RAZIX_RENDER_API_DIRECTX12
+                    case Razix::Gfx::RenderAPI::D3D12:
+                        ShaderBindaryFileExtension = ".cso";
+                        ShaderBindaryFileDirectory = "Compiled/CSO/";
+                        new (where) DX12Shader(desc RZ_DEBUG_E_ARG_NAME);
+                        break;
+    #endif
+                    default: break;
+                }
+
+                if (Razix::Utilities::StartsWith(str, "#include")) {
+                    str = Utilities::RemoveStringRange(str, 0, 9);
+                    // Adding the shader extension to load the apt shader
+                    str += ShaderBinaryFileExtension;
+                    str = ShaderBinaryFileDirectory + str;
+                    shaders.at(stage).append(str);
+                }
+            }
+#endif    // TEST
+            return shaders;
+        }
+
 #if 0
 
         static std::unordered_map<std::string, Razix::Gfx::CullMode> CullModeStringMap = {
@@ -73,14 +154,14 @@ namespace Razix {
             {"ReadBack", Razix::Gfx::BufferUsage::ReadBack},
             {"IndirectDrawArgs", Razix::Gfx::BufferUsage::IndirectDrawArgs}};
 
-        static std::unordered_map<std::string, Razix::Gfx::ShaderStage> ShaderStageStringMap = {
-            {"NONE", Razix::Gfx::ShaderStage::kNone},
-            {"VERTEX", Razix::Gfx::ShaderStage::kVertex},
-            {"PIXEL", Razix::Gfx::ShaderStage::kPixel},
-            {"COMPUTE", Razix::Gfx::ShaderStage::kCompute},
-            {"GEOMETRY", Razix::Gfx::ShaderStage::kGeometry},
-            {"TCS", Razix::Gfx::ShaderStage::kTesselationControl},
-            {"TES", Razix::Gfx::ShaderStage::kTesselationEvaluation}};
+        static std::unordered_map<std::string, Razix::Gfx::rz_gfx_shader_stage> rz_gfx_shader_stageStringMap = {
+            {"NONE", Razix::Gfx::rz_gfx_shader_stage::kNone},
+            {"VERTEX", Razix::Gfx::rz_gfx_shader_stage::kVertex},
+            {"PIXEL", Razix::Gfx::rz_gfx_shader_stage::kPixel},
+            {"COMPUTE", Razix::Gfx::rz_gfx_shader_stage::kCompute},
+            {"GEOMETRY", Razix::Gfx::rz_gfx_shader_stage::kGeometry},
+            {"TCS", Razix::Gfx::rz_gfx_shader_stage::kTesselationControl},
+            {"TES", Razix::Gfx::rz_gfx_shader_stage::kTesselationEvaluation}};
 
         static std::unordered_map<std::string, Gfx::TextureType> StringTextureTypeMap = {
 
@@ -244,7 +325,7 @@ namespace Razix {
         {
             DescriptorBindingInfo info{};
             info.type     = (DescriptorType) BIT_EXTRACT(bits, kTypeOffset, kTypeBits);
-            info.stage    = (ShaderStage) BIT_EXTRACT(bits, kStageOffset, kStageBits);
+            info.stage    = (rz_gfx_shader_stage) BIT_EXTRACT(bits, kStageOffset, kStageBits);
             info.location = DecodeBindingLocation(BIT_EXTRACT(bits, kBindingLocOffset, kBindingLocationBits));
             info.count    = BIT_EXTRACT(bits, kCountOffset, kCountBits);
 
@@ -480,9 +561,9 @@ namespace Razix {
             return BufferUsageStringMap[str];
         }
 
-        Razix::Gfx::ShaderStage StringToShaderStage(const std::string& str)
+        Razix::Gfx::rz_gfx_shader_stage StringTorz_gfx_shader_stage(const std::string& str)
         {
-            return ShaderStageStringMap[str];
+            return rz_gfx_shader_stageStringMap[str];
         }
 
         //-----------------------------------------------------------------------------------
@@ -526,5 +607,6 @@ namespace Razix {
             m_Stride += size;
         }
 #endif
+
     }    // namespace Gfx
 }    // namespace Razix

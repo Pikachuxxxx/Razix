@@ -2,11 +2,10 @@
 
 #include "Razix/Core/RZHandle.h"
 
+#include "Razix/Gfx/RHI/RHI.h"
+
 namespace Razix {
     namespace Gfx {
-
-        typedef rz_handle rz_texture_handle;
-        typedef rz_handle rz_cmdbuf_handle;
 
         /* Final target FPS */
         enum class TargetFPS
@@ -56,6 +55,8 @@ namespace Razix {
             uint32_t height;
             uint32_t bits_per_pixel;
         };
+
+        std::map<rz_gfx_shader_stage, std::string> ParseRZSF(const std::string& filePath);
 
 #if 0
         /**

@@ -450,7 +450,7 @@ static void dx12_destroy_backbuffers(rz_gfx_swapchain* sc)
 //---------------------------------------------------------------------------------------------
 // Public API functions
 
-static void dx_GlobalCtxInit(void)
+static void dx12_GlobalCtxInit(void)
 {
     RAZIX_RHI_LOG_INFO("Creating DXGI factory");
 
@@ -527,7 +527,7 @@ static void dx_GlobalCtxInit(void)
     g_GraphicsFeatures.MaxLaneWidth                 = DX12Context.features.options1.WaveLaneCountMax;
 }
 
-static void dx_GlobalCtxDestroy(void)
+static void dx12_GlobalCtxDestroy(void)
 {
     if (DX12Context.directQ) {
         ID3D12CommandQueue_Release(DX12Context.directQ);
@@ -555,7 +555,7 @@ static void dx_GlobalCtxDestroy(void)
 #endif
 }
 
-static void dx_CreateSyncobjFn(void* where, rz_gfx_syncobj_type type)
+static void dx12_CreateSyncobjFn(void* where, rz_gfx_syncobj_type type)
 {
     rz_gfx_syncobj* syncobj = (rz_gfx_syncobj*) where;
 
@@ -579,7 +579,7 @@ static void dx_CreateSyncobjFn(void* where, rz_gfx_syncobj_type type)
     TAG_OBJECT(DX12Context.directQ, "Syncobj");
 }
 
-static void dx_DestroySyncobjFn(rz_gfx_syncobj* syncobj)
+static void dx12_DestroySyncobjFn(rz_gfx_syncobj* syncobj)
 {
     if (syncobj->dx12.fence) {
         ID3D12Fence_Release(syncobj->dx12.fence);
@@ -693,32 +693,16 @@ static void dx12_DestroyCmdBuf(rz_gfx_cmdbuf* cmdBuf)
     }
 }
 
-static void dx12_CreateShader(void* where, const rz_gfx_shader_desc* desc)
+static void dx12_CreateShader(void* where, rz_gfx_shader_desc desc)
 {
     rz_gfx_shader* shader = (rz_gfx_shader*) where;
-
-    //// Create the shader reflection
-    //shader->reflection = dx12_ReflectShader(desc);
-    //if (shader->reflection.error) {
-    //    RAZIX_RHI_LOG_ERROR("Failed to reflect shader: %s", shader->reflection.error);
-    //    return;
-    //}
-    //
-    //// Create the shader object
-    //shader->dx12.shader = desc->dx12.shader;
-    //if (shader->dx12.shader == NULL) {
-    //    RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Shader");
-    //    return;
-    //}
-    //
-    //TAG_OBJECT(shader->dx12.shader, "D3D12 Shader");
 }
 
 static void dx12_DestroyShader(rz_gfx_shader* shader)
 {
 }
 
-static rz_gfx_shader_reflection dx12_ReflectShader(const rz_gfx_shader* shaderDesc)
+static rz_gfx_root_signature dx12_ReflectShader(const rz_gfx_shader* shaderDesc)
 {
 }
 
@@ -934,10 +918,10 @@ static void dx12_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* fram
 // Jump table
 
 rz_rhi_api dx12_rhi = {
-    .GlobalCtxInit      = dx_GlobalCtxInit,           // GlobalCtxInit
-    .GlobalCtxDestroy   = dx_GlobalCtxDestroy,        // GlobalCtxDestroy
-    .CreateSyncobj      = dx_CreateSyncobjFn,         // CreateSyncobj
-    .DestroySyncobj     = dx_DestroySyncobjFn,        // DestroySyncobj
+    .GlobalCtxInit      = dx12_GlobalCtxInit,         // GlobalCtxInit
+    .GlobalCtxDestroy   = dx12_GlobalCtxDestroy,      // GlobalCtxDestroy
+    .CreateSyncobj      = dx12_CreateSyncobjFn,       // CreateSyncobj
+    .DestroySyncobj     = dx12_DestroySyncobjFn,      // DestroySyncobj
     .CreateSwapchain    = dx12_CreateSwapchain,       // CreateSwapchain
     .DestroySwapchain   = dx12_DestroySwapchain,      // DestroySwapchain
     .CreateCmdPool      = dx12_CreateCmdPool,         // CreateCmdPool

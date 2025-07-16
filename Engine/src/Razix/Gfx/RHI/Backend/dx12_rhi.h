@@ -112,11 +112,15 @@ typedef struct dx12_root_signature
     ID3D12RootSignature* root_signature;
 } dx12_root_signature;
 
+typedef struct dx12_shader_stage
+{
+    ID3DBlob* bytecode;
+    // D3D12_SHADER_BYTECODE bytecodeDesc;
+} dx12_shader_stage;
+
 typedef struct dx12_shader
 {
-    ID3DBlob*               bytecode;
-    ID3D12ShaderReflection* reflection;
-    D3D12_SHADER_BYTECODE   bytecodeDesc;
+    dx12_shader_stage stages[13];
 } dx12_shader;
 
 #endif    // RAZIX_RENDER_API_DIRECTX12
