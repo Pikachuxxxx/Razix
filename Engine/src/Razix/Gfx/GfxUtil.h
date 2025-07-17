@@ -56,7 +56,7 @@ namespace Razix {
             uint32_t bits_per_pixel;
         };
 
-        std::map<rz_gfx_shader_stage, std::string> ParseRZSF(const std::string& filePath);
+        rz_gfx_shader_desc ParseRZSF(const std::string& filePath);
 
 #if 0
         /**

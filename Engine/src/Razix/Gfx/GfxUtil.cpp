@@ -3,87 +3,203 @@
 // clang-format on
 #include "GfxUtil.h"
 
+#include "Razix/Core/OS/RZFileSystem.h"
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
+
+#include "Razix/Utilities/RZStringUtilities.h"
+
 namespace Razix {
     namespace Gfx {
 
-        static std::string ShaderBindaryFileExtension;
-        static std::string ShaderBindaryFileDirectory;
+        static std::string ShaderBinaryFileExtension = "";
+        static std::string ShaderBinaryFileDirectory = "";
 
-        std::map<rz_gfx_shader_stage, std::string> ParseRZSF(const std::string& filePath)
+        static const std::unordered_map<std::string, rz_gfx_shader_stage> kStageMap = {
+            {"vertex", RZ_GFX_SHADER_STAGE_VERTEX},
+            {"fragment", RZ_GFX_SHADER_STAGE_PIXEL},
+            {"pixel", RZ_GFX_SHADER_STAGE_PIXEL},
+            {"geometry", RZ_GFX_SHADER_STAGE_GEOMETRY},
+            {"compute", RZ_GFX_SHADER_STAGE_COMPUTE},
+            {"tesscontrol", RZ_GFX_SHADER_STAGE_TESSELLATION_CONTROL},
+            {"tesseval", RZ_GFX_SHADER_STAGE_TESSELLATION_EVALUATION},
+            {"mesh", RZ_GFX_SHADER_STAGE_MESH},
+            {"task", RZ_GFX_SHADER_STAGE_TASK},
+            {"raygen", RZ_GFX_SHADER_STAGE_RAY_GEN},
+            {"miss", RZ_GFX_SHADER_STAGE_RAY_MISS},
+            {"closesthit", RZ_GFX_SHADER_STAGE_RAY_CLOSEST_HIT},
+            {"anyhit", RZ_GFX_SHADER_STAGE_RAY_ANY_HIT}};
+
+        rz_gfx_shader_desc ParseRZSF(const std::string& filePath)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             RAZIX_CORE_TRACE("Parsing .rzsf shader : {0}", filePath);
 
             std::map<rz_gfx_shader_stage, std::string> shaders;
-#if 0
-            std::string rzsfSource = RZVirtualFileSystem::Get().readTextFile(filePath);
+            std::vector<std::string>                   shader_defines;
+            rz_gfx_shader_desc                         desc       = {0};
+            std::string                                rzsfSource = RZVirtualFileSystem::Get().readTextFile(filePath);
 
             // Break the shader into lines
-            std::vector<std::string>           lines = Razix::Utilities::GetLines(rzsfSource);
-            rz_gfx_shader_stage                        stage = rz_gfx_shader_stage::kNone;
+            std::vector<std::string> lines = Razix::Utilities::GetLines(rzsfSource);
+            rz_gfx_shader_stage      stage = rz_gfx_shader_stage::RZ_GFX_SHADER_STAGE_NONE;
 
-            for (u32 i = 0; i < lines.size(); i++) {
-                std::string str = std::string(lines[i]);
-                str             = Utilities::TrimWhitespaces(str);
+            switch (rzGfxCtx_GetRenderAPI()) {
+#ifdef RAZIX_RENDER_API_VULKAN
+                case RZ_RENDER_API_VULKAN:
+                    ShaderBinaryFileExtension = ".spv";
+                    ShaderBinaryFileDirectory = "Compiled/SPIRV/";
+                    break;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+                case RZ_RENDER_API_D3D12:
+                    ShaderBinaryFileExtension = ".cso";
+                    ShaderBinaryFileDirectory = "Compiled/CSO/";
+                    break;
+#endif
+                default: break;
+            }
 
-                if (Razix::Utilities::StartsWith(str, "#shader")) {
-                    if (Razix::Utilities::StringContains(str, "vertex")) {
-                        stage                                           = rz_gfx_shader_stage::kVertex;
-                        std::map<rz_gfx_shader_stage, std::string>::iterator it = shaders.begin();
-                        shaders.insert(it, std::pair<rz_gfx_shader_stage, std::string>(stage, ""));
-                    } else if (Razix::Utilities::StringContains(str, "geometry")) {
-                        stage                                           = rz_gfx_shader_stage::kGeometry;
-                        std::map<rz_gfx_shader_stage, std::string>::iterator it = shaders.begin();
-                        shaders.insert(it, std::pair<rz_gfx_shader_stage, std::string>(stage, ""));
-                    } else if (Razix::Utilities::StringContains(str, "fragment")) {
-                        stage                                           = rz_gfx_shader_stage::kPixel;
-                        std::map<rz_gfx_shader_stage, std::string>::iterator it = shaders.begin();
-                        shaders.insert(it, std::pair<rz_gfx_shader_stage, std::string>(stage, ""));
-                    } else if (Razix::Utilities::StringContains(str, "compute")) {
-                        stage                                           = rz_gfx_shader_stage::kCompute;
-                        std::map<rz_gfx_shader_stage, std::string>::iterator it = shaders.begin();
-                        shaders.insert(it, std::pair<rz_gfx_shader_stage, std::string>(stage, ""));
+            for (const std::string& raw_line: lines) {
+                std::string line = Utilities::TrimWhitespaces(raw_line);
+
+                if (Razix::Utilities::StartsWith(line, "#shader")) {
+                    for (const auto& [key, val]: kStageMap) {
+                        if (Razix::Utilities::StringContains(line, key)) {
+                            stage          = val;
+                            shaders[stage] = "";    // initialize empty source for stage
+                            break;
+                        }
                     }
-                }
-    #if 0
-// TODO: Add token parsing for #elif defined
-else if (Razix::Utilities::StartsWith(str, "#ifdef")) {
-                    std::string rem                  = "#ifdef ";
-                    str                              = Utilities::RemoveStringRange(str, 0, 7);
-                    str                              = Razix::Utilities::RemoveSpaces(str);
-                    std::vector<std::string> defines = Razix::Utilities::SplitString(str, "||");
-                } else
-    #endif
-
-                switch (Gfx::RZGraphicsContext::GetRenderAPI()) {
-    #ifdef RAZIX_RENDER_API_VULKAN
-                    case Razix::Gfx::RenderAPI::VULKAN:
-                        ShaderBindaryFileExtension = ".spv";
-                        ShaderBindaryFileDirectory = "Compiled/SPIRV/";
-                        new (where) VKShader(desc RZ_DEBUG_E_ARG_NAME);
-                        break;
-    #endif
-    #ifdef RAZIX_RENDER_API_DIRECTX12
-                    case Razix::Gfx::RenderAPI::D3D12:
-                        ShaderBindaryFileExtension = ".cso";
-                        ShaderBindaryFileDirectory = "Compiled/CSO/";
-                        new (where) DX12Shader(desc RZ_DEBUG_E_ARG_NAME);
-                        break;
-    #endif
-                    default: break;
-                }
-
-                if (Razix::Utilities::StartsWith(str, "#include")) {
-                    str = Utilities::RemoveStringRange(str, 0, 9);
-                    // Adding the shader extension to load the apt shader
-                    str += ShaderBinaryFileExtension;
-                    str = ShaderBinaryFileDirectory + str;
-                    shaders.at(stage).append(str);
+                } else if (Razix::Utilities::StartsWith(line, "#ifdef")) {
+                    std::string condition = line.substr(7);    // skip "#ifdef "
+                    condition             = Razix::Utilities::RemoveSpaces(condition);
+                    auto defines          = Razix::Utilities::SplitString(condition, "||");
+                    shader_defines.insert(shader_defines.end(), defines.begin(), defines.end());
+                } else if (Razix::Utilities::StartsWith(line, "#include")) {
+                    std::string includePath = Utilities::TrimWhitespaces(line.substr(9));    // skip "#include "
+                    includePath += ShaderBinaryFileExtension;
+                    std::string fullPath = ShaderBinaryFileDirectory + includePath;
+                    shaders[stage] += fullPath;
                 }
             }
-#endif    // TEST
-            return shaders;
+
+            for (const auto& [stage, includePath]: shaders) {
+                std::string virtualPath = "//RazixContent/Shaders/" + includePath;
+                std::string outPath;
+
+                // Resolve to actual file path
+                RZVirtualFileSystem::Get().resolvePhysicalPath(virtualPath, outPath);
+                uint32_t bytecodeSize = (uint32_t) RZFileSystem::GetFileSize(outPath);
+                u8*      bytecode     = RZVirtualFileSystem::Get().readFile(virtualPath);
+
+                if (!bytecode) {
+                    RAZIX_CORE_ERROR("Failed to read shader bytecode: {0}", includePath);
+                    continue;
+                }
+
+                void* heapCopy = Memory::RZMemCopyToHeap(bytecode, bytecodeSize);
+
+                switch (stage) {
+                    case RZ_GFX_SHADER_STAGE_VERTEX:
+                        desc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+                        desc.raster.vs.stage    = stage;
+                        desc.raster.vs.bytecode = (const char*) heapCopy;
+                        desc.raster.vs.size     = bytecodeSize;
+                        break;
+
+                    case RZ_GFX_SHADER_STAGE_PIXEL:
+                        desc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+                        desc.raster.ps.stage    = stage;
+                        desc.raster.ps.bytecode = (const char*) heapCopy;
+                        desc.raster.ps.size     = bytecodeSize;
+                        break;
+
+                    case RZ_GFX_SHADER_STAGE_GEOMETRY:
+                        desc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+                        desc.raster.gs.stage    = stage;
+                        desc.raster.gs.bytecode = (const char*) heapCopy;
+                        desc.raster.gs.size     = bytecodeSize;
+                        break;
+
+                    case RZ_GFX_SHADER_STAGE_TESSELLATION_CONTROL:
+                        desc.pipelineType        = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+                        desc.raster.tcs.stage    = stage;
+                        desc.raster.tcs.bytecode = (const char*) heapCopy;
+                        desc.raster.tcs.size     = bytecodeSize;
+                        break;
+
+                    case RZ_GFX_SHADER_STAGE_TESSELLATION_EVALUATION:
+                        desc.pipelineType        = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+                        desc.raster.tes.stage    = stage;
+                        desc.raster.tes.bytecode = (const char*) heapCopy;
+                        desc.raster.tes.size     = bytecodeSize;
+                        break;
+
+                    case RZ_GFX_SHADER_STAGE_COMPUTE:
+                        desc.pipelineType        = RZ_GFX_PIPELINE_TYPE_COMPUTE;
+                        desc.compute.cs.stage    = stage;
+                        desc.compute.cs.bytecode = (const char*) heapCopy;
+                        desc.compute.cs.size     = bytecodeSize;
+                        break;
+
+                    case RZ_GFX_SHADER_STAGE_MESH:
+                        desc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+                        desc.mesh.mesh.stage    = stage;
+                        desc.mesh.mesh.bytecode = (const char*) heapCopy;
+                        desc.mesh.mesh.size     = bytecodeSize;
+                        break;
+
+                    case RZ_GFX_SHADER_STAGE_TASK:
+                        desc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+                        desc.mesh.task.stage    = stage;
+                        desc.mesh.task.bytecode = (const char*) heapCopy;
+                        desc.mesh.task.size     = bytecodeSize;
+                        break;
+
+                    case RZ_GFX_SHADER_STAGE_RAY_GEN:
+                        desc.pipelineType             = RZ_GFX_PIPELINE_TYPE_RAYTRACING;
+                        desc.raytracing.rgen.stage    = stage;
+                        desc.raytracing.rgen.bytecode = (const char*) heapCopy;
+                        desc.raytracing.rgen.size     = bytecodeSize;
+                        break;
+
+                    case RZ_GFX_SHADER_STAGE_RAY_MISS:
+                        desc.pipelineType             = RZ_GFX_PIPELINE_TYPE_RAYTRACING;
+                        desc.raytracing.miss.stage    = stage;
+                        desc.raytracing.miss.bytecode = (const char*) heapCopy;
+                        desc.raytracing.miss.size     = bytecodeSize;
+                        break;
+
+                    case RZ_GFX_SHADER_STAGE_RAY_CLOSEST_HIT:
+                        desc.pipelineType             = RZ_GFX_PIPELINE_TYPE_RAYTRACING;
+                        desc.raytracing.chit.stage    = stage;
+                        desc.raytracing.chit.bytecode = (const char*) heapCopy;
+                        desc.raytracing.chit.size     = bytecodeSize;
+                        break;
+
+                    case RZ_GFX_SHADER_STAGE_RAY_ANY_HIT:
+                        desc.pipelineType             = RZ_GFX_PIPELINE_TYPE_RAYTRACING;
+                        desc.raytracing.ahit.stage    = stage;
+                        desc.raytracing.ahit.bytecode = (const char*) heapCopy;
+                        desc.raytracing.ahit.size     = bytecodeSize;
+                        break;
+
+                    case RZ_GFX_SHADER_STAGE_RAY_CALLABLE:
+                        desc.pipelineType                 = RZ_GFX_PIPELINE_TYPE_RAYTRACING;
+                        desc.raytracing.callable.stage    = stage;
+                        desc.raytracing.callable.bytecode = (const char*) heapCopy;
+                        desc.raytracing.callable.size     = bytecodeSize;
+                        break;
+
+                    default:
+                        RAZIX_CORE_WARN("Unknown or unsupported shader stage: {0}", stage);
+                        break;
+                }
+                // bytecode will be freed by RHI, it's a promise we hope RHI keeps upon
+            }
+
+            return desc;
         }
 
 #if 0
@@ -605,7 +721,7 @@ else if (Razix::Utilities::StartsWith(str, "#ifdef")) {
 
             m_Elements.push_back({name, format, m_Stride, Normalised});
             m_Stride += size;
-        }
+        }, mo
 #endif
 
     }    // namespace Gfx

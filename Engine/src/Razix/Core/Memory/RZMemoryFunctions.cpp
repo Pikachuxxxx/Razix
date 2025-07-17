@@ -54,6 +54,13 @@ namespace Razix {
             return RZMalloc(size, alignment);
         }
 
+        void* RZMemCopyToHeap(void* data, size_t size)
+        {
+            u8* heapData = (u8*) RZMalloc(size);
+            memcpy(heapData, data, size);
+            return heapData;
+        }
+
         void RZFree(void* address)
         {
             // TODO: Begin tracking allocation here

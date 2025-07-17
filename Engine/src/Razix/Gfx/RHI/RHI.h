@@ -855,7 +855,8 @@ extern "C"
     typedef struct rz_gfx_shader_stage_file
     {
         rz_gfx_shader_stage stage;
-        const char*         filePath;    // Path to .cso/.spv/etc
+        const char*         bytecode;    // Path to .cso/.spv/etc
+        uint32_t            size;
     } rz_gfx_shader_stage_file;
 
     typedef struct rz_gfx_shader_desc
