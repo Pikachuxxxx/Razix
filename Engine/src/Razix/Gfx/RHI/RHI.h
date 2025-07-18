@@ -148,8 +148,8 @@ extern "C"
     typedef enum rz_render_api
     {
         RZ_RENDER_API_NONE = -1,
-        RZ_RENDER_API_VULKAN,    // MacOS/Linux
-        RZ_RENDER_API_D3D12,     // [WIP] // PC & XBOX
+        RZ_RENDER_API_VULKAN,    // Windows/MacOS/Linux
+        RZ_RENDER_API_D3D12,     // [WIP] // PC/XBOX
         RZ_RENDER_API_GXM,       // Not Supported yet! (PSVita)
         RZ_RENDER_API_GCM,       // Not Supported yet! (PS3)
         RZ_RENDER_API_AGC,       // Not Supported yet! (PlayStation 5)
@@ -731,12 +731,12 @@ extern "C"
         bool                     isDynamic;       // If true, buffer can be updated dynamically
     } rz_gfx_buffer_desc;
 
-    typedef struct rz_gfx_shader_stage_file
+    typedef struct rz_gfx_shader_stage_blob
     {
         rz_gfx_shader_stage stage;
         const char*         bytecode;    // Promised to be freed by RHI after shader creation
         uint32_t            size;
-    } rz_gfx_shader_stage_file;
+    } rz_gfx_shader_stage_blob;
 
     typedef struct rz_gfx_shader_desc
     {
@@ -747,32 +747,32 @@ extern "C"
         {
             struct
             {
-                rz_gfx_shader_stage_file vs;
-                rz_gfx_shader_stage_file ps;
-                rz_gfx_shader_stage_file gs;
-                rz_gfx_shader_stage_file tcs;
-                rz_gfx_shader_stage_file tes;
+                rz_gfx_shader_stage_blob vs;
+                rz_gfx_shader_stage_blob ps;
+                rz_gfx_shader_stage_blob gs;
+                rz_gfx_shader_stage_blob tcs;
+                rz_gfx_shader_stage_blob tes;
             } raster;
 
             struct
             {
-                rz_gfx_shader_stage_file cs;
+                rz_gfx_shader_stage_blob cs;
             } compute;
 
             struct
             {
-                rz_gfx_shader_stage_file task;
-                rz_gfx_shader_stage_file mesh;
-                rz_gfx_shader_stage_file ps;
+                rz_gfx_shader_stage_blob task;
+                rz_gfx_shader_stage_blob mesh;
+                rz_gfx_shader_stage_blob ps;
             } mesh;
 
             struct
             {
-                rz_gfx_shader_stage_file rgen;
-                rz_gfx_shader_stage_file miss;
-                rz_gfx_shader_stage_file chit;
-                rz_gfx_shader_stage_file ahit;
-                rz_gfx_shader_stage_file callable;
+                rz_gfx_shader_stage_blob rgen;
+                rz_gfx_shader_stage_blob miss;
+                rz_gfx_shader_stage_blob chit;
+                rz_gfx_shader_stage_blob ahit;
+                rz_gfx_shader_stage_blob callable;
             } raytracing;
         };
     } rz_gfx_shader_desc;
@@ -920,7 +920,6 @@ extern "C"
     typedef struct rz_gfx_descriptor_heap
     {
         RAZIX_GFX_RESOURCE;
-        rz_gfx_descriptor_heap_desc desc;
 #ifdef RAZIX_RENDER_API_VULKAN
         vk_descriptor_heap vk;
 #endif
@@ -932,7 +931,6 @@ extern "C"
     typedef struct rz_gfx_descriptor_table
     {
         RAZIX_GFX_RESOURCE;
-        rz_gfx_descriptor_table_desc desc;
 #ifdef RAZIX_RENDER_API_VULKAN
         vk_descriptor_table vk;
 #endif
@@ -955,7 +953,6 @@ extern "C"
     typedef struct rz_gfx_shader
     {
         RAZIX_GFX_RESOURCE;
-        rz_gfx_shader_desc           desc;
         rz_gfx_root_signature_handle rootSignature;
         uint32_t                     shaderStageMask;
         union
@@ -972,13 +969,11 @@ extern "C"
     typedef struct rz_gfx_pipeline
     {
         RAZIX_GFX_RESOURCE;
-        rz_gfx_pipeline_desc desc;
     } rz_gfx_pipeline;
 
     typedef struct rz_gfx_buffer
     {
         RAZIX_GFX_RESOURCE;
-        rz_gfx_buffer_desc desc;
     } rz_gfx_buffer;
 
     //---------------------------------------------------------------------------------------------
