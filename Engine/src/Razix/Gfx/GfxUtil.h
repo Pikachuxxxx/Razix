@@ -7,6 +7,11 @@
 namespace Razix {
     namespace Gfx {
 
+#define RAZIX_MAX_SHADER_SOURCE_SIZE 1024 * 1024
+#define RAZIX_MAX_LINE_LENGTH        1024
+#define RAZIX_MAX_SHADER_STAGES      RZ_GFX_SHADER_STAGE_COUNT
+#define RAZIX_MAX_INCLUDE_DEPTH      16
+
         /* Final target FPS */
         enum class TargetFPS
         {

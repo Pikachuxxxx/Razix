@@ -92,11 +92,11 @@ namespace Razix {
                 : m_FrameGraph(fg) {}
             // TODO: This uses the compiled resource entries and their descriptions to build aliased resources for the frame
             // TODO: For now it uses their default RHI API but once we have aliasable resources, we can use the extended RHI API to alias
-            void beginFrame();
-            void endFrame();
+            void beginFrame() {}
+            void endFrame() {}
 
             // Frees memory for all resources held by this allocator from ResourceManager
-            void destroy();
+            void destroy() {}
 
             //rz_texture_handle       acquireTransientTexture(const RZTextureDesc& desc, u32 id);
             //void                  releaseTransientTexture(rz_texture_handle handle, u32 id);
@@ -109,12 +109,12 @@ namespace Razix {
             inline const AliasingBook& getAliasBook() const { return m_AliasingBook; }
 
         private:
-            AliasingBook                                   m_AliasingBook;
-            std::vector<RZResourceLifetime>                m_RegisteredLifetimes;
+            AliasingBook                    m_AliasingBook;
+            std::vector<RZResourceLifetime> m_RegisteredLifetimes;
             //std::unordered_map<u32, rz_texture_handle>       m_TextureCache;
             //std::unordered_map<u32, RZUniformBufferHandle> m_BufferCache;
             //std::unordered_map<u32, RZSamplerHandle>       m_SamplerCache;
-            const Gfx::RZFrameGraph&                       m_FrameGraph;
+            const Gfx::RZFrameGraph& m_FrameGraph;
         };
 
 #define TRANSIENT_ALLOCATOR_CAST(x) ((RZTransientAllocator*) x)

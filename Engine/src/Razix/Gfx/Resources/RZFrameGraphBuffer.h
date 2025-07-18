@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Gfx/RHI/rhi.h"
+#include "Razix/Gfx/RHI/RHI.h"
 
 namespace Razix {
     namespace Gfx {

@@ -10,10 +10,9 @@
 //#include "Razix/Gfx/RZShaderLibrary.h"
 //#include "Razix/Gfx/Renderers/RZDebugRendererProxy.h"
 //#include "Razix/Gfx/Renderers/RZImGuiRendererProxy.h"
-//#include "Razix/Gfx/Resources/RZResourceManager.h"
+#include "Razix/Gfx/Resources/RZResourceManager.h"
 #include "Razix/Scene/RZSceneManager.h"
 #include "Razix/Scripting/RZLuaScriptHandler.h"
-
 
 namespace Razix {
 
@@ -28,12 +27,11 @@ namespace Razix {
     template class Razix::RZSingleton<Razix::RZEngine>;
     template class Razix::RZSingleton<Razix::RZSplashScreen>;
     template class Razix::RZSingleton<Razix::RZVirtualFileSystem>;
-    //template class Razix::RZSingleton<Razix::Gfx::RZResourceManager>;
+    template class Razix::RZSingleton<Razix::Gfx::RZResourceManager>;
     //template class Razix::RZSingleton<Razix::Gfx::RZShaderLibrary>;
     template class Razix::RZSingleton<Razix::RZSceneManager>;
     template class Razix::RZSingleton<Razix::Scripting::RZLuaScriptHandler>;
     //template class Razix::RZSingleton<Razix::Gfx::RZDebugRendererProxy>;
     //template class Razix::RZSingleton<Razix::Gfx::RZImGuiRendererProxy>;
-
 
 }    // namespace Razix

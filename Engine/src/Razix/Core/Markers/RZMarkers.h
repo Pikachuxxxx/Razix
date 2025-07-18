@@ -1,26 +1,10 @@
 #pragma once
 
-#ifndef RAZIX_GOLD_MASTER
+// TODO: Move GFX markers to RHI, calle them rzRHI_GfxMarker along with Query markers (timestamp and pipeline stats)
 
-    #define RAZIX_MARK_BEGIN(name, labelColor) BeginMarker(name, labelColor);
-
-    #define RAZIX_MARK_ADD(name, labelColor) InsertMarker(name, labelColor);
-
-    #define RAZIX_MARK_END() EndMarker();
-
-#else
-
-    #define RAZIX_MARK_BEGIN(name, labelColor)
-
-    #define RAZIX_MARK_ADD(name, labelColor)
-
-    #define RAZIX_MARK_END()
-
-#endif
-
-RAZIX_API void BeginMarker(const std::string& name, float4 color);
-RAZIX_API void InsertMarker(const std::string& name, float4 color);
-RAZIX_API void EndMarker();
+#define RAZIX_MARK_BEGIN(name, labelColor)
+#define RAZIX_MARK_ADD(name, labelColor)
+#define RAZIX_MARK_END()
 
 //------------------------------------------------------------------------
 // CPU timestamp markers

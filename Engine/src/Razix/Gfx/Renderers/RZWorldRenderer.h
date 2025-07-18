@@ -164,9 +164,10 @@ namespace Razix {
                     };
                 } frameSync;    // supports both timeline and fences in vulkan based on VK_KHR_timeline_semaphore availability
             } m_RenderSync;
-            rz_gfx_swapchain m_Swapchain;
-            rz_gfx_cmdpool   m_InFlightCmdPool[RAZIX_MAX_FRAMES_IN_FLIGHT];
-            rz_gfx_cmdbuf    m_InFlightDrawCmdBuf[RAZIX_MAX_FRAMES_IN_FLIGHT];
+            rz_gfx_swapchain      m_Swapchain;
+            rz_gfx_cmdpool_handle m_InFlightCmdPool[RAZIX_MAX_FRAMES_IN_FLIGHT];
+            rz_gfx_cmdbuf_handle  m_InFlightDrawCmdBufHandles[RAZIX_MAX_FRAMES_IN_FLIGHT];
+            const rz_gfx_cmdbuf*  m_InFlightDrawCmdBufPtrs[RAZIX_MAX_FRAMES_IN_FLIGHT];    // Caching at start because we re-use raw pointers so frequently
 
         private:
             //void importGlobalLightProbes(LightProbe globalLightProbe);

@@ -81,6 +81,23 @@ extern "C"
         printf(ANSI_COLOR_CYAN "[%s] [RHI/TRACE] " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
 #endif    // RAZIX_GOLD_MASTER
 
+#if defined(_MSC_VER)
+    #define RAZIX_DEBUG_BREAK() __debugbreak()
+#elif defined(__clang__) || defined(__GNUC__)
+    #define RAZIX_DEBUG_BREAK() __builtin_trap()
+#else
+    #define RAZIX_DEBUG_BREAK() ((void) 0)
+#endif
+
+#define RAZIX_RHI_ASSERT(cond, msg, ...)                                                             \
+    do {                                                                                             \
+        if (!(cond)) {                                                                               \
+            RAZIX_RHI_LOG_ERROR("[RHI ASSERT] %s:%d: " msg "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
+            RAZIX_DEBUG_BREAK();                                                                     \
+            abort();                                                                                 \
+        }                                                                                            \
+    } while (0)
+
 /****************************************************************************************************
 *                                         Graphics Settings                                        *
 ****************************************************************************************************/
@@ -124,11 +141,6 @@ extern "C"
 #define RAZIX_Y(v)               ((v)[1])
 #define RAZIX_Z(v)               ((v)[2])
 #define RAZIX_W(v)               ((v)[3])
-
-#define RAZIX_MAX_SHADER_SOURCE_SIZE 1024 * 1024
-#define RAZIX_MAX_LINE_LENGTH        1024
-#define RAZIX_MAX_SHADER_STAGES      RZ_GFX_SHADER_STAGE_COUNT
-#define RAZIX_MAX_INCLUDE_DEPTH      16
 
     //---------------------------------------------------------------------------------------------
     // GFX/RHI types
@@ -190,7 +202,7 @@ extern "C"
         RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_HEAP,
         RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_TABLE,
         RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE,
-        // RZ_GFX_RESOURCE_TYPE_CMD_POOL, // Will be promoted to a resource in future
+        RZ_GFX_RESOURCE_TYPE_CMD_POOL,
         RZ_GFX_RESOURCE_TYPE_CMD_BUFFER,
         RZ_GFX_RESOURCE_TYPE_PIPELINE,
 
@@ -259,8 +271,8 @@ extern "C"
         RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT,
         RZ_GFX_FORMAT_STENCIL8,
 
-        // Pseudo format for swapchain screen output     // Basically B8G8R8A8_UNORM
-        RZ_GFX_FORMAT_SCREEN = RZ_GFX_FORMAT_B8G8R8A8_UNORM,
+        // Pseudo format for swapchain screen output
+        RZ_GFX_FORMAT_SCREEN,    // Basically B8G8R8A8_UNORM
 
         // Block formats
         RZ_GFX_FORMAT_BC1_RGBA_UNORM,
@@ -642,7 +654,7 @@ extern "C"
         };
     } rz_gfx_color_rgb;
 
-    typedef void (*rz_gfx_resource_create_fn)(void* where, void* desc);
+    typedef void (*rz_gfx_resource_create_fn)(void* where);
     typedef void (*rz_gfx_resource_destroy_fn)(void* resource);
 
     typedef struct rz_gfx_texture_desc
@@ -697,6 +709,11 @@ extern "C"
         uint32_t                      rootConstantCount;
     } rz_gfx_root_signature_desc;
 
+    typedef struct rz_gfx_cmdpool_desc
+    {
+        rz_gfx_cmdpool_type poolType;
+    } rz_gfx_cmdpool_desc;
+
     typedef struct rz_gfx_cmdpool rz_gfx_cmdpool;
     typedef struct rz_gfx_cmdbuf_desc
     {
@@ -717,7 +734,7 @@ extern "C"
     typedef struct rz_gfx_shader_stage_file
     {
         rz_gfx_shader_stage stage;
-        const char*         bytecode;    // Path to .cso/.spv/etc
+        const char*         bytecode;    // Promised to be freed by RHI after shader creation
         uint32_t            size;
     } rz_gfx_shader_stage_file;
 
@@ -788,12 +805,11 @@ extern "C"
         rz_handle                  handle;
         rz_gfx_resource_view_hints viewHints;
         rz_gfx_resource_type       type;
-        rz_gfx_resource_create_fn  createCB;
-        rz_gfx_resource_destroy_fn destroyCB;
 
         union
         {
             rz_gfx_texture_desc          textureDesc;
+            rz_gfx_cmdpool_desc          cmdpoolDesc;
             rz_gfx_cmdbuf_desc           cmdbufDesc;
             rz_gfx_root_signature_desc   rootSignatureDesc;
             rz_gfx_descriptor_heap_desc  descriptorHeapDesc;
@@ -872,6 +888,7 @@ extern "C"
     // Note:- Exception!, this is not a resource as it's managed by the Renderer and very few in number, might make is a Resource later
     typedef struct rz_gfx_cmdpool
     {
+        RAZIX_GFX_RESOURCE;
         rz_gfx_cmdpool_type type;
         union
         {
@@ -1019,55 +1036,58 @@ extern "C"
     typedef void (*rzRHI_GlobalCtxInitFn)(void);
     typedef void (*rzRHI_GlobalCtxDestroyFn)(void);
 
+    //** NON-RESOURCE EXCEPTION **
     typedef void (*rzRHI_CreateSyncobjFn)(void* where, rz_gfx_syncobj_type);
     typedef void (*rzRHI_DestroySyncobjFn)(rz_gfx_syncobj*);
 
+    //** NON-RESOURCE EXCEPTION **
     typedef void (*rzRHI_CreateSwapchainFn)(void* where, void*, uint32_t, uint32_t);
     typedef void (*rzRHI_DestroySwapchainFn)(rz_gfx_swapchain*);
 
-    typedef void (*rzRHI_CreateCmdPoolFn)(void* where, rz_gfx_cmdpool_type);
-    typedef void (*rzRHI_DestroyCmdPoolFn)(rz_gfx_cmdpool*);
+    typedef void (*rzRHI_CreateCmdPoolFn)(void* where);
+    typedef void (*rzRHI_DestroyCmdPoolFn)(void* ptr);
 
-    typedef void (*rzRHI_CreateCmdBufFn)(void* where, rz_gfx_cmdbuf_desc desc);
-    typedef void (*rzRHI_DestroyCmdBufFn)(rz_gfx_cmdbuf*);
+    typedef void (*rzRHI_CreateCmdBufFn)(void* where);
+    typedef void (*rzRHI_DestroyCmdBufFn)(void* ptr);
 
-    typedef void                  (*rzRHI_CreateShaderFn)(void* where, rz_gfx_shader_desc desc);
-    typedef void                  (*rzRHI_DestroyShaderFn)(rz_gfx_shader* shader);
+    typedef void (*rzRHI_CreateShaderFn)(void* where);
+    typedef void (*rzRHI_DestroyShaderFn)(void* ptr);
+
     typedef rz_gfx_root_signature (*rzRHI_ReflectShaderFn)(const rz_gfx_shader* shaderDesc);
 
-    typedef void (*rzRHI_CreateRootSignatureFn)(void* where, rz_gfx_root_signature_desc desc);
-    typedef void (*rzRHI_DestroyRootSignatureFn)(rz_gfx_root_signature*);
+    typedef void (*rzRHI_CreateRootSignatureFn)(void* where);
+    typedef void (*rzRHI_DestroyRootSignatureFn)(void* ptr);
 
-    typedef void (*rzRHI_CreateDescriptorHeapFn)(void* where, rz_gfx_descriptor_heap_desc desc);
-    typedef void (*rzRHI_DestroyDescriptorHeapFn)(rz_gfx_descriptor_heap*);
+    typedef void (*rzRHI_CreateDescriptorHeapFn)(void* where);
+    typedef void (*rzRHI_DestroyDescriptorHeapFn)(void* ptr);
 
-    typedef void (*rzRHI_CreateDescriptorTableFn)(void* where, rz_gfx_descriptor_table_desc desc);
+    typedef void (*rzRHI_CreateDescriptorTableFn)(void* where);
 
     /**
      * RHI API
      */
-    typedef void (*rzRHI_BeginFrameFn)(rz_gfx_swapchain*, const rz_gfx_syncobj*, rz_gfx_syncpoint* frameSyncpoints, rz_gfx_syncpoint* globalSyncpoint);
-    typedef void (*rzRHI_EndFrameFn)(const rz_gfx_swapchain*, const rz_gfx_syncobj*, rz_gfx_syncpoint* frameSyncpoints, rz_gfx_syncpoint* globalSyncpoint);
-
     typedef void (*rzRHI_AcquireImageFn)(rz_gfx_swapchain*);
     typedef void (*rzRHI_WaitOnPrevCmdsFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint);
     typedef void (*rzRHI_PresentFn)(const rz_gfx_swapchain*);
 
     typedef void (*rzRHI_BeginCmdBufFn)(const rz_gfx_cmdbuf*);
     typedef void (*rzRHI_EndCmdBufFn)(const rz_gfx_cmdbuf*);
-    typedef void (*rzRHI_SubmitCmdBufFn)(rz_gfx_cmdbuf*);
+    typedef void (*rzRHI_SubmitCmdBufFn)(const rz_gfx_cmdbuf*);
 
     typedef void (*rzRHI_BeginRenderPassFn)(const rz_gfx_cmdbuf*, rz_gfx_renderpass);
     typedef void (*rzRHI_EndRenderPassFn)(const rz_gfx_cmdbuf*);
 
-    typedef void (*rzRHI_SetViewportFn)(rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewport);
-    typedef void (*rzRHI_SetScissorRectFn)(rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* rect);
+    typedef void (*rzRHI_SetViewportFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewport);
+    typedef void (*rzRHI_SetScissorRectFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* rect);
 
-    typedef void (*rzRHI_InsertImageBarrierFn)(rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*, rz_gfx_resource_state, rz_gfx_resource_state);
+    typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*, rz_gfx_resource_state, rz_gfx_resource_state);
 
     typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
     typedef void             (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
     typedef void             (*rzRHI_ResizeSwapchainFn)(rz_gfx_swapchain*, uint32_t, uint32_t);
+
+    typedef void (*rzRHI_BeginFrameFn)(rz_gfx_swapchain*, const rz_gfx_syncobj*, rz_gfx_syncpoint* frameSyncpoints, rz_gfx_syncpoint* globalSyncpoint);
+    typedef void (*rzRHI_EndFrameFn)(const rz_gfx_swapchain*, const rz_gfx_syncobj*, rz_gfx_syncpoint* frameSyncpoints, rz_gfx_syncpoint* globalSyncpoint);
 
     typedef struct rz_rhi_api
     {
@@ -1091,7 +1111,7 @@ extern "C"
         rzRHI_CreateDescriptorHeapFn  CreateDescriptorHeap;
         rzRHI_DestroyDescriptorHeapFn DestroyDescriptorHeap;
         rzRHI_CreateDescriptorTableFn CreateDescriptorTable;
-
+        //....
         rzRHI_AcquireImageFn       AcquireImage;
         rzRHI_WaitOnPrevCmdsFn     WaitOnPrevCmds;
         rzRHI_PresentFn            Present;
@@ -1103,9 +1123,7 @@ extern "C"
         rzRHI_SetScissorRectFn     SetScissorRect;
         rzRHI_SetViewportFn        SetViewport;
         rzRHI_InsertImageBarrierFn InsertImageBarrier;
-
         // ....
-
         rzRHI_SignalGPUFn       SignalGPU;
         rzRHI_FlushGPUWorkFn    FlushGPUWork;
         rzRHI_ResizeSwapchainFn ResizeSwapchain;
@@ -1146,23 +1164,43 @@ extern "C"
 #define rzRHI_CreateRootSignature   g_RHI.CreateRootSignature
 #define rzRHI_DestroyRootSignature  g_RHI.DestroyRootSignature
 
-#define rzRHI_AcquireImage       g_RHI.AcquireImage
-#define rzRHI_WaitOnPrevCmds     g_RHI.WaitOnPrevCmds
-#define rzRHI_Present            g_RHI.Present
-#define rzRHI_BeginCmdBuf        g_RHI.BeginCmdBuf
-#define rzRHI_EndCmdBuf          g_RHI.EndCmdBuf
-#define rzRHI_SubmitCmdBuf       g_RHI.SubmitCmdBuf
-#define rzRHI_BeginRenderPass    g_RHI.BeginRenderPass
-#define rzRHI_EndRenderPass      g_RHI.EndRenderPass
-#define rzRHI_SetScissorRect     g_RHI.SetScissorRect
-#define rzRHI_SetViewport        g_RHI.SetViewport
-#define rzRHI_InsertImageBarrier g_RHI.InsertImageBarrier
-
-#define rzRHI_SignalGPU       g_RHI.SignalGPU
-#define rzRHI_FlushGPUWork    g_RHI.FlushGPUWork
-#define rzRHI_ResizeSwapchain g_RHI.ResizeSwapchain
-#define rzRHI_BeginFrame      g_RHI.BeginFrame
-#define rzRHI_EndFrame        g_RHI.EndFrame
+#if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
+    #define rzRHI_AcquireImage       g_RHI.AcquireImage
+    #define rzRHI_WaitOnPrevCmds     g_RHI.WaitOnPrevCmds
+    #define rzRHI_Present            g_RHI.Present
+    #define rzRHI_BeginCmdBuf(cb)    g_RHI.BeginCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
+    #define rzRHI_EndCmdBuf          g_RHI.EndCmdBuf
+    #define rzRHI_SubmitCmdBuf       g_RHI.SubmitCmdBuf
+    #define rzRHI_BeginRenderPass    g_RHI.BeginRenderPass
+    #define rzRHI_EndRenderPass      g_RHI.EndRenderPass
+    #define rzRHI_SetScissorRect     g_RHI.SetScissorRect
+    #define rzRHI_SetViewport        g_RHI.SetViewport
+    #define rzRHI_InsertImageBarrier g_RHI.InsertImageBarrier
+    // ....
+    #define rzRHI_SignalGPU       g_RHI.SignalGPU
+    #define rzRHI_FlushGPUWork    g_RHI.FlushGPUWork
+    #define rzRHI_ResizeSwapchain g_RHI.ResizeSwapchain
+    #define rzRHI_BeginFrame      g_RHI.BeginFrame
+    #define rzRHI_EndFrame        g_RHI.EndFrame
+#else
+    #define rzRHI_AcquireImage       g_RHI.AcquireImage
+    #define rzRHI_WaitOnPrevCmds     g_RHI.WaitOnPrevCmds
+    #define rzRHI_Present            g_RHI.Present
+    #define rzRHI_BeginCmdBuf        g_RHI.BeginCmdBuf
+    #define rzRHI_EndCmdBuf          g_RHI.EndCmdBuf
+    #define rzRHI_SubmitCmdBuf       g_RHI.SubmitCmdBuf
+    #define rzRHI_BeginRenderPass    g_RHI.BeginRenderPass
+    #define rzRHI_EndRenderPass      g_RHI.EndRenderPass
+    #define rzRHI_SetScissorRect     g_RHI.SetScissorRect
+    #define rzRHI_SetViewport        g_RHI.SetViewport
+    #define rzRHI_InsertImageBarrier g_RHI.InsertImageBarrier
+    // ....
+    #define rzRHI_SignalGPU          g_RHI.SignalGPU
+    #define rzRHI_FlushGPUWork       g_RHI.FlushGPUWork
+    #define rzRHI_ResizeSwapchain    g_RHI.ResizeSwapchain
+    #define rzRHI_BeginFrame         g_RHI.BeginFrame
+    #define rzRHI_EndFrame           g_RHI.EndFrame
+#endif
 
 #ifdef __cplusplus
 }

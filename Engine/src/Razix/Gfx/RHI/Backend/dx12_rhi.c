@@ -649,57 +649,70 @@ static void dx12_DestroySwapchain(rz_gfx_swapchain* sc)
     sc->currBackBufferIdx = 0;
 }
 
-static void dx12_CreateCmdPool(void* where, rz_gfx_cmdpool_type type)
+static void dx12_CreateCmdPool(void* where)
 {
     rz_gfx_cmdpool* cmdPool = (rz_gfx_cmdpool*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&cmdPool->resource.handle), "Invalid cmd pool handle, who is allocating this? ResourceManager should create a valid handle");
 
-    CHECK_HR(ID3D12Device10_CreateCommandAllocator(DX12Device, dx12_util_rz_cmdpool_to_cmd_list_type(type), &IID_ID3D12CommandAllocator, (void**) &cmdPool->dx12.cmdAlloc));
+    CHECK_HR(ID3D12Device10_CreateCommandAllocator(DX12Device, dx12_util_rz_cmdpool_to_cmd_list_type(cmdPool->resource.desc.cmdpoolDesc.poolType), &IID_ID3D12CommandAllocator, (void**) &cmdPool->dx12.cmdAlloc));
     if (cmdPool->dx12.cmdAlloc == NULL) {
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Command Allocator");
         return;
     }
-    cmdPool->type = type;
-    TAG_OBJECT(cmdPool->dx12.cmdAlloc, "D3D12 Command Allocator");
+    cmdPool->type = cmdPool->resource.desc.cmdpoolDesc.poolType;
+    TAG_OBJECT(cmdPool->dx12.cmdAlloc, cmdPool->resource.name);
 }
 
-static void dx12_DestroyCmdPool(rz_gfx_cmdpool* cmdPool)
+static void dx12_DestroyCmdPool(void* cmdPool)
 {
-    if (cmdPool->dx12.cmdAlloc) {
-        ID3D12CommandAllocator_Release(cmdPool->dx12.cmdAlloc);
-        cmdPool->dx12.cmdAlloc = NULL;
+    RAZIX_RHI_ASSERT(cmdPool != NULL, "Command pool is NULL, cannot destroy");
+    rz_gfx_cmdpool* cmdPoolPtr = (rz_gfx_cmdpool*) cmdPool;
+    if (cmdPoolPtr->dx12.cmdAlloc) {
+        ID3D12CommandAllocator_Release(cmdPoolPtr->dx12.cmdAlloc);
+        cmdPoolPtr->dx12.cmdAlloc = NULL;
     }
 }
 
-static void dx12_CreateCmdBuf(void* where, rz_gfx_cmdbuf_desc desc)
+static void dx12_CreateCmdBuf(void* where)
 {
     rz_gfx_cmdbuf* cmdBuf = (rz_gfx_cmdbuf*) where;
-    cmdBuf->dx12.cmdAlloc = desc.pool->dx12.cmdAlloc;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&cmdBuf->resource.handle), "Invalid command buffer handle, who is allocating this? ResourceManager should create a valid handle");
+    const rz_gfx_cmdpool* cmdPool = cmdBuf->resource.desc.cmdbufDesc.pool;
+    RAZIX_RHI_ASSERT(cmdPool != NULL, "Command buffer must have a valid command pool");
+    cmdBuf->dx12.cmdAlloc = cmdBuf->resource.desc.cmdbufDesc.pool->dx12.cmdAlloc;
+    RAZIX_RHI_ASSERT(cmdBuf->dx12.cmdAlloc != NULL, "Command buffer must have a valid command allocator");
 
-    CHECK_HR(ID3D12Device10_CreateCommandList(DX12Device, 0, dx12_util_rz_cmdpool_to_cmd_list_type(desc.pool->type), desc.pool->dx12.cmdAlloc, NULL, &IID_ID3D12GraphicsCommandList, (void**) &cmdBuf->dx12.cmdList));
+    CHECK_HR(ID3D12Device10_CreateCommandList(DX12Device, 0, dx12_util_rz_cmdpool_to_cmd_list_type(cmdPool->type), cmdPool->dx12.cmdAlloc, NULL, &IID_ID3D12GraphicsCommandList, (void**) &cmdBuf->dx12.cmdList));
     if (cmdBuf->dx12.cmdList == NULL) {
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Command List");
         return;
     }
     // Immediately close it so that the first use can Reset() safely
     CHECK_HR(ID3D12GraphicsCommandList_Close(cmdBuf->dx12.cmdList));
-    TAG_OBJECT(cmdBuf->dx12.cmdList, "D3D12 Command List");
+    TAG_OBJECT(cmdBuf->dx12.cmdList, cmdBuf->resource.name);
 }
 
-static void dx12_DestroyCmdBuf(rz_gfx_cmdbuf* cmdBuf)
+static void dx12_DestroyCmdBuf(void* cmdBuf)
 {
-    if (cmdBuf->dx12.cmdList) {
-        ID3D12GraphicsCommandList_Release(cmdBuf->dx12.cmdList);
-        cmdBuf->dx12.cmdList = NULL;
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer is NULL, cannot destroy");
+    rz_gfx_cmdbuf* cmdBufPtr = (rz_gfx_cmdbuf*) cmdBuf;
+    if (cmdBufPtr->dx12.cmdList) {
+        ID3D12GraphicsCommandList_Release(cmdBufPtr->dx12.cmdList);
+        cmdBufPtr->dx12.cmdList = NULL;
     }
 }
 
-static void dx12_CreateShader(void* where, rz_gfx_shader_desc desc)
+static void dx12_CreateShader(void* where)
 {
     rz_gfx_shader* shader = (rz_gfx_shader*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&shader->resource.handle), "Invalid shader handle, who is allocating this? ResourceManager should create a valid handle");
 }
 
-static void dx12_DestroyShader(rz_gfx_shader* shader)
+static void dx12_DestroyShader(void* shader)
 {
+    RAZIX_RHI_ASSERT(shader != NULL, "Shader is NULL, cannot destroy");
+    rz_gfx_shader* shaderPtr = (rz_gfx_shader*) shader;
+    (void) shaderPtr;
 }
 
 static rz_gfx_root_signature dx12_ReflectShader(const rz_gfx_shader* shaderDesc)
@@ -818,7 +831,7 @@ static void dx12_EndRenderPass(const rz_gfx_cmdbuf* cmdBuf)
     (void) cmdBuf;
 }
 
-static void dx12_SetViewport(rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewport)
+static void dx12_SetViewport(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewport)
 {
     D3D12_VIEWPORT vp = {
         .TopLeftX = (FLOAT) viewport->x,
@@ -830,7 +843,7 @@ static void dx12_SetViewport(rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewp
     ID3D12GraphicsCommandList_RSSetViewports(cmdBuf->dx12.cmdList, 1, &vp);
 }
 
-static void dx12_SetScissorRect(rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* rect)
+static void dx12_SetScissorRect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* rect)
 {
     D3D12_RECT scissor = {
         .left   = (LONG) rect->x,
@@ -840,7 +853,7 @@ static void dx12_SetScissorRect(rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* rect)
     ID3D12GraphicsCommandList_RSSetScissorRects(cmdBuf->dx12.cmdList, 1, &scissor);
 }
 
-static void dx12_InsertImageBarrier(rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
+static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
 {
     D3D12_RESOURCE_BARRIER barrier = {
         .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
@@ -918,16 +931,17 @@ static void dx12_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* fram
 // Jump table
 
 rz_rhi_api dx12_rhi = {
-    .GlobalCtxInit      = dx12_GlobalCtxInit,         // GlobalCtxInit
-    .GlobalCtxDestroy   = dx12_GlobalCtxDestroy,      // GlobalCtxDestroy
-    .CreateSyncobj      = dx12_CreateSyncobjFn,       // CreateSyncobj
-    .DestroySyncobj     = dx12_DestroySyncobjFn,      // DestroySyncobj
-    .CreateSwapchain    = dx12_CreateSwapchain,       // CreateSwapchain
-    .DestroySwapchain   = dx12_DestroySwapchain,      // DestroySwapchain
-    .CreateCmdPool      = dx12_CreateCmdPool,         // CreateCmdPool
-    .DestroyCmdPool     = dx12_DestroyCmdPool,        // DestroyCmdPool
-    .CreateCmdBuf       = dx12_CreateCmdBuf,          // CreateCmdBuf
-    .DestroyCmdBuf      = dx12_DestroyCmdBuf,         // DestroyCmdBuf
+    .GlobalCtxInit    = dx12_GlobalCtxInit,       // GlobalCtxInit
+    .GlobalCtxDestroy = dx12_GlobalCtxDestroy,    // GlobalCtxDestroy
+    .CreateSyncobj    = dx12_CreateSyncobjFn,     // CreateSyncobj
+    .DestroySyncobj   = dx12_DestroySyncobjFn,    // DestroySyncobj
+    .CreateSwapchain  = dx12_CreateSwapchain,     // CreateSwapchain
+    .DestroySwapchain = dx12_DestroySwapchain,    // DestroySwapchain
+    .CreateCmdPool    = dx12_CreateCmdPool,       // CreateCmdPool
+    .DestroyCmdPool   = dx12_DestroyCmdPool,      // DestroyCmdPool
+    .CreateCmdBuf     = dx12_CreateCmdBuf,        // CreateCmdBuf
+    .DestroyCmdBuf    = dx12_DestroyCmdBuf,       // DestroyCmdBuf
+
     .AcquireImage       = dx12_AcquireImage,          // AcquireImage
     .WaitOnPrevCmds     = dx12_WaitOnPrevCmds,        // WaitOnPrevCmds
     .Present            = dx12_Present,               // Present

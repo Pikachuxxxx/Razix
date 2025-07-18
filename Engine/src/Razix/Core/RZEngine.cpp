@@ -11,6 +11,8 @@
 
 #include "Razix/Core/Memory/RZCPUMemoryManager.h"
 
+#include "Razix/Gfx/Resources/RZResourceManager.h"
+
 #include "Razix/Utilities/RZiniParser.h"
 
 namespace Razix {
@@ -65,6 +67,8 @@ namespace Razix {
         // 5. Graphics API (last one in the engine to fire up)
         rzGfxCtx_StartUp();
 
+        Gfx::RZResourceManager::Get().StartUp();
+
         // Log after all the Engine systems have been successfully Started Up
         RAZIX_CORE_INFO("***********************************");
         RAZIX_CORE_INFO("*          Engine Ignited!        *");
@@ -100,6 +104,8 @@ namespace Razix {
         RAZIX_CORE_ERROR("***********************************");
 
         // Shutting down all the sub-systems
+
+        Gfx::RZResourceManager::Get().ShutDown();
 
         // 5. Graphics API
         rzGfxCtx_ShutDown();

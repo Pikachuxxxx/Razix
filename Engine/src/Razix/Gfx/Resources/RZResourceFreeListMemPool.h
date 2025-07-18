@@ -96,18 +96,15 @@ namespace Razix {
         template<typename T>
         inline void RZResourceFreeListMemPoolTyped<T>::release(rz_handle& handle)
         {
-            T* resource = getInternal(handle);
-            if (resource->destroy_cb)
-                resource->destroy_cb(resource);
             rz_handle_set_generation(&handle, 0);
-            RZResourceFreeListMemPool::releaseResource(rz_handle_get_index(*handle));
+            RZResourceFreeListMemPool::releaseResource(rz_handle_get_index(&handle));
         }
 
         template<typename T>
         inline T* RZResourceFreeListMemPoolTyped<T>::getInternal(rz_handle& handle)
         {
-            if (handle.isValid())
-                return (T*) RZResourceFreeListMemPool::accessResource(rz_handle_get_index(*handle));
+            if (rz_handle_is_valid(&handle))
+                return (T*) RZResourceFreeListMemPool::accessResource(rz_handle_get_index(&handle));
             else
                 return nullptr;
         }
@@ -115,8 +112,8 @@ namespace Razix {
         template<typename T>
         inline T* RZResourceFreeListMemPoolTyped<T>::get(rz_handle handle) const
         {
-            if (handle.isValid())
-                return (/*const */ T*) RZResourceFreeListMemPool::accessResource(rz_handle_get_index(*handle));
+            if (rz_handle_is_valid(&handle))
+                return (/*const */ T*) RZResourceFreeListMemPool::accessResource(rz_handle_get_index(&handle));
             else
                 return nullptr;
         }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Gfx/RHI/RHI.h"
+
 namespace Razix {
     namespace Gfx {
 

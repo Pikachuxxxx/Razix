@@ -11,21 +11,27 @@
 namespace Razix {
     namespace Gfx {
 
-#define RAZIX_REGISTER_RESOURCE_POOL(poolName, resourceType)                     \
-public:                                                                          \
-    template<>                                                                   \
-    RZResourceFreeListMemPoolTyped<resourceType>& getPool()                      \
-    {                                                                            \
-        return m_##poolName##Pool;                                               \
-    }                                                                            \
-                                                                                 \
-public:                                                                          \
-    resourceType##_handle create##poolName(const resourceType##_desc& desc);     \
-    void                  destroy##poolName(resourceType##_handle& handle);      \
-    resourceType*         get##poolName##Resource(resourceType##_handle handle); \
-                                                                                 \
-private:                                                                         \
-    RZResourceFreeListMemPoolTyped<resourceType> m_##poolName##Pool;
+        struct RZResourceCBFuncs
+        {
+            rz_gfx_resource_create_fn  createFuncCB;
+            rz_gfx_resource_destroy_fn destroyFuncCB;
+        };
+
+#define RAZIX_REGISTER_RESOURCE_POOL(poolName, resourceTypeName)                                       \
+public:                                                                                                \
+    template<>                                                                                         \
+    RZResourceFreeListMemPoolTyped<resourceTypeName>& getPool()                                        \
+    {                                                                                                  \
+        return m_##poolName##Pool;                                                                     \
+    }                                                                                                  \
+                                                                                                       \
+public:                                                                                                \
+    resourceTypeName##_handle create##poolName(const char* name, const resourceTypeName##_desc& desc); \
+    void                      destroy##poolName(resourceTypeName##_handle& handle);                    \
+    resourceTypeName*         get##poolName##Resource(resourceTypeName##_handle handle);               \
+                                                                                                       \
+private:                                                                                               \
+    RZResourceFreeListMemPoolTyped<resourceTypeName> m_##poolName##Pool;
 
         /**
          * Resource Manager maintains the CPU and GPU pools for all resource allocated in Razix Engine
@@ -68,13 +74,16 @@ private:                                                                        
             // //-----------------------------------------------------------------------------------
             // RAZIX_REGISTER_RESOURCE_POOL(index_buffer, const RZBufferDesc& desc)
             //
-            // //-----------------------------------------------------------------------------------
-            // RAZIX_REGISTER_RESOURCE_POOL(command_pool, PoolType type)
-            // //-----------------------------------------------------------------------------------
-            // RAZIX_REGISTER_RESOURCE_POOL(DrawCommandBuffer, RZCommandPoolHandle pool)
-            // //-----------------------------------------------------------------------------------
+            //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(CommandPool, rz_gfx_cmdpool)
+            //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(CommandBuffer, rz_gfx_cmdbuf)
+            //-----------------------------------------------------------------------------------
             // RAZIX_REGISTER_RESOURCE_POOL(DescriptorSet, const RZDescriptorSetDesc& desc)
             // //-----------------------------------------------------------------------------------
+
+        private:
+            RZResourceCBFuncs m_ResourceTypeCBFuncs[RZ_GFX_RESOURCE_TYPE_COUNT];
         };
 
 #define RZ_GET_RESOURCE_MANAGER()      RZResourceManager::Get()
