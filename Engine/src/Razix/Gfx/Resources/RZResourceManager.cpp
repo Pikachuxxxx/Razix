@@ -111,7 +111,7 @@ namespace Razix {
             ////////////////////////////////
             //RAZIX_UNREGISTER_RESOURCE_POOL(Texture)
             //RAZIX_UNREGISTER_RESOURCE_POOL(Sampler)
-            //RAZIX_UNREGISTER_RESOURCE_POOL(Shader)
+            RAZIX_UNREGISTER_RESOURCE_POOL(Shader)
             //RAZIX_UNREGISTER_RESOURCE_POOL(Pipeline)
             //RAZIX_UNREGISTER_RESOURCE_POOL(UniformBuffer)
             RAZIX_UNREGISTER_RESOURCE_POOL(CommandPool);
@@ -126,7 +126,7 @@ namespace Razix {
 
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Texture, const RZTextureDesc& desc)
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Sampler, const RZSamplerDesc& desc)
-        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Shader, const RZShaderDesc& desc)
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Shader, RZ_GFX_RESOURCE_TYPE_SHADER, rz_gfx_shader)
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Pipeline, const RZPipelineDesc& desc)
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(UniformBuffer, const RZBufferDesc& desc)
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(VertexBuffer, const RZBufferDesc& desc)
