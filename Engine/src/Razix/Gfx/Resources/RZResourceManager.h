@@ -64,7 +64,7 @@ private:                                                                        
             // //-----------------------------------------------------------------------------------
             // RAZIX_REGISTER_RESOURCE_POOL(sampler, const RZSamplerDesc& desc)
             // //-----------------------------------------------------------------------------------
-            // RAZIX_REGISTER_RESOURCE_POOL(shader, const RZShaderDesc& desc)
+            RAZIX_REGISTER_RESOURCE_POOL(Shader, rz_gfx_shader)
             // //-----------------------------------------------------------------------------------
             // RAZIX_REGISTER_RESOURCE_POOL(pipeline, const RZPipelineDesc& desc)
             // //-----------------------------------------------------------------------------------

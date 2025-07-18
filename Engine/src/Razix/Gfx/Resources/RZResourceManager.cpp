@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZResourceManager.h"
 
+#include "Razix/Gfx/GfxUtil.h"
+
 #define CREATE_UTIL(name, typeEnum, pool, handleSize)                                                    \
     rz_handle        handle;                                                                             \
     void*            where    = pool.obtain(handle);                                                     \
@@ -72,6 +74,17 @@
 namespace Razix {
     namespace Gfx {
 
+        static void RZSFCreateOverrideFunc(void* where)
+        {
+            rz_gfx_shader_desc* desc = (rz_gfx_shader_desc*) where;
+            RAZIX_ASSERT(desc->rzsfFilePath != nullptr, "[Resource Manager] RZSF file path is null! Cannot create shader from RZSF file!");
+            rz_gfx_shader_desc parsedDesc = Gfx::ParseRZSF(std::string(desc->rzsfFilePath));
+            Memory::RZFree((void*) desc->rzsfFilePath);
+            desc->rzsfFilePath = nullptr;
+            memcpy(desc, &parsedDesc, sizeof(rz_gfx_shader_desc));
+            rzRHI_CreateShader(where);
+        }
+
         void RZResourceManager::StartUp()
         {
             RAZIX_CORE_INFO("[Resource Manager] Starting Up Resource Manager");
@@ -80,10 +93,10 @@ namespace Razix {
             // Initialize all the Pools
             //RAZIX_INIT_RESOURCE_POOL(Texture, 2048, sizeof(rz_gfx_texture));
             //RAZIX_INIT_RESOURCE_POOL(Sampler, 32)
-            //RAZIX_INIT_RESOURCE_POOL(Shader, 512)
+            RAZIX_INIT_RESOURCE_POOL(Shader, RZ_GFX_RESOURCE_TYPE_SHADER, 512, sizeof(rz_gfx_shader), RZSFCreateOverrideFunc, rzRHI_DestroyShader);
             //RAZIX_INIT_RESOURCE_POOL(Pipeline, 512)
             //RAZIX_INIT_RESOURCE_POOL(UniformBuffer, 2048)
-            RAZIX_INIT_RESOURCE_POOL(CommandPool, RZ_GFX_RESOURCE_TYPE_CMD_POOL, 32, sizeof(rz_gfx_cmdpool), rzRHI_CreateCmdPool, rzRHI_DestroyCmdPool)
+            RAZIX_INIT_RESOURCE_POOL(CommandPool, RZ_GFX_RESOURCE_TYPE_CMD_POOL, 32, sizeof(rz_gfx_cmdpool), rzRHI_CreateCmdPool, rzRHI_DestroyCmdPool);
             RAZIX_INIT_RESOURCE_POOL(CommandBuffer, RZ_GFX_RESOURCE_TYPE_CMD_BUFFER, 32 * 32, sizeof(rz_gfx_cmdbuf), rzRHI_CreateCmdBuf, rzRHI_DestroyCmdBuf);
             //RAZIX_INIT_RESOURCE_POOL(VertexBuffer, 512)
             //RAZIX_INIT_RESOURCE_POOL(IndexBuffer, 512)
@@ -101,8 +114,8 @@ namespace Razix {
             //RAZIX_UNREGISTER_RESOURCE_POOL(Shader)
             //RAZIX_UNREGISTER_RESOURCE_POOL(Pipeline)
             //RAZIX_UNREGISTER_RESOURCE_POOL(UniformBuffer)
-            RAZIX_UNREGISTER_RESOURCE_POOL(CommandPool)
-            RAZIX_UNREGISTER_RESOURCE_POOL(CommandBuffer)
+            RAZIX_UNREGISTER_RESOURCE_POOL(CommandPool);
+            RAZIX_UNREGISTER_RESOURCE_POOL(CommandBuffer);
             //RAZIX_UNREGISTER_RESOURCE_POOL(VertexBuffer)
             //RAZIX_UNREGISTER_RESOURCE_POOL(IndexBuffer)
             //RAZIX_UNREGISTER_RESOURCE_POOL(DescriptorSet)

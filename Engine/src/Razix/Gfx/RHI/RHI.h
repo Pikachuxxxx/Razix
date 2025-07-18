@@ -740,8 +740,8 @@ extern "C"
 
     typedef struct rz_gfx_shader_desc
     {
-        const char*          name;
         rz_gfx_pipeline_type pipelineType;
+        const char*          rzsfFilePath;    // helper member to re-use this struct
 
         union
         {
