@@ -741,10 +741,9 @@ extern "C"
     typedef struct rz_gfx_shader_desc
     {
         rz_gfx_pipeline_type pipelineType;
-        const char*          rzsfFilePath;    // helper member to re-use this struct
-
         union
         {
+            const char* rzsfFilePath;    // helper member to re-use this struct, used before shader blobs are filled, safe to use here, freed before it reaches RHI
             struct
             {
                 rz_gfx_shader_stage_blob vs;

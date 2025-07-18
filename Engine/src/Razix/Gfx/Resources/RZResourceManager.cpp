@@ -76,12 +76,14 @@ namespace Razix {
 
         static void RZSFCreateOverrideFunc(void* where)
         {
-            rz_gfx_shader*      shader     = (rz_gfx_shader*) where;
+            rz_gfx_shader* shader = (rz_gfx_shader*) where;
+            RAZIX_ASSERT(shader != nullptr, "[Resource Manager] Shader resource is null! Cannot create shader from RZSF file!");
             rz_gfx_shader_desc* shaderDesc = &shader->resource.desc.shaderDesc;
+            RAZIX_ASSERT(shaderDesc != nullptr, "[Resource Manager] Shader description is null! Cannot create shader from RZSF file!");
             RAZIX_ASSERT(shaderDesc->rzsfFilePath != nullptr, "[Resource Manager] RZSF file path is null! Cannot create shader from RZSF file!");
             rz_gfx_shader_desc parsedDesc = Gfx::ParseRZSF(std::string(shaderDesc->rzsfFilePath));
             Memory::RZFree((void*) shaderDesc->rzsfFilePath);
-            shaderDesc->rzsfFilePath = nullptr;
+            shaderDesc->rzsfFilePath = NULL;
             memcpy(shaderDesc, &parsedDesc, sizeof(rz_gfx_shader_desc));
             rzRHI_CreateShader(where);
         }
