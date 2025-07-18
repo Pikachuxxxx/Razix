@@ -2,34 +2,30 @@
 
 #include "Razix/Core/RZHandle.h"
 
-#include "Razix/Gfx/Resources/RZResourcePool.h"
+#include "Razix/Gfx/Resources/RZResourceFreeListMemPool.h"
 
 #include "Razix/Utilities/TRZSingleton.h"
 
-#include "Razix/Gfx/GfxData.h"
+#include "Razix/Gfx/RHI/RHI.h"
 
 namespace Razix {
     namespace Gfx {
 
-#define RAZIX_REGISTER_RESOURCE_POOL(resourceName, ...)                                         \
-public:                                                                                         \
-    template<>                                                                                  \
-    RZResourcePoolTyped<rz_gfx_##resourceName##>& getPool()                                     \
-    {                                                                                           \
-        return m_##resourceName##Pool;                                                          \
-    }                                                                                           \
-                                                                                                \
-public:                                                                                         \
-    rz_##resourceName##_handle create_##resourceName(__VA_ARGS__);                              \
-    void                       destroy_##resourceName(rz_##resourceName##_handle& handle);      \
-    rz_gfx_##resourceName*     get_##resourceName##Resource(rz_##resourceName##_handle handle); \
-                                                                                                \
-private:                                                                                        \
-    RZResourcePoolTyped<rz_gfx_##resourceName> m_##resourceName##Pool;
-
-        struct rz_gfx_texture;
-        enum ShaderBuiltin;
-        enum rz_gfx_pool_type;
+#define RAZIX_REGISTER_RESOURCE_POOL(poolName, resourceType)                     \
+public:                                                                          \
+    template<>                                                                   \
+    RZResourceFreeListMemPoolTyped<resourceType>& getPool()                      \
+    {                                                                            \
+        return m_##poolName##Pool;                                               \
+    }                                                                            \
+                                                                                 \
+public:                                                                          \
+    resourceType##_handle create##poolName(const resourceType##_desc& desc);     \
+    void                  destroy##poolName(resourceType##_handle& handle);      \
+    resourceType*         get##poolName##Resource(resourceType##_handle handle); \
+                                                                                 \
+private:                                                                         \
+    RZResourceFreeListMemPoolTyped<resourceType> m_##poolName##Pool;
 
         /**
          * Resource Manager maintains the CPU and GPU pools for all resource allocated in Razix Engine
@@ -52,13 +48,13 @@ private:                                                                        
             void ShutDown();
 
             template<class T>
-            RZResourcePoolTyped<T>& getPool()
+            RZResourceFreeListMemPoolTyped<T>& getPool()
             {
             }
 
             /* Handles Resource Allocation functions */
             //-----------------------------------------------------------------------------------
-            RAZIX_REGISTER_RESOURCE_POOL(texture, const rz_texture_desc& desc)
+            RAZIX_REGISTER_RESOURCE_POOL(Texture, rz_gfx_texture)
             // //-----------------------------------------------------------------------------------
             // RAZIX_REGISTER_RESOURCE_POOL(sampler, const RZSamplerDesc& desc)
             // //-----------------------------------------------------------------------------------

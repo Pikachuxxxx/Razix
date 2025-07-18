@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Razix/Gfx/GfxData.h"
-
 namespace Razix {
     namespace Gfx {
 
@@ -32,10 +30,10 @@ namespace Razix {
 
             static std::string toString(const Desc& desc);
 
-            Gfx::rz_texture_handle getHandle() const { return m_TextureHandle; }
+            rz_gfx_texture_handle getHandle() const { return m_TextureHandle; }
 
             // public for initializer list support
-            Gfx::rz_texture_handle m_TextureHandle;
+            rz_gfx_texture_handle m_TextureHandle;
         };
     }    // namespace Gfx
 }    // namespace Razix

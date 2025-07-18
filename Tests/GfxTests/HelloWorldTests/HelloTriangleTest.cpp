@@ -33,14 +33,14 @@ public:
 
     void OnQuit() override
     {
-        //Gfx::RZGraphicsContext::GetContext()->Wait();
+        RZEngine::Get().getWorldRenderer().flushGPUWork();
 
-        //helloTriangleTestPass.destroy();
+        helloTriangleTestPass.destroy();
         RZGfxTestAppBase::OnQuit();
     }
 
 private:
-    //Razix::Gfx::RZHelloTriangleTestPass helloTriangleTestPass;
+    Razix::Gfx::RZHelloTriangleTestPass helloTriangleTestPass;
 };
 
 static RZGfxTestAppBase* s_GfxTestBaseApp = NULL;

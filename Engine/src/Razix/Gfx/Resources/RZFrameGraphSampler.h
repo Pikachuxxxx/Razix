@@ -19,10 +19,10 @@ namespace Razix {
 
             static std::string toString(const Desc& desc);
 
-            Gfx::RZSamplerHandle getHandle() const { return m_SamplerHandle; }
+            //Gfx::RZSamplerHandle getHandle() const { return m_SamplerHandle; }
 
             // public for initializer list support
-            Gfx::RZSamplerHandle m_SamplerHandle;
+            //Gfx::RZSamplerHandle m_SamplerHandle;
         };
     }    // namespace Gfx
 }    // namespace Razix

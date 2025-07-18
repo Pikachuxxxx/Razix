@@ -73,8 +73,8 @@
         GET_UTIL(m_##resourceName##Pool);                                                                                                                                            \
     }
 
-#define RAZIX_INIT_RESOURCE_POOL(resourceName, size) \
-    m_##resourceName##Pool.init(size, RZ##resourceName::GetInstanceSize());
+#define RAZIX_INIT_RESOURCE_POOL(poolName, capacity, elementSize) \
+    m_##poolName##Pool.init(capacity, elementSize);
 
 #ifdef RAZIX_DEBUG
     #define RAZIX_UNREGISTER_RESOURCE_POOL(resourceName) \
@@ -93,16 +93,16 @@ namespace Razix {
             RAZIX_CORE_INFO("[Resource Manager] Starting Up Resource Manager");
 
             // Initialize all the Pools
-            RAZIX_INIT_RESOURCE_POOL(Texture, 2048)
-            RAZIX_INIT_RESOURCE_POOL(Sampler, 32)
-            RAZIX_INIT_RESOURCE_POOL(Shader, 512)
-            RAZIX_INIT_RESOURCE_POOL(Pipeline, 512)
-            RAZIX_INIT_RESOURCE_POOL(UniformBuffer, 2048)
-            RAZIX_INIT_RESOURCE_POOL(CommandPool, 32)
-            RAZIX_INIT_RESOURCE_POOL(DrawCommandBuffer, 32)
-            RAZIX_INIT_RESOURCE_POOL(VertexBuffer, 512)
-            RAZIX_INIT_RESOURCE_POOL(IndexBuffer, 512)
-            RAZIX_INIT_RESOURCE_POOL(DescriptorSet, 128)
+            RAZIX_INIT_RESOURCE_POOL(Texture, 2048, sizeof(rz_gfx_texture));
+            //RAZIX_INIT_RESOURCE_POOL(Sampler, 32)
+            //RAZIX_INIT_RESOURCE_POOL(Shader, 512)
+            //RAZIX_INIT_RESOURCE_POOL(Pipeline, 512)
+            //RAZIX_INIT_RESOURCE_POOL(UniformBuffer, 2048)
+            //RAZIX_INIT_RESOURCE_POOL(CommandPool, 32)
+            //RAZIX_INIT_RESOURCE_POOL(DrawCommandBuffer, 32)
+            //RAZIX_INIT_RESOURCE_POOL(VertexBuffer, 512)
+            //RAZIX_INIT_RESOURCE_POOL(IndexBuffer, 512)
+            //RAZIX_INIT_RESOURCE_POOL(DescriptorSet, 128)
         }
 
         void RZResourceManager::ShutDown()
@@ -112,43 +112,43 @@ namespace Razix {
             // Destroy all the Pools
             ////////////////////////////////
             RAZIX_UNREGISTER_RESOURCE_POOL(Texture)
-            RAZIX_UNREGISTER_RESOURCE_POOL(Sampler)
-            RAZIX_UNREGISTER_RESOURCE_POOL(Shader)
-            RAZIX_UNREGISTER_RESOURCE_POOL(Pipeline)
-            RAZIX_UNREGISTER_RESOURCE_POOL(UniformBuffer)
-            RAZIX_UNREGISTER_RESOURCE_POOL(CommandPool)
-            RAZIX_UNREGISTER_RESOURCE_POOL(DrawCommandBuffer)
-            RAZIX_UNREGISTER_RESOURCE_POOL(VertexBuffer)
-            RAZIX_UNREGISTER_RESOURCE_POOL(IndexBuffer)
-            RAZIX_UNREGISTER_RESOURCE_POOL(DescriptorSet)
+            //RAZIX_UNREGISTER_RESOURCE_POOL(Sampler)
+            //RAZIX_UNREGISTER_RESOURCE_POOL(Shader)
+            //RAZIX_UNREGISTER_RESOURCE_POOL(Pipeline)
+            //RAZIX_UNREGISTER_RESOURCE_POOL(UniformBuffer)
+            //RAZIX_UNREGISTER_RESOURCE_POOL(CommandPool)
+            //RAZIX_UNREGISTER_RESOURCE_POOL(DrawCommandBuffer)
+            //RAZIX_UNREGISTER_RESOURCE_POOL(VertexBuffer)
+            //RAZIX_UNREGISTER_RESOURCE_POOL(IndexBuffer)
+            //RAZIX_UNREGISTER_RESOURCE_POOL(DescriptorSet)
             ////////////////////////////////
         }
 
         //-----------------------------------------------------------------------------------
 
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Texture, const RZTextureDesc& desc)
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Sampler, const RZSamplerDesc& desc)
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Shader, const RZShaderDesc& desc)
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Pipeline, const RZPipelineDesc& desc)
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(UniformBuffer, const RZBufferDesc& desc)
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(VertexBuffer, const RZBufferDesc& desc)
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(IndexBuffer, const RZBufferDesc& desc)
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(DescriptorSet, const RZDescriptorSetDesc& desc)
-
-        // Since they don't use a generic Desc struct pattern, we customize how they are created
-        BEGIN_CREATE_UTIL(CommandPool, PoolType type)
-        {
-            RZCommandPool::Create(where, type);
-        }
-        END_CREATE_UTIL_NAMED(CommandPool, "CommandPool")
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS_DESTROY_GET(CommandPool)
-
-        BEGIN_CREATE_UTIL(DrawCommandBuffer, RZCommandPoolHandle pool)
-        {
-            RZDrawCommandBuffer::Create(where, pool);
-        }
-        END_CREATE_UTIL_NAMED(DrawCommandBuffer, "DrawCommandBuffer")
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS_DESTROY_GET(DrawCommandBuffer)
+        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Texture, const RZTextureDesc& desc)
+        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Sampler, const RZSamplerDesc& desc)
+        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Shader, const RZShaderDesc& desc)
+        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Pipeline, const RZPipelineDesc& desc)
+        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(UniformBuffer, const RZBufferDesc& desc)
+        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(VertexBuffer, const RZBufferDesc& desc)
+        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(IndexBuffer, const RZBufferDesc& desc)
+        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(DescriptorSet, const RZDescriptorSetDesc& desc)
+        //
+        //// Since they don't use a generic Desc struct pattern, we customize how they are created
+        //BEGIN_CREATE_UTIL(CommandPool, PoolType type)
+        //{
+        //    RZCommandPool::Create(where, type);
+        //}
+        //END_CREATE_UTIL_NAMED(CommandPool, "CommandPool")
+        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS_DESTROY_GET(CommandPool)
+        //
+        //BEGIN_CREATE_UTIL(DrawCommandBuffer, RZCommandPoolHandle pool)
+        //{
+        //    RZDrawCommandBuffer::Create(where, pool);
+        //}
+        //END_CREATE_UTIL_NAMED(DrawCommandBuffer, "DrawCommandBuffer")
+        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS_DESTROY_GET(DrawCommandBuffer)
 
         //-----------------------------------------------------------------------------------
 

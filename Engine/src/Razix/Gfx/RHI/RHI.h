@@ -175,6 +175,28 @@ extern "C"
         RZ_GFX_RESOURCE_VIEW_FLAG_TRANSFER_DST = 1 << 7,
     } rz_gfx_resource_view_hints;
 
+    typedef enum rz_gfx_resource_type
+    {
+        RZ_GFX_RESOURCE_TYPE_INVALID = 0,
+
+        RZ_GFX_RESOURCE_TYPE_TEXTURE,
+        RZ_GFX_RESOURCE_TYPE_BUFFER,
+        RZ_GFX_RESOURCE_TYPE_CONSTANT_BUFFER,
+        RZ_GFX_RESOURCE_TYPE_VERTEX_BUFFER,
+        RZ_GFX_RESOURCE_TYPE_INDEX_BUFFER,
+        RZ_GFX_RESOURCE_TYPE_INDIRECT_BUFFER,
+        RZ_GFX_RESOURCE_TYPE_SAMPLER,
+        RZ_GFX_RESOURCE_TYPE_SHADER,
+        RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_HEAP,
+        RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_TABLE,
+        RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE,
+        // RZ_GFX_RESOURCE_TYPE_CMD_POOL, // Will be promoted to a resource in future
+        RZ_GFX_RESOURCE_TYPE_CMD_BUFFER,
+        RZ_GFX_RESOURCE_TYPE_PIPELINE,
+
+        RZ_GFX_RESOURCE_TYPE_COUNT
+    } rz_gfx_resource_type;
+
     typedef enum rz_gfx_syncobj_type
     {
         RZ_GFX_SYNCOBJ_TYPE_CPU,
@@ -237,8 +259,8 @@ extern "C"
         RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT,
         RZ_GFX_FORMAT_STENCIL8,
 
-        // Pseudo format for swapchain screen output
-        RZ_GFX_FORMAT_SCREEN,    // Basically B8G8R8A8_UNORM
+        // Pseudo format for swapchain screen output     // Basically B8G8R8A8_UNORM
+        RZ_GFX_FORMAT_SCREEN = RZ_GFX_FORMAT_B8G8R8A8_UNORM,
 
         // Block formats
         RZ_GFX_FORMAT_BC1_RGBA_UNORM,
@@ -264,9 +286,9 @@ extern "C"
 
     typedef enum rz_gfx_cmdpool_type
     {
-        RZ_GFX_CMDPOOL_TYPE_GRAPHICS,    // Graphics Command Pool
-        RZ_GFX_CMDPOOL_TYPE_COMPUTE,     // Compute Command Pool
-        RZ_GFX_CMDPOOL_TYPE_TRANSFER,    // Transfer Command Pool
+        RZ_GFX_CMDPOOL_TYPE_GRAPHICS,
+        RZ_GFX_CMDPOOL_TYPE_COMPUTE,
+        RZ_GFX_CMDPOOL_TYPE_TRANSFER,
     } rz_gfx_cmdpool_type;
 
     typedef enum rz_gfx_resolution
@@ -591,121 +613,6 @@ extern "C"
         uint32_t MaxLaneWidth;
     } rz_gfx_features;
 
-    typedef struct rz_gfx_resource
-    {
-        const char*                name;
-        rz_handle                  handle;
-        rz_gfx_resource_view_hints viewHints;
-    } rz_gfx_resource;
-
-#define RAZIX_GFX_RESOURCE rz_gfx_resource resource
-
-    typedef uint64_t rz_gfx_syncpoint;
-
-    typedef struct rz_gfx_syncobj
-    {
-        RAZIX_GFX_RESOURCE;
-        rz_gfx_syncpoint waitTimestamp;
-#ifdef RAZIX_RENDER_API_VULKAN
-            //vk_gfx_ctx vk;
-#endif
-#ifdef RAZIX_RENDER_API_DIRECTX12
-        dx12_syncobj dx12;
-#endif
-    } rz_gfx_syncobj;
-
-    typedef struct rz_gfx_texture_desc
-    {
-        uint32_t            width;
-        uint32_t            height;
-        uint32_t            depth;
-        uint32_t            mipLevels;
-        uint32_t            arraySize;
-        rz_gfx_format       format;
-        rz_gfx_texture_type textureType;
-    } rz_gfx_texture_desc;
-
-    typedef struct rz_gfx_texture
-    {
-        RAZIX_GFX_RESOURCE;
-        rz_gfx_texture_desc desc;
-#ifdef RAZIX_RENDER_API_VULKAN
-            //vk_texture vk;
-#endif
-#ifdef RAZIX_RENDER_API_DIRECTX12
-        dx12_texture dx12;
-#endif
-    } rz_gfx_texture;
-
-    typedef struct rz_gfx_swapchain
-    {
-        uint32_t       width;
-        uint32_t       height;
-        uint32_t       imageCount;
-        uint32_t       currBackBufferIdx;
-        rz_gfx_texture backbuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];
-#ifdef RAZIX_RENDER_API_VULKAN
-            //vk_swapchain vk;
-#endif
-#ifdef RAZIX_RENDER_API_DIRECTX12
-        dx12_swapchain dx12;
-#endif
-    } rz_gfx_swapchain;
-
-    typedef struct rz_gfx_context
-    {
-        uint32_t      width;
-        uint32_t      height;
-        uint32_t      frameIndex;
-        rz_render_api renderAPI;
-        // All global submission queues are managed within the internal contexts
-        union
-        {
-#ifdef RAZIX_RENDER_API_VULKAN
-            vk_ctx vk;
-#endif
-#ifdef RAZIX_RENDER_API_DIRECTX12
-            dx12_ctx dx12;
-#endif
-        };
-
-    } rz_gfx_context;
-
-    typedef struct rz_gfx_cmdpool
-    {
-        rz_gfx_cmdpool_type type;    // Type of the command pool, e.g. Graphics, Compute, Transfer
-        union
-        {
-#ifdef RAZIX_RENDER_API_VULKAN
-            vk_cmdpool vk;
-#endif
-#ifdef RAZIX_RENDER_API_DIRECTX12
-            dx12_cmdpool dx12;
-#endif
-        };
-
-    } rz_gfx_cmdpool;
-
-    typedef struct rz_gfx_cmdbuf_desc
-    {
-        const rz_gfx_cmdpool* pool;
-    } rz_gfx_cmdbuf_desc;
-
-    typedef struct rz_gfx_cmdbuf
-    {
-        RAZIX_GFX_RESOURCE;
-        union
-        {
-#ifdef RAZIX_RENDER_API_VULKAN
-            vk_cmdbuf vk;
-#endif
-#ifdef RAZIX_RENDER_API_DIRECTX12
-            dx12_cmdbuf dx12;
-#endif
-        };
-
-    } rz_gfx_cmdbuf;
-
     typedef struct rz_gfx_color_rgba
     {
         union
@@ -735,58 +642,19 @@ extern "C"
         };
     } rz_gfx_color_rgb;
 
-    typedef struct rz_gfx_attachment
-    {
-        rz_gfx_color_rgba     clearColor;
-        const rz_gfx_texture* texture;
-        uint8_t               mip;
-        uint8_t               layer;
-        bool                  clear;
-    } gfx_attachment;
+    typedef void (*rz_gfx_resource_create_fn)(void* where, void* desc);
+    typedef void (*rz_gfx_resource_destroy_fn)(void* resource);
 
-    typedef struct rz_gfx_viewport
+    typedef struct rz_gfx_texture_desc
     {
-        int32_t  x, y;
-        uint32_t width, height;
-        uint32_t minDepth;
-        uint32_t maxDepth;
-    } rz_gfx_viewport;
-
-    typedef struct rz_gfx_rect
-    {
-        int32_t  x, y;
-        uint32_t width, height;
-    } rz_gfx_rect;
-
-    typedef struct rz_gfx_renderpass
-    {
-        uint32_t          colorAttachmentsCount;
-        uint32_t          _pad0;
-        gfx_attachment    colorAttachments[RAZIX_MAX_RENDER_TARGETS];
-        gfx_attachment    depthAttachment;
-        uint32_t          extents[RAZIX_EXTENTS_ELEM_COUNT];
-        uint32_t          layers;
-        rz_gfx_resolution resolution;
-    } rz_gfx_renderpass;
-
-    typedef struct rz_gfx_descriptor_heap_desc
-    {
-        const char*                 name;
-        rz_gfx_descriptor_heap_type heap_type;
-        uint32_t                    descriptor_count;
-    } rz_gfx_descriptor_heap_desc;
-
-    typedef struct rz_gfx_descriptor_heap
-    {
-        RAZIX_GFX_RESOURCE;
-        rz_gfx_descriptor_heap_desc desc;
-#ifdef RAZIX_RENDER_API_VULKAN
-        vk_descriptor_heap vk;
-#endif
-#ifdef RAZIX_RENDER_API_DIRECTX12
-        dx12_descriptor_heap dx12;
-#endif
-    } rz_gfx_descriptor_heap;
+        uint32_t            width;
+        uint32_t            height;
+        uint32_t            depth;
+        uint32_t            mipLevels;
+        uint32_t            arraySize;
+        rz_gfx_format       format;
+        rz_gfx_texture_type textureType;
+    } rz_gfx_texture_desc;
 
     typedef struct rz_gfx_binding_location
     {
@@ -829,28 +697,22 @@ extern "C"
         uint32_t                      rootConstantCount;
     } rz_gfx_root_signature_desc;
 
-    typedef struct rz_gfx_descriptor_table
+    typedef struct rz_gfx_cmdpool rz_gfx_cmdpool;
+    typedef struct rz_gfx_cmdbuf_desc
     {
-        RAZIX_GFX_RESOURCE;
-        rz_gfx_descriptor_table_desc desc;
-#ifdef RAZIX_RENDER_API_VULKAN
-        vk_descriptor_table vk;
-#endif
-#ifdef RAZIX_RENDER_API_DIRECTX12
-        dx12_descriptor_table dx12;
-#endif
-    } rz_gfx_descriptor_table;
+        const rz_gfx_cmdpool* pool;
+    } rz_gfx_cmdbuf_desc;
 
-    typedef struct rz_gfx_root_signature
+    typedef struct rz_gfx_buffer_desc
     {
-        RAZIX_GFX_RESOURCE;
-#ifdef RAZIX_RENDER_API_VULKAN
-        vk_root_signature vk;
-#endif
-#ifdef RAZIX_RENDER_API_DIRECTX12
-        dx12_root_signature dx12;
-#endif
-    } rz_gfx_root_signature;
+        const char*              name;
+        rz_gfx_buffer_type       type;
+        rz_gfx_buffer_usage_type usage;
+        uint32_t                 sizeInBytes;
+        uint32_t                 stride;          // For structured buffers
+        uint32_t                 elementCount;    // For structured buffers
+        bool                     isDynamic;       // If true, buffer can be updated dynamically
+    } rz_gfx_buffer_desc;
 
     typedef struct rz_gfx_shader_stage_file
     {
@@ -898,6 +760,181 @@ extern "C"
         };
     } rz_gfx_shader_desc;
 
+    typedef struct rz_gfx_descriptor_heap_desc
+    {
+        const char*                 name;
+        rz_gfx_descriptor_heap_type heap_type;
+        uint32_t                    descriptor_count;
+    } rz_gfx_descriptor_heap_desc;
+
+    typedef struct rz_gfx_pipeline_desc
+    {
+        const char*                  name;
+        rz_gfx_pipeline_type         type;
+        rz_gfx_shader_handle         shader;
+        rz_gfx_root_signature_handle rootSignature;
+        rz_gfx_cull_mode_type        cullMode;
+        rz_gfx_polygon_mode_type     polygonMode;
+        bool                         depthTestEnabled;
+        bool                         depthWriteEnabled;
+        bool                         stencilTestEnabled;
+        bool                         blendEnabled;
+        rz_gfx_blend_presets         blendPreset;
+    } rz_gfx_pipeline_desc;
+
+    typedef struct rz_gfx_resource
+    {
+        const char*                name;
+        rz_handle                  handle;
+        rz_gfx_resource_view_hints viewHints;
+        rz_gfx_resource_type       type;
+        rz_gfx_resource_create_fn  createCB;
+        rz_gfx_resource_destroy_fn destroyCB;
+
+        union
+        {
+            rz_gfx_texture_desc          textureDesc;
+            rz_gfx_cmdbuf_desc           cmdbufDesc;
+            rz_gfx_root_signature_desc   rootSignatureDesc;
+            rz_gfx_descriptor_heap_desc  descriptorHeapDesc;
+            rz_gfx_descriptor_table_desc descriptorTableDesc;
+            rz_gfx_buffer_desc           bufferDesc;
+            rz_gfx_shader_desc           shaderDesc;
+            rz_gfx_pipeline_desc         pipelineDesc;
+        } desc;
+    } rz_gfx_resource;
+
+#define RAZIX_GFX_RESOURCE rz_gfx_resource resource
+
+    //---------------------------------------------------------------------------------------------
+    // Resource Structs
+
+    typedef uint64_t rz_gfx_syncpoint;
+
+    typedef struct rz_gfx_syncobj
+    {
+        RAZIX_GFX_RESOURCE;
+        rz_gfx_syncpoint waitTimestamp;
+#ifdef RAZIX_RENDER_API_VULKAN
+            //vk_gfx_ctx vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_syncobj dx12;
+#endif
+    } rz_gfx_syncobj;
+
+    typedef struct rz_gfx_texture
+    {
+        RAZIX_GFX_RESOURCE;
+        rz_gfx_texture_desc desc;
+#ifdef RAZIX_RENDER_API_VULKAN
+            //vk_texture vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_texture dx12;
+#endif
+    } rz_gfx_texture;
+
+    typedef struct rz_gfx_swapchain
+    {
+        uint32_t       width;
+        uint32_t       height;
+        uint32_t       imageCount;
+        uint32_t       currBackBufferIdx;
+        rz_gfx_texture backbuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];
+#ifdef RAZIX_RENDER_API_VULKAN
+            //vk_swapchain vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_swapchain dx12;
+#endif
+    } rz_gfx_swapchain;
+
+    typedef struct rz_gfx_context
+    {
+        uint32_t      width;
+        uint32_t      height;
+        uint32_t      frameIndex;
+        rz_render_api renderAPI;
+        // All global submission queues are managed within the internal contexts
+        union
+        {
+#ifdef RAZIX_RENDER_API_VULKAN
+            vk_ctx vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            dx12_ctx dx12;
+#endif
+        };
+
+    } rz_gfx_context;
+
+    // Note:- Exception!, this is not a resource as it's managed by the Renderer and very few in number, might make is a Resource later
+    typedef struct rz_gfx_cmdpool
+    {
+        rz_gfx_cmdpool_type type;
+        union
+        {
+#ifdef RAZIX_RENDER_API_VULKAN
+            vk_cmdpool vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            dx12_cmdpool dx12;
+#endif
+        };
+
+    } rz_gfx_cmdpool;
+
+    typedef struct rz_gfx_cmdbuf
+    {
+        RAZIX_GFX_RESOURCE;
+        union
+        {
+#ifdef RAZIX_RENDER_API_VULKAN
+            vk_cmdbuf vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            dx12_cmdbuf dx12;
+#endif
+        };
+
+    } rz_gfx_cmdbuf;
+
+    typedef struct rz_gfx_descriptor_heap
+    {
+        RAZIX_GFX_RESOURCE;
+        rz_gfx_descriptor_heap_desc desc;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_descriptor_heap vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_descriptor_heap dx12;
+#endif
+    } rz_gfx_descriptor_heap;
+
+    typedef struct rz_gfx_descriptor_table
+    {
+        RAZIX_GFX_RESOURCE;
+        rz_gfx_descriptor_table_desc desc;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_descriptor_table vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_descriptor_table dx12;
+#endif
+    } rz_gfx_descriptor_table;
+
+    typedef struct rz_gfx_root_signature
+    {
+        RAZIX_GFX_RESOURCE;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_root_signature vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_root_signature dx12;
+#endif
+    } rz_gfx_root_signature;
+
     typedef struct rz_gfx_shader
     {
         RAZIX_GFX_RESOURCE;
@@ -915,21 +952,53 @@ extern "C"
         };
     } rz_gfx_shader;
 
-    // TODO: Pipeline create desc and pipeline structs
-    typedef struct rz_gfx_pipeline_desc
+    typedef struct rz_gfx_pipeline
     {
-        const char*                  name;
-        rz_gfx_pipeline_type         type;
-        rz_gfx_shader_handle         shader;
-        rz_gfx_root_signature_handle rootSignature;
-        rz_gfx_cull_mode_type        cullMode;
-        rz_gfx_polygon_mode_type     polygonMode;
-        bool                         depthTestEnabled;
-        bool                         depthWriteEnabled;
-        bool                         stencilTestEnabled;
-        bool                         blendEnabled;
-        rz_gfx_blend_presets         blendPreset;
-    } rz_gfx_pipeline_desc;
+        RAZIX_GFX_RESOURCE;
+        rz_gfx_pipeline_desc desc;
+    } rz_gfx_pipeline;
+
+    typedef struct rz_gfx_buffer
+    {
+        RAZIX_GFX_RESOURCE;
+        rz_gfx_buffer_desc desc;
+    } rz_gfx_buffer;
+
+    //---------------------------------------------------------------------------------------------
+
+    typedef struct rz_gfx_attachment
+    {
+        rz_gfx_color_rgba     clearColor;
+        const rz_gfx_texture* texture;
+        uint8_t               mip;
+        uint8_t               layer;
+        bool                  clear;
+    } gfx_attachment;
+
+    typedef struct rz_gfx_viewport
+    {
+        int32_t  x, y;
+        uint32_t width, height;
+        uint32_t minDepth;
+        uint32_t maxDepth;
+    } rz_gfx_viewport;
+
+    typedef struct rz_gfx_rect
+    {
+        int32_t  x, y;
+        uint32_t width, height;
+    } rz_gfx_rect;
+
+    typedef struct rz_gfx_renderpass
+    {
+        uint32_t          colorAttachmentsCount;
+        uint32_t          _pad0;
+        gfx_attachment    colorAttachments[RAZIX_MAX_RENDER_TARGETS];
+        gfx_attachment    depthAttachment;
+        uint32_t          extents[RAZIX_EXTENTS_ELEM_COUNT];
+        uint32_t          layers;
+        rz_gfx_resolution resolution;
+    } rz_gfx_renderpass;
 
     //---------------------------------------------------------------------------------------------
     // Gfx API
@@ -940,8 +1009,6 @@ extern "C"
     RAZIX_API rz_render_api rzGfxCtx_GetRenderAPI();
     RAZIX_API void          rzGfxCtx_SetRenderAPI(rz_render_api api);
     RAZIX_API const char*   rzGfxCtx_GetRenderAPIString();
-
-    RAZIX_API rz_gfx_shader_stage rzGfx_StringToShaderStage(const char* stage);
 
     //---------------------------------------------------------------------------------------------
     // RHI Jump Table

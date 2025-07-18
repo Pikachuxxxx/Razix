@@ -57,6 +57,7 @@ namespace Razix {
                     ShaderBinaryFileDirectory = "Compiled/CSO/";
                     break;
 #endif
+                    // TODO: Add more shader types here (*.ags etc)
                 default: break;
             }
 
@@ -196,7 +197,7 @@ namespace Razix {
                         RAZIX_CORE_WARN("Unknown or unsupported shader stage: {0}", stage);
                         break;
                 }
-                // bytecode will be freed by RHI, it's a promise we hope RHI keeps upon
+                // bytecode will be freed by RHI, it's a promise we hope RHI keeps
             }
 
             return desc;
@@ -345,132 +346,7 @@ namespace Razix {
             {"Line", Razix::Gfx::PolygonMode::Line},
             {"Point", Razix::Gfx::PolygonMode::Point}};
 
-        // Modified from Source: https://github.com/skaarj1989/SupernovaEngine/blob/57f0fba69b36de45255971080ea082bea8219cbb/modules/Renderer/WorldRenderer/src/FrameGraphResourceAccess.cpp (MIT License)
-
-        /**
-         * BindingLocation : 9 bits
-         * 
-         * encoding format:
-         * set, binding each of them max take up to 32 each so even 8 bits for each is still a lot
-         * cause shaders won't have more than 32 sets/bindings at one point
-         * 
-         * | 4 bits  | 5 bits  |
-         * | 0...16  | 0...16  |
-         * |   set   | binding |
-         */
-
-        /**
-         * DescriptorBindingInfo : 29 bits
-         * 
-         * encoding format:
-         * count is array elements of max 1024 which might be less but we're already packing this up
-         * 
-         * 
-         * | 3 bits | 5 bits | 9 bits   | 12        |
-         * | 0...7  | 0...5  | 0...8 x2 | 0...4096  |
-         * | type   | stage  | binding  | count     |
-         * 
-         */
-
-        /**
-         * AttachmentInfo : 22 bits
-         * 
-         * encoding format:
-         * Even a 16k texture (15360 × 8640) would have maximum mips of 14 so 4 bits are more than enough to represent mips
-         * As for layers let's say even if we have texture arrays abnormally large let's say they have 256 or at max 1024 we need 8...10 bits at max
-         * 
-         * | 1 bits |  3 bits      | 4 bits    | 4 bits   | 10 bits   |
-         * | 0...1  |  0...8       | 0...15    | 0...16   | 0...1024  |
-         * | clear  | clear color  | binding   | mips     | layer     |
-         * 
-         */
-
-        constexpr auto kBindingLocationBits  = 9;
-        constexpr auto kSetIndexBits         = 4;
-        constexpr auto kBindingIndexBits     = 5;
-        constexpr auto kSetIndexOffset       = 0;
-        constexpr auto kBindingIndexOffset   = kSetIndexOffset + kSetIndexBits;
-        constexpr auto kTypeBits             = 3;
-        constexpr auto kStageBits            = 5;
-        constexpr auto kCountBits            = 12;
-        constexpr auto kTypeOffset           = 0;
-        constexpr auto kStageOffset          = kTypeOffset + kTypeBits;
-        constexpr auto kBindingLocOffset     = kStageOffset + kStageBits;
-        constexpr auto kCountOffset          = kBindingLocOffset + kBindingLocationBits;
-        constexpr auto kClearBits            = 1;
-        constexpr auto kClearColorBits       = 3;
-        constexpr auto kBindingRTBits        = 4;
-        constexpr auto kMipsBits             = 4;
-        constexpr auto kLayerBits            = 10;
-        constexpr auto kClearBitsOffset      = 0;
-        constexpr auto kClearColorBitsOffset = kClearBitsOffset + kClearBits;
-        constexpr auto kBindingRTBitsOffset  = kClearColorBitsOffset + kClearColorBits;
-        constexpr auto kMipsBitsOffset       = kBindingRTBits + kBindingRTBitsOffset;
-        constexpr auto kLayerBitsOffset      = kMipsBits + kMipsBitsOffset;
-
-        RAZIX_NO_DISCARD u32 EncodeBindingLocation(BindingLocation info)
-        {
-            uint32_t bits{0};
-            bits = BIT_INSERT(bits, info.set, kSetIndexOffset, kSetIndexBits);
-            bits = BIT_INSERT(bits, info.binding, kBindingIndexOffset, kBindingIndexBits);
-
-            return bits;
-        }
-
-        Razix::Gfx::BindingLocation DecodeBindingLocation(u32 bits)
-        {
-            BindingLocation info{};
-            info.set     = BIT_EXTRACT(bits, kSetIndexOffset, kSetIndexBits);
-            info.binding = BIT_EXTRACT(bits, kBindingIndexOffset, kBindingIndexBits);
-
-            return info;
-        }
-
-        RAZIX_NO_DISCARD u32 EncodeDescriptorBindingInfo(DescriptorBindingInfo info)
-        {
-            uint32_t bits{0};
-            bits = BIT_INSERT(bits, (u32) info.type, kTypeOffset, kTypeBits);
-            bits = BIT_INSERT(bits, (u32) info.stage, kStageOffset, kStageBits);
-            bits = BIT_INSERT(bits, (u32) EncodeBindingLocation(info.location), kBindingLocOffset, kBindingLocationBits);
-            bits = BIT_INSERT(bits, (u32) info.count, kCountOffset, kCountBits);
-
-            return bits;
-        }
-
-        Razix::Gfx::DescriptorBindingInfo DecodeDescriptorBindingInfo(u32 bits)
-        {
-            DescriptorBindingInfo info{};
-            info.type     = (DescriptorType) BIT_EXTRACT(bits, kTypeOffset, kTypeBits);
-            info.stage    = (rz_gfx_shader_stage) BIT_EXTRACT(bits, kStageOffset, kStageBits);
-            info.location = DecodeBindingLocation(BIT_EXTRACT(bits, kBindingLocOffset, kBindingLocationBits));
-            info.count    = BIT_EXTRACT(bits, kCountOffset, kCountBits);
-
-            return info;
-        }
-
-        RAZIX_NO_DISCARD u32 EncodeAttachmentInfo(RenderTargetAttachmentInfo info)
-        {
-            uint32_t bits{0};
-            bits = BIT_INSERT(bits, (u32) info.clear, kClearBitsOffset, kClearBits);
-            bits = BIT_INSERT(bits, (u32) info.clearColor, kClearColorBitsOffset, kClearColorBits);
-            bits = BIT_INSERT(bits, info.bindingIdx, kBindingRTBitsOffset, kBindingRTBits);
-            bits = BIT_INSERT(bits, info.mip, kMipsBitsOffset, kMipsBits);
-            bits = BIT_INSERT(bits, info.layer, kLayerBitsOffset, kLayerBits);
-
-            return bits;
-        }
-
-        RenderTargetAttachmentInfo DecodeAttachmentInfo(u32 bits)
-        {
-            RenderTargetAttachmentInfo info{};
-            info.clear      = BIT_EXTRACT(bits, kClearBitsOffset, kClearBits);
-            info.clearColor = (ClearColorPresets) BIT_EXTRACT(bits, kClearColorBitsOffset, kClearColorBits);
-            info.bindingIdx = BIT_EXTRACT(bits, kBindingRTBitsOffset, kBindingRTBits);
-            info.mip        = BIT_EXTRACT(bits, kMipsBitsOffset, kMipsBits);
-            info.layer      = BIT_EXTRACT(bits, kLayerBitsOffset, kLayerBits);
-
-            return info;
-        }
+       
 
         //-----------------------------------------------------------------------------------
 
@@ -505,80 +381,6 @@ namespace Razix {
         }
 
         //-----------------------------------------------------------------------------------
-
-        std::string RZTextureDesc::FormatToString(const Gfx::TextureFormat format)
-        {
-            switch (format) {
-                case Razix::Gfx::TextureFormat::R8:
-                    return "R8";
-                    break;
-                case Razix::Gfx::TextureFormat::R32_INT:
-                    return "R32_INT";
-                    break;
-                case Razix::Gfx::TextureFormat::R32_UINT:
-                    return "R32_UINT";
-                    break;
-                case Razix::Gfx::TextureFormat::R32F:
-                    return "R32F";
-                    break;
-                case Razix::Gfx::TextureFormat::RG8:
-                    return "RG8";
-                    break;
-                case Razix::Gfx::TextureFormat::RG16F:
-                    return "RG16F";
-                    break;
-                case Razix::Gfx::TextureFormat::RGB8:
-                    return "RGB8";
-                    break;
-                case Razix::Gfx::TextureFormat::RGBA8:
-                    return "RGBA8";
-                    break;
-                case Razix::Gfx::TextureFormat::RGB16:
-                    return "RGB16";
-                    break;
-                case Razix::Gfx::TextureFormat::RGBA16:
-                    return "RGBA16";
-                    break;
-                case Razix::Gfx::TextureFormat::RGBA16F:
-                    return "RGBA16F";
-                    break;
-                case Razix::Gfx::TextureFormat::RGB32:
-                    return "RGB32";
-                    break;
-                case Razix::Gfx::TextureFormat::RGBA32:
-                    return "RGBA32";
-                    break;
-                case Razix::Gfx::TextureFormat::RGBA32F:
-                    return "RGBA32F";
-                    break;
-                case Razix::Gfx::TextureFormat::RGB:
-                    return "RGB";
-                    break;
-                case Razix::Gfx::TextureFormat::RGBA:
-                    return "RGBA";
-                    break;
-                case Razix::Gfx::TextureFormat::DEPTH16_UNORM:
-                    return "DEPTH";
-                    break;
-                case Razix::Gfx::TextureFormat::STENCIL:
-                    return "STENCIL";
-                    break;
-                case Razix::Gfx::TextureFormat::DEPTH_STENCIL:
-                    return "DEPTH_STENCIL";
-                    break;
-                case Razix::Gfx::TextureFormat::SCREEN:
-                    return "Presentation";
-                    break;
-                case Razix::Gfx::TextureFormat::BGRA8_UNORM:
-                    return "BGRA8_UNORM";
-                    break;
-                default:
-                    return "BGRA8_UNORM";
-                    break;
-                    break;
-            }
-            return "BGRA8_UNORM";
-        }
 
         std::string RZTextureDesc::TypeToString(TextureType type)
         {

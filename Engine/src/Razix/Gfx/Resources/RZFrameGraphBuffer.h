@@ -1,14 +1,16 @@
 #pragma once
 
+#include "Razix/Gfx/RHI/rhi.h"
+
 namespace Razix {
     namespace Gfx {
         struct RZFrameGraphBuffer
         {
-            typedef RZBufferDesc Desc;
+            typedef rz_gfx_buffer_desc Desc;
 
             RZFrameGraphBuffer() = default;
             //RZFrameGraphBuffer(Gfx::RZUniformBufferHandle handle)
-                //: m_BufferHandle(handle) {}
+            //: m_BufferHandle(handle) {}
 
             void create(const Desc& desc, u32 id, const void* transientAllocator);
             void destroy(u32 id, const void* transientAllocator);

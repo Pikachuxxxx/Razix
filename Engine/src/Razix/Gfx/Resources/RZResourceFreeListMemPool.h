@@ -10,17 +10,11 @@
 namespace Razix {
     namespace Gfx {
 
-        class RZCPUMemoryManager;
-        class RZGPUMemoryManager;
-
-        template<typename U>
-        class IRZResource;
-
-        class RAZIX_API RZResourcePool
+        class RAZIX_API RZResourceFreeListMemPool
         {
         public:
-            RZResourcePool()  = default;
-            ~RZResourcePool() = default;
+            RZResourceFreeListMemPool()  = default;
+            ~RZResourceFreeListMemPool() = default;
 
             void init(u32 poolSize, u32 resourceSize, u32 alignment = 16);
             void destroy();
@@ -42,7 +36,7 @@ namespace Razix {
         };
 
         template<typename T>
-        struct RZResourcePoolTyped final : public RZResourcePool
+        struct RZResourceFreeListMemPoolTyped final : public RZResourceFreeListMemPool
         {
             void printResources();
 
@@ -62,32 +56,32 @@ namespace Razix {
         };
 
         template<typename T>
-        void RZResourcePoolTyped<T>::printResources()
+        void RZResourceFreeListMemPoolTyped<T>::printResources()
         {
             if (m_FreeIndicesHead != 0) {
                 for (u32 i = 0; i < m_FreeIndicesHead; i++) {
-                    RAZIX_CORE_TRACE("\tResource id={0}, name={1}\n", m_FreeIndices[i], ((IRZResource<T>*) accessResource(i))->getName().c_str());
+                    RAZIX_CORE_TRACE("\tResource id={0}, name={1}\n", m_FreeIndices[i], ((rz_gfx_resource*) accessResource(i))->name);
                 }
             }
         }
 
         template<typename T>
-        std::vector<rz_handle> RZResourcePoolTyped<T>::getHandles()
+        std::vector<rz_handle> RZResourceFreeListMemPoolTyped<T>::getHandles()
         {
             std::vector<rz_handle> handles;
 
             if (m_FreeIndicesHead != 0) {
                 for (u32 i = 0; i < m_FreeIndicesHead; ++i) {
-                    handles.push_back(((IRZResource<T>*) accessResource(i))->getHandle());
+                    handles.push_back(((rz_gfx_resource*) accessResource(i))->handle);
                 }
             }
             return handles;
         }
 
         template<typename T>
-        inline T* RZResourcePoolTyped<T>::obtain(rz_handle& handle)
+        inline T* RZResourceFreeListMemPoolTyped<T>::obtain(rz_handle& handle)
         {
-            u32 index = RZResourcePool::allocateResource();
+            u32 index = RZResourceFreeListMemPool::allocateResource();
             rz_handle_set_index(&handle, index);
             rz_handle_set_generation(&handle, ++index);
 
@@ -100,28 +94,29 @@ namespace Razix {
         }
 
         template<typename T>
-        inline void RZResourcePoolTyped<T>::release(rz_handle& handle)
+        inline void RZResourceFreeListMemPoolTyped<T>::release(rz_handle& handle)
         {
             T* resource = getInternal(handle);
-            resource->DestroyResource();
+            if (resource->destroy_cb)
+                resource->destroy_cb(resource);
             rz_handle_set_generation(&handle, 0);
-            RZResourcePool::releaseResource(rz_handle_get_index(*handle));
+            RZResourceFreeListMemPool::releaseResource(rz_handle_get_index(*handle));
         }
 
         template<typename T>
-        inline T* RZResourcePoolTyped<T>::getInternal(rz_handle& handle)
+        inline T* RZResourceFreeListMemPoolTyped<T>::getInternal(rz_handle& handle)
         {
             if (handle.isValid())
-                return (T*) RZResourcePool::accessResource(rz_handle_get_index(*handle));
+                return (T*) RZResourceFreeListMemPool::accessResource(rz_handle_get_index(*handle));
             else
                 return nullptr;
         }
 
         template<typename T>
-        inline T* RZResourcePoolTyped<T>::get(rz_handle handle) const
+        inline T* RZResourceFreeListMemPoolTyped<T>::get(rz_handle handle) const
         {
             if (handle.isValid())
-                return (/*const */ T*) RZResourcePool::accessResource(rz_handle_get_index(*handle));
+                return (/*const */ T*) RZResourceFreeListMemPool::accessResource(rz_handle_get_index(*handle));
             else
                 return nullptr;
         }

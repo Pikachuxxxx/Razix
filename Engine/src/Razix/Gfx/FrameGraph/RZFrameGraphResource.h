@@ -49,6 +49,7 @@ namespace Razix {
 
         enum FGResourceType
         {
+            kUknownResource,
             kFGTexture,
             kFGBuffer,
             kFGSampler

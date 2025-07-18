@@ -1,18 +1,16 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZResourcePool.h"
+#include "RZResourceFreeListMemPool.h"
 
 #include <Razix/Core/Memory/RZMemoryFunctions.h>
-
-#include "IRZResource.h"
 
 namespace Razix {
     namespace Gfx {
 
         static const u32 k_invalid_index = 0xffffffff;
 
-        void RZResourcePool::init(u32 poolSize, u32 resourceSize, u32 alignment)
+        void RZResourceFreeListMemPool::init(u32 poolSize, u32 resourceSize, u32 alignment)
         {
             m_PoolSize     = poolSize;
             m_ResourceSize = resourceSize;
@@ -32,7 +30,7 @@ namespace Razix {
             m_UsedIndices = 0;
         }
 
-        void RZResourcePool::destroy()
+        void RZResourceFreeListMemPool::destroy()
         {
             if (m_FreeIndicesHead != 0) {
                 RAZIX_CORE_ERROR("Resource pool has un-freed resources.\n");
@@ -49,7 +47,7 @@ namespace Razix {
             Memory::RZFree(m_MemoryChunk);
         }
 
-        u32 RZResourcePool::allocateResource()
+        u32 RZResourceFreeListMemPool::allocateResource()
         {
             // TODO: add bits for checking if resource is alive and use bit masks.
             if (m_FreeIndicesHead < m_PoolSize) {
@@ -62,14 +60,15 @@ namespace Razix {
             return k_invalid_index;
         }
 
-        void RZResourcePool::releaseResource(u32 index)
+        void RZResourceFreeListMemPool::releaseResource(u32 index)
         {
+            RAZIX_CORE_ASSERT(index < m_PoolSize, "[Pool Allocator] Invalid index to release resource: {0}", index);
             // TODO: add bits for checking if resource is alive and use bit masks.
             m_FreeIndices[--m_FreeIndicesHead] = index;
             --m_UsedIndices;
         }
 
-        const void* RZResourcePool::accessResource(u32 index) const
+        const void* RZResourceFreeListMemPool::accessResource(u32 index) const
         {
             if (index != k_invalid_index) {
                 auto resource = &m_MemoryChunk[index * m_ResourceSize];
@@ -78,7 +77,7 @@ namespace Razix {
             return nullptr;
         }
 
-        void RZResourcePool::freePool()
+        void RZResourceFreeListMemPool::freePool()
         {
             m_FreeIndicesHead = 0;
             m_UsedIndices     = 0;

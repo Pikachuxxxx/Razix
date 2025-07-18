@@ -5,7 +5,7 @@
 #include "Razix/Gfx/FrameGraph/RZResourceEntry.h"
 #include "Razix/Gfx/FrameGraph/RZResourceNode.h"
 
-#include "Razix/Gfx/Resources/RZTransientAllocator.h"
+#include "Razix/Gfx/FrameGraph/RZTransientAllocator.h"
 
 namespace Razix {
     namespace Gfx {

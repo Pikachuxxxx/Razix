@@ -100,6 +100,11 @@ namespace Razix {
 
             void OnResize(u32 width, u32 height);
 
+            inline void flushGPUWork()
+            {
+                rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
+            }
+
             // Getters/Setters
             //inline RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
 

@@ -11,10 +11,6 @@
 
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
-#include "Razix/Gfx/RHI/API/RZSampler.h"
-#include "Razix/Gfx/RHI/API/RZTexture.h"
-#include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
-
 namespace Razix {
     namespace Gfx {
 

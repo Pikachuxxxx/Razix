@@ -147,6 +147,20 @@
     #define RAZIX_ASSERT_MESSAGE(condition, ...)
 #endif
 
+#define RAZIX_FIXME_STUB_COMPILE(...) static_assert(false, "[RAZIX] FIXME_STUB: This function is not implemented!"##__VA_ARGS__)
+#define RAZIX_FIXME_STUB(...)                                                                              \
+    {                                                                                                      \
+        RAZIX_CORE_ERROR("[RAZIX] FIXME_STUB: {0} at Line {1} in File {2}", __func__, __LINE__, __FILE__); \
+        RAZIX_DEBUG_BREAK();                                                                               \
+    }
+
+#define RAZIX_TODO_STUB_COMPILE(...) static_assert(false, "[RAZIX] TODO_STUB: This function is not implemented!")
+#define RAZIX_TODO_STUB(...)                                                                              \
+    {                                                                                                     \
+        RAZIX_CORE_ERROR("[RAZIX] TODO_STUB: {0} at Line {1} in File {2}", __func__, __LINE__, __FILE__); \
+        RAZIX_DEBUG_BREAK();                                                                              \
+    }
+
 // Max number of objects in a scene
 #define MAX_OBJECTS 2048
 

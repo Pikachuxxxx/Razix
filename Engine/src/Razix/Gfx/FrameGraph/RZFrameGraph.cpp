@@ -523,7 +523,7 @@ namespace Razix {
             //desc.resolution             = resolution;
             //desc.extent                 = extent;
             //desc.layers                 = layers;
-            auto* pass                  = new RZFrameGraphDataPass(desc);
+            auto* pass = new RZFrameGraphDataPass(desc);
             // Create the PassNode in the graph
             RZPassNode& passNode = createPassNodeRef(std::string_view("DUMMY"), std::unique_ptr<RZFrameGraphDataPass>(pass));
             // Mark as data driven
@@ -1059,12 +1059,13 @@ namespace Razix {
 
         FGResourceType RZFrameGraph::getResourceType(u32 id) const
         {
-            if (verifyResourceType<RZFrameGraphTexture>(id))
-                return FGResourceType::kFGTexture;
-            else if (verifyResourceType<RZFrameGraphBuffer>(id))
-                return FGResourceType::kFGBuffer;
-            else
-                return FGResourceType::kFGSampler;
+            //if (verifyResourceType<RZFrameGraphTexture>(id))
+            //    return FGResourceType::kFGTexture;
+            //else if (verifyResourceType<RZFrameGraphBuffer>(id))
+            //    return FGResourceType::kFGBuffer;
+            //else
+            //  return FGResourceType::kFGSampler
+            return FGResourceType::kUknownResource;
         }
 
         RZPassResourceBuilder* RZFrameGraph::CreateBuilder(RZFrameGraph& fg, RZPassNode& passNode)
