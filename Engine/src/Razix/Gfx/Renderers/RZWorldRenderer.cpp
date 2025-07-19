@@ -497,7 +497,7 @@ namespace Razix {
                 rz_gfx_renderpass clear_pass              = {0};
                 clear_pass.colorAttachmentsCount          = 1;
                 clear_pass.colorAttachments[0].clearColor = clear_color;
-                clear_pass.colorAttachments[0].texture    = &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx];
+                clear_pass.colorAttachments[0].pTexture   = &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx];
                 clear_pass.colorAttachments[0].mip        = 0;
                 clear_pass.colorAttachments[0].layer      = 0;
                 clear_pass.colorAttachments[0].clear      = true;

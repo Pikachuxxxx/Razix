@@ -987,6 +987,8 @@ extern "C"
         RAZIX_GFX_RESOURCE;
         const rz_gfx_shader*         pShader;
         const rz_gfx_root_signature* pRootSig;
+        rz_gfx_input_element*        pInputElements;
+        uint32_t                     elementCount;
     } rz_gfx_pipeline;
 
     typedef struct rz_gfx_buffer
@@ -999,10 +1001,10 @@ extern "C"
     typedef struct rz_gfx_attachment
     {
         rz_gfx_color_rgba     clearColor;
-        const rz_gfx_texture* texture;
+        const rz_gfx_texture* pTexture;
         uint8_t               mip;
         uint8_t               layer;
-        bool                  clear;
+        uint8_t               clear;
     } gfx_attachment;
 
     typedef struct rz_gfx_viewport
@@ -1033,7 +1035,7 @@ extern "C"
     typedef struct rz_gfx_shader_reflection
     {
         rz_gfx_root_signature_desc rootSignatureDesc;
-        rz_gfx_input_element*      elements;
+        rz_gfx_input_element*      pInputElements;
         uint32_t                   elementCount;
     } rz_gfx_shader_reflection;
 

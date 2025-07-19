@@ -923,13 +923,13 @@ static void dx12_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_renderpass 
     uint32_t                    rtvCount                             = renderPass.colorAttachmentsCount;
 
     for (uint32_t i = 0; i < rtvCount; ++i)
-        rtvHandles[i] = renderPass.colorAttachments[i].texture->dx12.resView.rtv.cpu;
+        rtvHandles[i] = renderPass.colorAttachments[i].pTexture->dx12.resView.rtv.cpu;
 
     D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = {0};
-    bool                        hasDepth  = renderPass.depthAttachment.texture != NULL;
+    bool                        hasDepth  = renderPass.depthAttachment.pTexture != NULL;
 
     if (hasDepth) {
-        dsvHandle = renderPass.depthAttachment.texture->dx12.resView.dsv.cpu;
+        dsvHandle = renderPass.depthAttachment.pTexture->dx12.resView.dsv.cpu;
     }
 
     for (uint32_t i = 0; i < rtvCount; ++i) {
