@@ -133,7 +133,7 @@ extern "C"
 #define RAZIX_SWAPCHAIN_FORMAT     RZ_GFX_FORMAT_B8G8R8A8_UNORM
 
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX "PushConstant"
-#define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_VK     RAZIX_PUSH_CONSTANT_REFLECTION_pName_PREFIX
+#define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_VK     RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_DX12   "PushConstantBuffer"
 
 #define RAZIX_EXTENTS_ELEM_COUNT 2
@@ -148,11 +148,12 @@ extern "C"
     typedef enum rz_render_api
     {
         RZ_RENDER_API_NONE = -1,
-        RZ_RENDER_API_VULKAN,    // Windows/MacOS/Linux
-        RZ_RENDER_API_D3D12,     // [WIP] // PC/XBOX
-        RZ_RENDER_API_GXM,       // Not Supported yet! (PSVita)
-        RZ_RENDER_API_GCM,       // Not Supported yet! (PS3)
-        RZ_RENDER_API_AGC,       // Not Supported yet! (PlayStation 5)
+        RZ_RENDER_API_VULKAN,       // Windows/MacOS/Linux
+        RZ_RENDER_API_D3D12,        // [WIP] // PC/XBOX
+        RZ_RENDER_API_GXM,          // Not Supported yet! (PSVita)
+        RZ_RENDER_API_GCM,          // Not Supported yet! (PS3)
+        RZ_RENDER_API_AGC,          // Not Supported yet! (PlayStation 5)
+        RZ_RENDER_API_COUNT = 2,    // Only the supported ones
     } rz_render_api;
 
     /**
@@ -703,9 +704,9 @@ extern "C"
 
     typedef struct rz_gfx_root_signature_desc
     {
-        rz_gfx_descriptor_table_desc* pDescriptorTables;
+        rz_gfx_descriptor_table_desc* pDescriptorTablesDesc;
         uint32_t                      descriptorTableCount;
-        rz_gfx_root_constant_desc*    pRootConstants;
+        rz_gfx_root_constant_desc*    pRootConstantsDesc;
         uint32_t                      rootConstantCount;
     } rz_gfx_root_signature_desc;
 
@@ -740,7 +741,7 @@ extern "C"
 
     typedef struct rz_gfx_input_element
     {
-        const char* semanticpName;
+        const char* pSemanticName;
         uint32_t    semanticIndex;
         uint32_t    format;    // Match to rz_gfx_format enum
         uint32_t    inputSlot;
@@ -754,7 +755,7 @@ extern "C"
         rz_gfx_pipeline_type pipelineType;
         union
         {
-            const char* rzsfFilePath;    // helper member to re-use this struct, used before shader blobs are filled, safe to use here, freed before it reaches RHI
+            const char* rzsfFilePath;    // PIGGY_BACKING_MEMORY: helper member to re-use this union, used before shader blobs are filled, safe to use here since freed before it reaches RHI
             struct
             {
                 rz_gfx_shader_stage_blob vs;
@@ -784,13 +785,12 @@ extern "C"
                 rz_gfx_shader_stage_blob ahit;
                 rz_gfx_shader_stage_blob callable;
             } raytracing;
-
-            struct
-            {
-                rz_gfx_input_element* pElements;
-                uint32_t              count;
-            } inputDesc;
         };
+        struct
+        {
+            rz_gfx_input_element* pElements;
+            uint32_t              count;
+        } inputDesc;
     } rz_gfx_shader_desc;
 
     typedef struct rz_gfx_descriptor_heap_desc
@@ -833,7 +833,7 @@ extern "C"
             rz_gfx_buffer_desc           bufferDesc;
             rz_gfx_shader_desc           shaderDesc;
             rz_gfx_pipeline_desc         pipelineDesc;
-        } desc;
+        } desc;    // These are filled by the user, public members filled bu backend are stored in each gfx_type
     } rz_gfx_resource;
 
 #define RAZIX_GFX_RESOURCE rz_gfx_resource resource
@@ -1075,8 +1075,6 @@ extern "C"
     typedef void (*rzRHI_CreateShaderFn)(void* where);
     typedef void (*rzRHI_DestroyShaderFn)(void* ptr);
 
-    typedef rz_gfx_shader_reflection (*rzRHI_ReflectShaderFn)(const rz_gfx_shader* shaderDesc);
-
     typedef void (*rzRHI_CreateRootSignatureFn)(void* where);
     typedef void (*rzRHI_DestroyRootSignatureFn)(void* ptr);
 
@@ -1126,7 +1124,6 @@ extern "C"
         rzRHI_DestroyCmdBufFn        DestroyCmdBuf;
         rzRHI_CreateShaderFn         CreateShader;
         rzRHI_DestroyShaderFn        DestroyShader;
-        rzRHI_ReflectShaderFn        ReflectShader;
         rzRHI_CreateRootSignatureFn  CreateRootSignature;
         rzRHI_DestroyRootSignatureFn DestroyRootSignature;
         //....

@@ -102,8 +102,7 @@ typedef struct dx12_descriptor_heap
 
 typedef struct dx12_descriptor_table
 {
-    ID3D12DescriptorHeap*   heap;
-    dx12_descriptor_handles handles;
+    dx12_descriptor_handles heapStart;
     uint32_t                descriptorSize;
 } dx12_descriptor_table;
 

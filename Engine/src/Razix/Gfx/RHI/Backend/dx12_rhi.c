@@ -2,6 +2,9 @@
 
 #include "Razix/Gfx/RHI/RHI.h"
 
+#include <d3d12shader.h>
+#include <d3dcompiler.h>
+
 // TYpe friendly defines
 #define DX12Context g_GfxCtx.dx12
 #define DX12Device  g_GfxCtx.dx12.device10
@@ -836,10 +839,6 @@ static void dx12_DestroyShader(void* shader)
             RAZIX_RHI_LOG_WARN("[D3D12 Shader] Invalid or unhandled pipeline type during destruction.");
             break;
     }
-}
-
-static rz_gfx_shader_reflection dx12_ReflectShader(const rz_gfx_shader* shaderDesc)
-{
 }
 
 //---------------------------------------------------------------------------------------------

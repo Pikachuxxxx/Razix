@@ -61,6 +61,49 @@ namespace Razix {
             return heapData;
         }
 
+        void* RZRealloc(void* oldPtr, size_t newSize, size_t alignment)
+        {
+            if (newSize == 0) {
+                // Acts like free
+                RZFree(oldPtr);
+                return NULL;
+            }
+
+            if (!oldPtr) {
+                // Acts like malloc
+                return RZMalloc(newSize, alignment);
+            }
+
+            // Allocate new memory
+            void* newPtr = RZMalloc(newSize, alignment);
+            if (!newPtr)
+                return NULL;
+
+            // Copy old data
+            memcpy(newPtr, oldPtr, newSize);
+
+            // Free the old memory
+            RZFree(oldPtr);
+
+            return newPtr;
+        }
+
+        void* RZRealloc(void* oldPtr, size_t newSize)
+        {
+            return RZRealloc(oldPtr, newSize, 16);
+        }
+
+        void* RZCalloc(size_t count, size_t size, size_t alignment)
+        {
+            size_t totalSize = count * size;
+            return RZMalloc(totalSize, alignment);    // already zeroes out memory
+        }
+
+        void* RZCalloc(size_t count, size_t size)
+        {
+            return RZCalloc(count, size, 16);
+        }
+
         void RZFree(void* address)
         {
             // TODO: Begin tracking allocation here
