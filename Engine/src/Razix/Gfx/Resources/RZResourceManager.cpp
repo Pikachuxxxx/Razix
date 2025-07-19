@@ -14,7 +14,7 @@
         return handle;                                                                                   \
     }                                                                                                    \
     resource->type   = typeEnum;                                                                         \
-    resource->name   = name;                                                                             \
+    resource->pName  = name;                                                                             \
     resource->handle = handle;                                                                           \
     memcpy(&resource->desc, &desc, handleSize);                                                          \
     if (m_ResourceTypeCBFuncs[typeEnum].createFuncCB) {                                                  \

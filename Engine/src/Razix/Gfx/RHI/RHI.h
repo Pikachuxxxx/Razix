@@ -133,7 +133,7 @@ extern "C"
 #define RAZIX_SWAPCHAIN_FORMAT     RZ_GFX_FORMAT_B8G8R8A8_UNORM
 
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX "PushConstant"
-#define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_VK     RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX
+#define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_VK     RAZIX_PUSH_CONSTANT_REFLECTION_pName_PREFIX
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_DX12   "PushConstantBuffer"
 
 #define RAZIX_EXTENTS_ELEM_COUNT 2
@@ -676,7 +676,7 @@ extern "C"
 
     typedef struct rz_gfx_descriptor
     {
-        const char*             name;
+        const char*             pName;
         rz_gfx_binding_location location;
         rz_gfx_descriptor_type  type;
         uint32_t                arraySize;
@@ -688,7 +688,7 @@ extern "C"
     typedef struct rz_gfx_descriptor_table_desc
     {
         uint32_t           tableIndex;
-        rz_gfx_descriptor* descriptors;
+        rz_gfx_descriptor* pDescriptors;
         uint32_t           descriptorCount;
     } rz_gfx_descriptor_table_desc;
 
@@ -698,14 +698,14 @@ extern "C"
         uint32_t                sizeInBytes;
         uint32_t                offsetInBytes;
         rz_gfx_shader_stage     shaderStage;
-        const char*             typeNameStr;
+        const char*             pTypepNameStr;
     } rz_gfx_root_constant_desc;
 
     typedef struct rz_gfx_root_signature_desc
     {
-        rz_gfx_descriptor_table_desc* descriptorTables;
+        rz_gfx_descriptor_table_desc* pDescriptorTables;
         uint32_t                      descriptorTableCount;
-        rz_gfx_root_constant_desc*    rootConstants;
+        rz_gfx_root_constant_desc*    pRootConstants;
         uint32_t                      rootConstantCount;
     } rz_gfx_root_signature_desc;
 
@@ -722,7 +722,7 @@ extern "C"
 
     typedef struct rz_gfx_buffer_desc
     {
-        const char*              name;
+        const char*              pName;
         rz_gfx_buffer_type       type;
         rz_gfx_buffer_usage_type usage;
         uint32_t                 sizeInBytes;
@@ -737,6 +737,17 @@ extern "C"
         const char*         bytecode;    // Promised to be freed by RHI after shader creation
         uint32_t            size;
     } rz_gfx_shader_stage_blob;
+
+    typedef struct rz_gfx_input_element
+    {
+        const char* semanticpName;
+        uint32_t    semanticIndex;
+        uint32_t    format;    // Match to rz_gfx_format enum
+        uint32_t    inputSlot;
+        uint32_t    alignedByteOffset;
+        uint32_t    inputClass;    // Per-vertex or per-instance
+        uint32_t    instanceStepRate;
+    } rz_gfx_input_element;
 
     typedef struct rz_gfx_shader_desc
     {
@@ -773,19 +784,25 @@ extern "C"
                 rz_gfx_shader_stage_blob ahit;
                 rz_gfx_shader_stage_blob callable;
             } raytracing;
+
+            struct
+            {
+                rz_gfx_input_element* pElements;
+                uint32_t              count;
+            } inputDesc;
         };
     } rz_gfx_shader_desc;
 
     typedef struct rz_gfx_descriptor_heap_desc
     {
-        const char*                 name;
+        const char*                 pName;
         rz_gfx_descriptor_heap_type heap_type;
         uint32_t                    descriptor_count;
     } rz_gfx_descriptor_heap_desc;
 
     typedef struct rz_gfx_pipeline_desc
     {
-        const char*                  name;
+        const char*                  pName;
         rz_gfx_pipeline_type         type;
         rz_gfx_shader_handle         shader;
         rz_gfx_root_signature_handle rootSignature;
@@ -800,7 +817,7 @@ extern "C"
 
     typedef struct rz_gfx_resource
     {
-        const char*                name;
+        const char*                pName;
         rz_handle                  handle;
         rz_gfx_resource_view_hints viewHints;
         rz_gfx_resource_type       type;
@@ -968,6 +985,8 @@ extern "C"
     typedef struct rz_gfx_pipeline
     {
         RAZIX_GFX_RESOURCE;
+        const rz_gfx_shader*         pShader;
+        const rz_gfx_root_signature* pRootSig;
     } rz_gfx_pipeline;
 
     typedef struct rz_gfx_buffer
@@ -1011,6 +1030,13 @@ extern "C"
         rz_gfx_resolution resolution;
     } rz_gfx_renderpass;
 
+    typedef struct rz_gfx_shader_reflection
+    {
+        rz_gfx_root_signature_desc rootSignatureDesc;
+        rz_gfx_input_element*      elements;
+        uint32_t                   elementCount;
+    } rz_gfx_shader_reflection;
+
     //---------------------------------------------------------------------------------------------
     // Gfx API
 
@@ -1047,7 +1073,7 @@ extern "C"
     typedef void (*rzRHI_CreateShaderFn)(void* where);
     typedef void (*rzRHI_DestroyShaderFn)(void* ptr);
 
-    typedef rz_gfx_root_signature (*rzRHI_ReflectShaderFn)(const rz_gfx_shader* shaderDesc);
+    typedef rz_gfx_shader_reflection (*rzRHI_ReflectShaderFn)(const rz_gfx_shader* shaderDesc);
 
     typedef void (*rzRHI_CreateRootSignatureFn)(void* where);
     typedef void (*rzRHI_DestroyRootSignatureFn)(void* ptr);

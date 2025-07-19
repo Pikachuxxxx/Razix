@@ -393,7 +393,7 @@ static void dx12_update_swapchain_rtvs(rz_gfx_swapchain* sc)
         // This is the only place where a RZ_RESOURCE is manually created, instead of using the RZResourceManager
         rz_gfx_texture texture     = {0};
         dx12_texture   dxtexture   = {0};
-        texture.resource.name      = "$SWAPCHAIN_IMAGE$";
+        texture.resource.pName     = "$SWAPCHAIN_IMAGE$";
         texture.resource.handle    = (rz_handle){i, i};
         texture.resource.viewHints = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
         dxtexture.resource         = d3dresource;
@@ -660,7 +660,7 @@ static void dx12_CreateCmdPool(void* where)
         return;
     }
     cmdPool->type = cmdPool->resource.desc.cmdpoolDesc.poolType;
-    TAG_OBJECT(cmdPool->dx12.cmdAlloc, cmdPool->resource.name);
+    TAG_OBJECT(cmdPool->dx12.cmdAlloc, cmdPool->resource.pName);
 }
 
 static void dx12_DestroyCmdPool(void* cmdPool)
@@ -689,7 +689,7 @@ static void dx12_CreateCmdBuf(void* where)
     }
     // Immediately close it so that the first use can Reset() safely
     CHECK_HR(ID3D12GraphicsCommandList_Close(cmdBuf->dx12.cmdList));
-    TAG_OBJECT(cmdBuf->dx12.cmdList, cmdBuf->resource.name);
+    TAG_OBJECT(cmdBuf->dx12.cmdList, cmdBuf->resource.pName);
 }
 
 static void dx12_DestroyCmdBuf(void* cmdBuf)
@@ -706,6 +706,38 @@ static void dx12_CreateShader(void* where)
 {
     rz_gfx_shader* shader = (rz_gfx_shader*) where;
     RAZIX_RHI_ASSERT(rz_handle_is_valid(&shader->resource.handle), "Invalid shader handle, who is allocating this? ResourceManager should create a valid handle");
+
+    // In Direct3D 12, shaders are not standalone objects like in Vulkan.
+    // There's no need to create an intermediate shader module.
+    // The raw shader bytecode (e.g., .cso or .dxil) is passed directly to the pipeline state during creation.
+    // Therefore, this function intentionally does nothing. Actual shader usage happens during PSO creation.
+
+    rz_gfx_shader_desc* desc = &shader->resource.desc.shaderDesc;
+
+    switch (desc->pipelineType) {
+        case RZ_GFX_PIPELINE_TYPE_GRAPHICS:
+            if (desc->raster.vs.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_VERTEX;
+            if (desc->raster.ps.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_PIXEL;
+            if (desc->raster.gs.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_GEOMETRY;
+            if (desc->raster.tcs.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_TESSELLATION_CONTROL;
+            if (desc->raster.tes.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_TESSELLATION_EVALUATION;
+            if (desc->mesh.task.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_TASK;
+            if (desc->mesh.mesh.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_MESH;
+            if (desc->mesh.ps.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_PIXEL;
+            break;
+        case RZ_GFX_PIPELINE_TYPE_COMPUTE:
+            if (desc->compute.cs.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_COMPUTE;
+            break;
+        case RZ_GFX_PIPELINE_TYPE_RAYTRACING:
+            if (desc->raytracing.rgen.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_RAY_GEN;
+            if (desc->raytracing.miss.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_RAY_MISS;
+            if (desc->raytracing.chit.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_RAY_CLOSEST_HIT;
+            if (desc->raytracing.ahit.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_RAY_ANY_HIT;
+            if (desc->raytracing.callable.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_RAY_CALLABLE;
+        default:
+            RAZIX_RHI_ASSERT(false, "Invalid pipeline type for shader!");
+            break;
+    }
 }
 
 static void dx12_DestroyShader(void* shader)
@@ -713,9 +745,100 @@ static void dx12_DestroyShader(void* shader)
     RAZIX_RHI_ASSERT(shader != NULL, "Shader is NULL, cannot destroy");
     rz_gfx_shader* shaderPtr = (rz_gfx_shader*) shader;
     (void) shaderPtr;
+
+    shaderPtr->shaderStageMask = 0;
+    rz_gfx_shader_desc* desc   = &shaderPtr->resource.desc.shaderDesc;
+
+    switch (desc->pipelineType) {
+        case RZ_GFX_PIPELINE_TYPE_GRAPHICS: {
+            if (desc->raster.vs.bytecode) {
+                RAZIX_RHI_ASSERT(desc->raster.vs.size > 0, "VS bytecode has invalid size");
+                free((void*) desc->raster.vs.bytecode);
+                desc->raster.vs.bytecode = NULL;
+            }
+            if (desc->raster.ps.bytecode) {
+                RAZIX_RHI_ASSERT(desc->raster.ps.size > 0, "PS bytecode has invalid size");
+                free((void*) desc->raster.ps.bytecode);
+                desc->raster.ps.bytecode = NULL;
+            }
+            if (desc->raster.gs.bytecode) {
+                RAZIX_RHI_ASSERT(desc->raster.gs.size > 0, "GS bytecode has invalid size");
+                free((void*) desc->raster.gs.bytecode);
+                desc->raster.gs.bytecode = NULL;
+            }
+            if (desc->raster.tcs.bytecode) {
+                RAZIX_RHI_ASSERT(desc->raster.tcs.size > 0, "TCS bytecode has invalid size");
+                free((void*) desc->raster.tcs.bytecode);
+                desc->raster.tcs.bytecode = NULL;
+            }
+            if (desc->raster.tes.bytecode) {
+                RAZIX_RHI_ASSERT(desc->raster.tes.size > 0, "TES bytecode has invalid size");
+                free((void*) desc->raster.tes.bytecode);
+                desc->raster.tes.bytecode = NULL;
+            }
+            if (desc->mesh.task.bytecode) {
+                RAZIX_RHI_ASSERT(desc->mesh.task.size > 0, "Task shader bytecode has invalid size");
+                free((void*) desc->mesh.task.bytecode);
+                desc->mesh.task.bytecode = NULL;
+            }
+            if (desc->mesh.mesh.bytecode) {
+                RAZIX_RHI_ASSERT(desc->mesh.mesh.size > 0, "Mesh shader bytecode has invalid size");
+                free((void*) desc->mesh.mesh.bytecode);
+                desc->mesh.mesh.bytecode = NULL;
+            }
+            if (desc->mesh.ps.bytecode) {
+                RAZIX_RHI_ASSERT(desc->mesh.ps.size > 0, "PS bytecode has invalid size");
+                free((void*) desc->mesh.ps.bytecode);
+                desc->mesh.ps.bytecode = NULL;
+            }
+            break;
+            break;
+        }
+
+        case RZ_GFX_PIPELINE_TYPE_COMPUTE: {
+            if (desc->compute.cs.bytecode) {
+                RAZIX_RHI_ASSERT(desc->compute.cs.size > 0, "CS bytecode has invalid size");
+                free((void*) desc->compute.cs.bytecode);
+                desc->compute.cs.bytecode = NULL;
+            }
+            break;
+        }
+
+        case RZ_GFX_PIPELINE_TYPE_RAYTRACING: {
+            if (desc->raytracing.rgen.bytecode) {
+                RAZIX_RHI_ASSERT(desc->raytracing.rgen.size > 0, "RGEN bytecode has invalid size");
+                free((void*) desc->raytracing.rgen.bytecode);
+                desc->raytracing.rgen.bytecode = NULL;
+            }
+            if (desc->raytracing.miss.bytecode) {
+                RAZIX_RHI_ASSERT(desc->raytracing.miss.size > 0, "MISS bytecode has invalid size");
+                free((void*) desc->raytracing.miss.bytecode);
+                desc->raytracing.miss.bytecode = NULL;
+            }
+            if (desc->raytracing.chit.bytecode) {
+                RAZIX_RHI_ASSERT(desc->raytracing.chit.size > 0, "CHIT bytecode has invalid size");
+                free((void*) desc->raytracing.chit.bytecode);
+                desc->raytracing.chit.bytecode = NULL;
+            }
+            if (desc->raytracing.ahit.bytecode) {
+                RAZIX_RHI_ASSERT(desc->raytracing.ahit.size > 0, "AHIT bytecode has invalid size");
+                free((void*) desc->raytracing.ahit.bytecode);
+                desc->raytracing.ahit.bytecode = NULL;
+            }
+            if (desc->raytracing.callable.bytecode) {
+                RAZIX_RHI_ASSERT(desc->raytracing.callable.size > 0, "CALLABLE bytecode has invalid size");
+                free((void*) desc->raytracing.callable.bytecode);
+                desc->raytracing.callable.bytecode = NULL;
+            }
+            break;
+        }
+        default:
+            RAZIX_RHI_LOG_WARN("[D3D12 Shader] Invalid or unhandled pipeline type during destruction.");
+            break;
+    }
 }
 
-static rz_gfx_root_signature dx12_ReflectShader(const rz_gfx_shader* shaderDesc)
+static rz_gfx_shader_reflection dx12_ReflectShader(const rz_gfx_shader* shaderDesc)
 {
 }
 
