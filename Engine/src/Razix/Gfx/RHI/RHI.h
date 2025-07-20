@@ -800,12 +800,16 @@ extern "C"
         uint32_t                    descriptor_count;
     } rz_gfx_descriptor_heap_desc;
 
+    typedef struct rz_gfx_shader         rz_gfx_shader;
+    typedef struct rz_gfx_root_signature rz_gfx_root_signature;
     typedef struct rz_gfx_pipeline_desc
     {
         const char*                  pName;
         rz_gfx_pipeline_type         type;
-        rz_gfx_shader_handle         shader;
-        rz_gfx_root_signature_handle rootSignature;
+        const rz_gfx_shader*         pShader;
+        const rz_gfx_root_signature* pRootSig;
+        const rz_gfx_input_element*  pInputElements;
+        uint32_t                     elementCount;
         rz_gfx_cull_mode_type        cullMode;
         rz_gfx_polygon_mode_type     polygonMode;
         bool                         depthTestEnabled;
@@ -985,10 +989,6 @@ extern "C"
     typedef struct rz_gfx_pipeline
     {
         RAZIX_GFX_RESOURCE;
-        const rz_gfx_shader*         pShader;
-        const rz_gfx_root_signature* pRootSig;
-        rz_gfx_input_element*        pInputElements;
-        uint32_t                     elementCount;
     } rz_gfx_pipeline;
 
     typedef struct rz_gfx_buffer
