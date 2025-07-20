@@ -848,8 +848,13 @@ static void dx12_CreateRootSignature(void* where)
 
     rz_gfx_root_signature_desc* desc = &rootSig->resource.desc.rootSignatureDesc;
 
+    D3D12_ROOT_SIGNATURE_DESC rootDesc = {0};
     for (uint32_t i = 0; i < desc->descriptorTableCount; i++) {
-
+        // build root params
+        D3D12_ROOT_PARAMETER param = {0};
+        param.ParameterType        = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+        D3D12_DESCRIPTOR_RANGE ranges[RAZIX_MAX_DESCRIPTOR_RANGES] = {0};
+     
     }
 
 }
