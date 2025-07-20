@@ -41,7 +41,7 @@ namespace Razix {
     }
 
     RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/)
-        : m_ProjectName(appName), m_ProjectPath(projectRoot), m_Timestep(RZTimestep(0.0f)), m_GuizmoOperation(Guizmo::TRANSLATE), m_GuizmoMode(Guizmo::MODE::WORLD)
+        : m_ProjectName(appName), m_ProjectPath(projectRoot)
     {
         // Create the application instance
         RAZIX_CORE_ASSERT(!s_AppInstance, "Application already exists!");
@@ -285,11 +285,11 @@ namespace Razix {
         f32 now = m_Timer->GetElapsedS();
         RZEngine::Get().ResetStats();
         auto& stats = RZEngine::Get().GetStatistics();
-        m_Timestep.Update(now);
+        m_FPSTimestep.Update(now);
+        m_UPSTimestep.Update(now);
 
         // Update the stats
-
-        stats.DeltaTime = m_Timestep.GetTimestepMs();
+        stats.DeltaTime = m_FPSTimestep.GetTimestepMs();
 
         // Poll for Input events
         m_Window->ProcessInput();
@@ -313,8 +313,7 @@ namespace Razix {
         }
 
         // Update the Engine systems
-        Update(m_Timestep);
-        m_Updates++;
+        Update(m_UPSTimestep);
 
         // Render the Graphics
         Render();
@@ -333,17 +332,14 @@ namespace Razix {
             if (now - m_TotalTimeElapsedInSeconds > 1.0f) {
                 m_TotalTimeElapsedInSeconds += 1.0f;
 
-                stats.FramesPerSecond  = m_Frames;
-                stats.UpdatesPerSecond = m_Updates;
-                RAZIX_CORE_TRACE("FPS : {0} (dt: {1}ms)", stats.FramesPerSecond, stats.DeltaTime);
+                stats.FramesPerSecond  = (u32) m_FPSTimestep.GetCurrentFPS();
+                stats.UpdatesPerSecond = (u32) m_UPSTimestep.GetCurrentFPS();
+                RAZIX_CORE_TRACE("FPS : {0} (dt: {1}ms) | Avg FPS: {2}", stats.FramesPerSecond, stats.DeltaTime, (u32) m_FPSTimestep.GetAverageFPS());
                 //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
                 // update window signature with FPS
-                auto sig = GetAppWindowTitleSignature(m_ProjectName) + " | FPS: " + std::to_string(stats.FramesPerSecond);
+                auto sig = GetAppWindowTitleSignature(m_ProjectName) + " | FPS: " + std::to_string(stats.FramesPerSecond) + " Avg. FPS: " + std::to_string((u32) m_FPSTimestep.GetAverageFPS());
                 m_Window->setTitle(sig.c_str());
-
-                m_Frames  = 0;
-                m_Updates = 0;
             }
         }
         return m_CurrentState != AppState::Closing;

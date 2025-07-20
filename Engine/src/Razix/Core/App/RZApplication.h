@@ -127,7 +127,8 @@ namespace Razix {
         u32                       m_Updates                   = 0;
         rzstl::UniqueRef<RZTimer> m_Timer                     = nullptr;
         f32                       m_TotalTimeElapsedInSeconds = 0;
-        RZTimestep                m_Timestep                  = {};
+        RZTimestep                m_FPSTimestep               = {};
+        RZTimestep                m_UPSTimestep               = {};
         RZWindow*                 m_Window                    = nullptr;
         WindowProperties          m_WindowProperties          = {};
         RZUUID                    m_ProjectID                 = {};
