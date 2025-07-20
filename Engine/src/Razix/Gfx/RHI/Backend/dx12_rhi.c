@@ -841,6 +841,23 @@ static void dx12_DestroyShader(void* shader)
     }
 }
 
+static void dx12_CreateRootSignature(void* where)
+{
+    rz_gfx_root_signature* rootSig = (rz_gfx_root_signature*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&rootSig->resource.handle), "Invalid rootsignaure handle, who is allocating this? ResourceManager should create a valid handle");
+
+    rz_gfx_root_signature_desc* desc = &rootSig->resource.desc.rootSignatureDesc;
+
+    for (uint32_t i = 0; i < desc->descriptorTableCount; i++) {
+
+    }
+
+}
+
+static void dx12_DestroyRootSignature(void* ptr)
+{
+}
+
 //---------------------------------------------------------------------------------------------
 // RHI
 

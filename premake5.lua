@@ -98,6 +98,17 @@ function apply_engine_global_config()
     end
 end
 
+function install_hooks()
+    if os.isdir(".git") then
+        print("Installing Git hooks...")
+        local result = os.execute("python3 Scripts/install_commit_hook.py")
+        if result ~= 0 then
+            error("Hook install failed.")
+        else
+            print("Commit hook installed.")
+        end
+    end
+end
 
 -- The Razix Engine Workspace
 workspace ( settings.workspace_name )
@@ -140,7 +151,17 @@ workspace ( settings.workspace_name )
         "GoldMaster"
     }
 
+    -- install git commit hooks
+    execute = function()
+        print("Running Python hook installer...")
+        local result = os.execute("python3 Scripts/install_commit_hooks.py")
+        if result ~= 0 then
+            error("Hook install failed")
+        end
+    end
+
     apply_engine_global_config()
+    --install_hooks()
 
     ------------------------------------------------------------------------------
     -- Shaders build rules (declared at start for tests and demos to pickup)
