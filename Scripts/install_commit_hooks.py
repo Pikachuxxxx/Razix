@@ -14,6 +14,7 @@ with open(commit_msg_file, 'r') as f:
     msg = f.readline().strip()
 
 pattern = r"^(feat|fix|refactor|docs|chore|test|perf)\\((gfx|rhi|audio|ui|build|tools|vfs|net|ai|physics|gameplay|art|asset)\\): .+"
+pattern = pattern.replace('\\\\(', '(').replace('\\\\)', ')')  # Unescape before using
 
 if not re.match(pattern, msg):
     print("Invalid commit message format!")
