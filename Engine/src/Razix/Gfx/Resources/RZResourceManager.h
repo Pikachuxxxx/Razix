@@ -63,8 +63,10 @@ private:                                                                        
             RAZIX_REGISTER_RESOURCE_POOL(Texture, rz_gfx_texture)
             // //-----------------------------------------------------------------------------------
             // RAZIX_REGISTER_RESOURCE_POOL(sampler, const RZSamplerDesc& desc)
-            // //-----------------------------------------------------------------------------------
+            //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(Shader, rz_gfx_shader)
+            //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(RootSignature, rz_gfx_root_signature)
             // //-----------------------------------------------------------------------------------
             // RAZIX_REGISTER_RESOURCE_POOL(pipeline, const RZPipelineDesc& desc)
             // //-----------------------------------------------------------------------------------

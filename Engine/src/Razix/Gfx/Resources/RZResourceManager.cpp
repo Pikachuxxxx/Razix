@@ -76,16 +76,32 @@ namespace Razix {
 
         static void RZSFCreateOverrideFunc(void* where)
         {
+            // This function is called when a shader resource is created from an RZSF file
             rz_gfx_shader* shader = (rz_gfx_shader*) where;
             RAZIX_ASSERT(shader != nullptr, "[Resource Manager] Shader resource is null! Cannot create shader from RZSF file!");
+
+            // Get the shader description from the shader resource
             rz_gfx_shader_desc* shaderDesc = &shader->resource.desc.shaderDesc;
             RAZIX_ASSERT(shaderDesc != nullptr, "[Resource Manager] Shader description is null! Cannot create shader from RZSF file!");
             RAZIX_ASSERT(shaderDesc->rzsfFilePath != nullptr, "[Resource Manager] RZSF file path is null! Cannot create shader from RZSF file!");
+
+            // Parse the RZSF file and fill the shaderDesc with the parsed data
             rz_gfx_shader_desc parsedDesc = Gfx::ParseRZSF(std::string(shaderDesc->rzsfFilePath));
             Memory::RZFree((void*) shaderDesc->rzsfFilePath);
             shaderDesc->rzsfFilePath = NULL;
+
+            // Copy the parsed description to the shaderDesc
             memcpy(shaderDesc, &parsedDesc, sizeof(rz_gfx_shader_desc));
+            // Create the shader using the RHI
             rzRHI_CreateShader(where);
+
+            // Reflect the shader resource to get the shader reflection data
+            rz_gfx_shader_reflection reflection = Gfx::ReflectShader(shader);
+
+            // crate root signature
+            reflection.rootSignatureDesc;
+            auto rootSigName      = "RootSignature_" + std::string(shader->resource.pName);
+            shader->rootSignature = RZResourceManager::Get().createRootSignature(rootSigName.c_str(), reflection.rootSignatureDesc);
         }
 
         void RZResourceManager::StartUp()
@@ -97,6 +113,7 @@ namespace Razix {
             //RAZIX_INIT_RESOURCE_POOL(Texture, 2048, sizeof(rz_gfx_texture));
             //RAZIX_INIT_RESOURCE_POOL(Sampler, 32)
             RAZIX_INIT_RESOURCE_POOL(Shader, RZ_GFX_RESOURCE_TYPE_SHADER, 512, sizeof(rz_gfx_shader), RZSFCreateOverrideFunc, rzRHI_DestroyShader);
+            RAZIX_INIT_RESOURCE_POOL(RootSignature, RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE, 512, sizeof(rz_gfx_root_signature), rzRHI_CreateRootSignature, rzRHI_DestroyRootSignature);
             //RAZIX_INIT_RESOURCE_POOL(Pipeline, 512)
             //RAZIX_INIT_RESOURCE_POOL(UniformBuffer, 2048)
             RAZIX_INIT_RESOURCE_POOL(CommandPool, RZ_GFX_RESOURCE_TYPE_CMD_POOL, 32, sizeof(rz_gfx_cmdpool), rzRHI_CreateCmdPool, rzRHI_DestroyCmdPool);
@@ -115,6 +132,7 @@ namespace Razix {
             //RAZIX_UNREGISTER_RESOURCE_POOL(Texture)
             //RAZIX_UNREGISTER_RESOURCE_POOL(Sampler)
             RAZIX_UNREGISTER_RESOURCE_POOL(Shader)
+            RAZIX_UNREGISTER_RESOURCE_POOL(RootSignature)
             //RAZIX_UNREGISTER_RESOURCE_POOL(Pipeline)
             //RAZIX_UNREGISTER_RESOURCE_POOL(UniformBuffer)
             RAZIX_UNREGISTER_RESOURCE_POOL(CommandPool);
@@ -130,6 +148,7 @@ namespace Razix {
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Texture, const RZTextureDesc& desc)
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Sampler, const RZSamplerDesc& desc)
         RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Shader, RZ_GFX_RESOURCE_TYPE_SHADER, rz_gfx_shader)
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(RootSignature, RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE, rz_gfx_root_signature)
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Pipeline, const RZPipelineDesc& desc)
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(UniformBuffer, const RZBufferDesc& desc)
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(VertexBuffer, const RZBufferDesc& desc)
