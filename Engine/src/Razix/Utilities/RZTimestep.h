@@ -38,16 +38,13 @@ namespace Razix {
         inline u32 GetFrameCount() const { return m_FrameCount; }
 
     private:
-        f32 m_Timestep;
-        f32 m_LastTime;
-        f32 m_Elapsed;
-
-        f32 m_TotalTime;
-        u32 m_FrameCount;
-
-        f32 m_FPS;
-        f32 m_AvgFPS;
-
-        bool _padding[4];
+        f32  m_Timestep  = 0.0f;
+        f32  m_LastTime  = 0.0f;
+        f32  m_Elapsed   = 0.0f;
+        f32  m_TotalTime = 0.0f;
+        f32  m_FPS       = 0.0f;
+        f32  m_AvgFPS;
+        u32  m_FrameCount = 0;
+        bool _padding[4]  = {0};
     };
 }    // namespace Razix

@@ -456,8 +456,29 @@ namespace Razix {
              * and can load any thing as long it is supplies with the required data to
              */
         m_ProjectName = projectName;
-        // TODO: Verify these two!
-        //archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
+        // Deserialize from archive
+        std::string storedVersionStr;
+        archive(cereal::make_nvp("Engine Version", storedVersionStr));
+        const Razix::Version  loadedVersion  = Version::ParseVersionString(storedVersionStr);
+        const Razix::Version& currentVersion = Razix::RazixVersion;
+        if (storedVersionStr != currentVersion.getVersionString()) {
+            RAZIX_CORE_WARN("[Serialization] Engine version mismatch detected!");
+            RAZIX_CORE_WARN("[Serialization] Loaded asset was saved with version: {}", storedVersionStr);
+            RAZIX_CORE_WARN("[Serialization] Current engine version is: {}", currentVersion.getVersionString());
+
+            if (loadedVersion.getVersionMajor() < currentVersion.getVersionMajor()) {
+                RAZIX_CORE_ERROR("[Serialization] Major version is older — incompatibility likely!");
+            } else if (loadedVersion.getVersionMinor() < currentVersion.getVersionMinor()) {
+                RAZIX_CORE_ERROR("[Serialization] Minor version is older — may be partially compatible.");
+            } else if (loadedVersion.getVersionPatch() < currentVersion.getVersionPatch()) {
+                RAZIX_CORE_ERROR("[Serialization] Patch version is older — usually safe, but changes may exist.");
+            } else {
+                RAZIX_CORE_ERROR("[Serialization] Version is newer than current engine — unsupported forward compatibility.");
+            }
+        } else {
+            RAZIX_CORE_INFO("[Serialization] Engine version matches exactly: {}", storedVersionStr);
+        }
+        // TODO: Verify these also!
         //archive(cereal::make_nvp("Project Version", 0));
         archive(cereal::make_nvp("Render API", m_RenderAPI));
         // Set the render API from the De-serialized data
