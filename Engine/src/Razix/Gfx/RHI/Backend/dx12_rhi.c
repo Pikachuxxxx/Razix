@@ -147,6 +147,50 @@ static D3D12_RESOURCE_STATES dx12_util_res_state_translate(rz_gfx_resource_state
     }
 }
 
+static D3D12_DESCRIPTOR_RANGE_TYPE dx12_util_descriptor_type_to_range_type(rz_gfx_descriptor_type type)
+{
+    switch (type) {
+        case RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            return D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_TEXTURE:
+        case RZ_GFX_DESCRIPTOR_TYPE_STRUCTURED:
+        case RZ_GFX_DESCRIPTOR_TYPE_BYTE_ADDRESS:
+        case RZ_GFX_DESCRIPTOR_TYPE_RT_ACCELERATION_STRUCTURE:
+            // Byte-address and structured-read are SRVs; RT AS is bound as SRV
+            return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE:
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_TYPED:
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED:
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_BYTE_ADDRESS:
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED_COUNTER:
+        case RZ_GFX_DESCRIPTOR_TYPE_APPEND_STRUCTURED:
+        case RZ_GFX_DESCRIPTOR_TYPE_CONSUME_STRUCTURED:
+            return D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_SAMPLER:
+            return D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT:
+            // D3D12 doesn't have a descriptor range type for push constants.
+            // These are typically bound via root constants instead of descriptor tables.
+            RAZIX_RHI_ASSERT(false, "Push constants must be bound via root constants, not descriptor ranges");
+            return D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED:
+            // Vulkan-only combined sampler+texture; youll need two separate ranges in D3D12.
+            RAZIX_RHI_ASSERT(false, "Combined image/sampler isn't supported directly in DX12");
+            return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_NONE:
+        case RZ_GFX_DESCRIPTOR_TYPE_COUNT:
+        default:
+            RAZIX_RHI_ASSERT(false, "Unknown or invalid descriptor type");
+            return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    }
+}
+
 //---------------------------------------------------------------------------------------------
 // Helper functions
 
@@ -849,18 +893,94 @@ static void dx12_CreateRootSignature(void* where)
     rz_gfx_root_signature_desc* desc = &rootSig->resource.desc.rootSignatureDesc;
 
     D3D12_ROOT_SIGNATURE_DESC rootDesc = {0};
+    rootDesc.NumParameters             = desc->descriptorTableCount + desc->rootConstantCount;
+    rootDesc.pParameters               = (D3D12_ROOT_PARAMETER*) malloc(sizeof(D3D12_ROOT_PARAMETER) * rootDesc.NumParameters);
+    RAZIX_RHI_ASSERT(rootDesc.pParameters != NULL, "Failed to allocate memory for root parameters in root signature creation! (Root Signature creation)");
+
     for (uint32_t i = 0; i < desc->descriptorTableCount; i++) {
+        const rz_gfx_descriptor_table_desc* pTableDesc = &desc->pDescriptorTablesDesc[i];
         // build root params
-        D3D12_ROOT_PARAMETER param = {0};
-        param.ParameterType        = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+        RAZIX_RHI_ASSERT(pTableDesc != NULL, "Descriptor table cannot be NULL in root signature creation! (Root Signature creation)");
+
+        D3D12_ROOT_PARAMETER* param                                = &rootDesc.pParameters[i];
+        param->ParameterType                                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
         D3D12_DESCRIPTOR_RANGE ranges[RAZIX_MAX_DESCRIPTOR_RANGES] = {0};
-     
+        for (uint32_t i = 0; i < pTableDesc->descriptorCount; i++) {
+            RAZIX_RHI_ASSERT(i < RAZIX_MAX_DESCRIPTOR_RANGES, "Too many descriptors in a table! [MAXLIMIT: %d] (Root Signature creation)", RAZIX_MAX_DESCRIPTOR_RANGES);
+
+            const rz_gfx_descriptor* pDescriptor = &pTableDesc->pDescriptors[i];
+            RAZIX_RHI_ASSERT(pDescriptor != NULL, "Descriptor cannot be NULL in a descriptor table! (Root Signature creation)");
+            RAZIX_RHI_ASSERT(pDescriptor->location.space == pTableDesc->tableIndex,
+                "Descriptor space (%u) does not match table index (%u) in root signature creation! (Root Signature creation)",
+                pDescriptor->location.space,
+                pTableDesc->tableIndex);
+
+            ranges[i].RangeType                         = dx12_util_descriptor_type_to_range_type(pDescriptor->type);
+            ranges[i].NumDescriptors                    = pDescriptor->memberCount;
+            ranges[i].BaseShaderRegister                = pDescriptor->location.binding;
+            ranges[i].RegisterSpace                     = pTableDesc->tableIndex;
+            ranges[i].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+        }
+        param->DescriptorTable.pDescriptorRanges   = ranges;
+        param->DescriptorTable.NumDescriptorRanges = pTableDesc->descriptorCount;
     }
 
+    for (uint32_t i = 0; i < desc->rootConstantCount; i++) {
+        const rz_gfx_root_constant_desc* pRootConstantDesc = &desc->pRootConstantsDesc[i];
+        RAZIX_RHI_ASSERT(pRootConstantDesc != NULL, "Root constant cannot be NULL in root signature creation! (Root Signature creation)");
+
+        D3D12_ROOT_PARAMETER* param     = &rootDesc.pParameters[desc->descriptorTableCount + i];
+        param->ParameterType            = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+        uint32_t numDWORDs              = pRootConstantDesc->sizeInBytes >> 2;
+        param->Constants.Num32BitValues = numDWORDs;
+        param->Constants.ShaderRegister = pRootConstantDesc->location.binding;
+        param->Constants.RegisterSpace  = pRootConstantDesc->location.space;
+    }
+
+    ID3DBlob* signatureBlob = NULL;
+    ID3DBlob* errorBlob     = NULL;
+    HRESULT   hr            = D3D12SerializeRootSignature(&rootDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+    if (FAILED(hr)) {
+        RAZIX_RHI_LOG_ERROR("Failed to serialize root signature: %s", errorBlob ? (const char*) ID3D10Blob_GetBufferPointer(errorBlob) : "Unknown error");
+        if (errorBlob) {
+            ID3D10Blob_Release(errorBlob);
+        }
+        free((void*) rootDesc.pParameters);
+        return;
+    }
+    RAZIX_RHI_LOG_INFO("Root signature serialized successfully");
+    free((void*) rootDesc.pParameters);
+    rootDesc.pParameters       = NULL;    // Prevent double free
+    rootDesc.NumParameters     = 0;
+    rootDesc.pStaticSamplers   = NULL;    // No static samplers in this example
+    rootDesc.NumStaticSamplers = 0;
+    //rootDesc.Flags             = flags; // TODO: Do we need any?
+    rootDesc.pStaticSamplers   = NULL;
+    rootDesc.NumStaticSamplers = 0;
+    CHECK_HR(ID3D12Device10_CreateRootSignature(DX12Device, 0, ID3D10Blob_GetBufferPointer(signatureBlob), ID3D10Blob_GetBufferSize(signatureBlob), &IID_ID3D12RootSignature, (void**) &rootSig->dx12.rootSig));
+    if (rootSig->dx12.rootSig == NULL) {
+        RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Root Signature");
+        ID3D10Blob_Release(signatureBlob);
+        return;
+    }
+    RAZIX_RHI_LOG_INFO("D3D12 Root Signature created successfully");
+    TAG_OBJECT(rootSig->dx12.rootSig, rootSig->resource.pName);
 }
 
 static void dx12_DestroyRootSignature(void* ptr)
 {
+    RAZIX_RHI_ASSERT(ptr != NULL, "Root signature is NULL, cannot destroy");
+    rz_gfx_root_signature* rootSig = (rz_gfx_root_signature*) ptr;
+
+    if (rootSig->dx12.rootSig) {
+        ID3D12RootSignature_Release(rootSig->dx12.rootSig);
+        rootSig->dx12.rootSig = NULL;
+    }
+
+    if (rootSig->resource.desc.rootSignatureDesc.pDescriptorTablesDesc) {
+        free((void*) rootSig->resource.desc.rootSignatureDesc.pDescriptorTablesDesc);
+        rootSig->resource.desc.rootSignatureDesc.pDescriptorTablesDesc = NULL;
+    }
 }
 
 //---------------------------------------------------------------------------------------------
