@@ -890,49 +890,51 @@ static void dx12_CreateRootSignature(void* where)
     rz_gfx_root_signature* rootSig = (rz_gfx_root_signature*) where;
     RAZIX_RHI_ASSERT(rz_handle_is_valid(&rootSig->resource.handle), "Invalid rootsignaure handle, who is allocating this? ResourceManager should create a valid handle");
 
-    rz_gfx_root_signature_desc* desc = &rootSig->resource.desc.rootSignatureDesc;
+    const rz_gfx_root_signature_desc* desc = &rootSig->resource.desc.rootSignatureDesc;
+
+    D3D12_ROOT_PARAMETER   rootParams[RAZIX_MAX_DESCRIPTOR_TABLES + RAZIX_MAX_ROOT_CONSTANTS]         = {0};
+    D3D12_DESCRIPTOR_RANGE descriptorRanges[RAZIX_MAX_DESCRIPTOR_TABLES][RAZIX_MAX_DESCRIPTOR_RANGES] = {0};
 
     D3D12_ROOT_SIGNATURE_DESC rootDesc = {0};
     rootDesc.NumParameters             = desc->descriptorTableCount + desc->rootConstantCount;
-    rootDesc.pParameters               = (D3D12_ROOT_PARAMETER*) malloc(sizeof(D3D12_ROOT_PARAMETER) * rootDesc.NumParameters);
-    RAZIX_RHI_ASSERT(rootDesc.pParameters != NULL, "Failed to allocate memory for root parameters in root signature creation! (Root Signature creation)");
+    rootDesc.pParameters               = rootParams;
 
-    for (uint32_t i = 0; i < desc->descriptorTableCount; i++) {
-        const rz_gfx_descriptor_table_desc* pTableDesc = &desc->pDescriptorTablesDesc[i];
-        // build root params
+    for (uint32_t tableIdx = 0; tableIdx < desc->descriptorTableCount; tableIdx++) {
+        const rz_gfx_descriptor_table_desc* pTableDesc = &desc->pDescriptorTablesDesc[tableIdx];
         RAZIX_RHI_ASSERT(pTableDesc != NULL, "Descriptor table cannot be NULL in root signature creation! (Root Signature creation)");
 
-        D3D12_ROOT_PARAMETER* param                                = &rootDesc.pParameters[i];
-        param->ParameterType                                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-        D3D12_DESCRIPTOR_RANGE ranges[RAZIX_MAX_DESCRIPTOR_RANGES] = {0};
-        for (uint32_t i = 0; i < pTableDesc->descriptorCount; i++) {
-            RAZIX_RHI_ASSERT(i < RAZIX_MAX_DESCRIPTOR_RANGES, "Too many descriptors in a table! [MAXLIMIT: %d] (Root Signature creation)", RAZIX_MAX_DESCRIPTOR_RANGES);
+        D3D12_ROOT_PARAMETER* param = &rootParams[tableIdx];
+        param->ParameterType        = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 
-            const rz_gfx_descriptor* pDescriptor = &pTableDesc->pDescriptors[i];
+        for (uint32_t rangeIdx = 0; rangeIdx < pTableDesc->descriptorCount; rangeIdx++) {
+            RAZIX_RHI_ASSERT(rangeIdx < RAZIX_MAX_DESCRIPTOR_RANGES, "Too many descriptors in a table! [MAXLIMIT: %d] (Root Signature creation)", RAZIX_MAX_DESCRIPTOR_RANGES);
+
+            const rz_gfx_descriptor* pDescriptor = &pTableDesc->pDescriptors[rangeIdx];
             RAZIX_RHI_ASSERT(pDescriptor != NULL, "Descriptor cannot be NULL in a descriptor table! (Root Signature creation)");
             RAZIX_RHI_ASSERT(pDescriptor->location.space == pTableDesc->tableIndex,
                 "Descriptor space (%u) does not match table index (%u) in root signature creation! (Root Signature creation)",
                 pDescriptor->location.space,
                 pTableDesc->tableIndex);
 
-            ranges[i].RangeType                         = dx12_util_descriptor_type_to_range_type(pDescriptor->type);
-            ranges[i].NumDescriptors                    = pDescriptor->memberCount;
-            ranges[i].BaseShaderRegister                = pDescriptor->location.binding;
-            ranges[i].RegisterSpace                     = pTableDesc->tableIndex;
-            ranges[i].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+            D3D12_DESCRIPTOR_RANGE* range            = &descriptorRanges[tableIdx][rangeIdx];
+            range->RangeType                         = dx12_util_descriptor_type_to_range_type(pDescriptor->type);
+            range->NumDescriptors                    = pDescriptor->memberCount;
+            range->BaseShaderRegister                = pDescriptor->location.binding;
+            range->RegisterSpace                     = pTableDesc->tableIndex;
+            range->OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
         }
-        param->DescriptorTable.pDescriptorRanges   = ranges;
+
         param->DescriptorTable.NumDescriptorRanges = pTableDesc->descriptorCount;
+        param->DescriptorTable.pDescriptorRanges   = descriptorRanges[tableIdx];
     }
 
     for (uint32_t i = 0; i < desc->rootConstantCount; i++) {
         const rz_gfx_root_constant_desc* pRootConstantDesc = &desc->pRootConstantsDesc[i];
         RAZIX_RHI_ASSERT(pRootConstantDesc != NULL, "Root constant cannot be NULL in root signature creation! (Root Signature creation)");
 
-        D3D12_ROOT_PARAMETER* param     = &rootDesc.pParameters[desc->descriptorTableCount + i];
+        D3D12_ROOT_PARAMETER* param     = &rootParams[desc->descriptorTableCount + i];
         param->ParameterType            = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-        uint32_t numDWORDs              = pRootConstantDesc->sizeInBytes >> 2;
-        param->Constants.Num32BitValues = numDWORDs;
+        param->Constants.Num32BitValues = pRootConstantDesc->sizeInBytes >> 2;
         param->Constants.ShaderRegister = pRootConstantDesc->location.binding;
         param->Constants.RegisterSpace  = pRootConstantDesc->location.space;
     }
@@ -942,27 +944,18 @@ static void dx12_CreateRootSignature(void* where)
     HRESULT   hr            = D3D12SerializeRootSignature(&rootDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
     if (FAILED(hr)) {
         RAZIX_RHI_LOG_ERROR("Failed to serialize root signature: %s", errorBlob ? (const char*) ID3D10Blob_GetBufferPointer(errorBlob) : "Unknown error");
-        if (errorBlob) {
-            ID3D10Blob_Release(errorBlob);
-        }
-        free((void*) rootDesc.pParameters);
+        if (errorBlob) ID3D10Blob_Release(errorBlob);
         return;
     }
     RAZIX_RHI_LOG_INFO("Root signature serialized successfully");
-    free((void*) rootDesc.pParameters);
-    rootDesc.pParameters       = NULL;    // Prevent double free
-    rootDesc.NumParameters     = 0;
-    rootDesc.pStaticSamplers   = NULL;    // No static samplers in this example
-    rootDesc.NumStaticSamplers = 0;
-    //rootDesc.Flags             = flags; // TODO: Do we need any?
-    rootDesc.pStaticSamplers   = NULL;
-    rootDesc.NumStaticSamplers = 0;
+
     CHECK_HR(ID3D12Device10_CreateRootSignature(DX12Device, 0, ID3D10Blob_GetBufferPointer(signatureBlob), ID3D10Blob_GetBufferSize(signatureBlob), &IID_ID3D12RootSignature, (void**) &rootSig->dx12.rootSig));
     if (rootSig->dx12.rootSig == NULL) {
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Root Signature");
         ID3D10Blob_Release(signatureBlob);
         return;
     }
+
     RAZIX_RHI_LOG_INFO("D3D12 Root Signature created successfully");
     TAG_OBJECT(rootSig->dx12.rootSig, rootSig->resource.pName);
 }
