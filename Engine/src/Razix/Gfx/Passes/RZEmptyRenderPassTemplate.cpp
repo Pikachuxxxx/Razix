@@ -7,12 +7,8 @@
 #include "Razix/Core/Markers/RZMarkers.h"
 #include "Razix/Core/RZEngine.h"
 
-#include "Razix/Gfx/RHI/API/RZPipeline.h"
-#include "Razix/Gfx/RHI/API/RZShader.h"
-
 #include "Razix/Gfx/RHI/RHI.h"
 
-#include "Razix/Gfx/RZShaderLibrary.h"
 
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
@@ -26,18 +22,6 @@ namespace Razix {
 
         void RZEmptyRenderPassTemplate::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
-            // Create the shader and the pipeline
-            //auto shader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::);
-            //
-            //RZPipelineDesc pipelineInfo         = {};
-            //pipelineInfo.name                   = "Pipeline.VisibilityBuffer";
-            //pipelineInfo.shader                 = shader;
-            //pipelineInfo.colorAttachmentFormats = {TextureFormat::RGBA16F};
-            //pipelineInfo.cullMode               = Graphics::CullMode::None;
-            //pipelineInfo.drawType               = Graphics::DrawType::Triangle;
-            //pipelineInfo.transparencyEnabled    = false;
-            //pipelineInfo.depthBiasEnabled       = false;
-            //m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
             framegraph.addCallbackPass(
                 "",
                 [&](auto& data, RZPassResourceBuilder& builder) {
@@ -81,7 +65,6 @@ namespace Razix {
 
         void RZEmptyRenderPassTemplate::destroy()
         {
-            RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
     }    // namespace Gfx
 }    // namespace Razix

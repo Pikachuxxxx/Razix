@@ -4,14 +4,14 @@
 
 #include "Razix/Utilities/RZTimestep.h"
 
-//#include "Razix/Gfx/FrameGraph/RZBlackboard.h"
-//#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
+#include "Razix/Gfx/FrameGraph/RZBlackboard.h"
+#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
 // Passes Data
 //#include "Razix/Gfx/Passes/Data/GlobalData.h"
 
 // Passes
-//#include "Razix/Gfx/Passes/IRZPass.h"
+#include "Razix/Gfx/Passes/IRZPass.h"
 //#include "Razix/Gfx/Passes/RZBloomPass.h"
 //#include "Razix/Gfx/Passes/RZCSMPass.h"
 //#include "Razix/Gfx/Passes/RZColorGradingPass.h"
@@ -106,19 +106,19 @@ namespace Razix {
             }
 
             // Getters/Setters
-            //inline RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
+            inline RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
 
-            //inline std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
-            //void               setFrameGraphFilePath(std::string val);
-            //
-            //inline void                   setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
+            inline std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
+            void               setFrameGraphFilePath(std::string val);
+
+            inline void                   setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
             //inline const TextureReadback& getSwapchainReadback() { return m_LastSwapchainReadback; }
-            //
-            //void clearFrameGraph();
-            //void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings);
+
+            void clearFrameGraph();
+            void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings);
 
         private:
-            //RZFrameGraph    m_FrameGraph;
+            RZFrameGraph m_FrameGraph;
             //rz_texture_handle m_BRDFfLUTTextureHandle;
             //rz_texture_handle m_NoiseTextureHandle;
             //rz_texture_handle m_ColorGradingNeutralLUTHandle;

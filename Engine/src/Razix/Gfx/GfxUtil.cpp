@@ -207,10 +207,104 @@ namespace Razix {
                         RAZIX_CORE_WARN("Unknown or unsupported shader stage: {0}", stage);
                         break;
                 }
-                // bytecode will be freed by RHI, it's a promise we hope RHI keeps
+                // bytecode will be freed by ResourceManager, RHI does no alloc/free it's our responsibility to manage memory!
             }
 
             return desc;
+        }
+
+        void FreeRZSFBytecodeAlloc(rz_gfx_shader* shader)
+        {
+            RAZIX_ASSERT(shader != NULL, "Shader is NULL, cannot Memory::RZFree bytecode allocation");
+            rz_gfx_shader_desc* desc = &shader->resource.desc.shaderDesc;
+
+            switch (desc->pipelineType) {
+                case RZ_GFX_PIPELINE_TYPE_GRAPHICS: {
+                    if (desc->raster.vs.bytecode) {
+                        RAZIX_ASSERT(desc->raster.vs.size > 0, "VS bytecode has invalid size");
+                        Memory::RZFree((void*) desc->raster.vs.bytecode);
+                        desc->raster.vs.bytecode = NULL;
+                    }
+                    if (desc->raster.ps.bytecode) {
+                        RAZIX_ASSERT(desc->raster.ps.size > 0, "PS bytecode has invalid size");
+                        Memory::RZFree((void*) desc->raster.ps.bytecode);
+                        desc->raster.ps.bytecode = NULL;
+                    }
+                    if (desc->raster.gs.bytecode) {
+                        RAZIX_ASSERT(desc->raster.gs.size > 0, "GS bytecode has invalid size");
+                        Memory::RZFree((void*) desc->raster.gs.bytecode);
+                        desc->raster.gs.bytecode = NULL;
+                    }
+                    if (desc->raster.tcs.bytecode) {
+                        RAZIX_ASSERT(desc->raster.tcs.size > 0, "TCS bytecode has invalid size");
+                        Memory::RZFree((void*) desc->raster.tcs.bytecode);
+                        desc->raster.tcs.bytecode = NULL;
+                    }
+                    if (desc->raster.tes.bytecode) {
+                        RAZIX_ASSERT(desc->raster.tes.size > 0, "TES bytecode has invalid size");
+                        Memory::RZFree((void*) desc->raster.tes.bytecode);
+                        desc->raster.tes.bytecode = NULL;
+                    }
+                    if (desc->mesh.task.bytecode) {
+                        RAZIX_ASSERT(desc->mesh.task.size > 0, "Task shader bytecode has invalid size");
+                        Memory::RZFree((void*) desc->mesh.task.bytecode);
+                        desc->mesh.task.bytecode = NULL;
+                    }
+                    if (desc->mesh.mesh.bytecode) {
+                        RAZIX_ASSERT(desc->mesh.mesh.size > 0, "Mesh shader bytecode has invalid size");
+                        Memory::RZFree((void*) desc->mesh.mesh.bytecode);
+                        desc->mesh.mesh.bytecode = NULL;
+                    }
+                    if (desc->mesh.ps.bytecode) {
+                        RAZIX_ASSERT(desc->mesh.ps.size > 0, "PS bytecode has invalid size");
+                        Memory::RZFree((void*) desc->mesh.ps.bytecode);
+                        desc->mesh.ps.bytecode = NULL;
+                    }
+                    break;
+                    break;
+                }
+
+                case RZ_GFX_PIPELINE_TYPE_COMPUTE: {
+                    if (desc->compute.cs.bytecode) {
+                        RAZIX_ASSERT(desc->compute.cs.size > 0, "CS bytecode has invalid size");
+                        Memory::RZFree((void*) desc->compute.cs.bytecode);
+                        desc->compute.cs.bytecode = NULL;
+                    }
+                    break;
+                }
+
+                case RZ_GFX_PIPELINE_TYPE_RAYTRACING: {
+                    if (desc->raytracing.rgen.bytecode) {
+                        RAZIX_ASSERT(desc->raytracing.rgen.size > 0, "RGEN bytecode has invalid size");
+                        Memory::RZFree((void*) desc->raytracing.rgen.bytecode);
+                        desc->raytracing.rgen.bytecode = NULL;
+                    }
+                    if (desc->raytracing.miss.bytecode) {
+                        RAZIX_ASSERT(desc->raytracing.miss.size > 0, "MISS bytecode has invalid size");
+                        Memory::RZFree((void*) desc->raytracing.miss.bytecode);
+                        desc->raytracing.miss.bytecode = NULL;
+                    }
+                    if (desc->raytracing.chit.bytecode) {
+                        RAZIX_ASSERT(desc->raytracing.chit.size > 0, "CHIT bytecode has invalid size");
+                        Memory::RZFree((void*) desc->raytracing.chit.bytecode);
+                        desc->raytracing.chit.bytecode = NULL;
+                    }
+                    if (desc->raytracing.ahit.bytecode) {
+                        RAZIX_ASSERT(desc->raytracing.ahit.size > 0, "AHIT bytecode has invalid size");
+                        Memory::RZFree((void*) desc->raytracing.ahit.bytecode);
+                        desc->raytracing.ahit.bytecode = NULL;
+                    }
+                    if (desc->raytracing.callable.bytecode) {
+                        RAZIX_ASSERT(desc->raytracing.callable.size > 0, "CALLABLE bytecode has invalid size");
+                        Memory::RZFree((void*) desc->raytracing.callable.bytecode);
+                        desc->raytracing.callable.bytecode = NULL;
+                    }
+                    break;
+                }
+                default:
+                    RAZIX_CORE_WARN("[D3D12 Shader] Invalid or unhandled pipeline type during destruction.");
+                    break;
+            }
         }
 
         typedef void (*ReflectShaderBlobBackendFn)(const rz_gfx_shader_stage_blob*, rz_gfx_shader_reflection*);

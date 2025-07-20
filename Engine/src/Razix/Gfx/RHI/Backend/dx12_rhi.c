@@ -790,99 +790,9 @@ static void dx12_CreateShader(void* where)
 static void dx12_DestroyShader(void* shader)
 {
     RAZIX_RHI_ASSERT(shader != NULL, "Shader is NULL, cannot destroy");
-    rz_gfx_shader* shaderPtr = (rz_gfx_shader*) shader;
-    (void) shaderPtr;
-
+    rz_gfx_shader* shaderPtr   = (rz_gfx_shader*) shader;
     shaderPtr->shaderStageMask = 0;
-    rz_gfx_shader_desc* desc   = &shaderPtr->resource.desc.shaderDesc;
-
-    switch (desc->pipelineType) {
-        case RZ_GFX_PIPELINE_TYPE_GRAPHICS: {
-            if (desc->raster.vs.bytecode) {
-                RAZIX_RHI_ASSERT(desc->raster.vs.size > 0, "VS bytecode has invalid size");
-                free((void*) desc->raster.vs.bytecode);
-                desc->raster.vs.bytecode = NULL;
-            }
-            if (desc->raster.ps.bytecode) {
-                RAZIX_RHI_ASSERT(desc->raster.ps.size > 0, "PS bytecode has invalid size");
-                free((void*) desc->raster.ps.bytecode);
-                desc->raster.ps.bytecode = NULL;
-            }
-            if (desc->raster.gs.bytecode) {
-                RAZIX_RHI_ASSERT(desc->raster.gs.size > 0, "GS bytecode has invalid size");
-                free((void*) desc->raster.gs.bytecode);
-                desc->raster.gs.bytecode = NULL;
-            }
-            if (desc->raster.tcs.bytecode) {
-                RAZIX_RHI_ASSERT(desc->raster.tcs.size > 0, "TCS bytecode has invalid size");
-                free((void*) desc->raster.tcs.bytecode);
-                desc->raster.tcs.bytecode = NULL;
-            }
-            if (desc->raster.tes.bytecode) {
-                RAZIX_RHI_ASSERT(desc->raster.tes.size > 0, "TES bytecode has invalid size");
-                free((void*) desc->raster.tes.bytecode);
-                desc->raster.tes.bytecode = NULL;
-            }
-            if (desc->mesh.task.bytecode) {
-                RAZIX_RHI_ASSERT(desc->mesh.task.size > 0, "Task shader bytecode has invalid size");
-                free((void*) desc->mesh.task.bytecode);
-                desc->mesh.task.bytecode = NULL;
-            }
-            if (desc->mesh.mesh.bytecode) {
-                RAZIX_RHI_ASSERT(desc->mesh.mesh.size > 0, "Mesh shader bytecode has invalid size");
-                free((void*) desc->mesh.mesh.bytecode);
-                desc->mesh.mesh.bytecode = NULL;
-            }
-            if (desc->mesh.ps.bytecode) {
-                RAZIX_RHI_ASSERT(desc->mesh.ps.size > 0, "PS bytecode has invalid size");
-                free((void*) desc->mesh.ps.bytecode);
-                desc->mesh.ps.bytecode = NULL;
-            }
-            break;
-            break;
-        }
-
-        case RZ_GFX_PIPELINE_TYPE_COMPUTE: {
-            if (desc->compute.cs.bytecode) {
-                RAZIX_RHI_ASSERT(desc->compute.cs.size > 0, "CS bytecode has invalid size");
-                free((void*) desc->compute.cs.bytecode);
-                desc->compute.cs.bytecode = NULL;
-            }
-            break;
-        }
-
-        case RZ_GFX_PIPELINE_TYPE_RAYTRACING: {
-            if (desc->raytracing.rgen.bytecode) {
-                RAZIX_RHI_ASSERT(desc->raytracing.rgen.size > 0, "RGEN bytecode has invalid size");
-                free((void*) desc->raytracing.rgen.bytecode);
-                desc->raytracing.rgen.bytecode = NULL;
-            }
-            if (desc->raytracing.miss.bytecode) {
-                RAZIX_RHI_ASSERT(desc->raytracing.miss.size > 0, "MISS bytecode has invalid size");
-                free((void*) desc->raytracing.miss.bytecode);
-                desc->raytracing.miss.bytecode = NULL;
-            }
-            if (desc->raytracing.chit.bytecode) {
-                RAZIX_RHI_ASSERT(desc->raytracing.chit.size > 0, "CHIT bytecode has invalid size");
-                free((void*) desc->raytracing.chit.bytecode);
-                desc->raytracing.chit.bytecode = NULL;
-            }
-            if (desc->raytracing.ahit.bytecode) {
-                RAZIX_RHI_ASSERT(desc->raytracing.ahit.size > 0, "AHIT bytecode has invalid size");
-                free((void*) desc->raytracing.ahit.bytecode);
-                desc->raytracing.ahit.bytecode = NULL;
-            }
-            if (desc->raytracing.callable.bytecode) {
-                RAZIX_RHI_ASSERT(desc->raytracing.callable.size > 0, "CALLABLE bytecode has invalid size");
-                free((void*) desc->raytracing.callable.bytecode);
-                desc->raytracing.callable.bytecode = NULL;
-            }
-            break;
-        }
-        default:
-            RAZIX_RHI_LOG_WARN("[D3D12 Shader] Invalid or unhandled pipeline type during destruction.");
-            break;
-    }
+    // In D3D12, shaders are not standalone objects, so there's nothing to release here.
 }
 
 static void dx12_CreateRootSignature(void* where)
@@ -968,11 +878,6 @@ static void dx12_DestroyRootSignature(void* ptr)
     if (rootSig->dx12.rootSig) {
         ID3D12RootSignature_Release(rootSig->dx12.rootSig);
         rootSig->dx12.rootSig = NULL;
-    }
-
-    if (rootSig->resource.desc.rootSignatureDesc.pDescriptorTablesDesc) {
-        free((void*) rootSig->resource.desc.rootSignatureDesc.pDescriptorTablesDesc);
-        rootSig->resource.desc.rootSignatureDesc.pDescriptorTablesDesc = NULL;
     }
 }
 
@@ -1188,16 +1093,20 @@ static void dx12_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* fram
 // Jump table
 
 rz_rhi_api dx12_rhi = {
-    .GlobalCtxInit    = dx12_GlobalCtxInit,       // GlobalCtxInit
-    .GlobalCtxDestroy = dx12_GlobalCtxDestroy,    // GlobalCtxDestroy
-    .CreateSyncobj    = dx12_CreateSyncobjFn,     // CreateSyncobj
-    .DestroySyncobj   = dx12_DestroySyncobjFn,    // DestroySyncobj
-    .CreateSwapchain  = dx12_CreateSwapchain,     // CreateSwapchain
-    .DestroySwapchain = dx12_DestroySwapchain,    // DestroySwapchain
-    .CreateCmdPool    = dx12_CreateCmdPool,       // CreateCmdPool
-    .DestroyCmdPool   = dx12_DestroyCmdPool,      // DestroyCmdPool
-    .CreateCmdBuf     = dx12_CreateCmdBuf,        // CreateCmdBuf
-    .DestroyCmdBuf    = dx12_DestroyCmdBuf,       // DestroyCmdBuf
+    .GlobalCtxInit        = dx12_GlobalCtxInit,           // GlobalCtxInit
+    .GlobalCtxDestroy     = dx12_GlobalCtxDestroy,        // GlobalCtxDestroy
+    .CreateSyncobj        = dx12_CreateSyncobjFn,         // CreateSyncobj
+    .DestroySyncobj       = dx12_DestroySyncobjFn,        // DestroySyncobj
+    .CreateSwapchain      = dx12_CreateSwapchain,         // CreateSwapchain
+    .DestroySwapchain     = dx12_DestroySwapchain,        // DestroySwapchain
+    .CreateCmdPool        = dx12_CreateCmdPool,           // CreateCmdPool
+    .DestroyCmdPool       = dx12_DestroyCmdPool,          // DestroyCmdPool
+    .CreateCmdBuf         = dx12_CreateCmdBuf,            // CreateCmdBuf
+    .DestroyCmdBuf        = dx12_DestroyCmdBuf,           // DestroyCmdBuf
+    .CreateShader         = dx12_CreateShader,            // CreateShader
+    .DestroyShader        = dx12_DestroyShader,           // DestroyShader
+    .CreateRootSignature  = dx12_CreateRootSignature,     // CreateRootSignature
+    .DestroyRootSignature = dx12_DestroyRootSignature,    // DestroyRootSignature
 
     .AcquireImage       = dx12_AcquireImage,          // AcquireImage
     .WaitOnPrevCmds     = dx12_WaitOnPrevCmds,        // WaitOnPrevCmds

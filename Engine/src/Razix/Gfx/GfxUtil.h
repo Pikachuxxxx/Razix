@@ -62,6 +62,7 @@ namespace Razix {
         };
 
         rz_gfx_shader_desc       ParseRZSF(const std::string& filePath);
+        void                     FreeRZSFBytecodeAlloc(rz_gfx_shader* shader);
         rz_gfx_shader_reflection ReflectShader(const rz_gfx_shader* shader);
 
 #if 0

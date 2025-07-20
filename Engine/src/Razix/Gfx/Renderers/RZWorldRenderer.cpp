@@ -572,15 +572,9 @@ namespace Razix {
 
             // m_FrameGraph.resize(width, height);
             rzRHI_ResizeSwapchain(&m_Swapchain, width, height);
+            m_FrameGraph.resize(width, height);
 
             rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
-        }
-
-#if 0
-
-        void RZWorldRenderer::OnResize(u32 width, u32 height)
-        {
-            m_FrameGraph.resize(width, height);
         }
 
         RAZIX_INLINE void RZWorldRenderer::setFrameGraphFilePath(std::string val)
@@ -599,6 +593,7 @@ namespace Razix {
             pass->addPass(m_FrameGraph, scene, settings);
         }
 
+#if 0
         //--------------------------------------------------------------------------
 
         void RZWorldRenderer::importGlobalLightProbes(LightProbe globalLightProbe)

@@ -1,17 +1,18 @@
 #include "RZHelloTriangleTestPass.h"
 
+#include "Razix/Gfx/Resources/RZResourceManager.h"
+
 namespace Razix {
     namespace Gfx {
 
-#if 0
         void RZHelloTriangleTestPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Create the shader and the pipeline
-            RZShaderDesc desc = {};
-            desc.filePath     = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTriangleTest.rzsf";
-            desc.libraryID    = ShaderBuiltin::Default;
-            desc.name         = "HelloTriangle";
-            m_Shader          = RZResourceManager::Get().createShader(desc);
+            rz_gfx_shader_desc desc = {};
+            desc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+            desc.rzsfFilePath       = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTriangleTest.rzsf";
+            m_Shader                = Gfx::RZResourceManager::Get().createShader("HelloTriangleShader", desc);
+#if 0
 
             RZPipelineDesc pipelineInfo{};
             // Build the pipeline here for this pass
@@ -81,13 +82,15 @@ namespace Razix {
                     RAZIX_MARK_END();
                     RAZIX_TIME_STAMP_END();
                 });
+#endif
         }
 
         void RZHelloTriangleTestPass::destroy()
         {
             RZResourceManager::Get().destroyShader(m_Shader);
+#if 0
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
-        }
 #endif
+        }
     }    // namespace Gfx
 }    // namespace Razix

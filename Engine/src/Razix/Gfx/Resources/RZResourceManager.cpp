@@ -87,8 +87,7 @@ namespace Razix {
 
             // Parse the RZSF file and fill the shaderDesc with the parsed data
             rz_gfx_shader_desc parsedDesc = Gfx::ParseRZSF(std::string(shaderDesc->rzsfFilePath));
-            Memory::RZFree((void*) shaderDesc->rzsfFilePath);
-            shaderDesc->rzsfFilePath = NULL;
+            shaderDesc->rzsfFilePath      = NULL;
 
             // Copy the parsed description to the shaderDesc
             memcpy(shaderDesc, &parsedDesc, sizeof(rz_gfx_shader_desc));
@@ -98,10 +97,19 @@ namespace Razix {
             // Reflect the shader resource to get the shader reflection data
             rz_gfx_shader_reflection reflection = Gfx::ReflectShader(shader);
 
-            // crate root signature
+            // create root signature
             reflection.rootSignatureDesc;
             auto rootSigName      = "RootSignature_" + std::string(shader->resource.pName);
             shader->rootSignature = RZResourceManager::Get().createRootSignature(rootSigName.c_str(), reflection.rootSignatureDesc);
+        }
+
+        static void DestroyShaderWithRootSigOverrideFunv(void* ptr)
+        {
+            rz_gfx_shader* shaderPtr = (rz_gfx_shader*) ptr;
+            // Free bytecode memory, since we allocate it
+            FreeRZSFBytecodeAlloc(shaderPtr);
+            RZResourceManager::Get().destroyRootSignature(shaderPtr->rootSignature);
+            // Free root sig memory (since it's allocated by ParseRZSF we ask it to delete it
         }
 
         void RZResourceManager::StartUp()
@@ -112,7 +120,7 @@ namespace Razix {
             // Initialize all the Pools
             //RAZIX_INIT_RESOURCE_POOL(Texture, 2048, sizeof(rz_gfx_texture));
             //RAZIX_INIT_RESOURCE_POOL(Sampler, 32)
-            RAZIX_INIT_RESOURCE_POOL(Shader, RZ_GFX_RESOURCE_TYPE_SHADER, 512, sizeof(rz_gfx_shader), RZSFCreateOverrideFunc, rzRHI_DestroyShader);
+            RAZIX_INIT_RESOURCE_POOL(Shader, RZ_GFX_RESOURCE_TYPE_SHADER, 512, sizeof(rz_gfx_shader), RZSFCreateOverrideFunc, DestroyShaderWithRootSigOverrideFunv);
             RAZIX_INIT_RESOURCE_POOL(RootSignature, RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE, 512, sizeof(rz_gfx_root_signature), rzRHI_CreateRootSignature, rzRHI_DestroyRootSignature);
             //RAZIX_INIT_RESOURCE_POOL(Pipeline, 512)
             //RAZIX_INIT_RESOURCE_POOL(UniformBuffer, 2048)

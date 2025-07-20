@@ -5,6 +5,8 @@
 
 #include "Passes/RZHelloTriangleTestPass.h"
 
+#include "Razix/Gfx/Resources/RZResourceManager.h"
+
 using namespace Razix;
 
 class HelloTriangleTest final : public RZGfxTestAppBase
@@ -17,10 +19,10 @@ public:
 
     void OnStart() override
     {
-        //RZEngine::Get().getWorldRenderer().clearFrameGraph();
-        //RZEngine::Get().getWorldRenderer().pushRenderPass(&helloTriangleTestPass, nullptr, &RZEngine::Get().getWorldSettings());
-        //RAZIX_CORE_INFO("Compiling FrameGraph ....");
-        //RZEngine::Get().getWorldRenderer().getFrameGraph().compile();
+        RZEngine::Get().getWorldRenderer().clearFrameGraph();
+        RZEngine::Get().getWorldRenderer().pushRenderPass(&helloTriangleTestPass, nullptr, &RZEngine::Get().getWorldSettings());
+        RAZIX_CORE_INFO("Compiling FrameGraph ....");
+        RZEngine::Get().getWorldRenderer().getFrameGraph().compile();
 
         std::string testsRootPath;
         RZVirtualFileSystem::Get().resolvePhysicalPath("//TestsRoot/GfxTests/", testsRootPath, true);
@@ -35,12 +37,12 @@ public:
     {
         RZEngine::Get().getWorldRenderer().flushGPUWork();
 
-        //helloTriangleTestPass.destroy();
+        helloTriangleTestPass.destroy();
         RZGfxTestAppBase::OnQuit();
     }
 
 private:
-    // Razix::Gfx::RZHelloTriangleTestPass helloTriangleTestPass;
+    Razix::Gfx::RZHelloTriangleTestPass helloTriangleTestPass;
 };
 
 static RZGfxTestAppBase* s_GfxTestBaseApp = NULL;
