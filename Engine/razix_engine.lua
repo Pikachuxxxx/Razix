@@ -159,6 +159,13 @@ project "Razix"
         "RHI",
     }
 
+     -- Force rebuild if static lib changes
+    dependson
+    {
+        "RHI",
+        "Shaders"
+    }
+
     flags 
     { 
         "FatalWarnings" -- Treat all warnings as errors
