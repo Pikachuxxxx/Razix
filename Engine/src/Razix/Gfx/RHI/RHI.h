@@ -98,6 +98,35 @@ extern "C"
         }                                                                                            \
     } while (0)
 
+#if defined(_MSC_VER)
+    #include <intrin.h>
+    #pragma intrinsic(_BitScanReverse)
+    static inline unsigned int rz_clz32(unsigned int x)
+    {
+        unsigned long index;
+        _BitScanReverse(&index, x);
+        return 31 - index;
+    }
+#elif defined(__clang__) || defined(__GNUC__)
+static inline unsigned int rz_clz32(unsigned int x)
+{
+    return __builtin_clz(x);
+}
+#else
+// Portable fallback
+static inline unsigned int rz_clz32(unsigned int x)
+{
+    unsigned int n = 0;
+    while ((x & 0x80000000U) == 0 && n < 32) {
+        x <<= 1;
+        ++n;
+    }
+    return n;
+}
+#endif
+
+#define RAZIX_RHI_BITS_FOR_ENUM(count) ((count) <= 1 ? 0 : (32 - rz_clz32((count) -1)))
+
 /****************************************************************************************************
 *                                         Graphics Settings                                        *
 ****************************************************************************************************/
@@ -189,12 +218,12 @@ extern "C"
         RZ_GFX_RESOURCE_VIEW_FLAG_SAMPLER      = 1 << 5,
         RZ_GFX_RESOURCE_VIEW_FLAG_TRANSFER_SRC = 1 << 6,
         RZ_GFX_RESOURCE_VIEW_FLAG_TRANSFER_DST = 1 << 7,
+        RZ_GFX_RESOURCE_VIEW_FLAG_COUNT        = 8,
     } rz_gfx_resource_view_hints;
 
     typedef enum rz_gfx_resource_type
     {
         RZ_GFX_RESOURCE_TYPE_INVALID = 0,
-
         RZ_GFX_RESOURCE_TYPE_TEXTURE,
         RZ_GFX_RESOURCE_TYPE_BUFFER,
         RZ_GFX_RESOURCE_TYPE_CONSTANT_BUFFER,
@@ -209,7 +238,6 @@ extern "C"
         RZ_GFX_RESOURCE_TYPE_CMD_POOL,
         RZ_GFX_RESOURCE_TYPE_CMD_BUFFER,
         RZ_GFX_RESOURCE_TYPE_PIPELINE,
-
         RZ_GFX_RESOURCE_TYPE_COUNT
     } rz_gfx_resource_type;
 
@@ -217,6 +245,7 @@ extern "C"
     {
         RZ_GFX_SYNCOBJ_TYPE_CPU,
         RZ_GFX_SYNCOBJ_TYPE_GPU,
+        RZ_GFX_SYNCOBJ_TYPE_COUNT
     } rz_gfx_syncobj_type;
 
     typedef enum rz_gfx_format
@@ -297,7 +326,8 @@ extern "C"
         RZ_GFX_TEXTURE_TYPE_CUBE,
         RZ_GFX_TEXTURE_TYPE_1D_ARRAY,
         RZ_GFX_TEXTURE_TYPE_2D_ARRAY,
-        RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY
+        RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY,
+        RZ_GFX_TEXTURE_TYPE_COUNT
     } rz_gfx_texture_type;
 
     typedef enum rz_gfx_cmdpool_type
@@ -305,6 +335,7 @@ extern "C"
         RZ_GFX_CMDPOOL_TYPE_GRAPHICS,
         RZ_GFX_CMDPOOL_TYPE_COMPUTE,
         RZ_GFX_CMDPOOL_TYPE_TRANSFER,
+        RZ_GFX_CMDPOOL_TYPE_COUNT
     } rz_gfx_cmdpool_type;
 
     typedef enum rz_gfx_resolution
@@ -315,6 +346,7 @@ extern "C"
         RZ_GFX_RESOLUTION_4K_NATIVE,   /* native 3840x2160 rendering                                          */
         RZ_GFX_RESOLUTION_WINDOW,      /* Selects the resolution dynamically based on the presentation window */
         RZ_GFX_RESOLUTION_CUSTOM,      /* Custom resolution for rendering                                     */
+        RZ_GFX_RESOLUTION_COUNT
     } rz_gfx_resolution;
 
     typedef enum rz_gfx_resource_state
@@ -327,6 +359,7 @@ extern "C"
         RZ_GFX_RESOURCE_STATE_PRESENT,
         RZ_GFX_RESOURCE_STATE_DEPTH_WRITE,
         RZ_GFX_RESOURCE_STATE_GENERAL,
+        RZ_GFX_RESOURCE_STATE_COUNT
     } rz_gfx_resource_state;
 
     typedef enum rz_gfx_clear_color_preset
@@ -407,7 +440,8 @@ extern "C"
         RZ_GFX_SHADER_DATA_TYPE_UINT,
         RZ_GFX_SHADER_DATA_TYPE_BOOL,
         RZ_GFX_SHADER_DATA_TYPE_STRUCT,
-        RZ_GFX_SHADER_DATA_TYPE_MAT4_ARRAY
+        RZ_GFX_SHADER_DATA_TYPE_MAT4_ARRAY,
+        RZ_GFX_SHADER_DATA_TYPE_COUNT
     } rz_gfx_shader_data_type;
 
     typedef enum rz_gfx_texture_wrap_type
@@ -435,6 +469,7 @@ extern "C"
         RZ_GFX_PIPELINE_TYPE_GRAPHICS = 0,
         RZ_GFX_PIPELINE_TYPE_COMPUTE,
         RZ_GFX_PIPELINE_TYPE_RAYTRACING,
+        RZ_GFX_PIPELINE_TYPE_COUNT
     } rz_gfx_pipeline_type;
 
     typedef enum rz_gfx_cull_mode_type
@@ -581,7 +616,8 @@ extern "C"
     {
         RZ_GFX_DRAW_DATA_TYPE_FLOAT = 0,
         RZ_GFX_DRAW_DATA_TYPE_UNSIGNED_INT,
-        RZ_GFX_DRAW_DATA_TYPE_UNSIGNED_BYTE
+        RZ_GFX_DRAW_DATA_TYPE_UNSIGNED_BYTE,
+        RZ_GFX_DRAW_DATA_TYPE_COUNT
     } rz_gfx_draw_data_type;
 
     typedef enum rz_gfx_blend_presets
@@ -590,13 +626,15 @@ extern "C"
         RZ_GFX_BLEND_PRESET_ALPHA_BLEND,
         RZ_GFX_BLEND_PRESET_SUBTRACTIVE,
         RZ_GFX_BLEND_PRESET_MULTIPLY,
-        RZ_GFX_BLEND_PRESET_DARKEN
+        RZ_GFX_BLEND_PRESET_DARKEN,
+        RZ_GFX_BLEND_PRESET_COUNT
     } rz_gfx_blend_presets;
 
     typedef enum rz_gfx_target_fps
     {
-        RZ_GFX_TARGET_FPS_60  = 60,
-        RZ_GFX_TARGET_FPS_120 = 120
+        RZ_GFX_TARGET_FPS_60    = 60,
+        RZ_GFX_TARGET_FPS_120   = 120,
+        RZ_GFX_TARGET_FPS_COUNT = 2
     } rz_gfx_target_fps;
 
     typedef rz_handle rz_gfx_texture_handle;
@@ -808,18 +846,41 @@ extern "C"
     typedef struct rz_gfx_pipeline_desc
     {
         const char*                  pName;
-        rz_gfx_pipeline_type         type;
         const rz_gfx_shader*         pShader;
         const rz_gfx_root_signature* pRootSig;
         const rz_gfx_input_element*  pInputElements;
-        uint32_t                     elementCount;
-        rz_gfx_cull_mode_type        cullMode;
-        rz_gfx_polygon_mode_type     polygonMode;
-        bool                         depthTestEnabled;
-        bool                         depthWriteEnabled;
-        bool                         stencilTestEnabled;
-        bool                         blendEnabled;
-        rz_gfx_blend_presets         blendPreset;
+
+        rz_gfx_format renderTargetFormats[RAZIX_MAX_RENDER_TARGETS];
+        rz_gfx_format depthStencilFormat;
+
+        struct
+        {
+            uint32_t type : 2;
+            uint32_t cullMode : 3;
+            uint32_t polygonMode : 2;
+            uint32_t blendPreset : 3;
+            uint32_t depthTestEnabled : 1;
+            uint32_t depthWriteEnabled : 1;
+            uint32_t stencilTestEnabled : 1;
+            uint32_t blendEnabled : 1;
+            uint32_t rasterizerDiscardEnabled : 1;
+            uint32_t primitiveRestartEnabled : 1;
+            uint32_t drawType : 2;
+            uint32_t srcColorBlendFactor : 4;
+            uint32_t dstColorBlendFactor : 4;
+            uint32_t srcAlphaBlendFactor : 4;
+            uint32_t dstAlphaBlendFactor : 4;
+        };
+
+        struct
+        {
+            uint8_t colorBlendOp : 3;
+            uint8_t alphaBlendOp : 3;
+            uint8_t stencilState : 3;    // Will overflow, so promote to next byte
+        };
+
+        uint8_t renderTargetCount;
+        uint8_t elementCount;
     } rz_gfx_pipeline_desc;
 
     typedef struct rz_gfx_resource
@@ -992,6 +1053,12 @@ extern "C"
     typedef struct rz_gfx_pipeline
     {
         RAZIX_GFX_RESOURCE;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_pipeline vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_pipeline dx12;
+#endif
     } rz_gfx_pipeline;
 
     typedef struct rz_gfx_buffer
@@ -1081,6 +1148,9 @@ extern "C"
     typedef void (*rzRHI_CreateRootSignatureFn)(void* where);
     typedef void (*rzRHI_DestroyRootSignatureFn)(void* ptr);
 
+    typedef void (*rzRHI_CreatePipelineFn)(void* where);
+    typedef void (*rzRHI_DestroyPipelineFn)(void* ptr);
+
     typedef void (*rzRHI_CreateDescriptorHeapFn)(void* where);
     typedef void (*rzRHI_DestroyDescriptorHeapFn)(void* ptr);
 
@@ -1129,6 +1199,8 @@ extern "C"
         rzRHI_DestroyShaderFn        DestroyShader;
         rzRHI_CreateRootSignatureFn  CreateRootSignature;
         rzRHI_DestroyRootSignatureFn DestroyRootSignature;
+        rzRHI_CreatePipelineFn       CreatePipeline;
+        rzRHI_DestroyPipelineFn      DestroyPipeline;
         //....
         rzRHI_CreateDescriptorHeapFn  CreateDescriptorHeap;
         rzRHI_DestroyDescriptorHeapFn DestroyDescriptorHeap;
@@ -1185,6 +1257,8 @@ extern "C"
 #define rzRHI_CreateDescriptorTable g_RHI.CreateDescriptorTable
 #define rzRHI_CreateRootSignature   g_RHI.CreateRootSignature
 #define rzRHI_DestroyRootSignature  g_RHI.DestroyRootSignature
+#define rzRHI_CreatePipeline        g_RHI.CreatePipeline
+#define rzRHI_DestroyPipeline       g_RHI.DestroyPipeline
 
 #if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
     #define rzRHI_AcquireImage       g_RHI.AcquireImage
