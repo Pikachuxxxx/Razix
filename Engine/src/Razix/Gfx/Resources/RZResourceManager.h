@@ -67,9 +67,9 @@ private:                                                                        
             RAZIX_REGISTER_RESOURCE_POOL(Shader, rz_gfx_shader)
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(RootSignature, rz_gfx_root_signature)
-            // //-----------------------------------------------------------------------------------
-            // RAZIX_REGISTER_RESOURCE_POOL(pipeline, const RZPipelineDesc& desc)
-            // //-----------------------------------------------------------------------------------
+            //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(Pipeline, rz_gfx_pipeline)
+            //-----------------------------------------------------------------------------------
             // RAZIX_REGISTER_RESOURCE_POOL(uniformBuffer, const RZBufferDesc& desc)
             // //-----------------------------------------------------------------------------------
             // RAZIX_REGISTER_RESOURCE_POOL(vertex_buffer, const RZBufferDesc& desc)
