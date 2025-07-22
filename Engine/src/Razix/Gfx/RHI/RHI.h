@@ -860,14 +860,11 @@ static inline unsigned int rz_clz32(unsigned int x)
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_root_signature rz_gfx_root_signature;
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_pipeline_desc
     {
-        const char*                  pName;
         const rz_gfx_shader*         pShader;
         const rz_gfx_root_signature* pRootSig;
 
-        uint8_t       renderTargetCount;
-        uint8_t       _pad0[3];
+        uint32_t      renderTargetCount;
         rz_gfx_format depthStencilFormat;
-        rz_gfx_format renderTargetFormats[RAZIX_MAX_RENDER_TARGETS];
 
         struct
         {
@@ -904,8 +901,7 @@ static inline unsigned int rz_clz32(unsigned int x)
                 uint32_t reserved2 : 7;       // padding to 32 bits
             };
         };
-        uint8_t _pad1[8];
-
+        rz_gfx_format renderTargetFormats[RAZIX_MAX_RENDER_TARGETS];
     } rz_gfx_pipeline_desc;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_resource
