@@ -22,6 +22,14 @@
     #endif
 #endif    //  RAZIX_API
 
+#if defined(_MSC_VER)
+    #define RAZIX_RHI_ALIGN_16 __declspec(align(16))
+#elif defined(__GNUC__) || defined(__clang__)
+    #define RAZIX_RHI_ALIGN_16 __attribute__((aligned(16)))
+#else
+    #error "Unsupported compiler for RAZIX_RHI_ALIGN_16"
+#endif
+
 #include "Razix/Core/RZHandle.h"
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
@@ -113,16 +121,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     return __builtin_clz(x);
 }
 #else
-// Portable fallback
-static inline unsigned int rz_clz32(unsigned int x)
-{
-    unsigned int n = 0;
-    while ((x & 0x80000000U) == 0 && n < 32) {
-        x <<= 1;
-        ++n;
-    }
-    return n;
-}
+    #error "Compiler not supported for RAZIX_RHI_BITS_FOR_ENUM"
 #endif
 
 #define RAZIX_RHI_BITS_FOR_ENUM(count) ((count) <= 1 ? 0 : (32 - rz_clz32((count) -1)))
@@ -163,6 +162,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define RAZIX_MAX_DESCRIPTOR_TABLES 8
 #define RAZIX_MAX_DESCRIPTOR_RANGES 32
 #define RAZIX_MAX_ROOT_CONSTANTS    2
+#define RAZIX_MAX_VERTEX_ATTRIBUTES 32
 
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX "PushConstant"
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_VK     RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX
@@ -220,6 +220,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_RESOURCE_VIEW_FLAG_TRANSFER_DST = 1 << 7,
         RZ_GFX_RESOURCE_VIEW_FLAG_COUNT        = 8,
     } rz_gfx_resource_view_hints;
+#define RZ_GFX_RESOURCE_VIEW_HINTS_BITCOUNT RAZIX_RHI_BITS_FOR_ENUM(RZ_GFX_RESOURCE_VIEW_FLAG_COUNT)
 
     typedef enum rz_gfx_resource_type
     {
@@ -493,7 +494,9 @@ static inline unsigned int rz_clz32(unsigned int x)
     {
         RZ_GFX_DRAW_TYPE_POINT = 0,
         RZ_GFX_DRAW_TYPE_TRIANGLE,
+        RZ_GFX_DRAW_TYPE_TRIANGLE_STRIP,
         RZ_GFX_DRAW_TYPE_LINE,
+        RZ_GFX_DRAW_TYPE_LINE_STRIP,
         RZ_GFX_DRAW_TYPE_COUNT
     } rz_gfx_draw_type;
 
@@ -848,10 +851,11 @@ static inline unsigned int rz_clz32(unsigned int x)
         const char*                  pName;
         const rz_gfx_shader*         pShader;
         const rz_gfx_root_signature* pRootSig;
-        const rz_gfx_input_element*  pInputElements;
 
-        rz_gfx_format renderTargetFormats[RAZIX_MAX_RENDER_TARGETS];
+        uint8_t       renderTargetCount;
+        uint8_t       _pad0[3];
         rz_gfx_format depthStencilFormat;
+        rz_gfx_format renderTargetFormats[RAZIX_MAX_RENDER_TARGETS];
 
         struct
         {
@@ -866,21 +870,31 @@ static inline unsigned int rz_clz32(unsigned int x)
             uint32_t rasterizerDiscardEnabled : 1;
             uint32_t primitiveRestartEnabled : 1;
             uint32_t drawType : 2;
-            uint32_t srcColorBlendFactor : 4;
-            uint32_t dstColorBlendFactor : 4;
-            uint32_t srcAlphaBlendFactor : 4;
-            uint32_t dstAlphaBlendFactor : 4;
+            uint32_t reserved : 14;
         };
 
-        struct
+        union
         {
-            uint8_t colorBlendOp : 3;
-            uint8_t alphaBlendOp : 3;
-            uint8_t stencilState : 3;    // Will overflow, so promote to next byte
+            struct
+            {
+                uint32_t blendPreset : 5;       // Use this to set the blend preset, will be used to fill the blend factors
+                uint32_t useBlendPreset : 1;    // If set to true, use the blend preset, else use the blend factors below
+                uint32_t reserved : 26;         // Reserved for future use, so we can expand the struct without breaking ABI
+            };
+            struct
+            {
+                uint32_t srcColorBlendFactor : 4;
+                uint32_t dstColorBlendFactor : 4;
+                uint32_t srcAlphaBlendFactor : 4;
+                uint32_t dstAlphaBlendFactor : 4;
+                uint32_t colorBlendOp : 3;
+                uint32_t alphaBlendOp : 3;
+                uint32_t stencilState : 3;    // Will overflow, so promote to next byte and to keep blend presets together
+                uint32_t reserved : 7;        // padding to 32 bits
+            };
         };
+        uint8_t _pad1[8];
 
-        uint8_t renderTargetCount;
-        uint8_t elementCount;
     } rz_gfx_pipeline_desc;
 
     typedef struct rz_gfx_resource
