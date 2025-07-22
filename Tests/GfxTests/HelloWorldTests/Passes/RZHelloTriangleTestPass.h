@@ -14,8 +14,8 @@ namespace Razix {
             void destroy() override;
 
         private:
-            //RZPipelineHandle m_Pipeline;
-            rz_gfx_shader_handle m_Shader;
+            rz_gfx_pipeline_handle m_Pipeline;
+            rz_gfx_shader_handle   m_Shader;
         };
     }    // namespace Gfx
 }    // namespace Razix

@@ -12,28 +12,28 @@ namespace Razix {
             desc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
             desc.rzsfFilePath       = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTriangleTest.rzsf";
             m_Shader                = Gfx::RZResourceManager::Get().createShader("HelloTriangleShader", desc);
-#if 0
 
             RZPipelineDesc pipelineInfo{};
             // Build the pipeline here for this pass
             pipelineInfo.name                   = "[Test] Pipeline.HelloTriangle";
             pipelineInfo.shader                 = m_Shader;
             pipelineInfo.colorAttachmentFormats = {TextureFormat::SCREEN};
-    #ifdef __APPLE__
+#ifdef __APPLE__
             pipelineInfo.depthFormat       = TextureFormat::DEPTH16_UNORM;
             pipelineInfo.depthTestEnabled  = true;
             pipelineInfo.depthWriteEnabled = true;
             pipelineInfo.depthBiasEnabled  = false;
-    #else
+#else
             pipelineInfo.depthTestEnabled  = false;
             pipelineInfo.depthWriteEnabled = false;
             pipelineInfo.depthBiasEnabled  = false;
-    #endif
+#endif
             pipelineInfo.cullMode            = Gfx::CullMode::None;
             pipelineInfo.drawType            = Gfx::DrawType::Triangle;
             pipelineInfo.transparencyEnabled = false;
             m_Pipeline                       = RZResourceManager::Get().createPipeline(pipelineInfo);
 
+#if 0
             struct HelloTriangleData
             {
                 RZFrameGraphResource Depth;

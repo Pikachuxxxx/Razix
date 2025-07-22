@@ -108,7 +108,7 @@ namespace Razix {
 #endif
 
             // create frame sync primitives
-            if (g_GraphicsFeatures.SupportsTimelineSemaphores) {
+            if (g_GraphicsFeatures.support.SupportsTimelineSemaphores) {
                 rzRHI_CreateSyncobj(&m_RenderSync.frameSync.timelineSyncobj, RZ_GFX_SYNCOBJ_TYPE_CPU);
             } else {
                 for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
@@ -162,7 +162,7 @@ namespace Razix {
                 RZResourceManager::Get().destroyCommandBuffer(m_InFlightDrawCmdBufHandles[i]);
             }
 
-            if (g_GraphicsFeatures.SupportsTimelineSemaphores) {
+            if (g_GraphicsFeatures.support.SupportsTimelineSemaphores) {
                 rzRHI_DestroySyncobj(&m_RenderSync.frameSync.timelineSyncobj);
             } else {
                 for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
@@ -463,7 +463,7 @@ namespace Razix {
             // Main Frame Graph World Rendering Loop
             {
                 // Acquire Image to render onto
-                if (g_GraphicsFeatures.SupportsTimelineSemaphores)
+                if (g_GraphicsFeatures.support.SupportsTimelineSemaphores)
                     rzRHI_BeginFrame(&m_Swapchain, &m_RenderSync.frameSync.timelineSyncobj, m_RenderSync.frameSync.frameTimestamps, &m_RenderSync.frameSync.globalTimestamp);
 
                 // In DirectX 12, the swapchain back buffer index currBackBufferIdx directly maps to the index of the image

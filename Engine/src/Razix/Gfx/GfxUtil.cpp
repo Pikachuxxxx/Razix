@@ -520,7 +520,6 @@ namespace Razix {
                     rc->sizeInBytes               = bindDesc.BindCount * 16;    // Assumption: HLSL constant buffer is 16 bytes per register
                     rc->offsetInBytes             = 0;
                     rc->shaderStage               = stageBlob->stage;
-                    rc->pTypepNameStr             = bindDesc.Name;
 
                     continue;
                 }
