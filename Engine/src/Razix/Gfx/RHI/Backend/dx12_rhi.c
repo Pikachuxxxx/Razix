@@ -213,7 +213,7 @@ static D3D12_SHADER_BYTECODE dx12_util_shader_bytecode_to_d3d12_shader(const rz_
     if (blob && blob->bytecode && blob->size > 0) {
         shaderBytecode.pShaderBytecode = blob->bytecode;
         shaderBytecode.BytecodeLength  = blob->size;
-    } else {
+    } else if (blob && blob->size > 0) {
         RAZIX_RHI_LOG_ERROR("Invalid shader bytecode provided");
     }
     return shaderBytecode;
