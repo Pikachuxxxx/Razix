@@ -655,22 +655,31 @@ static inline unsigned int rz_clz32(unsigned int x)
       * Graphics Features as supported by the GPU, even though Engine supports them
       * the GPU can override certain setting and query run-time info like LaneWidth etc.
       */
-    typedef struct rz_gfx_features
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_features
     {
-        bool     EnableVSync;
-        bool     TesselateTerrain;
-        bool     SupportsBindless;
-        bool     SupportsWaveIntrinsics;
-        bool     SupportsShaderModel6;
-        bool     SupportsNullIndexDescriptors;
-        bool     SupportsTimelineSemaphores;
-        bool     SupportsBindlessRendering;
+        union gfxsupport
+        {
+            uint32_t value;
+            struct
+            {
+                uint32_t EnableVSync : 1;
+                uint32_t TesselateTerrain : 1;
+                uint32_t SupportsBindless : 1;
+                uint32_t SupportsWaveIntrinsics : 1;
+                uint32_t SupportsShaderModel6 : 1;
+                uint32_t SupportsNullIndexDescriptors : 1;
+                uint32_t SupportsTimelineSemaphores : 1;
+                uint32_t SupportsBindlessRendering : 1;
+                uint32_t reserved : 24;
+            };
+        };
         uint32_t MaxBindlessTextures;
         uint32_t MinLaneWidth;
         uint32_t MaxLaneWidth;
+        uint8_t  _pad0[4];
     } rz_gfx_features;
 
-    typedef struct rz_gfx_color_rgba
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_color_rgba
     {
         union
         {
@@ -685,7 +694,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         };
     } rz_gfx_color_rgba;
 
-    typedef struct rz_gfx_color_rgb
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_color_rgb
     {
         union
         {
@@ -697,12 +706,13 @@ static inline unsigned int rz_clz32(unsigned int x)
             };
             float raw[3];
         };
+        uint8_t _pad0[4];
     } rz_gfx_color_rgb;
 
     typedef void (*rz_gfx_resource_create_fn)(void* where);
     typedef void (*rz_gfx_resource_destroy_fn)(void* resource);
 
-    typedef struct rz_gfx_texture_desc
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_texture_desc
     {
         uint32_t            width;
         uint32_t            height;
@@ -711,79 +721,84 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t            arraySize;
         rz_gfx_format       format;
         rz_gfx_texture_type textureType;
+        uint8_t             _pad0[4];
     } rz_gfx_texture_desc;
 
-    typedef struct rz_gfx_binding_location
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_binding_location
     {
         uint32_t binding;
         uint32_t space;
+        uint8_t  _pad0[8];
     } rz_gfx_binding_location;
 
-    typedef struct rz_gfx_descriptor
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor
     {
         const char*             pName;
-        rz_gfx_binding_location location;
         rz_gfx_descriptor_type  type;
-        uint32_t                arraySize;
         uint32_t                sizeInBytes;
+        rz_gfx_binding_location location;
         uint32_t                offsetInBytes;
         uint32_t                memberCount;
+        uint32_t                arraySize;
+        uint8_t                 _pad0[4];
     } rz_gfx_descriptor;
 
-    typedef struct rz_gfx_descriptor_table_desc
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table_desc
     {
         uint32_t           tableIndex;
-        rz_gfx_descriptor* pDescriptors;
         uint32_t           descriptorCount;
+        rz_gfx_descriptor* pDescriptors;
     } rz_gfx_descriptor_table_desc;
 
-    typedef struct rz_gfx_root_constant_desc
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_root_constant_desc
     {
         rz_gfx_binding_location location;
         uint32_t                sizeInBytes;
         uint32_t                offsetInBytes;
         rz_gfx_shader_stage     shaderStage;
-        const char*             pTypepNameStr;
+        uint8_t                 _pad0[4];
     } rz_gfx_root_constant_desc;
 
-    typedef struct rz_gfx_root_signature_desc
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_root_signature_desc
     {
         rz_gfx_descriptor_table_desc* pDescriptorTablesDesc;
-        uint32_t                      descriptorTableCount;
         rz_gfx_root_constant_desc*    pRootConstantsDesc;
+        uint32_t                      descriptorTableCount;
         uint32_t                      rootConstantCount;
+        uint8_t                       _pad0[8];
     } rz_gfx_root_signature_desc;
 
-    typedef struct rz_gfx_cmdpool_desc
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdpool_desc
     {
         rz_gfx_cmdpool_type poolType;
     } rz_gfx_cmdpool_desc;
 
-    typedef struct rz_gfx_cmdpool rz_gfx_cmdpool;
-    typedef struct rz_gfx_cmdbuf_desc
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdpool rz_gfx_cmdpool;
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdbuf_desc
     {
         const rz_gfx_cmdpool* pool;
+        uint8_t               _pad0[8];
     } rz_gfx_cmdbuf_desc;
 
-    typedef struct rz_gfx_buffer_desc
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_buffer_desc
     {
-        const char*              pName;
         rz_gfx_buffer_type       type;
         rz_gfx_buffer_usage_type usage;
         uint32_t                 sizeInBytes;
         uint32_t                 stride;          // For structured buffers
         uint32_t                 elementCount;    // For structured buffers
         bool                     isDynamic;       // If true, buffer can be updated dynamically
+        uint8_t                  _pad0[11];
     } rz_gfx_buffer_desc;
 
-    typedef struct rz_gfx_shader_stage_blob
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader_stage_blob
     {
         rz_gfx_shader_stage stage;
-        const char*         bytecode;    // Promised to be freed by RHI after shader creation
         uint32_t            size;
+        const char*         bytecode;    // Promised to be freed by RHI after shader creation
     } rz_gfx_shader_stage_blob;
 
-    typedef struct rz_gfx_input_element
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_input_element
     {
         const char* pSemanticName;
         uint32_t    semanticIndex;
@@ -794,9 +809,11 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t    instanceStepRate;
     } rz_gfx_input_element;
 
-    typedef struct rz_gfx_shader_desc
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader_desc
     {
-        rz_gfx_pipeline_type pipelineType;
+        rz_gfx_pipeline_type  pipelineType;
+        uint32_t              elementsCount;
+        rz_gfx_input_element* pElements;
         union
         {
             const char* rzsfFilePath;    // PIGGY_BACKING_MEMORY: helper member to re-use this union, used before shader blobs are filled, safe to use here since freed before it reaches RHI
@@ -830,23 +847,18 @@ static inline unsigned int rz_clz32(unsigned int x)
                 rz_gfx_shader_stage_blob callable;
             } raytracing;
         };
-        struct
-        {
-            rz_gfx_input_element* pElements;
-            uint32_t              count;
-        } inputDesc;
     } rz_gfx_shader_desc;
 
-    typedef struct rz_gfx_descriptor_heap_desc
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_heap_desc
     {
-        const char*                 pName;
-        rz_gfx_descriptor_heap_type heap_type;
-        uint32_t                    descriptor_count;
+        rz_gfx_descriptor_heap_type heapType;
+        uint32_t                    descriptorCount;
+        uint8_t                     _pad0[8];
     } rz_gfx_descriptor_heap_desc;
 
-    typedef struct rz_gfx_shader         rz_gfx_shader;
-    typedef struct rz_gfx_root_signature rz_gfx_root_signature;
-    typedef struct rz_gfx_pipeline_desc
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader         rz_gfx_shader;
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_root_signature rz_gfx_root_signature;
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_pipeline_desc
     {
         const char*                  pName;
         const rz_gfx_shader*         pShader;
@@ -862,15 +874,14 @@ static inline unsigned int rz_clz32(unsigned int x)
             uint32_t type : 2;
             uint32_t cullMode : 3;
             uint32_t polygonMode : 2;
-            uint32_t blendPreset : 3;
-            uint32_t depthTestEnabled : 1;
             uint32_t depthWriteEnabled : 1;
+            uint32_t depthTestEnabled : 1;
             uint32_t stencilTestEnabled : 1;
             uint32_t blendEnabled : 1;
             uint32_t rasterizerDiscardEnabled : 1;
             uint32_t primitiveRestartEnabled : 1;
             uint32_t drawType : 2;
-            uint32_t reserved : 14;
+            uint32_t reserved0 : 17;
         };
 
         union
@@ -879,7 +890,7 @@ static inline unsigned int rz_clz32(unsigned int x)
             {
                 uint32_t blendPreset : 5;       // Use this to set the blend preset, will be used to fill the blend factors
                 uint32_t useBlendPreset : 1;    // If set to true, use the blend preset, else use the blend factors below
-                uint32_t reserved : 26;         // Reserved for future use, so we can expand the struct without breaking ABI
+                uint32_t reserved1 : 26;        // Reserved for future use, so we can expand the struct without breaking ABI
             };
             struct
             {
@@ -890,19 +901,20 @@ static inline unsigned int rz_clz32(unsigned int x)
                 uint32_t colorBlendOp : 3;
                 uint32_t alphaBlendOp : 3;
                 uint32_t stencilState : 3;    // Will overflow, so promote to next byte and to keep blend presets together
-                uint32_t reserved : 7;        // padding to 32 bits
+                uint32_t reserved2 : 7;       // padding to 32 bits
             };
         };
         uint8_t _pad1[8];
 
     } rz_gfx_pipeline_desc;
 
-    typedef struct rz_gfx_resource
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_resource
     {
         const char*                pName;
         rz_handle                  handle;
         rz_gfx_resource_view_hints viewHints;
         rz_gfx_resource_type       type;
+        uint8_t                    _pad1[8];
 
         union
         {
@@ -925,7 +937,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     typedef uint64_t rz_gfx_syncpoint;
 
-    typedef struct rz_gfx_syncobj
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_syncobj
     {
         RAZIX_GFX_RESOURCE;
         rz_gfx_syncpoint waitTimestamp;
@@ -937,7 +949,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #endif
     } rz_gfx_syncobj;
 
-    typedef struct rz_gfx_texture
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_texture
     {
         RAZIX_GFX_RESOURCE;
         rz_gfx_texture_desc desc;
@@ -949,7 +961,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #endif
     } rz_gfx_texture;
 
-    typedef struct rz_gfx_swapchain
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_swapchain
     {
         uint32_t       width;
         uint32_t       height;
@@ -964,7 +976,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #endif
     } rz_gfx_swapchain;
 
-    typedef struct rz_gfx_context
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_context
     {
         uint32_t      width;
         uint32_t      height;
@@ -984,7 +996,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     } rz_gfx_context;
 
     // Note:- Exception!, this is not a resource as it's managed by the Renderer and very few in number, might make is a Resource later
-    typedef struct rz_gfx_cmdpool
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdpool
     {
         RAZIX_GFX_RESOURCE;
         rz_gfx_cmdpool_type type;
@@ -1000,7 +1012,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     } rz_gfx_cmdpool;
 
-    typedef struct rz_gfx_cmdbuf
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdbuf
     {
         RAZIX_GFX_RESOURCE;
         union
@@ -1015,7 +1027,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     } rz_gfx_cmdbuf;
 
-    typedef struct rz_gfx_descriptor_heap
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_heap
     {
         RAZIX_GFX_RESOURCE;
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -1026,7 +1038,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #endif
     } rz_gfx_descriptor_heap;
 
-    typedef struct rz_gfx_descriptor_table
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table
     {
         RAZIX_GFX_RESOURCE;
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -1037,7 +1049,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #endif
     } rz_gfx_descriptor_table;
 
-    typedef struct rz_gfx_root_signature
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_root_signature
     {
         RAZIX_GFX_RESOURCE;
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -1048,7 +1060,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #endif
     } rz_gfx_root_signature;
 
-    typedef struct rz_gfx_shader
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader
     {
         RAZIX_GFX_RESOURCE;
         rz_gfx_root_signature_handle rootSignature;
@@ -1064,7 +1076,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         };
     } rz_gfx_shader;
 
-    typedef struct rz_gfx_pipeline
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_pipeline
     {
         RAZIX_GFX_RESOURCE;
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -1075,52 +1087,62 @@ static inline unsigned int rz_clz32(unsigned int x)
 #endif
     } rz_gfx_pipeline;
 
-    typedef struct rz_gfx_buffer
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_buffer
     {
         RAZIX_GFX_RESOURCE;
     } rz_gfx_buffer;
 
     //---------------------------------------------------------------------------------------------
 
-    typedef struct rz_gfx_attachment
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_attachment
     {
         rz_gfx_color_rgba     clearColor;
         const rz_gfx_texture* pTexture;
-        uint8_t               mip;
-        uint8_t               layer;
-        uint8_t               clear;
+        struct
+        {
+            uint32_t mip : 8;
+            uint32_t layer : 8;
+            uint32_t clear : 1;
+            uint32_t reserved : 15;
+        };
+        uint8_t _pad0[4];
     } gfx_attachment;
 
-    typedef struct rz_gfx_viewport
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_viewport
     {
-        int32_t  x, y;
+        int32_t  x;
+        int32_t  y;
         uint32_t width, height;
         uint32_t minDepth;
         uint32_t maxDepth;
+        uint8_t  _pad0[8];
     } rz_gfx_viewport;
 
-    typedef struct rz_gfx_rect
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_rect
     {
-        int32_t  x, y;
+        int32_t  x;
+        int32_t  y;
         uint32_t width, height;
     } rz_gfx_rect;
 
-    typedef struct rz_gfx_renderpass
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_renderpass
     {
         uint32_t          colorAttachmentsCount;
         uint32_t          _pad0;
+        uint32_t          extents[RAZIX_EXTENTS_ELEM_COUNT];
         gfx_attachment    colorAttachments[RAZIX_MAX_RENDER_TARGETS];
         gfx_attachment    depthAttachment;
-        uint32_t          extents[RAZIX_EXTENTS_ELEM_COUNT];
         uint32_t          layers;
         rz_gfx_resolution resolution;
+        uint8_t           _pad1[8];
     } rz_gfx_renderpass;
 
-    typedef struct rz_gfx_shader_reflection
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader_reflection
     {
         rz_gfx_root_signature_desc rootSignatureDesc;
         rz_gfx_input_element*      pInputElements;
         uint32_t                   elementCount;
+        uint8_t                    _pad0[4];
     } rz_gfx_shader_reflection;
 
     //---------------------------------------------------------------------------------------------
