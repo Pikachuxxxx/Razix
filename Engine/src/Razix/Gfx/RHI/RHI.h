@@ -873,13 +873,14 @@ static inline unsigned int rz_clz32(unsigned int x)
             uint32_t polygonMode : 2;
             uint32_t depthWriteEnabled : 1;
             uint32_t depthTestEnabled : 1;
+            uint32_t depthCompareOp : 3;
             uint32_t stencilTestEnabled : 1;
             uint32_t blendEnabled : 1;
             uint32_t rasterizerDiscardEnabled : 1;
             uint32_t primitiveRestartEnabled : 1;
             uint32_t drawType : 2;
             uint32_t useBlendPreset : 1;    // If set to true, use the blend preset, else use the blend factors below
-            uint32_t reserved0 : 16;
+            uint32_t reserved0 : 13;
         };
 
         union
