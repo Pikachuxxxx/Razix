@@ -13,25 +13,22 @@ namespace Razix {
             desc.rzsfFilePath       = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTriangleTest.rzsf";
             m_Shader                = Gfx::RZResourceManager::Get().createShader("HelloTriangleShader", desc);
 
-            RZPipelineDesc pipelineInfo{};
             // Build the pipeline here for this pass
-            pipelineInfo.name                   = "[Test] Pipeline.HelloTriangle";
-            pipelineInfo.shader                 = m_Shader;
-            pipelineInfo.colorAttachmentFormats = {TextureFormat::SCREEN};
-#ifdef __APPLE__
-            pipelineInfo.depthFormat       = TextureFormat::DEPTH16_UNORM;
-            pipelineInfo.depthTestEnabled  = true;
-            pipelineInfo.depthWriteEnabled = true;
-            pipelineInfo.depthBiasEnabled  = false;
-#else
-            pipelineInfo.depthTestEnabled  = false;
-            pipelineInfo.depthWriteEnabled = false;
-            pipelineInfo.depthBiasEnabled  = false;
-#endif
-            pipelineInfo.cullMode            = Gfx::CullMode::None;
-            pipelineInfo.drawType            = Gfx::DrawType::Triangle;
-            pipelineInfo.transparencyEnabled = false;
-            m_Pipeline                       = RZResourceManager::Get().createPipeline(pipelineInfo);
+            rz_gfx_pipeline_desc pipelineInfo   = {};
+            pipelineInfo.type                   = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+            pipelineInfo.pShader                = RZResourceManager::Get().getShaderResource(m_Shader);
+            pipelineInfo.pRootSig               = RZResourceManager::Get().getRootSignatureResource(pipelineInfo.pShader->rootSignature);
+            pipelineInfo.depthTestEnabled       = false;
+            pipelineInfo.depthWriteEnabled      = false;
+            pipelineInfo.cullMode               = RZ_GFX_CULL_MODE_TYPE_NONE;
+            pipelineInfo.drawType               = RZ_GFX_DRAW_TYPE_TRIANGLE;
+            pipelineInfo.blendEnabled           = false;
+            pipelineInfo.useBlendPreset         = true;
+            pipelineInfo.blendPreset            = RZ_GFX_BLEND_PRESET_ADDITIVE;
+            pipelineInfo.renderTargetCount      = 1;
+            pipelineInfo.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
+
+            m_Pipeline = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.HelloTriangle", pipelineInfo);
 
 #if 0
             struct HelloTriangleData
@@ -88,9 +85,7 @@ namespace Razix {
         void RZHelloTriangleTestPass::destroy()
         {
             RZResourceManager::Get().destroyShader(m_Shader);
-#if 0
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
-#endif
         }
     }    // namespace Gfx
 }    // namespace Razix

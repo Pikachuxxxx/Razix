@@ -746,16 +746,16 @@ static void dx12_GlobalCtxInit(void)
     RAZIX_RHI_LOG_INFO("Created Global Direct Command Q");
     TAG_OBJECT(DX12Context.directQ, "Direct Command Q");
 
-    g_GraphicsFeatures.EnableVSync                  = false;
-    g_GraphicsFeatures.TesselateTerrain             = false;
-    g_GraphicsFeatures.SupportsBindless             = DX12Context.features.options.ResourceBindingTier >= D3D12_RESOURCE_BINDING_TIER_3;
-    g_GraphicsFeatures.SupportsWaveIntrinsics       = true;
-    g_GraphicsFeatures.SupportsShaderModel6         = DX12Context.features.shaderModel.HighestShaderModel >= D3D_SHADER_MODEL_6_0;
-    g_GraphicsFeatures.SupportsNullIndexDescriptors = DX12Context.features.options5.SRVOnlyTiledResourceTier3;
-    g_GraphicsFeatures.SupportsTimelineSemaphores   = true;
-    g_GraphicsFeatures.MaxBindlessTextures          = 4096;
-    g_GraphicsFeatures.MinLaneWidth                 = DX12Context.features.options1.WaveLaneCountMin;
-    g_GraphicsFeatures.MaxLaneWidth                 = DX12Context.features.options1.WaveLaneCountMax;
+    g_GraphicsFeatures.support.EnableVSync                  = false;
+    g_GraphicsFeatures.support.TesselateTerrain             = false;
+    g_GraphicsFeatures.support.SupportsBindless             = DX12Context.features.options.ResourceBindingTier >= D3D12_RESOURCE_BINDING_TIER_3;
+    g_GraphicsFeatures.support.SupportsWaveIntrinsics       = true;
+    g_GraphicsFeatures.support.SupportsShaderModel6         = DX12Context.features.shaderModel.HighestShaderModel >= D3D_SHADER_MODEL_6_0;
+    g_GraphicsFeatures.support.SupportsNullIndexDescriptors = DX12Context.features.options5.SRVOnlyTiledResourceTier3;
+    g_GraphicsFeatures.support.SupportsTimelineSemaphores   = true;
+    g_GraphicsFeatures.MaxBindlessTextures                  = 4096;
+    g_GraphicsFeatures.MinLaneWidth                         = DX12Context.features.options1.WaveLaneCountMin;
+    g_GraphicsFeatures.MaxLaneWidth                         = DX12Context.features.options1.WaveLaneCountMax;
 }
 
 static void dx12_GlobalCtxDestroy(void)
@@ -1481,6 +1481,8 @@ rz_rhi_api dx12_rhi = {
     .DestroyShader        = dx12_DestroyShader,           // DestroyShader
     .CreateRootSignature  = dx12_CreateRootSignature,     // CreateRootSignature
     .DestroyRootSignature = dx12_DestroyRootSignature,    // DestroyRootSignature
+    .CreatePipeline       = dx12_CreatePipeline,          // CreatePipeline
+    .DestroyPipeline      = dx12_DestroyPipeline,         // DestroyPipeline
 
     .AcquireImage       = dx12_AcquireImage,          // AcquireImage
     .WaitOnPrevCmds     = dx12_WaitOnPrevCmds,        // WaitOnPrevCmds
