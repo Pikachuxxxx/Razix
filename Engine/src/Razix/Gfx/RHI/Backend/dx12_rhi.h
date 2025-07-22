@@ -122,5 +122,11 @@ typedef struct dx12_shader
     dx12_shader_stage stages[13];
 } dx12_shader;
 
+typedef struct dx12_pipeline
+{
+    ID3D12PipelineState*   pso;
+    D3D_PRIMITIVE_TOPOLOGY topology;
+} dx12_pipeline;
+
 #endif    // RAZIX_RENDER_API_DIRECTX12
 #endif    // DX12_RHI_H

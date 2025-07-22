@@ -122,7 +122,7 @@ namespace Razix {
             //RAZIX_INIT_RESOURCE_POOL(Sampler, 32)
             RAZIX_INIT_RESOURCE_POOL(Shader, RZ_GFX_RESOURCE_TYPE_SHADER, 512, sizeof(rz_gfx_shader), RZSFCreateOverrideFunc, DestroyShaderWithRootSigOverrideFunv);
             RAZIX_INIT_RESOURCE_POOL(RootSignature, RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE, 512, sizeof(rz_gfx_root_signature), rzRHI_CreateRootSignature, rzRHI_DestroyRootSignature);
-            //RAZIX_INIT_RESOURCE_POOL(Pipeline, 512)
+            RAZIX_INIT_RESOURCE_POOL(Pipeline, RZ_GFX_RESOURCE_TYPE_PIPELINE, 512, sizeof(rz_gfx_pipeline), rzrhi_createpipeline, rzrhi_CreatePipeline);
             //RAZIX_INIT_RESOURCE_POOL(UniformBuffer, 2048)
             RAZIX_INIT_RESOURCE_POOL(CommandPool, RZ_GFX_RESOURCE_TYPE_CMD_POOL, 32, sizeof(rz_gfx_cmdpool), rzRHI_CreateCmdPool, rzRHI_DestroyCmdPool);
             RAZIX_INIT_RESOURCE_POOL(CommandBuffer, RZ_GFX_RESOURCE_TYPE_CMD_BUFFER, 32 * 32, sizeof(rz_gfx_cmdbuf), rzRHI_CreateCmdBuf, rzRHI_DestroyCmdBuf);

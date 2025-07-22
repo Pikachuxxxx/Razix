@@ -40,5 +40,11 @@ typedef struct vk_shader
     VkShaderModule module;    // one per stage if needed
 } vk_shader;
 
+typedef struct vk_pipeline
+{
+    VkPipeline       pipeline;
+    VkPipelineLayout pipelineLayout;
+} vk_pipeline;
+
 #endif    // RAZIX_RENDER_API_VULKAN
 #endif    // vk_RHI_H

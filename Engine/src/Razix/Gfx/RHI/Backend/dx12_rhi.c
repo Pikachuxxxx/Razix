@@ -191,6 +191,190 @@ static D3D12_DESCRIPTOR_RANGE_TYPE dx12_util_descriptor_type_to_range_type(rz_gf
     }
 }
 
+static D3D12_INPUT_ELEMENT_DESC dx12_util_input_element_desc(rz_gfx_input_element element)
+{
+    D3D12_INPUT_ELEMENT_DESC dxElement = {0};
+    dxElement.SemanticName             = element.pSemanticName;
+    dxElement.SemanticIndex            = element.semanticIndex;
+    dxElement.Format                   = dx12_util_rz_gfx_format_to_dxgi_format(element.format);
+    dxElement.InputSlot                = element.inputSlot;
+    dxElement.AlignedByteOffset        = element.alignedByteOffset;
+    dxElement.InputSlotClass           = (element.inputClass == 1)
+                                             ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA
+                                             : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+    dxElement.InstanceDataStepRate     = element.instanceStepRate;
+
+    return dxElement;
+}
+
+static D3D12_SHADER_BYTECODE dx12_util_shader_bytecode_to_d3d12_shader(const rz_gfx_shader_stage_blob* blob)
+{
+    D3D12_SHADER_BYTECODE shaderBytecode = {0};
+    if (blob && blob->bytecode && blob->size > 0) {
+        shaderBytecode.pShaderBytecode = blob->bytecode;
+        shaderBytecode.BytecodeLength  = blob->size;
+    } else {
+        RAZIX_RHI_LOG_ERROR("Invalid shader bytecode provided");
+    }
+    return shaderBytecode;
+}
+
+static D3D12_PRIMITIVE_TOPOLOGY dx12_util_draw_type_to_topology(rz_gfx_draw_type drawType)
+{
+    switch (drawType) {
+        case RZ_GFX_DRAW_TYPE_POINT: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+        case RZ_GFX_DRAW_TYPE_LINE: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+        case RZ_GFX_DRAW_TYPE_LINE_STRIP: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+        case RZ_GFX_DRAW_TYPE_TRIANGLE: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+        case RZ_GFX_DRAW_TYPE_TRIANGLE_STRIP: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+        default:
+            RAZIX_RHI_LOG_ERROR("Unknown draw data type %d", drawType);
+            return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
+    }
+}
+
+static D3D_PRIMITIVE_TOPOLOGY dx12_util_draw_type_to_d3dtopology(rz_gfx_draw_type drawType)
+{
+    switch (drawType) {
+        case RZ_GFX_DRAW_TYPE_POINT: return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+        case RZ_GFX_DRAW_TYPE_LINE: return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+        case RZ_GFX_DRAW_TYPE_LINE_STRIP: return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+        case RZ_GFX_DRAW_TYPE_TRIANGLE: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+        case RZ_GFX_DRAW_TYPE_TRIANGLE_STRIP: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+        default:
+            RAZIX_RHI_LOG_ERROR("Unknown draw data type %d", drawType);
+            return D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
+    }
+}
+
+static D3D12_FILL_MODE dx12_util_polygon_mode_to_fill_mode(rz_gfx_polygon_mode_type polygonMode)
+{
+    switch (polygonMode) {
+        case RZ_GFX_POLYGON_MODE_TYPE_FILL: return D3D12_FILL_MODE_SOLID;
+        case RZ_GFX_POLYGON_MODE_TYPE_LINE: return D3D12_FILL_MODE_WIREFRAME;
+        case RZ_GFX_POLYGON_MODE_TYPE_POINT: return D3D12_FILL_MODE_SOLID;
+        default:
+            RAZIX_RHI_LOG_ERROR("Unknown polygon mode %d", polygonMode);
+            return D3D12_FILL_MODE_SOLID;
+    }
+}
+
+static D3D12_CULL_MODE dx12_util_cull_mode_translate(rz_gfx_cull_mode_type cullmode)
+{
+    switch (cullmode) {
+        case RZ_GFX_CULL_MODE_TYPE_NONE: return D3D12_CULL_MODE_NONE;
+        case RZ_GFX_CULL_MODE_TYPE_FRONT: return D3D12_CULL_MODE_FRONT;
+        case RZ_GFX_CULL_MODE_TYPE_BACK: return D3D12_CULL_MODE_BACK;
+        default:
+            RAZIX_RHI_LOG_ERROR("Unknown cull mode %d", cullmode);
+            return D3D12_CULL_MODE_NONE;
+    }
+}
+
+static D3D12_BLEND dx12_util_blend_factor(rz_gfx_blend_factor_type factor)
+{
+    switch (factor) {
+        case RZ_GFX_BLEND_FACTOR_TYPE_ZERO: return D3D12_BLEND_ZERO;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE: return D3D12_BLEND_ONE;
+        case RZ_GFX_BLEND_FACTOR_TYPE_SRC_COLOR: return D3D12_BLEND_SRC_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_SRC_COLOR: return D3D12_BLEND_INV_SRC_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_DST_COLOR: return D3D12_BLEND_DEST_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_DST_COLOR: return D3D12_BLEND_INV_DEST_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_SRC_ALPHA: return D3D12_BLEND_SRC_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_SRC_ALPHA: return D3D12_BLEND_INV_SRC_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_DST_ALPHA: return D3D12_BLEND_DEST_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_DST_ALPHA: return D3D12_BLEND_INV_DEST_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_CONSTANT_COLOR: return D3D12_BLEND_BLEND_FACTOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_CONSTANT_COLOR: return D3D12_BLEND_INV_BLEND_FACTOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_CONSTANT_ALPHA: return D3D12_BLEND_BLEND_FACTOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_CONSTANT_ALPHA: return D3D12_BLEND_INV_BLEND_FACTOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_SRC_ALPHA_SATURATE: return D3D12_BLEND_SRC_ALPHA_SAT;
+        default: return D3D12_BLEND_ONE;
+    }
+}
+
+static D3D12_BLEND_OP dx12_util_blend_op(rz_gfx_blend_op_type op)
+{
+    switch (op) {
+        case RZ_GFX_BLEND_OP_TYPE_ADD: return D3D12_BLEND_OP_ADD;
+        case RZ_GFX_BLEND_OP_TYPE_SUBTRACT: return D3D12_BLEND_OP_SUBTRACT;
+        case RZ_GFX_BLEND_OP_TYPE_REVERSE_SUBTRACT: return D3D12_BLEND_OP_REV_SUBTRACT;
+        case RZ_GFX_BLEND_OP_TYPE_MIN: return D3D12_BLEND_OP_MIN;
+        case RZ_GFX_BLEND_OP_TYPE_MAX: return D3D12_BLEND_OP_MAX;
+        default: return D3D12_BLEND_OP_ADD;
+    }
+}
+
+static D3D12_COMPARISON_FUNC dx12_util_compare_func(rz_gfx_compare_op_type func)
+{
+    switch (func) {
+        case RZ_GFX_COMPARE_OP_TYPE_NEVER: return D3D12_COMPARISON_FUNC_NEVER;
+        case RZ_GFX_COMPARE_OP_TYPE_LESS: return D3D12_COMPARISON_FUNC_LESS;
+        case RZ_GFX_COMPARE_OP_TYPE_EQUAL: return D3D12_COMPARISON_FUNC_EQUAL;
+        case RZ_GFX_COMPARE_OP_TYPE_LESS_OR_EQUAL: return D3D12_COMPARISON_FUNC_LESS_EQUAL;
+        case RZ_GFX_COMPARE_OP_TYPE_GREATER: return D3D12_COMPARISON_FUNC_GREATER;
+        case RZ_GFX_COMPARE_OP_TYPE_NOT_EQUAL: return D3D12_COMPARISON_FUNC_NOT_EQUAL;
+        case RZ_GFX_COMPARE_OP_TYPE_GREATER_OR_EQUAL: return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+        case RZ_GFX_COMPARE_OP_TYPE_ALWAYS: return D3D12_COMPARISON_FUNC_ALWAYS;
+        default: return D3D12_COMPARISON_FUNC_ALWAYS;
+    }
+}
+
+static D3D12_RENDER_TARGET_BLEND_DESC dx12_util_blend_preset(rz_gfx_blend_presets preset)
+{
+    D3D12_RENDER_TARGET_BLEND_DESC desc = {};
+    desc.BlendEnable                    = TRUE;
+    desc.RenderTargetWriteMask          = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+    switch (preset) {
+        case RZ_GFX_BLEND_PRESET_ADDITIVE:
+            desc.SrcBlend       = D3D12_BLEND_SRC_ALPHA;
+            desc.DestBlend      = D3D12_BLEND_ONE;
+            desc.BlendOp        = D3D12_BLEND_OP_ADD;
+            desc.SrcBlendAlpha  = D3D12_BLEND_ONE;
+            desc.DestBlendAlpha = D3D12_BLEND_ONE;
+            desc.BlendOpAlpha   = D3D12_BLEND_OP_ADD;
+            break;
+        case RZ_GFX_BLEND_PRESET_ALPHA_BLEND:
+            desc.SrcBlend       = D3D12_BLEND_SRC_ALPHA;
+            desc.DestBlend      = D3D12_BLEND_INV_SRC_ALPHA;
+            desc.BlendOp        = D3D12_BLEND_OP_ADD;
+            desc.SrcBlendAlpha  = D3D12_BLEND_ONE;
+            desc.DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
+            desc.BlendOpAlpha   = D3D12_BLEND_OP_ADD;
+            break;
+        case RZ_GFX_BLEND_PRESET_SUBTRACTIVE:
+            desc.SrcBlend       = D3D12_BLEND_SRC_ALPHA;
+            desc.DestBlend      = D3D12_BLEND_ONE;
+            desc.BlendOp        = D3D12_BLEND_OP_REV_SUBTRACT;
+            desc.SrcBlendAlpha  = D3D12_BLEND_ONE;
+            desc.DestBlendAlpha = D3D12_BLEND_ONE;
+            desc.BlendOpAlpha   = D3D12_BLEND_OP_REV_SUBTRACT;
+            break;
+        case RZ_GFX_BLEND_PRESET_MULTIPLY:
+            desc.SrcBlend       = D3D12_BLEND_DEST_COLOR;
+            desc.DestBlend      = D3D12_BLEND_ZERO;
+            desc.BlendOp        = D3D12_BLEND_OP_ADD;
+            desc.SrcBlendAlpha  = D3D12_BLEND_DEST_ALPHA;
+            desc.DestBlendAlpha = D3D12_BLEND_ZERO;
+            desc.BlendOpAlpha   = D3D12_BLEND_OP_ADD;
+            break;
+        case RZ_GFX_BLEND_PRESET_DARKEN:
+            desc.SrcBlend       = D3D12_BLEND_ONE;
+            desc.DestBlend      = D3D12_BLEND_ONE;
+            desc.BlendOp        = D3D12_BLEND_OP_MIN;
+            desc.SrcBlendAlpha  = D3D12_BLEND_ONE;
+            desc.DestBlendAlpha = D3D12_BLEND_ONE;
+            desc.BlendOpAlpha   = D3D12_BLEND_OP_MIN;
+            break;
+        default:
+            desc.BlendEnable = FALSE;
+            break;
+    }
+
+    return desc;
+}
+
 //---------------------------------------------------------------------------------------------
 // Helper functions
 
@@ -878,6 +1062,196 @@ static void dx12_DestroyRootSignature(void* ptr)
     if (rootSig->dx12.rootSig) {
         ID3D12RootSignature_Release(rootSig->dx12.rootSig);
         rootSig->dx12.rootSig = NULL;
+    }
+}
+
+static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
+{
+    const rz_gfx_pipeline_desc*  pPsoDesc    = &pso->resource.desc.pipelineDesc;
+    const rz_gfx_shader*         pShader     = pso->resource.desc.pipelineDesc.pShader;
+    const rz_gfx_shader_desc*    pShaderDesc = &pShader->resource.desc.shaderDesc;
+    const rz_gfx_root_signature* pRootSig    = pso->resource.desc.pipelineDesc.pRootSig;
+    RAZIX_RHI_ASSERT(pShader != NULL, "Pipeline must have a valid shader! (Pipeline creation)");
+    RAZIX_RHI_ASSERT(pRootSig != NULL, "Pipeline must have a valid root signature! (Pipeline creation)");
+    RAZIX_RHI_ASSERT(pShaderDesc->pipelineType == RZ_GFX_PIPELINE_TYPE_GRAPHICS, "Shader must be a graphics shader for this pipeline type! (Pipeline creation)");
+
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {0};
+    desc.NodeMask                           = 0;    // Single GPU, no multi-GPU support
+    desc.Flags                              = D3D12_PIPELINE_STATE_FLAG_NONE;
+    desc.pRootSignature                     = pRootSig->dx12.rootSig;
+    RAZIX_RHI_ASSERT(desc.pRootSignature != NULL, "Root signature cannot be NULL in pipeline creation! (Pipeline creation)");
+
+    //----------------------------
+    // Shaders
+    //----------------------------
+    desc.VS = dx12_util_shader_bytecode_to_d3d12_shader(&pShaderDesc->raster.vs);
+    desc.PS = dx12_util_shader_bytecode_to_d3d12_shader(&pShaderDesc->raster.ps);
+    desc.GS = dx12_util_shader_bytecode_to_d3d12_shader(&pShaderDesc->raster.gs);
+    desc.HS = dx12_util_shader_bytecode_to_d3d12_shader(&pShaderDesc->raster.tes);
+    desc.DS = dx12_util_shader_bytecode_to_d3d12_shader(&pShaderDesc->raster.tcs);
+
+    //----------------------------
+    // Input Assembly Stage
+    //----------------------------
+    D3D12_INPUT_LAYOUT_DESC input_layout                                    = {0};
+    input_layout.NumElements                                                = pShaderDesc->elementsCount;
+    D3D12_INPUT_ELEMENT_DESC inputElementDescs[RAZIX_MAX_VERTEX_ATTRIBUTES] = {0};
+    for (uint32_t i = 0; i < input_layout.NumElements; i++) {
+        rz_gfx_input_element elem = pShaderDesc->pElements[i];
+        RAZIX_RHI_ASSERT(elem.format != RZ_GFX_FORMAT_UNDEFINED, "Input element format cannot be undefined");
+        RAZIX_RHI_ASSERT(i < RAZIX_MAX_VERTEX_ATTRIBUTES, "Input element location exceeds maximum vertex attributes");
+
+        // Convert the format to DXGI format
+        inputElementDescs[i] = dx12_util_input_element_desc(elem);
+    }
+    input_layout.pInputElementDescs = inputElementDescs;
+    desc.InputLayout                = input_layout;
+
+    //----------------------------
+    // Primitive Topology
+    //----------------------------
+    D3D12_PRIMITIVE_TOPOLOGY_TYPE prim_topology = {0};
+    prim_topology                               = dx12_util_draw_type_to_topology(pPsoDesc->drawType);
+    desc.PrimitiveTopologyType                  = prim_topology;    // this is just the category of primitives no the exact formation style of primitives
+    // Just translate and cache it to set during IA on command list, this is a dynamic state in DX12 unlike Vulkan
+    pso->dx12.topology = dx12_util_draw_type_to_d3dtopology(pPsoDesc->drawType);
+
+    //----------------------------
+    // TODO: Rasterizer Stage
+    //----------------------------
+    D3D12_RASTERIZER_DESC rasterizer = {0};
+    rasterizer.FillMode              = dx12_util_polygon_mode_to_fill_mode(pPsoDesc->polygonMode);
+    rasterizer.CullMode              = dx12_util_cull_mode_translate(pPsoDesc->cullMode);
+    rasterizer.FrontCounterClockwise = TRUE;
+    rasterizer.DepthClipEnable       = FALSE;
+    rasterizer.MultisampleEnable     = FALSE;
+    desc.RasterizerState             = rasterizer;
+
+    //----------------------------
+    // Render/DS Targets & Formats
+    //----------------------------
+    desc.NumRenderTargets = pso->resource.desc.pipelineDesc.renderTargetCount;
+    for (uint32_t i = 0; i < pso->resource.desc.pipelineDesc.renderTargetCount; ++i) {
+        desc.RTVFormats[i] = dx12_util_rz_gfx_format_to_dxgi_format(pso->resource.desc.pipelineDesc.renderTargetFormats[i]);
+    }
+
+    if (pso->resource.desc.pipelineDesc.depthTestEnabled || pso->resource.desc.pipelineDesc.depthWriteEnabled || pso->resource.desc.pipelineDesc.stencilTestEnabled) {
+        desc.DSVFormat = dx12_util_rz_gfx_format_to_dxgi_format(pso->resource.desc.pipelineDesc.depthStencilFormat);
+    } else {
+        desc.DSVFormat = DXGI_FORMAT_UNKNOWN;    // No depth-stencil
+    }
+
+    //----------------------------
+    // Color Blend State
+    //----------------------------
+    D3D12_BLEND_DESC blendState       = {0};
+    blendState.AlphaToCoverageEnable  = FALSE;
+    blendState.IndependentBlendEnable = FALSE;
+
+    D3D12_RENDER_TARGET_BLEND_DESC rtBlendDesc = {0};
+    rtBlendDesc.BlendEnable                    = pPsoDesc->blendEnabled;
+    if (pPsoDesc->useBlendPreset) {
+        rtBlendDesc = dx12_util_blend_preset(pPsoDesc->blendEnabled);
+    } else {
+        rtBlendDesc.SrcBlend              = dx12_util_blend_factor(pPsoDesc->srcColorBlendFactor);
+        rtBlendDesc.DestBlend             = dx12_util_blend_factor(pPsoDesc->dstColorBlendFactor);
+        rtBlendDesc.BlendOp               = dx12_util_blend_op(pPsoDesc->colorBlendOp);
+        rtBlendDesc.SrcBlendAlpha         = dx12_util_blend_factor(pPsoDesc->srcAlphaBlendFactor);
+        rtBlendDesc.DestBlendAlpha        = dx12_util_blend_factor(pPsoDesc->dstAlphaBlendFactor);
+        rtBlendDesc.BlendOpAlpha          = dx12_util_blend_op(pPsoDesc->alphaBlendOp);
+        rtBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+    }
+
+    // TODO: Allow blend state customization per RT
+    for (uint32_t i = 0; i < desc.NumRenderTargets; i++)
+        blendState.RenderTarget[i] = rtBlendDesc;
+    desc.BlendState = blendState;
+
+    //----------------------------
+    // Depth Stencil Stage
+    //----------------------------
+    D3D12_DEPTH_STENCIL_DESC depth = {0};
+    depth.DepthEnable              = pPsoDesc->depthTestEnabled;
+    depth.DepthWriteMask           = pPsoDesc->depthWriteEnabled ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
+    depth.DepthFunc                = dx12_util_compare_func(pPsoDesc->depthCompareOp);
+    depth.StencilEnable            = FALSE;
+    depth.StencilReadMask          = D3D12_DEFAULT_STENCIL_READ_MASK;
+    depth.StencilWriteMask         = D3D12_DEFAULT_STENCIL_WRITE_MASK;
+    depth.FrontFace                = (D3D12_DEPTH_STENCILOP_DESC){
+                       .StencilFailOp      = D3D12_STENCIL_OP_KEEP,
+                       .StencilDepthFailOp = D3D12_STENCIL_OP_KEEP,
+                       .StencilPassOp      = D3D12_STENCIL_OP_KEEP,
+                       .StencilFunc        = D3D12_COMPARISON_FUNC_ALWAYS};
+    depth.BackFace         = depth.FrontFace;
+    desc.DepthStencilState = depth;
+
+    //----------------------------
+    // Multi sample State (MSAA)
+    //----------------------------
+    desc.SampleDesc.Count   = 1;
+    desc.SampleDesc.Quality = 0;
+    desc.SampleMask         = UINT_MAX;    // No sample mask
+
+    // Create the pipeline state object
+    HRESULT hr = ID3D12Device10_CreateGraphicsPipelineState(DX12Device, &desc, &IID_ID3D12PipelineState, (void**) &pso->dx12.pso);
+    if (FAILED(hr)) {
+        RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Pipeline State Object (PSO): 0x%08X", hr);
+        return;
+    }
+    RAZIX_RHI_LOG_INFO("D3D12 Pipeline State Object (PSO) created successfully");
+    TAG_OBJECT(pso->dx12.pso, pso->resource.pName);
+}
+
+static void dx12_CreateComputePipeline(rz_gfx_pipeline* pso)
+{
+    const rz_gfx_pipeline_desc*  pPsoDesc    = &pso->resource.desc.pipelineDesc;
+    const rz_gfx_shader*         pShader     = pso->resource.desc.pipelineDesc.pShader;
+    const rz_gfx_shader_desc*    pShaderDesc = &pShader->resource.desc.shaderDesc;
+    const rz_gfx_root_signature* pRootSig    = pso->resource.desc.pipelineDesc.pRootSig;
+    RAZIX_RHI_ASSERT(pShader != NULL, "Pipeline must have a valid shader! (Pipeline creation)");
+    RAZIX_RHI_ASSERT(pRootSig != NULL, "Pipeline must have a valid root signature! (Pipeline creation)");
+    RAZIX_RHI_ASSERT(pShaderDesc->pipelineType == RZ_GFX_PIPELINE_TYPE_GRAPHICS, "Shader must be a graphics shader for this pipeline type! (Pipeline creation)");
+
+    D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {0};
+    desc.NodeMask                          = 0;    // Single GPU, no multi-GPU support
+    desc.Flags                             = D3D12_PIPELINE_STATE_FLAG_NONE;
+    desc.pRootSignature                    = pRootSig->dx12.rootSig;
+    RAZIX_RHI_ASSERT(desc.pRootSignature != NULL, "Root signature cannot be NULL in pipeline creation! (Pipeline creation)");
+
+    //----------------------------
+    // Shaders
+    //----------------------------
+    desc.CS = dx12_util_shader_bytecode_to_d3d12_shader(&pShaderDesc->compute.cs);
+
+    // Create the pipeline state object
+    HRESULT hr = ID3D12Device10_CreateComputePipelineState(DX12Device, &desc, &IID_ID3D12PipelineState, (void**) &pso->dx12.pso);
+    if (FAILED(hr)) {
+        RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Pipeline State Object (PSO): 0x%08X", hr);
+        return;
+    }
+    RAZIX_RHI_LOG_INFO("D3D12 Pipeline State Object (PSO) created successfully");
+    TAG_OBJECT(pso->dx12.pso, pso->resource.pName);
+}
+
+static void dx12_CreatePipeline(void* pipeline)
+{
+    rz_gfx_pipeline* pso = (rz_gfx_pipeline*) pipeline;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
+
+    if (pso->resource.desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
+        dx12_CreateGraphicsPipeline(pso);
+    else
+        dx12_CreateComputePipeline(pso);
+}
+
+static void dx12_DestroyPipeline(void* pipeline)
+{
+    RAZIX_RHI_ASSERT(pipeline != NULL, "Pipeline is NULL, cannot destroy");
+    rz_gfx_pipeline* pso = (rz_gfx_pipeline*) pipeline;
+
+    if (pso->dx12.pso) {
+        ID3D12PipelineState_Release(pso->dx12.pso);
+        pso->dx12.pso = NULL;
     }
 }
 
