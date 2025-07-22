@@ -672,7 +672,7 @@ static inline unsigned int rz_clz32(unsigned int x)
                 uint32_t SupportsBindlessRendering : 1;
                 uint32_t reserved : 24;
             };
-        };
+        } support;
         uint32_t MaxBindlessTextures;
         uint32_t MinLaneWidth;
         uint32_t MaxLaneWidth;
