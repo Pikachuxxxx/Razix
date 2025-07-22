@@ -878,16 +878,16 @@ static inline unsigned int rz_clz32(unsigned int x)
             uint32_t rasterizerDiscardEnabled : 1;
             uint32_t primitiveRestartEnabled : 1;
             uint32_t drawType : 2;
-            uint32_t reserved0 : 17;
+            uint32_t useBlendPreset : 1;    // If set to true, use the blend preset, else use the blend factors below
+            uint32_t reserved0 : 16;
         };
 
         union
         {
             struct
             {
-                uint32_t blendPreset : 5;       // Use this to set the blend preset, will be used to fill the blend factors
-                uint32_t useBlendPreset : 1;    // If set to true, use the blend preset, else use the blend factors below
-                uint32_t reserved1 : 26;        // Reserved for future use, so we can expand the struct without breaking ABI
+                uint32_t blendPreset : 5;    // Use this to set the blend preset, will be used to fill the blend factors
+                uint32_t reserved1 : 27;     // Reserved for future use, so we can expand the struct without breaking ABI
             };
             struct
             {
