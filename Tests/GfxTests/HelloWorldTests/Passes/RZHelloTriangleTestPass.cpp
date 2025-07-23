@@ -30,7 +30,6 @@ namespace Razix {
 
             m_Pipeline = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.HelloTriangle", pipelineInfo);
 
-#if 0
             struct HelloTriangleData
             {
                 RZFrameGraphResource Depth;
@@ -40,46 +39,36 @@ namespace Razix {
                 "[Test] Pass.Builtin.Code.HelloTriangle",
                 [&](HelloTriangleData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
-
-    #ifdef __APPLE__
-                    RZTextureDesc depthTextureDesc;
-                    depthTextureDesc.name                  = "SceneDepth";
-                    depthTextureDesc.width                 = RZApplication::Get().getWindow()->getWidth();
-                    depthTextureDesc.height                = RZApplication::Get().getWindow()->getHeight();
-                    depthTextureDesc.format                = TextureFormat::DEPTH16_UNORM;
-                    depthTextureDesc.type                  = TextureType::kDepth;
-                    depthTextureDesc.initResourceViewHints = kDSV;
-                    data.Depth                             = builder.create<RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
-                    data.Depth                             = builder.write(data.Depth);
-    #endif
                 },
                 [=](const HelloTriangleData& data, RZPassResourceDirectory& resources) {
                     RAZIX_TIME_STAMP_BEGIN("[Test] Hello Triangle Pass");
                     RAZIX_MARK_BEGIN("[Test] Pass.Builtin.Code.HelloTriangle", Utilities::GenerateHashedColor4(69u));
 
-                    auto cmdBuffer = Gfx::RHI::GetCurrentCommandBuffer();
+                    rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
 
-                    RenderingInfo info{};
-                    info.resolution       = Resolution::kWindow;
-                    info.colorAttachments = {{Gfx::RHI::GetSwapchain()->GetCurrentBackBufferImage(), {true, ClearColorPresets::OpaqueBlack}}};
-    #ifdef __APPLE__
-                    info.depthAttachment = {resources.get<RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
-    #endif
+                    rz_gfx_renderpass info            = {0};
+                    info.resolution                   = RZ_GFX_RESOLUTION_WINDOW;
+                    info.colorAttachmentsCount        = 1;
+                    info.colorAttachments[0].pTexture = &RZEngine::Get().getWorldRenderer().getCurrSwapchainBackbuffer();
+                    info.colorAttachments[0].clear    = true;
+                    info.colorAttachments[0].mip      = 0;
+                    info.colorAttachments[0].layer    = 0;
+                    info.layers                       = 1;
+                    RAZIX_X(info.extents)             = RZApplication::Get().getWindow()->getWidth();
+                    RAZIX_Y(info.extents)             = RZApplication::Get().getWindow()->getHeight();
 
-                    Gfx::RHI::BeginRendering(cmdBuffer, info);
+                    rzRHI_BeginRenderPass(cmdBuffer, info);
 
-                    // Bind pipeline and stuff
-                    Gfx::RHI::BindPipeline(m_Pipeline, cmdBuffer);
+                    rzRHI_BindPipeline(cmdBuffer, m_Pipeline);
 
-                    constexpr u32 NumTriangleVerts = 3;
-                    Gfx::RHI::Draw(cmdBuffer, NumTriangleVerts);
+#define NUM_TRIANGLE_VERTS 3
+                    rzRHI_DrawAuto(cmdBuffer, NUM_TRIANGLE_VERTS, 1, 0, 0);
 
-                    Gfx::RHI::EndRendering(cmdBuffer);
+                    rzRHI_EndRenderPass(cmdBuffer);
 
                     RAZIX_MARK_END();
                     RAZIX_TIME_STAMP_END();
                 });
-#endif
         }
 
         void RZHelloTriangleTestPass::destroy()

@@ -80,6 +80,8 @@ project "Sandbox"
    defines
    {
        --"SPDLOG_COMPILED_LIB"
+       -- RHI
+       "RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES",
    }
 
    filter { "files:**.lua or *.razixproject or **.rzscn"}

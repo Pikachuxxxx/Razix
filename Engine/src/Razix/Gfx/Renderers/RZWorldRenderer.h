@@ -111,11 +111,15 @@ namespace Razix {
             inline std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
             void               setFrameGraphFilePath(std::string val);
 
-            inline void                   setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
+            inline void setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
             //inline const TextureReadback& getSwapchainReadback() { return m_LastSwapchainReadback; }
 
             void clearFrameGraph();
             void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings);
+
+            inline rz_gfx_cmdbuf_handle  getCurrCmdBufHandle() const { return m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx]; }
+            inline rz_gfx_texture        getCurrSwapchainBackbuffer() const { return m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx]; }
+            inline rz_gfx_texture_handle getCurrSwapchainBackbufferHandle() const { return m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx].resource.handle; }
 
         private:
             RZFrameGraph m_FrameGraph;

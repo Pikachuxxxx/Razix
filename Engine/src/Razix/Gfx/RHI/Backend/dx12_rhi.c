@@ -1417,6 +1417,22 @@ static void dx12_SetScissorRect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* 
     ID3D12GraphicsCommandList_RSSetScissorRects(cmdBuf->dx12.cmdList, 1, &scissor);
 }
 
+// ...
+
+static void dx12_BindPipeline(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_pipeline* pso)
+{
+    if (pso->resource.desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
+        ID3D12GraphicsCommandList_IASetPrimitiveTopology(cmdBuf->dx12.cmdList, pso->dx12.topology);
+    ID3D12GraphicsCommandList_SetPipelineState(cmdBuf->dx12.cmdList, pso->dx12.pso);
+}
+
+static void dx12_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t firstVertex, uint32_t firstInstance, uint32_t vertexCount, uint32_t instanceCount)
+{
+    ID3D12GraphicsCommandList_DrawInstanced(cmdBuf->dx12.cmdList, vertexCount, instanceCount, firstVertex, firstInstance);
+}
+
+// ...
+
 static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
 {
     D3D12_RESOURCE_BARRIER barrier = {
@@ -1522,6 +1538,8 @@ rz_rhi_api dx12_rhi = {
     .EndRenderPass      = dx12_EndRenderPass,         // EndRenderPass
     .SetViewport        = dx12_SetViewport,           // SetViewport
     .SetScissorRect     = dx12_SetScissorRect,        // SetScissorRect
+    .BindPipeline       = dx12_BindPipeline,          // BindPipeline
+    .DrawAuto           = dx12_DrawAuto,              // DrawAuto
     .InsertImageBarrier = dx12_InsertImageBarrier,    // InsertImageBarrier
 
     .SignalGPU       = dx12_Signal,             // Signal

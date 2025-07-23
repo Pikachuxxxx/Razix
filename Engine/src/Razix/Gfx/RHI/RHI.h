@@ -1132,7 +1132,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         gfx_attachment    colorAttachments[RAZIX_MAX_RENDER_TARGETS];
         gfx_attachment    depthAttachment;
         uint32_t          layers;
-        rz_gfx_resolution resolution;
+        rz_gfx_resolution resolution;    // TODO: Use this
         uint8_t           _pad1[8];
     } rz_gfx_renderpass;
 
@@ -1208,6 +1208,10 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_SetViewportFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewport);
     typedef void (*rzRHI_SetScissorRectFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* rect);
 
+    typedef void (*rzRHI_BindPipelineFn)(const rz_gfx_cmdbuf*, const rz_gfx_pipeline*);
+
+    typedef void (*rzRHI_DrawAutoFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t, uint32_t);
+
     typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*, rz_gfx_resource_state, rz_gfx_resource_state);
 
     typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
@@ -1251,6 +1255,8 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_EndRenderPassFn      EndRenderPass;
         rzRHI_SetScissorRectFn     SetScissorRect;
         rzRHI_SetViewportFn        SetViewport;
+        rzRHI_BindPipelineFn       BindPipeline;
+        rzRHI_DrawAutoFn           DrawAuto;
         rzRHI_InsertImageBarrierFn InsertImageBarrier;
         // ....
         rzRHI_SignalGPUFn       SignalGPU;
@@ -1296,17 +1302,21 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define rzRHI_DestroyPipeline       g_RHI.DestroyPipeline
 
 #if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
-    #define rzRHI_AcquireImage       g_RHI.AcquireImage
-    #define rzRHI_WaitOnPrevCmds     g_RHI.WaitOnPrevCmds
-    #define rzRHI_Present            g_RHI.Present
-    #define rzRHI_BeginCmdBuf(cb)    g_RHI.BeginCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
-    #define rzRHI_EndCmdBuf          g_RHI.EndCmdBuf
-    #define rzRHI_SubmitCmdBuf       g_RHI.SubmitCmdBuf
-    #define rzRHI_BeginRenderPass    g_RHI.BeginRenderPass
-    #define rzRHI_EndRenderPass      g_RHI.EndRenderPass
-    #define rzRHI_SetScissorRect     g_RHI.SetScissorRect
-    #define rzRHI_SetViewport        g_RHI.SetViewport
-    #define rzRHI_InsertImageBarrier g_RHI.InsertImageBarrier
+    #define rzRHI_AcquireImage                 g_RHI.AcquireImage
+    #define rzRHI_WaitOnPrevCmds               g_RHI.WaitOnPrevCmds
+    #define rzRHI_Present                      g_RHI.Present
+    #define rzRHI_BeginCmdBuf(cb)              g_RHI.BeginCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
+    #define rzRHI_EndCmdBuf(cb)                g_RHI.EndCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
+    #define rzRHI_SubmitCmdBuf(cb)             g_RHI.SubmitCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
+    #define rzRHI_BeginRenderPass(cb, info)    g_RHI.BeginRenderPass(RZResourceManager::Get().getCommandBufferResource(cb), info)
+    #define rzRHI_EndRenderPass(cb)            g_RHI.EndRenderPass(RZResourceManager::Get().getCommandBufferResource(cb))
+    #define rzRHI_SetScissorRect(cb, viewport) g_RHI.SetScissorRect(RZResourceManager::Get().getCommandBufferResource(cb), viewport)
+    #define rzRHI_SetViewport(cb, rect)        g_RHI.SetViewport(RZResourceManager::Get().getCommandBufferResource(cb), rect)
+    #define rzRHI_BindPipeline(cb, pp)         g_RHI.BindPipeline(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getPipelineResource(pp))
+    #define rzRHI_DrawAuto(cb, vc, ic, fv, fi) g_RHI.DrawAuto(RZResourceManager::Get().getCommandBufferResource(cb), vc, ic, fv, fi)
+
+    #define rzRHI_InsertImageBarrier(cb, text, bs, as)          g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(text), bs, as)
+    #define rzRHI_InsertSwapchainImageBarrier(cb, text, bs, as) g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), text, bs, as)
     // ....
     #define rzRHI_SignalGPU       g_RHI.SignalGPU
     #define rzRHI_FlushGPUWork    g_RHI.FlushGPUWork
@@ -1314,23 +1324,26 @@ static inline unsigned int rz_clz32(unsigned int x)
     #define rzRHI_BeginFrame      g_RHI.BeginFrame
     #define rzRHI_EndFrame        g_RHI.EndFrame
 #else
-    #define rzRHI_AcquireImage       g_RHI.AcquireImage
-    #define rzRHI_WaitOnPrevCmds     g_RHI.WaitOnPrevCmds
-    #define rzRHI_Present            g_RHI.Present
-    #define rzRHI_BeginCmdBuf        g_RHI.BeginCmdBuf
-    #define rzRHI_EndCmdBuf          g_RHI.EndCmdBuf
-    #define rzRHI_SubmitCmdBuf       g_RHI.SubmitCmdBuf
-    #define rzRHI_BeginRenderPass    g_RHI.BeginRenderPass
-    #define rzRHI_EndRenderPass      g_RHI.EndRenderPass
-    #define rzRHI_SetScissorRect     g_RHI.SetScissorRect
-    #define rzRHI_SetViewport        g_RHI.SetViewport
-    #define rzRHI_InsertImageBarrier g_RHI.InsertImageBarrier
+    #define rzRHI_AcquireImage                g_RHI.AcquireImage
+    #define rzRHI_WaitOnPrevCmds              g_RHI.WaitOnPrevCmds
+    #define rzRHI_Present                     g_RHI.Present
+    #define rzRHI_BeginCmdBuf                 g_RHI.BeginCmdBuf
+    #define rzRHI_EndCmdBuf                   g_RHI.EndCmdBuf
+    #define rzRHI_SubmitCmdBuf                g_RHI.SubmitCmdBuf
+    #define rzRHI_BeginRenderPass             g_RHI.BeginRenderPass
+    #define rzRHI_EndRenderPass               g_RHI.EndRenderPass
+    #define rzRHI_SetScissorRect              g_RHI.SetScissorRect
+    #define rzRHI_SetViewport                 g_RHI.SetViewport
+    #define rzRHI_BindPipeline                g_RHI.BindPipeline
+    #define rzRHI_DrawAuto                    g_RHI.DrawAuto
+    #define rzRHI_InsertImageBarrier          g_RHI.InsertImageBarrier
+    #define rzRHI_InsertSwapchainImageBarrier g_RHI.InsertImageBarrier
     // ....
-    #define rzRHI_SignalGPU          g_RHI.SignalGPU
-    #define rzRHI_FlushGPUWork       g_RHI.FlushGPUWork
-    #define rzRHI_ResizeSwapchain    g_RHI.ResizeSwapchain
-    #define rzRHI_BeginFrame         g_RHI.BeginFrame
-    #define rzRHI_EndFrame           g_RHI.EndFrame
+    #define rzRHI_SignalGPU                   g_RHI.SignalGPU
+    #define rzRHI_FlushGPUWork                g_RHI.FlushGPUWork
+    #define rzRHI_ResizeSwapchain             g_RHI.ResizeSwapchain
+    #define rzRHI_BeginFrame                  g_RHI.BeginFrame
+    #define rzRHI_EndFrame                    g_RHI.EndFrame
 #endif
 
 #ifdef __cplusplus

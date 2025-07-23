@@ -483,10 +483,10 @@ namespace Razix {
                     m_RenderSync.frameSync.inFlightSyncIdx = m_Swapchain.currBackBufferIdx;
                 }
 
-                const rz_gfx_cmdbuf* cmdBuffer = m_InFlightDrawCmdBufPtrs[m_RenderSync.frameSync.inFlightSyncIdx];
+                const rz_gfx_cmdbuf_handle cmdBuffer = m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx];
                 rzRHI_BeginCmdBuf(cmdBuffer);
 
-                rzRHI_InsertImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_PRESENT, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);
+                rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_PRESENT, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);
 
                 // TESTING CLEAR SCREEN TEST
                 rz_gfx_color_rgba clear_color = {{{0.5f + 0.5f * sinf(0.003f * m_FrameCount + 0.0f),
@@ -537,7 +537,7 @@ namespace Razix {
                     RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuff);
                 }
 #endif
-                rzRHI_InsertImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_RENDER_TARGET, RZ_GFX_RESOURCE_STATE_PRESENT);
+                rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_RENDER_TARGET, RZ_GFX_RESOURCE_STATE_PRESENT);
 
                 rzRHI_EndCmdBuf(cmdBuffer);
                 rzRHI_SubmitCmdBuf(cmdBuffer);

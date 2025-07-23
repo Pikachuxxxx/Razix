@@ -71,11 +71,8 @@ project "Razix"
         "RAZIX_BUILD_DLL",
         "RAZIX_ROOT_DIR="  .. root_dir,
         "RAZIX_BUILD_CONFIG=" .. outputdir,
-        -- Renderer
-        "RAZIX_RENDERER_RAZIX",
-        "RAZIX_RAY_TRACE_RENDERER_RAZIX",
-        "RAZIX_RAY_TRACE_RENDERER_OPTIX",
-        "RAZIX_RAY_TRACE_RENDERER_EMBREE",
+        -- RHI
+        "RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES",
         -- vendor
         "OPTICK_MSVC"
     }

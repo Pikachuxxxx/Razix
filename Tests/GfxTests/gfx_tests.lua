@@ -85,7 +85,9 @@ function ApplyGfxTestSettings()
 
     defines
     {
-        "RAZIX_TEST"
+        "RAZIX_TEST",
+        -- RHI
+        "RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES",
     }
 
     links
