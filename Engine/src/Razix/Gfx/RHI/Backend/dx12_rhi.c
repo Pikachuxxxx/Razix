@@ -1426,7 +1426,7 @@ static void dx12_BindPipeline(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_pipeline
     ID3D12GraphicsCommandList_SetPipelineState(cmdBuf->dx12.cmdList, pso->dx12.pso);
 }
 
-static void dx12_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t firstVertex, uint32_t firstInstance, uint32_t vertexCount, uint32_t instanceCount)
+static void dx12_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
 {
     ID3D12GraphicsCommandList_DrawInstanced(cmdBuf->dx12.cmdList, vertexCount, instanceCount, firstVertex, firstInstance);
 }
