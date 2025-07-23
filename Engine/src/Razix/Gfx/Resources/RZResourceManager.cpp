@@ -118,7 +118,7 @@ namespace Razix {
             //Razix::RZSplashScreen::Get().setLogString("Starting VFS...");
 
             // Initialize all the Pools
-            //RAZIX_INIT_RESOURCE_POOL(Texture, 2048, sizeof(rz_gfx_texture));
+            RAZIX_INIT_RESOURCE_POOL(Texture, RZ_GFX_RESOURCE_TYPE_TEXTURE, 2048, sizeof(rz_gfx_texture), NULL, NULL);
             //RAZIX_INIT_RESOURCE_POOL(Sampler, 32)
             RAZIX_INIT_RESOURCE_POOL(Shader, RZ_GFX_RESOURCE_TYPE_SHADER, 512, sizeof(rz_gfx_shader), RZSFCreateOverrideFunc, DestroyShaderWithRootSigOverrideFunv);
             RAZIX_INIT_RESOURCE_POOL(RootSignature, RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE, 512, sizeof(rz_gfx_root_signature), rzRHI_CreateRootSignature, rzRHI_DestroyRootSignature);
@@ -137,7 +137,7 @@ namespace Razix {
 
             // Destroy all the Pools
             ////////////////////////////////
-            //RAZIX_UNREGISTER_RESOURCE_POOL(Texture)
+            RAZIX_UNREGISTER_RESOURCE_POOL(Texture)
             //RAZIX_UNREGISTER_RESOURCE_POOL(Sampler)
             RAZIX_UNREGISTER_RESOURCE_POOL(Shader)
             RAZIX_UNREGISTER_RESOURCE_POOL(RootSignature)
@@ -153,7 +153,7 @@ namespace Razix {
 
         //-----------------------------------------------------------------------------------
 
-        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Texture, const RZTextureDesc& desc)
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Texture, RZ_GFX_RESOURCE_TYPE_TEXTURE, rz_gfx_texture)
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Sampler, const RZSamplerDesc& desc)
         RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Shader, RZ_GFX_RESOURCE_TYPE_SHADER, rz_gfx_shader)
         RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(RootSignature, RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE, rz_gfx_root_signature)
