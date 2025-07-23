@@ -1477,8 +1477,8 @@ static void dx12_FlushGPUWork(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoi
 
 static void dx12_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t height)
 {
-    sc->width = width;
-    sc->width = height;
+    sc->width  = width;
+    sc->height = height;
 
     for (uint32_t i = 0; i < sc->imageCount; ++i) {
         if (sc->backbuffers[i].dx12.resource) {
