@@ -1104,7 +1104,7 @@ static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
         // Convert the format to DXGI format
         inputElementDescs[i] = dx12_util_input_element_desc(elem);
     }
-    input_layout.pInputElementDescs = inputElementDescs;
+    input_layout.pInputElementDescs = pShaderDesc->elementsCount ? inputElementDescs : NULL;
     desc.InputLayout                = input_layout;
 
     //----------------------------
@@ -1117,7 +1117,7 @@ static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
     pso->dx12.topology = dx12_util_draw_type_to_d3dtopology(pPsoDesc->drawType);
 
     //----------------------------
-    // TODO: Rasterizer Stage
+    // Rasterizer Stage
     //----------------------------
     D3D12_RASTERIZER_DESC rasterizer = {0};
     rasterizer.FillMode              = dx12_util_polygon_mode_to_fill_mode(pPsoDesc->polygonMode);

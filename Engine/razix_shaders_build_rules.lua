@@ -3,12 +3,15 @@
 -- https://github.com/microsoft/DirectXShaderCompiler/blob/main/docs/SPIR-V.rst
 
 -- Engine distributed DXC location
-filter "system:windows"
+dxcLocation = ""
+VulkanSDK = ""
+if os.host() == "windows" then
     dxcLocation = "%{wks.location}../Engine/Content/Shaders/Tools/dxc/bin/x64/"
-filter "system:macosx"
+elseif os.host() == "macosx" or os.host() == "linux" then
     VulkanSDK = os.getenv("VULKAN_SDK")
     dxcLocation = "%{VulkanSDK}/bin/"
-filter {}
+end
+print("Loading dxc from: " .. dxcLocation)
 -- Note: All shaders are built using SM6
 
 -- TODO: Add as rules, every shader file type will have it's own rule
@@ -18,6 +21,8 @@ filter { "files:**.glsl or **.hlsl or **.pssl or **.cg or **.rzsf"}
     flags { "ExcludeFromBuild" }
 filter {}
 
+-- Signing shaders, DXIL.dll needs to be present in the same directoy as we are executing dxc.exe to sign shaders
+
 -- Build GLSL files based on their extension
 -------------------
 -- VERTEX SHADER
@@ -25,6 +30,7 @@ filter {}
 filter { "files:**.vert.hlsl" }
     removeflags "ExcludeFromBuild"
     buildmessage 'Compiling HLSL Vertex shader : %{file.name}'
+
     buildcommands
     {
         -- Compile CSO binary

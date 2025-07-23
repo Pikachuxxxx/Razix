@@ -47,7 +47,7 @@ namespace Razix {
 
             std::map<rz_gfx_shader_stage, std::string> shaders;
             std::vector<std::string>                   shader_defines;
-            rz_gfx_shader_desc                         desc       = {0};
+            rz_gfx_shader_desc                         desc       = {};
             std::string                                rzsfSource = RZVirtualFileSystem::Get().readTextFile(filePath);
 
             // Break the shader into lines
