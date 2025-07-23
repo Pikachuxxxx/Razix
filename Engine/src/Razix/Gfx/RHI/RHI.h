@@ -1209,6 +1209,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_SetScissorRectFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* rect);
 
     typedef void (*rzRHI_BindPipelineFn)(const rz_gfx_cmdbuf*, const rz_gfx_pipeline*);
+    typedef void (*rzRHI_BindGfxRootSigFn)(const rz_gfx_cmdbuf*, const rz_gfx_root_signature*);
+    typedef void (*rzRHI_BindComputeRootSigFn)(const rz_gfx_cmdbuf*, const rz_gfx_root_signature*);
 
     typedef void (*rzRHI_DrawAutoFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t, uint32_t);
 
@@ -1256,6 +1258,8 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_SetScissorRectFn     SetScissorRect;
         rzRHI_SetViewportFn        SetViewport;
         rzRHI_BindPipelineFn       BindPipeline;
+        rzRHI_BindGfxRootSigFn     BindGfxRootSig;
+        rzRHI_BindComputeRootSigFn BindComputeRootSig;
         rzRHI_DrawAutoFn           DrawAuto;
         rzRHI_InsertImageBarrierFn InsertImageBarrier;
         // ....
@@ -1313,6 +1317,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     #define rzRHI_SetScissorRect(cb, viewport) g_RHI.SetScissorRect(RZResourceManager::Get().getCommandBufferResource(cb), viewport)
     #define rzRHI_SetViewport(cb, rect)        g_RHI.SetViewport(RZResourceManager::Get().getCommandBufferResource(cb), rect)
     #define rzRHI_BindPipeline(cb, pp)         g_RHI.BindPipeline(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getPipelineResource(pp))
+    #define rzRHI_BindGfxRootSig(cb, rs)       g_RHI.BindGfxRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs))
+    #define rzRHI_BindComputeRootSig(cb, rs)   g_RHI.BindComputeRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs))
     #define rzRHI_DrawAuto(cb, vc, ic, fv, fi) g_RHI.DrawAuto(RZResourceManager::Get().getCommandBufferResource(cb), vc, ic, fv, fi)
 
     #define rzRHI_InsertImageBarrier(cb, text, bs, as)          g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(text), bs, as)
@@ -1335,6 +1341,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     #define rzRHI_SetScissorRect              g_RHI.SetScissorRect
     #define rzRHI_SetViewport                 g_RHI.SetViewport
     #define rzRHI_BindPipeline                g_RHI.BindPipeline
+    #define rzRHI_BindGfxRootSig              g_RHI.BindGfxRootSig
+    #define rzRHI_BindComputeRootSig          g_RHI.BindComputeRootSig
     #define rzRHI_DrawAuto                    g_RHI.DrawAuto
     #define rzRHI_InsertImageBarrier          g_RHI.InsertImageBarrier
     #define rzRHI_InsertSwapchainImageBarrier g_RHI.InsertImageBarrier

@@ -17,6 +17,7 @@ namespace Razix {
             rz_gfx_pipeline_desc pipelineInfo   = {};
             pipelineInfo.type                   = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
             pipelineInfo.pShader                = RZResourceManager::Get().getShaderResource(m_Shader);
+            m_RootSigHandle                     = pipelineInfo.pShader->rootSignature;
             pipelineInfo.pRootSig               = RZResourceManager::Get().getRootSignatureResource(pipelineInfo.pShader->rootSignature);
             pipelineInfo.depthTestEnabled       = false;
             pipelineInfo.depthWriteEnabled      = false;
@@ -59,6 +60,7 @@ namespace Razix {
 
                     rzRHI_BeginRenderPass(cmdBuffer, info);
 
+                    rzRHI_BindGfxRootSig(cmdBuffer, m_RootSigHandle);
                     rzRHI_BindPipeline(cmdBuffer, m_Pipeline);
 
 #define NUM_TRIANGLE_VERTS 3

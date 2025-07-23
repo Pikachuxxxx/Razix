@@ -1431,6 +1431,16 @@ static void dx12_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t firstVertex, uin
     ID3D12GraphicsCommandList_DrawInstanced(cmdBuf->dx12.cmdList, vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
+static void dx12_BindGfxRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_signature* rootSig)
+{
+    ID3D12GraphicsCommandList_SetGraphicsRootSignature(cmdBuf->dx12.cmdList, rootSig->dx12.rootSig);
+}
+
+static void dx12_BindComputeRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_signature* rootSig)
+{
+    ID3D12GraphicsCommandList_SetComputeRootSignature(cmdBuf->dx12.cmdList, rootSig->dx12.rootSig);
+}
+
 // ...
 
 static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
@@ -1539,6 +1549,9 @@ rz_rhi_api dx12_rhi = {
     .SetViewport        = dx12_SetViewport,           // SetViewport
     .SetScissorRect     = dx12_SetScissorRect,        // SetScissorRect
     .BindPipeline       = dx12_BindPipeline,          // BindPipeline
+    .BindGfxRootSig     = dx12_BindGfxRootSig,        // BindGfxRootSig
+    .BindComputeRootSig = dx12_BindComputeRootSig,    // BindComputeRootSig
+
     .DrawAuto           = dx12_DrawAuto,              // DrawAuto
     .InsertImageBarrier = dx12_InsertImageBarrier,    // InsertImageBarrier
 

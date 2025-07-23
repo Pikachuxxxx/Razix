@@ -483,64 +483,42 @@ namespace Razix {
                     m_RenderSync.frameSync.inFlightSyncIdx = m_Swapchain.currBackBufferIdx;
                 }
 
+                // Begin Recording  onto the command buffer, select one as per the frame idx
                 const rz_gfx_cmdbuf_handle cmdBuffer = m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx];
                 rzRHI_BeginCmdBuf(cmdBuffer);
 
-                rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_PRESENT, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);
-
-                // TESTING CLEAR SCREEN TEST
-                rz_gfx_color_rgba clear_color = {{{0.5f + 0.5f * sinf(0.003f * m_FrameCount + 0.0f),
-                    0.5f + 0.5f * sinf(0.004f * m_FrameCount + 2.0f),
-                    0.5f + 0.5f * sinf(0.005f * m_FrameCount + 4.0f),
-                    1.0f}}};
-
-                rz_gfx_renderpass clear_pass              = {0};
-                clear_pass.colorAttachmentsCount          = 1;
-                clear_pass.colorAttachments[0].clearColor = clear_color;
-                clear_pass.colorAttachments[0].pTexture   = &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx];
-                clear_pass.colorAttachments[0].mip        = 0;
-                clear_pass.colorAttachments[0].layer      = 0;
-                clear_pass.colorAttachments[0].clear      = true;
-                clear_pass.extents[0]                     = m_Swapchain.width;
-                clear_pass.extents[1]                     = m_Swapchain.height;
-                clear_pass.resolution                     = RZ_GFX_RESOLUTION_WINDOW;
-                rzRHI_BeginRenderPass(cmdBuffer, clear_pass);
-                rzRHI_EndRenderPass(cmdBuffer);
-#if 0
-                // Begin Recording  onto the command buffer, select one as per the frame idx
-                Gfx::RHI::Begin(Gfx::RHI::GetCurrentCommandBuffer());
-
                 // Begin Frame Marker
-                RAZIX_MARK_BEGIN("Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(RHI::GetSwapchain()->getCurrentFrameIndex()) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
+                RAZIX_MARK_BEGIN("Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(m_RenderSync.frameSync.inFlightSyncIdx) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
+
+                rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_PRESENT, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);
 
                 // Execute the Frame Graph passes
                 m_FrameGraph.execute();
 
+                rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_RENDER_TARGET, RZ_GFX_RESOURCE_STATE_PRESENT);
+
                 // End Frame Marker
                 RAZIX_MARK_END();
 
+                // End command buffer recording
+                rzRHI_EndCmdBuf(cmdBuffer);
                 // Submit the render queue before presenting next
-                Gfx::RHI::Submit(Gfx::RHI::GetCurrentCommandBuffer());
+                rzRHI_SubmitCmdBuf(cmdBuffer);
 
                 // swapchain capture is done before presentation
                 if (m_ReadSwapchainThisFrame) {
                     m_ReadSwapchainThisFrame = false;
 
                     // Wait for rendering to be done before capturing
-                    RZGraphicsContext::GetContext()->Wait();
+                    rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
 
                     // Use a single time command buffer to this
-                    RZDrawCommandBufferHandle cmdBuff = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("Swapchain Capture", Utilities::GenerateHashedColor4(24u));
-
-                    m_LastSwapchainReadback = RHI::InsertTextureReadback(cmdBuff, RHI::GetSwapchain()->GetCurrentBackBufferImage());
-
-                    RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuff);
+                    //RZDrawCommandBufferHandle cmdBuff = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("Swapchain Capture", Utilities::GenerateHashedColor4(24u));
+                    //
+                    //m_LastSwapchainReadback = RHI::InsertTextureReadback(cmdBuff, RHI::GetSwapchain()->GetCurrentBackBufferImage());
+                    //
+                    //RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuff);
                 }
-#endif
-                rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_RENDER_TARGET, RZ_GFX_RESOURCE_STATE_PRESENT);
-
-                rzRHI_EndCmdBuf(cmdBuffer);
-                rzRHI_SubmitCmdBuf(cmdBuffer);
 
                 // Present the image to presentation engine as soon as rendering to COLOR_ATTACHMENT is done
                 rzRHI_EndFrame(&m_Swapchain, &m_RenderSync.frameSync.timelineSyncobj, m_RenderSync.frameSync.frameTimestamps, &m_RenderSync.frameSync.globalTimestamp);
