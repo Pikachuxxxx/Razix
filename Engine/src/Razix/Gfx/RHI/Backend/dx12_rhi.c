@@ -84,45 +84,73 @@ static LPCWSTR dx12_util_string_to_lpcwstr(const char* input)
 static DXGI_FORMAT dx12_util_rz_gfx_format_to_dxgi_format(rz_gfx_format format)
 {
     switch (format) {
-        // 8-bit per channel formats
+        // 8-bit
         case RZ_GFX_FORMAT_R8_UNORM: return DXGI_FORMAT_R8_UNORM;
-        case RZ_GFX_FORMAT_R8G8_UNORM: return DXGI_FORMAT_R8G8_UNORM;
-        case RZ_GFX_FORMAT_R8G8B8A8_UNORM: return DXGI_FORMAT_R8G8B8A8_UNORM;
-        case RZ_GFX_FORMAT_B8G8R8A8_UNORM: return DXGI_FORMAT_B8G8R8A8_UNORM;
+        case RZ_GFX_FORMAT_R8_UINT: return DXGI_FORMAT_R8_UINT;
 
-        // sRGB formats
-        case RZ_GFX_FORMAT_R8G8B8A8_SRGB: return DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-        case RZ_GFX_FORMAT_B8G8R8A8_SRGB: return DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
-
-        // 16-bit float formats
+        // 16-bit
+        case RZ_GFX_FORMAT_R16_UNORM: return DXGI_FORMAT_R16_UNORM;
         case RZ_GFX_FORMAT_R16_FLOAT: return DXGI_FORMAT_R16_FLOAT;
         case RZ_GFX_FORMAT_R16G16_FLOAT: return DXGI_FORMAT_R16G16_FLOAT;
+        case RZ_GFX_FORMAT_R16G16_UNORM: return DXGI_FORMAT_R16G16_UNORM;
+        case RZ_GFX_FORMAT_R16G16B16A16_UNORM: return DXGI_FORMAT_R16G16B16A16_UNORM;
         case RZ_GFX_FORMAT_R16G16B16A16_FLOAT: return DXGI_FORMAT_R16G16B16A16_FLOAT;
 
-        // 32-bit float formats
+        // 32-bit
+        case RZ_GFX_FORMAT_R32_SINT: return DXGI_FORMAT_R32_SINT;
+        case RZ_GFX_FORMAT_R32_UINT: return DXGI_FORMAT_R32_UINT;
         case RZ_GFX_FORMAT_R32_FLOAT: return DXGI_FORMAT_R32_FLOAT;
+        case RZ_GFX_FORMAT_R32G32_SINT: return DXGI_FORMAT_R32G32_SINT;
+        case RZ_GFX_FORMAT_R32G32_UINT: return DXGI_FORMAT_R32G32_UINT;
         case RZ_GFX_FORMAT_R32G32_FLOAT: return DXGI_FORMAT_R32G32_FLOAT;
+        case RZ_GFX_FORMAT_R32G32B32_SINT: return DXGI_FORMAT_R32G32B32_SINT;
+        case RZ_GFX_FORMAT_R32G32B32_UINT: return DXGI_FORMAT_R32G32B32_UINT;
         case RZ_GFX_FORMAT_R32G32B32_FLOAT: return DXGI_FORMAT_R32G32B32_FLOAT;
+        case RZ_GFX_FORMAT_R32G32B32A32_SINT: return DXGI_FORMAT_R32G32B32A32_SINT;
+        case RZ_GFX_FORMAT_R32G32B32A32_UINT: return DXGI_FORMAT_R32G32B32A32_UINT;
         case RZ_GFX_FORMAT_R32G32B32A32_FLOAT: return DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-        // Depth-Stencil formats
+        // Packed
+        case RZ_GFX_FORMAT_R11G11B10_FLOAT: return DXGI_FORMAT_R11G11B10_FLOAT;
+        case RZ_GFX_FORMAT_R11G11B10_UINT:
+            return DXGI_FORMAT_UNKNOWN;    // No DXGI_FORMAT for UINT variant
+
+        // Color formats
+        case RZ_GFX_FORMAT_R8G8_UNORM: return DXGI_FORMAT_R8G8_UNORM;
+        case RZ_GFX_FORMAT_R8G8B8_UNORM: return DXGI_FORMAT_UNKNOWN;    // No native DXGI 24-bit format
+        case RZ_GFX_FORMAT_R8G8B8A8_UNORM: return DXGI_FORMAT_R8G8B8A8_UNORM;
+        case RZ_GFX_FORMAT_R8G8B8A8_SRGB: return DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        case RZ_GFX_FORMAT_B8G8R8A8_UNORM: return DXGI_FORMAT_B8G8R8A8_UNORM;
+        case RZ_GFX_FORMAT_B8G8R8A8_SRGB: return DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+
+        // Legacy/placeholder
+        case RZ_GFX_FORMAT_RGB8_UNORM: return DXGI_FORMAT_UNKNOWN;
+        case RZ_GFX_FORMAT_RGB16_UNORM: return DXGI_FORMAT_UNKNOWN;
+        case RZ_GFX_FORMAT_RGB32_UINT: return DXGI_FORMAT_UNKNOWN;
+        case RZ_GFX_FORMAT_RGBA: return DXGI_FORMAT_UNKNOWN;
+        case RZ_GFX_FORMAT_RGB: return DXGI_FORMAT_UNKNOWN;
+
+        // Depth-stencil
         case RZ_GFX_FORMAT_D16_UNORM: return DXGI_FORMAT_D16_UNORM;
         case RZ_GFX_FORMAT_D24_UNORM_S8_UINT: return DXGI_FORMAT_D24_UNORM_S8_UINT;
         case RZ_GFX_FORMAT_D32_FLOAT: return DXGI_FORMAT_D32_FLOAT;
         case RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT: return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+        case RZ_GFX_FORMAT_STENCIL8: return DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-        // Compressed formats
+        // Swapchain pseudo format
+        case RZ_GFX_FORMAT_SCREEN: return RAZIX_SWAPCHAIN_FORMAT_DX12;
+
+        // Block compression
         case RZ_GFX_FORMAT_BC1_RGBA_UNORM: return DXGI_FORMAT_BC1_UNORM;
         case RZ_GFX_FORMAT_BC3_RGBA_UNORM: return DXGI_FORMAT_BC3_UNORM;
+        case RZ_GFX_FORMAT_BC6_UNORM: return DXGI_FORMAT_BC6H_UF16;
         case RZ_GFX_FORMAT_BC7_UNORM: return DXGI_FORMAT_BC7_UNORM;
         case RZ_GFX_FORMAT_BC7_SRGB: return DXGI_FORMAT_BC7_UNORM_SRGB;
 
-        // Default fallback
         case RZ_GFX_FORMAT_UNDEFINED:
         default: return DXGI_FORMAT_UNKNOWN;
     }
 }
-
 static D3D12_COMMAND_LIST_TYPE dx12_util_rz_cmdpool_to_cmd_list_type(rz_gfx_cmdpool_type type)
 {
     switch (type) {

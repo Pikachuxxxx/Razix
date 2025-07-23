@@ -3,6 +3,8 @@
 -- https://github.com/microsoft/DirectXShaderCompiler/blob/main/docs/SPIR-V.rst
 
 -- Engine distributed DXC location
+-- DXIL shader signing
+-- https://www.wihlidal.com/blog/pipeline/2018-09-16-dxil-signing-post-compile/
 dxcLocation = ""
 VulkanSDK = ""
 if os.host() == "windows" then
