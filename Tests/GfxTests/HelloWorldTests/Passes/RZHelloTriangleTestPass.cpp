@@ -56,8 +56,6 @@ namespace Razix {
                     info.colorAttachments[0].layer    = 0;
                     info.layers                       = 1;
 
-                    RAZIX_CORE_INFO("rtv cpu ptr: {0}", (u32) info.colorAttachments[0].pTexture->dx12.resView.rtv.cpu.ptr);
-
                     RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
                     RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
 

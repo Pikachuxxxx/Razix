@@ -8,19 +8,21 @@
 // TYpe friendly defines
 #define DX12Context g_GfxCtx.dx12
 #define DX12Device  g_GfxCtx.dx12.device10
-#define CHECK_HR(x) dx12_util_check_hresult((x), __func__, __FILE__, __LINE__)
-#ifndef RAZIX_GOLD_MASTER
+#if defined RAZIX_DEBUG
+    #define CHECK_HR(x) dx12_util_check_hresult((x), __func__, __FILE__, __LINE__)
     #define TAG_OBJECT(resource, name)                                              \
         if (resource) {                                                             \
             resource->lpVtbl->SetName(resource, dx12_util_string_to_lpcwstr(name)); \
         }
 #else
-TAG_OBJECT(resource, name)
+    #define CHECK_HR(x) (x)
+    #define TAG_OBJECT(resource, name)
 #endif
 
 //---------------------------------------------------------------------------------------------
 // Internal types
 
+#ifdef RAZIX_DEBUG
 typedef struct HRESULTDescriptionEntry
 {
     HRESULT     code;
@@ -40,10 +42,12 @@ static HRESULTDescriptionEntry hresult_errors[] = {
     {E_POINTER, "Pointer that is not valid"},
     {E_UNEXPECTED, "Unexpected failure"},
 };
+#endif
 
 //---------------------------------------------------------------------------------------------
 // Util functions
 
+#ifdef RAZIX_DEBUG
 static const char* dx12_util_hresult_to_string(HRESULT hr)
 {
     size_t count = sizeof(hresult_errors) / sizeof(hresult_errors[0]);
@@ -80,6 +84,7 @@ static LPCWSTR dx12_util_string_to_lpcwstr(const char* input)
     }
     return wide_str;
 }
+#endif
 
 static DXGI_FORMAT dx12_util_rz_gfx_format_to_dxgi_format(rz_gfx_format format)
 {
@@ -151,6 +156,7 @@ static DXGI_FORMAT dx12_util_rz_gfx_format_to_dxgi_format(rz_gfx_format format)
         default: return DXGI_FORMAT_UNKNOWN;
     }
 }
+
 static D3D12_COMMAND_LIST_TYPE dx12_util_rz_cmdpool_to_cmd_list_type(rz_gfx_cmdpool_type type)
 {
     switch (type) {
@@ -535,7 +541,7 @@ static void dx12_print_features(const D3D12FeatureCache* f)
     RAZIX_RHI_LOG_INFO("===================================================");
 }
 
-//#ifdef RAZIX_DEBUG
+#ifdef RAZIX_DEBUG
 // Before Device
 static void dx12_register_debug_interface(dx12_ctx* ctx)
 {
@@ -617,7 +623,7 @@ static void dx12_destroy_debug_handles(dx12_ctx* ctx)
         ctx->dxgiDebug = NULL;
     }
 }
-//#endif
+#endif
 
 static void dx12_update_swapchain_rtvs(rz_gfx_swapchain* sc)
 {
@@ -628,7 +634,6 @@ static void dx12_update_swapchain_rtvs(rz_gfx_swapchain* sc)
     for (uint32_t i = 0; i < sc->imageCount; i++) {
         ID3D12Resource* d3dresource = NULL;
         HRESULT         hr          = IDXGISwapChain4_GetBuffer(sc->dx12.swapchain4, i, &IID_ID3D12Resource, (void**) &d3dresource);
-        printf("HRESULT: (0x%08X)\n", hr);
         if (FAILED(hr)) {
             RAZIX_RHI_LOG_ERROR("[D3D12] Failed to get backbuffer %u from swapchain (HRESULT = 0x%08X)", i, (unsigned int) hr);
 
@@ -649,7 +654,9 @@ static void dx12_update_swapchain_rtvs(rz_gfx_swapchain* sc)
         rtvHandle.ptr += (size_t) i * ID3D12Device10_GetDescriptorHandleIncrementSize(DX12Device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
         ID3D12Device10_CreateRenderTargetView(DX12Device, d3dresource, NULL, rtvHandle);
+#ifdef RAZIX_DEBUG
         ID3D12Resource_SetName(d3dresource, dx12_util_string_to_lpcwstr("Swapchain Image"));
+#endif
 
         // This is the only place where a RZ_RESOURCE is manually created, instead of using the RZResourceManager
         rz_gfx_texture texture                        = {0};
@@ -716,9 +723,9 @@ static void dx12_GlobalCtxInit(void)
     RAZIX_RHI_LOG_INFO("Creating DXGI factory");
 
     UINT createFactoryFlags = 0;
-    //#if defined(RAZIX_DEBUG)
+#if defined(RAZIX_DEBUG)
     createFactoryFlags = DXGI_CREATE_FACTORY_DEBUG;
-    //#endif
+#endif
 
     CHECK_HR(CreateDXGIFactory2(createFactoryFlags, &IID_IDXGIFactory7, (void**) &DX12Context.factory7));
     if (DX12Context.factory7 == NULL) {
@@ -735,10 +742,10 @@ static void dx12_GlobalCtxInit(void)
         return;
     }
 
-    //#ifdef RAZIX_DEBUG
+#ifdef RAZIX_DEBUG
     // We register D3D12Debug interface before device create
     dx12_register_debug_interface(&DX12Context);
-    //#endif
+#endif
 
     // Create the device
     RAZIX_RHI_LOG_INFO("Creating D3D12 Device");
@@ -748,7 +755,7 @@ static void dx12_GlobalCtxInit(void)
         return;
     }
 
-    //#ifdef RAZIX_DEBUG
+#ifdef RAZIX_DEBUG
     // TODO: Use engine setting to enable/disable debugging
     // Register the D3D12 info queue after device creation
     dx12_d3d12_register_info_queue(&DX12Context);
@@ -758,9 +765,9 @@ static void dx12_GlobalCtxInit(void)
     dx12_query_features(&DX12Context);
     dx12_print_features(&DX12Context.features);
     RAZIX_RHI_LOG_INFO("D3D12 Device created successfully");
-    //#else
+#else
     RAZIX_RHI_LOG_INFO("D3D12 Device created successfully without debug features");
-    //#endif
+#endif
 
     // Create global command queue
     D3D12_COMMAND_QUEUE_DESC desc = {0};
@@ -810,10 +817,10 @@ static void dx12_GlobalCtxDestroy(void)
         DX12Context.factory7 = NULL;
     }
 
-    //#ifdef RAZIX_DEBUG
+#ifdef RAZIX_DEBUG
     dx12_destroy_debug_handles(&DX12Context);
     dx12_track_dxgi_liveobjects(&DX12Context);
-    //#endif
+#endif
 }
 
 static void dx12_CreateSyncobjFn(void* where, rz_gfx_syncobj_type type)
@@ -1344,8 +1351,6 @@ static void dx12_SubmitCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 static void dx12_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderpass* renderPass)
 {
     ID3D12GraphicsCommandList* cmdList = cmdBuf->dx12.cmdList;
-
-    RAZIX_RHI_LOG_ERROR("rtv cpu ptr: %d", (uint32_t) renderPass->colorAttachments[0].pTexture->dx12.resView.rtv.cpu.ptr);
 
     // Set Scissor and Rects
     D3D12_VIEWPORT vp = {

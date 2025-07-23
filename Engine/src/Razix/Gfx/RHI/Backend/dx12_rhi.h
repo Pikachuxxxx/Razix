@@ -11,9 +11,9 @@
     #include <d3d12sdklayers.h>
     #include <d3dcompiler.h>
     #include <dxgi1_6.h>
-    //#ifdef RAZIX_DEBUG
-    #include <dxgidebug.h>
-//#endif
+    #ifdef RAZIX_DEBUG
+        #include <dxgidebug.h>
+    #endif
 
 typedef struct D3D12FeatureCache
 {
@@ -40,12 +40,12 @@ typedef struct dx12_ctx
     D3D_FEATURE_LEVEL   featureLevel;
     D3D12FeatureCache   features;
     ID3D12CommandQueue* directQ;
-    //#ifdef RAZIX_DEBUG
+    #ifdef RAZIX_DEBUG
     ID3D12Debug3*    d3dDebug3;
     ID3D12InfoQueue* d3dInfoQ;
     IDXGIInfoQueue*  dxgiInfoQ;
     IDXGIDebug*      dxgiDebug;
-    //#endif
+    #endif
 } dx12_ctx;
 
 typedef struct dx12_syncobj
