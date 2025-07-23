@@ -951,7 +951,6 @@ static inline unsigned int rz_clz32(unsigned int x)
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_texture
     {
         RAZIX_GFX_RESOURCE;
-        rz_gfx_texture_desc desc;
 #ifdef RAZIX_RENDER_API_VULKAN
             //vk_texture vk;
 #endif
@@ -1202,7 +1201,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_EndCmdBufFn)(const rz_gfx_cmdbuf*);
     typedef void (*rzRHI_SubmitCmdBufFn)(const rz_gfx_cmdbuf*);
 
-    typedef void (*rzRHI_BeginRenderPassFn)(const rz_gfx_cmdbuf*, rz_gfx_renderpass);
+    typedef void (*rzRHI_BeginRenderPassFn)(const rz_gfx_cmdbuf*, const rz_gfx_renderpass*);
     typedef void (*rzRHI_EndRenderPassFn)(const rz_gfx_cmdbuf*);
 
     typedef void (*rzRHI_SetViewportFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewport);

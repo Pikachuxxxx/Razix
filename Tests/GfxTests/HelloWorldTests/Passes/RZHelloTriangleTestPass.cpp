@@ -50,15 +50,18 @@ namespace Razix {
                     rz_gfx_renderpass info            = {0};
                     info.resolution                   = RZ_GFX_RESOLUTION_WINDOW;
                     info.colorAttachmentsCount        = 1;
-                    info.colorAttachments[0].pTexture = &RZEngine::Get().getWorldRenderer().getCurrSwapchainBackbuffer();
+                    info.colorAttachments[0].pTexture = RZEngine::Get().getWorldRenderer().getCurrSwapchainBackbufferPtr();
                     info.colorAttachments[0].clear    = true;
                     info.colorAttachments[0].mip      = 0;
                     info.colorAttachments[0].layer    = 0;
                     info.layers                       = 1;
-                    RAZIX_X(info.extents)             = RZApplication::Get().getWindow()->getWidth();
-                    RAZIX_Y(info.extents)             = RZApplication::Get().getWindow()->getHeight();
 
-                    rzRHI_BeginRenderPass(cmdBuffer, info);
+                    RAZIX_CORE_INFO("rtv cpu ptr: {0}", (u32) info.colorAttachments[0].pTexture->dx12.resView.rtv.cpu.ptr);
+
+                    RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
+                    RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
+
+                    rzRHI_BeginRenderPass(cmdBuffer, &info);
 
                     rzRHI_BindGfxRootSig(cmdBuffer, m_RootSigHandle);
                     rzRHI_BindPipeline(cmdBuffer, m_Pipeline);

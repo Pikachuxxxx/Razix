@@ -490,6 +490,8 @@ namespace Razix {
                 // Begin Frame Marker
                 RAZIX_MARK_BEGIN("Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(m_RenderSync.frameSync.inFlightSyncIdx) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
 
+                RAZIX_CORE_INFO("curr rtv cpu ptr: {0}", (u32) m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx].dx12.resView.rtv.cpu.ptr);
+
                 rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_PRESENT, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);
 
                 // Execute the Frame Graph passes

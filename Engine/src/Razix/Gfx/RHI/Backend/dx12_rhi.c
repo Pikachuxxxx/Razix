@@ -21,7 +21,7 @@ TAG_OBJECT(resource, name)
 //---------------------------------------------------------------------------------------------
 // Internal types
 
-typedef struct
+typedef struct HRESULTDescriptionEntry
 {
     HRESULT     code;
     const char* description;
@@ -535,7 +535,7 @@ static void dx12_print_features(const D3D12FeatureCache* f)
     RAZIX_RHI_LOG_INFO("===================================================");
 }
 
-#ifdef _DEBUG
+//#ifdef RAZIX_DEBUG
 // Before Device
 static void dx12_register_debug_interface(dx12_ctx* ctx)
 {
@@ -617,16 +617,18 @@ static void dx12_destroy_debug_handles(dx12_ctx* ctx)
         ctx->dxgiDebug = NULL;
     }
 }
-#endif
+//#endif
 
 static void dx12_update_swapchain_rtvs(rz_gfx_swapchain* sc)
 {
     sc->imageCount = RAZIX_MAX_SWAP_IMAGES_COUNT;
     ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(sc->dx12.rtvHeap, &sc->dx12.rtvHeapStart.cpu);
+    RAZIX_RHI_ASSERT(sc->dx12.rtvHeapStart.cpu.ptr != 0, "Swapchain RTV heap start CPU handle is null");
 
-    for (uint32_t i = 0; i < sc->imageCount; ++i) {
+    for (uint32_t i = 0; i < sc->imageCount; i++) {
         ID3D12Resource* d3dresource = NULL;
         HRESULT         hr          = IDXGISwapChain4_GetBuffer(sc->dx12.swapchain4, i, &IID_ID3D12Resource, (void**) &d3dresource);
+        printf("HRESULT: (0x%08X)\n", hr);
         if (FAILED(hr)) {
             RAZIX_RHI_LOG_ERROR("[D3D12] Failed to get backbuffer %u from swapchain (HRESULT = 0x%08X)", i, (unsigned int) hr);
 
@@ -650,22 +652,22 @@ static void dx12_update_swapchain_rtvs(rz_gfx_swapchain* sc)
         ID3D12Resource_SetName(d3dresource, dx12_util_string_to_lpcwstr("Swapchain Image"));
 
         // This is the only place where a RZ_RESOURCE is manually created, instead of using the RZResourceManager
-        rz_gfx_texture texture     = {0};
-        dx12_texture   dxtexture   = {0};
-        texture.resource.pName     = "$SWAPCHAIN_IMAGE$";
-        texture.resource.handle    = (rz_handle){i, i};
-        texture.resource.viewHints = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
-        dxtexture.resource         = d3dresource;
-        dxtexture.state            = D3D12_RESOURCE_STATE_PRESENT;
-        dxtexture.resView.rtv.cpu  = rtvHandle;
-        texture.dx12               = dxtexture;
-        texture.desc.height        = sc->height;
-        texture.desc.width         = sc->width;
-        texture.desc.arraySize     = 1;
-        texture.desc.mipLevels     = 1;
-        texture.desc.format        = RAZIX_SWAPCHAIN_FORMAT;
-        texture.desc.textureType   = RZ_GFX_TEXTURE_TYPE_2D;
-        sc->backbuffers[i]         = texture;
+        rz_gfx_texture texture                        = {0};
+        dx12_texture   dxtexture                      = {0};
+        texture.resource.pName                        = "$SWAPCHAIN_IMAGE$";
+        texture.resource.handle                       = (rz_handle){i, i};
+        texture.resource.viewHints                    = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
+        dxtexture.resource                            = d3dresource;
+        dxtexture.state                               = D3D12_RESOURCE_STATE_PRESENT;
+        dxtexture.resView.rtv.cpu                     = rtvHandle;
+        texture.dx12                                  = dxtexture;
+        texture.resource.desc.textureDesc.height      = sc->height;
+        texture.resource.desc.textureDesc.width       = sc->width;
+        texture.resource.desc.textureDesc.arraySize   = 1;
+        texture.resource.desc.textureDesc.mipLevels   = 1;
+        texture.resource.desc.textureDesc.format      = RAZIX_SWAPCHAIN_FORMAT;
+        texture.resource.desc.textureDesc.textureType = RZ_GFX_TEXTURE_TYPE_2D;
+        sc->backbuffers[i]                            = texture;
 
         TAG_OBJECT(d3dresource, "Swapchain Backbuffer Resource");
     }
@@ -714,9 +716,9 @@ static void dx12_GlobalCtxInit(void)
     RAZIX_RHI_LOG_INFO("Creating DXGI factory");
 
     UINT createFactoryFlags = 0;
-#if defined(RAZIX_DEBUG)
+    //#if defined(RAZIX_DEBUG)
     createFactoryFlags = DXGI_CREATE_FACTORY_DEBUG;
-#endif
+    //#endif
 
     CHECK_HR(CreateDXGIFactory2(createFactoryFlags, &IID_IDXGIFactory7, (void**) &DX12Context.factory7));
     if (DX12Context.factory7 == NULL) {
@@ -733,10 +735,10 @@ static void dx12_GlobalCtxInit(void)
         return;
     }
 
-#ifdef RAZIX_DEBUG
+    //#ifdef RAZIX_DEBUG
     // We register D3D12Debug interface before device create
     dx12_register_debug_interface(&DX12Context);
-#endif
+    //#endif
 
     // Create the device
     RAZIX_RHI_LOG_INFO("Creating D3D12 Device");
@@ -746,7 +748,7 @@ static void dx12_GlobalCtxInit(void)
         return;
     }
 
-#ifdef RAZIX_DEBUG
+    //#ifdef RAZIX_DEBUG
     // TODO: Use engine setting to enable/disable debugging
     // Register the D3D12 info queue after device creation
     dx12_d3d12_register_info_queue(&DX12Context);
@@ -756,9 +758,9 @@ static void dx12_GlobalCtxInit(void)
     dx12_query_features(&DX12Context);
     dx12_print_features(&DX12Context.features);
     RAZIX_RHI_LOG_INFO("D3D12 Device created successfully");
-#else
+    //#else
     RAZIX_RHI_LOG_INFO("D3D12 Device created successfully without debug features");
-#endif
+    //#endif
 
     // Create global command queue
     D3D12_COMMAND_QUEUE_DESC desc = {0};
@@ -808,10 +810,10 @@ static void dx12_GlobalCtxDestroy(void)
         DX12Context.factory7 = NULL;
     }
 
-#ifdef RAZIX_DEBUG
+    //#ifdef RAZIX_DEBUG
     dx12_destroy_debug_handles(&DX12Context);
     dx12_track_dxgi_liveobjects(&DX12Context);
-#endif
+    //#endif
 }
 
 static void dx12_CreateSyncobjFn(void* where, rz_gfx_syncobj_type type)
@@ -1339,16 +1341,18 @@ static void dx12_SubmitCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
     ID3D12CommandQueue_ExecuteCommandLists(DX12Context.directQ, 1, (ID3D12CommandList**) cmdLists);
 }
 
-static void dx12_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_renderpass renderPass)
+static void dx12_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderpass* renderPass)
 {
     ID3D12GraphicsCommandList* cmdList = cmdBuf->dx12.cmdList;
+
+    RAZIX_RHI_LOG_ERROR("rtv cpu ptr: %d", (uint32_t) renderPass->colorAttachments[0].pTexture->dx12.resView.rtv.cpu.ptr);
 
     // Set Scissor and Rects
     D3D12_VIEWPORT vp = {
         .TopLeftX = 0,
         .TopLeftY = 0,
-        .Width    = (FLOAT) RAZIX_X(renderPass.extents),
-        .Height   = (FLOAT) RAZIX_Y(renderPass.extents),
+        .Width    = (FLOAT) RAZIX_X(renderPass->extents),
+        .Height   = (FLOAT) RAZIX_Y(renderPass->extents),
         .MinDepth = 0.0f,
         .MaxDepth = 1.0f};
     ID3D12GraphicsCommandList_RSSetViewports(cmdBuf->dx12.cmdList, 1, &vp);
@@ -1356,32 +1360,33 @@ static void dx12_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_renderpass 
     D3D12_RECT scissor = {
         .left   = 0,
         .top    = 0,
-        .right  = (LONG) RAZIX_X(renderPass.extents),
-        .bottom = (LONG) RAZIX_Y(renderPass.extents)};
+        .right  = (LONG) RAZIX_X(renderPass->extents),
+        .bottom = (LONG) RAZIX_Y(renderPass->extents)};
     ID3D12GraphicsCommandList_RSSetScissorRects(cmdBuf->dx12.cmdList, 1, &scissor);
 
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[RAZIX_MAX_RENDER_TARGETS] = {0};
-    uint32_t                    rtvCount                             = renderPass.colorAttachmentsCount;
+    uint32_t                    rtvCount                             = renderPass->colorAttachmentsCount;
 
-    for (uint32_t i = 0; i < rtvCount; ++i)
-        rtvHandles[i] = renderPass.colorAttachments[i].pTexture->dx12.resView.rtv.cpu;
+    for (uint32_t i = 0; i < rtvCount; ++i) {
+        rtvHandles[i] = renderPass->colorAttachments[i].pTexture->dx12.resView.rtv.cpu;
+    }
 
     D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = {0};
-    bool                        hasDepth  = renderPass.depthAttachment.pTexture != NULL;
+    bool                        hasDepth  = renderPass->depthAttachment.pTexture != NULL;
 
     if (hasDepth) {
-        dsvHandle = renderPass.depthAttachment.pTexture->dx12.resView.dsv.cpu;
+        dsvHandle = renderPass->depthAttachment.pTexture->dx12.resView.dsv.cpu;
     }
 
     for (uint32_t i = 0; i < rtvCount; ++i) {
-        if (renderPass.colorAttachments[i].clear) {
+        if (renderPass->colorAttachments[i].clear) {
             float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-            memcpy(clearColor, renderPass.colorAttachments[i].clearColor.raw, sizeof(float) * 4);
+            memcpy(clearColor, renderPass->colorAttachments[i].clearColor.raw, sizeof(float) * 4);
             ID3D12GraphicsCommandList_ClearRenderTargetView(cmdList, rtvHandles[i], clearColor, 0, NULL);
         }
     }
 
-    if (hasDepth && renderPass.depthAttachment.clear) {
+    if (hasDepth && renderPass->depthAttachment.clear) {
         ID3D12GraphicsCommandList_ClearDepthStencilView(cmdList, dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, NULL);
     }
 
