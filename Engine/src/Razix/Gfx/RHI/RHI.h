@@ -124,7 +124,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     #error "Compiler not supported for RAZIX_RHI_BITS_FOR_ENUM"
 #endif
 
-#define RAZIX_RHI_BITS_FOR_ENUM(count) ((count) <= 1 ? 0 : (32 - rz_clz32((count) -1)))
+#define RAZIX_RHI_BITS_FOR_ENUM(count) ((count) <= 1 ? 0 : (32 - rz_clz32((count) - 1)))
 
 /****************************************************************************************************
 *                                         Graphics Settings                                        *
@@ -1143,6 +1143,15 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint8_t                    _pad0[4];
     } rz_gfx_shader_reflection;
 
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_texture_readback
+    {
+        uint8_t* data;
+        uint32_t width;
+        uint32_t height;
+        uint32_t bpp;
+        uint8_t  _pad0[12];
+    } rz_gfx_texture_readback;
+
     //---------------------------------------------------------------------------------------------
     // Gfx API
 
@@ -1216,8 +1225,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*, rz_gfx_resource_state, rz_gfx_resource_state);
 
     typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
-    typedef void             (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
-    typedef void             (*rzRHI_ResizeSwapchainFn)(rz_gfx_swapchain*, uint32_t, uint32_t);
+    typedef void (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
+    typedef void (*rzRHI_ResizeSwapchainFn)(rz_gfx_swapchain*, uint32_t, uint32_t);
 
     typedef void (*rzRHI_BeginFrameFn)(rz_gfx_swapchain*, const rz_gfx_syncobj*, rz_gfx_syncpoint* frameSyncpoints, rz_gfx_syncpoint* globalSyncpoint);
     typedef void (*rzRHI_EndFrameFn)(const rz_gfx_swapchain*, const rz_gfx_syncobj*, rz_gfx_syncpoint* frameSyncpoints, rz_gfx_syncpoint* globalSyncpoint);
