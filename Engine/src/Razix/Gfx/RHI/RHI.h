@@ -5,22 +5,22 @@
 #include <stdio.h>
 #include <time.h>
 
-#ifndef RAZIX_API
+#ifndef RAZIX_RHI_API
     #if defined(RAZIX_PLATFORM_WINDOWS)
         #if defined(RAZIX_EXPORT_SYMBOLS)
-            #define RAZIX_API __declspec(dllexport)
+            #define RAZIX_RHI_API __declspec(dllexport)
         #else
-            #define RAZIX_API __declspec(dllimport)
+            #define RAZIX_RHI_API __declspec(dllimport)
         #endif
     #else
         // GCC, Clang: use visibility attribute
         #if __GNUC__ >= 4
-            #define RAZIX_API __attribute__((visibility("default")))
+            #define RAZIX_RHI_API __attribute__((visibility("default")))
         #else
-            #define RAZIX_API
+            #define RAZIX_RHI_API
         #endif
     #endif
-#endif    //  RAZIX_API
+#endif    //  RAZIX_RHI_API
 
 #if defined(_MSC_VER)
     #define RAZIX_RHI_ALIGN_16 __declspec(align(16))
@@ -797,7 +797,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     {
         rz_gfx_shader_stage stage;
         uint32_t            size;
-        const char*         bytecode;    // Promised to be freed by RHI after shader creation
+        const char*         bytecode;
     } rz_gfx_shader_stage_blob;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_input_element
@@ -1155,12 +1155,12 @@ static inline unsigned int rz_clz32(unsigned int x)
     //---------------------------------------------------------------------------------------------
     // Gfx API
 
-    RAZIX_API void rzGfxCtx_StartUp();
-    RAZIX_API void rzGfxCtx_ShutDown();
+    RAZIX_RHI_API void rzGfxCtx_StartUp();
+    RAZIX_RHI_API void rzGfxCtx_ShutDown();
 
-    RAZIX_API rz_render_api rzGfxCtx_GetRenderAPI();
-    RAZIX_API void          rzGfxCtx_SetRenderAPI(rz_render_api api);
-    RAZIX_API const char*   rzGfxCtx_GetRenderAPIString();
+    RAZIX_RHI_API rz_render_api rzGfxCtx_GetRenderAPI();
+    RAZIX_RHI_API void          rzGfxCtx_SetRenderAPI(rz_render_api api);
+    RAZIX_RHI_API const char*   rzGfxCtx_GetRenderAPIString();
 
     //---------------------------------------------------------------------------------------------
     // RHI Jump Table
@@ -1282,13 +1282,13 @@ static inline unsigned int rz_clz32(unsigned int x)
     //---------------------------------------------------------------------------------------------
     // Globals
     //---------------------------------
-    RAZIX_API extern rz_gfx_context g_GfxCtx;    // Global Graphics Context singleton instance
+    RAZIX_RHI_API extern rz_gfx_context g_GfxCtx;    // Global Graphics Context singleton instance
     //---------------------------------
-    RAZIX_API extern rz_render_api g_RenderAPI;
+    RAZIX_RHI_API extern rz_render_api g_RenderAPI;
     //---------------------------------
-    RAZIX_API extern rz_rhi_api g_RHI;
+    RAZIX_RHI_API extern rz_rhi_api g_RHI;
     //---------------------------------
-    RAZIX_API extern rz_gfx_features g_GraphicsFeatures;
+    RAZIX_RHI_API extern rz_gfx_features g_GraphicsFeatures;
     //---------------------------------
 
 #define rzGfxCtx_GlobalCtxInit    g_RHI.GlobalCtxInit

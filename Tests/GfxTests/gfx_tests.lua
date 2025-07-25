@@ -92,6 +92,7 @@ function ApplyGfxTestSettings()
 
     links
     {
+        "RHI",
         "Razix", -- Razix DLL
         "googletest"
     }

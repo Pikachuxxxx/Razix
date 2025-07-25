@@ -141,6 +141,8 @@ project "Razix"
     -- Razix engine external linkage libraries (Global)
     links
     {
+        -- RHI
+        "RHI",
         "glfw",
         "imgui",
         "spdlog", -- Being linked staically by RazixMemory (Only include this in debug and release build exempt this in GoldMaster build)
@@ -152,8 +154,6 @@ project "Razix"
         "Jolt",
         -- Shaders
         "Shaders",
-        -- RHI
-        "RHI",
     }
 
      -- Force rebuild if static lib changes

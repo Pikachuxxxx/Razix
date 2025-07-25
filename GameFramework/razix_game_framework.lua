@@ -52,6 +52,7 @@ project "GameFramework"
     links
     {
        "Razix", -- Razix DLL
+       "RHI",
         -- because of the client log macros this needs to be linked again because we didn't export the spdlog symbols first time
        "glfw",
        "imgui",

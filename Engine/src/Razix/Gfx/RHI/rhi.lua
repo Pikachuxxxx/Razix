@@ -5,7 +5,7 @@ include 'Scripts/premake/common/common_include_dirs.lua'
 ------------------------------------------------------------------------------
 -- Sanbox Game project
 project "RHI"
-    kind "StaticLib"
+    kind "SharedLib"
     language "C"
 
     -- RHI source files
