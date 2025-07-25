@@ -37,7 +37,7 @@ namespace Razix {
             RAZIX_INFO("Current Frame: {0}", m_CurrentFrame);
 
             if (m_CurrentFrame == 10) {
-                //RZEngine::Get().getWorldRenderer().setReadbackSwapchainThisFrame();
+                RZEngine::Get().getWorldRenderer().setReadbackSwapchainThisFrame();
             }
 
             if (m_CurrentFrame >= m_NumFrames) {
@@ -59,11 +59,11 @@ namespace Razix {
         float CompareWithGoldenImage();
 
     protected:
-        i32                  m_NumFrames;
-        i32                  m_CurrentFrame;
-        std::string          m_GoldenImagePath;
-        std::string          m_ScreenShotPath;
-        Gfx::TextureReadback m_SwapchainReadback;
+        i32                     m_NumFrames;
+        i32                     m_CurrentFrame;
+        std::string             m_GoldenImagePath;
+        std::string             m_ScreenShotPath;
+        rz_gfx_texture_readback m_SwapchainReadback;
 
     private:
         bool  WriteScreenshot();

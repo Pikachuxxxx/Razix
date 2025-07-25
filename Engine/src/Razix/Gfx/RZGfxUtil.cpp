@@ -6,6 +6,8 @@
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
+#include "Razix/Gfx/Resources/RZResourceManager.h"
+
 #include "Razix/Utilities/RZStringUtilities.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -215,6 +217,8 @@ namespace Razix {
 
         void FreeRZSFBytecodeAlloc(rz_gfx_shader* shader)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             RAZIX_ASSERT(shader != NULL, "Shader is NULL, cannot Memory::RZFree bytecode allocation");
             rz_gfx_shader_desc* desc = &shader->resource.desc.shaderDesc;
 
@@ -312,6 +316,8 @@ namespace Razix {
 #ifdef RAZIX_RENDER_API_VULKAN
         static void vk_reflect_shader_blob(const rz_gfx_shader_stage_blob* stageBlob, rz_gfx_shader_reflection* outReflection)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             RAZIX_UNUSED(stageBlob);
             RAZIX_UNUSED(outReflection);
         }
@@ -419,6 +425,8 @@ namespace Razix {
 
         static void dx12_reflect_shader_blob(const rz_gfx_shader_stage_blob* stageBlob, rz_gfx_shader_reflection* outReflection)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             IDxcUtils* shaderReflectionUtils = nullptr;
             HRESULT    hr                    = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&shaderReflectionUtils));
             if (FAILED(hr)) {
@@ -567,6 +575,8 @@ namespace Razix {
 
         rz_gfx_shader_reflection ReflectShader(const rz_gfx_shader* shader)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             rz_gfx_shader_reflection reflection = {0};
             RAZIX_ASSERT(shader != NULL, "Shader is NULL, cannot reflect");
             const rz_gfx_shader_desc* desc = &shader->resource.desc.shaderDesc;
@@ -663,11 +673,44 @@ namespace Razix {
 
         rz_gfx_cmdbuf_handle BeginSingleTimeCommandBuffer(const std::string& name, float4 color)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            // create resources
+            rz_gfx_cmdpool_desc poolDesc  = {};
+            poolDesc.poolType             = RZ_GFX_CMDPOOL_TYPE_GRAPHICS;
+            rz_gfx_cmdpool_handle cmdPool = Gfx::RZResourceManager::Get().createCommandPool("SingleTimeCmdPool", poolDesc);
+            rz_gfx_cmdbuf_desc    desc    = {0};
+            desc.pool                     = RZResourceManager::Get().getCommandPoolResource(cmdPool);
+            rz_gfx_cmdbuf_handle cmdBuf   = RZResourceManager::Get().createCommandBuffer("SingleTimeCmdBuffer", desc);
+
+            rzRHI_BeginCmdBuf(cmdBuf);
+            // TODO: Add a Gfx cmd label
+
+            return cmdBuf;
         }
 
         void EndSingleTimeCommandBuffer(rz_gfx_cmdbuf_handle cmdBuf)
         {
-        }
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            // TODO: Add a Gfx cmd label
+
+            rzRHI_EndCmdBuf(cmdBuf);
+
+            // Submit for execution
+            rzRHI_SubmitCmdBuf(cmdBuf);
+
+            // wait for work to be done!
+            rz_gfx_syncobj flushSyncobj = {};
+            rzRHI_CreateSyncobj(&flushSyncobj, RZ_GFX_SYNCOBJ_TYPE_CPU);
+            rz_gfx_syncpoint workDone = 0;
+            rzRHI_FlushGPUWork(&flushSyncobj, &workDone);
+
+            // cleanup
+            rzRHI_DestroySyncobj(&flushSyncobj);
+            rz_gfx_cmdbuf* cmdBufRes = RZResourceManager::Get().getCommandBufferResource(cmdBuf);
+            RZResourceManager::Get().destroyCommandBuffer(cmdBuf);
+            RZResourceManager::Get().destroyCommandPool((rz_gfx_cmdpool_handle) cmdBufRes->resource.desc.cmdbufDesc.pool->resource.handle);
+        }
     }    // namespace Gfx
 }    // namespace Razix

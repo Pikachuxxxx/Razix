@@ -356,7 +356,7 @@ static D3D12_COMPARISON_FUNC dx12_util_compare_func(rz_gfx_compare_op_type func)
 
 static D3D12_RENDER_TARGET_BLEND_DESC dx12_util_blend_preset(rz_gfx_blend_presets preset)
 {
-    D3D12_RENDER_TARGET_BLEND_DESC desc = {};
+    D3D12_RENDER_TARGET_BLEND_DESC desc = {0};
     desc.BlendEnable                    = TRUE;
     desc.RenderTargetWriteMask          = D3D12_COLOR_WRITE_ENABLE_ALL;
 
@@ -662,7 +662,7 @@ static void dx12_update_swapchain_rtvs(rz_gfx_swapchain* sc)
         rz_gfx_texture texture                        = {0};
         dx12_texture   dxtexture                      = {0};
         texture.resource.pName                        = "$SWAPCHAIN_IMAGE$";
-        texture.resource.handle                       = (rz_handle){i, i};
+        texture.resource.handle                       = (rz_handle) {i, i};
         texture.resource.viewHints                    = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
         dxtexture.resource                            = d3dresource;
         dxtexture.state                               = D3D12_RESOURCE_STATE_PRESENT;
@@ -1214,7 +1214,7 @@ static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
     depth.StencilEnable            = FALSE;
     depth.StencilReadMask          = D3D12_DEFAULT_STENCIL_READ_MASK;
     depth.StencilWriteMask         = D3D12_DEFAULT_STENCIL_WRITE_MASK;
-    depth.FrontFace                = (D3D12_DEPTH_STENCILOP_DESC){
+    depth.FrontFace                = (D3D12_DEPTH_STENCILOP_DESC) {
                        .StencilFailOp      = D3D12_STENCIL_OP_KEEP,
                        .StencilDepthFailOp = D3D12_STENCIL_OP_KEEP,
                        .StencilPassOp      = D3D12_STENCIL_OP_KEEP,

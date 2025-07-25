@@ -2,9 +2,9 @@
 
 namespace Razix {
 
-    static void WiteSwapchainTextureReadbackToPPM(Gfx::TextureReadback* texture, const char* filename)
+    static void WiteSwapchainTextureReadbackToPPM(rz_gfx_texture_readback* texture, const char* filename)
     {
-        if (!texture || !texture->data || texture->bits_per_pixel != 32) {
+        if (!texture || !texture->data || texture->bpp != 32) {
             return;
         }
 
@@ -53,8 +53,7 @@ namespace Razix {
 
         int ch;
         while ((ch = fgetc(file)) == '#') {
-            while ((ch = fgetc(file)) != '\n' && ch != EOF)
-                ;    // Skip to end of comment
+            while ((ch = fgetc(file)) != '\n' && ch != EOF);    // Skip to end of comment
         }
 
         if (fscanf(file, "%d %d", width, height) != 2) {
@@ -70,8 +69,7 @@ namespace Razix {
             return false;
         }
 
-        while ((ch = fgetc(file)) == '\n' || ch == ' ')
-            ;
+        while ((ch = fgetc(file)) == '\n' || ch == ' ');
 
         *pixels = (uint8_t*) malloc(*width * *height * 3);
         if (!*pixels) {

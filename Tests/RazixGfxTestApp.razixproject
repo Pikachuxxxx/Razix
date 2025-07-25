@@ -4,8 +4,8 @@
         "Engine Version": "0.49.0",
         "Project ID": "a77aee7f-c395-4c39-aa73-167661fb84db",
         "Render API": 1,
-        "Width": 2560,
-        "Height": 1351,
+        "Width": 1920,
+        "Height": 1020,
         "Scenes": [
             "//Scenes/default Scene.rzscn"
         ]
