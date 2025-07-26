@@ -3,9 +3,13 @@
 // clang-format on
 #include "RZGfxUtil.h"
 
+#include "Razix/Core/Markers/RZMarkers.h"
+
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
+
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
+
 #include "Razix/Gfx/RZShaderUtils.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
@@ -437,7 +441,7 @@ namespace Razix {
             rz_gfx_cmdbuf_handle cmdBuf = RZResourceManager::Get().createCommandBuffer("SingleTimeCmdBuffer", desc);
 
             rzRHI_BeginCmdBuf(cmdBuf);
-            // TODO: Add debug label with name and color
+            RAZIX_MARK_BEGIN(cmdBuf, name, color);
 
             return cmdBuf;
         }
@@ -446,7 +450,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            // TODO: End debug label
+            RAZIX_MARK_END(cmdBuf);
 
             rzRHI_EndCmdBuf(cmdBuf);
 
