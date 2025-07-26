@@ -511,13 +511,7 @@ namespace Razix {
 
                     // Wait for rendering to be done before capturing
                     rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
-
-                    // Use a single time command buffer to this
-                    rz_gfx_cmdbuf_handle cmdBuff = Gfx::BeginSingleTimeCommandBuffer("Swapchain Capture", Utilities::GenerateHashedColor4(24u));
-                    //
-                    //m_LastSwapchainReadback = RHI::InsertTextureReadback(cmdBuff, RHI::GetSwapchain()->GetCurrentBackBufferImage());
-                    //
-                    Gfx::EndSingleTimeCommandBuffer(cmdBuff);
+                    rzRHI_InsertSwapchainTextureReadback(&m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], &m_LastSwapchainReadback);
                 }
 
                 // Present the image to presentation engine as soon as rendering to COLOR_ATTACHMENT is done

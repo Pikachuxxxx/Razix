@@ -1223,6 +1223,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_DrawAutoFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t, uint32_t);
 
     typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*, rz_gfx_resource_state, rz_gfx_resource_state);
+    typedef void (*rzRHI_InsertTextureReadbackFn)(const rz_gfx_texture*, rz_gfx_texture_readback*);
 
     typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
     typedef void (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
@@ -1255,21 +1256,22 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_DestroyDescriptorHeapFn DestroyDescriptorHeap;
         rzRHI_CreateDescriptorTableFn CreateDescriptorTable;
         //....
-        rzRHI_AcquireImageFn       AcquireImage;
-        rzRHI_WaitOnPrevCmdsFn     WaitOnPrevCmds;
-        rzRHI_PresentFn            Present;
-        rzRHI_BeginCmdBufFn        BeginCmdBuf;
-        rzRHI_EndCmdBufFn          EndCmdBuf;
-        rzRHI_SubmitCmdBufFn       SubmitCmdBuf;
-        rzRHI_BeginRenderPassFn    BeginRenderPass;
-        rzRHI_EndRenderPassFn      EndRenderPass;
-        rzRHI_SetScissorRectFn     SetScissorRect;
-        rzRHI_SetViewportFn        SetViewport;
-        rzRHI_BindPipelineFn       BindPipeline;
-        rzRHI_BindGfxRootSigFn     BindGfxRootSig;
-        rzRHI_BindComputeRootSigFn BindComputeRootSig;
-        rzRHI_DrawAutoFn           DrawAuto;
-        rzRHI_InsertImageBarrierFn InsertImageBarrier;
+        rzRHI_AcquireImageFn          AcquireImage;
+        rzRHI_WaitOnPrevCmdsFn        WaitOnPrevCmds;
+        rzRHI_PresentFn               Present;
+        rzRHI_BeginCmdBufFn           BeginCmdBuf;
+        rzRHI_EndCmdBufFn             EndCmdBuf;
+        rzRHI_SubmitCmdBufFn          SubmitCmdBuf;
+        rzRHI_BeginRenderPassFn       BeginRenderPass;
+        rzRHI_EndRenderPassFn         EndRenderPass;
+        rzRHI_SetScissorRectFn        SetScissorRect;
+        rzRHI_SetViewportFn           SetViewport;
+        rzRHI_BindPipelineFn          BindPipeline;
+        rzRHI_BindGfxRootSigFn        BindGfxRootSig;
+        rzRHI_BindComputeRootSigFn    BindComputeRootSig;
+        rzRHI_DrawAutoFn              DrawAuto;
+        rzRHI_InsertImageBarrierFn    InsertImageBarrier;
+        rzRHI_InsertTextureReadbackFn InsertTextureReadback;
         // ....
         rzRHI_SignalGPUFn       SignalGPU;
         rzRHI_FlushGPUWorkFn    FlushGPUWork;
@@ -1331,6 +1333,8 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     #define rzRHI_InsertImageBarrier(cb, text, bs, as)          g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(text), bs, as)
     #define rzRHI_InsertSwapchainImageBarrier(cb, text, bs, as) g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), text, bs, as)
+    #define rzRHI_InsertTextureReadback(text, rb)               g_RHI.InsertTextureReadback(RZResourceManager::Get().getTextureResource(text), rb)
+    #define rzRHI_InsertSwapchainTextureReadback(text, rb)      g_RHI.InsertTextureReadback(text, rb)
     // ....
     #define rzRHI_SignalGPU       g_RHI.SignalGPU
     #define rzRHI_FlushGPUWork    g_RHI.FlushGPUWork

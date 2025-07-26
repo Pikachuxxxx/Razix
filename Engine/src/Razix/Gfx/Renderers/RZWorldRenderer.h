@@ -111,8 +111,8 @@ namespace Razix {
             inline std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
             void               setFrameGraphFilePath(std::string val);
 
-            inline void setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
-            //inline const TextureReadback& getSwapchainReadback() { return m_LastSwapchainReadback; }
+            inline void                           setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
+            inline const rz_gfx_texture_readback* getSwapchainReadbackPtr() const { return &m_LastSwapchainReadback; }
 
             void clearFrameGraph();
             void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings);
@@ -134,17 +134,17 @@ namespace Razix {
             //RZSkyboxPass             m_SkyboxPass;
             //RZToneMapPass            m_TonemapPass;
             //RZCompositionPass        m_CompositePass;
-            //TextureReadback m_LastSwapchainReadback;
-            RZWindow*   m_Window                                                = NULL;
-            u32         m_FrameCount                                            = 0;
-            float2      m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
-            float4x4    m_PreviousViewProj                                      = {};
-            float2      m_Jitter                                                = {};
-            float2      m_PreviousJitter                                        = {};
-            bool        m_FrameGraphBuildingInProgress                          = false;
-            bool        m_IsFGFilePathDirty                                     = false;
-            bool        m_ReadSwapchainThisFrame                                = false;
-            std::string m_FrameGraphFilePath                                    = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
+            rz_gfx_texture_readback m_LastSwapchainReadback                                 = {0};
+            RZWindow*               m_Window                                                = NULL;
+            u32                     m_FrameCount                                            = 0;
+            float2                  m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
+            float4x4                m_PreviousViewProj                                      = {};
+            float2                  m_Jitter                                                = {};
+            float2                  m_PreviousJitter                                        = {};
+            bool                    m_FrameGraphBuildingInProgress                          = false;
+            bool                    m_IsFGFilePathDirty                                     = false;
+            bool                    m_ReadSwapchainThisFrame                                = false;
+            std::string             m_FrameGraphFilePath                                    = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
             // Gfx resources
             struct RenderSyncPrimitives
             {

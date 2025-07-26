@@ -49,7 +49,7 @@ namespace Razix {
 
         void OnQuit() override
         {
-            //m_SwapchainReadback = RZEngine::Get().getWorldRenderer().getSwapchainReadback();
+            m_SwapchainReadback = RZEngine::Get().getWorldRenderer().getSwapchainReadbackPtr();
 
             if (!WriteScreenshot()) RAZIX_ERROR("Failed to write swapchain capture readback texture!");
         }
@@ -59,11 +59,11 @@ namespace Razix {
         float CompareWithGoldenImage();
 
     protected:
-        i32                     m_NumFrames;
-        i32                     m_CurrentFrame;
-        std::string             m_GoldenImagePath;
-        std::string             m_ScreenShotPath;
-        rz_gfx_texture_readback m_SwapchainReadback;
+        i32                            m_NumFrames;
+        i32                            m_CurrentFrame;
+        std::string                    m_GoldenImagePath;
+        std::string                    m_ScreenShotPath;
+        const rz_gfx_texture_readback* m_SwapchainReadback;
 
     private:
         bool  WriteScreenshot();

@@ -2,7 +2,7 @@
 
 namespace Razix {
 
-    static void WiteSwapchainTextureReadbackToPPM(rz_gfx_texture_readback* texture, const char* filename)
+    static void WiteSwapchainTextureReadbackToPPM(const rz_gfx_texture_readback* texture, const char* filename)
     {
         if (!texture || !texture->data || texture->bpp != 32) {
             return;
@@ -111,8 +111,8 @@ namespace Razix {
     bool RZGfxTestAppBase::WriteScreenshot()
     {
         bool success = false;
-        if (m_SwapchainReadback.data) {
-            WiteSwapchainTextureReadbackToPPM(&m_SwapchainReadback, m_ScreenShotPath.c_str());
+        if (m_SwapchainReadback && m_SwapchainReadback->data) {
+            WiteSwapchainTextureReadbackToPPM(m_SwapchainReadback, m_ScreenShotPath.c_str());
             success = true;
         }
 

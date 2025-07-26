@@ -715,6 +715,52 @@ static void dx12_destroy_backbuffers(rz_gfx_swapchain* sc)
     }
 }
 
+static dx12_cmdbuf dx12_util_begin_singletime_cmdlist(void)
+{
+    dx12_cmdbuf result = {0};
+
+    CHECK_HR(ID3D12Device_CreateCommandAllocator(
+        DX12Device,
+        D3D12_COMMAND_LIST_TYPE_DIRECT,
+        &IID_ID3D12CommandAllocator,
+        (void**) &result.cmdAlloc));
+
+    CHECK_HR(ID3D12Device_CreateCommandList(
+        DX12Device,
+        0,
+        D3D12_COMMAND_LIST_TYPE_DIRECT,
+        result.cmdAlloc,
+        NULL,
+        &IID_ID3D12GraphicsCommandList,
+        (void**) &result.cmdList));
+
+    return result;
+}
+
+static void dx12_util_end_singletime_cmdlist(ID3D12GraphicsCommandList* cmdList, ID3D12CommandAllocator* allocator)
+{
+    CHECK_HR(ID3D12GraphicsCommandList_Close(cmdList));
+
+    ID3D12CommandQueue* queue   = DX12Context.directQ;
+    ID3D12CommandList*  lists[] = {(ID3D12CommandList*) cmdList};
+    ID3D12CommandQueue_ExecuteCommandLists(queue, 1, lists);
+
+    ID3D12Fence* fence      = NULL;
+    UINT64       fenceValue = 1;
+    HANDLE       fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+    CHECK_HR(ID3D12Device_CreateFence(DX12Device, 0, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, (void**) &fence));
+
+    CHECK_HR(ID3D12CommandQueue_Signal(queue, fence, fenceValue));
+
+    if (ID3D12Fence_GetCompletedValue(fence) < fenceValue) {
+        CHECK_HR(ID3D12Fence_SetEventOnCompletion(fence, fenceValue, fenceEvent));
+        WaitForSingleObject(fenceEvent, INFINITE);
+    }
+
+    CloseHandle(fenceEvent);
+    ID3D12Fence_Release(fence);
+}
+
 //---------------------------------------------------------------------------------------------
 // Public API functions
 
@@ -1467,6 +1513,116 @@ static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_te
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 1, &barrier);
 }
 
+static void dx12_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_texture_readback* readback)
+{
+    ID3D12Resource*     srcResource = texture->dx12.resource;
+    D3D12_RESOURCE_DESC srcDesc     = {0};
+    ID3D12Resource_GetDesc(srcResource, &srcDesc);
+
+    dx12_cmdbuf cmdBuf = dx12_util_begin_singletime_cmdlist();
+
+    uint32_t width  = texture->resource.desc.textureDesc.width;
+    uint32_t height = texture->resource.desc.textureDesc.height;
+    uint32_t size   = width * height * 4;    // Assuming 4 bytes per pixel (RGBA8)
+
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT srcFootprint = {0};
+    UINT64                             totalSize    = 0;
+    UINT64                             rowPitch     = 0;
+    UINT                               numRows      = 0;
+    ID3D12Device_GetCopyableFootprints(DX12Device, &srcDesc, 0, 1, 0, &srcFootprint, &numRows, &rowPitch, &totalSize);
+
+    RAZIX_RHI_ASSERT(totalSize > 0, "[DX12] Invalid total size returned for texture readback!");
+    RAZIX_RHI_ASSERT(rowPitch > 0, "[DX12] Invalid row pitch returned!");
+    RAZIX_RHI_ASSERT(numRows > 0, "[DX12] Invalid number of rows!");
+    RAZIX_RHI_ASSERT(srcFootprint.Footprint.RowPitch > 0, "[DX12] Footprint row pitch is invalid!");
+    RAZIX_RHI_ASSERT(srcFootprint.Footprint.Width > 0 && srcFootprint.Footprint.Height > 0, "[DX12] Invalid footprint dimensions!");
+
+    ID3D12Resource* readbackBuffer = NULL;
+
+    D3D12_HEAP_PROPERTIES heap_props = {
+        .Type                 = D3D12_HEAP_TYPE_READBACK,
+        .CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+        .MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN};
+
+    D3D12_RESOURCE_DESC buffer_desc = {
+        .Dimension        = D3D12_RESOURCE_DIMENSION_BUFFER,
+        .Alignment        = 0,
+        .Width            = totalSize,
+        .Height           = 1,
+        .DepthOrArraySize = 1,
+        .MipLevels        = 1,
+        .Format           = DXGI_FORMAT_UNKNOWN,
+        .SampleDesc       = {1, 0},
+        .Layout           = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
+        .Flags            = D3D12_RESOURCE_FLAG_NONE};
+
+    CHECK_HR(ID3D12Device_CreateCommittedResource(
+        DX12Device,
+        &heap_props,
+        D3D12_HEAP_FLAG_NONE,
+        &buffer_desc,
+        D3D12_RESOURCE_STATE_COPY_DEST,
+        NULL,
+        &IID_ID3D12Resource,
+        (void**) &readbackBuffer));
+
+    D3D12_RESOURCE_BARRIER barrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = srcResource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = D3D12_RESOURCE_STATE_PRESENT,
+            .StateAfter  = D3D12_RESOURCE_STATE_COPY_SOURCE}};
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &barrier);
+
+    D3D12_TEXTURE_COPY_LOCATION src = {
+        .pResource        = srcResource,
+        .Type             = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+        .SubresourceIndex = 0};
+
+    D3D12_TEXTURE_COPY_LOCATION dst = {
+        .pResource       = readbackBuffer,
+        .Type            = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
+        .PlacedFootprint = srcFootprint};
+
+    ID3D12GraphicsCommandList_CopyTextureRegion(cmdBuf.cmdList, &dst, 0, 0, 0, &src, NULL);
+
+    D3D12_RESOURCE_BARRIER restore_barrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = srcResource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE,
+            .StateAfter  = D3D12_RESOURCE_STATE_PRESENT}};
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &restore_barrier);
+
+    // Close command list and submit and flush GPU work
+    dx12_util_end_singletime_cmdlist(cmdBuf.cmdList, cmdBuf.cmdAlloc);
+
+    void*       mapped_data = NULL;
+    D3D12_RANGE read_range  = {0, totalSize};
+    CHECK_HR(ID3D12Resource_Map(readbackBuffer, 0, &read_range, &mapped_data));
+
+    readback->width  = width;
+    readback->height = height;
+    readback->bpp    = 32;
+    readback->data   = malloc(size);
+
+    if (readback->data) {
+        for (UINT y = 0; y < height; ++y) {
+            uint8_t* row_src = (uint8_t*) mapped_data + srcFootprint.Footprint.RowPitch * y;
+            uint8_t* row_dst = (uint8_t*) readback->data + width * 4 * y;
+            memcpy(row_dst, row_src, width * 4);
+        }
+    }
+
+    D3D12_RANGE write_range = {0, 0};
+    ID3D12Resource_Unmap(readbackBuffer, 0, &write_range);
+    ID3D12Resource_Release(readbackBuffer);
+}
+
 //---------------------------------------------------------------------------------------------
 static rz_gfx_syncpoint dx12_Signal(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint* globalSyncPoint)
 {
@@ -1562,8 +1718,9 @@ rz_rhi_api dx12_rhi = {
     .BindGfxRootSig     = dx12_BindGfxRootSig,        // BindGfxRootSig
     .BindComputeRootSig = dx12_BindComputeRootSig,    // BindComputeRootSig
 
-    .DrawAuto           = dx12_DrawAuto,              // DrawAuto
-    .InsertImageBarrier = dx12_InsertImageBarrier,    // InsertImageBarrier
+    .DrawAuto              = dx12_DrawAuto,                 // DrawAuto
+    .InsertImageBarrier    = dx12_InsertImageBarrier,       // InsertImageBarrier
+    .InsertTextureReadback = dx12_InsertTextureReadback,    // InsertTextureReadback
 
     .SignalGPU       = dx12_Signal,             // Signal
     .FlushGPUWork    = dx12_FlushGPUWork,       // FlushGPUWork
