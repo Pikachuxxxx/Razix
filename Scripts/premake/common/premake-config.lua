@@ -43,6 +43,12 @@ newaction
 	end
 }
 
+newoption
+{
+    trigger = "use-windows-input",
+    description = "Use Windows native input API instead of GLFW for input handling"
+}
+
 newaction {
     trigger     = "rungfxtests",
     description = "Runs all Gfx test executables",

@@ -260,12 +260,6 @@ project "Razix"
             "vendor/glad/src/glad.c"
         }
 
-        -- Option to use Windows native input instead of GLFW
-        newoption {
-            trigger = "use-windows-input",
-            description = "Use Windows native input API instead of GLFW for input handling"
-        }
-
         -- Conditionally include Windows input if option is specified
         if _OPTIONS["use-windows-input"] then
             removefiles { "src/Razix/Platform/GLFW/GLFWInput.h", "src/Razix/Platform/GLFW/GLFWInput.cpp" }
