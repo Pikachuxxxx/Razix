@@ -40,10 +40,14 @@
     #include "Razix/Gfx/RHI/Backend/vk_rhi.h"
 #endif
 
+// Include profiling support for RHI operations
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif    // __cplusplus
+
+#include "Razix/Core/Profiling/RZProfiling.h"
 
 #define ENABLE_SYNC_LOGGING 0
 
@@ -1306,7 +1310,6 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define rzRHI_DestroyCmdBuf         g_RHI.DestroyCmdBuf
 #define rzRHI_CreateShader          g_RHI.CreateShader
 #define rzRHI_DestroyShader         g_RHI.DestroyShader
-#define rzRHI_ReflectShader         g_RHI.ReflectShader
 #define rzRHI_CreateDescriptorHeap  g_RHI.CreateDescriptorHeap
 #define rzRHI_DestroyDescriptorHeap g_RHI.DestroyDescriptorHeap
 #define rzRHI_CreateDescriptorTable g_RHI.CreateDescriptorTable
@@ -1315,56 +1318,359 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define rzRHI_CreatePipeline        g_RHI.CreatePipeline
 #define rzRHI_DestroyPipeline       g_RHI.DestroyPipeline
 
-#if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
-    #define rzRHI_AcquireImage                 g_RHI.AcquireImage
-    #define rzRHI_WaitOnPrevCmds               g_RHI.WaitOnPrevCmds
-    #define rzRHI_Present                      g_RHI.Present
-    #define rzRHI_BeginCmdBuf(cb)              g_RHI.BeginCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
-    #define rzRHI_EndCmdBuf(cb)                g_RHI.EndCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
-    #define rzRHI_SubmitCmdBuf(cb)             g_RHI.SubmitCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
-    #define rzRHI_BeginRenderPass(cb, info)    g_RHI.BeginRenderPass(RZResourceManager::Get().getCommandBufferResource(cb), info)
-    #define rzRHI_EndRenderPass(cb)            g_RHI.EndRenderPass(RZResourceManager::Get().getCommandBufferResource(cb))
-    #define rzRHI_SetScissorRect(cb, viewport) g_RHI.SetScissorRect(RZResourceManager::Get().getCommandBufferResource(cb), viewport)
-    #define rzRHI_SetViewport(cb, rect)        g_RHI.SetViewport(RZResourceManager::Get().getCommandBufferResource(cb), rect)
-    #define rzRHI_BindPipeline(cb, pp)         g_RHI.BindPipeline(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getPipelineResource(pp))
-    #define rzRHI_BindGfxRootSig(cb, rs)       g_RHI.BindGfxRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs))
-    #define rzRHI_BindComputeRootSig(cb, rs)   g_RHI.BindComputeRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs))
-    #define rzRHI_DrawAuto(cb, vc, ic, fv, fi) g_RHI.DrawAuto(RZResourceManager::Get().getCommandBufferResource(cb), vc, ic, fv, fi)
-
-    #define rzRHI_InsertImageBarrier(cb, text, bs, as)          g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(text), bs, as)
-    #define rzRHI_InsertSwapchainImageBarrier(cb, text, bs, as) g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), text, bs, as)
-    #define rzRHI_InsertTextureReadback(text, rb)               g_RHI.InsertTextureReadback(RZResourceManager::Get().getTextureResource(text), rb)
-    #define rzRHI_InsertSwapchainTextureReadback(text, rb)      g_RHI.InsertTextureReadback(text, rb)
-    // ....
-    #define rzRHI_SignalGPU       g_RHI.SignalGPU
-    #define rzRHI_FlushGPUWork    g_RHI.FlushGPUWork
-    #define rzRHI_ResizeSwapchain g_RHI.ResizeSwapchain
-    #define rzRHI_BeginFrame      g_RHI.BeginFrame
-    #define rzRHI_EndFrame        g_RHI.EndFrame
+#if !defined(RZ_PROFILER_ENABLED)
+    #if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
+        #define rzRHI_AcquireImage                                  g_RHI.AcquireImage
+        #define rzRHI_WaitOnPrevCmds                                g_RHI.WaitOnPrevCmds
+        #define rzRHI_Present                                       g_RHI.Present
+        #define rzRHI_BeginCmdBuf(cb)                               g_RHI.BeginCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
+        #define rzRHI_EndCmdBuf(cb)                                 g_RHI.EndCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
+        #define rzRHI_SubmitCmdBuf(cb)                              g_RHI.SubmitCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
+        #define rzRHI_BeginRenderPass(cb, info)                     g_RHI.BeginRenderPass(RZResourceManager::Get().getCommandBufferResource(cb), info)
+        #define rzRHI_EndRenderPass(cb)                             g_RHI.EndRenderPass(RZResourceManager::Get().getCommandBufferResource(cb))
+        #define rzRHI_SetScissorRect(cb, viewport)                  g_RHI.SetScissorRect(RZResourceManager::Get().getCommandBufferResource(cb), viewport)
+        #define rzRHI_SetViewport(cb, rect)                         g_RHI.SetViewport(RZResourceManager::Get().getCommandBufferResource(cb), rect)
+        #define rzRHI_BindPipeline(cb, pp)                          g_RHI.BindPipeline(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getPipelineResource(pp))
+        #define rzRHI_BindGfxRootSig(cb, rs)                        g_RHI.BindGfxRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs))
+        #define rzRHI_BindComputeRootSig(cb, rs)                    g_RHI.BindComputeRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs))
+        #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                  g_RHI.DrawAuto(RZResourceManager::Get().getCommandBufferResource(cb), vc, ic, fv, fi)
+        #define rzRHI_InsertImageBarrier(cb, text, bs, as)          g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(text), bs, as)
+        #define rzRHI_InsertSwapchainImageBarrier(cb, text, bs, as) g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), text, bs, as)
+        #define rzRHI_InsertTextureReadback(text, rb)               g_RHI.InsertTextureReadback(RZResourceManager::Get().getTextureResource(text), rb)
+        #define rzRHI_InsertSwapchainTextureReadback(text, rb)      g_RHI.InsertTextureReadback(text, rb)
+        #define rzRHI_SignalGPU                                     g_RHI.SignalGPU
+        #define rzRHI_FlushGPUWork                                  g_RHI.FlushGPUWork
+        #define rzRHI_ResizeSwapchain                               g_RHI.ResizeSwapchain
+        #define rzRHI_BeginFrame                                    g_RHI.BeginFrame
+        #define rzRHI_EndFrame                                      g_RHI.EndFrame
+    #else
+        #define rzRHI_AcquireImage                g_RHI.AcquireImage
+        #define rzRHI_WaitOnPrevCmds              g_RHI.WaitOnPrevCmds
+        #define rzRHI_Present                     g_RHI.Present
+        #define rzRHI_BeginCmdBuf                 g_RHI.BeginCmdBuf
+        #define rzRHI_EndCmdBuf                   g_RHI.EndCmdBuf
+        #define rzRHI_SubmitCmdBuf                g_RHI.SubmitCmdBuf
+        #define rzRHI_BeginRenderPass             g_RHI.BeginRenderPass
+        #define rzRHI_EndRenderPass               g_RHI.EndRenderPass
+        #define rzRHI_SetScissorRect              g_RHI.SetScissorRect
+        #define rzRHI_SetViewport                 g_RHI.SetViewport
+        #define rzRHI_BindPipeline                g_RHI.BindPipeline
+        #define rzRHI_BindGfxRootSig              g_RHI.BindGfxRootSig
+        #define rzRHI_BindComputeRootSig          g_RHI.BindComputeRootSig
+        #define rzRHI_DrawAuto                    g_RHI.DrawAuto
+        #define rzRHI_InsertImageBarrier          g_RHI.InsertImageBarrier
+        #define rzRHI_InsertSwapchainImageBarrier g_RHI.InsertImageBarrier
+        #define rzRHI_SignalGPU                   g_RHI.SignalGPU
+        #define rzRHI_FlushGPUWork                g_RHI.FlushGPUWork
+        #define rzRHI_ResizeSwapchain             g_RHI.ResizeSwapchain
+        #define rzRHI_BeginFrame                  g_RHI.BeginFrame
+        #define rzRHI_EndFrame                    g_RHI.EndFrame
+    #endif
 #else
-    #define rzRHI_AcquireImage                g_RHI.AcquireImage
-    #define rzRHI_WaitOnPrevCmds              g_RHI.WaitOnPrevCmds
-    #define rzRHI_Present                     g_RHI.Present
-    #define rzRHI_BeginCmdBuf                 g_RHI.BeginCmdBuf
-    #define rzRHI_EndCmdBuf                   g_RHI.EndCmdBuf
-    #define rzRHI_SubmitCmdBuf                g_RHI.SubmitCmdBuf
-    #define rzRHI_BeginRenderPass             g_RHI.BeginRenderPass
-    #define rzRHI_EndRenderPass               g_RHI.EndRenderPass
-    #define rzRHI_SetScissorRect              g_RHI.SetScissorRect
-    #define rzRHI_SetViewport                 g_RHI.SetViewport
-    #define rzRHI_BindPipeline                g_RHI.BindPipeline
-    #define rzRHI_BindGfxRootSig              g_RHI.BindGfxRootSig
-    #define rzRHI_BindComputeRootSig          g_RHI.BindComputeRootSig
-    #define rzRHI_DrawAuto                    g_RHI.DrawAuto
-    #define rzRHI_InsertImageBarrier          g_RHI.InsertImageBarrier
-    #define rzRHI_InsertSwapchainImageBarrier g_RHI.InsertImageBarrier
-    // ....
-    #define rzRHI_SignalGPU                   g_RHI.SignalGPU
-    #define rzRHI_FlushGPUWork                g_RHI.FlushGPUWork
-    #define rzRHI_ResizeSwapchain             g_RHI.ResizeSwapchain
-    #define rzRHI_BeginFrame                  g_RHI.BeginFrame
-    #define rzRHI_EndFrame                    g_RHI.EndFrame
-#endif
+    #if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
+        #define rzRHI_AcquireImage(sc)                                                             \
+            do {                                                                                   \
+                RAZIX_PROFILE_SCOPEC("rzRHI_AcquireImage", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.AcquireImage(sc);                                                            \
+            } while (0)
+
+        #define rzRHI_WaitOnPrevCmds(so, sp)                                                        \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_WaitOnPrevCmds", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
+                g_RHI.WaitOnPrevCmds(so, sp);                                                       \
+            } while (0)
+
+        #define rzRHI_Present(sc)                                                             \
+            do {                                                                              \
+                RAZIX_PROFILE_SCOPEC("rzRHI_Present", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.Present(sc);                                                            \
+            } while (0)
+
+        #define rzRHI_BeginCmdBuf(cb)                                                            \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BeginCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
+                g_RHI.BeginCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb));        \
+            } while (0)
+
+        #define rzRHI_EndCmdBuf(cb)                                                            \
+            do {                                                                               \
+                RAZIX_PROFILE_SCOPEC("rzRHI_EndCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
+                g_RHI.EndCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb));        \
+            } while (0)
+
+        #define rzRHI_SubmitCmdBuf(cb)                                                            \
+            do {                                                                                  \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SubmitCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
+                g_RHI.SubmitCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb));        \
+            } while (0)
+
+        #define rzRHI_BeginRenderPass(cb, info)                                                     \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BeginRenderPass", RZ_PROFILE_COLOR_RHI_RENDER_PASSES);  \
+                g_RHI.BeginRenderPass(RZResourceManager::Get().getCommandBufferResource(cb), info); \
+            } while (0)
+
+        #define rzRHI_EndRenderPass(cb)                                                          \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_EndRenderPass", RZ_PROFILE_COLOR_RHI_RENDER_PASSES); \
+                g_RHI.EndRenderPass(RZResourceManager::Get().getCommandBufferResource(cb));      \
+            } while (0)
+
+        #define rzRHI_SetScissorRect(cb, viewport)                                                     \
+            do {                                                                                       \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SetScissorRect", RZ_PROFILE_COLOR_RHI);                    \
+                g_RHI.SetScissorRect(RZResourceManager::Get().getCommandBufferResource(cb), viewport); \
+            } while (0)
+
+        #define rzRHI_SetViewport(cb, rect)                                                     \
+            do {                                                                                \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SetViewport", RZ_PROFILE_COLOR_RHI);                \
+                g_RHI.SetViewport(RZResourceManager::Get().getCommandBufferResource(cb), rect); \
+            } while (0)
+
+        #define rzRHI_BindPipeline(cb, pp)                                                                                                   \
+            do {                                                                                                                             \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindPipeline", RZ_PROFILE_COLOR_RHI_PIPELINE_BINDS);                                             \
+                g_RHI.BindPipeline(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getPipelineResource(pp)); \
+            } while (0)
+
+        #define rzRHI_BindGfxRootSig(cb, rs)                                                                                                        \
+            do {                                                                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindGfxRootSig", RZ_PROFILE_COLOR_RHI_PIPELINE_BINDS);                                                  \
+                g_RHI.BindGfxRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs)); \
+            } while (0)
+
+        #define rzRHI_BindComputeRootSig(cb, rs)                                                                                                        \
+            do {                                                                                                                                        \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindComputeRootSig", RZ_PROFILE_COLOR_RHI_PIPELINE_BINDS);                                                  \
+                g_RHI.BindComputeRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs)); \
+            } while (0)
+
+        #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                                                     \
+            do {                                                                                       \
+                RAZIX_PROFILE_SCOPEC("rzRHI_DrawAuto", RZ_PROFILE_COLOR_RHI_DRAW_CALLS);               \
+                g_RHI.DrawAuto(RZResourceManager::Get().getCommandBufferResource(cb), vc, ic, fv, fi); \
+            } while (0)
+
+        #define rzRHI_InsertImageBarrier(cb, tex, bs, as)                                                                                                  \
+            do {                                                                                                                                           \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertImageBarrier", RZ_PROFILE_COLOR_RHI_RESOURCE_BARRIERS);                                                  \
+                g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(tex), bs, as); \
+            } while (0)
+
+        #define rzRHI_InsertSwapchainImageBarrier(cb, tex, bs, as)                                                 \
+            do {                                                                                                   \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertSwapchainImageBarrier", RZ_PROFILE_COLOR_RHI_RESOURCE_BARRIERS); \
+                g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), tex, bs, as);      \
+            } while (0)
+
+        #define rzRHI_InsertTextureReadback(tex, rb)                                               \
+            do {                                                                                   \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertTextureReadback", RZ_PROFILE_COLOR_RHI);         \
+                g_RHI.InsertTextureReadback(RZResourceManager::Get().getTextureResource(tex), rb); \
+            } while (0)
+
+        #define rzRHI_InsertSwapchainTextureReadback(tex, rb)                                       \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertSwapchainTextureReadback", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.InsertTextureReadback(tex, rb);                                               \
+            } while (0)
+
+        #define rzRHI_SignalGPU(so, sp)                                                        \
+            do {                                                                               \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SignalGPU", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
+                g_RHI.SignalGPU(so, sp);                                                       \
+            } while (0)
+
+        #define rzRHI_FlushGPUWork(so, sp)                                                        \
+            do {                                                                                  \
+                RAZIX_PROFILE_SCOPEC("rzRHI_FlushGPUWork", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
+                g_RHI.FlushGPUWork(so, sp);                                                       \
+            } while (0)
+
+        #define rzRHI_ResizeSwapchain(sp, w, h)                                      \
+            do {                                                                     \
+                RAZIX_PROFILE_SCOPEC("rzRHI_ResizeSwapchain", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.ResizeSwapchain(sp, w, h);                                     \
+            } while (0)
+
+        #define rzRHI_BeginFrame(sc, so, fsp, gsp)                                               \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BeginFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.BeginFrame(sc, so, fsp, gsp);                                              \
+            } while (0)
+
+        #define rzRHI_EndFrame(sc, so, fsp, gsp)                                               \
+            do {                                                                               \
+                RAZIX_PROFILE_SCOPEC("rzRHI_EndFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.EndFrame(sc, so, fsp, gsp);                                              \
+            } while (0)
+
+    #else
+        // C mode or direct handles mode with profiling support where available
+        #define rzRHI_AcquireImage(sc)                                                                   \
+            do {                                                                                         \
+                RAZIX_PROFILE_SCOPEC_BEGIN("rzRHI_AcquireImage", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.AcquireImage(sc);                                                                  \
+                RAZIX_PROFILE_SCOPEC_END();                                                              \
+            } while (0)
+
+        #define rzRHI_WaitOnPrevCmds(so, sp)                                                        \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_WaitOnPrevCmds", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
+                g_RHI.WaitOnPrevCmds(so, sp);                                                       \
+                RAZIX_PROFILE_SCOPEC_END();                                                         \
+            } while (0)
+
+        #define rzRHI_Present(sc)                                                             \
+            do {                                                                              \
+                RAZIX_PROFILE_SCOPEC("rzRHI_Present", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.Present(sc);                                                            \
+                RAZIX_PROFILE_SCOPEC_END();                                                   \
+            } while (0)
+
+        #define rzRHI_BeginCmdBuf(cb)                                                            \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BeginCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
+                g_RHI.BeginCmdBuf(cb);                                                           \
+                RAZIX_PROFILE_SCOPEC_END();                                                      \
+            } while (0)
+
+        #define rzRHI_EndCmdBuf(cb)                                                            \
+            do {                                                                               \
+                RAZIX_PROFILE_SCOPEC("rzRHI_EndCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
+                g_RHI.EndCmdBuf(cb);                                                           \
+                RAZIX_PROFILE_SCOPEC_END();                                                    \
+            } while (0)
+
+        #define rzRHI_SubmitCmdBuf(cb)                                                            \
+            do {                                                                                  \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SubmitCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
+                g_RHI.SubmitCmdBuf(cb);                                                           \
+                RAZIX_PROFILE_SCOPEC_END();                                                       \
+            } while (0)
+
+        #define rzRHI_BeginRenderPass(cb, info)                                                    \
+            do {                                                                                   \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BeginRenderPass", RZ_PROFILE_COLOR_RHI_RENDER_PASSES); \
+                g_RHI.BeginRenderPass(cb, info);                                                   \
+                RAZIX_PROFILE_SCOPEC_END();                                                        \
+            } while (0)
+
+        #define rzRHI_EndRenderPass(cb)                                                          \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_EndRenderPass", RZ_PROFILE_COLOR_RHI_RENDER_PASSES); \
+                g_RHI.EndRenderPass(cb);                                                         \
+                RAZIX_PROFILE_SCOPEC_END();                                                      \
+            } while (0)
+
+        #define rzRHI_SetScissorRect(cb, rect)                                      \
+            do {                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SetScissorRect", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.SetScissorRect(cb, rect);                                     \
+                RAZIX_PROFILE_SCOPEC_END();                                         \
+            } while (0)
+
+        #define rzRHI_SetViewport(cb, viewport)                                  \
+            do {                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SetViewport", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.SetViewport(cb, viewport);                                 \
+                RAZIX_PROFILE_SCOPEC_END();                                      \
+            } while (0)
+
+        #define rzRHI_BindPipeline(cb, pp)                                                       \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindPipeline", RZ_PROFILE_COLOR_RHI_PIPELINE_BINDS); \
+                g_RHI.BindPipeline(cb, pp);                                                      \
+                RAZIX_PROFILE_SCOPEC_END();                                                      \
+            } while (0)
+
+        #define rzRHI_BindGfxRootSig(cb, rs)                                                       \
+            do {                                                                                   \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindGfxRootSig", RZ_PROFILE_COLOR_RHI_PIPELINE_BINDS); \
+                g_RHI.BindGfxRootSig(cb, rs);                                                      \
+                RAZIX_PROFILE_SCOPEC_END();                                                        \
+            } while (0)
+
+        #define rzRHI_BindComputeRootSig(cb, rs)                                                       \
+            do {                                                                                       \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindComputeRootSig", RZ_PROFILE_COLOR_RHI_PIPELINE_BINDS); \
+                g_RHI.BindComputeRootSig(cb, rs);                                                      \
+                RAZIX_PROFILE_SCOPEC_END();                                                            \
+            } while (0)
+
+        #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                                       \
+            do {                                                                         \
+                RAZIX_PROFILE_SCOPEC("rzRHI_DrawAuto", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.DrawAuto(cb, vc, ic, fv, fi);                                      \
+                RAZIX_PROFILE_SCOPEC_END();                                              \
+            } while (0)
+
+        #define rzRHI_InsertImageBarrier(cb, tex, bs, as)                                                 \
+            do {                                                                                          \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertImageBarrier", RZ_PROFILE_COLOR_RHI_RESOURCE_BARRIERS); \
+                g_RHI.InsertImageBarrier(cb, tex, bs, as);                                                \
+                RAZIX_PROFILE_SCOPEC_END();                                                               \
+            } while (0)
+
+        #define rzRHI_InsertSwapchainImageBarrier(cb, tex, bs, as)                                                 \
+            do {                                                                                                   \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertSwapchainImageBarrier", RZ_PROFILE_COLOR_RHI_RESOURCE_BARRIERS); \
+                g_RHI.InsertImageBarrier(cb, tex, bs, as);                                                         \
+                RAZIX_PROFILE_SCOPEC_END();                                                                        \
+            } while (0)
+
+        #define rzRHI_InsertTextureReadback(tex, rb)                                       \
+            do {                                                                           \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertTextureReadback", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.InsertTextureReadback(tex, rb);                                      \
+                RAZIX_PROFILE_SCOPEC_END();                                                \
+            } while (0)
+
+        #define rzRHI_InsertSwapchainTextureReadback(tex, rb)                                       \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertSwapchainTextureReadback", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.InsertTextureReadback(tex, rb);                                               \
+                RAZIX_PROFILE_SCOPEC_END();                                                         \
+            } while (0)
+
+        #define rzRHI_SignalGPU(so, sp)                                                        \
+            do {                                                                               \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SignalGPU", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
+                g_RHI.SignalGPU(so, sp);                                                       \
+                RAZIX_PROFILE_SCOPEC_END();                                                    \
+            } while (0)
+
+        #define rzRHI_FlushGPUWork(so, sp)                                                        \
+            do {                                                                                  \
+                RAZIX_PROFILE_SCOPEC("rzRHI_FlushGPUWork", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
+                g_RHI.FlushGPUWork(so, sp);                                                       \
+                RAZIX_PROFILE_SCOPEC_END();                                                       \
+            } while (0)
+
+        #define rzRHI_ResizeSwapchain(sp, w, h)                                      \
+            do {                                                                     \
+                RAZIX_PROFILE_SCOPEC("rzRHI_ResizeSwapchain", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.ResizeSwapchain(sp, w, h);                                     \
+                RAZIX_PROFILE_SCOPEC_END();                                          \
+            } while (0)
+
+        #define rzRHI_BeginFrame(sc, so, fsp, gsp)                                               \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BeginFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.BeginFrame(sc, so, fsp, gsp);                                              \
+                RAZIX_PROFILE_SCOPEC_END();                                                      \
+            } while (0)
+
+        #define rzRHI_EndFrame(sc, so, fsp, gsp)                                               \
+            do {                                                                               \
+                RAZIX_PROFILE_SCOPEC("rzRHI_EndFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.EndFrame(sc, so, fsp, gsp);                                              \
+                RAZIX_PROFILE_SCOPEC_END();                                                    \
+            } while (0)
+    #endif    // defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
+
+#endif    // !defined(RZ_PROFILER_ENABLED)
 
 #ifdef __cplusplus
 }

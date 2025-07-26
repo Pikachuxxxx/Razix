@@ -6,11 +6,14 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  CPM_SOURCE_CACHE: ${{ github.workspace }}/cpm-cache
+
 jobs:
   build:
     strategy:
       matrix:
-        os: [ windows-latest, macos-latest ]
+        os: [ windows-latest, macos-15 ]
 
     runs-on: ${{ matrix.os }}
     continue-on-error: true
@@ -27,9 +30,11 @@ jobs:
     - if: startsWith(matrix.os, 'macos')
       name: Install macos dependencies
       run: brew install pkg-config glfw meson
+    - name: Trust git repo
+      run: git config --global --add safe.directory '*'
     - name: Profiler GUI
       run: |
-        cmake -B profiler/build -S profiler -DCMAKE_BUILD_TYPE=Release
+        cmake -B profiler/build -S profiler -DCMAKE_BUILD_TYPE=Release -DGIT_REV=${{ github.sha }}
         cmake --build profiler/build --parallel --config Release
     - name: Update utility
       run: |
