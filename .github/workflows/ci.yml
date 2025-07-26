@@ -34,15 +34,6 @@ jobs:
       run: |
         python Scripts/build_razix.py --platform windows --config GoldMaster
       shell: cmd
-    
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v3
-      if: success()
-      with:
-        name: razix-windows-goldmaster
-        path: |
-          bin/GoldMaster-windows-x64/**/*
-        retention-days: 7
 
   build-macos:
     runs-on: macos-latest
@@ -67,12 +58,3 @@ jobs:
     - name: Build Engine (GoldMaster)
       run: |
         python Scripts/build_razix.py --platform macos --config GoldMaster
-    
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v3
-      if: success()
-      with:
-        name: razix-macos-goldmaster
-        path: |
-          bin/GoldMaster-macosx-ARM64/**/*
-        retention-days: 7

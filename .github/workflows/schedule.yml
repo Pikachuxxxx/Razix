@@ -38,7 +38,7 @@ jobs:
       shell: cmd
     
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: success()
       with:
         name: stability-build-windows-${{ github.run_number }}
@@ -71,7 +71,7 @@ jobs:
         python Scripts/build_razix.py --platform macos --config GoldMaster
     
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: success()
       with:
         name: stability-build-macos-${{ github.run_number }}
