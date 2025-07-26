@@ -11,30 +11,70 @@ namespace Razix {
     class RAZIX_API RZInput
     {
     public:
+        // Platform input manager selection methods
+        // These allow selecting different input implementations at runtime or compile time
+        static void SelectGLFWInputManager();
+#ifdef RAZIX_PLATFORM_WINDOWS
+        static void SelectWindowsInputManager();
+#endif
+        // Future platform methods can be added here:
+        // static void SelectPS5InputManager();
+        // static void SelectXboxInputManager();
+        // static void SelectLinuxInputManager();
+
         // Keyboard
-        static bool IsKeyPressed(Razix::KeyCode::Key keycode);
-        static bool IsKeyReleased(Razix::KeyCode::Key keycode);
-        static bool IsKeyHeld(Razix::KeyCode::Key keycode);
+        inline static bool IsKeyPressed(Razix::KeyCode::Key keycode) { return s_Instance->IsKeyPressedImpl(int(keycode)); }
+        inline static bool IsKeyReleased(Razix::KeyCode::Key keycode) { return s_Instance->IsKeyReleasedImpl(int(keycode)); }
+        inline static bool IsKeyHeld(Razix::KeyCode::Key keycode) { return s_Instance->IsIsKeyHeldImpl(int(keycode)); }
 
         // Mouse
-        static bool                IsMouseButtonPressed(Razix::KeyCode::MouseKey button);
-        static bool                IsMouseButtonReleased(Razix::KeyCode::MouseKey button);
-        static bool                IsMouseButtonHeld(Razix::KeyCode::MouseKey button);
-        static std::pair<f32, f32> GetMousePosition();
-        static f32                 GetMouseX();
-        static f32                 GetMouseY();
+        inline static bool                IsMouseButtonPressed(Razix::KeyCode::MouseKey button) { return s_Instance->IsMouseButtonPressedImpl(int(button)); }
+        inline static bool                IsMouseButtonReleased(Razix::KeyCode::MouseKey button) { return s_Instance->IsMouseButtonReleasedImpl(int(button)); }
+        inline static bool                IsMouseButtonHeld(Razix::KeyCode::MouseKey button) { return s_Instance->IsMouseButtonHeldImpl(int(button)); }
+        inline static std::pair<f32, f32> GetMousePosition() { return s_Instance->GetMousePositionImpl(); }
+        inline static f32                 GetMouseX() { return s_Instance->GetMouseXImpl(); }
+        inline static f32                 GetMouseY() { return s_Instance->GetMouseYImpl(); }
 
-        // Gamepad support for multi-device HID (PS5 DualSense, Xbox controllers, etc.)
-        static bool IsGamepadConnected();
-        static f32  GetJoyLeftStickHorizontal();
-        static f32  GetJoyLeftStickVertical();
-        static f32  GetJoyRightStickHorizontal();
-        static f32  GetJoyRightStickVertical();
-        static f32  GetJoyDPadHorizontal();
-        static f32  GetJoyDPadVertical();
-        static bool IsCrossPressed();
-        static bool IsCirclePressed();
-        static bool IsTrianglePressed();
-        static bool IsSquarePressed();
+        // This is written with the PS5 DualSense controller in mind
+        // TODO: Support all DualSense buttons
+        inline static bool IsGamepadConnected() { return s_Instance->IsGamepadConnectedImpl(); }
+
+        inline static f32 GetJoyLeftStickHorizontal() { return s_Instance->GetJoyLeftStickHorizontalImpl(); }
+        inline static f32 GetJoyLeftStickVertical() { return s_Instance->GetJoyLeftStickVerticalImpl(); }
+        inline static f32 GetJoyRightStickHorizontal() { return s_Instance->GetJoyRightStickHorizontalImpl(); }
+        inline static f32 GetJoyRightStickVertical() { return s_Instance->GetJoyRightStickVerticalImpl(); }
+        inline static f32 GetJoyDPadHorizontal() { return s_Instance->GetJoyDPadHorizontalImpl(); }
+        inline static f32 GetJoyDPadVertical() { return s_Instance->GetJoyDPadVerticalImpl(); }
+
+        inline static bool IsCrossPressed() { return s_Instance->IsCrossPressedImpl(); }
+        inline static bool IsCirclePressed() { return s_Instance->IsCirclePressedImpl(); }
+        inline static bool IsTrianglePressed() { return s_Instance->IsTrianglePressedImpl(); }
+        inline static bool IsSquarePressed() { return s_Instance->IsSquarePressedImpl(); }
+
+    protected:
+        virtual bool                IsKeyPressedImpl(int keycode)         = 0;
+        virtual bool                IsKeyReleasedImpl(int keycode)        = 0;
+        virtual bool                IsIsKeyHeldImpl(int keycode)          = 0;
+        virtual bool                IsMouseButtonPressedImpl(int button)  = 0;
+        virtual bool                IsMouseButtonReleasedImpl(int button) = 0;
+        virtual bool                IsMouseButtonHeldImpl(int button)     = 0;
+        virtual std::pair<f32, f32> GetMousePositionImpl()                = 0;
+        virtual f32                 GetMouseXImpl()                       = 0;
+        virtual f32                 GetMouseYImpl()                       = 0;
+
+        virtual bool IsGamepadConnectedImpl()         = 0;
+        virtual f32  GetJoyLeftStickHorizontalImpl()  = 0;
+        virtual f32  GetJoyLeftStickVerticalImpl()    = 0;
+        virtual f32  GetJoyRightStickHorizontalImpl() = 0;
+        virtual f32  GetJoyRightStickVerticalImpl()   = 0;
+        virtual f32  GetJoyDPadHorizontalImpl()       = 0;
+        virtual f32  GetJoyDPadVerticalImpl()         = 0;
+        virtual bool IsCrossPressedImpl()             = 0;
+        virtual bool IsCirclePressedImpl()            = 0;
+        virtual bool IsTrianglePressedImpl()          = 0;
+        virtual bool IsSquarePressedImpl()            = 0;
+
+    protected:
+        static RZInput* s_Instance;
     };
 }    // namespace Razix
