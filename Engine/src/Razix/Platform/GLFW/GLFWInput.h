@@ -1,37 +1,19 @@
 #pragma once
 
+// DEPRECATED: This class is no longer used. RZInput now uses static functions with platform-specific implementations.
+// This file is kept for compatibility but should not be used in new code.
+
 #include "Razix/Core/OS/RZInput.h"
 
 namespace Razix {
-    class RAZIX_API GLFWInput : public RZInput
+    // DEPRECATED: GLFWInput class - RZInput now implements GLFW functionality directly
+    class RAZIX_API GLFWInput
     {
     public:
-        static void SelectGLFWInputManager();
+        // DEPRECATED: Input manager selection is no longer needed
+        static void SelectGLFWInputManager() {}
 
-    protected:
-        bool IsKeyPressedImpl(int keycode) override;
-        bool IsKeyReleasedImpl(int keycode) override;
-        bool IsIsKeyHeldImpl(int keycode) override;
-
-        bool IsMouseButtonPressedImpl(int button) override;
-        bool IsMouseButtonReleasedImpl(int button) override;
-        bool IsMouseButtonHeldImpl(int button) override;
-
-        std::pair<f32, f32> GetMousePositionImpl() override;
-        f32                 GetMouseXImpl() override;
-        f32                 GetMouseYImpl() override;
-
-        bool IsGamepadConnectedImpl() override;
-        f32  GetJoyLeftStickHorizontalImpl() override;
-        f32  GetJoyLeftStickVerticalImpl() override;
-        f32  GetJoyRightStickHorizontalImpl() override;
-        f32  GetJoyRightStickVerticalImpl() override;
-        f32  GetJoyDPadHorizontalImpl() override;
-        f32  GetJoyDPadVerticalImpl() override;
-        bool IsCrossPressedImpl() override;
-        bool IsCirclePressedImpl() override;
-        bool IsTrianglePressedImpl() override;
-        bool IsSquarePressedImpl() override;
+        // All functionality has been moved to RZInput static methods
     };
 
 }    // namespace Razix

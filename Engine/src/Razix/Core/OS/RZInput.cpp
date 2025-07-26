@@ -9,7 +9,7 @@
 #if defined(RAZIX_USE_GLFW_WINDOWS) || defined(RAZIX_PLATFORM_MACOS) || defined(RAZIX_PLATFORM_UNIX)
     #include <GLFW/glfw3.h>
 #elif defined(RAZIX_PLATFORM_WINDOWS)
-    // TODO: Implement Windows-specific input handling
+    // Windows native input implementation
     #include <Windows.h>
 #endif
 
