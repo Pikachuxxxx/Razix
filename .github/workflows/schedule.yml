@@ -1,0 +1,116 @@
+name: Scheduled Stability Build
+
+on:
+  schedule:
+    # Run bi-weekly on Sundays at 2:00 AM UTC
+    # Note: GitHub Actions doesn't support exact bi-weekly, so this runs weekly
+    # We could add logic to skip every other run if needed
+    - cron: '0 2 * * 0'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.3
+    
+    - name: Generate Project Files
+      run: |
+        cd Scripts
+        .\GenerateVS22.bat
+      shell: cmd
+    
+    - name: Build Engine (GoldMaster)
+      run: |
+        python Scripts/build_razix.py --platform windows --config GoldMaster
+      shell: cmd
+    
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      if: success()
+      with:
+        name: stability-build-windows-${{ github.run_number }}
+        path: |
+          bin/GoldMaster-windows-x64/**/*
+        retention-days: 30
+
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Generate Project Files
+      run: |
+        cd Scripts
+        chmod +x ./GenerateXCodeProjectsMacOS.sh
+        ./GenerateXCodeProjectsMacOS.sh
+    
+    - name: Build Engine (GoldMaster)
+      run: |
+        python Scripts/build_razix.py --platform macos --config GoldMaster
+    
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      if: success()
+      with:
+        name: stability-build-macos-${{ github.run_number }}
+        path: |
+          bin/GoldMaster-macosx-ARM64/**/*
+        retention-days: 30
+
+  notify-results:
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Create Issue on Failure
+      if: needs.build-windows.result == 'failure' || needs.build-macos.result == 'failure'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const title = `Scheduled Build Failure - ${new Date().toISOString().split('T')[0]}`;
+          const body = `
+          ## Scheduled Stability Build Failed
+          
+          **Date:** ${new Date().toISOString()}
+          **Run:** ${{ github.run_number }}
+          
+          **Build Results:**
+          - Windows: ${{ needs.build-windows.result }}
+          - macOS: ${{ needs.build-macos.result }}
+          
+          **Action Required:**
+          Please investigate the build failures and fix any issues affecting the stability of the master branch.
+          
+          **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          `;
+          
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: title,
+            body: body,
+            labels: ['build system', 'scheduled-build-failure']
+          });

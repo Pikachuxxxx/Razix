@@ -1,0 +1,116 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      release_id: ${{ steps.create_release.outputs.id }}
+    steps:
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Razix Engine ${{ github.ref }}
+        body: |
+          Razix Engine Release ${{ github.ref }}
+          
+          ## Build Artifacts
+          - Windows (GoldMaster): razix-windows-goldmaster.zip
+          - macOS (GoldMaster): razix-macos-goldmaster.zip
+          
+          ## Changes
+          See the commit history for detailed changes in this release.
+        draft: false
+        prerelease: false
+
+  build-windows:
+    needs: create-release
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.3
+    
+    - name: Generate Project Files
+      run: |
+        cd Scripts
+        .\GenerateVS22.bat
+      shell: cmd
+    
+    - name: Build Engine (GoldMaster)
+      run: |
+        python Scripts/build_razix.py --platform windows --config GoldMaster
+      shell: cmd
+    
+    - name: Package Windows Build
+      run: |
+        7z a razix-windows-goldmaster.zip bin/GoldMaster-windows-x64/**/*
+      shell: cmd
+    
+    - name: Upload Windows Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./razix-windows-goldmaster.zip
+        asset_name: razix-windows-goldmaster.zip
+        asset_content_type: application/zip
+
+  build-macos:
+    needs: create-release
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Generate Project Files
+      run: |
+        cd Scripts
+        chmod +x ./GenerateXCodeProjectsMacOS.sh
+        ./GenerateXCodeProjectsMacOS.sh
+    
+    - name: Build Engine (GoldMaster)
+      run: |
+        python Scripts/build_razix.py --platform macos --config GoldMaster
+    
+    - name: Package macOS Build
+      run: |
+        zip -r razix-macos-goldmaster.zip bin/GoldMaster-macosx-ARM64/
+    
+    - name: Upload macOS Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./razix-macos-goldmaster.zip
+        asset_name: razix-macos-goldmaster.zip
+        asset_content_type: application/zip

@@ -1,0 +1,78 @@
+name: CI Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.3
+    
+    - name: Generate Project Files
+      run: |
+        cd Scripts
+        .\GenerateVS22.bat
+      shell: cmd
+    
+    - name: Build Engine (GoldMaster)
+      run: |
+        python Scripts/build_razix.py --platform windows --config GoldMaster
+      shell: cmd
+    
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      if: success()
+      with:
+        name: razix-windows-goldmaster
+        path: |
+          bin/GoldMaster-windows-x64/**/*
+        retention-days: 7
+
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Generate Project Files
+      run: |
+        cd Scripts
+        chmod +x ./GenerateXCodeProjectsMacOS.sh
+        ./GenerateXCodeProjectsMacOS.sh
+    
+    - name: Build Engine (GoldMaster)
+      run: |
+        python Scripts/build_razix.py --platform macos --config GoldMaster
+    
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      if: success()
+      with:
+        name: razix-macos-goldmaster
+        path: |
+          bin/GoldMaster-macosx-ARM64/**/*
+        retention-days: 7

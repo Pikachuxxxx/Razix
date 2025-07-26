@@ -5,6 +5,7 @@ import subprocess
 import sys
 import multiprocessing
 import glob
+import re
 
 # These project names (without extension) will be skipped
 BLACKLISTED_PROJECTS = {
