@@ -232,15 +232,24 @@ project "Razix"
         -- Windows specific source files for compilation
         files
         {
-            -- platform sepecific implementatioon
-            "src/Razix/Platform/Windows/*.h",
-            "src/Razix/Platform/Windows/*.cpp",
+            -- Platform specific implementation (excluding input)
+            "src/Razix/Platform/Windows/WindowsFileSystem.cpp",
+            "src/Razix/Platform/Windows/WindowsOS.cpp",
+            "src/Razix/Platform/Windows/WindowsOS.h",
+            "src/Razix/Platform/Windows/WindowsSockets.cpp",
+            "src/Razix/Platform/Windows/WindowsTimer.cpp",
+            "src/Razix/Platform/Windows/WindowsWindow.cpp",
+            "src/Razix/Platform/Windows/WindowsWindow.h",
 
-            "src/Razix/Platform/GLFW/*.h",
-            "src/Razix/Platform/GLFW/*.cpp",
+            -- GLFW platform files  
+            "src/Razix/Platform/GLFW/GLFWWindow.cpp",
+            "src/Razix/Platform/GLFW/GLFWWindow.h",
 
-            -- Platform supported Graphics API implementatioon
+            -- Default: Use GLFW input for Windows (can be overridden with premake options)
+            "src/Razix/Platform/GLFW/GLFWInput.h",
+            "src/Razix/Platform/GLFW/GLFWInput.cpp",
 
+            -- Platform supported Graphics API implementation
             "src/Razix/Platform/API/Vulkan/*.h",
             "src/Razix/Platform/API/Vulkan/*.cpp",
 
@@ -250,6 +259,19 @@ project "Razix"
             -- Vendor source files
             "vendor/glad/src/glad.c"
         }
+
+        -- Option to use Windows native input instead of GLFW
+        newoption {
+            trigger = "use-windows-input",
+            description = "Use Windows native input API instead of GLFW for input handling"
+        }
+
+        -- Conditionally include Windows input if option is specified
+        if _OPTIONS["use-windows-input"] then
+            removefiles { "src/Razix/Platform/GLFW/GLFWInput.h", "src/Razix/Platform/GLFW/GLFWInput.cpp" }
+            files { "src/Razix/Platform/Windows/WindowsInput.h", "src/Razix/Platform/Windows/WindowsInput.cpp" }
+            defines { "RAZIX_USE_WINDOWS_INPUT" }
+        end
 
         -- Windows specific incldue directories
         includedirs
@@ -327,17 +349,18 @@ project "Razix"
             "TRACY_ENABLE"
         }
 
-        -- Windows specific source files for compilation
+        -- macOS specific source files for compilation
         files
         {
-            -- platform sepecific implementatioon
+            -- Platform specific implementation
             "src/Razix/Platform/MacOS/*.h",
             "src/Razix/Platform/MacOS/*.cpp",
             
             "src/Razix/Platform/Unix/*.h",
             "src/Razix/Platform/Unix/*.cpp",
 
-            "src/Razix/Platform/GLFW/*.h",
+            -- GLFW platform files (default for macOS)
+            "src/Razix/Platform/GLFW/*.h",  
             "src/Razix/Platform/GLFW/*.cpp",
 
             "src/Razix/Platform/API/Vulkan/*.h",

@@ -7,6 +7,11 @@ namespace Razix {
     /**
      * Input manager for the Engine to interface with various input devices
      * such as Keyboard, Mouse, Joystick and other HID devices
+     * 
+     * Implementation is provided by platform-specific files:
+     * - GLFWInput.cpp for cross-platform GLFW support
+     * - WindowsInput.cpp for native Windows support
+     * Build system selects the appropriate implementation per platform
      */
     class RAZIX_API RZInput
     {
