@@ -6,7 +6,9 @@
 
 typedef struct vk_ctx
 {
-    VkInstance instance;
+    VkInstance       instance;
+    VkPhysicalDevice gpu;
+    VkDevice         device;
 } vk_ctx;
 
 typedef struct vk_cmdpool

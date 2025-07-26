@@ -43,9 +43,9 @@ namespace Razix {
                 },
                 [=](const HelloTriangleData& data, RZPassResourceDirectory& resources) {
                     RAZIX_TIME_STAMP_BEGIN("[Test] Hello Triangle Pass");
-                    RAZIX_MARK_BEGIN("[Test] Pass.Builtin.Code.HelloTriangle", Utilities::GenerateHashedColor4(69u));
 
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
+                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.HelloTriangle", Utilities::GenerateHashedColor4(69u));
 
                     rz_gfx_renderpass info            = {0};
                     info.resolution                   = RZ_GFX_RESOLUTION_WINDOW;
@@ -69,7 +69,7 @@ namespace Razix {
 
                     rzRHI_EndRenderPass(cmdBuffer);
 
-                    RAZIX_MARK_END();
+                    RAZIX_MARK_END(cmdBuffer);
                     RAZIX_TIME_STAMP_END();
                 });
         }

@@ -1,10 +1,15 @@
 #pragma once
 
-// TODO: Move GFX markers to RHI, calle them rzRHI_GfxMarker along with Query markers (timestamp and pipeline stats)
-
-#define RAZIX_MARK_BEGIN(name, labelColor)
-#define RAZIX_MARK_ADD(name, labelColor)
-#define RAZIX_MARK_END()
+// GPU Marker macros - API agnostic interface
+#ifndef RAZIX_GOLD_MASTER
+    #define RAZIX_MARK_BEGIN(cmdBuf, name, labelColor) Razix::Gfx::BeginMarker(cmdBuf, name, labelColor)
+    #define RAZIX_MARK_ADD(cmdBuf, name, labelColor)   Razix::Gfx::InsertMarker(cmdBuf, name, labelColor)
+    #define RAZIX_MARK_END(cmdBuf)                     Razix::Gfx::EndMarker(cmdBuf)
+#else
+    #define RAZIX_MARK_BEGIN(cmdBuf, name, labelColor)
+    #define RAZIX_MARK_ADD(cmdBuf, name, labelColor)
+    #define RAZIX_MARK_END(cmdBuf)
+#endif
 
 //------------------------------------------------------------------------
 // CPU timestamp markers

@@ -1,20 +1,19 @@
 #pragma once
 
 #include "Razix/Core/RZHandle.h"
-
 #include "Razix/Gfx/RHI/RHI.h"
-
-// StructNames + Assertion [Source] : https://twitter.com/SebAaltonen/status/1597135035811106816
+#include "Razix/Gfx/RZGfxDebug.h"
 
 namespace Razix {
     namespace Gfx {
 
+// Constants
 #define RAZIX_MAX_SHADER_SOURCE_SIZE 1024 * 1024
 #define RAZIX_MAX_LINE_LENGTH        1024
 #define RAZIX_MAX_SHADER_STAGES      RZ_GFX_SHADER_STAGE_COUNT
 #define RAZIX_MAX_INCLUDE_DEPTH      16
 
-        // Engine shaders
+        // Engine shaders enumeration
         enum class ShaderBuiltin : u32
         {
             //------------------------------
@@ -49,16 +48,28 @@ namespace Razix {
             COUNT
         };
 
-        rz_gfx_shader_desc       ParseRZSF(const std::string& filePath);
-        void                     FreeRZSFBytecodeAlloc(rz_gfx_shader* shader);
-        rz_gfx_shader_reflection ReflectShader(const rz_gfx_shader* shader);
+        //-----------------------------------------------------------------------------------
+        // Core Shader Utilities
+        //-----------------------------------------------------------------------------------
 
-        // Single time command buffer
-        rz_gfx_cmdbuf_handle BeginSingleTimeCommandBuffer(const std::string& name, float4 color);
-        void                 EndSingleTimeCommandBuffer(rz_gfx_cmdbuf_handle cmdBuf);
+        RAZIX_API rz_gfx_shader_desc       ParseRZSF(const std::string& filePath);
+        RAZIX_API void                     FreeRZSFBytecodeAlloc(rz_gfx_shader* shader);
+        RAZIX_API rz_gfx_shader_reflection ReflectShader(const rz_gfx_shader* shader);
 
         //-----------------------------------------------------------------------------------
-        // High-Level Rendering helper structs
+        // Command Buffer Utilities
+        //-----------------------------------------------------------------------------------
+
+        RAZIX_API rz_gfx_cmdbuf_handle BeginSingleTimeCommandBuffer(const std::string& name, float4 color);
+        RAZIX_API void                 EndSingleTimeCommandBuffer(rz_gfx_cmdbuf_handle cmdBuf);
+
+        //-----------------------------------------------------------------------------------
+        // Debug Marker Utilities
+        //-----------------------------------------------------------------------------------
+
+        //-----------------------------------------------------------------------------------
+        // High-Level Rendering Helper Structs (Future Use)
+        //-----------------------------------------------------------------------------------
         // [Source]: https://github.com/skaarj1989/SupernovaEngine
 
         /**

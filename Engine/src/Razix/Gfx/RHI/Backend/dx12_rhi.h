@@ -45,6 +45,7 @@ typedef struct dx12_ctx
     ID3D12InfoQueue* d3dInfoQ;
     IDXGIInfoQueue*  dxgiInfoQ;
     IDXGIDebug*      dxgiDebug;
+    HMODULE          pixEventRuntimeModule;
     #endif
 } dx12_ctx;
 
