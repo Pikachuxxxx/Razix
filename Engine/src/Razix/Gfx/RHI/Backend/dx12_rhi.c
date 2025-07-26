@@ -759,6 +759,9 @@ static void dx12_util_end_singletime_cmdlist(ID3D12GraphicsCommandList* cmdList,
 
     CloseHandle(fenceEvent);
     ID3D12Fence_Release(fence);
+
+    ID3D12CommandList_Release(cmdList);
+    ID3D12CommandAllocator_Release(allocator);
 }
 
 //---------------------------------------------------------------------------------------------
