@@ -9,7 +9,6 @@
 #ifdef RAZIX_USE_GLFW_WINDOWS
     #include "Razix/Platform/GLFW/GLFWWindow.h"
 #else
-    #include "Razix/Platform/Windows/WindowsInput.h"
     #include "Razix/Platform/Windows/WindowsWindow.h"
 #endif
 
@@ -21,10 +20,10 @@ namespace Razix {
 #ifdef RAZIX_USE_GLFW_WINDOWS
         // Set GLFW as window when the Engine API will be called to create the window
         GLFWWindow::Construct();
-        // Input system now uses static functions with platform-specific implementations
+        // RZInput uses static functions with compile-time platform selection
 #else
         WindowsWindow::Construct();
-        // Input system now uses static functions with platform-specific implementations
+        // RZInput uses static functions with compile-time platform selection
 #endif
     }
 
