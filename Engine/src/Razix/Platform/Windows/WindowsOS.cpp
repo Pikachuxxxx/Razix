@@ -7,7 +7,6 @@
 
 #include "Razix/Core/OS/RZWindow.h"
 #ifdef RAZIX_USE_GLFW_WINDOWS
-    #include "Razix/Platform/GLFW/GLFWInput.h"
     #include "Razix/Platform/GLFW/GLFWWindow.h"
 #else
     #include "Razix/Platform/Windows/WindowsInput.h"
@@ -22,11 +21,10 @@ namespace Razix {
 #ifdef RAZIX_USE_GLFW_WINDOWS
         // Set GLFW as window when the Engine API will be called to create the window
         GLFWWindow::Construct();
-        // Select GLFW as the input manager client
-        //RZInput::SelectGLFWInputManager();
+        // Input system now uses static functions with platform-specific implementations
 #else
         WindowsWindow::Construct();
-        Razix::RZInput* Razix::RZInput::s_Instance = new WindowsInput();
+        // Input system now uses static functions with platform-specific implementations
 #endif
     }
 
