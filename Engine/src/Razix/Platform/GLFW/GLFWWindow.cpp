@@ -127,6 +127,7 @@ namespace Razix {
         // TODO: Replace all this with WIN32 API
         if (!sGLFWInitialized) {
             int success = glfwInit();
+            (void) success;
             RAZIX_CORE_ASSERT(success, "Could not initialize GLFW");
 
             sGLFWInitialized = true;

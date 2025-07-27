@@ -1,5 +1,10 @@
 <br>
 <img width=200" align="left" src="https://github.com/Pikachuxxxx/Razix/blob/master/Branding/RazixLogo.png"> <h1> Razix Engine </h1>
+
+[![CI Build](https://github.com/Pikachuxxxx/Razix/actions/workflows/ci.yml/badge.svg)](https://github.com/Pikachuxxxx/Razix/actions/workflows/ci.yml)
+[![Release Build](https://github.com/Pikachuxxxx/Razix/actions/workflows/release.yml/badge.svg)](https://github.com/Pikachuxxxx/Razix/actions/workflows/release.yml)
+[![Scheduled Build](https://github.com/Pikachuxxxx/Razix/actions/workflows/schedule.yml/badge.svg)](https://github.com/Pikachuxxxx/Razix/actions/workflows/schedule.yml)
+
 Razix is a High Performance Engine for experimenting with different rendering techniques. Razix supports Windows, Mac, Linux. 
 
 THIS ENGINE IS BEING MADE FOR A GAME< not a generic engine, I'll have the GDD/Story etc. soon here!

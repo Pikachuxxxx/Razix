@@ -32,11 +32,13 @@ namespace Razix {
         // Load the memory budgets
         RAZIX_CORE_INFO("Loading Department/Global Budgets...");
         bool success = Memory::ParseBudgetFile("//RazixConfig/RazixDepartmentBudgets.ini");
+        (void) success;
         RAZIX_CORE_ASSERT(success, "Department/Global Budgets Load Failed!");
 
         // TODO: Load the Map the default world renderer settings file...the scene can override this
         Utilities::RZiniParser worldSettingsParser;
         success = worldSettingsParser.parse("//RazixConfig/DefaultWorldRendererSettings.ini");
+        (void) success;
         RAZIX_CORE_ASSERT(success, "Default World Renderer Settings Load Success!");
 
         // TODO: Temp code remove this!!!
@@ -79,6 +81,7 @@ namespace Razix {
         // TODO: Log the time take to initialize engine using Profiling macros
         auto                                   stop   = std::chrono::high_resolution_clock::now();
         std::chrono::duration<d32, std::milli> ms_d32 = (stop - start);
+        (void) ms_d32;
         RAZIX_CORE_INFO("Engine Ingnited in : {0} ms", ms_d32.count());
     }
 
@@ -132,6 +135,7 @@ namespace Razix {
             skipVFSForConfigLoad = true;
         }
         bool success = engineConfigParser.parse(defaultConfigPath, skipVFSForConfigLoad);
+        (void) success;
         if (success) {
             // Rendering Settings
             {

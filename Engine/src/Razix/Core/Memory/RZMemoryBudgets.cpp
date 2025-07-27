@@ -33,8 +33,10 @@ namespace Razix {
 
                     BudgetInfo budget                  = {};
                     bool       frameBudgetParseSuccess = budgetFileIniParser.getValue<float>("Departments", frameBudgetKey, budget.CPUframeBudget);
+                    (void) frameBudgetParseSuccess;
                     RAZIX_CORE_ASSERT(frameBudgetParseSuccess, "[Memory] failed to parse frame budget for {0}, make sure it's a float in .ini file and the value exists.", frameBudgetKey);
                     bool memoryBudgetParseSuccess = budgetFileIniParser.getValue<int>("Departments", memoryBudgetKey, budget.MemoryBudget);
+                    (void) memoryBudgetParseSuccess;
                     RAZIX_CORE_ASSERT(memoryBudgetParseSuccess, "[Memory] failed to parse memoroy budget for {0}, make sure it's a int in .ini file and the value exists.", memoryBudgetKey);
 
                     s_DepartmentBudgets[departInfo.first] = budget;

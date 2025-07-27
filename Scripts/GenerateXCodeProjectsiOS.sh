@@ -1,6 +1,7 @@
-@echo off
-echo Generating XCode Project files...
-echo ========================================================== 
+#!/bin/bash
+
+echo "Generating XCode Project files..."
+echo "=========================================================="
 echo " ____           _        _____             _            "
 echo "|  _ \ __ _ ___(_)_  __ | ____|_ __   __ _(_)_ __   ___ "
 echo "| |_) / _  |_  / \ \/ / |  _| |  _ \ / _  | |  _ \ / _ |"
@@ -10,22 +11,21 @@ echo "                                     |___/              "
 echo "                      🚧  🚧  🚧                         "
 echo " Premake Build System CLI for Razix Engine - v0.4.3.dev "
 echo "       @ 2025 copyright Pikachuxxxx - Phani Srikar      "
-echo 
-echo Welcome to Razix-Premake-Build CLI tool...
-echo Generates XCode project files for both MacOS/iOS
-echo ========================================================== 
-echo - CLI for generating Project files and building
-echo - Cross platform tool for installation for dev/user
-echo ==========================================================   
-echo 
-echo Usage premake5 
-echo Options:
-echo  --version: Displays the tool version and exit
-echo  --help: Displays commands available and their usage   
-echo THE TOOL IS A WIP...still adding options...
-echo 🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧 
-echo ==========================================================   
+echo
+echo "Welcome to Razix-Premake-Build CLI tool..."
+echo "Generates XCode project files for iOS"
+echo "=========================================================="
+echo "- CLI for generating Project files and building"
+echo "- Cross platform tool for installation for dev/user"
+echo "=========================================================="
+echo
+echo "Usage premake5"
+echo "Options:"
+echo "  --version: Displays the tool version and exit"
+echo "  --help: Displays commands available and their usage"
+echo "THE TOOL IS A WIP...still adding options..."
+echo "🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧"
+echo "=========================================================="
+
 chmod +x ./Tools/Building/premake/premake5
 ./Tools/Building/premake/premake5 --arch=arm64 --os=ios xcode4
-
-

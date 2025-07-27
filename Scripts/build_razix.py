@@ -5,6 +5,7 @@ import subprocess
 import sys
 import multiprocessing
 import glob
+import re
 
 # These project names (without extension) will be skipped
 BLACKLISTED_PROJECTS = {
@@ -19,10 +20,16 @@ def run_command(cmd, cwd=None):
         print(f"[ERROR] Command failed with exit code {e.returncode}")
         sys.exit(e.returncode)
 
-def build_windows(config):
-    msbuild_path = r"C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+def build_windows(config, github_ci=False):
+    if github_ci:
+        # Use Enterprise path for GitHub CI
+        msbuild_path = r"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+    else:
+        # Use Community path for local development
+        msbuild_path = r"C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+    
     if not os.path.exists(msbuild_path):
-        print("[ERROR] MSBuild not found. Please check the path.")
+        print(f"[ERROR] MSBuild not found at {msbuild_path}. Please check the path.")
         sys.exit(1)
 
     # Recursively find all .sln files in ./build
@@ -101,6 +108,8 @@ def build_macos(config):
                 "-project", project_path,
                 "-configuration", config,
                 "build",
+                "-parallelizeTargets",
+                "-UseModernBuildSystem=YES",
                 "-jobs", jobs,
             ])
 
@@ -110,6 +119,8 @@ def main():
                         help="Target platform: windows or macos")
     parser.add_argument("--config", choices=["Debug", "Release", "GoldMaster"], default="Debug",
                         help="Build configuration")
+    parser.add_argument("--github-ci", action="store_true",
+                        help="Use GitHub CI MSBuild path (Enterprise edition)")
 
     args = parser.parse_args()
 
@@ -117,7 +128,7 @@ def main():
         if platform.system() != "Windows":
             print("[ERROR] You're not on Windows but selected platform = windows.")
             sys.exit(1)
-        build_windows(args.config)
+        build_windows(args.config, args.github_ci)
     elif args.platform == "macos":
         if platform.system() != "Darwin":
             print("[ERROR] You're not on macOS but selected platform = macos.")

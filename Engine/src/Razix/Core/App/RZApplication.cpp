@@ -554,8 +554,6 @@ namespace Razix {
         // Load the scenes from the project file for the engine to load and present
         RAZIX_CORE_TRACE("Loading Scenes...");
         archive(cereal::make_nvp("Scenes", sceneFilePaths));
-        for (auto& sceneFilePath: sceneFilePaths)
-            RAZIX_CORE_TRACE("\t scene : {0}", sceneFilePath);
     }
 
     // Save mechanism for the RZApplication class

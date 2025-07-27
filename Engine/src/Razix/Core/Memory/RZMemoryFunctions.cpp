@@ -25,7 +25,7 @@ namespace Razix {
 #ifdef RAZIX_MEMORY_DEBUG
             address = RZDebugMalloc(size, alignment, NULL, 0, NULL);
 #elif defined(RAZIX_PLATFORM_CONSOLE) || (RAZIX_PLATFORM_UNIX)
-            address = memalign(size, alignment);
+            address = malloc(RZMemAlign(size, alignment));
 #elif defined(_WIN32)
             address = _aligned_malloc(size, alignment);
 #endif
