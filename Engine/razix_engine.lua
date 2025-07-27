@@ -227,7 +227,7 @@ project "Razix"
             "_DISABLE_EXTENDED_ALIGNED_STORAGE",
             "_SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING",
             "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING",
-            "TRACY_ENABLE",
+            "TRACY_ENABLE", "TRACY_ON_DEMAND",
             -- build options
             "_DISABLE_VECTOR_ANNOTATION",
             "_DISABLE_STRING_ANNOTATION",
@@ -329,7 +329,7 @@ project "Razix"
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE"
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
         -- Windows specific source files for compilation
@@ -451,7 +451,7 @@ project "Razix"
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE"
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
     -- Config settings for Razix Engine project

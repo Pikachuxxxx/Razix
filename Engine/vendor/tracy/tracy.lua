@@ -28,7 +28,7 @@ project "Tracy"
 
     -- Config settings for Razix Engine project
     filter "configurations:Debug"
-        defines { "RAZIX_DEBUG", "TRACY_ENABLE", "_DEBUG"}
+        defines { "RAZIX_DEBUG", "TRACY_ENABLE", "TRACY_ON_DEMAND", "_DEBUG"}
         symbols "On"
         runtime "Debug"
         optimize "Off"

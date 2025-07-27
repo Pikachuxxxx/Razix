@@ -147,7 +147,7 @@ function ApplyGfxTestSettings()
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE"
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
     filter "configurations:Debug"

@@ -4,7 +4,7 @@
 
 // Profilers cannot be switched at runtime and need to be decided before compile time itself
 // Note: Using a profiler especially tracy increases the memory consumption monotonically, it's not a memory leak!
-#define RZ_PROFILER_ENABLED 0
+#define RZ_PROFILER_ENABLED 1
 #define RZ_PROFILER_TRACY   1
 #define RZ_PROFILER_OPTICK  0
 #define RZ_PROFILER_NVSIGHT 0
@@ -34,7 +34,7 @@
 #define RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION   0xFFD700    // Gold
 #define RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS  0x00CED1    // Dark Turquoise
 
-#if !defined(RAZIX_GOLD_MASTER) && defined(RZ_PROFILER_ENABLED)
+#if !defined(RAZIX_GOLD_MASTER) && RZ_PROFILER_ENABLED
     // Tracy
     #if RZ_PROFILER_TRACY
         #define TRACY_CALLSTACK 1
@@ -158,6 +158,15 @@
         #define RAZIX_PROFILE_FUNCTIONC(color)
         #define RAZIX_PROFILE_FRAMEMARKER(name)
 
+        #define RAZIX_PROFILE_SCOPE_BEGIN(name)         TracyCZoneN(ctx, name, 1)
+        #define RAZIX_PROFILE_SCOPE_END()               TracyCZoneEnd(ctx)
+        #define RAZIX_PROFILE_SCOPEC_BEGIN(name, color) TracyCZoneNC(ctx, name, 1, color)
+        #define RAZIX_PROFILE_SCOPEC_END()              TracyCZoneEnd(ctx)
+        #define RAZIX_PROFILE_FUNCTION_BEGIN()          TracyCZone(ctx, 1)
+        #define RAZIX_PROFILE_FUNCTION_END()            TracyCZoneEnd(ctx)
+        #define RAZIX_PROFILE_FUNCTIONC_BEGIN(color)    TracyCZoneC(ctx, 1, color)
+        #define RAZIX_PROFILE_FUNCTIONC_END()           TracyCZoneEnd(ctx)
+
         #define RAZIX_PROFILE_GPU_CONTEXT(context)
         #define RAZIX_PROFILE_GPU_SCOPE(name)
         #define RAZIX_PROFILE_GPU_SCOPEC(name, color)
@@ -169,14 +178,21 @@
         #define RAZIX_PROFILE_LOCKMARKER(var)
         #define RAZIX_PROFILE_SETTHREADNAME(name)
     #endif
-#endif
-
-#ifdef RAZIX_GOLD_MASTER
+#else
     #define RAZIX_PROFILE_SCOPE(name)
     #define RAZIX_PROFILE_SCOPEC(name, color)
     #define RAZIX_PROFILE_FUNCTION()
     #define RAZIX_PROFILE_FUNCTIONC(color)
     #define RAZIX_PROFILE_FRAMEMARKER(name)
+
+    #define RAZIX_PROFILE_SCOPE_BEGIN(name)
+    #define RAZIX_PROFILE_SCOPE_END()
+    #define RAZIX_PROFILE_SCOPEC_BEGIN(name, color)
+    #define RAZIX_PROFILE_SCOPEC_END()
+    #define RAZIX_PROFILE_FUNCTION_BEGIN()
+    #define RAZIX_PROFILE_FUNCTION_END()
+    #define RAZIX_PROFILE_FUNCTIONC_BEGIN(color)
+    #define RAZIX_PROFILE_FUNCTIONC_END()
 
     #define RAZIX_PROFILE_GPU_CONTEXT(context)
     #define RAZIX_PROFILE_GPU_SCOPE(name)

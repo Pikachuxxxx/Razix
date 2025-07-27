@@ -1369,7 +1369,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define rzRHI_CreateSampler         g_RHI.CreateSampler
 #define rzRHI_DestroySampler        g_RHI.DestroySampler
 
-#if !defined(RZ_PROFILER_ENABLED)
+#if !RZ_PROFILER_ENABLED
     #if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
         #define rzRHI_AcquireImage                                  g_RHI.AcquireImage
         #define rzRHI_WaitOnPrevCmds                                g_RHI.WaitOnPrevCmds
