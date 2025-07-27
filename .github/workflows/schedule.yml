@@ -46,12 +46,20 @@ jobs:
         }
       shell: powershell
     
+    - name: Cache Vulkan SDK
+      uses: actions/cache@v4
+      id: cache-vulkan-windows
+      with:
+        path: |
+          C:\VulkanSDK
+        key: vulkan-sdk-windows-1.3.204.0
+    
     - name: Install Vulkan SDK
       uses: humbletim/setup-vulkan-sdk@v1.2.0
       with:
         vulkan-query-version: 1.3.204.0
         vulkan-components: Vulkan-Headers, Vulkan-Loader
-        vulkan-use-cache: true
+        vulkan-use-cache: false
     
     - name: Generate Project Files
       run: |
@@ -95,12 +103,20 @@ jobs:
         # Accept Xcode license
         sudo xcodebuild -license accept || true
     
+    - name: Cache Vulkan SDK
+      uses: actions/cache@v4
+      id: cache-vulkan-macos
+      with:
+        path: |
+          /usr/local/share/vulkan
+        key: vulkan-sdk-macos-1.3.204.0
+    
     - name: Install Vulkan SDK
       uses: humbletim/setup-vulkan-sdk@v1.2.0
       with:
         vulkan-query-version: 1.3.204.0
         vulkan-components: Vulkan-Headers, Vulkan-Loader
-        vulkan-use-cache: true
+        vulkan-use-cache: false
     
     - name: Generate Project Files
       run: |
