@@ -81,6 +81,7 @@ namespace Razix {
         // TODO: Log the time take to initialize engine using Profiling macros
         auto                                   stop   = std::chrono::high_resolution_clock::now();
         std::chrono::duration<d32, std::milli> ms_d32 = (stop - start);
+        (void) ms_d32;
         RAZIX_CORE_INFO("Engine Ingnited in : {0} ms", ms_d32.count());
     }
 

@@ -28,6 +28,7 @@ namespace Razix {
         lua_rawgeti(L, LUA_REGISTRYINDEX, funcRegistryIndex);
         if (lua_pcall(L, 0, 0, 0) != 0) {
             auto errorStr = lua_tostring(L, -1);
+            (void) errorStr;
             RAZIX_CORE_ERROR("[Lua Script Manager] Error : {0}", errorStr);
             lua_pop(L, 1);    // Pop error message from stack
             return false;
@@ -51,7 +52,7 @@ namespace Razix {
 
         if (luaL_loadfile(L, physicalPath.c_str()) || lua_pcall(L, 0, 0, 0)) {
             auto errorStr = lua_tostring(L, -1);
-
+            (void) errorStr;
             RAZIX_CORE_ERROR("[Lua Script Manager] Failed to Execute Lua script {0}", physicalPath);
             RAZIX_CORE_ERROR("[Lua Script Manager] Error : {0}", errorStr);
             m_Errors.push_back(std::string(errorStr));
@@ -73,6 +74,7 @@ namespace Razix {
 
         if (m_OnStartFunc > -1) {
             bool success = CallLuaFunction(m_OnStartFunc);
+            (void) success;
             RAZIX_CORE_ASSERT(success, "[Lua Script Manager] Error in OnStart: {0}", m_Filepath);
         }
     }
@@ -83,6 +85,7 @@ namespace Razix {
 
         if (m_UpdateFunc > -1) {
             bool success = CallLuaFunction(m_UpdateFunc);
+            (void) success;
             RAZIX_CORE_ASSERT(success, "[Lua Script Manager] Error in Update: {0}", m_Filepath);
         }
     }
@@ -93,6 +96,7 @@ namespace Razix {
 
         if (m_OnImGuiFunc > -1) {
             bool success = CallLuaFunction(m_OnImGuiFunc);
+            (void) success;
             RAZIX_CORE_ASSERT(success, "[Lua Script Manager] Error in OnImGui: {0}", m_Filepath);
         }
     }

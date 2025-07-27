@@ -108,6 +108,8 @@ def build_macos(config):
                 "-project", project_path,
                 "-configuration", config,
                 "build",
+                "-parallelizeTargets",
+                "-UseModernBuildSystem=YES",
                 "-jobs", jobs,
             ])
 
