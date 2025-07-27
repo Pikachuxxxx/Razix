@@ -175,7 +175,6 @@ jobs:
           com.lunarg.vulkan.core \
           com.lunarg.vulkan.usr \
           com.lunarg.vulkan.sdl2 \
-          com.lunarg.vulkan.glm \
           com.lunarg.vulkan.volk \
           com.lunarg.vulkan.vma
         
