@@ -43,12 +43,14 @@ jobs:
     
     - name: Generate Project Files
       run: |
-        .\Scripts\GenerateVS22.bat
+        cd Scripts
+        .\GenerateVS22.bat
       shell: cmd
     
     - name: Build Engine (GoldMaster)
       run: |
-        python Scripts/build_razix.py --platform windows --config GoldMaster
+        cd Scripts
+        python build_razix.py --platform windows --config GoldMaster
       shell: cmd
     
     - name: Upload Build Artifacts
@@ -83,14 +85,14 @@ jobs:
     
     - name: Install Vulkan SDK
       run: |
-        # Download and install Vulkan SDK for macOS
-        curl -L -o vulkan-sdk.dmg "https://sdk.lunarg.com/sdk/download/latest/mac/vulkan-sdk.dmg"
-        hdiutil attach vulkan-sdk.dmg
-        sudo /Volumes/vulkansdk-macos-*/InstallVulkan.app/Contents/MacOS/InstallVulkan --root ~/VulkanSDK --accept-licenses --default-answer --confirm-command install
-        hdiutil detach /Volumes/vulkansdk-macos-*
-        # Add Vulkan to PATH
-        echo "$HOME/VulkanSDK/macOS/bin" >> $GITHUB_PATH
-        echo "VULKAN_SDK=$HOME/VulkanSDK/macOS" >> $GITHUB_ENV
+        # Install Vulkan SDK via MoltenVK using Homebrew
+        brew install molten-vk
+        # Install vulkan-loader and vulkan-headers  
+        brew install vulkan-loader vulkan-headers
+        # Set environment variables
+        echo "VULKAN_SDK=/usr/local/share/vulkan" >> $GITHUB_ENV
+        echo "VK_ICD_FILENAMES=/usr/local/share/vulkan/icd.d/MoltenVK_icd.json" >> $GITHUB_ENV
+        echo "VK_LAYER_PATH=/usr/local/share/vulkan/explicit_layer.d" >> $GITHUB_ENV
     
     - name: Generate Project Files
       run: |
