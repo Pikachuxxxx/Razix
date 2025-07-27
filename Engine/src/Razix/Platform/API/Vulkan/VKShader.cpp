@@ -132,6 +132,7 @@ namespace Razix {
                 SpvReflectShaderModule module;
                 SpvReflectResult       result = spvReflectCreateShaderModule(fileSize, spvByteCode, &module);
                 RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect SPIRV shader - (%s)!", virtualPath);
+                (void)result;  // Suppress unused variable warning in release builds
 
                 delete spvByteCode;
 
