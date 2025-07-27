@@ -68,7 +68,7 @@ jobs:
     - name: Build Engine (GoldMaster)
       run: |
         cd Scripts
-        python build_razix.py --platform windows --config GoldMaster
+        python build_razix.py --platform windows --config GoldMaster --github-ci
       shell: cmd
 
   build-macos:
