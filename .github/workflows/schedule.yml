@@ -111,39 +111,46 @@ jobs:
           ~/VulkanSDK
         key: moltenvk-sdk-macos-1.3.290.0
     
-    - name: Install MoltenVK SDK
+    - name: Install Vulkan SDK with Command-Line Installer
       if: steps.cache-vulkan-macos.outputs.cache-hit != 'true'
       run: |
-        echo "Downloading Vulkan SDK with MoltenVK for macOS..."
+        echo "Downloading Vulkan SDK for macOS..."
         curl -L -o vulkan-sdk.dmg https://sdk.lunarg.com/sdk/download/1.3.290.0/mac/vulkansdk-macos-1.3.290.0.dmg
         
         echo "Mounting the DMG..."
         hdiutil attach vulkan-sdk.dmg -mountpoint /Volumes/VulkanSDK
         
-        echo "Checking if mount was successful..."
+        echo "Verifying mount was successful..."
         if [ ! -d "/Volumes/VulkanSDK" ]; then
           echo "ERROR: Failed to mount Vulkan SDK DMG"
           exit 1
         fi
         
-        echo "Checking if SDK directory exists in mounted volume..."
-        if [ ! -d "/Volumes/VulkanSDK/VulkanSDK/1.3.290.0" ]; then
-          echo "ERROR: Vulkan SDK directory not found in mounted volume"
+        echo "Checking for InstallVulkan.app..."
+        if [ ! -d "/Volumes/VulkanSDK/InstallVulkan.app" ]; then
+          echo "ERROR: InstallVulkan.app not found in mounted volume"
           echo "Contents of /Volumes/VulkanSDK:"
           ls -la /Volumes/VulkanSDK/ || true
           hdiutil detach /Volumes/VulkanSDK || true
           exit 1
         fi
         
-        echo "Creating target directory..."
-        mkdir -p ~/VulkanSDK
+        echo "Installing Vulkan SDK using command-line installer..."
+        sudo /Volumes/VulkanSDK/InstallVulkan.app/Contents/MacOS/InstallVulkan \
+          --root ~/VulkanSDK/1.3.290.0 \
+          --accept-licenses \
+          --default-answer \
+          --confirm-command install \
+          com.lunarg.vulkan.core \
+          com.lunarg.vulkan.usr \
+          com.lunarg.vulkan.sdl2 \
+          com.lunarg.vulkan.glm \
+          com.lunarg.vulkan.volk \
+          com.lunarg.vulkan.vma
         
-        echo "Copying SDK to permanent location..."
-        cp -r "/Volumes/VulkanSDK/VulkanSDK/1.3.290.0" ~/VulkanSDK/
-        
-        echo "Verifying copy was successful..."
+        echo "Verifying installation..."
         if [ ! -d "$HOME/VulkanSDK/1.3.290.0" ]; then
-          echo "ERROR: Failed to copy Vulkan SDK"
+          echo "ERROR: Vulkan SDK installation failed"
           hdiutil detach /Volumes/VulkanSDK || true
           exit 1
         fi
@@ -162,7 +169,7 @@ jobs:
         echo "VULKAN_SDK=$HOME/VulkanSDK/1.3.290.0/macOS" >> $GITHUB_ENV
         echo "$HOME/VulkanSDK/1.3.290.0/macOS/bin" >> $GITHUB_PATH
         
-        # Verify SDK structure
+        # Verify SDK structure and DXC availability
         echo "Verifying Vulkan SDK installation..."
         if [ -d "$HOME/VulkanSDK/1.3.290.0/macOS" ]; then
           echo "✓ Vulkan SDK directory found"
@@ -173,24 +180,18 @@ jobs:
             echo "✓ Vulkan SDK bin directory found"
             echo "Contents of bin directory:"
             ls -la "$HOME/VulkanSDK/1.3.290.0/macOS/bin/"
+            
+            if [ -f "$HOME/VulkanSDK/1.3.290.0/macOS/bin/dxc" ]; then
+              echo "✓ DXC found in Vulkan SDK"
+              "$HOME/VulkanSDK/1.3.290.0/macOS/bin/dxc" --version || echo "DXC version check completed"
+            else
+              echo "⚠ DXC not found at expected location"
+            fi
           else
             echo "⚠ Vulkan SDK bin directory not found"
           fi
         else
           echo "⚠ Vulkan SDK directory not found"
-        fi
-    
-    - name: Install DXC Fallback
-      run: |
-        # Check if DXC is available from Vulkan SDK
-        if [ -f "$HOME/VulkanSDK/1.3.290.0/macOS/bin/dxc" ]; then
-          echo "✓ DXC found in Vulkan SDK"
-          "$HOME/VulkanSDK/1.3.290.0/macOS/bin/dxc" --version || echo "DXC version check failed"
-        else
-          echo "⚠ DXC not found in Vulkan SDK, installing via Homebrew..."
-          brew install spirv-cross
-          # Try to install dxc via Homebrew if available
-          brew install --cask microsoft-directx-shader-compiler || echo "DXC not available via Homebrew, will rely on Vulkan SDK"
         fi
     
     - name: Generate Project Files
