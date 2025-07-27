@@ -48,5 +48,17 @@ typedef struct vk_pipeline
     VkPipelineLayout pipelineLayout;
 } vk_pipeline;
 
+typedef struct vk_texture
+{
+    VkImage        image;
+    VkDeviceMemory memory;
+    VkImageView    imageView;
+} vk_texture;
+
+typedef struct vk_sampler
+{
+    VkSampler sampler;
+} vk_sampler;
+
 #endif    // RAZIX_RENDER_API_VULKAN
 #endif    // vk_RHI_H

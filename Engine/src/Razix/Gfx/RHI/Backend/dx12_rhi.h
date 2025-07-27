@@ -63,8 +63,7 @@ typedef struct dx12_descriptor_handles
 
 typedef struct dx12_texture
 {
-    ID3D12Resource*       resource;
-    D3D12_RESOURCE_STATES state;
+    ID3D12Resource* resource;
     union
     {
         dx12_descriptor_handles srv;
@@ -73,6 +72,11 @@ typedef struct dx12_texture
         dx12_descriptor_handles dsv;
     } resView;
 } dx12_texture;
+
+typedef struct dx12_sampler
+{
+    dx12_descriptor_handles samplerView;
+} dx12_sampler;
 
 typedef struct dx12_swapchain
 {
@@ -115,7 +119,6 @@ typedef struct dx12_root_signature
 typedef struct dx12_shader_stage
 {
     ID3DBlob* bytecode;
-    // D3D12_SHADER_BYTECODE bytecodeDesc;
 } dx12_shader_stage;
 
 typedef struct dx12_shader

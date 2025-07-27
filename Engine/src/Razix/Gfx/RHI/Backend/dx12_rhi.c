@@ -409,6 +409,94 @@ static D3D12_RENDER_TARGET_BLEND_DESC dx12_util_blend_preset(rz_gfx_blend_preset
     return desc;
 }
 
+static D3D12_TEXTURE_ADDRESS_MODE dx12_util_translate_wrap_type(rz_gfx_texture_wrap_type wrapType)
+{
+    switch (wrapType) {
+        case RZ_GFX_TEXTURE_WRAP_TYPE_REPEAT:
+            return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        case RZ_GFX_TEXTURE_WRAP_TYPE_MIRRORED_REPEAT:
+            return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        case RZ_GFX_TEXTURE_WRAP_TYPE_CLAMP_TO_EDGE:
+            return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+        case RZ_GFX_TEXTURE_WRAP_TYPE_CLAMP_TO_BORDER:
+            return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+        default:
+            RAZIX_RHI_ASSERT(false, "[DX12] Unsupported texture wrap type: %d", wrapType);
+            return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    }
+}
+
+static D3D12_FILTER dx12_util_translate_filter_type(rz_gfx_texture_filter_type minFilter, rz_gfx_texture_filter_type magFilter, rz_gfx_texture_filter_type mipFilter)
+{
+    // DirectX 12 uses a combined filter enum that specifies min, mag, and mip filtering in one value
+    // We need to determine the appropriate D3D12_FILTER based on the combination of filters
+
+    bool minLinear = (minFilter == RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR ||
+                      minFilter == RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST ||
+                      minFilter == RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR);
+
+    bool magLinear = (magFilter == RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR ||
+                      magFilter == RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST ||
+                      magFilter == RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR);
+
+    bool mipLinear = (mipFilter == RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR ||
+                      minFilter == RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR ||
+                      minFilter == RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR);
+
+    // Handle cases where mipmap filtering is specified in minFilter
+    if (minFilter == RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST ||
+        minFilter == RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST) {
+        mipLinear = false;
+    } else if (minFilter == RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR ||
+               minFilter == RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR) {
+        mipLinear = true;
+    }
+
+    // Combine the filter settings into D3D12_FILTER
+    if (!minLinear && !magLinear && !mipLinear) {
+        return D3D12_FILTER_MIN_MAG_MIP_POINT;
+    } else if (!minLinear && !magLinear && mipLinear) {
+        return D3D12_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+    } else if (!minLinear && magLinear && !mipLinear) {
+        return D3D12_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT;
+    } else if (!minLinear && magLinear && mipLinear) {
+        return D3D12_FILTER_MIN_POINT_MAG_MIP_LINEAR;
+    } else if (minLinear && !magLinear && !mipLinear) {
+        return D3D12_FILTER_MIN_LINEAR_MAG_MIP_POINT;
+    } else if (minLinear && !magLinear && mipLinear) {
+        return D3D12_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+    } else if (minLinear && magLinear && !mipLinear) {
+        return D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+    } else if (minLinear && magLinear && mipLinear) {
+        return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+    }
+
+    // Default fallback
+    return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+}
+
+static D3D12_FILTER dx12_util_translate_single_filter_type(rz_gfx_texture_filter_type filterType)
+{
+    // Simplified version for cases where only one filter type is provided
+    switch (filterType) {
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST:
+            return D3D12_FILTER_MIN_MAG_MIP_POINT;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR:
+            return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST:
+            return D3D12_FILTER_MIN_MAG_MIP_POINT;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST:
+            return D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR:
+            return D3D12_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR:
+            return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+        default:
+            RAZIX_RHI_ASSERT(false, "[DX12] Unsupported texture filter type: %d", filterType);
+            return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+    }
+}
+
 //---------------------------------------------------------------------------------------------
 // Helper functions
 
@@ -665,7 +753,6 @@ static void dx12_update_swapchain_rtvs(rz_gfx_swapchain* sc)
         texture.resource.handle                       = (rz_handle) {i, i};
         texture.resource.viewHints                    = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
         dxtexture.resource                            = d3dresource;
-        dxtexture.state                               = D3D12_RESOURCE_STATE_PRESENT;
         dxtexture.resView.rtv.cpu                     = rtvHandle;
         texture.dx12                                  = dxtexture;
         texture.resource.desc.textureDesc.height      = sc->height;
@@ -1341,6 +1428,76 @@ static void dx12_DestroyPipeline(void* pipeline)
     }
 }
 
+static void dx12_CreateTexture(void* where)
+{
+    rz_gfx_texture* texture = (rz_gfx_texture*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&texture->resource.handle), "Invalid texture handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_texture_desc* desc = &texture->resource.desc.textureDesc;
+    RAZIX_RHI_ASSERT(desc = NULL, "Texture descriptor cannot be NULL");
+    RAZIX_RHI_ASSERT(desc->width > 0 && desc->height > 0 && desc->depth > 0, "Texture dimensions must be greater than zero");
+
+    D3D12_RESOURCE_DESC resDesc = {0};
+    resDesc.Width               = desc->width;
+    resDesc.Height              = desc->height;
+    resDesc.DepthOrArraySize    = desc->depth;
+    resDesc.MipLevels           = desc->mipLevels;
+    resDesc.Format              = dx12_util_rz_gfx_format_to_dxgi_format(desc->format);
+    resDesc.SampleDesc.Count    = 1;
+    resDesc.Layout              = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    resDesc.Flags               = D3D12_RESOURCE_FLAG_NONE;
+
+    // Set resource flags
+    if (desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV == RZ_GFX_RESOURCE_VIEW_FLAG_UAV)
+        resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    else if (desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_RTV == RZ_GFX_RESOURCE_VIEW_FLAG_RTV)
+        resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+    else if (desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV == RZ_GFX_RESOURCE_VIEW_FLAG_DSV)
+        resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+    D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;    // Default state, can be changed later
+
+    // Crated resource with memory backing
+    D3D12_HEAP_PROPERTIES heapProps = {0};
+    heapProps.Type                  = D3D12_HEAP_TYPE_DEFAULT;
+    heapProps.CPUPageProperty       = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    heapProps.MemoryPoolPreference  = D3D12_MEMORY_POOL_UNKNOWN;
+
+    // Create the texture resource
+    HRESULT hr = ID3D12Device10_CreateCommittedResource(DX12Device, &heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, initialState, NULL, &IID_ID3D12Resource, &texture->dx12.resource);
+    if (FAILED(hr)) {
+        RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Texture2D: 0x%08X", hr);
+        return;
+    }
+    RAZIX_RHI_LOG_INFO("D3D12 Texture2D created successfully");
+    TAG_OBJECT(texture->dx12.resource, texture->resource.pName);
+}
+
+static void dx12_DestroyTexture(void* texture)
+{
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture is NULL, cannot destroy");
+    rz_gfx_texture* tex = (rz_gfx_texture*) texture;
+    if (tex->dx12.resource) {
+        ID3D12Resource_Release(tex->dx12.resource);
+        tex->dx12.resource = NULL;
+    }
+}
+
+static void dx12_CreateSampler(void* where)
+{
+    rz_gfx_sampler* sampler = (rz_gfx_sampler*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&sampler->resource.handle), "Invalid sampler handle, who is allocating this? ResourceManager should create a valid handle");
+    // This is empty we don't need to create anything for samplers in D3D12
+    // Samplers are created during descriptor heap creation and bound to the pipeline state.
+}
+
+static void dx12_DestroySampler(void* sampler)
+{
+    RAZIX_RHI_ASSERT(sampler != NULL, "Sampler is NULL, cannot destroy");
+    rz_gfx_sampler* sam = (rz_gfx_sampler*) sampler;
+    // In D3D12, samplers are not standalone objects, so there's nothing to release here.
+    // They are managed by the descriptor heaps and bound to the pipeline state.
+}
+
 //---------------------------------------------------------------------------------------------
 // RHI
 
@@ -1355,9 +1512,9 @@ static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncp
 
     if (completed < waitSyncPoint) {
         // Set the fence event and check for failure
-        HRESULT hr = ID3D12Fence_SetEventOnCompletion(frameSyncobj->dx12.fence, waitSyncPoint, frameSyncobj->dx12.eventHandle);
+        HRESULT hr = ID3D12CommandQueue_Signal(DX12Context.directQ, frameSyncobj->dx12.fence, waitSyncPoint);
         if (FAILED(hr)) {
-            RAZIX_RHI_LOG_ERROR("[WAIT ERR] SetEventOnCompletion(%llu) failed -> 0x%08X", waitSyncPoint, hr);
+            RAZIX_RHI_LOG_ERROR("[WAIT ERR] Signal(fence=%p, value=%llu) failed -> 0x%08X", frameSyncobj->dx12.fence, waitSyncPoint, hr);
         }
 
         // Wait for the event and log errors only

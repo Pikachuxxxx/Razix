@@ -337,6 +337,16 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_TEXTURE_TYPE_COUNT
     } rz_gfx_texture_type;
 
+    typedef enum rz_gfx_texture_address_mode
+    {
+        RZ_GFX_TEXTURE_ADDRESS_MODE_WRAP = 0,       // Repeat the texture coordinates
+        RZ_GFX_TEXTURE_ADDRESS_MODE_MIRROR,         // Mirror the texture coordinates
+        RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP,          // Clamp to edge of the texture
+        RZ_GFX_TEXTURE_ADDRESS_MODE_BORDER,         // Use a border color for out-of-bounds
+        RZ_GFX_TEXTURE_ADDRESS_MODE_MIRROR_ONCE,    // Mirror once and then clamp
+        RZ_GFX_TEXTURE_ADDRESS_MODE_COUNT
+    } rz_gfx_texture_address_mode;
+
     typedef enum rz_gfx_cmdpool_type
     {
         RZ_GFX_CMDPOOL_TYPE_GRAPHICS,
@@ -720,15 +730,30 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_texture_desc
     {
-        uint32_t            width;
-        uint32_t            height;
-        uint32_t            depth;
-        uint32_t            mipLevels;
-        uint32_t            arraySize;
-        rz_gfx_format       format;
-        rz_gfx_texture_type textureType;
-        uint8_t             _pad0[4];
+        uint32_t                   width;
+        uint32_t                   height;
+        uint32_t                   depth;
+        uint32_t                   mipLevels;
+        uint32_t                   arraySize;
+        rz_gfx_format              format;
+        rz_gfx_texture_type        textureType;
+        rz_gfx_resource_view_hints resourceHints;    // Hints for how this texture should be viewed, used for binding
     } rz_gfx_texture_desc;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_sampler_desc
+    {
+        rz_gfx_texture_filter_type  minFilter;
+        rz_gfx_texture_filter_type  magFilter;
+        rz_gfx_texture_filter_type  mipFilter;
+        rz_gfx_texture_address_mode addressModeU;
+        rz_gfx_texture_address_mode addressModeV;
+        rz_gfx_texture_address_mode addressModeW;
+        float                       mipLODBias;
+        uint32_t                    maxAnisotropy;
+        rz_gfx_compare_op_type      compareOp;
+        float                       minLod;
+        float                       maxLod;
+    } rz_gfx_sampler_desc;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_binding_location
     {
@@ -922,6 +947,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         union
         {
             rz_gfx_texture_desc          textureDesc;
+            rz_gfx_sampler_desc          samplerDesc;
             rz_gfx_cmdpool_desc          cmdpoolDesc;
             rz_gfx_cmdbuf_desc           cmdbufDesc;
             rz_gfx_root_signature_desc   rootSignatureDesc;
@@ -956,12 +982,23 @@ static inline unsigned int rz_clz32(unsigned int x)
     {
         RAZIX_GFX_RESOURCE;
 #ifdef RAZIX_RENDER_API_VULKAN
-            //vk_texture vk;
+        vk_texture vk;
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
         dx12_texture dx12;
 #endif
     } rz_gfx_texture;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_sampler
+    {
+        RAZIX_GFX_RESOURCE;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_sampler vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_sampler dx12;
+#endif
+    } rz_gfx_sampler;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_swapchain
     {
@@ -1198,6 +1235,12 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_CreatePipelineFn)(void* where);
     typedef void (*rzRHI_DestroyPipelineFn)(void* ptr);
 
+    typedef void (*rzRHI_CreateTextureFn)(void* where);
+    typedef void (*rzRHI_DestroyTextureFn)(void* ptr);
+
+    typedef void (*rzRHI_CreateSamplerFn)(void* where);
+    typedef void (*rzRHI_DestroySamplerFn)(void* ptr);
+
     typedef void (*rzRHI_CreateDescriptorHeapFn)(void* where);
     typedef void (*rzRHI_DestroyDescriptorHeapFn)(void* ptr);
 
@@ -1255,6 +1298,10 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_DestroyRootSignatureFn DestroyRootSignature;
         rzRHI_CreatePipelineFn       CreatePipeline;
         rzRHI_DestroyPipelineFn      DestroyPipeline;
+        rzRHI_CreateTextureFn        CreateTexture;
+        rzRHI_DestroyTextureFn       DestroyTexture;
+        rzRHI_CreateSamplerFn        CreateSampler;
+        rzRHI_DestroySamplerFn       DestroySampler;
         //....
         rzRHI_CreateDescriptorHeapFn  CreateDescriptorHeap;
         rzRHI_DestroyDescriptorHeapFn DestroyDescriptorHeap;
@@ -1317,6 +1364,10 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define rzRHI_DestroyRootSignature  g_RHI.DestroyRootSignature
 #define rzRHI_CreatePipeline        g_RHI.CreatePipeline
 #define rzRHI_DestroyPipeline       g_RHI.DestroyPipeline
+#define rzRHI_CreateTexture         g_RHI.CreateTexture
+#define rzRHI_DestroyTexture        g_RHI.DestroyTexture
+#define rzRHI_CreateSampler         g_RHI.CreateSampler
+#define rzRHI_DestroySampler        g_RHI.DestroySampler
 
 #if !defined(RZ_PROFILER_ENABLED)
     #if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
