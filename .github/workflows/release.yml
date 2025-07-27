@@ -47,23 +47,35 @@ jobs:
       with:
         python-version: '3.x'
     
-    - name: Setup MSBuild
+    - name: Setup Visual Studio
       uses: microsoft/setup-msbuild@v2
+      with:
+        msbuild-architecture: x64
     
-    - name: Install Vulkan SDK
+    - name: Add MSBuild to PATH
       run: |
-        # Download and install Vulkan SDK
-        $url = "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe"
-        $output = "$env:TEMP\vulkan-sdk.exe"
-        Invoke-WebRequest -Uri $url -OutFile $output
-        Start-Process -FilePath $output -ArgumentList "--accept-licenses", "--default-answer", "--confirm-command", "install" -Wait
-        # Add Vulkan to PATH
-        $vulkanPath = "$env:ProgramFiles\VulkanSDK"
-        if (Test-Path $vulkanPath) {
-          $latestVersion = Get-ChildItem $vulkanPath | Sort-Object Name -Descending | Select-Object -First 1
-          echo "$vulkanPath\$($latestVersion.Name)\Bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        $msbuildPath = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin"
+        if (-not (Test-Path $msbuildPath)) {
+          $msbuildPath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin"
+        }
+        if (-not (Test-Path $msbuildPath)) {
+          $msbuildPath = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin"
+        }
+        if (Test-Path $msbuildPath) {
+          echo $msbuildPath | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "MSBuild path added: $msbuildPath"
+        } else {
+          echo "MSBuild not found in expected locations"
+          exit 1
         }
       shell: powershell
+    
+    - name: Install Vulkan SDK
+      uses: humbletim/setup-vulkan-sdk@v1.2.0
+      with:
+        vulkan-query-version: 1.3.204.0
+        vulkan-components: Vulkan-Headers, Vulkan-Loader
+        vulkan-use-cache: true
     
     - name: Generate Project Files
       run: |
@@ -115,15 +127,11 @@ jobs:
         sudo xcodebuild -license accept || true
     
     - name: Install Vulkan SDK
-      run: |
-        # Install Vulkan SDK via MoltenVK using Homebrew
-        brew install molten-vk
-        # Install vulkan-loader and vulkan-headers  
-        brew install vulkan-loader vulkan-headers
-        # Set environment variables
-        echo "VULKAN_SDK=/usr/local/share/vulkan" >> $GITHUB_ENV
-        echo "VK_ICD_FILENAMES=/usr/local/share/vulkan/icd.d/MoltenVK_icd.json" >> $GITHUB_ENV
-        echo "VK_LAYER_PATH=/usr/local/share/vulkan/explicit_layer.d" >> $GITHUB_ENV
+      uses: humbletim/setup-vulkan-sdk@v1.2.0
+      with:
+        vulkan-query-version: 1.3.204.0
+        vulkan-components: Vulkan-Headers, Vulkan-Loader
+        vulkan-use-cache: true
     
     - name: Generate Project Files
       run: |
