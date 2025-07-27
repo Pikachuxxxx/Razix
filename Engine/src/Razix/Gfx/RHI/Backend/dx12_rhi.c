@@ -1512,9 +1512,9 @@ static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncp
 
     if (completed < waitSyncPoint) {
         // Set the fence event and check for failure
-        HRESULT hr = ID3D12CommandQueue_Signal(DX12Context.directQ, frameSyncobj->dx12.fence, waitSyncPoint);
+        HRESULT hr = ID3D12Fence_SetEventOnCompletion(frameSyncobj->dx12.fence, waitSyncPoint, frameSyncobj->dx12.eventHandle);
         if (FAILED(hr)) {
-            RAZIX_RHI_LOG_ERROR("[WAIT ERR] Signal(fence=%p, value=%llu) failed -> 0x%08X", frameSyncobj->dx12.fence, waitSyncPoint, hr);
+            RAZIX_RHI_LOG_ERROR("[WAIT ERR] SetEventOnCompletion(%llu) failed -> 0x%08X", waitSyncPoint, hr);
         }
 
         // Wait for the event and log errors only
