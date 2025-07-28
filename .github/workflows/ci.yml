@@ -102,6 +102,7 @@ jobs:
         # Set up Vulkan SDK environment variables
         if (Test-Path "C:\VulkanSDK\1.3.290.0") {
             echo "Vulkan SDK directory found"
+            echo "VULKAN_SDK=C:\VulkanSDK\1.3.290.0" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
             
             # Inner if: Check Bin directory
             if (Test-Path "C:\VulkanSDK\1.3.290.0\Bin") {
@@ -130,7 +131,6 @@ jobs:
         } else {
             echo "Vulkan SDK directory not found"
         }
-        
       shell: powershell
     
     - name: Generate Project Files
