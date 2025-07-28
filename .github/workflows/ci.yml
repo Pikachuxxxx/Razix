@@ -57,13 +57,12 @@ jobs:
       run: |
         echo "Downloading Vulkan SDK for Windows..."
         
-        # Use PowerShell's Invoke-WebRequest instead of curl
         $url = "https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe"
         $outputFile = "vulkan-sdk-installer.exe"
         
         try {
             echo "Downloading from: $url"
-            Invoke-WebRequest -Uri $url -OutFile $outputFile -UseBasicParsing
+            curl.exe -L -o $outputFile $url
             
             if (Test-Path $outputFile) {
                 $fileSize = (Get-Item $outputFile).length
@@ -84,8 +83,7 @@ jobs:
         }
         
         echo "Installing Vulkan SDK..."
-        # Use silent installation with /S flag (NSIS installer)
-        Start-Process -FilePath $outputFile -ArgumentList "/S", "/D=C:\VulkanSDK\1.3.290.0" -Wait -NoNewWindow
+        .\$outputFile in  --accept-licenses  --root "C:\VulkanSDK\1.3.290.0"  --default-answer  com.lunarg.vulkan.core com.lunarg.vulkan.usr com.lunarg.vulkan.sdl2 com.lunarg.vulkan.volk com.lunarg.vulkan.vma
         
         echo "Verifying installation..."
         if (-not (Test-Path "C:\VulkanSDK\1.3.290.0")) {
