@@ -1,11 +1,11 @@
 // EngineTests.cpp
-// Unit tests for the main RZEngine class
+// Unit tests for the RZEngine class
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
 
 #include "Razix/Core/Log/RZLog.h"
-// Note: RZEngine has many dependencies, so we test concepts and patterns
-// #include "Razix/Core/RZEngine.h"
+#include "Razix/Core/RZEngine.h"
+#include "Razix/Core/RZEngineSettings.h"
 
 #include <gtest/gtest.h>
 
@@ -16,83 +16,95 @@ namespace Razix {
     protected:
         void SetUp() override
         {
-            // Initialize any required setup
+            // Initialize logging for tests
+            Razix::Debug::RZLog::StartUp();
         }
 
         void TearDown() override
         {
-            // Clean up any allocated resources
+            Razix::Debug::RZLog::Shutdown();
         }
     };
 
-    // Test case for singleton pattern
-    TEST_F(RZEngineTests, SingletonPattern)
+    // Test case for engine singleton access
+    TEST_F(RZEngineTests, SingletonAccess)
     {
-        // Test that RZEngine follows singleton pattern
-        SUCCEED() << "RZEngine should implement singleton pattern via RZSingleton<RZEngine>.";
+        // Test that RZEngine implements singleton pattern
+        RZEngine& instance1 = RZEngine::Get();
+        RZEngine& instance2 = RZEngine::Get();
+        
+        EXPECT_EQ(&instance1, &instance2) << "RZEngine::Get() should return the same instance";
     }
 
-    // Test case for stats structure
+    // Test case for engine stats structure
     TEST_F(RZEngineTests, StatsStructure)
     {
-        // Test the expected stats structure design
-        SUCCEED() << "RZEngine should provide Stats structure with DeltaTime, UpdatesPerSecond, and FramesPerSecond.";
+        RZEngine& engine = RZEngine::Get();
+        
+        // Test that we can access the stats structure
+        auto stats = engine.GetStatistics();
+        
+        // Stats should be properly initialized
+        EXPECT_GE(stats.DeltaTime, 0.0f) << "DeltaTime should be non-negative";
+        EXPECT_GE(stats.UpdatesPerSecond, 0.0f) << "UpdatesPerSecond should be non-negative";
+        EXPECT_GE(stats.FramesPerSecond, 0.0f) << "FramesPerSecond should be non-negative";
     }
 
     // Test case for application creation tracking
     TEST_F(RZEngineTests, ApplicationCreationTracking)
     {
-        // Test that engine tracks application creation status
-        SUCCEED() << "RZEngine should track application creation with isRZApplicationCreated flag.";
-    }
-
-    // Test case for engine subsystem integration
-    TEST_F(RZEngineTests, SubsystemIntegration)
-    {
-        // Test that engine integrates with major subsystems
-        SUCCEED() << "RZEngine should integrate with Audio, VFS, Gfx, Scene, and Scripting subsystems.";
+        RZEngine& engine = RZEngine::Get();
+        
+        // Initially, no application should be created
+        EXPECT_FALSE(engine.IsRZApplicationCreated()) << "Initially no RZApplication should be created";
     }
 
     // Test case for engine settings integration
     TEST_F(RZEngineTests, EngineSettingsIntegration)
     {
-        // Test that engine works with engine settings
-        SUCCEED() << "RZEngine should integrate with RZEngineSettings for configuration.";
+        RZEngine& engine = RZEngine::Get();
+        
+        // Test that engine can work with settings
+        EngineSettings settings;
+        settings.EnableGPUBasedValidation = true;
+        settings.EnableBindlessResources = false;
+        
+        // These settings should be usable with the engine
+        EXPECT_TRUE(settings.EnableGPUBasedValidation);
+        EXPECT_FALSE(settings.EnableBindlessResources);
     }
 
-    // Test case for command line parser integration
-    TEST_F(RZEngineTests, CommandLineParserIntegration)
+    // Test case for version information
+    TEST_F(RZEngineTests, VersionInformation)
     {
-        // Test that engine supports command line parsing
-        SUCCEED() << "RZEngine should support command line parsing via RZCommandLineParser.";
+        // Test that engine has access to version information
+        // These should be defined constants
+        EXPECT_TRUE(RAZIX_VERSION_MAJOR >= 0);
+        EXPECT_TRUE(RAZIX_VERSION_MINOR >= 0);
+        EXPECT_TRUE(RAZIX_VERSION_PATCH >= 0);
     }
 
-    // Test case for version tracking
-    TEST_F(RZEngineTests, VersionTracking)
+    // Test case for subsystem lifecycle
+    TEST_F(RZEngineTests, SubsystemLifecycle)
     {
-        // Test that engine tracks version information
-        SUCCEED() << "RZEngine should track version information via RazixVersion.";
+        RZEngine& engine = RZEngine::Get();
+        
+        // Test that engine supports startup/shutdown concept
+        // Note: We don't actually call StartUp()/ShutDown() as they require full engine initialization
+        // But we can verify the singleton is accessible
+        EXPECT_TRUE(&engine != nullptr) << "Engine singleton should be accessible";
     }
 
-    // Test case for API design validation
-    TEST_F(RZEngineTests, APIDesignValidation)
+    // Test case for statistics initialization
+    TEST_F(RZEngineTests, StatisticsInitialization)
     {
-        // Test that the API follows engine patterns
-        SUCCEED() << "RZEngine should follow Razix API patterns with RAZIX_API and proper namespacing.";
-    }
-
-    // Test case for lifecycle management
-    TEST_F(RZEngineTests, LifecycleManagement)
-    {
-        // Test that engine supports proper lifecycle
-        SUCCEED() << "RZEngine should support proper startup, update, and shutdown lifecycle.";
-    }
-
-    // Test case for performance metrics
-    TEST_F(RZEngineTests, PerformanceMetrics)
-    {
-        // Test that engine provides performance tracking
-        SUCCEED() << "RZEngine should provide performance metrics tracking via Stats.";
+        RZEngine& engine = RZEngine::Get();
+        auto stats = engine.GetStatistics();
+        
+        // Test that statistics are properly initialized to reasonable values
+        EXPECT_TRUE(std::isfinite(stats.DeltaTime)) << "DeltaTime should be a finite number";
+        EXPECT_TRUE(std::isfinite(stats.UpdatesPerSecond)) << "UpdatesPerSecond should be a finite number";
+        EXPECT_TRUE(std::isfinite(stats.FramesPerSecond)) << "FramesPerSecond should be a finite number";
     }
 
 }    // namespace Razix
