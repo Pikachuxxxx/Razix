@@ -20,6 +20,9 @@ def run_command(cmd, cwd=None):
         print(f"[ERROR] Command failed with exit code {e.returncode}")
         sys.exit(e.returncode)
 
+def is_inside_scripts_dir():
+    return os.path.basename(os.getcwd()) == "Scripts"
+
 def build_windows(config, github_ci=False):
     if github_ci:
         # Use Enterprise path for GitHub CI
@@ -31,9 +34,12 @@ def build_windows(config, github_ci=False):
     if not os.path.exists(msbuild_path):
         print(f"[ERROR] MSBuild not found at {msbuild_path}. Please check the path.")
         sys.exit(1)
+        
+    # Determine the build directory
+    build_dir = "../build" if is_inside_scripts_dir() else "./build"
 
-    # Recursively find all .sln files in ./build
-    for root, _, files in os.walk("./build"):
+    # Recursively find all .sln files in the build directory
+    for root, _, files in os.walk(build_dir):
         for file in files:
             if file.endswith(".sln"):
                 sln_path = os.path.join(root, file)
