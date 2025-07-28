@@ -111,7 +111,7 @@ jobs:
         
         echo "Installing Vulkan SDK..."
         # Use silent installation with /S flag (NSIS installer)
-        .\$outputFile in  --accept-licenses  --root "C:\VulkanSDK\1.3.290.0"  --default-answer  com.lunarg.vulkan.core com.lunarg.vulkan.usr com.lunarg.vulkan.sdl2 com.lunarg.vulkan.volk com.lunarg.vulkan.vma
+        .\vulkan-sdk-installer.exe in  --accept-licenses  --root "C:\VulkanSDK\1.3.290.0"  --default-answer  com.lunarg.vulkan.core com.lunarg.vulkan.usr com.lunarg.vulkan.sdl2 com.lunarg.vulkan.volk com.lunarg.vulkan.vma
         
         echo "Verifying installation..."
         if (-not (Test-Path "C:\VulkanSDK\1.3.290.0")) {
