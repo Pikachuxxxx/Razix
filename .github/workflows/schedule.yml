@@ -105,15 +105,15 @@ jobs:
       run: |
         # Set up Vulkan SDK environment variables
         if (Test-Path "C:\VulkanSDK\1.3.290.0") {
-            echo "✓ Vulkan SDK directory found"
+            echo "Vulkan SDK directory found"
             
             # Inner if: Check Bin directory
             if (Test-Path "C:\VulkanSDK\1.3.290.0\Bin") {
-                echo "✓ Vulkan SDK Bin directory found"
+                echo "Vulkan SDK Bin directory found"
                 
                 # Inner-inner if: Check dxc.exe
                 if (Test-Path "C:\VulkanSDK\1.3.290.0\Bin\dxc.exe") {
-                    echo "✓ DXC found in Vulkan SDK"
+                    echo "DXC found in Vulkan SDK"
                     try {
                         & "C:\VulkanSDK\1.3.290.0\Bin\dxc.exe" --version
                         echo "DXC version check completed successfully"
@@ -121,18 +121,18 @@ jobs:
                         echo "DXC version check completed (with minor errors)"
                     }
                 } else {
-                    echo "⚠ DXC not found at expected location"
+                    echo "DXC not found at expected location"
                 }
                 if (Test-Path "C:\VulkanSDK\1.3.290.0\Bin\spirv-cross.exe") {
-                    echo "✓ SPIRV-Cross found in Vulkan SDK"
+                    echo "SPIRV-Cross found in Vulkan SDK"
                 } else {
-                    echo "⚠ SPIRV-Cross not found at expected location"
+                    echo "SPIRV-Cross not found at expected location"
                 }
             } else {
-                echo "⚠ Vulkan SDK Bin directory not found"
+                echo "Vulkan SDK Bin directory not found"
             }
         } else {
-            echo "⚠ Vulkan SDK directory not found"
+            echo "Vulkan SDK directory not found"
         }
       shell: powershell
     
