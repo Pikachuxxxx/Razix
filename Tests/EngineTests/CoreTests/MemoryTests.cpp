@@ -2,12 +2,7 @@
 // Unit tests for the Razix Memory Management classes
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
-
-#include "Razix/Core/Log/RZLog.h"
-#include "Razix/Core/Memory/RZMemory.h"
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
-#include "Razix/Core/Memory/RZMemoryTags.h"
-#include "Razix/Core/Memory/RZMemoryConfig.h"
 
 #include <gtest/gtest.h>
 #include <cstring>
@@ -29,143 +24,173 @@ namespace Razix {
             }
         };
 
-        // Test case for memory tag enumeration
-        TEST_F(RZMemoryTests, MemoryTagsValidation)
-        {
-            // Test that memory tags are properly defined
-            EXPECT_GE(static_cast<int>(MemoryTag::RENDERER), 0);
-            EXPECT_GE(static_cast<int>(MemoryTag::SCENE), 0);
-            EXPECT_GE(static_cast<int>(MemoryTag::PHYSICS), 0);
-            EXPECT_GE(static_cast<int>(MemoryTag::AUDIO), 0);
-            EXPECT_GE(static_cast<int>(MemoryTag::SCRIPTING), 0);
-            EXPECT_GE(static_cast<int>(MemoryTag::CORE), 0);
-        }
-
-        // Test case for memory functions
-        TEST_F(RZMemoryTests, MemoryFunctionality)
+        // Test case for basic RZMalloc and RZFree functionality
+        TEST_F(RZMemoryTests, BasicAllocationDeallocation)
         {
             const size_t testSize = 1024;
             
-            // Test memory allocation
-            void* ptr = rzalloc(testSize);
-            EXPECT_NE(ptr, nullptr) << "Memory allocation should succeed";
+            // Test basic allocation with default 16-byte alignment
+            void* ptr = RZMalloc(testSize);
+            EXPECT_NE(ptr, nullptr) << "RZMalloc should succeed for valid size";
             
-            // Test memory initialization
-            rzmemset(ptr, 0xAA, testSize);
+            // Verify 16-byte alignment (default)
+            EXPECT_EQ(reinterpret_cast<uintptr_t>(ptr) % 16, 0) 
+                << "Default RZMalloc should provide 16-byte alignment";
             
-            // Verify memory was set correctly
+            // Test that we can write and read from allocated memory
+            memset(ptr, 0xAA, testSize);
             uint8_t* bytePtr = static_cast<uint8_t*>(ptr);
             for (size_t i = 0; i < testSize; ++i) {
-                EXPECT_EQ(bytePtr[i], 0xAA) << "Memory should be properly initialized";
+                EXPECT_EQ(bytePtr[i], 0xAA) << "Allocated memory should be writable";
             }
             
-            // Test memory copy
-            void* copyPtr = rzalloc(testSize);
-            EXPECT_NE(copyPtr, nullptr) << "Copy destination allocation should succeed";
-            
-            rzmemcpy(copyPtr, ptr, testSize);
-            
-            // Verify memory was copied correctly
-            int result = rzmemcmp(ptr, copyPtr, testSize);
-            EXPECT_EQ(result, 0) << "Memory copy should be identical to source";
-            
             // Clean up
-            rzfree(ptr);
-            rzfree(copyPtr);
+            RZFree(ptr);
         }
 
-        // Test case for memory alignment
-        TEST_F(RZMemoryTests, MemoryAlignment)
+        // Test case for aligned memory allocation
+        TEST_F(RZMemoryTests, AlignedAllocation)
         {
+            const size_t testSize = 512;
+            const size_t alignment32 = 32;
+            const size_t alignment64 = 64;
+            
+            // Test 32-byte aligned allocation
+            void* ptr32 = RZMalloc(testSize, alignment32);
+            EXPECT_NE(ptr32, nullptr) << "32-byte aligned allocation should succeed";
+            EXPECT_EQ(reinterpret_cast<uintptr_t>(ptr32) % alignment32, 0) 
+                << "Memory should be 32-byte aligned";
+            
+            // Test 64-byte aligned allocation
+            void* ptr64 = RZMalloc(testSize, alignment64);
+            EXPECT_NE(ptr64, nullptr) << "64-byte aligned allocation should succeed";
+            EXPECT_EQ(reinterpret_cast<uintptr_t>(ptr64) % alignment64, 0) 
+                << "Memory should be 64-byte aligned";
+            
+            // Clean up
+            RZFree(ptr32);
+            RZFree(ptr64);
+        }
+
+        // Test case for debug allocation with tracking information
+        TEST_F(RZMemoryTests, DebugAllocation)
+        {
+            const size_t testSize = 256;
+            const char* filename = __FILE__;
+            const uint32_t lineNumber = __LINE__;
+            const char* tag = "TEST_TAG";
+            
+            // Test debug allocation with tracking
+            void* ptr = RZMalloc(testSize, filename, lineNumber, tag);
+            EXPECT_NE(ptr, nullptr) << "Debug allocation should succeed";
+            
+            // Verify 16-byte alignment is maintained
+            EXPECT_EQ(reinterpret_cast<uintptr_t>(ptr) % 16, 0) 
+                << "Debug allocation should maintain 16-byte alignment";
+            
+            // Clean up
+            RZFree(ptr);
+        }
+
+        // Test case for debug aligned allocation with tracking
+        TEST_F(RZMemoryTests, DebugAlignedAllocation)
+        {
+            const size_t testSize = 128;
+            const size_t alignment = 32;
+            const char* filename = __FILE__;
+            const uint32_t lineNumber = __LINE__;
+            const char* tag = "ALIGNED_TEST";
+            
+            // Test debug aligned allocation
+            void* ptr = RZMalloc(testSize, alignment, filename, lineNumber, tag);
+            EXPECT_NE(ptr, nullptr) << "Debug aligned allocation should succeed";
+            EXPECT_EQ(reinterpret_cast<uintptr_t>(ptr) % alignment, 0) 
+                << "Debug allocation should respect custom alignment";
+            
+            // Clean up
+            RZFree(ptr);
+        }
+
+        // Test case for memory alignment calculation
+        TEST_F(RZMemoryTests, MemoryAlignmentCalculation)
+        {
+            // Test alignment calculation for various sizes and alignments
+            EXPECT_EQ(RZMemAlign(100, 16), 112) << "100 bytes should align to 112 with 16-byte alignment";
+            EXPECT_EQ(RZMemAlign(128, 16), 128) << "128 bytes should remain 128 with 16-byte alignment";
+            EXPECT_EQ(RZMemAlign(129, 16), 144) << "129 bytes should align to 144 with 16-byte alignment";
+            
+            EXPECT_EQ(RZMemAlign(100, 32), 128) << "100 bytes should align to 128 with 32-byte alignment";
+            EXPECT_EQ(RZMemAlign(64, 32), 64) << "64 bytes should remain 64 with 32-byte alignment";
+            EXPECT_EQ(RZMemAlign(65, 32), 96) << "65 bytes should align to 96 with 32-byte alignment";
+        }
+
+        // Test case for zero-size allocation
+        TEST_F(RZMemoryTests, ZeroSizeAllocation)
+        {
+            // Test zero-size allocation behavior
+            void* ptr = RZMalloc(0);
+            // The behavior for zero-size allocation can vary by implementation
+            // Some implementations return nullptr, others return a valid pointer
+            // We just verify it doesn't crash and if non-null, can be freed
+            if (ptr != nullptr) {
+                RZFree(ptr);
+            }
+            // Test passes if no crash occurs
+            SUCCEED();
+        }
+
+        // Test case for multiple allocations and frees
+        TEST_F(RZMemoryTests, MultipleAllocations)
+        {
+            const size_t numAllocations = 10;
+            const size_t allocationSize = 64;
+            void* ptrs[numAllocations];
+            
+            // Allocate multiple blocks
+            for (size_t i = 0; i < numAllocations; ++i) {
+                ptrs[i] = RZMalloc(allocationSize);
+                EXPECT_NE(ptrs[i], nullptr) << "Allocation " << i << " should succeed";
+                
+                // Write unique pattern to each block
+                memset(ptrs[i], static_cast<int>(i), allocationSize);
+            }
+            
+            // Verify each block still has its unique pattern
+            for (size_t i = 0; i < numAllocations; ++i) {
+                uint8_t* bytePtr = static_cast<uint8_t*>(ptrs[i]);
+                for (size_t j = 0; j < allocationSize; ++j) {
+                    EXPECT_EQ(bytePtr[j], static_cast<uint8_t>(i)) 
+                        << "Block " << i << " should maintain its data integrity";
+                }
+            }
+            
+            // Free all blocks
+            for (size_t i = 0; i < numAllocations; ++i) {
+                RZFree(ptrs[i]);
+            }
+        }
+
+#ifdef RAZIX_MEMORY_DEBUG
+        // Test case for debug memory functions (only if debug mode is enabled)
+        TEST_F(RZMemoryTests, DebugMemoryFunctions)
+        {
+            const size_t testSize = 256;
             const size_t alignment = 16;
-            const size_t size = 64;
+            const char* filename = __FILE__;
+            const uint32_t lineNumber = __LINE__;
+            const char* tag = "DEBUG_TEST";
             
-            void* alignedPtr = rzalloc_aligned(size, alignment);
-            EXPECT_NE(alignedPtr, nullptr) << "Aligned allocation should succeed";
-            EXPECT_EQ(reinterpret_cast<uintptr_t>(alignedPtr) % alignment, 0) 
-                << "Allocated memory should be properly aligned";
+            // Test debug malloc
+            void* ptr = RZDebugMalloc(testSize, alignment, filename, lineNumber, tag);
+            EXPECT_NE(ptr, nullptr) << "RZDebugMalloc should succeed";
+            EXPECT_EQ(reinterpret_cast<uintptr_t>(ptr) % alignment, 0) 
+                << "Debug allocation should respect alignment";
             
-            rzfree_aligned(alignedPtr);
+            // Test debug free
+            RZDebugFree(ptr);
+            // Test passes if no crash occurs during debug free
         }
-
-        // Test case for memory tracking
-        TEST_F(RZMemoryTests, MemoryTracking)
-        {
-            // Get initial memory stats
-            size_t initialAllocations = GetTotalAllocations();
-            size_t initialMemoryUsage = GetTotalMemoryUsage();
-            
-            // Allocate some memory
-            const size_t allocSize = 512;
-            void* ptr = rzalloc(allocSize);
-            EXPECT_NE(ptr, nullptr);
-            
-            // Check that tracking increased
-            size_t newAllocations = GetTotalAllocations();
-            size_t newMemoryUsage = GetTotalMemoryUsage();
-            
-            EXPECT_GE(newAllocations, initialAllocations) << "Allocation count should increase";
-            EXPECT_GE(newMemoryUsage, initialMemoryUsage + allocSize) << "Memory usage should increase";
-            
-            // Free memory
-            rzfree(ptr);
-            
-            // Check that tracking decreased
-            size_t finalAllocations = GetTotalAllocations();
-            size_t finalMemoryUsage = GetTotalMemoryUsage();
-            
-            EXPECT_LE(finalAllocations, newAllocations) << "Allocation count should decrease after free";
-            EXPECT_LE(finalMemoryUsage, newMemoryUsage) << "Memory usage should decrease after free";
-        }
-
-        // Test case for tagged memory allocation
-        TEST_F(RZMemoryTests, TaggedMemoryAllocation)
-        {
-            const size_t allocSize = 256;
-            
-            // Allocate memory with different tags
-            void* rendererPtr = rzalloc_tagged(allocSize, MemoryTag::RENDERER);
-            void* physicsPtr = rzalloc_tagged(allocSize, MemoryTag::PHYSICS);
-            void* audioPtr = rzalloc_tagged(allocSize, MemoryTag::AUDIO);
-            
-            EXPECT_NE(rendererPtr, nullptr) << "Tagged allocation for RENDERER should succeed";
-            EXPECT_NE(physicsPtr, nullptr) << "Tagged allocation for PHYSICS should succeed";
-            EXPECT_NE(audioPtr, nullptr) << "Tagged allocation for AUDIO should succeed";
-            
-            // Verify tag-specific usage
-            size_t rendererUsage = GetTagMemoryUsage(MemoryTag::RENDERER);
-            size_t physicsUsage = GetTagMemoryUsage(MemoryTag::PHYSICS);
-            size_t audioUsage = GetTagMemoryUsage(MemoryTag::AUDIO);
-            
-            EXPECT_GE(rendererUsage, allocSize) << "RENDERER tag should track memory usage";
-            EXPECT_GE(physicsUsage, allocSize) << "PHYSICS tag should track memory usage";
-            EXPECT_GE(audioUsage, allocSize) << "AUDIO tag should track memory usage";
-            
-            // Clean up
-            rzfree_tagged(rendererPtr, MemoryTag::RENDERER);
-            rzfree_tagged(physicsPtr, MemoryTag::PHYSICS);
-            rzfree_tagged(audioPtr, MemoryTag::AUDIO);
-        }
-
-        // Test case for memory leak detection
-        TEST_F(RZMemoryTests, MemoryLeakDetection)
-        {
-            // Get initial leak count
-            size_t initialLeaks = GetMemoryLeakCount();
-            
-            // Intentionally "leak" memory
-            void* leakedPtr = rzalloc(128);
-            EXPECT_NE(leakedPtr, nullptr);
-            
-            // Check that leak detection would catch this
-            // Note: In a real test, we'd need to call a leak detection function
-            // For now, just verify we can track allocations
-            size_t currentAllocations = GetTotalAllocations();
-            EXPECT_GT(currentAllocations, 0) << "Should track active allocations";
-            
-            // Clean up the "leak"
-            rzfree(leakedPtr);
-        }
+#endif
 
     }    // namespace Memory
 }    // namespace Razix
