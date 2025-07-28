@@ -4,7 +4,13 @@
 
 -- Engine distributed DXC location
 filter "system:windows"
-    dxcLocation = "%{wks.location}../Engine/Content/Shaders/Tools/dxc/bin/x64/"
+    VulkanSDK = os.getenv("VULKAN_SDK")
+    if VulkanSDK and VulkanSDK ~= "" then
+        dxcLocation = VulkanSDK .. "/Bin/"
+    else
+        -- Fallback to vendored tools if VulkanSDK not available
+        dxcLocation = "%{wks.location}../Engine/Content/Shaders/Tools/dxc/bin/x64/"
+    end
 filter "system:macosx"
     VulkanSDK = os.getenv("VULKAN_SDK")
     dxcLocation = "%{VulkanSDK}/bin/"
