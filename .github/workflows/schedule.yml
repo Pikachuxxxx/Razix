@@ -60,7 +60,7 @@ jobs:
         echo "Downloading Vulkan SDK for Windows..."
         
         # Use PowerShell's Invoke-WebRequest instead of curl
-        $url = "https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/vulkansdk-windows-1.3.290.0.exe"
+        $url = "https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe"
         $outputFile = "vulkan-sdk-installer.exe"
         
         try {
