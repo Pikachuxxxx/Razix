@@ -83,42 +83,35 @@ jobs:
       run: |
         echo "Downloading Vulkan SDK for Windows..."
         
-        # Try the most likely URL format based on LunarG SDK patterns
-        $urls = @(
-            "https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe",
-            "https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/vulkansdk-windows-1.3.290.0.exe"
-        )
+        # Use PowerShell's Invoke-WebRequest instead of curl
+        $url = "https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/vulkansdk-windows-1.3.290.0.exe"
+        $outputFile = "vulkan-sdk-installer.exe"
         
-        $success = $false
-        foreach ($url in $urls) {
-            try {
-                echo "Trying to download from: $url"
-                curl -L -o vulkan-sdk-installer.exe $url --fail
-                if (Test-Path vulkan-sdk-installer.exe) {
-                    $fileSize = (Get-Item vulkan-sdk-installer.exe).length
-                    if ($fileSize -gt 1MB) {
-                        echo "Successfully downloaded installer ($fileSize bytes)"
-                        $success = $true
-                        break
-                    } else {
-                        echo "Downloaded file too small, trying next URL..."
-                        Remove-Item vulkan-sdk-installer.exe -ErrorAction SilentlyContinue
-                    }
+        try {
+            echo "Downloading from: $url"
+            Invoke-WebRequest -Uri $url -OutFile $outputFile -UseBasicParsing
+            
+            if (Test-Path $outputFile) {
+                $fileSize = (Get-Item $outputFile).length
+                if ($fileSize -gt 1MB) {
+                    echo "Successfully downloaded installer ($fileSize bytes)"
+                } else {
+                    echo "ERROR: Downloaded file too small ($fileSize bytes)"
+                    exit 1
                 }
-            } catch {
-                echo "Failed to download from $url, trying next URL..."
-                Remove-Item vulkan-sdk-installer.exe -ErrorAction SilentlyContinue
+            } else {
+                echo "ERROR: Download failed - file not found"
+                exit 1
             }
-        }
-        
-        if (-not $success) {
-            echo "ERROR: Failed to download Vulkan SDK from any source"
+        } catch {
+            echo "ERROR: Failed to download Vulkan SDK installer"
+            echo "Error: $($_.Exception.Message)"
             exit 1
         }
         
         echo "Installing Vulkan SDK..."
         # Use silent installation with /S flag (NSIS installer)
-        Start-Process -FilePath "vulkan-sdk-installer.exe" -ArgumentList "/S", "/D=C:\VulkanSDK\1.3.290.0" -Wait -NoNewWindow
+        Start-Process -FilePath $outputFile -ArgumentList "/S", "/D=C:\VulkanSDK\1.3.290.0" -Wait -NoNewWindow
         
         echo "Verifying installation..."
         if (-not (Test-Path "C:\VulkanSDK\1.3.290.0")) {
@@ -127,7 +120,7 @@ jobs:
         }
         
         echo "Cleaning up..."
-        Remove-Item vulkan-sdk-installer.exe
+        Remove-Item $outputFile
         
         echo "Vulkan SDK installation completed successfully"
       shell: powershell
