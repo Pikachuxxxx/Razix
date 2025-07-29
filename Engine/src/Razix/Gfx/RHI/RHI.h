@@ -656,7 +656,56 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_TARGET_FPS_COUNT = 2
     } rz_gfx_target_fps;
 
+    //================================================================
+    typedef enum rz_gfx_view_kind
+    {
+        RZ_VIEW_CBV,
+        RZ_VIEW_SRV,
+        RZ_VIEW_UAV,
+        RZ_VIEW_SAMPLER
+    } rz_gfx_view_kind;
+
+    typedef struct rz_gfx_buffer_view_desc
+    {
+        const rz_gfx_buffer* buffer;
+        uint64_t             offset;
+        uint64_t             size;
+        uint32_t             stride;
+    } rz_gfx_buffer_view_desc;
+
+    typedef struct rz_gfx_texture_view_desc
+    {
+        const rz_gfx_texture* texture;
+        uint32_t              baseMip, mipCount;
+        uint32_t              baseArrayLayer, layerCount;
+        uint32_t              aspectMask;
+        uint32_t              dimension;
+    } rz_gfx_texture_view_desc;
+
+    typedef struct rz_gfx_sampler_view_desc
+    {
+        const rz_gfx_sampler* sampler;
+    } rz_gfx_sampler_view_desc;
+
+    typedef struct rz_gfx_resource_view
+    {
+        rz_gfx_view_kind kind;
+        union
+        {
+            rz_gfx_buffer_view_desc  buffer;
+            rz_gfx_texture_view_desc texture;
+            rz_gfx_sampler_view_desc sampler;
+        } desc;
+
+        // dx12/Vulkan specific
+        // VkImageView/VkSampler/D3D12_CPU_DESCRIPTOR_HANDLE/D3D12_SAMPLER_DESC/ etc.
+        void* backend;
+    } rz_gfx_resource_view;
+    //================================================================
+
     typedef rz_handle rz_gfx_texture_handle;
+    typedef rz_handle rz_gfx_sampler_handle;
+    typedef rz_handle rz_gfx_buffer_handle;
     typedef rz_handle rz_gfx_cmdbuf_handle;
     typedef rz_handle rz_gfx_root_signature_handle;
     typedef rz_handle rz_gfx_shader_handle;
