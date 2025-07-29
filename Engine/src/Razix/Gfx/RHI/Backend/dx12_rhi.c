@@ -1436,6 +1436,9 @@ static void dx12_CreateTexture(void* where)
     RAZIX_RHI_ASSERT(desc = NULL, "Texture descriptor cannot be NULL");
     RAZIX_RHI_ASSERT(desc->width > 0 && desc->height > 0 && desc->depth > 0, "Texture dimensions must be greater than zero");
 
+    // Maintain a second copy of hints...Ahhh...
+    texture->resource.viewHints = desc->resourceHints;
+
     D3D12_RESOURCE_DESC resDesc = {0};
     resDesc.Width               = desc->width;
     resDesc.Height              = desc->height;

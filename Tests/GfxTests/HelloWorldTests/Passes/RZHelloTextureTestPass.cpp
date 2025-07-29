@@ -6,33 +6,34 @@ namespace Razix {
         void RZHelloTextureTestPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Create the shader and the pipeline
-            RZShaderDesc desc = {};
-            desc.filePath     = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTextureTest.rzsf";
-            desc.libraryID    = ShaderBuiltin::Default;
-            desc.name         = "HelloTexture";
-            m_Shader          = RZResourceManager::Get().createShader(desc);
+            rz_gfx_shader_desc desc = {};
+            desc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+            desc.rzsfFilePath       = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTextureTest.rzsf";
+            m_Shader                = Gfx::RZResourceManager::Get().createShader("HelloTextureShader", desc);
 
-            RZPipelineDesc pipelineInfo{};
             // Build the pipeline here for this pass
-            pipelineInfo.name                   = "[Test] Pipeline.HelloTexture";
-            pipelineInfo.shader                 = m_Shader;
-            pipelineInfo.colorAttachmentFormats = {TextureFormat::SCREEN};
-            pipelineInfo.depthFormat            = TextureFormat::DEPTH16_UNORM;
-            pipelineInfo.cullMode               = Gfx::CullMode::None;
-            pipelineInfo.drawType               = Gfx::DrawType::Triangle;
-            pipelineInfo.depthTestEnabled       = true;
-            pipelineInfo.depthWriteEnabled      = true;
-            pipelineInfo.transparencyEnabled    = false;
-            pipelineInfo.depthBiasEnabled       = false;
-            m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
+            rz_gfx_pipeline_desc pipelineInfo   = {};
+            pipelineInfo.type                   = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+            pipelineInfo.pShader                = RZResourceManager::Get().getShaderResource(m_Shader);
+            m_RootSigHandle                     = pipelineInfo.pShader->rootSignature;
+            pipelineInfo.pRootSig               = RZResourceManager::Get().getRootSignatureResource(pipelineInfo.pShader->rootSignature);
+            pipelineInfo.depthTestEnabled       = false;
+            pipelineInfo.depthWriteEnabled      = false;
+            pipelineInfo.cullMode               = RZ_GFX_CULL_MODE_TYPE_NONE;
+            pipelineInfo.drawType               = RZ_GFX_DRAW_TYPE_TRIANGLE;
+            pipelineInfo.blendEnabled           = false;
+            pipelineInfo.useBlendPreset         = true;
+            pipelineInfo.blendPreset            = RZ_GFX_BLEND_PRESET_ADDITIVE;
+            pipelineInfo.renderTargetCount      = 1;
+            pipelineInfo.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
+
+            m_Pipeline = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.HelloTriangle", pipelineInfo);
 
             // Import a test texture
-            RZTextureDesc testTexDesc{};
-            testTexDesc.name       = "TestCheckerTexture";
-            testTexDesc.enableMips = false;
-            testTexDesc.filePath   = "//RazixContent/Textures/TestCheckerMap.png";
-            testTexDesc.flipY      = false;
-            m_TestTextureHandle    = RZResourceManager::Get().createTexture(testTexDesc);
+            rz_gfx_texture_desc testTexDesc = {};
+            testTexDesc.enableMips          = false;
+            testTexDesc.filePath            = "//RazixContent/Textures/TestCheckerMap.png";
+            m_TestTextureHandle             = RZResourceManager::Get().createTexture("TestCheckerTexture", testTexDesc);
 
             struct HelloTexturePassData
             {
@@ -44,7 +45,7 @@ namespace Razix {
                 [&](HelloTexturePassData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    RZTextureDesc depthTextureDesc;
+                    rz_gfx_texture_desc depthTextureDesc   = {};
                     depthTextureDesc.name                  = "SceneDepth";
                     depthTextureDesc.width                 = RZApplication::Get().getWindow()->getWidth();
                     depthTextureDesc.height                = RZApplication::Get().getWindow()->getHeight();
@@ -57,46 +58,36 @@ namespace Razix {
                 },
                 [=](const HelloTexturePassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
                     RAZIX_TIME_STAMP_BEGIN("[Test] Hello Texture Pass");
-                    RAZIX_MARK_BEGIN("[Test] Pass.Builtin.Code.HelloTexture", Utilities::GenerateHashedColor4(22u));
 
-                    auto cmdBuffer = RHI::GetCurrentCommandBuffer();
+                    rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
+                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.HelloTexture", Utilities::GenerateHashedColor4(22u));
 
-                    RenderingInfo info{};
-                    info.resolution       = Resolution::kWindow;
-                    info.colorAttachments = {{Gfx::RHI::GetSwapchain()->GetCurrentBackBufferImage(), {true, ClearColorPresets::OpaqueBlack}}};
-                    info.depthAttachment  = {resources.get<RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
 
-                    RHI::BeginRendering(cmdBuffer, info);
+                    rz_gfx_renderpass info            = {0};
+                    info.resolution                   = RZ_GFX_RESOLUTION_WINDOW;
+                    info.colorAttachmentsCount        = 1;
+                    info.colorAttachments[0].pTexture = RZEngine::Get().getWorldRenderer().getCurrSwapchainBackbufferPtr();
+                    info.colorAttachments[0].clear    = true;
+                    info.colorAttachments[0].mip      = 0;
+                    info.colorAttachments[0].layer    = 0;
+                    info.layers                       = 1;
+                    RAZIX_X(info.extents)             = RZApplication::Get().getWindow()->getWidth();
+                    RAZIX_Y(info.extents)             = RZApplication::Get().getWindow()->getHeight();
 
-                    // Bind descriptor sets and resources
-                    if (RZFrameGraph::IsFirstFrame()) {
-                        auto& shaderBindVars = RZResourceManager::Get().getShaderResource(m_Shader)->getBindVars();
+                    rzRHI_BeginRenderPass(cmdBuffer, &info);
 
-                        RZDescriptor* descriptor = nullptr;
+                    rzRHI_BindGfxRootSig(cmdBuffer, m_RootSigHandle);
+                    rzRHI_BindPipeline(cmdBuffer, m_Pipeline);
 
-                        descriptor = shaderBindVars["g_TestTexture"];    // Must match the name in shader
-                        // TODO: Sampler is static and set on the RootSignature Directly
-                        if (descriptor)
-                            descriptor->texture = m_TestTextureHandle;
+                // Bind descriptor heaps and tables (probably the bindless textures table?)
 
-                        // Vulkan will create a default sampler if not found
-                        RZResourceManager::Get().getShaderResource(m_Shader)->updateBindVarsHeaps();
-                    }
+#define NUM_TRIANGLE_VERTS 3
+                    rzRHI_DrawAuto(cmdBuffer, NUM_TRIANGLE_VERTS, 1, 0, 0);
 
-                    auto& sceneDrawParams = Gfx::RZResourceManager::Get().getShaderResource(m_Shader)->getSceneDrawParams();
-                    Gfx::RHI::BindUserDescriptorSets(m_Pipeline, cmdBuffer, sceneDrawParams.userSets, 0);
+                    rzRHI_EndRenderPass(cmdBuffer);
 
-                    // Bind pipeline and stuff
-                    RHI::BindPipeline(m_Pipeline, cmdBuffer);
-
-                    // Draw 3 vertices
-                    Gfx::RHI::Draw(cmdBuffer, 3);
-
-                    RHI::EndRendering(cmdBuffer);
-
-                    RAZIX_MARK_END();
+                    RAZIX_MARK_END(cmdBuffer);
                     RAZIX_TIME_STAMP_END();
                 });
         }

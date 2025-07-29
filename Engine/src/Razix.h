@@ -35,6 +35,7 @@
 #include "Razix/Gfx/Cameras/Camera3D.h"
 
 // Graphics
+#include "Razix/Gfx/Resources/RZResourceManager.h"
 //#include "Razix/Gfx/RZMesh.h"
 //#include "Razix/Gfx/RZMeshFactory.h"
 

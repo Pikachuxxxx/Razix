@@ -1,7 +1,5 @@
 #include "RZHelloTriangleTestPass.h"
 
-#include "Razix/Gfx/Resources/RZResourceManager.h"
-
 namespace Razix {
     namespace Gfx {
 
@@ -42,6 +40,7 @@ namespace Razix {
                     builder.setAsStandAlonePass();
                 },
                 [=](const HelloTriangleData& data, RZPassResourceDirectory& resources) {
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RAZIX_TIME_STAMP_BEGIN("[Test] Hello Triangle Pass");
 
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
@@ -55,9 +54,8 @@ namespace Razix {
                     info.colorAttachments[0].mip      = 0;
                     info.colorAttachments[0].layer    = 0;
                     info.layers                       = 1;
-
-                    RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
-                    RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
+                    RAZIX_X(info.extents)             = RZApplication::Get().getWindow()->getWidth();
+                    RAZIX_Y(info.extents)             = RZApplication::Get().getWindow()->getHeight();
 
                     rzRHI_BeginRenderPass(cmdBuffer, &info);
 

@@ -2,8 +2,6 @@
 
 #include <Razix.h>
 
-#include "Razix/Gfx/Passes/IRZPass.h"
-
 namespace Razix {
     namespace Gfx {
 
@@ -14,8 +12,8 @@ namespace Razix {
             void destroy() override;
 
         private:
-            rz_gfx_pipeline_handle       m_Pipeline;
             rz_gfx_shader_handle         m_Shader;
+            rz_gfx_pipeline_handle       m_Pipeline;
             rz_gfx_root_signature_handle m_RootSigHandle;
         };
     }    // namespace Gfx
