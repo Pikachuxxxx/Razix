@@ -69,41 +69,125 @@ DirectX11, OpenGL has been deprecated. Only high-level APIs and RTX level GPUs w
 
 ## Building
 
-### Pre-Requisites
-Assumes you have VULKAN_SDK installed and the env variable is configured properly
+### Prerequisites
+- **Vulkan SDK**: Download and install the latest Vulkan SDK from [LunarG](https://vulkan.lunarg.com/)
+  - Ensure the `VULKAN_SDK` environment variable is properly configured
+- **Visual Studio 2022** (Windows) or **Xcode** (macOS) 
+- **Git** for cloning the repository
 
-1. Clone the Repository
-```
+### Quick Start
+
+1. **Clone the Repository**
+```bash
 git clone https://github.com/Pikachuxxxx/Razix.git
 cd Razix
 ```
-2. Generate Premake Project Files
-Windows (PowerShell)
 
-### From the repo root:
-Windows
-```
+2. **Generate Project Files**
+
+**Windows (Visual Studio):**
+```bash
 cd Scripts
-.\u005cGeneratePremakeProjects.bat
+.\GeneratePremakeProjects.bat
 ```
-Linux/macOS (Bash)
-```
-# From the repo root:
+
+**macOS (Xcode):**
+```bash
 chmod +x Scripts/generate_projects.sh
 ./Scripts/generate_projects.sh
 ```
-Razix uses Premake5 for project generation. Scripts are provided for different platforms.
-No need to clone submodules.
 
+**Linux:**
+```bash
+chmod +x Scripts/generate_projects.sh
+./Scripts/generate_projects.sh
+```
 
-### Build the Engine
+### Building the Engine
 
-Windows (Visual Studio)
-Open build/Razix.sln in Visual Studio 2022 or newer
-Select a configuration: Debug, Release, or Dist
-Press Ctrl+Shift+B or select Build > Build Solution
+#### Option 1: Using IDE (Recommended)
 
-either run the game or run some tests
+**Windows (Visual Studio):**
+1. Open `build/Razix.sln` in Visual Studio 2022 or newer
+2. Select a configuration: **Debug**, **Release**, or **Dist**
+3. Build the solution: `Ctrl+Shift+B` or `Build > Build Solution`
+
+**macOS (Xcode):**
+1. Open `build/Razix.xcworkspace` in Xcode
+2. Select a configuration: **Debug**, **Release**, or **Dist**
+3. Build the workspace: `Cmd+B` or `Product > Build`
+
+#### Option 2: Using Build Script
+
+Use the automated build script for streamlined building:
+
+```bash
+# Build in Debug configuration
+python Scripts/build_razix.py Debug
+
+# Build in Release configuration  
+python Scripts/build_razix.py Release
+
+# Build for specific platform
+python Scripts/build_razix.py Debug windows-x86_64
+python Scripts/build_razix.py Debug macosx-ARM64
+```
+
+The build script supports:
+- **Configurations**: Debug, Release, Dist
+- **Platforms**: windows-x86_64, macosx-ARM64, linux-x86_64
+- **Features**: Multi-core compilation, project filtering, CI integration
+
+### Running Tests
+
+Execute the comprehensive test suite using the test runner:
+
+```bash
+# Run all tests in Debug configuration
+python Scripts/test_runner.py Debug
+
+# Run tests with verbose output
+python Scripts/test_runner.py Debug --verbose
+
+# Run tests for specific platform
+python Scripts/test_runner.py Debug windows-x86_64
+```
+
+Available test suites:
+- **EngineTests**: Core engine functionality and API validation
+- **GfxTests**: Graphics system and rendering pipeline tests
+- **Performance Tests**: Rendering performance benchmarks
+
+### Build Configurations
+
+- **Debug**: Full debug symbols, no optimizations, all debugging features enabled
+- **Release**: Optimized build with debug symbols, profiling enabled
+- **Dist/GoldMaster**: Fully optimized release build, minimal debug info, profiling disabled
+
+### Project Structure
+
+```
+Razix/
+├── build/                  # Generated project files and build outputs
+├── Engine/                 # Core engine source code
+├── Scripts/               # Build and utility scripts
+│   ├── build_razix.py     # Automated build script
+│   ├── test_runner.py     # Test execution script
+│   └── generate_projects.*# Project generation scripts
+├── Tests/                 # Unit tests and test frameworks
+└── Tools/                 # Development tools and utilities
+```
+
+### Troubleshooting
+
+**Common Issues:**
+- **Vulkan SDK not found**: Ensure VULKAN_SDK environment variable is set
+- **Build failures**: Try regenerating project files and clean rebuild
+- **Test failures**: Verify all dependencies are properly installed
+
+**Getting Help:**
+- Check the [Issues](https://github.com/Pikachuxxxx/Razix/issues) page for known problems
+- Review build logs in the `build/` directory for detailed error information
 
 ## V 1.0.0 - RC
 ![](./Docs/Architecture/RazixEngine-RoadMap-V1.0.0RC.png)
