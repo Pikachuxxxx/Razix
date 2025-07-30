@@ -60,5 +60,17 @@ typedef struct vk_sampler
     VkSampler sampler;
 } vk_sampler;
 
+typedef struct vk_resview
+{
+    union
+    {
+        VkBufferView               bufferView;
+        VkImageView                imageView;
+        VkSampler                  sampler;
+        VkAccelerationStructureKHR accelerationStructure;
+    } view;
+
+} vk_resview;
+
 #endif    // RAZIX_RENDER_API_VULKAN
 #endif    // vk_RHI_H

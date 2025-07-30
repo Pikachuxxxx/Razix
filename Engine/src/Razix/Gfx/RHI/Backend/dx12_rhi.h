@@ -132,5 +132,16 @@ typedef struct dx12_pipeline
     D3D_PRIMITIVE_TOPOLOGY topology;
 } dx12_pipeline;
 
+typedef struct dx12_resview
+{
+    union
+    {
+        dx12_descriptor_handles srv;
+        dx12_descriptor_handles uav;
+        dx12_descriptor_handles rtv;
+        dx12_descriptor_handles dsv;
+    } resView;
+} dx12_resview;
+
 #endif    // RAZIX_RENDER_API_DIRECTX12
 #endif    // DX12_RHI_H

@@ -657,13 +657,6 @@ static inline unsigned int rz_clz32(unsigned int x)
     } rz_gfx_target_fps;
 
     //================================================================
-    typedef enum rz_gfx_view_kind
-    {
-        RZ_VIEW_CBV,
-        RZ_VIEW_SRV,
-        RZ_VIEW_UAV,
-        RZ_VIEW_SAMPLER
-    } rz_gfx_view_kind;
 
     typedef struct rz_gfx_buffer_view_desc
     {
@@ -676,9 +669,10 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef struct rz_gfx_texture_view_desc
     {
         const rz_gfx_texture* texture;
-        uint32_t              baseMip, mipCount;
-        uint32_t              baseArrayLayer, layerCount;
-        uint32_t              aspectMask;
+        uint32_t              baseMip;
+        uint32_t              mipCount;
+        uint32_t              baseArrayLayer;
+        uint32_t              layerCount;
         uint32_t              dimension;
     } rz_gfx_texture_view_desc;
 
@@ -689,17 +683,21 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     typedef struct rz_gfx_resource_view
     {
-        rz_gfx_view_kind kind;
+        rz_gfx_descriptor_type descriptorType;
         union
         {
-            rz_gfx_buffer_view_desc  buffer;
-            rz_gfx_texture_view_desc texture;
-            rz_gfx_sampler_view_desc sampler;
-        } desc;
+            rz_gfx_buffer_view_desc  bufferView;
+            rz_gfx_texture_view_desc textureView;
+            rz_gfx_sampler_view_desc samplerView;    // Basically a sampler object itself
+        };
 
-        // dx12/Vulkan specific
-        // VkImageView/VkSampler/D3D12_CPU_DESCRIPTOR_HANDLE/D3D12_SAMPLER_DESC/ etc.
-        void* backend;
+        // not a resource but STILL has backend (ex. vkImageView, vkSampler etc.)
+        // lifetime will be managed by descriptor tables API
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_resview vk;
+#elif defined RAZIX_RENDER_API_DIRECTX12
+    dx12_resview dx12;
+#endif
     } rz_gfx_resource_view;
     //================================================================
 
@@ -1129,6 +1127,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table
     {
         RAZIX_GFX_RESOURCE;
+        rz_gfx_resource_view* pResourceViews;
+        uint32_t              resourceViewCount;
 #ifdef RAZIX_RENDER_API_VULKAN
         vk_descriptor_table vk;
 #endif
@@ -1294,6 +1294,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_DestroyDescriptorHeapFn)(void* ptr);
 
     typedef void (*rzRHI_CreateDescriptorTableFn)(void* where);
+    typedef void (*rzRHI_DestroyDescriptorTableFn)(void* ptr);
 
     /**
      * RHI API
@@ -1317,6 +1318,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_BindComputeRootSigFn)(const rz_gfx_cmdbuf*, const rz_gfx_root_signature*);
 
     typedef void (*rzRHI_DrawAutoFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t, uint32_t);
+
+    typedef void (*rzRHI_UpdateDescriptorTableFn)(rz_gfx_descriptor_table*, rz_gfx_resource_view*, uint32_t);
 
     typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*, rz_gfx_resource_state, rz_gfx_resource_state);
     typedef void (*rzRHI_InsertTextureReadbackFn)(const rz_gfx_texture*, rz_gfx_texture_readback*);
