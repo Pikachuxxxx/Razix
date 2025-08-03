@@ -414,7 +414,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     typedef enum rz_gfx_descriptor_heap_type
     {
-        RZ_GFX_DESCRIPTOR_HEAP_TYPE_CBV_UAV_SRV = 0,
+        RZ_GFX_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV = 0,
         RZ_GFX_DESCRIPTOR_HEAP_TYPE_SAMPLER,
         RZ_GFX_DESCRIPTOR_HEAP_TYPE_RTV,
         RZ_GFX_DESCRIPTOR_HEAP_TYPE_DSV,
@@ -657,6 +657,9 @@ static inline unsigned int rz_clz32(unsigned int x)
     } rz_gfx_target_fps;
 
     //================================================================
+    typedef struct rz_gfx_buffer  rz_gfx_buffer;
+    typedef struct rz_gfx_texture rz_gfx_texture;
+    typedef struct rz_gfx_sampler rz_gfx_sampler;
 
     typedef struct rz_gfx_buffer_view_desc
     {
@@ -1355,9 +1358,10 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_CreateSamplerFn        CreateSampler;
         rzRHI_DestroySamplerFn       DestroySampler;
         //....
-        rzRHI_CreateDescriptorHeapFn  CreateDescriptorHeap;
-        rzRHI_DestroyDescriptorHeapFn DestroyDescriptorHeap;
-        rzRHI_CreateDescriptorTableFn CreateDescriptorTable;
+        rzRHI_CreateDescriptorHeapFn   CreateDescriptorHeap;
+        rzRHI_DestroyDescriptorHeapFn  DestroyDescriptorHeap;
+        rzRHI_CreateDescriptorTableFn  CreateDescriptorTable;
+        rzRHI_DestroyDescriptorTableFn DestroyDescriptorTable;
         //....
         rzRHI_AcquireImageFn          AcquireImage;
         rzRHI_WaitOnPrevCmdsFn        WaitOnPrevCmds;

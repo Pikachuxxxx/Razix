@@ -497,6 +497,19 @@ static D3D12_FILTER dx12_util_translate_single_filter_type(rz_gfx_texture_filter
     }
 }
 
+static D3D12_DESCRIPTOR_HEAP_TYPE dx12_util_descriptor_heap_type(rz_gfx_descriptor_heap_type type)
+{
+    switch (type) {
+        case RZ_GFX_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV: return D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+        case RZ_GFX_DESCRIPTOR_HEAP_TYPE_SAMPLER: return D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+        case RZ_GFX_DESCRIPTOR_HEAP_TYPE_RTV: return D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+        case RZ_GFX_DESCRIPTOR_HEAP_TYPE_DSV: return D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+        default:
+            RAZIX_RHI_ASSERT(false, "[DX12] Unsupported descriptor heap type: %d", type);
+            return D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    }
+}
+
 //---------------------------------------------------------------------------------------------
 // Helper functions
 
@@ -1499,6 +1512,37 @@ static void dx12_DestroySampler(void* sampler)
     rz_gfx_sampler* sam = (rz_gfx_sampler*) sampler;
     // In D3D12, samplers are not standalone objects, so there's nothing to release here.
     // They are managed by the descriptor heaps and bound to the pipeline state.
+}
+
+static void dx12_CreateDescriptorHeap(void* where)
+{
+    rz_gfx_descriptor_heap* heap = (rz_gfx_descriptor_heap*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&heap->resource.handle), "Invalid descriptor heap handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_descriptor_heap_desc* desc = &heap->resource.desc.descriptorHeapDesc;
+    RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
+
+    D3D12_DESCRIPTOR_HEAP_DESC d3d12Desc = {0};
+    d3d12Desc.Type                       = dx12_util_descriptor_heap_type(desc->heapType);
+    d3d12Desc.NumDescriptors             = desc->descriptorCount;
+    d3d12Desc.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;    // NOTE: Currently only shader-visible heaps are supported
+    d3d12Desc.NodeMask                   = 0;                                            // Single GPU, no multi-GPU support
+    HRESULT hr                           = ID3D12Device10_CreateDescriptorHeap(DX12Device, &d3d12Desc, &IID_ID3D12DescriptorHeap, (void**) &heap->dx12.heap);
+    if (FAILED(hr)) {
+        RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Descriptor Heap: 0x%08X", hr);
+        return;
+    }
+    RAZIX_RHI_LOG_INFO("D3D12 Descriptor Heap created successfully");
+    TAG_OBJECT(heap->dx12.heap, heap->resource.pName);
+}
+
+static void dx12_DestroyDescriptorHeap(void* heap)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap is NULL, cannot destroy");
+    rz_gfx_descriptor_heap* descHeap = (rz_gfx_descriptor_heap*) heap;
+    if (descHeap->dx12.heap) {
+        ID3D12DescriptorHeap_Release(descHeap->dx12.heap);
+        descHeap->dx12.heap = NULL;
+    }
 }
 
 //---------------------------------------------------------------------------------------------
