@@ -1910,6 +1910,12 @@ rz_rhi_api dx12_rhi = {
     .DestroyRootSignature = dx12_DestroyRootSignature,    // DestroyRootSignature
     .CreatePipeline       = dx12_CreatePipeline,          // CreatePipeline
     .DestroyPipeline      = dx12_DestroyPipeline,         // DestroyPipeline
+    .CreateTexture        = dx12_CreateTexture,           // CreateTexture
+    .DestroyTexture       = dx12_DestroyTexture,          // DestroyTexture
+    .CreateSampler        = dx12_CreateSampler,           // CreateSampler
+    .DestroySampler       = dx12_DestroySampler,          // DestroySampler
+    .CreateDescriptorHeap = dx12_CreateDescriptorHeap,    // CreateDescriptorHeap
+    .DestroyDescriptorHeap = dx12_DestroyDescriptorHeap,    // DestroyDescriptorHeap
 
     .AcquireImage       = dx12_AcquireImage,          // AcquireImage
     .WaitOnPrevCmds     = dx12_WaitOnPrevCmds,        // WaitOnPrevCmds
