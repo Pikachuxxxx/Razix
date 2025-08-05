@@ -1,150 +1,1785 @@
-#pragma once
+#ifndef RHI_H
+#define RHI_H
 
-#include "Razix/Core/RZSTL/ring_buffer.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <time.h>
+
+#ifndef RAZIX_RHI_API
+    #if defined(RAZIX_PLATFORM_WINDOWS)
+        #if defined(RAZIX_EXPORT_SYMBOLS)
+            #define RAZIX_RHI_API __declspec(dllexport)
+        #else
+            #define RAZIX_RHI_API __declspec(dllimport)
+        #endif
+    #else
+        // GCC, Clang: use visibility attribute
+        #if __GNUC__ >= 4
+            #define RAZIX_RHI_API __attribute__((visibility("default")))
+        #else
+            #define RAZIX_RHI_API
+        #endif
+    #endif
+#endif    //  RAZIX_RHI_API
+
+#if defined(_MSC_VER)
+    #define RAZIX_RHI_ALIGN_16 __declspec(align(16))
+#elif defined(__GNUC__) || defined(__clang__)
+    #define RAZIX_RHI_ALIGN_16 __attribute__((aligned(16)))
+#else
+    #error "Unsupported compiler for RAZIX_RHI_ALIGN_16"
+#endif
+
+#include "Razix/Core/RZHandle.h"
+
+#ifdef RAZIX_RENDER_API_DIRECTX12
+    #include "Razix/Gfx/RHI/Backend/dx12_rhi.h"
+#endif
+
+#ifdef RAZIX_RENDER_API_VULKAN
+    #include "Razix/Gfx/RHI/Backend/vk_rhi.h"
+#endif
+
+// Include profiling support for RHI operations
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif    // __cplusplus
 
 #include "Razix/Core/Profiling/RZProfiling.h"
 
-#include "Razix/Gfx/GfxData.h"
+#define ENABLE_SYNC_LOGGING 0
 
-namespace Razix {
-    namespace Gfx {
+// ANSI color codes
+#define ANSI_COLOR_RESET  "\x1b[0m"
+#define ANSI_COLOR_RED    "\x1b[31m"
+#define ANSI_COLOR_YELLOW "\x1b[33m"
+#define ANSI_COLOR_GREEN  "\x1b[32m"
+#define ANSI_COLOR_CYAN   "\x1b[36m"
+#define ANSI_COLOR_GRAY   "\x1b[90m"
 
-        class RZDrawCommandBuffer;
-        class RZPipeline;
-        class RZDescriptorSet;
-        class RZSwapchain;
-        class RZDescriptorSet;
-        class RZSemaphore;
-        struct RZPushConstant;
+    static inline const char* _rhi_log_timestamp()
+    {
+        static char buffer[64];
+        time_t      now = time(NULL);
+        struct tm   tm;
 
-        // TODO: Compile this into a C dynamic library that Razix.dll links with
-        // TODO: Move Platform/API/Vulkan and DirectX12 to here and use dispatch tables to load the RHI.dll dynamically, RHI is part of engine and the implementation DLLs can be hot swapped
-        // we can separate RHI_entry.dll and load the RHI_vk/RHI_dx12/RHI_shipping_backend.dll as needed but It's fine if the engine has some interface like RHI dispatch table.
-        // More Info on design: https://github.com/Pikachuxxxx/Razix/issues/384
+#ifdef _WIN32
+        localtime_s(&tm, &now);
+#else
+    localtime_r(&now, &tm);
+#endif
+        strftime(buffer, sizeof(buffer), "%H:%M:%S", &tm);
+        return buffer;
+    }
 
-        /* The Razix RHI (Render Hardware Interface) provides a interface and a set of common methods that abstracts over other APIs rendering implementation
-         * The Renderers creates from the provided IRZRenderer interface of Razix uses this to perform command recording/submission sets binding
-         * and other operations that doesn't require the underlying API, since renderers do not actually need that we use this high-level abstraction
-         * over the supported APIs to make things look simple and easier to interact with
-         */
-        class RAZIX_API RHI
+#ifdef RAZIX_GOLD_MASTER
+    #define RAZIX_RHI_LOG_INFO(...)
+    #define RAZIX_RHI_LOG_WARN(...)
+    #define RAZIX_RHI_LOG_ERROR(...)
+    #define RAZIX_RHI_LOG_TRACE(...)
+#else
+    #define RAZIX_RHI_LOG_INFO(fmt, ...) \
+        printf(ANSI_COLOR_GREEN "[%s] [RHI/INFO]  " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+
+    #define RAZIX_RHI_LOG_WARN(fmt, ...) \
+        printf(ANSI_COLOR_YELLOW "[%s] [RHI/WARN]  " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+
+    #define RAZIX_RHI_LOG_ERROR(fmt, ...) \
+        printf(ANSI_COLOR_RED "[%s] [RHI/ERROR] " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+
+    #define RAZIX_RHI_LOG_TRACE(fmt, ...) \
+        printf(ANSI_COLOR_CYAN "[%s] [RHI/TRACE] " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+#endif    // RAZIX_GOLD_MASTER
+
+#if defined(_MSC_VER)
+    #define RAZIX_DEBUG_BREAK() __debugbreak()
+#elif defined(__clang__) || defined(__GNUC__)
+    #define RAZIX_DEBUG_BREAK() __builtin_trap()
+#else
+    #define RAZIX_DEBUG_BREAK() ((void) 0)
+#endif
+
+#define RAZIX_RHI_ASSERT(cond, msg, ...)                                                             \
+    do {                                                                                             \
+        if (!(cond)) {                                                                               \
+            RAZIX_RHI_LOG_ERROR("[RHI ASSERT] %s:%d: " msg "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
+            RAZIX_DEBUG_BREAK();                                                                     \
+            abort();                                                                                 \
+        }                                                                                            \
+    } while (0)
+
+#if defined(_MSC_VER)
+    #include <intrin.h>
+    #pragma intrinsic(_BitScanReverse)
+    static inline unsigned int rz_clz32(unsigned int x)
+    {
+        unsigned long index;
+        _BitScanReverse(&index, x);
+        return 31 - index;
+    }
+#elif defined(__clang__) || defined(__GNUC__)
+static inline unsigned int rz_clz32(unsigned int x)
+{
+    return __builtin_clz(x);
+}
+#else
+    #error "Compiler not supported for RAZIX_RHI_BITS_FOR_ENUM"
+#endif
+
+#define RAZIX_RHI_BITS_FOR_ENUM(count) ((count) <= 1 ? 0 : (32 - rz_clz32((count) - 1)))
+
+/****************************************************************************************************
+*                                         Graphics Settings                                        *
+****************************************************************************************************/
+
+/* Triple buffering is enabled by default */
+#define RAZIX_ENABLE_TRIPLE_BUFFERING
+/* The total number of images that the swapchain can render/present to, by default we use triple buffering, defaults to d32 buffering if disabled */
+#ifdef RAZIX_ENABLE_TRIPLE_BUFFERING
+    /* Frames in FLight defines the number of frames that will be rendered to while another frame is being presented (used for triple buffering)*/
+    #define RAZIX_MAX_FRAMES_IN_FLIGHT  3
+    #define RAZIX_MAX_SWAP_IMAGES_COUNT 3
+    #define RAZIX_MAX_FRAMES            RAZIX_MAX_SWAP_IMAGES_COUNT
+#elif
+    #define RAZIX_MAX_SWAP_IMAGES_COUNT 2
+#endif
+
+/* Whether or not to use VMA as memory backend */
+#ifdef RAZIX_PLATFORM_WINDOWS
+    #define RAZIX_USE_VMA 1
+#elif RAZIX_PLATFORM_MACOS
+    #define RAZIX_USE_VMA 0    // Still porting WIP, so disabled idk if the SDK has it
+#endif
+
+/* Total No.Of Render Targets = typically a Max of 8 (as supported by most APIs) */
+#define RAZIX_MAX_RENDER_TARGETS 8
+
+/* Size of indices in Razix Engine, change here for global configuration */
+#define RAZIX_INDICES_SIZE          sizeof(u32)    // we use 32-bit indices for now
+#define RAZIX_INDICES_FORMAT        R32_UINT
+#define RAZIX_INDICES_FORMAT_VK     VK_INDEX_TYPE_UINT32
+#define RAZIX_INDICES_FORMAT_D3D12  DXGI_FORMAT_R32_UINT
+#define RAZIX_INDICES_FORMAT_AGC    sce::Agc::IndexSize::k32
+#define RAZIX_SWAPCHAIN_FORMAT      RZ_GFX_FORMAT_B8G8R8A8_UNORM
+#define RAZIX_SWAPCHAIN_FORMAT_VK   VK_FORMAT_B8G8R8A8_UNORM
+#define RAZIX_SWAPCHAIN_FORMAT_DX12 DXGI_FORMAT_B8G8R8A8_UNORM
+#define RAZIX_MAX_DESCRIPTOR_TABLES 8
+#define RAZIX_MAX_DESCRIPTOR_RANGES 32
+#define RAZIX_MAX_ROOT_CONSTANTS    2
+#define RAZIX_MAX_VERTEX_ATTRIBUTES 32
+
+#define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX "PushConstant"
+#define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_VK     RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX
+#define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_DX12   "PushConstantBuffer"
+
+#define RAZIX_EXTENTS_ELEM_COUNT 2
+#define RAZIX_X(v)               ((v)[0])
+#define RAZIX_Y(v)               ((v)[1])
+#define RAZIX_Z(v)               ((v)[2])
+#define RAZIX_W(v)               ((v)[3])
+
+    //---------------------------------------------------------------------------------------------
+    // GFX/RHI types
+
+    typedef enum rz_render_api
+    {
+        RZ_RENDER_API_NONE = -1,
+        RZ_RENDER_API_VULKAN,       // Windows/MacOS/Linux
+        RZ_RENDER_API_D3D12,        // [WIP] // PC/XBOX
+        RZ_RENDER_API_GXM,          // Not Supported yet! (PSVita)
+        RZ_RENDER_API_GCM,          // Not Supported yet! (PS3)
+        RZ_RENDER_API_AGC,          // Not Supported yet! (PlayStation 5)
+        RZ_RENDER_API_COUNT = 2,    // Only the supported ones
+    } rz_render_api;
+
+    /**
+     * Preset for Resource Bind views
+     * For the initial stage of requirements we start off 
+     * with a enum and expand to a POD struct in future
+     */
+
+    /**
+     * Resource view hints provide a way to bind the resource views as needed
+     * these hints can be created at initialization time, and during bind time 
+     * to dynamically select the necessary view 
+     * 
+     * For ex. we can have a RWCubeMap viewed as Texture2DArray using the UAV hint 
+     * when writing to via compute shader and as a CubeMap using the SRV hint 
+     * while drawing a skybox, this is handled internally by the resource abstraction
+     * 
+     * get/setResourceViewHints are used during descriptor heap bind time to bind the apt
+     * resource view and is exposed to client to select it explicitly, the shader reflection 
+     * API will also provide it's own hints to make this automatic
+     */
+    typedef enum rz_gfx_resource_view_hints
+    {
+        RZ_GFX_RESOURCE_VIEW_FLAG_NONE         = 0,
+        RZ_GFX_RESOURCE_VIEW_FLAG_SRV          = 1 << 0,
+        RZ_GFX_RESOURCE_VIEW_FLAG_UAV          = 1 << 1,
+        RZ_GFX_RESOURCE_VIEW_FLAG_RTV          = 1 << 2,
+        RZ_GFX_RESOURCE_VIEW_FLAG_DSV          = 1 << 3,
+        RZ_GFX_RESOURCE_VIEW_FLAG_CBV          = 1 << 4,
+        RZ_GFX_RESOURCE_VIEW_FLAG_SAMPLER      = 1 << 5,
+        RZ_GFX_RESOURCE_VIEW_FLAG_TRANSFER_SRC = 1 << 6,
+        RZ_GFX_RESOURCE_VIEW_FLAG_TRANSFER_DST = 1 << 7,
+        RZ_GFX_RESOURCE_VIEW_FLAG_COUNT        = 8,
+    } rz_gfx_resource_view_hints;
+#define RZ_GFX_RESOURCE_VIEW_HINTS_BITCOUNT RAZIX_RHI_BITS_FOR_ENUM(RZ_GFX_RESOURCE_VIEW_FLAG_COUNT)
+
+    typedef enum rz_gfx_resource_type
+    {
+        RZ_GFX_RESOURCE_TYPE_INVALID = 0,
+        RZ_GFX_RESOURCE_TYPE_TEXTURE,
+        RZ_GFX_RESOURCE_TYPE_BUFFER,
+        RZ_GFX_RESOURCE_TYPE_CONSTANT_BUFFER,
+        RZ_GFX_RESOURCE_TYPE_VERTEX_BUFFER,
+        RZ_GFX_RESOURCE_TYPE_INDEX_BUFFER,
+        RZ_GFX_RESOURCE_TYPE_INDIRECT_BUFFER,
+        RZ_GFX_RESOURCE_TYPE_SAMPLER,
+        RZ_GFX_RESOURCE_TYPE_SHADER,
+        RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_HEAP,
+        RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_TABLE,
+        RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE,
+        RZ_GFX_RESOURCE_TYPE_CMD_POOL,
+        RZ_GFX_RESOURCE_TYPE_CMD_BUFFER,
+        RZ_GFX_RESOURCE_TYPE_PIPELINE,
+        RZ_GFX_RESOURCE_TYPE_COUNT
+    } rz_gfx_resource_type;
+
+    typedef enum rz_gfx_syncobj_type
+    {
+        RZ_GFX_SYNCOBJ_TYPE_CPU,
+        RZ_GFX_SYNCOBJ_TYPE_GPU,
+        RZ_GFX_SYNCOBJ_TYPE_COUNT
+    } rz_gfx_syncobj_type;
+
+    typedef enum rz_gfx_format
+    {
+        RZ_GFX_FORMAT_UNDEFINED = 0,
+
+        // Unsigned 8-bit
+        RZ_GFX_FORMAT_R8_UNORM,
+        RZ_GFX_FORMAT_R8_UINT,
+
+        // 16-bit
+        RZ_GFX_FORMAT_R16_UNORM,
+        RZ_GFX_FORMAT_R16_FLOAT,
+        RZ_GFX_FORMAT_R16G16_FLOAT,
+        RZ_GFX_FORMAT_R16G16_UNORM,
+        RZ_GFX_FORMAT_R16G16B16A16_UNORM,
+        RZ_GFX_FORMAT_R16G16B16A16_FLOAT,
+
+        // 32-bit
+        RZ_GFX_FORMAT_R32_SINT,
+        RZ_GFX_FORMAT_R32_UINT,
+        RZ_GFX_FORMAT_R32_FLOAT,
+        RZ_GFX_FORMAT_R32G32_SINT,
+        RZ_GFX_FORMAT_R32G32_UINT,
+        RZ_GFX_FORMAT_R32G32_FLOAT,
+        RZ_GFX_FORMAT_R32G32B32_SINT,
+        RZ_GFX_FORMAT_R32G32B32_UINT,
+        RZ_GFX_FORMAT_R32G32B32_FLOAT,
+        RZ_GFX_FORMAT_R32G32B32A32_SINT,
+        RZ_GFX_FORMAT_R32G32B32A32_UINT,
+        RZ_GFX_FORMAT_R32G32B32A32_FLOAT,
+
+        // Packed formats
+        RZ_GFX_FORMAT_R11G11B10_FLOAT,
+        RZ_GFX_FORMAT_R11G11B10_UINT,
+
+        // Color formats
+        RZ_GFX_FORMAT_R8G8_UNORM,
+        RZ_GFX_FORMAT_R8G8B8_UNORM,
+        RZ_GFX_FORMAT_R8G8B8A8_UNORM,
+        RZ_GFX_FORMAT_R8G8B8A8_SRGB,
+        RZ_GFX_FORMAT_B8G8R8A8_UNORM,
+        RZ_GFX_FORMAT_B8G8R8A8_SRGB,
+
+        // Legacy / placeholder
+        RZ_GFX_FORMAT_RGB8_UNORM,
+        RZ_GFX_FORMAT_RGB16_UNORM,
+        RZ_GFX_FORMAT_RGB32_UINT,
+        RZ_GFX_FORMAT_RGBA,
+        RZ_GFX_FORMAT_RGB,
+
+        // Depth-stencil
+        RZ_GFX_FORMAT_D16_UNORM,
+        RZ_GFX_FORMAT_D24_UNORM_S8_UINT,
+        RZ_GFX_FORMAT_D32_FLOAT,
+        RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT,
+        RZ_GFX_FORMAT_STENCIL8,
+
+        // Pseudo format for swapchain screen output
+        RZ_GFX_FORMAT_SCREEN,    // Basically B8G8R8A8_UNORM
+
+        // Block formats
+        RZ_GFX_FORMAT_BC1_RGBA_UNORM,
+        RZ_GFX_FORMAT_BC3_RGBA_UNORM,
+        RZ_GFX_FORMAT_BC6_UNORM,    // HDR
+        RZ_GFX_FORMAT_BC7_UNORM,
+        RZ_GFX_FORMAT_BC7_SRGB,
+
+        RZ_GFX_FORMAT_COUNT
+    } rz_gfx_format;
+
+    typedef enum rz_gfx_texture_type
+    {
+        RZ_GFX_TEXTURE_TYPE_UNDEFINED = 0,
+        RZ_GFX_TEXTURE_TYPE_1D,
+        RZ_GFX_TEXTURE_TYPE_2D,
+        RZ_GFX_TEXTURE_TYPE_3D,
+        RZ_GFX_TEXTURE_TYPE_CUBE,
+        RZ_GFX_TEXTURE_TYPE_1D_ARRAY,
+        RZ_GFX_TEXTURE_TYPE_2D_ARRAY,
+        RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY,
+        RZ_GFX_TEXTURE_TYPE_COUNT
+    } rz_gfx_texture_type;
+
+    typedef enum rz_gfx_texture_address_mode
+    {
+        RZ_GFX_TEXTURE_ADDRESS_MODE_WRAP = 0,       // Repeat the texture coordinates
+        RZ_GFX_TEXTURE_ADDRESS_MODE_MIRROR,         // Mirror the texture coordinates
+        RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP,          // Clamp to edge of the texture
+        RZ_GFX_TEXTURE_ADDRESS_MODE_BORDER,         // Use a border color for out-of-bounds
+        RZ_GFX_TEXTURE_ADDRESS_MODE_MIRROR_ONCE,    // Mirror once and then clamp
+        RZ_GFX_TEXTURE_ADDRESS_MODE_COUNT
+    } rz_gfx_texture_address_mode;
+
+    typedef enum rz_gfx_cmdpool_type
+    {
+        RZ_GFX_CMDPOOL_TYPE_GRAPHICS,
+        RZ_GFX_CMDPOOL_TYPE_COMPUTE,
+        RZ_GFX_CMDPOOL_TYPE_TRANSFER,
+        RZ_GFX_CMDPOOL_TYPE_COUNT
+    } rz_gfx_cmdpool_type;
+
+    typedef enum rz_gfx_resolution
+    {
+        RZ_GFX_RESOLUTION_1080p,       /* native HD resolution 1920x1080 rendering                            */
+        RZ_GFX_RESOLUTION_1440p,       /* native 2K resolution 2560x1440 rendering                            */
+        RZ_GFX_RESOLUTION_4K_UPSCALED, /* Upscaled using FSR/DLSS                                             */
+        RZ_GFX_RESOLUTION_4K_NATIVE,   /* native 3840x2160 rendering                                          */
+        RZ_GFX_RESOLUTION_WINDOW,      /* Selects the resolution dynamically based on the presentation window */
+        RZ_GFX_RESOLUTION_CUSTOM,      /* Custom resolution for rendering                                     */
+        RZ_GFX_RESOLUTION_COUNT
+    } rz_gfx_resolution;
+
+    typedef enum rz_gfx_resource_state
+    {
+        RZ_GFX_RESOURCE_STATE_UNDEFINED = 0,
+        RZ_GFX_RESOURCE_STATE_RENDER_TARGET,
+        RZ_GFX_RESOURCE_STATE_SHADER_READ,
+        RZ_GFX_RESOURCE_STATE_COPY_SRC,
+        RZ_GFX_RESOURCE_STATE_COPY_DST,
+        RZ_GFX_RESOURCE_STATE_PRESENT,
+        RZ_GFX_RESOURCE_STATE_DEPTH_WRITE,
+        RZ_GFX_RESOURCE_STATE_GENERAL,
+        RZ_GFX_RESOURCE_STATE_COUNT
+    } rz_gfx_resource_state;
+
+    typedef enum rz_gfx_clear_color_preset
+    {
+        RZ_GFX_CLEAR_COLOR_PRESET_OPAQUE_BLACK = 0,
+        RZ_GFX_CLEAR_COLOR_PRESET_OPAQUE_WHITE,
+        RZ_GFX_CLEAR_COLOR_PRESET_TRANSPARENT_BLACK,
+        RZ_GFX_CLEAR_COLOR_PRESET_TRANSPARENT_WHITE,
+        RZ_GFX_CLEAR_COLOR_PRESET_PINK,
+        RZ_GFX_CLEAR_COLOR_PRESET_DEPTH_ZERO_TO_ONE,
+        RZ_GFX_CLEAR_COLOR_PRESET_DEPTH_ONE_TO_ZERO,
+        RZ_GFX_CLEAR_COLOR_PRESET_COUNT
+    } rz_gfx_clear_color_preset;
+
+    typedef enum rz_gfx_descriptor_type
+    {
+        RZ_GFX_DESCRIPTOR_TYPE_NONE           = 0xFFFFFFFF,
+        RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER = 0,
+        RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT,
+        RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED,    // (Vulkan-only, not recommended)
+        RZ_GFX_DESCRIPTOR_TYPE_TEXTURE,
+        RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE,
+        RZ_GFX_DESCRIPTOR_TYPE_SAMPLER,
+        RZ_GFX_DESCRIPTOR_TYPE_RW_TYPED,
+        RZ_GFX_DESCRIPTOR_TYPE_STRUCTURED,
+        RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED,
+        RZ_GFX_DESCRIPTOR_TYPE_BYTE_ADDRESS,
+        RZ_GFX_DESCRIPTOR_TYPE_RW_BYTE_ADDRESS,
+        RZ_GFX_DESCRIPTOR_TYPE_APPEND_STRUCTURED,
+        RZ_GFX_DESCRIPTOR_TYPE_CONSUME_STRUCTURED,
+        RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED_COUNTER,
+        RZ_GFX_DESCRIPTOR_TYPE_RT_ACCELERATION_STRUCTURE,
+        RZ_GFX_DESCRIPTOR_TYPE_COUNT
+    } rz_gfx_descriptor_type;
+
+    typedef enum rz_gfx_descriptor_heap_type
+    {
+        RZ_GFX_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV = 0,
+        RZ_GFX_DESCRIPTOR_HEAP_TYPE_SAMPLER,
+        RZ_GFX_DESCRIPTOR_HEAP_TYPE_RTV,
+        RZ_GFX_DESCRIPTOR_HEAP_TYPE_DSV,
+        RZ_GFX_DESCRIPTOR_HEAP_TYPE_COUNT
+    } rz_gfx_descriptor_heap_type;
+
+    typedef enum rz_gfx_shader_stage
+    {
+        RZ_GFX_SHADER_STAGE_NONE                    = 0,
+        RZ_GFX_SHADER_STAGE_VERTEX                  = 1 << 0,
+        RZ_GFX_SHADER_STAGE_GEOMETRY                = 1 << 1,
+        RZ_GFX_SHADER_STAGE_TESSELLATION_CONTROL    = 1 << 2,
+        RZ_GFX_SHADER_STAGE_TESSELLATION_EVALUATION = 1 << 3,
+        RZ_GFX_SHADER_STAGE_PIXEL                   = 1 << 4,
+        RZ_GFX_SHADER_STAGE_COMPUTE                 = 1 << 5,
+        RZ_GFX_SHADER_STAGE_RAY_GEN                 = 1 << 6,
+        RZ_GFX_SHADER_STAGE_RAY_MISS                = 1 << 7,
+        RZ_GFX_SHADER_STAGE_RAY_CLOSEST_HIT         = 1 << 8,
+        RZ_GFX_SHADER_STAGE_RAY_ANY_HIT             = 1 << 9,
+        RZ_GFX_SHADER_STAGE_RAY_CALLABLE            = 1 << 10,
+        RZ_GFX_SHADER_STAGE_TASK                    = 1 << 11,
+        RZ_GFX_SHADER_STAGE_MESH                    = 1 << 12,
+        RZ_GFX_SHADER_STAGE_COUNT                   = 13
+    } rz_gfx_shader_stage;
+
+    typedef enum rz_gfx_shader_data_type
+    {
+        RZ_GFX_SHADER_DATA_TYPE_NONE = 0,
+        RZ_GFX_SHADER_DATA_TYPE_FLOAT32,
+        RZ_GFX_SHADER_DATA_TYPE_VEC2,
+        RZ_GFX_SHADER_DATA_TYPE_VEC3,
+        RZ_GFX_SHADER_DATA_TYPE_VEC4,
+        RZ_GFX_SHADER_DATA_TYPE_IVEC2,
+        RZ_GFX_SHADER_DATA_TYPE_IVEC3,
+        RZ_GFX_SHADER_DATA_TYPE_IVEC4,
+        RZ_GFX_SHADER_DATA_TYPE_MAT3,
+        RZ_GFX_SHADER_DATA_TYPE_MAT4,
+        RZ_GFX_SHADER_DATA_TYPE_INT32,
+        RZ_GFX_SHADER_DATA_TYPE_INT,
+        RZ_GFX_SHADER_DATA_TYPE_UINT,
+        RZ_GFX_SHADER_DATA_TYPE_BOOL,
+        RZ_GFX_SHADER_DATA_TYPE_STRUCT,
+        RZ_GFX_SHADER_DATA_TYPE_MAT4_ARRAY,
+        RZ_GFX_SHADER_DATA_TYPE_COUNT
+    } rz_gfx_shader_data_type;
+
+    typedef enum rz_gfx_texture_wrap_type
+    {
+        RZ_GFX_TEXTURE_WRAP_TYPE_REPEAT = 0,
+        RZ_GFX_TEXTURE_WRAP_TYPE_MIRRORED_REPEAT,
+        RZ_GFX_TEXTURE_WRAP_TYPE_CLAMP_TO_EDGE,
+        RZ_GFX_TEXTURE_WRAP_TYPE_CLAMP_TO_BORDER,
+        RZ_GFX_TEXTURE_WRAP_TYPE_COUNT
+    } rz_gfx_texture_wrap_type;
+
+    typedef enum rz_gfx_texture_filter_type
+    {
+        RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST = 0,
+        RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR,
+        RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST,
+        RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST,
+        RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR,
+        RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR,
+        RZ_GFX_TEXTURE_FILTER_TYPE_COUNT
+    } rz_gfx_texture_filter_type;
+
+    typedef enum rz_gfx_pipeline_type
+    {
+        RZ_GFX_PIPELINE_TYPE_GRAPHICS = 0,
+        RZ_GFX_PIPELINE_TYPE_COMPUTE,
+        RZ_GFX_PIPELINE_TYPE_RAYTRACING,
+        RZ_GFX_PIPELINE_TYPE_COUNT
+    } rz_gfx_pipeline_type;
+
+    typedef enum rz_gfx_cull_mode_type
+    {
+        RZ_GFX_CULL_MODE_TYPE_BACK = 0,
+        RZ_GFX_CULL_MODE_TYPE_FRONT,
+        RZ_GFX_CULL_MODE_TYPE_FRONT_BACK,
+        RZ_GFX_CULL_MODE_TYPE_NONE,
+        RZ_GFX_CULL_MODE_TYPE_COUNT
+    } rz_gfx_cull_mode_type;
+
+    typedef enum rz_gfx_polygon_mode_type
+    {
+        RZ_GFX_POLYGON_MODE_TYPE_FILL = 0,
+        RZ_GFX_POLYGON_MODE_TYPE_LINE,
+        RZ_GFX_POLYGON_MODE_TYPE_POINT,
+        RZ_GFX_POLYGON_MODE_TYPE_COUNT
+    } rz_gfx_polygon_mode_type;
+
+    typedef enum rz_gfx_draw_type
+    {
+        RZ_GFX_DRAW_TYPE_POINT = 0,
+        RZ_GFX_DRAW_TYPE_TRIANGLE,
+        RZ_GFX_DRAW_TYPE_TRIANGLE_STRIP,
+        RZ_GFX_DRAW_TYPE_LINE,
+        RZ_GFX_DRAW_TYPE_LINE_STRIP,
+        RZ_GFX_DRAW_TYPE_COUNT
+    } rz_gfx_draw_type;
+
+    typedef enum rz_gfx_blend_op_type
+    {
+        RZ_GFX_BLEND_OP_TYPE_ADD = 0,
+        RZ_GFX_BLEND_OP_TYPE_SUBTRACT,
+        RZ_GFX_BLEND_OP_TYPE_REVERSE_SUBTRACT,
+        RZ_GFX_BLEND_OP_TYPE_MIN,
+        RZ_GFX_BLEND_OP_TYPE_MAX,
+        RZ_GFX_BLEND_OP_TYPE_COUNT
+    } rz_gfx_blend_op_type;
+
+    typedef enum rz_gfx_blend_factor_type
+    {
+        RZ_GFX_BLEND_FACTOR_TYPE_ZERO = 0,
+        RZ_GFX_BLEND_FACTOR_TYPE_ONE,
+        RZ_GFX_BLEND_FACTOR_TYPE_SRC_COLOR,
+        RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_SRC_COLOR,
+        RZ_GFX_BLEND_FACTOR_TYPE_DST_COLOR,
+        RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_DST_COLOR,
+        RZ_GFX_BLEND_FACTOR_TYPE_SRC_ALPHA,
+        RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_SRC_ALPHA,
+        RZ_GFX_BLEND_FACTOR_TYPE_DST_ALPHA,
+        RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_DST_ALPHA,
+        RZ_GFX_BLEND_FACTOR_TYPE_CONSTANT_COLOR,
+        RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_CONSTANT_COLOR,
+        RZ_GFX_BLEND_FACTOR_TYPE_CONSTANT_ALPHA,
+        RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_CONSTANT_ALPHA,
+        RZ_GFX_BLEND_FACTOR_TYPE_SRC_ALPHA_SATURATE,
+        RZ_GFX_BLEND_FACTOR_TYPE_COUNT
+    } rz_gfx_blend_factor_type;
+
+    typedef enum rz_gfx_compare_op_type
+    {
+        RZ_GFX_COMPARE_OP_TYPE_NEVER = 0,
+        RZ_GFX_COMPARE_OP_TYPE_LESS,
+        RZ_GFX_COMPARE_OP_TYPE_EQUAL,
+        RZ_GFX_COMPARE_OP_TYPE_LESS_OR_EQUAL,
+        RZ_GFX_COMPARE_OP_TYPE_GREATER,
+        RZ_GFX_COMPARE_OP_TYPE_NOT_EQUAL,
+        RZ_GFX_COMPARE_OP_TYPE_GREATER_OR_EQUAL,
+        RZ_GFX_COMPARE_OP_TYPE_ALWAYS,
+        RZ_GFX_COMPARE_OP_TYPE_COUNT
+    } rz_gfx_compare_op_type;
+
+    typedef enum rz_gfx_buffer_usage_type
+    {
+        RZ_GFX_BUFFER_USAGE_TYPE_STATIC = 0,
+        RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM,
+        RZ_GFX_BUFFER_USAGE_TYPE_STAGING,
+        RZ_GFX_BUFFER_USAGE_TYPE_INDIRECT_DRAW_ARGS,
+        RZ_GFX_BUFFER_USAGE_TYPE_READBACK,
+        RZ_GFX_BUFFER_USAGE_TYPE_COUNT
+    } rz_gfx_buffer_usage_type;
+
+    typedef enum rz_gfx_buffer_type
+    {
+        RZ_GFX_BUFFER_TYPE_CONSTANT = 0,
+        RZ_GFX_BUFFER_TYPE_RW_CONSTANT,
+        RZ_GFX_BUFFER_TYPE_STORAGE,
+        RZ_GFX_BUFFER_TYPE_RW_STRUCTURED,
+        RZ_GFX_BUFFER_TYPE_RW_DATA,
+        RZ_GFX_BUFFER_TYPE_RW_REGULAR,
+        RZ_GFX_BUFFER_TYPE_STRUCTURED,
+        RZ_GFX_BUFFER_TYPE_DATA,
+        RZ_GFX_BUFFER_TYPE_REGULAR,
+        RZ_GFX_BUFFER_TYPE_ACCELERATION_STRUCTURE,
+        RZ_GFX_BUFFER_TYPE_COUNT
+    } rz_gfx_buffer_type;
+
+    typedef enum rz_gfx_pipeline_stage_type
+    {
+        RZ_GFX_PIPELINE_STAGE_TYPE_TOP_OF_PIPE = 0,
+        RZ_GFX_PIPELINE_STAGE_TYPE_DRAW_INDIRECT,
+        RZ_GFX_PIPELINE_STAGE_TYPE_DRAW,
+        RZ_GFX_PIPELINE_STAGE_TYPE_VERTEX_INPUT,
+        RZ_GFX_PIPELINE_STAGE_TYPE_VERTEX_SHADER,
+        RZ_GFX_PIPELINE_STAGE_TYPE_TESSELLATION_CONTROL_SHADER,
+        RZ_GFX_PIPELINE_STAGE_TYPE_TESSELLATION_EVALUATION_SHADER,
+        RZ_GFX_PIPELINE_STAGE_TYPE_GEOMETRY_SHADER,
+        RZ_GFX_PIPELINE_STAGE_TYPE_FRAGMENT_SHADER,
+        RZ_GFX_PIPELINE_STAGE_TYPE_EARLY_FRAGMENT_TESTS,
+        RZ_GFX_PIPELINE_STAGE_TYPE_LATE_FRAGMENT_TESTS,
+        RZ_GFX_PIPELINE_STAGE_TYPE_EARLY_OR_LATE_TESTS,
+        RZ_GFX_PIPELINE_STAGE_TYPE_COLOR_ATTACHMENT_OUTPUT,
+        RZ_GFX_PIPELINE_STAGE_TYPE_COMPUTE_SHADER,
+        RZ_GFX_PIPELINE_STAGE_TYPE_TRANSFER,
+        RZ_GFX_PIPELINE_STAGE_TYPE_MESH_SHADER,
+        RZ_GFX_PIPELINE_STAGE_TYPE_TASK_SHADER,
+        RZ_GFX_PIPELINE_STAGE_TYPE_BOTTOM_OF_PIPE,
+        RZ_GFX_PIPELINE_STAGE_TYPE_COUNT
+    } rz_gfx_pipeline_stage_type;
+
+    typedef enum rz_gfx_memory_access_mask
+    {
+        RZ_GFX_MEMORY_ACCESS_NONE = 0,
+        RZ_GFX_MEMORY_ACCESS_INDIRECT_COMMAND_READ_BIT,
+        RZ_GFX_MEMORY_ACCESS_INDEX_BUFFER_DATA_READ_BIT,
+        RZ_GFX_MEMORY_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,
+        RZ_GFX_MEMORY_ACCESS_UNIFORM_READ_BIT,
+        RZ_GFX_MEMORY_ACCESS_INPUT_ATTACHMENT_READ_BIT,
+        RZ_GFX_MEMORY_ACCESS_SHADER_READ_BIT,
+        RZ_GFX_MEMORY_ACCESS_SHADER_WRITE_BIT,
+        RZ_GFX_MEMORY_ACCESS_COLOR_ATTACHMENT_READ_BIT,
+        RZ_GFX_MEMORY_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+        RZ_GFX_MEMORY_ACCESS_COLOR_ATTACHMENT_READ_WRITE_BIT,
+        RZ_GFX_MEMORY_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+        RZ_GFX_MEMORY_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+        RZ_GFX_MEMORY_ACCESS_TRANSFER_READ_BIT,
+        RZ_GFX_MEMORY_ACCESS_TRANSFER_WRITE_BIT,
+        RZ_GFX_MEMORY_ACCESS_HOST_READ_BIT,
+        RZ_GFX_MEMORY_ACCESS_HOST_WRITE_BIT,
+        RZ_GFX_MEMORY_ACCESS_MEMORY_READ_BIT,
+        RZ_GFX_MEMORY_ACCESS_MEMORY_WRITE_BIT,
+        RZ_GFX_MEMORY_ACCESS_MASK_COUNT
+    } rz_gfx_memory_access_mask;
+
+    typedef enum rz_gfx_draw_data_type
+    {
+        RZ_GFX_DRAW_DATA_TYPE_FLOAT = 0,
+        RZ_GFX_DRAW_DATA_TYPE_UNSIGNED_INT,
+        RZ_GFX_DRAW_DATA_TYPE_UNSIGNED_BYTE,
+        RZ_GFX_DRAW_DATA_TYPE_COUNT
+    } rz_gfx_draw_data_type;
+
+    typedef enum rz_gfx_blend_presets
+    {
+        RZ_GFX_BLEND_PRESET_ADDITIVE = 0,
+        RZ_GFX_BLEND_PRESET_ALPHA_BLEND,
+        RZ_GFX_BLEND_PRESET_SUBTRACTIVE,
+        RZ_GFX_BLEND_PRESET_MULTIPLY,
+        RZ_GFX_BLEND_PRESET_DARKEN,
+        RZ_GFX_BLEND_PRESET_COUNT
+    } rz_gfx_blend_presets;
+
+    typedef enum rz_gfx_target_fps
+    {
+        RZ_GFX_TARGET_FPS_60    = 60,
+        RZ_GFX_TARGET_FPS_120   = 120,
+        RZ_GFX_TARGET_FPS_COUNT = 2
+    } rz_gfx_target_fps;
+
+    //================================================================
+    typedef struct rz_gfx_buffer  rz_gfx_buffer;
+    typedef struct rz_gfx_texture rz_gfx_texture;
+    typedef struct rz_gfx_sampler rz_gfx_sampler;
+
+    typedef struct rz_gfx_buffer_view_desc
+    {
+        const rz_gfx_buffer* buffer;
+        uint64_t             offset;
+        uint64_t             size;
+        uint32_t             stride;
+    } rz_gfx_buffer_view_desc;
+
+    typedef struct rz_gfx_texture_view_desc
+    {
+        const rz_gfx_texture* texture;
+        uint32_t              baseMip;
+        uint32_t              mipCount;
+        uint32_t              baseArrayLayer;
+        uint32_t              layerCount;
+        uint32_t              dimension;
+    } rz_gfx_texture_view_desc;
+
+    typedef struct rz_gfx_sampler_view_desc
+    {
+        const rz_gfx_sampler* sampler;
+    } rz_gfx_sampler_view_desc;
+
+    typedef struct rz_gfx_resource_view
+    {
+        rz_gfx_descriptor_type descriptorType;
+        union
         {
-        public:
-            RHI()          = default;
-            virtual ~RHI() = default;
-
-            // Lifecycle Management
-            static void Create(u32 width, u32 height);
-            static void Destroy();
-
-            static RHI&       Get();
-            static const RHI* GetPointer();
-
-            static void Init();
-            static void OnResize(u32 width, u32 height);
-
-            // Debug Flush Test
-            static void FlushPendingWork();
-
-            // Command Recording & Submission
-            static void
-                        AcquireImage(RZSemaphore* signalSemaphore);
-            static void Begin(RZDrawCommandBufferHandle cmdBuffer);
-            static void Submit(RZDrawCommandBufferHandle cmdBuffer);
-            static void Present(RZSemaphore* waitSemaphore);
-
-            // Binding
-            static void BindPipeline(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer);
-            static void BindDescriptorSet(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZDescriptorSetHandle descriptorSet, u32 setIdx);
-            static void BindUserDescriptorSets(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSetHandle>& descriptorSets, u32 startSetIdx = 0);
-            static void BindPushConstant(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant);
-            static void EnableBindlessTextures(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer);
-
-            // Draws & Dispatches
-            static void Draw(RZDrawCommandBufferHandle cmdBuffer, u32 count, DrawDataType dataType = DrawDataType::UNSIGNED_INT);
-            static void DrawIndexed(RZDrawCommandBufferHandle cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0);
-            // TODO: Use AsyncCommandBufferHandle
-            static void Dispatch(RZDrawCommandBufferHandle cmdBuffer, u32 groupX, u32 groupY, u32 groupZ);
-
-            // Render Pass
-            static void BeginRendering(RZDrawCommandBufferHandle cmdBuffer, const RenderingInfo& renderingInfo);
-            static void EndRendering(RZDrawCommandBufferHandle cmdBuffer);
-
-            // Memory Barriers
-            static void InsertImageMemoryBarrier(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, ImageLayout oldLayout, ImageLayout newLayout);
-            static void InsertBufferMemoryBarrier(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, BufferBarrierType barrierType);
-
-            // Resource Management
-            static void            CopyTextureResource(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle);
-            static TextureReadback InsertTextureReadback(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture);
-
-            // Pipeline
-            static void SetDepthBias(RZDrawCommandBufferHandle cmdBuffer);
-            static void SetViewport(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height);
-            static void SetScissorRect(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height);
-
-            // Misc
-            // FIXME: Don't expose this at all, write simple wrappers, we hardly need the current image index or the swap image RTV
-            static RZSwapchain* GetSwapchain();
-            /* Returns the current draw command buffer to record onto from a ring buffer */
-            static RZDrawCommandBufferHandle GetCurrentCommandBuffer();
-
-            // TODO: Move this to Diana or RZScene
-            inline RZDescriptorSetHandle       getFrameDataSet() const { return m_FrameDataSet; }
-            inline void                        setFrameDataSet(RZDescriptorSetHandle set) { m_FrameDataSet = set; }
-            inline const RZDescriptorSetHandle getSceneLightsDataSet() const { return m_SceneLightsDataSet; }
-            inline void                        setSceneLightsDataSet(RZDescriptorSetHandle set) { m_SceneLightsDataSet = set; }
-            inline const u32&                  getWidth() { return m_Width; }
-            inline const u32&                  getHeight() { return m_Height; }
-
-            virtual void OnImGui() = 0;
-
-        protected:
-            virtual void            InitAPIImpl()                                                                                                                                                           = 0;
-            virtual void            AcquireImageAPIImpl(RZSemaphore* signalSemaphore)                                                                                                                       = 0;
-            virtual void            BeginAPIImpl(RZDrawCommandBufferHandle cmdBuffer)                                                                                                                       = 0;
-            virtual void            SubmitImpl(RZDrawCommandBufferHandle cmdBuffer)                                                                                                                         = 0;
-            virtual void            PresentAPIImpl(RZSemaphore* waitSemaphore)                                                                                                                              = 0;
-            virtual void            BindPipelineImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)                                                                                        = 0;
-            virtual void            BindDescriptorSetAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZDescriptorSetHandle descriptorSet, u32 setIdx)                                = 0;
-            virtual void            BindUserDescriptorSetsAPImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptorSetHandle>& descriptorSets, u32 startSetIdx) = 0;
-            virtual void            BindPushConstantsAPIImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, RZPushConstant pushConstant)                                                   = 0;
-            virtual void            DrawAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 count, DrawDataType datayType = DrawDataType::UNSIGNED_INT)                                                        = 0;
-            virtual void            DrawIndexedAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 indexCount, u32 instanceCount = 1, u32 firstIndex = 0, int32_t vertexOffset = 0, u32 firstInstance = 0)     = 0;
-            virtual void            DispatchAPIImpl(RZDrawCommandBufferHandle cmdBuffer, u32 groupX, u32 groupY, u32 groupZ)                                                                                = 0;
-            virtual void            DestroyAPIImpl()                                                                                                                                                        = 0;
-            virtual void            OnResizeAPIImpl(u32 width, u32 height)                                                                                                                                  = 0;
-            virtual void            SetDepthBiasImpl(RZDrawCommandBufferHandle cmdBuffer)                                                                                                                   = 0;
-            virtual void            SetScissorRectImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                    = 0;
-            virtual void            SetViewportImpl(RZDrawCommandBufferHandle cmdBuffer, int32_t x, int32_t y, u32 width, u32 height)                                                                       = 0;
-            virtual void            EnableBindlessTexturesImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer)                                                                              = 0;
-            virtual void            BindPushDescriptorsImpl(RZPipelineHandle pipeline, RZDrawCommandBufferHandle cmdBuffer, const std::vector<RZDescriptor>& descriptors)                                   = 0;
-            virtual void            BeginRenderingImpl(RZDrawCommandBufferHandle cmdBuffer, const RenderingInfo& renderingInfo)                                                                             = 0;
-            virtual void            EndRenderingImpl(RZDrawCommandBufferHandle cmdBuffer)                                                                                                                   = 0;
-            virtual void            InsertImageMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture, ImageLayout oldLayout, ImageLayout newLayout)                                = 0;
-            virtual void            InsertBufferMemoryBarrierImpl(RZDrawCommandBufferHandle cmdBuffer, RZUniformBufferHandle buffer, BufferBarrierType barrierType)                                         = 0;
-            virtual void            CopyTextureResourceImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle dstTexture, RZTextureHandle srcTextureHandle)                                              = 0;
-            virtual TextureReadback InsertTextureReadbackImpl(RZDrawCommandBufferHandle cmdBuffer, RZTextureHandle texture)                                                                                 = 0;
-            virtual void            FlushPendingWorkImpl()                                                                                                                                                  = 0;
-            virtual RZSwapchain*    GetSwapchainImpl()                                                                                                                                                      = 0;
-
-        protected:
-            static RHI* s_APIInstance;
-
-            std::string  m_RendererTitle; /* The name of the renderer API that is being used */
-            u32          m_Width      = 0;
-            u32          m_Height     = 0;
-            u32          m_PrevWidth  = 0;
-            u32          m_PrevHeight = 0;
-            CommandQueue m_GraphicsCommandQueue; /* The queue of recorded commands that needs execution */
-            // TODO: Move all these to Diana, these setups are internally customized by the high-level renderer, only util functions exist here no low-level logic must exist
-
-            RZDrawCommandBufferHandle              m_CurrentCommandBuffer;
-            std::vector<RZDrawCommandBufferHandle> m_DrawCommandBuffers;
-            std::vector<RZCommandPoolHandle>       m_GraphicsCommandPool;
-            std::vector<RZCommandPoolHandle>       m_ComputeCommandPool;
-            RZDescriptorSetHandle                  m_FrameDataSet       = {};
-            RZDescriptorSetHandle                  m_SceneLightsDataSet = {};
+            rz_gfx_buffer_view_desc  bufferView;
+            rz_gfx_texture_view_desc textureView;
+            rz_gfx_sampler_view_desc samplerView;    // Basically a sampler object itself
         };
-    }    // namespace Gfx
-}    // namespace Razix
+
+        // not a resource but STILL has backend (ex. vkImageView, vkSampler etc.)
+        // lifetime will be managed by descriptor tables API
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_resview vk;
+#elif defined RAZIX_RENDER_API_DIRECTX12
+    dx12_resview dx12;
+#endif
+    } rz_gfx_resource_view;
+    //================================================================
+
+    typedef rz_handle rz_gfx_texture_handle;
+    typedef rz_handle rz_gfx_sampler_handle;
+    typedef rz_handle rz_gfx_buffer_handle;
+    typedef rz_handle rz_gfx_cmdbuf_handle;
+    typedef rz_handle rz_gfx_root_signature_handle;
+    typedef rz_handle rz_gfx_shader_handle;
+    typedef rz_handle rz_gfx_swapchain_handle;
+    typedef rz_handle rz_gfx_syncobj_handle;
+    typedef rz_handle rz_gfx_cmdpool_handle;
+    typedef rz_handle rz_gfx_descriptor_heap_handle;
+    typedef rz_handle rz_gfx_descriptor_table_handle;
+    typedef rz_handle rz_gfx_pipeline_handle;
+
+    /**
+      * Graphics Features as supported by the GPU, even though Engine supports them
+      * the GPU can override certain setting and query run-time info like LaneWidth etc.
+      */
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_features
+    {
+        union gfxsupport
+        {
+            uint32_t value;
+            struct
+            {
+                uint32_t EnableVSync : 1;
+                uint32_t TesselateTerrain : 1;
+                uint32_t SupportsBindless : 1;
+                uint32_t SupportsWaveIntrinsics : 1;
+                uint32_t SupportsShaderModel6 : 1;
+                uint32_t SupportsNullIndexDescriptors : 1;
+                uint32_t SupportsTimelineSemaphores : 1;
+                uint32_t SupportsBindlessRendering : 1;
+                uint32_t reserved : 24;
+            };
+        } support;
+        uint32_t MaxBindlessTextures;
+        uint32_t MinLaneWidth;
+        uint32_t MaxLaneWidth;
+        uint8_t  _pad0[4];
+    } rz_gfx_features;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_color_rgba
+    {
+        union
+        {
+            struct
+            {
+                float r;
+                float g;
+                float b;
+                float a;
+            };
+            float raw[4];
+        };
+    } rz_gfx_color_rgba;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_color_rgb
+    {
+        union
+        {
+            struct
+            {
+                float r;
+                float g;
+                float b;
+            };
+            float raw[3];
+        };
+        uint8_t _pad0[4];
+    } rz_gfx_color_rgb;
+
+    typedef void (*rz_gfx_resource_create_fn)(void* where);
+    typedef void (*rz_gfx_resource_destroy_fn)(void* resource);
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_texture_desc
+    {
+        uint32_t                   width;
+        uint32_t                   height;
+        uint32_t                   depth;
+        uint32_t                   mipLevels;
+        uint32_t                   arraySize;
+        rz_gfx_format              format;
+        rz_gfx_texture_type        textureType;
+        rz_gfx_resource_view_hints resourceHints;    // Hints for how this texture should be viewed, used for binding
+    } rz_gfx_texture_desc;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_sampler_desc
+    {
+        rz_gfx_texture_filter_type  minFilter;
+        rz_gfx_texture_filter_type  magFilter;
+        rz_gfx_texture_filter_type  mipFilter;
+        rz_gfx_texture_address_mode addressModeU;
+        rz_gfx_texture_address_mode addressModeV;
+        rz_gfx_texture_address_mode addressModeW;
+        float                       mipLODBias;
+        uint32_t                    maxAnisotropy;
+        rz_gfx_compare_op_type      compareOp;
+        float                       minLod;
+        float                       maxLod;
+    } rz_gfx_sampler_desc;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_binding_location
+    {
+        uint32_t binding;
+        uint32_t space;
+        uint8_t  _pad0[8];
+    } rz_gfx_binding_location;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor
+    {
+        const char*             pName;
+        rz_gfx_descriptor_type  type;
+        uint32_t                sizeInBytes;
+        rz_gfx_binding_location location;
+        uint32_t                offsetInBytes;
+        uint32_t                memberCount;
+        uint32_t                arraySize;
+        uint8_t                 _pad0[4];
+    } rz_gfx_descriptor;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table_desc
+    {
+        uint32_t           tableIndex;
+        uint32_t           descriptorCount;
+        rz_gfx_descriptor* pDescriptors;
+    } rz_gfx_descriptor_table_desc;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_root_constant_desc
+    {
+        rz_gfx_binding_location location;
+        uint32_t                sizeInBytes;
+        uint32_t                offsetInBytes;
+        rz_gfx_shader_stage     shaderStage;
+        uint8_t                 _pad0[4];
+    } rz_gfx_root_constant_desc;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_root_signature_desc
+    {
+        rz_gfx_descriptor_table_desc* pDescriptorTablesDesc;
+        rz_gfx_root_constant_desc*    pRootConstantsDesc;
+        uint32_t                      descriptorTableCount;
+        uint32_t                      rootConstantCount;
+        uint8_t                       _pad0[8];
+    } rz_gfx_root_signature_desc;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdpool_desc
+    {
+        rz_gfx_cmdpool_type poolType;
+    } rz_gfx_cmdpool_desc;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdpool rz_gfx_cmdpool;
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdbuf_desc
+    {
+        const rz_gfx_cmdpool* pool;
+        uint8_t               _pad0[8];
+    } rz_gfx_cmdbuf_desc;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_buffer_desc
+    {
+        rz_gfx_buffer_type       type;
+        rz_gfx_buffer_usage_type usage;
+        uint32_t                 sizeInBytes;
+        uint32_t                 stride;          // For structured buffers
+        uint32_t                 elementCount;    // For structured buffers
+        bool                     isDynamic;       // If true, buffer can be updated dynamically
+        uint8_t                  _pad0[11];
+    } rz_gfx_buffer_desc;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader_stage_blob
+    {
+        rz_gfx_shader_stage stage;
+        uint32_t            size;
+        const char*         bytecode;
+    } rz_gfx_shader_stage_blob;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_input_element
+    {
+        const char* pSemanticName;
+        uint32_t    semanticIndex;
+        uint32_t    format;    // Match to rz_gfx_format enum
+        uint32_t    inputSlot;
+        uint32_t    alignedByteOffset;
+        uint32_t    inputClass;    // Per-vertex or per-instance
+        uint32_t    instanceStepRate;
+    } rz_gfx_input_element;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader_desc
+    {
+        rz_gfx_pipeline_type  pipelineType;
+        uint32_t              elementsCount;
+        rz_gfx_input_element* pElements;
+        union
+        {
+            const char* rzsfFilePath;    // PIGGY_BACKING_MEMORY: helper member to re-use this union, used before shader blobs are filled, safe to use here since freed before it reaches RHI
+            struct
+            {
+                rz_gfx_shader_stage_blob vs;
+                rz_gfx_shader_stage_blob ps;
+                rz_gfx_shader_stage_blob gs;
+                rz_gfx_shader_stage_blob tcs;
+                rz_gfx_shader_stage_blob tes;
+            } raster;
+
+            struct
+            {
+                rz_gfx_shader_stage_blob cs;
+            } compute;
+
+            struct
+            {
+                rz_gfx_shader_stage_blob task;
+                rz_gfx_shader_stage_blob mesh;
+                rz_gfx_shader_stage_blob ps;
+            } mesh;
+
+            struct
+            {
+                rz_gfx_shader_stage_blob rgen;
+                rz_gfx_shader_stage_blob miss;
+                rz_gfx_shader_stage_blob chit;
+                rz_gfx_shader_stage_blob ahit;
+                rz_gfx_shader_stage_blob callable;
+            } raytracing;
+        };
+    } rz_gfx_shader_desc;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_heap_desc
+    {
+        rz_gfx_descriptor_heap_type heapType;
+        uint32_t                    descriptorCount;
+        uint8_t                     _pad0[8];
+    } rz_gfx_descriptor_heap_desc;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader         rz_gfx_shader;
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_root_signature rz_gfx_root_signature;
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_pipeline_desc
+    {
+        const rz_gfx_shader*         pShader;
+        const rz_gfx_root_signature* pRootSig;
+
+        uint32_t      renderTargetCount;
+        rz_gfx_format depthStencilFormat;
+
+        struct
+        {
+            uint32_t type : 2;
+            uint32_t cullMode : 3;
+            uint32_t polygonMode : 2;
+            uint32_t depthWriteEnabled : 1;
+            uint32_t depthTestEnabled : 1;
+            uint32_t depthCompareOp : 3;
+            uint32_t stencilTestEnabled : 1;
+            uint32_t blendEnabled : 1;
+            uint32_t rasterizerDiscardEnabled : 1;
+            uint32_t primitiveRestartEnabled : 1;
+            uint32_t drawType : 2;
+            uint32_t useBlendPreset : 1;    // If set to true, use the blend preset, else use the blend factors below
+            uint32_t reserved0 : 13;
+        };
+
+        union
+        {
+            struct
+            {
+                uint32_t blendPreset : 5;    // Use this to set the blend preset, will be used to fill the blend factors
+                uint32_t reserved1 : 27;     // Reserved for future use, so we can expand the struct without breaking ABI
+            };
+            struct
+            {
+                uint32_t srcColorBlendFactor : 4;
+                uint32_t dstColorBlendFactor : 4;
+                uint32_t srcAlphaBlendFactor : 4;
+                uint32_t dstAlphaBlendFactor : 4;
+                uint32_t colorBlendOp : 3;
+                uint32_t alphaBlendOp : 3;
+                uint32_t stencilState : 3;    // Will overflow, so promote to next byte and to keep blend presets together
+                uint32_t reserved2 : 7;       // padding to 32 bits
+            };
+        };
+        rz_gfx_format renderTargetFormats[RAZIX_MAX_RENDER_TARGETS];
+    } rz_gfx_pipeline_desc;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_resource
+    {
+        const char*                pName;
+        rz_handle                  handle;
+        rz_gfx_resource_view_hints viewHints;
+        rz_gfx_resource_type       type;
+        uint8_t                    _pad1[8];
+
+        union
+        {
+            rz_gfx_texture_desc          textureDesc;
+            rz_gfx_sampler_desc          samplerDesc;
+            rz_gfx_cmdpool_desc          cmdpoolDesc;
+            rz_gfx_cmdbuf_desc           cmdbufDesc;
+            rz_gfx_root_signature_desc   rootSignatureDesc;
+            rz_gfx_descriptor_heap_desc  descriptorHeapDesc;
+            rz_gfx_descriptor_table_desc descriptorTableDesc;
+            rz_gfx_buffer_desc           bufferDesc;
+            rz_gfx_shader_desc           shaderDesc;
+            rz_gfx_pipeline_desc         pipelineDesc;
+        } desc;    // These are filled by the user, public members filled bu backend are stored in each gfx_type
+    } rz_gfx_resource;
+
+#define RAZIX_GFX_RESOURCE rz_gfx_resource resource
+
+    //---------------------------------------------------------------------------------------------
+    // Resource Structs
+
+    typedef uint64_t rz_gfx_syncpoint;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_syncobj
+    {
+        RAZIX_GFX_RESOURCE;
+        rz_gfx_syncpoint waitTimestamp;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_syncobj vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_syncobj dx12;
+#endif
+    } rz_gfx_syncobj;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_texture
+    {
+        RAZIX_GFX_RESOURCE;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_texture vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_texture dx12;
+#endif
+    } rz_gfx_texture;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_sampler
+    {
+        RAZIX_GFX_RESOURCE;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_sampler vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_sampler dx12;
+#endif
+    } rz_gfx_sampler;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_swapchain
+    {
+        uint32_t       width;
+        uint32_t       height;
+        uint32_t       imageCount;
+        uint32_t       currBackBufferIdx;
+        rz_gfx_texture backbuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_swapchain vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_swapchain dx12;
+#endif
+    } rz_gfx_swapchain;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_context
+    {
+        uint32_t      width;
+        uint32_t      height;
+        uint32_t      frameIndex;
+        rz_render_api renderAPI;
+        // All global submission queues are managed within the internal contexts
+        union
+        {
+#ifdef RAZIX_RENDER_API_VULKAN
+            vk_ctx vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            dx12_ctx dx12;
+#endif
+        };
+
+    } rz_gfx_context;
+
+    // Note:- Exception!, this is not a resource as it's managed by the Renderer and very few in number, might make is a Resource later
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdpool
+    {
+        RAZIX_GFX_RESOURCE;
+        rz_gfx_cmdpool_type type;
+        union
+        {
+#ifdef RAZIX_RENDER_API_VULKAN
+            vk_cmdpool vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            dx12_cmdpool dx12;
+#endif
+        };
+
+    } rz_gfx_cmdpool;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdbuf
+    {
+        RAZIX_GFX_RESOURCE;
+        union
+        {
+#ifdef RAZIX_RENDER_API_VULKAN
+            vk_cmdbuf vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            dx12_cmdbuf dx12;
+#endif
+        };
+
+    } rz_gfx_cmdbuf;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_heap
+    {
+        RAZIX_GFX_RESOURCE;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_descriptor_heap vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_descriptor_heap dx12;
+#endif
+    } rz_gfx_descriptor_heap;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table
+    {
+        RAZIX_GFX_RESOURCE;
+        rz_gfx_resource_view* pResourceViews;
+        uint32_t              resourceViewCount;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_descriptor_table vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_descriptor_table dx12;
+#endif
+    } rz_gfx_descriptor_table;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_root_signature
+    {
+        RAZIX_GFX_RESOURCE;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_root_signature vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_root_signature dx12;
+#endif
+    } rz_gfx_root_signature;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader
+    {
+        RAZIX_GFX_RESOURCE;
+        rz_gfx_root_signature_handle rootSignature;
+        uint32_t                     shaderStageMask;
+        union
+        {
+#ifdef RAZIX_RENDER_API_VULKAN
+            vk_shader vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+            dx12_shader dx12;
+#endif
+        };
+    } rz_gfx_shader;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_pipeline
+    {
+        RAZIX_GFX_RESOURCE;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_pipeline vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_pipeline dx12;
+#endif
+    } rz_gfx_pipeline;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_buffer
+    {
+        RAZIX_GFX_RESOURCE;
+    } rz_gfx_buffer;
+
+    //---------------------------------------------------------------------------------------------
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_attachment
+    {
+        rz_gfx_color_rgba     clearColor;
+        const rz_gfx_texture* pTexture;
+        struct
+        {
+            uint32_t mip : 8;
+            uint32_t layer : 8;
+            uint32_t clear : 1;
+            uint32_t reserved : 15;
+        };
+        uint8_t _pad0[4];
+    } gfx_attachment;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_viewport
+    {
+        int32_t  x;
+        int32_t  y;
+        uint32_t width, height;
+        uint32_t minDepth;
+        uint32_t maxDepth;
+        uint8_t  _pad0[8];
+    } rz_gfx_viewport;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_rect
+    {
+        int32_t  x;
+        int32_t  y;
+        uint32_t width, height;
+    } rz_gfx_rect;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_renderpass
+    {
+        uint32_t          colorAttachmentsCount;
+        uint32_t          _pad0;
+        uint32_t          extents[RAZIX_EXTENTS_ELEM_COUNT];
+        gfx_attachment    colorAttachments[RAZIX_MAX_RENDER_TARGETS];
+        gfx_attachment    depthAttachment;
+        uint32_t          layers;
+        rz_gfx_resolution resolution;    // TODO: Use this
+        uint8_t           _pad1[8];
+    } rz_gfx_renderpass;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader_reflection
+    {
+        rz_gfx_root_signature_desc rootSignatureDesc;
+        rz_gfx_input_element*      pInputElements;
+        uint32_t                   elementCount;
+        uint8_t                    _pad0[4];
+    } rz_gfx_shader_reflection;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_texture_readback
+    {
+        uint8_t* data;
+        uint32_t width;
+        uint32_t height;
+        uint32_t bpp;
+        uint8_t  _pad0[12];
+    } rz_gfx_texture_readback;
+
+    //---------------------------------------------------------------------------------------------
+    // Gfx API
+
+    RAZIX_RHI_API void rzGfxCtx_StartUp();
+    RAZIX_RHI_API void rzGfxCtx_ShutDown();
+
+    RAZIX_RHI_API rz_render_api rzGfxCtx_GetRenderAPI();
+    RAZIX_RHI_API void          rzGfxCtx_SetRenderAPI(rz_render_api api);
+    RAZIX_RHI_API const char*   rzGfxCtx_GetRenderAPIString();
+
+    //---------------------------------------------------------------------------------------------
+    // RHI Jump Table
+
+    /**
+     * Rendering API initialization like Instance, Device Creation etc. will happen here! one master place to start it all up!
+     */
+    typedef void (*rzRHI_GlobalCtxInitFn)(void);
+    typedef void (*rzRHI_GlobalCtxDestroyFn)(void);
+
+    //** NON-RESOURCE EXCEPTION **
+    typedef void (*rzRHI_CreateSyncobjFn)(void* where, rz_gfx_syncobj_type);
+    typedef void (*rzRHI_DestroySyncobjFn)(rz_gfx_syncobj*);
+
+    //** NON-RESOURCE EXCEPTION **
+    typedef void (*rzRHI_CreateSwapchainFn)(void* where, void*, uint32_t, uint32_t);
+    typedef void (*rzRHI_DestroySwapchainFn)(rz_gfx_swapchain*);
+
+    typedef void (*rzRHI_CreateCmdPoolFn)(void* where);
+    typedef void (*rzRHI_DestroyCmdPoolFn)(void* ptr);
+
+    typedef void (*rzRHI_CreateCmdBufFn)(void* where);
+    typedef void (*rzRHI_DestroyCmdBufFn)(void* ptr);
+
+    typedef void (*rzRHI_CreateShaderFn)(void* where);
+    typedef void (*rzRHI_DestroyShaderFn)(void* ptr);
+
+    typedef void (*rzRHI_CreateRootSignatureFn)(void* where);
+    typedef void (*rzRHI_DestroyRootSignatureFn)(void* ptr);
+
+    typedef void (*rzRHI_CreatePipelineFn)(void* where);
+    typedef void (*rzRHI_DestroyPipelineFn)(void* ptr);
+
+    typedef void (*rzRHI_CreateTextureFn)(void* where);
+    typedef void (*rzRHI_DestroyTextureFn)(void* ptr);
+
+    typedef void (*rzRHI_CreateSamplerFn)(void* where);
+    typedef void (*rzRHI_DestroySamplerFn)(void* ptr);
+
+    typedef void (*rzRHI_CreateDescriptorHeapFn)(void* where);
+    typedef void (*rzRHI_DestroyDescriptorHeapFn)(void* ptr);
+
+    typedef void (*rzRHI_CreateDescriptorTableFn)(void* where);
+    typedef void (*rzRHI_DestroyDescriptorTableFn)(void* ptr);
+
+    /**
+     * RHI API
+     */
+    typedef void (*rzRHI_AcquireImageFn)(rz_gfx_swapchain*);
+    typedef void (*rzRHI_WaitOnPrevCmdsFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint);
+    typedef void (*rzRHI_PresentFn)(const rz_gfx_swapchain*);
+
+    typedef void (*rzRHI_BeginCmdBufFn)(const rz_gfx_cmdbuf*);
+    typedef void (*rzRHI_EndCmdBufFn)(const rz_gfx_cmdbuf*);
+    typedef void (*rzRHI_SubmitCmdBufFn)(const rz_gfx_cmdbuf*);
+
+    typedef void (*rzRHI_BeginRenderPassFn)(const rz_gfx_cmdbuf*, const rz_gfx_renderpass*);
+    typedef void (*rzRHI_EndRenderPassFn)(const rz_gfx_cmdbuf*);
+
+    typedef void (*rzRHI_SetViewportFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewport);
+    typedef void (*rzRHI_SetScissorRectFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* rect);
+
+    typedef void (*rzRHI_BindPipelineFn)(const rz_gfx_cmdbuf*, const rz_gfx_pipeline*);
+    typedef void (*rzRHI_BindGfxRootSigFn)(const rz_gfx_cmdbuf*, const rz_gfx_root_signature*);
+    typedef void (*rzRHI_BindComputeRootSigFn)(const rz_gfx_cmdbuf*, const rz_gfx_root_signature*);
+
+    typedef void (*rzRHI_DrawAutoFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t, uint32_t);
+
+    typedef void (*rzRHI_UpdateDescriptorTableFn)(rz_gfx_descriptor_table*, rz_gfx_resource_view*, uint32_t);
+
+    typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*, rz_gfx_resource_state, rz_gfx_resource_state);
+    typedef void (*rzRHI_InsertTextureReadbackFn)(const rz_gfx_texture*, rz_gfx_texture_readback*);
+
+    typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
+    typedef void (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
+    typedef void (*rzRHI_ResizeSwapchainFn)(rz_gfx_swapchain*, uint32_t, uint32_t);
+
+    typedef void (*rzRHI_BeginFrameFn)(rz_gfx_swapchain*, const rz_gfx_syncobj*, rz_gfx_syncpoint* frameSyncpoints, rz_gfx_syncpoint* globalSyncpoint);
+    typedef void (*rzRHI_EndFrameFn)(const rz_gfx_swapchain*, const rz_gfx_syncobj*, rz_gfx_syncpoint* frameSyncpoints, rz_gfx_syncpoint* globalSyncpoint);
+
+    typedef struct rz_rhi_api
+    {
+        rzRHI_GlobalCtxInitFn    GlobalCtxInit;
+        rzRHI_GlobalCtxDestroyFn GlobalCtxDestroy;
+        //-----------------------------------------
+        rzRHI_CreateSyncobjFn        CreateSyncobj;
+        rzRHI_DestroySyncobjFn       DestroySyncobj;
+        rzRHI_CreateSwapchainFn      CreateSwapchain;
+        rzRHI_DestroySwapchainFn     DestroySwapchain;
+        rzRHI_CreateCmdPoolFn        CreateCmdPool;
+        rzRHI_DestroyCmdPoolFn       DestroyCmdPool;
+        rzRHI_CreateCmdBufFn         CreateCmdBuf;
+        rzRHI_DestroyCmdBufFn        DestroyCmdBuf;
+        rzRHI_CreateShaderFn         CreateShader;
+        rzRHI_DestroyShaderFn        DestroyShader;
+        rzRHI_CreateRootSignatureFn  CreateRootSignature;
+        rzRHI_DestroyRootSignatureFn DestroyRootSignature;
+        rzRHI_CreatePipelineFn       CreatePipeline;
+        rzRHI_DestroyPipelineFn      DestroyPipeline;
+        rzRHI_CreateTextureFn        CreateTexture;
+        rzRHI_DestroyTextureFn       DestroyTexture;
+        rzRHI_CreateSamplerFn        CreateSampler;
+        rzRHI_DestroySamplerFn       DestroySampler;
+        //....
+        rzRHI_CreateDescriptorHeapFn   CreateDescriptorHeap;
+        rzRHI_DestroyDescriptorHeapFn  DestroyDescriptorHeap;
+        rzRHI_CreateDescriptorTableFn  CreateDescriptorTable;
+        rzRHI_DestroyDescriptorTableFn DestroyDescriptorTable;
+        //....
+        rzRHI_AcquireImageFn          AcquireImage;
+        rzRHI_WaitOnPrevCmdsFn        WaitOnPrevCmds;
+        rzRHI_PresentFn               Present;
+        rzRHI_BeginCmdBufFn           BeginCmdBuf;
+        rzRHI_EndCmdBufFn             EndCmdBuf;
+        rzRHI_SubmitCmdBufFn          SubmitCmdBuf;
+        rzRHI_BeginRenderPassFn       BeginRenderPass;
+        rzRHI_EndRenderPassFn         EndRenderPass;
+        rzRHI_SetScissorRectFn        SetScissorRect;
+        rzRHI_SetViewportFn           SetViewport;
+        rzRHI_BindPipelineFn          BindPipeline;
+        rzRHI_BindGfxRootSigFn        BindGfxRootSig;
+        rzRHI_BindComputeRootSigFn    BindComputeRootSig;
+        rzRHI_DrawAutoFn              DrawAuto;
+        rzRHI_InsertImageBarrierFn    InsertImageBarrier;
+        rzRHI_InsertTextureReadbackFn InsertTextureReadback;
+        // ....
+        rzRHI_SignalGPUFn       SignalGPU;
+        rzRHI_FlushGPUWorkFn    FlushGPUWork;
+        rzRHI_ResizeSwapchainFn ResizeSwapchain;
+        //-----------------------------------------
+        rzRHI_BeginFrameFn BeginFrame;
+        rzRHI_EndFrameFn   EndFrame;
+    } rz_rhi_api;
+
+    //---------------------------------------------------------------------------------------------
+    // Globals
+    //---------------------------------
+    RAZIX_RHI_API extern rz_gfx_context g_GfxCtx;    // Global Graphics Context singleton instance
+    //---------------------------------
+    RAZIX_RHI_API extern rz_render_api g_RenderAPI;
+    //---------------------------------
+    RAZIX_RHI_API extern rz_rhi_api g_RHI;
+    //---------------------------------
+    RAZIX_RHI_API extern rz_gfx_features g_GraphicsFeatures;
+    //---------------------------------
+
+#define rzGfxCtx_GlobalCtxInit    g_RHI.GlobalCtxInit
+#define rzGfxCtx_GlobalCtxDestroy g_RHI.GlobalCtxDestroy
+
+#define rzRHI_CreateSyncobj         g_RHI.CreateSyncobj
+#define rzRHI_DestroySyncobj        g_RHI.DestroySyncobj
+#define rzRHI_CreateSwapchain       g_RHI.CreateSwapchain
+#define rzRHI_DestroySwapchain      g_RHI.DestroySwapchain
+#define rzRHI_CreateCmdPool         g_RHI.CreateCmdPool
+#define rzRHI_DestroyCmdPool        g_RHI.DestroyCmdPool
+#define rzRHI_CreateCmdBuf          g_RHI.CreateCmdBuf
+#define rzRHI_DestroyCmdBuf         g_RHI.DestroyCmdBuf
+#define rzRHI_CreateShader          g_RHI.CreateShader
+#define rzRHI_DestroyShader         g_RHI.DestroyShader
+#define rzRHI_CreateDescriptorHeap  g_RHI.CreateDescriptorHeap
+#define rzRHI_DestroyDescriptorHeap g_RHI.DestroyDescriptorHeap
+#define rzRHI_CreateDescriptorTable g_RHI.CreateDescriptorTable
+#define rzRHI_CreateRootSignature   g_RHI.CreateRootSignature
+#define rzRHI_DestroyRootSignature  g_RHI.DestroyRootSignature
+#define rzRHI_CreatePipeline        g_RHI.CreatePipeline
+#define rzRHI_DestroyPipeline       g_RHI.DestroyPipeline
+#define rzRHI_CreateTexture         g_RHI.CreateTexture
+#define rzRHI_DestroyTexture        g_RHI.DestroyTexture
+#define rzRHI_CreateSampler         g_RHI.CreateSampler
+#define rzRHI_DestroySampler        g_RHI.DestroySampler
+
+#if !RZ_PROFILER_ENABLED
+    #if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
+        #define rzRHI_AcquireImage                                  g_RHI.AcquireImage
+        #define rzRHI_WaitOnPrevCmds                                g_RHI.WaitOnPrevCmds
+        #define rzRHI_Present                                       g_RHI.Present
+        #define rzRHI_BeginCmdBuf(cb)                               g_RHI.BeginCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
+        #define rzRHI_EndCmdBuf(cb)                                 g_RHI.EndCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
+        #define rzRHI_SubmitCmdBuf(cb)                              g_RHI.SubmitCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
+        #define rzRHI_BeginRenderPass(cb, info)                     g_RHI.BeginRenderPass(RZResourceManager::Get().getCommandBufferResource(cb), info)
+        #define rzRHI_EndRenderPass(cb)                             g_RHI.EndRenderPass(RZResourceManager::Get().getCommandBufferResource(cb))
+        #define rzRHI_SetScissorRect(cb, viewport)                  g_RHI.SetScissorRect(RZResourceManager::Get().getCommandBufferResource(cb), viewport)
+        #define rzRHI_SetViewport(cb, rect)                         g_RHI.SetViewport(RZResourceManager::Get().getCommandBufferResource(cb), rect)
+        #define rzRHI_BindPipeline(cb, pp)                          g_RHI.BindPipeline(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getPipelineResource(pp))
+        #define rzRHI_BindGfxRootSig(cb, rs)                        g_RHI.BindGfxRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs))
+        #define rzRHI_BindComputeRootSig(cb, rs)                    g_RHI.BindComputeRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs))
+        #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                  g_RHI.DrawAuto(RZResourceManager::Get().getCommandBufferResource(cb), vc, ic, fv, fi)
+        #define rzRHI_InsertImageBarrier(cb, text, bs, as)          g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(text), bs, as)
+        #define rzRHI_InsertSwapchainImageBarrier(cb, text, bs, as) g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), text, bs, as)
+        #define rzRHI_InsertTextureReadback(text, rb)               g_RHI.InsertTextureReadback(RZResourceManager::Get().getTextureResource(text), rb)
+        #define rzRHI_InsertSwapchainTextureReadback(text, rb)      g_RHI.InsertTextureReadback(text, rb)
+        #define rzRHI_SignalGPU                                     g_RHI.SignalGPU
+        #define rzRHI_FlushGPUWork                                  g_RHI.FlushGPUWork
+        #define rzRHI_ResizeSwapchain                               g_RHI.ResizeSwapchain
+        #define rzRHI_BeginFrame                                    g_RHI.BeginFrame
+        #define rzRHI_EndFrame                                      g_RHI.EndFrame
+    #else
+        #define rzRHI_AcquireImage                g_RHI.AcquireImage
+        #define rzRHI_WaitOnPrevCmds              g_RHI.WaitOnPrevCmds
+        #define rzRHI_Present                     g_RHI.Present
+        #define rzRHI_BeginCmdBuf                 g_RHI.BeginCmdBuf
+        #define rzRHI_EndCmdBuf                   g_RHI.EndCmdBuf
+        #define rzRHI_SubmitCmdBuf                g_RHI.SubmitCmdBuf
+        #define rzRHI_BeginRenderPass             g_RHI.BeginRenderPass
+        #define rzRHI_EndRenderPass               g_RHI.EndRenderPass
+        #define rzRHI_SetScissorRect              g_RHI.SetScissorRect
+        #define rzRHI_SetViewport                 g_RHI.SetViewport
+        #define rzRHI_BindPipeline                g_RHI.BindPipeline
+        #define rzRHI_BindGfxRootSig              g_RHI.BindGfxRootSig
+        #define rzRHI_BindComputeRootSig          g_RHI.BindComputeRootSig
+        #define rzRHI_DrawAuto                    g_RHI.DrawAuto
+        #define rzRHI_InsertImageBarrier          g_RHI.InsertImageBarrier
+        #define rzRHI_InsertSwapchainImageBarrier g_RHI.InsertImageBarrier
+        #define rzRHI_SignalGPU                   g_RHI.SignalGPU
+        #define rzRHI_FlushGPUWork                g_RHI.FlushGPUWork
+        #define rzRHI_ResizeSwapchain             g_RHI.ResizeSwapchain
+        #define rzRHI_BeginFrame                  g_RHI.BeginFrame
+        #define rzRHI_EndFrame                    g_RHI.EndFrame
+    #endif
+#else
+    #if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
+        #define rzRHI_AcquireImage(sc)                                                             \
+            do {                                                                                   \
+                RAZIX_PROFILE_SCOPEC("rzRHI_AcquireImage", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.AcquireImage(sc);                                                            \
+            } while (0)
+
+        #define rzRHI_WaitOnPrevCmds(so, sp)                                                        \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_WaitOnPrevCmds", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
+                g_RHI.WaitOnPrevCmds(so, sp);                                                       \
+            } while (0)
+
+        #define rzRHI_Present(sc)                                                             \
+            do {                                                                              \
+                RAZIX_PROFILE_SCOPEC("rzRHI_Present", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.Present(sc);                                                            \
+            } while (0)
+
+        #define rzRHI_BeginCmdBuf(cb)                                                            \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BeginCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
+                g_RHI.BeginCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb));        \
+            } while (0)
+
+        #define rzRHI_EndCmdBuf(cb)                                                            \
+            do {                                                                               \
+                RAZIX_PROFILE_SCOPEC("rzRHI_EndCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
+                g_RHI.EndCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb));        \
+            } while (0)
+
+        #define rzRHI_SubmitCmdBuf(cb)                                                            \
+            do {                                                                                  \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SubmitCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
+                g_RHI.SubmitCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb));        \
+            } while (0)
+
+        #define rzRHI_BeginRenderPass(cb, info)                                                     \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BeginRenderPass", RZ_PROFILE_COLOR_RHI_RENDER_PASSES);  \
+                g_RHI.BeginRenderPass(RZResourceManager::Get().getCommandBufferResource(cb), info); \
+            } while (0)
+
+        #define rzRHI_EndRenderPass(cb)                                                          \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_EndRenderPass", RZ_PROFILE_COLOR_RHI_RENDER_PASSES); \
+                g_RHI.EndRenderPass(RZResourceManager::Get().getCommandBufferResource(cb));      \
+            } while (0)
+
+        #define rzRHI_SetScissorRect(cb, viewport)                                                     \
+            do {                                                                                       \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SetScissorRect", RZ_PROFILE_COLOR_RHI);                    \
+                g_RHI.SetScissorRect(RZResourceManager::Get().getCommandBufferResource(cb), viewport); \
+            } while (0)
+
+        #define rzRHI_SetViewport(cb, rect)                                                     \
+            do {                                                                                \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SetViewport", RZ_PROFILE_COLOR_RHI);                \
+                g_RHI.SetViewport(RZResourceManager::Get().getCommandBufferResource(cb), rect); \
+            } while (0)
+
+        #define rzRHI_BindPipeline(cb, pp)                                                                                                   \
+            do {                                                                                                                             \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindPipeline", RZ_PROFILE_COLOR_RHI_PIPELINE_BINDS);                                             \
+                g_RHI.BindPipeline(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getPipelineResource(pp)); \
+            } while (0)
+
+        #define rzRHI_BindGfxRootSig(cb, rs)                                                                                                        \
+            do {                                                                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindGfxRootSig", RZ_PROFILE_COLOR_RHI_PIPELINE_BINDS);                                                  \
+                g_RHI.BindGfxRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs)); \
+            } while (0)
+
+        #define rzRHI_BindComputeRootSig(cb, rs)                                                                                                        \
+            do {                                                                                                                                        \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindComputeRootSig", RZ_PROFILE_COLOR_RHI_PIPELINE_BINDS);                                                  \
+                g_RHI.BindComputeRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs)); \
+            } while (0)
+
+        #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                                                     \
+            do {                                                                                       \
+                RAZIX_PROFILE_SCOPEC("rzRHI_DrawAuto", RZ_PROFILE_COLOR_RHI_DRAW_CALLS);               \
+                g_RHI.DrawAuto(RZResourceManager::Get().getCommandBufferResource(cb), vc, ic, fv, fi); \
+            } while (0)
+
+        #define rzRHI_InsertImageBarrier(cb, tex, bs, as)                                                                                                  \
+            do {                                                                                                                                           \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertImageBarrier", RZ_PROFILE_COLOR_RHI_RESOURCE_BARRIERS);                                                  \
+                g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(tex), bs, as); \
+            } while (0)
+
+        #define rzRHI_InsertSwapchainImageBarrier(cb, tex, bs, as)                                                 \
+            do {                                                                                                   \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertSwapchainImageBarrier", RZ_PROFILE_COLOR_RHI_RESOURCE_BARRIERS); \
+                g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), tex, bs, as);      \
+            } while (0)
+
+        #define rzRHI_InsertTextureReadback(tex, rb)                                               \
+            do {                                                                                   \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertTextureReadback", RZ_PROFILE_COLOR_RHI);         \
+                g_RHI.InsertTextureReadback(RZResourceManager::Get().getTextureResource(tex), rb); \
+            } while (0)
+
+        #define rzRHI_InsertSwapchainTextureReadback(tex, rb)                                       \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertSwapchainTextureReadback", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.InsertTextureReadback(tex, rb);                                               \
+            } while (0)
+
+        #define rzRHI_SignalGPU(so, sp)                                                        \
+            do {                                                                               \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SignalGPU", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
+                g_RHI.SignalGPU(so, sp);                                                       \
+            } while (0)
+
+        #define rzRHI_FlushGPUWork(so, sp)                                                        \
+            do {                                                                                  \
+                RAZIX_PROFILE_SCOPEC("rzRHI_FlushGPUWork", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
+                g_RHI.FlushGPUWork(so, sp);                                                       \
+            } while (0)
+
+        #define rzRHI_ResizeSwapchain(sp, w, h)                                      \
+            do {                                                                     \
+                RAZIX_PROFILE_SCOPEC("rzRHI_ResizeSwapchain", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.ResizeSwapchain(sp, w, h);                                     \
+            } while (0)
+
+        #define rzRHI_BeginFrame(sc, so, fsp, gsp)                                               \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BeginFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.BeginFrame(sc, so, fsp, gsp);                                              \
+            } while (0)
+
+        #define rzRHI_EndFrame(sc, so, fsp, gsp)                                               \
+            do {                                                                               \
+                RAZIX_PROFILE_SCOPEC("rzRHI_EndFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.EndFrame(sc, so, fsp, gsp);                                              \
+            } while (0)
+
+    #else
+        // C mode or direct handles mode with profiling support where available
+        #define rzRHI_AcquireImage(sc)                                                                   \
+            do {                                                                                         \
+                RAZIX_PROFILE_SCOPEC_BEGIN("rzRHI_AcquireImage", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.AcquireImage(sc);                                                                  \
+                RAZIX_PROFILE_SCOPEC_END();                                                              \
+            } while (0)
+
+        #define rzRHI_WaitOnPrevCmds(so, sp)                                                        \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_WaitOnPrevCmds", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
+                g_RHI.WaitOnPrevCmds(so, sp);                                                       \
+                RAZIX_PROFILE_SCOPEC_END();                                                         \
+            } while (0)
+
+        #define rzRHI_Present(sc)                                                             \
+            do {                                                                              \
+                RAZIX_PROFILE_SCOPEC("rzRHI_Present", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.Present(sc);                                                            \
+                RAZIX_PROFILE_SCOPEC_END();                                                   \
+            } while (0)
+
+        #define rzRHI_BeginCmdBuf(cb)                                                            \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BeginCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
+                g_RHI.BeginCmdBuf(cb);                                                           \
+                RAZIX_PROFILE_SCOPEC_END();                                                      \
+            } while (0)
+
+        #define rzRHI_EndCmdBuf(cb)                                                            \
+            do {                                                                               \
+                RAZIX_PROFILE_SCOPEC("rzRHI_EndCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
+                g_RHI.EndCmdBuf(cb);                                                           \
+                RAZIX_PROFILE_SCOPEC_END();                                                    \
+            } while (0)
+
+        #define rzRHI_SubmitCmdBuf(cb)                                                            \
+            do {                                                                                  \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SubmitCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
+                g_RHI.SubmitCmdBuf(cb);                                                           \
+                RAZIX_PROFILE_SCOPEC_END();                                                       \
+            } while (0)
+
+        #define rzRHI_BeginRenderPass(cb, info)                                                    \
+            do {                                                                                   \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BeginRenderPass", RZ_PROFILE_COLOR_RHI_RENDER_PASSES); \
+                g_RHI.BeginRenderPass(cb, info);                                                   \
+                RAZIX_PROFILE_SCOPEC_END();                                                        \
+            } while (0)
+
+        #define rzRHI_EndRenderPass(cb)                                                          \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_EndRenderPass", RZ_PROFILE_COLOR_RHI_RENDER_PASSES); \
+                g_RHI.EndRenderPass(cb);                                                         \
+                RAZIX_PROFILE_SCOPEC_END();                                                      \
+            } while (0)
+
+        #define rzRHI_SetScissorRect(cb, rect)                                      \
+            do {                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SetScissorRect", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.SetScissorRect(cb, rect);                                     \
+                RAZIX_PROFILE_SCOPEC_END();                                         \
+            } while (0)
+
+        #define rzRHI_SetViewport(cb, viewport)                                  \
+            do {                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SetViewport", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.SetViewport(cb, viewport);                                 \
+                RAZIX_PROFILE_SCOPEC_END();                                      \
+            } while (0)
+
+        #define rzRHI_BindPipeline(cb, pp)                                                       \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindPipeline", RZ_PROFILE_COLOR_RHI_PIPELINE_BINDS); \
+                g_RHI.BindPipeline(cb, pp);                                                      \
+                RAZIX_PROFILE_SCOPEC_END();                                                      \
+            } while (0)
+
+        #define rzRHI_BindGfxRootSig(cb, rs)                                                       \
+            do {                                                                                   \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindGfxRootSig", RZ_PROFILE_COLOR_RHI_PIPELINE_BINDS); \
+                g_RHI.BindGfxRootSig(cb, rs);                                                      \
+                RAZIX_PROFILE_SCOPEC_END();                                                        \
+            } while (0)
+
+        #define rzRHI_BindComputeRootSig(cb, rs)                                                       \
+            do {                                                                                       \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindComputeRootSig", RZ_PROFILE_COLOR_RHI_PIPELINE_BINDS); \
+                g_RHI.BindComputeRootSig(cb, rs);                                                      \
+                RAZIX_PROFILE_SCOPEC_END();                                                            \
+            } while (0)
+
+        #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                                       \
+            do {                                                                         \
+                RAZIX_PROFILE_SCOPEC("rzRHI_DrawAuto", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.DrawAuto(cb, vc, ic, fv, fi);                                      \
+                RAZIX_PROFILE_SCOPEC_END();                                              \
+            } while (0)
+
+        #define rzRHI_InsertImageBarrier(cb, tex, bs, as)                                                 \
+            do {                                                                                          \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertImageBarrier", RZ_PROFILE_COLOR_RHI_RESOURCE_BARRIERS); \
+                g_RHI.InsertImageBarrier(cb, tex, bs, as);                                                \
+                RAZIX_PROFILE_SCOPEC_END();                                                               \
+            } while (0)
+
+        #define rzRHI_InsertSwapchainImageBarrier(cb, tex, bs, as)                                                 \
+            do {                                                                                                   \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertSwapchainImageBarrier", RZ_PROFILE_COLOR_RHI_RESOURCE_BARRIERS); \
+                g_RHI.InsertImageBarrier(cb, tex, bs, as);                                                         \
+                RAZIX_PROFILE_SCOPEC_END();                                                                        \
+            } while (0)
+
+        #define rzRHI_InsertTextureReadback(tex, rb)                                       \
+            do {                                                                           \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertTextureReadback", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.InsertTextureReadback(tex, rb);                                      \
+                RAZIX_PROFILE_SCOPEC_END();                                                \
+            } while (0)
+
+        #define rzRHI_InsertSwapchainTextureReadback(tex, rb)                                       \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertSwapchainTextureReadback", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.InsertTextureReadback(tex, rb);                                               \
+                RAZIX_PROFILE_SCOPEC_END();                                                         \
+            } while (0)
+
+        #define rzRHI_SignalGPU(so, sp)                                                        \
+            do {                                                                               \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SignalGPU", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
+                g_RHI.SignalGPU(so, sp);                                                       \
+                RAZIX_PROFILE_SCOPEC_END();                                                    \
+            } while (0)
+
+        #define rzRHI_FlushGPUWork(so, sp)                                                        \
+            do {                                                                                  \
+                RAZIX_PROFILE_SCOPEC("rzRHI_FlushGPUWork", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
+                g_RHI.FlushGPUWork(so, sp);                                                       \
+                RAZIX_PROFILE_SCOPEC_END();                                                       \
+            } while (0)
+
+        #define rzRHI_ResizeSwapchain(sp, w, h)                                      \
+            do {                                                                     \
+                RAZIX_PROFILE_SCOPEC("rzRHI_ResizeSwapchain", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.ResizeSwapchain(sp, w, h);                                     \
+                RAZIX_PROFILE_SCOPEC_END();                                          \
+            } while (0)
+
+        #define rzRHI_BeginFrame(sc, so, fsp, gsp)                                               \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BeginFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.BeginFrame(sc, so, fsp, gsp);                                              \
+                RAZIX_PROFILE_SCOPEC_END();                                                      \
+            } while (0)
+
+        #define rzRHI_EndFrame(sc, so, fsp, gsp)                                               \
+            do {                                                                               \
+                RAZIX_PROFILE_SCOPEC("rzRHI_EndFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
+                g_RHI.EndFrame(sc, so, fsp, gsp);                                              \
+                RAZIX_PROFILE_SCOPEC_END();                                                    \
+            } while (0)
+    #endif    // defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
+
+#endif    // !defined(RZ_PROFILER_ENABLED)
+
+#ifdef __cplusplus
+}
+#endif    // __cplusplus
+#endif    // RHI_H
