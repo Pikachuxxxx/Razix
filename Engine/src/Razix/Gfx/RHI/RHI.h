@@ -130,6 +130,13 @@ static inline unsigned int rz_clz32(unsigned int x)
 
 #define RAZIX_RHI_BITS_FOR_ENUM(count) ((count) <= 1 ? 0 : (32 - rz_clz32((count) - 1)))
 
+#define RAZIX_RHI_ABORT()                                                     \
+    do {                                                                      \
+        RAZIX_RHI_LOG_ERROR("RHI Abort called at %s:%d", __FILE__, __LINE__); \
+        RAZIX_DEBUG_BREAK();                                                  \
+        abort();                                                              \
+    } while (0)
+
 /****************************************************************************************************
 *                                         Graphics Settings                                        *
 ****************************************************************************************************/
@@ -1160,9 +1167,10 @@ static inline unsigned int rz_clz32(unsigned int x)
 
             struct
             {
-                uint32_t ringBufferWrite;
-                uint32_t ringBufferRead;
-                uint32_t _pad1[2];
+                uint32_t ringBufferHead;
+                uint32_t ringBufferTail;
+                uint32_t isFull;
+                uint32_t _pad1;
             };
         };
     } rz_gfx_descriptor_heap;
