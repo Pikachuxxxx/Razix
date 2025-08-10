@@ -1514,9 +1514,155 @@ static void dx12_DestroySampler(void* sampler)
     // They are managed by the descriptor heaps and bound to the pipeline state.
 }
 
+static void dx12_freelist_debug_print(const rz_gfx_descriptor_heap* heap)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    const rz_gfx_descriptor_freelist_allocator* allocator = heap->freeListAllocator;
+    RAZIX_RHI_ASSERT(allocator != NULL, "Free list allocator is not initialized");
+
+    printf("=== DX12 Descriptor Heap Free List ===\n");
+    printf("Total Free Ranges: %u\n", allocator->numFreeRanges);
+
+    printf("Fragmentation visualization:\n");
+    uint32_t total = heap->resource.desc.descriptorHeapDesc.descriptorCount;
+    for (uint32_t i = 0; i < total; ++i) {
+        bool isFree = false;
+        for (uint32_t r = 0; r < allocator->numFreeRanges; ++r) {
+            if (i >= allocator->freeRanges[r].start &&
+                i < allocator->freeRanges[r].start + allocator->freeRanges[r].numDescriptors) {
+                isFree = true;
+                break;
+            }
+        }
+        putchar(isFree ? '.' : '#');    // '.' = free, '#' = allocated
+    }
+    putchar('\n');
+
+    printf("=====================================\n");
+}
+
+static void dx12_create_descriptor_freelist_allocator(rz_gfx_descriptor_heap* heap)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    rz_gfx_descriptor_heap_desc* desc = &heap->resource.desc.descriptorHeapDesc;
+    RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
+    RAZIX_RHI_ASSERT(heap->resource.desc.descriptorHeapDesc.heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must be of type FREE_LIST");
+    // Initialize the free list allocator
+    heap->freeListAllocator = malloc(sizeof(rz_gfx_descriptor_freelist_allocator));
+    RAZIX_RHI_ASSERT(heap->freeListAllocator != NULL, "Failed to allocate memory for free list allocator");
+
+    heap->freeListAllocator->numFreeRanges = 1;
+
+    heap->freeListAllocator->freeRanges = calloc(RAZIX_INITIAL_DESCRIPTOR_NUM_FREE_RANGES, sizeof(rz_gfx_descriptor_free_range));
+    RAZIX_RHI_ASSERT(heap->freeListAllocator->freeRanges != NULL, "Failed to allocate memory for free ranges in free list allocator");
+
+    heap->freeListAllocator->capacity      = RAZIX_INITIAL_DESCRIPTOR_NUM_FREE_RANGES;
+    heap->freeListAllocator->freeRanges[0] = (rz_gfx_descriptor_free_range) {
+        .start          = 0,
+        .numDescriptors = desc->descriptorCount,
+    };
+}
+
+static void dx12_destroy_descriptor_freelist_allocator(rz_gfx_descriptor_heap* heap)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    if (heap->freeListAllocator) {
+        free(heap->freeListAllocator->freeRanges);
+        heap->freeListAllocator->freeRanges    = NULL;
+        heap->freeListAllocator->numFreeRanges = 0;
+
+        free(heap->freeListAllocator);
+        heap->freeListAllocator = NULL;
+    }
+}
+
+static dx12_descriptor_handles dx12_descriptor_freelist_allocate(rz_gfx_descriptor_heap* heap, uint32_t numDescriptors)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    RAZIX_RHI_ASSERT(numDescriptors > 0, "Allocation count must be greater than zero");
+    rz_gfx_descriptor_freelist_allocator* allocator = heap->freeListAllocator;
+    RAZIX_RHI_ASSERT(allocator != NULL, "Free list allocator is not initialized");
+    for (uint32_t i = 0; i < allocator->numFreeRanges; i++) {
+        rz_gfx_descriptor_free_range* range = &allocator->freeRanges[i];
+        if (range->numDescriptors >= numDescriptors) {
+            dx12_descriptor_handles handles = {0};
+            handles.cpu.ptr                 = heap->dx12.heapStart.cpu.ptr + ((size_t) range->start * heap->dx12.descriptorSize);
+            handles.gpu.ptr                 = heap->dx12.heapStart.gpu.ptr + ((size_t) range->start * heap->dx12.descriptorSize);
+
+            if (range->numDescriptors == numDescriptors) {
+                // exact fit: remove by swapping with last
+                allocator->freeRanges[i] = allocator->freeRanges[--allocator->numFreeRanges];
+            } else {
+                // shrink from front
+                range->start += numDescriptors;
+                range->numDescriptors -= numDescriptors;
+            }
+            return handles;
+        }
+    }
+    RAZIX_RHI_LOG_ERROR("Failed to allocate %u descriptors from free list", numDescriptors);
+    dx12_descriptor_handles invalid = {0};
+    return invalid;
+}
+
+static void dx12_descriptor_freelist_free(rz_gfx_descriptor_heap* heap, dx12_descriptor_handles handles, uint32_t numDescriptors)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    RAZIX_RHI_ASSERT(numDescriptors > 0, "Free count must be greater than zero");
+
+    rz_gfx_descriptor_freelist_allocator* allocator = heap->freeListAllocator;
+    RAZIX_RHI_ASSERT(allocator != NULL, "Free list allocator is not initialized");
+
+    // Create a new free range
+    rz_gfx_descriptor_free_range newRange = {
+        .start          = ((uint32_t) handles.cpu.ptr - (uint32_t) heap->dx12.heapStart.cpu.ptr) / heap->dx12.descriptorSize,
+        .numDescriptors = numDescriptors,
+    };
+
+    if (allocator->numFreeRanges >= allocator->capacity) {
+        uint32_t newCapacity  = allocator->capacity ? allocator->capacity * 2 : RAZIX_INITIAL_DESCRIPTOR_NUM_FREE_RANGES;
+        allocator->freeRanges = realloc(allocator->freeRanges, newCapacity * sizeof(rz_gfx_descriptor_free_range));
+        RAZIX_RHI_ASSERT(allocator->freeRanges != NULL, "Failed to grow free list array");
+        allocator->capacity = newCapacity;
+    }
+
+    // Insert the new range into the free list at the end of the list
+    allocator->freeRanges[allocator->numFreeRanges++] = newRange;
+
+    // Sort ranges by start offset
+    for (uint32_t i = 0; i < allocator->numFreeRanges - 1; ++i) {
+        for (uint32_t j = i + 1; j < allocator->numFreeRanges; ++j) {
+            if (allocator->freeRanges[j].start < allocator->freeRanges[i].start) {
+                rz_gfx_descriptor_free_range tmp = allocator->freeRanges[i];
+                allocator->freeRanges[i]         = allocator->freeRanges[j];
+                allocator->freeRanges[j]         = tmp;
+            }
+        }
+    }
+
+    uint32_t mergedCount = 0;
+    for (uint32_t i = 0; i < allocator->numFreeRanges; ++i) {
+        if (mergedCount > 0) {
+            rz_gfx_descriptor_free_range* prev = &allocator->freeRanges[mergedCount - 1];
+            rz_gfx_descriptor_free_range* curr = &allocator->freeRanges[i];
+
+            if (prev->start + prev->numDescriptors >= curr->start) {
+                uint32_t endCurr = curr->start + curr->numDescriptors;
+                uint32_t endPrev = prev->start + prev->numDescriptors;
+                if (endCurr > endPrev)
+                    prev->numDescriptors = endCurr - prev->start;
+                continue;    // Skip adding curr separately
+            }
+        }
+        allocator->freeRanges[mergedCount++] = allocator->freeRanges[i];
+    }
+    allocator->numFreeRanges = mergedCount;
+}
+
 static void dx12_CreateDescriptorHeap(void* where)
 {
     rz_gfx_descriptor_heap* heap = (rz_gfx_descriptor_heap*) where;
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
     RAZIX_RHI_ASSERT(rz_handle_is_valid(&heap->resource.handle), "Invalid descriptor heap handle, who is allocating this? ResourceManager should create a valid handle");
     rz_gfx_descriptor_heap_desc* desc = &heap->resource.desc.descriptorHeapDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
@@ -1524,15 +1670,27 @@ static void dx12_CreateDescriptorHeap(void* where)
     D3D12_DESCRIPTOR_HEAP_DESC d3d12Desc = {0};
     d3d12Desc.Type                       = dx12_util_descriptor_heap_type(desc->heapType);
     d3d12Desc.NumDescriptors             = desc->descriptorCount;
-    d3d12Desc.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;    // NOTE: Currently only shader-visible heaps are supported
-    d3d12Desc.NodeMask                   = 0;                                            // Single GPU, no multi-GPU support
-    HRESULT hr                           = ID3D12Device10_CreateDescriptorHeap(DX12Device, &d3d12Desc, &IID_ID3D12DescriptorHeap, (void**) &heap->dx12.heap);
+    if (desc->flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE) {
+        d3d12Desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    } else {
+        d3d12Desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    }
+    d3d12Desc.NodeMask = 0;    // Single GPU, no multi-GPU support
+    HRESULT hr         = ID3D12Device10_CreateDescriptorHeap(DX12Device, &d3d12Desc, &IID_ID3D12DescriptorHeap, (void**) &heap->dx12.heap);
     if (FAILED(hr)) {
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Descriptor Heap: 0x%08X", hr);
         return;
     }
     RAZIX_RHI_LOG_INFO("D3D12 Descriptor Heap created successfully");
     TAG_OBJECT(heap->dx12.heap, heap->resource.pName);
+
+    // cache the CPU/GPU offsets
+    ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(heap->dx12.heap, &heap->dx12.heapStart.cpu);
+    ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(heap->dx12.heap, &heap->dx12.heapStart.gpu);
+
+    // Create backing for allocation based on free list vs ring buffer
+    if (desc->heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST)
+        dx12_create_descriptor_freelist_allocator(heap);
 }
 
 static void dx12_DestroyDescriptorHeap(void* heap)
@@ -1542,6 +1700,9 @@ static void dx12_DestroyDescriptorHeap(void* heap)
     if (descHeap->dx12.heap) {
         ID3D12DescriptorHeap_Release(descHeap->dx12.heap);
         descHeap->dx12.heap = NULL;
+
+        if (descHeap->freeListAllocator)
+            dx12_destroy_descriptor_freelist_allocator(descHeap);
     }
 }
 
@@ -1894,27 +2055,27 @@ static void dx12_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* fram
 // Jump table
 
 rz_rhi_api dx12_rhi = {
-    .GlobalCtxInit        = dx12_GlobalCtxInit,           // GlobalCtxInit
-    .GlobalCtxDestroy     = dx12_GlobalCtxDestroy,        // GlobalCtxDestroy
-    .CreateSyncobj        = dx12_CreateSyncobjFn,         // CreateSyncobj
-    .DestroySyncobj       = dx12_DestroySyncobjFn,        // DestroySyncobj
-    .CreateSwapchain      = dx12_CreateSwapchain,         // CreateSwapchain
-    .DestroySwapchain     = dx12_DestroySwapchain,        // DestroySwapchain
-    .CreateCmdPool        = dx12_CreateCmdPool,           // CreateCmdPool
-    .DestroyCmdPool       = dx12_DestroyCmdPool,          // DestroyCmdPool
-    .CreateCmdBuf         = dx12_CreateCmdBuf,            // CreateCmdBuf
-    .DestroyCmdBuf        = dx12_DestroyCmdBuf,           // DestroyCmdBuf
-    .CreateShader         = dx12_CreateShader,            // CreateShader
-    .DestroyShader        = dx12_DestroyShader,           // DestroyShader
-    .CreateRootSignature  = dx12_CreateRootSignature,     // CreateRootSignature
-    .DestroyRootSignature = dx12_DestroyRootSignature,    // DestroyRootSignature
-    .CreatePipeline       = dx12_CreatePipeline,          // CreatePipeline
-    .DestroyPipeline      = dx12_DestroyPipeline,         // DestroyPipeline
-    .CreateTexture        = dx12_CreateTexture,           // CreateTexture
-    .DestroyTexture       = dx12_DestroyTexture,          // DestroyTexture
-    .CreateSampler        = dx12_CreateSampler,           // CreateSampler
-    .DestroySampler       = dx12_DestroySampler,          // DestroySampler
-    .CreateDescriptorHeap = dx12_CreateDescriptorHeap,    // CreateDescriptorHeap
+    .GlobalCtxInit         = dx12_GlobalCtxInit,            // GlobalCtxInit
+    .GlobalCtxDestroy      = dx12_GlobalCtxDestroy,         // GlobalCtxDestroy
+    .CreateSyncobj         = dx12_CreateSyncobjFn,          // CreateSyncobj
+    .DestroySyncobj        = dx12_DestroySyncobjFn,         // DestroySyncobj
+    .CreateSwapchain       = dx12_CreateSwapchain,          // CreateSwapchain
+    .DestroySwapchain      = dx12_DestroySwapchain,         // DestroySwapchain
+    .CreateCmdPool         = dx12_CreateCmdPool,            // CreateCmdPool
+    .DestroyCmdPool        = dx12_DestroyCmdPool,           // DestroyCmdPool
+    .CreateCmdBuf          = dx12_CreateCmdBuf,             // CreateCmdBuf
+    .DestroyCmdBuf         = dx12_DestroyCmdBuf,            // DestroyCmdBuf
+    .CreateShader          = dx12_CreateShader,             // CreateShader
+    .DestroyShader         = dx12_DestroyShader,            // DestroyShader
+    .CreateRootSignature   = dx12_CreateRootSignature,      // CreateRootSignature
+    .DestroyRootSignature  = dx12_DestroyRootSignature,     // DestroyRootSignature
+    .CreatePipeline        = dx12_CreatePipeline,           // CreatePipeline
+    .DestroyPipeline       = dx12_DestroyPipeline,          // DestroyPipeline
+    .CreateTexture         = dx12_CreateTexture,            // CreateTexture
+    .DestroyTexture        = dx12_DestroyTexture,           // DestroyTexture
+    .CreateSampler         = dx12_CreateSampler,            // CreateSampler
+    .DestroySampler        = dx12_DestroySampler,           // DestroySampler
+    .CreateDescriptorHeap  = dx12_CreateDescriptorHeap,     // CreateDescriptorHeap
     .DestroyDescriptorHeap = dx12_DestroyDescriptorHeap,    // DestroyDescriptorHeap
 
     .AcquireImage       = dx12_AcquireImage,          // AcquireImage

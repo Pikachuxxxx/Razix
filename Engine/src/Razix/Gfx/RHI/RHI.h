@@ -157,18 +157,19 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define RAZIX_MAX_RENDER_TARGETS 8
 
 /* Size of indices in Razix Engine, change here for global configuration */
-#define RAZIX_INDICES_SIZE          sizeof(u32)    // we use 32-bit indices for now
-#define RAZIX_INDICES_FORMAT        R32_UINT
-#define RAZIX_INDICES_FORMAT_VK     VK_INDEX_TYPE_UINT32
-#define RAZIX_INDICES_FORMAT_D3D12  DXGI_FORMAT_R32_UINT
-#define RAZIX_INDICES_FORMAT_AGC    sce::Agc::IndexSize::k32
-#define RAZIX_SWAPCHAIN_FORMAT      RZ_GFX_FORMAT_B8G8R8A8_UNORM
-#define RAZIX_SWAPCHAIN_FORMAT_VK   VK_FORMAT_B8G8R8A8_UNORM
-#define RAZIX_SWAPCHAIN_FORMAT_DX12 DXGI_FORMAT_B8G8R8A8_UNORM
-#define RAZIX_MAX_DESCRIPTOR_TABLES 8
-#define RAZIX_MAX_DESCRIPTOR_RANGES 32
-#define RAZIX_MAX_ROOT_CONSTANTS    2
-#define RAZIX_MAX_VERTEX_ATTRIBUTES 32
+#define RAZIX_INDICES_SIZE                       sizeof(u32)    // we use 32-bit indices for now
+#define RAZIX_INDICES_FORMAT                     R32_UINT
+#define RAZIX_INDICES_FORMAT_VK                  VK_INDEX_TYPE_UINT32
+#define RAZIX_INDICES_FORMAT_D3D12               DXGI_FORMAT_R32_UINT
+#define RAZIX_INDICES_FORMAT_AGC                 sce::Agc::IndexSize::k32
+#define RAZIX_SWAPCHAIN_FORMAT                   RZ_GFX_FORMAT_B8G8R8A8_UNORM
+#define RAZIX_SWAPCHAIN_FORMAT_VK                VK_FORMAT_B8G8R8A8_UNORM
+#define RAZIX_SWAPCHAIN_FORMAT_DX12              DXGI_FORMAT_B8G8R8A8_UNORM
+#define RAZIX_MAX_DESCRIPTOR_TABLES              8
+#define RAZIX_MAX_DESCRIPTOR_RANGES              32
+#define RAZIX_MAX_ROOT_CONSTANTS                 2
+#define RAZIX_MAX_VERTEX_ATTRIBUTES              32
+#define RAZIX_INITIAL_DESCRIPTOR_NUM_FREE_RANGES 64
 
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX "PushConstant"
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_VK     RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX
@@ -420,6 +421,16 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_DESCRIPTOR_HEAP_TYPE_DSV,
         RZ_GFX_DESCRIPTOR_HEAP_TYPE_COUNT
     } rz_gfx_descriptor_heap_type;
+
+    typedef enum rz_gfx_descriptor_heap_flags
+    {
+        RZ_GFX_DESCRIPTOR_HEAP_FLAG_NONE                        = 0,
+        RZ_GFX_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE              = 1 << 0,
+        RZ_GFX_DESCRIPTOR_HEAP_FLAG_CPU_ONLY_VISIBLE            = 1 << 1,
+        RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST   = 1 << 2,
+        RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER = 1 << 3,
+        RZ_GFX_DESCRIPTOR_HEAP_FLAG_COUNT                       = 5
+    } rz_gfx_descriptor_heap_flags;
 
     typedef enum rz_gfx_shader_stage
     {
@@ -934,7 +945,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     {
         rz_gfx_descriptor_heap_type heapType;
         uint32_t                    descriptorCount;
-        uint8_t                     _pad0[8];
+        uint32_t                    flags;
+        uint8_t                     _pad0[4];
     } rz_gfx_descriptor_heap_desc;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader         rz_gfx_shader;
@@ -1116,6 +1128,19 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     } rz_gfx_cmdbuf;
 
+    typedef struct rz_gfx_descriptor_free_range
+    {
+        uint32_t start;
+        uint32_t numDescriptors;
+    } rz_gfx_descriptor_free_range;
+
+    typedef struct rz_gfx_descriptor_freelist_allocator
+    {
+        uint32_t                      numFreeRanges;
+        uint32_t                      capacity;
+        rz_gfx_descriptor_free_range* freeRanges;
+    } rz_gfx_descriptor_freelist_allocator;
+
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_heap
     {
         RAZIX_GFX_RESOURCE;
@@ -1125,6 +1150,21 @@ static inline unsigned int rz_clz32(unsigned int x)
 #ifdef RAZIX_RENDER_API_DIRECTX12
         dx12_descriptor_heap dx12;
 #endif
+        union
+        {
+            struct
+            {
+                rz_gfx_descriptor_freelist_allocator* freeListAllocator;
+                uint32_t                              _pad0[2];
+            };
+
+            struct
+            {
+                uint32_t ringBufferWrite;
+                uint32_t ringBufferRead;
+                uint32_t _pad1[2];
+            };
+        };
     } rz_gfx_descriptor_heap;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table

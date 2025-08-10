@@ -101,13 +101,13 @@ typedef struct dx12_cmdbuf
 typedef struct dx12_descriptor_heap
 {
     ID3D12DescriptorHeap*   heap;
-    dx12_descriptor_handles descriptorWriteOffset;
     uint32_t                descriptorSize;
+    dx12_descriptor_handles heapStart;
 } dx12_descriptor_heap;
 
 typedef struct dx12_descriptor_table
 {
-    dx12_descriptor_handles heapStart;
+    dx12_descriptor_handles heapOffset;
     uint32_t                descriptorSize;
 } dx12_descriptor_table;
 
