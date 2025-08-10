@@ -1620,9 +1620,13 @@ static void dx12_descriptor_freelist_free(rz_gfx_descriptor_heap* heap, dx12_des
     };
 
     if (allocator->numFreeRanges >= allocator->capacity) {
+        // Double the capacity of the free ranges array
         uint32_t newCapacity  = allocator->capacity ? allocator->capacity * 2 : RAZIX_INITIAL_DESCRIPTOR_NUM_FREE_RANGES;
         allocator->freeRanges = realloc(allocator->freeRanges, newCapacity * sizeof(rz_gfx_descriptor_free_range));
         RAZIX_RHI_ASSERT(allocator->freeRanges != NULL, "Failed to grow free list array");
+        // We are fucked!
+        if (!allocator->freeRanges)
+            RAZIX_RHI_ABORT();
         allocator->capacity = newCapacity;
     }
 
@@ -1659,6 +1663,52 @@ static void dx12_descriptor_freelist_free(rz_gfx_descriptor_heap* heap, dx12_des
     allocator->numFreeRanges = mergedCount;
 }
 
+static dx12_descriptor_handles dx12_descriptor_ringbuffer_allocate(rz_gfx_descriptor_heap* heap, uint32_t numDescriptors)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    RAZIX_RHI_ASSERT(numDescriptors > 0, "Free count must be greater than zero");
+    RAZIX_RHI_ASSERT(heap->resource.desc.descriptorHeapDesc.heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must be of type FREE_LIST");
+    rz_gfx_descriptor_heap_desc* desc = &heap->resource.desc.descriptorHeapDesc;
+    RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
+
+    uint32_t freeSpace = 0;
+    uint32_t capacity  = desc->descriptorCount;
+
+    if (heap->ringBufferHead >= heap->ringBufferTail) {
+        freeSpace = capacity - (heap->ringBufferHead - heap->ringBufferTail);
+    } else {
+        freeSpace = heap->ringBufferTail - heap->ringBufferHead;
+    }
+
+    // We are fucked!
+    if (heap->isFull || numDescriptors > capacity) {
+        RAZIX_RHI_LOG_ERROR("Failed to allocate %u descriptors from ringbuffer, we are full!", numDescriptors);
+        RAZIX_RHI_ABORT();
+        dx12_descriptor_handles invalid = {0};
+        return invalid;
+    }
+
+    uint32_t allocatedStart = heap->ringBufferHead;
+    heap->ringBufferHead    = (heap->ringBufferHead + numDescriptors) % capacity;
+
+    if (heap->ringBufferHead == heap->ringBufferTail)
+        heap->isFull = true;
+
+    dx12_descriptor_handles handles = {0};
+    handles.cpu.ptr                 = heap->dx12.heapStart.cpu.ptr + ((size_t) allocatedStart * heap->dx12.descriptorSize);
+    handles.gpu.ptr                 = heap->dx12.heapStart.gpu.ptr + ((size_t) allocatedStart * heap->dx12.descriptorSize);
+    return handles;
+}
+
+static void dx12_descriptor_ringbuffer_free(rz_gfx_descriptor_heap* heap, uint32_t numDescriptors)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    RAZIX_RHI_ASSERT(numDescriptors > 0, "Free count must be greater than zero");
+    // In ring buffer, we don't actually free the descriptors, we just update the tail
+    heap->ringBufferTail = (heap->ringBufferTail + numDescriptors) % heap->resource.desc.descriptorHeapDesc.descriptorCount;
+    heap->isFull         = false;
+}
+
 static void dx12_CreateDescriptorHeap(void* where)
 {
     rz_gfx_descriptor_heap* heap = (rz_gfx_descriptor_heap*) where;
@@ -1684,6 +1734,9 @@ static void dx12_CreateDescriptorHeap(void* where)
     RAZIX_RHI_LOG_INFO("D3D12 Descriptor Heap created successfully");
     TAG_OBJECT(heap->dx12.heap, heap->resource.pName);
 
+    // Cache the descriptor size
+    heap->dx12.descriptorSize = ID3D12Device10_GetDescriptorHandleIncrementSize(DX12Device, d3d12Desc.Type);
+
     // cache the CPU/GPU offsets
     ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(heap->dx12.heap, &heap->dx12.heapStart.cpu);
     ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(heap->dx12.heap, &heap->dx12.heapStart.gpu);
@@ -1691,6 +1744,14 @@ static void dx12_CreateDescriptorHeap(void* where)
     // Create backing for allocation based on free list vs ring buffer
     if (desc->heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST)
         dx12_create_descriptor_freelist_allocator(heap);
+    else if (desc->heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER) {
+        heap->ringBufferHead = 0;
+        heap->ringBufferTail = 0;
+        heap->isFull         = false;
+    } else {
+        RAZIX_RHI_LOG_ERROR("Descriptor heap alloc backing must be of type FREE_LIST or RING_BUFFER for allocation");
+        RAZIX_RHI_ABORT();
+    }
 }
 
 static void dx12_DestroyDescriptorHeap(void* heap)
@@ -1701,8 +1762,17 @@ static void dx12_DestroyDescriptorHeap(void* heap)
         ID3D12DescriptorHeap_Release(descHeap->dx12.heap);
         descHeap->dx12.heap = NULL;
 
+        descHeap->dx12.descriptorSize    = 0;
+        descHeap->dx12.heapStart.gpu.ptr = 0;
+        descHeap->dx12.heapStart.cpu.ptr = 0;
+
         if (descHeap->freeListAllocator)
             dx12_destroy_descriptor_freelist_allocator(descHeap);
+        else {
+            descHeap->ringBufferHead = 0;
+            descHeap->ringBufferTail = 0;
+            descHeap->isFull         = false;
+        }
     }
 }
 
