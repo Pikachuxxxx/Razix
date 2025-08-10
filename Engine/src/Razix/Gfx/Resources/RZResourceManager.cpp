@@ -112,10 +112,15 @@ namespace Razix {
             // Free root sig memory (since it's allocated by ParseRZSF we ask it to delete it
         }
 
+        //-----------------------------------------------------------------------------------
+
         void RZResourceManager::StartUp()
         {
             RAZIX_CORE_INFO("[Resource Manager] Starting Up Resource Manager");
-            //Razix::RZSplashScreen::Get().setLogString("Starting VFS...");
+            //Razix::RZSplashScreen::Get().setLogString("Starting Resource Manager...");
+
+            // ~ 10MiB for Resource View Pool (160 bytes * 65536)
+            RAZIX_INIT_RESOURCE_POOL(ResourceView, RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW, 65536, sizeof(rz_gfx_resource_view), rzRHI_CreateResourceView, rzRHI_DestroyResourceView);
 
             // Initialize all the Pools
             RAZIX_INIT_RESOURCE_POOL(Texture, RZ_GFX_RESOURCE_TYPE_TEXTURE, 2048, sizeof(rz_gfx_texture), NULL, NULL);
@@ -149,7 +154,13 @@ namespace Razix {
             //RAZIX_UNREGISTER_RESOURCE_POOL(IndexBuffer)
             //RAZIX_UNREGISTER_RESOURCE_POOL(DescriptorSet)
             ////////////////////////////////
+
+            RAZIX_UNREGISTER_RESOURCE_POOL(ResourceView);
         }
+
+        //-----------------------------------------------------------------------------------
+
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(ResourceView, RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW, rz_gfx_resource_view)
 
         //-----------------------------------------------------------------------------------
 

@@ -1,5 +1,8 @@
 #ifndef DX12_RHI_H
 #define DX12_RHI_H
+
+// TODO: this header will be moved to RHI.h before merging the PR #422 and #420
+
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
     #include <stdbool.h>
@@ -136,12 +139,19 @@ typedef struct dx12_resview
 {
     union
     {
-        dx12_descriptor_handles srv;
-        dx12_descriptor_handles uav;
-        dx12_descriptor_handles rtv;
-        dx12_descriptor_handles dsv;
-    } resView;
+        D3D12_CONSTANT_BUFFER_VIEW_DESC  cbv;
+        D3D12_SHADER_RESOURCE_VIEW_DESC  srv;
+        D3D12_UNORDERED_ACCESS_VIEW_DESC uav;
+        D3D12_RENDER_TARGET_VIEW_DESC    rtv;
+        D3D12_DEPTH_STENCIL_VIEW_DESC    dsv;
+        D3D12_SAMPLER_DESC               sampler;
+    };
 } dx12_resview;
+
+typedef struct dx12_buffer
+{
+    ID3D12Resource* resource;
+} dx12_buffer;
 
 #endif    // RAZIX_RENDER_API_DIRECTX12
 #endif    // DX12_RHI_H

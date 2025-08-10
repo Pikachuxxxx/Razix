@@ -58,6 +58,9 @@ private:                                                                        
             {
             }
 
+            //-----------------------------------------------------------------------------------
+            // Resource View
+            RAZIX_REGISTER_RESOURCE_POOL(ResourceView, rz_gfx_resource_view)
             /* Handles Resource Allocation functions */
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(Texture, rz_gfx_texture)
@@ -75,7 +78,6 @@ private:                                                                        
             // RAZIX_REGISTER_RESOURCE_POOL(vertex_buffer, const RZBufferDesc& desc)
             // //-----------------------------------------------------------------------------------
             // RAZIX_REGISTER_RESOURCE_POOL(index_buffer, const RZBufferDesc& desc)
-            //
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(CommandPool, rz_gfx_cmdpool)
             //-----------------------------------------------------------------------------------

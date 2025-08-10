@@ -510,6 +510,277 @@ static D3D12_DESCRIPTOR_HEAP_TYPE dx12_util_descriptor_heap_type(rz_gfx_descript
     }
 }
 
+static bool dx12_util_is_descriptor_type_srv(rz_gfx_descriptor_type type)
+{
+    switch (type) {
+        case RZ_GFX_DESCRIPTOR_TYPE_TEXTURE:
+        case RZ_GFX_DESCRIPTOR_TYPE_STRUCTURED:
+        case RZ_GFX_DESCRIPTOR_TYPE_BYTE_ADDRESS:
+        case RZ_GFX_DESCRIPTOR_TYPE_RT_ACCELERATION_STRUCTURE:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static bool dx12_util_is_descriptor_type_uav(rz_gfx_descriptor_type type)
+{
+    switch (type) {
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE:
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_TYPED:
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED:
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_BYTE_ADDRESS:
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED_COUNTER:
+        case RZ_GFX_DESCRIPTOR_TYPE_APPEND_STRUCTURED:
+        case RZ_GFX_DESCRIPTOR_TYPE_CONSUME_STRUCTURED:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static bool dx12_util_is_descriptor_type_cbv(rz_gfx_descriptor_type type)
+{
+    return type == RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+}
+
+static bool dx12_util_is_descriptor_type_sampler(rz_gfx_descriptor_type type)
+{
+    return type == RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
+}
+
+static D3D12_RESOURCE_BARRIER dx12_util_transition_resource_state(ID3D12Resource* resource, rz_gfx_resource_state before, rz_gfx_resource_state after)
+{
+    D3D12_RESOURCE_BARRIER barrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = resource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = dx12_util_res_state_translate(before),
+            .StateAfter  = dx12_util_res_state_translate(after),
+        }};
+    return barrier;
+}
+
+static void dx12_freelist_debug_print(const rz_gfx_descriptor_heap* heap)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    const rz_gfx_descriptor_freelist_allocator* allocator = heap->freeListAllocator;
+    RAZIX_RHI_ASSERT(allocator != NULL, "Free list allocator is not initialized");
+
+    printf("=== DX12 Descriptor Heap Free List ===\n");
+    printf("Total Free Ranges: %u\n", allocator->numFreeRanges);
+
+    printf("Fragmentation visualization:\n");
+    uint32_t total = heap->resource.desc.descriptorHeapDesc.descriptorCount;
+    for (uint32_t i = 0; i < total; ++i) {
+        bool isFree = false;
+        for (uint32_t r = 0; r < allocator->numFreeRanges; ++r) {
+            if (i >= allocator->freeRanges[r].start &&
+                i < allocator->freeRanges[r].start + allocator->freeRanges[r].numDescriptors) {
+                isFree = true;
+                break;
+            }
+        }
+        putchar(isFree ? '.' : '#');    // '.' = free, '#' = allocated
+    }
+    putchar('\n');
+
+    printf("=====================================\n");
+}
+
+static void dx12_create_descriptor_freelist_allocator(rz_gfx_descriptor_heap* heap)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    rz_gfx_descriptor_heap_desc* desc = &heap->resource.desc.descriptorHeapDesc;
+    RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
+    RAZIX_RHI_ASSERT(heap->resource.desc.descriptorHeapDesc.heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must be of type FREE_LIST");
+    // Initialize the free list allocator
+    heap->freeListAllocator = malloc(sizeof(rz_gfx_descriptor_freelist_allocator));
+    RAZIX_RHI_ASSERT(heap->freeListAllocator != NULL, "Failed to allocate memory for free list allocator");
+
+    heap->freeListAllocator->numFreeRanges = 1;
+
+    heap->freeListAllocator->freeRanges = calloc(RAZIX_INITIAL_DESCRIPTOR_NUM_FREE_RANGES, sizeof(rz_gfx_descriptor_free_range));
+    RAZIX_RHI_ASSERT(heap->freeListAllocator->freeRanges != NULL, "Failed to allocate memory for free ranges in free list allocator");
+
+    heap->freeListAllocator->capacity      = RAZIX_INITIAL_DESCRIPTOR_NUM_FREE_RANGES;
+    heap->freeListAllocator->freeRanges[0] = (rz_gfx_descriptor_free_range) {
+        .start          = 0,
+        .numDescriptors = desc->descriptorCount,
+    };
+}
+
+static void dx12_destroy_descriptor_freelist_allocator(rz_gfx_descriptor_heap* heap)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    if (heap->freeListAllocator) {
+        free(heap->freeListAllocator->freeRanges);
+        heap->freeListAllocator->freeRanges    = NULL;
+        heap->freeListAllocator->numFreeRanges = 0;
+
+        free(heap->freeListAllocator);
+        heap->freeListAllocator = NULL;
+    }
+}
+
+static dx12_descriptor_handles dx12_descriptor_freelist_allocate(rz_gfx_descriptor_heap* heap, uint32_t numDescriptors)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    RAZIX_RHI_ASSERT(numDescriptors > 0, "Allocation count must be greater than zero");
+    rz_gfx_descriptor_freelist_allocator* allocator = heap->freeListAllocator;
+    RAZIX_RHI_ASSERT(allocator != NULL, "Free list allocator is not initialized");
+    for (uint32_t i = 0; i < allocator->numFreeRanges; i++) {
+        rz_gfx_descriptor_free_range* range = &allocator->freeRanges[i];
+        if (range->numDescriptors >= numDescriptors) {
+            dx12_descriptor_handles handles = {0};
+            handles.cpu.ptr                 = heap->dx12.heapStart.cpu.ptr + ((size_t) range->start * heap->dx12.descriptorSize);
+            handles.gpu.ptr                 = heap->dx12.heapStart.gpu.ptr + ((size_t) range->start * heap->dx12.descriptorSize);
+
+            if (range->numDescriptors == numDescriptors) {
+                // exact fit: remove by swapping with last
+                allocator->freeRanges[i] = allocator->freeRanges[--allocator->numFreeRanges];
+            } else {
+                // shrink from front
+                range->start += numDescriptors;
+                range->numDescriptors -= numDescriptors;
+            }
+            return handles;
+        }
+    }
+    RAZIX_RHI_LOG_ERROR("Failed to allocate %u descriptors from free list", numDescriptors);
+    dx12_descriptor_handles invalid = {0};
+    return invalid;
+}
+
+static void dx12_descriptor_freelist_free(rz_gfx_descriptor_heap* heap, dx12_descriptor_handles handles, uint32_t numDescriptors)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    RAZIX_RHI_ASSERT(numDescriptors > 0, "Free count must be greater than zero");
+
+    rz_gfx_descriptor_freelist_allocator* allocator = heap->freeListAllocator;
+    RAZIX_RHI_ASSERT(allocator != NULL, "Free list allocator is not initialized");
+
+    // Create a new free range
+    rz_gfx_descriptor_free_range newRange = {
+        .start          = ((uint32_t) handles.cpu.ptr - (uint32_t) heap->dx12.heapStart.cpu.ptr) / heap->dx12.descriptorSize,
+        .numDescriptors = numDescriptors,
+    };
+
+    if (allocator->numFreeRanges >= allocator->capacity) {
+        // Double the capacity of the free ranges array
+        uint32_t newCapacity  = allocator->capacity ? allocator->capacity * 2 : RAZIX_INITIAL_DESCRIPTOR_NUM_FREE_RANGES;
+        allocator->freeRanges = realloc(allocator->freeRanges, newCapacity * sizeof(rz_gfx_descriptor_free_range));
+        RAZIX_RHI_ASSERT(allocator->freeRanges != NULL, "Failed to grow free list array");
+        // We are fucked!
+        if (!allocator->freeRanges)
+            RAZIX_RHI_ABORT();
+        allocator->capacity = newCapacity;
+    }
+
+    // Insert the new range into the free list at the end of the list
+    allocator->freeRanges[allocator->numFreeRanges++] = newRange;
+
+    // Sort ranges by start offset
+    for (uint32_t i = 0; i < allocator->numFreeRanges - 1; ++i) {
+        for (uint32_t j = i + 1; j < allocator->numFreeRanges; ++j) {
+            if (allocator->freeRanges[j].start < allocator->freeRanges[i].start) {
+                rz_gfx_descriptor_free_range tmp = allocator->freeRanges[i];
+                allocator->freeRanges[i]         = allocator->freeRanges[j];
+                allocator->freeRanges[j]         = tmp;
+            }
+        }
+    }
+
+    uint32_t mergedCount = 0;
+    for (uint32_t i = 0; i < allocator->numFreeRanges; ++i) {
+        if (mergedCount > 0) {
+            rz_gfx_descriptor_free_range* prev = &allocator->freeRanges[mergedCount - 1];
+            rz_gfx_descriptor_free_range* curr = &allocator->freeRanges[i];
+
+            if (prev->start + prev->numDescriptors >= curr->start) {
+                uint32_t endCurr = curr->start + curr->numDescriptors;
+                uint32_t endPrev = prev->start + prev->numDescriptors;
+                if (endCurr > endPrev)
+                    prev->numDescriptors = endCurr - prev->start;
+                continue;    // Skip adding curr separately
+            }
+        }
+        allocator->freeRanges[mergedCount++] = allocator->freeRanges[i];
+    }
+    allocator->numFreeRanges = mergedCount;
+}
+
+static dx12_descriptor_handles dx12_descriptor_ringbuffer_allocate(rz_gfx_descriptor_heap* heap, uint32_t numDescriptors)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    RAZIX_RHI_ASSERT(numDescriptors > 0, "Free count must be greater than zero");
+    RAZIX_RHI_ASSERT(heap->resource.desc.descriptorHeapDesc.heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must be of type FREE_LIST");
+    rz_gfx_descriptor_heap_desc* desc = &heap->resource.desc.descriptorHeapDesc;
+    RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
+
+    uint32_t freeSpace = 0;
+    uint32_t capacity  = desc->descriptorCount;
+
+    if (heap->ringBufferHead >= heap->ringBufferTail) {
+        freeSpace = capacity - (heap->ringBufferHead - heap->ringBufferTail);
+    } else {
+        freeSpace = heap->ringBufferTail - heap->ringBufferHead;
+    }
+
+    // We are fucked!
+    if (heap->isFull || numDescriptors > capacity) {
+        RAZIX_RHI_LOG_ERROR("Failed to allocate %u descriptors from ringbuffer, we are full!", numDescriptors);
+        RAZIX_RHI_ABORT();
+        dx12_descriptor_handles invalid = {0};
+        return invalid;
+    }
+
+    uint32_t allocatedStart = heap->ringBufferHead;
+    heap->ringBufferHead    = (heap->ringBufferHead + numDescriptors) % capacity;
+
+    if (heap->ringBufferHead == heap->ringBufferTail)
+        heap->isFull = true;
+
+    dx12_descriptor_handles handles = {0};
+    handles.cpu.ptr                 = heap->dx12.heapStart.cpu.ptr + ((size_t) allocatedStart * heap->dx12.descriptorSize);
+    handles.gpu.ptr                 = heap->dx12.heapStart.gpu.ptr + ((size_t) allocatedStart * heap->dx12.descriptorSize);
+    return handles;
+}
+
+static void dx12_descriptor_ringbuffer_free(rz_gfx_descriptor_heap* heap, uint32_t numDescriptors)
+{
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    RAZIX_RHI_ASSERT(numDescriptors > 0, "Free count must be greater than zero");
+    // In ring buffer, we don't actually free the descriptors, we just update the tail
+    heap->ringBufferTail = (heap->ringBufferTail + numDescriptors) % heap->resource.desc.descriptorHeapDesc.descriptorCount;
+    heap->isFull         = false;
+}
+
+static D3D12_SRV_DIMENSION dx12_util_texture_type_srv_dim(rz_gfx_texture_type type)
+{
+    switch (type) {
+        case RZ_GFX_TEXTURE_TYPE_1D:
+            return D3D12_SRV_DIMENSION_TEXTURE1D;
+        case RZ_GFX_TEXTURE_TYPE_1D_ARRAY:
+            return D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
+        case RZ_GFX_TEXTURE_TYPE_2D:
+            return D3D12_SRV_DIMENSION_TEXTURE2D;
+        case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
+            return D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+        case RZ_GFX_TEXTURE_TYPE_3D:
+            return D3D12_SRV_DIMENSION_TEXTURE3D;
+        case RZ_GFX_TEXTURE_TYPE_CUBE:
+            return D3D12_SRV_DIMENSION_TEXTURECUBE;
+        case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
+            return D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+        default:
+            RAZIX_RHI_ABORT();
+            return D3D12_SRV_DIMENSION_UNKNOWN;
+    }
+}
+
 //---------------------------------------------------------------------------------------------
 // Helper functions
 
@@ -1514,201 +1785,6 @@ static void dx12_DestroySampler(void* sampler)
     // They are managed by the descriptor heaps and bound to the pipeline state.
 }
 
-static void dx12_freelist_debug_print(const rz_gfx_descriptor_heap* heap)
-{
-    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
-    const rz_gfx_descriptor_freelist_allocator* allocator = heap->freeListAllocator;
-    RAZIX_RHI_ASSERT(allocator != NULL, "Free list allocator is not initialized");
-
-    printf("=== DX12 Descriptor Heap Free List ===\n");
-    printf("Total Free Ranges: %u\n", allocator->numFreeRanges);
-
-    printf("Fragmentation visualization:\n");
-    uint32_t total = heap->resource.desc.descriptorHeapDesc.descriptorCount;
-    for (uint32_t i = 0; i < total; ++i) {
-        bool isFree = false;
-        for (uint32_t r = 0; r < allocator->numFreeRanges; ++r) {
-            if (i >= allocator->freeRanges[r].start &&
-                i < allocator->freeRanges[r].start + allocator->freeRanges[r].numDescriptors) {
-                isFree = true;
-                break;
-            }
-        }
-        putchar(isFree ? '.' : '#');    // '.' = free, '#' = allocated
-    }
-    putchar('\n');
-
-    printf("=====================================\n");
-}
-
-static void dx12_create_descriptor_freelist_allocator(rz_gfx_descriptor_heap* heap)
-{
-    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
-    rz_gfx_descriptor_heap_desc* desc = &heap->resource.desc.descriptorHeapDesc;
-    RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
-    RAZIX_RHI_ASSERT(heap->resource.desc.descriptorHeapDesc.heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must be of type FREE_LIST");
-    // Initialize the free list allocator
-    heap->freeListAllocator = malloc(sizeof(rz_gfx_descriptor_freelist_allocator));
-    RAZIX_RHI_ASSERT(heap->freeListAllocator != NULL, "Failed to allocate memory for free list allocator");
-
-    heap->freeListAllocator->numFreeRanges = 1;
-
-    heap->freeListAllocator->freeRanges = calloc(RAZIX_INITIAL_DESCRIPTOR_NUM_FREE_RANGES, sizeof(rz_gfx_descriptor_free_range));
-    RAZIX_RHI_ASSERT(heap->freeListAllocator->freeRanges != NULL, "Failed to allocate memory for free ranges in free list allocator");
-
-    heap->freeListAllocator->capacity      = RAZIX_INITIAL_DESCRIPTOR_NUM_FREE_RANGES;
-    heap->freeListAllocator->freeRanges[0] = (rz_gfx_descriptor_free_range) {
-        .start          = 0,
-        .numDescriptors = desc->descriptorCount,
-    };
-}
-
-static void dx12_destroy_descriptor_freelist_allocator(rz_gfx_descriptor_heap* heap)
-{
-    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
-    if (heap->freeListAllocator) {
-        free(heap->freeListAllocator->freeRanges);
-        heap->freeListAllocator->freeRanges    = NULL;
-        heap->freeListAllocator->numFreeRanges = 0;
-
-        free(heap->freeListAllocator);
-        heap->freeListAllocator = NULL;
-    }
-}
-
-static dx12_descriptor_handles dx12_descriptor_freelist_allocate(rz_gfx_descriptor_heap* heap, uint32_t numDescriptors)
-{
-    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
-    RAZIX_RHI_ASSERT(numDescriptors > 0, "Allocation count must be greater than zero");
-    rz_gfx_descriptor_freelist_allocator* allocator = heap->freeListAllocator;
-    RAZIX_RHI_ASSERT(allocator != NULL, "Free list allocator is not initialized");
-    for (uint32_t i = 0; i < allocator->numFreeRanges; i++) {
-        rz_gfx_descriptor_free_range* range = &allocator->freeRanges[i];
-        if (range->numDescriptors >= numDescriptors) {
-            dx12_descriptor_handles handles = {0};
-            handles.cpu.ptr                 = heap->dx12.heapStart.cpu.ptr + ((size_t) range->start * heap->dx12.descriptorSize);
-            handles.gpu.ptr                 = heap->dx12.heapStart.gpu.ptr + ((size_t) range->start * heap->dx12.descriptorSize);
-
-            if (range->numDescriptors == numDescriptors) {
-                // exact fit: remove by swapping with last
-                allocator->freeRanges[i] = allocator->freeRanges[--allocator->numFreeRanges];
-            } else {
-                // shrink from front
-                range->start += numDescriptors;
-                range->numDescriptors -= numDescriptors;
-            }
-            return handles;
-        }
-    }
-    RAZIX_RHI_LOG_ERROR("Failed to allocate %u descriptors from free list", numDescriptors);
-    dx12_descriptor_handles invalid = {0};
-    return invalid;
-}
-
-static void dx12_descriptor_freelist_free(rz_gfx_descriptor_heap* heap, dx12_descriptor_handles handles, uint32_t numDescriptors)
-{
-    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
-    RAZIX_RHI_ASSERT(numDescriptors > 0, "Free count must be greater than zero");
-
-    rz_gfx_descriptor_freelist_allocator* allocator = heap->freeListAllocator;
-    RAZIX_RHI_ASSERT(allocator != NULL, "Free list allocator is not initialized");
-
-    // Create a new free range
-    rz_gfx_descriptor_free_range newRange = {
-        .start          = ((uint32_t) handles.cpu.ptr - (uint32_t) heap->dx12.heapStart.cpu.ptr) / heap->dx12.descriptorSize,
-        .numDescriptors = numDescriptors,
-    };
-
-    if (allocator->numFreeRanges >= allocator->capacity) {
-        // Double the capacity of the free ranges array
-        uint32_t newCapacity  = allocator->capacity ? allocator->capacity * 2 : RAZIX_INITIAL_DESCRIPTOR_NUM_FREE_RANGES;
-        allocator->freeRanges = realloc(allocator->freeRanges, newCapacity * sizeof(rz_gfx_descriptor_free_range));
-        RAZIX_RHI_ASSERT(allocator->freeRanges != NULL, "Failed to grow free list array");
-        // We are fucked!
-        if (!allocator->freeRanges)
-            RAZIX_RHI_ABORT();
-        allocator->capacity = newCapacity;
-    }
-
-    // Insert the new range into the free list at the end of the list
-    allocator->freeRanges[allocator->numFreeRanges++] = newRange;
-
-    // Sort ranges by start offset
-    for (uint32_t i = 0; i < allocator->numFreeRanges - 1; ++i) {
-        for (uint32_t j = i + 1; j < allocator->numFreeRanges; ++j) {
-            if (allocator->freeRanges[j].start < allocator->freeRanges[i].start) {
-                rz_gfx_descriptor_free_range tmp = allocator->freeRanges[i];
-                allocator->freeRanges[i]         = allocator->freeRanges[j];
-                allocator->freeRanges[j]         = tmp;
-            }
-        }
-    }
-
-    uint32_t mergedCount = 0;
-    for (uint32_t i = 0; i < allocator->numFreeRanges; ++i) {
-        if (mergedCount > 0) {
-            rz_gfx_descriptor_free_range* prev = &allocator->freeRanges[mergedCount - 1];
-            rz_gfx_descriptor_free_range* curr = &allocator->freeRanges[i];
-
-            if (prev->start + prev->numDescriptors >= curr->start) {
-                uint32_t endCurr = curr->start + curr->numDescriptors;
-                uint32_t endPrev = prev->start + prev->numDescriptors;
-                if (endCurr > endPrev)
-                    prev->numDescriptors = endCurr - prev->start;
-                continue;    // Skip adding curr separately
-            }
-        }
-        allocator->freeRanges[mergedCount++] = allocator->freeRanges[i];
-    }
-    allocator->numFreeRanges = mergedCount;
-}
-
-static dx12_descriptor_handles dx12_descriptor_ringbuffer_allocate(rz_gfx_descriptor_heap* heap, uint32_t numDescriptors)
-{
-    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
-    RAZIX_RHI_ASSERT(numDescriptors > 0, "Free count must be greater than zero");
-    RAZIX_RHI_ASSERT(heap->resource.desc.descriptorHeapDesc.heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must be of type FREE_LIST");
-    rz_gfx_descriptor_heap_desc* desc = &heap->resource.desc.descriptorHeapDesc;
-    RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
-
-    uint32_t freeSpace = 0;
-    uint32_t capacity  = desc->descriptorCount;
-
-    if (heap->ringBufferHead >= heap->ringBufferTail) {
-        freeSpace = capacity - (heap->ringBufferHead - heap->ringBufferTail);
-    } else {
-        freeSpace = heap->ringBufferTail - heap->ringBufferHead;
-    }
-
-    // We are fucked!
-    if (heap->isFull || numDescriptors > capacity) {
-        RAZIX_RHI_LOG_ERROR("Failed to allocate %u descriptors from ringbuffer, we are full!", numDescriptors);
-        RAZIX_RHI_ABORT();
-        dx12_descriptor_handles invalid = {0};
-        return invalid;
-    }
-
-    uint32_t allocatedStart = heap->ringBufferHead;
-    heap->ringBufferHead    = (heap->ringBufferHead + numDescriptors) % capacity;
-
-    if (heap->ringBufferHead == heap->ringBufferTail)
-        heap->isFull = true;
-
-    dx12_descriptor_handles handles = {0};
-    handles.cpu.ptr                 = heap->dx12.heapStart.cpu.ptr + ((size_t) allocatedStart * heap->dx12.descriptorSize);
-    handles.gpu.ptr                 = heap->dx12.heapStart.gpu.ptr + ((size_t) allocatedStart * heap->dx12.descriptorSize);
-    return handles;
-}
-
-static void dx12_descriptor_ringbuffer_free(rz_gfx_descriptor_heap* heap, uint32_t numDescriptors)
-{
-    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
-    RAZIX_RHI_ASSERT(numDescriptors > 0, "Free count must be greater than zero");
-    // In ring buffer, we don't actually free the descriptors, we just update the tail
-    heap->ringBufferTail = (heap->ringBufferTail + numDescriptors) % heap->resource.desc.descriptorHeapDesc.descriptorCount;
-    heap->isFull         = false;
-}
-
 static void dx12_CreateDescriptorHeap(void* where)
 {
     rz_gfx_descriptor_heap* heap = (rz_gfx_descriptor_heap*) where;
@@ -1774,6 +1850,311 @@ static void dx12_DestroyDescriptorHeap(void* heap)
             descHeap->isFull         = false;
         }
     }
+}
+
+static D3D12_SHADER_RESOURCE_VIEW_DESC dx12_create_texture_srv(const rz_gfx_texture_view_desc* desc, const rz_gfx_texture_desc* textureDesc)
+{
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {0};
+    srvDesc.Format                          = dx12_util_rz_gfx_format_to_dxgi_format(desc->pTexture->resource.desc.textureDesc.format);
+    srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+    switch (textureDesc->textureType) {
+        case RZ_GFX_TEXTURE_TYPE_1D:
+            srvDesc.ViewDimension                 = D3D12_SRV_DIMENSION_TEXTURE1D;
+            srvDesc.Texture1D.MostDetailedMip     = desc->baseMip;
+            srvDesc.Texture1D.MipLevels           = textureDesc->mipLevels;
+            srvDesc.Texture1D.ResourceMinLODClamp = 0.0f;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_2D:
+            srvDesc.ViewDimension                 = D3D12_SRV_DIMENSION_TEXTURE2D;
+            srvDesc.Texture2D.MostDetailedMip     = desc->baseMip;
+            srvDesc.Texture2D.MipLevels           = textureDesc->mipLevels;
+            srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_3D:
+            srvDesc.ViewDimension                 = D3D12_SRV_DIMENSION_TEXTURE3D;
+            srvDesc.Texture3D.MostDetailedMip     = desc->baseMip;
+            srvDesc.Texture3D.MipLevels           = textureDesc->mipLevels;
+            srvDesc.Texture3D.ResourceMinLODClamp = 0.0f;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_CUBE:
+            srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURECUBE;
+            srvDesc.TextureCube.MostDetailedMip     = desc->baseMip;
+            srvDesc.TextureCube.MipLevels           = textureDesc->mipLevels;
+            srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
+            srvDesc.ViewDimension                        = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+            srvDesc.TextureCubeArray.MostDetailedMip     = desc->baseMip;
+            srvDesc.TextureCubeArray.MipLevels           = textureDesc->mipLevels;
+            srvDesc.TextureCubeArray.ResourceMinLODClamp = 0.0f;
+            srvDesc.TextureCubeArray.First2DArrayFace    = desc->baseArrayLayer;
+            srvDesc.TextureCubeArray.NumCubes            = textureDesc->arraySize;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_1D_ARRAY:
+            srvDesc.ViewDimension                      = D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
+            srvDesc.Texture1DArray.MostDetailedMip     = desc->baseMip;
+            srvDesc.Texture1DArray.MipLevels           = textureDesc->mipLevels;
+            srvDesc.Texture1DArray.ResourceMinLODClamp = 0.0f;
+            srvDesc.Texture1DArray.FirstArraySlice     = desc->baseArrayLayer;
+            srvDesc.Texture1DArray.ArraySize           = textureDesc->arraySize;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
+            srvDesc.ViewDimension                      = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+            srvDesc.Texture2DArray.MostDetailedMip     = desc->baseMip;
+            srvDesc.Texture2DArray.MipLevels           = textureDesc->mipLevels;
+            srvDesc.Texture2DArray.ResourceMinLODClamp = 0.0f;
+            srvDesc.Texture2DArray.FirstArraySlice     = desc->baseArrayLayer;
+            srvDesc.Texture2DArray.ArraySize           = textureDesc->arraySize;    // 2D array depth is the array size
+            break;
+
+        default:
+            break;
+    }
+    return srvDesc;
+}
+
+static D3D12_UNORDERED_ACCESS_VIEW_DESC dx12_create_texture_uav(const rz_gfx_texture_view_desc* desc, const rz_gfx_texture_desc* textureDesc)
+{
+    D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {0};
+    uavDesc.Format                           = dx12_util_rz_gfx_format_to_dxgi_format(desc->pTexture->resource.desc.textureDesc.format);
+
+    switch (textureDesc->textureType) {
+        case RZ_GFX_TEXTURE_TYPE_1D:
+            uavDesc.ViewDimension      = D3D12_UAV_DIMENSION_TEXTURE1D;
+            uavDesc.Texture1D.MipSlice = desc->baseMip;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_2D:
+            uavDesc.ViewDimension        = D3D12_UAV_DIMENSION_TEXTURE2D;
+            uavDesc.Texture2D.MipSlice   = desc->baseMip;
+            uavDesc.Texture2D.PlaneSlice = 0;    // Plane slice is only used for planar formats
+            break;
+        case RZ_GFX_TEXTURE_TYPE_3D:
+            uavDesc.ViewDimension         = D3D12_UAV_DIMENSION_TEXTURE3D;
+            uavDesc.Texture3D.MipSlice    = desc->baseMip;
+            uavDesc.Texture3D.FirstWSlice = desc->baseArrayLayer;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_1D_ARRAY:
+            uavDesc.ViewDimension                  = D3D12_UAV_DIMENSION_TEXTURE1DARRAY;
+            uavDesc.Texture1DArray.MipSlice        = desc->baseMip;
+            uavDesc.Texture1DArray.FirstArraySlice = desc->baseArrayLayer;
+            uavDesc.Texture1DArray.ArraySize       = textureDesc->arraySize;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
+            uavDesc.ViewDimension                  = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
+            uavDesc.Texture2DArray.MipSlice        = desc->baseMip;
+            uavDesc.Texture2DArray.FirstArraySlice = desc->baseArrayLayer;
+            uavDesc.Texture2DArray.ArraySize       = textureDesc->arraySize;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_CUBE:
+        case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
+        default:
+            RAZIX_RHI_LOG_ERROR("Unsupported texture type for UAV creation: %d", textureDesc->textureType);
+            break;
+    }
+    return uavDesc;
+}
+
+static D3D12_RENDER_TARGET_VIEW_DESC dx12_create_texture_rtv(const rz_gfx_texture_view_desc* desc, const rz_gfx_texture_desc* textureDesc)
+{
+    D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {0};
+    rtvDesc.Format                        = dx12_util_rz_gfx_format_to_dxgi_format(desc->pTexture->resource.desc.textureDesc.format);
+    switch (textureDesc->textureType) {
+        case RZ_GFX_TEXTURE_TYPE_1D:
+            rtvDesc.ViewDimension      = D3D12_RTV_DIMENSION_TEXTURE1D;
+            rtvDesc.Texture1D.MipSlice = desc->baseMip;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_2D:
+            rtvDesc.ViewDimension      = D3D12_RTV_DIMENSION_TEXTURE2D;
+            rtvDesc.Texture2D.MipSlice = desc->baseMip;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_3D:
+            rtvDesc.ViewDimension         = D3D12_RTV_DIMENSION_TEXTURE3D;
+            rtvDesc.Texture3D.MipSlice    = desc->baseMip;
+            rtvDesc.Texture3D.FirstWSlice = desc->baseArrayLayer;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_1D_ARRAY:
+            rtvDesc.ViewDimension                  = D3D12_RTV_DIMENSION_TEXTURE1DARRAY;
+            rtvDesc.Texture1DArray.MipSlice        = desc->baseMip;
+            rtvDesc.Texture1DArray.FirstArraySlice = desc->baseArrayLayer;
+            rtvDesc.Texture1DArray.ArraySize       = textureDesc->arraySize;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
+            rtvDesc.ViewDimension                  = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+            rtvDesc.Texture2DArray.MipSlice        = desc->baseMip;
+            rtvDesc.Texture2DArray.FirstArraySlice = desc->baseArrayLayer;
+            rtvDesc.Texture2DArray.ArraySize       = textureDesc->arraySize;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_CUBE:
+        case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
+        default:
+            RAZIX_RHI_LOG_ERROR("Unsupported texture type for RTV creation: %d", textureDesc->textureType);
+            break;
+    }
+    return rtvDesc;
+}
+
+static D3D12_DEPTH_STENCIL_VIEW_DESC dx12_create_texture_dsv(const rz_gfx_texture_view_desc* desc, const rz_gfx_texture_desc* textureDesc)
+{
+    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {0};
+    dsvDesc.Format                        = dx12_util_rz_gfx_format_to_dxgi_format(desc->pTexture->resource.desc.textureDesc.format);
+    switch (textureDesc->textureType) {
+        case RZ_GFX_TEXTURE_TYPE_1D:
+            dsvDesc.ViewDimension      = D3D12_DSV_DIMENSION_TEXTURE1D;
+            dsvDesc.Texture1D.MipSlice = desc->baseMip;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_2D:
+            dsvDesc.ViewDimension      = D3D12_DSV_DIMENSION_TEXTURE2D;
+            dsvDesc.Texture2D.MipSlice = desc->baseMip;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_1D_ARRAY:
+            dsvDesc.ViewDimension                  = D3D12_DSV_DIMENSION_TEXTURE1DARRAY;
+            dsvDesc.Texture1DArray.MipSlice        = desc->baseMip;
+            dsvDesc.Texture1DArray.FirstArraySlice = desc->baseArrayLayer;
+            dsvDesc.Texture1DArray.ArraySize       = textureDesc->arraySize;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
+            dsvDesc.ViewDimension                  = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
+            dsvDesc.Texture2DArray.MipSlice        = desc->baseMip;
+            dsvDesc.Texture2DArray.FirstArraySlice = desc->baseArrayLayer;
+            dsvDesc.Texture2DArray.ArraySize       = textureDesc->arraySize;
+            break;
+        case RZ_GFX_TEXTURE_TYPE_3D:
+        case RZ_GFX_TEXTURE_TYPE_CUBE:
+        case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
+        default:
+            RAZIX_RHI_LOG_ERROR("Unsupported texture type for DSV creation: %d", textureDesc->textureType);
+            break;
+    }
+    return dsvDesc;
+}
+
+static dx12_resview dx12_create_texture_view(const rz_gfx_texture_view_desc* desc, rz_gfx_descriptor_type descriptorType)
+{
+    dx12_resview dx12_view = {0};
+
+    RAZIX_RHI_ASSERT(desc != NULL, "Texture view desc cannot be NULL");
+    RAZIX_RHI_ASSERT(desc->pTexture != NULL, "Texture resource cannot be NULL");
+    const rz_gfx_texture* pTexture = desc->pTexture;
+    RAZIX_RHI_ASSERT(pTexture != NULL, "Texture resource must be created before creating a texture view");
+    const rz_gfx_texture_desc* textureDesc = &pTexture->resource.desc.textureDesc;
+    RAZIX_RHI_ASSERT(textureDesc != NULL, "Texture descriptor cannot be NULL");
+
+    if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_TEXTURE && pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_SRV == RZ_GFX_RESOURCE_VIEW_FLAG_SRV) {
+        dx12_view.srv = dx12_create_texture_srv(desc, textureDesc);
+    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE && pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV == RZ_GFX_RESOURCE_VIEW_FLAG_UAV) {
+        dx12_view.uav = dx12_create_texture_uav(desc, textureDesc);
+    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE && pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_RTV == RZ_GFX_RESOURCE_VIEW_FLAG_RTV) {
+        dx12_view.rtv = dx12_create_texture_rtv(desc, textureDesc);
+    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE && pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV == RZ_GFX_RESOURCE_VIEW_FLAG_DSV) {
+        dx12_view.dsv = dx12_create_texture_dsv(desc, textureDesc);
+    } else {
+        RAZIX_RHI_LOG_ERROR("Unsupported texture view descriptor type: %d and view hints: %d", descriptorType, pTexture->resource.viewHints);
+        return dx12_view;    // Return empty view
+    }
+}
+
+static D3D12_CONSTANT_BUFFER_VIEW_DESC dx12_create_buffer_cbv(const rz_gfx_buffer_view_desc* desc, const rz_gfx_buffer_desc* bufferDesc)
+{
+    D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {0};
+    cbvDesc.BufferLocation                  = ID3D12Resource_GetGPUVirtualAddress(desc->pBuffer->dx12.resource) + desc->offset;
+    cbvDesc.SizeInBytes                     = RAZIX_RHI_ALIGN(desc->size, RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT);
+    return cbvDesc;
+}
+
+static D3D12_UNORDERED_ACCESS_VIEW_DESC dx12_util_create_buffer_uav(const rz_gfx_buffer_view_desc* desc, const rz_gfx_buffer_desc* bufferDesc)
+{
+    D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {0};
+    uavDesc.Format                           = dx12_util_rz_gfx_format_to_dxgi_format(desc->format);
+    uavDesc.ViewDimension                    = D3D12_UAV_DIMENSION_BUFFER;
+    // TODO: Divide them by format size
+    uavDesc.Buffer.FirstElement        = desc->offset;
+    uavDesc.Buffer.NumElements         = (UINT) desc->size;
+    uavDesc.Buffer.StructureByteStride = desc->stride;
+    return uavDesc;
+}
+
+static dx12_resview dx12_create_buffer_view(const rz_gfx_buffer_view_desc* desc, rz_gfx_descriptor_type descriptorType)
+{
+    dx12_resview dx12_view = {0};
+    RAZIX_RHI_ASSERT(desc != NULL, "Buffer view desc cannot be NULL");
+    RAZIX_RHI_ASSERT(desc->pBuffer != NULL, "Buffer resource cannot be NULL");
+    const rz_gfx_buffer* pBuffer = desc->pBuffer;
+    RAZIX_RHI_ASSERT(pBuffer != NULL, "Buffer resource must be created before creating a buffer view");
+    const rz_gfx_buffer_desc* bufferDesc = &pBuffer->resource.desc.bufferDesc;
+    RAZIX_RHI_ASSERT(bufferDesc != NULL, "Buffer descriptor cannot be NULL");
+
+    bool isRWBuffer = rzRHI_IsDescriptorTypeBufferRW(descriptorType);
+
+    if (!isRWBuffer && pBuffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_SRV == RZ_GFX_RESOURCE_VIEW_FLAG_SRV) {
+        if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+            dx12_view.cbv = dx12_create_buffer_cbv(desc, bufferDesc);
+    } else if (isRWBuffer && pBuffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV == RZ_GFX_RESOURCE_VIEW_FLAG_UAV) {
+        dx12_view.uav = dx12_util_create_buffer_uav(desc, bufferDesc);
+    } else {
+        RAZIX_RHI_LOG_ERROR("Unsupported buffer view descriptor type: %d and view hints: %d", descriptorType, pBuffer->resource.viewHints);
+        return dx12_view;    // Return empty view
+    }
+    return dx12_view;
+}
+
+static dx12_resview dx12_create_sampler_view(const rz_gfx_sampler_view_desc* desc)
+{
+    dx12_resview dx12_view = {0};
+    RAZIX_RHI_ASSERT(desc != NULL, "Sampler view desc cannot be NULL");
+    const rz_gfx_sampler* pSampler = desc->pSampler;
+    RAZIX_RHI_ASSERT(pSampler != NULL, "Sampler resource must be created before creating a sampler view");
+    const rz_gfx_sampler_desc* samplerDesc = &pSampler->resource.desc.samplerDesc;
+    RAZIX_RHI_ASSERT(samplerDesc != NULL, "Sampler descriptor cannot be NULL");
+
+    D3D12_SAMPLER_DESC dxsamplerDesc = {0};
+    dxsamplerDesc.Filter             = dx12_util_translate_filter_type(samplerDesc->magFilter, samplerDesc->minFilter, samplerDesc->mipFilter);
+    dxsamplerDesc.AddressU           = dx12_util_translate_wrap_type(samplerDesc->addressModeU);
+    dxsamplerDesc.AddressV           = dx12_util_translate_wrap_type(samplerDesc->addressModeV);
+    dxsamplerDesc.AddressW           = dx12_util_translate_wrap_type(samplerDesc->addressModeW);
+    dxsamplerDesc.ComparisonFunc     = dx12_util_compare_func(samplerDesc->compareOp);
+    dxsamplerDesc.BorderColor[0]     = 0.0f;
+    dxsamplerDesc.BorderColor[1]     = 0.0f;
+    dxsamplerDesc.BorderColor[2]     = 0.0f;
+    dxsamplerDesc.BorderColor[3]     = 0.0f;
+    dxsamplerDesc.MaxAnisotropy      = samplerDesc->maxAnisotropy;
+    dxsamplerDesc.MipLODBias         = samplerDesc->mipLODBias;
+    dxsamplerDesc.MinLOD             = samplerDesc->minLod;
+    dxsamplerDesc.MaxLOD             = samplerDesc->maxLod;
+    dx12_view.sampler                = dxsamplerDesc;
+
+    return dx12_view;
+}
+
+static void dx12_CreateResourceView(void* where)
+{
+    rz_gfx_resource_view* view = (rz_gfx_resource_view*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&view->resource.handle), "Invalid resource view handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_resource_view_desc* desc = &view->resource.desc.resourceViewDesc;
+    RAZIX_RHI_ASSERT(desc != NULL, "Resource view descriptor cannot be NULL");
+    RAZIX_RHI_ASSERT(desc->descriptorType != RZ_GFX_DESCRIPTOR_TYPE_NONE, "Resource view descriptor type cannot be none");
+
+    // Create the resource view based on the type
+    if (rzRHI_IsDescriptorTypeTexture(desc->descriptorType)) {
+        view->dx12 = dx12_create_texture_view(&desc->textureViewDesc, desc->descriptorType);
+    } else if (rzRHI_IsDescriptorTypeBuffer(desc->descriptorType)) {
+        view->dx12 = dx12_create_buffer_view(&desc->bufferViewDesc, desc->descriptorType);
+    } else if (desc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_SAMPLER) {
+        view->dx12 = dx12_create_sampler_view(&desc->samplerViewDesc);
+    } else {
+        RAZIX_RHI_LOG_ERROR("Unsupported resource view descriptor type: %d", desc->descriptorType);
+        RAZIX_RHI_ABORT();
+        return;
+    }
+}
+
+static void dx12_DestroyResourceView(void* where)
+{
+    RAZIX_RHI_ASSERT(where != NULL, "Resource view is NULL, cannot destroy");
+    rz_gfx_resource_view* view = (rz_gfx_resource_view*) where;
+    // Nothing to do here, views are not standalone objects in D3D12
+    // They are managed by the descriptor heaps
+    view->dx12 = (dx12_resview) {0};
 }
 
 //---------------------------------------------------------------------------------------------
@@ -2147,6 +2528,8 @@ rz_rhi_api dx12_rhi = {
     .DestroySampler        = dx12_DestroySampler,           // DestroySampler
     .CreateDescriptorHeap  = dx12_CreateDescriptorHeap,     // CreateDescriptorHeap
     .DestroyDescriptorHeap = dx12_DestroyDescriptorHeap,    // DestroyDescriptorHeap
+    .CreateResourceView    = dx12_CreateResourceView,       // CreateResourceView
+    .DestroyResourceView   = dx12_DestroyResourceView,      // DestroyResourceView
 
     .AcquireImage       = dx12_AcquireImage,          // AcquireImage
     .WaitOnPrevCmds     = dx12_WaitOnPrevCmds,        // WaitOnPrevCmds
