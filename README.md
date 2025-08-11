@@ -67,43 +67,158 @@ DirectX11, OpenGL has been deprecated. Only high-level APIs and RTX level GPUs w
 
 # RoadMap
 
-## Building
+## Building Razix
 
-### Pre-Requisites
-Assumes you have VULKAN_SDK installed and the env variable is configured properly
+This section provides comprehensive instructions for building Razix Engine from source. The engine supports Windows and macOS platforms, with full Linux support coming soon.
 
-1. Clone the Repository
-```
+### Prerequisites
+
+#### General Requirements
+- **Git** for cloning the repository
+- **Python 3.x** for build and test scripts
+- **VulkanSDK 1.3.290.0** or later
+
+#### Platform-Specific Requirements
+
+**Windows:**
+- Visual Studio 2022 (Community, Professional, or Enterprise)
+- Windows 10/11 (x64)
+
+**macOS:**
+- Xcode Command Line Tools
+- macOS 10.15 or later
+- ARM64 (Apple Silicon) or x86_64 architecture
+
+### Environment Setup
+
+#### Installing VulkanSDK
+
+**Windows:**
+1. Download VulkanSDK 1.3.290.0 from [LunarG](https://vulkan.lunarg.com/sdk/home#windows)
+2. Run the installer with default settings
+3. The installer will automatically set the `VULKAN_SDK` environment variable
+4. Verify installation by opening a new command prompt and running:
+   ```cmd
+   echo %VULKAN_SDK%
+   ```
+   This should show the installation path (e.g., `C:\VulkanSDK\1.3.290.0`)
+
+**macOS:**
+1. Download VulkanSDK 1.3.290.0 from [LunarG](https://vulkan.lunarg.com/sdk/home#mac)
+2. Mount the DMG and run the InstallVulkan app
+3. Install to the default location (`~/VulkanSDK/1.3.290.0`)
+4. Add environment variables to your shell profile (`~/.zshrc` or `~/.bash_profile`):
+   ```bash
+   export VULKAN_SDK="$HOME/VulkanSDK/1.3.290.0/macOS"
+   export PATH="$VULKAN_SDK/bin:$PATH"
+   ```
+5. Reload your shell or run `source ~/.zshrc`
+6. Verify installation:
+   ```bash
+   echo $VULKAN_SDK
+   vulkaninfo --summary
+   ```
+
+### Building the Engine
+
+#### 1. Clone the Repository
+```bash
 git clone https://github.com/Pikachuxxxx/Razix.git
 cd Razix
 ```
-2. Generate Premake Project Files
-Windows (PowerShell)
 
-### From the repo root:
-Windows
-```
+#### 2. Generate Project Files
+
+**Windows:**
+```cmd
 cd Scripts
-.\u005cGeneratePremakeProjects.bat
+GenerateVS22.bat
 ```
-Linux/macOS (Bash)
+
+**macOS:**
+```bash
+cd Scripts
+chmod +x GenerateXCodeProjectsMacOS.sh
+./GenerateXCodeProjectsMacOS.sh
 ```
-# From the repo root:
-chmod +x Scripts/generate_projects.sh
-./Scripts/generate_projects.sh
+
+This will generate platform-specific project files in the `build/` directory using Premake5.
+
+#### 3. Build Using Python Script (Recommended)
+
+Razix includes a cross-platform Python build script that automates the build process:
+
+**Windows:**
+```cmd
+cd Scripts
+python build_razix.py --platform windows --config Debug
 ```
-Razix uses Premake5 for project generation. Scripts are provided for different platforms.
-No need to clone submodules.
 
+**macOS:**
+```bash
+cd Scripts
+python build_razix.py --platform macos --config Debug
+```
 
-### Build the Engine
+Available configurations: `Debug`, `Release`, `GoldMaster`
 
-Windows (Visual Studio)
-Open build/Razix.sln in Visual Studio 2022 or newer
-Select a configuration: Debug, Release, or Dist
-Press Ctrl+Shift+B or select Build > Build Solution
+#### 4. Build Using IDE (Alternative)
 
-either run the game or run some tests
+**Windows (Visual Studio):**
+1. Open `build/Razix.sln` in Visual Studio 2022
+2. Select configuration: Debug, Release, or GoldMaster
+3. Build the solution: `Ctrl+Shift+B` or Build > Build Solution
+
+**macOS (Xcode):**
+1. Open the generated `.xcodeproj` files in the `build/` directory
+2. Select the desired scheme and configuration
+3. Build using `Cmd+B`
+
+### Running Tests
+
+Razix includes a comprehensive test suite that can be run using the provided Python test runner:
+
+```bash
+cd Scripts
+python test_runner.py [config] [platform] [--verbose]
+```
+
+Examples:
+```bash
+# Run tests with Debug configuration on Windows
+python test_runner.py Debug windows-x86_64
+
+# Run tests with Release configuration on macOS with verbose output
+python test_runner.py Release macosx-ARM64 --verbose
+
+# Run tests with default configuration (Debug, windows-x86_64)
+python test_runner.py
+```
+
+The test runner will:
+- Execute all engine tests and graphics tests
+- Generate test logs in the `TestResults/` directory
+- Display a summary of passed/failed tests
+
+### Build Output
+
+Successful builds will generate:
+- **Engine libraries** in `bin/[Config]-[Platform]/`
+- **Executable files** (Sandbox, tests) in the same directory
+- **Intermediate files** in `build/intermediates/`
+
+### Troubleshooting
+
+**Common Issues:**
+
+1. **VulkanSDK not found**: Ensure `VULKAN_SDK` environment variable is set correctly
+2. **MSBuild errors on Windows**: Verify Visual Studio 2022 is installed with C++ development tools
+3. **Xcode build failures on macOS**: Ensure Xcode Command Line Tools are installed: `xcode-select --install`
+4. **Python script errors**: Verify Python 3.x is installed and accessible via `python` command
+
+**Getting Help:**
+- Check the [issue tracker](https://github.com/Pikachuxxxx/Razix/issues) for known problems
+- Review the CI workflows in `.github/workflows/` for reference build configurations
 
 ## V 1.0.0 - RC
 ![](./Docs/Architecture/RazixEngine-RoadMap-V1.0.0RC.png)
