@@ -2292,8 +2292,6 @@ static void dx12_DesrtoyDescriptorTable(void* where)
     }
 
     // Note: destroy the resource views before you destroy the table
-    if (pTable->pResourceViewHandles)
-        free(pTable->pResourceViewHandles);
 }
 
 //---------------------------------------------------------------------------------------------
@@ -2566,7 +2564,8 @@ static void dx12_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_tex
     readback->width  = width;
     readback->height = height;
     readback->bpp    = 32;
-    readback->data   = malloc(size);
+    // Note: Pray to god that user will free this memory
+    readback->data = malloc(size);
 
     if (readback->data) {
         for (UINT y = 0; y < height; ++y) {
