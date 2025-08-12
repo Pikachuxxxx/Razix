@@ -767,9 +767,11 @@ static inline unsigned int rz_clz32(unsigned int x)
         const rz_gfx_sampler* pSampler;
     } rz_gfx_sampler_view_desc;
 
+    typedef struct rz_gfx_descriptor_heap rz_gfx_descriptor_heap;
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_resource_view_desc
     {
-        rz_gfx_descriptor_type descriptorType;
+        rz_gfx_descriptor_type  descriptorType;
+        rz_gfx_descriptor_heap* pRtvDsvHeap;    // Only use it to create RTV/DSV immediately
         union
         {
             rz_gfx_buffer_view_desc  bufferViewDesc;
@@ -825,11 +827,15 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint8_t                 _pad0[4];
     } rz_gfx_descriptor;
 
+    typedef struct rz_gfx_resource_view   rz_gfx_resource_view;
+    typedef struct rz_gfx_descriptor_heap rz_gfx_descriptor_heap;
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table_desc
     {
-        uint32_t           tableIndex;
-        uint32_t           descriptorCount;
-        rz_gfx_descriptor* pDescriptors;
+        uint32_t                tableIndex;
+        uint32_t                descriptorCount;
+        rz_gfx_descriptor*      pDescriptors;
+        rz_gfx_resource_view*   pResourceViews;    // temporary, we cache the handles that the user can free during descriptor table destruction
+        rz_gfx_descriptor_heap* pHeap;
     } rz_gfx_descriptor_table_desc;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_root_constant_desc
@@ -1067,11 +1073,12 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_swapchain
     {
-        uint32_t       width;
-        uint32_t       height;
-        uint32_t       imageCount;
-        uint32_t       currBackBufferIdx;
-        rz_gfx_texture backbuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];
+        uint32_t             width;
+        uint32_t             height;
+        uint32_t             imageCount;
+        uint32_t             currBackBufferIdx;
+        rz_gfx_texture       backbuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];
+        rz_gfx_resource_view backbuffersResViews[RAZIX_MAX_SWAP_IMAGES_COUNT];
 #ifdef RAZIX_RENDER_API_VULKAN
             //vk_swapchain vk;
 #endif
@@ -1086,6 +1093,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t      height;
         uint32_t      frameIndex;
         rz_render_api renderAPI;
+        // TODO: Store a ref to malloc/calloc/free C-style callback functions for RHI memory needs
         // All global submission queues are managed within the internal contexts
         union
         {
@@ -1176,7 +1184,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table
     {
         RAZIX_GFX_RESOURCE;
-        rz_gfx_resource_view_handle* pResourceViews;
+        rz_gfx_resource_view_handle* pResourceViewHandles;
         uint32_t                     resourceViewCount;
 #ifdef RAZIX_RENDER_API_VULKAN
         vk_descriptor_table vk;
@@ -1239,14 +1247,12 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_attachment
     {
-        rz_gfx_color_rgba     clearColor;
-        const rz_gfx_texture* pTexture;
+        const rz_gfx_resource_view* pResourceView;
+        rz_gfx_color_rgba           clearColor;
         struct
         {
-            uint32_t mip : 8;
-            uint32_t layer : 8;
             uint32_t clear : 1;
-            uint32_t reserved : 15;
+            uint32_t reserved : 31;
         };
         uint8_t _pad0[4];
     } gfx_attachment;

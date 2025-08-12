@@ -117,9 +117,11 @@ namespace Razix {
             void clearFrameGraph();
             void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings);
 
-            inline rz_gfx_cmdbuf_handle  getCurrCmdBufHandle() const { return m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx]; }
-            inline const rz_gfx_texture* getCurrSwapchainBackbufferPtr() const { return &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx]; }
-            inline rz_gfx_texture_handle getCurrSwapchainBackbufferHandle() const { return m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx].resource.handle; }
+            inline rz_gfx_cmdbuf_handle        getCurrCmdBufHandle() const { return m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx]; }
+            inline const rz_gfx_texture*       getCurrSwapchainBackbufferPtr() const { return &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx]; }
+            inline rz_gfx_texture_handle       getCurrSwapchainBackbufferHandle() const { return m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx].resource.handle; }
+            inline const rz_gfx_resource_view* getCurrSwapchainBackbufferResViewPtr() const { return &m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx]; }
+            inline rz_gfx_resource_view_handle getCurrSwapchainBackbufferResViewHandle() const { return m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx].resource.handle; }
 
         private:
             RZFrameGraph m_FrameGraph;

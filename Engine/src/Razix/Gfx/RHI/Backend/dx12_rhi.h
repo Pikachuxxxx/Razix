@@ -67,13 +67,6 @@ typedef struct dx12_descriptor_handles
 typedef struct dx12_texture
 {
     ID3D12Resource* resource;
-    union
-    {
-        dx12_descriptor_handles srv;
-        dx12_descriptor_handles uav;
-        dx12_descriptor_handles rtv;
-        dx12_descriptor_handles dsv;
-    } resView;
 } dx12_texture;
 
 typedef struct dx12_sampler
@@ -139,12 +132,17 @@ typedef struct dx12_resview
 {
     union
     {
-        D3D12_CONSTANT_BUFFER_VIEW_DESC  cbv;
-        D3D12_SHADER_RESOURCE_VIEW_DESC  srv;
-        D3D12_UNORDERED_ACCESS_VIEW_DESC uav;
-        D3D12_RENDER_TARGET_VIEW_DESC    rtv;
-        D3D12_DEPTH_STENCIL_VIEW_DESC    dsv;
-        D3D12_SAMPLER_DESC               sampler;
+        D3D12_CONSTANT_BUFFER_VIEW_DESC  cbvDesc;
+        D3D12_SHADER_RESOURCE_VIEW_DESC  srvDesc;
+        D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+        D3D12_RENDER_TARGET_VIEW_DESC    rtvDesc;
+        D3D12_DEPTH_STENCIL_VIEW_DESC    dsvDesc;
+        D3D12_SAMPLER_DESC               samplerDesc;
+    };
+    union
+    {
+        dx12_descriptor_handles rtv;
+        dx12_descriptor_handles dsv;
     };
 } dx12_resview;
 

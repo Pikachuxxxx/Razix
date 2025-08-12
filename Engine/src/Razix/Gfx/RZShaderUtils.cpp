@@ -270,7 +270,7 @@ namespace Razix {
 
                 // Add descriptor to the table
                 rz_gfx_descriptor* descriptors =
-                    (rz_gfx_descriptor*) Memory::RZRealloc(table->pDescriptors, sizeof(rz_gfx_descriptor) * (table->descriptorCount + 1));
+                    (rz_gfx_descriptor*) Memory::RZRealloc((void*) table->pDescriptors, sizeof(rz_gfx_descriptor) * (table->descriptorCount + 1));
                 table->pDescriptors = descriptors;
 
                 rz_gfx_descriptor* desc = &table->pDescriptors[table->descriptorCount++];
