@@ -2277,7 +2277,7 @@ static void dx12_CreateDescriptorTable(void* where)
     }
 }
 
-static void dx12_DesrtoyDescriptorTable(void* where)
+static void dx12_DestroyDescriptorTable(void* where)
 {
     RAZIX_RHI_ASSERT(where != NULL, "Descriptor table is NULL, cannot destroy");
     rz_gfx_descriptor_table* pTable = (rz_gfx_descriptor_table*) where;
@@ -2643,30 +2643,34 @@ static void dx12_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* fram
 // Jump table
 
 rz_rhi_api dx12_rhi = {
-    .GlobalCtxInit         = dx12_GlobalCtxInit,            // GlobalCtxInit
-    .GlobalCtxDestroy      = dx12_GlobalCtxDestroy,         // GlobalCtxDestroy
-    .CreateSyncobj         = dx12_CreateSyncobjFn,          // CreateSyncobj
-    .DestroySyncobj        = dx12_DestroySyncobjFn,         // DestroySyncobj
-    .CreateSwapchain       = dx12_CreateSwapchain,          // CreateSwapchain
-    .DestroySwapchain      = dx12_DestroySwapchain,         // DestroySwapchain
-    .CreateCmdPool         = dx12_CreateCmdPool,            // CreateCmdPool
-    .DestroyCmdPool        = dx12_DestroyCmdPool,           // DestroyCmdPool
-    .CreateCmdBuf          = dx12_CreateCmdBuf,             // CreateCmdBuf
-    .DestroyCmdBuf         = dx12_DestroyCmdBuf,            // DestroyCmdBuf
-    .CreateShader          = dx12_CreateShader,             // CreateShader
-    .DestroyShader         = dx12_DestroyShader,            // DestroyShader
-    .CreateRootSignature   = dx12_CreateRootSignature,      // CreateRootSignature
-    .DestroyRootSignature  = dx12_DestroyRootSignature,     // DestroyRootSignature
-    .CreatePipeline        = dx12_CreatePipeline,           // CreatePipeline
-    .DestroyPipeline       = dx12_DestroyPipeline,          // DestroyPipeline
-    .CreateTexture         = dx12_CreateTexture,            // CreateTexture
-    .DestroyTexture        = dx12_DestroyTexture,           // DestroyTexture
-    .CreateSampler         = dx12_CreateSampler,            // CreateSampler
-    .DestroySampler        = dx12_DestroySampler,           // DestroySampler
-    .CreateDescriptorHeap  = dx12_CreateDescriptorHeap,     // CreateDescriptorHeap
-    .DestroyDescriptorHeap = dx12_DestroyDescriptorHeap,    // DestroyDescriptorHeap
-    .CreateResourceView    = dx12_CreateResourceView,       // CreateResourceView
-    .DestroyResourceView   = dx12_DestroyResourceView,      // DestroyResourceView
+    .GlobalCtxInit          = dx12_GlobalCtxInit,             // GlobalCtxInit
+    .GlobalCtxDestroy       = dx12_GlobalCtxDestroy,          // GlobalCtxDestroy
+    .CreateSyncobj          = dx12_CreateSyncobjFn,           // CreateSyncobj
+    .DestroySyncobj         = dx12_DestroySyncobjFn,          // DestroySyncobj
+    .CreateSwapchain        = dx12_CreateSwapchain,           // CreateSwapchain
+    .DestroySwapchain       = dx12_DestroySwapchain,          // DestroySwapchain
+    .CreateCmdPool          = dx12_CreateCmdPool,             // CreateCmdPool
+    .DestroyCmdPool         = dx12_DestroyCmdPool,            // DestroyCmdPool
+    .CreateCmdBuf           = dx12_CreateCmdBuf,              // CreateCmdBuf
+    .DestroyCmdBuf          = dx12_DestroyCmdBuf,             // DestroyCmdBuf
+    .CreateShader           = dx12_CreateShader,              // CreateShader
+    .DestroyShader          = dx12_DestroyShader,             // DestroyShader
+    .CreateRootSignature    = dx12_CreateRootSignature,       // CreateRootSignature
+    .DestroyRootSignature   = dx12_DestroyRootSignature,      // DestroyRootSignature
+    .CreatePipeline         = dx12_CreatePipeline,            // CreatePipeline
+    .DestroyPipeline        = dx12_DestroyPipeline,           // DestroyPipeline
+    .CreateTexture          = dx12_CreateTexture,             // CreateTexture
+    .DestroyTexture         = dx12_DestroyTexture,            // DestroyTexture
+    .CreateSampler          = dx12_CreateSampler,             // CreateSampler
+    .DestroySampler         = dx12_DestroySampler,            // DestroySampler
+    .CreateDescriptorHeap   = dx12_CreateDescriptorHeap,      // CreateDescriptorHeap
+    .DestroyDescriptorHeap  = dx12_DestroyDescriptorHeap,     // DestroyDescriptorHeap
+    .CreateResourceView     = dx12_CreateResourceView,        // CreateResourceView
+    .DestroyResourceView    = dx12_DestroyResourceView,       // DestroyResourceView
+    .CreateDescriptorHeap   = dx12_CreateDescriptorHeap,      // CreateDescriptorHeap
+    .DestroyDescriptorHeap  = dx12_DestroyDescriptorHeap,     // DestroyDescriptorHeap
+    .CreateDescriptorTable  = dx12_CreateDescriptorTable,     // CreateDescriptorTable
+    .DestroyDescriptorTable = dx12_DestroyDescriptorTable,    // DestroyDescriptorTable
 
     .AcquireImage       = dx12_AcquireImage,          // AcquireImage
     .WaitOnPrevCmds     = dx12_WaitOnPrevCmds,        // WaitOnPrevCmds

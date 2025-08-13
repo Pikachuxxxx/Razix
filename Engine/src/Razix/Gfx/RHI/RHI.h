@@ -1473,29 +1473,30 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define rzGfxCtx_GlobalCtxInit    g_RHI.GlobalCtxInit
 #define rzGfxCtx_GlobalCtxDestroy g_RHI.GlobalCtxDestroy
 
-#define rzRHI_CreateSyncobj         g_RHI.CreateSyncobj
-#define rzRHI_DestroySyncobj        g_RHI.DestroySyncobj
-#define rzRHI_CreateSwapchain       g_RHI.CreateSwapchain
-#define rzRHI_DestroySwapchain      g_RHI.DestroySwapchain
-#define rzRHI_CreateCmdPool         g_RHI.CreateCmdPool
-#define rzRHI_DestroyCmdPool        g_RHI.DestroyCmdPool
-#define rzRHI_CreateCmdBuf          g_RHI.CreateCmdBuf
-#define rzRHI_DestroyCmdBuf         g_RHI.DestroyCmdBuf
-#define rzRHI_CreateShader          g_RHI.CreateShader
-#define rzRHI_DestroyShader         g_RHI.DestroyShader
-#define rzRHI_CreateDescriptorHeap  g_RHI.CreateDescriptorHeap
-#define rzRHI_DestroyDescriptorHeap g_RHI.DestroyDescriptorHeap
-#define rzRHI_CreateDescriptorTable g_RHI.CreateDescriptorTable
-#define rzRHI_CreateRootSignature   g_RHI.CreateRootSignature
-#define rzRHI_DestroyRootSignature  g_RHI.DestroyRootSignature
-#define rzRHI_CreatePipeline        g_RHI.CreatePipeline
-#define rzRHI_DestroyPipeline       g_RHI.DestroyPipeline
-#define rzRHI_CreateTexture         g_RHI.CreateTexture
-#define rzRHI_DestroyTexture        g_RHI.DestroyTexture
-#define rzRHI_CreateSampler         g_RHI.CreateSampler
-#define rzRHI_DestroySampler        g_RHI.DestroySampler
-#define rzRHI_CreateResourceView    g_RHI.CreateResourceView
-#define rzRHI_DestroyResourceView   g_RHI.DestroyResourceView
+#define rzRHI_CreateSyncobj          g_RHI.CreateSyncobj
+#define rzRHI_DestroySyncobj         g_RHI.DestroySyncobj
+#define rzRHI_CreateSwapchain        g_RHI.CreateSwapchain
+#define rzRHI_DestroySwapchain       g_RHI.DestroySwapchain
+#define rzRHI_CreateCmdPool          g_RHI.CreateCmdPool
+#define rzRHI_DestroyCmdPool         g_RHI.DestroyCmdPool
+#define rzRHI_CreateCmdBuf           g_RHI.CreateCmdBuf
+#define rzRHI_DestroyCmdBuf          g_RHI.DestroyCmdBuf
+#define rzRHI_CreateShader           g_RHI.CreateShader
+#define rzRHI_DestroyShader          g_RHI.DestroyShader
+#define rzRHI_CreateRootSignature    g_RHI.CreateRootSignature
+#define rzRHI_DestroyRootSignature   g_RHI.DestroyRootSignature
+#define rzRHI_CreatePipeline         g_RHI.CreatePipeline
+#define rzRHI_DestroyPipeline        g_RHI.DestroyPipeline
+#define rzRHI_CreateTexture          g_RHI.CreateTexture
+#define rzRHI_DestroyTexture         g_RHI.DestroyTexture
+#define rzRHI_CreateSampler          g_RHI.CreateSampler
+#define rzRHI_DestroySampler         g_RHI.DestroySampler
+#define rzRHI_CreateResourceView     g_RHI.CreateResourceView
+#define rzRHI_DestroyResourceView    g_RHI.DestroyResourceView
+#define rzRHI_CreateDescriptorHeap   g_RHI.CreateDescriptorHeap
+#define rzRHI_DestroyDescriptorHeap  g_RHI.DestroyDescriptorHeap
+#define rzRHI_CreateDescriptorTable  g_RHI.CreateDescriptorTable
+#define rzRHI_DestroyDescriptorTable g_RHI.DestroyDescriptorTable
 
 #if !RZ_PROFILER_ENABLED
     #if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)

@@ -83,8 +83,10 @@ private:                                                                        
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(CommandBuffer, rz_gfx_cmdbuf)
             //-----------------------------------------------------------------------------------
-            // RAZIX_REGISTER_RESOURCE_POOL(DescriptorSet, const RZDescriptorSetDesc& desc)
-            // //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(DescriptorHeap, rz_gfx_descriptor_heap)
+            //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(DescriptorTable, rz_gfx_descriptor_table)
+            //-----------------------------------------------------------------------------------
 
         private:
             RZResourceCBFuncs m_ResourceTypeCBFuncs[RZ_GFX_RESOURCE_TYPE_COUNT];
