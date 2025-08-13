@@ -985,9 +985,11 @@ static dx12_resview dx12_create_texture_view(const rz_gfx_texture_view_desc* des
     const rz_gfx_texture_desc* textureDesc = &pTexture->resource.desc.textureDesc;
     RAZIX_RHI_ASSERT(textureDesc != NULL, "Texture descriptor cannot be NULL");
 
-    if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_TEXTURE && pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_SRV == RZ_GFX_RESOURCE_VIEW_FLAG_SRV) {
+    bool isTextureRW = rzRHI_IsDescriptorTypeTextureRW(descriptorType);
+
+    if (!isTextureRW && pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_SRV == RZ_GFX_RESOURCE_VIEW_FLAG_SRV) {
         dx12_view.srvDesc = dx12_create_texture_srv(desc, textureDesc);
-    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE && pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV == RZ_GFX_RESOURCE_VIEW_FLAG_UAV) {
+    } else if (isTextureRW && pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV == RZ_GFX_RESOURCE_VIEW_FLAG_UAV) {
         dx12_view.uavDesc = dx12_create_texture_uav(desc, textureDesc);
     } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE && pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_RTV == RZ_GFX_RESOURCE_VIEW_FLAG_RTV) {
         dx12_view.rtvDesc = dx12_create_texture_rtv(desc, textureDesc);
@@ -2241,6 +2243,7 @@ static void dx12_CreateDescriptorTable(void* where)
                 return;
             } break;
             case RZ_GFX_DESCRIPTOR_TYPE_TEXTURE: {
+                ID2D12Device_CreateShaderResourceView()
             } break;
             case RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE: {
             } break;
