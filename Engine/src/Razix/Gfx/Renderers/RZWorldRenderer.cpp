@@ -126,6 +126,78 @@ namespace Razix {
                 m_InFlightDrawCmdBufHandles[i] = RZResourceManager::Get().createCommandBuffer("InFlightDrawCommandBuffer", desc);
                 m_InFlightDrawCmdBufPtrs[i]    = RZResourceManager::Get().getCommandBufferResource(m_InFlightDrawCmdBufHandles[i]);
             }
+
+            // Create generic resource and sampler heaps
+            rz_gfx_descriptor_heap_desc resourceHeapDesc = {};
+            resourceHeapDesc.heapType                    = RZ_GFX_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+            resourceHeapDesc.descriptorCount             = 65536;
+            resourceHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE | RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST;
+            m_ResourceHeap                               = RZResourceManager::Get().createDescriptorHeap("ResourceHeap", resourceHeapDesc);
+
+            rz_gfx_descriptor_heap_desc samplerHeapDesc = {};
+            samplerHeapDesc.heapType                    = RZ_GFX_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+            samplerHeapDesc.descriptorCount             = 64;
+            samplerHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE | RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST;
+            m_SamplerHeap                               = RZResourceManager::Get().createDescriptorHeap("SamplerHeap", samplerHeapDesc);
+
+            rz_gfx_descriptor_heap_desc renderTargetHeapDesc = {};
+            renderTargetHeapDesc.heapType                    = RZ_GFX_DESCRIPTOR_HEAP_TYPE_RTV;
+            renderTargetHeapDesc.descriptorCount             = RAZIX_MAX_RENDER_TARGETS * 1024;
+            renderTargetHeapDesc.flags |= RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
+            m_RenderTargetHeap = RZResourceManager::Get().createDescriptorHeap("RenderTargetHeap", renderTargetHeapDesc);
+
+            rz_gfx_descriptor_heap_desc depthRenderTargetHeapDesc = {};
+            depthRenderTargetHeapDesc.heapType                    = RZ_GFX_DESCRIPTOR_HEAP_TYPE_DSV;
+            depthRenderTargetHeapDesc.descriptorCount             = 1024;    // 1024 Depth Stencil Views
+            depthRenderTargetHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
+            m_DepthRenderTargetHeap                               = RZResourceManager::Get().createDescriptorHeap("DepthRenderTargetHeap", depthRenderTargetHeapDesc);
+
+            // Create some global basic samplers
+            rz_gfx_sampler_desc linearSamplerDesc = {};
+            linearSamplerDesc.minFilter           = RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR;
+            linearSamplerDesc.magFilter           = RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR;
+            linearSamplerDesc.mipFilter           = RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR;
+            linearSamplerDesc.addressModeU        = RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP;
+            linearSamplerDesc.addressModeV        = RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP;
+            linearSamplerDesc.addressModeW        = RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP;
+            linearSamplerDesc.maxAnisotropy       = 1;
+            linearSamplerDesc.compareOp           = RZ_GFX_COMPARE_OP_TYPE_NEVER;
+            linearSamplerDesc.minLod              = 0.0f;
+            linearSamplerDesc.maxLod              = 1.0f;
+            linearSamplerDesc.mipLODBias          = 0.0f;
+            m_SamplersPool.linearSampler          = RZResourceManager::Get().createSampler("LinearSampler", linearSamplerDesc);
+
+            // Create a descriptor table for all the samplers
+            rz_gfx_descriptor_table_desc samplerTableDesc = {};
+            samplerTableDesc.tableIndex                   = 1;    // Table 1 is reserved for Samplers
+            samplerTableDesc.pHeap                        = RZResourceManager::Get().getDescriptorHeapResource(m_SamplerHeap);
+            samplerTableDesc.descriptorCount              = 1;
+
+            samplerTableDesc.descriptorCount = 1;
+
+            rz_gfx_descriptor linearSamplerDescriptor = {};
+            linearSamplerDescriptor.pName             = "LinearSampler";
+            linearSamplerDescriptor.type              = RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
+            linearSamplerDescriptor.sizeInBytes       = sizeof(rz_gfx_sampler_desc);
+            linearSamplerDescriptor.location.binding  = 0;
+            linearSamplerDescriptor.location.space    = samplerTableDesc.tableIndex;
+            linearSamplerDescriptor.offsetInBytes     = 0;
+            linearSamplerDescriptor.memberCount       = 1;
+            linearSamplerDescriptor.arraySize         = 1;
+
+            rz_gfx_resource_view_desc samplerViewDesc  = {};
+            samplerViewDesc.descriptorType             = RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
+            samplerViewDesc.samplerViewDesc.pSampler   = RZResourceManager::Get().getSamplerResource(m_SamplersPool.linearSampler);
+            m_SamplersViewPool.linearSampler           = RZResourceManager::Get().createResourceView("LinearSamplerView", samplerViewDesc);
+            rz_gfx_resource_view* linearSamplerViewPtr = RZResourceManager::Get().getResourceViewResource(m_SamplersViewPool.linearSampler);
+
+            rz_gfx_descriptor descriptors[] = {linearSamplerDescriptor};
+            samplerTableDesc.pDescriptors   = descriptors;
+
+            rz_gfx_resource_view resourceViews[] = {*linearSamplerViewPtr};
+            samplerTableDesc.pResourceViews      = resourceViews;
+
+            m_GlobalSamplerTable = RZResourceManager::Get().createDescriptorTable("GlobalSamplerTable", samplerTableDesc);
         }
 
         void RZWorldRenderer::destroy()
@@ -133,7 +205,7 @@ namespace Razix {
             m_FrameCount = 0;
 
             //if (m_LastSwapchainReadback.data) {
-            //    Memory::RZFree(m_LastSwapchainReadback.data);O.
+            //    Memory::RZFree(m_LastSwapchainReadback.data);
             //    m_LastSwapchainReadback.data = NULL;
             //}
 
@@ -157,6 +229,16 @@ namespace Razix {
             m_SkyboxPass.destroy();
             m_CompositePass.destroy();
 #endif
+            // TODO: destroy sampler resource views, could be handled by destroy descriptor table API
+            RZResourceManager::Get().destroyResourceView(m_SamplersViewPool.linearSampler);
+            RZResourceManager::Get().destroySampler(m_SamplersPool.linearSampler);
+            RZResourceManager::Get().destroyDescriptorTable(m_GlobalSamplerTable);
+
+            RZResourceManager::Get().destroyDescriptorHeap(m_RenderTargetHeap);
+            RZResourceManager::Get().destroyDescriptorHeap(m_DepthRenderTargetHeap);
+            RZResourceManager::Get().destroyDescriptorHeap(m_SamplerHeap);
+            RZResourceManager::Get().destroyDescriptorHeap(m_ResourceHeap);
+
             for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
                 RZResourceManager::Get().destroyCommandPool(m_InFlightCmdPool[i]);
                 RZResourceManager::Get().destroyCommandBuffer(m_InFlightDrawCmdBufHandles[i]);

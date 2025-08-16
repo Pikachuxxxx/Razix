@@ -3,6 +3,7 @@
 #include "Razix/Core/RZHandle.h"
 #include "Razix/Gfx/RHI/RHI.h"
 #include "Razix/Gfx/RZGfxDebug.h"
+#include "razix/Gfx/RZShaderUtils.h"
 
 namespace Razix {
     namespace Gfx {
@@ -64,8 +65,9 @@ namespace Razix {
         RAZIX_API void                 EndSingleTimeCommandBuffer(rz_gfx_cmdbuf_handle cmdBuf);
 
         //-----------------------------------------------------------------------------------
-        // Debug Marker Utilities
+        // Texture Utilities (Create/Streaming/Mips/Compression/Decompression etc.)
         //-----------------------------------------------------------------------------------
+        RAZIX_API rz_gfx_texture_handle CreateTextureFromFile(const std::string& filePath, bool floatingPoint = false);
 
         //-----------------------------------------------------------------------------------
         // High-Level Rendering Helper Structs (Future Use)

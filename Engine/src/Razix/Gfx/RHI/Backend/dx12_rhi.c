@@ -644,7 +644,7 @@ static void dx12_create_descriptor_freelist_allocator(rz_gfx_descriptor_heap* he
     RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
     rz_gfx_descriptor_heap_desc* desc = &heap->resource.desc.descriptorHeapDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
-    RAZIX_RHI_ASSERT(heap->resource.desc.descriptorHeapDesc.heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must be of type FREE_LIST");
+    RAZIX_RHI_ASSERT(heap->resource.desc.descriptorHeapDesc.flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must be of type FREE_LIST");
     // Initialize the free list allocator
     heap->freeListAllocator = malloc(sizeof(rz_gfx_descriptor_freelist_allocator));
     RAZIX_RHI_ASSERT(heap->freeListAllocator != NULL, "Failed to allocate memory for free list allocator");
@@ -1110,10 +1110,10 @@ static dx12_resview dx12_create_sampler_view(const rz_gfx_sampler_view_desc* des
     dxsamplerDesc.AddressV           = dx12_util_translate_address_mode(samplerDesc->addressModeV);
     dxsamplerDesc.AddressW           = dx12_util_translate_address_mode(samplerDesc->addressModeW);
     dxsamplerDesc.ComparisonFunc     = dx12_util_compare_func(samplerDesc->compareOp);
-    dxsamplerDesc.BorderColor[0]     = 0.0f;
-    dxsamplerDesc.BorderColor[1]     = 0.0f;
-    dxsamplerDesc.BorderColor[2]     = 0.0f;
-    dxsamplerDesc.BorderColor[3]     = 0.0f;
+    dxsamplerDesc.BorderColor[0]     = 1.0f;
+    dxsamplerDesc.BorderColor[1]     = 1.0f;
+    dxsamplerDesc.BorderColor[2]     = 1.0f;
+    dxsamplerDesc.BorderColor[3]     = 1.0f;
     dxsamplerDesc.MaxAnisotropy      = samplerDesc->maxAnisotropy;
     dxsamplerDesc.MipLODBias         = samplerDesc->mipLODBias;
     dxsamplerDesc.MinLOD             = samplerDesc->minLod;
@@ -1230,6 +1230,23 @@ static void dx12_util_generate_mips(rz_gfx_texture* texture, rz_gfx_texture_desc
 
     RAZIX_RHI_LOG_ERROR("Mip generation is not implemented for D3D12 yet, using mipmaps will cause a catastrophic failure.");
     RAZIX_RHI_ABORT();
+}
+
+static D3D12_RESOURCE_DIMENSION dx12_util_translate_texture_dimension(rz_gfx_texture_type type)
+{
+    switch (type) {
+        case RZ_GFX_TEXTURE_TYPE_1D:
+            return D3D12_RESOURCE_DIMENSION_TEXTURE1D;
+        case RZ_GFX_TEXTURE_TYPE_2D:
+            return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+        case RZ_GFX_TEXTURE_TYPE_3D:
+            return D3D12_RESOURCE_DIMENSION_TEXTURE3D;
+        case RZ_GFX_TEXTURE_TYPE_CUBE:
+            return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+        default:
+            RAZIX_RHI_LOG_ERROR("Unsupported texture type for dimension translation: %d", type);
+            return D3D12_RESOURCE_DIMENSION_UNKNOWN;
+    }
 }
 
 //---------------------------------------------------------------------------------------------
@@ -2126,13 +2143,14 @@ static void dx12_CreateTexture(void* where)
     rz_gfx_texture* texture = (rz_gfx_texture*) where;
     RAZIX_RHI_ASSERT(rz_handle_is_valid(&texture->resource.handle), "Invalid texture handle, who is allocating this? ResourceManager should create a valid handle");
     rz_gfx_texture_desc* desc = &texture->resource.desc.textureDesc;
-    RAZIX_RHI_ASSERT(desc = NULL, "Texture descriptor cannot be NULL");
+    RAZIX_RHI_ASSERT(desc != NULL, "Texture descriptor cannot be NULL");
     RAZIX_RHI_ASSERT(desc->width > 0 && desc->height > 0 && desc->depth > 0, "Texture dimensions must be greater than zero");
 
     // Maintain a second copy of hints...Ahhh...
     texture->resource.viewHints = desc->resourceHints;
 
     D3D12_RESOURCE_DESC resDesc = {0};
+    resDesc.Dimension           = dx12_util_translate_texture_dimension(desc->textureType);
     resDesc.Width               = desc->width;
     resDesc.Height              = desc->height;
     resDesc.DepthOrArraySize    = desc->depth;
@@ -2198,6 +2216,7 @@ static void dx12_DestroySampler(void* sampler)
     rz_gfx_sampler* sam = (rz_gfx_sampler*) sampler;
     // In D3D12, samplers are not standalone objects, so there's nothing to release here.
     // They are managed by the descriptor heaps and bound to the pipeline state.
+    // Destroying the descriptor heap will clean up the samplers.
 }
 
 static void dx12_CreateDescriptorHeap(void* where)
@@ -2230,12 +2249,18 @@ static void dx12_CreateDescriptorHeap(void* where)
 
     // cache the CPU/GPU offsets
     ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(heap->dx12.heap, &heap->dx12.heapStart.cpu);
-    ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(heap->dx12.heap, &heap->dx12.heapStart.gpu);
+    if (desc->flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE) {
+        // If the heap is shader visible, we need to get the GPU handle as well
+        ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(heap->dx12.heap, &heap->dx12.heapStart.gpu);
+    }
+
+    RAZIX_RHI_LOG_INFO("Descriptor memory backing (ringbuffer): %d", desc->flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER);
+    RAZIX_RHI_LOG_INFO("Descriptor memory backing (freelist): %d", desc->flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST);
 
     // Create backing for allocation based on free list vs ring buffer
-    if (desc->heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST)
+    if ((desc->flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST) == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST) {
         dx12_create_descriptor_freelist_allocator(heap);
-    else if (desc->heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER) {
+    } else if ((desc->flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER) == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER) {
         heap->ringBufferHead = 0;
         heap->ringBufferTail = 0;
         heap->isFull         = false;
@@ -2335,10 +2360,18 @@ static void dx12_CreateDescriptorTable(void* where)
     RAZIX_RHI_ASSERT(pDesc->pResourceViews != NULL, "Descriptor table cannot have NULL resource views");
     RAZIX_RHI_ASSERT(pDesc->pHeap != NULL, "Descriptor tables needs a heap to create the table");
 
+    pTable->pResourceViewHandles = malloc(pDesc->descriptorCount * sizeof(dx12_descriptor_handles));
+    RAZIX_RHI_ASSERT(pTable->pResourceViewHandles != NULL, "Failed to allocate memory for resource view handles in descriptor table");
+
     for (uint32_t i = 0; i < pDesc->descriptorCount; i++) {
         const rz_gfx_descriptor*         pDescriptor = &pDesc->pDescriptors[i];
         const rz_gfx_resource_view*      pView       = &pDesc->pResourceViews[i];
         const rz_gfx_resource_view_desc* pViewDesc   = &pView->resource.desc.resourceViewDesc;
+        RAZIX_RHI_ASSERT(pDescriptor != NULL, "Descriptor cannot be NULL in a descriptor table! (Descriptor Table creation)");
+        RAZIX_RHI_ASSERT(pView != NULL, "Resource view cannot be NULL in a descriptor table! (Descriptor Table creation)");
+        RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL in a descriptor table! (Descriptor Table creation)");
+
+        pTable->pResourceViewHandles[i] = pView->resource.handle;
 
         RAZIX_RHI_ASSERT(pDescriptor->location.space == pDesc->tableIndex, "Resource Space and Table Index mismatch! check your descriptors and table definitions again.");
 
@@ -2406,6 +2439,10 @@ static void dx12_DestroyDescriptorTable(void* where)
     }
 
     // Note: destroy the resource views before you destroy the table
+    if (pTable->pResourceViewHandles) {
+        free(pTable->pResourceViewHandles);
+        pTable->pResourceViewHandles = NULL;
+    }
 }
 
 //---------------------------------------------------------------------------------------------
@@ -2552,11 +2589,6 @@ static void dx12_BindPipeline(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_pipeline
     ID3D12GraphicsCommandList_SetPipelineState(cmdBuf->dx12.cmdList, pso->dx12.pso);
 }
 
-static void dx12_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
-{
-    ID3D12GraphicsCommandList_DrawInstanced(cmdBuf->dx12.cmdList, vertexCount, instanceCount, firstVertex, firstInstance);
-}
-
 static void dx12_BindGfxRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_signature* rootSig)
 {
     ID3D12GraphicsCommandList_SetGraphicsRootSignature(cmdBuf->dx12.cmdList, rootSig->dx12.rootSig);
@@ -2567,6 +2599,43 @@ static void dx12_BindComputeRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_ro
     ID3D12GraphicsCommandList_SetComputeRootSignature(cmdBuf->dx12.cmdList, rootSig->dx12.rootSig);
 }
 
+static void dx12_BindDescriptorHeaps(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_descriptor_heap** heaps, uint32_t heapCount)
+{
+    RAZIX_RHI_ASSERT(heaps != NULL, "Heaps cannot be NULL");
+    RAZIX_RHI_ASSERT(heapCount > 0 && heapCount <= RAZIX_MAX_ALLOWED_HEAPS_TO_BIND, "Invalid heap count: %d. Must be between 1 and %d", heapCount, RAZIX_MAX_ALLOWED_HEAPS_TO_BIND);
+
+    ID3D12DescriptorHeap* dx12Heaps[RAZIX_MAX_ALLOWED_HEAPS_TO_BIND] = {0};
+    for (uint32_t i = 0; i < heapCount; ++i) {
+        dx12Heaps[i] = heaps[i]->dx12.heap;
+    }
+    ID3D12GraphicsCommandList_SetDescriptorHeaps(cmdBuf->dx12.cmdList, heapCount, dx12Heaps);
+}
+
+static void dx12_BindDescriptorTables(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type pipelineType, const rz_gfx_descriptor_table** tables, uint32_t tableCount)
+{
+    RAZIX_RHI_ASSERT(tables != NULL, "Tables cannot be NULL");
+    RAZIX_RHI_ASSERT(tableCount > 0 && tableCount <= RAZIX_MAX_ALLOWED_TABLES_TO_BIND, "Invalid table count: %d. Must be between 1 and %d", tableCount, RAZIX_MAX_ALLOWED_TABLES_TO_BIND);
+
+    ID3D12DescriptorHeap* dx12Heaps[RAZIX_MAX_ALLOWED_TABLES_TO_BIND] = {0};
+    for (uint32_t i = 0; i < tableCount; ++i) {
+        dx12Heaps[i] = tables[i]->resource.desc.descriptorTableDesc.pHeap->dx12.heap;
+        if (pipelineType == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
+            ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(cmdBuf->dx12.cmdList, tables[i]->resource.desc.descriptorTableDesc.tableIndex, tables[i]->dx12.heapOffset.gpu);
+        else if (pipelineType == RZ_GFX_PIPELINE_TYPE_COMPUTE)
+            ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(cmdBuf->dx12.cmdList, tables[i]->resource.desc.descriptorTableDesc.tableIndex, tables[i]->dx12.heapOffset.gpu);
+        else
+            RAZIX_RHI_LOG_ERROR("Unsupported pipeline type for binding descriptor tables: %d", pipelineType);
+    }
+}
+
+static void dx12_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(vertexCount > 0, "Vertex count must be greater than zero");
+    RAZIX_RHI_ASSERT(instanceCount > 0, "Instance count must be greater than zero");
+
+    ID3D12GraphicsCommandList_DrawInstanced(cmdBuf->dx12.cmdList, vertexCount, instanceCount, firstVertex, firstInstance);
+}
 // ...
 
 static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
@@ -2778,8 +2847,6 @@ rz_rhi_api dx12_rhi = {
     .DestroyTexture         = dx12_DestroyTexture,            // DestroyTexture
     .CreateSampler          = dx12_CreateSampler,             // CreateSampler
     .DestroySampler         = dx12_DestroySampler,            // DestroySampler
-    .CreateDescriptorHeap   = dx12_CreateDescriptorHeap,      // CreateDescriptorHeap
-    .DestroyDescriptorHeap  = dx12_DestroyDescriptorHeap,     // DestroyDescriptorHeap
     .CreateResourceView     = dx12_CreateResourceView,        // CreateResourceView
     .DestroyResourceView    = dx12_DestroyResourceView,       // DestroyResourceView
     .CreateDescriptorHeap   = dx12_CreateDescriptorHeap,      // CreateDescriptorHeap
@@ -2787,19 +2854,21 @@ rz_rhi_api dx12_rhi = {
     .CreateDescriptorTable  = dx12_CreateDescriptorTable,     // CreateDescriptorTable
     .DestroyDescriptorTable = dx12_DestroyDescriptorTable,    // DestroyDescriptorTable
 
-    .AcquireImage       = dx12_AcquireImage,          // AcquireImage
-    .WaitOnPrevCmds     = dx12_WaitOnPrevCmds,        // WaitOnPrevCmds
-    .Present            = dx12_Present,               // Present
-    .BeginCmdBuf        = dx12_BeginCmdBuf,           // BeginCmdBuf
-    .EndCmdBuf          = dx12_EndCmdBuf,             // EndCmdBuf
-    .SubmitCmdBuf       = dx12_SubmitCmdBuf,          // SubmitCmdBuf
-    .BeginRenderPass    = dx12_BeginRenderPass,       // BeginRenderPass
-    .EndRenderPass      = dx12_EndRenderPass,         // EndRenderPass
-    .SetViewport        = dx12_SetViewport,           // SetViewport
-    .SetScissorRect     = dx12_SetScissorRect,        // SetScissorRect
-    .BindPipeline       = dx12_BindPipeline,          // BindPipeline
-    .BindGfxRootSig     = dx12_BindGfxRootSig,        // BindGfxRootSig
-    .BindComputeRootSig = dx12_BindComputeRootSig,    // BindComputeRootSig
+    .AcquireImage         = dx12_AcquireImage,           // AcquireImage
+    .WaitOnPrevCmds       = dx12_WaitOnPrevCmds,         // WaitOnPrevCmds
+    .Present              = dx12_Present,                // Present
+    .BeginCmdBuf          = dx12_BeginCmdBuf,            // BeginCmdBuf
+    .EndCmdBuf            = dx12_EndCmdBuf,              // EndCmdBuf
+    .SubmitCmdBuf         = dx12_SubmitCmdBuf,           // SubmitCmdBuf
+    .BeginRenderPass      = dx12_BeginRenderPass,        // BeginRenderPass
+    .EndRenderPass        = dx12_EndRenderPass,          // EndRenderPass
+    .SetViewport          = dx12_SetViewport,            // SetViewport
+    .SetScissorRect       = dx12_SetScissorRect,         // SetScissorRect
+    .BindPipeline         = dx12_BindPipeline,           // BindPipeline
+    .BindGfxRootSig       = dx12_BindGfxRootSig,         // BindGfxRootSig
+    .BindComputeRootSig   = dx12_BindComputeRootSig,     // BindComputeRootSig
+    .BindDescriptorTables = dx12_BindDescriptorTables,    // BindDescriptorTable
+    .BindDescriptorHeaps  = dx12_BindDescriptorHeaps,    // BindDescriptorHeaps
 
     .DrawAuto              = dx12_DrawAuto,                 // DrawAuto
     .InsertImageBarrier    = dx12_InsertImageBarrier,       // InsertImageBarrier

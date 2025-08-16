@@ -40,6 +40,8 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         ReflectShaderBlobBackendFn GetShaderReflectionFunction();
+        void                       FreeShaderReflectionMemAllocs(rz_gfx_shader_reflection* reflection);
+        void                       CopyReflectedRootSigDesc(const rz_gfx_shader_reflection* src, rz_gfx_root_signature_desc* dst);
 
     }    // namespace Gfx
 }    // namespace Razix

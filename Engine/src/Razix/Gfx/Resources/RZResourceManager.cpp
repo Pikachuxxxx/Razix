@@ -95,12 +95,21 @@ namespace Razix {
             rzRHI_CreateShader(where);
 
             // Reflect the shader resource to get the shader reflection data
-            rz_gfx_shader_reflection reflection = Gfx::ReflectShader(shader);
+            rz_gfx_shader_reflection   reflection  = Gfx::ReflectShader(shader);
+            rz_gfx_root_signature_desc rootSigDesc = {};
+            Gfx::CopyReflectedRootSigDesc(&reflection, &rootSigDesc);
+
+            // Or we can cache the reflection data in the shader resource itself
+            // Or in a BindMap and also store the descriptor table information and all this
 
             // create root signature
             reflection.rootSignatureDesc;
             auto rootSigName      = "RootSignature_" + std::string(shader->resource.pName);
-            shader->rootSignature = RZResourceManager::Get().createRootSignature(rootSigName.c_str(), reflection.rootSignatureDesc);
+            shader->rootSignature = RZResourceManager::Get().createRootSignature(rootSigName.c_str(), rootSigDesc);
+
+            // Any intermediate memory allocations made by the reflection process should be freed
+            // But this will also delete some of the root sig desc data
+            Gfx::FreeShaderReflectionMemAllocs(&reflection);
         }
 
         static void DestroyShaderWithRootSigOverrideFunv(void* ptr)
@@ -108,8 +117,8 @@ namespace Razix {
             rz_gfx_shader* shaderPtr = (rz_gfx_shader*) ptr;
             // Free bytecode memory, since we allocate it
             FreeRZSFBytecodeAlloc(shaderPtr);
+            // Free root sig (since it's allocated by ParseRZSF we ask it to delete it)
             RZResourceManager::Get().destroyRootSignature(shaderPtr->rootSignature);
-            // Free root sig memory (since it's allocated by ParseRZSF we ask it to delete it
         }
 
         //-----------------------------------------------------------------------------------
@@ -123,8 +132,8 @@ namespace Razix {
             RAZIX_INIT_RESOURCE_POOL(ResourceView, RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW, 65536, sizeof(rz_gfx_resource_view), rzRHI_CreateResourceView, rzRHI_DestroyResourceView);
 
             // Initialize all the Pools
-            RAZIX_INIT_RESOURCE_POOL(Texture, RZ_GFX_RESOURCE_TYPE_TEXTURE, 2048, sizeof(rz_gfx_texture), NULL, NULL);
-            //RAZIX_INIT_RESOURCE_POOL(Sampler, 32)
+            RAZIX_INIT_RESOURCE_POOL(Texture, RZ_GFX_RESOURCE_TYPE_TEXTURE, 2048, sizeof(rz_gfx_texture), rzRHI_CreateTexture, rzRHI_DestroyTexture);
+            RAZIX_INIT_RESOURCE_POOL(Sampler, RZ_GFX_RESOURCE_TYPE_SAMPLER, 64, sizeof(rz_gfx_sampler), rzRHI_CreateSampler, rzRHI_DestroySampler);
             RAZIX_INIT_RESOURCE_POOL(Shader, RZ_GFX_RESOURCE_TYPE_SHADER, 512, sizeof(rz_gfx_shader), RZSFCreateOverrideFunc, DestroyShaderWithRootSigOverrideFunv);
             RAZIX_INIT_RESOURCE_POOL(RootSignature, RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE, 512, sizeof(rz_gfx_root_signature), rzRHI_CreateRootSignature, rzRHI_DestroyRootSignature);
             RAZIX_INIT_RESOURCE_POOL(Pipeline, RZ_GFX_RESOURCE_TYPE_PIPELINE, 512, sizeof(rz_gfx_pipeline), rzRHI_CreatePipeline, rzRHI_DestroyPipeline);
@@ -144,7 +153,7 @@ namespace Razix {
             // Destroy all the Pools
             ////////////////////////////////
             RAZIX_UNREGISTER_RESOURCE_POOL(Texture);
-            //RAZIX_UNREGISTER_RESOURCE_POOL(Sampler)
+            RAZIX_UNREGISTER_RESOURCE_POOL(Sampler)
             RAZIX_UNREGISTER_RESOURCE_POOL(Shader);
             RAZIX_UNREGISTER_RESOURCE_POOL(RootSignature);
             RAZIX_UNREGISTER_RESOURCE_POOL(Pipeline);
@@ -162,23 +171,23 @@ namespace Razix {
 
         //-----------------------------------------------------------------------------------
 
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(ResourceView, RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW, rz_gfx_resource_view)
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(ResourceView, RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW, rz_gfx_resource_view);
 
         //-----------------------------------------------------------------------------------
 
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Texture, RZ_GFX_RESOURCE_TYPE_TEXTURE, rz_gfx_texture) 
-        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Sampler, const RZSamplerDesc& desc)
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Shader, RZ_GFX_RESOURCE_TYPE_SHADER, rz_gfx_shader)
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(RootSignature, RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE, rz_gfx_root_signature)
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Pipeline, RZ_GFX_RESOURCE_TYPE_PIPELINE, rz_gfx_pipeline)
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Texture, RZ_GFX_RESOURCE_TYPE_TEXTURE, rz_gfx_texture);
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Sampler, RZ_GFX_RESOURCE_TYPE_SAMPLER, rz_gfx_sampler);
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Shader, RZ_GFX_RESOURCE_TYPE_SHADER, rz_gfx_shader);
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(RootSignature, RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE, rz_gfx_root_signature);
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Pipeline, RZ_GFX_RESOURCE_TYPE_PIPELINE, rz_gfx_pipeline);
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(UniformBuffer, const RZBufferDesc& desc)
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(VertexBuffer, const RZBufferDesc& desc)
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(IndexBuffer, const RZBufferDesc& desc)
         //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(DescriptorSet, const RZDescriptorSetDesc& desc)
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(CommandPool, RZ_GFX_RESOURCE_TYPE_CMD_POOL, rz_gfx_cmdpool)
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(CommandBuffer, RZ_GFX_RESOURCE_TYPE_CMD_BUFFER, rz_gfx_cmdbuf)
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(DescriptorHeap, RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_HEAP, rz_gfx_descriptor_heap)
-        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(DescriptorTable, RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_TABLE, rz_gfx_descriptor_table)
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(CommandPool, RZ_GFX_RESOURCE_TYPE_CMD_POOL, rz_gfx_cmdpool);
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(CommandBuffer, RZ_GFX_RESOURCE_TYPE_CMD_BUFFER, rz_gfx_cmdbuf);
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(DescriptorHeap, RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_HEAP, rz_gfx_descriptor_heap);
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(DescriptorTable, RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_TABLE, rz_gfx_descriptor_table);
 
         //-----------------------------------------------------------------------------------
 

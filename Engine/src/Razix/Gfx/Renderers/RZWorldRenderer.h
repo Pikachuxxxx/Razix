@@ -123,6 +123,12 @@ namespace Razix {
             inline const rz_gfx_resource_view* getCurrSwapchainBackbufferResViewPtr() const { return &m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx]; }
             inline rz_gfx_resource_view_handle getCurrSwapchainBackbufferResViewHandle() const { return m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx].resource.handle; }
 
+            inline rz_gfx_descriptor_heap_handle   getRenderTargetHeap() const { return m_RenderTargetHeap; }
+            inline rz_gfx_descriptor_heap_handle   getDepthRenderTargetHeap() const { return m_DepthRenderTargetHeap; }
+            inline rz_gfx_descriptor_heap_handle   getSamplerHeap() const { return m_SamplerHeap; }
+            inline rz_gfx_descriptor_heap_handle   getResourceHeap() const { return m_ResourceHeap; }
+            inline rz_gfx_descriptor_table_handle& getGlobalSamplerTable() { return m_GlobalSamplerTable; }
+
         private:
             RZFrameGraph m_FrameGraph;
             //rz_texture_handle m_BRDFfLUTTextureHandle;
@@ -170,10 +176,35 @@ namespace Razix {
                     };
                 } frameSync;    // supports both timeline and fences in vulkan based on VK_KHR_timeline_semaphore availability
             } m_RenderSync;
-            rz_gfx_swapchain      m_Swapchain;
-            rz_gfx_cmdpool_handle m_InFlightCmdPool[RAZIX_MAX_FRAMES_IN_FLIGHT];
-            rz_gfx_cmdbuf_handle  m_InFlightDrawCmdBufHandles[RAZIX_MAX_FRAMES_IN_FLIGHT];
-            const rz_gfx_cmdbuf*  m_InFlightDrawCmdBufPtrs[RAZIX_MAX_FRAMES_IN_FLIGHT];    // Caching at start because we re-use raw pointers so frequently
+            rz_gfx_swapchain              m_Swapchain;
+            rz_gfx_cmdpool_handle         m_InFlightCmdPool[RAZIX_MAX_FRAMES_IN_FLIGHT];
+            rz_gfx_cmdbuf_handle          m_InFlightDrawCmdBufHandles[RAZIX_MAX_FRAMES_IN_FLIGHT];
+            const rz_gfx_cmdbuf*          m_InFlightDrawCmdBufPtrs[RAZIX_MAX_FRAMES_IN_FLIGHT];    // Caching at start because we re-use raw pointers so frequently
+            rz_gfx_descriptor_heap_handle m_RenderTargetHeap;
+            rz_gfx_descriptor_heap_handle m_DepthRenderTargetHeap;
+            rz_gfx_descriptor_heap_handle m_SamplerHeap;
+            rz_gfx_descriptor_heap_handle m_ResourceHeap;
+
+            struct SamplersPool
+            {
+                rz_gfx_sampler_handle linearSampler;
+                rz_gfx_sampler_handle pointSampler;
+                rz_gfx_sampler_handle mipSampler;
+                rz_gfx_sampler_handle anisotropicSampler;
+                rz_gfx_sampler_handle shadowSampler;
+                rz_gfx_sampler_handle shadowPCFSampler;
+            } m_SamplersPool;
+
+            struct SamplersViewPool
+            {
+                rz_gfx_resource_view_handle linearSampler;
+                rz_gfx_resource_view_handle pointSampler;
+                rz_gfx_resource_view_handle mipSampler;
+                rz_gfx_resource_view_handle anisotropicSampler;
+                rz_gfx_resource_view_handle shadowSampler;
+                rz_gfx_resource_view_handle shadowPCFSampler;
+            } m_SamplersViewPool;
+            rz_gfx_descriptor_table_handle m_GlobalSamplerTable;
 
         private:
             //void importGlobalLightProbes(LightProbe globalLightProbe);

@@ -13,6 +13,7 @@
 #include "Razix/Gfx/RZShaderUtils.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
+#include "Razix/Utilities/RZLoadImage.h"
 #include "Razix/Utilities/RZStringUtilities.h"
 
 namespace Razix {
@@ -470,5 +471,47 @@ namespace Razix {
             RZResourceManager::Get().destroyCommandPool((rz_gfx_cmdpool_handle) cmdBufRes->resource.desc.cmdbufDesc.pool->resource.handle);
         }
 
+        RAZIX_API rz_gfx_texture_handle CreateTextureFromFile(const std::string& filePath, bool floatingPoint)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            rz_gfx_texture_handle textureHandle = {};
+
+            // Check if the file exists
+            if (filePath.empty()) {
+                RAZIX_CORE_ERROR("[Texture] File path is empty!");
+                return textureHandle;
+            }
+
+            std::string physicalPath;
+            if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, physicalPath)) {
+                RAZIX_CORE_ERROR("[Texture] File not found: {0}", filePath);
+                return textureHandle;
+            }
+            // Create texture descriptor
+            rz_gfx_texture_desc textureDesc = {};
+            if (!floatingPoint) {
+                uint32_t bpp          = 0;
+                textureDesc.pixelData = Razix::Utilities::LoadImageData(physicalPath.c_str(), &textureDesc.width, &textureDesc.height, &bpp);
+            }
+            textureDesc.mipLevels     = rzRHI_GetMipLevelCount(textureDesc.width, textureDesc.height);
+            textureDesc.depth         = 1;
+            textureDesc.arraySize     = 1;
+            textureDesc.textureType   = RZ_GFX_TEXTURE_TYPE_2D;
+            textureDesc.format        = floatingPoint ? RZ_GFX_FORMAT_R32G32B32A32_FLOAT : RZ_GFX_FORMAT_R8G8B8A8_UNORM;
+            textureDesc.resourceHints = RZ_GFX_RESOURCE_VIEW_FLAG_SRV;
+            // Load the texture from file
+            textureHandle = RZResourceManager::Get().createTexture(Utilities::GetFileName(filePath).c_str(), textureDesc);
+
+            if (!rz_handle_is_valid(&textureHandle)) {
+                RAZIX_CORE_ERROR("[Texture] Failed to create texture from file: {0}", filePath);
+                return textureHandle;
+            }
+
+            if (textureDesc.pixelData)
+                free(textureDesc.pixelData);
+
+            return textureHandle;
+        }
     }    // namespace Gfx
 }    // namespace Razix

@@ -179,7 +179,10 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define RAZIX_MAX_ROOT_CONSTANTS                 2
 #define RAZIX_MAX_VERTEX_ATTRIBUTES              32
 #define RAZIX_INITIAL_DESCRIPTOR_NUM_FREE_RANGES 16
-#define RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT      256    // 256 bytes is the minimum alignment for constant buffers in Vulkan and D3D12
+#define RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT      256                                  // 256 bytes is the minimum alignment for constant buffers in Vulkan and D3D12
+#define RAZIX_MAX_ALLOWED_HEAPS_TO_BIND          RZ_GFX_DESCRIPTOR_HEAP_TYPE_COUNT    // Maximum number of heaps that can be bound at once
+#define RAZIX_MAX_ALLOWED_TABLES_TO_BIND         16                                   // Maximum number of descriptor tables that can be bound at once
+#define RAZIX_RESOURCE_VIEW_DIMENSION_FULL       0xffffffff
 
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX "PushConstant"
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_VK     RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX
@@ -762,6 +765,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     {
         rz_gfx_descriptor_type  descriptorType;
         rz_gfx_descriptor_heap* pRtvDsvHeap;    // Only use it to create RTV/DSV immediately
+        // We could the same for samplers too, but unless we use Immutable or Bindless Sampler, we need a descriptor table to bind samplers
         union
         {
             rz_gfx_buffer_view_desc  bufferViewDesc;
@@ -825,7 +829,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t                tableIndex;
         uint32_t                descriptorCount;
         rz_gfx_descriptor*      pDescriptors;
-        rz_gfx_resource_view*   pResourceViews;    // temporary, we cache the handles that the user can free during descriptor table destruction
+        rz_gfx_resource_view*   pResourceViews;    // Only for temporary table creation, we cache the handles that the user can free during descriptor table destruction
         rz_gfx_descriptor_heap* pHeap;
     } rz_gfx_descriptor_table_desc;
 
@@ -1382,6 +1386,9 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_BindGfxRootSigFn)(const rz_gfx_cmdbuf*, const rz_gfx_root_signature*);
     typedef void (*rzRHI_BindComputeRootSigFn)(const rz_gfx_cmdbuf*, const rz_gfx_root_signature*);
 
+    typedef void (*rzRHI_BindDescriptorHeapsFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_descriptor_heap**, uint32_t);
+    typedef void (*rzRHI_BindDescriptorTablesFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type, rz_gfx_descriptor_table**, uint32_t);
+
     typedef void (*rzRHI_DrawAutoFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t, uint32_t);
 
     typedef void (*rzRHI_UpdateDescriptorTableFn)(rz_gfx_descriptor_table*, rz_gfx_resource_view*, uint32_t);
@@ -1440,6 +1447,8 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_BindPipelineFn          BindPipeline;
         rzRHI_BindGfxRootSigFn        BindGfxRootSig;
         rzRHI_BindComputeRootSigFn    BindComputeRootSig;
+        rzRHI_BindDescriptorHeapsFn   BindDescriptorHeaps;
+        rzRHI_BindDescriptorTablesFn  BindDescriptorTables;
         rzRHI_DrawAutoFn              DrawAuto;
         rzRHI_InsertImageBarrierFn    InsertImageBarrier;
         rzRHI_InsertTextureReadbackFn InsertTextureReadback;
@@ -1494,19 +1503,34 @@ static inline unsigned int rz_clz32(unsigned int x)
 
 #if !RZ_PROFILER_ENABLED
     #if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
-        #define rzRHI_AcquireImage                                  g_RHI.AcquireImage
-        #define rzRHI_WaitOnPrevCmds                                g_RHI.WaitOnPrevCmds
-        #define rzRHI_Present                                       g_RHI.Present
-        #define rzRHI_BeginCmdBuf(cb)                               g_RHI.BeginCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
-        #define rzRHI_EndCmdBuf(cb)                                 g_RHI.EndCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
-        #define rzRHI_SubmitCmdBuf(cb)                              g_RHI.SubmitCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
-        #define rzRHI_BeginRenderPass(cb, info)                     g_RHI.BeginRenderPass(RZResourceManager::Get().getCommandBufferResource(cb), info)
-        #define rzRHI_EndRenderPass(cb)                             g_RHI.EndRenderPass(RZResourceManager::Get().getCommandBufferResource(cb))
-        #define rzRHI_SetScissorRect(cb, viewport)                  g_RHI.SetScissorRect(RZResourceManager::Get().getCommandBufferResource(cb), viewport)
-        #define rzRHI_SetViewport(cb, rect)                         g_RHI.SetViewport(RZResourceManager::Get().getCommandBufferResource(cb), rect)
-        #define rzRHI_BindPipeline(cb, pp)                          g_RHI.BindPipeline(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getPipelineResource(pp))
-        #define rzRHI_BindGfxRootSig(cb, rs)                        g_RHI.BindGfxRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs))
-        #define rzRHI_BindComputeRootSig(cb, rs)                    g_RHI.BindComputeRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs))
+        #define rzRHI_AcquireImage                 g_RHI.AcquireImage
+        #define rzRHI_WaitOnPrevCmds               g_RHI.WaitOnPrevCmds
+        #define rzRHI_Present                      g_RHI.Present
+        #define rzRHI_BeginCmdBuf(cb)              g_RHI.BeginCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
+        #define rzRHI_EndCmdBuf(cb)                g_RHI.EndCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
+        #define rzRHI_SubmitCmdBuf(cb)             g_RHI.SubmitCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
+        #define rzRHI_BeginRenderPass(cb, info)    g_RHI.BeginRenderPass(RZResourceManager::Get().getCommandBufferResource(cb), info)
+        #define rzRHI_EndRenderPass(cb)            g_RHI.EndRenderPass(RZResourceManager::Get().getCommandBufferResource(cb))
+        #define rzRHI_SetScissorRect(cb, viewport) g_RHI.SetScissorRect(RZResourceManager::Get().getCommandBufferResource(cb), viewport)
+        #define rzRHI_SetViewport(cb, rect)        g_RHI.SetViewport(RZResourceManager::Get().getCommandBufferResource(cb), rect)
+        #define rzRHI_BindPipeline(cb, pp)         g_RHI.BindPipeline(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getPipelineResource(pp))
+        #define rzRHI_BindGfxRootSig(cb, rs)       g_RHI.BindGfxRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs))
+        #define rzRHI_BindComputeRootSig(cb, rs)   g_RHI.BindComputeRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs))
+        #define rzRHI_BindDescriptorHeaps(cb, heapHandles, N)                                                \
+            do {                                                                                             \
+                rz_gfx_descriptor_heap* _heaps[N];                                                           \
+                for (uint32_t i = 0; i < N; i++)                                                             \
+                    _heaps[i] = RZResourceManager::Get().getDescriptorHeapResource(heaps);                   \
+                g_RHI.BindDescriptorHeaps(RZResourceManager::Get().getCommandBufferResource(cb), _heaps, N); \
+            } while (0);
+        #define rzRHI_BindDescriptorTables(cb, ppt, dts, N)                                                      \
+            do {                                                                                                 \
+                rz_gfx_descriptor_table* dts[N];                                                                 \
+                for (uint32_t i = 0; i < N; i++)                                                                 \
+                    _dts[i] = RZResourceManager::Get().getDescriptorTableResource(dts);                          \
+                g_RHI.BindDescriptorTables(RZResourceManager::Get().getCommandBufferResource(cb), ppt, _dts, N); \
+            } while (0);
+
         #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                  g_RHI.DrawAuto(RZResourceManager::Get().getCommandBufferResource(cb), vc, ic, fv, fi)
         #define rzRHI_InsertImageBarrier(cb, text, bs, as)          g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(text), bs, as)
         #define rzRHI_InsertSwapchainImageBarrier(cb, text, bs, as) g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), text, bs, as)
@@ -1531,6 +1555,8 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_BindPipeline                g_RHI.BindPipeline
         #define rzRHI_BindGfxRootSig              g_RHI.BindGfxRootSig
         #define rzRHI_BindComputeRootSig          g_RHI.BindComputeRootSig
+        #define rzRHI_BindDescriptorHeaps         g_RHI.BindDescriptorHeaps
+        #define rzRHI_BindDescriptorTables        g_RHI.BindDescriptorTables
         #define rzRHI_DrawAuto                    g_RHI.DrawAuto
         #define rzRHI_InsertImageBarrier          g_RHI.InsertImageBarrier
         #define rzRHI_InsertSwapchainImageBarrier g_RHI.InsertImageBarrier
@@ -1619,6 +1645,23 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC("rzRHI_BindComputeRootSig", RZ_PROFILE_COLOR_RHI_PIPELINE_BINDS);                                                  \
                 g_RHI.BindComputeRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs)); \
             } while (0)
+        #define rzRHI_BindDescriptorHeaps(cb, heapHandles, N)                                                \
+            do {                                                                                             \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorHeaps", RZ_PROFILE_COLOR_RHI_DRAW_CALLS);          \
+                rz_gfx_descriptor_heap* _heaps[N];                                                           \
+                for (uint32_t i = 0; i < N; i++)                                                             \
+                    _heaps[i] = RZResourceManager::Get().getDescriptorHeapResource(heaps[i]);                \
+                g_RHI.BindDescriptorHeaps(RZResourceManager::Get().getCommandBufferResource(cb), _heaps, N); \
+            } while (0);
+
+        #define rzRHI_BindDescriptorTables(cb, ppt, dts, N)                                                      \
+            do {                                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorTables", RZ_PROFILE_COLOR_RHI_DRAW_CALLS);             \
+                rz_gfx_descriptor_table* _dts[N];                                                                \
+                for (uint32_t i = 0; i < N; i++)                                                                 \
+                    _dts[i] = RZResourceManager::Get().getDescriptorTableResource(dts[i]);                       \
+                g_RHI.BindDescriptorTables(RZResourceManager::Get().getCommandBufferResource(cb), ppt, _dts, N); \
+            } while (0);
 
         #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                                                     \
             do {                                                                                       \
@@ -1773,20 +1816,28 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC_END();                                                            \
             } while (0)
 
-        #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                                       \
-            do {                                                                         \
-                RAZIX_PROFILE_SCOPEC("rzRHI_DrawAuto", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
-                g_RHI.DrawAuto(cb, vc, ic, fv, fi);                                      \
-                RAZIX_PROFILE_SCOPEC_END();                                              \
-            } while (0)
-
+        #define rzRHI_BindDescriptorHeaps(cb, heaps, N)                                             \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorHeaps", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.BindDescriptorHeaps(cb, heaps, N);                                            \
+            } while (0);
+        #define rzRHI_BindDescriptorTables(cb, ppt, dts, N)                                          \
+            do {                                                                                     \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorTables", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.BindDescriptorTables(cb, ppt, dts, N);                                         \
+            } while (0);
         #define rzRHI_InsertImageBarrier(cb, tex, bs, as)                                                 \
             do {                                                                                          \
                 RAZIX_PROFILE_SCOPEC("rzRHI_InsertImageBarrier", RZ_PROFILE_COLOR_RHI_RESOURCE_BARRIERS); \
                 g_RHI.InsertImageBarrier(cb, tex, bs, as);                                                \
                 RAZIX_PROFILE_SCOPEC_END();                                                               \
             } while (0)
-
+        #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                                       \
+            do {                                                                         \
+                RAZIX_PROFILE_SCOPEC("rzRHI_DrawAuto", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.DrawAuto(cb, vc, ic, fv, fi);                                      \
+                RAZIX_PROFILE_SCOPEC_END();                                              \
+            } while (0)
         #define rzRHI_InsertSwapchainImageBarrier(cb, tex, bs, as)                                                 \
             do {                                                                                                   \
                 RAZIX_PROFILE_SCOPEC("rzRHI_InsertSwapchainImageBarrier", RZ_PROFILE_COLOR_RHI_RESOURCE_BARRIERS); \

@@ -64,8 +64,8 @@ private:                                                                        
             /* Handles Resource Allocation functions */
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(Texture, rz_gfx_texture)
-            // //-----------------------------------------------------------------------------------
-            // RAZIX_REGISTER_RESOURCE_POOL(sampler, const RZSamplerDesc& desc)
+            //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(Sampler, rz_gfx_sampler)
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(Shader, rz_gfx_shader)
             //-----------------------------------------------------------------------------------
