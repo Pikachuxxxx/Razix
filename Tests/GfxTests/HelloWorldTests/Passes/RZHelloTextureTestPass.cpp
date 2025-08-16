@@ -134,11 +134,10 @@ namespace Razix {
 
         void RZHelloTextureTestPass::destroy()
         {
-            // TODO: Collapse destroy resource view into descriptor table
-            RZResourceManager::Get().destroyResourceView(m_DescriptorTable);
-            // TODO: Collapse destroy descriptor table into shader
-            RZResourceManager::Get().destroyDescriptorTable(m_TestTextureViewHandle);
+            // TODO: Collapse destroy descriptor tables to get them from a GlobalShaderBindMap --> for pass resource binding these manage the lifetime of the descriptor tables
+            RZResourceManager::Get().destroyDescriptorTable(m_DescriptorTable);
             RZResourceManager::Get().destroyShader(m_Shader);
+            RZResourceManager::Get().destroyResourceView(m_TestTextureViewHandle);
             RZResourceManager::Get().destroyTexture(m_TestTextureHandle);
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
