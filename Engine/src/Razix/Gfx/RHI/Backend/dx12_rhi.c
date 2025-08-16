@@ -1873,35 +1873,35 @@ static void dx12_CreateRootSignature(void* where)
     D3D12_DESCRIPTOR_RANGE descriptorRanges[RAZIX_MAX_DESCRIPTOR_TABLES][RAZIX_MAX_DESCRIPTOR_RANGES] = {0};
 
     D3D12_ROOT_SIGNATURE_DESC rootDesc = {0};
-    rootDesc.NumParameters             = desc->descriptorTableCount + desc->rootConstantCount;
+    rootDesc.NumParameters             = desc->descriptorTableLayoutsCount + desc->rootConstantCount;
     rootDesc.pParameters               = rootParams;
 
-    for (uint32_t tableIdx = 0; tableIdx < desc->descriptorTableCount; tableIdx++) {
-        const rz_gfx_descriptor_table_desc* pTableDesc = &desc->pDescriptorTablesDesc[tableIdx];
-        RAZIX_RHI_ASSERT(pTableDesc != NULL, "Descriptor table cannot be NULL in root signature creation! (Root Signature creation)");
+    for (uint32_t tableIdx = 0; tableIdx < desc->descriptorTableLayoutsCount; tableIdx++) {
+        const rz_gfx_descriptor_table_layout* pTableLayouts = &desc->pDescriptorTableLayouts[tableIdx];
+        RAZIX_RHI_ASSERT(pTableLayouts != NULL, "Descriptor table cannot be NULL in root signature creation! (Root Signature creation)");
 
         D3D12_ROOT_PARAMETER* param = &rootParams[tableIdx];
         param->ParameterType        = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 
-        for (uint32_t rangeIdx = 0; rangeIdx < pTableDesc->descriptorCount; rangeIdx++) {
+        for (uint32_t rangeIdx = 0; rangeIdx < pTableLayouts->descriptorCount; rangeIdx++) {
             RAZIX_RHI_ASSERT(rangeIdx < RAZIX_MAX_DESCRIPTOR_RANGES, "Too many descriptors in a table! [MAXLIMIT: %d] (Root Signature creation)", RAZIX_MAX_DESCRIPTOR_RANGES);
 
-            const rz_gfx_descriptor* pDescriptor = &pTableDesc->pDescriptors[rangeIdx];
+            const rz_gfx_descriptor* pDescriptor = &pTableLayouts->pDescriptors[rangeIdx];
             RAZIX_RHI_ASSERT(pDescriptor != NULL, "Descriptor cannot be NULL in a descriptor table! (Root Signature creation)");
-            RAZIX_RHI_ASSERT(pDescriptor->location.space == pTableDesc->tableIndex,
+            RAZIX_RHI_ASSERT(pDescriptor->location.space == pTableLayouts->tableIndex,
                 "Descriptor space (%u) does not match table index (%u) in root signature creation! (Root Signature creation)",
                 pDescriptor->location.space,
-                pTableDesc->tableIndex);
+                pTableLayouts->tableIndex);
 
             D3D12_DESCRIPTOR_RANGE* range            = &descriptorRanges[tableIdx][rangeIdx];
             range->RangeType                         = dx12_util_descriptor_type_to_range_type(pDescriptor->type);
             range->NumDescriptors                    = pDescriptor->memberCount;
             range->BaseShaderRegister                = pDescriptor->location.binding;
-            range->RegisterSpace                     = pTableDesc->tableIndex;
+            range->RegisterSpace                     = pTableLayouts->tableIndex;
             range->OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
         }
 
-        param->DescriptorTable.NumDescriptorRanges = pTableDesc->descriptorCount;
+        param->DescriptorTable.NumDescriptorRanges = pTableLayouts->descriptorCount;
         param->DescriptorTable.pDescriptorRanges   = descriptorRanges[tableIdx];
     }
 
@@ -1909,7 +1909,7 @@ static void dx12_CreateRootSignature(void* where)
         const rz_gfx_root_constant_desc* pRootConstantDesc = &desc->pRootConstantsDesc[i];
         RAZIX_RHI_ASSERT(pRootConstantDesc != NULL, "Root constant cannot be NULL in root signature creation! (Root Signature creation)");
 
-        D3D12_ROOT_PARAMETER* param     = &rootParams[desc->descriptorTableCount + i];
+        D3D12_ROOT_PARAMETER* param     = &rootParams[desc->descriptorTableLayoutsCount + i];
         param->ParameterType            = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
         param->Constants.Num32BitValues = pRootConstantDesc->sizeInBytes >> 2;
         param->Constants.ShaderRegister = pRootConstantDesc->location.binding;
@@ -2355,35 +2355,26 @@ static void dx12_CreateDescriptorTable(void* where)
 
     rz_gfx_descriptor_table_desc* pDesc = &pTable->resource.desc.descriptorTableDesc;
     RAZIX_RHI_ASSERT(pDesc != NULL, "Descriptor table descriptor cannot be NULL");
-    RAZIX_RHI_ASSERT(pDesc->descriptorCount > 0, "Descriptor table should have atleast 1 descriptor");
-    RAZIX_RHI_ASSERT(pDesc->pDescriptors != NULL, "Descriptor table cannot have NULL descriptors");
+    RAZIX_RHI_ASSERT(pDesc->resourceViewsCount > 0, "Descriptor table should have atleast 1 descriptor");
     RAZIX_RHI_ASSERT(pDesc->pResourceViews != NULL, "Descriptor table cannot have NULL resource views");
     RAZIX_RHI_ASSERT(pDesc->pHeap != NULL, "Descriptor tables needs a heap to create the table");
 
-    pTable->pResourceViewHandles = malloc(pDesc->descriptorCount * sizeof(dx12_descriptor_handles));
-    RAZIX_RHI_ASSERT(pTable->pResourceViewHandles != NULL, "Failed to allocate memory for resource view handles in descriptor table");
-
-    for (uint32_t i = 0; i < pDesc->descriptorCount; i++) {
-        const rz_gfx_descriptor*         pDescriptor = &pDesc->pDescriptors[i];
-        const rz_gfx_resource_view*      pView       = &pDesc->pResourceViews[i];
-        const rz_gfx_resource_view_desc* pViewDesc   = &pView->resource.desc.resourceViewDesc;
-        RAZIX_RHI_ASSERT(pDescriptor != NULL, "Descriptor cannot be NULL in a descriptor table! (Descriptor Table creation)");
+    for (uint32_t i = 0; i < pDesc->resourceViewsCount; i++) {
+        //const rz_gfx_descriptor*         pDescriptor = &pDesc->pDescriptors[i];
+        const rz_gfx_resource_view*      pView     = &pDesc->pResourceViews[i];
+        const rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
         RAZIX_RHI_ASSERT(pView != NULL, "Resource view cannot be NULL in a descriptor table! (Descriptor Table creation)");
         RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL in a descriptor table! (Descriptor Table creation)");
 
-        pTable->pResourceViewHandles[i] = pView->resource.handle;
+        pTable->dx12.heapOffset = dx12_descriptor_allocate_handle(pDesc->pHeap, pDesc->resourceViewsCount);
 
-        RAZIX_RHI_ASSERT(pDescriptor->location.space == pDesc->tableIndex, "Resource Space and Table Index mismatch! check your descriptors and table definitions again.");
-
-        pTable->dx12.heapOffset = dx12_descriptor_allocate_handle(pDesc->pHeap, pDesc->descriptorCount);
-
-        bool isTexture        = rzRHI_IsDescriptorTypeTexture(pDescriptor->type);
-        bool isBuffer         = rzRHI_IsDescriptorTypeBuffer(pDescriptor->type);
-        bool isSampler        = pDescriptor->type == RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
-        bool isConstantBuffer = pDescriptor->type == RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        bool isTexture        = rzRHI_IsDescriptorTypeTexture(pViewDesc->descriptorType);
+        bool isBuffer         = rzRHI_IsDescriptorTypeBuffer(pViewDesc->descriptorType);
+        bool isSampler        = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
+        bool isConstantBuffer = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         RAZIX_RHI_ASSERT(isTexture || isBuffer || isSampler || isConstantBuffer, "Descriptor type must be a texture, buffer, constant buffer or sampler for descriptor table creation");
-        bool isTextureRW = isTexture && rzRHI_IsDescriptorTypeTextureRW(pDescriptor->type);
-        bool isBufferRW  = isBuffer && rzRHI_IsDescriptorTypeBufferRW(pDescriptor->type);
+        bool isTextureRW = isTexture && rzRHI_IsDescriptorTypeTextureRW(pViewDesc->descriptorType);
+        bool isBufferRW  = isBuffer && rzRHI_IsDescriptorTypeBufferRW(pViewDesc->descriptorType);
 
         if (isConstantBuffer) {
             ID3D12Device_CreateConstantBufferView(DX12Device, &pView->dx12.cbvDesc, pTable->dx12.heapOffset.cpu);
@@ -2405,20 +2396,20 @@ static void dx12_CreateDescriptorTable(void* where)
             ID3D12Device_CreateUnorderedAccessView(DX12Device, pBuffer->dx12.resource, NULL, &pView->dx12.uavDesc, pTable->dx12.heapOffset.cpu);
         } else if (isSampler) {
             ID3D12Device_CreateSampler(DX12Device, &pView->dx12.samplerDesc, pTable->dx12.heapOffset.cpu);
-        } else if (pDescriptor->type == RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT) {
+        } else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT) {
             RAZIX_RHI_LOG_ERROR("Seriously? RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT in here? bind it directly on the correct root signature. This will result in catastrophic descriptor API failure.");
             RAZIX_RHI_ABORT();
             return;
-        } else if (pDescriptor->type == RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED) {
+        } else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED) {
             RAZIX_RHI_LOG_ERROR("RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED is Vulkan only and not recommended with DX12 backend. This will result in catastrophic descriptor API failure.");
             RAZIX_RHI_ABORT();
             return;
-        } else if (pDescriptor->type == RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE || pDescriptor->type == RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE) {
+        } else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE || pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE) {
             RAZIX_RHI_LOG_ERROR("Seriously? RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE/DEPTH_STENCIL in here? create the resource views and pass them to BeginRenderPass directly to set using OMSetXXX. This will result in catastrophic descriptor API failure.");
             RAZIX_RHI_ABORT();
             return;
         } else {
-            RAZIX_RHI_LOG_ERROR("Unsupported descriptor type: %d. (This is likely a bug in the if-else chain or weird data corruption has happened). This will result in catastrophic descriptor API failure.", pDescriptor->type);
+            RAZIX_RHI_LOG_ERROR("Unsupported descriptor type: %d. (This is likely a bug in the if-else chain or weird data corruption has happened). This will result in catastrophic descriptor API failure.", pViewDesc->descriptorType);
             RAZIX_RHI_ABORT();
             return;
         }
@@ -2434,15 +2425,8 @@ static void dx12_DestroyDescriptorTable(void* where)
     RAZIX_RHI_ASSERT(desc != NULL, "Descriptor table descriptor cannot be NULL");
     RAZIX_RHI_ASSERT(desc->pHeap != NULL, "Descriptor tables needs a heap to create the table");
 
-    if (desc) {
-        dx12_descriptor_free_handle(desc->pHeap, pTable->dx12.heapOffset, desc->descriptorCount);
-    }
-
-    // Note: destroy the resource views before you destroy the table
-    if (pTable->pResourceViewHandles) {
-        free(pTable->pResourceViewHandles);
-        pTable->pResourceViewHandles = NULL;
-    }
+    if (desc)
+        dx12_descriptor_free_handle(desc->pHeap, pTable->dx12.heapOffset, desc->resourceViewsCount);
 }
 
 //---------------------------------------------------------------------------------------------
@@ -2854,21 +2838,21 @@ rz_rhi_api dx12_rhi = {
     .CreateDescriptorTable  = dx12_CreateDescriptorTable,     // CreateDescriptorTable
     .DestroyDescriptorTable = dx12_DestroyDescriptorTable,    // DestroyDescriptorTable
 
-    .AcquireImage         = dx12_AcquireImage,           // AcquireImage
-    .WaitOnPrevCmds       = dx12_WaitOnPrevCmds,         // WaitOnPrevCmds
-    .Present              = dx12_Present,                // Present
-    .BeginCmdBuf          = dx12_BeginCmdBuf,            // BeginCmdBuf
-    .EndCmdBuf            = dx12_EndCmdBuf,              // EndCmdBuf
-    .SubmitCmdBuf         = dx12_SubmitCmdBuf,           // SubmitCmdBuf
-    .BeginRenderPass      = dx12_BeginRenderPass,        // BeginRenderPass
-    .EndRenderPass        = dx12_EndRenderPass,          // EndRenderPass
-    .SetViewport          = dx12_SetViewport,            // SetViewport
-    .SetScissorRect       = dx12_SetScissorRect,         // SetScissorRect
-    .BindPipeline         = dx12_BindPipeline,           // BindPipeline
-    .BindGfxRootSig       = dx12_BindGfxRootSig,         // BindGfxRootSig
-    .BindComputeRootSig   = dx12_BindComputeRootSig,     // BindComputeRootSig
+    .AcquireImage         = dx12_AcquireImage,            // AcquireImage
+    .WaitOnPrevCmds       = dx12_WaitOnPrevCmds,          // WaitOnPrevCmds
+    .Present              = dx12_Present,                 // Present
+    .BeginCmdBuf          = dx12_BeginCmdBuf,             // BeginCmdBuf
+    .EndCmdBuf            = dx12_EndCmdBuf,               // EndCmdBuf
+    .SubmitCmdBuf         = dx12_SubmitCmdBuf,            // SubmitCmdBuf
+    .BeginRenderPass      = dx12_BeginRenderPass,         // BeginRenderPass
+    .EndRenderPass        = dx12_EndRenderPass,           // EndRenderPass
+    .SetViewport          = dx12_SetViewport,             // SetViewport
+    .SetScissorRect       = dx12_SetScissorRect,          // SetScissorRect
+    .BindPipeline         = dx12_BindPipeline,            // BindPipeline
+    .BindGfxRootSig       = dx12_BindGfxRootSig,          // BindGfxRootSig
+    .BindComputeRootSig   = dx12_BindComputeRootSig,      // BindComputeRootSig
     .BindDescriptorTables = dx12_BindDescriptorTables,    // BindDescriptorTable
-    .BindDescriptorHeaps  = dx12_BindDescriptorHeaps,    // BindDescriptorHeaps
+    .BindDescriptorHeaps  = dx12_BindDescriptorHeaps,     // BindDescriptorHeaps
 
     .DrawAuto              = dx12_DrawAuto,                 // DrawAuto
     .InsertImageBarrier    = dx12_InsertImageBarrier,       // InsertImageBarrier

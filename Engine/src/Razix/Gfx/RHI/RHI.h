@@ -835,11 +835,17 @@ static inline unsigned int rz_clz32(unsigned int x)
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table_desc
     {
         uint32_t                tableIndex;
-        uint32_t                descriptorCount;
-        rz_gfx_descriptor*      pDescriptors;
         rz_gfx_resource_view*   pResourceViews;    // Only for temporary table creation, we cache the handles that the user can free during descriptor table destruction
+        uint32_t                resourceViewsCount;
         rz_gfx_descriptor_heap* pHeap;
     } rz_gfx_descriptor_table_desc;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table_layout
+    {
+        rz_gfx_descriptor* pDescriptors;
+        uint32_t           descriptorCount;
+        uint32_t           tableIndex;
+    } rz_gfx_descriptor_table_layout;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_root_constant_desc
     {
@@ -852,11 +858,11 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_root_signature_desc
     {
-        rz_gfx_descriptor_table_desc* pDescriptorTablesDesc;
-        rz_gfx_root_constant_desc*    pRootConstantsDesc;
-        uint32_t                      descriptorTableCount;
-        uint32_t                      rootConstantCount;
-        uint8_t                       _pad0[8];
+        rz_gfx_descriptor_table_layout* pDescriptorTableLayouts;
+        rz_gfx_root_constant_desc*      pRootConstantsDesc;
+        uint32_t                        descriptorTableLayoutsCount;
+        uint32_t                        rootConstantCount;
+        uint8_t                         _pad0[8];
     } rz_gfx_root_signature_desc;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdpool_desc
@@ -1189,8 +1195,6 @@ static inline unsigned int rz_clz32(unsigned int x)
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table
     {
         RAZIX_GFX_RESOURCE;
-        rz_gfx_resource_view_handle* pResourceViewHandles;
-        uint32_t                     resourceViewCount;
 #ifdef RAZIX_RENDER_API_VULKAN
         vk_descriptor_table vk;
 #endif
