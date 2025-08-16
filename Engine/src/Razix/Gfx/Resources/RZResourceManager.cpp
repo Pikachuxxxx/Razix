@@ -103,9 +103,15 @@ namespace Razix {
             // Or in a BindMap and also store the descriptor table information and all this
 
             // create root signature
-            reflection.rootSignatureDesc;
-            auto rootSigName      = "RootSignature_" + std::string(shader->resource.pName);
-            shader->rootSignature = RZResourceManager::Get().createRootSignature(rootSigName.c_str(), rootSigDesc);
+            if (!(shaderDesc->flags & RZ_GFX_SHADER_FLAG_NO_ROOT_SIGNATURE)) {
+                if (rootSigDesc.descriptorTableCount == 0 && rootSigDesc.pRootConstantsDesc == NULL) {
+                    RAZIX_CORE_ERROR("[Resource Manager] Shader {0} has no root signature descriptor tables or root constants!", shader->resource.pName);
+                    Gfx::FreeShaderReflectionMemAllocs(&reflection);
+                    return;
+                }
+                auto rootSigName      = "RootSignature_" + std::string(shader->resource.pName);
+                shader->rootSignature = RZResourceManager::Get().createRootSignature(rootSigName.c_str(), rootSigDesc);
+            }
 
             // Any intermediate memory allocations made by the reflection process should be freed
             // But this will also delete some of the root sig desc data
@@ -118,7 +124,10 @@ namespace Razix {
             // Free bytecode memory, since we allocate it
             FreeRZSFBytecodeAlloc(shaderPtr);
             // Free root sig (since it's allocated by ParseRZSF we ask it to delete it)
-            RZResourceManager::Get().destroyRootSignature(shaderPtr->rootSignature);
+            if (!(shaderPtr->resource.desc.shaderDesc.flags & RZ_GFX_SHADER_FLAG_NO_ROOT_SIGNATURE))
+                RZResourceManager::Get().destroyRootSignature(shaderPtr->rootSignature);
+
+            rzRHI_DestroyShader(ptr);
         }
 
         //-----------------------------------------------------------------------------------

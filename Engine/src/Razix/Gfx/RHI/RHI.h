@@ -651,6 +651,14 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_BLEND_PRESET_COUNT
     } rz_gfx_blend_presets;
 
+    typedef enum rz_gfx_shader_flags
+    {
+        RZ_GFX_SGADER_FLAG_NONE              = 0,
+        RZ_GFX_SHADER_FLAG_BINDLESS          = 1 << 0,
+        RZ_GFX_SHADER_FLAG_NO_ROOT_SIGNATURE = 1 << 1,
+        RZ_GFX_SHADER_FLAG_COUNT             = 3
+    } rz_gfx_shader_flags;
+
     typedef enum rz_gfx_target_fps
     {
         RZ_GFX_TARGET_FPS_60    = 60,
@@ -897,6 +905,8 @@ static inline unsigned int rz_clz32(unsigned int x)
         rz_gfx_pipeline_type  pipelineType;
         uint32_t              elementsCount;
         rz_gfx_input_element* pElements;
+        uint32_t              flags;
+        uint32_t              _pad0[3];
         union
         {
             const char* rzsfFilePath;    // PIGGY_BACKING_MEMORY: helper member to re-use this union, used before shader blobs are filled, safe to use here since freed before it reaches RHI
