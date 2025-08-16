@@ -1,5 +1,7 @@
 #include "RHI.h"
 
+#include <math.h    >
+
 RAZIX_RHI_API rz_gfx_context g_GfxCtx = {0};
 // Default
 RAZIX_RHI_API rz_render_api   g_RenderAPI        = RZ_RENDER_API_VULKAN;
@@ -57,7 +59,6 @@ const char* rzGfxCtx_GetRenderAPIString()
     }
 }
 
-
 bool rzRHI_IsDescriptorTypeTexture(rz_gfx_descriptor_type type)
 {
     switch (type) {
@@ -107,9 +108,9 @@ bool rzRHI_IsDescriptorTypeTextureRW(rz_gfx_descriptor_type type)
             return true;
         case RZ_GFX_DESCRIPTOR_TYPE_TEXTURE:
         case RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED:
-            return false; // These are read-only texture types
+            return false;    // These are read-only texture types
         default:
-            return false; // Not a texture type
+            return false;    // Not a texture type
     }
 }
 
@@ -127,8 +128,110 @@ bool rzRHI_IsDescriptorTypeBufferRW(rz_gfx_descriptor_type type)
         case RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
         case RZ_GFX_DESCRIPTOR_TYPE_STRUCTURED:
         case RZ_GFX_DESCRIPTOR_TYPE_BYTE_ADDRESS:
-            return false; // These are read-only buffer types
+            return false;    // These are read-only buffer types
         default:
-            return false; // Not a buffer type
+            return false;    // Not a buffer type
     }
+}
+
+uint32_t rzRHI_GetBytesPerPixel(rz_gfx_format format)
+{
+    switch (format) {
+        // Undefined format
+        case RZ_GFX_FORMAT_UNDEFINED:
+            return 0;
+
+        // 8-bit formats (1 byte per component)
+        case RZ_GFX_FORMAT_R8_UNORM:
+        case RZ_GFX_FORMAT_R8_UINT:
+        case RZ_GFX_FORMAT_STENCIL8:
+            return 1;
+
+        // 16-bit single component (2 bytes)
+        case RZ_GFX_FORMAT_R16_UNORM:
+        case RZ_GFX_FORMAT_R16_FLOAT:
+        case RZ_GFX_FORMAT_D16_UNORM:
+            return 2;
+
+        // 16-bit dual component (4 bytes)
+        case RZ_GFX_FORMAT_R16G16_FLOAT:
+        case RZ_GFX_FORMAT_R16G16_UNORM:
+        case RZ_GFX_FORMAT_R8G8_UNORM:
+            return 4;
+
+        // 32-bit single component (4 bytes)
+        case RZ_GFX_FORMAT_R32_SINT:
+        case RZ_GFX_FORMAT_R32_UINT:
+        case RZ_GFX_FORMAT_R32_FLOAT:
+        case RZ_GFX_FORMAT_D32_FLOAT:
+        case RZ_GFX_FORMAT_D24_UNORM_S8_UINT:
+        case RZ_GFX_FORMAT_R11G11B10_FLOAT:
+        case RZ_GFX_FORMAT_R11G11B10_UINT:
+            return 4;
+
+        // 32-bit dual component (8 bytes)
+        case RZ_GFX_FORMAT_R32G32_SINT:
+        case RZ_GFX_FORMAT_R32G32_UINT:
+        case RZ_GFX_FORMAT_R32G32_FLOAT:
+        case RZ_GFX_FORMAT_R16G16B16A16_UNORM:
+        case RZ_GFX_FORMAT_R16G16B16A16_FLOAT:
+            return 8;
+
+        // RGB 8-bit formats (3 bytes)
+        case RZ_GFX_FORMAT_R8G8B8_UNORM:
+        case RZ_GFX_FORMAT_RGB8_UNORM:
+        case RZ_GFX_FORMAT_RGB:
+            return 3;
+
+        // RGBA 8-bit formats (4 bytes)
+        case RZ_GFX_FORMAT_R8G8B8A8_UNORM:
+        case RZ_GFX_FORMAT_R8G8B8A8_SRGB:
+        case RZ_GFX_FORMAT_B8G8R8A8_UNORM:
+        case RZ_GFX_FORMAT_B8G8R8A8_SRGB:
+        case RZ_GFX_FORMAT_RGBA:
+        case RZ_GFX_FORMAT_SCREEN:
+            return 4;
+
+        // RGB 16-bit formats (6 bytes)
+        case RZ_GFX_FORMAT_RGB16_UNORM:
+            return 6;
+
+        // 32-bit triple component (12 bytes)
+        case RZ_GFX_FORMAT_R32G32B32_SINT:
+        case RZ_GFX_FORMAT_R32G32B32_UINT:
+        case RZ_GFX_FORMAT_R32G32B32_FLOAT:
+        case RZ_GFX_FORMAT_RGB32_UINT:
+            return 12;
+
+        // 32-bit quad component (16 bytes)
+        case RZ_GFX_FORMAT_R32G32B32A32_SINT:
+        case RZ_GFX_FORMAT_R32G32B32A32_UINT:
+        case RZ_GFX_FORMAT_R32G32B32A32_FLOAT:
+            return 16;
+
+        // Depth-stencil combined format (8 bytes)
+        case RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT:
+            return 8;
+
+        // Block compressed formats - these are special cases
+        // Block formats compress 4x4 pixel blocks, so bytes per pixel depends on block size
+        case RZ_GFX_FORMAT_BC1_RGBA_UNORM:
+            return 0;    // BC1: 8 bytes per 4x4 block = 0.5 bytes per pixel (use special handling)
+
+        case RZ_GFX_FORMAT_BC3_RGBA_UNORM:
+        case RZ_GFX_FORMAT_BC6_UNORM:
+        case RZ_GFX_FORMAT_BC7_UNORM:
+        case RZ_GFX_FORMAT_BC7_SRGB:
+            return 0;    // BC3/BC6/BC7: 16 bytes per 4x4 block = 1 byte per pixel (use special handling)
+
+        default:
+            return 0;    // Unsupported or invalid format
+    }
+}
+
+uint32_t rzRHI_GetMipLevelCount(uint32_t width, uint32_t height)
+{
+    if (width == 0 || height == 0)
+        return 0;
+    return (uint32_t) (floor(log2((double) ((width > height) ? width : height)))) + 1;
 }

@@ -563,6 +563,55 @@ static D3D12_RESOURCE_BARRIER dx12_util_transition_resource_state(ID3D12Resource
     return barrier;
 }
 
+static dx12_cmdbuf dx12_util_begin_singletime_cmdlist(void)
+{
+    dx12_cmdbuf result = {0};
+
+    CHECK_HR(ID3D12Device_CreateCommandAllocator(
+        DX12Device,
+        D3D12_COMMAND_LIST_TYPE_DIRECT,
+        &IID_ID3D12CommandAllocator,
+        (void**) &result.cmdAlloc));
+
+    CHECK_HR(ID3D12Device_CreateCommandList(
+        DX12Device,
+        0,
+        D3D12_COMMAND_LIST_TYPE_DIRECT,
+        result.cmdAlloc,
+        NULL,
+        &IID_ID3D12GraphicsCommandList,
+        (void**) &result.cmdList));
+
+    return result;
+}
+
+static void dx12_util_end_singletime_cmdlist(dx12_cmdbuf cmdBuf)
+{
+    CHECK_HR(ID3D12GraphicsCommandList_Close(cmdBuf.cmdList));
+
+    ID3D12CommandQueue* queue   = DX12Context.directQ;
+    ID3D12CommandList*  lists[] = {(ID3D12CommandList*) cmdBuf.cmdList};
+    ID3D12CommandQueue_ExecuteCommandLists(queue, 1, lists);
+
+    ID3D12Fence* fence      = NULL;
+    UINT64       fenceValue = 1;
+    HANDLE       fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+    CHECK_HR(ID3D12Device_CreateFence(DX12Device, 0, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, (void**) &fence));
+
+    CHECK_HR(ID3D12CommandQueue_Signal(queue, fence, fenceValue));
+
+    if (ID3D12Fence_GetCompletedValue(fence) < fenceValue) {
+        CHECK_HR(ID3D12Fence_SetEventOnCompletion(fence, fenceValue, fenceEvent));
+        WaitForSingleObject(fenceEvent, INFINITE);
+    }
+
+    CloseHandle(fenceEvent);
+    ID3D12Fence_Release(fence);
+
+    ID3D12CommandList_Release(cmdBuf.cmdList);
+    ID3D12CommandAllocator_Release(cmdBuf.cmdAlloc);
+}
+
 static void dx12_freelist_debug_print(const rz_gfx_descriptor_heap* heap)
 {
     RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
@@ -1074,6 +1123,115 @@ static dx12_resview dx12_create_sampler_view(const rz_gfx_sampler_view_desc* des
     return dx12_view;
 }
 
+static void dx12_util_upload_pixel_Data(rz_gfx_texture* texture, rz_gfx_texture_desc* desc)
+{
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
+    RAZIX_RHI_ASSERT(desc != NULL, "Texture descriptor cannot be NULL");
+    RAZIX_RHI_ASSERT(desc->pixelData != NULL, "Pixel data cannot be NULL");
+
+    uint32_t bytesPerPixel = rzRHI_GetBytesPerPixel(desc->format);
+    uint64_t textureSize   = desc->width * desc->height * desc->depth * bytesPerPixel;
+
+    // Create upload buffer
+    D3D12_HEAP_PROPERTIES uploadHeapProps = {0};
+    uploadHeapProps.Type                  = D3D12_HEAP_TYPE_UPLOAD;
+    uploadHeapProps.CPUPageProperty       = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    uploadHeapProps.MemoryPoolPreference  = D3D12_MEMORY_POOL_UNKNOWN;
+
+    D3D12_RESOURCE_DESC uploadBufferDesc = {0};
+    uploadBufferDesc.Dimension           = D3D12_RESOURCE_DIMENSION_BUFFER;
+    uploadBufferDesc.Width               = textureSize;
+    uploadBufferDesc.Height              = 1;
+    uploadBufferDesc.DepthOrArraySize    = 1;
+    uploadBufferDesc.MipLevels           = 1;
+    uploadBufferDesc.Format              = DXGI_FORMAT_UNKNOWN;
+    uploadBufferDesc.SampleDesc.Count    = 1;
+    uploadBufferDesc.Layout              = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+    uploadBufferDesc.Flags               = D3D12_RESOURCE_FLAG_NONE;
+
+    ID3D12Resource* uploadBuffer = NULL;
+    HRESULT         hr           = ID3D12Device10_CreateCommittedResource(
+        DX12Device,
+        &uploadHeapProps,
+        D3D12_HEAP_FLAG_NONE,
+        &uploadBufferDesc,
+        D3D12_RESOURCE_STATE_GENERIC_READ,
+        NULL,
+        &IID_ID3D12Resource,
+        &uploadBuffer);
+
+    if (FAILED(hr)) {
+        RAZIX_RHI_LOG_ERROR("Failed to create upload buffer for texture: 0x%08X", hr);
+        return;
+    }
+
+    void* mappedData = NULL;
+    hr               = ID3D12Resource_Map(uploadBuffer, 0, NULL, &mappedData);
+    if (FAILED(hr)) {
+        RAZIX_RHI_LOG_ERROR("Failed to map upload buffer: 0x%08X", hr);
+        ID3D12Resource_Release(uploadBuffer);
+        return;
+    }
+
+    memcpy(mappedData, desc->pixelData, textureSize);
+    ID3D12Resource_Unmap(uploadBuffer, 0, NULL);
+
+    dx12_cmdbuf cmdBuf = dx12_util_begin_singletime_cmdlist();
+
+    D3D12_TEXTURE_COPY_LOCATION srcLocation        = {0};
+    srcLocation.pResource                          = uploadBuffer;
+    srcLocation.Type                               = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+    srcLocation.PlacedFootprint.Offset             = 0;
+    srcLocation.PlacedFootprint.Footprint.Format   = dx12_util_rz_gfx_format_to_dxgi_format(desc->format);
+    srcLocation.PlacedFootprint.Footprint.Width    = desc->width;
+    srcLocation.PlacedFootprint.Footprint.Height   = desc->height;
+    srcLocation.PlacedFootprint.Footprint.Depth    = desc->depth;
+    srcLocation.PlacedFootprint.Footprint.RowPitch = desc->width * bytesPerPixel;
+
+    D3D12_TEXTURE_COPY_LOCATION dstLocation = {0};
+    dstLocation.pResource                   = texture->dx12.resource;
+    dstLocation.Type                        = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+    dstLocation.SubresourceIndex            = 0;
+
+    D3D12_RESOURCE_BARRIER barrier = {0};
+    barrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier.Transition.pResource   = texture->dx12.resource;
+    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
+    barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_COPY_DEST;
+    barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &barrier);
+
+    ID3D12GraphicsCommandList_CopyTextureRegion(cmdBuf.cmdList, &dstLocation, 0, 0, 0, &srcLocation, NULL);
+
+    // Transition texture back to common state
+    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+    barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_COMMON;
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &barrier);
+
+    dx12_util_end_singletime_cmdlist(cmdBuf);
+
+    ID3D12Resource_Release(uploadBuffer);
+    RAZIX_RHI_LOG_INFO("Pixel data uploaded successfully");
+}
+
+static void dx12_util_generate_mips(rz_gfx_texture* texture, rz_gfx_texture_desc* desc)
+{
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
+    RAZIX_RHI_ASSERT(desc != NULL, "Texture descriptor cannot be NULL");
+    if (desc->mipLevels <= 1) {
+        RAZIX_RHI_LOG_INFO("No mipmaps to generate for texture");
+        return;
+    }
+
+    // Unlike vulkan , D3D12 does not have a built-in mipmap generation function, so we need to use a compute shader
+    // We will embed a shader in the engine that generates mipmaps for us, use a String to store the shader code
+    // Since RHI is it's own entity, we use a string to store the shader code
+
+    RAZIX_RHI_LOG_ERROR("Mip generation is not implemented for D3D12 yet, using mipmaps will cause a catastrophic failure.");
+    RAZIX_RHI_ABORT();
+}
+
 //---------------------------------------------------------------------------------------------
 // Helper functions
 
@@ -1384,55 +1542,6 @@ static void dx12_destroy_backbuffers(rz_gfx_swapchain* sc)
         ID3D12DescriptorHeap_Release(sc->dx12.rtvHeap);
         sc->dx12.rtvHeap = NULL;
     }
-}
-
-static dx12_cmdbuf dx12_util_begin_singletime_cmdlist(void)
-{
-    dx12_cmdbuf result = {0};
-
-    CHECK_HR(ID3D12Device_CreateCommandAllocator(
-        DX12Device,
-        D3D12_COMMAND_LIST_TYPE_DIRECT,
-        &IID_ID3D12CommandAllocator,
-        (void**) &result.cmdAlloc));
-
-    CHECK_HR(ID3D12Device_CreateCommandList(
-        DX12Device,
-        0,
-        D3D12_COMMAND_LIST_TYPE_DIRECT,
-        result.cmdAlloc,
-        NULL,
-        &IID_ID3D12GraphicsCommandList,
-        (void**) &result.cmdList));
-
-    return result;
-}
-
-static void dx12_util_end_singletime_cmdlist(ID3D12GraphicsCommandList* cmdList, ID3D12CommandAllocator* allocator)
-{
-    CHECK_HR(ID3D12GraphicsCommandList_Close(cmdList));
-
-    ID3D12CommandQueue* queue   = DX12Context.directQ;
-    ID3D12CommandList*  lists[] = {(ID3D12CommandList*) cmdList};
-    ID3D12CommandQueue_ExecuteCommandLists(queue, 1, lists);
-
-    ID3D12Fence* fence      = NULL;
-    UINT64       fenceValue = 1;
-    HANDLE       fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-    CHECK_HR(ID3D12Device_CreateFence(DX12Device, 0, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, (void**) &fence));
-
-    CHECK_HR(ID3D12CommandQueue_Signal(queue, fence, fenceValue));
-
-    if (ID3D12Fence_GetCompletedValue(fence) < fenceValue) {
-        CHECK_HR(ID3D12Fence_SetEventOnCompletion(fence, fenceValue, fenceEvent));
-        WaitForSingleObject(fenceEvent, INFINITE);
-    }
-
-    CloseHandle(fenceEvent);
-    ID3D12Fence_Release(fence);
-
-    ID3D12CommandList_Release(cmdList);
-    ID3D12CommandAllocator_Release(allocator);
 }
 
 //---------------------------------------------------------------------------------------------
@@ -2057,6 +2166,12 @@ static void dx12_CreateTexture(void* where)
     }
     RAZIX_RHI_LOG_INFO("D3D12 Texture2D created successfully");
     TAG_OBJECT(texture->dx12.resource, texture->resource.pName);
+
+    // Upload pixel data if provided
+    if (desc->pixelData != NULL) {
+        RAZIX_RHI_LOG_INFO("Uploading pixel data for texture");
+        dx12_util_upload_pixel_Data(texture, desc);
+    }
 }
 
 static void dx12_DestroyTexture(void* texture)
@@ -2554,7 +2669,7 @@ static void dx12_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_tex
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &restore_barrier);
 
     // Close command list and submit and flush GPU work
-    dx12_util_end_singletime_cmdlist(cmdBuf.cmdList, cmdBuf.cmdAlloc);
+    dx12_util_end_singletime_cmdlist(cmdBuf);
 
     void*       mapped_data = NULL;
     D3D12_RANGE read_range  = {0, totalSize};

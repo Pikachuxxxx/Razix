@@ -790,6 +790,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         rz_gfx_format              format;
         rz_gfx_texture_type        textureType;
         rz_gfx_resource_view_hints resourceHints;    // Hints for how this texture should be viewed, used for binding
+        void*                      pixelData;        // Pointer to the pixel data, used for texture creation, freed by user, RHI does not own this memory
     } rz_gfx_texture_desc;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_sampler_desc
@@ -1319,6 +1320,9 @@ static inline unsigned int rz_clz32(unsigned int x)
     RAZIX_RHI_API bool rzRHI_IsDescriptorTypeSampler(rz_gfx_descriptor_type type);
     RAZIX_RHI_API bool rzRHI_IsDescriptorTypeTextureRW(rz_gfx_descriptor_type type);
     RAZIX_RHI_API bool rzRHI_IsDescriptorTypeBufferRW(rz_gfx_descriptor_type type);
+
+    RAZIX_RHI_API uint32_t rzRHI_GetBytesPerPixel(rz_gfx_format format);
+    RAZIX_RHI_API uint32_t rzRHI_GetMipLevelCount(uint32_t width, uint32_t height);
 
     //---------------------------------------------------------------------------------------------
     // RHI Jump Table
