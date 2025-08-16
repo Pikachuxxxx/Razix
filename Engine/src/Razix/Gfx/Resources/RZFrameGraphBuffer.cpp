@@ -10,7 +10,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZFrameGraphBuffer::create(const Desc& desc, u32 id, const void* transientAllocator)
+        void RZFrameGraphBuffer::create(const std::string& name, const Desc& desc, u32 id, const void* transientAllocator)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

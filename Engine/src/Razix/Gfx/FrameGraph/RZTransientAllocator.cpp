@@ -6,7 +6,6 @@
 #include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Gfx/Resources/RZFrameGraphSampler.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Gfx/Resources/RZResourceManager.h"

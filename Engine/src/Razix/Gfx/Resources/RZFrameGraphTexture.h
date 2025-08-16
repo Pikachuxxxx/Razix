@@ -5,7 +5,7 @@
 namespace Razix {
     namespace Gfx {
 
-        struct RZTextureDesc;
+        struct rz_gfx_texture_desc;
 
         /**
              * When an extra wrapper of RZTexture and rz_texture_handle?
@@ -20,9 +20,9 @@ namespace Razix {
 
         struct RZFrameGraphTexture
         {
-            typedef RZTextureDesc Desc;
+            typedef rz_gfx_texture_desc Desc;
 
-            void create(const Desc& desc, u32 id, const void* transientAllocator);
+            void create(const std::string& name, const Desc& desc, u32 id, const void* transientAllocator);
             void destroy(u32 id, const void* transientAllocator);
 
             void preRead(const Desc& desc, u32 flags);

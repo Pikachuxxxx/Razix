@@ -45,14 +45,13 @@ namespace Razix {
                 [&](HelloTexturePassData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    rz_gfx_texture_desc depthTextureDesc   = {};
-                    depthTextureDesc.name                  = "SceneDepth";
-                    depthTextureDesc.width                 = RZApplication::Get().getWindow()->getWidth();
-                    depthTextureDesc.height                = RZApplication::Get().getWindow()->getHeight();
-                    depthTextureDesc.format                = TextureFormat::DEPTH16_UNORM;
-                    depthTextureDesc.type                  = TextureType::kDepth;
-                    depthTextureDesc.initResourceViewHints = kDSV;
-                    data.Depth                             = builder.create<RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
+                    rz_gfx_texture_desc depthTextureDesc = {0};
+                    depthTextureDesc.width               = RZApplication::Get().getWindow()->getWidth();
+                    depthTextureDesc.height              = RZApplication::Get().getWindow()->getHeight();
+                    depthTextureDesc.format              = TextureFormat::DEPTH16_UNORM;
+                    depthTextureDesc.type                = TextureType::kDepth;
+                    depthTextureDesc.resourceHints       = RZ_GFX_RESOURCE_VIEW_FLAG_DSV;
+                    data.Depth                           = builder.create<RZFrameGraphTexture>("SceneDepth", CAST_TO_FG_TEX_DESC depthTextureDesc);
 
                     data.Depth = builder.write(data.Depth);
                 },
@@ -62,7 +61,6 @@ namespace Razix {
 
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
                     RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.HelloTexture", Utilities::GenerateHashedColor4(22u));
-
 
                     rz_gfx_renderpass info            = {0};
                     info.resolution                   = RZ_GFX_RESOLUTION_WINDOW;
@@ -80,7 +78,7 @@ namespace Razix {
                     rzRHI_BindGfxRootSig(cmdBuffer, m_RootSigHandle);
                     rzRHI_BindPipeline(cmdBuffer, m_Pipeline);
 
-                // Bind descriptor heaps and tables (probably the bindless textures table?)
+                // Bind descriptor heaps and tables
 
 #define NUM_TRIANGLE_VERTS 3
                     rzRHI_DrawAuto(cmdBuffer, NUM_TRIANGLE_VERTS, 1, 0, 0);

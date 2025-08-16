@@ -80,8 +80,8 @@ namespace Razix {
                      * and will reject non-matching overloads for types without any error, SFINAE's safe failure can choose the different
                      * paths during compile time to tell whether a type has a method/sub type or not and these compile time expression can be used for final evaluation
                      */
-                Model(typename T::Desc&& desc, T&& obj, u32 id)
-                    : descriptor(std::move(desc)), resource(std::move(obj)), m_ID(id)
+                Model(const std::string& name, typename T::Desc&& desc, T&& obj, u32 id)
+                    : m_Name(name), descriptor(std::move(desc)), resource(std::move(obj)), m_ID(id)
                 {
                 }
 
@@ -95,7 +95,7 @@ namespace Razix {
 
                 void create(const void* transientAllocator) final
                 {
-                    resource.create(descriptor, m_ID, transientAllocator);
+                    resource.create(m_Name, descriptor, m_ID, transientAllocator);
                 }
 
                 void destroy(const void* transientAllocator) final
@@ -139,6 +139,7 @@ namespace Razix {
                 T                      resource;   /* Resource handle              */
                 const typename T::Desc descriptor; /* Resource creation descriptor */
                 u32                    m_ID;       /* ID of the resource entry, used to identify the resource in the frame graph */
+                const std::string&     m_Name;
             };
 
         public:
@@ -204,8 +205,8 @@ namespace Razix {
 
         private:
             template<typename T>
-            RZResourceEntry(u32 id, typename T::Desc&& desc, T&& obj, u32 version, bool imported = false)
-                : m_ID(id), m_Concept{std::make_unique<Model<T>>(std::forward<typename T::Desc>(desc), std::forward<T>(obj), id)}, m_Version(version), m_Imported(imported)
+            RZResourceEntry(const std::string& name, u32 id, typename T::Desc&& desc, T&& obj, u32 version, bool imported = false)
+                : m_ID(id), m_Concept{std::make_unique<Model<T>>(name, std::forward<typename T::Desc>(desc), std::forward<T>(obj), id)}, m_Version(version), m_Imported(imported)
             {
             }
 
