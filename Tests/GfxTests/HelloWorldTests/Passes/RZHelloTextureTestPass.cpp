@@ -43,25 +43,11 @@ namespace Razix {
             // Create a descriptor table for the texture
             rz_gfx_descriptor_table_desc descTableDesc       = {};
             descTableDesc.tableIndex                         = 0;
-            descTableDesc.descriptorCount                    = 1;
             rz_gfx_descriptor_heap_handle resourceHeapHandle = RZEngine::Get().getWorldRenderer().getResourceHeap();
             descTableDesc.pHeap                              = RZResourceManager::Get().getDescriptorHeapResource(resourceHeapHandle);
-
-            // TODO: can we use shader reflection to automatically create the descriptor/tables?
-            // ACtually we can that's what the rz_gfx_root_signature_desc is for, we can use that to create the descriptor table
-            // and pass in resource views to table desc, just parse table desc and update it with res views?
-            rz_gfx_descriptor testTextureDescriptor = {};
-            testTextureDescriptor.pName             = "g_TestTexture";
-            testTextureDescriptor.type              = RZ_GFX_DESCRIPTOR_TYPE_TEXTURE;
-            testTextureDescriptor.location.binding  = 0;
-            testTextureDescriptor.location.space    = 0;
-            testTextureDescriptor.arraySize         = 1;
-
-            rz_gfx_descriptor descriptors[] = {testTextureDescriptor};
-            descTableDesc.pDescriptors      = descriptors;
-
-            rz_gfx_resource_view resourceViews[] = {*RZResourceManager::Get().getResourceViewResource(m_TestTextureViewHandle)};
-            descTableDesc.pResourceViews         = resourceViews;
+            rz_gfx_resource_view resourceViews[]             = {*RZResourceManager::Get().getResourceViewResource(m_TestTextureViewHandle)};
+            descTableDesc.pResourceViews                     = resourceViews;
+            descTableDesc.resourceViewsCount                 = 1;
 
             m_DescriptorTable = RZResourceManager::Get().createDescriptorTable("TestTextureDescriptorTable", descTableDesc);
 

@@ -104,7 +104,7 @@ namespace Razix {
 
             // create root signature
             if (!(shaderDesc->flags & RZ_GFX_SHADER_FLAG_NO_ROOT_SIGNATURE)) {
-                if (rootSigDesc.descriptorTableCount == 0 && rootSigDesc.pRootConstantsDesc == NULL) {
+                if (rootSigDesc.descriptorTableLayoutsCount == 0 && rootSigDesc.pRootConstantsDesc == NULL) {
                     RAZIX_CORE_ERROR("[Resource Manager] Shader {0} has no root signature descriptor tables or root constants!", shader->resource.pName);
                     Gfx::FreeShaderReflectionMemAllocs(&reflection);
                     return;

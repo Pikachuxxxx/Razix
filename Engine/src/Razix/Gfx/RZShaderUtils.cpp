@@ -221,12 +221,13 @@ namespace Razix {
             }
 
             // Reflect descriptor tables and root constants
-            rz_gfx_descriptor_table_desc* tableDescs = (rz_gfx_descriptor_table_desc*) Memory::RZMalloc(sizeof(rz_gfx_descriptor_table_desc) * shaderDesc.BoundResources);
-            uint32_t                      tableCount = 0;
+            // TODO: Starting with table per resource? Fuck optimize this
+            rz_gfx_descriptor_table_layout* tableLayouts = (rz_gfx_descriptor_table_layout*) Memory::RZMalloc(sizeof(rz_gfx_descriptor_table_layout) * shaderDesc.BoundResources);
+            uint32_t                        tableCount   = 0;
 
             // Initialize descriptor tables to invalid state
             for (uint32_t i = 0; i < shaderDesc.BoundResources; i++) {
-                tableDescs[i].tableIndex = 0xffffffff;
+                tableLayouts[i].tableIndex = 0xffffffff;
             }
 
             for (UINT i = 0; i < shaderDesc.BoundResources; ++i) {
@@ -257,29 +258,29 @@ namespace Razix {
 
                 // Regular Descriptor
                 // Try to find an existing table for this space
-                rz_gfx_descriptor_table_desc* table = NULL;
+                rz_gfx_descriptor_table_layout* tableLayout = NULL;
                 for (uint32_t t = 0; t < tableCount; ++t) {
-                    if (tableDescs[t].tableIndex == bindDesc.Space) {
-                        table = &tableDescs[t];
+                    if (tableLayouts[t].tableIndex == bindDesc.Space) {
+                        tableLayout = &tableLayouts[t];
                         break;
                     }
                 }
 
                 // If not found, create a new descriptor table for this register space
-                if (!table) {
-                    table                  = &tableDescs[bindDesc.Space];
-                    table->tableIndex      = bindDesc.Space;
-                    table->descriptorCount = 0;
-                    table->pDescriptors    = NULL;
+                if (!tableLayout) {
+                    tableLayout                  = &tableLayouts[bindDesc.Space];
+                    tableLayout->tableIndex      = bindDesc.Space;
+                    tableLayout->descriptorCount = 0;
+                    tableLayout->pDescriptors    = NULL;
                     tableCount++;
                 }
 
                 // Add descriptor to the table
                 rz_gfx_descriptor* descriptors =
-                    (rz_gfx_descriptor*) Memory::RZRealloc((void*) table->pDescriptors, sizeof(rz_gfx_descriptor) * (table->descriptorCount + 1));
-                table->pDescriptors = descriptors;
+                    (rz_gfx_descriptor*) Memory::RZRealloc((void*) tableLayout->pDescriptors, sizeof(rz_gfx_descriptor) * (tableLayout->descriptorCount + 1));
+                tableLayout->pDescriptors = descriptors;
 
-                rz_gfx_descriptor* desc = &table->pDescriptors[table->descriptorCount++];
+                rz_gfx_descriptor* desc = &tableLayout->pDescriptors[tableLayout->descriptorCount++];
                 memset(desc, 0, sizeof(rz_gfx_descriptor));
                 desc->pName            = bindDesc.Name;
                 desc->location.binding = bindDesc.BindPoint;
@@ -292,8 +293,8 @@ namespace Razix {
             }
 
             // Store the descriptor tables
-            outReflection->rootSignatureDesc.descriptorTableCount  = tableCount;
-            outReflection->rootSignatureDesc.pDescriptorTablesDesc = tableDescs;
+            outReflection->rootSignatureDesc.descriptorTableLayoutsCount = tableCount;
+            outReflection->rootSignatureDesc.pDescriptorTableLayouts     = tableLayouts;
 
             // Cleanup
             shaderReflection->Release();
@@ -330,12 +331,12 @@ namespace Razix {
                 Memory::RZFree(reflection->pInputElements);
                 reflection->pInputElements = NULL;
             }
-            if (reflection->rootSignatureDesc.pDescriptorTablesDesc) {
-                for (uint32_t i = 0; i < reflection->rootSignatureDesc.descriptorTableCount; ++i) {
-                    rz_gfx_descriptor_table_desc* tableDesc = &reflection->rootSignatureDesc.pDescriptorTablesDesc[i];
-                    if (tableDesc->pDescriptors) {
-                        Memory::RZFree(tableDesc->pDescriptors);
-                        tableDesc->pDescriptors = NULL;
+            if (reflection->rootSignatureDesc.pDescriptorTableLayouts) {
+                for (uint32_t i = 0; i < reflection->rootSignatureDesc.descriptorTableLayoutsCount; ++i) {
+                    rz_gfx_descriptor_table_layout* tableLayout = &reflection->rootSignatureDesc.pDescriptorTableLayouts[i];
+                    if (tableLayout->pDescriptors) {
+                        Memory::RZFree(tableLayout->pDescriptors);
+                        tableLayout->pDescriptors = NULL;
                     }
                     // I don't think we want to free the resource views here because they are managed by the descriptor tables
                 }
@@ -345,8 +346,8 @@ namespace Razix {
                     reflection->rootSignatureDesc.pRootConstantsDesc = NULL;
                 }
 
-                Memory::RZFree(reflection->rootSignatureDesc.pDescriptorTablesDesc);
-                reflection->rootSignatureDesc.pDescriptorTablesDesc = NULL;
+                Memory::RZFree(reflection->rootSignatureDesc.pDescriptorTableLayouts);
+                reflection->rootSignatureDesc.pDescriptorTableLayouts = NULL;
             }
             reflection->elementCount = 0;
         }
@@ -356,15 +357,15 @@ namespace Razix {
             if (!src || !dst) return;
 
             // Do a deep copy of the descriptor tables and root constants
-            if (src->rootSignatureDesc.pDescriptorTablesDesc) {
-                dst->pDescriptorTablesDesc = (rz_gfx_descriptor_table_desc*) Memory::RZMalloc(
-                    sizeof(rz_gfx_descriptor_table_desc) * src->rootSignatureDesc.descriptorTableCount);
-                memcpy(dst->pDescriptorTablesDesc, src->rootSignatureDesc.pDescriptorTablesDesc, sizeof(rz_gfx_descriptor_table_desc) * src->rootSignatureDesc.descriptorTableCount);
+            if (src->rootSignatureDesc.pDescriptorTableLayouts) {
+                dst->pDescriptorTableLayouts = (rz_gfx_descriptor_table_layout*) Memory::RZMalloc(
+                    sizeof(rz_gfx_descriptor_table_layout) * src->rootSignatureDesc.descriptorTableLayoutsCount);
+                memcpy(dst->pDescriptorTableLayouts, src->rootSignatureDesc.pDescriptorTableLayouts, sizeof(rz_gfx_descriptor_table_layout) * src->rootSignatureDesc.descriptorTableLayoutsCount);
 
                 // for each descriptor table, copy the descriptors
-                for (uint32_t i = 0; i < src->rootSignatureDesc.descriptorTableCount; ++i) {
-                    rz_gfx_descriptor_table_desc* srcTable = &src->rootSignatureDesc.pDescriptorTablesDesc[i];
-                    rz_gfx_descriptor_table_desc* dstTable = &dst->pDescriptorTablesDesc[i];
+                for (uint32_t i = 0; i < src->rootSignatureDesc.descriptorTableLayoutsCount; ++i) {
+                    rz_gfx_descriptor_table_layout* srcTable = &src->rootSignatureDesc.pDescriptorTableLayouts[i];
+                    rz_gfx_descriptor_table_layout* dstTable = &dst->pDescriptorTableLayouts[i];
                     if (srcTable->pDescriptors) {
                         dstTable->pDescriptors = (rz_gfx_descriptor*) Memory::RZMalloc(
                             sizeof(rz_gfx_descriptor) * srcTable->descriptorCount);
@@ -375,7 +376,7 @@ namespace Razix {
                 }
 
             } else {
-                dst->pDescriptorTablesDesc = NULL;
+                dst->pDescriptorTableLayouts = NULL;
             }
             if (src->rootSignatureDesc.pRootConstantsDesc) {
                 dst->pRootConstantsDesc = (rz_gfx_root_constant_desc*) Memory::RZMalloc(
@@ -386,8 +387,8 @@ namespace Razix {
             }
 
             // Copy other relevant data
-            dst->descriptorTableCount = src->rootSignatureDesc.descriptorTableCount;
-            dst->rootConstantCount    = src->rootSignatureDesc.rootConstantCount;
+            dst->descriptorTableLayoutsCount = src->rootSignatureDesc.descriptorTableLayoutsCount;
+            dst->rootConstantCount           = src->rootSignatureDesc.rootConstantCount;
         }
 
     }    // namespace Gfx
