@@ -409,16 +409,16 @@ static D3D12_RENDER_TARGET_BLEND_DESC dx12_util_blend_preset(rz_gfx_blend_preset
     return desc;
 }
 
-static D3D12_TEXTURE_ADDRESS_MODE dx12_util_translate_wrap_type(rz_gfx_texture_wrap_type wrapType)
+static D3D12_TEXTURE_ADDRESS_MODE dx12_util_translate_address_mode(rz_gfx_texture_address_mode wrapType)
 {
     switch (wrapType) {
-        case RZ_GFX_TEXTURE_WRAP_TYPE_REPEAT:
+        case RZ_GFX_TEXTURE_ADDRESS_MODE_WRAP:
             return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        case RZ_GFX_TEXTURE_WRAP_TYPE_MIRRORED_REPEAT:
+        case RZ_GFX_TEXTURE_ADDRESS_MODE_REPEAT:
             return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-        case RZ_GFX_TEXTURE_WRAP_TYPE_CLAMP_TO_EDGE:
+        case RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP:
             return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-        case RZ_GFX_TEXTURE_WRAP_TYPE_CLAMP_TO_BORDER:
+        case RZ_GFX_TEXTURE_ADDRESS_MODE_BORDER:
             return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
         default:
             RAZIX_RHI_ASSERT(false, "[DX12] Unsupported texture wrap type: %d", wrapType);
@@ -1106,9 +1106,9 @@ static dx12_resview dx12_create_sampler_view(const rz_gfx_sampler_view_desc* des
 
     D3D12_SAMPLER_DESC dxsamplerDesc = {0};
     dxsamplerDesc.Filter             = dx12_util_translate_filter_type(samplerDesc->magFilter, samplerDesc->minFilter, samplerDesc->mipFilter);
-    dxsamplerDesc.AddressU           = dx12_util_translate_wrap_type(samplerDesc->addressModeU);
-    dxsamplerDesc.AddressV           = dx12_util_translate_wrap_type(samplerDesc->addressModeV);
-    dxsamplerDesc.AddressW           = dx12_util_translate_wrap_type(samplerDesc->addressModeW);
+    dxsamplerDesc.AddressU           = dx12_util_translate_address_mode(samplerDesc->addressModeU);
+    dxsamplerDesc.AddressV           = dx12_util_translate_address_mode(samplerDesc->addressModeV);
+    dxsamplerDesc.AddressW           = dx12_util_translate_address_mode(samplerDesc->addressModeW);
     dxsamplerDesc.ComparisonFunc     = dx12_util_compare_func(samplerDesc->compareOp);
     dxsamplerDesc.BorderColor[0]     = 0.0f;
     dxsamplerDesc.BorderColor[1]     = 0.0f;

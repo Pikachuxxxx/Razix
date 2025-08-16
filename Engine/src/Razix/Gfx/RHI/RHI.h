@@ -334,16 +334,6 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_TEXTURE_TYPE_COUNT
     } rz_gfx_texture_type;
 
-    typedef enum rz_gfx_texture_address_mode
-    {
-        RZ_GFX_TEXTURE_ADDRESS_MODE_WRAP = 0,       // Repeat the texture coordinates
-        RZ_GFX_TEXTURE_ADDRESS_MODE_MIRROR,         // Mirror the texture coordinates
-        RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP,          // Clamp to edge of the texture
-        RZ_GFX_TEXTURE_ADDRESS_MODE_BORDER,         // Use a border color for out-of-bounds
-        RZ_GFX_TEXTURE_ADDRESS_MODE_MIRROR_ONCE,    // Mirror once and then clamp
-        RZ_GFX_TEXTURE_ADDRESS_MODE_COUNT
-    } rz_gfx_texture_address_mode;
-
     typedef enum rz_gfx_cmdpool_type
     {
         RZ_GFX_CMDPOOL_TYPE_GRAPHICS,
@@ -470,14 +460,14 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_SHADER_DATA_TYPE_COUNT
     } rz_gfx_shader_data_type;
 
-    typedef enum rz_gfx_texture_wrap_type
+    typedef enum rz_gfx_texture_address_mode
     {
-        RZ_GFX_TEXTURE_WRAP_TYPE_REPEAT = 0,
-        RZ_GFX_TEXTURE_WRAP_TYPE_MIRRORED_REPEAT,
-        RZ_GFX_TEXTURE_WRAP_TYPE_CLAMP_TO_EDGE,
-        RZ_GFX_TEXTURE_WRAP_TYPE_CLAMP_TO_BORDER,
-        RZ_GFX_TEXTURE_WRAP_TYPE_COUNT
-    } rz_gfx_texture_wrap_type;
+        RZ_GFX_TEXTURE_ADDRESS_MODE_WRAP = 0,
+        RZ_GFX_TEXTURE_ADDRESS_MODE_REPEAT,
+        RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP,
+        RZ_GFX_TEXTURE_ADDRESS_MODE_BORDER,
+        RZ_GFX_TEXTURE_ADDRESS_MODE_COUNT
+    } rz_gfx_texture_address_mode;
 
     typedef enum rz_gfx_texture_filter_type
     {
