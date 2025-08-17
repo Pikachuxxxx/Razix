@@ -5,6 +5,7 @@
 
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
 
+#include "Razix/Gfx/RZGfxUtil.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -35,7 +36,8 @@ namespace Razix {
             RAZIX_UNUSED(outReflection);
 
             // Placeholder for future Vulkan shader reflection implementation
-            RAZIX_CORE_WARN("[Vulkan] Shader reflection not yet implemented");
+            RAZIX_CORE_ERROR("[Vulkan] Shader reflection not yet implemented");
+            RAZIX_UNIMPLEMENTED_METHOD("[Vulkan] Shader reflection not yet implemented");
         }
 
 #endif    // RAZIX_RENDER_API_VULKAN
@@ -400,8 +402,15 @@ namespace Razix {
         RZShaderBindMap& RZShaderBindMap::RegisterBindMap(const rz_gfx_shader_handle& shaderHandle)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-            RAZIX_ASSERT(!rz_handle_is_valid(&shaderHandle), "[ShaderBindMap] Invalid shader handle provided to register bind map!");
-            return Gfx::RZResourceManager::Get().getShaderBindMap(shaderHandle);
+
+            RAZIX_ASSERT(rz_handle_is_valid(&shaderHandle), "[ShaderBindMap] Invalid shader handle provided to register bind map!");
+
+            RZShaderBindMap& bindMap   = Gfx::RZResourceManager::Get().getShaderBindMap(shaderHandle);
+            bindMap.m_ShaderHandle     = shaderHandle;
+            rz_gfx_shader* shader      = RZResourceManager::Get().getShaderResource(bindMap.m_ShaderHandle);
+            bindMap.m_ShaderReflection = Gfx::ReflectShader(shader);
+
+            return bindMap;
         }
 
         RZShaderBindMap& RZShaderBindMap::Create(void* where, const rz_gfx_shader_handle& shaderHandle)
@@ -409,79 +418,169 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             RAZIX_ASSERT(where != NULL, "[ShaderBindMap] Invalid memory location provided to create shader bind map!");
-            RZShaderBindMap* bindMap = new (where) RZShaderBindMap(shaderHandle);
+            RAZIX_ASSERT(rz_handle_is_valid(&shaderHandle), "[ShaderBindMap] Invalid shader handle provided to register bind map!");
+
+            RZShaderBindMap* bindMap    = new (where) RZShaderBindMap(shaderHandle);
+            bindMap->m_ShaderHandle     = shaderHandle;
+            rz_gfx_shader* shader       = RZResourceManager::Get().getShaderResource(bindMap->m_ShaderHandle);
+            bindMap->m_ShaderReflection = Gfx::ReflectShader(shader);
+
             return *bindMap;
         }
 
-        RZShaderBindMap& RZShaderBindMap::setResourceView(const rz_gfx_resource_view& resourceView)
+        RZShaderBindMap& RZShaderBindMap::setResourceView(const std::string& shaderResName, const rz_gfx_resource_view& resourceView)
         {
-            dirty = true;
+            setResourceView(shaderResName, resourceView.resource.handle);
             return *this;
         }
 
-        RZShaderBindMap& RZShaderBindMap::setResourceView(const rz_gfx_resource_view_handle& resourceViewHandle)
+        RZShaderBindMap& RZShaderBindMap::setResourceView(const std::string& shaderResName, const rz_gfx_resource_view_handle& resourceViewHandle)
         {
-            dirty = true;
-            return *this;
-        }
+            RAZIX_ASSERT(rz_handle_is_valid(&resourceViewHandle), "[ShaderBindMap] Invalid resource view handle provided to register bind map!");
 
-        RZShaderBindMap& RZShaderBindMap::setDescriptorTable(const rz_gfx_descriptor_table_handle& descriptorTableHandle)
-        {
-            dirty = true;
+            dirty                                   = true;
+            m_ResourceViewHandleRefs[shaderResName] = resourceViewHandle;
             return *this;
         }
 
         RZShaderBindMap& RZShaderBindMap::setDescriptorTable(const rz_gfx_descriptor_table& descriptorTable)
         {
             dirty = true;
+            setDescriptorTable(descriptorTable.resource.handle);
+            return *this;
+        }
+
+        RZShaderBindMap& RZShaderBindMap::setDescriptorTable(const rz_gfx_descriptor_table_handle& descriptorTableHandle)
+        {
+            RAZIX_ASSERT(rz_handle_is_valid(&descriptorTableHandle), "[ShaderBindMap] Invalid descriptor table handle provided to register bind map!");
+
+            dirty = true;
+            m_DescriptorTables.push_back(descriptorTableHandle);
             return *this;
         }
 
         RZShaderBindMap& RZShaderBindMap::setDescriptorBlacklist(const DescriptorBlacklist& blacklist)
         {
             dirty = true;
+            m_BlacklistDescriptors.push_back(blacklist);
             return *this;
         }
 
         RZShaderBindMap& RZShaderBindMap::setDescriptorBlacklist(const std::string& name, const std::vector<std::string>& blacklistNames)
         {
             dirty = true;
+            DescriptorBlacklist blacklist;
+            blacklist.name           = name;
+            blacklist.blacklistNames = blacklistNames;
+            m_BlacklistDescriptors.push_back(blacklist);
             return *this;
+        }
+
+        enum BindMapValidationErr
+        {
+            SHADER_REFLECTION_VALIDATION_SUCCESS             = 0,
+            SHADER_REFLECTION_VALIDATION_DESCRIPTOR_MISMATCH = 1 << 1,
+            SHADER_REFLECTION_VALIDATION_BAD_TABLE_IDX       = 1 << 2,    // How do I use this?
+            SHADER_REFLECTION_VALIDATION_FAILED              = 1 << 3,
+            SHADER_REFLECTION_VALIDATION_INVALID_DESCRIPTOR  = 1 << 4,
+        };
+
+        static BindMapValidationErr XXX(const rz_gfx_shader_reflection* reflection, const std::string& name, u32 idx)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_ASSERT(reflection != nullptr, "[ShaderBindMap] Shader reflection is null! Cannot validate shader bind map!");
+
+            const rz_gfx_root_signature_desc* root        = &reflection->rootSignatureDesc;
+            u32                               tablesCount = root->descriptorTableLayoutsCount;
+
+            for (u32 t = 0; t < tablesCount; ++t) {
+                const rz_gfx_descriptor_table_layout* tableLayout = &root->pDescriptorTableLayouts[t];
+                // Found the table, now search for the descriptor by name
+                for (u32 d = 0; d < tableLayout->descriptorCount; ++d) {
+                    const rz_gfx_descriptor* desc = &tableLayout->pDescriptors[d];
+                    if (desc == NULL && desc->pName == NULL) {
+                        RAZIX_CORE_ERROR("[ShaderBindMap] Descriptor is null/name in table index {0}!", idx);
+                        return SHADER_REFLECTION_VALIDATION_INVALID_DESCRIPTOR;
+                    }
+
+                    if (tableLayout->tableIndex == idx) {}
+
+                    if (desc->pName && desc->pName == name) {
+                        // Found the descriptor by name
+                        RAZIX_CORE_TRACE("[ShaderBindMap] Found descriptor '{0}' in table index {1}", name, idx);
+                        return SHADER_REFLECTION_VALIDATION_SUCCESS;
+                    }
+                }
+                return SHADER_REFLECTION_VALIDATION_DESCRIPTOR_MISMATCH;
+            }
+
+            return SHADER_REFLECTION_VALIDATION_FAILED;
         }
 
         RZShaderBindMap& RZShaderBindMap::validate()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             if (validated && !dirty) {
-                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                 RAZIX_CORE_WARN("[ShaderBindMap] Shader Bind Map is already validated and not dirty! No need to validate again!");
                 return *this;
             }
+
+            // validate resource views provided against shader reflection data
+            // We do this so by making a mock m_TableBuilderResViewRefs and try to fill it with resviews from
+            // m_ResourceViewHandleRefs and then validate against the shader reflection data for any missing data
+            // This is the validation step:
+            // 1. go thought all the descriptors in each table in the reflection data
+            // 2. check if the descriptor is in the m_ResourceViewHandleRefs map and it not blacklisted
+            // 3. if it is not in the map, then we have a missing descriptor and report it
+            // 4. if it is in the map, then we have a valid descriptor and we can build the descriptor table with that resource view for that table index
+            // 5. once each of table is built, we can then validate the resource views to make sure nothing is missing and that table is complete and valid,
+            // 6. if anything is missing from that table that is not in the blacklist, we can print errors and report it
+            // 7. Do this for all tables and build the m_TableBuilderResViewRefs completely
+
+            if (rz_handle_is_valid(&m_ShaderHandle)) {
+                rz_gfx_shader* shader = RZResourceManager::Get().getShaderResource(m_ShaderHandle);
+                RAZIX_ASSERT(shader != nullptr, "[ShaderBindMap] Shader resource is null! Cannot validate shader bind map!");
+
+                u32 tableIdx = 0;
+                // Validate the resource views against the shader reflection data
+                for (const auto& [name, viewHandle]: m_ResourceViewHandleRefs) {
+                    // Check against shader reflection data descriptors
+                }
+                validated = true;
+            } else {
+                RAZIX_CORE_ERROR("[ShaderBindMap] Shader handle is invalid! Cannot validate shader bind map!");
+            }
+
+            // Check if anything is missing and print warnings also check against the blacklist and print out
 
             return *this;
         }
 
         RZShaderBindMap& RZShaderBindMap::build()
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             if (!validated) {
-                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-                RAZIX_CORE_WARN("[ShaderBindMap] Shader Bind Map is not validated! Validating now...");
+                RAZIX_CORE_WARN("[ShaderBindMap] Shader Bind Map is not validated! Validating now.... Do it manually using validate() to avoid perf hits!");
                 validate();
             }
 
             if (dirty) {
-                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
                 dirty = false;
-            }
 
+                // Build the descriptor tables using validated data from m_TableBuilderResViewRefs
+            }
             return *this;
         }
 
         RZShaderBindMap& RZShaderBindMap::clear()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             m_DescriptorTables.clear();
             m_BlacklistDescriptors.clear();
+            m_ResourceViewHandleRefs.clear();
             return *this;
         }
 
@@ -494,9 +593,13 @@ namespace Razix {
         RZShaderBindMap& RZShaderBindMap::destroy()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
             FreeShaderReflectionMemAllocs(&m_ShaderReflection);
             m_DescriptorTables.clear();
             m_BlacklistDescriptors.clear();
+            m_ResourceViewHandleRefs.clear();
+
+            Gfx::FreeShaderReflectionMemAllocs(&m_ShaderReflection);
 
             // Destroy Tables created by this bind map
 

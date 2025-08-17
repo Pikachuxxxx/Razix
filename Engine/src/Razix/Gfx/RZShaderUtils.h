@@ -63,15 +63,21 @@ namespace Razix {
         class RZShaderBindMap
         {
         public:
+            struct NamedResView
+            {
+                std::string                 name;
+                rz_gfx_resource_view_handle resourceViewHandle;
+            };
+
             RZShaderBindMap() = default;
 
             static RZShaderBindMap& RegisterBindMap(const rz_gfx_shader_handle& shaderHandle);
             static RZShaderBindMap& Create(void* where, const rz_gfx_shader_handle& shaderHandle);
 
-            RZShaderBindMap& setResourceView(const rz_gfx_resource_view& resourceView);
-            RZShaderBindMap& setResourceView(const rz_gfx_resource_view_handle& resourceViewHandle);
-            RZShaderBindMap& setDescriptorTable(const rz_gfx_descriptor_table_handle& descriptorTableHandle);
+            RZShaderBindMap& setResourceView(const std::string& shaderResName, const rz_gfx_resource_view& resourceView);
+            RZShaderBindMap& setResourceView(const std::string& shaderResName, const rz_gfx_resource_view_handle& resourceViewHandle);
             RZShaderBindMap& setDescriptorTable(const rz_gfx_descriptor_table& descriptorTable);
+            RZShaderBindMap& setDescriptorTable(const rz_gfx_descriptor_table_handle& descriptorTableHandle);
             RZShaderBindMap& setDescriptorBlacklist(const DescriptorBlacklist& blacklist);
             RZShaderBindMap& setDescriptorBlacklist(const std::string& name, const std::vector<std::string>& blacklistNames);
             RZShaderBindMap& validate();
@@ -88,10 +94,12 @@ namespace Razix {
             inline const rz_gfx_descriptor_table_handle&              getDescriptorTableHandleAt(u32 idx) const { return m_DescriptorTables[idx]; }
 
         private:
-            std::vector<DescriptorBlacklist>            m_BlacklistDescriptors = {};
-            std::vector<rz_gfx_descriptor_table_handle> m_DescriptorTables     = {};
-            rz_gfx_shader_reflection                    m_ShaderReflection     = {};
-            rz_gfx_shader_handle                        m_ShaderHandle         = {};
+            rz_gfx_shader_reflection                           m_ShaderReflection        = {};
+            rz_gfx_shader_handle                               m_ShaderHandle            = {};
+            std::map<std::string, rz_gfx_resource_view_handle> m_ResourceViewHandleRefs  = {};
+            std::vector<DescriptorBlacklist>                   m_BlacklistDescriptors    = {};
+            std::map<u32, std::vector<NamedResView>>           m_TableBuilderResViewRefs = {};
+            std::vector<rz_gfx_descriptor_table_handle>        m_DescriptorTables        = {};
             union
             {
                 u32 statusFlags = 0xffffffff;
