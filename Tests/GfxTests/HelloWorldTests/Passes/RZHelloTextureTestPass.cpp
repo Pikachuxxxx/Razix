@@ -122,10 +122,10 @@ namespace Razix {
         {
             // TODO: Collapse destroy descriptor tables to get them from a GlobalShaderBindMap --> for pass resource binding these manage the lifetime of the descriptor tables
             RZResourceManager::Get().destroyDescriptorTable(m_DescriptorTable);
-            RZResourceManager::Get().destroyShader(m_Shader);
+            RZResourceManager::Get().destroyPipeline(m_Pipeline);
             RZResourceManager::Get().destroyResourceView(m_TestTextureViewHandle);
             RZResourceManager::Get().destroyTexture(m_TestTextureHandle);
-            RZResourceManager::Get().destroyPipeline(m_Pipeline);
+            RZResourceManager::Get().destroyShader(m_Shader);
         }
     }    // namespace Gfx
 }    // namespace Razix

@@ -391,5 +391,9 @@ namespace Razix {
             dst->rootConstantCount           = src->rootSignatureDesc.rootConstantCount;
         }
 
+        //-----------------------------------------------------------------------------------
+        // Shader Bind Map for Descriptor table management
+        //-----------------------------------------------------------------------------------
+
     }    // namespace Gfx
 }    // namespace Razix

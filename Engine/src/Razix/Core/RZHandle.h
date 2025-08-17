@@ -78,3 +78,32 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif    // __cplusplus
+
+#ifdef __cplusplus
+
+inline bool operator==(const rz_handle& a, const rz_handle& b) noexcept
+{
+    return a.index == b.index && a.generation == b.generation;
+}
+
+namespace std {
+    template<>
+    struct hash<rz_handle>
+    {
+        size_t operator()(const rz_handle& h) const noexcept
+        {
+            uint64_t x = (uint64_t(h.index) << 32) | uint64_t(h.generation);
+
+            x += 0x9e3779b97f4a7c15ull;
+            x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ull;
+            x = (x ^ (x >> 27)) * 0x94d049bb133111ebull;
+            x = x ^ (x >> 31);
+
+            if constexpr (sizeof(size_t) == 8)
+                return static_cast<size_t>(x);
+            else
+                return static_cast<size_t>(x ^ (x >> 32));
+        }
+    };
+}    // namespace std
+#endif
