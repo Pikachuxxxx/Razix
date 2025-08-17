@@ -5,6 +5,8 @@
 
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
 
+#include "Razix/Gfx/Resources/RZResourceManager.h"
+
 #ifdef RAZIX_RENDER_API_VULKAN
     #include <vulkan/vulkan.h>
 #endif
@@ -395,5 +397,121 @@ namespace Razix {
         // Shader Bind Map for Descriptor table management
         //-----------------------------------------------------------------------------------
 
+        RZShaderBindMap& RZShaderBindMap::RegisterBindMap(const rz_gfx_shader_handle& shaderHandle)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_ASSERT(!rz_handle_is_valid(&shaderHandle), "[ShaderBindMap] Invalid shader handle provided to register bind map!");
+            return Gfx::RZResourceManager::Get().getShaderBindMap(shaderHandle);
+        }
+
+        RZShaderBindMap& RZShaderBindMap::Create(void* where, const rz_gfx_shader_handle& shaderHandle)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            RAZIX_ASSERT(where != NULL, "[ShaderBindMap] Invalid memory location provided to create shader bind map!");
+            RZShaderBindMap* bindMap = new (where) RZShaderBindMap(shaderHandle);
+            return *bindMap;
+        }
+
+        RZShaderBindMap& RZShaderBindMap::setResourceView(const rz_gfx_resource_view& resourceView)
+        {
+            dirty = true;
+            return *this;
+        }
+
+        RZShaderBindMap& RZShaderBindMap::setResourceView(const rz_gfx_resource_view_handle& resourceViewHandle)
+        {
+            dirty = true;
+            return *this;
+        }
+
+        RZShaderBindMap& RZShaderBindMap::setDescriptorTable(const rz_gfx_descriptor_table_handle& descriptorTableHandle)
+        {
+            dirty = true;
+            return *this;
+        }
+
+        RZShaderBindMap& RZShaderBindMap::setDescriptorTable(const rz_gfx_descriptor_table& descriptorTable)
+        {
+            dirty = true;
+            return *this;
+        }
+
+        RZShaderBindMap& RZShaderBindMap::setDescriptorBlacklist(const DescriptorBlacklist& blacklist)
+        {
+            dirty = true;
+            return *this;
+        }
+
+        RZShaderBindMap& RZShaderBindMap::setDescriptorBlacklist(const std::string& name, const std::vector<std::string>& blacklistNames)
+        {
+            dirty = true;
+            return *this;
+        }
+
+        RZShaderBindMap& RZShaderBindMap::validate()
+        {
+            if (validated && !dirty) {
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+                RAZIX_CORE_WARN("[ShaderBindMap] Shader Bind Map is already validated and not dirty! No need to validate again!");
+                return *this;
+            }
+
+            return *this;
+        }
+
+        RZShaderBindMap& RZShaderBindMap::build()
+        {
+            if (!validated) {
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+                RAZIX_CORE_WARN("[ShaderBindMap] Shader Bind Map is not validated! Validating now...");
+                validate();
+            }
+
+            if (dirty) {
+                RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                dirty = false;
+            }
+
+            return *this;
+        }
+
+        RZShaderBindMap& RZShaderBindMap::clear()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+            m_DescriptorTables.clear();
+            m_BlacklistDescriptors.clear();
+            return *this;
+        }
+
+        RZShaderBindMap& RZShaderBindMap::clearBlacklist()
+        {
+            m_BlacklistDescriptors.clear();
+            return *this;
+        }
+
+        RZShaderBindMap& RZShaderBindMap::destroy()
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+            FreeShaderReflectionMemAllocs(&m_ShaderReflection);
+            m_DescriptorTables.clear();
+            m_BlacklistDescriptors.clear();
+
+            // Destroy Tables created by this bind map
+
+            return *this;
+        }
+
+        void RZShaderBindMap::bind(rz_gfx_cmdbuf_handle cmdBufHandle)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            RAZIX_ASSERT(validated && built, "[ShaderBindMap] Shader Bind Map is not validated or built! Cannot bind!");
+            if (dirty) {
+                RAZIX_CORE_WARN("[ShaderBindMap] Shader Bind Map is dirty! Building it again before binding... Please build it properly auto building might result in catastrophic failures");
+                build();
+            }
+        }
     }    // namespace Gfx
 }    // namespace Razix

@@ -63,12 +63,11 @@ namespace Razix {
         class RZShaderBindMap
         {
         public:
-            RZShaderBindMap() {}
-            ~RZShaderBindMap() {}
+            RZShaderBindMap() = default;
 
-            RZShaderBindMap& registerBindMap();
-            RZShaderBindMap& createFrom(const rz_gfx_shader_handle& shaderHandle);
-            RZShaderBindMap& createFrom(const rz_gfx_shader_reflection& shaderReflection);
+            static RZShaderBindMap& RegisterBindMap(const rz_gfx_shader_handle& shaderHandle);
+            static RZShaderBindMap& Create(void* where, const rz_gfx_shader_handle& shaderHandle);
+
             RZShaderBindMap& setResourceView(const rz_gfx_resource_view& resourceView);
             RZShaderBindMap& setResourceView(const rz_gfx_resource_view_handle& resourceViewHandle);
             RZShaderBindMap& setDescriptorTable(const rz_gfx_descriptor_table_handle& descriptorTableHandle);
@@ -81,20 +80,34 @@ namespace Razix {
             RZShaderBindMap& clearBlacklist();
             RZShaderBindMap& destroy();
 
-            void bind(rz_gfx_cmdbuf_handle cmdBufHandle) const;
-            void unbind(rz_gfx_cmdbuf_handle cmdBufHandle) const;
+            void bind(rz_gfx_cmdbuf_handle cmdBufHandle);
 
-            inline const rz_gfx_shader_reflection&             getShaderReflection() const { return m_ShaderReflection; }
-            inline const rz_gfx_shader_handle&                 getShaderHandle() const { return m_ShaderHandle; }
-            inline const std::vector<rz_gfx_descriptor_table>& getDescriptorTables() const { return m_DescriptorTables; }
-            inline const rz_gfx_descriptor_table&              getDescriptorTableAt(u32 idx) const { return m_DescriptorTables[idx]; }
+            inline const rz_gfx_shader_reflection&                    getShaderReflection() const { return m_ShaderReflection; }
+            inline const rz_gfx_shader_handle&                        getShaderHandle() const { return m_ShaderHandle; }
+            inline const std::vector<rz_gfx_descriptor_table_handle>& getDescriptorTableHandles() const { return m_DescriptorTables; }
+            inline const rz_gfx_descriptor_table_handle&              getDescriptorTableHandleAt(u32 idx) const { return m_DescriptorTables[idx]; }
 
         private:
-            std::vector<DescriptorBlacklist>     m_BlacklistDescriptors = {};
-            std::vector<rz_gfx_descriptor_table> m_DescriptorTables     = {};
-            rz_gfx_shader_reflection             m_ShaderReflection     = {};
-            rz_gfx_shader_handle                 m_ShaderHandle         = {};
-        };
+            std::vector<DescriptorBlacklist>            m_BlacklistDescriptors = {};
+            std::vector<rz_gfx_descriptor_table_handle> m_DescriptorTables     = {};
+            rz_gfx_shader_reflection                    m_ShaderReflection     = {};
+            rz_gfx_shader_handle                        m_ShaderHandle         = {};
+            union
+            {
+                u32 statusFlags = 0xffffffff;
+                struct
+                {
+                    u32 validated : 1;
+                    u32 built : 1;
+                    u32 dirty : 1;
+                };
+            };
 
+        private:
+            RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZShaderBindMap);
+
+            RZShaderBindMap(rz_gfx_shader_handle shaderHandle)
+                : m_ShaderHandle(shaderHandle) {}
+        };
     }    // namespace Gfx
 }    // namespace Razix
