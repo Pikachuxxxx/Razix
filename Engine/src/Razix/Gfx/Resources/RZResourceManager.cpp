@@ -33,6 +33,7 @@
             RAZIX_CORE_ERROR("[Resource Manager] Resource Destroy Callback is NULL for resource: {0}", rz_handle_get_index(&handle)); \
         }                                                                                                                             \
         pool.release(handle);                                                                                                         \
+        rz_handle_destroy(&handle);                                                                                                   \
     } else                                                                                                                            \
         RAZIX_CORE_ERROR(message);
 

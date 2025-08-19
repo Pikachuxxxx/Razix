@@ -59,10 +59,10 @@ private:                                                                        
             {
             }
 
+            /* Handles Resource Allocation functions */
             //-----------------------------------------------------------------------------------
             // Resource View
             RAZIX_REGISTER_RESOURCE_POOL(ResourceView, rz_gfx_resource_view)
-            /* Handles Resource Allocation functions */
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(Texture, rz_gfx_texture)
             //-----------------------------------------------------------------------------------
