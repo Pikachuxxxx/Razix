@@ -1668,6 +1668,21 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.BindDescriptorHeaps(RZResourceManager::Get().getCommandBufferResource(cb), _heaps, N); \
             } while (0);
 
+        // TODO: use custom container for descriptor heaps and tables
+        #define rzRHI_BindDescriptorHeapsContainer(cb, heaps)                                       \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorHeaps",                                   \
+                    RZ_PROFILE_COLOR_RHI_DRAW_CALLS);                                               \
+                std::vector<rz_gfx_descriptor_heap*> heapPtrs;                                      \
+                heapPtrs.reserve((heaps).size());                                                   \
+                for (const auto& handle: (heaps))                                                   \
+                    heapPtrs.push_back(RZResourceManager::Get().getDescriptorHeapResource(handle)); \
+                g_RHI.BindDescriptorHeaps(                                                          \
+                    RZResourceManager::Get().getCommandBufferResource(cb),                          \
+                    heapPtrs.data(),                                                                \
+                    heapPtrs.size());                                                               \
+            } while (0)
+
         #define rzRHI_BindDescriptorTables(cb, ppt, dts, N)                                                      \
             do {                                                                                                 \
                 RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorTables", RZ_PROFILE_COLOR_RHI_DRAW_CALLS);             \
@@ -1676,6 +1691,20 @@ static inline unsigned int rz_clz32(unsigned int x)
                     _dts[i] = RZResourceManager::Get().getDescriptorTableResource(dts[i]);                       \
                 g_RHI.BindDescriptorTables(RZResourceManager::Get().getCommandBufferResource(cb), ppt, _dts, N); \
             } while (0);
+
+        #define rzRHI_BindDescriptorTablesContainer(cb, ppt, dts)                                     \
+            do {                                                                                      \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorTables", RZ_PROFILE_COLOR_RHI_DRAW_CALLS);  \
+                std::vector<rz_gfx_descriptor_table*> tablePtrs;                                      \
+                tablePtrs.reserve((dts).size());                                                      \
+                for (const auto& handle: (dts))                                                       \
+                    tablePtrs.push_back(RZResourceManager::Get().getDescriptorTableResource(handle)); \
+                g_RHI.BindDescriptorTables(                                                           \
+                    RZResourceManager::Get().getCommandBufferResource(cb),                            \
+                    ppt,                                                                              \
+                    tablePtrs.data(),                                                                 \
+                    tablePtrs.size());                                                                \
+            } while (0)
 
         #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                                                     \
             do {                                                                                       \
