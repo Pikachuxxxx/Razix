@@ -9,7 +9,7 @@ namespace Razix {
             rz_gfx_shader_desc desc = {};
             desc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
             desc.rzsfFilePath       = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTextureTest.rzsf";
-            m_Shader                = Gfx::RZResourceManager::Get().createShader("HelloTextureShader", desc);
+            m_Shader                = Gfx::RZResourceManager::Get().createShader("Shader.GfxTest.HelloTexture", desc);
 
             // Build the pipeline here for this pass
             rz_gfx_pipeline_desc pipelineInfo   = {};
@@ -38,7 +38,7 @@ namespace Razix {
             textureViewDesc.textureViewDesc.baseMip        = 0;
             textureViewDesc.textureViewDesc.baseArrayLayer = 0;
             textureViewDesc.textureViewDesc.dimension      = 1;
-            m_TestTextureViewHandle                        = RZResourceManager::Get().createResourceView("TestTextureView", textureViewDesc);
+            m_TestTextureViewHandle                        = RZResourceManager::Get().createResourceView("Resview.GfxTest.TestTextureFullView", textureViewDesc);
 
             struct HelloTexturePassData
             {

@@ -610,7 +610,7 @@ namespace Razix {
                     desc.pResourceViews = pResViews;
 
                     std::string                   shaderName            = RZResourceManager::Get().getShaderResource(m_ShaderHandle)->resource.pName;
-                    std::string                   tableName             = "ShaderBindMap_DescriptorTable_" + std::to_string(i) + "_" + shaderName;
+                    std::string                   tableName             = "ShaderBindMap.DescriptorTable." + std::to_string(i) + "_" + shaderName;
                     rz_gfx_descriptor_heap_handle descriptorTableHandle = RZResourceManager::Get().createDescriptorTable(tableName.c_str(), desc);
                     m_DescriptorTables.push_back(descriptorTableHandle);
                     Memory::RZFree(pResViews);

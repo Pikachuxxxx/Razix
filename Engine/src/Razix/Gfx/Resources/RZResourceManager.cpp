@@ -110,7 +110,7 @@ namespace Razix {
                     Gfx::FreeShaderReflectionMemAllocs(&reflection);
                     return;
                 }
-                auto rootSigName      = "RootSignature_" + std::string(shader->resource.pName);
+                auto rootSigName      = "RootSignature." + std::string(shader->resource.pName);
                 shader->rootSignature = RZResourceManager::Get().createRootSignature(rootSigName.c_str(), rootSigDesc);
             }
 
