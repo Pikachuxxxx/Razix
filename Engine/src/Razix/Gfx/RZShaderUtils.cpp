@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZShaderUtils.h"
 
+#include "Razix/Core/RZEngine.h"
+
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
 
 #include "Razix/Gfx/RZGfxUtil.h"
@@ -587,9 +589,38 @@ namespace Razix {
             }
 
             if (dirty) {
-                dirty = false;
+                m_DescriptorTables.clear();
+                for (u32 i = 0; i < m_TableBuilderResViewRefs.size(); i++) {
+                    const std::vector<NamedResView>& resViews = m_TableBuilderResViewRefs[i];
+                    if (resViews.empty()) {
+                        RAZIX_CORE_WARN("[ShaderBindMap] No resource views found for table index {0}! Skipping... Probably blacklisted? or validation messed up! Please Check Logs!", i);
+                        continue;
+                    }
 
-                // Build the descriptor tables using validated data from m_TableBuilderResViewRefs
+                    rz_gfx_descriptor_table_desc desc                      = {};
+                    desc.tableIndex                                        = i;
+                    desc.resourceViewsCount                                = (u32) resViews.size();
+                    rz_gfx_descriptor_heap_handle globalResourceHeapHandle = RZEngine::Get().getWorldRenderer().getResourceHeap();
+                    desc.pHeap                                             = RZResourceManager::Get().getDescriptorHeapResource(globalResourceHeapHandle);
+
+                    rz_gfx_resource_view* pResViews = (rz_gfx_resource_view*) Memory::RZMalloc(sizeof(rz_gfx_resource_view) * resViews.size());
+                    for (u32 j = 0; j < resViews.size(); j++) {
+                        const NamedResView& resView = resViews[j];
+                        RAZIX_ASSERT(rz_handle_is_valid(&resView.resourceViewHandle), "[ShaderBindMap] Invalid resource view handle for resource view {0} in table index {1}!", resView.name, i);
+                        pResViews[j].resource.handle = resView.resourceViewHandle;
+                    }
+                    desc.pResourceViews = pResViews;
+
+                    std::string                   shaderName            = RZResourceManager::Get().getShaderResource(m_ShaderHandle)->resource.pName;
+                    std::string                   tableName             = "ShaderBindMap_DescriptorTable_" + std::to_string(i) + "_" + shaderName;
+                    rz_gfx_descriptor_heap_handle descriptorTableHandle = RZResourceManager::Get().createDescriptorTable(tableName.c_str(), desc);
+                    m_DescriptorTables.push_back(descriptorTableHandle);
+                    Memory::RZDebugFree(pResViews);
+
+                    RAZIX_CORE_INFO("[ShaderBindMap] Created descriptor table {0} for table index {1} with {2} resource views", tableName, i, resViews.size());
+                }
+                dirty = false;
+                RAZIX_CORE_INFO("[ShaderBindMap] Shader Bind Map built successfully! Created {0} descriptor tables for shader {1}", m_DescriptorTables.size(), RZResourceManager::Get().getShaderResource(m_ShaderHandle)->resource.pName);
             }
             return *this;
         }
@@ -601,12 +632,16 @@ namespace Razix {
             m_DescriptorTables.clear();
             m_BlacklistDescriptors.clear();
             m_ResourceViewHandleRefs.clear();
+            dirty     = true;
+            validated = false;
             return *this;
         }
 
         RZShaderBindMap& RZShaderBindMap::clearBlacklist()
         {
             m_BlacklistDescriptors.clear();
+            dirty     = true;
+            validated = false;
             return *this;
         }
 
@@ -614,19 +649,25 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            FreeShaderReflectionMemAllocs(&m_ShaderReflection);
+            // Destroy Tables created by this bind map (resviews are not this BindMaps responsibility)
+            for (auto& tableHandle: m_DescriptorTables)
+                RZResourceManager::Get().destroyDescriptorTable(tableHandle);
+
             m_DescriptorTables.clear();
             m_BlacklistDescriptors.clear();
             m_ResourceViewHandleRefs.clear();
 
             Gfx::FreeShaderReflectionMemAllocs(&m_ShaderReflection);
-
-            // Destroy Tables created by this bind map
+            m_ShaderReflection = {};
+            m_ShaderHandle     = {};
+            dirty              = true;
+            validated          = false;
+            m_LastError        = BIND_MAP_VALIDATION_FAILED;
 
             return *this;
         }
 
-        void RZShaderBindMap::bind(rz_gfx_cmdbuf_handle cmdBufHandle)
+        void RZShaderBindMap::bind(rz_gfx_cmdbuf_handle cmdBufHandle, rz_gfx_pipeline_type pipelineType)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -635,6 +676,9 @@ namespace Razix {
                 RAZIX_CORE_WARN("[ShaderBindMap] Shader Bind Map is dirty! Building it again before binding... Please build it properly auto building might result in catastrophic failures");
                 build();
             }
+
+            RAZIX_ASSERT(rz_handle_is_valid(&cmdBufHandle), "[ShaderBindMap] Invalid command buffer handle provided to bind shader bind map!");
+            rzRHI_BindDescriptorTablesContainer(cmdBufHandle, pipelineType, m_DescriptorTables);
         }
     }    // namespace Gfx
 }    // namespace Razix

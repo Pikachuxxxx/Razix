@@ -96,7 +96,7 @@ namespace Razix {
             RZShaderBindMap& clearBlacklist();
             RZShaderBindMap& destroy();
 
-            void                 bind(rz_gfx_cmdbuf_handle cmdBufHandle);
+            void                 bind(rz_gfx_cmdbuf_handle cmdBufHandle, rz_gfx_pipeline_type pipelineType);
             BindMapValidationErr error();
 
             inline const rz_gfx_shader_reflection&                    getShaderReflection() const { return m_ShaderReflection; }
