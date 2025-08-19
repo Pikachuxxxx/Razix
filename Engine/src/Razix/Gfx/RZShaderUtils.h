@@ -48,14 +48,14 @@ namespace Razix {
         //-----------------------------------------------------------------------------------
 
         // Bind tables for these descriptors are ignored by the shader bind map
+        constexpr u32 RZ_SHADER_BIND_MAP_IGNORE_TABLE_IDX = 0xffffffff;
         struct DescriptorBlacklist
         {
             std::string              name;
             std::vector<std::string> blacklistNames;
         };
-
-        static DescriptorBlacklist s_SystemDescriptorsBlacklistPreset    = {"SystemDescriptors (FrameData/SceneLightsData)", {"FrameData", "SceneLightsData"}};
-        static DescriptorBlacklist s_MaterialsDescriptorsBlacklistPreset = {"MaterialDescriptors", {"Material", "albedoMap", "normalMap", "metallicMap", "roughnessMap", "specularMap", "emissiveMap", "aoMap"}};
+        static const DescriptorBlacklist s_SystemDescriptorsBlacklistPreset    = {"SystemDescriptors (FrameData/SceneLightsData)", {"FrameData", "SceneLightsData"}};
+        static const DescriptorBlacklist s_MaterialsDescriptorsBlacklistPreset = {"MaterialDescriptors", {"Material", "albedoMap", "normalMap", "metallicMap", "roughnessMap", "specularMap", "emissiveMap", "aoMap"}};
 
         /**
          * Manages descriptor tables creation and binding alongside reflection data
@@ -67,6 +67,16 @@ namespace Razix {
             {
                 std::string                 name;
                 rz_gfx_resource_view_handle resourceViewHandle;
+            };
+
+            enum BindMapValidationErr
+            {
+                BIND_MAP_VALIDATION_SUCCESS                 = 0,
+                BIND_MAP_VALIDATION_DESCRIPTOR_MISMATCH     = 1 << 1,
+                BIND_MAP_VALIDATION_BAD_TABLE_IDX           = 1 << 2,    // How do I use this?
+                BIND_MAP_VALIDATION_INVALID_DESCRIPTOR      = 1 << 3,
+                BIND_MAP_VALIDATION_FAILED                  = 1 << 4,
+                BIND_MAP_VALIDATION_UNFULFILLED_DESCRIPTORS = 1 << 5,
             };
 
             RZShaderBindMap() = default;
@@ -86,7 +96,8 @@ namespace Razix {
             RZShaderBindMap& clearBlacklist();
             RZShaderBindMap& destroy();
 
-            void bind(rz_gfx_cmdbuf_handle cmdBufHandle);
+            void                 bind(rz_gfx_cmdbuf_handle cmdBufHandle);
+            BindMapValidationErr error();
 
             inline const rz_gfx_shader_reflection&                    getShaderReflection() const { return m_ShaderReflection; }
             inline const rz_gfx_shader_handle&                        getShaderHandle() const { return m_ShaderHandle; }
@@ -100,6 +111,7 @@ namespace Razix {
             std::vector<DescriptorBlacklist>                   m_BlacklistDescriptors    = {};
             std::map<u32, std::vector<NamedResView>>           m_TableBuilderResViewRefs = {};
             std::vector<rz_gfx_descriptor_table_handle>        m_DescriptorTables        = {};
+            BindMapValidationErr                               m_LastError               = BIND_MAP_VALIDATION_FAILED;
             union
             {
                 u32 statusFlags = 0xffffffff;
