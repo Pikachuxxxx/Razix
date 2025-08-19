@@ -211,7 +211,6 @@ namespace Razix {
             m_SkyboxPass.destroy();
             m_CompositePass.destroy();
 #endif
-            // TODO: destroy sampler resource views, could be handled by destroy descriptor table API
             RZResourceManager::Get().destroyResourceView(m_SamplersViewPool.linearSampler);
             RZResourceManager::Get().destroySampler(m_SamplersPool.linearSampler);
             RZResourceManager::Get().destroyDescriptorTable(m_GlobalSamplerTable);
