@@ -40,21 +40,14 @@ namespace Razix {
             textureViewDesc.textureViewDesc.dimension      = 1;
             m_TestTextureViewHandle                        = RZResourceManager::Get().createResourceView("TestTextureView", textureViewDesc);
 
-            // Create a descriptor table for the texture
-            rz_gfx_descriptor_table_desc descTableDesc       = {};
-            descTableDesc.tableIndex                         = 0;
-            rz_gfx_descriptor_heap_handle resourceHeapHandle = RZEngine::Get().getWorldRenderer().getResourceHeap();
-            descTableDesc.pHeap                              = RZResourceManager::Get().getDescriptorHeapResource(resourceHeapHandle);
-            rz_gfx_resource_view resourceViews[]             = {*RZResourceManager::Get().getResourceViewResource(m_TestTextureViewHandle)};
-            descTableDesc.pResourceViews                     = resourceViews;
-            descTableDesc.resourceViewsCount                 = 1;
-
-            m_DescriptorTable = RZResourceManager::Get().createDescriptorTable("TestTextureDescriptorTable", descTableDesc);
-
             struct HelloTexturePassData
             {
                 RZFrameGraphResource Depth;
             };
+
+            // Register the shader bind map for this shader
+            // This is used to manage the lifetime of the descriptor tables for this shader and manage binding resources to the shader
+            RZResourceManager::Get().getShaderBindMap(m_Shader).RegisterBindMap(m_Shader);
 
             framegraph.addCallbackPass<HelloTexturePassData>(
                 "[Test] Pass.Builtin.Code.HelloTexture",
@@ -69,8 +62,15 @@ namespace Razix {
                     //depthTextureDesc.type                = TextureType::kDepth;
                     //depthTextureDesc.resourceHints       = RZ_GFX_RESOURCE_VIEW_FLAG_DSV;
                     //data.Depth                           = builder.create<RZFrameGraphTexture>("SceneDepth", CAST_TO_FG_TEX_DESC depthTextureDesc);
-                    //
                     //data.Depth = builder.write(data.Depth);
+
+                    RZResourceManager::Get()
+                        .getShaderBindMap(m_Shader)
+                        .setDescriptorTable(RZEngine::Get().getWorldRenderer().getGlobalSamplerTable())
+                        .setDescriptorBlacklist("Samplers", {"g_Sampler"})
+                        .setResourceView("g_TestTexture", m_TestTextureViewHandle)
+                        .validate()
+                        .build();
                 },
                 [=](const HelloTexturePassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -95,18 +95,15 @@ namespace Razix {
 
                     // Bind descriptor heaps and tables
                     rz_gfx_descriptor_heap_handle heaps[] = {
-                        RZEngine::Get().getWorldRenderer().getResourceHeap(),
                         RZEngine::Get().getWorldRenderer().getSamplerHeap(),
+                        RZEngine::Get().getWorldRenderer().getResourceHeap(),
                     };
 
                     rzRHI_BindDescriptorHeaps(cmdBuffer, heaps, 2);
 
-                    rz_gfx_descriptor_heap_handle tableHandles[] = {
-                        m_DescriptorTable,
-                        RZEngine::Get().getWorldRenderer().getGlobalSamplerTable(),
-                    };
-
-                    rzRHI_BindDescriptorTables(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS, tableHandles, 2);
+                    RZResourceManager::Get()
+                        .getShaderBindMap(m_Shader)
+                        .bind(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS);
 
 #define NUM_TRIANGLE_VERTS 3
                     rzRHI_DrawAuto(cmdBuffer, NUM_TRIANGLE_VERTS, 1, 0, 0);
@@ -120,12 +117,13 @@ namespace Razix {
 
         void RZHelloTextureTestPass::destroy()
         {
-            // TODO: Collapse destroy descriptor tables to get them from a GlobalShaderBindMap --> for pass resource binding these manage the lifetime of the descriptor tables
-            RZResourceManager::Get().destroyDescriptorTable(m_DescriptorTable);
+            RZResourceManager::Get()
+                .getShaderBindMap(m_Shader)
+                .destroy();    // This will destroy all the descriptor tables created/owned by this bind map
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
+            RZResourceManager::Get().destroyShader(m_Shader);
             RZResourceManager::Get().destroyResourceView(m_TestTextureViewHandle);
             RZResourceManager::Get().destroyTexture(m_TestTextureHandle);
-            RZResourceManager::Get().destroyShader(m_Shader);
         }
     }    // namespace Gfx
 }    // namespace Razix

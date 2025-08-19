@@ -12,8 +12,8 @@ struct VSInput
     float2 UV       : TEXCOORD0;
 };
 
-Texture2D g_TestTexture : register(t0, space0);
-SamplerState g_Sampler : register(s1, space1);
+SamplerState g_Sampler : register(s0, space0);
+Texture2D g_TestTexture : register(t0, space1);
 
  //------------------------------------------------------------------------------
 float4 PS_MAIN(VSInput psIn) : SV_TARGET
