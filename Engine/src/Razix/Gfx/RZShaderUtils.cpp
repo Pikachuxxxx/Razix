@@ -407,11 +407,7 @@ namespace Razix {
 
             RAZIX_ASSERT(rz_handle_is_valid(&shaderHandle), "[ShaderBindMap] Invalid shader handle provided to register bind map!");
 
-            RZShaderBindMap& bindMap   = Gfx::RZResourceManager::Get().getShaderBindMap(shaderHandle);
-            bindMap.m_ShaderHandle     = shaderHandle;
-            rz_gfx_shader* shader      = RZResourceManager::Get().getShaderResource(bindMap.m_ShaderHandle);
-            bindMap.m_ShaderReflection = Gfx::ReflectShader(shader);
-
+            RZShaderBindMap& bindMap = Gfx::RZResourceManager::Get().getShaderBindMap(shaderHandle);
             return bindMap;
         }
 
@@ -422,11 +418,7 @@ namespace Razix {
             RAZIX_ASSERT(where != NULL, "[ShaderBindMap] Invalid memory location provided to create shader bind map!");
             RAZIX_ASSERT(rz_handle_is_valid(&shaderHandle), "[ShaderBindMap] Invalid shader handle provided to register bind map!");
 
-            RZShaderBindMap* bindMap    = new (where) RZShaderBindMap(shaderHandle);
-            bindMap->m_ShaderHandle     = shaderHandle;
-            rz_gfx_shader* shader       = RZResourceManager::Get().getShaderResource(bindMap->m_ShaderHandle);
-            bindMap->m_ShaderReflection = Gfx::ReflectShader(shader);
-
+            RZShaderBindMap* bindMap = new (where) RZShaderBindMap(shaderHandle);
             return *bindMap;
         }
 
@@ -680,5 +672,12 @@ namespace Razix {
             RAZIX_ASSERT(rz_handle_is_valid(&cmdBufHandle), "[ShaderBindMap] Invalid command buffer handle provided to bind shader bind map!");
             rzRHI_BindDescriptorTablesContainer(cmdBufHandle, pipelineType, m_DescriptorTables);
         }
+
+        RZShaderBindMap::RZShaderBindMap(rz_gfx_shader_handle shaderHandle)
+        {
+            rz_gfx_shader* shader = Gfx::RZResourceManager::Get().getShaderResource(m_ShaderHandle);
+            m_ShaderReflection    = Gfx::ReflectShader(shader);
+        }
+
     }    // namespace Gfx
 }    // namespace Razix

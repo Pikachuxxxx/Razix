@@ -126,8 +126,7 @@ namespace Razix {
         private:
             RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZShaderBindMap);
 
-            RZShaderBindMap(rz_gfx_shader_handle shaderHandle)
-                : m_ShaderHandle(shaderHandle) {}
+            RZShaderBindMap(rz_gfx_shader_handle shaderHandle);
         };
     }    // namespace Gfx
 }    // namespace Razix
