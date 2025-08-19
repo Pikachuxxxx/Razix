@@ -120,7 +120,7 @@
     #define RAZIX_ASSERT(x, ...)                                                                                \
         {                                                                                                       \
             if (!(x)) {                                                                                         \
-                RAZIX_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); \
+                RAZIX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); \
                 RAZIX_DEBUG_BREAK();                                                                            \
             }                                                                                                   \
         }
