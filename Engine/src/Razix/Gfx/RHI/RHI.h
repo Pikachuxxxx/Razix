@@ -1005,6 +1005,14 @@ static inline unsigned int rz_clz32(unsigned int x)
         rz_gfx_format renderTargetFormats[RAZIX_MAX_RENDER_TARGETS];
     } rz_gfx_pipeline_desc;
 
+    /**
+     * Why this design? embed desc?
+     * 1. It allows us to simulate inheritance in C, where we can have a common base struct
+     * 2. Helps with ResourceManager to use macro generation to create resources pool with a single common interface and also for RHI
+     * 3. Simulate private members in C, so we can have public members that are filled by the user and private members that are filled by the backend
+     * 4. Simulate hot and cold data separation, engine and RHI can use this to separate hot and cold data based on rz_gfx_xxx_desc separation, RHI will need data without rz_gfx_resource and desc
+     */
+
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_resource
     {
         const char*                pName;
