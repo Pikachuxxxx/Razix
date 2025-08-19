@@ -14,13 +14,13 @@ commit_msg_file = sys.argv[1]
 with open(commit_msg_file, 'r') as f:
     msg = f.readline().strip()
 
-pattern = r"^(feat|fix|refactor|docs|chore|test|perf)\\((gfx|rhi|audio|ui|build|tools|vfs|net|ai|physics|gameplay|art|asset)\\): .+"
+pattern = r"^(feat|fix|refactor|docs|chore|test|perf)\\((core|gfx|rhi|audio|ui|build|tools|vfs|net|ai|physics|gameplay|art|asset)\\): .+"
 
 if not re.match(pattern, msg):
     print("Invalid commit message format!")
     print("Expected: <type>(<component>): <description>")
     print("Types: feat, fix, refactor, docs, chore, test, perf")
-    print("Components: gfx, rhi, audio, ui, build, tools, vfs, net, ai, physics, gameplay, art, asset")
+    print("Components: core, gfx, rhi, audio, ui, build, tools, vfs, net, ai, physics, gameplay, art, asset")
     sys.exit(1)
 """
 
