@@ -288,7 +288,7 @@ namespace Razix {
 
                 rz_gfx_descriptor* desc = &tableLayout->pDescriptors[tableLayout->descriptorCount++];
                 memset(desc, 0, sizeof(rz_gfx_descriptor));
-                desc->pName            = bindDesc.Name;
+                desc->pName            = strdup(bindDesc.Name);
                 desc->location.binding = bindDesc.BindPoint;
                 desc->location.space   = bindDesc.Space;
                 desc->type             = DX12ConvertInputTypeToDescriptorType(bindDesc.Type);
@@ -341,6 +341,8 @@ namespace Razix {
                 for (uint32_t i = 0; i < reflection->rootSignatureDesc.descriptorTableLayoutsCount; ++i) {
                     rz_gfx_descriptor_table_layout* tableLayout = &reflection->rootSignatureDesc.pDescriptorTableLayouts[i];
                     if (tableLayout->pDescriptors) {
+                        // Allocated using strdup
+                        free((void*) tableLayout->pDescriptors->pName);
                         Memory::RZFree(tableLayout->pDescriptors);
                         tableLayout->pDescriptors = NULL;
                     }
@@ -407,7 +409,12 @@ namespace Razix {
 
             RAZIX_ASSERT(rz_handle_is_valid(&shaderHandle), "[ShaderBindMap] Invalid shader handle provided to register bind map!");
 
-            RZShaderBindMap& bindMap = Gfx::RZResourceManager::Get().getShaderBindMap(shaderHandle);
+            RZShaderBindMap& bindMap   = Gfx::RZResourceManager::Get().getShaderBindMap(shaderHandle);
+            rz_gfx_shader*   shader    = Gfx::RZResourceManager::Get().getShaderResource(shaderHandle);
+            bindMap.m_ShaderHandle     = shaderHandle;
+            bindMap.m_ShaderReflection = Gfx::ReflectShader(shader);
+            bindMap.m_LastError        = BIND_MAP_VALIDATION_FAILED;
+
             return bindMap;
         }
 
@@ -504,7 +511,7 @@ namespace Razix {
                     u32                                   validDescriptorCount = 0;
 
                     if (tableLayout->pDescriptors == NULL) {
-                        RAZIX_ASSERT(false, "[ShaderBindMap] Descriptor table layout at index {0} is null!", t);
+                        RAZIX_CORE_ERROR("[ShaderBindMap] Descriptor table layout at index {0} is null!", t);
                         validated   = false;
                         m_LastError = BIND_MAP_VALIDATION_INVALID_DESCRIPTOR;
                         return *this;
@@ -513,7 +520,7 @@ namespace Razix {
                     for (u32 d = 0; d < tableLayout->descriptorCount; d++) {
                         const rz_gfx_descriptor* desc = &tableLayout->pDescriptors[d];
                         if (desc == NULL || desc->pName == NULL) {
-                            RAZIX_ASSERT(false, "[ShaderBindMap] Descriptor is null/name in table index {0}!", t);
+                            RAZIX_CORE_ERROR("[ShaderBindMap] Descriptor is null/name in table index {0}!", t);
                             validated   = false;
                             m_LastError = BIND_MAP_VALIDATION_INVALID_DESCRIPTOR;
                             return *this;
@@ -537,7 +544,7 @@ namespace Razix {
                                 }
                             }
                             if (!blacklisted) {
-                                RAZIX_ASSERT(false, "[ShaderBindMap] Missing descriptor {0} idx {1} in table index {2}!", desc->pName, d, t);
+                                RAZIX_CORE_ERROR("[ShaderBindMap] Missing descriptor {0} idx {1} in table index {2}!", desc->pName, d, t);
                                 validated   = false;
                                 m_LastError = BIND_MAP_VALIDATION_DESCRIPTOR_MISMATCH;
                                 return *this;
@@ -546,7 +553,7 @@ namespace Razix {
                     }
 
                     if (validDescriptorCount != tableLayout->descriptorCount) {
-                        RAZIX_ASSERT(false, "[ShaderBindMap] Some descriptor resource views are missing in table index {0}! Validated {1}/{2} descriptors!", t, validDescriptorCount, tableLayout->descriptorCount);
+                        RAZIX_CORE_ERROR("[ShaderBindMap] Some descriptor resource views are missing in table index {0}! Validated {1}/{2} descriptors!", t, validDescriptorCount, tableLayout->descriptorCount);
                         validated   = false;
                         m_LastError = BIND_MAP_VALIDATION_UNFULFILLED_DESCRIPTORS;
                         return *this;
@@ -562,7 +569,7 @@ namespace Razix {
                     RAZIX_CORE_INFO("[ShaderBindMap] Shader Bind Map validation successful! All descriptors are valid and mapped correctly to resource views! You can safely build the descriptor tables now.");
                     m_LastError = BIND_MAP_VALIDATION_SUCCESS;
                 } else {
-                    RAZIX_ASSERT(false, "[ShaderBindMap] Shader handle is invalid! Cannot validate shader bind map!");
+                    RAZIX_ASSERT(false, "[ShaderBindMap] Shader validation failed! Cannot build shader bind map!");
                     return *this;
                     validated   = false;
                     m_LastError = BIND_MAP_VALIDATION_FAILED;
@@ -581,7 +588,6 @@ namespace Razix {
             }
 
             if (dirty) {
-                m_DescriptorTables.clear();
                 for (u32 i = 0; i < m_TableBuilderResViewRefs.size(); i++) {
                     const std::vector<NamedResView>& resViews = m_TableBuilderResViewRefs[i];
                     if (resViews.empty()) {
@@ -599,7 +605,7 @@ namespace Razix {
                     for (u32 j = 0; j < resViews.size(); j++) {
                         const NamedResView& resView = resViews[j];
                         RAZIX_ASSERT(rz_handle_is_valid(&resView.resourceViewHandle), "[ShaderBindMap] Invalid resource view handle for resource view {0} in table index {1}!", resView.name, i);
-                        pResViews[j].resource.handle = resView.resourceViewHandle;
+                        pResViews[j] = *RZResourceManager::Get().getResourceViewResource(resView.resourceViewHandle);
                     }
                     desc.pResourceViews = pResViews;
 
@@ -607,7 +613,7 @@ namespace Razix {
                     std::string                   tableName             = "ShaderBindMap_DescriptorTable_" + std::to_string(i) + "_" + shaderName;
                     rz_gfx_descriptor_heap_handle descriptorTableHandle = RZResourceManager::Get().createDescriptorTable(tableName.c_str(), desc);
                     m_DescriptorTables.push_back(descriptorTableHandle);
-                    Memory::RZDebugFree(pResViews);
+                    Memory::RZFree(pResViews);
 
                     RAZIX_CORE_INFO("[ShaderBindMap] Created descriptor table {0} for table index {1} with {2} resource views", tableName, i, resViews.size());
                 }
@@ -674,9 +680,14 @@ namespace Razix {
         }
 
         RZShaderBindMap::RZShaderBindMap(rz_gfx_shader_handle shaderHandle)
+            : m_ShaderHandle(shaderHandle)
         {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            RAZIX_ASSERT(rz_handle_is_valid(&shaderHandle), "[ShaderBindMap] Invalid shader handle provided to create shader bind map!");
             rz_gfx_shader* shader = Gfx::RZResourceManager::Get().getShaderResource(m_ShaderHandle);
             m_ShaderReflection    = Gfx::ReflectShader(shader);
+            m_LastError           = BIND_MAP_VALIDATION_FAILED;
         }
 
     }    // namespace Gfx

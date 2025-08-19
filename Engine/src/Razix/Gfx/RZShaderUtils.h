@@ -60,7 +60,7 @@ namespace Razix {
         /**
          * Manages descriptor tables creation and binding alongside reflection data
          */
-        class RZShaderBindMap
+        class RAZIX_API RZShaderBindMap
         {
         public:
             struct NamedResView
