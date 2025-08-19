@@ -2601,12 +2601,12 @@ static void dx12_BindDescriptorTables(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeli
     RAZIX_RHI_ASSERT(tableCount > 0 && tableCount <= RAZIX_MAX_ALLOWED_TABLES_TO_BIND, "Invalid table count: %d. Must be between 1 and %d", tableCount, RAZIX_MAX_ALLOWED_TABLES_TO_BIND);
 
     ID3D12DescriptorHeap* dx12Heaps[RAZIX_MAX_ALLOWED_TABLES_TO_BIND] = {0};
-    for (uint32_t i = 0; i < tableCount; ++i) {
+    for (uint32_t i = 0; i < tableCount; i++) {
         dx12Heaps[i] = tables[i]->resource.desc.descriptorTableDesc.pHeap->dx12.heap;
         if (pipelineType == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
-            ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(cmdBuf->dx12.cmdList, tables[i]->resource.desc.descriptorTableDesc.tableIndex, tables[i]->dx12.heapOffset.gpu);
+            ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(cmdBuf->dx12.cmdList, i /*tables[i]->resource.desc.descriptorTableDesc.tableIndex*/, tables[i]->dx12.heapOffset.gpu);
         else if (pipelineType == RZ_GFX_PIPELINE_TYPE_COMPUTE)
-            ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(cmdBuf->dx12.cmdList, tables[i]->resource.desc.descriptorTableDesc.tableIndex, tables[i]->dx12.heapOffset.gpu);
+            ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(cmdBuf->dx12.cmdList, i /*tables[i]->resource.desc.descriptorTableDesc.tableIndex*/, tables[i]->dx12.heapOffset.gpu);
         else
             RAZIX_RHI_LOG_ERROR("Unsupported pipeline type for binding descriptor tables: %d", pipelineType);
     }
