@@ -63,6 +63,10 @@ namespace Razix {
         void RZResourceFreeListMemPool::releaseResource(u32 index)
         {
             RAZIX_CORE_ASSERT(index < m_PoolSize, "[Pool Allocator] Invalid index to release resource: {0}", index);
+            RAZIX_CORE_ASSERT(m_FreeIndicesHead < m_PoolSize, "[Pool Allocator] Free indices head overflowed! Cannot release resource: {0}", index);
+            if (m_FreeIndicesHead == 0) {
+                return;
+            }
             // TODO: add bits for checking if resource is alive and use bit masks.
             m_FreeIndices[--m_FreeIndicesHead] = index;
             --m_UsedIndices;
