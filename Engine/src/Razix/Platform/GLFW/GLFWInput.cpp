@@ -6,111 +6,15 @@
 #include "Razix/Core/App/RZApplication.h"
 #include <GLFW/glfw3.h>
 
-#ifdef RAZIX_RENDER_API_OPENGL
-    #include "Razix/Platform/GLFW/GLFWInput.h"
-#endif    // RAZIX_RENDER_API_OPENGL
-
 namespace Razix {
-    // Temporarily creating Input directly from GLFW
-    Razix::RZInput* Razix::RZInput::s_Instance = nullptr;
 
-    bool GLFWInput::IsKeyPressedImpl(int keycode)
+    // Helper methods for GLFW functionality
+    GLFWwindow* GLFWInput::GetActiveWindow()
     {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-
-        auto window   = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
-        int  keyState = glfwGetKey(window, keycode);
-        return keyState == GLFW_PRESS;
+        return static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
     }
 
-    bool GLFWInput::IsKeyReleasedImpl(int keycode)
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-
-        auto window   = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
-        int  keyState = glfwGetKey(window, keycode);
-        return keyState == GLFW_RELEASE;
-    }
-
-    bool GLFWInput::IsIsKeyHeldImpl(int keycode)
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-
-        auto window   = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
-        int  keyState = glfwGetKey(window, keycode);
-        return keyState == GLFW_PRESS || keyState == GLFW_REPEAT;
-    }
-
-    bool GLFWInput::IsMouseButtonPressedImpl(int button)
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-
-        bool       isPressed = false;
-        static int oldState  = GLFW_RELEASE;
-        auto       window    = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
-        int        newState  = glfwGetMouseButton(window, button);
-        if (newState == GLFW_PRESS && oldState == GLFW_RELEASE)
-            isPressed = true;
-        oldState = newState;
-        return isPressed;
-    }
-
-    bool GLFWInput::IsMouseButtonReleasedImpl(int button)
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-
-        bool       isPressed = false;
-        static int oldState  = GLFW_RELEASE;
-        auto       window    = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
-        int        newState  = glfwGetMouseButton(window, button);
-        if (newState == GLFW_RELEASE && oldState == GLFW_PRESS)
-            isPressed = true;
-        oldState = newState;
-        return isPressed;
-    }
-
-    bool GLFWInput::IsMouseButtonHeldImpl(int button)
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-
-        auto window      = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
-        int  buttonState = glfwGetMouseButton(window, button);
-        return buttonState == GLFW_PRESS;
-    }
-
-    std::pair<f32, f32> GLFWInput::GetMousePositionImpl()
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-
-        auto window = static_cast<GLFWwindow*>(RZApplication::Get().getWindow()->GetNativeWindow());
-        d32  xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
-
-        return {(f32) xpos, (f32) ypos};
-    }
-
-    f32 GLFWInput::GetMouseXImpl()
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-
-        auto [x, y] = GetMousePositionImpl();
-        return x;
-    }
-
-    f32 GLFWInput::GetMouseYImpl()
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-
-        auto [x, y] = GetMousePositionImpl();
-        return y;
-    }
-
-    bool GLFWInput::IsGamepadConnectedImpl()
-    {
-        return glfwJoystickPresent(GLFW_JOYSTICK_1) && glfwJoystickIsGamepad(GLFW_JOYSTICK_1);
-    }
-
-    static GLFWgamepadstate GetGamepadState()
+    GLFWgamepadstate GLFWInput::GetGamepadState()
     {
         GLFWgamepadstate state = {};
         if (glfwJoystickIsGamepad(GLFW_JOYSTICK_1)) {
@@ -119,60 +23,149 @@ namespace Razix {
         return state;
     }
 
-    f32 GLFWInput::GetJoyLeftStickHorizontalImpl()
+    // Keyboard implementation
+    bool RZInput::IsKeyPressed(Razix::KeyCode::Key keycode)
     {
-        return GetGamepadState().axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+        auto window   = GLFWInput::GetActiveWindow();
+        int  keyState = glfwGetKey(window, int(keycode));
+        return keyState == GLFW_PRESS;
     }
 
-    f32 GLFWInput::GetJoyLeftStickVerticalImpl()
+    bool RZInput::IsKeyReleased(Razix::KeyCode::Key keycode)
     {
-        return GetGamepadState().axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+        auto window   = GLFWInput::GetActiveWindow();
+        int  keyState = glfwGetKey(window, int(keycode));
+        return keyState == GLFW_RELEASE;
     }
 
-    f32 GLFWInput::GetJoyRightStickHorizontalImpl()
+    bool RZInput::IsKeyHeld(Razix::KeyCode::Key keycode)
     {
-        return GetGamepadState().axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+        auto window   = GLFWInput::GetActiveWindow();
+        int  keyState = glfwGetKey(window, int(keycode));
+        return keyState == GLFW_PRESS || keyState == GLFW_REPEAT;
     }
 
-    f32 GLFWInput::GetJoyRightStickVerticalImpl()
+    // Mouse implementation
+    bool RZInput::IsMouseButtonPressed(Razix::KeyCode::MouseKey button)
     {
-        return GetGamepadState().axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+        bool       isPressed = false;
+        static int oldState  = GLFW_RELEASE;
+        auto       window    = GLFWInput::GetActiveWindow();
+        int        newState  = glfwGetMouseButton(window, int(button));
+        if (newState == GLFW_PRESS && oldState == GLFW_RELEASE)
+            isPressed = true;
+        oldState = newState;
+        return isPressed;
     }
 
-    f32 GLFWInput::GetJoyDPadHorizontalImpl()
+    bool RZInput::IsMouseButtonReleased(Razix::KeyCode::MouseKey button)
     {
-        const auto state = GetGamepadState();
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+        bool       isPressed = false;
+        static int oldState  = GLFW_RELEASE;
+        auto       window    = GLFWInput::GetActiveWindow();
+        int        newState  = glfwGetMouseButton(window, int(button));
+        if (newState == GLFW_RELEASE && oldState == GLFW_PRESS)
+            isPressed = true;
+        oldState = newState;
+        return isPressed;
+    }
+
+    bool RZInput::IsMouseButtonHeld(Razix::KeyCode::MouseKey button)
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+        auto window      = GLFWInput::GetActiveWindow();
+        int  buttonState = glfwGetMouseButton(window, int(button));
+        return buttonState == GLFW_PRESS;
+    }
+
+    std::pair<f32, f32> RZInput::GetMousePosition()
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+        auto window = GLFWInput::GetActiveWindow();
+        d32  xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        return {(f32) xpos, (f32) ypos};
+    }
+
+    f32 RZInput::GetMouseX()
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+        auto [x, y] = GetMousePosition();
+        return x;
+    }
+
+    f32 RZInput::GetMouseY()
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
+        auto [x, y] = GetMousePosition();
+        return y;
+    }
+
+    // Gamepad implementation
+    bool RZInput::IsGamepadConnected()
+    {
+        return glfwJoystickPresent(GLFW_JOYSTICK_1) && glfwJoystickIsGamepad(GLFW_JOYSTICK_1);
+    }
+
+    f32 RZInput::GetJoyLeftStickHorizontal()
+    {
+        return GLFWInput::GetGamepadState().axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+    }
+
+    f32 RZInput::GetJoyLeftStickVertical()
+    {
+        return GLFWInput::GetGamepadState().axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+    }
+
+    f32 RZInput::GetJoyRightStickHorizontal()
+    {
+        return GLFWInput::GetGamepadState().axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
+    }
+
+    f32 RZInput::GetJoyRightStickVertical()
+    {
+        return GLFWInput::GetGamepadState().axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
+    }
+
+    f32 RZInput::GetJoyDPadHorizontal()
+    {
+        const auto state = GLFWInput::GetGamepadState();
         int        left  = state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT] == GLFW_PRESS ? -1 : 0;
         int        right = state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT] == GLFW_PRESS ? 1 : 0;
         return static_cast<f32>(left + right);
     }
 
-    f32 GLFWInput::GetJoyDPadVerticalImpl()
+    f32 RZInput::GetJoyDPadVertical()
     {
-        const auto state = GetGamepadState();
+        const auto state = GLFWInput::GetGamepadState();
         int        up    = state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP] == GLFW_PRESS ? -1 : 0;
         int        down  = state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN] == GLFW_PRESS ? 1 : 0;
         return static_cast<f32>(up + down);
     }
 
-    bool GLFWInput::IsCrossPressedImpl()
+    bool RZInput::IsCrossPressed()
     {
-        return GetGamepadState().buttons[GLFW_GAMEPAD_BUTTON_A] == GLFW_PRESS;
+        return GLFWInput::GetGamepadState().buttons[GLFW_GAMEPAD_BUTTON_A] == GLFW_PRESS;
     }
 
-    bool GLFWInput::IsCirclePressedImpl()
+    bool RZInput::IsCirclePressed()
     {
-        return GetGamepadState().buttons[GLFW_GAMEPAD_BUTTON_B] == GLFW_PRESS;
+        return GLFWInput::GetGamepadState().buttons[GLFW_GAMEPAD_BUTTON_B] == GLFW_PRESS;
     }
 
-    bool GLFWInput::IsTrianglePressedImpl()
+    bool RZInput::IsTrianglePressed()
     {
-        return GetGamepadState().buttons[GLFW_GAMEPAD_BUTTON_Y] == GLFW_PRESS;
+        return GLFWInput::GetGamepadState().buttons[GLFW_GAMEPAD_BUTTON_Y] == GLFW_PRESS;
     }
 
-    bool GLFWInput::IsSquarePressedImpl()
+    bool RZInput::IsSquarePressed()
     {
-        return GetGamepadState().buttons[GLFW_GAMEPAD_BUTTON_X] == GLFW_PRESS;
+        return GLFWInput::GetGamepadState().buttons[GLFW_GAMEPAD_BUTTON_X] == GLFW_PRESS;
     }
 
 }    // namespace Razix
