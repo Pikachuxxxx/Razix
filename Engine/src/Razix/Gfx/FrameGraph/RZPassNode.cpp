@@ -28,6 +28,11 @@ namespace Razix {
 #endif
         }
 
+        RAZIX_NO_DISCARD static bool hasId(const std::unordered_map<RZFrameGraphResource, RZFrameGraphResourceAcessView>& v, RZFrameGraphResource id)
+        {
+            return v.find(id) != v.end();
+        }
+
         // TODO: Add a function check to check not just the ID but also the complete pair ID and flags
         // because when we want to mark a resource as read/write onto a pass it can have multiple access
         // views with different read/write properties, so check for the complete pair just in case
@@ -63,15 +68,23 @@ namespace Razix {
             return m_RefCount > 0 || isStandAlone();
         }
 
-        RZFrameGraphResource RZPassNode::registerResourceForRead(RZFrameGraphResource id, u32 flags)
+        RZFrameGraphResource RZPassNode::registerResourceForRead(RZFrameGraphResource id, rz_gfx_resource_view_desc viewDesc)
         {
             RAZIX_CORE_ASSERT((!canCreateResouce(id) && !canWriteResouce(id)), "Cannot read a resource that this node creates or write to!");
-            return canReadResouce(id) ? id : m_Reads.emplace_back(RZFrameGraphResourceAcessView(id, flags)).id;
+            if (canReadResouce(id))
+                return id;
+
+            m_Reads.emplace(id, RZFrameGraphResourceAcessView{id, viewDesc});
+            return id;
         }
 
-        RZFrameGraphResource RZPassNode::registerResourceForWrite(RZFrameGraphResource id, u32 flags)
+        RZFrameGraphResource RZPassNode::registerResourceForWrite(RZFrameGraphResource id, rz_gfx_resource_view_desc viewDesc)
         {
-            return canWriteResouce(id) ? id : m_Writes.emplace_back(RZFrameGraphResourceAcessView(id, flags)).id;
+            if (canWriteResouce(id))
+                return id;
+
+            m_Writes.emplace(id, RZFrameGraphResourceAcessView{id, viewDesc});
+            return id;
         }
     }    // namespace Gfx
 }    // namespace Razix

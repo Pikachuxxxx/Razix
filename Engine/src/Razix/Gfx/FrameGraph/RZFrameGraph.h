@@ -234,8 +234,8 @@ namespace Razix {
                 return m_PassNode.m_Creates.emplace_back(id);
             }
 
-            RZFrameGraphResource                  read(RZFrameGraphResource id, u32 flags = kFlagsNone);
-            RAZIX_NO_DISCARD RZFrameGraphResource write(RZFrameGraphResource id, u32 flags = kFlagsNone);
+            RZFrameGraphResource                  read(RZFrameGraphResource id, rz_gfx_resource_view_desc resViewDesc = {});
+            RAZIX_NO_DISCARD RZFrameGraphResource write(RZFrameGraphResource id, rz_gfx_resource_view_desc resViewDesc = {});
 
             /* Ensures that this pass is not culled during the frame graph compilation phase, single/hanging passes cans till exist and be executed */
             RZPassResourceBuilder& setAsStandAlonePass();
@@ -291,6 +291,12 @@ namespace Razix {
                 RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
                 // This is a safe way that doesn't violate the design of the frame graph PassNodes
                 return m_FrameGraph.getResourceEntryRef(id).getDescriptor<T>();
+            }
+
+            ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE const typename T::Desc& getResourceViewHandle(RZFrameGraphResource id) const
+            {
+                RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
+                return m_PassNode.getResourceViewHandle(id);
             }
 
             ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD bool verifyType(RZFrameGraphResource id)

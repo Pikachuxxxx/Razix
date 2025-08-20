@@ -7,29 +7,35 @@
 * Inspired from EA's Frostbite engine : https://www.gdcvault.com/play/1024612/FrameGraph-Extensible-Rendering-Architecture-in
 */
 
-#include <cstdint>
+#include "Razix/Core/RZDataTypes.h"
+#include "Razix/Gfx/RHI/RHI.h"
 
 namespace Razix {
     namespace Gfx {
 
         typedef i32 RZFrameGraphResource;
 
-        constexpr u32 kInitFGResource = 0xDEAFBEEF;
-        constexpr u32 kFlagsNone      = ~0;
+        constexpr u32 kInitFGResViewResInvalid  = 0xDEADBEEF;
+        constexpr u32 kInitFGResViewResAutoFill = 0xF111FEED;
+#define RZ_FG_RES_VIEW_RES_AUTO_POPULATE ((void*) kInitFGResViewResAutoFill)
 
-        // TODO: Remove this as we hardly use it, we don't manage descriptors sets and resource views via FG its done via RHI itself
-        // even if we make RZResourceView it will be managed via a global RHI API instead of embedding it this way
         /**
-             * Dawid Kurek (skaarj1989) named it AccessDeclaration, it kinda makes sense as we have declaration on how to access the FrameGraphResource
-             * but I feel having a name like Frame Graph Resource Access View makes it more readable
-             */
+          * Dawid Kurek (skaarj1989) named it AccessDeclaration, it kinda makes sense as we have declaration on how to access the FrameGraphResource
+          * but I feel having a name like Frame Graph Resource Access View makes it more readable
+          */
+        // rz_gfx_resource_view will be owned by per pass
         struct RAZIX_API RZFrameGraphResourceAcessView
         {
-            RZFrameGraphResource id    = -1;         /* Unique ID of the resource                            */
-            u32                  flags = kFlagsNone; /* Flags on how to view the resource from rendering POV */
+            RZFrameGraphResource id = -1;
+            // FIXME: Even RZResourceEntry Model class stores Desc
+            // we can't get away without storing both the desc and resource
+            // RHI is smart but engine isn't unless I come up with a brilliant idea
+            // Or GPUTrain will eliminate the need for this, until this sloppy solution is acceptable!
+            rz_gfx_resource_view_desc   resViewDesc   = {};
+            rz_gfx_resource_view_handle resViewHandle = {};
 
-            RZFrameGraphResourceAcessView(RZFrameGraphResource _id, u32 _flags)
-                : id(_id), flags(_flags)
+            RZFrameGraphResourceAcessView(RZFrameGraphResource _id, rz_gfx_resource_view_desc viewDesc)
+                : id(_id), resViewDesc(viewDesc)
             {
             }
 
@@ -52,7 +58,7 @@ namespace Razix {
             kUknownResource,
             kFGTexture,
             kFGBuffer,
-            kFGSampler
+            kFGSampler,
         };
 
         struct RZResourceLifetime

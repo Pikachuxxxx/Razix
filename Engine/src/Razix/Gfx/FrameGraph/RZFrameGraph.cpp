@@ -750,11 +750,15 @@ namespace Razix {
                 // Skip if they are imported resource, since imported resources are always Read only data!
                 for (auto&& [id, flags]: pass.m_Reads) {
                     if (getResourceEntryRef(id).isTransient())
-                        getResourceEntryRef(id).getConcept()->preRead(flags);
+                        getResourceEntryRef(id).getConcept()->preRead(kInitFGResViewResInvalid);
+
+                    // TODO: For this pass CREATE the read resource view with the actual resource but just once?
                 }
                 for (auto&& [id, flags]: pass.m_Writes) {
                     if (getResourceEntryRef(id).isTransient())
-                        getResourceEntryRef(id).getConcept()->preWrite(flags);
+                        getResourceEntryRef(id).getConcept()->preWrite(kInitFGResViewResInvalid);
+
+                    // TODO: For this pass CREATE the write resource view with the actual resource but just once?
                 }
 
                 // call the ExecuteFunc (same for Code and DataDriven passes)
@@ -1082,10 +1086,10 @@ namespace Razix {
         {
         }
 
-        RZFrameGraphResource RZPassResourceBuilder::read(RZFrameGraphResource id, u32 flags /*= kFlagsNone*/)
+        RZFrameGraphResource RZPassResourceBuilder::read(RZFrameGraphResource id, rz_gfx_resource_view_desc resViewDesc)
         {
             RAZIX_ASSERT(m_FrameGraph.isValid(id), "Invalid resource");
-            auto readID = m_PassNode.registerResourceForRead(id, flags);
+            auto readID = m_PassNode.registerResourceForRead(id, resViewDesc);
 
             // Register the name, this makes code based frame graph pass resources compatible with data driven passes
             m_FrameGraph.m_Blackboard.add(m_FrameGraph.getResourceName(readID), readID);
@@ -1093,7 +1097,7 @@ namespace Razix {
             return readID;
         }
 
-        RZFrameGraphResource RZPassResourceBuilder::write(RZFrameGraphResource id, u32 flags /*= kFlagsNone*/)
+        RZFrameGraphResource RZPassResourceBuilder::write(RZFrameGraphResource id, rz_gfx_resource_view_desc resViewDesc)
         {
             RAZIX_ASSERT(m_FrameGraph.isValid(id), "Invalid resource");
 
@@ -1105,7 +1109,7 @@ namespace Razix {
 
             // If the pass creates a resources it means its writing to it
             if (m_PassNode.canCreateResouce(id))
-                writeID = m_PassNode.registerResourceForWrite(id, flags);
+                writeID = m_PassNode.registerResourceForWrite(id, resViewDesc);
             else {
                 /**
                   * Old Usage:
@@ -1126,9 +1130,9 @@ namespace Razix {
                  * which serve no runtime purpose. Instead, we skip the read registration
                  * and directly clone + write:
                  */
-                m_PassNode.registerResourceForRead(id, flags);
+                m_PassNode.registerResourceForRead(id, resViewDesc);
                 // we're writing to the same existing external resource so clone it before writing to it
-                writeID = m_PassNode.registerResourceForWrite(m_FrameGraph.cloneResource(id), flags);
+                writeID = m_PassNode.registerResourceForWrite(m_FrameGraph.cloneResource(id), resViewDesc);
             }
 
             // Register the name, this makes code based frame graph pass resources compatible with data driven passes
