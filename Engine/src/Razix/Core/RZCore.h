@@ -117,12 +117,12 @@
                 RAZIX_DEBUG_BREAK();                                                                                 \
             }                                                                                                        \
         }
-    #define RAZIX_ASSERT(x, ...)                                                                                \
-        {                                                                                                       \
-            if (!(x)) {                                                                                         \
+    #define RAZIX_ASSERT(x, ...)                                                                                     \
+        {                                                                                                            \
+            if (!(x)) {                                                                                              \
                 RAZIX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); \
-                RAZIX_DEBUG_BREAK();                                                                            \
-            }                                                                                                   \
+                RAZIX_DEBUG_BREAK();                                                                                 \
+            }                                                                                                        \
         }
     // Generic conditioned Assertions
     #define RAZIX_ASSERT_NO_MESSAGE(condition)                                                     \
@@ -180,10 +180,9 @@
 // Function Bind macro
 #define RAZIX_BIND_CB_EVENT_FN(x) std::bind(&Razix::RZApplication::x, this, std::placeholders::_1)
 
-#define CAST_TO_FG_DESC(t)   (Razix::Gfx::t::Desc)
-#define CAST_TO_FG_TEX_DESC  (Razix::Gfx::RZFrameGraphTexture::Desc)
-#define CAST_TO_FG_SAMP_DESC (Razix::Gfx::RZFrameGraphSampler::Desc)
-#define CAST_TO_FG_BUF_DESC  (Razix::Gfx::RZFrameGraphBuffer::Desc)
+#define CAST_TO_FG_DESC(t)  (Razix::Gfx::t::Desc)
+#define CAST_TO_FG_TEX_DESC (Razix::Gfx::RZFrameGraphTexture::Desc)
+#define CAST_TO_FG_BUF_DESC (Razix::Gfx::RZFrameGraphBuffer::Desc)
 
 // right bit shift (useful for converting integer based color to hex)
 #define RZ_BIT_SHIFT(x) (1 << x)
@@ -478,7 +477,7 @@ private:                                                  \
 /**
  * Memory Related stuff & Alignment Macros
  */
-#define RZ_ALIGN_ARB(n, a) (((size_t) (n) + ((size_t) (a) -1)) & ~(size_t) ((a) -1))    // 'a' needs to be a power of 2
+#define RZ_ALIGN_ARB(n, a) (((size_t) (n) + ((size_t) (a) - 1)) & ~(size_t) ((a) - 1))    // 'a' needs to be a power of 2
 
 #define RZ_ALIGN_64K(n) ((((size_t) (n)) + 0xffff) & ~0xffff)
 
@@ -494,7 +493,7 @@ private:                                                  \
 #define RZ_ALIGN_4(n)   ((((size_t) (n)) + 3) & ~3)
 #define RZ_ALIGN_2(n)   ((((size_t) (n)) + 1) & ~1)
 
-#define RZ_IS_ALIGNED_ARB(n, a) (((size_t) (n) & ((size_t) (a) -1)) == 0)    // 'a' needs to be a power of 2
+#define RZ_IS_ALIGNED_ARB(n, a) (((size_t) (n) & ((size_t) (a) - 1)) == 0)    // 'a' needs to be a power of 2
 
 #define RZ_IS_ALIGNED_512(n) (((size_t) (n) & 511) == 0)
 #define RZ_IS_ALIGNED_256(n) (((size_t) (n) & 255) == 0)
@@ -506,7 +505,7 @@ private:                                                  \
 #define RZ_IS_ALIGNED_4(n)   (((size_t) (n) & 3) == 0)
 #define RZ_IS_ALIGNED_2(n)   (((size_t) (n) & 1) == 0)
 
-#define RZ_ALIGN_DOWN_ARB(n, a) ((size_t) (n) & ~(size_t) ((a) -1))    // 'a' needs to be a power of 2
+#define RZ_ALIGN_DOWN_ARB(n, a) ((size_t) (n) & ~(size_t) ((a) - 1))    // 'a' needs to be a power of 2
 
 #define RZ_ALIGN_DOWN_512(n) (size_t(n) & ~511)
 #define RZ_ALIGN_DOWN_256(n) (size_t(n) & ~255)
