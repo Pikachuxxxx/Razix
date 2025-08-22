@@ -5,6 +5,8 @@
 
 #include "Passes/RZWaveIntrinsicsTestPass.h"
 
+#include "Razix/Gfx/Resources/RZResourceManager.h"
+
 using namespace Razix;
 
 class WaveIntrinsicsTest final : public RZGfxTestAppBase
@@ -33,7 +35,7 @@ public:
 
     void OnQuit() override
     {
-        Gfx::RZGraphicsContext::GetContext()->Wait();
+        RZEngine::Get().getWorldRenderer().flushGPUWork();
 
         WaveIntrinsicsTestPass.destroy();
         RZGfxTestAppBase::OnQuit();
