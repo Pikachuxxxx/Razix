@@ -64,8 +64,9 @@
     m_##PoolName##Pool.init(Capacity, ElementSize);
 
 #ifdef RAZIX_DEBUG
-    #define RAZIX_UNREGISTER_RESOURCE_POOL(PoolName) \
-        m_##PoolName##Pool.printResources();         \
+    #define RAZIX_UNREGISTER_RESOURCE_POOL(PoolName)                                     \
+        RAZIX_CORE_INFO("[Resource Manager] Destroying " #PoolName " Resource Pool..."); \
+        m_##PoolName##Pool.printResources();                                             \
         m_##PoolName##Pool.destroy();
 #else
     #define RAZIX_UNREGISTER_RESOURCE_POOL(PoolName) \

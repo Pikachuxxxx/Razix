@@ -18,25 +18,25 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            //if (transientAllocator)
-            //    m_TextureHandle = TRANSIENT_ALLOCATOR_CAST(transientAllocator)->acquireTransientTexture(desc, id);
-            //else {
-            //    // If no transient allocator is provided, we create a imported persistent resource only ONCE!
-            //    if (!m_TextureHandle.isValid())
-            //        m_TextureHandle = RZResourceManager::Get().create_texture(desc);
-            //}
+            if (transientAllocator)
+                m_TextureHandle = TRANSIENT_ALLOCATOR_CAST(transientAllocator)->acquireTransientTexture(name, desc, id);
+            else {
+                // If no transient allocator is provided, we create a imported persistent resource only ONCE!
+                if (!rz_handle_is_valid(&m_TextureHandle))
+                    m_TextureHandle = RZResourceManager::Get().createTexture(name.c_str(), desc);
+            }
         }
 
         void RZFrameGraphTexture::destroy(u32 id, const void* transientAllocator)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            //if (transientAllocator)
-            //    TRANSIENT_ALLOCATOR_CAST(transientAllocator)->releaseTransientTexture(m_TextureHandle, id);
-            //else {
-            //    if (m_TextureHandle.isValid())
-            //        RZResourceManager::Get().destroy_texture(m_TextureHandle);
-            //}
+            if (transientAllocator)
+                TRANSIENT_ALLOCATOR_CAST(transientAllocator)->releaseTransientTexture(m_TextureHandle, id);
+            else {
+                if (rz_handle_is_valid(&m_TextureHandle))
+                    RZResourceManager::Get().destroyTexture(m_TextureHandle);
+            }
         }
 
         void RZFrameGraphTexture::preRead(const Desc& desc, uint32_t flags)

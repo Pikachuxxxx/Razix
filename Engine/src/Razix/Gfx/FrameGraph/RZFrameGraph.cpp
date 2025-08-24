@@ -978,6 +978,7 @@ namespace Razix {
         {
             m_TransientAllocator.destroy();
 
+            // Destroy all imported resources separately
             for (auto& entry: m_ResourceRegistry)
                 if (entry.isImported())
                     entry.getConcept()->destroy(NULL);

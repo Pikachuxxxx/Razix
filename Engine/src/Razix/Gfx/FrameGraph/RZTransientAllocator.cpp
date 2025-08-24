@@ -86,8 +86,6 @@ namespace Razix {
             }
         }
 
-#if 0
-
         void RZTransientAllocator::beginFrame()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -96,27 +94,27 @@ namespace Razix {
             m_AliasingBook.reset();
             m_AliasingBook.build(m_RegisteredLifetimes);
 
-            //#if RAZIX_DEBUG
-            //            auto& groups = m_AliasingBook.getGroups();
-            //            for (u32 i = 0; i < groups.size(); i++) {
-            //                const auto& group    = groups[i];
-            //                const auto& entryIDs = group.getResourceEntryIDs();
-            //
-            //                if (entryIDs.size() >= 1) {
-            //                    std::ostringstream oss;
-            //                    oss << "+------------------------+\n";
-            //                    oss << "| Aliasing Group " << i << "      |\n";
-            //                    oss << "+------------------------+\n";
-            //
-            //                    for (u32 id: entryIDs) {
-            //                        oss << "| Entry ID: " << std::setw(13) << std::left << id << "|\n";
-            //                    }
-            //
-            //                    oss << "+------------------------+\n";
-            //                    RAZIX_CORE_TRACE("\n{0}", oss.str());
-            //                }
-            //            }
-            //#endif
+#if RAZIX_DEBUG && defined(RZ_VIZ_ALIASING_GROUPS)
+            auto& groups = m_AliasingBook.getGroups();
+            for (u32 i = 0; i < groups.size(); i++) {
+                const auto& group    = groups[i];
+                const auto& entryIDs = group.getResourceEntryIDs();
+
+                if (entryIDs.size() >= 1) {
+                    std::ostringstream oss;
+                    oss << "+------------------------+\n";
+                    oss << "| Aliasing Group " << i << "      |\n";
+                    oss << "+------------------------+\n";
+
+                    for (u32 id: entryIDs) {
+                        oss << "| Entry ID: " << std::setw(13) << std::left << id << "|\n";
+                    }
+
+                    oss << "+------------------------+\n";
+                    RAZIX_CORE_TRACE("\n{0}", oss.str());
+                }
+            }
+#endif
 
             for (auto& group: m_AliasingBook.getGroups()) {
                 // If the group has only one resource, we can create it directly
@@ -127,20 +125,16 @@ namespace Razix {
 
                     switch (resType) {
                         case FGResourceType::kFGTexture: {
-                            auto& desc                 = m_FrameGraph.getResourceEntry(resourceID).getDescriptor<RZFrameGraphTexture>();
-                            m_TextureCache[resourceID] = acquireTransientTexture(desc, resourceID);
+                            auto& resourceEntry        = m_FrameGraph.getResourceEntry(resourceID);
+                            auto& desc                 = resourceEntry.getDescriptor<RZFrameGraphTexture>();
+                            m_TextureCache[resourceID] = acquireTransientTexture(resourceEntry.getName().c_str(), desc, resourceID);
                             break;
                         }
-                        case FGResourceType::kFGBuffer: {
-                            auto& desc                = m_FrameGraph.getResourceEntry(resourceID).getDescriptor<RZFrameGraphBuffer>();
-                            m_BufferCache[resourceID] = acquireTransientBuffer(desc, resourceID);
-                            break;
-                        }
-                        case FGResourceType::kFGSampler: {
-                            auto& desc                 = m_FrameGraph.getResourceEntry(resourceID).getDescriptor<RZFrameGraphSampler>();
-                            m_SamplerCache[resourceID] = acquireTransientSampler(desc, resourceID);
-                            break;
-                        }
+                        //case FGResourceType::kFGBuffer: {
+                        //    auto& desc                = m_FrameGraph.getResourceEntry(resourceID).getDescriptor<RZFrameGraphBuffer>();
+                        //    m_BufferCache[resourceID] = acquireTransientBuffer(desc, resourceID);
+                        //    break;
+                        //}
                         default:
                             break;
                     }
@@ -171,80 +165,55 @@ namespace Razix {
             }
             m_TextureCache.clear();
 
-            for (auto& [key, handle]: m_BufferCache) {
-                RZResourceManager::Get().destroyUniformBuffer(handle);
-            }
-            m_BufferCache.clear();
-
-            for (auto& [key, handle]: m_SamplerCache) {
-                RZResourceManager::Get().destroySampler(handle);
-            }
-            m_SamplerCache.clear();
+            //for (auto& [key, handle]: m_BufferCache) {
+            //    RZResourceManager::Get().destroyUniformBuffer(handle);
+            //}
+            //m_BufferCache.clear();
         }
 
-        rz_texture_handle RZTransientAllocator::acquireTransientTexture(const RZTextureDesc& desc, u32 id)
+        rz_gfx_texture_handle RZTransientAllocator::acquireTransientTexture(const std::string& name, const rz_gfx_texture_desc& desc, u32 id)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
             // pop the handle from cache
             // if handle doesn't exist create a new one, return it, will be cached when we release it
             auto it = m_TextureCache.find(id);
             if (it != m_TextureCache.end()) {
-                rz_texture_handle handle = it->second;
+                rz_gfx_texture_handle handle = it->second;
                 m_TextureCache.erase(it);
                 return handle;    // return the cached handle
             } else {
                 // create a new texture
-                rz_texture_handle handle = RZResourceManager::Get().createTexture(desc);
+                rz_gfx_texture_handle handle = RZResourceManager::Get().createTexture(name.c_str(), desc);
                 return handle;
             }
         }
 
-        void RZTransientAllocator::releaseTransientTexture(rz_texture_handle handle, u32 id)
+        void RZTransientAllocator::releaseTransientTexture(rz_gfx_texture_handle handle, u32 id)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             m_TextureCache[id] = handle;
         }
 
-        RZUniformBufferHandle RZTransientAllocator::acquireTransientBuffer(const RZBufferDesc& desc, u32 id)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+        //RZUniformBufferHandle RZTransientAllocator::acquireTransientBuffer(const RZBufferDesc& desc, u32 id)
+        //{
+        //    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+        //
+        //    auto it = m_BufferCache.find(id);
+        //    if (it != m_BufferCache.end()) {
+        //        RZUniformBufferHandle handle = it->second;
+        //        m_BufferCache.erase(it);
+        //        return handle;
+        //    } else {
+        //        return RZResourceManager::Get().createUniformBuffer(desc);
+        //    }
+        //}
+        //
+        //void RZTransientAllocator::releaseTransientBuffer(RZUniformBufferHandle handle, u32 id)
+        //{
+        //    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+        //    m_BufferCache[id] = handle;
+        //}
 
-            auto it = m_BufferCache.find(id);
-            if (it != m_BufferCache.end()) {
-                RZUniformBufferHandle handle = it->second;
-                m_BufferCache.erase(it);
-                return handle;
-            } else {
-                return RZResourceManager::Get().createUniformBuffer(desc);
-            }
-        }
-
-        void RZTransientAllocator::releaseTransientBuffer(RZUniformBufferHandle handle, u32 id)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-            m_BufferCache[id] = handle;
-        }
-
-        RZSamplerHandle RZTransientAllocator::acquireTransientSampler(const RZSamplerDesc& desc, u32 id)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            auto it = m_SamplerCache.find(id);
-            if (it != m_SamplerCache.end()) {
-                RZSamplerHandle handle = it->second;
-                m_SamplerCache.erase(it);
-                return handle;
-            } else {
-                return RZResourceManager::Get().createSampler(desc);
-            }
-        }
-
-        void RZTransientAllocator::releaseTransientSampler(RZSamplerHandle handle, u32 id)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-            m_SamplerCache[id] = handle;
-        }
-#endif
     }    // namespace Gfx
 }    // namespace Razix

@@ -196,10 +196,10 @@ namespace Razix {
 
             m_FrameGraphBuildingInProgress = true;
 
-#if RX_ENABLE_GFX
             // Destroy Frame Graph Transient Resources
             m_FrameGraph.destroy();
 
+#if RX_ENABLE_GFX
             // Destroy Renderers
             RZImGuiRendererProxy::Get().Destroy();
             RZDebugRendererProxy::Get().Destroy();

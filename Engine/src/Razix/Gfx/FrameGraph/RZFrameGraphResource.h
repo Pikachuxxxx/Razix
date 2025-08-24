@@ -96,7 +96,6 @@ namespace Razix {
             kUknownResource,
             kFGTexture,
             kFGBuffer,
-            kFGSampler,
         };
 
         struct RZResourceLifetime
