@@ -5,6 +5,8 @@
 
 #include "Razix/Gfx/FrameGraph/RZFrameGraphResource.h"
 
+#include "Razix/Gfx/Resources/RZResourceManager.h"
+
 namespace Razix {
     namespace Gfx {
 
@@ -63,6 +65,36 @@ namespace Razix {
             return hasId(m_Writes, resourceID);
         }
 
+        void RZPassNode::createDeferredResourceView(RZFrameGraphResource id, rz_handle resHandle)
+        {
+            auto& accessView = getResourceAccessViewRef(id);
+            if (!rz_handle_is_valid(&accessView.resViewHandle)) {
+                if (rzRHI_IsDescriptorTypeBuffer(accessView.resViewDesc.descriptorType)) {
+                    if (accessView.resViewDesc.bufferViewDesc.pBuffer == RZ_FG_BUF_RES_AUTO_POPULATE) {
+                        //accessView.resViewDesc.bufferViewDesc.pBuffer = RZResourceManager::Get().getConstantBufferResourceView(resHandle);
+                        RAZIX_CORE_ASSERT(false, "Constant buffers are still a WIP, this will result in undefined behavior and catastrophic failures");
+
+                    } else {
+                        RAZIX_CORE_ERROR("pBuffer is either NULL or not AUTO_POPULATE");
+                    }
+                    accessView.resViewHandle = RZResourceManager::Get().createResourceView(m_Name.c_str(), accessView.resViewDesc);
+                } else if (rzRHI_IsDescriptorTypeTexture(accessView.resViewDesc.descriptorType)) {
+                    if (accessView.resViewDesc.textureViewDesc.pTexture == RZ_FG_TEX_RES_AUTO_POPULATE) {
+                        accessView.resViewDesc.textureViewDesc.pTexture = RZResourceManager::Get().getTextureResource(resHandle);
+                    } else {
+                        RAZIX_CORE_ERROR("pTexture is not AUTO_POPULATE, this is invalid way to create resource views with framegraph, please follow the right convention by defining the pTexture with RZ_FG_TEX_RES_AUTO_POPULATE, to automatically generate and maintain resource views per pass");
+                    }
+                    accessView.resViewHandle = RZResourceManager::Get().createResourceView(m_Name.c_str(), accessView.resViewDesc);
+                } else {
+                    RAZIX_CORE_ERROR("unsupported resource view descriptor type in FrameGraph {0} for resource ID {1}", accessView.resViewDesc.descriptorType, id);
+                    return;
+                }
+
+                accessView.resViewHandle = RZResourceManager::Get().createResourceView(m_Name.c_str(), accessView.resViewDesc);
+            } else
+                RAZIX_CORE_WARN("Resource view for resource ID {0} already created!", id);
+        }
+
         bool RZPassNode::canExecute() const
         {
             return m_RefCount > 0 || isStandAlone();
@@ -86,5 +118,22 @@ namespace Razix {
             m_Writes.emplace(id, RZFrameGraphResourceAcessView{id, viewDesc});
             return id;
         }
+
+        void RZPassNode::destroyDeferredResourceViews()
+        {
+            for (auto& [id, accessView]: m_Reads) {
+                if (rz_handle_is_valid(&accessView.resViewHandle)) {
+                    RZResourceManager::Get().destroyResourceView(accessView.resViewHandle);
+                    accessView.resViewHandle = {};
+                }
+            }
+            for (auto& [id, accessView]: m_Writes) {
+                if (rz_handle_is_valid(&accessView.resViewHandle)) {
+                    RZResourceManager::Get().destroyResourceView(accessView.resViewHandle);
+                    accessView.resViewHandle = {};
+                }
+            }
+        }
+
     }    // namespace Gfx
 }    // namespace Razix

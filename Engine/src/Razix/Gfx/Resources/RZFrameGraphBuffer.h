@@ -20,10 +20,10 @@ namespace Razix {
 
             static std::string toString(const Desc& desc);
 
-            //Gfx::RZUniformBufferHandle getHandle() const { return m_BufferHandle; }
+            rz_gfx_buffer_handle getRHIHandle() const { return m_BufferHandle; }
 
         private:
-            //Gfx::RZUniformBufferHandle m_BufferHandle;
+            rz_gfx_buffer_handle m_BufferHandle;
             //Gfx::BufferBarrierType     m_LastReadBarrier;
             //Gfx::BufferBarrierType     m_LastWriteBarrier;
         };

@@ -11,11 +11,9 @@
 //
 //#include "Razix/Gfx/FrameGraph/RZFrameGraphPass.h"
 //
-//#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-//#include "Razix/Gfx/Resources/RZFrameGraphSampler.h"
-//#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
-//#include "Razix/Scene/RZScene.h"
+#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
+#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;    // use other lib that said it was faster than this on github
@@ -525,7 +523,7 @@ namespace Razix {
             //desc.layers                 = layers;
             auto* pass = new RZFrameGraphDataPass(desc);
             // Create the PassNode in the graph
-            RZPassNode& passNode = createPassNodeRef(std::string_view("DUMMY"), std::unique_ptr<RZFrameGraphDataPass>(pass));
+            RZPassNode& passNode = createPassNodeRef(std::string("DUMMY"), std::unique_ptr<RZFrameGraphDataPass>(pass));
             // Mark as data driven
             passNode.m_IsDataDriven = true;
             //auto isStandAlonePass   = data["is_standalone"];
@@ -704,12 +702,24 @@ namespace Razix {
             }
 #endif
 
-            // Once lifetimes are determined we can create aliasing groups for Transient Resourcees Only
+            // Once lifetimes are determined we can create aliasing groups for Transient Resources Only
             for (const auto& entry: m_CompiledResourceEntries) {
                 auto& entryRef = getResourceEntryRef(entry);
                 if (entryRef.isTransient())
                     m_TransientAllocator.registerLifetime(m_ResourceRegistry[entry].getCoarseLifetime());
             }
+        }
+
+        void RZFrameGraph::createResourceViewForPass(RZPassNode& pass, const RZFrameGraphResource& id)
+        {
+            rz_handle resourceHandle;
+            if (verifyResourceType<RZFrameGraphTexture>(id))
+                resourceHandle = getResourceEntryRef(id).get<RZFrameGraphTexture>().getRHIHandle();
+            else if (verifyResourceType<RZFrameGraphBuffer>(id))
+                resourceHandle = getResourceEntryRef(id).get<RZFrameGraphBuffer>().getRHIHandle();
+            else
+                RAZIX_CORE_ASSERT(false, "Unknown Resource Type!");
+            pass.createDeferredResourceView(id, resourceHandle);
         }
 
         void RZFrameGraph::execute()
@@ -748,15 +758,22 @@ namespace Razix {
                 // Call pre-read and pre-write functions on the resource before the execute function
                 // Safety of existence is taken care in the ResourceEntry class
                 // Skip if they are imported resource, since imported resources are always Read only data!
+                // This is also where we create resource views for the resources
                 for (auto&& [id, flags]: pass.m_Reads) {
+                    // Create the resource view for this pass after the actual resource is created
+                    createResourceViewForPass(pass, id);
+
                     if (getResourceEntryRef(id).isTransient())
-                        getResourceEntryRef(id).getConcept()->preRead(kInitFGResViewResInvalid);
+                        getResourceEntryRef(id).getConcept()->preRead(~0u);
 
                     // TODO: For this pass CREATE the read resource view with the actual resource but just once?
                 }
                 for (auto&& [id, flags]: pass.m_Writes) {
+                    // Create the resource view for this pass after the actual resource is created
+                    createResourceViewForPass(pass, id);
+
                     if (getResourceEntryRef(id).isTransient())
-                        getResourceEntryRef(id).getConcept()->preWrite(kInitFGResViewResInvalid);
+                        getResourceEntryRef(id).getConcept()->preWrite(~0u);
 
                     // TODO: For this pass CREATE the write resource view with the actual resource but just once?
                 }
@@ -965,6 +982,10 @@ namespace Razix {
                 if (entry.isImported())
                     entry.getConcept()->destroy(NULL);
 
+            for (auto& pass: m_PassNodes) {
+                pass.destroyDeferredResourceViews();
+            }
+
             m_CompiledPassIndices.clear();
             m_CompiledResourceIndices.clear();
 
@@ -1034,13 +1055,13 @@ namespace Razix {
             return m_ResourceRegistry[node.m_ResourceEntryID];
         }
 
-        RZPassNode& RZFrameGraph::createPassNodeRef(const std::string_view name, std::unique_ptr<IRZFrameGraphPass>&& base)
+        RZPassNode& RZFrameGraph::createPassNodeRef(const std::string& name, std::unique_ptr<IRZFrameGraphPass>&& base)
         {
             const auto id = static_cast<u32>(m_PassNodes.size());
             return m_PassNodes.emplace_back(RZPassNode(name, id, std::move(base)));
         }
 
-        RZResourceNode& RZFrameGraph::createResourceNodeRef(const std::string_view name, u32 resourceID)
+        RZResourceNode& RZFrameGraph::createResourceNodeRef(const std::string& name, u32 resourceID)
         {
             const auto id = static_cast<u32>(m_ResourceNodes.size());
             return m_ResourceNodes.emplace_back(RZResourceNode(name, id, resourceID, kRESOURCE_INITIAL_VERSION));

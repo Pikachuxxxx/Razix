@@ -26,8 +26,7 @@ namespace Razix {
             pipelineInfo.blendPreset            = RZ_GFX_BLEND_PRESET_ADDITIVE;
             pipelineInfo.renderTargetCount      = 1;
             pipelineInfo.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
-
-            m_Pipeline = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.HelloTriangle", pipelineInfo);
+            m_Pipeline                          = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.HelloTriangle", pipelineInfo);
 
             struct HelloTriangleData
             {

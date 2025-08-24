@@ -5,8 +5,6 @@
 namespace Razix {
     namespace Gfx {
 
-        struct rz_gfx_texture_desc;
-
         /**
              * When an extra wrapper of RZTexture and rz_texture_handle?
              * 
@@ -18,7 +16,7 @@ namespace Razix {
              * This is a fake typeless interface for various types of resources used by the FG
              */
 
-        struct RZFrameGraphTexture
+        struct RAZIX_API RZFrameGraphTexture
         {
             typedef rz_gfx_texture_desc Desc;
 
@@ -32,7 +30,7 @@ namespace Razix {
 
             static std::string toString(const Desc& desc);
 
-            rz_gfx_texture_handle getHandle() const { return m_TextureHandle; }
+            rz_gfx_texture_handle getRHIHandle() const { return m_TextureHandle; }
 
             // public for initializer list support
             rz_gfx_texture_handle m_TextureHandle;

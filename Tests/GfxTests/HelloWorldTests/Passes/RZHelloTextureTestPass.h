@@ -12,8 +12,6 @@ namespace Razix {
             void destroy() override;
 
         private:
-            rz_gfx_texture_handle        m_TestTextureHandle;
-            rz_gfx_resource_view_handle  m_TestTextureViewHandle;
             rz_gfx_shader_handle         m_Shader;
             rz_gfx_pipeline_handle       m_Pipeline;
             rz_gfx_root_signature_handle m_RootSigHandle;

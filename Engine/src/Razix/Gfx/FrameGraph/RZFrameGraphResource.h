@@ -15,9 +15,45 @@ namespace Razix {
 
         typedef i32 RZFrameGraphResource;
 
-        constexpr u32 kInitFGResViewResInvalid  = 0xDEADBEEF;
-        constexpr u32 kInitFGResViewResAutoFill = 0xF111FEED;
-#define RZ_FG_RES_VIEW_RES_AUTO_POPULATE ((void*) kInitFGResViewResAutoFill)
+#if INTPTR_MAX == INT64_MAX
+        constexpr uintptr_t kFGResViewResInvalidTag  = 0x0000'DEAD'BEEF'BAADull;
+        constexpr uintptr_t kFGResViewResAutoFillTag = 0x0000'F111'FEED'BEEFull;
+#elif INTPTR_MAX == INT32_MAX
+        constexpr uintptr_t kFGResViewResInvalidTag  = 0xDEAD'BEEFu;
+        constexpr uintptr_t kFGResViewResAutoFillTag = 0xF111'FEEDu;
+#else
+    #error "Unsupported pointer size"
+#endif
+
+        inline const rz_gfx_texture* RZ_FG_TEX_RES_INVALID       = reinterpret_cast<const rz_gfx_texture*>(kFGResViewResInvalidTag);
+        inline const rz_gfx_texture* RZ_FG_TEX_RES_AUTO_POPULATE = reinterpret_cast<const rz_gfx_texture*>(kFGResViewResAutoFillTag);
+
+        inline const rz_gfx_buffer* RZ_FG_BUF_RES_INVALID       = reinterpret_cast<const rz_gfx_buffer*>(kFGResViewResInvalidTag);
+        inline const rz_gfx_buffer* RZ_FG_BUF_RES_AUTO_POPULATE = reinterpret_cast<const rz_gfx_buffer*>(kFGResViewResAutoFillTag);
+
+        template<typename T>
+        inline bool fg_is_tagged(const T* p, uintptr_t tag)
+        {
+            return reinterpret_cast<uintptr_t>(p) == tag;
+        }
+
+        inline bool fg_is_tex_auto(const rz_gfx_texture* p)
+        {
+            return fg_is_tagged(p, kFGResViewResAutoFillTag);
+        }
+        inline bool fg_is_tex_invalid(const rz_gfx_texture* p)
+        {
+            return fg_is_tagged(p, kFGResViewResInvalidTag);
+        }
+
+        inline bool fg_is_buf_auto(const rz_gfx_buffer* p)
+        {
+            return fg_is_tagged(p, kFGResViewResAutoFillTag);
+        }
+        inline bool fg_is_buf_invalid(const rz_gfx_buffer* p)
+        {
+            return fg_is_tagged(p, kFGResViewResInvalidTag);
+        }
 
         /**
           * Dawid Kurek (skaarj1989) named it AccessDeclaration, it kinda makes sense as we have declaration on how to access the FrameGraphResource
@@ -30,9 +66,11 @@ namespace Razix {
             // FIXME: Even RZResourceEntry Model class stores Desc
             // we can't get away without storing both the desc and resource
             // RHI is smart but engine isn't unless I come up with a brilliant idea
-            // Or GPUTrain will eliminate the need for this, until this sloppy solution is acceptable!
+            // Or GPUTrain will eliminate the need for this, until then this sloppy solution is acceptable!
             rz_gfx_resource_view_desc   resViewDesc   = {};
             rz_gfx_resource_view_handle resViewHandle = {};
+
+            RZFrameGraphResourceAcessView() = default;
 
             RZFrameGraphResourceAcessView(RZFrameGraphResource _id, rz_gfx_resource_view_desc viewDesc)
                 : id(_id), resViewDesc(viewDesc)

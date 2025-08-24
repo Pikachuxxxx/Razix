@@ -36,19 +36,21 @@ namespace Razix {
             bool canReadResouce(RZFrameGraphResource resourceID) const;
             bool canWriteResouce(RZFrameGraphResource resourceID) const;
 
-            bool createDeferredResource(RZFrameGraphResource id, rz_handle resHandle);
+            void createDeferredResourceView(RZFrameGraphResource id, rz_handle resHandle);
 
-            inline rz_gfx_resource_view_handle getResourceViewHandle(RZFrameGraphResource id) const
+            inline rz_gfx_resource_view_handle getResourceViewHandle(RZFrameGraphResource id)
             {
-                auto ri = m_Reads.find(id);
-                if (ri != m_Reads.end())
-                    return ri->second.resViewHandle;
+                return getResourceAccessView(id).resViewHandle;
+            }
 
-                auto wi = m_Writes.find(id);
-                if (wi != m_Writes.end())
-                    return wi->second.resViewHandle;
+            inline const RZFrameGraphResourceAcessView& getResourceAccessView(RZFrameGraphResource id)
+            {
+                return getResourceAccessView<const RZFrameGraphResourceAcessView>(id);
+            }
 
-                return {};
+            inline RZFrameGraphResourceAcessView& getResourceAccessViewRef(RZFrameGraphResource id)
+            {
+                return getResourceAccessView<RZFrameGraphResourceAcessView>(id);
             }
 
             inline const auto&               getCreateResources() const { return m_Creates; }
@@ -81,8 +83,23 @@ namespace Razix {
             Memory::BudgetInfo                                                      m_CurrentPassBudget = {};
 
         private:
+            template<typename T>
+            T& getResourceAccessView(RZFrameGraphResource id)
+            {
+                auto ri = m_Reads.find(id);
+                if (ri != m_Reads.end())
+                    return ri->second;
+                auto wi = m_Writes.find(id);
+                if (wi != m_Writes.end())
+                    return wi->second;
+
+                static RZFrameGraphResourceAcessView defaultView{};
+                return const_cast<T&>(defaultView);
+            }
+
             RZFrameGraphResource registerResourceForRead(RZFrameGraphResource id, rz_gfx_resource_view_desc viewDesc);
             RZFrameGraphResource registerResourceForWrite(RZFrameGraphResource id, rz_gfx_resource_view_desc viewDesc);
+            void                 destroyDeferredResourceViews();
         };
     }    // namespace Gfx
 }    // namespace Razix
