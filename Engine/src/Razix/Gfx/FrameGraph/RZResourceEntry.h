@@ -64,7 +64,7 @@ namespace Razix {
                  * Implementation for concept
                  */
             template<typename T>
-            struct RAZIX_API Model final : Concept
+            struct Model final : Concept
             {
                 /**
                      * constructor for type, usually a pointer is stored but here we are taking a universal reference + a data member which we enforce rules on it to have
@@ -194,19 +194,22 @@ namespace Razix {
             //---------------------------------
             const u32      m_ID;
             const bool     m_Imported = false;
-            u32            m_Version; /* Version of the latest cloned resource */
-            FGResourceType m_ResType;
+            u32            m_Version  = UINT32_MAX;
+            FGResourceType m_ResType  = {};
 #ifdef FG_USE_FINE_GRAINED_LIFETIMES
             std::vector<RZResourceLifetime> m_Lifetimes;
 #else
-            RZPassNode* m_Producer;
-            RZPassNode* m_Last;
+            RZPassNode* m_Producer = NULL;
+            RZPassNode* m_Last     = NULL;
 #endif
 
         private:
+            // Fix the constructor call to use parentheses instead of braces for std::make_unique<Model<T>>
+            // This ensures the correct constructor is selected for std::unique_ptr
+
             template<typename T>
             RZResourceEntry(const std::string& name, u32 id, typename T::Desc&& desc, T&& obj, u32 version, bool imported = false)
-                : m_ID(id), m_Concept{std::make_unique<Model<T>>(name, std::forward<typename T::Desc>(desc), std::forward<T>(obj), id)}, m_Version(version), m_Imported(imported)
+                : m_ID(id), m_Concept(std::make_unique<Model<T>>(name, std::forward<typename T::Desc>(desc), std::forward<T>(obj), id)), m_Version(version), m_Imported(imported)
             {
             }
 
