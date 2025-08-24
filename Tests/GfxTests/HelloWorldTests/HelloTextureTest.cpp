@@ -33,7 +33,7 @@ public:
 
     void OnQuit() override
     {
-        Gfx::RZGraphicsContext::GetContext()->Wait();
+        RZEngine::Get().getWorldRenderer().flushGPUWork();
 
         helloTextureTestPass.destroy();
         RZGfxTestAppBase::OnQuit();

@@ -43,6 +43,11 @@ namespace Razix {
         void* RZMalloc(size_t size);
         void* RZMalloc(size_t size, const char* filename, uint32_t lineNumber, const char* tag);
         void* RZMalloc(size_t size, size_t alignment, const char* filename, uint32_t lineNumber, const char* tag);
+        void* RZMemCopyToHeap(void* data, size_t size);
+        void* RZRealloc(void* oldPtr, size_t newSize, size_t alignment);
+        void* RZRealloc(void* oldPtr, size_t newSize);
+        void* RZCalloc(size_t count, size_t size, size_t alignment);
+        void* RZCalloc(size_t count, size_t size);
 
         void RZFree(void* address);
 

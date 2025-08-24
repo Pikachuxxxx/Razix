@@ -3,44 +3,46 @@
 // clang-format on
 #include "RZImageBasedLightingProbesManager.h"
 
-#include "Razix/Core/Markers/RZMarkers.h"
+#if 0
 
-#include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
-#include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
-#include "Razix/Gfx/RHI/API/RZPipeline.h"
-#include "Razix/Gfx/RHI/API/RZSampler.h"
-#include "Razix/Gfx/RHI/API/RZShader.h"
-#include "Razix/Gfx/RHI/API/RZTexture.h"
-#include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
-#include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
+    #include "Razix/Core/Markers/RZMarkers.h"
 
-#include "Razix/Gfx/RHI/RHI.h"
+    #include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
+    #include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
+    #include "Razix/Gfx/RHI/API/RZPipeline.h"
+    #include "Razix/Gfx/RHI/API/RZSampler.h"
+    #include "Razix/Gfx/RHI/API/RZShader.h"
+    #include "Razix/Gfx/RHI/API/RZTexture.h"
+    #include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
+    #include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
 
-#include "Razix/Gfx/Renderers/RZSystemBinding.h"
+    #include "Razix/Gfx/RHI/RHI.h"
 
-#include "Razix/Gfx/RZMesh.h"
-#include "Razix/Gfx/RZMeshFactory.h"
-#include "Razix/Gfx/RZShaderLibrary.h"
+    #include "Razix/Gfx/Renderers/RZSystemBinding.h"
 
-#include "Razix/Gfx/Materials/RZMaterial.h"
+    #include "Razix/Gfx/RZMesh.h"
+    #include "Razix/Gfx/RZMeshFactory.h"
+    #include "Razix/Gfx/RZShaderLibrary.h"
 
-#include "Razix/Utilities/RZLoadImage.h"
+    #include "Razix/Gfx/Materials/RZMaterial.h"
 
-#define GLM_FORCE_LEFT_HANDED
-#include <glm/gtc/matrix_transform.hpp>
+    #include "Razix/Utilities/RZLoadImage.h"
 
-#include <vulkan/vulkan.h>
+    #define GLM_FORCE_LEFT_HANDED
+    #include <glm/gtc/matrix_transform.hpp>
 
-#include "Razix/Platform/API/Vulkan/VKDevice.h"
+    #include <vulkan/vulkan.h>
+
+    #include "Razix/Platform/API/Vulkan/VKDevice.h"
 
 namespace Razix {
     namespace Gfx {
 
-#define CUBEMAP_LAYERS                6
-#define CUBEMAP_DIM                   1024
-#define IRRADIANCE_MAP_DIM            64
-#define PREFILTERED_MAP_DIM           128
-#define IBL_DISPATCH_THREAD_GROUP_DIM 32
+    #define CUBEMAP_LAYERS                6
+    #define CUBEMAP_DIM                   1024
+    #define IRRADIANCE_MAP_DIM            64
+    #define PREFILTERED_MAP_DIM           128
+    #define IBL_DISPATCH_THREAD_GROUP_DIM 32
 
         // TODO: Use this via a RootConstant or PushConstant along with the texture bindless id
         struct EnvMapGenUBOData
@@ -58,7 +60,7 @@ namespace Razix {
 
         // - [ ] Fix this file to use descriptor handles, this is the first stage of integration and proceed to other parts of engine from here
 
-        RZTextureHandle RZImageBasedLightingProbesManager::convertEquirectangularToCubemap(const std::string& hdrFilePath)
+        rz_texture_handle RZImageBasedLightingProbesManager::convertEquirectangularToCubemap(const std::string& hdrFilePath)
         {
             // This is only when we use a VS+PS to render to different layers of a RT (only Vulkan/AGC no HLSL support)
             //  --> https://www.reddit.com/r/vulkan/comments/mtx6ar/gl_layer_value_assigned_in_vertex_shader_but/
@@ -79,7 +81,7 @@ namespace Razix {
             equiMapTextureDesc.format                = TextureFormat::RGBA32F;
             equiMapTextureDesc.enableMips            = false;
             equiMapTextureDesc.dataSize              = sizeof(float);    // HDR mode
-            RZTextureHandle equirectangularMapHandle = RZResourceManager::Get().createTexture(equiMapTextureDesc);
+            rz_texture_handle equirectangularMapHandle = RZResourceManager::Get().createTexture(equiMapTextureDesc);
 
             // Since it has both UAV and SRV, backend API will internally specialize the creating a UAV with the type of RWTexture2DArray since
             // an actual RWTextureCube doesn't exist in HLSL and most shading languages
@@ -92,7 +94,7 @@ namespace Razix {
             cubeMapTextureDesc.format                = TextureFormat::RGBA16F;
             cubeMapTextureDesc.initResourceViewHints = ResourceViewHint::kSRV | ResourceViewHint::kUAV;
             cubeMapTextureDesc.enableMips            = true;
-            RZTextureHandle cubeMapHandle            = RZResourceManager::Get().createTexture(cubeMapTextureDesc);
+            rz_texture_handle cubeMapHandle            = RZResourceManager::Get().createTexture(cubeMapTextureDesc);
 
             RZBufferDesc vplBufferDesc             = {};
             vplBufferDesc.name                     = "EnvMapUBOData";
@@ -152,7 +154,7 @@ namespace Razix {
             return cubeMapHandle;
         }
 
-        RZTextureHandle RZImageBasedLightingProbesManager::generateIrradianceMap(RZTextureHandle cubeMap)
+        rz_texture_handle RZImageBasedLightingProbesManager::generateIrradianceMap(rz_texture_handle cubeMap)
         {
             RZTextureDesc irradianceMapTextureDesc         = {};
             irradianceMapTextureDesc.name                  = "Texture.IrradianceMap";
@@ -163,7 +165,7 @@ namespace Razix {
             irradianceMapTextureDesc.format                = TextureFormat::RGBA16F;
             irradianceMapTextureDesc.enableMips            = false;
             irradianceMapTextureDesc.initResourceViewHints = ResourceViewHint::kSRV | ResourceViewHint::kUAV;
-            RZTextureHandle irradianceMapHandle            = RZResourceManager::Get().createTexture(irradianceMapTextureDesc);
+            rz_texture_handle irradianceMapHandle            = RZResourceManager::Get().createTexture(irradianceMapTextureDesc);
 
             RZBufferDesc vplBufferDesc             = {};
             vplBufferDesc.name                     = "ViewProjLayerUBOData";
@@ -217,7 +219,7 @@ namespace Razix {
             return irradianceMapHandle;
         }
 
-        RZTextureHandle RZImageBasedLightingProbesManager::generatePreFilteredMap(RZTextureHandle cubeMap)
+        rz_texture_handle RZImageBasedLightingProbesManager::generatePreFilteredMap(rz_texture_handle cubeMap)
         {
             RZTextureDesc preFilteredMapTextureDesc{};
             preFilteredMapTextureDesc.name                  = "Texture.PreFilteredMap";
@@ -228,7 +230,7 @@ namespace Razix {
             preFilteredMapTextureDesc.format                = TextureFormat::RGBA16F;
             preFilteredMapTextureDesc.initResourceViewHints = ResourceViewHint::kSRV | ResourceViewHint::kUAV;
             preFilteredMapTextureDesc.enableMips            = true;
-            RZTextureHandle preFilteredMapHandle            = RZResourceManager::Get().createTexture(preFilteredMapTextureDesc);
+            rz_texture_handle preFilteredMapHandle            = RZResourceManager::Get().createTexture(preFilteredMapTextureDesc);
             RZTexture*      preFilteredMap                  = RZResourceManager::Get().getPool<RZTexture>().get(preFilteredMapHandle);
 
             RZShaderHandle cubemapConvolutionShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GeneratePreFilteredMap);
@@ -300,3 +302,4 @@ namespace Razix {
         }
     }    // namespace Gfx
 }    // namespace Razix
+#endif

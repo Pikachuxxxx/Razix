@@ -12,9 +12,9 @@ namespace Razix {
             void destroy() override;
 
         private:
-            RZTextureHandle  m_TestTextureHandle;
-            RZShaderHandle   m_Shader;
-            RZPipelineHandle m_Pipeline;
+            rz_gfx_shader_handle         m_Shader;
+            rz_gfx_pipeline_handle       m_Pipeline;
+            rz_gfx_root_signature_handle m_RootSigHandle;
         };
     }    // namespace Gfx
 }    // namespace Razix

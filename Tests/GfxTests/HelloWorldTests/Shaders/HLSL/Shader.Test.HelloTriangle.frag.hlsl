@@ -15,5 +15,5 @@ struct PSIn
  //------------------------------------------------------------------------------
 float4 PS_MAIN(PSIn psIn) : SV_TARGET
 {
-    return float4(psIn.UV, 0.00f, 1.0f);
+    return psIn.Color;// float4(psIn.UV, 0.00f, 1.0f);
 }

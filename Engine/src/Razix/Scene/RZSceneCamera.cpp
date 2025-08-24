@@ -3,8 +3,6 @@
 // clang-format on
 #include "RZSceneCamera.h"
 
-#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
-
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Razix {
@@ -19,9 +17,6 @@ namespace Razix {
     RAZIX_FORCE_INLINE float4x4 RZSceneCamera::getProjection()
     {
         float4x4 proj = m_Projection;
-        //if (Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::VULKAN)
-        //    proj[1][1] *= -1;
-
         return proj;
     }
 

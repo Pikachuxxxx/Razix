@@ -127,6 +127,12 @@ project "EngineTests"
             "4996"
         }
 
+        includedirs
+        {
+            VulkanSDK .. "/include",
+            "%{wks.location}/../Engine/vendor/winpix/Include/WinPixEventRuntime"
+        }
+
     filter "system:macosx"
         cppdialect "C++17"
         staticruntime "off"
@@ -143,7 +149,7 @@ project "EngineTests"
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE"
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
     filter "configurations:Debug"

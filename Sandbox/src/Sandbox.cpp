@@ -16,19 +16,10 @@ public:
         //-------------------------------------------------------------------------------------
         // Override the Graphics API here! for testing
 #ifdef RAZIX_PLATFORM_WINDOWS
-        Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::VULKAN);
+        rzGfxCtx_SetRenderAPI(RZ_RENDER_API_D3D12);
 #elif defined RAZIX_PLATFORM_MACOS
-        Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::VULKAN);
+        rzGfxCtx_SetRenderAPI(RZ_RENDER_API_VULKAN);
 #endif
-        //-------------------------------------------------------------------------------------
-
-        // Init Graphics Context
-        //-------------------------------------------------------------------------------------
-        // Creating the Graphics Context and Initialize it
-        RAZIX_CORE_INFO("Creating Graphics Context...");
-        Razix::Gfx::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
-        RAZIX_CORE_INFO("Initializing Graphics Context...");
-        Razix::Gfx::RZGraphicsContext::GetContext()->Init();
         //-------------------------------------------------------------------------------------
     }
 

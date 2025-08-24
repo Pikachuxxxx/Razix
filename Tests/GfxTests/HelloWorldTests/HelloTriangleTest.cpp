@@ -5,6 +5,8 @@
 
 #include "Passes/RZHelloTriangleTestPass.h"
 
+#include "Razix/Gfx/Resources/RZResourceManager.h"
+
 using namespace Razix;
 
 class HelloTriangleTest final : public RZGfxTestAppBase
@@ -33,7 +35,7 @@ public:
 
     void OnQuit() override
     {
-        Gfx::RZGraphicsContext::GetContext()->Wait();
+        RZEngine::Get().getWorldRenderer().flushGPUWork();
 
         helloTriangleTestPass.destroy();
         RZGfxTestAppBase::OnQuit();
@@ -44,7 +46,7 @@ private:
 };
 
 static RZGfxTestAppBase* s_GfxTestBaseApp = NULL;
-Razix::RZApplication* Razix::CreateApplication(int argc, char** argv)
+Razix::RZApplication*    Razix::CreateApplication(int argc, char** argv)
 {
     s_GfxTestBaseApp = new HelloTriangleTest(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Tests/")));
     return s_GfxTestBaseApp;

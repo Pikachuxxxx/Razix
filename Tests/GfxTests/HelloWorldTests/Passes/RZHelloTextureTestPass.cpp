@@ -1,111 +1,148 @@
 #include "RZHelloTextureTestPass.h"
 
+#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
+
+#include "Razix/Gfx/RHI/RHI.h"
+
 namespace Razix {
     namespace Gfx {
 
         void RZHelloTextureTestPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
             // Create the shader and the pipeline
-            RZShaderDesc desc = {};
-            desc.filePath     = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTextureTest.rzsf";
-            desc.libraryID    = ShaderBuiltin::Default;
-            desc.name         = "HelloTexture";
-            m_Shader          = RZResourceManager::Get().createShader(desc);
+            rz_gfx_shader_desc desc = {};
+            desc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+            desc.rzsfFilePath       = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTextureTest.rzsf";
+            m_Shader                = Gfx::RZResourceManager::Get().createShader("Shader.GfxTest.HelloTexture", desc);
 
-            RZPipelineDesc pipelineInfo{};
             // Build the pipeline here for this pass
-            pipelineInfo.name                   = "[Test] Pipeline.HelloTexture";
-            pipelineInfo.shader                 = m_Shader;
-            pipelineInfo.colorAttachmentFormats = {TextureFormat::SCREEN};
-            pipelineInfo.depthFormat            = TextureFormat::DEPTH16_UNORM;
-            pipelineInfo.cullMode               = Gfx::CullMode::None;
-            pipelineInfo.drawType               = Gfx::DrawType::Triangle;
-            pipelineInfo.depthTestEnabled       = true;
-            pipelineInfo.depthWriteEnabled      = true;
-            pipelineInfo.transparencyEnabled    = false;
-            pipelineInfo.depthBiasEnabled       = false;
-            m_Pipeline                          = RZResourceManager::Get().createPipeline(pipelineInfo);
+            rz_gfx_pipeline_desc pipelineInfo   = {};
+            pipelineInfo.type                   = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+            pipelineInfo.pShader                = RZResourceManager::Get().getShaderResource(m_Shader);
+            m_RootSigHandle                     = pipelineInfo.pShader->rootSignature;
+            pipelineInfo.pRootSig               = RZResourceManager::Get().getRootSignatureResource(pipelineInfo.pShader->rootSignature);
+            pipelineInfo.depthTestEnabled       = false;
+            pipelineInfo.depthWriteEnabled      = false;
+            pipelineInfo.cullMode               = RZ_GFX_CULL_MODE_TYPE_NONE;
+            pipelineInfo.drawType               = RZ_GFX_DRAW_TYPE_TRIANGLE;
+            pipelineInfo.blendEnabled           = false;
+            pipelineInfo.useBlendPreset         = true;
+            pipelineInfo.blendPreset            = RZ_GFX_BLEND_PRESET_ADDITIVE;
+            pipelineInfo.renderTargetCount      = 1;
+            pipelineInfo.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
+
+            m_Pipeline = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.HelloTriangle", pipelineInfo);
 
             // Import a test texture
-            RZTextureDesc testTexDesc{};
-            testTexDesc.name       = "TestCheckerTexture";
-            testTexDesc.enableMips = false;
-            testTexDesc.filePath   = "//RazixContent/Textures/TestCheckerMap.png";
-            testTexDesc.flipY      = false;
-            m_TestTextureHandle    = RZResourceManager::Get().createTexture(testTexDesc);
+            // Create a texture view for the test texture
+            //rz_gfx_resource_view_desc textureViewDesc      = {};
+            //textureViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_TEXTURE;
+            //textureViewDesc.textureViewDesc.pTexture       = RZResourceManager::Get().getTextureResource(m_TestTextureHandle);
+            //textureViewDesc.textureViewDesc.baseMip        = 0;
+            //textureViewDesc.textureViewDesc.baseArrayLayer = 0;
+            //textureViewDesc.textureViewDesc.dimension      = 1;
+            //m_TestTextureViewHandle                        = RZResourceManager::Get().createResourceView("Resview.GfxTest.TestTextureFullView", textureViewDesc);
+
+            rz_gfx_texture_handle testTexture     = Gfx::CreateTextureFromFile("//RazixContent/Textures/TestCheckerMap.png");
+            rz_gfx_texture_desc   testTextureDesc = RZResourceManager::Get().getTextureResource(testTexture)->resource.desc.textureDesc;
+            RZFrameGraphResource  checkerMap      = framegraph.import <RZFrameGraphTexture>("Texture.TestCheckerMap", CAST_TO_FG_TEX_DESC testTextureDesc, {testTexture});
 
             struct HelloTexturePassData
             {
                 RZFrameGraphResource Depth;
             };
 
+            // Register the shader bind map for this shader
+            // This is used to manage the lifetime of the descriptor tables for this shader and manage binding resources to the shader
+            RZResourceManager::Get().getShaderBindMap(m_Shader).RegisterBindMap(m_Shader);
+
             framegraph.addCallbackPass<HelloTexturePassData>(
                 "[Test] Pass.Builtin.Code.HelloTexture",
                 [&](HelloTexturePassData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    RZTextureDesc depthTextureDesc;
-                    depthTextureDesc.name                  = "SceneDepth";
-                    depthTextureDesc.width                 = RZApplication::Get().getWindow()->getWidth();
-                    depthTextureDesc.height                = RZApplication::Get().getWindow()->getHeight();
-                    depthTextureDesc.format                = TextureFormat::DEPTH16_UNORM;
-                    depthTextureDesc.type                  = TextureType::kDepth;
-                    depthTextureDesc.initResourceViewHints = kDSV;
-                    data.Depth                             = builder.create<RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
+                    // TODO: Enable this for apple
+                    // rz_gfx_texture_desc depthTextureDesc = {};
+                    //depthTextureDesc.width               = RZApplication::Get().getWindow()->getWidth();
+                    //depthTextureDesc.height              = RZApplication::Get().getWindow()->getHeight();
+                    //depthTextureDesc.format              = TextureFormat::DEPTH16_UNORM;
+                    //depthTextureDesc.type                = TextureType::kDepth;
+                    //depthTextureDesc.resourceHints       = RZ_GFX_RESOURCE_VIEW_FLAG_DSV;
+                    //data.Depth                           = builder.create<RZFrameGraphTexture>("SceneDepth", CAST_TO_FG_TEX_DESC depthTextureDesc);
+                    //data.Depth = builder.write(data.Depth);
 
-                    data.Depth = builder.write(data.Depth);
+                    rz_gfx_resource_view_desc textureViewDesc      = {};
+                    textureViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_TEXTURE;
+                    textureViewDesc.textureViewDesc.pTexture       = RZ_FG_TEX_RES_AUTO_POPULATE;
+                    textureViewDesc.textureViewDesc.baseMip        = 0;
+                    textureViewDesc.textureViewDesc.baseArrayLayer = 0;
+                    textureViewDesc.textureViewDesc.dimension      = 1;
+                    builder.read(checkerMap, textureViewDesc);
                 },
                 [=](const HelloTexturePassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
                     RAZIX_TIME_STAMP_BEGIN("[Test] Hello Texture Pass");
-                    RAZIX_MARK_BEGIN("[Test] Pass.Builtin.Code.HelloTexture", Utilities::GenerateHashedColor4(22u));
 
-                    auto cmdBuffer = RHI::GetCurrentCommandBuffer();
+                    rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
+                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.HelloTexture", Utilities::GenerateHashedColor4(22u));
 
-                    RenderingInfo info{};
-                    info.resolution       = Resolution::kWindow;
-                    info.colorAttachments = {{Gfx::RHI::GetSwapchain()->GetCurrentBackBufferImage(), {true, ClearColorPresets::OpaqueBlack}}};
-                    info.depthAttachment  = {resources.get<RZFrameGraphTexture>(data.Depth).getHandle(), {true, ClearColorPresets::DepthOneToZero}};
+                    rz_gfx_renderpass info                 = {0};
+                    info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;
+                    info.colorAttachmentsCount             = 1;
+                    info.colorAttachments[0].pResourceView = RZEngine::Get().getWorldRenderer().getCurrSwapchainBackbufferResViewPtr();
+                    info.colorAttachments[0].clear         = true;
+                    info.layers                            = 1;
+                    RAZIX_X(info.extents)                  = RZApplication::Get().getWindow()->getWidth();
+                    RAZIX_Y(info.extents)                  = RZApplication::Get().getWindow()->getHeight();
 
-                    RHI::BeginRendering(cmdBuffer, info);
+                    rzRHI_BeginRenderPass(cmdBuffer, &info);
 
-                    // Bind descriptor sets and resources
+                    rzRHI_BindGfxRootSig(cmdBuffer, m_RootSigHandle);
+                    rzRHI_BindPipeline(cmdBuffer, m_Pipeline);
+
+                    // Bind descriptor heaps and tables
+                    rz_gfx_descriptor_heap_handle heaps[] = {
+                        RZEngine::Get().getWorldRenderer().getSamplerHeap(),
+                        RZEngine::Get().getWorldRenderer().getResourceHeap(),
+                    };
+
+                    rzRHI_BindDescriptorHeaps(cmdBuffer, heaps, 2);
+
+                    // Can we make this not dependent on the first frame?
+                    // Set descriptor table and resource only if they don't
+                    // exist but that would require a check and it's expensive
                     if (RZFrameGraph::IsFirstFrame()) {
-                        auto& shaderBindVars = RZResourceManager::Get().getShaderResource(m_Shader)->getBindVars();
-
-                        RZDescriptor* descriptor = nullptr;
-
-                        descriptor = shaderBindVars["g_TestTexture"];    // Must match the name in shader
-                        // TODO: Sampler is static and set on the RootSignature Directly
-                        if (descriptor)
-                            descriptor->texture = m_TestTextureHandle;
-
-                        // Vulkan will create a default sampler if not found
-                        RZResourceManager::Get().getShaderResource(m_Shader)->updateBindVarsHeaps();
+                        // Deferred creation of the shader bind map, for res view
+                        RZResourceManager::Get()
+                            .getShaderBindMap(m_Shader)
+                            .setDescriptorTable(RZEngine::Get().getWorldRenderer().getGlobalSamplerTable())
+                            .setDescriptorBlacklist("Samplers", {"g_Sampler"})
+                            .setResourceView("g_TestTexture", resources.getResourceViewHandle<RZFrameGraphTexture>(checkerMap))
+                            .validate()
+                            .build();
                     }
 
-                    auto& sceneDrawParams = Gfx::RZResourceManager::Get().getShaderResource(m_Shader)->getSceneDrawParams();
-                    Gfx::RHI::BindUserDescriptorSets(m_Pipeline, cmdBuffer, sceneDrawParams.userSets, 0);
+                    RZResourceManager::Get()
+                        .getShaderBindMap(m_Shader)
+                        .bind(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS);
 
-                    // Bind pipeline and stuff
-                    RHI::BindPipeline(m_Pipeline, cmdBuffer);
+#define NUM_TRIANGLE_VERTS 3
+                    rzRHI_DrawAuto(cmdBuffer, NUM_TRIANGLE_VERTS, 1, 0, 0);
 
-                    // Draw 3 vertices
-                    Gfx::RHI::Draw(cmdBuffer, 3);
+                    rzRHI_EndRenderPass(cmdBuffer);
 
-                    RHI::EndRendering(cmdBuffer);
-
-                    RAZIX_MARK_END();
+                    RAZIX_MARK_END(cmdBuffer);
                     RAZIX_TIME_STAMP_END();
                 });
         }
 
         void RZHelloTextureTestPass::destroy()
         {
-            RZResourceManager::Get().destroyTexture(m_TestTextureHandle);
-            RZResourceManager::Get().destroyShader(m_Shader);
+            RZResourceManager::Get()
+                .getShaderBindMap(m_Shader)
+                .destroy();    // This will destroy all the descriptor tables created/owned by this bind map
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
+            RZResourceManager::Get().destroyShader(m_Shader);
         }
     }    // namespace Gfx
 }    // namespace Razix

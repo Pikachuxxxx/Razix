@@ -29,29 +29,15 @@
 #include "Razix/Events/RZMouseEvent.h"
 
 // Graphics API
-
-#include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
-#include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
-#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
-#include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
-#include "Razix/Gfx/RHI/API/RZPipeline.h"
-#include "Razix/Gfx/RHI/API/RZShader.h"
-#include "Razix/Gfx/RHI/API/RZSwapchain.h"
-#include "Razix/Gfx/RHI/API/RZTexture.h"
-#include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
-#include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
-
 #include "Razix/Gfx/RHI/RHI.h"
-
-#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 // Graphics/Cameras
 #include "Razix/Gfx/Cameras/Camera3D.h"
 
 // Graphics
-#include "Razix/Gfx/RZMesh.h"
-#include "Razix/Gfx/RZMeshFactory.h"
+#include "Razix/Gfx/Resources/RZResourceManager.h"
+//#include "Razix/Gfx/RZMesh.h"
+//#include "Razix/Gfx/RZMeshFactory.h"
 
 // Scene
 #include "Razix/Scene/Components/RZComponents.h"

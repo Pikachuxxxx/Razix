@@ -18,9 +18,9 @@ namespace Razix {
             RZImageBasedLightingProbesManager()  = default;
             ~RZImageBasedLightingProbesManager() = default;
 
-            static RZTextureHandle convertEquirectangularToCubemap(const std::string& hdrFilePath);
-            static RZTextureHandle generateIrradianceMap(RZTextureHandle cubeMap);
-            static RZTextureHandle generatePreFilteredMap(RZTextureHandle cubeMap);
+            //static rz_texture_handle convertEquirectangularToCubemap(const std::string& hdrFilePath);
+            //static rz_texture_handle generateIrradianceMap(rz_texture_handle cubeMap);
+            //static rz_texture_handle generatePreFilteredMap(rz_texture_handle cubeMap);
         };
     }    // namespace Gfx
 }    // namespace Razix

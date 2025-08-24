@@ -13,16 +13,6 @@
 #include "Razix/Scene/Components/RZComponents.h"
 #include "Razix/Scene/RZEntity.h"
 
-#include "Razix/Gfx/Materials/RZMaterial.h"
-#include "Razix/Gfx/RHI/API/RZDescriptorSet.h"
-#include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
-#include "Razix/Gfx/RHI/API/RZPipeline.h"
-#include "Razix/Gfx/RHI/API/RZShader.h"
-#include "Razix/Gfx/RHI/RHI.h"
-#include "Razix/Gfx/RZMesh.h"
-#include "Razix/Gfx/RZMeshFactory.h"
-#include "Razix/Gfx/Renderers/RZSystemBinding.h"
-
 #include <entt.hpp>
 
 namespace Razix {
@@ -113,6 +103,7 @@ namespace Razix {
         }
     }
 
+#if 0
     void RZScene::drawScene(Gfx::RZPipelineHandle pipeline, SceneDrawGeometryMode geometryMode)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
@@ -231,18 +222,19 @@ namespace Razix {
             return;
         }
     }
+#endif
 
     void RZScene::Destroy()
     {
         // Meshes
-        auto mrcs = this->GetComponentsOfType<MeshRendererComponent>();
-        for (auto& mesh: mrcs) {
-            if (mesh.Mesh)
-                mesh.Mesh->Destroy();
-        }
-
-        if (m_Cube)
-            m_Cube->Destroy();
+        //auto mrcs = this->GetComponentsOfType<MeshRendererComponent>();
+        //for (auto& mesh: mrcs) {
+        //    if (mesh.Mesh)
+        //        mesh.Mesh->Destroy();
+        //}
+        //
+        //if (m_Cube)
+        //    m_Cube->Destroy();
     }
 
     RZEntity RZScene::createEntity(const std::string& name /*= std::string()*/)
@@ -281,6 +273,7 @@ namespace Razix {
         RAZIX_UNIMPLEMENTED_METHOD
     }
 
+#if 0
     void RZScene::serialiseScene(const std::string& filePath)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
@@ -301,10 +294,10 @@ namespace Razix {
         defArchive(cereal::make_nvp("Razix Scene", *this));
 
         // This line causes a nodiscard warning ignore it
-#pragma warning(push)
-#pragma warning(disable : 4834)
+    #pragma warning(push)
+    #pragma warning(disable : 4834)
         entt::snapshot{m_Registry}.entities(defArchive).component<RAZIX_COMPONENTS>(defArchive);
-#pragma warning(pop)
+    #pragma warning(pop)
     }
 
     void RZScene::deSerialiseScene(const std::string& filePath)
@@ -366,7 +359,7 @@ namespace Razix {
         m_SceneUUID = RZUUID::FromPrettyStrFactory(uuid_string);
         archive(cereal::make_nvp("SceneName", m_SceneName));
     }
-
+#endif
     template<typename T>
     void RZScene::OnComponentAdded(RZEntity entity, T& component)
     {

@@ -10,7 +10,7 @@
 #include "Razix/Utilities/RZCommandLineParser.h"
 #include "Razix/Utilities/TRZSingleton.h"
 
-#include "Razix/Gfx/RZShaderLibrary.h"
+//#include "Razix/Gfx/RZShaderLibrary.h"
 
 #include "Razix/Gfx/Renderers/RZWorldRenderer.h"
 
@@ -84,7 +84,7 @@ namespace Razix {
         inline const EngineSettings&          getGlobalEngineSettings() { return m_EngineSettings; }
         inline Gfx::RZWorldRenderer&          getWorldRenderer() { return m_WorldRenderer; }
         inline Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
-        inline Gfx::RZShaderLibrary&          getShaderLibrary() { return m_ShaderLibrary; }
+        //inline Gfx::RZShaderLibrary&          getShaderLibrary() { return m_ShaderLibrary; }
 
     private:
         RZCommandLineParser           m_CommandLineParser;
@@ -95,7 +95,7 @@ namespace Razix {
         RZSceneManager                m_SceneManagerSystem;
         Scripting::RZLuaScriptHandler m_LuaScriptHandlerSystem;
         Gfx::RZWorldRenderer          m_WorldRenderer;
-        Gfx::RZShaderLibrary          m_ShaderLibrary;
+        //Gfx::RZShaderLibrary          m_ShaderLibrary;
         bool                          m_IsEngineInTestMode = false;
     };
 }    // namespace Razix

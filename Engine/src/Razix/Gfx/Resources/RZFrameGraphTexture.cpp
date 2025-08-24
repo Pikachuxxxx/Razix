@@ -7,7 +7,6 @@
 
 #include "Razix/Gfx/FrameGraph/RZFrameGraphResource.h"
 
-#include "Razix/Gfx/RHI/API/RZTexture.h"
 #include "Razix/Gfx/RHI/RHI.h"
 
 #include "Razix/Gfx/Resources/RZResourceManager.h"
@@ -15,16 +14,16 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZFrameGraphTexture::create(const Desc& desc, u32 id, const void* transientAllocator)
+        void RZFrameGraphTexture::create(const std::string& name, const Desc& desc, u32 id, const void* transientAllocator)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             if (transientAllocator)
-                m_TextureHandle = TRANSIENT_ALLOCATOR_CAST(transientAllocator)->acquireTransientTexture(desc, id);
+                m_TextureHandle = TRANSIENT_ALLOCATOR_CAST(transientAllocator)->acquireTransientTexture(name, desc, id);
             else {
                 // If no transient allocator is provided, we create a imported persistent resource only ONCE!
-                if (!m_TextureHandle.isValid())
-                    m_TextureHandle = RZResourceManager::Get().createTexture(desc);
+                if (!rz_handle_is_valid(&m_TextureHandle))
+                    m_TextureHandle = RZResourceManager::Get().createTexture(name.c_str(), desc);
             }
         }
 
@@ -35,7 +34,7 @@ namespace Razix {
             if (transientAllocator)
                 TRANSIENT_ALLOCATOR_CAST(transientAllocator)->releaseTransientTexture(m_TextureHandle, id);
             else {
-                if (m_TextureHandle.isValid())
+                if (rz_handle_is_valid(&m_TextureHandle))
                     RZResourceManager::Get().destroyTexture(m_TextureHandle);
             }
         }
@@ -44,6 +43,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+#if 0
             RZTexture*    textureResource = RZResourceManager::Get().getPool<RZTexture>().get(m_TextureHandle);
             RZTextureDesc textureDesc     = CAST_TO_FG_TEX_DESC desc;
 
@@ -58,15 +58,18 @@ namespace Razix {
             }
 
             ImageLayout oldLayout = textureResource->getCurrentLayout();
-#ifndef RAZIX_GOLD_MASTER
+    #ifndef RAZIX_GOLD_MASTER
             if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                 RAZIX_CORE_INFO("[ReadBarrier::Texture] resource name: {0} | old layout: {1} | new layout: {2}", textureDesc.name, ImageLayoutNames[(u32) oldLayout], ImageLayoutNames[(u32) newLayout]);
+    #endif
+            //RHI::InsertImageMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_TextureHandle, oldLayout, newLayout);
 #endif
-            RHI::InsertImageMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_TextureHandle, oldLayout, newLayout);
         }
 
         void RZFrameGraphTexture::preWrite(const Desc& desc, uint32_t flags)
         {
+#if 0
+
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             RZTexture*    textureResource = RZResourceManager::Get().getPool<RZTexture>().get(m_TextureHandle);
@@ -88,26 +91,27 @@ namespace Razix {
             }
 
             ImageLayout oldLayout = textureResource->getCurrentLayout();
-#ifndef RAZIX_GOLD_MASTER
+    #ifndef RAZIX_GOLD_MASTER
             if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
                 RAZIX_CORE_INFO("[WriteBarrier::Texture] resource name: {0} | old layout: {1} | new layout: {2}", textureDesc.name, ImageLayoutNames[(u32) oldLayout], ImageLayoutNames[(u32) newLayout]);
-#endif
+    #endif
             RHI::InsertImageMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_TextureHandle, oldLayout, newLayout);
+#endif
         }
 
         void RZFrameGraphTexture::resize(u32 width, u32 height)
         {
-            RZTexture* textureResource = RZResourceManager::Get().getPool<RZTexture>().get(m_TextureHandle);
-            textureResource->Resize(width, height);
+            //RZTexture* textureResource = RZResourceManager::Get().getPool<RZTexture>().get(m_TextureHandle);
+            //textureResource->Resize(width, height);
         }
 
         std::string RZFrameGraphTexture::toString(const Desc& desc)
         {
-            if (desc.layers > 1)
-                return "(" + std::to_string(int(desc.width)) + ", " + std::to_string(int(desc.height)) + ", " + std::to_string(desc.layers) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
-            else
-                return "(" + std::to_string(int(desc.width)) + ", " + std::to_string(int(desc.height)) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
+            //if (desc.layers > 1)
+            //    return "(" + std::to_string(int(desc.width)) + ", " + std::to_string(int(desc.height)) + ", " + std::to_string(desc.layers) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
+            //else
+            //    return "(" + std::to_string(int(desc.width)) + ", " + std::to_string(int(desc.height)) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
+            return "";
         }
-
     }    // namespace Gfx
 }    // namespace Razix

@@ -85,11 +85,14 @@ function ApplyGfxTestSettings()
 
     defines
     {
-        "RAZIX_TEST"
+        "RAZIX_TEST",
+        -- RHI
+        "RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES",
     }
 
     links
     {
+        "RHI",
         "Razix", -- Razix DLL
         "googletest"
     }
@@ -144,7 +147,7 @@ function ApplyGfxTestSettings()
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE"
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
     filter "configurations:Debug"

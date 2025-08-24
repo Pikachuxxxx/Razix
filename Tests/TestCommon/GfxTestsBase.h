@@ -20,24 +20,6 @@ namespace Razix {
             Razix::RZInput::SelectGLFWInputManager();
             RZApplication::Init();
 
-            //-------------------------------------------------------------------------------------
-            // Override the Graphics API here! for testing
-#ifdef RAZIX_PLATFORM_WINDOWS
-            Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::VULKAN);
-#elif defined RAZIX_PLATFORM_MACOS
-            Razix::Gfx::RZGraphicsContext::SetRenderAPI(Razix::Gfx::RenderAPI::VULKAN);
-#endif
-            //-------------------------------------------------------------------------------------
-
-            // Init Graphics Context
-            //-------------------------------------------------------------------------------------
-            // Creating the Graphics Context and Initialize it
-            RAZIX_CORE_INFO("Creating Graphics Context...");
-            Razix::Gfx::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
-            RAZIX_CORE_INFO("Initializing Graphics Context...");
-            Razix::Gfx::RZGraphicsContext::GetContext()->Init();
-            //-------------------------------------------------------------------------------------
-
             // Mount the tests root directory to load test specific resources
             RZVirtualFileSystem::Get().mount("TestsRoot", projectRoot);
 
@@ -67,7 +49,7 @@ namespace Razix {
 
         void OnQuit() override
         {
-            m_SwapchainReadback = RZEngine::Get().getWorldRenderer().getSwapchainReadback();
+            m_SwapchainReadback = RZEngine::Get().getWorldRenderer().getSwapchainReadbackPtr();
 
             if (!WriteScreenshot()) RAZIX_ERROR("Failed to write swapchain capture readback texture!");
         }
@@ -77,11 +59,11 @@ namespace Razix {
         float CompareWithGoldenImage();
 
     protected:
-        i32                  m_NumFrames;
-        i32                  m_CurrentFrame;
-        std::string          m_GoldenImagePath;
-        std::string          m_ScreenShotPath;
-        Gfx::TextureReadback m_SwapchainReadback;
+        i32                            m_NumFrames;
+        i32                            m_CurrentFrame;
+        std::string                    m_GoldenImagePath;
+        std::string                    m_ScreenShotPath;
+        const rz_gfx_texture_readback* m_SwapchainReadback;
 
     private:
         bool  WriteScreenshot();
@@ -91,6 +73,15 @@ namespace Razix {
 
 static int EngineTestLoop(void)
 {
+    //-------------------------------------------------------------------------------------
+    // Override the Graphics API here! for testing
+#ifdef RAZIX_PLATFORM_WINDOWS
+    rzGfxCtx_SetRenderAPI(RZ_RENDER_API_D3D12);
+#elif defined RAZIX_PLATFORM_MACOS
+    rzGfxCtx_SetRenderAPI(RZ_RENDER_API_VULKAN);
+#endif
+    //-------------------------------------------------------------------------------------
+
     Razix::RZEngine::Get().setEngineInTestMode();
     EngineMain(0, NULL);
 

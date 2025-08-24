@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/RZCore.h"
+
 #include "Razix/Gfx/FrameGraph/RZBlackboard.h"
 #include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
@@ -10,16 +12,6 @@ namespace Razix {
     namespace Gfx {
 
         struct RZRendererSettings;
-
-        class RZDrawCommandBuffer;
-        class RZPipeline;
-        class RZRenderPass;
-        class RZFramebuffer;
-        class RZRenderTexture;
-        class RZUniformBuffer;
-        class RZTexture;
-        class RZDescriptorSet;
-
         class RAZIX_API IRZPass
         {
         public:

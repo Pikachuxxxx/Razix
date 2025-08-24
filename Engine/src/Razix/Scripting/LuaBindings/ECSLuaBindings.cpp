@@ -4,7 +4,7 @@
 #include "Razix/Scripting/RZLuaScriptHandler.h"
 
 #include "Razix/Core/App/RZApplication.h"
-#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
+
 #include "Razix/Scene/RZEntity.h"
 
 #include "Razix/Scene/Components/RZComponents.h"

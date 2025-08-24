@@ -64,6 +64,7 @@ project "Sandbox"
    -- vendors (Tf am I linking these)
    links
    {
+       "RHI",
        "Razix", -- Razix DLL
         -- because of the client log macros this needs to be linked again because we didn't export the spdlog symbols first time
        "glfw",
@@ -80,6 +81,8 @@ project "Sandbox"
    defines
    {
        --"SPDLOG_COMPILED_LIB"
+       -- RHI
+       "RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES",
    }
 
    filter { "files:**.lua or *.razixproject or **.rzscn"}
@@ -101,6 +104,13 @@ project "Sandbox"
         buildoptions
         {
             "/MP", "/bigobj"
+        }
+
+        -- Windows specific incldue directories
+        includedirs
+        {
+            VulkanSDK .. "/include",
+            "%{wks.location}/../Engine/vendor/winpix/Include/WinPixEventRuntime"
         }
 
         linkoptions
@@ -173,7 +183,7 @@ project "Sandbox"
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE"
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
         postbuildcommands 
@@ -196,19 +206,47 @@ project "Sandbox"
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE"
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
         linkoptions { "-rpath @executable_path/libRazix.dylib" }
 
-        runpathdirs
+            -- Windows specific incldue directories
+        includedirs
         {
-            "%{cfg.buildtarget.bundlepath}/"
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+            "./",
+            "../"
         }
 
-        embed {
-            "libRazix.dylib",
-            "libvulkan.1.dylib"
+        libdirs
+        {
+            VulkanSDK .. "/lib"
+        }
+
+        -- Windows specific linkage libraries (DirectX inlcude and library paths are implicityly added by Visual Studio, hence we need not add anything explicityly)
+        links
+        {
+            -- Render API
+            "vulkan",
+            "IOKit.framework",
+            "CoreFoundation.framework",
+            "CoreVideo.framework",
+            "CoreGraphics.framework",
+            "AppKit.framework",
+            "SystemConfiguration.framework"
+        }
+        
+        -- Apple Clang compiler options
+        buildoptions
+        {
+            "-Wno-error=switch-enum",
+            "-Wno-switch", "-Wno-switch-enum"
         }
 
         xcodebuildresources { "IconAssets.xcassets", "libMoltenVK.dylib" }
