@@ -574,15 +574,11 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef enum rz_gfx_buffer_type
     {
         RZ_GFX_BUFFER_TYPE_CONSTANT = 0,
-        RZ_GFX_BUFFER_TYPE_RW_CONSTANT,
-        RZ_GFX_BUFFER_TYPE_STORAGE,
-        RZ_GFX_BUFFER_TYPE_RW_STRUCTURED,
-        RZ_GFX_BUFFER_TYPE_RW_DATA,
-        RZ_GFX_BUFFER_TYPE_RW_REGULAR,
         RZ_GFX_BUFFER_TYPE_STRUCTURED,
-        RZ_GFX_BUFFER_TYPE_DATA,
-        RZ_GFX_BUFFER_TYPE_REGULAR,
+        RZ_GFX_BUFFER_TYPE_BYTE,
         RZ_GFX_BUFFER_TYPE_ACCELERATION_STRUCTURE,
+        RZ_GFX_BUFFER_TYPE_RW_STRUCTURED,
+        RZ_GFX_BUFFER_TYPE_RW_BYTE,
         RZ_GFX_BUFFER_TYPE_COUNT
     } rz_gfx_buffer_type;
 
@@ -884,8 +880,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t                 sizeInBytes;
         uint32_t                 stride;          // For structured buffers
         uint32_t                 elementCount;    // For structured buffers
-        bool                     isDynamic;       // If true, buffer can be updated dynamically
-        uint8_t                  _pad0[11];
+        uint8_t                  _pad0[12];
     } rz_gfx_buffer_desc;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader_stage_blob
@@ -1378,6 +1373,9 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_CreateSamplerFn)(void* where);
     typedef void (*rzRHI_DestroySamplerFn)(void* ptr);
 
+    typedef void (*rzRHI_CreateBufferFn)(void* where);
+    typedef void (*rzRHI_DestroyBufferFn)(void* ptr);
+
     typedef void (*rzRHI_CreateResourceViewFn)(void* where);
     typedef void (*rzRHI_DestroyResourceViewFn)(void* ptr);
 
@@ -1448,6 +1446,8 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_DestroyTextureFn       DestroyTexture;
         rzRHI_CreateSamplerFn        CreateSampler;
         rzRHI_DestroySamplerFn       DestroySampler;
+        rzRHI_CreateBufferFn         CreateBuffer;
+        rzRHI_DestroyBufferFn        DestroyBuffer;
         rzRHI_CreateResourceViewFn   CreateResourceView;
         rzRHI_DestroyResourceViewFn  DestroyResourceView;
         //....
@@ -1498,6 +1498,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define rzGfxCtx_GlobalCtxInit    g_RHI.GlobalCtxInit
 #define rzGfxCtx_GlobalCtxDestroy g_RHI.GlobalCtxDestroy
 
+// Adding profiling macros to enable/disable RHI Create/Destroy functions is redundant, RZResourceManager already does that
 #define rzRHI_CreateSyncobj          g_RHI.CreateSyncobj
 #define rzRHI_DestroySyncobj         g_RHI.DestroySyncobj
 #define rzRHI_CreateSwapchain        g_RHI.CreateSwapchain
@@ -1516,6 +1517,8 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define rzRHI_DestroyTexture         g_RHI.DestroyTexture
 #define rzRHI_CreateSampler          g_RHI.CreateSampler
 #define rzRHI_DestroySampler         g_RHI.DestroySampler
+#define rzRHI_CreateBuffer           g_RHI.CreateBuffer
+#define rzRHI_DestroyBuffer          g_RHI.DestroyBuffer
 #define rzRHI_CreateResourceView     g_RHI.CreateResourceView
 #define rzRHI_DestroyResourceView    g_RHI.DestroyResourceView
 #define rzRHI_CreateDescriptorHeap   g_RHI.CreateDescriptorHeap

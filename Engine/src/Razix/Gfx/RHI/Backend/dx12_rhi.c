@@ -2170,7 +2170,7 @@ static void dx12_CreateTexture(void* where)
 
     D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;    // Default state, can be changed later
 
-    // Crated resource with memory backing
+    // Create resource with memory backing
     D3D12_HEAP_PROPERTIES heapProps = {0};
     heapProps.Type                  = D3D12_HEAP_TYPE_DEFAULT;
     heapProps.CPUPageProperty       = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
@@ -2217,6 +2217,70 @@ static void dx12_DestroySampler(void* sampler)
     // In D3D12, samplers are not standalone objects, so there's nothing to release here.
     // They are managed by the descriptor heaps and bound to the pipeline state.
     // Destroying the descriptor heap will clean up the samplers.
+}
+
+static void dx12_CreateBuffer(void* where)
+{
+    rz_gfx_buffer* buffer = (rz_gfx_buffer*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&buffer->resource.handle), "Invalid buffer handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_buffer_desc* desc = &buffer->resource.desc.bufferDesc;
+    RAZIX_RHI_ASSERT(desc != NULL, "Buffer descriptor cannot be NULL");
+    RAZIX_RHI_ASSERT(desc->sizeInBytes > 0, "Buffer size must be greater than zero");
+
+#ifdef RAZIX_DEBUG
+    if (desc->usage == RZ_GFX_BUFFER_TYPE_STRUCTURED || desc->usage == RZ_GFX_BUFFER_TYPE_RW_STRUCTURED) {
+        RAZIX_RHI_ASSERT(desc->stride > 0, "Structured buffer must have a valid stride");
+        RAZIX_RHI_ASSERT((desc->sizeInBytes % desc->stride) == 0, "Structured buffer size must be a multiple of the stride");
+    }
+#endif
+
+    // create constant buffers aligned to 256 bytes
+    bool isConstantBuffer = desc->usage == RZ_GFX_BUFFER_TYPE_CONSTANT;
+    if (isConstantBuffer) {
+        if (desc->sizeInBytes % RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT != 0) {
+            desc->sizeInBytes = RAZIX_RHI_ALIGN(desc->sizeInBytes, RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT);
+            RAZIX_RHI_LOG_WARN("Buffer size rounded up to %u bytes to meet constant buffer alignment requirements of %d bytes", desc->sizeInBytes, RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT);
+        }
+    }
+
+    D3D12_RESOURCE_DESC resDesc = {0};
+    resDesc.Dimension           = D3D12_RESOURCE_DIMENSION_BUFFER;
+    resDesc.Alignment           = isConstantBuffer ? RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT : 0;    // 256 for constant buffers, 0 for others
+    resDesc.Width               = desc->sizeInBytes;
+    resDesc.Height              = 1;
+    resDesc.DepthOrArraySize    = 1;
+    resDesc.MipLevels           = 1;
+    resDesc.Format              = DXGI_FORMAT_UNKNOWN;    // TODO: Deduce this for Structured buffers here on in D3D12_BUFFER_DESC? ex. dx12_util_rz_gfx_format_to_dxgi_format(desc->format)
+    resDesc.SampleDesc.Count    = 1;
+    resDesc.Layout              = D3D12_TEXTURE_LAYOUT_UNKNOWN;    // as fed by users
+    resDesc.Flags               = D3D12_RESOURCE_FLAG_NONE;
+
+    // Create resource with memory backing
+    D3D12_HEAP_PROPERTIES heapProps = {0};
+    heapProps.Type                  = D3D12_HEAP_TYPE_DEFAULT;
+    heapProps.CPUPageProperty       = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    heapProps.MemoryPoolPreference  = D3D12_MEMORY_POOL_UNKNOWN;
+
+    D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;    // Default state, can be changed later
+
+    // Create the buffer resource
+    HRESULT hr = ID3D12Device10_CreateCommittedResource(DX12Device, &heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, initialState, NULL, &IID_ID3D12Resource, &buffer->dx12.resource);
+    if (FAILED(hr)) {
+        RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Buffer: 0x%08X", hr);
+        return;
+    }
+    RAZIX_RHI_LOG_INFO("D3D12 Buffer created successfully");
+    TAG_OBJECT(buffer->dx12.resource, buffer->resource.pName);
+}
+
+static void dx12_DestroyBuffer(void* buffer)
+{
+    RAZIX_RHI_ASSERT(buffer != NULL, "Buffer is NULL, cannot destroy");
+    rz_gfx_buffer* buf = (rz_gfx_buffer*) buffer;
+    if (buf->dx12.resource) {
+        ID3D12Resource_Release(buf->dx12.resource);
+        buf->dx12.resource = NULL;
+    }
 }
 
 static void dx12_CreateDescriptorHeap(void* where)
@@ -2831,6 +2895,8 @@ rz_rhi_api dx12_rhi = {
     .DestroyTexture         = dx12_DestroyTexture,            // DestroyTexture
     .CreateSampler          = dx12_CreateSampler,             // CreateSampler
     .DestroySampler         = dx12_DestroySampler,            // DestroySampler
+    .CreateBuffer           = dx12_CreateBuffer,              // CreateBuffer
+    .DestroyBuffer          = dx12_DestroyBuffer,             // DestroyBuffer
     .CreateResourceView     = dx12_CreateResourceView,        // CreateResourceView
     .DestroyResourceView    = dx12_DestroyResourceView,       // DestroyResourceView
     .CreateDescriptorHeap   = dx12_CreateDescriptorHeap,      // CreateDescriptorHeap
