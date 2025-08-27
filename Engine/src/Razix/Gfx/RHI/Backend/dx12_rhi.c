@@ -1083,10 +1083,10 @@ static dx12_resview dx12_create_buffer_view(const rz_gfx_buffer_view_desc* desc,
 
     bool isRWBuffer = rzRHI_IsDescriptorTypeBufferRW(descriptorType);
 
-    if (!isRWBuffer && pBuffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_SRV == RZ_GFX_RESOURCE_VIEW_FLAG_SRV) {
+    if (!isRWBuffer && ((pBuffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_CBV) == RZ_GFX_RESOURCE_VIEW_FLAG_CBV)) {
         if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER)
             dx12_view.cbvDesc = dx12_create_buffer_cbv(desc, bufferDesc);
-    } else if (isRWBuffer && pBuffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV == RZ_GFX_RESOURCE_VIEW_FLAG_UAV) {
+    } else if (isRWBuffer && ((pBuffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV)) {
         dx12_view.uavDesc = dx12_util_create_buffer_uav(desc, bufferDesc);
     } else {
         RAZIX_RHI_LOG_ERROR("Unsupported buffer view descriptor type: %d and view hints: %d, Please specify a view flag hint", descriptorType, pBuffer->resource.viewHints);
@@ -2231,14 +2231,14 @@ static void dx12_CreateBuffer(void* where)
     buffer->resource.viewHints = desc->resourceHints;
 
 #ifdef RAZIX_DEBUG
-    if (desc->usage == RZ_GFX_BUFFER_TYPE_STRUCTURED || desc->usage == RZ_GFX_BUFFER_TYPE_RW_STRUCTURED) {
+    if (desc->type == RZ_GFX_BUFFER_TYPE_STRUCTURED || desc->type == RZ_GFX_BUFFER_TYPE_RW_STRUCTURED) {
         RAZIX_RHI_ASSERT(desc->stride > 0, "Structured buffer must have a valid stride");
         RAZIX_RHI_ASSERT((desc->sizeInBytes % desc->stride) == 0, "Structured buffer size must be a multiple of the stride");
     }
 #endif
 
     // create constant buffers aligned to 256 bytes
-    bool isConstantBuffer = desc->usage == RZ_GFX_BUFFER_TYPE_CONSTANT;
+    bool isConstantBuffer = desc->type == RZ_GFX_BUFFER_TYPE_CONSTANT;
     if (isConstantBuffer) {
         if (desc->sizeInBytes % RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT != 0) {
             desc->sizeInBytes = RAZIX_RHI_ALIGN(desc->sizeInBytes, RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT);
@@ -2688,9 +2688,8 @@ static void dx12_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uin
     ID3D12GraphicsCommandList_DrawInstanced(cmdBuf->dx12.cmdList, vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
-static void dx12_UpdateConstantBuffer(const rz_gfx_cmdbuf* cmdbuf, rz_gfx_buffer_update updatedesc)
+static void dx12_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
 {
-    RAZIX_RHI_ASSERT(cmdbuf != NULL, "Command buffer cannot be NULL");
     RAZIX_RHI_ASSERT(updatedesc.pBuffer != NULL, "Buffer cannot be NULL");
     RAZIX_RHI_ASSERT(updatedesc.sizeInBytes > 0, "Size in bytes must be greater than zero");
     RAZIX_RHI_ASSERT(updatedesc.offset + updatedesc.sizeInBytes <= updatedesc.pBuffer->resource.desc.bufferDesc.sizeInBytes, "Update range exceeds buffer size");
@@ -2945,6 +2944,7 @@ rz_rhi_api dx12_rhi = {
     .BindDescriptorHeaps  = dx12_BindDescriptorHeaps,     // BindDescriptorHeaps
 
     .DrawAuto              = dx12_DrawAuto,                 // DrawAuto
+    .UpdateConstantBuffer  = dx12_UpdateConstantBuffer,     // UpdateConstantBuffer
     .InsertImageBarrier    = dx12_InsertImageBarrier,       // InsertImageBarrier
     .InsertTextureReadback = dx12_InsertTextureReadback,    // InsertTextureReadback
 
