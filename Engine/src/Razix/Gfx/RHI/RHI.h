@@ -872,12 +872,13 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_buffer_desc
     {
-        rz_gfx_buffer_type       type;
-        rz_gfx_buffer_usage_type usage;
-        uint32_t                 sizeInBytes;
-        uint32_t                 stride;          // For structured buffers
-        uint32_t                 elementCount;    // For structured buffers
-        uint8_t                  _pad0[12];
+        rz_gfx_buffer_type         type;
+        rz_gfx_buffer_usage_type   usage;
+        rz_gfx_resource_view_hints resourceHints;    // Hints for how this texture should be viewed, used for binding
+        uint32_t                   sizeInBytes;
+        uint32_t                   stride;          // For structured buffers
+        uint32_t                   elementCount;    // For structured buffers
+        uint8_t                    _pad0[8];
     } rz_gfx_buffer_desc;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader_stage_blob
@@ -1433,7 +1434,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_DrawAutoFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t, uint32_t);
 
     typedef void (*rzRHI_UpdateDescriptorTableFn)(rz_gfx_descriptor_table*, rz_gfx_resource_view*, uint32_t);
-    typedef void (*rzRHI_UpdateConstantBufferFn)(const rz_gfx_cmdbuf*, rz_gfx_buffer_update);
+    typedef void (*rzRHI_UpdateConstantBufferFn)(rz_gfx_buffer_update);
 
     typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*, rz_gfx_resource_state, rz_gfx_resource_state);
     typedef void (*rzRHI_InsertTextureReadbackFn)(const rz_gfx_texture*, rz_gfx_texture_readback*);
@@ -1588,7 +1589,7 @@ static inline unsigned int rz_clz32(unsigned int x)
                     _rvs[i] = RZResourceManager::Get().getResourceViewResource(rv);                            \
                 g_RHI.UpdateDescriptorTable(RZResourceManager::Get().getDescriptorTableResource(dt), _rvs, N); \
             } while (0);
-        #define rzRHI_UpdateConstantBuffer(cb, bu)                  g_RHI.UpdateConstantBuffer(RZResourceManager::Get().getCommandBufferResource(cb), bu)
+        #define rzRHI_UpdateConstantBuffer(bu)                      g_RHI.UpdateConstantBuffer(bu)
         #define rzRHI_InsertImageBarrier(cb, text, bs, as)          g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(text), bs, as)
         #define rzRHI_InsertSwapchainImageBarrier(cb, text, bs, as) g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), text, bs, as)
         #define rzRHI_InsertTextureReadback(text, rb)               g_RHI.InsertTextureReadback(RZResourceManager::Get().getTextureResource(text), rb)
@@ -1779,10 +1780,10 @@ static inline unsigned int rz_clz32(unsigned int x)
                     rvPtrs.size());                                                             \
             } while (0)
 
-        #define rzRHI_UpdateConstantBuffer(cb, bu)                                                     \
-            do {                                                                                       \
-                RAZIX_PROFILE_SCOPEC("rzRHI_UpdateConstantBuffer", RZ_PROFILE_COLOR_RHI);              \
-                g_RHI.UpdateConstantBuffer(RZResourceManager::Get().getCommandBufferResource(cb), bu); \
+        #define rzRHI_UpdateConstantBuffer(bu)                                            \
+            do {                                                                          \
+                RAZIX_PROFILE_SCOPEC("rzRHI_UpdateConstantBuffer", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.UpdateConstantBuffer(bu);                                           \
             } while (0)
 
         #define rzRHI_InsertImageBarrier(cb, tex, bs, as)                                                                                                  \
@@ -1962,10 +1963,10 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC_END();                                                \
             } while (0);
 
-        #define rzRHI_UpdateConstantBuffer(cb, bu)                                        \
+        #define rzRHI_UpdateConstantBuffer(bu)                                            \
             do {                                                                          \
                 RAZIX_PROFILE_SCOPEC("rzRHI_UpdateConstantBuffer", RZ_PROFILE_COLOR_RHI); \
-                g_RHI.UpdateConstantBuffer(cb, bu);                                       \
+                g_RHI.UpdateConstantBuffer(bu);                                           \
                 RAZIX_PROFILE_SCOPEC_END();                                               \
             } while (0)
 
