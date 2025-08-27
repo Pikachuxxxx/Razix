@@ -34,7 +34,7 @@ project "Tracy"
         optimize "Off"
 
     filter "configurations:Release"
-        defines { "RAZIX_RELEASE", "NDEBUG" }
+        defines { "RAZIX_RELEASE", "NDEBUG", "TRACY_ENABLE", "TRACY_ON_DEMAND", }
         optimize "Speed"
         symbols "On"
         runtime "Release"

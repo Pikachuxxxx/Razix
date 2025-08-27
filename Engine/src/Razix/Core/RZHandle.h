@@ -80,6 +80,7 @@ extern "C"
 #endif    // __cplusplus
 
 #ifdef __cplusplus
+#include <functional>
 
 inline bool operator==(const rz_handle& a, const rz_handle& b) noexcept
 {

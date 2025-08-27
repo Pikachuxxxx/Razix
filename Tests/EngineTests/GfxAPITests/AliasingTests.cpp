@@ -1,7 +1,7 @@
 // TransientAllocatorTests.cpp
 // AI-generated unit tests for the RZHandle class
 #include <Razix.h>
-#include <Razix/Gfx/Resources/RZTransientAllocator.h>
+#include <Razix/Gfx/FrameGraph/RZTransientAllocator.h>
 #include <gtest/gtest.h>
 
 namespace Razix {

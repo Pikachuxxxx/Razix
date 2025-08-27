@@ -612,6 +612,11 @@ namespace Razix {
             rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
         }
 
+        void RZWorldRenderer::flushGPUWork()
+        {
+            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
+        }
+
         RAZIX_INLINE void RZWorldRenderer::setFrameGraphFilePath(std::string val)
         {
             m_IsFGFilePathDirty  = true;

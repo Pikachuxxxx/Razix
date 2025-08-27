@@ -106,8 +106,10 @@ namespace Razix {
 
             // create root signature
             if (!(shaderDesc->flags & RZ_GFX_SHADER_FLAG_NO_ROOT_SIGNATURE)) {
+#ifdef RAZIX_DEBUG
                 if (rootSigDesc.descriptorTableLayoutsCount == 0 && rootSigDesc.pRootConstantsDesc == NULL)
                     RAZIX_CORE_WARN("[Resource Manager] Empty Root Signature! Shader {0} has no root signature descriptor tables or root constants!", shader->resource.pName);
+#endif
                 auto rootSigName      = "RootSignature." + std::string(shader->resource.pName);
                 shader->rootSignature = RZResourceManager::Get().createRootSignature(rootSigName.c_str(), rootSigDesc);
             }

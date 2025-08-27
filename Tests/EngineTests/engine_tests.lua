@@ -15,6 +15,12 @@ project "EngineTests"
         "./**.cpp"
     }
 
+    removefiles
+    {
+        "../TestCommon/GfxTestsBase.h",
+        "../TestCommon/GfxTestsBase.cpp",
+    }
+
     links
     {
         "Razix"
