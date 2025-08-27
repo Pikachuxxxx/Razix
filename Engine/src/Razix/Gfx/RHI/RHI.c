@@ -74,7 +74,7 @@ bool rzRHI_IsDescriptorTypeTexture(rz_gfx_descriptor_type type)
 bool rzRHI_IsDescriptorTypeBuffer(rz_gfx_descriptor_type type)
 {
     switch (type) {
-        case RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER:
         case RZ_GFX_DESCRIPTOR_TYPE_RW_TYPED:
         case RZ_GFX_DESCRIPTOR_TYPE_STRUCTURED:
         case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED:
@@ -125,7 +125,7 @@ bool rzRHI_IsDescriptorTypeBufferRW(rz_gfx_descriptor_type type)
         case RZ_GFX_DESCRIPTOR_TYPE_CONSUME_STRUCTURED:
         case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED_COUNTER:
             return true;
-        case RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER:
         case RZ_GFX_DESCRIPTOR_TYPE_STRUCTURED:
         case RZ_GFX_DESCRIPTOR_TYPE_BYTE_ADDRESS:
             return false;    // These are read-only buffer types

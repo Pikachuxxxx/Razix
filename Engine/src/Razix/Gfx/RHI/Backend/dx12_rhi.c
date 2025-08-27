@@ -184,7 +184,7 @@ static D3D12_RESOURCE_STATES dx12_util_res_state_translate(rz_gfx_resource_state
 static D3D12_DESCRIPTOR_RANGE_TYPE dx12_util_descriptor_type_to_range_type(rz_gfx_descriptor_type type)
 {
     switch (type) {
-        case RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER:
             return D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 
         case RZ_GFX_DESCRIPTOR_TYPE_TEXTURE:
@@ -541,7 +541,7 @@ static bool dx12_util_is_descriptor_type_uav(rz_gfx_descriptor_type type)
 
 static bool dx12_util_is_descriptor_type_cbv(rz_gfx_descriptor_type type)
 {
-    return type == RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    return type == RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
 }
 
 static bool dx12_util_is_descriptor_type_sampler(rz_gfx_descriptor_type type)
@@ -1084,7 +1084,7 @@ static dx12_resview dx12_create_buffer_view(const rz_gfx_buffer_view_desc* desc,
     bool isRWBuffer = rzRHI_IsDescriptorTypeBufferRW(descriptorType);
 
     if (!isRWBuffer && pBuffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_SRV == RZ_GFX_RESOURCE_VIEW_FLAG_SRV) {
-        if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+        if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER)
             dx12_view.cbvDesc = dx12_create_buffer_cbv(desc, bufferDesc);
     } else if (isRWBuffer && pBuffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV == RZ_GFX_RESOURCE_VIEW_FLAG_UAV) {
         dx12_view.uavDesc = dx12_util_create_buffer_uav(desc, bufferDesc);
@@ -2435,7 +2435,7 @@ static void dx12_CreateDescriptorTable(void* where)
         bool isTexture        = rzRHI_IsDescriptorTypeTexture(pViewDesc->descriptorType);
         bool isBuffer         = rzRHI_IsDescriptorTypeBuffer(pViewDesc->descriptorType);
         bool isSampler        = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
-        bool isConstantBuffer = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        bool isConstantBuffer = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
         RAZIX_RHI_ASSERT(isTexture || isBuffer || isSampler || isConstantBuffer, "Descriptor type must be a texture, buffer, constant buffer or sampler for descriptor table creation");
         bool isTextureRW = isTexture && rzRHI_IsDescriptorTypeTextureRW(pViewDesc->descriptorType);
         bool isBufferRW  = isBuffer && rzRHI_IsDescriptorTypeBufferRW(pViewDesc->descriptorType);
@@ -2795,6 +2795,7 @@ static void dx12_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_tex
     readback->width  = width;
     readback->height = height;
     readback->bpp    = 32;
+    // TODO: Get a malloc CB from user, and use that instead of allocating memory from RHI, RHI should not be allocating memory for user in any shape or form
     // Note: Pray to god that user will free this memory
     readback->data = malloc(size);
 

@@ -384,7 +384,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef enum rz_gfx_descriptor_type
     {
         RZ_GFX_DESCRIPTOR_TYPE_NONE           = 0xFFFFFFFF,
-        RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER = 0,
+        RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER = 0,
         RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT,
         RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED,    // (Vulkan-only, not recommended)
         RZ_GFX_DESCRIPTOR_TYPE_TEXTURE,
