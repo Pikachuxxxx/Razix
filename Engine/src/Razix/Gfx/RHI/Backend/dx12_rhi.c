@@ -284,8 +284,8 @@ static D3D_PRIMITIVE_TOPOLOGY dx12_util_draw_type_to_d3dtopology(rz_gfx_draw_typ
 static D3D12_FILL_MODE dx12_util_polygon_mode_to_fill_mode(rz_gfx_polygon_mode_type polygonMode)
 {
     switch (polygonMode) {
-        case RZ_GFX_POLYGON_MODE_TYPE_FILL: return D3D12_FILL_MODE_SOLID;
-        case RZ_GFX_POLYGON_MODE_TYPE_LINE: return D3D12_FILL_MODE_WIREFRAME;
+        case RZ_GFX_POLYGON_MODE_TYPE_SOLID: return D3D12_FILL_MODE_SOLID;
+        case RZ_GFX_POLYGON_MODE_TYPE_WIREFRAME: return D3D12_FILL_MODE_WIREFRAME;
         case RZ_GFX_POLYGON_MODE_TYPE_POINT: return D3D12_FILL_MODE_SOLID;
         default:
             RAZIX_RHI_LOG_ERROR("Unknown polygon mode %d", polygonMode);

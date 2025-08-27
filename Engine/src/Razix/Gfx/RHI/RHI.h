@@ -498,8 +498,8 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     typedef enum rz_gfx_polygon_mode_type
     {
-        RZ_GFX_POLYGON_MODE_TYPE_FILL = 0,
-        RZ_GFX_POLYGON_MODE_TYPE_LINE,
+        RZ_GFX_POLYGON_MODE_TYPE_SOLID = 0,
+        RZ_GFX_POLYGON_MODE_TYPE_WIREFRAME,
         RZ_GFX_POLYGON_MODE_TYPE_POINT,
         RZ_GFX_POLYGON_MODE_TYPE_COUNT
     } rz_gfx_polygon_mode_type;
