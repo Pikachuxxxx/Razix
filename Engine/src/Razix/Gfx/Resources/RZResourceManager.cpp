@@ -140,18 +140,19 @@ namespace Razix {
             RAZIX_INIT_RESOURCE_POOL(ResourceView, RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW, 65536, sizeof(rz_gfx_resource_view), rzRHI_CreateResourceView, rzRHI_DestroyResourceView);
 
             // Initialize all the Pools
-            RAZIX_INIT_RESOURCE_POOL(Texture, RZ_GFX_RESOURCE_TYPE_TEXTURE, 2048, sizeof(rz_gfx_texture), rzRHI_CreateTexture, rzRHI_DestroyTexture);
-            RAZIX_INIT_RESOURCE_POOL(Sampler, RZ_GFX_RESOURCE_TYPE_SAMPLER, 64, sizeof(rz_gfx_sampler), rzRHI_CreateSampler, rzRHI_DestroySampler);
-            RAZIX_INIT_RESOURCE_POOL(Shader, RZ_GFX_RESOURCE_TYPE_SHADER, 512, sizeof(rz_gfx_shader), RZSFCreateOverrideFunc, DestroyShaderWithRootSigOverrideFunv);
-            RAZIX_INIT_RESOURCE_POOL(RootSignature, RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE, 512, sizeof(rz_gfx_root_signature), rzRHI_CreateRootSignature, rzRHI_DestroyRootSignature);
-            RAZIX_INIT_RESOURCE_POOL(Pipeline, RZ_GFX_RESOURCE_TYPE_PIPELINE, 512, sizeof(rz_gfx_pipeline), rzRHI_CreatePipeline, rzRHI_DestroyPipeline);
-            //RAZIX_INIT_RESOURCE_POOL(UniformBuffer, 2048)
-            RAZIX_INIT_RESOURCE_POOL(CommandPool, RZ_GFX_RESOURCE_TYPE_CMD_POOL, 32, sizeof(rz_gfx_cmdpool), rzRHI_CreateCmdPool, rzRHI_DestroyCmdPool);
-            RAZIX_INIT_RESOURCE_POOL(CommandBuffer, RZ_GFX_RESOURCE_TYPE_CMD_BUFFER, 32 * 32, sizeof(rz_gfx_cmdbuf), rzRHI_CreateCmdBuf, rzRHI_DestroyCmdBuf);
-            //RAZIX_INIT_RESOURCE_POOL(VertexBuffer, 512)
-            //RAZIX_INIT_RESOURCE_POOL(IndexBuffer, 512)
-            RAZIX_INIT_RESOURCE_POOL(DescriptorHeap, RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_HEAP, 4096, sizeof(rz_gfx_descriptor_heap), rzRHI_CreateDescriptorHeap, rzRHI_DestroyDescriptorHeap);
-            RAZIX_INIT_RESOURCE_POOL(DescriptorTable, RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_TABLE, 4096 * 64, sizeof(rz_gfx_descriptor_table), rzRHI_CreateDescriptorTable, rzRHI_DestroyDescriptorTable);
+            // clang-format off
+            // resource name | type | count | element size | create and destroy function pointers
+            RAZIX_INIT_RESOURCE_POOL(Texture,         RZ_GFX_RESOURCE_TYPE_TEXTURE,          2048,        sizeof(rz_gfx_texture),            rzRHI_CreateTexture,         rzRHI_DestroyTexture);
+            RAZIX_INIT_RESOURCE_POOL(Sampler,         RZ_GFX_RESOURCE_TYPE_SAMPLER,          64,          sizeof(rz_gfx_sampler),            rzRHI_CreateSampler,         rzRHI_DestroySampler);
+            RAZIX_INIT_RESOURCE_POOL(Shader,          RZ_GFX_RESOURCE_TYPE_SHADER,           512,         sizeof(rz_gfx_shader),             RZSFCreateOverrideFunc,      DestroyShaderWithRootSigOverrideFunv);
+            RAZIX_INIT_RESOURCE_POOL(RootSignature,   RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE,   512,         sizeof(rz_gfx_root_signature),     rzRHI_CreateRootSignature,   rzRHI_DestroyRootSignature);
+            RAZIX_INIT_RESOURCE_POOL(Pipeline,        RZ_GFX_RESOURCE_TYPE_PIPELINE,         512,         sizeof(rz_gfx_pipeline),           rzRHI_CreatePipeline,        rzRHI_DestroyPipeline);
+            RAZIX_INIT_RESOURCE_POOL(Buffer,          RZ_GFX_RESOURCE_TYPE_BUFFER,           4096,        sizeof(rz_gfx_buffer),             rzRHI_CreateBuffer,          rzRHI_DestroyBuffer);
+            RAZIX_INIT_RESOURCE_POOL(CommandPool,     RZ_GFX_RESOURCE_TYPE_CMD_POOL,         32,          sizeof(rz_gfx_cmdpool),            rzRHI_CreateCmdPool,         rzRHI_DestroyCmdPool);
+            RAZIX_INIT_RESOURCE_POOL(CommandBuffer,   RZ_GFX_RESOURCE_TYPE_CMD_BUFFER,       32 * 32,     sizeof(rz_gfx_cmdbuf),             rzRHI_CreateCmdBuf,          rzRHI_DestroyCmdBuf);
+            RAZIX_INIT_RESOURCE_POOL(DescriptorHeap,  RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_HEAP,  4096,        sizeof(rz_gfx_descriptor_heap),    rzRHI_CreateDescriptorHeap,  rzRHI_DestroyDescriptorHeap);
+            RAZIX_INIT_RESOURCE_POOL(DescriptorTable, RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_TABLE, 4096 * 64,   sizeof(rz_gfx_descriptor_table),   rzRHI_CreateDescriptorTable, rzRHI_DestroyDescriptorTable);
+            // clang-format on
         }
 
         void RZResourceManager::ShutDown()
@@ -161,15 +162,13 @@ namespace Razix {
             // Destroy all the Pools
             ////////////////////////////////
             RAZIX_UNREGISTER_RESOURCE_POOL(Texture);
-            RAZIX_UNREGISTER_RESOURCE_POOL(Sampler)
+            RAZIX_UNREGISTER_RESOURCE_POOL(Sampler);
             RAZIX_UNREGISTER_RESOURCE_POOL(Shader);
             RAZIX_UNREGISTER_RESOURCE_POOL(RootSignature);
             RAZIX_UNREGISTER_RESOURCE_POOL(Pipeline);
-            //RAZIX_UNREGISTER_RESOURCE_POOL(UniformBuffer)
+            RAZIX_UNREGISTER_RESOURCE_POOL(Buffer)
             RAZIX_UNREGISTER_RESOURCE_POOL(CommandPool);
             RAZIX_UNREGISTER_RESOURCE_POOL(CommandBuffer);
-            //RAZIX_UNREGISTER_RESOURCE_POOL(VertexBuffer)
-            //RAZIX_UNREGISTER_RESOURCE_POOL(IndexBuffer)
             RAZIX_UNREGISTER_RESOURCE_POOL(DescriptorHeap);
             RAZIX_UNREGISTER_RESOURCE_POOL(DescriptorTable);
             ////////////////////////////////
@@ -188,10 +187,7 @@ namespace Razix {
         RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Shader, RZ_GFX_RESOURCE_TYPE_SHADER, rz_gfx_shader);
         RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(RootSignature, RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE, rz_gfx_root_signature);
         RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Pipeline, RZ_GFX_RESOURCE_TYPE_PIPELINE, rz_gfx_pipeline);
-        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(UniformBuffer, const RZBufferDesc& desc)
-        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(VertexBuffer, const RZBufferDesc& desc)
-        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(IndexBuffer, const RZBufferDesc& desc)
-        //RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(DescriptorSet, const RZDescriptorSetDesc& desc)
+        RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(Buffer, RZ_GFX_RESOURCE_TYPE_BUFFER, rz_gfx_buffer);
         RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(CommandPool, RZ_GFX_RESOURCE_TYPE_CMD_POOL, rz_gfx_cmdpool);
         RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(CommandBuffer, RZ_GFX_RESOURCE_TYPE_CMD_BUFFER, rz_gfx_cmdbuf);
         RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(DescriptorHeap, RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_HEAP, rz_gfx_descriptor_heap);

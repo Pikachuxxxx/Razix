@@ -74,11 +74,7 @@ private:                                                                        
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(Pipeline, rz_gfx_pipeline)
             //-----------------------------------------------------------------------------------
-            // RAZIX_REGISTER_RESOURCE_POOL(uniformBuffer, const RZBufferDesc& desc)
-            // //-----------------------------------------------------------------------------------
-            // RAZIX_REGISTER_RESOURCE_POOL(vertex_buffer, const RZBufferDesc& desc)
-            // //-----------------------------------------------------------------------------------
-            // RAZIX_REGISTER_RESOURCE_POOL(index_buffer, const RZBufferDesc& desc)
+            RAZIX_REGISTER_RESOURCE_POOL(Buffer, rz_gfx_buffer)
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(CommandPool, rz_gfx_cmdpool)
             //-----------------------------------------------------------------------------------
