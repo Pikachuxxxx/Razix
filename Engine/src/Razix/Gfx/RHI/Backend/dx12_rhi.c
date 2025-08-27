@@ -2244,6 +2244,10 @@ static void dx12_CreateBuffer(void* where)
             desc->sizeInBytes = RAZIX_RHI_ALIGN(desc->sizeInBytes, RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT);
             RAZIX_RHI_LOG_WARN("Buffer size rounded up to %u bytes to meet constant buffer alignment requirements of %d bytes", desc->sizeInBytes, RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT);
         }
+
+        if (desc->usage == RZ_GFX_BUFFER_USAGE_TYPE_STATIC) {
+            RAZIX_RHI_LOG_WARN("Static usage is not recommended for constant buffers, consider using DYNAMIC or PERSISTENT_STREAM usage types for better data upload mechanism or use push constant for static data/textures");
+        }
     }
 
     D3D12_RESOURCE_DESC resDesc = {0};
@@ -2260,9 +2264,11 @@ static void dx12_CreateBuffer(void* where)
 
     // Create resource with memory backing
     D3D12_HEAP_PROPERTIES heapProps = {0};
-    heapProps.Type                  = D3D12_HEAP_TYPE_DEFAULT;
-    heapProps.CPUPageProperty       = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-    heapProps.MemoryPoolPreference  = D3D12_MEMORY_POOL_UNKNOWN;
+    // TODO: Choose upload for other types if CPU access is needed, like streaming vertex/index buffers
+    bool useUploadHeapType         = desc->usage == RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC || desc->usage == RZ_GFX_BUFFER_USAGE_TYPE_STAGING || desc->usage == RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM;
+    heapProps.Type                 = useUploadHeapType ? D3D12_HEAP_TYPE_UPLOAD : D3D12_HEAP_TYPE_DEFAULT;
+    heapProps.CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 
     D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;    // Default state, can be changed later
 
