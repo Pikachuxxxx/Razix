@@ -560,6 +560,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef enum rz_gfx_buffer_usage_type
     {
         RZ_GFX_BUFFER_USAGE_TYPE_STATIC = 0,
+        RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC,
         RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM,
         RZ_GFX_BUFFER_USAGE_TYPE_STAGING,
         RZ_GFX_BUFFER_USAGE_TYPE_INDIRECT_DRAW_ARGS,
@@ -1304,12 +1305,11 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_buffer_update
     {
-        const rz_gfx_descriptor_heap* pUploadHeap;
-        const rz_gfx_buffer*          pBuffer;
-        uint32_t                      sizeInBytes;
-        uint32_t                      offset;
-        const void*                   pData;
-        uint8_t                       _pad0[4];
+        const rz_gfx_buffer* pBuffer;
+        uint32_t             sizeInBytes;
+        uint32_t             offset;
+        const void*          pData;
+        uint8_t              _pad0[8];
     } rz_gfx_buffer_update;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_texture_readback

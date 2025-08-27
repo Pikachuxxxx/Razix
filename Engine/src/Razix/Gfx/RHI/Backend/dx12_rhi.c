@@ -2684,6 +2684,26 @@ static void dx12_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uin
 
     ID3D12GraphicsCommandList_DrawInstanced(cmdBuf->dx12.cmdList, vertexCount, instanceCount, firstVertex, firstInstance);
 }
+
+static void dx12_UpdateConstantBuffer(const rz_gfx_cmdbuf* cmdbuf, rz_gfx_buffer_update updatedesc)
+{
+    RAZIX_RHI_ASSERT(cmdbuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(updatedesc.pBuffer != NULL, "Buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(updatedesc.sizeInBytes > 0, "Size in bytes must be greater than zero");
+    RAZIX_RHI_ASSERT(updatedesc.offset + updatedesc.sizeInBytes <= updatedesc.pBuffer->resource.desc.bufferDesc.sizeInBytes, "Update range exceeds buffer size");
+    RAZIX_RHI_ASSERT(updatedesc.pData != NULL, "Data pointer cannot be NULL");
+    RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.desc.bufferDesc.usage & RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC) == RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC, "Buffer must be created with RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC usage flag");
+    RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.desc.bufferDesc.type & RZ_GFX_BUFFER_TYPE_CONSTANT) == RZ_GFX_BUFFER_TYPE_CONSTANT, "Buffer must be of type RZ_GFX_BUFFER_TYPE_CONSTANT to update");
+
+    D3D12_RANGE readRange = {0};
+    readRange.Begin       = updatedesc.offset;
+    readRange.End         = updatedesc.offset + updatedesc.sizeInBytes;
+    void* mappedData      = NULL;
+    ID3D12Resource_Map(updatedesc.pBuffer->dx12.resource, 0, &readRange, &mappedData);
+    RAZIX_RHI_ASSERT(mappedData != NULL, "Failed to map constant buffer memory");
+    memcpy((uint8_t*) mappedData, updatedesc.pData, updatedesc.sizeInBytes);
+}
+
 // ...
 
 static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
