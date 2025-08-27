@@ -4,13 +4,10 @@
 
 namespace Razix {
     namespace Gfx {
-        struct RZFrameGraphBuffer
+
+        struct RAZIX_API RZFrameGraphBuffer
         {
             typedef rz_gfx_buffer_desc Desc;
-
-            RZFrameGraphBuffer() = default;
-            //RZFrameGraphBuffer(Gfx::RZUniformBufferHandle handle)
-            //: m_BufferHandle(handle) {}
 
             void create(const std::string& name, const Desc& desc, u32 id, const void* transientAllocator);
             void destroy(u32 id, const void* transientAllocator);
@@ -20,10 +17,14 @@ namespace Razix {
 
             static std::string toString(const Desc& desc);
 
-            rz_gfx_buffer_handle getRHIHandle() const { return m_BufferHandle; }
+            inline rz_gfx_buffer_handle getRHIHandle() const { return m_BufferHandle; }
+            //inline Gfx::BufferBarrierType getLastReadBarrier() const { return m_LastReadBarrier; }
+            //inline Gfx::BufferBarrierType getLastWriteBarrier() const { return m_LastWriteBarrier; }
+
+            // public for initializer list support
+            rz_gfx_buffer_handle m_BufferHandle;
 
         private:
-            rz_gfx_buffer_handle m_BufferHandle;
             //Gfx::BufferBarrierType     m_LastReadBarrier;
             //Gfx::BufferBarrierType     m_LastWriteBarrier;
         };

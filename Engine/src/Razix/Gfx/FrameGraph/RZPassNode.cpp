@@ -71,9 +71,7 @@ namespace Razix {
             if (!rz_handle_is_valid(&accessView.resViewHandle)) {
                 if (rzRHI_IsDescriptorTypeBuffer(accessView.resViewDesc.descriptorType)) {
                     if (accessView.resViewDesc.bufferViewDesc.pBuffer == RZ_FG_BUF_RES_AUTO_POPULATE) {
-                        //accessView.resViewDesc.bufferViewDesc.pBuffer = RZResourceManager::Get().getConstantBufferResourceView(resHandle);
-                        RAZIX_CORE_ASSERT(false, "Constant buffers are still a WIP, this will result in undefined behavior and catastrophic failures");
-
+                        accessView.resViewDesc.bufferViewDesc.pBuffer = RZResourceManager::Get().getBufferResource(resHandle);
                     } else {
                         RAZIX_CORE_ERROR("pBuffer is either NULL or not AUTO_POPULATE");
                     }

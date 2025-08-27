@@ -119,22 +119,22 @@ namespace Razix {
             for (auto& group: m_AliasingBook.getGroups()) {
                 // If the group has only one resource, we can create it directly
                 if (group.getResourceEntriesSize() == 1) {
-                    const auto&    entryIDs   = group.getResourceEntryIDs();
-                    u32            resourceID = entryIDs[0];
-                    FGResourceType resType    = m_FrameGraph.getResourceType(resourceID);
+                    const auto&    entryIDs      = group.getResourceEntryIDs();
+                    u32            resourceID    = entryIDs[0];
+                    FGResourceType resType       = m_FrameGraph.getResourceType(resourceID);
+                    auto&          resourceEntry = m_FrameGraph.getResourceEntry(resourceID);
 
                     switch (resType) {
                         case FGResourceType::kFGTexture: {
-                            auto& resourceEntry        = m_FrameGraph.getResourceEntry(resourceID);
                             auto& desc                 = resourceEntry.getDescriptor<RZFrameGraphTexture>();
                             m_TextureCache[resourceID] = acquireTransientTexture(resourceEntry.getName().c_str(), desc, resourceID);
                             break;
                         }
-                        //case FGResourceType::kFGBuffer: {
-                        //    auto& desc                = m_FrameGraph.getResourceEntry(resourceID).getDescriptor<RZFrameGraphBuffer>();
-                        //    m_BufferCache[resourceID] = acquireTransientBuffer(desc, resourceID);
-                        //    break;
-                        //}
+                        case FGResourceType::kFGBuffer: {
+                            auto& desc                = m_FrameGraph.getResourceEntry(resourceID).getDescriptor<RZFrameGraphBuffer>();
+                            m_BufferCache[resourceID] = acquireTransientBuffer(resourceEntry.getName().c_str(), desc, resourceID);
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -165,10 +165,10 @@ namespace Razix {
             }
             m_TextureCache.clear();
 
-            //for (auto& [key, handle]: m_BufferCache) {
-            //    RZResourceManager::Get().destroyUniformBuffer(handle);
-            //}
-            //m_BufferCache.clear();
+            for (auto& [key, handle]: m_BufferCache) {
+                RZResourceManager::Get().destroyBuffer(handle);
+            }
+            m_BufferCache.clear();
         }
 
         rz_gfx_texture_handle RZTransientAllocator::acquireTransientTexture(const std::string& name, const rz_gfx_texture_desc& desc, u32 id)

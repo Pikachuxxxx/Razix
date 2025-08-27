@@ -43,6 +43,8 @@ namespace Razix {
                 u32 waveMode = 1;
             };
 
+            RZResourceManager::Get().getShaderBindMap(m_Shader).RegisterBindMap(m_Shader);
+
             framegraph.getBlackboard()
                 .add<WaveIntrinsicsData>() = framegraph.addCallbackPass<WaveIntrinsicsData>(
                 "[Test] Pass.Builtin.Code.WaveIntrinsics",
@@ -59,13 +61,19 @@ namespace Razix {
                     //data.Depth                             = builder.create<RZFrameGraphTexture>(depthTextureDesc.name, CAST_TO_FG_TEX_DESC depthTextureDesc);
                     //data.Depth                             = builder.write(data.Depth);
 
-                    //RZBufferDesc DebugDataBufferDesc{};
-                    //DebugDataBufferDesc.name  = "WaveIntrinsicsConstantBufferData";
-                    //DebugDataBufferDesc.size  = sizeof(SSAOParamsData);
-                    //DebugDataBufferDesc.usage = BufferUsage::PersistentStream;
-                    //data.DebugBuffer          = builder.create<RZFrameGraphBuffer>(DebugDataBufferDesc.name, CAST_TO_FG_BUF_DESC DebugDataBufferDesc);
-                    //
-                    //data.DebugBuffer = builder.write(data.DebugBuffer);
+                    rz_gfx_buffer_desc DebugDataBufferDesc = {};
+                    DebugDataBufferDesc.sizeInBytes        = sizeof(WaveIntrinsicsData);
+                    DebugDataBufferDesc.type               = RZ_GFX_BUFFER_TYPE_CONSTANT;
+                    DebugDataBufferDesc.usage              = RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC;
+                    DebugDataBufferDesc.resourceHints      = RZ_GFX_RESOURCE_VIEW_FLAG_CBV;
+                    data.DebugBuffer                       = builder.create<RZFrameGraphBuffer>("CBuffer.GfxText.WaveIntrinsicsData", CAST_TO_FG_BUF_DESC DebugDataBufferDesc);
+
+                    rz_gfx_resource_view_desc debugBufferViewDesc = {};
+                    debugBufferViewDesc.descriptorType            = RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
+                    debugBufferViewDesc.bufferViewDesc.size       = sizeof(WaveIntrinsicsData);
+                    debugBufferViewDesc.bufferViewDesc.offset     = 0;
+                    debugBufferViewDesc.bufferViewDesc.pBuffer    = RZ_FG_BUF_RES_AUTO_POPULATE;
+                    data.DebugBuffer                              = builder.write(data.DebugBuffer, debugBufferViewDesc);
                 },
                 [=](const WaveIntrinsicsData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -88,6 +96,36 @@ namespace Razix {
                     rzRHI_BindGfxRootSig(cmdBuffer, m_RootSigHandle);
                     rzRHI_BindPipeline(cmdBuffer, m_Pipeline);
 
+                    // Bind descriptor heaps and tables
+                    rz_gfx_descriptor_heap_handle heaps[] = {
+                        RZEngine::Get().getWorldRenderer().getResourceHeap(),
+                    };
+
+                    rzRHI_BindDescriptorHeaps(cmdBuffer, heaps, 1);
+
+                    if (RZFrameGraph::IsFirstFrame()) {
+                        // Deferred creation of the shader bind map, for res view
+                        RZResourceManager::Get()
+                            .getShaderBindMap(m_Shader)
+                            .setResourceView("g_WaveIntrinsicsConstantBuffer", resources.getResourceViewHandle<RZFrameGraphBuffer>(data.DebugBuffer))
+                            .validate()
+                            .build();
+                    }
+
+                    // Update the constant buffer data, we use wave mode of 3 (WaveGetLaneCount test)
+                    rz_gfx_buffer_update cbUpdate           = {};
+                    cbUpdate.pBuffer                        = RZResourceManager::Get().getBufferResource(resources.get<RZFrameGraphBuffer>(data.DebugBuffer).getRHIHandle());
+                    cbUpdate.sizeInBytes                    = sizeof(WaveIntrinsicsConstantBufferData);
+                    cbUpdate.offset                         = 0;
+                    WaveIntrinsicsConstantBufferData cbData = {};
+                    cbData.waveMode                         = 3;
+                    cbUpdate.pData                          = &cbData;
+                    rzRHI_UpdateConstantBuffer(cbUpdate);
+
+                    RZResourceManager::Get()
+                        .getShaderBindMap(m_Shader)
+                        .bind(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS);
+
 #define NUM_TRIANGLE_VERTS 3
                     rzRHI_DrawAuto(cmdBuffer, NUM_TRIANGLE_VERTS, 1, 0, 0);
 
@@ -101,6 +139,9 @@ namespace Razix {
         void RZWaveIntrinsicsTestPass::destroy()
         {
             if (g_GraphicsFeatures.support.SupportsWaveIntrinsics) {
+                RZResourceManager::Get()
+                    .getShaderBindMap(m_Shader)
+                    .destroy();
                 RZResourceManager::Get().destroyShader(m_Shader);
                 RZResourceManager::Get().destroyPipeline(m_Pipeline);
             }

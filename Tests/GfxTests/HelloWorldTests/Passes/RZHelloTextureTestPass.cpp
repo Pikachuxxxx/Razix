@@ -1,7 +1,5 @@
 #include "RZHelloTextureTestPass.h"
 
-#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
-
 #include "Razix/Gfx/RHI/RHI.h"
 
 namespace Razix {

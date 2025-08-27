@@ -30,7 +30,7 @@ namespace Razix {
 
             static std::string toString(const Desc& desc);
 
-            rz_gfx_texture_handle getRHIHandle() const { return m_TextureHandle; }
+            inline rz_gfx_texture_handle getRHIHandle() const { return m_TextureHandle; }
 
             // public for initializer list support
             rz_gfx_texture_handle m_TextureHandle;

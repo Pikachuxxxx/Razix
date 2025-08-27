@@ -14,16 +14,14 @@ struct PSIn
     float4 Color    : COLOR0;
 };
 //------------------------------------------------------------------------------
-//cbuffer WaveIntrinsicsConstantBufferData : register (b0, space0)
-//{
-//    uint waveMode;
-//};
+cbuffer g_WaveIntrinsicsConstantBuffer : register (b0, space0)
+{
+    uint waveMode;
+};
 //------------------------------------------------------------------------------
 float4 PS_MAIN(PSIn psIn) : SV_TARGET
 {
     float4 outputColor;
-
-    uint waveMode = 3; // HARDCODED TESTING until Razix DX12 backend supports descriptor sets 
     uint laneSize = WaveGetLaneCount();
 
     // Add grid-like texture pattern

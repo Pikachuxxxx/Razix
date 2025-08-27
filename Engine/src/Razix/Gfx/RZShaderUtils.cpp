@@ -115,7 +115,7 @@ namespace Razix {
         {
             switch (inputType) {
                 case D3D_SIT_CBUFFER:
-                    return RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    return RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
                 case D3D_SIT_TBUFFER:
                     return RZ_GFX_DESCRIPTOR_TYPE_STRUCTURED;    // TBuffer is legacy; often structured
                 case D3D_SIT_TEXTURE:
