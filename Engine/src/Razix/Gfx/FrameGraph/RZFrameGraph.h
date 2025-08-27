@@ -187,7 +187,7 @@ namespace Razix {
             {
                 // Create a new Resource entry
                 const auto resourceId = static_cast<uint32_t>(m_ResourceRegistry.size());
-                m_ResourceRegistry.emplace_back(RZResourceEntry{resourceId, std::forward<typename T::Desc>(desc), T{}, kRESOURCE_INITIAL_VERSION, false});    // Empty T{} constructor because it's not an imported resource
+                m_ResourceRegistry.emplace_back(RZResourceEntry{name, resourceId, std::forward<typename T::Desc>(desc), T{}, kRESOURCE_INITIAL_VERSION, false});    // Empty T{} constructor because it's not an imported resource
                 // Create the node for this resource in the graph
                 RZFrameGraphResource id = createResourceNodeRef(name, resourceId).m_ID;
                 return id;
