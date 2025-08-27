@@ -379,7 +379,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     typedef enum rz_gfx_descriptor_type
     {
-        RZ_GFX_DESCRIPTOR_TYPE_NONE           = 0xFFFFFFFF,
+        RZ_GFX_DESCRIPTOR_TYPE_NONE            = 0xFFFFFFFF,
         RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER = 0,
         RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT,
         RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED,    // (Vulkan-only, not recommended)
@@ -1302,6 +1302,16 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint8_t                    _pad0[4];
     } rz_gfx_shader_reflection;
 
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_buffer_update
+    {
+        const rz_gfx_descriptor_heap* pUploadHeap;
+        const rz_gfx_buffer*          pBuffer;
+        uint32_t                      sizeInBytes;
+        uint32_t                      offset;
+        const void*                   pData;
+        uint8_t                       _pad0[4];
+    } rz_gfx_buffer_update;
+
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_texture_readback
     {
         uint8_t* data;
@@ -1310,6 +1320,21 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t bpp;
         uint8_t  _pad0[12];
     } rz_gfx_texture_readback;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_buffer_readback
+    {
+        uint8_t* data;
+        uint32_t sizeInBytes;
+        uint8_t  _pad0[12];
+    } rz_gfx_buffer_readback;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_draw_indirect_args
+    {
+        uint32_t vertexCount;
+        uint32_t instanceCount;
+        uint32_t firstVertex;
+        uint32_t firstInstance;
+    } rz_gfx_draw_indirect_args;
 
     //---------------------------------------------------------------------------------------------
     // Gfx API
@@ -1408,6 +1433,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_DrawAutoFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t, uint32_t);
 
     typedef void (*rzRHI_UpdateDescriptorTableFn)(rz_gfx_descriptor_table*, rz_gfx_resource_view*, uint32_t);
+    typedef void (*rzRHI_UpdateConstantBufferFn)(const rz_gfx_cmdbuf*, rz_gfx_buffer_update);
 
     typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*, rz_gfx_resource_state, rz_gfx_resource_state);
     typedef void (*rzRHI_InsertTextureReadbackFn)(const rz_gfx_texture*, rz_gfx_texture_readback*);
