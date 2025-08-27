@@ -195,25 +195,25 @@ namespace Razix {
             m_TextureCache[id] = handle;
         }
 
-        //RZUniformBufferHandle RZTransientAllocator::acquireTransientBuffer(const RZBufferDesc& desc, u32 id)
-        //{
-        //    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-        //
-        //    auto it = m_BufferCache.find(id);
-        //    if (it != m_BufferCache.end()) {
-        //        RZUniformBufferHandle handle = it->second;
-        //        m_BufferCache.erase(it);
-        //        return handle;
-        //    } else {
-        //        return RZResourceManager::Get().createUniformBuffer(desc);
-        //    }
-        //}
-        //
-        //void RZTransientAllocator::releaseTransientBuffer(RZUniformBufferHandle handle, u32 id)
-        //{
-        //    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-        //    m_BufferCache[id] = handle;
-        //}
+        rz_gfx_buffer_handle RZTransientAllocator::acquireTransientBuffer(const std::string& name, const rz_gfx_buffer_desc& desc, u32 id)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            auto it = m_BufferCache.find(id);
+            if (it != m_BufferCache.end()) {
+                rz_gfx_buffer_handle handle = it->second;
+                m_BufferCache.erase(it);
+                return handle;
+            } else {
+                return RZResourceManager::Get().createBuffer(name.c_str(), desc);
+            }
+        }
+
+        void RZTransientAllocator::releaseTransientBuffer(rz_gfx_buffer_handle handle, u32 id)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+            m_BufferCache[id] = handle;
+        }
 
     }    // namespace Gfx
 }    // namespace Razix

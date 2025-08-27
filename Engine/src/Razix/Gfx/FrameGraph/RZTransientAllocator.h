@@ -100,8 +100,8 @@ namespace Razix {
 
             rz_gfx_texture_handle acquireTransientTexture(const std::string& name, const rz_gfx_texture_desc& desc, u32 id);
             void                  releaseTransientTexture(rz_gfx_texture_handle handle, u32 id);
-            //RZUniformBufferHandle acquireTransientBuffer(const RZBufferDesc& desc, u32 id);
-            //void                  releaseTransientBuffer(RZUniformBufferHandle handle, u32 id);
+            rz_gfx_buffer_handle  acquireTransientBuffer(const std::string& name, const rz_gfx_buffer_desc& desc, u32 id);
+            void                  releaseTransientBuffer(rz_gfx_buffer_handle handle, u32 id);
 
             inline void                registerLifetime(const RZResourceLifetime& lifetime) { m_RegisteredLifetimes.push_back(lifetime); }
             inline const AliasingBook& getAliasBook() const { return m_AliasingBook; }
@@ -110,8 +110,8 @@ namespace Razix {
             AliasingBook                                   m_AliasingBook;
             std::vector<RZResourceLifetime>                m_RegisteredLifetimes;
             std::unordered_map<u32, rz_gfx_texture_handle> m_TextureCache;
-            //std::unordered_map<u32, RZUniformBufferHandle> m_BufferCache;
-            const Gfx::RZFrameGraph& m_FrameGraph;
+            std::unordered_map<u32, rz_gfx_buffer_handle>  m_BufferCache;
+            const Gfx::RZFrameGraph&                       m_FrameGraph;
         };
 
 #define TRANSIENT_ALLOCATOR_CAST(x) ((RZTransientAllocator*) x)
