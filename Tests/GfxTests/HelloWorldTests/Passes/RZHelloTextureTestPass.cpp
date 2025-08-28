@@ -31,16 +31,6 @@ namespace Razix {
 
             m_Pipeline = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.HelloTriangle", pipelineInfo);
 
-            // Import a test texture
-            // Create a texture view for the test texture
-            //rz_gfx_resource_view_desc textureViewDesc      = {};
-            //textureViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_TEXTURE;
-            //textureViewDesc.textureViewDesc.pTexture       = RZResourceManager::Get().getTextureResource(m_TestTextureHandle);
-            //textureViewDesc.textureViewDesc.baseMip        = 0;
-            //textureViewDesc.textureViewDesc.baseArrayLayer = 0;
-            //textureViewDesc.textureViewDesc.dimension      = 1;
-            //m_TestTextureViewHandle                        = RZResourceManager::Get().createResourceView("Resview.GfxTest.TestTextureFullView", textureViewDesc);
-
             rz_gfx_texture_handle testTexture     = Gfx::CreateTextureFromFile("//RazixContent/Textures/TestCheckerMap.png");
             rz_gfx_texture_desc   testTextureDesc = RZResourceManager::Get().getTextureResource(testTexture)->resource.desc.textureDesc;
             RZFrameGraphResource  checkerMap      = framegraph.import <RZFrameGraphTexture>("Texture.TestCheckerMap", CAST_TO_FG_TEX_DESC testTextureDesc, {testTexture});

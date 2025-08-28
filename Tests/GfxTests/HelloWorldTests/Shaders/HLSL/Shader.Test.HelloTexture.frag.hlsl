@@ -11,7 +11,7 @@ struct VSInput
     float4 Color    : COLOR0;
     float2 UV       : TEXCOORD0;
 };
-
+//------------------------------------------------------------------------------
 SamplerState g_Sampler : register(s0, space0);
 Texture2D g_TestTexture : register(t0, space1);
 

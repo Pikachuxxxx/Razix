@@ -88,8 +88,7 @@ namespace Razix {
 
                 // Now that we have filled the pResource create the resource view
                 accessView.resViewHandle = RZResourceManager::Get().createResourceView(m_Name.c_str(), accessView.resViewDesc);
-            } else
-                RAZIX_CORE_WARN("Resource view for resource ID {0} already created!", id);
+            }
         }
 
         bool RZPassNode::canExecute() const

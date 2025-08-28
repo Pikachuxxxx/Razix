@@ -1,0 +1,8 @@
+/*
+ * Razix Shader File
+ * Shader.Test.MandleBrot.rzsf : Compute shader for Mandelbrot test
+ */
+
+#shader compute
+    #include Shader.Test.MandleBrot.comp
+#end

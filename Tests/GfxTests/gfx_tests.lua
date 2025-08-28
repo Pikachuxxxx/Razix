@@ -171,6 +171,7 @@ end
 
 group "Tests/GfxTests"
     include "HelloWorldTests/hello_world_tests.lua"
+    include "ComputeTest/compute_tests.lua"
 
     -- GFX TEST SHADERS, all gfx tests can use this project to build and manage HLSL/Razix shaders
     project "TestShaders"
@@ -189,5 +190,9 @@ group "Tests/GfxTests"
             "HelloWorldTests/Shaders/HLSL/**.comp.hlsl",
             -- Razix Shader File
             "HelloWorldTests/Shaders/Razix/**.rzsf",
+            -- Compute Test shaders
+            "ComputeTest/Shaders/HLSL/**.hlsl",
+            "ComputeTest/Shaders/HLSL/**.comp.hlsl",
+            "ComputeTest/Shaders/Razix/**.rzsf",
         }
 group ""
