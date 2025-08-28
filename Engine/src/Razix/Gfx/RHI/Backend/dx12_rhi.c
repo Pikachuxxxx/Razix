@@ -1036,13 +1036,13 @@ static dx12_resview dx12_create_texture_view(const rz_gfx_texture_view_desc* des
 
     bool isTextureRW = rzRHI_IsDescriptorTypeTextureRW(descriptorType);
 
-    if (!isTextureRW && pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_SRV == RZ_GFX_RESOURCE_VIEW_FLAG_SRV) {
+    if (!isTextureRW && ((pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_SRV) == RZ_GFX_RESOURCE_VIEW_FLAG_SRV)) {
         dx12_view.srvDesc = dx12_create_texture_srv(desc, textureDesc);
-    } else if (isTextureRW && pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV == RZ_GFX_RESOURCE_VIEW_FLAG_UAV) {
+    } else if (isTextureRW && ((pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV)) {
         dx12_view.uavDesc = dx12_create_texture_uav(desc, textureDesc);
-    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE && pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_RTV == RZ_GFX_RESOURCE_VIEW_FLAG_RTV) {
+    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE && ((pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_RTV) == RZ_GFX_RESOURCE_VIEW_FLAG_RTV)) {
         dx12_view.rtvDesc = dx12_create_texture_rtv(desc, textureDesc);
-    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE && pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV == RZ_GFX_RESOURCE_VIEW_FLAG_DSV) {
+    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE && ((pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV) == RZ_GFX_RESOURCE_VIEW_FLAG_DSV)) {
         dx12_view.dsvDesc = dx12_create_texture_dsv(desc, textureDesc);
     } else {
         RAZIX_RHI_LOG_ERROR("Unsupported texture view descriptor type: %d and view hints: %d", descriptorType, pTexture->resource.viewHints);
@@ -2093,7 +2093,7 @@ static void dx12_CreateComputePipeline(rz_gfx_pipeline* pso)
     const rz_gfx_root_signature* pRootSig    = pso->resource.desc.pipelineDesc.pRootSig;
     RAZIX_RHI_ASSERT(pShader != NULL, "Pipeline must have a valid shader! (Pipeline creation)");
     RAZIX_RHI_ASSERT(pRootSig != NULL, "Pipeline must have a valid root signature! (Pipeline creation)");
-    RAZIX_RHI_ASSERT(pShaderDesc->pipelineType == RZ_GFX_PIPELINE_TYPE_GRAPHICS, "Shader must be a graphics shader for this pipeline type! (Pipeline creation)");
+    RAZIX_RHI_ASSERT(pShaderDesc->pipelineType == RZ_GFX_PIPELINE_TYPE_COMPUTE, "Shader must be a compute shader for this pipeline type! (Pipeline creation)");
 
     D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {0};
     desc.NodeMask                          = 0;    // Single GPU, no multi-GPU support
@@ -2161,11 +2161,11 @@ static void dx12_CreateTexture(void* where)
     resDesc.Flags               = D3D12_RESOURCE_FLAG_NONE;
 
     // Set resource flags
-    if (desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV == RZ_GFX_RESOURCE_VIEW_FLAG_UAV)
+    if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV)
         resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-    else if (desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_RTV == RZ_GFX_RESOURCE_VIEW_FLAG_RTV)
+    else if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_RTV) == RZ_GFX_RESOURCE_VIEW_FLAG_RTV)
         resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-    else if (desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV == RZ_GFX_RESOURCE_VIEW_FLAG_DSV)
+    else if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV) == RZ_GFX_RESOURCE_VIEW_FLAG_DSV)
         resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
     D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;    // Default state, can be changed later
@@ -2451,7 +2451,7 @@ static void dx12_CreateDescriptorTable(void* where)
 
         if (isConstantBuffer) {
             ID3D12Device_CreateConstantBufferView(DX12Device, &pView->dx12.cbvDesc, pTable->dx12.heapOffset.cpu);
-        } else if (isTexture) {
+        } else if (isTexture && !isTextureRW) {
             const rz_gfx_texture* pTexture = pViewDesc->textureViewDesc.pTexture;
             RAZIX_RHI_ASSERT(pTexture != NULL, "Texture cannot be NULL for descriptor table SRV creation");
             ID3D12Device_CreateShaderResourceView(DX12Device, pTexture->dx12.resource, &pView->dx12.srvDesc, pTable->dx12.heapOffset.cpu);
@@ -2692,6 +2692,16 @@ static void dx12_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uin
     RAZIX_RHI_ASSERT(instanceCount > 0, "Instance count must be greater than zero");
 
     ID3D12GraphicsCommandList_DrawInstanced(cmdBuf->dx12.cmdList, vertexCount, instanceCount, firstVertex, firstInstance);
+}
+
+static void dx12_Dispatch(const rz_gfx_cmdbuf* cmdBuf, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(groupCountX > 0, "Group count X must be greater than zero");
+    RAZIX_RHI_ASSERT(groupCountY > 0, "Group count Y must be greater than zero");
+    RAZIX_RHI_ASSERT(groupCountZ > 0, "Group count Z must be greater than zero");
+
+    ID3D12GraphicsCommandList_Dispatch(cmdBuf->dx12.cmdList, groupCountX, groupCountY, groupCountZ);
 }
 
 static void dx12_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
@@ -2950,6 +2960,7 @@ rz_rhi_api dx12_rhi = {
     .BindDescriptorHeaps  = dx12_BindDescriptorHeaps,     // BindDescriptorHeaps
 
     .DrawAuto              = dx12_DrawAuto,                 // DrawAuto
+    .Dispatch              = dx12_Dispatch,                 // Dispatch
     .UpdateConstantBuffer  = dx12_UpdateConstantBuffer,     // UpdateConstantBuffer
     .InsertImageBarrier    = dx12_InsertImageBarrier,       // InsertImageBarrier
     .InsertTextureReadback = dx12_InsertTextureReadback,    // InsertTextureReadback
