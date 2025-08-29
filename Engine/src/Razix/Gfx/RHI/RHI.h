@@ -1432,16 +1432,30 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_BindDescriptorTablesFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type, rz_gfx_descriptor_table**, uint32_t);
 
     typedef void (*rzRHI_DrawAutoFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t, uint32_t);
-    // TODO: typedef void (*rzRHI_DrawIndexedAutoFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
-    // TODO: typedef void (*rzRHI_DrawIndirectFn)(const rz_gfx_cmdbuf*, const rz_gfx_buffer*, uint32_t, uint32_t);
-    // TODO: typedef void (*rzRHI_DrawIndexedIndirectFn)(const rz_gfx_cmdbuf*, const rz_gfx_buffer*, uint32_t, uint32_t);
+    typedef void (*rzRHI_DrawIndexedAutoFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
     typedef void (*rzRHI_DispatchFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t);
+    typedef void (*rzRHI_DrawIndirectFn)(const rz_gfx_cmdbuf*, const rz_gfx_buffer*, uint32_t, uint32_t);
+    typedef void (*rzRHI_DrawIndexedIndirectFn)(const rz_gfx_cmdbuf*, const rz_gfx_buffer*, uint32_t, uint32_t);
+    typedef void (*rzRHI_DispatchIndirectFn)(const rz_gfx_cmdbuf*, const rz_gfx_buffer*, uint32_t, uint32_t);
 
     typedef void (*rzRHI_UpdateDescriptorTableFn)(rz_gfx_descriptor_table*, rz_gfx_resource_view*, uint32_t);
     typedef void (*rzRHI_UpdateConstantBufferFn)(rz_gfx_buffer_update);
 
     typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*, rz_gfx_resource_state, rz_gfx_resource_state);
     typedef void (*rzRHI_InsertTextureReadbackFn)(const rz_gfx_texture*, rz_gfx_texture_readback*);
+    // TODO:
+    //typedef void (*rzRHI_InsertBufferBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer, rz_gfx_resource_state old_state, rz_gfx_resource_state new_state);
+    //typedef void (*rzRHI_InsertUAVBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture);
+    //typedef void (*rzRHI_InsertUAVBufferBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer);
+    //typedef void (*rzRHI_InsertBufferReadbackFn)(const rz_gfx_buffer*, rz_gfx_buffer_readback);
+
+    typedef void (*rzRHI_CopyBufferFn)(const rz_gfx_cmdbuf*, const rz_gfx_buffer* src, const rz_gfx_buffer* dst, uint32_t size, uint32_t srcOffset, uint32_t dstOffset);
+    typedef void (*rzRHI_CopyTextureFn)(const rz_gfx_cmdbuf*, const rz_gfx_texture* src, const rz_gfx_texture* dst);
+    typedef void (*rzRHI_CopyBufferToTextureFn)(const rz_gfx_cmdbuf*, const rz_gfx_buffer* src, const rz_gfx_texture* dst);
+    typedef void (*rzRHI_CopyTextureToBufferFn)(const rz_gfx_cmdbuf*, const rz_gfx_texture* src, const rz_gfx_buffer* dst);
+    typedef void (*rzRHI_GenerateMipmapsFn)(const rz_gfx_cmdbuf*, const rz_gfx_texture*);
+    typedef void (*rzRHI_BlitTexture)(const rz_gfx_cmdbuf*, const rz_gfx_texture* src, const rz_gfx_texture* dst);
+    typedef void (*rzRHI_ResolveTexture)(const rz_gfx_cmdbuf*, const rz_gfx_texture* src, const rz_gfx_texture* dst);
 
     typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
     typedef void (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
@@ -1499,7 +1513,11 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_BindDescriptorHeapsFn   BindDescriptorHeaps;
         rzRHI_BindDescriptorTablesFn  BindDescriptorTables;
         rzRHI_DrawAutoFn              DrawAuto;
+        rzRHI_DrawIndexedAutoFn       DrawIndexedAuto;
         rzRHI_DispatchFn              Dispatch;
+        rzRHI_DrawIndirectFn          DrawIndirect;
+        rzRHI_DrawIndexedIndirectFn   DrawIndexedIndirect;
+        rzRHI_DispatchIndirectFn      DispatchIndirect;
         rzRHI_UpdateDescriptorTableFn UpdateDescriptorTable;
         rzRHI_UpdateConstantBufferFn  UpdateConstantBuffer;
         rzRHI_InsertImageBarrierFn    InsertImageBarrier;
@@ -1586,8 +1604,12 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.BindDescriptorTables(RZResourceManager::Get().getCommandBufferResource(cb), ppt, _dts, N); \
             } while (0);
 
-        #define rzRHI_DrawAuto(cb, vc, ic, fv, fi) g_RHI.DrawAuto(RZResourceManager::Get().getCommandBufferResource(cb), vc, ic, fv, fi)
-        #define rzRHI_Dispatch(cb, gx, gy, gz)     g_RHI.Dispatch(RZResourceManager::Get().getCommandBufferResource(cb), gx, gy, gz)
+        #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                       g_RHI.DrawAuto(RZResourceManager::Get().getCommandBufferResource(cb), vc, ic, fv, fi)
+        #define rzRHI_DrawIndexedAuto(cb, ic, icount, iv, fi, fo)        g_RHI.DrawIndexedAuto(RZResourceManager::Get().getCommandBufferResource(cb), ic, icount, iv, fi, fo)
+        #define rzRHI_Dispatch(cb, gx, gy, gz)                           g_RHI.Dispatch(RZResourceManager::Get().getCommandBufferResource(cb), gx, gy, gz)
+        #define rzRHI_DrawIndirect(cb, bu, maxDrawCount, offset)         g_RHI.DrawIndirect(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), offset, maxDrawCount)
+        #define rzRHI_DrawIndexedIndirect(cb, bu, maxDrawCount, offset)  g_RHI.DrawIndexedIndirect(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), offset, maxDrawCount)
+        #define rzRHI_DispatchIndirect(cb, bu, maxDispatchCount, offset) g_RHI.DispatchIndirect(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), offset, maxDispatchCount)
 
         #define rzRHI_UpdateDescriptorTable(dt, rv, N)                                                         \
             do {                                                                                               \
@@ -1623,7 +1645,11 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_BindDescriptorHeaps         g_RHI.BindDescriptorHeaps
         #define rzRHI_BindDescriptorTables        g_RHI.BindDescriptorTables
         #define rzRHI_DrawAuto                    g_RHI.DrawAuto
+        #define rzRHI_DrawIndexedAuto             g_RHI.DrawIndexedAuto
         #define rzRHI_Dispatch                    g_RHI.Dispatch
+        #define rzRHI_DrawIndirect                g_RHI.DrawIndirect
+        #define rzRHI_DrawIndexedIndirect         g_RHI.DrawIndexedIndirect
+        #define rzRHI_DispatchIndirect            g_RHI.DispatchIndirect
         #define rzRHI_UpdateDescriptorTable       g_RHI.UpdateDescriptorTable
         #define rzRHI_UpdateConstantBuffer        g_RHI.UpdateConstantBuffer
         #define rzRHI_InsertImageBarrier          g_RHI.InsertImageBarrier
@@ -1766,10 +1792,43 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.DrawAuto(RZResourceManager::Get().getCommandBufferResource(cb), vc, ic, fv, fi); \
             } while (0)
 
+        #define rzRHI_DrawIndexedAuto(cb, ic, icount, iv, fi, fo)                                                     \
+            do {                                                                                                      \
+                RAZIX_PROFILE_SCOPEC("rzRHI_DrawIndexedAuto", RZ_PROFILE_COLOR_RHI_DRAW_CALLS);                       \
+                g_RHI.DrawIndexedAuto(RZResourceManager::Get().getCommandBufferResource(cb), ic, icount, iv, fi, fo); \
+            } while (0)
+
         #define rzRHI_Dispatch(cb, gx, gy, gz)                                                     \
             do {                                                                                   \
                 RAZIX_PROFILE_SCOPEC("rzRHI_Dispatch", RZ_PROFILE_COLOR_RHI_DRAW_CALLS);           \
                 g_RHI.Dispatch(RZResourceManager::Get().getCommandBufferResource(cb), gx, gy, gz); \
+            } while (0)
+
+        #define rzRHI_DrawIndirect(cb, bu, maxDrawCount, offset)                             \
+            do {                                                                             \
+                RAZIX_PROFILE_SCOPEC("rzRHI_DrawIndirect", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.DrawIndirect(RZResourceManager::Get().getCommandBufferResource(cb),    \
+                    RZResourceManager::Get().getBufferResource(bu),                          \
+                    offset,                                                                  \
+                    maxDrawCount);                                                           \
+            } while (0)
+
+        #define rzRHI_DrawIndexedIndirect(cb, bu, maxDrawCount, offset)                             \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_DrawIndexedIndirect", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.DrawIndexedIndirect(RZResourceManager::Get().getCommandBufferResource(cb),    \
+                    RZResourceManager::Get().getBufferResource(bu),                                 \
+                    offset,                                                                         \
+                    maxDrawCount);                                                                  \
+            } while (0)
+
+        #define rzRHI_DispatchIndirect(cb, bu, maxDispatchCount, offset)                         \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_DispatchIndirect", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.DispatchIndirect(RZResourceManager::Get().getCommandBufferResource(cb),    \
+                    RZResourceManager::Get().getBufferResource(bu),                              \
+                    offset,                                                                      \
+                    maxDispatchCount);                                                           \
             } while (0)
 
         #define rzRHI_UpdateDescriptorTable(dt, rv, N)                                                         \
@@ -1952,29 +2011,51 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorHeaps", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
                 g_RHI.BindDescriptorHeaps(cb, heaps, N);                                            \
             } while (0);
+
         #define rzRHI_BindDescriptorTables(cb, ppt, dts, N)                                          \
             do {                                                                                     \
                 RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorTables", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
                 g_RHI.BindDescriptorTables(cb, ppt, dts, N);                                         \
             } while (0);
-        #define rzRHI_InsertImageBarrier(cb, tex, bs, as)                                                 \
-            do {                                                                                          \
-                RAZIX_PROFILE_SCOPEC("rzRHI_InsertImageBarrier", RZ_PROFILE_COLOR_RHI_RESOURCE_BARRIERS); \
-                g_RHI.InsertImageBarrier(cb, tex, bs, as);                                                \
-                RAZIX_PROFILE_SCOPEC_END();                                                               \
-            } while (0)
+
         #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                                       \
             do {                                                                         \
                 RAZIX_PROFILE_SCOPEC("rzRHI_DrawAuto", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
                 g_RHI.DrawAuto(cb, vc, ic, fv, fi);                                      \
                 RAZIX_PROFILE_SCOPEC_END();                                              \
             } while (0)
-
+        #define rzRHI_DrawIndexedAuto(cb, ic, icount, iv, fi, fo)                               \
+            do {                                                                                \
+                RAZIX_PROFILE_SCOPEC("rzRHI_DrawIndexedAuto", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.DrawIndexedAuto(cb, ic, icount, iv, fi, fo);                              \
+                RAZIX_PROFILE_SCOPEC_END();                                                     \
+            } while (0)
         #define rzRHI_Dispatch(cb, gx, gy, gz)                                           \
             do {                                                                         \
                 RAZIX_PROFILE_SCOPEC("rzRHI_Dispatch", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
                 g_RHI.Dispatch(cb, gx, gy, gz);                                          \
                 RAZIX_PROFILE_SCOPEC_END();                                              \
+            } while (0)
+
+        #define rzRHI_DrawIndirect(cb, bu, maxDrawCount, offset)                             \
+            do {                                                                             \
+                RAZIX_PROFILE_SCOPEC("rzRHI_DrawIndirect", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.DrawIndirect(cb, bu, offset, maxDrawCount);                            \
+                RAZIX_PROFILE_SCOPEC_END();                                                  \
+            } while (0)
+
+        #define rzRHI_DrawIndexedIndirect(cb, bu, maxDrawCount, offset)                             \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_DrawIndexedIndirect", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.DrawIndexedIndirect(cb, bu, offset, maxDrawCount);                            \
+                RAZIX_PROFILE_SCOPEC_END();                                                         \
+            } while (0)
+
+        #define rzRHI_DispatchIndirect(cb, bu, maxDispatchCount, offset)                         \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_DispatchIndirect", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.DispatchIndirect(cb, bu, offset, maxDispatchCount);                        \
+                RAZIX_PROFILE_SCOPEC_END();                                                      \
             } while (0)
 
         #define rzRHI_UpdateDescriptorTable(dt, rv, N)                                     \
@@ -1989,6 +2070,13 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC("rzRHI_UpdateConstantBuffer", RZ_PROFILE_COLOR_RHI); \
                 g_RHI.UpdateConstantBuffer(bu);                                           \
                 RAZIX_PROFILE_SCOPEC_END();                                               \
+            } while (0)
+
+        #define rzRHI_InsertImageBarrier(cb, tex, bs, as)                                                 \
+            do {                                                                                          \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertImageBarrier", RZ_PROFILE_COLOR_RHI_RESOURCE_BARRIERS); \
+                g_RHI.InsertImageBarrier(cb, tex, bs, as);                                                \
+                RAZIX_PROFILE_SCOPEC_END();                                                               \
             } while (0)
 
         #define rzRHI_InsertSwapchainImageBarrier(cb, tex, bs, as)                                                 \

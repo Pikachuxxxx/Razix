@@ -1561,6 +1561,73 @@ static void dx12_destroy_backbuffers(rz_gfx_swapchain* sc)
     }
 }
 
+static void dx12_create_command_signatures(dx12_ctx* ctx)
+{
+    // Indirect Draw
+    D3D12_INDIRECT_ARGUMENT_DESC drawArgs    = {0};
+    drawArgs.Type                            = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
+    D3D12_COMMAND_SIGNATURE_DESC drawSigDesc = {0};
+    drawSigDesc.pArgumentDescs               = &drawArgs;
+    drawSigDesc.NumArgumentDescs             = 1;
+    drawSigDesc.ByteStride                   = sizeof(D3D12_DRAW_INDEXED_ARGUMENTS);
+    CHECK_HR(ID3D12Device10_CreateCommandSignature(DX12Device, &drawSigDesc, NULL, &IID_ID3D12CommandSignature, (void**) &ctx->drawIndirectSignature));
+    if (ctx->drawIndirectSignature == NULL) {
+        RAZIX_RHI_LOG_ERROR("Failed to create Draw Indirect Command Signature");
+        return;
+    }
+    TAG_OBJECT(ctx->drawIndirectSignature, "Draw Indirect Command Signature");
+
+    D3D12_INDIRECT_ARGUMENT_DESC drawIndexedArgs       = {0};
+    drawIndexedArgs.Type                               = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+    D3D12_COMMAND_SIGNATURE_DESC drawIndexedCmdSigDesc = {0};
+    drawIndexedCmdSigDesc.pArgumentDescs               = &drawIndexedArgs;
+    drawIndexedCmdSigDesc.NumArgumentDescs             = 1;
+    drawIndexedCmdSigDesc.ByteStride                   = sizeof(D3D12_DRAW_INDEXED_ARGUMENTS);
+    drawIndexedCmdSigDesc.NodeMask                     = 0;
+
+    CHECK_HR(ID3D12Device_CreateCommandSignature(
+        DX12Device,
+        &drawIndexedCmdSigDesc,
+        NULL,
+        &IID_ID3D12CommandSignature,
+        (void**) &ctx->drawIndexedIndirectSignature));
+    if (ctx->drawIndexedIndirectSignature == NULL) {
+        RAZIX_RHI_LOG_ERROR("Failed to create Draw Indexed Indirect Command Signature");
+        return;
+    }
+    TAG_OBJECT(ctx->drawIndexedIndirectSignature, "Draw Indexed Indirect Command Signature");
+
+    // Indirect Dispatch
+    D3D12_INDIRECT_ARGUMENT_DESC dispatchArgs    = {0};
+    dispatchArgs.Type                            = D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH;
+    D3D12_COMMAND_SIGNATURE_DESC dispatchSigDesc = {0};
+    dispatchSigDesc.pArgumentDescs               = &dispatchArgs;
+    dispatchSigDesc.NumArgumentDescs             = 1;
+    dispatchSigDesc.ByteStride                   = sizeof(D3D12_DISPATCH_ARGUMENTS);
+    CHECK_HR(ID3D12Device10_CreateCommandSignature(DX12Device, &dispatchSigDesc, NULL, &IID_ID3D12CommandSignature, (void**) &ctx->dispatchIndirectSignature));
+    if (ctx->dispatchIndirectSignature == NULL) {
+        RAZIX_RHI_LOG_ERROR("Failed to create Dispatch Indirect Command Signature");
+        return;
+    }
+    TAG_OBJECT(ctx->dispatchIndirectSignature, "Dispatch Indirect Command Signature");
+}
+
+static void dx12_destroy_command_signatures(dx12_ctx* ctx)
+{
+    if (ctx->drawIndirectSignature) {
+        ID3D12CommandSignature_Release(ctx->drawIndirectSignature);
+        ctx->drawIndirectSignature = NULL;
+    }
+    if (ctx->drawIndexedIndirectSignature) {
+        ID3D12CommandSignature_Release(ctx->drawIndexedIndirectSignature);
+        ctx->drawIndexedIndirectSignature = NULL;
+    }
+    if (ctx->dispatchIndirectSignature) {
+        ID3D12CommandSignature_Release(ctx->dispatchIndirectSignature);
+        ctx->dispatchIndirectSignature = NULL;
+    }
+}
+
 //---------------------------------------------------------------------------------------------
 // Public API functions
 
@@ -1639,10 +1706,16 @@ static void dx12_GlobalCtxInit(void)
     g_GraphicsFeatures.MaxBindlessTextures                  = 4096;
     g_GraphicsFeatures.MinLaneWidth                         = DX12Context.features.options1.WaveLaneCountMin;
     g_GraphicsFeatures.MaxLaneWidth                         = DX12Context.features.options1.WaveLaneCountMax;
+
+    dx12_create_command_signatures(&DX12Context);
+
+    RAZIX_RHI_LOG_INFO("D3D12 Global context initialized successfully");
 }
 
 static void dx12_GlobalCtxDestroy(void)
 {
+    dx12_destroy_command_signatures(&DX12Context);
+
     if (DX12Context.directQ) {
         ID3D12CommandQueue_Release(DX12Context.directQ);
         DX12Context.directQ = NULL;
@@ -2694,6 +2767,15 @@ static void dx12_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uin
     ID3D12GraphicsCommandList_DrawInstanced(cmdBuf->dx12.cmdList, vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
+static void dx12_DrawIndexedAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset, uint32_t firstInstance)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(indexCount > 0, "Index count must be greater than zero");
+    RAZIX_RHI_ASSERT(instanceCount > 0, "Instance count must be greater than zero");
+
+    ID3D12GraphicsCommandList_DrawIndexedInstanced(cmdBuf->dx12.cmdList, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+}
+
 static void dx12_Dispatch(const rz_gfx_cmdbuf* cmdBuf, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
 {
     RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
@@ -2702,6 +2784,63 @@ static void dx12_Dispatch(const rz_gfx_cmdbuf* cmdBuf, uint32_t groupCountX, uin
     RAZIX_RHI_ASSERT(groupCountZ > 0, "Group count Z must be greater than zero");
 
     ID3D12GraphicsCommandList_Dispatch(cmdBuf->dx12.cmdList, groupCountX, groupCountY, groupCountZ);
+}
+
+static void dx12_DrawIndirect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* indirectBuffer, uint32_t offset, uint32_t drawCount)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(indirectBuffer != NULL, "Indirect buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(drawCount > 0, "Draw count must be greater than zero");
+
+    ID3D12Resource* d3d_buffer = (ID3D12Resource*) indirectBuffer->dx12.resource;
+
+    ID3D12GraphicsCommandList_ExecuteIndirect(
+        cmdBuf->dx12.cmdList,
+        DX12Context.drawIndirectSignature,
+        drawCount,
+        d3d_buffer,
+        offset,
+        NULL,    // Count buffer (optional)
+        0        // Count buffer offset
+    );
+}
+
+static void dx12_DrawIndexedIndirect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* indirectBuffer, uint32_t offset, uint32_t drawCount)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(indirectBuffer != NULL, "Indirect buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(drawCount > 0, "Draw count must be greater than zero");
+
+    ID3D12Resource* d3d_buffer = (ID3D12Resource*) indirectBuffer->dx12.resource;
+
+    ID3D12GraphicsCommandList_ExecuteIndirect(
+        cmdBuf->dx12.cmdList,
+        DX12Context.drawIndexedIndirectSignature,
+        drawCount,
+        d3d_buffer,
+        offset,
+        NULL,    // Count buffer (optional)
+        0        // Count buffer offset
+    );
+}
+
+static void dx12_DispatchIndirect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* indirectBuffer, uint32_t offset, uint32_t dispatchCount)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(indirectBuffer != NULL, "Indirect buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(dispatchCount > 0, "Dispatch count must be greater than zero");
+
+    ID3D12Resource* d3d_buffer = (ID3D12Resource*) indirectBuffer->dx12.resource;
+
+    ID3D12GraphicsCommandList_ExecuteIndirect(
+        cmdBuf->dx12.cmdList,
+        DX12Context.dispatchIndirectSignature,
+        dispatchCount,    // maxCommandCount - always 1 for dispatch
+        d3d_buffer,
+        offset,
+        NULL,    // Count buffer (optional)
+        0        // Count buffer offset
+    );
 }
 
 static void dx12_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
@@ -2960,7 +3099,11 @@ rz_rhi_api dx12_rhi = {
     .BindDescriptorHeaps  = dx12_BindDescriptorHeaps,     // BindDescriptorHeaps
 
     .DrawAuto              = dx12_DrawAuto,                 // DrawAuto
+    .DrawIndexedAuto       = dx12_DrawIndexedAuto,          // DrawIndexedAuto
     .Dispatch              = dx12_Dispatch,                 // Dispatch
+    .DrawIndirect          = dx12_DrawIndirect,             // DrawIndirect
+    .DrawIndexedIndirect   = dx12_DrawIndexedIndirect,      // DrawIndexedIndirect
+    .DispatchIndirect      = dx12_DispatchIndirect,         // DispatchIndirect
     .UpdateConstantBuffer  = dx12_UpdateConstantBuffer,     // UpdateConstantBuffer
     .InsertImageBarrier    = dx12_InsertImageBarrier,       // InsertImageBarrier
     .InsertTextureReadback = dx12_InsertTextureReadback,    // InsertTextureReadback

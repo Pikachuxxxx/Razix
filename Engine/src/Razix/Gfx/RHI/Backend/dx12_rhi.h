@@ -50,6 +50,9 @@ typedef struct dx12_ctx
     IDXGIDebug*      dxgiDebug;
     HMODULE          pixEventRuntimeModule;
     #endif
+    ID3D12CommandSignature* drawIndirectSignature;
+    ID3D12CommandSignature* drawIndexedIndirectSignature;
+    ID3D12CommandSignature* dispatchIndirectSignature;
 } dx12_ctx;
 
 typedef struct dx12_syncobj
