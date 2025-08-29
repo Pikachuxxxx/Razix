@@ -2,8 +2,6 @@
 
 #include <cereal/cereal.hpp>
 
-#include "Razix/Gfx/Decal/RZDecal.h"
-
 namespace Razix {
 
     /**
@@ -12,7 +10,6 @@ namespace Razix {
     struct RAZIX_API DecalComponent
     {
         std::string  decalFilePath;
-        Gfx::RZDecal instance;
 
         DecalComponent()                      = default;
         DecalComponent(const DecalComponent&) = default;
