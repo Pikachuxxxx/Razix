@@ -1681,6 +1681,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_InsertSwapchainTextureReadback(text, rb)      g_RHI.InsertTextureReadback(text, rb)
         #define rzRHI_CopyBuffer(cb, sb, db, s, so, doff)           g_RHI.CopyBuffer(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(sb), RZResourceManager::Get().getBufferResource(db), s, so, doff)
         #define rzRHI_CopyTexture(cb, st, dt)                       g_RHI.CopyTexture(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(st), RZResourceManager::Get().getTextureResource(dt))
+        #define rzRHI_CopyTextureToSwapchain(cb, st, dt)            g_RHI.CopyTexture(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(st), dt)
         #define rzRHI_CopyBufferToTexture(cb, sb, dt)               g_RHI.CopyBufferToTexture(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(sb), RZResourceManager::Get().getTextureResource(dt))
         #define rzRHI_CopyTextureToBuffer(cb, st, db)               g_RHI.CopyTextureToBuffer(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(st), RZResourceManager::Get().getBufferResource(db))
         #define rzRHI_GenerateMipmaps(cb, text)                     g_RHI.GenerateMipmaps(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(text))
@@ -1721,6 +1722,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_InsertSwapchainTextureReadback g_RHI.InsertTextureReadback
         #define rzRHI_CopyBuffer                     g_RHI.CopyBuffer
         #define rzRHI_CopyTexture                    g_RHI.CopyTexture
+        #define rzRHI_CopyTextureToSwapchain         g_RHI.CopyTexture
         #define rzRHI_CopyBufferToTexture            g_RHI.CopyBufferToTexture
         #define rzRHI_CopyTextureToBuffer            g_RHI.CopyTextureToBuffer
         #define rzRHI_GenerateMipmaps                g_RHI.GenerateMipmaps
@@ -1972,6 +1974,14 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.CopyTexture(RZResourceManager::Get().getCommandBufferResource(cb), \
                     RZResourceManager::Get().getTextureResource(st),                     \
                     RZResourceManager::Get().getTextureResource(dt));                    \
+            } while (0)
+
+        #define rzRHI_CopyTextureToSwapchain(cb, st, dt)                                    \
+            do {                                                                            \
+                RAZIX_PROFILE_SCOPEC("rzRHI_CopyTextureToSwapchain", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.CopyTexture(RZResourceManager::Get().getCommandBufferResource(cb),    \
+                    RZResourceManager::Get().getTextureResource(st),                        \
+                    dt);                                                                    \
             } while (0)
 
         #define rzRHI_CopyBufferToTexture(cb, sb, dt)                                            \
@@ -2242,6 +2252,13 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC("rzRHI_CopyTexture", RZ_PROFILE_COLOR_RHI); \
                 g_RHI.CopyTexture(cb, st, dt);                                   \
                 RAZIX_PROFILE_SCOPEC_END();                                      \
+            } while (0)
+
+        #define rzRHI_CopyTextureToSwapchain(cb, st, dt)                                    \
+            do {                                                                            \
+                RAZIX_PROFILE_SCOPEC("rzRHI_CopyTextureToSwapchain", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.CopyTexture(cb, st, dt);                                              \
+                RAZIX_PROFILE_SCOPEC_END();                                                 \
             } while (0)
 
         #define rzRHI_CopyBufferToTexture(cb, sb, dt)                                    \
