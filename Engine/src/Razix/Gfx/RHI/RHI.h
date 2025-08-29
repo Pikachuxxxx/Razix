@@ -139,6 +139,9 @@ static inline unsigned int rz_clz32(unsigned int x)
 
 #define RAZIX_RHI_ALIGN(n, a) (((size_t) (n) + ((size_t) (a) - 1)) & ~(size_t) ((a) - 1))    // 'a' needs to be a power of 2
 
+#define RAZIX_RHI_ASSERT_RES_TYPE(resPtr, expectedEnum, contextMsg) \
+    RAZIX_RHI_ASSERT((resPtr) != NULL && (resPtr)->resource.type == (expectedEnum), "[DX12][TypeCheck] %s | Got=%d Expected=%d", (contextMsg), (resPtr) ? (resPtr)->resource.type : -1, (expectedEnum))
+
 /****************************************************************************************************
 *                                         Graphics Settings                                        *
 ****************************************************************************************************/
