@@ -8,6 +8,7 @@ test_names = [
     "GfxTest-HelloTriangleTest",
     "GfxTest-HelloTextureTest",
     "GfxTest-WaveIntrinsicsTest",
+    "GfxTest-ComputeTest",
 ]
 
 DEFAULT_CONFIG = "Debug"
