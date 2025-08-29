@@ -84,7 +84,7 @@ namespace Razix {
                     u32 dispatchY  = (height + groupSizeY - 1) / groupSizeY;
                     rzRHI_Dispatch(cmdBuffer, dispatchX, dispatchY, 1);
 
-                    rzRHI_InsertBufferBarrier(
+                    rzRHI_InsertImageBarrier(
                         cmdBuffer,
                         resources.get<RZFrameGraphTexture>(data.Output).getRHIHandle(),
                         RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS,

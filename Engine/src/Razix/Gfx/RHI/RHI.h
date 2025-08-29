@@ -1494,9 +1494,9 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_UpdateConstantBufferFn)(rz_gfx_buffer_update bufferUpdate);
 
     typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state oldState, rz_gfx_resource_state newState);
-    typedef void (*rzRHI_InsertBufferBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer, rz_gfx_resource_state oldState, rz_gfx_resource_state newState);
+    typedef void (*rzRHI_InsertBufferBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_buffer* buffer, rz_gfx_resource_state oldState, rz_gfx_resource_state newState);
     typedef void (*rzRHI_InsertTextureReadbackFn)(const rz_gfx_texture* texture, rz_gfx_texture_readback* readback);
-    typedef void (*rzRHI_InsertBufferReadbackFn)(const rz_gfx_buffer* buffer, rz_gfx_buffer_readback readback);
+    typedef void (*rzRHI_InsertBufferReadbackFn)(const rz_gfx_buffer* buffer, rz_gfx_buffer_readback* readback);
 
     typedef void (*rzRHI_CopyBufferFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* srcBuffer, const rz_gfx_buffer* dstBuffer, uint32_t size, uint32_t srcOffset, uint32_t dstOffset);
     typedef void (*rzRHI_CopyTextureFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* srcTexture, const rz_gfx_texture* dstTexture);
