@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RZSTL/smart_pointers.h"
+#include "Razix/Core/Containers/smart_pointers.h"
 #include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZEngine.h"
