@@ -5,6 +5,11 @@
 namespace Razix {
     namespace Gfx {
 
+        struct MandleBrotPassData
+        {
+            RZFrameGraphResource Output;
+        };
+
         class RZMandleBrotPass final : public IRZPass
         {
         public:

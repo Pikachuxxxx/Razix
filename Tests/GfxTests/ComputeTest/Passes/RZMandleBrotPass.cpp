@@ -24,14 +24,9 @@ namespace Razix {
                 .getShaderBindMap(m_Shader)
                 .RegisterBindMap(m_Shader);
 
-            struct PassData
-            {
-                RZFrameGraphResource Output;
-            };
-
-            framegraph.getBlackboard().add<PassData>() = framegraph.addCallbackPass<PassData>(
+            framegraph.getBlackboard().add<MandleBrotPassData>() = framegraph.addCallbackPass<MandleBrotPassData>(
                 "[Test] Pass.Builtin.Code.MandleBrotCompute",
-                [&](PassData& data, RZPassResourceBuilder& builder) {
+                [&](MandleBrotPassData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
                     rz_gfx_texture_desc outDesc = {};
@@ -40,9 +35,9 @@ namespace Razix {
                     outDesc.mipLevels           = 1;
                     outDesc.depth               = 1;
                     outDesc.arraySize           = 1;
-                    outDesc.format              = RZ_GFX_FORMAT_R8G8B8A8_UNORM;
+                    outDesc.format              = RZ_GFX_FORMAT_B8G8R8A8_UNORM;
                     outDesc.textureType         = RZ_GFX_TEXTURE_TYPE_2D;
-                    outDesc.resourceHints       = RZ_GFX_RESOURCE_VIEW_FLAG_UAV;
+                    outDesc.resourceHints       = (rz_gfx_resource_view_hints) (RZ_GFX_RESOURCE_VIEW_FLAG_UAV | RZ_GFX_RESOURCE_VIEW_FLAG_SRV);
                     data.Output                 = builder.create<RZFrameGraphTexture>("Texture.MandleBrot.Output", CAST_TO_FG_TEX_DESC outDesc);
 
                     // Write with UAV view
@@ -53,7 +48,7 @@ namespace Razix {
                     uavView.textureViewDesc.baseArrayLayer = 0;
                     data.Output                            = builder.write(data.Output, uavView);
                 },
-                [=](const PassData& data, RZPassResourceDirectory& resources) {
+                [=](const MandleBrotPassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RAZIX_TIME_STAMP_BEGIN("[Test] MandleBrot Compute Pass");
 
