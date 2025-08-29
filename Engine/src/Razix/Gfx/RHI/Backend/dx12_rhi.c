@@ -2882,10 +2882,10 @@ static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture*
     RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
     RAZIX_RHI_ASSERT(beforeState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "Before state cannot be undefined");
     RAZIX_RHI_ASSERT(afterState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "After state cannot be undefined");
-    RAZIX_RHI_ASSERT((texture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) &&
+    RAZIX_RHI_ASSERT(!(texture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) ||
                          (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS || afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS),
         "UAV barriers must be used only with UAV resources. If the resource has UAV view hint, either before or after state must be UAV");
-    RAZIX_RHI_ASSERT((beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS) &&
+    RAZIX_RHI_ASSERT(!(beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS) ||
                          (texture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
         "UAV-to-UAV barrier requires resource to have UAV view hint");
 
@@ -2923,10 +2923,10 @@ static void dx12_InsertBufferBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_buffer*
     RAZIX_RHI_ASSERT(buffer != NULL, "Buffer cannot be NULL");
     RAZIX_RHI_ASSERT(beforeState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "Before state cannot be undefined");
     RAZIX_RHI_ASSERT(afterState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "After state cannot be undefined");
-    RAZIX_RHI_ASSERT((buffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) &&
+    RAZIX_RHI_ASSERT(!(buffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) ||
                          (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS || afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS),
         "UAV barriers must be used only with UAV resources. If the resource has UAV view hint, either before or after state must be UAV");
-    RAZIX_RHI_ASSERT((beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS) &&
+    RAZIX_RHI_ASSERT(!(beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS) ||
                          (buffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
         "UAV-to-UAV barrier requires resource to have UAV view hint");
 
