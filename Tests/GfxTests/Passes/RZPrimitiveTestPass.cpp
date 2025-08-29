@@ -143,7 +143,7 @@ namespace Razix {
             // 1. Load shader (VS+PS) from new rzsf file.
             rz_gfx_shader_desc shaderDesc = {};
             shaderDesc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
-            shaderDesc.rzsfFilePath       = "//TestsRoot/GfxTests/PrimitiveTest/Shaders/Razix/Shader.Tests.DrawPrimitive.rzsf"; // Path must match new file
+            shaderDesc.rzsfFilePath       = "//TestsRoot/GfxTests/Shaders/Razix/Shader.Tests.DrawPrimitive.rzsf"; // Path must match new file
             m_Shader                      = RZResourceManager::Get().createShader("Shader.GfxTest.DrawPrimitive", shaderDesc);
 
             // 2. Build pipeline descriptor. Input layout TBD (we rely on shader reflection to populate). If manual layout needed, fill shaderDesc.pElements.

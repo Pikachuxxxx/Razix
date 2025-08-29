@@ -8,7 +8,7 @@ namespace Razix {
             // Create compute shader
             rz_gfx_shader_desc shaderDesc = {};
             shaderDesc.pipelineType       = RZ_GFX_PIPELINE_TYPE_COMPUTE;
-            shaderDesc.rzsfFilePath       = "//TestsRoot/GfxTests/ComputeTest/Shaders/Razix/Shader.Test.MandleBrot.rzsf";    // placeholder path
+            shaderDesc.rzsfFilePath       = "//TestsRoot/GfxTests/Shaders/Razix/Shader.Test.MandleBrot.rzsf";    // placeholder path
             m_Shader                      = RZResourceManager::Get().createShader("Shader.GfxTest.MandleBrot", shaderDesc);
 
             // Create compute pipeline

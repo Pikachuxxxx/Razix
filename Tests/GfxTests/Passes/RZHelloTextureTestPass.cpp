@@ -10,7 +10,7 @@ namespace Razix {
             // Create the shader and the pipeline
             rz_gfx_shader_desc desc = {};
             desc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
-            desc.rzsfFilePath       = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTextureTest.rzsf";
+            desc.rzsfFilePath       = "//TestsRoot/GfxTests/Shaders/Razix/Shader.Test.HelloTextureTest.rzsf";
             m_Shader                = Gfx::RZResourceManager::Get().createShader("Shader.GfxTest.HelloTexture", desc);
 
             // Build the pipeline here for this pass

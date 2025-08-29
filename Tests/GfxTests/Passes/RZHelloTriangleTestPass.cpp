@@ -8,7 +8,7 @@ namespace Razix {
             // Create the shader and the pipeline
             rz_gfx_shader_desc desc = {};
             desc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
-            desc.rzsfFilePath       = "//TestsRoot/GfxTests/HelloWorldTests/Shaders/Razix/Shader.Test.HelloTriangleTest.rzsf";
+            desc.rzsfFilePath       = "//TestsRoot/GfxTests/Shaders/Razix/Shader.Test.HelloTriangleTest.rzsf";
             m_Shader                = Gfx::RZResourceManager::Get().createShader("HelloTriangleShader", desc);
 
             // Build the pipeline here for this pass
