@@ -2946,7 +2946,7 @@ static void dx12_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_tex
         &heap_props,
         D3D12_HEAP_FLAG_NONE,
         &buffer_desc,
-        D3D12_RESOURCE_STATE_COPY_DEST,
+        D3D12_RESOURCE_STATE_COPY_DEST,    // Directly created with copy dest state
         NULL,
         &IID_ID3D12Resource,
         (void**) &readbackBuffer));
@@ -2957,7 +2957,7 @@ static void dx12_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_tex
         .Transition = {
             .pResource   = srcResource,
             .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
-            .StateBefore = D3D12_RESOURCE_STATE_PRESENT,
+            .StateBefore = dx12_util_res_state_translate(texture->resource.currentState),
             .StateAfter  = D3D12_RESOURCE_STATE_COPY_SOURCE}};
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &barrier);
 
@@ -2980,7 +2980,7 @@ static void dx12_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_tex
             .pResource   = srcResource,
             .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
             .StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE,
-            .StateAfter  = D3D12_RESOURCE_STATE_PRESENT}};
+            .StateAfter  = dx12_util_res_state_translate(texture->resource.currentState)}};
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &restore_barrier);
 
     // Close command list and submit and flush GPU work
@@ -3008,6 +3008,259 @@ static void dx12_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_tex
     D3D12_RANGE write_range = {0, 0};
     ID3D12Resource_Unmap(readbackBuffer, 0, &write_range);
     ID3D12Resource_Release(readbackBuffer);
+}
+
+static void dx12_CopyBuffer(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* src, const rz_gfx_buffer* dst, uint32_t size, uint32_t srcOffset, uint32_t dstOffset)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(src != NULL, "Source buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(dst != NULL, "Destination buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(size > 0, "Size must be greater than zero");
+    RAZIX_RHI_ASSERT(srcOffset + size <= src->resource.desc.bufferDesc.sizeInBytes, "Source buffer copy range exceeds buffer size");
+    RAZIX_RHI_ASSERT(dstOffset + size <= dst->resource.desc.bufferDesc.sizeInBytes, "Destination buffer copy range exceeds buffer size");
+
+    D3D12_RESOURCE_BARRIER srcBarrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = src->dx12.resource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = dx12_util_res_state_translate(src->resource.currentState),
+            .StateAfter  = D3D12_RESOURCE_STATE_COPY_SOURCE}};
+
+    D3D12_RESOURCE_BARRIER dstBarrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = dst->dx12.resource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = dx12_util_res_state_translate(dst->resource.currentState),
+            .StateAfter  = D3D12_RESOURCE_STATE_COPY_DEST}};
+
+    D3D12_RESOURCE_BARRIER barriers[] = {srcBarrier, dstBarrier};
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 2, barriers);
+
+    ID3D12GraphicsCommandList_CopyBufferRegion(cmdBuf->dx12.cmdList, dst->dx12.resource, dstOffset, src->dx12.resource, srcOffset, size);
+
+    // Restore barriers (or update to desired final states)
+    srcBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
+    srcBarrier.Transition.StateAfter  = dx12_util_res_state_translate(src->resource.currentState);
+    dstBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+    dstBarrier.Transition.StateAfter  = dx12_util_res_state_translate(dst->resource.currentState);
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 2, barriers);
+}
+
+static void dx12_CopyTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* src, const rz_gfx_texture* dst)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(src != NULL, "Source texture cannot be NULL");
+    RAZIX_RHI_ASSERT(dst != NULL, "Destination texture cannot be NULL");
+    RAZIX_RHI_ASSERT(src->resource.desc.textureDesc.width == dst->resource.desc.textureDesc.width &&
+                         src->resource.desc.textureDesc.height == dst->resource.desc.textureDesc.height &&
+                         src->resource.desc.textureDesc.depth == dst->resource.desc.textureDesc.depth,
+        "Source and destination textures must have the same dimensions for copy");
+
+    D3D12_RESOURCE_BARRIER srcBarrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = src->dx12.resource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = dx12_util_res_state_translate(src->resource.currentState),
+            .StateAfter  = D3D12_RESOURCE_STATE_COPY_SOURCE}};
+
+    // Transition destination texture to copy dest state
+    D3D12_RESOURCE_BARRIER dstBarrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = dst->dx12.resource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = dx12_util_res_state_translate(dst->resource.currentState),
+            .StateAfter  = D3D12_RESOURCE_STATE_COPY_DEST}};
+
+    D3D12_RESOURCE_BARRIER barriers[] = {srcBarrier, dstBarrier};
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 2, barriers);
+
+    D3D12_TEXTURE_COPY_LOCATION srcLocation = {
+        .pResource        = src->dx12.resource,
+        .Type             = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+        .SubresourceIndex = 0};
+    D3D12_TEXTURE_COPY_LOCATION dstLocation = {
+        .pResource        = dst->dx12.resource,
+        .Type             = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+        .SubresourceIndex = 0};
+    ID3D12GraphicsCommandList_CopyTextureRegion(cmdBuf->dx12.cmdList, &dstLocation, 0, 0, 0, &srcLocation, NULL);
+
+    srcBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
+    srcBarrier.Transition.StateAfter  = dx12_util_res_state_translate(src->resource.currentState);
+    dstBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+    dstBarrier.Transition.StateAfter  = dx12_util_res_state_translate(dst->resource.currentState);
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 2, barriers);
+}
+
+static void dx12_CopyBufferToTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* src, const rz_gfx_texture* dst)
+{
+    RAZIX_RHI_ASSERT(src != NULL, "Source buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(dst != NULL, "Destination texture cannot be NULL");
+    RAZIX_RHI_ASSERT(src->resource.desc.bufferDesc.sizeInBytes <= (dst->resource.desc.textureDesc.width * dst->resource.desc.textureDesc.height * 4),
+        "Source buffer size is insufficient for the texture copy");
+
+    D3D12_RESOURCE_BARRIER srcBarrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = src->dx12.resource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = dx12_util_res_state_translate(src->resource.currentState),
+            .StateAfter  = D3D12_RESOURCE_STATE_COPY_SOURCE}};
+
+    D3D12_RESOURCE_BARRIER dstBarrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = dst->dx12.resource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = dx12_util_res_state_translate(dst->resource.currentState),
+            .StateAfter  = D3D12_RESOURCE_STATE_COPY_DEST}};
+
+    D3D12_RESOURCE_BARRIER barriers[] = {srcBarrier, dstBarrier};
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 2, barriers);
+
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT dstFootprint = {0};
+    UINT64                             totalSize    = 0;
+    UINT64                             rowPitch     = 0;
+    UINT                               numRows      = 0;
+    D3D12_RESOURCE_DESC                dstDesc      = {0};
+    ID3D12Resource_GetDesc(dst->dx12.resource, &dstDesc);
+    ID3D12Device_GetCopyableFootprints(DX12Device, &dstDesc, 0, 1, 0, &dstFootprint, &numRows, &rowPitch, &totalSize);
+
+    D3D12_TEXTURE_COPY_LOCATION srcLocation = {
+        .pResource       = src->dx12.resource,
+        .Type            = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
+        .PlacedFootprint = dstFootprint};
+
+    D3D12_TEXTURE_COPY_LOCATION dstLocation = {
+        .pResource        = dst->dx12.resource,
+        .Type             = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+        .SubresourceIndex = 0};
+
+    ID3D12GraphicsCommandList_CopyTextureRegion(cmdBuf->dx12.cmdList, &dstLocation, 0, 0, 0, &srcLocation, NULL);
+
+    srcBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
+    srcBarrier.Transition.StateAfter  = dx12_util_res_state_translate(src->resource.currentState);
+    dstBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+    dstBarrier.Transition.StateAfter  = dx12_util_res_state_translate(dst->resource.currentState);
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 2, barriers);
+}
+
+static void dx12_CopyTextureToBufferFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* src, const rz_gfx_buffer* dst)
+{
+    RAZIX_RHI_ASSERT(src != NULL, "Source texture cannot be NULL");
+    RAZIX_RHI_ASSERT(dst != NULL, "Destination buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(dst->resource.desc.bufferDesc.sizeInBytes >= (src->resource.desc.textureDesc.width * src->resource.desc.textureDesc.height * 4),
+        "Destination buffer size is insufficient for the texture copy");
+
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT srcFootprint = {0};
+    UINT64                             totalSize    = 0;
+    UINT64                             rowPitch     = 0;
+    UINT                               numRows      = 0;
+    D3D12_RESOURCE_DESC                srcDesc      = {0};
+    ID3D12Resource_GetDesc(src->dx12.resource, &srcDesc);
+    ID3D12Device_GetCopyableFootprints(DX12Device, &srcDesc, 0, 1, 0, &srcFootprint, &numRows, &rowPitch, &totalSize);
+
+    D3D12_TEXTURE_COPY_LOCATION srcLocation = {
+        .pResource        = src->dx12.resource,
+        .Type             = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+        .SubresourceIndex = 0};
+    D3D12_TEXTURE_COPY_LOCATION dstLocation = {
+        .pResource       = dst->dx12.resource,
+        .Type            = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
+        .PlacedFootprint = srcFootprint};
+
+    D3D12_RESOURCE_BARRIER srcBarrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = src->dx12.resource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = dx12_util_res_state_translate(src->resource.currentState),
+            .StateAfter  = D3D12_RESOURCE_STATE_COPY_SOURCE}};
+
+    D3D12_RESOURCE_BARRIER dstBarrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = dst->dx12.resource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = dx12_util_res_state_translate(dst->resource.currentState),
+            .StateAfter  = D3D12_RESOURCE_STATE_COPY_DEST}};
+    D3D12_RESOURCE_BARRIER barriers[] = {srcBarrier, dstBarrier};
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 2, barriers);
+
+    ID3D12GraphicsCommandList_CopyTextureRegion(cmdBuf->dx12.cmdList, &dstLocation, 0, 0, 0, &srcLocation, NULL);
+
+    srcBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
+    srcBarrier.Transition.StateAfter  = dx12_util_res_state_translate(src->resource.currentState);
+    dstBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+    dstBarrier.Transition.StateAfter  = dx12_util_res_state_translate(dst->resource.currentState);
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 2, barriers);
+}
+
+static void dx12_GenerateMipmapsFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
+
+    RAZIX_RHI_LOG_ERROR("Mipmap generation not implemented for DX12 yet! (No native API like vulkan, needs shader emulation)");
+    RAZIX_RHI_ABORT();
+}
+
+static void dx12_BlitTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* src, const rz_gfx_texture* dst)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(src != NULL, "Source texture cannot be NULL");
+    RAZIX_RHI_ASSERT(dst != NULL, "Destination texture cannot be NULL");
+
+    RAZIX_RHI_LOG_ERROR("Blit Texture not implemented for DX12 yet! (No native API like vulkan, needs shader emulation)");
+    RAZIX_RHI_ABORT();
+}
+
+static void dx12_ResolveTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* src, const rz_gfx_texture* dst)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(src != NULL, "Source texture cannot be NULL");
+    RAZIX_RHI_ASSERT(dst != NULL, "Destination texture cannot be NULL");
+    // TODO: Check if src is multi-sampled and dst is single sampled
+
+    D3D12_RESOURCE_BARRIER srcBarrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = src->dx12.resource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = dx12_util_res_state_translate(src->resource.currentState),
+            .StateAfter  = D3D12_RESOURCE_STATE_RESOLVE_SOURCE}};
+
+    D3D12_RESOURCE_BARRIER dstBarrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = dst->dx12.resource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = dx12_util_res_state_translate(dst->resource.currentState),
+            .StateAfter  = D3D12_RESOURCE_STATE_RESOLVE_DEST}};
+    D3D12_RESOURCE_BARRIER barriers[] = {srcBarrier, dstBarrier};
+
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 2, barriers);
+
+    ID3D12GraphicsCommandList_ResolveSubresource(cmdBuf->dx12.cmdList, dst->dx12.resource, 0, src->dx12.resource, 0, dx12_util_rz_gfx_format_to_dxgi_format(src->resource.desc.textureDesc.format));
+
+    srcBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RESOLVE_SOURCE;
+    srcBarrier.Transition.StateAfter  = dx12_util_res_state_translate(src->resource.currentState);
+    dstBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RESOLVE_DEST;
+    dstBarrier.Transition.StateAfter  = dx12_util_res_state_translate(dst->resource.currentState);
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 2, barriers);
 }
 
 //---------------------------------------------------------------------------------------------
@@ -3125,9 +3378,17 @@ rz_rhi_api dx12_rhi = {
     .DrawIndirect          = dx12_DrawIndirect,             // DrawIndirect
     .DrawIndexedIndirect   = dx12_DrawIndexedIndirect,      // DrawIndexedIndirect
     .DispatchIndirect      = dx12_DispatchIndirect,         // DispatchIndirect
+    .UpdateDescriptorTable = NULL,                          // UpdateDescriptorTable
     .UpdateConstantBuffer  = dx12_UpdateConstantBuffer,     // UpdateConstantBuffer
     .InsertImageBarrier    = dx12_InsertImageBarrier,       // InsertImageBarrier
     .InsertTextureReadback = dx12_InsertTextureReadback,    // InsertTextureReadback
+    .CopyBuffer            = dx12_CopyBuffer,               // CopyBuffer
+    .CopyTexture           = dx12_CopyTexture,              // CopyTexture
+    .CopyBufferToTexture   = dx12_CopyBufferToTexture,      // CopyBufferToTexture
+    .CopyTextureToBuffer   = dx12_CopyTextureToBufferFn,    // CopyTextureToBuffer
+    .GenerateMipmaps       = dx12_GenerateMipmapsFn,        // GenerateMipmaps
+    .BlitTexture           = dx12_BlitTexture,              // BlitTexture
+    .ResolveTexture        = dx12_ResolveTexture,           // ResolveTexture
 
     .SignalGPU       = dx12_Signal,             // Signal
     .FlushGPUWork    = dx12_FlushGPUWork,       // FlushGPUWork

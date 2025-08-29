@@ -1490,7 +1490,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_UpdateDescriptorTableFn)(rz_gfx_descriptor_table*, rz_gfx_resource_view*, uint32_t);
     typedef void (*rzRHI_UpdateConstantBufferFn)(rz_gfx_buffer_update);
 
-    typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*, rz_gfx_resource_state, rz_gfx_resource_state);
+    typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture*, rz_gfx_resource_state, rz_gfx_resource_state);
     typedef void (*rzRHI_InsertTextureReadbackFn)(const rz_gfx_texture*, rz_gfx_texture_readback*);
     // TODO:
     //typedef void (*rzRHI_InsertBufferBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer, rz_gfx_resource_state old_state, rz_gfx_resource_state new_state);
@@ -1569,6 +1569,13 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_DispatchIndirectFn      DispatchIndirect;
         rzRHI_UpdateDescriptorTableFn UpdateDescriptorTable;
         rzRHI_UpdateConstantBufferFn  UpdateConstantBuffer;
+        rzRHI_CopyBufferFn            CopyBuffer;
+        rzRHI_CopyTextureFn           CopyTexture;
+        rzRHI_CopyBufferToTextureFn   CopyBufferToTexture;
+        rzRHI_CopyTextureToBufferFn   CopyTextureToBuffer;
+        rzRHI_GenerateMipmapsFn       GenerateMipmaps;
+        rzRHI_BlitTexture             BlitTexture;
+        rzRHI_ResolveTexture          ResolveTexture;
         rzRHI_InsertImageBarrierFn    InsertImageBarrier;
         rzRHI_InsertTextureReadbackFn InsertTextureReadback;
         // ....
