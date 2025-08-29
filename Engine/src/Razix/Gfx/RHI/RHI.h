@@ -1060,7 +1060,8 @@ static inline unsigned int rz_clz32(unsigned int x)
         rz_handle                  handle;
         rz_gfx_resource_view_hints viewHints;
         rz_gfx_resource_type       type;
-        uint8_t                    _pad1[8];
+        rz_gfx_resource_state      currentState;
+        uint8_t                    _pad0[4];
 
         union
         {

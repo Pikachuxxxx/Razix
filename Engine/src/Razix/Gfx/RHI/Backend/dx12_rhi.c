@@ -2255,7 +2255,7 @@ static void dx12_CreateTexture(void* where)
     else if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV) == RZ_GFX_RESOURCE_VIEW_FLAG_DSV)
         resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-    D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;    // Default state, can be changed later
+    texture->resource.currentState = RZ_GFX_RESOURCE_STATE_GENERAL;
 
     // Create resource with memory backing
     D3D12_HEAP_PROPERTIES heapProps = {0};
@@ -2264,7 +2264,7 @@ static void dx12_CreateTexture(void* where)
     heapProps.MemoryPoolPreference  = D3D12_MEMORY_POOL_UNKNOWN;
 
     // Create the texture resource
-    HRESULT hr = ID3D12Device10_CreateCommittedResource(DX12Device, &heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, initialState, NULL, &IID_ID3D12Resource, &texture->dx12.resource);
+    HRESULT hr = ID3D12Device10_CreateCommittedResource(DX12Device, &heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, dx12_util_res_state_translate(texture->resource.currentState), NULL, &IID_ID3D12Resource, &texture->dx12.resource);
     if (FAILED(hr)) {
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Texture2D: 0x%08X", hr);
         return;
@@ -2877,7 +2877,7 @@ static void dx12_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
 
 // ...
 
-static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
+static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
 {
     D3D12_RESOURCE_BARRIER barrier = {
         .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
@@ -2888,11 +2888,18 @@ static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_te
             .StateBefore = dx12_util_res_state_translate(beforeState),
             .StateAfter  = dx12_util_res_state_translate(afterState),
         }};
+
+    // Update the current state
+    texture->resource.currentState = afterState;
+
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 1, &barrier);
 }
 
 static void dx12_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_texture_readback* readback)
 {
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
+    RAZIX_RHI_ASSERT(readback != NULL, "Readback structure cannot be NULL");
+
     ID3D12Resource*     srcResource = texture->dx12.resource;
     D3D12_RESOURCE_DESC srcDesc     = {0};
     ID3D12Resource_GetDesc(srcResource, &srcDesc);
