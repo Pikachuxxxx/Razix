@@ -2876,10 +2876,31 @@ static void dx12_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
     memcpy((uint8_t*) mappedData, updatedesc.pData, updatedesc.sizeInBytes);
 }
 
-// ...
-
 static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
 {
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
+    RAZIX_RHI_ASSERT(beforeState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "Before state cannot be undefined");
+    RAZIX_RHI_ASSERT(afterState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "After state cannot be undefined");
+    RAZIX_RHI_ASSERT((texture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) &&
+                         (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS || afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS),
+        "UAV barriers must be used only with UAV resources. If the resource has UAV view hint, either before or after state must be UAV");
+    RAZIX_RHI_ASSERT((beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS) &&
+                         (texture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
+        "UAV-to-UAV barrier requires resource to have UAV view hint");
+
+    bool isUAVBarrier = (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS);
+
+    if (isUAVBarrier) {
+        D3D12_RESOURCE_BARRIER uavBarrier = {
+            .Type          = D3D12_RESOURCE_BARRIER_TYPE_UAV,
+            .UAV.pResource = texture->dx12.resource};
+        ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 1, &uavBarrier);
+    }
+
+    if (beforeState == afterState)
+        return;
+
     D3D12_RESOURCE_BARRIER barrier = {
         .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
         .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
@@ -2893,6 +2914,46 @@ static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture*
     // Update the current state
     texture->resource.currentState = afterState;
 
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 1, &barrier);
+}
+
+static void dx12_InsertBufferBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_buffer* buffer, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(buffer != NULL, "Buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(beforeState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "Before state cannot be undefined");
+    RAZIX_RHI_ASSERT(afterState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "After state cannot be undefined");
+    RAZIX_RHI_ASSERT((buffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) &&
+                         (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS || afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS),
+        "UAV barriers must be used only with UAV resources. If the resource has UAV view hint, either before or after state must be UAV");
+    RAZIX_RHI_ASSERT((beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS) &&
+                         (buffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
+        "UAV-to-UAV barrier requires resource to have UAV view hint");
+
+    bool isUAVBarrier = (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS);
+
+    if (isUAVBarrier) {
+        D3D12_RESOURCE_BARRIER uavBarrier = {
+            .Type          = D3D12_RESOURCE_BARRIER_TYPE_UAV,
+            .UAV.pResource = buffer->dx12.resource};
+        ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 1, &uavBarrier);
+    }
+
+    if (beforeState == afterState)
+        return;
+
+    D3D12_RESOURCE_BARRIER barrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = buffer->dx12.resource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = dx12_util_res_state_translate(beforeState),
+            .StateAfter  = dx12_util_res_state_translate(afterState),
+        }};
+
+    // Update the current state
+    buffer->resource.currentState = afterState;
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 1, &barrier);
 }
 
@@ -3009,6 +3070,73 @@ static void dx12_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_tex
     D3D12_RANGE write_range = {0, 0};
     ID3D12Resource_Unmap(readbackBuffer, 0, &write_range);
     ID3D12Resource_Release(readbackBuffer);
+}
+
+static void dx12_InsertBufferReadback(const rz_gfx_buffer* buffer, rz_gfx_buffer_readback* readback)
+{
+    RAZIX_RHI_ASSERT(buffer != NULL, "Buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(readback != NULL, "Readback structure cannot be NULL");
+
+    ID3D12Resource*     srcResource = buffer->dx12.resource;
+    D3D12_RESOURCE_DESC srcDesc     = {0};
+    ID3D12Resource_GetDesc(srcResource, &srcDesc);
+
+    dx12_cmdbuf cmdBuf = dx12_util_begin_singletime_cmdlist();
+
+    uint32_t              size           = (uint32_t) srcDesc.Width;
+    ID3D12Resource*       readbackBuffer = NULL;
+    D3D12_HEAP_PROPERTIES heap_props     = {
+            .Type                 = D3D12_HEAP_TYPE_READBACK,
+            .CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+            .MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN};
+    D3D12_RESOURCE_DESC buffer_desc = {
+        .Dimension        = D3D12_RESOURCE_DIMENSION_BUFFER,
+        .Alignment        = 0,
+        .Width            = size,
+        .Height           = 1,
+        .DepthOrArraySize = 1,
+        .MipLevels        = 1,
+        .Format           = DXGI_FORMAT_UNKNOWN,
+        .SampleDesc       = {1, 0},
+        .Layout           = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
+        .Flags            = D3D12_RESOURCE_FLAG_NONE};
+    CHECK_HR(ID3D12Device_CreateCommittedResource(
+        DX12Device,
+        &heap_props,
+        D3D12_HEAP_FLAG_NONE,
+        &buffer_desc,
+        D3D12_RESOURCE_STATE_COPY_DEST,    // Directly created with copy dest state
+        NULL,
+        &IID_ID3D12Resource,
+        (void**) &readbackBuffer));
+    D3D12_RESOURCE_BARRIER barrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = srcResource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = dx12_util_res_state_translate(buffer->resource.currentState),
+            .StateAfter  = D3D12_RESOURCE_STATE_COPY_SOURCE}};
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &barrier);
+
+    ID3D12GraphicsCommandList_CopyBufferRegion(cmdBuf.cmdList, readbackBuffer, 0, srcResource, 0, size);
+
+    D3D12_RESOURCE_BARRIER restore_barrier = {
+        .Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource   = srcResource,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE,
+            .StateAfter  = dx12_util_res_state_translate(buffer->resource.currentState)}};
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &restore_barrier);
+
+    // Close command list and submit and flush GPU work
+    dx12_util_end_singletime_cmdlist(cmdBuf);
+    void*       mapped_data = NULL;
+    D3D12_RANGE read_range  = {readback->offset, size + readback->offset};
+    CHECK_HR(ID3D12Resource_Map(readbackBuffer, 0, &read_range, &mapped_data));
+    readback->sizeInBytes = size;
 }
 
 static void dx12_CopyBuffer(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* src, const rz_gfx_buffer* dst, uint32_t size, uint32_t srcOffset, uint32_t dstOffset)

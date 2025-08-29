@@ -611,7 +611,6 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC,
         RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM,
         RZ_GFX_BUFFER_USAGE_TYPE_STAGING,
-        RZ_GFX_BUFFER_USAGE_TYPE_INDIRECT_DRAW_ARGS,
         RZ_GFX_BUFFER_USAGE_TYPE_READBACK,
         RZ_GFX_BUFFER_USAGE_TYPE_COUNT
     } rz_gfx_buffer_usage_type;
@@ -619,6 +618,9 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef enum rz_gfx_buffer_type
     {
         RZ_GFX_BUFFER_TYPE_CONSTANT = 0,
+        RZ_GFX_BUFFER_TYPE_VERTEX,
+        RZ_GFX_BUFFER_TYPE_INDEX,
+        RZ_GFX_BUFFER_TYPE_INDIRECT_ARGS,
         RZ_GFX_BUFFER_TYPE_STRUCTURED,
         RZ_GFX_BUFFER_TYPE_BYTE,
         RZ_GFX_BUFFER_TYPE_ACCELERATION_STRUCTURE,
@@ -1375,7 +1377,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     {
         uint8_t* data;
         uint32_t sizeInBytes;
-        uint8_t  _pad0[12];
+        uint32_t offset;
+        uint8_t  _pad0[6];
     } rz_gfx_buffer_readback;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_draw_indirect_args
@@ -1459,59 +1462,56 @@ static inline unsigned int rz_clz32(unsigned int x)
     /**
      * RHI API
      */
-    typedef void (*rzRHI_AcquireImageFn)(rz_gfx_swapchain*);
-    typedef void (*rzRHI_WaitOnPrevCmdsFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint);
-    typedef void (*rzRHI_PresentFn)(const rz_gfx_swapchain*);
+    typedef void (*rzRHI_AcquireImageFn)(rz_gfx_swapchain* swapchain);
+    typedef void (*rzRHI_WaitOnPrevCmdsFn)(const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint syncPoint);
+    typedef void (*rzRHI_PresentFn)(const rz_gfx_swapchain* swapchain);
 
-    typedef void (*rzRHI_BeginCmdBufFn)(const rz_gfx_cmdbuf*);
-    typedef void (*rzRHI_EndCmdBufFn)(const rz_gfx_cmdbuf*);
-    typedef void (*rzRHI_SubmitCmdBufFn)(const rz_gfx_cmdbuf*);
+    typedef void (*rzRHI_BeginCmdBufFn)(const rz_gfx_cmdbuf* cmdBuf);
+    typedef void (*rzRHI_EndCmdBufFn)(const rz_gfx_cmdbuf* cmdBuf);
+    typedef void (*rzRHI_SubmitCmdBufFn)(const rz_gfx_cmdbuf* cmdBuf);
 
-    typedef void (*rzRHI_BeginRenderPassFn)(const rz_gfx_cmdbuf*, const rz_gfx_renderpass*);
-    typedef void (*rzRHI_EndRenderPassFn)(const rz_gfx_cmdbuf*);
+    typedef void (*rzRHI_BeginRenderPassFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderpass* renderPass);
+    typedef void (*rzRHI_EndRenderPassFn)(const rz_gfx_cmdbuf* cmdBuf);
 
     typedef void (*rzRHI_SetViewportFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewport);
-    typedef void (*rzRHI_SetScissorRectFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* rect);
+    typedef void (*rzRHI_SetScissorRectFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* scissorRect);
 
-    typedef void (*rzRHI_BindPipelineFn)(const rz_gfx_cmdbuf*, const rz_gfx_pipeline*);
-    typedef void (*rzRHI_BindGfxRootSigFn)(const rz_gfx_cmdbuf*, const rz_gfx_root_signature*);
-    typedef void (*rzRHI_BindComputeRootSigFn)(const rz_gfx_cmdbuf*, const rz_gfx_root_signature*);
+    typedef void (*rzRHI_BindPipelineFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_pipeline* pipeline);
+    typedef void (*rzRHI_BindGfxRootSigFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_signature* rootSig);
+    typedef void (*rzRHI_BindComputeRootSigFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_signature* rootSig);
 
-    typedef void (*rzRHI_BindDescriptorHeapsFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_descriptor_heap**, uint32_t);
-    typedef void (*rzRHI_BindDescriptorTablesFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type, rz_gfx_descriptor_table**, uint32_t);
+    typedef void (*rzRHI_BindDescriptorHeapsFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_descriptor_heap** heaps, uint32_t heapCount);
+    typedef void (*rzRHI_BindDescriptorTablesFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type pipelineType, rz_gfx_descriptor_table** tables, uint32_t tableCount);
 
-    typedef void (*rzRHI_DrawAutoFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t, uint32_t);
-    typedef void (*rzRHI_DrawIndexedAutoFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
-    typedef void (*rzRHI_DispatchFn)(const rz_gfx_cmdbuf*, uint32_t, uint32_t, uint32_t);
-    typedef void (*rzRHI_DrawIndirectFn)(const rz_gfx_cmdbuf*, const rz_gfx_buffer*, uint32_t, uint32_t);
-    typedef void (*rzRHI_DrawIndexedIndirectFn)(const rz_gfx_cmdbuf*, const rz_gfx_buffer*, uint32_t, uint32_t);
-    typedef void (*rzRHI_DispatchIndirectFn)(const rz_gfx_cmdbuf*, const rz_gfx_buffer*, uint32_t, uint32_t);
+    typedef void (*rzRHI_DrawAutoFn)(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance);
+    typedef void (*rzRHI_DrawIndexedAutoFn)(const rz_gfx_cmdbuf* cmdBuf, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset, uint32_t firstInstance);
+    typedef void (*rzRHI_DispatchFn)(const rz_gfx_cmdbuf* cmdBuf, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
+    typedef void (*rzRHI_DrawIndirectFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* argumentBuffer, uint32_t argumentBufferOffset, uint32_t drawCount);
+    typedef void (*rzRHI_DrawIndexedIndirectFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* argumentBuffer, uint32_t argumentBufferOffset, uint32_t drawCount);
+    typedef void (*rzRHI_DispatchIndirectFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* argumentBuffer, uint32_t argumentBufferOffset, uint32_t dispatchCount);
 
-    typedef void (*rzRHI_UpdateDescriptorTableFn)(rz_gfx_descriptor_table*, rz_gfx_resource_view*, uint32_t);
-    typedef void (*rzRHI_UpdateConstantBufferFn)(rz_gfx_buffer_update);
+    typedef void (*rzRHI_UpdateDescriptorTableFn)(rz_gfx_descriptor_table* table, rz_gfx_resource_view* view, uint32_t binding);
+    typedef void (*rzRHI_UpdateConstantBufferFn)(rz_gfx_buffer_update bufferUpdate);
 
-    typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture*, rz_gfx_resource_state, rz_gfx_resource_state);
-    typedef void (*rzRHI_InsertTextureReadbackFn)(const rz_gfx_texture*, rz_gfx_texture_readback*);
-    // TODO:
-    //typedef void (*rzRHI_InsertBufferBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer, rz_gfx_resource_state old_state, rz_gfx_resource_state new_state);
-    //typedef void (*rzRHI_InsertUAVBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture);
-    //typedef void (*rzRHI_InsertUAVBufferBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer);
-    //typedef void (*rzRHI_InsertBufferReadbackFn)(const rz_gfx_buffer*, rz_gfx_buffer_readback);
+    typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state oldState, rz_gfx_resource_state newState);
+    typedef void (*rzRHI_InsertBufferBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer, rz_gfx_resource_state oldState, rz_gfx_resource_state newState);
+    typedef void (*rzRHI_InsertTextureReadbackFn)(const rz_gfx_texture* texture, rz_gfx_texture_readback* readback);
+    typedef void (*rzRHI_InsertBufferReadbackFn)(const rz_gfx_buffer* buffer, rz_gfx_buffer_readback readback);
 
-    typedef void (*rzRHI_CopyBufferFn)(const rz_gfx_cmdbuf*, const rz_gfx_buffer* src, const rz_gfx_buffer* dst, uint32_t size, uint32_t srcOffset, uint32_t dstOffset);
-    typedef void (*rzRHI_CopyTextureFn)(const rz_gfx_cmdbuf*, const rz_gfx_texture* src, const rz_gfx_texture* dst);
-    typedef void (*rzRHI_CopyBufferToTextureFn)(const rz_gfx_cmdbuf*, const rz_gfx_buffer* src, const rz_gfx_texture* dst);
-    typedef void (*rzRHI_CopyTextureToBufferFn)(const rz_gfx_cmdbuf*, const rz_gfx_texture* src, const rz_gfx_buffer* dst);
-    typedef void (*rzRHI_GenerateMipmapsFn)(const rz_gfx_cmdbuf*, const rz_gfx_texture*);
-    typedef void (*rzRHI_BlitTextureFn)(const rz_gfx_cmdbuf*, const rz_gfx_texture* src, const rz_gfx_texture* dst);
-    typedef void (*rzRHI_ResolveTextureFn)(const rz_gfx_cmdbuf*, const rz_gfx_texture* src, const rz_gfx_texture* dst);
+    typedef void (*rzRHI_CopyBufferFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* srcBuffer, const rz_gfx_buffer* dstBuffer, uint32_t size, uint32_t srcOffset, uint32_t dstOffset);
+    typedef void (*rzRHI_CopyTextureFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* srcTexture, const rz_gfx_texture* dstTexture);
+    typedef void (*rzRHI_CopyBufferToTextureFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* srcBuffer, const rz_gfx_texture* dstTexture);
+    typedef void (*rzRHI_CopyTextureToBufferFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* srcTexture, const rz_gfx_buffer* dstBuffer);
+    typedef void (*rzRHI_GenerateMipmapsFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture);
+    typedef void (*rzRHI_BlitTextureFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* srcTexture, const rz_gfx_texture* dstTexture);
+    typedef void (*rzRHI_ResolveTextureFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* srcTexture, const rz_gfx_texture* dstTexture);
 
-    typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
-    typedef void (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
-    typedef void (*rzRHI_ResizeSwapchainFn)(rz_gfx_swapchain*, uint32_t, uint32_t);
+    typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint* syncPoint);
+    typedef void (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint* syncPoint);
+    typedef void (*rzRHI_ResizeSwapchainFn)(rz_gfx_swapchain* swapchain, uint32_t width, uint32_t height);
 
-    typedef void (*rzRHI_BeginFrameFn)(rz_gfx_swapchain*, const rz_gfx_syncobj*, rz_gfx_syncpoint* frameSyncpoints, rz_gfx_syncpoint* globalSyncpoint);
-    typedef void (*rzRHI_EndFrameFn)(const rz_gfx_swapchain*, const rz_gfx_syncobj*, rz_gfx_syncpoint* frameSyncpoints, rz_gfx_syncpoint* globalSyncpoint);
+    typedef void (*rzRHI_BeginFrameFn)(rz_gfx_swapchain* swapchain, const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint);
+    typedef void (*rzRHI_EndFrameFn)(const rz_gfx_swapchain* swapchain, const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint);
 
     typedef struct rz_rhi_api
     {
@@ -1577,7 +1577,9 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_BlitTextureFn           BlitTexture;
         rzRHI_ResolveTextureFn        ResolveTexture;
         rzRHI_InsertImageBarrierFn    InsertImageBarrier;
+        rzRHI_InsertBufferBarrierFn   InsertBufferBarrier;
         rzRHI_InsertTextureReadbackFn InsertTextureReadback;
+        rzRHI_InsertBufferReadbackFn  InsertBufferReadback;
         // ....
         rzRHI_SignalGPUFn       SignalGPU;
         rzRHI_FlushGPUWorkFn    FlushGPUWork;
@@ -1677,8 +1679,10 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_UpdateConstantBuffer(bu)                      g_RHI.UpdateConstantBuffer(bu)
         #define rzRHI_InsertImageBarrier(cb, text, bs, as)          g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(text), bs, as)
         #define rzRHI_InsertSwapchainImageBarrier(cb, text, bs, as) g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), text, bs, as)
+        #define rzRHI_InsertBufferBarrier(cb, buf, bs, as)          g_RHI.InsertBufferBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(buf), bs, as)
         #define rzRHI_InsertTextureReadback(text, rb)               g_RHI.InsertTextureReadback(RZResourceManager::Get().getTextureResource(text), rb)
         #define rzRHI_InsertSwapchainTextureReadback(text, rb)      g_RHI.InsertTextureReadback(text, rb)
+        #define rzRHI_InsertBufferReadback(buf, rb)                 g_RHI.InsertBufferReadback(RZResourceManager::Get().getBufferResource(buf), rb)
         #define rzRHI_CopyBuffer(cb, sb, db, s, so, doff)           g_RHI.CopyBuffer(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(sb), RZResourceManager::Get().getBufferResource(db), s, so, doff)
         #define rzRHI_CopyTexture(cb, st, dt)                       g_RHI.CopyTexture(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(st), RZResourceManager::Get().getTextureResource(dt))
         #define rzRHI_CopyTextureToSwapchain(cb, st, dt)            g_RHI.CopyTexture(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(st), dt)
@@ -1718,8 +1722,10 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_UpdateConstantBuffer           g_RHI.UpdateConstantBuffer
         #define rzRHI_InsertImageBarrier             g_RHI.InsertImageBarrier
         #define rzRHI_InsertSwapchainImageBarrier    g_RHI.InsertImageBarrier
+        #define rzRHI_InsertBufferBarrier            g_RHI.InsertBufferBarrier
         #define rzRHI_InsertTextureReadback          g_RHI.InsertTextureReadback
         #define rzRHI_InsertSwapchainTextureReadback g_RHI.InsertTextureReadback
+        #define rzRHI_InsertBufferReadback           g_RHI.InsertBufferReadback
         #define rzRHI_CopyBuffer                     g_RHI.CopyBuffer
         #define rzRHI_CopyTexture                    g_RHI.CopyTexture
         #define rzRHI_CopyTextureToSwapchain         g_RHI.CopyTexture
@@ -1945,10 +1951,22 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), tex, bs, as);      \
             } while (0)
 
+        #define rzRHI_InsertBufferBarrier(cb, buf, bs, as)                                                                                                 \
+            do {                                                                                                                                           \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertBufferBarrier", RZ_PROFILE_COLOR_RHI_RESOURCE_BARRIERS);                                                 \
+                g_RHI.InsertBufferBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(buf), bs, as); \
+            } while (0)
+
         #define rzRHI_InsertTextureReadback(tex, rb)                                               \
             do {                                                                                   \
                 RAZIX_PROFILE_SCOPEC("rzRHI_InsertTextureReadback", RZ_PROFILE_COLOR_RHI);         \
                 g_RHI.InsertTextureReadback(RZResourceManager::Get().getTextureResource(tex), rb); \
+            } while (0)
+
+        #define rzRHI_InsertBufferReadback(buf, rb)                                              \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertBufferReadback", RZ_PROFILE_COLOR_RHI);        \
+                g_RHI.InsertBufferReadback(RZResourceManager::Get().getBufferResource(buf), rb); \
             } while (0)
 
         #define rzRHI_InsertSwapchainTextureReadback(tex, rb)                                       \
@@ -2226,6 +2244,13 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC_END();                                                                        \
             } while (0)
 
+        #define rzRHI_InsertBufferBarrier(cb, buf, bs, as)                                                 \
+            do {                                                                                           \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertBufferBarrier", RZ_PROFILE_COLOR_RHI_RESOURCE_BARRIERS); \
+                g_RHI.InsertBufferBarrier(cb, buf, bs, as);                                                \
+                RAZIX_PROFILE_SCOPEC_END();                                                                \
+            } while (0)
+
         #define rzRHI_InsertTextureReadback(tex, rb)                                       \
             do {                                                                           \
                 RAZIX_PROFILE_SCOPEC("rzRHI_InsertTextureReadback", RZ_PROFILE_COLOR_RHI); \
@@ -2238,6 +2263,13 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC("rzRHI_InsertSwapchainTextureReadback", RZ_PROFILE_COLOR_RHI); \
                 g_RHI.InsertTextureReadback(tex, rb);                                               \
                 RAZIX_PROFILE_SCOPEC_END();                                                         \
+            } while (0)
+
+        #define rzRHI_InsertBufferReadback(buf, rb)                                       \
+            do {                                                                          \
+                RAZIX_PROFILE_SCOPEC("rzRHI_InsertBufferReadback", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.InsertBufferReadback(buf, rb);                                      \
+                RAZIX_PROFILE_SCOPEC_END();                                               \
             } while (0)
 
         #define rzRHI_CopyBuffer(cb, sb, db, s, so, doff)                       \
