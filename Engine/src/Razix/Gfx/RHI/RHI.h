@@ -1503,8 +1503,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_CopyBufferToTextureFn)(const rz_gfx_cmdbuf*, const rz_gfx_buffer* src, const rz_gfx_texture* dst);
     typedef void (*rzRHI_CopyTextureToBufferFn)(const rz_gfx_cmdbuf*, const rz_gfx_texture* src, const rz_gfx_buffer* dst);
     typedef void (*rzRHI_GenerateMipmapsFn)(const rz_gfx_cmdbuf*, const rz_gfx_texture*);
-    typedef void (*rzRHI_BlitTexture)(const rz_gfx_cmdbuf*, const rz_gfx_texture* src, const rz_gfx_texture* dst);
-    typedef void (*rzRHI_ResolveTexture)(const rz_gfx_cmdbuf*, const rz_gfx_texture* src, const rz_gfx_texture* dst);
+    typedef void (*rzRHI_BlitTextureFn)(const rz_gfx_cmdbuf*, const rz_gfx_texture* src, const rz_gfx_texture* dst);
+    typedef void (*rzRHI_ResolveTextureFn)(const rz_gfx_cmdbuf*, const rz_gfx_texture* src, const rz_gfx_texture* dst);
 
     typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
     typedef void (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj*, rz_gfx_syncpoint*);
@@ -1574,8 +1574,8 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_CopyBufferToTextureFn   CopyBufferToTexture;
         rzRHI_CopyTextureToBufferFn   CopyTextureToBuffer;
         rzRHI_GenerateMipmapsFn       GenerateMipmaps;
-        rzRHI_BlitTexture             BlitTexture;
-        rzRHI_ResolveTexture          ResolveTexture;
+        rzRHI_BlitTextureFn           BlitTexture;
+        rzRHI_ResolveTextureFn        ResolveTexture;
         rzRHI_InsertImageBarrierFn    InsertImageBarrier;
         rzRHI_InsertTextureReadbackFn InsertTextureReadback;
         // ....
