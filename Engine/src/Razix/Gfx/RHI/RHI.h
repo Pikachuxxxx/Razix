@@ -1679,42 +1679,58 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_InsertSwapchainImageBarrier(cb, text, bs, as) g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), text, bs, as)
         #define rzRHI_InsertTextureReadback(text, rb)               g_RHI.InsertTextureReadback(RZResourceManager::Get().getTextureResource(text), rb)
         #define rzRHI_InsertSwapchainTextureReadback(text, rb)      g_RHI.InsertTextureReadback(text, rb)
+        #define rzRHI_CopyBuffer(cb, sb, db, s, so, doff)           g_RHI.CopyBuffer(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(sb), RZResourceManager::Get().getBufferResource(db), s, so, doff)
+        #define rzRHI_CopyTexture(cb, st, dt)                       g_RHI.CopyTexture(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(st), RZResourceManager::Get().getTextureResource(dt))
+        #define rzRHI_CopyBufferToTexture(cb, sb, dt)               g_RHI.CopyBufferToTexture(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(sb), RZResourceManager::Get().getTextureResource(dt))
+        #define rzRHI_CopyTextureToBuffer(cb, st, db)               g_RHI.CopyTextureToBuffer(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(st), RZResourceManager::Get().getBufferResource(db))
+        #define rzRHI_GenerateMipmaps(cb, text)                     g_RHI.GenerateMipmaps(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(text))
+        #define rzRHI_BlitTexture(cb, st, dt)                       g_RHI.BlitTexture(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(st), RZResourceManager::Get().getTextureResource(dt))
+        #define rzRHI_ResolveTexture(cb, st, dt)                    g_RHI.ResolveTexture(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(st), RZResourceManager::Get().getTextureResource(dt))
         #define rzRHI_SignalGPU                                     g_RHI.SignalGPU
         #define rzRHI_FlushGPUWork                                  g_RHI.FlushGPUWork
         #define rzRHI_ResizeSwapchain                               g_RHI.ResizeSwapchain
         #define rzRHI_BeginFrame                                    g_RHI.BeginFrame
         #define rzRHI_EndFrame                                      g_RHI.EndFrame
     #else
-        #define rzRHI_AcquireImage                g_RHI.AcquireImage
-        #define rzRHI_WaitOnPrevCmds              g_RHI.WaitOnPrevCmds
-        #define rzRHI_Present                     g_RHI.Present
-        #define rzRHI_BeginCmdBuf                 g_RHI.BeginCmdBuf
-        #define rzRHI_EndCmdBuf                   g_RHI.EndCmdBuf
-        #define rzRHI_SubmitCmdBuf                g_RHI.SubmitCmdBuf
-        #define rzRHI_BeginRenderPass             g_RHI.BeginRenderPass
-        #define rzRHI_EndRenderPass               g_RHI.EndRenderPass
-        #define rzRHI_SetScissorRect              g_RHI.SetScissorRect
-        #define rzRHI_SetViewport                 g_RHI.SetViewport
-        #define rzRHI_BindPipeline                g_RHI.BindPipeline
-        #define rzRHI_BindGfxRootSig              g_RHI.BindGfxRootSig
-        #define rzRHI_BindComputeRootSig          g_RHI.BindComputeRootSig
-        #define rzRHI_BindDescriptorHeaps         g_RHI.BindDescriptorHeaps
-        #define rzRHI_BindDescriptorTables        g_RHI.BindDescriptorTables
-        #define rzRHI_DrawAuto                    g_RHI.DrawAuto
-        #define rzRHI_DrawIndexedAuto             g_RHI.DrawIndexedAuto
-        #define rzRHI_Dispatch                    g_RHI.Dispatch
-        #define rzRHI_DrawIndirect                g_RHI.DrawIndirect
-        #define rzRHI_DrawIndexedIndirect         g_RHI.DrawIndexedIndirect
-        #define rzRHI_DispatchIndirect            g_RHI.DispatchIndirect
-        #define rzRHI_UpdateDescriptorTable       g_RHI.UpdateDescriptorTable
-        #define rzRHI_UpdateConstantBuffer        g_RHI.UpdateConstantBuffer
-        #define rzRHI_InsertImageBarrier          g_RHI.InsertImageBarrier
-        #define rzRHI_InsertSwapchainImageBarrier g_RHI.InsertImageBarrier
-        #define rzRHI_SignalGPU                   g_RHI.SignalGPU
-        #define rzRHI_FlushGPUWork                g_RHI.FlushGPUWork
-        #define rzRHI_ResizeSwapchain             g_RHI.ResizeSwapchain
-        #define rzRHI_BeginFrame                  g_RHI.BeginFrame
-        #define rzRHI_EndFrame                    g_RHI.EndFrame
+        #define rzRHI_AcquireImage                   g_RHI.AcquireImage
+        #define rzRHI_WaitOnPrevCmds                 g_RHI.WaitOnPrevCmds
+        #define rzRHI_Present                        g_RHI.Present
+        #define rzRHI_BeginCmdBuf                    g_RHI.BeginCmdBuf
+        #define rzRHI_EndCmdBuf                      g_RHI.EndCmdBuf
+        #define rzRHI_SubmitCmdBuf                   g_RHI.SubmitCmdBuf
+        #define rzRHI_BeginRenderPass                g_RHI.BeginRenderPass
+        #define rzRHI_EndRenderPass                  g_RHI.EndRenderPass
+        #define rzRHI_SetScissorRect                 g_RHI.SetScissorRect
+        #define rzRHI_SetViewport                    g_RHI.SetViewport
+        #define rzRHI_BindPipeline                   g_RHI.BindPipeline
+        #define rzRHI_BindGfxRootSig                 g_RHI.BindGfxRootSig
+        #define rzRHI_BindComputeRootSig             g_RHI.BindComputeRootSig
+        #define rzRHI_BindDescriptorHeaps            g_RHI.BindDescriptorHeaps
+        #define rzRHI_BindDescriptorTables           g_RHI.BindDescriptorTables
+        #define rzRHI_DrawAuto                       g_RHI.DrawAuto
+        #define rzRHI_DrawIndexedAuto                g_RHI.DrawIndexedAuto
+        #define rzRHI_Dispatch                       g_RHI.Dispatch
+        #define rzRHI_DrawIndirect                   g_RHI.DrawIndirect
+        #define rzRHI_DrawIndexedIndirect            g_RHI.DrawIndexedIndirect
+        #define rzRHI_DispatchIndirect               g_RHI.DispatchIndirect
+        #define rzRHI_UpdateDescriptorTable          g_RHI.UpdateDescriptorTable
+        #define rzRHI_UpdateConstantBuffer           g_RHI.UpdateConstantBuffer
+        #define rzRHI_InsertImageBarrier             g_RHI.InsertImageBarrier
+        #define rzRHI_InsertSwapchainImageBarrier    g_RHI.InsertImageBarrier
+        #define rzRHI_InsertTextureReadback          g_RHI.InsertTextureReadback
+        #define rzRHI_InsertSwapchainTextureReadback g_RHI.InsertTextureReadback
+        #define rzRHI_CopyBuffer                     g_RHI.CopyBuffer
+        #define rzRHI_CopyTexture                    g_RHI.CopyTexture
+        #define rzRHI_CopyBufferToTexture            g_RHI.CopyBufferToTexture
+        #define rzRHI_CopyTextureToBuffer            g_RHI.CopyTextureToBuffer
+        #define rzRHI_GenerateMipmaps                g_RHI.GenerateMipmaps
+        #define rzRHI_BlitTexture                    g_RHI.BlitTexture
+        #define rzRHI_ResolveTexture                 g_RHI.ResolveTexture
+        #define rzRHI_SignalGPU                      g_RHI.SignalGPU
+        #define rzRHI_FlushGPUWork                   g_RHI.FlushGPUWork
+        #define rzRHI_ResizeSwapchain                g_RHI.ResizeSwapchain
+        #define rzRHI_BeginFrame                     g_RHI.BeginFrame
+        #define rzRHI_EndFrame                       g_RHI.EndFrame
     #endif
 #else
     #if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
@@ -1939,6 +1955,64 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.InsertTextureReadback(tex, rb);                                               \
             } while (0)
 
+        #define rzRHI_CopyBuffer(cb, sb, db, s, so, doff)                               \
+            do {                                                                        \
+                RAZIX_PROFILE_SCOPEC("rzRHI_CopyBuffer", RZ_PROFILE_COLOR_RHI);         \
+                g_RHI.CopyBuffer(RZResourceManager::Get().getCommandBufferResource(cb), \
+                    RZResourceManager::Get().getBufferResource(sb),                     \
+                    RZResourceManager::Get().getBufferResource(db),                     \
+                    s,                                                                  \
+                    so,                                                                 \
+                    doff);                                                              \
+            } while (0)
+
+        #define rzRHI_CopyTexture(cb, st, dt)                                            \
+            do {                                                                         \
+                RAZIX_PROFILE_SCOPEC("rzRHI_CopyTexture", RZ_PROFILE_COLOR_RHI);         \
+                g_RHI.CopyTexture(RZResourceManager::Get().getCommandBufferResource(cb), \
+                    RZResourceManager::Get().getTextureResource(st),                     \
+                    RZResourceManager::Get().getTextureResource(dt));                    \
+            } while (0)
+
+        #define rzRHI_CopyBufferToTexture(cb, sb, dt)                                            \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_CopyBufferToTexture", RZ_PROFILE_COLOR_RHI);         \
+                g_RHI.CopyBufferToTexture(RZResourceManager::Get().getCommandBufferResource(cb), \
+                    RZResourceManager::Get().getBufferResource(sb),                              \
+                    RZResourceManager::Get().getTextureResource(dt));                            \
+            } while (0)
+
+        #define rzRHI_CopyTextureToBuffer(cb, st, db)                                            \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_CopyTextureToBuffer", RZ_PROFILE_COLOR_RHI);         \
+                g_RHI.CopyTextureToBuffer(RZResourceManager::Get().getCommandBufferResource(cb), \
+                    RZResourceManager::Get().getTextureResource(st),                             \
+                    RZResourceManager::Get().getBufferResource(db));                             \
+            } while (0)
+
+        #define rzRHI_GenerateMipmaps(cb, text)                                              \
+            do {                                                                             \
+                RAZIX_PROFILE_SCOPEC("rzRHI_GenerateMipmaps", RZ_PROFILE_COLOR_RHI);         \
+                g_RHI.GenerateMipmaps(RZResourceManager::Get().getCommandBufferResource(cb), \
+                    RZResourceManager::Get().getTextureResource(text));                      \
+            } while (0)
+
+        #define rzRHI_BlitTexture(cb, st, dt)                                            \
+            do {                                                                         \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BlitTexture", RZ_PROFILE_COLOR_RHI);         \
+                g_RHI.BlitTexture(RZResourceManager::Get().getCommandBufferResource(cb), \
+                    RZResourceManager::Get().getTextureResource(st),                     \
+                    RZResourceManager::Get().getTextureResource(dt));                    \
+            } while (0)
+
+        #define rzRHI_ResolveTexture(cb, st, dt)                                            \
+            do {                                                                            \
+                RAZIX_PROFILE_SCOPEC("rzRHI_ResolveTexture", RZ_PROFILE_COLOR_RHI);         \
+                g_RHI.ResolveTexture(RZResourceManager::Get().getCommandBufferResource(cb), \
+                    RZResourceManager::Get().getTextureResource(st),                        \
+                    RZResourceManager::Get().getTextureResource(dt));                       \
+            } while (0)
+
         #define rzRHI_SignalGPU(so, sp)                                                        \
             do {                                                                               \
                 RAZIX_PROFILE_SCOPEC("rzRHI_SignalGPU", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
@@ -2154,6 +2228,55 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC("rzRHI_InsertSwapchainTextureReadback", RZ_PROFILE_COLOR_RHI); \
                 g_RHI.InsertTextureReadback(tex, rb);                                               \
                 RAZIX_PROFILE_SCOPEC_END();                                                         \
+            } while (0)
+
+        #define rzRHI_CopyBuffer(cb, sb, db, s, so, doff)                       \
+            do {                                                                \
+                RAZIX_PROFILE_SCOPEC("rzRHI_CopyBuffer", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.CopyBuffer(cb, sb, db, s, so, doff);                      \
+                RAZIX_PROFILE_SCOPEC_END();                                     \
+            } while (0)
+
+        #define rzRHI_CopyTexture(cb, st, dt)                                    \
+            do {                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_CopyTexture", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.CopyTexture(cb, st, dt);                                   \
+                RAZIX_PROFILE_SCOPEC_END();                                      \
+            } while (0)
+
+        #define rzRHI_CopyBufferToTexture(cb, sb, dt)                                    \
+            do {                                                                         \
+                RAZIX_PROFILE_SCOPEC("rzRHI_CopyBufferToTexture", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.CopyBufferToTexture(cb, sb, dt);                                   \
+                RAZIX_PROFILE_SCOPEC_END();                                              \
+            } while (0)
+
+        #define rzRHI_CopyTextureToBuffer(cb, st, db)                                    \
+            do {                                                                         \
+                RAZIX_PROFILE_SCOPEC("rzRHI_CopyTextureToBuffer", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.CopyTextureToBuffer(cb, st, db);                                   \
+                RAZIX_PROFILE_SCOPEC_END();                                              \
+            } while (0)
+
+        #define rzRHI_GenerateMipmaps(cb, text)                                      \
+            do {                                                                     \
+                RAZIX_PROFILE_SCOPEC("rzRHI_GenerateMipmaps", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.GenerateMipmaps(cb, text);                                     \
+                RAZIX_PROFILE_SCOPEC_END();                                          \
+            } while (0)
+
+        #define rzRHI_BlitTexture(cb, st, dt)                                    \
+            do {                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BlitTexture", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.BlitTexture(cb, st, dt);                                   \
+                RAZIX_PROFILE_SCOPEC_END();                                      \
+            } while (0)
+
+        #define rzRHI_ResolveTexture(cb, st, dt)                                    \
+            do {                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_ResolveTexture", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.ResolveTexture(cb, st, dt);                                   \
+                RAZIX_PROFILE_SCOPEC_END();                                         \
             } while (0)
 
         #define rzRHI_SignalGPU(so, sp)                                                        \
