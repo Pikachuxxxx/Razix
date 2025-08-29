@@ -167,18 +167,32 @@ static D3D12_COMMAND_LIST_TYPE dx12_util_rz_cmdpool_to_cmd_list_type(rz_gfx_cmdp
     }
 }
 
+static const D3D12_RESOURCE_STATES d3d12_resource_state_map[RZ_GFX_RESOURCE_STATE_COUNT] = {
+    D3D12_RESOURCE_STATE_COMMON,                                                                    // UNDEFINED
+    D3D12_RESOURCE_STATE_COMMON,                                                                    // GENERAL
+    D3D12_RESOURCE_STATE_RENDER_TARGET,                                                             // RENDER_TARGET
+    D3D12_RESOURCE_STATE_DEPTH_WRITE,                                                               // DEPTH_WRITE
+    D3D12_RESOURCE_STATE_DEPTH_READ,                                                                // DEPTH_READ
+    D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,    // SHADER_READ
+    D3D12_RESOURCE_STATE_UNORDERED_ACCESS,                                                          // UNORDERED_ACCESSO
+    D3D12_RESOURCE_STATE_COPY_SOURCE,                                                               // COPY_SRC
+    D3D12_RESOURCE_STATE_COPY_DEST,                                                                 // COPY_DST
+    D3D12_RESOURCE_STATE_PRESENT,                                                                   // PRESENT
+    D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,                                                // VERTEX_BUFFER
+    D3D12_RESOURCE_STATE_INDEX_BUFFER,                                                              // INDEX_BUFFER
+    D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,                                                // CONSTANT_BUFFER
+    D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT,                                                         // INDIRECT_ARGUMENT
+    D3D12_RESOURCE_STATE_RESOLVE_SOURCE,                                                            // RESOLVE_SRC
+    D3D12_RESOURCE_STATE_RESOLVE_DEST,                                                              // RESOLVE_DST
+    D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,                                         // RAYTRACING_ACCELERATION_STRUCTURE
+    D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE,                                                       // SHADING_RATE_SOURCE
+    D3D12_RESOURCE_STATE_VIDEO_DECODE_READ,                                                         // VIDEO_DECODE_READ
+    D3D12_RESOURCE_STATE_VIDEO_DECODE_WRITE,                                                        // VIDEO_DECODE_WRITE
+};
+
 static D3D12_RESOURCE_STATES dx12_util_res_state_translate(rz_gfx_resource_state state)
 {
-    switch (state) {
-        case RZ_GFX_RESOURCE_STATE_RENDER_TARGET: return D3D12_RESOURCE_STATE_RENDER_TARGET;
-        case RZ_GFX_RESOURCE_STATE_SHADER_READ: return D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-        case RZ_GFX_RESOURCE_STATE_COPY_SRC: return D3D12_RESOURCE_STATE_COPY_SOURCE;
-        case RZ_GFX_RESOURCE_STATE_COPY_DST: return D3D12_RESOURCE_STATE_COPY_DEST;
-        case RZ_GFX_RESOURCE_STATE_PRESENT: return D3D12_RESOURCE_STATE_PRESENT;
-        case RZ_GFX_RESOURCE_STATE_DEPTH_WRITE: return D3D12_RESOURCE_STATE_DEPTH_WRITE;
-        case RZ_GFX_RESOURCE_STATE_GENERAL: return D3D12_RESOURCE_STATE_COMMON;
-        default: return D3D12_RESOURCE_STATE_COMMON;
-    }
+    return d3d12_resource_state_map[state];
 }
 
 static D3D12_DESCRIPTOR_RANGE_TYPE dx12_util_descriptor_type_to_range_type(rz_gfx_descriptor_type type)
