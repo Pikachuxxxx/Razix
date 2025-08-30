@@ -5,6 +5,7 @@
 
 namespace Razix {
 
+#if 0
     MeshRendererComponent::MeshRendererComponent()
         : Mesh(nullptr)
     {
@@ -22,4 +23,5 @@ namespace Razix {
     {
         Mesh = Razix::Gfx::loadMesh(filePath);
     }
+#endif
 }    // namespace Razix

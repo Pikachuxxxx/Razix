@@ -52,6 +52,7 @@ project "GameFramework"
     links
     {
        "Razix", -- Razix DLL
+       "RHI",
         -- because of the client log macros this needs to be linked again because we didn't export the spdlog symbols first time
        "glfw",
        "imgui",
@@ -67,6 +68,8 @@ project "GameFramework"
     defines
     {
        --"SPDLOG_COMPILED_LIB"
+       -- RHI
+       "RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES",
     }
 
     filter { "files:**.lua or *.razixproject or **.rzscn"}
@@ -130,7 +133,7 @@ project "GameFramework"
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE"
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
 

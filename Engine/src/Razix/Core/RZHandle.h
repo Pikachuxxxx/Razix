@@ -1,87 +1,110 @@
 #pragma once
+#include <stdbool.h>
+#include <stdint.h>
 
-#include "Razix/Core/RZDataTypes.h"
-
-    namespace Razix
-{
-    // https://twitter.com/SebAaltonen/status/1534416275828514817
-    // https://twitter.com/SebAaltonen/status/1535175559067713536
-    /**
+// https://twitter.com/SebAaltonen/status/1534416275828514817
+// https://twitter.com/SebAaltonen/status/1535175559067713536
+/**
      * Handle is a weak pointer like reference to real objects inside a Pool, this forms the basis for various handles
      * 
      * Handles are like weak pointers. The container has an array of generation counters, and the data getter checks whether the generation counters match. 
      * If not, then the slot was deleted (and possibly reused). The getter returns null instead of the data pointer in this case
      */
-    template<typename T>
-    class RZHandle
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif    // __cplusplus
+
+    typedef struct rz_handle
     {
-    public:
-        RZHandle()
-            : m_Index(0), m_Generation(0) {}
+        uint32_t index;
+        uint32_t generation;
+    } rz_handle;
 
-        RZHandle(const RZHandle& handle)
+    static inline rz_handle rz_handle_create(uint32_t index, uint32_t generation)
+    {
+        rz_handle h = {index, generation};
+        return h;
+    }
+
+    static inline rz_handle rz_handle_make_invalid()
+    {
+        rz_handle h = {0, 0};
+        return h;
+    }
+
+    static inline uint32_t rz_handle_get_index(const rz_handle* handle)
+    {
+        return handle->index;
+    }
+
+    static inline void rz_handle_set_index(rz_handle* handle, uint32_t index)
+    {
+        handle->index = index;
+    }
+
+    static inline uint32_t rz_handle_get_generation(const rz_handle* handle)
+    {
+        return handle->generation;
+    }
+
+    static inline void rz_handle_set_generation(rz_handle* handle, uint32_t gen)
+    {
+        handle->generation = gen;
+    }
+
+    static inline bool rz_handle_is_valid(const rz_handle* handle)
+    {
+        return handle->generation != 0;
+    }
+
+    static inline void rz_handle_destroy(rz_handle* handle)
+    {
+        handle->index      = 0;
+        handle->generation = 0;
+    }
+
+    static inline bool rz_handle_equals(const rz_handle* a, const rz_handle* b)
+    {
+        return a->index == b->index;
+    }
+
+    static inline bool rz_handle_not_equals(const rz_handle* a, const rz_handle* b)
+    {
+        return a->index != b->index;
+    }
+
+#ifdef __cplusplus
+}
+#endif    // __cplusplus
+
+#ifdef __cplusplus
+#include <functional>
+
+inline bool operator==(const rz_handle& a, const rz_handle& b) noexcept
+{
+    return a.index == b.index && a.generation == b.generation;
+}
+
+namespace std {
+    template<>
+    struct hash<rz_handle>
+    {
+        size_t operator()(const rz_handle& h) const noexcept
         {
-            m_Index      = handle.m_Index;
-            m_Generation = handle.m_Generation;
+            uint64_t x = (uint64_t(h.index) << 32) | uint64_t(h.generation);
+
+            x += 0x9e3779b97f4a7c15ull;
+            x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ull;
+            x = (x ^ (x >> 27)) * 0x94d049bb133111ebull;
+            x = x ^ (x >> 31);
+
+            if constexpr (sizeof(size_t) == 8)
+                return static_cast<size_t>(x);
+            else
+                return static_cast<size_t>(x ^ (x >> 32));
         }
-
-        RZHandle& operator=(const RZHandle& handle)
-        {
-            m_Index      = handle.m_Index;
-            m_Generation = handle.m_Generation;
-            return *this;
-        }
-
-        RZHandle(RZHandle&& handle)
-        {
-            m_Index      = handle.m_Index;
-            m_Generation = handle.m_Generation;
-        }
-
-        RZHandle& operator=(RZHandle&& handle)
-        {
-            if (this != &handle) {
-                m_Index             = handle.m_Index;
-                m_Generation        = handle.m_Generation;
-                handle.m_Index      = 0;
-                handle.m_Generation = 0;
-            }
-            return *this;
-        }
-
-        inline bool isValid() const { return m_Generation != 0; }
-
-        inline u32  getIndex() const { return m_Index; }
-        inline void setIndex(u32 index) { m_Index = index; }
-
-        inline u32  getGeneration() const { return m_Generation; }
-        inline void setGeneration(u32 gen) { m_Generation = gen; }
-
-        inline void destroy()
-        {
-            m_Generation = 0;
-            m_Index      = 0;
-        }
-
-        friend bool operator!=(RZHandle const& h1, RZHandle const& h2)
-        {
-            return h1.m_Index != h2.m_Index;
-        }
-
-        friend bool operator==(RZHandle const& h1, RZHandle const& h2)
-        {
-            return h1.m_Index == h2.m_Index;
-        }
-
-    private:
-        u32 m_Index      = 0; /* The array Index of the Handle in the pool it belongs to    */
-        u32 m_Generation = 0; /* Generated index for deletion verification                  */
-
-        /* All the handles are stored in a pool */
-        template<typename U>
-        friend class RZResourcePoolTyped;
     };
-
-    // We can also use this simple approach of sub-classing the handle as a struct of type u32
-
-}    // namespace Razix
+}    // namespace std
+#endif

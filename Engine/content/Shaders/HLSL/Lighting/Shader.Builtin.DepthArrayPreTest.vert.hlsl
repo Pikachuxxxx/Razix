@@ -5,7 +5,7 @@
 //------------------------------------------------------------------------------
 #include <ShaderInclude.Builtin.ShaderLangCommon.h>
 //------------------------------------------------------------------------------
-#include <Common/ShaderInclude.Builtin.VertexInput.h>
+#include <Razix/Shared/RZShaderCompitability.h>
 //------------------------------------------------------------------------------
 // Uniforms and Push Constants
 // view projection matrix
@@ -31,7 +31,7 @@ VSOut VS_MAIN(VSIn vsInput)
 {
     VSOut output;
 
-    float4 transformedPos = mul(GET_PUSH_CONSTANT(worldTransform), float4(vsInput.inPosition, 1.0f));
+    float4 transformedPos = mul(GET_PUSH_CONSTANT(worldTransform), float4(vsInput.Position, 1.0f));
     output.Position       = mul(lightSpaceMat, transformedPos);
     output.Layer          = 0;    // Pass this from where?
 

@@ -117,12 +117,12 @@
                 RAZIX_DEBUG_BREAK();                                                                                 \
             }                                                                                                        \
         }
-    #define RAZIX_ASSERT(x, ...)                                                                                \
-        {                                                                                                       \
-            if (!(x)) {                                                                                         \
-                RAZIX_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); \
-                RAZIX_DEBUG_BREAK();                                                                            \
-            }                                                                                                   \
+    #define RAZIX_ASSERT(x, ...)                                                                                     \
+        {                                                                                                            \
+            if (!(x)) {                                                                                              \
+                RAZIX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); \
+                RAZIX_DEBUG_BREAK();                                                                                 \
+            }                                                                                                        \
         }
     // Generic conditioned Assertions
     #define RAZIX_ASSERT_NO_MESSAGE(condition)                                                     \
@@ -147,6 +147,20 @@
     #define RAZIX_ASSERT_MESSAGE(condition, ...)
 #endif
 
+#define RAZIX_FIXME_STUB_COMPILE(...) static_assert(false, "[RAZIX] FIXME_STUB: This function is not implemented!"##__VA_ARGS__)
+#define RAZIX_FIXME_STUB(...)                                                                              \
+    {                                                                                                      \
+        RAZIX_CORE_ERROR("[RAZIX] FIXME_STUB: {0} at Line {1} in File {2}", __func__, __LINE__, __FILE__); \
+        RAZIX_DEBUG_BREAK();                                                                               \
+    }
+
+#define RAZIX_TODO_STUB_COMPILE(...) static_assert(false, "[RAZIX] TODO_STUB: This function is not implemented!")
+#define RAZIX_TODO_STUB(...)                                                                              \
+    {                                                                                                     \
+        RAZIX_CORE_ERROR("[RAZIX] TODO_STUB: {0} at Line {1} in File {2}", __func__, __LINE__, __FILE__); \
+        RAZIX_DEBUG_BREAK();                                                                              \
+    }
+
 // Max number of objects in a scene
 #define MAX_OBJECTS 2048
 
@@ -166,10 +180,9 @@
 // Function Bind macro
 #define RAZIX_BIND_CB_EVENT_FN(x) std::bind(&Razix::RZApplication::x, this, std::placeholders::_1)
 
-#define CAST_TO_FG_DESC(t)   (Razix::Gfx::t::Desc)
-#define CAST_TO_FG_TEX_DESC  (Razix::Gfx::RZFrameGraphTexture::Desc)
-#define CAST_TO_FG_SAMP_DESC (Razix::Gfx::RZFrameGraphSampler::Desc)
-#define CAST_TO_FG_BUF_DESC  (Razix::Gfx::RZFrameGraphBuffer::Desc)
+#define CAST_TO_FG_DESC(t)  (Razix::Gfx::t::Desc)
+#define CAST_TO_FG_TEX_DESC (Razix::Gfx::RZFrameGraphTexture::Desc)
+#define CAST_TO_FG_BUF_DESC (Razix::Gfx::RZFrameGraphBuffer::Desc)
 
 // right bit shift (useful for converting integer based color to hex)
 #define RZ_BIT_SHIFT(x) (1 << x)
@@ -464,7 +477,7 @@ private:                                                  \
 /**
  * Memory Related stuff & Alignment Macros
  */
-#define RZ_ALIGN_ARB(n, a) (((size_t) (n) + ((size_t) (a) -1)) & ~(size_t) ((a) -1))    // 'a' needs to be a power of 2
+#define RZ_ALIGN_ARB(n, a) (((size_t) (n) + ((size_t) (a) - 1)) & ~(size_t) ((a) - 1))    // 'a' needs to be a power of 2
 
 #define RZ_ALIGN_64K(n) ((((size_t) (n)) + 0xffff) & ~0xffff)
 
@@ -480,7 +493,7 @@ private:                                                  \
 #define RZ_ALIGN_4(n)   ((((size_t) (n)) + 3) & ~3)
 #define RZ_ALIGN_2(n)   ((((size_t) (n)) + 1) & ~1)
 
-#define RZ_IS_ALIGNED_ARB(n, a) (((size_t) (n) & ((size_t) (a) -1)) == 0)    // 'a' needs to be a power of 2
+#define RZ_IS_ALIGNED_ARB(n, a) (((size_t) (n) & ((size_t) (a) - 1)) == 0)    // 'a' needs to be a power of 2
 
 #define RZ_IS_ALIGNED_512(n) (((size_t) (n) & 511) == 0)
 #define RZ_IS_ALIGNED_256(n) (((size_t) (n) & 255) == 0)
@@ -492,7 +505,7 @@ private:                                                  \
 #define RZ_IS_ALIGNED_4(n)   (((size_t) (n) & 3) == 0)
 #define RZ_IS_ALIGNED_2(n)   (((size_t) (n) & 1) == 0)
 
-#define RZ_ALIGN_DOWN_ARB(n, a) ((size_t) (n) & ~(size_t) ((a) -1))    // 'a' needs to be a power of 2
+#define RZ_ALIGN_DOWN_ARB(n, a) ((size_t) (n) & ~(size_t) ((a) - 1))    // 'a' needs to be a power of 2
 
 #define RZ_ALIGN_DOWN_512(n) (size_t(n) & ~511)
 #define RZ_ALIGN_DOWN_256(n) (size_t(n) & ~255)
@@ -562,39 +575,7 @@ static constexpr float operator""_inKib(unsigned long long int x)
     {
 #define RAZIX_CLEANUP_RESOURCE_IMPL_END }
 
-// TODO: Add Safe memory delete and unloading macros
-/****************************************************************************************************
- *                                         Graphics Settings                                        *
- ****************************************************************************************************/
-
-/* Triple buffering is enabled by default */
-#define RAZIX_ENABLE_TRIPLE_BUFFERING
-/* The total number of images that the swapchain can render/present to, by default we use triple buffering, defaults to d32 buffering if disabled */
-#ifdef RAZIX_ENABLE_TRIPLE_BUFFERING
-    /* Frames in FLight defines the number of frames that will be rendered to while another frame is being presented (used for triple buffering)*/
-    #define RAZIX_MAX_FRAMES_IN_FLIGHT  2
-    #define RAZIX_MAX_SWAP_IMAGES_COUNT 3
-    #define RAZIX_MAX_FRAMES            RAZIX_MAX_SWAP_IMAGES_COUNT
-#elif
-    #define RAZIX_MAX_SWAP_IMAGES_COUNT 2
-#endif
-
-/* Whether or not to use VMA as memory backend */
-#ifdef RAZIX_PLATFORM_WINDOWS
-    #define RAZIX_USE_VMA 1
-#elif RAZIX_PLATFORM_MACOS
-    #define RAZIX_USE_VMA 0    // Still porting WIP, so disabled idk if the SDK has it
-#endif
-
-/* Total No.Of Render Targets = typically a Max of 8 (as supported by most APIs) */
-#define RAZIX_MAX_RENDER_TARGETS 8
-
-/* Size of indices in Razix Engine, change here for global configuration */
-#define RAZIX_INDICES_SIZE         sizeof(u32)    // we use 32-bit indices for now
-#define RAZIX_INDICES_FORMAT       R32_UINT
-#define RAZIX_INDICES_FORMAT_VK    VK_INDEX_TYPE_UINT32
-#define RAZIX_INDICES_FORMAT_D3D12 DXGI_FORMAT_R32_UINT
-#define RAZIX_INDICES_FORMAT_AGC   sce::Agc::IndexSize::k32
+// TODO: Add Safe memory delete and unloading macro
 
 /****************************************************************************************************
  *                                         Vendor Settings                                          * 

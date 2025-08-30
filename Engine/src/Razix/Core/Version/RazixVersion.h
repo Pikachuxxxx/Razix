@@ -32,6 +32,14 @@ namespace Razix {
         Version(int major, int minor, int patch, Stage stage, Date releaseDate)
             : m_Major(major), m_Minor(minor), m_Patch(patch), m_ReleaseStage(stage), m_ReleaseDate(releaseDate) {}
 
+        static Razix::Version ParseVersionString(const std::string& versionStr)
+        {
+            int major = 0, minor = 0, patch = 0;
+            int ret = sscanf(versionStr.c_str(), "%d.%d.%d", &major, &minor, &patch);
+            (void) ret;                                                                                                // Ignore return value, we assume the format is correct
+            return Razix::Version(major, minor, patch, Razix::Version::Stage::Development, Razix::Version::Date());    // TODO: Add stage and date in serialized string
+        }
+
         /* Gets the major version of the engine */
         int getVersionMajor() const { return m_Major; }
         /* gets the minor version of the engine */

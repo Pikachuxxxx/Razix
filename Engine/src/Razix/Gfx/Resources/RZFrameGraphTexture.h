@@ -1,12 +1,12 @@
 #pragma once
 
+#include "Razix/Gfx/RHI/RHI.h"
+
 namespace Razix {
     namespace Gfx {
 
-        struct RZTextureDesc;
-
         /**
-             * When an extra wrapper of RZTexture and RZTextureHandle?
+             * When an extra wrapper of RZTexture and rz_texture_handle?
              * 
              * It's messy to enforce the Type Erasure concepts on the Graphics API directly,
              * by using an external class it decouples FG and Graphics API
@@ -16,11 +16,11 @@ namespace Razix {
              * This is a fake typeless interface for various types of resources used by the FG
              */
 
-        struct RZFrameGraphTexture
+        struct RAZIX_API RZFrameGraphTexture
         {
-            typedef RZTextureDesc Desc;
+            typedef rz_gfx_texture_desc Desc;
 
-            void create(const Desc& desc, u32 id, const void* transientAllocator);
+            void create(const std::string& name, const Desc& desc, u32 id, const void* transientAllocator);
             void destroy(u32 id, const void* transientAllocator);
 
             void preRead(const Desc& desc, u32 flags);
@@ -30,10 +30,10 @@ namespace Razix {
 
             static std::string toString(const Desc& desc);
 
-            Gfx::RZTextureHandle getHandle() const { return m_TextureHandle; }
+            inline rz_gfx_texture_handle getRHIHandle() const { return m_TextureHandle; }
 
             // public for initializer list support
-            Gfx::RZTextureHandle m_TextureHandle;
+            rz_gfx_texture_handle m_TextureHandle;
         };
     }    // namespace Gfx
 }    // namespace Razix

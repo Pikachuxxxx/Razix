@@ -71,11 +71,8 @@ project "Razix"
         "RAZIX_BUILD_DLL",
         "RAZIX_ROOT_DIR="  .. root_dir,
         "RAZIX_BUILD_CONFIG=" .. outputdir,
-        -- Renderer
-        "RAZIX_RENDERER_RAZIX",
-        "RAZIX_RAY_TRACE_RENDERER_RAZIX",
-        "RAZIX_RAY_TRACE_RENDERER_OPTIX",
-        "RAZIX_RAY_TRACE_RENDERER_EMBREE",
+        -- RHI
+        "RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES",
         -- vendor
         "OPTICK_MSVC"
     }
@@ -94,8 +91,13 @@ project "Razix"
 	-- Also remove the core module, they are compiled as a library
     removefiles
     {
+        --------------------------
+        -- just until we finish off RHI
+        "src/Razix/Gfx/LIMBO_STATE/**",
+        --------------------------
         "src/Razix/Platform/**",
-        "src/Razix/Core/Memory/vendor/mmgr/mmgr.cpp"
+        "src/Razix/Gfx/RHI/**",
+        "src/Razix/Core/Memory/vendor/mmgr/mmgr.cpp",
     }
 
     -- For MacOS
@@ -139,6 +141,8 @@ project "Razix"
     -- Razix engine external linkage libraries (Global)
     links
     {
+        -- RHI
+        "RHI",
         "glfw",
         "imgui",
         "spdlog", -- Being linked staically by RazixMemory (Only include this in debug and release build exempt this in GoldMaster build)
@@ -150,6 +154,13 @@ project "Razix"
         "Jolt",
         -- Shaders
         "Shaders",
+    }
+
+     -- Force rebuild if static lib changes
+    dependson
+    {
+        "RHI",
+        "Shaders"
     }
 
     flags 
@@ -186,12 +197,6 @@ project "Razix"
         pchheader "rzxpch.h"
         pchsource "src/rzxpch.cpp"
 
-         -- Enable AVX, AVX2, Bit manipulation Instruction set (-mbmi)
-         -- because GCC uses fused-multiply-add (fma) instruction by default, if it is available. Clang, on the contrary, doesn't use them by default, even if it is available, so we enable it explicityly
-        -- Only works with GCC and Clang
-        --buildoptions { "-mavx", "-mavx2", "-mbmi", "-march=haswell"}--, "-mavx512f -mavx512dq -mavx512bw -mavx512vbmi -mavx512vbmi2 -mavx512vl"}
-        --buildoptions {"/-fsanitize=address"}
-
         -- Build options for Windows / Visual Studio (MSVC)
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
         buildoptions
@@ -222,7 +227,7 @@ project "Razix"
             "_DISABLE_EXTENDED_ALIGNED_STORAGE",
             "_SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING",
             "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING",
-            "TRACY_ENABLE",
+            "TRACY_ENABLE", "TRACY_ON_DEMAND",
             -- build options
             "_DISABLE_VECTOR_ANNOTATION",
             "_DISABLE_STRING_ANNOTATION",
@@ -324,7 +329,7 @@ project "Razix"
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE"
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
         -- Windows specific source files for compilation
@@ -446,7 +451,7 @@ project "Razix"
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE"
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
     -- Config settings for Razix Engine project
@@ -455,7 +460,7 @@ project "Razix"
         symbols "On"
         runtime "Debug"
         optimize "Off"
-        editandcontinue "On"
+        editandcontinue "Off"
 
         filter "system:windows"
             links

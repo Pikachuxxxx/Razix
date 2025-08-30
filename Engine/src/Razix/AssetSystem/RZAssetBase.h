@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Core/RZDepartments.h"
+#include "Razix/Core/UUID/RZUUID.h"
 #include "Razix/Events/RZEvent.h"
 
 namespace Razix {

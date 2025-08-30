@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Razix/Gfx/RZGfxUtil.h"
 #include "Razix/Gfx/RHI/RHI.h"
 
 namespace Razix {
@@ -23,15 +24,15 @@ namespace Razix {
     // stored in .ini file
     struct EngineSettings
     {
-        bool            EnableAPIValidation  = true;
-        bool            EnableMSAA           = false;
-        bool            EnableBindless       = false;
-        bool            EnableBarrierLogging = false;
-        GfxQualityMode  GfxQuality           = GfxQualityMode::kHigh;
-        PerfMode        PerformanceMode      = PerfMode::kFidelity;
-        Gfx::Resolution PreferredResolution  = Gfx::Resolution::k1440p;
-        Gfx::TargetFPS  TargetFPSCap         = Gfx::TargetFPS::k120;
-        int             MaxShadowCascades    = 4;
-        int             MSAASamples          = 4;
+        bool              EnableAPIValidation  = true;
+        bool              EnableMSAA           = false;
+        bool              EnableBindless       = false;
+        bool              EnableBarrierLogging = false;
+        GfxQualityMode    GfxQuality           = GfxQualityMode::kHigh;
+        PerfMode          PerformanceMode      = PerfMode::kFidelity;
+        rz_gfx_resolution PreferredResolution  = RZ_GFX_RESOLUTION_1440p;
+        rz_gfx_target_fps TargetFPSCap         = RZ_GFX_TARGET_FPS_120;
+        int               MaxShadowCascades    = 4;
+        int               MSAASamples          = 4;
     };
 }    // namespace Razix

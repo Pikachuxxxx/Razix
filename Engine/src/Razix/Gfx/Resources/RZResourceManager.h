@@ -2,36 +2,37 @@
 
 #include "Razix/Core/RZHandle.h"
 
-#include "Razix/Gfx/Resources/RZResourcePool.h"
-
-#include "Razix/Gfx/GfxData.h"
+#include "Razix/Gfx/Resources/RZResourceFreeListMemPool.h"
 
 #include "Razix/Utilities/TRZSingleton.h"
+
+#include "Razix/Gfx/RHI/RHI.h"
+#include "Razix/Gfx/RZShaderUtils.h"
 
 namespace Razix {
     namespace Gfx {
 
-#define RAZIX_REGISTER_RESOURCE_POOL(resourceName, ...)                                    \
-public:                                                                                    \
-    template<>                                                                             \
-    RZResourcePoolTyped<RZ##resourceName>& getPool()                                       \
-    {                                                                                      \
-        return m_##resourceName##Pool;                                                     \
-    }                                                                                      \
-                                                                                           \
-public:                                                                                    \
-    RZ##resourceName##Handle create##resourceName(__VA_ARGS__);                            \
-    void                     destroy##resourceName(RZ##resourceName##Handle& handle);      \
-    RZ##resourceName*        get##resourceName##Resource(RZ##resourceName##Handle handle); \
-                                                                                           \
-private:                                                                                   \
-    RZResourcePoolTyped<RZ##resourceName> m_##resourceName##Pool;
+        struct RZResourceCBFuncs
+        {
+            rz_gfx_resource_create_fn  createFuncCB;
+            rz_gfx_resource_destroy_fn destroyFuncCB;
+        };
 
-        class RZTexture;
-        enum class ShaderBuiltin : u32;
-        enum class PoolType : u32;
-
-        // TODO: FIX RESOURCE CLEANUP IMMEDIATELY
+#define RAZIX_REGISTER_RESOURCE_POOL(poolName, resourceTypeName)                                       \
+public:                                                                                                \
+    template<>                                                                                         \
+    RZResourceFreeListMemPoolTyped<resourceTypeName>& getPool()                                        \
+    {                                                                                                  \
+        return m_##poolName##Pool;                                                                     \
+    }                                                                                                  \
+                                                                                                       \
+public:                                                                                                \
+    resourceTypeName##_handle create##poolName(const char* name, const resourceTypeName##_desc& desc); \
+    void                      destroy##poolName(resourceTypeName##_handle& handle);                    \
+    resourceTypeName*         get##poolName##Resource(resourceTypeName##_handle handle);               \
+                                                                                                       \
+private:                                                                                               \
+    RZResourceFreeListMemPoolTyped<resourceTypeName> m_##poolName##Pool;
 
         /**
          * Resource Manager maintains the CPU and GPU pools for all resource allocated in Razix Engine
@@ -54,33 +55,45 @@ private:                                                                        
             void ShutDown();
 
             template<class T>
-            RZResourcePoolTyped<T>& getPool()
+            RZResourceFreeListMemPoolTyped<T>& getPool()
             {
             }
 
             /* Handles Resource Allocation functions */
             //-----------------------------------------------------------------------------------
-            RAZIX_REGISTER_RESOURCE_POOL(Texture, const RZTextureDesc& desc)
+            // Resource View
+            RAZIX_REGISTER_RESOURCE_POOL(ResourceView, rz_gfx_resource_view)
             //-----------------------------------------------------------------------------------
-            RAZIX_REGISTER_RESOURCE_POOL(Sampler, const RZSamplerDesc& desc)
+            RAZIX_REGISTER_RESOURCE_POOL(Texture, rz_gfx_texture)
             //-----------------------------------------------------------------------------------
-            RAZIX_REGISTER_RESOURCE_POOL(Shader, const RZShaderDesc& desc)
+            RAZIX_REGISTER_RESOURCE_POOL(Sampler, rz_gfx_sampler)
             //-----------------------------------------------------------------------------------
-            RAZIX_REGISTER_RESOURCE_POOL(Pipeline, const RZPipelineDesc& desc)
+            RAZIX_REGISTER_RESOURCE_POOL(Shader, rz_gfx_shader)
             //-----------------------------------------------------------------------------------
-            RAZIX_REGISTER_RESOURCE_POOL(UniformBuffer, const RZBufferDesc& desc)
+            RAZIX_REGISTER_RESOURCE_POOL(RootSignature, rz_gfx_root_signature)
             //-----------------------------------------------------------------------------------
-            RAZIX_REGISTER_RESOURCE_POOL(VertexBuffer, const RZBufferDesc& desc)
+            RAZIX_REGISTER_RESOURCE_POOL(Pipeline, rz_gfx_pipeline)
             //-----------------------------------------------------------------------------------
-            RAZIX_REGISTER_RESOURCE_POOL(IndexBuffer, const RZBufferDesc& desc)
+            RAZIX_REGISTER_RESOURCE_POOL(Buffer, rz_gfx_buffer)
+            //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(CommandPool, rz_gfx_cmdpool)
+            //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(CommandBuffer, rz_gfx_cmdbuf)
+            //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(DescriptorHeap, rz_gfx_descriptor_heap)
+            //-----------------------------------------------------------------------------------
+            RAZIX_REGISTER_RESOURCE_POOL(DescriptorTable, rz_gfx_descriptor_table)
+            //-----------------------------------------------------------------------------------
 
-            //-----------------------------------------------------------------------------------
-            RAZIX_REGISTER_RESOURCE_POOL(CommandPool, PoolType type)
-            //-----------------------------------------------------------------------------------
-            RAZIX_REGISTER_RESOURCE_POOL(DrawCommandBuffer, RZCommandPoolHandle pool)
-            //-----------------------------------------------------------------------------------
-            RAZIX_REGISTER_RESOURCE_POOL(DescriptorSet, const RZDescriptorSetDesc& desc)
-            //-----------------------------------------------------------------------------------
+        public:
+            inline RZShaderBindMap& getShaderBindMap(const rz_gfx_shader_handle& shaderHandle)
+            {
+                return m_GlobalShaderBindMapRegistry[shaderHandle];
+            }
+
+        private:
+            RZResourceCBFuncs                              m_ResourceTypeCBFuncs[RZ_GFX_RESOURCE_TYPE_COUNT];
+            std::unordered_map<rz_handle, RZShaderBindMap> m_GlobalShaderBindMapRegistry;
         };
 
 #define RZ_GET_RESOURCE_MANAGER()      RZResourceManager::Get()

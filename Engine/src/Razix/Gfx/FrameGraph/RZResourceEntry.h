@@ -64,7 +64,7 @@ namespace Razix {
                  * Implementation for concept
                  */
             template<typename T>
-            struct RAZIX_API Model final : Concept
+            struct Model final : Concept
             {
                 /**
                      * constructor for type, usually a pointer is stored but here we are taking a universal reference + a data member which we enforce rules on it to have
@@ -80,8 +80,8 @@ namespace Razix {
                      * and will reject non-matching overloads for types without any error, SFINAE's safe failure can choose the different
                      * paths during compile time to tell whether a type has a method/sub type or not and these compile time expression can be used for final evaluation
                      */
-                Model(typename T::Desc&& desc, T&& obj, u32 id)
-                    : descriptor(std::move(desc)), resource(std::move(obj)), m_ID(id)
+                Model(const std::string& name, typename T::Desc&& desc, T&& obj, u32 id)
+                    : m_Name(name), descriptor(std::move(desc)), resource(std::move(obj)), m_ID(id)
                 {
                 }
 
@@ -95,7 +95,7 @@ namespace Razix {
 
                 void create(const void* transientAllocator) final
                 {
-                    resource.create(descriptor, m_ID, transientAllocator);
+                    resource.create(m_Name, descriptor, m_ID, transientAllocator);
                 }
 
                 void destroy(const void* transientAllocator) final
@@ -136,9 +136,10 @@ namespace Razix {
                         return "XXXX";
                 }
 
-                T                      resource;   /* Resource handle              */
-                const typename T::Desc descriptor; /* Resource creation descriptor */
-                u32                    m_ID;       /* ID of the resource entry, used to identify the resource in the frame graph */
+                T                      resource;
+                const typename T::Desc descriptor;
+                u32                    m_ID;
+                std::string            m_Name;
             };
 
         public:
@@ -181,11 +182,12 @@ namespace Razix {
                 return lifetime;
             }
 
-            RAZIX_NO_DISCARD inline u32            getVersion() const { return m_Version; }
-            RAZIX_NO_DISCARD inline bool           isImported() const { return m_Imported; }
-            RAZIX_NO_DISCARD inline bool           isTransient() const { return !m_Imported; }
-            RAZIX_NO_DISCARD inline u32            getID() const { return m_ID; }
-            RAZIX_NO_DISCARD inline FGResourceType getResourceType() const { return m_ResType; }
+            RAZIX_NO_DISCARD inline const std::string& getName() const { return m_Name; }
+            RAZIX_NO_DISCARD inline u32                getVersion() const { return m_Version; }
+            RAZIX_NO_DISCARD inline bool               isImported() const { return m_Imported; }
+            RAZIX_NO_DISCARD inline bool               isTransient() const { return !m_Imported; }
+            RAZIX_NO_DISCARD inline u32                getID() const { return m_ID; }
+            RAZIX_NO_DISCARD inline FGResourceType     getResourceType() const { return m_ResType; }
 
         private:
             //---------------------------------
@@ -193,19 +195,23 @@ namespace Razix {
             //---------------------------------
             const u32      m_ID;
             const bool     m_Imported = false;
-            u32            m_Version; /* Version of the latest cloned resource */
-            FGResourceType m_ResType;
+            u32            m_Version  = UINT32_MAX;
+            FGResourceType m_ResType  = {};
+            std::string    m_Name;
 #ifdef FG_USE_FINE_GRAINED_LIFETIMES
             std::vector<RZResourceLifetime> m_Lifetimes;
 #else
-            RZPassNode* m_Producer;
-            RZPassNode* m_Last;
+            RZPassNode* m_Producer = NULL;
+            RZPassNode* m_Last     = NULL;
 #endif
 
         private:
+            // Fix the constructor call to use parentheses instead of braces for std::make_unique<Model<T>>
+            // This ensures the correct constructor is selected for std::unique_ptr
+
             template<typename T>
-            RZResourceEntry(u32 id, typename T::Desc&& desc, T&& obj, u32 version, bool imported = false)
-                : m_ID(id), m_Concept{std::make_unique<Model<T>>(std::forward<typename T::Desc>(desc), std::forward<T>(obj), id)}, m_Version(version), m_Imported(imported)
+            RZResourceEntry(const std::string& name, u32 id, typename T::Desc&& desc, T&& obj, u32 version, bool imported = false)
+                : m_ID(id), m_Concept(std::make_unique<Model<T>>(name, std::forward<typename T::Desc>(desc), std::forward<T>(obj), id)), m_Version(version), m_Imported(imported), m_Name(name)
             {
             }
 

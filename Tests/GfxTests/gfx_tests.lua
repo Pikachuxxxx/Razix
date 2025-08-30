@@ -85,11 +85,14 @@ function ApplyGfxTestSettings()
 
     defines
     {
-        "RAZIX_TEST"
+        "RAZIX_TEST",
+        -- RHI
+        "RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES",
     }
 
     links
     {
+        "RHI",
         "Razix", -- Razix DLL
         "googletest"
     }
@@ -144,7 +147,7 @@ function ApplyGfxTestSettings()
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE"
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
     filter "configurations:Debug"
@@ -167,7 +170,90 @@ function ApplyGfxTestSettings()
 end
 
 group "Tests/GfxTests"
-    include "HelloWorldTests/hello_world_tests.lua"
+  
+project "GfxTest-HelloTriangleTest"
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect (engine_global_config.cpp_dialect)
+    staticruntime "off"
+
+    files
+    {
+        "../TestCommon/*.h",
+        "../TestCommon/*.cpp",
+        "./Passes/RZHelloTriangleTestPass.h",
+        "./Passes/RZHelloTriangleTestPass.cpp",
+        "./HelloTriangleTest.cpp",
+    }
+    ApplyGfxTestSettings()
+    ------------------------------------------------------------------------------
+    project "GfxTest-HelloTextureTest"
+        kind "ConsoleApp"
+        language "C++"
+        cppdialect (engine_global_config.cpp_dialect)
+        staticruntime "off"
+
+        files
+        {
+            "../TestCommon/*.h",
+            "../TestCommon/*.cpp",
+            "./Passes/RZHelloTextureTestPass.h",
+            "./Passes/RZHelloTextureTestPass.cpp",
+            "./HelloTextureTest.cpp",
+        }
+        ApplyGfxTestSettings()
+    ------------------------------------------------------------------------------
+    project "GfxTest-WaveIntrinsicsTest"
+        kind "ConsoleApp"
+        language "C++"
+        cppdialect (engine_global_config.cpp_dialect)
+        staticruntime "off"
+
+        files
+        {
+            "../TestCommon/*.h",
+            "../TestCommon/*.cpp",
+            "./Passes/RZWaveIntrinsicsTestPass.h",
+            "./Passes/RZWaveIntrinsicsTestPass.cpp",
+            "./WaveIntrinsicsTest.cpp",
+        }
+        ApplyGfxTestSettings()
+    ------------------------------------------------------------------------------
+    project "GfxTest-ComputeTest"
+        kind "ConsoleApp"
+        language "C++"
+        cppdialect (engine_global_config.cpp_dialect)
+        staticruntime "off"
+
+        files
+        {
+            "../TestCommon/*.h",
+            "../TestCommon/*.cpp",
+            "./Passes/RZMandleBrotPass.h",
+            "./Passes/RZMandleBrotPass.cpp",
+            "./Passes/RZBlitToSwapchainPass.h",
+            "./Passes/RZBlitToSwapchainPass.cpp",
+            "./ComputeTest.cpp",
+        }
+        ApplyGfxTestSettings()
+    ------------------------------------------------------------------------------
+    project "GfxTest-PrimitiveTest"
+        kind "ConsoleApp"
+        language "C++"
+        cppdialect (engine_global_config.cpp_dialect)
+        staticruntime "off"
+
+        files
+        {
+            "../TestCommon/*.h",
+            "../TestCommon/*.cpp",
+            "./Passes/RZPrimitiveTestPass.h",
+            "./Passes/RZPrimitiveTestPass.cpp",
+            "./PrimitiveTest.cpp",
+        }
+        ApplyGfxTestSettings()
+    ------------------------------------------------------------------------------
+
 
     -- GFX TEST SHADERS, all gfx tests can use this project to build and manage HLSL/Razix shaders
     project "TestShaders"
@@ -178,13 +264,13 @@ group "Tests/GfxTests"
             -- Shader files
             "../../../Engine/content/Shaders/ShaderCommon/**",
             -- HLSL - primary language for all platforms shader gen
-            "HelloWorldTests/Shaders/HLSL/**.hlsl",
-            "HelloWorldTests/Shaders/HLSL/**.hlsli",
-            "HelloWorldTests/Shaders/HLSL/**.vert.hlsl",
-            "HelloWorldTests/Shaders/HLSL/**.geom.hlsl",
-            "HelloWorldTests/Shaders/HLSL/**.frag.hlsl",
-            "HelloWorldTests/Shaders/HLSL/**.comp.hlsl",
+            "Shaders/HLSL/**.hlsl",
+            "Shaders/HLSL/**.hlsli",
+            "Shaders/HLSL/**.vert.hlsl",
+            "Shaders/HLSL/**.geom.hlsl",
+            "Shaders/HLSL/**.frag.hlsl",
+            "Shaders/HLSL/**.comp.hlsl",
             -- Razix Shader File
-            "HelloWorldTests/Shaders/Razix/**.rzsf",
+            "Shaders/Razix/**.rzsf",
         }
 group ""

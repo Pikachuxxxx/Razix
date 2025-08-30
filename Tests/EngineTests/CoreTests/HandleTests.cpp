@@ -1,5 +1,5 @@
 // HandleTests.cpp
-// AI-generated unit tests for the RZHandle class
+// AI-generated unit tests for the rz_handle C API
 #include <Razix/Core/RZHandle.h>
 #include <gtest/gtest.h>
 
@@ -18,114 +18,125 @@ namespace Razix {
         }
     };
 
-    // Test: Default Constructor
-    TEST_F(RZHandleTests, DefaultConstructor)
+    // Test: Default Invalid Handle Creation
+    TEST_F(RZHandleTests, DefaultInvalidHandle)
     {
-        RZHandle<int> handle;
-        EXPECT_EQ(handle.getIndex(), 0);
-        EXPECT_EQ(handle.getGeneration(), 0);
-        EXPECT_FALSE(handle.isValid()) << "Default handle should be invalid.";
+        rz_handle handle = rz_handle_make_invalid();
+        EXPECT_EQ(rz_handle_get_index(&handle), 0);
+        EXPECT_EQ(rz_handle_get_generation(&handle), 0);
+        EXPECT_FALSE(rz_handle_is_valid(&handle)) << "Default handle should be invalid.";
     }
 
-    // Test: Custom Index and Generation
+    // Test: Custom Index and Generation Creation
     TEST_F(RZHandleTests, CustomIndexAndGeneration)
     {
-        RZHandle<int> handle;
-        handle.setIndex(5);
-        handle.setGeneration(10);
+        rz_handle handle = rz_handle_create(5, 10);
 
-        EXPECT_EQ(handle.getIndex(), 5);
-        EXPECT_EQ(handle.getGeneration(), 10);
-        EXPECT_TRUE(handle.isValid()) << "Handle with non-zero generation should be valid.";
+        EXPECT_EQ(rz_handle_get_index(&handle), 5);
+        EXPECT_EQ(rz_handle_get_generation(&handle), 10);
+        EXPECT_TRUE(rz_handle_is_valid(&handle)) << "Handle with non-zero generation should be valid.";
     }
 
-    // Test: Copy Constructor
-    TEST_F(RZHandleTests, CopyConstructor)
+    // Test: Setting Index and Generation
+    TEST_F(RZHandleTests, SetIndexAndGeneration)
     {
-        RZHandle<int> handle1;
-        handle1.setIndex(2);
-        handle1.setGeneration(7);
+        rz_handle handle = rz_handle_make_invalid();
+        rz_handle_set_index(&handle, 7);
+        rz_handle_set_generation(&handle, 15);
 
-        RZHandle<int> handle2(handle1);
-
-        EXPECT_EQ(handle2.getIndex(), 2);
-        EXPECT_EQ(handle2.getGeneration(), 7);
+        EXPECT_EQ(rz_handle_get_index(&handle), 7);
+        EXPECT_EQ(rz_handle_get_generation(&handle), 15);
+        EXPECT_TRUE(rz_handle_is_valid(&handle)) << "Handle with non-zero generation should be valid.";
     }
 
-    // Test: Copy Assignment
-    TEST_F(RZHandleTests, CopyAssignment)
+    // Test: Copy Semantics (struct copy)
+    TEST_F(RZHandleTests, CopySemantics)
     {
-        RZHandle<int> handle1;
-        handle1.setIndex(3);
-        handle1.setGeneration(8);
+        rz_handle handle1 = rz_handle_create(2, 7);
+        rz_handle handle2 = handle1; // struct copy
 
-        RZHandle<int> handle2;
-        handle2 = handle1;
-
-        EXPECT_EQ(handle2.getIndex(), 3);
-        EXPECT_EQ(handle2.getGeneration(), 8);
+        EXPECT_EQ(rz_handle_get_index(&handle2), 2);
+        EXPECT_EQ(rz_handle_get_generation(&handle2), 7);
+        EXPECT_TRUE(rz_handle_is_valid(&handle2));
     }
 
-    // Test: Move Constructor
-    TEST_F(RZHandleTests, MoveConstructor)
+    // Test: Assignment
+    TEST_F(RZHandleTests, Assignment)
     {
-        RZHandle<int> handle1;
-        handle1.setIndex(1);
-        handle1.setGeneration(5);
+        rz_handle handle1 = rz_handle_create(3, 8);
+        rz_handle handle2 = rz_handle_make_invalid();
+        
+        handle2 = handle1; // struct assignment
 
-        RZHandle<int> handle2(std::move(handle1));
-
-        EXPECT_EQ(handle2.getIndex(), 1);
-        EXPECT_EQ(handle2.getGeneration(), 5);
+        EXPECT_EQ(rz_handle_get_index(&handle2), 3);
+        EXPECT_EQ(rz_handle_get_generation(&handle2), 8);
+        EXPECT_TRUE(rz_handle_is_valid(&handle2));
     }
 
-    // Test: Move Assignment
-    TEST_F(RZHandleTests, MoveAssignment)
+    // Test: Equality Function
+    TEST_F(RZHandleTests, EqualityFunction)
     {
-        RZHandle<int> handle1;
-        handle1.setIndex(4);
-        handle1.setGeneration(6);
+        rz_handle handle1 = rz_handle_create(2, 3);
+        rz_handle handle2 = rz_handle_create(2, 5); // Same index, different generation
 
-        RZHandle<int> handle2;
-        handle2 = std::move(handle1);
-
-        EXPECT_EQ(handle2.getIndex(), 4);
-        EXPECT_EQ(handle2.getGeneration(), 6);
+        EXPECT_TRUE(rz_handle_equals(&handle1, &handle2)) << "Handles with the same index should be equal (C API compares only index).";
     }
 
-    // Test: Equality Operator
-    TEST_F(RZHandleTests, EqualityOperator)
+    // Test: Inequality Function
+    TEST_F(RZHandleTests, InequalityFunction)
     {
-        RZHandle<int> handle1;
-        handle1.setIndex(2);
-        handle1.setGeneration(3);
+        rz_handle handle1 = rz_handle_create(1, 3);
+        rz_handle handle2 = rz_handle_create(2, 3);
 
-        RZHandle<int> handle2;
-        handle2.setIndex(2);
-        handle2.setGeneration(3);
-
-        EXPECT_TRUE(handle1 == handle2) << "Handles with the same index should be equal.";
+        EXPECT_TRUE(rz_handle_not_equals(&handle1, &handle2)) << "Handles with different indices should not be equal.";
     }
 
-    // Test: Inequality Operator
-    TEST_F(RZHandleTests, InequalityOperator)
+    // Test: C++ Operator Equality (compares both index and generation)
+    TEST_F(RZHandleTests, CppOperatorEquality)
     {
-        RZHandle<int> handle1;
-        handle1.setIndex(1);
+        rz_handle handle1 = rz_handle_create(2, 3);
+        rz_handle handle2 = rz_handle_create(2, 3);
+        rz_handle handle3 = rz_handle_create(2, 4); // Same index, different generation
 
-        RZHandle<int> handle2;
-        handle2.setIndex(2);
-
-        EXPECT_TRUE(handle1 != handle2) << "Handles with different indices should not be equal.";
+        EXPECT_TRUE(handle1 == handle2) << "Handles with same index and generation should be equal.";
+        EXPECT_FALSE(handle1 == handle3) << "Handles with same index but different generation should not be equal.";
     }
 
     // Test: Handle Validity
     TEST_F(RZHandleTests, HandleValidity)
     {
-        RZHandle<int> handle;
-        EXPECT_FALSE(handle.isValid()) << "Default handle should be invalid.";
+        rz_handle handle = rz_handle_make_invalid();
+        EXPECT_FALSE(rz_handle_is_valid(&handle)) << "Default handle should be invalid.";
 
-        handle.setGeneration(1);
-        EXPECT_TRUE(handle.isValid()) << "Handle with non-zero generation should be valid.";
+        rz_handle_set_generation(&handle, 1);
+        EXPECT_TRUE(rz_handle_is_valid(&handle)) << "Handle with non-zero generation should be valid.";
+    }
+
+    // Test: Handle Destruction
+    TEST_F(RZHandleTests, HandleDestruction)
+    {
+        rz_handle handle = rz_handle_create(5, 10);
+        EXPECT_TRUE(rz_handle_is_valid(&handle));
+
+        rz_handle_destroy(&handle);
+        EXPECT_EQ(rz_handle_get_index(&handle), 0);
+        EXPECT_EQ(rz_handle_get_generation(&handle), 0);
+        EXPECT_FALSE(rz_handle_is_valid(&handle)) << "Destroyed handle should be invalid.";
+    }
+
+    // Test: Multiple Handle Operations
+    TEST_F(RZHandleTests, MultipleHandleOperations)
+    {
+        rz_handle handle1 = rz_handle_create(1, 1);
+        rz_handle handle2 = rz_handle_create(2, 2);
+        rz_handle handle3 = rz_handle_create(3, 3);
+
+        EXPECT_TRUE(rz_handle_not_equals(&handle1, &handle2));
+        EXPECT_TRUE(rz_handle_not_equals(&handle2, &handle3));
+        EXPECT_TRUE(rz_handle_not_equals(&handle1, &handle3));
+
+        // Test modification
+        rz_handle_set_index(&handle1, 2);
+        EXPECT_TRUE(rz_handle_equals(&handle1, &handle2)) << "After setting handle1 index to 2, it should equal handle2 (C API compares only index).";
     }
 }    // namespace Razix

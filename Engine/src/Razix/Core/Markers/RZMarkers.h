@@ -1,26 +1,15 @@
 #pragma once
 
+// GPU Marker macros - API agnostic interface
 #ifndef RAZIX_GOLD_MASTER
-
-    #define RAZIX_MARK_BEGIN(name, labelColor) BeginMarker(name, labelColor);
-
-    #define RAZIX_MARK_ADD(name, labelColor) InsertMarker(name, labelColor);
-
-    #define RAZIX_MARK_END() EndMarker();
-
+    #define RAZIX_MARK_BEGIN(cmdBuf, name, labelColor) Razix::Gfx::BeginMarker(cmdBuf, name, labelColor)
+    #define RAZIX_MARK_ADD(cmdBuf, name, labelColor)   Razix::Gfx::InsertMarker(cmdBuf, name, labelColor)
+    #define RAZIX_MARK_END(cmdBuf)                     Razix::Gfx::EndMarker(cmdBuf)
 #else
-
-    #define RAZIX_MARK_BEGIN(name, labelColor)
-
-    #define RAZIX_MARK_ADD(name, labelColor)
-
-    #define RAZIX_MARK_END()
-
+    #define RAZIX_MARK_BEGIN(cmdBuf, name, labelColor)
+    #define RAZIX_MARK_ADD(cmdBuf, name, labelColor)
+    #define RAZIX_MARK_END(cmdBuf)
 #endif
-
-RAZIX_API void BeginMarker(const std::string& name, float4 color);
-RAZIX_API void InsertMarker(const std::string& name, float4 color);
-RAZIX_API void EndMarker();
 
 //------------------------------------------------------------------------
 // CPU timestamp markers

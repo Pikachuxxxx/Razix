@@ -3,11 +3,15 @@
 // clang-format on
 #include "RZEngine.h"
 
+#include "Razix/Core/Memory/RZMemoryBudgets.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 #include "Razix/Core/Version/RazixVersion.h"
-#include "Razix/Gfx/Materials/RZMaterial.h"
+
+//#include "Razix/Gfx/Materials/RZMaterial.h"
 
 #include "Razix/Core/Memory/RZCPUMemoryManager.h"
+
+#include "Razix/Gfx/Resources/RZResourceManager.h"
 
 #include "Razix/Utilities/RZiniParser.h"
 
@@ -39,9 +43,7 @@ namespace Razix {
         success = worldSettingsParser.parse("//RazixConfig/DefaultWorldRendererSettings.ini");
         RAZIX_CORE_ASSERT(success, "Default World Renderer Settings Load Success!");
 
-        // TODO: Temp code remove this!!!
-        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
+        // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
         //--------------------------------------------------------------------------
         // Start Up Memory Managers
         //--------------------------
@@ -54,6 +56,7 @@ namespace Razix {
 
         // 2. Sound Engine
         //Audio::RZSoundEngine::Get().StartUp();
+        // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
 
         // 3. Scene Manager
         RZSceneManager::Get().StartUp();
@@ -61,7 +64,10 @@ namespace Razix {
         // 4. Script Handler
         Scripting::RZLuaScriptHandler::Get().StartUp();
 
-        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        // 5. Graphics API (last one in the engine to fire up)
+        rzGfxCtx_StartUp();
+
+        Gfx::RZResourceManager::Get().StartUp();
 
         // Log after all the Engine systems have been successfully Started Up
         RAZIX_CORE_INFO("***********************************");
@@ -70,13 +76,11 @@ namespace Razix {
 
         Razix::RZSplashScreen::Get().setLogString("Engine Ignited!");
 
-        // TODO: Temp code remove this!!!
-        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
+        // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
         // Destroy the splash screen since the engine has Ignited successfully!
         //Razix::RZSplashScreen::Get().destroy();
+        // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
 
-        // TODO: Log the time take to initialize engine using Profiling macros
         auto                                   stop   = std::chrono::high_resolution_clock::now();
         std::chrono::duration<d32, std::milli> ms_d32 = (stop - start);
         RAZIX_CORE_INFO("Engine Ingnited in : {0} ms", ms_d32.count());
@@ -90,7 +94,7 @@ namespace Razix {
         RAZIX_CORE_INFO("***********************************");
 
         // Ignite the shader library after the Graphics has been initialized (Shutdown by RHI when being destroyed)
-        Gfx::RZShaderLibrary::Get().StartUp();
+        //Gfx::RZShaderLibrary::Get().StartUp();
     }
 
     void RZEngine::ShutDown()
@@ -100,6 +104,11 @@ namespace Razix {
         RAZIX_CORE_ERROR("***********************************");
 
         // Shutting down all the sub-systems
+
+        Gfx::RZResourceManager::Get().ShutDown();
+
+        // 5. Graphics API
+        rzGfxCtx_ShutDown();
 
         // Shutdown the lua script handle
         Scripting::RZLuaScriptHandler::Get().ShutDown();
@@ -152,7 +161,7 @@ namespace Razix {
 
                 int FPS = 0;
                 engineConfigParser.getValue<int>("Rendering", "TargetFPS", FPS);
-                m_EngineSettings.TargetFPSCap = (Gfx::TargetFPS) FPS;
+                m_EngineSettings.TargetFPSCap = (rz_gfx_target_fps) FPS;
 
                 engineConfigParser.getValue<int>("Rendering", "MaxShadowCascades", m_EngineSettings.MaxShadowCascades);
                 engineConfigParser.getValue<int>("Rendering", "MSAASamples", m_EngineSettings.MSAASamples);

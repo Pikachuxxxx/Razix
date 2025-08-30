@@ -11,41 +11,42 @@
 #include "Razix/Core/Markers/RZMarkers.h"
 #include "Razix/Core/RZEngine.h"
 
-#include "Razix/Gfx/RZGraphicsCompileConfig.h"
+#include "Razix/Gfx/Resources/RZResourceManager.h"
 
-#include "Razix/Gfx/FrameGraph/RZBlackboard.h"
-#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
+//#include "Razix/Gfx/FrameGraph/RZBlackboard.h"
+//#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
-#include "Razix/Gfx/Lighting/RZImageBasedLightingProbesManager.h"
+//#include "Razix/Gfx/Lighting/RZImageBasedLightingProbesManager.h"
 
-#include "Razix/Gfx/Passes/Data/GlobalData.h"
+//#include "Razix/Gfx/Passes/Data/GlobalData.h"
 
-#include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
-#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
-#include "Razix/Gfx/RHI/API/RZShader.h"
-#include "Razix/Gfx/RHI/API/RZTexture.h"
-#include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
+//#include "Razix/Gfx/Renderers/RZImGuiRendererProxy.h"
+//#include "Razix/Gfx/Renderers/RZDebugRendererProxy.h"
 
-#include "Razix/Gfx/Renderers/RZDebugRendererProxy.h"
-#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
+//#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
+//#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Math/Grid.h"
 #include "Razix/Math/ImportanceSampling.h"
 
-#include "Razix/Scene/Components/RZComponents.h"
+//#include "Razix/Scene/Components/RZComponents.h"
 
-#include "Razix/Scene/RZScene.h"
+//#include "Razix/Scene/RZScene.h"
 
 #include "Razix/Tools/Runtime/RZEngineRuntimeTools.h"
 
 #include "Razix/Utilities/RZColorUtilities.h"
 
-// TODO: Test per frame write for RT and read only for shader like resource and use caspture by reference for execute lambda in fg functions
+#ifdef RAZIX_PLATFORM_WINDOWS
+    #define GLFW_EXPOSE_NATIVE_WIN32
+    #include <GLFW/glfw3.h>
+    #include <GLFW/glfw3native.h>
+#endif
 
 namespace Razix {
     namespace Gfx {
 
+        /*
         static void ExportFrameGraphVisFile(const RZFrameGraph& framegraph)
         {
             auto        now   = std::chrono::system_clock::now();
@@ -70,8 +71,170 @@ namespace Razix {
             std::ofstream os(filename);
             os << framegraph;
         }
+        */
 
         //-------------------------------------------------------------------------------------------
+
+        void RZWorldRenderer::create(RZWindow* window, u32 width, u32 height)
+        {
+            m_Window = window;
+            memset(&m_RenderSync, 0, sizeof(RenderSyncPrimitives));
+
+            // Create the swapchain
+            GLFWwindow*   glfwWindow = static_cast<GLFWwindow*>(window->GetNativeWindow());
+            rz_render_api api        = rzGfxCtx_GetRenderAPI();
+
+#ifdef RAZIX_PLATFORM_WINDOWS
+            if (api == RZ_RENDER_API_D3D12) {
+                HWND hwnd = glfwGetWin32Window(glfwWindow);
+                rzRHI_CreateSwapchain(&m_Swapchain, &hwnd, width, height);
+            } else if (api == RZ_RENDER_API_VULKAN) {
+                VkSurfaceKHR surface = VK_NULL_HANDLE;
+                glfwCreateWindowSurface(g_GfxCtx.vk.instance, glfwWindow, nullptr, &surface);
+                rzRHI_CreateSwapchain(&m_Swapchain, &surface, width, height);
+            }
+
+#elif defined(RAZIX_PLATFORM_MACOS) || defined(RAZIX_PLATFORM_LINUX)
+            if (api == RZ_RENDER_API_VULKAN) {
+                VkSurfaceKHR surface = VK_NULL_HANDLE;
+                glfwCreateWindowSurface(g_GfxCtx.vk.instance, glfwWindow, nullptr, &surface);
+                rzRHI_CreateSwapchain(&m_Swapchain, &surface, width, height);
+            } else {
+                RAZIX_ASSERT(false && "Only Vulkan is supported on this platform!");
+            }
+
+#else
+    #error "Unsupported platform!"
+#endif
+
+            // create frame sync primitives
+            if (g_GraphicsFeatures.support.SupportsTimelineSemaphores) {
+                rzRHI_CreateSyncobj(&m_RenderSync.frameSync.timelineSyncobj, RZ_GFX_SYNCOBJ_TYPE_CPU);
+            } else {
+                for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
+                    rzRHI_CreateSyncobj(&m_RenderSync.frameSync.inflightSyncobj[i], RZ_GFX_SYNCOBJ_TYPE_CPU);
+                }
+            }
+
+            for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
+                rz_gfx_cmdpool_desc cmdPoolDesc = {};
+                cmdPoolDesc.poolType            = RZ_GFX_CMDPOOL_TYPE_GRAPHICS;
+                m_InFlightCmdPool[i]            = RZResourceManager::Get().createCommandPool("InFlightCommandPool", cmdPoolDesc);
+
+                rz_gfx_cmdbuf_desc desc        = {0};
+                desc.pool                      = RZResourceManager::Get().getCommandPoolResource(m_InFlightCmdPool[i]);
+                m_InFlightDrawCmdBufHandles[i] = RZResourceManager::Get().createCommandBuffer("InFlightDrawCommandBuffer", desc);
+                m_InFlightDrawCmdBufPtrs[i]    = RZResourceManager::Get().getCommandBufferResource(m_InFlightDrawCmdBufHandles[i]);
+            }
+
+            // Create generic resource and sampler heaps
+            rz_gfx_descriptor_heap_desc resourceHeapDesc = {};
+            resourceHeapDesc.heapType                    = RZ_GFX_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+            resourceHeapDesc.descriptorCount             = 65536;
+            resourceHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE | RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST;
+            m_ResourceHeap                               = RZResourceManager::Get().createDescriptorHeap("ResourceHeap", resourceHeapDesc);
+
+            rz_gfx_descriptor_heap_desc samplerHeapDesc = {};
+            samplerHeapDesc.heapType                    = RZ_GFX_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+            samplerHeapDesc.descriptorCount             = 64;
+            samplerHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE | RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST;
+            m_SamplerHeap                               = RZResourceManager::Get().createDescriptorHeap("SamplerHeap", samplerHeapDesc);
+
+            rz_gfx_descriptor_heap_desc renderTargetHeapDesc = {};
+            renderTargetHeapDesc.heapType                    = RZ_GFX_DESCRIPTOR_HEAP_TYPE_RTV;
+            renderTargetHeapDesc.descriptorCount             = RAZIX_MAX_RENDER_TARGETS * 1024;
+            renderTargetHeapDesc.flags |= RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
+            m_RenderTargetHeap = RZResourceManager::Get().createDescriptorHeap("RenderTargetHeap", renderTargetHeapDesc);
+
+            rz_gfx_descriptor_heap_desc depthRenderTargetHeapDesc = {};
+            depthRenderTargetHeapDesc.heapType                    = RZ_GFX_DESCRIPTOR_HEAP_TYPE_DSV;
+            depthRenderTargetHeapDesc.descriptorCount             = 1024;    // 1024 Depth Stencil Views
+            depthRenderTargetHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
+            m_DepthRenderTargetHeap                               = RZResourceManager::Get().createDescriptorHeap("DepthRenderTargetHeap", depthRenderTargetHeapDesc);
+
+            // Create some global basic samplers
+            rz_gfx_sampler_desc linearSamplerDesc = {};
+            linearSamplerDesc.minFilter           = RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR;
+            linearSamplerDesc.magFilter           = RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR;
+            linearSamplerDesc.mipFilter           = RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR;
+            linearSamplerDesc.addressModeU        = RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP;
+            linearSamplerDesc.addressModeV        = RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP;
+            linearSamplerDesc.addressModeW        = RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP;
+            linearSamplerDesc.maxAnisotropy       = 1;
+            linearSamplerDesc.compareOp           = RZ_GFX_COMPARE_OP_TYPE_NEVER;
+            linearSamplerDesc.minLod              = 0.0f;
+            linearSamplerDesc.maxLod              = 1.0f;
+            linearSamplerDesc.mipLODBias          = 0.0f;
+            m_SamplersPool.linearSampler          = RZResourceManager::Get().createSampler("LinearSampler", linearSamplerDesc);
+
+            // Create a descriptor table for all the samplers
+            rz_gfx_descriptor_table_desc samplerTableDesc = {};
+            samplerTableDesc.tableIndex                   = 1;    // Table 1 is reserved for Samplers
+            samplerTableDesc.pHeap                        = RZResourceManager::Get().getDescriptorHeapResource(m_SamplerHeap);
+            rz_gfx_resource_view_desc samplerViewDesc     = {};
+            samplerViewDesc.descriptorType                = RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
+            samplerViewDesc.samplerViewDesc.pSampler      = RZResourceManager::Get().getSamplerResource(m_SamplersPool.linearSampler);
+            m_SamplersViewPool.linearSampler              = RZResourceManager::Get().createResourceView("LinearSamplerView", samplerViewDesc);
+            rz_gfx_resource_view resourceViews[]          = {*RZResourceManager::Get().getResourceViewResource(m_SamplersViewPool.linearSampler)};
+            samplerTableDesc.pResourceViews               = resourceViews;
+            samplerTableDesc.resourceViewsCount           = 1;    // Only one sampler for now
+
+            m_GlobalSamplerTable = RZResourceManager::Get().createDescriptorTable("GlobalSamplerTable", samplerTableDesc);
+        }
+
+        void RZWorldRenderer::destroy()
+        {
+            m_FrameCount = 0;
+
+            //if (m_LastSwapchainReadback.data) {
+            //    Memory::RZFree(m_LastSwapchainReadback.data);
+            //    m_LastSwapchainReadback.data = NULL;
+            //}
+
+            // Wait for rendering to be done before halting
+            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
+
+            m_FrameGraphBuildingInProgress = true;
+
+            // Destroy Frame Graph Transient Resources
+            m_FrameGraph.destroy();
+
+#if RX_ENABLE_GFX
+            // Destroy Renderers
+            RZImGuiRendererProxy::Get().Destroy();
+            RZDebugRendererProxy::Get().Destroy();
+
+            // Destroy Passes
+            m_ShadowPass.destroy();
+            m_GBufferPass.destroy();
+            m_PBRDeferredPass.destroy();
+            m_SkyboxPass.destroy();
+            m_CompositePass.destroy();
+#endif
+            RZResourceManager::Get().destroyResourceView(m_SamplersViewPool.linearSampler);
+            RZResourceManager::Get().destroySampler(m_SamplersPool.linearSampler);
+            RZResourceManager::Get().destroyDescriptorTable(m_GlobalSamplerTable);
+
+            RZResourceManager::Get().destroyDescriptorHeap(m_RenderTargetHeap);
+            RZResourceManager::Get().destroyDescriptorHeap(m_DepthRenderTargetHeap);
+            RZResourceManager::Get().destroyDescriptorHeap(m_SamplerHeap);
+            RZResourceManager::Get().destroyDescriptorHeap(m_ResourceHeap);
+
+            for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
+                RZResourceManager::Get().destroyCommandPool(m_InFlightCmdPool[i]);
+                RZResourceManager::Get().destroyCommandBuffer(m_InFlightDrawCmdBufHandles[i]);
+            }
+
+            if (g_GraphicsFeatures.support.SupportsTimelineSemaphores) {
+                rzRHI_DestroySyncobj(&m_RenderSync.frameSync.timelineSyncobj);
+            } else {
+                for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
+                    rzRHI_DestroySyncobj(&m_RenderSync.frameSync.inflightSyncobj[i]);
+                }
+            }
+
+            rzRHI_DestroySwapchain(&m_Swapchain);
+        }
 
         /**
          * Notes:
@@ -80,6 +243,7 @@ namespace Razix {
 
         void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
         {
+#if 0
             memset(&m_LastSwapchainReadback, 0, sizeof(TextureReadback));
 
             m_FrameGraphBuildingInProgress = true;
@@ -145,14 +309,14 @@ namespace Razix {
 
             //-----------------------------------------------------------------------------------
 
-#if ENABLE_DATA_DRIVEN_FG_PASSES
+    #if ENABLE_DATA_DRIVEN_FG_PASSES
             //-------------------------------
             // Data Driven Frame Graph
             //-------------------------------
 
             if (!getFrameGraphFilePath().empty())
                 RAZIX_ASSERT(m_FrameGraph.parse(getFrameGraphFilePath()), "[Frame Graph] Failed to parse graph!");
-#endif
+    #endif
 
             //-------------------------------
             // Simple Shadow map Pass
@@ -332,14 +496,15 @@ namespace Razix {
             RAZIX_CORE_INFO("Compiling FrameGraph....");
             m_FrameGraph.compile();
 
-#ifndef RAZIX_GOLD_MASTER
+    #ifndef RAZIX_GOLD_MASTER
             // Dump the Frame Graph for visualization
             // NOTE: Careful this won't write to the Engine directory this is inside bin and build artifact
             // FIXME: Find a way to map VFS to OG Engine path pre-copy or idk just umm...be careful I guess
             ExportFrameGraphVisFile(m_FrameGraph);
-#endif
+    #endif
 
             m_FrameGraphBuildingInProgress = false;
+#endif
         }
 
         void RZWorldRenderer::drawFrame(RZRendererSettings& settings, Razix::RZScene* scene)
@@ -348,12 +513,12 @@ namespace Razix {
 
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            if (m_IsFGFilePathDirty) { 
-                destroy();
-                RZFrameGraph::ResetFirstFrame();
-                buildFrameGraph(settings, RZSceneManager::Get().getCurrentScene());
-                m_IsFGFilePathDirty = false;
-            }
+            //if (m_IsFGFilePathDirty) {
+            //    destroy();
+            //    RZFrameGraph::ResetFirstFrame();
+            //    buildFrameGraph(settings, RZSceneManager::Get().getCurrentScene());
+            //    m_IsFGFilePathDirty = false;
+            //}
 
             if (m_FrameGraphBuildingInProgress)
                 return;
@@ -361,70 +526,63 @@ namespace Razix {
             // Main Frame Graph World Rendering Loop
             {
                 // Acquire Image to render onto
-                Gfx::RHI::AcquireImage(NULL);
+                if (g_GraphicsFeatures.support.SupportsTimelineSemaphores)
+                    rzRHI_BeginFrame(&m_Swapchain, &m_RenderSync.frameSync.timelineSyncobj, m_RenderSync.frameSync.frameTimestamps, &m_RenderSync.frameSync.globalTimestamp);
+
+                // In DirectX 12, the swapchain back buffer index currBackBufferIdx directly maps to the index of the image
+                // that is being presented/rendered to. This is because DXGI explicitly exposes the current back buffer index
+                // via IDXGISwapChain::GetCurrentBackBufferIndex(), and the driver guarantees image acquisition in strict
+                // presentation order (FIFO-like). As a result, synchronization objects like fences, command allocators, or
+                // timestamp slots are usually tracked and reused per back buffer index.
+                //
+                // In contrast, Vulkan allows more flexibility: the acquired image index from vkAcquireNextImageKHR may return
+                // any image in the swapchain (not necessarily in FIFO order). This requires applications to track resource
+                // usage and in-flight sync per acquired image, using a round-robin or per-image tracking model. Since Vulkan
+                // makes no guarantee about reuse pattern, it's incorrect to assume back buffer N will always follow N-1, hence
+                // a more generalized ring buffer or semaphore timeline sync tracking model is required.
+                // - DX12: Buffer index is reliable for indexing per-frame resources tracked per currBackBufferIdx.
+                // - Vulkan: Image acquisition is non-linear; sync and frame data must be tracked per imageIndex returned from vkAcquireNextImageKHR.
+                if (g_RenderAPI == RZ_RENDER_API_D3D12) {
+                    m_RenderSync.frameSync.inFlightSyncIdx = m_Swapchain.currBackBufferIdx;
+                }
 
                 // Begin Recording  onto the command buffer, select one as per the frame idx
-                Gfx::RHI::Begin(Gfx::RHI::GetCurrentCommandBuffer());
+                const rz_gfx_cmdbuf_handle cmdBuffer = m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx];
+                rzRHI_BeginCmdBuf(cmdBuffer);
 
                 // Begin Frame Marker
-                RAZIX_MARK_BEGIN("Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(RHI::GetSwapchain()->getCurrentFrameIndex()) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
+                RAZIX_MARK_BEGIN(cmdBuffer, "Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(m_RenderSync.frameSync.inFlightSyncIdx) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
+
+                rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_PRESENT, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);
 
                 // Execute the Frame Graph passes
                 m_FrameGraph.execute();
 
-                // End Frame Marker
-                RAZIX_MARK_END();
+                rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_RENDER_TARGET, RZ_GFX_RESOURCE_STATE_PRESENT);
 
+                // End Frame Marker
+                RAZIX_MARK_END(cmdBuffer);
+
+                // End command buffer recording
+                rzRHI_EndCmdBuf(cmdBuffer);
                 // Submit the render queue before presenting next
-                Gfx::RHI::Submit(Gfx::RHI::GetCurrentCommandBuffer());
+                rzRHI_SubmitCmdBuf(cmdBuffer);
 
                 // swapchain capture is done before presentation
                 if (m_ReadSwapchainThisFrame) {
                     m_ReadSwapchainThisFrame = false;
 
                     // Wait for rendering to be done before capturing
-                    RZGraphicsContext::GetContext()->Wait();
-
-                    // Use a single time command buffer to this
-                    RZDrawCommandBufferHandle cmdBuff = RZDrawCommandBuffer::BeginSingleTimeCommandBuffer("Swapchain Capture", Utilities::GenerateHashedColor4(24u));
-
-                    m_LastSwapchainReadback = RHI::InsertTextureReadback(cmdBuff, RHI::GetSwapchain()->GetCurrentBackBufferImage());
-
-                    RZDrawCommandBuffer::EndSingleTimeCommandBuffer(cmdBuff);
+                    rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
+                    rzRHI_InsertSwapchainTextureReadback(&m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], &m_LastSwapchainReadback);
                 }
 
-                // Present the image to presentation engine as soon as rendering to SCOLOR_ATTACHMENT is done
-                Gfx::RHI::Present(NULL);
+                // Present the image to presentation engine as soon as rendering to COLOR_ATTACHMENT is done
+                rzRHI_EndFrame(&m_Swapchain, &m_RenderSync.frameSync.timelineSyncobj, m_RenderSync.frameSync.frameTimestamps, &m_RenderSync.frameSync.globalTimestamp);
+
+                m_RenderSync.present_sync.currSyncpointIdx = (m_RenderSync.present_sync.currSyncpointIdx + 1) % RAZIX_MAX_SWAP_IMAGES_COUNT;
+                m_RenderSync.frameSync.inFlightSyncIdx     = (m_RenderSync.frameSync.inFlightSyncIdx + 1) % RAZIX_MAX_FRAMES_IN_FLIGHT;
             }
-        }
-
-        void RZWorldRenderer::destroy()
-        {
-            m_FrameCount = 0;
-
-            if (m_LastSwapchainReadback.data) {
-                Memory::RZFree(m_LastSwapchainReadback.data);
-                m_LastSwapchainReadback.data = NULL;
-            }
-
-            // Wait for rendering to be done before halting
-            Gfx::RZGraphicsContext::GetContext()->Wait();
-
-            m_FrameGraphBuildingInProgress = true;
-
-            // Destroy Frame Graph Transient Resources
-            m_FrameGraph.destroy();
-
-            // Destroy Renderers
-            RZImGuiRendererProxy::Get().Destroy();
-            RZDebugRendererProxy::Get().Destroy();
-
-            // Destroy Passes
-            m_ShadowPass.destroy();
-            m_GBufferPass.destroy();
-            m_PBRDeferredPass.destroy();
-            m_SkyboxPass.destroy();
-            m_CompositePass.destroy();
         }
 
         void RZWorldRenderer::OnUpdate(RZTimestep dt)
@@ -439,13 +597,23 @@ namespace Razix {
             // This will be owned by RZEngine
             static Tools::ToolsDrawConfig drawConfig = {};
 
-            Tools::OnImGuiDrawEngineTools(drawConfig);
+            //Tools::OnImGuiDrawEngineTools(drawConfig);
 #endif
         }
 
         void RZWorldRenderer::OnResize(u32 width, u32 height)
         {
+            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
+
+            rzRHI_ResizeSwapchain(&m_Swapchain, width, height);
             m_FrameGraph.resize(width, height);
+
+            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
+        }
+
+        void RZWorldRenderer::flushGPUWork()
+        {
+            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
         }
 
         RAZIX_INLINE void RZWorldRenderer::setFrameGraphFilePath(std::string val)
@@ -464,6 +632,7 @@ namespace Razix {
             pass->addPass(m_FrameGraph, scene, settings);
         }
 
+#if 0
         //--------------------------------------------------------------------------
 
         void RZWorldRenderer::importGlobalLightProbes(LightProbe globalLightProbe)
@@ -514,7 +683,6 @@ namespace Razix {
                     gpuData.time += gpuData.deltaTime;
                     gpuData.deltaTime      = RZEngine::Get().GetStatistics().DeltaTime;
                     gpuData.resolution     = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    gpuData.debugFlags     = settings.debugFlags;
                     gpuData.renderFeatures = settings.renderFeatures;
 
                     m_Jitter = m_TAAJitterHaltonSamples[(m_FrameCount % NUM_HALTON_SAMPLES_TAA_JITTER)];
@@ -642,5 +810,6 @@ namespace Razix {
                     RAZIX_TIME_STAMP_END();
                 });
         }
+#endif
     }    // namespace Gfx
 }    // namespace Razix
