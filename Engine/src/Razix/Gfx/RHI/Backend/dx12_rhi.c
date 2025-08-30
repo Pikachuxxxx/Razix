@@ -1141,7 +1141,7 @@ static void dx12_util_upload_pixel_Data(rz_gfx_texture* texture, rz_gfx_texture_
 {
     RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
     RAZIX_RHI_ASSERT(desc != NULL, "Texture descriptor cannot be NULL");
-    RAZIX_RHI_ASSERT(desc->pixelData != NULL, "Pixel data cannot be NULL");
+    RAZIX_RHI_ASSERT(desc->pPixelData != NULL, "Pixel data cannot be NULL");
 
     uint32_t bytesPerPixel = rzRHI_GetBytesPerPixel(desc->format);
     uint64_t textureSize   = desc->width * desc->height * desc->depth * bytesPerPixel;
@@ -1187,7 +1187,7 @@ static void dx12_util_upload_pixel_Data(rz_gfx_texture* texture, rz_gfx_texture_
         return;
     }
 
-    memcpy(mappedData, desc->pixelData, textureSize);
+    memcpy(mappedData, desc->pPixelData, textureSize);
     ID3D12Resource_Unmap(uploadBuffer, 0, NULL);
 
     dx12_cmdbuf cmdBuf = dx12_util_begin_singletime_cmdlist();
@@ -1227,6 +1227,76 @@ static void dx12_util_upload_pixel_Data(rz_gfx_texture* texture, rz_gfx_texture_
 
     ID3D12Resource_Release(uploadBuffer);
     RAZIX_RHI_LOG_INFO("Pixel data uploaded successfully");
+}
+
+static void dx12_util_upload_buffer_data(rz_gfx_buffer* buffer, rz_gfx_buffer_desc* desc)
+{
+    RAZIX_RHI_ASSERT(buffer != NULL, "Buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(desc != NULL, "Buffer descriptor cannot be NULL");
+    RAZIX_RHI_ASSERT(desc->pInitData != NULL, "Initial data cannot be NULL");
+
+    // Create a staging buffer and copy the data to it
+    D3D12_HEAP_PROPERTIES uploadHeapProps = {0};
+    uploadHeapProps.Type                  = D3D12_HEAP_TYPE_UPLOAD;
+    uploadHeapProps.CPUPageProperty       = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    uploadHeapProps.MemoryPoolPreference  = D3D12_MEMORY_POOL_UNKNOWN;
+    D3D12_RESOURCE_DESC uploadBufferDesc  = {0};
+    uploadBufferDesc.Dimension            = D3D12_RESOURCE_DIMENSION_BUFFER;
+    uploadBufferDesc.Width                = desc->sizeInBytes;
+    uploadBufferDesc.Height               = 1;
+    uploadBufferDesc.DepthOrArraySize     = 1;
+    uploadBufferDesc.MipLevels            = 1;
+    uploadBufferDesc.Format               = DXGI_FORMAT_UNKNOWN;
+    uploadBufferDesc.SampleDesc.Count     = 1;
+    uploadBufferDesc.Layout               = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+    uploadBufferDesc.Flags                = D3D12_RESOURCE_FLAG_NONE;
+    ID3D12Resource* uploadBuffer          = NULL;
+    HRESULT         hr                    = ID3D12Device10_CreateCommittedResource(
+        DX12Device,
+        &uploadHeapProps,
+        D3D12_HEAP_FLAG_NONE,
+        &uploadBufferDesc,
+        D3D12_RESOURCE_STATE_COPY_SOURCE,    // No need to transition upload buffers, already in copy src state
+        NULL,
+        &IID_ID3D12Resource,
+        &uploadBuffer);
+    if (FAILED(hr)) {
+        RAZIX_RHI_LOG_ERROR("Failed to create upload buffer for buffer: 0x%08X", hr);
+        return;
+    }
+    void* mappedData = NULL;
+    hr               = ID3D12Resource_Map(uploadBuffer, 0, NULL, &mappedData);
+    if (FAILED(hr)) {
+        RAZIX_RHI_LOG_ERROR("Failed to map upload buffer: 0x%08X", hr);
+        ID3D12Resource_Release(uploadBuffer);
+        return;
+    }
+    memcpy(mappedData, desc->pInitData, desc->sizeInBytes);
+    ID3D12Resource_Unmap(uploadBuffer, 0, NULL);
+
+    dx12_cmdbuf            cmdBuf  = dx12_util_begin_singletime_cmdlist();
+    D3D12_RESOURCE_BARRIER barrier = {
+        .Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Transition.pResource   = buffer->dx12.resource,
+        .Transition.StateBefore = dx12_util_res_state_translate(buffer->resource.currentState),
+        .Transition.StateAfter  = D3D12_RESOURCE_STATE_COPY_DEST,
+        .Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+    };
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &barrier);
+
+    ID3D12GraphicsCommandList_CopyBufferRegion(cmdBuf.cmdList, buffer->dx12.resource, 0, uploadBuffer, 0, desc->sizeInBytes);
+
+    D3D12_RESOURCE_BARRIER restoreBarrier = {
+        .Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Transition.pResource   = buffer->dx12.resource,
+        .Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST,
+        .Transition.StateAfter  = dx12_util_res_state_translate(buffer->resource.currentState),
+        .Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+    };
+    ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &restoreBarrier);
+    dx12_util_end_singletime_cmdlist(cmdBuf);
+    ID3D12Resource_Release(uploadBuffer);
+    RAZIX_RHI_LOG_INFO("Buffer data uploaded successfully");
 }
 
 static void dx12_util_generate_mips(rz_gfx_texture* texture, rz_gfx_texture_desc* desc)
@@ -2274,7 +2344,7 @@ static void dx12_CreateTexture(void* where)
     TAG_OBJECT(texture->dx12.resource, texture->resource.pName);
 
     // Upload pixel data if provided
-    if (desc->pixelData != NULL) {
+    if (desc->pPixelData != NULL) {
         RAZIX_RHI_LOG_INFO("Uploading pixel data for texture");
         dx12_util_upload_pixel_Data(texture, desc);
     }
@@ -2350,6 +2420,9 @@ static void dx12_CreateBuffer(void* where)
     resDesc.Layout              = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;    // as fed by users
     resDesc.Flags               = D3D12_RESOURCE_FLAG_NONE;
 
+    if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) || (desc->type & RZ_GFX_BUFFER_TYPE_INDIRECT_ARGS))
+        resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+
     // Create resource with memory backing
     D3D12_HEAP_PROPERTIES heapProps = {0};
     // TODO: Choose upload for other types if CPU access is needed, like streaming vertex/index buffers
@@ -2366,6 +2439,12 @@ static void dx12_CreateBuffer(void* where)
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Buffer: 0x%08X", hr);
         return;
     }
+
+    if (desc->pInitData != NULL) {
+        RAZIX_RHI_LOG_INFO("Uploading initial data for buffer");
+        dx12_util_upload_buffer_data(buffer, desc);
+    }
+
     RAZIX_RHI_LOG_INFO("D3D12 Buffer created successfully");
     TAG_OBJECT(buffer->dx12.resource, buffer->resource.pName);
 }
