@@ -17,6 +17,52 @@
 #endif
 
 //---------------------------------------------------------------------------------------------
+// Function pointer declarations for dynamic loading
+//---------------------------------------------------------------------------------------------
+
+// Core Vulkan functions
+PFN_vkCreateInstance                    vkCreateInstance;
+PFN_vkDestroyInstance                   vkDestroyInstance;
+PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties;
+PFN_vkEnumerateInstanceLayerProperties  vkEnumerateInstanceLayerProperties;
+PFN_vkGetInstanceProcAddr               vkGetInstanceProcAddr;
+
+// Instance-level functions
+PFN_vkEnumeratePhysicalDevices          vkEnumeratePhysicalDevices;
+PFN_vkGetPhysicalDeviceProperties       vkGetPhysicalDeviceProperties;
+PFN_vkGetPhysicalDeviceFeatures         vkGetPhysicalDeviceFeatures;
+PFN_vkGetPhysicalDeviceQueueFamilyProperties vkGetPhysicalDeviceQueueFamilyProperties;
+PFN_vkCreateDevice                      vkCreateDevice;
+PFN_vkEnumerateDeviceExtensionProperties vkEnumerateDeviceExtensionProperties;
+PFN_vkGetPhysicalDeviceMemoryProperties vkGetPhysicalDeviceMemoryProperties;
+
+// Device-level functions
+PFN_vkDestroyDevice                     vkDestroyDevice;
+PFN_vkGetDeviceQueue                    vkGetDeviceQueue;
+
+// Surface functions
+PFN_vkDestroySurfaceKHR                 vkDestroySurfaceKHR;
+PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR vkGetPhysicalDeviceSurfaceCapabilitiesKHR;
+PFN_vkGetPhysicalDeviceSurfaceFormatsKHR vkGetPhysicalDeviceSurfaceFormatsKHR;
+PFN_vkGetPhysicalDeviceSurfacePresentModesKHR vkGetPhysicalDeviceSurfacePresentModesKHR;
+PFN_vkGetPhysicalDeviceSurfaceSupportKHR vkGetPhysicalDeviceSurfaceSupportKHR;
+
+// Swapchain functions
+PFN_vkCreateSwapchainKHR                vkCreateSwapchainKHR;
+PFN_vkDestroySwapchainKHR               vkDestroySwapchainKHR;
+PFN_vkGetSwapchainImagesKHR             vkGetSwapchainImagesKHR;
+
+#ifdef RAZIX_DEBUG
+// Debug functions
+PFN_vkCreateDebugUtilsMessengerEXT      vkCreateDebugUtilsMessengerEXT;
+PFN_vkDestroyDebugUtilsMessengerEXT     vkDestroyDebugUtilsMessengerEXT;
+#endif
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+PFN_vkCreateWin32SurfaceKHR             vkCreateWin32SurfaceKHR;
+#endif
+
+//---------------------------------------------------------------------------------------------
 // Constants and configuration
 //---------------------------------------------------------------------------------------------
 
@@ -45,6 +91,116 @@ static const char* validationLayers[] = {
     "VK_LAYER_KHRONOS_validation",
 };
 #endif
+
+//---------------------------------------------------------------------------------------------
+// Dynamic loading utilities
+//---------------------------------------------------------------------------------------------
+
+#ifdef RAZIX_PLATFORM_WINDOWS
+#include <windows.h>
+static HMODULE vulkan_lib = NULL;
+
+static bool vk_load_vulkan_library(void)
+{
+    vulkan_lib = LoadLibraryA("vulkan-1.dll");
+    if (!vulkan_lib) {
+        RAZIX_RHI_LOG_ERROR("Failed to load vulkan-1.dll");
+        return false;
+    }
+    
+    vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)GetProcAddress(vulkan_lib, "vkGetInstanceProcAddr");
+    if (!vkGetInstanceProcAddr) {
+        RAZIX_RHI_LOG_ERROR("Failed to get vkGetInstanceProcAddr");
+        return false;
+    }
+    
+    return true;
+}
+
+static void vk_unload_vulkan_library(void)
+{
+    if (vulkan_lib) {
+        FreeLibrary(vulkan_lib);
+        vulkan_lib = NULL;
+    }
+}
+#else
+#include <dlfcn.h>
+static void* vulkan_lib = NULL;
+
+static bool vk_load_vulkan_library(void)
+{
+    vulkan_lib = dlopen("libvulkan.so.1", RTLD_NOW);
+    if (!vulkan_lib) {
+        vulkan_lib = dlopen("libvulkan.so", RTLD_NOW);
+    }
+    
+    if (!vulkan_lib) {
+        RAZIX_RHI_LOG_ERROR("Failed to load Vulkan library: %s", dlerror());
+        return false;
+    }
+    
+    vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(vulkan_lib, "vkGetInstanceProcAddr");
+    if (!vkGetInstanceProcAddr) {
+        RAZIX_RHI_LOG_ERROR("Failed to get vkGetInstanceProcAddr");
+        return false;
+    }
+    
+    return true;
+}
+
+static void vk_unload_vulkan_library(void)
+{
+    if (vulkan_lib) {
+        dlclose(vulkan_lib);
+        vulkan_lib = NULL;
+    }
+}
+#endif
+
+static void vk_load_global_functions(void)
+{
+    vkCreateInstance = (PFN_vkCreateInstance)vkGetInstanceProcAddr(NULL, "vkCreateInstance");
+    vkEnumerateInstanceExtensionProperties = (PFN_vkEnumerateInstanceExtensionProperties)vkGetInstanceProcAddr(NULL, "vkEnumerateInstanceExtensionProperties");
+    vkEnumerateInstanceLayerProperties = (PFN_vkEnumerateInstanceLayerProperties)vkGetInstanceProcAddr(NULL, "vkEnumerateInstanceLayerProperties");
+}
+
+static void vk_load_instance_functions(VkInstance instance)
+{
+    vkDestroyInstance = (PFN_vkDestroyInstance)vkGetInstanceProcAddr(instance, "vkDestroyInstance");
+    vkEnumeratePhysicalDevices = (PFN_vkEnumeratePhysicalDevices)vkGetInstanceProcAddr(instance, "vkEnumeratePhysicalDevices");
+    vkGetPhysicalDeviceProperties = (PFN_vkGetPhysicalDeviceProperties)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceProperties");
+    vkGetPhysicalDeviceFeatures = (PFN_vkGetPhysicalDeviceFeatures)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceFeatures");
+    vkGetPhysicalDeviceQueueFamilyProperties = (PFN_vkGetPhysicalDeviceQueueFamilyProperties)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceQueueFamilyProperties");
+    vkCreateDevice = (PFN_vkCreateDevice)vkGetInstanceProcAddr(instance, "vkCreateDevice");
+    vkEnumerateDeviceExtensionProperties = (PFN_vkEnumerateDeviceExtensionProperties)vkGetInstanceProcAddr(instance, "vkEnumerateDeviceExtensionProperties");
+    vkGetPhysicalDeviceMemoryProperties = (PFN_vkGetPhysicalDeviceMemoryProperties)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceMemoryProperties");
+    
+    // Surface functions
+    vkDestroySurfaceKHR = (PFN_vkDestroySurfaceKHR)vkGetInstanceProcAddr(instance, "vkDestroySurfaceKHR");
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR = (PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
+    vkGetPhysicalDeviceSurfaceFormatsKHR = (PFN_vkGetPhysicalDeviceSurfaceFormatsKHR)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfaceFormatsKHR");
+    vkGetPhysicalDeviceSurfacePresentModesKHR = (PFN_vkGetPhysicalDeviceSurfacePresentModesKHR)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfacePresentModesKHR");
+    vkGetPhysicalDeviceSurfaceSupportKHR = (PFN_vkGetPhysicalDeviceSurfaceSupportKHR)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfaceSupportKHR");
+    
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    vkCreateWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR)vkGetInstanceProcAddr(instance, "vkCreateWin32SurfaceKHR");
+#endif
+
+#ifdef RAZIX_DEBUG
+    vkCreateDebugUtilsMessengerEXT = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+    vkDestroyDebugUtilsMessengerEXT = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+#endif
+}
+
+static void vk_load_device_functions(VkDevice device)
+{
+    vkDestroyDevice = (PFN_vkDestroyDevice)vkGetInstanceProcAddr(VkContext.instance, "vkDestroyDevice");
+    vkGetDeviceQueue = (PFN_vkGetDeviceQueue)vkGetInstanceProcAddr(VkContext.instance, "vkGetDeviceQueue");
+    vkCreateSwapchainKHR = (PFN_vkCreateSwapchainKHR)vkGetInstanceProcAddr(VkContext.instance, "vkCreateSwapchainKHR");
+    vkDestroySwapchainKHR = (PFN_vkDestroySwapchainKHR)vkGetInstanceProcAddr(VkContext.instance, "vkDestroySwapchainKHR");
+    vkGetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)vkGetInstanceProcAddr(VkContext.instance, "vkGetSwapchainImagesKHR");
+}
 
 //---------------------------------------------------------------------------------------------
 // Utility functions
@@ -115,114 +271,278 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
             severityStr = "ERROR";
             color = ANSI_COLOR_RED;
             break;
+        default:
+            break;
     }
     
-    printf("%s[%s] [VK/DEBUG/%s] %s%s\n", color, _rhi_log_timestamp(), severityStr, pCallbackData->pMessage, ANSI_COLOR_RESET);
+    printf("%s[%s] [VK/DEBUG/%s] %s%s\n", 
+           color, _rhi_log_timestamp(), severityStr, 
+           pCallbackData->pMessage, ANSI_COLOR_RESET);
     
     return VK_FALSE;
 }
 #endif
 
-static VkFormat vk_util_rz_gfx_format_to_vk_format(rz_gfx_format format)
+//---------------------------------------------------------------------------------------------
+// Context creation and management
+//---------------------------------------------------------------------------------------------
+
+static bool vk_check_validation_layer_support(void)
 {
-    switch (format) {
-        // 8-bit
-        case RZ_GFX_FORMAT_R8_UNORM: return VK_FORMAT_R8_UNORM;
-        case RZ_GFX_FORMAT_R8_UINT: return VK_FORMAT_R8_UINT;
+#ifdef RAZIX_DEBUG
+    uint32_t layerCount;
+    CHECK_VK(vkEnumerateInstanceLayerProperties(&layerCount, NULL));
+    
+    VkLayerProperties* availableLayers = malloc(layerCount * sizeof(VkLayerProperties));
+    CHECK_VK(vkEnumerateInstanceLayerProperties(&layerCount, availableLayers));
+    
+    for (uint32_t i = 0; i < sizeof(validationLayers) / sizeof(validationLayers[0]); i++) {
+        bool layerFound = false;
         
-        // 16-bit
-        case RZ_GFX_FORMAT_R16_UNORM: return VK_FORMAT_R16_UNORM;
-        case RZ_GFX_FORMAT_R16_FLOAT: return VK_FORMAT_R16_SFLOAT;
-        case RZ_GFX_FORMAT_R16G16_FLOAT: return VK_FORMAT_R16G16_SFLOAT;
-        case RZ_GFX_FORMAT_R16G16_UNORM: return VK_FORMAT_R16G16_UNORM;
-        case RZ_GFX_FORMAT_R16G16B16A16_UNORM: return VK_FORMAT_R16G16B16A16_UNORM;
-        case RZ_GFX_FORMAT_R16G16B16A16_FLOAT: return VK_FORMAT_R16G16B16A16_SFLOAT;
+        for (uint32_t j = 0; j < layerCount; j++) {
+            if (strcmp(validationLayers[i], availableLayers[j].layerName) == 0) {
+                layerFound = true;
+                break;
+            }
+        }
         
-        // 32-bit
-        case RZ_GFX_FORMAT_R32_SINT: return VK_FORMAT_R32_SINT;
-        case RZ_GFX_FORMAT_R32_UINT: return VK_FORMAT_R32_UINT;
-        case RZ_GFX_FORMAT_R32_FLOAT: return VK_FORMAT_R32_SFLOAT;
-        case RZ_GFX_FORMAT_R32G32_SINT: return VK_FORMAT_R32G32_SINT;
-        case RZ_GFX_FORMAT_R32G32_UINT: return VK_FORMAT_R32G32_UINT;
-        case RZ_GFX_FORMAT_R32G32_FLOAT: return VK_FORMAT_R32G32_SFLOAT;
-        case RZ_GFX_FORMAT_R32G32B32_SINT: return VK_FORMAT_R32G32B32_SINT;
-        case RZ_GFX_FORMAT_R32G32B32_UINT: return VK_FORMAT_R32G32B32_UINT;
-        case RZ_GFX_FORMAT_R32G32B32_FLOAT: return VK_FORMAT_R32G32B32_SFLOAT;
-        case RZ_GFX_FORMAT_R32G32B32A32_SINT: return VK_FORMAT_R32G32B32A32_SINT;
-        case RZ_GFX_FORMAT_R32G32B32A32_UINT: return VK_FORMAT_R32G32B32A32_UINT;
-        case RZ_GFX_FORMAT_R32G32B32A32_FLOAT: return VK_FORMAT_R32G32B32A32_SFLOAT;
-        
-        // Packed
-        case RZ_GFX_FORMAT_R11G11B10_FLOAT: return VK_FORMAT_B10G11R11_UFLOAT_PACK32;
-        
-        // Color formats
-        case RZ_GFX_FORMAT_R8G8_UNORM: return VK_FORMAT_R8G8_UNORM;
-        case RZ_GFX_FORMAT_R8G8B8_UNORM: return VK_FORMAT_R8G8B8_UNORM;
-        case RZ_GFX_FORMAT_R8G8B8A8_UNORM: return VK_FORMAT_R8G8B8A8_UNORM;
-        case RZ_GFX_FORMAT_R8G8B8A8_SRGB: return VK_FORMAT_R8G8B8A8_SRGB;
-        case RZ_GFX_FORMAT_B8G8R8A8_UNORM: return VK_FORMAT_B8G8R8A8_UNORM;
-        case RZ_GFX_FORMAT_B8G8R8A8_SRGB: return VK_FORMAT_B8G8R8A8_SRGB;
-        
-        // Depth-stencil
-        case RZ_GFX_FORMAT_D16_UNORM: return VK_FORMAT_D16_UNORM;
-        case RZ_GFX_FORMAT_D24_UNORM_S8_UINT: return VK_FORMAT_D24_UNORM_S8_UINT;
-        case RZ_GFX_FORMAT_D32_FLOAT: return VK_FORMAT_D32_SFLOAT;
-        case RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT: return VK_FORMAT_D32_SFLOAT_S8_UINT;
-        
-        // Swapchain pseudo format
-        case RZ_GFX_FORMAT_SCREEN: return RAZIX_SWAPCHAIN_FORMAT_VK;
-        
-        // Block compression
-        case RZ_GFX_FORMAT_BC1_RGBA_UNORM: return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
-        case RZ_GFX_FORMAT_BC3_RGBA_UNORM: return VK_FORMAT_BC3_UNORM_BLOCK;
-        case RZ_GFX_FORMAT_BC6_UNORM: return VK_FORMAT_BC6H_UFLOAT_BLOCK;
-        case RZ_GFX_FORMAT_BC7_UNORM: return VK_FORMAT_BC7_UNORM_BLOCK;
-        case RZ_GFX_FORMAT_BC7_SRGB: return VK_FORMAT_BC7_SRGB_BLOCK;
-        
-        case RZ_GFX_FORMAT_UNDEFINED:
-        default: return VK_FORMAT_UNDEFINED;
+        if (!layerFound) {
+            free(availableLayers);
+            return false;
+        }
     }
+    
+    free(availableLayers);
+    return true;
+#else
+    return true;
+#endif
 }
 
-//---------------------------------------------------------------------------------------------
-// Core implementation functions
-//---------------------------------------------------------------------------------------------
+static bool vk_check_instance_extension_support(void)
+{
+    uint32_t extensionCount = 0;
+    CHECK_VK(vkEnumerateInstanceExtensionProperties(NULL, &extensionCount, NULL));
+    
+    VkExtensionProperties* availableExtensions = malloc(extensionCount * sizeof(VkExtensionProperties));
+    CHECK_VK(vkEnumerateInstanceExtensionProperties(NULL, &extensionCount, availableExtensions));
+    
+    for (uint32_t i = 0; i < sizeof(requiredInstanceExtensions) / sizeof(requiredInstanceExtensions[0]); i++) {
+        bool extensionFound = false;
+        
+        for (uint32_t j = 0; j < extensionCount; j++) {
+            if (strcmp(requiredInstanceExtensions[i], availableExtensions[j].extensionName) == 0) {
+                extensionFound = true;
+                break;
+            }
+        }
+        
+        if (!extensionFound) {
+            RAZIX_RHI_LOG_ERROR("Required instance extension not found: %s", requiredInstanceExtensions[i]);
+            free(availableExtensions);
+            return false;
+        }
+    }
+    
+    free(availableExtensions);
+    return true;
+}
+
+static VkQueueFamilyIndices vk_find_queue_families(VkPhysicalDevice device)
+{
+    VkQueueFamilyIndices indices = {0};
+    
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, NULL);
+    
+    VkQueueFamilyProperties* queueFamilies = malloc(queueFamilyCount * sizeof(VkQueueFamilyProperties));
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies);
+    
+    for (uint32_t i = 0; i < queueFamilyCount; i++) {
+        if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+            indices.graphicsFamily = i;
+            indices.hasGraphics = true;
+        }
+        
+        if (queueFamilies[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
+            indices.computeFamily = i;
+            indices.hasCompute = true;
+        }
+        
+        if (queueFamilies[i].queueFlags & VK_QUEUE_TRANSFER_BIT) {
+            indices.transferFamily = i;
+            indices.hasTransfer = true;
+        }
+        
+        // For now, assume graphics queue can present
+        if (indices.hasGraphics) {
+            indices.presentFamily = i;
+            indices.hasPresent = true;
+        }
+    }
+    
+    free(queueFamilies);
+    return indices;
+}
+
+static bool vk_check_device_extension_support(VkPhysicalDevice device)
+{
+    uint32_t extensionCount;
+    CHECK_VK(vkEnumerateDeviceExtensionProperties(device, NULL, &extensionCount, NULL));
+    
+    VkExtensionProperties* availableExtensions = malloc(extensionCount * sizeof(VkExtensionProperties));
+    CHECK_VK(vkEnumerateDeviceExtensionProperties(device, NULL, &extensionCount, availableExtensions));
+    
+    for (uint32_t i = 0; i < sizeof(requiredDeviceExtensions) / sizeof(requiredDeviceExtensions[0]); i++) {
+        bool extensionFound = false;
+        
+        for (uint32_t j = 0; j < extensionCount; j++) {
+            if (strcmp(requiredDeviceExtensions[i], availableExtensions[j].extensionName) == 0) {
+                extensionFound = true;
+                break;
+            }
+        }
+        
+        if (!extensionFound) {
+            free(availableExtensions);
+            return false;
+        }
+    }
+    
+    free(availableExtensions);
+    return true;
+}
+
+static bool vk_is_device_suitable(VkPhysicalDevice device)
+{
+    VkPhysicalDeviceProperties deviceProperties;
+    VkPhysicalDeviceFeatures deviceFeatures;
+    vkGetPhysicalDeviceProperties(device, &deviceProperties);
+    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+    
+    VkQueueFamilyIndices indices = vk_find_queue_families(device);
+    bool extensionsSupported = vk_check_device_extension_support(device);
+    
+    return indices.hasGraphics && extensionsSupported;
+}
+
+static VkPhysicalDevice vk_pick_physical_device(void)
+{
+    uint32_t deviceCount = 0;
+    CHECK_VK(vkEnumeratePhysicalDevices(VkContext.instance, &deviceCount, NULL));
+    
+    if (deviceCount == 0) {
+        RAZIX_RHI_LOG_ERROR("Failed to find GPUs with Vulkan support");
+        return VK_NULL_HANDLE;
+    }
+    
+    VkPhysicalDevice* devices = malloc(deviceCount * sizeof(VkPhysicalDevice));
+    CHECK_VK(vkEnumeratePhysicalDevices(VkContext.instance, &deviceCount, devices));
+    
+    VkPhysicalDevice selectedDevice = VK_NULL_HANDLE;
+    for (uint32_t i = 0; i < deviceCount; i++) {
+        if (vk_is_device_suitable(devices[i])) {
+            selectedDevice = devices[i];
+            break;
+        }
+    }
+    
+    if (selectedDevice == VK_NULL_HANDLE) {
+        RAZIX_RHI_LOG_ERROR("Failed to find a suitable GPU");
+    }
+    
+    free(devices);
+    return selectedDevice;
+}
+
+static void vk_create_logical_device(void)
+{
+    VkQueueFamilyIndices indices = vk_find_queue_families(VkContext.gpu);
+    VkContext.queueFamilyIndices = indices;
+    
+    float queuePriority = 1.0f;
+    VkDeviceQueueCreateInfo queueCreateInfo = {0};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily;
+    queueCreateInfo.queueCount = 1;
+    queueCreateInfo.pQueuePriorities = &queuePriority;
+    
+    VkPhysicalDeviceFeatures deviceFeatures = {0};
+    
+    VkDeviceCreateInfo createInfo = {0};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pQueueCreateInfos = &queueCreateInfo;
+    createInfo.queueCreateInfoCount = 1;
+    createInfo.pEnabledFeatures = &deviceFeatures;
+    createInfo.enabledExtensionCount = sizeof(requiredDeviceExtensions) / sizeof(requiredDeviceExtensions[0]);
+    createInfo.ppEnabledExtensionNames = requiredDeviceExtensions;
+    
+#ifdef RAZIX_DEBUG
+    createInfo.enabledLayerCount = sizeof(validationLayers) / sizeof(validationLayers[0]);
+    createInfo.ppEnabledLayerNames = validationLayers;
+#else
+    createInfo.enabledLayerCount = 0;
+#endif
+    
+    CHECK_VK(vkCreateDevice(VkContext.gpu, &createInfo, NULL, &VkContext.device));
+    
+    vk_load_device_functions(VkContext.device);
+    
+    vkGetDeviceQueue(VkContext.device, indices.graphicsFamily, 0, &VkContext.graphicsQueue);
+    vkGetDeviceQueue(VkContext.device, indices.presentFamily, 0, &VkContext.presentQueue);
+}
 
 static void vk_GlobalCtxInit(void)
 {
-    RAZIX_RHI_LOG_INFO("[Vulkan] Initializing Vulkan context");
+    RAZIX_RHI_LOG_INFO("Initializing Vulkan RHI backend");
     
-    // Create instance
+    // Initialize Vulkan library
+    if (!vk_load_vulkan_library()) {
+        RAZIX_RHI_LOG_ERROR("Failed to load Vulkan library");
+        return;
+    }
+    
+    vk_load_global_functions();
+    
+    // Check validation layer support
+    if (!vk_check_validation_layer_support()) {
+        RAZIX_RHI_LOG_ERROR("Validation layers requested, but not available");
+        return;
+    }
+    
+    // Check instance extension support
+    if (!vk_check_instance_extension_support()) {
+        RAZIX_RHI_LOG_ERROR("Required instance extensions not available");
+        return;
+    }
+    
+    // Create Vulkan instance
     VkApplicationInfo appInfo = {0};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = "Razix Engine";
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pEngineName = "Razix";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_2;
+    appInfo.apiVersion = VK_API_VERSION_1_0;
     
     VkInstanceCreateInfo createInfo = {0};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
-    
-    const uint32_t extensionCount = sizeof(requiredInstanceExtensions) / sizeof(requiredInstanceExtensions[0]);
-    createInfo.enabledExtensionCount = extensionCount;
+    createInfo.enabledExtensionCount = sizeof(requiredInstanceExtensions) / sizeof(requiredInstanceExtensions[0]);
     createInfo.ppEnabledExtensionNames = requiredInstanceExtensions;
     
 #ifdef RAZIX_DEBUG
-    const uint32_t layerCount = sizeof(validationLayers) / sizeof(validationLayers[0]);
-    createInfo.enabledLayerCount = layerCount;
+    createInfo.enabledLayerCount = sizeof(validationLayers) / sizeof(validationLayers[0]);
     createInfo.ppEnabledLayerNames = validationLayers;
     
-    // Debug messenger create info for instance creation/destruction
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {0};
     debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    debugCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | 
-                                     VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | 
+    debugCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                                     VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
                                      VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | 
-                                  VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | 
-                                  VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                                 VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                                 VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     debugCreateInfo.pfnUserCallback = vk_debug_callback;
     
     createInfo.pNext = &debugCreateInfo;
@@ -231,461 +551,493 @@ static void vk_GlobalCtxInit(void)
     createInfo.pNext = NULL;
 #endif
     
-    if (CHECK_VK(vkCreateInstance(&createInfo, NULL, &VkContext.instance)) != VK_SUCCESS) {
-        RAZIX_RHI_LOG_ERROR("[Vulkan] Failed to create instance");
+    CHECK_VK(vkCreateInstance(&createInfo, NULL, &VkContext.instance));
+    
+    vk_load_instance_functions(VkContext.instance);
+    
+#ifdef RAZIX_DEBUG
+    // Setup debug messenger
+    VkDebugUtilsMessengerCreateInfoEXT debugInfo = {0};
+    debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    debugInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                               VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                               VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    debugInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                           VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                           VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    debugInfo.pfnUserCallback = vk_debug_callback;
+    
+    CHECK_VK(vkCreateDebugUtilsMessengerEXT(VkContext.instance, &debugInfo, NULL, &VkContext.debugMessenger));
+#endif
+    
+    // Pick physical device
+    VkContext.gpu = vk_pick_physical_device();
+    if (VkContext.gpu == VK_NULL_HANDLE) {
+        RAZIX_RHI_LOG_ERROR("Failed to pick physical device");
         return;
     }
     
-    RAZIX_RHI_LOG_INFO("[Vulkan] Instance created successfully");
+    // Get device properties and features
+    vkGetPhysicalDeviceProperties(VkContext.gpu, &VkContext.deviceProperties);
+    vkGetPhysicalDeviceFeatures(VkContext.gpu, &VkContext.deviceFeatures);
+    vkGetPhysicalDeviceMemoryProperties(VkContext.gpu, &VkContext.memoryProperties);
     
-#ifdef RAZIX_DEBUG
-    // Setup debug messenger  
-    VkDebugUtilsMessengerCreateInfoEXT debugInfo = {0};
-    debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    debugInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | 
-                               VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | 
-                               VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    debugInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | 
-                            VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | 
-                            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    debugInfo.pfnUserCallback = vk_debug_callback;
+    RAZIX_RHI_LOG_INFO("Selected GPU: %s", VkContext.deviceProperties.deviceName);
     
-    // Note: In a real implementation, would need to load function pointers
-    // if (CHECK_VK(vkCreateDebugUtilsMessengerEXT(VkContext.instance, &debugInfo, NULL, &VkContext.debugMessenger)) == VK_SUCCESS) {
-    //     RAZIX_RHI_LOG_INFO("[Vulkan] Debug messenger created successfully");
-    // }
-#endif
+    // Create logical device
+    vk_create_logical_device();
     
-    // Note: For a complete implementation, would also:
-    // 1. Enumerate and select physical device
-    // 2. Create logical device  
-    // 3. Get queue families and create queues
-    // 4. Create command pools
-    // 5. Setup graphics features
-    
-    // Set graphics features based on Vulkan capabilities
-    g_GraphicsFeatures.support.EnableVSync = false;
-    g_GraphicsFeatures.support.TesselateTerrain = false; // Would check deviceFeatures.tessellationShader
-    g_GraphicsFeatures.support.SupportsBindless = false; // Would check deviceFeatures.shaderSampledImageArrayDynamicIndexing
-    g_GraphicsFeatures.support.SupportsWaveIntrinsics = false; // Requires checking for specific extensions
-    g_GraphicsFeatures.support.SupportsShaderModel6 = false; // Vulkan uses SPIR-V, not shader models
-    g_GraphicsFeatures.support.SupportsNullIndexDescriptors = false;
-    g_GraphicsFeatures.support.SupportsTimelineSemaphores = false; // Requires checking for VK_KHR_timeline_semaphore
-    g_GraphicsFeatures.support.SupportsBindlessRendering = false;
-    g_GraphicsFeatures.MaxBindlessTextures = 4096; // Typical limit
-    g_GraphicsFeatures.MinLaneWidth = 32; // Typical for most GPUs
-    g_GraphicsFeatures.MaxLaneWidth = 64; // Typical maximum
-    
-    RAZIX_RHI_LOG_INFO("[Vulkan] Context initialization completed successfully");
+    RAZIX_RHI_LOG_INFO("Vulkan RHI backend initialized successfully");
 }
 
 static void vk_GlobalCtxDestroy(void)
 {
-    RAZIX_RHI_LOG_INFO("[Vulkan] Destroying Vulkan context");
+    RAZIX_RHI_LOG_INFO("Destroying Vulkan RHI backend");
+    
+    if (VkContext.device) {
+        vkDestroyDevice(VkContext.device, NULL);
+        VkContext.device = VK_NULL_HANDLE;
+    }
     
 #ifdef RAZIX_DEBUG
-    // Destroy debug messenger
-    // if (VkContext.debugMessenger != VK_NULL_HANDLE) {
-    //     vkDestroyDebugUtilsMessengerEXT(VkContext.instance, VkContext.debugMessenger, NULL);
-    //     VkContext.debugMessenger = VK_NULL_HANDLE;
-    // }
+    if (VkContext.debugMessenger) {
+        vkDestroyDebugUtilsMessengerEXT(VkContext.instance, VkContext.debugMessenger, NULL);
+        VkContext.debugMessenger = VK_NULL_HANDLE;
+    }
 #endif
     
-    // Destroy instance
-    if (VkContext.instance != VK_NULL_HANDLE) {
+    if (VkContext.instance) {
         vkDestroyInstance(VkContext.instance, NULL);
         VkContext.instance = VK_NULL_HANDLE;
     }
     
-    RAZIX_RHI_LOG_INFO("[Vulkan] Context destroyed successfully");
+    vk_unload_vulkan_library();
+    
+    RAZIX_RHI_LOG_INFO("Vulkan RHI backend destroyed");
 }
 
 //---------------------------------------------------------------------------------------------
-// Sync Objects
+// Swapchain implementation  
 //---------------------------------------------------------------------------------------------
 
-static void vk_CreateSyncobj(void* where, rz_gfx_syncobj_type type)
+static VkSwapchainSupportDetails vk_query_swapchain_support(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
-    rz_gfx_syncobj* syncobj = (rz_gfx_syncobj*)where;
+    VkSwapchainSupportDetails details = {0};
     
-    // Create semaphore
-    VkSemaphoreCreateInfo semaphoreInfo = {0};
-    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    CHECK_VK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities));
     
-    if (CHECK_VK(vkCreateSemaphore(VkDevice, &semaphoreInfo, NULL, &syncobj->vk.semaphore)) != VK_SUCCESS) {
-        RAZIX_RHI_LOG_ERROR("[Vulkan] Failed to create semaphore");
-        return;
+    CHECK_VK(vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &details.formatCount, NULL));
+    if (details.formatCount != 0) {
+        details.formats = malloc(details.formatCount * sizeof(VkSurfaceFormatKHR));
+        CHECK_VK(vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &details.formatCount, details.formats));
     }
     
-    // Create fence
-    VkFenceCreateInfo fenceInfo = {0};
-    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT; // Start in signaled state
-    
-    if (CHECK_VK(vkCreateFence(VkDevice, &fenceInfo, NULL, &syncobj->vk.fence)) != VK_SUCCESS) {
-        RAZIX_RHI_LOG_ERROR("[Vulkan] Failed to create fence");
-        vkDestroySemaphore(VkDevice, syncobj->vk.semaphore, NULL);
-        return;
+    CHECK_VK(vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &details.presentModeCount, NULL));
+    if (details.presentModeCount != 0) {
+        details.presentModes = malloc(details.presentModeCount * sizeof(VkPresentModeKHR));
+        CHECK_VK(vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &details.presentModeCount, details.presentModes));
     }
     
-    RAZIX_RHI_LOG_TRACE("[Vulkan] Sync object created successfully");
+    return details;
 }
 
-static void vk_DestroySyncobj(rz_gfx_syncobj* syncobj)
+static VkSurfaceFormatKHR vk_choose_swap_surface_format(const VkSurfaceFormatKHR* availableFormats, uint32_t formatCount)
 {
-    if (syncobj->vk.semaphore != VK_NULL_HANDLE) {
-        vkDestroySemaphore(VkDevice, syncobj->vk.semaphore, NULL);
-        syncobj->vk.semaphore = VK_NULL_HANDLE;
+    for (uint32_t i = 0; i < formatCount; i++) {
+        if (availableFormats[i].format == VK_FORMAT_B8G8R8A8_SRGB && 
+            availableFormats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+            return availableFormats[i];
+        }
     }
     
-    if (syncobj->vk.fence != VK_NULL_HANDLE) {
-        vkDestroyFence(VkDevice, syncobj->vk.fence, NULL);
-        syncobj->vk.fence = VK_NULL_HANDLE;
-    }
+    return availableFormats[0];
 }
 
-//---------------------------------------------------------------------------------------------
-// Command Pools and Buffers
-//---------------------------------------------------------------------------------------------
-
-static void vk_CreateCmdPool(void* where)
+static VkPresentModeKHR vk_choose_swap_present_mode(const VkPresentModeKHR* availablePresentModes, uint32_t presentModeCount)
 {
-    rz_gfx_cmdpool* cmdPool = (rz_gfx_cmdpool*)where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&cmdPool->resource.handle), "Invalid cmd pool handle");
-    
-    VkCommandPoolCreateInfo poolInfo = {0};
-    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    
-    rz_gfx_cmdpool_type poolType = cmdPool->resource.desc.cmdpoolDesc.poolType;
-    switch (poolType) {
-        case RZ_GFX_CMDPOOL_TYPE_GRAPHICS:
-            poolInfo.queueFamilyIndex = VkContext.queueFamilyIndices.graphicsFamily;
-            cmdPool->vk.queueFlags = VK_QUEUE_GRAPHICS_BIT;
-            break;
-        case RZ_GFX_CMDPOOL_TYPE_COMPUTE:
-            poolInfo.queueFamilyIndex = VkContext.queueFamilyIndices.computeFamily;
-            cmdPool->vk.queueFlags = VK_QUEUE_COMPUTE_BIT;
-            break;
-        case RZ_GFX_CMDPOOL_TYPE_TRANSFER:
-            poolInfo.queueFamilyIndex = VkContext.queueFamilyIndices.transferFamily;
-            cmdPool->vk.queueFlags = VK_QUEUE_TRANSFER_BIT;
-            break;
-        default:
-            RAZIX_RHI_LOG_ERROR("[Vulkan] Invalid command pool type");
-            return;
+    for (uint32_t i = 0; i < presentModeCount; i++) {
+        if (availablePresentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
+            return availablePresentModes[i];
+        }
     }
     
-    if (CHECK_VK(vkCreateCommandPool(VkDevice, &poolInfo, NULL, &cmdPool->vk.cmdPool)) != VK_SUCCESS) {
-        RAZIX_RHI_LOG_ERROR("[Vulkan] Failed to create command pool");
-        return;
-    }
-    
-    RAZIX_RHI_LOG_TRACE("[Vulkan] Command pool created successfully");
+    return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-static void vk_DestroyCmdPool(void* cmdPool)
+static VkExtent2D vk_choose_swap_extent(const VkSurfaceCapabilitiesKHR* capabilities, uint32_t width, uint32_t height)
 {
-    RAZIX_RHI_ASSERT(cmdPool != NULL, "Command pool is NULL");
-    rz_gfx_cmdpool* pool = (rz_gfx_cmdpool*)cmdPool;
-    
-    if (pool->vk.cmdPool != VK_NULL_HANDLE) {
-        vkDestroyCommandPool(VkDevice, pool->vk.cmdPool, NULL);
-        pool->vk.cmdPool = VK_NULL_HANDLE;
-    }
-}
-
-static void vk_CreateCmdBuf(void* where)
-{
-    rz_gfx_cmdbuf* cmdBuf = (rz_gfx_cmdbuf*)where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&cmdBuf->resource.handle), "Invalid command buffer handle");
-    
-    const rz_gfx_cmdpool* cmdPool = cmdBuf->resource.desc.cmdbufDesc.pool;
-    RAZIX_RHI_ASSERT(cmdPool != NULL, "Command buffer must have a valid command pool");
-    
-    VkCommandBufferAllocateInfo allocInfo = {0};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = cmdPool->vk.cmdPool;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = 1;
-    
-    if (CHECK_VK(vkAllocateCommandBuffers(VkDevice, &allocInfo, &cmdBuf->vk.cmdBuf)) != VK_SUCCESS) {
-        RAZIX_RHI_LOG_ERROR("[Vulkan] Failed to allocate command buffer");
-        return;
-    }
-    
-    cmdBuf->vk.parentPool = cmdPool->vk.cmdPool;
-    cmdBuf->vk.isRecording = false;
-    
-    RAZIX_RHI_LOG_TRACE("[Vulkan] Command buffer created successfully");
-}
-
-static void vk_DestroyCmdBuf(void* cmdBuf)
-{
-    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer is NULL");
-    rz_gfx_cmdbuf* buffer = (rz_gfx_cmdbuf*)cmdBuf;
-    
-    if (buffer->vk.cmdBuf != VK_NULL_HANDLE) {
-        vkFreeCommandBuffers(VkDevice, buffer->vk.parentPool, 1, &buffer->vk.cmdBuf);
-        buffer->vk.cmdBuf = VK_NULL_HANDLE;
+    if (capabilities->currentExtent.width != UINT32_MAX) {
+        return capabilities->currentExtent;
+    } else {
+        VkExtent2D actualExtent = {width, height};
+        
+        if (actualExtent.width < capabilities->minImageExtent.width) {
+            actualExtent.width = capabilities->minImageExtent.width;
+        } else if (actualExtent.width > capabilities->maxImageExtent.width) {
+            actualExtent.width = capabilities->maxImageExtent.width;
+        }
+        
+        if (actualExtent.height < capabilities->minImageExtent.height) {
+            actualExtent.height = capabilities->minImageExtent.height;
+        } else if (actualExtent.height > capabilities->maxImageExtent.height) {
+            actualExtent.height = capabilities->maxImageExtent.height;
+        }
+        
+        return actualExtent;
     }
 }
-
-//---------------------------------------------------------------------------------------------
-// Texture (Basic Implementation for Swapchain)
-//---------------------------------------------------------------------------------------------
-
-static void vk_CreateTexture(void* where)
-{
-    rz_gfx_texture* texture = (rz_gfx_texture*)where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&texture->resource.handle), "Invalid texture handle");
-    
-    // This is a basic implementation for swapchain textures
-    rz_gfx_texture_desc* desc = &texture->resource.desc.textureDesc;
-    
-    texture->vk.format = vk_util_rz_gfx_format_to_vk_format(desc->format);
-    texture->vk.extent = (VkExtent3D){desc->width, desc->height, desc->depth};
-    texture->vk.mipLevels = desc->mipLevels;
-    texture->vk.arrayLayers = desc->arraySize;
-    texture->vk.currentLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    
-    // For swapchain images, the actual VkImage will be set externally
-    texture->vk.image = VK_NULL_HANDLE;
-    texture->vk.memory = VK_NULL_HANDLE;
-    texture->vk.imageView = VK_NULL_HANDLE;
-    
-    RAZIX_RHI_LOG_TRACE("[Vulkan] Texture structure initialized");
-}
-
-static void vk_DestroyTexture(void* texture)
-{
-    RAZIX_RHI_ASSERT(texture != NULL, "Texture is NULL");
-    rz_gfx_texture* tex = (rz_gfx_texture*)texture;
-    
-    if (tex->vk.imageView != VK_NULL_HANDLE) {
-        vkDestroyImageView(VkDevice, tex->vk.imageView, NULL);
-        tex->vk.imageView = VK_NULL_HANDLE;
-    }
-    
-    // Note: For swapchain images, we don't destroy the VkImage itself
-    // as it's owned by the swapchain
-}
-
-//---------------------------------------------------------------------------------------------
-// Skeleton implementations for other functions  
-//---------------------------------------------------------------------------------------------
 
 static void vk_CreateSwapchain(void* where, void* nativeWindowHandle, uint32_t width, uint32_t height)
 {
-    // Skeleton implementation - would create VkSwapchainKHR
-    RAZIX_RHI_LOG_WARN("[Vulkan] CreateSwapchain - Skeleton implementation");
-    (void)where; (void)nativeWindowHandle; (void)width; (void)height;
+    rz_gfx_swapchain* swapchain = (rz_gfx_swapchain*)where;
+    memset(swapchain, 0, sizeof(rz_gfx_swapchain));
+    
+    swapchain->width = width;
+    swapchain->height = height;
+    
+    // Create surface (platform-specific)
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {0};
+    surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+    surfaceCreateInfo.hwnd = *(HWND*)nativeWindowHandle;
+    surfaceCreateInfo.hinstance = GetModuleHandle(NULL);
+    
+    CHECK_VK(vkCreateWin32SurfaceKHR(VkContext.instance, &surfaceCreateInfo, NULL, &VkContext.surface));
+#else
+    // TODO: Add support for other platforms
+    RAZIX_RHI_LOG_ERROR("Platform surface creation not implemented");
+    return;
+#endif
+    
+    VkSwapchainSupportDetails swapchainSupport = vk_query_swapchain_support(VkContext.gpu, VkContext.surface);
+    
+    VkSurfaceFormatKHR surfaceFormat = vk_choose_swap_surface_format(swapchainSupport.formats, swapchainSupport.formatCount);
+    VkPresentModeKHR presentMode = vk_choose_swap_present_mode(swapchainSupport.presentModes, swapchainSupport.presentModeCount);
+    VkExtent2D extent = vk_choose_swap_extent(&swapchainSupport.capabilities, width, height);
+    
+    uint32_t imageCount = swapchainSupport.capabilities.minImageCount + 1;
+    if (swapchainSupport.capabilities.maxImageCount > 0 && imageCount > swapchainSupport.capabilities.maxImageCount) {
+        imageCount = swapchainSupport.capabilities.maxImageCount;
+    }
+    
+    VkSwapchainCreateInfoKHR createInfo = {0};
+    createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    createInfo.surface = VkContext.surface;
+    createInfo.minImageCount = imageCount;
+    createInfo.imageFormat = surfaceFormat.format;
+    createInfo.imageColorSpace = surfaceFormat.colorSpace;
+    createInfo.imageExtent = extent;
+    createInfo.imageArrayLayers = 1;
+    createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    
+    VkQueueFamilyIndices indices = VkContext.queueFamilyIndices;
+    uint32_t queueFamilyIndices[] = {indices.graphicsFamily, indices.presentFamily};
+    
+    if (indices.graphicsFamily != indices.presentFamily) {
+        createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+        createInfo.queueFamilyIndexCount = 2;
+        createInfo.pQueueFamilyIndices = queueFamilyIndices;
+    } else {
+        createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        createInfo.queueFamilyIndexCount = 0;
+        createInfo.pQueueFamilyIndices = NULL;
+    }
+    
+    createInfo.preTransform = swapchainSupport.capabilities.currentTransform;
+    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    createInfo.presentMode = presentMode;
+    createInfo.clipped = VK_TRUE;
+    createInfo.oldSwapchain = VK_NULL_HANDLE;
+    
+    CHECK_VK(vkCreateSwapchainKHR(VkContext.device, &createInfo, NULL, &swapchain->vk.swapchain));
+    
+    swapchain->vk.imageFormat = surfaceFormat.format;
+    swapchain->vk.extent = extent;
+    
+    // Get swapchain images
+    CHECK_VK(vkGetSwapchainImagesKHR(VkContext.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, NULL));
+    swapchain->vk.images = malloc(swapchain->vk.imageCount * sizeof(VkImage));
+    CHECK_VK(vkGetSwapchainImagesKHR(VkContext.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, swapchain->vk.images));
+    
+    swapchain->imageCount = swapchain->vk.imageCount;
+    
+    // Cleanup support details
+    free(swapchainSupport.formats);
+    free(swapchainSupport.presentModes);
+    
+    RAZIX_RHI_LOG_INFO("Vulkan swapchain created: %ux%u, %u images", width, height, imageCount);
 }
 
 static void vk_DestroySwapchain(rz_gfx_swapchain* sc)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] DestroySwapchain - Skeleton implementation");
-    (void)sc;
+    if (sc->vk.images) {
+        free(sc->vk.images);
+        sc->vk.images = NULL;
+    }
+    
+    if (sc->vk.swapchain) {
+        vkDestroySwapchainKHR(VkContext.device, sc->vk.swapchain, NULL);
+        sc->vk.swapchain = VK_NULL_HANDLE;
+    }
+    
+    if (VkContext.surface) {
+        vkDestroySurfaceKHR(VkContext.instance, VkContext.surface, NULL);
+        VkContext.surface = VK_NULL_HANDLE;
+    }
+    
+    RAZIX_RHI_LOG_INFO("Vulkan swapchain destroyed");
+}
+
+//---------------------------------------------------------------------------------------------
+// Empty stub implementations for all other RHI functions
+//---------------------------------------------------------------------------------------------
+
+static void vk_CreateSyncobj(void* where, rz_gfx_syncobj_type type)
+{
+    (void)where; (void)type;
+    // TODO: Implement when needed
+}
+
+static void vk_DestroySyncobj(rz_gfx_syncobj* syncobj)
+{
+    (void)syncobj;
+    // TODO: Implement when needed
+}
+
+static void vk_CreateCmdPool(void* where)
+{
+    (void)where;
+    // TODO: Implement when needed
+}
+
+static void vk_DestroyCmdPool(void* cmdPool)
+{
+    (void)cmdPool;
+    // TODO: Implement when needed
+}
+
+static void vk_CreateCmdBuf(void* where)
+{
+    (void)where;
+    // TODO: Implement when needed
+}
+
+static void vk_DestroyCmdBuf(void* cmdBuf)
+{
+    (void)cmdBuf;
+    // TODO: Implement when needed
 }
 
 static void vk_CreateShader(void* where)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] CreateShader - Skeleton implementation");
     (void)where;
+    // TODO: Implement when needed
 }
 
 static void vk_DestroyShader(void* shader)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] DestroyShader - Skeleton implementation");
     (void)shader;
+    // TODO: Implement when needed
 }
 
 static void vk_CreateRootSignature(void* where)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] CreateRootSignature - Skeleton implementation");
     (void)where;
+    // TODO: Implement when needed
 }
 
 static void vk_DestroyRootSignature(void* ptr)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] DestroyRootSignature - Skeleton implementation");
     (void)ptr;
+    // TODO: Implement when needed
 }
 
 static void vk_CreatePipeline(void* pipeline)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] CreatePipeline - Skeleton implementation");
     (void)pipeline;
+    // TODO: Implement when needed
 }
 
 static void vk_DestroyPipeline(void* pipeline)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] DestroyPipeline - Skeleton implementation");
     (void)pipeline;
+    // TODO: Implement when needed
+}
+
+static void vk_CreateTexture(void* where)
+{
+    (void)where;
+    // TODO: Implement when needed
+}
+
+static void vk_DestroyTexture(void* texture)
+{
+    (void)texture;
+    // TODO: Implement when needed
 }
 
 static void vk_CreateSampler(void* where)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] CreateSampler - Skeleton implementation");
     (void)where;
+    // TODO: Implement when needed
 }
 
 static void vk_DestroySampler(void* sampler)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] DestroySampler - Skeleton implementation");
     (void)sampler;
+    // TODO: Implement when needed
 }
 
 static void vk_CreateDescriptorHeap(void* where)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] CreateDescriptorHeap - Skeleton implementation");
     (void)where;
+    // TODO: Implement when needed
 }
 
 static void vk_DestroyDescriptorHeap(void* heap)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] DestroyDescriptorHeap - Skeleton implementation");
     (void)heap;
+    // TODO: Implement when needed
 }
 
 static void vk_CreateDescriptorTable(void* where)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] CreateDescriptorTable - Skeleton implementation");
     (void)where;
+    // TODO: Implement when needed
 }
 
 static void vk_DestroyDescriptorTable(void* table)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] DestroyDescriptorTable - Skeleton implementation");
     (void)table;
+    // TODO: Implement when needed
 }
 
-// Rendering functions - skeleton implementations
 static void vk_AcquireImage(rz_gfx_swapchain* sc)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] AcquireImage - Skeleton implementation");
     (void)sc;
+    // TODO: Implement when needed
 }
 
 static void vk_WaitOnPrevCmds(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint waitSyncPoint)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] WaitOnPrevCmds - Skeleton implementation");
     (void)syncobj; (void)waitSyncPoint;
+    // TODO: Implement when needed
 }
 
 static void vk_Present(const rz_gfx_swapchain* sc)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] Present - Skeleton implementation");
     (void)sc;
+    // TODO: Implement when needed
 }
 
 static void vk_BeginCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] BeginCmdBuf - Skeleton implementation");
     (void)cmdBuf;
+    // TODO: Implement when needed
 }
 
 static void vk_EndCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] EndCmdBuf - Skeleton implementation");
     (void)cmdBuf;
+    // TODO: Implement when needed
 }
 
 static void vk_SubmitCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] SubmitCmdBuf - Skeleton implementation");
     (void)cmdBuf;
+    // TODO: Implement when needed
 }
 
 static void vk_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderpass* renderPass)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] BeginRenderPass - Skeleton implementation");
     (void)cmdBuf; (void)renderPass;
+    // TODO: Implement when needed
 }
 
 static void vk_EndRenderPass(const rz_gfx_cmdbuf* cmdBuf)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] EndRenderPass - Skeleton implementation");
     (void)cmdBuf;
+    // TODO: Implement when needed
 }
 
 static void vk_SetViewport(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewport)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] SetViewport - Skeleton implementation");
     (void)cmdBuf; (void)viewport;
+    // TODO: Implement when needed
 }
 
 static void vk_SetScissorRect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* rect)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] SetScissorRect - Skeleton implementation");
     (void)cmdBuf; (void)rect;
+    // TODO: Implement when needed
 }
 
 static void vk_BindPipeline(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_pipeline* pipeline)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] BindPipeline - Skeleton implementation");
     (void)cmdBuf; (void)pipeline;
+    // TODO: Implement when needed
 }
 
 static void vk_BindGfxRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_signature* rootSig)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] BindGfxRootSig - Skeleton implementation");
     (void)cmdBuf; (void)rootSig;
+    // TODO: Implement when needed
 }
 
 static void vk_BindComputeRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_signature* rootSig)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] BindComputeRootSig - Skeleton implementation");
     (void)cmdBuf; (void)rootSig;
+    // TODO: Implement when needed
 }
 
 static void vk_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] DrawAuto - Skeleton implementation");
     (void)cmdBuf; (void)vertexCount; (void)instanceCount; (void)firstVertex; (void)firstInstance;
+    // TODO: Implement when needed
 }
 
 static void vk_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] InsertImageBarrier - Skeleton implementation");
     (void)cmdBuf; (void)texture; (void)beforeState; (void)afterState;
+    // TODO: Implement when needed
 }
 
 static void vk_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_texture_readback* readback)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] InsertTextureReadback - Skeleton implementation");
     (void)texture; (void)readback;
+    // TODO: Implement when needed
 }
 
 static rz_gfx_syncpoint vk_SignalGPU(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint* globalSyncPoint)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] SignalGPU - Skeleton implementation");
     (void)syncobj; (void)globalSyncPoint;
-    return 0;
+    // TODO: Implement when needed
+    rz_gfx_syncpoint result = {0};
+    return result;
 }
 
 static void vk_FlushGPUWork(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint* globalSyncpoint)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] FlushGPUWork - Skeleton implementation");
     (void)syncobj; (void)globalSyncpoint;
+    // TODO: Implement when needed
 }
 
 static void vk_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t height)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] ResizeSwapchain - Skeleton implementation");
     (void)sc; (void)width; (void)height;
+    // TODO: Implement when needed
 }
 
 static void vk_BeginFrame(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] BeginFrame - Skeleton implementation");
     (void)sc; (void)frameSyncobj; (void)frameSyncPoints; (void)globalSyncPoint;
+    // TODO: Implement when needed
 }
 
 static void vk_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
 {
-    RAZIX_RHI_LOG_WARN("[Vulkan] EndFrame - Skeleton implementation");
     (void)sc; (void)frameSyncobj; (void)frameSyncPoints; (void)globalSyncPoint;
+    // TODO: Implement when needed
 }
 
 //---------------------------------------------------------------------------------------------
@@ -693,29 +1045,29 @@ static void vk_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameS
 //---------------------------------------------------------------------------------------------
 
 rz_rhi_api vk_rhi = {
-    .GlobalCtxInit        = vk_GlobalCtxInit,         // GlobalCtxInit
-    .GlobalCtxDestroy     = vk_GlobalCtxDestroy,      // GlobalCtxDestroy
-    .CreateSyncobj        = vk_CreateSyncobj,         // CreateSyncobj
-    .DestroySyncobj       = vk_DestroySyncobj,        // DestroySyncobj
-    .CreateSwapchain      = vk_CreateSwapchain,       // CreateSwapchain
-    .DestroySwapchain     = vk_DestroySwapchain,      // DestroySwapchain
-    .CreateCmdPool        = vk_CreateCmdPool,         // CreateCmdPool
-    .DestroyCmdPool       = vk_DestroyCmdPool,        // DestroyCmdPool
-    .CreateCmdBuf         = vk_CreateCmdBuf,          // CreateCmdBuf
-    .DestroyCmdBuf        = vk_DestroyCmdBuf,         // DestroyCmdBuf
-    .CreateShader         = vk_CreateShader,          // CreateShader
-    .DestroyShader        = vk_DestroyShader,         // DestroyShader
-    .CreateRootSignature  = vk_CreateRootSignature,   // CreateRootSignature
-    .DestroyRootSignature = vk_DestroyRootSignature,  // DestroyRootSignature
-    .CreatePipeline       = vk_CreatePipeline,        // CreatePipeline
-    .DestroyPipeline      = vk_DestroyPipeline,       // DestroyPipeline
-    .CreateTexture        = vk_CreateTexture,         // CreateTexture
-    .DestroyTexture       = vk_DestroyTexture,        // DestroyTexture
-    .CreateSampler        = vk_CreateSampler,         // CreateSampler
-    .DestroySampler       = vk_DestroySampler,        // DestroySampler
-    .CreateDescriptorHeap = vk_CreateDescriptorHeap,  // CreateDescriptorHeap
-    .DestroyDescriptorHeap = vk_DestroyDescriptorHeap, // DestroyDescriptorHeap
-    .CreateDescriptorTable = vk_CreateDescriptorTable, // CreateDescriptorTable
+    .GlobalCtxInit        = vk_GlobalCtxInit,           // GlobalCtxInit
+    .GlobalCtxDestroy     = vk_GlobalCtxDestroy,        // GlobalCtxDestroy
+    .CreateSyncobj        = vk_CreateSyncobj,           // CreateSyncobj
+    .DestroySyncobj       = vk_DestroySyncobj,          // DestroySyncobj
+    .CreateSwapchain      = vk_CreateSwapchain,         // CreateSwapchain
+    .DestroySwapchain     = vk_DestroySwapchain,        // DestroySwapchain
+    .CreateCmdPool        = vk_CreateCmdPool,           // CreateCmdPool
+    .DestroyCmdPool       = vk_DestroyCmdPool,          // DestroyCmdPool
+    .CreateCmdBuf         = vk_CreateCmdBuf,            // CreateCmdBuf
+    .DestroyCmdBuf        = vk_DestroyCmdBuf,           // DestroyCmdBuf
+    .CreateShader         = vk_CreateShader,            // CreateShader
+    .DestroyShader        = vk_DestroyShader,           // DestroyShader
+    .CreateRootSignature  = vk_CreateRootSignature,     // CreateRootSignature
+    .DestroyRootSignature = vk_DestroyRootSignature,    // DestroyRootSignature
+    .CreatePipeline       = vk_CreatePipeline,          // CreatePipeline
+    .DestroyPipeline      = vk_DestroyPipeline,         // DestroyPipeline
+    .CreateTexture        = vk_CreateTexture,           // CreateTexture
+    .DestroyTexture       = vk_DestroyTexture,          // DestroyTexture
+    .CreateSampler        = vk_CreateSampler,           // CreateSampler
+    .DestroySampler       = vk_DestroySampler,          // DestroySampler
+    .CreateDescriptorHeap = vk_CreateDescriptorHeap,    // CreateDescriptorHeap
+    .DestroyDescriptorHeap = vk_DestroyDescriptorHeap,  // DestroyDescriptorHeap
+    .CreateDescriptorTable = vk_CreateDescriptorTable,  // CreateDescriptorTable
     .DestroyDescriptorTable = vk_DestroyDescriptorTable, // DestroyDescriptorTable
     
     .AcquireImage       = vk_AcquireImage,          // AcquireImage

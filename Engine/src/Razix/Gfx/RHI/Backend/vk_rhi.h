@@ -38,9 +38,6 @@ typedef struct vk_ctx
     VkQueueFamilyIndices     queueFamilyIndices;
     VkQueue                  graphicsQueue;
     VkQueue                  presentQueue;
-    VkQueue                  computeQueue;
-    VkQueue                  transferQueue;
-    VkCommandPool            transientCmdPool;  // For one-time command submissions
     
     // Device features and properties
     VkPhysicalDeviceProperties       deviceProperties;
@@ -51,14 +48,6 @@ typedef struct vk_ctx
     #ifdef RAZIX_DEBUG
     VkDebugUtilsMessengerEXT debugMessenger;
     #endif
-    
-    // Available extensions and layers
-    char** enabledInstanceExtensions;
-    uint32_t enabledInstanceExtensionCount;
-    char** enabledDeviceExtensions;
-    uint32_t enabledDeviceExtensionCount;
-    char** enabledLayers;
-    uint32_t enabledLayerCount;
 } vk_ctx;
 
 typedef struct vk_syncobj
