@@ -2556,9 +2556,11 @@ static void dx12_DestroyDescriptorHeap(void* heap)
         descHeap->dx12.heapStart.gpu.ptr = 0;
         descHeap->dx12.heapStart.cpu.ptr = 0;
 
-        if (descHeap->freeListAllocator)
+        rz_gfx_descriptor_heap_desc* desc = &descHeap->resource.desc.descriptorHeapDesc;
+
+        if (descHeap->freeListAllocator && (desc->flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST))
             dx12_destroy_descriptor_freelist_allocator(descHeap);
-        else {
+        else if (desc->flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER) {
             descHeap->ringBufferHead = 0;
             descHeap->ringBufferTail = 0;
             descHeap->isFull         = false;
