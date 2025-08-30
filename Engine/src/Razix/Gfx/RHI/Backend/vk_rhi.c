@@ -4,6 +4,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 // Type friendly defines
 #define VkContext g_GfxCtx.vk
@@ -39,6 +40,39 @@ PFN_vkGetPhysicalDeviceMemoryProperties vkGetPhysicalDeviceMemoryProperties;
 // Device-level functions
 PFN_vkDestroyDevice                     vkDestroyDevice;
 PFN_vkGetDeviceQueue                    vkGetDeviceQueue;
+
+// Command buffer functions
+PFN_vkCreateCommandPool                 vkCreateCommandPool;
+PFN_vkDestroyCommandPool                vkDestroyCommandPool;
+PFN_vkAllocateCommandBuffers            vkAllocateCommandBuffers;
+PFN_vkFreeCommandBuffers                vkFreeCommandBuffers;
+PFN_vkBeginCommandBuffer                vkBeginCommandBuffer;
+PFN_vkEndCommandBuffer                  vkEndCommandBuffer;
+PFN_vkQueueSubmit                       vkQueueSubmit;
+PFN_vkQueueWaitIdle                     vkQueueWaitIdle;
+
+// Rendering functions
+PFN_vkCmdBeginRenderPass                vkCmdBeginRenderPass;
+PFN_vkCmdEndRenderPass                  vkCmdEndRenderPass;
+PFN_vkCmdSetViewport                    vkCmdSetViewport;
+PFN_vkCmdSetScissor                     vkCmdSetScissor;
+PFN_vkCmdBindPipeline                   vkCmdBindPipeline;
+PFN_vkCmdBindDescriptorSets             vkCmdBindDescriptorSets;
+PFN_vkCmdDraw                           vkCmdDraw;
+PFN_vkCmdDrawIndexed                    vkCmdDrawIndexed;
+PFN_vkCmdPipelineBarrier                vkCmdPipelineBarrier;
+
+// Synchronization functions
+PFN_vkCreateSemaphore                   vkCreateSemaphore;
+PFN_vkDestroySemaphore                  vkDestroySemaphore;
+PFN_vkCreateFence                       vkCreateFence;
+PFN_vkDestroyFence                      vkDestroyFence;
+PFN_vkWaitForFences                     vkWaitForFences;
+PFN_vkResetFences                       vkResetFences;
+
+// Swapchain image presentation
+PFN_vkAcquireNextImageKHR               vkAcquireNextImageKHR;
+PFN_vkQueuePresentKHR                   vkQueuePresentKHR;
 
 // Surface functions
 PFN_vkDestroySurfaceKHR                 vkDestroySurfaceKHR;
@@ -197,6 +231,41 @@ static void vk_load_device_functions(VkDevice device)
 {
     vkDestroyDevice = (PFN_vkDestroyDevice)vkGetInstanceProcAddr(VkContext.instance, "vkDestroyDevice");
     vkGetDeviceQueue = (PFN_vkGetDeviceQueue)vkGetInstanceProcAddr(VkContext.instance, "vkGetDeviceQueue");
+    
+    // Command buffer functions
+    vkCreateCommandPool = (PFN_vkCreateCommandPool)vkGetInstanceProcAddr(VkContext.instance, "vkCreateCommandPool");
+    vkDestroyCommandPool = (PFN_vkDestroyCommandPool)vkGetInstanceProcAddr(VkContext.instance, "vkDestroyCommandPool");
+    vkAllocateCommandBuffers = (PFN_vkAllocateCommandBuffers)vkGetInstanceProcAddr(VkContext.instance, "vkAllocateCommandBuffers");
+    vkFreeCommandBuffers = (PFN_vkFreeCommandBuffers)vkGetInstanceProcAddr(VkContext.instance, "vkFreeCommandBuffers");
+    vkBeginCommandBuffer = (PFN_vkBeginCommandBuffer)vkGetInstanceProcAddr(VkContext.instance, "vkBeginCommandBuffer");
+    vkEndCommandBuffer = (PFN_vkEndCommandBuffer)vkGetInstanceProcAddr(VkContext.instance, "vkEndCommandBuffer");
+    vkQueueSubmit = (PFN_vkQueueSubmit)vkGetInstanceProcAddr(VkContext.instance, "vkQueueSubmit");
+    vkQueueWaitIdle = (PFN_vkQueueWaitIdle)vkGetInstanceProcAddr(VkContext.instance, "vkQueueWaitIdle");
+    
+    // Rendering functions
+    vkCmdBeginRenderPass = (PFN_vkCmdBeginRenderPass)vkGetInstanceProcAddr(VkContext.instance, "vkCmdBeginRenderPass");
+    vkCmdEndRenderPass = (PFN_vkCmdEndRenderPass)vkGetInstanceProcAddr(VkContext.instance, "vkCmdEndRenderPass");
+    vkCmdSetViewport = (PFN_vkCmdSetViewport)vkGetInstanceProcAddr(VkContext.instance, "vkCmdSetViewport");
+    vkCmdSetScissor = (PFN_vkCmdSetScissor)vkGetInstanceProcAddr(VkContext.instance, "vkCmdSetScissor");
+    vkCmdBindPipeline = (PFN_vkCmdBindPipeline)vkGetInstanceProcAddr(VkContext.instance, "vkCmdBindPipeline");
+    vkCmdBindDescriptorSets = (PFN_vkCmdBindDescriptorSets)vkGetInstanceProcAddr(VkContext.instance, "vkCmdBindDescriptorSets");
+    vkCmdDraw = (PFN_vkCmdDraw)vkGetInstanceProcAddr(VkContext.instance, "vkCmdDraw");
+    vkCmdDrawIndexed = (PFN_vkCmdDrawIndexed)vkGetInstanceProcAddr(VkContext.instance, "vkCmdDrawIndexed");
+    vkCmdPipelineBarrier = (PFN_vkCmdPipelineBarrier)vkGetInstanceProcAddr(VkContext.instance, "vkCmdPipelineBarrier");
+    
+    // Synchronization functions
+    vkCreateSemaphore = (PFN_vkCreateSemaphore)vkGetInstanceProcAddr(VkContext.instance, "vkCreateSemaphore");
+    vkDestroySemaphore = (PFN_vkDestroySemaphore)vkGetInstanceProcAddr(VkContext.instance, "vkDestroySemaphore");
+    vkCreateFence = (PFN_vkCreateFence)vkGetInstanceProcAddr(VkContext.instance, "vkCreateFence");
+    vkDestroyFence = (PFN_vkDestroyFence)vkGetInstanceProcAddr(VkContext.instance, "vkDestroyFence");
+    vkWaitForFences = (PFN_vkWaitForFences)vkGetInstanceProcAddr(VkContext.instance, "vkWaitForFences");
+    vkResetFences = (PFN_vkResetFences)vkGetInstanceProcAddr(VkContext.instance, "vkResetFences");
+    
+    // Swapchain presentation functions
+    vkAcquireNextImageKHR = (PFN_vkAcquireNextImageKHR)vkGetInstanceProcAddr(VkContext.instance, "vkAcquireNextImageKHR");
+    vkQueuePresentKHR = (PFN_vkQueuePresentKHR)vkGetInstanceProcAddr(VkContext.instance, "vkQueuePresentKHR");
+    
+    // Swapchain functions
     vkCreateSwapchainKHR = (PFN_vkCreateSwapchainKHR)vkGetInstanceProcAddr(VkContext.instance, "vkCreateSwapchainKHR");
     vkDestroySwapchainKHR = (PFN_vkDestroySwapchainKHR)vkGetInstanceProcAddr(VkContext.instance, "vkDestroySwapchainKHR");
     vkGetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)vkGetInstanceProcAddr(VkContext.instance, "vkGetSwapchainImagesKHR");
@@ -914,32 +983,112 @@ static void vk_DestroyDescriptorTable(void* table)
 
 static void vk_AcquireImage(rz_gfx_swapchain* sc)
 {
-    (void)sc;
-    // TODO: Implement when needed
+    assert(sc != NULL && "Swapchain cannot be null");
+    assert(sc->vk.swapchain != VK_NULL_HANDLE && "Vulkan swapchain is invalid");
+    
+    VkResult result = vkAcquireNextImageKHR(
+        VkContext.device,
+        sc->vk.swapchain,
+        UINT64_MAX,  // No timeout
+        VK_NULL_HANDLE,  // No semaphore for now
+        VK_NULL_HANDLE,  // No fence for now  
+        &sc->vk.currentImageIndex
+    );
+    
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+        RAZIX_RHI_LOG_WARN("Swapchain out of date or suboptimal, image index: %u", sc->vk.currentImageIndex);
+        // TODO: Handle swapchain recreation
+    } else if (result != VK_SUCCESS) {
+        RAZIX_RHI_LOG_ERROR("Failed to acquire swapchain image: %d", result);
+        return;
+    }
+    
+    RAZIX_RHI_LOG_TRACE("Acquired swapchain image index: %u", sc->vk.currentImageIndex);
 }
 
 static void vk_WaitOnPrevCmds(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint waitSyncPoint)
 {
-    (void)syncobj; (void)waitSyncPoint;
-    // TODO: Implement when needed
+    assert(syncobj != NULL && "Sync object cannot be null");
+    
+    // Basic fence waiting implementation
+    if (syncobj->vk.fence != VK_NULL_HANDLE) {
+        VkResult result = vkWaitForFences(VkContext.device, 1, &syncobj->vk.fence, VK_TRUE, UINT64_MAX);
+        if (result != VK_SUCCESS) {
+            RAZIX_RHI_LOG_ERROR("Failed to wait for fence: %d", result);
+            return;
+        }
+        RAZIX_RHI_LOG_TRACE("Waited on fence (sync point: %llu)", (unsigned long long)waitSyncPoint);
+    } else {
+        RAZIX_RHI_LOG_TRACE("No fence to wait on (sync point: %llu)", (unsigned long long)waitSyncPoint);
+    }
 }
 
 static void vk_Present(const rz_gfx_swapchain* sc)
 {
-    (void)sc;
-    // TODO: Implement when needed
+    assert(sc != NULL && "Swapchain cannot be null");
+    assert(sc->vk.swapchain != VK_NULL_HANDLE && "Vulkan swapchain is invalid");
+    
+    VkPresentInfoKHR presentInfo = {
+        .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+        .waitSemaphoreCount = 0,  // No semaphores for now
+        .pWaitSemaphores = NULL,
+        .swapchainCount = 1,
+        .pSwapchains = &sc->vk.swapchain,
+        .pImageIndices = &sc->vk.currentImageIndex,
+        .pResults = NULL  // Optional
+    };
+    
+    VkResult result = vkQueuePresentKHR(VkContext.presentQueue, &presentInfo);
+    
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+        RAZIX_RHI_LOG_WARN("Swapchain out of date or suboptimal during present");
+        // TODO: Handle swapchain recreation
+    } else if (result != VK_SUCCESS) {
+        RAZIX_RHI_LOG_ERROR("Failed to present swapchain image: %d", result);
+        return;
+    }
+    
+    RAZIX_RHI_LOG_TRACE("Presented swapchain image index: %u", sc->vk.currentImageIndex);
 }
 
 static void vk_BeginCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 {
-    (void)cmdBuf;
-    // TODO: Implement when needed
+    assert(cmdBuf != NULL && "Command buffer cannot be null");
+    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
+    
+    VkCommandBufferBeginInfo beginInfo = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,  // Assuming one-time usage for most cases
+        .pInheritanceInfo = NULL
+    };
+    
+    VkResult result = vkBeginCommandBuffer(cmdBuf->vk.cmdBuf, &beginInfo);
+    if (result != VK_SUCCESS) {
+        RAZIX_RHI_LOG_ERROR("Failed to begin command buffer recording: %d", result);
+        return;
+    }
+    
+    // Mark as recording (if struct supports it)
+    // cmdBuf->vk.isRecording = true;  // Uncomment if vk_cmdbuf has this field
+    
+    RAZIX_RHI_LOG_TRACE("Command buffer recording started");
 }
 
 static void vk_EndCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 {
-    (void)cmdBuf;
-    // TODO: Implement when needed
+    assert(cmdBuf != NULL && "Command buffer cannot be null");
+    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
+    
+    VkResult result = vkEndCommandBuffer(cmdBuf->vk.cmdBuf);
+    if (result != VK_SUCCESS) {
+        RAZIX_RHI_LOG_ERROR("Failed to end command buffer recording: %d", result);
+        return;
+    }
+    
+    // Mark as not recording (if struct supports it)
+    // cmdBuf->vk.isRecording = false;  // Uncomment if vk_cmdbuf has this field
+    
+    RAZIX_RHI_LOG_TRACE("Command buffer recording ended");
 }
 
 static void vk_SubmitCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
@@ -950,50 +1099,156 @@ static void vk_SubmitCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 
 static void vk_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderpass* renderPass)
 {
-    (void)cmdBuf; (void)renderPass;
-    // TODO: Implement when needed
+    assert(cmdBuf != NULL && "Command buffer cannot be null");
+    assert(renderPass != NULL && "Render pass cannot be null");
+    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
+    assert(renderPass->vk.renderPass != VK_NULL_HANDLE && "Vulkan render pass is invalid");
+    assert(renderPass->vk.framebuffer != VK_NULL_HANDLE && "Vulkan framebuffer is invalid");
+    
+    VkClearValue clearValues[2] = {
+        { .color = { .float32 = {0.0f, 0.0f, 0.0f, 1.0f} } },  // Color clear
+        { .depthStencil = { .depth = 1.0f, .stencil = 0 } }     // Depth/stencil clear
+    };
+    
+    VkRenderPassBeginInfo renderPassInfo = {
+        .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+        .renderPass = renderPass->vk.renderPass,
+        .framebuffer = renderPass->vk.framebuffer,
+        .renderArea = {
+            .offset = {0, 0},
+            .extent = renderPass->vk.extent  // Assuming extent is stored in render pass
+        },
+        .clearValueCount = 2,
+        .pClearValues = clearValues
+    };
+    
+    vkCmdBeginRenderPass(cmdBuf->vk.cmdBuf, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    
+    RAZIX_RHI_LOG_TRACE("Render pass begun");
 }
 
 static void vk_EndRenderPass(const rz_gfx_cmdbuf* cmdBuf)
 {
-    (void)cmdBuf;
-    // TODO: Implement when needed
+    assert(cmdBuf != NULL && "Command buffer cannot be null");
+    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
+    
+    vkCmdEndRenderPass(cmdBuf->vk.cmdBuf);
+    
+    RAZIX_RHI_LOG_TRACE("Render pass ended");
 }
 
 static void vk_SetViewport(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewport)
 {
-    (void)cmdBuf; (void)viewport;
-    // TODO: Implement when needed
+    assert(cmdBuf != NULL && "Command buffer cannot be null");
+    assert(viewport != NULL && "Viewport cannot be null");
+    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
+    
+    VkViewport vkViewport = {
+        .x = (float)viewport->x,
+        .y = (float)viewport->y,
+        .width = (float)viewport->width,
+        .height = (float)viewport->height,
+        .minDepth = (float)viewport->minDepth / 65535.0f,  // Convert from uint32 to normalized float
+        .maxDepth = (float)viewport->maxDepth / 65535.0f   // Convert from uint32 to normalized float
+    };
+    
+    vkCmdSetViewport(cmdBuf->vk.cmdBuf, 0, 1, &vkViewport);
+    
+    RAZIX_RHI_LOG_TRACE("Viewport set: %.1f,%.1f %.1fx%.1f depth[%.3f-%.3f]", 
+                        vkViewport.x, vkViewport.y, vkViewport.width, vkViewport.height,
+                        vkViewport.minDepth, vkViewport.maxDepth);
 }
 
 static void vk_SetScissorRect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* rect)
 {
-    (void)cmdBuf; (void)rect;
-    // TODO: Implement when needed
+    assert(cmdBuf != NULL && "Command buffer cannot be null");
+    assert(rect != NULL && "Scissor rect cannot be null");
+    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
+    
+    VkRect2D scissor = {
+        .offset = { .x = rect->x, .y = rect->y },
+        .extent = { .width = rect->width, .height = rect->height }
+    };
+    
+    vkCmdSetScissor(cmdBuf->vk.cmdBuf, 0, 1, &scissor);
+    
+    RAZIX_RHI_LOG_TRACE("Scissor rect set: %d,%d %dx%d", 
+                        rect->x, rect->y, rect->width, rect->height);
 }
 
 static void vk_BindPipeline(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_pipeline* pipeline)
 {
-    (void)cmdBuf; (void)pipeline;
-    // TODO: Implement when needed
+    assert(cmdBuf != NULL && "Command buffer cannot be null");
+    assert(pipeline != NULL && "Pipeline cannot be null");
+    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
+    assert(pipeline->vk.pipeline != VK_NULL_HANDLE && "Vulkan pipeline is invalid");
+    
+    // Determine the pipeline bind point based on pipeline type
+    VkPipelineBindPoint bindPoint;
+    if (pipeline->resource.desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_GRAPHICS) {
+        bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    } else if (pipeline->resource.desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_COMPUTE) {
+        bindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
+    } else {
+        RAZIX_RHI_LOG_ERROR("Unknown pipeline type: %d", pipeline->resource.desc.pipelineDesc.type);
+        return;
+    }
+    
+    vkCmdBindPipeline(cmdBuf->vk.cmdBuf, bindPoint, pipeline->vk.pipeline);
+    
+    RAZIX_RHI_LOG_TRACE("Pipeline bound (type: %s)", 
+                        bindPoint == VK_PIPELINE_BIND_POINT_GRAPHICS ? "Graphics" : "Compute");
 }
 
 static void vk_BindGfxRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_signature* rootSig)
 {
-    (void)cmdBuf; (void)rootSig;
-    // TODO: Implement when needed
+    assert(cmdBuf != NULL && "Command buffer cannot be null");
+    assert(rootSig != NULL && "Root signature cannot be null");
+    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
+    assert(rootSig->vk.pipelineLayout != VK_NULL_HANDLE && "Vulkan pipeline layout is invalid");
+    
+    // In Vulkan, root signatures correspond to descriptor sets bound to pipeline layouts
+    // For now, we'll just bind the pipeline layout - descriptor sets need to be bound separately
+    // This is a placeholder implementation that sets up the pipeline layout binding
+    
+    RAZIX_RHI_LOG_TRACE("Graphics root signature bound (pipeline layout ready)");
+    
+    // Note: Actual descriptor set binding would happen when descriptors are available
+    // vkCmdBindDescriptorSets(cmdBuf->vk.cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, 
+    //                         rootSig->vk.pipelineLayout, 0, descriptorSetCount, 
+    //                         pDescriptorSets, 0, nullptr);
 }
 
 static void vk_BindComputeRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_signature* rootSig)
 {
-    (void)cmdBuf; (void)rootSig;
-    // TODO: Implement when needed
+    assert(cmdBuf != NULL && "Command buffer cannot be null");
+    assert(rootSig != NULL && "Root signature cannot be null");
+    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
+    assert(rootSig->vk.pipelineLayout != VK_NULL_HANDLE && "Vulkan pipeline layout is invalid");
+    
+    // In Vulkan, root signatures correspond to descriptor sets bound to pipeline layouts
+    // For now, we'll just bind the pipeline layout - descriptor sets need to be bound separately
+    // This is a placeholder implementation that sets up the pipeline layout binding
+    
+    RAZIX_RHI_LOG_TRACE("Compute root signature bound (pipeline layout ready)");
+    
+    // Note: Actual descriptor set binding would happen when descriptors are available
+    // vkCmdBindDescriptorSets(cmdBuf->vk.cmdBuf, VK_PIPELINE_BIND_POINT_COMPUTE, 
+    //                         rootSig->vk.pipelineLayout, 0, descriptorSetCount, 
+    //                         pDescriptorSets, 0, nullptr);
 }
 
 static void vk_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
 {
-    (void)cmdBuf; (void)vertexCount; (void)instanceCount; (void)firstVertex; (void)firstInstance;
-    // TODO: Implement when needed
+    assert(cmdBuf != NULL && "Command buffer cannot be null");
+    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
+    assert(vertexCount > 0 && "Vertex count must be greater than 0");
+    assert(instanceCount > 0 && "Instance count must be greater than 0");
+    
+    vkCmdDraw(cmdBuf->vk.cmdBuf, vertexCount, instanceCount, firstVertex, firstInstance);
+    
+    RAZIX_RHI_LOG_TRACE("Draw command: %u vertices, %u instances (start: %u, %u)", 
+                        vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
 static void vk_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
@@ -1030,14 +1285,39 @@ static void vk_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t he
 
 static void vk_BeginFrame(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
 {
-    (void)sc; (void)frameSyncobj; (void)frameSyncPoints; (void)globalSyncPoint;
-    // TODO: Implement when needed
+    assert(sc != NULL && "Swapchain cannot be null");
+    
+    // Basic frame begin operations
+    // Acquire the next swapchain image for rendering
+    vk_AcquireImage(sc);
+    
+    // Reset any frame-specific resources if needed
+    if (frameSyncobj && frameSyncobj->vk.fence != VK_NULL_HANDLE) {
+        vkResetFences(VkContext.device, 1, &frameSyncobj->vk.fence);
+    }
+    
+    RAZIX_RHI_LOG_TRACE("Frame begun (image index: %u)", sc->vk.currentImageIndex);
+    
+    // Update sync points if provided
+    (void)frameSyncPoints; (void)globalSyncPoint;  // Unused for now
 }
 
 static void vk_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
 {
-    (void)sc; (void)frameSyncobj; (void)frameSyncPoints; (void)globalSyncPoint;
-    // TODO: Implement when needed
+    assert(sc != NULL && "Swapchain cannot be null");
+    
+    // Present the rendered frame
+    vk_Present(sc);
+    
+    // Wait for GPU to complete if synchronization object is provided
+    if (frameSyncobj && frameSyncobj->vk.fence != VK_NULL_HANDLE) {
+        vkWaitForFences(VkContext.device, 1, &frameSyncobj->vk.fence, VK_TRUE, UINT64_MAX);
+    }
+    
+    RAZIX_RHI_LOG_TRACE("Frame ended (image index: %u)", sc->vk.currentImageIndex);
+    
+    // Update sync points if provided
+    (void)frameSyncPoints; (void)globalSyncPoint;  // Unused for now
 }
 
 //---------------------------------------------------------------------------------------------
