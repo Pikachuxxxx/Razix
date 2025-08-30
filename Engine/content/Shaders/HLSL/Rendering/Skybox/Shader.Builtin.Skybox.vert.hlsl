@@ -6,7 +6,7 @@
 #include <ShaderInclude.Builtin.ShaderLangCommon.h>
 //------------------------------------------------------------------------------
 #include <Common/ShaderInclude.Builtin.FrameData.h>
-#include <Common/ShaderInclude.Builtin.VertexInput.h>    // define the common vertex input over the engine
+#include <Razix/Shared/RZShaderCompitability.h>    // define the common vertex input over the engine
 //------------------------------------------------------------------------------
 // Vertex Shader Stage Output
 struct VSOut
@@ -18,7 +18,7 @@ struct VSOut
 VSOut VS_MAIN(VSIn vsIn)
 {
     VSOut vs_out;
-    vs_out.PixelLocalPosTime.xyz = vsIn.inPosition;
+    vs_out.PixelLocalPosTime.xyz = vsIn.Position;
     //    vs_out.PixelLocalPosTime.y = -vs_out.PixelLocalPosTime.y;
     vs_out.PixelLocalPosTime.w = frame_info.time;
 
