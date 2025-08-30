@@ -1,0 +1,13 @@
+﻿/*
+ * Razix Shader File 
+ * Shader.Test.Primitive.rzsf : Test shader to check instance indirect draw rendering of some cube primitives
+ * Copyright Razix Engine 2025 by Pikachuxxxx (Phani Srikar)
+ */
+
+#shader vertex
+    #include Shader.Test.Primitive.vert
+#end
+ 
+#shader fragment
+    #include Shader.Test.Primitive.frag
+#end

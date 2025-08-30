@@ -139,7 +139,7 @@ namespace Razix {
                 T                      resource;
                 const typename T::Desc descriptor;
                 u32                    m_ID;
-                const std::string&     m_Name;
+                std::string            m_Name;
             };
 
         public:

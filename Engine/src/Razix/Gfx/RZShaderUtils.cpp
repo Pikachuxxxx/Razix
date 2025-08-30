@@ -147,6 +147,106 @@ namespace Razix {
             }
         }
 
+        rz_gfx_format DX12DXXGIToEngineFormat(DXGI_FORMAT format)
+        {
+            switch (format) {
+                // Undefined
+                case DXGI_FORMAT_UNKNOWN:
+                    return RZ_GFX_FORMAT_UNDEFINED;
+
+                // 8-bit formats
+                case DXGI_FORMAT_R8_UNORM:
+                    return RZ_GFX_FORMAT_R8_UNORM;
+                case DXGI_FORMAT_R8_UINT:
+                    return RZ_GFX_FORMAT_R8_UINT;
+                case DXGI_FORMAT_R8G8_UNORM:
+                    return RZ_GFX_FORMAT_R8G8_UNORM;
+                case DXGI_FORMAT_R8G8B8A8_UNORM:
+                    return RZ_GFX_FORMAT_R8G8B8A8_UNORM;
+                case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+                    return RZ_GFX_FORMAT_R8G8B8A8_SRGB;
+                case DXGI_FORMAT_B8G8R8A8_UNORM:
+                    return RZ_GFX_FORMAT_B8G8R8A8_UNORM;
+                case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
+                    return RZ_GFX_FORMAT_B8G8R8A8_SRGB;
+
+                // 16-bit formats
+                case DXGI_FORMAT_R16_UNORM:
+                    return RZ_GFX_FORMAT_R16_UNORM;
+                case DXGI_FORMAT_R16_FLOAT:
+                    return RZ_GFX_FORMAT_R16_FLOAT;
+                case DXGI_FORMAT_R16G16_UNORM:
+                    return RZ_GFX_FORMAT_R16G16_UNORM;
+                case DXGI_FORMAT_R16G16_FLOAT:
+                    return RZ_GFX_FORMAT_R16G16_FLOAT;
+                case DXGI_FORMAT_R16G16B16A16_UNORM:
+                    return RZ_GFX_FORMAT_R16G16B16A16_UNORM;
+                case DXGI_FORMAT_R16G16B16A16_FLOAT:
+                    return RZ_GFX_FORMAT_R16G16B16A16_FLOAT;
+
+                // 32-bit signed integer formats
+                case DXGI_FORMAT_R32_SINT:
+                    return RZ_GFX_FORMAT_R32_SINT;
+                case DXGI_FORMAT_R32G32_SINT:
+                    return RZ_GFX_FORMAT_R32G32_SINT;
+                case DXGI_FORMAT_R32G32B32_SINT:
+                    return RZ_GFX_FORMAT_R32G32B32_SINT;
+                case DXGI_FORMAT_R32G32B32A32_SINT:
+                    return RZ_GFX_FORMAT_R32G32B32A32_SINT;
+
+                // 32-bit unsigned integer formats
+                case DXGI_FORMAT_R32_UINT:
+                    return RZ_GFX_FORMAT_R32_UINT;
+                case DXGI_FORMAT_R32G32_UINT:
+                    return RZ_GFX_FORMAT_R32G32_UINT;
+                case DXGI_FORMAT_R32G32B32_UINT:
+                    return RZ_GFX_FORMAT_R32G32B32_UINT;
+                case DXGI_FORMAT_R32G32B32A32_UINT:
+                    return RZ_GFX_FORMAT_R32G32B32A32_UINT;
+
+                // 32-bit float formats
+                case DXGI_FORMAT_R32_FLOAT:
+                    return RZ_GFX_FORMAT_R32_FLOAT;
+                case DXGI_FORMAT_R32G32_FLOAT:
+                    return RZ_GFX_FORMAT_R32G32_FLOAT;
+                case DXGI_FORMAT_R32G32B32_FLOAT:
+                    return RZ_GFX_FORMAT_R32G32B32_FLOAT;
+                case DXGI_FORMAT_R32G32B32A32_FLOAT:
+                    return RZ_GFX_FORMAT_R32G32B32A32_FLOAT;
+
+                // Packed formats
+                case DXGI_FORMAT_R11G11B10_FLOAT:
+                    return RZ_GFX_FORMAT_R11G11B10_FLOAT;
+
+                // Depth-stencil formats
+                case DXGI_FORMAT_D16_UNORM:
+                    return RZ_GFX_FORMAT_D16_UNORM;
+                case DXGI_FORMAT_D24_UNORM_S8_UINT:
+                    return RZ_GFX_FORMAT_D24_UNORM_S8_UINT;
+                case DXGI_FORMAT_D32_FLOAT:
+                    return RZ_GFX_FORMAT_D32_FLOAT;
+                case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
+                    return RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT;
+
+                // Block compression formats
+                case DXGI_FORMAT_BC1_UNORM:
+                    return RZ_GFX_FORMAT_BC1_RGBA_UNORM;
+                case DXGI_FORMAT_BC3_UNORM:
+                    return RZ_GFX_FORMAT_BC3_RGBA_UNORM;
+                case DXGI_FORMAT_BC6H_UF16:
+                    return RZ_GFX_FORMAT_BC6_UNORM;
+                case DXGI_FORMAT_BC7_UNORM:
+                    return RZ_GFX_FORMAT_BC7_UNORM;
+                case DXGI_FORMAT_BC7_UNORM_SRGB:
+                    return RZ_GFX_FORMAT_BC7_SRGB;
+
+                // Unsupported or unmapped formats
+                default:
+                    RAZIX_CORE_WARN("[DX12] Unsupported DXGI format conversion: {0}", (u32) format);
+                    return RZ_GFX_FORMAT_UNDEFINED;
+            }
+        }
+
         void DX12ReflectShaderBlob(const rz_gfx_shader_stage_blob* stageBlob, rz_gfx_shader_reflection* outReflection)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -193,8 +293,16 @@ namespace Razix {
 
             // Reflect input parameters for vertex shaders
             if (stageBlob->stage == RZ_GFX_SHADER_STAGE_VERTEX) {
-                outReflection->pInputElements = (rz_gfx_input_element*) Memory::RZMalloc(sizeof(rz_gfx_input_element) * shaderDesc.InputParameters);
+                // Calculate new total count
+                u32 newElementCount = outReflection->elementCount + shaderDesc.InputParameters;
 
+                // Reallocate to accommodate new elements
+                outReflection->pInputElements = (rz_gfx_input_element*) Memory::RZRealloc(
+                    outReflection->pInputElements,
+                    sizeof(rz_gfx_input_element) * newElementCount);
+
+                u32 currentElementIndex = outReflection->elementCount;
+                u32 currentOffset       = 0;
                 for (UINT i = 0; i < shaderDesc.InputParameters; ++i) {
                     D3D12_SIGNATURE_PARAMETER_DESC paramDesc;
                     hr = shaderReflection->GetInputParameterDesc(i, &paramDesc);
@@ -212,30 +320,25 @@ namespace Razix {
                         continue;
                     }
 
-                    rz_gfx_input_element inputParam = {0};
-                    inputParam.pSemanticName        = paramDesc.SemanticName;
-                    inputParam.semanticIndex        = paramDesc.SemanticIndex;
-                    inputParam.format               = (rz_gfx_format) format;
-                    inputParam.inputSlot            = paramDesc.Stream;
-                    inputParam.alignedByteOffset    = D3D12_APPEND_ALIGNED_ELEMENT;
-                    inputParam.inputClass           = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-                    inputParam.instanceStepRate     = 0;
+                    if (!strcmp(paramDesc.SemanticName, "SV_INSTANCEID") || !strcmp(paramDesc.SemanticName, "SV_VERTEXID"))
+                        continue;    // Skip system values
 
+                    rz_gfx_input_element* inputParam = &outReflection->pInputElements[currentElementIndex];
+                    inputParam->pSemanticName        = strdup(paramDesc.SemanticName);
+                    inputParam->semanticIndex        = paramDesc.SemanticIndex;
+                    inputParam->format               = DX12DXXGIToEngineFormat(format);
+                    inputParam->inputSlot            = paramDesc.Stream;
+                    inputParam->alignedByteOffset    = currentOffset;
+                    inputParam->inputClass           = (rz_gfx_input_class) D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+                    inputParam->instanceStepRate     = 0;
+
+                    currentOffset += formatSize;
+                    currentElementIndex++;
                     outReflection->elementCount++;
-                    outReflection->pInputElements[i] = inputParam;
                 }
             }
 
-            // Reflect descriptor tables and root constants
-            // TODO: Starting with table per resource? Fuck optimize this
-            rz_gfx_descriptor_table_layout* tableLayouts = (rz_gfx_descriptor_table_layout*) Memory::RZMalloc(sizeof(rz_gfx_descriptor_table_layout) * shaderDesc.BoundResources);
-            uint32_t                        tableCount   = 0;
-
-            // Initialize descriptor tables to invalid state
-            for (uint32_t i = 0; i < shaderDesc.BoundResources; i++) {
-                tableLayouts[i].tableIndex = 0xffffffff;
-            }
-
+            // Process bound resources and merge with existing descriptor tables
             for (UINT i = 0; i < shaderDesc.BoundResources; ++i) {
                 D3D12_SHADER_INPUT_BIND_DESC bindDesc = {0};
                 hr                                    = shaderReflection->GetResourceBindingDesc(i, &bindDesc);
@@ -246,47 +349,61 @@ namespace Razix {
 
                 // Check for push constant
                 if (strstr(bindDesc.Name, RAZIX_PUSH_CONSTANT_REFLECTION_NAME_DX12) != NULL) {
-                    // Push Constant Block
-                    rz_gfx_root_constant_desc* rootConstants =
-                        (rz_gfx_root_constant_desc*) Memory::RZRealloc(outReflection->rootSignatureDesc.pRootConstantsDesc,
+                    // Append to existing root constants
+                    outReflection->rootSignatureDesc.pRootConstantsDesc =
+                        (rz_gfx_root_constant_desc*) Memory::RZRealloc(
+                            outReflection->rootSignatureDesc.pRootConstantsDesc,
                             sizeof(rz_gfx_root_constant_desc) * (outReflection->rootSignatureDesc.rootConstantCount + 1));
-                    outReflection->rootSignatureDesc.pRootConstantsDesc = rootConstants;
 
-                    rz_gfx_root_constant_desc* rc = &outReflection->rootSignatureDesc.pRootConstantsDesc[outReflection->rootSignatureDesc.rootConstantCount++];
+                    rz_gfx_root_constant_desc* rc = &outReflection->rootSignatureDesc.pRootConstantsDesc[outReflection->rootSignatureDesc.rootConstantCount];
                     rc->location.binding          = bindDesc.BindPoint;
                     rc->location.space            = bindDesc.Space;
                     rc->sizeInBytes               = bindDesc.BindCount * 16;    // Assumption: HLSL constant buffer is 16 bytes per register
                     rc->offsetInBytes             = 0;
                     rc->shaderStage               = stageBlob->stage;
 
+                    outReflection->rootSignatureDesc.rootConstantCount++;
                     continue;
                 }
 
-                // Regular Descriptor
-                // Try to find an existing table for this space
-                rz_gfx_descriptor_table_layout* tableLayout = NULL;
-                for (uint32_t t = 0; t < tableCount; ++t) {
-                    if (tableLayouts[t].tableIndex == bindDesc.Space) {
-                        tableLayout = &tableLayouts[t];
+                // Find existing table or create new one
+                rz_gfx_descriptor_table_layout* targetTable      = nullptr;
+                u32                             targetTableIndex = 0;
+
+                // Search for existing table with matching space
+                for (u32 t = 0; t < outReflection->rootSignatureDesc.descriptorTableLayoutsCount; ++t) {
+                    if (outReflection->rootSignatureDesc.pDescriptorTableLayouts[t].tableIndex == bindDesc.Space) {
+                        targetTable      = &outReflection->rootSignatureDesc.pDescriptorTableLayouts[t];
+                        targetTableIndex = t;
                         break;
                     }
                 }
 
-                // If not found, create a new descriptor table for this register space
-                if (!tableLayout) {
-                    tableLayout                  = &tableLayouts[bindDesc.Space];
-                    tableLayout->tableIndex      = bindDesc.Space;
-                    tableLayout->descriptorCount = 0;
-                    tableLayout->pDescriptors    = NULL;
-                    tableCount++;
+                // If no existing table found, create a new one
+                if (!targetTable) {
+                    // Reallocate table layouts array
+                    outReflection->rootSignatureDesc.pDescriptorTableLayouts =
+                        (rz_gfx_descriptor_table_layout*) Memory::RZRealloc(
+                            outReflection->rootSignatureDesc.pDescriptorTableLayouts,
+                            sizeof(rz_gfx_descriptor_table_layout) * (outReflection->rootSignatureDesc.descriptorTableLayoutsCount + 1));
+
+                    targetTableIndex = outReflection->rootSignatureDesc.descriptorTableLayoutsCount;
+                    targetTable      = &outReflection->rootSignatureDesc.pDescriptorTableLayouts[targetTableIndex];
+
+                    // Initialize new table
+                    targetTable->tableIndex      = bindDesc.Space;
+                    targetTable->descriptorCount = 0;
+                    targetTable->pDescriptors    = nullptr;
+
+                    outReflection->rootSignatureDesc.descriptorTableLayoutsCount++;
                 }
 
-                // Add descriptor to the table
-                rz_gfx_descriptor* descriptors =
-                    (rz_gfx_descriptor*) Memory::RZRealloc((void*) tableLayout->pDescriptors, sizeof(rz_gfx_descriptor) * (tableLayout->descriptorCount + 1));
-                tableLayout->pDescriptors = descriptors;
+                // Add descriptor to the table (append to existing descriptors)
+                targetTable->pDescriptors = (rz_gfx_descriptor*) Memory::RZRealloc(
+                    (void*) targetTable->pDescriptors,
+                    sizeof(rz_gfx_descriptor) * (targetTable->descriptorCount + 1));
 
-                rz_gfx_descriptor* desc = &tableLayout->pDescriptors[tableLayout->descriptorCount++];
+                rz_gfx_descriptor* desc = &targetTable->pDescriptors[targetTable->descriptorCount];
                 memset(desc, 0, sizeof(rz_gfx_descriptor));
                 desc->pName            = strdup(bindDesc.Name);
                 desc->location.binding = bindDesc.BindPoint;
@@ -296,11 +413,9 @@ namespace Razix {
                 desc->sizeInBytes      = 0;
                 desc->offsetInBytes    = 0;
                 desc->memberCount      = 1;
-            }
 
-            // Store the descriptor tables
-            outReflection->rootSignatureDesc.descriptorTableLayoutsCount = tableCount;
-            outReflection->rootSignatureDesc.pDescriptorTableLayouts     = tableLayouts;
+                targetTable->descriptorCount++;
+            }
 
             // Cleanup
             shaderReflection->Release();
@@ -334,15 +449,21 @@ namespace Razix {
         void FreeShaderReflectionMemAllocs(rz_gfx_shader_reflection* reflection)
         {
             if (reflection->pInputElements) {
+                for (u32 i = 0; i < reflection->elementCount; ++i) {
+                    if (reflection->pInputElements[i].pSemanticName)
+                        free((void*) reflection->pInputElements[i].pSemanticName);
+                }
                 Memory::RZFree(reflection->pInputElements);
                 reflection->pInputElements = NULL;
             }
             if (reflection->rootSignatureDesc.pDescriptorTableLayouts) {
-                for (uint32_t i = 0; i < reflection->rootSignatureDesc.descriptorTableLayoutsCount; ++i) {
+                for (u32 i = 0; i < reflection->rootSignatureDesc.descriptorTableLayoutsCount; ++i) {
                     rz_gfx_descriptor_table_layout* tableLayout = &reflection->rootSignatureDesc.pDescriptorTableLayouts[i];
                     if (tableLayout->pDescriptors) {
-                        // Allocated using strdup
-                        free((void*) tableLayout->pDescriptors->pName);
+                        for (u32 j = 0; j < tableLayout->descriptorCount; ++j) {
+                            if (tableLayout->pDescriptors[j].pName)
+                                free((void*) tableLayout->pDescriptors[j].pName);
+                        }
                         Memory::RZFree(tableLayout->pDescriptors);
                         tableLayout->pDescriptors = NULL;
                     }
@@ -377,7 +498,15 @@ namespace Razix {
                     if (srcTable->pDescriptors) {
                         dstTable->pDescriptors = (rz_gfx_descriptor*) Memory::RZMalloc(
                             sizeof(rz_gfx_descriptor) * srcTable->descriptorCount);
-                        memcpy(dstTable->pDescriptors, srcTable->pDescriptors, sizeof(rz_gfx_descriptor) * srcTable->descriptorCount);
+                        for (uint32_t j = 0; j < srcTable->descriptorCount; ++j) {
+                            dstTable->pDescriptors[j] = srcTable->pDescriptors[j];
+
+                            if (srcTable->pDescriptors[j].pName) {
+                                dstTable->pDescriptors[j].pName = strdup(srcTable->pDescriptors[j].pName);
+                            } else {
+                                dstTable->pDescriptors[j].pName = NULL;
+                            }
+                        }
                     } else {
                         dstTable->pDescriptors = NULL;
                     }
@@ -397,6 +526,65 @@ namespace Razix {
             // Copy other relevant data
             dst->descriptorTableLayoutsCount = src->rootSignatureDesc.descriptorTableLayoutsCount;
             dst->rootConstantCount           = src->rootSignatureDesc.rootConstantCount;
+        }
+
+        void FreeRootSigDescMemAllocs(rz_gfx_root_signature_desc* rootSigDesc)
+        {
+            if (rootSigDesc->pDescriptorTableLayouts) {
+                for (uint32_t i = 0; i < rootSigDesc->descriptorTableLayoutsCount; ++i) {
+                    rz_gfx_descriptor_table_layout* tableLayout = &rootSigDesc->pDescriptorTableLayouts[i];
+                    if (tableLayout->pDescriptors) {
+                        for (u32 j = 0; j < tableLayout->descriptorCount; ++j) {
+                            if (tableLayout->pDescriptors[j].pName)
+                                free((void*) tableLayout->pDescriptors[j].pName);
+                        }
+                        Memory::RZFree(tableLayout->pDescriptors);
+                        tableLayout->pDescriptors = NULL;
+                    }
+                    // I don't think we want to free the resource views here because they are managed by the descriptor tables
+                }
+                Memory::RZFree(rootSigDesc->pDescriptorTableLayouts);
+                rootSigDesc->pDescriptorTableLayouts = NULL;
+            }
+            if (rootSigDesc->pRootConstantsDesc) {
+                Memory::RZFree(rootSigDesc->pRootConstantsDesc);
+                rootSigDesc->pRootConstantsDesc = NULL;
+            }
+            rootSigDesc->descriptorTableLayoutsCount = 0;
+            rootSigDesc->rootConstantCount           = 0;
+        }
+
+        void CopyReflectedInputElements(const rz_gfx_shader_reflection* src, rz_gfx_input_element** dst, u32* elementCount)
+        {
+            if (!src) return;
+            // Allocate memory for input elements
+            *elementCount = src->elementCount;
+            if (*elementCount > 0) {
+                *dst = (rz_gfx_input_element*) Memory::RZMalloc(sizeof(rz_gfx_input_element) * (*elementCount));
+                for (u32 i = 0; i < *elementCount; i++) {
+                    (*dst)[i].pSemanticName     = strdup(src->pInputElements[i].pSemanticName);    // Deep copy the string
+                    (*dst)[i].semanticIndex     = src->pInputElements[i].semanticIndex;
+                    (*dst)[i].format            = src->pInputElements[i].format;
+                    (*dst)[i].inputSlot         = src->pInputElements[i].inputSlot;
+                    (*dst)[i].alignedByteOffset = src->pInputElements[i].alignedByteOffset;
+                    (*dst)[i].inputClass        = src->pInputElements[i].inputClass;
+                    (*dst)[i].instanceStepRate  = src->pInputElements[i].instanceStepRate;
+                }
+            } else {
+                dst = NULL;
+            }
+        }
+
+        void FreeInputElementsMemAllocs(rz_gfx_input_element* inputElements, u32 numElements)
+        {
+            if (inputElements) {
+                for (u32 i = 0; i < numElements; ++i) {
+                    if (inputElements[i].pSemanticName)
+                        free((void*) inputElements[i].pSemanticName);
+                }
+                Memory::RZFree(inputElements);
+                inputElements = NULL;
+            }
         }
 
         //-----------------------------------------------------------------------------------

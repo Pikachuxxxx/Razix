@@ -14,7 +14,7 @@
         return handle;                                                                                   \
     }                                                                                                    \
     resource->type   = typeEnum;                                                                         \
-    resource->pName  = name;                                                                             \
+    resource->pName  = strdup(name);                                                                     \
     resource->handle = handle;                                                                           \
     memcpy(&resource->desc, &desc, handleSize);                                                          \
     if (m_ResourceTypeCBFuncs[typeEnum].createFuncCB) {                                                  \
@@ -27,6 +27,8 @@
 #define DESTROY_UTIL(pool, message)                                                                                                   \
     if (rz_handle_is_valid(&handle)) {                                                                                                \
         rz_gfx_resource* resource = (rz_gfx_resource*) pool.get(handle);                                                              \
+        RAZIX_ASSERT(resource != nullptr, "[Resource Manager] Resource is null! Cannot destroy resource!");                           \
+        free((void*) resource->pName);                                                                                                \
         if (m_ResourceTypeCBFuncs[resource->type].destroyFuncCB) {                                                                    \
             m_ResourceTypeCBFuncs[resource->type].destroyFuncCB((void*) resource);                                                    \
         } else {                                                                                                                      \
@@ -101,6 +103,14 @@ namespace Razix {
             rz_gfx_root_signature_desc rootSigDesc = {};
             Gfx::CopyReflectedRootSigDesc(&reflection, &rootSigDesc);
 
+            // Also copy the input elements
+            if (reflection.elementCount > 0) {
+                Gfx::CopyReflectedInputElements(&reflection, &shaderDesc->pElements, &shaderDesc->elementsCount);
+            } else {
+                shaderDesc->pElements     = NULL;
+                shaderDesc->elementsCount = 0;
+            }
+
             // Or we can cache the reflection data in the shader resource itself
             // Or in a BindMap and also store the descriptor table information and all this
 
@@ -124,6 +134,9 @@ namespace Razix {
             rz_gfx_shader* shaderPtr = (rz_gfx_shader*) ptr;
             // Free bytecode memory, since we allocate it
             FreeRZSFBytecodeAlloc(shaderPtr);
+            rz_gfx_root_signature* rootSig = RZResourceManager::Get().getRootSignatureResource(shaderPtr->rootSignature);
+            FreeRootSigDescMemAllocs(&rootSig->resource.desc.rootSignatureDesc);
+            FreeInputElementsMemAllocs(shaderPtr->resource.desc.shaderDesc.pElements, shaderPtr->resource.desc.shaderDesc.elementsCount);
             // Free root sig (since it's allocated by ParseRZSF we ask it to delete it)
             if (!(shaderPtr->resource.desc.shaderDesc.flags & RZ_GFX_SHADER_FLAG_NO_ROOT_SIGNATURE))
                 RZResourceManager::Get().destroyRootSignature(shaderPtr->rootSignature);

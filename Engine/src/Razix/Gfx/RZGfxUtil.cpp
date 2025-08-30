@@ -167,17 +167,17 @@ namespace Razix {
                         break;
 
                     case RZ_GFX_SHADER_STAGE_MESH:
-                        desc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
-                        desc.mesh.mesh.stage    = stage;
-                        desc.mesh.mesh.bytecode = (const char*) heapCopy;
-                        desc.mesh.mesh.size     = bytecodeSize;
+                        desc.pipelineType         = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+                        desc.raster.mesh.stage    = stage;
+                        desc.raster.mesh.bytecode = (const char*) heapCopy;
+                        desc.raster.mesh.size     = bytecodeSize;
                         break;
 
                     case RZ_GFX_SHADER_STAGE_TASK:
-                        desc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
-                        desc.mesh.task.stage    = stage;
-                        desc.mesh.task.bytecode = (const char*) heapCopy;
-                        desc.mesh.task.size     = bytecodeSize;
+                        desc.pipelineType         = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+                        desc.raster.task.stage    = stage;
+                        desc.raster.task.bytecode = (const char*) heapCopy;
+                        desc.raster.task.size     = bytecodeSize;
                         break;
 
                     case RZ_GFX_SHADER_STAGE_RAY_GEN:
@@ -260,22 +260,15 @@ namespace Razix {
                         Memory::RZFree((void*) desc->raster.tes.bytecode);
                         desc->raster.tes.bytecode = NULL;
                     }
-
-                    // Free mesh pipeline stages
-                    if (desc->mesh.task.bytecode) {
-                        RAZIX_ASSERT(desc->mesh.task.size > 0, "[RZSF] Task shader bytecode has invalid size");
-                        Memory::RZFree((void*) desc->mesh.task.bytecode);
-                        desc->mesh.task.bytecode = NULL;
+                    if (desc->raster.task.bytecode) {
+                        RAZIX_ASSERT(desc->raster.task.size > 0, "[RZSF] Task shader bytecode has invalid size");
+                        Memory::RZFree((void*) desc->raster.task.bytecode);
+                        desc->raster.task.bytecode = NULL;
                     }
-                    if (desc->mesh.mesh.bytecode) {
-                        RAZIX_ASSERT(desc->mesh.mesh.size > 0, "[RZSF] Mesh shader bytecode has invalid size");
-                        Memory::RZFree((void*) desc->mesh.mesh.bytecode);
-                        desc->mesh.mesh.bytecode = NULL;
-                    }
-                    if (desc->mesh.ps.bytecode) {
-                        RAZIX_ASSERT(desc->mesh.ps.size > 0, "[RZSF] PS bytecode has invalid size");
-                        Memory::RZFree((void*) desc->mesh.ps.bytecode);
-                        desc->mesh.ps.bytecode = NULL;
+                    if (desc->raster.mesh.bytecode) {
+                        RAZIX_ASSERT(desc->raster.mesh.size > 0, "[RZSF] Mesh shader bytecode has invalid size");
+                        Memory::RZFree((void*) desc->raster.mesh.bytecode);
+                        desc->raster.mesh.bytecode = NULL;
                     }
                     break;
                 }
@@ -348,44 +341,40 @@ namespace Razix {
             switch (desc->pipelineType) {
                 case RZ_GFX_PIPELINE_TYPE_GRAPHICS: {
                     // Reflect raster pipeline stages
-                    if (desc->raster.vs.bytecode) {
+                    if (desc->raster.vs.bytecode && desc->raster.vs.stage == RZ_GFX_SHADER_STAGE_VERTEX) {
                         RAZIX_ASSERT(desc->raster.vs.size > 0, "[Reflection] VS bytecode has invalid size");
                         reflectShaderBlobFn(&desc->raster.vs, &reflection);
                     }
-                    if (desc->raster.ps.bytecode) {
+                    if (desc->raster.ps.bytecode && desc->raster.ps.stage == RZ_GFX_SHADER_STAGE_PIXEL) {
                         RAZIX_ASSERT(desc->raster.ps.size > 0, "[Reflection] PS bytecode has invalid size");
                         reflectShaderBlobFn(&desc->raster.ps, &reflection);
                     }
-                    if (desc->raster.gs.bytecode) {
+                    if (desc->raster.gs.bytecode && desc->raster.gs.stage == RZ_GFX_SHADER_STAGE_GEOMETRY) {
                         RAZIX_ASSERT(desc->raster.gs.size > 0, "[Reflection] GS bytecode has invalid size");
                         reflectShaderBlobFn(&desc->raster.gs, &reflection);
                     }
-                    if (desc->raster.tcs.bytecode) {
+                    if (desc->raster.tcs.bytecode && desc->raster.tcs.stage == RZ_GFX_SHADER_STAGE_TESSELLATION_CONTROL) {
                         RAZIX_ASSERT(desc->raster.tcs.size > 0, "[Reflection] TCS bytecode has invalid size");
                         reflectShaderBlobFn(&desc->raster.tcs, &reflection);
                     }
-                    if (desc->raster.tes.bytecode) {
+                    if (desc->raster.tes.bytecode && desc->raster.tes.stage == RZ_GFX_SHADER_STAGE_TESSELLATION_EVALUATION) {
                         RAZIX_ASSERT(desc->raster.tes.size > 0, "[Reflection] TES bytecode has invalid size");
                         reflectShaderBlobFn(&desc->raster.tes, &reflection);
                     }
 
                     // Reflect mesh pipeline stages
-                    if (desc->mesh.task.bytecode) {
-                        RAZIX_ASSERT(desc->mesh.task.size > 0, "[Reflection] Task shader bytecode has invalid size");
-                        reflectShaderBlobFn(&desc->mesh.task, &reflection);
+                    if (desc->raster.task.bytecode && desc->raster.task.stage == RZ_GFX_SHADER_STAGE_TASK) {
+                        RAZIX_ASSERT(desc->raster.task.size > 0, "[Reflection] Task shader bytecode has invalid size");
+                        reflectShaderBlobFn(&desc->raster.task, &reflection);
                     }
-                    if (desc->mesh.mesh.bytecode) {
-                        RAZIX_ASSERT(desc->mesh.mesh.size > 0, "[Reflection] Mesh shader bytecode has invalid size");
-                        reflectShaderBlobFn(&desc->mesh.mesh, &reflection);
-                    }
-                    if (desc->mesh.ps.bytecode) {
-                        RAZIX_ASSERT(desc->mesh.ps.size > 0, "[Reflection] PS bytecode has invalid size");
-                        reflectShaderBlobFn(&desc->mesh.ps, &reflection);
+                    if (desc->raster.mesh.bytecode && desc->raster.mesh.stage == RZ_GFX_SHADER_STAGE_MESH) {
+                        RAZIX_ASSERT(desc->raster.mesh.size > 0, "[Reflection] Mesh shader bytecode has invalid size");
+                        reflectShaderBlobFn(&desc->raster.mesh, &reflection);
                     }
                     break;
                 }
                 case RZ_GFX_PIPELINE_TYPE_COMPUTE: {
-                    if (desc->compute.cs.bytecode) {
+                    if (desc->compute.cs.bytecode && desc->compute.cs.stage == RZ_GFX_SHADER_STAGE_COMPUTE) {
                         RAZIX_ASSERT(desc->compute.cs.size > 0, "[Reflection] CS bytecode has invalid size");
                         reflectShaderBlobFn(&desc->compute.cs, &reflection);
                     }
@@ -393,23 +382,23 @@ namespace Razix {
                 }
                 case RZ_GFX_PIPELINE_TYPE_RAYTRACING: {
                     // Reflect raytracing pipeline stages
-                    if (desc->raytracing.rgen.bytecode) {
+                    if (desc->raytracing.rgen.bytecode && desc->raytracing.rgen.stage == RZ_GFX_SHADER_STAGE_RAY_GEN) {
                         RAZIX_ASSERT(desc->raytracing.rgen.size > 0, "[Reflection] RGEN bytecode has invalid size");
                         reflectShaderBlobFn(&desc->raytracing.rgen, &reflection);
                     }
-                    if (desc->raytracing.miss.bytecode) {
+                    if (desc->raytracing.miss.bytecode && desc->raytracing.miss.stage == RZ_GFX_SHADER_STAGE_RAY_MISS) {
                         RAZIX_ASSERT(desc->raytracing.miss.size > 0, "[Reflection] MISS bytecode has invalid size");
                         reflectShaderBlobFn(&desc->raytracing.miss, &reflection);
                     }
-                    if (desc->raytracing.chit.bytecode) {
+                    if (desc->raytracing.chit.bytecode && desc->raytracing.chit.stage == RZ_GFX_SHADER_STAGE_RAY_CLOSEST_HIT) {
                         RAZIX_ASSERT(desc->raytracing.chit.size > 0, "[Reflection] CHIT bytecode has invalid size");
                         reflectShaderBlobFn(&desc->raytracing.chit, &reflection);
                     }
-                    if (desc->raytracing.ahit.bytecode) {
+                    if (desc->raytracing.ahit.bytecode && desc->raytracing.ahit.stage == RZ_GFX_SHADER_STAGE_RAY_ANY_HIT) {
                         RAZIX_ASSERT(desc->raytracing.ahit.size > 0, "[Reflection] AHIT bytecode has invalid size");
                         reflectShaderBlobFn(&desc->raytracing.ahit, &reflection);
                     }
-                    if (desc->raytracing.callable.bytecode) {
+                    if (desc->raytracing.callable.bytecode && desc->raytracing.callable.stage == RZ_GFX_SHADER_STAGE_RAY_CALLABLE) {
                         RAZIX_ASSERT(desc->raytracing.callable.size > 0, "[Reflection] CALLABLE bytecode has invalid size");
                         reflectShaderBlobFn(&desc->raytracing.callable, &reflection);
                     }
@@ -491,8 +480,8 @@ namespace Razix {
             // Create texture descriptor
             rz_gfx_texture_desc textureDesc = {};
             if (!floatingPoint) {
-                uint32_t bpp          = 0;
-                textureDesc.pixelData = Razix::Utilities::LoadImageData(physicalPath.c_str(), &textureDesc.width, &textureDesc.height, &bpp);
+                uint32_t bpp           = 0;
+                textureDesc.pPixelData = Razix::Utilities::LoadImageData(physicalPath.c_str(), &textureDesc.width, &textureDesc.height, &bpp);
             }
             textureDesc.mipLevels     = rzRHI_GetMipLevelCount(textureDesc.width, textureDesc.height);
             textureDesc.depth         = 1;
@@ -508,8 +497,8 @@ namespace Razix {
                 return textureHandle;
             }
 
-            if (textureDesc.pixelData)
-                free(textureDesc.pixelData);
+            if (textureDesc.pPixelData)
+                free(textureDesc.pPixelData);
 
             return textureHandle;
         }

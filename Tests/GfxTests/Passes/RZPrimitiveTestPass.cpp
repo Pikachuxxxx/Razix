@@ -1,182 +1,187 @@
 #include "RZPrimitiveTestPass.h"
 
 #include "Razix/Gfx/RHI/RHI.h"
+
 #include "Razix/Gfx/Resources/RZResourceManager.h"
+#include "Razix/Scene/RZSceneCamera.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace Razix {
     namespace Gfx {
 
-        // Simple cube vertex structure (position + normal + uv). Adjust semantic names to match shader expectations later.
+#define MAX_INSTANCES 16
+
         struct PrimitiveTestVertex
         {
-            float px, py, pz;   // position
-            float nx, ny, nz;   // normal
-            float u, v;         // uv
+            float px, py, pz;
+            float nx, ny, nz;
+            float u, v;
         };
 
-        // Instance transform data (could be full 4x4 matrix; to keep size reasonable we store 3 rows of mat4, last row reconstructed or store full 4x4 if needed)
         struct PrimitiveInstanceData
         {
-            float m[16]; // Placeholder 4x4 matrix. User can optimize layout / use MAT4 array in shader.
+            float m[16];
         };
 
-        // CPU staging arrays (scaffolding). In a fuller implementation these would likely be members with proper lifetime mgmt.
-        static std::vector<PrimitiveTestVertex> s_Vertices; // Filled in createGeometryCPU
-        static std::vector<u32>                 s_Indices;  // Filled in createGeometryCPU
-        static std::vector<PrimitiveInstanceData> s_InstanceTransforms; // Filled in createInstanceDataCPU
+        struct PrimitiveCBData
+        {
+            glm::mat4 view;
+            glm::mat4 projection;
+            glm::mat4 instanceTransforms[MAX_INSTANCES];
+        };
+
+        static std::vector<PrimitiveTestVertex>   s_Vertices;
+        static std::vector<u32>                   s_Indices;
+        static std::vector<PrimitiveInstanceData> s_InstanceTransforms;
 
         void RZPrimitiveTestPass::createGeometryCPU()
         {
-            // Create a unit cube (positions + normals). UVs are placeholder.
-            // NOTE: For brevity, normals are approximate and duplicated per face if needed. User can refine.
             s_Vertices.clear();
             s_Indices.clear();
 
-            // Cube 8 unique verts (could duplicate per-face for flat shading). We'll keep it simple.
-            struct V { float x,y,z; float nx,ny,nz; float u,v; };
-            // Positions and normals placeholder; user can adjust for proper face normals or expand to 24 verts.
-            V baseVerts[8] = {
-                {-0.5f,-0.5f,-0.5f, 0.f,0.f,-1.f, 0.f,0.f},
-                { 0.5f,-0.5f,-0.5f, 0.f,0.f,-1.f, 1.f,0.f},
-                { 0.5f, 0.5f,-0.5f, 0.f,0.f,-1.f, 1.f,1.f},
-                {-0.5f, 0.5f,-0.5f, 0.f,0.f,-1.f, 0.f,1.f},
-                {-0.5f,-0.5f, 0.5f, 0.f,0.f, 1.f, 0.f,0.f},
-                { 0.5f,-0.5f, 0.5f, 0.f,0.f, 1.f, 1.f,0.f},
-                { 0.5f, 0.5f, 0.5f, 0.f,0.f, 1.f, 1.f,1.f},
-                {-0.5f, 0.5f, 0.5f, 0.f,0.f, 1.f, 0.f,1.f},
+            // clang-format off
+            PrimitiveTestVertex baseVerts[8] = {
+                {-0.5f, -0.5f, -0.5f, 0.f, 0.f, -1.f, 0.f, 0.f},
+                { 0.5f, -0.5f, -0.5f, 0.f, 0.f, -1.f, 1.f, 0.f},
+                { 0.5f,  0.5f, -0.5f, 0.f, 0.f, -1.f, 1.f, 1.f},
+                {-0.5f,  0.5f, -0.5f, 0.f, 0.f, -1.f, 0.f, 1.f},
+                {-0.5f, -0.5f,  0.5f, 0.f, 0.f,  1.f, 0.f, 0.f},
+                { 0.5f, -0.5f,  0.5f, 0.f, 0.f,  1.f, 1.f, 0.f},
+                { 0.5f,  0.5f,  0.5f, 0.f, 0.f,  1.f, 1.f, 1.f},
+                {-0.5f,  0.5f,  0.5f, 0.f, 0.f,  1.f, 0.f, 1.f},
             };
-            for (auto& v : baseVerts) {
-                PrimitiveTestVertex vx { v.x,v.y,v.z, v.nx,v.ny,v.nz, v.u,v.v };
-                s_Vertices.push_back(vx);
-            }
-            // 12 triangles (two per face) using 8 shared verts (indexed cube)
+            s_Vertices.insert(s_Vertices.end(), std::begin(baseVerts), std::end(baseVerts));
+
             u32 cubeIndices[] = {
-                // front (-z)
-                0,1,2, 2,3,0,
-                // back (+z)
-                4,5,6, 6,7,4,
-                // left (-x)
-                0,3,7, 7,4,0,
-                // right (+x)
-                1,5,6, 6,2,1,
-                // bottom (-y)
-                0,4,5, 5,1,0,
-                // top (+y)
-                3,2,6, 6,7,3
+                0, 1, 2, 2, 3, 0,
+                4, 5, 6, 6, 7, 4,
+                0, 3, 7, 7, 4, 0,
+                1, 5, 6, 6, 2, 1,
+                0, 4, 5, 5, 1, 0,
+                3, 2, 6, 6, 7, 3
             };
+            // clang-format on
+
             s_Indices.insert(s_Indices.end(), std::begin(cubeIndices), std::end(cubeIndices));
 
             m_NumVertices = static_cast<u32>(s_Vertices.size());
             m_NumIndices  = static_cast<u32>(s_Indices.size());
 
-            // Create vertex buffer
             rz_gfx_buffer_desc vbDesc = {};
-            vbDesc.type               = RZ_GFX_BUFFER_TYPE_BYTE; // Placeholder: engine likely has a specific vertex buffer type; adjust if needed.
+            vbDesc.type               = RZ_GFX_BUFFER_TYPE_VERTEX;
             vbDesc.usage              = RZ_GFX_BUFFER_USAGE_TYPE_STATIC;
-            vbDesc.resourceHints      = RZ_GFX_RESOURCE_VIEW_FLAG_SRV; // Not necessarily needed; placeholder.
+            vbDesc.resourceHints      = RZ_GFX_RESOURCE_VIEW_FLAG_NONE;
             vbDesc.sizeInBytes        = m_NumVertices * sizeof(PrimitiveTestVertex);
-            m_VertexBuffer            = RZResourceManager::Get().createBuffer("Buffer.PrimitiveTest.Vertices", vbDesc, s_Vertices.data()); // If overload not present, user must upload via update call.
-            // If createBuffer overload with initial data not available, user: TODO implement staging upload.
+            vbDesc.pInitData          = s_Vertices.data();
+            m_VertexBuffer            = RZResourceManager::Get().createBuffer("Buffer.PrimitiveTest.Vertices", vbDesc);
 
-            // Create index buffer
             rz_gfx_buffer_desc ibDesc = {};
-            ibDesc.type               = RZ_GFX_BUFFER_TYPE_BYTE; // Placeholder again.
+            ibDesc.type               = RZ_GFX_BUFFER_TYPE_INDEX;
             ibDesc.usage              = RZ_GFX_BUFFER_USAGE_TYPE_STATIC;
-            ibDesc.resourceHints      = RZ_GFX_RESOURCE_VIEW_FLAG_SRV; // Placeholder (index buffers typically not SRV; depends on engine design).
+            ibDesc.resourceHints      = RZ_GFX_RESOURCE_VIEW_FLAG_NONE;
             ibDesc.sizeInBytes        = m_NumIndices * sizeof(u32);
-            m_IndexBuffer             = RZResourceManager::Get().createBuffer("Buffer.PrimitiveTest.Indices", ibDesc, s_Indices.data());
-            // TODO: If index buffer binding requires special desc flag, adjust (no info found in RHI.h for dedicated index buffer flag).
+            ibDesc.pInitData          = s_Indices.data();
+            m_IndexBuffer             = RZResourceManager::Get().createBuffer("Buffer.PrimitiveTest.Indices", ibDesc);
         }
 
         void RZPrimitiveTestPass::createInstanceDataCPU()
         {
             s_InstanceTransforms.clear();
-            m_NumInstances = 16; // Example grid 4x4; user can tweak.
-            s_InstanceTransforms.resize(m_NumInstances);
+            s_InstanceTransforms.resize(MAX_INSTANCES);
 
-            // Generate simple transforms: translate cubes in a grid.
-            for (u32 i = 0; i < m_NumInstances; ++i) {
-                float tx = static_cast<float>(i % 4) - 1.5f;
-                float ty = 0.0f;
-                float tz = static_cast<float>(i / 4) - 1.5f;
-                PrimitiveInstanceData inst{};
-                // Row-major placeholder identity with translation last column (adjust for engine's matrix convention!)
-                // TODO: Confirm column-major vs row-major for shader consumption. Using simple identity + translation.
-                for (int r = 0; r < 16; ++r) inst.m[r] = 0.0f;
-                inst.m[0] = inst.m[5] = inst.m[10] = inst.m[15] = 1.0f;
-                inst.m[12] = tx; inst.m[13] = ty; inst.m[14] = tz; // Assume last row for translation; user verify.
-                s_InstanceTransforms[i] = inst;
+            for (u32 i = 0; i < MAX_INSTANCES; ++i) {
+                // Calculate grid dimensions (assuming square grid)
+                u32 gridSize = static_cast<u32>(sqrt(MAX_INSTANCES));
+                u32 x        = i % gridSize;
+                u32 y        = i / gridSize;
+
+                // Define spacing between cubes (adjust as needed)
+                float spacing = 2.5f;    // Gap between cube centers
+
+                // Calculate position with proper centering
+                float tx = (static_cast<float>(x) - static_cast<float>(gridSize - 1) * 0.5f) * spacing;
+                float ty = (static_cast<float>(y) - static_cast<float>(gridSize - 1) * 0.5f) * spacing;
+                float tz = 0.0f;
+
+                // Create transformation matrix
+                glm::mat4 model = glm::mat4(1.0f);
+                model           = glm::translate(model, glm::vec3(tx, ty, tz));
+
+                // Copy to instance data
+                memcpy(s_InstanceTransforms[i].m, &model[0][0], sizeof(float) * 16);
             }
-
-            // Create / upload instance buffer
-            rz_gfx_buffer_desc instDesc = {};
-            instDesc.type               = RZ_GFX_BUFFER_TYPE_STRUCTURED; // Using structured for per-instance data
-            instDesc.usage              = RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC; // Might update per frame
-            instDesc.resourceHints      = RZ_GFX_RESOURCE_VIEW_FLAG_SRV; // If shader reads as structured buffer
-            instDesc.sizeInBytes        = static_cast<u32>(s_InstanceTransforms.size() * sizeof(PrimitiveInstanceData));
-            instDesc.stride             = sizeof(PrimitiveInstanceData);
-            instDesc.elementCount       = m_NumInstances;
-            m_InstanceBuffer            = RZResourceManager::Get().createBuffer("Buffer.PrimitiveTest.Instances", instDesc, s_InstanceTransforms.data());
-            // TODO: If instancing uses per-vertex input rate instead, need to supply second vertex stream via input layout (not shown yet)
         }
 
         void RZPrimitiveTestPass::createIndirectArgs()
         {
-            // Prepare a rz_gfx_draw_indirect_args structure.
-            rz_gfx_draw_indirect_args args = {};
-            args.vertexCount   = m_NumIndices;   // Or number of vertices if non-indexed (we intend indexed; adapt later)
-            args.instanceCount = m_NumInstances;
-            args.firstVertex   = 0;
-            args.firstInstance = 0;
+            rz_gfx_draw_indexed_indirect_args args = {};
+            args.indexCount                        = m_NumIndices;
+            args.instanceCount                     = MAX_INSTANCES;
+            args.firstIndex                        = 0;
+            args.firstInstance                     = 0;
+            args.vertexOffset                      = 0;
 
             rz_gfx_buffer_desc indirectDesc = {};
-            indirectDesc.type               = RZ_GFX_BUFFER_TYPE_BYTE; // No dedicated type for indirect args in current enum, using BYTE as placeholder.
-            indirectDesc.usage              = RZ_GFX_BUFFER_USAGE_TYPE_INDIRECT_DRAW_ARGS; // Usage hints we DO have.
-            indirectDesc.resourceHints      = RZ_GFX_RESOURCE_VIEW_FLAG_SRV; // Placeholder (actual binding may not need SRV)
-            indirectDesc.sizeInBytes        = sizeof(rz_gfx_draw_indirect_args);
-            m_IndirectArgsBuffer            = RZResourceManager::Get().createBuffer("Buffer.PrimitiveTest.IndirectArgs", indirectDesc, &args);
-            // NOTE: Actual DrawIndirect RHI call not defined yet (see TODOs in RHI.h); user will replace DrawAuto with DrawIndirect when available.
+            indirectDesc.type               = RZ_GFX_BUFFER_TYPE_INDIRECT_ARGS;
+            indirectDesc.usage              = RZ_GFX_BUFFER_USAGE_TYPE_STATIC;
+            indirectDesc.resourceHints      = RZ_GFX_RESOURCE_VIEW_FLAG_SRV;
+            indirectDesc.sizeInBytes        = sizeof(rz_gfx_draw_indexed_indirect_args);
+            indirectDesc.pInitData          = &args;
+            m_IndirectArgsBuffer            = RZResourceManager::Get().createBuffer("Buffer.PrimitiveTest.IndirectArgs", indirectDesc);
         }
 
-        void RZPrimitiveTestPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* /*scene*/, RZRendererSettings* /*settings*/)
+        static PrimitiveCBData cbData = {};
+
+        void RZPrimitiveTestPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
-            // 1. Load shader (VS+PS) from new rzsf file.
             rz_gfx_shader_desc shaderDesc = {};
             shaderDesc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
-            shaderDesc.rzsfFilePath       = "//TestsRoot/GfxTests/Shaders/Razix/Shader.Tests.DrawPrimitive.rzsf"; // Path must match new file
-            m_Shader                      = RZResourceManager::Get().createShader("Shader.GfxTest.DrawPrimitive", shaderDesc);
+            shaderDesc.rzsfFilePath       = "//TestsRoot/GfxTests/Shaders/Razix/Shader.Test.PrimitiveTest.rzsf";
+            m_Shader                      = RZResourceManager::Get().createShader("Shader.GfxTest.PrimitiveTest", shaderDesc);
 
-            // 2. Build pipeline descriptor. Input layout TBD (we rely on shader reflection to populate). If manual layout needed, fill shaderDesc.pElements.
-            rz_gfx_pipeline_desc pipelineDesc = {};
-            pipelineDesc.type                 = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
-            pipelineDesc.pShader              = RZResourceManager::Get().getShaderResource(m_Shader);
-            m_RootSigHandle                   = pipelineDesc.pShader->rootSignature;
-            pipelineDesc.pRootSig             = RZResourceManager::Get().getRootSignatureResource(pipelineDesc.pShader->rootSignature);
-            pipelineDesc.depthTestEnabled     = false; // Optional enable later if needed.
-            pipelineDesc.depthWriteEnabled    = false;
-            pipelineDesc.cullMode             = RZ_GFX_CULL_MODE_TYPE_BACK; // Could be NONE for debug
-            pipelineDesc.drawType             = RZ_GFX_DRAW_TYPE_TRIANGLE;
-            pipelineDesc.blendEnabled         = false;
-            pipelineDesc.useBlendPreset       = true;
-            pipelineDesc.blendPreset          = RZ_GFX_BLEND_PRESET_ADDITIVE; // Not critical.
-            pipelineDesc.renderTargetCount    = 1;
+            rz_gfx_pipeline_desc pipelineDesc   = {};
+            pipelineDesc.type                   = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+            pipelineDesc.pShader                = RZResourceManager::Get().getShaderResource(m_Shader);
+            m_RootSigHandle                     = pipelineDesc.pShader->rootSignature;
+            pipelineDesc.pRootSig               = RZResourceManager::Get().getRootSignatureResource(pipelineDesc.pShader->rootSignature);
+            pipelineDesc.depthTestEnabled       = false;
+            pipelineDesc.depthWriteEnabled      = false;
+            pipelineDesc.cullMode               = RZ_GFX_CULL_MODE_TYPE_BACK;
+            pipelineDesc.drawType               = RZ_GFX_DRAW_TYPE_TRIANGLE;
+            pipelineDesc.blendEnabled           = false;
+            pipelineDesc.useBlendPreset         = true;
+            pipelineDesc.blendPreset            = RZ_GFX_BLEND_PRESET_ADDITIVE;
+            pipelineDesc.renderTargetCount      = 1;
             pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
-            m_Pipeline = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.DrawPrimitive", pipelineDesc);
+            //pipelineDesc.depthStencilFormat     = RZ_GFX_FORMAT_D24_UNORM_S8_UINT;
+            m_Pipeline = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.PrimitiveTest", pipelineDesc);
 
-            // 3. Create geometry + instance + indirect args
             createGeometryCPU();
             createInstanceDataCPU();
             createIndirectArgs();
 
-            // Register shader bind map for resource bindings (instance buffer SRV / camera matrices constant buffer etc.)
-            RZResourceManager::Get().getShaderBindMap(m_Shader).RegisterBindMap(m_Shader);
+            RZSceneCamera camera;
+            u32           winW = RZApplication::Get().getWindow()->getWidth();
+            u32           winH = RZApplication::Get().getWindow()->getHeight();
+            camera.setViewportSize(winW, winH);
+            camera.setPosition({0.0f, 0.0f, 15.0f});
+            camera.setForward({0.0f, 0.0f, 1.0f});
+
+            cbData.view       = camera.getViewMatrix();
+            cbData.projection = camera.getProjection();
+            for (u32 i = 0; i < MAX_INSTANCES; ++i) {
+                memcpy(&cbData.instanceTransforms[i], s_InstanceTransforms[i].m, sizeof(float) * 16);
+            }
+
+            RZResourceManager::Get()
+                .getShaderBindMap(m_Shader)
+                .RegisterBindMap(m_Shader);
 
             struct PrimitivePassData
             {
-                // If we needed per-pass constant buffers or render targets, declare them here.
-                // For now we just render straight to the swapchain.
-                // Example placeholder for view/projection constant buffer if needed later:
-                // RZFrameGraphResource CameraCB;
+                RZFrameGraphResource primitiveCB;
+                RZFrameGraphResource depth;
             };
 
             framegraph.addCallbackPass<PrimitivePassData>(
@@ -184,14 +189,20 @@ namespace Razix {
                 [&](PrimitivePassData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
-                    // TODO: Create constant buffer (camera + projection) and write view if needed.
-                    // rz_gfx_buffer_desc cameraCBDesc = {};
-                    // cameraCBDesc.type = RZ_GFX_BUFFER_TYPE_CONSTANT;
-                    // cameraCBDesc.usage = RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC;
-                    // cameraCBDesc.resourceHints = RZ_GFX_RESOURCE_VIEW_FLAG_CBV;
-                    // cameraCBDesc.sizeInBytes = sizeof(CameraMatricesStruct); // define struct
-                    // data.CameraCB = builder.create<RZFrameGraphBuffer>("CBuffer.GfxTest.PrimitiveCamera", CAST_TO_FG_BUF_DESC cameraCBDesc);
-                    // rz_gfx_resource_view_desc cbView = {}; cbView.descriptorType = RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER; cbView.bufferViewDesc.pBuffer = RZ_FG_BUF_RES_AUTO_POPULATE; cbView.bufferViewDesc.size = cameraCBDesc.sizeInBytes; data.CameraCB = builder.write(data.CameraCB, cbView);
+                    rz_gfx_buffer_desc cbDesc = {};
+                    cbDesc.type               = RZ_GFX_BUFFER_TYPE_CONSTANT;
+                    cbDesc.usage              = RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC;
+                    cbDesc.resourceHints      = RZ_GFX_RESOURCE_VIEW_FLAG_CBV;
+                    cbDesc.sizeInBytes        = sizeof(PrimitiveCBData);
+                    cbDesc.pInitData          = &cbData;
+                    data.primitiveCB          = builder.create<RZFrameGraphBuffer>("Buffer.PrimitiveTest.InstanceTransforms", CAST_TO_FG_BUF_DESC cbDesc);
+
+                    rz_gfx_resource_view_desc cbvDesc = {};
+                    cbvDesc.descriptorType            = RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
+                    cbvDesc.bufferViewDesc.pBuffer    = RZ_FG_BUF_RES_AUTO_POPULATE;
+                    cbvDesc.bufferViewDesc.size       = sizeof(PrimitiveCBData);
+                    cbvDesc.bufferViewDesc.offset     = 0;
+                    data.primitiveCB                  = builder.write(data.primitiveCB, cbvDesc);
                 },
                 [=](const PrimitivePassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -201,7 +212,7 @@ namespace Razix {
                     RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.PrimitiveDraw", Utilities::GenerateHashedColor4(1337u));
 
                     // Render pass targeting swapchain
-                    rz_gfx_renderpass rp = {0};
+                    rz_gfx_renderpass rp                 = {0};
                     rp.resolution                        = RZ_GFX_RESOLUTION_WINDOW;
                     rp.colorAttachmentsCount             = 1;
                     rp.colorAttachments[0].pResourceView = RZEngine::Get().getWorldRenderer().getCurrSwapchainBackbufferResViewPtr();
@@ -214,29 +225,36 @@ namespace Razix {
                     rzRHI_BindGfxRootSig(cmdBuffer, m_RootSigHandle);
                     rzRHI_BindPipeline(cmdBuffer, m_Pipeline);
 
-                    // Bind descriptor heaps (resource heap for buffers). If sampler heap needed add similarly.
-                    rz_gfx_descriptor_heap_handle heaps[] = { RZEngine::Get().getWorldRenderer().getResourceHeap() };
+                    rz_gfx_descriptor_heap_handle heaps[] = {RZEngine::Get().getWorldRenderer().getResourceHeap()};
                     rzRHI_BindDescriptorHeaps(cmdBuffer, heaps, 1);
 
                     if (RZFrameGraph::IsFirstFrame()) {
-                        // Bind instance buffer as SRV (assuming shader expects structured buffer named g_InstanceTransforms)
                         RZResourceManager::Get()
                             .getShaderBindMap(m_Shader)
-                            // .setResourceView("g_CameraCB", resources.getResourceViewHandle<RZFrameGraphBuffer>(data.CameraCB)) // Uncomment if camera CB added
-                            .setResourceView("g_InstanceTransforms", RZResourceManager::Get().createResourceViewFromBuffer(m_InstanceBuffer /*TODO: if helper exists; else create separately*/)) // Placeholder helper call (verify actual API). If unavailable, user must create resource view manually earlier.
+                            .setResourceView("InstanceTransforms", resources.getResourceViewHandle<RZFrameGraphBuffer>(data.primitiveCB))
                             .validate()
                             .build();
                     }
 
-                    RZResourceManager::Get().getShaderBindMap(m_Shader).bind(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS);
+                    RZResourceManager::Get()
+                        .getShaderBindMap(m_Shader)
+                        .bind(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS);
 
-                    // TODO: Bind vertex + index buffers. RHI.h does not yet expose explicit BindVertexBuffers/BindIndexBuffer in provided snippet.
-                    // Placeholder comment: User to add binding calls once available (e.g., rzRHI_BindVertexBuffer / rzRHI_BindIndexBuffer).
+                    rz_gfx_buffer_update cbUpdate = {};
+                    cbUpdate.pBuffer              = RZResourceManager::Get().getBufferResource(resources.get<RZFrameGraphBuffer>(data.primitiveCB).getRHIHandle());
+                    cbUpdate.sizeInBytes          = sizeof(PrimitiveCBData);
+                    cbUpdate.offset               = 0;
+                    cbUpdate.pData                = &cbData;
+                    rzRHI_UpdateConstantBuffer(cbUpdate);
 
-                    // For now use DrawAuto as placeholder (non-indexed). Replace with DrawIndexedAuto or DrawIndirect when implemented.
-                    rzRHI_DrawAuto(cmdBuffer, m_NumVertices, m_NumInstances, 0, 0);
+                    // Bind vertex and index buffers
+                    u32                  offsets[] = {0};
+                    u32                  strides[] = {sizeof(PrimitiveTestVertex)};
+                    rz_gfx_buffer_handle vbs[]     = {m_VertexBuffer};
+                    rzRHI_BindVertexBuffers(cmdBuffer, vbs, 1, offsets, strides);
+                    rzRHI_BindIndexBuffer(cmdBuffer, m_IndexBuffer, 0, RZ_GFX_INDEX_TYPE_UINT32);
 
-                    // TODO: Replace above with DrawIndirect using m_IndirectArgsBuffer once rzRHI_DrawIndirect is implemented in RHI.
+                    rzRHI_DrawIndexedIndirect(cmdBuffer, m_IndirectArgsBuffer, 0, 1);
 
                     rzRHI_EndRenderPass(cmdBuffer);
 
@@ -247,17 +265,13 @@ namespace Razix {
 
         void RZPrimitiveTestPass::destroy()
         {
-            // Destroy descriptor tables created by bind map
             RZResourceManager::Get().getShaderBindMap(m_Shader).destroy();
-            // Destroy pipeline + shader
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
             RZResourceManager::Get().destroyShader(m_Shader);
-            // Destroy buffers (if resource manager requires explicit destruction)
-            if (m_VertexBuffer.handle)       RZResourceManager::Get().destroyBuffer(m_VertexBuffer);
-            if (m_IndexBuffer.handle)        RZResourceManager::Get().destroyBuffer(m_IndexBuffer);
-            if (m_InstanceBuffer.handle)     RZResourceManager::Get().destroyBuffer(m_InstanceBuffer);
-            if (m_IndirectArgsBuffer.handle) RZResourceManager::Get().destroyBuffer(m_IndirectArgsBuffer);
+            RZResourceManager::Get().destroyBuffer(m_VertexBuffer);
+            RZResourceManager::Get().destroyBuffer(m_IndexBuffer);
+            RZResourceManager::Get().destroyBuffer(m_IndirectArgsBuffer);
         }
 
-    } // namespace Gfx
-} // namespace Razix
+    }    // namespace Gfx
+}    // namespace Razix

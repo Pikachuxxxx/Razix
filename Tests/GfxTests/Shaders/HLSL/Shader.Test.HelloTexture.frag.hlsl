@@ -14,8 +14,7 @@ struct VSInput
 //------------------------------------------------------------------------------
 SamplerState g_Sampler : register(s0, space0);
 Texture2D g_TestTexture : register(t0, space1);
-
- //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 float4 PS_MAIN(VSInput psIn) : SV_TARGET
 {
     return psIn.Color * g_TestTexture.SampleLevel(g_Sampler, psIn.UV, 0);

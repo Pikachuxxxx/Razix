@@ -198,19 +198,16 @@ namespace Razix {
         void recalculateProjection();
 
     private:
-        ProjectionType m_ProjectionType = ProjectionType::Perspective;
-
-        float4x4 m_Projection      = float4x4(1.0f);
-        f32      m_PerspectiveFOV  = radians(45.0f);
-        f32      m_PerspectiveNear = 0.1f, m_PerspectiveFar = 1000.0f;
-
-        f32 m_OrthographicSize = 10.0f;
-        f32 m_OrthographicNear = -1.0f, m_OrthographicFar = 1.0f;
-
-        f32 m_AspectRatio = 0.0f;
-
-        float4 m_BgColor = float4(0.0f);
-
+        ProjectionType   m_ProjectionType   = ProjectionType::Perspective;
+        float4x4         m_Projection       = float4x4(1.0f);
+        f32              m_PerspectiveFOV   = radians(45.0f);
+        f32              m_PerspectiveNear  = 0.1f;
+        f32              m_PerspectiveFar   = 1000.0f;
+        f32              m_OrthographicSize = 10.0f;
+        f32              m_OrthographicNear = -1.0f;
+        f32              m_OrthographicFar  = 1.0f;
+        f32              m_AspectRatio      = 0.0f;
+        float4           m_BgColor          = float4(0.0f);
         Maths::RZFrustum m_CameraFrustum;
     };
 }    // namespace Razix

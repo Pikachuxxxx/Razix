@@ -42,6 +42,9 @@ namespace Razix {
         ReflectShaderBlobBackendFn GetShaderReflectionFunction();
         void                       FreeShaderReflectionMemAllocs(rz_gfx_shader_reflection* reflection);
         void                       CopyReflectedRootSigDesc(const rz_gfx_shader_reflection* src, rz_gfx_root_signature_desc* dst);
+        void                       FreeRootSigDescMemAllocs(rz_gfx_root_signature_desc* rootSigDesc);
+        void                       CopyReflectedInputElements(const rz_gfx_shader_reflection* src, rz_gfx_input_element** dst, u32* elementCount);
+        void                       FreeInputElementsMemAllocs(rz_gfx_input_element* inputElements, u32 numElements);
 
         //-----------------------------------------------------------------------------------
         // Shader Bind Map for Descriptor table management

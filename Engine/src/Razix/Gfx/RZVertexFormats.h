@@ -7,7 +7,7 @@
 #else
     #define SHADER_SEMANTIC(semantic)
     #define SHADER_STRUCT struct
-jgdfasladsljkhfghjldsg
+
     #include "Razix/Core/RZDataTypes.h"
     #include <vector>
 #endif
@@ -76,7 +76,7 @@ namespace Razix {
     }    // namespace Gfx
 }    // namespace Razix
 
- // Simple vertex for basic geometry (quads, etc.)
+// Simple vertex for basic geometry (quads, etc.)
 SHADER_STRUCT RZSimpleVertex
 {
     float4 Position  SHADER_SEMANTIC(POSITION);
