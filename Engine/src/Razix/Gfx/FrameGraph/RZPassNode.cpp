@@ -69,15 +69,18 @@ namespace Razix {
         {
             auto& accessView = getResourceAccessViewRef(id);
             if (!rz_handle_is_valid(&accessView.resViewHandle)) {
+                std::string resViewName;
                 if (rzRHI_IsDescriptorTypeBuffer(accessView.resViewDesc.descriptorType)) {
                     if (accessView.resViewDesc.bufferViewDesc.pBuffer == RZ_FG_BUF_RES_AUTO_POPULATE) {
                         accessView.resViewDesc.bufferViewDesc.pBuffer = RZResourceManager::Get().getBufferResource(resHandle);
+                        resViewName                                   = accessView.resViewDesc.bufferViewDesc.pBuffer->resource.pName;
                     } else {
                         RAZIX_CORE_ERROR("pBuffer is either NULL or not AUTO_POPULATE");
                     }
                 } else if (rzRHI_IsDescriptorTypeTexture(accessView.resViewDesc.descriptorType)) {
                     if (accessView.resViewDesc.textureViewDesc.pTexture == RZ_FG_TEX_RES_AUTO_POPULATE) {
                         accessView.resViewDesc.textureViewDesc.pTexture = RZResourceManager::Get().getTextureResource(resHandle);
+                        resViewName                                     = accessView.resViewDesc.textureViewDesc.pTexture->resource.pName;
                     } else {
                         RAZIX_CORE_ERROR("pTexture is not AUTO_POPULATE, this is invalid way to create resource views with framegraph, please follow the right convention by defining the pTexture with RZ_FG_TEX_RES_AUTO_POPULATE, to automatically generate and maintain resource views per pass");
                     }
@@ -87,7 +90,8 @@ namespace Razix {
                 }
 
                 // Now that we have filled the pResource create the resource view
-                accessView.resViewHandle = RZResourceManager::Get().createResourceView(m_Name.c_str(), accessView.resViewDesc);
+                std::string resViewDebugName = std::string("ResView.") + resViewName + ".Pass." + getName();
+                accessView.resViewHandle     = RZResourceManager::Get().createResourceView(resViewDebugName.c_str(), accessView.resViewDesc);
             }
         }
 

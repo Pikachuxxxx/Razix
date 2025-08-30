@@ -145,8 +145,8 @@ namespace Razix {
             pipelineDesc.pShader                = RZResourceManager::Get().getShaderResource(m_Shader);
             m_RootSigHandle                     = pipelineDesc.pShader->rootSignature;
             pipelineDesc.pRootSig               = RZResourceManager::Get().getRootSignatureResource(pipelineDesc.pShader->rootSignature);
-            pipelineDesc.depthTestEnabled       = false;
-            pipelineDesc.depthWriteEnabled      = false;
+            pipelineDesc.depthTestEnabled       = true;
+            pipelineDesc.depthWriteEnabled      = true;
             pipelineDesc.cullMode               = RZ_GFX_CULL_MODE_TYPE_BACK;
             pipelineDesc.drawType               = RZ_GFX_DRAW_TYPE_TRIANGLE;
             pipelineDesc.blendEnabled           = false;
@@ -154,8 +154,9 @@ namespace Razix {
             pipelineDesc.blendPreset            = RZ_GFX_BLEND_PRESET_ADDITIVE;
             pipelineDesc.renderTargetCount      = 1;
             pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
-            //pipelineDesc.depthStencilFormat     = RZ_GFX_FORMAT_D24_UNORM_S8_UINT;
-            m_Pipeline = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.PrimitiveTest", pipelineDesc);
+            pipelineDesc.depthStencilFormat     = RZ_GFX_FORMAT_D24_UNORM_S8_UINT;
+            pipelineDesc.depthCompareOp         = RZ_GFX_COMPARE_OP_TYPE_LESS;
+            m_Pipeline                          = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.PrimitiveTest", pipelineDesc);
 
             createGeometryCPU();
             createInstanceDataCPU();
@@ -189,6 +190,26 @@ namespace Razix {
                 [&](PrimitivePassData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
+                    rz_gfx_texture_desc depthTexDesc = {};
+                    depthTexDesc.width               = RZApplication::Get().getWindow()->getWidth();
+                    depthTexDesc.height              = RZApplication::Get().getWindow()->getHeight();
+                    depthTexDesc.depth               = 1;
+                    depthTexDesc.arraySize           = 1;
+                    depthTexDesc.mipLevels           = 1;
+                    depthTexDesc.textureType         = RZ_GFX_TEXTURE_TYPE_2D;
+                    depthTexDesc.format              = RZ_GFX_FORMAT_D24_UNORM_S8_UINT;
+                    depthTexDesc.resourceHints       = RZ_GFX_RESOURCE_VIEW_FLAG_DSV;
+                    data.depth                       = builder.create<RZFrameGraphTexture>("Texture.PrimitiveTest.Depth", CAST_TO_FG_TEX_DESC depthTexDesc);
+
+                    rz_gfx_resource_view_desc dsvDesc      = {};
+                    dsvDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE;
+                    dsvDesc.textureViewDesc.pTexture       = RZ_FG_TEX_RES_AUTO_POPULATE;
+                    dsvDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getDepthRenderTargetHeap());
+                    dsvDesc.textureViewDesc.baseMip        = 0;
+                    dsvDesc.textureViewDesc.baseArrayLayer = 0;
+                    dsvDesc.textureViewDesc.dimension      = 1;
+                    data.depth                             = builder.write(data.depth, dsvDesc);
+
                     rz_gfx_buffer_desc cbDesc = {};
                     cbDesc.type               = RZ_GFX_BUFFER_TYPE_CONSTANT;
                     cbDesc.usage              = RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC;
@@ -217,6 +238,9 @@ namespace Razix {
                     rp.colorAttachmentsCount             = 1;
                     rp.colorAttachments[0].pResourceView = RZEngine::Get().getWorldRenderer().getCurrSwapchainBackbufferResViewPtr();
                     rp.colorAttachments[0].clear         = true;
+                    rp.colorAttachments[0].clearColor    = {0.2f, 0.2f, 0.2f, 1.0f};
+                    rp.depthAttachment.pResourceView     = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.depth));
+                    rp.depthAttachment.clear             = true;
                     rp.layers                            = 1;
                     RAZIX_X(rp.extents)                  = RZApplication::Get().getWindow()->getWidth();
                     RAZIX_Y(rp.extents)                  = RZApplication::Get().getWindow()->getHeight();

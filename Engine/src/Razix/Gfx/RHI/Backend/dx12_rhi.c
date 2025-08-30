@@ -2324,15 +2324,27 @@ static void dx12_CreateTexture(void* where)
     resDesc.Layout              = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     resDesc.Flags               = D3D12_RESOURCE_FLAG_NONE;
 
+    D3D12_CLEAR_VALUE optClear    = {0};
+    optClear.Format               = resDesc.Format;
+    optClear.Color[0]             = 0.0f;
+    optClear.Color[1]             = 0.0f;
+    optClear.Color[2]             = 0.0f;
+    optClear.Color[3]             = 0.0f;
+    optClear.DepthStencil.Depth   = 1.0f;
+    optClear.DepthStencil.Stencil = 0;
+
+    texture->resource.currentState = RZ_GFX_RESOURCE_STATE_COMMON;
+
+    bool isRtvDsv = (desc->resourceHints & (RZ_GFX_RESOURCE_VIEW_FLAG_RTV | RZ_GFX_RESOURCE_VIEW_FLAG_DSV)) != 0;
     // Set resource flags
     if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV)
         resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
     else if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_RTV) == RZ_GFX_RESOURCE_VIEW_FLAG_RTV)
         resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-    else if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV) == RZ_GFX_RESOURCE_VIEW_FLAG_DSV)
+    else if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV) == RZ_GFX_RESOURCE_VIEW_FLAG_DSV) {
         resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-    texture->resource.currentState = RZ_GFX_RESOURCE_STATE_COMMON;
+        texture->resource.currentState = RZ_GFX_RESOURCE_STATE_DEPTH_WRITE;
+    }
 
     // Create resource with memory backing
     D3D12_HEAP_PROPERTIES heapProps = {0};
@@ -2341,7 +2353,7 @@ static void dx12_CreateTexture(void* where)
     heapProps.MemoryPoolPreference  = D3D12_MEMORY_POOL_UNKNOWN;
 
     // Create the texture resource
-    HRESULT hr = ID3D12Device10_CreateCommittedResource(DX12Device, &heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, dx12_util_res_state_translate(texture->resource.currentState), NULL, &IID_ID3D12Resource, &texture->dx12.resource);
+    HRESULT hr = ID3D12Device10_CreateCommittedResource(DX12Device, &heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, dx12_util_res_state_translate(texture->resource.currentState), isRtvDsv ? &optClear : NULL, &IID_ID3D12Resource, &texture->dx12.resource);
     if (FAILED(hr)) {
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Texture2D: 0x%08X", hr);
         return;
@@ -2452,8 +2464,8 @@ static void dx12_CreateBuffer(void* where)
         RAZIX_RHI_LOG_INFO("Uploading initial data for buffer");
 
         if (((desc->type & RZ_GFX_BUFFER_TYPE_CONSTANT) == RZ_GFX_BUFFER_TYPE_CONSTANT) && useUploadHeapType) {
-            void*   mappedData    = NULL;
-            HRESULT hr            = ID3D12Resource_Map(buffer->dx12.resource, 0, NULL, &mappedData);
+            void*   mappedData = NULL;
+            HRESULT hr         = ID3D12Resource_Map(buffer->dx12.resource, 0, NULL, &mappedData);
             if (FAILED(hr) || mappedData == NULL) {
                 RAZIX_RHI_LOG_ERROR("Failed to map constant buffer memory for initial data upload: 0x%08X", hr);
                 return;

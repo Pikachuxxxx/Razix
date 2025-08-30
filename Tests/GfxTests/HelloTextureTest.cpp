@@ -10,7 +10,7 @@ using namespace Razix;
 class HelloTextureTest final : public RZGfxTestAppBase
 {
 public:
-    HelloTextureTest(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_DEFAULT, const std::string& appName = "RazixGfxTestApp")
+    HelloTextureTest(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_INF, const std::string& appName = "RazixGfxTestApp")
         : RZGfxTestAppBase(projectRoot, numFrames, appName)
     {
     }

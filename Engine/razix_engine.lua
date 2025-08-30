@@ -460,7 +460,7 @@ project "Razix"
         symbols "On"
         runtime "Debug"
         optimize "Off"
-        editandcontinue "On"
+        editandcontinue "Off"
 
         filter "system:windows"
             links

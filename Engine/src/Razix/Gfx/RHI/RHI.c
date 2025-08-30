@@ -65,6 +65,8 @@ bool rzRHI_IsDescriptorTypeTexture(rz_gfx_descriptor_type type)
         case RZ_GFX_DESCRIPTOR_TYPE_TEXTURE:
         case RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE:
         case RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED:
+        case RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE:
+        case RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE:
             return true;
         default:
             return false;
