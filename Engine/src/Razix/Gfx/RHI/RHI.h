@@ -170,7 +170,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
 /* Size of indices in Razix Engine, change here for global configuration */
 #define RAZIX_INDICES_SIZE                       sizeof(u32)    // we use 32-bit indices for now
-#define RAZIX_INDICES_FORMAT                     R32_UINT
+#define RAZIX_INDICES_FORMAT                     RZ_GFX_INDEX_TYPE_UINT32
 #define RAZIX_INDICES_FORMAT_VK                  VK_INDEX_TYPE_UINT32
 #define RAZIX_INDICES_FORMAT_D3D12               DXGI_FORMAT_R32_UINT
 #define RAZIX_INDICES_FORMAT_AGC                 sce::Agc::IndexSize::k32
@@ -186,6 +186,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define RAZIX_MAX_ALLOWED_HEAPS_TO_BIND          RZ_GFX_DESCRIPTOR_HEAP_TYPE_COUNT    // Maximum number of heaps that can be bound at once
 #define RAZIX_MAX_ALLOWED_TABLES_TO_BIND         16                                   // Maximum number of descriptor tables that can be bound at once
 #define RAZIX_RESOURCE_VIEW_DIMENSION_FULL       0xffffffff
+#define RAZIX_MAX_VERTEX_BUFFERS_BOUND           16
 
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX "PushConstant"
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_VK     RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX
@@ -358,7 +359,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef enum rz_gfx_resource_state
     {
         RZ_GFX_RESOURCE_STATE_UNDEFINED = 0,
-        RZ_GFX_RESOURCE_STATE_GENERAL,
+        RZ_GFX_RESOURCE_STATE_COMMON,
+        RZ_GFX_RESOURCE_STATE_GENERIC_READ,
         RZ_GFX_RESOURCE_STATE_RENDER_TARGET,
         RZ_GFX_RESOURCE_STATE_DEPTH_WRITE,
         RZ_GFX_RESOURCE_STATE_DEPTH_READ,
@@ -711,6 +713,13 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_INPUT_CLASS_PER_INSTANCE = 1,
         RZ_GFX_INPUT_CLASS_COUNT
     } rz_gfx_input_class;
+
+    typedef enum rz_gfx_index_type
+    {
+        RZ_GFX_INDEX_TYPE_UINT16 = 0,
+        RZ_GFX_INDEX_TYPE_UINT32,
+        RZ_GFX_INDEX_TYPE_COUNT
+    } rz_gfx_index_type;
 
     typedef rz_handle rz_gfx_resource_view_handle;
     typedef rz_handle rz_gfx_texture_handle;
@@ -1389,6 +1398,22 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t firstInstance;
     } rz_gfx_draw_indirect_args;
 
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_draw_indexed_indirect_args
+    {
+        uint32_t indexCount;
+        uint32_t instanceCount;
+        uint32_t firstIndex;
+        int32_t  vertexOffset;
+        uint32_t firstInstance;
+    } rz_gfx_draw_indexed_indirect_args;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_dispatch_indirect_args
+    {
+        uint32_t threadGroupCountX;
+        uint32_t threadGroupCountY;
+        uint32_t threadGroupCountZ;
+    } rz_gfx_dispatch_indirect_args;
+
     //---------------------------------------------------------------------------------------------
     // Gfx API
 
@@ -1483,6 +1508,9 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_BindDescriptorHeapsFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_descriptor_heap** heaps, uint32_t heapCount);
     typedef void (*rzRHI_BindDescriptorTablesFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type pipelineType, rz_gfx_descriptor_table** tables, uint32_t tableCount);
 
+    typedef void (*rzRHI_BindVertexBuffersFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* const* buffers, uint32_t bufferCount, const uint32_t* offsets, const uint32_t* strides);
+    typedef void (*rzRHI_BindIndexBufferFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer, uint32_t offset, rz_gfx_index_type indexType);
+
     typedef void (*rzRHI_DrawAutoFn)(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance);
     typedef void (*rzRHI_DrawIndexedAutoFn)(const rz_gfx_cmdbuf* cmdBuf, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset, uint32_t firstInstance);
     typedef void (*rzRHI_DispatchFn)(const rz_gfx_cmdbuf* cmdBuf, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
@@ -1561,6 +1589,8 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_BindComputeRootSigFn    BindComputeRootSig;
         rzRHI_BindDescriptorHeapsFn   BindDescriptorHeaps;
         rzRHI_BindDescriptorTablesFn  BindDescriptorTables;
+        rzRHI_BindVertexBuffersFn     BindVertexBuffers;
+        rzRHI_BindIndexBufferFn       BindIndexBuffer;
         rzRHI_DrawAutoFn              DrawAuto;
         rzRHI_DrawIndexedAutoFn       DrawIndexedAuto;
         rzRHI_DispatchFn              Dispatch;
@@ -1654,6 +1684,19 @@ static inline unsigned int rz_clz32(unsigned int x)
                     _heaps[i] = RZResourceManager::Get().getDescriptorHeapResource(heaps);                   \
                 g_RHI.BindDescriptorHeaps(RZResourceManager::Get().getCommandBufferResource(cb), _heaps, N); \
             } while (0);
+
+        #define rzRHI_BindDescriptorHeapsContainer(cb, heaps)                                       \
+            do {                                                                                    \
+                std::vector<rz_gfx_descriptor_heap*> heapPtrs;                                      \
+                heapPtrs.reserve((heaps).size());                                                   \
+                for (const auto& handle: (heaps))                                                   \
+                    heapPtrs.push_back(RZResourceManager::Get().getDescriptorHeapResource(handle)); \
+                g_RHI.BindDescriptorHeaps(                                                          \
+                    RZResourceManager::Get().getCommandBufferResource(cb),                          \
+                    heapPtrs.data(),                                                                \
+                    heapPtrs.size());                                                               \
+            } while (0)
+
         #define rzRHI_BindDescriptorTables(cb, ppt, dts, N)                                                      \
             do {                                                                                                 \
                 rz_gfx_descriptor_table* dts[N];                                                                 \
@@ -1662,12 +1705,49 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.BindDescriptorTables(RZResourceManager::Get().getCommandBufferResource(cb), ppt, _dts, N); \
             } while (0);
 
+        #define rzRHI_BindDescriptorTablesContainer(cb, ppt, dts)                                     \
+            do {                                                                                      \
+                std::vector<rz_gfx_descriptor_table*> tablePtrs;                                      \
+                tablePtrs.reserve((dts).size());                                                      \
+                for (const auto& handle: (dts))                                                       \
+                    tablePtrs.push_back(RZResourceManager::Get().getDescriptorTableResource(handle)); \
+                g_RHI.BindDescriptorTables(                                                           \
+                    RZResourceManager::Get().getCommandBufferResource(cb),                            \
+                    ppt,                                                                              \
+                    tablePtrs.data(),                                                                 \
+                    tablePtrs.size());                                                                \
+            } while (0)
+
+        #define rzRHI_BindVertexBuffers(cb, bu, N, off, str)                                                        \
+            do {                                                                                                    \
+                rz_gfx_buffer* _bufs[N];                                                                            \
+                for (uint32_t i = 0; i < N; i++)                                                                    \
+                    _bufs[i] = RZResourceManager::Get().getBufferResource(bu);                                      \
+                g_RHI.BindVertexBuffers(RZResourceManager::Get().getCommandBufferResource(cb), _bufs, N, off, str); \
+            } while (0);
+
+        #define rzRHI_BindVertexBuffersContainer(cb, bu, off, str)                         \
+            do {                                                                           \
+                std::vector<rz_gfx_buffer*> bufPtrs;                                       \
+                bufPtrs.reserve((bu).size());                                              \
+                for (const auto& handle: (bu))                                             \
+                    bufPtrs.push_back(RZResourceManager::Get().getBufferResource(handle)); \
+                g_RHI.BindVertexBuffers(                                                   \
+                    RZResourceManager::Get().getCommandBufferResource(cb),                 \
+                    bufPtrs.data(),                                                        \
+                    bufPtrs.size(),                                                        \
+                    off,                                                                   \
+                    str);                                                                  \
+            } while (0)
+
+        #define rzRHI_BindIndexBuffer(cb, bu, off, it) g_RHI.BindIndexBuffer(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), off, it)
+
         #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                       g_RHI.DrawAuto(RZResourceManager::Get().getCommandBufferResource(cb), vc, ic, fv, fi)
         #define rzRHI_DrawIndexedAuto(cb, ic, icount, iv, fi, fo)        g_RHI.DrawIndexedAuto(RZResourceManager::Get().getCommandBufferResource(cb), ic, icount, iv, fi, fo)
         #define rzRHI_Dispatch(cb, gx, gy, gz)                           g_RHI.Dispatch(RZResourceManager::Get().getCommandBufferResource(cb), gx, gy, gz)
-        #define rzRHI_DrawIndirect(cb, bu, maxDrawCount, offset)         g_RHI.DrawIndirect(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), offset, maxDrawCount)
-        #define rzRHI_DrawIndexedIndirect(cb, bu, maxDrawCount, offset)  g_RHI.DrawIndexedIndirect(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), offset, maxDrawCount)
-        #define rzRHI_DispatchIndirect(cb, bu, maxDispatchCount, offset) g_RHI.DispatchIndirect(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), offset, maxDispatchCount)
+        #define rzRHI_DrawIndirect(cb, bu, offset, maxDrawCount)         g_RHI.DrawIndirect(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), offset, maxDrawCount)
+        #define rzRHI_DrawIndexedIndirect(cb, bu, offset, maxDrawCount)  g_RHI.DrawIndexedIndirect(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), offset, maxDrawCount)
+        #define rzRHI_DispatchIndirect(cb, bu, offset, maxDispatchCount) g_RHI.DispatchIndirect(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), offset, maxDispatchCount)
 
         #define rzRHI_UpdateDescriptorTable(dt, rv, N)                                                         \
             do {                                                                                               \
@@ -1711,7 +1791,12 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_BindGfxRootSig                 g_RHI.BindGfxRootSig
         #define rzRHI_BindComputeRootSig             g_RHI.BindComputeRootSig
         #define rzRHI_BindDescriptorHeaps            g_RHI.BindDescriptorHeaps
+        #define rzRHI_BindDescriptorHeapsContainer   g_RHI.BindDescriptorHeaps
         #define rzRHI_BindDescriptorTables           g_RHI.BindDescriptorTables
+        #define rzRHI_BindDescriptorTablesContainer  g_RHI.BindDescriptorTables
+        #define rzRHI_BindVertexBuffers              g_RHI.BindVertexBuffers
+        #define rzRHI_BindVertexBuffersContainer     g_RHI.BindVertexBuffers
+        #define rzRHI_BindIndexBuffer                g_RHI.BindIndexBuffer
         #define rzRHI_DrawAuto                       g_RHI.DrawAuto
         #define rzRHI_DrawIndexedAuto                g_RHI.DrawIndexedAuto
         #define rzRHI_Dispatch                       g_RHI.Dispatch
@@ -1866,6 +1951,39 @@ static inline unsigned int rz_clz32(unsigned int x)
                     tablePtrs.size());                                                                \
             } while (0)
 
+        #define rzRHI_BindVertexBuffers(cb, bu, N, off, str)                                                        \
+            do {                                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindVertexBuffers", RZ_PROFILE_COLOR_RHI_DRAW_CALLS);                   \
+                rz_gfx_buffer* _bufs[N];                                                                            \
+                for (uint32_t i = 0; i < N; i++)                                                                    \
+                    _bufs[i] = RZResourceManager::Get().getBufferResource(bu[i]);                                   \
+                g_RHI.BindVertexBuffers(RZResourceManager::Get().getCommandBufferResource(cb), _bufs, N, off, str); \
+            } while (0);
+
+        #define rzRHI_BindVertexBuffersContainer(cb, bu, off, str)                                \
+            do {                                                                                  \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindVertexBuffers", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                std::vector<rz_gfx_buffer*> bufPtrs;                                              \
+                bufPtrs.reserve((bu).size());                                                     \
+                for (const auto& handle: (bu))                                                    \
+                    bufPtrs.push_back(RZResourceManager::Get().getBufferResource(handle));        \
+                g_RHI.BindVertexBuffers(                                                          \
+                    RZResourceManager::Get().getCommandBufferResource(cb),                        \
+                    bufPtrs.data(),                                                               \
+                    bufPtrs.size(),                                                               \
+                    off,                                                                          \
+                    str);                                                                         \
+            } while (0)
+
+        #define rzRHI_BindIndexBuffer(cb, bu, off, it)                                       \
+            do {                                                                             \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindIndexBuffer", RZ_PROFILE_COLOR_RHI);         \
+                g_RHI.BindIndexBuffer(RZResourceManager::Get().getCommandBufferResource(cb), \
+                    RZResourceManager::Get().getBufferResource(bu),                          \
+                    off,                                                                     \
+                    it);                                                                     \
+            } while (0)
+
         #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                                                     \
             do {                                                                                       \
                 RAZIX_PROFILE_SCOPEC("rzRHI_DrawAuto", RZ_PROFILE_COLOR_RHI_DRAW_CALLS);               \
@@ -1884,7 +2002,7 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.Dispatch(RZResourceManager::Get().getCommandBufferResource(cb), gx, gy, gz); \
             } while (0)
 
-        #define rzRHI_DrawIndirect(cb, bu, maxDrawCount, offset)                             \
+        #define rzRHI_DrawIndirect(cb, bu, offset, maxDrawCount)                             \
             do {                                                                             \
                 RAZIX_PROFILE_SCOPEC("rzRHI_DrawIndirect", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
                 g_RHI.DrawIndirect(RZResourceManager::Get().getCommandBufferResource(cb),    \
@@ -1893,7 +2011,7 @@ static inline unsigned int rz_clz32(unsigned int x)
                     maxDrawCount);                                                           \
             } while (0)
 
-        #define rzRHI_DrawIndexedIndirect(cb, bu, maxDrawCount, offset)                             \
+        #define rzRHI_DrawIndexedIndirect(cb, bu, offset, maxDrawCount)                             \
             do {                                                                                    \
                 RAZIX_PROFILE_SCOPEC("rzRHI_DrawIndexedIndirect", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
                 g_RHI.DrawIndexedIndirect(RZResourceManager::Get().getCommandBufferResource(cb),    \
@@ -1902,7 +2020,7 @@ static inline unsigned int rz_clz32(unsigned int x)
                     maxDrawCount);                                                                  \
             } while (0)
 
-        #define rzRHI_DispatchIndirect(cb, bu, maxDispatchCount, offset)                         \
+        #define rzRHI_DispatchIndirect(cb, bu, offset, maxDispatchCount)                         \
             do {                                                                                 \
                 RAZIX_PROFILE_SCOPEC("rzRHI_DispatchIndirect", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
                 g_RHI.DispatchIndirect(RZResourceManager::Get().getCommandBufferResource(cb),    \
@@ -2170,11 +2288,41 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.BindDescriptorHeaps(cb, heaps, N);                                            \
             } while (0);
 
+        #define rzRHI_BindDescriptorHeapsContainer(cb, heaps, N)                                    \
+            do {                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorHeaps", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.BindDescriptorHeaps(cb, heaps, N);                                            \
+            } while (0)
+
         #define rzRHI_BindDescriptorTables(cb, ppt, dts, N)                                          \
             do {                                                                                     \
                 RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorTables", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
                 g_RHI.BindDescriptorTables(cb, ppt, dts, N);                                         \
             } while (0);
+
+        #define rzRHI_BindDescriptorTablesContainer(cb, ppt, dts, N)                                 \
+            do {                                                                                     \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorTables", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.BindDescriptorTables(cb, ppt, dts, N);                                         \
+            } while (0)
+
+        #define rzRHI_BindVertexBuffers(cb, bu, N, off, str)                                      \
+            do {                                                                                  \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindVertexBuffers", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.BindVertexBuffers(cb, bu, N, off, str);                                     \
+            } while (0);
+
+        #define rzRHI_BindVertexBuffersContainer(cb, bu, off, str)                                \
+            do {                                                                                  \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindVertexBuffers", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.BindVertexBuffers(cb, bu, off, str);                                        \
+            } while (0)
+
+        #define rzRHI_BindIndexBuffer(cb, bu, off, it)                               \
+            do {                                                                     \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindIndexBuffer", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.BindIndexBuffer(cb, bu, off, it);                              \
+            } while (0)
 
         #define rzRHI_DrawAuto(cb, vc, ic, fv, fi)                                       \
             do {                                                                         \
@@ -2195,21 +2343,21 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC_END();                                              \
             } while (0)
 
-        #define rzRHI_DrawIndirect(cb, bu, maxDrawCount, offset)                             \
+        #define rzRHI_DrawIndirect(cb, bu, offset, maxDrawCount)                             \
             do {                                                                             \
                 RAZIX_PROFILE_SCOPEC("rzRHI_DrawIndirect", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
                 g_RHI.DrawIndirect(cb, bu, offset, maxDrawCount);                            \
                 RAZIX_PROFILE_SCOPEC_END();                                                  \
             } while (0)
 
-        #define rzRHI_DrawIndexedIndirect(cb, bu, maxDrawCount, offset)                             \
+        #define rzRHI_DrawIndexedIndirect(cb, bu, offset, maxDrawCount)                             \
             do {                                                                                    \
                 RAZIX_PROFILE_SCOPEC("rzRHI_DrawIndexedIndirect", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
                 g_RHI.DrawIndexedIndirect(cb, bu, offset, maxDrawCount);                            \
                 RAZIX_PROFILE_SCOPEC_END();                                                         \
             } while (0)
 
-        #define rzRHI_DispatchIndirect(cb, bu, maxDispatchCount, offset)                         \
+        #define rzRHI_DispatchIndirect(cb, bu, offset, maxDispatchCount)                         \
             do {                                                                                 \
                 RAZIX_PROFILE_SCOPEC("rzRHI_DispatchIndirect", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
                 g_RHI.DispatchIndirect(cb, bu, offset, maxDispatchCount);                        \

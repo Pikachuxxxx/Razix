@@ -169,7 +169,8 @@ static D3D12_COMMAND_LIST_TYPE dx12_util_rz_cmdpool_to_cmd_list_type(rz_gfx_cmdp
 
 static const D3D12_RESOURCE_STATES d3d12_resource_state_map[RZ_GFX_RESOURCE_STATE_COUNT] = {
     D3D12_RESOURCE_STATE_COMMON,                                                                    // UNDEFINED
-    D3D12_RESOURCE_STATE_COMMON,                                                                    // GENERAL
+    D3D12_RESOURCE_STATE_COMMON,                                                                    // COMMON
+    D3D12_RESOURCE_STATE_GENERIC_READ,                                                              // GENERIC_READ
     D3D12_RESOURCE_STATE_RENDER_TARGET,                                                             // RENDER_TARGET
     D3D12_RESOURCE_STATE_DEPTH_WRITE,                                                               // DEPTH_WRITE
     D3D12_RESOURCE_STATE_DEPTH_READ,                                                                // DEPTH_READ
@@ -192,6 +193,11 @@ static const D3D12_RESOURCE_STATES d3d12_resource_state_map[RZ_GFX_RESOURCE_STAT
 
 static D3D12_RESOURCE_STATES dx12_util_res_state_translate(rz_gfx_resource_state state)
 {
+    if (state >= RZ_GFX_RESOURCE_STATE_COUNT || state == RZ_GFX_RESOURCE_STATE_UNDEFINED) {
+        RAZIX_RHI_LOG_ERROR("Invalid resource state %d", state);
+        return D3D12_RESOURCE_STATE_COMMON;
+    }
+
     return d3d12_resource_state_map[state];
 }
 
@@ -242,14 +248,14 @@ static D3D12_DESCRIPTOR_RANGE_TYPE dx12_util_descriptor_type_to_range_type(rz_gf
 static D3D12_INPUT_ELEMENT_DESC dx12_util_input_element_desc(rz_gfx_input_element element)
 {
     D3D12_INPUT_ELEMENT_DESC dxElement = {0};
-    dxElement.SemanticName             = element.pSemanticName;
+    dxElement.SemanticName             = (LPCSTR) (element.pSemanticName);
     dxElement.SemanticIndex            = element.semanticIndex;
     dxElement.Format                   = dx12_util_rz_gfx_format_to_dxgi_format(element.format);
     dxElement.InputSlot                = element.inputSlot;
     dxElement.AlignedByteOffset        = element.alignedByteOffset;
-    dxElement.InputSlotClass           = (element.inputClass == 1)
-                                             ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA
-                                             : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+    dxElement.InputSlotClass           = (element.inputClass == RZ_GFX_INPUT_CLASS_PER_VERTEX)
+                                             ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA
+                                             : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
     dxElement.InstanceDataStepRate     = element.instanceStepRate;
 
     return dxElement;
@@ -2030,6 +2036,7 @@ static void dx12_CreateRootSignature(void* where)
     D3D12_DESCRIPTOR_RANGE descriptorRanges[RAZIX_MAX_DESCRIPTOR_TABLES][RAZIX_MAX_DESCRIPTOR_RANGES] = {0};
 
     D3D12_ROOT_SIGNATURE_DESC rootDesc = {0};
+    rootDesc.Flags                     = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
     rootDesc.NumParameters             = desc->descriptorTableLayoutsCount + desc->rootConstantCount;
     rootDesc.pParameters               = rootParams;
 
@@ -2325,7 +2332,7 @@ static void dx12_CreateTexture(void* where)
     else if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV) == RZ_GFX_RESOURCE_VIEW_FLAG_DSV)
         resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-    texture->resource.currentState = RZ_GFX_RESOURCE_STATE_GENERAL;
+    texture->resource.currentState = RZ_GFX_RESOURCE_STATE_COMMON;
 
     // Create resource with memory backing
     D3D12_HEAP_PROPERTIES heapProps = {0};
@@ -2430,10 +2437,12 @@ static void dx12_CreateBuffer(void* where)
     heapProps.CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
     heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 
-    D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;    // Default state, can be changed later
+    buffer->resource.currentState = RZ_GFX_RESOURCE_STATE_COMMON;
+    if (useUploadHeapType)
+        buffer->resource.currentState = RZ_GFX_RESOURCE_STATE_GENERIC_READ;
 
     // Create the buffer resource
-    HRESULT hr = ID3D12Device10_CreateCommittedResource(DX12Device, &heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, initialState, NULL, &IID_ID3D12Resource, &buffer->dx12.resource);
+    HRESULT hr = ID3D12Device10_CreateCommittedResource(DX12Device, &heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, dx12_util_res_state_translate(buffer->resource.currentState), NULL, &IID_ID3D12Resource, &buffer->dx12.resource);
     if (FAILED(hr)) {
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Buffer: 0x%08X", hr);
         return;
@@ -2441,7 +2450,21 @@ static void dx12_CreateBuffer(void* where)
 
     if (desc->pInitData != NULL) {
         RAZIX_RHI_LOG_INFO("Uploading initial data for buffer");
-        dx12_util_upload_buffer_data(buffer, desc);
+
+        if (((desc->type & RZ_GFX_BUFFER_TYPE_CONSTANT) == RZ_GFX_BUFFER_TYPE_CONSTANT) && useUploadHeapType) {
+            void*   mappedData    = NULL;
+            HRESULT hr            = ID3D12Resource_Map(buffer->dx12.resource, 0, NULL, &mappedData);
+            if (FAILED(hr) || mappedData == NULL) {
+                RAZIX_RHI_LOG_ERROR("Failed to map constant buffer memory for initial data upload: 0x%08X", hr);
+                return;
+            }
+            memcpy(mappedData, desc->pInitData, desc->sizeInBytes);
+            ID3D12Resource_Unmap(buffer->dx12.resource, 0, NULL);
+            RAZIX_RHI_LOG_INFO("Constant buffer initial data uploaded via direct mapping");
+        } else {
+            // Use staging buffer method for default heap buffers (VB/IB/Indirect/etc.)
+            dx12_util_upload_buffer_data(buffer, desc);
+        }
     }
 
     RAZIX_RHI_LOG_INFO("D3D12 Buffer created successfully");
@@ -2849,6 +2872,41 @@ static void dx12_BindDescriptorTables(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeli
         else
             RAZIX_RHI_LOG_ERROR("Unsupported pipeline type for binding descriptor tables: %d", pipelineType);
     }
+}
+
+static void dx12_BindVertexBuffers(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* const* buffers, uint32_t bufferCount, const uint32_t* offsets, const uint32_t* strides)
+{
+    RAZIX_RHI_ASSERT(buffers != NULL, "Buffers cannot be NULL");
+    RAZIX_RHI_ASSERT(offsets != NULL, "Offsets cannot be NULL");
+    RAZIX_RHI_ASSERT(strides != NULL, "Strides cannot be NULL");
+    RAZIX_RHI_ASSERT(bufferCount > 0 && bufferCount <= RAZIX_MAX_VERTEX_BUFFERS_BOUND, "Invalid buffer count: %d. Must be between 1 and %d", bufferCount, RAZIX_MAX_VERTEX_BUFFERS_BOUND);
+    D3D12_VERTEX_BUFFER_VIEW vbViews[RAZIX_MAX_VERTEX_BUFFERS_BOUND] = {0};
+    for (uint32_t i = 0; i < bufferCount; ++i) {
+        RAZIX_RHI_ASSERT(buffers[i] != NULL, "Buffer at index %d is NULL", i);
+        ID3D12Resource* d3d_buffer = (ID3D12Resource*) buffers[i]->dx12.resource;
+        vbViews[i].BufferLocation  = ID3D12Resource_GetGPUVirtualAddress(d3d_buffer) + offsets[i];
+        vbViews[i].SizeInBytes     = (UINT) buffers[i]->resource.desc.bufferDesc.sizeInBytes - offsets[i];
+        vbViews[i].StrideInBytes   = strides[i];
+    }
+    ID3D12GraphicsCommandList_IASetVertexBuffers(cmdBuf->dx12.cmdList, 0, bufferCount, vbViews);
+}
+
+static void dx12_BindIndexBuffer(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer, uint32_t offset, rz_gfx_index_type indexType)
+{
+    RAZIX_RHI_ASSERT(buffer != NULL, "Buffer cannot be NULL");
+    ID3D12Resource*         d3d_buffer = (ID3D12Resource*) buffer->dx12.resource;
+    D3D12_INDEX_BUFFER_VIEW ibView;
+    ibView.BufferLocation = ID3D12Resource_GetGPUVirtualAddress(d3d_buffer) + offset;
+    ibView.SizeInBytes    = (UINT) buffer->resource.desc.bufferDesc.sizeInBytes - offset;
+    if (indexType == RZ_GFX_INDEX_TYPE_UINT16)
+        ibView.Format = DXGI_FORMAT_R16_UINT;
+    else if (indexType == RZ_GFX_INDEX_TYPE_UINT32)
+        ibView.Format = DXGI_FORMAT_R32_UINT;
+    else {
+        RAZIX_RHI_LOG_ERROR("Unsupported index type: %d", indexType);
+        return;
+    }
+    ID3D12GraphicsCommandList_IASetIndexBuffer(cmdBuf->dx12.cmdList, &ibView);
 }
 
 static void dx12_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
@@ -3583,6 +3641,8 @@ rz_rhi_api dx12_rhi = {
     .BindComputeRootSig   = dx12_BindComputeRootSig,      // BindComputeRootSig
     .BindDescriptorTables = dx12_BindDescriptorTables,    // BindDescriptorTable
     .BindDescriptorHeaps  = dx12_BindDescriptorHeaps,     // BindDescriptorHeaps
+    .BindVertexBuffers    = dx12_BindVertexBuffers,       // BindVertexBuffers
+    .BindIndexBuffer      = dx12_BindIndexBuffer,         // BindIndexBuffer
 
     .DrawAuto              = dx12_DrawAuto,                 // DrawAuto
     .DrawIndexedAuto       = dx12_DrawIndexedAuto,          // DrawIndexedAuto
