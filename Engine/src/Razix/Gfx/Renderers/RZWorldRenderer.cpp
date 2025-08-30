@@ -605,7 +605,6 @@ namespace Razix {
         {
             rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
 
-            // m_FrameGraph.resize(width, height);
             rzRHI_ResizeSwapchain(&m_Swapchain, width, height);
             m_FrameGraph.resize(width, height);
 

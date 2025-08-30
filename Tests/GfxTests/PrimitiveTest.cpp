@@ -10,7 +10,7 @@ using namespace Razix;
 class PrimitiveTestApp final : public RZGfxTestAppBase
 {
 public:
-    PrimitiveTestApp(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_INF, const std::string& appName = "RazixGfxTestApp")
+    PrimitiveTestApp(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_DEFAULT, const std::string& appName = "RazixGfxTestApp")
         : RZGfxTestAppBase(projectRoot, numFrames, appName) {}
 
     void OnStart() override
@@ -23,7 +23,6 @@ public:
         std::string testsRootPath;
         RZVirtualFileSystem::Get().resolvePhysicalPath("//TestsRoot/GfxTests/", testsRootPath, true);
 
-        // Golden image placeholders (user should create the images later)
         SetGoldenImagePath(testsRootPath + "GoldenImages/GoldenImagePrimitiveTest_1280_720.ppm");
         SetScreenshotPath(testsRootPath + "TestImages/PrimitiveTest_1280_720.ppm");
 
@@ -38,7 +37,7 @@ public:
     }
 
 private:
-    Razix::Gfx::RZPrimitiveTestPass m_PrimitivePass;    // Only one pass for this test
+    Razix::Gfx::RZPrimitiveTestPass m_PrimitivePass;
 };
 
 static RZGfxTestAppBase* s_GfxTestBaseApp = NULL;
@@ -56,7 +55,7 @@ TEST_F(PrimitiveTests, DrawPrimitive)
     int result = EngineTestLoop();
 
     float psnr = s_GfxTestBaseApp->CompareWithGoldenImage();
-    if (psnr > 90.f)    // Placeholder threshold; user adjust
+    if (psnr > 90.f)
         result = -1;
     else
         result = SUCCESSFUL_ENGINE_EXIT_CODE;

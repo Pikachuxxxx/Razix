@@ -28,7 +28,6 @@
     if (rz_handle_is_valid(&handle)) {                                                                                                \
         rz_gfx_resource* resource = (rz_gfx_resource*) pool.get(handle);                                                              \
         RAZIX_ASSERT(resource != nullptr, "[Resource Manager] Resource is null! Cannot destroy resource!");                           \
-        free((void*) resource->pName);                                                                                                \
         if (m_ResourceTypeCBFuncs[resource->type].destroyFuncCB) {                                                                    \
             m_ResourceTypeCBFuncs[resource->type].destroyFuncCB((void*) resource);                                                    \
         } else {                                                                                                                      \
