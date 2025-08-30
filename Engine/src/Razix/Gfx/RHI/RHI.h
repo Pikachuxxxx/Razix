@@ -355,44 +355,8 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_RESOLUTION_COUNT
     } rz_gfx_resolution;
 
-    /*
-        D3D12_RESOURCE_STATE_COMMON	= 0,
-        D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER	= 0x1,
-        D3D12_RESOURCE_STATE_INDEX_BUFFER	= 0x2,
-        D3D12_RESOURCE_STATE_RENDER_TARGET	= 0x4,
-        D3D12_RESOURCE_STATE_UNORDERED_ACCESS	= 0x8,
-        D3D12_RESOURCE_STATE_DEPTH_WRITE	= 0x10,
-        D3D12_RESOURCE_STATE_DEPTH_READ	= 0x20,
-        D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE	= 0x40,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE	= 0x80,
-        D3D12_RESOURCE_STATE_STREAM_OUT	= 0x100,
-        D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT	= 0x200,
-        D3D12_RESOURCE_STATE_COPY_DEST	= 0x400,
-        D3D12_RESOURCE_STATE_COPY_SOURCE	= 0x800,
-        D3D12_RESOURCE_STATE_RESOLVE_DEST	= 0x1000,
-        D3D12_RESOURCE_STATE_RESOLVE_SOURCE	= 0x2000,
-        D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE	= 0x400000,
-        D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE	= 0x1000000,
-        D3D12_RESOURCE_STATE_RESERVED_INTERNAL_8000	= 0x8000,
-        D3D12_RESOURCE_STATE_RESERVED_INTERNAL_4000	= 0x4000,
-        D3D12_RESOURCE_STATE_RESERVED_INTERNAL_100000	= 0x100000,
-        D3D12_RESOURCE_STATE_RESERVED_INTERNAL_40000000	= 0x40000000,
-        D3D12_RESOURCE_STATE_RESERVED_INTERNAL_80000000	= 0x80000000,
-        D3D12_RESOURCE_STATE_GENERIC_READ	= ( ( ( ( ( 0x1 | 0x2 )  | 0x40 )  | 0x80 )  | 0x200 )  | 0x800 ) ,
-        D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE	= ( 0x40 | 0x80 ) ,
-        D3D12_RESOURCE_STATE_PRESENT	= 0,
-        D3D12_RESOURCE_STATE_PREDICATION	= 0x200,
-        D3D12_RESOURCE_STATE_VIDEO_DECODE_READ	= 0x10000,
-        D3D12_RESOURCE_STATE_VIDEO_DECODE_WRITE	= 0x20000,
-        D3D12_RESOURCE_STATE_VIDEO_PROCESS_READ	= 0x40000,
-        D3D12_RESOURCE_STATE_VIDEO_PROCESS_WRITE	= 0x80000,
-        D3D12_RESOURCE_STATE_VIDEO_ENCODE_READ	= 0x200000,
-        D3D12_RESOURCE_STATE_VIDEO_ENCODE_WRITE	= 0x800000
-    */
-
     typedef enum rz_gfx_resource_state
     {
-        // Basic states
         RZ_GFX_RESOURCE_STATE_UNDEFINED = 0,
         RZ_GFX_RESOURCE_STATE_GENERAL,
         RZ_GFX_RESOURCE_STATE_RENDER_TARGET,
@@ -702,6 +666,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_SGADER_FLAG_NONE              = 0,
         RZ_GFX_SHADER_FLAG_BINDLESS          = 1 << 0,
         RZ_GFX_SHADER_FLAG_NO_ROOT_SIGNATURE = 1 << 1,
+        RZ_GFX_SHADER_FLAG_INPUT_LAYOUT_SOA  = 1 << 2,
         RZ_GFX_SHADER_FLAG_COUNT             = 3
     } rz_gfx_shader_flags;
 
@@ -711,6 +676,41 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_TARGET_FPS_120   = 120,
         RZ_GFX_TARGET_FPS_COUNT = 2
     } rz_gfx_target_fps;
+
+    typedef enum rz_gfx_semantic
+    {
+        RZ_GFX_SEMANTIC_POSITION = 0,
+        RZ_GFX_SEMANTIC_NORMAL,
+        RZ_GFX_SEMANTIC_TANGENT,
+        RZ_GFX_SEMANTIC_BITANGENT,
+        RZ_GFX_SEMANTIC_COLOR0,
+        RZ_GFX_SEMANTIC_COLOR1,
+        RZ_GFX_SEMANTIC_COLOR2,
+        RZ_GFX_SEMANTIC_COLOR3,
+        RZ_GFX_SEMANTIC_TEXCOORD0,
+        RZ_GFX_SEMANTIC_TEXCOORD1,
+        RZ_GFX_SEMANTIC_TEXCOORD2,
+        RZ_GFX_SEMANTIC_TEXCOORD3,
+        RZ_GFX_SEMANTIC_TEXCOORD4,
+        RZ_GFX_SEMANTIC_TEXCOORD5,
+        RZ_GFX_SEMANTIC_TEXCOORD6,
+        RZ_GFX_SEMANTIC_TEXCOORD7,
+        RZ_GFX_SEMANTIC_BONE_INDICES,
+        RZ_GFX_SEMANTIC_BONE_WEIGHTS,
+        RZ_GFX_SEMANTIC_INSTANCE_ID,
+        RZ_GFX_SEMANTIC_CUSTOM0,
+        RZ_GFX_SEMANTIC_CUSTOM1,
+        RZ_GFX_SEMANTIC_CUSTOM2,
+        RZ_GFX_SEMANTIC_CUSTOM3,
+        RZ_GFX_SEMANTIC_COUNT
+    } rz_gfx_semantic;
+
+    typedef enum rz_gfx_input_class
+    {
+        RZ_GFX_INPUT_CLASS_PER_VERTEX   = 0,
+        RZ_GFX_INPUT_CLASS_PER_INSTANCE = 1,
+        RZ_GFX_INPUT_CLASS_COUNT
+    } rz_gfx_input_class;
 
     typedef rz_handle rz_gfx_resource_view_handle;
     typedef rz_handle rz_gfx_texture_handle;
@@ -838,7 +838,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         rz_gfx_format              format;
         rz_gfx_texture_type        textureType;
         rz_gfx_resource_view_hints resourceHints;    // Hints for how this texture should be viewed, used for binding
-        void*                      pixelData;        // Pointer to the pixel data, used for texture creation, freed by user, RHI does not own this memory
+        void*                      pPixelData;       // Pointer to the pixel data, used for texture creation, freed by user, RHI does not own this memory
     } rz_gfx_texture_desc;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_sampler_desc
@@ -931,7 +931,8 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t                   sizeInBytes;
         uint32_t                   stride;          // For structured buffers
         uint32_t                   elementCount;    // For structured buffers
-        uint8_t                    _pad0[8];
+        const void*                pInitData;       // Pointer to the initial data, used for buffer creation, freed by user, RHI does not own this memory
+        uint8_t                    _pad0[4];
     } rz_gfx_buffer_desc;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader_stage_blob
@@ -943,13 +944,14 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_input_element
     {
-        const char* pSemanticName;
-        uint32_t    semanticIndex;
-        uint32_t    format;    // Match to rz_gfx_format enum
-        uint32_t    inputSlot;
-        uint32_t    alignedByteOffset;
-        uint32_t    inputClass;    // Per-vertex or per-instance
-        uint32_t    instanceStepRate;
+        const char*        pSemanticName;
+        uint32_t           semanticIndex : 5;
+        rz_gfx_format      format : 6;
+        uint32_t           inputSlot : 4;
+        uint32_t           alignedByteOffset : 8;
+        rz_gfx_input_class inputClass : 1;
+        uint32_t           instanceStepRate : 8;
+        uint32_t           _pad0;
     } rz_gfx_input_element;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader_desc
