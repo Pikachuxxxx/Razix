@@ -971,19 +971,14 @@ static inline unsigned int rz_clz32(unsigned int x)
                 rz_gfx_shader_stage_blob gs;
                 rz_gfx_shader_stage_blob tcs;
                 rz_gfx_shader_stage_blob tes;
+                rz_gfx_shader_stage_blob task;
+                rz_gfx_shader_stage_blob mesh;
             } raster;
 
             struct
             {
                 rz_gfx_shader_stage_blob cs;
             } compute;
-
-            struct
-            {
-                rz_gfx_shader_stage_blob task;
-                rz_gfx_shader_stage_blob mesh;
-                rz_gfx_shader_stage_blob ps;
-            } mesh;
 
             struct
             {

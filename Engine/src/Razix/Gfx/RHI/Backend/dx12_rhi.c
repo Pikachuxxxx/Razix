@@ -1993,9 +1993,8 @@ static void dx12_CreateShader(void* where)
             if (desc->raster.gs.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_GEOMETRY;
             if (desc->raster.tcs.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_TESSELLATION_CONTROL;
             if (desc->raster.tes.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_TESSELLATION_EVALUATION;
-            if (desc->mesh.task.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_TASK;
-            if (desc->mesh.mesh.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_MESH;
-            if (desc->mesh.ps.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_PIXEL;
+            if (desc->raster.task.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_TASK;
+            if (desc->raster.mesh.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_MESH;
             break;
         case RZ_GFX_PIPELINE_TYPE_COMPUTE:
             if (desc->compute.cs.bytecode) shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_COMPUTE;
