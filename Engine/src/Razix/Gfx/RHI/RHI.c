@@ -1,6 +1,6 @@
 #include "RHI.h"
 
-#include <math.h    >
+#include <math.h>
 
 RAZIX_RHI_API rz_gfx_context g_GfxCtx = {0};
 // Default
@@ -20,10 +20,12 @@ void rzGfxCtx_StartUp()
             RAZIX_RHI_LOG_INFO("Initializing Vulkan RHI");
             g_RHI = vk_rhi;
             break;
+#if defined(RAZIX_PLATFORM_WINDOWS)    
         case RZ_RENDER_API_D3D12:
             RAZIX_RHI_LOG_INFO("Initializing DirectX 12 RHI");
             g_RHI = dx12_rhi;
             break;
+#endif
         default:
             RAZIX_RHI_LOG_ERROR("Unsupported Render API: %d", (uint32_t) g_RenderAPI);
             break;

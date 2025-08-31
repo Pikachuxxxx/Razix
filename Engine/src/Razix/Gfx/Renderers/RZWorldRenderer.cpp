@@ -41,6 +41,10 @@
     #define GLFW_EXPOSE_NATIVE_WIN32
     #include <GLFW/glfw3.h>
     #include <GLFW/glfw3native.h>
+#elif defined (RAZIX_PLATFORM_MACOS)
+    #define GLFW_EXPOSE_NATIVE_COCOA
+    #include <GLFW/glfw3.h>
+    #include <GLFW/glfw3native.h> 
 #endif
 
 namespace Razix {
@@ -100,7 +104,7 @@ namespace Razix {
                 glfwCreateWindowSurface(g_GfxCtx.vk.instance, glfwWindow, nullptr, &surface);
                 rzRHI_CreateSwapchain(&m_Swapchain, &surface, width, height);
             } else {
-                RAZIX_ASSERT(false && "Only Vulkan is supported on this platform!");
+                RAZIX_CORE_ASSERT(false, "Only Vulkan is supported on this platform!");
             }
 
 #else

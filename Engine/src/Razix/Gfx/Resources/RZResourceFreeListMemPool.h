@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Core/RZHandle.h"
+#include "Razix/Gfx/RHI/RHI.h"
 
 #include "Razix/Core/Memory/Allocators/RZHeapAllocator.h"
 

@@ -11,8 +11,8 @@ project "RHI"
     -- RHI source files
     files
     {
-        "**.h",
-        "**.c",
+        "RHI.h",
+        "RHI.c",
     }
 
     -- include paths
@@ -59,6 +59,14 @@ project "RHI"
         staticruntime "off"
         systemversion "latest"
         -- entrypoint "WinMainCRTStartup"
+        
+        files 
+        {
+            "./Backend/vk_rhi.h",
+            "./Backend/vk_rhi.c",
+            "./Backend/dx12_rhi.h",
+            "./Backend/dx12_rhi.c",
+        } 
 
         -- Build options for Windows / Visual Studio (MSVC)
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
@@ -114,7 +122,6 @@ project "RHI"
         links
         {
             -- Render API
-            "vulkan-1",
             "d3d11",
             "d3d12",
             "dxgi",
@@ -127,7 +134,13 @@ project "RHI"
         
     filter "system:macosx"
         staticruntime "off"
-        systemversion "14.0" 
+        systemversion "14.0"
+
+        files 
+        {
+            "./Backend/vk_rhi.h",
+            "./Backend/vk_rhi.c",
+        } 
 
         linkoptions { "-rpath @executable_path/libRazix.dylib" }
 
@@ -142,13 +155,13 @@ project "RHI"
 
         xcodebuildresources { "IconAssets.xcassets", "libMoltenVK.dylib" }
 
-		xcodebuildsettings
-		{
-			['CODE_SIGN_IDENTITY'] = 'Mac Developer',
+        xcodebuildsettings
+        {
+            ['CODE_SIGN_IDENTITY'] = 'Mac Developer',
             ['PRODUCT_BUNDLE_IDENTIFIER'] = settings.bundle_identifier,
-			['INFOPLIST_FILE'] = '../Engine/src/Razix/Platform/MacOS/Info.plist',
-			['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon',
-			['CODE_SIGN_IDENTITY'] = ''
+            ['INFOPLIST_FILE'] = '../Engine/src/Razix/Platform/MacOS/Info.plist',
+            ['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon',
+            ['CODE_SIGN_IDENTITY'] = ''
         }
 
         files 
@@ -163,18 +176,47 @@ project "RHI"
             "RAZIX_PLATFORM_UNIX",
             "RAZIX_USE_GLFW_WINDOWS",
             "RAZIX_ROOT_DIR="  .. root_dir,
-            "RAZIX_IMGUI",
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
             "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
+        includedirs
+        {
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+            "./",
+            "../"
+        }
+
+        libdirs
+        {
+            VulkanSDK .. "/lib"
+        }
+
+        links
+        {
+            -- Render API
+            "vulkan",
+            "IOKit.framework",
+            "CoreFoundation.framework",
+            "CoreVideo.framework",
+            "CoreGraphics.framework",
+            "AppKit.framework",
+            "SystemConfiguration.framework"
+        }
+
+
         postbuildcommands 
         {
             '{COPY}  "%{VulkanSDK}/lib/libvulkan.dylib" "%{cfg.buildtarget.bundlepath}/libvulkan.dylib"',
             '{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.buildtarget.bundlepath}/libvulkan.1.dylib"',
-            '{COPY}  "%{wks.location}/../bin/%{outputdir}/libRazix.dylib" "%{cfg.buildtarget.bundlepath}/libRazix.dylib"'
+            --'{COPY}  "%{wks.location}/../bin/%{outputdir}/libRazix.dylib" "%{cfg.buildtarget.bundlepath}/libRazix.dylib"'
         }
 
     filter "configurations:Debug"

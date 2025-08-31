@@ -1,10 +1,11 @@
 #pragma once
 
+#include "Razix/Utilities/TRZSingleton.h"
+
 #ifdef RAZIX_PLATFORM_WINDOWS
     #include <Windows.h>
 
     #include "Razix/Core/RZCore.h"
-    #include "Razix/Utilities/TRZSingleton.h"
 
 namespace Razix {
     #define UPDATE_VERSION_LABEL (WM_APP + 20)    // We choose some arbitrary ID to register our custom event such so as to update the splash labels

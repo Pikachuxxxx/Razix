@@ -457,7 +457,8 @@ namespace Razix {
             rzRHI_DestroySyncobj(&flushSyncobj);
             rz_gfx_cmdbuf* cmdBufRes = RZResourceManager::Get().getCommandBufferResource(cmdBuf);
             RZResourceManager::Get().destroyCommandBuffer(cmdBuf);
-            RZResourceManager::Get().destroyCommandPool((rz_gfx_cmdpool_handle) cmdBufRes->resource.desc.cmdbufDesc.pool->resource.handle);
+            rz_handle handle = cmdBufRes->resource.desc.cmdbufDesc.pool->resource.handle;
+            RZResourceManager::Get().destroyCommandPool(handle);
         }
 
         RAZIX_API rz_gfx_texture_handle CreateTextureFromFile(const std::string& filePath, bool floatingPoint)

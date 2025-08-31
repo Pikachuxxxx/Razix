@@ -1,21 +1,77 @@
 #ifndef VK_RHI_H
 #define VK_RHI_H
 
+#include <stdbool.h>
+#include <stdint.h>
+
 // TODO: this header will be moved to RHI.h before merging the PR #422 and #420
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
     #include <vulkan/vulkan.h>
 
+typedef struct VkQueueFamilyIndices
+{
+    uint32_t graphicsFamily;
+    uint32_t presentFamily;
+    uint32_t computeFamily;
+    uint32_t transferFamily;
+    bool     hasGraphics;
+    bool     hasPresent;
+    bool     hasCompute;
+    bool     hasTransfer;
+} VkQueueFamilyIndices;
+
+typedef struct VkSwapchainSupportDetails
+{
+    VkSurfaceCapabilitiesKHR capabilities;
+    VkSurfaceFormatKHR*      formats;
+    uint32_t                 formatCount;
+    VkPresentModeKHR*        presentModes;
+    uint32_t                 presentModeCount;
+} VkSwapchainSupportDetails;
+
 typedef struct vk_ctx
 {
-    VkInstance       instance;
-    VkPhysicalDevice gpu;
-    VkDevice         device;
-    VkQueue          graphicsQueue;
-    VkQueue          asyncComputeQueue;
-    VkQueue          transferQueue;
+    VkInstance                       instance;
+    VkPhysicalDevice                 gpu;
+    VkDevice                         device;
+    VkSurfaceKHR                     surface;
+    VkQueueFamilyIndices             queueFamilyIndices;
+    VkQueue                          graphicsQueue;
+    VkQueue                          presentQueue;
+    VkPhysicalDeviceProperties       deviceProperties;
+    VkPhysicalDeviceFeatures         deviceFeatures;
+    VkPhysicalDeviceMemoryProperties memoryProperties;
+
+        // Debug and validation
+    #ifdef RAZIX_DEBUG
+    VkDebugUtilsMessengerEXT debugMessenger;
+    #endif
 } vk_ctx;
+
+typedef struct vk_syncobj
+{
+    union
+    {
+        VkSemaphore semaphore;
+        VkFence     fence;
+    };
+} vk_syncobj;
+
+typedef struct vk_swapchain
+{
+    VkSwapchainKHR            swapchain;
+    VkFormat                  imageFormat;
+    VkExtent2D                extent;
+    uint32_t                  imageCount;
+    VkImage*                  images;
+    VkImageView*              imageViews;
+    VkFramebuffer*            framebuffers;
+    VkRenderPass              renderPass;
+    uint32_t                  currentImageIndex;
+    VkSwapchainSupportDetails supportDetails;
+} vk_swapchain;
 
 typedef struct vk_cmdpool
 {

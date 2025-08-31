@@ -7,6 +7,8 @@
 
 #include "Razix/Gfx/FrameGraph/RZTransientAllocator.h"
 
+#include "Razix/Gfx/RHI/RHI.h"
+
 namespace Razix {
     namespace Gfx {
 
@@ -294,7 +296,7 @@ namespace Razix {
                 return m_FrameGraph.getResourceEntryRef(id).getDescriptor<T>();
             }
 
-            ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE const typename rz_gfx_resource_view_handle getResourceViewHandle(RZFrameGraphResource id) const
+            ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE rz_gfx_resource_view_handle getResourceViewHandle(RZFrameGraphResource id) const
             {
                 RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
                 return m_PassNode.getResourceViewHandle(id);

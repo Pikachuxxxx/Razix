@@ -467,13 +467,13 @@ namespace Razix {
             RAZIX_CORE_WARN("[Serialization] Current engine version is: {}", currentVersion.getVersionString());
 
             if (loadedVersion.getVersionMajor() < currentVersion.getVersionMajor()) {
-                RAZIX_CORE_ERROR("[Serialization] Major version is older — incompatibility likely!");
+                RAZIX_CORE_ERROR("[Serialization] Major version is older! incompatibility likely!");
             } else if (loadedVersion.getVersionMinor() < currentVersion.getVersionMinor()) {
-                RAZIX_CORE_ERROR("[Serialization] Minor version is older — may be partially compatible.");
+                RAZIX_CORE_ERROR("[Serialization] Minor version is older! may be partially compatible.");
             } else if (loadedVersion.getVersionPatch() < currentVersion.getVersionPatch()) {
-                RAZIX_CORE_ERROR("[Serialization] Patch version is older — usually safe, but changes may exist.");
+                RAZIX_CORE_ERROR("[Serialization] Patch version is older! usually safe, but changes may exist.");
             } else {
-                RAZIX_CORE_ERROR("[Serialization] Version is newer than current engine — unsupported forward compatibility.");
+                RAZIX_CORE_ERROR("[Serialization] Version is newer than current engine! unsupported forward compatibility.");
             }
         } else {
             RAZIX_CORE_INFO("[Serialization] Engine version matches exactly: {}", storedVersionStr);
