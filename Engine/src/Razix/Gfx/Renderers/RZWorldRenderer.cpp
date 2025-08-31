@@ -89,26 +89,44 @@ namespace Razix {
             rz_render_api api        = rzGfxCtx_GetRenderAPI();
 
 #ifdef RAZIX_PLATFORM_WINDOWS
-            if (api == RZ_RENDER_API_D3D12) {
-                HWND hwnd = glfwGetWin32Window(glfwWindow);
-                rzRHI_CreateSwapchain(&m_Swapchain, &hwnd, width, height);
-            } else if (api == RZ_RENDER_API_VULKAN) {
-                VkSurfaceKHR surface = VK_NULL_HANDLE;
-                glfwCreateWindowSurface(g_GfxCtx.vk.instance, glfwWindow, nullptr, &surface);
-                rzRHI_CreateSwapchain(&m_Swapchain, &surface, width, height);
-            }
+    if (api == RZ_RENDER_API_D3D12) {
+        HWND hwnd = glfwGetWin32Window(glfwWindow);
+        if (hwnd == NULL) {
+            RAZIX_CORE_ERROR("Failed to get Win32 window handle from GLFW!");
+            return;
+        }
+        rzRHI_CreateSwapchain(&m_Swapchain, &hwnd, width, height);
+        RAZIX_CORE_INFO("D3D12 swapchain created for HWND: {0:p}", hwnd);
+        
+    } else if (api == RZ_RENDER_API_VULKAN) {
+        VkSurfaceKHR surface = VK_NULL_HANDLE;
+        VkResult result = glfwCreateWindowSurface(g_GfxCtx.vk.instance, glfwWindow, nullptr, &surface);
+        if (result != VK_SUCCESS) {
+            RAZIX_CORE_ERROR("Failed to create Vulkan surface! GLFW Error: {0}", result);
+            return;
+        }
+        rzRHI_CreateSwapchain(&m_Swapchain, &surface, width, height);
+        RAZIX_CORE_INFO("Vulkan swapchain created for surface: {0:p}", (void*)surface);
+    }
 
 #elif defined(RAZIX_PLATFORM_MACOS) || defined(RAZIX_PLATFORM_LINUX)
-            if (api == RZ_RENDER_API_VULKAN) {
-                VkSurfaceKHR surface = VK_NULL_HANDLE;
-                glfwCreateWindowSurface(g_GfxCtx.vk.instance, glfwWindow, nullptr, &surface);
-                rzRHI_CreateSwapchain(&m_Swapchain, &surface, width, height);
-            } else {
-                RAZIX_CORE_ASSERT(false, "Only Vulkan is supported on this platform!");
-            }
+    if (api == RZ_RENDER_API_VULKAN) {
+        VkSurfaceKHR surface = VK_NULL_HANDLE;
+        VkResult result = glfwCreateWindowSurface(g_GfxCtx.vk.instance, glfwWindow, nullptr, &surface);
+        if (result != VK_SUCCESS) {
+            RAZIX_CORE_ERROR("Failed to create Vulkan surface! GLFW Error: {0}", result);
+            return;
+        }
+        rzRHI_CreateSwapchain(&m_Swapchain, &surface, width, height);
+        RAZIX_CORE_INFO("Vulkan swapchain created for surface: {0:p}", (void*)surface);
+        
+    } else {
+        RAZIX_CORE_ERROR("API {0} not supported on this platform! Only Vulkan is available.", static_cast<int>(api));
+        RAZIX_CORE_ASSERT(false, "Only Vulkan is supported on this platform!");
+    }
 
 #else
-    #error "Unsupported platform!"
+    #error "Unsupported platform! Add support for your target platform."
 #endif
 
             // create frame sync primitives

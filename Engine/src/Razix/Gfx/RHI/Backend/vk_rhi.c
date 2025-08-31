@@ -21,30 +21,115 @@
 // Constants and configuration
 //---------------------------------------------------------------------------------------------
 
+#include <vulkan/vulkan.h>
+
+// =============================================================================
+// INSTANCE EXTENSIONS - Vulkan 1.3 Compatible
+// =============================================================================
+
+#define VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME   "VK_KHR_portability_enumeration"
+#define VK_EXT_METAL_SURFACE_EXTENSION_NAME             "VK_EXT_metal_surface"
+
 static const char* requiredInstanceExtensions[] = {
+    // Core surface support - required on all platforms
     VK_KHR_SURFACE_EXTENSION_NAME,
-#ifdef VK_USE_PLATFORM_WIN32_KHR
+    
+    // Platform-specific surface extensions
+#if defined(RAZIX_PLATFORM_WINDOWS)
     VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
-#elif defined(VK_USE_PLATFORM_XLIB_KHR)
-    VK_KHR_XLIB_SURFACE_EXTENSION_NAME,
-#elif defined(VK_USE_PLATFORM_XCB_KHR)
-    VK_KHR_XCB_SURFACE_EXTENSION_NAME,
-#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
-    VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
 #endif
+
+#if defined(RAZIX_PLATFORM_LINUX) || defined(RAZIX_PLATFORM_UNIX)
+    #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+        VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
+    #elif defined(VK_USE_PLATFORM_XCB_KHR)
+        VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+    #elif defined(VK_USE_PLATFORM_XLIB_KHR)
+        VK_KHR_XLIB_SURFACE_EXTENSION_NAME,
+    #endif
+#endif
+
+#if defined(RAZIX_PLATFORM_MACOS)
+    VK_EXT_METAL_SURFACE_EXTENSION_NAME,
+    // MoltenVK requirements
+    VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
+#endif
+
+    // Enhanced physical device queries (promoted to core in 1.1, but extension still needed for compatibility)
+    VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+
+    // Debug utilities for development builds
 #ifdef RAZIX_DEBUG
     VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+    VK_EXT_DEBUG_REPORT_EXTENSION_NAME,  // Required dependency for VK_EXT_debug_marker
 #endif
 };
 
+// =============================================================================
+// DEVICE EXTENSIONS - Vulkan 1.3 Compatible
+// =============================================================================
+
+#define VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME "VK_KHR_portability_subset"
+
 static const char* requiredDeviceExtensions[] = {
+    // Core presentation support
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    
+    // Modern Vulkan 1.3 features (these are promoted to core but extensions still needed for compatibility)
+    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,        // Core in 1.3
+    
+    // Descriptor indexing for modern bindless rendering (core in 1.2)
+    VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+    
+    // Timeline semaphores for better synchronization (core in 1.2)
+    VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
+    
+    // macOS/MoltenVK compatibility
+#ifdef RAZIX_PLATFORM_MACOS
+    VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,
+#endif
+
+    // Debug markers for development builds
+#ifdef RAZIX_DEBUG
+    VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
+#endif
 };
+
+static const char* optionalDeviceExtensions[] = {
+    // Improved synchronization
+    VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,        // Core in 1.3
+    
+    // Memory management (core in 1.1 but extension needed for compatibility)
+    VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
+    VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+    
+    // FIXME: Not available on MoltenVK yet, but much needed for improved bindless rendering 
+    // Buffer device address (core in 1.2)
+    VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+    
+    // Extended dynamic state for modern pipelines
+    VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME,
+    VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME,
+};
+
+// =============================================================================
+// VALIDATION LAYERS - Unified Debug Layer
+// =============================================================================
 
 #ifdef RAZIX_DEBUG
 static const char* validationLayers[] = {
+    // Unified validation layer
     "VK_LAYER_KHRONOS_validation",
 };
+#endif
+
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+
+#define REQUIRED_INSTANCE_EXT_COUNT     ARRAY_SIZE(requiredInstanceExtensions)
+#define REQUIRED_DEVICE_EXT_COUNT       ARRAY_SIZE(requiredDeviceExtensions)
+
+#ifdef RAZIX_DEBUG
+#define VALIDATION_LAYER_COUNT          ARRAY_SIZE(validationLayers)
 #endif
 //---------------------------------------------------------------------------------------------
 // Utility functions
@@ -164,8 +249,132 @@ static VkImageLayout vk_util_res_state_translate(rz_gfx_resource_state state)
     return vulkan_image_layout_map[state];
 }
 
-//---------------------------------------------------------------------------------------------
-// Context creation and management
+// Add this function to your Vulkan context code
+
+void vk_util_print_gpu_stats(const VkPhysicalDeviceProperties* deviceProps,
+                             const VkPhysicalDeviceMemoryProperties* memProps, 
+                             const VkPhysicalDeviceFeatures* deviceFeatures) {
+    
+    RAZIX_RHI_LOG_INFO("===============================================");
+    RAZIX_RHI_LOG_INFO("           VULKAN DEVICE INFORMATION          ");
+    RAZIX_RHI_LOG_INFO("===============================================");
+    
+    // Basic device info
+    RAZIX_RHI_LOG_INFO("GPU Name        : %s", deviceProps->deviceName);
+    RAZIX_RHI_LOG_INFO("Driver Version  : %u.%u.%u", 
+                      VK_VERSION_MAJOR(deviceProps->driverVersion),
+                      VK_VERSION_MINOR(deviceProps->driverVersion), 
+                      VK_VERSION_PATCH(deviceProps->driverVersion));
+    RAZIX_RHI_LOG_INFO("API Version     : %u.%u.%u", 
+                      VK_VERSION_MAJOR(deviceProps->apiVersion),
+                      VK_VERSION_MINOR(deviceProps->apiVersion),
+                      VK_VERSION_PATCH(deviceProps->apiVersion));
+    
+    // Device type with fancy ASCII
+    const char* deviceTypeStr = "Unknown";
+    const char* deviceIcon = "?";
+    switch (deviceProps->deviceType) {
+        case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+            deviceTypeStr = "Discrete GPU";
+            deviceIcon = "[DGPU]";
+            break;
+        case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+            deviceTypeStr = "Integrated GPU";
+            deviceIcon = "[iGPU]";
+            break;
+        case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+            deviceTypeStr = "Virtual GPU";
+            deviceIcon = "[vGPU]";
+            break;
+        case VK_PHYSICAL_DEVICE_TYPE_CPU:
+            deviceTypeStr = "CPU";
+            deviceIcon = "[CPU]";
+            break;
+        default:
+            break;
+    }
+    RAZIX_RHI_LOG_INFO("Device Type     : %s %s", deviceIcon, deviceTypeStr);
+    
+    // Vendor ID with known vendors
+    const char* vendorName = "Unknown";
+    switch (deviceProps->vendorID) {
+        case 0x1002: vendorName = "AMD"; break;
+        case 0x10DE: vendorName = "NVIDIA"; break;
+        case 0x8086: vendorName = "Intel"; break;
+        case 0x13B5: vendorName = "ARM"; break;
+        case 0x5143: vendorName = "Qualcomm"; break;
+        case 0x1010: vendorName = "ImgTec"; break;
+        default: vendorName = "Unknown"; break;
+    }
+    RAZIX_RHI_LOG_INFO("Vendor          : %s (ID: 0x%04X)", vendorName, deviceProps->vendorID);
+    RAZIX_RHI_LOG_INFO("Device ID       : 0x%04X", deviceProps->deviceID);
+    
+    // Pretty print UUID (make it readable)
+    RAZIX_RHI_LOG_INFO("Device UUID     : %02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                      deviceProps->pipelineCacheUUID[0], deviceProps->pipelineCacheUUID[1],
+                      deviceProps->pipelineCacheUUID[2], deviceProps->pipelineCacheUUID[3],
+                      deviceProps->pipelineCacheUUID[4], deviceProps->pipelineCacheUUID[5],
+                      deviceProps->pipelineCacheUUID[6], deviceProps->pipelineCacheUUID[7],
+                      deviceProps->pipelineCacheUUID[8], deviceProps->pipelineCacheUUID[9],
+                      deviceProps->pipelineCacheUUID[10], deviceProps->pipelineCacheUUID[11],
+                      deviceProps->pipelineCacheUUID[12], deviceProps->pipelineCacheUUID[13],
+                      deviceProps->pipelineCacheUUID[14], deviceProps->pipelineCacheUUID[15]);
+    
+    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
+    RAZIX_RHI_LOG_INFO("                DEVICE LIMITS                 ");
+    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
+    
+    // Key limits that developers care about
+    const VkPhysicalDeviceLimits* limits = &deviceProps->limits;
+    RAZIX_RHI_LOG_INFO("Max Texture Size     : %u x %u", limits->maxImageDimension2D, limits->maxImageDimension2D);
+    RAZIX_RHI_LOG_INFO("Max 3D Texture Size  : %u x %u x %u", limits->maxImageDimension3D, limits->maxImageDimension3D, limits->maxImageDimension3D);
+    RAZIX_RHI_LOG_INFO("Max Uniform Buffer   : %u KB", limits->maxUniformBufferRange / 1024);
+    RAZIX_RHI_LOG_INFO("Max Storage Buffer   : %u MB", limits->maxStorageBufferRange / (1024 * 1024));
+    RAZIX_RHI_LOG_INFO("Max Push Constants   : %u bytes", limits->maxPushConstantsSize);
+    RAZIX_RHI_LOG_INFO("Max Descriptor Sets  : %u", limits->maxBoundDescriptorSets);
+    RAZIX_RHI_LOG_INFO("Max Viewports        : %u", limits->maxViewports);
+    RAZIX_RHI_LOG_INFO("Max Compute Work Grp : %u x %u x %u", 
+                      limits->maxComputeWorkGroupSize[0],
+                      limits->maxComputeWorkGroupSize[1], 
+                      limits->maxComputeWorkGroupSize[2]);
+    
+    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
+    RAZIX_RHI_LOG_INFO("               MEMORY HEAPS                   ");
+    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
+    
+    // Memory information
+    for (uint32_t i = 0; i < memProps->memoryHeapCount; i++) {
+        const VkMemoryHeap* heap = &memProps->memoryHeaps[i];
+        uint64_t sizeMB = heap->size / (1024 * 1024);
+        const char* heapType = (heap->flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) ? "DEVICE_LOCAL" : "HOST_VISIBLE";
+        RAZIX_RHI_LOG_INFO("Heap %u [%s]  : %llu MB", i, heapType, sizeMB);
+    }
+    
+    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
+    RAZIX_RHI_LOG_INFO("             KEY FEATURES                     ");
+    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
+    
+    // Important features developers need to know
+    RAZIX_RHI_LOG_INFO("Geometry Shader      : %s", deviceFeatures->geometryShader ? "[YES]" : "[NO]");
+    RAZIX_RHI_LOG_INFO("Tessellation         : %s", deviceFeatures->tessellationShader ? "[YES]" : "[NO]");
+    RAZIX_RHI_LOG_INFO("Multi Viewport       : %s", deviceFeatures->multiViewport ? "[YES]" : "[NO]");
+    RAZIX_RHI_LOG_INFO("Anisotropic Filter   : %s", deviceFeatures->samplerAnisotropy ? "[YES]" : "[NO]");
+    RAZIX_RHI_LOG_INFO("64-bit Float         : %s", deviceFeatures->shaderFloat64 ? "[YES]" : "[NO]");
+    RAZIX_RHI_LOG_INFO("64-bit Int           : %s", deviceFeatures->shaderInt64 ? "[YES]" : "[NO]");
+    RAZIX_RHI_LOG_INFO("Robust Buffer Access : %s", deviceFeatures->robustBufferAccess ? "[YES]" : "[NO]");
+    
+#ifdef RAZIX_PLATFORM_MACOS
+    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
+    RAZIX_RHI_LOG_INFO("      MOLTEN VK DETECTED - APPLE QUIRKS       ");
+    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
+#endif
+    
+    RAZIX_RHI_LOG_INFO("===============================================");
+}
+
+// Call it like this in your device selection code:
+// PrintVulkanDeviceInfo(&VkContext.deviceProperties, &VkContext.memoryProperties, &VkContext.deviceFeatures);
+
 //---------------------------------------------------------------------------------------------
 
 static bool vk_check_validation_layer_support(void)
@@ -372,6 +581,8 @@ static void vk_create_logical_device(void)
     vkGetDeviceQueue(VkContext.device, indices.presentFamily, 0, &VkContext.presentQueue);
 }
 
+//---------------------------------------------------------------------------------------------
+
 static void vk_GlobalCtxInit(void)
 {
     RAZIX_RHI_LOG_INFO("Initializing Vulkan RHI backend");
@@ -391,11 +602,11 @@ static void vk_GlobalCtxInit(void)
     // Create Vulkan instance
     VkApplicationInfo appInfo  = {0};
     appInfo.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName   = "Razix Engine";
+    appInfo.pApplicationName   = "RazixGame";
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.pEngineName        = "Razix";
-    appInfo.engineVersion      = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion         = VK_API_VERSION_1_0;
+    appInfo.pEngineName        = "Razix Engine";
+    appInfo.engineVersion      = VK_MAKE_VERSION(0, 50, 0); // TODO: Get this from CtxInit 
+    appInfo.apiVersion         = RAZIX_VK_API_VERSION;
 
     VkInstanceCreateInfo createInfo    = {0};
     createInfo.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -423,6 +634,15 @@ static void vk_GlobalCtxInit(void)
 #else
     createInfo.enabledLayerCount = 0;
     createInfo.pNext             = NULL;
+#endif
+    
+#ifdef RAZIX_PLATFORM_MACOS
+    // MoltenVK requires portability enumeration because Apple decided to be special
+    // and not implement Vulkan natively. This flag tells Vulkan to include 
+    // non-conformant implementations (like MoltenVK translating to Metal) 
+    // in the device enumeration. Because apparently following standards is optional
+    // when you're Apple. -_-
+    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 #endif
 
     CHECK_VK(vkCreateInstance(&createInfo, NULL, &VkContext.instance));
@@ -455,7 +675,7 @@ static void vk_GlobalCtxInit(void)
     vkGetPhysicalDeviceFeatures(VkContext.gpu, &VkContext.deviceFeatures);
     vkGetPhysicalDeviceMemoryProperties(VkContext.gpu, &VkContext.memoryProperties);
 
-    RAZIX_RHI_LOG_INFO("Selected GPU: %s", VkContext.deviceProperties.deviceName);
+    vk_util_print_gpu_stats(&VkContext.deviceProperties, &VkContext.memoryProperties, &VkContext.deviceFeatures);
 
     // Create logical device
     vk_create_logical_device();
@@ -487,10 +707,6 @@ static void vk_GlobalCtxDestroy(void)
 
     RAZIX_RHI_LOG_INFO("Vulkan RHI backend destroyed");
 }
-
-//---------------------------------------------------------------------------------------------
-// Swapchain implementation
-//---------------------------------------------------------------------------------------------
 
 static VkSwapchainSupportDetails vk_query_swapchain_support(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
@@ -559,27 +775,16 @@ static VkExtent2D vk_choose_swap_extent(const VkSurfaceCapabilitiesKHR* capabili
     }
 }
 
-static void vk_CreateSwapchain(void* where, void* nativeWindowHandle, uint32_t width, uint32_t height)
+static void vk_CreateSwapchain(void* where, void* surface, uint32_t width, uint32_t height)
 {
     rz_gfx_swapchain* swapchain = (rz_gfx_swapchain*) where;
     memset(swapchain, 0, sizeof(rz_gfx_swapchain));
 
+    RAZIX_RHI_ASSERT(surface != NULL, "VkSurfaceKHR pointer is null, cannot create swapchain without valid surface!");
+    VkContext.surface = *(VkSurfaceKHR*)surface;
+
     swapchain->width  = width;
     swapchain->height = height;
-
-    // Create surface (platform-specific)
-#ifdef VK_USE_PLATFORM_WIN32_KHR
-    VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {0};
-    surfaceCreateInfo.sType                       = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-    surfaceCreateInfo.hwnd                        = *(HWND*) nativeWindowHandle;
-    surfaceCreateInfo.hinstance                   = GetModuleHandle(NULL);
-
-    CHECK_VK(vkCreateWin32SurfaceKHR(VkContext.instance, &surfaceCreateInfo, NULL, &VkContext.surface));
-#else
-    // TODO: Add support for other platforms
-    RAZIX_RHI_LOG_ERROR("Platform surface creation not implemented");
-    return;
-#endif
 
     VkSwapchainSupportDetails swapchainSupport = vk_query_swapchain_support(VkContext.gpu, VkContext.surface);
 
@@ -591,7 +796,7 @@ static void vk_CreateSwapchain(void* where, void* nativeWindowHandle, uint32_t w
     if (swapchainSupport.capabilities.maxImageCount > 0 && imageCount > swapchainSupport.capabilities.maxImageCount) {
         imageCount = swapchainSupport.capabilities.maxImageCount;
     }
-
+    
     VkSwapchainCreateInfoKHR createInfo = {0};
     createInfo.sType                    = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.surface                  = VkContext.surface;

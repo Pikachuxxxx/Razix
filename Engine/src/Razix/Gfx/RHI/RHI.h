@@ -146,6 +146,9 @@ static inline unsigned int rz_clz32(unsigned int x)
 *                                         Graphics Settings                                        *
 ****************************************************************************************************/
 
+/* Backend API configurations */
+#define RAZIX_VK_API_VERSION VK_API_VERSION_1_3 /* Min supported version by razix engine */
+
 /* Triple buffering is enabled by default */
 #define RAZIX_ENABLE_TRIPLE_BUFFERING
 /* The total number of images that the swapchain can render/present to, by default we use triple buffering, defaults to d32 buffering if disabled */

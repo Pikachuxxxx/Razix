@@ -44,6 +44,7 @@ rz_render_api rzGfxCtx_GetRenderAPI()
 {
     return g_RenderAPI;
 }
+
 void rzGfxCtx_SetRenderAPI(rz_render_api api)
 {
     g_RenderAPI = api;
