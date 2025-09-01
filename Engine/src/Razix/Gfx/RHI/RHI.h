@@ -1117,7 +1117,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         RAZIX_GFX_RESOURCE;
         rz_gfx_syncpoint waitTimestamp;
 #ifdef RAZIX_RENDER_API_VULKAN
-            vk_syncobj vk;
+        vk_syncobj vk;
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
         dx12_syncobj dx12;
@@ -1155,7 +1155,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         rz_gfx_texture       backbuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];
         rz_gfx_resource_view backbuffersResViews[RAZIX_MAX_SWAP_IMAGES_COUNT];
 #ifdef RAZIX_RENDER_API_VULKAN
-            vk_swapchain vk;
+        vk_swapchain vk;
 #endif
 #ifdef RAZIX_RENDER_API_DIRECTX12
         dx12_swapchain dx12;
@@ -1426,6 +1426,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     RAZIX_RHI_API rz_render_api rzGfxCtx_GetRenderAPI();
     RAZIX_RHI_API void          rzGfxCtx_SetRenderAPI(rz_render_api api);
     RAZIX_RHI_API const char*   rzGfxCtx_GetRenderAPIString();
+
+    RAZIX_RHI_API const char* rzRHI_GetGPUVendorName(uint32_t id);
 
     // Utility Functions
     RAZIX_RHI_API bool rzRHI_IsDescriptorTypeTexture(rz_gfx_descriptor_type type);

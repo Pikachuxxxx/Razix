@@ -62,6 +62,20 @@ const char* rzGfxCtx_GetRenderAPIString()
     }
 }
 
+const char* rzRHI_GetGPUVendorName(uint32_t vid)
+{
+    switch (vid) {
+        case 0x1002: return "AMD";
+        case 0x10DE: return "NVIDIA";
+        case 0x8086: return "Intel";
+        case 0x13B5: return "ARM";
+        case 0x5143: return "Qualcomm";
+        case 0x1010: return "ImgTec";
+        case 0x1AE0: return "Apple";
+        default: return "Unknown";
+    }
+}
+
 bool rzRHI_IsDescriptorTypeTexture(rz_gfx_descriptor_type type)
 {
     switch (type) {

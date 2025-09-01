@@ -183,11 +183,6 @@ static const char* requiredDeviceExtensions[] = {
 #ifdef RAZIX_PLATFORM_MACOS
     VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,
 #endif
-
-// Debug markers for development builds
-#ifdef RAZIX_DEBUG
-    VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
-#endif
 };
 
 static const char* optionalDeviceExtensions[] = {
@@ -344,135 +339,101 @@ static VkImageLayout vk_util_res_state_translate(rz_gfx_resource_state state)
     return vulkan_image_layout_map[state];
 }
 
-// Add this function to your Vulkan context code
-
-void vk_util_print_gpu_stats(const VkPhysicalDeviceProperties* deviceProps,
-    const VkPhysicalDeviceMemoryProperties*                    memProps,
-    const VkPhysicalDeviceFeatures*                            deviceFeatures)
+static void vk_util_print_device_info(VkPhysicalDevice physDev)
 {
-    RAZIX_RHI_LOG_INFO("===============================================");
-    RAZIX_RHI_LOG_INFO("           VULKAN DEVICE INFORMATION          ");
-    RAZIX_RHI_LOG_INFO("===============================================");
-
-    // Basic device info
-    RAZIX_RHI_LOG_INFO("GPU Name        : %s", deviceProps->deviceName);
-    RAZIX_RHI_LOG_INFO("Driver Version  : %u.%u.%u",
-        VK_VERSION_MAJOR(deviceProps->driverVersion),
-        VK_VERSION_MINOR(deviceProps->driverVersion),
-        VK_VERSION_PATCH(deviceProps->driverVersion));
-    RAZIX_RHI_LOG_INFO("API Version     : %u.%u.%u",
-        VK_VERSION_MAJOR(deviceProps->apiVersion),
-        VK_VERSION_MINOR(deviceProps->apiVersion),
-        VK_VERSION_PATCH(deviceProps->apiVersion));
-
-    // Device type with fancy ASCII
-    const char* deviceTypeStr = "Unknown";
-    const char* deviceIcon    = "?";
-    switch (deviceProps->deviceType) {
-        case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-            deviceTypeStr = "Discrete GPU";
-            deviceIcon    = "[DGPU]";
-            break;
-        case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-            deviceTypeStr = "Integrated GPU";
-            deviceIcon    = "[iGPU]";
-            break;
-        case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-            deviceTypeStr = "Virtual GPU";
-            deviceIcon    = "[vGPU]";
-            break;
-        case VK_PHYSICAL_DEVICE_TYPE_CPU:
-            deviceTypeStr = "CPU";
-            deviceIcon    = "[CPU]";
-            break;
-        default:
-            break;
-    }
-    RAZIX_RHI_LOG_INFO("Device Type     : %s %s", deviceIcon, deviceTypeStr);
-
-    // Vendor ID with known vendors
-    const char* vendorName = "Unknown";
-    switch (deviceProps->vendorID) {
-        case 0x1002: vendorName = "AMD"; break;
-        case 0x10DE: vendorName = "NVIDIA"; break;
-        case 0x8086: vendorName = "Intel"; break;
-        case 0x13B5: vendorName = "ARM"; break;
-        case 0x5143: vendorName = "Qualcomm"; break;
-        case 0x1010: vendorName = "ImgTec"; break;
-        default: vendorName = "Unknown"; break;
-    }
-    RAZIX_RHI_LOG_INFO("Vendor          : %s (ID: 0x%04X)", vendorName, deviceProps->vendorID);
-    RAZIX_RHI_LOG_INFO("Device ID       : 0x%04X", deviceProps->deviceID);
-
-    // Pretty print UUID (make it readable)
-    RAZIX_RHI_LOG_INFO("Device UUID     : %02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-        deviceProps->pipelineCacheUUID[0],
-        deviceProps->pipelineCacheUUID[1],
-        deviceProps->pipelineCacheUUID[2],
-        deviceProps->pipelineCacheUUID[3],
-        deviceProps->pipelineCacheUUID[4],
-        deviceProps->pipelineCacheUUID[5],
-        deviceProps->pipelineCacheUUID[6],
-        deviceProps->pipelineCacheUUID[7],
-        deviceProps->pipelineCacheUUID[8],
-        deviceProps->pipelineCacheUUID[9],
-        deviceProps->pipelineCacheUUID[10],
-        deviceProps->pipelineCacheUUID[11],
-        deviceProps->pipelineCacheUUID[12],
-        deviceProps->pipelineCacheUUID[13],
-        deviceProps->pipelineCacheUUID[14],
-        deviceProps->pipelineCacheUUID[15]);
-
-    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
-    RAZIX_RHI_LOG_INFO("                DEVICE LIMITS                 ");
-    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
-
-    // Key limits that developers care about
-    const VkPhysicalDeviceLimits* limits = &deviceProps->limits;
-    RAZIX_RHI_LOG_INFO("Max Texture Size     : %u x %u", limits->maxImageDimension2D, limits->maxImageDimension2D);
-    RAZIX_RHI_LOG_INFO("Max 3D Texture Size  : %u x %u x %u", limits->maxImageDimension3D, limits->maxImageDimension3D, limits->maxImageDimension3D);
-    RAZIX_RHI_LOG_INFO("Max Uniform Buffer   : %u KB", limits->maxUniformBufferRange / 1024);
-    RAZIX_RHI_LOG_INFO("Max Storage Buffer   : %u MB", limits->maxStorageBufferRange / (1024 * 1024));
-    RAZIX_RHI_LOG_INFO("Max Push Constants   : %u bytes", limits->maxPushConstantsSize);
-    RAZIX_RHI_LOG_INFO("Max Descriptor Sets  : %u", limits->maxBoundDescriptorSets);
-    RAZIX_RHI_LOG_INFO("Max Viewports        : %u", limits->maxViewports);
-    RAZIX_RHI_LOG_INFO("Max Compute Work Grp : %u x %u x %u",
-        limits->maxComputeWorkGroupSize[0],
-        limits->maxComputeWorkGroupSize[1],
-        limits->maxComputeWorkGroupSize[2]);
-
-    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
-    RAZIX_RHI_LOG_INFO("               MEMORY HEAPS                   ");
-    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
-
-    // Memory information
-    for (uint32_t i = 0; i < memProps->memoryHeapCount; i++) {
-        const VkMemoryHeap* heap     = &memProps->memoryHeaps[i];
-        uint64_t            sizeMB   = heap->size / (1024 * 1024);
-        const char*         heapType = (heap->flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) ? "DEVICE_LOCAL" : "HOST_VISIBLE";
-        RAZIX_RHI_LOG_INFO("Heap %u [%s]  : %llu MB", i, heapType, sizeMB);
+    if (!physDev) {
+        RAZIX_RHI_LOG_INFO("[VULKAN] Invalid VkPhysicalDevice");
+        return;
     }
 
-    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
-    RAZIX_RHI_LOG_INFO("             KEY FEATURES                     ");
-    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
+    VkPhysicalDeviceProperties       props;
+    VkPhysicalDeviceMemoryProperties memProps;
+    VkPhysicalDeviceFeatures         feats;
 
-    // Important features developers need to know
-    RAZIX_RHI_LOG_INFO("Geometry Shader      : %s", deviceFeatures->geometryShader ? "[YES]" : "[NO]");
-    RAZIX_RHI_LOG_INFO("Tessellation         : %s", deviceFeatures->tessellationShader ? "[YES]" : "[NO]");
-    RAZIX_RHI_LOG_INFO("Multi Viewport       : %s", deviceFeatures->multiViewport ? "[YES]" : "[NO]");
-    RAZIX_RHI_LOG_INFO("Anisotropic Filter   : %s", deviceFeatures->samplerAnisotropy ? "[YES]" : "[NO]");
-    RAZIX_RHI_LOG_INFO("64-bit Float         : %s", deviceFeatures->shaderFloat64 ? "[YES]" : "[NO]");
-    RAZIX_RHI_LOG_INFO("64-bit Int           : %s", deviceFeatures->shaderInt64 ? "[YES]" : "[NO]");
-    RAZIX_RHI_LOG_INFO("Robust Buffer Access : %s", deviceFeatures->robustBufferAccess ? "[YES]" : "[NO]");
+    memset(&props, 0, sizeof(props));
+    memset(&memProps, 0, sizeof(memProps));
+    memset(&feats, 0, sizeof(feats));
 
-#ifdef RAZIX_PLATFORM_MACOS
-    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
-    RAZIX_RHI_LOG_INFO("      MOLTEN VK DETECTED - APPLE QUIRKS       ");
-    RAZIX_RHI_LOG_INFO("-----------------------------------------------");
-#endif
+    vkGetPhysicalDeviceProperties(physDev, &props);
+    vkGetPhysicalDeviceMemoryProperties(physDev, &memProps);
+    vkGetPhysicalDeviceFeatures(physDev, &feats);
 
-    RAZIX_RHI_LOG_INFO("===============================================");
+    /* Device type string */
+    const char* deviceType = "Unknown";
+    switch (props.deviceType) {
+        case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU: deviceType = "Discrete GPU"; break;
+        case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU: deviceType = "Integrated GPU"; break;
+        case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU: deviceType = "Virtual GPU"; break;
+        case VK_PHYSICAL_DEVICE_TYPE_CPU: deviceType = "CPU"; break;
+        default: break;
+    }
+
+    /* UUID */
+    char uuidStr[37];
+    (void) snprintf(uuidStr, sizeof(uuidStr), "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x", props.pipelineCacheUUID[0], props.pipelineCacheUUID[1], props.pipelineCacheUUID[2], props.pipelineCacheUUID[3], props.pipelineCacheUUID[4], props.pipelineCacheUUID[5], props.pipelineCacheUUID[6], props.pipelineCacheUUID[7], props.pipelineCacheUUID[8], props.pipelineCacheUUID[9], props.pipelineCacheUUID[10], props.pipelineCacheUUID[11], props.pipelineCacheUUID[12], props.pipelineCacheUUID[13], props.pipelineCacheUUID[14], props.pipelineCacheUUID[15]);
+
+    /* Head Banner */
+    RAZIX_RHI_LOG_INFO("+======================================================================+");
+    RAZIX_RHI_LOG_INFO("|                           VULKAN GPU INFO                            |");
+    RAZIX_RHI_LOG_INFO("+======================================================================+");
+
+    /* Identity */
+    RAZIX_RHI_LOG_INFO("| API Version        : %u.%u.%u",
+        (unsigned) VK_VERSION_MAJOR(props.apiVersion),
+        (unsigned) VK_VERSION_MINOR(props.apiVersion),
+        (unsigned) VK_VERSION_PATCH(props.apiVersion));
+    RAZIX_RHI_LOG_INFO("| Driver Version     : %u.%u.%u",
+        (unsigned) VK_VERSION_MAJOR(props.driverVersion),
+        (unsigned) VK_VERSION_MINOR(props.driverVersion),
+        (unsigned) VK_VERSION_PATCH(props.driverVersion));
+    RAZIX_RHI_LOG_INFO("| Device Name        : %s", props.deviceName);
+    RAZIX_RHI_LOG_INFO("| Vendor             : %s (0x%04X)", rzRHI_GetGPUVendorName(props.vendorID), props.vendorID);
+    RAZIX_RHI_LOG_INFO("| Device ID          : 0x%04X", props.deviceID);
+    RAZIX_RHI_LOG_INFO("| Device Type        : %s", deviceType);
+    RAZIX_RHI_LOG_INFO("| UUID               : %s", uuidStr);
+    RAZIX_RHI_LOG_INFO("| LUID               : N/A");
+    RAZIX_RHI_LOG_INFO("| SubSys ID          : N/A");
+    RAZIX_RHI_LOG_INFO("| Revision           : N/A");
+    RAZIX_RHI_LOG_INFO("+---------------------------------------------------------------------+");
+    RAZIX_RHI_LOG_INFO("| Memory Heaps (raw bytes)                                            |");
+    RAZIX_RHI_LOG_INFO("+---------------------------------------------------------------------+");
+    {
+        uint32_t i;
+        for (i = 0; i < memProps.memoryHeapCount; ++i) {
+            const VkMemoryHeap* h = &memProps.memoryHeaps[i];
+            RAZIX_RHI_LOG_INFO("| Heap %-2u  flags=0x%08X size=%llu",
+                (unsigned) i,
+                (unsigned) h->flags,
+                (unsigned long long) h->size);
+        }
+    }
+    RAZIX_RHI_LOG_INFO("+---------------------------------------------------------------------+");
+    RAZIX_RHI_LOG_INFO("| Limits (subset)                                                     |");
+    RAZIX_RHI_LOG_INFO("+---------------------------------------------------------------------+");
+    RAZIX_RHI_LOG_INFO("| maxImageDimension2D      : %u", props.limits.maxImageDimension2D);
+    RAZIX_RHI_LOG_INFO("| maxImageDimension3D      : %u", props.limits.maxImageDimension3D);
+    RAZIX_RHI_LOG_INFO("| maxUniformBufferRange    : %u", props.limits.maxUniformBufferRange);
+    RAZIX_RHI_LOG_INFO("| maxStorageBufferRange    : %llu", (unsigned long long) props.limits.maxStorageBufferRange);
+    RAZIX_RHI_LOG_INFO("| maxPushConstantsSize     : %u", props.limits.maxPushConstantsSize);
+    RAZIX_RHI_LOG_INFO("| maxBoundDescriptorSets   : %u", props.limits.maxBoundDescriptorSets);
+    RAZIX_RHI_LOG_INFO("| maxViewports             : %u", props.limits.maxViewports);
+    RAZIX_RHI_LOG_INFO("| maxComputeWorkGroupSize  : [%u, %u, %u]",
+        props.limits.maxComputeWorkGroupSize[0],
+        props.limits.maxComputeWorkGroupSize[1],
+        props.limits.maxComputeWorkGroupSize[2]);
+
+    RAZIX_RHI_LOG_INFO("+---------------------------------------------------------------------+");
+    RAZIX_RHI_LOG_INFO("| Features (1 = supported, 0 = not)                                  |");
+    RAZIX_RHI_LOG_INFO("+---------------------------------------------------------------------+");
+    RAZIX_RHI_LOG_INFO("| geometryShader           : %u", feats.geometryShader);
+    RAZIX_RHI_LOG_INFO("| tessellationShader       : %u", feats.tessellationShader);
+    RAZIX_RHI_LOG_INFO("| multiViewport            : %u", feats.multiViewport);
+    RAZIX_RHI_LOG_INFO("| samplerAnisotropy        : %u", feats.samplerAnisotropy);
+    RAZIX_RHI_LOG_INFO("| shaderFloat64            : %u", feats.shaderFloat64);
+    RAZIX_RHI_LOG_INFO("| shaderInt64              : %u", feats.shaderInt64);
+    RAZIX_RHI_LOG_INFO("| robustBufferAccess       : %u", feats.robustBufferAccess);
+
+    RAZIX_RHI_LOG_INFO("+======================================================================+");
 }
 
 //---------------------------------------------------------------------------------------------
@@ -603,17 +564,133 @@ static bool vk_util_check_device_extension_support(VkPhysicalDevice device)
     return true;
 }
 
-static bool vk_util_is_device_suitable(VkPhysicalDevice device)
+static int vk_util_log_and_check_device_extensions(VkPhysicalDevice device, const char* deviceName)
 {
-    VkPhysicalDeviceProperties deviceProperties;
-    VkPhysicalDeviceFeatures   deviceFeatures;
-    vkGetPhysicalDeviceProperties(device, &deviceProperties);
-    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+    uint32_t extensionCount = 0;
+    CHECK_VK(vkEnumerateDeviceExtensionProperties(device, NULL, &extensionCount, NULL));
 
-    VkQueueFamilyIndices indices             = vk_util_find_queue_families(device);
-    bool                 extensionsSupported = vk_util_check_device_extension_support(device);
+    VkExtensionProperties* extensions = NULL;
+    if (extensionCount > 0) {
+        extensions = (VkExtensionProperties*) malloc(extensionCount * sizeof(VkExtensionProperties));
+        if (!extensions) {
+            RAZIX_RHI_LOG_ERROR("Vulkan: Memory allocation failed while enumerating extensions.");
+            return 0;
+        }
+        CHECK_VK(vkEnumerateDeviceExtensionProperties(device, NULL, &extensionCount, extensions));
+    }
 
-    return indices.hasGraphics && extensionsSupported;
+    RAZIX_RHI_LOG_INFO("  - Available Extensions (%u):", (unsigned) extensionCount);
+    if (extensionCount == 0) {
+        RAZIX_RHI_LOG_INFO("    (none)");
+    } else {
+        uint32_t i;
+        for (i = 0; i < extensionCount; ++i) {
+            RAZIX_RHI_LOG_INFO("    * %s : version %u",
+                extensions[i].extensionName,
+                extensions[i].specVersion);
+        }
+    }
+
+    size_t requiredCount = REQUIRED_DEVICE_EXT_COUNT;
+    RAZIX_RHI_LOG_INFO("  - Required Extensions (%zu):", requiredCount);
+    if (requiredCount == 0) {
+        RAZIX_RHI_LOG_INFO("    (none required)");
+    } else {
+        size_t i;
+        for (i = 0; i < requiredCount; ++i)
+            RAZIX_RHI_LOG_INFO("    > %s", requiredDeviceExtensions[i]);
+    }
+
+    // Check missing
+    size_t missingCount = 0;
+    if (requiredCount > 0) {
+        size_t i;
+        for (i = 0; i < requiredCount; ++i) {
+            const char* needed = requiredDeviceExtensions[i];
+            int         found  = 0;
+            uint32_t    j;
+            for (j = 0; j < extensionCount; ++j) {
+                if (strcmp(needed, extensions[j].extensionName) == 0) {
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found) {
+                if (missingCount == 0)
+                    RAZIX_RHI_LOG_ERROR("  - Missing Required Extensions:");
+                RAZIX_RHI_LOG_ERROR("    ! %s", needed);
+                missingCount++;
+            }
+        }
+    }
+
+    if (extensions) free(extensions);
+
+    if (missingCount == 0) {
+        RAZIX_RHI_LOG_INFO("  - Extension Status: ALL REQUIRED PRESENT");
+        return 1;
+    } else {
+        RAZIX_RHI_LOG_ERROR("  - Extension Status: MISSING %zu REQUIRED EXTENSION(S)", missingCount);
+        return 0;
+    }
+}
+
+static int vk_util_is_device_suitable(VkPhysicalDevice device)
+{
+    VkPhysicalDeviceProperties props;
+    VkPhysicalDeviceFeatures   feats;
+    vkGetPhysicalDeviceProperties(device, &props);
+    vkGetPhysicalDeviceFeatures(device, &feats);
+
+    // Queue families
+    VkQueueFamilyIndices indices = vk_util_find_queue_families(device);
+    if (!indices.hasGraphics) {
+        RAZIX_RHI_LOG_INFO("  - Rejected: No graphics queue family.");
+        return 0;
+    }
+
+    // Optional feature gates can be placed here:
+    // if (!feats.samplerAnisotropy) { RAZIX_RHI_LOG_INFO("  - Rejected: Missing samplerAnisotropy"); return 0; }
+
+    // Extensions (detailed logging)
+    if (!vk_util_log_and_check_device_extensions(device, props.deviceName))
+        return 0;
+
+    return 1;
+}
+
+static uint64_t vk_util_get_device_local_vram(VkPhysicalDevice device)
+{
+    VkPhysicalDeviceMemoryProperties memProps;
+    vkGetPhysicalDeviceMemoryProperties(device, &memProps);
+
+    uint64_t total = 0;
+    uint32_t i;
+    for (i = 0; i < memProps.memoryHeapCount; ++i) {
+        if (memProps.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
+            total += memProps.memoryHeaps[i].size;
+    }
+    return total;
+}
+
+static int vk_util_score_device(VkPhysicalDevice device, const VkPhysicalDeviceProperties* props, uint64_t vramBytes)
+{
+    int score = 0;
+
+    // Favor discrete GPU strongly
+    if (props->deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+        score += 100000;
+
+    // Add VRAM in MB
+    score += (int) (vramBytes / (1024ull * 1024ull));
+
+    // Penalize virtual / CPU
+    if (props->deviceType == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU)
+        score -= 1000;
+    else if (props->deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU)
+        score -= 5000;
+
+    return score;
 }
 
 static VkPhysicalDevice vk_util_pick_physical_device(void)
@@ -622,27 +699,76 @@ static VkPhysicalDevice vk_util_pick_physical_device(void)
     CHECK_VK(vkEnumeratePhysicalDevices(VKCONTEXT.instance, &deviceCount, NULL));
 
     if (deviceCount == 0) {
-        RAZIX_RHI_LOG_ERROR("Failed to find GPUs with Vulkan support");
+        RAZIX_RHI_LOG_ERROR("Vulkan: No physical devices supporting Vulkan were found.");
         return VK_NULL_HANDLE;
     }
 
-    VkPhysicalDevice* devices = malloc(deviceCount * sizeof(VkPhysicalDevice));
+    VkPhysicalDevice* devices = (VkPhysicalDevice*) malloc(deviceCount * sizeof(VkPhysicalDevice));
+    if (!devices) {
+        RAZIX_RHI_LOG_ERROR("Vulkan: Memory allocation failure retrieving devices.");
+        return VK_NULL_HANDLE;
+    }
     CHECK_VK(vkEnumeratePhysicalDevices(VKCONTEXT.instance, &deviceCount, devices));
 
-    VkPhysicalDevice selectedDevice = VK_NULL_HANDLE;
-    for (uint32_t i = 0; i < deviceCount; i++) {
-        if (vk_util_is_device_suitable(devices[i])) {
-            selectedDevice = devices[i];
-            break;
+    RAZIX_RHI_LOG_INFO("Vulkan: Evaluating %u physical device(s)...", deviceCount);
+
+    VkPhysicalDevice bestDevice = VK_NULL_HANDLE;
+    int              bestScore  = -2147483647;
+
+    uint32_t i;
+    for (i = 0; i < deviceCount; ++i) {
+        VkPhysicalDevice           device = devices[i];
+        VkPhysicalDeviceProperties props;
+        vkGetPhysicalDeviceProperties(device, &props);
+
+        const char* typeStr = "Unknown";
+        switch (props.deviceType) {
+            case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU: typeStr = "Integrated"; break;
+            case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU: typeStr = "Discrete"; break;
+            case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU: typeStr = "Virtual"; break;
+            case VK_PHYSICAL_DEVICE_TYPE_CPU: typeStr = "CPU"; break;
+            default: break;
+        }
+
+        uint64_t vram = vk_util_get_device_local_vram(device);
+
+        RAZIX_RHI_LOG_INFO("----------------------------------------------------------------");
+        RAZIX_RHI_LOG_INFO("  - API Version  : %u.%u.%u",
+            (unsigned) VK_VERSION_MAJOR(props.apiVersion),
+            (unsigned) VK_VERSION_MINOR(props.apiVersion),
+            (unsigned) VK_VERSION_PATCH(props.apiVersion));
+        RAZIX_RHI_LOG_INFO("  - Driver Vers. : %u.%u.%u",
+            (unsigned) VK_VERSION_MAJOR(props.driverVersion),
+            (unsigned) VK_VERSION_MINOR(props.driverVersion),
+            (unsigned) VK_VERSION_PATCH(props.driverVersion));
+
+        if (!vk_util_is_device_suitable(device)) {
+            RAZIX_RHI_LOG_INFO("  --> Result: NOT SUITABLE");
+            continue;
+        }
+
+        int score = vk_util_score_device(device, &props, vram);
+        RAZIX_RHI_LOG_INFO("  - Score        : %d", score);
+        RAZIX_RHI_LOG_INFO("  --> Result: SUITABLE");
+
+        if (score > bestScore) {
+            bestScore  = score;
+            bestDevice = device;
         }
     }
 
-    if (selectedDevice == VK_NULL_HANDLE) {
-        RAZIX_RHI_LOG_ERROR("Failed to find a suitable GPU");
+    RAZIX_RHI_LOG_INFO("----------------------------------------------------------------");
+    free(devices);
+
+    if (bestDevice == VK_NULL_HANDLE) {
+        RAZIX_RHI_LOG_ERROR("Vulkan: No suitable GPU found (after evaluating all candidates).");
+    } else {
+        VkPhysicalDeviceProperties props;
+        vkGetPhysicalDeviceProperties(bestDevice, &props);
+        uint64_t vram = vk_util_get_device_local_vram(bestDevice);
     }
 
-    free(devices);
-    return selectedDevice;
+    return bestDevice;
 }
 
 static void vk_util_create_logical_device(void)
@@ -769,7 +895,7 @@ static void vk_util_create_swapchain_images(rz_gfx_swapchain* swapchain)
     RAZIX_RHI_ASSERT(swapchain->vk.imageViews != NULL, "Failed to allocate memory for image views");
 
     for (uint32_t i = 0; i < swapchain->vk.imageCount; i++) {
-        VkImageViewCreateInfo createInfo = {0};
+        VkImageViewCreateInfo createInfo           = {0};
         createInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         createInfo.image                           = swapchain->vk.images[i];
         createInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
@@ -818,22 +944,22 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
         memset(texture, 0, sizeof(rz_gfx_texture));
 
         // Set up resource metadata
-        texture->resource.pName                        = "$SWAPCHAIN_IMAGE$";
-        texture->resource.handle                       = (rz_handle){i, i};  // Simple handle for swapchain images
-        texture->resource.viewHints                    = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
-        texture->resource.type                         = RZ_GFX_RESOURCE_TYPE_TEXTURE;
-        texture->resource.currentState                 = RZ_GFX_RESOURCE_STATE_PRESENT;
+        texture->resource.pName        = "$SWAPCHAIN_IMAGE$";
+        texture->resource.handle       = (rz_handle) {i, i};    // Simple handle for swapchain images
+        texture->resource.viewHints    = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
+        texture->resource.type         = RZ_GFX_RESOURCE_TYPE_TEXTURE;
+        texture->resource.currentState = RZ_GFX_RESOURCE_STATE_PRESENT;
 
         // Set up texture descriptor
-        texture->resource.desc.textureDesc.width       = swapchain->width;
-        texture->resource.desc.textureDesc.height      = swapchain->height;
-        texture->resource.desc.textureDesc.depth       = 1;
-        texture->resource.desc.textureDesc.arraySize   = 1;
-        texture->resource.desc.textureDesc.mipLevels   = 1;
-        texture->resource.desc.textureDesc.format      = RAZIX_SWAPCHAIN_FORMAT;
-        texture->resource.desc.textureDesc.textureType = RZ_GFX_TEXTURE_TYPE_2D;
+        texture->resource.desc.textureDesc.width         = swapchain->width;
+        texture->resource.desc.textureDesc.height        = swapchain->height;
+        texture->resource.desc.textureDesc.depth         = 1;
+        texture->resource.desc.textureDesc.arraySize     = 1;
+        texture->resource.desc.textureDesc.mipLevels     = 1;
+        texture->resource.desc.textureDesc.format        = RAZIX_SWAPCHAIN_FORMAT;
+        texture->resource.desc.textureDesc.textureType   = RZ_GFX_TEXTURE_TYPE_2D;
         texture->resource.desc.textureDesc.resourceHints = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
-        texture->resource.desc.textureDesc.pPixelData  = NULL;  // No initial pixel data for swapchain images
+        texture->resource.desc.textureDesc.pPixelData    = NULL;    // No initial pixel data for swapchain images
 
         // Set up Vulkan-specific data
         texture->vk.image = swapchain->vk.images[i];
@@ -843,16 +969,16 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
         rz_gfx_resource_view* resourceView = &swapchain->backbuffersResViews[i];
         memset(resourceView, 0, sizeof(rz_gfx_resource_view));
 
-        resourceView->resource.pName   = "$SWAPCHAIN_RES_VIEW$";
-        resourceView->resource.handle  = (rz_handle){i, i};
-        resourceView->resource.type    = RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW;
-        
+        resourceView->resource.pName  = "$SWAPCHAIN_RES_VIEW$";
+        resourceView->resource.handle = (rz_handle) {i, i};
+        resourceView->resource.type   = RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW;
+
         // Set up the view descriptor
-        resourceView->resource.desc.resourceViewDesc.descriptorType = RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE;
-        resourceView->resource.desc.resourceViewDesc.textureViewDesc.pTexture = texture;
-        resourceView->resource.desc.resourceViewDesc.textureViewDesc.baseMip = 0;
+        resourceView->resource.desc.resourceViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE;
+        resourceView->resource.desc.resourceViewDesc.textureViewDesc.pTexture       = texture;
+        resourceView->resource.desc.resourceViewDesc.textureViewDesc.baseMip        = 0;
         resourceView->resource.desc.resourceViewDesc.textureViewDesc.baseArrayLayer = 0;
-        resourceView->resource.desc.resourceViewDesc.textureViewDesc.dimension = RAZIX_RESOURCE_VIEW_DIMENSION_FULL;
+        resourceView->resource.desc.resourceViewDesc.textureViewDesc.dimension      = RAZIX_RESOURCE_VIEW_DIMENSION_FULL;
 
         // Set up Vulkan-specific view data
         resourceView->vk.imageView = swapchain->vk.imageViews[i];
@@ -906,7 +1032,7 @@ static void vk_util_recreate_swapchain_images(rz_gfx_swapchain* swapchain)
 
     // Re-query swapchain images (count may have changed)
     CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, NULL));
-    
+
     // Reallocate image array if needed
     if (swapchain->vk.images) {
         free(swapchain->vk.images);
@@ -923,8 +1049,10 @@ static void vk_util_recreate_swapchain_images(rz_gfx_swapchain* swapchain)
     vk_util_create_swapchain_images(swapchain);
     vk_util_create_swapchain_textures(swapchain);
 
-    RAZIX_RHI_LOG_INFO("Recreated swapchain images for new dimensions: %ux%u, %u images", 
-                       swapchain->width, swapchain->height, swapchain->imageCount);
+    RAZIX_RHI_LOG_INFO("Recreated swapchain images for new dimensions: %ux%u, %u images",
+        swapchain->width,
+        swapchain->height,
+        swapchain->imageCount);
 }
 
 //---------------------------------------------------------------------------------------------
@@ -1035,7 +1163,7 @@ static void vk_GlobalCtxInit(void)
     vkGetPhysicalDeviceFeatures(VKCONTEXT.gpu, &VKCONTEXT.deviceFeatures);
     vkGetPhysicalDeviceMemoryProperties(VKCONTEXT.gpu, &VKCONTEXT.memoryProperties);
 
-    vk_util_print_gpu_stats(&VKCONTEXT.deviceProperties, &VKCONTEXT.memoryProperties, &VKCONTEXT.deviceFeatures);
+    vk_util_print_device_info(VKGPU);
 
     // Create logical device
     vk_util_create_logical_device();

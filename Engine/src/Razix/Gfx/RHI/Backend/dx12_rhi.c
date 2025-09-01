@@ -1342,7 +1342,7 @@ static D3D12_RESOURCE_DIMENSION dx12_util_translate_texture_dimension(rz_gfx_tex
 //---------------------------------------------------------------------------------------------
 // Helper functions
 
-static IDXGIAdapter4* dx12_select_best_adapter(IDXGIFactory7* factory, D3D_FEATURE_LEVEL min_feat_level)
+static IDXGIAdapter4* dx12_util_select_best_adapter(IDXGIFactory7* factory, D3D_FEATURE_LEVEL min_feat_level)
 {
     IDXGIAdapter4* best_adapter     = NULL;
     size_t         maxDedicatedVRAM = 0;
@@ -1408,7 +1408,7 @@ static IDXGIAdapter4* dx12_select_best_adapter(IDXGIFactory7* factory, D3D_FEATU
     return best_adapter;
 }
 
-static void dx12_query_features(dx12_ctx* ctx)
+static void dx12_util_query_features(dx12_ctx* ctx)
 {
     ID3D12Device10*    device = ctx->device10;
     D3D12FeatureCache* f      = &ctx->features;
@@ -1437,43 +1437,152 @@ static void dx12_query_features(dx12_ctx* ctx)
     f->nodeCount = ID3D12Device10_GetNodeCount(device);
 }
 
-static void dx12_print_features(const D3D12FeatureCache* f)
+static void dx12_util_print_device_info(IDXGIAdapter4* adapter)
 {
-    RAZIX_RHI_LOG_INFO("============ D3D12 Device Feature Info ============");
+    if (!adapter) {
+        RAZIX_RHI_LOG_INFO("[DX12] Invalid IDXGIAdapter4*");
+        return;
+    }
 
-    RAZIX_RHI_LOG_INFO("Shader Model          : %u.%u",
-        (f->shaderModel.HighestShaderModel >> 4) & 0xF,
-        f->shaderModel.HighestShaderModel & 0xF);
+    DXGI_ADAPTER_DESC3 desc;
+    memset(&desc, 0, sizeof(desc));
+    IDXGIAdapter4_GetDesc3(adapter, &desc);
 
-    RAZIX_RHI_LOG_INFO("Root Signature        : v1.%d",
-        f->rootSig.HighestVersion == D3D_ROOT_SIGNATURE_VERSION_1_1 ? 1 : 0);
+    /* Convert wide name to basic ASCII */
+    char nameBuf[256];
+    {
+        size_t i = 0;
+        while (desc.Description[i] && i < (sizeof(nameBuf) - 1)) {
+            wchar_t wc = desc.Description[i];
+            if (wc < 0x80) nameBuf[i] = (char) wc;
+            else
+                nameBuf[i] = '?';
+            ++i;
+        }
+        nameBuf[i] = '\0';
+    }
 
-    RAZIX_RHI_LOG_INFO("GPU Nodes             : %u", f->nodeCount);
-    RAZIX_RHI_LOG_INFO("UMA                   : %s", f->isUMA ? "Yes" : "No");
-    RAZIX_RHI_LOG_INFO("Cache-Coherent UMA    : %s", f->isCacheCoherentUMA ? "Yes" : "No");
+    /* LUID string */
+    char luidStr[32];
+    (void) snprintf(luidStr, sizeof(luidStr), "%08X%08X", (uint32_t) desc.AdapterLuid.HighPart, (uint32_t) desc.AdapterLuid.LowPart);
 
-    // D3D12_OPTIONS
-    RAZIX_RHI_LOG_INFO("Conservative Raster   : %s", f->options.ConservativeRasterizationTier != D3D12_CONSERVATIVE_RASTERIZATION_TIER_NOT_SUPPORTED ? "Yes" : "No");
-    RAZIX_RHI_LOG_INFO("Standard Swizzle      : %s", f->options.StandardSwizzle64KBSupported ? "Yes" : "No");
-    RAZIX_RHI_LOG_INFO("Typed UAV Load ADDR64 : %s", f->options.TypedUAVLoadAdditionalFormats ? "Yes" : "No");
+    /* Device type heuristic */
+    const char* deviceType = "Discrete GPU";
+    if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+        deviceType = "CPU (Software)";
+    else if (desc.DedicatedVideoMemory < (256u << 20) ||
+             desc.SharedSystemMemory > desc.DedicatedVideoMemory)
+        deviceType = "Integrated GPU";
 
-    // D3D12_OPTIONS1
-    RAZIX_RHI_LOG_INFO("Wave Ops              : %s", f->options1.WaveOps ? "Yes" : "No");
-    RAZIX_RHI_LOG_INFO("Wave Lane Count       : Min %u / Max %u", f->options1.WaveLaneCountMin, f->options1.WaveLaneCountMax);
-    RAZIX_RHI_LOG_INFO("Int64 Shader Ops      : %s", f->options1.Int64ShaderOps ? "Yes" : "No");
+     /* ------------------------------------------------------------------ */
+    /* Driver Version via CheckInterfaceSupport                           */
+    /* ------------------------------------------------------------------ */
+    LARGE_INTEGER drvVer;
+    drvVer.QuadPart = 0;
+    {
+        IDXGIAdapter* baseAdapter = (IDXGIAdapter*) adapter;
+        if (baseAdapter &&
+            SUCCEEDED(IDXGIAdapter4_CheckInterfaceSupport(baseAdapter, & IID_IDXGIDevice, &drvVer))) {
+            /* Format (per MSDN):
+               HighPart: (Major << 16) | Minor
+               LowPart : (Build << 16) | Revision
+            */
+        }
+    }
+    /* Extract parts */
+    unsigned drvMajor    = (unsigned) ((drvVer.HighPart >> 16) & 0xFFFF);
+    unsigned drvMinor    = (unsigned) (drvVer.HighPart & 0xFFFF);
+    unsigned drvBuild    = (unsigned) ((drvVer.LowPart >> 16) & 0xFFFF);
+    unsigned drvRevision = (unsigned) (drvVer.LowPart & 0xFFFF);
 
-    // D3D12_OPTIONS5
-    RAZIX_RHI_LOG_INFO("Raytracing Tier       : Tier %d", f->options5.RaytracingTier);
+    /* ------------------------------------------------------------------ */
+    /* Highest Supported D3D Feature Level                                */
+    /* ------------------------------------------------------------------ */
+    const D3D_FEATURE_LEVEL candidates[] = {
+#ifdef D3D_FEATURE_LEVEL_12_2
+        D3D_FEATURE_LEVEL_12_2,
+#endif
+        D3D_FEATURE_LEVEL_12_1,
+        D3D_FEATURE_LEVEL_12_0,
+        D3D_FEATURE_LEVEL_11_1,
+        D3D_FEATURE_LEVEL_11_0};
+    const char*       featureLevelStr = "Unknown";
+    D3D_FEATURE_LEVEL chosen          = 0;
+    {
+        size_t i;
+        for (i = 0; i < (sizeof(candidates) / sizeof(candidates[0])); ++i) {
+            ID3D12Device* tmpDev = 0;
+            if (SUCCEEDED(D3D12CreateDevice((IUnknown*) adapter,
+                    candidates[i],
+                    &IID_ID3D12Device,
+                    (void**) &tmpDev))) {
+                chosen = candidates[i];
+                if (tmpDev) tmpDev->lpVtbl->Release(tmpDev);
+                break;
+            }
+        }
+        switch (chosen) {
+#ifdef D3D_FEATURE_LEVEL_12_2
+            case D3D_FEATURE_LEVEL_12_2: featureLevelStr = "12_2"; break;
+#endif
+            case D3D_FEATURE_LEVEL_12_1: featureLevelStr = "12_1"; break;
+            case D3D_FEATURE_LEVEL_12_0: featureLevelStr = "12_0"; break;
+            case D3D_FEATURE_LEVEL_11_1: featureLevelStr = "11_1"; break;
+            case D3D_FEATURE_LEVEL_11_0: featureLevelStr = "11_0"; break;
+            default: break;
+        }
+    }
 
-    // VA support
-    RAZIX_RHI_LOG_INFO("VA 64-bit Support     : %s", f->vaSupport.MaxGPUVirtualAddressBitsPerResource >= 44 ? "Yes" : "Partial/No");
-
-    RAZIX_RHI_LOG_INFO("===================================================");
+    RAZIX_RHI_LOG_INFO("+======================================================================+");
+    RAZIX_RHI_LOG_INFO("|                            DX12 GPU INFO                             |");
+    RAZIX_RHI_LOG_INFO("+======================================================================+");
+    RAZIX_RHI_LOG_INFO("| API                   : DirectX 12");
+    RAZIX_RHI_LOG_INFO("| Device Name           : %s", nameBuf);
+    RAZIX_RHI_LOG_INFO("| Vendor                : %s (0x%04X)", rzRHI_GetGPUVendorName(desc.VendorId), desc.VendorId);
+    RAZIX_RHI_LOG_INFO("| Device ID             : 0x%04X", desc.DeviceId);
+    RAZIX_RHI_LOG_INFO("| SubSys ID             : 0x%04X", desc.SubSysId);
+    RAZIX_RHI_LOG_INFO("| Revision              : %u", desc.Revision);
+    RAZIX_RHI_LOG_INFO("| Device Type           : %s", deviceType);
+    RAZIX_RHI_LOG_INFO("| VendorID              : %u", desc.VendorId);
+    RAZIX_RHI_LOG_INFO("| LUID                  : %s", luidStr);
+    RAZIX_RHI_LOG_INFO("| API Version           : 12.x (runtime-specific)");
+    RAZIX_RHI_LOG_INFO("| Driver Version        : N/A");
+    RAZIX_RHI_LOG_INFO("| API                   : Direct3D 12 (Feature Level %s)", featureLevelStr);
+    if (drvVer.QuadPart != 0ULL)
+        RAZIX_RHI_LOG_INFO("| Driver Version        : %u.%u.%u.%u", drvMajor, drvMinor, drvBuild, drvRevision);
+    else
+        RAZIX_RHI_LOG_INFO("| Driver Version        : (unavailable)");
+    RAZIX_RHI_LOG_INFO("+---------------------------------------------------------------------+");
+    RAZIX_RHI_LOG_INFO("| Memory (raw bytes)                                                  |");
+    RAZIX_RHI_LOG_INFO("+---------------------------------------------------------------------+");
+    RAZIX_RHI_LOG_INFO("| DedicatedVideoMemory  : %llu", (unsigned long long) desc.DedicatedVideoMemory);
+    RAZIX_RHI_LOG_INFO("| DedicatedSystemMemory : %llu", (unsigned long long) desc.DedicatedSystemMemory);
+    RAZIX_RHI_LOG_INFO("| SharedSystemMemory    : %llu", (unsigned long long) desc.SharedSystemMemory);
+    RAZIX_RHI_LOG_INFO("| (Heaps synthesized: DEVICE_LOCAL + SHARED_SYSTEM)                   |");
+    RAZIX_RHI_LOG_INFO("+---------------------------------------------------------------------+");
+    RAZIX_RHI_LOG_INFO("| Limits / Features (Not Queried - Adapter Only Context)              |");
+    RAZIX_RHI_LOG_INFO("+---------------------------------------------------------------------+");
+    RAZIX_RHI_LOG_INFO("| maxImageDimension2D    : N/A");
+    RAZIX_RHI_LOG_INFO("| maxImageDimension3D    : N/A");
+    RAZIX_RHI_LOG_INFO("| maxUniformBufferRange  : N/A");
+    RAZIX_RHI_LOG_INFO("| maxStorageBufferRange  : N/A");
+    RAZIX_RHI_LOG_INFO("| maxPushConstantsSize   : N/A");
+    RAZIX_RHI_LOG_INFO("| maxBoundDescriptorSets : N/A");
+    RAZIX_RHI_LOG_INFO("| maxViewports           : N/A");
+    RAZIX_RHI_LOG_INFO("| maxComputeWorkGroupSize: N/A");
+    RAZIX_RHI_LOG_INFO("| geometryShader         : (assumed 1)");
+    RAZIX_RHI_LOG_INFO("| tessellationShader     : (assumed 1)");
+    RAZIX_RHI_LOG_INFO("| multiViewport          : (assumed 1)");
+    RAZIX_RHI_LOG_INFO("| samplerAnisotropy      : (assumed 1)");
+    RAZIX_RHI_LOG_INFO("| shaderFloat64          : (varies, assume 1)");
+    RAZIX_RHI_LOG_INFO("| shaderInt64            : (varies, assume 1)");
+    RAZIX_RHI_LOG_INFO("| robustBufferAccess     : N/A");
+    RAZIX_RHI_LOG_INFO("+======================================================================+");
 }
 
 #ifdef RAZIX_DEBUG
 // Before Device
-static void dx12_register_debug_interface(dx12_ctx* ctx)
+static void dx12_util_register_debug_interface(dx12_ctx* ctx)
 {
     if (SUCCEEDED(D3D12GetDebugInterface(&IID_ID3D12Debug3, (void**) &ctx->d3dDebug3))) {
         ID3D12Debug3_EnableDebugLayer(ctx->d3dDebug3);
@@ -1486,7 +1595,7 @@ static void dx12_register_debug_interface(dx12_ctx* ctx)
 }
 
 // After Device
-static void dx12_d3d12_register_info_queue(dx12_ctx* ctx)
+static void dx12_util_d3d12_register_info_queue(dx12_ctx* ctx)
 {
     if (!ctx->device10) {
         RAZIX_RHI_LOG_ERROR("[D3D12] D3D12 device is NULL; can't register info queue.");
@@ -1506,7 +1615,7 @@ static void dx12_d3d12_register_info_queue(dx12_ctx* ctx)
     }
 }
 
-static void dx12_dxgi_register_info_queue(dx12_ctx* ctx)
+static void dx12_util_dxgi_register_info_queue(dx12_ctx* ctx)
 {
     if (SUCCEEDED(DXGIGetDebugInterface1(0, &IID_IDXGIInfoQueue, (void**) &ctx->dxgiInfoQ))) {
         IDXGIInfoQueue* q = ctx->dxgiInfoQ;
@@ -1520,7 +1629,7 @@ static void dx12_dxgi_register_info_queue(dx12_ctx* ctx)
     }
 }
 
-static void dx12_track_dxgi_liveobjects(dx12_ctx* ctx)
+static void dx12_util_track_dxgi_liveobjects(dx12_ctx* ctx)
 {
     RAZIX_RHI_LOG_WARN("Tracking live DXGI objects. This will report all live objects at the end of the program.");
     if (SUCCEEDED(DXGIGetDebugInterface1(0, &IID_IDXGIDebug, (void**) &ctx->dxgiDebug))) {
@@ -1533,7 +1642,7 @@ static void dx12_track_dxgi_liveobjects(dx12_ctx* ctx)
     }
 }
 
-static void dx12_destroy_debug_handles(dx12_ctx* ctx)
+static void dx12_util_destroy_debug_handles(dx12_ctx* ctx)
 {
     if (ctx->d3dDebug3) {
         ID3D12Debug3_Release(ctx->d3dDebug3);
@@ -1555,7 +1664,7 @@ static void dx12_destroy_debug_handles(dx12_ctx* ctx)
 }
 #endif
 
-static void dx12_update_swapchain_rtvs(rz_gfx_swapchain* sc)
+static void dx12_util_update_swapchain_rtvs(rz_gfx_swapchain* sc)
 {
     sc->imageCount = RAZIX_MAX_SWAP_IMAGES_COUNT;
     ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(sc->dx12.rtvHeap, &sc->dx12.rtvHeapStart.cpu);
@@ -1617,7 +1726,7 @@ static void dx12_update_swapchain_rtvs(rz_gfx_swapchain* sc)
     }
 }
 
-static void dx12_create_backbuffers(rz_gfx_swapchain* sc)
+static void dx12_util_create_backbuffers(rz_gfx_swapchain* sc)
 {
     D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {0};
     rtvHeapDesc.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
@@ -1634,10 +1743,10 @@ static void dx12_create_backbuffers(rz_gfx_swapchain* sc)
     }
     TAG_OBJECT(sc->dx12.rtvHeap, "Swapchain Heap");
 
-    dx12_update_swapchain_rtvs(sc);
+    dx12_util_update_swapchain_rtvs(sc);
 }
 
-static void dx12_destroy_backbuffers(rz_gfx_swapchain* sc)
+static void dx12_util_destroy_backbuffers(rz_gfx_swapchain* sc)
 {
     for (uint32_t i = 0; i < sc->imageCount; ++i) {
         if (sc->backbuffers[i].dx12.resource) {
@@ -1652,7 +1761,7 @@ static void dx12_destroy_backbuffers(rz_gfx_swapchain* sc)
     }
 }
 
-static void dx12_create_command_signatures(dx12_ctx* ctx)
+static void dx12_util_create_command_signatures(dx12_ctx* ctx)
 {
     // Indirect Draw
     D3D12_INDIRECT_ARGUMENT_DESC drawArgs    = {0};
@@ -1703,7 +1812,7 @@ static void dx12_create_command_signatures(dx12_ctx* ctx)
     TAG_OBJECT(ctx->dispatchIndirectSignature, "Dispatch Indirect Command Signature");
 }
 
-static void dx12_destroy_command_signatures(dx12_ctx* ctx)
+static void dx12_util_destroy_command_signatures(dx12_ctx* ctx)
 {
     if (ctx->drawIndirectSignature) {
         ID3D12CommandSignature_Release(ctx->drawIndirectSignature);
@@ -1740,7 +1849,7 @@ static void dx12_GlobalCtxInit(void)
     // Set the minimum requested feature level
     DX12Context.featureLevel = D3D_FEATURE_LEVEL_12_0;
 
-    DX12Context.adapter4 = dx12_select_best_adapter(DX12Context.factory7, DX12Context.featureLevel);
+    DX12Context.adapter4 = dx12_util_select_best_adapter(DX12Context.factory7, DX12Context.featureLevel);
     if (DX12Context.adapter4 == NULL) {
         RAZIX_RHI_LOG_ERROR("Failed to select a suitable D3D12 adapter");
         return;
@@ -1748,7 +1857,7 @@ static void dx12_GlobalCtxInit(void)
 
 #ifdef RAZIX_DEBUG
     // We register D3D12Debug interface before device create
-    dx12_register_debug_interface(&DX12Context);
+    dx12_util_register_debug_interface(&DX12Context);
 #endif
 
     // Create the device
@@ -1762,12 +1871,12 @@ static void dx12_GlobalCtxInit(void)
 #ifdef RAZIX_DEBUG
     // TODO: Use engine setting to enable/disable debugging
     // Register the D3D12 info queue after device creation
-    dx12_d3d12_register_info_queue(&DX12Context);
+    dx12_util_d3d12_register_info_queue(&DX12Context);
     // Register the DXGI info queue
-    dx12_dxgi_register_info_queue(&DX12Context);
+    dx12_util_dxgi_register_info_queue(&DX12Context);
     // Print the D3D12 features
-    dx12_query_features(&DX12Context);
-    dx12_print_features(&DX12Context.features);
+    dx12_util_query_features(&DX12Context);
+    dx12_util_print_device_info(DX12Context.adapter4);
     RAZIX_RHI_LOG_INFO("D3D12 Device created successfully");
 #else
     RAZIX_RHI_LOG_INFO("D3D12 Device created successfully without debug features");
@@ -1798,14 +1907,14 @@ static void dx12_GlobalCtxInit(void)
     g_GraphicsFeatures.MinLaneWidth                         = DX12Context.features.options1.WaveLaneCountMin;
     g_GraphicsFeatures.MaxLaneWidth                         = DX12Context.features.options1.WaveLaneCountMax;
 
-    dx12_create_command_signatures(&DX12Context);
+    dx12_util_create_command_signatures(&DX12Context);
 
     RAZIX_RHI_LOG_INFO("D3D12 Global context initialized successfully");
 }
 
 static void dx12_GlobalCtxDestroy(void)
 {
-    dx12_destroy_command_signatures(&DX12Context);
+    dx12_util_destroy_command_signatures(&DX12Context);
 
     if (DX12Context.directQ) {
         ID3D12CommandQueue_Release(DX12Context.directQ);
@@ -1828,8 +1937,8 @@ static void dx12_GlobalCtxDestroy(void)
     }
 
 #ifdef RAZIX_DEBUG
-    dx12_destroy_debug_handles(&DX12Context);
-    dx12_track_dxgi_liveobjects(&DX12Context);
+    dx12_util_destroy_debug_handles(&DX12Context);
+    dx12_util_track_dxgi_liveobjects(&DX12Context);
 #endif
 }
 
@@ -1911,12 +2020,12 @@ static void dx12_CreateSwapchain(void* where, void* nativeWindowHandle, uint32_t
     CHECK_HR(IDXGISwapChain1_QueryInterface(swapchain1, &IID_IDXGISwapChain4, (void**) &swapchain->dx12.swapchain4));
     IDXGISwapChain1_Release(swapchain1);
 
-    dx12_create_backbuffers(swapchain);
+    dx12_util_create_backbuffers(swapchain);
 }
 
 static void dx12_DestroySwapchain(rz_gfx_swapchain* sc)
 {
-    dx12_destroy_backbuffers(sc);
+    dx12_util_destroy_backbuffers(sc);
 
     if (sc->dx12.swapchain4) {
         IDXGISwapChain4_Release(sc->dx12.swapchain4);
@@ -3582,7 +3691,7 @@ static void dx12_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t 
     IDXGISwapChain4_GetDesc(sc4, &swapChainDesc);
     CHECK_HR(IDXGISwapChain4_ResizeBuffers(sc->dx12.swapchain4, sc->imageCount, sc->width, sc->height, dx12_util_rz_gfx_format_to_dxgi_format(RAZIX_SWAPCHAIN_FORMAT), swapChainDesc.Flags));
 
-    dx12_update_swapchain_rtvs(sc);
+    dx12_util_update_swapchain_rtvs(sc);
 }
 
 //---------------------------------------------------------------------------------------------
