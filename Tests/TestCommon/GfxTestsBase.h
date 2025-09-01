@@ -20,15 +20,6 @@ namespace Razix {
             Razix::RZInput::SelectGLFWInputManager();
             RZApplication::Init();
 
-            //-------------------------------------------------------------------------------------
-            // Override the Graphics API here! for testing
-#ifdef RAZIX_PLATFORM_WINDOWS
-            rzGfxCtx_SetRenderAPI(RZ_RENDER_API_D3D12);
-#elif defined RAZIX_PLATFORM_MACOS
-            rzGfxCtx_SetRenderAPI(RZ_RENDER_API_VULKAN);
-#endif
-            //-------------------------------------------------------------------------------------
-
             // Mount the tests root directory to load test specific resources
             RZVirtualFileSystem::Get().mount("TestsRoot", projectRoot);
 
@@ -85,7 +76,7 @@ static int EngineTestLoop(void)
     //-------------------------------------------------------------------------------------
     // Override the Graphics API here! for testing
 #ifdef RAZIX_PLATFORM_WINDOWS
-    rzGfxCtx_SetRenderAPI(RZ_RENDER_API_D3D12);
+    rzGfxCtx_SetRenderAPI(RZ_RENDER_API_VULKAN);
 #elif defined RAZIX_PLATFORM_MACOS
     rzGfxCtx_SetRenderAPI(RZ_RENDER_API_VULKAN);
 #endif

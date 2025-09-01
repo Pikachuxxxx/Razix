@@ -127,7 +127,8 @@ project "RHI"
             "dxgi",
             "dxguid",
             "D3DCompiler",
-            "dxcompiler"
+            "dxcompiler",
+            "vulkan-1"
         }
 
         disablewarnings { 4307, 4267, 4275, 4554, 4996, 4006 }
