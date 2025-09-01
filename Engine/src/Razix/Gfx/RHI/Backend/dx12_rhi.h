@@ -35,6 +35,10 @@ typedef struct D3D12FeatureCache
     bool     isCacheCoherentUMA;
 } D3D12FeatureCache;
 
+    #ifndef __ID3D12Device10_FWD_DEFINED__
+        #error "Must include d3d12.h before this header and the min windows sdk version must be 10.0.22621.0 and Windows 11 is preferred or use Agility SDK 1.7+"
+    #endif
+
 typedef struct dx12_ctx
 {
     IDXGIFactory7*      factory7;

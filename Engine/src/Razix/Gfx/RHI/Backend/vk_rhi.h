@@ -7,7 +7,9 @@
 // TODO: this header will be moved to RHI.h before merging the PR #422 and #420
 
 #ifdef RAZIX_RENDER_API_VULKAN
-
+    #ifdef RAZIX_PLATFORM_WINDOWS
+        #define VK_USE_PLATFORM_WIN32_KHR
+    #endif
     #include <vulkan/vulkan.h>
 
 typedef struct VkQueueFamilyIndices
