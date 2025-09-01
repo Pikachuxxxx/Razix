@@ -72,10 +72,6 @@ static PFN_vkCreateWaylandSurfaceKHR                        pfn_vkCreateWaylandS
 static PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR pfn_vkGetPhysicalDeviceWaylandPresentationSupportKHR = NULL;
 #endif
 
-#ifdef RAZIX_PLATFORM_MACOS
-static PFN_vkCreateMetalSurfaceEXT pfn_vkCreateMetalSurfaceEXT = NULL;
-#endif
-
 // Utility function to load instance-level extension functions
 static void vk_util_load_instance_functions(VkInstance instance)
 {
@@ -106,10 +102,6 @@ static void vk_util_load_instance_functions(VkInstance instance)
     VK_LOAD_INSTANCE_FUNCTION(instance, vkGetPhysicalDeviceXcbPresentationSupportKHR);
     VK_LOAD_INSTANCE_FUNCTION(instance, vkCreateWaylandSurfaceKHR);
     VK_LOAD_INSTANCE_FUNCTION(instance, vkGetPhysicalDeviceWaylandPresentationSupportKHR);
-#endif
-
-#ifdef RAZIX_PLATFORM_MACOS
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkCreateMetalSurfaceEXT);
 #endif
 
     RAZIX_RHI_LOG_INFO("Vulkan instance extension functions loaded successfully");
