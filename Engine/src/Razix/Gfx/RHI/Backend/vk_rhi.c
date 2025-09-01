@@ -7,15 +7,120 @@
 #include <string.h>
 
 // Type friendly defines
-#define VkContext g_GfxCtx.vk
-#define VkDevice  g_GfxCtx.vk.device
-#define VkGPU     g_GfxCtx.vk.gpu
+#define VKCONTEXT g_GfxCtx.vk
+#define VKDEVICE  g_GfxCtx.vk.device
+#define VKGPU     g_GfxCtx.vk.gpu
 
 #if defined RAZIX_DEBUG
     #define CHECK_VK(x) vk_util_check_result((x), __func__, __FILE__, __LINE__)
 #else
     #define CHECK_VK(x) (x)
 #endif
+
+//---------------------------------------------------------------------------------------------
+// Dynamic function loading macros and function pointers
+//---------------------------------------------------------------------------------------------
+
+// Macro for loading instance-level functions
+#define VK_LOAD_INSTANCE_FUNCTION(instance, func_name)                                   \
+    do {                                                                                 \
+        pfn_##func_name = (PFN_##func_name) vkGetInstanceProcAddr(instance, #func_name); \
+        if (!pfn_##func_name) {                                                          \
+            RAZIX_RHI_LOG_WARN("Failed to load instance function: %s", #func_name);      \
+        }                                                                                \
+    } while (0)
+
+// Macro for loading device-level functions
+#define VK_LOAD_DEVICE_FUNCTION(device, func_name)                                   \
+    do {                                                                             \
+        pfn_##func_name = (PFN_##func_name) vkGetDeviceProcAddr(device, #func_name); \
+        if (!pfn_##func_name) {                                                      \
+            RAZIX_RHI_LOG_WARN("Failed to load device function: %s", #func_name);    \
+        }                                                                            \
+    } while (0)
+
+// Macro for safely calling loaded functions
+#define VK_CALL_LOADED_FUNCTION(func_name, ...) \
+    (pfn_##func_name ? pfn_##func_name(__VA_ARGS__) : VK_ERROR_EXTENSION_NOT_PRESENT)
+
+// Debug utility function pointers
+#ifdef RAZIX_DEBUG
+static PFN_vkCreateDebugUtilsMessengerEXT  pfn_vkCreateDebugUtilsMessengerEXT  = NULL;
+static PFN_vkDestroyDebugUtilsMessengerEXT pfn_vkDestroyDebugUtilsMessengerEXT = NULL;
+static PFN_vkSetDebugUtilsObjectNameEXT    pfn_vkSetDebugUtilsObjectNameEXT    = NULL;
+static PFN_vkSetDebugUtilsObjectTagEXT     pfn_vkSetDebugUtilsObjectTagEXT     = NULL;
+static PFN_vkQueueBeginDebugUtilsLabelEXT  pfn_vkQueueBeginDebugUtilsLabelEXT  = NULL;
+static PFN_vkQueueEndDebugUtilsLabelEXT    pfn_vkQueueEndDebugUtilsLabelEXT    = NULL;
+static PFN_vkQueueInsertDebugUtilsLabelEXT pfn_vkQueueInsertDebugUtilsLabelEXT = NULL;
+static PFN_vkCmdBeginDebugUtilsLabelEXT    pfn_vkCmdBeginDebugUtilsLabelEXT    = NULL;
+static PFN_vkCmdEndDebugUtilsLabelEXT      pfn_vkCmdEndDebugUtilsLabelEXT      = NULL;
+static PFN_vkCmdInsertDebugUtilsLabelEXT   pfn_vkCmdInsertDebugUtilsLabelEXT   = NULL;
+#endif
+
+// Surface creation function pointers (platform-specific)
+#ifdef RAZIX_PLATFORM_WINDOWS
+static PFN_vkCreateWin32SurfaceKHR                        pfn_vkCreateWin32SurfaceKHR                        = NULL;
+static PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR pfn_vkGetPhysicalDeviceWin32PresentationSupportKHR = NULL;
+#endif
+
+#ifdef RAZIX_PLATFORM_LINUX
+static PFN_vkCreateXlibSurfaceKHR                           pfn_vkCreateXlibSurfaceKHR                           = NULL;
+static PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR    pfn_vkGetPhysicalDeviceXlibPresentationSupportKHR    = NULL;
+static PFN_vkCreateXcbSurfaceKHR                            pfn_vkCreateXcbSurfaceKHR                            = NULL;
+static PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR     pfn_vkGetPhysicalDeviceXcbPresentationSupportKHR     = NULL;
+static PFN_vkCreateWaylandSurfaceKHR                        pfn_vkCreateWaylandSurfaceKHR                        = NULL;
+static PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR pfn_vkGetPhysicalDeviceWaylandPresentationSupportKHR = NULL;
+#endif
+
+#ifdef RAZIX_PLATFORM_MACOS
+static PFN_vkCreateMetalSurfaceEXT pfn_vkCreateMetalSurfaceEXT = NULL;
+#endif
+
+// Utility function to load instance-level extension functions
+static void vk_util_load_instance_functions(VkInstance instance)
+{
+#ifdef RAZIX_DEBUG
+    // Load debug utility functions
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkCreateDebugUtilsMessengerEXT);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkDestroyDebugUtilsMessengerEXT);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkSetDebugUtilsObjectNameEXT);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkSetDebugUtilsObjectTagEXT);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkQueueBeginDebugUtilsLabelEXT);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkQueueEndDebugUtilsLabelEXT);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkQueueInsertDebugUtilsLabelEXT);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkCmdBeginDebugUtilsLabelEXT);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkCmdEndDebugUtilsLabelEXT);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkCmdInsertDebugUtilsLabelEXT);
+#endif
+
+    // Load platform-specific surface functions
+#ifdef RAZIX_PLATFORM_WINDOWS
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkCreateWin32SurfaceKHR);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkGetPhysicalDeviceWin32PresentationSupportKHR);
+#endif
+
+#ifdef RAZIX_PLATFORM_LINUX
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkCreateXlibSurfaceKHR);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkGetPhysicalDeviceXlibPresentationSupportKHR);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkCreateXcbSurfaceKHR);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkGetPhysicalDeviceXcbPresentationSupportKHR);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkCreateWaylandSurfaceKHR);
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkGetPhysicalDeviceWaylandPresentationSupportKHR);
+#endif
+
+#ifdef RAZIX_PLATFORM_MACOS
+    VK_LOAD_INSTANCE_FUNCTION(instance, vkCreateMetalSurfaceEXT);
+#endif
+
+    RAZIX_RHI_LOG_INFO("Vulkan instance extension functions loaded successfully");
+}
+
+static void vk_util_load_device_functions(VkDevice device)
+{
+    (void) device;
+    // Currently no device-specific functions to load, but this is where they would go
+    RAZIX_RHI_LOG_INFO("Vulkan device extension functions loaded successfully");
+}
 
 //---------------------------------------------------------------------------------------------
 // Constants and configuration
@@ -522,7 +627,7 @@ static bool vk_util_is_device_suitable(VkPhysicalDevice device)
 static VkPhysicalDevice vk_util_pick_physical_device(void)
 {
     uint32_t deviceCount = 0;
-    CHECK_VK(vkEnumeratePhysicalDevices(VkContext.instance, &deviceCount, NULL));
+    CHECK_VK(vkEnumeratePhysicalDevices(VKCONTEXT.instance, &deviceCount, NULL));
 
     if (deviceCount == 0) {
         RAZIX_RHI_LOG_ERROR("Failed to find GPUs with Vulkan support");
@@ -530,7 +635,7 @@ static VkPhysicalDevice vk_util_pick_physical_device(void)
     }
 
     VkPhysicalDevice* devices = malloc(deviceCount * sizeof(VkPhysicalDevice));
-    CHECK_VK(vkEnumeratePhysicalDevices(VkContext.instance, &deviceCount, devices));
+    CHECK_VK(vkEnumeratePhysicalDevices(VKCONTEXT.instance, &deviceCount, devices));
 
     VkPhysicalDevice selectedDevice = VK_NULL_HANDLE;
     for (uint32_t i = 0; i < deviceCount; i++) {
@@ -550,8 +655,8 @@ static VkPhysicalDevice vk_util_pick_physical_device(void)
 
 static void vk_util_create_logical_device(void)
 {
-    VkQueueFamilyIndices indices = vk_util_find_queue_families(VkContext.gpu);
-    VkContext.queueFamilyIndices = indices;
+    VkQueueFamilyIndices indices = vk_util_find_queue_families(VKCONTEXT.gpu);
+    VKCONTEXT.queueFamilyIndices = indices;
 
     float                   queuePriority   = 1.0f;
     VkDeviceQueueCreateInfo queueCreateInfo = {0};
@@ -577,10 +682,13 @@ static void vk_util_create_logical_device(void)
     createInfo.enabledLayerCount = 0;
 #endif
 
-    CHECK_VK(vkCreateDevice(VkContext.gpu, &createInfo, NULL, &VkContext.device));
+    CHECK_VK(vkCreateDevice(VKCONTEXT.gpu, &createInfo, NULL, &VKCONTEXT.device));
 
-    vkGetDeviceQueue(VkContext.device, indices.graphicsFamily, 0, &VkContext.graphicsQueue);
-    vkGetDeviceQueue(VkContext.device, indices.presentFamily, 0, &VkContext.presentQueue);
+    // Load device extension functions after device creation
+    vk_util_load_device_functions(VKCONTEXT.device);
+
+    vkGetDeviceQueue(VKCONTEXT.device, indices.graphicsFamily, 0, &VKCONTEXT.graphicsQueue);
+    vkGetDeviceQueue(VKCONTEXT.device, indices.presentFamily, 0, &VKCONTEXT.presentQueue);
 }
 
 static VkExtent2D vk_util_choose_swap_extent(const VkSurfaceCapabilitiesKHR* capabilities, uint32_t width, uint32_t height)
@@ -714,10 +822,13 @@ static void vk_GlobalCtxInit(void)
     createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 #endif
 
-    CHECK_VK(vkCreateInstance(&createInfo, NULL, &VkContext.instance));
+    CHECK_VK(vkCreateInstance(&createInfo, NULL, &VKCONTEXT.instance));
+
+    // Load instance extension functions after instance creation
+    vk_util_load_instance_functions(VKCONTEXT.instance);
 
 #ifdef RAZIX_DEBUG
-    // Setup debug messenger
+    // Setup debug messenger using dynamically loaded function
     VkDebugUtilsMessengerCreateInfoEXT debugInfo = {0};
     debugInfo.sType                              = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     debugInfo.messageSeverity                    = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
@@ -728,23 +839,34 @@ static void vk_GlobalCtxInit(void)
                             VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     debugInfo.pfnUserCallback = vk_util_debug_callback;
 
-    // FIXME: Use dynamic loading to get proc address
-    //CHECK_VK(vkCreateDebugUtilsMessengerEXT(VkContext.instance, &debugInfo, NULL, &VkContext.debugMessenger));
+    // Create debug messenger using dynamically loaded function
+    VkResult debugResult = VK_CALL_LOADED_FUNCTION(vkCreateDebugUtilsMessengerEXT,
+        VKCONTEXT.instance,
+        &debugInfo,
+        NULL,
+        &VKCONTEXT.debugMessenger);
+    if (debugResult == VK_SUCCESS) {
+        RAZIX_RHI_LOG_INFO("Vulkan debug messenger created successfully");
+    } else if (debugResult == VK_ERROR_EXTENSION_NOT_PRESENT) {
+        RAZIX_RHI_LOG_WARN("Debug utils extension not available, debug messaging disabled");
+    } else {
+        RAZIX_RHI_LOG_ERROR("Failed to create debug messenger: %d", debugResult);
+    }
 #endif
 
     // Pick physical device
-    VkContext.gpu = vk_util_pick_physical_device();
-    if (VkContext.gpu == VK_NULL_HANDLE) {
+    VKCONTEXT.gpu = vk_util_pick_physical_device();
+    if (VKCONTEXT.gpu == VK_NULL_HANDLE) {
         RAZIX_RHI_LOG_ERROR("Failed to pick physical device");
         return;
     }
 
     // Get device properties and features
-    vkGetPhysicalDeviceProperties(VkContext.gpu, &VkContext.deviceProperties);
-    vkGetPhysicalDeviceFeatures(VkContext.gpu, &VkContext.deviceFeatures);
-    vkGetPhysicalDeviceMemoryProperties(VkContext.gpu, &VkContext.memoryProperties);
+    vkGetPhysicalDeviceProperties(VKCONTEXT.gpu, &VKCONTEXT.deviceProperties);
+    vkGetPhysicalDeviceFeatures(VKCONTEXT.gpu, &VKCONTEXT.deviceFeatures);
+    vkGetPhysicalDeviceMemoryProperties(VKCONTEXT.gpu, &VKCONTEXT.memoryProperties);
 
-    vk_util_print_gpu_stats(&VkContext.deviceProperties, &VkContext.memoryProperties, &VkContext.deviceFeatures);
+    vk_util_print_gpu_stats(&VKCONTEXT.deviceProperties, &VKCONTEXT.memoryProperties, &VKCONTEXT.deviceFeatures);
 
     // Create logical device
     vk_util_create_logical_device();
@@ -756,22 +878,25 @@ static void vk_GlobalCtxDestroy(void)
 {
     RAZIX_RHI_LOG_INFO("Destroying Vulkan RHI backend");
 
-    if (VkContext.device) {
-        vkDestroyDevice(VkContext.device, NULL);
-        VkContext.device = VK_NULL_HANDLE;
+    if (VKCONTEXT.device) {
+        vkDestroyDevice(VKCONTEXT.device, NULL);
+        VKCONTEXT.device = VK_NULL_HANDLE;
     }
 
 #ifdef RAZIX_DEBUG
-    if (VkContext.debugMessenger) {
-        // FIXME: Use dynamic loading to get proc address
-        // vkDestroyDebugUtilsMessengerEXT(VkContext.instance, VkContext.debugMessenger, NULL);
-        VkContext.debugMessenger = VK_NULL_HANDLE;
+    if (VKCONTEXT.debugMessenger && pfn_vkDestroyDebugUtilsMessengerEXT) {
+        VK_CALL_LOADED_FUNCTION(vkDestroyDebugUtilsMessengerEXT,
+            VKCONTEXT.instance,
+            VKCONTEXT.debugMessenger,
+            NULL);
+        VKCONTEXT.debugMessenger = VK_NULL_HANDLE;
+        RAZIX_RHI_LOG_INFO("Vulkan debug messenger destroyed");
     }
 #endif
 
-    if (VkContext.instance) {
-        vkDestroyInstance(VkContext.instance, NULL);
-        VkContext.instance = VK_NULL_HANDLE;
+    if (VKCONTEXT.instance) {
+        vkDestroyInstance(VKCONTEXT.instance, NULL);
+        VKCONTEXT.instance = VK_NULL_HANDLE;
     }
 
     RAZIX_RHI_LOG_INFO("Vulkan RHI backend destroyed");
@@ -783,12 +908,12 @@ static void vk_CreateSwapchain(void* where, void* surface, uint32_t width, uint3
     memset(swapchain, 0, sizeof(rz_gfx_swapchain));
 
     RAZIX_RHI_ASSERT(surface != NULL, "VkSurfaceKHR pointer is null, cannot create swapchain without valid surface!");
-    VkContext.surface = *(VkSurfaceKHR*) surface;
+    VKCONTEXT.surface = *(VkSurfaceKHR*) surface;
 
     swapchain->width  = width;
     swapchain->height = height;
 
-    VkSwapchainSupportDetails swapchainSupport = vk_util_query_swapchain_support(VkContext.gpu, VkContext.surface);
+    VkSwapchainSupportDetails swapchainSupport = vk_util_query_swapchain_support(VKCONTEXT.gpu, VKCONTEXT.surface);
 
     VkSurfaceFormatKHR surfaceFormat = vk_util_choose_swap_surface_format(swapchainSupport.formats, swapchainSupport.formatCount);
     VkPresentModeKHR   presentMode   = vk_util_choose_swap_present_mode(swapchainSupport.presentModes, swapchainSupport.presentModeCount);
@@ -801,7 +926,7 @@ static void vk_CreateSwapchain(void* where, void* surface, uint32_t width, uint3
 
     VkSwapchainCreateInfoKHR createInfo = {0};
     createInfo.sType                    = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface                  = VkContext.surface;
+    createInfo.surface                  = VKCONTEXT.surface;
     createInfo.minImageCount            = imageCount;
     createInfo.imageFormat              = surfaceFormat.format;
     createInfo.imageColorSpace          = surfaceFormat.colorSpace;
@@ -809,7 +934,7 @@ static void vk_CreateSwapchain(void* where, void* surface, uint32_t width, uint3
     createInfo.imageArrayLayers         = 1;
     createInfo.imageUsage               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    VkQueueFamilyIndices indices              = VkContext.queueFamilyIndices;
+    VkQueueFamilyIndices indices              = VKCONTEXT.queueFamilyIndices;
     uint32_t             queueFamilyIndices[] = {indices.graphicsFamily, indices.presentFamily};
 
     if (indices.graphicsFamily != indices.presentFamily) {
@@ -828,15 +953,15 @@ static void vk_CreateSwapchain(void* where, void* surface, uint32_t width, uint3
     createInfo.clipped        = VK_TRUE;
     createInfo.oldSwapchain   = VK_NULL_HANDLE;
 
-    CHECK_VK(vkCreateSwapchainKHR(VkContext.device, &createInfo, NULL, &swapchain->vk.swapchain));
+    CHECK_VK(vkCreateSwapchainKHR(VKCONTEXT.device, &createInfo, NULL, &swapchain->vk.swapchain));
 
     swapchain->vk.imageFormat = surfaceFormat.format;
     swapchain->vk.extent      = extent;
 
     // Get swapchain images
-    CHECK_VK(vkGetSwapchainImagesKHR(VkContext.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, NULL));
+    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, NULL));
     swapchain->vk.images = malloc(swapchain->vk.imageCount * sizeof(VkImage));
-    CHECK_VK(vkGetSwapchainImagesKHR(VkContext.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, swapchain->vk.images));
+    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, swapchain->vk.images));
 
     swapchain->imageCount = swapchain->vk.imageCount;
 
@@ -855,13 +980,13 @@ static void vk_DestroySwapchain(rz_gfx_swapchain* sc)
     }
 
     if (sc->vk.swapchain) {
-        vkDestroySwapchainKHR(VkContext.device, sc->vk.swapchain, NULL);
+        vkDestroySwapchainKHR(VKCONTEXT.device, sc->vk.swapchain, NULL);
         sc->vk.swapchain = VK_NULL_HANDLE;
     }
 
-    if (VkContext.surface) {
-        vkDestroySurfaceKHR(VkContext.instance, VkContext.surface, NULL);
-        VkContext.surface = VK_NULL_HANDLE;
+    if (VKCONTEXT.surface) {
+        vkDestroySurfaceKHR(VKCONTEXT.instance, VKCONTEXT.surface, NULL);
+        VKCONTEXT.surface = VK_NULL_HANDLE;
     }
 
     RAZIX_RHI_LOG_INFO("Vulkan swapchain destroyed");
@@ -998,7 +1123,7 @@ static void vk_AcquireImage(rz_gfx_swapchain* sc)
     assert(sc->vk.swapchain != VK_NULL_HANDLE && "Vulkan swapchain is invalid");
 
     VkResult result = vkAcquireNextImageKHR(
-        VkContext.device,
+        VKCONTEXT.device,
         sc->vk.swapchain,
         UINT64_MAX,        // No timeout
         VK_NULL_HANDLE,    // No semaphore for now
@@ -1022,7 +1147,7 @@ static void vk_WaitOnPrevCmds(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint wa
 
     // Basic fence waiting implementation
     if (syncobj->vk.fence != VK_NULL_HANDLE) {
-        VkResult result = vkWaitForFences(VkContext.device, 1, &syncobj->vk.fence, VK_TRUE, UINT64_MAX);
+        VkResult result = vkWaitForFences(VKCONTEXT.device, 1, &syncobj->vk.fence, VK_TRUE, UINT64_MAX);
         if (result != VK_SUCCESS) {
             RAZIX_RHI_LOG_ERROR("Failed to wait for fence: %d", result);
             return;
@@ -1048,7 +1173,7 @@ static void vk_Present(const rz_gfx_swapchain* sc)
         .pResults           = NULL    // Optional
     };
 
-    VkResult result = vkQueuePresentKHR(VkContext.presentQueue, &presentInfo);
+    VkResult result = vkQueuePresentKHR(VKCONTEXT.presentQueue, &presentInfo);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
         RAZIX_RHI_LOG_WARN("Swapchain out of date or suboptimal during present");
