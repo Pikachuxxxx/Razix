@@ -43,6 +43,7 @@ project "RHI"
         "%{IncludeDir.json}",
         "%{IncludeDir.D3D12MA}",
         "%{IncludeDir.dxc}",
+        "%{IncludeDir.volk}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
@@ -51,7 +52,8 @@ project "RHI"
 
     defines
     {
-        "RAZIX_EXPORT_SYMBOLS"
+        "RAZIX_EXPORT_SYMBOLS",
+        "VK_NO_PROTOTYPES"
     }
 
     filter "system:windows"
@@ -96,7 +98,7 @@ project "RHI"
             "_CRT_SECURE_NO_WARNINGS",
             "_DISABLE_EXTENDED_ALIGNED_STORAGE",
             "_SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING",
-            "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING"
+            "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING",
         }
 
         -- Windows specific incldue directories
@@ -128,7 +130,6 @@ project "RHI"
             "dxguid",
             "D3DCompiler",
             "dxcompiler",
-            "vulkan-1"
         }
 
         disablewarnings { 4307, 4267, 4275, 4554, 4996, 4006 }
@@ -203,7 +204,6 @@ project "RHI"
         links
         {
             -- Render API
-            "vulkan",
             "IOKit.framework",
             "CoreFoundation.framework",
             "CoreVideo.framework",

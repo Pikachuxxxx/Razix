@@ -18,6 +18,7 @@ IncludeDir["Jolt"]              = "%{wks.location}/../Engine/" .. "vendor/Jolt"
 IncludeDir["json"]              = "%{wks.location}/../Engine/" .. "vendor/json/single_include"
 IncludeDir["D3D12MA"]           = "%{wks.location}/../Engine/" .. "vendor/D3D12MemoryAllocator/include"
 IncludeDir["dxc"]               = "%{wks.location}/../Engine/" .. "vendor/dxc/inc"
+IncludeDir["volk"]               = "%{wks.location}/../Engine/" .. "vendor/volk"
 
 -- Experimental Stuff
 ExperimentalIncludeDir = {}
@@ -45,4 +46,39 @@ if (VulkanSDK == nil or VulkanSDK == '') then
     os.exit()
 else
     print("Vulkan SDK found at : " .. VulkanSDK)
+end
+
+-- TODO: provide util functions to set vendor includes for all projects
+function setEngineVendorIncludes()
+    includedirs
+    {
+        "%{wks.location}/../Engine",
+        "%{wks.location}/../Engine/src",
+        "%{wks.location}/../Engine/src/Razix",
+        "%{wks.location}/../Engine/internal",
+        "%{wks.location}/../Engine/internal/RazixMemory",
+        "%{wks.location}/../Engine/internal/RZSTL",
+        "%{IncludeDir.GLFW}",
+        "%{IncludeDir.Glad}",
+        "%{IncludeDir.stb}",
+        "%{IncludeDir.glm}",
+        "%{IncludeDir.ImGui}",
+        "%{IncludeDir.spdlog}",
+        "%{IncludeDir.cereal}",
+        "%{IncludeDir.SPIRVReflect}",
+        "%{IncludeDir.SPIRVCross}",
+        "%{IncludeDir.entt}",
+        "%{IncludeDir.lua}",
+        "%{IncludeDir.tracy}",
+        "%{IncludeDir.optick}",
+        "%{IncludeDir.Jolt}",
+        "%{IncludeDir.json}",
+        "%{IncludeDir.D3D12MA}",
+        "%{IncludeDir.dxc}",
+        "%{IncludeDir.volk}",
+        "%{IncludeDir.Razix}",
+        "%{IncludeDir.vendor}",
+        -- Experimental Vendor
+        "%{ExperimentalIncludeDir.Eigen}"
+    }
 end

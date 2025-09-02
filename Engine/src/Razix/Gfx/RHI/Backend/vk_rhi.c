@@ -2,6 +2,9 @@
 
 #include "Razix/Gfx/RHI/rhi.h"
 
+#define VOLK_IMPLEMENTATION
+#include <volk.h>
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,76 +46,6 @@
 #define VK_CALL_LOADED_FUNCTION(func_name, ...) \
     (pfn_##func_name ? pfn_##func_name(__VA_ARGS__) : VK_ERROR_EXTENSION_NOT_PRESENT)
 
-// Debug utility function pointers
-#ifdef RAZIX_DEBUG
-static PFN_vkCreateDebugUtilsMessengerEXT  pfn_vkCreateDebugUtilsMessengerEXT  = NULL;
-static PFN_vkDestroyDebugUtilsMessengerEXT pfn_vkDestroyDebugUtilsMessengerEXT = NULL;
-static PFN_vkSetDebugUtilsObjectNameEXT    pfn_vkSetDebugUtilsObjectNameEXT    = NULL;
-static PFN_vkSetDebugUtilsObjectTagEXT     pfn_vkSetDebugUtilsObjectTagEXT     = NULL;
-static PFN_vkQueueBeginDebugUtilsLabelEXT  pfn_vkQueueBeginDebugUtilsLabelEXT  = NULL;
-static PFN_vkQueueEndDebugUtilsLabelEXT    pfn_vkQueueEndDebugUtilsLabelEXT    = NULL;
-static PFN_vkQueueInsertDebugUtilsLabelEXT pfn_vkQueueInsertDebugUtilsLabelEXT = NULL;
-static PFN_vkCmdBeginDebugUtilsLabelEXT    pfn_vkCmdBeginDebugUtilsLabelEXT    = NULL;
-static PFN_vkCmdEndDebugUtilsLabelEXT      pfn_vkCmdEndDebugUtilsLabelEXT      = NULL;
-static PFN_vkCmdInsertDebugUtilsLabelEXT   pfn_vkCmdInsertDebugUtilsLabelEXT   = NULL;
-#endif
-
-// Surface creation function pointers (platform-specific)
-#ifdef RAZIX_PLATFORM_WINDOWS
-static PFN_vkCreateWin32SurfaceKHR                        pfn_vkCreateWin32SurfaceKHR                        = NULL;
-static PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR pfn_vkGetPhysicalDeviceWin32PresentationSupportKHR = NULL;
-#endif
-
-#ifdef RAZIX_PLATFORM_LINUX
-static PFN_vkCreateXlibSurfaceKHR                           pfn_vkCreateXlibSurfaceKHR                           = NULL;
-static PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR    pfn_vkGetPhysicalDeviceXlibPresentationSupportKHR    = NULL;
-static PFN_vkCreateXcbSurfaceKHR                            pfn_vkCreateXcbSurfaceKHR                            = NULL;
-static PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR     pfn_vkGetPhysicalDeviceXcbPresentationSupportKHR     = NULL;
-static PFN_vkCreateWaylandSurfaceKHR                        pfn_vkCreateWaylandSurfaceKHR                        = NULL;
-static PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR pfn_vkGetPhysicalDeviceWaylandPresentationSupportKHR = NULL;
-#endif
-
-// Utility function to load instance-level extension functions
-static void vk_util_load_instance_functions(VkInstance instance)
-{
-#ifdef RAZIX_DEBUG
-    // Load debug utility functions
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkCreateDebugUtilsMessengerEXT);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkDestroyDebugUtilsMessengerEXT);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkSetDebugUtilsObjectNameEXT);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkSetDebugUtilsObjectTagEXT);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkQueueBeginDebugUtilsLabelEXT);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkQueueEndDebugUtilsLabelEXT);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkQueueInsertDebugUtilsLabelEXT);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkCmdBeginDebugUtilsLabelEXT);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkCmdEndDebugUtilsLabelEXT);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkCmdInsertDebugUtilsLabelEXT);
-#endif
-
-    // Load platform-specific surface functions
-#ifdef RAZIX_PLATFORM_WINDOWS
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkCreateWin32SurfaceKHR);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkGetPhysicalDeviceWin32PresentationSupportKHR);
-#endif
-
-#ifdef RAZIX_PLATFORM_LINUX
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkCreateXlibSurfaceKHR);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkGetPhysicalDeviceXlibPresentationSupportKHR);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkCreateXcbSurfaceKHR);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkGetPhysicalDeviceXcbPresentationSupportKHR);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkCreateWaylandSurfaceKHR);
-    VK_LOAD_INSTANCE_FUNCTION(instance, vkGetPhysicalDeviceWaylandPresentationSupportKHR);
-#endif
-
-    RAZIX_RHI_LOG_INFO("Vulkan instance extension functions loaded successfully");
-}
-
-static void vk_util_load_device_functions(VkDevice device)
-{
-    (void) device;
-    // Currently no device-specific functions to load, but this is where they would go
-    RAZIX_RHI_LOG_INFO("Vulkan device extension functions loaded successfully");
-}
 
 //---------------------------------------------------------------------------------------------
 // Constants and configuration
@@ -134,7 +67,7 @@ static const char* requiredInstanceExtensions[] = {
     VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 #endif
 
-#if defined(RAZIX_PLATFORM_LINUX) || defined(RAZIX_PLATFORM_UNIX)
+#if defined(RAZIX_PLATFORM_LINUX)
     #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
     VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
     #elif defined(VK_USE_PLATFORM_XCB_KHR)
@@ -802,9 +735,6 @@ static void vk_util_create_logical_device(void)
 
     CHECK_VK(vkCreateDevice(VKCONTEXT.gpu, &createInfo, NULL, &VKCONTEXT.device));
 
-    // Load device extension functions after device creation
-    vk_util_load_device_functions(VKCONTEXT.device);
-
     vkGetDeviceQueue(VKCONTEXT.device, indices.graphicsFamily, 0, &VKCONTEXT.graphicsQueue);
     vkGetDeviceQueue(VKCONTEXT.device, indices.presentFamily, 0, &VKCONTEXT.presentQueue);
 }
@@ -1061,6 +991,8 @@ static void vk_GlobalCtxInit(void)
 {
     RAZIX_RHI_LOG_INFO("Initializing Vulkan RHI backend");
 
+    volkInitialize();
+
     // Check validation layer support
     if (!vk_util_check_validation_layer_support()) {
         RAZIX_RHI_LOG_ERROR("Validation layers requested, but not available");
@@ -1121,8 +1053,7 @@ static void vk_GlobalCtxInit(void)
 
     CHECK_VK(vkCreateInstance(&createInfo, NULL, &VKCONTEXT.instance));
 
-    // Load instance extension functions after instance creation
-    vk_util_load_instance_functions(VKCONTEXT.instance);
+    volkLoadInstance(VKCONTEXT.instance);
 
 #ifdef RAZIX_DEBUG
     // Setup debug messenger using dynamically loaded function
@@ -1137,7 +1068,7 @@ static void vk_GlobalCtxInit(void)
     debugInfo.pfnUserCallback = vk_util_debug_callback;
 
     // Create debug messenger using dynamically loaded function
-    VkResult debugResult = VK_CALL_LOADED_FUNCTION(vkCreateDebugUtilsMessengerEXT,
+    VkResult debugResult = vkCreateDebugUtilsMessengerEXT(
         VKCONTEXT.instance,
         &debugInfo,
         NULL,
@@ -1168,6 +1099,8 @@ static void vk_GlobalCtxInit(void)
     // Create logical device
     vk_util_create_logical_device();
 
+    volkLoadDevice(VKCONTEXT.device);
+
     RAZIX_RHI_LOG_INFO("Vulkan RHI backend initialized successfully");
 }
 
@@ -1181,8 +1114,8 @@ static void vk_GlobalCtxDestroy(void)
     }
 
 #ifdef RAZIX_DEBUG
-    if (VKCONTEXT.debugMessenger && pfn_vkDestroyDebugUtilsMessengerEXT) {
-        VK_CALL_LOADED_FUNCTION(vkDestroyDebugUtilsMessengerEXT,
+    if (VKCONTEXT.debugMessenger) {
+        vkDestroyDebugUtilsMessengerEXT(
             VKCONTEXT.instance,
             VKCONTEXT.debugMessenger,
             NULL);
@@ -1195,6 +1128,8 @@ static void vk_GlobalCtxDestroy(void)
         vkDestroyInstance(VKCONTEXT.instance, NULL);
         VKCONTEXT.instance = VK_NULL_HANDLE;
     }
+
+    volkFinalize();
 
     RAZIX_RHI_LOG_INFO("Vulkan RHI backend destroyed");
 }

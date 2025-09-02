@@ -38,6 +38,7 @@ function ApplyGfxTestSettings()
         "%{IncludeDir.json}",
         "%{IncludeDir.D3D12MA}",
         "%{IncludeDir.dxc}",
+        "%{IncludeDir.volk}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
@@ -73,6 +74,7 @@ function ApplyGfxTestSettings()
         "%{IncludeDir.json}",
         "%{IncludeDir.D3D12MA}",
         "%{IncludeDir.dxc}",
+        "%{IncludeDir.volk}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- Experimental Vendor

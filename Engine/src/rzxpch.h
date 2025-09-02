@@ -70,7 +70,7 @@
     #if RAZIX_USE_VMA
         #include <vma/vk_mem_alloc.h>
     #endif
-    #include <vulkan/vulkan.h>
+    #include <volk.h>
 #endif
 
 #ifdef RAZIX_RENDER_API_DIRECTX12

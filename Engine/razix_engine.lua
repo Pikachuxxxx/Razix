@@ -74,7 +74,8 @@ project "Razix"
         -- RHI
         "RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES",
         -- vendor
-        "OPTICK_MSVC"
+        "OPTICK_MSVC",
+        "VK_NO_PROTOTYPES",
     }
 
     -- Razix Engine source files (Global)
@@ -82,9 +83,12 @@ project "Razix"
     {
         "src/**.h",
         "src/**.c",
-        "src/**.cpp"
+        "src/**.cpp",
         -- vendor
         --"vendor/tracy/TracyClient.cpp",
+        -- imgui
+        "vendor/imgui/backends/imgui_impl_glfw.cpp",
+        "vendor/imgui/backends/imgui_impl_vulkan.cpp",
     }
 
     -- Lazily add the platform files based on OS config
@@ -132,6 +136,7 @@ project "Razix"
         "%{IncludeDir.json}",
         "%{IncludeDir.D3D12MA}",
         "%{IncludeDir.dxc}",
+        "%{IncludeDir.volk}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
@@ -231,7 +236,7 @@ project "Razix"
             -- build options
             "_DISABLE_VECTOR_ANNOTATION",
             "_DISABLE_STRING_ANNOTATION",
-            "_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS"
+            "_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS",
         }
 
         -- Windows specific source files for compilation
@@ -276,7 +281,6 @@ project "Razix"
         {
             "Dbghelp",
             -- Render API
-            "vulkan-1",
             "d3d11",
             "d3d12",
             "dxgi",
@@ -382,7 +386,6 @@ project "Razix"
         links
         {
             -- Render API
-            "vulkan",
             "IOKit.framework",
             "CoreFoundation.framework",
             "CoreVideo.framework",

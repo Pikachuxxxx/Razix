@@ -11,7 +11,7 @@
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
-    #include <vulkan/vulkan.h>
+    #include <volk.h>
 #endif
 
 #ifdef RAZIX_RENDER_API_DIRECTX12

@@ -10,7 +10,25 @@
     #ifdef RAZIX_PLATFORM_WINDOWS
         #define VK_USE_PLATFORM_WIN32_KHR
     #endif
-    #include <vulkan/vulkan.h>
+
+    #if defined(RAZIX_PLATFORM_MACOS)
+        #define VK_USE_PLATFORM_MACOS_MVK
+        #define RAZIX_PLATFORM_MOLTENVK
+        // TODO: Add support for KosmicKrisp
+        // https://www.lunarg.com/a-vulkan-on-metal-mesa-3d-graphics-driver/
+        // https://gitlab.freedesktop.org/mesa/mesa/-/issues/11990
+    #endif
+
+    #if defined(RAZIX_PLATFORM_LINUX)
+        #define VK_USE_PLATFORM_WAYLAND_KHR
+        #define VK_USE_PLATFORM_XCB_KHR
+        #define VK_USE_PLATFORM_XLIB_KHR
+        #define RAZIX_PLATFORM_WAYLAND
+        #define RAZIX_PLATFORM_XCB
+        #define RAZIX_PLATFORM_XLIB
+    #endif
+
+    #include <volk.h>
 
 typedef struct VkQueueFamilyIndices
 {
