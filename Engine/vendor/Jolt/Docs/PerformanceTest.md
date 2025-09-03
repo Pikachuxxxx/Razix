@@ -6,17 +6,23 @@ The performance test application contains a couple of simple scenes to test perf
 
 - -s=[scene]: This allows you to select a scene, [scene] can be;
     - Ragdoll: A scene with 16 piles of 10 ragdolls (3680 bodies) with motors active dropping on a level section.
+	- RagdollSinglePile: A single pile of 160 ragdolls (3680 bodies) with motors active dropping on a level section.
     - ConvexVsMesh: A simpler scene of 484 convex shapes (sphere, box, convex hull, capsule) falling on a 2000 triangle mesh.
+	- Pyramid: A pyramid of 1240 boxes stacked on top of each other to profile large island splitting.
+	- LargeMesh: Searches for the biggest MeshShape that can be created and then drops 4410 boxes on that mesh.
+- -i=[iterations]: Number of physics steps before the test finishes.
 - -q=[quality]: This limits the motion quality types that the test will run on. By default it will test both. [quality] can be:
     - Discrete: Discrete collision detection
     - LinearCast: Linear cast continous collision detection
-- -t=[num]: This sets the amount of threads the test will run on. By default it will test 1 .. number of virtual processors.
+- -t=[num]: This sets the amount of threads the test will run on. By default it will test 1 .. number of virtual processors. Can be 'max' to run on as many thread as the CPU has.
+- -no_sleep: Disable sleeping.
 - -p: Outputs a profile snapshot every 100 iterations
 - -r: Outputs a performance_test_[tag].jor file that contains a recording to be played back with JoltViewer
 - -f: Outputs the time taken per frame to per_frame_[tag].csv
 - -h: Displays a help text
 - -rs: Record the simulation state in state_[tag].bin.
 - -vs: Validate the recorded simulation state from state_[tag].bin. This will after every simulation step check that the state is the same as the recorded state and trigger a breakpoint if this is not the case. This is used to validate cross platform determinism.
+- -repeat=[num]: Repeats all tests num times.
 - -validate_hash=[hash]: Will validate that the hash of the simulation matches the supplied hash. Program terminates with return code 1 if it doesn't. Can be used to automatically validate determinism.
 
 ## Output

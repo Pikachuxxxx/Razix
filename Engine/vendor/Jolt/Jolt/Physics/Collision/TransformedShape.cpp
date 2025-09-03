@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -119,11 +120,10 @@ void TransformedShape::CollectTransformedShapes(const AABox &inBox, TransformedS
 		struct MyCollector : public TransformedShapeCollector
 		{
 										MyCollector(TransformedShapeCollector &ioCollector, RVec3 inShapePositionCOM) :
+				TransformedShapeCollector(ioCollector),
 				mCollector(ioCollector),
 				mShapePositionCOM(inShapePositionCOM)
 			{
-				UpdateEarlyOutFraction(ioCollector.GetEarlyOutFraction());
-				SetContext(ioCollector.GetContext());
 			}
 
 			virtual void				AddHit(const TransformedShape &inResult) override
@@ -135,7 +135,8 @@ void TransformedShape::CollectTransformedShapes(const AABox &inBox, TransformedS
 				// Pass hit on to child collector
 				mCollector.AddHit(ts);
 
-				mCollector.UpdateEarlyOutFraction(GetEarlyOutFraction());
+				// Update early out fraction based on child collector
+				UpdateEarlyOutFraction(mCollector.GetEarlyOutFraction());
 			}
 
 			TransformedShapeCollector &	mCollector;

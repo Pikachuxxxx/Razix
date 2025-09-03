@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -8,7 +9,7 @@
 class StaticCompoundShapeTest : public Test
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL(StaticCompoundShapeTest)
+	JPH_DECLARE_RTTI_VIRTUAL(JPH_NO_EXPORT, StaticCompoundShapeTest)
 
 	// See: Test
 	virtual void	Initialize() override;

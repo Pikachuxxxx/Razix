@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2022 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -11,11 +12,16 @@
 #include <Utils/RagdollLoader.h>
 #include <Jolt/Physics/Ragdoll/Ragdoll.h>
 
-// This test takes shows how you can map a high detail animation skeleton on a low detail physics skeleton and back
 class SkeletonMapperTest : public Test
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL(SkeletonMapperTest)
+	JPH_DECLARE_RTTI_VIRTUAL(JPH_NO_EXPORT, SkeletonMapperTest)
+
+	// Description of the test
+	virtual const char *	GetDescription() const override
+	{
+		return "Shows how you can map a high detail animation skeleton on a low detail physics skeleton and back.";
+	}
 
 	// Destructor
 	virtual					~SkeletonMapperTest() override;
@@ -36,7 +42,7 @@ public:
 
 private:
 	inline static bool		sLockTranslations = false;
-	
+
 	void					CalculateRagdollPose();
 
 	float					mTime = 0.0f;

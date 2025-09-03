@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -30,7 +31,7 @@ void StringReplace(String &ioString, const string_view &inSearch, const string_v
 	for (;;)
 	{
 		 index = ioString.find(inSearch, index);
-		 if (index == String::npos) 
+		 if (index == String::npos)
 			 break;
 
 		 ioString.replace(index, inSearch.size(), inReplace);
@@ -45,7 +46,7 @@ void StringToVector(const string_view &inString, Array<String> &outVector, const
 
 	// Ensure vector empty
 	if (inClearVector)
-		outVector.clear(); 
+		outVector.clear();
 
 	// No string? no elements
 	if (inString.empty())

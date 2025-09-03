@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -6,13 +7,18 @@
 #include <Tests/Test.h>
 #include <Jolt/Physics/Ragdoll/Ragdoll.h>
 
-// Test that contains a sensor that will apply forces to bodies inside the sensor
 class SensorTest : public Test, public ContactListener
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL(SensorTest)
+	JPH_DECLARE_RTTI_VIRTUAL(JPH_NO_EXPORT, SensorTest)
 
 	virtual				~SensorTest() override;
+
+	// Description of the test
+	virtual const char *GetDescription() const override
+	{
+		return	"Different types of sensors. See the description of each sensor.";
+	}
 
 	// Number used to scale the terrain and camera movement to the scene
 	virtual float		GetWorldScale() const override		{ return 0.2f; }
@@ -27,7 +33,7 @@ public:
 	// See: ContactListener
 	virtual void		OnContactAdded(const Body &inBody1, const Body &inBody2, const ContactManifold &inManifold, ContactSettings &ioSettings) override;
 	virtual void		OnContactRemoved(const SubShapeIDPair &inSubShapePair) override;
-	
+
 	// Saving / restoring state for replay
 	virtual void		SaveState(StateRecorder &inStream) const override;
 	virtual void		RestoreState(StateRecorder &inStream) override;
@@ -37,9 +43,10 @@ private:
 
 	enum
 	{
-		StaticAttractor,									// A static sensor that attrects dynamic bodies that enter its area
+		StaticAttractor,									// A static sensor that attracts dynamic bodies that enter its area
 		StaticSensor,										// A static sensor that only detects active bodies
 		KinematicSensor,									// A kinematic sensor that also detects sleeping bodies
+		SensorDetectingStatic,								// A kinematic sensor that detects static bodies
 		NumSensors
 	};
 

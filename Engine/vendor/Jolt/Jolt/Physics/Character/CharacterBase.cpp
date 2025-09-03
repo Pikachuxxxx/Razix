@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -16,6 +17,20 @@ CharacterBase::CharacterBase(const CharacterBaseSettings *inSettings, PhysicsSys
 {
 	// Initialize max slope angle
 	SetMaxSlopeAngle(inSettings->mMaxSlopeAngle);
+}
+
+const char *CharacterBase::sToString(EGroundState inState)
+{
+	switch (inState)
+	{
+	case EGroundState::OnGround:		return "OnGround";
+	case EGroundState::OnSteepGround:	return "OnSteepGround";
+	case EGroundState::NotSupported:	return "NotSupported";
+	case EGroundState::InAir:			return "InAir";
+	}
+
+	JPH_ASSERT(false);
+	return "Unknown";
 }
 
 void CharacterBase::SaveState(StateRecorder &inStream) const

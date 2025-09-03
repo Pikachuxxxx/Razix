@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -12,17 +13,17 @@ class StreamOut;
 class StreamIn;
 
 // A set of points (x, y) that form a linear curve
-class LinearCurve
+class JPH_EXPORT LinearCurve
 {
-public:
-	JPH_DECLARE_SERIALIZABLE_NON_VIRTUAL(LinearCurve)
+	JPH_DECLARE_SERIALIZABLE_NON_VIRTUAL(JPH_EXPORT, LinearCurve)
 
+public:
 	/// A point on the curve
 	class Point
 	{
-	public:
-		JPH_DECLARE_SERIALIZABLE_NON_VIRTUAL(Point)
+		JPH_DECLARE_SERIALIZABLE_NON_VIRTUAL(JPH_EXPORT, Point)
 
+	public:
 		float			mX = 0.0f;
 		float			mY = 0.0f;
 	};

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -6,11 +7,16 @@
 #include <Tests/Test.h>
 #include <Jolt/Physics/Ragdoll/Ragdoll.h>
 
-// This test tests the performance of a pile of ragdolls on a terrain.
 class RigPileTest : public Test
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL(RigPileTest)
+	JPH_DECLARE_RTTI_VIRTUAL(JPH_NO_EXPORT, RigPileTest)
+
+	// Description of the test
+	virtual const char *	GetDescription() const override
+	{
+		return "Tests the performance of a pile of ragdolls on a terrain.";
+	}
 
 	// Destructor
 	virtual					~RigPileTest() override;
@@ -30,6 +36,12 @@ private:
 
 	// Filename of animation to load for this test
 	static const char *		sSceneName;
+
+	// Number of ragdolls per pile
+	static int				sPileSize;
+
+	// Number of piles per axis
+	static int				sNumPilesPerAxis;
 
 	// All active ragdolls
 	Array<Ref<Ragdoll>>		mRagdolls;

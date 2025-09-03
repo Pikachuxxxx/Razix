@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2022 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -6,11 +7,16 @@
 #include <Tests/Test.h>
 #include <Jolt/Physics/Ragdoll/Ragdoll.h>
 
-// This test demonstrates how to create a ragdoll from code
 class CreateRigTest : public Test
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL(CreateRigTest)
+	JPH_DECLARE_RTTI_VIRTUAL(JPH_NO_EXPORT, CreateRigTest)
+
+	// Description of the test
+	virtual const char *			GetDescription() const override
+	{
+		return "Demonstrates how to create a ragdoll from code.";
+	}
 
 	// Destructor
 	virtual							~CreateRigTest() override;

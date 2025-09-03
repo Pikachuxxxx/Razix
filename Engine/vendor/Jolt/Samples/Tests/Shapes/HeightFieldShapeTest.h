@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -9,7 +10,7 @@
 class HeightFieldShapeTest : public Test
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL(HeightFieldShapeTest)
+	JPH_DECLARE_RTTI_VIRTUAL(JPH_NO_EXPORT, HeightFieldShapeTest)
 
 	// Initialize the test
 	virtual void		Initialize() override;

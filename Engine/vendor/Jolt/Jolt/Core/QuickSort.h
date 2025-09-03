@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2022 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -12,16 +13,16 @@ template <typename Iterator, typename Compare>
 inline void QuickSortMedianOfThree(Iterator inFirst, Iterator inMiddle, Iterator inLast, Compare inCompare)
 {
 	// This should be guaranteed because we switch over to insertion sort when there's 32 or less elements
-	JPH_ASSERT(inFirst != inMiddle && inMiddle != inLast); 
+	JPH_ASSERT(inFirst != inMiddle && inMiddle != inLast);
 
 	if (inCompare(*inMiddle, *inFirst))
-		swap(*inFirst, *inMiddle);
-	
+		std::swap(*inFirst, *inMiddle);
+
 	if (inCompare(*inLast, *inFirst))
-		swap(*inFirst, *inLast);
+		std::swap(*inFirst, *inLast);
 
 	if (inCompare(*inLast, *inMiddle))
-		swap(*inMiddle, *inLast);
+		std::swap(*inMiddle, *inLast);
 }
 
 /// Helper function for QuickSort using the Ninther method, will move the pivot element to inMiddle.
@@ -93,7 +94,7 @@ inline void QuickSort(Iterator inBegin, Iterator inEnd, Compare inCompare)
 				break;
 
 			// Swap the elements
-			swap(*i, *j);
+			std::swap(*i, *j);
 
 			// Note that the first while loop in this function should
 			// have been do i++ while (...) but since we cannot decrement

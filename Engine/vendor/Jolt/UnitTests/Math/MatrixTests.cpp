@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -6,6 +7,27 @@
 
 TEST_SUITE("MatrixTests")
 {
+	TEST_CASE("TestMatrixEquals")
+	{
+		Matrix<3, 5> m1 = Matrix<3, 5>::sZero();
+		Matrix<3, 5> m2 = Matrix<3, 5>::sZero();
+		Matrix<3, 5> m3 = Matrix<3, 5>::sIdentity();
+
+		CHECK(m1 == m2);
+		CHECK(!(m1 != m2));
+		CHECK(m1 != m3);
+		CHECK(!(m1 == m3));
+	}
+
+	TEST_CASE("TestMatrixStream")
+	{
+		Matrix<3, 5> m1 = Matrix<3, 5>::sIdentity();
+
+		std::stringstream ss;
+		ss << m1;
+		CHECK(ss.str() == "[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, 0], [0, 0, 0]");
+	}
+
 	TEST_CASE("TestMatrixZero")
 	{
 		Matrix<3, 5> m = Matrix<3, 5>::sZero();
@@ -38,7 +60,7 @@ TEST_SUITE("MatrixTests")
 				m2(r, c) = float(r * 4 + c + 1);
 
 		Matrix<3, 4> m3 = m1 * m2;
-			
+
 		CHECK(m3(0, 0) == 175.0f);
 		CHECK(m3(1, 0) == 400.0f);
 		CHECK(m3(2, 0) == 625.0f);
@@ -68,6 +90,11 @@ TEST_SUITE("MatrixTests")
 		CHECK(inverse.SetInversed(mat));
 		Matrix<4, 4> identity = mat * inverse;
 		CHECK(identity == Matrix<4, 4>::sIdentity());
+
+		// Make non-invertible
+		mat(1, 0) = 0;
+		mat(3, 0) = 0;
+		CHECK(!inverse.SetInversed(mat));
 	}
 
 	TEST_CASE("TestMatrix22Inversed")
@@ -82,5 +109,10 @@ TEST_SUITE("MatrixTests")
 		CHECK(inverse.SetInversed(mat));
 		Matrix<2, 2> identity = mat * inverse;
 		CHECK(identity == Matrix<2, 2>::sIdentity());
+
+		// Make non-invertible
+		mat(0, 0) = 0;
+		mat(1, 0) = 0;
+		CHECK(!inverse.SetInversed(mat));
 	}
 }

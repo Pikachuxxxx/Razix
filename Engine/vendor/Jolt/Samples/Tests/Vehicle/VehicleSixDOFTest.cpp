@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -11,9 +12,9 @@
 #include <Application/DebugUI.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(VehicleSixDOFTest) 
-{ 
-	JPH_ADD_BASE_CLASS(VehicleSixDOFTest, VehicleTest) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(VehicleSixDOFTest)
+{
+	JPH_ADD_BASE_CLASS(VehicleSixDOFTest, VehicleTest)
 }
 
 void VehicleSixDOFTest::Initialize()
@@ -93,11 +94,11 @@ void VehicleSixDOFTest::Initialize()
 		settings.mMotorSettings[EAxis::RotationX] = MotorSettings(2.0f, 1.0f, 0.0f, 0.5e4f);
 
 		// The front wheel needs to be able to steer around the Y axis
-		// However the motors work in the constraint space of the wheel, and since this rotates around the 
+		// However the motors work in the constraint space of the wheel, and since this rotates around the
 		// X axis we need to drive both the Y and Z to steer
 		if (is_front)
 			settings.mMotorSettings[EAxis::RotationY] = settings.mMotorSettings[EAxis::RotationZ] = MotorSettings(10.0f, 1.0f, 0.0f, 1.0e6f);
-		
+
 		SixDOFConstraint *wheel_constraint = static_cast<SixDOFConstraint *>(settings.Create(*mCarBody, wheel));
 		mPhysicsSystem->AddConstraint(wheel_constraint);
 		mWheels[i] = wheel_constraint;
@@ -115,37 +116,47 @@ void VehicleSixDOFTest::Initialize()
 			wheel_constraint->SetMotorState(EAxis::RotationZ, EMotorState::Position);
 		}
 	}
+
+	UpdateCameraPivot();
 }
 
-void VehicleSixDOFTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
+void VehicleSixDOFTest::ProcessInput(const ProcessInputParams &inParams)
 {
 	const float max_rotation_speed = 10.0f * JPH_PI;
 
 	// Determine steering and speed
-	float steering_angle = 0.0f, speed = 0.0f;
-	if (inParams.mKeyboard->IsKeyPressed(DIK_LEFT))		steering_angle = cMaxSteeringAngle;
-	if (inParams.mKeyboard->IsKeyPressed(DIK_RIGHT))	steering_angle = -cMaxSteeringAngle;
-	if (inParams.mKeyboard->IsKeyPressed(DIK_UP))		speed = max_rotation_speed;
-	if (inParams.mKeyboard->IsKeyPressed(DIK_DOWN))		speed = -max_rotation_speed;
+	mSteeringAngle = 0.0f;
+	mSpeed = 0.0f;
+	if (inParams.mKeyboard->IsKeyPressed(EKey::Left))	mSteeringAngle = cMaxSteeringAngle;
+	if (inParams.mKeyboard->IsKeyPressed(EKey::Right))	mSteeringAngle = -cMaxSteeringAngle;
+	if (inParams.mKeyboard->IsKeyPressed(EKey::Up))		mSpeed = max_rotation_speed;
+	if (inParams.mKeyboard->IsKeyPressed(EKey::Down))	mSpeed = -max_rotation_speed;
+}
+
+void VehicleSixDOFTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
+{
+	VehicleTest::PrePhysicsUpdate(inParams);
+
+	UpdateCameraPivot();
 
 	// On user input, assure that the car is active
-	if (steering_angle != 0.0f || speed != 0.0f)
+	if (mSteeringAngle != 0.0f || mSpeed != 0.0f)
 		mBodyInterface->ActivateBody(mCarBody->GetID());
 
 	// Brake if current velocity is in the opposite direction of the desired velocity
 	float car_speed = mCarBody->GetLinearVelocity().Dot(mCarBody->GetRotation().RotateAxisZ());
-	bool brake = speed != 0.0f && car_speed != 0.0f && Sign(speed) != Sign(car_speed);
+	bool brake = mSpeed != 0.0f && car_speed != 0.0f && Sign(mSpeed) != Sign(car_speed);
 
 	// Front wheels
 	const EWheel front_wheels[] = { EWheel::LeftFront, EWheel::RightFront };
 	for (EWheel w : front_wheels)
 	{
 		SixDOFConstraint *wheel_constraint = mWheels[(int)w];
-		if (wheel_constraint == nullptr) 
+		if (wheel_constraint == nullptr)
 			continue;
 
 		// Steer front wheels
-		Quat steering_rotation = Quat::sRotation(Vec3::sAxisY(), steering_angle);
+		Quat steering_rotation = Quat::sRotation(Vec3::sAxisY(), mSteeringAngle);
 		wheel_constraint->SetTargetOrientationCS(steering_rotation);
 
 		if (brake)
@@ -154,11 +165,11 @@ void VehicleSixDOFTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
 			wheel_constraint->SetTargetAngularVelocityCS(Vec3::sZero());
 			wheel_constraint->SetMotorState(EAxis::RotationX, EMotorState::Velocity);
 		}
-		else if (speed != 0.0f)
+		else if (mSpeed != 0.0f)
 		{
 			// Front wheel drive, since the motors are applied in the constraint space of the wheel
 			// it is always applied on the X axis
-			wheel_constraint->SetTargetAngularVelocityCS(Vec3(sIsLeftWheel(w)? -speed : speed, 0, 0));
+			wheel_constraint->SetTargetAngularVelocityCS(Vec3(sIsLeftWheel(w)? -mSpeed : mSpeed, 0, 0));
 			wheel_constraint->SetMotorState(EAxis::RotationX, EMotorState::Velocity);
 		}
 		else
@@ -173,7 +184,7 @@ void VehicleSixDOFTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
 	for (EWheel w : rear_wheels)
 	{
 		SixDOFConstraint *wheel_constraint = mWheels[(int)w];
-		if (wheel_constraint == nullptr) 
+		if (wheel_constraint == nullptr)
 			continue;
 
 		if (brake)
@@ -190,7 +201,7 @@ void VehicleSixDOFTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
 	}
 }
 
-void VehicleSixDOFTest::GetInitialCamera(CameraState &ioState) const 
+void VehicleSixDOFTest::GetInitialCamera(CameraState &ioState) const
 {
 	// Position camera behind car
 	RVec3 cam_tgt = RVec3(0, 0, 5);
@@ -198,7 +209,7 @@ void VehicleSixDOFTest::GetInitialCamera(CameraState &ioState) const
 	ioState.mForward = Vec3(cam_tgt - ioState.mPos).Normalized();
 }
 
-RMat44 VehicleSixDOFTest::GetCameraPivot(float inCameraHeading, float inCameraPitch) const 
+void VehicleSixDOFTest::UpdateCameraPivot()
 {
 	// Pivot is center of car and rotates with car around Y axis only
 	Vec3 fwd = mCarBody->GetRotation().RotateAxisZ();
@@ -210,5 +221,17 @@ RMat44 VehicleSixDOFTest::GetCameraPivot(float inCameraHeading, float inCameraPi
 		fwd = Vec3::sAxisZ();
 	Vec3 up = Vec3::sAxisY();
 	Vec3 right = up.Cross(fwd);
-	return RMat44(Vec4(right, 0), Vec4(up, 0), Vec4(fwd, 0), mCarBody->GetPosition());
+	mCameraPivot = RMat44(Vec4(right, 0), Vec4(up, 0), Vec4(fwd, 0), mCarBody->GetPosition());
+}
+
+void VehicleSixDOFTest::SaveInputState(StateRecorder &inStream) const
+{
+	inStream.Write(mSteeringAngle);
+	inStream.Write(mSpeed);
+}
+
+void VehicleSixDOFTest::RestoreInputState(StateRecorder &inStream)
+{
+	inStream.Read(mSteeringAngle);
+	inStream.Read(mSpeed);
 }

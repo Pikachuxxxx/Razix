@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -16,11 +17,12 @@
 #include <Layers.h>
 #include <Utils/RagdollLoader.h>
 #include <Utils/Log.h>
+#include <Utils/AssetStream.h>
 #include <Renderer/DebugRendererImp.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(MultithreadedTest) 
-{ 
-	JPH_ADD_BASE_CLASS(MultithreadedTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(MultithreadedTest)
+{
+	JPH_ADD_BASE_CLASS(MultithreadedTest, Test)
 }
 
 MultithreadedTest::~MultithreadedTest()
@@ -32,11 +34,11 @@ MultithreadedTest::~MultithreadedTest()
 	mCasterThread.join();
 }
 
-void MultithreadedTest::Initialize() 
+void MultithreadedTest::Initialize()
 {
 	// Floor
 	CreateFloor();
-		
+
 	// Start threads
 	mBoxSpawnerThread = thread([this]() { BoxSpawner(); });
 	mRagdollSpawnerThread = thread([this]() { RagdollSpawner(); });
@@ -65,7 +67,7 @@ void MultithreadedTest::BoxSpawner()
 {
 	JPH_PROFILE_THREAD_START("BoxSpawner");
 
-#ifdef _DEBUG
+#ifdef JPH_DEBUG
 	const int cMaxObjects = 100;
 #else
 	const int cMaxObjects = 1000;
@@ -128,26 +130,38 @@ void MultithreadedTest::RagdollSpawner()
 {
 	JPH_PROFILE_THREAD_START("RagdollSpawner");
 
-#ifdef _DEBUG
+#ifdef JPH_DEBUG
 	const int cMaxRagdolls = 10;
 #else
 	const int cMaxRagdolls = 50;
 #endif
 
+#ifdef JPH_OBJECT_STREAM
 	// Load ragdoll
-	Ref<RagdollSettings> ragdoll_settings = RagdollLoader::sLoad("Assets/Human.tof", EMotionType::Dynamic);
+	Ref<RagdollSettings> ragdoll_settings = RagdollLoader::sLoad("Human.tof", EMotionType::Dynamic);
 	if (ragdoll_settings == nullptr)
 		FatalError("Could not load ragdoll");
-
-	// Load animation
-	Ref<SkeletalAnimation> animation;
-	if (!ObjectStreamIn::sReadObject("Assets/Human/Dead_Pose1.tof", animation))
-		FatalError("Could not open animation");
+#else
+	// Create a ragdoll from code
+	Ref<RagdollSettings> ragdoll_settings = RagdollLoader::sCreate();
+#endif // JPH_OBJECT_STREAM
 
 	// Create pose
 	SkeletonPose ragdoll_pose;
 	ragdoll_pose.SetSkeleton(ragdoll_settings->GetSkeleton());
-	animation->Sample(0.0f, ragdoll_pose);
+	{
+#ifdef JPH_OBJECT_STREAM
+		Ref<SkeletalAnimation> animation;
+		AssetStream stream("Human/dead_pose1.tof", std::ios::in);
+		if (!ObjectStreamIn::sReadObject(stream.Get(), animation))
+			FatalError("Could not open animation");
+		animation->Sample(0.0f, ragdoll_pose);
+#else
+		Ref<Ragdoll> temp_ragdoll = ragdoll_settings->CreateRagdoll(0, 0, mPhysicsSystem);
+		temp_ragdoll->GetPose(ragdoll_pose);
+		ragdoll_pose.CalculateJointStates();
+#endif // JPH_OBJECT_STREAM
+	}
 
 	default_random_engine random;
 	uniform_real_distribution<float> from_y(0, 10);
@@ -164,7 +178,7 @@ void MultithreadedTest::RagdollSpawner()
 		{
 			// Create ragdoll
 			Ref<Ragdoll> ragdoll = ragdoll_settings->CreateRagdoll(group_id++, 0, mPhysicsSystem);
-	
+
 			// Override root
 			SkeletonPose::JointState &root = ragdoll_pose.GetJoint(0);
 			root.mRotation = Quat::sRandom(random);

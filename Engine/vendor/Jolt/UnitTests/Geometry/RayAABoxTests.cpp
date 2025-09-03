@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -9,8 +10,8 @@ TEST_SUITE("RayAABoxTests")
 {
 	TEST_CASE("TestRayAABox")
 	{
-		AABox box(Vec3::sReplicate(-1.0f), Vec3::sReplicate(1.0f));
-			
+		AABox box(Vec3::sReplicate(-1.0f), Vec3::sOne());
+
 		for (int axis = 0; axis < 3; ++axis)
 		{
 			{

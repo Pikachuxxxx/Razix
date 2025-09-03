@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -10,22 +11,23 @@
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/TaperedCapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/CylinderShape.h>
+#include <Jolt/Physics/Collision/Shape/TaperedCylinderShape.h>
 #include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
 #include <Jolt/Physics/Collision/Shape/ScaledShape.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <random>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(FunnelTest) 
-{ 
-	JPH_ADD_BASE_CLASS(FunnelTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(FunnelTest)
+{
+	JPH_ADD_BASE_CLASS(FunnelTest, Test)
 }
 
 void FunnelTest::Initialize()
 {
 	RefConst<Shape> box = new BoxShape(Vec3(50, 1, 50), 0.0f);
 
-	// Funnel 
+	// Funnel
 	for (int i = 0; i < 4; ++i)
 	{
 		Quat rotation = Quat::sRotation(Vec3::sAxisY(), 0.5f * JPH_PI * i);
@@ -47,7 +49,7 @@ void FunnelTest::Initialize()
 	RefConst<Shape> shape;
 	for (int i = 0; i < 1000; ++i)
 	{
-		switch (random() % 8)
+		switch (random() % 10)
 		{
 		case 0:
 			{
@@ -74,7 +76,7 @@ void FunnelTest::Initialize()
 
 		case 3:
 			{
-				shape = new CapsuleShape(0.5f * feature_size(random), feature_size(random));				
+				shape = new CapsuleShape(0.5f * feature_size(random), feature_size(random));
 				scale = scale.Swizzle<SWIZZLE_X, SWIZZLE_X, SWIZZLE_X>(); // Only uniform scale supported
 				break;
 			}
@@ -98,6 +100,20 @@ void FunnelTest::Initialize()
 
 		case 6:
 			{
+				shape = TaperedCylinderShapeSettings(0.5f * feature_size(random), feature_size(random), feature_size(random)).Create().Get();
+				scale = scale.Swizzle<SWIZZLE_X, SWIZZLE_Y, SWIZZLE_X>(); // Scale X must be same as Z
+				break;
+			}
+
+		case 7:
+			{
+				shape = TaperedCylinderShapeSettings(0.5f * feature_size(random), 0.0f, feature_size(random), 0.0f).Create().Get();
+				scale = scale.Swizzle<SWIZZLE_X, SWIZZLE_Y, SWIZZLE_X>(); // Scale X must be same as Z
+				break;
+			}
+
+		case 8:
+			{
 				// Simple compound
 				StaticCompoundShapeSettings compound_shape_settings;
 				compound_shape_settings.AddShape(Vec3::sZero(), Quat::sIdentity(), new CapsuleShape(1, 0.1f));
@@ -108,7 +124,7 @@ void FunnelTest::Initialize()
 				break;
 			}
 
-		case 7:
+		case 9:
 			{
 				// Compound with sub compound and rotation
 				Ref<StaticCompoundShapeSettings> sub_compound = new StaticCompoundShapeSettings();

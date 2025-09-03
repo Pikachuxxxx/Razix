@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -23,6 +24,12 @@ public:
 
 	using size_type = size_t;
 	using difference_type = ptrdiff_t;
+
+	/// The allocator is stateless
+	using is_always_equal = std::true_type;
+
+	/// Allocator supports moving
+	using propagate_on_container_move_assignment = std::true_type;
 
 	/// Constructor
 	inline					STLAlignedAllocator() = default;

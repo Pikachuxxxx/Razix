@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -12,9 +13,9 @@
 #include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 #include <Utils/DebugRendererSP.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(CapsuleVsBoxTest) 
-{ 
-	JPH_ADD_BASE_CLASS(CapsuleVsBoxTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(CapsuleVsBoxTest)
+{
+	JPH_ADD_BASE_CLASS(CapsuleVsBoxTest, Test)
 }
 
 void CapsuleVsBoxTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
@@ -42,12 +43,12 @@ void CapsuleVsBoxTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
 
 	// Collide the two shapes
 	AllHitCollisionCollector<CollideShapeCollector> collector;
-	CollisionDispatch::sCollideShapeVsShape(capsule_shape, box_shape, Vec3::sReplicate(1.0f), Vec3::sReplicate(1.0f), capsule_transform, box_transform, SubShapeIDCreator(), SubShapeIDCreator(), settings, collector);
+	CollisionDispatch::sCollideShapeVsShape(capsule_shape, box_shape, Vec3::sOne(), Vec3::sOne(), capsule_transform, box_transform, SubShapeIDCreator(), SubShapeIDCreator(), settings, collector);
 
 #ifdef JPH_DEBUG_RENDERER
 	// Draw the shapes
-	box_shape->Draw(mDebugRenderer, RMat44(box_transform), Vec3::sReplicate(1.0f), Color::sWhite, false, false);
-	capsule_shape->Draw(mDebugRenderer, RMat44(capsule_transform), Vec3::sReplicate(1.0f), Color::sWhite, false, false);
+	box_shape->Draw(mDebugRenderer, RMat44(box_transform), Vec3::sOne(), Color::sWhite, false, false);
+	capsule_shape->Draw(mDebugRenderer, RMat44(capsule_transform), Vec3::sOne(), Color::sWhite, false, false);
 #endif // JPH_DEBUG_RENDERER
 
 	// Draw contact points
@@ -65,7 +66,7 @@ void CapsuleVsBoxTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
 
 #ifdef JPH_DEBUG_RENDERER
 		Mat44 resolved_box = box_transform.PostTranslated(pen_axis);
-		box_shape->Draw(mDebugRenderer, RMat44(resolved_box), Vec3::sReplicate(1.0f), Color::sGreen, false, false);
+		box_shape->Draw(mDebugRenderer, RMat44(resolved_box), Vec3::sOne(), Color::sGreen, false, false);
 #endif // JPH_DEBUG_RENDERER
 	}
 }

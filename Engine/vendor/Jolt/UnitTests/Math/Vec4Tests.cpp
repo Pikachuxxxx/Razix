@@ -1,7 +1,9 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 #include "UnitTestFramework.h"
+#include <Jolt/Core/StringTools.h>
 
 TEST_SUITE("Vec4Tests")
 {
@@ -39,7 +41,7 @@ TEST_SUITE("Vec4Tests")
 		CHECK(f4_out[2] == 3);
 		CHECK(f4_out[3] == 4);
 
-		float sf[] = { 0, 0,  1, 0,  0, 0,  2, 0,  0, 0,  0, 0,  0, 0,  0, 0,  3, 0, 4, 0 };
+		float sf[] = { 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 4, 0 };
 		CHECK(Vec4::sGatherFloat4<2 * sizeof(float)>(sf, UVec4(1, 3, 8, 9)) == Vec4(1, 2, 3, 4));
 	}
 
@@ -88,6 +90,8 @@ TEST_SUITE("Vec4Tests")
 	{
 		Vec4 v1(1, 6, 3, 8);
 		Vec4 v2(5, 2, 7, 4);
+		Vec4 v3(5, 7, 2, 4);
+		Vec4 v4(7, 5, 4, 2);
 
 		CHECK(Vec4::sMin(v1, v2) == Vec4(1, 2, 3, 4));
 		CHECK(Vec4::sMax(v1, v2) == Vec4(5, 6, 7, 8));
@@ -96,6 +100,24 @@ TEST_SUITE("Vec4Tests")
 		CHECK(v1.ReduceMax() == 8);
 		CHECK(v2.ReduceMin() == 2);
 		CHECK(v2.ReduceMax() == 7);
+
+		CHECK(v1.GetLowestComponentIndex() == 0);
+		CHECK(v1.GetHighestComponentIndex() == 3);
+		CHECK(v2.GetLowestComponentIndex() == 1);
+		CHECK(v2.GetHighestComponentIndex() == 2);
+		CHECK(v3.GetLowestComponentIndex() == 2);
+		CHECK(v3.GetHighestComponentIndex() == 1);
+		CHECK(v4.GetLowestComponentIndex() == 3);
+		CHECK(v4.GetHighestComponentIndex() == 0);
+	}
+
+	TEST_CASE("TestVec4Clamp")
+	{
+		Vec4 v1(1, 2, 3, 4);
+		Vec4 v2(5, 6, 7, 8);
+		Vec4 v(-1, 3, 9, -11);
+
+		CHECK(Vec4::sClamp(v, v1, v2) == Vec4(1, 3, 7, 4));
 	}
 
 	TEST_CASE("TestVec4Comparisons")
@@ -116,6 +138,8 @@ TEST_SUITE("Vec4Tests")
 	{
 		CHECK(Vec4::sSelect(Vec4(1, 2, 3, 4), Vec4(5, 6, 7, 8), UVec4(0x80000000U, 0, 0x80000000U, 0)) == Vec4(5, 2, 7, 4));
 		CHECK(Vec4::sSelect(Vec4(1, 2, 3, 4), Vec4(5, 6, 7, 8), UVec4(0, 0x80000000U, 0, 0x80000000U)) == Vec4(1, 6, 3, 8));
+		CHECK(Vec4::sSelect(Vec4(1, 2, 3, 4), Vec4(5, 6, 7, 8), UVec4(0xffffffffU, 0x7fffffffU, 0xffffffffU, 0x7fffffffU)) == Vec4(5, 2, 7, 4));
+		CHECK(Vec4::sSelect(Vec4(1, 2, 3, 4), Vec4(5, 6, 7, 8), UVec4(0x7fffffffU, 0xffffffffU, 0x7fffffffU, 0xffffffffU)) == Vec4(1, 6, 3, 8));
 	}
 
 	TEST_CASE("TestVec4BitOps")
@@ -136,11 +160,26 @@ TEST_SUITE("Vec4Tests")
 
 		CHECK(Vec4(1.001f, 0, 0, 0).IsNormalized(1.0e-2f));
 		CHECK(!Vec4(0, 1.001f, 0, 0).IsNormalized(1.0e-4f));
+
+		CHECK(Vec4(-1.0e-7f, 1.0e-7f, 1.0e-8f, -1.0e-8f).IsNearZero());
+		CHECK(!Vec4(-1.0e-7f, 1.0e-7f, -1.0e-5f, 1.0e-5f).IsNearZero());
 	}
 
 	TEST_CASE("TestVec4Operators")
 	{
 		CHECK(-Vec4(1, 2, 3, 4) == Vec4(-1, -2, -3, -4));
+
+		Vec4 neg_zero = -Vec4::sZero();
+		CHECK(neg_zero == Vec4::sZero());
+
+	#ifdef JPH_CROSS_PLATFORM_DETERMINISTIC
+		// When cross platform deterministic, we want to make sure that -0 is represented as 0
+		UVec4 neg_zero_bin = neg_zero.ReinterpretAsInt();
+		CHECK(neg_zero_bin.GetX() == 0);
+		CHECK(neg_zero_bin.GetY() == 0);
+		CHECK(neg_zero_bin.GetZ() == 0);
+		CHECK(neg_zero_bin.GetW() == 0);
+	#endif // JPH_CROSS_PLATFORM_DETERMINISTIC
 
 		CHECK(Vec4(1, 2, 3, 4) + Vec4(5, 6, 7, 8) == Vec4(6, 8, 10, 12));
 		CHECK(Vec4(1, 2, 3, 4) - Vec4(8, 7, 6, 5) == Vec4(-7, -5, -3, -1));
@@ -165,7 +204,7 @@ TEST_SUITE("Vec4Tests")
 		CHECK(Vec4(2, 4, 8, 16).Reciprocal() == Vec4(0.5f, 0.25f, 0.125f, 0.0625f));
 	}
 
-	TEST_CASE("TestVec4Swizzle")	
+	TEST_CASE("TestVec4Swizzle")
 	{
 		Vec4 v(1, 2, 3, 4);
 
@@ -173,6 +212,11 @@ TEST_SUITE("Vec4Tests")
 		CHECK(v.SplatY() == Vec4::sReplicate(2));
 		CHECK(v.SplatZ() == Vec4::sReplicate(3));
 		CHECK(v.SplatW() == Vec4::sReplicate(4));
+
+		CHECK(v.SplatX3() == Vec3::sReplicate(1));
+		CHECK(v.SplatY3() == Vec3::sReplicate(2));
+		CHECK(v.SplatZ3() == Vec3::sReplicate(3));
+		CHECK(v.SplatW3() == Vec3::sReplicate(4));
 
 		CHECK(v.Swizzle<SWIZZLE_X, SWIZZLE_X, SWIZZLE_X, SWIZZLE_X>() == Vec4(1, 1, 1, 1));
 		CHECK(v.Swizzle<SWIZZLE_X, SWIZZLE_X, SWIZZLE_X, SWIZZLE_Y>() == Vec4(1, 1, 1, 2));
@@ -447,7 +491,7 @@ TEST_SUITE("Vec4Tests")
 		CHECK(Vec4(1, 2, 3, 4).Dot(Vec4(5, 6, 7, 8)) == float(1 * 5 + 2 * 6 + 3 * 7 + 4 * 8));
 		CHECK(Vec4(1, 2, 3, 4).DotV(Vec4(5, 6, 7, 8)) == Vec4::sReplicate(1 * 5 + 2 * 6 + 3 * 7 + 4 * 8));
 	}
-		
+
 	TEST_CASE("TestVec4Length")
 	{
 		CHECK(Vec4(1, 2, 3, 4).LengthSq() == float(1 + 4 + 9 + 16));
@@ -474,6 +518,15 @@ TEST_SUITE("Vec4Tests")
 	{
 		CHECK(Vec4(1.2345f, -6.7891f, 0, 1).GetSign() == Vec4(1, -1, 1, 1));
 		CHECK(Vec4(0, 2.3456f, -7.8912f, -1).GetSign() == Vec4(1, 1, -1, -1));
+	}
+
+	TEST_CASE("TestVec4FlipSign")
+	{
+		Vec4 v(1, 2, 3, 4);
+		CHECK(v.FlipSign<-1, 1, 1, 1>() == Vec4(-1, 2, 3, 4));
+		CHECK(v.FlipSign<1, -1, 1, 1>() == Vec4(1, -2, 3, 4));
+		CHECK(v.FlipSign<1, 1, -1, 1>() == Vec4(1, 2, -3, 4));
+		CHECK(v.FlipSign<1, 1, 1, -1>() == Vec4(1, 2, 3, -4));
 	}
 
 	TEST_CASE("TestVec4SignBit")
@@ -577,7 +630,7 @@ TEST_SUITE("Vec4Tests")
 	{
 		// Check edge cases
 		CHECK(Vec4::sReplicate(0.0f).ASin() == Vec4::sZero());
-		CHECK(Vec4::sReplicate(1.0f).ASin() == Vec4::sReplicate(0.5f * JPH_PI));
+		CHECK(Vec4::sOne().ASin() == Vec4::sReplicate(0.5f * JPH_PI));
 		CHECK(Vec4::sReplicate(-1.0f).ASin() == Vec4::sReplicate(-0.5f * JPH_PI));
 
 		double ma = 0.0;
@@ -585,7 +638,7 @@ TEST_SUITE("Vec4Tests")
 		for (float x = -1.0f; x <= 1.0f; x += 1.0e-3f)
 		{
 			// Create a vector with intermediate values
-			Vec4 xv = Vec4::sMin(Vec4::sReplicate(x) + Vec4(0.0e-4f, 2.5e-4f, 5.0e-4f, 7.5e-4f), Vec4::sReplicate(1.0f));
+			Vec4 xv = Vec4::sMin(Vec4::sReplicate(x) + Vec4(0.0e-4f, 2.5e-4f, 5.0e-4f, 7.5e-4f), Vec4::sOne());
 
 			// Calculate asin
 			Vec4 va = xv.ASin();
@@ -610,7 +663,7 @@ TEST_SUITE("Vec4Tests")
 	{
 		// Check edge cases
 		CHECK(Vec4::sReplicate(0.0f).ACos() == Vec4::sReplicate(0.5f * JPH_PI));
-		CHECK(Vec4::sReplicate(1.0f).ACos() == Vec4::sZero());
+		CHECK(Vec4::sOne().ACos() == Vec4::sZero());
 		CHECK(Vec4::sReplicate(-1.0f).ACos() == Vec4::sReplicate(JPH_PI));
 
 		double ma = 0.0;
@@ -618,7 +671,7 @@ TEST_SUITE("Vec4Tests")
 		for (float x = -1.0f; x <= 1.0f; x += 1.0e-3f)
 		{
 			// Create a vector with intermediate values
-			Vec4 xv = Vec4::sMin(Vec4::sReplicate(x) + Vec4(0.0e-4f, 2.5e-4f, 5.0e-4f, 7.5e-4f), Vec4::sReplicate(1.0f));
+			Vec4 xv = Vec4::sMin(Vec4::sReplicate(x) + Vec4(0.0e-4f, 2.5e-4f, 5.0e-4f, 7.5e-4f), Vec4::sOne());
 
 			// Calculate acos
 			Vec4 va = xv.ACos();
@@ -708,5 +761,25 @@ TEST_SUITE("Vec4Tests")
 		}
 
 		CHECK(ma < 3.0e-7);
+	}
+
+	TEST_CASE("TestVec4ConvertToString")
+	{
+		Vec4 v(1, 2, 3, 4);
+		CHECK(ConvertToString(v) == "1, 2, 3, 4");
+	}
+
+	TEST_CASE("TestVec4CompressUnitVector")
+	{
+		UnitTestRandom random;
+		for (int i = 0; i < 1000; ++i)
+		{
+			std::uniform_real_distribution<float> scale(-1.0f, 1.0f);
+			Vec4 v = Vec4(scale(random), scale(random), scale(random), scale(random)).Normalized();
+			uint32 compressed = v.CompressUnitVector();
+			Vec4 decompressed = Vec4::sDecompressUnitVector(compressed);
+			float diff = (decompressed - v).Length();
+			CHECK(diff < 5.0e-3f);
+		}
 	}
 }

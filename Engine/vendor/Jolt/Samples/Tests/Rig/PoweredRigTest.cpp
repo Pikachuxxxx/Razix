@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -9,24 +10,25 @@
 #include <Application/DebugUI.h>
 #include <Utils/RagdollLoader.h>
 #include <Utils/Log.h>
+#include <Utils/AssetStream.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(PoweredRigTest) 
-{ 
-	JPH_ADD_BASE_CLASS(PoweredRigTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(PoweredRigTest)
+{
+	JPH_ADD_BASE_CLASS(PoweredRigTest, Test)
 }
 
 const char *PoweredRigTest::sAnimations[] =
 {
-	"Neutral",
-	"Walk",
-	"Sprint",
-	"Dead_Pose1",
-	"Dead_Pose2",
-	"Dead_Pose3",
-	"Dead_Pose4"
+	"neutral",
+	"walk",
+	"sprint",
+	"dead_pose1",
+	"dead_pose2",
+	"dead_pose3",
+	"dead_pose4"
 };
 
-const char *PoweredRigTest::sAnimationName = "Sprint";
+const char *PoweredRigTest::sAnimationName = "sprint";
 
 PoweredRigTest::~PoweredRigTest()
 {
@@ -39,15 +41,15 @@ void PoweredRigTest::Initialize()
 	CreateFloor();
 
 	// Load ragdoll
-	mRagdollSettings = RagdollLoader::sLoad("Assets/Human.tof", EMotionType::Dynamic);
+	mRagdollSettings = RagdollLoader::sLoad("Human.tof", EMotionType::Dynamic);
 
 	// Create ragdoll
 	mRagdoll = mRagdollSettings->CreateRagdoll(0, 0, mPhysicsSystem);
 	mRagdoll->AddToPhysicsSystem(EActivation::Activate);
-	
+
 	// Load animation
-	String filename = String("Assets/Human/") + sAnimationName + ".tof";
-	if (!ObjectStreamIn::sReadObject(filename.c_str(), mAnimation))
+	AssetStream stream(String("Human/") + sAnimationName + ".tof", std::ios::in);
+	if (!ObjectStreamIn::sReadObject(stream.Get(), mAnimation))
 		FatalError("Could not open animation");
 
 	// Initialize pose
@@ -60,7 +62,7 @@ void PoweredRigTest::Initialize()
 }
 
 void PoweredRigTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
-{ 
+{
 	// Update time
 	mTime += inParams.mDeltaTime;
 
@@ -83,7 +85,7 @@ void PoweredRigTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
 
 void PoweredRigTest::CreateSettingsMenu(DebugUI *inUI, UIElement *inSubMenu)
 {
-	inUI->CreateTextButton(inSubMenu, "Select Animation", [this, inUI]() { 
+	inUI->CreateTextButton(inSubMenu, "Select Animation", [this, inUI]() {
 		UIElement *animation_name = inUI->CreateMenu();
 		for (uint i = 0; i < size(sAnimations); ++i)
 			inUI->CreateTextButton(animation_name, sAnimations[i], [this, i]() { sAnimationName = sAnimations[i]; RestartTest(); });

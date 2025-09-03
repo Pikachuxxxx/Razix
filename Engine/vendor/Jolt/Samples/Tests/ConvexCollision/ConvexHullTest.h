@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -9,7 +10,7 @@
 class ConvexHullTest : public Test
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL(ConvexHullTest)
+	JPH_DECLARE_RTTI_VIRTUAL(JPH_NO_EXPORT, ConvexHullTest)
 
 	// Initialize the test
 	virtual void			Initialize() override;

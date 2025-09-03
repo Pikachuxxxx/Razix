@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -9,12 +10,12 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(RotatedTranslatedShapeTest) 
-{ 
-	JPH_ADD_BASE_CLASS(RotatedTranslatedShapeTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(RotatedTranslatedShapeTest)
+{
+	JPH_ADD_BASE_CLASS(RotatedTranslatedShapeTest, Test)
 }
 
-void RotatedTranslatedShapeTest::Initialize() 
+void RotatedTranslatedShapeTest::Initialize()
 {
 	// Floor
 	CreateFloor();
@@ -30,6 +31,5 @@ void RotatedTranslatedShapeTest::Initialize()
 	Ref<RotatedTranslatedShapeSettings> rot_trans = new RotatedTranslatedShapeSettings(Vec3(0, 2.5f, 0), Quat::sRotation(Vec3::sAxisX(), JPH_PI), convex_hull);
 
 	// Place at 0 so that the point touches the floor
-	Body &body = *mBodyInterface->CreateBody(BodyCreationSettings(rot_trans, RVec3::sZero(), Quat::sIdentity(), EMotionType::Dynamic, Layers::MOVING));
-	mBodyInterface->AddBody(body.GetID(), EActivation::Activate);
+	mBodyInterface->CreateAndAddBody(BodyCreationSettings(rot_trans, RVec3::sZero(), Quat::sIdentity(), EMotionType::Dynamic, Layers::MOVING), EActivation::Activate);
 }

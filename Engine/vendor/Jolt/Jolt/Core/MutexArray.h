@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -26,13 +27,13 @@ public:
 
 	/// Initialization
 	/// @param inNumMutexes The amount of mutexes to allocate
-	void					Init(uint inNumMutexes) 
-	{ 
-		JPH_ASSERT(mMutexStorage == nullptr); 
+	void					Init(uint inNumMutexes)
+	{
+		JPH_ASSERT(mMutexStorage == nullptr);
 		JPH_ASSERT(inNumMutexes > 0 && IsPowerOf2(inNumMutexes));
 
-		mMutexStorage = new MutexStorage[inNumMutexes]; 
-		mNumMutexes = inNumMutexes; 
+		mMutexStorage = new MutexStorage[inNumMutexes];
+		mNumMutexes = inNumMutexes;
 	}
 
 	/// Get the number of mutexes that were allocated
@@ -44,7 +45,7 @@ public:
 	/// Convert an object index to a mutex index
 	inline uint32			GetMutexIndex(uint32 inObjectIndex) const
 	{
-		std::hash<uint32> hasher;
+		Hash<uint32> hasher;
 		return hasher(inObjectIndex) & (mNumMutexes - 1);
 	}
 

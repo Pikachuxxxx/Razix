@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -10,16 +11,16 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(SwingTwistConstraintFrictionTest) 
-{ 
-	JPH_ADD_BASE_CLASS(SwingTwistConstraintFrictionTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(SwingTwistConstraintFrictionTest)
+{
+	JPH_ADD_BASE_CLASS(SwingTwistConstraintFrictionTest, Test)
 }
 
 void SwingTwistConstraintFrictionTest::Initialize()
 {
 	// Floor
 	CreateFloor();
-		
+
 	// Create group filter
 	Ref<GroupFilterTable> group_filter = new GroupFilterTable;
 
@@ -59,7 +60,7 @@ void SwingTwistConstraintFrictionTest::Initialize()
 }
 
 void SwingTwistConstraintFrictionTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
-{ 
+{
 	mTime += inParams.mDeltaTime;
 
 	bool pause = fmod(mTime, 5.0f) > 2.5f;

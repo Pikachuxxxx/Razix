@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -6,7 +7,7 @@
 JPH_NAMESPACE_BEGIN
 
 /// Class that makes another class non-copyable. Usage: Inherit from NonCopyable.
-class NonCopyable
+class JPH_EXPORT NonCopyable
 {
 public:
 			NonCopyable() = default;

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -49,7 +50,7 @@ struct AddConvexRadius
 	{
 	}
 
-	/// Calculate the support vector for this convex shape. 
+	/// Calculate the support vector for this convex shape.
 	Vec3					GetSupport(Vec3Arg inDirection) const
 	{
 		float length = inDirection.Length();
@@ -70,7 +71,7 @@ struct MinkowskiDifference
 	{
 	}
 
-	/// Calculate the support vector for this convex shape. 
+	/// Calculate the support vector for this convex shape.
 	Vec3					GetSupport(Vec3Arg inDirection) const
 	{
 		return mObjectA.GetSupport(inDirection) - mObjectB.GetSupport(-inDirection);
@@ -158,7 +159,7 @@ struct PolygonConvexSupport
 	{
 		Vec3 support_point = mVertices[0];
 		float best_dot = mVertices[0].Dot(inDirection);
-		
+
 		for (typename VERTEX_ARRAY::const_iterator v = mVertices.begin() + 1; v < mVertices.end(); ++v)
 		{
 			float dot = v->Dot(inDirection);

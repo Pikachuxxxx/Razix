@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -14,31 +15,58 @@ JPH_NAMESPACE_BEGIN
 
 /// A class that allows units of work (Jobs) to be scheduled across multiple threads.
 /// It allows dependencies between the jobs so that the jobs form a graph.
-/// 
+///
 /// The pattern for using this class is:
-/// 
+///
 ///		// Create job system
 ///		JobSystem *job_system = new JobSystemThreadPool(...);
-///		
+///
 ///		// Create some jobs
 ///		JobHandle second_job = job_system->CreateJob("SecondJob", Color::sRed, []() { ... }, 1); // Create a job with 1 dependency
 ///		JobHandle first_job = job_system->CreateJob("FirstJob", Color::sGreen, [second_job]() { ....; second_job.RemoveDependency(); }, 0); // Job can start immediately, will start second job when it's done
 ///		JobHandle third_job = job_system->CreateJob("ThirdJob", Color::sBlue, []() { ... }, 0); // This job can run immediately as well and can run in parallel to job 1 and 2
-///		
+///
 ///		// Add the jobs to the barrier so that we can execute them while we're waiting
 ///		Barrier *barrier = job_system->CreateBarrier();
 ///		barrier->AddJob(first_job);
 ///		barrier->AddJob(second_job);
 ///		barrier->AddJob(third_job);
 ///		job_system->WaitForJobs(barrier);
-///		
-/// 	// Clean up
-/// 	job_system->DestroyBarrier(barrier);
-/// 	delete job_system;
-///	
-///	Jobs are guaranteed to be started in the order that their dependency counter becomes zero (in case they're scheduled on a background thread) 
+///
+///		// Clean up
+///		job_system->DestroyBarrier(barrier);
+///		delete job_system;
+///
+///	Jobs are guaranteed to be started in the order that their dependency counter becomes zero (in case they're scheduled on a background thread)
 ///	or in the order they're added to the barrier (when dependency count is zero and when executing on the thread that calls WaitForJobs).
-class JobSystem : public NonCopyable
+///
+/// If you want to implement your own job system, inherit from JobSystem and implement:
+///
+/// * JobSystem::GetMaxConcurrency - This should return the maximum number of jobs that can run in parallel.
+/// * JobSystem::CreateJob - This should create a Job object and return it to the caller.
+/// * JobSystem::FreeJob - This should free the memory associated with the job object. It is called by the Job destructor when it is Release()-ed for the last time.
+/// * JobSystem::QueueJob/QueueJobs - These should store the job pointer in an internal queue to run immediately (dependencies are tracked internally, this function is called when the job can run).
+/// The Job objects are reference counted and are guaranteed to stay alive during the QueueJob(s) call. If you store the job in your own data structure you need to call AddRef() to take a reference.
+/// After the job has been executed you need to call Release() to release the reference. Make sure you no longer dereference the job pointer after calling Release().
+///
+/// JobSystem::Barrier is used to track the completion of a set of jobs. Jobs will be created by other jobs and added to the barrier while it is being waited on. This means that you cannot
+/// create a dependency graph beforehand as the graph changes while jobs are running. Implement the following functions:
+///
+/// * Barrier::AddJob/AddJobs - Add a job to the barrier, any call to WaitForJobs will now also wait for this job to complete.
+/// If you store the job in a data structure in the Barrier you need to call AddRef() on the job to keep it alive and Release() after you're done with it.
+/// * Barrier::OnJobFinished - This function is called when a job has finished executing, you can use this to track completion and remove the job from the list of jobs to wait on.
+///
+/// The functions on JobSystem that need to be implemented to support barriers are:
+///
+/// * JobSystem::CreateBarrier - Create a new barrier.
+/// * JobSystem::DestroyBarrier - Destroy a barrier.
+/// * JobSystem::WaitForJobs - This is the main function that is used to wait for all jobs that have been added to a Barrier. WaitForJobs can execute jobs that have
+/// been added to the barrier while waiting. It is not wise to execute other jobs that touch physics structures as this can cause race conditions and deadlocks. Please keep in mind that the barrier is
+/// only intended to wait on the completion of the Jolt jobs added to it, if you scheduled any jobs in your engine's job system to execute the Jolt jobs as part of QueueJob/QueueJobs, you might still need
+/// to wait for these in this function after the barrier is finished waiting.
+///
+/// An example implementation is JobSystemThreadPool. If you don't want to write the Barrier class you can also inherit from JobSystemWithBarrier.
+class JPH_EXPORT JobSystem : public NonCopyable
 {
 protected:
 	class Job;
@@ -51,17 +79,17 @@ public:
 	class JobHandle : private Ref<Job>
 	{
 	public:
-		/// Constructor 
-		inline				JobHandle() = default;
-		inline				JobHandle(const JobHandle &inHandle) = default;
+		/// Constructor
+		inline				JobHandle()									= default;
+		inline				JobHandle(const JobHandle &inHandle)		= default;
 		inline				JobHandle(JobHandle &&inHandle) noexcept	: Ref<Job>(std::move(inHandle)) { }
 
 		/// Constructor, only to be used by JobSystem
 		inline explicit		JobHandle(Job *inJob)						: Ref<Job>(inJob) { }
 
 		/// Assignment
-		inline JobHandle &	operator = (const JobHandle &inHandle)		{ Ref<Job>::operator = (inHandle); return *this; }
-		inline JobHandle &	operator = (JobHandle &&inHandle) noexcept	{ Ref<Job>::operator = (std::move(inHandle)); return *this; }
+		inline JobHandle &	operator = (const JobHandle &inHandle)		= default;
+		inline JobHandle &	operator = (JobHandle &&inHandle) noexcept	= default;
 
 		/// Check if this handle contains a job
 		inline bool			IsValid() const								{ return GetPtr() != nullptr; }
@@ -69,7 +97,7 @@ public:
 		/// Check if this job has finished executing
 		inline bool			IsDone() const								{ return GetPtr() != nullptr && GetPtr()->IsDone(); }
 
-		/// Add to the dependency counter. 
+		/// Add to the dependency counter.
 		inline void			AddDependency(int inCount = 1) const		{ GetPtr()->AddDependency(inCount); }
 
 		/// Remove from the dependency counter. Job will start whenever the dependency counter reaches zero
@@ -77,7 +105,7 @@ public:
 		inline void			RemoveDependency(int inCount = 1) const		{ GetPtr()->RemoveDependencyAndQueue(inCount); }
 
 		/// Remove a dependency from a batch of jobs at once, this can be more efficient than removing them one by one as it requires less locking
-		static inline void	sRemoveDependencies(JobHandle *inHandles, uint inNumHandles, int inCount = 1);
+		static inline void	sRemoveDependencies(const JobHandle *inHandles, uint inNumHandles, int inCount = 1);
 
 		/// Helper function to remove dependencies on a static array of job handles
 		template <uint N>
@@ -145,15 +173,15 @@ protected:
 		JPH_OVERRIDE_NEW_DELETE
 
 		/// Constructor
-							Job([[maybe_unused]] const char *inJobName, [[maybe_unused]] ColorArg inColor, JobSystem *inJobSystem, const JobFunction &inJobFunction, uint32 inNumDependencies) : 
+							Job([[maybe_unused]] const char *inJobName, [[maybe_unused]] ColorArg inColor, JobSystem *inJobSystem, const JobFunction &inJobFunction, uint32 inNumDependencies) :
 		#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
-			mJobName(inJobName), 
-			mColor(inColor), 
+			mJobName(inJobName),
+			mColor(inColor),
 		#endif // defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
-			mJobSystem(inJobSystem), 
-			mJobFunction(inJobFunction), 
-			mNumDependencies(inNumDependencies) 
-		{ 
+			mJobSystem(inJobSystem),
+			mJobFunction(inJobFunction),
+			mNumDependencies(inNumDependencies)
+		{
 		}
 
 		/// Get the jobs system to which this job belongs
@@ -164,19 +192,25 @@ protected:
 		{
 			// Adding a reference can use relaxed memory ordering
 			mReferenceCount.fetch_add(1, memory_order_relaxed);
-		} 
+		}
 		inline void			Release()
 		{
+		#ifndef JPH_TSAN_ENABLED
 			// Releasing a reference must use release semantics...
 			if (mReferenceCount.fetch_sub(1, memory_order_release) == 1)
 			{
-				// ... so that we can use aquire to ensure that we see any updates from other threads that released a ref before freeing the job
+				// ... so that we can use acquire to ensure that we see any updates from other threads that released a ref before freeing the job
 				atomic_thread_fence(memory_order_acquire);
 				mJobSystem->FreeJob(this);
 			}
+		#else
+			// But under TSAN, we cannot use atomic_thread_fence, so we use an acq_rel operation unconditionally instead
+			if (mReferenceCount.fetch_sub(1, memory_order_acq_rel) == 1)
+				mJobSystem->FreeJob(this);
+		#endif
 		}
 
-		/// Add to the dependency counter. 
+		/// Add to the dependency counter.
 		inline void			AddDependency(int inCount);
 
 		/// Remove from the dependency counter. Returns true whenever the dependency counter reaches zero
@@ -189,10 +223,10 @@ protected:
 
 		/// Set the job barrier that this job belongs to and returns false if this was not possible because the job already finished
 		inline bool			SetBarrier(Barrier *inBarrier)
-		{ 
-			intptr_t barrier = 0; 
+		{
+			intptr_t barrier = 0;
 			if (mBarrier.compare_exchange_strong(barrier, reinterpret_cast<intptr_t>(inBarrier), memory_order_relaxed))
-				return true; 
+				return true;
 			JPH_ASSERT(barrier == cBarrierDoneState, "A job can only belong to 1 barrier");
 			return false;
 		}
@@ -237,6 +271,11 @@ protected:
 
 		/// Test if the job finished executing
 		inline bool			IsDone() const								{ return mNumDependencies.load(memory_order_relaxed) == cDoneState; }
+
+	#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
+		/// Get the name of the job
+		const char *		GetName() const								{ return mJobName; }
+	#endif // defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
 
 		static constexpr uint32 cExecutingState = 0xe0e0e0e0;			///< Value of mNumDependencies when job is executing
 		static constexpr uint32 cDoneState		= 0xd0d0d0d0;			///< Value of mNumDependencies when job is done executing

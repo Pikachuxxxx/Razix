@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -5,11 +6,16 @@
 
 #include <Tests/Test.h>
 
-// This test spawns a number of high speed objects to check that they don't tunnel through geometry
 class HighSpeedTest : public Test
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL(HighSpeedTest)
+	JPH_DECLARE_RTTI_VIRTUAL(JPH_NO_EXPORT, HighSpeedTest)
+
+	// Description of the test
+	virtual const char *GetDescription() const override
+	{
+		return "Spawns a number of high speed objects to check that they don't tunnel through geometry.";
+	}
 
 	// See: Test
 	virtual void		Initialize() override;

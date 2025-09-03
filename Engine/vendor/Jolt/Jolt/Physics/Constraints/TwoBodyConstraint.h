@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -11,18 +12,18 @@ JPH_NAMESPACE_BEGIN
 class TwoBodyConstraint;
 
 /// Base class for settings for all constraints that involve 2 bodies
-class TwoBodyConstraintSettings : public ConstraintSettings
+class JPH_EXPORT TwoBodyConstraintSettings : public ConstraintSettings
 {
-public:
-	JPH_DECLARE_SERIALIZABLE_ABSTRACT(TwoBodyConstraintSettings)
+	JPH_DECLARE_SERIALIZABLE_ABSTRACT(JPH_EXPORT, TwoBodyConstraintSettings)
 
-	/// Create an an instance of this constraint
+public:
+	/// Create an instance of this constraint
 	/// You can use Body::sFixedToWorld for inBody1 if you want to attach inBody2 to the world
 	virtual TwoBodyConstraint *	Create(Body &inBody1, Body &inBody2) const = 0;
 };
 
 /// Base class for all constraints that involve 2 bodies. Body1 is usually considered the parent, Body2 the child.
-class TwoBodyConstraint : public Constraint
+class JPH_EXPORT TwoBodyConstraint : public Constraint
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE
@@ -51,6 +52,9 @@ public:
 
 	/// Link bodies that are connected by this constraint in the island builder
 	virtual void				BuildIslands(uint32 inConstraintIndex, IslandBuilder &ioBuilder, BodyManager &inBodyManager) override;
+
+	/// Link bodies that are connected by this constraint in the same split. Returns the split index.
+	virtual uint				BuildIslandSplits(LargeIslandSplitter &ioSplitter) const override;
 
 protected:
 	/// The two bodies involved

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -34,7 +35,7 @@ private:
 		float delta = inD1 - inD2;
 		if (abs(delta) < 1.0e-6f)
 			return inV1; // Parallel to plane, just pick a point
-		else	
+		else
 			return inV1 + inD1 * (inV2 - inV1) / delta;
 	}
 

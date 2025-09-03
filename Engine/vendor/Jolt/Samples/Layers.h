@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -9,15 +10,15 @@
 /// Layer that objects can be in, determines which other objects it can collide with
 namespace Layers
 {
-	static constexpr uint8 UNUSED1 = 0; // 4 unused values so that broadphase layers values don't match with object layer values (for testing purposes)
-	static constexpr uint8 UNUSED2 = 1;
-	static constexpr uint8 UNUSED3 = 2;
-	static constexpr uint8 UNUSED4 = 3;
-	static constexpr uint8 NON_MOVING = 4;
-	static constexpr uint8 MOVING = 5;
-	static constexpr uint8 DEBRIS = 6; // Example: Debris collides only with NON_MOVING
-	static constexpr uint8 SENSOR = 7; // Sensors only collide with MOVING objects
-	static constexpr uint8 NUM_LAYERS = 8;
+	static constexpr ObjectLayer UNUSED1 = 0; // 4 unused values so that broadphase layers values don't match with object layer values (for testing purposes)
+	static constexpr ObjectLayer UNUSED2 = 1;
+	static constexpr ObjectLayer UNUSED3 = 2;
+	static constexpr ObjectLayer UNUSED4 = 3;
+	static constexpr ObjectLayer NON_MOVING = 4;
+	static constexpr ObjectLayer MOVING = 5;
+	static constexpr ObjectLayer DEBRIS = 6; // Example: Debris collides only with NON_MOVING
+	static constexpr ObjectLayer SENSOR = 7; // Sensors only collide with MOVING objects
+	static constexpr ObjectLayer NUM_LAYERS = 8;
 };
 
 /// Class that determines if two object layers can collide
@@ -115,7 +116,7 @@ public:
 		switch (inLayer1)
 		{
 		case Layers::NON_MOVING:
-			return inLayer2 == BroadPhaseLayers::MOVING;
+			return inLayer2 == BroadPhaseLayers::MOVING || inLayer2 == BroadPhaseLayers::DEBRIS;
 		case Layers::MOVING:
 			return inLayer2 == BroadPhaseLayers::NON_MOVING || inLayer2 == BroadPhaseLayers::MOVING || inLayer2 == BroadPhaseLayers::SENSOR;
 		case Layers::DEBRIS:
@@ -125,7 +126,7 @@ public:
 		case Layers::UNUSED1:
 		case Layers::UNUSED2:
 		case Layers::UNUSED3:
-			return false;			
+			return false;
 		default:
 			JPH_ASSERT(false);
 			return false;

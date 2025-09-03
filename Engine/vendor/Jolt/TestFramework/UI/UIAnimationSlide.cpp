@@ -1,9 +1,11 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 #include <TestFramework.h>
 
 #include <Renderer/Renderer.h>
+#include <Window/ApplicationWindow.h>
 #include <UI/UIAnimationSlide.h>
 #include <UI/UIElement.h>
 #include <UI/UIManager.h>
@@ -27,13 +29,13 @@ void UIAnimationSlide::Init(UIElement *inElement)
 	mTargetRelativeX = inElement->GetRelativeX();
 	mTargetRelativeY = inElement->GetRelativeY();
 
-	Renderer *renderer = inElement->GetManager()->GetRenderer();
+	ApplicationWindow *window = inElement->GetManager()->GetRenderer()->GetWindow();
 	int dl = inElement->GetX();
-	int dr = renderer->GetWindowWidth() - (inElement->GetX() + inElement->GetWidth());
+	int dr = window->GetWindowWidth() - (inElement->GetX() + inElement->GetWidth());
 	int dt = inElement->GetY();
-	int db = renderer->GetWindowHeight() - (inElement->GetY() + inElement->GetHeight());
+	int db = window->GetWindowHeight() - (inElement->GetY() + inElement->GetHeight());
 
-	if (min(dl, dr) < min(dt, db)) 
+	if (min(dl, dr) < min(dt, db))
 	{
 		mInitialRelativeX = mTargetRelativeX + (dl < dr? -mSlideDistanceH : mSlideDistanceH);
 		mInitialRelativeY = mTargetRelativeY;
@@ -53,14 +55,14 @@ void UIAnimationSlide::Init(UIElement *inElement)
 bool UIAnimationSlide::Update(UIElement *inElement, float inDeltaTime)
 {
 	mTime += inDeltaTime;
-	
+
 	float factor = (mTime - mTimeBeforeSlide) / mSlideTime;
 	if (factor >= 1.0f)
 		return false;
-	if (factor < 0.0f) 
+	if (factor < 0.0f)
 		factor = 0.0f;
 
-	if (mSlideMode == SLIDE_OFF_SCREEN) 
+	if (mSlideMode == SLIDE_OFF_SCREEN)
 		factor = 1.0f - factor;
 
 	float x = mInitialRelativeX * (1.0f - factor) + mTargetRelativeX * factor;

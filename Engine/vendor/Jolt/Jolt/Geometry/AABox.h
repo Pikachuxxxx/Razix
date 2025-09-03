@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -25,10 +26,19 @@ public:
 	/// Create box from 2 points
 	static AABox	sFromTwoPoints(Vec3Arg inP1, Vec3Arg inP2)			{ return AABox(Vec3::sMin(inP1, inP2), Vec3::sMax(inP1, inP2)); }
 
-	/// Get bounding box of size 2 * FLT_MAX
+	/// Create box from indexed triangle
+	static AABox	sFromTriangle(const VertexList &inVertices, const IndexedTriangle &inTriangle)
+	{
+		AABox box = sFromTwoPoints(Vec3(inVertices[inTriangle.mIdx[0]]), Vec3(inVertices[inTriangle.mIdx[1]]));
+		box.Encapsulate(Vec3(inVertices[inTriangle.mIdx[2]]));
+		return box;
+	}
+
+	/// Get bounding box of size FLT_MAX
 	static AABox	sBiggest()
 	{
-		return AABox(Vec3::sReplicate(-FLT_MAX), Vec3::sReplicate(FLT_MAX));
+		/// Max half extent of AABox is 0.5 * FLT_MAX so that GetSize() remains finite
+		return AABox(Vec3::sReplicate(-0.5f * FLT_MAX), Vec3::sReplicate(0.5f * FLT_MAX));
 	}
 
 	/// Comparison operators
@@ -49,15 +59,15 @@ public:
 	}
 
 	/// Encapsulate point in bounding box
-	void			Encapsulate(Vec3Arg inPos)						
-	{ 
-		mMin = Vec3::sMin(mMin, inPos); 
-		mMax = Vec3::sMax(mMax, inPos); 
+	void			Encapsulate(Vec3Arg inPos)
+	{
+		mMin = Vec3::sMin(mMin, inPos);
+		mMax = Vec3::sMax(mMax, inPos);
 	}
 
 	/// Encapsulate bounding box in bounding box
-	void			Encapsulate(const AABox &inRHS)			
-	{ 
+	void			Encapsulate(const AABox &inRHS)
+	{
 		mMin = Vec3::sMin(mMin, inRHS.mMin);
 		mMax = Vec3::sMax(mMax, inRHS.mMax);
 	}
@@ -92,7 +102,7 @@ public:
 		Vec3 min_length = Vec3::sReplicate(inMinEdgeLength);
 		mMax = Vec3::sSelect(mMax, mMin + min_length, Vec3::sLess(mMax - mMin, min_length));
 	}
-	
+
 	/// Widen the box on both sides by inVector
 	void			ExpandBy(Vec3Arg inVector)
 	{
@@ -119,8 +129,8 @@ public:
 	}
 
 	/// Get surface area of bounding box
-	float			GetSurfaceArea() const							
-	{ 
+	float			GetSurfaceArea() const
+	{
 		Vec3 extent = mMax - mMin;
 		return 2.0f * (extent.GetX() * extent.GetY() + extent.GetX() * extent.GetZ() + extent.GetY() * extent.GetZ());
 	}
@@ -185,7 +195,7 @@ public:
 		// Start with the translation of the matrix
 		Vec3 new_min, new_max;
 		new_min = new_max = inMatrix.GetTranslation();
-		
+
 		// Now find the extreme points by considering the product of the min and max with each column of inMatrix
 		for (int c = 0; c < 3; ++c)
 		{

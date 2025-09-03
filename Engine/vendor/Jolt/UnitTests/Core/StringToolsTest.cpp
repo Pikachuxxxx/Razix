@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -16,11 +17,6 @@ TEST_SUITE("StringToolsTest")
 		CHECK(ConvertToString(1234) == "1234");
 		CHECK(ConvertToString(-1) == "-1");
 		CHECK(ConvertToString(0x7fffffffffffffffUL) == "9223372036854775807");
-	}
-
-	TEST_CASE("TestStringHash")
-	{
-		CHECK(HashString("This is a test") == 2733878766136413408UL);
 	}
 
 	TEST_CASE("StringReplace")

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -6,6 +7,8 @@
 #include <Jolt/Skeleton/SkeletalAnimation.h>
 #include <Jolt/Skeleton/SkeletonPose.h>
 #include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
 
 JPH_NAMESPACE_BEGIN
 
@@ -77,7 +80,7 @@ void SkeletalAnimation::Sample(float inTime, SkeletonPose &ioPose) const
 		}
 
 		JointState &state = ioPose.GetJoint(ioPose.GetSkeleton()->GetJointIndex(aj.mJointName));
-		
+
 		if (low == -1)
 		{
 			// Before first key, return first key
@@ -96,7 +99,7 @@ void SkeletalAnimation::Sample(float inTime, SkeletonPose &ioPose) const
 
 			float fraction = (time - s1.mTime) / (s2.mTime - s1.mTime);
 			JPH_ASSERT(fraction >= 0.0f && fraction <= 1.0f);
-			
+
 			state.mTranslation = (1.0f - fraction) * s1.mTranslation + fraction * s2.mTranslation;
 			JPH_ASSERT(s1.mRotation.IsNormalized());
 			JPH_ASSERT(s2.mRotation.IsNormalized());
@@ -104,6 +107,59 @@ void SkeletalAnimation::Sample(float inTime, SkeletonPose &ioPose) const
 			JPH_ASSERT(state.mRotation.IsNormalized());
 		}
 	}
+}
+
+void SkeletalAnimation::SaveBinaryState(StreamOut &inStream) const
+{
+	inStream.Write((uint32)mAnimatedJoints.size());
+	for (const AnimatedJoint &j : mAnimatedJoints)
+	{
+		// Write Joint name and number of keyframes
+		inStream.Write(j.mJointName);
+		inStream.Write((uint32)j.mKeyframes.size());
+		for (const Keyframe &k : j.mKeyframes)
+		{
+			inStream.Write(k.mTime);
+			inStream.Write(k.mRotation);
+			inStream.Write(k.mTranslation);
+		}
+	}
+
+	// Save additional parameters
+	inStream.Write(mIsLooping);
+}
+
+SkeletalAnimation::AnimationResult SkeletalAnimation::sRestoreFromBinaryState(StreamIn &inStream)
+{
+	AnimationResult result;
+
+	Ref<SkeletalAnimation> animation = new SkeletalAnimation;
+
+	// Restore animated joints
+	uint32 len = 0;
+	inStream.Read(len);
+	animation->mAnimatedJoints.resize(len);
+	for (AnimatedJoint &j : animation->mAnimatedJoints)
+	{
+		// Read joint name
+		inStream.Read(j.mJointName);
+
+		// Read keyframes
+		len = 0;
+		inStream.Read(len);
+		j.mKeyframes.resize(len);
+		for (Keyframe &k : j.mKeyframes)
+		{
+			inStream.Read(k.mTime);
+			inStream.Read(k.mRotation);
+			inStream.Read(k.mTranslation);
+		}
+	}
+
+	// Read additional parameters
+	inStream.Read(animation->mIsLooping);
+	result.Set(animation);
+	return result;
 }
 
 JPH_NAMESPACE_END

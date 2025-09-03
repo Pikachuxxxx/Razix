@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -25,8 +26,8 @@ JPH_IMPLEMENT_RTTI_OUTSIDE_CLASS(Quat)			{ }
 JPH_IMPLEMENT_RTTI_OUTSIDE_CLASS(Mat44)			{ }
 JPH_IMPLEMENT_RTTI_OUTSIDE_CLASS(DMat44)		{ }
 
-JPH_IMPLEMENT_SERIALIZABLE_OUTSIDE_CLASS(Color)			
-{ 
+JPH_IMPLEMENT_SERIALIZABLE_OUTSIDE_CLASS(Color)
+{
 	JPH_ADD_ATTRIBUTE(Color, r)
 	JPH_ADD_ATTRIBUTE(Color, g)
 	JPH_ADD_ATTRIBUTE(Color, b)
@@ -43,12 +44,19 @@ JPH_IMPLEMENT_SERIALIZABLE_OUTSIDE_CLASS(Triangle)
 {
 	JPH_ADD_ATTRIBUTE(Triangle, mV)
 	JPH_ADD_ATTRIBUTE(Triangle, mMaterialIndex)
+	JPH_ADD_ATTRIBUTE(Triangle, mUserData)
 }
 
 JPH_IMPLEMENT_SERIALIZABLE_OUTSIDE_CLASS(IndexedTriangle)
 {
 	JPH_ADD_ATTRIBUTE(IndexedTriangle, mIdx)
 	JPH_ADD_ATTRIBUTE(IndexedTriangle, mMaterialIndex)
+	JPH_ADD_ATTRIBUTE(IndexedTriangle, mUserData)
+}
+
+JPH_IMPLEMENT_SERIALIZABLE_OUTSIDE_CLASS(Plane)
+{
+	JPH_ADD_ATTRIBUTE(Plane, mNormalAndConstant)
 }
 
 JPH_NAMESPACE_END

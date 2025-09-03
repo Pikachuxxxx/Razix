@@ -1,11 +1,63 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 #include "UnitTestFramework.h"
 #include <Jolt/Math/Mat44.h>
+#include <Jolt/Core/StringTools.h>
 
 TEST_SUITE("Mat44Tests")
 {
+	TEST_CASE("TestMat44Zero")
+	{
+		Mat44 zero = Mat44::sZero();
+
+		for (int row = 0; row < 4; ++row)
+			for (int col = 0; col < 4; ++col)
+				CHECK(zero(row, col) == 0.0f);
+	}
+
+	TEST_CASE("TestMat44Column")
+	{
+		Mat44 mat = Mat44::sZero();
+		mat.SetColumn4(0, Vec4(1, 2, 3, 4));
+		CHECK(mat.GetColumn4(0) == Vec4(1, 2, 3, 4));
+		mat.SetColumn3(0, Vec3(5, 6, 7));
+		CHECK(mat.GetColumn3(0) == Vec3(5, 6, 7));
+		CHECK(mat.GetColumn4(0) == Vec4(5, 6, 7, 0));
+
+		mat.SetAxisX(Vec3(8, 9, 10));
+		mat.SetAxisY(Vec3(11, 12, 13));
+		mat.SetAxisZ(Vec3(14, 15, 16));
+		mat.SetTranslation(Vec3(17, 18, 19));
+		CHECK(mat.GetAxisX() == Vec3(8, 9, 10));
+		CHECK(mat.GetAxisY() == Vec3(11, 12, 13));
+		CHECK(mat.GetAxisZ() == Vec3(14, 15, 16));
+		CHECK(mat.GetTranslation() == Vec3(17, 18, 19));
+
+		mat.SetDiagonal3(Vec3(20, 21, 22));
+		CHECK(mat.GetDiagonal3() == Vec3(20, 21, 22));
+		CHECK(mat.GetAxisX() == Vec3(20, 9, 10));
+		CHECK(mat.GetAxisY() == Vec3(11, 21, 13));
+		CHECK(mat.GetAxisZ() == Vec3(14, 15, 22));
+
+		mat.SetDiagonal4(Vec4(23, 24, 25, 26));
+		CHECK(mat.GetDiagonal4() == Vec4(23, 24, 25, 26));
+		CHECK(mat.GetAxisX() == Vec3(23, 9, 10));
+		CHECK(mat.GetAxisY() == Vec3(11, 24, 13));
+		CHECK(mat.GetAxisZ() == Vec3(14, 15, 25));
+		CHECK(mat.GetColumn4(3) == Vec4(17, 18, 19, 26));
+	}
+
+	TEST_CASE("TestMat44NaN")
+	{
+		Mat44 nan = Mat44::sNaN();
+
+		for (int row = 0; row < 4; ++row)
+			for (int col = 0; col < 4; ++col)
+				CHECK(isnan(nan(row, col)));
+	}
+
 	TEST_CASE("TestMat44Identity")
 	{
 		Mat44 identity = Mat44::sIdentity();
@@ -63,6 +115,31 @@ TEST_SUITE("Mat44Tests")
 		CHECK(mat2(1, 3) == 14.0f);
 		CHECK(mat2(2, 3) == 15.0f);
 		CHECK(mat2(3, 3) == 16.0f);
+
+		// Check equal
+		CHECK(mat == mat2);
+		CHECK(!(mat != mat2));
+
+		// Make unequal
+		mat(3, 3) = 1;
+
+		// Check non-equal
+		CHECK(!(mat == mat2));
+		CHECK(mat != mat2);
+	}
+
+	TEST_CASE("TestMat44IsClose")
+	{
+		Mat44 mat = Mat44::sIdentity();
+		Mat44 mat2(mat);
+
+		CHECK(mat.IsClose(mat2, Square(0.1f)));
+
+		mat2(0, 1) = 0.09f;
+		CHECK(mat.IsClose(mat2, Square(0.1f)));
+
+		mat2(0, 1) = 0.11f;
+		CHECK(!mat.IsClose(mat2, Square(0.1f)));
 	}
 
 	TEST_CASE("TestMat44Translation")
@@ -74,6 +151,21 @@ TEST_SUITE("Mat44Tests")
 	{
 		CHECK(Mat44::sScale(2) == Mat44(Vec4(2, 0, 0, 0), Vec4(0, 2, 0, 0), Vec4(0, 0, 2, 0), Vec4(0, 0, 0, 1)));
 		CHECK(Mat44::sScale(Vec3(2, 3, 4)) == Mat44(Vec4(2, 0, 0, 0), Vec4(0, 3, 0, 0), Vec4(0, 0, 4, 0), Vec4(0, 0, 0, 1)));
+	}
+
+	TEST_CASE("TestMat44Rotation")
+	{
+		Mat44 mat(Vec4(1, 2, 3, 0), Vec4(5, 6, 7, 0), Vec4(9, 10, 11, 0), Vec4(13, 14, 15, 16));
+		CHECK(mat.GetRotation() == Mat44(Vec4(1, 2, 3, 0), Vec4(5, 6, 7, 0), Vec4(9, 10, 11, 0), Vec4(0, 0, 0, 1)));
+	}
+
+	TEST_CASE("TestMat44SetRotation")
+	{
+		Mat44 mat(Vec4(1, 2, 3, 4), Vec4(5, 6, 7, 8), Vec4(9, 10, 11, 12), Vec4(13, 14, 15, 16));
+		Mat44 mat2(Vec4(17, 18, 19, 20), Vec4(21, 22, 23, 24), Vec4(25, 26, 27, 28), Vec4(29, 30, 31, 32));
+
+		mat.SetRotation(mat2);
+		CHECK(mat == Mat44(Vec4(17, 18, 19, 20), Vec4(21, 22, 23, 24), Vec4(25, 26, 27, 28), Vec4(13, 14, 15, 16)));
 	}
 
 	TEST_CASE("TestMat44RotationSafe")
@@ -113,6 +205,13 @@ TEST_SUITE("Mat44Tests")
 		CHECK(mat2 == mat);
 	}
 
+	TEST_CASE("TestMat44LoadAligned")
+	{
+		alignas(16) float values[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+		Mat44 mat = Mat44::sLoadFloat4x4Aligned((const Float4 *)values);
+		CHECK(mat == Mat44(Vec4(1, 2, 3, 4), Vec4(5, 6, 7, 8), Vec4(9, 10, 11, 12), Vec4(13, 14, 15, 16)));
+	}
+
 	TEST_CASE("TestMat44MultiplyMat44")
 	{
 		Mat44 mat(Vec4(1, 2, 3, 4), Vec4(5, 6, 7, 8), Vec4(9, 10, 11, 12), Vec4(13, 14, 15, 16));
@@ -120,6 +219,35 @@ TEST_SUITE("Mat44Tests")
 
 		Mat44 result = mat * mat2;
 		CHECK(result == Mat44(Vec4(538, 612, 686, 760), Vec4(650, 740, 830, 920), Vec4(762, 868, 974, 1080), Vec4(874, 996, 1118, 1240)));
+	}
+
+	TEST_CASE("TestMat44Add")
+	{
+		Mat44 mat(Vec4(1, 2, 3, 4), Vec4(5, 6, 7, 8), Vec4(9, 10, 11, 12), Vec4(13, 14, 15, 16));
+		Mat44 mat2(Vec4(17, 18, 19, 20), Vec4(21, 22, 23, 24), Vec4(25, 26, 27, 28), Vec4(29, 30, 31, 32));
+
+		Mat44 result = mat + mat2;
+		CHECK(result == Mat44(Vec4(18, 20, 22, 24), Vec4(26, 28, 30, 32), Vec4(34, 36, 38, 40), Vec4(42, 44, 46, 48)));
+
+		mat += mat2;
+		CHECK(mat == Mat44(Vec4(18, 20, 22, 24), Vec4(26, 28, 30, 32), Vec4(34, 36, 38, 40), Vec4(42, 44, 46, 48)));
+	}
+
+	TEST_CASE("TestMat44Sub")
+	{
+		Mat44 mat(Vec4(1, 2, 3, 4), Vec4(5, 6, 7, 8), Vec4(9, 10, 11, 12), Vec4(13, 14, 15, 16));
+		Mat44 mat2(Vec4(32, 31, 30, 29), Vec4(28, 27, 26, 25), Vec4(24, 23, 22, 21), Vec4(20, 19, 18, 17));
+
+		Mat44 result = mat - mat2;
+		CHECK(result == Mat44(Vec4(-31, -29, -27, -25), Vec4(-23, -21, -19, -17), Vec4(-15, -13, -11, -9), Vec4(-7, -5, -3, -1)));
+	}
+
+	TEST_CASE("TestMat44Negate")
+	{
+		Mat44 mat(Vec4(1, 2, 3, 4), Vec4(5, 6, 7, 8), Vec4(9, 10, 11, 12), Vec4(13, 14, 15, 16));
+
+		Mat44 result = -mat;
+		CHECK(result == Mat44(Vec4(-1, -2, -3, -4), Vec4(-5, -6, -7, -8), Vec4(-9, -10, -11, -12), Vec4(-13, -14, -15, -16)));
 	}
 
 	TEST_CASE("TestMat44MultiplyVec3")
@@ -215,6 +343,22 @@ TEST_SUITE("Mat44Tests")
 		CHECK(inverse.GetColumn4(3) == Vec4(0, 0, 0, 1));
 		Mat44 identity = mat.Multiply3x3(inverse);
 		CHECK(identity == Mat44::sIdentity());
+	}
+
+	TEST_CASE("TestMat44SetInversed3x3")
+	{
+		Mat44 mat(Vec4(1, 2, 0, 0), Vec4(4, 0, 8, 0), Vec4(0, 16, 0, 0), Vec4(1, 2, 3, 1));
+
+		// First test succeeding inverse
+		Mat44 inverse;
+		CHECK(inverse.SetInversed3x3(mat));
+		CHECK(inverse.GetColumn4(3) == Vec4(0, 0, 0, 1));
+		Mat44 identity = mat.Multiply3x3(inverse);
+		CHECK(identity == Mat44::sIdentity());
+
+		// Now make singular
+		mat(0, 0) = 0.0f;
+		CHECK(!inverse.SetInversed3x3(mat));
 	}
 
 	TEST_CASE("TestMat44GetDeterminant3x3")
@@ -330,6 +474,21 @@ TEST_SUITE("Mat44Tests")
 		CHECK_APPROX_EQUAL(m1, m2);
 	}
 
+	TEST_CASE("TestMat44Decompose")
+	{
+		Mat44 rotation = Mat44::sRotationX(0.1f * JPH_PI) * Mat44::sRotationZ(0.2f * JPH_PI);
+		Vec3 scale = Vec3(-1, 2, 3);
+		Mat44 mat = rotation * Mat44::sScale(scale);
+		CHECK(mat.GetDeterminant3x3() < 0); // Left handed
+
+		Vec3 new_scale;
+		Mat44 new_rotation = mat.Decompose(new_scale);
+		CHECK(new_rotation.GetDeterminant3x3() > 0); // Right handed
+
+		Mat44 mat2 = new_rotation * Mat44::sScale(new_scale);
+		CHECK(mat.IsClose(mat2));
+	}
+
 	TEST_CASE("TestMat44PrePostScaled")
 	{
 		Mat44 m(Vec4(2, 3, 4, 0), Vec4(5, 6, 7, 0), Vec4(8, 9, 10, 0), Vec4(11, 12, 13, 1));
@@ -394,5 +553,18 @@ TEST_SUITE("Mat44Tests")
 		CHECK_APPROX_EQUAL(m2.GetAxisZ(), skewed_rotation_translation.GetAxisZ().Normalized(), 0.02f); // Z axis may move a bit
 		CHECK_APPROX_EQUAL(m2.GetAxisX().Cross(m2.GetAxisY()).Dot(m2.GetAxisZ()), 1.0f); // Check perpendicular
 		CHECK_APPROX_EQUAL(scale, scale_out, 0.05f); // Scale may change a bit
+	}
+
+	TEST_CASE("TestDMat44GetQuaternion")
+	{
+		Quat rot = Quat::sRotation(Vec3(1, 1, 1).Normalized(), 0.2f * JPH_PI);
+		Mat44 mat = Mat44::sRotation(rot);
+		CHECK_APPROX_EQUAL(mat.GetQuaternion(), rot);
+	}
+
+	TEST_CASE("TestDMat44ConvertToString")
+	{
+		Mat44 v(Vec4(1, 2, 3, 4), Vec4(5, 6, 7, 8), Vec4(9, 10, 11, 12), Vec4(13, 14, 15, 16));
+		CHECK(ConvertToString(v) == "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16");
 	}
 }

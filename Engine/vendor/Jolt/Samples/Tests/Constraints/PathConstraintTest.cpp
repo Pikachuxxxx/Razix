@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -11,9 +12,9 @@
 #include <Application/DebugUI.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(PathConstraintTest) 
-{ 
-	JPH_ADD_BASE_CLASS(PathConstraintTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(PathConstraintTest)
+{
+	JPH_ADD_BASE_CLASS(PathConstraintTest, Test)
 }
 
 EPathRotationConstraintType PathConstraintTest::sOrientationType = EPathRotationConstraintType::Free;
@@ -95,13 +96,13 @@ void PathConstraintTest::Initialize()
 }
 
 void PathConstraintTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
-{ 
+{
 	for (PathConstraint *c : mConstraints)
 	{
 		MotorSettings &motor_settings = c->GetPositionMotorSettings();
 		motor_settings.SetForceLimit(sMaxMotorAcceleration / c->GetBody2()->GetMotionProperties()->GetInverseMass()); // F = m * a
-		motor_settings.mFrequency = sFrequency;
-		motor_settings.mDamping = sDamping;
+		motor_settings.mSpringSettings.mFrequency = sFrequency;
+		motor_settings.mSpringSettings.mDamping = sDamping;
 		c->SetMaxFrictionForce(sMaxFrictionAcceleration / c->GetBody2()->GetMotionProperties()->GetInverseMass());
 	}
 }
@@ -110,14 +111,14 @@ void PathConstraintTest::CreateSettingsMenu(DebugUI *inUI, UIElement *inSubMenu)
 {
 	static Array<String> constraint_types = { "Free", "Tangent", "Normal", "Binormal", "Path", "Full" };
 
-	inUI->CreateTextButton(inSubMenu, "Configuration Settings", [=]() {
+	inUI->CreateTextButton(inSubMenu, "Configuration Settings", [this, inUI]() {
 		UIElement *configuration_settings = inUI->CreateMenu();
 		inUI->CreateComboBox(configuration_settings, "Rotation Constraint", constraint_types, (int)sOrientationType, [=](int inItem) { sOrientationType = (EPathRotationConstraintType)inItem; });
-		inUI->CreateTextButton(configuration_settings, "Accept Changes", [=]() { RestartTest(); });
+		inUI->CreateTextButton(configuration_settings, "Accept Changes", [this]() { RestartTest(); });
 		inUI->ShowMenu(configuration_settings);
 	});
 
-	inUI->CreateTextButton(inSubMenu, "Runtime Settings", [=]() {
+	inUI->CreateTextButton(inSubMenu, "Runtime Settings", [this, inUI]() {
 		UIElement *runtime_settings = inUI->CreateMenu();
 		inUI->CreateComboBox(runtime_settings, "Motor", { "Off", "Velocity", "Position" }, (int)mConstraints[0]->GetPositionMotorState(), [this](int inItem) { for (PathConstraint *c : mConstraints) c->SetPositionMotorState((EMotorState)inItem); });
 		inUI->CreateSlider(runtime_settings, "Target Velocity (m/s)", mConstraints[0]->GetTargetVelocity(), -10.0f, 10.0f, 0.1f, [this](float inValue) { for (PathConstraint *c : mConstraints) c->SetTargetVelocity(inValue); });

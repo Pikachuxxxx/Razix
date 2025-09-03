@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -18,10 +19,10 @@ JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(MutableCompoundShapeSettings)
 }
 
 ShapeSettings::ShapeResult MutableCompoundShapeSettings::Create() const
-{ 
+{
 	// Build a mutable compound shape
 	if (mCachedResult.IsEmpty())
-		Ref<Shape> shape = new MutableCompoundShape(*this, mCachedResult); 
+		Ref<Shape> shape = new MutableCompoundShape(*this, mCachedResult);
 
 	return mCachedResult;
 }
@@ -54,6 +55,20 @@ MutableCompoundShape::MutableCompoundShape(const MutableCompoundShapeSettings &i
 	outResult.Set(this);
 }
 
+Ref<MutableCompoundShape> MutableCompoundShape::Clone() const
+{
+	Ref<MutableCompoundShape> clone = new MutableCompoundShape();
+	clone->SetUserData(GetUserData());
+
+	clone->mCenterOfMass = mCenterOfMass;
+	clone->mLocalBounds = mLocalBounds;
+	clone->mSubShapes = mSubShapes;
+	clone->mInnerRadius = mInnerRadius;
+	clone->mSubShapeBounds = mSubShapeBounds;
+
+	return clone;
+}
+
 void MutableCompoundShape::AdjustCenterOfMass()
 {
 	// First calculate the delta of the center of mass
@@ -71,6 +86,21 @@ void MutableCompoundShape::AdjustCenterOfMass()
 	// Now adjust all shapes to recenter around center of mass
 	for (CompoundShape::SubShape &sub_shape : mSubShapes)
 		sub_shape.SetPositionCOM(sub_shape.GetPositionCOM() - center_of_mass);
+
+	// Update bounding boxes
+	for (Bounds &bounds : mSubShapeBounds)
+	{
+		Vec4 xxxx = center_of_mass.SplatX();
+		Vec4 yyyy = center_of_mass.SplatY();
+		Vec4 zzzz = center_of_mass.SplatZ();
+		bounds.mMinX -= xxxx;
+		bounds.mMinY -= yyyy;
+		bounds.mMinZ -= zzzz;
+		bounds.mMaxX -= xxxx;
+		bounds.mMaxY -= yyyy;
+		bounds.mMaxZ -= zzzz;
+	}
+	mLocalBounds.Translate(-center_of_mass);
 
 	// And adjust the center of mass for this shape in the opposite direction
 	mCenterOfMass += center_of_mass;
@@ -112,8 +142,8 @@ void MutableCompoundShape::CalculateLocalBounds()
 	}
 	else
 	{
-		// There are no subshapes, set the bounding box to invalid
-		mLocalBounds.SetEmpty();
+		// There are no subshapes, make the bounding box empty
+		mLocalBounds.mMin = mLocalBounds.mMax = Vec3::sZero();
 	}
 
 	// Cache the inner radius as it can take a while to recursively iterate over all sub shapes
@@ -132,7 +162,7 @@ void MutableCompoundShape::CalculateSubShapeBounds(uint inStartIdx, uint inNumbe
 {
 	// Ensure that we have allocated the required space for mSubShapeBounds
 	EnsureSubShapeBoundsCapacity();
-	
+
 	// Loop over blocks of 4 sub shapes
 	for (uint sub_shape_idx_start = inStartIdx & ~uint(3), sub_shape_idx_end = inStartIdx + inNumber; sub_shape_idx_start < sub_shape_idx_end; sub_shape_idx_start += 4)
 	{
@@ -147,11 +177,11 @@ void MutableCompoundShape::CalculateSubShapeBounds(uint inStartIdx, uint inNumbe
 			{
 				const SubShape &sub_shape = mSubShapes[sub_shape_idx];
 
-				// Tranform the shape's bounds into our local space
+				// Transform the shape's bounds into our local space
 				Mat44 transform = Mat44::sRotationTranslation(sub_shape.GetRotation(), sub_shape.GetPositionCOM());
 
 				// Get the bounding box
-				sub_shape_bounds = sub_shape.mShape->GetWorldSpaceBounds(transform, Vec3::sReplicate(1.0f));
+				sub_shape_bounds = sub_shape.mShape->GetWorldSpaceBounds(transform, Vec3::sOne());
 			}
 
 			// Put the bounds as columns in a matrix
@@ -159,7 +189,7 @@ void MutableCompoundShape::CalculateSubShapeBounds(uint inStartIdx, uint inNumbe
 			bounds_max.SetColumn3(col, sub_shape_bounds.mMax);
 		}
 
-		// Transpose to go to strucucture of arrays format
+		// Transpose to go to structure of arrays format
 		Mat44 bounds_min_t = bounds_min.Transposed();
 		Mat44 bounds_max_t = bounds_max.Transposed();
 
@@ -176,29 +206,37 @@ void MutableCompoundShape::CalculateSubShapeBounds(uint inStartIdx, uint inNumbe
 	CalculateLocalBounds();
 }
 
-uint MutableCompoundShape::AddShape(Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape, uint32 inUserData)
+uint MutableCompoundShape::AddShape(Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape, uint32 inUserData, uint inIndex)
 {
 	SubShape sub_shape;
 	sub_shape.mShape = inShape;
 	sub_shape.mUserData = inUserData;
 	sub_shape.SetTransform(inPosition, inRotation, mCenterOfMass);
-	mSubShapes.push_back(sub_shape);
-	uint shape_idx = (uint)mSubShapes.size() - 1;
 
-	CalculateSubShapeBounds(shape_idx, 1);
-
-	return shape_idx;
+	if (inIndex >= mSubShapes.size())
+	{
+		uint shape_idx = uint(mSubShapes.size());
+		mSubShapes.push_back(sub_shape);
+		CalculateSubShapeBounds(shape_idx, 1);
+		return shape_idx;
+	}
+	else
+	{
+		mSubShapes.insert(mSubShapes.begin() + inIndex, sub_shape);
+		CalculateSubShapeBounds(inIndex, uint(mSubShapes.size()) - inIndex);
+		return inIndex;
+	}
 }
 
 void MutableCompoundShape::RemoveShape(uint inIndex)
 {
 	mSubShapes.erase(mSubShapes.begin() + inIndex);
 
+	// We always need to recalculate the bounds of the sub shapes as we test blocks
+	// of 4 sub shapes at a time and removed shapes get their bounds updated
+	// to repeat the bounds of the previous sub shape
 	uint num_bounds = (uint)mSubShapes.size() - inIndex;
-	if (num_bounds > 0)
-		CalculateSubShapeBounds(inIndex, num_bounds);
-	else
-		CalculateLocalBounds();
+	CalculateSubShapeBounds(inIndex, num_bounds);
 }
 
 void MutableCompoundShape::ModifyShape(uint inIndex, Vec3Arg inPosition, QuatArg inRotation)
@@ -305,7 +343,7 @@ void MutableCompoundShape::CastRay(const RayCast &inRay, const RayCastSettings &
 	JPH_PROFILE_FUNCTION();
 
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	struct Visitor : public CastRayVisitorCollector
@@ -340,7 +378,7 @@ void MutableCompoundShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator
 	JPH_PROFILE_FUNCTION();
 
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	struct Visitor : public CollidePointVisitor
@@ -386,13 +424,13 @@ void MutableCompoundShape::sCastShapeVsCompound(const ShapeCast &inShapeCast, co
 
 		JPH_INLINE bool		ShouldVisitBlock(Vec4Arg inResult) const
 		{
-			UVec4 closer = Vec4::sLess(inResult, Vec4::sReplicate(mCollector.GetEarlyOutFraction()));
+			UVec4 closer = Vec4::sLess(inResult, Vec4::sReplicate(mCollector.GetPositiveEarlyOutFraction()));
 			return closer.TestAnyTrue();
 		}
 
 		JPH_INLINE bool		ShouldVisitSubShape(Vec4Arg inResult, uint inIndexInBlock) const
 		{
-			return inResult[inIndexInBlock] < mCollector.GetEarlyOutFraction();
+			return inResult[inIndexInBlock] < mCollector.GetPositiveEarlyOutFraction();
 		}
 	};
 
@@ -408,7 +446,7 @@ void MutableCompoundShape::CollectTransformedShapes(const AABox &inBox, Vec3Arg 
 	JPH_PROFILE_FUNCTION();
 
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	struct Visitor : public CollectTransformedShapesVisitor
@@ -456,7 +494,7 @@ int MutableCompoundShape::GetIntersectingSubShapes(const OrientedBox &inBox, uin
 }
 
 void MutableCompoundShape::sCollideCompoundVsShape(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter)
-{	
+{
 	JPH_PROFILE_FUNCTION();
 
 	JPH_ASSERT(inShape1->GetSubType() == EShapeSubType::MutableCompound);

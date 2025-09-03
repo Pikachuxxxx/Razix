@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -14,6 +15,7 @@
 #include <UI/UITextButton.h>
 #include <Image/LoadTGA.h>
 #include <Utils/Log.h>
+#include <Utils/AssetStream.h>
 
 JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <fstream>
@@ -24,17 +26,14 @@ DebugUI::DebugUI(UIManager *inUIManager, const Font *inFont) :
 	mFont(inFont)
 {
 	// Load UI texture with commonly used UI elements
-	ifstream texture_stream;
-	texture_stream.open("Assets/UI.tga", ifstream::binary);
-	if (texture_stream.fail())
-		FatalError("Failed to open UI.tga");
-	Ref<Surface> texture_surface = LoadTGA(texture_stream);
+	AssetStream texture_stream("UI.tga", std::ios::in | std::ios::binary);
+	Ref<Surface> texture_surface = LoadTGA(texture_stream.Get());
 	if (texture_surface == nullptr)
 		FatalError("Failed to load UI.tga");
 	mUITexture = mUI->GetRenderer()->CreateTexture(texture_surface);
 
 	// Install callback that pops a layer when the deactivate animation finishes
-	mUI->SetDeactivatedAction([this]() { 
+	mUI->SetDeactivatedAction([this]() {
 		mUI->PopLayer();
 	});
 
@@ -131,7 +130,7 @@ UISlider *DebugUI::CreateSlider(UIElement *inMenu, const string_view &inName, fl
 	incr_button->SetRepeat(0.5f, 0.2f);
 	incr_button->SetButtonQuad(UITexturedQuad(mUITexture, 13, 31, 17, 21));
 	slider->Add(incr_button);
-	slider->SetIncreaseButton(incr_button);	
+	slider->SetIncreaseButton(incr_button);
 
 	UIImage *image = new UIImage();
 	image->SetImage(UITexturedQuad(mUITexture, 34, 0, 13, 24, 36, 2, 9, 20));

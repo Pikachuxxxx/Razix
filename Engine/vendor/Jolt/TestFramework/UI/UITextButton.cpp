@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -36,7 +37,7 @@ bool UITextButton::MouseDown(int inX, int inY)
 		mRepeatTimeLeft = mRepeatStartTime;
 		return true;
 	}
-	
+
 	return false;
 }
 

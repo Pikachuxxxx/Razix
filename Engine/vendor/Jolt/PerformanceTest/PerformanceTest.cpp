@@ -1,8 +1,10 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 // Jolt includes
 #include <Jolt/Jolt.h>
+#include <Jolt/ConfigurationString.h>
 #include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/Factory.h>
 #include <Jolt/Core/TempAllocator.h>
@@ -16,6 +18,10 @@
 	#include <Jolt/Renderer/DebugRendererRecorder.h>
 	#include <Jolt/Core/StreamWrapper.h>
 #endif // JPH_DEBUG_RENDERER
+#ifdef JPH_PLATFORM_ANDROID
+#include <android/log.h>
+#include <android_native_app_glue.h>
+#endif // JPH_PLATFORM_ANDROID
 
 // STL includes
 JPH_SUPPRESS_WARNINGS_STD_BEGIN
@@ -24,6 +30,7 @@ JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <chrono>
 #include <memory>
 #include <cstdarg>
+#include <filesystem>
 JPH_SUPPRESS_WARNINGS_STD_END
 
 using namespace JPH;
@@ -36,12 +43,16 @@ JPH_SUPPRESS_WARNINGS
 // Local includes
 #include "RagdollScene.h"
 #include "ConvexVsMeshScene.h"
+#include "PyramidScene.h"
+#include "LargeMeshScene.h"
+#include "CharacterVirtualScene.h"
+#include "MaxBodiesScene.h"
 
 // Time step for physics
 constexpr float cDeltaTime = 1.0f / 60.0f;
 
 static void TraceImpl(const char *inFMT, ...)
-{ 
+{
 	// Format the message
 	va_list list;
 	va_start(list, inFMT);
@@ -50,14 +61,28 @@ static void TraceImpl(const char *inFMT, ...)
 	va_end(list);
 
 	// Print to the TTY
+#ifndef JPH_PLATFORM_ANDROID
 	cout << buffer << endl;
+#else
+	__android_log_write(ANDROID_LOG_INFO, "Jolt", buffer);
+#endif
 }
 
 // Program entry point
 int main(int argc, char** argv)
 {
+	// Install callbacks
+	Trace = TraceImpl;
+
 	// Register allocation hook
 	RegisterDefaultAllocator();
+
+	// Helper function that creates the default scene
+#ifdef JPH_OBJECT_STREAM
+	auto create_ragdoll_scene = []{ return unique_ptr<PerformanceTestScene>(new RagdollScene(4, 10, 0.6f)); };
+#else
+	auto create_ragdoll_scene = []{ return unique_ptr<PerformanceTestScene>(new ConvexVsMeshScene); };
+#endif // JPH_OBJECT_STREAM
 
 	// Parse command line parameters
 	int specified_quality = -1;
@@ -82,12 +107,24 @@ int main(int argc, char** argv)
 		{
 			// Parse scene
 			if (strcmp(arg + 3, "Ragdoll") == 0)
-				scene = unique_ptr<PerformanceTestScene>(new RagdollScene);
+				scene = create_ragdoll_scene();
+#ifdef JPH_OBJECT_STREAM
+			else if (strcmp(arg + 3, "RagdollSinglePile") == 0)
+				scene = unique_ptr<PerformanceTestScene>(new RagdollScene(1, 160, 0.4f));
+#endif // JPH_OBJECT_STREAM
 			else if (strcmp(arg + 3, "ConvexVsMesh") == 0)
 				scene = unique_ptr<PerformanceTestScene>(new ConvexVsMeshScene);
+			else if (strcmp(arg + 3, "Pyramid") == 0)
+				scene = unique_ptr<PerformanceTestScene>(new PyramidScene);
+			else if (strcmp(arg + 3, "LargeMesh") == 0)
+				scene = unique_ptr<PerformanceTestScene>(new LargeMeshScene);
+			else if (strcmp(arg + 3, "CharacterVirtual") == 0)
+				scene = unique_ptr<PerformanceTestScene>(new CharacterVirtualScene);
+			else if (strcmp(arg + 3, "MaxBodies") == 0)
+				scene = unique_ptr<MaxBodiesScene>(new MaxBodiesScene);
 			else
 			{
-				cerr << "Invalid scene" << endl;
+				Trace("Invalid scene");
 				return 1;
 			}
 		}
@@ -105,9 +142,14 @@ int main(int argc, char** argv)
 				specified_quality = 1;
 			else
 			{
-				cerr << "Invalid quality" << endl;
+				Trace("Invalid quality");
 				return 1;
 			}
+		}
+		else if (strncmp(arg, "-t=max", 6) == 0)
+		{
+			// Default to number of threads on the system
+			specified_threads = thread::hardware_concurrency();
 		}
 		else if (strncmp(arg, "-t=", 3) == 0)
 		{
@@ -152,25 +194,23 @@ int main(int argc, char** argv)
 		else if (strcmp(arg, "-h") == 0)
 		{
 			// Print usage
-			cerr << "Usage:" << endl
-				 << "-s=<scene>: Select scene (Ragdoll, ConvexVsMesh)" << endl
-				 << "-i=<num physics steps>: Number of physics steps to simulate (default 500)" << endl
-				 << "-q=<quality>: Test only with specified quality (Discrete, LinearCast)" << endl
-				 << "-t=<num threads>: Test only with N threads (default is to iterate over 1 .. num hardware threads)" << endl
-				 << "-p: Write out profiles" << endl
-				 << "-r: Record debug renderer output for JoltViewer" << endl
-				 << "-f: Record per frame timings" << endl
-				 << "-no_sleep: Disable sleeping" << endl
-				 << "-rs: Record state" << endl
-				 << "-vs: Validate state" << endl
-				 << "-validate_hash=<hash>: Validate hash (return 0 if successful, 1 if failed)" << endl
-				 << "-repeat=<num>: Repeat all tests <num> times" << endl;
+			Trace("Usage:\n"
+				  "-s=<scene>: Select scene (Ragdoll, RagdollSinglePile, ConvexVsMesh, Pyramid)\n"
+				  "-i=<num physics steps>: Number of physics steps to simulate (default 500)\n"
+				  "-q=<quality>: Test only with specified quality (Discrete, LinearCast)\n"
+				  "-t=<num threads>: Test only with N threads (default is to iterate over 1 .. num hardware threads)\n"
+				  "-t=max: Test with the number of threads available on the system\n"
+				  "-p: Write out profiles\n"
+				  "-r: Record debug renderer output for JoltViewer\n"
+				  "-f: Record per frame timings\n"
+				  "-no_sleep: Disable sleeping\n"
+				  "-rs: Record state\n"
+				  "-vs: Validate state\n"
+				  "-validate_hash=<hash>: Validate hash (return 0 if successful, 1 if failed)\n"
+				  "-repeat=<num>: Repeat all tests <num> times");
 			return 0;
 		}
 	}
-
-	// Install callbacks
-	Trace = TraceImpl;
 
 	// Create a factory
 	Factory::sInstance = new Factory();
@@ -178,17 +218,51 @@ int main(int argc, char** argv)
 	// Register all Jolt physics types
 	RegisterTypes();
 
-	// Create temp allocator
-	TempAllocatorImpl temp_allocator(10 * 1024 * 1024);
+	// Show used instruction sets
+	Trace(GetConfigurationString());
 
-	// Load the scene
+	// If no scene was specified use the default scene
 	if (scene == nullptr)
-		scene = unique_ptr<PerformanceTestScene>(new RagdollScene);
-	if (!scene->Load())
-		return 1;
+		scene = create_ragdoll_scene();
 
 	// Output scene we're running
-	cout << "Running scene: " << scene->GetName() << endl;
+	Trace("Running scene: %s", scene->GetName());
+
+	// Create temp allocator
+	TempAllocatorImpl temp_allocator(scene->GetTempAllocatorSizeMB() * 1024 * 1024);
+
+	// Find the asset path
+	bool found = false;
+	filesystem::path asset_path(argv[0]);
+	filesystem::path root_path = asset_path.root_path();
+	while (asset_path != root_path)
+	{
+		asset_path = asset_path.parent_path();
+		if (filesystem::exists(asset_path / "Assets"))
+		{
+			found = true;
+			break;
+		}
+	}
+	if (!found) // Note that argv[0] can be a relative path like './PerformanceTest' so we also scan up using '..'
+		for (int i = 0; i < 5; ++i)
+		{
+			asset_path /= "..";
+			if (filesystem::exists(asset_path / "Assets"))
+			{
+				found = true;
+				break;
+			}
+		}
+	if (!found)
+		asset_path = "Assets";
+	else
+		asset_path /= "Assets";
+	asset_path /= "";
+
+	// Load the scene
+	if (!scene->Load(String(asset_path.string())))
+		return 1;
 
 	// Create mapping table from object layer to broadphase layer
 	BPLayerInterfaceImpl broad_phase_layer_interface;
@@ -203,7 +277,7 @@ int main(int argc, char** argv)
 	JPH_PROFILE_START("Main");
 
 	// Trace header
-	cout << "Motion Quality, Thread Count, Steps / Second, Hash" << endl;
+	Trace("Motion Quality, Thread Count, Steps / Second, Hash");
 
 	// Repeat test
 	for (int r = 0; r < repeat; ++r)
@@ -235,7 +309,7 @@ int main(int argc, char** argv)
 
 				// Create physics system
 				PhysicsSystem physics_system;
-				physics_system.Init(10240, 0, 65536, 10240, broad_phase_layer_interface, object_vs_broadphase_layer_filter, object_vs_object_layer_filter);
+				physics_system.Init(scene->GetMaxBodies(), 0, scene->GetMaxBodyPairs(), scene->GetMaxContactConstraints(), broad_phase_layer_interface, object_vs_broadphase_layer_filter, object_vs_object_layer_filter);
 
 				// Start test scene
 				scene->StartTest(physics_system, motion_quality);
@@ -263,7 +337,7 @@ int main(int argc, char** argv)
 
 				// A tag used to identify the test
 				String tag = ToLower(motion_quality_str) + "_th" + ConvertToString(num_threads + 1);
-					     
+
 			#ifdef JPH_DEBUG_RENDERER
 				// Open renderer output
 				ofstream renderer_file;
@@ -299,8 +373,11 @@ int main(int argc, char** argv)
 					// Start measuring
 					chrono::high_resolution_clock::time_point clock_start = chrono::high_resolution_clock::now();
 
+					// Update the test
+					scene->UpdateTest(physics_system, temp_allocator, cDeltaTime);
+
 					// Do a physics step
-					physics_system.Update(cDeltaTime, 1, 1, &temp_allocator, &job_system);
+					physics_system.Update(cDeltaTime, 1, &temp_allocator, &job_system);
 
 					// Stop measuring
 					chrono::high_resolution_clock::time_point clock_end = chrono::high_resolution_clock::now();
@@ -337,14 +414,14 @@ int main(int argc, char** argv)
 
 						// Write to file
 						string data = recorder.GetData();
-						size_t size = data.size();
+						uint32 size = uint32(data.size());
 						record_state_file.write((char *)&size, sizeof(size));
 						record_state_file.write(data.data(), size);
 					}
 					else if (validate_state)
 					{
 						// Read state
-						size_t size = 0;
+						uint32 size = 0;
 						validate_state_file.read((char *)&size, sizeof(size));
 						string data;
 						data.resize(size);
@@ -386,6 +463,9 @@ int main(int argc, char** argv)
 					hash = HashBytes(&rot, sizeof(Quat), hash);
 				}
 
+				// Let the scene hash its own state
+				scene->UpdateHash(hash);
+
 				// Convert hash to string
 				stringstream hash_stream;
 				hash_stream << "0x" << hex << hash << dec;
@@ -395,12 +475,12 @@ int main(int argc, char** argv)
 				scene->StopTest(physics_system);
 
 				// Trace stat line
-				cout << motion_quality_str << ", " << num_threads + 1 << ", " << double(max_iterations) / (1.0e-9 * total_duration.count()) << ", " << hash_str << endl;
+				Trace("%s, %d, %f, %s", motion_quality_str.c_str(), num_threads + 1, double(max_iterations) / (1.0e-9 * total_duration.count()), hash_str.c_str());
 
 				// Check hash code
 				if (validate_hash != nullptr && hash_str != validate_hash)
 				{
-					cout << "Fail hash validation. Was: " << hash_str << ", expected: " << validate_hash << endl;
+					Trace("Fail hash validation. Was: %s, expected: %s", hash_str.c_str(), validate_hash);
 					return 1;
 				}
 			}
@@ -411,6 +491,9 @@ int main(int argc, char** argv)
 	NarrowPhaseStat::sReportStats();
 #endif // JPH_TRACK_NARROWPHASE_STATS
 
+	// Unregisters all types with the factory and cleans up the default material
+	UnregisterTypes();
+
 	// Destroy the factory
 	delete Factory::sInstance;
 	Factory::sInstance = nullptr;
@@ -420,3 +503,15 @@ int main(int argc, char** argv)
 
 	return 0;
 }
+
+#ifdef JPH_PLATFORM_ANDROID
+
+// Main entry point for android
+void android_main(struct android_app *ioApp)
+{
+	// Run the regular main function
+	const char *args[] = { "Unused", "-s=ConvexVsMesh", "-t=max" };
+	main(size(args), (char **)args);
+}
+
+#endif // JPH_PLATFORM_ANDROID

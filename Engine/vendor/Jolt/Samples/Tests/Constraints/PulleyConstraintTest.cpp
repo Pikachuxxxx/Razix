@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2022 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -9,16 +10,16 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(PulleyConstraintTest) 
-{ 
-	JPH_ADD_BASE_CLASS(PulleyConstraintTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(PulleyConstraintTest)
+{
+	JPH_ADD_BASE_CLASS(PulleyConstraintTest, Test)
 }
 
 void PulleyConstraintTest::Initialize()
 {
 	// Floor
 	CreateFloor();
-		
+
 	// Variation 0: Max length (rope)
 	// Variation 1: Fixed length (rigid rod)
 	// Variation 2: Min/max length
@@ -39,7 +40,7 @@ void PulleyConstraintTest::Initialize()
 		settings.mFixedPoint1 = settings.mBodyPoint1 + Vec3(0, 10, 0);
 		settings.mFixedPoint2 = settings.mBodyPoint2 + Vec3(0, 10, 0);
 
-		switch (variation)			
+		switch (variation)
 		{
 		case 0:
 			// Can't extend but can contract
@@ -59,7 +60,7 @@ void PulleyConstraintTest::Initialize()
 		case 3:
 			// With ratio
 			settings.mRatio = 4.0f;
-			break;			
+			break;
 		}
 
 		mPhysicsSystem->AddConstraint(settings.Create(body1, body2));

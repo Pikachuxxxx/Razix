@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -10,16 +11,16 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(HingeConstraintTest) 
-{ 
-	JPH_ADD_BASE_CLASS(HingeConstraintTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(HingeConstraintTest)
+{
+	JPH_ADD_BASE_CLASS(HingeConstraintTest, Test)
 }
 
 void HingeConstraintTest::Initialize()
 {
 	// Floor
 	CreateFloor();
-		
+
 	float box_size = 4.0f;
 	RefConst<Shape> box = new BoxShape(Vec3::sReplicate(0.5f * box_size));
 
@@ -72,7 +73,7 @@ void HingeConstraintTest::Initialize()
 				settings.mNormalAxis1 = settings.mNormalAxis2 = Vec3::sAxisX();
 			}
 			else
-			{ 
+			{
 				settings.mPoint1 = settings.mPoint2 = position + Vec3(-0.5f * box_size, -0.5f * box_size, 0);
 				settings.mHingeAxis1 = settings.mHingeAxis2 = Vec3::sAxisZ();
 				settings.mNormalAxis1 = settings.mNormalAxis2 = Vec3::sAxisX();
@@ -83,5 +84,43 @@ void HingeConstraintTest::Initialize()
 
 			prev = &segment;
 		}
+	}
+
+	{
+		// Two bodies connected with a hard hinge
+		Body *body1 = mBodyInterface->CreateBody(BodyCreationSettings(new BoxShape(Vec3::sOne()), RVec3(4, 5, 0), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING));
+		body1->SetCollisionGroup(CollisionGroup(group_filter, 0, 0));
+		mBodyInterface->AddBody(body1->GetID(), EActivation::DontActivate);
+		Body *body2 = mBodyInterface->CreateBody(BodyCreationSettings(new BoxShape(Vec3::sOne()), RVec3(6, 5, 0), Quat::sIdentity(), EMotionType::Dynamic, Layers::MOVING));
+		body2->SetCollisionGroup(CollisionGroup(group_filter, 0, 1));
+		mBodyInterface->AddBody(body2->GetID(), EActivation::Activate);
+
+		HingeConstraintSettings hinge;
+		hinge.mPoint1 = hinge.mPoint2 = RVec3(5, 4, 0);
+		hinge.mHingeAxis1 = hinge.mHingeAxis2 = Vec3::sAxisZ();
+		hinge.mNormalAxis1 = hinge.mNormalAxis2 = Vec3::sAxisY();
+		hinge.mLimitsMin = DegreesToRadians(-10.0f);
+		hinge.mLimitsMax = DegreesToRadians(110.0f);
+		mPhysicsSystem->AddConstraint(hinge.Create(*body1, *body2));
+	}
+
+	{
+		// Two bodies connected with a soft hinge
+		Body *body1 = mBodyInterface->CreateBody(BodyCreationSettings(new BoxShape(Vec3::sOne()), RVec3(10, 5, 0), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING));
+		body1->SetCollisionGroup(CollisionGroup(group_filter, 0, 0));
+		mBodyInterface->AddBody(body1->GetID(), EActivation::DontActivate);
+		Body *body2 = mBodyInterface->CreateBody(BodyCreationSettings(new BoxShape(Vec3::sOne()), RVec3(12, 5, 0), Quat::sIdentity(), EMotionType::Dynamic, Layers::MOVING));
+		body2->SetCollisionGroup(CollisionGroup(group_filter, 0, 1));
+		mBodyInterface->AddBody(body2->GetID(), EActivation::Activate);
+
+		HingeConstraintSettings hinge;
+		hinge.mPoint1 = hinge.mPoint2 = RVec3(11, 4, 0);
+		hinge.mHingeAxis1 = hinge.mHingeAxis2 = Vec3::sAxisZ();
+		hinge.mNormalAxis1 = hinge.mNormalAxis2 = Vec3::sAxisY();
+		hinge.mLimitsMin = DegreesToRadians(-10.0f);
+		hinge.mLimitsMax = DegreesToRadians(110.0f);
+		hinge.mLimitsSpringSettings.mFrequency = 1.0f;
+		hinge.mLimitsSpringSettings.mDamping = 0.5f;
+		mPhysicsSystem->AddConstraint(hinge.Create(*body1, *body2));
 	}
 }

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -18,27 +19,34 @@ class ConvexShape;
 class CollideShapeSettings;
 
 /// Class that constructs a MeshShape
-class MeshShapeSettings final : public ShapeSettings
+class JPH_EXPORT MeshShapeSettings final : public ShapeSettings
 {
-public:
-	JPH_DECLARE_SERIALIZABLE_VIRTUAL(MeshShapeSettings)
+	JPH_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, MeshShapeSettings)
 
+public:
 	/// Default constructor for deserialization
 									MeshShapeSettings() = default;
 
 	/// Create a mesh shape.
-									MeshShapeSettings(const TriangleList &inTriangles, const PhysicsMaterialList &inMaterials = PhysicsMaterialList());
-									MeshShapeSettings(const VertexList &inVertices, const IndexedTriangleList &inTriangles, const PhysicsMaterialList &inMaterials = PhysicsMaterialList());
+									MeshShapeSettings(const TriangleList &inTriangles, PhysicsMaterialList inMaterials = PhysicsMaterialList());
+									MeshShapeSettings(VertexList inVertices, IndexedTriangleList inTriangles, PhysicsMaterialList inMaterials = PhysicsMaterialList());
 
-	/// Sanitize the mesh data. Remove duplicate and degenerate triangles.
+	/// Sanitize the mesh data. Remove duplicate and degenerate triangles. This is called automatically when constructing the MeshShapeSettings with a list of (indexed-) triangles.
 	void							Sanitize();
 
 	// See: ShapeSettings
 	virtual ShapeResult				Create() const override;
 
-	/// Mesh data.
-	VertexList						mTriangleVertices;											///< Vertices belonging to mIndexedTriangles
-	IndexedTriangleList				mIndexedTriangles;											///< Original list of indexed triangles
+	/// Vertices belonging to mIndexedTriangles
+	VertexList						mTriangleVertices;
+
+	/// Original list of indexed triangles (triangles will be reordered internally in the mesh shape).
+	/// Triangles must be provided in counter clockwise order.
+	/// Degenerate triangles will automatically be removed during mesh creation but no other mesh simplifications are performed, use an external library if this is desired.
+	/// For simulation, the triangles are considered to be single sided.
+	/// For ray casts you can choose to make triangles double sided by setting RayCastSettings::mBackFaceMode to EBackFaceMode::CollideWithBackFaces.
+	/// For collide shape tests you can use CollideShapeSettings::mBackFaceMode and for shape casts you can use ShapeCastSettings::mBackFaceModeTriangles.
+	IndexedTriangleList				mIndexedTriangles;
 
 	/// Materials assigned to the triangles. Each triangle specifies which material it uses through its mMaterialIndex
 	PhysicsMaterialList				mMaterials;
@@ -46,10 +54,34 @@ public:
 	/// Maximum number of triangles in each leaf of the axis aligned box tree. This is a balance between memory and performance. Can be in the range [1, MeshShape::MaxTrianglesPerLeaf].
 	/// Sensible values are between 4 (for better performance) and 8 (for less memory usage).
 	uint							mMaxTrianglesPerLeaf = 8;
+
+	/// Cosine of the threshold angle (if the angle between the two triangles is bigger than this, the edge is active, note that a concave edge is always inactive).
+	/// Setting this value too small can cause ghost collisions with edges, setting it too big can cause depenetration artifacts (objects not depenetrating quickly).
+	/// Valid ranges are between cos(0 degrees) and cos(90 degrees). The default value is cos(5 degrees).
+	/// Negative values will make all edges active and causes EActiveEdgeMode::CollideOnlyWithActive to behave as EActiveEdgeMode::CollideWithAll.
+	/// This speeds up the build process but will require all bodies that can interact with the mesh to use BodyCreationSettings::mEnhancedInternalEdgeRemoval = true.
+	float							mActiveEdgeCosThresholdAngle = 0.996195f;					// cos(5 degrees)
+
+	/// When true, we store the user data coming from Triangle::mUserData or IndexedTriangle::mUserData in the mesh shape.
+	/// This can be used to store additional data like the original index of the triangle in the mesh.
+	/// Can be retrieved using MeshShape::GetTriangleUserData.
+	/// Turning this on increases the memory used by the MeshShape by roughly 25%.
+	bool							mPerTriangleUserData = false;
+
+	enum class EBuildQuality
+	{
+		FavorRuntimePerformance,																///< Favor runtime performance, takes more time to build the MeshShape but performs better
+		FavorBuildSpeed,																		///< Favor build speed, build the tree faster but the MeshShape will be slower
+	};
+
+	/// Determines the quality of the tree building process.
+	EBuildQuality					mBuildQuality = EBuildQuality::FavorRuntimePerformance;
 };
 
-/// A mesh shape, consisting of triangles. Cannot be used as a dynamic object.
-class MeshShape final : public Shape
+/// A mesh shape, consisting of triangles. Mesh shapes are mostly used for static geometry.
+/// They can be used by dynamic or kinematic objects but only if they don't collide with other mesh or heightfield shapes as those collisions are currently not supported.
+/// Note that if you make a mesh shape a dynamic or kinematic object, you need to provide a mass yourself as mesh shapes don't need to form a closed hull so don't have a well defined volume from which the mass can be calculated.
+class JPH_EXPORT MeshShape final : public Shape
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE
@@ -72,7 +104,7 @@ public:
 
 	// See Shape::GetMassProperties
 	virtual MassProperties			GetMassProperties() const override;
-	
+
 	// See Shape::GetMaterial
 	virtual const PhysicsMaterial *	GetMaterial(const SubShapeID &inSubShapeID) const override;
 
@@ -99,9 +131,12 @@ public:
 	virtual void					CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	/// See: Shape::CollidePoint
-	/// Note that for CollidePoint to work for a mesh shape, the mesh needs to be closed (a manifold) or multiple non-intersecting manifolds. Triangles may be facing the interior of the manifold. 
+	/// Note that for CollidePoint to work for a mesh shape, the mesh needs to be closed (a manifold) or multiple non-intersecting manifolds. Triangles may be facing the interior of the manifold.
 	/// Insideness is tested by counting the amount of triangles encountered when casting an infinite ray from inPoint. If the number of hits is odd we're inside, if it's even we're outside.
 	virtual void					CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
+
+	// See: Shape::CollideSoftBodyVertices
+	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::GetTrianglesStart
 	virtual void					GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
@@ -123,6 +158,9 @@ public:
 	// See Shape::GetVolume
 	virtual float					GetVolume() const override									{ return 0; }
 
+	// When MeshShape::mPerTriangleUserData is true, this function can be used to retrieve the user data that was stored in the mesh shape.
+	uint32							GetTriangleUserData(const SubShapeID &inSubShapeID) const;
+
 #ifdef JPH_DEBUG_RENDERER
 	// Settings
 	static bool						sDrawTriangleGroups;
@@ -140,10 +178,10 @@ private:
 	struct							MSGetTrianglesContext;										///< Context class for GetTrianglesStart/Next
 
 	static constexpr int			NumTriangleBits = 3;										///< How many bits to reserve to encode the triangle index
-	static constexpr int			MaxTrianglesPerLeaf = 1 << NumTriangleBits;					///< Number of triangles that are stored max per leaf aabb node 
+	static constexpr int			MaxTrianglesPerLeaf = 1 << NumTriangleBits;					///< Number of triangles that are stored max per leaf aabb node
 
 	/// Find and flag active edges
-	static void						sFindActiveEdges(const VertexList &inVertices, IndexedTriangleList &ioIndices);
+	static void						sFindActiveEdges(const MeshShapeSettings &inSettings, IndexedTriangleList &ioIndices);
 
 	/// Visit the entire tree using a visitor pattern
 	template <class Visitor>

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -11,16 +12,16 @@
 #include <Application/DebugUI.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(PoweredSliderConstraintTest) 
-{ 
-	JPH_ADD_BASE_CLASS(PoweredSliderConstraintTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(PoweredSliderConstraintTest)
+{
+	JPH_ADD_BASE_CLASS(PoweredSliderConstraintTest, Test)
 }
 
 void PoweredSliderConstraintTest::Initialize()
 {
 	// Floor
 	CreateFloor();
-		
+
 	// Create group filter
 	Ref<GroupFilterTable> group_filter = new GroupFilterTable;
 
@@ -35,7 +36,7 @@ void PoweredSliderConstraintTest::Initialize()
 
 	position += Vec3(box_size + 10.0f, 0, 0);
 
-	mBody2 = mBodyInterface->CreateBody(BodyCreationSettings(BodyCreationSettings(box, position, Quat::sIdentity(), EMotionType::Dynamic, Layers::MOVING)));
+	mBody2 = mBodyInterface->CreateBody(BodyCreationSettings(box, position, Quat::sIdentity(), EMotionType::Dynamic, Layers::MOVING));
 	mBody2->SetCollisionGroup(CollisionGroup(group_filter, 0, 0));
 	mBody2->GetMotionProperties()->SetLinearDamping(0.0f);
 	mBody2->SetAllowSleeping(false);
@@ -53,11 +54,11 @@ void PoweredSliderConstraintTest::Initialize()
 }
 
 void PoweredSliderConstraintTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
-{ 
+{
 	MotorSettings &motor_settings = mConstraint->GetMotorSettings();
 	motor_settings.SetForceLimit(sMaxMotorAcceleration / mBody2->GetMotionProperties()->GetInverseMass()); // F = m * a
-	motor_settings.mFrequency = sFrequency;
-	motor_settings.mDamping = sDamping;
+	motor_settings.mSpringSettings.mFrequency = sFrequency;
+	motor_settings.mSpringSettings.mDamping = sDamping;
 	mConstraint->SetMaxFrictionForce(sMaxFrictionAcceleration / mBody2->GetMotionProperties()->GetInverseMass());
 }
 

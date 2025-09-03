@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -31,11 +32,32 @@ public:
 	float			GetConstant() const														{ return mNormalAndConstant.GetW(); }
 	void			SetConstant(float inConstant)											{ mNormalAndConstant.SetW(inConstant); }
 
+	/// Store as 4 floats
+	void			StoreFloat4(Float4 *outV) const											{ mNormalAndConstant.StoreFloat4(outV); }
+
 	/// Offset the plane (positive value means move it in the direction of the plane normal)
 	Plane			Offset(float inDistance) const											{ return Plane(mNormalAndConstant - Vec4(Vec3::sZero(), inDistance)); }
 
+	/// Transform the plane by a matrix
+	inline Plane	GetTransformed(Mat44Arg inTransform) const
+	{
+		Vec3 transformed_normal = inTransform.Multiply3x3(GetNormal());
+		return Plane(transformed_normal, GetConstant() - inTransform.GetTranslation().Dot(transformed_normal));
+	}
+
+	/// Scale the plane, can handle non-uniform and negative scaling
+	inline Plane	Scaled(Vec3Arg inScale) const
+	{
+		Vec3 scaled_normal = GetNormal() / inScale;
+		float scaled_normal_length = scaled_normal.Length();
+		return Plane(scaled_normal / scaled_normal_length, GetConstant() / scaled_normal_length);
+	}
+
 	/// Distance point to plane
 	float			SignedDistance(Vec3Arg inPoint) const									{ return inPoint.Dot(GetNormal()) + GetConstant(); }
+
+	/// Project inPoint onto the plane
+	Vec3			ProjectPointOnPlane(Vec3Arg inPoint) const								{ return inPoint - GetNormal() * SignedDistance(inPoint); }
 
 	/// Returns intersection point between 3 planes
 	static bool		sIntersectPlanes(const Plane &inP1, const Plane &inP2, const Plane &inP3, Vec3 &outPoint)
@@ -62,7 +84,7 @@ public:
 		// [aw*(bz*cy-by*cz)+ay*(bw*cz-bz*cw)+az*(by*cw-bw*cy)]
 		// [aw*(bx*cz-bz*cx)+ax*(bz*cw-bw*cz)+az*(bw*cx-bx*cw)]
 		// [aw*(by*cx-bx*cy)+ax*(bw*cy-by*cw)+ay*(bx*cw-bw*cx)]
-		Vec4 numerator = 
+		Vec4 numerator =
 			a.SplatW() * (b.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y, SWIZZLE_UNUSED>() * c.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X, SWIZZLE_UNUSED>() - b.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X, SWIZZLE_UNUSED>() * c.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y, SWIZZLE_UNUSED>())
 			+ a.Swizzle<SWIZZLE_Y, SWIZZLE_X, SWIZZLE_X, SWIZZLE_UNUSED>() * (b.Swizzle<SWIZZLE_W, SWIZZLE_Z, SWIZZLE_W, SWIZZLE_UNUSED>() * c.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_Y, SWIZZLE_UNUSED>() - b.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_Y, SWIZZLE_UNUSED>() * c.Swizzle<SWIZZLE_W, SWIZZLE_Z, SWIZZLE_W, SWIZZLE_UNUSED>())
 			+ a.Swizzle<SWIZZLE_Z, SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_UNUSED>() * (b.Swizzle<SWIZZLE_Y, SWIZZLE_W, SWIZZLE_X, SWIZZLE_UNUSED>() * c.Swizzle<SWIZZLE_W, SWIZZLE_X, SWIZZLE_W, SWIZZLE_UNUSED>() - b.Swizzle<SWIZZLE_W, SWIZZLE_X, SWIZZLE_W, SWIZZLE_UNUSED>() * c.Swizzle<SWIZZLE_Y, SWIZZLE_W, SWIZZLE_X, SWIZZLE_UNUSED>());
@@ -72,6 +94,10 @@ public:
 	}
 
 private:
+#ifdef JPH_OBJECT_STREAM
+	friend void		CreateRTTIPlane(class RTTI &);										// For JPH_IMPLEMENT_SERIALIZABLE_OUTSIDE_CLASS
+#endif
+
 	Vec4			mNormalAndConstant;													///< XYZ = normal, W = constant, plane: x . normal + constant = 0
 };
 

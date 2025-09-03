@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -10,16 +11,16 @@
 #include <Application/DebugUI.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(SwingTwistConstraintTest) 
-{ 
-	JPH_ADD_BASE_CLASS(SwingTwistConstraintTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(SwingTwistConstraintTest)
+{
+	JPH_ADD_BASE_CLASS(SwingTwistConstraintTest, Test)
 }
 
 void SwingTwistConstraintTest::Initialize()
 {
 	// Floor
 	CreateFloor();
-		
+
 	float half_cylinder_height = 1.5f;
 
 	const int cChainLength = 10;
@@ -62,8 +63,8 @@ void SwingTwistConstraintTest::Initialize()
 	}
 }
 
-void SwingTwistConstraintTest::PrePhysicsUpdate(const PreUpdateParams &inParams) 
-{ 
+void SwingTwistConstraintTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
+{
 	for (SwingTwistConstraint *c : mConstraints)
 	{
 		c->SetNormalHalfConeAngle(sNormalHalfConeAngle);
@@ -75,8 +76,8 @@ void SwingTwistConstraintTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
 
 void SwingTwistConstraintTest::CreateSettingsMenu(DebugUI *inUI, UIElement *inSubMenu)
 {
-	inUI->CreateSlider(inSubMenu, "Min Twist Angle (deg)", RadiansToDegrees(sTwistMinAngle), -180.0f, 0.0f, 1.0f, [=](float inValue) { sTwistMinAngle = DegreesToRadians(inValue); });
-	inUI->CreateSlider(inSubMenu, "Max Twist Angle (deg)", RadiansToDegrees(sTwistMaxAngle), 0.0f, 180.0f, 1.0f, [=](float inValue) { sTwistMaxAngle = DegreesToRadians(inValue); });
+	inUI->CreateSlider(inSubMenu, "Min Twist Angle (deg)", RadiansToDegrees(sTwistMinAngle), -180.0f, 180.0f, 1.0f, [=](float inValue) { sTwistMinAngle = DegreesToRadians(inValue); });
+	inUI->CreateSlider(inSubMenu, "Max Twist Angle (deg)", RadiansToDegrees(sTwistMaxAngle), -180.0f, 180.0f, 1.0f, [=](float inValue) { sTwistMaxAngle = DegreesToRadians(inValue); });
 	inUI->CreateSlider(inSubMenu, "Normal Half Cone Angle (deg)", RadiansToDegrees(sNormalHalfConeAngle), 0.0f, 180.0f, 1.0f, [=](float inValue) { sNormalHalfConeAngle = DegreesToRadians(inValue); });
 	inUI->CreateSlider(inSubMenu, "Plane Half Cone Angle (deg)", RadiansToDegrees(sPlaneHalfConeAngle), 0.0f, 180.0f, 1.0f, [=](float inValue) { sPlaneHalfConeAngle = DegreesToRadians(inValue); });
 

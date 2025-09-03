@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -12,7 +13,7 @@ class [[nodiscard]] Vector
 public:
 	/// Constructor
 	inline						Vector() = default;
-	inline						Vector(const Vector &inRHS)								{ *this = inRHS; }
+	inline						Vector(const Vector &) = default;
 
 	/// Dimensions
 	inline uint					GetRows() const											{ return Rows; }
@@ -35,16 +36,16 @@ public:
 		}
 
 	/// Get float component by index
-	inline float				operator [] (uint inCoordinate) const			
-	{ 
-		JPH_ASSERT(inCoordinate < Rows); 
-		return mF32[inCoordinate]; 
+	inline float				operator [] (uint inCoordinate) const
+	{
+		JPH_ASSERT(inCoordinate < Rows);
+		return mF32[inCoordinate];
 	}
-	
+
 	inline float &				operator [] (uint inCoordinate)
-	{ 
-		JPH_ASSERT(inCoordinate < Rows); 
-		return mF32[inCoordinate]; 
+	{
+		JPH_ASSERT(inCoordinate < Rows);
+		return mF32[inCoordinate];
 	}
 
 	/// Comparison
@@ -74,18 +75,13 @@ public:
 	}
 
 	/// Test if two vectors are close to each other
-	inline bool					IsClose(const Vector &inV2, float inMaxDistSq = 1.0e-12f)
+	inline bool					IsClose(const Vector &inV2, float inMaxDistSq = 1.0e-12f) const
 	{
 		return (inV2 - *this).LengthSq() <= inMaxDistSq;
 	}
 
 	/// Assignment
-	inline Vector &				operator = (const Vector &inV2)
-	{
-		for (uint r = 0; r < Rows; ++r)
-			mF32[r] = inV2.mF32[r];
-		return *this;
-	}
+	inline Vector &				operator = (const Vector &) = default;
 
 	/// Multiply vector with float
 	inline Vector				operator * (const float inV2) const
@@ -96,7 +92,7 @@ public:
 		return v;
 	}
 
-	inline Vector &				operator *= (const float inV2) 
+	inline Vector &				operator *= (const float inV2)
 	{
 		for (uint r = 0; r < Rows; ++r)
 			mF32[r] *= inV2;
@@ -116,6 +112,13 @@ public:
 		for (uint r = 0; r < Rows; ++r)
 			v.mF32[r] = mF32[r] / inV2;
 		return v;
+	}
+
+	inline Vector &				operator /= (float inV2)
+	{
+		for (uint r = 0; r < Rows; ++r)
+			mF32[r] /= inV2;
+		return *this;
 	}
 
 	/// Add two float vectors (component wise)
@@ -152,7 +155,7 @@ public:
 		return v;
 	}
 
-	inline Vector &				operator -= (const Vector &inV2) 
+	inline Vector &				operator -= (const Vector &inV2)
 	{
 		for (uint r = 0; r < Rows; ++r)
 			mF32[r] -= inV2.mF32[r];

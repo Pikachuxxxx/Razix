@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -8,9 +9,9 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(DampingTest) 
-{ 
-	JPH_ADD_BASE_CLASS(DampingTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(DampingTest)
+{
+	JPH_ADD_BASE_CLASS(DampingTest, Test)
 }
 
 void DampingTest::Initialize()
@@ -28,6 +29,7 @@ void DampingTest::Initialize()
 		body.GetMotionProperties()->SetLinearDamping(0.1f * i);
 		body.SetLinearVelocity(Vec3(0, 0, 10));
 		mBodyInterface->AddBody(body.GetID(), EActivation::Activate);
+		SetBodyLabel(body.GetID(), StringFormat("Linear damping: %.1f", double(body.GetMotionProperties()->GetLinearDamping())));
 	}
 
 	for (int i = 0; i <= 10; ++i)
@@ -37,5 +39,6 @@ void DampingTest::Initialize()
 		body.GetMotionProperties()->SetAngularDamping(0.1f * i);
 		body.SetAngularVelocity(Vec3(0, 10, 0));
 		mBodyInterface->AddBody(body.GetID(), EActivation::Activate);
+		SetBodyLabel(body.GetID(), StringFormat("Angular damping: %.1f", double(body.GetMotionProperties()->GetAngularDamping())));
 	}
 }

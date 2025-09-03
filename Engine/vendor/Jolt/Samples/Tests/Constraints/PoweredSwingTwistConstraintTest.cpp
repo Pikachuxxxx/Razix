@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -10,9 +11,9 @@
 #include <Application/DebugUI.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(PoweredSwingTwistConstraintTest) 
-{ 
-	JPH_ADD_BASE_CLASS(PoweredSwingTwistConstraintTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(PoweredSwingTwistConstraintTest)
+{
+	JPH_ADD_BASE_CLASS(PoweredSwingTwistConstraintTest, Test)
 }
 
 Vec3 PoweredSwingTwistConstraintTest::sBodyRotation[] = { Vec3::sZero(), Vec3::sZero() };
@@ -44,7 +45,7 @@ void PoweredSwingTwistConstraintTest::Initialize()
 	body2.GetMotionProperties()->SetAngularDamping(0.0f);
 	body2.SetAllowSleeping(false);
 	mBodyInterface->AddBody(body2.GetID(), EActivation::Activate);
-	
+
 	Ref<SwingTwistConstraintSettings> settings = new SwingTwistConstraintSettings;
 	settings->mNormalHalfConeAngle = sNormalHalfConeAngle;
 	settings->mPlaneHalfConeAngle = sPlaneHalfConeAngle;
@@ -63,8 +64,8 @@ void PoweredSwingTwistConstraintTest::Initialize()
 	mInertiaBody2AsSeenFromConstraint = (body2_inertia * Vec3::sAxisY()).Length();
 }
 
-void PoweredSwingTwistConstraintTest::PrePhysicsUpdate(const PreUpdateParams &inParams) 
-{ 
+void PoweredSwingTwistConstraintTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
+{
 	// Torque = Inertia * Angular Acceleration (alpha)
 	mConstraint->SetMaxFrictionTorque(mInertiaBody2AsSeenFromConstraint * sMaxFrictionAngularAcceleration);
 
@@ -80,16 +81,16 @@ void PoweredSwingTwistConstraintTest::PrePhysicsUpdate(const PreUpdateParams &in
 
 	MotorSettings &swing = mConstraint->GetSwingMotorSettings();
 	swing.SetTorqueLimit(mInertiaBody2AsSeenFromConstraint * sMaxAngularAcceleration);
-	swing.mFrequency = sFrequency;
-	swing.mDamping = sDamping;
+	swing.mSpringSettings.mFrequency = sFrequency;
+	swing.mSpringSettings.mDamping = sDamping;
 
 	MotorSettings &twist = mConstraint->GetTwistMotorSettings();
 	twist.SetTorqueLimit(mInertiaBody2AsSeenFromConstraint * sMaxAngularAcceleration);
-	twist.mFrequency = sFrequency;
-	twist.mDamping = sDamping;
+	twist.mSpringSettings.mFrequency = sFrequency;
+	twist.mSpringSettings.mDamping = sDamping;
 }
 
-void PoweredSwingTwistConstraintTest::GetInitialCamera(CameraState &ioState) const 
+void PoweredSwingTwistConstraintTest::GetInitialCamera(CameraState &ioState) const
 {
 	ioState.mPos = RVec3(4, 25, 4);
 	ioState.mForward = Vec3(-1, -1, -1).Normalized();
@@ -100,14 +101,14 @@ void PoweredSwingTwistConstraintTest::CreateSettingsMenu(DebugUI *inUI, UIElemen
 	Array<String> axis_label = { "X", "Y", "Z" };
 	Array<String> constraint_label = { "Twist", "Plane", "Normal" };
 
-	inUI->CreateTextButton(inSubMenu, "Configuration Settings", [=]() {
+	inUI->CreateTextButton(inSubMenu, "Configuration Settings", [this, inUI, axis_label]() {
 		UIElement *configuration_settings = inUI->CreateMenu();
 
 		for (int body = 0; body < 2; ++body)
 			for (int axis = 0; axis < 3; ++axis)
 				inUI->CreateSlider(configuration_settings, "Body " + ConvertToString(body + 1) + " Rotation " + axis_label[axis] + " (deg)", RadiansToDegrees(sBodyRotation[body][axis]), -180.0f, 180.0f, 1.0f, [=](float inValue) { sBodyRotation[body].SetComponent(axis, DegreesToRadians(inValue)); });
 
-		inUI->CreateTextButton(configuration_settings, "Accept Changes", [=]() { RestartTest(); });
+		inUI->CreateTextButton(configuration_settings, "Accept Changes", [this]() { RestartTest(); });
 
 		inUI->ShowMenu(configuration_settings);
 	});
@@ -115,8 +116,8 @@ void PoweredSwingTwistConstraintTest::CreateSettingsMenu(DebugUI *inUI, UIElemen
 	inUI->CreateTextButton(inSubMenu, "Runtime Settings", [=]() {
 		UIElement *runtime_settings = inUI->CreateMenu();
 
-		inUI->CreateSlider(runtime_settings, "Min Twist Angle (deg)", RadiansToDegrees(sTwistMinAngle), -180.0f, 0.0f, 1.0f, [=](float inValue) { sTwistMinAngle = DegreesToRadians(inValue); });
-		inUI->CreateSlider(runtime_settings, "Max Twist Angle (deg)", RadiansToDegrees(sTwistMaxAngle), 0.0f, 180.0f, 1.0f, [=](float inValue) { sTwistMaxAngle = DegreesToRadians(inValue); });
+		inUI->CreateSlider(runtime_settings, "Min Twist Angle (deg)", RadiansToDegrees(sTwistMinAngle), -180.0f, 180.0f, 1.0f, [=](float inValue) { sTwistMinAngle = DegreesToRadians(inValue); });
+		inUI->CreateSlider(runtime_settings, "Max Twist Angle (deg)", RadiansToDegrees(sTwistMaxAngle), -180.0f, 180.0f, 1.0f, [=](float inValue) { sTwistMaxAngle = DegreesToRadians(inValue); });
 		inUI->CreateSlider(runtime_settings, "Normal Half Cone Angle (deg)", RadiansToDegrees(sNormalHalfConeAngle), 0.0f, 180.0f, 1.0f, [=](float inValue) { sNormalHalfConeAngle = DegreesToRadians(inValue); });
 		inUI->CreateSlider(runtime_settings, "Plane Half Cone Angle (deg)", RadiansToDegrees(sPlaneHalfConeAngle), 0.0f, 180.0f, 1.0f, [=](float inValue) { sPlaneHalfConeAngle = DegreesToRadians(inValue); });
 
@@ -127,7 +128,7 @@ void PoweredSwingTwistConstraintTest::CreateSettingsMenu(DebugUI *inUI, UIElemen
 			inUI->CreateSlider(runtime_settings, "Target Angular Velocity " + constraint_label[i] + " (deg/s)", RadiansToDegrees(sTargetVelocityCS[i]), -90.0f, 90.0f, 1.0f, [i](float inValue) { sTargetVelocityCS.SetComponent(i, DegreesToRadians(inValue)); });
 
 		for (int i = 0; i < 3; ++i)
-			inUI->CreateSlider(runtime_settings, "Target Angle " + constraint_label[i] + " (deg)", RadiansToDegrees(sTargetOrientationCS[i]), -180, 180.0f, 1.0f, [i](float inValue) { 
+			inUI->CreateSlider(runtime_settings, "Target Angle " + constraint_label[i] + " (deg)", RadiansToDegrees(sTargetOrientationCS[i]), -180, 180.0f, 1.0f, [i](float inValue) {
 				sTargetOrientationCS.SetComponent(i, DegreesToRadians(Clamp(inValue, -179.99f, 179.99f))); // +/- 180 degrees is ambiguous, so add a little bit of a margin
 			});
 

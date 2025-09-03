@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -13,16 +14,16 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(StaticCompoundShapeTest) 
-{ 
-	JPH_ADD_BASE_CLASS(StaticCompoundShapeTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(StaticCompoundShapeTest)
+{
+	JPH_ADD_BASE_CLASS(StaticCompoundShapeTest, Test)
 }
 
-void StaticCompoundShapeTest::Initialize() 
+void StaticCompoundShapeTest::Initialize()
 {
 	// Floor
 	CreateFloor();
-		
+
 	// Simple compound
 	Ref<StaticCompoundShapeSettings> compound_shape1 = new StaticCompoundShapeSettings;
 	compound_shape1->AddShape(Vec3::sZero(), Quat::sIdentity(), new CapsuleShape(5, 1));
@@ -56,7 +57,6 @@ void StaticCompoundShapeTest::Initialize()
 				rotation = Quat::sRotation(Vec3::sAxisX(), 0.5f * JPH_PI);
 			else
 				rotation = Quat::sRotation(Vec3::sAxisZ(), 0.5f * JPH_PI);
-			Body &body = *mBodyInterface->CreateBody(BodyCreationSettings(shapes[j], RVec3(0, 10.0f + 4.0f * i, j * 20.0f), rotation, EMotionType::Dynamic, Layers::MOVING));
-			mBodyInterface->AddBody(body.GetID(), EActivation::Activate);
+			mBodyInterface->CreateAndAddBody(BodyCreationSettings(shapes[j], RVec3(0, 10.0f + 4.0f * i, j * 20.0f), rotation, EMotionType::Dynamic, Layers::MOVING), EActivation::Activate);
 		}
 }

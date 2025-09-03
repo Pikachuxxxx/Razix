@@ -1,15 +1,17 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 #include <TestFramework.h>
 
 #include <Tests/Test.h>
-#include <Math/Perlin.h>
+#include <External/Perlin.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/HeightFieldShape.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Layers.h>
+#include <Renderer/DebugRendererImp.h>
 
 JPH_IMPLEMENT_RTTI_ABSTRACT(Test)
 {
@@ -105,7 +107,7 @@ Body &Test::CreateMeshTerrain()
 {
 	const float scale = GetWorldScale();
 
-#ifdef _DEBUG
+#ifdef JPH_DEBUG
 	const int n = 50;
 	const float cell_size = scale * 2.0f;
 #else
@@ -168,4 +170,17 @@ Body &Test::CreateHeightFieldTerrain()
 	Body &floor = *mBodyInterface->CreateBody(BodyCreationSettings(height_field, RVec3::sZero(), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING));
 	mBodyInterface->AddBody(floor.GetID(), EActivation::DontActivate);
 	return floor;
+}
+
+void Test::DrawBodyLabels()
+{
+	for (const BodyLabels::value_type &l : mBodyLabels)
+	{
+		BodyLockRead body_lock(mPhysicsSystem->GetBodyLockInterface(), l.first);
+		if (body_lock.Succeeded())
+		{
+			const Body &body = body_lock.GetBody();
+			mDebugRenderer->DrawText3D(body.GetPosition(), l.second, Color::sWhite, GetWorldScale() * 0.5f);
+		}
+	}
 }

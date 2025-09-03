@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -23,15 +24,15 @@ public:
 								CollideShapeResult() = default;
 
 	/// Constructor
-								CollideShapeResult(Vec3Arg inContactPointOn1, Vec3Arg inContactPointOn2, Vec3Arg inPenetrationAxis, float inPenetrationDepth, const SubShapeID &inSubShapeID1, const SubShapeID &inSubShapeID2, const BodyID &inBodyID2) : 
-		mContactPointOn1(inContactPointOn1), 
-		mContactPointOn2(inContactPointOn2), 
-		mPenetrationAxis(inPenetrationAxis), 
-		mPenetrationDepth(inPenetrationDepth), 
-		mSubShapeID1(inSubShapeID1), 
-		mSubShapeID2(inSubShapeID2), 
-		mBodyID2(inBodyID2) 
-	{ 
+								CollideShapeResult(Vec3Arg inContactPointOn1, Vec3Arg inContactPointOn2, Vec3Arg inPenetrationAxis, float inPenetrationDepth, const SubShapeID &inSubShapeID1, const SubShapeID &inSubShapeID2, const BodyID &inBodyID2) :
+		mContactPointOn1(inContactPointOn1),
+		mContactPointOn2(inContactPointOn2),
+		mPenetrationAxis(inPenetrationAxis),
+		mPenetrationDepth(inPenetrationDepth),
+		mSubShapeID1(inSubShapeID1),
+		mSubShapeID2(inSubShapeID2),
+		mBodyID2(inBodyID2)
+	{
 	}
 
 	/// Function required by the CollisionCollector. A smaller fraction is considered to be a 'better hit'. We use -penetration depth to get the hit with the biggest penetration depth
@@ -58,7 +59,7 @@ public:
 	Vec3						mContactPointOn1;			///< Contact point on the surface of shape 1 (in world space or relative to base offset)
 	Vec3						mContactPointOn2;			///< Contact point on the surface of shape 2 (in world space or relative to base offset). If the penetration depth is 0, this will be the same as mContactPointOn1.
 	Vec3						mPenetrationAxis;			///< Direction to move shape 2 out of collision along the shortest path (magnitude is meaningless, in world space). You can use -mPenetrationAxis.Normalized() as contact normal.
-	float						mPenetrationDepth;			///< Penetration depth (move shape 2 by this distance to resolve the collision)
+	float						mPenetrationDepth;			///< Penetration depth (move shape 2 by this distance to resolve the collision). If CollideShapeSettings::mMaxSeparationDistance > 0 this number can be negative to indicate that the objects are separated by -mPenetrationDepth. The contact points are the closest points in that case.
 	SubShapeID					mSubShapeID1;				///< Sub shape ID that identifies the face on shape 1
 	SubShapeID					mSubShapeID2;				///< Sub shape ID that identifies the face on shape 2
 	BodyID						mBodyID2;					///< BodyID to which shape 2 belongs to
@@ -94,7 +95,8 @@ class CollideShapeSettings : public CollideSettingsBase
 public:
 	JPH_OVERRIDE_NEW_DELETE
 
-	/// When > 0 contacts in the vicinity of the query shape can be found. All nearest contacts that are not further away than this distance will be found (uint: meter)
+	/// When > 0 contacts in the vicinity of the query shape can be found. All nearest contacts that are not further away than this distance will be found.
+	/// Note that in this case CollideShapeResult::mPenetrationDepth can become negative to indicate that objects are not overlapping. (unit: meter)
 	float						mMaxSeparationDistance		= 0.0f;
 
 	/// How backfacing triangles should be treated

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -40,12 +41,12 @@ struct PhysicsSettings
 	/// Baumgarte stabilization factor (how much of the position error to 'fix' in 1 update) (unit: dimensionless, 0 = nothing, 1 = 100%)
 	float		mBaumgarte = 0.2f;
 
-	/// Radius around objects inside which speculative contact points will be detected. Note that if this is too big 
-	/// you will get ghost collisions as speculative contacts are based on the closest points during the collision detection 
+	/// Radius around objects inside which speculative contact points will be detected. Note that if this is too big
+	/// you will get ghost collisions as speculative contacts are based on the closest points during the collision detection
 	/// step which may not be the actual closest points by the time the two objects hit (unit: meters)
 	float		mSpeculativeContactDistance = 0.02f;
 
-	/// How much bodies are allowed to sink into eachother (unit: meters)
+	/// How much bodies are allowed to sink into each other (unit: meters)
 	float		mPenetrationSlop = 0.02f;
 
 	/// Fraction of its inner radius a body must move per step to enable casting for the LinearCast motion quality
@@ -54,8 +55,8 @@ struct PhysicsSettings
 	/// Fraction of its inner radius a body may penetrate another body for the LinearCast motion quality
 	float		mLinearCastMaxPenetration = 0.25f;
 
-	/// Max squared distance to use to determine if two points are on the same plane for determining the contact manifold between two shape faces (unit: meter^2)
-	float		mManifoldToleranceSq = 1.0e-6f;
+	/// Max distance to use to determine if two points are on the same plane for determining the contact manifold between two shape faces (unit: meter)
+	float		mManifoldTolerance = 1.0e-3f;
 
 	/// Maximum distance to correct in a single iteration when solving position constraints (unit: meters)
 	float		mMaxPenetrationDistance = 0.2f;
@@ -74,19 +75,28 @@ struct PhysicsSettings
 
 	/// Number of solver velocity iterations to run
 	/// Note that this needs to be >= 2 in order for friction to work (friction is applied using the non-penetration impulse from the previous iteration)
-	int			mNumVelocitySteps = 10;
+	uint		mNumVelocitySteps = 10;
 
 	/// Number of solver position iterations to run
-	int			mNumPositionSteps = 2;
+	uint		mNumPositionSteps = 2;
 
-	/// Minimal velocity needed before a collision can be elastic (unit: m)
+	/// Minimal velocity needed before a collision can be elastic. If the relative velocity between colliding objects
+	/// in the direction of the contact normal is lower than this, the restitution will be zero regardless of the configured
+	/// value. This lets an object settle sooner. Must be a positive number. (unit: m)
 	float		mMinVelocityForRestitution = 1.0f;
 
 	/// Time before object is allowed to go to sleep (unit: seconds)
 	float		mTimeBeforeSleep = 0.5f;
 
-	/// Velocity of points on bounding box of object below which an object can be considered sleeping (unit: m/s)
+	/// To detect if an object is sleeping, we use 3 points:
+	/// - The center of mass.
+	/// - The centers of the faces of the bounding box that are furthest away from the center.
+	/// The movement of these points is tracked and if the velocity of all 3 points is lower than this value,
+	/// the object is allowed to go to sleep. Must be a positive number. (unit: m/s)
 	float		mPointVelocitySleepThreshold = 0.03f;
+
+	/// By default the simulation is deterministic, it is possible to turn this off by setting this setting to false. This will make the simulation run faster but it will no longer be deterministic.
+	bool		mDeterministicSimulation = true;
 
 	///@name These variables are mainly for debugging purposes, they allow turning on/off certain subsystems. You probably want to leave them alone.
 	///@{
@@ -97,8 +107,11 @@ struct PhysicsSettings
 	/// Whether or not to use the body pair cache, which removes the need for narrow phase collision detection when orientation between two bodies didn't change
 	bool		mUseBodyPairContactCache = true;
 
-	/// Whether or not to reduce manifolds with similar contact normals into one contact manifold
+	/// Whether or not to reduce manifolds with similar contact normals into one contact manifold (see description at Body::SetUseManifoldReduction)
 	bool		mUseManifoldReduction = true;
+
+	/// If we split up large islands into smaller parallel batches of work (to improve performance)
+	bool		mUseLargeIslandSplitter = true;
 
 	/// If objects can go to sleep or not
 	bool		mAllowSleeping = true;

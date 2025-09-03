@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -21,9 +22,9 @@ void UIButton::CopyTo(UIElement *ioElement) const
 	element->mUpColor = mUpColor;
 	element->mDownQuad = mDownQuad;
 	element->mDownColor = mDownColor;
-	element->mSelectedQuad = mSelectedQuad;	
+	element->mSelectedQuad = mSelectedQuad;
 	element->mSelectedColor = mSelectedColor;
-	element->mDisabledQuad = mDisabledQuad;	
+	element->mDisabledQuad = mDisabledQuad;
 	element->mDisabledColor = mDisabledColor;
 }
 

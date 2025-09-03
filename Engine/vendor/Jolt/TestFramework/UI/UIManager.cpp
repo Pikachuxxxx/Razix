@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -24,26 +25,27 @@ UIManager::UIManager(Renderer *inRenderer) :
 	mManager = this;
 
 	// Set dimensions of the screen
-	SetWidth(mRenderer->GetWindowWidth());
-	SetHeight(mRenderer->GetWindowHeight());
+	ApplicationWindow *window = mRenderer->GetWindow();
+	SetWidth(window->GetWindowWidth());
+	SetHeight(window->GetWindowHeight());
 
 	// Create input layout
-	const D3D12_INPUT_ELEMENT_DESC vertex_desc[] =
+	const PipelineState::EInputDescription vertex_desc[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		PipelineState::EInputDescription::Position,
+		PipelineState::EInputDescription::TexCoord,
+		PipelineState::EInputDescription::Color
 	};
 
 	// Load vertex shader
-	ComPtr<ID3DBlob> vtx = mRenderer->CreateVertexShader("Assets/Shaders/UIVertexShader.hlsl");
+	Ref<VertexShader> vtx = mRenderer->CreateVertexShader("UIVertexShader");
 
 	// Load pixel shader
-	ComPtr<ID3DBlob> pix_textured = mRenderer->CreatePixelShader("Assets/Shaders/UIPixelShader.hlsl");
-	ComPtr<ID3DBlob> pix_untextured = mRenderer->CreatePixelShader("Assets/Shaders/UIPixelShaderUntextured.hlsl");
+	Ref<PixelShader> pix_textured = mRenderer->CreatePixelShader("UIPixelShader");
+	Ref<PixelShader> pix_untextured = mRenderer->CreatePixelShader("UIPixelShaderUntextured");
 
-	mTextured = mRenderer->CreatePipelineState(vtx.Get(), vertex_desc, ARRAYSIZE(vertex_desc), pix_textured.Get(), D3D12_FILL_MODE_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, PipelineState::EDepthTest::Off, PipelineState::EBlendMode::AlphaBlend, PipelineState::ECullMode::Backface);
-	mUntextured = mRenderer->CreatePipelineState(vtx.Get(), vertex_desc, ARRAYSIZE(vertex_desc), pix_untextured.Get(), D3D12_FILL_MODE_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, PipelineState::EDepthTest::Off, PipelineState::EBlendMode::AlphaBlend, PipelineState::ECullMode::Backface);
+	mTextured = mRenderer->CreatePipelineState(vtx, vertex_desc, std::size(vertex_desc), pix_textured, PipelineState::EDrawPass::Normal, PipelineState::EFillMode::Solid, PipelineState::ETopology::Triangle, PipelineState::EDepthTest::Off, PipelineState::EBlendMode::AlphaBlend, PipelineState::ECullMode::Backface);
+	mUntextured = mRenderer->CreatePipelineState(vtx, vertex_desc, std::size(vertex_desc), pix_untextured, PipelineState::EDrawPass::Normal, PipelineState::EFillMode::Solid, PipelineState::ETopology::Triangle, PipelineState::EDepthTest::Off, PipelineState::EBlendMode::AlphaBlend, PipelineState::ECullMode::Backface);
 }
 
 UIManager::~UIManager()
@@ -82,8 +84,8 @@ void UIManager::Update(float inDeltaTime)
 	case STATE_ACTIVE:
 	case STATE_DEACTIVE:
 	case STATE_INVALID:
-    default:
-        break;
+	default:
+		break;
 	}
 }
 
@@ -152,14 +154,15 @@ void UIManager::GetMaxElementDistanceToScreenEdge(int &outMaxH, int &outMaxV)
 	outMaxH = 0;
 	outMaxV = 0;
 
+	ApplicationWindow *window = mRenderer->GetWindow();
 	for (const UIElement *e : mChildren)
 		if (e->HasDeactivateAnimation())
 		{
 			int dl = e->GetX() + e->GetWidth();
-			int dr = mRenderer->GetWindowWidth() - e->GetX();
+			int dr = window->GetWindowWidth() - e->GetX();
 			outMaxH = max(outMaxH, min(dl, dr));
 			int dt = e->GetY() + e->GetHeight();
-			int db = mRenderer->GetWindowHeight() - e->GetY();
+			int db = window->GetWindowHeight() - e->GetY();
 			outMaxV = max(outMaxV, min(dt, db));
 		}
 }
@@ -178,8 +181,8 @@ void UIManager::SwitchToState(EState inState)
 	case STATE_ACTIVE:
 	case STATE_DEACTIVE:
 	case STATE_INVALID:
-    default:
-        break;
+	default:
+		break;
 	}
 
 	// Store new state
@@ -213,8 +216,8 @@ void UIManager::SwitchToState(EState inState)
 
 	case STATE_ACTIVE:
 	case STATE_INVALID:
-    default:
-        break;
+	default:
+		break;
 	}
 }
 
@@ -229,22 +232,22 @@ inline static void sDrawQuad(QuadVertex *&v ,float x1, float y1, float x2, float
 	v->mTexCoord = Float2(tx1, ty2);
 	v->mColor = inColor;
 	++v;
-	
+
 	v->mPosition = Float3(x2, y2, 0);
 	v->mTexCoord = Float2(tx2, ty2);
 	v->mColor = inColor;
 	++v;
-	
+
 	v->mPosition = Float3(x1, y1, 0);
 	v->mTexCoord = Float2(tx1, ty1);
 	v->mColor = inColor;
 	++v;
-	
+
 	v->mPosition = Float3(x2, y2, 0);
 	v->mTexCoord = Float2(tx2, ty2);
 	v->mColor = inColor;
 	++v;
-	
+
 	v->mPosition = Float3(x2, y1, 0);
 	v->mTexCoord = Float2(tx2, ty1);
 	v->mColor = inColor;
@@ -263,8 +266,8 @@ void UIManager::DrawQuad(int inX, int inY, int inWidth, int inHeight, const UITe
 	{
 		bool has_inner = inQuad.HasInnerPart();
 
-		RenderPrimitive primitive(mRenderer, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		primitive.CreateVertexBuffer(has_inner? 9 * 6 : 6, sizeof(QuadVertex));
+		Ref<RenderPrimitive> primitive = mRenderer->CreateRenderPrimitive(PipelineState::ETopology::Triangle);
+		primitive->CreateVertexBuffer(has_inner? 9 * 6 : 6, sizeof(QuadVertex));
 
 		float w = float(inQuad.mTexture->GetWidth()), h = float(inQuad.mTexture->GetHeight());
 
@@ -276,7 +279,7 @@ void UIManager::DrawQuad(int inX, int inY, int inWidth, int inHeight, const UITe
 		tx1 /= w; ty1 /= h;
 		tx2 /= w; ty2 /= h;
 
-		QuadVertex *v = (QuadVertex *)primitive.LockVertexBuffer();
+		QuadVertex *v = (QuadVertex *)primitive->LockVertexBuffer();
 
 		if (has_inner)
 		{
@@ -286,7 +289,7 @@ void UIManager::DrawQuad(int inX, int inY, int inWidth, int inHeight, const UITe
 			float ix2 = float(inX + inWidth - (inQuad.mWidth - inQuad.mInnerWidth - (inQuad.mInnerX - inQuad.mX)));
 			float iy2 = float(inY + inHeight - (inQuad.mHeight - inQuad.mInnerHeight - (inQuad.mInnerY - inQuad.mY)));
 
-			// Inner area - texture coordiantes
+			// Inner area - texture coordinates
 			float itx1 = float(inQuad.mInnerX);
 			float ity1 = float(inQuad.mInnerY);
 			float itx2 = float(inQuad.mInnerX + inQuad.mInnerWidth);
@@ -311,20 +314,20 @@ void UIManager::DrawQuad(int inX, int inY, int inWidth, int inHeight, const UITe
 			sDrawQuad(v, x1, y1, x2, y2, tx1, ty1, tx2, ty2, inColor);
 		}
 
-		primitive.UnlockVertexBuffer();
-		inQuad.mTexture->Bind(2);
+		primitive->UnlockVertexBuffer();
+		inQuad.mTexture->Bind();
 		mTextured->Activate();
-		primitive.Draw();
+		primitive->Draw();
 	}
 	else
 	{
-		RenderPrimitive primitive(mRenderer, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		primitive.CreateVertexBuffer(6, sizeof(QuadVertex));
-		QuadVertex *v = (QuadVertex *)primitive.LockVertexBuffer();
+		Ref<RenderPrimitive> primitive = mRenderer->CreateRenderPrimitive(PipelineState::ETopology::Triangle);
+		primitive->CreateVertexBuffer(6, sizeof(QuadVertex));
+		QuadVertex *v = (QuadVertex *)primitive->LockVertexBuffer();
 		sDrawQuad(v, x1, y1, x2, y2, 0, 0, 0, 0, inColor);
-		primitive.UnlockVertexBuffer();
+		primitive->UnlockVertexBuffer();
 		mUntextured->Activate();
-		primitive.Draw();
+		primitive->Draw();
 	}
 }
 

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -10,9 +11,9 @@
 #include <Layers.h>
 #include <Utils/ShapeCreator.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(DynamicMeshTest) 
-{ 
-	JPH_ADD_BASE_CLASS(DynamicMeshTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(DynamicMeshTest)
+{
+	JPH_ADD_BASE_CLASS(DynamicMeshTest, Test)
 }
 
 void DynamicMeshTest::Initialize()

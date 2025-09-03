@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -24,7 +25,7 @@ void JobSystem::Job::RemoveDependencyAndQueue(int inCount)
 		mJobSystem->QueueJob(this);
 }
 
-void JobSystem::JobHandle::sRemoveDependencies(JobHandle *inHandles, uint inNumHandles, int inCount)
+void JobSystem::JobHandle::sRemoveDependencies(const JobHandle *inHandles, uint inNumHandles, int inCount)
 {
 	JPH_PROFILE_FUNCTION();
 

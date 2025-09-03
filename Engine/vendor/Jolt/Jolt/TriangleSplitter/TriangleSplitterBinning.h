@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -9,7 +10,7 @@
 JPH_NAMESPACE_BEGIN
 
 /// Binning splitter approach taken from: Realtime Ray Tracing on GPU with BVH-based Packet Traversal by Johannes Gunther et al.
-class TriangleSplitterBinning : public TriangleSplitter
+class JPH_EXPORT TriangleSplitterBinning : public TriangleSplitter
 {
 public:
 	/// Constructor
@@ -38,10 +39,10 @@ private:
 		uint				mNumTriangles;
 
 		// Accumulated data from left most / right most bin to current (including this bin)
-		AABox				mBoundsAccumulatedLeft;				
-		AABox				mBoundsAccumulatedRight;			
-		uint				mNumTrianglesAccumulatedLeft;		
-		uint				mNumTrianglesAccumulatedRight;		
+		AABox				mBoundsAccumulatedLeft;
+		AABox				mBoundsAccumulatedRight;
+		uint				mNumTrianglesAccumulatedLeft;
+		uint				mNumTrianglesAccumulatedRight;
 	};
 
 	// Scratch area to store the bins

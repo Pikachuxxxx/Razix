@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -10,9 +11,9 @@
 #include <Application/DebugUI.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(SixDOFConstraintTest) 
-{ 
-	JPH_ADD_BASE_CLASS(SixDOFConstraintTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(SixDOFConstraintTest)
+{
+	JPH_ADD_BASE_CLASS(SixDOFConstraintTest, Test)
 }
 
 float SixDOFConstraintTest::sLimitMin[EAxis::Num] = { 0, 0, 0, 0, 0, 0 };
@@ -37,16 +38,9 @@ void SixDOFConstraintTest::Initialize()
 	// Convert limits to settings class
 	for (int i = 0; i < EAxis::Num; ++i)
 		if (sEnableLimits[i])
-		{
-			if (sLimitMax[i] - sLimitMin[i] < 1.0e-3f)
-				sSettings->MakeFixedAxis((EAxis)i);
-			else
-				sSettings->SetLimitedAxis((EAxis)i, sLimitMin[i], sLimitMax[i]);
-		}
+			sSettings->SetLimitedAxis((EAxis)i, sLimitMin[i], sLimitMax[i]);
 		else
-		{
 			sSettings->MakeFreeAxis((EAxis)i);
-		}
 
 	// Create group filter
 	Ref<GroupFilterTable> group_filter = new GroupFilterTable;
@@ -80,7 +74,7 @@ void SixDOFConstraintTest::Initialize()
 	mPhysicsSystem->AddConstraint(mConstraint);
 }
 
-void SixDOFConstraintTest::GetInitialCamera(CameraState &ioState) const 
+void SixDOFConstraintTest::GetInitialCamera(CameraState &ioState) const
 {
 	ioState.mPos = RVec3(4, 30, 4);
 	ioState.mForward = Vec3(-1, -1, -1).Normalized();
@@ -90,56 +84,68 @@ void SixDOFConstraintTest::CreateSettingsMenu(DebugUI *inUI, UIElement *inSubMen
 {
 	Array<String> labels = { "Translation X", "Translation Y", "Translation Z", "Rotation X", "Rotation Y", "Rotation Z" };
 	Array<String> motor_states = { "Off", "Velocity", "Position" };
+	Array<String> swing_types = { "Cone", "Pyramid" };
 
-	inUI->CreateTextButton(inSubMenu, "Configuration Settings", [=]() {
+	inUI->CreateTextButton(inSubMenu, "Configuration Settings (Limits)", [this, inUI, labels, swing_types]() {
 		UIElement *configuration_settings = inUI->CreateMenu();
-		
+
+		inUI->CreateComboBox(configuration_settings, "Swing Type", swing_types, (int)sSettings->mSwingType, [](int inItem) { sSettings->mSwingType = (ESwingType)inItem; });
+
 		for (int i = 0; i < 3; ++i)
 		{
 			inUI->CreateCheckBox(configuration_settings, "Enable Limits " + labels[i], sEnableLimits[i], [=](UICheckBox::EState inState) { sEnableLimits[i] = inState == UICheckBox::STATE_CHECKED; });
-			inUI->CreateSlider(configuration_settings, "Limit Min", sLimitMin[i], -10.0f, 0.0f, 0.1f, [=](float inValue) { sLimitMin[i] = inValue; });
-			inUI->CreateSlider(configuration_settings, "Limit Max", sLimitMax[i], 0.0f, 10.0f, 0.1f, [=](float inValue) { sLimitMax[i] = inValue; });
+			inUI->CreateSlider(configuration_settings, "Limit Min", sLimitMin[i], -5.0f, 5.0f, 0.1f, [=](float inValue) { sLimitMin[i] = inValue; });
+			inUI->CreateSlider(configuration_settings, "Limit Max", sLimitMax[i], -5.0f, 5.0f, 0.1f, [=](float inValue) { sLimitMax[i] = inValue; });
+			inUI->CreateSlider(configuration_settings, "Limit Frequency (Hz)", sSettings->mLimitsSpringSettings[i].mFrequency, 0.0f, 20.0f, 0.1f, [=](float inValue) { sSettings->mLimitsSpringSettings[i].mFrequency = inValue; });
+			inUI->CreateSlider(configuration_settings, "Limit Damping", sSettings->mLimitsSpringSettings[i].mDamping, 0.0f, 2.0f, 0.01f, [=](float inValue) { sSettings->mLimitsSpringSettings[i].mDamping = inValue; });
 		}
 
 		for (int i = 3; i < 6; ++i)
 		{
 			inUI->CreateCheckBox(configuration_settings, "Enable Limits " + labels[i], sEnableLimits[i], [=](UICheckBox::EState inState) { sEnableLimits[i] = inState == UICheckBox::STATE_CHECKED; });
-			if (i == 3)
-			{
-				inUI->CreateSlider(configuration_settings, "Limit Min", RadiansToDegrees(sLimitMin[i]), -180.0f, 0.0f, 1.0f, [=](float inValue) { sLimitMin[i] = DegreesToRadians(inValue); });
-				inUI->CreateSlider(configuration_settings, "Limit Max", RadiansToDegrees(sLimitMax[i]), 0.0f, 180.0f, 1.0f, [=](float inValue) { sLimitMax[i] = DegreesToRadians(inValue); });
-			}
-			else
-			{
-				inUI->CreateSlider(configuration_settings, "Limit Max", RadiansToDegrees(sLimitMax[i]), 0.0f, 180.0f, 1.0f, [=](float inValue) { sLimitMin[i] = -DegreesToRadians(inValue); sLimitMax[i] = DegreesToRadians(inValue); });
-			}
+			inUI->CreateSlider(configuration_settings, "Limit Min", RadiansToDegrees(sLimitMin[i]), -180.0f, 180.0f, 1.0f, [=](float inValue) { sLimitMin[i] = DegreesToRadians(inValue); });
+			inUI->CreateSlider(configuration_settings, "Limit Max", RadiansToDegrees(sLimitMax[i]), -180.0f, 180.0f, 1.0f, [=](float inValue) { sLimitMax[i] = DegreesToRadians(inValue); });
 		}
 
-		for (int i = 0; i < 6; ++i)
-			inUI->CreateSlider(configuration_settings, "Max Friction " + labels[i], sSettings->mMaxFriction[i], 0.0f, 500.0f, 1.0f, [=](float inValue) { sSettings->mMaxFriction[i] = inValue; });
-
-		inUI->CreateTextButton(configuration_settings, "Accept Changes", [=]() { RestartTest(); });
+		inUI->CreateTextButton(configuration_settings, "Accept Changes", [this]() { RestartTest(); });
 
 		inUI->ShowMenu(configuration_settings);
 	});
 
-	inUI->CreateTextButton(inSubMenu, "Runtime Settings", [=]() {
+	inUI->CreateTextButton(inSubMenu, "Configuration Settings (Other)", [this, inUI, labels]() {
+		UIElement *configuration_settings = inUI->CreateMenu();
+
+		for (int i = 0; i < 6; ++i)
+			inUI->CreateSlider(configuration_settings, "Max Friction " + labels[i], sSettings->mMaxFriction[i], 0.0f, 500.0f, 1.0f, [=](float inValue) { sSettings->mMaxFriction[i] = inValue; });
+
+		for (int i = 0; i < 6; ++i)
+			inUI->CreateSlider(configuration_settings, "Motor Frequency " + labels[i] + " (Hz)", sSettings->mMotorSettings[i].mSpringSettings.mFrequency, 0.0f, 20.0f, 0.1f, [i](float inValue) { sSettings->mMotorSettings[i].mSpringSettings.mFrequency = inValue; });
+
+		for (int i = 0; i < 6; ++i)
+			inUI->CreateSlider(configuration_settings, "Motor Damping " + labels[i], sSettings->mMotorSettings[i].mSpringSettings.mDamping, 0.0f, 2.0f, 0.01f, [i](float inValue) { sSettings->mMotorSettings[i].mSpringSettings.mDamping = inValue; });
+
+		inUI->CreateTextButton(configuration_settings, "Accept Changes", [this]() { RestartTest(); });
+
+		inUI->ShowMenu(configuration_settings);
+	});
+
+	inUI->CreateTextButton(inSubMenu, "Runtime Settings", [this, inUI, labels, motor_states]() {
 		UIElement *runtime_settings = inUI->CreateMenu();
 
 		for (int i = 0; i < 3; ++i)
 		{
 			EAxis axis = EAxis(EAxis::TranslationX + i);
 
-			UIComboBox *combo = inUI->CreateComboBox(runtime_settings, "Motor " + labels[i], motor_states, (int)mConstraint->GetMotorState(axis), [=](int inItem) { mConstraint->SetMotorState(axis, (EMotorState)inItem); });
+			UIComboBox *combo = inUI->CreateComboBox(runtime_settings, "Motor " + labels[i], motor_states, (int)mConstraint->GetMotorState(axis), [this, axis](int inItem) { mConstraint->SetMotorState(axis, (EMotorState)inItem); });
 			combo->SetDisabled(sSettings->IsFixedAxis(axis));
-	
-			UISlider *velocity = inUI->CreateSlider(runtime_settings, "Target Velocity", mConstraint->GetTargetVelocityCS()[i], -10.0f, 10.0f, 0.1f, [=](float inValue) { 
+
+			UISlider *velocity = inUI->CreateSlider(runtime_settings, "Target Velocity", mConstraint->GetTargetVelocityCS()[i], -10.0f, 10.0f, 0.1f, [this, i](float inValue) {
 				Vec3 v = mConstraint->GetTargetVelocityCS();
 				v.SetComponent(i, inValue);
 				mConstraint->SetTargetVelocityCS(v); });
 			velocity->SetDisabled(sSettings->IsFixedAxis(axis));
 
-			UISlider *position = inUI->CreateSlider(runtime_settings, "Target Position", mConstraint->GetTargetPositionCS()[i], -10.0f, 10.0f, 0.1f, [=](float inValue) {
+			UISlider *position = inUI->CreateSlider(runtime_settings, "Target Position", mConstraint->GetTargetPositionCS()[i], -10.0f, 10.0f, 0.1f, [this, i](float inValue) {
 				Vec3 v = mConstraint->GetTargetPositionCS();
 				v.SetComponent(i, inValue);
 				mConstraint->SetTargetPositionCS(v); });
@@ -150,14 +156,14 @@ void SixDOFConstraintTest::CreateSettingsMenu(DebugUI *inUI, UIElement *inSubMen
 		{
 			EAxis axis = EAxis(EAxis::RotationX + i);
 
-			inUI->CreateComboBox(runtime_settings, "Motor " + labels[axis], motor_states, (int)mConstraint->GetMotorState(axis), [=](int inItem) { mConstraint->SetMotorState(axis, (EMotorState)inItem); });
-	
-			inUI->CreateSlider(runtime_settings, "Target Velocity", RadiansToDegrees(mConstraint->GetTargetAngularVelocityCS()[i]), -90.0f, 90.0f, 1.0f, [this, i](float inValue) { 
+			inUI->CreateComboBox(runtime_settings, "Motor " + labels[axis], motor_states, (int)mConstraint->GetMotorState(axis), [this, axis](int inItem) { mConstraint->SetMotorState(axis, (EMotorState)inItem); });
+
+			inUI->CreateSlider(runtime_settings, "Target Velocity", RadiansToDegrees(mConstraint->GetTargetAngularVelocityCS()[i]), -90.0f, 90.0f, 1.0f, [this, i](float inValue) {
 				Vec3 v = mConstraint->GetTargetAngularVelocityCS();
-				v.SetComponent(i, DegreesToRadians(inValue)); 
+				v.SetComponent(i, DegreesToRadians(inValue));
 				mConstraint->SetTargetAngularVelocityCS(v); });
 
-			inUI->CreateSlider(runtime_settings, "Target Position", RadiansToDegrees(mTargetOrientationCS[i]), -180.0f, 180.0f, 1.0f, [this, i](float inValue) { 
+			inUI->CreateSlider(runtime_settings, "Target Position", RadiansToDegrees(mTargetOrientationCS[i]), -180.0f, 180.0f, 1.0f, [this, i](float inValue) {
 				mTargetOrientationCS.SetComponent(i, DegreesToRadians(Clamp(inValue, -179.99f, 179.99f))); // +/- 180 degrees is ambiguous, so add a little bit of a margin
 				mConstraint->SetTargetOrientationCS(Quat::sEulerAngles(mTargetOrientationCS)); });
 		}

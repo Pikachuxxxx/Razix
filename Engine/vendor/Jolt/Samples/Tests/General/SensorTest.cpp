@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -10,12 +11,13 @@
 #include <Jolt/ObjectStream/ObjectStreamIn.h>
 #include <Utils/RagdollLoader.h>
 #include <Utils/Log.h>
+#include <Utils/AssetStream.h>
 #include <Layers.h>
 #include <Renderer/DebugRendererImp.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(SensorTest) 
-{ 
-	JPH_ADD_BASE_CLASS(SensorTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(SensorTest)
+{
+	JPH_ADD_BASE_CLASS(SensorTest, Test)
 }
 
 SensorTest::~SensorTest()
@@ -28,47 +30,75 @@ SensorTest::~SensorTest()
 void SensorTest::Initialize()
 {
 	// Floor
-	CreateFloor();
+	CreateFloor(400.0f);
 
 	{
-		// A static sensor that attrects dynamic bodies that enter its area
+		// A static sensor that attracts dynamic bodies that enter its area
 		BodyCreationSettings sensor_settings(new SphereShape(10.0f), RVec3(0, 10, 0), Quat::sIdentity(), EMotionType::Static, Layers::SENSOR);
 		sensor_settings.mIsSensor = true;
 		mSensorID[StaticAttractor] = mBodyInterface->CreateAndAddBody(sensor_settings, EActivation::DontActivate);
+		SetBodyLabel(mSensorID[StaticAttractor], "Static sensor that attracts dynamic bodies");
 	}
-	
+
 	{
 		// A static sensor that only detects active bodies
-		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(5.0f)), RVec3(-10, 5, 0), Quat::sIdentity(), EMotionType::Static, Layers::SENSOR);
+		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(5.0f)), RVec3(-10, 5.1f, 0), Quat::sIdentity(), EMotionType::Static, Layers::SENSOR);
 		sensor_settings.mIsSensor = true;
 		mSensorID[StaticSensor] = mBodyInterface->CreateAndAddBody(sensor_settings, EActivation::DontActivate);
+		SetBodyLabel(mSensorID[StaticSensor], "Static sensor that detects active dynamic bodies");
 	}
 
 	{
 		// A kinematic sensor that also detects sleeping bodies
-		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(5.0f)), RVec3(10, 5, 0), Quat::sIdentity(), EMotionType::Kinematic, Layers::SENSOR);
+		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(5.0f)), RVec3(10, 5.1f, 0), Quat::sIdentity(), EMotionType::Kinematic, Layers::SENSOR);
 		sensor_settings.mIsSensor = true;
 		mSensorID[KinematicSensor] = mBodyInterface->CreateAndAddBody(sensor_settings, EActivation::Activate);
+		SetBodyLabel(mSensorID[KinematicSensor], "Kinematic sensor that also detects sleeping bodies");
+	}
+
+	{
+		// A kinematic sensor that also detects static bodies
+		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(5.0f)), RVec3(25, 5.1f, 0), Quat::sIdentity(), EMotionType::Kinematic, Layers::MOVING); // Put in a layer that collides with static
+		sensor_settings.mIsSensor = true;
+		sensor_settings.mCollideKinematicVsNonDynamic = true;
+		mSensorID[SensorDetectingStatic] = mBodyInterface->CreateAndAddBody(sensor_settings, EActivation::Activate);
+		SetBodyLabel(mSensorID[SensorDetectingStatic], "Kinematic sensor that also detects sleeping and static bodies");
 	}
 
 	// Dynamic bodies
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < 15; ++i)
 		mBodyInterface->CreateAndAddBody(BodyCreationSettings(new BoxShape(Vec3(0.1f, 0.5f, 0.2f)), RVec3(-15.0f + i * 3.0f, 25, 0), Quat::sIdentity(), EMotionType::Dynamic, Layers::MOVING), EActivation::Activate);
 
+	// Static bodies
+	RVec3 static_positions[] = { RVec3(-14, 1, 4), RVec3(6, 1, 4), RVec3(21, 1, 4) };
+	for (const RVec3 &p : static_positions)
+		mBodyInterface->CreateAndAddBody(BodyCreationSettings(new BoxShape(Vec3::sReplicate(0.5f)), p, Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING), EActivation::Activate);
+
+#ifdef JPH_OBJECT_STREAM
 	// Load ragdoll
-	Ref<RagdollSettings> ragdoll_settings = RagdollLoader::sLoad("Assets/Human.tof", EMotionType::Dynamic);
+	Ref<RagdollSettings> ragdoll_settings = RagdollLoader::sLoad("Human.tof", EMotionType::Dynamic);
 	if (ragdoll_settings == nullptr)
 		FatalError("Could not load ragdoll");
-
-	// Load animation
-	Ref<SkeletalAnimation> animation;
-	if (!ObjectStreamIn::sReadObject("Assets/Human/Dead_Pose1.tof", animation))
-		FatalError("Could not open animation");
+#else
+	Ref<RagdollSettings> ragdoll_settings = RagdollLoader::sCreate();
+#endif // JPH_OBJECT_STREAM
 
 	// Create pose
 	SkeletonPose ragdoll_pose;
 	ragdoll_pose.SetSkeleton(ragdoll_settings->GetSkeleton());
-	animation->Sample(0.0f, ragdoll_pose);
+	{
+#ifdef JPH_OBJECT_STREAM
+		Ref<SkeletalAnimation> animation;
+		AssetStream stream("Human/dead_pose1.tof", std::ios::in);
+		if (!ObjectStreamIn::sReadObject(stream.Get(), animation))
+			FatalError("Could not open animation");
+		animation->Sample(0.0f, ragdoll_pose);
+#else
+		Ref<Ragdoll> temp_ragdoll = ragdoll_settings->CreateRagdoll(0, 0, mPhysicsSystem);
+		temp_ragdoll->GetPose(ragdoll_pose);
+		ragdoll_pose.CalculateJointStates();
+#endif // JPH_OBJECT_STREAM
+	}
 	ragdoll_pose.SetRootOffset(RVec3(0, 30, 0));
 	ragdoll_pose.CalculateJointMatrices();
 
@@ -94,7 +124,7 @@ void SensorTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
 	mBodyInterface->MoveKinematic(mKinematicBodyID, kinematic_pos, Quat::sIdentity(), inParams.mDeltaTime);
 
 	// Draw if body is in sensor
-	Color sensor_color[] = { Color::sRed, Color::sGreen, Color::sBlue };
+	Color sensor_color[] = { Color::sRed, Color::sGreen, Color::sBlue, Color::sPurple };
 	for (int sensor = 0; sensor < NumSensors; ++sensor)
 		for (const BodyAndCount &body_and_count : mBodiesInSensor[sensor])
 		{
@@ -109,7 +139,7 @@ void SensorTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
 	RVec3 center(0, 10, 0);
 	float centrifugal_force = 10.0f;
 	Vec3 gravity = mPhysicsSystem->GetGravity();
-	
+
 	for (const BodyAndCount &body_and_count : mBodiesInSensor[StaticAttractor])
 	{
 		BodyLockWrite body_lock(mPhysicsSystem->GetBodyLockInterface(), body_and_count.mBodyID);
