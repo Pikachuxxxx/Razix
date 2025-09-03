@@ -7,10 +7,10 @@ project "GLFW"
 
     files
     {
-	"src/**.h",
-	"src/**.c",
-	"include/**.h",
-	"include/**.c"
+	    "glfw/src/**.h",
+	    "glfw/src/**.c",
+	    "glfw/include/**.h",
+	    "glfw/include/**.c"
     }
     
     filter "system:linux"
@@ -24,8 +24,8 @@ project "GLFW"
         defines { "_GLFW_COCOA" }
         files
     	{
-		"src/**.m"
-	}
+		    "glfw/src/**.m"
+	    }
     
     filter "system:windows"
         defines

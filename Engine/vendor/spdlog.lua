@@ -1,23 +1,27 @@
-project "Eigen"
-	kind "None"
+project "spdlog"
+	kind "StaticLib"
 	language "C++"
 	cppdialect (engine_global_config.cpp_dialect)
 	staticruntime "off"
 
-	files 
-    {
-        "Eigen/**",
-		"Eigen/src/**.h"
+	disablewarnings {
+		"4251",
+		"4275",
+		"4996"
 	}
 
-    includedirs
-    {
-        "Eigen",
-    }
+	defines {
+		"SPDLOG_COMPILED_LIB",
+	}
+
+	files {
+		"spdlog/src/**.cpp",
+		"spdlog/include/**.h",
+	}
 
 	externalincludedirs
 	{
-		"Eigen",
+		"spdlog/include",
 	}
 
     filter "configurations:Debug"

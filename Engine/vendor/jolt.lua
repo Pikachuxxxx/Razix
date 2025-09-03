@@ -1,44 +1,34 @@
-project "SPIRVReflect"
+project "Jolt"
     kind "StaticLib"
-    language "C"
-
-    files
-    {
-        "common/output_stream.h",
-        "common/output_stream.cpp",
-        "include/spirv/unified1/spirv.h",
-        "spirv_reflect.c",
-        "spirv_reflect.h",
-        "spirv_reflect.cpp"
-
-    }
+    language "C++"
+    cppdialect "C++17" -- Exception as Jolt was initially authored using C++17
+    staticruntime "off"
 
     includedirs
     {
-        "include",
-        "./"
+         "Jolt/",
+         "Jolt/Jolt"
     }
     
     externalincludedirs
     {
-        "include",
-        "./"
+         "Jolt/",
+         "Jolt/Jolt"
     }
 
-    warnings "off"
-
-    filter "system:linux"
-        pic "On"
-
-        systemversion "latest"
-        staticruntime "off"
+    files
+    {
+        "Jolt/Jolt/**.h",
+        "Jolt/Jolt/**.cpp"
+    }
 
     filter "system:windows"
         systemversion "latest"
+        cppdialect (engine_global_config.cpp_dialect)
         staticruntime "off"
 
     filter "configurations:Debug"
-        defines { "RAZIX_DEBUG", "_DEBUG", "_DISABLE_VECTOR_ANNOTATION " }
+        defines { "RAZIX_DEBUG", "_DEBUG" }
         symbols "On"
         runtime "Debug"
         optimize "Off"

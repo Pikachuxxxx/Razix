@@ -169,21 +169,17 @@ workspace ( settings.workspace_name )
 
     -- Build scripts for the Razix vendor dependencies
     group "Dependencies"
-        include "Engine/vendor/cereal/cereal.lua"
-        include "Engine/vendor/glfw/glfw.lua"
-        include "Engine/vendor/imgui/imgui.lua"
-        include "Engine/vendor/lua/lua.lua"
-        include "Engine/vendor/optick/optick.lua"
-        include "Engine/vendor/spdlog/spdlog.lua"
-        include "Engine/vendor/SPIRVCross/SPIRVCross.lua"
-        include "Engine/vendor/SPIRVReflect/SPIRVReflect.lua"
-        include "Engine/vendor/tracy/tracy.lua"
-        include "Engine/vendor/Jolt/jolt.lua"
-    group ""
-
-    -- Experimental
-    group "Dependencies/Experimental"
-        include "Engine/vendor/Experimental/eigen/eigen.lua"
+        include "Engine/vendor/cereal.lua"
+        include "Engine/vendor/eigen.lua"
+        include "Engine/vendor/glfw.lua"
+        include "Engine/vendor/imgui.lua"
+        include "Engine/vendor/lua.lua"
+        include "Engine/vendor/optick.lua"
+        include "Engine/vendor/spdlog.lua"
+        include "Engine/vendor/SPIRVCross.lua"
+        include "Engine/vendor/SPIRVReflect.lua"
+        include "Engine/vendor/tracy.lua"
+        include "Engine/vendor/jolt.lua"
     group ""
 
     -- Build Script for Razix Engine (Core)

@@ -10,9 +10,9 @@ project "Tracy"
         --"client/**.hpp",
         --"client/**.c",
         --"client/**.cpp",
-        "public/tracy/Tracy.hpp",
+        "tracy/public/tracy/Tracy.hpp",
         --"TracyC.h",
-        "public/TracyClient.cpp"
+        "tracy/public/TracyClient.cpp"
         --"TracyD3D11.hpp",
         --"TracyD3D12.hpp",
         --"TracyLua.hpp",

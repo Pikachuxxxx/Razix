@@ -1,4 +1,4 @@
-project "cereal"
+project "Eigen"
 	kind "None"
 	language "C++"
 	cppdialect (engine_global_config.cpp_dialect)
@@ -6,18 +6,18 @@ project "cereal"
 
 	files 
     {
-		"include/**.h",
-        "include/**.hpp",
+        "eigen/Eigen/**",
+		"eigen/Eigen/src/**.h"
 	}
 
     includedirs
     {
-        "include",
+        "eigen/Eigen",
     }
 
 	externalincludedirs
 	{
-		"include",
+		"eigen/Eigen",
 	}
 
     filter "configurations:Debug"

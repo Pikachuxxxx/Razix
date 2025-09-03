@@ -9,7 +9,7 @@ project "lua"
 		"LUA_COMPAT_MATHLIB=1"
 	}
 
-	local lua_src  = 'src/'
+	local lua_src  = 'lua/src/'
 
 	filter "configurations:debug"
 		defines "LUA_USE_APICHECK=1"

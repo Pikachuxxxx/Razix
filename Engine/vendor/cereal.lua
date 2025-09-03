@@ -1,27 +1,23 @@
-project "spdlog"
-	kind "StaticLib"
+project "cereal"
+	kind "None"
 	language "C++"
 	cppdialect (engine_global_config.cpp_dialect)
 	staticruntime "off"
 
-	disablewarnings {
-		"4251",
-		"4275",
-		"4996"
+	files 
+    {
+		"cereal/include/**.h",
+        "cereal/include/**.hpp",
 	}
 
-	defines {
-		"SPDLOG_COMPILED_LIB",
-	}
-
-	files {
-		"src/**.cpp",
-		"include/**.h",
-	}
+    includedirs
+    {
+        "cereal/include",
+    }
 
 	externalincludedirs
 	{
-		"include",
+		"cereal/include",
 	}
 
     filter "configurations:Debug"

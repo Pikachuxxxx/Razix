@@ -8,12 +8,12 @@ project "optick"
 
     files
     {
-        "src/**.h",
-        "src/**.hpp",
-        "src/**.c",
-        "src/**.cpp",
-        "src/optick_gpu.d3d12.cpp",
-        "src/optick_gpu.vulkan.cpp"
+        "optick/src/**.h",
+        "optick/src/**.hpp",
+        "optick/src/**.c",
+        "optick/src/**.cpp",
+        "optick/src/optick_gpu.d3d12.cpp",
+        "optick/src/optick_gpu.vulkan.cpp"
     }
 
     defines {"OPTICK_EXPORT"}
