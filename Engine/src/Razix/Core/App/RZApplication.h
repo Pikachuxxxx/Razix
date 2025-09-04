@@ -66,11 +66,6 @@ namespace Razix {
     class RAZIX_API RZApplication
     {
     public:
-        static std::mutex              m;
-        static std::condition_variable halt_execution;
-        static bool                    ready_for_execution;
-
-    public:
         /**
          * Creates a Razix Application
          * 

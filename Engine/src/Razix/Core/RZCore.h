@@ -3,37 +3,66 @@
 /****************************************************************************************************
  *                                  Settings based on OS/Compiler                                   *
  ****************************************************************************************************/
-
-// Compiler Detection
 #if defined(_MSC_VER)
     #define RAZIX_COMPILER_MSVC
 #elif defined(__clang__)
     #define RAZIX_COMPILER_CLANG
-    #define RAZIX_APPLE_INTEL
-    #if defined(__arm__) || defined(__aarch64__)
-        #define RAZIX_COMPILER_CLANG_ARM
-        #define RAZIX_APPLE_SILICON
-    #endif
 #elif defined(__GNUC__)
     #define RAZIX_COMPILER_GCC
-    #if defined(__arm__) || defined(__aarch64__)
-        #define RAZIX_COMPILER_GCC_ARM
-    #endif
 #else
     #error "Unsupported compiler"
+#endif
+
+#ifdef __APPLE__
+    #include <TargetConditionals.h>
 #endif
 
 // Architecture Detection
 #if defined(__x86_64__) || defined(_M_X64)
     #define RAZIX_ARCHITECTURE_X64
+#elif defined(__aarch64__) || defined(_M_ARM64) || defined(TARGET_CPU_ARM64) || defined(__arm64__)
 #elif defined(__i386__) || defined(_M_IX86)
     #define RAZIX_ARCHITECTURE_X86
 #elif defined(__arm__) || defined(_M_ARM)
     #define RAZIX_ARCHITECTURE_ARM
-#elif defined(__aarch64__)
-    #define RAZIX_ARCHITECTURE_ARM64
 #else
     #error "Unsupported architecture"
+#endif
+
+// Platform + Architecture combos (for convenience)
+#if defined(RAZIX_PLATFORM_WINDOWS)
+    #if defined(RAZIX_ARCHITECTURE_X64)
+        #define RAZIX_PLATFORM_WINDOWS_X64
+    #elif defined(RAZIX_ARCHITECTURE_ARM64)
+        #define RAZIX_PLATFORM_WINDOWS_ARM64
+    #elif defined(RAZIX_ARCHITECTURE_X86)
+        #define RAZIX_PLATFORM_WINDOWS_X86
+    #elif defined(RAZIX_ARCHITECTURE_ARM)
+        #define RAZIX_PLATFORM_WINDOWS_ARM
+    #endif
+#elif defined(RAZIX_PLATFORM_LINUX)
+    #if defined(RAZIX_ARCHITECTURE_X64)
+        #define RAZIX_PLATFORM_LINUX_X64
+    #elif defined(RAZIX_ARCHITECTURE_ARM64)
+        #define RAZIX_PLATFORM_LINUX_ARM64
+    #elif defined(RAZIX_ARCHITECTURE_X86)
+        #define RAZIX_PLATFORM_LINUX_X86
+    #elif defined(RAZIX_ARCHITECTURE_ARM)
+        #define RAZIX_PLATFORM_LINUX_ARM
+    #endif
+#elif defined(RAZIX_PLATFORM_MACOS)
+    #if defined(RAZIX_ARCHITECTURE_X64)
+        #define RAZIX_PLATFORM_MACOS_X64
+    #elif defined(RAZIX_ARCHITECTURE_ARM64)
+        #define RAZIX_APPLE_SILICON
+        #define RAZIX_PLATFORM_MACOS_ARM64
+    #endif
+#elif defined(RAZIX_PLATFORM_FREEBSD)
+    #if defined(RAZIX_ARCHITECTURE_X64)
+        #define RAZIX_PLATFORM_FREEBSD_X64
+    #elif defined(RAZIX_ARCHITECTURE_ARM64)
+        #define RAZIX_PLATFORM_FREEBSD_ARM64
+    #endif
 #endif
 
 // Settings for Windows OS
@@ -298,10 +327,12 @@ private:                                                  \
 
 // Inline macros
 #define RAZIX_INLINE inline
-#ifdef RAZIX_COMPILER_MSVC
+#if defined(RAZIX_COMPILER_MSVC)
     #define RAZIX_FORCE_INLINE __forceinline
-#elif defined RAZIX_COMPILER_CLANG
+#elif defined(RAZIX_COMPILER_CLANG) || defined(RAZIX_COMPILER_GCC)
     #define RAZIX_FORCE_INLINE __attribute__((always_inline))
+#else
+    #define RAZIX_FORCE_INLINE inline
 #endif
 
 #define RAZIX_LIKELY   [[likely]]
@@ -579,7 +610,7 @@ static constexpr float operator""_inKib(unsigned long long int x)
 
 /****************************************************************************************************
  *                                         Vendor Settings                                          * 
- ****************************************************************************************************/
+****************************************************************************************************/
 
 #define RAZIX_DEFINE_SAVE_LOAD   \
     template<class Archive>      \
