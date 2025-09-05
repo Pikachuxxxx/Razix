@@ -20,13 +20,6 @@ namespace Razix {
 
 #define RAZIX_REGISTER_RESOURCE_POOL(poolName, resourceTypeName)                                       \
 public:                                                                                                \
-    template<>                                                                                         \
-    RZResourceFreeListMemPoolTyped<resourceTypeName>& getPool()                                        \
-    {                                                                                                  \
-        return m_##poolName##Pool;                                                                     \
-    }                                                                                                  \
-                                                                                                       \
-public:                                                                                                \
     resourceTypeName##_handle create##poolName(const char* name, const resourceTypeName##_desc& desc); \
     void                      destroy##poolName(resourceTypeName##_handle& handle);                    \
     resourceTypeName*         get##poolName##Resource(resourceTypeName##_handle handle);               \

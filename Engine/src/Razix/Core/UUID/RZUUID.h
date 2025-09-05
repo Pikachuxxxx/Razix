@@ -2,7 +2,9 @@
 
 #include <random>
 
-#ifdef RAZIX_APPLE_SILICON
+#include "Razix/Core/RZCore.h"
+
+#if defined (RAZIX_APPLE_SILICON) || defined(RAZIX_PLATFORM_MACOS)
     #include <arm_neon.h>
 
     #ifdef __clang__

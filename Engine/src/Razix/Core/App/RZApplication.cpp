@@ -27,7 +27,7 @@
 //#include <imgui/plugins/ImGuizmo.h>
 #include <cereal/archives/json.hpp>
 #include <entt.hpp>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 #define ENABLE_IMGUI_EVENT_DATA_CAPTURE 0
 

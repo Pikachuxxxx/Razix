@@ -3,7 +3,7 @@
 #include "Razix/Core/RZHandle.h"
 #include "Razix/Gfx/RHI/RHI.h"
 #include "Razix/Gfx/RZGfxDebug.h"
-#include "razix/Gfx/RZShaderUtils.h"
+#include "Razix/Gfx/RZShaderUtils.h"
 
 namespace Razix {
     namespace Gfx {
