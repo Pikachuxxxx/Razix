@@ -7,6 +7,7 @@ include 'Scripts/premake/common/common_include_dirs.lua'
 project "RHI"
     kind "SharedLib"
     language "C"
+    cdialect "C99"
 
     -- RHI source files
     files
