@@ -201,6 +201,9 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define RAZIX_Z(v)               ((v)[2])
 #define RAZIX_W(v)               ((v)[3])
 
+// Resource
+#define RAZIX_GFX_RESOURCE rz_gfx_resource resource
+
     //---------------------------------------------------------------------------------------------
     // GFX/RHI types
 
@@ -799,9 +802,18 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rz_gfx_resource_create_fn)(void* where);
     typedef void (*rz_gfx_resource_destroy_fn)(void* resource);
 
-    typedef struct rz_gfx_buffer  rz_gfx_buffer;
-    typedef struct rz_gfx_texture rz_gfx_texture;
-    typedef struct rz_gfx_sampler rz_gfx_sampler;
+    typedef struct rz_gfx_resource_view    rz_gfx_resource_view;
+    typedef struct rz_gfx_texture          rz_gfx_texture;
+    typedef struct rz_gfx_sampler          rz_gfx_sampler;
+    typedef struct rz_gfx_buffer           rz_gfx_buffer;
+    typedef struct rz_gfx_cmdbuf           rz_gfx_cmdbuf;
+    typedef struct rz_gfx_root_signature   rz_gfx_root_signature;
+    typedef struct rz_gfx_shader           rz_gfx_shader;
+    typedef struct rz_gfx_syncobj          rz_gfx_syncobj;
+    typedef struct rz_gfx_cmdpool          rz_gfx_cmdpool;
+    typedef struct rz_gfx_descriptor_heap  rz_gfx_descriptor_heap;
+    typedef struct rz_gfx_descriptor_table rz_gfx_descriptor_table;
+    typedef struct rz_gfx_pipeline         rz_gfx_pipeline;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_buffer_view_desc
     {
@@ -826,7 +838,6 @@ static inline unsigned int rz_clz32(unsigned int x)
         const rz_gfx_sampler* pSampler;
     } rz_gfx_sampler_view_desc;
 
-    typedef struct rz_gfx_descriptor_heap rz_gfx_descriptor_heap;
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_resource_view_desc
     {
         rz_gfx_descriptor_type  descriptorType;
@@ -888,8 +899,6 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint8_t                 _pad0[4];
     } rz_gfx_descriptor;
 
-    typedef struct rz_gfx_resource_view   rz_gfx_resource_view;
-    typedef struct rz_gfx_descriptor_heap rz_gfx_descriptor_heap;
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table_desc
     {
         uint32_t                tableIndex;
@@ -928,7 +937,6 @@ static inline unsigned int rz_clz32(unsigned int x)
         rz_gfx_cmdpool_type poolType;
     } rz_gfx_cmdpool_desc;
 
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdpool rz_gfx_cmdpool;
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdbuf_desc
     {
         const rz_gfx_cmdpool* pool;
@@ -1011,8 +1019,6 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint8_t                     _pad0[4];
     } rz_gfx_descriptor_heap_desc;
 
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader         rz_gfx_shader;
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_root_signature rz_gfx_root_signature;
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_pipeline_desc
     {
         const rz_gfx_shader*         pShader;
@@ -1093,74 +1099,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         } desc;    // These are filled by the user, public members filled by backend are stored in each gfx_type separately
     } rz_gfx_resource;
 
-#define RAZIX_GFX_RESOURCE rz_gfx_resource resource
-
     //---------------------------------------------------------------------------------------------
-    // Resource Structs
-
-    typedef struct rz_gfx_resource_view
-    {
-        RAZIX_GFX_RESOURCE;
-        // lifetime will be managed by descriptor tables API
-#ifdef RAZIX_RENDER_API_VULKAN
-        vk_resview vk;
-#endif
-#if defined RAZIX_RENDER_API_DIRECTX12
-        dx12_resview dx12;
-#endif
-    } rz_gfx_resource_view;
-
-    typedef uint64_t rz_gfx_syncpoint;
-
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_syncobj
-    {
-        RAZIX_GFX_RESOURCE;
-        rz_gfx_syncpoint waitTimestamp;
-#ifdef RAZIX_RENDER_API_VULKAN
-        vk_syncobj vk;
-#endif
-#ifdef RAZIX_RENDER_API_DIRECTX12
-        dx12_syncobj dx12;
-#endif
-    } rz_gfx_syncobj;
-
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_texture
-    {
-        RAZIX_GFX_RESOURCE;
-#ifdef RAZIX_RENDER_API_VULKAN
-        vk_texture vk;
-#endif
-#ifdef RAZIX_RENDER_API_DIRECTX12
-        dx12_texture dx12;
-#endif
-    } rz_gfx_texture;
-
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_sampler
-    {
-        RAZIX_GFX_RESOURCE;
-#ifdef RAZIX_RENDER_API_VULKAN
-        vk_sampler vk;
-#endif
-#ifdef RAZIX_RENDER_API_DIRECTX12
-        dx12_sampler dx12;
-#endif
-    } rz_gfx_sampler;
-
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_swapchain
-    {
-        uint32_t             width;
-        uint32_t             height;
-        uint32_t             imageCount;
-        uint32_t             currBackBufferIdx;
-        rz_gfx_texture       backbuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];
-        rz_gfx_resource_view backbuffersResViews[RAZIX_MAX_SWAP_IMAGES_COUNT];
-#ifdef RAZIX_RENDER_API_VULKAN
-        vk_swapchain vk;
-#endif
-#ifdef RAZIX_RENDER_API_DIRECTX12
-        dx12_swapchain dx12;
-#endif
-    } rz_gfx_swapchain;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_context
     {
@@ -1182,8 +1121,75 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     } rz_gfx_context;
 
+    //---------------------------------------------------------------------------------------------
+    // Resource Structs
+
+    struct RAZIX_RHI_ALIGN_16 rz_gfx_resource_view
+    {
+        RAZIX_GFX_RESOURCE;
+        // lifetime will be managed by descriptor tables API
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_resview vk;
+#endif
+#if defined RAZIX_RENDER_API_DIRECTX12
+        dx12_resview dx12;
+#endif
+    };
+
+    typedef uint64_t rz_gfx_syncpoint;
+
+    struct RAZIX_RHI_ALIGN_16 rz_gfx_syncobj
+    {
+        RAZIX_GFX_RESOURCE;
+        rz_gfx_syncpoint waitTimestamp;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_syncobj vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_syncobj dx12;
+#endif
+    };
+
+    struct RAZIX_RHI_ALIGN_16 rz_gfx_texture
+    {
+        RAZIX_GFX_RESOURCE;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_texture vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_texture dx12;
+#endif
+    };
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_swapchain
+    {
+        uint32_t             width;
+        uint32_t             height;
+        uint32_t             imageCount;
+        uint32_t             currBackBufferIdx;
+        rz_gfx_texture       backbuffers[RAZIX_MAX_SWAP_IMAGES_COUNT];
+        rz_gfx_resource_view backbuffersResViews[RAZIX_MAX_SWAP_IMAGES_COUNT];
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_swapchain vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_swapchain dx12;
+#endif
+    }rz_gfx_swapchain;
+
+    struct RAZIX_RHI_ALIGN_16 rz_gfx_sampler
+    {
+        RAZIX_GFX_RESOURCE;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_sampler vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_sampler dx12;
+#endif
+    };
+
     // Note:- Exception!, this is not a resource as it's managed by the Renderer and very few in number, might make is a Resource later
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdpool
+    struct RAZIX_RHI_ALIGN_16 rz_gfx_cmdpool
     {
         RAZIX_GFX_RESOURCE;
         rz_gfx_cmdpool_type type;
@@ -1197,9 +1203,9 @@ static inline unsigned int rz_clz32(unsigned int x)
 #endif
         };
 
-    } rz_gfx_cmdpool;
+    };
 
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_cmdbuf
+    struct RAZIX_RHI_ALIGN_16 rz_gfx_cmdbuf
     {
         RAZIX_GFX_RESOURCE;
         union
@@ -1212,22 +1218,22 @@ static inline unsigned int rz_clz32(unsigned int x)
 #endif
         };
 
-    } rz_gfx_cmdbuf;
+    };
 
-    typedef struct rz_gfx_descriptor_free_range
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_free_range
     {
         uint32_t start;
         uint32_t numDescriptors;
-    } rz_gfx_descriptor_free_range;
+    }rz_gfx_descriptor_free_range;
 
-    typedef struct rz_gfx_descriptor_freelist_allocator
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_freelist_allocator
     {
         uint32_t                      numFreeRanges;
         uint32_t                      capacity;
         rz_gfx_descriptor_free_range* freeRanges;
-    } rz_gfx_descriptor_freelist_allocator;
+    }rz_gfx_descriptor_freelist_allocator;
 
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_heap
+    struct RAZIX_RHI_ALIGN_16 rz_gfx_descriptor_heap
     {
         RAZIX_GFX_RESOURCE;
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -1254,9 +1260,9 @@ static inline unsigned int rz_clz32(unsigned int x)
                 uint32_t _pad1;
             };
         };
-    } rz_gfx_descriptor_heap;
+    };
 
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table
+    struct RAZIX_RHI_ALIGN_16 rz_gfx_descriptor_table
     {
         RAZIX_GFX_RESOURCE;
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -1265,9 +1271,9 @@ static inline unsigned int rz_clz32(unsigned int x)
 #ifdef RAZIX_RENDER_API_DIRECTX12
         dx12_descriptor_table dx12;
 #endif
-    } rz_gfx_descriptor_table;
+    };
 
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_root_signature
+    struct RAZIX_RHI_ALIGN_16 rz_gfx_root_signature
     {
         RAZIX_GFX_RESOURCE;
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -1276,9 +1282,9 @@ static inline unsigned int rz_clz32(unsigned int x)
 #ifdef RAZIX_RENDER_API_DIRECTX12
         dx12_root_signature dx12;
 #endif
-    } rz_gfx_root_signature;
+    };
 
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader
+    struct RAZIX_RHI_ALIGN_16 rz_gfx_shader
     {
         RAZIX_GFX_RESOURCE;
         rz_gfx_root_signature_handle rootSignature;
@@ -1292,9 +1298,9 @@ static inline unsigned int rz_clz32(unsigned int x)
             dx12_shader dx12;
 #endif
         };
-    } rz_gfx_shader;
+    };
 
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_pipeline
+    struct RAZIX_RHI_ALIGN_16 rz_gfx_pipeline
     {
         RAZIX_GFX_RESOURCE;
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -1303,9 +1309,9 @@ static inline unsigned int rz_clz32(unsigned int x)
 #ifdef RAZIX_RENDER_API_DIRECTX12
         dx12_pipeline dx12;
 #endif
-    } rz_gfx_pipeline;
+    };
 
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_buffer
+    struct RAZIX_RHI_ALIGN_16 rz_gfx_buffer
     {
         RAZIX_GFX_RESOURCE;
 #ifdef RAZIX_RENDER_API_VULKAN
@@ -1314,7 +1320,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #ifdef RAZIX_RENDER_API_DIRECTX12
         dx12_buffer dx12;
 #endif
-    } rz_gfx_buffer;
+    };
 
     //---------------------------------------------------------------------------------------------
 
