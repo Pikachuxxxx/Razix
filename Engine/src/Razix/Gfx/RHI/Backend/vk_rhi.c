@@ -1672,16 +1672,10 @@ static void vk_DestroyDescriptorTable(void* table)
 
 static void vk_AcquireImage(rz_gfx_swapchain* sc)
 {
-    assert(sc != NULL && "Swapchain cannot be null");
-    assert(sc->vk.swapchain != VK_NULL_HANDLE && "Vulkan swapchain is invalid");
+    RAZIX_RHI_ASSERT(sc != NULL, "Swapchain cannot be null");
+    RAZIX_RHI_ASSERT(sc->vk.swapchain != VK_NULL_HANDLE, "Vulkan swapchain is invalid");
 
-    VkResult result = vkAcquireNextImageKHR(
-        VKCONTEXT.device,
-        sc->vk.swapchain,
-        UINT64_MAX,        // No timeout
-        VK_NULL_HANDLE,    // No semaphore for now
-        VK_NULL_HANDLE,    // No fence for now
-        &sc->vk.currentImageIndex);
+    VkResult result = vkAcquireNextImageKHR(VKCONTEXT.device, sc->vk.swapchain, UINT64_MAX, VK_NULL_HANDLE, VK_NULL_HANDLE, &sc->vk.currentImageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
         RAZIX_RHI_LOG_WARN("Swapchain out of date or suboptimal, image index: %u", sc->vk.currentImageIndex);
@@ -1696,7 +1690,7 @@ static void vk_AcquireImage(rz_gfx_swapchain* sc)
 
 static void vk_WaitOnPrevCmds(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint waitSyncPoint)
 {
-    assert(syncobj != NULL && "Sync object cannot be null");
+    RAZIX_RHI_ASSERT(syncobj != NULL, "Sync object cannot be null");
 
     // Basic fence waiting implementation
     if (syncobj->vk.fence != VK_NULL_HANDLE) {
@@ -1713,8 +1707,8 @@ static void vk_WaitOnPrevCmds(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint wa
 
 static void vk_Present(const rz_gfx_swapchain* sc)
 {
-    assert(sc != NULL && "Swapchain cannot be null");
-    assert(sc->vk.swapchain != VK_NULL_HANDLE && "Vulkan swapchain is invalid");
+    RAZIX_RHI_ASSERT(sc != NULL, "Swapchain cannot be null");
+    RAZIX_RHI_ASSERT(sc->vk.swapchain != VK_NULL_HANDLE, "Vulkan swapchain is invalid");
 
     VkPresentInfoKHR presentInfo = {
         .sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
@@ -1741,8 +1735,8 @@ static void vk_Present(const rz_gfx_swapchain* sc)
 
 static void vk_BeginCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 {
-    assert(cmdBuf != NULL && "Command buffer cannot be null");
-    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
 
     VkCommandBufferBeginInfo beginInfo = {
         .sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -1763,8 +1757,8 @@ static void vk_BeginCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 
 static void vk_EndCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 {
-    assert(cmdBuf != NULL && "Command buffer cannot be null");
-    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
 
     VkResult result = vkEndCommandBuffer(cmdBuf->vk.cmdBuf);
     if (result != VK_SUCCESS) {
@@ -1796,55 +1790,40 @@ static void vk_EndRenderPass(const rz_gfx_cmdbuf* cmdBuf)
 
 static void vk_SetViewport(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewport)
 {
-    assert(cmdBuf != NULL && "Command buffer cannot be null");
-    assert(viewport != NULL && "Viewport cannot be null");
-    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(viewport != NULL, "Viewport cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
 
     VkViewport vkViewport = {
         .x        = (float) viewport->x,
         .y        = (float) viewport->y,
         .width    = (float) viewport->width,
         .height   = (float) viewport->height,
-        .minDepth = (float) viewport->minDepth / 65535.0f,    // Convert from uint32 to normalized float
-        .maxDepth = (float) viewport->maxDepth / 65535.0f     // Convert from uint32 to normalized float
-    };
+        .minDepth = (float) viewport->minDepth,
+        .maxDepth = (float) viewport->maxDepth};
 
     vkCmdSetViewport(cmdBuf->vk.cmdBuf, 0, 1, &vkViewport);
-
-    RAZIX_RHI_LOG_TRACE("Viewport set: %.1f,%.1f %.1fx%.1f depth[%.3f-%.3f]",
-        vkViewport.x,
-        vkViewport.y,
-        vkViewport.width,
-        vkViewport.height,
-        vkViewport.minDepth,
-        vkViewport.maxDepth);
 }
 
 static void vk_SetScissorRect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* rect)
 {
-    assert(cmdBuf != NULL && "Command buffer cannot be null");
-    assert(rect != NULL && "Scissor rect cannot be null");
-    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(rect != NULL, "Scissor rect cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
 
     VkRect2D scissor = {
         .offset = {.x = rect->x, .y = rect->y},
         .extent = {.width = rect->width, .height = rect->height}};
 
     vkCmdSetScissor(cmdBuf->vk.cmdBuf, 0, 1, &scissor);
-
-    RAZIX_RHI_LOG_TRACE("Scissor rect set: %d,%d %dx%d",
-        rect->x,
-        rect->y,
-        rect->width,
-        rect->height);
 }
 
 static void vk_BindPipeline(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_pipeline* pipeline)
 {
-    assert(cmdBuf != NULL && "Command buffer cannot be null");
-    assert(pipeline != NULL && "Pipeline cannot be null");
-    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
-    assert(pipeline->vk.pipeline != VK_NULL_HANDLE && "Vulkan pipeline is invalid");
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(pipeline != NULL, "Pipeline cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(pipeline->vk.pipeline != VK_NULL_HANDLE, "Vulkan pipeline is invalid");
 
     // Determine the pipeline bind point based on pipeline type
     VkPipelineBindPoint bindPoint;
@@ -1858,23 +1837,18 @@ static void vk_BindPipeline(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_pipeline* 
     }
 
     vkCmdBindPipeline(cmdBuf->vk.cmdBuf, bindPoint, pipeline->vk.pipeline);
-
-    RAZIX_RHI_LOG_TRACE("Pipeline bound (type: %s)",
-        bindPoint == VK_PIPELINE_BIND_POINT_GRAPHICS ? "Graphics" : "Compute");
 }
 
 static void vk_BindGfxRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_signature* rootSig)
 {
-    assert(cmdBuf != NULL && "Command buffer cannot be null");
-    assert(rootSig != NULL && "Root signature cannot be null");
-    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
-    assert(rootSig->vk.pipelineLayout != VK_NULL_HANDLE && "Vulkan pipeline layout is invalid");
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(rootSig != NULL, "Root signature cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(rootSig->vk.pipelineLayout != VK_NULL_HANDLE, "Vulkan pipeline layout is invalid");
 
     // In Vulkan, root signatures correspond to descriptor sets bound to pipeline layouts
     // For now, we'll just bind the pipeline layout - descriptor sets need to be bound separately
     // This is a placeholder implementation that sets up the pipeline layout binding
-
-    RAZIX_RHI_LOG_TRACE("Graphics root signature bound (pipeline layout ready)");
 
     // Note: Actual descriptor set binding would happen when descriptors are available
     // vkCmdBindDescriptorSets(cmdBuf->vk.cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -1884,16 +1858,14 @@ static void vk_BindGfxRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_sig
 
 static void vk_BindComputeRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_signature* rootSig)
 {
-    assert(cmdBuf != NULL && "Command buffer cannot be null");
-    assert(rootSig != NULL && "Root signature cannot be null");
-    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
-    assert(rootSig->vk.pipelineLayout != VK_NULL_HANDLE && "Vulkan pipeline layout is invalid");
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(rootSig != NULL, "Root signature cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(rootSig->vk.pipelineLayout != VK_NULL_HANDLE, "Vulkan pipeline layout is invalid");
 
     // In Vulkan, root signatures correspond to descriptor sets bound to pipeline layouts
     // For now, we'll just bind the pipeline layout - descriptor sets need to be bound separately
     // This is a placeholder implementation that sets up the pipeline layout binding
-
-    RAZIX_RHI_LOG_TRACE("Compute root signature bound (pipeline layout ready)");
 
     // Note: Actual descriptor set binding would happen when descriptors are available
     // vkCmdBindDescriptorSets(cmdBuf->vk.cmdBuf, VK_PIPELINE_BIND_POINT_COMPUTE,
@@ -1903,18 +1875,12 @@ static void vk_BindComputeRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root
 
 static void vk_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
 {
-    assert(cmdBuf != NULL && "Command buffer cannot be null");
-    assert(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE && "Vulkan command buffer is invalid");
-    assert(vertexCount > 0 && "Vertex count must be greater than 0");
-    assert(instanceCount > 0 && "Instance count must be greater than 0");
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(vertexCount > 0, "Vertex count must be greater than 0");
+    RAZIX_RHI_ASSERT(instanceCount > 0, "Instance count must be greater than 0");
 
     vkCmdDraw(cmdBuf->vk.cmdBuf, vertexCount, instanceCount, firstVertex, firstInstance);
-
-    RAZIX_RHI_LOG_TRACE("Draw command: %u vertices, %u instances (start: %u, %u)",
-        vertexCount,
-        instanceCount,
-        firstVertex,
-        firstInstance);
 }
 
 static void vk_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
