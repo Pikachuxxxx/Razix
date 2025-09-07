@@ -52,12 +52,42 @@ extern "C"
 #define ENABLE_SYNC_LOGGING 0
 
 // ANSI color codes
-#define ANSI_COLOR_RESET  "\x1b[0m"
-#define ANSI_COLOR_RED    "\x1b[31m"
-#define ANSI_COLOR_YELLOW "\x1b[33m"
-#define ANSI_COLOR_GREEN  "\x1b[32m"
-#define ANSI_COLOR_CYAN   "\x1b[36m"
-#define ANSI_COLOR_GRAY   "\x1b[90m"
+// ANSI Color Codes
+#define ANSI_COLOR_RESET     "\033[0m"
+#define ANSI_COLOR_BOLD      "\033[1m"
+#define ANSI_COLOR_DIM       "\033[2m"
+#define ANSI_COLOR_UNDERLINE "\033[4m"
+
+// Regular Colors
+#define ANSI_COLOR_BLACK   "\033[30m"
+#define ANSI_COLOR_RED     "\033[31m"
+#define ANSI_COLOR_GREEN   "\033[32m"
+#define ANSI_COLOR_YELLOW  "\033[33m"
+#define ANSI_COLOR_BLUE    "\033[34m"
+#define ANSI_COLOR_MAGENTA "\033[35m"
+#define ANSI_COLOR_CYAN    "\033[36m"
+#define ANSI_COLOR_WHITE   "\033[37m"
+#define ANSI_COLOR_GRAY    "\033[90m"
+
+// Bright Colors
+#define ANSI_COLOR_BRIGHT_BLACK   "\033[90m"
+#define ANSI_COLOR_BRIGHT_RED     "\033[91m"
+#define ANSI_COLOR_BRIGHT_GREEN   "\033[92m"
+#define ANSI_COLOR_BRIGHT_YELLOW  "\033[93m"
+#define ANSI_COLOR_BRIGHT_BLUE    "\033[94m"
+#define ANSI_COLOR_BRIGHT_MAGENTA "\033[95m"
+#define ANSI_COLOR_BRIGHT_CYAN    "\033[96m"
+#define ANSI_COLOR_BRIGHT_WHITE   "\033[97m"
+
+// Background Colors
+#define ANSI_BG_BLACK   "\033[40m"
+#define ANSI_BG_RED     "\033[41m"
+#define ANSI_BG_GREEN   "\033[42m"
+#define ANSI_BG_YELLOW  "\033[43m"
+#define ANSI_BG_BLUE    "\033[44m"
+#define ANSI_BG_MAGENTA "\033[45m"
+#define ANSI_BG_CYAN    "\033[46m"
+#define ANSI_BG_WHITE   "\033[47m"
 
     static inline const char* _rhi_log_timestamp()
     {
@@ -1175,7 +1205,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #ifdef RAZIX_RENDER_API_DIRECTX12
         dx12_swapchain dx12;
 #endif
-    }rz_gfx_swapchain;
+    } rz_gfx_swapchain;
 
     struct RAZIX_RHI_ALIGN_16 rz_gfx_sampler
     {
@@ -1202,7 +1232,6 @@ static inline unsigned int rz_clz32(unsigned int x)
             dx12_cmdpool dx12;
 #endif
         };
-
     };
 
     struct RAZIX_RHI_ALIGN_16 rz_gfx_cmdbuf
@@ -1217,21 +1246,20 @@ static inline unsigned int rz_clz32(unsigned int x)
             dx12_cmdbuf dx12;
 #endif
         };
-
     };
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_free_range
     {
         uint32_t start;
         uint32_t numDescriptors;
-    }rz_gfx_descriptor_free_range;
+    } rz_gfx_descriptor_free_range;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_freelist_allocator
     {
         uint32_t                      numFreeRanges;
         uint32_t                      capacity;
         rz_gfx_descriptor_free_range* freeRanges;
-    }rz_gfx_descriptor_freelist_allocator;
+    } rz_gfx_descriptor_freelist_allocator;
 
     struct RAZIX_RHI_ALIGN_16 rz_gfx_descriptor_heap
     {

@@ -199,39 +199,355 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vk_util_debug_callback(
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
     void*                                       pUserData)
 {
-    (void) messageType;
     (void) pUserData;
 
-    const char* severityStr = "UNKNOWN";
-    const char* color       = ANSI_COLOR_RESET;
+    // Enhanced color scheme with better contrast
+    const char* severityColor  = ANSI_COLOR_RESET;
+    const char* severityPrefix = "";
+    const char* severityLabel  = "";
+    const char* borderColor    = ANSI_COLOR_GRAY;
 
+    // Message type indicators
+    const char* typePrefix = "";
+    const char* typeColor  = ANSI_COLOR_CYAN;
+
+    // Determine severity styling
     switch (messageSeverity) {
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-            severityStr = "VERBOSE";
-            color       = ANSI_COLOR_GRAY;
+            severityColor  = ANSI_COLOR_GRAY;
+            severityPrefix = "[V]";
+            severityLabel  = "VERBOSE";
             break;
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-            severityStr = "INFO";
-            color       = ANSI_COLOR_CYAN;
+            severityColor  = ANSI_COLOR_CYAN;
+            severityPrefix = "[I]";
+            severityLabel  = "INFO";
             break;
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-            severityStr = "WARNING";
-            color       = ANSI_COLOR_YELLOW;
+            severityColor  = ANSI_COLOR_YELLOW;
+            severityPrefix = "[W]";
+            severityLabel  = "WARNING";
+            borderColor    = ANSI_COLOR_YELLOW;
             break;
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-            severityStr = "ERROR";
-            color       = ANSI_COLOR_RED;
+            severityColor  = ANSI_COLOR_RED;
+            severityPrefix = "[E]";
+            severityLabel  = "ERROR";
+            borderColor    = ANSI_COLOR_RED;
             break;
         default:
+            severityColor  = ANSI_COLOR_MAGENTA;
+            severityPrefix = "[?]";
+            severityLabel  = "UNKNOWN";
             break;
     }
 
-    printf("%s[%s] [VK/DEBUG/%s] %s%s\n",
-        color,
-        _rhi_log_timestamp(),
-        severityStr,
-        pCallbackData->pMessage,
+    // Determine message type styling
+    const char* typeLabel = "";
+    switch (messageType) {
+        case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
+            typePrefix = "[GEN]";
+            typeColor  = ANSI_COLOR_WHITE;
+            typeLabel  = "GENERAL";
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT:
+            typePrefix = "[VAL]";
+            typeColor  = ANSI_COLOR_GREEN;
+            typeLabel  = "VALIDATION";
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
+            typePrefix = "[PERF]";
+            typeColor  = ANSI_COLOR_BLUE;
+            typeLabel  = "PERFORMANCE";
+            break;
+        default:
+            typePrefix = "[UNK]";
+            typeColor  = ANSI_COLOR_CYAN;
+            typeLabel  = "UNKNOWN";
+            break;
+    }
+
+    // Create a beautiful ASCII border
+    printf("%s+===================================================================+%s\n",
+        borderColor,
         ANSI_COLOR_RESET);
+
+    // Header with severity and type
+    printf("%s|%s %s%s%s %-8s %s%s%s %-12s %s%15s%s %s|%s\n",
+        borderColor,
+        ANSI_COLOR_RESET,
+        severityColor,
+        severityPrefix,
+        ANSI_COLOR_RESET,
+        severityLabel,
+        typeColor,
+        typePrefix,
+        ANSI_COLOR_RESET,
+        typeLabel,
+        ANSI_COLOR_GRAY,
+        _rhi_log_timestamp(),
+        ANSI_COLOR_RESET,
+        borderColor,
+        ANSI_COLOR_RESET);
+
+    // Separator
+    printf("%s+-------------------------------------------------------------------+%s\n",
+        borderColor,
+        ANSI_COLOR_RESET);
+
+    // Message ID if available
+    if (pCallbackData->pMessageIdName || pCallbackData->messageIdNumber != 0) {
+        printf("%s|%s %sMSG ID:%s ",
+            borderColor,
+            ANSI_COLOR_RESET,
+            ANSI_COLOR_BOLD,
+            ANSI_COLOR_RESET);
+
+        if (pCallbackData->pMessageIdName) {
+            printf("%s%s%s", ANSI_COLOR_MAGENTA, pCallbackData->pMessageIdName, ANSI_COLOR_RESET);
+        }
+        if (pCallbackData->messageIdNumber != 0) {
+            printf(" %s(#%d)%s", ANSI_COLOR_GRAY, pCallbackData->messageIdNumber, ANSI_COLOR_RESET);
+        }
+
+        // Calculate padding
+        int usedSpace = 8;    // "MSG ID: "
+        if (pCallbackData->pMessageIdName) {
+            usedSpace += strlen(pCallbackData->pMessageIdName);
+        }
+        if (pCallbackData->messageIdNumber != 0) {
+            usedSpace += snprintf(NULL, 0, " (#%d)", pCallbackData->messageIdNumber);
+        }
+
+        int padding = 57 - usedSpace;
+        for (int i = 0; i < padding && i >= 0; i++) printf(" ");
+
+        printf(" %s|%s\n", borderColor, ANSI_COLOR_RESET);
+    }
+
+    // Objects involved (prettified)
+    if (pCallbackData->objectCount > 0) {
+        printf("%s|%s %sOBJECTS INVOLVED:%s%48s %s|%s\n",
+            borderColor,
+            ANSI_COLOR_RESET,
+            ANSI_COLOR_BOLD,
+            ANSI_COLOR_RESET,
+            "",
+            borderColor,
+            ANSI_COLOR_RESET);
+
+        for (uint32_t i = 0; i < pCallbackData->objectCount; i++) {
+            const VkDebugUtilsObjectNameInfoEXT* obj = &pCallbackData->pObjects[i];
+
+            // Object type to readable string with prefix
+            const char* objectTypeStr = "Unknown";
+            const char* objectPrefix  = "[UNK]";
+
+            switch (obj->objectType) {
+                case VK_OBJECT_TYPE_DEVICE:
+                    objectTypeStr = "Device";
+                    objectPrefix  = "[DEV]";
+                    break;
+                case VK_OBJECT_TYPE_QUEUE:
+                    objectTypeStr = "Queue";
+                    objectPrefix  = "[QUE]";
+                    break;
+                case VK_OBJECT_TYPE_COMMAND_BUFFER:
+                    objectTypeStr = "CommandBuffer";
+                    objectPrefix  = "[CMD]";
+                    break;
+                case VK_OBJECT_TYPE_BUFFER:
+                    objectTypeStr = "Buffer";
+                    objectPrefix  = "[BUF]";
+                    break;
+                case VK_OBJECT_TYPE_IMAGE:
+                    objectTypeStr = "Image";
+                    objectPrefix  = "[IMG]";
+                    break;
+                case VK_OBJECT_TYPE_PIPELINE:
+                    objectTypeStr = "Pipeline";
+                    objectPrefix  = "[PIP]";
+                    break;
+                case VK_OBJECT_TYPE_DESCRIPTOR_SET:
+                    objectTypeStr = "DescriptorSet";
+                    objectPrefix  = "[DSC]";
+                    break;
+                case VK_OBJECT_TYPE_RENDER_PASS:
+                    objectTypeStr = "RenderPass";
+                    objectPrefix  = "[RPS]";
+                    break;
+                case VK_OBJECT_TYPE_FRAMEBUFFER:
+                    objectTypeStr = "Framebuffer";
+                    objectPrefix  = "[FBO]";
+                    break;
+                case VK_OBJECT_TYPE_SHADER_MODULE:
+                    objectTypeStr = "ShaderModule";
+                    objectPrefix  = "[SHD]";
+                    break;
+                case VK_OBJECT_TYPE_INSTANCE:
+                    objectTypeStr = "Instance";
+                    objectPrefix  = "[INS]";
+                    break;
+                case VK_OBJECT_TYPE_PHYSICAL_DEVICE:
+                    objectTypeStr = "PhysicalDevice";
+                    objectPrefix  = "[PHY]";
+                    break;
+                default: break;
+            }
+
+            printf("%s|%s  %s%s%s %-15s",
+                borderColor,
+                ANSI_COLOR_RESET,
+                ANSI_COLOR_CYAN,
+                objectPrefix,
+                ANSI_COLOR_RESET,
+                objectTypeStr);
+
+            if (obj->pObjectName && strlen(obj->pObjectName) > 0) {
+                printf(" %s\"%s\"%s", ANSI_COLOR_GREEN, obj->pObjectName, ANSI_COLOR_RESET);
+
+                // Calculate remaining space for handle
+                int nameLen   = strlen(obj->pObjectName) + 2;    // quotes
+                int prefixLen = 6;                               // [XXX]
+                int typeLen   = strlen(objectTypeStr);
+                int usedSpace = 2 + prefixLen + typeLen + 1 + nameLen;    // "  " + prefix + type + " " + name
+                int remaining = 65 - usedSpace;
+
+                if (remaining > 16) {    // Enough space for handle
+                    int padding = remaining - 16;
+                    for (int p = 0; p < padding; p++) printf(" ");
+                    printf(" %s(0x%012llx)%s", ANSI_COLOR_GRAY, (unsigned long long) obj->objectHandle, ANSI_COLOR_RESET);
+                } else {
+                    // Not enough space, put handle on next line
+                    int totalPadding = 65 - usedSpace;
+                    for (int p = 0; p < totalPadding; p++) printf(" ");
+                }
+            } else {
+                printf(" %s<unnamed>%s", ANSI_COLOR_GRAY, ANSI_COLOR_RESET);
+
+                // Calculate padding for handle
+                int usedSpace = 2 + 6 + strlen(objectTypeStr) + 1 + 9;    // "  " + prefix + type + " " + "<unnamed>"
+                int remaining = 65 - usedSpace;
+
+                if (remaining > 16) {
+                    int padding = remaining - 16;
+                    for (int p = 0; p < padding; p++) printf(" ");
+                    printf(" %s(0x%012llx)%s", ANSI_COLOR_GRAY, (unsigned long long) obj->objectHandle, ANSI_COLOR_RESET);
+                } else {
+                    int totalPadding = 65 - usedSpace;
+                    for (int p = 0; p < totalPadding; p++) printf(" ");
+                }
+            }
+
+            printf(" %s|%s\n", borderColor, ANSI_COLOR_RESET);
+        }
+    }
+
+    // Queue labels if available
+    if (pCallbackData->queueLabelCount > 0) {
+        printf("%s|%s %sQUEUE LABELS:%s%52s %s|%s\n",
+            borderColor,
+            ANSI_COLOR_RESET,
+            ANSI_COLOR_BOLD,
+            ANSI_COLOR_RESET,
+            "",
+            borderColor,
+            ANSI_COLOR_RESET);
+
+        for (uint32_t i = 0; i < pCallbackData->queueLabelCount; i++) {
+            printf("%s|%s  >> %s%s%s",
+                borderColor,
+                ANSI_COLOR_RESET,
+                ANSI_COLOR_YELLOW,
+                pCallbackData->pQueueLabels[i].pLabelName,
+                ANSI_COLOR_RESET);
+
+            int usedSpace = 5 + strlen(pCallbackData->pQueueLabels[i].pLabelName);
+            int padding   = 66 - usedSpace;
+            for (int p = 0; p < padding; p++) printf(" ");
+
+            printf("%s|%s\n", borderColor, ANSI_COLOR_RESET);
+        }
+    }
+
+    // Command buffer labels if available
+    if (pCallbackData->cmdBufLabelCount > 0) {
+        printf("%s|%s %sCMD BUFFER LABELS:%s%48s %s|%s\n",
+            borderColor,
+            ANSI_COLOR_RESET,
+            ANSI_COLOR_BOLD,
+            ANSI_COLOR_RESET,
+            "",
+            borderColor,
+            ANSI_COLOR_RESET);
+
+        for (uint32_t i = 0; i < pCallbackData->cmdBufLabelCount; i++) {
+            printf("%s|%s  -> %s%s%s",
+                borderColor,
+                ANSI_COLOR_RESET,
+                ANSI_COLOR_BLUE,
+                pCallbackData->pCmdBufLabels[i].pLabelName,
+                ANSI_COLOR_RESET);
+
+            int usedSpace = 5 + strlen(pCallbackData->pCmdBufLabels[i].pLabelName);
+            int padding   = 66 - usedSpace;
+            for (int p = 0; p < padding; p++) printf(" ");
+
+            printf("%s|%s\n", borderColor, ANSI_COLOR_RESET);
+        }
+    }
+
+    // Message separator
+    printf("%s+-------------------------------------------------------------------+%s\n",
+        borderColor,
+        ANSI_COLOR_RESET);
+
+    // Main message (word-wrapped and formatted)
+    printf("%s|%s %sMESSAGE:%s%58s %s|%s\n",
+        borderColor,
+        ANSI_COLOR_RESET,
+        ANSI_COLOR_BOLD,
+        ANSI_COLOR_RESET,
+        "",
+        borderColor,
+        ANSI_COLOR_RESET);
+
+    // Word wrap the message to fit nicely in the box
+    const char* message       = pCallbackData->pMessage;
+    const int   maxLineLength = 63;
+    int         messageLen    = strlen(message);
+
+    for (int i = 0; i < messageLen;) {
+        int lineEnd = i + maxLineLength;
+        if (lineEnd >= messageLen) {
+            lineEnd = messageLen;
+        } else {
+            // Find last space to avoid breaking words
+            while (lineEnd > i && message[lineEnd] != ' ' && message[lineEnd] != '\n') {
+                lineEnd--;
+            }
+            if (lineEnd == i) lineEnd = i + maxLineLength;    // Force break if no space found
+        }
+
+        printf("%s|%s %.*s", borderColor, ANSI_COLOR_RESET, lineEnd - i, &message[i]);
+
+        // Pad the line to maintain box alignment
+        int padding = maxLineLength - (lineEnd - i);
+        for (int p = 0; p < padding; p++) printf(" ");
+
+        printf(" %s|%s\n", borderColor, ANSI_COLOR_RESET);
+
+        i = lineEnd;
+        while (i < messageLen && (message[i] == ' ' || message[i] == '\n')) i++;    // Skip spaces and newlines
+    }
+
+    // Bottom border
+    printf("%s+===================================================================+%s\n",
+        borderColor,
+        ANSI_COLOR_RESET);
+
+    // Add some spacing for readability
+    printf("\n");
 
     return VK_FALSE;
 }
