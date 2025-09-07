@@ -159,18 +159,19 @@ namespace Razix {
                     rz_gfx_syncobj rendering_done[RAZIX_MAX_SWAP_IMAGES_COUNT];
                     uint32_t       currSyncpointIdx;
 
-                } present_sync;    // won't be needing this in DX12
-                union
+                } presentSync;    // won't be needing this in DX12 and other APIs
+
+                struct
                 {
-                    rz_gfx_syncobj inflightSyncobj[RAZIX_MAX_FRAMES_IN_FLIGHT];
-                    uint32_t       inFlightSyncIdx;    // for DX12, we can use a single fence per frame
-                    struct
+                    union
                     {
-                        rz_gfx_syncobj   timelineSyncobj;
-                        rz_gfx_syncpoint frameTimestamps[RAZIX_MAX_FRAMES_IN_FLIGHT];
-                        rz_gfx_syncpoint globalTimestamp;
-                        uint32_t         _pad[8];
+                        rz_gfx_syncobj inflightSyncobj[RAZIX_MAX_FRAMES_IN_FLIGHT];
+                        rz_gfx_syncobj timelineSyncobj;
                     };
+                    uint32_t         inFlightSyncIdx;    // for DX12, we can use a single fence per frame
+                    rz_gfx_syncpoint frameTimestamps[RAZIX_MAX_FRAMES_IN_FLIGHT];
+                    rz_gfx_syncpoint globalTimestamp;
+                    uint32_t         _pad[8];
                 } frameSync;    // supports both timeline and fences in vulkan based on VK_KHR_timeline_semaphore availability
             } m_RenderSync;
             rz_gfx_swapchain              m_Swapchain;

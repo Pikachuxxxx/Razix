@@ -64,6 +64,7 @@ namespace Razix {
         // 4. Script Handler
         Scripting::RZLuaScriptHandler::Get().StartUp();
 
+        // TODO: Call this after RZApp has finished full initialization! or call app init in rzengine init itself?
         // 5. Graphics API (last one in the engine to fire up)
         rzGfxCtx_StartUp();
 

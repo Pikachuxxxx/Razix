@@ -334,7 +334,7 @@ namespace Razix {
 
                 stats.FramesPerSecond  = (u32) m_FPSTimestep.GetCurrentFPS();
                 stats.UpdatesPerSecond = (u32) m_UPSTimestep.GetCurrentFPS();
-                RAZIX_CORE_TRACE("FPS : {0} (dt: {1}ms) | Avg FPS: {2}", stats.FramesPerSecond, stats.DeltaTime, (u32) m_FPSTimestep.GetAverageFPS());
+                //RAZIX_CORE_TRACE("FPS : {0} (dt: {1}ms) | Avg FPS: {2}", stats.FramesPerSecond, stats.DeltaTime, (u32) m_FPSTimestep.GetAverageFPS());
                 //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
                 // update window signature with FPS

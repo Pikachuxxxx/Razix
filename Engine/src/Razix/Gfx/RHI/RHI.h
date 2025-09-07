@@ -288,6 +288,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     {
         RZ_GFX_SYNCOBJ_TYPE_CPU,
         RZ_GFX_SYNCOBJ_TYPE_GPU,
+        RZ_GFX_SYNCOBJ_TYPE_TIMELINE,
         RZ_GFX_SYNCOBJ_TYPE_COUNT
     } rz_gfx_syncobj_type;
 
@@ -1526,7 +1527,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     /**
      * RHI API
      */
-    typedef void (*rzRHI_AcquireImageFn)(rz_gfx_swapchain* swapchain);
+    typedef void (*rzRHI_AcquireImageFn)(rz_gfx_swapchain* swapchain, const rz_gfx_syncobj* presentSignalSyncobj);
     typedef void (*rzRHI_WaitOnPrevCmdsFn)(const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint syncPoint);
     typedef void (*rzRHI_PresentFn)(const rz_gfx_swapchain* swapchain);
 
@@ -1577,8 +1578,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint* syncPoint);
     typedef void (*rzRHI_ResizeSwapchainFn)(rz_gfx_swapchain* swapchain, uint32_t width, uint32_t height);
 
-    typedef void (*rzRHI_BeginFrameFn)(rz_gfx_swapchain* swapchain, const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint);
-    typedef void (*rzRHI_EndFrameFn)(const rz_gfx_swapchain* swapchain, const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint);
+    typedef void (*rzRHI_BeginFrameFn)(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameWaitSyncobj, const rz_gfx_syncobj* presentSignalSyncobj, rz_gfx_syncpoint* frameSyncPoints, uint32_t inFlightFrameSyncIdx);
+    typedef void (*rzRHI_EndFrameFn)(const rz_gfx_swapchain* swapchain, const rz_gfx_syncobj* frameSignalSyncobj, const rz_gfx_syncobj* presentSignalSyncobj, const rz_gfx_syncobj* presentWaitSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint, uint32_t presentSyncobjIdx);
 
     typedef struct rz_rhi_api
     {
@@ -2216,16 +2217,16 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.ResizeSwapchain(sp, w, h);                                     \
             } while (0)
 
-        #define rzRHI_BeginFrame(sc, so, fsp, gsp)                                               \
+        #define rzRHI_BeginFrame(sc, wso, sso, fsps, ifIdx)                                      \
             do {                                                                                 \
                 RAZIX_PROFILE_SCOPEC("rzRHI_BeginFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
-                g_RHI.BeginFrame(sc, so, fsp, gsp);                                              \
+                g_RHI.BeginFrame(sc, wso, sso, fsps, ifIdx);                                     \
             } while (0)
 
-        #define rzRHI_EndFrame(sc, so, fsp, gsp)                                               \
+        #define rzRHI_EndFrame(sc, fsso, psso, pwso, fsps, gsc, psIdx)                         \
             do {                                                                               \
                 RAZIX_PROFILE_SCOPEC("rzRHI_EndFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
-                g_RHI.EndFrame(sc, so, fsp, gsp);                                              \
+                g_RHI.EndFrame(sc, fsso, psso, pwso, fsps, gsc, psIdx);                        \
             } while (0)
 
     #else
@@ -2536,17 +2537,17 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC_END();                                          \
             } while (0)
 
-        #define rzRHI_BeginFrame(sc, so, fsp, gsp)                                               \
+        #define rzRHI_BeginFrame(sc, wso, sso, fsps, ifIdx)                                      \
             do {                                                                                 \
                 RAZIX_PROFILE_SCOPEC("rzRHI_BeginFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
-                g_RHI.BeginFrame(sc, so, fsp, gsp);                                              \
+                g_RHI.BeginFrame(sc, wso, sso, fsps, ifIdx);                                     \
                 RAZIX_PROFILE_SCOPEC_END();                                                      \
             } while (0)
 
-        #define rzRHI_EndFrame(sc, so, fsp, gsp)                                               \
+        #define rzRHI_EndFrame(sc, fsso, psso, pwso, fsps, gsc, psIdx)                         \
             do {                                                                               \
                 RAZIX_PROFILE_SCOPEC("rzRHI_EndFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
-                g_RHI.EndFrame(sc, so, fsp, gsp);                                              \
+                g_RHI.EndFrame(sc, fsso, psso, pwso, fsps, gsc, psIdx);                        \
                 RAZIX_PROFILE_SCOPEC_END();                                                    \
             } while (0)
     #endif    // defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)

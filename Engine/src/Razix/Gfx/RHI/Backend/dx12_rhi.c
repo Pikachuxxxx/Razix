@@ -1954,7 +1954,7 @@ static void dx12_CreateSyncobjFn(void* where, rz_gfx_syncobj_type type)
         return;
     }
 
-    if (type == RZ_GFX_SYNCOBJ_TYPE_CPU) {
+    if (type == RZ_GFX_SYNCOBJ_TYPE_CPU || type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE) {
         // Create an event handle for the fence
         syncobj->dx12.eventHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
         if (syncobj->dx12.eventHandle == NULL) {
@@ -2818,8 +2818,12 @@ static void dx12_DestroyDescriptorTable(void* where)
 //---------------------------------------------------------------------------------------------
 // RHI
 
-static void dx12_AcquireImage(rz_gfx_swapchain* sc)
+static void dx12_AcquireImage(rz_gfx_swapchain* sc, const rz_gfx_syncobj* presentSignalSyncobj)
 {
+    RAZIX_RHI_ASSERT(sc != NULL, "Swapchain cannot be NULL");
+    RAZIX_RHI_ASSERT(presentSignalSyncobj != NULL, "Present signal sync object cannot be NULL");
+
+    (void) presentSignalSyncobj;
     sc->currBackBufferIdx = IDXGISwapChain4_GetCurrentBackBufferIndex(sc->dx12.swapchain4);
 }
 
@@ -3697,22 +3701,24 @@ static void dx12_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t 
 
 //---------------------------------------------------------------------------------------------
 
-static void dx12_BeginFrame(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
+static void dx12_BeginFrame(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameWaitSyncobj, const rz_gfx_syncobj* presentSignalSyncobj, rz_gfx_syncpoint* frameSyncPoints, uint32_t inFlightFrameSyncIdx)
 {
-    (void) (globalSyncPoint);
+    (void) inFlightFrameSyncIdx;
     // This is reverse to what Vulkan does, we first wait for previous work to be done
     // and then acquire a new back buffer, because acquire is a GPU operation in vulkan,
     // here we just ask for index and wait on GPU until work is done and that back buffer is free to use
-    dx12_AcquireImage(sc);
+    dx12_AcquireImage(sc, presentSignalSyncobj);
     uint32_t         frameIdx         = sc->currBackBufferIdx;
     rz_gfx_syncpoint currentSyncPoint = frameSyncPoints[frameIdx];
-    dx12_WaitOnPrevCmds(frameSyncobj, currentSyncPoint);
+    dx12_WaitOnPrevCmds(frameWaitSyncobj, currentSyncPoint);
 }
 
-static void dx12_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
+static void dx12_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSignalSyncobj, const rz_gfx_syncobj* presentSignalSyncobj, const rz_gfx_syncobj* presentWaitSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint, uint32_t presentSyncobjIdx)
 {
+    (void) presentSyncobjIdx;
+    (void) presentWaitSyncobj;
     dx12_Present(sc);
-    rz_gfx_syncpoint wait_value = dx12_Signal(frameSyncobj, globalSyncPoint);
+    rz_gfx_syncpoint wait_value = dx12_Signal(frameSignalSyncobj, globalSyncPoint);
     uint32_t         frame_idx  = sc->currBackBufferIdx;
     frameSyncPoints[frame_idx]  = wait_value;
 }
