@@ -1474,7 +1474,7 @@ static void dx12_util_print_device_info(IDXGIAdapter4* adapter)
              desc.SharedSystemMemory > desc.DedicatedVideoMemory)
         deviceType = "Integrated GPU";
 
-     /* ------------------------------------------------------------------ */
+    /* ------------------------------------------------------------------ */
     /* Driver Version via CheckInterfaceSupport                           */
     /* ------------------------------------------------------------------ */
     LARGE_INTEGER drvVer;
@@ -1482,7 +1482,7 @@ static void dx12_util_print_device_info(IDXGIAdapter4* adapter)
     {
         IDXGIAdapter* baseAdapter = (IDXGIAdapter*) adapter;
         if (baseAdapter &&
-            SUCCEEDED(IDXGIAdapter4_CheckInterfaceSupport(baseAdapter, & IID_IDXGIDevice, &drvVer))) {
+            SUCCEEDED(IDXGIAdapter4_CheckInterfaceSupport(baseAdapter, &IID_IDXGIDevice, &drvVer))) {
             /* Format (per MSDN):
                HighPart: (Major << 16) | Minor
                LowPart : (Build << 16) | Revision
@@ -1945,6 +1945,7 @@ static void dx12_GlobalCtxDestroy(void)
 static void dx12_CreateSyncobjFn(void* where, rz_gfx_syncobj_type type)
 {
     rz_gfx_syncobj* syncobj = (rz_gfx_syncobj*) where;
+    syncobj->type           = type;
 
     // Create a fence for synchronization
     CHECK_HR(ID3D12Device10_CreateFence(DX12Device, 0, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, (void**) &syncobj->dx12.fence));

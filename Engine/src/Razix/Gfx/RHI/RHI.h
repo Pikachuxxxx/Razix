@@ -1151,6 +1151,20 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     } rz_gfx_context;
 
+    typedef uint64_t rz_gfx_syncpoint;
+
+    struct RAZIX_RHI_ALIGN_16 rz_gfx_syncobj
+    {
+        rz_gfx_syncpoint    waitTimestamp;
+        rz_gfx_syncobj_type type;
+#ifdef RAZIX_RENDER_API_VULKAN
+        vk_syncobj vk;
+#endif
+#ifdef RAZIX_RENDER_API_DIRECTX12
+        dx12_syncobj dx12;
+#endif
+    };
+
     //---------------------------------------------------------------------------------------------
     // Resource Structs
 
@@ -1163,20 +1177,6 @@ static inline unsigned int rz_clz32(unsigned int x)
 #endif
 #if defined RAZIX_RENDER_API_DIRECTX12
         dx12_resview dx12;
-#endif
-    };
-
-    typedef uint64_t rz_gfx_syncpoint;
-
-    struct RAZIX_RHI_ALIGN_16 rz_gfx_syncobj
-    {
-        RAZIX_GFX_RESOURCE;
-        rz_gfx_syncpoint waitTimestamp;
-#ifdef RAZIX_RENDER_API_VULKAN
-        vk_syncobj vk;
-#endif
-#ifdef RAZIX_RENDER_API_DIRECTX12
-        dx12_syncobj dx12;
 #endif
     };
 

@@ -15,9 +15,11 @@
 #define VKGPU     g_GfxCtx.vk.gpu
 
 #if defined RAZIX_DEBUG
-    #define CHECK_VK(x) vk_util_check_result((x), __func__, __FILE__, __LINE__)
+    #define CHECK_VK(x)                    vk_util_check_result((x), __func__, __FILE__, __LINE__)
+    #define TAG_OBJECT(obj, objType, name) vk_util_tag_object(obj, objType, name)
 #else
     #define CHECK_VK(x) (x)
+    #define TAG_OBJECT(obj, objType, name)
 #endif
 
 //---------------------------------------------------------------------------------------------
@@ -191,6 +193,20 @@ static bool vk_util_check_result(VkResult result, const char* func, const char* 
         return false;
     }
     return true;
+}
+
+static void vk_util_tag_object(void* object, VkObjectType objectType, const char* name)
+{
+    VkDebugUtilsObjectNameInfoEXT nameInfo = {0};
+    nameInfo.sType                         = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+    nameInfo.pNext                         = NULL;
+    nameInfo.objectType                    = objectType;
+    nameInfo.objectHandle                  = (uint64_t) (uintptr_t) object;
+    nameInfo.pObjectName                   = name;
+    VkResult result                        = vkSetDebugUtilsObjectNameEXT(VKDEVICE, &nameInfo);
+    if (result != VK_SUCCESS) {
+        RAZIX_RHI_LOG_WARN("Failed to tag Vulkan object with name: %s", name);
+    }
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL vk_util_debug_callback(
@@ -1124,21 +1140,25 @@ static VkPresentModeKHR vk_util_choose_swap_present_mode(const VkPresentModeKHR*
 // Swapchain Image Utility Functions
 //---------------------------------------------------------------------------------------------
 
-/**
- * Creates image views for all swapchain images and wraps them in rz_gfx_texture objects
- * Similar to dx12_create_backbuffers in the DX12 implementation
- */
 static void vk_util_create_swapchain_images(rz_gfx_swapchain* swapchain)
 {
     RAZIX_RHI_ASSERT(swapchain != NULL, "Swapchain cannot be NULL");
     RAZIX_RHI_ASSERT(swapchain->vk.swapchain != VK_NULL_HANDLE, "Vulkan swapchain must be valid");
     RAZIX_RHI_ASSERT(swapchain->vk.images != NULL, "Swapchain images must be retrieved first");
 
-    // Create image views for each swapchain image
+    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, NULL));
+    swapchain->vk.images = malloc(swapchain->vk.imageCount * sizeof(VkImage));
+    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, swapchain->vk.images));
+
+    swapchain->imageCount = swapchain->vk.imageCount;
+
     swapchain->vk.imageViews = malloc(swapchain->vk.imageCount * sizeof(VkImageView));
     RAZIX_RHI_ASSERT(swapchain->vk.imageViews != NULL, "Failed to allocate memory for image views");
 
     for (uint32_t i = 0; i < swapchain->vk.imageCount; i++) {
+        VkImage image = swapchain->vk.images[i];
+        TAG_OBJECT(image, VK_OBJECT_TYPE_IMAGE, "Swapchain Image");
+
         VkImageViewCreateInfo createInfo           = {0};
         createInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         createInfo.image                           = swapchain->vk.images[i];
@@ -1165,6 +1185,7 @@ static void vk_util_create_swapchain_images(rz_gfx_swapchain* swapchain)
             swapchain->vk.imageViews = NULL;
             return;
         }
+        TAG_OBJECT(swapchain->vk.imageViews[i], VK_OBJECT_TYPE_IMAGE_VIEW, "Swapchain Image View");
 
         RAZIX_RHI_LOG_TRACE("Created image view %u for swapchain image", i);
     }
@@ -1172,10 +1193,6 @@ static void vk_util_create_swapchain_images(rz_gfx_swapchain* swapchain)
     RAZIX_RHI_LOG_INFO("Created %u image views for swapchain images", swapchain->vk.imageCount);
 }
 
-/**
- * Creates rz_gfx_texture wrappers for swapchain images and their corresponding resource views
- * This is the main function similar to dx12_update_swapchain_rtvs
- */
 static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
 {
     RAZIX_RHI_ASSERT(swapchain != NULL, "Swapchain cannot be NULL");
@@ -1253,28 +1270,17 @@ static void vk_util_recreate_swapchain_images(rz_gfx_swapchain* swapchain)
     RAZIX_RHI_ASSERT(swapchain != NULL, "Swapchain cannot be NULL");
     RAZIX_RHI_ASSERT(swapchain->vk.swapchain != VK_NULL_HANDLE, "Vulkan swapchain must be valid");
 
-    // Destroy existing image views and texture wrappers
     vk_util_destroy_swapchain_images(swapchain);
 
-    // Re-query swapchain images (count may have changed)
-    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, NULL));
-
-    // Reallocate image array if needed
     if (swapchain->vk.images) {
         free(swapchain->vk.images);
     }
-    swapchain->vk.images = malloc(swapchain->vk.imageCount * sizeof(VkImage));
-    RAZIX_RHI_ASSERT(swapchain->vk.images != NULL, "Failed to allocate memory for swapchain images");
-
-    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, swapchain->vk.images));
-
-    // Update the swapchain image count
-    swapchain->imageCount = swapchain->vk.imageCount;
 
     // Recreate image views and texture wrappers
     vk_util_create_swapchain_images(swapchain);
     vk_util_create_swapchain_textures(swapchain);
 
+    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, NULL));
     RAZIX_RHI_LOG_INFO("Recreated swapchain images for new dimensions: %ux%u, %u images",
         swapchain->width,
         swapchain->height,
@@ -1304,8 +1310,8 @@ static void vk_GlobalCtxInit(void)
     // Create Vulkan instance
     VkApplicationInfo appInfo  = {0};
     appInfo.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName   = "RazixGame";
-    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    appInfo.pApplicationName   = "PerpetualPuffs";            // TODO: Get this from CtxInit
+    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);    // TODO: Get this from CtxInit
     appInfo.pEngineName        = "Razix Engine";
     appInfo.engineVersion      = VK_MAKE_VERSION(0, 50, 0);    // TODO: Get this from CtxInit
     appInfo.apiVersion         = RAZIX_VK_API_VERSION;
@@ -1433,7 +1439,6 @@ static void vk_GlobalCtxDestroy(void)
 static void vk_CreateSwapchain(void* where, void* surface, uint32_t width, uint32_t height)
 {
     rz_gfx_swapchain* swapchain = (rz_gfx_swapchain*) where;
-    memset(swapchain, 0, sizeof(rz_gfx_swapchain));
 
     RAZIX_RHI_ASSERT(surface != NULL, "VkSurfaceKHR pointer is null, cannot create swapchain without valid surface!");
     RAZIX_RHI_ASSERT(width > 0 && height > 0, "Swapchain width and height must be greater than zero");
@@ -1483,18 +1488,12 @@ static void vk_CreateSwapchain(void* where, void* surface, uint32_t width, uint3
     createInfo.oldSwapchain   = VK_NULL_HANDLE;
 
     CHECK_VK(vkCreateSwapchainKHR(VKCONTEXT.device, &createInfo, NULL, &swapchain->vk.swapchain));
+    TAG_OBJECT(swapchain->vk.swapchain, VK_OBJECT_TYPE_SWAPCHAIN_KHR, "Vulkan Swapchain");
 
     swapchain->vk.imageFormat = surfaceFormat.format;
     swapchain->vk.extent      = extent;
 
-    // Get swapchain images
-    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, NULL));
-    swapchain->vk.images = malloc(swapchain->vk.imageCount * sizeof(VkImage));
-    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, swapchain->vk.images));
-
-    swapchain->imageCount = swapchain->vk.imageCount;
-
-    // Create image views and texture wrappers using utility functions
+    // Create images and image views and texture wrappers using utility functions
     vk_util_create_swapchain_images(swapchain);
     vk_util_create_swapchain_textures(swapchain);
 
@@ -1534,15 +1533,33 @@ static void vk_DestroySwapchain(rz_gfx_swapchain* sc)
 
 static void vk_CreateSyncobj(void* where, rz_gfx_syncobj_type type)
 {
-    (void) where;
-    (void) type;
-    // TODO: Implement when needed
+    rz_gfx_syncobj* syncobj = (rz_gfx_syncobj*) where;
+
+    if (type == RZ_GFX_SYNCOBJ_TYPE_CPU) {
+        VkFenceCreateInfo fenceInfo = {0};
+        fenceInfo.sType             = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceInfo.flags             = VK_FENCE_CREATE_SIGNALED_BIT;
+        CHECK_VK(vkCreateFence(VKCONTEXT.device, &fenceInfo, NULL, &syncobj->vk.fence));
+        RAZIX_RHI_LOG_TRACE("Created CPU sync object (fence)");
+        TAG_OBJECT(syncobj->vk.fence, VK_OBJECT_TYPE_FENCE, "CPU Sync Fence");
+    } else if (type == RZ_GFX_SYNCOBJ_TYPE_GPU) {
+        VkSemaphoreCreateInfo semaphoreInfo = {0};
+        semaphoreInfo.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        CHECK_VK(vkCreateSemaphore(VKCONTEXT.device, &semaphoreInfo, NULL, &syncobj->vk.semaphore));
+        RAZIX_RHI_LOG_TRACE("Created GPU sync object (semaphore)");
+        TAG_OBJECT(syncobj->vk.semaphore, VK_OBJECT_TYPE_SEMAPHORE, "GPU Sync Semaphore");
+    }
 }
 
 static void vk_DestroySyncobj(rz_gfx_syncobj* syncobj)
 {
-    (void) syncobj;
-    // TODO: Implement when needed
+    if (syncobj->type == RZ_GFX_SYNCOBJ_TYPE_CPU) {
+        vkDestroyFence(VKCONTEXT.device, syncobj->vk.fence, NULL);
+        syncobj->vk.fence = VK_NULL_HANDLE;
+    } else if (syncobj->type == RZ_GFX_SYNCOBJ_TYPE_GPU) {
+        vkDestroySemaphore(VKCONTEXT.device, syncobj->vk.semaphore, NULL);
+        syncobj->vk.semaphore = VK_NULL_HANDLE;
+    }
 }
 
 static void vk_CreateCmdPool(void* where)
