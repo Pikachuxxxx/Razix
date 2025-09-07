@@ -46,19 +46,18 @@
 #define VK_CALL_LOADED_FUNCTION(func_name, ...) \
     (pfn_##func_name ? pfn_##func_name(__VA_ARGS__) : VK_ERROR_EXTENSION_NOT_PRESENT)
 
-
 //---------------------------------------------------------------------------------------------
 // Constants and configuration
 //---------------------------------------------------------------------------------------------
 
-// =============================================================================
+//---------------------------------------------------------------------------------------------
 // INSTANCE EXTENSIONS - Vulkan 1.3 Compatible
-// =============================================================================
+//---------------------------------------------------------------------------------------------
 
 #define VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME "VK_KHR_portability_enumeration"
 #define VK_EXT_METAL_SURFACE_EXTENSION_NAME           "VK_EXT_metal_surface"
 
-static const char* requiredInstanceExtensions[] = {
+static const char* s_RequiredInstanceExtensions[] = {
     // Core surface support - required on all platforms
     VK_KHR_SURFACE_EXTENSION_NAME,
 
@@ -93,13 +92,13 @@ static const char* requiredInstanceExtensions[] = {
 #endif
 };
 
-// =============================================================================
+//---------------------------------------------------------------------------------------------
 // DEVICE EXTENSIONS - Vulkan 1.3 Compatible
-// =============================================================================
+//---------------------------------------------------------------------------------------------
 
 #define VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME "VK_KHR_portability_subset"
 
-static const char* requiredDeviceExtensions[] = {
+static const char* s_RequiredDeviceExtensions[] = {
     // Core presentation support
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 
@@ -118,7 +117,7 @@ static const char* requiredDeviceExtensions[] = {
 #endif
 };
 
-static const char* optionalDeviceExtensions[] = {
+static const char* s_OptionalDeviceExtensions[] = {
     // Improved synchronization
     VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,    // Core in 1.3
 
@@ -135,12 +134,12 @@ static const char* optionalDeviceExtensions[] = {
     VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME,
 };
 
-// =============================================================================
+//---------------------------------------------------------------------------------------------
 // VALIDATION LAYERS - Unified Debug Layer
-// =============================================================================
+//---------------------------------------------------------------------------------------------
 
 #ifdef RAZIX_DEBUG
-static const char* validationLayers[] = {
+static const char* s_ValidationLayers[] = {
     // Unified validation layer
     "VK_LAYER_KHRONOS_validation",
 };
@@ -148,11 +147,11 @@ static const char* validationLayers[] = {
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 
-#define REQUIRED_INSTANCE_EXT_COUNT ARRAY_SIZE(requiredInstanceExtensions)
-#define REQUIRED_DEVICE_EXT_COUNT   ARRAY_SIZE(requiredDeviceExtensions)
+#define REQUIRED_INSTANCE_EXT_COUNT ARRAY_SIZE(s_RequiredInstanceExtensions)
+#define REQUIRED_DEVICE_EXT_COUNT   ARRAY_SIZE(s_RequiredDeviceExtensions)
 
 #ifdef RAZIX_DEBUG
-    #define VALIDATION_LAYER_COUNT ARRAY_SIZE(validationLayers)
+    #define VALIDATION_LAYER_COUNT ARRAY_SIZE(s_ValidationLayers)
 #endif
 //---------------------------------------------------------------------------------------------
 // Utility functions
@@ -365,7 +364,6 @@ static void vk_util_print_device_info(VkPhysicalDevice physDev)
     RAZIX_RHI_LOG_INFO("| shaderFloat64            : %u", feats.shaderFloat64);
     RAZIX_RHI_LOG_INFO("| shaderInt64              : %u", feats.shaderInt64);
     RAZIX_RHI_LOG_INFO("| robustBufferAccess       : %u", feats.robustBufferAccess);
-
     RAZIX_RHI_LOG_INFO("+======================================================================+");
 }
 
@@ -380,11 +378,11 @@ static bool vk_util_check_validation_layer_support(void)
     VkLayerProperties* availableLayers = malloc(layerCount * sizeof(VkLayerProperties));
     CHECK_VK(vkEnumerateInstanceLayerProperties(&layerCount, availableLayers));
 
-    for (uint32_t i = 0; i < sizeof(validationLayers) / sizeof(validationLayers[0]); i++) {
+    for (uint32_t i = 0; i < sizeof(s_ValidationLayers) / sizeof(s_ValidationLayers[0]); i++) {
         bool layerFound = false;
 
         for (uint32_t j = 0; j < layerCount; j++) {
-            if (strcmp(validationLayers[i], availableLayers[j].layerName) == 0) {
+            if (strcmp(s_ValidationLayers[i], availableLayers[j].layerName) == 0) {
                 layerFound = true;
                 break;
             }
@@ -411,18 +409,18 @@ static bool vk_util_check_instance_extension_support(void)
     VkExtensionProperties* availableExtensions = malloc(extensionCount * sizeof(VkExtensionProperties));
     CHECK_VK(vkEnumerateInstanceExtensionProperties(NULL, &extensionCount, availableExtensions));
 
-    for (uint32_t i = 0; i < sizeof(requiredInstanceExtensions) / sizeof(requiredInstanceExtensions[0]); i++) {
+    for (uint32_t i = 0; i < sizeof(s_RequiredInstanceExtensions) / sizeof(s_RequiredInstanceExtensions[0]); i++) {
         bool extensionFound = false;
 
         for (uint32_t j = 0; j < extensionCount; j++) {
-            if (strcmp(requiredInstanceExtensions[i], availableExtensions[j].extensionName) == 0) {
+            if (strcmp(s_RequiredInstanceExtensions[i], availableExtensions[j].extensionName) == 0) {
                 extensionFound = true;
                 break;
             }
         }
 
         if (!extensionFound) {
-            RAZIX_RHI_LOG_ERROR("Required instance extension not found: %s", requiredInstanceExtensions[i]);
+            RAZIX_RHI_LOG_ERROR("Required instance extension not found: %s", s_RequiredInstanceExtensions[i]);
             free(availableExtensions);
             return false;
         }
@@ -477,11 +475,11 @@ static bool vk_util_check_device_extension_support(VkPhysicalDevice device)
     VkExtensionProperties* availableExtensions = malloc(extensionCount * sizeof(VkExtensionProperties));
     CHECK_VK(vkEnumerateDeviceExtensionProperties(device, NULL, &extensionCount, availableExtensions));
 
-    for (uint32_t i = 0; i < sizeof(requiredDeviceExtensions) / sizeof(requiredDeviceExtensions[0]); i++) {
+    for (uint32_t i = 0; i < sizeof(s_RequiredDeviceExtensions) / sizeof(s_RequiredDeviceExtensions[0]); i++) {
         bool extensionFound = false;
 
         for (uint32_t j = 0; j < extensionCount; j++) {
-            if (strcmp(requiredDeviceExtensions[i], availableExtensions[j].extensionName) == 0) {
+            if (strcmp(s_RequiredDeviceExtensions[i], availableExtensions[j].extensionName) == 0) {
                 extensionFound = true;
                 break;
             }
@@ -531,7 +529,7 @@ static int vk_util_log_and_check_device_extensions(VkPhysicalDevice device, cons
     } else {
         size_t i;
         for (i = 0; i < requiredCount; ++i)
-            RAZIX_RHI_LOG_INFO("    > %s", requiredDeviceExtensions[i]);
+            RAZIX_RHI_LOG_INFO("    > %s", s_RequiredDeviceExtensions[i]);
     }
 
     // Check missing
@@ -539,7 +537,7 @@ static int vk_util_log_and_check_device_extensions(VkPhysicalDevice device, cons
     if (requiredCount > 0) {
         size_t i;
         for (i = 0; i < requiredCount; ++i) {
-            const char* needed = requiredDeviceExtensions[i];
+            const char* needed = s_RequiredDeviceExtensions[i];
             int         found  = 0;
             uint32_t    j;
             for (j = 0; j < extensionCount; ++j) {
@@ -723,12 +721,12 @@ static void vk_util_create_logical_device(void)
     createInfo.pQueueCreateInfos       = &queueCreateInfo;
     createInfo.queueCreateInfoCount    = 1;
     createInfo.pEnabledFeatures        = &deviceFeatures;
-    createInfo.enabledExtensionCount   = sizeof(requiredDeviceExtensions) / sizeof(requiredDeviceExtensions[0]);
-    createInfo.ppEnabledExtensionNames = requiredDeviceExtensions;
+    createInfo.enabledExtensionCount   = sizeof(s_RequiredDeviceExtensions) / sizeof(s_RequiredDeviceExtensions[0]);
+    createInfo.ppEnabledExtensionNames = s_RequiredDeviceExtensions;
 
 #ifdef RAZIX_DEBUG
-    createInfo.enabledLayerCount   = sizeof(validationLayers) / sizeof(validationLayers[0]);
-    createInfo.ppEnabledLayerNames = validationLayers;
+    createInfo.enabledLayerCount   = sizeof(s_ValidationLayers) / sizeof(s_ValidationLayers[0]);
+    createInfo.ppEnabledLayerNames = s_ValidationLayers;
 #else
     createInfo.enabledLayerCount = 0;
 #endif
@@ -786,7 +784,7 @@ static VkSwapchainSupportDetails vk_util_query_swapchain_support(VkPhysicalDevic
 static VkSurfaceFormatKHR vk_util_choose_swap_surface_format(const VkSurfaceFormatKHR* availableFormats, uint32_t formatCount)
 {
     for (uint32_t i = 0; i < formatCount; i++) {
-        if (availableFormats[i].format == VK_FORMAT_B8G8R8A8_SRGB &&
+        if (availableFormats[i].format == RAZIX_SWAPCHAIN_FORMAT_VK &&
             availableFormats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
             return availableFormats[i];
         }
@@ -874,13 +872,11 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
         memset(texture, 0, sizeof(rz_gfx_texture));
 
         // Set up resource metadata
-        texture->resource.pName        = "$SWAPCHAIN_IMAGE$";
-        texture->resource.handle       = (rz_handle) {i, i};    // Simple handle for swapchain images
-        texture->resource.viewHints    = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
-        texture->resource.type         = RZ_GFX_RESOURCE_TYPE_TEXTURE;
-        texture->resource.currentState = RZ_GFX_RESOURCE_STATE_PRESENT;
-
-        // Set up texture descriptor
+        texture->resource.pName                          = "$SWAPCHAIN_IMAGE$";
+        texture->resource.handle                         = (rz_handle) {i, i};
+        texture->resource.viewHints                      = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
+        texture->resource.type                           = RZ_GFX_RESOURCE_TYPE_TEXTURE;
+        texture->resource.currentState                   = RZ_GFX_RESOURCE_STATE_PRESENT;
         texture->resource.desc.textureDesc.width         = swapchain->width;
         texture->resource.desc.textureDesc.height        = swapchain->height;
         texture->resource.desc.textureDesc.depth         = 1;
@@ -889,29 +885,21 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
         texture->resource.desc.textureDesc.format        = RAZIX_SWAPCHAIN_FORMAT;
         texture->resource.desc.textureDesc.textureType   = RZ_GFX_TEXTURE_TYPE_2D;
         texture->resource.desc.textureDesc.resourceHints = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
-        texture->resource.desc.textureDesc.pPixelData    = NULL;    // No initial pixel data for swapchain images
-
-        // Set up Vulkan-specific data
-        texture->vk.image = swapchain->vk.images[i];
+        texture->resource.desc.textureDesc.pPixelData    = NULL;
+        texture->vk.image                                = swapchain->vk.images[i];
         // Note: We don't set memory handle since swapchain images are managed by the swapchain
-
         // Create resource view for the swapchain image
         rz_gfx_resource_view* resourceView = &swapchain->backbuffersResViews[i];
         memset(resourceView, 0, sizeof(rz_gfx_resource_view));
-
-        resourceView->resource.pName  = "$SWAPCHAIN_RES_VIEW$";
-        resourceView->resource.handle = (rz_handle) {i, i};
-        resourceView->resource.type   = RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW;
-
-        // Set up the view descriptor
+        resourceView->resource.pName                                                = "$SWAPCHAIN_RES_VIEW$";
+        resourceView->resource.handle                                               = (rz_handle) {i, i};
+        resourceView->resource.type                                                 = RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW;
         resourceView->resource.desc.resourceViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE;
         resourceView->resource.desc.resourceViewDesc.textureViewDesc.pTexture       = texture;
         resourceView->resource.desc.resourceViewDesc.textureViewDesc.baseMip        = 0;
         resourceView->resource.desc.resourceViewDesc.textureViewDesc.baseArrayLayer = 0;
         resourceView->resource.desc.resourceViewDesc.textureViewDesc.dimension      = RAZIX_RESOURCE_VIEW_DIMENSION_FULL;
-
-        // Set up Vulkan-specific view data
-        resourceView->vk.imageView = swapchain->vk.imageViews[i];
+        resourceView->vk.imageView                                                  = swapchain->vk.imageViews[i];
 
         RAZIX_RHI_LOG_TRACE("Created texture and resource view wrapper for swapchain image %u", i);
     }
@@ -919,10 +907,6 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
     RAZIX_RHI_LOG_INFO("Created %u texture wrappers for swapchain images", swapchain->vk.imageCount);
 }
 
-/**
- * Destroys swapchain image views and cleans up texture wrappers
- * Similar to dx12_destroy_backbuffers
- */
 static void vk_util_destroy_swapchain_images(rz_gfx_swapchain* swapchain)
 {
     RAZIX_RHI_ASSERT(swapchain != NULL, "Swapchain cannot be NULL");
@@ -948,10 +932,6 @@ static void vk_util_destroy_swapchain_images(rz_gfx_swapchain* swapchain)
     RAZIX_RHI_LOG_INFO("Destroyed swapchain image views and texture wrappers");
 }
 
-/**
- * Recreates swapchain images and views for resize operations
- * Similar to dx12_update_swapchain_rtvs in functionality
- */
 static void vk_util_recreate_swapchain_images(rz_gfx_swapchain* swapchain)
 {
     RAZIX_RHI_ASSERT(swapchain != NULL, "Swapchain cannot be NULL");
@@ -1017,12 +997,12 @@ static void vk_GlobalCtxInit(void)
     VkInstanceCreateInfo createInfo    = {0};
     createInfo.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo        = &appInfo;
-    createInfo.enabledExtensionCount   = sizeof(requiredInstanceExtensions) / sizeof(requiredInstanceExtensions[0]);
-    createInfo.ppEnabledExtensionNames = requiredInstanceExtensions;
+    createInfo.enabledExtensionCount   = sizeof(s_RequiredInstanceExtensions) / sizeof(s_RequiredInstanceExtensions[0]);
+    createInfo.ppEnabledExtensionNames = s_RequiredInstanceExtensions;
 
 #ifdef RAZIX_DEBUG
-    createInfo.enabledLayerCount   = sizeof(validationLayers) / sizeof(validationLayers[0]);
-    createInfo.ppEnabledLayerNames = validationLayers;
+    createInfo.enabledLayerCount   = sizeof(s_ValidationLayers) / sizeof(s_ValidationLayers[0]);
+    createInfo.ppEnabledLayerNames = s_ValidationLayers;
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {0};
     debugCreateInfo.sType                              = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -1140,6 +1120,7 @@ static void vk_CreateSwapchain(void* where, void* surface, uint32_t width, uint3
     memset(swapchain, 0, sizeof(rz_gfx_swapchain));
 
     RAZIX_RHI_ASSERT(surface != NULL, "VkSurfaceKHR pointer is null, cannot create swapchain without valid surface!");
+    RAZIX_RHI_ASSERT(width > 0 && height > 0, "Swapchain width and height must be greater than zero");
     VKCONTEXT.surface = *(VkSurfaceKHR*) surface;
 
     swapchain->width  = width;
@@ -1642,6 +1623,8 @@ static void vk_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t he
     (void) height;
     // TODO: Implement when needed
 }
+
+//---------------------------------------------------------------------------------------------
 
 static void vk_BeginFrame(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
 {
