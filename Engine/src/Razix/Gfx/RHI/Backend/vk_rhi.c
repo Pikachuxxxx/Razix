@@ -1788,18 +1788,43 @@ static void vk_EndCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
     RAZIX_RHI_LOG_TRACE("Command buffer recording ended");
 }
 
-static void vk_SubmitCmdBuf(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_syncobj* frameSyncobj, const rz_gfx_syncobj* waitSyncobj, const rz_gfx_syncobj* signalSyncobj, rz_gfx_syncpoint signalSyncPoint, rz_gfx_syncpoint* globalSyncPoint)
+static void vk_SubmitCmdBuf(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_syncobj* frameSignalSyncobj, const rz_gfx_syncobj* presentWaitSyncobj, const rz_gfx_syncobj* renderDoneSignalSyncobj, rz_gfx_syncpoint* frameSyncPoint, rz_gfx_syncpoint* globalSyncPoint)
 {
     RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
     RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
 
+    bool hasTimelineSyncobj = g_GraphicsFeatures.support.SupportsTimelineSemaphores && frameSignalSyncobj->type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE;
+    VkTimelineSemaphoreSubmitInfo timelineSubmtInfo  = {0};
+    
+    uint32_t signalSemaphoreCount = 1;
+    if(hasTimelineSyncobj) {
+        // Global tracker to tell where to signal to
+        uint64_t signalValue = ++(*globalSyncPoint);
+        // Update the current inflight frame syncpoint to wait on next
+        *frameSyncPoint = *globalSyncPoint;
+        
+        timelineSubmtInfo = (VkTimelineSemaphoreSubmitInfo) {
+            .sType = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO,
+            .pNext = NULL,
+            .pSignalSemaphoreValues = &signalValue,
+            .signalSemaphoreValueCount = 1,
+            .pWaitSemaphoreValues = NULL,
+            .waitSemaphoreValueCount = 0,
+        };
+        // Signal timeline semaphore for CPU/GPU sync in additions to rendering done
+        signalSemaphoreCount++;
+    }
+
+    VkSemaphore pSignalSemaphores[2] = { renderDoneSignalSyncobj->vk.semaphore, frameSignalSyncobj->vk.semaphore };
+
     VkSubmitInfo submitInfo = {
         .sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .pNext                = hasTimelineSyncobj ? &timelineSubmtInfo : NULL,
         .pWaitDstStageMask    = NULL,
         .waitSemaphoreCount   = 1,
-        .pWaitSemaphores      = NULL,
-        .signalSemaphoreCount = 1,
-        .pSignalSemaphores    = NULL,
+        .pWaitSemaphores      = &presentWaitSyncobj->vk.semaphore,
+        .signalSemaphoreCount = signalSemaphoreCount,
+        .pSignalSemaphores    = pSignalSemaphores,
         .commandBufferCount   = 1,
         .pCommandBuffers      = &cmdBuf->vk.cmdBuf,
     };
@@ -1957,18 +1982,16 @@ static void vk_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t he
 
 //---------------------------------------------------------------------------------------------
 
-static void vk_BeginFrame(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameWaitSyncobj, const rz_gfx_syncobj* presentSignalSyncObj, rz_gfx_syncpoint* frameSyncPoints, uint32_t inFlightFrameIdx)
+static void vk_BeginFrame(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameWaitSyncobj, const rz_gfx_syncobj* presentSignalSyncObj, rz_gfx_syncpoint frameSyncPoint)
 {
     // In vulkan unlike dx12 we only acquire swapchain after image rendering semaphore is done and also all previous commands
     // for this frame have finished execution, as acquireImage is a GPU operation in Vulkan.
-    rz_gfx_syncpoint inFlightFrameSyncPoint = frameSyncPoints[inFlightFrameIdx];
-    vk_WaitOnPrevCmds(frameWaitSyncobj, inFlightFrameSyncPoint);
+    vk_WaitOnPrevCmds(frameWaitSyncobj, frameSyncPoint);
     vk_AcquireImage(sc, presentSignalSyncObj);
 }
 
-static void vk_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSignalSyncobj, const rz_gfx_syncobj* presentSignalSyncObj, const rz_gfx_syncobj* presentWaitSyncObj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint, uint32_t presentSyncobjIdx)
+static void vk_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSignalSyncobj, const rz_gfx_syncobj* presentSignalSyncObj, const rz_gfx_syncobj* presentWaitSyncObj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
 {
-    // TODO: Implement when needed
     vk_Present(sc);
 }
 

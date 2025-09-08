@@ -1452,6 +1452,37 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t threadGroupCountZ;
     } rz_gfx_dispatch_indirect_args;
 
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_submit_desc
+    {
+        const rz_gfx_cmdbuf* const* ppCmdBufs;
+        uint32_t                    cmdCount;
+
+        const rz_gfx_syncobj* const* ppWaitSyncobjs;
+        uint32_t                     waitCount;
+
+        const rz_gfx_syncobj* const* ppSignalSyncobjs;
+        uint32_t                     signalCount;
+
+        const rz_gfx_syncobj*        pFrameSyncobj;       
+        rz_gfx_syncpoint*            pFrameSyncPoints;
+        rz_gfx_syncpoint*            pGlobalSyncPoint;
+
+    } rz_gfx_submit_desc;
+    
+     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_present_desc
+    {
+        const rx_gfx_swapchain* pSwapchain;
+
+        const rz_gfx_syncobj* const* ppWaitSyncobjs;
+        uint32_t                     waitCount;
+
+        const rz_gfx_syncobj*        pFrameSyncobj;       
+        rz_gfx_syncpoint*            pFrameSyncPoints;
+        rz_gfx_syncpoint*            pGlobalSyncPoint;
+
+    } rz_gfx_present_desc;
+
+
     //---------------------------------------------------------------------------------------------
     // Gfx API
 
@@ -1533,7 +1564,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     typedef void (*rzRHI_BeginCmdBufFn)(const rz_gfx_cmdbuf* cmdBuf);
     typedef void (*rzRHI_EndCmdBufFn)(const rz_gfx_cmdbuf* cmdBuf);
-    typedef void (*rzRHI_SubmitCmdBufFn)(const rz_gfx_cmdbuf* cmdBuf);
+    typedef void (*rzRHI_SubmitCmdBufFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_syncobj* frameSyncobj, const rz_gfx_syncobj* waitSyncobj, const rz_gfx_syncobj* signalSyncobj, rz_gfx_syncpoint* frameSyncPoint, rz_gfx_syncpoint* globalSyncPoint);
 
     typedef void (*rzRHI_BeginRenderPassFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderpass* renderPass);
     typedef void (*rzRHI_EndRenderPassFn)(const rz_gfx_cmdbuf* cmdBuf);
@@ -1577,9 +1608,6 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint* syncPoint);
     typedef void (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint* syncPoint);
     typedef void (*rzRHI_ResizeSwapchainFn)(rz_gfx_swapchain* swapchain, uint32_t width, uint32_t height);
-
-    typedef void (*rzRHI_BeginFrameFn)(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameWaitSyncobj, const rz_gfx_syncobj* presentSignalSyncobj, rz_gfx_syncpoint* frameSyncPoints, uint32_t inFlightFrameSyncIdx);
-    typedef void (*rzRHI_EndFrameFn)(const rz_gfx_swapchain* swapchain, const rz_gfx_syncobj* frameSignalSyncobj, const rz_gfx_syncobj* presentSignalSyncobj, const rz_gfx_syncobj* presentWaitSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint, uint32_t presentSyncobjIdx);
 
     typedef struct rz_rhi_api
     {
@@ -1897,10 +1925,10 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.EndCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb));        \
             } while (0)
 
-        #define rzRHI_SubmitCmdBuf(cb)                                                            \
-            do {                                                                                  \
-                RAZIX_PROFILE_SCOPEC("rzRHI_SubmitCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
-                g_RHI.SubmitCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb));        \
+        #define rzRHI_SubmitCmdBuf(cb, fso, wso, sso, fsp, gsp)                                                     \
+            do {                                                                                                    \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SubmitCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS);                   \
+                g_RHI.SubmitCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb), fso, wso, sso, fsp, gsp); \
             } while (0)
 
         #define rzRHI_BeginRenderPass(cb, info)                                                     \
@@ -2217,16 +2245,16 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.ResizeSwapchain(sp, w, h);                                     \
             } while (0)
 
-        #define rzRHI_BeginFrame(sc, wso, sso, fsps, ifIdx)                                      \
+        #define rzRHI_BeginFrame(sc, wso, sso, fsps)                                             \
             do {                                                                                 \
                 RAZIX_PROFILE_SCOPEC("rzRHI_BeginFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
-                g_RHI.BeginFrame(sc, wso, sso, fsps, ifIdx);                                     \
+                g_RHI.BeginFrame(sc, wso, sso, fsps);                                            \
             } while (0)
 
-        #define rzRHI_EndFrame(sc, fsso, psso, pwso, fsps, gsc, psIdx)                         \
+        #define rzRHI_EndFrame(sc, fsso, psso, pwso, fsps, gsc)                         \
             do {                                                                               \
                 RAZIX_PROFILE_SCOPEC("rzRHI_EndFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
-                g_RHI.EndFrame(sc, fsso, psso, pwso, fsps, gsc, psIdx);                        \
+                g_RHI.EndFrame(sc, fsso, psso, pwso, fsps, gsc);                        \
             } while (0)
 
     #else
@@ -2266,10 +2294,10 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC_END();                                                    \
             } while (0)
 
-        #define rzRHI_SubmitCmdBuf(cb)                                                            \
+        #define rzRHI_SubmitCmdBuf(cb, fso, wso, sso, fsp, gsp)                                   \
             do {                                                                                  \
                 RAZIX_PROFILE_SCOPEC("rzRHI_SubmitCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
-                g_RHI.SubmitCmdBuf(cb);                                                           \
+                g_RHI.SubmitCmdBuf(cb, fso, wso, sso, fsp, gsp);                                  \
                 RAZIX_PROFILE_SCOPEC_END();                                                       \
             } while (0)
 
@@ -2537,17 +2565,17 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC_END();                                          \
             } while (0)
 
-        #define rzRHI_BeginFrame(sc, wso, sso, fsps, ifIdx)                                      \
+        #define rzRHI_BeginFrame(sc, wso, sso, fsps)                                             \
             do {                                                                                 \
                 RAZIX_PROFILE_SCOPEC("rzRHI_BeginFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
-                g_RHI.BeginFrame(sc, wso, sso, fsps, ifIdx);                                     \
+                g_RHI.BeginFrame(sc, wso, sso, fsps);                                            \
                 RAZIX_PROFILE_SCOPEC_END();                                                      \
             } while (0)
 
-        #define rzRHI_EndFrame(sc, fsso, psso, pwso, fsps, gsc, psIdx)                         \
+        #define rzRHI_EndFrame(sc, fsso, psso, pwso, fsps, gsc)                         \
             do {                                                                               \
                 RAZIX_PROFILE_SCOPEC("rzRHI_EndFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
-                g_RHI.EndFrame(sc, fsso, psso, pwso, fsps, gsc, psIdx);                        \
+                g_RHI.EndFrame(sc, fsso, psso, pwso, fsps, gsc);                        \
                 RAZIX_PROFILE_SCOPEC_END();                                                    \
             } while (0)
     #endif    // defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)

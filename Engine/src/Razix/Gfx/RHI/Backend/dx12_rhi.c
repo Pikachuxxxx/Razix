@@ -3703,7 +3703,6 @@ static void dx12_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t 
 
 static void dx12_BeginFrame(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameWaitSyncobj, const rz_gfx_syncobj* presentSignalSyncobj, rz_gfx_syncpoint* frameSyncPoints, uint32_t inFlightFrameSyncIdx)
 {
-    (void) inFlightFrameSyncIdx;
     // This is reverse to what Vulkan does, we first wait for previous work to be done
     // and then acquire a new back buffer, because acquire is a GPU operation in vulkan,
     // here we just ask for index and wait on GPU until work is done and that back buffer is free to use
@@ -3713,9 +3712,8 @@ static void dx12_BeginFrame(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameWai
     dx12_WaitOnPrevCmds(frameWaitSyncobj, currentSyncPoint);
 }
 
-static void dx12_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSignalSyncobj, const rz_gfx_syncobj* presentSignalSyncobj, const rz_gfx_syncobj* presentWaitSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint, uint32_t presentSyncobjIdx)
+static void dx12_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSignalSyncobj, const rz_gfx_syncobj* presentSignalSyncobj, const rz_gfx_syncobj* presentWaitSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
 {
-    (void) presentSyncobjIdx;
     (void) presentWaitSyncobj;
     dx12_Present(sc);
     rz_gfx_syncpoint wait_value = dx12_Signal(frameSignalSyncobj, globalSyncPoint);
