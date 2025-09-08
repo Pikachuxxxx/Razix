@@ -183,12 +183,14 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define RAZIX_ENABLE_TRIPLE_BUFFERING
 /* The total number of images that the swapchain can render/present to, by default we use triple buffering, defaults to d32 buffering if disabled */
 #ifdef RAZIX_ENABLE_TRIPLE_BUFFERING
-    /* Frames in FLight defines the number of frames that will be rendered to while another frame is being presented (used for triple buffering)*/
-    #define RAZIX_MAX_FRAMES_IN_FLIGHT  3
+    /* Frames in Flight defines the number of frames that will be rendered to while another frame is being presented (used for triple buffering)*/
+    #define RAZIX_MAX_FRAMES_IN_FLIGHT  2
     #define RAZIX_MAX_SWAP_IMAGES_COUNT 3
     #define RAZIX_MAX_FRAMES            RAZIX_MAX_SWAP_IMAGES_COUNT
 #elif
+    #define RAZIX_MAX_FRAMES_IN_FLIGHT  1
     #define RAZIX_MAX_SWAP_IMAGES_COUNT 2
+    #define RAZIX_MAX_FRAMES            RAZIX_MAX_SWAP_IMAGES_COUNT
 #endif
 
 /* Whether or not to use VMA as memory backend */
@@ -1454,34 +1456,27 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_submit_desc
     {
-        const rz_gfx_cmdbuf* const* ppCmdBufs;
-        uint32_t                    cmdCount;
-
+        const rz_gfx_cmdbuf* const*  ppCmdBufs;
+        uint32_t                     cmdCount;
         const rz_gfx_syncobj* const* ppWaitSyncobjs;
         uint32_t                     waitCount;
-
         const rz_gfx_syncobj* const* ppSignalSyncobjs;
         uint32_t                     signalCount;
-
-        const rz_gfx_syncobj*        pFrameSyncobj;       
+        const rz_gfx_syncobj*        pFrameSyncobj;
         rz_gfx_syncpoint*            pFrameSyncPoints;
         rz_gfx_syncpoint*            pGlobalSyncPoint;
 
     } rz_gfx_submit_desc;
-    
-     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_present_desc
-    {
-        const rx_gfx_swapchain* pSwapchain;
 
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_present_desc
+    {
+        const rz_gfx_swapchain*      pSwapchain;
         const rz_gfx_syncobj* const* ppWaitSyncobjs;
         uint32_t                     waitCount;
-
-        const rz_gfx_syncobj*        pFrameSyncobj;       
+        const rz_gfx_syncobj*        pFrameSyncobj;
         rz_gfx_syncpoint*            pFrameSyncPoints;
         rz_gfx_syncpoint*            pGlobalSyncPoint;
-
     } rz_gfx_present_desc;
-
 
     //---------------------------------------------------------------------------------------------
     // Gfx API
@@ -1560,11 +1555,11 @@ static inline unsigned int rz_clz32(unsigned int x)
      */
     typedef void (*rzRHI_AcquireImageFn)(rz_gfx_swapchain* swapchain, const rz_gfx_syncobj* presentSignalSyncobj);
     typedef void (*rzRHI_WaitOnPrevCmdsFn)(const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint syncPoint);
-    typedef void (*rzRHI_PresentFn)(const rz_gfx_swapchain* swapchain);
+    typedef void (*rzRHI_SubmitCmdBufFn)(rz_gfx_submit_desc submitDesc);
+    typedef void (*rzRHI_PresentFn)(rz_gfx_present_desc presentDesc);
 
     typedef void (*rzRHI_BeginCmdBufFn)(const rz_gfx_cmdbuf* cmdBuf);
     typedef void (*rzRHI_EndCmdBufFn)(const rz_gfx_cmdbuf* cmdBuf);
-    typedef void (*rzRHI_SubmitCmdBufFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_syncobj* frameSyncobj, const rz_gfx_syncobj* waitSyncobj, const rz_gfx_syncobj* signalSyncobj, rz_gfx_syncpoint* frameSyncPoint, rz_gfx_syncpoint* globalSyncPoint);
 
     typedef void (*rzRHI_BeginRenderPassFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderpass* renderPass);
     typedef void (*rzRHI_EndRenderPassFn)(const rz_gfx_cmdbuf* cmdBuf);
@@ -1611,80 +1606,73 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     typedef struct rz_rhi_api
     {
-        rzRHI_GlobalCtxInitFn    GlobalCtxInit;
-        rzRHI_GlobalCtxDestroyFn GlobalCtxDestroy;
-        //-----------------------------------------
-        rzRHI_CreateSyncobjFn        CreateSyncobj;
-        rzRHI_DestroySyncobjFn       DestroySyncobj;
-        rzRHI_CreateSwapchainFn      CreateSwapchain;
-        rzRHI_DestroySwapchainFn     DestroySwapchain;
-        rzRHI_CreateCmdPoolFn        CreateCmdPool;
-        rzRHI_DestroyCmdPoolFn       DestroyCmdPool;
-        rzRHI_CreateCmdBufFn         CreateCmdBuf;
-        rzRHI_DestroyCmdBufFn        DestroyCmdBuf;
-        rzRHI_CreateShaderFn         CreateShader;
-        rzRHI_DestroyShaderFn        DestroyShader;
-        rzRHI_CreateRootSignatureFn  CreateRootSignature;
-        rzRHI_DestroyRootSignatureFn DestroyRootSignature;
-        rzRHI_CreatePipelineFn       CreatePipeline;
-        rzRHI_DestroyPipelineFn      DestroyPipeline;
-        rzRHI_CreateTextureFn        CreateTexture;
-        rzRHI_DestroyTextureFn       DestroyTexture;
-        rzRHI_CreateSamplerFn        CreateSampler;
-        rzRHI_DestroySamplerFn       DestroySampler;
-        rzRHI_CreateBufferFn         CreateBuffer;
-        rzRHI_DestroyBufferFn        DestroyBuffer;
-        rzRHI_CreateResourceViewFn   CreateResourceView;
-        rzRHI_DestroyResourceViewFn  DestroyResourceView;
-        //....
+        rzRHI_GlobalCtxInitFn          GlobalCtxInit;
+        rzRHI_GlobalCtxDestroyFn       GlobalCtxDestroy;
+        rzRHI_CreateSyncobjFn          CreateSyncobj;
+        rzRHI_DestroySyncobjFn         DestroySyncobj;
+        rzRHI_CreateSwapchainFn        CreateSwapchain;
+        rzRHI_DestroySwapchainFn       DestroySwapchain;
+        rzRHI_CreateCmdPoolFn          CreateCmdPool;
+        rzRHI_DestroyCmdPoolFn         DestroyCmdPool;
+        rzRHI_CreateCmdBufFn           CreateCmdBuf;
+        rzRHI_DestroyCmdBufFn          DestroyCmdBuf;
+        rzRHI_CreateShaderFn           CreateShader;
+        rzRHI_DestroyShaderFn          DestroyShader;
+        rzRHI_CreateRootSignatureFn    CreateRootSignature;
+        rzRHI_DestroyRootSignatureFn   DestroyRootSignature;
+        rzRHI_CreatePipelineFn         CreatePipeline;
+        rzRHI_DestroyPipelineFn        DestroyPipeline;
+        rzRHI_CreateTextureFn          CreateTexture;
+        rzRHI_DestroyTextureFn         DestroyTexture;
+        rzRHI_CreateSamplerFn          CreateSampler;
+        rzRHI_DestroySamplerFn         DestroySampler;
+        rzRHI_CreateBufferFn           CreateBuffer;
+        rzRHI_DestroyBufferFn          DestroyBuffer;
+        rzRHI_CreateResourceViewFn     CreateResourceView;
+        rzRHI_DestroyResourceViewFn    DestroyResourceView;
         rzRHI_CreateDescriptorHeapFn   CreateDescriptorHeap;
         rzRHI_DestroyDescriptorHeapFn  DestroyDescriptorHeap;
         rzRHI_CreateDescriptorTableFn  CreateDescriptorTable;
         rzRHI_DestroyDescriptorTableFn DestroyDescriptorTable;
-        //....
-        rzRHI_AcquireImageFn          AcquireImage;
-        rzRHI_WaitOnPrevCmdsFn        WaitOnPrevCmds;
-        rzRHI_PresentFn               Present;
-        rzRHI_BeginCmdBufFn           BeginCmdBuf;
-        rzRHI_EndCmdBufFn             EndCmdBuf;
-        rzRHI_SubmitCmdBufFn          SubmitCmdBuf;
-        rzRHI_BeginRenderPassFn       BeginRenderPass;
-        rzRHI_EndRenderPassFn         EndRenderPass;
-        rzRHI_SetScissorRectFn        SetScissorRect;
-        rzRHI_SetViewportFn           SetViewport;
-        rzRHI_BindPipelineFn          BindPipeline;
-        rzRHI_BindGfxRootSigFn        BindGfxRootSig;
-        rzRHI_BindComputeRootSigFn    BindComputeRootSig;
-        rzRHI_BindDescriptorHeapsFn   BindDescriptorHeaps;
-        rzRHI_BindDescriptorTablesFn  BindDescriptorTables;
-        rzRHI_BindVertexBuffersFn     BindVertexBuffers;
-        rzRHI_BindIndexBufferFn       BindIndexBuffer;
-        rzRHI_DrawAutoFn              DrawAuto;
-        rzRHI_DrawIndexedAutoFn       DrawIndexedAuto;
-        rzRHI_DispatchFn              Dispatch;
-        rzRHI_DrawIndirectFn          DrawIndirect;
-        rzRHI_DrawIndexedIndirectFn   DrawIndexedIndirect;
-        rzRHI_DispatchIndirectFn      DispatchIndirect;
-        rzRHI_UpdateDescriptorTableFn UpdateDescriptorTable;
-        rzRHI_UpdateConstantBufferFn  UpdateConstantBuffer;
-        rzRHI_CopyBufferFn            CopyBuffer;
-        rzRHI_CopyTextureFn           CopyTexture;
-        rzRHI_CopyBufferToTextureFn   CopyBufferToTexture;
-        rzRHI_CopyTextureToBufferFn   CopyTextureToBuffer;
-        rzRHI_GenerateMipmapsFn       GenerateMipmaps;
-        rzRHI_BlitTextureFn           BlitTexture;
-        rzRHI_ResolveTextureFn        ResolveTexture;
-        rzRHI_InsertImageBarrierFn    InsertImageBarrier;
-        rzRHI_InsertBufferBarrierFn   InsertBufferBarrier;
-        rzRHI_InsertTextureReadbackFn InsertTextureReadback;
-        rzRHI_InsertBufferReadbackFn  InsertBufferReadback;
-        // ....
-        rzRHI_SignalGPUFn       SignalGPU;
-        rzRHI_FlushGPUWorkFn    FlushGPUWork;
-        rzRHI_ResizeSwapchainFn ResizeSwapchain;
-        //-----------------------------------------
-        rzRHI_BeginFrameFn BeginFrame;
-        rzRHI_EndFrameFn   EndFrame;
+        rzRHI_AcquireImageFn           AcquireImage;
+        rzRHI_WaitOnPrevCmdsFn         WaitOnPrevCmds;
+        rzRHI_PresentFn                Present;
+        rzRHI_BeginCmdBufFn            BeginCmdBuf;
+        rzRHI_EndCmdBufFn              EndCmdBuf;
+        rzRHI_SubmitCmdBufFn           SubmitCmdBuf;
+        rzRHI_BeginRenderPassFn        BeginRenderPass;
+        rzRHI_EndRenderPassFn          EndRenderPass;
+        rzRHI_SetScissorRectFn         SetScissorRect;
+        rzRHI_SetViewportFn            SetViewport;
+        rzRHI_BindPipelineFn           BindPipeline;
+        rzRHI_BindGfxRootSigFn         BindGfxRootSig;
+        rzRHI_BindComputeRootSigFn     BindComputeRootSig;
+        rzRHI_BindDescriptorHeapsFn    BindDescriptorHeaps;
+        rzRHI_BindDescriptorTablesFn   BindDescriptorTables;
+        rzRHI_BindVertexBuffersFn      BindVertexBuffers;
+        rzRHI_BindIndexBufferFn        BindIndexBuffer;
+        rzRHI_DrawAutoFn               DrawAuto;
+        rzRHI_DrawIndexedAutoFn        DrawIndexedAuto;
+        rzRHI_DispatchFn               Dispatch;
+        rzRHI_DrawIndirectFn           DrawIndirect;
+        rzRHI_DrawIndexedIndirectFn    DrawIndexedIndirect;
+        rzRHI_DispatchIndirectFn       DispatchIndirect;
+        rzRHI_UpdateDescriptorTableFn  UpdateDescriptorTable;
+        rzRHI_UpdateConstantBufferFn   UpdateConstantBuffer;
+        rzRHI_CopyBufferFn             CopyBuffer;
+        rzRHI_CopyTextureFn            CopyTexture;
+        rzRHI_CopyBufferToTextureFn    CopyBufferToTexture;
+        rzRHI_CopyTextureToBufferFn    CopyTextureToBuffer;
+        rzRHI_GenerateMipmapsFn        GenerateMipmaps;
+        rzRHI_BlitTextureFn            BlitTexture;
+        rzRHI_ResolveTextureFn         ResolveTexture;
+        rzRHI_InsertImageBarrierFn     InsertImageBarrier;
+        rzRHI_InsertBufferBarrierFn    InsertBufferBarrier;
+        rzRHI_InsertTextureReadbackFn  InsertTextureReadback;
+        rzRHI_InsertBufferReadbackFn   InsertBufferReadback;
+        rzRHI_SignalGPUFn              SignalGPU;
+        rzRHI_FlushGPUWorkFn           FlushGPUWork;
+        rzRHI_ResizeSwapchainFn        ResizeSwapchain;
     } rz_rhi_api;
 
     //---------------------------------------------------------------------------------------------
@@ -1734,10 +1722,10 @@ static inline unsigned int rz_clz32(unsigned int x)
     #if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
         #define rzRHI_AcquireImage                 g_RHI.AcquireImage
         #define rzRHI_WaitOnPrevCmds               g_RHI.WaitOnPrevCmds
+        #define rzRHI_SubmitCmdBuf                 g_RHI.SubmitCmdBuf
         #define rzRHI_Present                      g_RHI.Present
         #define rzRHI_BeginCmdBuf(cb)              g_RHI.BeginCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
         #define rzRHI_EndCmdBuf(cb)                g_RHI.EndCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
-        #define rzRHI_SubmitCmdBuf(cb)             g_RHI.SubmitCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb))
         #define rzRHI_BeginRenderPass(cb, info)    g_RHI.BeginRenderPass(RZResourceManager::Get().getCommandBufferResource(cb), info)
         #define rzRHI_EndRenderPass(cb)            g_RHI.EndRenderPass(RZResourceManager::Get().getCommandBufferResource(cb))
         #define rzRHI_SetScissorRect(cb, viewport) g_RHI.SetScissorRect(RZResourceManager::Get().getCommandBufferResource(cb), viewport)
@@ -1847,10 +1835,10 @@ static inline unsigned int rz_clz32(unsigned int x)
     #else
         #define rzRHI_AcquireImage                   g_RHI.AcquireImage
         #define rzRHI_WaitOnPrevCmds                 g_RHI.WaitOnPrevCmds
+        #define rzRHI_SubmitCmdBuf                   g_RHI.SubmitCmdBuf
         #define rzRHI_Present                        g_RHI.Present
         #define rzRHI_BeginCmdBuf                    g_RHI.BeginCmdBuf
         #define rzRHI_EndCmdBuf                      g_RHI.EndCmdBuf
-        #define rzRHI_SubmitCmdBuf                   g_RHI.SubmitCmdBuf
         #define rzRHI_BeginRenderPass                g_RHI.BeginRenderPass
         #define rzRHI_EndRenderPass                  g_RHI.EndRenderPass
         #define rzRHI_SetScissorRect                 g_RHI.SetScissorRect
@@ -1895,10 +1883,10 @@ static inline unsigned int rz_clz32(unsigned int x)
     #endif
 #else
     #if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)
-        #define rzRHI_AcquireImage(sc)                                                             \
+        #define rzRHI_AcquireImage(sc, sso)                                                        \
             do {                                                                                   \
                 RAZIX_PROFILE_SCOPEC("rzRHI_AcquireImage", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
-                g_RHI.AcquireImage(sc);                                                            \
+                g_RHI.AcquireImage(sc, sso);                                                       \
             } while (0)
 
         #define rzRHI_WaitOnPrevCmds(so, sp)                                                        \
@@ -1907,10 +1895,16 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.WaitOnPrevCmds(so, sp);                                                       \
             } while (0)
 
-        #define rzRHI_Present(sc)                                                             \
+        #define rzRHI_SubmitCmdBuf(desc)                                                          \
+            do {                                                                                  \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SubmitCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
+                g_RHI.SubmitCmdBuf(desc);                                                         \
+            } while (0)
+
+        #define rzRHI_Present(desc)                                                           \
             do {                                                                              \
                 RAZIX_PROFILE_SCOPEC("rzRHI_Present", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
-                g_RHI.Present(sc);                                                            \
+                g_RHI.Present(desc);                                                          \
             } while (0)
 
         #define rzRHI_BeginCmdBuf(cb)                                                            \
@@ -1923,12 +1917,6 @@ static inline unsigned int rz_clz32(unsigned int x)
             do {                                                                               \
                 RAZIX_PROFILE_SCOPEC("rzRHI_EndCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
                 g_RHI.EndCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb));        \
-            } while (0)
-
-        #define rzRHI_SubmitCmdBuf(cb, fso, wso, sso, fsp, gsp)                                                     \
-            do {                                                                                                    \
-                RAZIX_PROFILE_SCOPEC("rzRHI_SubmitCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS);                   \
-                g_RHI.SubmitCmdBuf(RZResourceManager::Get().getCommandBufferResource(cb), fso, wso, sso, fsp, gsp); \
             } while (0)
 
         #define rzRHI_BeginRenderPass(cb, info)                                                     \
@@ -2251,15 +2239,15 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.BeginFrame(sc, wso, sso, fsps);                                            \
             } while (0)
 
-        #define rzRHI_EndFrame(sc, fsso, psso, pwso, fsps, gsc)                         \
+        #define rzRHI_EndFrame(sc, fsso, psso, pwso, fsps, gsc)                                \
             do {                                                                               \
                 RAZIX_PROFILE_SCOPEC("rzRHI_EndFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
-                g_RHI.EndFrame(sc, fsso, psso, pwso, fsps, gsc);                        \
+                g_RHI.EndFrame(sc, fsso, psso, pwso, fsps, gsc);                               \
             } while (0)
 
     #else
         // C mode or direct handles mode with profiling support where available
-        #define rzRHI_AcquireImage(sc)                                                                   \
+        #define rzRHI_AcquireImage(sc, sso)                                                              \
             do {                                                                                         \
                 RAZIX_PROFILE_SCOPEC_BEGIN("rzRHI_AcquireImage", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
                 g_RHI.AcquireImage(sc);                                                                  \
@@ -2273,10 +2261,17 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC_END();                                                         \
             } while (0)
 
-        #define rzRHI_Present(sc)                                                             \
+        #define rzRHI_SubmitCmdBuf(desc)                                                          \
+            do {                                                                                  \
+                RAZIX_PROFILE_SCOPEC("rzRHI_SubmitCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
+                g_RHI.SubmitCmdBuf(desc);                                                         \
+                RAZIX_PROFILE_SCOPEC_END();                                                       \
+            } while (0)
+
+        #define rzRHI_Present(desc)                                                           \
             do {                                                                              \
                 RAZIX_PROFILE_SCOPEC("rzRHI_Present", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
-                g_RHI.Present(sc);                                                            \
+                g_RHI.Present(desc);                                                          \
                 RAZIX_PROFILE_SCOPEC_END();                                                   \
             } while (0)
 
@@ -2292,13 +2287,6 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC("rzRHI_EndCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
                 g_RHI.EndCmdBuf(cb);                                                           \
                 RAZIX_PROFILE_SCOPEC_END();                                                    \
-            } while (0)
-
-        #define rzRHI_SubmitCmdBuf(cb, fso, wso, sso, fsp, gsp)                                   \
-            do {                                                                                  \
-                RAZIX_PROFILE_SCOPEC("rzRHI_SubmitCmdBuf", RZ_PROFILE_COLOR_RHI_COMMAND_BUFFERS); \
-                g_RHI.SubmitCmdBuf(cb, fso, wso, sso, fsp, gsp);                                  \
-                RAZIX_PROFILE_SCOPEC_END();                                                       \
             } while (0)
 
         #define rzRHI_BeginRenderPass(cb, info)                                                    \
@@ -2572,10 +2560,10 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC_END();                                                      \
             } while (0)
 
-        #define rzRHI_EndFrame(sc, fsso, psso, pwso, fsps, gsc)                         \
+        #define rzRHI_EndFrame(sc, fsso, psso, pwso, fsps, gsc)                                \
             do {                                                                               \
                 RAZIX_PROFILE_SCOPEC("rzRHI_EndFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
-                g_RHI.EndFrame(sc, fsso, psso, pwso, fsps, gsc);                        \
+                g_RHI.EndFrame(sc, fsso, psso, pwso, fsps, gsc);                               \
                 RAZIX_PROFILE_SCOPEC_END();                                                    \
             } while (0)
     #endif    // defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)

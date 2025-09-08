@@ -153,25 +153,26 @@ namespace Razix {
             // Gfx resources
             struct RenderSyncPrimitives
             {
+                // [Source]: https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html
                 struct
                 {
-                    rz_gfx_syncobj image_ready[RAZIX_MAX_SWAP_IMAGES_COUNT];
-                    rz_gfx_syncobj rendering_done[RAZIX_MAX_SWAP_IMAGES_COUNT];
-                    uint32_t       currSyncpointIdx;
-
-                } presentSync;    // won't be needing this in DX12 and other APIs
-
+                    rz_gfx_syncobj imageAcquired[RAZIX_MAX_FRAMES_IN_FLIGHT];     // one per frame in flight
+                    rz_gfx_syncobj renderingDone[RAZIX_MAX_SWAP_IMAGES_COUNT];    // one per swapchain image
+                } presentSync;                                                    // won't be needing this in DX12 and other APIs
                 struct
                 {
-                    union
+                    uint32_t inFlightSyncIdx;    // current in-flight frame idx being recorded
+                    union                        // fence or timeline based syncobjs, DX12 uses timeline, vulkan can use either based on support
                     {
                         rz_gfx_syncobj inflightSyncobj[RAZIX_MAX_FRAMES_IN_FLIGHT];
-                        rz_gfx_syncobj timelineSyncobj;
+                        struct
+                        {
+                            rz_gfx_syncobj   timelineSyncobj;
+                            rz_gfx_syncpoint frameTimestamps[RAZIX_MAX_SWAP_IMAGES_COUNT];
+                            rz_gfx_syncpoint globalTimestamp;
+                        };
                     };
-                    uint32_t         inFlightSyncIdx;    // for DX12, we can use a single fence per frame
-                    rz_gfx_syncpoint frameTimestamps[RAZIX_MAX_FRAMES_IN_FLIGHT];
-                    rz_gfx_syncpoint globalTimestamp;
-                    uint32_t         _pad[8];
+
                 } frameSync;    // supports both timeline and fences in vulkan based on VK_KHR_timeline_semaphore availability
             } m_RenderSync;
             rz_gfx_swapchain              m_Swapchain;

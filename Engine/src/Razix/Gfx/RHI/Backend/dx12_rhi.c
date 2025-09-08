@@ -5,6 +5,8 @@
 #include <d3d12shader.h>
 #include <d3dcompiler.h>
 
+#include <malloc.h>    // for alloca
+
 // TYpe friendly defines
 #define DX12Context g_GfxCtx.dx12
 #define DX12Device  g_GfxCtx.dx12.device10
@@ -2823,12 +2825,17 @@ static void dx12_AcquireImage(rz_gfx_swapchain* sc, const rz_gfx_syncobj* presen
     RAZIX_RHI_ASSERT(sc != NULL, "Swapchain cannot be NULL");
     RAZIX_RHI_ASSERT(presentSignalSyncobj != NULL, "Present signal sync object cannot be NULL");
 
+    // used in vulkan by the acquire next image function
+    // VkQueueSubmit waits on this semaphore until the image is ready before rendering
+    // Then it signals the render complete semaphore when rendering is done for that swapchain image
     (void) presentSignalSyncobj;
     sc->currBackBufferIdx = IDXGISwapChain4_GetCurrentBackBufferIndex(sc->dx12.swapchain4);
 }
 
 static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint waitSyncPoint)
 {
+    RAZIX_RHI_ASSERT(frameSyncobj != NULL, "Frame sync object cannot be NULL");
+
     rz_gfx_syncpoint completed = ID3D12Fence_GetCompletedValue(frameSyncobj->dx12.fence);
 
     if (completed < waitSyncPoint) {
@@ -2853,9 +2860,24 @@ static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncp
     }
 }
 
-static void dx12_Present(const rz_gfx_swapchain* sc)
+static void dx12_SubmitCmdBuf(rz_gfx_submit_desc submitDesc)
 {
-    CHECK_HR(IDXGISwapChain4_Present(sc->dx12.swapchain4, 0, DXGI_PRESENT_ALLOW_TEARING));
+    RAZIX_RHI_ASSERT(submitDesc.cmdCount > 0, "Command buffer count must be greater than zero");
+    RAZIX_RHI_ASSERT(submitDesc.ppCmdBufs != NULL, "Command buffer array cannot be NULL");
+
+
+    ID3D12GraphicsCommandList* cmdLists[] = alloca(sizeof(ID3D12GraphicsCommandList*) * submitDesc.cmdCount);
+    for (uint32_t i = 0; i < submitDesc.cmdCount; i++) {
+        cmdLists[i] = submitDesc.ppCmdBufs[i]->dx12.cmdList;
+    }
+    ID3D12CommandQueue_ExecuteCommandLists(DX12Context.directQ, submitDesc.cmdCount, (ID3D12CommandList**) cmdLists);
+}
+
+static void dx12_Present(rz_gfx_present_desc presentDesc)
+{
+    CHECK_HR(IDXGISwapChain4_Present(presentDesc.pSwapchain->dx12.swapchain4, 0, DXGI_PRESENT_ALLOW_TEARING));
+
+    // TODO: Signal the frame's fence for CPU-GPU sync
 }
 
 static void dx12_BeginCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
@@ -2867,12 +2889,6 @@ static void dx12_BeginCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 static void dx12_EndCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 {
     CHECK_HR(ID3D12GraphicsCommandList_Close(cmdBuf->dx12.cmdList));
-}
-
-static void dx12_SubmitCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
-{
-    ID3D12GraphicsCommandList* cmdLists[] = {cmdBuf->dx12.cmdList};
-    ID3D12CommandQueue_ExecuteCommandLists(DX12Context.directQ, 1, (ID3D12CommandList**) cmdLists);
 }
 
 static void dx12_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderpass* renderPass)
@@ -2953,8 +2969,6 @@ static void dx12_SetScissorRect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* 
         .bottom = (LONG) rect->y + rect->height};
     ID3D12GraphicsCommandList_RSSetScissorRects(cmdBuf->dx12.cmdList, 1, &scissor);
 }
-
-// ...
 
 static void dx12_BindPipeline(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_pipeline* pso)
 {
@@ -3795,6 +3809,4 @@ rz_rhi_api dx12_rhi = {
     .SignalGPU       = dx12_Signal,             // Signal
     .FlushGPUWork    = dx12_FlushGPUWork,       // FlushGPUWork
     .ResizeSwapchain = dx12_ResizeSwapchain,    // ResizeSwapchain
-    .BeginFrame      = dx12_BeginFrame,         // BeginFrame
-    .EndFrame        = dx12_EndFrame,           // EndFrame
 };

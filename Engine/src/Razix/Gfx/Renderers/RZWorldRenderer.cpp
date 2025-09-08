@@ -108,6 +108,7 @@ namespace Razix {
 
             m_Window = window;
             memset(&m_RenderSync, 0, sizeof(RenderSyncPrimitives));
+            m_FrameCount = 0;
 
             // Create the swapchain
             GLFWwindow*   glfwWindow = static_cast<GLFWwindow*>(window->GetNativeWindow());
@@ -150,6 +151,13 @@ namespace Razix {
 #else
     #error "Unsupported platform! Add support for your target platform."
 #endif
+
+            // create present sync primitives
+            for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++)
+                rzRHI_CreateSyncobj(&m_RenderSync.presentSync.imageAcquired[i], RZ_GFX_SYNCOBJ_TYPE_GPU);
+
+            for (u32 i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++)
+                rzRHI_CreateSyncobj(&m_RenderSync.presentSync.renderingDone[i], RZ_GFX_SYNCOBJ_TYPE_GPU);
 
             // create frame sync primitives
             if (g_GraphicsFeatures.support.SupportsTimelineSemaphores) {
@@ -268,6 +276,12 @@ namespace Razix {
                 RZResourceManager::Get().destroyCommandPool(m_InFlightCmdPool[i]);
                 RZResourceManager::Get().destroyCommandBuffer(m_InFlightDrawCmdBufHandles[i]);
             }
+
+            for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++)
+                rzRHI_DestroySyncobj(&m_RenderSync.presentSync.imageAcquired[i]);
+
+            for (u32 i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++)
+                rzRHI_DestroySyncobj(&m_RenderSync.presentSync.renderingDone[i]);
 
             if (g_GraphicsFeatures.support.SupportsTimelineSemaphores) {
                 rzRHI_DestroySyncobj(&m_RenderSync.frameSync.timelineSyncobj);
@@ -570,15 +584,15 @@ namespace Razix {
             // Main Frame Graph World Rendering Loop
             {
                 u32             inFlightSyncobjIdx = m_RenderSync.frameSync.inFlightSyncIdx;
-                u32             presentSyncobjIdx = m_RenderSync.presentSync.currSyncpointIdx;
                 rz_gfx_syncobj* frameSyncobj       = NULL;
                 if (g_GraphicsFeatures.support.SupportsTimelineSemaphores)
                     frameSyncobj = &m_RenderSync.frameSync.timelineSyncobj;
                 else
                     frameSyncobj = &m_RenderSync.frameSync.inflightSyncobj[inFlightSyncobjIdx];
                 // Acquire Image to render onto
+                rzRHI_AcquireImage(&m_Swapchain, &m_RenderSync.presentSync.imageAcquired[inFlightSyncobjIdx]);
                 // waits on fence/semaphore signaled by the submit for CPU/GPU sync
-                rzRHI_BeginFrame(&m_Swapchain, frameSyncobj, &m_RenderSync.presentSync.image_ready[inFlightSyncobjIdx], &m_RenderSync.frameSync.frameTimestamps[inFlightSyncobjIdx]);
+                rzRHI_WaitOnPrevCmds(frameSyncobj, m_RenderSync.frameSync.globalTimestamp);
 
                 // In DirectX 12, the swapchain back buffer index currBackBufferIdx directly maps to the index of the image
                 // that is being presented/rendered to. This is because DXGI explicitly exposes the current back buffer index
@@ -593,10 +607,6 @@ namespace Razix {
                 // a more generalized ring buffer or semaphore timeline sync tracking model is required.
                 // - DX12: Buffer index is reliable for indexing per-frame resources tracked per currBackBufferIdx.
                 // - Vulkan: Image acquisition is non-linear; sync and frame data must be tracked per imageIndex returned from vkAcquireNextImageKHR.
-                if (g_RenderAPI == RZ_RENDER_API_D3D12) {
-                    m_RenderSync.frameSync.inFlightSyncIdx = m_Swapchain.currBackBufferIdx;
-                    inFlightSyncobjIdx = m_RenderSync.frameSync.inFlightSyncIdx;
-                }
 
                 // Begin Recording  onto the command buffer, select one as per the frame idx
                 const rz_gfx_cmdbuf_handle cmdBuffer = m_InFlightDrawCmdBufHandles[inFlightSyncobjIdx];
@@ -619,9 +629,21 @@ namespace Razix {
                 rzRHI_EndCmdBuf(cmdBuffer);
 
                 // Submit the render queue before presenting next
-                rz_gfx_syncobj* imageReadySyncobj     = &m_RenderSync.presentSync.image_ready[presentSyncobjIdx];       // signaled by acquire image
-                rz_gfx_syncobj* renderCompleteSyncobj = &m_RenderSync.presentSync.rendering_done[presentSyncobjIdx];    // submit signals this and present wait on this
-                rzRHI_SubmitCmdBuf(cmdBuffer, frameSyncobj, imageReadySyncobj, renderCompleteSyncobj, &m_RenderSync.frameSync.frameTimestamps[inFlightSyncobjIdx], &m_RenderSync.frameSync.globalTimestamp);
+                const rz_gfx_cmdbuf*  cmdbufs[]    = {RZResourceManager::Get().getCommandBufferResource(cmdBuffer)};
+                const rz_gfx_syncobj* waitSems[]   = {&m_RenderSync.presentSync.imageAcquired[inFlightSyncobjIdx]};               // per-FIF
+                const rz_gfx_syncobj* signalSems[] = {&m_RenderSync.presentSync.renderingDone[m_Swapchain.currBackBufferIdx]};    // per-image
+
+                rz_gfx_submit_desc submitDesc = {};
+                submitDesc.ppCmdBufs          = cmdbufs;
+                submitDesc.cmdCount           = 1;
+                submitDesc.ppWaitSyncobjs     = waitSems;
+                submitDesc.waitCount          = 1;
+                submitDesc.ppSignalSyncobjs   = signalSems;
+                submitDesc.signalCount        = 1;
+                submitDesc.pFrameSyncobj      = frameSyncobj;
+                submitDesc.pFrameSyncPoints   = m_RenderSync.frameSync.frameTimestamps;
+                submitDesc.pGlobalSyncPoint   = &m_RenderSync.frameSync.globalTimestamp;
+                rzRHI_SubmitCmdBuf(submitDesc);
 
                 // swapchain capture is done before presentation
                 if (m_ReadSwapchainThisFrame) {
@@ -633,10 +655,18 @@ namespace Razix {
                 }
 
                 // Present the image to presentation engine as soon as rendering to COLOR_ATTACHMENT is done
-                rzRHI_EndFrame(&m_Swapchain, frameSyncobj, imageReadySyncobj, renderCompleteSyncobj, m_RenderSync.frameSync.frameTimestamps, &m_RenderSync.frameSync.globalTimestamp);
+                const rz_gfx_syncobj* presentWaitSems[] = {&m_RenderSync.presentSync.renderingDone[m_Swapchain.currBackBufferIdx]};
 
-                m_RenderSync.presentSync.currSyncpointIdx = (m_RenderSync.presentSync.currSyncpointIdx + 1) % RAZIX_MAX_SWAP_IMAGES_COUNT;
-                m_RenderSync.frameSync.inFlightSyncIdx    = (m_RenderSync.frameSync.inFlightSyncIdx + 1) % RAZIX_MAX_FRAMES_IN_FLIGHT;
+                rz_gfx_present_desc presentDesc = {};
+                presentDesc.pSwapchain          = &m_Swapchain;
+                presentDesc.ppWaitSyncobjs      = presentWaitSems;
+                presentDesc.waitCount           = 1;
+                presentDesc.pFrameSyncobj       = frameSyncobj;
+                presentDesc.pFrameSyncPoints    = m_RenderSync.frameSync.frameTimestamps;
+                presentDesc.pGlobalSyncPoint    = &m_RenderSync.frameSync.globalTimestamp;
+                rzRHI_Present(presentDesc);
+
+                m_RenderSync.frameSync.inFlightSyncIdx = (m_RenderSync.frameSync.inFlightSyncIdx + 1) % RAZIX_MAX_FRAMES_IN_FLIGHT;
             }
         }
 

@@ -1548,6 +1548,22 @@ static void vk_CreateSyncobj(void* where, rz_gfx_syncobj_type type)
         CHECK_VK(vkCreateSemaphore(VKCONTEXT.device, &semaphoreInfo, NULL, &syncobj->vk.semaphore));
         RAZIX_RHI_LOG_TRACE("Created GPU sync object (semaphore)");
         TAG_OBJECT(syncobj->vk.semaphore, VK_OBJECT_TYPE_SEMAPHORE, "GPU Sync Semaphore");
+    } else if (type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE) {
+        if (g_GraphicsFeatures.support.SupportsTimelineSemaphores) {
+            VkSemaphoreTypeCreateInfo timelineCreateInfo = {0};
+            timelineCreateInfo.sType                     = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO;
+            timelineCreateInfo.semaphoreType             = VK_SEMAPHORE_TYPE_TIMELINE;
+            timelineCreateInfo.initialValue              = 0;
+            VkSemaphoreCreateInfo semaphoreInfo          = {0};
+            semaphoreInfo.sType                          = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+            semaphoreInfo.pNext                          = &timelineCreateInfo;
+            CHECK_VK(vkCreateSemaphore(VKCONTEXT.device, &semaphoreInfo, NULL, &syncobj->vk.semaphore));
+            TAG_OBJECT(syncobj->vk.semaphore, VK_OBJECT_TYPE_SEMAPHORE, "Timeline Sync Semaphore");
+            RAZIX_RHI_LOG_TRACE("Created Timeline sync object (semaphore)");
+        } else {
+            RAZIX_RHI_LOG_ERROR("Timeline semaphores not supported on this device");
+            syncobj->vk.semaphore = VK_NULL_HANDLE;
+        }
     }
 }
 
@@ -1556,7 +1572,7 @@ static void vk_DestroySyncobj(rz_gfx_syncobj* syncobj)
     if (syncobj->type == RZ_GFX_SYNCOBJ_TYPE_CPU) {
         vkDestroyFence(VKCONTEXT.device, syncobj->vk.fence, NULL);
         syncobj->vk.fence = VK_NULL_HANDLE;
-    } else if (syncobj->type == RZ_GFX_SYNCOBJ_TYPE_GPU) {
+    } else if (syncobj->type == RZ_GFX_SYNCOBJ_TYPE_GPU || syncobj->type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE) {
         vkDestroySemaphore(VKCONTEXT.device, syncobj->vk.semaphore, NULL);
         syncobj->vk.semaphore = VK_NULL_HANDLE;
     }
@@ -1793,29 +1809,29 @@ static void vk_SubmitCmdBuf(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_syncobj* f
     RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
     RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
 
-    bool hasTimelineSyncobj = g_GraphicsFeatures.support.SupportsTimelineSemaphores && frameSignalSyncobj->type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE;
+    bool                          hasTimelineSyncobj = g_GraphicsFeatures.support.SupportsTimelineSemaphores && frameSignalSyncobj->type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE;
     VkTimelineSemaphoreSubmitInfo timelineSubmtInfo  = {0};
-    
+
     uint32_t signalSemaphoreCount = 1;
-    if(hasTimelineSyncobj) {
+    if (hasTimelineSyncobj) {
         // Global tracker to tell where to signal to
         uint64_t signalValue = ++(*globalSyncPoint);
         // Update the current inflight frame syncpoint to wait on next
         *frameSyncPoint = *globalSyncPoint;
-        
+
         timelineSubmtInfo = (VkTimelineSemaphoreSubmitInfo) {
-            .sType = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO,
-            .pNext = NULL,
-            .pSignalSemaphoreValues = &signalValue,
+            .sType                     = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO,
+            .pNext                     = NULL,
+            .pSignalSemaphoreValues    = &signalValue,
             .signalSemaphoreValueCount = 1,
-            .pWaitSemaphoreValues = NULL,
-            .waitSemaphoreValueCount = 0,
+            .pWaitSemaphoreValues      = NULL,
+            .waitSemaphoreValueCount   = 0,
         };
         // Signal timeline semaphore for CPU/GPU sync in additions to rendering done
         signalSemaphoreCount++;
     }
 
-    VkSemaphore pSignalSemaphores[2] = { renderDoneSignalSyncobj->vk.semaphore, frameSignalSyncobj->vk.semaphore };
+    VkSemaphore pSignalSemaphores[2] = {renderDoneSignalSyncobj->vk.semaphore, frameSignalSyncobj->vk.semaphore};
 
     VkSubmitInfo submitInfo = {
         .sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -2046,6 +2062,4 @@ rz_rhi_api vk_rhi = {
     .SignalGPU       = vk_SignalGPU,          // SignalGPU
     .FlushGPUWork    = vk_FlushGPUWork,       // FlushGPUWork
     .ResizeSwapchain = vk_ResizeSwapchain,    // ResizeSwapchain
-    .BeginFrame      = vk_BeginFrame,         // BeginFrame
-    .EndFrame        = vk_EndFrame,           // EndFrame
 };
