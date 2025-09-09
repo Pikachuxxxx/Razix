@@ -1133,6 +1133,20 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     //---------------------------------------------------------------------------------------------
 
+    typedef void* (*rzRHI_malloc_fn)(size_t size, void* user);
+    typedef void* (*rzRHI_calloc_fn)(size_t count, size_t size, void* user);
+    typedef void* (*rzRHI_realloc_fn)(void* ptr, size_t new_size, void* user);
+    typedef void (*rzRHI_free_fn)(void* ptr, void* user);
+
+    typedef struct rz_alloc_callbacks
+    {
+        rzRHI_malloc_fn  malloc_fn;
+        rzRHI_calloc_fn  calloc_fn;
+        rzRHI_realloc_fn realloc_fn;
+        rzRHI_free_fn    free_fn;
+        void*            user;
+    } rz_alloc_callbacks;
+
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_context
     {
         uint32_t      width;
@@ -1459,7 +1473,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t              waitSyncobjCount;
         const rz_gfx_syncobj* pSignalSyncobjs;
         uint32_t              signalSyncobjCount;
-        const rz_gfx_syncobj* pFrameSyncobj;
+        rz_gfx_syncobj*       pFrameSyncobj;
 
     } rz_gfx_submit_desc;
 
@@ -1468,7 +1482,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         const rz_gfx_swapchain* pSwapchain;
         const rz_gfx_syncobj*   pWaitSyncobjs;
         uint32_t                waitSyncobjCount;
-        const rz_gfx_syncobj*   pFrameSyncobj;
+        rz_gfx_syncobj*         pFrameSyncobj;
     } rz_gfx_present_desc;
 
     //---------------------------------------------------------------------------------------------

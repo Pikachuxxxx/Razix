@@ -444,14 +444,17 @@ namespace Razix {
 
             rzRHI_EndCmdBuf(cmdBuf);
 
-            // Submit for execution
-            rzRHI_SubmitCmdBuf(cmdBuf);
-
-            // Wait for work to be done!
             rz_gfx_syncobj flushSyncobj = {};
             rzRHI_CreateSyncobj(&flushSyncobj, RZ_GFX_SYNCOBJ_TYPE_CPU);
-            rz_gfx_syncpoint workDone = 0;
-            rzRHI_FlushGPUWork(&flushSyncobj, &workDone);
+
+            // Submit for execution
+            rz_gfx_submit_desc submitDesc = {};
+            submitDesc.cmdCount           = 1;
+            submitDesc.pCmdBufs           = RZResourceManager::Get().getCommandBufferResource(cmdBuf);
+            submitDesc.pFrameSyncobj      = &flushSyncobj;    // Signal when the GPU is done for CPU to wait on it
+            rzRHI_SubmitCmdBuf(submitDesc);
+            // Wait for work to be done!
+            rzRHI_FlushGPUWork(&flushSyncobj);
 
             // Cleanup
             rzRHI_DestroySyncobj(&flushSyncobj);

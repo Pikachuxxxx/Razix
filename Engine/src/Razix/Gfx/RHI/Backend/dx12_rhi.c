@@ -2831,17 +2831,17 @@ static void dx12_AcquireImage(rz_gfx_swapchain* sc, const rz_gfx_syncobj* presen
     sc->currBackBufferIdx = IDXGISwapChain4_GetCurrentBackBufferIndex(sc->dx12.swapchain4);
 }
 
-static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint waitSyncPoint)
+static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSyncobj)
 {
     RAZIX_RHI_ASSERT(frameSyncobj != NULL, "Frame sync object cannot be NULL");
 
     rz_gfx_syncpoint completed = ID3D12Fence_GetCompletedValue(frameSyncobj->dx12.fence);
 
-    if (completed < waitSyncPoint) {
+    if (completed < frameSyncobj->waitSyncpoint) {
         // Set the fence event and check for failure
-        HRESULT hr = ID3D12Fence_SetEventOnCompletion(frameSyncobj->dx12.fence, waitSyncPoint, frameSyncobj->dx12.eventHandle);
+        HRESULT hr = ID3D12Fence_SetEventOnCompletion(frameSyncobj->dx12.fence, frameSyncobj->waitSyncpoint, frameSyncobj->dx12.eventHandle);
         if (FAILED(hr)) {
-            RAZIX_RHI_LOG_ERROR("[WAIT ERR] SetEventOnCompletion(%llu) failed -> 0x%08X", waitSyncPoint, hr);
+            RAZIX_RHI_LOG_ERROR("[WAIT ERR] SetEventOnCompletion(%llu) failed -> 0x%08X", frameSyncobj->waitSyncpoint, hr);
         }
 
         // Wait for the event and log errors only
@@ -2853,8 +2853,8 @@ static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncp
 
         // Verify fence advanced
         rz_gfx_syncpoint new_completed = ID3D12Fence_GetCompletedValue(frameSyncobj->dx12.fence);
-        if (new_completed < waitSyncPoint) {
-            RAZIX_RHI_LOG_ERROR("[WAIT ERR] fence did not advance: completed=%llu, expected>=%llu", new_completed, waitSyncPoint);
+        if (new_completed < frameSyncobj->waitSyncpoint) {
+            RAZIX_RHI_LOG_ERROR("[WAIT ERR] fence did not advance: completed=%llu, expected>=%llu", new_completed, frameSyncobj->waitSyncpoint);
         }
     }
 }
@@ -2862,20 +2862,35 @@ static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncp
 static void dx12_SubmitCmdBuf(rz_gfx_submit_desc submitDesc)
 {
     RAZIX_RHI_ASSERT(submitDesc.cmdCount > 0, "Command buffer count must be greater than zero");
-    RAZIX_RHI_ASSERT(submitDesc.ppCmdBufs != NULL, "Command buffer array cannot be NULL");
+    RAZIX_RHI_ASSERT(submitDesc.pCmdBufs != NULL, "Command buffer array cannot be NULL");
+    RAZIX_RHI_ASSERT(submitDesc.pFrameSyncobj != NULL, "Frame sync object cannot be NULL");
+    RAZIX_RHI_ASSERT(submitDesc.pWaitSyncobjs == NULL || submitDesc.waitSyncobjCount > 0, "Wait sync object count must be greater than zero if wait sync objects are provided");
+    RAZIX_RHI_ASSERT(submitDesc.pSignalSyncobjs == NULL || submitDesc.signalSyncobjCount > 0, "Signal sync object count must be greater than zero if signal sync objects are provided");
 
-    ID3D12GraphicsCommandList* cmdLists[] = alloca(sizeof(ID3D12GraphicsCommandList*) * submitDesc.cmdCount);
-    for (uint32_t i = 0; i < submitDesc.cmdCount; i++) {
-        cmdLists[i] = submitDesc.ppCmdBufs[i]->dx12.cmdList;
-    }
+    // stack allocate the command list array, quick and dirty
+    ID3D12GraphicsCommandList** cmdLists = alloca(sizeof(ID3D12GraphicsCommandList*) * submitDesc.cmdCount);
+    for (uint32_t i = 0; i < submitDesc.cmdCount; i++)
+        cmdLists[i] = submitDesc.pCmdBufs[i].dx12.cmdList;
+
     ID3D12CommandQueue_ExecuteCommandLists(DX12Context.directQ, submitDesc.cmdCount, (ID3D12CommandList**) cmdLists);
+
+    // TODO: use signal and wait semaphores for better sync on queue submit in DX12
 }
 
 static void dx12_Present(rz_gfx_present_desc presentDesc)
 {
+    RAZIX_RHI_ASSERT(presentDesc.pSwapchain != NULL, "Swapchain cannot be NULL");
+    RAZIX_RHI_ASSERT(presentDesc.pFrameSyncobj != NULL, "Frame sync object cannot be NULL");
+    RAZIX_RHI_ASSERT(presentDesc.pWaitSyncobjs == NULL || presentDesc.waitSyncobjCount > 0, "Wait sync object count must be greater than zero if wait sync objects are provided");
+
+    // TODO: Allow tearing only when vsync is off in GfxCtxInitDesc
     CHECK_HR(IDXGISwapChain4_Present(presentDesc.pSwapchain->dx12.swapchain4, 0, DXGI_PRESENT_ALLOW_TEARING));
 
-    // TODO: Signal the frame's fence for CPU-GPU sync
+    // TODO: use wait semaphores for better sync on present in DX12
+
+    // Signal the frame sync object to increment the fence value
+    rz_gfx_syncpoint signalSyncpoint = ++presentDesc.pFrameSyncobj->waitSyncpoint;
+    CHECK_HR(ID3D12CommandQueue_Signal(DX12Context.directQ, presentDesc.pFrameSyncobj->dx12.fence, signalSyncpoint));
 }
 
 static void dx12_BeginCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
@@ -3673,22 +3688,21 @@ static void dx12_ResolveTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_textur
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 2, restoreBarriers);
 }
 
-//---------------------------------------------------------------------------------------------
-static rz_gfx_syncpoint dx12_Signal(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint* globalSyncPoint)
+static rz_gfx_syncpoint dx12_Signal(rz_gfx_syncobj* syncobj)
 {
-    if (syncobj && syncobj->dx12.fence) {
-        ID3D12Fence*     fence           = syncobj->dx12.fence;
-        rz_gfx_syncpoint signalSyncpoint = ++(*globalSyncPoint);
-        CHECK_HR(ID3D12CommandQueue_Signal(DX12Context.directQ, fence, signalSyncpoint));
-        return signalSyncpoint;
-    }
+    RAZIX_RHI_ASSERT(syncobj != NULL, "Sync object cannot be NULL");
+    RAZIX_RHI_ASSERT(syncobj->dx12.fence != NULL, "DX12 Fence in sync object cannot be NULL");
+
+    rz_gfx_syncpoint signalSyncpoint = ++syncobj->waitSyncpoint;
+    CHECK_HR(ID3D12CommandQueue_Signal(DX12Context.directQ, syncobj->dx12.fence, signalSyncpoint));
+    return signalSyncpoint;
     return (rz_gfx_syncpoint) -1;
 }
 
-static void dx12_FlushGPUWork(const rz_gfx_syncobj* frameSyncobj, rz_gfx_syncpoint* globalSyncpoint)
+static void dx12_FlushGPUWork(rz_gfx_syncobj* frameSyncobj)
 {
-    rz_gfx_syncpoint signalValue = dx12_Signal(frameSyncobj, globalSyncpoint);
-    dx12_WaitOnPrevCmds(frameSyncobj, signalValue);
+    rz_gfx_syncpoint signalValue = dx12_Signal(frameSyncobj);
+    dx12_WaitOnPrevCmds(frameSyncobj);
 }
 
 static void dx12_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t height)
@@ -3709,28 +3723,6 @@ static void dx12_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t 
     CHECK_HR(IDXGISwapChain4_ResizeBuffers(sc->dx12.swapchain4, sc->imageCount, sc->width, sc->height, dx12_util_rz_gfx_format_to_dxgi_format(RAZIX_SWAPCHAIN_FORMAT), swapChainDesc.Flags));
 
     dx12_util_update_swapchain_rtvs(sc);
-}
-
-//---------------------------------------------------------------------------------------------
-
-static void dx12_BeginFrame(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameWaitSyncobj, const rz_gfx_syncobj* presentSignalSyncobj, rz_gfx_syncpoint* frameSyncPoints, uint32_t inFlightFrameSyncIdx)
-{
-    // This is reverse to what Vulkan does, we first wait for previous work to be done
-    // and then acquire a new back buffer, because acquire is a GPU operation in vulkan,
-    // here we just ask for index and wait on GPU until work is done and that back buffer is free to use
-    dx12_AcquireImage(sc, presentSignalSyncobj);
-    uint32_t         frameIdx         = sc->currBackBufferIdx;
-    rz_gfx_syncpoint currentSyncPoint = frameSyncPoints[frameIdx];
-    dx12_WaitOnPrevCmds(frameWaitSyncobj, currentSyncPoint);
-}
-
-static void dx12_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSignalSyncobj, const rz_gfx_syncobj* presentSignalSyncobj, const rz_gfx_syncobj* presentWaitSyncobj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
-{
-    (void) presentWaitSyncobj;
-    dx12_Present(sc);
-    rz_gfx_syncpoint wait_value = dx12_Signal(frameSignalSyncobj, globalSyncPoint);
-    uint32_t         frame_idx  = sc->currBackBufferIdx;
-    frameSyncPoints[frame_idx]  = wait_value;
 }
 
 //---------------------------------------------------------------------------------------------

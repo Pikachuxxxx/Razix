@@ -1706,20 +1706,20 @@ static void vk_AcquireImage(rz_gfx_swapchain* sc, const rz_gfx_syncobj* presentS
     RAZIX_RHI_LOG_TRACE("Acquired swapchain image index: %u", sc->vk.currentImageIndex);
 }
 
-static void vk_WaitOnPrevCmds(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint waitSyncPoint)
+static void vk_WaitOnPrevCmds(const rz_gfx_syncobj* syncobj)
 {
     RAZIX_RHI_ASSERT(syncobj != NULL, "Sync object cannot be null");
     // TODO: Support waiting on multiple syncobjs
 
     if (syncobj->type == RZ_GFX_SYNCOBJ_TYPE_CPU) {
 #ifdef ENABLE_SYNC_LOGGING
-        RAZIX_RHI_LOG_TRACE("Waiting on fence (sync point: %llu)", (unsigned long long) waitSyncPoint);
+        RAZIX_RHI_LOG_TRACE("Waiting on fence (sync point: %llu)", (unsigned long long) syncobj->waitSyncpoint);
 #endif
         CHECK_VK(vkWaitForFences(VKCONTEXT.device, 1, &syncobj->vk.fence, VK_TRUE, UINT64_MAX));
         CHECK_VK(vkResetFences(VKCONTEXT.device, 1, &syncobj->vk.fence));
 
 #ifdef ENABLE_SYNC_LOGGING
-        RAZIX_RHI_LOG_TRACE("Waited on fence (sync point: %llu)", (unsigned long long) waitSyncPoint);
+        RAZIX_RHI_LOG_TRACE("Waited on fence (sync point: %llu)", (unsigned long long) syncobj->waitSyncpoint);
 #endif
     } else if (syncobj->type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE) {
         if (g_GraphicsFeatures.support.TimelineSemaphores) {
@@ -1727,7 +1727,7 @@ static void vk_WaitOnPrevCmds(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint wa
                 .sType          = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
                 .semaphoreCount = 1,
                 .pSemaphores    = &syncobj->vk.semaphore,
-                .pValues        = &waitSyncPoint};
+                .pValues        = &syncobj->waitSyncpoint};
             CHECK_VK(vkWaitSemaphores(VKDEVICE, &waitInfo, UINT64_MAX));
         } else {
             RAZIX_RHI_LOG_ERROR("Timeline semaphores not supported on this device, cannot wait on timeline semaphore");
@@ -1737,32 +1737,102 @@ static void vk_WaitOnPrevCmds(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint wa
     }
 }
 
-static void vk_Present(const rz_gfx_swapchain* sc)
+static void vk_SubmitCmdBuf(rz_gfx_submit_desc submitDesc)
 {
-    RAZIX_RHI_ASSERT(sc != NULL, "Swapchain cannot be null");
-    RAZIX_RHI_ASSERT(sc->vk.swapchain != VK_NULL_HANDLE, "Vulkan swapchain is invalid");
+    RAZIX_RHI_ASSERT(submitDesc.cmdCount > 0, "Command buffer count must be greater than zero");
+    RAZIX_RHI_ASSERT(submitDesc.pCmdBufs != NULL, "Command buffer array cannot be NULL");
+    RAZIX_RHI_ASSERT(submitDesc.pFrameSyncobj != NULL, "Frame sync object cannot be NULL");
+    RAZIX_RHI_ASSERT(submitDesc.pWaitSyncobjs == NULL || submitDesc.waitSyncobjCount > 0, "Wait sync object count must be greater than zero if wait sync objects are provided");
+    RAZIX_RHI_ASSERT(submitDesc.pSignalSyncobjs == NULL || submitDesc.signalSyncobjCount > 0, "Signal sync object count must be greater than zero if signal sync objects are provided");
+
+    VkCommandBuffer* pCmdBuffers = alloca(submitDesc.cmdCount * sizeof(VkCommandBuffer));
+    RAZIX_RHI_ASSERT(pCmdBuffers != NULL, "Failed to allocate stack memory for command buffers");
+    for (uint32_t i = 0; i < submitDesc.cmdCount; i++)
+        pCmdBuffers[i] = submitDesc.pCmdBufs[i].vk.cmdBuf;
+
+    bool                          hasTimelineSyncobj = g_GraphicsFeatures.support.TimelineSemaphores && submitDesc.pFrameSyncobj->type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE;
+    VkTimelineSemaphoreSubmitInfo timelineSubmtInfo  = {0};
+
+    uint32_t signalSemaphoreCount = submitDesc.signalSyncobjCount;
+    if (hasTimelineSyncobj) {
+        // We currently use timeline semaphore only for frame syncobj, that is to signal when the frame's rendering is done and wait on CPU
+        // GPU synchronization using timeline semaphore is not implemented yet
+        // Global tracker to tell where to signal to
+        uint64_t signalValue = ++submitDesc.pFrameSyncobj->waitSyncpoint;
+
+        timelineSubmtInfo = (VkTimelineSemaphoreSubmitInfo) {
+            .sType                     = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO,
+            .pNext                     = NULL,
+            .pSignalSemaphoreValues    = &signalValue,
+            .signalSemaphoreValueCount = 1,
+            .pWaitSemaphoreValues      = NULL,
+            .waitSemaphoreValueCount   = 0,
+        };
+        // Signal timeline semaphore for CPU/GPU sync in addition` to rendering done
+        signalSemaphoreCount++;
+    }
+
+    VkSemaphore* pSignalSemaphores = alloca(signalSemaphoreCount * sizeof(VkSemaphore));
+    VkSemaphore* pWaitSemaphores   = alloca(submitDesc.waitSyncobjCount * sizeof(VkSemaphore));
+    RAZIX_RHI_ASSERT(pSignalSemaphores != NULL, "Failed to allocate stack memory for signal semaphores");
+    RAZIX_RHI_ASSERT(pWaitSemaphores != NULL, "Failed to allocate stack memory for wait semaphores");
+
+    for (uint32_t i = 0; i < submitDesc.waitSyncobjCount; i++)
+        pWaitSemaphores[i] = submitDesc.pWaitSyncobjs[i].vk.semaphore;
+
+    for (uint32_t i = 0; i < submitDesc.signalSyncobjCount; i++)
+        pSignalSemaphores[i] = submitDesc.pSignalSyncobjs[i].vk.semaphore;
+
+    // If using timeline semaphore, add it to the end of signal semaphores
+    if (hasTimelineSyncobj)
+        pSignalSemaphores[signalSemaphoreCount - 1] = submitDesc.pFrameSyncobj->vk.semaphore;
+
+    VkSubmitInfo submitInfo = {
+        .sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .pNext                = hasTimelineSyncobj ? &timelineSubmtInfo : NULL,
+        .pWaitDstStageMask    = NULL,
+        .waitSemaphoreCount   = submitDesc.waitSyncobjCount,
+        .pWaitSemaphores      = pWaitSemaphores,
+        .signalSemaphoreCount = submitDesc.signalSyncobjCount,
+        .pSignalSemaphores    = pSignalSemaphores,
+        .commandBufferCount   = submitDesc.cmdCount,
+        .pCommandBuffers      = pCmdBuffers,
+    };
+
+    CHECK_VK(vkQueueSubmit(VKCONTEXT.graphicsQueue, 1, &submitInfo, !hasTimelineSyncobj ? submitDesc.pFrameSyncobj->vk.fence : VK_NULL_HANDLE));
+}
+
+static void vk_Present(rz_gfx_present_desc presentDesc)
+{
+    RAZIX_RHI_ASSERT(presentDesc.pSwapchain != NULL, "Swapchain cannot be null");
+    RAZIX_RHI_ASSERT(presentDesc.pSwapchain->vk.swapchain != VK_NULL_HANDLE, "Vulkan swapchain is invalid");
+    RAZIX_RHI_ASSERT(presentDesc.pWaitSyncobjs == NULL || presentDesc.waitSyncobjCount > 0, "Wait sync object count must be greater than zero if wait sync objects are provided");
+
+    VkSemaphore* pWaitSemaphores = alloca(presentDesc.waitSyncobjCount * sizeof(VkSemaphore));
+    RAZIX_RHI_ASSERT(pWaitSemaphores != NULL, "Failed to allocate stack memory for wait semaphores");
+
+    for (uint32_t i = 0; i < presentDesc.waitSyncobjCount; i++)
+        pWaitSemaphores[i] = presentDesc.pWaitSyncobjs[i].vk.semaphore;
 
     VkPresentInfoKHR presentInfo = {
         .sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-        .waitSemaphoreCount = 0,    // No semaphores for now
-        .pWaitSemaphores    = NULL,
+        .waitSemaphoreCount = presentDesc.waitSyncobjCount,
+        .pWaitSemaphores    = pWaitSemaphores,
         .swapchainCount     = 1,
-        .pSwapchains        = &sc->vk.swapchain,
-        .pImageIndices      = &sc->vk.currentImageIndex,
-        .pResults           = NULL    // Optional
-    };
+        .pSwapchains        = &presentDesc.pSwapchain->vk.swapchain,
+        .pImageIndices      = &presentDesc.pSwapchain->currBackBufferIdx,
+        .pResults           = NULL};
 
     VkResult result = vkQueuePresentKHR(VKCONTEXT.presentQueue, &presentInfo);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        RAZIX_RHI_LOG_WARN("Swapchain out of date or suboptimal during present");
+        RAZIX_RHI_LOG_WARN("Swapchain out of date or suboptimal during present, VK_SUBOPTIMIAL_KHR means the presentation was successful and you probably resized, or requires to recreate the swapchain again because it's out of date.");
         // TODO: Handle swapchain recreation
+        RAZIX_RHI_ASSERT(false, "Swapchain recreation not implemented yet!");
     } else if (result != VK_SUCCESS) {
-        RAZIX_RHI_LOG_ERROR("Failed to present swapchain image: %d", result);
+        RAZIX_RHI_LOG_ERROR("Failed to present swapchain image (VkResult): %d", result);
         return;
     }
-
-    RAZIX_RHI_LOG_TRACE("Presented swapchain image index: %u", sc->vk.currentImageIndex);
 }
 
 static void vk_BeginCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
@@ -1772,7 +1842,7 @@ static void vk_BeginCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 
     VkCommandBufferBeginInfo beginInfo = {
         .sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-        .flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,    // Assuming one-time usage for most cases
+        .flags            = 0,
         .pInheritanceInfo = NULL};
 
     VkResult result = vkBeginCommandBuffer(cmdBuf->vk.cmdBuf, &beginInfo);
@@ -1780,9 +1850,6 @@ static void vk_BeginCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
         RAZIX_RHI_LOG_ERROR("Failed to begin command buffer recording: %d", result);
         return;
     }
-
-    // Mark as recording (if struct supports it)
-    // cmdBuf->vk.isRecording = true;  // Uncomment if vk_cmdbuf has this field
 
     RAZIX_RHI_LOG_TRACE("Command buffer recording started");
 }
@@ -1798,54 +1865,7 @@ static void vk_EndCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
         return;
     }
 
-    // Mark as not recording (if struct supports it)
-    // cmdBuf->vk.isRecording = false;  // Uncomment if vk_cmdbuf has this field
-
     RAZIX_RHI_LOG_TRACE("Command buffer recording ended");
-}
-
-static void vk_SubmitCmdBuf(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_syncobj* frameSignalSyncobj, const rz_gfx_syncobj* presentWaitSyncobj, const rz_gfx_syncobj* renderDoneSignalSyncobj, rz_gfx_syncpoint* frameSyncPoint, rz_gfx_syncpoint* globalSyncPoint)
-{
-    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
-    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
-
-    bool                          hasTimelineSyncobj = g_GraphicsFeatures.support.TimelineSemaphores && frameSignalSyncobj->type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE;
-    VkTimelineSemaphoreSubmitInfo timelineSubmtInfo  = {0};
-
-    uint32_t signalSemaphoreCount = 1;
-    if (hasTimelineSyncobj) {
-        // Global tracker to tell where to signal to
-        uint64_t signalValue = ++(*globalSyncPoint);
-        // Update the current inflight frame syncpoint to wait on next
-        *frameSyncPoint = *globalSyncPoint;
-
-        timelineSubmtInfo = (VkTimelineSemaphoreSubmitInfo) {
-            .sType                     = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO,
-            .pNext                     = NULL,
-            .pSignalSemaphoreValues    = &signalValue,
-            .signalSemaphoreValueCount = 1,
-            .pWaitSemaphoreValues      = NULL,
-            .waitSemaphoreValueCount   = 0,
-        };
-        // Signal timeline semaphore for CPU/GPU sync in additions to rendering done
-        signalSemaphoreCount++;
-    }
-
-    VkSemaphore pSignalSemaphores[2] = {renderDoneSignalSyncobj->vk.semaphore, frameSignalSyncobj->vk.semaphore};
-
-    VkSubmitInfo submitInfo = {
-        .sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .pNext                = hasTimelineSyncobj ? &timelineSubmtInfo : NULL,
-        .pWaitDstStageMask    = NULL,
-        .waitSemaphoreCount   = 1,
-        .pWaitSemaphores      = &presentWaitSyncobj->vk.semaphore,
-        .signalSemaphoreCount = signalSemaphoreCount,
-        .pSignalSemaphores    = pSignalSemaphores,
-        .commandBufferCount   = 1,
-        .pCommandBuffers      = &cmdBuf->vk.cmdBuf,
-    };
-
-    CHECK_VK(vkQueueSubmit(VKCONTEXT.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE));
 }
 
 static void vk_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderpass* renderPass)
@@ -1969,46 +1989,32 @@ static void vk_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_textu
     // TODO: Implement when needed
 }
 
-static rz_gfx_syncpoint vk_SignalGPU(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint* globalSyncPoint)
+static rz_gfx_syncpoint vk_SignalGPU(rz_gfx_syncobj* syncobj)
 {
-    (void) syncobj;
-    (void) globalSyncPoint;
-    rz_gfx_syncpoint signalSyncpoint = (*globalSyncPoint);
-
+    RAZIX_RHI_ASSERT(syncobj != NULL, "Sync object cannot be null");
+    RAZIX_RHI_ASSERT(syncobj->type == RZ_GFX_SYNCOBJ_TYPE_GPU || syncobj->type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE, "Sync object must be a GPU or Timeline semaphore");
+    rz_gfx_syncpoint signalSyncpoint = ++syncobj->waitSyncpoint;
     RAZIX_RHI_LOG_ERROR("SignalGPU doesn't make sense by it's own in Vulkan without work to submit, returning global sync point value as-is: %llu, use SubmitWork to sync or use it internally in DX12 backend", (unsigned long long) signalSyncpoint);
 
     return signalSyncpoint;
 }
 
-static void vk_FlushGPUWork(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint* globalSyncpoint)
+static void vk_FlushGPUWork(rz_gfx_syncobj* syncobj)
 {
-    (void) syncobj;
-    (void) globalSyncpoint;
-    globalSyncpoint++;
+    RAZIX_RHI_ASSERT(syncobj != NULL, "Sync object cannot be null");
     vkDeviceWaitIdle(VKCONTEXT.device);
 }
 
 static void vk_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t height)
 {
+    RAZIX_RHI_ASSERT(sc != NULL, "Swapchain cannot be null");
+    RAZIX_RHI_ASSERT(width > 0, "Width must be greater than zero");
+    RAZIX_RHI_ASSERT(height > 0, "Height must be greater than zero");
     (void) sc;
     (void) width;
     (void) height;
     // TODO: Implement when needed
-}
-
-//---------------------------------------------------------------------------------------------
-
-static void vk_BeginFrame(rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameWaitSyncobj, const rz_gfx_syncobj* presentSignalSyncObj, rz_gfx_syncpoint frameSyncPoint)
-{
-    // In vulkan unlike dx12 we only acquire swapchain after image rendering semaphore is done and also all previous commands
-    // for this frame have finished execution, as acquireImage is a GPU operation in Vulkan.
-    vk_WaitOnPrevCmds(frameWaitSyncobj, frameSyncPoint);
-    vk_AcquireImage(sc, presentSignalSyncObj);
-}
-
-static void vk_EndFrame(const rz_gfx_swapchain* sc, const rz_gfx_syncobj* frameSignalSyncobj, const rz_gfx_syncobj* presentSignalSyncObj, const rz_gfx_syncobj* presentWaitSyncObj, rz_gfx_syncpoint* frameSyncPoints, rz_gfx_syncpoint* globalSyncPoint)
-{
-    vk_Present(sc);
+    RAZIX_RHI_LOG_ERROR("ResizeSwapchain not implemented yet in Vulkan backend");
 }
 
 //---------------------------------------------------------------------------------------------
