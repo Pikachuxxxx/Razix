@@ -1989,14 +1989,12 @@ static void vk_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_textu
     // TODO: Implement when needed
 }
 
-static rz_gfx_syncpoint vk_SignalGPU(rz_gfx_syncobj* syncobj)
+static void vk_SignalGPU(rz_gfx_syncobj* syncobj)
 {
     RAZIX_RHI_ASSERT(syncobj != NULL, "Sync object cannot be null");
     RAZIX_RHI_ASSERT(syncobj->type == RZ_GFX_SYNCOBJ_TYPE_GPU || syncobj->type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE, "Sync object must be a GPU or Timeline semaphore");
-    rz_gfx_syncpoint signalSyncpoint = ++syncobj->waitSyncpoint;
-    RAZIX_RHI_LOG_ERROR("SignalGPU doesn't make sense by it's own in Vulkan without work to submit, returning global sync point value as-is: %llu, use SubmitWork to sync or use it internally in DX12 backend", (unsigned long long) signalSyncpoint);
-
-    return signalSyncpoint;
+    ++syncobj->waitSyncpoint;
+    RAZIX_RHI_LOG_ERROR("SignalGPU doesn't make sense by it's own in Vulkan without work to submit, incrementing global sync point value as-is, use SubmitWork to sync or use it internally in DX12 backend");
 }
 
 static void vk_FlushGPUWork(rz_gfx_syncobj* syncobj)
