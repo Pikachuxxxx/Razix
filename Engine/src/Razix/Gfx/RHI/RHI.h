@@ -766,21 +766,6 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_INDEX_TYPE_COUNT
     } rz_gfx_index_type;
 
-    // TODO: Move them to top of rz_handle fwd decl
-    typedef rz_handle rz_gfx_resource_view_handle;
-    typedef rz_handle rz_gfx_texture_handle;
-    typedef rz_handle rz_gfx_sampler_handle;
-    typedef rz_handle rz_gfx_buffer_handle;
-    typedef rz_handle rz_gfx_cmdbuf_handle;
-    typedef rz_handle rz_gfx_root_signature_handle;
-    typedef rz_handle rz_gfx_shader_handle;
-    typedef rz_handle rz_gfx_swapchain_handle;
-    typedef rz_handle rz_gfx_syncobj_handle;
-    typedef rz_handle rz_gfx_cmdpool_handle;
-    typedef rz_handle rz_gfx_descriptor_heap_handle;
-    typedef rz_handle rz_gfx_descriptor_table_handle;
-    typedef rz_handle rz_gfx_pipeline_handle;
-
     /**
       * Graphics Features as supported by the GPU, even though Engine supports them
       * the GPU can override certain setting and query run-time info like LaneWidth etc.
@@ -840,6 +825,21 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rz_gfx_resource_create_fn)(void* where);
     typedef void (*rz_gfx_resource_destroy_fn)(void* resource);
 
+    typedef rz_handle rz_gfx_resource_view_handle;
+    typedef rz_handle rz_gfx_texture_handle;
+    typedef rz_handle rz_gfx_sampler_handle;
+    typedef rz_handle rz_gfx_buffer_handle;
+    typedef rz_handle rz_gfx_cmdbuf_handle;
+    typedef rz_handle rz_gfx_root_signature_handle;
+    typedef rz_handle rz_gfx_shader_handle;
+    typedef rz_handle rz_gfx_swapchain_handle;
+    typedef rz_handle rz_gfx_syncobj_handle;
+    typedef rz_handle rz_gfx_cmdpool_handle;
+    typedef rz_handle rz_gfx_descriptor_heap_handle;
+    typedef rz_handle rz_gfx_descriptor_table_handle;
+    typedef rz_handle rz_gfx_pipeline_handle;
+
+    // Forward Declarations
     typedef struct rz_gfx_resource_view    rz_gfx_resource_view;
     typedef struct rz_gfx_texture          rz_gfx_texture;
     typedef struct rz_gfx_sampler          rz_gfx_sampler;
