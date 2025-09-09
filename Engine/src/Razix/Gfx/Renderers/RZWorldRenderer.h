@@ -159,23 +159,15 @@ namespace Razix {
                     rz_gfx_syncobj imageAcquired[RAZIX_MAX_FRAMES_IN_FLIGHT];     // one per frame in flight
                     rz_gfx_syncobj renderingDone[RAZIX_MAX_SWAP_IMAGES_COUNT];    // one per swapchain image
                 } presentSync;                                                    // won't be needing this in DX12 and other APIs
+                // supports both timeline and fences in vulkan based on VK_KHR_timeline_semaphore availability
                 struct
                 {
-                    uint32_t inFlightSyncIdx;    // current in-flight frame idx being recorded
-                    union                        // fence or timeline based syncobjs, DX12 uses timeline, vulkan can use either based on support
-                    {
-                        rz_gfx_syncobj inflightSyncobj[RAZIX_MAX_FRAMES_IN_FLIGHT];
-                        struct
-                        {
-                            rz_gfx_syncobj   timelineSyncobj;
-                            rz_gfx_syncpoint frameTimestamps[RAZIX_MAX_SWAP_IMAGES_COUNT];
-                            rz_gfx_syncpoint globalTimestamp;
-                        };
-                    };
-
-                } frameSync;    // supports both timeline and fences in vulkan based on VK_KHR_timeline_semaphore availability
+                    uint32_t       inFlightSyncIdx;                                // current in-flight frame idx being recorded
+                    rz_gfx_syncobj inflightSyncobj[RAZIX_MAX_FRAMES_IN_FLIGHT];    // CPU->GPU sync, one per frame in flight (fence or timeline sema)
+                } frameSync;
             } m_RenderSync;
-            rz_gfx_swapchain              m_Swapchain;
+            rz_gfx_swapchain m_Swapchain;
+            // TODO: use a ring buffer for cmd buffers/pools/cpu syncobj and gpu syncobj per frame in flight per thread per submit
             rz_gfx_cmdpool_handle         m_InFlightCmdPool[RAZIX_MAX_FRAMES_IN_FLIGHT];
             rz_gfx_cmdbuf_handle          m_InFlightDrawCmdBufHandles[RAZIX_MAX_FRAMES_IN_FLIGHT];
             const rz_gfx_cmdbuf*          m_InFlightDrawCmdBufPtrs[RAZIX_MAX_FRAMES_IN_FLIGHT];    // Caching at start because we re-use raw pointers so frequently

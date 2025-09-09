@@ -1549,7 +1549,7 @@ static void vk_CreateSyncobj(void* where, rz_gfx_syncobj_type type)
         RAZIX_RHI_LOG_TRACE("Created GPU sync object (semaphore)");
         TAG_OBJECT(syncobj->vk.semaphore, VK_OBJECT_TYPE_SEMAPHORE, "GPU Sync Semaphore");
     } else if (type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE) {
-        if (g_GraphicsFeatures.support.SupportsTimelineSemaphores) {
+        if (g_GraphicsFeatures.support.TimelineSemaphores) {
             VkSemaphoreTypeCreateInfo timelineCreateInfo = {0};
             timelineCreateInfo.sType                     = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO;
             timelineCreateInfo.semaphoreType             = VK_SEMAPHORE_TYPE_TIMELINE;
@@ -1722,7 +1722,7 @@ static void vk_WaitOnPrevCmds(const rz_gfx_syncobj* syncobj, rz_gfx_syncpoint wa
         RAZIX_RHI_LOG_TRACE("Waited on fence (sync point: %llu)", (unsigned long long) waitSyncPoint);
 #endif
     } else if (syncobj->type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE) {
-        if (g_GraphicsFeatures.support.SupportsTimelineSemaphores) {
+        if (g_GraphicsFeatures.support.TimelineSemaphores) {
             VkSemaphoreWaitInfo waitInfo = {
                 .sType          = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
                 .semaphoreCount = 1,
@@ -1809,7 +1809,7 @@ static void vk_SubmitCmdBuf(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_syncobj* f
     RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
     RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
 
-    bool                          hasTimelineSyncobj = g_GraphicsFeatures.support.SupportsTimelineSemaphores && frameSignalSyncobj->type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE;
+    bool                          hasTimelineSyncobj = g_GraphicsFeatures.support.TimelineSemaphores && frameSignalSyncobj->type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE;
     VkTimelineSemaphoreSubmitInfo timelineSubmtInfo  = {0};
 
     uint32_t signalSemaphoreCount = 1;

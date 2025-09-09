@@ -5,7 +5,7 @@ namespace Razix {
 
         void RZWaveIntrinsicsTestPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
-            if (!g_GraphicsFeatures.support.SupportsWaveIntrinsics) {
+            if (!g_GraphicsFeatures.support.WaveIntrinsics) {
                 RAZIX_CORE_ERROR("[FrameGraph] Wave Intrinsics not supported on this GPU!");
                 return;
             }
@@ -138,7 +138,7 @@ namespace Razix {
 
         void RZWaveIntrinsicsTestPass::destroy()
         {
-            if (g_GraphicsFeatures.support.SupportsWaveIntrinsics) {
+            if (g_GraphicsFeatures.support.WaveIntrinsics) {
                 RZResourceManager::Get()
                     .getShaderBindMap(m_Shader)
                     .destroy();

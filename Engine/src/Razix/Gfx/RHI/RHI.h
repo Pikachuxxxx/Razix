@@ -760,6 +760,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_INDEX_TYPE_COUNT
     } rz_gfx_index_type;
 
+    // TODO: Move them to top of rz_handle fwd decl
     typedef rz_handle rz_gfx_resource_view_handle;
     typedef rz_handle rz_gfx_texture_handle;
     typedef rz_handle rz_gfx_sampler_handle;
@@ -785,15 +786,13 @@ static inline unsigned int rz_clz32(unsigned int x)
             uint32_t value;
             struct
             {
-                uint32_t EnableVSync : 1;
                 uint32_t TesselateTerrain : 1;
-                uint32_t SupportsBindless : 1;
-                uint32_t SupportsWaveIntrinsics : 1;
-                uint32_t SupportsShaderModel6 : 1;
-                uint32_t SupportsNullIndexDescriptors : 1;
-                uint32_t SupportsTimelineSemaphores : 1;
-                uint32_t SupportsBindlessRendering : 1;
-                uint32_t reserved : 24;
+                uint32_t WaveIntrinsics : 1;
+                uint32_t ShaderModel6 : 1;
+                uint32_t NullIndexDescriptors : 1;
+                uint32_t TimelineSemaphores : 1;
+                uint32_t BindlessRendering : 1;
+                uint32_t reserved : 26;
             };
         } support;
         uint32_t MaxBindlessTextures;
@@ -1151,14 +1150,13 @@ static inline unsigned int rz_clz32(unsigned int x)
             dx12_ctx dx12;
 #endif
         };
-
     } rz_gfx_context;
 
     typedef uint64_t rz_gfx_syncpoint;
 
     struct RAZIX_RHI_ALIGN_16 rz_gfx_syncobj
     {
-        rz_gfx_syncpoint    waitTimestamp;
+        rz_gfx_syncpoint    waitSyncpoint;
         rz_gfx_syncobj_type type;
 #ifdef RAZIX_RENDER_API_VULKAN
         vk_syncobj vk;
@@ -1174,7 +1172,6 @@ static inline unsigned int rz_clz32(unsigned int x)
     struct RAZIX_RHI_ALIGN_16 rz_gfx_resource_view
     {
         RAZIX_GFX_RESOURCE;
-        // lifetime will be managed by descriptor tables API
 #ifdef RAZIX_RENDER_API_VULKAN
         vk_resview vk;
 #endif
@@ -1456,26 +1453,22 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_submit_desc
     {
-        const rz_gfx_cmdbuf* const*  ppCmdBufs;
-        uint32_t                     cmdCount;
-        const rz_gfx_syncobj* const* ppWaitSyncobjs;
-        uint32_t                     waitCount;
-        const rz_gfx_syncobj* const* ppSignalSyncobjs;
-        uint32_t                     signalCount;
-        const rz_gfx_syncobj*        pFrameSyncobj;
-        rz_gfx_syncpoint*            pFrameSyncPoints;
-        rz_gfx_syncpoint*            pGlobalSyncPoint;
+        const rz_gfx_cmdbuf*  pCmdBufs;
+        uint32_t              cmdCount;
+        const rz_gfx_syncobj* pWaitSyncobjs;
+        uint32_t              waitSyncobjCount;
+        const rz_gfx_syncobj* pSignalSyncobjs;
+        uint32_t              signalSyncobjCount;
+        const rz_gfx_syncobj* pFrameSyncobj;
 
     } rz_gfx_submit_desc;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_present_desc
     {
-        const rz_gfx_swapchain*      pSwapchain;
-        const rz_gfx_syncobj* const* ppWaitSyncobjs;
-        uint32_t                     waitCount;
-        const rz_gfx_syncobj*        pFrameSyncobj;
-        rz_gfx_syncpoint*            pFrameSyncPoints;
-        rz_gfx_syncpoint*            pGlobalSyncPoint;
+        const rz_gfx_swapchain* pSwapchain;
+        const rz_gfx_syncobj*   pWaitSyncobjs;
+        uint32_t                waitSyncobjCount;
+        const rz_gfx_syncobj*   pFrameSyncobj;
     } rz_gfx_present_desc;
 
     //---------------------------------------------------------------------------------------------
@@ -1554,7 +1547,7 @@ static inline unsigned int rz_clz32(unsigned int x)
      * RHI API
      */
     typedef void (*rzRHI_AcquireImageFn)(rz_gfx_swapchain* swapchain, const rz_gfx_syncobj* presentSignalSyncobj);
-    typedef void (*rzRHI_WaitOnPrevCmdsFn)(const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint syncPoint);
+    typedef void (*rzRHI_WaitOnPrevCmdsFn)(const rz_gfx_syncobj* syncObj);
     typedef void (*rzRHI_SubmitCmdBufFn)(rz_gfx_submit_desc submitDesc);
     typedef void (*rzRHI_PresentFn)(rz_gfx_present_desc presentDesc);
 
@@ -1600,8 +1593,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_BlitTextureFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* srcTexture, const rz_gfx_texture* dstTexture);
     typedef void (*rzRHI_ResolveTextureFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* srcTexture, const rz_gfx_texture* dstTexture);
 
-    typedef rz_gfx_syncpoint (*rzRHI_SignalGPUFn)(const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint* syncPoint);
-    typedef void (*rzRHI_FlushGPUWorkFn)(const rz_gfx_syncobj* syncObj, rz_gfx_syncpoint* syncPoint);
+    typedef void (*rzRHI_SignalGPUFn)(rz_gfx_syncobj* syncObj);
+    typedef void (*rzRHI_FlushGPUWorkFn)(rz_gfx_syncobj* syncObj);
     typedef void (*rzRHI_ResizeSwapchainFn)(rz_gfx_swapchain* swapchain, uint32_t width, uint32_t height);
 
     typedef struct rz_rhi_api
@@ -1889,10 +1882,10 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.AcquireImage(sc, sso);                                                       \
             } while (0)
 
-        #define rzRHI_WaitOnPrevCmds(so, sp)                                                        \
+        #define rzRHI_WaitOnPrevCmds(so)                                                            \
             do {                                                                                    \
                 RAZIX_PROFILE_SCOPEC("rzRHI_WaitOnPrevCmds", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
-                g_RHI.WaitOnPrevCmds(so, sp);                                                       \
+                g_RHI.WaitOnPrevCmds(so);                                                           \
             } while (0)
 
         #define rzRHI_SubmitCmdBuf(desc)                                                          \
@@ -2215,16 +2208,16 @@ static inline unsigned int rz_clz32(unsigned int x)
                     RZResourceManager::Get().getTextureResource(dt));                       \
             } while (0)
 
-        #define rzRHI_SignalGPU(so, sp)                                                        \
+        #define rzRHI_SignalGPU(so)                                                            \
             do {                                                                               \
                 RAZIX_PROFILE_SCOPEC("rzRHI_SignalGPU", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
-                g_RHI.SignalGPU(so, sp);                                                       \
+                g_RHI.SignalGPU(so);                                                           \
             } while (0)
 
-        #define rzRHI_FlushGPUWork(so, sp)                                                        \
+        #define rzRHI_FlushGPUWork(so)                                                            \
             do {                                                                                  \
                 RAZIX_PROFILE_SCOPEC("rzRHI_FlushGPUWork", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
-                g_RHI.FlushGPUWork(so, sp);                                                       \
+                g_RHI.FlushGPUWork(so);                                                           \
             } while (0)
 
         #define rzRHI_ResizeSwapchain(sp, w, h)                                      \
@@ -2254,10 +2247,10 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC_END();                                                              \
             } while (0)
 
-        #define rzRHI_WaitOnPrevCmds(so, sp)                                                        \
+        #define rzRHI_WaitOnPrevCmds(so)                                                            \
             do {                                                                                    \
                 RAZIX_PROFILE_SCOPEC("rzRHI_WaitOnPrevCmds", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
-                g_RHI.WaitOnPrevCmds(so, sp);                                                       \
+                g_RHI.WaitOnPrevCmds(so);                                                           \
                 RAZIX_PROFILE_SCOPEC_END();                                                         \
             } while (0)
 
@@ -2532,17 +2525,17 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC_END();                                         \
             } while (0)
 
-        #define rzRHI_SignalGPU(so, sp)                                                        \
+        #define rzRHI_SignalGPU(so)                                                            \
             do {                                                                               \
                 RAZIX_PROFILE_SCOPEC("rzRHI_SignalGPU", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
                 g_RHI.SignalGPU(so, sp);                                                       \
                 RAZIX_PROFILE_SCOPEC_END();                                                    \
             } while (0)
 
-        #define rzRHI_FlushGPUWork(so, sp)                                                        \
+        #define rzRHI_FlushGPUWork(so)                                                            \
             do {                                                                                  \
                 RAZIX_PROFILE_SCOPEC("rzRHI_FlushGPUWork", RZ_PROFILE_COLOR_RHI_SYNCHRONIZATION); \
-                g_RHI.FlushGPUWork(so, sp);                                                       \
+                g_RHI.FlushGPUWork(so);                                                           \
                 RAZIX_PROFILE_SCOPEC_END();                                                       \
             } while (0)
 

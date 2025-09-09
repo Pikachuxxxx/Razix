@@ -1898,16 +1898,15 @@ static void dx12_GlobalCtxInit(void)
     RAZIX_RHI_LOG_INFO("Created Global Direct Command Q");
     TAG_OBJECT(DX12Context.directQ, "Direct Command Q");
 
-    g_GraphicsFeatures.support.EnableVSync                  = false;
-    g_GraphicsFeatures.support.TesselateTerrain             = false;
-    g_GraphicsFeatures.support.SupportsBindless             = DX12Context.features.options.ResourceBindingTier >= D3D12_RESOURCE_BINDING_TIER_3;
-    g_GraphicsFeatures.support.SupportsWaveIntrinsics       = true;
-    g_GraphicsFeatures.support.SupportsShaderModel6         = DX12Context.features.shaderModel.HighestShaderModel >= D3D_SHADER_MODEL_6_0;
-    g_GraphicsFeatures.support.SupportsNullIndexDescriptors = DX12Context.features.options5.SRVOnlyTiledResourceTier3;
-    g_GraphicsFeatures.support.SupportsTimelineSemaphores   = true;
-    g_GraphicsFeatures.MaxBindlessTextures                  = 4096;
-    g_GraphicsFeatures.MinLaneWidth                         = DX12Context.features.options1.WaveLaneCountMin;
-    g_GraphicsFeatures.MaxLaneWidth                         = DX12Context.features.options1.WaveLaneCountMax;
+    g_GraphicsFeatures.support.TesselateTerrain     = false;
+    g_GraphicsFeatures.support.BindlessRendering    = DX12Context.features.options.ResourceBindingTier >= D3D12_RESOURCE_BINDING_TIER_3;
+    g_GraphicsFeatures.support.WaveIntrinsics       = true;
+    g_GraphicsFeatures.support.ShaderModel6         = DX12Context.features.shaderModel.HighestShaderModel >= D3D_SHADER_MODEL_6_0;
+    g_GraphicsFeatures.support.NullIndexDescriptors = DX12Context.features.options5.SRVOnlyTiledResourceTier3;
+    g_GraphicsFeatures.support.TimelineSemaphores   = true;
+    g_GraphicsFeatures.MaxBindlessTextures          = 4096;    // limit can be increased if needed
+    g_GraphicsFeatures.MinLaneWidth                 = DX12Context.features.options1.WaveLaneCountMin;
+    g_GraphicsFeatures.MaxLaneWidth                 = DX12Context.features.options1.WaveLaneCountMax;
 
     dx12_util_create_command_signatures(&DX12Context);
 
@@ -2864,7 +2863,6 @@ static void dx12_SubmitCmdBuf(rz_gfx_submit_desc submitDesc)
 {
     RAZIX_RHI_ASSERT(submitDesc.cmdCount > 0, "Command buffer count must be greater than zero");
     RAZIX_RHI_ASSERT(submitDesc.ppCmdBufs != NULL, "Command buffer array cannot be NULL");
-
 
     ID3D12GraphicsCommandList* cmdLists[] = alloca(sizeof(ID3D12GraphicsCommandList*) * submitDesc.cmdCount);
     for (uint32_t i = 0; i < submitDesc.cmdCount; i++) {

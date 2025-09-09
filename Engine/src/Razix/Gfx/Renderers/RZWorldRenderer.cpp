@@ -151,31 +151,26 @@ namespace Razix {
 #else
     #error "Unsupported platform! Add support for your target platform."
 #endif
-
-            // create present sync primitives
-            for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++)
-                rzRHI_CreateSyncobj(&m_RenderSync.presentSync.imageAcquired[i], RZ_GFX_SYNCOBJ_TYPE_GPU);
-
+            // create present sync primitives, rendering done is per swapchain image
             for (u32 i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++)
                 rzRHI_CreateSyncobj(&m_RenderSync.presentSync.renderingDone[i], RZ_GFX_SYNCOBJ_TYPE_GPU);
 
-            // create frame sync primitives
-            if (g_GraphicsFeatures.support.SupportsTimelineSemaphores) {
-                rzRHI_CreateSyncobj(&m_RenderSync.frameSync.timelineSyncobj, RZ_GFX_SYNCOBJ_TYPE_TIMELINE);
-            } else {
-                for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
-                    rzRHI_CreateSyncobj(&m_RenderSync.frameSync.inflightSyncobj[i], RZ_GFX_SYNCOBJ_TYPE_CPU);
-                }
-            }
-
             for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
+                // create present sync primitives
+                rzRHI_CreateSyncobj(&m_RenderSync.presentSync.imageAcquired[i], RZ_GFX_SYNCOBJ_TYPE_GPU);
+
+                // create frame sync primitives
+                rzRHI_CreateSyncobj(&m_RenderSync.frameSync.inflightSyncobj[i], g_GraphicsFeatures.support.TimelineSemaphores ? RZ_GFX_SYNCOBJ_TYPE_TIMELINE : RZ_GFX_SYNCOBJ_TYPE_CPU);
+
                 rz_gfx_cmdpool_desc cmdPoolDesc = {};
                 cmdPoolDesc.poolType            = RZ_GFX_CMDPOOL_TYPE_GRAPHICS;
-                m_InFlightCmdPool[i]            = RZResourceManager::Get().createCommandPool("InFlightCommandPool", cmdPoolDesc);
+                std::string commandPoolName     = "InFlightCommandPool_" + std::to_string(i);
+                m_InFlightCmdPool[i]            = RZResourceManager::Get().createCommandPool(commandPoolName.c_str(), cmdPoolDesc);
 
                 rz_gfx_cmdbuf_desc desc        = {0};
                 desc.pool                      = RZResourceManager::Get().getCommandPoolResource(m_InFlightCmdPool[i]);
-                m_InFlightDrawCmdBufHandles[i] = RZResourceManager::Get().createCommandBuffer("InFlightDrawCommandBuffer", desc);
+                std::string inFlightCmdBufName = "InFlightDrawCommandBuffer_" + std::to_string(i);
+                m_InFlightDrawCmdBufHandles[i] = RZResourceManager::Get().createCommandBuffer(inFlightCmdBufName.c_str(), desc);
                 m_InFlightDrawCmdBufPtrs[i]    = RZResourceManager::Get().getCommandBufferResource(m_InFlightDrawCmdBufHandles[i]);
             }
 
@@ -195,8 +190,8 @@ namespace Razix {
             rz_gfx_descriptor_heap_desc renderTargetHeapDesc = {};
             renderTargetHeapDesc.heapType                    = RZ_GFX_DESCRIPTOR_HEAP_TYPE_RTV;
             renderTargetHeapDesc.descriptorCount             = RAZIX_MAX_RENDER_TARGETS * 1024;
-            renderTargetHeapDesc.flags |= RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
-            m_RenderTargetHeap = RZResourceManager::Get().createDescriptorHeap("RenderTargetHeap", renderTargetHeapDesc);
+            renderTargetHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
+            m_RenderTargetHeap                               = RZResourceManager::Get().createDescriptorHeap("RenderTargetHeap", renderTargetHeapDesc);
 
             rz_gfx_descriptor_heap_desc depthRenderTargetHeapDesc = {};
             depthRenderTargetHeapDesc.heapType                    = RZ_GFX_DESCRIPTOR_HEAP_TYPE_DSV;
@@ -204,34 +199,37 @@ namespace Razix {
             depthRenderTargetHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
             m_DepthRenderTargetHeap                               = RZResourceManager::Get().createDescriptorHeap("DepthRenderTargetHeap", depthRenderTargetHeapDesc);
 
-            // Create some global basic samplers
-            rz_gfx_sampler_desc linearSamplerDesc = {};
-            linearSamplerDesc.minFilter           = RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR;
-            linearSamplerDesc.magFilter           = RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR;
-            linearSamplerDesc.mipFilter           = RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR;
-            linearSamplerDesc.addressModeU        = RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP;
-            linearSamplerDesc.addressModeV        = RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP;
-            linearSamplerDesc.addressModeW        = RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP;
-            linearSamplerDesc.maxAnisotropy       = 1;
-            linearSamplerDesc.compareOp           = RZ_GFX_COMPARE_OP_TYPE_NEVER;
-            linearSamplerDesc.minLod              = 0.0f;
-            linearSamplerDesc.maxLod              = 1.0f;
-            linearSamplerDesc.mipLODBias          = 0.0f;
-            m_SamplersPool.linearSampler          = RZResourceManager::Get().createSampler("LinearSampler", linearSamplerDesc);
+            {
+                // Create some global basic samplers
+                rz_gfx_sampler_desc linearSamplerDesc = {};
+                linearSamplerDesc.minFilter           = RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR;
+                linearSamplerDesc.magFilter           = RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR;
+                linearSamplerDesc.mipFilter           = RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR;
+                linearSamplerDesc.addressModeU        = RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP;
+                linearSamplerDesc.addressModeV        = RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP;
+                linearSamplerDesc.addressModeW        = RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP;
+                linearSamplerDesc.maxAnisotropy       = 1;
+                linearSamplerDesc.compareOp           = RZ_GFX_COMPARE_OP_TYPE_NEVER;
+                linearSamplerDesc.minLod              = 0.0f;
+                linearSamplerDesc.maxLod              = 1.0f;
+                linearSamplerDesc.mipLODBias          = 0.0f;
+                m_SamplersPool.linearSampler          = RZResourceManager::Get().createSampler("LinearSampler", linearSamplerDesc);
 
-            // Create a descriptor table for all the samplers
-            rz_gfx_descriptor_table_desc samplerTableDesc = {};
-            samplerTableDesc.tableIndex                   = 1;    // Table 1 is reserved for Samplers
-            samplerTableDesc.pHeap                        = RZResourceManager::Get().getDescriptorHeapResource(m_SamplerHeap);
-            rz_gfx_resource_view_desc samplerViewDesc     = {};
-            samplerViewDesc.descriptorType                = RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
-            samplerViewDesc.samplerViewDesc.pSampler      = RZResourceManager::Get().getSamplerResource(m_SamplersPool.linearSampler);
-            m_SamplersViewPool.linearSampler              = RZResourceManager::Get().createResourceView("LinearSamplerView", samplerViewDesc);
-            rz_gfx_resource_view resourceViews[]          = {*RZResourceManager::Get().getResourceViewResource(m_SamplersViewPool.linearSampler)};
-            samplerTableDesc.pResourceViews               = resourceViews;
-            samplerTableDesc.resourceViewsCount           = 1;    // Only one sampler for now
+                // Create a descriptor table for all the samplers
+                rz_gfx_descriptor_table_desc samplerTableDesc = {};
+                samplerTableDesc.tableIndex                   = 1;    // Note: Table 1 is reserved for Samplers
+                samplerTableDesc.pHeap                        = RZResourceManager::Get().getDescriptorHeapResource(m_SamplerHeap);
+                rz_gfx_resource_view_desc samplerViewDesc     = {};
+                samplerViewDesc.descriptorType                = RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
+                samplerViewDesc.samplerViewDesc.pSampler      = RZResourceManager::Get().getSamplerResource(m_SamplersPool.linearSampler);
+                m_SamplersViewPool.linearSampler              = RZResourceManager::Get().createResourceView("LinearSamplerView", samplerViewDesc);
+                rz_gfx_resource_view resourceViews[]          = {*RZResourceManager::Get().getResourceViewResource(m_SamplersViewPool.linearSampler)};
+                samplerTableDesc.pResourceViews               = resourceViews;
+                samplerTableDesc.resourceViewsCount           = 1;    // Only one sampler for now
 
-            m_GlobalSamplerTable = RZResourceManager::Get().createDescriptorTable("GlobalSamplerTable", samplerTableDesc);
+                m_GlobalSamplerTable = RZResourceManager::Get().createDescriptorTable("GlobalSamplerTable", samplerTableDesc);
+                RAZIX_CORE_INFO("Created Global Sampler Table with index: {0}", samplerTableDesc.tableIndex);
+            }
         }
 
         void RZWorldRenderer::destroy()
@@ -244,7 +242,7 @@ namespace Razix {
             //}
 
             // Wait for rendering to be done before halting
-            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
+            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.inflightSyncobj[m_RenderSync.frameSync.inFlightSyncIdx]);
 
             m_FrameGraphBuildingInProgress = true;
 
@@ -277,18 +275,12 @@ namespace Razix {
                 RZResourceManager::Get().destroyCommandBuffer(m_InFlightDrawCmdBufHandles[i]);
             }
 
-            for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++)
-                rzRHI_DestroySyncobj(&m_RenderSync.presentSync.imageAcquired[i]);
-
             for (u32 i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++)
                 rzRHI_DestroySyncobj(&m_RenderSync.presentSync.renderingDone[i]);
 
-            if (g_GraphicsFeatures.support.SupportsTimelineSemaphores) {
-                rzRHI_DestroySyncobj(&m_RenderSync.frameSync.timelineSyncobj);
-            } else {
-                for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
-                    rzRHI_DestroySyncobj(&m_RenderSync.frameSync.inflightSyncobj[i]);
-                }
+            for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
+                rzRHI_DestroySyncobj(&m_RenderSync.presentSync.imageAcquired[i]);
+                rzRHI_DestroySyncobj(&m_RenderSync.frameSync.inflightSyncobj[i]);
             }
 
             rzRHI_DestroySwapchain(&m_Swapchain);
@@ -571,55 +563,58 @@ namespace Razix {
 
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            //if (m_IsFGFilePathDirty) {
-            //    destroy();
-            //    RZFrameGraph::ResetFirstFrame();
-            //    buildFrameGraph(settings, RZSceneManager::Get().getCurrentScene());
-            //    m_IsFGFilePathDirty = false;
-            //}
+            if (m_IsFGFilePathDirty) {
+                destroy();
+                RZFrameGraph::ResetFirstFrame();
+                buildFrameGraph(settings, RZSceneManager::Get().getCurrentScene());
+                m_IsFGFilePathDirty = false;
+            }
 
             if (m_FrameGraphBuildingInProgress)
                 return;
 
             // Main Frame Graph World Rendering Loop
             {
-                u32             inFlightSyncobjIdx = m_RenderSync.frameSync.inFlightSyncIdx;
-                rz_gfx_syncobj* frameSyncobj       = NULL;
-                if (g_GraphicsFeatures.support.SupportsTimelineSemaphores)
-                    frameSyncobj = &m_RenderSync.frameSync.timelineSyncobj;
-                else
-                    frameSyncobj = &m_RenderSync.frameSync.inflightSyncobj[inFlightSyncobjIdx];
-                // Acquire Image to render onto
-                rzRHI_AcquireImage(&m_Swapchain, &m_RenderSync.presentSync.imageAcquired[inFlightSyncobjIdx]);
-                // waits on fence/semaphore signaled by the submit for CPU/GPU sync
-                rzRHI_WaitOnPrevCmds(frameSyncobj, m_RenderSync.frameSync.globalTimestamp);
+                u32 inFlightSyncobjIdx = m_RenderSync.frameSync.inFlightSyncIdx;
+
+                // If no timeline semaphores, we need to use fences for CPU-GPU sync per in-flight frame
+                // So we have to wait on the CPU for the GPU to finish the frame before reusing the command buffers and other resources
+                // and also before acquiring the next swapchain image to render onto
+                rz_gfx_syncobj* frameSyncobj = &m_RenderSync.frameSync.inflightSyncobj[inFlightSyncobjIdx];
 
                 // In DirectX 12, the swapchain back buffer index currBackBufferIdx directly maps to the index of the image
                 // that is being presented/rendered to. This is because DXGI explicitly exposes the current back buffer index
                 // via IDXGISwapChain::GetCurrentBackBufferIndex(), and the driver guarantees image acquisition in strict
                 // presentation order (FIFO-like). As a result, synchronization objects like fences, command allocators, or
-                // timestamp slots are usually tracked and reused per back buffer index.
+                // timestamp slots are usually tracked and reused per back buffer index. But we can also track it per in-flight frame.
                 //
                 // In contrast, Vulkan allows more flexibility: the acquired image index from vkAcquireNextImageKHR may return
                 // any image in the swapchain (not necessarily in FIFO order). This requires applications to track resource
                 // usage and in-flight sync per acquired image, using a round-robin or per-image tracking model. Since Vulkan
                 // makes no guarantee about reuse pattern, it's incorrect to assume back buffer N will always follow N-1, hence
-                // a more generalized ring buffer or semaphore timeline sync tracking model is required.
-                // - DX12: Buffer index is reliable for indexing per-frame resources tracked per currBackBufferIdx.
-                // - Vulkan: Image acquisition is non-linear; sync and frame data must be tracked per imageIndex returned from vkAcquireNextImageKHR.
+                // a more generalized ring buffer or semaphore timeline sync tracking model is required. Hence, we track
+                // rendering done semaphores per swapchain image, and in-flight command buffers/fences per in-flight frame.
 
-                // Begin Recording  onto the command buffer, select one as per the frame idx
+                // waits on fence/semaphore signaled by last submit for this frame index for CPU/GPU sync
+                rzRHI_WaitOnPrevCmds(frameSyncobj);
+
+                // Acquire Image to render onto
+                rzRHI_AcquireImage(&m_Swapchain, &m_RenderSync.presentSync.imageAcquired[inFlightSyncobjIdx]);
+
+                // Begin Recording  onto the command buffer, select one as per the in-flight frame idx
                 const rz_gfx_cmdbuf_handle cmdBuffer = m_InFlightDrawCmdBufHandles[inFlightSyncobjIdx];
                 rzRHI_BeginCmdBuf(cmdBuffer);
 
                 // Begin Frame Marker
                 RAZIX_MARK_BEGIN(cmdBuffer, "Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(inFlightSyncobjIdx) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
 
+                // Insert barrier to transition the swapchain image (PRESENT) to RENDER_TARGET
                 rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_PRESENT, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);
 
-                // Execute the Frame Graph passes
+                // Execute the Frame Graph passes --> Records commands onto the current command buffer
                 m_FrameGraph.execute();
 
+                // Insert barrier to transition the swapchain image (RENDER_TARGET) to PRESENT
                 rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_RENDER_TARGET, RZ_GFX_RESOURCE_STATE_PRESENT);
 
                 // End Frame Marker
@@ -629,20 +624,14 @@ namespace Razix {
                 rzRHI_EndCmdBuf(cmdBuffer);
 
                 // Submit the render queue before presenting next
-                const rz_gfx_cmdbuf*  cmdbufs[]    = {RZResourceManager::Get().getCommandBufferResource(cmdBuffer)};
-                const rz_gfx_syncobj* waitSems[]   = {&m_RenderSync.presentSync.imageAcquired[inFlightSyncobjIdx]};               // per-FIF
-                const rz_gfx_syncobj* signalSems[] = {&m_RenderSync.presentSync.renderingDone[m_Swapchain.currBackBufferIdx]};    // per-image
-
                 rz_gfx_submit_desc submitDesc = {};
-                submitDesc.ppCmdBufs          = cmdbufs;
+                submitDesc.pCmdBufs           = m_InFlightDrawCmdBufPtrs[inFlightSyncobjIdx];
                 submitDesc.cmdCount           = 1;
-                submitDesc.ppWaitSyncobjs     = waitSems;
-                submitDesc.waitCount          = 1;
-                submitDesc.ppSignalSyncobjs   = signalSems;
-                submitDesc.signalCount        = 1;
+                submitDesc.pWaitSyncobjs      = &m_RenderSync.presentSync.imageAcquired[inFlightSyncobjIdx];    // per-FIF, wait until image acquired
+                submitDesc.waitSyncobjCount   = 1;
+                submitDesc.pSignalSyncobjs    = &m_RenderSync.presentSync.renderingDone[m_Swapchain.currBackBufferIdx];    // per-image, signal when rendering done to present for this swapchain image
+                submitDesc.signalSyncobjCount = 1;
                 submitDesc.pFrameSyncobj      = frameSyncobj;
-                submitDesc.pFrameSyncPoints   = m_RenderSync.frameSync.frameTimestamps;
-                submitDesc.pGlobalSyncPoint   = &m_RenderSync.frameSync.globalTimestamp;
                 rzRHI_SubmitCmdBuf(submitDesc);
 
                 // swapchain capture is done before presentation
@@ -650,22 +639,19 @@ namespace Razix {
                     m_ReadSwapchainThisFrame = false;
 
                     // Wait for rendering to be done before capturing
-                    rzRHI_FlushGPUWork(frameSyncobj, &m_RenderSync.frameSync.globalTimestamp);
+                    rzRHI_FlushGPUWork(frameSyncobj);
                     rzRHI_InsertSwapchainTextureReadback(&m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], &m_LastSwapchainReadback);
                 }
 
                 // Present the image to presentation engine as soon as rendering to COLOR_ATTACHMENT is done
-                const rz_gfx_syncobj* presentWaitSems[] = {&m_RenderSync.presentSync.renderingDone[m_Swapchain.currBackBufferIdx]};
-
                 rz_gfx_present_desc presentDesc = {};
                 presentDesc.pSwapchain          = &m_Swapchain;
-                presentDesc.ppWaitSyncobjs      = presentWaitSems;
-                presentDesc.waitCount           = 1;
+                presentDesc.pWaitSyncobjs       = &m_RenderSync.presentSync.renderingDone[m_Swapchain.currBackBufferIdx];
+                presentDesc.waitSyncobjCount    = 1;
                 presentDesc.pFrameSyncobj       = frameSyncobj;
-                presentDesc.pFrameSyncPoints    = m_RenderSync.frameSync.frameTimestamps;
-                presentDesc.pGlobalSyncPoint    = &m_RenderSync.frameSync.globalTimestamp;
                 rzRHI_Present(presentDesc);
 
+                // Advance the frame index, we are using a ring buffer so wrap around after max frames in flight
                 m_RenderSync.frameSync.inFlightSyncIdx = (m_RenderSync.frameSync.inFlightSyncIdx + 1) % RAZIX_MAX_FRAMES_IN_FLIGHT;
             }
         }
@@ -688,17 +674,20 @@ namespace Razix {
 
         void RZWorldRenderer::OnResize(u32 width, u32 height)
         {
-            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
+            // make sure no work is being done on GPU before resizing resources
+            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.inflightSyncobj[m_RenderSync.frameSync.inFlightSyncIdx]);
 
             rzRHI_ResizeSwapchain(&m_Swapchain, width, height);
             m_FrameGraph.resize(width, height);
 
-            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
+            // wait for the GPU to be done with complete resize before resuming rendering
+            m_RenderSync.frameSync.inFlightSyncIdx = 0;    // Optional: reset idx after resize
+            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.inflightSyncobj[m_RenderSync.frameSync.inFlightSyncIdx]);
         }
 
         void RZWorldRenderer::flushGPUWork()
         {
-            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.timelineSyncobj, &m_RenderSync.frameSync.globalTimestamp);
+            rzRHI_FlushGPUWork(&m_RenderSync.frameSync.inflightSyncobj[m_RenderSync.frameSync.inFlightSyncIdx]);
         }
 
         RAZIX_INLINE void RZWorldRenderer::setFrameGraphFilePath(std::string val)
@@ -736,8 +725,6 @@ namespace Razix {
             globalLightProbeData.diffuseIrradianceMap   = m_FrameGraph.import <RZFrameGraphTexture>("IrradianceMap", CAST_TO_FG_TEX_DESC DiffuseDesc, {globalLightProbe.diffuse});
             globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <RZFrameGraphTexture>("PreFilteredMap", CAST_TO_FG_TEX_DESC SpecularDesc, {globalLightProbe.specular});
         }
-
-        //--------------------------------------------------------------------------
 
         void RZWorldRenderer::uploadFrameData(RZScene* scene, RZRendererSettings& settings)
         {
