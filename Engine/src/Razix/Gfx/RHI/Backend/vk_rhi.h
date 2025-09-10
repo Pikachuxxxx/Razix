@@ -83,13 +83,9 @@ typedef struct vk_swapchain
 {
     VkSwapchainKHR            swapchain;
     VkFormat                  imageFormat;
-    VkExtent2D                extent;
     uint32_t                  imageCount;
     VkImage*                  images;
     VkImageView*              imageViews;
-    VkFramebuffer*            framebuffers;
-    VkRenderPass              renderPass;
-    uint32_t                  currentImageIndex;
     VkSwapchainSupportDetails supportDetails;
 } vk_swapchain;
 

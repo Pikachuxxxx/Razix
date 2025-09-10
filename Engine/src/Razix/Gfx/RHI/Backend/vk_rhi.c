@@ -1491,7 +1491,8 @@ static void vk_CreateSwapchain(void* where, void* surface, uint32_t width, uint3
     TAG_OBJECT(swapchain->vk.swapchain, VK_OBJECT_TYPE_SWAPCHAIN_KHR, "Vulkan Swapchain");
 
     swapchain->vk.imageFormat = surfaceFormat.format;
-    swapchain->vk.extent      = extent;
+    swapchain->width          = extent.width;
+    swapchain->height         = extent.height;
 
     // Create images and image views and texture wrappers using utility functions
     vk_util_create_swapchain_images(swapchain);
@@ -1734,10 +1735,10 @@ static void vk_AcquireImage(rz_gfx_swapchain* sc, const rz_gfx_syncobj* presentS
     RAZIX_RHI_ASSERT(presentSignalSyncobj != NULL, "Present signal sync object cannot be null");
     RAZIX_RHI_ASSERT(presentSignalSyncobj->type == RZ_GFX_SYNCOBJ_TYPE_GPU, "Present signal sync object must be a GPU semaphore");
 
-    VkResult result = vkAcquireNextImageKHR(VKCONTEXT.device, sc->vk.swapchain, UINT64_MAX, presentSignalSyncobj->vk.semaphore, VK_NULL_HANDLE, &sc->vk.currentImageIndex);
+    VkResult result = vkAcquireNextImageKHR(VKCONTEXT.device, sc->vk.swapchain, UINT64_MAX, presentSignalSyncobj->vk.semaphore, VK_NULL_HANDLE, &sc->currBackBufferIdx);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        RAZIX_RHI_LOG_WARN("Swapchain out of date or suboptimal, image index: %u", sc->vk.currentImageIndex);
+        RAZIX_RHI_LOG_WARN("Swapchain out of date or suboptimal, image index: %u", sc->currBackBufferIdx);
         // TODO: Handle swapchain recreation
     } else if (result != VK_SUCCESS) {
         RAZIX_RHI_LOG_ERROR("Failed to acquire swapchain image: %d", result);
