@@ -1743,8 +1743,6 @@ static void vk_AcquireImage(rz_gfx_swapchain* sc, const rz_gfx_syncobj* presentS
         RAZIX_RHI_LOG_ERROR("Failed to acquire swapchain image: %d", result);
         return;
     }
-
-    RAZIX_RHI_LOG_TRACE("Acquired swapchain image index: %u", sc->vk.currentImageIndex);
 }
 
 static void vk_WaitOnPrevCmds(const rz_gfx_syncobj* syncobj)
@@ -1753,13 +1751,13 @@ static void vk_WaitOnPrevCmds(const rz_gfx_syncobj* syncobj)
     // TODO: Support waiting on multiple syncobjs
 
     if (syncobj->type == RZ_GFX_SYNCOBJ_TYPE_CPU) {
-#ifdef ENABLE_SYNC_LOGGING
+#if ENABLE_SYNC_LOGGING
         RAZIX_RHI_LOG_TRACE("Waiting on fence (sync point: %llu)", (unsigned long long) syncobj->waitSyncpoint);
 #endif
         CHECK_VK(vkWaitForFences(VKCONTEXT.device, 1, &syncobj->vk.fence, VK_TRUE, UINT64_MAX));
         CHECK_VK(vkResetFences(VKCONTEXT.device, 1, &syncobj->vk.fence));
 
-#ifdef ENABLE_SYNC_LOGGING
+#if ENABLE_SYNC_LOGGING
         RAZIX_RHI_LOG_TRACE("Waited on fence (sync point: %llu)", (unsigned long long) syncobj->waitSyncpoint);
 #endif
     } else if (syncobj->type == RZ_GFX_SYNCOBJ_TYPE_TIMELINE) {
@@ -1818,6 +1816,7 @@ static void vk_SubmitCmdBuf(rz_gfx_submit_desc submitDesc)
     VkPipelineStageFlags* pWaitStages       = alloca(submitDesc.waitSyncobjCount * sizeof(VkPipelineStageFlags));
     RAZIX_RHI_ASSERT(pSignalSemaphores != NULL, "Failed to allocate stack memory for signal semaphores");
     RAZIX_RHI_ASSERT(pWaitSemaphores != NULL, "Failed to allocate stack memory for wait semaphores");
+    RAZIX_RHI_ASSERT(pWaitStages != NULL, "Failed to allocate stack memory for wait stages");
 
     for (uint32_t i = 0; i < submitDesc.waitSyncobjCount; i++) {
         pWaitSemaphores[i] = submitDesc.pWaitSyncobjs[i].vk.semaphore;
@@ -1894,8 +1893,6 @@ static void vk_BeginCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
         RAZIX_RHI_LOG_ERROR("Failed to begin command buffer recording: %d", result);
         return;
     }
-
-    RAZIX_RHI_LOG_TRACE("Command buffer recording started");
 }
 
 static void vk_EndCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
@@ -1908,8 +1905,6 @@ static void vk_EndCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
         RAZIX_RHI_LOG_ERROR("Failed to end command buffer recording: %d", result);
         return;
     }
-
-    RAZIX_RHI_LOG_TRACE("Command buffer recording ended");
 }
 
 static void vk_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderpass* renderPass)
