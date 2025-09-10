@@ -21,6 +21,7 @@
 #if defined(__x86_64__) || defined(_M_X64)
     #define RAZIX_ARCHITECTURE_X64
 #elif defined(__aarch64__) || defined(_M_ARM64) || defined(TARGET_CPU_ARM64) || defined(__arm64__)
+    #define RAZIX_ARCHITECTURE_ARM64
 #elif defined(__i386__) || defined(_M_IX86)
     #define RAZIX_ARCHITECTURE_X86
 #elif defined(__arm__) || defined(_M_ARM)
@@ -63,6 +64,38 @@
     #elif defined(RAZIX_ARCHITECTURE_ARM64)
         #define RAZIX_PLATFORM_FREEBSD_ARM64
     #endif
+#endif
+
+#if defined(_MSC_VER)
+    #define RAZIX_LITTLE_ENDIAN 1
+
+#elif defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && defined(__ORDER_BIG_ENDIAN__)
+    #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        #define RAZIX_LITTLE_ENDIAN 1
+    #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+        #define RAZIX_BIG_ENDIAN 1
+    #else
+        #error "Unknown endianness"
+    #endif
+
+#elif defined(__ARMEB__) || defined(__BIG_ENDIAN__)
+    #define RAZIX_BIG_ENDIAN 1
+#elif defined(__ARMEL__) || defined(__LITTLE_ENDIAN__)
+    #define RAZIX_LITTLE_ENDIAN 1
+
+#elif defined(RAZIX_ARCHITECTURE_X64) || defined(RAZIX_ARCHITECTURE_X86)
+    #define RAZIX_LITTLE_ENDIAN 1
+#elif defined(RAZIX_ARCHITECTURE_ARM64)
+    #define RAZIX_LITTLE_ENDIAN 1
+#elif defined(RAZIX_ARCHITECTURE_ARM)
+    #if defined(__ARMEB__)
+        #define RAZIX_BIG_ENDIAN 1
+    #else
+        #define RAZIX_LITTLE_ENDIAN 1
+    #endif
+
+#else
+    #error "Unable to determine endianness for this platform"
 #endif
 
 // Settings for Windows OS
@@ -498,7 +531,7 @@ private:                                                  \
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)    // GCC or Clang
-    #define RAZIX_UNUSED(x) //[[maybe_unused]] x
+    #define RAZIX_UNUSED(x)                    //[[maybe_unused]] x
 #else
     #define RAZIX_UNUSED(x)
 #endif

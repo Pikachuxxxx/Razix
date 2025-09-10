@@ -207,6 +207,9 @@ project "Razix"
         buildoptions
         {
             "/MP", "/bigobj", 
+            -- AVX2
+            "/arch:AVX2", 
+            -- TODO: enable FMA and AVX512
             -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
         }
 

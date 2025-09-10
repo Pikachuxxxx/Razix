@@ -5,6 +5,7 @@
 
 #include "Razix/Core/Memory/RZMemoryBudgets.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
+#include "Razix/Core/Utils/RZPlatformUtils.h"
 #include "Razix/Core/Version/RazixVersion.h"
 
 //#include "Razix/Gfx/Materials/RZMaterial.h"
@@ -42,6 +43,25 @@ namespace Razix {
         Utilities::RZiniParser worldSettingsParser;
         success = worldSettingsParser.parse("//RazixConfig/DefaultWorldRendererSettings.ini");
         RAZIX_CORE_ASSERT(success, "Default World Renderer Settings Load Success!");
+
+        // print engine SSE/AVX support
+        RAZIX_CORE_TRACE("Checking endianess...");
+        RAZIX_CORE_INFO("Endianess: {0}", GetEndianess() == Endianess::BIG ? "BIG" : "LITTLE");
+
+        RAZIX_CORE_INFO("Runtime SIMD Detection");
+#if defined RAZIX_ARCHITECTURE_X64
+        RAZIX_CORE_INFO("SSE    : {0}", HasSSE());
+        RAZIX_CORE_INFO("SSE2   : {0}", HasSSE2());
+        RAZIX_CORE_INFO("SSE3   : {0}", HasSSE3());
+        RAZIX_CORE_INFO("SSE4.1 : {0}", HasSSE41());
+        RAZIX_CORE_INFO("SSE4.2 : {0}", HasSSE42());
+        RAZIX_CORE_INFO("AVX    : {0}", HasAVX());
+        RAZIX_CORE_INFO("AVX2   : {0}", HasAVX2());
+        RAZIX_CORE_INFO("AVX512 : {0}", HasAVX512());
+#elif defined(RAZIX_ARCHITECTURE_ARM64)
+        RAZIX_CORE_INFO("NEON   : {0}", HasNEON());
+        RAZIX_CORE_INFO("ASIMD  : {0}", HasASIMD());
+#endif
 
         // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
         //--------------------------------------------------------------------------
