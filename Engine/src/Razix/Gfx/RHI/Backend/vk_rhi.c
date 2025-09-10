@@ -1144,7 +1144,6 @@ static void vk_util_create_swapchain_images(rz_gfx_swapchain* swapchain)
 {
     RAZIX_RHI_ASSERT(swapchain != NULL, "Swapchain cannot be NULL");
     RAZIX_RHI_ASSERT(swapchain->vk.swapchain != VK_NULL_HANDLE, "Vulkan swapchain must be valid");
-    RAZIX_RHI_ASSERT(swapchain->vk.images != NULL, "Swapchain images must be retrieved first");
 
     CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, NULL));
     swapchain->vk.images = malloc(swapchain->vk.imageCount * sizeof(VkImage));
@@ -1196,6 +1195,7 @@ static void vk_util_create_swapchain_images(rz_gfx_swapchain* swapchain)
 static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
 {
     RAZIX_RHI_ASSERT(swapchain != NULL, "Swapchain cannot be NULL");
+    RAZIX_RHI_ASSERT(swapchain->vk.images != NULL, "Swapchain images must be retrieved first");
     RAZIX_RHI_ASSERT(swapchain->vk.imageViews != NULL, "Image views must be created first");
 
     // Create rz_gfx_texture objects for each swapchain image
