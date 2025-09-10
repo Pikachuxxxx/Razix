@@ -1291,6 +1291,120 @@ static void vk_util_recreate_swapchain_images(rz_gfx_swapchain* swapchain)
         swapchain->imageCount);
 }
 
+static VkFilter vk_util_translate_filter_type(rz_gfx_texture_filter_type filter)
+{
+    switch (filter) {
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST:
+            return VK_FILTER_NEAREST;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR:
+            return VK_FILTER_LINEAR;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST:
+            return VK_FILTER_NEAREST;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST:
+            return VK_FILTER_LINEAR;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR:
+            return VK_FILTER_NEAREST;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR:
+            return VK_FILTER_LINEAR;
+        default:
+            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_FILTER value, defaulting to VK_FILTER_LINEAR");
+            return VK_FILTER_LINEAR;
+    }
+}
+
+static VkSamplerMipmapMode vk_util_translate_mipmap_filter_type(rz_gfx_texture_filter_type filter)
+{
+    switch (filter) {
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST:
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR:
+            // These don't use mipmapping, but we need to return something
+            // You might want to return VK_SAMPLER_MIPMAP_MODE_NEAREST as default
+            return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+            
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST:
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST:
+            return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+            
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR:
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR:
+            return VK_SAMPLER_MIPMAP_MODE_LINEAR;
+            
+        default:
+            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_FILTER value, defaulting to VK_SAMPLER_MIPMAP_MODE_NEAREST");
+            return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    }
+}
+
+static bool vk_util_is_mipmap_enabled_from_filter_type(rz_gfx_texture_filter_type filter)
+{
+    switch (filter) {
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST:
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR:
+            return false;
+            
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST:
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST:
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR:
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR:
+            return true;
+            
+        default:
+            return false;
+    }
+}
+
+static VkSamplerAddressMode vk_util_translate_address_mode(rz_gfx_texture_address_mode address_mode)
+{
+    switch (address_mode) {
+        case RZ_GFX_TEXTURE_ADDRESS_MODE_WRAP:
+        case RZ_GFX_TEXTURE_ADDRESS_MODE_REPEAT:
+            return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+            
+        case RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP:
+            return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+            
+        case RZ_GFX_TEXTURE_ADDRESS_MODE_BORDER:
+            return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+            
+        default:
+            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_TEXTURE_ADDRESS_MODE value, defaulting to VK_SAMPLER_ADDRESS_MODE_REPEAT");
+            return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    }
+}
+
+static VkCompareOp vk_util_translate_compare_op(rz_gfx_compare_op_type compare_op)
+{
+    switch (compare_op) {
+        case RZ_GFX_COMPARE_OP_TYPE_NEVER:
+            return VK_COMPARE_OP_NEVER;
+            
+        case RZ_GFX_COMPARE_OP_TYPE_LESS:
+            return VK_COMPARE_OP_LESS;
+            
+        case RZ_GFX_COMPARE_OP_TYPE_EQUAL:
+            return VK_COMPARE_OP_EQUAL;
+            
+        case RZ_GFX_COMPARE_OP_TYPE_LESS_OR_EQUAL:
+            return VK_COMPARE_OP_LESS_OR_EQUAL;
+            
+        case RZ_GFX_COMPARE_OP_TYPE_GREATER:
+            return VK_COMPARE_OP_GREATER;
+            
+        case RZ_GFX_COMPARE_OP_TYPE_NOT_EQUAL:
+            return VK_COMPARE_OP_NOT_EQUAL;
+            
+        case RZ_GFX_COMPARE_OP_TYPE_GREATER_OR_EQUAL:
+            return VK_COMPARE_OP_GREATER_OR_EQUAL;
+            
+        case RZ_GFX_COMPARE_OP_TYPE_ALWAYS:
+            return VK_COMPARE_OP_ALWAYS;
+            
+        default:
+            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_COMPARE_OP_TYPE value, defaulting to VK_COMPARE_OP_LESS");
+            return VK_COMPARE_OP_LESS;
+    }
+}
+
 //---------------------------------------------------------------------------------------------
 
 static void vk_GlobalCtxInit(void)
@@ -1698,14 +1812,41 @@ static void vk_DestroyTexture(void* texture)
 
 static void vk_CreateSampler(void* where)
 {
-    (void) where;
-    // TODO: Implement when needed
+    rz_gfx_sampler* sampler = (rz_gfx_sampler*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&sampler->resource.handle), "Invalid sampler handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_sampler_desc* desc = &sampler->resource.desc.samplerDesc;
+    RAZIX_RHI_ASSERT(desc != NULL, "Sampler description cannot be null");
+
+    VkSamplerCreateInfo samplerInfo     = {0};
+    samplerInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo.pNext                   = NULL;
+    samplerInfo.magFilter               = vk_util_translate_filter_type(desc->magFilter);
+    samplerInfo.minFilter               = vk_util_translate_filter_type(desc->minFilter);
+    samplerInfo.mipmapMode              = vk_util_translate_mipmap_filter_type(desc->mipFilter);
+    samplerInfo.addressModeU            = vk_util_translate_address_mode(desc->addressModeU);
+    samplerInfo.addressModeV            = vk_util_translate_address_mode(desc->addressModeV);
+    samplerInfo.addressModeW            = vk_util_translate_address_mode(desc->addressModeW);
+    samplerInfo.anisotropyEnable        = VK_FALSE;//desc->maxAnisotropy ? VK_TRUE : VK_FALSE;
+    samplerInfo.maxAnisotropy           = desc->maxAnisotropy;
+    samplerInfo.borderColor             = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    samplerInfo.unnormalizedCoordinates = VK_FALSE;
+    samplerInfo.compareEnable           = VK_FALSE;  // Not using comparison sampling for now
+    samplerInfo.compareOp               = vk_util_translate_compare_op(desc->compareOp);
+    samplerInfo.mipLodBias              = desc->mipLODBias;
+    samplerInfo.minLod                  = desc->minLod;
+    samplerInfo.maxLod                  = desc->maxLod;
+
+    CHECK_VK(vkCreateSampler(VKDEVICE, &samplerInfo, NULL, &sampler->vk.sampler));
+    TAG_OBJECT(sampler->vk.sampler, VK_OBJECT_TYPE_SAMPLER, sampler->resource.pName);
 }
 
 static void vk_DestroySampler(void* sampler)
 {
-    (void) sampler;
-    // TODO: Implement when needed
+    rz_gfx_sampler* s = (rz_gfx_sampler*) sampler;
+    if (s->vk.sampler != VK_NULL_HANDLE) {
+        vkDestroySampler(VKDEVICE, s->vk.sampler, NULL);
+        s->vk.sampler = VK_NULL_HANDLE;
+    }
 }
 
 static void vk_CreateDescriptorHeap(void* where)
