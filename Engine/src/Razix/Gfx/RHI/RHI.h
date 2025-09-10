@@ -185,19 +185,11 @@ static inline unsigned int rz_clz32(unsigned int x)
 /* Backend API configurations */
 #define RAZIX_VK_API_VERSION VK_API_VERSION_1_3 /* Min supported version by razix engine */
 
-/* Triple buffering is enabled by default */
-#define RAZIX_ENABLE_TRIPLE_BUFFERING
-/* The total number of images that the swapchain can render/present to, by default we use triple buffering, defaults to d32 buffering if disabled */
-#ifdef RAZIX_ENABLE_TRIPLE_BUFFERING
-    /* Frames in Flight defines the number of frames that will be rendered to while another frame is being presented (used for triple buffering)*/
-    #define RAZIX_MAX_FRAMES_IN_FLIGHT  2
-    #define RAZIX_MAX_SWAP_IMAGES_COUNT 3
-    #define RAZIX_MAX_FRAMES            RAZIX_MAX_SWAP_IMAGES_COUNT
-#elif
-    #define RAZIX_MAX_FRAMES_IN_FLIGHT  1
-    #define RAZIX_MAX_SWAP_IMAGES_COUNT 2
-    #define RAZIX_MAX_FRAMES            RAZIX_MAX_SWAP_IMAGES_COUNT
-#endif
+/* Frames in Flight defines the number of frames that will be rendered to while another frame is being presented, CPU can prepare frames ahead */
+#define RAZIX_MAX_FRAMES_IN_FLIGHT  2
+#define RAZIX_MAX_SWAP_IMAGES_COUNT 4    // Adreno GPUs might sometimes report upto 4 images in the swapchain for vulkan
+#define RAZIX_MIN_SWAP_IMAGES_COUNT 3
+#define RAZIX_MAX_FRAMES            RAZIX_MAX_SWAP_IMAGES_COUNT
 
 /* Whether or not to use VMA as memory backend */
 #ifdef RAZIX_PLATFORM_WINDOWS

@@ -1668,7 +1668,7 @@ static void dx12_util_destroy_debug_handles(dx12_ctx* ctx)
 
 static void dx12_util_update_swapchain_rtvs(rz_gfx_swapchain* sc)
 {
-    sc->imageCount = RAZIX_MAX_SWAP_IMAGES_COUNT;
+    sc->imageCount = RAZIX_MIN_SWAP_IMAGES_COUNT;
     ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(sc->dx12.rtvHeap, &sc->dx12.rtvHeapStart.cpu);
     RAZIX_RHI_ASSERT(sc->dx12.rtvHeapStart.cpu.ptr != 0, "Swapchain RTV heap start CPU handle is null");
 
@@ -1732,7 +1732,7 @@ static void dx12_util_create_backbuffers(rz_gfx_swapchain* sc)
 {
     D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {0};
     rtvHeapDesc.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-    rtvHeapDesc.NumDescriptors             = RAZIX_MAX_SWAP_IMAGES_COUNT;
+    rtvHeapDesc.NumDescriptors             = RAZIX_MIN_SWAP_IMAGES_COUNT;
     rtvHeapDesc.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
     HRESULT hr = ID3D12Device10_CreateDescriptorHeap(DX12Device, &rtvHeapDesc, &IID_ID3D12DescriptorHeap, (void**) &sc->dx12.rtvHeap);
@@ -1998,14 +1998,14 @@ static void dx12_CreateSwapchain(void* where, void* nativeWindowHandle, uint32_t
     swapchain->width       = width;
     swapchain->height      = height;
     swapchain->dx12.window = *(HWND*) nativeWindowHandle;
-    swapchain->imageCount  = RAZIX_MAX_SWAP_IMAGES_COUNT;
+    swapchain->imageCount  = RAZIX_MIN_SWAP_IMAGES_COUNT;
 
     DXGI_SWAP_CHAIN_DESC1 desc = {0};
     desc.Width                 = width;
     desc.Height                = height;
     desc.Format                = dx12_util_rz_gfx_format_to_dxgi_format(RAZIX_SWAPCHAIN_FORMAT);
     desc.BufferUsage           = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    desc.BufferCount           = RAZIX_MAX_SWAP_IMAGES_COUNT;
+    desc.BufferCount           = RAZIX_MIN_SWAP_IMAGES_COUNT;
     desc.Scaling               = DXGI_SCALING_STRETCH;
     desc.SwapEffect            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     desc.SampleDesc.Count      = 1;    // No MSAA

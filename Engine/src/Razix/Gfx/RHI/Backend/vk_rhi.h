@@ -83,7 +83,6 @@ typedef struct vk_swapchain
 {
     VkSwapchainKHR            swapchain;
     VkFormat                  imageFormat;
-    uint32_t                  imageCount;
     VkImage*                  images;
     VkImageView*              imageViews;
     VkSwapchainSupportDetails supportDetails;

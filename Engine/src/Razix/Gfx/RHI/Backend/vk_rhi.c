@@ -1145,16 +1145,14 @@ static void vk_util_create_swapchain_images(rz_gfx_swapchain* swapchain)
     RAZIX_RHI_ASSERT(swapchain != NULL, "Swapchain cannot be NULL");
     RAZIX_RHI_ASSERT(swapchain->vk.swapchain != VK_NULL_HANDLE, "Vulkan swapchain must be valid");
 
-    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, NULL));
-    swapchain->vk.images = malloc(swapchain->vk.imageCount * sizeof(VkImage));
-    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, swapchain->vk.images));
+    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->imageCount, NULL));
+    swapchain->vk.images = malloc(swapchain->imageCount * sizeof(VkImage));
+    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->imageCount, swapchain->vk.images));
 
-    swapchain->imageCount = swapchain->vk.imageCount;
-
-    swapchain->vk.imageViews = malloc(swapchain->vk.imageCount * sizeof(VkImageView));
+    swapchain->vk.imageViews = malloc(swapchain->imageCount * sizeof(VkImageView));
     RAZIX_RHI_ASSERT(swapchain->vk.imageViews != NULL, "Failed to allocate memory for image views");
 
-    for (uint32_t i = 0; i < swapchain->vk.imageCount; i++) {
+    for (uint32_t i = 0; i < swapchain->imageCount; i++) {
         VkImage image = swapchain->vk.images[i];
         TAG_OBJECT(image, VK_OBJECT_TYPE_IMAGE, "Swapchain Image");
 
@@ -1189,7 +1187,7 @@ static void vk_util_create_swapchain_images(rz_gfx_swapchain* swapchain)
         RAZIX_RHI_LOG_TRACE("Created image view %u for swapchain image", i);
     }
 
-    RAZIX_RHI_LOG_INFO("Created %u image views for swapchain images", swapchain->vk.imageCount);
+    RAZIX_RHI_LOG_INFO("Created %u image views for swapchain images", swapchain->imageCount);
 }
 
 static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
@@ -1199,7 +1197,7 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
     RAZIX_RHI_ASSERT(swapchain->vk.imageViews != NULL, "Image views must be created first");
 
     // Create rz_gfx_texture objects for each swapchain image
-    for (uint32_t i = 0; i < swapchain->vk.imageCount; i++) {
+    for (uint32_t i = 0; i < swapchain->imageCount; i++) {
         // Create texture wrapper for swapchain image
         rz_gfx_texture* texture = &swapchain->backbuffers[i];
         memset(texture, 0, sizeof(rz_gfx_texture));
@@ -1237,7 +1235,7 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
         RAZIX_RHI_LOG_TRACE("Created texture and resource view wrapper for swapchain image %u", i);
     }
 
-    RAZIX_RHI_LOG_INFO("Created %u texture wrappers for swapchain images", swapchain->vk.imageCount);
+    RAZIX_RHI_LOG_INFO("Created %u texture wrappers for swapchain images", swapchain->imageCount);
 }
 
 static void vk_util_destroy_swapchain_images(rz_gfx_swapchain* swapchain)
@@ -1246,7 +1244,7 @@ static void vk_util_destroy_swapchain_images(rz_gfx_swapchain* swapchain)
 
     // Clean up image views
     if (swapchain->vk.imageViews) {
-        for (uint32_t i = 0; i < swapchain->vk.imageCount; i++) {
+        for (uint32_t i = 0; i < swapchain->imageCount; i++) {
             if (swapchain->vk.imageViews[i] != VK_NULL_HANDLE) {
                 vkDestroyImageView(VKCONTEXT.device, swapchain->vk.imageViews[i], NULL);
                 swapchain->vk.imageViews[i] = VK_NULL_HANDLE;
@@ -1280,7 +1278,7 @@ static void vk_util_recreate_swapchain_images(rz_gfx_swapchain* swapchain)
     vk_util_create_swapchain_images(swapchain);
     vk_util_create_swapchain_textures(swapchain);
 
-    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->vk.imageCount, NULL));
+    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->imageCount, NULL));
     RAZIX_RHI_LOG_INFO("Recreated swapchain images for new dimensions: %ux%u, %u images",
         swapchain->width,
         swapchain->height,
