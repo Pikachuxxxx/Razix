@@ -5,14 +5,14 @@
 #include "Razix/Gfx/RZGfxDebug.h"
 #include "Razix/Gfx/RZShaderUtils.h"
 
-namespace Razix {
-    namespace Gfx {
-
 // Constants
 #define RAZIX_MAX_SHADER_SOURCE_SIZE 1024 * 1024
 #define RAZIX_MAX_LINE_LENGTH        1024
 #define RAZIX_MAX_SHADER_STAGES      RZ_GFX_SHADER_STAGE_COUNT
 #define RAZIX_MAX_INCLUDE_DEPTH      16
+
+namespace Razix {
+    namespace Gfx {
 
         // Engine shaders enumeration
         enum class ShaderBuiltin : u32

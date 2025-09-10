@@ -117,24 +117,11 @@ namespace Razix {
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
-        // Function pointers for Vulkan debug utils
-        //static PFN_vkCmdBeginDebugUtilsLabelEXT  vkCmdBeginDebugUtilsLabelEXT  = nullptr;
-        //static PFN_vkCmdInsertDebugUtilsLabelEXT vkCmdInsertDebugUtilsLabelEXT = nullptr;
-        //static PFN_vkCmdEndDebugUtilsLabelEXT    vkCmdEndDebugUtilsLabelEXT    = nullptr;
-
         static bool s_DebugUtilsInitialized = false;
 
         void InitializeDebugUtils()
         {
             if (s_DebugUtilsInitialized) return;
-
-            VkDevice device = g_GfxCtx.vk.device;
-
-            // Load debug utils extension function pointers
-            //vkCmdBeginDebugUtilsLabelEXT  = (PFN_vkCmdBeginDebugUtilsLabelEXT) vkGetDeviceProcAddr(device, "vkCmdBeginDebugUtilsLabelEXT");
-            //vkCmdInsertDebugUtilsLabelEXT = (PFN_vkCmdInsertDebugUtilsLabelEXT) vkGetDeviceProcAddr(device, "vkCmdInsertDebugUtilsLabelEXT");
-            //vkCmdEndDebugUtilsLabelEXT    = (PFN_vkCmdEndDebugUtilsLabelEXT) vkGetDeviceProcAddr(device, "vkCmdEndDebugUtilsLabelEXT");
-
             s_DebugUtilsInitialized = true;
         }
 
