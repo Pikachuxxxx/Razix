@@ -1849,6 +1849,46 @@ static void vk_DestroySampler(void* sampler)
     }
 }
 
+static void vk_CreateBuffer(void* where)
+{
+    rz_gfx_buffer* buffer = (rz_gfx_buffer*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&buffer->resource.handle), "Invalid buffer handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_buffer_desc* desc = &buffer->resource.desc.bufferDesc;
+    RAZIX_RHI_ASSERT(desc != NULL, "Buffer description cannot be null");
+    RAZIX_RHI_ASSERT(desc->sizeInBytes > 0, "Buffer size must be greater than zero");
+    
+    // TODO: Implement buffer creation
+    RAZIX_RHI_LOG_ERROR("Buffer implementation is not done yet!");
+    RAZIX_RHI_ABORT();
+}   
+
+static void vk_DestroyBuffer(void* buffer)
+{
+    rz_gfx_buffer* buf = (rz_gfx_buffer*) buffer;
+    if (buf->vk.buffer != VK_NULL_HANDLE) {
+        if (buf->vk.memory != VK_NULL_HANDLE) {
+            vkFreeMemory(VKDEVICE, buf->vk.memory, NULL);
+            buf->vk.memory = VK_NULL_HANDLE;
+        }
+        vkDestroyBuffer(VKDEVICE, buf->vk.buffer, NULL);
+        buf->vk.buffer = VK_NULL_HANDLE;
+    }
+}
+
+static void vk_CreateResourceView(void* where)
+{
+    rz_gfx_resource_view* view = (rz_gfx_resource_view*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&view->resource.handle), "Invalid resource view handle, who is allocating this? ResourceManager should create a valid handle");
+    //  TODO: Implement resource view creation
+    RAZIX_RHI_LOG_ERROR("Resource view implementation is not done yet!");
+    RAZIX_RHI_ABORT();
+}
+
+static void vk_DestroyResourceView(void* view)
+{
+    (void) view;
+}
+
 static void vk_CreateDescriptorHeap(void* where)
 {
     (void) where;
@@ -2158,6 +2198,58 @@ static void vk_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uint3
     vkCmdDraw(cmdBuf->vk.cmdBuf, vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
+static void vk_DrawIndexedAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset, uint32_t firstInstance)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(indexCount > 0, "Index count must be greater than 0");
+    RAZIX_RHI_ASSERT(instanceCount > 0, "Instance count must be greater than 0");
+
+    vkCmdDrawIndexed(cmdBuf->vk.cmdBuf, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+}
+
+static void vk_Dispatch(const rz_gfx_cmdbuf* cmdBuf, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(groupCountX > 0 && groupCountY > 0 && groupCountZ > 0, "Group counts must be greater than 0");
+
+    vkCmdDispatch(cmdBuf->vk.cmdBuf, groupCountX, groupCountY, groupCountZ);
+}
+
+static void vk_DrawAutoIndirect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer, uint32_t offset, uint32_t drawCount)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(buffer != NULL, "Buffer cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(buffer->vk.buffer != VK_NULL_HANDLE, "Vulkan buffer is invalid");
+    RAZIX_RHI_ASSERT(drawCount > 0, "Draw count must be greater than 0");
+
+    vkCmdDrawIndirect(cmdBuf->vk.cmdBuf, buffer->vk.buffer, offset, drawCount, sizeof(VkDrawIndirectCommand));
+}
+
+static void vk_DrawIndexedAutoIndirect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer, uint32_t offset, uint32_t drawCount)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(buffer != NULL, "Buffer cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(buffer->vk.buffer != VK_NULL_HANDLE, "Vulkan buffer is invalid");
+    RAZIX_RHI_ASSERT(drawCount > 0, "Draw count must be greater than 0");
+
+    vkCmdDrawIndexedIndirect(cmdBuf->vk.cmdBuf, buffer->vk.buffer, offset, drawCount, sizeof(VkDrawIndexedIndirectCommand));
+}
+
+static void vk_DispatchIndirect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer, uint32_t offset, uint32_t dispatchCount)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(buffer != NULL, "Buffer cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(buffer->vk.buffer != VK_NULL_HANDLE, "Vulkan buffer is invalid");
+    RAZIX_RHI_ASSERT(dispatchCount > 0, "Dispatch count must be greater than 0");
+
+    vkCmdDispatchIndirect(cmdBuf->vk.cmdBuf, buffer->vk.buffer, offset);
+}
+
 static void vk_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
 {
     (void) cmdBuf;
@@ -2228,6 +2320,10 @@ rz_rhi_api vk_rhi = {
     .DestroyTexture         = vk_DestroyTexture,            // DestroyTexture
     .CreateSampler          = vk_CreateSampler,             // CreateSampler
     .DestroySampler         = vk_DestroySampler,            // DestroySampler
+    .CreateBuffer           = vk_CreateBuffer,              // vk_CreateBuffer
+    .DestroyBuffer          = vk_DestroyBuffer,             // vk_DestroyBuffer
+    .CreateResourceView     = vk_CreateResourceView,        // CreateResourceView
+    .DestroyResourceView    = vk_DestroyResourceView,       // DestroyResourceView
     .CreateDescriptorHeap   = vk_CreateDescriptorHeap,      // CreateDescriptorHeap
     .DestroyDescriptorHeap  = vk_DestroyDescriptorHeap,     // DestroyDescriptorHeap
     .CreateDescriptorTable  = vk_CreateDescriptorTable,     // CreateDescriptorTable
@@ -2248,6 +2344,11 @@ rz_rhi_api vk_rhi = {
     .BindComputeRootSig = vk_BindComputeRootSig,    // BindComputeRootSig
 
     .DrawAuto              = vk_DrawAuto,                 // DrawAuto
+    .DrawIndexedAuto       = vk_DrawIndexedAuto,          // DrawIndexedAuto
+    .Dispatch              = vk_Dispatch,                 // Dispatch
+    .DrawIndirect      = vk_DrawAutoIndirect,         // DrawAutoIndirect
+    .DrawIndexedIndirect = vk_DrawIndexedAutoIndirect, // DrawIndexedAutoIndirect
+    .DispatchIndirect      = vk_DispatchIndirect,         // DispatchIndirect
     .InsertImageBarrier    = vk_InsertImageBarrier,       // InsertImageBarrier
     .InsertTextureReadback = vk_InsertTextureReadback,    // InsertTextureReadback
 
