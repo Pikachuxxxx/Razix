@@ -50,17 +50,20 @@ namespace Razix {
                     info.colorAttachmentsCount             = 1;
                     info.colorAttachments[0].pResourceView = RZEngine::Get().getWorldRenderer().getCurrSwapchainBackbufferResViewPtr();
                     info.colorAttachments[0].clear         = true;
-                    info.layers                            = 1;
-                    RAZIX_X(info.extents)                  = RZApplication::Get().getWindow()->getWidth();
-                    RAZIX_Y(info.extents)                  = RZApplication::Get().getWindow()->getHeight();
+                    u32    frameIdx                        = 0;
+                    float4 randomColor                     = Utilities::GenerateHashedColor4(frameIdx++);
+                    memcpy(&info.colorAttachments[0].clearColor.raw, &randomColor, sizeof(float4));
+                    info.layers           = 1;
+                    RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
+                    RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
 
                     rzRHI_BeginRenderPass(cmdBuffer, &info);
 
-                    rzRHI_BindGfxRootSig(cmdBuffer, m_RootSigHandle);
-                    rzRHI_BindPipeline(cmdBuffer, m_Pipeline);
+                    //rzRHI_BindGfxRootSig(cmdBuffer, m_RootSigHandle);
+                    //rzRHI_BindPipeline(cmdBuffer, m_Pipeline);
 
-#define NUM_TRIANGLE_VERTS 3
-                    rzRHI_DrawAuto(cmdBuffer, NUM_TRIANGLE_VERTS, 1, 0, 0);
+                    //constexpr u32 kNumTriangleVerts = 3;
+                    //rzRHI_DrawAuto(cmdBuffer, kNumTriangleVerts, 1, 0, 0);
 
                     rzRHI_EndRenderPass(cmdBuffer);
 

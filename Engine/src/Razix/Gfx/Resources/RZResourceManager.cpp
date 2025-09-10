@@ -97,6 +97,7 @@ namespace Razix {
             // Create the shader using the RHI
             rzRHI_CreateShader(where);
 
+#if !RAZIX_INIT_RENDERER_MINIMAL
             // Reflect the shader resource to get the shader reflection data
             rz_gfx_shader_reflection   reflection  = Gfx::ReflectShader(shader);
             rz_gfx_root_signature_desc rootSigDesc = {};
@@ -115,10 +116,10 @@ namespace Razix {
 
             // create root signature
             if (!(shaderDesc->flags & RZ_GFX_SHADER_FLAG_NO_ROOT_SIGNATURE)) {
-#ifdef RAZIX_DEBUG
+    #ifdef RAZIX_DEBUG
                 if (rootSigDesc.descriptorTableLayoutsCount == 0 && rootSigDesc.pRootConstantsDesc == NULL)
                     RAZIX_CORE_WARN("[Resource Manager] Empty Root Signature! Shader {0} has no root signature descriptor tables or root constants!", shader->resource.pName);
-#endif
+    #endif
                 auto rootSigName      = "RootSignature." + std::string(shader->resource.pName);
                 shader->rootSignature = RZResourceManager::Get().createRootSignature(rootSigName.c_str(), rootSigDesc);
             }
@@ -126,6 +127,7 @@ namespace Razix {
             // Any intermediate memory allocations made by the reflection process should be freed
             // But this will also delete some of the root sig desc data
             Gfx::FreeShaderReflectionMemAllocs(&reflection);
+#endif
         }
 
         static void DestroyShaderWithRootSigOverrideFunv(void* ptr)
@@ -133,13 +135,14 @@ namespace Razix {
             rz_gfx_shader* shaderPtr = (rz_gfx_shader*) ptr;
             // Free bytecode memory, since we allocate it
             FreeRZSFBytecodeAlloc(shaderPtr);
+#if !RAZIX_INIT_RENDERER_MINIMAL
             rz_gfx_root_signature* rootSig = RZResourceManager::Get().getRootSignatureResource(shaderPtr->rootSignature);
             FreeRootSigDescMemAllocs(&rootSig->resource.desc.rootSignatureDesc);
             FreeInputElementsMemAllocs(shaderPtr->resource.desc.shaderDesc.pElements, shaderPtr->resource.desc.shaderDesc.elementsCount);
             // Free root sig (since it's allocated by ParseRZSF we ask it to delete it)
             if (!(shaderPtr->resource.desc.shaderDesc.flags & RZ_GFX_SHADER_FLAG_NO_ROOT_SIGNATURE))
                 RZResourceManager::Get().destroyRootSignature(shaderPtr->rootSignature);
-
+#endif
             rzRHI_DestroyShader(ptr);
         }
 

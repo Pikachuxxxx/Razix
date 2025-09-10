@@ -174,6 +174,7 @@ namespace Razix {
                 m_InFlightDrawCmdBufPtrs[i]    = RZResourceManager::Get().getCommandBufferResource(m_InFlightDrawCmdBufHandles[i]);
             }
 
+#if !RAZIX_INIT_RENDERER_MINIMAL
             // Create generic resource and sampler heaps
             rz_gfx_descriptor_heap_desc resourceHeapDesc = {};
             resourceHeapDesc.heapType                    = RZ_GFX_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
@@ -230,6 +231,7 @@ namespace Razix {
                 m_GlobalSamplerTable = RZResourceManager::Get().createDescriptorTable("GlobalSamplerTable", samplerTableDesc);
                 RAZIX_CORE_INFO("Created Global Sampler Table with index: {0}", samplerTableDesc.tableIndex);
             }
+#endif
         }
 
         void RZWorldRenderer::destroy()
@@ -261,6 +263,8 @@ namespace Razix {
             m_SkyboxPass.destroy();
             m_CompositePass.destroy();
 #endif
+
+#if !RAZIX_INIT_RENDERER_MINIMAL
             RZResourceManager::Get().destroyResourceView(m_SamplersViewPool.linearSampler);
             RZResourceManager::Get().destroySampler(m_SamplersPool.linearSampler);
             RZResourceManager::Get().destroyDescriptorTable(m_GlobalSamplerTable);
@@ -269,6 +273,7 @@ namespace Razix {
             RZResourceManager::Get().destroyDescriptorHeap(m_DepthRenderTargetHeap);
             RZResourceManager::Get().destroyDescriptorHeap(m_SamplerHeap);
             RZResourceManager::Get().destroyDescriptorHeap(m_ResourceHeap);
+#endif
 
             for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
                 RZResourceManager::Get().destroyCommandPool(m_InFlightCmdPool[i]);

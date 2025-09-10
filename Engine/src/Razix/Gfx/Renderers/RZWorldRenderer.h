@@ -27,10 +27,14 @@
 //#include "Razix/Gfx/Passes/RZTonemapPass.h"
 //#include "Razix/Gfx/Passes/RZVisibilityBufferFillPass.h"
 
+#include "Razix/Gfx/RZGfxUtil.h"
+
 // Renderers
 #include "Razix/Gfx/Renderers/RZRendererSettings.h"
 
 #include "Razix/Math/Grid.h"
+
+// Debug Macro Settings
 
 // TODO: [HiZ] https://miketuritzin.com/post/hierarchical-depth-buffers/
 // TODO: [Random] https://www.jeremyong.com/cpp/2021/05/20/graphics-pipelines-for-young-bloods/
@@ -127,7 +131,7 @@ namespace Razix {
             inline rz_gfx_descriptor_table_handle& getGlobalSamplerTable() { return m_GlobalSamplerTable; }
 
         private:
-            RZFrameGraph m_FrameGraph;
+            RZFrameGraph m_FrameGraph = {};
             //rz_texture_handle m_BRDFfLUTTextureHandle;
             //rz_texture_handle m_NoiseTextureHandle;
             //rz_texture_handle m_ColorGradingNeutralLUTHandle;

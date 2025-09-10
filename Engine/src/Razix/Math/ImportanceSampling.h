@@ -14,6 +14,7 @@
 // This file will be shared in shaders so no cpp file...unless we move these to a seperate project called Shared that build as HLSL and Engine linkable libraries we will use header only implementation files that are shader b/w engine and shaders
 namespace Razix {
     namespace Math {
+        // TODO: Remove this extended namespace just math is enough
         namespace ImportanceSampling {
             // Importance Sampling Functions
             // My Notes: https://github.com/Pikachuxxxx/Notes/blob/master/MonteCarlo/MonteCarlo.pdf
@@ -106,6 +107,6 @@ namespace Razix {
                 return float3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
             }
         }    // namespace ImportanceSampling
-    }        // namespace Math
+    }    // namespace Math
 }    // namespace Razix
 #endif
