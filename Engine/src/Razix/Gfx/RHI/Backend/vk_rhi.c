@@ -1581,26 +1581,66 @@ static void vk_DestroySyncobj(rz_gfx_syncobj* syncobj)
 
 static void vk_CreateCmdPool(void* where)
 {
-    (void) where;
-    // TODO: Implement when needed
+    rz_gfx_cmdpool* cmdPool = (rz_gfx_cmdpool*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&cmdPool->resource.handle), "Invalid cmd pool handle, who is allocating this? ResourceManager should create a valid handle");
+
+    VkCommandPoolCreateInfo poolInfo = {0};
+    poolInfo.sType                   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.pNext                   = NULL;
+    poolInfo.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;    // Allow individual command buffers to be reset
+    switch (cmdPool->resource.desc.cmdpoolDesc.poolType) {
+        case RZ_GFX_CMDPOOL_TYPE_GRAPHICS: poolInfo.queueFamilyIndex = VKCONTEXT.queueFamilyIndices.graphicsFamily; break;
+        case RZ_GFX_CMDPOOL_TYPE_COMPUTE: poolInfo.queueFamilyIndex = VKCONTEXT.queueFamilyIndices.computeFamily; break;
+        case RZ_GFX_CMDPOOL_TYPE_TRANSFER: poolInfo.queueFamilyIndex = VKCONTEXT.queueFamilyIndices.transferFamily; break;
+        default:
+            RAZIX_RHI_LOG_WARN("Unknown command pool type, defaulting to graphics");
+            poolInfo.queueFamilyIndex = VKCONTEXT.queueFamilyIndices.graphicsFamily;
+            break;
+    }
+
+    CHECK_VK(vkCreateCommandPool(VKDEVICE, &poolInfo, NULL, &cmdPool->vk.cmdPool));
+    TAG_OBJECT(cmdPool->vk.cmdPool, VK_OBJECT_TYPE_COMMAND_POOL, cmdPool->resource.pName);
 }
 
 static void vk_DestroyCmdPool(void* cmdPool)
 {
-    (void) cmdPool;
-    // TODO: Implement when needed
+    rz_gfx_cmdpool* pool = (rz_gfx_cmdpool*) cmdPool;
+    if (pool->vk.cmdPool != VK_NULL_HANDLE) {
+        vkDestroyCommandPool(VKDEVICE, pool->vk.cmdPool, NULL);
+        pool->vk.cmdPool = VK_NULL_HANDLE;
+    }
 }
 
 static void vk_CreateCmdBuf(void* where)
 {
-    (void) where;
-    // TODO: Implement when needed
+    rz_gfx_cmdbuf* cmdBuf = (rz_gfx_cmdbuf*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&cmdBuf->resource.handle), "Invalid command buffer handle, who is allocating this? ResourceManager should create a valid handle");
+    const rz_gfx_cmdpool* cmdPool = cmdBuf->resource.desc.cmdbufDesc.pool;
+    RAZIX_RHI_ASSERT(cmdPool != NULL, "Command buffer must have a valid command pool");
+    RAZIX_RHI_ASSERT(cmdPool->vk.cmdPool != VK_NULL_HANDLE, "Command buffer must have a valid command pool");
+
+    // cache the command pool
+    cmdBuf->vk.cmdPool = cmdPool->vk.cmdPool;
+
+    VkCommandBufferAllocateInfo allocInfo = {0};
+    allocInfo.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.pNext                       = NULL;
+    allocInfo.commandPool                 = cmdPool->vk.cmdPool;
+    allocInfo.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;    // Only primary command buffers for now, secondary can be added later if needed for multi-threading
+    allocInfo.commandBufferCount          = 1;                                  // Allocate one command buffer at a time
+
+    CHECK_VK(vkAllocateCommandBuffers(VKDEVICE, &allocInfo, &cmdBuf->vk.cmdBuf));
+    TAG_OBJECT(cmdBuf->vk.cmdBuf, VK_OBJECT_TYPE_COMMAND_BUFFER, cmdBuf->resource.pName);
 }
 
 static void vk_DestroyCmdBuf(void* cmdBuf)
 {
-    (void) cmdBuf;
-    // TODO: Implement when needed
+    rz_gfx_cmdbuf* buffer = (rz_gfx_cmdbuf*) cmdBuf;
+    if (buffer->vk.cmdBuf != VK_NULL_HANDLE && buffer->vk.cmdPool != VK_NULL_HANDLE) {
+        // Let's ignore freeing, command pool will take care of it
+        // ***vkFreeCommandBuffers(VKDEVICE, buffer->vk.cmdPool, 1, &buffer->vk.cmdBuf);***
+        buffer->vk.cmdBuf = VK_NULL_HANDLE;
+    }
 }
 
 static void vk_CreateShader(void* where)

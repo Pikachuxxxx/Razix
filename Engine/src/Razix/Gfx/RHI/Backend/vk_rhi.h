@@ -101,6 +101,7 @@ typedef struct vk_cmdpool
 typedef struct vk_cmdbuf
 {
     VkCommandBuffer cmdBuf;
+    VkCommandPool   cmdPool;
 } vk_cmdbuf;
 
 typedef struct vk_descriptor_heap
