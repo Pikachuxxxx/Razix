@@ -1,6 +1,6 @@
 #include "vk_rhi.h"
 
-#include "Razix/Gfx/RHI/rhi.h"
+#include "Razix/Gfx/RHI/RHI.h"
 
 #define VOLK_IMPLEMENTATION
 #include <volk.h>
