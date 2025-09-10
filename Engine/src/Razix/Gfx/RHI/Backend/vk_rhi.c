@@ -9,6 +9,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef RAZIX_PLATFORM_LINUX
+    #include <alloca.h>    // for alloca
+#endif
+
 // Type friendly defines
 #define VKCONTEXT g_GfxCtx.vk
 #define VKDEVICE  g_GfxCtx.vk.device
