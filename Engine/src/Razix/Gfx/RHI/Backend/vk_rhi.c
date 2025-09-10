@@ -71,9 +71,11 @@ static const char* s_RequiredInstanceExtensions[] = {
 #if defined(RAZIX_PLATFORM_LINUX)
     #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
     VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
-    #elif defined(VK_USE_PLATFORM_XCB_KHR)
+    #endif
+    #if defined(VK_USE_PLATFORM_XCB_KHR)
     VK_KHR_XCB_SURFACE_EXTENSION_NAME,
-    #elif defined(VK_USE_PLATFORM_XLIB_KHR)
+    #endif
+    #if defined(VK_USE_PLATFORM_XLIB_KHR)
     VK_KHR_XLIB_SURFACE_EXTENSION_NAME,
     #endif
 #endif
