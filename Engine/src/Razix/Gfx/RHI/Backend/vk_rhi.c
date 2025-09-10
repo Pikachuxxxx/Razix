@@ -1867,7 +1867,7 @@ static void vk_Present(rz_gfx_present_desc presentDesc)
         .pImageIndices      = &presentDesc.pSwapchain->currBackBufferIdx,
         .pResults           = NULL};
 
-    VkResult result = vkQueuePresentKHR(VKCONTEXT.presentQueue, &presentInfo);
+    VkResult result = vkQueuePresentKHR(VKCONTEXT.graphicsQueue, &presentInfo);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
         RAZIX_RHI_LOG_WARN("Swapchain out of date or suboptimal during present, VK_SUBOPTIMIAL_KHR means the presentation was successful and you probably resized, or requires to recreate the swapchain again because it's out of date.");
