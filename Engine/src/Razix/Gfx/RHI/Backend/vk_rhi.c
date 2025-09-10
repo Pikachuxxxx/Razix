@@ -1534,6 +1534,7 @@ static void vk_DestroySwapchain(rz_gfx_swapchain* sc)
 static void vk_CreateSyncobj(void* where, rz_gfx_syncobj_type type)
 {
     rz_gfx_syncobj* syncobj = (rz_gfx_syncobj*) where;
+    syncobj->type           = type;
 
     if (type == RZ_GFX_SYNCOBJ_TYPE_CPU) {
         VkFenceCreateInfo fenceInfo = {0};
