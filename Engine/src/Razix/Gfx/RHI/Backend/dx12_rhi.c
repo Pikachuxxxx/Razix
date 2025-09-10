@@ -3701,6 +3701,9 @@ static rz_gfx_syncpoint dx12_Signal(rz_gfx_syncobj* syncobj)
 
 static void dx12_FlushGPUWork(rz_gfx_syncobj* frameSyncobj)
 {
+    RAZIX_RHI_ASSERT(frameSyncobj != NULL, "Frame sync object cannot be NULL");
+    RAZIX_RHI_ASSERT(frameSyncobj->type == RZ_GFX_SYNCOBJ_TYPE_CPU, "Frame sync object must be of type CPU");
+
     rz_gfx_syncpoint signalValue = dx12_Signal(frameSyncobj);
     dx12_WaitOnPrevCmds(frameSyncobj);
 }

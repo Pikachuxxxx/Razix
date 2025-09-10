@@ -2000,6 +2000,9 @@ static void vk_SignalGPU(rz_gfx_syncobj* syncobj)
 static void vk_FlushGPUWork(rz_gfx_syncobj* syncobj)
 {
     RAZIX_RHI_ASSERT(syncobj != NULL, "Sync object cannot be null");
+    // We could use a vkFence and wait on it here to ensure all GPU work is done
+    // or use a timeline semaphore and wait on it using vkWaitSemaphores, but for simplicity,
+    // we'll just wait for the device to be idle, this works too
     vkDeviceWaitIdle(VKCONTEXT.device);
 }
 
