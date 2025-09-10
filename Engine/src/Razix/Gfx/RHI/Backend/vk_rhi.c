@@ -1813,13 +1813,16 @@ static void vk_SubmitCmdBuf(rz_gfx_submit_desc submitDesc)
         signalSemaphoreCount++;
     }
 
-    VkSemaphore* pSignalSemaphores = alloca(signalSemaphoreCount * sizeof(VkSemaphore));
-    VkSemaphore* pWaitSemaphores   = alloca(submitDesc.waitSyncobjCount * sizeof(VkSemaphore));
+    VkSemaphore*          pSignalSemaphores = alloca(signalSemaphoreCount * sizeof(VkSemaphore));
+    VkSemaphore*          pWaitSemaphores   = alloca(submitDesc.waitSyncobjCount * sizeof(VkSemaphore));
+    VkPipelineStageFlags* pWaitStages       = alloca(submitDesc.waitSyncobjCount * sizeof(VkPipelineStageFlags));
     RAZIX_RHI_ASSERT(pSignalSemaphores != NULL, "Failed to allocate stack memory for signal semaphores");
     RAZIX_RHI_ASSERT(pWaitSemaphores != NULL, "Failed to allocate stack memory for wait semaphores");
 
-    for (uint32_t i = 0; i < submitDesc.waitSyncobjCount; i++)
+    for (uint32_t i = 0; i < submitDesc.waitSyncobjCount; i++) {
         pWaitSemaphores[i] = submitDesc.pWaitSyncobjs[i].vk.semaphore;
+        pWaitStages[i]     = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;    // yeah we wait on all, can be optimized later if needed
+    }
 
     for (uint32_t i = 0; i < submitDesc.signalSyncobjCount; i++)
         pSignalSemaphores[i] = submitDesc.pSignalSyncobjs[i].vk.semaphore;
@@ -1831,7 +1834,7 @@ static void vk_SubmitCmdBuf(rz_gfx_submit_desc submitDesc)
     VkSubmitInfo submitInfo = {
         .sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
         .pNext                = hasTimelineSyncobj ? &timelineSubmtInfo : NULL,
-        .pWaitDstStageMask    = NULL,
+        .pWaitDstStageMask    = pWaitStages,
         .waitSemaphoreCount   = submitDesc.waitSyncobjCount,
         .pWaitSemaphores      = pWaitSemaphores,
         .signalSemaphoreCount = submitDesc.signalSyncobjCount,
