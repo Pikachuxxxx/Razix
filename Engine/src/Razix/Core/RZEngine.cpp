@@ -45,6 +45,8 @@ namespace Razix {
         RAZIX_CORE_ASSERT(success, "Default World Renderer Settings Load Success!");
 
         // print engine SSE/AVX support
+        // detect and cache the SIMD support of the CPU
+        DetectSIMDSupport();
         RAZIX_CORE_TRACE("Checking endianess...");
         RAZIX_CORE_INFO("Endianess: {0}", GetEndianess() == Endianess::BIG ? "BIG" : "LITTLE");
 
