@@ -16,6 +16,7 @@
     #include <stdint.h>
 
     // remove using  for shader compatibility
+    #define GLM_ENABLE_EXPERIMENTAL
     #include <glm/gtx/compatibility.hpp>
 using namespace glm;
 
