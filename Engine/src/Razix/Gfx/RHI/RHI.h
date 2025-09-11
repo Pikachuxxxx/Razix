@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>    // for strcpy in _rhi_log_timestamp
 #include <time.h>
 
 #ifndef RAZIX_RHI_API
@@ -89,7 +90,7 @@ extern "C"
 #define ANSI_BG_CYAN    "\033[46m"
 #define ANSI_BG_WHITE   "\033[47m"
 
-static inline const char* _rhi_log_timestamp()
+    static inline const char* _rhi_log_timestamp()
     {
         static char buffer[64];
         time_t      now = time(NULL);
