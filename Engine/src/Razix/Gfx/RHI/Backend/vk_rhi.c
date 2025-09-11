@@ -1320,15 +1320,15 @@ static VkSamplerMipmapMode vk_util_translate_mipmap_filter_type(rz_gfx_texture_f
             // These don't use mipmapping, but we need to return something
             // You might want to return VK_SAMPLER_MIPMAP_MODE_NEAREST as default
             return VK_SAMPLER_MIPMAP_MODE_NEAREST;
-            
+
         case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST:
         case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST:
             return VK_SAMPLER_MIPMAP_MODE_NEAREST;
-            
+
         case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR:
         case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR:
             return VK_SAMPLER_MIPMAP_MODE_LINEAR;
-            
+
         default:
             RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_FILTER value, defaulting to VK_SAMPLER_MIPMAP_MODE_NEAREST");
             return VK_SAMPLER_MIPMAP_MODE_NEAREST;
@@ -1341,13 +1341,13 @@ static bool vk_util_is_mipmap_enabled_from_filter_type(rz_gfx_texture_filter_typ
         case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST:
         case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR:
             return false;
-            
+
         case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST:
         case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST:
         case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR:
         case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR:
             return true;
-            
+
         default:
             return false;
     }
@@ -1359,13 +1359,13 @@ static VkSamplerAddressMode vk_util_translate_address_mode(rz_gfx_texture_addres
         case RZ_GFX_TEXTURE_ADDRESS_MODE_WRAP:
         case RZ_GFX_TEXTURE_ADDRESS_MODE_REPEAT:
             return VK_SAMPLER_ADDRESS_MODE_REPEAT;
-            
+
         case RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP:
             return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-            
+
         case RZ_GFX_TEXTURE_ADDRESS_MODE_BORDER:
             return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-            
+
         default:
             RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_TEXTURE_ADDRESS_MODE value, defaulting to VK_SAMPLER_ADDRESS_MODE_REPEAT");
             return VK_SAMPLER_ADDRESS_MODE_REPEAT;
@@ -1377,28 +1377,28 @@ static VkCompareOp vk_util_translate_compare_op(rz_gfx_compare_op_type compare_o
     switch (compare_op) {
         case RZ_GFX_COMPARE_OP_TYPE_NEVER:
             return VK_COMPARE_OP_NEVER;
-            
+
         case RZ_GFX_COMPARE_OP_TYPE_LESS:
             return VK_COMPARE_OP_LESS;
-            
+
         case RZ_GFX_COMPARE_OP_TYPE_EQUAL:
             return VK_COMPARE_OP_EQUAL;
-            
+
         case RZ_GFX_COMPARE_OP_TYPE_LESS_OR_EQUAL:
             return VK_COMPARE_OP_LESS_OR_EQUAL;
-            
+
         case RZ_GFX_COMPARE_OP_TYPE_GREATER:
             return VK_COMPARE_OP_GREATER;
-            
+
         case RZ_GFX_COMPARE_OP_TYPE_NOT_EQUAL:
             return VK_COMPARE_OP_NOT_EQUAL;
-            
+
         case RZ_GFX_COMPARE_OP_TYPE_GREATER_OR_EQUAL:
             return VK_COMPARE_OP_GREATER_OR_EQUAL;
-            
+
         case RZ_GFX_COMPARE_OP_TYPE_ALWAYS:
             return VK_COMPARE_OP_ALWAYS;
-            
+
         default:
             RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_COMPARE_OP_TYPE value, defaulting to VK_COMPARE_OP_LESS");
             return VK_COMPARE_OP_LESS;
@@ -1826,11 +1826,11 @@ static void vk_CreateSampler(void* where)
     samplerInfo.addressModeU            = vk_util_translate_address_mode(desc->addressModeU);
     samplerInfo.addressModeV            = vk_util_translate_address_mode(desc->addressModeV);
     samplerInfo.addressModeW            = vk_util_translate_address_mode(desc->addressModeW);
-    samplerInfo.anisotropyEnable        = VK_FALSE;//desc->maxAnisotropy ? VK_TRUE : VK_FALSE;
-    samplerInfo.maxAnisotropy           = desc->maxAnisotropy;
+    samplerInfo.anisotropyEnable        = VK_FALSE;    //desc->maxAnisotropy ? VK_TRUE : VK_FALSE;
+    samplerInfo.maxAnisotropy           = (float) desc->maxAnisotropy;
     samplerInfo.borderColor             = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    samplerInfo.compareEnable           = VK_FALSE;  // Not using comparison sampling for now
+    samplerInfo.compareEnable           = VK_FALSE;    // Not using comparison sampling for now
     samplerInfo.compareOp               = vk_util_translate_compare_op(desc->compareOp);
     samplerInfo.mipLodBias              = desc->mipLODBias;
     samplerInfo.minLod                  = desc->minLod;
@@ -1860,7 +1860,7 @@ static void vk_CreateBuffer(void* where)
     // TODO: Implement buffer creation
     RAZIX_RHI_LOG_ERROR("Buffer implementation is not done yet!");
     RAZIX_RHI_ABORT();
-}   
+}
 
 static void vk_DestroyBuffer(void* buffer)
 {
@@ -2343,14 +2343,14 @@ rz_rhi_api vk_rhi = {
     .BindGfxRootSig     = vk_BindGfxRootSig,        // BindGfxRootSig
     .BindComputeRootSig = vk_BindComputeRootSig,    // BindComputeRootSig
 
-    .DrawAuto              = vk_DrawAuto,                 // DrawAuto
-    .DrawIndexedAuto       = vk_DrawIndexedAuto,          // DrawIndexedAuto
-    .Dispatch              = vk_Dispatch,                 // Dispatch
-    .DrawIndirect      = vk_DrawAutoIndirect,         // DrawAutoIndirect
-    .DrawIndexedIndirect = vk_DrawIndexedAutoIndirect, // DrawIndexedAutoIndirect
-    .DispatchIndirect      = vk_DispatchIndirect,         // DispatchIndirect
-    .InsertImageBarrier    = vk_InsertImageBarrier,       // InsertImageBarrier
-    .InsertTextureReadback = vk_InsertTextureReadback,    // InsertTextureReadback
+    .DrawAuto              = vk_DrawAuto,                   // DrawAuto
+    .DrawIndexedAuto       = vk_DrawIndexedAuto,            // DrawIndexedAuto
+    .Dispatch              = vk_Dispatch,                   // Dispatch
+    .DrawIndirect          = vk_DrawAutoIndirect,           // DrawAutoIndirect
+    .DrawIndexedIndirect   = vk_DrawIndexedAutoIndirect,    // DrawIndexedAutoIndirect
+    .DispatchIndirect      = vk_DispatchIndirect,           // DispatchIndirect
+    .InsertImageBarrier    = vk_InsertImageBarrier,         // InsertImageBarrier
+    .InsertTextureReadback = vk_InsertTextureReadback,      // InsertTextureReadback
 
     .SignalGPU       = vk_SignalGPU,          // SignalGPU
     .FlushGPUWork    = vk_FlushGPUWork,       // FlushGPUWork

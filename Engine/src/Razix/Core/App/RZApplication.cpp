@@ -93,10 +93,6 @@ namespace Razix {
         RZVirtualFileSystem::Get().mount("Textures", m_ProjectPath + std::string("/Assets/Textures"));
         RZVirtualFileSystem::Get().mount("Materials", m_ProjectPath + std::string("/Assets/Materials"));
 
-        // Check the command line arguments for the rendering api
-        if (RZEngine::Get().getCommandLineParser().isSet("rendering api"))
-            rzGfxCtx_SetRenderAPI((rz_render_api) RZEngine::Get().getCommandLineParser().getValueAsInt("project filename"));
-
         // De-serialize the application
         if (AppStream.is_open()) {
             RAZIX_CORE_TRACE("Loading project file...");
@@ -123,13 +119,6 @@ namespace Razix {
 
             defArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
         }
-
-        // Override for dev utils (can still be overridden by application)
-        // Done once all kind of default or existing project file is loaded and the window is created
-        if (RZEngine::Get().getCommandLineParser().isSet("vulkan"))
-            rzGfxCtx_SetRenderAPI(RZ_RENDER_API_VULKAN);
-        else if (RZEngine::Get().getCommandLineParser().isSet("dx12"))
-            rzGfxCtx_SetRenderAPI(RZ_RENDER_API_D3D12);
 
         // If we change the API, then update the window title
         m_Window->setTitle(GetAppWindowTitleSignature(m_ProjectName).c_str());
@@ -480,9 +469,6 @@ namespace Razix {
         }
         // TODO: Verify these also!
         //archive(cereal::make_nvp("Project Version", 0));
-        archive(cereal::make_nvp("Render API", m_RenderAPI));
-        // Set the render API from the De-serialized data
-        rzGfxCtx_SetRenderAPI((rz_render_api) m_RenderAPI);
         u32 Width, Height;
         archive(cereal::make_nvp("Width", Width));
         archive(cereal::make_nvp("Height", Height));
@@ -509,7 +495,6 @@ namespace Razix {
         archive(cereal::make_nvp("Project Name", m_ProjectName));
         archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
         archive(cereal::make_nvp("Project ID", m_ProjectID.prettyString()));
-        archive(cereal::make_nvp("Render API", (u32) rzGfxCtx_GetRenderAPI()));
         archive(cereal::make_nvp("Width", m_Window->getWidth()));
         archive(cereal::make_nvp("Height", m_Window->getHeight()));
 

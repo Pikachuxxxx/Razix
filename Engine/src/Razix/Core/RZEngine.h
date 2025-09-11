@@ -95,7 +95,7 @@ namespace Razix {
         RZSceneManager                m_SceneManagerSystem;
         Scripting::RZLuaScriptHandler m_LuaScriptHandlerSystem;
         Gfx::RZWorldRenderer          m_WorldRenderer;
-        //Gfx::RZShaderLibrary          m_ShaderLibrary;
         bool                          m_IsEngineInTestMode = false;
+        //Gfx::RZShaderLibrary          m_ShaderLibrary;
     };
 }    // namespace Razix

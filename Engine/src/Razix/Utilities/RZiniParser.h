@@ -27,7 +27,7 @@ namespace Razix {
         */
 
         // Union to handle different types for values (string, int, bool, float)
-        using ValueType = std::variant<int, float, bool, std::string>;
+        using ValueType = std::variant<int, float, bool, std::string, u32>;
 
         struct Section
         {

@@ -93,6 +93,13 @@ namespace Razix {
         // 4. Script Handler
         Scripting::RZLuaScriptHandler::Get().StartUp();
 
+        // Done once all kind of default or existing engine config file is loaded
+        // command line takes precedence over config file
+        if (RZEngine::Get().getCommandLineParser().isSet("vulkan"))
+            rzGfxCtx_SetRenderAPI(RZ_RENDER_API_VULKAN);
+        else if (RZEngine::Get().getCommandLineParser().isSet("dx12"))
+            rzGfxCtx_SetRenderAPI(RZ_RENDER_API_D3D12);
+
         // 5. Graphics API (last one in the engine to fire up)
         rzGfxCtx_StartUp();
 
@@ -175,8 +182,12 @@ namespace Razix {
         if (success) {
             // Rendering Settings
             {
-                // TODO: Rendering API
-                
+                // Rendering API directly set on RHI
+                int renderAPI = -1;
+                engineConfigParser.getValue<int>("Rendering", "RenderAPI", renderAPI);
+                // Set the render API from the config file
+                rzGfxCtx_SetRenderAPI((rz_render_api) renderAPI);
+
                 engineConfigParser.getValue<bool>("Rendering", "EnableAPIValidation", m_EngineSettings.EnableAPIValidation);
                 engineConfigParser.getValue<bool>("Rendering", "EnableMSAA", m_EngineSettings.EnableMSAA);
                 engineConfigParser.getValue<bool>("Rendering", "EnableBindless", m_EngineSettings.EnableBindless);
