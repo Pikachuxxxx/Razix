@@ -1,8 +1,9 @@
 <br>
 <img width=200" align="left" src="https://github.com/Pikachuxxxx/Razix/blob/master/Branding/RazixLogo.png"> <h1> Razix Engine </h1>
-Razix is a High Performance Engine for experimenting with different rendering techniques. Razix supports Windows, Mac, Linux. 
+Razix is a High Performance Engine for experimenting with different rendering techniques. Razix supports Windows, Mac, Linux.   
 
-THIS ENGINE IS BEING MADE FOR A GAME< not a generic engine, I'll have the GDD/Story etc. soon here!
+
+THIS ENGINE IS BEING MADE FOR A GAME! not a generic engine, I'll have the GDD/Story etc. soon here!
 
 
 # About
@@ -13,8 +14,7 @@ eventually I hope razix will be mature enough one day. It's also my portfolio + 
 View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Architecture notes on Draw.io](https://drive.google.com/file/d/1y5ZFf-h02z3cx6WmUzR8giKScvORzmwx/view?usp=sharing)
 
 # Features
-- Built using C++17. (Engine will be reverted back to C++14 once entt/sol have been removed and only Jolt will be compiled in C++17 mode)
-	- C++14 over C++11 because `constexpr` and `sizeof` and improved `lamdbas` are needed for framegraph.
+- **Game/Engine Built using C++17 and a beautiful C99 for RHI API backend** 
 - Support for Windows, Linux, macOS.
 - Support for Vulkan & DirectX 12.
 - **Data Driven** Framegraph based on EA's frostbite engine (based on [skaarj
@@ -30,14 +30,13 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 - 3D audio using OpenAL
 - Complete Deferred pipeline + Bindless resources + nanite-like renderers(Future support for customizable render graph editor for complete control).
 - Runtime tools using ImGui + Blender Support as level editor
-- Multi Physics engine support.
 - 3D physics using Jolt.
 - Basic lua scripting support
 - Extremely detailed profiling using Tracy and RenderDoc integrated
 - Supports HLSL shading language to create custom materials + Custom Razix Shaders files for easy compilation
 - Resource Pool base management and custom asset format
 - Data drive pipeline architecture - FrameGraph uses JSON files
-- Custom [Razix STL](https://github.com/Pikachuxxxx/RZSTL) and [Razix Memory](https://github.com/Pikachuxxxx/RazixMemory)
+- Custom containers and memory pools and library for tracking
 - **WorldRenderer** Passes
 	- Lighting and shadows 
 		- Directional lights with CSM (Cascaded Shadow Mapping)
@@ -56,7 +55,7 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 **Experimental features:**
   - Machine Learning sandbox (custom NNs class + Transformers WIP) CPU only for now, later might be ported over the engine RHI layer
   - Department based memory/frame time budget profiling (inspiration from SMS GDC talk and Insomniac engine)
-  - I have a secret RazixGPT runst LLM might use it for game NPCs one day.
+  - I have a secret RazixGPT build in rust might use it for game NPCs one day.
 
 DirectX11, OpenGL has been deprecated. Only high-level APIs and RTX level GPUs will be supported. PSVita(GXM) and PS3(GCM) will be supported sometime far in future.
 
@@ -245,12 +244,14 @@ cd Scripts
 GenerateVS22.bat
 ```
 
-**Linux/macOS:**
+**macOS:**
 ```bash
 cd Scripts
 chmod +x GenerateXCodeProjectsMacOS.sh
 ./GenerateXCodeProjectsMacOS.sh
 ```
+
+**For Linux please use the below manual methods to generate make files**
 
 #### Manual Generation with Premake
 
@@ -362,13 +363,10 @@ Successful builds generate:
 - Restart terminal/IDE after installation
 - On Linux: `sudo apt install vulkan-tools libvulkan-dev`
 
-**Linux ARM64 Build Issues:**
-- Install cross-compilation tools: `sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu`
-- Use correct architecture: `--arch=arm64`
-
 **Windows SDK Issues:**
 - Ensure Windows SDK 10.0.22000.0 or later is installed
 - Verify Visual Studio 2022 includes C++ development tools
+- Using older windows SDK version can result in D3D12 ID3Device10 missing errors and compilation issues
 
 **Script Permissions (Linux/macOS):**
 ```bash
@@ -377,51 +375,6 @@ chmod +x Scripts/GenerateXCodeProjectsMacOS.sh
 
 **Missing Dependencies:**
 - Follow the development packages installation for your Linux distribution above
-
-### Vulkan Verification Commands
-```bash
-# Complete verification
-echo "Vulkan SDK: $VULKAN_SDK"
-vulkaninfo | grep "Vulkan API Version" | head -1
-vulkaninfo | grep "GPU id" -A 3
-vulkaninfo | grep -A 10 "Layers:" | grep "VK_LAYER"
-```
-
-### Pre-Requisites
-Assumes you have VULKAN_SDK installed and the env variable is configured properly
-
-1. Clone the Repository
-```
-git clone https://github.com/Pikachuxxxx/Razix.git
-cd Razix
-```
-2. Generate Premake Project Files
-Windows (PowerShell)
-
-### From the repo root:
-Windows
-```
-cd Scripts
-.\u005cGeneratePremakeProjects.bat
-```
-Linux/macOS (Bash)
-```
-# From the repo root:
-chmod +x Scripts/generate_projects.sh
-./Scripts/generate_projects.sh
-```
-Razix uses Premake5 for project generation. Scripts are provided for different platforms.
-No need to clone submodules.
-
-
-### Build the Engine
-
-Windows (Visual Studio)
-Open build/Razix.sln in Visual Studio 2022 or newer
-Select a configuration: Debug, Release, or Dist
-Press Ctrl+Shift+B or select Build > Build Solution
-
-either run the game or run some tests
 
 # RoadMap
 
