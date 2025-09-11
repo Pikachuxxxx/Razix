@@ -384,6 +384,54 @@ chmod +x Scripts/GenerateXCodeProjectsMacOS.sh
 **Missing Dependencies:**
 - Follow the development packages installation for your Linux distribution above
 
+## Neovim + LSP Support
+
+### Generating compile_commands.json
+
+Use Premake's gmake2 generator with bear to automatically generate `compile_commands.json` for LSP:
+
+```bash
+# Generate makefiles
+premake5 gmake2 --arch=<your preferred arch> --os=<your preferred os>
+
+# Install bear
+sudo apt install bear  # Ubuntu/Debian
+# or
+brew install bear      # macOS
+
+# Generate compile_commands.json
+cd build
+bear -- make -j$(nproc)
+# move it to root directory as source and open nvim from the same directory
+cp compile_commands.json ../
+```
+
+### clangd Installation on ARM64 Linux
+
+**Mason.nvim workaround for ARM64:**
+
+If Mason fails to install clangd on ARM64 Linux, install manually:
+
+```bash
+# Option 1: System package
+sudo apt install clangd-15
+sudo update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-15 100
+
+# Option 2: Download from LLVM releases
+wget https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.0/clang+llvm-15.0.0-aarch64-linux-gnu.tar.xz
+tar -xf clang+llvm-15.0.0-aarch64-linux-gnu.tar.xz
+sudo cp clang+llvm-15.0.0-aarch64-linux-gnu/bin/clangd /usr/local/bin/
+```
+
+**LSP Config:**
+```lua
+require("lspconfig").clangd.setup({
+  cmd = { "clangd", "--compile-commands-dir=." },
+  root_dir = require("lspconfig.util").root_pattern("compile_commands.json", ".git"),
+})
+```
+
+**Related Issue:** [mason-org/mason-registry#5800](https://github.com/mason-org/mason-registry/issues/5800)
 
 # Architecture
 
