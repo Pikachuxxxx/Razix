@@ -4,10 +4,10 @@
 
 #include "Razix/Core/RZCore.h"
 
-#if defined (RAZIX_APPLE_SILICON) || defined(RAZIX_PLATFORM_MACOS)
+#if defined(RAZIX_APPLE_SILICON) || defined(RAZIX_PLATFORM_MACOS) || defined(RAZIX_PLATFORM_LINUX_ARM64)
     #include <arm_neon.h>
 
-    #ifdef __clang__
+    #if defined(__clang__) || defined(__GNUC__)
         #define SIMDE_ENABLE_NATIVE_ALIASES
         #define SIMDE_X86_AVX_ENABLE_NATIVE_ALIASES
 
