@@ -152,6 +152,23 @@ function ApplyGfxTestSettings()
             "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
+     filter "system:linux"
+        cppdialect "C++17"
+        staticruntime "off"
+
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_LINUX",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_USE_GLFW_WINDOWS",
+            "RAZIX_ROOT_DIR="  .. root_dir,
+            "RAZIX_IMGUI",
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
+        }
+
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }
         symbols "On"
