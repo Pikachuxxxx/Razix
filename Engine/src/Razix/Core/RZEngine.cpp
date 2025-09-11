@@ -8,11 +8,18 @@
 #include "Razix/Core/Utils/RZPlatformUtils.h"
 #include "Razix/Core/Version/RazixVersion.h"
 
+#include "Razix/Core/OS/RZWindow.h"
+
 //#include "Razix/Gfx/Materials/RZMaterial.h"
 
 #include "Razix/Core/Memory/RZCPUMemoryManager.h"
 
 #include "Razix/Gfx/Resources/RZResourceManager.h"
+
+#ifdef RAZIX_USE_GLFW_WINDOWS
+    #include "Razix/Platform/GLFW/GLFWInput.h"
+    #include "Razix/Platform/GLFW/GLFWWindow.h"
+#endif
 
 #include "Razix/Utilities/RZiniParser.h"
 
@@ -86,11 +93,23 @@ namespace Razix {
         // 4. Script Handler
         Scripting::RZLuaScriptHandler::Get().StartUp();
 
-        // TODO: Call this after RZApp has finished full initialization! or call app init in rzengine init itself?
         // 5. Graphics API (last one in the engine to fire up)
         rzGfxCtx_StartUp();
 
         Gfx::RZResourceManager::Get().StartUp();
+
+        // Input setup and window pointers
+        // TODO: Use #elif for other platforms
+#ifdef RAZIX_USE_GLFW_WINDOWS
+        // Select GLFW as the input manager client
+        RAZIX_CORE_INFO("Setting up input");
+        Razix::RZInput::SelectGLFWInputManager();
+        RAZIX_CORE_INFO("GLFW Input system selected!");
+        // Set GLFW as window when the Engine API will be called to create the window
+        RAZIX_CORE_INFO("Setting up windowing system");
+        GLFWWindow::Construct();
+        RAZIX_CORE_INFO("GLFW Windowing system selected!");
+#endif
 
         // Log after all the Engine systems have been successfully Started Up
         RAZIX_CORE_INFO("***********************************");
@@ -107,17 +126,6 @@ namespace Razix {
         auto                                   stop   = std::chrono::high_resolution_clock::now();
         std::chrono::duration<d32, std::milli> ms_d32 = (stop - start);
         RAZIX_CORE_INFO("Engine Ingnited in : {0} ms", ms_d32.count());
-    }
-
-    void RZEngine::PostGraphicsIgnite()
-    {
-        // Post ignition systems that are done after the Graphics are done
-        RAZIX_CORE_INFO("***********************************");
-        RAZIX_CORE_INFO("*   Post Graphics Ignition....    *");
-        RAZIX_CORE_INFO("***********************************");
-
-        // Ignite the shader library after the Graphics has been initialized (Shutdown by RHI when being destroyed)
-        //Gfx::RZShaderLibrary::Get().StartUp();
     }
 
     void RZEngine::ShutDown()
@@ -167,6 +175,8 @@ namespace Razix {
         if (success) {
             // Rendering Settings
             {
+                // TODO: Rendering API
+                
                 engineConfigParser.getValue<bool>("Rendering", "EnableAPIValidation", m_EngineSettings.EnableAPIValidation);
                 engineConfigParser.getValue<bool>("Rendering", "EnableMSAA", m_EngineSettings.EnableMSAA);
                 engineConfigParser.getValue<bool>("Rendering", "EnableBindless", m_EngineSettings.EnableBindless);

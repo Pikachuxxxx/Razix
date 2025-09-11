@@ -59,11 +59,11 @@ namespace Razix {
 
                     rzRHI_BeginRenderPass(cmdBuffer, &info);
 
-                    //rzRHI_BindGfxRootSig(cmdBuffer, m_RootSigHandle);
-                    //rzRHI_BindPipeline(cmdBuffer, m_Pipeline);
+                    rzRHI_BindGfxRootSig(cmdBuffer, m_RootSigHandle);
+                    rzRHI_BindPipeline(cmdBuffer, m_Pipeline);
 
-                    //constexpr u32 kNumTriangleVerts = 3;
-                    //rzRHI_DrawAuto(cmdBuffer, kNumTriangleVerts, 1, 0, 0);
+                    constexpr u32 kNumTriangleVerts = 3;
+                    rzRHI_DrawAuto(cmdBuffer, kNumTriangleVerts, 1, 0, 0);
 
                     rzRHI_EndRenderPass(cmdBuffer);
 

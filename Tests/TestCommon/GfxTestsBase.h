@@ -17,7 +17,6 @@ namespace Razix {
         RZGfxTestAppBase(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_DEFAULT, const std::string& appName = "RazixGfxTestApp")
             : RZApplication(projectRoot, appName), m_NumFrames(numFrames), m_CurrentFrame(0)
         {
-            Razix::RZInput::SelectGLFWInputManager();
             RZApplication::Init();
 
             // Mount the tests root directory to load test specific resources
@@ -76,7 +75,7 @@ static int EngineTestLoop(void)
     //-------------------------------------------------------------------------------------
     // Override the Graphics API here! for testing
 #ifdef RAZIX_PLATFORM_WINDOWS
-    rzGfxCtx_SetRenderAPI(RZ_RENDER_API_VULKAN);
+    rzGfxCtx_SetRenderAPI(RZ_RENDER_API_D3D12);
 #elif defined RAZIX_PLATFORM_MACOS
     rzGfxCtx_SetRenderAPI(RZ_RENDER_API_VULKAN);
 #endif

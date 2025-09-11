@@ -10,7 +10,6 @@ public:
         : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Game/")), "RazixGame")
 
     {
-        Razix::RZInput::SelectGLFWInputManager();
         Razix::RZApplication::Get().Init();
 
         // Init Graphics Context
