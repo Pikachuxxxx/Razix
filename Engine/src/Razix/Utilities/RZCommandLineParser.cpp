@@ -14,7 +14,7 @@ namespace Razix {
         addCommand("project file name", {"-f", "--project-file-name"}, 1, "The project file name (of type *.razixproject)");
         addCommand("scene filename", {"-s", "--scene"}, 1, "The scene file to load when the engine is fired");
         addCommand("engine config filename", {"-cf", "--config-file"}, 1, "The engine config file to for the engine runtime settings");
-        addCommand("rendering api", {"-a", "--api"}, 1, "The Rendering API to use");
+        addCommand("render api", {"-a", "--api"}, 1, "The Rendering API to use");
         addCommand("validation", {"-v", "--validation"}, 0, "Enable Graphics API validation layers");
         addCommand("vsync", {"-vs", "--vsync"}, 0, "Enable V-Sync");
         addCommand("width", {"-w", "--width"}, 1, "Set window width");

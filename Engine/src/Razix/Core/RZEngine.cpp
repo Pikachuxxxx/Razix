@@ -100,6 +100,9 @@ namespace Razix {
         else if (RZEngine::Get().getCommandLineParser().isSet("dx12"))
             rzGfxCtx_SetRenderAPI(RZ_RENDER_API_D3D12);
 
+        if (RZEngine::Get().getCommandLineParser().isSet("render api"))
+            rzGfxCtx_SetRenderAPI((rz_render_api) RZEngine::Get().getCommandLineParser().getValueAsInt("render api"));
+
         // 5. Graphics API (last one in the engine to fire up)
         rzGfxCtx_StartUp();
 
