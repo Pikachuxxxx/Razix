@@ -45,6 +45,11 @@
     #define GLFW_EXPOSE_NATIVE_COCOA
     #include <GLFW/glfw3.h>
     #include <GLFW/glfw3native.h>
+#elif defined(RAZIX_PLATFORM_LINUX)
+    #define GLFW_EXPOSE_NATIVE_WAYLAND
+    #define GLFW_EXPOSE_NATIVE_X11
+    #include <GLFW/glfw3.h>
+    #include <GLFW/glfw3native.h>
 #endif
 
 namespace Razix {
