@@ -14,7 +14,7 @@ eventually I hope razix will be mature enough one day. It's also my portfolio + 
 View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Architecture notes on Draw.io](https://drive.google.com/file/d/1y5ZFf-h02z3cx6WmUzR8giKScvORzmwx/view?usp=sharing)
 
 # Features
-- **Game/Engine Built using C++17 and a beautiful C99 for RHI API backend** 
+- **Game/Engine Built using C++17 and a beautiful C99 RHI API** 
 - Support for Windows, Linux, macOS.
 - Support for Vulkan & DirectX 12.
 - **Data Driven** Framegraph based on EA's frostbite engine (based on [skaarj
@@ -58,6 +58,14 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
   - I have a secret RazixGPT build in rust might use it for game NPCs one day.
 
 DirectX11, OpenGL has been deprecated. Only high-level APIs and RTX level GPUs will be supported. PSVita(GXM) and PS3(GCM) will be supported sometime far in future.
+
+# RoadMap
+
+## V 1.0.0 - RC
+![](./Docs/Architecture/RazixEngine-RoadMap-V1.0.0RC.png)
+
+# Screenshots/Demos
+<img src="./Branding/DemoImages/ReleaseNotes/Razix_Engine_V.0.49.0.png">
 
 # Building Razix Engine
 
@@ -376,18 +384,6 @@ chmod +x Scripts/GenerateXCodeProjectsMacOS.sh
 **Missing Dependencies:**
 - Follow the development packages installation for your Linux distribution above
 
-# RoadMap
-
-## V 1.0.0 - RC
-![](./Docs/Architecture/RazixEngine-RoadMap-V1.0.0RC.png)
-
-# Contributing
-More information will be update on creating PRs and other ways to contribute to Razix Engine.
-### Style Guide
-Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
-
-# Screenshots/Demos
-<img src="./Branding/DemoImages/ReleaseNotes/Razix_Engine_V.0.49.0.png">
 
 # Architecture
 
@@ -401,6 +397,13 @@ Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
 | Core Systems | Frame Graph |
 | ----------- | ---------- |
 | <img src="./Docs/Architecture/RazixEngine-CoreSystems.png" width="300">  |  <img src="./Docs/Architecture/Razix Engine-FrameGraph.png" width="300"> |
+
+
+# Contributing
+More information will be update on creating PRs and other ways to contribute to Razix Engine.
+
+### Style Guide
+Check the [style guide](./Docs/RazixStyleGuide.md) for Razix Style enforcements
 
 # Changelog and Release Notes
 
