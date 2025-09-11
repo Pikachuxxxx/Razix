@@ -139,6 +139,11 @@ workspace ( settings.workspace_name )
         architecture "x86"
     elseif Arch == "arm64" then
         architecture "ARM64"
+        -- enable PIC for arm64
+        pic "On"
+    else 
+        print("Unknown architecture '" .. Arch .. "'. Supported architectures are: arm, arm64, x86, x64")
+        os.exit(1)
     end
 
     print("Generating Project files for Architecture = ", Arch)

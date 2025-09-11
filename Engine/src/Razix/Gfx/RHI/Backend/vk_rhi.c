@@ -1856,7 +1856,7 @@ static void vk_CreateBuffer(void* where)
     rz_gfx_buffer_desc* desc = &buffer->resource.desc.bufferDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Buffer description cannot be null");
     RAZIX_RHI_ASSERT(desc->sizeInBytes > 0, "Buffer size must be greater than zero");
-    
+
     // TODO: Implement buffer creation
     RAZIX_RHI_LOG_ERROR("Buffer implementation is not done yet!");
     RAZIX_RHI_ABORT();
