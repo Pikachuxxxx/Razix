@@ -89,18 +89,40 @@ extern "C"
 #define ANSI_BG_CYAN    "\033[46m"
 #define ANSI_BG_WHITE   "\033[47m"
 
-    static inline const char* _rhi_log_timestamp()
+static inline const char* _rhi_log_timestamp()
     {
         static char buffer[64];
         time_t      now = time(NULL);
-        struct tm   tm;
+        struct tm*  tm_ptr;
+        struct tm   tm_storage;
 
 #ifdef _WIN32
-        localtime_s(&tm, &now);
+        // Windows: use localtime_s
+        localtime_s(&tm_storage, &now);
+        tm_ptr = &tm_storage;
 #else
-    localtime_r(&now, &tm);
+    // Try localtime_r first (POSIX), fallback to localtime
+    #if defined(__GNUC__) || defined(__clang__)
+    // On GCC/Clang, try to use localtime_r with weak linking
+    extern struct tm* localtime_r(const time_t*, struct tm*) __attribute__((weak));
+    if (localtime_r != NULL) {
+        tm_ptr = localtime_r(&now, &tm_storage);
+    } else {
+        tm_ptr = localtime(&now);
+    }
+    #else
+    // Fallback to standard localtime
+    tm_ptr = localtime(&now);
+    #endif
 #endif
-        strftime(buffer, sizeof(buffer), "%H:%M:%S", &tm);
+
+        if (tm_ptr != NULL) {
+            strftime(buffer, sizeof(buffer), "%H:%M:%S", tm_ptr);
+        } else {
+            // Fallback if time functions fail
+            strcpy(buffer, "??:??:??");
+        }
+
         return buffer;
     }
 
