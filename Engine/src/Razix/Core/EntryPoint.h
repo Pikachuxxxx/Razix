@@ -221,4 +221,86 @@ static int EngineExit()
     return 0;
 }
 
+#elif defined RAZIX_PLATFORM_LINUX
+
+    #include "Platform/Linux/LinuxOS.h"
+    #include "Razix/Core/SplashScreen/RZSplashScreen.h"
+
+    #define RAZIX_PLATFORM_MAIN                                 \
+        int main(int argc, char** argv)                         \
+        {                                                       \
+            EngineMain(argc, argv);                             \
+            while (Razix::RZApplication::Get().RenderFrame()) { \
+            }                                                   \
+                                                                \
+            Razix::RZApplication::Get().Quit();                 \
+            Razix::RZApplication::Get().SaveApp();              \
+                                                                \
+            EngineExit();                                       \
+                                                                \
+            return EXIT_SUCCESS;                                \
+        }
+
+static int EngineMain(int argc, char** argv)
+{
+    // Read the command line arguments
+    static std::vector<cstr> args;
+    for (int32_t i = 1; i < argc; i++) {
+        args.push_back(argv[i]);
+    };
+
+    // 1.-> Logging System Initialization, start up logging before anything else
+    Razix::Debug::RZLog::StartUp();
+
+    // Virtual File System for mapping engine config files
+    Razix::RZVirtualFileSystem::Get().StartUp();
+
+    Razix::RZEngine::Get().LoadEngineConfigFile();
+
+    // Splash Screen!
+    Razix::RZSplashScreen::Get().StartUp();
+    Razix::RZSplashScreen::Get().setVersionString("Version : " + std::string(Razix::RazixVersion.getVersionString()));
+    Razix::RZSplashScreen::Get().setLogString("Initializing Razix Engine...");
+
+    // Create the OS Instance
+    Razix::rzstl::UniqueRef<Razix::LinuxOS> linuxOS = Razix::rzstl::CreateUniqueRef<Razix::LinuxOS>();
+    Razix::RZOS::SetInstance(linuxOS.get());
+
+    //-------------------------------//
+    //        Engine Ignition        //
+    //-------------------------------//
+    Razix::RZEngine::Get().Ignite();
+    //-------------------------------//
+
+    // Parse the command line arguments, if any
+    if (argc > 1)
+        Razix::RZEngine::Get().getCommandLineParser().parse(args);
+
+    Razix::RZSplashScreen::Get().setLogString("Loading Project file...");
+
+    linuxOS->Init();
+
+    // Application auto Initialization by the Engine
+    Razix::CreateApplication(argc, argv);
+
+    Razix::RZEngine::Get().PostGraphicsIgnite();
+
+    // Run the  Application with the master controlled given to the OS
+    linuxOS->Begin();
+    linuxOS.release();
+
+    return EXIT_SUCCESS;
+}
+
+static int EngineExit()
+{
+    // Shutdown the Engine
+    Razix::RZEngine::Get().ShutDown();
+
+    // Shutdown the Engine systems
+    Razix::Debug::RZLog::Shutdown();
+
+    return 0;
+}
+
 #endif

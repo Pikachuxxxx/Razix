@@ -480,6 +480,76 @@ project "Razix"
             }
         filter {}
 
+    -------------------------------------
+    -- Razix Project settings for Linux
+    -------------------------------------
+    filter "system:linux"
+        cppdialect "C++17"
+
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_LINUX",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_USE_GLFW_WINDOWS",
+            "RAZIX_IMGUI",
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
+        }
+
+        -- Windows specific source files for compilation
+        files
+        {
+            -- platform sepecific implementatioon
+            "src/Razix/Platform/Linux/*.h",
+            "src/Razix/Platform/Linux/*.cpp",
+            
+            "src/Razix/Platform/Unix/*.h",
+            "src/Razix/Platform/Unix/*.cpp",
+
+            "src/Razix/Platform/GLFW/*.h",
+            "src/Razix/Platform/GLFW/*.cpp",
+
+            "src/Razix/Platform/API/Vulkan/*.h",
+            "src/Razix/Platform/API/Vulkan/*.cpp",
+
+            -- Vendor source files
+            "vendor/glad/src/glad.c"
+        }
+    
+        -- Windows specific incldue directories
+        includedirs
+        {
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+            "./",
+            "../"
+        }
+
+        libdirs
+        {
+            VulkanSDK .. "/lib"
+        }
+        
+        -- Clang/GCC compiler options
+        buildoptions
+        {
+            "-Wno-error=switch-enum",
+            "-Wno-switch", "-Wno-switch-enum"
+        }
+        
+        filter "files:**.c"
+            flags { "NoPCH" }
+        filter "files:**.m"
+            flags { "NoPCH" }
+        filter "files:**.mm"
+            flags { "NoPCH" }
+
     filter "configurations:Release"
         defines { "RAZIX_RELEASE", "NDEBUG" }
         symbols "On"

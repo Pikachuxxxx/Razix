@@ -135,6 +135,9 @@ project "RHI"
 
         disablewarnings { 4307, 4267, 4275, 4554, 4996, 4006 }
         
+    -------------------------------------
+    -- RHI Project settings for MacOSX
+    -------------------------------------
     filter "system:macosx"
         staticruntime "off"
         systemversion "14.0"
@@ -219,6 +222,47 @@ project "RHI"
             '{COPY}  "%{VulkanSDK}/lib/libvulkan.dylib" "%{cfg.buildtarget.bundlepath}/libvulkan.dylib"',
             '{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.buildtarget.bundlepath}/libvulkan.1.dylib"',
             --'{COPY}  "%{wks.location}/../bin/%{outputdir}/libRazix.dylib" "%{cfg.buildtarget.bundlepath}/libRazix.dylib"'
+        }
+
+    -------------------------------------
+    -- RHI Project settings for Linux
+    -------------------------------------
+    filter "system:linux"
+        staticruntime "off"
+
+        files 
+        {
+            "./Backend/vk_rhi.h",
+            "./Backend/vk_rhi.c",
+        } 
+
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_LINUX",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_USE_GLFW_WINDOWS",
+            "RAZIX_ROOT_DIR="  .. root_dir,
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
+        }
+
+        includedirs
+        {
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+            "./",
+            "../"
+        }
+
+        libdirs
+        {
+            VulkanSDK .. "/lib"
         }
 
     filter "configurations:Debug"
