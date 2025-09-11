@@ -115,6 +115,10 @@ static int EngineMain(int argc, char** argv)
         args.push_back(argv[i]);
     };
 
+    // Parse the command line arguments, if any
+    if (argc > 1)
+        Razix::RZEngine::Get().getCommandLineParser().parse(args);
+
     // 1.-> Logging System Initialization, start up logging before anything else
     Razix::Debug::RZLog::StartUp();
 
@@ -133,10 +137,6 @@ static int EngineMain(int argc, char** argv)
     //-------------------------------//
     Razix::RZEngine::Get().Ignite();
     //-------------------------------//
-
-    // Parse the command line arguments, if any
-    if (argc > 1)
-        Razix::RZEngine::Get().getCommandLineParser().parse(args);
 
     Razix::RZSplashScreen::Get().setLogString("Loading Project file...");
 
