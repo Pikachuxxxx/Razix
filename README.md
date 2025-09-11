@@ -60,9 +60,332 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 
 DirectX11, OpenGL has been deprecated. Only high-level APIs and RTX level GPUs will be supported. PSVita(GXM) and PS3(GCM) will be supported sometime far in future.
 
-# RoadMap
+# Building Razix Engine
 
-## Building
+## Prerequisites
+
+### General Requirements
+- **Git** for cloning the repository
+- **Python 3.x** for build and test scripts
+- **Vulkan SDK 1.3.290.0** or later
+
+### Platform-Specific Requirements
+
+**Windows:**
+- Visual Studio 2022 (Community, Professional, or Enterprise)
+- Windows 10/11 (x64)
+- Windows SDK 10.0.22000.0 or later (minimum required)
+
+**macOS:**
+- Xcode Command Line Tools
+- macOS 10.15 or later
+- ARM64 (Apple Silicon) or x86_64 architecture
+
+**Linux:**
+- GCC 9+ or Clang 10+
+- Development packages (see installation section below)
+
+## Supported Platforms and Compilers
+
+### Tested Configurations
+
+**Compilers:**
+- **MSVC**: Visual Studio 2022 (v143 toolset)
+- **GCC**: 9.0+ (tested with GCC 11)
+- **Clang**: 10.0+ (tested with Clang 12)
+
+**Architectures:**
+- **ARM64 Only**: Apple Silicon (M1/M2/M3), ARM-based Windows devices, ARM64 Linux systems
+
+**Verified Platforms:**
+- **Windows 11** (x64, ARM64) with Windows SDK 10.0.22000.0+
+- **macOS** (Apple M2 Silicon Macbook Pro 2022)
+- **Debian Linux** (x64, ARM64)
+
+## Vulkan SDK Installation
+
+### Windows
+
+1. **Download and Install:**
+   ```cmd
+   # Download VulkanSDK 1.3.290.0 from https://vulkan.lunarg.com/sdk/home#windows
+   # Run the installer with default settings
+   ```
+
+2. **Verify Installation:**
+   ```cmd
+   echo %VULKAN_SDK%
+   # Should show: C:\VulkanSDK\1.3.290.0
+   ```
+
+### macOS
+
+1. **Download and Install:**
+   ```bash
+   # Download VulkanSDK 1.3.290.0 from https://vulkan.lunarg.com/sdk/home#mac
+   # Mount the DMG and run InstallVulkan app
+   # Install to default location: ~/VulkanSDK/1.3.290.0
+   ```
+
+2. **Set Environment Variables:**
+   Add to your shell profile (`~/.zshrc` or `~/.bash_profile`):
+   ```bash
+   export VULKAN_SDK="$HOME/VulkanSDK/1.3.290.0/macOS"
+   export PATH="$VULKAN_SDK/bin:$PATH"
+   ```
+
+3. **Apply and Verify:**
+   ```bash
+   source ~/.zshrc
+   echo $VULKAN_SDK
+   vulkaninfo --summary
+   ```
+
+### Linux
+
+#### Method 1: Package Manager (Ubuntu/Debian)
+
+1. **Add LunarG Repository:**
+   ```bash
+   # Add GPG key
+   wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+   
+   # Ubuntu 22.04
+   sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.290-jammy.list \
+     https://packages.lunarg.com/vulkan/1.3.290/lunarg-vulkan-1.3.290-jammy.list
+   
+   # Ubuntu 20.04
+   sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.290-focal.list \
+     https://packages.lunarg.com/vulkan/1.3.290/lunarg-vulkan-1.3.290-focal.list
+   ```
+
+2. **Install:**
+   ```bash
+   sudo apt update
+   sudo apt install vulkan-sdk
+   ```
+
+#### Method 2: Manual Installation (All Distributions)
+
+1. **Download SDK:**
+   ```bash
+   cd ~/Downloads
+   
+   # x86_64
+   wget https://sdk.lunarg.com/sdk/download/1.3.290.0/linux/vulkansdk-linux-x86_64-1.3.290.0.tar.xz
+   
+   # ARM64
+   wget https://sdk.lunarg.com/sdk/download/1.3.290.0/linux/vulkansdk-linux-aarch64-1.3.290.0.tar.xz
+   ```
+
+2. **Extract and Setup:**
+   ```bash
+   mkdir -p ~/VulkanSDK
+   cd ~/VulkanSDK
+   
+   # Extract (adjust filename for your architecture)
+   tar -xf ~/Downloads/vulkansdk-linux-x86_64-1.3.290.0.tar.xz
+   ```
+
+3. **Environment Configuration:**
+   Add to `~/.bashrc` or `~/.zshrc`:
+   ```bash
+   # Vulkan SDK Environment
+   export VULKAN_SDK="$HOME/VulkanSDK/1.3.290.0/x86_64"
+   export PATH="$VULKAN_SDK/bin:$PATH"
+   export LD_LIBRARY_PATH="$VULKAN_SDK/lib:$LD_LIBRARY_PATH"
+   export VK_LAYER_PATH="$VULKAN_SDK/etc/vulkan/explicit_layer.d"
+   
+   # For ARM64, use: export VULKAN_SDK="$HOME/VulkanSDK/1.3.290.0/aarch64"
+   ```
+
+4. **Apply and Verify:**
+   ```bash
+   source ~/.bashrc
+   echo $VULKAN_SDK
+   vulkaninfo --summary
+   ```
+
+#### Install Development Packages
+
+**Ubuntu/Debian:**
+```bash
+sudo apt install build-essential libxrandr-dev libxinerama-dev libxcursor-dev \
+                 libxi-dev libgl1-mesa-dev libvulkan1 vulkan-tools vulkan-validationlayers-dev
+```
+
+**Fedora/RHEL:**
+```bash
+sudo dnf groupinstall "Development Tools"
+sudo dnf install vulkan-devel vulkan-tools vulkan-validation-layers-devel \
+                 libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGL-devel
+```
+
+**Arch Linux:**
+```bash
+sudo pacman -S base-devel vulkan-devel vulkan-tools vulkan-validation-layers \
+               libxrandr libxinerama libxcursor libxi mesa
+```
+
+## Building the Engine
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/Pikachuxxxx/Razix.git
+cd Razix
+```
+
+### 2. Generate Project Files
+
+#### Using Provided Scripts (Recommended)
+
+**Windows:**
+```cmd
+cd Scripts
+GenerateVS22.bat
+```
+
+**Linux/macOS:**
+```bash
+cd Scripts
+chmod +x GenerateXCodeProjectsMacOS.sh
+./GenerateXCodeProjectsMacOS.sh
+```
+
+#### Manual Generation with Premake
+
+**Windows:**
+```cmd
+# Visual Studio 2022 (x64)
+premake5 vs2022
+
+# ARM64
+premake5 vs2022 --arch=arm64
+```
+
+**Linux:**
+```bash
+# x64 (Intel/AMD)
+premake5 gmake2 --os=linux --arch=x64
+
+# ARM64 (ARM processors, Raspberry Pi, etc.)
+premake5 gmake2 --os=linux --arch=arm64
+```
+
+**macOS:**
+```bash
+# Apple Silicon (M1/M2/M3)
+premake5 gmake2 --os=macosx --arch=arm64
+
+# Xcode project (recommended)
+premake5 --os=macosx --arch=arm64 xcode4
+```
+
+### 3. Build
+
+#### Using Python Build Script (either use IDE or build scripts)
+
+**Windows:**
+```cmd
+cd Scripts
+python build_razix.py --platform windows --config Debug
+```
+
+**macOS:**
+```bash
+cd Scripts
+python build_razix.py --platform macos --config Debug
+```
+
+**Linux:**
+```bash
+cd Scripts
+python build_razix.py --platform linux --config Debug
+```
+
+Available configurations: `Debug`, `Release`, `GoldMaster`
+
+#### Manual Building
+
+**Windows (Visual Studio):**
+```cmd
+# Open build/Razix.sln in Visual Studio 2022
+# Or build from command line:
+msbuild build/Razix.sln /p:Configuration=Release /p:Platform=x64
+```
+
+**Linux:**
+```bash
+cd build
+make -j$(nproc) config=release
+
+# Available configurations:
+make config=debug      # Debug build
+make config=release    # Release build  
+make config=goldmaster # Distribution build
+```
+
+**macOS:**
+```bash
+cd build
+make -j$(sysctl -n hw.ncpu) config=release
+
+# Architecture-specific builds:
+make -j$(sysctl -n hw.ncpu) config=release_arm64  # Apple Silicon
+```
+
+### 4. Running Tests
+
+```bash
+cd Scripts
+python test_runner.py [config] [platform] [--verbose]
+
+# Examples:
+python test_runner.py Debug windows-x86_64
+python test_runner.py Release macosx-ARM64 --verbose
+python test_runner.py  # Uses defaults
+```
+
+## Build Output
+
+Successful builds generate:
+- **Engine libraries**: `bin/[Config]-[Platform]/`
+- **Executables**: Same directory as libraries
+- **Intermediate files**: `build/intermediates/`
+
+## Troubleshooting
+
+### Common Issues
+
+**Vulkan SDK Issues:**
+- Ensure `VULKAN_SDK` environment variable is set correctly
+- Restart terminal/IDE after installation
+- On Linux: `sudo apt install vulkan-tools libvulkan-dev`
+
+**Linux ARM64 Build Issues:**
+- Install cross-compilation tools: `sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu`
+- Use correct architecture: `--arch=arm64`
+
+**Windows SDK Issues:**
+- Ensure Windows SDK 10.0.22000.0 or later is installed
+- Verify Visual Studio 2022 includes C++ development tools
+
+**Script Permissions (Linux/macOS):**
+```bash
+chmod +x Scripts/GenerateXCodeProjectsMacOS.sh
+```
+
+**Missing Dependencies:**
+- Follow the development packages installation for your Linux distribution above
+
+### Vulkan Verification Commands
+```bash
+# Complete verification
+echo "Vulkan SDK: $VULKAN_SDK"
+vulkaninfo | grep "Vulkan API Version" | head -1
+vulkaninfo | grep "GPU id" -A 3
+vulkaninfo | grep -A 10 "Layers:" | grep "VK_LAYER"
+```
 
 ### Pre-Requisites
 Assumes you have VULKAN_SDK installed and the env variable is configured properly
@@ -99,6 +422,8 @@ Select a configuration: Debug, Release, or Dist
 Press Ctrl+Shift+B or select Build > Build Solution
 
 either run the game or run some tests
+
+# RoadMap
 
 ## V 1.0.0 - RC
 ![](./Docs/Architecture/RazixEngine-RoadMap-V1.0.0RC.png)
