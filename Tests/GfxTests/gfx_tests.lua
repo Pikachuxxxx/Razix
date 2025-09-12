@@ -152,7 +152,7 @@ function ApplyGfxTestSettings()
             "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
-     filter "system:linux"
+    filter "system:linux"
         cppdialect "C++17"
         staticruntime "off"
 
