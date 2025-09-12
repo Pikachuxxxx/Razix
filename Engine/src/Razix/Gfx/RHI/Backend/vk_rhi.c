@@ -2382,13 +2382,71 @@ static void vk_DispatchIndirect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer
     vkCmdDispatchIndirect(cmdBuf->vk.cmdBuf, buffer->vk.buffer, offset);
 }
 
+
+static void vk_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
+{
+    RAZIX_RHI_ASSERT(updatedesc.pBuffer != NULL, "Buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(updatedesc.sizeInBytes > 0, "Size in bytes must be greater than zero");
+    RAZIX_RHI_ASSERT(updatedesc.offset + updatedesc.sizeInBytes <= updatedesc.pBuffer->resource.desc.bufferDesc.sizeInBytes, "Update range exceeds buffer size");
+    RAZIX_RHI_ASSERT(updatedesc.pData != NULL, "Data pointer cannot be NULL");
+    RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.desc.bufferDesc.type & RZ_GFX_BUFFER_TYPE_CONSTANT) == RZ_GFX_BUFFER_TYPE_CONSTANT, "Buffer must be of type RZ_GFX_BUFFER_TYPE_CONSTANT to update");
+    RAZIX_RHI_ASSERT(
+        (updatedesc.pBuffer->resource.desc.bufferDesc.usage & (RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC | RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)),
+        "Buffer must be created with RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC or RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM usage flag"
+    );
+    // TODO: When using VMA, ignore mapping/unmapping for persistent mapped buffers
+    // TODO: Store the mapped pointer in the buffer struct to avoid mapping/unmapping every time for persistent mapped buffers
+    
+    //if(updatedesc.pBuffer->resource.desc.bufferDesc.usage == RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM) {
+    //   // cache the mapped pointer
+    //}
+
+    void* mappedData = NULL;
+    CHECK_VK(vkMapMemory(VKDEVICE, updatedesc.pBuffer->vk.memory, updatedesc.offset, updatedesc.sizeInBytes, 0, (void**) &mappedData));
+    RAZIX_RHI_ASSERT(mappedData != NULL, "Failed to map constant buffer memory");
+    memcpy((uint8_t*) (mappedData + updatedesc.offset), updatedesc.pData, updatedesc.sizeInBytes);
+    // unmapping is not required for HOST_VISIBLE | HOST_COHERENT memory, 
+    // but doing it anyway for safety, we will try to prefer
+    // HOST_COHERENT memory for dynamic and persistent uniform buffer
+    vkUnmapMemory(VKDEVICE, updatedesc.pBuffer->vk.memory);
+}
+
 static void vk_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
 {
-    (void) cmdBuf;
-    (void) texture;
-    (void) beforeState;
-    (void) afterState;
-    // TODO: Implement when needed
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
+    RAZIX_RHI_ASSERT(beforeState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "Before state cannot be undefined");
+    RAZIX_RHI_ASSERT(afterState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "After state cannot be undefined");
+    RAZIX_RHI_ASSERT(!(texture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) ||
+                         (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS || afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS),
+        "UAV barriers must be used only with UAV resources. If the resource has UAV view hint, either before or after state must be UAV");
+    RAZIX_RHI_ASSERT(!(beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS) ||
+                         (texture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
+        "UAV-to-UAV barrier requires resource to have UAV view hint");
+
+    bool isUAVBarrier = (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS);
+
+    // Update the current state
+    texture->resource.currentState = afterState;
+}
+
+static void vk_InsertBufferBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_buffer* buffer, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(buffer != NULL, "Buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(beforeState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "Before state cannot be undefined");
+    RAZIX_RHI_ASSERT(afterState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "After state cannot be undefined");
+    RAZIX_RHI_ASSERT(!(buffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) ||
+                         (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS || afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS),
+        "UAV barriers must be used only with UAV resources. If the resource has UAV view hint, either before or after state must be UAV");
+    RAZIX_RHI_ASSERT(!(beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS) ||
+                         (buffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
+        "UAV-to-UAV barrier requires resource to have UAV view hint");
+
+    bool isUAVBarrier = (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS);
+
+    // Update the current state
+    buffer->resource.currentState = afterState;
 }
 
 static void vk_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_texture_readback* readback)
