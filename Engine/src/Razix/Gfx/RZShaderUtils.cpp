@@ -11,6 +11,7 @@
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
+    #include <spirv_reflect.h>
     #include <volk.h>
 #endif
 
@@ -29,6 +30,63 @@ namespace Razix {
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
+        rz_gfx_format SpvReflectFormatToEngineFormat(SpvReflectFormat format)
+        {
+            switch (format) {
+                case SPV_REFLECT_FORMAT_UNDEFINED: return RZ_GFX_FORMAT_UNDEFINED;
+
+                case SPV_REFLECT_FORMAT_R32_UINT: return RZ_GFX_FORMAT_R32_UINT;
+                case SPV_REFLECT_FORMAT_R32_SINT: return RZ_GFX_FORMAT_R32_SINT;
+                case SPV_REFLECT_FORMAT_R32_SFLOAT: return RZ_GFX_FORMAT_R32_FLOAT;
+
+                case SPV_REFLECT_FORMAT_R32G32_UINT: return RZ_GFX_FORMAT_R32G32_UINT;
+                case SPV_REFLECT_FORMAT_R32G32_SINT: return RZ_GFX_FORMAT_R32G32_SINT;
+                case SPV_REFLECT_FORMAT_R32G32_SFLOAT: return RZ_GFX_FORMAT_R32G32_FLOAT;
+
+                case SPV_REFLECT_FORMAT_R32G32B32_UINT: return RZ_GFX_FORMAT_R32G32B32_UINT;
+                case SPV_REFLECT_FORMAT_R32G32B32_SINT: return RZ_GFX_FORMAT_R32G32B32_SINT;
+                case SPV_REFLECT_FORMAT_R32G32B32_SFLOAT: return RZ_GFX_FORMAT_R32G32B32_FLOAT;
+
+                case SPV_REFLECT_FORMAT_R32G32B32A32_UINT: return RZ_GFX_FORMAT_R32G32B32A32_UINT;
+                case SPV_REFLECT_FORMAT_R32G32B32A32_SINT: return RZ_GFX_FORMAT_R32G32B32A32_SINT;
+                case SPV_REFLECT_FORMAT_R32G32B32A32_SFLOAT: return RZ_GFX_FORMAT_R32G32B32A32_FLOAT;
+
+                default:
+                    RAZIX_CORE_WARN("[SPV] Unsupported SpvReflectFormat: {}", (uint32_t) format);
+                    return RZ_GFX_FORMAT_UNDEFINED;
+            }
+        }
+
+        static inline rz_gfx_descriptor_type VKSpvDescriptorTypeToEngineDescriptorType(SpvReflectDescriptorType type)
+        {
+            switch (type) {
+                case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLER:
+                    return RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
+                case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    return RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED;
+                case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    return RZ_GFX_DESCRIPTOR_TYPE_TEXTURE;
+                case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    return RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE;
+                case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    return RZ_GFX_DESCRIPTOR_TYPE_RW_TYPED;
+                case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    return RZ_GFX_DESCRIPTOR_TYPE_RW_TYPED;
+                case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    return RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
+                case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    return RZ_GFX_DESCRIPTOR_TYPE_STRUCTURED;
+                case SPV_REFLECT_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                    return RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE;
+                case SPV_REFLECT_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                    return RZ_GFX_DESCRIPTOR_TYPE_RT_ACCELERATION_STRUCTURE;
+                default:
+                    return RZ_GFX_DESCRIPTOR_TYPE_NONE;
+            }
+        }
+
         void VulkanReflectShaderBlob(const rz_gfx_shader_stage_blob* stageBlob, rz_gfx_shader_reflection* outReflection)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -37,9 +95,160 @@ namespace Razix {
             RAZIX_UNUSED(stageBlob);
             RAZIX_UNUSED(outReflection);
 
+            SpvReflectShaderModule module;
+            SpvReflectResult       result = spvReflectCreateShaderModule(stageBlob->size, stageBlob->bytecode, &module);
+            RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect SPIRV shader! check previous logs for shader name");
+            (void) result;    // Suppress unused variable warning in release builds
+
+            // Reflect input parameters for vertex shaders
+            if (stageBlob->stage == RZ_GFX_SHADER_STAGE_VERTEX) {
+                // Calculate new total count
+                u32 newElementCount = outReflection->elementCount + module.input_variable_count;
+
+                // Reallocate to accommodate new elements
+                outReflection->pInputElements = (rz_gfx_input_element*) Memory::RZRealloc(
+                    outReflection->pInputElements,
+                    sizeof(rz_gfx_input_element) * newElementCount);
+
+                u32 currentElementIndex = outReflection->elementCount;
+                u32 currentOffset       = 0;
+                for (u32 i = 0; i < module.input_variable_count; i++) {
+                    SpvReflectInterfaceVariable inputVar = *module.input_variables[i];
+
+                    if ((inputVar.decoration_flags & SPV_REFLECT_DECORATION_BUILT_IN))
+                        continue;
+
+                    RAZIX_RHI_ASSERT((inputVar.decoration_flags & SPV_REFLECT_DECORATION_BUILT_IN) == 0, "Built-in variables should be skipped");
+                    RAZIX_RHI_ASSERT(inputVar.storage_class == SpvStorageClassInput, "Only input storage class variables should be processed here");
+
+                    // Skip some system values, like semantic SV_VertexID, SV_InstanceID, etc. and GLSL realted built-in variables
+                    // We only want the user-defined input attributes
+                    // For GLSL, built-in variables have specific names like gl_VertexIndex, gl_InstanceIndex, etc.
+                    // For HLSL, built-in semantics are prefixed with SV_
+                    // We will filter out these known built-in variables based on their names and semantics
+
+                    if (inputVar.semantic == NULL && inputVar.name == NULL)
+                        break;
+
+                    if (inputVar.semantic && std::string(inputVar.semantic) == "SV_VertexID")
+                        break;
+
+                    if (inputVar.name && (std::string(inputVar.name) == "gl_VertexIndex" || std::string(inputVar.name) == "vs_out"))
+                        break;
+
+                    SpvReflectFormat      format     = inputVar.format;
+                    u32                   formatSize = 0;
+                    rz_gfx_input_element* inputParam = &outReflection->pInputElements[currentElementIndex];
+                    inputParam->pSemanticName        = strdup(inputVar.semantic ? inputVar.semantic : inputVar.name);
+                    inputParam->semanticIndex        = 0;    // Not used in Vulkan
+                    inputParam->format               = SpvReflectFormatToEngineFormat(format);
+                    inputParam->inputSlot            = inputVar.location;
+                    inputParam->alignedByteOffset    = currentOffset;
+                    inputParam->inputClass           = (rz_gfx_input_class) VK_VERTEX_INPUT_RATE_VERTEX;
+                    inputParam->instanceStepRate     = 0;
+
+                    currentOffset += formatSize;
+                    currentElementIndex++;
+                    outReflection->elementCount++;
+
+                    // TODO: Maybe imgui shader might need special handling here
+                }
+            }
+
+            // Let's reflect the descriptor bindings and push constants now
+            RAZIX_CORE_ASSERT(module.push_constant_block_count > 1, "Multiple push constant blocks are not supported yet!");
+            RAZIX_CORE_ASSERT(module.push_constant_block_count == 0 || module.push_constant_block_count == 1, "Only one push constant block is supported!");
+            u32 numPushConstants = module.push_constant_block_count;
+            for (u32 i = 0; i < numPushConstants; i++) {
+                SpvReflectBlockVariable pushConstant = module.push_constant_blocks[0];
+                // Check name to see if it matches the expected push constant reflection names
+                RAZIX_CORE_ASSERT(pushConstant.name != NULL, "Push constant block must have a name");
+                RAZIX_CORE_ASSERT(strstr(pushConstant.name, RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX), "Push constant name must start with the defined prefix");
+
+                if (strstr(pushConstant.name, RAZIX_PUSH_CONSTANT_REFLECTION_NAME_VK) != NULL) {
+                    // Append to existing root constants
+                    outReflection->rootSignatureDesc.pRootConstantsDesc =
+                        (rz_gfx_root_constant_desc*) Memory::RZRealloc(
+                            outReflection->rootSignatureDesc.pRootConstantsDesc,
+                            sizeof(rz_gfx_root_constant_desc) * (outReflection->rootSignatureDesc.rootConstantCount + 1));
+
+                    rz_gfx_root_constant_desc* rc = &outReflection->rootSignatureDesc.pRootConstantsDesc[outReflection->rootSignatureDesc.rootConstantCount];
+                    rc->location.binding          = 0;    // Doesn't make sense for PushConstants
+                    rc->location.space            = 0;    // Doesn't make sense for PushConstants
+                    rc->sizeInBytes               = pushConstant.size;
+                    rc->offsetInBytes             = 0;
+                    rc->shaderStage               = stageBlob->stage;
+
+                    outReflection->rootSignatureDesc.rootConstantCount++;
+                    continue;
+                }
+            }
+
+            for (u32 i = 0; i < module.descriptor_binding_count; i++) {
+                SpvReflectDescriptorBinding descriptor = module.descriptor_bindings[i];
+
+                rz_gfx_descriptor_table_layout* targetTable      = nullptr;
+                u32                             targetTableIndex = 0;
+
+                // Search for existing table with matching space
+                for (u32 t = 0; t < outReflection->rootSignatureDesc.descriptorTableLayoutsCount; ++t) {
+                    if (outReflection->rootSignatureDesc.pDescriptorTableLayouts[t].tableIndex == descriptor.set) {
+                        targetTable      = &outReflection->rootSignatureDesc.pDescriptorTableLayouts[t];
+                        targetTableIndex = t;
+                        break;
+                    }
+                }
+
+                // If no existing table found, create a new one
+                if (!targetTable) {
+                    // Reallocate table layouts array
+                    outReflection->rootSignatureDesc.pDescriptorTableLayouts =
+                        (rz_gfx_descriptor_table_layout*) Memory::RZRealloc(
+                            outReflection->rootSignatureDesc.pDescriptorTableLayouts,
+                            sizeof(rz_gfx_descriptor_table_layout) * (outReflection->rootSignatureDesc.descriptorTableLayoutsCount + 1));
+
+                    targetTableIndex = outReflection->rootSignatureDesc.descriptorTableLayoutsCount;
+                    targetTable      = &outReflection->rootSignatureDesc.pDescriptorTableLayouts[targetTableIndex];
+
+                    // Initialize new table
+                    targetTable->tableIndex      = descriptor.set;
+                    targetTable->descriptorCount = 0;
+                    targetTable->pDescriptors    = nullptr;
+
+                    outReflection->rootSignatureDesc.descriptorTableLayoutsCount++;
+                }
+
+                // Add descriptor to the table (append to existing descriptors)
+                targetTable->pDescriptors = (rz_gfx_descriptor*) Memory::RZRealloc(
+                    (void*) targetTable->pDescriptors,
+                    sizeof(rz_gfx_descriptor) * (targetTable->descriptorCount + 1));
+
+                RAZIX_CORE_TRACE("[SPV] Reflected Descriptor - Name: {}, Set: {}, Binding: {}, Type: {}, Count: {}, Size: {}, Offset: {}, Resource Type: {}",
+                    descriptor.name,
+                    descriptor.set,
+                    descriptor.binding,
+                    descriptor.descriptor_type,
+                    descriptor.count,
+                    descriptor.block.size,
+                    descriptor.block.offset,
+                    descriptor.resource_type);
+
+                rz_gfx_descriptor* desc = &targetTable->pDescriptors[targetTable->descriptorCount];
+                memset(desc, 0, sizeof(rz_gfx_descriptor));
+                desc->pName            = strdup(descriptor.name);
+                desc->location.binding = descriptor.binding;
+                desc->location.space   = descriptor.set;
+                desc->type             = VKSpvDescriptorTypeToEngineDescriptorType(descriptor.descriptor_type);
+                desc->arraySize        = descriptor.count;
+                desc->sizeInBytes      = descriptor.block.size;
+                desc->offsetInBytes    = descriptor.block.offset;
+                desc->memberCount      = descriptor.block.member_count;
+
+                targetTable->descriptorCount++;
+            }
+
             // Placeholder for future Vulkan shader reflection implementation
             RAZIX_CORE_ERROR("[Vulkan] Shader reflection not yet implemented");
-            RAZIX_UNIMPLEMENTED_METHOD("[Vulkan] Shader reflection not yet implemented");
         }
 
 #endif    // RAZIX_RENDER_API_VULKAN
