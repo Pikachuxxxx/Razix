@@ -1405,6 +1405,138 @@ static VkCompareOp vk_util_translate_compare_op(rz_gfx_compare_op_type compare_o
     }
 }
 
+VkFormat vk_util_translate_format(rz_gfx_format format)
+{
+    switch (format)
+    {
+        // Undefined
+        case RZ_GFX_FORMAT_UNDEFINED:
+            return VK_FORMAT_UNDEFINED;
+
+        // 8-bit formats
+        case RZ_GFX_FORMAT_R8_UNORM:
+            return VK_FORMAT_R8_UNORM;
+        case RZ_GFX_FORMAT_R8_UINT:
+            return VK_FORMAT_R8_UINT;
+        case RZ_GFX_FORMAT_R8G8_UNORM:
+            return VK_FORMAT_R8G8_UNORM;
+        case RZ_GFX_FORMAT_R8G8B8A8_UNORM:
+            return VK_FORMAT_R8G8B8A8_UNORM;
+        case RZ_GFX_FORMAT_R8G8B8A8_SRGB:
+            return VK_FORMAT_R8G8B8A8_SRGB;
+        case RZ_GFX_FORMAT_B8G8R8A8_UNORM:
+            return VK_FORMAT_B8G8R8A8_UNORM;
+        case RZ_GFX_FORMAT_B8G8R8A8_SRGB:
+            return VK_FORMAT_B8G8R8A8_SRGB;
+
+        // 16-bit formats
+        case RZ_GFX_FORMAT_R16_UNORM:
+            return VK_FORMAT_R16_UNORM;
+        case RZ_GFX_FORMAT_R16_FLOAT:
+            return VK_FORMAT_R16_SFLOAT;
+        case RZ_GFX_FORMAT_R16G16_UNORM:
+            return VK_FORMAT_R16G16_UNORM;
+        case RZ_GFX_FORMAT_R16G16_FLOAT:
+            return VK_FORMAT_R16G16_SFLOAT;
+        case RZ_GFX_FORMAT_R16G16B16A16_UNORM:
+            return VK_FORMAT_R16G16B16A16_UNORM;
+        case RZ_GFX_FORMAT_R16G16B16A16_FLOAT:
+            return VK_FORMAT_R16G16B16A16_SFLOAT;
+
+        // 32-bit signed integer formats
+        case RZ_GFX_FORMAT_R32_SINT:
+            return VK_FORMAT_R32_SINT;
+        case RZ_GFX_FORMAT_R32G32_SINT:
+            return VK_FORMAT_R32G32_SINT;
+        case RZ_GFX_FORMAT_R32G32B32_SINT:
+            return VK_FORMAT_R32G32B32_SINT;
+        case RZ_GFX_FORMAT_R32G32B32A32_SINT:
+            return VK_FORMAT_R32G32B32A32_SINT;
+
+        // 32-bit unsigned integer formats
+        case RZ_GFX_FORMAT_R32_UINT:
+            return VK_FORMAT_R32_UINT;
+        case RZ_GFX_FORMAT_R32G32_UINT:
+            return VK_FORMAT_R32G32_UINT;
+        case RZ_GFX_FORMAT_R32G32B32_UINT:
+            return VK_FORMAT_R32G32B32_UINT;
+        case RZ_GFX_FORMAT_R32G32B32A32_UINT:
+            return VK_FORMAT_R32G32B32A32_UINT;
+
+        // 32-bit float formats
+        case RZ_GFX_FORMAT_R32_FLOAT:
+            return VK_FORMAT_R32_SFLOAT;
+        case RZ_GFX_FORMAT_R32G32_FLOAT:
+            return VK_FORMAT_R32G32_SFLOAT;
+        case RZ_GFX_FORMAT_R32G32B32_FLOAT:
+            return VK_FORMAT_R32G32B32_SFLOAT;
+        case RZ_GFX_FORMAT_R32G32B32A32_FLOAT:
+            return VK_FORMAT_R32G32B32A32_SFLOAT;
+
+#ifdef RAZIX_SUPPORT_64BIT_FORMATS
+        // 64-bit unsigned integer formats
+        case RZ_GFX_FORMAT_R64_UINT:
+            return VK_FORMAT_R64_UINT;
+        case RZ_GFX_FORMAT_R64G64_UINT:
+            return VK_FORMAT_R64G64_UINT;
+        case RZ_GFX_FORMAT_R64G64B64_UINT:
+            return VK_FORMAT_R64G64B64_UINT;
+        case RZ_GFX_FORMAT_R64G64B64A64_UINT:
+            return VK_FORMAT_R64G64B64A64_UINT;
+
+        // 64-bit signed integer formats
+        case RZ_GFX_FORMAT_R64_SINT:
+            return VK_FORMAT_R64_SINT;
+        case RZ_GFX_FORMAT_R64G64_SINT:
+            return VK_FORMAT_R64G64_SINT;
+        case RZ_GFX_FORMAT_R64G64B64_SINT:
+            return VK_FORMAT_R64G64B64_SINT;
+        case RZ_GFX_FORMAT_R64G64B64A64_SINT:
+            return VK_FORMAT_R64G64B64A64_SINT;
+
+        // 64-bit float formats
+        case RZ_GFX_FORMAT_R64_FLOAT:
+            return VK_FORMAT_R64_SFLOAT;
+        case RZ_GFX_FORMAT_R64G64_FLOAT:
+            return VK_FORMAT_R64G64_SFLOAT;
+        case RZ_GFX_FORMAT_R64G64B64_FLOAT:
+            return VK_FORMAT_R64G64B64_SFLOAT;
+        case RZ_GFX_FORMAT_R64G64B64A64_FLOAT:
+            return VK_FORMAT_R64G64B64A64_SFLOAT;
+#endif // RAZIX_SUPPORT_64BIT_FORMATS
+
+        // Packed formats
+        case RZ_GFX_FORMAT_R11G11B10_FLOAT:
+            return VK_FORMAT_B10G11R11_UFLOAT_PACK32;
+
+        // Depth-stencil formats
+        case RZ_GFX_FORMAT_D16_UNORM:
+            return VK_FORMAT_D16_UNORM;
+        case RZ_GFX_FORMAT_D24_UNORM_S8_UINT:
+            return VK_FORMAT_D24_UNORM_S8_UINT;
+        case RZ_GFX_FORMAT_D32_FLOAT:
+            return VK_FORMAT_D32_SFLOAT;
+        case RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT:
+            return VK_FORMAT_D32_SFLOAT_S8_UINT;
+
+        // Block compression formats
+        case RZ_GFX_FORMAT_BC1_RGBA_UNORM:
+            return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+        case RZ_GFX_FORMAT_BC3_RGBA_UNORM:
+            return VK_FORMAT_BC3_UNORM_BLOCK;
+        case RZ_GFX_FORMAT_BC6_UNORM:
+            return VK_FORMAT_BC6H_UFLOAT_BLOCK;
+        case RZ_GFX_FORMAT_BC7_UNORM:
+            return VK_FORMAT_BC7_UNORM_BLOCK;
+        case RZ_GFX_FORMAT_BC7_SRGB:
+            return VK_FORMAT_BC7_SRGB_BLOCK;
+
+        default:
+            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_FORMAT value: %d, defaulting to VK_FORMAT_UNDEFINED", format);
+            return VK_FORMAT_UNDEFINED;
+    }
+}
+
 //---------------------------------------------------------------------------------------------
 
 static void vk_GlobalCtxInit(void)
