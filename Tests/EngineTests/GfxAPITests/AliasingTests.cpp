@@ -1,5 +1,6 @@
 // TransientAllocatorTests.cpp
 // AI-generated unit tests for the RZHandle class
+#define RAZIX_DEFINE_NO_ENGINE_ENTRY_POINT
 #include <Razix.h>
 #include <Razix/Gfx/FrameGraph/RZTransientAllocator.h>
 #include <gtest/gtest.h>

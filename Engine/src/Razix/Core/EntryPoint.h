@@ -12,17 +12,18 @@
 #define SUCCESSFUL_ENGINE_EXIT_CODE 0
 
 /* Using the forward declared the application creating function, that we assume was defined on the client side */
+#ifndef RAZIX_DEFINE_NO_ENGINE_ENTRY_POINT
 extern Razix::RZApplication* Razix::CreateApplication(int argc, char** argv);
 
-/********************************************************************************
+    /********************************************************************************
  *                        Razix Engine Entry Point                              *
  *******************************************************************************/
-#ifdef RAZIX_PLATFORM_WINDOWS
+    #ifdef RAZIX_PLATFORM_WINDOWS
 
-    #include <windows.h>
-    #ifndef NOMINMAX
-        #define NOMINMAX    // For windows.h
-    #endif
+        #include <windows.h>
+        #ifndef NOMINMAX
+            #define NOMINMAX    // For windows.h
+        #endif
 
 // TODO: Change this back to WinMain, since we are use the logging system to output to console we use an Console App instead of an Widowed App
 // https://www.gamedev.net/forums/topic/251536-how-to-run-console-window-main-from-winmain/
@@ -53,59 +54,59 @@ static int AttachConsole(void)
     return 0;
 }
 
-    #define RAZIX_PLATFORM_MAIN                                                                           \
-        int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) \
-        {                                                                                                 \
-            AttachConsole();                                                                              \
-            ShowWindow(GetConsoleWindow(), SW_SHOW);                                                      \
-            EngineMain(__argc, __argv);                                                                   \
-            while (Razix::RZApplication::Get().RenderFrame()) {                                           \
-            }                                                                                             \
-                                                                                                          \
-            Razix::RZApplication::Get().Quit();                                                           \
-            Razix::RZApplication::Get().SaveApp();                                                        \
-                                                                                                          \
-            EngineExit();                                                                                 \
-            system("pause");                                                                              \
-            FreeConsole();                                                                                \
-            return EXIT_SUCCESS;                                                                          \
-        }
+        #define RAZIX_PLATFORM_MAIN                                                                           \
+            int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) \
+            {                                                                                                 \
+                AttachConsole();                                                                              \
+                ShowWindow(GetConsoleWindow(), SW_SHOW);                                                      \
+                EngineMain(__argc, __argv);                                                                   \
+                while (Razix::RZApplication::Get().RenderFrame()) {                                           \
+                }                                                                                             \
+                                                                                                              \
+                Razix::RZApplication::Get().Quit();                                                           \
+                Razix::RZApplication::Get().SaveApp();                                                        \
+                                                                                                              \
+                EngineExit();                                                                                 \
+                system("pause");                                                                              \
+                FreeConsole();                                                                                \
+                return EXIT_SUCCESS;                                                                          \
+            }
 
-#endif    // RAZIX_PLATFORM_WINDOWS
+    #endif    // RAZIX_PLATFORM_WINDOWS
 
-#ifdef RAZIX_PLATFORM_MACOS
-    #define RAZIX_PLATFORM_MAIN                                 \
-        int main(int argc, char** argv)                         \
-        {                                                       \
-            EngineMain(argc, argv);                             \
-            while (Razix::RZApplication::Get().RenderFrame()) { \
-            }                                                   \
-                                                                \
-            Razix::RZApplication::Get().Quit();                 \
-            Razix::RZApplication::Get().SaveApp();              \
-                                                                \
-            EngineExit();                                       \
-                                                                \
-            return EXIT_SUCCESS;                                \
-        }
-#endif    // RAZIX_PLATFORM_MACOS
+    #ifdef RAZIX_PLATFORM_MACOS
+        #define RAZIX_PLATFORM_MAIN                                 \
+            int main(int argc, char** argv)                         \
+            {                                                       \
+                EngineMain(argc, argv);                             \
+                while (Razix::RZApplication::Get().RenderFrame()) { \
+                }                                                   \
+                                                                    \
+                Razix::RZApplication::Get().Quit();                 \
+                Razix::RZApplication::Get().SaveApp();              \
+                                                                    \
+                EngineExit();                                       \
+                                                                    \
+                return EXIT_SUCCESS;                                \
+            }
+    #endif    // RAZIX_PLATFORM_MACOS
 
-#ifdef RAZIX_PLATFORM_LINUX
-    #define RAZIX_PLATFORM_MAIN                                 \
-        int main(int argc, char** argv)                         \
-        {                                                       \
-            EngineMain(argc, argv);                             \
-            while (Razix::RZApplication::Get().RenderFrame()) { \
-            }                                                   \
-                                                                \
-            Razix::RZApplication::Get().Quit();                 \
-            Razix::RZApplication::Get().SaveApp();              \
-                                                                \
-            EngineExit();                                       \
-                                                                \
-            return EXIT_SUCCESS;                                \
-        }
-#endif    // RAZIX_PLATFORM_LINUX
+    #ifdef RAZIX_PLATFORM_LINUX
+        #define RAZIX_PLATFORM_MAIN                                 \
+            int main(int argc, char** argv)                         \
+            {                                                       \
+                EngineMain(argc, argv);                             \
+                while (Razix::RZApplication::Get().RenderFrame()) { \
+                }                                                   \
+                                                                    \
+                Razix::RZApplication::Get().Quit();                 \
+                Razix::RZApplication::Get().SaveApp();              \
+                                                                    \
+                EngineExit();                                       \
+                                                                    \
+                return EXIT_SUCCESS;                                \
+            }
+    #endif    // RAZIX_PLATFORM_LINUX
 
 static int EngineMain(int argc, char** argv)
 {
@@ -159,3 +160,4 @@ static int EngineExit()
 
     return 0;
 }
+#endif    // RAZIX_DEFINE_NO_ENGINE_ENTRY_POINT

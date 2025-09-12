@@ -1,5 +1,6 @@
 // ColorUtilitiesTests.cpp
 // AI-generated unit tests for the RZColorUtilities class
+#define RAZIX_DEFINE_NO_ENGINE_ENTRY_POINT
 #include <Razix.h>
 #include <Razix/Utilities/RZColorUtilities.h>
 
