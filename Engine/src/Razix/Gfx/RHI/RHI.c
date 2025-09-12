@@ -20,7 +20,7 @@ void rzGfxCtx_StartUp()
             RAZIX_RHI_LOG_INFO("Initializing Vulkan RHI");
             g_RHI = vk_rhi;
             break;
-#if defined(RAZIX_PLATFORM_WINDOWS)    
+#if defined(RAZIX_PLATFORM_WINDOWS)
         case RZ_RENDER_API_D3D12:
             RAZIX_RHI_LOG_INFO("Initializing DirectX 12 RHI");
             g_RHI = dx12_rhi;
@@ -28,6 +28,9 @@ void rzGfxCtx_StartUp()
 #endif
         default:
             RAZIX_RHI_LOG_ERROR("Unsupported Render API: %d", (uint32_t) g_RenderAPI);
+            RAZIX_RHI_LOG_ERROR("Falling back to Vulkan");
+            g_RenderAPI = RZ_RENDER_API_VULKAN;
+            g_RHI       = vk_rhi;
             break;
     }
 
