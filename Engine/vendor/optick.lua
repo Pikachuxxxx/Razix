@@ -1,44 +1,66 @@
--- Razix Engine vendor Common Inlcudes 
-include 'Scripts/premake/common/vendor_includes.lua'
-
-project "optick"
+project "Optick"
     kind "StaticLib"
     language "C++"
-    cppdialect (engine_global_config.cpp_dialect)
+    targetdir "bin/%{cfg.buildcfg}"
+    objdir "bin-int/%{cfg.buildcfg}"
 
-    files
-    {
-        "optick/src/**.h",
-        "optick/src/**.hpp",
-        "optick/src/**.c",
-        "optick/src/**.cpp",
-        "optick/src/optick_gpu.d3d12.cpp",
-        "optick/src/optick_gpu.vulkan.cpp"
+    files {
+        "optick/src/optick_capi.cpp",
+        "optick/src/optick_core.cpp",
+        "optick/src/optick_gpu.cpp",
+        "optick/src/optick_message.cpp",
+        "optick/src/optick_miniz.cpp",
+        "optick/src/optick_serialization.cpp",
+        "optick/src/optick_server.cpp",
+
+        "optick/src/optick.config.h",
+        "optick/src/optick_capi.h",
+        "optick/src/optick_common.h",
+        "optick/src/optick_core.h",
+        "optick/src/optick_core.platform.h",
+        "optick/src/optick_gpu.h",
+        "optick/src/optick_memory.h",
+        "optick/src/optick_message.h",
+        "optick/src/optick_miniz.h",
+        "optick/src/optick_serialization.h",
+        "optick/src/optick_server.h",
+        "optick/src/optick.h"
     }
 
-    defines {"OPTICK_EXPORT"}
-
-    -- Needed when using clang-cl on windows as it will default to linux as soon as it sees clang is being used
-    --defines "OPTICK_MSVC"
-
     filter "system:windows"
-        systemversion "latest"
-
-         -- Windows specific incldue directories
-        includedirs
-        {
-             VulkanSDK .. "/include"
+        files {
+            "optick/src/optick_core.win.h",
+            "optick/src/optick_gpu.d3d12.cpp"
         }
 
-        --buildoptions { "-Wno-narrowing" }
+    filter "system:macosx"
+        files {
+            "optick/src/optick_core.macos.h"
+        }
 
-    filter "configurations:Debug"
+    filter "system:linux"
+        files {
+            "optick/src/optick_core.linux.h"
+        }
+
+    filter "system:android"
+        files {
+            "optick/src/optick_core.linux.h"
+        }
+
+    filter {}
+        files {
+            "optick/src/optick_core.freebsd.h", -- optional if needed
+            "optick/src/optick_gpu.vulkan.cpp"
+        }
+
+   filter "configurations:Debug"
         runtime "Debug"
-        symbols "on"
+        symbols "On"
 
     filter "configurations:Release"
         runtime "Release"
-        optimize "on"
+        optimize "On"
 
     filter "configurations:GoldMaster"
         runtime "Release"

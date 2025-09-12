@@ -12,6 +12,7 @@
 
 #ifdef RAZIX_RENDER_API_VULKAN
     #include <volk.h>
+    #include <spirv_reflect.h>
 #endif
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
@@ -37,6 +38,50 @@ namespace Razix {
             RAZIX_UNUSED(stageBlob);
             RAZIX_UNUSED(outReflection);
 
+            SpvReflectShaderModule module;
+            SpvReflectResult       result = spvReflectCreateShaderModule(stageBlob->size, stageBlob->bytecode, &module);
+            RAZIX_CORE_ASSERT((result == SPV_REFLECT_RESULT_SUCCESS), "Could not reflect SPIRV shader! check previous logs for shader name");
+            (void)result;  // Suppress unused variable warning in release builds
+#if 0
+            // Reflect input parameters for vertex shaders
+            if (stageBlob->stage == RZ_GFX_SHADER_STAGE_VERTEX) {
+                // Calculate new total count
+                u32 newElementCount = outReflection->elementCount + shaderDesc.InputParameters;
+
+                // Reallocate to accommodate new elements
+                outReflection->pInputElements = (rz_gfx_input_element*) Memory::RZRealloc(
+                    outReflection->pInputElements,
+                    sizeof(rz_gfx_input_element) * newElementCount);
+
+                u32 currentElementIndex = outReflection->elementCount;
+                u32 currentOffset       = 0;
+                for (sz i = 0; i < module.input_variable_count; i++) {
+                SpvReflectInterfaceVariable inputVar = *module.input_variables[i];
+
+                if (inputVar.semantic == NULL && inputVar.name == NULL)
+                    break;
+
+                if (inputVar.semantic && std::string(inputVar.semantic) == "SV_VertexID")
+                    break;
+
+                if (inputVar.name && (std::string(inputVar.name) == "gl_VertexIndex" || std::string(inputVar.name) == "vs_out"))
+                    break;                    
+
+                    rz_gfx_input_element* inputParam = &outReflection->pInputElements[currentElementIndex];
+                    inputParam->pSemanticName        = strdup(paramDesc.SemanticName);
+                    inputParam->semanticIndex        = paramDesc.SemanticIndex;
+                    inputParam->format               = DX12DXXGIToEngineFormat(format);
+                    inputParam->inputSlot            = paramDesc.Stream;
+                    inputParam->alignedByteOffset    = currentOffset;
+                    inputParam->inputClass           = (rz_gfx_input_class) D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+                    inputParam->instanceStepRate     = 0;
+
+                    currentOffset += formatSize;
+                    currentElementIndex++;
+                    outReflection->elementCount++;
+                }
+            }
+#endif
             // Placeholder for future Vulkan shader reflection implementation
             RAZIX_CORE_ERROR("[Vulkan] Shader reflection not yet implemented");
             RAZIX_UNIMPLEMENTED_METHOD("[Vulkan] Shader reflection not yet implemented");

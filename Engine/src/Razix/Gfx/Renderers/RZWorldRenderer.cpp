@@ -84,6 +84,7 @@ namespace Razix {
 
         //-------------------------------------------------------------------------------------------
 
+#ifdef RAZIX_USE_GLFW_WINDOWS
         static void printGLFWRequiredExtensions(void)
         {
             // First we are sending in the list of desired extensions by GLFW to interface with the WPI
@@ -106,17 +107,22 @@ namespace Razix {
             }
 #endif
         }
+#endif
 
         void RZWorldRenderer::create(RZWindow* window, u32 width, u32 height)
         {
+#ifdef RAZIX_USE_GLFW_WINDOWS
             printGLFWRequiredExtensions();
+#endif
 
             m_Window = window;
             memset(&m_RenderSync, 0, sizeof(RenderSyncPrimitives));
             m_FrameCount = 0;
 
             // Create the swapchain
+#ifdef RAZIX_USE_GLFW_WINDOWS
             GLFWwindow*   glfwWindow = static_cast<GLFWwindow*>(window->GetNativeWindow());
+#endif
             rz_render_api api        = rzGfxCtx_GetRenderAPI();
 
 #ifdef RAZIX_PLATFORM_WINDOWS
@@ -152,7 +158,10 @@ namespace Razix {
                 RAZIX_CORE_ERROR("API {0} not supported on this platform! Only Vulkan is available.", static_cast<int>(api));
                 RAZIX_CORE_ASSERT(false, "Only Vulkan is supported on this platform!");
             }
-
+#elif defined (RAZIX_PLATFORM_IOS)
+            // idk what to do here, use UIKit?
+            if (api == RZ_RENDER_API_VULKAN) {
+            }
 #else
     #error "Unsupported platform! Add support for your target platform."
 #endif
@@ -677,6 +686,7 @@ namespace Razix {
             // TESTING IMGUI RUNTIME TOOLS CONFIG!
             // This will be owned by RZEngine
             static Tools::ToolsDrawConfig drawConfig = {};
+            RAZIX_UNUSED(drawConfig);
 
             //Tools::OnImGuiDrawEngineTools(drawConfig);
 #endif

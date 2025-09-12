@@ -386,8 +386,9 @@ namespace Razix {
             return;
 
         // TODO: Well GLFW needs to be removed at some point and we need to use native functions
+#ifdef RAZIX_USE_GLFW_WINDOWS
         ImGui_ImplGlfw_NewFrame();
-
+#endif
         // FIXME: https://github.com/ocornut/imgui/issues/6064
 
         // Update ImGui

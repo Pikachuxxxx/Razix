@@ -159,6 +159,34 @@ project "EngineTests"
             "RAZIX_RENDER_API_METAL",
             "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
+        
+    filter "system:ios"
+        cppdialect "C++17"
+        staticruntime "off"
+
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_IOS",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_USE_GLFW_WINDOWS",
+            "RAZIX_ROOT_DIR="  .. root_dir,
+            "RAZIX_IMGUI",
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "RAZIX_RENDER_API_METAL",
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
+        }
+        
+        includedirs
+        {
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+        }
 
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }

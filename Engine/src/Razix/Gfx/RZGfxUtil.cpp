@@ -331,6 +331,8 @@ namespace Razix {
             const rz_gfx_shader_desc* desc = &shader->resource.desc.shaderDesc;
             RAZIX_ASSERT(desc != NULL, "[Reflection] Shader descriptor is NULL, cannot reflect");
 
+            RAZIX_CORE_TRACE("Reflecting shader: {0}...", shader->resource.pName);
+
             // Get the appropriate reflection function for the current render API
             ReflectShaderBlobBackendFn reflectShaderBlobFn = GetShaderReflectionFunction();
             if (!reflectShaderBlobFn) {

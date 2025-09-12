@@ -76,6 +76,7 @@ project "Razix"
         -- vendor
         "OPTICK_MSVC",
         "VK_NO_PROTOTYPES",
+        "IMGUI_IMPL_VULKAN_USE_VOLK"
     }
 
     -- Razix Engine source files (Global)
@@ -87,7 +88,7 @@ project "Razix"
         -- vendor
         --"vendor/tracy/TracyClient.cpp",
         -- imgui
-        "vendor/imgui/backends/imgui_impl_glfw.cpp",
+        --"vendor/imgui/backends/imgui_impl_glfw.cpp",
         "vendor/imgui/backends/imgui_impl_vulkan.cpp",
     }
 
@@ -148,13 +149,13 @@ project "Razix"
     {
         -- RHI
         "RHI",
-        "glfw",
+        --"glfw",
         "imgui",
         "spdlog", -- Being linked staically by RazixMemory (Only include this in debug and release build exempt this in GoldMaster build)
         "SPIRVReflect",
         "SPIRVCross",
         "lua",
-        "optick",
+        --"optick",
         "tracy",
         "Jolt",
         -- Shaders
@@ -457,7 +458,61 @@ project "Razix"
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE", "TRACY_ON_DEMAND"
+            "TRACY_ENABLE", "TRACY_ON_DEMAND",
+            "GLFW_INCLUDE_NONE"
+        }
+        
+        files
+        {
+            -- platform sepecific implementatioon
+            "src/Razix/Platform/iOS/*.h",
+            "src/Razix/Platform/iOS/*.cpp",
+            
+            "src/Razix/Platform/Unix/*.h",
+            "src/Razix/Platform/Unix/*.cpp",
+
+            "src/Razix/Platform/API/Vulkan/*.h",
+            "src/Razix/Platform/API/Vulkan/*.cpp",
+
+            "src/Razix/Platform/API/Metal/*.h",
+            "src/Razix/Platform/API/Metal/*.cpp",
+
+            -- Vendor source files
+            "vendor/glad/src/glad.c"
+        }
+        
+        includedirs
+        {
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+            "./",
+            "../"
+        }
+
+        libdirs
+        {
+            VulkanSDK .. "/lib"
+        }
+        
+        links
+        {
+            -- Render API
+            "IOKit.framework",
+            "CoreFoundation.framework",
+            "CoreVideo.framework",
+            "CoreGraphics.framework",
+            "SystemConfiguration.framework"
+        }
+        
+        -- Apple Clang compiler options
+        buildoptions
+        {
+            "-Wno-error=switch-enum",
+            "-Wno-switch", "-Wno-switch-enum"
         }
 
     -- Config settings for Razix Engine project

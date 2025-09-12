@@ -223,6 +223,83 @@ project "RHI"
             '{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.buildtarget.bundlepath}/libvulkan.1.dylib"',
             --'{COPY}  "%{wks.location}/../bin/%{outputdir}/libRazix.dylib" "%{cfg.buildtarget.bundlepath}/libRazix.dylib"'
         }
+    
+    -------------------------------------
+    -- RHI Project settings for iOS
+    -------------------------------------
+    filter "system:ios"
+        staticruntime "off"
+        systemversion "18.0"
+
+        files
+        {
+            "./Backend/vk_rhi.h",
+            "./Backend/vk_rhi.c",
+        }
+        
+        xcodebuildresources { "IconAssets.xcassets", "libMoltenVK.dylib" }
+
+        xcodebuildsettings
+        {
+            ['CODE_SIGN_IDENTITY'] = 'Mac Developer',
+            ['PRODUCT_BUNDLE_IDENTIFIER'] = settings.bundle_identifier,
+            ['INFOPLIST_FILE'] = '../Engine/src/Razix/Platform/iOS/Info.plist',
+            ['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon',
+            ['CODE_SIGN_IDENTITY'] = ''
+        }
+
+        files
+        {
+            "%{wks.location}/../Engine/src/Razix/Platform/iOS/IconAssets.xcassets"
+        }
+
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_IOS",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_USE_GLFW_WINDOWS",
+            "RAZIX_ROOT_DIR="  .. root_dir,
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "RAZIX_RENDER_API_METAL",
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
+        }
+
+        includedirs
+        {
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+            "./",
+            "../"
+        }
+
+        libdirs
+        {
+            VulkanSDK .. "/lib"
+        }
+
+        links
+        {
+            -- Render API
+            "IOKit.framework",
+            "CoreFoundation.framework",
+            "CoreVideo.framework",
+            "CoreGraphics.framework",
+            "SystemConfiguration.framework"
+        }
+
+
+        postbuildcommands
+        {
+            '{COPY}  "%{VulkanSDK}/lib/libvulkan.dylib" "%{cfg.buildtarget.bundlepath}/libvulkan.dylib"',
+            '{COPY}  "%{VulkanSDK}/lib/libvulkan.1.dylib" "%{cfg.buildtarget.bundlepath}/libvulkan.1.dylib"',
+            --'{COPY}  "%{wks.location}/../bin/%{outputdir}/libRazix.dylib" "%{cfg.buildtarget.bundlepath}/libRazix.dylib"'
+        }
 
     -------------------------------------
     -- RHI Project settings for Linux

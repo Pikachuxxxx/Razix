@@ -140,9 +140,18 @@
 
     #define RAZIX_API           __attribute__((visibility("default")))
     #define RAZIX_HIDDEN        __attribute__((visibility("hidden")))
-    #define RAZIX_DEBUG_BREAK() raise(SIGTRAP);
     #define RAZIX_MEM_ALIGN_16  alignas(MEM_DEF_ALIGNMENT_16)
+#endif
 
+#if defined(__APPLE__)
+    #include <TargetConditionals.h>
+    #if TARGET_OS_IPHONE
+        #define RAZIX_DEBUG_BREAK() __builtin_trap()
+    #else
+        #define RAZIX_DEBUG_BREAK() raise(SIGTRAP)
+    #endif
+#else
+    #define RAZIX_DEBUG_BREAK() raise(SIGTRAP)
 #endif
 
 /****************************************************************************************************
@@ -531,9 +540,9 @@ private:                                                  \
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)    // GCC or Clang
-    #define RAZIX_UNUSED(x)                    //[[maybe_unused]] x
+    #define RAZIX_UNUSED(x)                    (void) x
 #else
-    #define RAZIX_UNUSED(x)
+    #define RAZIX_UNUSED(x) (void) x
 #endif
 
 #define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)

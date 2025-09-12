@@ -179,7 +179,7 @@ workspace ( settings.workspace_name )
         include "Engine/vendor/glfw.lua"
         include "Engine/vendor/imgui.lua"
         include "Engine/vendor/lua.lua"
-        include "Engine/vendor/optick.lua"
+        --include "Engine/vendor/optick.lua"
         include "Engine/vendor/spdlog.lua"
         include "Engine/vendor/SPIRVCross.lua"
         include "Engine/vendor/SPIRVReflect.lua"
