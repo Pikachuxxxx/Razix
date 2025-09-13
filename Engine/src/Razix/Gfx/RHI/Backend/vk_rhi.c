@@ -1134,7 +1134,7 @@ static VkSurfaceFormatKHR vk_util_choose_swap_surface_format(const VkSurfaceForm
 static VkPresentModeKHR vk_util_choose_swap_present_mode(const VkPresentModeKHR* availablePresentModes, uint32_t presentModeCount)
 {
     for (uint32_t i = 0; i < presentModeCount; i++) {
-        if (availablePresentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
+        if (availablePresentModes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR) {
             return availablePresentModes[i];
         }
     }
