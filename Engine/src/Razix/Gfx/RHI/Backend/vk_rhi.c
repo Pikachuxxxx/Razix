@@ -599,7 +599,7 @@ static const VkImageLayout vulkan_image_layout_map[RZ_GFX_RESOURCE_STATE_COUNT] 
     VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR,                            // VIDEO_DECODE_WRITE
 };
 
-static VkImageLayout vk_util_res_state_translate(rz_gfx_resource_state state)
+static VkImageLayout vk_util_translate_imagelayout_resstate(rz_gfx_resource_state state)
 {
     if (state >= RZ_GFX_RESOURCE_STATE_COUNT || state == RZ_GFX_RESOURCE_STATE_UNDEFINED) {
         RAZIX_RHI_LOG_ERROR("Invalid resource state %d", state);
@@ -1407,8 +1407,7 @@ static VkCompareOp vk_util_translate_compare_op(rz_gfx_compare_op_type compare_o
 
 VkFormat vk_util_translate_format(rz_gfx_format format)
 {
-    switch (format)
-    {
+    switch (format) {
         // Undefined
         case RZ_GFX_FORMAT_UNDEFINED:
             return VK_FORMAT_UNDEFINED;
@@ -1503,7 +1502,7 @@ VkFormat vk_util_translate_format(rz_gfx_format format)
             return VK_FORMAT_R64G64B64_SFLOAT;
         case RZ_GFX_FORMAT_R64G64B64A64_FLOAT:
             return VK_FORMAT_R64G64B64A64_SFLOAT;
-#endif // RAZIX_SUPPORT_64BIT_FORMATS
+#endif    // RAZIX_SUPPORT_64BIT_FORMATS
 
         // Packed formats
         case RZ_GFX_FORMAT_R11G11B10_FLOAT:
@@ -1535,6 +1534,220 @@ VkFormat vk_util_translate_format(rz_gfx_format format)
             RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_FORMAT value: %d, defaulting to VK_FORMAT_UNDEFINED", format);
             return VK_FORMAT_UNDEFINED;
     }
+}
+
+VkAccessFlags vk_util_access_flags_translate(rz_gfx_resource_state state)
+{
+    switch (state) {
+        case RZ_GFX_RESOURCE_STATE_UNDEFINED:
+            return 0;
+
+        case RZ_GFX_RESOURCE_STATE_COMMON:
+            return VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_GENERIC_READ:
+            return VK_ACCESS_MEMORY_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_RENDER_TARGET:
+            return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_DEPTH_WRITE:
+            return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_DEPTH_READ:
+            return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_SHADER_READ:
+            return VK_ACCESS_SHADER_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS:
+            return VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_COPY_SRC:
+            return VK_ACCESS_TRANSFER_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_COPY_DST:
+            return VK_ACCESS_TRANSFER_WRITE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_PRESENT:
+            return VK_ACCESS_MEMORY_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_VERTEX_BUFFER:
+            return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_INDEX_BUFFER:
+            return VK_ACCESS_INDEX_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_CONSTANT_BUFFER:
+            return VK_ACCESS_UNIFORM_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_INDIRECT_ARGUMENT:
+            return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_RESOLVE_SRC:
+            return VK_ACCESS_TRANSFER_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_RESOLVE_DST:
+            return VK_ACCESS_TRANSFER_WRITE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE:
+            return VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+
+        case RZ_GFX_RESOURCE_STATE_SHADING_RATE_SOURCE:
+            return VK_ACCESS_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR;
+
+        case RZ_GFX_RESOURCE_STATE_VIDEO_DECODE_READ:
+        case RZ_GFX_RESOURCE_STATE_VIDEO_DECODE_WRITE:
+            return 0;
+
+        default:
+            return 0;
+    }
+}
+
+VkPipelineStageFlags vk_deduce_pipeline_stage_from_res_state(rz_gfx_resource_state state)
+{
+    switch (state) {
+        case RZ_GFX_RESOURCE_STATE_UNDEFINED:
+            return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_COMMON:
+        case RZ_GFX_RESOURCE_STATE_GENERIC_READ:
+            return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_RENDER_TARGET:
+            return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_DEPTH_WRITE:
+        case RZ_GFX_RESOURCE_STATE_DEPTH_READ:
+            return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_SHADER_READ:
+        case RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS:
+            return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_COPY_SRC:
+        case RZ_GFX_RESOURCE_STATE_COPY_DST:
+        case RZ_GFX_RESOURCE_STATE_RESOLVE_SRC:
+        case RZ_GFX_RESOURCE_STATE_RESOLVE_DST:
+            return VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_PRESENT:
+            return VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_VERTEX_BUFFER:
+            return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_INDEX_BUFFER:
+            return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_CONSTANT_BUFFER:
+            return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_INDIRECT_ARGUMENT:
+            return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE:
+            return VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR;
+
+        case RZ_GFX_RESOURCE_STATE_SHADING_RATE_SOURCE:
+            return VK_PIPELINE_STAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR;
+
+        case RZ_GFX_RESOURCE_STATE_VIDEO_DECODE_READ:
+        case RZ_GFX_RESOURCE_STATE_VIDEO_DECODE_WRITE:
+            return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+        default:
+            return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    }
+}
+
+static VkImageAspectFlags vk_util_deduce_image_aspect_flags(rz_gfx_format format)
+{
+    VkImageAspectFlags aspectFlags = 0;
+
+    // Determine aspect flags based on format
+    switch (format) {
+        case RZ_GFX_FORMAT_D16_UNORM:
+        case RZ_GFX_FORMAT_D24_UNORM_S8_UINT:
+        case RZ_GFX_FORMAT_D32_FLOAT:
+        case RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT:
+            aspectFlags |= VK_IMAGE_ASPECT_DEPTH_BIT;
+            if (format == RZ_GFX_FORMAT_D24_UNORM_S8_UINT || format == RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT) {
+                aspectFlags |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            }
+            break;
+
+        default:
+            aspectFlags |= VK_IMAGE_ASPECT_COLOR_BIT;
+            break;
+    }
+
+    return aspectFlags;
+}
+
+static vk_cmdbuf vk_util_begin_singletime_cmdlist(void)
+{
+    vk_cmdbuf cmdBuf = {0};
+
+    // Create a temporary command pool for single-time commands
+    VkCommandPoolCreateInfo poolInfo = {
+        .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+        .flags            = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+        .queueFamilyIndex = VKCONTEXT.queueFamilyIndices.graphicsFamily,
+    };
+
+    CHECK_VK(vkCreateCommandPool(VKDEVICE, &poolInfo, NULL, &cmdBuf.cmdPool));
+    TAG_OBJECT(cmdBuf.cmdPool, VK_OBJECT_TYPE_COMMAND_POOL, "Single-time Command Pool");
+
+    VkCommandBufferAllocateInfo allocInfo = {
+        .sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .commandPool        = cmdBuf.cmdPool,
+        .commandBufferCount = 1};
+
+    CHECK_VK(vkAllocateCommandBuffers(VKDEVICE, &allocInfo, &cmdBuf.cmdBuf));
+    TAG_OBJECT(cmdBuf.cmdBuf, VK_OBJECT_TYPE_COMMAND_BUFFER, "Single-time Command Buffer");
+
+    VkCommandBufferBeginInfo beginInfo = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
+
+    CHECK_VK(vkBeginCommandBuffer(cmdBuf.cmdBuf, &beginInfo));
+
+    return cmdBuf;
+}
+
+static void vk_util_end_singletime_cmdlist(vk_cmdbuf cmdBuf)
+{
+    CHECK_VK(vkEndCommandBuffer(cmdBuf.cmdBuf));
+
+    VkSubmitInfo submitInfo = {
+        .sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .commandBufferCount = 1,
+        .pCommandBuffers    = &cmdBuf.cmdBuf};
+
+    CHECK_VK(vkQueueSubmit(VKCONTEXT.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE));
+    vkDeviceWaitIdle(VKDEVICE);
+
+    vkFreeCommandBuffers(VKDEVICE, cmdBuf.cmdPool, 1, &cmdBuf.cmdBuf);
+    vkDestroyCommandPool(VKDEVICE, cmdBuf.cmdPool, NULL);
+}
+
+static uint32_t vk_util_find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+{
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(VKGPU, &memProperties);
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+        if ((typeFilter & (1 << i)) &&
+            (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+            return i;
+        }
+    }
+
+    RAZIX_RHI_ASSERT(false, "[Vulkan] Failed to find suitable memory type!");
+    return 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -2382,7 +2595,6 @@ static void vk_DispatchIndirect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer
     vkCmdDispatchIndirect(cmdBuf->vk.cmdBuf, buffer->vk.buffer, offset);
 }
 
-
 static void vk_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
 {
     RAZIX_RHI_ASSERT(updatedesc.pBuffer != NULL, "Buffer cannot be NULL");
@@ -2392,11 +2604,10 @@ static void vk_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
     RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.desc.bufferDesc.type & RZ_GFX_BUFFER_TYPE_CONSTANT) == RZ_GFX_BUFFER_TYPE_CONSTANT, "Buffer must be of type RZ_GFX_BUFFER_TYPE_CONSTANT to update");
     RAZIX_RHI_ASSERT(
         (updatedesc.pBuffer->resource.desc.bufferDesc.usage & (RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC | RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)),
-        "Buffer must be created with RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC or RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM usage flag"
-    );
+        "Buffer must be created with RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC or RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM usage flag");
     // TODO: When using VMA, ignore mapping/unmapping for persistent mapped buffers
     // TODO: Store the mapped pointer in the buffer struct to avoid mapping/unmapping every time for persistent mapped buffers
-    
+
     //if(updatedesc.pBuffer->resource.desc.bufferDesc.usage == RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM) {
     //   // cache the mapped pointer
     //}
@@ -2405,7 +2616,7 @@ static void vk_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
     CHECK_VK(vkMapMemory(VKDEVICE, updatedesc.pBuffer->vk.memory, updatedesc.offset, updatedesc.sizeInBytes, 0, (void**) &mappedData));
     RAZIX_RHI_ASSERT(mappedData != NULL, "Failed to map constant buffer memory");
     memcpy((uint8_t*) (mappedData + updatedesc.offset), updatedesc.pData, updatedesc.sizeInBytes);
-    // unmapping is not required for HOST_VISIBLE | HOST_COHERENT memory, 
+    // unmapping is not required for HOST_VISIBLE | HOST_COHERENT memory,
     // but doing it anyway for safety, we will try to prefer
     // HOST_COHERENT memory for dynamic and persistent uniform buffer
     vkUnmapMemory(VKDEVICE, updatedesc.pBuffer->vk.memory);
@@ -2426,6 +2637,61 @@ static void vk_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* t
 
     bool isUAVBarrier = (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS);
 
+#if RAZIX_ENABLE_COARSE_UAV_BARRIERS
+    if (beforeState == afterState) {
+        // Memory barrier for UAVs, broad but simple
+        VkMemoryBarrier memBarrier = {
+            .sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+            .srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT,
+            .dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT};
+
+        vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
+            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,    // src
+            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,    // dst
+            0,
+            1,
+            &memBarrier,
+            0,
+            NULL,
+            0,
+            NULL);
+        return;
+    }
+#endif    // RAZIX_ENABLE_COARSE_UAV_BARRIERS
+
+    if (!isUAVBarrier && (beforeState == afterState))
+        return;
+
+    VkImageMemoryBarrier imageBarrier = {
+        .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .pNext               = NULL,
+        .srcAccessMask       = vk_util_access_flags_translate(beforeState),
+        .dstAccessMask       = vk_util_access_flags_translate(afterState),
+        .oldLayout           = vk_util_translate_imagelayout_resstate(beforeState),
+        .newLayout           = vk_util_translate_imagelayout_resstate(afterState),
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image               = texture->vk.image,
+        .subresourceRange    = {
+               .aspectMask     = vk_util_deduce_image_aspect_flags(texture->resource.desc.textureDesc.format),
+               .baseMipLevel   = 0,
+               .levelCount     = texture->resource.desc.textureDesc.mipLevels,
+               .baseArrayLayer = 0,
+               .layerCount     = texture->resource.desc.textureDesc.arraySize},
+    };
+
+    vkCmdPipelineBarrier(
+        cmdBuf->vk.cmdBuf,
+        vk_deduce_pipeline_stage_from_res_state(beforeState),
+        vk_deduce_pipeline_stage_from_res_state(afterState),
+        0,    // dependency flags
+        0,
+        NULL,    // Global Memory barriers
+        0,
+        NULL,    // Buffer barriers
+        1,
+        &imageBarrier);    // Image barriers
+
     // Update the current state
     texture->resource.currentState = afterState;
 }
@@ -2445,15 +2711,196 @@ static void vk_InsertBufferBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_buffer* b
 
     bool isUAVBarrier = (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS);
 
+#if RAZIX_ENABLE_COARSE_UAV_BARRIERS
+    if (beforeState == afterState) {
+        // Memory barrier for UAVs, broad but simple
+        VkMemoryBarrier memBarrier = {
+            .sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+            .srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT,
+            .dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT};
+
+        vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
+            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,    // src
+            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,    // dst
+            0,
+            1,
+            &memBarrier,
+            0,
+            NULL,
+            0,
+            NULL);
+        return;
+    }
+#endif    // RAZIX_ENABLE_COARSE_UAV_BARRIERS
+
+    if (!isUAVBarrier && (beforeState == afterState))
+        return;
+
+    VkBufferMemoryBarrier bufferBarrier = {
+        .sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+        .pNext               = NULL,
+        .srcAccessMask       = vk_util_access_flags_translate(beforeState),
+        .dstAccessMask       = vk_util_access_flags_translate(afterState),
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer              = buffer->vk.buffer,
+        .offset              = 0,
+        .size                = VK_WHOLE_SIZE,
+    };
+
+    vkCmdPipelineBarrier(
+        cmdBuf->vk.cmdBuf,
+        vk_deduce_pipeline_stage_from_res_state(beforeState),
+        vk_deduce_pipeline_stage_from_res_state(afterState),
+        0,    // dependency flags
+        0,
+        NULL,    // Global Memory barriers
+        1,
+        &bufferBarrier,    // Buffer barriers
+        0,
+        NULL);    // Image barriers
+
     // Update the current state
     buffer->resource.currentState = afterState;
 }
 
 static void vk_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_texture_readback* readback)
 {
-    (void) texture;
-    (void) readback;
-    // TODO: Implement when needed
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
+    RAZIX_RHI_ASSERT(readback != NULL, "Readback structure cannot be NULL");
+
+    const rz_gfx_texture_desc* desc = &texture->resource.desc.textureDesc;
+    // TODO: RAZIX_RHI_ASSERT(desc->flags & RZ_GFX_TEXTURE_FLAG_ALLOW_CPU_READ, "Texture must be created with RZ_GFX_TEXTURE_FLAG_ALLOW_CPU_READ flag to readback");
+
+    VkImage  srcImage = texture->vk.image;
+    uint32_t width    = desc->width;
+    uint32_t height   = desc->height;
+    uint32_t size     = width * height * 4;    // Assuming 4 bytes per pixel (RGBA8)
+
+    vk_cmdbuf cmdBuf = vk_util_begin_singletime_cmdlist();
+
+    // Create staging buffer for readback
+    VkBuffer       stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    VkBufferCreateInfo bufferInfo = {
+        .sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size        = size,
+        .usage       = VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
+
+    CHECK_VK(vkCreateBuffer(VKDEVICE, &bufferInfo, NULL, &stagingBuffer));
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(VKDEVICE, stagingBuffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {
+        .sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .allocationSize  = memRequirements.size,
+        .memoryTypeIndex = vk_util_find_memory_type(memRequirements.memoryTypeBits,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)};
+
+    CHECK_VK(vkAllocateMemory(VKDEVICE, &allocInfo, NULL, &stagingBufferMemory));
+    CHECK_VK(vkBindBufferMemory(VKDEVICE, stagingBuffer, stagingBufferMemory, 0));
+
+    VkAccessFlags      srcAccessMask = vk_util_access_flags_translate(texture->resource.currentState);
+    VkImageAspectFlags aspectFlags   = vk_util_deduce_image_aspect_flags(desc->format);
+
+    // Transition texture to transfer source layout
+    VkImageMemoryBarrier barrier = {
+        .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .oldLayout           = vk_util_translate_imagelayout_resstate(texture->resource.currentState),
+        .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image               = srcImage,
+        .subresourceRange    = {
+               .aspectMask     = aspectFlags,
+               .baseMipLevel   = 0,
+               .levelCount     = 1,
+               .baseArrayLayer = 0,
+               .layerCount     = 1},
+        .srcAccessMask = srcAccessMask,
+        .dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT};
+
+    vkCmdPipelineBarrier(cmdBuf.cmdBuf,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        0,
+        0,
+        NULL,
+        0,
+        NULL,
+        1,
+        &barrier);
+
+    // Copy image to buffer
+    VkBufferImageCopy region = {
+        .bufferOffset      = 0,
+        .bufferRowLength   = 0,
+        .bufferImageHeight = 0,
+        .imageSubresource  = {
+             .aspectMask     = aspectFlags,
+             .mipLevel       = 0,
+             .baseArrayLayer = 0,
+             .layerCount     = 1},
+        .imageOffset = {0, 0, 0},
+        .imageExtent = {width, height, 1}};
+
+    vkCmdCopyImageToBuffer(cmdBuf.cmdBuf, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, stagingBuffer, 1, &region);
+
+    // Transition texture back to original layout
+    VkImageMemoryBarrier restoreBarrier = {
+        .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        .newLayout           = vk_util_translate_imagelayout_resstate(texture->resource.currentState),
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image               = srcImage,
+        .subresourceRange    = {
+               .aspectMask     = aspectFlags,
+               .baseMipLevel   = 0,
+               .levelCount     = 1,
+               .baseArrayLayer = 0,
+               .layerCount     = 1},
+        .srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT,
+        .dstAccessMask = srcAccessMask};
+
+    vkCmdPipelineBarrier(cmdBuf.cmdBuf,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        0,
+        0,
+        NULL,
+        0,
+        NULL,
+        1,
+        &restoreBarrier);
+
+    // Submit and wait for completion
+    vk_util_end_singletime_cmdlist(cmdBuf);
+
+    // Map the staging buffer and copy data
+    void* mappedData;
+    CHECK_VK(vkMapMemory(VKDEVICE, stagingBufferMemory, 0, size, 0, &mappedData));
+
+    readback->width  = width;
+    readback->height = height;
+    readback->bpp    = 32;
+    // TODO: Get a malloc CB from user, and use that instead of allocating memory from RHI
+    // Note: Pray to god that user will free this memory
+    readback->data = malloc(size);
+
+    if (readback->data) {
+        memcpy(readback->data, mappedData, size);
+    }
+
+    vkUnmapMemory(VKDEVICE, stagingBufferMemory);
+
+    // Cleanup staging buffer
+    vkDestroyBuffer(VKDEVICE, stagingBuffer, NULL);
+    vkFreeMemory(VKDEVICE, stagingBufferMemory, NULL);
 }
 
 static void vk_SignalGPU(rz_gfx_syncobj* syncobj)
@@ -2539,7 +2986,9 @@ rz_rhi_api vk_rhi = {
     .DrawIndirect          = vk_DrawAutoIndirect,           // DrawAutoIndirect
     .DrawIndexedIndirect   = vk_DrawIndexedAutoIndirect,    // DrawIndexedAutoIndirect
     .DispatchIndirect      = vk_DispatchIndirect,           // DispatchIndirect
+    .UpdateConstantBuffer  = vk_UpdateConstantBuffer,       // UpdateConstantBuffer
     .InsertImageBarrier    = vk_InsertImageBarrier,         // InsertImageBarrier
+    .InsertBufferBarrier   = vk_InsertBufferBarrier,        // InsertBufferBarrier
     .InsertTextureReadback = vk_InsertTextureReadback,      // InsertTextureReadback
 
     .SignalGPU       = vk_SignalGPU,          // SignalGPU
