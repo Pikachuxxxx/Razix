@@ -25,9 +25,9 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/plugins/IconsFontAwesome5.h>
 //#include <imgui/plugins/ImGuizmo.h>
+#include <GLFW/glfw3.h>
 #include <cereal/archives/json.hpp>
 #include <entt.hpp>
-#include <GLFW/glfw3.h>
 
 #define ENABLE_IMGUI_EVENT_DATA_CAPTURE 0
 

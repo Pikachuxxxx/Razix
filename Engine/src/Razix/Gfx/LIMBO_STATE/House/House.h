@@ -37,5 +37,5 @@ namespace Razix {
             //DrawData*    ExtractBatchDrawData(Batch* batch);
             //DrawData*    ExtractDrawableDrawData(Drawable* drawable);
         }    // namespace House
-    }        // namespace Gfx
+    }    // namespace Gfx
 }    // namespace Razix

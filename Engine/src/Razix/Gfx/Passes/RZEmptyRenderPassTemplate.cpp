@@ -9,7 +9,6 @@
 
 #include "Razix/Gfx/RHI/RHI.h"
 
-
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 

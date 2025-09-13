@@ -15,8 +15,8 @@
 //
 //#include "Razix/Gfx/Materials/RZMaterial.h"
 
-#define _USE_MATH_DEFINES
-#include <math.h>
+    #define _USE_MATH_DEFINES
+    #include <math.h>
 
 namespace Razix {
     namespace Gfx {
@@ -62,8 +62,8 @@ namespace Razix {
             return nullptr;
         }
 
-#define NUM_QUAD_VERTS 4
-#define NUM_CUBE_VERTS 24
+    #define NUM_QUAD_VERTS 4
+    #define NUM_CUBE_VERTS 24
 
         RZMesh* CreatePlane(f32 width, f32 height, const float4 color /*= float4(1.0f, 1.0f, 1.0f, 1.0f)*/)
         {

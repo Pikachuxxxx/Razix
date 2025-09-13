@@ -53,7 +53,7 @@ namespace Razix {
             virtual void resize(RZPassResourceDirectory& resources, u32 width, u32 height) = 0;
         };
 
-        template<typename Data, typename ExecuteFunc, typename ResizeFunc>    
+        template<typename Data, typename ExecuteFunc, typename ResizeFunc>
         struct RZFrameGraphCodePass final : IRZFrameGraphPass
         {
             explicit RZFrameGraphCodePass(ExecuteFunc&& exec, ResizeFunc&& resize)

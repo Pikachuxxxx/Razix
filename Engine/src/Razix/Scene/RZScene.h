@@ -82,9 +82,9 @@ namespace Razix {
         void reloadScene();
 
         /* Serialize the scene to the given file path */
-        void serialiseScene(const std::string& filePath){}
+        void serialiseScene(const std::string& filePath) {}
         /* De-Serialize the scene from the given file path */
-        void deSerialiseScene(const std::string& filePath){}
+        void deSerialiseScene(const std::string& filePath) {}
 
         /**
          * Gets the scene camera with which the world is rendered (if exists)
@@ -126,7 +126,7 @@ namespace Razix {
         u32            m_LastMeshesCount = 0;
         RZSceneCamera  m_EditorModeCamera;
         //Gfx::RZMesh*   m_Cube = nullptr;
-        RZSceneCamera  m_DefaultSceneCameraToAvoidCompileErrors;
+        RZSceneCamera m_DefaultSceneCameraToAvoidCompileErrors;
 
         friend class RZEntity;
 

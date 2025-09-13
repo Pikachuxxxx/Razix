@@ -5,7 +5,6 @@
 
 #include "Razix/Core/App/RZApplication.h"
 
-
 namespace Razix {
     namespace Scripting {
 

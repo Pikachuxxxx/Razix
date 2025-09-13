@@ -43,7 +43,6 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-
 #if 0
             // Since this a debug color we don't care much but see if we can use the color from the Frame Graph Editor here
             RAZIX_MARK_BEGIN(node.getName(), float4(((double) rand()) / RAND_MAX, ((double) rand()) / RAND_MAX, ((double) rand()) / RAND_MAX, 1.0f));

@@ -1,10 +1,10 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#include "Razix/Core/Containers/smart_pointers.h"
 #include "Razix/Core/OS/RZWindow.h"
 #include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/RZCore.h"
-#include "Razix/Core/Containers/smart_pointers.h"
 #include "Razix/Core/UUID/RZUUID.h"
 
 #include "Razix/Events/ApplicationEvent.h"

@@ -312,6 +312,6 @@ namespace Razix {
             ++i;
         }
 
-         return bytes;
+        return bytes;
     }
 }    // namespace Razix

@@ -24,8 +24,8 @@ namespace Razix {
             void destroy() override;
 
         private:
-            RZPipelineHandle m_Pipeline;
-            rz_texture_handle  m_AppleNeedsADepthTexture;
+            RZPipelineHandle  m_Pipeline;
+            rz_texture_handle m_AppleNeedsADepthTexture;
         };
     }    // namespace Gfx
 }    // namespace Razix

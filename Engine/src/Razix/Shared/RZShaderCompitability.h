@@ -12,7 +12,7 @@
     #include <Razix/Math/ImportanceSampling.h>
     #include <Razix/Math/MathConstants.h>
 
-// Vertex formats
+    // Vertex formats
     #include <Razix/Gfx/RZVertexFormats.h>
 
 #else

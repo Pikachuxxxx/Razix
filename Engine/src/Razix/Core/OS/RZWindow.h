@@ -53,7 +53,7 @@ namespace Razix {
 
         virtual void OnWindowUpdate() = 0;
 
-        virtual void ProcessInput(){};
+        virtual void ProcessInput() {};
 
         virtual void Destroy() = 0;
 

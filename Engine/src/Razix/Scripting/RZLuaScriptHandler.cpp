@@ -6,8 +6,6 @@
 #include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
-
-
 #include "Razix/Scene/RZScene.h"
 
 #include "Razix/Scene/Components/LuaScriptComponent.h"

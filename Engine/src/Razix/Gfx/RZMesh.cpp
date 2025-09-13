@@ -12,9 +12,9 @@ namespace Razix {
 
         RZMesh::RZMesh(rz_gfx_buffer_handle vertexBuffer[VERTEX_MAX_ATTRIBS_COUNT], rz_gfx_buffer_handle indexBuffer, u32 vtxcount, u32 idxcount, MeshType meshType)
         {
-            m_IndexBuffer   = indexBuffer;
-            m_VertexCount   = vtxcount;
-            m_IndexCount    = idxcount;
+            m_IndexBuffer = indexBuffer;
+            m_VertexCount = vtxcount;
+            m_IndexCount  = idxcount;
 
             u32 numAttribs = meshType == MeshType::SkeletalMesh ? SKELETAL_VERTEX_ATTRIBS_COUNT : VERTEX_ATTRIBS_COUNT;
             for (uint32_t i = 0; i < numAttribs; i++) {

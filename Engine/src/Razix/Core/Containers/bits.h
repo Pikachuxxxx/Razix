@@ -52,5 +52,5 @@ namespace Razix {
             }
 
         }    // namespace bitmanip
-    }        // namespace rzstl
+    }    // namespace rzstl
 }    // namespace Razix
