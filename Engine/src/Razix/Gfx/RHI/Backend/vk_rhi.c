@@ -2169,16 +2169,291 @@ static void vk_DestroyRootSignature(void* ptr)
     // TODO: Implement when needed
 }
 
+static VkVertexInputBindingDescription vk_util_get_vertex_binding_description(rz_gfx_input_element element, uint32_t index)
+{
+    VkVertexInputBindingDescription bindingDescription = {0};
+    bindingDescription.binding                         = index;
+    bindingDescription.stride                          = element.stride; 
+    bindingDescription.inputRate                       = (element.inputClass == RZ_GFX_INPUT_CLASS_PER_VERTEX) ? VK_VERTEX_INPUT_RATE_VERTEX : VK_VERTEX_INPUT_RATE_INSTANCE;
+    return bindingDescription;
+}
+
+static VkVertexInputAttributeDescription vk_util_get_vertex_attribute_description(rz_gfx_input_element element, uint32_t index)
+{
+    VkVertexInputAttributeDescription attributeDescription = {0};
+    attributeDescription.location                          = index;
+    attributeDescription.binding                           = index;
+    attributeDescription.format                            = vk_util_translate_format(element.format);
+    attributeDescription.offset                            = 0; // 0 because we are using SOA 
+    return attributeDescription;
+}
+
+static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
+{
+    rz_gfx_pipeline* pso = (rz_gfx_pipeline*) pipeline;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
+
+    
+    const rz_gfx_pipeline_desc* desc = &pso->resource.desc.pipelineDesc;
+    RAZIX_RHI_ASSERT(desc != NULL, "Pipeline must have a valid description");
+    RAZIX_RHI_ASSERT(desc->pShader!= NULL, "Pipeline must have a valid shader");
+    RAZIX_RHI_ASSERT(desc->pRootSig != NULL, "Pipeline must have a valid root signature");
+    RAZIX_RHI_ASSERT(desc->pRootSig->vk.pipelineLayout != VK_NULL_HANDLE, "Pipeline must have a valid root signature with a valid pipeline layout");
+    const rz_gfx_shader* pShader = desc->pShader;
+    const rz_gfx_root_signature* pRootSig = desc->pRootSig;
+    const rz_gfx_shader_desc*    pShaderDesc = &pShader->resource.desc.shaderDesc;
+    RAZIX_RHI_ASSERT(pShaderDesc->pipelineType == RZ_GFX_PIPELINE_TYPE_GRAPHICS, "Shader must be a graphics shader for this pipeline type! (Pipeline creation)");
+    // Cache the pipline layout from the root signature, might be useful without having to need root signature pointer
+    pso->vk.pipelineLayout = pRootSig->vk.pipelineLayout;
+
+    rz_gfx_input_element* pInputElements = (rz_gfx_input_element*) pShaderDesc->pElements;
+    RAZIX_RHI_ASSERT(desc->renderTargetCount> 0, "Pipeline must have at least one color attachment");
+    RAZIX_RHI_ASSERT(desc->renderTargetCount<= RAZIX_MAX_RENDER_TARGETS, "Pipeline cannot have more than RAZIX_MAX_COLOR_ATTACHMENTS color attachments");
+
+    //----------------------------
+    // Vertex Input Layout Stage
+    //----------------------------
+    VkVertexInputBindingDescription   pVertexInputBindingDescriptions[RAZIX_MAX_VERTEX_ATTRIBUTES];
+    VkVertexInputAttributeDescription pVertexInputAttributeDescriptions[RAZIX_MAX_VERTEX_ATTRIBUTES];
+    for (unsigned int i = 0; i < pShaderDesc->elementsCount; i++) {
+        rz_gfx_input_element element = pInputElements[i];
+        pVertexInputBindingDescriptions[i]   = vk_util_get_vertex_binding_description(element, i);
+        pVertexInputAttributeDescriptions[i] = vk_util_get_vertex_attribute_description(element, i); 
+    } 
+
+    VkPipelineVertexInputStateCreateInfo vertexInputSCI = {0};
+    vertexInputSCI.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputSCI.pNext                           = NULL;
+    vertexInputSCI.vertexBindingDescriptionCount   = pShaderDesc->elementsCount;
+    vertexInputSCI.pVertexBindingDescriptions      = pVertexInputBindingDescriptions;
+    vertexInputSCI.vertexAttributeDescriptionCount = pShaderDesc->elementsCount;
+    vertexInputSCI.pVertexAttributeDescriptions    = pVertexInputAttributeDescriptions;
+
+#if 0
+
+    //----------------------------
+    // Input Assembly Stage
+    //----------------------------
+    VkPipelineInputAssemblyStateCreateInfo inputAssemblySCI{};
+    inputAssemblySCI.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    inputAssemblySCI.pNext                  = NULL;
+    inputAssemblySCI.primitiveRestartEnable = VK_FALSE;
+    inputAssemblySCI.topology               = VKUtilities::DrawTypeToVK(pipelineInfo.drawType);
+
+    //----------------------------
+    // Viewport and Dynamic states
+    //----------------------------
+
+    std::vector<VkDynamicState> dynamicStateDescriptors;
+
+    VkPipelineViewportStateCreateInfo viewportSCI{};
+    viewportSCI.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    viewportSCI.pNext         = NULL;
+    viewportSCI.viewportCount = 1;
+    viewportSCI.scissorCount  = 1;
+    viewportSCI.pScissors     = NULL;
+    viewportSCI.pViewports    = NULL;
+    dynamicStateDescriptors.push_back(VK_DYNAMIC_STATE_VIEWPORT);
+    dynamicStateDescriptors.push_back(VK_DYNAMIC_STATE_SCISSOR);
+
+    if (pipelineInfo.depthBiasEnabled)
+        dynamicStateDescriptors.push_back(VK_DYNAMIC_STATE_DEPTH_BIAS);
+
+    VkPipelineDynamicStateCreateInfo dynamicStateCI{};
+    dynamicStateCI.sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    dynamicStateCI.pNext             = NULL;
+    dynamicStateCI.dynamicStateCount = u32(dynamicStateDescriptors.size());
+    dynamicStateCI.pDynamicStates    = dynamicStateDescriptors.data();
+
+    //----------------------------
+    // Rasterizer Stage
+    //----------------------------
+    VkPipelineRasterizationStateCreateInfo rasterizationSCI{};
+    rasterizationSCI.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizationSCI.pNext                   = NULL;
+    rasterizationSCI.cullMode                = VKUtilities::CullModeToVK(pipelineInfo.cullMode);
+    rasterizationSCI.depthBiasClamp          = 0;
+    rasterizationSCI.depthBiasConstantFactor = 0;
+    rasterizationSCI.depthBiasEnable         = (pipelineInfo.depthBiasEnabled ? VK_TRUE : VK_FALSE);
+    rasterizationSCI.depthBiasSlopeFactor    = 0;
+    rasterizationSCI.depthClampEnable        = VK_FALSE;
+    rasterizationSCI.frontFace               = VK_FRONT_FACE_CLOCKWISE;
+    rasterizationSCI.lineWidth               = 1.0f;
+    rasterizationSCI.polygonMode             = VKUtilities::PolygoneModeToVK(pipelineInfo.polygonMode);
+    rasterizationSCI.rasterizerDiscardEnable = VK_FALSE;
+
+    //----------------------------
+    // Blend State Stage
+    //----------------------------
+    VkPipelineColorBlendStateCreateInfo colorBlendSCI{};
+    colorBlendSCI.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlendSCI.pNext = NULL;
+    colorBlendSCI.flags = 0;
+
+    std::vector<VkPipelineColorBlendAttachmentState> blendAttachState;
+
+    blendAttachState.resize(pipelineInfo.colorAttachmentFormats.size());
+
+    for (unsigned int i = 0; i < blendAttachState.size(); i++) {
+        blendAttachState[i]                = VkPipelineColorBlendAttachmentState();
+        blendAttachState[i].colorWriteMask = 0x0f;
+        blendAttachState[i].colorBlendOp   = VKUtilities::BlendOpToVK(pipelineInfo.colorOp);
+        blendAttachState[i].alphaBlendOp   = VKUtilities::BlendOpToVK(pipelineInfo.alphaOp);
+
+        if (pipelineInfo.transparencyEnabled) {
+            blendAttachState[i].blendEnable         = VK_TRUE;
+            blendAttachState[i].srcColorBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.colorSrc);
+            blendAttachState[i].dstColorBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.colorDst);
+            blendAttachState[i].srcAlphaBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.alphaSrc);
+            blendAttachState[i].dstAlphaBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.alphaDst);
+        } else {
+            blendAttachState[i].blendEnable         = VK_FALSE;
+            blendAttachState[i].srcColorBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.colorSrc);
+            blendAttachState[i].dstColorBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.colorDst);
+            blendAttachState[i].srcAlphaBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.alphaSrc);
+            blendAttachState[i].dstAlphaBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.alphaDst);
+        }
+    }
+
+    colorBlendSCI.attachmentCount   = static_cast<u32>(blendAttachState.size());
+    colorBlendSCI.pAttachments      = blendAttachState.data();
+    colorBlendSCI.logicOpEnable     = VK_FALSE;
+    colorBlendSCI.logicOp           = VK_LOGIC_OP_NO_OP;
+    colorBlendSCI.blendConstants[0] = 1.0f;
+    colorBlendSCI.blendConstants[1] = 1.0f;
+    colorBlendSCI.blendConstants[2] = 1.0f;
+    colorBlendSCI.blendConstants[3] = 1.0f;
+
+    //----------------------------
+    // Depth Stencil Stage
+    //----------------------------
+    VkPipelineDepthStencilStateCreateInfo depthStencilSCI{};
+    depthStencilSCI.sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depthStencilSCI.pNext                 = NULL;
+    depthStencilSCI.depthTestEnable       = pipelineInfo.depthTestEnabled;
+    depthStencilSCI.depthWriteEnable      = pipelineInfo.depthWriteEnabled;
+    depthStencilSCI.depthCompareOp        = VKUtilities::CompareOpToVK(pipelineInfo.depthOp);
+    depthStencilSCI.depthBoundsTestEnable = VK_FALSE;
+
+    // Stencil Testing is always disabled so no need to care about it's operations
+    depthStencilSCI.stencilTestEnable = VK_FALSE;
+
+    depthStencilSCI.back.failOp      = VK_STENCIL_OP_KEEP;
+    depthStencilSCI.back.passOp      = VK_STENCIL_OP_KEEP;
+    depthStencilSCI.back.compareOp   = VK_COMPARE_OP_ALWAYS;
+    depthStencilSCI.back.compareMask = 0;
+    depthStencilSCI.back.reference   = 0;
+    depthStencilSCI.back.depthFailOp = VK_STENCIL_OP_KEEP;
+    depthStencilSCI.back.writeMask   = 0;
+
+    depthStencilSCI.minDepthBounds = 0;
+    depthStencilSCI.maxDepthBounds = 0;
+    depthStencilSCI.front          = depthStencilSCI.back;
+
+    //----------------------------
+    // Multi sample State (MSAA)
+    //----------------------------
+    VkPipelineMultisampleStateCreateInfo multiSampleSCI{};
+    multiSampleSCI.sType       = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multiSampleSCI.pNext       = NULL;
+    multiSampleSCI.pSampleMask = NULL;
+    // Razix::RZEngine::Get().getGlobalEngineSettings().EnableMSAA use to apply more samples
+    multiSampleSCI.rasterizationSamples  = VK_SAMPLE_COUNT_1_BIT;
+    multiSampleSCI.sampleShadingEnable   = VK_FALSE;
+    multiSampleSCI.alphaToCoverageEnable = VK_FALSE;
+    multiSampleSCI.alphaToOneEnable      = VK_FALSE;
+    multiSampleSCI.minSampleShading      = 0.5;
+
+    //----------------------------
+    // Dynamic Rendering KHR
+    //----------------------------
+
+    VkPipelineRenderingCreateInfoKHR renderingCI{};
+    renderingCI.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
+    std::vector<VkFormat> formats;
+    for (auto& attachment: pipelineInfo.colorAttachmentFormats)
+        formats.push_back(VKUtilities::TextureFormatToVK(attachment));
+    renderingCI.colorAttachmentCount    = static_cast<u32>(pipelineInfo.colorAttachmentFormats.size());
+    renderingCI.pColorAttachmentFormats = formats.data();
+    renderingCI.depthAttachmentFormat   = VKUtilities::TextureFormatToVK(pipelineInfo.depthFormat);    // defaults to VK_FORMAT_UNDEFINED
+
+    //----------------------------
+    // Graphics Pipeline
+    //----------------------------
+    VkGraphicsPipelineCreateInfo graphicsPipelineCI = {0};
+    graphicsPipelineCI.sType                                  = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    graphicsPipelineCI.pNext                                  = &renderingCI; // Enable dynamic rendering, courtesy of VK_KHR_dynamic_rendering extension
+    graphicsPipelineCI.layout                                 = pso.vk.pipelineLayout;
+    graphicsPipelineCI.flags                                  = 0;
+    graphicsPipelineCI.basePipelineHandle                     = VK_NULL_HANDLE;
+    graphicsPipelineCI.basePipelineIndex                      = -1;
+    graphicsPipelineCI.pVertexInputState                      = &vertexInputSCI;
+    graphicsPipelineCI.pInputAssemblyState                    = &inputAssemblySCI;
+    graphicsPipelineCI.pRasterizationState                    = &rasterizationSCI;
+    graphicsPipelineCI.pColorBlendState                       = &colorBlendSCI;
+    graphicsPipelineCI.pTessellationState                     = NULL;
+    graphicsPipelineCI.pMultisampleState                      = &multiSampleSCI;
+    graphicsPipelineCI.pDynamicState                          = &dynamicStateCI;
+    graphicsPipelineCI.pViewportState                         = &viewportSCI;
+    graphicsPipelineCI.pDepthStencilState                     = &depthStencilSCI;
+    std::vector<VkPipelineShaderStageCreateInfo> shaderStages = static_cast<VKShader*>(shader)->getShaderStages();
+    graphicsPipelineCI.pStages                                = shaderStages.data();
+    graphicsPipelineCI.stageCount                             = static_cast<u32>(shaderStages.size());
+    graphicsPipelineCI.renderPass                             = VK_NULL_HANDLE;
+
+    // TODO: use pipeline cache for faster load times
+    CHECK_VK(vkCreateGraphicsPipelines(VKDEVICE, VK_NULL_HANDLE, 1, &graphicsPipelineCI, NULL, &pso->vk.pipeline))
+    VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_PIPELINE, (uint64_t) m_Pipeline);
+#endif
+}
+
+static void vk_CreateComputePipeline(rz_gfx_pipeline* pipeline)
+{
+    const rz_gfx_shader* pShader = pipeline->resource.desc.pipelineDesc.pShader;
+    RAZIX_RHI_ASSERT(pShader != NULL, "Compute pipeline must have a valid compute shader");
+    RAZIX_RHI_ASSERT(pShader->vk.module != VK_NULL_HANDLE, "Compute shader must have a valid shader module");
+
+    //----------------------------
+    // Compute Pipeline
+    //----------------------------
+    VkPipelineShaderStageCreateInfo shaderStageCI = {0};
+    shaderStageCI.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    shaderStageCI.pNext  = NULL;
+    shaderStageCI.stage  = VK_SHADER_STAGE_COMPUTE_BIT;
+    shaderStageCI.module = pShader->vk.module;
+    shaderStageCI.pName  = "CS_MAIN";
+
+    VkComputePipelineCreateInfo computePipelineCI = {0};
+    computePipelineCI.sType  = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+    computePipelineCI.pNext  = NULL;
+    computePipelineCI.layout = pipeline->vk.pipelineLayout;
+    computePipelineCI.flags  = 0;
+    computePipelineCI.stage  = shaderStageCI;
+
+    CHECK_VK(vkCreateComputePipelines(VKDEVICE, VK_NULL_HANDLE, 1, &computePipelineCI, NULL, &pipeline->vk.pipeline));
+    TAG_OBJECT(pipeline->vk.pipeline, VK_OBJECT_TYPE_PIPELINE, pipeline->resource.pName);
+}
+
 static void vk_CreatePipeline(void* pipeline)
 {
-    (void) pipeline;
-    // TODO: Implement when needed
+    rz_gfx_pipeline* pso = (rz_gfx_pipeline*) pipeline;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
+
+    if (pso->resource.desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
+        vk_CreateGraphicsPipeline(pso);
+    else if (pso->resource.desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_COMPUTE)
+        vk_CreateComputePipeline(pso);
+    else 
+        RAZIX_RHI_LOG_ERROR("Raytracing pipelines are not supported in Vulkan backend yet!");
 }
 
 static void vk_DestroyPipeline(void* pipeline)
 {
-    (void) pipeline;
-    // TODO: Implement when needed
+    rz_gfx_pipeline* pso = (rz_gfx_pipeline*) pipeline;
+    if (pso->vk.pipeline != VK_NULL_HANDLE) {
+        vkDestroyPipeline(VKDEVICE, pso->vk.pipeline, NULL);
+        pso->vk.pipeline = VK_NULL_HANDLE;
+    }
 }
 
 static void vk_CreateTexture(void* where)
@@ -2551,7 +2826,7 @@ static void vk_BindGfxRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_sig
     // Note: Actual descriptor set binding would happen when descriptors are available
     // vkCmdBindDescriptorSets(cmdBuf->vk.cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS,
     //                         rootSig->vk.pipelineLayout, 0, descriptorSetCount,
-    //                         pDescriptorSets, 0, nullptr);
+    //                         pDescriptorSets, 0, NULL);
 }
 
 static void vk_BindComputeRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_signature* rootSig)
@@ -2568,7 +2843,7 @@ static void vk_BindComputeRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root
     // Note: Actual descriptor set binding would happen when descriptors are available
     // vkCmdBindDescriptorSets(cmdBuf->vk.cmdBuf, VK_PIPELINE_BIND_POINT_COMPUTE,
     //                         rootSig->vk.pipelineLayout, 0, descriptorSetCount,
-    //                         pDescriptorSets, 0, nullptr);
+    //                         pDescriptorSets, 0, NULL);
 }
 
 static void vk_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
