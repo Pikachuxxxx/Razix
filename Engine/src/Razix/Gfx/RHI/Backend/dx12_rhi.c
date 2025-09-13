@@ -253,7 +253,7 @@ static D3D12_INPUT_ELEMENT_DESC dx12_util_input_element_desc(rz_gfx_input_elemen
     dxElement.SemanticName             = (LPCSTR) (element.pSemanticName);
     dxElement.SemanticIndex            = element.semanticIndex;
     dxElement.Format                   = dx12_util_rz_gfx_format_to_dxgi_format(element.format);
-    dxElement.InputSlot                = element.inputSlot;
+    dxElement.InputSlot                = element.inputSlot; // Using separate indices for SOA, use 0 for AOS
     dxElement.AlignedByteOffset        = element.alignedByteOffset;
     dxElement.InputSlotClass           = (element.inputClass == RZ_GFX_INPUT_CLASS_PER_VERTEX)
                                              ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA
