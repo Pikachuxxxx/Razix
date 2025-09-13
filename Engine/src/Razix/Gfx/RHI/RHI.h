@@ -232,6 +232,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define RAZIX_MAX_ALLOWED_TABLES_TO_BIND         16                                   // Maximum number of descriptor tables that can be bound at once
 #define RAZIX_RESOURCE_VIEW_DIMENSION_FULL       0xffffffff
 #define RAZIX_MAX_VERTEX_BUFFERS_BOUND           16
+#define RAZIX_VERTEX_INPUT_SOA_ENABLED           1    // Structure of Arrays for vertex input data
 
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX "PushConstant"
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_VK     RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX
@@ -1013,7 +1014,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t           alignedByteOffset : 8;
         uint32_t           inputClass : 1;
         uint32_t           instanceStepRate : 8;
-        uint32_t           _pad0;
+        uint32_t           stride;
     } rz_gfx_input_element;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader_desc
@@ -1515,6 +1516,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     RAZIX_RHI_API bool rzRHI_IsDescriptorTypeBufferRW(rz_gfx_descriptor_type type);
 
     RAZIX_RHI_API uint32_t rzRHI_GetBytesPerPixel(rz_gfx_format format);
+    RAZIX_RHI_API uint32_t rzRHI_GetFormatStrideComponentsCount(rz_gfx_format format);
+    RAZIX_RHI_API uint32_t rzRHI_GetFormatComponentSize(rz_gfx_format format);
     RAZIX_RHI_API uint32_t rzRHI_GetMipLevelCount(uint32_t width, uint32_t height);
 
     //---------------------------------------------------------------------------------------------
