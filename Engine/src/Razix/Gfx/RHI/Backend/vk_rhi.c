@@ -1082,7 +1082,7 @@ static void vk_util_create_logical_device(void)
     createInfo.pNext                   = &deviceFeatures2;
     createInfo.pQueueCreateInfos       = &queueCreateInfo;
     createInfo.queueCreateInfoCount    = 1;
-    createInfo.pEnabledFeatures        = &deviceFeatures;
+    createInfo.pEnabledFeatures        = NULL; // must be null when using deviceFeatures2
     createInfo.enabledExtensionCount   = sizeof(s_RequiredDeviceExtensions) / sizeof(s_RequiredDeviceExtensions[0]);
     createInfo.ppEnabledExtensionNames = s_RequiredDeviceExtensions;
 
