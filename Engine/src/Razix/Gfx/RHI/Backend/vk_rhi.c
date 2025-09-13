@@ -2313,28 +2313,29 @@ static VkVertexInputAttributeDescription vk_util_get_vertex_attribute_descriptio
 
 static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
 {
-    rz_gfx_pipeline* pso = (rz_gfx_pipeline*) pipeline;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_pipeline*             pso         = (rz_gfx_pipeline*) pipeline;
+    const rz_gfx_pipeline_desc*  desc        = &pso->resource.desc.pipelineDesc;
+    const rz_gfx_shader*         pShader     = desc->pShader;
+    const rz_gfx_root_signature* pRootSig    = desc->pRootSig;
+    const rz_gfx_shader_desc*    pShaderDesc = &pShader->resource.desc.shaderDesc;
 
-    const rz_gfx_pipeline_desc* desc = &pso->resource.desc.pipelineDesc;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
     RAZIX_RHI_ASSERT(desc != NULL, "Pipeline must have a valid description");
     RAZIX_RHI_ASSERT(desc->pShader != NULL, "Pipeline must have a valid shader");
     RAZIX_RHI_ASSERT(desc->pRootSig != NULL, "Pipeline must have a valid root signature");
     RAZIX_RHI_ASSERT(desc->pRootSig->vk.pipelineLayout != VK_NULL_HANDLE, "Pipeline must have a valid root signature with a valid pipeline layout");
-    const rz_gfx_shader*         pShader     = desc->pShader;
-    const rz_gfx_root_signature* pRootSig    = desc->pRootSig;
-    const rz_gfx_shader_desc*    pShaderDesc = &pShader->resource.desc.shaderDesc;
     RAZIX_RHI_ASSERT(pShaderDesc->pipelineType == RZ_GFX_PIPELINE_TYPE_GRAPHICS, "Shader must be a graphics shader for this pipeline type! (Pipeline creation)");
-    // Cache the pipline layout from the root signature, might be useful without having to need root signature pointer
-    pso->vk.pipelineLayout = pRootSig->vk.pipelineLayout;
-
-    rz_gfx_input_element* pInputElements = (rz_gfx_input_element*) pShaderDesc->pElements;
     RAZIX_RHI_ASSERT(desc->renderTargetCount > 0, "Pipeline must have at least one color attachment");
     RAZIX_RHI_ASSERT(desc->renderTargetCount <= RAZIX_MAX_RENDER_TARGETS, "Pipeline cannot have more than RAZIX_MAX_COLOR_ATTACHMENTS color attachments");
+
+    // Cache the pipeline layout from the root signature, might be useful without having to need root signature pointer
+    pso->vk.pipelineLayout = pRootSig->vk.pipelineLayout;
 
     //----------------------------
     // Vertex Input Layout Stage
     //----------------------------
+    rz_gfx_input_element* pInputElements = (rz_gfx_input_element*) pShaderDesc->pElements;
+
     VkVertexInputBindingDescription   pVertexInputBindingDescriptions[RAZIX_MAX_VERTEX_ATTRIBUTES];
     VkVertexInputAttributeDescription pVertexInputAttributeDescriptions[RAZIX_MAX_VERTEX_ATTRIBUTES];
     for (unsigned int i = 0; i < pShaderDesc->elementsCount; i++) {
@@ -2365,12 +2366,12 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
     //----------------------------
 
     VkPipelineViewportStateCreateInfo viewportSCI = {0};
-    viewportSCI.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-    viewportSCI.pNext         = NULL;
-    viewportSCI.viewportCount = 1;
-    viewportSCI.scissorCount  = 1;
-    viewportSCI.pScissors     = NULL;
-    viewportSCI.pViewports    = NULL;
+    viewportSCI.sType                             = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    viewportSCI.pNext                             = NULL;
+    viewportSCI.viewportCount                     = 1;
+    viewportSCI.scissorCount                      = 1;
+    viewportSCI.pScissors                         = NULL;
+    viewportSCI.pViewports                        = NULL;
 
     VkDynamicState dynamicStateDescriptors[RAZIX_MAX_DYNAMIC_PIPELINE_STATES];
     dynamicStateDescriptors[0] = VK_DYNAMIC_STATE_VIEWPORT;
@@ -2378,29 +2379,29 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
     dynamicStateDescriptors[2] = VK_DYNAMIC_STATE_DEPTH_BIAS;
 
     VkPipelineDynamicStateCreateInfo dynamicStateCI = {0};
-    dynamicStateCI.sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamicStateCI.pNext             = NULL;
-    dynamicStateCI.dynamicStateCount = RAZIX_MAX_DYNAMIC_PIPELINE_STATES;
-    dynamicStateCI.pDynamicStates    = dynamicStateDescriptors;
+    dynamicStateCI.sType                            = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    dynamicStateCI.pNext                            = NULL;
+    dynamicStateCI.dynamicStateCount                = RAZIX_MAX_DYNAMIC_PIPELINE_STATES;
+    dynamicStateCI.pDynamicStates                   = dynamicStateDescriptors;
 
-#if 0
     //----------------------------
     // Rasterizer Stage
     //----------------------------
-    VkPipelineRasterizationStateCreateInfo rasterizationSCI{};
-    rasterizationSCI.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-    rasterizationSCI.pNext                   = NULL;
-    rasterizationSCI.cullMode                = VKUtilities::CullModeToVK(pipelineInfo.cullMode);
-    rasterizationSCI.depthBiasClamp          = 0;
-    rasterizationSCI.depthBiasConstantFactor = 0;
-    rasterizationSCI.depthBiasEnable         = (pipelineInfo.depthBiasEnabled ? VK_TRUE : VK_FALSE);
-    rasterizationSCI.depthBiasSlopeFactor    = 0;
-    rasterizationSCI.depthClampEnable        = VK_FALSE;
-    rasterizationSCI.frontFace               = VK_FRONT_FACE_CLOCKWISE;
-    rasterizationSCI.lineWidth               = 1.0f;
-    rasterizationSCI.polygonMode             = VKUtilities::PolygoneModeToVK(pipelineInfo.polygonMode);
-    rasterizationSCI.rasterizerDiscardEnable = VK_FALSE;
+    VkPipelineRasterizationStateCreateInfo rasterizationSCI = {0};
+    rasterizationSCI.sType                                  = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizationSCI.pNext                                  = NULL;
+    rasterizationSCI.cullMode                               = vk_util_translate_cull_mode(desc->cullMode);
+    rasterizationSCI.depthBiasClamp                         = 0;
+    rasterizationSCI.depthBiasConstantFactor                = 0;
+    rasterizationSCI.depthBiasEnable                        = VK_FALSE;
+    rasterizationSCI.depthBiasSlopeFactor                   = 0;
+    rasterizationSCI.depthClampEnable                       = desc->depthClampEnable ? VK_TRUE : VK_FALSE;    // useful for shadow maps
+    rasterizationSCI.frontFace                              = VK_FRONT_FACE_CLOCKWISE;
+    rasterizationSCI.lineWidth                              = 1.0f;
+    rasterizationSCI.polygonMode                            = vk_util_translate_polygon_mode(desc->polygonMode);
+    rasterizationSCI.rasterizerDiscardEnable                = VK_FALSE;
 
+#if 0
     //----------------------------
     // Blend State Stage
     //----------------------------
