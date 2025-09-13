@@ -2150,6 +2150,9 @@ static void dx12_CreateRootSignature(void* where)
     rootDesc.Flags                     = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
     rootDesc.NumParameters             = desc->descriptorTableLayoutsCount + desc->rootConstantCount;
     rootDesc.pParameters               = rootParams;
+    // TODO: Use static samplers in future for truly bindless textures
+    rootDesc.NumStaticSamplers = 0;
+    rootDesc.pStaticSamplers = NULL;
 
     for (uint32_t tableIdx = 0; tableIdx < desc->descriptorTableLayoutsCount; tableIdx++) {
         const rz_gfx_descriptor_table_layout* pTableLayouts = &desc->pDescriptorTableLayouts[tableIdx];

@@ -1873,6 +1873,80 @@ static VkPolygonMode vk_util_translate_polygon_mode(rz_gfx_polygon_mode_type pol
     }
 }
 
+static VkDescriptorType vk_util_translate_descriptor_type(rz_gfx_descriptor_type type)
+{
+    switch (type) {
+        case RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER:
+            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT:
+            // Push constants are handled separately in Vulkan, not as descriptors
+            RAZIX_RHI_LOG_WARN("Push constants should not be converted to VkDescriptorType, handle separately");
+            return 0;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED:
+            return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_TEXTURE:
+            return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE:
+            return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE:
+            // Render textures are typically used as sampled images in shaders
+            return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE:
+            // Depth stencil textures when used in shaders are sampled images
+            return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_SAMPLER:
+            return VK_DESCRIPTOR_TYPE_SAMPLER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_TYPED:
+            // Read-write typed buffer (UAV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_STRUCTURED:
+            // Structured buffer (SRV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED:
+            // Read-write structured buffer (UAV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_BYTE_ADDRESS:
+            // Byte address buffer (SRV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_BYTE_ADDRESS:
+            // Read-write byte address buffer (UAV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_APPEND_STRUCTURED:
+            // Append structured buffer (UAV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_CONSUME_STRUCTURED:
+            // Consume structured buffer (UAV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED_COUNTER:
+            // Read-write structured buffer with counter (UAV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RT_ACCELERATION_STRUCTURE:
+            return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_NONE:
+        case RZ_GFX_DESCRIPTOR_TYPE_COUNT:
+        default:
+            RAZIX_RHI_LOG_ERROR("Invalid or unsupported descriptor type: %d", type);
+            return 0;    // Invalid value
+    }
+}
+
 //---------------------------------------------------------------------------------------------
 
 static void vk_GlobalCtxInit(void)
@@ -2460,7 +2534,7 @@ static void vk_CreateShader(void* where)
 static void vk_DestroyShader(void* shader)
 {
     rz_gfx_shader* shaderObj = (rz_gfx_shader*) shader;
-    
+
     // Destroy all shader modules
     for (int i = 0; i < RZ_GFX_SHADER_STAGE_COUNT; i++) {
         if (shaderObj->vk.modules[i] != VK_NULL_HANDLE) {
@@ -2473,14 +2547,94 @@ static void vk_DestroyShader(void* shader)
 
 static void vk_CreateRootSignature(void* where)
 {
-    (void) where;
-    // TODO: Implement when needed
+    rz_gfx_root_signature* rootSig = (rz_gfx_root_signature*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&rootSig->resource.handle), "Invalid rootsignature handle, who is allocating this? ResourceManager should create a valid handle");
+
+    const rz_gfx_root_signature_desc* desc = &rootSig->resource.desc.rootSignatureDesc;
+
+    VkDescriptorSetLayout descriptorSetLayouts[RAZIX_MAX_DESCRIPTOR_TABLES] = {VK_NULL_HANDLE};
+    VkPushConstantRange   pushConstantRanges[RAZIX_MAX_ROOT_CONSTANTS]      = {0};
+
+    for (uint32_t tableIdx = 0; tableIdx < desc->descriptorTableLayoutsCount; tableIdx++) {
+        const rz_gfx_descriptor_table_layout* pTableLayouts = &desc->pDescriptorTableLayouts[tableIdx];
+        RAZIX_RHI_ASSERT(pTableLayouts != NULL, "Descriptor table cannot be NULL in root signature creation! (Root Signature creation)");
+
+        VkDescriptorSetLayoutBinding bindings[RAZIX_MAX_DESCRIPTOR_RANGES] = {0};
+
+        for (uint32_t rangeIdx = 0; rangeIdx < pTableLayouts->descriptorCount; rangeIdx++) {
+            RAZIX_RHI_ASSERT(rangeIdx < RAZIX_MAX_DESCRIPTOR_RANGES, "Too many descriptors in a table! [MAXLIMIT: %d] (Root Signature creation)", RAZIX_MAX_DESCRIPTOR_RANGES);
+
+            const rz_gfx_descriptor* pDescriptor = &pTableLayouts->pDescriptors[rangeIdx];
+            RAZIX_RHI_ASSERT(pDescriptor != NULL, "Descriptor cannot be NULL in a descriptor table! (Root Signature creation)");
+            RAZIX_RHI_ASSERT(pDescriptor->location.space == pTableLayouts->tableIndex,
+                "Descriptor space (%u) does not match table index (%u) in root signature creation! (Root Signature creation)",
+                pDescriptor->location.space,
+                pTableLayouts->tableIndex);
+
+            VkDescriptorSetLayoutBinding* binding = &bindings[rangeIdx];
+            binding->binding                      = pDescriptor->location.binding;
+            binding->descriptorType               = vk_util_translate_descriptor_type(pDescriptor->type);
+            binding->descriptorCount              = pDescriptor->memberCount;
+            binding->stageFlags                   = VK_SHADER_STAGE_ALL;    // FIXME: This is generic but we might make it more specific later based on shader stages using the root signature
+            // TODO: Use static samplers (aka immutable sampler) in future for truly bindless textures
+            binding->pImmutableSamplers = NULL;
+        }
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo = {0};
+        layoutInfo.sType                           = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount                    = pTableLayouts->descriptorCount;
+        layoutInfo.pBindings                       = bindings;
+
+        VkResult result = vkCreateDescriptorSetLayout(VKDEVICE, &layoutInfo, NULL, &descriptorSetLayouts[tableIdx]);
+        if (result != VK_SUCCESS) {
+            RAZIX_RHI_LOG_ERROR("Failed to create descriptor set layout for table %u: %d", tableIdx, result);
+            // Clean up any previously created layouts
+            for (uint32_t cleanupIdx = 0; cleanupIdx < tableIdx; cleanupIdx++) {
+                if (descriptorSetLayouts[cleanupIdx] != VK_NULL_HANDLE) {
+                    vkDestroyDescriptorSetLayout(VKDEVICE, descriptorSetLayouts[cleanupIdx], NULL);
+                }
+            }
+            return;
+        }
+    }
+
+    for (uint32_t i = 0; i < desc->rootConstantCount; i++) {
+        const rz_gfx_root_constant_desc* pRootConstantDesc = &desc->pRootConstantsDesc[i];
+        RAZIX_RHI_ASSERT(pRootConstantDesc != NULL, "Root constant cannot be NULL in root signature creation! (Root Signature creation)");
+
+        VkPushConstantRange* range = &pushConstantRanges[i];
+        range->stageFlags          = VK_SHADER_STAGE_ALL;
+        range->offset              = 0;
+        range->size                = pRootConstantDesc->sizeInBytes;
+    }
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo = {0};
+    pipelineLayoutInfo.sType                      = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount             = desc->descriptorTableLayoutsCount;
+    pipelineLayoutInfo.pSetLayouts                = descriptorSetLayouts;
+    pipelineLayoutInfo.pushConstantRangeCount     = desc->rootConstantCount;
+    pipelineLayoutInfo.pPushConstantRanges        = pushConstantRanges;
+
+    CHECK_VK(vkCreatePipelineLayout(VKDEVICE, &pipelineLayoutInfo, NULL, &rootSig->vk.pipelineLayout));
+    TAG_OBJECT(rootSig->vk.pipelineLayout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, rootSig->resource.pName);
+
+    // Cleanup descriptor set layouts as they are baked into the pipeline layout now
+    for (uint32_t cleanupIdx = 0; cleanupIdx < desc->descriptorTableLayoutsCount; cleanupIdx++) {
+        if (descriptorSetLayouts[cleanupIdx] != VK_NULL_HANDLE) {
+            vkDestroyDescriptorSetLayout(VKDEVICE, descriptorSetLayouts[cleanupIdx], NULL);
+        }
+    }
 }
 
 static void vk_DestroyRootSignature(void* ptr)
 {
-    (void) ptr;
-    // TODO: Implement when needed
+    RAZIX_RHI_ASSERT(ptr != NULL, "Root signature is NULL, cannot destroy");
+    rz_gfx_root_signature* rootSig = (rz_gfx_root_signature*) ptr;
+
+    if (rootSig->vk.pipelineLayout != VK_NULL_HANDLE) {
+        vkDestroyPipelineLayout(VKDEVICE, rootSig->vk.pipelineLayout, NULL);
+        rootSig->vk.pipelineLayout = VK_NULL_HANDLE;
+    }
 }
 
 static VkVertexInputBindingDescription vk_util_get_vertex_binding_description(rz_gfx_input_element element, uint32_t index)
@@ -2790,7 +2944,7 @@ static void vk_CreateComputePipeline(rz_gfx_pipeline* pipeline)
     shaderStageCI.sType                           = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shaderStageCI.pNext                           = NULL;
     shaderStageCI.stage                           = VK_SHADER_STAGE_COMPUTE_BIT;
-    shaderStageCI.module                          = pShader->vk.modules[0]; // Compute shader is always at index 0, since its the only stage
+    shaderStageCI.module                          = pShader->vk.modules[0];    // Compute shader is always at index 0, since its the only stage
     shaderStageCI.pName                           = "CS_MAIN";
 
     VkComputePipelineCreateInfo computePipelineCI = {0};
