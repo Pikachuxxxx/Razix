@@ -1929,7 +1929,7 @@ static void vk_CreateSwapchain(void* where, void* surface, uint32_t width, uint3
     createInfo.imageColorSpace          = surfaceFormat.colorSpace;
     createInfo.imageExtent              = extent;
     createInfo.imageArrayLayers         = 1;
-    createInfo.imageUsage               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    createInfo.imageUsage               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 
     VkQueueFamilyIndices indices              = VKCONTEXT.queueFamilyIndices;
     uint32_t             queueFamilyIndices[] = {indices.graphicsFamily, indices.presentFamily};
