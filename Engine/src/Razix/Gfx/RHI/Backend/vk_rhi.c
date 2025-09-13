@@ -1753,9 +1753,9 @@ static uint32_t vk_util_find_memory_type(uint32_t typeFilter, VkMemoryPropertyFl
 static VkPipelineColorBlendAttachmentState vk_util_blend_preset(rz_gfx_blend_presets preset)
 {
     VkPipelineColorBlendAttachmentState desc = {0};
-    desc.blendEnable = VK_TRUE;
-    desc.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | 
-                         VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    desc.blendEnable                         = VK_TRUE;
+    desc.colorWriteMask                      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                          VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
     switch (preset) {
         case RZ_GFX_BLEND_PRESET_ADDITIVE:
@@ -1837,6 +1837,39 @@ static VkBlendOp vk_util_blend_op(rz_gfx_blend_op_type op)
         case RZ_GFX_BLEND_OP_TYPE_MIN: return VK_BLEND_OP_MIN;
         case RZ_GFX_BLEND_OP_TYPE_MAX: return VK_BLEND_OP_MAX;
         default: return VK_BLEND_OP_ADD;
+    }
+}
+
+static VkPrimitiveTopology vk_util_translate_draw_type(rz_gfx_draw_type drawType)
+{
+    switch (drawType) {
+        case RZ_GFX_DRAW_TYPE_POINT: return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+        case RZ_GFX_DRAW_TYPE_TRIANGLE: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        case RZ_GFX_DRAW_TYPE_TRIANGLE_STRIP: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+        case RZ_GFX_DRAW_TYPE_LINE: return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+        case RZ_GFX_DRAW_TYPE_LINE_STRIP: return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+        default: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    }
+}
+
+static VkCullModeFlags vk_util_translate_cull_mode(rz_gfx_cull_mode_type cullMode)
+{
+    switch (cullMode) {
+        case RZ_GFX_CULL_MODE_TYPE_BACK: return VK_CULL_MODE_BACK_BIT;
+        case RZ_GFX_CULL_MODE_TYPE_FRONT: return VK_CULL_MODE_FRONT_BIT;
+        case RZ_GFX_CULL_MODE_TYPE_FRONT_BACK: return VK_CULL_MODE_FRONT_AND_BACK;
+        case RZ_GFX_CULL_MODE_TYPE_NONE: return VK_CULL_MODE_NONE;
+        default: return VK_CULL_MODE_BACK_BIT;
+    }
+}
+
+static VkPolygonMode vk_util_translate_polygon_mode(rz_gfx_polygon_mode_type polygonMode)
+{
+    switch (polygonMode) {
+        case RZ_GFX_POLYGON_MODE_TYPE_SOLID: return VK_POLYGON_MODE_FILL;
+        case RZ_GFX_POLYGON_MODE_TYPE_WIREFRAME: return VK_POLYGON_MODE_LINE;
+        case RZ_GFX_POLYGON_MODE_TYPE_POINT: return VK_POLYGON_MODE_POINT;
+        default: return VK_POLYGON_MODE_FILL;
     }
 }
 
@@ -2318,42 +2351,39 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
     vertexInputSCI.vertexAttributeDescriptionCount      = pShaderDesc->elementsCount;
     vertexInputSCI.pVertexAttributeDescriptions         = pVertexInputAttributeDescriptions;
 
-#if 0
-
     //----------------------------
     // Input Assembly Stage
     //----------------------------
-    VkPipelineInputAssemblyStateCreateInfo inputAssemblySCI{};
-    inputAssemblySCI.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssemblySCI.pNext                  = NULL;
-    inputAssemblySCI.primitiveRestartEnable = VK_FALSE;
-    inputAssemblySCI.topology               = VKUtilities::DrawTypeToVK(pipelineInfo.drawType);
+    VkPipelineInputAssemblyStateCreateInfo inputAssemblySCI = {0};
+    inputAssemblySCI.sType                                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    inputAssemblySCI.pNext                                  = NULL;
+    inputAssemblySCI.primitiveRestartEnable                 = VK_FALSE;
+    inputAssemblySCI.topology                               = vk_util_translate_draw_type(desc->drawType);
 
     //----------------------------
     // Viewport and Dynamic states
     //----------------------------
 
-    std::vector<VkDynamicState> dynamicStateDescriptors;
-
-    VkPipelineViewportStateCreateInfo viewportSCI{};
+    VkPipelineViewportStateCreateInfo viewportSCI = {0};
     viewportSCI.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     viewportSCI.pNext         = NULL;
     viewportSCI.viewportCount = 1;
     viewportSCI.scissorCount  = 1;
     viewportSCI.pScissors     = NULL;
     viewportSCI.pViewports    = NULL;
-    dynamicStateDescriptors.push_back(VK_DYNAMIC_STATE_VIEWPORT);
-    dynamicStateDescriptors.push_back(VK_DYNAMIC_STATE_SCISSOR);
 
-    if (pipelineInfo.depthBiasEnabled)
-        dynamicStateDescriptors.push_back(VK_DYNAMIC_STATE_DEPTH_BIAS);
+    VkDynamicState dynamicStateDescriptors[RAZIX_MAX_DYNAMIC_PIPELINE_STATES];
+    dynamicStateDescriptors[0] = VK_DYNAMIC_STATE_VIEWPORT;
+    dynamicStateDescriptors[1] = VK_DYNAMIC_STATE_SCISSOR;
+    dynamicStateDescriptors[2] = VK_DYNAMIC_STATE_DEPTH_BIAS;
 
-    VkPipelineDynamicStateCreateInfo dynamicStateCI{};
+    VkPipelineDynamicStateCreateInfo dynamicStateCI = {0};
     dynamicStateCI.sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     dynamicStateCI.pNext             = NULL;
-    dynamicStateCI.dynamicStateCount = u32(dynamicStateDescriptors.size());
-    dynamicStateCI.pDynamicStates    = dynamicStateDescriptors.data();
+    dynamicStateCI.dynamicStateCount = RAZIX_MAX_DYNAMIC_PIPELINE_STATES;
+    dynamicStateCI.pDynamicStates    = dynamicStateDescriptors;
 
+#if 0
     //----------------------------
     // Rasterizer Stage
     //----------------------------
