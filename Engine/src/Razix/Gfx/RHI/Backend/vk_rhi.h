@@ -117,7 +117,7 @@ typedef struct vk_root_signature
 
 typedef struct vk_shader
 {
-    VkShaderModule module;    // one per stage if needed
+    VkShaderModule modules[13];
 } vk_shader;
 
 typedef struct vk_pipeline

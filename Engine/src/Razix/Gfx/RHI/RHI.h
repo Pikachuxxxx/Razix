@@ -233,6 +233,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define RAZIX_RESOURCE_VIEW_DIMENSION_FULL       0xffffffff
 #define RAZIX_MAX_VERTEX_BUFFERS_BOUND           16
 #define RAZIX_VERTEX_INPUT_SOA_ENABLED           1    // Structure of Arrays for vertex input data
+#define RAZIX_MAX_DYNAMIC_PIPELINE_STATES        3 // Viewport and Scissor Rect and optionally Depth Bias
 
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX "PushConstant"
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_VK     RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX
@@ -1084,7 +1085,10 @@ static inline unsigned int rz_clz32(unsigned int x)
             uint32_t primitiveRestartEnabled : 1;
             uint32_t drawType : 2;
             uint32_t useBlendPreset : 1;    // If set to true, use the blend preset, else use the blend factors below
-            uint32_t reserved0 : 13;
+            uint32_t depthClampEnable: 1; // For shadow mapping
+            uint32_t transparencyEnabled : 1;
+            uint32_t enableStencilTest : 1;
+            uint32_t reserved0 : 10;
         };
 
         union

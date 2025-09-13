@@ -2270,14 +2270,205 @@ static void vk_DestroyCmdBuf(void* cmdBuf)
 
 static void vk_CreateShader(void* where)
 {
-    (void) where;
-    // TODO: Implement when needed
+    rz_gfx_shader* shader = (rz_gfx_shader*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&shader->resource.handle), "Invalid shader handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_shader_desc* desc = &shader->resource.desc.shaderDesc;
+
+    uint32_t stageCount = 0;
+    switch (desc->pipelineType) {
+        case RZ_GFX_PIPELINE_TYPE_GRAPHICS:
+            if (desc->raster.vs.bytecode) {
+                shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_VERTEX;
+                VkShaderModuleCreateInfo createInfo = {0};
+                createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize                 = desc->raster.vs.size;
+                createInfo.pCode                    = (uint32_t*) desc->raster.vs.bytecode;
+                CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
+
+                char vsName[256];
+                snprintf(vsName, sizeof(vsName), "%s_VS", shader->resource.pName);
+                TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, vsName);
+                stageCount++;
+            }
+            if (desc->raster.ps.bytecode) {
+                shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_PIXEL;
+                VkShaderModuleCreateInfo createInfo = {0};
+                createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize                 = desc->raster.ps.size;
+                createInfo.pCode                    = (uint32_t*) desc->raster.ps.bytecode;
+                CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
+
+                char psName[256];
+                snprintf(psName, sizeof(psName), "%s_PS", shader->resource.pName);
+                TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, psName);
+                stageCount++;
+            }
+            if (desc->raster.gs.bytecode) {
+                shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_GEOMETRY;
+                VkShaderModuleCreateInfo createInfo = {0};
+                createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize                 = desc->raster.gs.size;
+                createInfo.pCode                    = (uint32_t*) desc->raster.gs.bytecode;
+                CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
+
+                char gsName[256];
+                snprintf(gsName, sizeof(gsName), "%s_GS", shader->resource.pName);
+                TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, gsName);
+                stageCount++;
+            }
+            if (desc->raster.tcs.bytecode) {
+                shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_TESSELLATION_CONTROL;
+                VkShaderModuleCreateInfo createInfo = {0};
+                createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize                 = desc->raster.tcs.size;
+                createInfo.pCode                    = (uint32_t*) desc->raster.tcs.bytecode;
+                CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
+
+                char tcsName[256];
+                snprintf(tcsName, sizeof(tcsName), "%s_TCS", shader->resource.pName);
+                TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, tcsName);
+                stageCount++;
+            }
+            if (desc->raster.tes.bytecode) {
+                shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_TESSELLATION_EVALUATION;
+                VkShaderModuleCreateInfo createInfo = {0};
+                createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize                 = desc->raster.tes.size;
+                createInfo.pCode                    = (uint32_t*) desc->raster.tes.bytecode;
+                CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
+
+                char tesName[256];
+                snprintf(tesName, sizeof(tesName), "%s_TES", shader->resource.pName);
+                TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, tesName);
+                stageCount++;
+            }
+            if (desc->raster.task.bytecode) {
+                shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_TASK;
+                VkShaderModuleCreateInfo createInfo = {0};
+                createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize                 = desc->raster.task.size;
+                createInfo.pCode                    = (uint32_t*) desc->raster.task.bytecode;
+                CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
+
+                char taskName[256];
+                snprintf(taskName, sizeof(taskName), "%s_TASK", shader->resource.pName);
+                TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, taskName);
+                stageCount++;
+            }
+            if (desc->raster.mesh.bytecode) {
+                shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_MESH;
+                VkShaderModuleCreateInfo createInfo = {0};
+                createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize                 = desc->raster.mesh.size;
+                createInfo.pCode                    = (uint32_t*) desc->raster.mesh.bytecode;
+                CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
+
+                char meshName[256];
+                snprintf(meshName, sizeof(meshName), "%s_MESH", shader->resource.pName);
+                TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, meshName);
+                stageCount++;
+            }
+            break;
+        case RZ_GFX_PIPELINE_TYPE_COMPUTE:
+            if (desc->compute.cs.bytecode) {
+                shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_COMPUTE;
+                VkShaderModuleCreateInfo createInfo = {0};
+                createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize                 = desc->compute.cs.size;
+                createInfo.pCode                    = (uint32_t*) desc->compute.cs.bytecode;
+                CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
+
+                char csName[256];
+                snprintf(csName, sizeof(csName), "%s_CS", shader->resource.pName);
+                TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, csName);
+                stageCount++;
+            }
+            break;
+        case RZ_GFX_PIPELINE_TYPE_RAYTRACING:
+            if (desc->raytracing.rgen.bytecode) {
+                shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_RAY_GEN;
+                VkShaderModuleCreateInfo createInfo = {0};
+                createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize                 = desc->raytracing.rgen.size;
+                createInfo.pCode                    = (uint32_t*) desc->raytracing.rgen.bytecode;
+                CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
+
+                char rgenName[256];
+                snprintf(rgenName, sizeof(rgenName), "%s_RGEN", shader->resource.pName);
+                TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, rgenName);
+                stageCount++;
+            }
+            if (desc->raytracing.miss.bytecode) {
+                shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_RAY_MISS;
+                VkShaderModuleCreateInfo createInfo = {0};
+                createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize                 = desc->raytracing.miss.size;
+                createInfo.pCode                    = (uint32_t*) desc->raytracing.miss.bytecode;
+                CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
+
+                char missName[256];
+                snprintf(missName, sizeof(missName), "%s_MISS", shader->resource.pName);
+                TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, missName);
+                stageCount++;
+            }
+            if (desc->raytracing.chit.bytecode) {
+                shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_RAY_CLOSEST_HIT;
+                VkShaderModuleCreateInfo createInfo = {0};
+                createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize                 = desc->raytracing.chit.size;
+                createInfo.pCode                    = (uint32_t*) desc->raytracing.chit.bytecode;
+                CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
+
+                char chitName[256];
+                snprintf(chitName, sizeof(chitName), "%s_CHIT", shader->resource.pName);
+                TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, chitName);
+                stageCount++;
+            }
+            if (desc->raytracing.ahit.bytecode) {
+                shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_RAY_ANY_HIT;
+                VkShaderModuleCreateInfo createInfo = {0};
+                createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize                 = desc->raytracing.ahit.size;
+                createInfo.pCode                    = (uint32_t*) desc->raytracing.ahit.bytecode;
+                CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
+
+                char ahitName[256];
+                snprintf(ahitName, sizeof(ahitName), "%s_AHIT", shader->resource.pName);
+                TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, ahitName);
+                stageCount++;
+            }
+            if (desc->raytracing.callable.bytecode) {
+                shader->shaderStageMask |= RZ_GFX_SHADER_STAGE_RAY_CALLABLE;
+                VkShaderModuleCreateInfo createInfo = {0};
+                createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                createInfo.codeSize                 = desc->raytracing.callable.size;
+                createInfo.pCode                    = (uint32_t*) desc->raytracing.callable.bytecode;
+                CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
+
+                char callableName[256];
+                snprintf(callableName, sizeof(callableName), "%s_CALLABLE", shader->resource.pName);
+                TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, callableName);
+                stageCount++;
+            }
+            break;
+        default:
+            RAZIX_RHI_ASSERT(false, "Invalid pipeline type for shader!");
+            break;
+    }
 }
 
 static void vk_DestroyShader(void* shader)
 {
-    (void) shader;
-    // TODO: Implement when needed
+    rz_gfx_shader* shaderObj = (rz_gfx_shader*) shader;
+    
+    // Destroy all shader modules
+    for (int i = 0; i < RZ_GFX_SHADER_STAGE_COUNT; i++) {
+        if (shaderObj->vk.modules[i] != VK_NULL_HANDLE) {
+            vkDestroyShaderModule(VKDEVICE, shaderObj->vk.modules[i], NULL);
+            shaderObj->vk.modules[i] = VK_NULL_HANDLE;
+        }
+    }
+    shaderObj->shaderStageMask = 0;
 }
 
 static void vk_CreateRootSignature(void* where)
@@ -2401,42 +2592,44 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
     rasterizationSCI.polygonMode                            = vk_util_translate_polygon_mode(desc->polygonMode);
     rasterizationSCI.rasterizerDiscardEnable                = VK_FALSE;
 
-#if 0
     //----------------------------
     // Blend State Stage
     //----------------------------
-    VkPipelineColorBlendStateCreateInfo colorBlendSCI{};
-    colorBlendSCI.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlendSCI.pNext = NULL;
-    colorBlendSCI.flags = 0;
+    VkPipelineColorBlendStateCreateInfo colorBlendSCI = {0};
+    colorBlendSCI.sType                               = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlendSCI.pNext                               = NULL;
+    colorBlendSCI.flags                               = 0;
 
-    std::vector<VkPipelineColorBlendAttachmentState> blendAttachState;
+    VkPipelineColorBlendAttachmentState blendAttachStates[RAZIX_MAX_RENDER_TARGETS];
 
-    blendAttachState.resize(pipelineInfo.colorAttachmentFormats.size());
+    for (unsigned int i = 0; i < desc->renderTargetCount; i++) {
+        blendAttachStates[i].colorWriteMask = 0x0F;    // Write to all RGBA channels
+        blendAttachStates[i].colorBlendOp   = vk_util_blend_op(desc->colorBlendOp);
+        blendAttachStates[i].alphaBlendOp   = vk_util_blend_op(desc->alphaBlendOp);
 
-    for (unsigned int i = 0; i < blendAttachState.size(); i++) {
-        blendAttachState[i]                = VkPipelineColorBlendAttachmentState();
-        blendAttachState[i].colorWriteMask = 0x0f;
-        blendAttachState[i].colorBlendOp   = VKUtilities::BlendOpToVK(pipelineInfo.colorOp);
-        blendAttachState[i].alphaBlendOp   = VKUtilities::BlendOpToVK(pipelineInfo.alphaOp);
-
-        if (pipelineInfo.transparencyEnabled) {
-            blendAttachState[i].blendEnable         = VK_TRUE;
-            blendAttachState[i].srcColorBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.colorSrc);
-            blendAttachState[i].dstColorBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.colorDst);
-            blendAttachState[i].srcAlphaBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.alphaSrc);
-            blendAttachState[i].dstAlphaBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.alphaDst);
+        // Use preset if available or custom blending factors
+        if (desc->blendPreset) {
+            blendAttachStates[i] = vk_util_blend_preset(desc->blendPreset);
         } else {
-            blendAttachState[i].blendEnable         = VK_FALSE;
-            blendAttachState[i].srcColorBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.colorSrc);
-            blendAttachState[i].dstColorBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.colorDst);
-            blendAttachState[i].srcAlphaBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.alphaSrc);
-            blendAttachState[i].dstAlphaBlendFactor = VKUtilities::BlendFactorToVK(pipelineInfo.alphaDst);
+            if (desc->transparencyEnabled) {
+                blendAttachStates[i].blendEnable         = VK_TRUE;
+                blendAttachStates[i].srcColorBlendFactor = vk_util_blend_factor(desc->srcColorBlendFactor);
+                blendAttachStates[i].dstColorBlendFactor = vk_util_blend_factor(desc->dstColorBlendFactor);
+                blendAttachStates[i].srcAlphaBlendFactor = vk_util_blend_factor(desc->srcAlphaBlendFactor);
+                blendAttachStates[i].dstAlphaBlendFactor = vk_util_blend_factor(desc->dstAlphaBlendFactor);
+            } else {
+                blendAttachStates[i].blendEnable = VK_FALSE;
+                // These values are ignored if blendEnable is VK_FALSE, but we set them anyway
+                blendAttachStates[i].srcColorBlendFactor = vk_util_blend_factor(desc->srcColorBlendFactor);
+                blendAttachStates[i].dstColorBlendFactor = vk_util_blend_factor(desc->dstColorBlendFactor);
+                blendAttachStates[i].srcAlphaBlendFactor = vk_util_blend_factor(desc->srcAlphaBlendFactor);
+                blendAttachStates[i].dstAlphaBlendFactor = vk_util_blend_factor(desc->dstAlphaBlendFactor);
+            }
         }
     }
 
-    colorBlendSCI.attachmentCount   = static_cast<u32>(blendAttachState.size());
-    colorBlendSCI.pAttachments      = blendAttachState.data();
+    colorBlendSCI.attachmentCount   = desc->renderTargetCount;
+    colorBlendSCI.pAttachments      = blendAttachStates;
     colorBlendSCI.logicOpEnable     = VK_FALSE;
     colorBlendSCI.logicOp           = VK_LOGIC_OP_NO_OP;
     colorBlendSCI.blendConstants[0] = 1.0f;
@@ -2447,36 +2640,35 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
     //----------------------------
     // Depth Stencil Stage
     //----------------------------
-    VkPipelineDepthStencilStateCreateInfo depthStencilSCI{};
-    depthStencilSCI.sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    depthStencilSCI.pNext                 = NULL;
-    depthStencilSCI.depthTestEnable       = pipelineInfo.depthTestEnabled;
-    depthStencilSCI.depthWriteEnable      = pipelineInfo.depthWriteEnabled;
-    depthStencilSCI.depthCompareOp        = VKUtilities::CompareOpToVK(pipelineInfo.depthOp);
-    depthStencilSCI.depthBoundsTestEnable = VK_FALSE;
-
-    // Stencil Testing is always disabled so no need to care about it's operations
-    depthStencilSCI.stencilTestEnable = VK_FALSE;
-
-    depthStencilSCI.back.failOp      = VK_STENCIL_OP_KEEP;
-    depthStencilSCI.back.passOp      = VK_STENCIL_OP_KEEP;
-    depthStencilSCI.back.compareOp   = VK_COMPARE_OP_ALWAYS;
-    depthStencilSCI.back.compareMask = 0;
-    depthStencilSCI.back.reference   = 0;
-    depthStencilSCI.back.depthFailOp = VK_STENCIL_OP_KEEP;
-    depthStencilSCI.back.writeMask   = 0;
-
-    depthStencilSCI.minDepthBounds = 0;
-    depthStencilSCI.maxDepthBounds = 0;
-    depthStencilSCI.front          = depthStencilSCI.back;
+    VkPipelineDepthStencilStateCreateInfo depthStencilSCI = {0};
+    depthStencilSCI.sType                                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depthStencilSCI.pNext                                 = NULL;
+    depthStencilSCI.depthTestEnable                       = desc->depthTestEnabled;
+    depthStencilSCI.depthWriteEnable                      = desc->depthWriteEnabled;
+    depthStencilSCI.depthCompareOp                        = vk_util_translate_compare_op(desc->depthCompareOp);
+    depthStencilSCI.depthBoundsTestEnable                 = VK_FALSE;
+    depthStencilSCI.stencilTestEnable                     = desc->stencilTestEnabled ? VK_TRUE : VK_FALSE;
+    depthStencilSCI.back.failOp                           = VK_STENCIL_OP_KEEP;
+    depthStencilSCI.back.passOp                           = VK_STENCIL_OP_KEEP;
+    depthStencilSCI.back.compareOp                        = VK_COMPARE_OP_ALWAYS;
+    depthStencilSCI.back.compareMask                      = 0;
+    depthStencilSCI.back.reference                        = 0;
+    depthStencilSCI.back.depthFailOp                      = VK_STENCIL_OP_KEEP;
+    depthStencilSCI.back.writeMask                        = 0;
+    depthStencilSCI.front                                 = depthStencilSCI.back;
+    depthStencilSCI.minDepthBounds                        = 0;
+    depthStencilSCI.maxDepthBounds                        = 0;
 
     //----------------------------
     // Multi sample State (MSAA)
     //----------------------------
-    VkPipelineMultisampleStateCreateInfo multiSampleSCI{};
-    multiSampleSCI.sType       = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    multiSampleSCI.pNext       = NULL;
-    multiSampleSCI.pSampleMask = NULL;
+    // Currently not using MSAA, so default to no multisampling
+    // TODO: Add support for MSAA
+    VkPipelineMultisampleStateCreateInfo multiSampleSCI = {0};
+    multiSampleSCI.sType                                = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multiSampleSCI.pNext                                = NULL;
+    multiSampleSCI.pSampleMask                          = NULL;
+    // TODO: Get engine setting from GlobalCtxInit to override graphics support
     // Razix::RZEngine::Get().getGlobalEngineSettings().EnableMSAA use to apply more samples
     multiSampleSCI.rasterizationSamples  = VK_SAMPLE_COUNT_1_BIT;
     multiSampleSCI.sampleShadingEnable   = VK_FALSE;
@@ -2488,50 +2680,108 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
     // Dynamic Rendering KHR
     //----------------------------
 
-    VkPipelineRenderingCreateInfoKHR renderingCI{};
-    renderingCI.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
-    std::vector<VkFormat> formats;
-    for (auto& attachment: pipelineInfo.colorAttachmentFormats)
-        formats.push_back(VKUtilities::TextureFormatToVK(attachment));
-    renderingCI.colorAttachmentCount    = static_cast<u32>(pipelineInfo.colorAttachmentFormats.size());
-    renderingCI.pColorAttachmentFormats = formats.data();
-    renderingCI.depthAttachmentFormat   = VKUtilities::TextureFormatToVK(pipelineInfo.depthFormat);    // defaults to VK_FORMAT_UNDEFINED
+    VkPipelineRenderingCreateInfoKHR renderingCI = {0};
+    renderingCI.sType                            = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
+    VkFormat formats[RAZIX_MAX_RENDER_TARGETS];
+    for (uint32_t i = 0; i < desc->renderTargetCount; i++)
+        formats[i] = vk_util_translate_format(desc->renderTargetFormats[i]);
+    renderingCI.colorAttachmentCount    = desc->renderTargetCount;
+    renderingCI.pColorAttachmentFormats = formats;
+    renderingCI.depthAttachmentFormat   = vk_util_translate_format(desc->depthStencilFormat);
 
     //----------------------------
     // Graphics Pipeline
     //----------------------------
     VkGraphicsPipelineCreateInfo graphicsPipelineCI = {0};
-    graphicsPipelineCI.sType                                  = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    graphicsPipelineCI.pNext                                  = &renderingCI; // Enable dynamic rendering, courtesy of VK_KHR_dynamic_rendering extension
-    graphicsPipelineCI.layout                                 = pso.vk.pipelineLayout;
-    graphicsPipelineCI.flags                                  = 0;
-    graphicsPipelineCI.basePipelineHandle                     = VK_NULL_HANDLE;
-    graphicsPipelineCI.basePipelineIndex                      = -1;
-    graphicsPipelineCI.pVertexInputState                      = &vertexInputSCI;
-    graphicsPipelineCI.pInputAssemblyState                    = &inputAssemblySCI;
-    graphicsPipelineCI.pRasterizationState                    = &rasterizationSCI;
-    graphicsPipelineCI.pColorBlendState                       = &colorBlendSCI;
-    graphicsPipelineCI.pTessellationState                     = NULL;
-    graphicsPipelineCI.pMultisampleState                      = &multiSampleSCI;
-    graphicsPipelineCI.pDynamicState                          = &dynamicStateCI;
-    graphicsPipelineCI.pViewportState                         = &viewportSCI;
-    graphicsPipelineCI.pDepthStencilState                     = &depthStencilSCI;
-    std::vector<VkPipelineShaderStageCreateInfo> shaderStages = static_cast<VKShader*>(shader)->getShaderStages();
-    graphicsPipelineCI.pStages                                = shaderStages.data();
-    graphicsPipelineCI.stageCount                             = static_cast<u32>(shaderStages.size());
-    graphicsPipelineCI.renderPass                             = VK_NULL_HANDLE;
+    graphicsPipelineCI.sType                        = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    graphicsPipelineCI.pNext                        = &renderingCI;    // Enable dynamic rendering, courtesy of VK_KHR_dynamic_rendering extension
+    graphicsPipelineCI.layout                       = pso->vk.pipelineLayout;
+    graphicsPipelineCI.flags                        = 0;
+    graphicsPipelineCI.basePipelineHandle           = VK_NULL_HANDLE;
+    graphicsPipelineCI.basePipelineIndex            = -1;
+    graphicsPipelineCI.pVertexInputState            = &vertexInputSCI;
+    graphicsPipelineCI.pInputAssemblyState          = &inputAssemblySCI;
+    graphicsPipelineCI.pRasterizationState          = &rasterizationSCI;
+    graphicsPipelineCI.pColorBlendState             = &colorBlendSCI;
+    graphicsPipelineCI.pTessellationState           = NULL;
+    graphicsPipelineCI.pMultisampleState            = &multiSampleSCI;
+    graphicsPipelineCI.pDynamicState                = &dynamicStateCI;
+    graphicsPipelineCI.pViewportState               = &viewportSCI;
+    graphicsPipelineCI.pDepthStencilState           = &depthStencilSCI;
+    graphicsPipelineCI.renderPass                   = VK_NULL_HANDLE;
+
+    uint32_t shaderStageCount = 0;
+    // Count how many shader stages we have
+    uint32_t                         stageCount   = 0;
+    VkPipelineShaderStageCreateInfo* shaderStages = alloca(sizeof(VkPipelineShaderStageCreateInfo) * RZ_GFX_SHADER_STAGE_COUNT);
+
+    if (pShader->shaderStageMask & RZ_GFX_SHADER_STAGE_VERTEX) {
+        shaderStages[stageCount].sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        shaderStages[stageCount].pNext               = NULL;
+        shaderStages[stageCount].flags               = 0;
+        shaderStages[stageCount].stage               = VK_SHADER_STAGE_VERTEX_BIT;
+        shaderStages[stageCount].module              = pShader->vk.modules[stageCount];
+        shaderStages[stageCount].pName               = "VK_MAIN";
+        shaderStages[stageCount].pSpecializationInfo = NULL;
+        stageCount++;
+    }
+
+    if (pShader->shaderStageMask & RZ_GFX_SHADER_STAGE_PIXEL) {
+        shaderStages[stageCount].sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        shaderStages[stageCount].pNext               = NULL;
+        shaderStages[stageCount].flags               = 0;
+        shaderStages[stageCount].stage               = VK_SHADER_STAGE_FRAGMENT_BIT;
+        shaderStages[stageCount].module              = pShader->vk.modules[RZ_GFX_SHADER_STAGE_PIXEL];
+        shaderStages[stageCount].pName               = "PS_MAIN";
+        shaderStages[stageCount].pSpecializationInfo = NULL;
+        stageCount++;
+    }
+
+    if (pShader->shaderStageMask & RZ_GFX_SHADER_STAGE_GEOMETRY) {
+        shaderStages[stageCount].sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        shaderStages[stageCount].pNext               = NULL;
+        shaderStages[stageCount].flags               = 0;
+        shaderStages[stageCount].stage               = VK_SHADER_STAGE_GEOMETRY_BIT;
+        shaderStages[stageCount].module              = pShader->vk.modules[RZ_GFX_SHADER_STAGE_GEOMETRY];
+        shaderStages[stageCount].pName               = "GS_MAIN";
+        shaderStages[stageCount].pSpecializationInfo = NULL;
+        stageCount++;
+    }
+
+    if (pShader->shaderStageMask & RZ_GFX_SHADER_STAGE_TESSELLATION_CONTROL) {
+        shaderStages[stageCount].sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        shaderStages[stageCount].pNext               = NULL;
+        shaderStages[stageCount].flags               = 0;
+        shaderStages[stageCount].stage               = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+        shaderStages[stageCount].module              = pShader->vk.modules[RZ_GFX_SHADER_STAGE_TESSELLATION_CONTROL];
+        shaderStages[stageCount].pName               = "HS_MAIN";
+        shaderStages[stageCount].pSpecializationInfo = NULL;
+        stageCount++;
+    }
+
+    if (pShader->shaderStageMask & RZ_GFX_SHADER_STAGE_TESSELLATION_EVALUATION) {
+        shaderStages[stageCount].sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        shaderStages[stageCount].pNext               = NULL;
+        shaderStages[stageCount].flags               = 0;
+        shaderStages[stageCount].stage               = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+        shaderStages[stageCount].module              = pShader->vk.modules[RZ_GFX_SHADER_STAGE_TESSELLATION_EVALUATION];
+        shaderStages[stageCount].pName               = "DS_MAIN";
+        shaderStages[stageCount].pSpecializationInfo = NULL;
+        stageCount++;
+    }
+
+    graphicsPipelineCI.pStages    = shaderStages;
+    graphicsPipelineCI.stageCount = stageCount;
 
     // TODO: use pipeline cache for faster load times
-    CHECK_VK(vkCreateGraphicsPipelines(VKDEVICE, VK_NULL_HANDLE, 1, &graphicsPipelineCI, NULL, &pso->vk.pipeline))
-    VK_TAG_OBJECT(bufferName, VK_OBJECT_TYPE_PIPELINE, (uint64_t) m_Pipeline);
-#endif
+    CHECK_VK(vkCreateGraphicsPipelines(VKDEVICE, VK_NULL_HANDLE, 1, &graphicsPipelineCI, NULL, &pso->vk.pipeline));
+    TAG_OBJECT(pso->vk.pipeline, VK_OBJECT_TYPE_PIPELINE, pso->resource.pName);
 }
 
 static void vk_CreateComputePipeline(rz_gfx_pipeline* pipeline)
 {
     const rz_gfx_shader* pShader = pipeline->resource.desc.pipelineDesc.pShader;
     RAZIX_RHI_ASSERT(pShader != NULL, "Compute pipeline must have a valid compute shader");
-    RAZIX_RHI_ASSERT(pShader->vk.module != VK_NULL_HANDLE, "Compute shader must have a valid shader module");
 
     //----------------------------
     // Compute Pipeline
@@ -2540,7 +2790,7 @@ static void vk_CreateComputePipeline(rz_gfx_pipeline* pipeline)
     shaderStageCI.sType                           = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shaderStageCI.pNext                           = NULL;
     shaderStageCI.stage                           = VK_SHADER_STAGE_COMPUTE_BIT;
-    shaderStageCI.module                          = pShader->vk.module;
+    shaderStageCI.module                          = pShader->vk.modules[0]; // Compute shader is always at index 0, since its the only stage
     shaderStageCI.pName                           = "CS_MAIN";
 
     VkComputePipelineCreateInfo computePipelineCI = {0};
