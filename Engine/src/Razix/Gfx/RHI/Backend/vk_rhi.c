@@ -1051,11 +1051,35 @@ static void vk_util_create_logical_device(void)
     queueCreateInfo.queueFamilyIndex        = indices.graphicsFamily;
     queueCreateInfo.queueCount              = 1;
     queueCreateInfo.pQueuePriorities        = &queuePriority;
+    
+    // Physical Device Features 2
+    VkPhysicalDeviceTimelineSemaphoreFeatures timelineFeatures = {
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES,
+        .pNext = NULL};
+
+    VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeatures = {
+        .sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
+        .pNext            = &timelineFeatures,
+        .dynamicRendering = VK_TRUE};
+
+    VkPhysicalDeviceFeatures2 deviceFeatures2 = {
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+        .pNext = &dynamicRenderingFeatures};
+    vkGetPhysicalDeviceFeatures2(VKGPU, &deviceFeatures2);
+
+#ifndef __APPLE__
+    device_features.features.samplerAnisotropy       = VK_TRUE;
+    device_features.features.pipelineStatisticsQuery = VK_TRUE;
+#endif
+    deviceFeatures2.features.sampleRateShading = VK_TRUE;
 
     VkPhysicalDeviceFeatures deviceFeatures = {0};
+    vkGetPhysicalDeviceFeatures(VKGPU, &deviceFeatures);
+    deviceFeatures.samplerAnisotropy    = VK_TRUE;
 
     VkDeviceCreateInfo createInfo      = {0};
     createInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pNext                   = &deviceFeatures2;
     createInfo.pQueueCreateInfos       = &queueCreateInfo;
     createInfo.queueCreateInfoCount    = 1;
     createInfo.pEnabledFeatures        = &deviceFeatures;
@@ -2058,8 +2082,10 @@ static void vk_GlobalCtxInit(void)
 
     vk_util_print_device_info(VKGPU);
 
+    //---------------------------------
     // Create logical device
     vk_util_create_logical_device();
+    //---------------------------------
 
     volkLoadDevice(VKCONTEXT.device);
 
