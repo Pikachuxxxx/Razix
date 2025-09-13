@@ -1760,7 +1760,7 @@ static void vk_GlobalCtxInit(void)
 
     // Check validation layer support
     if (!vk_util_check_validation_layer_support()) {
-        RAZIX_RHI_LOG_ERROR("Validation layers requested, but not available");
+        RAZIX_RHI_LOG_ERROR("Validation lay.hers requested, but not available");
         return;
     }
 
@@ -1960,6 +1960,44 @@ static void vk_CreateSwapchain(void* where, void* surface, uint32_t width, uint3
     // Create images and image views and texture wrappers using utility functions
     vk_util_create_swapchain_images(swapchain);
     vk_util_create_swapchain_textures(swapchain);
+
+    // Transition swapchain images to present state
+    vk_cmdbuf             cmdBuf             = vk_util_begin_singletime_cmdlist();
+    VkImageMemoryBarrier* pSwapchainBarriers = (VkImageMemoryBarrier*) alloca(sizeof(VkImageMemoryBarrier) * swapchain->imageCount);
+    for (uint32_t i = 0; i < swapchain->imageCount; i++) {
+        VkImageMemoryBarrier imageBarrier = {
+            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .pNext               = NULL,
+            .srcAccessMask       = vk_util_access_flags_translate(RZ_GFX_RESOURCE_STATE_UNDEFINED),
+            .dstAccessMask       = vk_util_access_flags_translate(RZ_GFX_RESOURCE_STATE_PRESENT),
+            .oldLayout           = vk_util_translate_imagelayout_resstate(RZ_GFX_RESOURCE_STATE_UNDEFINED),
+            .newLayout           = vk_util_translate_imagelayout_resstate(RZ_GFX_RESOURCE_STATE_PRESENT),
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image               = swapchain->vk.images[i],
+            .subresourceRange    = {
+                   .aspectMask     = vk_util_deduce_image_aspect_flags(RAZIX_SWAPCHAIN_FORMAT),
+                   .baseMipLevel   = 0,
+                   .levelCount     = 1,
+                   .baseArrayLayer = 0,
+                   .layerCount     = 1},
+        };
+
+        // Temp memory but fine
+        pSwapchainBarriers[i] = imageBarrier;
+    }
+    vkCmdPipelineBarrier(
+        cmdBuf.cmdBuf,
+        vk_deduce_pipeline_stage_from_res_state(RZ_GFX_RESOURCE_STATE_UNDEFINED),
+        vk_deduce_pipeline_stage_from_res_state(RZ_GFX_RESOURCE_STATE_PRESENT),
+        0,    // dependency flags
+        0,
+        NULL,    // Global Memory barriers
+        0,
+        NULL,    // Buffer barriers
+        swapchain->imageCount,
+        pSwapchainBarriers);    // Image barriers
+    vk_util_end_singletime_cmdlist(cmdBuf);
 
     // Cleanup support details
     free(swapchainSupport.formats);
