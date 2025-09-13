@@ -1750,6 +1750,96 @@ static uint32_t vk_util_find_memory_type(uint32_t typeFilter, VkMemoryPropertyFl
     return 0;
 }
 
+static VkPipelineColorBlendAttachmentState vk_util_blend_preset(rz_gfx_blend_presets preset)
+{
+    VkPipelineColorBlendAttachmentState desc = {0};
+    desc.blendEnable = VK_TRUE;
+    desc.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | 
+                         VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+
+    switch (preset) {
+        case RZ_GFX_BLEND_PRESET_ADDITIVE:
+            desc.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+            desc.colorBlendOp        = VK_BLEND_OP_ADD;
+            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.alphaBlendOp        = VK_BLEND_OP_ADD;
+            break;
+        case RZ_GFX_BLEND_PRESET_ALPHA_BLEND:
+            desc.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+            desc.colorBlendOp        = VK_BLEND_OP_ADD;
+            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+            desc.alphaBlendOp        = VK_BLEND_OP_ADD;
+            break;
+        case RZ_GFX_BLEND_PRESET_SUBTRACTIVE:
+            desc.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.colorBlendOp        = VK_BLEND_OP_REVERSE_SUBTRACT;
+            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.alphaBlendOp        = VK_BLEND_OP_REVERSE_SUBTRACT;
+            break;
+        case RZ_GFX_BLEND_PRESET_MULTIPLY:
+            desc.srcColorBlendFactor = VK_BLEND_FACTOR_DST_COLOR;
+            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+            desc.colorBlendOp        = VK_BLEND_OP_ADD;
+            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_DST_ALPHA;
+            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+            desc.alphaBlendOp        = VK_BLEND_OP_ADD;
+            break;
+        case RZ_GFX_BLEND_PRESET_DARKEN:
+            desc.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.colorBlendOp        = VK_BLEND_OP_MIN;
+            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.alphaBlendOp        = VK_BLEND_OP_MIN;
+            break;
+        default:
+            desc.blendEnable = VK_FALSE;
+            break;
+    }
+
+    return desc;
+}
+
+static VkBlendFactor vk_util_blend_factor(rz_gfx_blend_factor_type factor)
+{
+    switch (factor) {
+        case RZ_GFX_BLEND_FACTOR_TYPE_ZERO: return VK_BLEND_FACTOR_ZERO;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE: return VK_BLEND_FACTOR_ONE;
+        case RZ_GFX_BLEND_FACTOR_TYPE_SRC_COLOR: return VK_BLEND_FACTOR_SRC_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_SRC_COLOR: return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_DST_COLOR: return VK_BLEND_FACTOR_DST_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_DST_COLOR: return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_SRC_ALPHA: return VK_BLEND_FACTOR_SRC_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_SRC_ALPHA: return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_DST_ALPHA: return VK_BLEND_FACTOR_DST_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_DST_ALPHA: return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_CONSTANT_COLOR: return VK_BLEND_FACTOR_CONSTANT_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_CONSTANT_COLOR: return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_CONSTANT_ALPHA: return VK_BLEND_FACTOR_CONSTANT_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_CONSTANT_ALPHA: return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_SRC_ALPHA_SATURATE: return VK_BLEND_FACTOR_SRC_ALPHA_SATURATE;
+        default: return VK_BLEND_FACTOR_ONE;
+    }
+}
+
+static VkBlendOp vk_util_blend_op(rz_gfx_blend_op_type op)
+{
+    switch (op) {
+        case RZ_GFX_BLEND_OP_TYPE_ADD: return VK_BLEND_OP_ADD;
+        case RZ_GFX_BLEND_OP_TYPE_SUBTRACT: return VK_BLEND_OP_SUBTRACT;
+        case RZ_GFX_BLEND_OP_TYPE_REVERSE_SUBTRACT: return VK_BLEND_OP_REVERSE_SUBTRACT;
+        case RZ_GFX_BLEND_OP_TYPE_MIN: return VK_BLEND_OP_MIN;
+        case RZ_GFX_BLEND_OP_TYPE_MAX: return VK_BLEND_OP_MAX;
+        default: return VK_BLEND_OP_ADD;
+    }
+}
+
 //---------------------------------------------------------------------------------------------
 
 static void vk_GlobalCtxInit(void)
@@ -2173,7 +2263,7 @@ static VkVertexInputBindingDescription vk_util_get_vertex_binding_description(rz
 {
     VkVertexInputBindingDescription bindingDescription = {0};
     bindingDescription.binding                         = index;
-    bindingDescription.stride                          = element.stride; 
+    bindingDescription.stride                          = element.stride;
     bindingDescription.inputRate                       = (element.inputClass == RZ_GFX_INPUT_CLASS_PER_VERTEX) ? VK_VERTEX_INPUT_RATE_VERTEX : VK_VERTEX_INPUT_RATE_INSTANCE;
     return bindingDescription;
 }
@@ -2184,7 +2274,7 @@ static VkVertexInputAttributeDescription vk_util_get_vertex_attribute_descriptio
     attributeDescription.location                          = index;
     attributeDescription.binding                           = index;
     attributeDescription.format                            = vk_util_translate_format(element.format);
-    attributeDescription.offset                            = 0; // 0 because we are using SOA 
+    attributeDescription.offset                            = 0;    // 0 because we are using SOA
     return attributeDescription;
 }
 
@@ -2193,22 +2283,21 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
     rz_gfx_pipeline* pso = (rz_gfx_pipeline*) pipeline;
     RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
 
-    
     const rz_gfx_pipeline_desc* desc = &pso->resource.desc.pipelineDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Pipeline must have a valid description");
-    RAZIX_RHI_ASSERT(desc->pShader!= NULL, "Pipeline must have a valid shader");
+    RAZIX_RHI_ASSERT(desc->pShader != NULL, "Pipeline must have a valid shader");
     RAZIX_RHI_ASSERT(desc->pRootSig != NULL, "Pipeline must have a valid root signature");
     RAZIX_RHI_ASSERT(desc->pRootSig->vk.pipelineLayout != VK_NULL_HANDLE, "Pipeline must have a valid root signature with a valid pipeline layout");
-    const rz_gfx_shader* pShader = desc->pShader;
-    const rz_gfx_root_signature* pRootSig = desc->pRootSig;
+    const rz_gfx_shader*         pShader     = desc->pShader;
+    const rz_gfx_root_signature* pRootSig    = desc->pRootSig;
     const rz_gfx_shader_desc*    pShaderDesc = &pShader->resource.desc.shaderDesc;
     RAZIX_RHI_ASSERT(pShaderDesc->pipelineType == RZ_GFX_PIPELINE_TYPE_GRAPHICS, "Shader must be a graphics shader for this pipeline type! (Pipeline creation)");
     // Cache the pipline layout from the root signature, might be useful without having to need root signature pointer
     pso->vk.pipelineLayout = pRootSig->vk.pipelineLayout;
 
     rz_gfx_input_element* pInputElements = (rz_gfx_input_element*) pShaderDesc->pElements;
-    RAZIX_RHI_ASSERT(desc->renderTargetCount> 0, "Pipeline must have at least one color attachment");
-    RAZIX_RHI_ASSERT(desc->renderTargetCount<= RAZIX_MAX_RENDER_TARGETS, "Pipeline cannot have more than RAZIX_MAX_COLOR_ATTACHMENTS color attachments");
+    RAZIX_RHI_ASSERT(desc->renderTargetCount > 0, "Pipeline must have at least one color attachment");
+    RAZIX_RHI_ASSERT(desc->renderTargetCount <= RAZIX_MAX_RENDER_TARGETS, "Pipeline cannot have more than RAZIX_MAX_COLOR_ATTACHMENTS color attachments");
 
     //----------------------------
     // Vertex Input Layout Stage
@@ -2216,18 +2305,18 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
     VkVertexInputBindingDescription   pVertexInputBindingDescriptions[RAZIX_MAX_VERTEX_ATTRIBUTES];
     VkVertexInputAttributeDescription pVertexInputAttributeDescriptions[RAZIX_MAX_VERTEX_ATTRIBUTES];
     for (unsigned int i = 0; i < pShaderDesc->elementsCount; i++) {
-        rz_gfx_input_element element = pInputElements[i];
+        rz_gfx_input_element element         = pInputElements[i];
         pVertexInputBindingDescriptions[i]   = vk_util_get_vertex_binding_description(element, i);
-        pVertexInputAttributeDescriptions[i] = vk_util_get_vertex_attribute_description(element, i); 
-    } 
+        pVertexInputAttributeDescriptions[i] = vk_util_get_vertex_attribute_description(element, i);
+    }
 
     VkPipelineVertexInputStateCreateInfo vertexInputSCI = {0};
-    vertexInputSCI.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputSCI.pNext                           = NULL;
-    vertexInputSCI.vertexBindingDescriptionCount   = pShaderDesc->elementsCount;
-    vertexInputSCI.pVertexBindingDescriptions      = pVertexInputBindingDescriptions;
-    vertexInputSCI.vertexAttributeDescriptionCount = pShaderDesc->elementsCount;
-    vertexInputSCI.pVertexAttributeDescriptions    = pVertexInputAttributeDescriptions;
+    vertexInputSCI.sType                                = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputSCI.pNext                                = NULL;
+    vertexInputSCI.vertexBindingDescriptionCount        = pShaderDesc->elementsCount;
+    vertexInputSCI.pVertexBindingDescriptions           = pVertexInputBindingDescriptions;
+    vertexInputSCI.vertexAttributeDescriptionCount      = pShaderDesc->elementsCount;
+    vertexInputSCI.pVertexAttributeDescriptions         = pVertexInputAttributeDescriptions;
 
 #if 0
 
@@ -2417,18 +2506,18 @@ static void vk_CreateComputePipeline(rz_gfx_pipeline* pipeline)
     // Compute Pipeline
     //----------------------------
     VkPipelineShaderStageCreateInfo shaderStageCI = {0};
-    shaderStageCI.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    shaderStageCI.pNext  = NULL;
-    shaderStageCI.stage  = VK_SHADER_STAGE_COMPUTE_BIT;
-    shaderStageCI.module = pShader->vk.module;
-    shaderStageCI.pName  = "CS_MAIN";
+    shaderStageCI.sType                           = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    shaderStageCI.pNext                           = NULL;
+    shaderStageCI.stage                           = VK_SHADER_STAGE_COMPUTE_BIT;
+    shaderStageCI.module                          = pShader->vk.module;
+    shaderStageCI.pName                           = "CS_MAIN";
 
     VkComputePipelineCreateInfo computePipelineCI = {0};
-    computePipelineCI.sType  = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-    computePipelineCI.pNext  = NULL;
-    computePipelineCI.layout = pipeline->vk.pipelineLayout;
-    computePipelineCI.flags  = 0;
-    computePipelineCI.stage  = shaderStageCI;
+    computePipelineCI.sType                       = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+    computePipelineCI.pNext                       = NULL;
+    computePipelineCI.layout                      = pipeline->vk.pipelineLayout;
+    computePipelineCI.flags                       = 0;
+    computePipelineCI.stage                       = shaderStageCI;
 
     CHECK_VK(vkCreateComputePipelines(VKDEVICE, VK_NULL_HANDLE, 1, &computePipelineCI, NULL, &pipeline->vk.pipeline));
     TAG_OBJECT(pipeline->vk.pipeline, VK_OBJECT_TYPE_PIPELINE, pipeline->resource.pName);
@@ -2443,7 +2532,7 @@ static void vk_CreatePipeline(void* pipeline)
         vk_CreateGraphicsPipeline(pso);
     else if (pso->resource.desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_COMPUTE)
         vk_CreateComputePipeline(pso);
-    else 
+    else
         RAZIX_RHI_LOG_ERROR("Raytracing pipelines are not supported in Vulkan backend yet!");
 }
 
