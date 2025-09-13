@@ -136,16 +136,22 @@ namespace Razix {
                     if (inputVar.name && (std::string(inputVar.name) == "gl_VertexIndex" || std::string(inputVar.name) == "vs_out"))
                         break;
 
-                    SpvReflectFormat      format     = inputVar.format;
-                    u32                   formatSize = 0;
+                    SpvReflectFormat format                = inputVar.format;
+                    rz_gfx_format    engineFormat          = SpvReflectFormatToEngineFormat(format);
+                    u32              formatComponentsCount = rzRHI_GetFormatStrideComponentsCount(engineFormat);
+                    RAZIX_CORE_ASSERT(formatComponentsCount > 0, "Unsupported or unknown format reflected from SPIR-V");
+                    u32 formatComponentSize = rzRHI_GetFormatComponentSize(engineFormat);
+                    RAZIX_CORE_ASSERT(formatComponentSize > 0, "Unsupported or unknown format component size reflected from SPIR-V");
+                    u32                   formatSize = formatComponentsCount * formatComponentSize;
                     rz_gfx_input_element* inputParam = &outReflection->pInputElements[currentElementIndex];
                     inputParam->pSemanticName        = strdup(inputVar.semantic ? inputVar.semantic : inputVar.name);
                     inputParam->semanticIndex        = 0;    // Not used in Vulkan
-                    inputParam->format               = SpvReflectFormatToEngineFormat(format);
+                    inputParam->format               = engineFormat;
                     inputParam->inputSlot            = inputVar.location;
                     inputParam->alignedByteOffset    = currentOffset;
                     inputParam->inputClass           = (rz_gfx_input_class) VK_VERTEX_INPUT_RATE_VERTEX;
                     inputParam->instanceStepRate     = 0;
+                    inputParam->stride               = formatSize;
 
                     currentOffset += formatSize;
                     currentElementIndex++;
