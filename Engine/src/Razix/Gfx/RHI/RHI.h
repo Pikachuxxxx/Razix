@@ -1011,7 +1011,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         rz_gfx_format      format : 6;
         uint32_t           inputSlot : 4;
         uint32_t           alignedByteOffset : 8;
-        rz_gfx_input_class inputClass : 1;
+        uint32_t           inputClass : 1;
         uint32_t           instanceStepRate : 8;
         uint32_t           _pad0;
     } rz_gfx_input_element;
