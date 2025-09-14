@@ -228,7 +228,7 @@ namespace Razix {
                     (void*) targetTable->pDescriptors,
                     sizeof(rz_gfx_descriptor) * (targetTable->descriptorCount + 1));
 
-                RAZIX_CORE_TRACE("[SPV] Reflected Descriptor - Name: {}, Set: {}, Binding: {}, Type: {}, Count: {}, Size: {}, Offset: {}, Resource Type: {}",
+                RAZIX_CORE_TRACE("[SPV] Reflected Descriptor - Name: {0}, Set: {1}, Binding: {2}, Type: {3}, Count: {4}, Size: {5}, Offset: {6}, Resource Type: {7}, Count: {8}",
                     descriptor.name,
                     descriptor.set,
                     descriptor.binding,
@@ -236,7 +236,8 @@ namespace Razix {
                     descriptor.count,
                     descriptor.block.size,
                     descriptor.block.offset,
-                    descriptor.resource_type);
+                    descriptor.resource_type,
+                    descriptor.count);
 
                 rz_gfx_descriptor* desc = &targetTable->pDescriptors[targetTable->descriptorCount];
                 memset(desc, 0, sizeof(rz_gfx_descriptor));
@@ -247,7 +248,7 @@ namespace Razix {
                 desc->arraySize        = descriptor.count;
                 desc->sizeInBytes      = descriptor.block.size;
                 desc->offsetInBytes    = descriptor.block.offset;
-                desc->memberCount      = descriptor.block.member_count;
+                desc->memberCount      = descriptor.count;
 
                 targetTable->descriptorCount++;
             }
@@ -613,6 +614,13 @@ namespace Razix {
                 targetTable->pDescriptors = (rz_gfx_descriptor*) Memory::RZRealloc(
                     (void*) targetTable->pDescriptors,
                     sizeof(rz_gfx_descriptor) * (targetTable->descriptorCount + 1));
+
+                RAZIX_CORE_TRACE("[DX12] Reflected Descriptor - Name: {0}, Set: {1}, Binding: {2}, Type: {3}, Count: {4}",
+                    bindDesc.Name,
+                    bindDesc.Space,
+                    bindDesc.BindPoint,
+                    bindDesc.Type,
+                    bindDesc.BindCount);
 
                 rz_gfx_descriptor* desc = &targetTable->pDescriptors[targetTable->descriptorCount];
                 memset(desc, 0, sizeof(rz_gfx_descriptor));
