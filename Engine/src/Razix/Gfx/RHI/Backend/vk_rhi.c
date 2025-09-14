@@ -1221,6 +1221,31 @@ static VkDescriptorType vk_util_translate_descriptor_type(rz_gfx_descriptor_type
     }
 }
 
+static VkImageViewType vk_util_translate_texture_type_view_type(rz_gfx_texture_type textureType)
+{
+    switch (textureType) {
+        case RZ_GFX_TEXTURE_TYPE_1D:
+            return VK_IMAGE_VIEW_TYPE_1D;
+        case RZ_GFX_TEXTURE_TYPE_2D:
+            return VK_IMAGE_VIEW_TYPE_2D;
+        case RZ_GFX_TEXTURE_TYPE_3D:
+            return VK_IMAGE_VIEW_TYPE_3D;
+        case RZ_GFX_TEXTURE_TYPE_CUBE:
+            return VK_IMAGE_VIEW_TYPE_CUBE;
+        case RZ_GFX_TEXTURE_TYPE_1D_ARRAY:
+            return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+        case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
+            return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
+            return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+        case RZ_GFX_TEXTURE_TYPE_UNDEFINED:
+        default:
+            RAZIX_RHI_LOG_ERROR("Invalid or unsupported texture type: %d", textureType);
+            RAZIX_RHI_ABORT();
+            return VK_IMAGE_VIEW_TYPE_2D;    // Fallback to most common type
+    }
+}
+
 static void vk_util_print_device_info(VkPhysicalDevice physDev)
 {
     if (!physDev) {
@@ -2055,6 +2080,74 @@ static void vk_util_create_swapchain(rz_gfx_swapchain* sc, uint32_t width, uint3
     free(swapchainSupport.presentModes);
 
     RAZIX_RHI_LOG_INFO("Vulkan swapchain created: %ux%u, %u images", width, height, imageCount);
+}
+
+static void vk_util_create_buffer_view(rz_gfx_resource_view* pView)
+{
+    RAZIX_RHI_ASSERT(pView != NULL, "Resource view cannot be NULL");
+
+    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+    RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL");
+
+    rz_gfx_buffer_view_desc* pBufferViewDesc = &pViewDesc->bufferViewDesc;
+    RAZIX_RHI_ASSERT(pBufferViewDesc != NULL, "Buffer view descriptor cannot be NULL");
+
+    const rz_gfx_buffer* pBuffer = pBufferViewDesc->pBuffer;
+    RAZIX_RHI_ASSERT(pBuffer != NULL, "Buffer resource cannot be NULL");
+
+    const rz_gfx_buffer_desc* pBufferDesc = &pBuffer->resource.desc.bufferDesc;
+    RAZIX_RHI_ASSERT(pBufferDesc != NULL, "Buffer description cannot be NULL");
+
+    VkBufferViewCreateInfo bufferViewCreateInfo = {0};
+    bufferViewCreateInfo.sType                  = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
+    bufferViewCreateInfo.pNext                  = NULL;
+    bufferViewCreateInfo.flags                  = 0;
+    bufferViewCreateInfo.buffer                 = pBuffer->vk.buffer;
+    bufferViewCreateInfo.format                 = vk_util_translate_format(pBufferViewDesc->format);
+    bufferViewCreateInfo.offset                 = pBufferViewDesc->offset;
+    bufferViewCreateInfo.range                  = pBufferViewDesc->size;
+
+    CHECK_VK(vkCreateBufferView(VKDEVICE, &bufferViewCreateInfo, NULL, &pView->vk.bufferView));
+    TAG_OBJECT(pView->vk.bufferView, VK_OBJECT_TYPE_BUFFER_VIEW, pView->resource.pName);
+}
+
+static void vk_util_create_image_view(rz_gfx_resource_view* pView)
+{
+    RAZIX_RHI_ASSERT(pView != NULL, "Resource view cannot be NULL");
+
+    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+    RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL");
+
+    rz_gfx_texture_view_desc* pTexViewDesc = &pViewDesc->textureViewDesc;
+    RAZIX_RHI_ASSERT(pTexViewDesc != NULL, "Texture view descriptor cannot be NULL");
+
+    const rz_gfx_texture* pTexture = pTexViewDesc->pTexture;
+    RAZIX_RHI_ASSERT(pTexture != NULL, "Texture resource cannot be NULL");
+
+    const rz_gfx_texture_desc* pTexDesc = &pTexture->resource.desc.textureDesc;
+    RAZIX_RHI_ASSERT(pTexDesc != NULL, "Texture description cannot be NULL");
+
+    VkImageViewCreateInfo imageViewCreateInfo = {0};
+    imageViewCreateInfo.sType                 = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    imageViewCreateInfo.pNext                 = NULL;
+    imageViewCreateInfo.flags                 = 0;
+    imageViewCreateInfo.image                 = pTexture->vk.image;
+    imageViewCreateInfo.viewType              = vk_util_translate_texture_type_view_type(pTexDesc->textureType);
+    imageViewCreateInfo.format                = vk_util_translate_format(pTexDesc->format);
+
+    imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_R;
+    imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_G;
+    imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_B;
+    imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_A;
+
+    imageViewCreateInfo.subresourceRange.aspectMask     = vk_util_deduce_image_aspect_flags(pTexDesc->format);
+    imageViewCreateInfo.subresourceRange.baseMipLevel   = pTexViewDesc->baseMip;
+    imageViewCreateInfo.subresourceRange.levelCount     = pTexDesc->mipLevels;    // FIXME: maybe use VK_REMAINING_MIP_LEVELS?
+    imageViewCreateInfo.subresourceRange.baseArrayLayer = pTexViewDesc->baseArrayLayer;
+    imageViewCreateInfo.subresourceRange.layerCount     = pTexDesc->arraySize;
+
+    CHECK_VK(vkCreateImageView(VKDEVICE, &imageViewCreateInfo, NULL, &pView->vk.imageView));
+    TAG_OBJECT(pView->vk.imageView, VK_OBJECT_TYPE_IMAGE_VIEW, pView->resource.pName);
 }
 
 //---------------------------------------------------------------------------------------------
@@ -3074,16 +3167,50 @@ static void vk_DestroyBuffer(void* buffer)
 
 static void vk_CreateResourceView(void* where)
 {
-    rz_gfx_resource_view* view = (rz_gfx_resource_view*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&view->resource.handle), "Invalid resource view handle, who is allocating this? ResourceManager should create a valid handle");
-    //  TODO: Implement resource view creation
-    RAZIX_RHI_LOG_ERROR("Resource view implementation is not done yet!");
-    RAZIX_RHI_ABORT();
+    rz_gfx_resource_view* pView = (rz_gfx_resource_view*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pView->resource.handle), "Invalid resource view handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+    RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL");
+    RAZIX_RHI_ASSERT(pViewDesc->descriptorType != RZ_GFX_DESCRIPTOR_TYPE_NONE, "Resource view descriptor type cannot be none");
+
+    // Create the resource view based on the type
+    if (rzRHI_IsDescriptorTypeTexture(pViewDesc->descriptorType)) {
+        vk_util_create_image_view(pView);
+    } else if (rzRHI_IsDescriptorTypeBuffer(pViewDesc->descriptorType)) {
+        // Only uniform Texel and storage Texel buffer have views others are directly accessed via buffer descriptor
+        //if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER || pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER)
+        //vk_util_create_buffer_view(pView);
+        // Currently we don't support texel buffer views nor need them, so this is a no-op
+        RAZIX_RHI_LOG_ERROR("Storage or Uniform Texel Buffer views are not supported in Razix Vulkan backend yet!");
+    } else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_SAMPLER) {
+        // Samplers are created as VkSampler objects in the sampler resource, this is a no-op in vulkan
+        // Unlike DX12 we don't have to cache views for samplers, these are standalone objects
+    } else {
+        RAZIX_RHI_LOG_ERROR("Unsupported resource view descriptor type: %d", pViewDesc->descriptorType);
+        RAZIX_RHI_ABORT();
+        return;
+    }
 }
 
 static void vk_DestroyResourceView(void* view)
 {
-    (void) view;
+    rz_gfx_resource_view* pView = (rz_gfx_resource_view*) view;
+    RAZIX_RHI_ASSERT(pView != NULL, "Resource view is NULL, cannot destroy");
+    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+    RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL");
+
+    if (rzRHI_IsDescriptorTypeTexture(pViewDesc->descriptorType)) {
+        if (pView->vk.imageView != VK_NULL_HANDLE) {
+            vkDestroyImageView(VKDEVICE, pView->vk.imageView, NULL);
+            pView->vk.imageView = VK_NULL_HANDLE;
+        }
+    } else if (rzRHI_IsDescriptorTypeBuffer(pViewDesc->descriptorType)) {
+        if (pView->vk.bufferView != VK_NULL_HANDLE) {
+            vkDestroyBufferView(VKDEVICE, pView->vk.bufferView, NULL);
+            pView->vk.bufferView = VK_NULL_HANDLE;
+        }
+    }
+    // Samplers and acceleration structures would be handled by their respective resource cleanup
 }
 
 static void vk_CreateDescriptorHeap(void* where)
