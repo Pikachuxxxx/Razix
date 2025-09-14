@@ -233,7 +233,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define RAZIX_RESOURCE_VIEW_DIMENSION_FULL       0xffffffff
 #define RAZIX_MAX_VERTEX_BUFFERS_BOUND           16
 #define RAZIX_VERTEX_INPUT_SOA_ENABLED           1    // Structure of Arrays for vertex input data
-#define RAZIX_MAX_DYNAMIC_PIPELINE_STATES        3 // Viewport and Scissor Rect and optionally Depth Bias
+#define RAZIX_MAX_DYNAMIC_PIPELINE_STATES        3    // Viewport and Scissor Rect and optionally Depth Bias
 
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX "PushConstant"
 #define RAZIX_PUSH_CONSTANT_REFLECTION_NAME_VK     RAZIX_PUSH_CONSTANT_REFLECTION_NAME_PREFIX
@@ -1008,14 +1008,14 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_input_element
     {
-        const char*        pSemanticName;
-        uint32_t           semanticIndex : 5;
-        rz_gfx_format      format : 6;
-        uint32_t           inputSlot : 4;
-        uint32_t           alignedByteOffset : 8;
-        uint32_t           inputClass : 1;
-        uint32_t           instanceStepRate : 8;
-        uint32_t           stride;
+        const char*   pSemanticName;
+        uint32_t      semanticIndex : 5;
+        rz_gfx_format format : 6;
+        uint32_t      inputSlot : 4;
+        uint32_t      alignedByteOffset : 8;
+        uint32_t      inputClass : 1;
+        uint32_t      instanceStepRate : 8;
+        uint32_t      stride;
     } rz_gfx_input_element;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader_desc
@@ -1084,8 +1084,8 @@ static inline unsigned int rz_clz32(unsigned int x)
             uint32_t rasterizerDiscardEnabled : 1;
             uint32_t primitiveRestartEnabled : 1;
             uint32_t drawType : 2;
-            uint32_t useBlendPreset : 1;    // If set to true, use the blend preset, else use the blend factors below
-            uint32_t depthClampEnable: 1; // For shadow mapping
+            uint32_t useBlendPreset : 1;      // If set to true, use the blend preset, else use the blend factors below
+            uint32_t depthClampEnable : 1;    // For shadow mapping
             uint32_t transparencyEnabled : 1;
             uint32_t enableStencilTest : 1;
             uint32_t reserved0 : 10;
@@ -1415,8 +1415,8 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t          colorAttachmentsCount;
         uint32_t          _pad0;
         uint32_t          extents[RAZIX_EXTENTS_ELEM_COUNT];
-        rz_gfx_attachment    colorAttachments[RAZIX_MAX_RENDER_TARGETS];
-        rz_gfx_attachment    depthAttachment;
+        rz_gfx_attachment colorAttachments[RAZIX_MAX_RENDER_TARGETS];
+        rz_gfx_attachment depthAttachment;
         uint32_t          layers;
         rz_gfx_resolution resolution;    // TODO: Use this
         uint8_t           _pad1[8];
@@ -1519,10 +1519,11 @@ static inline unsigned int rz_clz32(unsigned int x)
     RAZIX_RHI_API bool rzRHI_IsDescriptorTypeTextureRW(rz_gfx_descriptor_type type);
     RAZIX_RHI_API bool rzRHI_IsDescriptorTypeBufferRW(rz_gfx_descriptor_type type);
 
-    RAZIX_RHI_API uint32_t rzRHI_GetBytesPerPixel(rz_gfx_format format);
-    RAZIX_RHI_API uint32_t rzRHI_GetFormatStrideComponentsCount(rz_gfx_format format);
-    RAZIX_RHI_API uint32_t rzRHI_GetFormatComponentSize(rz_gfx_format format);
-    RAZIX_RHI_API uint32_t rzRHI_GetMipLevelCount(uint32_t width, uint32_t height);
+    RAZIX_RHI_API uint32_t    rzRHI_GetBytesPerPixel(rz_gfx_format format);
+    RAZIX_RHI_API uint32_t    rzRHI_GetFormatStrideComponentsCount(rz_gfx_format format);
+    RAZIX_RHI_API uint32_t    rzRHI_GetFormatComponentSize(rz_gfx_format format);
+    RAZIX_RHI_API uint32_t    rzRHI_GetMipLevelCount(uint32_t width, uint32_t height);
+    RAZIX_RHI_API const char* rzRHI_GetResourceTypeString(rz_gfx_resource_type type);
 
     //---------------------------------------------------------------------------------------------
     // RHI Jump Table

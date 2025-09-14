@@ -412,3 +412,23 @@ uint32_t rzRHI_GetMipLevelCount(uint32_t width, uint32_t height)
         return 0;
     return (uint32_t) (floor(log2((double) ((width > height) ? width : height)))) + 1;
 }
+
+const char* rzRHI_GetResourceTypeString(rz_gfx_resource_type type)
+{
+    switch (type) {
+        case RZ_GFX_RESOURCE_TYPE_INVALID: return "Invalid"; break;
+        case RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW: return "Resource View"; break;
+        case RZ_GFX_RESOURCE_TYPE_TEXTURE: return "Texture"; break;
+        case RZ_GFX_RESOURCE_TYPE_BUFFER: return "Buffer"; break;
+        case RZ_GFX_RESOURCE_TYPE_SAMPLER: return "Sampler"; break;
+        case RZ_GFX_RESOURCE_TYPE_SHADER: return "Shader"; break;
+        case RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_HEAP: return "Descriptor Heap"; break;
+        case RZ_GFX_RESOURCE_TYPE_DESCRIPTOR_TABLE: return "Descriptor Table"; break;
+        case RZ_GFX_RESOURCE_TYPE_ROOT_SIGNATURE: return "Root Signature"; break;
+        case RZ_GFX_RESOURCE_TYPE_CMD_POOL: return "Command Pool"; break;
+        case RZ_GFX_RESOURCE_TYPE_CMD_BUFFER: return "Command Buffer"; break;
+        case RZ_GFX_RESOURCE_TYPE_PIPELINE: return "Pipeline"; break;
+        case RZ_GFX_RESOURCE_TYPE_COUNT: return "Count"; break;
+        default: return "Unknown"; break;
+    }
+}
