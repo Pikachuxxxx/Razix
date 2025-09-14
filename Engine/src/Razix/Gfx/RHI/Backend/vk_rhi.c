@@ -3102,14 +3102,88 @@ static void vk_DestroyResourceView(void* view)
 
 static void vk_CreateDescriptorHeap(void* where)
 {
-    (void) where;
-    // TODO: Implement when needed
+    rz_gfx_descriptor_heap* heap = (rz_gfx_descriptor_heap*) where;
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&heap->resource.handle), "Invalid descriptor heap handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_descriptor_heap_desc* desc = &heap->resource.desc.descriptorHeapDesc;
+    RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
+
+    // Create pool sizes for all descriptor types we might need
+    VkDescriptorPoolSize poolSizes[8]     = {0};
+    uint32_t             poolSizeCount    = 0;
+    uint32_t             totalDescriptors = desc->descriptorCount;
+
+    switch (desc->heapType) {
+        case RZ_GFX_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV:
+            // For CBV/SRV/UAV heaps, create a comprehensive pool with all buffer/image types
+            poolSizes[poolSizeCount++] = (VkDescriptorPoolSize) {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, totalDescriptors / 4};
+            poolSizes[poolSizeCount++] = (VkDescriptorPoolSize) {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, totalDescriptors / 4};
+            poolSizes[poolSizeCount++] = (VkDescriptorPoolSize) {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, totalDescriptors / 8};
+            poolSizes[poolSizeCount++] = (VkDescriptorPoolSize) {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, totalDescriptors / 8};
+            poolSizes[poolSizeCount++] = (VkDescriptorPoolSize) {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, totalDescriptors / 8};
+            poolSizes[poolSizeCount++] = (VkDescriptorPoolSize) {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, totalDescriptors / 8};
+            break;
+
+        case RZ_GFX_DESCRIPTOR_HEAP_TYPE_SAMPLER:
+            // Sampler-only heap
+            poolSizes[poolSizeCount++] = (VkDescriptorPoolSize) {VK_DESCRIPTOR_TYPE_SAMPLER, totalDescriptors};
+            break;
+
+        case RZ_GFX_DESCRIPTOR_HEAP_TYPE_RTV:
+        case RZ_GFX_DESCRIPTOR_HEAP_TYPE_DSV:
+            // For RTV/DSV, create a general-purpose pool with all texture types
+            // These don't map directly to Vulkan descriptors, but we can use them for:
+            // - Input attachments for reading render targets
+            // - Storage images for UAV-like access to render targets
+            poolSizes[poolSizeCount++] = (VkDescriptorPoolSize) {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, totalDescriptors / 2};
+            poolSizes[poolSizeCount++] = (VkDescriptorPoolSize) {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, totalDescriptors / 2};
+            RAZIX_RHI_LOG_INFO("RTV/DSV heap created as general texture descriptor pool");
+            break;
+
+        default:
+            RAZIX_RHI_LOG_ERROR("Unknown descriptor heap type: %d", desc->heapType);
+            return;
+    }
+
+    VkDescriptorPoolCreateInfo poolInfo = {0};
+    poolInfo.sType                      = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.flags                      = 0;
+
+    // Enable freeing individual descriptor sets if freelist allocation is requested
+    if (desc->flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST) {
+        poolInfo.flags |= VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+    }
+
+    poolInfo.maxSets       = totalDescriptors;
+    poolInfo.poolSizeCount = poolSizeCount;
+    poolInfo.pPoolSizes    = poolSizes;
+
+    VkResult result = vkCreateDescriptorPool(VKDEVICE, &poolInfo, NULL, &heap->vk.pool);
+    if (result != VK_SUCCESS) {
+        RAZIX_RHI_LOG_ERROR("Failed to create Vulkan Descriptor Pool: %d", result);
+        return;
+    }
+
+    RAZIX_RHI_LOG_INFO("Vulkan Descriptor Pool created successfully with %d max sets", totalDescriptors);
+    TAG_OBJECT(heap->vk.pool, VK_OBJECT_TYPE_DESCRIPTOR_POOL, heap->resource.pName);
+
+    heap->vk.allocatedSets = 0;
+
+    // No need for manual freelist or ringbuffer tracking in Vulkan!
+    // The descriptor pool handles all allocation internally
+    RAZIX_RHI_LOG_TRACE("Vulkan automatically handles descriptor allocation - no manual tracking needed");
 }
 
 static void vk_DestroyDescriptorHeap(void* heap)
 {
-    (void) heap;
-    // TODO: Implement when needed
+    RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap is NULL, cannot destroy");
+    rz_gfx_descriptor_heap* descHeap = (rz_gfx_descriptor_heap*) heap;
+
+    if (descHeap->vk.pool != VK_NULL_HANDLE) {
+        vkDestroyDescriptorPool(VKDEVICE, descHeap->vk.pool, NULL);
+        descHeap->vk.pool          = VK_NULL_HANDLE;
+        descHeap->vk.allocatedSets = 0;
+    }
 }
 
 static void vk_CreateDescriptorTable(void* where)

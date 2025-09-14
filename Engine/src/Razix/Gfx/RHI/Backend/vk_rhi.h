@@ -102,6 +102,7 @@ typedef struct vk_cmdbuf
 typedef struct vk_descriptor_heap
 {
     VkDescriptorPool pool;
+    uint32_t         allocatedSets;
 } vk_descriptor_heap;
 
 typedef struct vk_descriptor_table
