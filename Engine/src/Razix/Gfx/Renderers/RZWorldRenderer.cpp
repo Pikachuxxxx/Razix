@@ -86,6 +86,7 @@ namespace Razix {
 
         static void printGLFWRequiredExtensions(void)
         {
+#ifdef RAZIX_RENDER_API_VULKAN
             // First we are sending in the list of desired extensions by GLFW to interface with the WPI
             u32   glfwExtensionsCount = 0;
             cstr* glfwExtensions;
@@ -93,7 +94,7 @@ namespace Razix {
             RAZIX_CORE_TRACE("[Vulkan] GLFW loaded extensions count : {0}", glfwExtensionsCount);
 
             // This is just for information and Querying purpose
-#ifdef RAZIX_DEBUG
+    #ifdef RAZIX_DEBUG
             RAZIX_CORE_TRACE("GLFW Requested Extensions are : \n");
             for (u32 i = 0; i < glfwExtensionsCount; i++) {
                 RAZIX_CORE_TRACE("\t");
@@ -104,17 +105,17 @@ namespace Razix {
                 }
                 std::cout << std::endl;
             }
+    #endif
 #endif
         }
 
         void RZWorldRenderer::create(RZWindow* window, u32 width, u32 height)
         {
-            printGLFWRequiredExtensions();
-
             m_Window = window;
             memset(&m_RenderSync, 0, sizeof(RenderSyncPrimitives));
             m_FrameCount = 0;
 
+            printGLFWRequiredExtensions();
             // Create the swapchain
             GLFWwindow*   glfwWindow = static_cast<GLFWwindow*>(window->GetNativeWindow());
             rz_render_api api        = rzGfxCtx_GetRenderAPI();
@@ -179,7 +180,6 @@ namespace Razix {
                 m_InFlightDrawCmdBufPtrs[i]    = RZResourceManager::Get().getCommandBufferResource(m_InFlightDrawCmdBufHandles[i]);
             }
 
-#if !RAZIX_INIT_RENDERER_MINIMAL
             // Create generic resource and sampler heaps
             rz_gfx_descriptor_heap_desc resourceHeapDesc = {};
             resourceHeapDesc.heapType                    = RZ_GFX_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
@@ -205,6 +205,7 @@ namespace Razix {
             depthRenderTargetHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
             m_DepthRenderTargetHeap                               = RZResourceManager::Get().createDescriptorHeap("DepthRenderTargetHeap", depthRenderTargetHeapDesc);
 
+#if !RAZIX_INIT_RENDERER_MINIMAL
             {
                 // Create some global basic samplers
                 rz_gfx_sampler_desc linearSamplerDesc = {};
@@ -273,12 +274,12 @@ namespace Razix {
             RZResourceManager::Get().destroyResourceView(m_SamplersViewPool.linearSampler);
             RZResourceManager::Get().destroySampler(m_SamplersPool.linearSampler);
             RZResourceManager::Get().destroyDescriptorTable(m_GlobalSamplerTable);
+#endif
 
             RZResourceManager::Get().destroyDescriptorHeap(m_RenderTargetHeap);
             RZResourceManager::Get().destroyDescriptorHeap(m_DepthRenderTargetHeap);
             RZResourceManager::Get().destroyDescriptorHeap(m_SamplerHeap);
             RZResourceManager::Get().destroyDescriptorHeap(m_ResourceHeap);
-#endif
 
             for (u32 i = 0; i < RAZIX_MAX_FRAMES_IN_FLIGHT; i++) {
                 RZResourceManager::Get().destroyCommandPool(m_InFlightCmdPool[i]);
