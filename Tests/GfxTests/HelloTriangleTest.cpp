@@ -69,7 +69,8 @@ TEST_F(HelloTriangleTests, HelloTriangle)
     int result = EngineTestLoop();
 
     float psnr = s_GfxTestBaseApp->CompareWithGoldenImage();
-    if (psnr == UINT32_MAX || psnr >= 10.f)
+    printf("PSNR: %6.2f dB\n", psnr);
+    if (psnr == UINT32_MAX || psnr >= 40.f)
         result = SUCCESSFUL_ENGINE_EXIT_CODE;
     else
         result = -1;

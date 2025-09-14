@@ -55,10 +55,11 @@ TEST_F(PrimitiveTests, DrawPrimitive)
     int result = EngineTestLoop();
 
     float psnr = s_GfxTestBaseApp->CompareWithGoldenImage();
-    if (psnr > 90.f)
-        result = -1;
-    else
+    printf("PSNR: %6.2f dB\n", psnr);
+    if (psnr == UINT32_MAX || psnr >= 40.f)
         result = SUCCESSFUL_ENGINE_EXIT_CODE;
+    else
+        result = -1;
 
     EXPECT_EQ(result, SUCCESSFUL_ENGINE_EXIT_CODE);
 }
