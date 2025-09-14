@@ -253,7 +253,7 @@ static D3D12_INPUT_ELEMENT_DESC dx12_util_input_element_desc(rz_gfx_input_elemen
     dxElement.SemanticName             = (LPCSTR) (element.pSemanticName);
     dxElement.SemanticIndex            = element.semanticIndex;
     dxElement.Format                   = dx12_util_rz_gfx_format_to_dxgi_format(element.format);
-    dxElement.InputSlot                = element.inputSlot; // Using separate indices for SOA, use 0 for AOS
+    dxElement.InputSlot                = element.inputSlot;    // Using separate indices for SOA, use 0 for AOS
     dxElement.AlignedByteOffset        = element.alignedByteOffset;
     dxElement.InputSlotClass           = (element.inputClass == RZ_GFX_INPUT_CLASS_PER_VERTEX)
                                              ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA
@@ -1941,6 +1941,8 @@ static void dx12_GlobalCtxDestroy(void)
     dx12_util_destroy_debug_handles(&DX12Context);
     dx12_util_track_dxgi_liveobjects(&DX12Context);
 #endif
+
+    RAZIX_RHI_LOG_INFO("DX12 RHI backend destroyed");
 }
 
 static void dx12_CreateSyncobjFn(void* where, rz_gfx_syncobj_type type)
@@ -2152,7 +2154,7 @@ static void dx12_CreateRootSignature(void* where)
     rootDesc.pParameters               = rootParams;
     // TODO: Use static samplers in future for truly bindless textures
     rootDesc.NumStaticSamplers = 0;
-    rootDesc.pStaticSamplers = NULL;
+    rootDesc.pStaticSamplers   = NULL;
 
     for (uint32_t tableIdx = 0; tableIdx < desc->descriptorTableLayoutsCount; tableIdx++) {
         const rz_gfx_descriptor_table_layout* pTableLayouts = &desc->pDescriptorTableLayouts[tableIdx];
