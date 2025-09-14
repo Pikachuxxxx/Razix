@@ -2,6 +2,9 @@
 
 namespace Razix {
 
+    int    g_argc;
+    char** g_argv;
+
     static void WiteSwapchainTextureReadbackToPPM(const rz_gfx_texture_readback* texture, const char* filename)
     {
         if (!texture || !texture->data || texture->bpp != 32) {
@@ -166,3 +169,12 @@ namespace Razix {
         return psnr;
     }
 }    // namespace Razix
+
+int main(int argc, char** argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    Razix::g_argc = argc;
+    Razix::g_argv = argv;
+
+    return RUN_ALL_TESTS();
+}

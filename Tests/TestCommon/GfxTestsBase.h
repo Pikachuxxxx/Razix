@@ -5,6 +5,9 @@
 
 namespace Razix {
 
+    extern int    g_argc;
+    extern char** g_argv;
+
 #define TEST_APP_NUM_FRAMES_DEFAULT 120
 #define TEST_APP_NUM_FRAMES_INF     INT32_MAX - 1
 
@@ -73,7 +76,7 @@ namespace Razix {
 static int EngineTestLoop(void)
 {
     Razix::RZEngine::Get().setEngineInTestMode();
-    EngineMain(0, NULL);
+    EngineMain(Razix::g_argc, Razix::g_argv);
 
     while (Razix::RZApplication::Get().RenderFrame()) {}
 
