@@ -1051,7 +1051,7 @@ static void vk_util_create_logical_device(void)
     queueCreateInfo.queueFamilyIndex        = indices.graphicsFamily;
     queueCreateInfo.queueCount              = 1;
     queueCreateInfo.pQueuePriorities        = &queuePriority;
-    
+
     // Physical Device Features 2
     VkPhysicalDeviceTimelineSemaphoreFeatures timelineFeatures = {
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES,
@@ -1068,21 +1068,21 @@ static void vk_util_create_logical_device(void)
     vkGetPhysicalDeviceFeatures2(VKGPU, &deviceFeatures2);
 
 #ifndef __APPLE__
-    device_features.features.samplerAnisotropy       = VK_TRUE;
-    device_features.features.pipelineStatisticsQuery = VK_TRUE;
+    deviceFeatures2.features.samplerAnisotropy       = VK_TRUE;
+    deviceFeatures2.features.pipelineStatisticsQuery = VK_TRUE;
 #endif
     deviceFeatures2.features.sampleRateShading = VK_TRUE;
 
     VkPhysicalDeviceFeatures deviceFeatures = {0};
     vkGetPhysicalDeviceFeatures(VKGPU, &deviceFeatures);
-    deviceFeatures.samplerAnisotropy    = VK_TRUE;
+    deviceFeatures.samplerAnisotropy = VK_TRUE;
 
     VkDeviceCreateInfo createInfo      = {0};
     createInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     createInfo.pNext                   = &deviceFeatures2;
     createInfo.pQueueCreateInfos       = &queueCreateInfo;
     createInfo.queueCreateInfoCount    = 1;
-    createInfo.pEnabledFeatures        = NULL; // must be null when using deviceFeatures2
+    createInfo.pEnabledFeatures        = NULL;    // must be null when using deviceFeatures2
     createInfo.enabledExtensionCount   = sizeof(s_RequiredDeviceExtensions) / sizeof(s_RequiredDeviceExtensions[0]);
     createInfo.ppEnabledExtensionNames = s_RequiredDeviceExtensions;
 
@@ -1553,6 +1553,10 @@ VkFormat vk_util_translate_format(rz_gfx_format format)
             return VK_FORMAT_BC7_UNORM_BLOCK;
         case RZ_GFX_FORMAT_BC7_SRGB:
             return VK_FORMAT_BC7_SRGB_BLOCK;
+
+            // Screen aka Swapchain format
+        case RZ_GFX_FORMAT_SCREEN:
+            return RAZIX_SWAPCHAIN_FORMAT_VK;
 
         default:
             RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_FORMAT value: %d, defaulting to VK_FORMAT_UNDEFINED", format);
@@ -2890,7 +2894,6 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
     graphicsPipelineCI.pDepthStencilState           = &depthStencilSCI;
     graphicsPipelineCI.renderPass                   = VK_NULL_HANDLE;
 
-    uint32_t shaderStageCount = 0;
     // Count how many shader stages we have
     uint32_t                         stageCount   = 0;
     VkPipelineShaderStageCreateInfo* shaderStages = alloca(sizeof(VkPipelineShaderStageCreateInfo) * RZ_GFX_SHADER_STAGE_COUNT);
@@ -2911,7 +2914,7 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
         shaderStages[stageCount].pNext               = NULL;
         shaderStages[stageCount].flags               = 0;
         shaderStages[stageCount].stage               = VK_SHADER_STAGE_FRAGMENT_BIT;
-        shaderStages[stageCount].module              = pShader->vk.modules[RZ_GFX_SHADER_STAGE_PIXEL];
+        shaderStages[stageCount].module              = pShader->vk.modules[stageCount];
         shaderStages[stageCount].pName               = "PS_MAIN";
         shaderStages[stageCount].pSpecializationInfo = NULL;
         stageCount++;
@@ -2922,7 +2925,7 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
         shaderStages[stageCount].pNext               = NULL;
         shaderStages[stageCount].flags               = 0;
         shaderStages[stageCount].stage               = VK_SHADER_STAGE_GEOMETRY_BIT;
-        shaderStages[stageCount].module              = pShader->vk.modules[RZ_GFX_SHADER_STAGE_GEOMETRY];
+        shaderStages[stageCount].module              = pShader->vk.modules[stageCount];
         shaderStages[stageCount].pName               = "GS_MAIN";
         shaderStages[stageCount].pSpecializationInfo = NULL;
         stageCount++;
@@ -2933,7 +2936,7 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
         shaderStages[stageCount].pNext               = NULL;
         shaderStages[stageCount].flags               = 0;
         shaderStages[stageCount].stage               = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-        shaderStages[stageCount].module              = pShader->vk.modules[RZ_GFX_SHADER_STAGE_TESSELLATION_CONTROL];
+        shaderStages[stageCount].module              = pShader->vk.modules[stageCount];
         shaderStages[stageCount].pName               = "HS_MAIN";
         shaderStages[stageCount].pSpecializationInfo = NULL;
         stageCount++;
@@ -2944,7 +2947,7 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
         shaderStages[stageCount].pNext               = NULL;
         shaderStages[stageCount].flags               = 0;
         shaderStages[stageCount].stage               = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-        shaderStages[stageCount].module              = pShader->vk.modules[RZ_GFX_SHADER_STAGE_TESSELLATION_EVALUATION];
+        shaderStages[stageCount].module              = pShader->vk.modules[stageCount];
         shaderStages[stageCount].pName               = "DS_MAIN";
         shaderStages[stageCount].pSpecializationInfo = NULL;
         stageCount++;
@@ -3478,7 +3481,7 @@ static void vk_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
     void* mappedData = NULL;
     CHECK_VK(vkMapMemory(VKDEVICE, updatedesc.pBuffer->vk.memory, updatedesc.offset, updatedesc.sizeInBytes, 0, (void**) &mappedData));
     RAZIX_RHI_ASSERT(mappedData != NULL, "Failed to map constant buffer memory");
-    memcpy((uint8_t*) (mappedData + updatedesc.offset), updatedesc.pData, updatedesc.sizeInBytes);
+    memcpy(((uint8_t*) mappedData) + updatedesc.offset, updatedesc.pData, updatedesc.sizeInBytes);
     // unmapping is not required for HOST_VISIBLE | HOST_COHERENT memory,
     // but doing it anyway for safety, we will try to prefer
     // HOST_COHERENT memory for dynamic and persistent uniform buffer
