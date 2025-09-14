@@ -1391,7 +1391,7 @@ static inline unsigned int rz_clz32(unsigned int x)
             uint32_t reserved : 31;
         };
         uint8_t _pad0[4];
-    } gfx_attachment;
+    } rz_gfx_attachment;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_viewport
     {
@@ -1415,8 +1415,8 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t          colorAttachmentsCount;
         uint32_t          _pad0;
         uint32_t          extents[RAZIX_EXTENTS_ELEM_COUNT];
-        gfx_attachment    colorAttachments[RAZIX_MAX_RENDER_TARGETS];
-        gfx_attachment    depthAttachment;
+        rz_gfx_attachment    colorAttachments[RAZIX_MAX_RENDER_TARGETS];
+        rz_gfx_attachment    depthAttachment;
         uint32_t          layers;
         rz_gfx_resolution resolution;    // TODO: Use this
         uint8_t           _pad1[8];

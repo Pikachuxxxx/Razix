@@ -3306,12 +3306,79 @@ static void vk_EndCmdBuf(const rz_gfx_cmdbuf* cmdBuf)
 
 static void vk_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderpass* renderPass)
 {
-    // TODO: Implement when needed
+    VkCommandBuffer vkCmdBuf = cmdBuf->vk.cmdBuf;
+
+    uint32_t                  colorAttachmentCount                       = renderPass->colorAttachmentsCount;
+    VkRenderingAttachmentInfo colorAttachments[RAZIX_MAX_RENDER_TARGETS] = {0};
+
+    for (uint32_t i = 0; i < colorAttachmentCount; ++i) {
+        const rz_gfx_attachment* att    = &renderPass->colorAttachments[i];
+        colorAttachments[i].sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        colorAttachments[i].imageView   = att->pResourceView->vk.imageView;
+        colorAttachments[i].imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;    // TODO: Double check if this is correct
+        colorAttachments[i].loadOp      = att->clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+        colorAttachments[i].storeOp     = VK_ATTACHMENT_STORE_OP_STORE;
+        memcpy(colorAttachments[i].clearValue.color.float32, att->clearColor.raw, sizeof(float) * 4);
+    }
+
+    VkRenderingAttachmentInfo depthAttachment = {0};
+    bool                      hasDepth        = (renderPass->depthAttachment.pResourceView != NULL);
+    if (hasDepth) {
+        const rz_gfx_attachment* att                    = &renderPass->depthAttachment;
+        depthAttachment.sType                           = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        depthAttachment.imageView                       = att->pResourceView->vk.imageView;
+        depthAttachment.imageLayout                     = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;    // TODO: Double check if this is correct
+        depthAttachment.loadOp                          = att->clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+        depthAttachment.storeOp                         = VK_ATTACHMENT_STORE_OP_STORE;
+        depthAttachment.clearValue.depthStencil.depth   = 1.0f;
+        depthAttachment.clearValue.depthStencil.stencil = 0;
+    }
+
+    // TODO: Add stencil support
+    //if (hasStencil) {
+    //    RAZIX_RHI_LOG_WARN("Stencil attachment is not supported in the Vulkan backend yet!");
+    //}
+
+    // TODO: Use resolution to deduce render area more intuitively when not using custom extents
+    VkRenderingInfo renderingInfo = {
+        .sType      = VK_STRUCTURE_TYPE_RENDERING_INFO,
+        .renderArea = {
+            .offset = {0, 0},
+            .extent = {
+                .width  = RAZIX_X(renderPass->extents),
+                .height = RAZIX_Y(renderPass->extents)}},
+        .layerCount           = 1,
+        .colorAttachmentCount = colorAttachmentCount,
+        .pColorAttachments    = colorAttachments,
+        .pDepthAttachment     = hasDepth ? &depthAttachment : NULL,
+        .pStencilAttachment   = NULL};
+
+    vkCmdBeginRenderingKHR(vkCmdBuf, &renderingInfo);
+
+    // Set the viewport and scissor to cover the entire render area by default
+    // DirectX and Vulkan have different coordinate systems for viewports
+    // Vulkan's viewport Y axis is inverted compared to DirectX
+    VkViewport viewport = {
+        .x        = 0.0f,
+        .y        = (float) renderingInfo.renderArea.extent.height,
+        .width    = (float) renderingInfo.renderArea.extent.width,
+        .height   = -(float) renderingInfo.renderArea.extent.height,
+        .minDepth = 0.0f,
+        .maxDepth = 1.0f};
+    vkCmdSetViewport(vkCmdBuf, 0, 1, &viewport);
+
+    VkRect2D scissor = {
+        .offset = {0, 0},
+        .extent = {
+            .width  = renderingInfo.renderArea.extent.width,
+            .height = renderingInfo.renderArea.extent.height}};
+
+    vkCmdSetScissor(vkCmdBuf, 0, 1, &scissor);
 }
 
 static void vk_EndRenderPass(const rz_gfx_cmdbuf* cmdBuf)
 {
-    // TODO: Implement when needed
+    vkCmdEndRenderingKHR(cmdBuf->vk.cmdBuf);
 }
 
 static void vk_SetViewport(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* viewport)
@@ -3320,11 +3387,13 @@ static void vk_SetViewport(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_viewport* v
     RAZIX_RHI_ASSERT(viewport != NULL, "Viewport cannot be null");
     RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
 
+    // DirectX and Vulkan have different coordinate systems for viewports
+    // Vulkan's viewport Y axis is inverted compared to DirectX
     VkViewport vkViewport = {
         .x        = (float) viewport->x,
-        .y        = (float) viewport->y,
+        .y        = (float) viewport->y - (float) viewport->height,
         .width    = (float) viewport->width,
-        .height   = (float) viewport->height,
+        .height   = -(float) viewport->height,
         .minDepth = (float) viewport->minDepth,
         .maxDepth = (float) viewport->maxDepth};
 
