@@ -162,7 +162,6 @@ namespace Razix {
             }
 
             // Let's reflect the descriptor bindings and push constants now
-            RAZIX_CORE_ASSERT(module.push_constant_block_count > 1, "Multiple push constant blocks are not supported yet!");
             RAZIX_CORE_ASSERT(module.push_constant_block_count == 0 || module.push_constant_block_count == 1, "Only one push constant block is supported!");
             u32 numPushConstants = module.push_constant_block_count;
             for (u32 i = 0; i < numPushConstants; i++) {
