@@ -609,6 +609,618 @@ static VkImageLayout vk_util_translate_imagelayout_resstate(rz_gfx_resource_stat
     return vulkan_image_layout_map[state];
 }
 
+static VkFilter vk_util_translate_filter_type(rz_gfx_texture_filter_type filter)
+{
+    switch (filter) {
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST:
+            return VK_FILTER_NEAREST;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR:
+            return VK_FILTER_LINEAR;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST:
+            return VK_FILTER_NEAREST;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST:
+            return VK_FILTER_LINEAR;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR:
+            return VK_FILTER_NEAREST;
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR:
+            return VK_FILTER_LINEAR;
+        default:
+            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_FILTER value, defaulting to VK_FILTER_LINEAR");
+            return VK_FILTER_LINEAR;
+    }
+}
+
+static VkSamplerMipmapMode vk_util_translate_mipmap_filter_type(rz_gfx_texture_filter_type filter)
+{
+    switch (filter) {
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST:
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR:
+            // These don't use mipmapping, but we need to return something
+            // You might want to return VK_SAMPLER_MIPMAP_MODE_NEAREST as default
+            return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST:
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST:
+            return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR:
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR:
+            return VK_SAMPLER_MIPMAP_MODE_LINEAR;
+
+        default:
+            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_FILTER value, defaulting to VK_SAMPLER_MIPMAP_MODE_NEAREST");
+            return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    }
+}
+
+static bool vk_util_is_mipmap_enabled_from_filter_type(rz_gfx_texture_filter_type filter)
+{
+    switch (filter) {
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST:
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR:
+            return false;
+
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST:
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST:
+        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR:
+        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
+static VkSamplerAddressMode vk_util_translate_address_mode(rz_gfx_texture_address_mode address_mode)
+{
+    switch (address_mode) {
+        case RZ_GFX_TEXTURE_ADDRESS_MODE_WRAP:
+        case RZ_GFX_TEXTURE_ADDRESS_MODE_REPEAT:
+            return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+
+        case RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP:
+            return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+
+        case RZ_GFX_TEXTURE_ADDRESS_MODE_BORDER:
+            return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+
+        default:
+            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_TEXTURE_ADDRESS_MODE value, defaulting to VK_SAMPLER_ADDRESS_MODE_REPEAT");
+            return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    }
+}
+
+static VkCompareOp vk_util_translate_compare_op(rz_gfx_compare_op_type compare_op)
+{
+    switch (compare_op) {
+        case RZ_GFX_COMPARE_OP_TYPE_NEVER:
+            return VK_COMPARE_OP_NEVER;
+
+        case RZ_GFX_COMPARE_OP_TYPE_LESS:
+            return VK_COMPARE_OP_LESS;
+
+        case RZ_GFX_COMPARE_OP_TYPE_EQUAL:
+            return VK_COMPARE_OP_EQUAL;
+
+        case RZ_GFX_COMPARE_OP_TYPE_LESS_OR_EQUAL:
+            return VK_COMPARE_OP_LESS_OR_EQUAL;
+
+        case RZ_GFX_COMPARE_OP_TYPE_GREATER:
+            return VK_COMPARE_OP_GREATER;
+
+        case RZ_GFX_COMPARE_OP_TYPE_NOT_EQUAL:
+            return VK_COMPARE_OP_NOT_EQUAL;
+
+        case RZ_GFX_COMPARE_OP_TYPE_GREATER_OR_EQUAL:
+            return VK_COMPARE_OP_GREATER_OR_EQUAL;
+
+        case RZ_GFX_COMPARE_OP_TYPE_ALWAYS:
+            return VK_COMPARE_OP_ALWAYS;
+
+        default:
+            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_COMPARE_OP_TYPE value, defaulting to VK_COMPARE_OP_LESS");
+            return VK_COMPARE_OP_LESS;
+    }
+}
+
+VkFormat vk_util_translate_format(rz_gfx_format format)
+{
+    switch (format) {
+        // Undefined
+        case RZ_GFX_FORMAT_UNDEFINED:
+            return VK_FORMAT_UNDEFINED;
+
+        // 8-bit formats
+        case RZ_GFX_FORMAT_R8_UNORM:
+            return VK_FORMAT_R8_UNORM;
+        case RZ_GFX_FORMAT_R8_UINT:
+            return VK_FORMAT_R8_UINT;
+        case RZ_GFX_FORMAT_R8G8_UNORM:
+            return VK_FORMAT_R8G8_UNORM;
+        case RZ_GFX_FORMAT_R8G8B8A8_UNORM:
+            return VK_FORMAT_R8G8B8A8_UNORM;
+        case RZ_GFX_FORMAT_R8G8B8A8_SRGB:
+            return VK_FORMAT_R8G8B8A8_SRGB;
+        case RZ_GFX_FORMAT_B8G8R8A8_UNORM:
+            return VK_FORMAT_B8G8R8A8_UNORM;
+        case RZ_GFX_FORMAT_B8G8R8A8_SRGB:
+            return VK_FORMAT_B8G8R8A8_SRGB;
+
+        // 16-bit formats
+        case RZ_GFX_FORMAT_R16_UNORM:
+            return VK_FORMAT_R16_UNORM;
+        case RZ_GFX_FORMAT_R16_FLOAT:
+            return VK_FORMAT_R16_SFLOAT;
+        case RZ_GFX_FORMAT_R16G16_UNORM:
+            return VK_FORMAT_R16G16_UNORM;
+        case RZ_GFX_FORMAT_R16G16_FLOAT:
+            return VK_FORMAT_R16G16_SFLOAT;
+        case RZ_GFX_FORMAT_R16G16B16A16_UNORM:
+            return VK_FORMAT_R16G16B16A16_UNORM;
+        case RZ_GFX_FORMAT_R16G16B16A16_FLOAT:
+            return VK_FORMAT_R16G16B16A16_SFLOAT;
+
+        // 32-bit signed integer formats
+        case RZ_GFX_FORMAT_R32_SINT:
+            return VK_FORMAT_R32_SINT;
+        case RZ_GFX_FORMAT_R32G32_SINT:
+            return VK_FORMAT_R32G32_SINT;
+        case RZ_GFX_FORMAT_R32G32B32_SINT:
+            return VK_FORMAT_R32G32B32_SINT;
+        case RZ_GFX_FORMAT_R32G32B32A32_SINT:
+            return VK_FORMAT_R32G32B32A32_SINT;
+
+        // 32-bit unsigned integer formats
+        case RZ_GFX_FORMAT_R32_UINT:
+            return VK_FORMAT_R32_UINT;
+        case RZ_GFX_FORMAT_R32G32_UINT:
+            return VK_FORMAT_R32G32_UINT;
+        case RZ_GFX_FORMAT_R32G32B32_UINT:
+            return VK_FORMAT_R32G32B32_UINT;
+        case RZ_GFX_FORMAT_R32G32B32A32_UINT:
+            return VK_FORMAT_R32G32B32A32_UINT;
+
+        // 32-bit float formats
+        case RZ_GFX_FORMAT_R32_FLOAT:
+            return VK_FORMAT_R32_SFLOAT;
+        case RZ_GFX_FORMAT_R32G32_FLOAT:
+            return VK_FORMAT_R32G32_SFLOAT;
+        case RZ_GFX_FORMAT_R32G32B32_FLOAT:
+            return VK_FORMAT_R32G32B32_SFLOAT;
+        case RZ_GFX_FORMAT_R32G32B32A32_FLOAT:
+            return VK_FORMAT_R32G32B32A32_SFLOAT;
+
+#ifdef RAZIX_SUPPORT_64BIT_FORMATS
+        // 64-bit unsigned integer formats
+        case RZ_GFX_FORMAT_R64_UINT:
+            return VK_FORMAT_R64_UINT;
+        case RZ_GFX_FORMAT_R64G64_UINT:
+            return VK_FORMAT_R64G64_UINT;
+        case RZ_GFX_FORMAT_R64G64B64_UINT:
+            return VK_FORMAT_R64G64B64_UINT;
+        case RZ_GFX_FORMAT_R64G64B64A64_UINT:
+            return VK_FORMAT_R64G64B64A64_UINT;
+
+        // 64-bit signed integer formats
+        case RZ_GFX_FORMAT_R64_SINT:
+            return VK_FORMAT_R64_SINT;
+        case RZ_GFX_FORMAT_R64G64_SINT:
+            return VK_FORMAT_R64G64_SINT;
+        case RZ_GFX_FORMAT_R64G64B64_SINT:
+            return VK_FORMAT_R64G64B64_SINT;
+        case RZ_GFX_FORMAT_R64G64B64A64_SINT:
+            return VK_FORMAT_R64G64B64A64_SINT;
+
+        // 64-bit float formats
+        case RZ_GFX_FORMAT_R64_FLOAT:
+            return VK_FORMAT_R64_SFLOAT;
+        case RZ_GFX_FORMAT_R64G64_FLOAT:
+            return VK_FORMAT_R64G64_SFLOAT;
+        case RZ_GFX_FORMAT_R64G64B64_FLOAT:
+            return VK_FORMAT_R64G64B64_SFLOAT;
+        case RZ_GFX_FORMAT_R64G64B64A64_FLOAT:
+            return VK_FORMAT_R64G64B64A64_SFLOAT;
+#endif    // RAZIX_SUPPORT_64BIT_FORMATS
+
+        // Packed formats
+        case RZ_GFX_FORMAT_R11G11B10_FLOAT:
+            return VK_FORMAT_B10G11R11_UFLOAT_PACK32;
+
+        // Depth-stencil formats
+        case RZ_GFX_FORMAT_D16_UNORM:
+            return VK_FORMAT_D16_UNORM;
+        case RZ_GFX_FORMAT_D24_UNORM_S8_UINT:
+            return VK_FORMAT_D24_UNORM_S8_UINT;
+        case RZ_GFX_FORMAT_D32_FLOAT:
+            return VK_FORMAT_D32_SFLOAT;
+        case RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT:
+            return VK_FORMAT_D32_SFLOAT_S8_UINT;
+
+        // Block compression formats
+        case RZ_GFX_FORMAT_BC1_RGBA_UNORM:
+            return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+        case RZ_GFX_FORMAT_BC3_RGBA_UNORM:
+            return VK_FORMAT_BC3_UNORM_BLOCK;
+        case RZ_GFX_FORMAT_BC6_UNORM:
+            return VK_FORMAT_BC6H_UFLOAT_BLOCK;
+        case RZ_GFX_FORMAT_BC7_UNORM:
+            return VK_FORMAT_BC7_UNORM_BLOCK;
+        case RZ_GFX_FORMAT_BC7_SRGB:
+            return VK_FORMAT_BC7_SRGB_BLOCK;
+
+            // Screen aka Swapchain format
+        case RZ_GFX_FORMAT_SCREEN:
+            return RAZIX_SWAPCHAIN_FORMAT_VK;
+
+        default:
+            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_FORMAT value: %d, defaulting to VK_FORMAT_UNDEFINED", format);
+            return VK_FORMAT_UNDEFINED;
+    }
+}
+
+VkAccessFlags vk_util_access_flags_translate(rz_gfx_resource_state state)
+{
+    switch (state) {
+        case RZ_GFX_RESOURCE_STATE_UNDEFINED:
+            return 0;
+
+        case RZ_GFX_RESOURCE_STATE_COMMON:
+            return VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_GENERIC_READ:
+            return VK_ACCESS_MEMORY_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_RENDER_TARGET:
+            return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_DEPTH_WRITE:
+            return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_DEPTH_READ:
+            return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_SHADER_READ:
+            return VK_ACCESS_SHADER_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS:
+            return VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_COPY_SRC:
+            return VK_ACCESS_TRANSFER_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_COPY_DST:
+            return VK_ACCESS_TRANSFER_WRITE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_PRESENT:
+            return VK_ACCESS_MEMORY_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_VERTEX_BUFFER:
+            return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_INDEX_BUFFER:
+            return VK_ACCESS_INDEX_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_CONSTANT_BUFFER:
+            return VK_ACCESS_UNIFORM_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_INDIRECT_ARGUMENT:
+            return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_RESOLVE_SRC:
+            return VK_ACCESS_TRANSFER_READ_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_RESOLVE_DST:
+            return VK_ACCESS_TRANSFER_WRITE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE:
+            return VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+
+        case RZ_GFX_RESOURCE_STATE_SHADING_RATE_SOURCE:
+            return VK_ACCESS_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR;
+
+        case RZ_GFX_RESOURCE_STATE_VIDEO_DECODE_READ:
+        case RZ_GFX_RESOURCE_STATE_VIDEO_DECODE_WRITE:
+            return 0;
+
+        default:
+            return 0;
+    }
+}
+
+VkPipelineStageFlags vk_deduce_pipeline_stage_from_res_state(rz_gfx_resource_state state)
+{
+    switch (state) {
+        case RZ_GFX_RESOURCE_STATE_UNDEFINED:
+            return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_COMMON:
+        case RZ_GFX_RESOURCE_STATE_GENERIC_READ:
+            return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_RENDER_TARGET:
+            return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_DEPTH_WRITE:
+        case RZ_GFX_RESOURCE_STATE_DEPTH_READ:
+            return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_SHADER_READ:
+        case RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS:
+            return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_COPY_SRC:
+        case RZ_GFX_RESOURCE_STATE_COPY_DST:
+        case RZ_GFX_RESOURCE_STATE_RESOLVE_SRC:
+        case RZ_GFX_RESOURCE_STATE_RESOLVE_DST:
+            return VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_PRESENT:
+            return VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_VERTEX_BUFFER:
+            return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_INDEX_BUFFER:
+            return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_CONSTANT_BUFFER:
+            return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_INDIRECT_ARGUMENT:
+            return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
+
+        case RZ_GFX_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE:
+            return VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR;
+
+        case RZ_GFX_RESOURCE_STATE_SHADING_RATE_SOURCE:
+            return VK_PIPELINE_STAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR;
+
+        case RZ_GFX_RESOURCE_STATE_VIDEO_DECODE_READ:
+        case RZ_GFX_RESOURCE_STATE_VIDEO_DECODE_WRITE:
+            return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+        default:
+            return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    }
+}
+
+static VkImageAspectFlags vk_util_deduce_image_aspect_flags(rz_gfx_format format)
+{
+    VkImageAspectFlags aspectFlags = 0;
+
+    // Determine aspect flags based on format
+    switch (format) {
+        case RZ_GFX_FORMAT_D16_UNORM:
+        case RZ_GFX_FORMAT_D24_UNORM_S8_UINT:
+        case RZ_GFX_FORMAT_D32_FLOAT:
+        case RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT:
+            aspectFlags |= VK_IMAGE_ASPECT_DEPTH_BIT;
+            if (format == RZ_GFX_FORMAT_D24_UNORM_S8_UINT || format == RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT) {
+                aspectFlags |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            }
+            break;
+
+        default:
+            aspectFlags |= VK_IMAGE_ASPECT_COLOR_BIT;
+            break;
+    }
+
+    return aspectFlags;
+}
+
+static uint32_t vk_util_find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+{
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(VKGPU, &memProperties);
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+        if ((typeFilter & (1 << i)) &&
+            (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+            return i;
+        }
+    }
+
+    RAZIX_RHI_ASSERT(false, "[Vulkan] Failed to find suitable memory type!");
+    return 0;
+}
+
+static VkPipelineColorBlendAttachmentState vk_util_blend_preset(rz_gfx_blend_presets preset)
+{
+    VkPipelineColorBlendAttachmentState desc = {0};
+    desc.blendEnable                         = VK_TRUE;
+    desc.colorWriteMask                      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                          VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+
+    switch (preset) {
+        case RZ_GFX_BLEND_PRESET_ADDITIVE:
+            desc.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+            desc.colorBlendOp        = VK_BLEND_OP_ADD;
+            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.alphaBlendOp        = VK_BLEND_OP_ADD;
+            break;
+        case RZ_GFX_BLEND_PRESET_ALPHA_BLEND:
+            desc.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+            desc.colorBlendOp        = VK_BLEND_OP_ADD;
+            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+            desc.alphaBlendOp        = VK_BLEND_OP_ADD;
+            break;
+        case RZ_GFX_BLEND_PRESET_SUBTRACTIVE:
+            desc.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.colorBlendOp        = VK_BLEND_OP_REVERSE_SUBTRACT;
+            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.alphaBlendOp        = VK_BLEND_OP_REVERSE_SUBTRACT;
+            break;
+        case RZ_GFX_BLEND_PRESET_MULTIPLY:
+            desc.srcColorBlendFactor = VK_BLEND_FACTOR_DST_COLOR;
+            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+            desc.colorBlendOp        = VK_BLEND_OP_ADD;
+            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_DST_ALPHA;
+            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+            desc.alphaBlendOp        = VK_BLEND_OP_ADD;
+            break;
+        case RZ_GFX_BLEND_PRESET_DARKEN:
+            desc.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.colorBlendOp        = VK_BLEND_OP_MIN;
+            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            desc.alphaBlendOp        = VK_BLEND_OP_MIN;
+            break;
+        default:
+            desc.blendEnable = VK_FALSE;
+            break;
+    }
+
+    return desc;
+}
+
+static VkBlendFactor vk_util_blend_factor(rz_gfx_blend_factor_type factor)
+{
+    switch (factor) {
+        case RZ_GFX_BLEND_FACTOR_TYPE_ZERO: return VK_BLEND_FACTOR_ZERO;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE: return VK_BLEND_FACTOR_ONE;
+        case RZ_GFX_BLEND_FACTOR_TYPE_SRC_COLOR: return VK_BLEND_FACTOR_SRC_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_SRC_COLOR: return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_DST_COLOR: return VK_BLEND_FACTOR_DST_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_DST_COLOR: return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_SRC_ALPHA: return VK_BLEND_FACTOR_SRC_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_SRC_ALPHA: return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_DST_ALPHA: return VK_BLEND_FACTOR_DST_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_DST_ALPHA: return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_CONSTANT_COLOR: return VK_BLEND_FACTOR_CONSTANT_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_CONSTANT_COLOR: return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+        case RZ_GFX_BLEND_FACTOR_TYPE_CONSTANT_ALPHA: return VK_BLEND_FACTOR_CONSTANT_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_CONSTANT_ALPHA: return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
+        case RZ_GFX_BLEND_FACTOR_TYPE_SRC_ALPHA_SATURATE: return VK_BLEND_FACTOR_SRC_ALPHA_SATURATE;
+        default: return VK_BLEND_FACTOR_ONE;
+    }
+}
+
+static VkBlendOp vk_util_blend_op(rz_gfx_blend_op_type op)
+{
+    switch (op) {
+        case RZ_GFX_BLEND_OP_TYPE_ADD: return VK_BLEND_OP_ADD;
+        case RZ_GFX_BLEND_OP_TYPE_SUBTRACT: return VK_BLEND_OP_SUBTRACT;
+        case RZ_GFX_BLEND_OP_TYPE_REVERSE_SUBTRACT: return VK_BLEND_OP_REVERSE_SUBTRACT;
+        case RZ_GFX_BLEND_OP_TYPE_MIN: return VK_BLEND_OP_MIN;
+        case RZ_GFX_BLEND_OP_TYPE_MAX: return VK_BLEND_OP_MAX;
+        default: return VK_BLEND_OP_ADD;
+    }
+}
+
+static VkPrimitiveTopology vk_util_translate_draw_type(rz_gfx_draw_type drawType)
+{
+    switch (drawType) {
+        case RZ_GFX_DRAW_TYPE_POINT: return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+        case RZ_GFX_DRAW_TYPE_TRIANGLE: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        case RZ_GFX_DRAW_TYPE_TRIANGLE_STRIP: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+        case RZ_GFX_DRAW_TYPE_LINE: return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+        case RZ_GFX_DRAW_TYPE_LINE_STRIP: return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+        default: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    }
+}
+
+static VkCullModeFlags vk_util_translate_cull_mode(rz_gfx_cull_mode_type cullMode)
+{
+    switch (cullMode) {
+        case RZ_GFX_CULL_MODE_TYPE_BACK: return VK_CULL_MODE_BACK_BIT;
+        case RZ_GFX_CULL_MODE_TYPE_FRONT: return VK_CULL_MODE_FRONT_BIT;
+        case RZ_GFX_CULL_MODE_TYPE_FRONT_BACK: return VK_CULL_MODE_FRONT_AND_BACK;
+        case RZ_GFX_CULL_MODE_TYPE_NONE: return VK_CULL_MODE_NONE;
+        default: return VK_CULL_MODE_BACK_BIT;
+    }
+}
+
+static VkPolygonMode vk_util_translate_polygon_mode(rz_gfx_polygon_mode_type polygonMode)
+{
+    switch (polygonMode) {
+        case RZ_GFX_POLYGON_MODE_TYPE_SOLID: return VK_POLYGON_MODE_FILL;
+        case RZ_GFX_POLYGON_MODE_TYPE_WIREFRAME: return VK_POLYGON_MODE_LINE;
+        case RZ_GFX_POLYGON_MODE_TYPE_POINT: return VK_POLYGON_MODE_POINT;
+        default: return VK_POLYGON_MODE_FILL;
+    }
+}
+
+static VkDescriptorType vk_util_translate_descriptor_type(rz_gfx_descriptor_type type)
+{
+    switch (type) {
+        case RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER:
+            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT:
+            // Push constants are handled separately in Vulkan, not as descriptors
+            RAZIX_RHI_LOG_WARN("Push constants should not be converted to VkDescriptorType, handle separately");
+            return 0;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED:
+            return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_TEXTURE:
+            return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE:
+            return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE:
+            // Render textures are typically used as sampled images in shaders
+            return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE:
+            // Depth stencil textures when used in shaders are sampled images
+            return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_SAMPLER:
+            return VK_DESCRIPTOR_TYPE_SAMPLER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_TYPED:
+            // Read-write typed buffer (UAV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_STRUCTURED:
+            // Structured buffer (SRV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED:
+            // Read-write structured buffer (UAV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_BYTE_ADDRESS:
+            // Byte address buffer (SRV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_BYTE_ADDRESS:
+            // Read-write byte address buffer (UAV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_APPEND_STRUCTURED:
+            // Append structured buffer (UAV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_CONSUME_STRUCTURED:
+            // Consume structured buffer (UAV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED_COUNTER:
+            // Read-write structured buffer with counter (UAV in D3D terms)
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_RT_ACCELERATION_STRUCTURE:
+            return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+
+        case RZ_GFX_DESCRIPTOR_TYPE_NONE:
+        case RZ_GFX_DESCRIPTOR_TYPE_COUNT:
+        default:
+            RAZIX_RHI_LOG_ERROR("Invalid or unsupported descriptor type: %d", type);
+            return 0;    // Invalid value
+    }
+}
+
 static void vk_util_print_device_info(VkPhysicalDevice physDev)
 {
     if (!physDev) {
@@ -1099,6 +1711,54 @@ static void vk_util_create_logical_device(void)
     vkGetDeviceQueue(VKCONTEXT.device, indices.presentFamily, 0, &VKCONTEXT.presentQueue);
 }
 
+static vk_cmdbuf vk_util_begin_singletime_cmdlist(void)
+{
+    vk_cmdbuf cmdBuf = {0};
+
+    // Create a temporary command pool for single-time commands
+    VkCommandPoolCreateInfo poolInfo = {
+        .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+        .flags            = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+        .queueFamilyIndex = VKCONTEXT.queueFamilyIndices.graphicsFamily,
+    };
+
+    CHECK_VK(vkCreateCommandPool(VKDEVICE, &poolInfo, NULL, &cmdBuf.cmdPool));
+    TAG_OBJECT(cmdBuf.cmdPool, VK_OBJECT_TYPE_COMMAND_POOL, "Single-time Command Pool");
+
+    VkCommandBufferAllocateInfo allocInfo = {
+        .sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .commandPool        = cmdBuf.cmdPool,
+        .commandBufferCount = 1};
+
+    CHECK_VK(vkAllocateCommandBuffers(VKDEVICE, &allocInfo, &cmdBuf.cmdBuf));
+    TAG_OBJECT(cmdBuf.cmdBuf, VK_OBJECT_TYPE_COMMAND_BUFFER, "Single-time Command Buffer");
+
+    VkCommandBufferBeginInfo beginInfo = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
+
+    CHECK_VK(vkBeginCommandBuffer(cmdBuf.cmdBuf, &beginInfo));
+
+    return cmdBuf;
+}
+
+static void vk_util_end_singletime_cmdlist(vk_cmdbuf cmdBuf)
+{
+    CHECK_VK(vkEndCommandBuffer(cmdBuf.cmdBuf));
+
+    VkSubmitInfo submitInfo = {
+        .sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .commandBufferCount = 1,
+        .pCommandBuffers    = &cmdBuf.cmdBuf};
+
+    CHECK_VK(vkQueueSubmit(VKCONTEXT.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE));
+    vkDeviceWaitIdle(VKDEVICE);
+
+    vkFreeCommandBuffers(VKDEVICE, cmdBuf.cmdPool, 1, &cmdBuf.cmdBuf);
+    vkDestroyCommandPool(VKDEVICE, cmdBuf.cmdPool, NULL);
+}
+
 static VkExtent2D vk_util_choose_swap_extent(const VkSurfaceCapabilitiesKHR* capabilities, uint32_t width, uint32_t height)
 {
     if (capabilities->currentExtent.width != UINT32_MAX) {
@@ -1293,686 +1953,108 @@ static void vk_util_destroy_swapchain_images(rz_gfx_swapchain* swapchain)
     RAZIX_RHI_LOG_INFO("Destroyed swapchain image views and texture wrappers");
 }
 
-static void vk_util_recreate_swapchain_images(rz_gfx_swapchain* swapchain)
+static void vk_util_create_swapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t height)
 {
-    RAZIX_RHI_ASSERT(swapchain != NULL, "Swapchain cannot be NULL");
-    RAZIX_RHI_ASSERT(swapchain->vk.swapchain != VK_NULL_HANDLE, "Vulkan swapchain must be valid");
+    RAZIX_RHI_ASSERT(sc != NULL, "Swapchain cannot be NULL");
+    RAZIX_RHI_ASSERT(width > 0 && height > 0, "Swapchain dimensions must be greater than zero");
 
-    vk_util_destroy_swapchain_images(swapchain);
+    sc->width  = width;
+    sc->height = height;
 
-    if (swapchain->vk.images) {
-        free(swapchain->vk.images);
+    VkSwapchainSupportDetails swapchainSupport = vk_util_query_swapchain_support(VKCONTEXT.gpu, VKCONTEXT.surface);
+
+    VkSurfaceFormatKHR surfaceFormat = vk_util_choose_swap_surface_format(swapchainSupport.formats, swapchainSupport.formatCount);
+    VkPresentModeKHR   presentMode   = vk_util_choose_swap_present_mode(swapchainSupport.presentModes, swapchainSupport.presentModeCount);
+    VkExtent2D         extent        = vk_util_choose_swap_extent(&swapchainSupport.capabilities, width, height);
+
+    uint32_t imageCount = swapchainSupport.capabilities.minImageCount + 1;
+    if (swapchainSupport.capabilities.maxImageCount > 0 && imageCount > swapchainSupport.capabilities.maxImageCount) {
+        imageCount = swapchainSupport.capabilities.maxImageCount;
     }
 
-    // Recreate image views and texture wrappers
-    vk_util_create_swapchain_images(swapchain);
-    vk_util_create_swapchain_textures(swapchain);
-
-    CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->imageCount, NULL));
-    RAZIX_RHI_LOG_INFO("Recreated swapchain images for new dimensions: %ux%u, %u images",
-        swapchain->width,
-        swapchain->height,
-        swapchain->imageCount);
-}
-
-static VkFilter vk_util_translate_filter_type(rz_gfx_texture_filter_type filter)
-{
-    switch (filter) {
-        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST:
-            return VK_FILTER_NEAREST;
-        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR:
-            return VK_FILTER_LINEAR;
-        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST:
-            return VK_FILTER_NEAREST;
-        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST:
-            return VK_FILTER_LINEAR;
-        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR:
-            return VK_FILTER_NEAREST;
-        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR:
-            return VK_FILTER_LINEAR;
-        default:
-            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_FILTER value, defaulting to VK_FILTER_LINEAR");
-            return VK_FILTER_LINEAR;
-    }
-}
-
-static VkSamplerMipmapMode vk_util_translate_mipmap_filter_type(rz_gfx_texture_filter_type filter)
-{
-    switch (filter) {
-        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST:
-        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR:
-            // These don't use mipmapping, but we need to return something
-            // You might want to return VK_SAMPLER_MIPMAP_MODE_NEAREST as default
-            return VK_SAMPLER_MIPMAP_MODE_NEAREST;
-
-        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST:
-        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST:
-            return VK_SAMPLER_MIPMAP_MODE_NEAREST;
-
-        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR:
-        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR:
-            return VK_SAMPLER_MIPMAP_MODE_LINEAR;
-
-        default:
-            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_FILTER value, defaulting to VK_SAMPLER_MIPMAP_MODE_NEAREST");
-            return VK_SAMPLER_MIPMAP_MODE_NEAREST;
-    }
-}
-
-static bool vk_util_is_mipmap_enabled_from_filter_type(rz_gfx_texture_filter_type filter)
-{
-    switch (filter) {
-        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST:
-        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR:
-            return false;
-
-        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST:
-        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_NEAREST:
-        case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_LINEAR:
-        case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR_MIPMAP_LINEAR:
-            return true;
-
-        default:
-            return false;
-    }
-}
-
-static VkSamplerAddressMode vk_util_translate_address_mode(rz_gfx_texture_address_mode address_mode)
-{
-    switch (address_mode) {
-        case RZ_GFX_TEXTURE_ADDRESS_MODE_WRAP:
-        case RZ_GFX_TEXTURE_ADDRESS_MODE_REPEAT:
-            return VK_SAMPLER_ADDRESS_MODE_REPEAT;
-
-        case RZ_GFX_TEXTURE_ADDRESS_MODE_CLAMP:
-            return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-
-        case RZ_GFX_TEXTURE_ADDRESS_MODE_BORDER:
-            return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-
-        default:
-            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_TEXTURE_ADDRESS_MODE value, defaulting to VK_SAMPLER_ADDRESS_MODE_REPEAT");
-            return VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    }
-}
-
-static VkCompareOp vk_util_translate_compare_op(rz_gfx_compare_op_type compare_op)
-{
-    switch (compare_op) {
-        case RZ_GFX_COMPARE_OP_TYPE_NEVER:
-            return VK_COMPARE_OP_NEVER;
-
-        case RZ_GFX_COMPARE_OP_TYPE_LESS:
-            return VK_COMPARE_OP_LESS;
-
-        case RZ_GFX_COMPARE_OP_TYPE_EQUAL:
-            return VK_COMPARE_OP_EQUAL;
-
-        case RZ_GFX_COMPARE_OP_TYPE_LESS_OR_EQUAL:
-            return VK_COMPARE_OP_LESS_OR_EQUAL;
-
-        case RZ_GFX_COMPARE_OP_TYPE_GREATER:
-            return VK_COMPARE_OP_GREATER;
-
-        case RZ_GFX_COMPARE_OP_TYPE_NOT_EQUAL:
-            return VK_COMPARE_OP_NOT_EQUAL;
-
-        case RZ_GFX_COMPARE_OP_TYPE_GREATER_OR_EQUAL:
-            return VK_COMPARE_OP_GREATER_OR_EQUAL;
-
-        case RZ_GFX_COMPARE_OP_TYPE_ALWAYS:
-            return VK_COMPARE_OP_ALWAYS;
-
-        default:
-            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_COMPARE_OP_TYPE value, defaulting to VK_COMPARE_OP_LESS");
-            return VK_COMPARE_OP_LESS;
-    }
-}
-
-VkFormat vk_util_translate_format(rz_gfx_format format)
-{
-    switch (format) {
-        // Undefined
-        case RZ_GFX_FORMAT_UNDEFINED:
-            return VK_FORMAT_UNDEFINED;
-
-        // 8-bit formats
-        case RZ_GFX_FORMAT_R8_UNORM:
-            return VK_FORMAT_R8_UNORM;
-        case RZ_GFX_FORMAT_R8_UINT:
-            return VK_FORMAT_R8_UINT;
-        case RZ_GFX_FORMAT_R8G8_UNORM:
-            return VK_FORMAT_R8G8_UNORM;
-        case RZ_GFX_FORMAT_R8G8B8A8_UNORM:
-            return VK_FORMAT_R8G8B8A8_UNORM;
-        case RZ_GFX_FORMAT_R8G8B8A8_SRGB:
-            return VK_FORMAT_R8G8B8A8_SRGB;
-        case RZ_GFX_FORMAT_B8G8R8A8_UNORM:
-            return VK_FORMAT_B8G8R8A8_UNORM;
-        case RZ_GFX_FORMAT_B8G8R8A8_SRGB:
-            return VK_FORMAT_B8G8R8A8_SRGB;
-
-        // 16-bit formats
-        case RZ_GFX_FORMAT_R16_UNORM:
-            return VK_FORMAT_R16_UNORM;
-        case RZ_GFX_FORMAT_R16_FLOAT:
-            return VK_FORMAT_R16_SFLOAT;
-        case RZ_GFX_FORMAT_R16G16_UNORM:
-            return VK_FORMAT_R16G16_UNORM;
-        case RZ_GFX_FORMAT_R16G16_FLOAT:
-            return VK_FORMAT_R16G16_SFLOAT;
-        case RZ_GFX_FORMAT_R16G16B16A16_UNORM:
-            return VK_FORMAT_R16G16B16A16_UNORM;
-        case RZ_GFX_FORMAT_R16G16B16A16_FLOAT:
-            return VK_FORMAT_R16G16B16A16_SFLOAT;
-
-        // 32-bit signed integer formats
-        case RZ_GFX_FORMAT_R32_SINT:
-            return VK_FORMAT_R32_SINT;
-        case RZ_GFX_FORMAT_R32G32_SINT:
-            return VK_FORMAT_R32G32_SINT;
-        case RZ_GFX_FORMAT_R32G32B32_SINT:
-            return VK_FORMAT_R32G32B32_SINT;
-        case RZ_GFX_FORMAT_R32G32B32A32_SINT:
-            return VK_FORMAT_R32G32B32A32_SINT;
-
-        // 32-bit unsigned integer formats
-        case RZ_GFX_FORMAT_R32_UINT:
-            return VK_FORMAT_R32_UINT;
-        case RZ_GFX_FORMAT_R32G32_UINT:
-            return VK_FORMAT_R32G32_UINT;
-        case RZ_GFX_FORMAT_R32G32B32_UINT:
-            return VK_FORMAT_R32G32B32_UINT;
-        case RZ_GFX_FORMAT_R32G32B32A32_UINT:
-            return VK_FORMAT_R32G32B32A32_UINT;
-
-        // 32-bit float formats
-        case RZ_GFX_FORMAT_R32_FLOAT:
-            return VK_FORMAT_R32_SFLOAT;
-        case RZ_GFX_FORMAT_R32G32_FLOAT:
-            return VK_FORMAT_R32G32_SFLOAT;
-        case RZ_GFX_FORMAT_R32G32B32_FLOAT:
-            return VK_FORMAT_R32G32B32_SFLOAT;
-        case RZ_GFX_FORMAT_R32G32B32A32_FLOAT:
-            return VK_FORMAT_R32G32B32A32_SFLOAT;
-
-#ifdef RAZIX_SUPPORT_64BIT_FORMATS
-        // 64-bit unsigned integer formats
-        case RZ_GFX_FORMAT_R64_UINT:
-            return VK_FORMAT_R64_UINT;
-        case RZ_GFX_FORMAT_R64G64_UINT:
-            return VK_FORMAT_R64G64_UINT;
-        case RZ_GFX_FORMAT_R64G64B64_UINT:
-            return VK_FORMAT_R64G64B64_UINT;
-        case RZ_GFX_FORMAT_R64G64B64A64_UINT:
-            return VK_FORMAT_R64G64B64A64_UINT;
-
-        // 64-bit signed integer formats
-        case RZ_GFX_FORMAT_R64_SINT:
-            return VK_FORMAT_R64_SINT;
-        case RZ_GFX_FORMAT_R64G64_SINT:
-            return VK_FORMAT_R64G64_SINT;
-        case RZ_GFX_FORMAT_R64G64B64_SINT:
-            return VK_FORMAT_R64G64B64_SINT;
-        case RZ_GFX_FORMAT_R64G64B64A64_SINT:
-            return VK_FORMAT_R64G64B64A64_SINT;
-
-        // 64-bit float formats
-        case RZ_GFX_FORMAT_R64_FLOAT:
-            return VK_FORMAT_R64_SFLOAT;
-        case RZ_GFX_FORMAT_R64G64_FLOAT:
-            return VK_FORMAT_R64G64_SFLOAT;
-        case RZ_GFX_FORMAT_R64G64B64_FLOAT:
-            return VK_FORMAT_R64G64B64_SFLOAT;
-        case RZ_GFX_FORMAT_R64G64B64A64_FLOAT:
-            return VK_FORMAT_R64G64B64A64_SFLOAT;
-#endif    // RAZIX_SUPPORT_64BIT_FORMATS
-
-        // Packed formats
-        case RZ_GFX_FORMAT_R11G11B10_FLOAT:
-            return VK_FORMAT_B10G11R11_UFLOAT_PACK32;
-
-        // Depth-stencil formats
-        case RZ_GFX_FORMAT_D16_UNORM:
-            return VK_FORMAT_D16_UNORM;
-        case RZ_GFX_FORMAT_D24_UNORM_S8_UINT:
-            return VK_FORMAT_D24_UNORM_S8_UINT;
-        case RZ_GFX_FORMAT_D32_FLOAT:
-            return VK_FORMAT_D32_SFLOAT;
-        case RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT:
-            return VK_FORMAT_D32_SFLOAT_S8_UINT;
-
-        // Block compression formats
-        case RZ_GFX_FORMAT_BC1_RGBA_UNORM:
-            return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
-        case RZ_GFX_FORMAT_BC3_RGBA_UNORM:
-            return VK_FORMAT_BC3_UNORM_BLOCK;
-        case RZ_GFX_FORMAT_BC6_UNORM:
-            return VK_FORMAT_BC6H_UFLOAT_BLOCK;
-        case RZ_GFX_FORMAT_BC7_UNORM:
-            return VK_FORMAT_BC7_UNORM_BLOCK;
-        case RZ_GFX_FORMAT_BC7_SRGB:
-            return VK_FORMAT_BC7_SRGB_BLOCK;
-
-            // Screen aka Swapchain format
-        case RZ_GFX_FORMAT_SCREEN:
-            return RAZIX_SWAPCHAIN_FORMAT_VK;
-
-        default:
-            RAZIX_RHI_LOG_WARN("Unknown RZ_GFX_FORMAT value: %d, defaulting to VK_FORMAT_UNDEFINED", format);
-            return VK_FORMAT_UNDEFINED;
-    }
-}
-
-VkAccessFlags vk_util_access_flags_translate(rz_gfx_resource_state state)
-{
-    switch (state) {
-        case RZ_GFX_RESOURCE_STATE_UNDEFINED:
-            return 0;
-
-        case RZ_GFX_RESOURCE_STATE_COMMON:
-            return VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_GENERIC_READ:
-            return VK_ACCESS_MEMORY_READ_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_RENDER_TARGET:
-            return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_DEPTH_WRITE:
-            return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_DEPTH_READ:
-            return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_SHADER_READ:
-            return VK_ACCESS_SHADER_READ_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS:
-            return VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_COPY_SRC:
-            return VK_ACCESS_TRANSFER_READ_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_COPY_DST:
-            return VK_ACCESS_TRANSFER_WRITE_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_PRESENT:
-            return VK_ACCESS_MEMORY_READ_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_VERTEX_BUFFER:
-            return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_INDEX_BUFFER:
-            return VK_ACCESS_INDEX_READ_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_CONSTANT_BUFFER:
-            return VK_ACCESS_UNIFORM_READ_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_INDIRECT_ARGUMENT:
-            return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_RESOLVE_SRC:
-            return VK_ACCESS_TRANSFER_READ_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_RESOLVE_DST:
-            return VK_ACCESS_TRANSFER_WRITE_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE:
-            return VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
-
-        case RZ_GFX_RESOURCE_STATE_SHADING_RATE_SOURCE:
-            return VK_ACCESS_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR;
-
-        case RZ_GFX_RESOURCE_STATE_VIDEO_DECODE_READ:
-        case RZ_GFX_RESOURCE_STATE_VIDEO_DECODE_WRITE:
-            return 0;
-
-        default:
-            return 0;
-    }
-}
-
-VkPipelineStageFlags vk_deduce_pipeline_stage_from_res_state(rz_gfx_resource_state state)
-{
-    switch (state) {
-        case RZ_GFX_RESOURCE_STATE_UNDEFINED:
-            return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_COMMON:
-        case RZ_GFX_RESOURCE_STATE_GENERIC_READ:
-            return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_RENDER_TARGET:
-            return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_DEPTH_WRITE:
-        case RZ_GFX_RESOURCE_STATE_DEPTH_READ:
-            return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_SHADER_READ:
-        case RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS:
-            return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_COPY_SRC:
-        case RZ_GFX_RESOURCE_STATE_COPY_DST:
-        case RZ_GFX_RESOURCE_STATE_RESOLVE_SRC:
-        case RZ_GFX_RESOURCE_STATE_RESOLVE_DST:
-            return VK_PIPELINE_STAGE_TRANSFER_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_PRESENT:
-            return VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_VERTEX_BUFFER:
-            return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_INDEX_BUFFER:
-            return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_CONSTANT_BUFFER:
-            return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_INDIRECT_ARGUMENT:
-            return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
-
-        case RZ_GFX_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE:
-            return VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR;
-
-        case RZ_GFX_RESOURCE_STATE_SHADING_RATE_SOURCE:
-            return VK_PIPELINE_STAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR;
-
-        case RZ_GFX_RESOURCE_STATE_VIDEO_DECODE_READ:
-        case RZ_GFX_RESOURCE_STATE_VIDEO_DECODE_WRITE:
-            return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-
-        default:
-            return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-    }
-}
-
-static VkImageAspectFlags vk_util_deduce_image_aspect_flags(rz_gfx_format format)
-{
-    VkImageAspectFlags aspectFlags = 0;
-
-    // Determine aspect flags based on format
-    switch (format) {
-        case RZ_GFX_FORMAT_D16_UNORM:
-        case RZ_GFX_FORMAT_D24_UNORM_S8_UINT:
-        case RZ_GFX_FORMAT_D32_FLOAT:
-        case RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT:
-            aspectFlags |= VK_IMAGE_ASPECT_DEPTH_BIT;
-            if (format == RZ_GFX_FORMAT_D24_UNORM_S8_UINT || format == RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT) {
-                aspectFlags |= VK_IMAGE_ASPECT_STENCIL_BIT;
-            }
-            break;
-
-        default:
-            aspectFlags |= VK_IMAGE_ASPECT_COLOR_BIT;
-            break;
+    VkSwapchainCreateInfoKHR createInfo = {0};
+    createInfo.sType                    = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    createInfo.surface                  = VKCONTEXT.surface;
+    createInfo.minImageCount            = imageCount;
+    createInfo.imageFormat              = surfaceFormat.format;
+    createInfo.imageColorSpace          = surfaceFormat.colorSpace;
+    createInfo.imageExtent              = extent;
+    createInfo.imageArrayLayers         = 1;
+    createInfo.imageUsage               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+
+    VkQueueFamilyIndices indices              = VKCONTEXT.queueFamilyIndices;
+    uint32_t             queueFamilyIndices[] = {indices.graphicsFamily, indices.presentFamily};
+
+    if (indices.graphicsFamily != indices.presentFamily) {
+        createInfo.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
+        createInfo.queueFamilyIndexCount = 2;
+        createInfo.pQueueFamilyIndices   = queueFamilyIndices;
+    } else {
+        createInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
+        createInfo.queueFamilyIndexCount = 0;
+        createInfo.pQueueFamilyIndices   = NULL;
     }
 
-    return aspectFlags;
-}
+    createInfo.preTransform   = swapchainSupport.capabilities.currentTransform;
+    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    createInfo.presentMode    = presentMode;
+    createInfo.clipped        = VK_TRUE;
+    createInfo.oldSwapchain   = VK_NULL_HANDLE;
 
-static vk_cmdbuf vk_util_begin_singletime_cmdlist(void)
-{
-    vk_cmdbuf cmdBuf = {0};
+    CHECK_VK(vkCreateSwapchainKHR(VKCONTEXT.device, &createInfo, NULL, &sc->vk.swapchain));
+    TAG_OBJECT(sc->vk.swapchain, VK_OBJECT_TYPE_SWAPCHAIN_KHR, "Vulkan Swapchain");
 
-    // Create a temporary command pool for single-time commands
-    VkCommandPoolCreateInfo poolInfo = {
-        .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-        .flags            = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-        .queueFamilyIndex = VKCONTEXT.queueFamilyIndices.graphicsFamily,
-    };
+    sc->vk.imageFormat = surfaceFormat.format;
+    sc->width          = extent.width;
+    sc->height         = extent.height;
 
-    CHECK_VK(vkCreateCommandPool(VKDEVICE, &poolInfo, NULL, &cmdBuf.cmdPool));
-    TAG_OBJECT(cmdBuf.cmdPool, VK_OBJECT_TYPE_COMMAND_POOL, "Single-time Command Pool");
+    // Create images and image views and texture wrappers using utility functions
+    vk_util_create_swapchain_images(sc);
+    vk_util_create_swapchain_textures(sc);
 
-    VkCommandBufferAllocateInfo allocInfo = {
-        .sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-        .level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-        .commandPool        = cmdBuf.cmdPool,
-        .commandBufferCount = 1};
+    // Transition swapchain images to present state
+    vk_cmdbuf             cmdBuf             = vk_util_begin_singletime_cmdlist();
+    VkImageMemoryBarrier* pSwapchainBarriers = (VkImageMemoryBarrier*) alloca(sizeof(VkImageMemoryBarrier) * sc->imageCount);
+    for (uint32_t i = 0; i < sc->imageCount; i++) {
+        VkImageMemoryBarrier imageBarrier = {
+            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .pNext               = NULL,
+            .srcAccessMask       = vk_util_access_flags_translate(RZ_GFX_RESOURCE_STATE_UNDEFINED),
+            .dstAccessMask       = vk_util_access_flags_translate(RZ_GFX_RESOURCE_STATE_PRESENT),
+            .oldLayout           = vk_util_translate_imagelayout_resstate(RZ_GFX_RESOURCE_STATE_UNDEFINED),
+            .newLayout           = vk_util_translate_imagelayout_resstate(RZ_GFX_RESOURCE_STATE_PRESENT),
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image               = sc->vk.images[i],
+            .subresourceRange    = {
+                   .aspectMask     = vk_util_deduce_image_aspect_flags(RAZIX_SWAPCHAIN_FORMAT),
+                   .baseMipLevel   = 0,
+                   .levelCount     = 1,
+                   .baseArrayLayer = 0,
+                   .layerCount     = 1},
+        };
 
-    CHECK_VK(vkAllocateCommandBuffers(VKDEVICE, &allocInfo, &cmdBuf.cmdBuf));
-    TAG_OBJECT(cmdBuf.cmdBuf, VK_OBJECT_TYPE_COMMAND_BUFFER, "Single-time Command Buffer");
-
-    VkCommandBufferBeginInfo beginInfo = {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-        .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
-
-    CHECK_VK(vkBeginCommandBuffer(cmdBuf.cmdBuf, &beginInfo));
-
-    return cmdBuf;
-}
-
-static void vk_util_end_singletime_cmdlist(vk_cmdbuf cmdBuf)
-{
-    CHECK_VK(vkEndCommandBuffer(cmdBuf.cmdBuf));
-
-    VkSubmitInfo submitInfo = {
-        .sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .commandBufferCount = 1,
-        .pCommandBuffers    = &cmdBuf.cmdBuf};
-
-    CHECK_VK(vkQueueSubmit(VKCONTEXT.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE));
-    vkDeviceWaitIdle(VKDEVICE);
-
-    vkFreeCommandBuffers(VKDEVICE, cmdBuf.cmdPool, 1, &cmdBuf.cmdBuf);
-    vkDestroyCommandPool(VKDEVICE, cmdBuf.cmdPool, NULL);
-}
-
-static uint32_t vk_util_find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties)
-{
-    VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(VKGPU, &memProperties);
-
-    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-        if ((typeFilter & (1 << i)) &&
-            (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-            return i;
-        }
+        // Temp memory but fine
+        pSwapchainBarriers[i] = imageBarrier;
     }
+    vkCmdPipelineBarrier(
+        cmdBuf.cmdBuf,
+        vk_deduce_pipeline_stage_from_res_state(RZ_GFX_RESOURCE_STATE_UNDEFINED),
+        vk_deduce_pipeline_stage_from_res_state(RZ_GFX_RESOURCE_STATE_PRESENT),
+        0,    // dependency flags
+        0,
+        NULL,    // Global Memory barriers
+        0,
+        NULL,    // Buffer barriers
+        sc->imageCount,
+        pSwapchainBarriers);    // Image barriers
+    vk_util_end_singletime_cmdlist(cmdBuf);
 
-    RAZIX_RHI_ASSERT(false, "[Vulkan] Failed to find suitable memory type!");
-    return 0;
-}
+    // Cleanup support details
+    free(swapchainSupport.formats);
+    free(swapchainSupport.presentModes);
 
-static VkPipelineColorBlendAttachmentState vk_util_blend_preset(rz_gfx_blend_presets preset)
-{
-    VkPipelineColorBlendAttachmentState desc = {0};
-    desc.blendEnable                         = VK_TRUE;
-    desc.colorWriteMask                      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                          VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-
-    switch (preset) {
-        case RZ_GFX_BLEND_PRESET_ADDITIVE:
-            desc.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-            desc.colorBlendOp        = VK_BLEND_OP_ADD;
-            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-            desc.alphaBlendOp        = VK_BLEND_OP_ADD;
-            break;
-        case RZ_GFX_BLEND_PRESET_ALPHA_BLEND:
-            desc.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-            desc.colorBlendOp        = VK_BLEND_OP_ADD;
-            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-            desc.alphaBlendOp        = VK_BLEND_OP_ADD;
-            break;
-        case RZ_GFX_BLEND_PRESET_SUBTRACTIVE:
-            desc.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
-            desc.colorBlendOp        = VK_BLEND_OP_REVERSE_SUBTRACT;
-            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-            desc.alphaBlendOp        = VK_BLEND_OP_REVERSE_SUBTRACT;
-            break;
-        case RZ_GFX_BLEND_PRESET_MULTIPLY:
-            desc.srcColorBlendFactor = VK_BLEND_FACTOR_DST_COLOR;
-            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-            desc.colorBlendOp        = VK_BLEND_OP_ADD;
-            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_DST_ALPHA;
-            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-            desc.alphaBlendOp        = VK_BLEND_OP_ADD;
-            break;
-        case RZ_GFX_BLEND_PRESET_DARKEN:
-            desc.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-            desc.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
-            desc.colorBlendOp        = VK_BLEND_OP_MIN;
-            desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-            desc.alphaBlendOp        = VK_BLEND_OP_MIN;
-            break;
-        default:
-            desc.blendEnable = VK_FALSE;
-            break;
-    }
-
-    return desc;
-}
-
-static VkBlendFactor vk_util_blend_factor(rz_gfx_blend_factor_type factor)
-{
-    switch (factor) {
-        case RZ_GFX_BLEND_FACTOR_TYPE_ZERO: return VK_BLEND_FACTOR_ZERO;
-        case RZ_GFX_BLEND_FACTOR_TYPE_ONE: return VK_BLEND_FACTOR_ONE;
-        case RZ_GFX_BLEND_FACTOR_TYPE_SRC_COLOR: return VK_BLEND_FACTOR_SRC_COLOR;
-        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_SRC_COLOR: return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
-        case RZ_GFX_BLEND_FACTOR_TYPE_DST_COLOR: return VK_BLEND_FACTOR_DST_COLOR;
-        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_DST_COLOR: return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
-        case RZ_GFX_BLEND_FACTOR_TYPE_SRC_ALPHA: return VK_BLEND_FACTOR_SRC_ALPHA;
-        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_SRC_ALPHA: return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        case RZ_GFX_BLEND_FACTOR_TYPE_DST_ALPHA: return VK_BLEND_FACTOR_DST_ALPHA;
-        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_DST_ALPHA: return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
-        case RZ_GFX_BLEND_FACTOR_TYPE_CONSTANT_COLOR: return VK_BLEND_FACTOR_CONSTANT_COLOR;
-        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_CONSTANT_COLOR: return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
-        case RZ_GFX_BLEND_FACTOR_TYPE_CONSTANT_ALPHA: return VK_BLEND_FACTOR_CONSTANT_ALPHA;
-        case RZ_GFX_BLEND_FACTOR_TYPE_ONE_MINUS_CONSTANT_ALPHA: return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
-        case RZ_GFX_BLEND_FACTOR_TYPE_SRC_ALPHA_SATURATE: return VK_BLEND_FACTOR_SRC_ALPHA_SATURATE;
-        default: return VK_BLEND_FACTOR_ONE;
-    }
-}
-
-static VkBlendOp vk_util_blend_op(rz_gfx_blend_op_type op)
-{
-    switch (op) {
-        case RZ_GFX_BLEND_OP_TYPE_ADD: return VK_BLEND_OP_ADD;
-        case RZ_GFX_BLEND_OP_TYPE_SUBTRACT: return VK_BLEND_OP_SUBTRACT;
-        case RZ_GFX_BLEND_OP_TYPE_REVERSE_SUBTRACT: return VK_BLEND_OP_REVERSE_SUBTRACT;
-        case RZ_GFX_BLEND_OP_TYPE_MIN: return VK_BLEND_OP_MIN;
-        case RZ_GFX_BLEND_OP_TYPE_MAX: return VK_BLEND_OP_MAX;
-        default: return VK_BLEND_OP_ADD;
-    }
-}
-
-static VkPrimitiveTopology vk_util_translate_draw_type(rz_gfx_draw_type drawType)
-{
-    switch (drawType) {
-        case RZ_GFX_DRAW_TYPE_POINT: return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
-        case RZ_GFX_DRAW_TYPE_TRIANGLE: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-        case RZ_GFX_DRAW_TYPE_TRIANGLE_STRIP: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-        case RZ_GFX_DRAW_TYPE_LINE: return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-        case RZ_GFX_DRAW_TYPE_LINE_STRIP: return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
-        default: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    }
-}
-
-static VkCullModeFlags vk_util_translate_cull_mode(rz_gfx_cull_mode_type cullMode)
-{
-    switch (cullMode) {
-        case RZ_GFX_CULL_MODE_TYPE_BACK: return VK_CULL_MODE_BACK_BIT;
-        case RZ_GFX_CULL_MODE_TYPE_FRONT: return VK_CULL_MODE_FRONT_BIT;
-        case RZ_GFX_CULL_MODE_TYPE_FRONT_BACK: return VK_CULL_MODE_FRONT_AND_BACK;
-        case RZ_GFX_CULL_MODE_TYPE_NONE: return VK_CULL_MODE_NONE;
-        default: return VK_CULL_MODE_BACK_BIT;
-    }
-}
-
-static VkPolygonMode vk_util_translate_polygon_mode(rz_gfx_polygon_mode_type polygonMode)
-{
-    switch (polygonMode) {
-        case RZ_GFX_POLYGON_MODE_TYPE_SOLID: return VK_POLYGON_MODE_FILL;
-        case RZ_GFX_POLYGON_MODE_TYPE_WIREFRAME: return VK_POLYGON_MODE_LINE;
-        case RZ_GFX_POLYGON_MODE_TYPE_POINT: return VK_POLYGON_MODE_POINT;
-        default: return VK_POLYGON_MODE_FILL;
-    }
-}
-
-static VkDescriptorType vk_util_translate_descriptor_type(rz_gfx_descriptor_type type)
-{
-    switch (type) {
-        case RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER:
-            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT:
-            // Push constants are handled separately in Vulkan, not as descriptors
-            RAZIX_RHI_LOG_WARN("Push constants should not be converted to VkDescriptorType, handle separately");
-            return 0;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED:
-            return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_TEXTURE:
-            return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE:
-            return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE:
-            // Render textures are typically used as sampled images in shaders
-            return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE:
-            // Depth stencil textures when used in shaders are sampled images
-            return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_SAMPLER:
-            return VK_DESCRIPTOR_TYPE_SAMPLER;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_RW_TYPED:
-            // Read-write typed buffer (UAV in D3D terms)
-            return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_STRUCTURED:
-            // Structured buffer (SRV in D3D terms)
-            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED:
-            // Read-write structured buffer (UAV in D3D terms)
-            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_BYTE_ADDRESS:
-            // Byte address buffer (SRV in D3D terms)
-            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_RW_BYTE_ADDRESS:
-            // Read-write byte address buffer (UAV in D3D terms)
-            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_APPEND_STRUCTURED:
-            // Append structured buffer (UAV in D3D terms)
-            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_CONSUME_STRUCTURED:
-            // Consume structured buffer (UAV in D3D terms)
-            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED_COUNTER:
-            // Read-write structured buffer with counter (UAV in D3D terms)
-            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_RT_ACCELERATION_STRUCTURE:
-            return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
-
-        case RZ_GFX_DESCRIPTOR_TYPE_NONE:
-        case RZ_GFX_DESCRIPTOR_TYPE_COUNT:
-        default:
-            RAZIX_RHI_LOG_ERROR("Invalid or unsupported descriptor type: %d", type);
-            return 0;    // Invalid value
-    }
+    RAZIX_RHI_LOG_INFO("Vulkan swapchain created: %ux%u, %u images", width, height, imageCount);
 }
 
 //---------------------------------------------------------------------------------------------
@@ -2134,103 +2216,7 @@ static void vk_CreateSwapchain(void* where, void* surface, uint32_t width, uint3
     RAZIX_RHI_ASSERT(width > 0 && height > 0, "Swapchain width and height must be greater than zero");
     VKCONTEXT.surface = *(VkSurfaceKHR*) surface;
 
-    swapchain->width  = width;
-    swapchain->height = height;
-
-    VkSwapchainSupportDetails swapchainSupport = vk_util_query_swapchain_support(VKCONTEXT.gpu, VKCONTEXT.surface);
-
-    VkSurfaceFormatKHR surfaceFormat = vk_util_choose_swap_surface_format(swapchainSupport.formats, swapchainSupport.formatCount);
-    VkPresentModeKHR   presentMode   = vk_util_choose_swap_present_mode(swapchainSupport.presentModes, swapchainSupport.presentModeCount);
-    VkExtent2D         extent        = vk_util_choose_swap_extent(&swapchainSupport.capabilities, width, height);
-
-    uint32_t imageCount = swapchainSupport.capabilities.minImageCount + 1;
-    if (swapchainSupport.capabilities.maxImageCount > 0 && imageCount > swapchainSupport.capabilities.maxImageCount) {
-        imageCount = swapchainSupport.capabilities.maxImageCount;
-    }
-
-    VkSwapchainCreateInfoKHR createInfo = {0};
-    createInfo.sType                    = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface                  = VKCONTEXT.surface;
-    createInfo.minImageCount            = imageCount;
-    createInfo.imageFormat              = surfaceFormat.format;
-    createInfo.imageColorSpace          = surfaceFormat.colorSpace;
-    createInfo.imageExtent              = extent;
-    createInfo.imageArrayLayers         = 1;
-    createInfo.imageUsage               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-
-    VkQueueFamilyIndices indices              = VKCONTEXT.queueFamilyIndices;
-    uint32_t             queueFamilyIndices[] = {indices.graphicsFamily, indices.presentFamily};
-
-    if (indices.graphicsFamily != indices.presentFamily) {
-        createInfo.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
-        createInfo.queueFamilyIndexCount = 2;
-        createInfo.pQueueFamilyIndices   = queueFamilyIndices;
-    } else {
-        createInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
-        createInfo.queueFamilyIndexCount = 0;
-        createInfo.pQueueFamilyIndices   = NULL;
-    }
-
-    createInfo.preTransform   = swapchainSupport.capabilities.currentTransform;
-    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    createInfo.presentMode    = presentMode;
-    createInfo.clipped        = VK_TRUE;
-    createInfo.oldSwapchain   = VK_NULL_HANDLE;
-
-    CHECK_VK(vkCreateSwapchainKHR(VKCONTEXT.device, &createInfo, NULL, &swapchain->vk.swapchain));
-    TAG_OBJECT(swapchain->vk.swapchain, VK_OBJECT_TYPE_SWAPCHAIN_KHR, "Vulkan Swapchain");
-
-    swapchain->vk.imageFormat = surfaceFormat.format;
-    swapchain->width          = extent.width;
-    swapchain->height         = extent.height;
-
-    // Create images and image views and texture wrappers using utility functions
-    vk_util_create_swapchain_images(swapchain);
-    vk_util_create_swapchain_textures(swapchain);
-
-    // Transition swapchain images to present state
-    vk_cmdbuf             cmdBuf             = vk_util_begin_singletime_cmdlist();
-    VkImageMemoryBarrier* pSwapchainBarriers = (VkImageMemoryBarrier*) alloca(sizeof(VkImageMemoryBarrier) * swapchain->imageCount);
-    for (uint32_t i = 0; i < swapchain->imageCount; i++) {
-        VkImageMemoryBarrier imageBarrier = {
-            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-            .pNext               = NULL,
-            .srcAccessMask       = vk_util_access_flags_translate(RZ_GFX_RESOURCE_STATE_UNDEFINED),
-            .dstAccessMask       = vk_util_access_flags_translate(RZ_GFX_RESOURCE_STATE_PRESENT),
-            .oldLayout           = vk_util_translate_imagelayout_resstate(RZ_GFX_RESOURCE_STATE_UNDEFINED),
-            .newLayout           = vk_util_translate_imagelayout_resstate(RZ_GFX_RESOURCE_STATE_PRESENT),
-            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-            .image               = swapchain->vk.images[i],
-            .subresourceRange    = {
-                   .aspectMask     = vk_util_deduce_image_aspect_flags(RAZIX_SWAPCHAIN_FORMAT),
-                   .baseMipLevel   = 0,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1},
-        };
-
-        // Temp memory but fine
-        pSwapchainBarriers[i] = imageBarrier;
-    }
-    vkCmdPipelineBarrier(
-        cmdBuf.cmdBuf,
-        vk_deduce_pipeline_stage_from_res_state(RZ_GFX_RESOURCE_STATE_UNDEFINED),
-        vk_deduce_pipeline_stage_from_res_state(RZ_GFX_RESOURCE_STATE_PRESENT),
-        0,    // dependency flags
-        0,
-        NULL,    // Global Memory barriers
-        0,
-        NULL,    // Buffer barriers
-        swapchain->imageCount,
-        pSwapchainBarriers);    // Image barriers
-    vk_util_end_singletime_cmdlist(cmdBuf);
-
-    // Cleanup support details
-    free(swapchainSupport.formats);
-    free(swapchainSupport.presentModes);
-
-    RAZIX_RHI_LOG_INFO("Vulkan swapchain created: %ux%u, %u images", width, height, imageCount);
+    vk_util_create_swapchain(swapchain, width, height);
 }
 
 static void vk_DestroySwapchain(rz_gfx_swapchain* sc)
@@ -3209,7 +3195,26 @@ static void vk_AcquireImage(rz_gfx_swapchain* sc, const rz_gfx_syncobj* presentS
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
         RAZIX_RHI_LOG_WARN("Swapchain out of date or suboptimal, image index: %u", sc->currBackBufferIdx);
-        // TODO: Handle swapchain recreation
+        vkDeviceWaitIdle(VKCONTEXT.device);
+
+        // destroy old swapchain images and views
+        {
+            vk_util_destroy_swapchain_images(sc);
+            if (sc->vk.images) {
+                free(sc->vk.images);
+                sc->vk.images = NULL;
+            }
+
+            if (sc->vk.swapchain) {
+                vkDestroySwapchainKHR(VKCONTEXT.device, sc->vk.swapchain, NULL);
+                sc->vk.swapchain = VK_NULL_HANDLE;
+            }
+        }
+
+        // create new swapchain
+        vk_util_create_swapchain(sc, sc->width, sc->height);
+
+        vkDeviceWaitIdle(VKCONTEXT.device);
     } else if (result != VK_SUCCESS) {
         RAZIX_RHI_LOG_ERROR("Failed to acquire swapchain image: %d", result);
         return;
@@ -3934,11 +3939,27 @@ static void vk_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t he
     RAZIX_RHI_ASSERT(sc != NULL, "Swapchain cannot be null");
     RAZIX_RHI_ASSERT(width > 0, "Width must be greater than zero");
     RAZIX_RHI_ASSERT(height > 0, "Height must be greater than zero");
-    (void) sc;
-    (void) width;
-    (void) height;
-    // TODO: Implement when needed
-    RAZIX_RHI_LOG_ERROR("ResizeSwapchain not implemented yet in Vulkan backend");
+
+    vkDeviceWaitIdle(VKCONTEXT.device);
+
+    // destroy old swapchain images and views
+    {
+        vk_util_destroy_swapchain_images(sc);
+        if (sc->vk.images) {
+            free(sc->vk.images);
+            sc->vk.images = NULL;
+        }
+
+        if (sc->vk.swapchain) {
+            vkDestroySwapchainKHR(VKCONTEXT.device, sc->vk.swapchain, NULL);
+            sc->vk.swapchain = VK_NULL_HANDLE;
+        }
+    }
+
+    // create new swapchain
+    vk_util_create_swapchain(sc, width, height);
+
+    vkDeviceWaitIdle(VKCONTEXT.device);
 }
 
 //---------------------------------------------------------------------------------------------
