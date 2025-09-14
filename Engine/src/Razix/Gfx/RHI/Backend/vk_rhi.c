@@ -1221,6 +1221,27 @@ static VkDescriptorType vk_util_translate_descriptor_type(rz_gfx_descriptor_type
     }
 }
 
+static VkImageType vk_util_translate_texture_type_image_type(rz_gfx_texture_type textureType)
+{
+    switch (textureType) {
+        case RZ_GFX_TEXTURE_TYPE_1D_ARRAY:
+        case RZ_GFX_TEXTURE_TYPE_1D:
+            return VK_IMAGE_TYPE_1D;
+        case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
+        case RZ_GFX_TEXTURE_TYPE_2D:
+            return VK_IMAGE_TYPE_2D;
+        case RZ_GFX_TEXTURE_TYPE_3D:
+        case RZ_GFX_TEXTURE_TYPE_CUBE:
+        case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
+            return VK_IMAGE_TYPE_3D;
+        case RZ_GFX_TEXTURE_TYPE_UNDEFINED:
+        default:
+            RAZIX_RHI_LOG_ERROR("Invalid or unsupported texture type: %d", textureType);
+            RAZIX_RHI_ABORT();
+            return VK_IMAGE_TYPE_2D;    // Fallback to most common type
+    }
+}
+
 static VkImageViewType vk_util_translate_texture_type_view_type(rz_gfx_texture_type textureType)
 {
     switch (textureType) {
@@ -3088,16 +3109,187 @@ static void vk_DestroyPipeline(void* pipeline)
     }
 }
 
+static void vk_util_upload_pixel_data(rz_gfx_texture* texture, rz_gfx_texture_desc* desc)
+{
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
+    RAZIX_RHI_ASSERT(desc != NULL, "Texture descriptor cannot be NULL");
+    RAZIX_RHI_ASSERT(desc->pPixelData != NULL, "Pixel data cannot be NULL");
+
+    uint32_t bytesPerPixel = rzRHI_GetBytesPerPixel(desc->format);
+    uint64_t imageSize     = desc->width * desc->height * desc->depth * bytesPerPixel;
+
+    // Create staging buffer
+    VkBuffer       stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    VkBufferCreateInfo bufferInfo = {
+        .sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size        = imageSize,
+        .usage       = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
+
+    CHECK_VK(vkCreateBuffer(VKDEVICE, &bufferInfo, NULL, &stagingBuffer));
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(VKDEVICE, stagingBuffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {
+        .sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .allocationSize  = memRequirements.size,
+        .memoryTypeIndex = vk_util_find_memory_type(memRequirements.memoryTypeBits,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)};
+
+    CHECK_VK(vkAllocateMemory(VKDEVICE, &allocInfo, NULL, &stagingBufferMemory));
+    vkBindBufferMemory(VKDEVICE, stagingBuffer, stagingBufferMemory, 0);
+
+    // Copy pixel data to staging buffer
+    void* data;
+    vkMapMemory(VKDEVICE, stagingBufferMemory, 0, imageSize, 0, &data);
+    memcpy(data, desc->pPixelData, (size_t) imageSize);
+    vkUnmapMemory(VKDEVICE, stagingBufferMemory);
+
+    // Begin single-time command buffer
+    vk_cmdbuf cmdBuf = vk_util_begin_singletime_cmdlist();
+
+    // Transition image layout: SHADER_READ_ONLY_OPTIMAL -> TRANSFER_DST_OPTIMAL
+    VkImageMemoryBarrier barrier = {
+        .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .oldLayout           = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+        .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image               = texture->vk.image,
+        .subresourceRange    = {
+               .aspectMask     = vk_util_deduce_image_aspect_flags(desc->format),
+               .baseMipLevel   = 0,
+               .levelCount     = 1,
+               .baseArrayLayer = 0,
+               .layerCount     = 1},
+        .srcAccessMask = 0,
+        .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT};
+
+    vkCmdPipelineBarrier(cmdBuf.cmdBuf, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);
+
+    // Copy buffer to image
+    VkBufferImageCopy region = {
+        .bufferOffset      = 0,
+        .bufferRowLength   = 0,
+        .bufferImageHeight = 0,
+        .imageSubresource  = {
+             .aspectMask     = vk_util_deduce_image_aspect_flags(desc->format),
+             .mipLevel       = 0,
+             .baseArrayLayer = 0,
+             .layerCount     = 1},
+        .imageOffset = {0, 0, 0},
+        .imageExtent = {desc->width, desc->height, desc->depth}};
+
+    vkCmdCopyBufferToImage(cmdBuf.cmdBuf, stagingBuffer, texture->vk.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+    // Transition image layout: TRANSFER_DST_OPTIMAL -> SHADER_READ_ONLY_OPTIMAL
+    barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    barrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+    vkCmdPipelineBarrier(cmdBuf.cmdBuf, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);
+
+    // End and submit command buffer
+    vk_util_end_singletime_cmdlist(cmdBuf);
+
+    // Clean up staging buffer
+    vkDestroyBuffer(VKDEVICE, stagingBuffer, NULL);
+    vkFreeMemory(VKDEVICE, stagingBufferMemory, NULL);
+
+    RAZIX_RHI_LOG_INFO("Pixel data uploaded successfully");
+}
+
 static void vk_CreateTexture(void* where)
 {
-    (void) where;
-    // TODO: Implement when needed
+    rz_gfx_texture* texture = (rz_gfx_texture*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&texture->resource.handle), "Invalid texture handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_texture_desc* desc = &texture->resource.desc.textureDesc;
+    RAZIX_RHI_ASSERT(desc != NULL, "Texture descriptor cannot be NULL");
+    RAZIX_RHI_ASSERT(desc->width > 0 && desc->height > 0 && desc->depth > 0, "Texture dimensions must be greater than zero");
+
+    // Maintain a second copy of hints
+    texture->resource.viewHints = desc->resourceHints;
+
+    // Create VkImage
+    VkImageCreateInfo imageInfo = {
+        .sType     = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+        .imageType = vk_util_translate_texture_type_image_type(desc->textureType),
+        .extent    = {
+               .width  = desc->width,
+               .height = desc->height,
+               .depth  = desc->depth},
+        .mipLevels     = desc->mipLevels,
+        .arrayLayers   = (desc->textureType == RZ_GFX_TEXTURE_TYPE_CUBE) ? 6 : desc->arraySize,
+        .format        = vk_util_translate_format(desc->format),
+        .tiling        = VK_IMAGE_TILING_OPTIMAL,
+        .initialLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+        .usage         = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+        .samples       = VK_SAMPLE_COUNT_1_BIT,
+        .sharingMode   = VK_SHARING_MODE_EXCLUSIVE};
+
+    // Start off with shader read only
+    texture->resource.currentState = RZ_GFX_RESOURCE_STATE_SHADER_READ;
+
+    // Set usage flags based on resource hints
+    if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV)
+        imageInfo.usage |= VK_IMAGE_USAGE_STORAGE_BIT;
+    if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_RTV) == RZ_GFX_RESOURCE_VIEW_FLAG_RTV)
+        imageInfo.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV) == RZ_GFX_RESOURCE_VIEW_FLAG_DSV) {
+        imageInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+        texture->resource.currentState = RZ_GFX_RESOURCE_STATE_DEPTH_WRITE;
+    } else {
+        texture->resource.currentState = RZ_GFX_RESOURCE_STATE_COMMON;
+    }
+
+    // Create the image
+    CHECK_VK(vkCreateImage(VKDEVICE, &imageInfo, NULL, &texture->vk.image));
+    TAG_OBJECT(texture->vk.image, VK_OBJECT_TYPE_IMAGE, texture->resource.pName);
+
+    // Allocate memory for the image
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(VKDEVICE, texture->vk.image, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {
+        .sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .allocationSize  = memRequirements.size,
+        .memoryTypeIndex = vk_util_find_memory_type(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)};
+
+    VkResult result = vkAllocateMemory(VKDEVICE, &allocInfo, NULL, &texture->vk.memory);
+    if (result != VK_SUCCESS) {
+        RAZIX_RHI_LOG_ERROR("Failed to allocate Vulkan Image memory: %d", result);
+        vkDestroyImage(VKDEVICE, texture->vk.image, NULL);
+        return;
+    }
+
+    vkBindImageMemory(VKDEVICE, texture->vk.image, texture->vk.memory, 0);
+
+    // Upload pixel data if provided
+    if (desc->pPixelData != NULL) {
+        RAZIX_RHI_LOG_INFO("Uploading pixel data for texture");
+        vk_util_upload_pixel_data(texture, desc);
+    }
 }
 
 static void vk_DestroyTexture(void* texture)
 {
-    (void) texture;
-    // TODO: Implement when needed
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture is NULL, cannot destroy");
+    rz_gfx_texture* tex = (rz_gfx_texture*) texture;
+
+    if (tex->vk.image != VK_NULL_HANDLE) {
+        vkDestroyImage(VKDEVICE, tex->vk.image, NULL);
+        tex->vk.image = VK_NULL_HANDLE;
+    }
+
+    if (tex->vk.memory != VK_NULL_HANDLE) {
+        vkFreeMemory(VKDEVICE, tex->vk.memory, NULL);
+        tex->vk.memory = VK_NULL_HANDLE;
+    }
 }
 
 static void vk_CreateSampler(void* where)
