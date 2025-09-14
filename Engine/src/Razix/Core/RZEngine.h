@@ -76,7 +76,7 @@ namespace Razix {
 
         inline bool                           isEngineInTestMode() const { return m_IsEngineInTestMode; }
         inline void                           setEngineInTestMode() { m_IsEngineInTestMode = true; }
-        inline RZCommandLineParser            getCommandLineParser() { return m_CommandLineParser; }
+        inline RZCommandLineParser&           getCommandLineParser() { return m_CommandLineParser; }
         inline Stats&                         GetStatistics() { return m_Stats; }
         inline void                           ResetStats() { m_Stats.reset(); }
         inline Gfx::RZRendererSettings&       getWorldSettings() { return m_WorldSettings; }
