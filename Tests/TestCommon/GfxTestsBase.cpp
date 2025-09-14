@@ -129,13 +129,13 @@ namespace Razix {
         uint8_t* goldenImagePixels  = NULL;
 
         if (!ReadPPM(capturedImagePath.c_str(), &capturedImgWidth, &capturedImgHeight, &captureImagePixels))
-            return 100.0f;
+            return -1;
 
         if (!ReadPPM(goldenImagePath.c_str(), &goldenImgWidth, &goldenImgHeight, &goldenImagePixels))
-            return 100.0f;
+            return -1;
 
-        if ((capturedImgWidth != goldenImgWidth) && (capturedImgHeight != goldenImgHeight))
-            return 100.0f;
+        if ((capturedImgWidth != goldenImgWidth) || (capturedImgHeight != goldenImgHeight))
+            return -1;
 
         int total_pixels        = capturedImgWidth * capturedImgHeight;
         int total_squared_error = 0;
@@ -156,7 +156,7 @@ namespace Razix {
 
         // If MSE is 0, return infinite PSNR (perfect match)
         if (mse == 0.0f) {
-            return 0.0f;    // it should be INF but for brevity we return 0
+            return (float) UINT32_MAX;
         }
 
         // Compute PSNR

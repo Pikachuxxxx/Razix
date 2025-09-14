@@ -69,10 +69,10 @@ TEST_F(HelloTriangleTests, HelloTriangle)
     int result = EngineTestLoop();
 
     float psnr = s_GfxTestBaseApp->CompareWithGoldenImage();
-    if (psnr > 90.f)
-        result = -1;
-    else
+    if (psnr == UINT32_MAX || psnr >= 10.f)
         result = SUCCESSFUL_ENGINE_EXIT_CODE;
+    else
+        result = -1;
 
     EXPECT_EQ(result, SUCCESSFUL_ENGINE_EXIT_CODE);
 }

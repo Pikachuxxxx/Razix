@@ -5,7 +5,7 @@
 #include "Razix/Gfx/RZGfxDebug.h"
 #include "Razix/Gfx/RZShaderUtils.h"
 
-#define RAZIX_INIT_RENDERER_MINIMAL 0    // Initializes the renderer with minimal features (no post-processing, no shadows, no IBL, no skybox, etc.)
+#define RAZIX_INIT_RENDERER_MINIMAL 1    // Initializes the renderer with minimal features (no post-processing, no shadows, no IBL, no skybox, etc.)
 
 // Constants
 #define RAZIX_MAX_SHADER_SOURCE_SIZE 1024 * 1024

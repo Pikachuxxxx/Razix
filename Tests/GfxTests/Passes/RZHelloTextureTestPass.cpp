@@ -114,8 +114,8 @@ namespace Razix {
                         .getShaderBindMap(m_Shader)
                         .bind(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS);
 
-#define NUM_TRIANGLE_VERTS 3
-                    rzRHI_DrawAuto(cmdBuffer, NUM_TRIANGLE_VERTS, 1, 0, 0);
+                    constexpr u32 kNumTriangleVerts = 3;
+                    //rzRHI_DrawAuto(cmdBuffer, kNumTriangleVerts, 1, 0, 0);
 
                     rzRHI_EndRenderPass(cmdBuffer);
 

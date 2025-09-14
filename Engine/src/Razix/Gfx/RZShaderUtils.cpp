@@ -251,9 +251,6 @@ namespace Razix {
 
                 targetTable->descriptorCount++;
             }
-
-            // Placeholder for future Vulkan shader reflection implementation
-            RAZIX_CORE_ERROR("[Vulkan] Shader reflection not yet implemented");
         }
 
 #endif    // RAZIX_RENDER_API_VULKAN
