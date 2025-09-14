@@ -2901,7 +2901,7 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
         shaderStages[stageCount].flags               = 0;
         shaderStages[stageCount].stage               = VK_SHADER_STAGE_VERTEX_BIT;
         shaderStages[stageCount].module              = pShader->vk.modules[stageCount];
-        shaderStages[stageCount].pName               = "VK_MAIN";
+        shaderStages[stageCount].pName               = "VS_MAIN";
         shaderStages[stageCount].pSpecializationInfo = NULL;
         stageCount++;
     }
