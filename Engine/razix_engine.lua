@@ -489,7 +489,7 @@ project "Razix"
         defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
         symbols "Off"
         runtime "Release"
-        optimize "Full"
+        optimize "Speed"  -- Changed from "Full" to "Speed"
         editandcontinue "Off"
 group""
 
