@@ -4130,11 +4130,27 @@ static void vk_BindVertexBuffers(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffe
     RAZIX_RHI_ASSERT(offsets != NULL, "Offsets cannot be NULL");
     RAZIX_RHI_ASSERT(strides != NULL, "Strides cannot be NULL");
     RAZIX_RHI_ASSERT(bufferCount > 0 && bufferCount <= RAZIX_MAX_VERTEX_BUFFERS_BOUND, "Invalid buffer count: %d. Must be between 1 and %d", bufferCount, RAZIX_MAX_VERTEX_BUFFERS_BOUND);
+
+    // Strides are not used in Vulkan, but could be useful for validation
+    // They are baked into the pipeline's vertex input state instead of being specified at bind time like in DirectX
+    (void) strides;
+
+    VkBuffer     vkBuffers[RAZIX_MAX_VERTEX_BUFFERS_BOUND] = {0};
+    VkDeviceSize vkOffsets[RAZIX_MAX_VERTEX_BUFFERS_BOUND] = {0};
+    for (uint32_t i = 0; i < bufferCount; i++) {
+        RAZIX_RHI_ASSERT(buffers[i] != NULL, "Vertex buffer cannot be NULL");
+        RAZIX_RHI_ASSERT(buffers[i]->vk.buffer != VK_NULL_HANDLE, "Vulkan buffer is invalid");
+        vkBuffers[i] = buffers[i]->vk.buffer;
+        vkOffsets[i] = offsets[i];
+    }
+    vkCmdBindVertexBuffers(cmdBuf->vk.cmdBuf, 0, bufferCount, vkBuffers, vkOffsets);
 }
 
 static void vk_BindIndexBuffer(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer, uint32_t offset, rz_gfx_index_type indexType)
 {
     RAZIX_RHI_ASSERT(buffer != NULL, "Buffer cannot be NULL");
+
+    vkCmdBindIndexBuffer(cmdBuf->vk.cmdBuf, buffer->vk.buffer, offset, indexType == RZ_GFX_INDEX_TYPE_UINT16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
 }
 
 static void vk_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
