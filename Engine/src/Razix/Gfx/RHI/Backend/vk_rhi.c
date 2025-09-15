@@ -1805,6 +1805,170 @@ static void vk_util_end_singletime_cmdlist(vk_cmdbuf cmdBuf)
     vkDestroyCommandPool(VKDEVICE, cmdBuf.cmdPool, NULL);
 }
 
+static void vk_util_upload_pixel_data(rz_gfx_texture* texture, rz_gfx_texture_desc* desc)
+{
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
+    RAZIX_RHI_ASSERT(desc != NULL, "Texture descriptor cannot be NULL");
+    RAZIX_RHI_ASSERT(desc->pPixelData != NULL, "Pixel data cannot be NULL");
+
+    uint32_t bytesPerPixel = rzRHI_GetBytesPerPixel(desc->format);
+    uint64_t imageSize     = desc->width * desc->height * desc->depth * bytesPerPixel;
+
+    // Create staging buffer
+    VkBuffer       stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    VkBufferCreateInfo bufferInfo = {
+        .sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size        = imageSize,
+        .usage       = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
+
+    CHECK_VK(vkCreateBuffer(VKDEVICE, &bufferInfo, NULL, &stagingBuffer));
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(VKDEVICE, stagingBuffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {
+        .sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .allocationSize  = memRequirements.size,
+        .memoryTypeIndex = vk_util_find_memory_type(memRequirements.memoryTypeBits,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)};
+
+    CHECK_VK(vkAllocateMemory(VKDEVICE, &allocInfo, NULL, &stagingBufferMemory));
+    vkBindBufferMemory(VKDEVICE, stagingBuffer, stagingBufferMemory, 0);
+
+    // Copy pixel data to staging buffer
+    void* data;
+    vkMapMemory(VKDEVICE, stagingBufferMemory, 0, imageSize, 0, &data);
+    memcpy(data, desc->pPixelData, (size_t) imageSize);
+    vkUnmapMemory(VKDEVICE, stagingBufferMemory);
+
+    // Begin single-time command buffer
+    vk_cmdbuf cmdBuf = vk_util_begin_singletime_cmdlist();
+
+    // Transition image layout: SHADER_READ_ONLY_OPTIMAL -> TRANSFER_DST_OPTIMAL
+    VkImageMemoryBarrier barrier = {
+        .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .oldLayout           = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,    // FIXME: Use current layout instead of assuming
+        .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image               = texture->vk.image,
+        .subresourceRange    = {
+               .aspectMask     = vk_util_deduce_image_aspect_flags(desc->format),
+               .baseMipLevel   = 0,
+               .levelCount     = 1,
+               .baseArrayLayer = 0,
+               .layerCount     = 1},
+        .srcAccessMask = 0,
+        .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT};
+
+    vkCmdPipelineBarrier(cmdBuf.cmdBuf, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);
+
+    // Copy buffer to image
+    VkBufferImageCopy region = {
+        .bufferOffset      = 0,
+        .bufferRowLength   = 0,
+        .bufferImageHeight = 0,
+        .imageSubresource  = {
+             .aspectMask     = vk_util_deduce_image_aspect_flags(desc->format),
+             .mipLevel       = 0,
+             .baseArrayLayer = 0,
+             .layerCount     = 1},
+        .imageOffset = {0, 0, 0},
+        .imageExtent = {desc->width, desc->height, desc->depth}};
+
+    vkCmdCopyBufferToImage(cmdBuf.cmdBuf, stagingBuffer, texture->vk.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+    // Transition image layout: TRANSFER_DST_OPTIMAL -> SHADER_READ_ONLY_OPTIMAL
+    barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    barrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;    // FIXME: Use current layout instead of assuming
+    barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+    vkCmdPipelineBarrier(cmdBuf.cmdBuf, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);
+
+    // End and submit command buffer
+    vk_util_end_singletime_cmdlist(cmdBuf);
+
+    // Clean up staging buffer
+    vkDestroyBuffer(VKDEVICE, stagingBuffer, NULL);
+    vkFreeMemory(VKDEVICE, stagingBufferMemory, NULL);
+
+    RAZIX_RHI_LOG_INFO("Pixel data uploaded successfully");
+}
+
+static void vk_util_upload_buffer_data(rz_gfx_buffer* buffer, rz_gfx_buffer_desc* desc)
+{
+    // Create staging buffer
+    VkBuffer       stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    VkBufferCreateInfo stagingBufferInfo = {
+        .sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size        = desc->sizeInBytes,
+        .usage       = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
+
+    CHECK_VK(vkCreateBuffer(VKDEVICE, &stagingBufferInfo, NULL, &stagingBuffer));
+
+    VkMemoryRequirements stagingMemRequirements;
+    vkGetBufferMemoryRequirements(VKDEVICE, stagingBuffer, &stagingMemRequirements);
+
+    VkMemoryAllocateInfo stagingAllocInfo = {
+        .sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .allocationSize  = stagingMemRequirements.size,
+        .memoryTypeIndex = vk_util_find_memory_type(stagingMemRequirements.memoryTypeBits,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)};
+
+    CHECK_VK(vkAllocateMemory(VKDEVICE, &stagingAllocInfo, NULL, &stagingBufferMemory));
+    vkBindBufferMemory(VKDEVICE, stagingBuffer, stagingBufferMemory, 0);
+
+    // Copy data to staging buffer
+    void* stagingData;
+    vkMapMemory(VKDEVICE, stagingBufferMemory, 0, desc->sizeInBytes, 0, &stagingData);
+    memcpy(stagingData, desc->pInitData, desc->sizeInBytes);
+    vkUnmapMemory(VKDEVICE, stagingBufferMemory);
+
+    // Begin single-time command buffer
+    vk_cmdbuf cmdBuf = vk_util_begin_singletime_cmdlist();
+
+    // Copy staging buffer to destination buffer (no pre-barrier needed)
+    VkBufferCopy copyRegion = {
+        .srcOffset = 0,
+        .dstOffset = 0,
+        .size      = desc->sizeInBytes};
+    vkCmdCopyBuffer(cmdBuf.cmdBuf, stagingBuffer, buffer->vk.buffer, 1, &copyRegion);
+
+    // Only barrier after copy - transition from transfer write to final usage
+    VkAccessFlags        dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    VkPipelineStageFlags dstStageMask  = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+    VkBufferMemoryBarrier barrier = {
+        .sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+        .srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT,
+        .dstAccessMask       = dstAccessMask,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer              = buffer->vk.buffer,
+        .offset              = 0,
+        .size                = desc->sizeInBytes};
+
+    vkCmdPipelineBarrier(cmdBuf.cmdBuf, VK_PIPELINE_STAGE_TRANSFER_BIT, dstStageMask, 0, 0, NULL, 1, &barrier, 0, NULL);
+
+    // End and submit command buffer
+    vk_util_end_singletime_cmdlist(cmdBuf);
+
+    // Clean up staging buffer
+    vkDestroyBuffer(VKDEVICE, stagingBuffer, NULL);
+    vkFreeMemory(VKDEVICE, stagingBufferMemory, NULL);
+
+    RAZIX_RHI_LOG_INFO("Buffer data uploaded via staging buffer");
+}
+
 static VkExtent2D vk_util_choose_swap_extent(const VkSurfaceCapabilitiesKHR* capabilities, uint32_t width, uint32_t height)
 {
     if (capabilities->currentExtent.width != UINT32_MAX) {
@@ -3109,101 +3273,6 @@ static void vk_DestroyPipeline(void* pipeline)
     }
 }
 
-static void vk_util_upload_pixel_data(rz_gfx_texture* texture, rz_gfx_texture_desc* desc)
-{
-    RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
-    RAZIX_RHI_ASSERT(desc != NULL, "Texture descriptor cannot be NULL");
-    RAZIX_RHI_ASSERT(desc->pPixelData != NULL, "Pixel data cannot be NULL");
-
-    uint32_t bytesPerPixel = rzRHI_GetBytesPerPixel(desc->format);
-    uint64_t imageSize     = desc->width * desc->height * desc->depth * bytesPerPixel;
-
-    // Create staging buffer
-    VkBuffer       stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-
-    VkBufferCreateInfo bufferInfo = {
-        .sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-        .size        = imageSize,
-        .usage       = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
-
-    CHECK_VK(vkCreateBuffer(VKDEVICE, &bufferInfo, NULL, &stagingBuffer));
-
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(VKDEVICE, stagingBuffer, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo = {
-        .sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-        .allocationSize  = memRequirements.size,
-        .memoryTypeIndex = vk_util_find_memory_type(memRequirements.memoryTypeBits,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)};
-
-    CHECK_VK(vkAllocateMemory(VKDEVICE, &allocInfo, NULL, &stagingBufferMemory));
-    vkBindBufferMemory(VKDEVICE, stagingBuffer, stagingBufferMemory, 0);
-
-    // Copy pixel data to staging buffer
-    void* data;
-    vkMapMemory(VKDEVICE, stagingBufferMemory, 0, imageSize, 0, &data);
-    memcpy(data, desc->pPixelData, (size_t) imageSize);
-    vkUnmapMemory(VKDEVICE, stagingBufferMemory);
-
-    // Begin single-time command buffer
-    vk_cmdbuf cmdBuf = vk_util_begin_singletime_cmdlist();
-
-    // Transition image layout: SHADER_READ_ONLY_OPTIMAL -> TRANSFER_DST_OPTIMAL
-    VkImageMemoryBarrier barrier = {
-        .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-        .oldLayout           = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-        .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .image               = texture->vk.image,
-        .subresourceRange    = {
-               .aspectMask     = vk_util_deduce_image_aspect_flags(desc->format),
-               .baseMipLevel   = 0,
-               .levelCount     = 1,
-               .baseArrayLayer = 0,
-               .layerCount     = 1},
-        .srcAccessMask = 0,
-        .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT};
-
-    vkCmdPipelineBarrier(cmdBuf.cmdBuf, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);
-
-    // Copy buffer to image
-    VkBufferImageCopy region = {
-        .bufferOffset      = 0,
-        .bufferRowLength   = 0,
-        .bufferImageHeight = 0,
-        .imageSubresource  = {
-             .aspectMask     = vk_util_deduce_image_aspect_flags(desc->format),
-             .mipLevel       = 0,
-             .baseArrayLayer = 0,
-             .layerCount     = 1},
-        .imageOffset = {0, 0, 0},
-        .imageExtent = {desc->width, desc->height, desc->depth}};
-
-    vkCmdCopyBufferToImage(cmdBuf.cmdBuf, stagingBuffer, texture->vk.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
-    // Transition image layout: TRANSFER_DST_OPTIMAL -> SHADER_READ_ONLY_OPTIMAL
-    barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    barrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-    vkCmdPipelineBarrier(cmdBuf.cmdBuf, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);
-
-    // End and submit command buffer
-    vk_util_end_singletime_cmdlist(cmdBuf);
-
-    // Clean up staging buffer
-    vkDestroyBuffer(VKDEVICE, stagingBuffer, NULL);
-    vkFreeMemory(VKDEVICE, stagingBufferMemory, NULL);
-
-    RAZIX_RHI_LOG_INFO("Pixel data uploaded successfully");
-}
-
 static void vk_CreateTexture(void* where)
 {
     rz_gfx_texture* texture = (rz_gfx_texture*) where;
@@ -3212,7 +3281,7 @@ static void vk_CreateTexture(void* where)
     RAZIX_RHI_ASSERT(desc != NULL, "Texture descriptor cannot be NULL");
     RAZIX_RHI_ASSERT(desc->width > 0 && desc->height > 0 && desc->depth > 0, "Texture dimensions must be greater than zero");
 
-    // Maintain a second copy of hints
+    // Maintain a second copy of hints...Ahhh...
     texture->resource.viewHints = desc->resourceHints;
 
     // Create VkImage
@@ -3268,6 +3337,9 @@ static void vk_CreateTexture(void* where)
     }
 
     vkBindImageMemory(VKDEVICE, texture->vk.image, texture->vk.memory, 0);
+    char memoryName[256];
+    snprintf(memoryName, sizeof(memoryName), "%s_Memory", texture->resource.pName ? texture->resource.pName : "UnnamedTexture");
+    TAG_OBJECT(texture->vk.memory, VK_OBJECT_TYPE_DEVICE_MEMORY, memoryName);
 
     // Upload pixel data if provided
     if (desc->pPixelData != NULL) {
@@ -3339,9 +3411,163 @@ static void vk_CreateBuffer(void* where)
     RAZIX_RHI_ASSERT(desc != NULL, "Buffer description cannot be null");
     RAZIX_RHI_ASSERT(desc->sizeInBytes > 0, "Buffer size must be greater than zero");
 
-    // TODO: Implement buffer creation
-    RAZIX_RHI_LOG_ERROR("Buffer implementation is not done yet!");
-    RAZIX_RHI_ABORT();
+    // Maintain a second copy of hints...Ahhh...
+    buffer->resource.viewHints = desc->resourceHints;
+
+#ifdef RAZIX_DEBUG
+    if (desc->type == RZ_GFX_BUFFER_TYPE_STRUCTURED || desc->type == RZ_GFX_BUFFER_TYPE_RW_STRUCTURED) {
+        RAZIX_RHI_ASSERT(desc->stride > 0, "Structured buffer must have a valid stride");
+        RAZIX_RHI_ASSERT((desc->sizeInBytes % desc->stride) == 0, "Structured buffer size must be a multiple of the stride");
+    }
+#endif
+
+    // create constant buffers aligned to 256 bytes
+    bool isConstantBuffer = desc->type == RZ_GFX_BUFFER_TYPE_CONSTANT;
+    if (isConstantBuffer) {
+        if (desc->sizeInBytes % RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT != 0) {
+            desc->sizeInBytes = RAZIX_RHI_ALIGN(desc->sizeInBytes, RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT);
+            RAZIX_RHI_LOG_WARN("Buffer size rounded up to %u bytes to meet constant buffer alignment requirements of %d bytes", desc->sizeInBytes, RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT);
+        }
+
+        if (desc->usage == RZ_GFX_BUFFER_USAGE_TYPE_STATIC) {
+            RAZIX_RHI_LOG_WARN("Static usage is not recommended for constant buffers, consider using DYNAMIC or PERSISTENT_STREAM usage types for better data upload mechanism or use push constant for static data/textures");
+        }
+    }
+
+    VkBufferCreateInfo bufferInfo = {
+        .sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size        = desc->sizeInBytes,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+    };
+
+    // Set usage flags based on buffer type and resource hints
+    switch (desc->type) {
+        case RZ_GFX_BUFFER_TYPE_VERTEX:
+            bufferInfo.usage |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+            break;
+        case RZ_GFX_BUFFER_TYPE_INDEX:
+            bufferInfo.usage |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+            break;
+        case RZ_GFX_BUFFER_TYPE_CONSTANT:
+            bufferInfo.usage |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+            break;
+        case RZ_GFX_BUFFER_TYPE_INDIRECT_ARGS:
+            bufferInfo.usage = VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+            break;
+        case RZ_GFX_BUFFER_TYPE_STRUCTURED:
+        case RZ_GFX_BUFFER_TYPE_RW_STRUCTURED:
+        case RZ_GFX_BUFFER_TYPE_RW_BYTE:
+            bufferInfo.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+            break;
+        case RZ_GFX_BUFFER_TYPE_ACCELERATION_STRUCTURE:
+            bufferInfo.usage = VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+            break;
+        default:
+            RAZIX_RHI_LOG_ERROR("Unsupported buffer type: %d", desc->type);
+            RAZIX_RHI_ABORT();
+            return;
+    }
+
+    // buffer type flags
+    if (desc->usage == RZ_GFX_BUFFER_USAGE_TYPE_STATIC) {
+        bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    } else if (desc->usage == RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC) {
+        bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    } else if (desc->usage == RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM) {
+        bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    } else if (desc->usage == RZ_GFX_BUFFER_USAGE_TYPE_STAGING) {
+        bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    } else if (desc->usage == RZ_GFX_BUFFER_USAGE_TYPE_READBACK) {
+        bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    }
+
+    // FIXME: Add support for:
+    // VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT
+    // VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT
+
+    // Set usage flags based on resource hints
+    if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV) {
+        if (desc->type == RZ_GFX_BUFFER_TYPE_CONSTANT) {
+            RAZIX_RHI_LOG_WARN("Constant buffers cannot have UAV views, ignoring UAV flag");
+        } else {
+            bufferInfo.usage |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        }
+    } else if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_TRANSFER_DST) == RZ_GFX_RESOURCE_VIEW_FLAG_TRANSFER_DST) {
+        bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    } else if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_TRANSFER_SRC) == RZ_GFX_RESOURCE_VIEW_FLAG_TRANSFER_SRC) {
+        bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    }
+
+    CHECK_VK(vkCreateBuffer(VKDEVICE, &bufferInfo, NULL, &buffer->vk.buffer));
+    TAG_OBJECT(buffer->vk.buffer, VK_OBJECT_TYPE_BUFFER, buffer->resource.pName);
+
+    // Allocate memory for the buffer
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(VKDEVICE, buffer->vk.buffer, &memRequirements);
+
+    VkMemoryPropertyFlags memoryProperties;
+    switch (desc->usage) {
+        case RZ_GFX_BUFFER_USAGE_TYPE_STATIC:
+            memoryProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+            break;
+        case RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM:
+            memoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+            break;
+        case RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC:
+        case RZ_GFX_BUFFER_USAGE_TYPE_STAGING:
+        case RZ_GFX_BUFFER_USAGE_TYPE_READBACK:
+            memoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+            break;
+        default:
+            memoryProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+            break;
+    }
+
+    if (isConstantBuffer) {
+        // Constant buffers can be directly mapped if they are not static
+        if (desc->usage == RZ_GFX_BUFFER_USAGE_TYPE_STATIC) {
+            memoryProperties |= VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+        } else {
+            memoryProperties |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+        }
+    }
+
+    VkMemoryAllocateInfo allocInfo = {
+        .sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .allocationSize  = memRequirements.size,
+        .memoryTypeIndex = vk_util_find_memory_type(memRequirements.memoryTypeBits, memoryProperties)};
+
+    VkResult result = vkAllocateMemory(VKDEVICE, &allocInfo, NULL, &buffer->vk.memory);
+    if (result != VK_SUCCESS) {
+        RAZIX_RHI_LOG_ERROR("Failed to allocate Vulkan buffer memory: %d", result);
+        vkDestroyBuffer(VKDEVICE, buffer->vk.buffer, NULL);
+        return;
+    }
+
+    vkBindBufferMemory(VKDEVICE, buffer->vk.buffer, buffer->vk.memory, 0);
+    char memoryName[256];
+    snprintf(memoryName, sizeof(memoryName), "%s_Memory", buffer->resource.pName ? buffer->resource.pName : "UnnamedBuffer");
+    TAG_OBJECT(buffer->vk.memory, VK_OBJECT_TYPE_DEVICE_MEMORY, memoryName);
+
+    if (desc->pInitData != NULL) {
+        RAZIX_RHI_LOG_INFO("Uploading initial data for buffer");
+
+        if (((desc->type & RZ_GFX_BUFFER_TYPE_CONSTANT) == RZ_GFX_BUFFER_TYPE_CONSTANT)) {
+            // Direct mapping for host-visible constant buffers
+            void*    mappedData = NULL;
+            VkResult result     = vkMapMemory(VKDEVICE, buffer->vk.memory, 0, desc->sizeInBytes, 0, &mappedData);
+            if (result != VK_SUCCESS || mappedData == NULL) {
+                RAZIX_RHI_LOG_ERROR("Failed to map constant buffer memory for initial data upload: %d", result);
+                return;
+            }
+            memcpy(mappedData, desc->pInitData, desc->sizeInBytes);
+            vkUnmapMemory(VKDEVICE, buffer->vk.memory);
+            RAZIX_RHI_LOG_INFO("Constant buffer initial data uploaded via direct mapping");
+        } else {
+            // Use staging buffer method for device-local buffers (VB/IB/Indirect/etc.)
+            vk_util_upload_buffer_data(buffer, desc);
+        }
+    }
 }
 
 static void vk_DestroyBuffer(void* buffer)

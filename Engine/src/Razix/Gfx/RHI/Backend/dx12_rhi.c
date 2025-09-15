@@ -2595,7 +2595,6 @@ static void dx12_CreateBuffer(void* where)
         }
     }
 
-    RAZIX_RHI_LOG_INFO("D3D12 Buffer created successfully");
     TAG_OBJECT(buffer->dx12.resource, buffer->resource.pName);
 }
 
