@@ -10,6 +10,7 @@ namespace Razix {
 
 #define TEST_APP_NUM_FRAMES_DEFAULT 120
 #define TEST_APP_NUM_FRAMES_INF     INT32_MAX - 1
+#define RAZIX_TEST_PSNR_THRESHOLD   20.0f    // PSNR threshold value to consider a test as passed in dB
 
     /**
      * Base class for Graphics testing applications

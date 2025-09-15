@@ -115,7 +115,7 @@ namespace Razix {
                         .bind(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS);
 
                     constexpr u32 kNumTriangleVerts = 3;
-                    //rzRHI_DrawAuto(cmdBuffer, kNumTriangleVerts, 1, 0, 0);
+                    rzRHI_DrawAuto(cmdBuffer, kNumTriangleVerts, 1, 0, 0);
 
                     rzRHI_EndRenderPass(cmdBuffer);
 

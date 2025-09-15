@@ -68,7 +68,7 @@ TEST_F(HelloTextureTests, HelloTexture)
 
     float psnr = s_GfxTestBaseApp->CompareWithGoldenImage();
     printf("PSNR: %6.2f dB\n", psnr);
-    if (psnr == UINT32_MAX || psnr >= 40.f)
+    if (psnr == UINT32_MAX || psnr >= RAZIX_TEST_PSNR_THRESHOLD)
         result = SUCCESSFUL_ENGINE_EXIT_CODE;
     else
         result = -1;
