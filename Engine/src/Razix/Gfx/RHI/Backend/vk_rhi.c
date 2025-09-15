@@ -4091,6 +4091,52 @@ static void vk_BindComputeRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root
     //                         pDescriptorSets, 0, NULL);
 }
 
+static void vk_BindDescriptorHeaps(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_descriptor_heap** heaps, uint32_t heapCount)
+{
+    RAZIX_RHI_ASSERT(heaps != NULL, "Heaps cannot be NULL");
+    RAZIX_RHI_ASSERT(heapCount > 0 && heapCount <= RAZIX_MAX_ALLOWED_HEAPS_TO_BIND, "Invalid heap count: %d. Must be between 1 and %d", heapCount, RAZIX_MAX_ALLOWED_HEAPS_TO_BIND);
+
+    // In Vulkan, descriptor heaps correspond to descriptor pools
+    // We don't bind descriptor pools directly, instead we allocate descriptor sets from them
+    // and bind those descriptor sets to the command buffer, so this is a no-op here
+}
+
+static void vk_BindDescriptorTables(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type pipelineType, const rz_gfx_root_signature* rootSig, const rz_gfx_descriptor_table** tables, uint32_t tableCount)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(tables != NULL, "Tables cannot be NULL");
+    RAZIX_RHI_ASSERT(tableCount > 0 && tableCount <= RAZIX_MAX_ALLOWED_TABLES_TO_BIND, "Invalid table count: %d. Must be between 1 and %d", tableCount, RAZIX_MAX_ALLOWED_TABLES_TO_BIND);
+    RAZIX_RHI_ASSERT(rootSig != NULL, "Root signature cannot be null");
+
+    VkPipelineBindPoint pipelineBindPoint = (pipelineType == RZ_GFX_PIPELINE_TYPE_GRAPHICS) ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
+
+    VkDescriptorSet descriptorSets[RAZIX_MAX_ALLOWED_TABLES_TO_BIND] = {0};
+    for (uint32_t i = 0; i < tableCount; i++) {
+        RAZIX_RHI_ASSERT(tables[i] != NULL, "Descriptor table cannot be NULL");
+        RAZIX_RHI_ASSERT(tables[i]->vk.descriptorSet != VK_NULL_HANDLE, "Vulkan descriptor set is invalid");
+        descriptorSets[i] = tables[i]->vk.descriptorSet;
+    }
+
+    // As for pipeline layout, it should have been cached when binding the root signature
+    // we assume all tables are bound at set 0 and onwards
+    const uint32_t startSetIndex = 0;
+    vkCmdBindDescriptorSets(cmdBuf->vk.cmdBuf, pipelineBindPoint, rootSig->vk.pipelineLayout, startSetIndex, tableCount, descriptorSets, 0, NULL);
+}
+
+static void vk_BindVertexBuffers(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* const* buffers, uint32_t bufferCount, const uint32_t* offsets, const uint32_t* strides)
+{
+    RAZIX_RHI_ASSERT(buffers != NULL, "Buffers cannot be NULL");
+    RAZIX_RHI_ASSERT(offsets != NULL, "Offsets cannot be NULL");
+    RAZIX_RHI_ASSERT(strides != NULL, "Strides cannot be NULL");
+    RAZIX_RHI_ASSERT(bufferCount > 0 && bufferCount <= RAZIX_MAX_VERTEX_BUFFERS_BOUND, "Invalid buffer count: %d. Must be between 1 and %d", bufferCount, RAZIX_MAX_VERTEX_BUFFERS_BOUND);
+}
+
+static void vk_BindIndexBuffer(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer, uint32_t offset, rz_gfx_index_type indexType)
+{
+    RAZIX_RHI_ASSERT(buffer != NULL, "Buffer cannot be NULL");
+}
+
 static void vk_DrawAuto(const rz_gfx_cmdbuf* cmdBuf, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
 {
     RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");

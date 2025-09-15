@@ -821,6 +821,7 @@ namespace Razix {
             bindMap.m_ShaderHandle     = shaderHandle;
             bindMap.m_ShaderReflection = Gfx::ReflectShader(shader);
             bindMap.m_LastError        = BIND_MAP_VALIDATION_FAILED;
+            bindMap.m_RootSigHandle    = shader->rootSignature;
 
             return bindMap;
         }
@@ -1083,7 +1084,7 @@ namespace Razix {
             }
 
             RAZIX_ASSERT(rz_handle_is_valid(&cmdBufHandle), "[ShaderBindMap] Invalid command buffer handle provided to bind shader bind map!");
-            rzRHI_BindDescriptorTablesContainer(cmdBufHandle, pipelineType, m_DescriptorTables);
+            rzRHI_BindDescriptorTablesContainer(cmdBufHandle, pipelineType, m_RootSigHandle, m_DescriptorTables);
         }
 
         RZShaderBindMap::RZShaderBindMap(rz_gfx_shader_handle shaderHandle)
@@ -1095,6 +1096,7 @@ namespace Razix {
             rz_gfx_shader* shader = Gfx::RZResourceManager::Get().getShaderResource(m_ShaderHandle);
             m_ShaderReflection    = Gfx::ReflectShader(shader);
             m_LastError           = BIND_MAP_VALIDATION_FAILED;
+            m_RootSigHandle       = shader->rootSignature;
         }
 
     }    // namespace Gfx

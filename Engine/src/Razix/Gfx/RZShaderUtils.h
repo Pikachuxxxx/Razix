@@ -115,6 +115,7 @@ namespace Razix {
             std::map<u32, std::vector<NamedResView>>           m_TableBuilderResViewRefs = {};
             std::vector<rz_gfx_descriptor_table_handle>        m_DescriptorTables        = {};
             BindMapValidationErr                               m_LastError               = BIND_MAP_VALIDATION_FAILED;
+            rz_gfx_root_signature_handle                       m_RootSigHandle           = {};
             union
             {
                 u32 statusFlags = 0xffffffff;

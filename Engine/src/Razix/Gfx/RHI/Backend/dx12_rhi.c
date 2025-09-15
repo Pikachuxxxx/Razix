@@ -3016,10 +3016,15 @@ static void dx12_BindDescriptorHeaps(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_d
     ID3D12GraphicsCommandList_SetDescriptorHeaps(cmdBuf->dx12.cmdList, heapCount, dx12Heaps);
 }
 
-static void dx12_BindDescriptorTables(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type pipelineType, const rz_gfx_descriptor_table** tables, uint32_t tableCount)
+static void dx12_BindDescriptorTables(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type pipelineType, const rz_gfx_root_signature* rootSig, const rz_gfx_descriptor_table** tables, uint32_t tableCount)
 {
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
     RAZIX_RHI_ASSERT(tables != NULL, "Tables cannot be NULL");
     RAZIX_RHI_ASSERT(tableCount > 0 && tableCount <= RAZIX_MAX_ALLOWED_TABLES_TO_BIND, "Invalid table count: %d. Must be between 1 and %d", tableCount, RAZIX_MAX_ALLOWED_TABLES_TO_BIND);
+
+    // Vulkan uses the root signature to bind descriptor tables, it needs VkPipelineLayout to bind descriptor sets
+    // Unused in DX12 as root signature is set directly on cmd list
+    (void) rootSig;
 
     ID3D12DescriptorHeap* dx12Heaps[RAZIX_MAX_ALLOWED_TABLES_TO_BIND] = {0};
     for (uint32_t i = 0; i < tableCount; i++) {
