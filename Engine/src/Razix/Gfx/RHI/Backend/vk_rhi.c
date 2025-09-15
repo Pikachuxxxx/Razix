@@ -1848,10 +1848,10 @@ static void vk_util_upload_pixel_data(rz_gfx_texture* texture, rz_gfx_texture_de
     // Begin single-time command buffer
     vk_cmdbuf cmdBuf = vk_util_begin_singletime_cmdlist();
 
-    // Transition image layout: SHADER_READ_ONLY_OPTIMAL -> TRANSFER_DST_OPTIMAL
+    // Transition image layout: UNDEFINED -> TRANSFER_DST_OPTIMAL
     VkImageMemoryBarrier barrier = {
         .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-        .oldLayout           = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,    // FIXME: Use current layout instead of assuming
+        .oldLayout           = vk_util_translate_imagelayout_resstate(texture->resource.currentState),    // This is most likely UNDEFINED
         .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
@@ -1884,7 +1884,7 @@ static void vk_util_upload_pixel_data(rz_gfx_texture* texture, rz_gfx_texture_de
 
     // Transition image layout: TRANSFER_DST_OPTIMAL -> SHADER_READ_ONLY_OPTIMAL
     barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    barrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;    // FIXME: Use current layout instead of assuming
+    barrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
@@ -1892,6 +1892,9 @@ static void vk_util_upload_pixel_data(rz_gfx_texture* texture, rz_gfx_texture_de
 
     // End and submit command buffer
     vk_util_end_singletime_cmdlist(cmdBuf);
+
+    // update current state to shader read only
+    texture->resource.currentState = RZ_GFX_RESOURCE_STATE_SHADER_READ;
 
     // Clean up staging buffer
     vkDestroyBuffer(VKDEVICE, stagingBuffer, NULL);
@@ -3296,13 +3299,12 @@ static void vk_CreateTexture(void* where)
         .arrayLayers   = (desc->textureType == RZ_GFX_TEXTURE_TYPE_CUBE) ? 6 : desc->arraySize,
         .format        = vk_util_translate_format(desc->format),
         .tiling        = VK_IMAGE_TILING_OPTIMAL,
-        .initialLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+        .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
         .usage         = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
         .samples       = VK_SAMPLE_COUNT_1_BIT,
         .sharingMode   = VK_SHARING_MODE_EXCLUSIVE};
 
-    // Start off with shader read only
-    texture->resource.currentState = RZ_GFX_RESOURCE_STATE_SHADER_READ;
+    texture->resource.currentState = RZ_GFX_RESOURCE_STATE_UNDEFINED;
 
     // Set usage flags based on resource hints
     if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV)
@@ -3311,9 +3313,6 @@ static void vk_CreateTexture(void* where)
         imageInfo.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV) == RZ_GFX_RESOURCE_VIEW_FLAG_DSV) {
         imageInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-        texture->resource.currentState = RZ_GFX_RESOURCE_STATE_DEPTH_WRITE;
-    } else {
-        texture->resource.currentState = RZ_GFX_RESOURCE_STATE_COMMON;
     }
 
     // Create the image

@@ -205,7 +205,6 @@ namespace Razix {
             depthRenderTargetHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
             m_DepthRenderTargetHeap                               = RZResourceManager::Get().createDescriptorHeap("DepthRenderTargetHeap", depthRenderTargetHeapDesc);
 
-#if !RAZIX_INIT_RENDERER_MINIMAL
             {
                 // Create some global basic samplers
                 rz_gfx_sampler_desc linearSamplerDesc = {};
@@ -234,10 +233,11 @@ namespace Razix {
                 samplerTableDesc.pResourceViews               = resourceViews;
                 samplerTableDesc.resourceViewsCount           = 1;    // Only one sampler for now
 
+#if !RAZIX_INIT_RENDERER_MINIMAL
                 m_GlobalSamplerTable = RZResourceManager::Get().createDescriptorTable("GlobalSamplerTable", samplerTableDesc);
                 RAZIX_CORE_INFO("Created Global Sampler Table with index: {0}", samplerTableDesc.tableIndex);
-            }
 #endif
+            }
         }
 
         void RZWorldRenderer::destroy()
@@ -270,9 +270,9 @@ namespace Razix {
             m_CompositePass.destroy();
 #endif
 
-#if !RAZIX_INIT_RENDERER_MINIMAL
             RZResourceManager::Get().destroyResourceView(m_SamplersViewPool.linearSampler);
             RZResourceManager::Get().destroySampler(m_SamplersPool.linearSampler);
+#if !RAZIX_INIT_RENDERER_MINIMAL
             RZResourceManager::Get().destroyDescriptorTable(m_GlobalSamplerTable);
 #endif
 
