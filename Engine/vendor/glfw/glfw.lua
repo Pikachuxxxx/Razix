@@ -45,5 +45,5 @@ project "GLFW"
     filter "configurations:GoldMaster"
         runtime "Release"
         symbols "Off"
-        optimize "Full"
+        optimize "Speed"  -- Changed from "Full" to "Speed"
     filter {}

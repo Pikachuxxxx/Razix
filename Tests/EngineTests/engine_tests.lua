@@ -161,5 +161,5 @@ project "EngineTests"
     filter "configurations:GoldMaster"
         defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
         symbols "Off"
-        optimize "Full"
+        optimize "Speed"  -- Changed from "Full" to "Speed"
         runtime "Release"
