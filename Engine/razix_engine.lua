@@ -460,27 +460,7 @@ project "Razix"
             "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
-    -- Config settings for Razix Engine project
-    filter "configurations:Debug"
-        defines { "RAZIX_DEBUG", "_DEBUG" }
-        symbols "On"
-        runtime "Debug"
-        optimize "Off"
-        editandcontinue "Off"
-
-        filter "system:windows"
-            links
-            {
-                "WinPixEventRuntime",
-                "WinPixEventRuntime_UAP"
-            }
-            linkoptions
-            {
-                "/INCREMENTAL",--"/NODEFAULTLIB:libcpmt.lib" ,"/NODEFAULTLIB:msvcprt.lib", "/NODEFAULTLIB:libcpmtd.lib", "/NODEFAULTLIB:msvcprtd.lib"
-            }
-        filter {}
-
-    -------------------------------------
+     -------------------------------------
     -- Razix Project settings for Linux
     -------------------------------------
     filter "system:linux"
@@ -550,6 +530,28 @@ project "Razix"
         filter "files:**.mm"
             flags { "NoPCH" }
 
+
+    -- Config settings for Razix Engine project
+    filter "configurations:Debug"
+        defines { "RAZIX_DEBUG", "_DEBUG" }
+        symbols "On"
+        runtime "Debug"
+        optimize "Off"
+        editandcontinue "Off"
+
+        filter "system:windows"
+            links
+            {
+                "WinPixEventRuntime",
+                "WinPixEventRuntime_UAP"
+            }
+            linkoptions
+            {
+                "/INCREMENTAL",--"/NODEFAULTLIB:libcpmt.lib" ,"/NODEFAULTLIB:msvcprt.lib", "/NODEFAULTLIB:libcpmtd.lib", "/NODEFAULTLIB:msvcprtd.lib"
+            }
+        filter {}
+
+   
     filter "configurations:Release"
         defines { "RAZIX_RELEASE", "NDEBUG" }
         symbols "On"
