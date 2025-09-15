@@ -99,8 +99,9 @@ def has_xcode_targets(xcodeproj_path):
         print(f"[ERROR] Failed to inspect {xcodeproj_path}: {e}")
         return False
 
-def output_exists_for(project_name, config):
-    bin_path = os.path.abspath(f"./bin/{config}-macosx-ARM64")
+def output_exists_for(project_name, config, platform_string="macosx-ARM64"):
+    """Check if output exists for a given project and config"""
+    bin_path = os.path.abspath(f"./bin/{config}-{platform_string}")
 
     # Try to find a matching .dylib or .app or binary
     patterns = [
@@ -114,7 +115,7 @@ def output_exists_for(project_name, config):
             return True
     return False
 
-def build_macos(config):
+def build_macos(config, platform_string="macosx-arm64"):
     build_dir = "./build"
     for entry in os.listdir(build_dir):
         if entry.endswith(".xcodeproj"):
@@ -124,7 +125,7 @@ def build_macos(config):
                 print(f"[INFO] Skipping {project_path} (no targets found)")
                 continue
             
-            if output_exists_for(project_name, config):
+            if output_exists_for(project_name, config, platform_string):
                 print(f"[INFO] Skipping {project_name} (already built)")
                 continue
             
@@ -146,27 +147,66 @@ def build_macos(config):
                 "-jobs", jobs,
             ])
 
+def build_linux(config):
+    """Build for Linux using make or similar build system"""
+    build_dir = "./build"
+    
+    if not os.path.exists(build_dir):
+        print(f"[WARNING] Build directory {build_dir} does not exist. No makefiles to build.")
+        sys.exit(0)
+    
+    # Look for Makefiles or other build files
+    found_makefile = False
+    for root, _, files in os.walk(build_dir):
+        if "Makefile" in files:
+            found_makefile = True
+            makefile_path = os.path.join(root, "Makefile")
+            print(f"[INFO] Found Makefile: {makefile_path}")
+            
+            # Run make with appropriate config
+            make_cmd = ["make", f"config={config.lower()}", f"-j{multiprocessing.cpu_count()}"]
+            print(f"[INFO] Running make: {' '.join(make_cmd)}")
+            run_command(make_cmd, cwd=root)
+    
+    if not found_makefile:
+        print(f"[WARNING] No Makefiles found in {build_dir}")
+    else:
+        print(f"[SUCCESS] Finished building all Makefiles in {build_dir}")
+
 def main():
     parser = argparse.ArgumentParser(description="Cross-platform project builder")
-    parser.add_argument("--platform", choices=["windows", "macos"], required=True,
-                        help="Target platform: windows or macos")
+    parser.add_argument("--platform", choices=["windows-x86_64", "windows-arm64", "macosx-arm64", "linux-x86_64", "linux-arm64"], required=True,
+                        help="Target platform")
     parser.add_argument("--config", choices=["Debug", "Release", "GoldMaster"], default="Debug",
                         help="Build configuration")
     parser.add_argument("--github-ci", action="store_true",
                         help="Use GitHub CI MSBuild path (Enterprise edition)")
+    parser.add_argument("--args", nargs=argparse.REMAINDER,
+                        help="Additional arguments to pass to the build executable")
 
     args = parser.parse_args()
 
-    if args.platform == "windows":
+    # Extract platform family for backward compatibility
+    platform_family = args.platform.split('-')[0]  # windows-x86_64 -> windows
+
+    if platform_family == "windows":
         if platform.system() != "Windows":
-            print("[ERROR] You're not on Windows but selected platform = windows.")
+            print(f"[ERROR] You're not on Windows but selected platform = {args.platform}.")
             sys.exit(1)
         build_windows(args.config, args.github_ci)
-    elif args.platform == "macos":
+    elif platform_family == "macosx":
         if platform.system() != "Darwin":
-            print("[ERROR] You're not on macOS but selected platform = macos.")
+            print(f"[ERROR] You're not on macOS but selected platform = {args.platform}.")
             sys.exit(1)
-        build_macos(args.config)
+        build_macos(args.config, args.platform)
+    elif platform_family == "linux":
+        if platform.system() != "Linux":
+            print(f"[ERROR] You're not on Linux but selected platform = {args.platform}.")
+            sys.exit(1)
+        build_linux(args.config)
+    else:
+        print(f"[ERROR] Unsupported platform: {args.platform}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

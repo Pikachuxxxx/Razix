@@ -13,7 +13,7 @@ test_names = [
 DEFAULT_CONFIG = "Debug"
 DEFAULT_PLATFORM = "windows-x86_64"
 VALID_CONFIGS = ["Debug", "Release", "GoldMaster"]
-VALID_PLATFORMS = ["windows-x86_64", "macosx-ARM64", "Prospero"]
+VALID_PLATFORMS = ["windows-x86_64", "windows-arm64", "macosx-arm64", "linux-x86_64", "linux-arm64", "Prospero"]
 
 # -------------------------------------------------------------------
 # Safe print that won't crash on non-ASCII terminals (like MSBuild)
@@ -25,12 +25,14 @@ def safe_print(s):
         print(s.encode('ascii', errors='replace').decode())
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Gfx Test Runner ~uwu~")
-    parser.add_argument("config", nargs="?", default=DEFAULT_CONFIG, choices=VALID_CONFIGS,
-        help="Build config (Debug, Release, GoldMaster). Default is Debug uwu")
-    parser.add_argument("platform", nargs="?", default=DEFAULT_PLATFORM, choices=VALID_PLATFORMS,
-        help="Platform (windows-x86_64, macosx-ARM64, Prospero). Default is windows-x86_64 owo")
-    parser.add_argument("--verbose", action="store_true", help="Show test output in console, teehee~")
+    parser = argparse.ArgumentParser(description="Gfx Test Runner")
+    parser.add_argument("--config", choices=VALID_CONFIGS, default=DEFAULT_CONFIG,
+        help="Build config (Debug, Release, GoldMaster). Default is Debug")
+    parser.add_argument("--platform", choices=VALID_PLATFORMS, default=DEFAULT_PLATFORM,
+        help="Platform. Default is windows-x86_64")
+    parser.add_argument("--verbose", action="store_true", help="Show test output in console")
+    parser.add_argument("--args", nargs=argparse.REMAINDER,
+                        help="Additional arguments to pass to test executables")
     return parser.parse_args()
 
 def print_header(config, platform):
@@ -58,7 +60,10 @@ def print_result(name, result, log_path=None):
         line += f"  (log: {log_path})"
     safe_print(line)
 
-def run_tests(config, platform, verbose):
+def run_tests(config, platform, verbose, user_args=None):
+    if user_args is None:
+        user_args = []
+        
     bin_root = os.path.join("bin", f"{config}-{platform}")
     results_dir = os.path.join("TestResults", platform, config)
     os.makedirs(results_dir, exist_ok=True)
@@ -70,8 +75,10 @@ def run_tests(config, platform, verbose):
         exe_path = os.path.join(bin_root, f"{name}.exe" if platform.startswith("windows") else name)
         log_path = os.path.join(results_dir, f"{name}.log")
 
-        if platform.startswith("macos"):
-            lib_path = os.path.abspath(f"./bin/{config}-macosx-ARM64")
+        # Handle library path for macOS
+        env = None
+        if platform.startswith("macosx"):
+            lib_path = os.path.abspath(f"./bin/{config}-{platform}")
             
             if not os.path.exists(os.path.join(lib_path, "libRazix.dylib")):
                 print(f"[WARNING] libRazix.dylib not found in {lib_path}")
@@ -93,7 +100,10 @@ def run_tests(config, platform, verbose):
         try:
             with open(log_path, "w") as log_file:
                 safe_print(f"  ~(*^‿^)~ Launching test: {name}")
-                subprocess.run([exe_path], stdout=log_file, stderr=subprocess.STDOUT, check=True, env=env if platform.startswith("macos") else None)
+                # Build command with user args
+                cmd = [exe_path] + user_args
+                print(f"[INFO] Running: {' '.join(cmd)}")
+                subprocess.run(cmd, stdout=log_file, stderr=subprocess.STDOUT, check=True, env=env)
             print_result(name, "pass")
             if verbose:
                 safe_print("    (づ｡◕‿‿◕｡)づ showing log content ~\n")
@@ -113,4 +123,4 @@ def run_tests(config, platform, verbose):
 
 if __name__ == "__main__":
     args = parse_args()
-    run_tests(args.config, args.platform, args.verbose)
+    run_tests(args.config, args.platform, args.verbose, args.args)
