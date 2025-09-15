@@ -69,5 +69,5 @@ project "googletest"
     filter "configurations:GoldMaster"
         defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
         symbols "Off"
-        optimize "Full"
         runtime "Release"
+        optimize "Speed"  -- Changed from "Full" to "Speed"
