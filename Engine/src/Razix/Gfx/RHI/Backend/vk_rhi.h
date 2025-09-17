@@ -108,7 +108,7 @@ typedef struct vk_descriptor_heap
 typedef struct vk_descriptor_table
 {
     VkDescriptorSetLayout setLayout;
-    VkDescriptorSet       descriptorSet;
+    VkDescriptorSet       set;
 } vk_descriptor_table;
 
 typedef struct vk_root_signature

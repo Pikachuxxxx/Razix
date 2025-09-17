@@ -3718,14 +3718,39 @@ static void vk_DestroyDescriptorHeap(void* heap)
 
 static void vk_CreateDescriptorTable(void* where)
 {
-    (void) where;
-    // TODO: Implement when needed
+    rz_gfx_descriptor_table* pTable = (rz_gfx_descriptor_table*) where;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pTable->resource.handle), "Invalid table handle, who is allocating this? ResourceManager should create a valid handle");
+
+    rz_gfx_descriptor_table_desc* pDesc = &pTable->resource.desc.descriptorTableDesc;
+    RAZIX_RHI_ASSERT(pDesc != NULL, "Descriptor table descriptor cannot be NULL");
+    RAZIX_RHI_ASSERT(pDesc->resourceViewsCount > 0, "Descriptor table should have atleast 1 descriptor");
+    RAZIX_RHI_ASSERT(pDesc->pResourceViews != NULL, "Descriptor table cannot have NULL resource views");
+    RAZIX_RHI_ASSERT(pDesc->pHeap != NULL, "Descriptor tables needs a heap to create the table");
+
+    for (uint32_t i = 0; i < pDesc->resourceViewsCount; i++) {
+        const rz_gfx_resource_view*      pView     = &pDesc->pResourceViews[i];
+        const rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+        RAZIX_RHI_ASSERT(pView != NULL, "Resource view cannot be NULL in a descriptor table! (Descriptor Table creation)");
+        RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL in a descriptor table! (Descriptor Table creation)");
+
+        bool isTexture        = rzRHI_IsDescriptorTypeTexture(pViewDesc->descriptorType);
+        bool isBuffer         = rzRHI_IsDescriptorTypeBuffer(pViewDesc->descriptorType);
+        bool isSampler        = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
+        bool isConstantBuffer = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
+        RAZIX_RHI_ASSERT(isTexture || isBuffer || isSampler || isConstantBuffer, "Descriptor type must be a texture, buffer, constant buffer or sampler for descriptor table creation");
+        bool isTextureRW = isTexture && rzRHI_IsDescriptorTypeTextureRW(pViewDesc->descriptorType);
+        bool isBufferRW  = isBuffer && rzRHI_IsDescriptorTypeBufferRW(pViewDesc->descriptorType);
+    }
 }
 
 static void vk_DestroyDescriptorTable(void* table)
 {
-    (void) table;
-    // TODO: Implement when needed
+    rz_gfx_descriptor_table* pTable = (rz_gfx_descriptor_table*) table;
+    RAZIX_RHI_ASSERT(pTable != NULL, "Descriptor table is NULL, cannot destroy");
+    // Descriptor sets are freed when the descriptor pool is destroyed, they are reused from the pool as per driver internal implementation
+    if (pTable->vk.set != VK_NULL_HANDLE) {
+        pTable->vk.set = VK_NULL_HANDLE;
+    }
 }
 
 static void vk_AcquireImage(rz_gfx_swapchain* sc, const rz_gfx_syncobj* presentSignalSyncobj)
@@ -4114,8 +4139,8 @@ static void vk_BindDescriptorTables(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline
     VkDescriptorSet descriptorSets[RAZIX_MAX_ALLOWED_TABLES_TO_BIND] = {0};
     for (uint32_t i = 0; i < tableCount; i++) {
         RAZIX_RHI_ASSERT(tables[i] != NULL, "Descriptor table cannot be NULL");
-        RAZIX_RHI_ASSERT(tables[i]->vk.descriptorSet != VK_NULL_HANDLE, "Vulkan descriptor set is invalid");
-        descriptorSets[i] = tables[i]->vk.descriptorSet;
+        RAZIX_RHI_ASSERT(tables[i]->vk.set != VK_NULL_HANDLE, "Vulkan descriptor set is invalid");
+        descriptorSets[i] = tables[i]->vk.set;
     }
 
     // As for pipeline layout, it should have been cached when binding the root signature
