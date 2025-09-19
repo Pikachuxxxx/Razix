@@ -1616,7 +1616,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_DrawIndexedIndirectFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* argumentBuffer, uint32_t argumentBufferOffset, uint32_t drawCount);
     typedef void (*rzRHI_DispatchIndirectFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* argumentBuffer, uint32_t argumentBufferOffset, uint32_t dispatchCount);
 
-    typedef void (*rzRHI_UpdateDescriptorTableFn)(rz_gfx_descriptor_table* table, rz_gfx_descriptor_table_update tableUpdate);
+    typedef void (*rzRHI_UpdateDescriptorTableFn)(rz_gfx_descriptor_table_update tableUpdate);
     typedef void (*rzRHI_UpdateConstantBufferFn)(rz_gfx_buffer_update bufferUpdate);
 
     typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state oldState, rz_gfx_resource_state newState);
@@ -1838,7 +1838,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_DrawIndexedIndirect(cb, bu, offset, maxDrawCount)  g_RHI.DrawIndexedIndirect(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), offset, maxDrawCount)
         #define rzRHI_DispatchIndirect(cb, bu, offset, maxDispatchCount) g_RHI.DispatchIndirect(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), offset, maxDispatchCount)
 
-        #define rzRHI_UpdateDescriptorTable(table, updateDesc)      g_RHI.UpdateDescriptorTable(RZResourceManager::Get().getDescriptorTableResource(table), updateDesc)
+        #define rzRHI_UpdateDescriptorTable                         g_RHI.UpdateDescriptorTable
         #define rzRHI_UpdateConstantBuffer(bu)                      g_RHI.UpdateConstantBuffer(bu)
         #define rzRHI_InsertImageBarrier(cb, text, bs, as)          g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(text), bs, as)
         #define rzRHI_InsertSwapchainImageBarrier(cb, text, bs, as) g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), text, bs, as)
@@ -2113,11 +2113,11 @@ static inline unsigned int rz_clz32(unsigned int x)
                     maxDispatchCount);                                                           \
             } while (0)
 
-        #define rzRHI_UpdateDescriptorTable(dt, updateDesc)                                                       \
-            do {                                                                                                  \
+        #define rzRHI_UpdateDescriptorTable(updateDesc)                                    \
+            do {                                                                           \
                 RAZIX_PROFILE_SCOPEC("rzRHI_UpdateDescriptorTable", RZ_PROFILE_COLOR_RHI); \
-                g_RHI.UpdateDescriptorTable(RZResourceManager::Get().getDescriptorTableResource(dt), updateDesc); \
-            } while (0);
+                g_RHI.UpdateDescriptorTable(updateDesc);                                   \
+            } while (0)
 
         #define rzRHI_UpdateConstantBuffer(bu)                                            \
             do {                                                                          \
@@ -2432,10 +2432,10 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC_END();                                                      \
             } while (0)
 
-        #define rzRHI_UpdateDescriptorTable(dt, updatedesc)                                \
+        #define rzRHI_UpdateDescriptorTable(updatedesc)                                    \
             do {                                                                           \
                 RAZIX_PROFILE_SCOPEC("rzRHI_UpdateDescriptorTable", RZ_PROFILE_COLOR_RHI); \
-                g_RHI.UpdateDescriptorTable(dt, updatedesc);                               \
+                g_RHI.UpdateDescriptorTable(updatedesc);                                   \
                 RAZIX_PROFILE_SCOPEC_END();                                                \
             } while (0);
 

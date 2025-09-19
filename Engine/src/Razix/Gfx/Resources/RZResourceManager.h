@@ -47,11 +47,6 @@ private:                                                                        
             /* Shuts down the Resource System */
             void ShutDown();
 
-            template<class T>
-            RZResourceFreeListMemPoolTyped<T>& getPool()
-            {
-            }
-
             /* Handles Resource Allocation functions */
             //-----------------------------------------------------------------------------------
             // Resource View

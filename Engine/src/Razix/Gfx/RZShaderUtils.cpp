@@ -1036,7 +1036,7 @@ namespace Razix {
                     updateDesc.pTable                         = RZResourceManager::Get().getDescriptorTableResource(descriptorTableHandle);
                     updateDesc.resViewCount                   = resViews.size();
                     updateDesc.pResourceViews                 = pResViews;
-                    rzRHI_UpdateDescriptorTable(descriptorTableHandle, updateDesc);
+                    rzRHI_UpdateDescriptorTable(updateDesc);
                     Memory::RZFree(pResViews);
 
                     RAZIX_CORE_INFO("[ShaderBindMap] Created descriptor table {0} for table index {1} with {2} resource views", tableName, i, resViews.size());

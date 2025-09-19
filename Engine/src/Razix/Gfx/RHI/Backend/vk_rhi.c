@@ -3851,9 +3851,9 @@ static void vk_CreateDescriptorTable(void* where)
     TAG_OBJECT(pTable->vk.set, VK_OBJECT_TYPE_DESCRIPTOR_SET, pTable->resource.pName);
 }
 
-static void vk_UpdateDescriptorTable(rz_gfx_descriptor_table* table, rz_gfx_descriptor_table_update tableUpdate)
+static void vk_UpdateDescriptorTable(rz_gfx_descriptor_table_update tableUpdate)
 {
-    rz_gfx_descriptor_table* pTable = (rz_gfx_descriptor_table*) table;
+    rz_gfx_descriptor_table* pTable = (rz_gfx_descriptor_table*) tableUpdate.pTable;
     RAZIX_RHI_ASSERT(pTable != NULL, "Descriptor table cannot be NULL");
     RAZIX_RHI_ASSERT(pTable->vk.set != VK_NULL_HANDLE, "Descriptor set in the table is invalid");
     RAZIX_RHI_ASSERT(tableUpdate.pResourceViews != NULL, "Resource views cannot be NULL for updating descriptor table");

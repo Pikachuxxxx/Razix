@@ -244,7 +244,7 @@ namespace Razix {
                 samplerTableUpdateDesc.pTable                         = RZResourceManager::Get().getDescriptorTableResource(m_GlobalSamplerTable);
                 samplerTableUpdateDesc.pResourceViews                 = resourceViews;
                 samplerTableUpdateDesc.resViewCount                   = 1;
-                rzRHI_UpdateDescriptorTable(m_GlobalSamplerTable, samplerTableUpdateDesc);
+                rzRHI_UpdateDescriptorTable(samplerTableUpdateDesc);
             }
         }
 

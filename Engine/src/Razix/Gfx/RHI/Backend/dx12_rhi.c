@@ -2746,65 +2746,11 @@ static void dx12_CreateDescriptorTable(void* where)
 
     rz_gfx_descriptor_table_desc* pDesc = &pTable->resource.desc.descriptorTableDesc;
     RAZIX_RHI_ASSERT(pDesc != NULL, "Descriptor table descriptor cannot be NULL");
-    RAZIX_RHI_ASSERT(pDesc->resourceViewsCount > 0, "Descriptor table should have atleast 1 descriptor");
-    RAZIX_RHI_ASSERT(pDesc->pResourceViews != NULL, "Descriptor table cannot have NULL resource views");
+    RAZIX_RHI_ASSERT(pDesc->descriptorCount > 0, "Descriptor table should have atleast 1 descriptor");
+    RAZIX_RHI_ASSERT(pDesc->pDescriptors != NULL, "Descriptor table cannot have NULL resource views");
     RAZIX_RHI_ASSERT(pDesc->pHeap != NULL, "Descriptor tables needs a heap to create the table");
 
-    for (uint32_t i = 0; i < pDesc->resourceViewsCount; i++) {
-        //const rz_gfx_descriptor*         pDescriptor = &pDesc->pDescriptors[i];
-        const rz_gfx_resource_view*      pView     = &pDesc->pResourceViews[i];
-        const rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
-        RAZIX_RHI_ASSERT(pView != NULL, "Resource view cannot be NULL in a descriptor table! (Descriptor Table creation)");
-        RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL in a descriptor table! (Descriptor Table creation)");
-
-        pTable->dx12.heapOffset = dx12_descriptor_allocate_handle(pDesc->pHeap, pDesc->resourceViewsCount);
-
-        bool isTexture        = rzRHI_IsDescriptorTypeTexture(pViewDesc->descriptorType);
-        bool isBuffer         = rzRHI_IsDescriptorTypeBuffer(pViewDesc->descriptorType);
-        bool isSampler        = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
-        bool isConstantBuffer = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
-        RAZIX_RHI_ASSERT(isTexture || isBuffer || isSampler || isConstantBuffer, "Descriptor type must be a texture, buffer, constant buffer or sampler for descriptor table creation");
-        bool isTextureRW = isTexture && rzRHI_IsDescriptorTypeTextureRW(pViewDesc->descriptorType);
-        bool isBufferRW  = isBuffer && rzRHI_IsDescriptorTypeBufferRW(pViewDesc->descriptorType);
-
-        if (isConstantBuffer) {
-            ID3D12Device_CreateConstantBufferView(DX12Device, &pView->dx12.cbvDesc, pTable->dx12.heapOffset.cpu);
-        } else if (isTexture && !isTextureRW) {
-            const rz_gfx_texture* pTexture = pViewDesc->textureViewDesc.pTexture;
-            RAZIX_RHI_ASSERT(pTexture != NULL, "Texture cannot be NULL for descriptor table SRV creation");
-            ID3D12Device_CreateShaderResourceView(DX12Device, pTexture->dx12.resource, &pView->dx12.srvDesc, pTable->dx12.heapOffset.cpu);
-        } else if (isTextureRW) {
-            const rz_gfx_texture* pTexture = pViewDesc->textureViewDesc.pTexture;
-            RAZIX_RHI_ASSERT(pTexture != NULL, "Texture cannot be NULL for descriptor table UAV creation");
-            ID3D12Device_CreateUnorderedAccessView(DX12Device, pTexture->dx12.resource, NULL, &pView->dx12.uavDesc, pTable->dx12.heapOffset.cpu);
-        } else if (isBuffer && !isBufferRW) {
-            const rz_gfx_buffer* pBuffer = pViewDesc->bufferViewDesc.pBuffer;
-            RAZIX_RHI_ASSERT(pBuffer != NULL, "Buffer cannot be NULL for descriptor table SRV creation");
-            ID3D12Device_CreateShaderResourceView(DX12Device, pBuffer->dx12.resource, &pView->dx12.srvDesc, pTable->dx12.heapOffset.cpu);
-        } else if (isBufferRW) {
-            const rz_gfx_buffer* pBuffer = pViewDesc->bufferViewDesc.pBuffer;
-            RAZIX_RHI_ASSERT(pBuffer != NULL, "Buffer cannot be NULL for descriptor table UAV creation");
-            ID3D12Device_CreateUnorderedAccessView(DX12Device, pBuffer->dx12.resource, NULL, &pView->dx12.uavDesc, pTable->dx12.heapOffset.cpu);
-        } else if (isSampler) {
-            ID3D12Device_CreateSampler(DX12Device, &pView->dx12.samplerDesc, pTable->dx12.heapOffset.cpu);
-        } else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT) {
-            RAZIX_RHI_LOG_ERROR("Seriously? RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT in here? bind it directly on the correct root signature. This will result in catastrophic descriptor API failure.");
-            RAZIX_RHI_ABORT();
-            return;
-        } else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED) {
-            RAZIX_RHI_LOG_ERROR("RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED is Vulkan only and not recommended with DX12 backend. This will result in catastrophic descriptor API failure.");
-            RAZIX_RHI_ABORT();
-            return;
-        } else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE || pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE) {
-            RAZIX_RHI_LOG_ERROR("Seriously? RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE/DEPTH_STENCIL in here? create the resource views and pass them to BeginRenderPass directly to set using OMSetXXX. This will result in catastrophic descriptor API failure.");
-            RAZIX_RHI_ABORT();
-            return;
-        } else {
-            RAZIX_RHI_LOG_ERROR("Unsupported descriptor type: %d. (This is likely a bug in the if-else chain or weird data corruption has happened). This will result in catastrophic descriptor API failure.", pViewDesc->descriptorType);
-            RAZIX_RHI_ABORT();
-            return;
-        }
-    }
+    pTable->dx12.heapOffset = dx12_descriptor_allocate_handle(pDesc->pHeap, pDesc->descriptorCount);
 }
 
 static void dx12_DestroyDescriptorTable(void* where)
@@ -2817,7 +2763,7 @@ static void dx12_DestroyDescriptorTable(void* where)
     RAZIX_RHI_ASSERT(desc->pHeap != NULL, "Descriptor tables needs a heap to create the table");
 
     if (desc)
-        dx12_descriptor_free_handle(desc->pHeap, pTable->dx12.heapOffset, desc->resourceViewsCount);
+        dx12_descriptor_free_handle(desc->pHeap, pTable->dx12.heapOffset, desc->descriptorCount);
 }
 
 //---------------------------------------------------------------------------------------------
@@ -3156,6 +3102,67 @@ static void dx12_DispatchIndirect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buff
         NULL,    // Count buffer (optional)
         0        // Count buffer offset
     );
+}
+
+static void dx12_UpdateDescriptorTable(rz_gfx_descriptor_table_update tableUpdate)
+{
+    rz_gfx_descriptor_table* pTable = (rz_gfx_descriptor_table*) tableUpdate.pTable;
+    RAZIX_RHI_ASSERT(pTable != NULL, "Descriptor table cannot be NULL");
+    RAZIX_RHI_ASSERT(tableUpdate.pResourceViews != NULL, "Resource views cannot be NULL for updating descriptor table");
+    RAZIX_RHI_ASSERT(tableUpdate.resViewCount > 0, "Resource view count must be greater than zero for updating descriptor table");
+
+    for (uint32_t i = 0; i < tableUpdate.resViewCount; i++) {
+        const rz_gfx_resource_view*      pView     = &tableUpdate.pResourceViews[i];
+        const rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+        RAZIX_RHI_ASSERT(pView != NULL, "Resource view cannot be NULL in a descriptor table! (Descriptor Table creation)");
+        RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL in a descriptor table! (Descriptor Table creation)");
+
+        bool isTexture        = rzRHI_IsDescriptorTypeTexture(pViewDesc->descriptorType);
+        bool isBuffer         = rzRHI_IsDescriptorTypeBuffer(pViewDesc->descriptorType);
+        bool isSampler        = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
+        bool isConstantBuffer = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
+        RAZIX_RHI_ASSERT(isTexture || isBuffer || isSampler || isConstantBuffer, "Descriptor type must be a texture, buffer, constant buffer or sampler for descriptor table creation");
+        bool isTextureRW = isTexture && rzRHI_IsDescriptorTypeTextureRW(pViewDesc->descriptorType);
+        bool isBufferRW  = isBuffer && rzRHI_IsDescriptorTypeBufferRW(pViewDesc->descriptorType);
+
+        if (isConstantBuffer) {
+            ID3D12Device_CreateConstantBufferView(DX12Device, &pView->dx12.cbvDesc, pTable->dx12.heapOffset.cpu);
+        } else if (isTexture && !isTextureRW) {
+            const rz_gfx_texture* pTexture = pViewDesc->textureViewDesc.pTexture;
+            RAZIX_RHI_ASSERT(pTexture != NULL, "Texture cannot be NULL for descriptor table SRV creation");
+            ID3D12Device_CreateShaderResourceView(DX12Device, pTexture->dx12.resource, &pView->dx12.srvDesc, pTable->dx12.heapOffset.cpu);
+        } else if (isTextureRW) {
+            const rz_gfx_texture* pTexture = pViewDesc->textureViewDesc.pTexture;
+            RAZIX_RHI_ASSERT(pTexture != NULL, "Texture cannot be NULL for descriptor table UAV creation");
+            ID3D12Device_CreateUnorderedAccessView(DX12Device, pTexture->dx12.resource, NULL, &pView->dx12.uavDesc, pTable->dx12.heapOffset.cpu);
+        } else if (isBuffer && !isBufferRW) {
+            const rz_gfx_buffer* pBuffer = pViewDesc->bufferViewDesc.pBuffer;
+            RAZIX_RHI_ASSERT(pBuffer != NULL, "Buffer cannot be NULL for descriptor table SRV creation");
+            ID3D12Device_CreateShaderResourceView(DX12Device, pBuffer->dx12.resource, &pView->dx12.srvDesc, pTable->dx12.heapOffset.cpu);
+        } else if (isBufferRW) {
+            const rz_gfx_buffer* pBuffer = pViewDesc->bufferViewDesc.pBuffer;
+            RAZIX_RHI_ASSERT(pBuffer != NULL, "Buffer cannot be NULL for descriptor table UAV creation");
+            ID3D12Device_CreateUnorderedAccessView(DX12Device, pBuffer->dx12.resource, NULL, &pView->dx12.uavDesc, pTable->dx12.heapOffset.cpu);
+        } else if (isSampler) {
+            ID3D12Device_CreateSampler(DX12Device, &pView->dx12.samplerDesc, pTable->dx12.heapOffset.cpu);
+        } else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT) {
+            RAZIX_RHI_LOG_ERROR("Seriously? RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT in here? bind it directly on the correct root signature. This will result in catastrophic descriptor API failure.");
+            RAZIX_RHI_ABORT();
+            return;
+        } else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED) {
+            RAZIX_RHI_LOG_ERROR("RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED is Vulkan only and not recommended with DX12 backend. This will result in catastrophic descriptor API failure.");
+            RAZIX_RHI_ABORT();
+            return;
+        } else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE || pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE) {
+            RAZIX_RHI_LOG_ERROR("Seriously? RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE/DEPTH_STENCIL in here? create the resource views and pass them to BeginRenderPass directly to set using OMSetXXX. This will result in catastrophic descriptor API failure.");
+            RAZIX_RHI_ABORT();
+            return;
+        } else {
+            RAZIX_RHI_LOG_ERROR("Unsupported descriptor type: %d. (This is likely a bug in the if-else chain or weird data corruption has happened). This will result in catastrophic descriptor API failure.", pViewDesc->descriptorType);
+            RAZIX_RHI_ABORT();
+            return;
+        }
+    }
 }
 
 static void dx12_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
@@ -3794,7 +3801,7 @@ rz_rhi_api dx12_rhi = {
     .DrawIndirect          = dx12_DrawIndirect,             // DrawIndirect
     .DrawIndexedIndirect   = dx12_DrawIndexedIndirect,      // DrawIndexedIndirect
     .DispatchIndirect      = dx12_DispatchIndirect,         // DispatchIndirect
-    .UpdateDescriptorTable = NULL,                          // UpdateDescriptorTable
+    .UpdateDescriptorTable = dx12_UpdateDescriptorTable,    // UpdateDescriptorTable
     .UpdateConstantBuffer  = dx12_UpdateConstantBuffer,     // UpdateConstantBuffer
     .InsertImageBarrier    = dx12_InsertImageBarrier,       // InsertImageBarrier
     .InsertBufferBarrier   = dx12_InsertBufferBarrier,      // InsertBufferBarrier
