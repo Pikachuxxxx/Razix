@@ -2338,6 +2338,59 @@ static void vk_util_create_image_view(rz_gfx_resource_view* pView)
     TAG_OBJECT(pView->vk.imageView, VK_OBJECT_TYPE_IMAGE_VIEW, pView->resource.pName);
 }
 
+static void vk_util_transition_subresource(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState, uint32_t mipBase, uint32_t mipCount, uint32_t layerBase, uint32_t layerCount)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
+    RAZIX_RHI_ASSERT(beforeState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "Before state cannot be undefined");
+    RAZIX_RHI_ASSERT(afterState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "After state cannot be undefined");
+    RAZIX_RHI_ASSERT((mipBase + mipCount) <= texture->resource.desc.textureDesc.mipLevels, "Mip range out of bounds");
+    RAZIX_RHI_ASSERT((layerBase + layerCount) <= texture->resource.desc.textureDesc.arraySize, "Layer range out of bounds");
+
+    VkImageAspectFlags aspectMask = vk_util_deduce_image_aspect_flags(texture->resource.desc.textureDesc.format);
+
+    uint32_t              barrierCount = mipCount * layerCount;
+    VkImageMemoryBarrier* barriers     = (VkImageMemoryBarrier*) alloca(sizeof(VkImageMemoryBarrier) * barrierCount);
+
+    uint32_t idx = 0;
+    for (uint32_t l = 0; l < layerCount; ++l) {
+        for (uint32_t m = 0; m < mipCount; ++m) {
+            barriers[idx++] = (VkImageMemoryBarrier) {
+                .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                .pNext               = NULL,
+                .srcAccessMask       = vk_util_access_flags_translate(beforeState),
+                .dstAccessMask       = vk_util_access_flags_translate(afterState),
+                .oldLayout           = vk_util_translate_imagelayout_resstate(beforeState),
+                .newLayout           = vk_util_translate_imagelayout_resstate(afterState),
+                .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                .image               = texture->vk.image,
+                .subresourceRange    = {
+                       .aspectMask     = aspectMask,
+                       .baseMipLevel   = mipBase + m,
+                       .levelCount     = layerCount,
+                       .baseArrayLayer = layerBase + l,
+                       .layerCount     = mipCount,
+                },
+            };
+        }
+    }
+
+    vkCmdPipelineBarrier(
+        cmdBuf->vk.cmdBuf,
+        vk_deduce_pipeline_stage_from_res_state(beforeState),
+        vk_deduce_pipeline_stage_from_res_state(afterState),
+        0,    // dependency flags
+        0,
+        NULL,    // memory barriers
+        0,
+        NULL,    // buffer barriers
+        barrierCount,
+        barriers    // image barriers
+    );
+    texture->resource.currentState = afterState;
+}
+
 //---------------------------------------------------------------------------------------------
 
 static void vk_GlobalCtxInit(void)
@@ -3344,6 +3397,7 @@ static void vk_CreateTexture(void* where)
     if (desc->pPixelData != NULL) {
         RAZIX_RHI_LOG_INFO("Uploading pixel data for texture");
         vk_util_upload_pixel_data(texture, desc);
+        texture->resource.currentState = RZ_GFX_RESOURCE_STATE_SHADER_READ;
     }
 }
 
