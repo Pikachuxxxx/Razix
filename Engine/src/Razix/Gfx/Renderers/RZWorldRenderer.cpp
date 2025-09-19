@@ -222,21 +222,29 @@ namespace Razix {
                 m_SamplersPool.linearSampler          = RZResourceManager::Get().createSampler("LinearSampler", linearSamplerDesc);
 
                 // Create a descriptor table for all the samplers
-                rz_gfx_descriptor_table_desc samplerTableDesc = {};
-                samplerTableDesc.tableIndex                   = 1;    // Note: Table 1 is reserved for Samplers
-                samplerTableDesc.pHeap                        = RZResourceManager::Get().getDescriptorHeapResource(m_SamplerHeap);
-                rz_gfx_resource_view_desc samplerViewDesc     = {};
-                samplerViewDesc.descriptorType                = RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
-                samplerViewDesc.samplerViewDesc.pSampler      = RZResourceManager::Get().getSamplerResource(m_SamplersPool.linearSampler);
-                m_SamplersViewPool.linearSampler              = RZResourceManager::Get().createResourceView("LinearSamplerView", samplerViewDesc);
-                rz_gfx_resource_view resourceViews[]          = {*RZResourceManager::Get().getResourceViewResource(m_SamplersViewPool.linearSampler)};
-                samplerTableDesc.pResourceViews               = resourceViews;
-                samplerTableDesc.resourceViewsCount           = 1;    // Only one sampler for now
+                rz_gfx_descriptor samplerDescriptor                    = {};
+                samplerDescriptor.pName                                = "LinearSampler";    // must match the sampler namespace
+                samplerDescriptor.type                                 = RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
+                samplerDescriptor.location.binding                     = 0;
+                samplerDescriptor.location.space                       = 0;
+                rz_gfx_descriptor            samplerTableDescriptors[] = {samplerDescriptor};
+                rz_gfx_descriptor_table_desc samplerTableDesc          = {};
+                samplerTableDesc.tableIndex                            = 0;    // Note: Table 0 is reserved for Samplers
+                samplerTableDesc.pHeap                                 = RZResourceManager::Get().getDescriptorHeapResource(m_SamplerHeap);
+                samplerTableDesc.descriptorCount                       = 1;
+                samplerTableDesc.pDescriptors                          = samplerTableDescriptors;    // Only one sampler for now
+                m_GlobalSamplerTable                                   = RZResourceManager::Get().createDescriptorTable("GlobalSamplerTable", samplerTableDesc);
 
-#if !RAZIX_INIT_RENDERER_MINIMAL
-                m_GlobalSamplerTable = RZResourceManager::Get().createDescriptorTable("GlobalSamplerTable", samplerTableDesc);
-                RAZIX_CORE_INFO("Created Global Sampler Table with index: {0}", samplerTableDesc.tableIndex);
-#endif
+                rz_gfx_resource_view_desc samplerViewDesc             = {};
+                samplerViewDesc.descriptorType                        = RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
+                samplerViewDesc.samplerViewDesc.pSampler              = RZResourceManager::Get().getSamplerResource(m_SamplersPool.linearSampler);
+                m_SamplersViewPool.linearSampler                      = RZResourceManager::Get().createResourceView("LinearSamplerView", samplerViewDesc);
+                rz_gfx_resource_view           resourceViews[]        = {*RZResourceManager::Get().getResourceViewResource(m_SamplersViewPool.linearSampler)};
+                rz_gfx_descriptor_table_update samplerTableUpdateDesc = {};
+                samplerTableUpdateDesc.pTable                         = RZResourceManager::Get().getDescriptorTableResource(m_GlobalSamplerTable);
+                samplerTableUpdateDesc.pResourceViews                 = resourceViews;
+                samplerTableUpdateDesc.resViewCount                   = 1;
+                rzRHI_UpdateDescriptorTable(m_GlobalSamplerTable, samplerTableUpdateDesc);
             }
         }
 
@@ -272,9 +280,7 @@ namespace Razix {
 
             RZResourceManager::Get().destroyResourceView(m_SamplersViewPool.linearSampler);
             RZResourceManager::Get().destroySampler(m_SamplersPool.linearSampler);
-#if !RAZIX_INIT_RENDERER_MINIMAL
             RZResourceManager::Get().destroyDescriptorTable(m_GlobalSamplerTable);
-#endif
 
             RZResourceManager::Get().destroyDescriptorHeap(m_RenderTargetHeap);
             RZResourceManager::Get().destroyDescriptorHeap(m_DepthRenderTargetHeap);

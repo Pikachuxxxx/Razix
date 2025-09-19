@@ -1003,11 +1003,27 @@ namespace Razix {
                         continue;
                     }
 
+                    rz_gfx_descriptor_table_layout* tableLayout = &m_ShaderReflection.rootSignatureDesc.pDescriptorTableLayouts[i];
+                    if (tableLayout == NULL) {
+                        RAZIX_CORE_ASSERT("[ShaderBindMap] Descriptor table layout at index {0} is null!", i);
+                        break;
+                    }
+                    if (i != tableLayout->tableIndex) {
+                        RAZIX_CORE_ASSERT("[ShaderBindMap] Descriptor table layout index mismatch! Expected {0} but got {1}!", i, tableLayout->tableIndex);
+                        break;
+                    }
+
                     rz_gfx_descriptor_table_desc desc                      = {};
                     desc.tableIndex                                        = i;
-                    desc.resourceViewsCount                                = (u32) resViews.size();
+                    desc.descriptorCount                                   = tableLayout->descriptorCount;
+                    desc.pDescriptors                                      = tableLayout->pDescriptors;
                     rz_gfx_descriptor_heap_handle globalResourceHeapHandle = RZEngine::Get().getWorldRenderer().getResourceHeap();
                     desc.pHeap                                             = RZResourceManager::Get().getDescriptorHeapResource(globalResourceHeapHandle);
+
+                    std::string                   shaderName            = RZResourceManager::Get().getShaderResource(m_ShaderHandle)->resource.pName;
+                    std::string                   tableName             = "ShaderBindMap.DescriptorTable." + std::to_string(i) + "_" + shaderName;
+                    rz_gfx_descriptor_heap_handle descriptorTableHandle = RZResourceManager::Get().createDescriptorTable(tableName.c_str(), desc);
+                    m_DescriptorTables.push_back(descriptorTableHandle);
 
                     rz_gfx_resource_view* pResViews = (rz_gfx_resource_view*) Memory::RZMalloc(sizeof(rz_gfx_resource_view) * resViews.size());
                     for (u32 j = 0; j < resViews.size(); j++) {
@@ -1015,12 +1031,12 @@ namespace Razix {
                         RAZIX_ASSERT(rz_handle_is_valid(&resView.resourceViewHandle), "[ShaderBindMap] Invalid resource view handle for resource view {0} in table index {1}!", resView.name, i);
                         pResViews[j] = *RZResourceManager::Get().getResourceViewResource(resView.resourceViewHandle);
                     }
-                    desc.pResourceViews = pResViews;
 
-                    std::string                   shaderName            = RZResourceManager::Get().getShaderResource(m_ShaderHandle)->resource.pName;
-                    std::string                   tableName             = "ShaderBindMap.DescriptorTable." + std::to_string(i) + "_" + shaderName;
-                    rz_gfx_descriptor_heap_handle descriptorTableHandle = RZResourceManager::Get().createDescriptorTable(tableName.c_str(), desc);
-                    m_DescriptorTables.push_back(descriptorTableHandle);
+                    rz_gfx_descriptor_table_update updateDesc = {};
+                    updateDesc.pTable                         = RZResourceManager::Get().getDescriptorTableResource(descriptorTableHandle);
+                    updateDesc.resViewCount                   = resViews.size();
+                    updateDesc.pResourceViews                 = pResViews;
+                    rzRHI_UpdateDescriptorTable(descriptorTableHandle, updateDesc);
                     Memory::RZFree(pResViews);
 
                     RAZIX_CORE_INFO("[ShaderBindMap] Created descriptor table {0} for table index {1} with {2} resource views", tableName, i, resViews.size());
