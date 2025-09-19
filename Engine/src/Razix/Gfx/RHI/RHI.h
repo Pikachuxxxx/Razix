@@ -2115,6 +2115,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
         #define rzRHI_UpdateDescriptorTable(dt, updateDesc)                                                       \
             do {                                                                                                  \
+                RAZIX_PROFILE_SCOPEC("rzRHI_UpdateDescriptorTable", RZ_PROFILE_COLOR_RHI); \
                 g_RHI.UpdateDescriptorTable(RZResourceManager::Get().getDescriptorTableResource(dt), updateDesc); \
             } while (0);
 

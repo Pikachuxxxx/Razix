@@ -3813,21 +3813,21 @@ static void vk_CreateDescriptorTable(void* where)
 
     rz_gfx_descriptor_table_desc* pDesc = &pTable->resource.desc.descriptorTableDesc;
     RAZIX_RHI_ASSERT(pDesc != NULL, "Descriptor table descriptor cannot be NULL");
-    RAZIX_RHI_ASSERT(pDesc->descriptorCount> 0, "Descriptor table should have atleast 1 descriptor");
-    RAZIX_RHI_ASSERT(pDesc->pDescriptors!= NULL, "Descriptor table cannot have NULL descriprtors");
+    RAZIX_RHI_ASSERT(pDesc->descriptorCount > 0, "Descriptor table should have atleast 1 descriptor");
+    RAZIX_RHI_ASSERT(pDesc->pDescriptors != NULL, "Descriptor table cannot have NULL descriprtors");
     RAZIX_RHI_ASSERT(pDesc->pHeap != NULL, "Descriptor tables needs a heap to create the table");
-    
+
     // Create the set layout based on descriptors in the table
     VkDescriptorSetLayoutBinding* pBindings = alloca(pDesc->descriptorCount * sizeof(VkDescriptorSetLayoutBinding));
     for (uint32_t i = 0; i < pDesc->descriptorCount; i++) {
         const rz_gfx_descriptor* pDescriptor = &pDesc->pDescriptors[i];
         RAZIX_RHI_ASSERT(pDescriptor != NULL, "Descriptor in the table cannot be NULL");
         pBindings[i].binding         = pDescriptor->location.binding;
-        pBindings[i].descriptorCount   = pDescriptor->memberCount > 0 ? pDescriptor->memberCount : 1;
+        pBindings[i].descriptorCount = pDescriptor->memberCount > 0 ? pDescriptor->memberCount : 1;
         // FIXME: For simplicity, we set stageFlags to ALL, but this can be optimized based on actual usage
-        pBindings[i].stageFlags        = VK_SHADER_STAGE_ALL;    // TODO: Support stage flags
+        pBindings[i].stageFlags         = VK_SHADER_STAGE_ALL;    // TODO: Support stage flags
         pBindings[i].pImmutableSamplers = NULL;
-        pBindings[i].descriptorType    = vk_util_translate_descriptor_type(pDescriptor->type);
+        pBindings[i].descriptorType     = vk_util_translate_descriptor_type(pDescriptor->type);
     }
 
     VkDescriptorSetLayoutCreateInfo layoutInfo = {0};
@@ -3851,15 +3851,15 @@ static void vk_CreateDescriptorTable(void* where)
     TAG_OBJECT(pTable->vk.set, VK_OBJECT_TYPE_DESCRIPTOR_SET, pTable->resource.pName);
 }
 
-static void vk_UpdateDescriptorTable(void* table, const rz_gfx_resource_view* pResourceViews, uint32_t resourceViewsCount)
+static void vk_UpdateDescriptorTable(rz_gfx_descriptor_table* table, rz_gfx_descriptor_table_update tableUpdate)
 {
     rz_gfx_descriptor_table* pTable = (rz_gfx_descriptor_table*) table;
     RAZIX_RHI_ASSERT(pTable != NULL, "Descriptor table cannot be NULL");
     RAZIX_RHI_ASSERT(pTable->vk.set != VK_NULL_HANDLE, "Descriptor set in the table is invalid");
-    RAZIX_RHI_ASSERT(pResourceViews != NULL, "Resource views cannot be NULL for updating descriptor table");
-    RAZIX_RHI_ASSERT(resourceViewsCount > 0, "Resource view count must be greater than zero for updating descriptor table");
+    RAZIX_RHI_ASSERT(tableUpdate.pResourceViews != NULL, "Resource views cannot be NULL for updating descriptor table");
+    RAZIX_RHI_ASSERT(tableUpdate.resViewCount > 0, "Resource view count must be greater than zero for updating descriptor table");
 
-    vk_util_update_descriptor_set(pTable->vk.set, pResourceViews, resourceViewsCount);
+    vk_util_update_descriptor_set(pTable->vk.set, tableUpdate.pResourceViews, tableUpdate.resViewCount);
 }
 
 static void vk_DestroyDescriptorTable(void* table)
@@ -3870,7 +3870,7 @@ static void vk_DestroyDescriptorTable(void* table)
     if (pTable->vk.set != VK_NULL_HANDLE) {
         pTable->vk.set = VK_NULL_HANDLE;
     }
-    if( pTable->vk.setLayout != VK_NULL_HANDLE) {
+    if (pTable->vk.setLayout != VK_NULL_HANDLE) {
         vkDestroyDescriptorSetLayout(VKDEVICE, pTable->vk.setLayout, NULL);
         pTable->vk.setLayout = VK_NULL_HANDLE;
     }
@@ -4770,6 +4770,7 @@ rz_rhi_api vk_rhi = {
     .DrawIndirect          = vk_DrawAutoIndirect,           // DrawAutoIndirect
     .DrawIndexedIndirect   = vk_DrawIndexedAutoIndirect,    // DrawIndexedAutoIndirect
     .DispatchIndirect      = vk_DispatchIndirect,           // DispatchIndirect
+    .UpdateDescriptorTable = vk_UpdateDescriptorTable,      // UpdateDescriptorTable
     .UpdateConstantBuffer  = vk_UpdateConstantBuffer,       // UpdateConstantBuffer
     .InsertImageBarrier    = vk_InsertImageBarrier,         // InsertImageBarrier
     .InsertBufferBarrier   = vk_InsertBufferBarrier,        // InsertBufferBarrier
