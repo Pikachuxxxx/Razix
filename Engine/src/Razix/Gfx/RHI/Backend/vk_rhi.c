@@ -223,8 +223,6 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vk_util_debug_callback(
 {
     (void) pUserData;
 
-    return VK_FALSE;
-
     // Enhanced color scheme with better contrast
     const char* severityColor  = ANSI_COLOR_RESET;
     const char* severityPrefix = "";
@@ -3323,8 +3321,19 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
 
 static void vk_CreateComputePipeline(rz_gfx_pipeline* pipeline)
 {
-    const rz_gfx_shader* pShader = pipeline->resource.desc.pipelineDesc.pShader;
-    RAZIX_RHI_ASSERT(pShader != NULL, "Compute pipeline must have a valid compute shader");
+    rz_gfx_pipeline*             pso      = (rz_gfx_pipeline*) pipeline;
+    const rz_gfx_pipeline_desc*  desc     = &pso->resource.desc.pipelineDesc;
+    const rz_gfx_shader*         pShader  = desc->pShader;
+    const rz_gfx_root_signature* pRootSig = desc->pRootSig;
+
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
+    RAZIX_RHI_ASSERT(desc != NULL, "Pipeline must have a valid description");
+    RAZIX_RHI_ASSERT(desc->pShader != NULL, "Pipeline must have a valid shader");
+    RAZIX_RHI_ASSERT(desc->pRootSig != NULL, "Pipeline must have a valid root signature");
+    RAZIX_RHI_ASSERT(desc->pRootSig->vk.pipelineLayout != VK_NULL_HANDLE, "Pipeline must have a valid root signature with a valid pipeline layout");
+
+    // Cache the pipeline layout from the root signature, might be useful without having to need root signature pointer
+    pso->vk.pipelineLayout = pRootSig->vk.pipelineLayout;
 
     //----------------------------
     // Compute Pipeline
