@@ -24,8 +24,16 @@ namespace Razix {
 
         inline float4x4 getViewProjection() { return getProjection() * getViewMatrix(); }
 
-        inline float4x4 getProjection();
-        inline float4x4 getProjectionRaw();
+        inline float4x4 getProjection()
+        {
+            float4x4 proj = m_Projection;
+            return proj;
+        }
+
+        inline float4x4 getProjectionRaw()
+        {
+            return m_Projection;
+        }
 
         void setPerspective(f32 verticalFOV, f32 nearClip, f32 farClip);
         void setOrthographic(f32 size, f32 nearClip, f32 farClip);

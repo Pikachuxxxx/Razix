@@ -14,17 +14,6 @@ namespace Razix {
         recalculateProjection();
     }
 
-    RAZIX_FORCE_INLINE float4x4 RZSceneCamera::getProjection()
-    {
-        float4x4 proj = m_Projection;
-        return proj;
-    }
-
-    RAZIX_FORCE_INLINE float4x4 RZSceneCamera::getProjectionRaw()
-    {
-        return m_Projection;
-    }
-
     void RZSceneCamera::setPerspective(f32 verticalFOV, f32 nearClip, f32 farClip)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
