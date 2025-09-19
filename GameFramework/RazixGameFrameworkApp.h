@@ -10,16 +10,6 @@ public:
         : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Game/")), "RazixGame")
 
     {
-        Razix::RZApplication::Get().Init();
-
-        // Init Graphics Context
-        //-------------------------------------------------------------------------------------
-        // Creating the Graphics Context and Initialize it
-        RAZIX_CORE_INFO("Creating Graphics Context...");
-        Razix::Gfx::RZGraphicsContext::Create(RZApplication::Get().getWindowProps(), RZApplication::Get().getWindow());
-        RAZIX_CORE_INFO("Initializing Graphics Context...");
-        Razix::Gfx::RZGraphicsContext::GetContext()->Init();
-        //-------------------------------------------------------------------------------------
     }
 
     void OnStart() override
