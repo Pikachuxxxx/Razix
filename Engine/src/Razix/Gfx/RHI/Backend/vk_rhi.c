@@ -3684,6 +3684,7 @@ static void vk_CreateDescriptorHeap(void* where)
         poolInfo.flags |= VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
     }
 
+    // We assume worst case of 1 descriptor per set, this is just to allocate the total number of descriptors in the pool
     poolInfo.maxSets       = totalDescriptors;
     poolInfo.poolSizeCount = poolSizeCount;
     poolInfo.pPoolSizes    = poolSizes;
@@ -3716,6 +3717,95 @@ static void vk_DestroyDescriptorHeap(void* heap)
     }
 }
 
+static void vk_util_update_descriptor_set(VkDescriptorSet descriptorSet,
+    const rz_gfx_resource_view*                           pResourceViews,
+    uint32_t                                              resourceViewsCount)
+{
+    VkWriteDescriptorSet* pWrites = alloca(resourceViewsCount * sizeof(VkWriteDescriptorSet));
+
+    for (uint32_t i = 0; i < resourceViewsCount; i++) {
+        const rz_gfx_resource_view*      pView     = &pResourceViews[i];
+        const rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+        RAZIX_RHI_ASSERT(pView != NULL, "Resource view cannot be NULL in a descriptor table! (Descriptor Table creation)");
+        RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL in a descriptor table! (Descriptor Table creation)");
+        RAZIX_RHI_ASSERT(pViewDesc->descriptorType != RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED, "Descriptor type cannot be Combined Image sampler, due to cross-API nature vulkan backend doesn't support it!");
+
+        bool isTexture        = rzRHI_IsDescriptorTypeTexture(pViewDesc->descriptorType);
+        bool isBuffer         = rzRHI_IsDescriptorTypeBuffer(pViewDesc->descriptorType);
+        bool isSampler        = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
+        bool isConstantBuffer = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
+        RAZIX_RHI_ASSERT(isTexture || isBuffer || isSampler || isConstantBuffer, "Descriptor type must be a texture, buffer, constant buffer or sampler for descriptor table creation");
+
+        if (isTexture) {
+            const rz_gfx_texture* pTexture   = pViewDesc->textureViewDesc.pTexture;
+            pWrites[i].sType                 = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            pWrites[i].pNext                 = NULL;
+            pWrites[i].dstSet                = descriptorSet;
+            pWrites[i].dstBinding            = i;
+            pWrites[i].dstArrayElement       = 0;
+            pWrites[i].descriptorCount       = 1;
+            pWrites[i].descriptorType        = vk_util_translate_descriptor_type(pViewDesc->descriptorType);
+            VkDescriptorImageInfo* imageInfo = alloca(sizeof(VkDescriptorImageInfo));
+            imageInfo->imageView             = pView->vk.imageView;
+            imageInfo->imageLayout           = vk_util_translate_imagelayout_resstate(pTexture->resource.currentState);
+            imageInfo->sampler               = VK_NULL_HANDLE;    // Only for combined image samplers
+            pWrites[i].pImageInfo            = imageInfo;
+            pWrites[i].pBufferInfo           = NULL;
+            pWrites[i].pTexelBufferView      = NULL;
+        } else if (isBuffer) {
+            const rz_gfx_buffer* pBuffer       = pViewDesc->bufferViewDesc.pBuffer;
+            pWrites[i].sType                   = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            pWrites[i].pNext                   = NULL;
+            pWrites[i].dstSet                  = descriptorSet;
+            pWrites[i].dstBinding              = i;
+            pWrites[i].dstArrayElement         = 0;
+            pWrites[i].descriptorCount         = 1;
+            pWrites[i].descriptorType          = vk_util_translate_descriptor_type(pViewDesc->descriptorType);
+            VkDescriptorBufferInfo* bufferInfo = alloca(sizeof(VkDescriptorBufferInfo));
+            bufferInfo->buffer                 = pBuffer->vk.buffer;
+            bufferInfo->offset                 = pViewDesc->bufferViewDesc.offset;
+            bufferInfo->range                  = pViewDesc->bufferViewDesc.size;
+            pWrites[i].pBufferInfo             = bufferInfo;
+            pWrites[i].pImageInfo              = NULL;
+            pWrites[i].pTexelBufferView        = NULL;
+        } else if (isSampler) {
+            const rz_gfx_sampler* pSampler     = pViewDesc->samplerViewDesc.pSampler;
+            pWrites[i].sType                   = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            pWrites[i].pNext                   = NULL;
+            pWrites[i].dstSet                  = descriptorSet;
+            pWrites[i].dstBinding              = i;
+            pWrites[i].dstArrayElement         = 0;
+            pWrites[i].descriptorCount         = 1;
+            pWrites[i].descriptorType          = vk_util_translate_descriptor_type(pViewDesc->descriptorType);
+            VkDescriptorImageInfo* samplerInfo = alloca(sizeof(VkDescriptorImageInfo));
+            samplerInfo->sampler               = pSampler->vk.sampler;
+            samplerInfo->imageView             = VK_NULL_HANDLE;               // Only for combined image samplers
+            samplerInfo->imageLayout           = VK_IMAGE_LAYOUT_UNDEFINED;    // Not used for samplers
+            pWrites[i].pImageInfo              = samplerInfo;
+            pWrites[i].pBufferInfo             = NULL;
+            pWrites[i].pTexelBufferView        = NULL;
+        } else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT) {
+            RAZIX_RHI_LOG_ERROR("Seriously? RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT in here? bind it directly on the correct root signature. This will result in catastrophic descriptor API failure.");
+            RAZIX_RHI_ABORT();
+            return;
+        } else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED) {
+            RAZIX_RHI_LOG_ERROR("RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED is not supported with Vulkan backend. This will result in catastrophic descriptor API failure.");
+            RAZIX_RHI_ABORT();
+            return;
+        } else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE || pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE) {
+            RAZIX_RHI_LOG_ERROR("Seriously? RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE/DEPTH_STENCIL in here? create the resource views and pass them to BeginRenderPass directly to set using vkCmdBeginRenderingKHR. This will result in catastrophic descriptor API failure.");
+            RAZIX_RHI_ABORT();
+            return;
+        } else {
+            RAZIX_RHI_LOG_ERROR("Unsupported descriptor type: %d. (This is likely a bug in the if-else chain or weird data corruption has happened). This will result in catastrophic descriptor API failure.", pViewDesc->descriptorType);
+            RAZIX_RHI_ABORT();
+            return;
+        }
+    }
+
+    vkUpdateDescriptorSets(VKDEVICE, resourceViewsCount, pWrites, 0, NULL);
+}
+
 static void vk_CreateDescriptorTable(void* where)
 {
     rz_gfx_descriptor_table* pTable = (rz_gfx_descriptor_table*) where;
@@ -3723,24 +3813,53 @@ static void vk_CreateDescriptorTable(void* where)
 
     rz_gfx_descriptor_table_desc* pDesc = &pTable->resource.desc.descriptorTableDesc;
     RAZIX_RHI_ASSERT(pDesc != NULL, "Descriptor table descriptor cannot be NULL");
-    RAZIX_RHI_ASSERT(pDesc->resourceViewsCount > 0, "Descriptor table should have atleast 1 descriptor");
-    RAZIX_RHI_ASSERT(pDesc->pResourceViews != NULL, "Descriptor table cannot have NULL resource views");
+    RAZIX_RHI_ASSERT(pDesc->descriptorCount> 0, "Descriptor table should have atleast 1 descriptor");
+    RAZIX_RHI_ASSERT(pDesc->pDescriptors!= NULL, "Descriptor table cannot have NULL descriprtors");
     RAZIX_RHI_ASSERT(pDesc->pHeap != NULL, "Descriptor tables needs a heap to create the table");
-
-    for (uint32_t i = 0; i < pDesc->resourceViewsCount; i++) {
-        const rz_gfx_resource_view*      pView     = &pDesc->pResourceViews[i];
-        const rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
-        RAZIX_RHI_ASSERT(pView != NULL, "Resource view cannot be NULL in a descriptor table! (Descriptor Table creation)");
-        RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL in a descriptor table! (Descriptor Table creation)");
-
-        bool isTexture        = rzRHI_IsDescriptorTypeTexture(pViewDesc->descriptorType);
-        bool isBuffer         = rzRHI_IsDescriptorTypeBuffer(pViewDesc->descriptorType);
-        bool isSampler        = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
-        bool isConstantBuffer = pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
-        RAZIX_RHI_ASSERT(isTexture || isBuffer || isSampler || isConstantBuffer, "Descriptor type must be a texture, buffer, constant buffer or sampler for descriptor table creation");
-        bool isTextureRW = isTexture && rzRHI_IsDescriptorTypeTextureRW(pViewDesc->descriptorType);
-        bool isBufferRW  = isBuffer && rzRHI_IsDescriptorTypeBufferRW(pViewDesc->descriptorType);
+    
+    // Create the set layout based on descriptors in the table
+    VkDescriptorSetLayoutBinding* pBindings = alloca(pDesc->descriptorCount * sizeof(VkDescriptorSetLayoutBinding));
+    for (uint32_t i = 0; i < pDesc->descriptorCount; i++) {
+        const rz_gfx_descriptor* pDescriptor = &pDesc->pDescriptors[i];
+        RAZIX_RHI_ASSERT(pDescriptor != NULL, "Descriptor in the table cannot be NULL");
+        pBindings[i].binding         = pDescriptor->location.binding;
+        pBindings[i].descriptorCount   = pDescriptor->memberCount > 0 ? pDescriptor->memberCount : 1;
+        // FIXME: For simplicity, we set stageFlags to ALL, but this can be optimized based on actual usage
+        pBindings[i].stageFlags        = VK_SHADER_STAGE_ALL;    // TODO: Support stage flags
+        pBindings[i].pImmutableSamplers = NULL;
+        pBindings[i].descriptorType    = vk_util_translate_descriptor_type(pDescriptor->type);
     }
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo = {0};
+    layoutInfo.sType                           = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.pNext                           = NULL;
+    layoutInfo.flags                           = 0;
+    layoutInfo.bindingCount                    = pDesc->descriptorCount;
+    layoutInfo.pBindings                       = pBindings;
+    CHECK_VK(vkCreateDescriptorSetLayout(VKDEVICE, &layoutInfo, NULL, &pTable->vk.setLayout));
+    TAG_OBJECT(pTable->vk.setLayout, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, pTable->resource.pName);
+
+    VkDescriptorSetAllocateInfo allocInfo = {0};
+    allocInfo.sType                       = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.pNext                       = NULL;
+    allocInfo.descriptorPool              = pDesc->pHeap->vk.pool;
+    allocInfo.descriptorSetCount          = 1;
+    allocInfo.pSetLayouts                 = &pTable->vk.setLayout;
+    RAZIX_RHI_ASSERT(allocInfo.descriptorPool != VK_NULL_HANDLE, "Descriptor pool in the heap is invalid");
+    RAZIX_RHI_ASSERT(allocInfo.pSetLayouts != VK_NULL_HANDLE, "Descriptor set layout in the heap is invalid");
+    CHECK_VK(vkAllocateDescriptorSets(VKDEVICE, &allocInfo, &pTable->vk.set));
+    TAG_OBJECT(pTable->vk.set, VK_OBJECT_TYPE_DESCRIPTOR_SET, pTable->resource.pName);
+}
+
+static void vk_UpdateDescriptorTable(void* table, const rz_gfx_resource_view* pResourceViews, uint32_t resourceViewsCount)
+{
+    rz_gfx_descriptor_table* pTable = (rz_gfx_descriptor_table*) table;
+    RAZIX_RHI_ASSERT(pTable != NULL, "Descriptor table cannot be NULL");
+    RAZIX_RHI_ASSERT(pTable->vk.set != VK_NULL_HANDLE, "Descriptor set in the table is invalid");
+    RAZIX_RHI_ASSERT(pResourceViews != NULL, "Resource views cannot be NULL for updating descriptor table");
+    RAZIX_RHI_ASSERT(resourceViewsCount > 0, "Resource view count must be greater than zero for updating descriptor table");
+
+    vk_util_update_descriptor_set(pTable->vk.set, pResourceViews, resourceViewsCount);
 }
 
 static void vk_DestroyDescriptorTable(void* table)
@@ -3750,6 +3869,10 @@ static void vk_DestroyDescriptorTable(void* table)
     // Descriptor sets are freed when the descriptor pool is destroyed, they are reused from the pool as per driver internal implementation
     if (pTable->vk.set != VK_NULL_HANDLE) {
         pTable->vk.set = VK_NULL_HANDLE;
+    }
+    if( pTable->vk.setLayout != VK_NULL_HANDLE) {
+        vkDestroyDescriptorSetLayout(VKDEVICE, pTable->vk.setLayout, NULL);
+        pTable->vk.setLayout = VK_NULL_HANDLE;
     }
 }
 

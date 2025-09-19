@@ -123,16 +123,16 @@ extern "C"
     #define RAZIX_RHI_LOG_TRACE(...)
 #else
     #define RAZIX_RHI_LOG_INFO(fmt, ...) \
-        printf(ANSI_COLOR_GREEN  " [RHI/INFO]         [%s]" ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+        printf(ANSI_COLOR_GREEN " [RHI/INFO]         [%s]" ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
 
     #define RAZIX_RHI_LOG_WARN(fmt, ...) \
         printf(ANSI_COLOR_YELLOW " [RHI/WARN]         [%s] " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
 
     #define RAZIX_RHI_LOG_ERROR(fmt, ...) \
-        printf(ANSI_COLOR_RED    " [RHI/ERROR]        [%s]" ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+        printf(ANSI_COLOR_RED " [RHI/ERROR]        [%s]" ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
 
     #define RAZIX_RHI_LOG_TRACE(fmt, ...) \
-        printf(ANSI_COLOR_CYAN   " [RHI/TRACE]        [%s]" ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+        printf(ANSI_COLOR_CYAN " [RHI/TRACE]        [%s]" ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
 #endif    // RAZIX_GOLD_MASTER
 
 #if defined(_MSC_VER)
@@ -946,10 +946,17 @@ static inline unsigned int rz_clz32(unsigned int x)
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table_desc
     {
         uint32_t                tableIndex;
-        rz_gfx_resource_view*   pResourceViews;    // Only for temporary table creation, we cache the handles that the user can free during descriptor table destruction
-        uint32_t                resourceViewsCount;
+        rz_gfx_descriptor*      pDescriptors;
+        uint32_t                descriptorCount;
         rz_gfx_descriptor_heap* pHeap;
     } rz_gfx_descriptor_table_desc;
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table_update
+    {
+        rz_gfx_descriptor_table* pTable;
+        uint32_t                 resViewCount;
+        rz_gfx_resource_view*    pResourceViews;
+    } rz_gfx_descriptor_table_update;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor_table_layout
     {
@@ -1609,7 +1616,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_DrawIndexedIndirectFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* argumentBuffer, uint32_t argumentBufferOffset, uint32_t drawCount);
     typedef void (*rzRHI_DispatchIndirectFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* argumentBuffer, uint32_t argumentBufferOffset, uint32_t dispatchCount);
 
-    typedef void (*rzRHI_UpdateDescriptorTableFn)(rz_gfx_descriptor_table* table, rz_gfx_resource_view* view, uint32_t binding);
+    typedef void (*rzRHI_UpdateDescriptorTableFn)(rz_gfx_descriptor_table* table, rz_gfx_descriptor_table_update tableUpdate);
     typedef void (*rzRHI_UpdateConstantBufferFn)(rz_gfx_buffer_update bufferUpdate);
 
     typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state oldState, rz_gfx_resource_state newState);
@@ -1831,13 +1838,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_DrawIndexedIndirect(cb, bu, offset, maxDrawCount)  g_RHI.DrawIndexedIndirect(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), offset, maxDrawCount)
         #define rzRHI_DispatchIndirect(cb, bu, offset, maxDispatchCount) g_RHI.DispatchIndirect(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), offset, maxDispatchCount)
 
-        #define rzRHI_UpdateDescriptorTable(dt, rv, N)                                                         \
-            do {                                                                                               \
-                rz_gfx_resource_view* _rvs[N];                                                                 \
-                for (uint32_t i = 0; i < N; i++)                                                               \
-                    _rvs[i] = RZResourceManager::Get().getResourceViewResource(rv);                            \
-                g_RHI.UpdateDescriptorTable(RZResourceManager::Get().getDescriptorTableResource(dt), _rvs, N); \
-            } while (0);
+        #define rzRHI_UpdateDescriptorTable(table, updateDesc)      g_RHI.UpdateDescriptorTable(RZResourceManager::Get().getDescriptorTableResource(table), updateDesc)
         #define rzRHI_UpdateConstantBuffer(bu)                      g_RHI.UpdateConstantBuffer(bu)
         #define rzRHI_InsertImageBarrier(cb, text, bs, as)          g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(text), bs, as)
         #define rzRHI_InsertSwapchainImageBarrier(cb, text, bs, as) g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), text, bs, as)
@@ -2112,27 +2113,10 @@ static inline unsigned int rz_clz32(unsigned int x)
                     maxDispatchCount);                                                           \
             } while (0)
 
-        #define rzRHI_UpdateDescriptorTable(dt, rv, N)                                                         \
-            do {                                                                                               \
-                RAZIX_PROFILE_SCOPEC("rzRHI_UpdateDescriptorTable", RZ_PROFILE_COLOR_RHI);                     \
-                rz_gfx_resource_view* _rvs[N];                                                                 \
-                for (uint32_t i = 0; i < N; i++)                                                               \
-                    _rvs[i] = RZResourceManager::Get().getResourceViewResource(rv[i]);                         \
-                g_RHI.UpdateDescriptorTable(RZResourceManager::Get().getDescriptorTableResource(dt), _rvs, N); \
+        #define rzRHI_UpdateDescriptorTable(dt, updateDesc)                                                       \
+            do {                                                                                                  \
+                g_RHI.UpdateDescriptorTable(RZResourceManager::Get().getDescriptorTableResource(dt), updateDesc); \
             } while (0);
-
-        #define rzRHI_UpdateDescriptorTableContainer(dt, rvs)                                   \
-            do {                                                                                \
-                RAZIX_PROFILE_SCOPEC("rzRHI_UpdateDescriptorTable", RZ_PROFILE_COLOR_RHI);      \
-                std::vector<rz_gfx_resource_view*> rvPtrs;                                      \
-                rvPtrs.reserve((rvs).size());                                                   \
-                for (const auto& handle: (rvs))                                                 \
-                    rvPtrs.push_back(RZResourceManager::Get().getResourceViewResource(handle)); \
-                g_RHI.UpdateDescriptorTable(                                                    \
-                    RZResourceManager::Get().getDescriptorTableResource(dt),                    \
-                    rvPtrs.data(),                                                              \
-                    rvPtrs.size());                                                             \
-            } while (0)
 
         #define rzRHI_UpdateConstantBuffer(bu)                                            \
             do {                                                                          \
@@ -2447,10 +2431,10 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC_END();                                                      \
             } while (0)
 
-        #define rzRHI_UpdateDescriptorTable(dt, rv, N)                                     \
+        #define rzRHI_UpdateDescriptorTable(dt, updatedesc)                                \
             do {                                                                           \
                 RAZIX_PROFILE_SCOPEC("rzRHI_UpdateDescriptorTable", RZ_PROFILE_COLOR_RHI); \
-                g_RHI.UpdateDescriptorTable(dt, rv, N);                                    \
+                g_RHI.UpdateDescriptorTable(dt, updatedesc);                               \
                 RAZIX_PROFILE_SCOPEC_END();                                                \
             } while (0);
 
