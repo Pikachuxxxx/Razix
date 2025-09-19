@@ -123,16 +123,16 @@ extern "C"
     #define RAZIX_RHI_LOG_TRACE(...)
 #else
     #define RAZIX_RHI_LOG_INFO(fmt, ...) \
-        printf(ANSI_COLOR_GREEN "[%s] [RHI/INFO]  " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+        printf(ANSI_COLOR_GREEN  " [RHI/INFO]         [%s]" ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
 
     #define RAZIX_RHI_LOG_WARN(fmt, ...) \
-        printf(ANSI_COLOR_YELLOW "[%s] [RHI/WARN]  " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+        printf(ANSI_COLOR_YELLOW " [RHI/WARN]         [%s] " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
 
     #define RAZIX_RHI_LOG_ERROR(fmt, ...) \
-        printf(ANSI_COLOR_RED "[%s] [RHI/ERROR] " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+        printf(ANSI_COLOR_RED    " [RHI/ERROR]        [%s]" ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
 
     #define RAZIX_RHI_LOG_TRACE(fmt, ...) \
-        printf(ANSI_COLOR_CYAN "[%s] [RHI/TRACE] " ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
+        printf(ANSI_COLOR_CYAN   " [RHI/TRACE]        [%s]" ANSI_COLOR_RESET fmt "\n", _rhi_log_timestamp(), ##__VA_ARGS__)
 #endif    // RAZIX_GOLD_MASTER
 
 #if defined(_MSC_VER)
