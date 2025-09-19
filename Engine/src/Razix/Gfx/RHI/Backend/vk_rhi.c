@@ -2517,6 +2517,38 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
 
     volkLoadDevice(VKCONTEXT.device);
 
+    VkPhysicalDeviceFeatures2                  features2                 = {0};
+    VkPhysicalDeviceProperties2                props2                    = {0};
+    VkPhysicalDeviceDescriptorIndexingFeatures indexingFeatures          = {0};
+    VkPhysicalDeviceSubgroupProperties         subgroupProps             = {0};
+    VkPhysicalDeviceTimelineSemaphoreFeatures  timelineSemaphoreFeatures = {0};
+    VkPhysicalDeviceRobustness2FeaturesEXT     robustness2Features       = {0};
+
+    features2.sType                 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    props2.sType                    = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+    indexingFeatures.sType          = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
+    subgroupProps.sType             = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES;
+    timelineSemaphoreFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES;
+    robustness2Features.sType       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT;
+
+    features2.pNext                 = &indexingFeatures;
+    indexingFeatures.pNext          = &timelineSemaphoreFeatures;
+    timelineSemaphoreFeatures.pNext = &robustness2Features;
+    props2.pNext                    = &subgroupProps;
+
+    vkGetPhysicalDeviceFeatures2(VKGPU, &features2);
+    vkGetPhysicalDeviceProperties2(VKGPU, &props2);
+
+    g_GraphicsFeatures.support.TesselateTerrain     = features2.features.tessellationShader == VK_TRUE;
+    g_GraphicsFeatures.support.BindlessRendering    = indexingFeatures.descriptorBindingPartiallyBound && indexingFeatures.runtimeDescriptorArray;
+    g_GraphicsFeatures.support.WaveIntrinsics       = (subgroupProps.supportedOperations & VK_SUBGROUP_FEATURE_BASIC_BIT) != 0;
+    g_GraphicsFeatures.support.ShaderModel6         = (subgroupProps.supportedOperations & VK_SUBGROUP_FEATURE_BASIC_BIT) != 0;    // adapt if you have better check
+    g_GraphicsFeatures.support.NullIndexDescriptors = robustness2Features.nullDescriptor == VK_TRUE;
+    g_GraphicsFeatures.support.TimelineSemaphores   = false;    // timelineSemaphoreFeatures.timelineSemaphore == VK_TRUE; // FIXME: Temporarily disabled due to issues on some drivers
+    g_GraphicsFeatures.MaxBindlessTextures          = props2.properties.limits.maxPerStageDescriptorSampledImages;
+    g_GraphicsFeatures.MinLaneWidth                 = subgroupProps.subgroupSize;
+    g_GraphicsFeatures.MaxLaneWidth                 = subgroupProps.subgroupSize;
+
     RAZIX_RHI_LOG_INFO("Vulkan RHI backend initialized successfully");
 }
 
