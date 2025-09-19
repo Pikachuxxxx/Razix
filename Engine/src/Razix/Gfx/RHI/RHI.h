@@ -1169,16 +1169,21 @@ static inline unsigned int rz_clz32(unsigned int x)
         void*            user;
     } rz_alloc_callbacks;
 
+    typedef struct rz_gfx_context_desc
+    {
+        struct
+        {
+            uint32_t enableValidation : 1;
+        } opts;
+    } rz_gfx_context_desc;
+
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_context
     {
-        uint32_t      width;
-        uint32_t      height;
-        uint32_t      frameIndex;
-        rz_render_api renderAPI;
         // TODO: Store a ref to malloc/calloc/free C-style callback functions for RHI memory needs
         // All global submission queues are managed within the internal contexts
         union
         {
+            rz_gfx_context_desc ctxDesc;
 #ifdef RAZIX_RENDER_API_VULKAN
             vk_ctx vk;
 #endif
@@ -1510,7 +1515,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     //---------------------------------------------------------------------------------------------
     // Gfx API
 
-    RAZIX_RHI_API void rzGfxCtx_StartUp();
+    RAZIX_RHI_API void rzGfxCtx_StartUp(rz_gfx_context_desc init);
     RAZIX_RHI_API void rzGfxCtx_ShutDown();
 
     RAZIX_RHI_API rz_render_api rzGfxCtx_GetRenderAPI();
@@ -1538,7 +1543,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     /**
      * Rendering API initialization like Instance, Device Creation etc. will happen here! one master place to start it all up!
      */
-    typedef void (*rzRHI_GlobalCtxInitFn)(void);
+    typedef void (*rzRHI_GlobalCtxInitFn)(rz_gfx_context_desc init);
     typedef void (*rzRHI_GlobalCtxDestroyFn)(void);
 
     //** NON-RESOURCE EXCEPTION **

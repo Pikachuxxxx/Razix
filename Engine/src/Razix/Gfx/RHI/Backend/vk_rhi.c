@@ -223,6 +223,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vk_util_debug_callback(
 {
     (void) pUserData;
 
+    return VK_FALSE;
+
     // Enhanced color scheme with better contrast
     const char* severityColor  = ANSI_COLOR_RESET;
     const char* severityPrefix = "";
@@ -1754,7 +1756,7 @@ static void vk_util_create_logical_device(void)
     CHECK_VK(vkCreateDevice(VKCONTEXT.gpu, &createInfo, NULL, &VKCONTEXT.device));
 
     vkGetDeviceQueue(VKCONTEXT.device, indices.graphicsFamily, 0, &VKCONTEXT.graphicsQueue);
-    vkGetDeviceQueue(VKCONTEXT.device, indices.presentFamily, 0, &VKCONTEXT.presentQueue);
+    //vkGetDeviceQueue(VKCONTEXT.device, indices.presentFamily, 0, &VKCONTEXT.presentQueue);
 }
 
 static vk_cmdbuf vk_util_begin_singletime_cmdlist(void)
@@ -2393,16 +2395,20 @@ static void vk_util_transition_subresource(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_t
 
 //---------------------------------------------------------------------------------------------
 
-static void vk_GlobalCtxInit(void)
+static void vk_GlobalCtxInit(rz_gfx_context_desc init)
 {
     RAZIX_RHI_LOG_INFO("Initializing Vulkan RHI backend");
+
+    g_GfxCtx.ctxDesc = init;
 
     volkInitialize();
 
     // Check validation layer support
-    if (!vk_util_check_validation_layer_support()) {
-        RAZIX_RHI_LOG_ERROR("Validation lay.hers requested, but not available");
-        return;
+    if (init.opts.enableValidation) {
+        if (!vk_util_check_validation_layer_support()) {
+            RAZIX_RHI_LOG_ERROR("Validation lay.hers requested, but not available");
+            return;
+        }
     }
 
     // Check instance extension support
@@ -2427,8 +2433,10 @@ static void vk_GlobalCtxInit(void)
     createInfo.ppEnabledExtensionNames = s_RequiredInstanceExtensions;
 
 #ifdef RAZIX_DEBUG
-    createInfo.enabledLayerCount   = sizeof(s_ValidationLayers) / sizeof(s_ValidationLayers[0]);
-    createInfo.ppEnabledLayerNames = s_ValidationLayers;
+    if (init.opts.enableValidation) {
+        createInfo.enabledLayerCount   = sizeof(s_ValidationLayers) / sizeof(s_ValidationLayers[0]);
+        createInfo.ppEnabledLayerNames = s_ValidationLayers;
+    }
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {0};
     debugCreateInfo.sType                              = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;

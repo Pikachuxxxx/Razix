@@ -12,7 +12,7 @@ RAZIX_RHI_API rz_gfx_features g_GraphicsFeatures = {0};
 RAZIX_RHI_API extern const rz_rhi_api vk_rhi;
 RAZIX_RHI_API extern const rz_rhi_api dx12_rhi;
 
-void rzGfxCtx_StartUp()
+void rzGfxCtx_StartUp(rz_gfx_context_desc init)
 {
     switch (g_RenderAPI) {
             // Load the DLL and then initialize RHI table
@@ -34,7 +34,7 @@ void rzGfxCtx_StartUp()
             break;
     }
 
-    rzGfxCtx_GlobalCtxInit();
+    rzGfxCtx_GlobalCtxInit(init);
 }
 
 void rzGfxCtx_ShutDown()

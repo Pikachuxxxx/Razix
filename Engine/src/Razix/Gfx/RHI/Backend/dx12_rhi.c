@@ -1833,9 +1833,11 @@ static void dx12_util_destroy_command_signatures(dx12_ctx* ctx)
 //---------------------------------------------------------------------------------------------
 // Public API functions
 
-static void dx12_GlobalCtxInit(void)
+static void dx12_GlobalCtxInit(rz_gfx_context_desc init)
 {
     RAZIX_RHI_LOG_INFO("Creating DXGI factory");
+
+    g_GfxCtx.ctxDesc = init;
 
     UINT createFactoryFlags = 0;
 #if defined(RAZIX_DEBUG)
@@ -1859,7 +1861,8 @@ static void dx12_GlobalCtxInit(void)
 
 #ifdef RAZIX_DEBUG
     // We register D3D12Debug interface before device create
-    dx12_util_register_debug_interface(&DX12Context);
+    if (init.opts.enableValidation)
+        dx12_util_register_debug_interface(&DX12Context);
 #endif
 
     // Create the device
@@ -1871,11 +1874,12 @@ static void dx12_GlobalCtxInit(void)
     }
 
 #ifdef RAZIX_DEBUG
-    // TODO: Use engine setting to enable/disable debugging
-    // Register the D3D12 info queue after device creation
-    dx12_util_d3d12_register_info_queue(&DX12Context);
-    // Register the DXGI info queue
-    dx12_util_dxgi_register_info_queue(&DX12Context);
+    if (init.opts.enableValidation) {
+        // Register the D3D12 info queue after device creation
+        dx12_util_d3d12_register_info_queue(&DX12Context);
+        // Register the DXGI info queue
+        dx12_util_dxgi_register_info_queue(&DX12Context);
+    }
     // Print the D3D12 features
     dx12_util_query_features(&DX12Context);
     dx12_util_print_device_info(DX12Context.adapter4);
@@ -1938,8 +1942,10 @@ static void dx12_GlobalCtxDestroy(void)
     }
 
 #ifdef RAZIX_DEBUG
-    dx12_util_destroy_debug_handles(&DX12Context);
-    dx12_util_track_dxgi_liveobjects(&DX12Context);
+    if (g_GfxCtx.ctxDesc.opts.enableValidation) {
+        dx12_util_destroy_debug_handles(&DX12Context);
+        dx12_util_track_dxgi_liveobjects(&DX12Context);
+    }
 #endif
 
     RAZIX_RHI_LOG_INFO("DX12 RHI backend destroyed");
