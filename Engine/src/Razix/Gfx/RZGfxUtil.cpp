@@ -487,7 +487,9 @@ namespace Razix {
                 uint32_t bpp           = 0;
                 textureDesc.pPixelData = Razix::Utilities::LoadImageData(physicalPath.c_str(), &textureDesc.width, &textureDesc.height, &bpp);
             }
-            textureDesc.mipLevels     = rzRHI_GetMipLevelCount(textureDesc.width, textureDesc.height);
+            textureDesc.mipLevels = 1;
+            // FIXME: Disable mips temporarily until rzRHI_GenerateMips is fixed for internal usage, as dx12 needs explicit shader for generating mips
+            //rzRHI_GetMipLevelCount(textureDesc.width, textureDesc.height);
             textureDesc.depth         = 1;
             textureDesc.arraySize     = 1;
             textureDesc.textureType   = RZ_GFX_TEXTURE_TYPE_2D;
