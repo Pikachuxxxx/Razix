@@ -249,7 +249,7 @@ namespace Razix {
                     rzRHI_BindGfxRootSig(cmdBuffer, m_RootSigHandle);
                     rzRHI_BindPipeline(cmdBuffer, m_Pipeline);
 
-                    rz_gfx_descriptor_heap_handle heaps[] = {RZEngine::Get().getWorldRenderer().getResourceHeap()};
+                    const rz_gfx_descriptor_heap_handle heaps[] = {RZEngine::Get().getWorldRenderer().getResourceHeap()};
                     rzRHI_BindDescriptorHeaps(cmdBuffer, heaps, 1);
 
                     if (RZFrameGraph::IsFirstFrame()) {

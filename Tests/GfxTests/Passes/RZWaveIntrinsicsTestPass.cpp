@@ -97,7 +97,7 @@ namespace Razix {
                     rzRHI_BindPipeline(cmdBuffer, m_Pipeline);
 
                     // Bind descriptor heaps and tables
-                    rz_gfx_descriptor_heap_handle heaps[] = {
+                    const rz_gfx_descriptor_heap_handle heaps[] = {
                         RZEngine::Get().getWorldRenderer().getResourceHeap(),
                     };
 

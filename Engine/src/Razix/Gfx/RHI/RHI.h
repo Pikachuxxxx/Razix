@@ -1603,8 +1603,8 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_BindGfxRootSigFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_signature* rootSig);
     typedef void (*rzRHI_BindComputeRootSigFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_signature* rootSig);
 
-    typedef void (*rzRHI_BindDescriptorHeapsFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_descriptor_heap** heaps, uint32_t heapCount);
-    typedef void (*rzRHI_BindDescriptorTablesFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type pipelineType, const rz_gfx_root_signature* rootSig, rz_gfx_descriptor_table** tables, uint32_t tableCount);
+    typedef void (*rzRHI_BindDescriptorHeapsFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_descriptor_heap** heaps, uint32_t heapCount);
+    typedef void (*rzRHI_BindDescriptorTablesFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type pipelineType, const rz_gfx_root_signature* rootSig, const rz_gfx_descriptor_table** tables, uint32_t tableCount);
 
     typedef void (*rzRHI_BindVertexBuffersFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* const* buffers, uint32_t bufferCount, const uint32_t* offsets, const uint32_t* strides);
     typedef void (*rzRHI_BindIndexBufferFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer, uint32_t offset, rz_gfx_index_type indexType);
@@ -1767,7 +1767,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_BindComputeRootSig(cb, rs)   g_RHI.BindComputeRootSig(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getRootSignatureResource(rs))
         #define rzRHI_BindDescriptorHeaps(cb, heapHandles, N)                                                \
             do {                                                                                             \
-                rz_gfx_descriptor_heap* _heaps[N];                                                           \
+                const rz_gfx_descriptor_heap* _heaps[N];                                                     \
                 for (uint32_t i = 0; i < N; i++)                                                             \
                     _heaps[i] = RZResourceManager::Get().getDescriptorHeapResource(heaps);                   \
                 g_RHI.BindDescriptorHeaps(RZResourceManager::Get().getCommandBufferResource(cb), _heaps, N); \
@@ -1775,7 +1775,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
         #define rzRHI_BindDescriptorHeapsContainer(cb, heaps)                                       \
             do {                                                                                    \
-                std::vector<rz_gfx_descriptor_heap*> heapPtrs;                                      \
+                std::vector<const rz_gfx_descriptor_heap*> heapPtrs;                                \
                 heapPtrs.reserve((heaps).size());                                                   \
                 for (const auto& handle: (heaps))                                                   \
                     heapPtrs.push_back(RZResourceManager::Get().getDescriptorHeapResource(handle)); \
@@ -1787,7 +1787,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
         #define rzRHI_BindDescriptorTables(cb, ppt, rs, dts, N)                                                                                                         \
             do {                                                                                                                                                        \
-                rz_gfx_descriptor_table* dts[N];                                                                                                                        \
+                const rz_gfx_descriptor_table* dts[N];                                                                                                                  \
                 for (uint32_t i = 0; i < N; i++)                                                                                                                        \
                     _dts[i] = RZResourceManager::Get().getDescriptorTableResource(dts);                                                                                 \
                 g_RHI.BindDescriptorTables(RZResourceManager::Get().getCommandBufferResource(cb), ppt, RZResourceManager::Get().getRootSignatureResource(rs), _dts, N); \
@@ -1795,7 +1795,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
         #define rzRHI_BindDescriptorTablesContainer(cb, ppt, rs, dts)                                 \
             do {                                                                                      \
-                std::vector<rz_gfx_descriptor_table*> tablePtrs;                                      \
+                std::vector<const rz_gfx_descriptor_table*> tablePtrs;                                \
                 tablePtrs.reserve((dts).size());                                                      \
                 for (const auto& handle: (dts))                                                       \
                     tablePtrs.push_back(RZResourceManager::Get().getDescriptorTableResource(handle)); \
@@ -1990,7 +1990,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_BindDescriptorHeaps(cb, heapHandles, N)                                                \
             do {                                                                                             \
                 RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorHeaps", RZ_PROFILE_COLOR_RHI_DRAW_CALLS);          \
-                rz_gfx_descriptor_heap* _heaps[N];                                                           \
+                const rz_gfx_descriptor_heap* _heaps[N];                                                     \
                 for (uint32_t i = 0; i < N; i++)                                                             \
                     _heaps[i] = RZResourceManager::Get().getDescriptorHeapResource(heaps[i]);                \
                 g_RHI.BindDescriptorHeaps(RZResourceManager::Get().getCommandBufferResource(cb), _heaps, N); \
@@ -2001,7 +2001,7 @@ static inline unsigned int rz_clz32(unsigned int x)
             do {                                                                                    \
                 RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorHeaps",                                   \
                     RZ_PROFILE_COLOR_RHI_DRAW_CALLS);                                               \
-                std::vector<rz_gfx_descriptor_heap*> heapPtrs;                                      \
+                std::vector<const rz_gfx_descriptor_heap*> heapPtrs;                                \
                 heapPtrs.reserve((heaps).size());                                                   \
                 for (const auto& handle: (heaps))                                                   \
                     heapPtrs.push_back(RZResourceManager::Get().getDescriptorHeapResource(handle)); \
@@ -2014,7 +2014,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_BindDescriptorTables(cb, ppt, rs, dts, N)                                                                                                         \
             do {                                                                                                                                                        \
                 RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorTables", RZ_PROFILE_COLOR_RHI_DRAW_CALLS);                                                                    \
-                rz_gfx_descriptor_table* _dts[N];                                                                                                                       \
+                const rz_gfx_descriptor_table* _dts[N];                                                                                                                 \
                 for (uint32_t i = 0; i < N; i++)                                                                                                                        \
                     _dts[i] = RZResourceManager::Get().getDescriptorTableResource(dts[i]);                                                                              \
                 g_RHI.BindDescriptorTables(RZResourceManager::Get().getCommandBufferResource(cb), ppt, RZResourceManager::Get().getRootSignatureResource(rs), _dts, N); \
@@ -2023,7 +2023,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_BindDescriptorTablesContainer(cb, ppt, rs, dts)                                 \
             do {                                                                                      \
                 RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorTables", RZ_PROFILE_COLOR_RHI_DRAW_CALLS);  \
-                std::vector<rz_gfx_descriptor_table*> tablePtrs;                                      \
+                std::vector<const rz_gfx_descriptor_table*> tablePtrs;                                \
                 tablePtrs.reserve((dts).size());                                                      \
                 for (const auto& handle: (dts))                                                       \
                     tablePtrs.push_back(RZResourceManager::Get().getDescriptorTableResource(handle)); \
