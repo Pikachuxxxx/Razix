@@ -4774,6 +4774,118 @@ static void vk_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_textu
     vkFreeMemory(VKDEVICE, stagingBufferMemory, NULL);
 }
 
+static void vk_InsertBufferReadback(const rz_gfx_buffer* buffer, rz_gfx_buffer_readback* readback)
+{
+    RAZIX_RHI_ASSERT(buffer != NULL, "Buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(readback != NULL, "Readback structure cannot be NULL");
+
+    VkBuffer srcBuffer = buffer->vk.buffer;
+    uint32_t size      = buffer->resource.desc.bufferDesc.sizeInBytes;
+
+    vk_cmdbuf cmdBuf = vk_util_begin_singletime_cmdlist();
+
+    // Create staging buffer for readback
+    VkBuffer       stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    VkBufferCreateInfo bufferInfo = {
+        .sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size        = size,
+        .usage       = VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
+
+    CHECK_VK(vkCreateBuffer(VKDEVICE, &bufferInfo, NULL, &stagingBuffer));
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(VKDEVICE, stagingBuffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {
+        .sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .allocationSize  = memRequirements.size,
+        .memoryTypeIndex = vk_util_find_memory_type(memRequirements.memoryTypeBits,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)};
+
+    CHECK_VK(vkAllocateMemory(VKDEVICE, &allocInfo, NULL, &stagingBufferMemory));
+    CHECK_VK(vkBindBufferMemory(VKDEVICE, stagingBuffer, stagingBufferMemory, 0));
+
+    VkAccessFlags srcAccessMask = vk_util_access_flags_translate(buffer->resource.currentState);
+
+    // Transition buffer to transfer source
+    VkBufferMemoryBarrier barrier = {
+        .sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+        .srcAccessMask       = srcAccessMask,
+        .dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer              = srcBuffer,
+        .offset              = 0,
+        .size                = VK_WHOLE_SIZE};
+
+    vkCmdPipelineBarrier(cmdBuf.cmdBuf,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        0,
+        0,
+        NULL,
+        1,
+        &barrier,
+        0,
+        NULL);
+
+    // Copy buffer to staging buffer
+    VkBufferCopy copyRegion = {
+        .srcOffset = readback->offset,
+        .dstOffset = 0,
+        .size      = size - readback->offset};
+
+    vkCmdCopyBuffer(cmdBuf.cmdBuf, srcBuffer, stagingBuffer, 1, &copyRegion);
+
+    // Transition buffer back to original state
+    VkBufferMemoryBarrier restoreBarrier = {
+        .sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+        .srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT,
+        .dstAccessMask       = srcAccessMask,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer              = srcBuffer,
+        .offset              = 0,
+        .size                = VK_WHOLE_SIZE};
+
+    vkCmdPipelineBarrier(cmdBuf.cmdBuf,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        0,
+        0,
+        NULL,
+        1,
+        &restoreBarrier,
+        0,
+        NULL);
+
+    // Submit and wait for completion
+    vk_util_end_singletime_cmdlist(cmdBuf);
+
+    // Map the staging buffer and copy data
+    void* mappedData;
+    CHECK_VK(vkMapMemory(VKDEVICE, stagingBufferMemory, 0, size - readback->offset, 0, &mappedData));
+
+    readback->sizeInBytes = size - readback->offset;
+    // TODO: Get a malloc CB from user, and use that instead of allocating memory from RHI
+    // Note: Pray to god that user will free this memory
+    readback->data = malloc(readback->sizeInBytes);
+
+    if (readback->data) {
+        memcpy(readback->data, mappedData, readback->sizeInBytes);
+    }
+
+    vkUnmapMemory(VKDEVICE, stagingBufferMemory);
+
+    // Cleanup staging buffer
+    vkDestroyBuffer(VKDEVICE, stagingBuffer, NULL);
+    vkFreeMemory(VKDEVICE, stagingBufferMemory, NULL);
+}
+
 static void vk_SignalGPU(rz_gfx_syncobj* syncobj)
 {
     RAZIX_RHI_ASSERT(syncobj != NULL, "Sync object cannot be null");
@@ -4881,6 +4993,7 @@ rz_rhi_api vk_rhi = {
     .InsertImageBarrier    = vk_InsertImageBarrier,         // InsertImageBarrier
     .InsertBufferBarrier   = vk_InsertBufferBarrier,        // InsertBufferBarrier
     .InsertTextureReadback = vk_InsertTextureReadback,      // InsertTextureReadback
+    .InsertBufferReadback  = vk_InsertBufferReadback,       // InsertBufferReadback
 
     .SignalGPU       = vk_SignalGPU,          // SignalGPU
     .FlushGPUWork    = vk_FlushGPUWork,       // FlushGPUWork
