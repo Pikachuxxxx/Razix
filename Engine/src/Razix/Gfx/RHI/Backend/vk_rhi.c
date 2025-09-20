@@ -5338,6 +5338,164 @@ static void vk_CopyTextureToBufferFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_t
         &restoreImageBarrier);
 }
 
+static void vk_GenerateMipmapsFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* texture)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
+
+    const rz_gfx_texture_desc* desc      = &texture->resource.desc.textureDesc;
+    VkImage                    image     = texture->vk.image;
+    uint32_t                   mipLevels = desc->mipLevels;
+    RAZIX_RHI_ASSERT(mipLevels > 1, "Texture must have more than one mip level to generate mipmaps");
+
+    VkImageAspectFlags aspectFlags    = vk_util_deduce_image_aspect_flags(desc->format);
+    VkAccessFlags      originalAccess = vk_util_access_flags_translate(texture->resource.currentState);
+    VkImageLayout      originalLayout = vk_util_translate_imagelayout_resstate(texture->resource.currentState);
+
+    // Transition entire image to transfer src optimal for mip generation
+    VkImageMemoryBarrier initialBarrier = {
+        .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .srcAccessMask       = originalAccess,
+        .dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT,
+        .oldLayout           = originalLayout,
+        .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image               = image,
+        .subresourceRange    = {
+               .aspectMask     = aspectFlags,
+               .baseMipLevel   = 0,
+               .levelCount     = 1,
+               .baseArrayLayer = 0,
+               .layerCount     = 1}};
+
+    vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        0,
+        0,
+        NULL,
+        0,
+        NULL,
+        1,
+        &initialBarrier);
+
+    int32_t mipWidth  = desc->width;
+    int32_t mipHeight = desc->height;
+
+    for (uint32_t i = 1; i < mipLevels; i++) {
+        // Transition current mip level to transfer dst optimal
+        VkImageMemoryBarrier dstBarrier = {
+            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT,
+            .dstAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED,
+            .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image               = image,
+            .subresourceRange    = {
+                   .aspectMask     = aspectFlags,
+                   .baseMipLevel   = i,
+                   .levelCount     = 1,
+                   .baseArrayLayer = 0,
+                   .layerCount     = 1}};
+
+        vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            0,
+            0,
+            NULL,
+            0,
+            NULL,
+            1,
+            &dstBarrier);
+
+        // FIXME: Currently only linear filtering is supported, we should check if the format supports linear filtering
+        // FIXME: Also support multiple array layers for pre-filtered specular cubemaps (ex. in IBL PBR) and texture arrays
+        // Blit from previous mip level to current
+        VkImageBlit blit = {
+            .srcSubresource = {
+                .aspectMask     = aspectFlags,
+                .mipLevel       = i - 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1},
+            .srcOffsets     = {{0, 0, 0}, {mipWidth, mipHeight, 1}},
+            .dstSubresource = {.aspectMask = aspectFlags, .mipLevel = i, .baseArrayLayer = 0, .layerCount = 1},
+            .dstOffsets     = {{0, 0, 0}, {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1}}};
+
+        vkCmdBlitImage(cmdBuf->vk.cmdBuf,
+            image,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            image,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            1,
+            &blit,
+            VK_FILTER_LINEAR);
+
+        // Transition current mip level to transfer src optimal for next iteration
+        VkImageMemoryBarrier srcBarrier = {
+            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT,
+            .oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image               = image,
+            .subresourceRange    = {
+                   .aspectMask     = aspectFlags,
+                   .baseMipLevel   = i,
+                   .levelCount     = 1,
+                   .baseArrayLayer = 0,
+                   .layerCount     = 1}};
+
+        vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            0,
+            0,
+            NULL,
+            0,
+            NULL,
+            1,
+            &srcBarrier);
+
+        // Halve dimensions for next mip level
+        if (mipWidth > 1) mipWidth /= 2;
+        if (mipHeight > 1) mipHeight /= 2;
+    }
+
+    // Transition entire image back to original layout
+    VkImageMemoryBarrier finalBarrier = {
+        .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT,
+        .dstAccessMask       = originalAccess,
+        .oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        .newLayout           = originalLayout,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image               = image,
+        .subresourceRange    = {
+               .aspectMask     = aspectFlags,
+               .baseMipLevel   = 0,
+               .levelCount     = mipLevels,
+               .baseArrayLayer = 0,
+               .layerCount     = 1}};
+
+    vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        0,
+        0,
+        NULL,
+        0,
+        NULL,
+        1,
+        &finalBarrier);
+}
+
 static void vk_SignalGPU(rz_gfx_syncobj* syncobj)
 {
     RAZIX_RHI_ASSERT(syncobj != NULL, "Sync object cannot be null");
