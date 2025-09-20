@@ -5223,6 +5223,121 @@ static void vk_CopyBufferToTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buf
         &restoreImageBarrier);
 }
 
+static void vk_CopyTextureToBufferFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* src, const rz_gfx_buffer* dst)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(src != NULL, "Source texture cannot be NULL");
+    RAZIX_RHI_ASSERT(dst != NULL, "Destination buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(dst->resource.desc.bufferDesc.sizeInBytes >= (src->resource.desc.textureDesc.width * src->resource.desc.textureDesc.height * 4),
+        "Destination buffer size is insufficient for the texture copy");
+
+    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.currentState);
+    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.currentState);
+    VkImageLayout originalSrcLayout = vk_util_translate_imagelayout_resstate(src->resource.currentState);
+
+    VkImageAspectFlags aspectFlags = vk_util_deduce_image_aspect_flags(src->resource.desc.textureDesc.format);
+
+    // Transition resources to transfer states
+    VkImageMemoryBarrier imageBarrier = {
+        .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .srcAccessMask       = originalSrcAccess,
+        .dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT,
+        .oldLayout           = originalSrcLayout,
+        .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image               = src->vk.image,
+        .subresourceRange    = {
+               .aspectMask     = aspectFlags,
+               .baseMipLevel   = 0,
+               .levelCount     = 1,
+               .baseArrayLayer = 0,
+               .layerCount     = 1,
+        },
+    };
+
+    VkBufferMemoryBarrier bufferBarrier = {
+        .sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+        .srcAccessMask       = originalDstAccess,
+        .dstAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer              = dst->vk.buffer,
+        .offset              = 0,
+        .size                = VK_WHOLE_SIZE};
+
+    vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        0,
+        0,
+        NULL,
+        1,
+        &bufferBarrier,
+        1,
+        &imageBarrier);
+
+    // Copy image to buffer
+    VkBufferImageCopy copyRegion = {
+        .bufferOffset      = 0,
+        .bufferRowLength   = 0,
+        .bufferImageHeight = 0,
+        .imageSubresource  = {
+             .aspectMask     = aspectFlags,
+             .mipLevel       = 0,
+             .baseArrayLayer = 0,
+             .layerCount     = 1},
+        .imageOffset = {0, 0, 0},
+        .imageExtent = {.width = src->resource.desc.textureDesc.width, .height = src->resource.desc.textureDesc.height, .depth = src->resource.desc.textureDesc.depth}};
+
+    vkCmdCopyImageToBuffer(cmdBuf->vk.cmdBuf,
+        src->vk.image,
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        dst->vk.buffer,
+        1,
+        &copyRegion);
+
+    // Restore original states
+    VkImageMemoryBarrier restoreImageBarrier = {
+        .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT,
+        .dstAccessMask       = originalSrcAccess,
+        .oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        .newLayout           = originalSrcLayout,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image               = src->vk.image,
+        .subresourceRange    = {
+               .aspectMask     = aspectFlags,
+               .baseMipLevel   = 0,
+               .levelCount     = 1,
+               .baseArrayLayer = 0,
+               .layerCount     = 1,
+        },
+    };
+
+    VkBufferMemoryBarrier restoreBufferBarrier = {
+        .sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+        .srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT,
+        .dstAccessMask       = originalDstAccess,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer              = dst->vk.buffer,
+        .offset              = 0,
+        .size                = VK_WHOLE_SIZE};
+
+    vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        0,
+        0,
+        NULL,
+        1,
+        &restoreBufferBarrier,
+        1,
+        &restoreImageBarrier);
+}
+
 static void vk_SignalGPU(rz_gfx_syncobj* syncobj)
 {
     RAZIX_RHI_ASSERT(syncobj != NULL, "Sync object cannot be null");
