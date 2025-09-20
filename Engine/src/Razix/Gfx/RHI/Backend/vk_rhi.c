@@ -2193,7 +2193,9 @@ static void vk_util_create_swapchain(rz_gfx_swapchain* sc, uint32_t width, uint3
     createInfo.imageColorSpace          = surfaceFormat.colorSpace;
     createInfo.imageExtent              = extent;
     createInfo.imageArrayLayers         = 1;
-    createInfo.imageUsage               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    // We will render directly to the swapchain images so COLOR_ATTACHMENT is needed
+    // We also want to be able to copy from/to the swapchain images for post-processing (blit/resolve) or readback
+    createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
     VkQueueFamilyIndices indices              = VKCONTEXT.queueFamilyIndices;
     uint32_t             queueFamilyIndices[] = {indices.graphicsFamily, indices.presentFamily};
@@ -2338,12 +2340,9 @@ static void vk_util_create_image_view(rz_gfx_resource_view* pView)
     TAG_OBJECT(pView->vk.imageView, VK_OBJECT_TYPE_IMAGE_VIEW, pView->resource.pName);
 }
 
-static void vk_util_transition_subresource(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState, uint32_t mipBase, uint32_t mipCount, uint32_t layerBase, uint32_t layerCount)
+static void vk_util_transition_subresource(vk_cmdbuf cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState, uint32_t mipBase, uint32_t mipCount, uint32_t layerBase, uint32_t layerCount)
 {
-    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
     RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
-    RAZIX_RHI_ASSERT(beforeState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "Before state cannot be undefined");
-    RAZIX_RHI_ASSERT(afterState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "After state cannot be undefined");
     RAZIX_RHI_ASSERT((mipBase + mipCount) <= texture->resource.desc.textureDesc.mipLevels, "Mip range out of bounds");
     RAZIX_RHI_ASSERT((layerBase + layerCount) <= texture->resource.desc.textureDesc.arraySize, "Layer range out of bounds");
 
@@ -2377,7 +2376,7 @@ static void vk_util_transition_subresource(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_t
     }
 
     vkCmdPipelineBarrier(
-        cmdBuf->vk.cmdBuf,
+        cmdBuf.cmdBuf,
         vk_deduce_pipeline_stage_from_res_state(beforeState),
         vk_deduce_pipeline_stage_from_res_state(afterState),
         0,    // dependency flags
@@ -3402,9 +3401,10 @@ static void vk_CreateTexture(void* where)
         .format        = vk_util_translate_format(desc->format),
         .tiling        = VK_IMAGE_TILING_OPTIMAL,
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-        .usage         = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-        .samples       = VK_SAMPLE_COUNT_1_BIT,
-        .sharingMode   = VK_SHARING_MODE_EXCLUSIVE};
+        // FIXME: Optimize this based on usage flags for transfer src/dst, we already have these just use them here
+        .usage       = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+        .samples     = VK_SAMPLE_COUNT_1_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
 
     texture->resource.currentState = RZ_GFX_RESOURCE_STATE_UNDEFINED;
 
@@ -3441,6 +3441,14 @@ static void vk_CreateTexture(void* where)
     char memoryName[256];
     snprintf(memoryName, sizeof(memoryName), "%s_Memory", texture->resource.pName ? texture->resource.pName : "UnnamedTexture");
     TAG_OBJECT(texture->vk.memory, VK_OBJECT_TYPE_DEVICE_MEMORY, memoryName);
+
+    // convert to general layout if there's a chance to be used as an UAV
+    if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV) {
+        vk_cmdbuf cmdBuf = vk_util_begin_singletime_cmdlist();
+        vk_util_transition_subresource(cmdBuf, texture, VK_IMAGE_LAYOUT_UNDEFINED, vk_util_translate_imagelayout_resstate(RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS), 0, texture->resource.desc.textureDesc.mipLevels, 0, texture->resource.desc.textureDesc.arraySize);
+        vk_util_end_singletime_cmdlist(cmdBuf);
+        texture->resource.currentState = RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS;
+    }
 
     // Upload pixel data if provided
     if (desc->pPixelData != NULL) {
