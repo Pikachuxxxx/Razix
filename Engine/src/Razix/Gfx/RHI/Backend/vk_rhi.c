@@ -4886,6 +4886,92 @@ static void vk_InsertBufferReadback(const rz_gfx_buffer* buffer, rz_gfx_buffer_r
     vkFreeMemory(VKDEVICE, stagingBufferMemory, NULL);
 }
 
+static void vk_CopyBuffer(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* src, const rz_gfx_buffer* dst, uint32_t size, uint32_t srcOffset, uint32_t dstOffset)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(src != NULL, "Source buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(dst != NULL, "Destination buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(size > 0, "Size must be greater than zero");
+    RAZIX_RHI_ASSERT(srcOffset + size <= src->resource.desc.bufferDesc.sizeInBytes, "Source buffer copy range exceeds buffer size");
+    RAZIX_RHI_ASSERT(dstOffset + size <= dst->resource.desc.bufferDesc.sizeInBytes, "Destination buffer copy range exceeds buffer size");
+
+    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.currentState);
+    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.currentState);
+
+    // Transition buffers to transfer states
+    VkBufferMemoryBarrier transitionBarriers[2] = {
+        // Source buffer barrier -> conver to transfer read
+        {.sType                  = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+            .srcAccessMask       = originalSrcAccess,
+            .dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .buffer              = src->vk.buffer,
+            .offset              = 0,
+            .size                = VK_WHOLE_SIZE},
+        // Destination buffer barrier -> convert to transfer write
+        {
+            .sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+            .srcAccessMask       = originalDstAccess,
+            .dstAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .buffer              = dst->vk.buffer,
+            .offset              = 0,
+            .size                = VK_WHOLE_SIZE,
+        },
+    };
+
+    vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        0,
+        0,
+        NULL,
+        2,
+        transitionBarriers,
+        0,
+        NULL);
+
+    // Copy buffer region
+    VkBufferCopy copyRegion = {
+        .srcOffset = srcOffset,
+        .dstOffset = dstOffset,
+        .size      = size};
+
+    vkCmdCopyBuffer(cmdBuf->vk.cmdBuf, src->vk.buffer, dst->vk.buffer, 1, &copyRegion);
+
+    // Restore original states
+    VkBufferMemoryBarrier restoreBarriers[2] = {
+        {.sType                  = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+            .srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT,
+            .dstAccessMask       = originalSrcAccess,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .buffer              = src->vk.buffer,
+            .offset              = 0,
+            .size                = VK_WHOLE_SIZE},
+        {.sType                  = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+            .srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .dstAccessMask       = originalDstAccess,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .buffer              = dst->vk.buffer,
+            .offset              = 0,
+            .size                = VK_WHOLE_SIZE}};
+
+    vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        0,
+        0,
+        NULL,
+        2,
+        restoreBarriers,
+        0,
+        NULL);
+}
+
 static void vk_SignalGPU(rz_gfx_syncobj* syncobj)
 {
     RAZIX_RHI_ASSERT(syncobj != NULL, "Sync object cannot be null");
