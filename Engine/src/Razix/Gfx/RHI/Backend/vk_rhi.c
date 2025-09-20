@@ -5496,6 +5496,287 @@ static void vk_GenerateMipmapsFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_textu
         &finalBarrier);
 }
 
+static void vk_BlitTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* src, const rz_gfx_texture* dst)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(src != NULL, "Source texture cannot be NULL");
+    RAZIX_RHI_ASSERT(dst != NULL, "Destination texture cannot be NULL");
+
+    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.currentState);
+    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.currentState);
+    VkImageLayout originalSrcLayout = vk_util_translate_imagelayout_resstate(src->resource.currentState);
+    VkImageLayout originalDstLayout = vk_util_translate_imagelayout_resstate(dst->resource.currentState);
+
+    VkImageAspectFlags srcAspectFlags = vk_util_deduce_image_aspect_flags(src->resource.desc.textureDesc.format);
+    VkImageAspectFlags dstAspectFlags = vk_util_deduce_image_aspect_flags(dst->resource.desc.textureDesc.format);
+
+    // TODO: Check if blit is supported between the two formats
+
+    // Transition images to blit states
+    VkImageMemoryBarrier transitionBarriers[2] = {
+        // Source image barrier -> convert to transfer read
+        {
+            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask       = originalSrcAccess,
+            .dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT,
+            .oldLayout           = originalSrcLayout,
+            .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image               = src->vk.image,
+            .subresourceRange    = {
+                   .aspectMask     = srcAspectFlags,
+                   .baseMipLevel   = 0,
+                   .levelCount     = 1,
+                   .baseArrayLayer = 0,
+                   .layerCount     = 1,
+            },
+        },
+        {
+            // Destination image barrier -> convert to transfer write
+            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask       = originalDstAccess,
+            .dstAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .oldLayout           = originalDstLayout,
+            .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image               = dst->vk.image,
+            .subresourceRange    = {
+                   .aspectMask     = dstAspectFlags,
+                   .baseMipLevel   = 0,
+                   .levelCount     = 1,
+                   .baseArrayLayer = 0,
+                   .layerCount     = 1,
+            },
+        },
+    };
+
+    vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        0,
+        0,
+        NULL,
+        0,
+        NULL,
+        2,
+        transitionBarriers);
+
+    // Blit image
+    VkImageBlit blitRegion = {
+        .srcSubresource = {
+            .aspectMask     = srcAspectFlags,
+            .mipLevel       = 0,
+            .baseArrayLayer = 0,
+            .layerCount     = 1},
+        .srcOffsets     = {{0, 0, 0}, {src->resource.desc.textureDesc.width, src->resource.desc.textureDesc.height, src->resource.desc.textureDesc.depth}},
+        .dstSubresource = {.aspectMask = dstAspectFlags, .mipLevel = 0, .baseArrayLayer = 0, .layerCount = 1},
+        .dstOffsets     = {{0, 0, 0}, {dst->resource.desc.textureDesc.width, dst->resource.desc.textureDesc.height, dst->resource.desc.textureDesc.depth}}};
+
+    vkCmdBlitImage(cmdBuf->vk.cmdBuf,
+        src->vk.image,
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        dst->vk.image,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        1,
+        &blitRegion,
+        VK_FILTER_LINEAR);
+
+    // Restore original layouts
+    VkImageMemoryBarrier restoreBarriers[2] = {
+        {
+            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT,
+            .dstAccessMask       = originalSrcAccess,
+            .oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            .newLayout           = originalSrcLayout,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image               = src->vk.image,
+            .subresourceRange    = {
+                   .aspectMask     = srcAspectFlags,
+                   .baseMipLevel   = 0,
+                   .levelCount     = 1,
+                   .baseArrayLayer = 0,
+                   .layerCount     = 1,
+            },
+        },
+        {
+            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .dstAccessMask       = originalDstAccess,
+            .oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .newLayout           = originalDstLayout,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image               = dst->vk.image,
+            .subresourceRange    = {
+                   .aspectMask     = dstAspectFlags,
+                   .baseMipLevel   = 0,
+                   .levelCount     = 1,
+                   .baseArrayLayer = 0,
+                   .layerCount     = 1,
+            },
+        },
+    };
+
+    vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        0,
+        0,
+        NULL,
+        0,
+        NULL,
+        2,
+        restoreBarriers);
+}
+
+static void vk_ResolveTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* src, const rz_gfx_texture* dst)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
+    RAZIX_RHI_ASSERT(src != NULL, "Source texture cannot be NULL");
+    RAZIX_RHI_ASSERT(dst != NULL, "Destination texture cannot be NULL");
+    // TODO: Check if src is multi-sampled and dst is single sampled
+
+    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.currentState);
+    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.currentState);
+    VkImageLayout originalSrcLayout = vk_util_translate_imagelayout_resstate(src->resource.currentState);
+    VkImageLayout originalDstLayout = vk_util_translate_imagelayout_resstate(dst->resource.currentState);
+
+    VkImageAspectFlags srcAspectFlags = vk_util_deduce_image_aspect_flags(src->resource.desc.textureDesc.format);
+    VkImageAspectFlags dstAspectFlags = vk_util_deduce_image_aspect_flags(dst->resource.desc.textureDesc.format);
+
+    // Transition images to resolve states
+    VkImageMemoryBarrier transitionBarriers[2] = {
+        {
+            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask       = originalSrcAccess,
+            .dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT,
+            .oldLayout           = originalSrcLayout,
+            .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image               = src->vk.image,
+            .subresourceRange    = {
+                   .aspectMask     = srcAspectFlags,
+                   .baseMipLevel   = 0,
+                   .levelCount     = 1,
+                   .baseArrayLayer = 0,
+                   .layerCount     = 1,
+            },
+        },
+        {
+            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask       = originalDstAccess,
+            .dstAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .oldLayout           = originalDstLayout,
+            .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image               = dst->vk.image,
+            .subresourceRange    = {
+                   .aspectMask     = dstAspectFlags,
+                   .baseMipLevel   = 0,
+                   .levelCount     = 1,
+                   .baseArrayLayer = 0,
+                   .layerCount     = 1,
+            },
+        },
+    };
+
+    vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        0,
+        0,
+        NULL,
+        0,
+        NULL,
+        2,
+        transitionBarriers);
+
+    // Resolve image
+    VkImageResolve resolveRegion = {
+        .srcSubresource = {
+            .aspectMask     = srcAspectFlags,
+            .mipLevel       = 0,
+            .baseArrayLayer = 0,
+            .layerCount     = 1},
+        .srcOffset      = {0, 0, 0},
+        .dstSubresource = {
+            .aspectMask     = dstAspectFlags,
+            .mipLevel       = 0,
+            .baseArrayLayer = 0,
+            .layerCount     = 1,
+        },
+        .dstOffset = {0, 0, 0},
+        .extent    = {
+               .width  = src->resource.desc.textureDesc.width,
+               .height = src->resource.desc.textureDesc.height,
+               .depth  = src->resource.desc.textureDesc.depth,
+        },
+    };
+
+    vkCmdResolveImage(cmdBuf->vk.cmdBuf,
+        src->vk.image,
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        dst->vk.image,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        1,
+        &resolveRegion);
+
+    // Restore original layouts
+    VkImageMemoryBarrier restoreBarriers[2] = {
+        {
+            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT,
+            .dstAccessMask       = originalSrcAccess,
+            .oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            .newLayout           = originalSrcLayout,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image               = src->vk.image,
+            .subresourceRange    = {
+                   .aspectMask     = srcAspectFlags,
+                   .baseMipLevel   = 0,
+                   .levelCount     = 1,
+                   .baseArrayLayer = 0,
+                   .layerCount     = 1,
+            },
+        },
+        {
+            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .dstAccessMask       = originalDstAccess,
+            .oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .newLayout           = originalDstLayout,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image               = dst->vk.image,
+            .subresourceRange    = {
+                   .aspectMask     = dstAspectFlags,
+                   .baseMipLevel   = 0,
+                   .levelCount     = 1,
+                   .baseArrayLayer = 0,
+                   .layerCount     = 1,
+            },
+        },
+    };
+
+    vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        0,
+        0,
+        NULL,
+        0,
+        NULL,
+        2,
+        restoreBarriers);
+}
+
 static void vk_SignalGPU(rz_gfx_syncobj* syncobj)
 {
     RAZIX_RHI_ASSERT(syncobj != NULL, "Sync object cannot be null");
@@ -5604,6 +5885,13 @@ rz_rhi_api vk_rhi = {
     .InsertBufferBarrier   = vk_InsertBufferBarrier,        // InsertBufferBarrier
     .InsertTextureReadback = vk_InsertTextureReadback,      // InsertTextureReadback
     .InsertBufferReadback  = vk_InsertBufferReadback,       // InsertBufferReadback
+    .CopyTexture           = vk_CopyTexture,                // CopyTextureToTexture
+    .CopyBuffer            = vk_CopyBuffer,                 // CopyBuffer
+    .CopyBufferToTexture   = vk_CopyBufferToTexture,        // CopyBufferToTexture
+    .CopyTextureToBuffer   = vk_CopyTextureToBufferFn,      // CopyTextureToBuffer
+    .GenerateMipmaps       = vk_GenerateMipmapsFn,          // GenerateMipmaps
+    .BlitTexture           = vk_BlitTexture,                // BlitTexture
+    .ResolveTexture        = vk_ResolveTexture,             // ResolveTexture
 
     .SignalGPU       = vk_SignalGPU,          // SignalGPU
     .FlushGPUWork    = vk_FlushGPUWork,       // FlushGPUWork
