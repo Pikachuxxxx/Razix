@@ -7,12 +7,6 @@ function ApplyGfxTestSettings()
     cppdialect (engine_global_config.cpp_dialect)
     staticruntime "off"
 
-    links
-    {
-        "Razix",
-        "TestShaders"
-    }
-
     includedirs
     {
         "%{wks.location}/../Engine",
@@ -96,7 +90,8 @@ function ApplyGfxTestSettings()
     {
         "RHI",
         "Razix", -- Razix DLL
-        "googletest"
+        "googletest",
+        "TestShaders",
     }
 
     filter "system:windows"
