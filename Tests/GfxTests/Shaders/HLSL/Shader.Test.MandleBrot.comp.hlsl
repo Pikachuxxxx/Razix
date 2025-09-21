@@ -6,12 +6,12 @@
 //------------------------------------------------------------------------------
 #include <ShaderInclude.Builtin.ShaderLangCommon.h>
 //------------------------------------------------------------------------------
+#ifdef __HLSL__
+    // [Workaround]: https://github.com/microsoft/DirectXShaderCompiler/issues/2498
+    // FIXME: Enable once latest DXC is integrated
+    // [[vk::image_format("rgba8")]]
+#endif
 RWTexture2D<float4> g_OutputTexture : register(u0, space0);
-//cbuffer Params : register(b1, space0)
-//{
-//    uint2 resolution;
-//    int maxIter;
-//}
 //------------------------------------------------------------------------------
 float4 GenerateMandelbrot(float2 uv) 
 {
@@ -20,7 +20,6 @@ float4 GenerateMandelbrot(float2 uv)
 
     int iteration = 0;
     int max_iteration = 256;
-
 
     // f(z) = z^2 + c, z and c are complex number
     [loop]
