@@ -3445,7 +3445,7 @@ static void vk_CreateTexture(void* where)
     // convert to general layout if there's a chance to be used as an UAV
     if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV) {
         vk_cmdbuf cmdBuf = vk_util_begin_singletime_cmdlist();
-        vk_util_transition_subresource(cmdBuf, texture, VK_IMAGE_LAYOUT_UNDEFINED, vk_util_translate_imagelayout_resstate(RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS), 0, texture->resource.desc.textureDesc.mipLevels, 0, texture->resource.desc.textureDesc.arraySize);
+        vk_util_transition_subresource(cmdBuf, texture, RZ_GFX_RESOURCE_STATE_UNDEFINED, RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS, 0, texture->resource.desc.textureDesc.mipLevels, 0, texture->resource.desc.textureDesc.arraySize);
         vk_util_end_singletime_cmdlist(cmdBuf);
         texture->resource.currentState = RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS;
     }
