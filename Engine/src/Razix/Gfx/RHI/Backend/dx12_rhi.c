@@ -2258,7 +2258,7 @@ static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
         dxElement.SemanticIndex            = elem.semanticIndex;
         dxElement.Format                   = dx12_util_rz_gfx_format_to_dxgi_format(elem.format);
 
-        if (desc->inputLayoutMode == RZ_GFX_INPUT_LAYOUT_AOS) {
+        if (pPsoDesc->inputLayoutMode == RZ_GFX_INPUT_LAYOUT_AOS) {
             dxElement.InputSlot         = 0;                         // single buffer
             dxElement.AlignedByteOffset = elem.alignedByteOffset;    // offset into struct
         } else {                                                     // SOA
