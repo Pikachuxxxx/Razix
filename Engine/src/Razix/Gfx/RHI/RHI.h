@@ -772,6 +772,12 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_INDEX_TYPE_COUNT
     } rz_gfx_index_type;
 
+    typedef enum rz_gfx_input_layout_mode
+    {
+        RZ_GFX_INPUT_LAYOUT_AOS = 0,    // Array of Structures (Default and common)
+        RZ_GFX_INPUT_LAYOUT_SOA         // Structure of Arrays (Efiicient but please profile!)
+    } rz_gfx_input_layout_mode;
+
     /**
       * Graphics Features as supported by the GPU, even though Engine supports them
       * the GPU can override certain setting and query run-time info like LaneWidth etc.
@@ -1095,7 +1101,8 @@ static inline unsigned int rz_clz32(unsigned int x)
             uint32_t depthClampEnable : 1;    // For shadow mapping
             uint32_t transparencyEnabled : 1;
             uint32_t enableStencilTest : 1;
-            uint32_t reserved0 : 10;
+            uint32_t inputLayoutMode : 1;
+            uint32_t reserved0 : 9;
         };
 
         union

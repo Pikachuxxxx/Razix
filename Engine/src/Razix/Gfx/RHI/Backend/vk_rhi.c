@@ -3024,25 +3024,6 @@ static void vk_DestroyRootSignature(void* ptr)
     }
 }
 
-static VkVertexInputBindingDescription vk_util_get_vertex_binding_description(rz_gfx_input_element element, uint32_t index)
-{
-    VkVertexInputBindingDescription bindingDescription = {0};
-    bindingDescription.binding                         = index;
-    bindingDescription.stride                          = element.stride;
-    bindingDescription.inputRate                       = (element.inputClass == RZ_GFX_INPUT_CLASS_PER_VERTEX) ? VK_VERTEX_INPUT_RATE_VERTEX : VK_VERTEX_INPUT_RATE_INSTANCE;
-    return bindingDescription;
-}
-
-static VkVertexInputAttributeDescription vk_util_get_vertex_attribute_description(rz_gfx_input_element element, uint32_t index)
-{
-    VkVertexInputAttributeDescription attributeDescription = {0};
-    attributeDescription.location                          = index;
-    attributeDescription.binding                           = index;
-    attributeDescription.format                            = vk_util_translate_format(element.format);
-    attributeDescription.offset                            = 0;    // 0 because we are using SOA
-    return attributeDescription;
-}
-
 static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
 {
     rz_gfx_pipeline*             pso         = (rz_gfx_pipeline*) pipeline;
@@ -3070,16 +3051,44 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
 
     VkVertexInputBindingDescription   pVertexInputBindingDescriptions[RAZIX_MAX_VERTEX_ATTRIBUTES];
     VkVertexInputAttributeDescription pVertexInputAttributeDescriptions[RAZIX_MAX_VERTEX_ATTRIBUTES];
-    for (unsigned int i = 0; i < pShaderDesc->elementsCount; i++) {
-        rz_gfx_input_element element         = pInputElements[i];
-        pVertexInputBindingDescriptions[i]   = vk_util_get_vertex_binding_description(element, i);
-        pVertexInputAttributeDescriptions[i] = vk_util_get_vertex_attribute_description(element, i);
+
+    uint32_t vertexStride = 0;
+    if (desc->inputLayoutMode == RZ_GFX_INPUT_LAYOUT_AOS) {
+        for (uint32_t i = 0; i < pShaderDesc->elementsCount; ++i)
+            vertexStride += pInputElements[i].stride;
+
+        // Single binding for all attributes
+        pVertexInputBindingDescriptions[0].binding   = 0;
+        pVertexInputBindingDescriptions[0].stride    = vertexStride;
+        pVertexInputBindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+    }
+
+    for (uint32_t i = 0; i < pShaderDesc->elementsCount; ++i) {
+        rz_gfx_input_element element = pInputElements[i];
+
+        if (desc->inputLayoutMode == RZ_GFX_INPUT_LAYOUT_SOA) {
+            // Each attribute = one binding
+            pVertexInputBindingDescriptions[i].binding = i;
+            pVertexInputBindingDescriptions[i].stride  = element.stride;
+            pVertexInputBindingDescriptions[i].inputRate =
+                (element.inputClass == RZ_GFX_INPUT_CLASS_PER_VERTEX)
+                    ? VK_VERTEX_INPUT_RATE_VERTEX
+                    : VK_VERTEX_INPUT_RATE_INSTANCE;
+        }
+
+        // Attribute description (works in both cases)
+        pVertexInputAttributeDescriptions[i].binding =
+            (desc->inputLayoutMode == RZ_GFX_INPUT_LAYOUT_AOS) ? 0 : i;
+        pVertexInputAttributeDescriptions[i].location = i;
+        pVertexInputAttributeDescriptions[i].format   = vk_util_translate_format(element.format);
+        pVertexInputAttributeDescriptions[i].offset =
+            (desc->inputLayoutMode == RZ_GFX_INPUT_LAYOUT_AOS) ? element.alignedByteOffset : 0;
     }
 
     VkPipelineVertexInputStateCreateInfo vertexInputSCI = {0};
     vertexInputSCI.sType                                = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputSCI.pNext                                = NULL;
-    vertexInputSCI.vertexBindingDescriptionCount        = pShaderDesc->elementsCount;
+    vertexInputSCI.vertexBindingDescriptionCount        = desc->inputLayoutMode == RZ_GFX_INPUT_LAYOUT_AOS ? 1 : pShaderDesc->elementsCount;
     vertexInputSCI.pVertexBindingDescriptions           = pVertexInputBindingDescriptions;
     vertexInputSCI.vertexAttributeDescriptionCount      = pShaderDesc->elementsCount;
     vertexInputSCI.pVertexAttributeDescriptions         = pVertexInputAttributeDescriptions;

@@ -157,6 +157,7 @@ namespace Razix {
             pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
             pipelineDesc.depthStencilFormat     = RZ_GFX_FORMAT_D16_UNORM;
             pipelineDesc.depthCompareOp         = RZ_GFX_COMPARE_OP_TYPE_LESS;
+            pipelineDesc.inputLayoutMode        = RZ_GFX_INPUT_LAYOUT_AOS;
             m_Pipeline                          = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.PrimitiveTest", pipelineDesc);
 
             createGeometryCPU();

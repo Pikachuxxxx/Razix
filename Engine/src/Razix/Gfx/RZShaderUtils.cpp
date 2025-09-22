@@ -543,6 +543,7 @@ namespace Razix {
                     inputParam->alignedByteOffset    = currentOffset;
                     inputParam->inputClass           = (rz_gfx_input_class) D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
                     inputParam->instanceStepRate     = 0;
+                    inputParam->stride               = formatSize;
 
                     currentOffset += formatSize;
                     currentElementIndex++;
@@ -788,6 +789,7 @@ namespace Razix {
                     (*dst)[i].alignedByteOffset = src->pInputElements[i].alignedByteOffset;
                     (*dst)[i].inputClass        = src->pInputElements[i].inputClass;
                     (*dst)[i].instanceStepRate  = src->pInputElements[i].instanceStepRate;
+                    (*dst)[i].stride            = src->pInputElements[i].stride;
                 }
             } else {
                 dst = NULL;
