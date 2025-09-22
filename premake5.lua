@@ -208,12 +208,6 @@ workspace ( settings.workspace_name )
     group ""
 
     --------------------------------------------------------------------------------
-    -- Build script for Sandbox
-    group "Sandbox"
-        include "Sandbox/sandbox.lua"
-    group ""
-
-    --------------------------------------------------------------------------------
     -- Engine related tools
     group "Tools/Build"
         -- premake scripts Utility project for in IDE management
@@ -228,4 +222,3 @@ workspace ( settings.workspace_name )
     --------------------------------------------------------------------------------
     -- Tests
     include "Tests/tests.lua"
-
