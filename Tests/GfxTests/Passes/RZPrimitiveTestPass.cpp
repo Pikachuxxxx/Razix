@@ -16,7 +16,6 @@ namespace Razix {
         {
             float px, py, pz;
             float nx, ny, nz;
-            float u, v;
         };
 
         struct PrimitiveInstanceData
@@ -42,14 +41,14 @@ namespace Razix {
 
             // clang-format off
             PrimitiveTestVertex baseVerts[8] = {
-                {-0.5f, -0.5f, -0.5f, 0.f, 0.f, -1.f, 0.f, 0.f},
-                { 0.5f, -0.5f, -0.5f, 0.f, 0.f, -1.f, 1.f, 0.f},
-                { 0.5f,  0.5f, -0.5f, 0.f, 0.f, -1.f, 1.f, 1.f},
-                {-0.5f,  0.5f, -0.5f, 0.f, 0.f, -1.f, 0.f, 1.f},
-                {-0.5f, -0.5f,  0.5f, 0.f, 0.f,  1.f, 0.f, 0.f},
-                { 0.5f, -0.5f,  0.5f, 0.f, 0.f,  1.f, 1.f, 0.f},
-                { 0.5f,  0.5f,  0.5f, 0.f, 0.f,  1.f, 1.f, 1.f},
-                {-0.5f,  0.5f,  0.5f, 0.f, 0.f,  1.f, 0.f, 1.f},
+                {-0.5f, -0.5f, -0.5f, 0.f, 0.f, -1.f},
+                { 0.5f, -0.5f, -0.5f, 0.f, 0.f, -1.f},
+                { 0.5f,  0.5f, -0.5f, 0.f, 0.f, -1.f},
+                {-0.5f,  0.5f, -0.5f, 0.f, 0.f, -1.f},
+                {-0.5f, -0.5f,  0.5f, 0.f, 0.f,  1.f},
+                { 0.5f, -0.5f,  0.5f, 0.f, 0.f,  1.f},
+                { 0.5f,  0.5f,  0.5f, 0.f, 0.f,  1.f},
+                {-0.5f,  0.5f,  0.5f, 0.f, 0.f,  1.f},
             };
             s_Vertices.insert(s_Vertices.end(), std::begin(baseVerts), std::end(baseVerts));
 
@@ -155,7 +154,7 @@ namespace Razix {
             pipelineDesc.blendPreset            = RZ_GFX_BLEND_PRESET_ADDITIVE;
             pipelineDesc.renderTargetCount      = 1;
             pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
-            pipelineDesc.depthStencilFormat     = RZ_GFX_FORMAT_D16_UNORM;
+            pipelineDesc.depthStencilFormat     = RZ_GFX_FORMAT_D32_FLOAT;
             pipelineDesc.depthCompareOp         = RZ_GFX_COMPARE_OP_TYPE_LESS;
             pipelineDesc.inputLayoutMode        = RZ_GFX_INPUT_LAYOUT_AOS;
             m_Pipeline                          = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.PrimitiveTest", pipelineDesc);
@@ -199,7 +198,7 @@ namespace Razix {
                     depthTexDesc.arraySize           = 1;
                     depthTexDesc.mipLevels           = 1;
                     depthTexDesc.textureType         = RZ_GFX_TEXTURE_TYPE_2D;
-                    depthTexDesc.format              = RZ_GFX_FORMAT_D16_UNORM;
+                    depthTexDesc.format              = RZ_GFX_FORMAT_D32_FLOAT;
                     depthTexDesc.resourceHints       = RZ_GFX_RESOURCE_VIEW_FLAG_DSV;
                     data.depth                       = builder.create<RZFrameGraphTexture>("Texture.PrimitiveTest.Depth", CAST_TO_FG_TEX_DESC depthTexDesc);
 

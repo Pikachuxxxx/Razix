@@ -10,7 +10,7 @@ using namespace Razix;
 class PrimitiveTestApp final : public RZGfxTestAppBase
 {
 public:
-    PrimitiveTestApp(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_INF, const std::string& appName = "RazixGfxTestApp")
+    PrimitiveTestApp(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_DEFAULT, const std::string& appName = "RazixGfxTestApp")
         : RZGfxTestAppBase(projectRoot, numFrames, appName) {}
 
     void OnStart() override
