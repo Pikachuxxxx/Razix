@@ -247,22 +247,6 @@ static D3D12_DESCRIPTOR_RANGE_TYPE dx12_util_descriptor_type_to_range_type(rz_gf
     }
 }
 
-static D3D12_INPUT_ELEMENT_DESC dx12_util_input_element_desc(rz_gfx_input_element element)
-{
-    D3D12_INPUT_ELEMENT_DESC dxElement = {0};
-    dxElement.SemanticName             = (LPCSTR) (element.pSemanticName);
-    dxElement.SemanticIndex            = element.semanticIndex;
-    dxElement.Format                   = dx12_util_rz_gfx_format_to_dxgi_format(element.format);
-    dxElement.InputSlot                = element.inputSlot;    // Using separate indices for SOA, use 0 for AOS
-    dxElement.AlignedByteOffset        = element.alignedByteOffset;
-    dxElement.InputSlotClass           = (element.inputClass == RZ_GFX_INPUT_CLASS_PER_VERTEX)
-                                             ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA
-                                             : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
-    dxElement.InstanceDataStepRate     = element.instanceStepRate;
-
-    return dxElement;
-}
-
 static D3D12_SHADER_BYTECODE dx12_util_shader_bytecode_to_d3d12_shader(const rz_gfx_shader_stage_blob* blob)
 {
     D3D12_SHADER_BYTECODE shaderBytecode = {0};
@@ -2262,19 +2246,38 @@ static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
     //----------------------------
     // Input Assembly Stage
     //----------------------------
-    D3D12_INPUT_LAYOUT_DESC input_layout                                    = {0};
-    input_layout.NumElements                                                = pShaderDesc->elementsCount;
     D3D12_INPUT_ELEMENT_DESC inputElementDescs[RAZIX_MAX_VERTEX_ATTRIBUTES] = {0};
-    for (uint32_t i = 0; i < input_layout.NumElements; i++) {
+
+    for (uint32_t i = 0; i < pShaderDesc->elementsCount; i++) {
         rz_gfx_input_element elem = pShaderDesc->pElements[i];
         RAZIX_RHI_ASSERT(elem.format != RZ_GFX_FORMAT_UNDEFINED, "Input element format cannot be undefined");
         RAZIX_RHI_ASSERT(i < RAZIX_MAX_VERTEX_ATTRIBUTES, "Input element location exceeds maximum vertex attributes");
 
-        // Convert the format to DXGI format
-        inputElementDescs[i] = dx12_util_input_element_desc(elem);
+        D3D12_INPUT_ELEMENT_DESC dxElement = {0};
+        dxElement.SemanticName             = (LPCSTR) elem.pSemanticName;
+        dxElement.SemanticIndex            = elem.semanticIndex;
+        dxElement.Format                   = dx12_util_rz_gfx_format_to_dxgi_format(elem.format);
+
+        if (desc->inputLayoutMode == RZ_GFX_INPUT_LAYOUT_AOS) {
+            dxElement.InputSlot         = 0;                         // single buffer
+            dxElement.AlignedByteOffset = elem.alignedByteOffset;    // offset into struct
+        } else {                                                     // SOA
+            dxElement.InputSlot         = i;                         // each attribute in own slot
+            dxElement.AlignedByteOffset = 0;                         // attribute buffer starts at element
+        }
+
+        dxElement.InputSlotClass       = (elem.inputClass == RZ_GFX_INPUT_CLASS_PER_VERTEX)
+                                             ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA
+                                             : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
+        dxElement.InstanceDataStepRate = elem.instanceStepRate;
+
+        inputElementDescs[i] = dxElement;
     }
-    input_layout.pInputElementDescs = pShaderDesc->elementsCount ? inputElementDescs : NULL;
-    desc.InputLayout                = input_layout;
+    // stride is set during VeretxBuffers binding and is decided by the user, unlike in VK it must be given at runtime, so yeah
+    D3D12_INPUT_LAYOUT_DESC input_layout = {0};
+    input_layout.NumElements             = pShaderDesc->elementsCount;
+    input_layout.pInputElementDescs      = pShaderDesc->elementsCount ? inputElementDescs : NULL;
+    desc.InputLayout                     = input_layout;
 
     //----------------------------
     // Primitive Topology
