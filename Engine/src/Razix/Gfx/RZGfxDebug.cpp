@@ -117,24 +117,38 @@ namespace Razix {
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
-        static bool s_DebugUtilsInitialized = false;
+        static bool                              s_DebugUtilsInitialized           = false;
+        static PFN_vkCmdBeginDebugUtilsLabelEXT  pfn_vkCmdBeginDebugUtilsLabelEXT  = nullptr;
+        static PFN_vkCmdEndDebugUtilsLabelEXT    pfn_vkCmdEndDebugUtilsLabelEXT    = nullptr;
+        static PFN_vkCmdInsertDebugUtilsLabelEXT pfn_vkCmdInsertDebugUtilsLabelEXT = nullptr;
+
+        static VkInstance s_VulkanInstance = VK_NULL_HANDLE;    // Should be set during Vulkan instance creation
+
+        void SetVulkanInstance(VkInstance instance)
+        {
+            s_VulkanInstance = instance;
+        }
 
         void InitializeDebugUtils()
         {
-            if (s_DebugUtilsInitialized) return;
+            if (s_DebugUtilsInitialized || s_VulkanInstance == VK_NULL_HANDLE) return;
+            pfn_vkCmdBeginDebugUtilsLabelEXT = reinterpret_cast<PFN_vkCmdBeginDebugUtilsLabelEXT>(
+                vkGetInstanceProcAddr(s_VulkanInstance, "vkCmdBeginDebugUtilsLabelEXT"));
+            pfn_vkCmdEndDebugUtilsLabelEXT = reinterpret_cast<PFN_vkCmdEndDebugUtilsLabelEXT>(
+                vkGetInstanceProcAddr(s_VulkanInstance, "vkCmdEndDebugUtilsLabelEXT"));
+            pfn_vkCmdInsertDebugUtilsLabelEXT = reinterpret_cast<PFN_vkCmdInsertDebugUtilsLabelEXT>(
+                vkGetInstanceProcAddr(s_VulkanInstance, "vkCmdInsertDebugUtilsLabelEXT"));
             s_DebugUtilsInitialized = true;
         }
 
         void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const std::string& name, const glm::vec4& color)
         {
     #ifndef RAZIX_GOLD_MASTER
-            if (!commandBuffer) return;
-
             if (!s_DebugUtilsInitialized) {
                 InitializeDebugUtils();
             }
 
-            if (vkCmdBeginDebugUtilsLabelEXT) {
+            if (pfn_vkCmdBeginDebugUtilsLabelEXT) {
                 VkDebugUtilsLabelEXT labelInfo{};
                 labelInfo.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
                 labelInfo.pLabelName = name.c_str();
@@ -143,7 +157,7 @@ namespace Razix {
                 labelInfo.color[2]   = color.b;
                 labelInfo.color[3]   = color.a;
 
-                vkCmdBeginDebugUtilsLabelEXT(commandBuffer, &labelInfo);
+                pfn_vkCmdBeginDebugUtilsLabelEXT(commandBuffer, &labelInfo);
             }
     #endif    // RAZIX_GOLD_MASTER
         }
@@ -151,13 +165,11 @@ namespace Razix {
         void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const std::string& name, const glm::vec4& color)
         {
     #ifndef RAZIX_GOLD_MASTER
-            if (!commandBuffer) return;
-
             if (!s_DebugUtilsInitialized) {
                 InitializeDebugUtils();
             }
 
-            if (vkCmdInsertDebugUtilsLabelEXT) {
+            if (pfn_vkCmdInsertDebugUtilsLabelEXT) {
                 VkDebugUtilsLabelEXT labelInfo{};
                 labelInfo.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
                 labelInfo.pLabelName = name.c_str();
@@ -166,7 +178,7 @@ namespace Razix {
                 labelInfo.color[2]   = color.b;
                 labelInfo.color[3]   = color.a;
 
-                vkCmdInsertDebugUtilsLabelEXT(commandBuffer, &labelInfo);
+                pfn_vkCmdInsertDebugUtilsLabelEXT(commandBuffer, &labelInfo);
             }
     #endif    // RAZIX_GOLD_MASTER
         }
@@ -174,14 +186,12 @@ namespace Razix {
         void CmdEndDebugUtilsLabelEXT(VkCommandBuffer commandBuffer)
         {
     #ifndef RAZIX_GOLD_MASTER
-            if (!commandBuffer) return;
-
             if (!s_DebugUtilsInitialized) {
                 InitializeDebugUtils();
             }
 
-            if (vkCmdEndDebugUtilsLabelEXT) {
-                vkCmdEndDebugUtilsLabelEXT(commandBuffer);
+            if (pfn_vkCmdEndDebugUtilsLabelEXT) {
+                pfn_vkCmdEndDebugUtilsLabelEXT(commandBuffer);
             }
     #endif    // RAZIX_GOLD_MASTER
         }
