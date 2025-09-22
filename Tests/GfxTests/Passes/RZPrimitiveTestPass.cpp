@@ -99,6 +99,7 @@ namespace Razix {
                 // Define spacing between cubes (adjust as needed)
                 float spacing = 2.5f;    // Gap between cube centers
 
+
                 // Calculate position with proper centering
                 float tx = (static_cast<float>(x) - static_cast<float>(gridSize - 1) * 0.5f) * spacing;
                 float ty = (static_cast<float>(y) - static_cast<float>(gridSize - 1) * 0.5f) * spacing;
@@ -154,7 +155,7 @@ namespace Razix {
             pipelineDesc.blendPreset            = RZ_GFX_BLEND_PRESET_ADDITIVE;
             pipelineDesc.renderTargetCount      = 1;
             pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
-            pipelineDesc.depthStencilFormat     = RZ_GFX_FORMAT_D24_UNORM_S8_UINT;
+            pipelineDesc.depthStencilFormat     = RZ_GFX_FORMAT_D16_UNORM;
             pipelineDesc.depthCompareOp         = RZ_GFX_COMPARE_OP_TYPE_LESS;
             m_Pipeline                          = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.PrimitiveTest", pipelineDesc);
 
@@ -197,7 +198,7 @@ namespace Razix {
                     depthTexDesc.arraySize           = 1;
                     depthTexDesc.mipLevels           = 1;
                     depthTexDesc.textureType         = RZ_GFX_TEXTURE_TYPE_2D;
-                    depthTexDesc.format              = RZ_GFX_FORMAT_D24_UNORM_S8_UINT;
+                    depthTexDesc.format              = RZ_GFX_FORMAT_D16_UNORM;
                     depthTexDesc.resourceHints       = RZ_GFX_RESOURCE_VIEW_FLAG_DSV;
                     data.depth                       = builder.create<RZFrameGraphTexture>("Texture.PrimitiveTest.Depth", CAST_TO_FG_TEX_DESC depthTexDesc);
 
