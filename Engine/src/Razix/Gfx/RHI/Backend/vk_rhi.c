@@ -3662,7 +3662,7 @@ static void vk_CreateBuffer(void* where)
     if (desc->pInitData != NULL) {
         RAZIX_RHI_LOG_INFO("Uploading initial data for buffer");
 
-        if (((desc->type & RZ_GFX_BUFFER_TYPE_CONSTANT) == RZ_GFX_BUFFER_TYPE_CONSTANT)) {
+        if (isConstantBuffer) {
             // Direct mapping for host-visible constant buffers
             void*    mappedData = NULL;
             VkResult result     = vkMapMemory(VKDEVICE, buffer->vk.memory, 0, desc->sizeInBytes, 0, &mappedData);
