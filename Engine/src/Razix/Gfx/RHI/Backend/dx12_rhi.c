@@ -2563,7 +2563,7 @@ static void dx12_CreateBuffer(void* where)
     resDesc.Layout              = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;    // as fed by users
     resDesc.Flags               = D3D12_RESOURCE_FLAG_NONE;
 
-    if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) || (desc->type & RZ_GFX_BUFFER_TYPE_INDIRECT_ARGS))
+    if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) || (desc->type == RZ_GFX_BUFFER_TYPE_INDIRECT_ARGS))
         resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
     // Create resource with memory backing
