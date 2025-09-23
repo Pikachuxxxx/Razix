@@ -2106,7 +2106,7 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
         memset(texture, 0, sizeof(rz_gfx_texture));
 
         // Set up resource metadata
-        texture->resource.pName                          = "$SWAPCHAIN_IMAGE$";
+        snprintf(texture->resource.pName , RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$");
         texture->resource.handle                         = (rz_handle) {i, i};
         texture->resource.viewHints                      = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
         texture->resource.type                           = RZ_GFX_RESOURCE_TYPE_TEXTURE;
@@ -2125,7 +2125,7 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
         // Create resource view for the swapchain image
         rz_gfx_resource_view* resourceView = &swapchain->backbuffersResViews[i];
         memset(resourceView, 0, sizeof(rz_gfx_resource_view));
-        resourceView->resource.pName                                                = "$SWAPCHAIN_RES_VIEW$";
+        snprintf(resourceView->resource.pName , RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_RES_VIEW$");
         resourceView->resource.handle                                               = (rz_handle) {i, i};
         resourceView->resource.type                                                 = RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW;
         resourceView->resource.desc.resourceViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE;
@@ -3448,7 +3448,7 @@ static void vk_CreateTexture(void* where)
 
     vkBindImageMemory(VKDEVICE, texture->vk.image, texture->vk.memory, 0);
     char memoryName[256];
-    snprintf(memoryName, sizeof(memoryName), "%s_Memory", texture->resource.pName ? texture->resource.pName : "UnnamedTexture");
+    snprintf(memoryName, sizeof(memoryName), "%s_Memory", texture->resource.pName);
     TAG_OBJECT(texture->vk.memory, VK_OBJECT_TYPE_DEVICE_MEMORY, memoryName);
 
     // convert to general layout if there's a chance to be used as an UAV
@@ -3665,7 +3665,7 @@ static void vk_CreateBuffer(void* where)
 
     vkBindBufferMemory(VKDEVICE, buffer->vk.buffer, buffer->vk.memory, 0);
     char memoryName[256];
-    snprintf(memoryName, sizeof(memoryName), "%s_Memory", buffer->resource.pName ? buffer->resource.pName : "UnnamedBuffer");
+    snprintf(memoryName, sizeof(memoryName), "%s_Memory", buffer->resource.pName);
     TAG_OBJECT(buffer->vk.memory, VK_OBJECT_TYPE_DEVICE_MEMORY, memoryName);
 
     if (desc->pInitData != NULL) {
