@@ -141,6 +141,7 @@ namespace Razix {
         auto                                   stop   = std::chrono::high_resolution_clock::now();
         std::chrono::duration<d32, std::milli> ms_d32 = (stop - start);
         RAZIX_CORE_INFO("Engine Ingnited in : {0} ms", ms_d32.count());
+        RAZIX_UNUSED(ms_d32);
     }
 
     void RZEngine::ShutDown()

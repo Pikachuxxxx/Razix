@@ -241,7 +241,7 @@ namespace Razix {
 
                 rz_gfx_descriptor* desc = &targetTable->pDescriptors[targetTable->descriptorCount];
                 memset(desc, 0, sizeof(rz_gfx_descriptor));
-                desc->pName            = strdup(descriptor.name);
+                snprintf(desc->pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", descriptor.name);
                 desc->location.binding = descriptor.binding;
                 desc->location.space   = descriptor.set;
                 desc->type             = VKSpvDescriptorTypeToEngineDescriptorType(descriptor.descriptor_type);
@@ -681,8 +681,6 @@ namespace Razix {
                     rz_gfx_descriptor_table_layout* tableLayout = &reflection->rootSignatureDesc.pDescriptorTableLayouts[i];
                     if (tableLayout->pDescriptors) {
                         for (u32 j = 0; j < tableLayout->descriptorCount; ++j) {
-                            if (tableLayout->pDescriptors[j].pName)
-                                free((void*) tableLayout->pDescriptors[j].pName);
                         }
                         Memory::RZFree(tableLayout->pDescriptors);
                         tableLayout->pDescriptors = NULL;
@@ -720,12 +718,8 @@ namespace Razix {
                             sizeof(rz_gfx_descriptor) * srcTable->descriptorCount);
                         for (uint32_t j = 0; j < srcTable->descriptorCount; ++j) {
                             dstTable->pDescriptors[j] = srcTable->pDescriptors[j];
+                            snprintf(dstTable->pDescriptors[j].pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", srcTable->pDescriptors[j].pName);
 
-                            if (srcTable->pDescriptors[j].pName) {
-                                dstTable->pDescriptors[j].pName = strdup(srcTable->pDescriptors[j].pName);
-                            } else {
-                                dstTable->pDescriptors[j].pName = NULL;
-                            }
                         }
                     } else {
                         dstTable->pDescriptors = NULL;
@@ -754,10 +748,6 @@ namespace Razix {
                 for (uint32_t i = 0; i < rootSigDesc->descriptorTableLayoutsCount; ++i) {
                     rz_gfx_descriptor_table_layout* tableLayout = &rootSigDesc->pDescriptorTableLayouts[i];
                     if (tableLayout->pDescriptors) {
-                        for (u32 j = 0; j < tableLayout->descriptorCount; ++j) {
-                            if (tableLayout->pDescriptors[j].pName)
-                                free((void*) tableLayout->pDescriptors[j].pName);
-                        }
                         Memory::RZFree(tableLayout->pDescriptors);
                         tableLayout->pDescriptors = NULL;
                     }
@@ -926,8 +916,8 @@ namespace Razix {
                     // For each descriptor in the table, check if it is in the m_ResourceViewHandleRefs map
                     for (u32 d = 0; d < tableLayout->descriptorCount; d++) {
                         const rz_gfx_descriptor* desc = &tableLayout->pDescriptors[d];
-                        if (desc == NULL || desc->pName == NULL) {
-                            RAZIX_CORE_ERROR("[ShaderBindMap] Descriptor is null/name in table index {0}!", t);
+                        if (desc == NULL) {
+                            RAZIX_CORE_ERROR("[ShaderBindMap] Descriptor is null in table index {0}!", t);
                             validated   = false;
                             m_LastError = BIND_MAP_VALIDATION_INVALID_DESCRIPTOR;
                             return *this;

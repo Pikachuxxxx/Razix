@@ -712,7 +712,7 @@ namespace Razix {
 
         void RZFrameGraph::createResourceViewForPass(RZPassNode& pass, const RZFrameGraphResource& id)
         {
-            rz_handle resourceHandle;
+            rz_handle resourceHandle = {};
             if (verifyResourceType<RZFrameGraphTexture>(id))
                 resourceHandle = getResourceEntryRef(id).get<RZFrameGraphTexture>().getRHIHandle();
             else if (verifyResourceType<RZFrameGraphBuffer>(id))

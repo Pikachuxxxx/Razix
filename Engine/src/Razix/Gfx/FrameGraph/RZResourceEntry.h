@@ -1,11 +1,14 @@
 #pragma once
 
 /**
-* FrameGraph is an alias for Render Graph which controls the entire frame and it's rendering process
-* Based on : Copyright (c) Dawid Kurek, GitHub : skaarj1989 [https://github.com/skaarj1989/FrameGraph] MIT license. 
-* With Additional Changes Copyright (c) by Phani Srikar (Pikachuxxxx) MIT license.
-* Inspired from EA's Frostbite engine : https://www.gdcvault.com/play/1024612/FrameGraph-Extensible-Rendering-Architecture-in
-*/
+ * FrameGraph is an alias for Render Graph which controls the entire frame and it's rendering process
+ * Based on: Copyright (c) Dawid Kurek, GitHub: skaarj1989 [https://github.com/skaarj1989/FrameGraph] MIT license.
+ * With Additional Changes Copyright (c) by Phani Srikar (Pikachuxxxx) MIT license.
+ * Inspired from EA's Frostbite engine: https://www.gdcvault.com/play/1024612/FrameGraph-Extensible-Rendering-Architecture-in
+ */
+
+#include <typeindex>
+#include <typeinfo>
 
 #include "Razix/Gfx/FrameGraph/RZPassNode.h"
 
@@ -47,16 +50,11 @@ namespace Razix {
             struct RAZIX_API Concept
             {
                 virtual ~Concept() = default;
-
-                virtual void create(const void* transientAllocator)  = 0;
+                virtual void create(const void* transientAllocator) = 0;
                 virtual void destroy(const void* transientAllocator) = 0;
-
-                // Optional functions so we don't check for existence of these functions on the type rather on model before calling them
-                virtual void preRead(uint32_t flags)  = 0;
+                virtual void preRead(uint32_t flags) = 0;
                 virtual void preWrite(uint32_t flags) = 0;
-
                 virtual void resize(u32 width, u32 height) = 0;
-
                 virtual std::string toString() const = 0;
             };
 
@@ -114,14 +112,14 @@ namespace Razix {
                         resource.preRead(descriptor, flags);
                 }
 
-                void preWrite(uint32_t flags)
+                void preWrite(uint32_t flags) final
                 {
                     // Since these functions are optional for a resource to have and not enforce we check here before calling them
                     if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, preWrite))
                         resource.preWrite(descriptor, flags);
                 }
 
-                void resize(u32 width, u32 height)
+                void resize(u32 width, u32 height) final
                 {
                     // Since these functions are optional for a resource to have and not enforce we check here before calling them
                     if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, resize))
@@ -166,60 +164,69 @@ namespace Razix {
 
 #ifdef FG_USE_FINE_GRAINED_LIFETIMES
             const std::vector<RZResourceLifetime>& getLifetimes() const { return m_Lifetimes; }
-            std::vector<RZResourceLifetime>&       getLifetimesRef() { return m_Lifetimes; }
+            std::vector<RZResourceLifetime>& getLifetimesRef() { return m_Lifetimes; }
 #else
             inline const RZPassNode& getProducerPassNode() const { return *m_Producer; }
             inline const RZPassNode& getLastPassNode() const { return *m_Last; }
-
 #endif
+
             inline RZResourceLifetime getCoarseLifetime() const
             {
                 Gfx::RZResourceLifetime lifetime = {};
-                lifetime.Mode                    = Gfx::LifeTimeMode::kCoarse;
-                lifetime.ResourceEntryID         = m_ID;
-                lifetime.StartPassID             = !isImported() ? m_Producer->getID() : 0;
-                lifetime.EndPassID               = !isImported() ? m_Last->getID() : UINT32_MAX;
+                lifetime.Mode = Gfx::LifeTimeMode::kCoarse;
+                lifetime.ResourceEntryID = m_ID;
+                lifetime.StartPassID = !isImported() ? m_Producer->getID() : 0;
+                lifetime.EndPassID = !isImported() ? m_Last->getID() : UINT32_MAX;
                 return lifetime;
             }
 
             RAZIX_NO_DISCARD inline const std::string& getName() const { return m_Name; }
-            RAZIX_NO_DISCARD inline u32                getVersion() const { return m_Version; }
-            RAZIX_NO_DISCARD inline bool               isImported() const { return m_Imported; }
-            RAZIX_NO_DISCARD inline bool               isTransient() const { return !m_Imported; }
-            RAZIX_NO_DISCARD inline u32                getID() const { return m_ID; }
-            RAZIX_NO_DISCARD inline FGResourceType     getResourceType() const { return m_ResType; }
+            RAZIX_NO_DISCARD inline u32 getVersion() const { return m_Version; }
+            RAZIX_NO_DISCARD inline bool isImported() const { return m_Imported; }
+            RAZIX_NO_DISCARD inline bool isTransient() const { return !m_Imported; }
+            RAZIX_NO_DISCARD inline u32 getID() const { return m_ID; }
+            RAZIX_NO_DISCARD inline FGResourceType getResourceType() const { return m_ResType; }
 
         private:
-            //---------------------------------
-            std::unique_ptr<Concept> m_Concept; /* Type Erased implementation class */
-            //---------------------------------
-            const u32      m_ID;
-            const bool     m_Imported = false;
-            u32            m_Version  = UINT32_MAX;
-            FGResourceType m_ResType  = {};
-            std::string    m_Name;
+            std::unique_ptr<Concept> m_Concept; // Use unique_ptr for safe memory management
+            std::type_index m_TypeIndex;        // Store type info for T
+            const u32 m_ID;
+            const bool m_Imported = false;
+            u32 m_Version = UINT32_MAX;
+            FGResourceType m_ResType = {};
+            std::string m_Name;
 #ifdef FG_USE_FINE_GRAINED_LIFETIMES
             std::vector<RZResourceLifetime> m_Lifetimes;
 #else
-            RZPassNode* m_Producer = NULL;
-            RZPassNode* m_Last     = NULL;
+            RZPassNode* m_Producer = nullptr;
+            RZPassNode* m_Last = nullptr;
 #endif
 
         private:
-            // Fix the constructor call to use parentheses instead of braces for std::make_unique<Model<T>>
-            // This ensures the correct constructor is selected for std::unique_ptr
-
             template<typename T>
-            RZResourceEntry(const std::string& name, u32 id, typename T::Desc&& desc, T&& obj, u32 version, bool imported = false)
-                : m_ID(id), m_Concept(std::make_unique<Model<T>>(name, std::forward<typename T::Desc>(desc), std::forward<T>(obj), id)), m_Version(version), m_Imported(imported), m_Name(name)
+            RZResourceEntry(const std::string& name,
+                            u32 id,
+                            typename T::Desc&& desc,
+                            T&& obj,
+                            u32 version,
+                            bool imported = false)
+                : m_ID(id), m_Imported(imported), m_TypeIndex(typeid(T))
             {
+                RAZIX_CORE_INFO("Creating RZResourceEntry with T = {}", typeid(T).name());
+                m_Concept = std::make_unique<Model<T>>(name, std::forward<typename T::Desc>(desc), std::forward<T>(obj), id);
+                m_Version = version;
+                m_Name = name;
+                RAZIX_CORE_ASSERT(m_Concept != nullptr, "m_Concept is null after construction!");
             }
 
             template<typename T>
             RAZIX_NO_DISCARD Model<T>* getModel() const
             {
-                auto* model = dynamic_cast<Model<T>*>(m_Concept.get());
-                return model;
+                if (m_TypeIndex != typeid(T)) {
+                    return nullptr;
+                }
+                RAZIX_CORE_ASSERT(m_Concept != nullptr, "m_Concept is null in getModel!");
+                return static_cast<Model<T>*>(m_Concept.get());
             }
 
             RAZIX_NO_DISCARD Concept* getConcept() const
@@ -227,5 +234,5 @@ namespace Razix {
                 return m_Concept.get();
             }
         };
-    }    // namespace Gfx
-}    // namespace Razix
+    } // namespace Gfx
+} // namespace Razix

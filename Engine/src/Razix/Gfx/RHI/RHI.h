@@ -143,7 +143,7 @@ extern "C"
     #define RAZIX_DEBUG_BREAK() ((void) 0)
 #endif
 
-#ifdef RAZIX_DEBUG
+//#ifndef RAZIX_DEBUG
     #define RAZIX_RHI_ASSERT(cond, msg, ...)                                                             \
         do {                                                                                             \
             if (!(cond)) {                                                                               \
@@ -160,10 +160,10 @@ extern "C"
             abort();                                                              \
         } while (0)
 
-#else
-    #define RAZIX_RHI_ASSERT(cond, msg, ...)
-    #define RAZIX_RHI_ABORT()
-#endif
+//#else
+//    #define RAZIX_RHI_ASSERT(cond, msg, ...)
+//    #define RAZIX_RHI_ABORT()
+//#endif
 
 #if defined(_MSC_VER)
     #include <intrin.h>
@@ -244,6 +244,9 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define RAZIX_Y(v)               ((v)[1])
 #define RAZIX_Z(v)               ((v)[2])
 #define RAZIX_W(v)               ((v)[3])
+
+#define RAZIX_MAX_RESOURCE_NAME_CHAR 256
+
 
 // Resource
 #define RAZIX_GFX_RESOURCE rz_gfx_resource resource
@@ -939,7 +942,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_descriptor
     {
-        const char*             pName;
+        char                    pName[RAZIX_MAX_RESOURCE_NAME_CHAR];
         rz_gfx_descriptor_type  type;
         uint32_t                sizeInBytes;
         rz_gfx_binding_location location;
@@ -1137,7 +1140,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_resource
     {
-        const char*                pName;
+        char                       pName[RAZIX_MAX_RESOURCE_NAME_CHAR];
         rz_handle                  handle;
         rz_gfx_resource_view_hints viewHints;
         rz_gfx_resource_type       type;

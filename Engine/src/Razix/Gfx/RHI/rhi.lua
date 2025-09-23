@@ -259,7 +259,7 @@ project "RHI"
         defines { "RAZIX_RELEASE", "NDEBUG" }
         optimize "Speed"
         symbols "On"
-        runtime "Release"
+        runtime "Debug"
 
     filter "configurations:GoldMaster"
         defines { "RAZIX_GOLD_MASTER", "NDEBUG" }

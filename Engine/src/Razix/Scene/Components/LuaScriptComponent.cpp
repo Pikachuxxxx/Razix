@@ -29,6 +29,7 @@ namespace Razix {
         if (lua_pcall(L, 0, 0, 0) != 0) {
             auto errorStr = lua_tostring(L, -1);
             RAZIX_CORE_ERROR("[Lua Script Manager] Error : {0}", errorStr);
+            RAZIX_UNUSED(errorStr);
             lua_pop(L, 1);    // Pop error message from stack
             return false;
         }

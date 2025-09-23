@@ -223,7 +223,7 @@ namespace Razix {
 
                 // Create a descriptor table for all the samplers
                 rz_gfx_descriptor samplerDescriptor                    = {};
-                samplerDescriptor.pName                                = "LinearSampler";    // must match the sampler namespace
+                snprintf(samplerDescriptor.pName , RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$");
                 samplerDescriptor.type                                 = RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
                 samplerDescriptor.location.binding                     = 0;
                 samplerDescriptor.location.space                       = 0;
