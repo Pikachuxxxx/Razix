@@ -683,7 +683,7 @@ namespace Razix {
 
             // TESTING IMGUI RUNTIME TOOLS CONFIG!
             // This will be owned by RZEngine
-            static Tools::ToolsDrawConfig drawConfig = {};
+//            static Tools::ToolsDrawConfig drawConfig = {};
 
             //Tools::OnImGuiDrawEngineTools(drawConfig);
 #endif

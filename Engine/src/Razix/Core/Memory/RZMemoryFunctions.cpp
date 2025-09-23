@@ -74,18 +74,9 @@ namespace Razix {
                 return RZMalloc(newSize, alignment);
             }
 
-            // Allocate new memory
-            void* newPtr = RZMalloc(newSize, alignment);
-            if (!newPtr)
-                return NULL;
+            oldPtr = realloc(oldPtr, newSize);
 
-            // Copy old data
-            memcpy(newPtr, oldPtr, newSize);
-
-            // Free the old memory
-            RZFree(oldPtr);
-
-            return newPtr;
+            return oldPtr;
         }
 
         void* RZRealloc(void* oldPtr, size_t newSize)

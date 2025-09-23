@@ -909,9 +909,6 @@ namespace Razix {
             // 7. Do this for all tables and build the m_TableBuilderResViewRefs completely
 
             if (rz_handle_is_valid(&m_ShaderHandle)) {
-                rz_gfx_shader* shader = RZResourceManager::Get().getShaderResource(m_ShaderHandle);
-                RAZIX_ASSERT(shader != nullptr, "[ShaderBindMap] Shader resource is null! Cannot validate shader bind map!");
-
                 // Validate the resource views against the shader reflection data
                 for (u32 t = 0; t < m_ShaderReflection.rootSignatureDesc.descriptorTableLayoutsCount; t++) {
                     // Assume table is invalid until proven otherwise
@@ -1036,7 +1033,7 @@ namespace Razix {
 
                     rz_gfx_descriptor_table_update updateDesc = {};
                     updateDesc.pTable                         = RZResourceManager::Get().getDescriptorTableResource(descriptorTableHandle);
-                    updateDesc.resViewCount                   = resViews.size();
+                    updateDesc.resViewCount                   = static_cast<u32>(resViews.size());
                     updateDesc.pResourceViews                 = pResViews;
                     rzRHI_UpdateDescriptorTable(updateDesc);
                     Memory::RZFree(pResViews);

@@ -530,11 +530,7 @@ private:                                                  \
     #define RAZIX_WARNING_DISABLE(x)
 #endif
 
-#if defined(__GNUC__) || defined(__clang__)    // GCC or Clang
-    #define RAZIX_UNUSED(x)                    //[[maybe_unused]] x
-#else
-    #define RAZIX_UNUSED(x)
-#endif
+#define RAZIX_UNUSED(x)   (void) (x)
 
 #define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
 
