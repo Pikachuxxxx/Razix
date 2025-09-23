@@ -222,8 +222,8 @@ namespace Razix {
                 m_SamplersPool.linearSampler          = RZResourceManager::Get().createSampler("LinearSampler", linearSamplerDesc);
 
                 // Create a descriptor table for all the samplers
-                rz_gfx_descriptor samplerDescriptor                    = {};
-                snprintf(samplerDescriptor.pName , RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$");
+                rz_gfx_descriptor samplerDescriptor = {};
+                snprintf(samplerDescriptor.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$");
                 samplerDescriptor.type                                 = RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
                 samplerDescriptor.location.binding                     = 0;
                 samplerDescriptor.location.space                       = 0;
@@ -683,7 +683,7 @@ namespace Razix {
 
             // TESTING IMGUI RUNTIME TOOLS CONFIG!
             // This will be owned by RZEngine
-//            static Tools::ToolsDrawConfig drawConfig = {};
+            //            static Tools::ToolsDrawConfig drawConfig = {};
 
             //Tools::OnImGuiDrawEngineTools(drawConfig);
 #endif

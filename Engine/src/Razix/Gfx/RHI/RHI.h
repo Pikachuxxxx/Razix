@@ -143,27 +143,27 @@ extern "C"
     #define RAZIX_DEBUG_BREAK() ((void) 0)
 #endif
 
-//#ifndef RAZIX_DEBUG
-    #define RAZIX_RHI_ASSERT(cond, msg, ...)                                                             \
-        do {                                                                                             \
-            if (!(cond)) {                                                                               \
-                RAZIX_RHI_LOG_ERROR("[RHI ASSERT] %s:%d: " msg "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
-                RAZIX_DEBUG_BREAK();                                                                     \
-                abort();                                                                                 \
-            }                                                                                            \
-        } while (0)
+    //#ifndef RAZIX_DEBUG
+#define RAZIX_RHI_ASSERT(cond, msg, ...)                                                             \
+    do {                                                                                             \
+        if (!(cond)) {                                                                               \
+            RAZIX_RHI_LOG_ERROR("[RHI ASSERT] %s:%d: " msg "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
+            RAZIX_DEBUG_BREAK();                                                                     \
+            abort();                                                                                 \
+        }                                                                                            \
+    } while (0)
 
-    #define RAZIX_RHI_ABORT()                                                     \
-        do {                                                                      \
-            RAZIX_RHI_LOG_ERROR("RHI Abort called at %s:%d", __FILE__, __LINE__); \
-            RAZIX_DEBUG_BREAK();                                                  \
-            abort();                                                              \
-        } while (0)
+#define RAZIX_RHI_ABORT()                                                     \
+    do {                                                                      \
+        RAZIX_RHI_LOG_ERROR("RHI Abort called at %s:%d", __FILE__, __LINE__); \
+        RAZIX_DEBUG_BREAK();                                                  \
+        abort();                                                              \
+    } while (0)
 
-//#else
-//    #define RAZIX_RHI_ASSERT(cond, msg, ...)
-//    #define RAZIX_RHI_ABORT()
-//#endif
+    //#else
+    //    #define RAZIX_RHI_ASSERT(cond, msg, ...)
+    //    #define RAZIX_RHI_ABORT()
+    //#endif
 
 #if defined(_MSC_VER)
     #include <intrin.h>
@@ -246,7 +246,6 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define RAZIX_W(v)               ((v)[3])
 
 #define RAZIX_MAX_RESOURCE_NAME_CHAR 256
-
 
 // Resource
 #define RAZIX_GFX_RESOURCE rz_gfx_resource resource

@@ -13,11 +13,11 @@
         RAZIX_CORE_ERROR("[Resource Manager] Failed to create resource: {0}. Pool is full!", name);      \
         return handle;                                                                                   \
     }                                                                                                    \
-memset(resource, 0x00, sizeof(rz_gfx_resource)); \
-    resource->type   = typeEnum;                                                                         \
-RAZIX_CORE_TRACE("resourceName: {}", name); \
-    snprintf(resource->pName, 256, "%s", name);                                                         \
-RAZIX_CORE_TRACE("resource->pName: {}", resource->pName); \
+    memset(resource, 0x00, sizeof(rz_gfx_resource));                                                     \
+    resource->type = typeEnum;                                                                           \
+    RAZIX_CORE_TRACE("resourceName: {}", name);                                                          \
+    snprintf(resource->pName, 256, "%s", name);                                                          \
+    RAZIX_CORE_TRACE("resource->pName: {}", resource->pName);                                            \
     resource->handle = handle;                                                                           \
     memcpy(&resource->desc, &desc, handleSize);                                                          \
     if (m_ResourceTypeCBFuncs[typeEnum].createFuncCB) {                                                  \

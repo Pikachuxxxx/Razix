@@ -104,11 +104,11 @@ namespace Razix {
             rzGfxCtx_SetRenderAPI((rz_render_api) RZEngine::Get().getCommandLineParser().getValueAsInt("render api"));
 
         // 5. Graphics API (last one in the engine to fire up)
-        rz_gfx_context_desc gfxCtxDesc = {};
+        rz_gfx_context_desc gfxCtxDesc   = {};
         gfxCtxDesc.opts.enableValidation = m_EngineSettings.EnableAPIValidation;
         // Cmdline always has precedence
         if (RZEngine::Get().getCommandLineParser().isSet("validation"))
-            gfxCtxDesc.opts.enableValidation = true;      
+            gfxCtxDesc.opts.enableValidation = true;
         rzGfxCtx_StartUp(gfxCtxDesc);
 
         Gfx::RZResourceManager::Get().StartUp();

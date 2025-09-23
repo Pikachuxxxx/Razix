@@ -68,7 +68,7 @@ namespace Razix {
         void RZPassNode::createDeferredResourceView(RZFrameGraphResource id, rz_handle resHandle)
         {
             RAZIX_CORE_ASSERT(rz_handle_is_valid(&resHandle), "Invalid resource Handle passed!");
-            
+
             auto& accessView = getResourceAccessViewRef(id);
             if (!rz_handle_is_valid(&accessView.resViewHandle)) {
                 std::string resViewName;
@@ -94,7 +94,7 @@ namespace Razix {
                 // Now that we have filled the pResource create the resource view
                 std::string resViewDebugName = std::string("ResView.") + resViewName + ".Pass." + getName();
                 RAZIX_CORE_INFO("{}", resViewDebugName);
-                accessView.resViewHandle     = RZResourceManager::Get().createResourceView(resViewDebugName.c_str(), accessView.resViewDesc);
+                accessView.resViewHandle = RZResourceManager::Get().createResourceView(resViewDebugName.c_str(), accessView.resViewDesc);
             }
         }
 

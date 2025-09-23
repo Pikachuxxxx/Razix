@@ -10,7 +10,6 @@ public:
     //        : RZApplication(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Sandbox/")), "ShadowsSandbox")
 
     {
-
     }
 
     void OnStart() override

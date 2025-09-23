@@ -530,7 +530,7 @@ private:                                                  \
     #define RAZIX_WARNING_DISABLE(x)
 #endif
 
-#define RAZIX_UNUSED(x)   (void) (x)
+#define RAZIX_UNUSED(x) (void) (x)
 
 #define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
 

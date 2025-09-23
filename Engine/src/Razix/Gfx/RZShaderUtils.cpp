@@ -719,7 +719,6 @@ namespace Razix {
                         for (uint32_t j = 0; j < srcTable->descriptorCount; ++j) {
                             dstTable->pDescriptors[j] = srcTable->pDescriptors[j];
                             snprintf(dstTable->pDescriptors[j].pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", srcTable->pDescriptors[j].pName);
-
                         }
                     } else {
                         dstTable->pDescriptors = NULL;
