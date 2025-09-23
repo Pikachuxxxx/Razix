@@ -159,22 +159,6 @@ project "RHI"
             "libvulkan.1.dylib"
         }
 
-        xcodebuildresources { "IconAssets.xcassets", "libMoltenVK.dylib" }
-
-        xcodebuildsettings
-        {
-            ['CODE_SIGN_IDENTITY'] = 'Mac Developer',
-            ['PRODUCT_BUNDLE_IDENTIFIER'] = settings.bundle_identifier,
-            ['INFOPLIST_FILE'] = '../Engine/src/Razix/Platform/MacOS/Info.plist',
-            ['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon',
-            ['CODE_SIGN_IDENTITY'] = ''
-        }
-
-        files 
-        {
-            "%{wks.location}/../Engine/src/Razix/Platform/MacOS/IconAssets.xcassets"
-        }
-
         defines
         {
             -- Engine

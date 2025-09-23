@@ -1261,7 +1261,7 @@ static VkImageViewType vk_util_translate_texture_type_view_type(rz_gfx_texture_t
             return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
         case RZ_GFX_TEXTURE_TYPE_UNDEFINED:
         default:
-            RAZIX_RHI_LOG_ERROR("Invalid or unsupported texture type: %d", textureType);
+            RAZIX_RHI_LOG_ERROR("Invalid or unsupported texture view type: %d", textureType);
             RAZIX_RHI_ABORT();
             return VK_IMAGE_VIEW_TYPE_2D;    // Fallback to most common type
     }
