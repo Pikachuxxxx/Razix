@@ -74,8 +74,11 @@ namespace Razix {
                 return RZMalloc(newSize, alignment);
             }
 
+#if defined(RAZIX_PLATFORM_CONSOLE) || (RAZIX_PLATFORM_UNIX)
             oldPtr = realloc(oldPtr, newSize);
-
+#elif defined(_WIN32)
+            oldPtr = _aligned_realloc(oldPtr, newSize, alignment);
+#endif
             return oldPtr;
         }
 

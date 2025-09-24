@@ -669,10 +669,6 @@ namespace Razix {
         void FreeShaderReflectionMemAllocs(rz_gfx_shader_reflection* reflection)
         {
             if (reflection->pInputElements) {
-                for (u32 i = 0; i < reflection->elementCount; ++i) {
-                    if (reflection->pInputElements[i].pSemanticName)
-                        free((void*) reflection->pInputElements[i].pSemanticName);
-                }
                 Memory::RZFree(reflection->pInputElements);
                 reflection->pInputElements = NULL;
             }
@@ -788,10 +784,6 @@ namespace Razix {
         void FreeInputElementsMemAllocs(rz_gfx_input_element* inputElements, u32 numElements)
         {
             if (inputElements) {
-                for (u32 i = 0; i < numElements; ++i) {
-                    if (inputElements[i].pSemanticName)
-                        free((void*) inputElements[i].pSemanticName);
-                }
                 Memory::RZFree(inputElements);
                 inputElements = NULL;
             }
