@@ -1178,12 +1178,22 @@ static inline unsigned int rz_clz32(unsigned int x)
         void*            user;
     } rz_alloc_callbacks;
 
+    typedef struct version_t
+    {
+        uint32_t major;
+        uint32_t minor;
+        uint32_t patch;
+    } version_t;
+
     typedef struct rz_gfx_context_desc
     {
         struct
         {
             uint32_t enableValidation : 1;
         } opts;
+
+        version_t appVer;
+        version_t engineVer;
     } rz_gfx_context_desc;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_context

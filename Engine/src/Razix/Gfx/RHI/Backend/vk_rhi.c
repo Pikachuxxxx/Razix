@@ -2417,10 +2417,10 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
     // Create Vulkan instance
     VkApplicationInfo appInfo  = {0};
     appInfo.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName   = "PerpetualPuffs";            // TODO: Get this from CtxInit
-    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);    // TODO: Get this from CtxInit
+    appInfo.pApplicationName   = "Tanu"; // A story about "HER" self discovery
+    appInfo.applicationVersion = VK_MAKE_VERSION(init.appVer.major, init.appVer.minor, init.appVer.patch);    // TODO: Get this from CtxInit
     appInfo.pEngineName        = "Razix Engine";
-    appInfo.engineVersion      = VK_MAKE_VERSION(0, 50, 0);    // TODO: Get this from CtxInit
+    appInfo.engineVersion      = VK_MAKE_VERSION(init.engineVer.major, init.engineVer.minor, init.engineVer.patch);    // TODO: Get this from CtxInit
     appInfo.apiVersion         = RAZIX_VK_API_VERSION;
 
     VkInstanceCreateInfo createInfo    = {0};
