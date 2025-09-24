@@ -1684,9 +1684,9 @@ static void dx12_util_update_swapchain_rtvs(rz_gfx_swapchain* sc)
 #endif
 
         // This is the only place where a RZ_RESOURCE is manually created, instead of using the RZResourceManager
-        rz_gfx_texture texture                        = {0};
-        dx12_texture   dxtexture                      = {0};
-        texture.resource.pName                        = "$SWAPCHAIN_IMAGE$";
+        rz_gfx_texture texture   = {0};
+        dx12_texture   dxtexture = {0};
+        snprintf(texture.resource.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$_%u", i);
         texture.resource.handle                       = (rz_handle) {i, i};
         texture.resource.viewHints                    = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
         texture.resource.type                         = RZ_GFX_RESOURCE_TYPE_TEXTURE;
@@ -1701,8 +1701,8 @@ static void dx12_util_update_swapchain_rtvs(rz_gfx_swapchain* sc)
         texture.resource.desc.textureDesc.textureType = RZ_GFX_TEXTURE_TYPE_2D;
         sc->backbuffers[i]                            = texture;
 
-        rz_gfx_resource_view view  = {0};
-        view.resource.pName        = "$SWAPCHAIN_RES_VIEW$";
+        rz_gfx_resource_view view = {0};
+        snprintf(view.resource.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_RES_VIEW$_%u", i);
         view.resource.handle       = (rz_handle) {i, i};
         view.resource.type         = RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW;
         view.dx12.rtv.cpu          = rtvHandle;

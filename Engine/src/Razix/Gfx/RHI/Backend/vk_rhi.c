@@ -2106,7 +2106,7 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
         memset(texture, 0, sizeof(rz_gfx_texture));
 
         // Set up resource metadata
-        snprintf(texture->resource.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$");
+        snprintf(texture->resource.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$_%u", i);
         texture->resource.handle                         = (rz_handle) {i, i};
         texture->resource.viewHints                      = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
         texture->resource.type                           = RZ_GFX_RESOURCE_TYPE_TEXTURE;
@@ -2125,7 +2125,7 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
         // Create resource view for the swapchain image
         rz_gfx_resource_view* resourceView = &swapchain->backbuffersResViews[i];
         memset(resourceView, 0, sizeof(rz_gfx_resource_view));
-        snprintf(resourceView->resource.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_RES_VIEW$");
+        snprintf(resourceView->resource.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_RES_VIEW$_%u", i);
         resourceView->resource.handle                                               = (rz_handle) {i, i};
         resourceView->resource.type                                                 = RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW;
         resourceView->resource.desc.resourceViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE;
