@@ -106,35 +106,34 @@ namespace Razix {
 
             void flushGPUWork();
 
+            inline void clearFrameGraph() { m_FrameGraph.destroy(); }
+            inline void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings) { pass->addPass(m_FrameGraph, scene, settings); }
+
             // Getters/Setters
             inline RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
-
-            inline std::string getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
-            void               setFrameGraphFilePath(std::string val);
-
-            inline void                           setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
-            inline const rz_gfx_texture_readback* getSwapchainReadbackPtr() const { return &m_LastSwapchainReadback; }
-
-            void clearFrameGraph();
-            void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings);
-
-            inline rz_gfx_cmdbuf_handle        getCurrCmdBufHandle() const { return m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx]; }
-            inline const rz_gfx_texture*       getCurrSwapchainBackbufferPtr() const { return &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx]; }
-            inline rz_gfx_texture_handle       getCurrSwapchainBackbufferHandle() const { return m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx].resource.handle; }
-            inline const rz_gfx_resource_view* getCurrSwapchainBackbufferResViewPtr() const { return &m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx]; }
-            inline rz_gfx_resource_view_handle getCurrSwapchainBackbufferResViewHandle() const { return m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx].resource.handle; }
-
+            inline std::string   getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
+            inline void          setFrameGraphFilePath(std::string val)
+            {
+                m_IsFGFilePathDirty  = true;
+                m_FrameGraphFilePath = val;
+            }
+            inline void                            setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
+            inline const rz_gfx_texture_readback*  getSwapchainReadbackPtr() const { return &m_LastSwapchainReadback; }
+            inline rz_gfx_cmdbuf_handle            getCurrCmdBufHandle() const { return m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx]; }
+            inline const rz_gfx_texture*           getCurrSwapchainBackbufferPtr() const { return &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx]; }
+            inline rz_gfx_texture_handle           getCurrSwapchainBackbufferHandle() const { return m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx].resource.handle; }
+            inline const rz_gfx_resource_view*     getCurrSwapchainBackbufferResViewPtr() const { return &m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx]; }
+            inline rz_gfx_resource_view_handle     getCurrSwapchainBackbufferResViewHandle() const { return m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx].resource.handle; }
             inline rz_gfx_descriptor_heap_handle   getRenderTargetHeap() const { return m_RenderTargetHeap; }
             inline rz_gfx_descriptor_heap_handle   getDepthRenderTargetHeap() const { return m_DepthRenderTargetHeap; }
             inline rz_gfx_descriptor_heap_handle   getSamplerHeap() const { return m_SamplerHeap; }
             inline rz_gfx_descriptor_heap_handle   getResourceHeap() const { return m_ResourceHeap; }
-            inline rz_gfx_descriptor_table_handle& getGlobalSamplerTable() { return m_GlobalSamplerTable; }
+            // FIXME: Remove this, we will soon be using Immutable Samplers instead
+            inline rz_gfx_descriptor_table_handle  getGlobalSamplerTable() { return m_GlobalSamplerTable; }
 
         private:
-            RZFrameGraph m_FrameGraph = {};
-            //rz_texture_handle m_BRDFfLUTTextureHandle;
-            //rz_texture_handle m_NoiseTextureHandle;
-            //rz_texture_handle m_ColorGradingNeutralLUTHandle;
+            RZFrameGraph          m_FrameGraph            = {};
+            rz_gfx_texture_handle m_BRDFfLUTTextureHandle = {};
             //LightProbe      m_GlobalLightProbes;
             //RZShadowPass             m_ShadowPass;
             //RZGBufferPass            m_GBufferPass;

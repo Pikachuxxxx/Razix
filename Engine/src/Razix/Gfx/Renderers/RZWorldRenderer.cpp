@@ -305,34 +305,15 @@ namespace Razix {
 
         /**
          * Notes:
-         * 1. In Razix we use CW winding order for front facing triangles => Also, back facing faces are pointed towards the camera
+         * 1. In Razix we use CCW winding order for front facing triangles => Also, back facing faces are pointed towards the camera
          */
 
         void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
         {
+            memset(&m_LastSwapchainReadback, 0, sizeof(rz_gfx_texture_readback));
+
 #if 0
-            memset(&m_LastSwapchainReadback, 0, sizeof(TextureReadback));
-
             m_FrameGraphBuildingInProgress = true;
-
-            // Noise texture LUT
-            RZTextureDesc noiseDesc     = {};
-            noiseDesc.name              = "VolumetricCloudsNoise";    // must match shader
-            noiseDesc.enableMips        = false;
-            noiseDesc.filePath          = "//RazixContent/Textures/Texture.Builtin.VolumetricCloudsNoise.png";
-            m_NoiseTextureHandle        = RZResourceManager::Get().createTexture(noiseDesc);
-            auto& volumetricData        = m_FrameGraph.getBlackboard().add<VolumetricCloudsData>();
-            volumetricData.noiseTexture = m_FrameGraph.import <RZFrameGraphTexture>(noiseDesc.name, CAST_TO_FG_TEX_DESC noiseDesc, {m_NoiseTextureHandle});
-
-            // Import the color grading LUT
-            RZTextureDesc colorGradingNeutralLUTDesc = {};
-            colorGradingNeutralLUTDesc.name          = "ColorGradingUnreal_Neutral_LUT16";    // must match shader
-            colorGradingNeutralLUTDesc.enableMips    = false;
-            colorGradingNeutralLUTDesc.flipY         = true;
-            colorGradingNeutralLUTDesc.filePath      = "//RazixContent/Textures/Texture.Builtin.ColorGradingNeutralLUT16.png";
-            m_ColorGradingNeutralLUTHandle           = RZResourceManager::Get().createTexture(colorGradingNeutralLUTDesc);
-            auto& colorGradingLUTSData               = m_FrameGraph.getBlackboard().add<ColorGradingLUTData>();
-            colorGradingLUTSData.neutralLUT          = m_FrameGraph.import <RZFrameGraphTexture>(colorGradingNeutralLUTDesc.name, CAST_TO_FG_TEX_DESC colorGradingNeutralLUTDesc, {m_ColorGradingNeutralLUTHandle});
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
@@ -356,7 +337,6 @@ namespace Razix {
 
             //-----------------------------------------------------------------------------------
             // Misc Variables
-
             // Jitter samples for TAA
             for (int i = 0; i < NUM_HALTON_SAMPLES_TAA_JITTER; ++i) {
                 // Generate jitter using Halton sequence with bases 2 and 3 for X and Y respectively
@@ -705,22 +685,6 @@ namespace Razix {
         void RZWorldRenderer::flushGPUWork()
         {
             rzRHI_FlushGPUWork(&m_RenderSync.frameSync.inflightSyncobj[m_RenderSync.frameSync.inFlightSyncIdx]);
-        }
-
-        RAZIX_INLINE void RZWorldRenderer::setFrameGraphFilePath(std::string val)
-        {
-            m_IsFGFilePathDirty  = true;
-            m_FrameGraphFilePath = val;
-        }
-
-        void RZWorldRenderer::clearFrameGraph()
-        {
-            m_FrameGraph.destroy();
-        }
-
-        void RZWorldRenderer::pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings)
-        {
-            pass->addPass(m_FrameGraph, scene, settings);
         }
 
 #if 0
