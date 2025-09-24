@@ -202,12 +202,6 @@ workspace ( settings.workspace_name )
     -- TODO: We will be using blender so VS tool and CLI tools will be added here
 
     --------------------------------------------------------------------------------
-    -- Build script for Razix Game Framework
-    group "Game Framework"
-        include "GameFramework/razix_game_framework.lua"
-    group ""
-
-    --------------------------------------------------------------------------------
     -- Engine related tools
     group "Tools/Build"
         -- premake scripts Utility project for in IDE management
