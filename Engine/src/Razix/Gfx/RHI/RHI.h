@@ -1023,7 +1023,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_input_element
     {
-        const char*   pSemanticName;
+        char          pSemanticName[RAZIX_MAX_RESOURCE_NAME_CHAR];
         uint32_t      semanticIndex : 5;
         rz_gfx_format format : 6;
         uint32_t      inputSlot : 4;

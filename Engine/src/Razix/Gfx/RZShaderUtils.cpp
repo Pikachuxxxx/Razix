@@ -144,14 +144,14 @@ namespace Razix {
                     RAZIX_CORE_ASSERT(formatComponentSize > 0, "Unsupported or unknown format component size reflected from SPIR-V");
                     u32                   formatSize = formatComponentsCount * formatComponentSize;
                     rz_gfx_input_element* inputParam = &outReflection->pInputElements[currentElementIndex];
-                    inputParam->pSemanticName        = strdup(inputVar.semantic ? inputVar.semantic : inputVar.name);
-                    inputParam->semanticIndex        = 0;    // Not used in Vulkan
-                    inputParam->format               = engineFormat;
-                    inputParam->inputSlot            = inputVar.location;
-                    inputParam->alignedByteOffset    = currentOffset;
-                    inputParam->inputClass           = (rz_gfx_input_class) VK_VERTEX_INPUT_RATE_VERTEX;
-                    inputParam->instanceStepRate     = 0;
-                    inputParam->stride               = formatSize;
+                    snprintf(inputParam->pSemanticName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", inputVar.semantic ? inputVar.semantic : inputVar.name);
+                    inputParam->semanticIndex     = 0;    // Not used in Vulkan
+                    inputParam->format            = engineFormat;
+                    inputParam->inputSlot         = inputVar.location;
+                    inputParam->alignedByteOffset = currentOffset;
+                    inputParam->inputClass        = (rz_gfx_input_class) VK_VERTEX_INPUT_RATE_VERTEX;
+                    inputParam->instanceStepRate  = 0;
+                    inputParam->stride            = formatSize;
 
                     currentOffset += formatSize;
                     currentElementIndex++;
@@ -536,14 +536,14 @@ namespace Razix {
                         continue;    // Skip system values
 
                     rz_gfx_input_element* inputParam = &outReflection->pInputElements[currentElementIndex];
-                    inputParam->pSemanticName        = strdup(paramDesc.SemanticName);
-                    inputParam->semanticIndex        = paramDesc.SemanticIndex;
-                    inputParam->format               = DX12DXXGIToEngineFormat(format);
-                    inputParam->inputSlot            = paramDesc.Stream;
-                    inputParam->alignedByteOffset    = currentOffset;
-                    inputParam->inputClass           = (rz_gfx_input_class) D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-                    inputParam->instanceStepRate     = 0;
-                    inputParam->stride               = formatSize;
+                    snprintf(inputParam->pSemanticName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", paramDesc.SemanticName);
+                    inputParam->semanticIndex     = paramDesc.SemanticIndex;
+                    inputParam->format            = DX12DXXGIToEngineFormat(format);
+                    inputParam->inputSlot         = paramDesc.Stream;
+                    inputParam->alignedByteOffset = currentOffset;
+                    inputParam->inputClass        = (rz_gfx_input_class) D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+                    inputParam->instanceStepRate  = 0;
+                    inputParam->stride            = formatSize;
 
                     currentOffset += formatSize;
                     currentElementIndex++;
@@ -625,7 +625,7 @@ namespace Razix {
 
                 rz_gfx_descriptor* desc = &targetTable->pDescriptors[targetTable->descriptorCount];
                 memset(desc, 0, sizeof(rz_gfx_descriptor));
-                desc->pName            = strdup(bindDesc.Name);
+                snprintf(desc->pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", bindDesc.Name);
                 desc->location.binding = bindDesc.BindPoint;
                 desc->location.space   = bindDesc.Space;
                 desc->type             = DX12ConvertInputTypeToDescriptorType(bindDesc.Type);
@@ -771,7 +771,7 @@ namespace Razix {
             if (*elementCount > 0) {
                 *dst = (rz_gfx_input_element*) Memory::RZMalloc(sizeof(rz_gfx_input_element) * (*elementCount));
                 for (u32 i = 0; i < *elementCount; i++) {
-                    (*dst)[i].pSemanticName     = strdup(src->pInputElements[i].pSemanticName);    // Deep copy the string
+                    snprintf((*dst)[i].pSemanticName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", src->pInputElements[i].pSemanticName);
                     (*dst)[i].semanticIndex     = src->pInputElements[i].semanticIndex;
                     (*dst)[i].format            = src->pInputElements[i].format;
                     (*dst)[i].inputSlot         = src->pInputElements[i].inputSlot;
