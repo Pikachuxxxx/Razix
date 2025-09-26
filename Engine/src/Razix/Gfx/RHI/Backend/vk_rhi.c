@@ -1372,6 +1372,10 @@ static bool vk_util_check_validation_layer_support(void)
     CHECK_VK(vkEnumerateInstanceLayerProperties(&layerCount, NULL));
 
     VkLayerProperties* availableLayers = malloc(layerCount * sizeof(VkLayerProperties));
+    if(availableLayers == NULL) {
+        RAZIX_RHI_LOG_ERROR("Vulkan: Memory allocation failed while enumerating validation layers.");
+        return false;
+    }
     CHECK_VK(vkEnumerateInstanceLayerProperties(&layerCount, availableLayers));
 
     for (uint32_t i = 0; i < sizeof(s_ValidationLayers) / sizeof(s_ValidationLayers[0]); i++) {
@@ -1403,6 +1407,10 @@ static bool vk_util_check_instance_extension_support(void)
     CHECK_VK(vkEnumerateInstanceExtensionProperties(NULL, &extensionCount, NULL));
 
     VkExtensionProperties* availableExtensions = malloc(extensionCount * sizeof(VkExtensionProperties));
+    if(availableExtensions == NULL) {
+        RAZIX_RHI_LOG_ERROR("Vulkan: Memory allocation failed while enumerating instance extensions.");
+        return false;
+    }
     CHECK_VK(vkEnumerateInstanceExtensionProperties(NULL, &extensionCount, availableExtensions));
 
     for (uint32_t i = 0; i < sizeof(s_RequiredInstanceExtensions) / sizeof(s_RequiredInstanceExtensions[0]); i++) {
@@ -1434,6 +1442,10 @@ static VkQueueFamilyIndices vk_util_find_queue_families(VkPhysicalDevice device)
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, NULL);
 
     VkQueueFamilyProperties* queueFamilies = malloc(queueFamilyCount * sizeof(VkQueueFamilyProperties));
+    if (!queueFamilies) {
+        RAZIX_RHI_LOG_ERROR("Vulkan: Memory allocation failed while enumerating queue families.");
+        return indices;
+    }
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies);
 
     for (uint32_t i = 0; i < queueFamilyCount; i++) {
@@ -1469,6 +1481,10 @@ static bool vk_util_check_device_extension_support(VkPhysicalDevice device)
     CHECK_VK(vkEnumerateDeviceExtensionProperties(device, NULL, &extensionCount, NULL));
 
     VkExtensionProperties* availableExtensions = malloc(extensionCount * sizeof(VkExtensionProperties));
+    if (!availableExtensions) {
+        RAZIX_RHI_LOG_ERROR("Vulkan: Memory allocation failed while enumerating device extensions.");
+        return false;
+    }
     CHECK_VK(vkEnumerateDeviceExtensionProperties(device, NULL, &extensionCount, availableExtensions));
 
     for (uint32_t i = 0; i < sizeof(s_RequiredDeviceExtensions) / sizeof(s_RequiredDeviceExtensions[0]); i++) {
@@ -2004,12 +2020,22 @@ static VkSwapchainSupportDetails vk_util_query_swapchain_support(VkPhysicalDevic
     CHECK_VK(vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &details.formatCount, NULL));
     if (details.formatCount != 0) {
         details.formats = malloc(details.formatCount * sizeof(VkSurfaceFormatKHR));
+        if (!details.formats) {
+            RAZIX_RHI_LOG_ERROR("Vulkan: Memory allocation failed while querying swapchain formats.");
+            details.formatCount = 0;
+            return details;
+        }
         CHECK_VK(vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &details.formatCount, details.formats));
     }
 
     CHECK_VK(vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &details.presentModeCount, NULL));
     if (details.presentModeCount != 0) {
         details.presentModes = malloc(details.presentModeCount * sizeof(VkPresentModeKHR));
+        if (!details.presentModes) {
+            RAZIX_RHI_LOG_ERROR("Vulkan: Memory allocation failed while querying swapchain present modes.");
+            details.presentModeCount = 0;
+            return details;
+        }
         CHECK_VK(vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &details.presentModeCount, details.presentModes));
     }
 
@@ -2049,11 +2075,7 @@ static void vk_util_create_swapchain_images(rz_gfx_swapchain* swapchain)
     RAZIX_RHI_ASSERT(swapchain->vk.swapchain != VK_NULL_HANDLE, "Vulkan swapchain must be valid");
 
     CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->imageCount, NULL));
-    swapchain->vk.images = malloc(swapchain->imageCount * sizeof(VkImage));
     CHECK_VK(vkGetSwapchainImagesKHR(VKCONTEXT.device, swapchain->vk.swapchain, &swapchain->imageCount, swapchain->vk.images));
-
-    swapchain->vk.imageViews = malloc(swapchain->imageCount * sizeof(VkImageView));
-    RAZIX_RHI_ASSERT(swapchain->vk.imageViews != NULL, "Failed to allocate memory for image views");
 
     for (uint32_t i = 0; i < swapchain->imageCount; i++) {
         VkImage image = swapchain->vk.images[i];
@@ -2081,8 +2103,6 @@ static void vk_util_create_swapchain_images(rz_gfx_swapchain* swapchain)
             for (uint32_t j = 0; j < i; j++) {
                 vkDestroyImageView(VKCONTEXT.device, swapchain->vk.imageViews[j], NULL);
             }
-            free(swapchain->vk.imageViews);
-            swapchain->vk.imageViews = NULL;
             return;
         }
         TAG_OBJECT(swapchain->vk.imageViews[i], VK_OBJECT_TYPE_IMAGE_VIEW, "Swapchain Image View");
@@ -2146,15 +2166,11 @@ static void vk_util_destroy_swapchain_images(rz_gfx_swapchain* swapchain)
     RAZIX_RHI_ASSERT(swapchain != NULL, "Swapchain cannot be NULL");
 
     // Clean up image views
-    if (swapchain->vk.imageViews) {
-        for (uint32_t i = 0; i < swapchain->imageCount; i++) {
-            if (swapchain->vk.imageViews[i] != VK_NULL_HANDLE) {
-                vkDestroyImageView(VKCONTEXT.device, swapchain->vk.imageViews[i], NULL);
-                swapchain->vk.imageViews[i] = VK_NULL_HANDLE;
-            }
+    for (uint32_t i = 0; i < swapchain->imageCount; i++) {
+        if (swapchain->vk.imageViews[i] != VK_NULL_HANDLE) {
+            vkDestroyImageView(VKCONTEXT.device, swapchain->vk.imageViews[i], NULL);
+            swapchain->vk.imageViews[i] = VK_NULL_HANDLE;
         }
-        free(swapchain->vk.imageViews);
-        swapchain->vk.imageViews = NULL;
     }
 
     // Clear texture wrappers (they don't own the actual VkImage, so just zero them out)
@@ -2162,6 +2178,15 @@ static void vk_util_destroy_swapchain_images(rz_gfx_swapchain* swapchain)
         memset(&swapchain->backbuffers[i], 0, sizeof(rz_gfx_texture));
         memset(&swapchain->backbuffersResViews[i], 0, sizeof(rz_gfx_resource_view));
     }
+
+    if(swapchain->vk.supportDetails.formats)
+        free(swapchain->vk.supportDetails.formats);
+    if(swapchain->vk.supportDetails.presentModes)
+        free(swapchain->vk.supportDetails.presentModes);
+    swapchain->vk.supportDetails.formats          = NULL;
+    swapchain->vk.supportDetails.presentModes     = NULL;
+    swapchain->vk.supportDetails.formatCount      = 0;
+    swapchain->vk.supportDetails.presentModeCount = 0;
 
     RAZIX_RHI_LOG_INFO("Destroyed swapchain image views and texture wrappers");
 }
@@ -2594,12 +2619,7 @@ static void vk_DestroySwapchain(rz_gfx_swapchain* sc)
 {
     // Destroy swapchain images and texture wrappers using utility function
     vk_util_destroy_swapchain_images(sc);
-
-    if (sc->vk.images) {
-        free(sc->vk.images);
-        sc->vk.images = NULL;
-    }
-
+        
     if (sc->vk.swapchain) {
         vkDestroySwapchainKHR(VKCONTEXT.device, sc->vk.swapchain, NULL);
         sc->vk.swapchain = VK_NULL_HANDLE;
@@ -4012,10 +4032,6 @@ static void vk_AcquireImage(rz_gfx_swapchain* sc, const rz_gfx_syncobj* presentS
         // destroy old swapchain images and views
         {
             vk_util_destroy_swapchain_images(sc);
-            if (sc->vk.images) {
-                free(sc->vk.images);
-                sc->vk.images = NULL;
-            }
 
             if (sc->vk.swapchain) {
                 vkDestroySwapchainKHR(VKCONTEXT.device, sc->vk.swapchain, NULL);
@@ -4782,6 +4798,8 @@ static void vk_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_textu
 
     if (readback->data) {
         memcpy(readback->data, mappedData, size);
+    } else {
+        RAZIX_RHI_LOG_ERROR("Failed to allocate memory for texture readback");
     }
 
     vkUnmapMemory(VKDEVICE, stagingBufferMemory);
@@ -4894,6 +4912,8 @@ static void vk_InsertBufferReadback(const rz_gfx_buffer* buffer, rz_gfx_buffer_r
 
     if (readback->data) {
         memcpy(readback->data, mappedData, readback->sizeInBytes);
+    } else {
+        RAZIX_RHI_LOG_ERROR("Failed to allocate memory for buffer readback");
     }
 
     vkUnmapMemory(VKDEVICE, stagingBufferMemory);
@@ -5822,10 +5842,6 @@ static void vk_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t he
     // destroy old swapchain images and views
     {
         vk_util_destroy_swapchain_images(sc);
-        if (sc->vk.images) {
-            free(sc->vk.images);
-            sc->vk.images = NULL;
-        }
 
         if (sc->vk.swapchain) {
             vkDestroySwapchainKHR(VKCONTEXT.device, sc->vk.swapchain, NULL);
