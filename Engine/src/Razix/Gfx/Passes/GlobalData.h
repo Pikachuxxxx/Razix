@@ -1,14 +1,14 @@
 ﻿#pragma once
 
-#include "Razix/Gfx/FrameGraph/RZFrameGraphResource.h"
-#include "Razix/Gfx/Lighting/LightData.h"
-#include "Razix/Scene/RZSceneCamera.h"
+//#include "Razix/Gfx/FrameGraph/RZFrameGraphResource.h"
+//#include "Razix/Gfx/Lighting/LightData.h"
+//#include "Razix/Scene/RZSceneCamera.h"
 
 namespace Razix {
     namespace Gfx {
 
         // Per‑Frame resources
-
+#if LIMBO_STATE
         struct FrameData
         {
             RZFrameGraphResource frameData;
@@ -157,11 +157,6 @@ namespace Razix {
 
         // Post Processing
 
-        struct BRDFData
-        {
-            RZFrameGraphResource lut;
-        };
-
         struct SSAOImportData
         {
             RZFrameGraphResource SSAONoiseTexture;
@@ -192,6 +187,12 @@ namespace Razix {
             RZFrameGraphResource historyTexture;
             RZFrameGraphResource accumulationTexture;
         };
+#endif
+        struct BRDFData
+        {
+            RZFrameGraphResource lut;
+        };
+
 
     }    // namespace Gfx
 }    // namespace Razix

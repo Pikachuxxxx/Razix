@@ -13,18 +13,15 @@
 
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
-//#include "Razix/Gfx/FrameGraph/RZBlackboard.h"
-//#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
+#include "Razix/Gfx/FrameGraph/RZBlackboard.h"
+#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
 //#include "Razix/Gfx/Lighting/RZImageBasedLightingProbesManager.h"
 
-//#include "Razix/Gfx/Passes/Data/GlobalData.h"
+#include "Razix/Gfx/Passes/GlobalData.h"
 
-//#include "Razix/Gfx/Renderers/RZImGuiRendererProxy.h"
-//#include "Razix/Gfx/Renderers/RZDebugRendererProxy.h"
-
-//#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-//#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
+#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
+#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Math/Grid.h"
 #include "Razix/Math/ImportanceSampling.h"
@@ -252,10 +249,10 @@ namespace Razix {
         {
             m_FrameCount = 0;
 
-            //if (m_LastSwapchainReadback.data) {
-            //    Memory::RZFree(m_LastSwapchainReadback.data);
-            //    m_LastSwapchainReadback.data = NULL;
-            //}
+            if (m_LastSwapchainReadback.data) {
+                Memory::RZFree(m_LastSwapchainReadback.data);
+                m_LastSwapchainReadback.data = NULL;
+            }
 
             // Wait for rendering to be done before halting
             rzRHI_FlushGPUWork(&m_RenderSync.frameSync.inflightSyncobj[m_RenderSync.frameSync.inFlightSyncIdx]);
@@ -312,19 +309,17 @@ namespace Razix {
         {
             memset(&m_LastSwapchainReadback, 0, sizeof(rz_gfx_texture_readback));
 
-#if 0
-            m_FrameGraphBuildingInProgress = true;
+            // TODO: Enable this!
+            // m_FrameGraphBuildingInProgress = true;
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
-            RZTextureDesc brdfDesc  = {};
-            brdfDesc.name           = "BrdfLUT";    // must match shader
-            brdfDesc.enableMips     = false;
-            brdfDesc.filePath       = "//RazixContent/Textures/Texture.Builtin.BrdfLUT.png";
-            m_BRDFfLUTTextureHandle = RZResourceManager::Get().createTexture(brdfDesc);
+            m_BRDFfLUTTextureHandle = CreateTextureFromFile("//RazixContent/Textures/Texture.Builtin.BrdfLUT.png")  ;
+            rz_gfx_texture_desc brdfTextureDesc = RZResourceManager::Get().getTextureResource(m_BRDFfLUTTextureHandle)->resource.desc.textureDesc;
             auto& brdfData          = m_FrameGraph.getBlackboard().add<BRDFData>();
-            brdfData.lut            = m_FrameGraph.import <RZFrameGraphTexture>(brdfDesc.name, CAST_TO_FG_TEX_DESC brdfDesc, {m_BRDFfLUTTextureHandle});
+            brdfData.lut            = m_FrameGraph.import <RZFrameGraphTexture>("BRDFLut", CAST_TO_FG_TEX_DESC brdfTextureDesc, {m_BRDFfLUTTextureHandle});
 
+#if 0
             //-----------------------------------------------------------------------------------
 
             // Load the Skybox and Global Light Probes
