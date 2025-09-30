@@ -117,19 +117,19 @@ namespace Razix {
                 m_IsFGFilePathDirty  = true;
                 m_FrameGraphFilePath = val;
             }
-            inline void                            setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
-            inline const rz_gfx_texture_readback*  getSwapchainReadbackPtr() const { return &m_LastSwapchainReadback; }
-            inline rz_gfx_cmdbuf_handle            getCurrCmdBufHandle() const { return m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx]; }
-            inline const rz_gfx_texture*           getCurrSwapchainBackbufferPtr() const { return &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx]; }
-            inline rz_gfx_texture_handle           getCurrSwapchainBackbufferHandle() const { return m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx].resource.handle; }
-            inline const rz_gfx_resource_view*     getCurrSwapchainBackbufferResViewPtr() const { return &m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx]; }
-            inline rz_gfx_resource_view_handle     getCurrSwapchainBackbufferResViewHandle() const { return m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx].resource.handle; }
-            inline rz_gfx_descriptor_heap_handle   getRenderTargetHeap() const { return m_RenderTargetHeap; }
-            inline rz_gfx_descriptor_heap_handle   getDepthRenderTargetHeap() const { return m_DepthRenderTargetHeap; }
-            inline rz_gfx_descriptor_heap_handle   getSamplerHeap() const { return m_SamplerHeap; }
-            inline rz_gfx_descriptor_heap_handle   getResourceHeap() const { return m_ResourceHeap; }
+            inline void                           setReadbackSwapchainThisFrame() { m_ReadSwapchainThisFrame = true; }
+            inline const rz_gfx_texture_readback* getSwapchainReadbackPtr() const { return &m_LastSwapchainReadback; }
+            inline rz_gfx_cmdbuf_handle           getCurrCmdBufHandle() const { return m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx]; }
+            inline const rz_gfx_texture*          getCurrSwapchainBackbufferPtr() const { return &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx]; }
+            inline rz_gfx_texture_handle          getCurrSwapchainBackbufferHandle() const { return m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx].resource.handle; }
+            inline const rz_gfx_resource_view*    getCurrSwapchainBackbufferResViewPtr() const { return &m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx]; }
+            inline rz_gfx_resource_view_handle    getCurrSwapchainBackbufferResViewHandle() const { return m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx].resource.handle; }
+            inline rz_gfx_descriptor_heap_handle  getRenderTargetHeap() const { return m_RenderTargetHeap; }
+            inline rz_gfx_descriptor_heap_handle  getDepthRenderTargetHeap() const { return m_DepthRenderTargetHeap; }
+            inline rz_gfx_descriptor_heap_handle  getSamplerHeap() const { return m_SamplerHeap; }
+            inline rz_gfx_descriptor_heap_handle  getResourceHeap() const { return m_ResourceHeap; }
             // FIXME: Remove this, we will soon be using Immutable Samplers instead
-            inline rz_gfx_descriptor_table_handle  getGlobalSamplerTable() { return m_GlobalSamplerTable; }
+            inline rz_gfx_descriptor_table_handle getGlobalSamplerTable() { return m_GlobalSamplerTable; }
 
         private:
             RZFrameGraph          m_FrameGraph            = {};
@@ -198,7 +198,10 @@ namespace Razix {
                 rz_gfx_resource_view_handle shadowSampler;
                 rz_gfx_resource_view_handle shadowPCFSampler;
             } m_SamplersViewPool;
+            rz_gfx_resource_view_handle    m_FrameDataCBVHandle;
             rz_gfx_descriptor_table_handle m_GlobalSamplerTable;
+            rz_gfx_descriptor_table_handle m_FrameDataTable;
+            rz_gfx_descriptor_table_handle m_SceneLightingDataTable;
 
         private:
             //void importGlobalLightProbes(LightProbe globalLightProbe);

@@ -155,6 +155,7 @@ namespace Razix {
     #error "Unsupported platform! Add support for your target platform."
 #endif
             // create present sync primitives, rendering done is per swapchain image
+            // in Vulkan without VK_KHR_maintenance1 this is better than using a fence for presentation images
             for (u32 i = 0; i < RAZIX_MAX_SWAP_IMAGES_COUNT; i++)
                 rzRHI_CreateSyncobj(&m_RenderSync.presentSync.renderingDone[i], RZ_GFX_SYNCOBJ_TYPE_GPU);
 
@@ -202,6 +203,7 @@ namespace Razix {
             depthRenderTargetHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
             m_DepthRenderTargetHeap                               = RZResourceManager::Get().createDescriptorHeap("DepthRenderTargetHeap", depthRenderTargetHeapDesc);
 
+            // TODO: use them as static samplers instead of building a table!
             {
                 // Create some global basic samplers
                 rz_gfx_sampler_desc linearSamplerDesc = {};
@@ -275,6 +277,9 @@ namespace Razix {
             m_CompositePass.destroy();
 #endif
 
+            RZResourceManager::Get().destroyResourceView(m_FrameDataCBVHandle);
+            RZResourceManager::Get().destroyDescriptorTable(m_FrameDataTable);
+
             RZResourceManager::Get().destroyResourceView(m_SamplersViewPool.linearSampler);
             RZResourceManager::Get().destroySampler(m_SamplersPool.linearSampler);
             RZResourceManager::Get().destroyDescriptorTable(m_GlobalSamplerTable);
@@ -301,7 +306,7 @@ namespace Razix {
         }
 
         /**
-         * Notes:
+         * NOTE:
          * 1. In Razix we use CCW winding order for front facing triangles => Also, back facing faces are pointed towards the camera
          */
 
@@ -314,10 +319,118 @@ namespace Razix {
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
-            m_BRDFfLUTTextureHandle = CreateTextureFromFile("//RazixContent/Textures/Texture.Builtin.BrdfLUT.png")  ;
+            m_BRDFfLUTTextureHandle             = CreateTextureFromFile("//RazixContent/Textures/Texture.Builtin.BrdfLUT.png");
             rz_gfx_texture_desc brdfTextureDesc = RZResourceManager::Get().getTextureResource(m_BRDFfLUTTextureHandle)->resource.desc.textureDesc;
-            auto& brdfData          = m_FrameGraph.getBlackboard().add<BRDFData>();
-            brdfData.lut            = m_FrameGraph.import <RZFrameGraphTexture>("BRDFLut", CAST_TO_FG_TEX_DESC brdfTextureDesc, {m_BRDFfLUTTextureHandle});
+            BRDFData&           brdfData        = m_FrameGraph.getBlackboard().add<BRDFData>();
+            brdfData.lut                        = m_FrameGraph.import <RZFrameGraphTexture>("BRDFLut", CAST_TO_FG_TEX_DESC brdfTextureDesc, {m_BRDFfLUTTextureHandle});
+
+            m_FrameGraph.getBlackboard().add<FrameData>() = m_FrameGraph.addCallbackPass<FrameData>(
+                "Pass.Builtin.Code.FrameDataUpload",
+                [&](FrameData& data, RZPassResourceBuilder& builder) {
+                    builder
+                        .setAsStandAlonePass()
+                        .setDepartment(Department::Core);
+
+                    rz_gfx_buffer_desc framedataBufferDesc = {};
+                    framedataBufferDesc.type               = RZ_GFX_BUFFER_TYPE_CONSTANT;
+                    framedataBufferDesc.usage              = RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM;
+                    framedataBufferDesc.resourceHints      = RZ_GFX_RESOURCE_VIEW_FLAG_CBV;
+                    framedataBufferDesc.sizeInBytes        = sizeof(GPUFrameData);
+                    data.frameData                         = builder.create<RZFrameGraphBuffer>("FrameData", CAST_TO_FG_BUF_DESC framedataBufferDesc);
+                    data.frameData                         = builder.write(data.frameData);
+                },
+                [=](const FrameData& data, RZPassResourceDirectory& resources) {
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+                    rz_gfx_cmdbuf_handle cmdBufHandle = m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx];
+
+                    RAZIX_TIME_STAMP_BEGIN("Upload FrameData");
+                    RAZIX_MARK_BEGIN(cmdBufHandle, "Upload FrameData", float4(0.8f, 0.2f, 0.15f, 1.0f));
+
+                    GPUFrameData gpuData{};
+                    gpuData.time += gpuData.deltaTime;
+                    gpuData.deltaTime      = RZEngine::Get().GetStatistics().DeltaTime;
+                    gpuData.resolution     = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
+                    gpuData.renderFeatures = settings.renderFeatures;
+
+                    // TODO: Support other types of frame jittering (Stratified etc.)
+                    m_Jitter = m_TAAJitterHaltonSamples[(m_FrameCount % NUM_HALTON_SAMPLES_TAA_JITTER)];
+                    // Based on scene sampling pattern set the apt jitter
+                    if (RZEngine::Get().getWorldSettings().samplingPattern == Halton)
+                        gpuData.jitterTAA = m_Jitter;
+
+                    gpuData.previousJitterTAA = m_PreviousJitter;
+
+                    auto& sceneCam = scene->getSceneCamera();
+
+                    sceneCam.setAspectRatio(f32(RZApplication::Get().getWindow()->getWidth()) / f32(RZApplication::Get().getWindow()->getHeight()));
+
+                    // FIXME: enable this deadcode
+                    // clang-format off
+                    float4x4 jitterMatrix = float4x4(
+                        1.0, 0.0, 0.0, 0.0,
+                        0.0, 1.0, 0.0, 0.0,
+                        0.0, 0.0, 1.0, 0.0,
+                        gpuData.jitterTAA.x, gpuData.jitterTAA.y, 0.0, 1.0    // translation
+                    );
+                    // clang-format on
+
+                    //auto jitteredProjMatrix = sceneCam.getProjection() * jitterMatrix;
+
+                    gpuData.camera.projection         = sceneCam.getProjection();
+                    gpuData.camera.inversedProjection = inverse(gpuData.camera.projection);
+                    gpuData.camera.view               = sceneCam.getViewMatrix();
+                    gpuData.camera.inversedView       = inverse(gpuData.camera.view);
+                    gpuData.camera.prevViewProj       = m_PreviousViewProj;
+                    gpuData.camera.fov                = sceneCam.getPerspectiveVerticalFOV();
+                    gpuData.camera.nearPlane          = sceneCam.getPerspectiveNearClip();
+                    gpuData.camera.farPlane           = sceneCam.getPerspectiveFarClip();
+
+                    // update and upload the UBO
+                    auto                 frameDataBufferHandle = resources.get<RZFrameGraphBuffer>(data.frameData).getRHIHandle();
+                    rz_gfx_buffer_update bufferUpdate          = {};
+                    bufferUpdate.pBuffer                       = RZResourceManager::Get().getBufferResource(frameDataBufferHandle);
+                    bufferUpdate.sizeInBytes                   = sizeof(GPUFrameData);
+                    bufferUpdate.offset                        = 0;
+                    bufferUpdate.pData                         = &gpuData;
+                    rzRHI_UpdateConstantBuffer(bufferUpdate);
+
+                    // Since upload is done update the variables to store the previous data
+                    {
+                        m_PreviousJitter   = m_Jitter;
+                        m_PreviousViewProj = gpuData.camera.projection * gpuData.camera.view;
+                    }
+
+                    // Create only once on start up when it's invalid, lazy alloc due to resource availability from FG
+                    if (!rz_handle_is_valid(&m_FrameDataTable)) {
+                        rz_gfx_descriptor descriptor = {};
+                        snprintf(descriptor.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "Descriptor.FrameData");
+                        descriptor.type                        = RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
+                        descriptor.sizeInBytes                 = sizeof(GPUFrameData);
+                        descriptor.location.binding            = 0;
+                        descriptor.location.space              = 0;
+                        rz_gfx_descriptor_table_desc tableDesc = {};
+                        tableDesc.tableIndex                   = 0;
+                        tableDesc.pHeap                        = RZResourceManager::Get().getDescriptorHeapResource(m_ResourceHeap);
+                        tableDesc.descriptorCount              = 1;
+                        tableDesc.pDescriptors                 = {&descriptor};
+                        m_FrameDataTable                       = RZResourceManager::Get().createDescriptorTable("DescriptorTable.FrameData_0", tableDesc);
+
+                        rz_gfx_resource_view_desc frameDataViewDesc = {};
+                        frameDataViewDesc.descriptorType            = RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
+                        frameDataViewDesc.bufferViewDesc.pBuffer    = RZResourceManager::Get().getBufferResource(frameDataBufferHandle);
+                        frameDataViewDesc.bufferViewDesc.size       = sizeof(GPUFrameData);
+                        frameDataViewDesc.bufferViewDesc.offset     = 0;
+                        frameDataViewDesc.bufferViewDesc.stride     = 0;
+                        m_FrameDataCBVHandle                        = RZResourceManager::Get().createResourceView("ResView.FrameDataCBV", frameDataViewDesc);
+                        rz_gfx_descriptor_table_update tableUpdate  = {};
+                        tableUpdate.pTable                          = RZResourceManager::Get().getDescriptorTableResource(m_FrameDataTable);
+                        tableUpdate.resViewCount                    = 1;
+                        tableUpdate.pResourceViews                  = {RZResourceManager::Get().getResourceViewResource(m_FrameDataCBVHandle)};
+                        rzRHI_UpdateDescriptorTable(tableUpdate);
+                    }
+                    RAZIX_MARK_END(cmdBufHandle);
+                    RAZIX_TIME_STAMP_END();
+                });
 
 #if 0
             //-----------------------------------------------------------------------------------
