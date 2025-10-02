@@ -1,14 +1,15 @@
 name: CI Build
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   build-windows:
     runs-on: windows-latest
+    if: github.event.pull_request.draft == false
     
     steps:
     - name: Checkout repository
@@ -147,6 +148,7 @@ jobs:
 
   build-macos:
     runs-on: macos-latest
+    if: github.event.pull_request.draft == false
     
     steps:
     - name: Checkout repository
