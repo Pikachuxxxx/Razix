@@ -132,6 +132,31 @@ namespace Razix {
             inline rz_gfx_descriptor_table_handle getGlobalSamplerTable() { return m_GlobalSamplerTable; }
 
         private:
+            static rz_gfx_descriptor_heap_handle m_RenderTargetHeap;
+            static rz_gfx_descriptor_heap_handle m_DepthRenderTargetHeap;
+            static rz_gfx_descriptor_heap_handle m_ResourceHeap;
+            static rz_gfx_descriptor_heap_handle m_SamplerHeap;
+
+            static struct SamplersPool
+            {
+                rz_gfx_sampler_handle linearSampler;
+                rz_gfx_sampler_handle pointSampler;
+                rz_gfx_sampler_handle mipSampler;
+                rz_gfx_sampler_handle anisotropicSampler;
+                rz_gfx_sampler_handle shadowSampler;
+                rz_gfx_sampler_handle shadowPCFSampler;
+            } m_SamplersPool;
+
+            static struct SamplersViewPool
+            {
+                rz_gfx_resource_view_handle linearSampler;
+                rz_gfx_resource_view_handle pointSampler;
+                rz_gfx_resource_view_handle mipSampler;
+                rz_gfx_resource_view_handle anisotropicSampler;
+                rz_gfx_resource_view_handle shadowSampler;
+                rz_gfx_resource_view_handle shadowPCFSampler;
+            } m_SamplersViewPool;
+
             RZFrameGraph          m_FrameGraph            = {};
             rz_gfx_texture_handle m_BRDFfLUTTextureHandle = {};
             //LightProbe      m_GlobalLightProbes;
@@ -171,37 +196,15 @@ namespace Razix {
             } m_RenderSync;
             rz_gfx_swapchain m_Swapchain;
             // TODO: use a ring buffer for cmd buffers/pools/cpu syncobj and gpu syncobj per frame in flight per thread per submit
-            rz_gfx_cmdpool_handle         m_InFlightCmdPool[RAZIX_MAX_FRAMES_IN_FLIGHT];
-            rz_gfx_cmdbuf_handle          m_InFlightDrawCmdBufHandles[RAZIX_MAX_FRAMES_IN_FLIGHT];
-            const rz_gfx_cmdbuf*          m_InFlightDrawCmdBufPtrs[RAZIX_MAX_FRAMES_IN_FLIGHT];    // Caching at start because we re-use raw pointers so frequently
-            rz_gfx_descriptor_heap_handle m_RenderTargetHeap;
-            rz_gfx_descriptor_heap_handle m_DepthRenderTargetHeap;
-            rz_gfx_descriptor_heap_handle m_SamplerHeap;
-            rz_gfx_descriptor_heap_handle m_ResourceHeap;
-
-            struct SamplersPool
-            {
-                rz_gfx_sampler_handle linearSampler;
-                rz_gfx_sampler_handle pointSampler;
-                rz_gfx_sampler_handle mipSampler;
-                rz_gfx_sampler_handle anisotropicSampler;
-                rz_gfx_sampler_handle shadowSampler;
-                rz_gfx_sampler_handle shadowPCFSampler;
-            } m_SamplersPool;
-
-            struct SamplersViewPool
-            {
-                rz_gfx_resource_view_handle linearSampler;
-                rz_gfx_resource_view_handle pointSampler;
-                rz_gfx_resource_view_handle mipSampler;
-                rz_gfx_resource_view_handle anisotropicSampler;
-                rz_gfx_resource_view_handle shadowSampler;
-                rz_gfx_resource_view_handle shadowPCFSampler;
-            } m_SamplersViewPool;
+            rz_gfx_cmdpool_handle m_InFlightCmdPool[RAZIX_MAX_FRAMES_IN_FLIGHT];
+            rz_gfx_cmdbuf_handle  m_InFlightDrawCmdBufHandles[RAZIX_MAX_FRAMES_IN_FLIGHT];
+            const rz_gfx_cmdbuf*  m_InFlightDrawCmdBufPtrs[RAZIX_MAX_FRAMES_IN_FLIGHT];    // Caching at start because we re-use raw pointers so frequently
+            // TODO: maintain them per in-flight frame
             rz_gfx_resource_view_handle    m_FrameDataCBVHandle;
+            rz_gfx_resource_view_handle    m_SceneLightsDataCBVHandle;
             rz_gfx_descriptor_table_handle m_GlobalSamplerTable;
             rz_gfx_descriptor_table_handle m_FrameDataTable;
-            rz_gfx_descriptor_table_handle m_SceneLightingDataTable;
+            rz_gfx_descriptor_table_handle m_SceneLightsDataTable;
 
         private:
             //void importGlobalLightProbes(LightProbe globalLightProbe);
