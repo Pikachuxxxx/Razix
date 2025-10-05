@@ -1372,7 +1372,7 @@ static bool vk_util_check_validation_layer_support(void)
     CHECK_VK(vkEnumerateInstanceLayerProperties(&layerCount, NULL));
 
     VkLayerProperties* availableLayers = malloc(layerCount * sizeof(VkLayerProperties));
-    if(availableLayers == NULL) {
+    if (availableLayers == NULL) {
         RAZIX_RHI_LOG_ERROR("Vulkan: Memory allocation failed while enumerating validation layers.");
         return false;
     }
@@ -1407,7 +1407,7 @@ static bool vk_util_check_instance_extension_support(void)
     CHECK_VK(vkEnumerateInstanceExtensionProperties(NULL, &extensionCount, NULL));
 
     VkExtensionProperties* availableExtensions = malloc(extensionCount * sizeof(VkExtensionProperties));
-    if(availableExtensions == NULL) {
+    if (availableExtensions == NULL) {
         RAZIX_RHI_LOG_ERROR("Vulkan: Memory allocation failed while enumerating instance extensions.");
         return false;
     }
@@ -2179,9 +2179,9 @@ static void vk_util_destroy_swapchain_images(rz_gfx_swapchain* swapchain)
         memset(&swapchain->backbuffersResViews[i], 0, sizeof(rz_gfx_resource_view));
     }
 
-    if(swapchain->vk.supportDetails.formats)
+    if (swapchain->vk.supportDetails.formats)
         free(swapchain->vk.supportDetails.formats);
-    if(swapchain->vk.supportDetails.presentModes)
+    if (swapchain->vk.supportDetails.presentModes)
         free(swapchain->vk.supportDetails.presentModes);
     swapchain->vk.supportDetails.formats          = NULL;
     swapchain->vk.supportDetails.presentModes     = NULL;
@@ -2442,7 +2442,7 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
     // Create Vulkan instance
     VkApplicationInfo appInfo  = {0};
     appInfo.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName   = "Tanu"; // A story about "HER" self discovery
+    appInfo.pApplicationName   = "Tanu";                                                                      // A story about "HER" self discovery
     appInfo.applicationVersion = VK_MAKE_VERSION(init.appVer.major, init.appVer.minor, init.appVer.patch);    // TODO: Get this from CtxInit
     appInfo.pEngineName        = "Razix Engine";
     appInfo.engineVersion      = VK_MAKE_VERSION(init.engineVer.major, init.engineVer.minor, init.engineVer.patch);    // TODO: Get this from CtxInit
@@ -2619,7 +2619,7 @@ static void vk_DestroySwapchain(rz_gfx_swapchain* sc)
 {
     // Destroy swapchain images and texture wrappers using utility function
     vk_util_destroy_swapchain_images(sc);
-        
+
     if (sc->vk.swapchain) {
         vkDestroySwapchainKHR(VKCONTEXT.device, sc->vk.swapchain, NULL);
         sc->vk.swapchain = VK_NULL_HANDLE;

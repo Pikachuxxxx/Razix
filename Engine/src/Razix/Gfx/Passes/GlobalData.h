@@ -1,7 +1,6 @@
 ﻿#pragma once
 
-//#include "Razix/Gfx/FrameGraph/RZFrameGraphResource.h"
-//#include "Razix/Gfx/Lighting/LightData.h"
+#include "Razix/Gfx/Lighting/LightData.h"
 //#include "Razix/Scene/RZSceneCamera.h"
 
 namespace Razix {
@@ -193,6 +192,19 @@ namespace Razix {
             float2             previousJitterTAA;
         };
 
+        // Lighting
+
+        struct SceneLightsData
+        {
+            RZFrameGraphResource lightsDataBuffer;
+        };
+
+        struct GPULightsData
+        {
+            alignas(4) u32 numLights   = 0;
+            alignas(4) u32 _padding[3] = {0, 0, 0};
+            alignas(16) LightData lightData[MAX_LIGHTS];
+        };
 
     }    // namespace Gfx
 }    // namespace Razix

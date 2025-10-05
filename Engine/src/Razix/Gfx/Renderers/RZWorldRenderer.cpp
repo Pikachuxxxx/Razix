@@ -51,8 +51,18 @@
 
 namespace Razix {
     namespace Gfx {
+        // Static Definitions
+        rz_gfx_descriptor_heap_handle RZWorldRenderer::m_RenderTargetHeap      = {};
+        rz_gfx_descriptor_heap_handle RZWorldRenderer::m_DepthRenderTargetHeap = {};
+        rz_gfx_descriptor_heap_handle RZWorldRenderer::m_ResourceHeap          = {};
+        rz_gfx_descriptor_heap_handle RZWorldRenderer::m_SamplerHeap           = {};
 
-        /*
+        // TODO: Fill them at compile time? idk not possible
+        RZWorldRenderer::SamplersPool     RZWorldRenderer::m_SamplersPool     = {};
+        RZWorldRenderer::SamplersViewPool RZWorldRenderer::m_SamplersViewPool = {};
+
+        //-------------------------------------------------------------------------------------------
+
         static void ExportFrameGraphVisFile(const RZFrameGraph& framegraph)
         {
             auto        now   = std::chrono::system_clock::now();
@@ -77,7 +87,6 @@ namespace Razix {
             std::ofstream os(filename);
             os << framegraph;
         }
-        */
 
         //-------------------------------------------------------------------------------------------
 
@@ -105,6 +114,8 @@ namespace Razix {
     #endif
 #endif
         }
+
+        //-------------------------------------------------------------------------------------------
 
         void RZWorldRenderer::create(RZWindow* window, u32 width, u32 height)
         {
@@ -432,16 +443,110 @@ namespace Razix {
                     RAZIX_TIME_STAMP_END();
                 });
 
-#if 0
-            //-----------------------------------------------------------------------------------
+            m_FrameGraph.getBlackboard().add<SceneLightsData>() = m_FrameGraph.addCallbackPass<SceneLightsData>(
+                "Pass.Builtin.Code.SceneLightsDataUpload",
+                [&](SceneLightsData& data, RZPassResourceBuilder& builder) {
+                    builder
+                        .setAsStandAlonePass()
+                        .setDepartment(Department::Core);
 
-            // Load the Skybox and Global Light Probes
-            // FIXME: This is hard coded make this a user land material
-            m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/teufelsberg_inner_4k.hdr");
-            m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
-            m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
+                    rz_gfx_buffer_desc lightdataBufferDesc = {};
+                    lightdataBufferDesc.type               = RZ_GFX_BUFFER_TYPE_CONSTANT;
+                    lightdataBufferDesc.usage              = RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM;
+                    lightdataBufferDesc.resourceHints      = RZ_GFX_RESOURCE_VIEW_FLAG_CBV;
+                    lightdataBufferDesc.sizeInBytes        = sizeof(GPULightsData);
+
+                    data.lightsDataBuffer = builder.create<RZFrameGraphBuffer>("SceneLightsData", CAST_TO_FG_BUF_DESC lightdataBufferDesc);
+                    data.lightsDataBuffer = builder.write(data.lightsDataBuffer);
+                },
+                [=](const SceneLightsData& data, RZPassResourceDirectory& resources) {
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+                    rz_gfx_cmdbuf_handle cmdBufHandle = m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx];
+
+                    RAZIX_TIME_STAMP_BEGIN("Upload SceneLights");
+                    RAZIX_MARK_BEGIN(cmdBufHandle, "Upload SceneLights", float4(0.2f, 0.2f, 0.75f, 1.0f));
+
+                    GPULightsData gpuLightsData{};
+
+                    //// Upload the lights data after updating some stuff such as position etc.
+                    //auto group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);
+                    //for (auto entity: group) {
+                    //    const auto& [lightComponent, transformComponent] = group.get<LightComponent, TransformComponent>(entity);
+
+                    //    lightComponent.light.getLightData().position = transformComponent.Translation;
+                    //    lightComponent.light.setDirection(lightComponent.light.getLightData().position);
+                    //    gpuLightsData.lightData[gpuLightsData.numLights] = lightComponent.light.getLightData();
+
+                    //    gpuLightsData.numLights++;
+                    //}
+
+                    // update and upload the UBO
+                    auto                 lightsDataBufferHandle = resources.get<RZFrameGraphBuffer>(data.lightsDataBuffer).getRHIHandle();
+                    rz_gfx_buffer_update bufferUpdate           = {};
+                    bufferUpdate.pBuffer                        = RZResourceManager::Get().getBufferResource(lightsDataBufferHandle);
+                    bufferUpdate.sizeInBytes                    = sizeof(GPULightsData);
+                    bufferUpdate.offset                         = 0;
+                    bufferUpdate.pData                          = &gpuLightsData;
+                    rzRHI_UpdateConstantBuffer(bufferUpdate);
+
+                    // Create descriptor table and resource view for the scene lights data buffer (lazy alloc)
+                    if (!rz_handle_is_valid(&m_SceneLightsDataTable)) {
+                        rz_gfx_descriptor descriptor = {};
+                        snprintf(descriptor.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "Descriptor.SceneLightsData");
+                        descriptor.type                        = RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
+                        descriptor.sizeInBytes                 = sizeof(GPULightsData);
+                        descriptor.location.binding            = 0;
+                        descriptor.location.space              = 0;
+                        rz_gfx_descriptor_table_desc tableDesc = {};
+                        tableDesc.tableIndex                   = 0;
+                        tableDesc.pHeap                        = RZResourceManager::Get().getDescriptorHeapResource(m_ResourceHeap);
+                        tableDesc.descriptorCount              = 1;
+                        tableDesc.pDescriptors                 = {&descriptor};
+                        m_SceneLightsDataTable                 = RZResourceManager::Get().createDescriptorTable("DescriptorTable.SceneLightsData_0", tableDesc);
+
+                        rz_gfx_resource_view_desc lightsDataViewDesc = {};
+                        lightsDataViewDesc.descriptorType            = RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
+                        lightsDataViewDesc.bufferViewDesc.pBuffer    = RZResourceManager::Get().getBufferResource(lightsDataBufferHandle);
+                        lightsDataViewDesc.bufferViewDesc.size       = sizeof(GPULightsData);
+                        lightsDataViewDesc.bufferViewDesc.offset     = 0;
+                        lightsDataViewDesc.bufferViewDesc.stride     = 0;
+                        m_SceneLightsDataCBVHandle                   = RZResourceManager::Get().createResourceView("ResView.SceneLightsDataCBV", lightsDataViewDesc);
+                        rz_gfx_descriptor_table_update tableUpdate   = {};
+                        tableUpdate.pTable                           = RZResourceManager::Get().getDescriptorTableResource(m_SceneLightsDataTable);
+                        tableUpdate.resViewCount                     = 1;
+                        tableUpdate.pResourceViews                   = {RZResourceManager::Get().getResourceViewResource(m_SceneLightsDataCBVHandle)};
+                        rzRHI_UpdateDescriptorTable(tableUpdate);
+                    }
+
+                    RAZIX_MARK_END(cmdBufHandle);
+                    RAZIX_TIME_STAMP_END();
+                });
+
+#if 0
+                //-----------------------------------------------------------------------------------
+
+                // Load the Skybox and Global Light Probes
+                // FIXME: This is hard coded make this a user land material
+                // Or this is the default fallback but should be user configurable
+                m_GlobalLightProbes.skybox = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/teufelsberg_inner_4k.hdr");
+            m_GlobalLightProbes.diffuse    = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
+            m_GlobalLightProbes.specular   = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph
-            importGlobalLightProbes(m_GlobalLightProbes);
+             auto& globalLightProbeData = m_FrameGraph.getBlackboard().add<GlobalLightProbeData>();
+
+            auto SkyboxDesc   = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.skybox)->getDescription();
+            auto DiffuseDesc  = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.diffuse)->getDescription();
+            auto SpecularDesc = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.specular)->getDescription();
+
+            SkyboxDesc.name   = "EnvironmentMap";
+            DiffuseDesc.name  = "IrradianceMap";
+            SpecularDesc.name = "PreFilteredMap";
+
+            globalLightProbeData.environmentMap         = m_FrameGraph.import <RZFrameGraphTexture>("EnvironmentMap", CAST_TO_FG_TEX_DESC SkyboxDesc, {globalLightProbe.skybox});
+            globalLightProbeData.diffuseIrradianceMap   = m_FrameGraph.import <RZFrameGraphTexture>("IrradianceMap", CAST_TO_FG_TEX_DESC DiffuseDesc, {globalLightProbe.diffuse});
+            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <RZFrameGraphTexture>("PreFilteredMap", CAST_TO_FG_TEX_DESC SpecularDesc, {globalLightProbe.specular});
+ 
 
             //-----------------------------------------------------------------------------------
             // Misc Variables
@@ -794,183 +899,5 @@ namespace Razix {
         {
             rzRHI_FlushGPUWork(&m_RenderSync.frameSync.inflightSyncobj[m_RenderSync.frameSync.inFlightSyncIdx]);
         }
-
-#if 0
-        //--------------------------------------------------------------------------
-
-        void RZWorldRenderer::importGlobalLightProbes(LightProbe globalLightProbe)
-        {
-            auto& globalLightProbeData = m_FrameGraph.getBlackboard().add<GlobalLightProbeData>();
-
-            auto SkyboxDesc   = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.skybox)->getDescription();
-            auto DiffuseDesc  = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.diffuse)->getDescription();
-            auto SpecularDesc = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.specular)->getDescription();
-
-            SkyboxDesc.name   = "EnvironmentMap";
-            DiffuseDesc.name  = "IrradianceMap";
-            SpecularDesc.name = "PreFilteredMap";
-
-            globalLightProbeData.environmentMap         = m_FrameGraph.import <RZFrameGraphTexture>("EnvironmentMap", CAST_TO_FG_TEX_DESC SkyboxDesc, {globalLightProbe.skybox});
-            globalLightProbeData.diffuseIrradianceMap   = m_FrameGraph.import <RZFrameGraphTexture>("IrradianceMap", CAST_TO_FG_TEX_DESC DiffuseDesc, {globalLightProbe.diffuse});
-            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <RZFrameGraphTexture>("PreFilteredMap", CAST_TO_FG_TEX_DESC SpecularDesc, {globalLightProbe.specular});
-        }
-
-        void RZWorldRenderer::uploadFrameData(RZScene* scene, RZRendererSettings& settings)
-        {
-            m_FrameGraph.getBlackboard().add<FrameData>() = m_FrameGraph.addCallbackPass<FrameData>(
-                "Pass.Builtin.Code.FrameDataUpload",
-                [&](FrameData& data, RZPassResourceBuilder& builder) {
-                    builder
-                        .setAsStandAlonePass()
-                        .setDepartment(Department::Core);
-
-                    RZBufferDesc framedataBufferDesc          = {};
-                    framedataBufferDesc.name                  = "FrameData";
-                    framedataBufferDesc.size                  = sizeof(GPUFrameData);
-                    framedataBufferDesc.data                  = NULL;
-                    framedataBufferDesc.initResourceViewHints = kCBV;
-                    framedataBufferDesc.usage                 = BufferUsage::PersistentStream;
-                    data.frameData                            = builder.create<RZFrameGraphBuffer>(framedataBufferDesc.name, CAST_TO_FG_BUF_DESC framedataBufferDesc);
-
-                    data.frameData = builder.write(data.frameData);
-                },
-                [=](const FrameData& data, RZPassResourceDirectory& resources) {
-                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-                    RAZIX_TIME_STAMP_BEGIN("Upload FrameData");
-                    RAZIX_MARK_BEGIN("Upload FrameData", float4(0.8f, 0.2f, 0.15f, 1.0f));
-
-                    GPUFrameData gpuData{};
-                    gpuData.time += gpuData.deltaTime;
-                    gpuData.deltaTime      = RZEngine::Get().GetStatistics().DeltaTime;
-                    gpuData.resolution     = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    gpuData.renderFeatures = settings.renderFeatures;
-
-                    m_Jitter = m_TAAJitterHaltonSamples[(m_FrameCount % NUM_HALTON_SAMPLES_TAA_JITTER)];
-                    // Based on scene sampling pattern set the apt jitter
-                    if (RZEngine::Get().getWorldSettings().samplingPattern == Halton)
-                        gpuData.jitterTAA = m_Jitter;
-
-                    gpuData.previousJitterTAA = m_PreviousJitter;
-
-                    auto& sceneCam = scene->getSceneCamera();
-
-                    sceneCam.setAspectRatio(f32(RZApplication::Get().getWindow()->getWidth()) / f32(RZApplication::Get().getWindow()->getHeight()));
-
-                    // clang-format off
-                    float4x4 jitterMatrix = float4x4(
-                        1.0, 0.0, 0.0, 0.0,
-                        0.0, 1.0, 0.0, 0.0,
-                        0.0, 0.0, 1.0, 0.0,
-                        gpuData.jitterTAA.x, gpuData.jitterTAA.y, 0.0, 1.0    // translation
-                    );
-                    // clang-format on
-
-                    //auto jitteredProjMatrix = sceneCam.getProjection() * jitterMatrix;
-
-                    gpuData.camera.projection         = sceneCam.getProjection();
-                    gpuData.camera.inversedProjection = inverse(gpuData.camera.projection);
-                    gpuData.camera.view               = sceneCam.getViewMatrix();
-                    gpuData.camera.inversedView       = inverse(gpuData.camera.view);
-                    gpuData.camera.prevViewProj       = m_PreviousViewProj;
-                    gpuData.camera.fov                = sceneCam.getPerspectiveVerticalFOV();
-                    gpuData.camera.nearPlane          = sceneCam.getPerspectiveNearClip();
-                    gpuData.camera.farPlane           = sceneCam.getPerspectiveFarClip();
-
-                    // update and upload the UBO
-                    auto frameDataBufferHandle = resources.get<RZFrameGraphBuffer>(data.frameData).getHandle();
-                    RZResourceManager::Get().getUniformBufferResource(frameDataBufferHandle)->SetData(sizeof(GPUFrameData), &gpuData);
-
-                    // Since upload is done update the variables to store the previous data
-                    {
-                        m_PreviousJitter   = m_Jitter;
-                        m_PreviousViewProj = gpuData.camera.projection * gpuData.camera.view;
-                    }
-
-                    if (!Gfx::RHI::Get().getFrameDataSet().isValid()) {
-                        RZDescriptor descriptor                 = {};
-                        descriptor.name                         = "Descriptor.FrameDataUBO";
-                        descriptor.bindingInfo.location.binding = 0;
-                        descriptor.bindingInfo.type             = DescriptorType::kUniformBuffer;
-                        descriptor.bindingInfo.stage            = ShaderStage(ShaderStage::kVertex);
-                        descriptor.uniformBuffer                = frameDataBufferHandle;
-
-                        RZDescriptorSetDesc setCreateDesc = {};
-                        setCreateDesc.name                = "DescriptorSet.GlobalFrameData";
-                        setCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
-                        setCreateDesc.descriptors.push_back(descriptor);
-                        setCreateDesc.setIdx = BindingTable_System::SET_IDX_FRAME_DATA;
-
-                        auto m_FrameDataSet = RZResourceManager::Get().createDescriptorSet(setCreateDesc);
-                        Gfx::RHI::Get().setFrameDataSet(m_FrameDataSet);
-                    }
-                    RAZIX_MARK_END();
-                    RAZIX_TIME_STAMP_END();
-                });
-        }
-
-        void RZWorldRenderer::uploadLightsData(RZScene* scene, RZRendererSettings& settings)
-        {
-            m_FrameGraph.getBlackboard().add<SceneLightsData>() = m_FrameGraph.addCallbackPass<SceneLightsData>(
-                "Pass.Builtin.Code.SceneLightsDataUpload",
-                [&](SceneLightsData& data, RZPassResourceBuilder& builder) {
-                    builder
-                        .setAsStandAlonePass()
-                        .setDepartment(Department::Core);
-
-                    RZBufferDesc lightdataBufferDesc          = {};
-                    lightdataBufferDesc.name                  = "SceneLightsData";
-                    lightdataBufferDesc.size                  = sizeof(GPULightsData);
-                    lightdataBufferDesc.data                  = NULL;
-                    lightdataBufferDesc.initResourceViewHints = kCBV;
-                    lightdataBufferDesc.usage                 = BufferUsage::PersistentStream;
-                    data.lightsDataBuffer                     = builder.create<RZFrameGraphBuffer>(lightdataBufferDesc.name, CAST_TO_FG_BUF_DESC lightdataBufferDesc);
-                    data.lightsDataBuffer                     = builder.write(data.lightsDataBuffer);
-                },
-                [=](const SceneLightsData& data, RZPassResourceDirectory& resources) {
-                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-                    RAZIX_TIME_STAMP_BEGIN("Upload SceneLights");
-                    RAZIX_MARK_BEGIN("Upload SceneLights", float4(0.2f, 0.2f, 0.75f, 1.0f));
-
-                    GPULightsData gpuLightsData{};
-
-                    // Upload the lights data after updating some stuff such as position etc.
-                    auto group = scene->getRegistry().group<LightComponent>(entt::get<TransformComponent>);
-                    for (auto entity: group) {
-                        const auto& [lightComponent, transformComponent] = group.get<LightComponent, TransformComponent>(entity);
-
-                        lightComponent.light.getLightData().position = transformComponent.Translation;
-                        lightComponent.light.setDirection(lightComponent.light.getLightData().position);
-                        gpuLightsData.lightData[gpuLightsData.numLights] = lightComponent.light.getLightData();
-
-                        gpuLightsData.numLights++;
-                    }
-                    // update and upload the UBO
-                    auto lightsDataBuffer = resources.get<RZFrameGraphBuffer>(data.lightsDataBuffer).getHandle();
-                    RZResourceManager::Get().getUniformBufferResource(lightsDataBuffer)->SetData(sizeof(GPULightsData), &gpuLightsData);
-
-                    if (!Gfx::RHI::Get().getSceneLightsDataSet().isValid()) {
-                        RZDescriptor descriptor                 = {};
-                        descriptor.name                         = "Descriptor.SceneLightsDataUBO";
-                        descriptor.bindingInfo.location.binding = 0;
-                        descriptor.bindingInfo.type             = DescriptorType::kUniformBuffer;
-                        descriptor.bindingInfo.stage            = ShaderStage(ShaderStage::kPixel);
-                        descriptor.uniformBuffer                = lightsDataBuffer;
-
-                        RZDescriptorSetDesc setCreateDesc = {};
-                        setCreateDesc.name                = "DescriptorSet.SceneLightsData";
-                        setCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
-                        setCreateDesc.setIdx              = BindingTable_System::SET_IDX_FRAME_DATA;
-                        setCreateDesc.descriptors.push_back(descriptor);
-
-                        auto m_SceneLightsDataSet = RZResourceManager::Get().createDescriptorSet(setCreateDesc);
-                        Gfx::RHI::Get().setSceneLightsDataSet(m_SceneLightsDataSet);
-                    }
-                    RAZIX_MARK_END();
-                    RAZIX_TIME_STAMP_END();
-                });
-        }
-#endif
     }    // namespace Gfx
 }    // namespace Razix

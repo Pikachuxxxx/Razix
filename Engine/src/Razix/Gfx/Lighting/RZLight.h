@@ -11,7 +11,7 @@ namespace Razix {
         class RAZIX_API RZLight
         {
         public:
-            RZLight(LightType type = LightType::DIRECTIONAL);
+            RZLight(LightType type = RZ_LIGHT_TYPE_DIRECTIONAL);
             ~RZLight();
 
             // TODO: Add const to the get methods that are returning a reference
