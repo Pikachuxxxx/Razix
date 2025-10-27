@@ -106,7 +106,9 @@ namespace Razix {
         // 5. Graphics API (last one in the engine to fire up)
         rz_gfx_context_desc gfxCtxDesc   = {};
         gfxCtxDesc.opts.enableValidation = m_EngineSettings.EnableAPIValidation;
-        gfxCtxDesc.engineVer             = (version_t) {(uint32_t) RazixVersion.getVersionMajor(), (uint32_t) RazixVersion.getVersionMinor(), (uint32_t) RazixVersion.getVersionPatch()};
+        gfxCtxDesc.engineVer.major       = (uint32_t) RazixVersion.getVersionMajor();
+        gfxCtxDesc.engineVer.minor       = (uint32_t) RazixVersion.getVersionMinor();
+        gfxCtxDesc.engineVer.patch       = (uint32_t) RazixVersion.getVersionPatch();
         // TODO: Send application version as well
         // Cmdline always has precedence
         if (RZEngine::Get().getCommandLineParser().isSet("validation"))
