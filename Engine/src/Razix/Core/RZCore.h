@@ -281,45 +281,6 @@
         RAZIX_CORE_ERROR("Manchidi...!!! Unimplemented : {0} : {1} : {2}", __func__, __FILE__, __LINE__); \
     }
 
-#define RAZIX_DELETE_PUBLIC_CONSTRUCTOR(type_identifier) \
-public:                                                  \
-    type_identifier() = delete;
-
-#define RAZIX_VIRTUAL_DESCTURCTOR(type_identifier) \
-    virtual ~type_identifier() = default;
-
-// Make the Class/Struct Object Non-Copyable/Assignable
-#define RAZIX_NONCOPYABLE_CLASS(type_identifier)                 \
-    type_identifier(const type_identifier&)            = delete; \
-    type_identifier& operator=(const type_identifier&) = delete;
-
-#define RAZIX_IMMOVABLE_CLASS(type_identifier)                       \
-    type_identifier(type_identifier&&) noexcept            = delete; \
-    type_identifier& operator=(type_identifier&&) noexcept = delete;
-
-#define RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier) \
-    RAZIX_NONCOPYABLE_CLASS(type_identifier)               \
-    RAZIX_IMMOVABLE_CLASS(type_identifier)
-
-// Make the Class/Struct Object Copyable/Assignable Explicit default declaration
-#define RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
-    type_identifier(const type_identifier&)            = default; \
-    type_identifier& operator=(const type_identifier&) = default;
-
-#define RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)                  \
-    type_identifier(type_identifier&&) noexcept            = default; \
-    type_identifier& operator=(type_identifier&&) noexcept = default;
-
-#define RAZIX_DEFAULT_COPYABLE_MOVABLE_CLASS(type_identifier) \
-    RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
-    RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)
-
-#define RAZIX_PRIVATE_INSTANTIABLE_CLASS(type_identifier) \
-private:                                                  \
-    type_identifier()                                     \
-    {                                                     \
-    }                                                     \
-    RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier)
 
 // Deprecation error macros
 #ifdef _MSC_VER
@@ -370,6 +331,71 @@ private:                                                  \
 
 #define RAZIX_LIKELY   [[likely]]
 #define RAZIX_UNLIKELY [[unlikely]]
+
+#define RAZIX_UNUSED(x) (void) (x)
+
+// Warning push/pop as per compiler convention
+// MSVC-specific: __pragma(warning(push)) etc.
+#ifdef _MSC_VER
+    #define RAZIX_WARNING_PUSH()     __pragma(warning(push))
+    #define RAZIX_WARNING_POP()      __pragma(warning(pop))
+    #define RAZIX_WARNING_DISABLE(x) __pragma(warning(disable : x))
+
+//// GCC/Clang-specific: using pragmas for warning control
+//#elif defined(__GNUC__) || defined(__clang__)
+//    #define RAZIX_WARNING_PUSH()     _Pragma("GCC diagnostic push")
+//    #define RAZIX_WARNING_POP()      _Pragma("GCC diagnostic pop")
+//    #define RAZIX_WARNING_DISABLE(x) _Pragma("GCC diagnostic ignored \"-W" #x "\"")
+//
+//// Default fallback for other compilers, no warning control.
+#else
+    #define RAZIX_WARNING_PUSH()
+    #define RAZIX_WARNING_POP()
+    #define RAZIX_WARNING_DISABLE(x)
+#endif
+
+#ifdef __cplusplus
+
+#define RAZIX_DELETE_PUBLIC_CONSTRUCTOR(type_identifier) \
+public:                                                  \
+    type_identifier() = delete;
+
+#define RAZIX_VIRTUAL_DESCTURCTOR(type_identifier) \
+    virtual ~type_identifier() = default;
+
+// Make the Class/Struct Object Non-Copyable/Assignable
+#define RAZIX_NONCOPYABLE_CLASS(type_identifier)                 \
+    type_identifier(const type_identifier&)            = delete; \
+    type_identifier& operator=(const type_identifier&) = delete;
+
+#define RAZIX_IMMOVABLE_CLASS(type_identifier)                       \
+    type_identifier(type_identifier&&) noexcept            = delete; \
+    type_identifier& operator=(type_identifier&&) noexcept = delete;
+
+#define RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier) \
+    RAZIX_NONCOPYABLE_CLASS(type_identifier)               \
+    RAZIX_IMMOVABLE_CLASS(type_identifier)
+
+// Make the Class/Struct Object Copyable/Assignable Explicit default declaration
+#define RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
+    type_identifier(const type_identifier&)            = default; \
+    type_identifier& operator=(const type_identifier&) = default;
+
+#define RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)                  \
+    type_identifier(type_identifier&&) noexcept            = default; \
+    type_identifier& operator=(type_identifier&&) noexcept = default;
+
+#define RAZIX_DEFAULT_COPYABLE_MOVABLE_CLASS(type_identifier) \
+    RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
+    RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)
+
+#define RAZIX_PRIVATE_INSTANTIABLE_CLASS(type_identifier) \
+private:                                                  \
+    type_identifier()                                     \
+    {                                                     \
+    }                                                     \
+    RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier)
+
 
 /**
  * We need ways to emulate pure virtual function verification
@@ -500,6 +526,8 @@ private:                                                  \
         return static_cast<unsigned>(a) || static_cast<unsigned>(b);                \
     }
 
+#define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
+
 //bool operator|(E a, E b)                                                        \
     //{                                                                               \
     //    return static_cast<unsigned>(a) | static_cast<unsigned>(b);                 \
@@ -510,29 +538,7 @@ private:                                                  \
     //    return static_cast<unsigned>(a) & static_cast<unsigned>(b);                 \
     //}
 
-// Warning push/pop as per compiler convention
-// MSVC-specific: __pragma(warning(push)) etc.
-#ifdef _MSC_VER
-    #define RAZIX_WARNING_PUSH()     __pragma(warning(push))
-    #define RAZIX_WARNING_POP()      __pragma(warning(pop))
-    #define RAZIX_WARNING_DISABLE(x) __pragma(warning(disable : x))
-
-//// GCC/Clang-specific: using pragmas for warning control
-//#elif defined(__GNUC__) || defined(__clang__)
-//    #define RAZIX_WARNING_PUSH()     _Pragma("GCC diagnostic push")
-//    #define RAZIX_WARNING_POP()      _Pragma("GCC diagnostic pop")
-//    #define RAZIX_WARNING_DISABLE(x) _Pragma("GCC diagnostic ignored \"-W" #x "\"")
-//
-//// Default fallback for other compilers, no warning control.
-#else
-    #define RAZIX_WARNING_PUSH()
-    #define RAZIX_WARNING_POP()
-    #define RAZIX_WARNING_DISABLE(x)
-#endif
-
-#define RAZIX_UNUSED(x) (void) (x)
-
-#define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
+#endif // __cplusplus
 
 /**
  * Memory Related stuff & Alignment Macros
@@ -588,52 +594,6 @@ private:                                                  \
 #define in_Gib(x) (x / (1 << 30))
 #define in_Mib(x) (x / (1 << 20))
 #define in_Kib(x) (x / 1024)
-
-#ifdef RAZIX_PLATFORM_UNIX
-    #include <stddef.h>    // for size_t
-#endif
-
-// Operator overload for quick expression without using macros
-static constexpr size_t operator""_Gib(unsigned long long int x)
-{
-    return x * 1 << 30;
-}
-
-static constexpr size_t operator""_Mib(unsigned long long int x)
-{
-    return x * 1 << 20;
-}
-
-static constexpr size_t operator""_Kib(unsigned long long int x)
-{
-    return x * 1 << 10;
-}
-
-static constexpr float operator""_inGib(unsigned long long int x)
-{
-    return (float) x / (1 << 30);
-}
-
-static constexpr float operator""_inMib(unsigned long long int x)
-{
-    return (float) x / (1 << 20);
-}
-
-static constexpr float operator""_inKib(unsigned long long int x)
-{
-    return (float) x / (1 << 10);
-}
-
-// A macro to call a member function pointer
-#define RAZIX_CALL_MEMBER_FUNC(object, member_func) ((object)->*(member_func))
-
-// Macro to define DestroyResource for IRZResource clean up in a common way in the entire engine
-#define RAZIX_CLEANUP_RESOURCE            virtual void DestroyResource() override;
-#define RAZIX_CLEANUP_RESOURCE_IMPL(type) void type::DestroyResource()
-#define RAZIX_CLEANUP_RESOURCE_IMPL_BEGIN(type) \
-    void type::DestroyResource()                \
-    {
-#define RAZIX_CLEANUP_RESOURCE_IMPL_END }
 
 // TODO: Add Safe memory delete and unloading macro
 
