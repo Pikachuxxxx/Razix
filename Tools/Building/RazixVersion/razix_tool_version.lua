@@ -1,13 +1,14 @@
 project "RazixVersion"
-	kind "ConsoleApp"
-	language "C++"
+    kind "ConsoleApp"
+    language "C++"
 
-	excludes { "%{wks.location}../../../.modules/**premake5.lua" }
+    excludes { "%{wks.location}../../../.modules/**premake5.lua" }
 
-	files
-	{
-        "version.cpp"
-	}
+    files
+    {
+        "version.cpp",
+        "../../../Engine/src/Razix/Core/std/RZsprintf.c"
+    }
 
     -- Include paths
     includedirs

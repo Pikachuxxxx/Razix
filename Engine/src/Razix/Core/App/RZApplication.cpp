@@ -239,7 +239,7 @@ namespace Razix {
 
         if (RZEngine::Get().isEngineInTestMode() == false) {
             Razix::RZSplashScreen::Get().setLogString("Building FrameGraph...");
-            Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
+            Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentSceneMutablePtr());
         }
 
         m_CurrentState = AppState::Running;
@@ -297,7 +297,7 @@ namespace Razix {
             //auto& worldRenderer = Razix::RZEngine::Get().getWorldRenderer();
             //worldRenderer.destroy();
             //Razix::Gfx::RZFrameGraph::ResetFirstFrame();
-            //worldRenderer.buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
+            //worldRenderer.buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentSceneMutablePtr());
             //RAZIX_CORE_INFO("FrameGraph reload Done!");
         }
 
@@ -341,8 +341,8 @@ namespace Razix {
         OnStart();
 
         // Run the OnStart method for all the scripts in the scene
-        if (RZSceneManager::Get().getCurrentScene())
-            RZEngine::Get().getScriptHandler().OnStart(RZSceneManager::Get().getCurrentScene());
+        if (RZSceneManager::Get().getCurrentSceneMutablePtr())
+            RZEngine::Get().getScriptHandler().OnStart(RZSceneManager::Get().getCurrentSceneMutablePtr());
     }
 
     void RZApplication::Update(const RZTimestep& dt)
@@ -352,9 +352,11 @@ namespace Razix {
         // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
         // Update the renderer stuff here
         // Update Scene Graph here
-        RZSceneManager::Get().getCurrentScene()->update();
+        RZScene* CurrentScene = RZSceneManager::Get().getCurrentSceneMutablePtr();
+        CurrentScene->update();
         // Update the Scene Camera Here
-        RZSceneManager::Get().getCurrentScene()->getSceneCamera().update(dt.GetTimestepMs());
+        CurrentScene->getSceneCamera().update(dt.GetTimestepMs());
+        CurrentScene->getSceneCamera().setAspectRatio(f32(m_Window->getWidth()) / f32(m_Window->getHeight()));
 
         auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
@@ -374,7 +376,7 @@ namespace Razix {
 
         OnRender();
 
-        Razix::RZEngine::Get().getWorldRenderer().drawFrame(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
+        Razix::RZEngine::Get().getWorldRenderer().drawFrame(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentSceneMutablePtr());
     }
 
     void RZApplication::RenderGUI()
@@ -403,8 +405,8 @@ namespace Razix {
         RZEngine::Get().getWorldRenderer().OnImGui();
 
         // User GUI
-        if (RZSceneManager::Get().getCurrentScene())
-            RZEngine::Get().getScriptHandler().OnImGui(RZSceneManager::Get().getCurrentScene());
+        if (RZSceneManager::Get().getCurrentSceneMutablePtr())
+            RZEngine::Get().getScriptHandler().OnImGui(RZSceneManager::Get().getCurrentSceneMutablePtr());
 
         // Client side
         OnImGui();
@@ -528,7 +530,7 @@ namespace Razix {
 #if 0
         // Guizmo Controls for an Entity
         if (m_EnableGuizmoEditing) {
-            auto currentScene = RZSceneManager::Get().getCurrentScene();
+            auto currentScene = RZSceneManager::Get().getCurrentSceneMutablePtr();
             //auto&          registry     = currentScene->getRegistry();
             //auto           cameraView   = registry.view<CameraComponent>();
             //RZSceneCamera* cam          = nullptr;

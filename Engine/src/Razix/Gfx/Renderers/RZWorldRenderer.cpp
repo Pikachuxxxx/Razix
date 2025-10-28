@@ -214,6 +214,7 @@ namespace Razix {
             depthRenderTargetHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
             m_DepthRenderTargetHeap                               = RZResourceManager::Get().createDescriptorHeap("DepthRenderTargetHeap", depthRenderTargetHeapDesc);
 
+            // HIGH PRIORITY!
             // TODO: use them as static samplers instead of building a table!
             {
                 // Create some global basic samplers
@@ -275,19 +276,6 @@ namespace Razix {
             // Destroy Frame Graph Transient Resources
             m_FrameGraph.destroy();
 
-#if RX_ENABLE_GFX
-            // Destroy Renderers
-            RZImGuiRendererProxy::Get().Destroy();
-            RZDebugRendererProxy::Get().Destroy();
-
-            // Destroy Passes
-            m_ShadowPass.destroy();
-            m_GBufferPass.destroy();
-            m_PBRDeferredPass.destroy();
-            m_SkyboxPass.destroy();
-            m_CompositePass.destroy();
-#endif
-
             RZResourceManager::Get().destroyResourceView(m_FrameDataCBVHandle);
             RZResourceManager::Get().destroyDescriptorTable(m_FrameDataTable);
 
@@ -325,8 +313,7 @@ namespace Razix {
         {
             memset(&m_LastSwapchainReadback, 0, sizeof(rz_gfx_texture_readback));
 
-            // TODO: Enable this!
-            // m_FrameGraphBuildingInProgress = true;
+            m_FrameGraphBuildingInProgress = true;
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
@@ -371,11 +358,6 @@ namespace Razix {
 
                     gpuData.previousJitterTAA = m_PreviousJitter;
 
-                    auto& sceneCam = scene->getSceneCamera();
-
-                    sceneCam.setAspectRatio(f32(RZApplication::Get().getWindow()->getWidth()) / f32(RZApplication::Get().getWindow()->getHeight()));
-
-                    // FIXME: enable this deadcode
                     // clang-format off
                     float4x4 jitterMatrix = float4x4(
                         1.0, 0.0, 0.0, 0.0,
@@ -385,8 +367,10 @@ namespace Razix {
                     );
                     // clang-format on
 
+                    // TODO: Pass jitter as separate, just to upload to GPU for other usage
                     //auto jitteredProjMatrix = sceneCam.getProjection() * jitterMatrix;
 
+                    const auto& sceneCam              = scene->getSceneCamera();
                     gpuData.camera.projection         = sceneCam.getProjection();
                     gpuData.camera.inversedProjection = inverse(gpuData.camera.projection);
                     gpuData.camera.view               = sceneCam.getViewMatrix();
@@ -776,7 +760,7 @@ namespace Razix {
             if (m_IsFGFilePathDirty) {
                 destroy();
                 RZFrameGraph::ResetFirstFrame();
-                buildFrameGraph(settings, RZSceneManager::Get().getCurrentScene());
+                buildFrameGraph(settings, RZSceneManager::Get().getCurrentSceneMutablePtr());
                 m_IsFGFilePathDirty = false;
             }
 

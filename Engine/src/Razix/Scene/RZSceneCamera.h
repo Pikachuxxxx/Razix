@@ -24,10 +24,9 @@ namespace Razix {
 
         inline float4x4 getViewProjection() { return getProjection() * getViewMatrix(); }
 
-        inline float4x4 getProjection()
+        inline float4x4 getProjection() const
         {
-            float4x4 proj = m_Projection;
-            return proj;
+            return m_Projection;
         }
 
         inline float4x4 getProjectionRaw()
