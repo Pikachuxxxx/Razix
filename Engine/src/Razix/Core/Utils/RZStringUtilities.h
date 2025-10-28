@@ -23,14 +23,14 @@ namespace Razix {
             else if constexpr (std::is_pointer_v<T>)
                 rz_snprintf(buffer, sizeof(buffer), "%p", static_cast<const void*>(value));
             else if constexpr (std::is_integral_v<T> && std::is_signed_v<T>)
-                rz_snprintf(buffer, sizeof(buffer), "%lld", static_cast<long long>(value));
+                rz_snprintf(buffer, sizeof(buffer), "%d", static_cast<int>(value));
             else if constexpr (std::is_integral_v<T> && std::is_unsigned_v<T>)
-                rz_snprintf(buffer, sizeof(buffer), "%llu", static_cast<unsigned long long>(value));
+                rz_snprintf(buffer, sizeof(buffer), "%u", static_cast<unsigned int>(value));
             else if constexpr (std::is_floating_point_v<T>)
                 rz_snprintf(buffer, sizeof(buffer), "%f", static_cast<double>(value));
             else
                 rz_snprintf(buffer, sizeof(buffer), "<unhandled:%s>", typeid(T).name());
-
+            
             return std::string(buffer);
         }
 

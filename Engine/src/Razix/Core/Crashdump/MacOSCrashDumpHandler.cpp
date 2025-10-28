@@ -14,6 +14,8 @@
     #include <sys/types.h>    // For process and thread types (pid_t, etc.)
     #include <unistd.h>       // For getpid (process ID)
 
+#include "Razix/Core/Utils/RZStringUtilities.h"
+
 namespace Razix::CrashDumpHandler {
 
     static void writeToOutput(std::ostream& output, const std::string& message)
@@ -41,25 +43,25 @@ namespace Razix::CrashDumpHandler {
         };
 
         // Write exception info
-        write("Exception: SIGNAL " + std::to_string(info->si_signo) + "\n");
+        write("Exception: SIGNAL " + Utilities::ToString(info->si_signo) + "\n");
         write("Description: " + description + "\n\n");
 
         // Write register and thread information (ARM64 specific)
         write("Control Registers:\n");
-        write("RIP = 0x" + std::to_string(context->uc_mcontext->__ss.__pc) + "\n");         // Program Counter (equivalent of RIP)
-        write("RSP = 0x" + std::to_string(context->uc_mcontext->__ss.__sp) + "\n");         // Stack Pointer
-        write("FP  = 0x" + std::to_string(context->uc_mcontext->__ss.__fp) + "\n");         // Frame Pointer
-        write("CPSR = 0x" + std::to_string(context->uc_mcontext->__ss.__cpsr) + "\n\n");    // Current Program Status Register
+        write("RIP = 0x" + Utilities::ToString(context->uc_mcontext->__ss.__pc) + "\n");         // Program Counter (equivalent of RIP)
+        write("RSP = 0x" + Utilities::ToString(context->uc_mcontext->__ss.__sp) + "\n");         // Stack Pointer
+        write("FP  = 0x" + Utilities::ToString(context->uc_mcontext->__ss.__fp) + "\n");         // Frame Pointer
+        write("CPSR = 0x" + Utilities::ToString(context->uc_mcontext->__ss.__cpsr) + "\n\n");    // Current Program Status Register
 
         write("Integer Registers:\n");
         for (int i = 0; i < 29; ++i) {    // ARM64 has 29 general-purpose registers (x0-x28)
-            write("X" + std::to_string(i) + " = 0x" + std::to_string(context->uc_mcontext->__ss.__x[i]) + "\n");
+            write("X" + Utilities::ToString(i) + " = 0x" + Utilities::ToString(context->uc_mcontext->__ss.__x[i]) + "\n");
         }
-        write("X29 (FP) = 0x" + std::to_string(context->uc_mcontext->__ss.__fp) + "\n");
-        write("X30 (LR) = 0x" + std::to_string(context->uc_mcontext->__ss.__lr) + "\n");    // Link Register
+        write("X29 (FP) = 0x" + Utilities::ToString(context->uc_mcontext->__ss.__fp) + "\n");
+        write("X30 (LR) = 0x" + Utilities::ToString(context->uc_mcontext->__ss.__lr) + "\n");    // Link Register
 
         // Signal-specific information
-        write("\nAttempt to access memory address: 0x" + std::to_string(reinterpret_cast<uintptr_t>(info->si_addr)) + "\n");
+        write("\nAttempt to access memory address: 0x" + Utilities::ToString(reinterpret_cast<uintptr_t>(info->si_addr)) + "\n");
 
         // Close the dump file
         dumpFile.close();
@@ -107,7 +109,7 @@ namespace Razix::CrashDumpHandler {
         }
 
         // Write the crash dump
-        writeCrashDump("Signal " + std::to_string(signal), description, info, static_cast<ucontext_t*>(context));
+        writeCrashDump("Signal " + Utilities::ToString(signal), description, info, static_cast<ucontext_t*>(context));
 
         // Exit after handling the crash
         exit(signal);

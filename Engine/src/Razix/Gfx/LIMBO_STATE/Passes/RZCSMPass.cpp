@@ -274,7 +274,7 @@ namespace Razix {
             auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::CSM);
 
             auto& pass = framegraph.addCallbackPass<CascadeSubPassData>(
-                "Pass.Builtin.Code.CSM # " + std::to_string(cascadeIdx),
+                "Pass.Builtin.Code.CSM # " +  Utilities::ToString(cascadeIdx),
                 [&](CascadeSubPassData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 
@@ -308,8 +308,8 @@ namespace Razix {
 
                     RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Shadows);
 
-                    RAZIX_TIME_STAMP_BEGIN("CSM Pass # " + std::to_string(cascadeIdx));
-                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.CSM # " + std::to_string(cascadeIdx), float4(0.35, 0.44, 0.96f, 1.0f));
+                    RAZIX_TIME_STAMP_BEGIN("CSM Pass # " + Utilities::ToString(cascadeIdx));
+                    RAZIX_MARK_BEGIN("Pass.Builtin.Code.CSM # " + Utilities::ToString(cascadeIdx), float4(0.35, 0.44, 0.96f, 1.0f));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
@@ -321,7 +321,7 @@ namespace Razix {
                             descriptor->uniformBuffer = resources.get<RZFrameGraphBuffer>(data.vpLayer).getHandle();
 
                         RZDescriptorSetDesc setDesc = {};
-                        setDesc.name                = "CSM VPLayer # " + std::to_string(cascadeIdx);
+                        setDesc.name                = "CSM VPLayer # " + Utilities::ToString(cascadeIdx);
                         setDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
                         setDesc.descriptors.push_back(*descriptor);
                         m_CascadeSets[cascadeIdx] = RZResourceManager::Get().createDescriptorSet(setDesc);
