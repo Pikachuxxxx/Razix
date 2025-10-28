@@ -48,13 +48,13 @@
 #include "Razix/Scene/RZScene.h"
 
 // Utilities
-#include "Razix/Utilities/RZColorUtilities.h"
-#include "Razix/Utilities/RZCommandLineParser.h"
-#include "Razix/Utilities/RZLoadImage.h"
-#include "Razix/Utilities/RZStringUtilities.h"
-#include "Razix/Utilities/RZTimer.h"
-#include "Razix/Utilities/RZTimestep.h"
-#include "Razix/Utilities/TRZSingleton.h"
+#include "Razix/Core/Utils/RZColorUtilities.h"
+#include "Razix/Core/Utils/RZCommandLineParser.h"
+#include "Razix/Core/Utils/RZLoadImage.h"
+#include "Razix/Core/Utils/RZStringUtilities.h"
+#include "Razix/Core/Utils/RZTimer.h"
+#include "Razix/Core/Utils/RZTimestep.h"
+#include "Razix/Core/Utils/TRZSingleton.h"
 
 // Internal
 // Razix Memory

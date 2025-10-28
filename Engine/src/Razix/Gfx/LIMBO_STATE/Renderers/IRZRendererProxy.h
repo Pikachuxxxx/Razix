@@ -12,8 +12,8 @@
 
 #include "Razix/Scene/RZSceneCamera.h"
 
-#include "Razix/Utilities/RZTimer.h"
-#include "Razix/Utilities/RZTimestep.h"
+#include "Razix/Core/Utils/RZTimer.h"
+#include "Razix/Core/Utils/RZTimestep.h"
 
 #include <string>
 

@@ -7,8 +7,8 @@
 
 #include "Razix/Core/RZEngineSettings.h"
 
-#include "Razix/Utilities/RZCommandLineParser.h"
-#include "Razix/Utilities/TRZSingleton.h"
+#include "Razix/Core/Utils/RZCommandLineParser.h"
+#include "Razix/Core/Utils/TRZSingleton.h"
 
 //#include "Razix/Gfx/RZShaderLibrary.h"
 

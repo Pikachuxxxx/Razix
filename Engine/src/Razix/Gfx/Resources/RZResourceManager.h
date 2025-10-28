@@ -4,7 +4,7 @@
 
 #include "Razix/Gfx/Resources/RZResourceFreeListMemPool.h"
 
-#include "Razix/Utilities/TRZSingleton.h"
+#include "Razix/Core/Utils/TRZSingleton.h"
 
 #include "Razix/Gfx/RHI/RHI.h"
 #include "Razix/Gfx/RZShaderUtils.h"

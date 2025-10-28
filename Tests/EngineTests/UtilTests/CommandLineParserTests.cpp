@@ -9,7 +9,7 @@
 
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
-#include "Razix/Utilities/RZCommandLineParser.h"
+#include "Razix/Core/Utils/RZCommandLineParser.h"
 
 #include <gtest/gtest.h>
 

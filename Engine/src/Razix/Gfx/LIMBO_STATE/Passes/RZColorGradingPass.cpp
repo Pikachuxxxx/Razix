@@ -18,7 +18,7 @@
 
 #include "Razix/Scene/RZScene.h"
 
-#include "Razix/Utilities/RZColorUtilities.h"
+#include "Razix/Core/Utils/RZColorUtilities.h"
 
 namespace Razix {
     namespace Gfx {

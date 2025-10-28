@@ -12,7 +12,7 @@
 
 #include "Razix/Gfx/RHI/RHI.h"
 
-#include "Razix/Utilities/RZLoadImage.h"
+#include "Razix/Core/Utils/RZLoadImage.h"
 
 #if defined RAZIX_RENDER_API_OPENGL || RAZIX_RENDER_API_VULKAN
 // clang-format off

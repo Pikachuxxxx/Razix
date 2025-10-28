@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Utilities/TRZSingleton.h"
+#include "Razix/Core/Utils/TRZSingleton.h"
 
 #ifdef RAZIX_PLATFORM_WINDOWS
     #include <Windows.h>

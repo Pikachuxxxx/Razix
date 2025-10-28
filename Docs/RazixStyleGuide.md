@@ -148,8 +148,8 @@ C++ rules
     #include "Razix/Events/RZKeyEvent.h"
     #include "Razix/Events/RZMouseEvent.h"
 
-    #include "Razix/Utilities/RZTimestep.h"
-    #include "Razix/Utilities/RZTimer.h"
+    #include "Razix/Core/Utils/RZTimestep.h"
+    #include "Razix/Core/Utils/RZTimer.h"
 
 **Access types in a class have a specified order**. First `public` then `protected` and last `private`. First Variables followed by Methods
 

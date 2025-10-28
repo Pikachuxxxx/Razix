@@ -26,7 +26,7 @@
 
     #include "Razix/Gfx/Materials/RZMaterial.h"
 
-    #include "Razix/Utilities/RZLoadImage.h"
+    #include "Razix/Core/Utils/RZLoadImage.h"
 
     #define GLM_FORCE_LEFT_HANDED
     #include <glm/gtc/matrix_transform.hpp>

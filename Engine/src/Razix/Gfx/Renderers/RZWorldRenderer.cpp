@@ -32,7 +32,7 @@
 
 #include "Razix/Tools/Runtime/RZEngineRuntimeTools.h"
 
-#include "Razix/Utilities/RZColorUtilities.h"
+#include "Razix/Core/Utils/RZColorUtilities.h"
 
 #ifdef RAZIX_PLATFORM_WINDOWS
     #define GLFW_EXPOSE_NATIVE_WIN32

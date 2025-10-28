@@ -15,7 +15,7 @@
 
 #include "Razix/Gfx/RZShaderLibrary.h"
 
-#include "Razix/Utilities/RZStringUtilities.h"
+#include "Razix/Core/Utils/RZStringUtilities.h"
 
 #include <cereal/archives/json.hpp>
 

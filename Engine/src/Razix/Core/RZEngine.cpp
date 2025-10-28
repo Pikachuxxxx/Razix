@@ -21,7 +21,7 @@
     #include "Razix/Platform/GLFW/GLFWWindow.h"
 #endif
 
-#include "Razix/Utilities/RZiniParser.h"
+#include "Razix/Core/Utils/RZiniParser.h"
 
 namespace Razix {
     void RZEngine::Ignite()

@@ -9,7 +9,7 @@
 
 #include "Razix/Gfx/RHI/API/RZShader.h"
 
-#include "Razix/Utilities/RZStringUtilities.h"
+#include "Razix/Core/Utils/RZStringUtilities.h"
 
 namespace Razix {
     namespace Gfx {

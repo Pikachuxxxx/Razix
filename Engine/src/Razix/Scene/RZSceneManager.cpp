@@ -12,7 +12,7 @@
 #include "Razix/Scene/RZEntity.h"
 #include "Razix/Scene/RZScene.h"
 
-#include "Razix/Utilities/RZStringUtilities.h"
+#include "Razix/Core/Utils/RZStringUtilities.h"
 
 namespace Razix {
 

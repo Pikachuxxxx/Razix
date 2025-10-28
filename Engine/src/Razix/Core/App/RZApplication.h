@@ -13,9 +13,9 @@
 
 #include "Razix/Scene/RZEntity.h"
 
-#include "Razix/Utilities/RZTimer.h"
-#include "Razix/Utilities/RZTimestep.h"
-#include "Razix/Utilities/TRZSingleton.h"
+#include "Razix/Core/Utils/RZTimer.h"
+#include "Razix/Core/Utils/RZTimestep.h"
+#include "Razix/Core/Utils/TRZSingleton.h"
 
 // Cereal
 #pragma warning(push, 0)

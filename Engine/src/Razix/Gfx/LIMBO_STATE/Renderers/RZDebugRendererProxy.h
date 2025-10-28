@@ -12,7 +12,7 @@
 #include "Razix/Math/AABB.h"
 #include "Razix/Math/Frustum.h"
 
-#include "Razix/Utilities/TRZSingleton.h"
+#include "Razix/Core/Utils/TRZSingleton.h"
 
 namespace Razix {
     namespace Gfx {
