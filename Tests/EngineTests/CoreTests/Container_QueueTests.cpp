@@ -254,4 +254,90 @@ namespace Razix {
         EXPECT_EQ(queue.front().x, 20);
     }
 
+    TEST(RZQueue, PushAndFrontBack)
+    {
+        RZQueue<int> q;
+        q.push(10);
+        EXPECT_EQ(q.front(), 10);
+        EXPECT_EQ(q.back(), 10);
+        EXPECT_EQ(q.size(), 1);
+
+        q.push(20);
+        q.push(30);
+        EXPECT_EQ(q.front(), 10);
+        EXPECT_EQ(q.back(), 30);
+        EXPECT_EQ(q.size(), 3);
+    }
+
+    TEST(RZQueue, PopRemovesFront)
+    {
+        RZQueue<int> q;
+        for (int i = 0; i < 4; ++i)
+            q.push(i * 10);
+
+        EXPECT_EQ(q.front(), 0);
+        EXPECT_EQ(q.back(), 30);
+
+        q.pop();
+        EXPECT_EQ(q.front(), 10);
+        EXPECT_EQ(q.size(), 3);
+
+        q.pop();
+        EXPECT_EQ(q.front(), 20);
+        EXPECT_EQ(q.size(), 2);
+
+        q.pop();
+        q.pop();
+        EXPECT_TRUE(q.empty());
+    }
+
+    TEST(RZQueue, EmplaceConstructsInPlace)
+    {
+        struct Obj
+        {
+            std::string s;
+            int         x;
+            Obj(std::string str, int val)
+                : s(std::move(str)), x(val) {}
+        };
+
+        RZQueue<Obj> q;
+        q.emplace("A", 1);
+        q.emplace("B", 2);
+        q.emplace("C", 3);
+
+        EXPECT_EQ(q.front().s, "A");
+        EXPECT_EQ(q.back().x, 3);
+        EXPECT_EQ(q.size(), 3);
+
+        q.pop();
+        EXPECT_EQ(q.front().s, "B");
+        EXPECT_EQ(q.size(), 2);
+    }
+
+    TEST(RZQueue, WrapAroundAndMaintainOrder)
+    {
+        // Force wrap-around logic.
+        RZQueue<int> q(4);
+        for (int i = 0; i < 4; ++i)
+            q.push(i);
+
+        q.pop();    // remove 0
+        q.pop();    // remove 1
+
+        q.push(4);
+        q.push(5);    // should wrap around if circular
+
+        EXPECT_EQ(q.size(), 4);
+        EXPECT_EQ(q.front(), 2);
+        EXPECT_EQ(q.back(), 5);
+
+        std::vector<int> expected = {2, 3, 4, 5};
+        for (int e: expected) {
+            EXPECT_EQ(q.front(), e);
+            q.pop();
+        }
+        EXPECT_TRUE(q.empty());
+    }
+
 }    // namespace Razix
