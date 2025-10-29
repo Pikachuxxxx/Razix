@@ -2,7 +2,7 @@
 
 #include "Razix/Gfx/RHI/RHI.h"
 
-#include "Razix/Utilities/RZTimestep.h"
+#include "Razix/Core/Utils/RZTimestep.h"
 
 #include "Razix/Gfx/FrameGraph/RZBlackboard.h"
 #include "Razix/Gfx/FrameGraph/RZFrameGraph.h"

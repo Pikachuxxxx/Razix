@@ -11,7 +11,7 @@
 
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
-#include "Razix/Utilities/RZiniParser.h"
+#include "Razix/Core/Utils/RZiniParser.h"
 
 #include <gtest/gtest.h>
 

@@ -2,7 +2,7 @@
 
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Gfx/GfxData.h"
-#include "Razix/Utilities/RZVendorOverrides.h"
+#include "Razix/Core/Utils/RZVendorOverrides.h"
 
 #include <cereal/cereal.hpp>
 #include <glm/glm.hpp>

@@ -2,6 +2,7 @@
 
 #include "Razix/Core/RZDepartments.h"
 #include "Razix/Core/UUID/RZUUID.h"
+#include "Razix/Core/Utils/RZStringUtilities.h"
 #include "Razix/Events/RZEvent.h"
 
 namespace Razix {
@@ -66,7 +67,7 @@ namespace Razix {
 
             std::string toString() const
             {
-                return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch) + (revisionID.empty() ? "" : (" (" + revisionID + ")"));
+                return Utilities::ToString(major) + "." + Utilities::ToString(minor) + "." + Utilities::ToString(patch) + (revisionID.empty() ? "" : (" (" + revisionID + ")"));
             }
         };
 
@@ -121,20 +122,20 @@ namespace Razix {
             // Notify listeners of a specific event
             void notifyListeners(RZEvent& event) { m_EventDispatcher.dispatch(event); }
 
-            RAZIX_INLINE const RZUUID&        getUUID() const { return m_UUID; }
-            RAZIX_INLINE AssetType            getType() const { return m_Type; }
-            RAZIX_INLINE void                 addReference() { m_ReferenceCount.fetch_add(1, std::memory_order_relaxed); }
-            RAZIX_INLINE void                 removeReference() { m_ReferenceCount.fetch_sub(1, std::memory_order_relaxed); }
-            RAZIX_INLINE int                  getReferenceCount() const { return m_ReferenceCount.load(std::memory_order_relaxed); }
-            RAZIX_INLINE void                 markDirty() { m_IsDirty = true; }
-            RAZIX_INLINE void                 clearDirty() { m_IsDirty = false; }
-            RAZIX_INLINE bool                 isDirty() const { return m_IsDirty; }
-            RAZIX_INLINE void                 setMetadata(const AssetMetadata& metadata) { m_Metadata = metadata; }
-            RAZIX_INLINE const AssetMetadata& getMetadata() const { return m_Metadata; }
-            RAZIX_INLINE void                 acquireLockOnAsset() { m_Mutex.lock(); }
-            RAZIX_INLINE void                 releaseLockOnAsset() { m_Mutex.unlock(); }
-            RAZIX_INLINE void                 addDependency(AssetType assetType, const RZUUID& assetID) { m_Dependencies.push_back({assetType, assetID}); }
-            RAZIX_INLINE const std::vector<AssetDependecy>& getDependencies() const { return m_Dependencies; }
+            inline const RZUUID&                      getUUID() const { return m_UUID; }
+            inline AssetType                          getType() const { return m_Type; }
+            inline void                               addReference() { m_ReferenceCount.fetch_add(1, std::memory_order_relaxed); }
+            inline void                               removeReference() { m_ReferenceCount.fetch_sub(1, std::memory_order_relaxed); }
+            inline int                                getReferenceCount() const { return m_ReferenceCount.load(std::memory_order_relaxed); }
+            inline void                               markDirty() { m_IsDirty = true; }
+            inline void                               clearDirty() { m_IsDirty = false; }
+            inline bool                               isDirty() const { return m_IsDirty; }
+            inline void                               setMetadata(const AssetMetadata& metadata) { m_Metadata = metadata; }
+            inline const AssetMetadata&               getMetadata() const { return m_Metadata; }
+            inline void                               acquireLockOnAsset() { m_Mutex.lock(); }
+            inline void                               releaseLockOnAsset() { m_Mutex.unlock(); }
+            inline void                               addDependency(AssetType assetType, const RZUUID& assetID) { m_Dependencies.push_back({assetType, assetID}); }
+            inline const std::vector<AssetDependecy>& getDependencies() const { return m_Dependencies; }
 
             RZUUID operator()() { return m_UUID; }
             bool   operator==(RZAsset& other) { return m_UUID == other.m_UUID; }

@@ -13,8 +13,8 @@
 #include "Razix/Gfx/RZShaderUtils.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
-#include "Razix/Utilities/RZLoadImage.h"
-#include "Razix/Utilities/RZStringUtilities.h"
+#include "Razix/Core/Utils/RZLoadImage.h"
+#include "Razix/Core/Utils/RZStringUtilities.h"
 
 namespace Razix {
     namespace Gfx {

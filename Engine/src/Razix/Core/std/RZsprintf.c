@@ -6,6 +6,8 @@
 #include <stdint.h> // for newer std types 
 #include <stddef.h>
 
+#include <stdio.h>
+
 #define READ_UNTIL_STR_NULL            0xFFFFFFFF
 #define FMT_SPECIFIER_DELIMITER_CHR    '%'
 #define DEFAULT_FLOATHEX_PRECISION     6
@@ -421,6 +423,7 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
             size_t len = strlen(format);
             memcpy(buf + writtenBytes, format, len);
             writtenBytes += len;
+            buf[writtenBytes++] = '\0';
             return (int) writtenBytes;
         }
 
@@ -657,6 +660,8 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
 
         format = scan_elem;
     }
+
+    buf[writtenBytes++] = '\0';
 
     return (int) writtenBytes;
 }

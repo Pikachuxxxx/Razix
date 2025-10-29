@@ -15,7 +15,7 @@
 
 #include "Razix/Gfx/RZShaderLibrary.h"
 
-#include "Razix/Utilities/RZStringUtilities.h"
+#include "Razix/Core/Utils/RZStringUtilities.h"
 
 #include <cereal/archives/json.hpp>
 
@@ -221,7 +221,7 @@ namespace Razix {
                     }
                     RZDescriptorSetDesc descSetCreateDesc = {};
                     descSetCreateDesc.heapType            = DescriptorHeapType::kCbvUavSrvHeap;
-                    descSetCreateDesc.name                = "DescriptorSet.Material_" + std::to_string(m_MaterialPropertiesUBO.getIndex());
+                    descSetCreateDesc.name                = "DescriptorSet.Material_" + Utilities::ToString(m_MaterialPropertiesUBO.getIndex());
                     descSetCreateDesc.descriptors         = heap.second;
                     m_DescriptorSet                       = RZResourceManager::Get().createDescriptorSet(descSetCreateDesc);
                 }

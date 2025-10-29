@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Utilities/RZStringUtilities.h"
+#include "Razix/Core/Utils/RZStringUtilities.h"
 
 namespace Razix {
     namespace Utilities {

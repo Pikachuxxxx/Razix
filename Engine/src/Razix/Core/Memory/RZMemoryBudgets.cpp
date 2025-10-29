@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZMemoryBudgets.h"
 
-#include "Razix/Utilities/RZiniParser.h"
+#include "Razix/Core/Utils/RZiniParser.h"
 
 namespace Razix {
     namespace Memory {

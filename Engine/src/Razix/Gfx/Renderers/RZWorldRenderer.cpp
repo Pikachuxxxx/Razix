@@ -32,7 +32,7 @@
 
 #include "Razix/Tools/Runtime/RZEngineRuntimeTools.h"
 
-#include "Razix/Utilities/RZColorUtilities.h"
+#include "Razix/Core/Utils/RZColorUtilities.h"
 
 #ifdef RAZIX_PLATFORM_WINDOWS
     #define GLFW_EXPOSE_NATIVE_WIN32
@@ -179,12 +179,12 @@ namespace Razix {
 
                 rz_gfx_cmdpool_desc cmdPoolDesc = {};
                 cmdPoolDesc.poolType            = RZ_GFX_CMDPOOL_TYPE_GRAPHICS;
-                std::string commandPoolName     = "InFlightCommandPool_" + std::to_string(i);
+                std::string commandPoolName     = "InFlightCommandPool_" + Utilities::ToString(i);
                 m_InFlightCmdPool[i]            = RZResourceManager::Get().createCommandPool(commandPoolName.c_str(), cmdPoolDesc);
 
                 rz_gfx_cmdbuf_desc desc        = {0};
                 desc.pool                      = RZResourceManager::Get().getCommandPoolResource(m_InFlightCmdPool[i]);
-                std::string inFlightCmdBufName = "InFlightDrawCommandBuffer_" + std::to_string(i);
+                std::string inFlightCmdBufName = "InFlightDrawCommandBuffer_" + Utilities::ToString(i);
                 m_InFlightDrawCmdBufHandles[i] = RZResourceManager::Get().createCommandBuffer(inFlightCmdBufName.c_str(), desc);
                 m_InFlightDrawCmdBufPtrs[i]    = RZResourceManager::Get().getCommandBufferResource(m_InFlightDrawCmdBufHandles[i]);
             }
@@ -214,6 +214,7 @@ namespace Razix {
             depthRenderTargetHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
             m_DepthRenderTargetHeap                               = RZResourceManager::Get().createDescriptorHeap("DepthRenderTargetHeap", depthRenderTargetHeapDesc);
 
+            // HIGH PRIORITY!
             // TODO: use them as static samplers instead of building a table!
             {
                 // Create some global basic samplers
@@ -275,19 +276,6 @@ namespace Razix {
             // Destroy Frame Graph Transient Resources
             m_FrameGraph.destroy();
 
-#if RX_ENABLE_GFX
-            // Destroy Renderers
-            RZImGuiRendererProxy::Get().Destroy();
-            RZDebugRendererProxy::Get().Destroy();
-
-            // Destroy Passes
-            m_ShadowPass.destroy();
-            m_GBufferPass.destroy();
-            m_PBRDeferredPass.destroy();
-            m_SkyboxPass.destroy();
-            m_CompositePass.destroy();
-#endif
-
             RZResourceManager::Get().destroyResourceView(m_FrameDataCBVHandle);
             RZResourceManager::Get().destroyDescriptorTable(m_FrameDataTable);
 
@@ -325,8 +313,7 @@ namespace Razix {
         {
             memset(&m_LastSwapchainReadback, 0, sizeof(rz_gfx_texture_readback));
 
-            // TODO: Enable this!
-            // m_FrameGraphBuildingInProgress = true;
+            m_FrameGraphBuildingInProgress = true;
 
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
@@ -371,11 +358,6 @@ namespace Razix {
 
                     gpuData.previousJitterTAA = m_PreviousJitter;
 
-                    auto& sceneCam = scene->getSceneCamera();
-
-                    sceneCam.setAspectRatio(f32(RZApplication::Get().getWindow()->getWidth()) / f32(RZApplication::Get().getWindow()->getHeight()));
-
-                    // FIXME: enable this deadcode
                     // clang-format off
                     float4x4 jitterMatrix = float4x4(
                         1.0, 0.0, 0.0, 0.0,
@@ -385,8 +367,10 @@ namespace Razix {
                     );
                     // clang-format on
 
+                    // TODO: Pass jitter as separate, just to upload to GPU for other usage
                     //auto jitteredProjMatrix = sceneCam.getProjection() * jitterMatrix;
 
+                    const auto& sceneCam              = scene->getSceneCamera();
                     gpuData.camera.projection         = sceneCam.getProjection();
                     gpuData.camera.inversedProjection = inverse(gpuData.camera.projection);
                     gpuData.camera.view               = sceneCam.getViewMatrix();
@@ -776,7 +760,7 @@ namespace Razix {
             if (m_IsFGFilePathDirty) {
                 destroy();
                 RZFrameGraph::ResetFirstFrame();
-                buildFrameGraph(settings, RZSceneManager::Get().getCurrentScene());
+                buildFrameGraph(settings, RZSceneManager::Get().getCurrentSceneMutablePtr());
                 m_IsFGFilePathDirty = false;
             }
 
@@ -816,7 +800,7 @@ namespace Razix {
                 rzRHI_BeginCmdBuf(cmdBuffer);
 
                 // Begin Frame Marker
-                RAZIX_MARK_BEGIN(cmdBuffer, "Frame # " + std::to_string(m_FrameCount) + " [back buffer # " + std::to_string(inFlightSyncobjIdx) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
+                RAZIX_MARK_BEGIN(cmdBuffer, "Frame # " + Utilities::ToString(m_FrameCount) + " [back buffer # " + Utilities::ToString(inFlightSyncobjIdx) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
 
                 // Insert barrier to transition the swapchain image (PRESENT) to RENDER_TARGET
                 rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_PRESENT, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);

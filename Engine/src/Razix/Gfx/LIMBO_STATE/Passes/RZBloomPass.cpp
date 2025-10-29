@@ -86,7 +86,7 @@ void RZBloomPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRen
 
         BloomMip RZBloomPass::upsample(RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex, RZRendererSettings* settings)
         {
-            const auto name = "Bloom Upsample pass #" + std::to_string(mipindex);
+            const auto name = "Bloom Upsample pass #" + Utilities::ToString(mipindex);
 
             BloomMip mip;
 
@@ -97,7 +97,7 @@ void RZBloomPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRen
 
             for (u32 j = 0; j < RAZIX_MAX_SWAP_IMAGES_COUNT; j++) {
                 auto cmdBuffer = RZDrawCommandBuffer::Create();
-                cmdBuffer->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Bloom Upsample cmd buffer [mip idx :" + std::to_string(mipindex) + "]"));
+                cmdBuffer->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Bloom Upsample cmd buffer [mip idx :" + Utilities::ToString(mipindex) + "]"));
                 upsamplebBloomGpuResources[mipindex].cmdBuffers.push_back(cmdBuffer);
             }
 
@@ -142,7 +142,7 @@ void RZBloomPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRen
 
                     // Begin Command Buffer Recording
                     RHI::Begin(cmdBuf);
-                    RAZIX_MARK_BEGIN("Bloom Upsample Pass" + std::to_string(mipindex), float4(0.25, 0.23, 0.86f, 1.0f));
+                    RAZIX_MARK_BEGIN("Bloom Upsample Pass" + Utilities::ToString(mipindex), float4(0.25, 0.23, 0.86f, 1.0f));
 
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT     = false;
@@ -205,7 +205,7 @@ void RZBloomPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRen
 
         BloomMip RZBloomPass::downsample(RZFrameGraph& framegraph, BloomMip bloomSourceMip, Razix::RZScene* scene, u32 mipindex)
         {
-            const auto name = "Bloom Downsample pass #" + std::to_string(mipindex);
+            const auto name = "Bloom Downsample pass #" + Utilities::ToString(mipindex);
 
             BloomMip mip;
 
@@ -216,7 +216,7 @@ void RZBloomPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRen
 
             for (u32 j = 0; j < RAZIX_MAX_SWAP_IMAGES_COUNT; j++) {
                 auto cmdBuffer = RZDrawCommandBuffer::Create();
-                cmdBuffer->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Bloom Downsample cmd buffer [mip idx :" + std::to_string(mipindex) + "]"));
+                cmdBuffer->Init(RZ_DEBUG_NAME_TAG_STR_S_ARG("Bloom Downsample cmd buffer [mip idx :" + Utilities::ToString(mipindex) + "]"));
                 downsamplebBloomGpuResources[mipindex].cmdBuffers.push_back(cmdBuffer);
             }
 
@@ -261,7 +261,7 @@ void RZBloomPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRen
 
                     // Begin Command Buffer Recording
                     RHI::Begin(cmdBuf);
-                    RAZIX_MARK_BEGIN("Bloom Downsample Pass" + std::to_string(mipindex), float4(0.85, 0.23, 0.56f, 1.0f));
+                    RAZIX_MARK_BEGIN("Bloom Downsample Pass" + Utilities::ToString(mipindex), float4(0.85, 0.23, 0.56f, 1.0f));
 
                     // Update the Descriptor Set with the new texture once
                     static bool updatedRT     = false;

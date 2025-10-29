@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Utilities/TRZSingleton.h"
+#include "Razix/Core/Utils/TRZSingleton.h"
 
 namespace Razix {
     /* Cross - Platform Virtual File System for the Engine */

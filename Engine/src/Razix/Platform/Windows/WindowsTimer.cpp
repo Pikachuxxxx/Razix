@@ -1,7 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "Razix/Utilities/RZTimer.h"
+#include "Razix/Core/Utils/RZTimer.h"
 
 namespace Razix {
     static d32 GetQueryPerformancePeriod()

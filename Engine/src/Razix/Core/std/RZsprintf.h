@@ -1,12 +1,12 @@
 #ifndef _RZ_SPRINTF_H_
 #define _RZ_SPRINTF_H_
 
+#include "Razix/Core/RZCore.h"
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-#include "Razix/Core/RZCore.h"
 
 #include <stdarg.h>
 #include <stddef.h>    // for size_t used in rz_snprintf / rz_vsnprintf

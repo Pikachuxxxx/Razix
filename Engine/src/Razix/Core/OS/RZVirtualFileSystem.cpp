@@ -6,7 +6,7 @@
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
-#include "Razix/Utilities/RZStringUtilities.h"
+#include "Razix/Core/Utils/RZStringUtilities.h"
 
 namespace Razix {
     // TODO: Move this to explicit lazy singleton instantiation as a member in Engine class

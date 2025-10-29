@@ -6,12 +6,13 @@
 #include <unordered_map>
 #include <variant>
 #include <vector>
+#include <iostream>
 
 #include <Razix/Core/Log/RZLog.h>
 
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
-#include "Razix/Utilities/RZStringUtilities.h"
+#include "Razix/Core/Utils/RZStringUtilities.h"
 
 #include <gtest/gtest.h>
 

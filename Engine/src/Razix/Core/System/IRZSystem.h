@@ -2,8 +2,8 @@
 
 #include "Razix/Core/RZCore.h"
 
-#include "Razix/Utilities/RZTimestep.h"
-#include "Razix/Utilities/TRZSingleton.h"
+#include "Razix/Core/Utils/RZTimestep.h"
+#include "Razix/Core/Utils/TRZSingleton.h"
 
 #include <string>
 

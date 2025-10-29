@@ -10,8 +10,8 @@
 
 //#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
-    #include "Razix/Utilities/RZColorUtilities.h"
-    #include "Razix/Utilities/RZStringUtilities.h"
+    #include "Razix/Core/Utils/RZColorUtilities.h"
+    #include "Razix/Core/Utils/RZStringUtilities.h"
 
     #define IMGUI_DEFINE_MATH_OPERATORS
     #include <imgui/imgui.h>
