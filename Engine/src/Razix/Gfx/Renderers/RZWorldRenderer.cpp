@@ -234,7 +234,7 @@ namespace Razix {
 
                 // Create a descriptor table for all the samplers
                 rz_gfx_descriptor samplerDescriptor = {};
-                snprintf(samplerDescriptor.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$");
+                rz_snprintf(samplerDescriptor.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$");
                 samplerDescriptor.type                                 = RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
                 samplerDescriptor.location.binding                     = 0;
                 samplerDescriptor.location.space                       = 0;
@@ -398,7 +398,7 @@ namespace Razix {
                     // Create only once on start up when it's invalid, lazy alloc due to resource availability from FG
                     if (!rz_handle_is_valid(&m_FrameDataTable)) {
                         rz_gfx_descriptor descriptor = {};
-                        snprintf(descriptor.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "Descriptor.FrameData");
+                        rz_snprintf(descriptor.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "Descriptor.FrameData");
                         descriptor.type                        = RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
                         descriptor.sizeInBytes                 = sizeof(GPUFrameData);
                         descriptor.location.binding            = 0;
@@ -477,7 +477,7 @@ namespace Razix {
                     // Create descriptor table and resource view for the scene lights data buffer (lazy alloc)
                     if (!rz_handle_is_valid(&m_SceneLightsDataTable)) {
                         rz_gfx_descriptor descriptor = {};
-                        snprintf(descriptor.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "Descriptor.SceneLightsData");
+                        rz_snprintf(descriptor.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "Descriptor.SceneLightsData");
                         descriptor.type                        = RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
                         descriptor.sizeInBytes                 = sizeof(GPULightsData);
                         descriptor.location.binding            = 0;

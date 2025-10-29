@@ -3,6 +3,7 @@
 // clang-format on
 #include "RZResourceManager.h"
 
+#include "Razix/Core/std/RZsprintf.h"
 #include "Razix/Gfx/RZGfxUtil.h"
 
 #define CREATE_UTIL(name, typeEnum, pool, handleSize)                                                    \
@@ -16,7 +17,7 @@
     memset(resource, 0x00, sizeof(rz_gfx_resource));                                                     \
     resource->type = typeEnum;                                                                           \
     RAZIX_CORE_TRACE("resourceName: {}", name);                                                          \
-    snprintf(resource->pName, 256, "%s", name);                                                          \
+    rz_snprintf(resource->pName, 256, "%s", name);                                                       \
     RAZIX_CORE_TRACE("resource->pName: {}", resource->pName);                                            \
     resource->handle = handle;                                                                           \
     memcpy(&resource->desc, &desc, handleSize);                                                          \

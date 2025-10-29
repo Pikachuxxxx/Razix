@@ -144,7 +144,7 @@ namespace Razix {
                     RAZIX_CORE_ASSERT(formatComponentSize > 0, "Unsupported or unknown format component size reflected from SPIR-V");
                     u32                   formatSize = formatComponentsCount * formatComponentSize;
                     rz_gfx_input_element* inputParam = &outReflection->pInputElements[currentElementIndex];
-                    snprintf(inputParam->pSemanticName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", inputVar.semantic ? inputVar.semantic : inputVar.name);
+                    rz_snprintf(inputParam->pSemanticName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", inputVar.semantic ? inputVar.semantic : inputVar.name);
                     inputParam->semanticIndex     = 0;    // Not used in Vulkan
                     inputParam->format            = engineFormat;
                     inputParam->inputSlot         = inputVar.location;
@@ -241,7 +241,7 @@ namespace Razix {
 
                 rz_gfx_descriptor* desc = &targetTable->pDescriptors[targetTable->descriptorCount];
                 memset(desc, 0, sizeof(rz_gfx_descriptor));
-                snprintf(desc->pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", descriptor.name);
+                rz_snprintf(desc->pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", descriptor.name);
                 desc->location.binding = descriptor.binding;
                 desc->location.space   = descriptor.set;
                 desc->type             = VKSpvDescriptorTypeToEngineDescriptorType(descriptor.descriptor_type);
@@ -536,7 +536,7 @@ namespace Razix {
                         continue;    // Skip system values
 
                     rz_gfx_input_element* inputParam = &outReflection->pInputElements[currentElementIndex];
-                    snprintf(inputParam->pSemanticName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", paramDesc.SemanticName);
+                    rz_snprintf(inputParam->pSemanticName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", paramDesc.SemanticName);
                     inputParam->semanticIndex     = paramDesc.SemanticIndex;
                     inputParam->format            = DX12DXXGIToEngineFormat(format);
                     inputParam->inputSlot         = paramDesc.Stream;
@@ -625,7 +625,7 @@ namespace Razix {
 
                 rz_gfx_descriptor* desc = &targetTable->pDescriptors[targetTable->descriptorCount];
                 memset(desc, 0, sizeof(rz_gfx_descriptor));
-                snprintf(desc->pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", bindDesc.Name);
+                rz_snprintf(desc->pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", bindDesc.Name);
                 desc->location.binding = bindDesc.BindPoint;
                 desc->location.space   = bindDesc.Space;
                 desc->type             = DX12ConvertInputTypeToDescriptorType(bindDesc.Type);
@@ -714,7 +714,7 @@ namespace Razix {
                             sizeof(rz_gfx_descriptor) * srcTable->descriptorCount);
                         for (uint32_t j = 0; j < srcTable->descriptorCount; ++j) {
                             dstTable->pDescriptors[j] = srcTable->pDescriptors[j];
-                            snprintf(dstTable->pDescriptors[j].pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", srcTable->pDescriptors[j].pName);
+                            rz_snprintf(dstTable->pDescriptors[j].pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", srcTable->pDescriptors[j].pName);
                         }
                     } else {
                         dstTable->pDescriptors = NULL;
@@ -767,7 +767,7 @@ namespace Razix {
             if (*elementCount > 0) {
                 *dst = (rz_gfx_input_element*) Memory::RZMalloc(sizeof(rz_gfx_input_element) * (*elementCount));
                 for (u32 i = 0; i < *elementCount; i++) {
-                    snprintf((*dst)[i].pSemanticName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", src->pInputElements[i].pSemanticName);
+                    rz_snprintf((*dst)[i].pSemanticName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", src->pInputElements[i].pSemanticName);
                     (*dst)[i].semanticIndex     = src->pInputElements[i].semanticIndex;
                     (*dst)[i].format            = src->pInputElements[i].format;
                     (*dst)[i].inputSlot         = src->pInputElements[i].inputSlot;

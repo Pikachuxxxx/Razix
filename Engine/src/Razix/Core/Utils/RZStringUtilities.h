@@ -3,14 +3,14 @@
 #include "Razix/Core/std/RZsprintf.h"
 
 #include <string>
-#include <vector>
 #include <type_traits>
+#include <vector>
 
 namespace Razix {
     namespace Utilities {
 
         template<typename T>
-        RAZIX_API static std::string ToString(const T& value)
+        static std::string ToString(const T& value)
         {
             char buffer[128];
 
@@ -30,7 +30,7 @@ namespace Razix {
                 rz_snprintf(buffer, sizeof(buffer), "%f", static_cast<double>(value));
             else
                 rz_snprintf(buffer, sizeof(buffer), "<unhandled:%s>", typeid(T).name());
-            
+
             return std::string(buffer);
         }
 

@@ -24,10 +24,8 @@ namespace Razix {
 
 #ifdef RAZIX_MEMORY_DEBUG
             address = RZDebugMalloc(size, alignment, NULL, 0, NULL);
-#elif defined(RAZIX_PLATFORM_CONSOLE) || (RAZIX_PLATFORM_UNIX)
+#else
             address = malloc(RZMemAlign(size, alignment));
-#elif defined(_WIN32)
-            address = _aligned_malloc(size, alignment);
 #endif
 
             // Zero out the allocated memory
@@ -74,11 +72,7 @@ namespace Razix {
                 return RZMalloc(newSize, alignment);
             }
 
-#if defined(RAZIX_PLATFORM_CONSOLE) || (RAZIX_PLATFORM_UNIX)
             oldPtr = realloc(oldPtr, newSize);
-#elif defined(_WIN32)
-            oldPtr = _aligned_realloc(oldPtr, newSize, alignment);
-#endif
             return oldPtr;
         }
 
@@ -104,10 +98,8 @@ namespace Razix {
 
 #ifdef RAZIX_MEMORY_DEBUG
             RZDebugFree(address);
-#elif defined(RAZIX_PLATFORM_CONSOLE) || (RAZIX_PLATFORM_UNIX)
+#else
             free(address);
-#elif defined(_WIN32)
-            _aligned_free(address);
 #endif
             // TODO: End tracking allocation here
         }
@@ -126,12 +118,8 @@ namespace Razix {
             // Plus reports the allocation that was done
             // We create a struct as mentioned and then add it to the total allocation size --> Init it with allocation info --> Append it --> Align it and boom sent it for usage --> user wont know it's a bit bigger
             //size_t total_size = size; /* + sizeof(AllocationInfo) */
-    #ifdef RAZIX_PLATFORM_WINDOWS
-            void* addr = _aligned_malloc(size, alignment);
-    #elif RAZIX_PLATFORM_UNIX
-            void* addr = malloc(RZMemAlign(size, alignment));
-    #endif
 
+            void* addr = malloc(RZMemAlign(size, alignment));
             //printf("[Memory Alloc]  sz : %zu | alignment : %zu | tag : %s | addr : %llx", size, alignment, tag, (uintptr_t) addr);
             return addr;
         }
@@ -141,11 +129,7 @@ namespace Razix {
             // Removes the allocation info that was done from the tracker
             // Add the allocation info size --> sets to 0xCD --> Free's the memory to the OS
             // Kinda works for now
-    #if defined(RAZIX_PLATFORM_CONSOLE) || (RAZIX_PLATFORM_UNIX)
             free(address);
-    #elif defined(_WIN32)
-            _aligned_free(address);
-    #endif
         }
 
 #endif
