@@ -22,33 +22,28 @@ namespace Razix {
         RZQueue(RZQueue&& other) noexcept;
         RZQueue& operator=(RZQueue&& other) noexcept;
 
-        // Core operations
         template<typename... Args>
         void emplace(Args&&... args);
         void push(const T& val);
         void push(T&& val);
         T    pop();
 
-        // Access
         T&       front();
         const T& front() const;
         T&       back();
         const T& back() const;
 
-        // Capacity
         void clear();
         sz   size() const;
         sz   capacity() const;
         bool empty() const;
         void reserve(sz capacity);
 
-        // Iterators
         T*       begin();
         T*       end();
         const T* begin() const;
         const T* end() const;
 
-        // Utility
         void destroy();
 
     private:
