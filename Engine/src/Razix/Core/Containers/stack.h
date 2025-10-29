@@ -74,7 +74,7 @@ namespace Razix {
     RZStack<T>::RZStack(RZStack&& other) noexcept
         : m_data(other.m_data), m_size(other.m_size), m_capacity(other.m_capacity)
     {
-        other.m_data     = nullptr;
+        other.m_data     = NULL;
         other.m_size     = 0;
         other.m_capacity = 0;
     }
@@ -84,13 +84,12 @@ namespace Razix {
     {
         if (this != &other) {
             destroy();
-            if (m_data) operator delete(reinterpret_cast<void*>(m_data));
 
             m_data     = other.m_data;
             m_size     = other.m_size;
             m_capacity = other.m_capacity;
 
-            other.m_data     = nullptr;
+            other.m_data     = NULL;
             other.m_size     = 0;
             other.m_capacity = 0;
         }
