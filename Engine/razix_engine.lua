@@ -453,7 +453,7 @@ project "Razix"
             "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
-     -------------------------------------
+    -------------------------------------
     -- Razix Project settings for Linux
     -------------------------------------
     filter "system:linux"

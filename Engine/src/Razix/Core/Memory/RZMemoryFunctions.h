@@ -1,6 +1,8 @@
 #pragma once
 
-#include "RZMemoryConfig.h"
+#include "Razix/Core/RZCore.h"
+
+#include "Razix/Core/Memory/RZMemoryConfig.h"
 
 #include <cstdint>
 #include <stddef.h>
@@ -31,7 +33,7 @@ namespace Razix {
          * @param alignment The alignment of the memory block
          * @returns address to the aligned contiguous block of memory 
          */
-        void* RZMalloc(size_t size, size_t alignment);
+        RAZIX_API void* RZMalloc(size_t size, size_t alignment);
         /**
          * Allocated a block of memory at 16-byte alignment
          * 
@@ -40,16 +42,16 @@ namespace Razix {
          * @param size The size of the memory block to allocate
          * @returns address to the aligned contiguous block of memory
          */
-        void* RZMalloc(size_t size);
-        void* RZMalloc(size_t size, const char* filename, uint32_t lineNumber, const char* tag);
-        void* RZMalloc(size_t size, size_t alignment, const char* filename, uint32_t lineNumber, const char* tag);
-        void* RZMemCopyToHeap(void* data, size_t size);
-        void* RZRealloc(void* oldPtr, size_t newSize, size_t alignment);
-        void* RZRealloc(void* oldPtr, size_t newSize);
-        void* RZCalloc(size_t count, size_t size, size_t alignment);
-        void* RZCalloc(size_t count, size_t size);
+        RAZIX_API void* RZMalloc(size_t size);
+        RAZIX_API void* RZMalloc(size_t size, const char* filename, uint32_t lineNumber, const char* tag);
+        RAZIX_API void* RZMalloc(size_t size, size_t alignment, const char* filename, uint32_t lineNumber, const char* tag);
+        RAZIX_API void* RZMemCopyToHeap(void* data, size_t size);
+        RAZIX_API void* RZRealloc(void* oldPtr, size_t newSize, size_t alignment);
+        RAZIX_API void* RZRealloc(void* oldPtr, size_t newSize);
+        RAZIX_API void* RZCalloc(size_t count, size_t size, size_t alignment);
+        RAZIX_API void* RZCalloc(size_t count, size_t size);
 
-        void RZFree(void* address);
+        RAZIX_API void RZFree(void* address);
 
         /**
          * Calculates the aligned memory size 
@@ -59,13 +61,13 @@ namespace Razix {
          * 
          * @returns The Aligned memory size
          */
-        size_t RZMemAlign(size_t size, size_t alignment);
+        RAZIX_API size_t RZMemAlign(size_t size, size_t alignment);
 
 #ifdef RAZIX_MEMORY_DEBUG
 
-        void* RZDebugMalloc(size_t size, size_t alignment, const char* filename, uint32_t lineNumber, const char* tag);
+        RAZIX_API void* RZDebugMalloc(size_t size, size_t alignment, const char* filename, uint32_t lineNumber, const char* tag);
 
-        void RZDebugFree(void* address);
+        RAZIX_API void RZDebugFree(void* address);
 
 #endif
     }    // namespace Memory
