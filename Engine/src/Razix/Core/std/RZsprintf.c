@@ -1,12 +1,12 @@
 #include "RZsprintf.h"
 
+#include "Razix/Core/RZCore.h"
+
 #include <math.h>    // pow
 #include <stdbool.h>
-#include <string.h>    // strchr, strlen
-#include <stdint.h> // for newer std types 
 #include <stddef.h>
-
-#include <stdio.h>
+#include <stdint.h>    // for newer std types
+#include <string.h>    // strchr, strlen
 
 #define READ_UNTIL_STR_NULL            0xFFFFFFFF
 #define FMT_SPECIFIER_DELIMITER_CHR    '%'
@@ -411,8 +411,14 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
 
     // not found copy the whole string as-is
     if (!scan_elem) {
-        memcpy(buf, fmt, size);
-        writtenBytes += size;
+        size_t fmt_len = strlen(fmt);
+        if (fmt_len >= size)
+            fmt_len = size;
+
+        memcpy(buf, fmt, fmt_len);
+        buf[fmt_len++] = '\0';
+        writtenBytes += fmt_len;
+        return (int) writtenBytes;
     }
 
     while (scan_elem && *scan_elem != '\0') {
@@ -528,9 +534,9 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
 
         size_t byteBeforeArgs = writtenBytes;
 
-        uint64_t val         = (uint64_t) 0x0;
-        bool     isNeg       = false;
-        char     num_buf[64] = {0};
+        uint64_t val          = (uint64_t) 0x0;
+        bool     isNeg        = false;
+        char     num_buf[256] = {0};
         switch (spec) {
             case FMT_SPEC_d:
             case FMT_SPEC_i:
@@ -548,6 +554,7 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
             case FMT_SPEC_s: {
                 const char* str = va_arg(args, const char*);
                 size_t      len = strlen(str);
+                if (len > 256) len = 256;    // cap it
                 memcpy(num_buf, str, len);
                 writtenBytes += len;
             } break;
