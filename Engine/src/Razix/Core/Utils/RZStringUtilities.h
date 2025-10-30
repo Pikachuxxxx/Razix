@@ -6,6 +6,10 @@
 #include <type_traits>
 #include <vector>
 
+// TODO:
+// remove Utilites nested namespace and refactor entire codebase
+// re-write without std use plain old logic and SIMD if needed be, remove all stl includes
+
 namespace Razix {
     namespace Utilities {
 
