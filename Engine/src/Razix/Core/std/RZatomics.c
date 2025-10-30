@@ -263,7 +263,7 @@ bool rz_atomic32_cas(RZAtomicU32* atom, uint32_t expected, uint32_t desired, Raz
     }
 
     uint32_t exp = expected;
-    return __atomic_compare_exchange_n((uint32_t*) atom, &exp, &desired, false, succ, fail);
+    return __atomic_compare_exchange_n((uint32_t*) atom, &exp, desired, false, succ, fail);
 }
 
 uint32_t rz_atomic32_exchange(RZAtomicU32* atom, uint32_t desired, RazixMemoryOrder order)
@@ -312,6 +312,7 @@ uint64_t rz_atomic64_decrement(RZAtomicU64* atom, RazixMemoryOrder order)
 bool rz_atomic64_cas(RZAtomicU64* atom, uint64_t expected, uint64_t desired,
     RazixMemoryOrder order)
 {
+    // For CAS we need two orders: success and failure. Failure must be no stronger than success and cannot be RELEASE.
     int succ, fail;
     switch (order) {
         case RZ_MEMORY_ORDER_RELAXED:
@@ -341,7 +342,7 @@ bool rz_atomic64_cas(RZAtomicU64* atom, uint64_t expected, uint64_t desired,
     }
 
     uint64_t exp = expected;
-    return __atomic_compare_exchange_n((uint64_t*) atom, &exp, &desired, false, succ, fail);
+    return __atomic_compare_exchange_n((uint64_t*) atom, &exp, desired, false, succ, fail);
 }
 
 uint64_t rz_atomic64_exchange(RZAtomicU64* atom, uint64_t desired, RazixMemoryOrder order)
