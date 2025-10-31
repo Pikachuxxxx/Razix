@@ -86,8 +86,10 @@ static const char* s_RequiredInstanceExtensions[] = {
 
 #if defined(RAZIX_PLATFORM_MACOS)
     VK_EXT_METAL_SURFACE_EXTENSION_NAME,
+    #if !defined(RAZIX_MACOS_KOSMICKRISP_DRIVER)
     // MoltenVK requirements
     VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
+    #endif
 #endif
 
     // Enhanced physical device queries (promoted to core in 1.1, but extension still needed for compatibility)
@@ -120,7 +122,7 @@ static const char* s_RequiredDeviceExtensions[] = {
     VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
 
 // macOS/MoltenVK compatibility
-#ifdef RAZIX_PLATFORM_MACOS
+#if defined(RAZIX_PLATFORM_MACOS) && !defined(RAZIX_MACOS_KOSMICKRISP_DRIVER)
     VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,
 #endif
 };
@@ -1745,7 +1747,11 @@ static void vk_util_create_logical_device(void)
     deviceFeatures2.features.samplerAnisotropy       = VK_TRUE;
     deviceFeatures2.features.pipelineStatisticsQuery = VK_TRUE;
 #endif
+
+    // Not supported on KosmicKrisp yet!
+#if !defined(__APPLE__) && !defined(RAZIX_MACOS_KOSMICKRISP_DRIVER)
     deviceFeatures2.features.sampleRateShading = VK_TRUE;
+#endif
 
     VkPhysicalDeviceFeatures deviceFeatures = {0};
     vkGetPhysicalDeviceFeatures(VKGPU, &deviceFeatures);
@@ -2484,7 +2490,7 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
     // non-conformant implementations (like MoltenVK translating to Metal)
     // in the device enumeration. Because apparently following standards is optional
     // when you're Apple. -_-
-    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    //createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 #endif
 
     CHECK_VK(vkCreateInstance(&createInfo, NULL, &VKCONTEXT.instance));
