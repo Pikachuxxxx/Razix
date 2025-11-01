@@ -616,3 +616,4 @@ private:                                                  \
  *                                                  Misc                                            * 
  ****************************************************************************************************/
 #define RAZIX_MSG_BUFFER_SIZE 256
+#define RAZIX_CACHE_LINE_SIZE 64 // typical size of a cache line
