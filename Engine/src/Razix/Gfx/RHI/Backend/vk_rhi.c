@@ -2490,7 +2490,9 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
     // non-conformant implementations (like MoltenVK translating to Metal)
     // in the device enumeration. Because apparently following standards is optional
     // when you're Apple. -_-
-    //createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    #ifndef RAZIX_MACOS_KOSMICKRISP_DRIVER
+    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    #endif
 #endif
 
     CHECK_VK(vkCreateInstance(&createInfo, NULL, &VKCONTEXT.instance));
