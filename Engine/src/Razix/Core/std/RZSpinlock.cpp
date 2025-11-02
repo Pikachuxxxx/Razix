@@ -1,3 +1,7 @@
+// clang-format off
+#include "rzxpch.h"
+// clang-format on
+
 #include "RZSpinlock.h"
 
 namespace Razix {
