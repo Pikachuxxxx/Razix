@@ -123,9 +123,8 @@ namespace Razix {
 
     TEST(RZMove, RvalueRemainsRvalue)
     {
-        auto&& r = rz_move(123);
-        static_assert(std::is_same_v<decltype(r), int&&>);
-        EXPECT_EQ(r, 123);
+        // Rvalue input -> remains rvalue
+        static_assert(std::is_same_v<decltype(rz_move(123)), int&&>);
     }
 
     TEST(RZMove, ConstTypePreservesConstness)
