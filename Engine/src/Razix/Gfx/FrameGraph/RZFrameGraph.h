@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/std/utility.h"
+
 #include "Razix/Gfx/FrameGraph/RZBlackboard.h"
 #include "Razix/Gfx/FrameGraph/RZFrameGraphResourcesTypeTraits.h"
 #include "Razix/Gfx/FrameGraph/RZResourceEntry.h"
@@ -125,7 +127,7 @@ namespace Razix {
                     true    // imported
                 );
 
-                m_ResourceRegistry.push_back(std::move(entry));
+                m_ResourceRegistry.push_back(rz_move(entry));
 
                 // Create the node for this resource in the graph
                 RZFrameGraphResource id = createResourceNodeRef(name, resourceId).m_ID;
@@ -207,7 +209,7 @@ namespace Razix {
                     kRESOURCE_INITIAL_VERSION,
                     false);
 
-                m_ResourceRegistry.push_back(std::move(entry));
+                m_ResourceRegistry.push_back(rz_move(entry));
                 // Create the node for this resource in the graph
                 RZFrameGraphResource id = createResourceNodeRef(name, resourceId).m_ID;
                 return id;
@@ -251,7 +253,7 @@ namespace Razix {
               */
             ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD inline RZFrameGraphResource create(const std::string& name, typename T::Desc&& desc)
             {
-                const auto id = m_FrameGraph.createResource<T>(name, std::move(desc));
+                const auto id = m_FrameGraph.createResource<T>(name, rz_move(desc));
                 return m_PassNode.m_Creates.emplace_back(id);
             }
 

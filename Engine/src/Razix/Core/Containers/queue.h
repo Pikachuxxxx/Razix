@@ -6,6 +6,8 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
 
+#include "Razix/Core/std/utility.h"
+
 #define RZ_DEFAULT_QUEUE_CAPACITY 64
 
 namespace Razix {
@@ -187,7 +189,7 @@ namespace Razix {
     T RZQueue<T>::pop()
     {
         T* p   = ptr_at(m_head % m_capacity);
-        T  val = std::move(*p);
+        T  val = rz_move(*p);
         m_head = (m_head + 1) % m_capacity;
         m_size--;
         return val;
@@ -216,7 +218,7 @@ namespace Razix {
     void RZQueue<T>::push(T&& val)
     {
         T* p = ptr_at(m_tail % m_capacity);
-        new (p) T(std::move(val));
+        new (p) T(rz_move(val));
         m_tail = (m_tail + 1) % m_capacity;
         m_size++;
     }

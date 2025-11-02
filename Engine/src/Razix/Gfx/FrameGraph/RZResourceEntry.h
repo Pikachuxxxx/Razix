@@ -7,10 +7,12 @@
  * Inspired from EA's Frostbite engine: https://www.gdcvault.com/play/1024612/FrameGraph-Extensible-Rendering-Architecture-in
  */
 
-#include <typeindex>
-#include <typeinfo>
+#include "Razix/Core/std/utility.h"
 
 #include "Razix/Gfx/FrameGraph/RZPassNode.h"
+
+#include <typeindex>
+#include <typeinfo>
 
 namespace Razix {
     namespace Gfx {
@@ -79,7 +81,7 @@ namespace Razix {
                      * paths during compile time to tell whether a type has a method/sub type or not and these compile time expression can be used for final evaluation
                      */
                 Model(const std::string& name, typename T::Desc&& desc, T&& obj, u32 id)
-                    : m_Name(name), descriptor(std::move(desc)), resource(std::move(obj)), m_ID(id)
+                    : m_Name(name), descriptor(rz_move(desc)), resource(rz_move(obj)), m_ID(id)
                 {
                 }
 

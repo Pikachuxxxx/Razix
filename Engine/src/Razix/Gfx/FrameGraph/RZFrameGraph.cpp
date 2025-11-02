@@ -7,6 +7,8 @@
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 #include "Razix/Core/RZEngine.h"
 
+#include "Razix/Core/std/utility.h"
+
 //#include "Razix/Gfx/RZShaderLibrary.h"
 //
 //#include "Razix/Gfx/FrameGraph/RZFrameGraphPass.h"
@@ -1057,7 +1059,7 @@ namespace Razix {
         RZPassNode& RZFrameGraph::createPassNodeRef(const std::string& name, std::unique_ptr<IRZFrameGraphPass>&& base)
         {
             const auto id = static_cast<u32>(m_PassNodes.size());
-            return m_PassNodes.emplace_back(RZPassNode(name, id, std::move(base)));
+            return m_PassNodes.emplace_back(RZPassNode(name, id, rz_move(base)));
         }
 
         RZResourceNode& RZFrameGraph::createResourceNodeRef(const std::string& name, u32 resourceID)

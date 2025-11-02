@@ -2,6 +2,8 @@
 
 #include "Razix/Core/RZCore.h"
 
+#include "Razix/Core/std/utility.h"
+
 #include <functional>
 #include <sstream>
 #include <typeindex>
@@ -90,7 +92,7 @@ namespace Razix {
         template<typename T>
         void registerCallback(std::function<void(T&)> callback)
         {
-            callbacks[typeid(T)] = [cb = std::move(callback)](RZEvent& e) {
+            callbacks[typeid(T)] = [cb = rz_move(callback)](RZEvent& e) {
                 cb(static_cast<T&>(e));
             };
         }

@@ -6,6 +6,8 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
 
+#include "Razix/Core/std/utility.h"
+
 #define RZ_DEFAULT_QUEUE_CAPACITY 64
 
 namespace Razix {
@@ -210,7 +212,7 @@ namespace Razix {
     void RZRingBuffer<T>::write(T&& val)
     {
         sz idx = m_write % m_capacity;
-        new (ptr_at(idx)) T(std::move(val));
+        new (ptr_at(idx)) T(rz_move(val));
         m_write = (m_write + 1) % m_capacity;
     }
 
@@ -218,7 +220,7 @@ namespace Razix {
     T RZRingBuffer<T>::read()
     {
         sz idx = m_read % m_capacity;
-        T  val = std::move(*ptr_at(idx));
+        T  val = rz_move(*ptr_at(idx));
         m_read = (m_read + 1) % m_capacity;
         return val;
     }

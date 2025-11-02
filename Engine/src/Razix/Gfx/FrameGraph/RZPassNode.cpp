@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZPassNode.h"
 
+#include "Razix/Core/std/utility.h"
+
 #include "Razix/Gfx/FrameGraph/RZFrameGraphResource.h"
 
 #include "Razix/Gfx/Resources/RZResourceManager.h"
@@ -43,7 +45,7 @@ namespace Razix {
         //---------------------------------------------------------------------------
 
         RZPassNode::RZPassNode(const std::string_view name, u32 id, std::unique_ptr<IRZFrameGraphPass>&& exec)
-            : RZGraphNode{name, id}, m_Exec{std::move(exec)}
+            : RZGraphNode{name, id}, m_Exec{rz_move(exec)}
         {
             m_Creates.reserve(10);
             m_Reads.reserve(10);

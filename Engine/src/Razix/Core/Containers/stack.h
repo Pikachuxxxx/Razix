@@ -6,9 +6,11 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
 
+#include "Razix/Core/std/utility.h"
+
 // Tasks:
 // - [x] create a simple stack templated class (push/pop/size etc.)
-// - [ ] write gtests
+// - [x] write gtests
 
 #define RZ_DEFAULT_STACK_CAPACITY 64
 
@@ -117,7 +119,7 @@ namespace Razix {
     void RZStack<T>::push(T&& val)
     {
         T* p = ptr_at(m_size);
-        new (p) T(std::move(val));
+        new (p) T(rz_move(val));
         ++m_size;
     }
 
@@ -127,7 +129,7 @@ namespace Razix {
         RAZIX_CORE_ASSERT(m_size > 0, "RZStack::pop() called on empty stack");
 
         T* p   = ptr_at(m_size - 1);
-        T  val = std::move(*p);
+        T  val = rz_move(*p);
         p->~T();
         --m_size;
         return val;
