@@ -1,7 +1,5 @@
 #include "RZsprintf.h"
 
-#include "Razix/Core/RZCore.h"
-
 #include <math.h>    // pow
 #include <stdbool.h>
 #include <stddef.h>

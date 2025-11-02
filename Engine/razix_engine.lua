@@ -294,7 +294,7 @@ project "Razix"
             -- Copy the DXC dlls 
             '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxcompiler.dll" "%{cfg.targetdir}"',
             '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxil.dll" "%{cfg.targetdir}"',
-                -- we are using RAZIX_ROOT_DIR for now
+            -- we are using RAZIX_ROOT_DIR for now
             -- Copy the engine conten folder with subdirs: config, Fonts, FrameGraphs, Logos, Shaders/Compiled, Splash, Textures
             -- [Docs]: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/robocopy
             -- /E: Copies subdirectories. This option automatically includes empty directories.
