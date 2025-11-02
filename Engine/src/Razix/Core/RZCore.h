@@ -281,7 +281,6 @@
         RAZIX_CORE_ERROR("Manchidi...!!! Unimplemented : {0} : {1} : {2}", __func__, __FILE__, __LINE__); \
     }
 
-
 // Deprecation error macros
 #ifdef _MSC_VER
     #define RAZIX_DEPRECATED(msg_str) __declspec(deprecated(msg_str))
@@ -356,46 +355,45 @@
 
 #ifdef __cplusplus
 
-#define RAZIX_DELETE_PUBLIC_CONSTRUCTOR(type_identifier) \
-public:                                                  \
-    type_identifier() = delete;
+    #define RAZIX_DELETE_PUBLIC_CONSTRUCTOR(type_identifier) \
+    public:                                                  \
+        type_identifier() = delete;
 
-#define RAZIX_VIRTUAL_DESCTURCTOR(type_identifier) \
-    virtual ~type_identifier() = default;
+    #define RAZIX_VIRTUAL_DESCTURCTOR(type_identifier) \
+        virtual ~type_identifier() = default;
 
-// Make the Class/Struct Object Non-Copyable/Assignable
-#define RAZIX_NONCOPYABLE_CLASS(type_identifier)                 \
-    type_identifier(const type_identifier&)            = delete; \
-    type_identifier& operator=(const type_identifier&) = delete;
+    // Make the Class/Struct Object Non-Copyable/Assignable
+    #define RAZIX_NONCOPYABLE_CLASS(type_identifier)                 \
+        type_identifier(const type_identifier&)            = delete; \
+        type_identifier& operator=(const type_identifier&) = delete;
 
-#define RAZIX_IMMOVABLE_CLASS(type_identifier)                       \
-    type_identifier(type_identifier&&) noexcept            = delete; \
-    type_identifier& operator=(type_identifier&&) noexcept = delete;
+    #define RAZIX_IMMOVABLE_CLASS(type_identifier)                       \
+        type_identifier(type_identifier&&) noexcept            = delete; \
+        type_identifier& operator=(type_identifier&&) noexcept = delete;
 
-#define RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier) \
-    RAZIX_NONCOPYABLE_CLASS(type_identifier)               \
-    RAZIX_IMMOVABLE_CLASS(type_identifier)
+    #define RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier) \
+        RAZIX_NONCOPYABLE_CLASS(type_identifier)               \
+        RAZIX_IMMOVABLE_CLASS(type_identifier)
 
-// Make the Class/Struct Object Copyable/Assignable Explicit default declaration
-#define RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
-    type_identifier(const type_identifier&)            = default; \
-    type_identifier& operator=(const type_identifier&) = default;
+    // Make the Class/Struct Object Copyable/Assignable Explicit default declaration
+    #define RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
+        type_identifier(const type_identifier&)            = default; \
+        type_identifier& operator=(const type_identifier&) = default;
 
-#define RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)                  \
-    type_identifier(type_identifier&&) noexcept            = default; \
-    type_identifier& operator=(type_identifier&&) noexcept = default;
+    #define RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)                  \
+        type_identifier(type_identifier&&) noexcept            = default; \
+        type_identifier& operator=(type_identifier&&) noexcept = default;
 
-#define RAZIX_DEFAULT_COPYABLE_MOVABLE_CLASS(type_identifier) \
-    RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
-    RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)
+    #define RAZIX_DEFAULT_COPYABLE_MOVABLE_CLASS(type_identifier) \
+        RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
+        RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)
 
-#define RAZIX_PRIVATE_INSTANTIABLE_CLASS(type_identifier) \
-private:                                                  \
-    type_identifier()                                     \
-    {                                                     \
-    }                                                     \
-    RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier)
-
+    #define RAZIX_PRIVATE_INSTANTIABLE_CLASS(type_identifier) \
+    private:                                                  \
+        type_identifier()                                     \
+        {                                                     \
+        }                                                     \
+        RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier)
 
 /**
  * We need ways to emulate pure virtual function verification
@@ -423,31 +421,31 @@ private:                                                  \
  * if not the first one will fail due to SFINAE and select the second type and return false_type
  */
 
-#define RAZIX_CHECK_TYPE_HAS_FUNCTION(T, funcName)                     \
-    template<typename T>                                               \
-    class has_##funcName                                               \
-    {                                                                  \
-    private:                                                           \
-        template<typename C>                                           \
-        static constexpr ::std::true_type test(decltype(&C::funcName)) \
-        {                                                              \
-            return {};                                                 \
-        }                                                              \
-                                                                       \
-        template<typename C>                                           \
-        static constexpr ::std::false_type test(...)                   \
-        {                                                              \
-            return {};                                                 \
-        }                                                              \
-                                                                       \
-    public:                                                            \
-        static constexpr bool value = test<T>(0);                      \
-    };                                                                 \
-    template<typename T>                                               \
-    inline constexpr bool has_##funcName##_v = has_##funcName<T>::value;
+    #define RAZIX_CHECK_TYPE_HAS_FUNCTION(T, funcName)                     \
+        template<typename T>                                               \
+        class has_##funcName                                               \
+        {                                                                  \
+        private:                                                           \
+            template<typename C>                                           \
+            static constexpr ::std::true_type test(decltype(&C::funcName)) \
+            {                                                              \
+                return {};                                                 \
+            }                                                              \
+                                                                           \
+            template<typename C>                                           \
+            static constexpr ::std::false_type test(...)                   \
+            {                                                              \
+                return {};                                                 \
+            }                                                              \
+                                                                           \
+        public:                                                            \
+            static constexpr bool value = test<T>(0);                      \
+        };                                                                 \
+        template<typename T>                                               \
+        inline constexpr bool has_##funcName##_v = has_##funcName<T>::value;
 
-#define RAZIX_TYPE_HAS_FUNCTION_V(T, funcName) \
-    has_##funcName##_v<T>
+    #define RAZIX_TYPE_HAS_FUNCTION_V(T, funcName) \
+        has_##funcName##_v<T>
 
 /**
  * RAZIX_CHECK_TYPE_HAS_SUBTYPE
@@ -458,75 +456,75 @@ private:                                                  \
  * 
  */
 
-#define RAZIX_CHECK_TYPE_HAS_SUBTYPE(T, U)                             \
-    template<typename T, typename = void>                              \
-    struct has_##U : ::std::false_type                                 \
-    {                                                                  \
-    };                                                                 \
-    template<typename T>                                               \
-    struct has_##U<T, ::std::void_t<typename T::U>> : ::std::true_type \
-    {                                                                  \
-    };                                                                 \
-    template<typename T>                                               \
-    inline constexpr bool has_##U##_v = has_##U<T>::value
+    #define RAZIX_CHECK_TYPE_HAS_SUBTYPE(T, U)                             \
+        template<typename T, typename = void>                              \
+        struct has_##U : ::std::false_type                                 \
+        {                                                                  \
+        };                                                                 \
+        template<typename T>                                               \
+        struct has_##U<T, ::std::void_t<typename T::U>> : ::std::true_type \
+        {                                                                  \
+        };                                                                 \
+        template<typename T>                                               \
+        inline constexpr bool has_##U##_v = has_##U<T>::value
 
-#define RAZIX_TYPE_HAS_SUB_TYPE_V(T, U) \
-    has_##U##_v<T>
+    #define RAZIX_TYPE_HAS_SUB_TYPE_V(T, U) \
+        has_##U##_v<T>
 
-#define RAZIX_CHECK_IF_TYPE_IS_DEFINED(T, msg) static_assert(std::is_class_v<T>(), msg)
+    #define RAZIX_CHECK_IF_TYPE_IS_DEFINED(T, msg) static_assert(std::is_class_v<T>(), msg)
 
-/**
+    /**
  * SFINAE_TYPE_ERASURE_CONCEPT_CHECK
  */
 
-/**
+    /**
  * SFINAE ENUM CLASS |/& OPERATOR CHECK
  */
-#define RAZIX_ENUM_CHECK_FOR_BITWISE_OPS(E)                                     \
-    template<typename T, bool = std::is_enum<T>::value>                         \
-    struct E;                                                                   \
-                                                                                \
-    template<typename T>                                                        \
-    struct E<T, true> : std::false_type                                         \
-    {};                                                                         \
-                                                                                \
-    template<typename T, typename std::enable_if<E<T>::value>::type* = nullptr> \
-    T operator|(T lhs, T rhs)                                                   \
-    {                                                                           \
-        using u_t = typename std::underlying_type<T>::type;                     \
-        return static_cast<T>(static_cast<u_t>(lhs) | static_cast<u_t>(rhs));   \
-    }
+    #define RAZIX_ENUM_CHECK_FOR_BITWISE_OPS(E)                                     \
+        template<typename T, bool = std::is_enum<T>::value>                         \
+        struct E;                                                                   \
+                                                                                    \
+        template<typename T>                                                        \
+        struct E<T, true> : std::false_type                                         \
+        {};                                                                         \
+                                                                                    \
+        template<typename T, typename std::enable_if<E<T>::value>::type* = nullptr> \
+        T operator|(T lhs, T rhs)                                                   \
+        {                                                                           \
+            using u_t = typename std::underlying_type<T>::type;                     \
+            return static_cast<T>(static_cast<u_t>(lhs) | static_cast<u_t>(rhs));   \
+        }
 
-/**
+    /**
  * Bitwise OR and AND for enum class type
  */
-#define RAZIX_ENUM_CLASS_BITWISE_COMPATIBLE(E)                                      \
-    static E operator|(E a, E b)                                                    \
-    {                                                                               \
-        return static_cast<E>(static_cast<unsigned>(a) | static_cast<unsigned>(b)); \
-    }                                                                               \
-                                                                                    \
-    static E operator&(E a, E b)                                                    \
-    {                                                                               \
-        return static_cast<E>(static_cast<unsigned>(a) & static_cast<unsigned>(b)); \
-    }                                                                               \
-                                                                                    \
-    static bool operator!(E a)                                                      \
-    {                                                                               \
-        return static_cast<unsigned>(a) == 0;                                       \
-    }                                                                               \
-                                                                                    \
-    static bool operator&&(E a, E b)                                                \
-    {                                                                               \
-        return static_cast<unsigned>(a) && static_cast<unsigned>(b);                \
-    }                                                                               \
-                                                                                    \
-    static bool operator||(E a, E b)                                                \
-    {                                                                               \
-        return static_cast<unsigned>(a) || static_cast<unsigned>(b);                \
-    }
+    #define RAZIX_ENUM_CLASS_BITWISE_COMPATIBLE(E)                                      \
+        static E operator|(E a, E b)                                                    \
+        {                                                                               \
+            return static_cast<E>(static_cast<unsigned>(a) | static_cast<unsigned>(b)); \
+        }                                                                               \
+                                                                                        \
+        static E operator&(E a, E b)                                                    \
+        {                                                                               \
+            return static_cast<E>(static_cast<unsigned>(a) & static_cast<unsigned>(b)); \
+        }                                                                               \
+                                                                                        \
+        static bool operator!(E a)                                                      \
+        {                                                                               \
+            return static_cast<unsigned>(a) == 0;                                       \
+        }                                                                               \
+                                                                                        \
+        static bool operator&&(E a, E b)                                                \
+        {                                                                               \
+            return static_cast<unsigned>(a) && static_cast<unsigned>(b);                \
+        }                                                                               \
+                                                                                        \
+        static bool operator||(E a, E b)                                                \
+        {                                                                               \
+            return static_cast<unsigned>(a) || static_cast<unsigned>(b);                \
+        }
 
-#define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
+    #define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
 
 //bool operator|(E a, E b)                                                        \
     //{                                                                               \
@@ -538,7 +536,7 @@ private:                                                  \
     //    return static_cast<unsigned>(a) & static_cast<unsigned>(b);                 \
     //}
 
-#endif // __cplusplus
+#endif    // __cplusplus
 
 /**
  * Memory Related stuff & Alignment Macros
@@ -616,4 +614,4 @@ private:                                                  \
  *                                                  Misc                                            * 
  ****************************************************************************************************/
 #define RAZIX_MSG_BUFFER_SIZE 256
-#define RAZIX_CACHE_LINE_SIZE 64 // typical size of a cache line
+#define RAZIX_CACHE_LINE_SIZE 64    // typical size of a cache line

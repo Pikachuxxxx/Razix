@@ -9,7 +9,7 @@ namespace Razix {
     class alignas(RAZIX_CACHE_LINE_SIZE) RAZIX_API RZSpinLock
     {
     public:
-        RZSpinLock() 
+        RZSpinLock()
             : m_Flag(0) {}
         ~RZSpinLock() = default;
         // Mutexes and locking primitves cannot be copied/moved
@@ -42,4 +42,4 @@ namespace Razix {
 
 }    // namespace Razix
 
-#endif // _RZ_SPINLOCK_H_
+#endif    // _RZ_SPINLOCK_H_

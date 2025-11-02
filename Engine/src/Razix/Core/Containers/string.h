@@ -20,7 +20,7 @@ namespace Razix {
         using const_reference = const char&;
         using pointer         = char*;
         using const_pointer   = const char*;
-        
+
         // Signifies no string
         static constexpr sz npos = static_cast<sz>(-1);
 

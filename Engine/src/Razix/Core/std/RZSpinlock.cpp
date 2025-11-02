@@ -45,4 +45,4 @@ namespace Razix {
     {
         m_Lock.unlock();
     }
-}
+}    // namespace Razix

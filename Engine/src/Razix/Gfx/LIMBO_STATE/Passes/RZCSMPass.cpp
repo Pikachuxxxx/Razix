@@ -274,7 +274,7 @@ namespace Razix {
             auto shader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::CSM);
 
             auto& pass = framegraph.addCallbackPass<CascadeSubPassData>(
-                "Pass.Builtin.Code.CSM # " +  Utilities::ToString(cascadeIdx),
+                "Pass.Builtin.Code.CSM # " + Utilities::ToString(cascadeIdx),
                 [&](CascadeSubPassData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
 

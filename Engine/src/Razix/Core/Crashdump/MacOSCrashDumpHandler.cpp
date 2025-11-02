@@ -14,7 +14,7 @@
     #include <sys/types.h>    // For process and thread types (pid_t, etc.)
     #include <unistd.h>       // For getpid (process ID)
 
-#include "Razix/Core/Utils/RZStringUtilities.h"
+    #include "Razix/Core/Utils/RZStringUtilities.h"
 
 namespace Razix::CrashDumpHandler {
 
