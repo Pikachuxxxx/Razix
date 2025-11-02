@@ -206,8 +206,6 @@ workspace ( settings.workspace_name )
     group "Tools/Build"
         -- premake scripts Utility project for in IDE management
         include "Tools/Building/premake/premake_regenerate_proj_files.lua"
-        -- Gets the version of the Engine for Build workflows
-        include "Tools/Building/RazixVersion/razix_tool_version.lua"
         -- Game Packager using Game Framework
         include "Tools/Building/GamePackager/game_packager.lua"
     group ""
