@@ -3,7 +3,7 @@
 // clang-format on
 #include "RZResourceManager.h"
 
-#include "Razix/Core/std/RZsprintf.h"
+#include "Razix/Core/std/sprintf.h"
 #include "Razix/Gfx/RZGfxUtil.h"
 
 #define CREATE_UTIL(name, typeEnum, pool, handleSize)                                                    \

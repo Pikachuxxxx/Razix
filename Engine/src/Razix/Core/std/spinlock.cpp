@@ -2,7 +2,7 @@
 #include "rzxpch.h"
 // clang-format on
 
-#include "RZSpinlock.h"
+#include "spinlock.h"
 
 namespace Razix {
     void RZSpinLock::lock()

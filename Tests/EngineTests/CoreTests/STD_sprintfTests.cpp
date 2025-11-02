@@ -4,7 +4,7 @@
 #include "Razix/Core/RZDataTypes.h"
 
 #include "Razix/Core/Log/RZLog.h"
-#include "Razix/Core/std/RZsprintf.h"    // rz_sprintf
+#include "Razix/Core/std/sprintf.h"    // rz_sprintf
 
 #include <gtest/gtest.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Core/std/RZsprintf.h"
+#include "Razix/Core/std/sprintf.h"
 
 #include <string>
 #include <type_traits>

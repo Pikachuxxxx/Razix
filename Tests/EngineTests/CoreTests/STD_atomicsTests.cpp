@@ -4,7 +4,7 @@
 #include "Razix/Core/RZDataTypes.h"
 
 #include "Razix/Core/Log/RZLog.h"
-#include "Razix/Core/std/RZAtomics.h"
+#include "Razix/Core/std/atomics.h"
 
 #include <gtest/gtest.h>
 

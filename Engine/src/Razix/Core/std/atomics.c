@@ -1,4 +1,4 @@
-#include "RZatomics.h"
+#include "atomics.h"
 #include "Razix/Core/RZCore.h"
 
 #ifdef RAZIX_PLATFORM_WINDOWS

@@ -4,7 +4,7 @@
 #include "Razix/Core/RZDataTypes.h"
 
 #include "Razix/Core/Log/RZLog.h"
-#include "Razix/Core/std/RZSpinlock.h"
+#include "Razix/Core/std/spinlock.h"
 
 #include <gtest/gtest.h>
 

@@ -2,7 +2,7 @@
 #define _RZ_SPINLOCK_H_
 
 #include "Razix/Core/RZCore.h"
-#include "Razix/Core/std/RZatomics.h"
+#include "Razix/Core/std/atomics.h"
 
 namespace Razix {
 
