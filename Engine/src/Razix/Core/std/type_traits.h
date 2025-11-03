@@ -330,6 +330,256 @@ namespace Razix {
     template<class T>
     inline constexpr bool rz_is_volatile_v = rz_is_volatile<T>::value;
 
+    //----------------------------------------------------------------------------
+    // VOID_T - Maps any types to void (SFINAE helper)
+    //----------------------------------------------------------------------------
+    // [source]: https://en.cppreference.com/w/cpp/types/void_t.html
+
+    template<typename...>
+    using rz_void_t = void;
+
+    //----------------------------------------------------------------------------
+    // VOID DETECTION
+    //----------------------------------------------------------------------------
+    // [source]: https://en.cppreference.com/w/cpp/types/is_void.html
+
+    template<typename T>
+    struct rz_is_void_impl : rz_false_type
+    {};
+
+    template<>
+    struct rz_is_void_impl<void> : rz_true_type
+    {};
+
+    // Main trait - strips cv-qualifiers before checking
+    template<typename T>
+    struct rz_is_void : rz_is_void_impl<rz_remove_cv_t<T>>
+    {};
+
+    template<typename T>
+    inline constexpr bool rz_is_void_v = rz_is_void<T>::value;
+
+    //----------------------------------------------------------------------------
+    // CLASS DETECTION
+    //----------------------------------------------------------------------------
+    // [source]: https://en.cppreference.com/w/cpp/types/is_class.html
+
+    namespace detail {
+        // This overload is chosen if T is a class type (member pointer is valid)
+        template<typename T>
+        rz_true_type test_is_class(int T::*);
+
+        // This overload is chosen for all other types (fallback)
+        template<typename>
+        rz_false_type test_is_class(...);
+    }    // namespace detail
+
+    template<typename T>
+    struct rz_is_class : decltype(detail::test_is_class<T>(nullptr))
+    {};
+
+    template<typename T>
+    inline constexpr bool rz_is_class_v = rz_is_class<T>::value;
+
+    //----------------------------------------------------------------------------
+    // UNION DETECTION
+    //----------------------------------------------------------------------------
+    // [source]: https://en.cppreference.com/w/cpp/types/is_union.html
+
+    template<typename T>
+    struct rz_is_union : rz_integral_constant<bool, __is_union(T)>
+    {};
+
+    template<typename T>
+    inline constexpr bool rz_is_union_v = rz_is_union<T>::value;
+
+    //----------------------------------------------------------------------------
+    // ENABLE_IF - SFINAE helper
+    //----------------------------------------------------------------------------
+    // [source]: https://en.cppreference.com/w/cpp/types/enable_if.html
+
+    // Primary template - condition is false, no 'type' member defined
+    template<bool B, typename T = void>
+    struct rz_enable_if
+    {};
+
+    // Partial specialization - condition is true, 'type' member is defined
+    template<typename T>
+    struct rz_enable_if<true, T>
+    {
+        typedef T type;
+    };
+
+    // Helper alias
+    template<bool B, typename T = void>
+    using rz_enable_if_t = typename rz_enable_if<B, T>::type;
+
+    //----------------------------------------------------------------------------
+    // UNDERLYING_TYPE - Get underlying type of enum
+    //----------------------------------------------------------------------------
+    // [source]: https://en.cppreference.com/w/cpp/types/underlying_type.html
+
+    template<typename T>
+    struct rz_underlying_type
+    {
+        typedef __underlying_type(T) type;
+    };
+
+    template<typename T>
+    using rz_underlying_type_t = typename rz_underlying_type<T>::type;
+
+    //----------------------------------------------------------------------------
+    // ENUM DETECTION
+    //----------------------------------------------------------------------------
+    // [source]: https://en.cppreference.com/w/cpp/types/is_enum.html
+
+    template<typename T>
+    struct rz_is_enum : rz_integral_constant<bool, __is_enum(T)>
+    {};
+
+    template<typename T>
+    inline constexpr bool rz_is_enum_v = rz_is_enum<T>::value;
+
+    /**
+ * We need ways to emulate pure virtual function verification
+ * We use SFINAE idiom and type traits as the base concept to do this 
+ * 
+ * Core Concept : SFINAE failure trigger redirection
+ * 
+ * SFINAE also does Struct/Type verification in addition to functions exist checks
+ * 
+ * SFINAE using safe substitution failure we manually trigger based on condition to choose the test we want
+ * 
+ * Note: These check don't consider the function signature
+ * 
+ * Note: We can do return type checks specialization inside the functions instead 
+ * of just returning{}
+ */
+
+    // TODO: Add signature check when doing CHECK_TYPE_HAS_FUNCTION
+
+    /**
+ * RAZIX_CHECK_TYPE_HAS_FUNCTION
+ * 
+ * Working: Given a function name, it will check whether it has that function in it or not
+ * If it's successful it will select the first specialization and return a true_type 
+ * if not the first one will fail due to SFINAE and select the second type and return false_type
+ */
+
+#define RAZIX_CHECK_TYPE_HAS_FUNCTION(T, funcName)                 \
+    template<typename T>                                           \
+    class has_##funcName                                           \
+    {                                                              \
+    private:                                                       \
+        template<typename C>                                       \
+        static constexpr rz_true_type test(decltype(&C::funcName)) \
+        {                                                          \
+            return {};                                             \
+        }                                                          \
+                                                                   \
+        template<typename C>                                       \
+        static constexpr rz_false_type test(...)                   \
+        {                                                          \
+            return {};                                             \
+        }                                                          \
+                                                                   \
+    public:                                                        \
+        static constexpr bool value = test<T>(0);                  \
+    };                                                             \
+    template<typename T>                                           \
+    inline constexpr bool has_##funcName##_v = has_##funcName<T>::value;
+
+#define RAZIX_TYPE_HAS_FUNCTION_V(T, funcName) \
+    has_##funcName##_v<T>
+
+    /**
+ * RAZIX_CHECK_TYPE_HAS_SUBTYPE
+ * 
+ * Working: Given a type and subtype, if the type has the subtype it will choose the second 
+ * specialization and return true_type if not it will choose the first one as default and 
+ * return false_type
+ * 
+ */
+
+#define RAZIX_CHECK_TYPE_HAS_SUBTYPE(T, U)                          \
+    template<typename Type_, typename = void>                       \
+    struct has_##U : rz_false_type                                  \
+    {                                                               \
+    };                                                              \
+    template<typename Type_>                                        \
+    struct has_##U<Type_, rz_void_t<typename Type_::U>> : rz_true_type \
+    {                                                               \
+    };                                                              \
+    template<typename Type_>                                        \
+    inline constexpr bool has_##U##_v = has_##U<Type_>::value
+
+#define RAZIX_TYPE_HAS_SUB_TYPE_V(T, U) \
+    has_##U##_v<T>
+
+#define RAZIX_CHECK_IF_TYPE_IS_DEFINED(T, msg) static_assert(rz_is_class_v<T>(), msg)
+
+/**
+ * SFINAE_TYPE_ERASURE_CONCEPT_CHECK
+ */
+
+/**
+ * SFINAE ENUM CLASS |/& OPERATOR CHECK
+ */
+#define RAZIX_ENUM_CHECK_FOR_BITWISE_OPS(E)                                   \
+    template<typename T, bool = rz_is_enum<T>::value>                         \
+    struct E;                                                                 \
+                                                                              \
+    template<typename T>                                                      \
+    struct E<T, true> : rz_false_type                                         \
+    {};                                                                       \
+                                                                              \
+    template<typename T, typename rz_enable_if<E<T>::value>::type* = nullptr> \
+    T operator|(T lhs, T rhs)                                                 \
+    {                                                                         \
+        using u_t = typename rz_underlying_type<T>::type;                     \
+        return static_cast<T>(static_cast<u_t>(lhs) | static_cast<u_t>(rhs)); \
+    }
+
+/**
+ * Bitwise OR and AND for enum class type
+ */
+#define RAZIX_ENUM_CLASS_BITWISE_COMPATIBLE(E)                                      \
+    static E operator|(E a, E b)                                                    \
+    {                                                                               \
+        return static_cast<E>(static_cast<unsigned>(a) | static_cast<unsigned>(b)); \
+    }                                                                               \
+                                                                                    \
+    static E operator&(E a, E b)                                                    \
+    {                                                                               \
+        return static_cast<E>(static_cast<unsigned>(a) & static_cast<unsigned>(b)); \
+    }                                                                               \
+                                                                                    \
+    static bool operator!(E a)                                                      \
+    {                                                                               \
+        return static_cast<unsigned>(a) == 0;                                       \
+    }                                                                               \
+                                                                                    \
+    static bool operator&&(E a, E b)                                                \
+    {                                                                               \
+        return static_cast<unsigned>(a) && static_cast<unsigned>(b);                \
+    }                                                                               \
+                                                                                    \
+    static bool operator||(E a, E b)                                                \
+    {                                                                               \
+        return static_cast<unsigned>(a) || static_cast<unsigned>(b);                \
+    }
+
+
+    //bool operator|(E a, E b)                                                        \
+    //{                                                                               \
+    //    return static_cast<unsigned>(a) | static_cast<unsigned>(b);                 \
+    //}                                                                               \
+    //                                                                                \
+    //bool operator&(E a, E b)                                                        \
+    //{                                                                               \
+    //    return static_cast<unsigned>(a) & static_cast<unsigned>(b);                 \
+    //}
+
 }    // namespace Razix
 
 #endif    // _RZ_TYPE_TRAITS_H_

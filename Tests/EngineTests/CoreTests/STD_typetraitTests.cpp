@@ -419,4 +419,199 @@ namespace Razix {
         EXPECT_TRUE((rz_is_arithmetic_v<unsigned int>) );
         EXPECT_TRUE((rz_is_arithmetic_v<float>) );
     }
+
+    //============================================================================
+    // IS_VOID TESTS
+    //============================================================================
+
+    TEST(TypeTraitsTest, IsVoid_VoidTypes)
+    {
+        EXPECT_TRUE((rz_is_void_v<void>) );
+        EXPECT_TRUE((rz_is_void_v<const void>) );
+        EXPECT_TRUE((rz_is_void_v<volatile void>) );
+        EXPECT_TRUE((rz_is_void_v<const volatile void>) );
+    }
+
+    TEST(TypeTraitsTest, IsVoid_NonVoidTypes)
+    {
+        EXPECT_FALSE((rz_is_void_v<int>) );
+        EXPECT_FALSE((rz_is_void_v<float>) );
+        EXPECT_FALSE((rz_is_void_v<void*>) );
+        EXPECT_FALSE((rz_is_void_v<void()>) );    // function type returning void
+    }
+
+    //============================================================================
+    // IS_CLASS TESTS
+    //============================================================================
+
+    class TestClass
+    {};
+    struct TestStruct
+    {};
+    union TestUnion
+    {
+        int   a;
+        float b;
+    };
+    enum TestEnum
+    {
+        A,
+        B,
+        C
+    };
+    enum class TestEnumClass
+    {
+        X,
+        Y,
+        Z
+    };
+
+    TEST(TypeTraitsTest, IsClass_ClassTypes)
+    {
+        EXPECT_TRUE((rz_is_class_v<TestClass>) );
+        EXPECT_TRUE((rz_is_class_v<TestStruct>) );    // struct IS a class
+        EXPECT_TRUE((rz_is_class_v<const TestClass>) );
+        EXPECT_TRUE((rz_is_class_v<volatile TestStruct>) );
+    }
+
+    TEST(TypeTraitsTest, IsClass_NonClassTypes)
+    {
+        EXPECT_FALSE((rz_is_class_v<int>) );
+        EXPECT_FALSE((rz_is_class_v<int*>) );
+        EXPECT_FALSE((rz_is_class_v<int&>) );
+        EXPECT_FALSE((rz_is_class_v<TestUnion>) );    // unions are NOT classes
+        EXPECT_FALSE((rz_is_class_v<TestEnum>) );
+        EXPECT_FALSE((rz_is_class_v<TestEnumClass>) );
+        EXPECT_FALSE((rz_is_class_v<void>) );
+    }
+
+    //============================================================================
+    // IS_UNION TESTS (if implemented)
+    //============================================================================
+
+    TEST(TypeTraitsTest, IsUnion_UnionTypes)
+    {
+        EXPECT_TRUE((rz_is_union_v<TestUnion>) );
+        EXPECT_TRUE((rz_is_union_v<const TestUnion>) );
+    }
+
+    TEST(TypeTraitsTest, IsUnion_NonUnionTypes)
+    {
+        EXPECT_FALSE((rz_is_union_v<TestClass>) );
+        EXPECT_FALSE((rz_is_union_v<TestStruct>) );
+        EXPECT_FALSE((rz_is_union_v<int>) );
+    }
+
+    //============================================================================
+    // ENABLE_IF TESTS
+    //============================================================================
+
+    template<typename T>
+    rz_enable_if_t<rz_is_integral_v<T>, int>
+    helper_integral(T)
+    {
+        return 1;
+    }
+
+    template<typename T>
+    rz_enable_if_t<rz_is_floating_point_v<T>, int>
+    helper_floating(T)
+    {
+        return 2;
+    }
+
+    TEST(TypeTraitsTest, EnableIf_ConditionalOverloads)
+    {
+        EXPECT_EQ(helper_integral(42), 1);
+        EXPECT_EQ(helper_floating(3.14), 2);
+
+        // These would fail to compile (correctly):
+        // helper_integral(3.14);  // Error: no matching function
+        // helper_floating(42);    // Error: no matching function
+    }
+
+    TEST(TypeTraitsTest, EnableIf_TypeExists)
+    {
+        // When condition is true, type exists
+        EXPECT_TRUE((rz_is_same_v<rz_enable_if_t<true, int>, int>) );
+        EXPECT_TRUE((rz_is_same_v<rz_enable_if_t<true>, void>) );    // Default is void
+
+        // When condition is false, there's no 'type' member
+        // This would fail to compile:
+        // using BadType = rz_enable_if_t<false, int>;  // Error: no member 'type'
+    }
+
+    //============================================================================
+    // IS_ENUM TESTS
+    //============================================================================
+
+    enum class TestEnum2 : uint8_t
+    {
+        X,
+        Y,
+        Z
+    };
+    enum class TestEnum3
+    {
+        P,
+        Q,
+        R
+    };
+
+    TEST(TypeTraitsTest, IsEnum_EnumTypes)
+    {
+        EXPECT_TRUE((rz_is_enum_v<TestEnum>) );
+        EXPECT_TRUE((rz_is_enum_v<TestEnum2>) );
+        EXPECT_TRUE((rz_is_enum_v<TestEnum3>) );
+        EXPECT_TRUE((rz_is_enum_v<const TestEnum>) );
+    }
+
+    TEST(TypeTraitsTest, IsEnum_NonEnumTypes)
+    {
+        EXPECT_FALSE((rz_is_enum_v<int>) );
+        EXPECT_FALSE((rz_is_enum_v<float>) );
+        EXPECT_FALSE((rz_is_enum_v<TestClass>) );
+        EXPECT_FALSE((rz_is_enum_v<void>) );
+    }
+
+    //============================================================================
+    // UNDERLYING_TYPE TESTS
+    //============================================================================
+
+    enum DefaultEnum
+    {
+        D1,
+        D2
+    };
+    enum class SmallEnum : uint8_t
+    {
+        S1,
+        S2
+    };
+    enum class LargeEnum : uint64_t
+    {
+        L1 = 1ULL << 40
+    };
+
+    TEST(TypeTraitsTest, UnderlyingType_DefaultEnum)
+    {
+        EXPECT_TRUE((rz_is_same_v<rz_underlying_type_t<DefaultEnum>, int>) );
+    }
+
+    TEST(TypeTraitsTest, UnderlyingType_ExplicitTypes)
+    {
+        EXPECT_TRUE((rz_is_same_v<rz_underlying_type_t<SmallEnum>, uint8_t>) );
+        EXPECT_TRUE((rz_is_same_v<rz_underlying_type_t<LargeEnum>, uint64_t>) );
+    }
+
+    // TEST(TypeTraitsTest, ToUnderlying_Conversion)
+    // {
+    //     SmallEnum e     = SmallEnum::S2;
+    //     uint8_t   value = rz_to_underlying(e);
+    //     EXPECT_EQ(value, static_cast<uint8_t>(SmallEnum::S2));
+    //
+    //     // Compile-time conversion
+    //     constexpr auto compile_time = rz_to_underlying(LargeEnum::L1);
+    //     EXPECT_EQ(compile_time, 1ULL << 40);
+    // }
 }    // namespace Razix

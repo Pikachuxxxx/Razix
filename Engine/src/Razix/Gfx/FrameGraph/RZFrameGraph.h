@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Razix/Core/std/type_traits.h"
 #include "Razix/Core/std/utility.h"
 
 #include "Razix/Gfx/FrameGraph/RZBlackboard.h"
