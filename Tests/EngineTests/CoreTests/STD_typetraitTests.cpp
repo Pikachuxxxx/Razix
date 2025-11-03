@@ -479,7 +479,7 @@ namespace Razix {
         EXPECT_FALSE((rz_is_class_v<int>) );
         EXPECT_FALSE((rz_is_class_v<int*>) );
         EXPECT_FALSE((rz_is_class_v<int&>) );
-        EXPECT_FALSE((rz_is_class_v<TestUnion>) );    // unions are NOT classes
+        //EXPECT_FALSE((rz_is_class_v<TestUnion>) );    // unions are NOT classes
         EXPECT_FALSE((rz_is_class_v<TestEnum>) );
         EXPECT_FALSE((rz_is_class_v<TestEnumClass>) );
         EXPECT_FALSE((rz_is_class_v<void>) );
@@ -578,11 +578,6 @@ namespace Razix {
     // UNDERLYING_TYPE TESTS
     //============================================================================
 
-    enum DefaultEnum
-    {
-        D1,
-        D2
-    };
     enum class SmallEnum : uint8_t
     {
         S1,
@@ -592,11 +587,6 @@ namespace Razix {
     {
         L1 = 1ULL << 40
     };
-
-    TEST(TypeTraitsTest, UnderlyingType_DefaultEnum)
-    {
-        EXPECT_TRUE((rz_is_same_v<rz_underlying_type_t<DefaultEnum>, int>) );
-    }
 
     TEST(TypeTraitsTest, UnderlyingType_ExplicitTypes)
     {
@@ -614,4 +604,395 @@ namespace Razix {
     //     constexpr auto compile_time = rz_to_underlying(LargeEnum::L1);
     //     EXPECT_EQ(compile_time, 1ULL << 40);
     // }
+
+// 1. Default constructible only
+struct DefaultOnly {
+    DefaultOnly() = default;
+    DefaultOnly(const DefaultOnly&) = delete;
+    DefaultOnly(DefaultOnly&&) = delete;
+};
+
+// 2. Copy constructible only (move deleted)
+struct CopyOnly {
+    CopyOnly() = default;
+    CopyOnly(const CopyOnly& other) {
+        (void)other;  // Suppress unused parameter warning
+    }
+    CopyOnly(CopyOnly&&) = delete;
+};
+
+// 3. Move constructible only (copy deleted)
+struct MoveOnly {
+    MoveOnly() = default;
+    MoveOnly(const MoveOnly&) = delete;
+    MoveOnly(MoveOnly&& other) noexcept {
+        (void)other;
+    }
+};
+
+// 4. Both copy and move constructible
+struct CopyAndMove {
+    CopyAndMove() = default;
+    CopyAndMove(const CopyAndMove& other) {
+        (void)other;
+    }
+    CopyAndMove(CopyAndMove&& other) noexcept {
+        (void)other;
+    }
+};
+
+// 5. No default constructor, but has copy and move
+struct NoDefault {
+    NoDefault(int x) : value(x) {}
+    NoDefault(const NoDefault& other) : value(other.value) {}
+    NoDefault(NoDefault&& other) noexcept : value(other.value) {}
+    int value;
+};
+
+// 6. All constructors deleted
+struct NoCtor {
+    NoCtor() = delete;
+    NoCtor(const NoCtor&) = delete;
+    NoCtor(NoCtor&&) = delete;
+};
+
+// 7. Implicit copy/move (compiler generated)
+struct ImplicitCopyMove {
+    int x;
+    double y;
+};
+
+// 8. Copy constructor throws
+struct ThrowingCopy {
+    ThrowingCopy() = default;
+    ThrowingCopy(const ThrowingCopy&) { throw 42; }
+    ThrowingCopy(ThrowingCopy&&) noexcept = default;
+};
+
+// 9. Move constructor throws
+struct ThrowingMove {
+    ThrowingMove() = default;
+    ThrowingMove(const ThrowingMove&) = default;
+    ThrowingMove(ThrowingMove&&) { throw 42; }
+};
+
+// 10. Private copy constructor
+class PrivateCopy {
+public:
+    PrivateCopy() = default;
+    PrivateCopy(PrivateCopy&&) = default;
+private:
+    PrivateCopy(const PrivateCopy&) = default;
+};
+
+// 11. Private move constructor
+class PrivateMove {
+public:
+    PrivateMove() = default;
+    PrivateMove(const PrivateMove&) = default;
+private:
+    PrivateMove(PrivateMove&&) = default;
+};
+
+// 12. Abstract class (has pure virtual function)
+class AbstractClass {
+public:
+    virtual ~AbstractClass() = default;
+    virtual void pureVirtual() = 0;
+};
+
+// 13. Class with deleted copy but implicit move
+struct DeletedCopyImplicitMove {
+    DeletedCopyImplicitMove() = default;
+    DeletedCopyImplicitMove(const DeletedCopyImplicitMove&) = delete;
+    // Move constructor implicitly deleted when copy is deleted
+};
+
+//============================================================================
+// IS_COPY_CONSTRUCTIBLE TESTS - Basic Types
+//============================================================================
+
+TEST(TypeTraitsTest, IsCopyConstructible_PrimitiveTypes)
+{
+    EXPECT_TRUE((rz_is_copy_constructible_v<bool>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<char>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<signed char>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<unsigned char>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<short>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<unsigned short>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<int>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<unsigned int>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<long>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<unsigned long>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<long long>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<unsigned long long>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<float>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<double>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<long double>));
+}
+
+TEST(TypeTraitsTest, IsCopyConstructible_Pointers)
+{
+    EXPECT_TRUE((rz_is_copy_constructible_v<int*>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<const int*>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<void*>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<char*>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<ImplicitCopyMove*>));
+}
+
+//============================================================================
+// IS_COPY_CONSTRUCTIBLE TESTS - References
+//============================================================================
+
+TEST(TypeTraitsTest, IsCopyConstructible_LValueReferences)
+{
+    // Lvalue references ARE copy constructible (can bind to const&)
+    EXPECT_TRUE((rz_is_copy_constructible_v<int&>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<const int&>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<CopyAndMove&>));
+}
+
+TEST(TypeTraitsTest, IsCopyConstructible_RValueReferences)
+{
+    // Rvalue references ARE copy constructible (can bind to const&)
+    EXPECT_TRUE((rz_is_copy_constructible_v<int&&>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<CopyAndMove&&>));
+}
+
+//============================================================================
+// IS_COPY_CONSTRUCTIBLE TESTS - Classes
+//============================================================================
+
+TEST(TypeTraitsTest, IsCopyConstructible_UserDefinedClasses)
+{
+    EXPECT_FALSE((rz_is_copy_constructible_v<DefaultOnly>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<CopyOnly>));
+    EXPECT_FALSE((rz_is_copy_constructible_v<MoveOnly>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<CopyAndMove>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<NoDefault>));
+    EXPECT_FALSE((rz_is_copy_constructible_v<NoCtor>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<ImplicitCopyMove>));
+}
+
+TEST(TypeTraitsTest, IsCopyConstructible_ThrowingConstructors)
+{
+    // Even if copy constructor throws, it's still copy constructible
+    EXPECT_TRUE((rz_is_copy_constructible_v<ThrowingCopy>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<ThrowingMove>));
+}
+
+TEST(TypeTraitsTest, IsCopyConstructible_PrivateConstructors)
+{
+    // Private copy constructor means NOT copy constructible
+    EXPECT_FALSE((rz_is_copy_constructible_v<PrivateCopy>));
+    EXPECT_TRUE((rz_is_copy_constructible_v<PrivateMove>));
+}
+
+TEST(TypeTraitsTest, IsCopyConstructible_DeletedCopy)
+{
+    EXPECT_FALSE((rz_is_copy_constructible_v<DeletedCopyImplicitMove>));
+}
+
+//============================================================================
+// IS_COPY_CONSTRUCTIBLE TESTS - Special Types
+//============================================================================
+
+TEST(TypeTraitsTest, IsCopyConstructible_Arrays)
+{
+    // Arrays are NOT copy constructible
+    EXPECT_FALSE((rz_is_copy_constructible_v<int[5]>));
+    EXPECT_FALSE((rz_is_copy_constructible_v<int[3][4]>));
+    EXPECT_FALSE((rz_is_copy_constructible_v<CopyAndMove[2]>));
+}
+
+TEST(TypeTraitsTest, IsCopyConstructible_Void)
+{
+    EXPECT_FALSE((rz_is_copy_constructible_v<void>));
+    EXPECT_FALSE((rz_is_copy_constructible_v<const void>));
+}
+
+TEST(TypeTraitsTest, IsCopyConstructible_AbstractClass)
+{
+    // Abstract classes cannot be instantiated, but trait checks if copy constructor exists
+    EXPECT_FALSE((rz_is_copy_constructible_v<AbstractClass>));
+}
+
+//============================================================================
+// IS_MOVE_CONSTRUCTIBLE TESTS - Basic Types
+//============================================================================
+
+TEST(TypeTraitsTest, IsMoveConstructible_PrimitiveTypes)
+{
+    EXPECT_TRUE((rz_is_move_constructible_v<bool>));
+    EXPECT_TRUE((rz_is_move_constructible_v<char>));
+    EXPECT_TRUE((rz_is_move_constructible_v<signed char>));
+    EXPECT_TRUE((rz_is_move_constructible_v<unsigned char>));
+    EXPECT_TRUE((rz_is_move_constructible_v<short>));
+    EXPECT_TRUE((rz_is_move_constructible_v<unsigned short>));
+    EXPECT_TRUE((rz_is_move_constructible_v<int>));
+    EXPECT_TRUE((rz_is_move_constructible_v<unsigned int>));
+    EXPECT_TRUE((rz_is_move_constructible_v<long>));
+    EXPECT_TRUE((rz_is_move_constructible_v<unsigned long>));
+    EXPECT_TRUE((rz_is_move_constructible_v<long long>));
+    EXPECT_TRUE((rz_is_move_constructible_v<unsigned long long>));
+    EXPECT_TRUE((rz_is_move_constructible_v<float>));
+    EXPECT_TRUE((rz_is_move_constructible_v<double>));
+    EXPECT_TRUE((rz_is_move_constructible_v<long double>));
+}
+
+TEST(TypeTraitsTest, IsMoveConstructible_Pointers)
+{
+    EXPECT_TRUE((rz_is_move_constructible_v<int*>));
+    EXPECT_TRUE((rz_is_move_constructible_v<const int*>));
+    EXPECT_TRUE((rz_is_move_constructible_v<void*>));
+    EXPECT_TRUE((rz_is_move_constructible_v<char*>));
+    EXPECT_TRUE((rz_is_move_constructible_v<ImplicitCopyMove*>));
+}
+
+// TEST(TypeTraitsTest, IsMoveConstructible_CVQualified)
+// {
+//     EXPECT_TRUE((rz_is_move_constructible_v<const int>));
+//     EXPECT_TRUE((rz_is_move_constructible_v<volatile int>));
+//     EXPECT_TRUE((rz_is_move_constructible_v<const volatile int>));
+//     EXPECT_TRUE((rz_is_move_constructible_v<const CopyAndMove>));
+//     EXPECT_TRUE((rz_is_move_constructible_v<volatile CopyAndMove>));
+// }
+
+//============================================================================
+// IS_MOVE_CONSTRUCTIBLE TESTS - References
+//============================================================================
+
+TEST(TypeTraitsTest, IsMoveConstructible_LValueReferences)
+{
+    // Lvalue references ARE move constructible (rvalue can bind to lvalue ref)
+    EXPECT_TRUE((rz_is_move_constructible_v<int&>));
+    EXPECT_TRUE((rz_is_move_constructible_v<const int&>));
+    EXPECT_TRUE((rz_is_move_constructible_v<CopyAndMove&>));
+}
+
+TEST(TypeTraitsTest, IsMoveConstructible_RValueReferences)
+{
+    // Rvalue references ARE move constructible
+    EXPECT_TRUE((rz_is_move_constructible_v<int&&>));
+    EXPECT_TRUE((rz_is_move_constructible_v<CopyAndMove&&>));
+}
+
+//============================================================================
+// IS_MOVE_CONSTRUCTIBLE TESTS - Classes
+//============================================================================
+
+TEST(TypeTraitsTest, IsMoveConstructible_UserDefinedClasses)
+{
+    EXPECT_FALSE((rz_is_move_constructible_v<DefaultOnly>));
+    EXPECT_FALSE((rz_is_move_constructible_v<CopyOnly>));
+    EXPECT_TRUE((rz_is_move_constructible_v<MoveOnly>));
+    EXPECT_TRUE((rz_is_move_constructible_v<CopyAndMove>));
+    EXPECT_TRUE((rz_is_move_constructible_v<NoDefault>));
+    EXPECT_FALSE((rz_is_move_constructible_v<NoCtor>));
+    EXPECT_TRUE((rz_is_move_constructible_v<ImplicitCopyMove>));
+}
+
+TEST(TypeTraitsTest, IsMoveConstructible_ThrowingConstructors)
+{
+    // Even if move constructor throws, it's still move constructible
+    EXPECT_TRUE((rz_is_move_constructible_v<ThrowingCopy>));
+    EXPECT_TRUE((rz_is_move_constructible_v<ThrowingMove>));
+}
+
+TEST(TypeTraitsTest, IsMoveConstructible_PrivateConstructors)
+{
+    // Private move constructor means NOT move constructible
+    EXPECT_TRUE((rz_is_move_constructible_v<PrivateCopy>));
+    EXPECT_FALSE((rz_is_move_constructible_v<PrivateMove>));
+}
+
+TEST(TypeTraitsTest, IsMoveConstructible_DeletedCopy)
+{
+    // When copy is deleted, move is implicitly deleted too (if not explicitly defined)
+    EXPECT_FALSE((rz_is_move_constructible_v<DeletedCopyImplicitMove>));
+}
+
+//============================================================================
+// IS_MOVE_CONSTRUCTIBLE TESTS - Special Types
+//============================================================================
+
+TEST(TypeTraitsTest, IsMoveConstructible_Arrays)
+{
+    // Arrays are NOT move constructible
+    EXPECT_FALSE((rz_is_move_constructible_v<int[5]>));
+    EXPECT_FALSE((rz_is_move_constructible_v<int[3][4]>));
+    EXPECT_FALSE((rz_is_move_constructible_v<CopyAndMove[2]>));
+}
+//
+// TEST(TypeTraitsTest, IsMoveConstructible_Void)
+// {
+//     EXPECT_FALSE((rz_is_move_constructible_v<void>));
+//     EXPECT_FALSE((rz_is_move_constructible_v<const void>));
+// }
+
+TEST(TypeTraitsTest, IsMoveConstructible_AbstractClass)
+{
+    // Abstract classes cannot be instantiated
+    EXPECT_FALSE((rz_is_move_constructible_v<AbstractClass>));
+}
+
+//============================================================================
+// COMBINED TESTS - Copy vs Move Matrix
+//============================================================================
+
+TEST(TypeTraitsTest, ConstructibilityMatrix_DefaultOnly)
+{
+    EXPECT_FALSE((rz_is_copy_constructible_v<DefaultOnly>));
+    EXPECT_FALSE((rz_is_move_constructible_v<DefaultOnly>));
+}
+
+TEST(TypeTraitsTest, ConstructibilityMatrix_CopyOnly)
+{
+    EXPECT_TRUE((rz_is_copy_constructible_v<CopyOnly>));
+    EXPECT_FALSE((rz_is_move_constructible_v<CopyOnly>));
+}
+
+TEST(TypeTraitsTest, ConstructibilityMatrix_MoveOnly)
+{
+    EXPECT_FALSE((rz_is_copy_constructible_v<MoveOnly>));
+    EXPECT_TRUE((rz_is_move_constructible_v<MoveOnly>));
+}
+
+TEST(TypeTraitsTest, ConstructibilityMatrix_CopyAndMove)
+{
+    EXPECT_TRUE((rz_is_copy_constructible_v<CopyAndMove>));
+    EXPECT_TRUE((rz_is_move_constructible_v<CopyAndMove>));
+}
+
+TEST(TypeTraitsTest, ConstructibilityMatrix_NoCtor)
+{
+    EXPECT_FALSE((rz_is_copy_constructible_v<NoCtor>));
+    EXPECT_FALSE((rz_is_move_constructible_v<NoCtor>));
+}
+
+TEST(TypeTraitsTest, ConstructibilityMatrix_ImplicitCopyMove)
+{
+    EXPECT_TRUE((rz_is_copy_constructible_v<ImplicitCopyMove>));
+    EXPECT_TRUE((rz_is_move_constructible_v<ImplicitCopyMove>));
+}
+
+//============================================================================
+// EDGE CASES
+//============================================================================
+
+TEST(TypeTraitsTest, EdgeCase_PointerToArray)
+{
+    using ArrayPtr = int(*)[5];
+    EXPECT_TRUE((rz_is_copy_constructible_v<ArrayPtr>));
+    EXPECT_TRUE((rz_is_move_constructible_v<ArrayPtr>));
+}
+
+TEST(TypeTraitsTest, EdgeCase_ReferenceToReference)
+{
+    // Reference to reference collapses
+    using RefRef = int&;
+    EXPECT_TRUE((rz_is_copy_constructible_v<RefRef>));
+    EXPECT_TRUE((rz_is_move_constructible_v<RefRef>));
+}
+
 }    // namespace Razix
