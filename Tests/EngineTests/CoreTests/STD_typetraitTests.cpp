@@ -479,7 +479,7 @@ namespace Razix {
         EXPECT_FALSE((rz_is_class_v<int>) );
         EXPECT_FALSE((rz_is_class_v<int*>) );
         EXPECT_FALSE((rz_is_class_v<int&>) );
-        //EXPECT_FALSE((rz_is_class_v<TestUnion>) );    // unions are NOT classes
+        EXPECT_FALSE((rz_is_class_v<TestUnion>) );    // unions are NOT classes
         EXPECT_FALSE((rz_is_class_v<TestEnum>) );
         EXPECT_FALSE((rz_is_class_v<TestEnumClass>) );
         EXPECT_FALSE((rz_is_class_v<void>) );
@@ -593,17 +593,6 @@ namespace Razix {
         EXPECT_TRUE((rz_is_same_v<rz_underlying_type_t<SmallEnum>, uint8_t>) );
         EXPECT_TRUE((rz_is_same_v<rz_underlying_type_t<LargeEnum>, uint64_t>) );
     }
-
-    // TEST(TypeTraitsTest, ToUnderlying_Conversion)
-    // {
-    //     SmallEnum e     = SmallEnum::S2;
-    //     uint8_t   value = rz_to_underlying(e);
-    //     EXPECT_EQ(value, static_cast<uint8_t>(SmallEnum::S2));
-    //
-    //     // Compile-time conversion
-    //     constexpr auto compile_time = rz_to_underlying(LargeEnum::L1);
-    //     EXPECT_EQ(compile_time, 1ULL << 40);
-    // }
 
 // 1. Default constructible only
 struct DefaultOnly {
@@ -849,14 +838,14 @@ TEST(TypeTraitsTest, IsMoveConstructible_Pointers)
     EXPECT_TRUE((rz_is_move_constructible_v<ImplicitCopyMove*>));
 }
 
-// TEST(TypeTraitsTest, IsMoveConstructible_CVQualified)
-// {
-//     EXPECT_TRUE((rz_is_move_constructible_v<const int>));
-//     EXPECT_TRUE((rz_is_move_constructible_v<volatile int>));
-//     EXPECT_TRUE((rz_is_move_constructible_v<const volatile int>));
-//     EXPECT_TRUE((rz_is_move_constructible_v<const CopyAndMove>));
-//     EXPECT_TRUE((rz_is_move_constructible_v<volatile CopyAndMove>));
-// }
+TEST(TypeTraitsTest, IsMoveConstructible_CVQualified)
+{
+    EXPECT_TRUE((rz_is_move_constructible_v<const int>));
+    EXPECT_TRUE((rz_is_move_constructible_v<volatile int>));
+    EXPECT_TRUE((rz_is_move_constructible_v<const volatile int>));
+    EXPECT_TRUE((rz_is_move_constructible_v<const CopyAndMove>));
+    EXPECT_TRUE((rz_is_move_constructible_v<volatile CopyAndMove>));
+}
 
 //============================================================================
 // IS_MOVE_CONSTRUCTIBLE TESTS - References

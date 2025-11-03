@@ -360,6 +360,18 @@ namespace Razix {
     inline constexpr bool rz_is_void_v = rz_is_void<T>::value;
 
     //----------------------------------------------------------------------------
+    // UNION DETECTION
+    //----------------------------------------------------------------------------
+    // [source]: https://en.cppreference.com/w/cpp/types/is_union.html
+
+    template<typename T>
+    struct rz_is_union : rz_integral_constant<bool, __is_union(T)>
+    {};
+
+    template<typename T>
+    inline constexpr bool rz_is_union_v = rz_is_union<T>::value;
+
+    //----------------------------------------------------------------------------
     // CLASS DETECTION
     //----------------------------------------------------------------------------
     // [source]: https://en.cppreference.com/w/cpp/types/is_class.html
@@ -367,7 +379,7 @@ namespace Razix {
     namespace detail {
         // This overload is chosen if T is a class type (member pointer is valid)
         template<typename T>
-        rz_true_type test_is_class(int T::*);
+        rz_integral_constant<bool, !rz_is_union<T>::value> test_is_class(int T::*);
 
         // This overload is chosen for all other types (fallback)
         template<typename>
@@ -380,18 +392,6 @@ namespace Razix {
 
     template<typename T>
     inline constexpr bool rz_is_class_v = rz_is_class<T>::value;
-
-    //----------------------------------------------------------------------------
-    // UNION DETECTION
-    //----------------------------------------------------------------------------
-    // [source]: https://en.cppreference.com/w/cpp/types/is_union.html
-
-    template<typename T>
-    struct rz_is_union : rz_integral_constant<bool, __is_union(T)>
-    {};
-
-    template<typename T>
-    inline constexpr bool rz_is_union_v = rz_is_union<T>::value;
 
     //----------------------------------------------------------------------------
     // ENABLE_IF - SFINAE helper
@@ -462,7 +462,7 @@ namespace Razix {
     }    // namespace detail
 
     template<typename T>
-    auto rz_declval() noexcept -> decltype(detail::rz_declval_impl<T>(0));
+    auto rz_declval() noexcept -> decltype(detail::rz_declval_impl<rz_remove_cv_t<T>>(0));
 
     // Note: declval is intentionally not defined (only declared)
     // It's only meant to be used in unevaluated contexts (decltype, sizeof, etc.)
@@ -488,7 +488,7 @@ namespace Razix {
 
     template<typename T>
     struct rz_is_default_constructible
-        : decltype(detail::test_default_constructible<T>(0))
+        : decltype(detail::test_default_constructible<rz_remove_cv_t<T>>(0))
     {};
 
     template<typename T>
@@ -513,7 +513,7 @@ namespace Razix {
 
     template<typename T>
     struct rz_is_move_constructible
-        : decltype(detail::test_move_constructible<T>(0))
+        : decltype(detail::test_move_constructible<rz_remove_cv_t<T>>(0))
     {};
 
     template<typename T>
@@ -539,7 +539,7 @@ namespace Razix {
 
     template<typename T>
     struct rz_is_copy_constructible
-        : decltype(detail::test_copy_constructible<T>(0))
+        : decltype(detail::test_copy_constructible<rz_remove_cv_t<T>>(0))
     {};
 
     template<typename T>
