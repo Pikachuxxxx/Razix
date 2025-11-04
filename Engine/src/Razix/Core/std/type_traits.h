@@ -279,6 +279,8 @@ namespace Razix {
     template<typename T>
     inline constexpr bool rz_is_arithmetic_v = rz_is_arithmetic<T>::value;
 
+    //----------------------------------------------------------------------------
+
     template<typename T, bool = rz_is_arithmetic_v<T>>
     struct rz_is_signed_impl : rz_false_type
     {};
@@ -293,6 +295,8 @@ namespace Razix {
 
     template<typename T>
     inline constexpr bool rz_is_signed_v = rz_is_signed<T>::value;
+
+    //----------------------------------------------------------------------------
 
     template<typename T, bool = rz_is_arithmetic_v<T>>
     struct rz_is_unsigned_impl : rz_false_type
@@ -309,6 +313,8 @@ namespace Razix {
     template<typename T>
     inline constexpr bool rz_is_unsigned_v = rz_is_unsigned<T>::value;
 
+    //----------------------------------------------------------------------------
+
     // [source]: https://en.cppreference.com/w/cpp/types/is_const.html
     template<class T>
     struct rz_is_const : rz_false_type
@@ -319,6 +325,8 @@ namespace Razix {
 
     template<class T>
     inline constexpr bool rz_is_const_v = rz_is_const<T>::value;
+
+    //----------------------------------------------------------------------------
 
     template<class T>
     struct rz_is_volatile : rz_false_type
@@ -376,22 +384,20 @@ namespace Razix {
     //----------------------------------------------------------------------------
     // [source]: https://en.cppreference.com/w/cpp/types/is_class.html
 
-    namespace detail {
-        // This overload is chosen if T is a class type (member pointer is valid)
-        template<typename T>
-        rz_integral_constant<bool, !rz_is_union<T>::value> test_is_class(int T::*);
-
-        // This overload is chosen for all other types (fallback)
-        template<typename>
-        rz_false_type test_is_class(...);
-    }    // namespace detail
-
-    template<typename T>
-    struct rz_is_class : decltype(detail::test_is_class<T>(nullptr))
+    template<typename T, typename = void>
+    struct rz_is_class_impl : rz_false_type
     {};
 
     template<typename T>
-    inline constexpr bool rz_is_class_v = rz_is_class<T>::value;
+    struct rz_is_class_impl<T, rz_void_t<int T::*>> : rz_integral_constant<bool, !rz_is_union<T>::value>
+    {};
+
+    template<typename T>
+    struct rz_is_class : rz_is_class_impl<T>
+    {};
+
+    template<typename T>
+    inline constexpr bool rz_is_class_v = rz_is_class<rz_remove_cv_t<T>>::value;
 
     //----------------------------------------------------------------------------
     // ENABLE_IF - SFINAE helper
@@ -451,18 +457,16 @@ namespace Razix {
     // T&& &   -> T&  (rvalue & lvalue = lvalue)
     // T&& &&  -> T&& (rvalue & rvalue = rvalue)
 
-    namespace detail {
-        // Try to return T&& (rvalue reference)
-        template<typename T, typename U = T&&>
-        U rz_declval_impl(int);
+    // Try to return T&& (rvalue reference)
+    template<typename T, typename U = T&&>
+    U rz_declval_impl(int);
 
-        // Fallback: return T (for types that can't be references, like void)
-        template<typename T>
-        T rz_declval_impl(long);
-    }    // namespace detail
+    // Fallback: return T (for types that can't be references, like void)
+    template<typename T>
+    T rz_declval_impl(long);
 
     template<typename T>
-    auto rz_declval() noexcept -> decltype(detail::rz_declval_impl<rz_remove_cv_t<T>>(0));
+    auto rz_declval() noexcept -> decltype(rz_declval_impl<rz_remove_cv_t<T>>(0));
 
     // Note: declval is intentionally not defined (only declared)
     // It's only meant to be used in unevaluated contexts (decltype, sizeof, etc.)
@@ -474,46 +478,42 @@ namespace Razix {
     //----------------------------------------------------------------------------
     // [source]: https://en.cppreference.com/w/cpp/types/is_default_constructible.html
 
-    namespace detail {
-        // Helper to test if T() is valid
-        template<typename T>
-        auto test_default_constructible(int)
-            -> decltype(T(), rz_true_type{});
+    template<typename T, typename = void>
+    struct rz_is_default_constructible_impl : rz_false_type
+    {};
 
-        // Fallback when T() is invalid
-        template<typename>
-        auto test_default_constructible(...)
-            -> rz_false_type;
-    }    // namespace detail
+    // When T() is possible
+    template<typename T>
+    struct rz_is_default_constructible_impl<T, rz_void_t<decltype(T())>> : rz_true_type
+    {};
 
     template<typename T>
-    struct rz_is_default_constructible
-        : decltype(detail::test_default_constructible<rz_remove_cv_t<T>>(0))
+    struct rz_is_default_constructible : rz_is_default_constructible_impl<rz_remove_cv_t<T>>
     {};
 
     template<typename T>
     inline constexpr bool rz_is_default_constructible_v = rz_is_default_constructible<T>::value;
+
+    // Note:
+    // 1. don't remove cv qualifiers on copy/move constructors, might or not be permissible
+    // 2. rz_declval returns the value instead of type pass it to check if constructor can be valid
 
     //----------------------------------------------------------------------------
     // MOVE CONSTRUCTIBLE DETECTION
     //----------------------------------------------------------------------------
     // [source]: https://en.cppreference.com/w/cpp/types/is_move_constructible.html
 
-    namespace detail {
-        // Helper to test if T(T&&) is valid
-        template<typename T>
-        auto test_move_constructible(int)
-            -> decltype(T(rz_declval<T>()), rz_true_type{});
+    template<typename T, typename = void>
+    struct rz_is_move_constructible_impl : rz_false_type
+    {};
 
-        // Fallback when T(T&&) is invalid
-        template<typename>
-        auto test_move_constructible(...)
-            -> rz_false_type;
-    }    // namespace detail
+    // when T(T&&) is possible, checking if we can invoke the move constructor
+    template<typename T>
+    struct rz_is_move_constructible_impl<T, decltype(T(rz_declval<T>()), void())> : rz_true_type
+    {};
 
     template<typename T>
-    struct rz_is_move_constructible
-        : decltype(detail::test_move_constructible<rz_remove_cv_t<T>>(0))
+    struct rz_is_move_constructible : rz_is_move_constructible_impl<T>
     {};
 
     template<typename T>
@@ -524,22 +524,19 @@ namespace Razix {
     //----------------------------------------------------------------------------
     // [source]: https://en.cppreference.com/w/cpp/types/is_copy_constructible.html
 
-    namespace detail {
-        // Helper to test if T(const T&) is valid
-        // Reference collapsing rule: lvalue_ref && --> lvalue_ref
-        template<typename T>
-        auto test_copy_constructible(int)
-            -> decltype(T(rz_declval<const T&>()), rz_true_type{});
+    template<typename T, typename = void>
+    struct is_copy_constructible_impl : rz_false_type
+    {};
 
-        // Fallback when T(const T&) is invalid
-        template<typename>
-        auto test_copy_constructible(...)
-            -> rz_false_type;
-    }    // namespace detail
+    // when T(const T&) is possible, checking if we can invoke the the copy constructor
+    template<typename T>
+    struct is_copy_constructible_impl<T,
+        decltype(T(rz_declval<const T&>()), void())>
+        : rz_true_type
+    {};
 
     template<typename T>
-    struct rz_is_copy_constructible
-        : decltype(detail::test_copy_constructible<rz_remove_cv_t<T>>(0))
+    struct rz_is_copy_constructible : is_copy_constructible_impl<T>
     {};
 
     template<typename T>
