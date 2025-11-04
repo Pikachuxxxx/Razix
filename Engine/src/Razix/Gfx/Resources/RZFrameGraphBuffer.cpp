@@ -97,7 +97,7 @@ namespace Razix {
 
         std::string RZFrameGraphBuffer::toString(const Desc& desc)
         {
-            //return "size : " + Utilities::ToString(desc.size) + " bytes";
+            //return "size : " + Utilities::to_string(desc.size) + " bytes";
             return "";
         }
     }    // namespace Gfx

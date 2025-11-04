@@ -179,12 +179,12 @@ namespace Razix {
 
                 rz_gfx_cmdpool_desc cmdPoolDesc = {};
                 cmdPoolDesc.poolType            = RZ_GFX_CMDPOOL_TYPE_GRAPHICS;
-                std::string commandPoolName     = "InFlightCommandPool_" + Utilities::ToString(i);
+                std::string commandPoolName     = "InFlightCommandPool_" + Utilities::to_string(i);
                 m_InFlightCmdPool[i]            = RZResourceManager::Get().createCommandPool(commandPoolName.c_str(), cmdPoolDesc);
 
                 rz_gfx_cmdbuf_desc desc        = {0};
                 desc.pool                      = RZResourceManager::Get().getCommandPoolResource(m_InFlightCmdPool[i]);
-                std::string inFlightCmdBufName = "InFlightDrawCommandBuffer_" + Utilities::ToString(i);
+                std::string inFlightCmdBufName = "InFlightDrawCommandBuffer_" + Utilities::to_string(i);
                 m_InFlightDrawCmdBufHandles[i] = RZResourceManager::Get().createCommandBuffer(inFlightCmdBufName.c_str(), desc);
                 m_InFlightDrawCmdBufPtrs[i]    = RZResourceManager::Get().getCommandBufferResource(m_InFlightDrawCmdBufHandles[i]);
             }
@@ -800,7 +800,7 @@ namespace Razix {
                 rzRHI_BeginCmdBuf(cmdBuffer);
 
                 // Begin Frame Marker
-                RAZIX_MARK_BEGIN(cmdBuffer, "Frame # " + Utilities::ToString(m_FrameCount) + " [back buffer # " + Utilities::ToString(inFlightSyncobjIdx) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
+                RAZIX_MARK_BEGIN(cmdBuffer, "Frame # " + Utilities::to_string(m_FrameCount) + " [back buffer # " + Utilities::to_string(inFlightSyncobjIdx) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
 
                 // Insert barrier to transition the swapchain image (PRESENT) to RENDER_TARGET
                 rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_PRESENT, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);

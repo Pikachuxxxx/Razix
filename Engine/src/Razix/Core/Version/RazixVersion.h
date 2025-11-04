@@ -52,7 +52,7 @@ namespace Razix {
         Date getReleaseDate() const { return m_ReleaseDate; }
 
         /* Returns the version as a string (Major.Minor.Patch) */
-        std::string getVersionString() const { return (Utilities::ToString(m_Major) + "." + Utilities::ToString(m_Minor) + "." + Utilities::ToString(m_Patch)); }
+        std::string getVersionString() const { return (Utilities::to_string(m_Major) + "." + Utilities::to_string(m_Minor) + "." + Utilities::to_string(m_Patch)); }
         /* Returns the release stage as a string */
         std::string getReleaseStageString() const
         {

@@ -108,9 +108,9 @@ namespace Razix {
         std::string RZFrameGraphTexture::toString(const Desc& desc)
         {
             //if (desc.layers > 1)
-            //    return "(" + Utilities::ToString(int(desc.width)) + ", " + Utilities::ToString(int(desc.height)) + ", " + Utilities::ToString(desc.layers) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
+            //    return "(" + Utilities::to_string(int(desc.width)) + ", " + Utilities::to_string(int(desc.height)) + ", " + Utilities::to_string(desc.layers) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
             //else
-            //    return "(" + Utilities::ToString(int(desc.width)) + ", " + Utilities::ToString(int(desc.height)) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
+            //    return "(" + Utilities::to_string(int(desc.width)) + ", " + Utilities::to_string(int(desc.height)) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
             return "";
         }
     }    // namespace Gfx

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Razix/Core/std/sprintf.h"
+#include "Razix/Core/std/type_traits.h"
 
 #include <string>
-#include <type_traits>
 #include <vector>
 
 // TODO:
@@ -14,23 +14,23 @@ namespace Razix {
     namespace Utilities {
 
         template<typename T>
-        static std::string ToString(const T& value)
+        static std::string to_string(const T& value)
         {
             char buffer[128];
 
-            if constexpr (std::is_same_v<T, std::string>)
+            if constexpr (rz_is_same_v<T, std::string>)
                 return value;
-            else if constexpr (std::is_same_v<T, const char*>)
+            else if constexpr (rz_is_same_v<T, const char*>)
                 return std::string(value);
-            else if constexpr (std::is_same_v<T, char*>)
+            else if constexpr (rz_is_same_v<T, char*>)
                 return std::string(value);
-            else if constexpr (std::is_pointer_v<T>)
+            else if constexpr (rz_is_pointer_v<T>)
                 rz_snprintf(buffer, sizeof(buffer), "%p", static_cast<const void*>(value));
-            else if constexpr (std::is_integral_v<T> && std::is_signed_v<T>)
+            else if constexpr (rz_is_integral_v<T> && rz_is_signed_v<T>)
                 rz_snprintf(buffer, sizeof(buffer), "%d", static_cast<int>(value));
-            else if constexpr (std::is_integral_v<T> && std::is_unsigned_v<T>)
+            else if constexpr (rz_is_integral_v<T> && rz_is_unsigned_v<T>)
                 rz_snprintf(buffer, sizeof(buffer), "%u", static_cast<unsigned int>(value));
-            else if constexpr (std::is_floating_point_v<T>)
+            else if constexpr (rz_is_floating_point_v<T>)
                 rz_snprintf(buffer, sizeof(buffer), "%f", static_cast<double>(value));
             else
                 rz_snprintf(buffer, sizeof(buffer), "<unhandled:%s>", typeid(T).name());

@@ -67,7 +67,7 @@ namespace Razix {
 
             std::string toString() const
             {
-                return Utilities::ToString(major) + "." + Utilities::ToString(minor) + "." + Utilities::ToString(patch) + (revisionID.empty() ? "" : (" (" + revisionID + ")"));
+                return Utilities::to_string(major) + "." + Utilities::to_string(minor) + "." + Utilities::to_string(patch) + (revisionID.empty() ? "" : (" (" + revisionID + ")"));
             }
         };
 

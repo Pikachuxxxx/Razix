@@ -1,12 +1,12 @@
 // CommandLineParserTests.cpp
 // AI-generated unit tests for the RZCommandLineParser class
 
+#include <iostream>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
 #include <variant>
 #include <vector>
-#include <iostream>
 
 #include <Razix/Core/Log/RZLog.h>
 
@@ -18,10 +18,10 @@
 
 namespace Razix {
     namespace Utilities {
-        TEST(RZStringUtilities, ToString)
+        TEST(RZStringUtilities, to_string)
         {
-            EXPECT_EQ(ToString(42), "42");
-            EXPECT_EQ(ToString(3.14), "3.140000");
+            EXPECT_EQ(to_string(42), "42");
+            EXPECT_EQ(to_string(3.14), "3.140000");
         }
 
         TEST(RZStringUtilities, GetFilePathExtension)
