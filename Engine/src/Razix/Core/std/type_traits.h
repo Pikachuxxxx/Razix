@@ -236,6 +236,25 @@ namespace Razix {
     template<typename T>
     inline constexpr bool rz_is_integral_v = rz_is_integral<T>::value;
 
+    template<typename T>
+    struct rz_make_unsigned
+    {
+        using type = T;
+    };
+    template<typename T>
+    struct rz_make_unsigned<T&>
+    {
+        using type = T;
+    };
+    template<typename T>
+    struct rz_make_unsigned<T&&>
+    {
+        using type = T;
+    };
+
+    template<class T>
+    using rz_make_unsigned_t = typename rz_make_unsigned<T>::type;
+
     //----------------------------------------------------------------------------
     //FLOATING POINT DETECTION
     //----------------------------------------------------------------------------
