@@ -5,13 +5,6 @@
 #include "Razix/Core/RZDataTypes.h"
 
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
-
-// get ready for some convoluted shit!
-// we are including string.h for memcpy, unless we have
-// our own rz_memcpy handwritten using assembly per platform we do this, sorry!
-// We need to copy at word granularity using SIMD instuctions like vmovdq etc.
-#include <string.h>    // for memcpy only
-
 #define RAZIX_SSO_STRING_SIZE 64
 
 namespace Razix {
@@ -44,19 +37,18 @@ namespace Razix {
             m_is_using_heap = other.m_is_using_heap;
 
             if (m_is_using_heap) {
-                char* ptr  = (char*) Memory::RZMalloc(m_length);
-                m_data.ptr = ptr;
+                char* ptr            = (char*) Memory::RZMalloc(m_length);
+                m_data.ptr           = ptr;
+                m_data.ptr[m_length] = '\0';
             } else {
                 // copy string as-is if it's SSO
                 memcpy(m_data.sso, other.m_data.sso, RAZIX_SSO_STRING_SIZE);
+                m_data.sso[m_length] = '\0';
             }
         }
 
         RZString& operator=(const RZString& other)
         {
-            if (*this == other)
-                return *this;
-
             if (m_is_using_heap)
                 Memory::RZFree(m_data.ptr);
 
@@ -65,11 +57,13 @@ namespace Razix {
             m_is_using_heap = other.m_is_using_heap;
 
             if (m_is_using_heap) {
-                char* ptr  = (char*) Memory::RZMalloc(m_length);
-                m_data.ptr = ptr;
+                char* ptr            = (char*) Memory::RZMalloc(m_length);
+                m_data.ptr           = ptr;
+                m_data.ptr[m_length] = '\0';
             } else {
                 // copy string as-is if it's SSO
                 memcpy(m_data.sso, other.m_data.sso, RAZIX_SSO_STRING_SIZE);
+                m_data.sso[m_length] = '\0';
             }
 
             return *this;
@@ -82,10 +76,12 @@ namespace Razix {
             m_is_using_heap = other.m_is_using_heap;
 
             if (m_is_using_heap) {
-                m_data.ptr       = other.m_data.ptr;
-                other.m_data.ptr = NULL;
+                m_data.ptr           = other.m_data.ptr;
+                other.m_data.ptr     = NULL;
+                m_data.ptr[m_length] = '\0';
             } else {
                 memcpy(m_data.sso, other.m_data.sso, m_length);
+                m_data.sso[m_length] = '\0';
             }
 
             other.m_is_using_heap = false;
@@ -94,9 +90,6 @@ namespace Razix {
         }
         RZString& operator=(RZString&& other) noexcept
         {
-            if (*this == other)
-                return *this;
-
             if (m_data.ptr && m_is_using_heap)
                 Memory::RZFree(m_data.ptr);
 
@@ -105,10 +98,12 @@ namespace Razix {
             m_is_using_heap = other.m_is_using_heap;
 
             if (m_is_using_heap) {
-                m_data.ptr       = other.m_data.ptr;
-                other.m_data.ptr = NULL;
+                m_data.ptr           = other.m_data.ptr;
+                m_data.ptr[m_length] = '\0';
+                other.m_data.ptr     = NULL;
             } else {
                 memcpy(m_data.sso, other.m_data.sso, m_length);
+                m_data.sso[m_length] = '\0';
             }
 
             other.m_is_using_heap = false;
@@ -200,12 +195,12 @@ namespace Razix {
 
         RZString substr(sz pos = 0, sz count = npos) const;
 
-        u32 compare(const RZString& str) const;
-        u32 compare(sz pos1, sz count1, const RZString& str) const;
-        u32 compare(sz pos1, sz count1, const RZString& str, sz pos2, sz count2) const;
-        u32 compare(const char* str) const;
-        u32 compare(sz pos1, sz count1, const char* str) const;
-        u32 compare(sz pos1, sz count1, const char* str, sz count2) const;
+        i32 compare(const RZString& str) const;
+        i32 compare(sz pos1, sz count1, const RZString& str) const;
+        i32 compare(sz pos1, sz count1, const RZString& str, sz pos2, sz count2) const;
+        i32 compare(const char* str) const;
+        i32 compare(sz pos1, sz count1, const char* str) const;
+        i32 compare(sz pos1, sz count1, const char* str, sz count2) const;
 
         RZString& operator=(const char* str);
         RZString& operator=(char ch);
@@ -230,20 +225,20 @@ namespace Razix {
         {
             char  sso[RAZIX_SSO_STRING_SIZE];
             char* ptr;
-        } m_data;
+        } m_data = {};
 
-        friend RZString operator+(const RZString& lhs, const RZString& rhs);
-        friend RZString operator+(const RZString& lhs, const char* rhs);
-        friend RZString operator+(const char* lhs, const RZString& rhs);
-        friend RZString operator+(const RZString& lhs, char rhs);
-        friend RZString operator+(char lhs, const RZString& rhs);
+        RAZIX_API friend RZString operator+(const RZString& lhs, const RZString& rhs);
+        RAZIX_API friend RZString operator+(const RZString& lhs, const char* rhs);
+        RAZIX_API friend RZString operator+(const char* lhs, const RZString& rhs);
+        RAZIX_API friend RZString operator+(const RZString& lhs, char rhs);
+        RAZIX_API friend RZString operator+(char lhs, const RZString& rhs);
     };
 
-    RZString operator+(const RZString& lhs, const RZString& rhs);
-    RZString operator+(const RZString& lhs, const char* rhs);
-    RZString operator+(const char* lhs, const RZString& rhs);
-    RZString operator+(const RZString& lhs, char rhs);
-    RZString operator+(char lhs, const RZString& rhs);
+    RAZIX_API RZString operator+(const RZString& lhs, const RZString& rhs);
+    RAZIX_API RZString operator+(const RZString& lhs, const char* rhs);
+    RAZIX_API RZString operator+(const char* lhs, const RZString& rhs);
+    RAZIX_API RZString operator+(const RZString& lhs, char rhs);
+    RAZIX_API RZString operator+(char lhs, const RZString& rhs);
 
 }    // namespace Razix
 

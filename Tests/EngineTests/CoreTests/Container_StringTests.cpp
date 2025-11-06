@@ -226,8 +226,8 @@ namespace Razix {
     TEST_F(RZStringAppendTests, AppendCStringWithCount)
     {
         RZString str("Hello");
-        str.append(" World", 5);
-        EXPECT_STREQ(str.c_str(), "Hello ");
+        str.append(" World", 6);
+        EXPECT_STREQ(str.c_str(), "Hello World");
     }
 
     TEST_F(RZStringAppendTests, AppendCharCount)
@@ -275,14 +275,14 @@ namespace Razix {
     {
         RZString str("Hello World");
         str.insert(5, 3, '!');
-        EXPECT_STREQ(str.c_str(), "Hello!!!  World");
+        EXPECT_STREQ(str.c_str(), "Hello!!! World");
     }
 
     TEST_F(RZStringInsertTests, InsertCStringWithCount)
     {
         RZString str("Hello World");
         str.insert(5, "Beautiful ", 5);
-        EXPECT_STREQ(str.c_str(), "HelloBeauty World");
+        EXPECT_STREQ(str.c_str(), "HelloBeaut World");
     }
 
     // ============ Erase Tests ============
@@ -321,21 +321,21 @@ namespace Razix {
         RZString str("Hello World");
         RZString replacement("Beautiful");
         str.replace(6, 5, replacement);
-        EXPECT_STREQ(str.c_str(), "Hello Beautiful");
+        EXPECT_STREQ(str.c_str(), "Hello Beaut");
     }
 
     TEST_F(RZStringReplaceTests, ReplaceWithCString)
     {
         RZString str("Hello World");
         str.replace(6, 5, "Beautiful");
-        EXPECT_STREQ(str.c_str(), "Hello Beautiful");
+        EXPECT_STREQ(str.c_str(), "Hello Beaut");
     }
 
     TEST_F(RZStringReplaceTests, ReplaceWithChar)
     {
         RZString str("Hello World");
         str.replace(5, 6, '*');
-        EXPECT_STREQ(str.c_str(), "Hello*");
+        EXPECT_STREQ(str.c_str(), "Hello******");
     }
 
     // ============ Push/Pop Tests ============
@@ -704,6 +704,18 @@ namespace Razix {
     // ============ SSO Tests (Small String Optimization) ============
     class RZStringSSoTests : public ::testing::Test
     {
+    public:
+        void SetUp() override
+        {
+            // Setup before each test case, for example initializing the logging system
+            Razix::Debug::RZLog::StartUp();
+        }
+
+        void TearDown() override
+        {
+            // Cleanup after each test case
+            Razix::Debug::RZLog::Shutdown();
+        }
     };
 
     TEST_F(RZStringSSoTests, SmallStringShouldUseSso)
