@@ -20,8 +20,8 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;    // use other lib that said it was faster than this on github
 
-#include <ostream>
 #include <fstream>
+#include <ostream>
 
 namespace Razix {
     namespace Gfx {
@@ -794,9 +794,12 @@ namespace Razix {
                   * the m_Last will keep track of which node will require this resource, if this pass is done
                   * then all the resources in the framegraph that depend on this can be deleted safely
                   */
-                for (auto& entry: m_ResourceRegistry)
-                    if (entry.m_Last == &pass && entry.isTransient())
-                        entry.getConcept()->destroy(&m_TransientAllocator);
+                for (auto& entry: m_ResourceRegistry) {
+                    if (entry.m_Last == &pass || entry.m_Last == NULL) {
+                        if (entry.isTransient())
+                            entry.getConcept()->destroy(&m_TransientAllocator);
+                    }
+                }
 
 #ifndef RAZIX_GOLD_MASTER
                 if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
@@ -881,7 +884,7 @@ namespace Razix {
             // -- Define pass nodes
 
             for (const RZPassNode& node: m_PassNodes) {
-                os << "P" << node.m_ID << " [label=<{ {<B>" << node.m_Name.c_str()   << "</B>} | {"
+                os << "P" << node.m_ID << " [label=<{ {<B>" << node.m_Name.c_str() << "</B>} | {"
                    << (node.isStandAlone() ? "&#x2605; " : "")
                    << "Refs: " << node.m_RefCount << "<BR/> Index: " << node.m_ID
                    << "} }> style=\"rounded,filled\", fillcolor="

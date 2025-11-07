@@ -212,7 +212,8 @@ namespace Razix {
         void RZTransientAllocator::releaseTransientBuffer(rz_gfx_buffer_handle handle, u32 id)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-            m_BufferCache[id] = handle;
+            if (rz_handle_is_valid(&handle))
+                m_BufferCache[id] = handle;
         }
 
     }    // namespace Gfx

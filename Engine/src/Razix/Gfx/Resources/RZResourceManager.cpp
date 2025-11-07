@@ -16,9 +16,7 @@
     }                                                                                                    \
     memset(resource, 0x00, sizeof(rz_gfx_resource));                                                     \
     resource->type = typeEnum;                                                                           \
-    RAZIX_CORE_TRACE("resourceName: {}", name);                                                          \
     rz_snprintf(resource->pName, 256, "%s", name);                                                       \
-    RAZIX_CORE_TRACE("resource->pName: {}", resource->pName);                                            \
     resource->handle = handle;                                                                           \
     memcpy(&resource->desc, &desc, handleSize);                                                          \
     if (m_ResourceTypeCBFuncs[typeEnum].createFuncCB) {                                                  \
@@ -47,20 +45,20 @@
         return pool.get(handle);     \
     return nullptr;
 
-#define RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(PoolName, ResourceType, HandleType)                                                                                               \
-    HandleType##_handle RZResourceManager::create##PoolName(const char* name, const HandleType##_desc& desc)                                                                 \
-    {                                                                                                                                                                        \
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);                                                                                                                  \
-        CREATE_UTIL(name, ResourceType, m_##PoolName##Pool, sizeof(HandleType##_desc));                                                                                      \
-    }                                                                                                                                                                        \
-    void RZResourceManager::destroy##PoolName(HandleType##_handle& handle)                                                                                                   \
-    {                                                                                                                                                                        \
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);                                                                                                                  \
+#define RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(PoolName, ResourceType, HandleType)                                                                                      \
+    HandleType##_handle RZResourceManager::create##PoolName(const char* name, const HandleType##_desc& desc)                                                        \
+    {                                                                                                                                                               \
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);                                                                                                         \
+        CREATE_UTIL(name, ResourceType, m_##PoolName##Pool, sizeof(HandleType##_desc));                                                                             \
+    }                                                                                                                                                               \
+    void RZResourceManager::destroy##PoolName(HandleType##_handle& handle)                                                                                          \
+    {                                                                                                                                                               \
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);                                                                                                         \
         DESTROY_UTIL(m_##PoolName##Pool, RZString("[Resource Manager] Attempting to release ") + RZString(#PoolName) + RZString(" resource with Invalid handle!")); \
-    }                                                                                                                                                                        \
-    HandleType* RZResourceManager::get##PoolName##Resource(HandleType##_handle handle)                                                                                       \
-    {                                                                                                                                                                        \
-        GET_UTIL(m_##PoolName##Pool);                                                                                                                                        \
+    }                                                                                                                                                               \
+    HandleType* RZResourceManager::get##PoolName##Resource(HandleType##_handle handle)                                                                              \
+    {                                                                                                                                                               \
+        GET_UTIL(m_##PoolName##Pool);                                                                                                                               \
     }
 
 #define RAZIX_INIT_RESOURCE_POOL(PoolName, ResourceType, Capacity, ElementSize, CreateFuncCB, DestroyFuncCB) \

@@ -3184,7 +3184,9 @@ static void dx12_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
     RAZIX_RHI_ASSERT(updatedesc.sizeInBytes > 0, "Size in bytes must be greater than zero");
     RAZIX_RHI_ASSERT(updatedesc.offset + updatedesc.sizeInBytes <= updatedesc.pBuffer->resource.desc.bufferDesc.sizeInBytes, "Update range exceeds buffer size");
     RAZIX_RHI_ASSERT(updatedesc.pData != NULL, "Data pointer cannot be NULL");
-    RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.desc.bufferDesc.usage & RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC) == RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC, "Buffer must be created with RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC usage flag");
+    RAZIX_RHI_ASSERT(
+        (updatedesc.pBuffer->resource.desc.bufferDesc.usage & (RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC | RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)),
+        "Buffer must be created with RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC or RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM usage flag");
     RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.desc.bufferDesc.type & RZ_GFX_BUFFER_TYPE_CONSTANT) == RZ_GFX_BUFFER_TYPE_CONSTANT, "Buffer must be of type RZ_GFX_BUFFER_TYPE_CONSTANT to update");
 
     D3D12_RANGE readRange = {0};

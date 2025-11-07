@@ -53,23 +53,24 @@ static int AttachConsole(void)
     }
     return 0;
 }
+    //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) \
+                //system("pause");                                    \
+                //FreeConsole();                                      \
+                AttachConsole();                                    \
+                ShowWindow(GetConsoleWindow(), SW_SHOW);            \
 
-        #define RAZIX_PLATFORM_MAIN                                                                           \
-            int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) \
-            {                                                                                                 \
-                AttachConsole();                                                                              \
-                ShowWindow(GetConsoleWindow(), SW_SHOW);                                                      \
-                EngineMain(__argc, __argv);                                                                   \
-                while (Razix::RZApplication::Get().RenderFrame()) {                                           \
-                }                                                                                             \
-                                                                                                              \
-                Razix::RZApplication::Get().Quit();                                                           \
-                Razix::RZApplication::Get().SaveApp();                                                        \
-                                                                                                              \
-                EngineExit();                                                                                 \
-                system("pause");                                                                              \
-                FreeConsole();                                                                                \
-                return EXIT_SUCCESS;                                                                          \
+        #define RAZIX_PLATFORM_MAIN                                 \
+            int main(int argc, char** argv)                         \
+            {                                                       \
+                EngineMain(__argc, __argv);                         \
+                while (Razix::RZApplication::Get().RenderFrame()) { \
+                }                                                   \
+                                                                    \
+                Razix::RZApplication::Get().Quit();                 \
+                Razix::RZApplication::Get().SaveApp();              \
+                                                                    \
+                EngineExit();                                       \
+                return EXIT_SUCCESS;                                \
             }
 
     #endif    // RAZIX_PLATFORM_WINDOWS

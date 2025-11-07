@@ -69,6 +69,9 @@ namespace Razix {
 
         void RZPassNode::createDeferredResourceView(RZFrameGraphResource id, rz_handle resHandle)
         {
+            // we can have passes that just update some buffers  and write to it via rzUdpateConstantBuffer so they have new views per pass
+            if (!rz_handle_is_valid(&resHandle)) return;
+
             RAZIX_CORE_ASSERT(rz_handle_is_valid(&resHandle), "Invalid resource Handle passed!");
 
             auto& accessView = getResourceAccessViewRef(id);
@@ -79,14 +82,16 @@ namespace Razix {
                         accessView.resViewDesc.bufferViewDesc.pBuffer = RZResourceManager::Get().getBufferResource(resHandle);
                         resViewName                                   = RZString(accessView.resViewDesc.bufferViewDesc.pBuffer->resource.pName);
                     } else {
-                        RAZIX_CORE_ERROR("pBuffer is either NULL or not AUTO_POPULATE");
+                        RAZIX_CORE_WARN("pBuffer is either NULL or not AUTO_POPULATE");
+                        return;
                     }
                 } else if (rzRHI_IsDescriptorTypeTexture(accessView.resViewDesc.descriptorType)) {
                     if (accessView.resViewDesc.textureViewDesc.pTexture == RZ_FG_TEX_RES_AUTO_POPULATE) {
                         accessView.resViewDesc.textureViewDesc.pTexture = RZResourceManager::Get().getTextureResource(resHandle);
                         resViewName                                     = RZString(accessView.resViewDesc.textureViewDesc.pTexture->resource.pName);
                     } else {
-                        RAZIX_CORE_ERROR("pTexture is not AUTO_POPULATE, this is invalid way to create resource views with framegraph, please follow the right convention by defining the pTexture with RZ_FG_TEX_RES_AUTO_POPULATE, to automatically generate and maintain resource views per pass");
+                        RAZIX_CORE_WARN("pTexture is not AUTO_POPULATE, this is invalid way to create resource views with framegraph, please follow the right convention by defining the pTexture with RZ_FG_TEX_RES_AUTO_POPULATE, to automatically generate and maintain resource views per pass");
+                        return;
                     }
                 } else {
                     RAZIX_CORE_ERROR("unsupported resource view descriptor type in FrameGraph {0} for resource ID {1}", accessView.resViewDesc.descriptorType, id);
