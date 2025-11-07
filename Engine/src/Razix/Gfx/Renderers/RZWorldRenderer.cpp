@@ -1,5 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
+#include <Core/Log/RZLog.h>
+#include <Core/RZHandle.h>
 // clang-format on
 #include "RZWorldRenderer.h"
 
@@ -341,7 +343,7 @@ namespace Razix {
                 [=](const FrameData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     rz_gfx_cmdbuf_handle cmdBufHandle = m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx];
-
+                    RAZIX_CORE_INFO("m_FrameDataTable isValid: {}", rz_handle_is_valid(&m_FrameDataTable));
                     RAZIX_TIME_STAMP_BEGIN("Upload FrameData");
                     RAZIX_MARK_BEGIN(cmdBufHandle, "Upload FrameData", float4(0.8f, 0.2f, 0.15f, 1.0f));
 
@@ -398,6 +400,7 @@ namespace Razix {
 
                     // Create only once on start up when it's invalid, lazy alloc due to resource availability from FG
                     if (!rz_handle_is_valid(&m_FrameDataTable)) {
+                        RAZIX_CORE_INFO("\t ****m_FrameDataTable isValid: {}", rz_handle_is_valid(&m_FrameDataTable));
                         rz_gfx_descriptor descriptor = {};
                         rz_snprintf(descriptor.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "Descriptor.FrameData");
                         descriptor.type                        = RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER;
@@ -748,8 +751,8 @@ namespace Razix {
             ExportFrameGraphVisFile(m_FrameGraph);
     #endif
 
-            m_FrameGraphBuildingInProgress = false;
 #endif
+            m_FrameGraphBuildingInProgress = false;
         }
 
         void RZWorldRenderer::drawFrame(RZRendererSettings& settings, Razix::RZScene* scene)
@@ -789,7 +792,7 @@ namespace Razix {
                 // makes no guarantee about reuse pattern, it's incorrect to assume back buffer N will always follow N-1, hence
                 // a more generalized ring buffer or semaphore timeline sync tracking model is required. Hence, we track
                 // rendering done semaphores per swapchain image, and in-flight command buffers/fences per in-flight frame.
-
+                    
                 // waits on fence/semaphore signaled by last submit for this frame index for CPU/GPU sync
                 rzRHI_WaitOnPrevCmds(frameSyncobj);
 

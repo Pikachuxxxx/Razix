@@ -113,7 +113,7 @@ end
 -- The Razix Engine Workspace
 workspace ( settings.workspace_name )
     location "build"
-    startproject "Sandbox"
+    startproject "Tanu" -- Actual game
     flags 'MultiProcessorCompile' --(this won't work with clang)
 
     -- Use clang on windows
@@ -196,8 +196,13 @@ workspace ( settings.workspace_name )
     group"Engine/RHI"
         include "Engine/src/Razix/Gfx/RHI/rhi.lua"
     group""
+    
+    -- GAME: Project Tanu
+    --------------------------------------------------------------------------------
+    group "Game"
+        include "Tanu/tanu.lua"
+    group ""
 
-    -- Build Script for Razix Editor
     --------------------------------------------------------------------------------
     -- TODO: We will be using blender so VS tool and CLI tools will be added here
 

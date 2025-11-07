@@ -41,7 +41,6 @@ namespace Razix {
     static RZString GetAppWindowTitleSignature(const RZString& projectName)
     {
         RZString SignatureTitle = projectName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + rzGfxCtx_GetRenderAPIString() + ">" + " | " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
-        RAZIX_CORE_INFO("{}", SignatureTitle);
         return SignatureTitle;
     }
 
