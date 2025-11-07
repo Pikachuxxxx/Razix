@@ -53,11 +53,6 @@ static int AttachConsole(void)
     }
     return 0;
 }
-    //int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) \
-                //system("pause");                                    \
-                //FreeConsole();                                      \
-                AttachConsole();                                    \
-                ShowWindow(GetConsoleWindow(), SW_SHOW);            \
 
         #define RAZIX_PLATFORM_MAIN                                 \
             int main(int argc, char** argv)                         \

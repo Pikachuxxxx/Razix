@@ -1200,9 +1200,9 @@ static inline unsigned int rz_clz32(unsigned int x)
     {
         // TODO: Store a ref to malloc/calloc/free C-style callback functions for RHI memory needs
         // All global submission queues are managed within the internal contexts
+        rz_gfx_context_desc ctxDesc;
         union
         {
-            rz_gfx_context_desc ctxDesc;
 #ifdef RAZIX_RENDER_API_VULKAN
             vk_ctx vk;
 #endif
