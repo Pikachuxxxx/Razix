@@ -64,6 +64,7 @@ namespace Razix {
             memcpy(m_data.sso, str, len);
             m_data.sso[len] = '\0';
         } else {
+            m_capacity = len + 1;
             m_data.ptr = static_cast<char*>(Memory::RZMalloc(len + 1));
             memcpy(m_data.ptr, str, len);
             m_data.ptr[len] = '\0';
@@ -83,6 +84,7 @@ namespace Razix {
             memcpy(m_data.sso, str, count);
             m_data.sso[count] = '\0';
         } else {
+            m_capacity = count + 1;
             m_data.ptr = static_cast<char*>(Memory::RZMalloc(count + 1));
             memcpy(m_data.ptr, str, count);
             m_data.ptr[count] = '\0';
@@ -108,6 +110,7 @@ namespace Razix {
             memcpy(m_data.sso, src + pos, len);
             m_data.sso[len] = '\0';
         } else {
+            m_capacity = len + 1;
             m_data.ptr = static_cast<char*>(Memory::RZMalloc(len + 1));
             memcpy(m_data.ptr, src + pos, len);
             m_data.ptr[len] = '\0';
@@ -126,7 +129,7 @@ namespace Razix {
             memset(m_data.sso, ch, count);
             m_data.sso[count] = '\0';
         } else {
-            m_capacity = m_length;    // update capacity to max length
+            m_capacity = count + 1;
             m_data.ptr = static_cast<char*>(Memory::RZMalloc(count + 1));
             memset(m_data.ptr, ch, count);
             m_data.ptr[count] = '\0';
@@ -269,19 +272,28 @@ namespace Razix {
         RAZIX_ASSERT(new_capacity > 0, "RZString::reserve() capacity must be > 0");
         RAZIX_ASSERT(new_capacity >= m_length, "RZString::reserve() new capacity smaller than length");
 
-        if (new_capacity <= m_capacity || new_capacity <= RAZIX_SSO_STRING_SIZE) return;
+        if (new_capacity <= m_capacity) return;
 
-        // Switch to heap if currently using SSO or reallocate
-        char* new_buf = new char[new_capacity];
+        if (new_capacity <= RAZIX_SSO_STRING_SIZE) {
+            m_capacity = RAZIX_SSO_STRING_SIZE;
+            return;
+        }
+
+        // Growth strategy: always at least double
+        while (m_capacity < new_capacity)
+            m_capacity *= 2;
+
+        char* new_buf = (char*) Memory::RZMalloc(m_capacity + 1);
         char* src     = m_is_using_heap ? m_data.ptr : m_data.sso;
 
-        memcpy(new_buf, src, m_length + 1);    // +1 for null terminator
+        memcpy(new_buf, src, m_length);
+        new_buf[m_length] = '\0';
+        memset(new_buf + m_length, 0xCD, m_capacity - m_length);
 
         if (m_is_using_heap)
             Memory::RZFree(m_data.ptr);
 
         m_data.ptr      = new_buf;
-        m_capacity      = new_capacity;
         m_is_using_heap = true;
     }
 

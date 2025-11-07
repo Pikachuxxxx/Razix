@@ -895,4 +895,495 @@ namespace Razix {
         EXPECT_STREQ(str2.c_str(), "Hello");
         EXPECT_STREQ(str3.c_str(), "Hello");
     }
+
+    // ============ Heap String Concatenation Tests ============
+    class RZStringHeapConcatenationTests : public ::testing::Test
+    {
+    public:
+        void SetUp() override
+        {
+            Razix::Debug::RZLog::StartUp();
+        }
+
+        void TearDown() override
+        {
+            Razix::Debug::RZLog::Shutdown();
+        }
+    };
+
+    // Test concatenation of a heap-allocated string (>64 bytes) using operator+
+    TEST_F(RZStringHeapConcatenationTests, ConcatenateHeapStringWithOperatorPlus)
+    {
+        // Create a string larger than SSO (64 bytes)
+        RZString large_str(70, 'a');
+        EXPECT_EQ(large_str.length(), 70);
+        EXPECT_GT(large_str.length(), RAZIX_SSO_STRING_SIZE);
+
+        // Concatenate using operator+
+        RZString result = large_str + "test";
+
+        // Verify the result
+        EXPECT_EQ(result.length(), 74);
+        EXPECT_STREQ(result.c_str(), std::string(70, 'a').append("test").c_str());
+    }
+
+    // Test concatenation with RZString object
+    TEST_F(RZStringHeapConcatenationTests, ConcatenateHeapStringWithRZString)
+    {
+        RZString large_str(80, 'b');
+        RZString suffix("_suffix");
+
+        RZString result = large_str + suffix;
+
+        EXPECT_EQ(result.length(), 87);
+        EXPECT_STREQ(result.c_str(), std::string(80, 'b').append("_suffix").c_str());
+    }
+
+    // Test multiple concatenations on heap string
+    TEST_F(RZStringHeapConcatenationTests, MultipleConcatenationsOnHeapString)
+    {
+        RZString base(75, 'x');
+
+        RZString result = base + "part1" + "part2" + "part3";
+
+        EXPECT_EQ(result.length(), 75 + 5 + 5 + 5);
+        std::string expected = std::string(75, 'x') + "part1part2part3";
+        EXPECT_STREQ(result.c_str(), expected.c_str());
+    }
+
+    // Test += operator on heap string
+    TEST_F(RZStringHeapConcatenationTests, AppendOperatorOnHeapString)
+    {
+        RZString heap_str(100, 'c');
+        heap_str += "_appended";
+
+        EXPECT_EQ(heap_str.length(), 109);
+        std::string expected = std::string(100, 'c') + "_appended";
+        EXPECT_STREQ(heap_str.c_str(), expected.c_str());
+    }
+
+    // Test append method on heap string
+    TEST_F(RZStringHeapConcatenationTests, AppendMethodOnHeapString)
+    {
+        RZString heap_str(85, 'd');
+        heap_str.append("_suffix", 7);
+
+        EXPECT_EQ(heap_str.length(), 92);
+        std::string expected = std::string(85, 'd') + "_suffix";
+        EXPECT_STREQ(heap_str.c_str(), expected.c_str());
+    }
+
+    // Test null termination after append on heap string
+    TEST_F(RZStringHeapConcatenationTests, NullTerminationAfterHeapAppend)
+    {
+        RZString heap_str(70, 'e');
+        heap_str.append("test");
+
+        const char* data = heap_str.c_str();
+        EXPECT_EQ(data[heap_str.length()], '\0');
+        EXPECT_EQ(data[74], '\0');    // 70 + 4 = 74
+    }
+
+    // Test char* + heap string using operator+
+    TEST_F(RZStringHeapConcatenationTests, CharPtrPlusHeapString)
+    {
+        RZString heap_str(65, 'f');
+        RZString result = "prefix_" + heap_str;
+
+        EXPECT_EQ(result.length(), 72);    // 7 + 65
+        std::string expected = std::string("prefix_") + std::string(65, 'f');
+        EXPECT_STREQ(result.c_str(), expected.c_str());
+    }
+
+    // Test heap string + char
+    TEST_F(RZStringHeapConcatenationTests, HeapStringPlusChar)
+    {
+        RZString heap_str(60, 'g');
+        RZString result = heap_str + '!';
+
+        EXPECT_EQ(result.length(), 61);
+        std::string expected = std::string(60, 'g') + "!";
+
+        EXPECT_STREQ(result.c_str(), expected.c_str());
+    }
+
+    // Test char + heap string
+    TEST_F(RZStringHeapConcatenationTests, CharPlusHeapString)
+    {
+        RZString heap_str(70, 'h');
+        RZString result = '@' + heap_str;
+
+        EXPECT_EQ(result.length(), 71);
+        std::string expected = "@" + std::string(70, 'h');
+        EXPECT_STREQ(result.c_str(), expected.c_str());
+    }
+
+    // Test concatenation doesn't corrupt original
+    TEST_F(RZStringHeapConcatenationTests, ConcatenationPreservesOriginal)
+    {
+        RZString original(75, 'i');
+        RZString original_copy = original;
+
+        RZString result = original + "extra";
+
+        EXPECT_STREQ(original.c_str(), original_copy.c_str());
+        EXPECT_EQ(original.length(), 75);
+        EXPECT_EQ(result.length(), 80);
+    }
+
+    // Test large heap concatenations
+    TEST_F(RZStringHeapConcatenationTests, LargeHeapConcatenation)
+    {
+        RZString large1(200, 'j');
+        RZString large2(150, 'k');
+
+        RZString result = large1 + large2;
+
+        EXPECT_EQ(result.length(), 350);
+        EXPECT_STREQ(result.substr(0, 200).c_str(), std::string(200, 'j').c_str());
+        EXPECT_STREQ(result.substr(200).c_str(), std::string(150, 'k').c_str());
+    }
+
+    TEST_F(RZStringHeapConcatenationTests, SSOToHeapSwitchContatenation)
+    {
+        RZString small = "hi";    // 2 chars in SSO
+        EXPECT_EQ(small.capacity(), RAZIX_SSO_STRING_SIZE);
+
+        // First + operation that stays in SSO
+        RZString temp1 = small + " there";    // "hi there" = 8 chars, still SSO
+        EXPECT_EQ(temp1.capacity(), RAZIX_SSO_STRING_SIZE);
+        EXPECT_STREQ(temp1.c_str(), "hi there");
+
+        // Second + operation that crosses to heap
+        RZString result = temp1 + " this is a much longer string to force heap allocation from SSO";
+        EXPECT_GT(result.capacity(), RAZIX_SSO_STRING_SIZE);
+        EXPECT_EQ(result.capacity(), RAZIX_SSO_STRING_SIZE * 2);
+
+        const char* expected = "hi there this is a much longer string to force heap allocation from SSO";
+        EXPECT_STREQ(result.c_str(), expected);
+
+        RZString    temp2         = result + " and we also add something more to SSO to heap switched string";
+        const char* expected_long = "hi there this is a much longer string to force heap allocation from SSO and we also add something more to SSO to heap switched string";
+        EXPECT_STREQ(temp2.c_str(), expected_long);
+    }
+
+    class RZStringSignatureProgressiveTest : public ::testing::Test
+    {
+    protected:
+        void VerifyNullTermination(const RZString& str, const char* label = "")
+        {
+            const char* data = str.c_str();
+            ASSERT_NE(data, nullptr) << label << " - null pointer";
+            EXPECT_EQ(data[str.length()], '\0')
+                << label << " - Null terminator missing at position " << str.length()
+                << ", string: '" << data << "'";
+        }
+    };
+
+    class RZStringHeapAppendTest : public ::testing::Test
+    {
+    protected:
+        void VerifyNullTermination(const RZString& str, const char* label = "")
+        {
+            const char* data = str.c_str();
+            ASSERT_NE(data, nullptr) << label << " - null pointer";
+            EXPECT_EQ(data[str.length()], '\0')
+                << label << " - Null terminator missing at position " << str.length()
+                << ", string: '" << data << "'";
+        }
+    };
+
+    //-------------------------------------------------------------------------
+
+    TEST_F(RZStringHeapAppendTest, Append_To_Heap_String)
+    {
+        RZString str = "Start";
+        str.reserve(100);    // Ensure heap
+
+        str.append("_End");
+
+        EXPECT_GE(str.capacity(), str.length());
+        VerifyNullTermination(str, "After append");
+        EXPECT_STREQ(str.c_str(), "Start_End");
+    }
+
+    TEST_F(RZStringHeapAppendTest, Operator_Plus_Heap_String)
+    {
+        RZString str1 = "Hello";
+        str1.reserve(100);    // Force heap
+
+        RZString result = str1 + " World";
+
+        EXPECT_EQ(result.length(), 11);
+        EXPECT_GE(result.capacity(), result.length());
+        VerifyNullTermination(result, "After operator+");
+        EXPECT_STREQ(result.c_str(), "Hello World");
+    }
+
+    TEST_F(RZStringHeapAppendTest, Multiple_Operator_Plus_Heap)
+    {
+        RZString str1 = "A";
+        str1.reserve(100);    // Force heap
+
+        RZString str2 = str1 + "B";
+        EXPECT_STREQ(str2.c_str(), "AB");
+        VerifyNullTermination(str2, "After first +");
+
+        RZString str3 = str2 + "C";
+        EXPECT_STREQ(str3.c_str(), "ABC");
+        VerifyNullTermination(str3, "After second +");
+
+        RZString str4 = str3 + "D";
+        EXPECT_STREQ(str4.c_str(), "ABCD");
+        VerifyNullTermination(str4, "After third +");
+    }
+
+    TEST_F(RZStringHeapAppendTest, Cross_SSO_Boundary_Then_Add)
+    {
+        // Build a string that crosses SSO boundary
+        RZString str = "1234567890123456789012345678901234567890123456789012345678901234567890";    // 71 chars, crosses SSO
+
+        EXPECT_GT(str.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(str, "Crossed SSO");
+
+        // Now add to it
+        str = str + "_MORE";
+
+        EXPECT_GT(str.length(), 71);
+        VerifyNullTermination(str, "After adding more");
+    }
+
+    //-------------------------------------------------------------------------
+
+    // Progressive building - step by step like real signature
+    TEST_F(RZStringSignatureProgressiveTest, Step_1_ProjectName_Only)
+    {
+        RZString projectName = "RazixGfxTestApp";    // 15 chars
+        RZString result      = projectName;
+
+        EXPECT_EQ(result.length(), 15);
+        EXPECT_LT(result.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(result, "Step 1");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Step_2_Add_Separator)
+    {
+        RZString projectName = "RazixGfxTestApp";      // 15 chars
+        RZString result      = projectName + " | ";    // +3 = 18 chars
+
+        EXPECT_EQ(result.length(), 18);
+        EXPECT_LT(result.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(result, "Step 2");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp | ");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Step_3_Add_Engine_Name)
+    {
+        RZString projectName = "RazixGfxTestApp";
+        RZString result      = projectName + " | " + "Razix Engine";    // +12 = 30 chars (STILL SSO!)
+
+        EXPECT_EQ(result.length(), 30);
+        EXPECT_LT(result.length(), RAZIX_SSO_STRING_SIZE);    // Still in SSO
+        VerifyNullTermination(result, "Step 3");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp | Razix Engine");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Step_4_Add_Version_Separator)
+    {
+        RZString projectName = "RazixGfxTestApp";
+        RZString result      = projectName + " | " + "Razix Engine" + " - ";    // +3 = 33 chars
+
+        EXPECT_EQ(result.length(), 33);
+        EXPECT_LT(result.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(result, "Step 4");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp | Razix Engine - ");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Step_5_Add_Version_Number)
+    {
+        RZString projectName = "RazixGfxTestApp";
+        RZString version     = "0.50.0";                                                  // 6 chars
+        RZString result      = projectName + " | " + "Razix Engine" + " - " + version;    // +6 = 39 chars
+
+        EXPECT_EQ(result.length(), 39);
+        EXPECT_LT(result.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(result, "Step 5");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp | Razix Engine - 0.50.0");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Step_6_Add_Space_Before_Stage)
+    {
+        RZString projectName = "RazixGfxTestApp";
+        RZString version     = "0.50.0";
+        RZString result      = projectName + " | " + "Razix Engine" + " - " + version + " ";    // +1 = 40 chars
+
+        EXPECT_EQ(result.length(), 40);
+        EXPECT_LT(result.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(result, "Step 6");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp | Razix Engine - 0.50.0 ");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Step_7_Add_Stage_Bracket)
+    {
+        RZString projectName = "RazixGfxTestApp";
+        RZString version     = "0.50.0";
+        RZString result      = projectName + " | " + "Razix Engine" + " - " + version + " " + "[";    // +1 = 41 chars
+
+        EXPECT_EQ(result.length(), 41);
+        EXPECT_LT(result.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(result, "Step 7");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp | Razix Engine - 0.50.0 [");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Step_8_Add_Stage_Name)
+    {
+        RZString projectName = "RazixGfxTestApp";
+        RZString version     = "0.50.0";
+        RZString stage       = "Development";                                                                 // 11 chars
+        RZString result      = projectName + " | " + "Razix Engine" + " - " + version + " " + "[" + stage;    // +11 = 52 chars
+
+        EXPECT_EQ(result.length(), 52);
+        EXPECT_LT(result.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(result, "Step 8");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp | Razix Engine - 0.50.0 [Development");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Step_9_Add_Stage_Close_Bracket)
+    {
+        RZString projectName = "RazixGfxTestApp";
+        RZString version     = "0.50.0";
+        RZString stage       = "Development";
+        RZString result      = projectName + " | " + "Razix Engine" + " - " + version + " " + "[" + stage + "]";    // +1 = 53 chars
+
+        EXPECT_EQ(result.length(), 53);
+        EXPECT_LT(result.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(result, "Step 9");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp | Razix Engine - 0.50.0 [Development]");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Step_10_Add_Space_Before_API)
+    {
+        RZString projectName = "RazixGfxTestApp";
+        RZString version     = "0.50.0";
+        RZString stage       = "Development";
+        RZString result      = projectName + " | " + "Razix Engine" + " - " + version + " " + "[" + stage + "]" + " ";    // +1 = 54 chars
+
+        EXPECT_EQ(result.length(), 54);
+        EXPECT_LT(result.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(result, "Step 10");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp | Razix Engine - 0.50.0 [Development] ");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Step_11_Add_API_Open_Bracket)
+    {
+        RZString projectName = "RazixGfxTestApp";
+        RZString version     = "0.50.0";
+        RZString stage       = "Development";
+        RZString result      = projectName + " | " + "Razix Engine" + " - " + version + " " + "[" + stage + "]" + " " + "<";    // +1 = 55 chars
+
+        EXPECT_EQ(result.length(), 55);
+        EXPECT_LT(result.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(result, "Step 11");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp | Razix Engine - 0.50.0 [Development] <");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Step_12_Add_API_Name)
+    {
+        RZString projectName = "RazixGfxTestApp";
+        RZString version     = "0.50.0";
+        RZString stage       = "Development";
+        RZString api         = "Vulkan";                                                                                              // 6 chars
+        RZString result      = projectName + " | " + "Razix Engine" + " - " + version + " " + "[" + stage + "]" + " " + "<" + api;    // +6 = 61 chars
+
+        EXPECT_EQ(result.length(), 61);
+        EXPECT_LT(result.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(result, "Step 12");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp | Razix Engine - 0.50.0 [Development] <Vulkan");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Step_13_Add_API_Close_Bracket)
+    {
+        RZString projectName = "RazixGfxTestApp";
+        RZString version     = "0.50.0";
+        RZString stage       = "Development";
+        RZString api         = "Vulkan";
+        RZString result      = projectName + " | " + "Razix Engine" + " - " + version + " " + "[" + stage + "]" + " " + "<" + api + ">";    // +1 = 62 chars
+
+        EXPECT_EQ(result.length(), 62);
+        EXPECT_LT(result.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(result, "Step 13");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp | Razix Engine - 0.50.0 [Development] <Vulkan>");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Step_14_Add_Final_Separator)
+    {
+        RZString projectName = "RazixGfxTestApp";
+        RZString version     = "0.50.0";
+        RZString stage       = "Development";
+        RZString api         = "Vulkan";
+        RZString result      = projectName + " | " + "Razix Engine" + " - " + version + " " + "[" + stage + "]" + " " + "<" + api + ">" + " | ";    // +3 = 65 chars
+
+        EXPECT_EQ(result.length(), 65);
+        EXPECT_GT(result.length(), RAZIX_SSO_STRING_SIZE);    // CROSSES SSO HERE!
+        VerifyNullTermination(result, "Step 14 - HEAP TRANSITION");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp | Razix Engine - 0.50.0 [Development] <Vulkan> | ");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Step_15_Add_Build_Config)
+    {
+        RZString projectName = "RazixGfxTestApp";
+        RZString version     = "0.50.0";
+        RZString stage       = "Development";
+        RZString api         = "Vulkan";
+        RZString config      = "Debug-x86_64-windows";                                                                                                             // 5 chars
+        RZString result      = projectName + " | " + "Razix Engine" + " - " + version + " " + "[" + stage + "]" + " " + "<" + api + ">" + " | " + config;    // +21 = 91 chars
+
+        EXPECT_EQ(result.length(), 85);
+        EXPECT_GT(result.length(), RAZIX_SSO_STRING_SIZE);
+        EXPECT_GE(result.capacity(), result.length());
+        VerifyNullTermination(result, "Step 16 - FINAL");
+        EXPECT_STREQ(result.c_str(), "RazixGfxTestApp | Razix Engine - 0.50.0 [Development] <Vulkan> | Debug-x86_64-windows");
+    }
+
+    TEST_F(RZStringSignatureProgressiveTest, Full_Signature_All_At_Once)
+    {
+        RZString projectName = "RazixGfxTestApp";
+        RZString version     = "0.50.0";
+        RZString stage       = "Development";
+        RZString api         = "Vulkan";
+        RZString config      = "Debug-x86_64-windows";
+
+        // Exact same as your code
+        RZString SignatureTitle = projectName + " | " + "Razix Engine" + " - " + version + " " +
+                                  "[" + stage + "]" + " " + "<" + api + ">" + " | " + config;
+
+        EXPECT_EQ(SignatureTitle.length(), 85);
+        EXPECT_GT(SignatureTitle.length(), RAZIX_SSO_STRING_SIZE);
+        EXPECT_GE(SignatureTitle.capacity(), SignatureTitle.length());
+        VerifyNullTermination(SignatureTitle, "FULL SIGNATURE");
+
+        const char* expected = "RazixGfxTestApp | Razix Engine - 0.50.0 [Development] <Vulkan> | Debug-x86_64-windows";
+        EXPECT_STREQ(SignatureTitle.c_str(), expected);
+    }
+
+    // Edge case: exactly at SSO boundary
+    TEST_F(RZStringSignatureProgressiveTest, Exactly_At_SSO_Boundary)
+    {
+        RZString str = "1234567890123456789012345678901234567890123456789012345678901234";    // Exactly 64 chars
+
+        EXPECT_EQ(str.length(), 64);
+        EXPECT_LE(str.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(str, "At SSO boundary");
+    }
+
+    // Edge case: one char over SSO boundary
+    TEST_F(RZStringSignatureProgressiveTest, One_Over_SSO_Boundary)
+    {
+        RZString str = "12345678901234567890123456789012345678901234567890123456789012345";    // 65 chars
+
+        EXPECT_EQ(str.length(), 65);
+        EXPECT_GT(str.length(), RAZIX_SSO_STRING_SIZE);
+        VerifyNullTermination(str, "One over SSO boundary");
+    }
 }    // namespace Razix

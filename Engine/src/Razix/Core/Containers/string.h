@@ -15,7 +15,7 @@
 namespace Razix {
 
     // [header declarations taken from]: https://en.cppreference.com/w/cpp/string/basic_string.html
-    class RAZIX_API RZString
+    class RAZIX_MEM_ALIGN_16 RAZIX_API RZString
     {
     public:
         using value_type      = char;
@@ -41,13 +41,18 @@ namespace Razix {
 
         RZString(const RZString& other)
         {
+            if (m_is_using_heap) {
+                Memory::RZFree(m_data.ptr);
+                m_data.ptr = NULL;
+            }
+
             m_length        = other.m_length;
             m_capacity      = other.m_capacity;
             m_is_using_heap = other.m_is_using_heap;
 
             if (m_is_using_heap) {
-                char* ptr            = (char*) Memory::RZMalloc(m_length);
-                m_data.ptr           = ptr;
+                m_data.ptr = (char*) Memory::RZMalloc(m_capacity);
+                memcpy(m_data.ptr, other.m_data.ptr, m_length);
                 m_data.ptr[m_length] = '\0';
             } else {
                 // copy string as-is if it's SSO
@@ -68,7 +73,7 @@ namespace Razix {
             m_is_using_heap = other.m_is_using_heap;
 
             if (m_is_using_heap) {
-                m_data.ptr = (char*) Memory::RZMalloc(m_length + 1);    // +1 for \0
+                m_data.ptr = (char*) Memory::RZMalloc(m_capacity);
                 memcpy(m_data.ptr, other.m_data.ptr, m_length);
                 m_data.ptr[m_length] = '\0';
             } else {
@@ -88,7 +93,6 @@ namespace Razix {
 
             if (m_is_using_heap) {
                 m_data.ptr           = other.m_data.ptr;
-                other.m_data.ptr     = NULL;
                 m_data.ptr[m_length] = '\0';
             } else {
                 memcpy(m_data.sso, other.m_data.sso, m_length);
@@ -97,9 +101,10 @@ namespace Razix {
 
             other.m_is_using_heap = false;
             other.m_length        = 0;
-            other.m_capacity      = 0;
-            other.m_data.sso[0]   = '\0';
+            other.m_capacity      = RAZIX_SSO_STRING_SIZE;
+            other.m_data.ptr      = NULL;
         }
+
         RZString& operator=(RZString&& other) noexcept
         {
             if (m_data.ptr && m_is_using_heap)
@@ -112,7 +117,6 @@ namespace Razix {
             if (m_is_using_heap) {
                 m_data.ptr           = other.m_data.ptr;
                 m_data.ptr[m_length] = '\0';
-                other.m_data.ptr     = NULL;
             } else {
                 memcpy(m_data.sso, other.m_data.sso, m_length);
                 m_data.sso[m_length] = '\0';
@@ -120,7 +124,8 @@ namespace Razix {
 
             other.m_is_using_heap = false;
             other.m_length        = 0;
-            other.m_capacity      = 0;
+            other.m_capacity      = RAZIX_SSO_STRING_SIZE;
+            other.m_data.ptr      = NULL;
 
             return *this;
         }
@@ -231,15 +236,16 @@ namespace Razix {
         explicit operator const char*() const { return c_str(); }
 
     private:
-        sz   m_length        = 0;
-        sz   m_capacity      = RAZIX_SSO_STRING_SIZE;
-        bool m_is_using_heap = false;
-
         union
         {
             char  sso[RAZIX_SSO_STRING_SIZE];
             char* ptr;
         } m_data = {};
+
+        sz   m_length        = 0;
+        sz   m_capacity      = RAZIX_SSO_STRING_SIZE;
+        bool m_is_using_heap = false;
+        bool _pad0[7]        = {};
 
         RAZIX_API friend RZString operator+(const RZString& lhs, const RZString& rhs);
         RAZIX_API friend RZString operator+(const RZString& lhs, const char* rhs);
