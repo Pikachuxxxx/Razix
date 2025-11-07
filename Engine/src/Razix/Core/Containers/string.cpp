@@ -3,6 +3,13 @@
 // clang-format on
 #include "string.h"
 
+#ifdef RAZIX_PLATFORM_WINDOWS
+    #include <DbgHelp.h>
+    #include <windows.h>
+#else
+    #include <cxxabi.h>    // __cxa_demangle()
+#endif
+
 namespace Razix {
 
     static sz rz_strlen(const char* str)
@@ -57,10 +64,10 @@ namespace Razix {
             memcpy(m_data.sso, str, len);
             m_data.sso[len] = '\0';
         } else {
-            RAZIX_CORE_WARN("Allocating string greater than 64 chars, not recommended!");
             m_data.ptr = static_cast<char*>(Memory::RZMalloc(len + 1));
             memcpy(m_data.ptr, str, len);
             m_data.ptr[len] = '\0';
+            m_is_using_heap = true;
         }
     }
 
@@ -79,6 +86,7 @@ namespace Razix {
             m_data.ptr = static_cast<char*>(Memory::RZMalloc(count + 1));
             memcpy(m_data.ptr, str, count);
             m_data.ptr[count] = '\0';
+            m_is_using_heap   = true;
         }
     }
 
@@ -103,6 +111,7 @@ namespace Razix {
             m_data.ptr = static_cast<char*>(Memory::RZMalloc(len + 1));
             memcpy(m_data.ptr, src + pos, len);
             m_data.ptr[len] = '\0';
+            m_is_using_heap = true;
         }
     }
 
@@ -117,9 +126,11 @@ namespace Razix {
             memset(m_data.sso, ch, count);
             m_data.sso[count] = '\0';
         } else {
+            m_capacity = m_length;    // update capacity to max length
             m_data.ptr = static_cast<char*>(Memory::RZMalloc(count + 1));
             memset(m_data.ptr, ch, count);
             m_data.ptr[count] = '\0';
+            m_is_using_heap   = true;
         }
     }
 
@@ -252,13 +263,13 @@ namespace Razix {
     {
         return m_capacity;
     }
+
     void RZString::reserve(sz new_capacity)
     {
         RAZIX_ASSERT(new_capacity > 0, "RZString::reserve() capacity must be > 0");
         RAZIX_ASSERT(new_capacity >= m_length, "RZString::reserve() new capacity smaller than length");
 
-        if (new_capacity <= m_capacity || new_capacity <= RAZIX_SSO_STRING_SIZE)
-            return;
+        if (new_capacity <= m_capacity || new_capacity <= RAZIX_SSO_STRING_SIZE) return;
 
         // Switch to heap if currently using SSO or reallocate
         char* new_buf = new char[new_capacity];
@@ -274,6 +285,17 @@ namespace Razix {
         m_is_using_heap = true;
     }
 
+    void RZString::resize(sz new_length)
+    {
+        if (new_length > m_capacity) {
+            reserve(new_length + 1);
+        }
+        m_length = new_length;
+
+        char* base       = (m_is_using_heap ? m_data.ptr : m_data.sso);
+        base[new_length] = '\0';
+    }
+
     void RZString::clear()
     {
         if (m_length == 0)
@@ -282,13 +304,18 @@ namespace Razix {
         RAZIX_ASSERT(m_capacity > 0, "RZString::clear() invalid capacity");
         RAZIX_ASSERT(!m_is_using_heap || m_data.ptr != NULL, "RZString::clear() null heap pointer");
 
-        // Reset only logical length — don’t free memory
+        // Reset only logical length — don't free memory
         if (m_is_using_heap)
             m_data.ptr[0] = '\0';
         else
             m_data.sso[0] = '\0';
 
         m_length = 0;
+    }
+
+    void RZString::setLength(sz length)
+    {
+        m_length = length;
     }
 
     RZString& RZString::append(const RZString& str)
@@ -459,7 +486,6 @@ namespace Razix {
 
     sz RZString::find(const char* str, sz pos /*  = 0 */) const
     {
-        RAZIX_ASSERT(m_length > 0, "RZString::find() called on empty string");
         RAZIX_ASSERT(pos <= m_length, "pos out of bounds");
         RAZIX_ASSERT(str != NULL, "str is NULL");
         RAZIX_ASSERT(rz_strlen(str) > 0, "search string is empty");
@@ -482,7 +508,6 @@ namespace Razix {
 
     sz RZString::find(char ch, sz pos /*  = 0 */) const
     {
-        RAZIX_ASSERT(m_length > 0, "RZString::find() called on empty string");
         RAZIX_ASSERT(pos <= m_length, "pos out of bounds");
 
         const char* base = (m_is_using_heap ? m_data.ptr : m_data.sso);
@@ -498,13 +523,11 @@ namespace Razix {
 
     sz RZString::rfind(const RZString& str, sz pos /*  = npos */) const
     {
-        RAZIX_ASSERT(str.m_length > 0, "rfind() search string is empty");
-        return rfind(str.m_data.ptr, pos);
+        return rfind(str.c_str(), pos);
     }
 
     sz RZString::rfind(const char* str, sz pos /*  = npos */) const
     {
-        RAZIX_ASSERT(m_length > 0, "rfind() called on empty string");
         RAZIX_ASSERT(str != NULL, "str is NULL");
         RAZIX_ASSERT(rz_strlen(str) > 0, "search string is empty");
 
@@ -533,8 +556,6 @@ namespace Razix {
 
     sz RZString::rfind(char ch, sz pos /*  = npos */) const
     {
-        RAZIX_ASSERT(m_length > 0, "rfind() called on empty string");
-
         const char* base = (m_is_using_heap ? m_data.ptr : m_data.sso);
 
         if (pos == npos || pos >= m_length) {
@@ -555,15 +576,16 @@ namespace Razix {
 
     sz RZString::find_first_of(const RZString& str, sz pos /*  = 0 */) const
     {
-        RAZIX_ASSERT(str.m_length > 0, "find_first_of() search string is empty");
-        return find_first_of(str.m_data.ptr, pos);
+        return find_first_of(str.c_str(), pos);
     }
 
     sz RZString::find_first_of(const char* str, sz pos /*  = 0 */) const
     {
-        RAZIX_ASSERT(m_length > 0, "find_first_of() called on empty string");
         RAZIX_ASSERT(str != NULL, "str is NULL");
         RAZIX_ASSERT(pos <= m_length, "pos out of bounds");
+
+        // if empty string we reached end
+        if (!m_length) return npos;
 
         const char* base    = (m_is_using_heap ? m_data.ptr : m_data.sso);
         const char* current = base + pos;
@@ -583,7 +605,6 @@ namespace Razix {
 
     sz RZString::find_first_of(char ch, sz pos /*  = 0 */) const
     {
-        RAZIX_ASSERT(m_length > 0, "find_first_of() called on empty string");
         RAZIX_ASSERT(pos <= m_length, "pos out of bounds");
 
         const char* base = (m_is_using_heap ? m_data.ptr : m_data.sso);
@@ -598,8 +619,7 @@ namespace Razix {
 
     sz RZString::find_last_of(const RZString& str, sz pos /*  = npos */) const
     {
-        RAZIX_ASSERT(str.m_length > 0, "find_last_of() search string is empty");
-        return find_last_of(str.m_data.ptr, pos);
+        return find_last_of(str.c_str(), pos);
     }
 
     sz RZString::find_last_of(const char* str, sz pos /*  = npos */) const
@@ -630,8 +650,6 @@ namespace Razix {
 
     sz RZString::find_last_of(char ch, sz pos /*  = npos */) const
     {
-        RAZIX_ASSERT(m_length > 0, "find_last_of() called on empty string");
-
         const char* base = (m_is_using_heap ? m_data.ptr : m_data.sso);
 
         if (pos == npos || pos >= m_length) {
@@ -652,13 +670,11 @@ namespace Razix {
 
     sz RZString::find_first_not_of(const RZString& str, sz pos /*  = 0 */) const
     {
-        RAZIX_ASSERT(str.m_length > 0, "find_first_not_of() search string is empty");
-        return find_first_not_of(str.m_data.ptr, pos);
+        return find_first_not_of(str.c_str(), pos);
     }
 
     sz RZString::find_first_not_of(const char* str, sz pos /*  = 0 */) const
     {
-        RAZIX_ASSERT(m_length > 0, "find_first_not_of() called on empty string");
         RAZIX_ASSERT(str != NULL, "str is NULL");
         RAZIX_ASSERT(pos <= m_length, "pos out of bounds");
 
@@ -685,7 +701,6 @@ namespace Razix {
 
     sz RZString::find_first_not_of(char ch, sz pos /*  = 0 */) const
     {
-        RAZIX_ASSERT(m_length > 0, "find_first_not_of() called on empty string");
         RAZIX_ASSERT(pos <= m_length, "pos out of bounds");
 
         const char* base    = (m_is_using_heap ? m_data.ptr : m_data.sso);
@@ -703,13 +718,11 @@ namespace Razix {
 
     sz RZString::find_last_not_of(const RZString& str, sz pos /*  = npos */) const
     {
-        RAZIX_ASSERT(str.m_length > 0, "find_last_not_of() search string is empty");
-        return find_last_not_of(str.m_data.ptr, pos);
+        return find_last_not_of(str.c_str(), pos);
     }
 
     sz RZString::find_last_not_of(const char* str, sz pos /*  = npos */) const
     {
-        RAZIX_ASSERT(m_length > 0, "find_last_not_of() called on empty string");
         RAZIX_ASSERT(str != NULL, "str is NULL");
 
         const char* base    = (m_is_using_heap ? m_data.ptr : m_data.sso);
@@ -740,8 +753,6 @@ namespace Razix {
 
     sz RZString::find_last_not_of(char ch, sz pos /*  = npos */) const
     {
-        RAZIX_ASSERT(m_length > 0, "find_last_not_of() called on empty string");
-
         const char* base = (m_is_using_heap ? m_data.ptr : m_data.sso);
 
         if (pos == npos || pos >= m_length) {
@@ -762,8 +773,12 @@ namespace Razix {
 
     RZString RZString::substr(sz pos /*  = 0 */, sz count /*  = npos */) const
     {
-        RAZIX_ASSERT(m_length > 0, "substr() called on empty string");
         RAZIX_ASSERT(pos <= m_length, "pos out of bounds");
+
+        // if empty string we reached end
+        if (!m_length) {
+            return RZString();
+        }
 
         const char* base = (m_is_using_heap ? m_data.ptr : m_data.sso);
 
@@ -785,7 +800,6 @@ namespace Razix {
 
     i32 RZString::compare(const RZString& str) const
     {
-        RAZIX_ASSERT(m_length > 0, "compare() called on empty string");
         RAZIX_ASSERT(str.m_length > 0, "compare() with empty string");
 
         return compare((const char*) str.c_str());
@@ -793,7 +807,6 @@ namespace Razix {
 
     i32 RZString::compare(sz pos1, sz count1, const RZString& str) const
     {
-        RAZIX_ASSERT(m_length > 0, "compare() called on empty string");
         RAZIX_ASSERT(pos1 <= m_length, "pos1 out of bounds");
         RAZIX_ASSERT(str.m_length > 0, "compare() with empty string");
 
@@ -802,13 +815,12 @@ namespace Razix {
 
     i32 RZString::compare(sz pos1, sz count1, const RZString& str, sz pos2, sz count2) const
     {
-        RAZIX_ASSERT(m_length > 0, "compare() called on empty string");
         RAZIX_ASSERT(pos1 <= m_length, "pos1 out of bounds");
         RAZIX_ASSERT(str.m_length > 0, "compare() with empty string");
         RAZIX_ASSERT(pos2 <= str.m_length, "pos2 out of bounds");
 
         const char* base1 = (m_is_using_heap ? m_data.ptr : m_data.sso);
-        const char* base2 = (str.m_is_using_heap ? str.m_data.ptr : str.m_data.sso);
+        const char* base2 = (str.m_is_using_heap ? str.c_str() : str.m_data.sso);
 
         if (count1 == npos) {
             count1 = m_length - pos1;
@@ -837,7 +849,6 @@ namespace Razix {
 
     i32 RZString::compare(sz pos1, sz count1, const char* str) const
     {
-        RAZIX_ASSERT(m_length > 0, "compare() called on empty string");
         RAZIX_ASSERT(pos1 <= m_length, "pos1 out of bounds");
         RAZIX_ASSERT(str != NULL, "str is NULL");
 
@@ -864,7 +875,6 @@ namespace Razix {
 
     i32 RZString::compare(sz pos1, sz count1, const char* str, sz count2) const
     {
-        RAZIX_ASSERT(m_length > 0, "compare() called on empty string");
         RAZIX_ASSERT(pos1 <= m_length, "pos1 out of bounds");
         RAZIX_ASSERT(str != NULL, "str is NULL");
 
@@ -898,7 +908,6 @@ namespace Razix {
 
     i32 RZString::compare(const char* str) const
     {
-        RAZIX_ASSERT(m_length > 0, "compare() called on empty string");
         RAZIX_ASSERT(str != NULL, "compare() with empty string");
 
         return rz_strcmp(c_str(), str);
@@ -917,9 +926,6 @@ namespace Razix {
 
     bool RZString::operator==(const RZString& other) const
     {
-        RAZIX_ASSERT(m_length > 0, "operator==() called on empty string");
-        RAZIX_ASSERT(other.m_length > 0, "operator==() with empty string");
-
         if (m_length != other.m_length) {
             return false;
         }
@@ -932,7 +938,6 @@ namespace Razix {
 
     bool RZString::operator==(const char* str) const
     {
-        RAZIX_ASSERT(m_length > 0, "operator==() called on empty string");
         RAZIX_ASSERT(str != NULL, "str is NULL");
 
         const char* base = (m_is_using_heap ? m_data.ptr : m_data.sso);
@@ -941,15 +946,11 @@ namespace Razix {
 
     bool RZString::operator!=(const RZString& other) const
     {
-        RAZIX_ASSERT(m_length > 0, "operator!=() called on empty string");
-        RAZIX_ASSERT(other.m_length > 0, "operator!=() with empty string");
-
         return !(*this == other);
     }
 
     bool RZString::operator!=(const char* str) const
     {
-        RAZIX_ASSERT(m_length > 0, "operator!=() called on empty string");
         RAZIX_ASSERT(str != NULL, "str is NULL");
 
         return !(*this == str);
@@ -957,9 +958,6 @@ namespace Razix {
 
     bool RZString::operator<(const RZString& other) const
     {
-        RAZIX_ASSERT(m_length > 0, "operator<() called on empty string");
-        RAZIX_ASSERT(other.m_length > 0, "operator<() with empty string");
-
         const char* base1 = (m_is_using_heap ? m_data.ptr : m_data.sso);
         const char* base2 = (other.m_is_using_heap ? other.m_data.ptr : other.m_data.sso);
 
@@ -975,17 +973,11 @@ namespace Razix {
 
     bool RZString::operator<=(const RZString& other) const
     {
-        RAZIX_ASSERT(m_length > 0, "operator<=() called on empty string");
-        RAZIX_ASSERT(other.m_length > 0, "operator<=() with empty string");
-
         return (*this < other) || (*this == other);
     }
 
     bool RZString::operator>(const RZString& other) const
     {
-        RAZIX_ASSERT(m_length > 0, "operator>() called on empty string");
-        RAZIX_ASSERT(other.m_length > 0, "operator>() with empty string");
-
         const char* base1 = (m_is_using_heap ? m_data.ptr : m_data.sso);
         const char* base2 = (other.m_is_using_heap ? other.m_data.ptr : other.m_data.sso);
 
@@ -1001,9 +993,6 @@ namespace Razix {
 
     bool RZString::operator>=(const RZString& other) const
     {
-        RAZIX_ASSERT(m_length > 0, "operator>=() called on empty string");
-        RAZIX_ASSERT(other.m_length > 0, "operator>=() with empty string");
-
         return (*this > other) || (*this == other);
     }
 
@@ -1013,9 +1002,6 @@ namespace Razix {
 
     RZString operator+(const RZString& lhs, const RZString& rhs)
     {
-        RAZIX_ASSERT(lhs.m_length > 0, "operator+() lhs is empty");
-        RAZIX_ASSERT(rhs.m_length > 0, "operator+() rhs is empty");
-
         RZString result = lhs;
         result.append(rhs);
         return result;
@@ -1023,7 +1009,6 @@ namespace Razix {
 
     RZString operator+(const RZString& lhs, const char* rhs)
     {
-        RAZIX_ASSERT(lhs.m_length > 0, "operator+() lhs is empty");
         RAZIX_ASSERT(rhs != NULL, "operator+() rhs is NULL");
 
         RZString result = lhs;
@@ -1034,7 +1019,6 @@ namespace Razix {
     RZString operator+(const char* lhs, const RZString& rhs)
     {
         RAZIX_ASSERT(lhs != NULL, "operator+() lhs is NULL");
-        RAZIX_ASSERT(rhs.m_length > 0, "operator+() rhs is empty");
 
         RZString result(lhs);
         result.append(rhs);
@@ -1043,8 +1027,6 @@ namespace Razix {
 
     RZString operator+(const RZString& lhs, char rhs)
     {
-        RAZIX_ASSERT(lhs.m_length > 0, "operator+() lhs is empty");
-
         RZString result = lhs;
         result.append(1, rhs);
         return result;
@@ -1052,12 +1034,271 @@ namespace Razix {
 
     RZString operator+(char lhs, const RZString& rhs)
     {
-        RAZIX_ASSERT(rhs.m_length > 0, "operator+() rhs is empty");
-
         RZString result;
         result.append(1, lhs);
         result.append(rhs);
         return result;
+    }
+
+    //-----------------------------------------------------------------------------
+    // STRING UTILITIES
+    //-----------------------------------------------------------------------------
+
+    RZString GetFilePathExtension(const RZString& FileName)
+    {
+        sz pos = FileName.find_last_of('.');
+        if (pos != RZString::npos)
+            return FileName.substr(pos + 1);
+        return RZString();
+    }
+
+    RZString RemoveFilePathExtension(const RZString& FileName)
+    {
+        sz pos = FileName.find_last_of('.');
+        if (pos != RZString::npos)
+            return FileName.substr(0, pos);
+        return FileName;
+    }
+
+    RZString GetFileName(const RZString& FilePath)
+    {
+        sz pos = FilePath.find_last_of('/');
+        if (pos != RZString::npos)
+            return FilePath.substr(pos + 1);
+        return FilePath;
+    }
+
+    RZString GetFileLocation(const RZString& FilePath)
+    {
+        sz pos = FilePath.find_last_of('/');
+        if (pos != RZString::npos)
+            return FilePath.substr(0, pos + 1);
+        return FilePath;
+    }
+
+    RZString RemoveName(const RZString& FilePath)
+    {
+        sz pos = FilePath.find_last_of('/');
+        if (pos != RZString::npos)
+            return FilePath.substr(0, pos + 1);
+        return FilePath;
+    }
+
+    bool IsHiddenFile(const RZString& path)
+    {
+        if (path != RZString("..") && path != RZString(".") && path[0] == '.') {
+            return true;
+        }
+
+        return false;
+    }
+
+    std::vector<RZString> SplitString(const RZString& string, const RZString& delimiters)
+    {
+        sz start = 0;
+        sz end   = string.find_first_of(delimiters);
+
+        std::vector<RZString> result;
+
+        while (end <= RZString::npos) {
+            RZString token = string.substr(start, end - start);
+            if (!token.empty())
+                result.push_back(token);
+
+            if (end == RZString::npos)
+                break;
+
+            start = end + 1;
+            end   = string.find_first_of(delimiters, start);
+        }
+
+        return result;
+    }
+
+    std::vector<RZString> SplitString(const RZString& string, char delimiter)
+    {
+        return SplitString(string, RZString(1, delimiter));
+    }
+
+    std::vector<RZString> Tokenize(const RZString& string)
+    {
+        return SplitString(string, RZString(" \t\n"));
+    }
+
+    std::vector<RZString> GetLines(const RZString& string)
+    {
+        return SplitString(string, RZString("\n"));
+    }
+
+    cstr FindToken(cstr str, const RZString& token)
+    {
+        RAZIX_ASSERT(str != NULL, "FindToken() str is null");
+
+        RZString haystack(str);
+        sz       pos = 0;
+
+        while (pos < haystack.length()) {
+            pos = haystack.find(token, pos);
+            if (pos == RZString::npos)
+                return nullptr;
+
+            // Check left boundary
+            bool left = (pos == 0) || (pos > 0 && isspace(haystack[pos - 1]));
+
+            // Check right boundary
+            sz   end_pos = pos + token.length();
+            bool right   = (end_pos >= haystack.length()) || (end_pos < haystack.length() && isspace(haystack[end_pos]));
+
+            if (left && right)
+                return haystack.c_str() + pos;
+
+            pos++;
+        }
+
+        return nullptr;
+    }
+
+    cstr FindToken(const RZString& string, const RZString& token)
+    {
+        return FindToken(string.c_str(), token);
+    }
+
+    i32 FindStringPosition(const RZString& string, const RZString& search, u32 offset)
+    {
+        RAZIX_ASSERT(offset <= string.length(), "FindStringPosition() offset out of range");
+
+        sz pos = string.find(search, offset);
+        if (pos == RZString::npos)
+            return -1;
+        return static_cast<i32>(pos);
+    }
+
+    RZString StringRange(const RZString& string, u32 start, u32 length)
+    {
+        return string.substr(start, length);
+    }
+
+    RZString RemoveStringRange(const RZString& string, u32 start, u32 length)
+    {
+        RZString result = string;
+        return result.erase(start, length);
+    }
+
+    RZString TrimWhitespaces(const RZString& string)
+    {
+        sz start = string.find_first_not_of(RZString(" \t\n\r\f\v"));
+        if (start == RZString::npos)
+            return RZString();
+
+        sz end = string.find_last_not_of(RZString(" \t\n\r\f\v"));
+
+        return string.substr(start, end - start + 1);
+    }
+
+    bool StringContains(const RZString& string, const RZString& chars)
+    {
+        return string.find(chars) != RZString::npos;
+    }
+
+    bool StartsWith(const RZString& string, const RZString& start)
+    {
+        return string.find(start) == 0;
+    }
+
+    i32 NextInt(const RZString& string)
+    {
+        for (sz i = 0; i < string.size(); i++) {
+            if (isdigit(string[i])) {
+                // Extract the number starting from position i
+                RZString numStr;
+                while (i < string.size() && (isdigit(string[i]) || (numStr.empty() && string[i] == '-'))) {
+                    numStr.append(1, string[i]);
+                    i++;
+                }
+                return atoi(numStr.c_str());
+            }
+        }
+        return -1;
+    }
+
+    bool StringEquals(const RZString& string1, const RZString& string2)
+    {
+        return string1 == string2;
+    }
+
+    RZString StringReplace(RZString str, char ch1, char ch2)
+    {
+        for (sz i = 0; i < str.length(); ++i) {
+            if (str[i] == ch1)
+                str[i] = ch2;
+        }
+        return str;
+    }
+
+    RZString StringReplace(RZString str, char ch)
+    {
+        for (sz i = 0; i < str.length(); ++i) {
+            if (str[i] == ch) {
+                str = str.substr(0, i) + str.substr(i + 1, str.length());
+            }
+        }
+        return str;
+    }
+
+    RZString& BackSlashesToSlashes(RZString& string)
+    {
+        for (sz i = 0; i < string.length(); i++) {
+            if (string[i] == '\\') {
+                string[i] = '/';
+            }
+        }
+        return string;
+    }
+
+    RZString& SlashesToBackSlashes(RZString& string)
+    {
+        for (sz i = 0; i < string.length(); i++) {
+            if (string[i] == '/') {
+                string[i] = '\\';
+            }
+        }
+        return string;
+    }
+
+    RZString& RemoveSpaces(RZString& string)
+    {
+        sz i = 0;
+        while (i < string.length()) {
+            if (string[i] == ' ') {
+                string = string.substr(0, i) + string.substr(i + 1, string.length());
+            } else {
+                i++;
+            }
+        }
+        return string;
+    }
+
+    RZString Demangle(const RZString& string)
+    {
+        if (string.empty())
+            return RZString();
+
+#if defined(RAZIX_PLATFORM_WINDOWS)
+        char undecorated_name[1024];
+        if (!UnDecorateSymbolName(
+                string.c_str(), undecorated_name, sizeof(undecorated_name), UNDNAME_COMPLETE)) {
+            return string;
+        } else {
+            return RZString(undecorated_name);
+        }
+#else
+        char* demangled = nullptr;
+        int   status    = -1;
+        demangled       = abi::__cxa_demangle(string.c_str(), nullptr, nullptr, &status);
+        RZString ret    = status == 0 ? RZString(demangled) : string;
+        free(demangled);
+        return ret;
+#endif
     }
 
 }    // namespace Razix

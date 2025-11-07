@@ -203,6 +203,104 @@ namespace Razix {
         EXPECT_EQ(str.length(), 0);
     }
 
+    class RZStringResizeReserveTests : public ::testing::Test
+    {
+    protected:
+        // Helper to verify null termination
+        void VerifyNullTermination(const RZString& str)
+        {
+            const char* data = str.c_str();
+            ASSERT_NE(data, nullptr);
+            EXPECT_EQ(data[str.length()], '\0');
+        }
+    };
+
+    // ============ Resize/Reserve Tests ============
+    TEST_F(RZStringResizeReserveTests, ResizeEmptyStringAndFill)
+    {
+        RZString str;
+        str.resize(10);
+
+        EXPECT_EQ(str.length(), 10);
+        EXPECT_GE(str.capacity(), 10);
+        VerifyNullTermination(str);
+    }
+
+    TEST_F(RZStringResizeReserveTests, ResizeAndCopyWithMemcpy)
+    {
+        RZString str;
+        str.resize(15);
+
+        const char* test_data = "hello";
+        memcpy((char*) str.data(), test_data, 5);
+        str.setLength(5);
+
+        EXPECT_EQ(str.length(), 5);
+        EXPECT_STREQ(str.c_str(), "hello");
+        VerifyNullTermination(str);
+    }
+
+    TEST_F(RZStringResizeReserveTests, ResizeDecreaseAndVerify)
+    {
+        RZString str("hello world");
+        str.resize(5);
+
+        EXPECT_EQ(str.length(), 5);
+        EXPECT_STREQ(str.c_str(), "hello");
+        VerifyNullTermination(str);
+    }
+
+    TEST_F(RZStringResizeReserveTests, ResizeToZero)
+    {
+        RZString str("test");
+        str.resize(0);
+
+        EXPECT_EQ(str.length(), 0);
+        EXPECT_EQ(str.c_str()[0], '\0');
+        VerifyNullTermination(str);
+    }
+
+    TEST_F(RZStringResizeReserveTests, ResizePastSSOBoundary)
+    {
+        RZString str;
+        sz       large_size = RAZIX_SSO_STRING_SIZE + 20;
+
+        str.resize(large_size);
+
+        EXPECT_EQ(str.length(), large_size);
+        EXPECT_GE(str.capacity(), large_size);
+        VerifyNullTermination(str);
+    }
+
+    TEST_F(RZStringResizeReserveTests, ReserveAndResizeWithMemcpy)
+    {
+        RZString str;
+        str.reserve(50);
+        str.resize(20);
+
+        const char* data = "copy_test_data";
+        memcpy((char*) str.data(), data, 14);
+        str.setLength(14);
+
+        EXPECT_EQ(str.length(), 14);
+        EXPECT_STREQ(str.c_str(), "copy_test_data");
+        VerifyNullTermination(str);
+    }
+
+    TEST_F(RZStringResizeReserveTests, ReserveHeapAndResizeWithSnprintf)
+    {
+        RZString str;
+        str.reserve(RAZIX_SSO_STRING_SIZE + 30);
+        str.resize(RAZIX_SSO_STRING_SIZE + 20);
+
+        int written = snprintf((char*) str.data(), str.capacity() + 1, "%d-%s", 42, "test");
+        str.setLength(written);
+
+        EXPECT_GT(written, 0);
+        EXPECT_STREQ(str.c_str(), "42-test");
+        VerifyNullTermination(str);
+    }
+
     // ============ Append Tests ============
     class RZStringAppendTests : public ::testing::Test
     {

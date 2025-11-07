@@ -6,6 +6,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include <cereal/cereal.hpp>
+#include <spdlog/spdlog.h>
 
 namespace glm {
     // glm vectors
@@ -109,3 +110,20 @@ namespace glm {
         archive(q.x, q.y, q.z, q.w);
     }
 }    // namespace glm
+
+//namespace Razix {
+//    template<class Archive>
+//    void save(Archive& ar, RZString const& str)
+//    {
+//        std::string temp(str.c_str());
+//        ar(temp);
+//    }
+//
+//    template<class Archive>
+//    void load(Archive& ar, RZString& str)
+//    {
+//        std::string temp;
+//        ar(temp);
+//        str = RZString(temp.c_str());
+//    }
+//}    // namespace Razix
