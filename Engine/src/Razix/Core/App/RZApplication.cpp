@@ -21,6 +21,7 @@
 #include "Razix/Scene/Components/LightComponent.h"
 #include "Razix/Scene/Components/TransformComponent.h"
 
+#include <Core/Log/RZLog.h>
 #include <backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/plugins/IconsFontAwesome5.h>
@@ -40,6 +41,7 @@ namespace Razix {
     static RZString GetAppWindowTitleSignature(const RZString& projectName)
     {
         RZString SignatureTitle = projectName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + rzGfxCtx_GetRenderAPIString() + ">" + " | " + " " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
+        RAZIX_CORE_INFO("{}", SignatureTitle);
         return SignatureTitle;
     }
 

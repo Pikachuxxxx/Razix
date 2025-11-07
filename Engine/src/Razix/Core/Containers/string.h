@@ -28,7 +28,7 @@ namespace Razix {
         // no string
         static constexpr sz npos = static_cast<sz>(-1);
 
-        RZString::RZString()
+        RZString()
             : m_length(0), m_capacity(RAZIX_SSO_STRING_SIZE), m_is_using_heap(false)
         {
             m_data.sso[0] = '\0';
