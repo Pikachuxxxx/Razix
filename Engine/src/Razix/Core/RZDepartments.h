@@ -84,7 +84,7 @@ namespace Razix {
         {Department::Debug, {"Debug", "Anything related to debugging"}},
     };
 
-    const static std::unordered_map<std::string, Department> s_StringToDepartment = {
+    const static std::unordered_map<const char*, Department> s_StringToDepartment = {
         {"NONE", Department::NONE},
         {"Core", Department::Core},
         {"Environment", Department::Environment},

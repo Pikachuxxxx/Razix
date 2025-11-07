@@ -34,7 +34,7 @@ namespace Razix {
 
     RAZIX_ENUM_NAMES_ASSERT(SceneDrawGeometryModeNames, SceneDrawGeometryMode);
 
-    static std::map<std::string, Razix::SceneDrawGeometryMode> SceneGeometryModeStringMap = {
+    static std::map<RZString, Razix::SceneDrawGeometryMode> SceneGeometryModeStringMap = {
         {"SceneGeometry", Razix::SceneDrawGeometryMode::SceneGeometry},
         {"Cubemap", Razix::SceneDrawGeometryMode::Cubemap},
         {"ScreenQuad", Razix::SceneDrawGeometryMode::ScreenQuad},
@@ -49,7 +49,7 @@ namespace Razix {
     {
     public:
         RZScene();
-        RZScene(std::string sceneName);
+        RZScene(RZString sceneName);
 
         void updatePhysics();
         /* Updates the Scene Graph Hierarchy transformations */
@@ -68,7 +68,7 @@ namespace Razix {
          * @param name The name of the entity
          * @returns The freshly created razix entity
          */
-        RZEntity createEntity(const std::string& name = std::string());
+        RZEntity createEntity(const RZString& name = RZString());
         /**
          * Destroys the entity from the scene
          * 
@@ -82,9 +82,9 @@ namespace Razix {
         void reloadScene();
 
         /* Serialize the scene to the given file path */
-        void serialiseScene(const std::string& filePath) {}
+        void serialiseScene(const RZString& filePath) {}
         /* De-Serialize the scene from the given file path */
-        void deSerialiseScene(const std::string& filePath) {}
+        void deSerialiseScene(const RZString& filePath) {}
 
         /**
          * Gets the scene camera with which the world is rendered (if exists)
@@ -112,7 +112,7 @@ namespace Razix {
         }
 
         /* Gets the name of the scene */
-        RAZIX_INLINE const std::string& getSceneName() const { return m_SceneName; }
+        RAZIX_INLINE const RZString& getSceneName() const { return m_SceneName; }
         /* Gets the entity registry of the current scene */
         RAZIX_INLINE entt::registry& getRegistry() { return m_Registry; }
 
@@ -121,8 +121,8 @@ namespace Razix {
     private:
         entt::registry m_Registry;                  /* Scene registry for storing all the entities  */
         RZUUID         m_SceneUUID;                 /* The UUID to identify the scene uniquely      */
-        std::string    m_SceneName = "Razix Scene"; /* The name of the scene                        */
-        std::string    m_ScenePath;                 /* The Path of the scene file                   */
+        RZString    m_SceneName = "Razix Scene"; /* The name of the scene                        */
+        RZString    m_ScenePath;                 /* The Path of the scene file                   */
         u32            m_LastMeshesCount = 0;
         RZSceneCamera  m_EditorModeCamera;
         //Gfx::RZMesh*   m_Cube = nullptr;

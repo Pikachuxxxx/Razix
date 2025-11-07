@@ -4,6 +4,8 @@
 
 #include "Razix/Core/RZCore.h"
 
+#include "Razix/Core/Containers/string.h"
+
 #if defined(RAZIX_APPLE_SILICON) || defined(RAZIX_PLATFORM_MACOS) || defined(RAZIX_PLATFORM_LINUX_ARM64)
     #include <arm_neon.h>
 
@@ -99,25 +101,25 @@ namespace Razix {
          * 
          * @param bytes 16byte string representation of the UUID
          */
-        explicit RZUUID(const std::string& bytes);
+        explicit RZUUID(const RZString& bytes);
 
         /* Default destructor */
         ~RZUUID() = default;
 
         // Static factory methods to parse an RZUUID from its string representation
 
-        static RZUUID FromPrettyStrFactory(const std::string& s);
+        static RZUUID FromPrettyStrFactory(const RZString& s);
 
         /* Serializes the uuid to a byte string (16 bytes) */
-        std::string bytes() const;
+        RZString bytes() const;
         /* fills a string buffer with UUID string representation (16 bytes) */
-        void bytes(std::string& out) const;
+        void bytes(RZString& out) const;
         /* Fills the char buffer with the RZUUID string representation (16 bytes) */
         void bytes(char* bytes) const;
         /* Converts the uuid to its string representation (32 bytes pretty string) */
-        std::string prettyString() const;
+        RZString prettyString() const;
         /* fills a string buffer with UUID string representation (32 bytes pretty string)*/
-        void prettyString(std::string& s) const;
+        void prettyString(RZString& s) const;
         /* fills a char buffer with UUID string representation (32 bytes pretty string)*/
         void prettyString(char* res) const;
         /* Hash function for the UUID */
@@ -148,13 +150,13 @@ namespace Razix {
 
         friend std::ostream& operator<<(std::ostream& stream, const RZUUID& uuid)
         {
-            return stream << uuid.prettyString();
+            return stream << std::string(uuid.prettyString().c_str());
         }
         friend std::istream& operator>>(std::istream& stream, RZUUID& uuid)
         {
             std::string s;
             stream >> s;
-            uuid = FromStrFactory(s);
+            uuid = FromStrFactory(s.c_str());
             return stream;
         }
 
@@ -163,10 +165,10 @@ namespace Razix {
 
     private:
         static RZUUID FromStrFactory(cstr raw);
-        static RZUUID FromStrFactory(const std::string& s);
+        static RZUUID FromStrFactory(const RZString& s);
         static void inline m128iToString(__m128i x, char* mem);
         static __m128i inline stringTom128i(cstr mem);
-        static const std::array<u8, 16> prettyStringToBytes(const std::string& prettyStr);
+        static const std::array<u8, 16> prettyStringToBytes(const RZString& prettyStr);
     };
 }    // namespace Razix
 

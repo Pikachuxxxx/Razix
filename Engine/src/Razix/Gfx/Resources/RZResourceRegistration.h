@@ -55,7 +55,7 @@ public:                                                                         
     };
 
     // Define a map to store initialization parameters for each resource type
-    static std::unordered_map<std::string, RZResourcePoolInitParams> resourceInitParamsMap;
+    static std::unordered_map<RZString, RZResourcePoolInitParams> resourceInitParamsMap;
 
 // Macro to register resource pools
 #define RAZIX_REGISTER_RESOURCE_POOL(resourceName, capacity, instanceSize, ...)            \

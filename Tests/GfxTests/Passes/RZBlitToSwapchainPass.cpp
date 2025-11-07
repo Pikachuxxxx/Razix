@@ -32,7 +32,7 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("[Test] BlitToSwapchain Pass");
 
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
-                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.BlitToSwapchain", Utilities::GenerateHashedColor4(222u));
+                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.BlitToSwapchain", GenerateHashedColor4(222u));
 
                     rzRHI_CopyTextureToSwapchain(
                         cmdBuffer,

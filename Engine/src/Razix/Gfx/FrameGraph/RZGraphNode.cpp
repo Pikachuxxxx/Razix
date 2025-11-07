@@ -6,7 +6,7 @@
 namespace Razix {
     namespace Gfx {
 
-        RZGraphNode::RZGraphNode(const std::string_view name, u32 id)
+        RZGraphNode::RZGraphNode(const RZString& name, u32 id)
             : m_Name(name), m_ID(id)
         {
         }

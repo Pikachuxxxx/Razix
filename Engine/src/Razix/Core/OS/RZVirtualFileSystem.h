@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/Containers/string.h"
+
 #include "Razix/Core/Utils/TRZSingleton.h"
 
 namespace Razix {
@@ -21,12 +23,12 @@ namespace Razix {
          * @param virtualPath The virtual address of the path
          * @param physicalPaht The actual physical address of the path on the disk
 		 */
-        void mount(const std::string& virtualPath, const std::string& physicalPath);
+        void mount(const RZString& virtualPath, const RZString& physicalPath);
         /**
 		 * Unmount the virtual path from the VFS directory
 		 * @param path The path to unmount from the VFS
 		 */
-        void unMount(const std::string& path);
+        void unMount(const RZString& path);
 
         /** 
 		 * Resolves the complete physical path on the disk of the provided physical path
@@ -36,7 +38,7 @@ namespace Razix {
 		 * @param folder If false, resolves the path despite the absence of folder  
 		 * @returns True, if the provided virtual path was properly resolved
 	     */
-        bool resolvePhysicalPath(const std::string& virtualPath, std::string& outPhysicalPath, bool folder = false);
+        bool resolvePhysicalPath(const RZString& virtualPath, RZString& outPhysicalPath, bool folder = false);
         /**
 		 * Converts the absolute path to one of the mounted VFS's virtual paths
 		 * 
@@ -45,7 +47,7 @@ namespace Razix {
 		 * @param folder If false, resolves the path despite the absence of folder  
 		 * @returns True if the provided absolute path was properly resolved into virtual path  
 		 */
-        bool absolutePathToVFS(const std::string& absolutePath, std::string& outVirtualPath, bool folder = false);
+        bool absolutePathToVFS(const RZString& absolutePath, RZString& outVirtualPath, bool folder = false);
 
         /**
 		 * Reads the file into a buffer given the virtual path
@@ -53,31 +55,31 @@ namespace Razix {
 		 * @param path The virtual path from which the file is read  
 		 * @returns Buffer pointer to contents of the string  
 		 */
-        u8* readFile(const std::string& path);
+        u8* readFile(const RZString& path);
         /**
 		 * Reads a text file from the specified virtual path
 		 * 
 		 * @param path The virtual path from which the file is read  
 		 * @returns A string containing the contents of the text file 
 		 */
-        std::string readTextFile(const std::string& path);
+        RZString readTextFile(const RZString& path);
         /**
 		 * Writes the file into a buffer given the virtual path
 		 * 
 		 * @param path The virtual path to which the file is being written to  
 		 * @returns True, if the file was written successfully  
 		 */
-        bool writeFile(const std::string& path, u8* buffer, i64 size);
+        bool writeFile(const RZString& path, u8* buffer, i64 size);
         /**
 		 * Writes the text file given the virtual path
 		 * 
 		 * @param path The virtual path to which the file is being written to  
 		 * @returns True, if the file was written successfully  
 		 */
-        bool writeTextFile(const std::string& path, const std::string& text);
+        bool writeTextFile(const RZString& path, const RZString& text);
 
     private:
-        std::unordered_map<std::string, std::vector<std::string>> m_MountPoints; /* The map of virtual path and it's corresponding Physical mount paths in a key value association */
+        std::unordered_map<RZString, std::vector<RZString>> m_MountPoints; /* The map of virtual path and it's corresponding Physical mount paths in a key value association */
     };
 
 }    // namespace Razix

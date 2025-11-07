@@ -18,7 +18,7 @@ namespace Razix {
             RZImageBasedLightingProbesManager()  = default;
             ~RZImageBasedLightingProbesManager() = default;
 
-            //static rz_texture_handle convertEquirectangularToCubemap(const std::string& hdrFilePath);
+            //static rz_texture_handle convertEquirectangularToCubemap(const RZString& hdrFilePath);
             //static rz_texture_handle generateIrradianceMap(rz_texture_handle cubeMap);
             //static rz_texture_handle generatePreFilteredMap(rz_texture_handle cubeMap);
         };

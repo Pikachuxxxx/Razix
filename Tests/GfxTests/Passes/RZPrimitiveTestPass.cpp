@@ -231,7 +231,7 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("[Test] Primitive Draw Pass");
 
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
-                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.PrimitiveDraw", Utilities::GenerateHashedColor4(1337u));
+                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.PrimitiveDraw", GenerateHashedColor4(1337u));
 
                     // Render pass targeting swapchain
                     rz_gfx_renderpass rp                 = {0};

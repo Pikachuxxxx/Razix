@@ -72,7 +72,7 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("[Test] Hello Texture Pass");
 
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
-                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.HelloTexture", Utilities::GenerateHashedColor4(22u));
+                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.HelloTexture", GenerateHashedColor4(22u));
 
                     rz_gfx_renderpass info                 = {0};
                     info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;

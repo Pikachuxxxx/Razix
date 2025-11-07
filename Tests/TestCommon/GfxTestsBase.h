@@ -18,7 +18,7 @@ namespace Razix {
     class RZGfxTestAppBase : public RZApplication
     {
     public:
-        RZGfxTestAppBase(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_DEFAULT, const std::string& appName = "RazixGfxTestApp")
+        RZGfxTestAppBase(const RZString& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_DEFAULT, const RZString& appName = "RazixGfxTestApp")
             : RZApplication(projectRoot, appName), m_NumFrames(numFrames), m_CurrentFrame(0)
         {
             RZApplication::Init();
@@ -57,20 +57,20 @@ namespace Razix {
             if (!WriteScreenshot()) RAZIX_ERROR("Failed to write swapchain capture readback texture!");
         }
 
-        void  SetGoldenImagePath(const std::string& path);
-        void  SetScreenshotPath(const std::string& path);
+        void  SetGoldenImagePath(const RZString& path);
+        void  SetScreenshotPath(const RZString& path);
         float CompareWithGoldenImage();
 
     protected:
         i32                            m_NumFrames;
         i32                            m_CurrentFrame;
-        std::string                    m_GoldenImagePath;
-        std::string                    m_ScreenShotPath;
+        RZString                       m_GoldenImagePath;
+        RZString                       m_ScreenShotPath;
         const rz_gfx_texture_readback* m_SwapchainReadback;
 
     private:
         bool  WriteScreenshot();
-        float CalculatePSNR(const std::string& capturedImagePath, const std::string& goldenImagePath);
+        float CalculatePSNR(const RZString& capturedImagePath, const RZString& goldenImagePath);
     };
 }    // namespace Razix
 

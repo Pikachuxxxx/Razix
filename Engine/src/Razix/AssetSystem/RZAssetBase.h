@@ -1,8 +1,13 @@
 #pragma once
 
 #include "Razix/Core/RZDepartments.h"
+
+#include "Razix/Core/Containers/string.h"
+
+#include "Razix/Core/std/atomics.h"
+
 #include "Razix/Core/UUID/RZUUID.h"
-#include "Razix/Core/Utils/RZStringUtilities.h"
+
 #include "Razix/Events/RZEvent.h"
 
 namespace Razix {
@@ -55,35 +60,35 @@ namespace Razix {
 
         struct RAZIX_MEM_ALIGN_16 AssetVersion
         {
-            int         major        = 0; /* Major version (e.g., breaking changes) */
-            int         minor        = 0; /* Minor version (e.g., added features, backwards-compatible) */
-            int         patch        = 0; /* Patch version (e.g., bug fixes) */
-            int         _padding     = {0};
-            std::string revisionID   = ""; /* Unique ID for this version (e.g., hash, GUID) */
-            int         _padding2[2] = {0, 0};
+            int      major        = 0; /* Major version (e.g., breaking changes) */
+            int      minor        = 0; /* Minor version (e.g., added features, backwards-compatible) */
+            int      patch        = 0; /* Patch version (e.g., bug fixes) */
+            int      _padding     = {0};
+            RZString revisionID   = ""; /* Unique ID for this version (e.g., hash, GUID) */
+            int      _padding2[2] = {0, 0};
 
-            AssetVersion(int major = 1, int minor = 0, int patch = 0, const std::string& revID = "")
+            AssetVersion(int major = 1, int minor = 0, int patch = 0, const RZString& revID = "")
                 : major(major), minor(minor), patch(patch), revisionID(revID) {}
 
-            std::string toString() const
+            RZString toString() const
             {
-                return Utilities::to_string(major) + "." + Utilities::to_string(minor) + "." + Utilities::to_string(patch) + (revisionID.empty() ? "" : (" (" + revisionID + ")"));
+                return rz_to_string(major) + "." + rz_to_string(minor) + "." + rz_to_string(patch) + (revisionID.empty() ? "" : (" (" + revisionID + ")"));
             }
         };
 
         struct RAZIX_MEM_ALIGN_16 AssetMetadata
         {
-            std::string              name;         /* Name of the asset                                         */
-            std::string              category;     /* Category (e.g., "Texture", "Material", "Audio")           */
-            std::vector<std::string> tags;         /* Tags for easy searching and filtering                     */
-            AssetVersion             version;      /* Version info                                              */
-            std::string              author;       /* Author of the asset                                       */
-            std::string              lastModified; /* Date/Time of last modification (e.g., "2024-11-24 15:30") */
-            std::string              createdDate;  /* Date/Time when the asset was originally created           */
-            std::string              description;  /* Short description of the asset                            */
-            std::string              commitHash;   /* Version control ID/commit hash                            */
-            Department               department;   /* Department responsible for the asset                      */
-            int                      _padding;
+            RZString              name;         /* Name of the asset                                         */
+            RZString              category;     /* Category (e.g., "Texture", "Material", "Audio")           */
+            std::vector<RZString> tags;         /* Tags for easy searching and filtering                     */
+            AssetVersion          version;      /* Version info                                              */
+            RZString              author;       /* Author of the asset                                       */
+            RZString              lastModified; /* Date/Time of last modification (e.g., "2024-11-24 15:30") */
+            RZString              createdDate;  /* Date/Time when the asset was originally created           */
+            RZString              description;  /* Short description of the asset                            */
+            RZString              commitHash;   /* Version control ID/commit hash                            */
+            Department            department;   /* Department responsible for the asset                      */
+            int                   _padding;
         };
 
         struct RZ_ALIGN_AS(8) AssetDependecy
@@ -124,9 +129,9 @@ namespace Razix {
 
             inline const RZUUID&                      getUUID() const { return m_UUID; }
             inline AssetType                          getType() const { return m_Type; }
-            inline void                               addReference() { m_ReferenceCount.fetch_add(1, std::memory_order_relaxed); }
-            inline void                               removeReference() { m_ReferenceCount.fetch_sub(1, std::memory_order_relaxed); }
-            inline int                                getReferenceCount() const { return m_ReferenceCount.load(std::memory_order_relaxed); }
+            inline void                               addReference() { rz_atomic64_increment(&m_ReferenceCount, RZ_MEMORY_ORDER_RELAXED); }
+            inline void                               removeReference() { rz_atomic64_decrement(&m_ReferenceCount, RZ_MEMORY_ORDER_RELAXED); }
+            inline u64                                getReferenceCount() { return rz_atomic64_load(&m_ReferenceCount, RZ_MEMORY_ORDER_RELAXED); }
             inline void                               markDirty() { m_IsDirty = true; }
             inline void                               clearDirty() { m_IsDirty = false; }
             inline bool                               isDirty() const { return m_IsDirty; }
@@ -144,7 +149,7 @@ namespace Razix {
         protected:
             RZUUID                      m_UUID;              /* Unique identifier                              */
             AssetType                   m_Type;              /* Type of the asset (e.g., "Texture", "Model")   */
-            std::atomic<u32>            m_ReferenceCount;    /* Reference count for ownership tracking         */
+            RZAtomicU64                 m_ReferenceCount;    /* Reference count for ownership tracking         */
             std::vector<AssetDependecy> m_Dependencies;      /* Other assets this asset depends on             */
             AssetMetadata               m_Metadata;          /* Additional metadata                            */
             AssetStorageType            m_StoragePreference; /* Asset memory storage type                      */

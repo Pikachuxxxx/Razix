@@ -53,7 +53,7 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("[Test] MandleBrot Compute Pass");
 
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
-                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.MandleBrotCompute", Utilities::GenerateHashedColor4(111u));
+                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.MandleBrotCompute", GenerateHashedColor4(111u));
 
                     // Bind descriptor heaps and tables
                     rz_gfx_descriptor_heap_handle heaps[] = {

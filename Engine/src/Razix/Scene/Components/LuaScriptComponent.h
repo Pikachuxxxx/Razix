@@ -20,7 +20,7 @@ namespace Razix {
          * 
          * @param scriptPath The path to where the lua script file is at
          */
-        void loadScript(const std::string& scriptPath);
+        void loadScript(const RZString& scriptPath);
 
         void OnStart(RZEntity entity);
         void OnUpdate(RZEntity entity, RZTimestep dt);
@@ -39,11 +39,11 @@ namespace Razix {
             loadScript(m_Filepath);
         }
 
-        const std::string& getScriptFilePath() { return m_Filepath; }
+        const RZString& getScriptFilePath() { return m_Filepath; }
 
     private:
-        std::string              m_Filepath;
-        std::vector<std::string> m_Errors;
+        RZString              m_Filepath;
+        std::vector<RZString> m_Errors;
 
         i32 m_OnStartFunc = -1;
         i32 m_UpdateFunc  = -1;

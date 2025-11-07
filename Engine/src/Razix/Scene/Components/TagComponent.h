@@ -9,11 +9,11 @@ namespace Razix {
     struct RAZIX_API TagComponent
     {
         /* Name of the entity */
-        std::string Tag;
+        RZString Tag;
 
         TagComponent()                    = default;
         TagComponent(const TagComponent&) = default;
-        TagComponent(const std::string& tag)
+        TagComponent(const RZString& tag)
             : Tag(tag) {}
 
         template<class Archive>

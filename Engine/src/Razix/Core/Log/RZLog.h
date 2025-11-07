@@ -1,7 +1,28 @@
 #pragma once
 
 #include "Razix/Core/RZCore.h"
-#include <spdlog/logger.h>
+
+#include "Razix/Core/Containers/string.h"
+
+#include <spdlog/spdlog.h>
+
+namespace fmt {
+    template<>
+    struct formatter<Razix::RZString>
+    {
+        template<typename ParseContext>
+        constexpr auto parse(ParseContext& ctx)
+        {
+            return ctx.begin();
+        }
+
+        template<typename FormatContext>
+        auto format(const Razix::RZString& str, FormatContext& ctx)
+        {
+            return fmt::format_to(ctx.out(), "{}", str.c_str());
+        }
+    };
+}    // namespace fmt
 
 namespace Razix {
     namespace Debug {

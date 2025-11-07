@@ -89,12 +89,12 @@ namespace Razix {
 
     //-----------------------------------------------------------------------------------
 
-    void RZGfxTestAppBase::SetGoldenImagePath(const std::string& path)
+    void RZGfxTestAppBase::SetGoldenImagePath(const RZString& path)
     {
         m_GoldenImagePath = path;
     }
 
-    void RZGfxTestAppBase::SetScreenshotPath(const std::string& path)
+    void RZGfxTestAppBase::SetScreenshotPath(const RZString& path)
     {
         m_ScreenShotPath = path;
     }
@@ -122,7 +122,7 @@ namespace Razix {
         return success;
     }
 
-    float RZGfxTestAppBase::CalculatePSNR(const std::string& capturedImagePath, const std::string& goldenImagePath)
+    float RZGfxTestAppBase::CalculatePSNR(const RZString& capturedImagePath, const RZString& goldenImagePath)
     {
         u32      capturedImgWidth   = 0;
         u32      capturedImgHeight  = 0;

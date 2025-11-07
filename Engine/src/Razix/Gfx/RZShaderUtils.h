@@ -54,8 +54,8 @@ namespace Razix {
         constexpr u32 RZ_SHADER_BIND_MAP_IGNORE_TABLE_IDX = 0xffffffff;
         struct DescriptorBlacklist
         {
-            std::string              name;
-            std::vector<std::string> blacklistNames;
+            RZString              name;
+            std::vector<RZString> blacklistNames;
         };
         static const DescriptorBlacklist s_SystemDescriptorsBlacklistPreset    = {"SystemDescriptors (FrameData/SceneLightsData)", {"FrameData", "SceneLightsData"}};
         static const DescriptorBlacklist s_MaterialsDescriptorsBlacklistPreset = {"MaterialDescriptors", {"Material", "albedoMap", "normalMap", "metallicMap", "roughnessMap", "specularMap", "emissiveMap", "aoMap"}};
@@ -68,7 +68,7 @@ namespace Razix {
         public:
             struct NamedResView
             {
-                std::string                 name;
+                RZString                 name;
                 rz_gfx_resource_view_handle resourceViewHandle;
             };
 
@@ -87,12 +87,12 @@ namespace Razix {
             static RZShaderBindMap& RegisterBindMap(const rz_gfx_shader_handle& shaderHandle);
             static RZShaderBindMap& Create(void* where, const rz_gfx_shader_handle& shaderHandle);
 
-            RZShaderBindMap& setResourceView(const std::string& shaderResName, const rz_gfx_resource_view& resourceView);
-            RZShaderBindMap& setResourceView(const std::string& shaderResName, const rz_gfx_resource_view_handle& resourceViewHandle);
+            RZShaderBindMap& setResourceView(const RZString& shaderResName, const rz_gfx_resource_view& resourceView);
+            RZShaderBindMap& setResourceView(const RZString& shaderResName, const rz_gfx_resource_view_handle& resourceViewHandle);
             RZShaderBindMap& setDescriptorTable(const rz_gfx_descriptor_table& descriptorTable);
             RZShaderBindMap& setDescriptorTable(const rz_gfx_descriptor_table_handle& descriptorTableHandle);
             RZShaderBindMap& setDescriptorBlacklist(const DescriptorBlacklist& blacklist);
-            RZShaderBindMap& setDescriptorBlacklist(const std::string& name, const std::vector<std::string>& blacklistNames);
+            RZShaderBindMap& setDescriptorBlacklist(const RZString& name, const std::vector<RZString>& blacklistNames);
             RZShaderBindMap& validate();
             RZShaderBindMap& build();
             RZShaderBindMap& clear();
@@ -110,7 +110,7 @@ namespace Razix {
         private:
             rz_gfx_shader_reflection                           m_ShaderReflection        = {};
             rz_gfx_shader_handle                               m_ShaderHandle            = {};
-            std::map<std::string, rz_gfx_resource_view_handle> m_ResourceViewHandleRefs  = {};
+            std::map<RZString, rz_gfx_resource_view_handle> m_ResourceViewHandleRefs  = {};
             std::vector<DescriptorBlacklist>                   m_BlacklistDescriptors    = {};
             std::map<u32, std::vector<NamedResView>>           m_TableBuilderResViewRefs = {};
             std::vector<rz_gfx_descriptor_table_handle>        m_DescriptorTables        = {};

@@ -80,7 +80,7 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("[Test] WaveIntrinsics Pass");
 
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
-                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.WaveIntrinsics", Utilities::GenerateHashedColor4(45u));
+                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.WaveIntrinsics", GenerateHashedColor4(45u));
 
                     rz_gfx_renderpass info                 = {0};
                     info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;

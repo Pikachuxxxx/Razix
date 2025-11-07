@@ -31,38 +31,38 @@ namespace Razix {
         for (auto& option: m_CommandOptions) {
             std::cout << " ";
             for (sz i = 0; i < option.second.commandFlags.size(); i++) {
-                std::cout << option.second.commandFlags[i];
+                std::cout << option.second.commandFlags[i].c_str();
                 if (i < option.second.commandFlags.size() - 1) {
                     std::cout << ", ";
                 }
             }
-            std::cout << ": " << option.second.helpDesc << "\n";
+            std::cout << ": " << option.second.helpDesc.c_str() << "\n";
         }
         std::cout << "\n";
     }
 
-    bool RZCommandLineParser::isSet(std::string name)
+    bool RZCommandLineParser::isSet(RZString name)
     {
         return ((m_CommandOptions.find(name) != m_CommandOptions.end()) && m_CommandOptions[name].set);
     }
 
-    std::string RZCommandLineParser::getValueAsString(std::string name)
+    RZString RZCommandLineParser::getValueAsString(RZString name)
     {
         RAZIX_CORE_ASSERT(m_CommandOptions.find(name) != m_CommandOptions.end(), "No value has been passed to the argument");
-        std::string value = m_CommandOptions[name].value;
+        RZString value = m_CommandOptions[name].value;
         return value;
     }
 
-    int32_t RZCommandLineParser::getValueAsInt(std::string name)
+    int32_t RZCommandLineParser::getValueAsInt(RZString name)
     {
         RAZIX_CORE_ASSERT(m_CommandOptions.find(name) != m_CommandOptions.end(), "No value has been passed to the argument");
-        std::string value = m_CommandOptions[name].value;
+        RZString value = m_CommandOptions[name].value;
         char*       numConvPtr;
         i32         intVal = (i32) strtol(value.c_str(), &numConvPtr, 10);
         return intVal;
     }
 
-    void RZCommandLineParser::addCommand(std::string name, std::vector<std::string> commands, bool hasValue, std::string help)
+    void RZCommandLineParser::addCommand(RZString name, std::vector<RZString> commands, bool hasValue, RZString help)
     {
         m_CommandOptions[name].commandFlags = commands;
         m_CommandOptions[name].helpDesc     = help;
@@ -104,7 +104,7 @@ namespace Razix {
             printHelp();
 
         if (isSet("version")) {
-            std::cout << RazixVersion.getVersionString() << std::endl;
+            std::cout << RazixVersion.getVersionString().c_str() << std::endl;
         }
     }
 }    // namespace Razix

@@ -10,7 +10,7 @@
 #include <string>
 
 // Default Config Path for the Budget Test
-static const std::string defaultConfigPath = "//RazixConfig/RazixDepartmentBudgets.ini";
+static const Razix::RZString defaultConfigPath = "//RazixConfig/RazixDepartmentBudgets.ini";
 
 namespace Razix {
     namespace Memory {
@@ -24,7 +24,7 @@ namespace Razix {
                 Razix::RZVirtualFileSystem::Get().StartUp();
                 // Load the config file before running tests
                 bool result = ParseBudgetFile(defaultConfigPath);
-                ASSERT_TRUE(result) << "Failed to parse the budget config file at: " << defaultConfigPath;
+                ASSERT_TRUE(result) << "Failed to parse the budget config file at: " << defaultConfigPath.c_str();
             }
 
             void TearDown() override

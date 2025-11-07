@@ -1,7 +1,6 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-
 #include "RZUUID.h"
 
 // Only use simde if we use clang on windows --> soon to use only 256b-it AVX as PS5 doesn't support avx-512
@@ -141,13 +140,13 @@ namespace Razix {
         _mm_storeu_si128((__m128i*) m_Data, x);
     }
 
-    RZUUID::RZUUID(const std::string& bytes)
+    RZUUID::RZUUID(const RZString& bytes)
     {
         __m128i x = betole128(_mm_loadu_si128((__m128i*) bytes.data()));
         _mm_storeu_si128((__m128i*) m_Data, x);
     }
 
-    RZUUID RZUUID::FromStrFactory(const std::string& s)
+    RZUUID RZUUID::FromStrFactory(const RZString& s)
     {
         return FromStrFactory(s.c_str());
     }
@@ -157,22 +156,22 @@ namespace Razix {
         return RZUUID(stringTom128i(raw));
     }
 
-    RZUUID RZUUID::FromPrettyStrFactory(const std::string& s)
+    RZUUID RZUUID::FromPrettyStrFactory(const RZString& s)
     {
         auto bytes = prettyStringToBytes(s);
         return RZUUID(reinterpret_cast<const u8*>(bytes.data()));
     }
 
-    std::string RZUUID::bytes() const
+    RZString RZUUID::bytes() const
     {
-        std::string mem;
+        RZString mem;
         bytes(mem);
         return mem;
     }
 
-    void RZUUID::bytes(std::string& out) const
+    void RZUUID::bytes(RZString& out) const
     {
-        out.resize(sizeof(m_Data));
+        out.reserve(sizeof(m_Data));
         bytes((char*) out.data());
     }
 
@@ -182,14 +181,14 @@ namespace Razix {
         _mm_storeu_si128((__m128i*) bytes, x);
     }
 
-    std::string RZUUID::prettyString() const
+    RZString RZUUID::prettyString() const
     {
-        std::string mem;
+        RZString mem;
         prettyString(mem);
         return mem;
     }
 
-    void RZUUID::prettyString(std::string& s) const
+    void RZUUID::prettyString(RZString& s) const
     {
         s.resize(36);
         prettyString((char*) s.data());
@@ -291,7 +290,7 @@ namespace Razix {
         return _mm256_castsi256_si128(a);
     }
 
-    const std::array<u8, 16> RZUUID::prettyStringToBytes(const std::string& prettyStr)
+    const std::array<u8, 16> RZUUID::prettyStringToBytes(const RZString& prettyStr)
     {
         if (prettyStr.size() != 36) {
             RAZIX_CORE_ERROR("Invalid pretty string length");

@@ -171,7 +171,7 @@ namespace Razix {
             m_BufferCache.clear();
         }
 
-        rz_gfx_texture_handle RZTransientAllocator::acquireTransientTexture(const std::string& name, const rz_gfx_texture_desc& desc, u32 id)
+        rz_gfx_texture_handle RZTransientAllocator::acquireTransientTexture(const RZString& name, const rz_gfx_texture_desc& desc, u32 id)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
             // pop the handle from cache
@@ -195,7 +195,7 @@ namespace Razix {
             m_TextureCache[id] = handle;
         }
 
-        rz_gfx_buffer_handle RZTransientAllocator::acquireTransientBuffer(const std::string& name, const rz_gfx_buffer_desc& desc, u32 id)
+        rz_gfx_buffer_handle RZTransientAllocator::acquireTransientBuffer(const RZString& name, const rz_gfx_buffer_desc& desc, u32 id)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

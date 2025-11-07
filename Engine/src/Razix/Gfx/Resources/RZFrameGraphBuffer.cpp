@@ -14,7 +14,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZFrameGraphBuffer::create(const std::string& name, const Desc& desc, u32 id, const void* transientAllocator)
+        void RZFrameGraphBuffer::create(const RZString& name, const Desc& desc, u32 id, const void* transientAllocator)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -95,9 +95,9 @@ namespace Razix {
             //m_LastWriteBarrier = barrierType;
         }
 
-        std::string RZFrameGraphBuffer::toString(const Desc& desc)
+        RZString RZFrameGraphBuffer::toString(const Desc& desc)
         {
-            //return "size : " + Utilities::to_string(desc.size) + " bytes";
+            //return "size : " + to_string(desc.size) + " bytes";
             return "";
         }
     }    // namespace Gfx

@@ -11,7 +11,7 @@ using namespace Razix;
 class ComputeTestApp final : public RZGfxTestAppBase
 {
 public:
-    ComputeTestApp(const std::string& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_DEFAULT, const std::string& appName = "RazixGfxTestApp")
+    ComputeTestApp(const RZString& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_DEFAULT, const RZString& appName = "RazixGfxTestApp")
         : RZGfxTestAppBase(projectRoot, numFrames, appName)
     {
     }
@@ -33,7 +33,7 @@ public:
         RAZIX_CORE_INFO("Compiling FrameGraph ....");
         RZEngine::Get().getWorldRenderer().getFrameGraph().compile();
 
-        std::string testsRootPath;
+        RZString testsRootPath;
         RZVirtualFileSystem::Get().resolvePhysicalPath("//TestsRoot/GfxTests/", testsRootPath, true);
 
         SetGoldenImagePath(testsRootPath + "GoldenImages/GoldenImageComputeTest_1280_720.ppm");
@@ -58,7 +58,7 @@ private:
 static RZGfxTestAppBase* s_GfxTestBaseApp = NULL;
 Razix::RZApplication*    Razix::CreateApplication(int argc, char** argv)
 {
-    s_GfxTestBaseApp = new ComputeTestApp(std::string(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + std::string("/Tests/")));
+    s_GfxTestBaseApp = new ComputeTestApp(RZString(RAZIX_STRINGIZE(RAZIX_ROOT_DIR) + RZString("/Tests/")));
     return s_GfxTestBaseApp;
 }
 

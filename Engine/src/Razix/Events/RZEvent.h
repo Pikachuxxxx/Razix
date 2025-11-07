@@ -2,6 +2,8 @@
 
 #include "Razix/Core/RZCore.h"
 
+#include "Razix/Core/Containers/string.h"
+
 #include "Razix/Core/std/utility.h"
 
 #include <functional>
@@ -75,9 +77,9 @@ namespace Razix {
     public:
         virtual ~RZEvent() = default;
 
-        virtual cstr        GetName() const      = 0;
-        virtual EventType   GetEventType() const = 0;
-        virtual std::string ToString() const { return GetName(); }
+        virtual cstr      GetName() const      = 0;
+        virtual EventType GetEventType() const = 0;
+        virtual RZString  ToString() const { return GetName(); }
 
     private:
         friend class RZEventDispatcher;

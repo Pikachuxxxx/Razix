@@ -58,7 +58,7 @@ namespace Razix {
 
         // - [ ] Fix this file to use descriptor handles, this is the first stage of integration and proceed to other parts of engine from here
 
-        rz_texture_handle RZImageBasedLightingProbesManager::convertEquirectangularToCubemap(const std::string& hdrFilePath)
+        rz_texture_handle RZImageBasedLightingProbesManager::convertEquirectangularToCubemap(const RZString& hdrFilePath)
         {
             // This is only when we use a VS+PS to render to different layers of a RT (only Vulkan/AGC no HLSL support)
             //  --> https://www.reddit.com/r/vulkan/comments/mtx6ar/gl_layer_value_assigned_in_vertex_shader_but/
@@ -68,7 +68,7 @@ namespace Razix {
 
             // First create the 2D Equirectangular texture
             u32  width, height, bpp;
-            f32* pixels = Razix::Utilities::LoadImageDataFloat(hdrFilePath, &width, &height, &bpp);
+            f32* pixels = LoadImageDataFloat(hdrFilePath, &width, &height, &bpp);
 
             RZTextureDesc equiMapTextureDesc         = {};
             equiMapTextureDesc.name                  = "HDR Equirectangular Texture";

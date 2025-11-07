@@ -17,7 +17,7 @@ namespace Razix {
         /**
          * Parses the budget ini file to assign memory/frame time constraints
          */
-        RAZIX_API bool ParseBudgetFile(const std::string& filePath);
+        RAZIX_API bool ParseBudgetFile(const RZString& filePath);
         /**
          * Get the total frame budget
          */

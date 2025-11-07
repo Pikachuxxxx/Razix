@@ -30,7 +30,7 @@ namespace Razix {
 #if 0
                     
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-                    RAZIX_MARK_BEGIN("", Utilities::GenerateHashedColor4(45u));
+                    RAZIX_MARK_BEGIN("", GenerateHashedColor4(45u));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 

@@ -1,10 +1,16 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "Razix/Core/Containers/smart_pointers.h"
-#include "Razix/Core/OS/RZWindow.h"
-#include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/RZCore.h"
+
+#include "Razix/Core/Containers/smart_pointers.h"
+#include "Razix/Core/Containers/string.h"
+
+#include "Razix/Core/Utils/RZVendorOverrides.h"
+
+#include "Razix/Core/OS/RZWindow.h"
+
+#include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/UUID/RZUUID.h"
 
 #include "Razix/Events/ApplicationEvent.h"
@@ -72,7 +78,7 @@ namespace Razix {
          * @param projectRoot   The root location of the application
          * @param appName       The name of the Razix application
          */
-        RZApplication(const std::string& projectRoot, const std::string& appName = "Razix App");
+        RZApplication(const RZString& projectRoot, const RZString& appName = "Razix App");
         virtual ~RZApplication() {}
 
         void Init();
@@ -91,9 +97,9 @@ namespace Razix {
         inline static RZApplication& Get() { return *s_AppInstance; }
         inline RZWindow*             getWindow() { return m_Window; }
         inline float2                getWindowSize() const { return float2(m_Window->getWidth(), m_Window->getHeight()); }
-        inline std::string           getAppName() const { return m_ProjectName; }
-        inline std::string           getProjectRoot() const { return m_ProjectPath; }
-        inline void                  setProjectRoot(const std::string& projPath) { m_ProjectPath = projPath; }
+        inline RZString              getAppName() const { return m_ProjectName; }
+        inline RZString              getProjectRoot() const { return m_ProjectPath; }
+        inline void                  setProjectRoot(const RZString& projPath) { m_ProjectPath = projPath; }
         inline WindowProperties&     getWindowProps() { return m_WindowProperties; }
         inline RZTimer               getTimer() const { return *m_Timer.get(); }
         inline RZUUID                getProjectUUID() const { return m_ProjectID; }
@@ -115,8 +121,8 @@ namespace Razix {
 
         AppState                  m_CurrentState              = AppState::Loading;
         AppType                   m_appType                   = AppType::kGame;
-        std::string               m_ProjectName               = "";
-        std::string               m_ProjectPath               = "";
+        RZString                  m_ProjectName               = "";
+        RZString                  m_ProjectPath               = "";
         u32                       m_RenderAPI                 = 1;    // Vulkan
         u32                       m_Frames                    = 0;
         u32                       m_Updates                   = 0;
@@ -127,7 +133,7 @@ namespace Razix {
         RZWindow*                 m_Window                    = nullptr;
         WindowProperties          m_WindowProperties          = {};
         RZUUID                    m_ProjectID                 = {};
-        std::vector<std::string>  sceneFilePaths              = {};
+        std::vector<RZString>     sceneFilePaths              = {};
         Guizmo::OPERATION         m_GuizmoOperation           = Guizmo::TRANSLATE;
         Guizmo::MODE              m_GuizmoMode                = Guizmo::WORLD;
         f32                       m_GuizmoSnapAmount          = 0.0f;

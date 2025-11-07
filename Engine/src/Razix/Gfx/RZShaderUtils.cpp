@@ -130,10 +130,10 @@ namespace Razix {
                     if (inputVar.semantic == NULL && inputVar.name == NULL)
                         break;
 
-                    if (inputVar.semantic && std::string(inputVar.semantic) == "SV_VertexID")
+                    if (inputVar.semantic && RZString(inputVar.semantic) == "SV_VertexID")
                         break;
 
-                    if (inputVar.name && (std::string(inputVar.name) == "gl_VertexIndex" || std::string(inputVar.name) == "vs_out"))
+                    if (inputVar.name && (RZString(inputVar.name) == "gl_VertexIndex" || RZString(inputVar.name) == "vs_out"))
                         break;
 
                     SpvReflectFormat format                = inputVar.format;
@@ -820,13 +820,13 @@ namespace Razix {
             return *bindMap;
         }
 
-        RZShaderBindMap& RZShaderBindMap::setResourceView(const std::string& shaderResName, const rz_gfx_resource_view& resourceView)
+        RZShaderBindMap& RZShaderBindMap::setResourceView(const RZString& shaderResName, const rz_gfx_resource_view& resourceView)
         {
             setResourceView(shaderResName, resourceView.resource.handle);
             return *this;
         }
 
-        RZShaderBindMap& RZShaderBindMap::setResourceView(const std::string& shaderResName, const rz_gfx_resource_view_handle& resourceViewHandle)
+        RZShaderBindMap& RZShaderBindMap::setResourceView(const RZString& shaderResName, const rz_gfx_resource_view_handle& resourceViewHandle)
         {
             RAZIX_ASSERT(rz_handle_is_valid(&resourceViewHandle), "[ShaderBindMap] Invalid resource view handle provided to register bind map!");
 
@@ -858,7 +858,7 @@ namespace Razix {
             return *this;
         }
 
-        RZShaderBindMap& RZShaderBindMap::setDescriptorBlacklist(const std::string& name, const std::vector<std::string>& blacklistNames)
+        RZShaderBindMap& RZShaderBindMap::setDescriptorBlacklist(const RZString& name, const std::vector<RZString>& blacklistNames)
         {
             dirty = true;
             DescriptorBlacklist blacklist;
@@ -1000,8 +1000,8 @@ namespace Razix {
                     rz_gfx_descriptor_heap_handle globalResourceHeapHandle = RZEngine::Get().getWorldRenderer().getResourceHeap();
                     desc.pHeap                                             = RZResourceManager::Get().getDescriptorHeapResource(globalResourceHeapHandle);
 
-                    std::string                   shaderName            = RZResourceManager::Get().getShaderResource(m_ShaderHandle)->resource.pName;
-                    std::string                   tableName             = "ShaderBindMap.DescriptorTable." + Utilities::to_string(i) + "_" + shaderName;
+                    RZString                   shaderName            = RZResourceManager::Get().getShaderResource(m_ShaderHandle)->resource.pName;
+                    RZString                   tableName             = "ShaderBindMap.DescriptorTable." + rz_to_string(i) + "_" + shaderName;
                     rz_gfx_descriptor_heap_handle descriptorTableHandle = RZResourceManager::Get().createDescriptorTable(tableName.c_str(), desc);
                     m_DescriptorTables.push_back(descriptorTableHandle);
 

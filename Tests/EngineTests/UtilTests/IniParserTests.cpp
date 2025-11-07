@@ -37,7 +37,7 @@ namespace Razix {
         class MockRZiniParser : public RZiniParser
         {
         public:
-            void mockParse(const std::unordered_map<std::string, Section>& sections)
+            void mockParse(const std::unordered_map<RZString, Section>& sections)
             {
                 m_Sections = sections;
             }

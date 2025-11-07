@@ -41,7 +41,7 @@ namespace Razix {
 
         struct WindowData
         {
-            std::string Title;
+            RZString Title;
             u32         Width;
             u32         Height;
             //            u32             wScale;

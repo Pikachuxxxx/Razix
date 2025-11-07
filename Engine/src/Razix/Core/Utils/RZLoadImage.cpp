@@ -10,9 +10,9 @@
 
 namespace Razix {
 
-    u8* Utilities::LoadImageData(const std::string& filePath, u32* width, u32* height, u32* bpp, bool flipY)
+    u8* LoadImageData(const RZString& filePath, u32* width, u32* height, u32* bpp, bool flipY)
     {
-        std::string physicalPath;
+        RZString physicalPath;
         if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, physicalPath))
             return nullptr;
 
@@ -41,9 +41,9 @@ namespace Razix {
         return result;
     }
 
-    RAZIX_API f32* Utilities::LoadImageDataFloat(const std::string& filePath, u32* width, u32* height, u32* bpp)
+    RAZIX_API f32* LoadImageDataFloat(const RZString& filePath, u32* width, u32* height, u32* bpp)
     {
-        std::string physicalPath;
+        RZString physicalPath;
         if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, physicalPath))
             return nullptr;
 

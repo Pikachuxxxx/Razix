@@ -27,7 +27,7 @@ namespace Razix {
             friend class RZPassResourceBuilder;
             friend class RZPassResourceDirectory;
 
-            RZPassNode(const std::string_view name, u32 id, std::unique_ptr<IRZFrameGraphPass>&& exec);
+            RZPassNode(const RZString& name, u32 id, std::unique_ptr<IRZFrameGraphPass>&& exec);
 
         public:
             // TODO: Make these inline as well?

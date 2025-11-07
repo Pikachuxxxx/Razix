@@ -43,7 +43,7 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("[Test] Hello Triangle Pass");
 
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
-                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.HelloTriangle", Utilities::GenerateHashedColor4(69u));
+                    RAZIX_MARK_BEGIN(cmdBuffer, "[Test] Pass.Builtin.Code.HelloTriangle", GenerateHashedColor4(69u));
 
                     rz_gfx_renderpass info                 = {0};
                     info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;
@@ -51,7 +51,7 @@ namespace Razix {
                     info.colorAttachments[0].pResourceView = RZEngine::Get().getWorldRenderer().getCurrSwapchainBackbufferResViewPtr();
                     info.colorAttachments[0].clear         = true;
                     u32    frameIdx                        = 0;
-                    float4 randomColor                     = Utilities::GenerateHashedColor4(frameIdx++);
+                    float4 randomColor                     = GenerateHashedColor4(frameIdx++);
                     memcpy(&info.colorAttachments[0].clearColor.raw, &randomColor, sizeof(float4));
                     info.layers           = 1;
                     RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();

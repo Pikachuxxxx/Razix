@@ -42,7 +42,7 @@ namespace Razix {
     #endif    // RAZIX_GOLD_MASTER
         }
 
-        void CmdBeginLabel(ID3D12GraphicsCommandList* commandList, const std::string& name, const glm::vec4& color)
+        void CmdBeginLabel(ID3D12GraphicsCommandList* commandList, const RZString& name, const glm::vec4& color)
         {
     #ifndef RAZIX_GOLD_MASTER
             if (!commandList) return;
@@ -66,7 +66,7 @@ namespace Razix {
     #endif    // RAZIX_GOLD_MASTER
         }
 
-        void CmdInsertLabel(ID3D12GraphicsCommandList* commandList, const std::string& name, const glm::vec4& color)
+        void CmdInsertLabel(ID3D12GraphicsCommandList* commandList, const RZString& name, const glm::vec4& color)
         {
     #ifndef RAZIX_GOLD_MASTER
             if (!commandList) return;
@@ -141,7 +141,7 @@ namespace Razix {
             s_DebugUtilsInitialized = true;
         }
 
-        void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const std::string& name, const glm::vec4& color)
+        void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const RZString& name, const glm::vec4& color)
         {
     #ifndef RAZIX_GOLD_MASTER
             if (!s_DebugUtilsInitialized) {
@@ -162,7 +162,7 @@ namespace Razix {
     #endif    // RAZIX_GOLD_MASTER
         }
 
-        void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const std::string& name, const glm::vec4& color)
+        void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const RZString& name, const glm::vec4& color)
         {
     #ifndef RAZIX_GOLD_MASTER
             if (!s_DebugUtilsInitialized) {
@@ -202,7 +202,7 @@ namespace Razix {
         // Cross-Platform Implementation
         //-----------------------------------------------------------------------------------
 
-        void BeginMarker(rz_gfx_cmdbuf_handle cmdBufHandle, const std::string& name, const glm::vec4& color)
+        void BeginMarker(rz_gfx_cmdbuf_handle cmdBufHandle, const RZString& name, const glm::vec4& color)
         {
 #ifndef RAZIX_GOLD_MASTER
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -235,7 +235,7 @@ namespace Razix {
 #endif    // RAZIX_GOLD_MASTER
         }
 
-        void InsertMarker(rz_gfx_cmdbuf_handle cmdBufHandle, const std::string& name, const glm::vec4& color)
+        void InsertMarker(rz_gfx_cmdbuf_handle cmdBufHandle, const RZString& name, const glm::vec4& color)
         {
 #ifndef RAZIX_GOLD_MASTER
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

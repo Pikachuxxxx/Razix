@@ -20,7 +20,7 @@ namespace Razix {
         {
             typedef rz_gfx_texture_desc Desc;
 
-            void create(const std::string& name, const Desc& desc, u32 id, const void* transientAllocator);
+            void create(const RZString& name, const Desc& desc, u32 id, const void* transientAllocator);
             void destroy(u32 id, const void* transientAllocator);
 
             void preRead(const Desc& desc, u32 flags);
@@ -28,7 +28,7 @@ namespace Razix {
 
             void resize(u32 width, u32 height);
 
-            static std::string toString(const Desc& desc);
+            static RZString toString(const Desc& desc);
 
             inline rz_gfx_texture_handle getRHIHandle() const { return m_TextureHandle; }
 

@@ -19,7 +19,7 @@ namespace Razix {
     {
     }
 
-    MeshRendererComponent::MeshRendererComponent(const std::string& filePath)
+    MeshRendererComponent::MeshRendererComponent(const RZString& filePath)
     {
         Mesh = Razix::Gfx::loadMesh(filePath);
     }

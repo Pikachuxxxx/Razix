@@ -14,17 +14,17 @@
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
 #include "Razix/Core/Utils/RZLoadImage.h"
-#include "Razix/Core/Utils/RZStringUtilities.h"
+#include "Razix/Core/Containers/string.h"
 
 namespace Razix {
     namespace Gfx {
 
         // Static variables for shader binary file handling
-        static std::string ShaderBinaryFileExtension = "";
-        static std::string ShaderBinaryFileDirectory = "";
+        static RZString ShaderBinaryFileExtension = "";
+        static RZString ShaderBinaryFileDirectory = "";
 
         // Shader stage mapping for RZSF parsing
-        static const std::unordered_map<std::string, rz_gfx_shader_stage> kStageMap = {
+        static const std::unordered_map<RZString, rz_gfx_shader_stage> kStageMap = {
             {"vertex", RZ_GFX_SHADER_STAGE_VERTEX},
             {"fragment", RZ_GFX_SHADER_STAGE_PIXEL},
             {"pixel", RZ_GFX_SHADER_STAGE_PIXEL},
@@ -43,19 +43,19 @@ namespace Razix {
         // RZSF Parser Implementation
         //-----------------------------------------------------------------------------------
 
-        rz_gfx_shader_desc ParseRZSF(const std::string& filePath)
+        rz_gfx_shader_desc ParseRZSF(const RZString& filePath)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             RAZIX_CORE_TRACE("[RZSF] Parsing shader file: {0}", filePath);
 
-            std::map<rz_gfx_shader_stage, std::string> shaders;
-            std::vector<std::string>                   shader_defines;
+            std::map<rz_gfx_shader_stage, RZString> shaders;
+            std::vector<RZString>                   shader_defines;
             rz_gfx_shader_desc                         desc       = {};
-            std::string                                rzsfSource = RZVirtualFileSystem::Get().readTextFile(filePath);
+            RZString                                rzsfSource = RZVirtualFileSystem::Get().readTextFile(filePath);
 
             // Break the shader into lines
-            std::vector<std::string> lines = Razix::Utilities::GetLines(rzsfSource);
+            std::vector<RZString> lines = GetLines(rzsfSource);
             rz_gfx_shader_stage      stage = rz_gfx_shader_stage::RZ_GFX_SHADER_STAGE_NONE;
 
             // Set file extensions and directories based on render API
@@ -78,37 +78,37 @@ namespace Razix {
             }
 
             // Parse RZSF file line by line
-            for (const std::string& raw_line: lines) {
-                std::string line = Utilities::TrimWhitespaces(raw_line);
+            for (const RZString& raw_line: lines) {
+                RZString line = TrimWhitespaces(raw_line);
 
-                if (Razix::Utilities::StartsWith(line, "#shader")) {
+                if (StartsWith(line, "#shader")) {
                     // Parse shader stage directive
                     for (const auto& [key, val]: kStageMap) {
-                        if (Razix::Utilities::StringContains(line, key)) {
+                        if (StringContains(line, key)) {
                             stage          = val;
                             shaders[stage] = "";    // initialize empty source for stage
                             break;
                         }
                     }
-                } else if (Razix::Utilities::StartsWith(line, "#ifdef")) {
+                } else if (StartsWith(line, "#ifdef")) {
                     // Parse conditional compilation
-                    std::string condition = line.substr(7);    // skip "#ifdef "
-                    condition             = Razix::Utilities::RemoveSpaces(condition);
-                    auto defines          = Razix::Utilities::SplitString(condition, "||");
+                    RZString condition = line.substr(7);    // skip "#ifdef "
+                    condition             = RemoveSpaces(condition);
+                    auto defines          = SplitString(condition, "||");
                     shader_defines.insert(shader_defines.end(), defines.begin(), defines.end());
-                } else if (Razix::Utilities::StartsWith(line, "#include")) {
+                } else if (StartsWith(line, "#include")) {
                     // Parse shader include directive
-                    std::string includePath = Utilities::TrimWhitespaces(line.substr(9));    // skip "#include "
+                    RZString includePath = TrimWhitespaces(line.substr(9));    // skip "#include "
                     includePath += ShaderBinaryFileExtension;
-                    std::string fullPath = ShaderBinaryFileDirectory + includePath;
+                    RZString fullPath = ShaderBinaryFileDirectory + includePath;
                     shaders[stage] += fullPath;
                 }
             }
 
             // Load bytecode for each shader stage
             for (const auto& [stage, includePath]: shaders) {
-                std::string virtualPath = "//RazixContent/Shaders/" + includePath;
-                std::string outPath;
+                RZString virtualPath = "//RazixContent/Shaders/" + includePath;
+                RZString outPath;
 
                 // Resolve to actual file path
                 RZVirtualFileSystem::Get().resolvePhysicalPath(virtualPath, outPath);
@@ -416,7 +416,7 @@ namespace Razix {
         // Command Buffer Utilities Implementation
         //-----------------------------------------------------------------------------------
 
-        rz_gfx_cmdbuf_handle BeginSingleTimeCommandBuffer(const std::string& name, float4 color)
+        rz_gfx_cmdbuf_handle BeginSingleTimeCommandBuffer(const RZString& name, float4 color)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -464,7 +464,7 @@ namespace Razix {
             RZResourceManager::Get().destroyCommandPool(handle);
         }
 
-        RAZIX_API rz_gfx_texture_handle CreateTextureFromFile(const std::string& filePath, bool floatingPoint)
+        RAZIX_API rz_gfx_texture_handle CreateTextureFromFile(const RZString& filePath, bool floatingPoint)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -476,7 +476,7 @@ namespace Razix {
                 return textureHandle;
             }
 
-            std::string physicalPath;
+            RZString physicalPath;
             if (!RZVirtualFileSystem::Get().resolvePhysicalPath(filePath, physicalPath)) {
                 RAZIX_CORE_ERROR("[Texture] File not found: {0}", filePath);
                 return textureHandle;
@@ -485,7 +485,7 @@ namespace Razix {
             rz_gfx_texture_desc textureDesc = {};
             if (!floatingPoint) {
                 uint32_t bpp           = 0;
-                textureDesc.pPixelData = Razix::Utilities::LoadImageData(physicalPath.c_str(), &textureDesc.width, &textureDesc.height, &bpp);
+                textureDesc.pPixelData = LoadImageData(physicalPath.c_str(), &textureDesc.width, &textureDesc.height, &bpp);
             }
             textureDesc.mipLevels = 1;
             // FIXME: Disable mips temporarily until rzRHI_GenerateMips is fixed for internal usage, as dx12 needs explicit shader for generating mips
@@ -496,7 +496,7 @@ namespace Razix {
             textureDesc.format        = floatingPoint ? RZ_GFX_FORMAT_R32G32B32A32_FLOAT : RZ_GFX_FORMAT_R8G8B8A8_UNORM;
             textureDesc.resourceHints = RZ_GFX_RESOURCE_VIEW_FLAG_SRV;
             // Load the texture from file
-            textureHandle = RZResourceManager::Get().createTexture(Utilities::GetFileName(filePath).c_str(), textureDesc);
+            textureHandle = RZResourceManager::Get().createTexture(GetFileName(filePath).c_str(), textureDesc);
 
             if (!rz_handle_is_valid(&textureHandle)) {
                 RAZIX_CORE_ERROR("[Texture] Failed to create texture from file: {0}", filePath);

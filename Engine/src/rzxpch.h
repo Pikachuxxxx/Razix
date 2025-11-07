@@ -5,27 +5,9 @@
 
 //-----System Includes-----//
 #ifdef __cplusplus
-    // TODO: iRemove all this once full stl replacement is done
-    #include <algorithm>
-    #include <chrono>
-    #include <cstdint>
-    #include <fstream>
-    #include <functional>
-    #include <iomanip>
-    #include <iostream>
-    #include <limits>
-    #include <random>
-    #include <sstream>
-    #include <utility>
-    #include <variant>
-
     //-----Data Structures-----//
     #include <map>
-    #include <memory>
-    #include <set>
-    #include <string>
     #include <unordered_map>
-    #include <unordered_set>
     #include <vector>
 #endif
 

@@ -130,7 +130,7 @@ static int EngineMain(int argc, char** argv)
 
     // Splash Screen!
     Razix::RZSplashScreen::Get().StartUp();
-    Razix::RZSplashScreen::Get().setVersionString("Version : " + std::string(Razix::RazixVersion.getVersionString()));
+    Razix::RZSplashScreen::Get().setVersionString("Version : " + Razix::RZString(Razix::RazixVersion.getVersionString()));
     Razix::RZSplashScreen::Get().setLogString("Initializing Razix Engine...");
 
     //-------------------------------//

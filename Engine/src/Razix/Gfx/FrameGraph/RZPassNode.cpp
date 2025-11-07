@@ -44,7 +44,7 @@ namespace Razix {
 
         //---------------------------------------------------------------------------
 
-        RZPassNode::RZPassNode(const std::string_view name, u32 id, std::unique_ptr<IRZFrameGraphPass>&& exec)
+        RZPassNode::RZPassNode(const RZString& name, u32 id, std::unique_ptr<IRZFrameGraphPass>&& exec)
             : RZGraphNode{name, id}, m_Exec{rz_move(exec)}
         {
             m_Creates.reserve(10);
@@ -73,18 +73,18 @@ namespace Razix {
 
             auto& accessView = getResourceAccessViewRef(id);
             if (!rz_handle_is_valid(&accessView.resViewHandle)) {
-                std::string resViewName;
+                RZString resViewName;
                 if (rzRHI_IsDescriptorTypeBuffer(accessView.resViewDesc.descriptorType)) {
                     if (accessView.resViewDesc.bufferViewDesc.pBuffer == RZ_FG_BUF_RES_AUTO_POPULATE) {
                         accessView.resViewDesc.bufferViewDesc.pBuffer = RZResourceManager::Get().getBufferResource(resHandle);
-                        resViewName                                   = std::string(accessView.resViewDesc.bufferViewDesc.pBuffer->resource.pName);
+                        resViewName                                   = RZString(accessView.resViewDesc.bufferViewDesc.pBuffer->resource.pName);
                     } else {
                         RAZIX_CORE_ERROR("pBuffer is either NULL or not AUTO_POPULATE");
                     }
                 } else if (rzRHI_IsDescriptorTypeTexture(accessView.resViewDesc.descriptorType)) {
                     if (accessView.resViewDesc.textureViewDesc.pTexture == RZ_FG_TEX_RES_AUTO_POPULATE) {
                         accessView.resViewDesc.textureViewDesc.pTexture = RZResourceManager::Get().getTextureResource(resHandle);
-                        resViewName                                     = std::string(accessView.resViewDesc.textureViewDesc.pTexture->resource.pName);
+                        resViewName                                     = RZString(accessView.resViewDesc.textureViewDesc.pTexture->resource.pName);
                     } else {
                         RAZIX_CORE_ERROR("pTexture is not AUTO_POPULATE, this is invalid way to create resource views with framegraph, please follow the right convention by defining the pTexture with RZ_FG_TEX_RES_AUTO_POPULATE, to automatically generate and maintain resource views per pass");
                     }
@@ -94,7 +94,7 @@ namespace Razix {
                 }
 
                 // Now that we have filled the pResource create the resource view
-                std::string resViewDebugName = std::string("ResView.") + resViewName + ".Pass." + getName();
+                RZString resViewDebugName = RZString("ResView.") + resViewName + ".Pass." + getName();
                 RAZIX_CORE_INFO("{}", resViewDebugName);
                 accessView.resViewHandle = RZResourceManager::Get().createResourceView(resViewDebugName.c_str(), accessView.resViewDesc);
             }

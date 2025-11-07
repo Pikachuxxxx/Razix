@@ -51,7 +51,7 @@ namespace Razix {
             return SocketStatus::SUCCESS;
         }
 
-        SocketStatus RZSocket::Bind(const std::string& address, uint16_t port)
+        SocketStatus RZSocket::Bind(const RZString& address, uint16_t port)
         {
             sockaddr_in service;
             service.sin_family      = AF_INET;

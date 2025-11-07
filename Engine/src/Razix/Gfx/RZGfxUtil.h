@@ -53,7 +53,7 @@ namespace Razix {
         // Core Shader Utilities
         //-----------------------------------------------------------------------------------
 
-        RAZIX_API rz_gfx_shader_desc       ParseRZSF(const std::string& filePath);
+        RAZIX_API rz_gfx_shader_desc       ParseRZSF(const RZString& filePath);
         RAZIX_API void                     FreeRZSFBytecodeAlloc(rz_gfx_shader* shader);
         RAZIX_API rz_gfx_shader_reflection ReflectShader(const rz_gfx_shader* shader);
 
@@ -61,13 +61,13 @@ namespace Razix {
         // Command Buffer Utilities
         //-----------------------------------------------------------------------------------
 
-        RAZIX_API rz_gfx_cmdbuf_handle BeginSingleTimeCommandBuffer(const std::string& name, float4 color);
+        RAZIX_API rz_gfx_cmdbuf_handle BeginSingleTimeCommandBuffer(const RZString& name, float4 color);
         RAZIX_API void                 EndSingleTimeCommandBuffer(rz_gfx_cmdbuf_handle cmdBuf);
 
         //-----------------------------------------------------------------------------------
         // Texture Utilities (Create/Streaming/Mips/Compression/Decompression etc.)
         //-----------------------------------------------------------------------------------
-        RAZIX_API rz_gfx_texture_handle CreateTextureFromFile(const std::string& filePath, bool floatingPoint = false);
+        RAZIX_API rz_gfx_texture_handle CreateTextureFromFile(const RZString& filePath, bool floatingPoint = false);
 
         //-----------------------------------------------------------------------------------
         // High-Level Rendering Helper Structs (Future Use)

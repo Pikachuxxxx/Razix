@@ -47,7 +47,7 @@ namespace Razix {
         RAZIX_CORE_ASSERT(success, "Department/Global Budgets Load Failed!");
 
         // TODO: Load the Map the default world renderer settings file...the scene can override this
-        Utilities::RZiniParser worldSettingsParser;
+        RZiniParser worldSettingsParser;
         success = worldSettingsParser.parse("//RazixConfig/DefaultWorldRendererSettings.ini");
         RAZIX_CORE_ASSERT(success, "Default World Renderer Settings Load Success!");
 
@@ -183,9 +183,9 @@ namespace Razix {
 
     void RZEngine::LoadEngineConfigFile()
     {
-        Utilities::RZiniParser engineConfigParser;
+        RZiniParser engineConfigParser;
         // Engine is in the same directory as the executable
-        std::string defaultConfigPath    = "//RazixConfig/DefaultEngineConfig.ini";
+        RZString defaultConfigPath    = "//RazixConfig/DefaultEngineConfig.ini";
         bool        skipVFSForConfigLoad = false;
         if (m_CommandLineParser.isSet("engine config filename")) {
             defaultConfigPath    = m_CommandLineParser.getValueAsString("engine config filename");

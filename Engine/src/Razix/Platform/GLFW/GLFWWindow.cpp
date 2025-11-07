@@ -159,7 +159,7 @@ namespace Razix {
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
 
-        //std::string icon = std::string(STRINGIZE(RAZIX_ROOT_DIR)) + std::string("/Razix/src/Razix/Embedded/RazixLogo.png");
+        //RZString icon = RZString(STRINGIZE(RAZIX_ROOT_DIR)) + RZString("/Razix/src/Razix/Embedded/RazixLogo.png");
 #ifndef __APPLE__
         SetWindowIcon();
 #endif

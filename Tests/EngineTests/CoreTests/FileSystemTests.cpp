@@ -40,19 +40,19 @@ namespace Razix {
     // Test case for CreateDir
     TEST_F(RZFileSystemTests, TestCreateDir)
     {
-        EXPECT_FALSE(RZFileSystem::FolderExists(testDir));
-        EXPECT_TRUE(RZFileSystem::CreateDir(testDir));
-        EXPECT_TRUE(RZFileSystem::FolderExists(testDir));
+        EXPECT_FALSE(RZFileSystem::FolderExists(testDir.c_str()));
+        EXPECT_TRUE(RZFileSystem::CreateDir(testDir.c_str()));
+        EXPECT_TRUE(RZFileSystem::FolderExists(testDir.c_str()));
     }
 
     // Test case for FileExists and FolderExists
     TEST_F(RZFileSystemTests, TestFileAndFolderExists)
     {
         // Create directory
-        ASSERT_TRUE(RZFileSystem::CreateDir(testDir));
+        ASSERT_TRUE(RZFileSystem::CreateDir(testDir.c_str()));
 
         // File should not exist
-        EXPECT_FALSE(RZFileSystem::FileExists(testFile));
+        EXPECT_FALSE(RZFileSystem::FileExists(testFile.c_str()));
 
         // Create a test file
         std::ofstream outFile(testFile);
@@ -60,35 +60,35 @@ namespace Razix {
         outFile.close();
 
         // File should exist now
-        EXPECT_TRUE(RZFileSystem::FileExists(testFile));
+        EXPECT_TRUE(RZFileSystem::FileExists(testFile.c_str()));
     }
 
     // Test case for GetFileSize
     TEST_F(RZFileSystemTests, TestGetFileSize)
     {
         // Create directory and file
-        ASSERT_TRUE(RZFileSystem::CreateDir(testDir));
+        ASSERT_TRUE(RZFileSystem::CreateDir(testDir.c_str()));
         std::ofstream outFile(testFile);
         outFile << testContent;
         outFile.close();
 
         // Get the file size
-        EXPECT_EQ(RZFileSystem::GetFileSize(testFile), testContent.size());
+        EXPECT_EQ(RZFileSystem::GetFileSize(testFile.c_str()), testContent.size());
     }
 
     // Test case for ReadFile (buffer)
     TEST_F(RZFileSystemTests, TestReadFileToBuffer)
     {
         // Create directory and file
-        ASSERT_TRUE(RZFileSystem::CreateDir(testDir));
+        ASSERT_TRUE(RZFileSystem::CreateDir(testDir.c_str()));
         std::ofstream outFile(testFile);
         outFile << testContent;
         outFile.close();
 
         // Read file into buffer
-        int64_t         fileSize = RZFileSystem::GetFileSize(testFile);
+        int64_t         fileSize = RZFileSystem::GetFileSize(testFile.c_str());
         std::vector<u8> buffer(fileSize);
-        EXPECT_TRUE(RZFileSystem::ReadFile(testFile, buffer.data(), fileSize));
+        EXPECT_TRUE(RZFileSystem::ReadFile(testFile.c_str(), buffer.data(), fileSize));
 
         // Verify file content
         std::string readContent(buffer.begin(), buffer.end());
@@ -99,13 +99,13 @@ namespace Razix {
     TEST_F(RZFileSystemTests, TestReadTextFile)
     {
         // Create directory and file
-        ASSERT_TRUE(RZFileSystem::CreateDir(testDir));
+        ASSERT_TRUE(RZFileSystem::CreateDir(testDir.c_str()));
         std::ofstream outFile(testFile);
         outFile << testContent;
         outFile.close();
 
         // Read file as text
-        std::string readContent = RZFileSystem::ReadTextFile(testFile);
+        std::string readContent = RZFileSystem::ReadTextFile(testFile.c_str()).c_str();
         EXPECT_EQ(readContent, testContent);
     }
 
@@ -113,11 +113,11 @@ namespace Razix {
     TEST_F(RZFileSystemTests, TestWriteFile)
     {
         // Create directory
-        ASSERT_TRUE(RZFileSystem::CreateDir(testDir));
+        ASSERT_TRUE(RZFileSystem::CreateDir(testDir.c_str()));
 
         // Write binary buffer to file
         std::vector<u8> buffer(testContent.begin(), testContent.end());
-        EXPECT_TRUE(RZFileSystem::WriteFile(testFile, buffer.data(), buffer.size()));
+        EXPECT_TRUE(RZFileSystem::WriteFile(testFile.c_str(), buffer.data(), buffer.size()));
 
         // Verify file content
         std::ifstream inFile(testFile);
@@ -129,10 +129,10 @@ namespace Razix {
     TEST_F(RZFileSystemTests, TestWriteTextFile)
     {
         // Create directory
-        ASSERT_TRUE(RZFileSystem::CreateDir(testDir));
+        ASSERT_TRUE(RZFileSystem::CreateDir(testDir.c_str()));
 
         // Write text content to file
-        EXPECT_TRUE(RZFileSystem::WriteTextFile(testFile, testContent));
+        EXPECT_TRUE(RZFileSystem::WriteTextFile(testFile.c_str(), testContent.c_str()));
 
         // Verify file content
         std::ifstream inFile(testFile);

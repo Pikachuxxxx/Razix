@@ -29,7 +29,7 @@ namespace Razix {
         bool receiveShadows      = true;
 
         MeshRendererComponent();
-        MeshRendererComponent(const std::string& filePath);
+        MeshRendererComponent(const RZString& filePath);
         //MeshRendererComponent(Gfx::MeshPrimitive primitive);
         //MeshRendererComponent(Gfx::RZMesh* mesh);
         MeshRendererComponent(const MeshRendererComponent&) = default;
@@ -44,9 +44,9 @@ namespace Razix {
 
             if (prim >= 0)
                 Mesh = Gfx::MeshFactory::CreatePrimitive(primitive);
-            std::string meshName;
+            RZString meshName;
             archive(cereal::make_nvp("MeshName", meshName));
-            std::string meshPath;
+            RZString meshPath;
             archive(cereal::make_nvp("MeshPath", meshPath));
 
             if (!Mesh || !meshPath.empty())
@@ -59,7 +59,7 @@ namespace Razix {
 
     #if !DISABLE_MATERIALS_LOADING
             // Load/Create a new Material (override the save location)
-            std::string materialPath;
+            RZString materialPath;
             archive(cereal::make_nvp("MaterialPath", materialPath));
             if (!materialPath.empty()) {
                 // Since we have the path to a material file load it, deserialize it and create the material
@@ -71,7 +71,7 @@ namespace Razix {
         template<class Archive>
         void save(Archive& archive) const
         {
-            const std::string Dummy = "Dummy";
+            const RZString& Dummy = "Dummy";
 
             archive(cereal::make_nvp("Primitive", primitive));
             if (Mesh) {

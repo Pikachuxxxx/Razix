@@ -9,13 +9,13 @@ namespace Razix {
         {
             typedef rz_gfx_buffer_desc Desc;
 
-            void create(const std::string& name, const Desc& desc, u32 id, const void* transientAllocator);
+            void create(const RZString& name, const Desc& desc, u32 id, const void* transientAllocator);
             void destroy(u32 id, const void* transientAllocator);
 
             void preRead(const Desc& desc, uint32_t flags);
             void preWrite(const Desc& desc, uint32_t flags);
 
-            static std::string toString(const Desc& desc);
+            static RZString toString(const Desc& desc);
 
             inline rz_gfx_buffer_handle getRHIHandle() const { return m_BufferHandle; }
             //inline Gfx::BufferBarrierType getLastReadBarrier() const { return m_LastReadBarrier; }

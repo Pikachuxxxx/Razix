@@ -57,7 +57,7 @@ namespace Razix {
                 virtual void        preRead(uint32_t flags)                 = 0;
                 virtual void        preWrite(uint32_t flags)                = 0;
                 virtual void        resize(u32 width, u32 height)           = 0;
-                virtual std::string toString() const                        = 0;
+                virtual RZString toString() const                        = 0;
             };
 
             /**
@@ -80,7 +80,7 @@ namespace Razix {
                      * and will reject non-matching overloads for types without any error, SFINAE's safe failure can choose the different
                      * paths during compile time to tell whether a type has a method/sub type or not and these compile time expression can be used for final evaluation
                      */
-                Model(const std::string& name, typename T::Desc&& desc, T&& obj, u32 id)
+                Model(const RZString& name, typename T::Desc&& desc, T&& obj, u32 id)
                     : m_Name(name), descriptor(rz_move(desc)), resource(rz_move(obj)), m_ID(id)
                 {
                 }
@@ -128,7 +128,7 @@ namespace Razix {
                         resource.resize(width, height);
                 }
 
-                std::string toString() const final
+                RZString toString() const final
                 {
                     if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, toString))
                         return resource.toString(descriptor);
@@ -139,7 +139,7 @@ namespace Razix {
                 T                      resource;
                 const typename T::Desc descriptor;
                 u32                    m_ID;
-                std::string            m_Name;
+                RZString            m_Name;
             };
 
         public:
@@ -182,7 +182,7 @@ namespace Razix {
                 return lifetime;
             }
 
-            RAZIX_NO_DISCARD inline const std::string& getName() const { return m_Name; }
+            RAZIX_NO_DISCARD inline const RZString& getName() const { return m_Name; }
             RAZIX_NO_DISCARD inline u32                getVersion() const { return m_Version; }
             RAZIX_NO_DISCARD inline bool               isImported() const { return m_Imported; }
             RAZIX_NO_DISCARD inline bool               isTransient() const { return !m_Imported; }
@@ -196,7 +196,7 @@ namespace Razix {
             const bool               m_Imported = false;
             u32                      m_Version  = UINT32_MAX;
             FGResourceType           m_ResType  = {};
-            std::string              m_Name;
+            RZString              m_Name;
 #ifdef FG_USE_FINE_GRAINED_LIFETIMES
             std::vector<RZResourceLifetime> m_Lifetimes;
 #else
@@ -206,7 +206,7 @@ namespace Razix {
 
         private:
             template<typename T>
-            RZResourceEntry(const std::string& name,
+            RZResourceEntry(const RZString& name,
                 u32                            id,
                 typename T::Desc&&             desc,
                 T&&                            obj,

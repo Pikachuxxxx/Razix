@@ -13,11 +13,11 @@ namespace Razix {
         inline f32 GetX() const { return m_MouseX; }
         inline f32 GetY() const { return m_MouseY; }
 
-        std::string ToString() const override
+        RZString ToString() const override
         {
-            std::stringstream ss;
-            ss << "MouseMovedEvent: " << m_MouseX << ", " << m_MouseY;
-            return ss.str();
+            char buffer[256];
+            rz_snprintf(buffer, sizeof(buffer), "MouseMovedEvent: %.2f, %.2f", m_MouseX, m_MouseY);
+            return RZString(buffer);
         }
 
         EVENT_CLASS_TYPE(kMouseMoved)
@@ -34,11 +34,11 @@ namespace Razix {
         inline f32 GetXOffset() const { return m_XOffset; }
         inline f32 GetYOffset() const { return m_YOffset; }
 
-        std::string ToString() const override
+        RZString ToString() const override
         {
-            std::stringstream ss;
-            ss << "MouseScrolledEvent: " << GetXOffset() << ", " << GetYOffset();
-            return ss.str();
+            char buffer[256];
+            rz_snprintf(buffer, sizeof(buffer), "MouseScrolledEvent: %.2f, %.2f", GetXOffset(), GetYOffset());
+            return RZString(buffer);
         }
 
         EVENT_CLASS_TYPE(kMouseScrolled)
@@ -64,11 +64,11 @@ namespace Razix {
         RZMouseButtonPressedEvent(int button)
             : RZMouseButtonEvent(button) {}
 
-        std::string ToString() const override
+        RZString ToString() const override
         {
-            std::stringstream ss;
-            ss << "MouseButtonPressedEvent: " << m_Button;
-            return ss.str();
+            char buffer[256];
+            rz_snprintf(buffer, sizeof(buffer), "MouseButtonPressedEvent: %d", m_Button);
+            return RZString(buffer);
         }
 
         EVENT_CLASS_TYPE(kMouseButtonPressed)
@@ -80,11 +80,11 @@ namespace Razix {
         RZMouseButtonReleasedEvent(int button)
             : RZMouseButtonEvent(button) {}
 
-        std::string ToString() const override
+        RZString ToString() const override
         {
-            std::stringstream ss;
-            ss << "MouseButtonReleasedEvent: " << m_Button;
-            return ss.str();
+            char buffer[256];
+            rz_snprintf(buffer, sizeof(buffer), "MouseButtonReleasedEvent: %d", m_Button);
+            return RZString(buffer);
         }
 
         EVENT_CLASS_TYPE(kMouseButtonReleased)

@@ -111,8 +111,8 @@ namespace Razix {
 
             // Getters/Setters
             inline RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
-            inline std::string   getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
-            inline void          setFrameGraphFilePath(std::string val)
+            inline RZString   getFrameGraphFilePath() const { return m_FrameGraphFilePath; }
+            inline void          setFrameGraphFilePath(RZString val)
             {
                 m_IsFGFilePathDirty  = true;
                 m_FrameGraphFilePath = val;
@@ -177,7 +177,7 @@ namespace Razix {
             bool                    m_FrameGraphBuildingInProgress                          = false;
             bool                    m_IsFGFilePathDirty                                     = false;
             bool                    m_ReadSwapchainThisFrame                                = false;
-            std::string             m_FrameGraphFilePath                                    = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
+            RZString             m_FrameGraphFilePath                                    = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
             // Gfx resources
             struct RenderSyncPrimitives
             {

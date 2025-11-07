@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/Containers/string.h"
+
 namespace Razix {
     /**
      * Parses the command line arguments for the Razix Application
@@ -10,11 +12,11 @@ namespace Razix {
         /* Command Line Option information */
         struct CommandLineOption
         {
-            std::vector<std::string> commandFlags;     /* The list of flags that can be used to call the command                               */
-            std::string              value;            /* The value passed along with the command flag                                         */
-            std::string              helpDesc;         /* The description of the command                                                       */
-            bool                     set      = false; /* A boolean to indicate whether the command was set or not                             */
-            bool                     hasValue = false; /* Boolean to check is the command has any value, if set true, it read the value passed */
+            std::vector<RZString> commandFlags;     /* The list of flags that can be used to call the command                               */
+            RZString              value;            /* The value passed along with the command flag                                         */
+            RZString              helpDesc;         /* The description of the command                                                       */
+            bool                  set      = false; /* A boolean to indicate whether the command was set or not                             */
+            bool                  hasValue = false; /* Boolean to check is the command has any value, if set true, it read the value passed */
         };
 
     public:
@@ -39,9 +41,9 @@ namespace Razix {
          * 
          * @returns True, if the flag was set
          */
-        bool        isSet(std::string name);
-        std::string getValueAsString(std::string name);
-        int32_t     getValueAsInt(std::string name);
+        bool     isSet(RZString name);
+        RZString getValueAsString(RZString name);
+        int32_t  getValueAsInt(RZString name);
 
         /**
          * Adds the command which can be parsed from the command line
@@ -51,9 +53,9 @@ namespace Razix {
          * @param hasValue  Denotes that the command takes a value after the flag
          * @param help      Description of the command
          */
-        void addCommand(std::string name, std::vector<std::string> commands, bool hasValue, std::string help);
+        void addCommand(RZString name, std::vector<RZString> commands, bool hasValue, RZString help);
 
     private:
-        std::unordered_map<std::string, CommandLineOption> m_CommandOptions; /* The list of all command line options available, if passed via command line, it is set */
+        std::unordered_map<RZString, CommandLineOption> m_CommandOptions; /* The list of all command line options available, if passed via command line, it is set */
     };
 }    // namespace Razix

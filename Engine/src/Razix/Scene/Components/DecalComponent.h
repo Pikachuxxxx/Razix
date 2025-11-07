@@ -9,11 +9,11 @@ namespace Razix {
      */
     struct RAZIX_API DecalComponent
     {
-        std::string decalFilePath;
+        RZString decalFilePath;
 
         DecalComponent()                      = default;
         DecalComponent(const DecalComponent&) = default;
-        DecalComponent(const std::string& decalFilePath)
+        DecalComponent(const RZString& decalFilePath)
             : decalFilePath(decalFilePath)
         {
         }

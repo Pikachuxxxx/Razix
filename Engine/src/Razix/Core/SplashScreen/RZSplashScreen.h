@@ -43,18 +43,18 @@ namespace Razix {
         void ShutDown();
 
         /* Set version string for the splash screen */
-        void setVersionString(const std::string& text);
+        void setVersionString(const RZString& text);
         /* Set the log string for the splash screen */
-        void setLogString(const std::string& text);
+        void setLogString(const RZString& text);
 
         /* Process the windows messages */
         static i32 ProcessMessages();
 
     private:
         HWND        hWnd;
-        std::string m_VersionString;
-        std::string m_LogString;
-        std::string m_ImagePath;
+        RZString m_VersionString;
+        RZString m_LogString;
+        RZString m_ImagePath;
         HBITMAP     m_SplashImage;
         HWND        m_SplashImageView;
         HWND        m_VersionLabel;
@@ -80,9 +80,9 @@ namespace Razix {
         void ShutDown() {}
 
         /* Set version string for the splash screen */
-        void setVersionString(const std::string& text) {}
+        void setVersionString(const RZString& text) {}
         /* Set the log string for the splash screen */
-        void setLogString(const std::string& text) {}
+        void setLogString(const RZString& text) {}
     };
 }    // namespace Razix
 #endif

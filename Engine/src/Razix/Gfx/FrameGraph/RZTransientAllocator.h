@@ -98,9 +98,9 @@ namespace Razix {
             // Frees memory for all resources held by this allocator from ResourceManager
             void destroy();
 
-            rz_gfx_texture_handle acquireTransientTexture(const std::string& name, const rz_gfx_texture_desc& desc, u32 id);
+            rz_gfx_texture_handle acquireTransientTexture(const RZString& name, const rz_gfx_texture_desc& desc, u32 id);
             void                  releaseTransientTexture(rz_gfx_texture_handle handle, u32 id);
-            rz_gfx_buffer_handle  acquireTransientBuffer(const std::string& name, const rz_gfx_buffer_desc& desc, u32 id);
+            rz_gfx_buffer_handle  acquireTransientBuffer(const RZString& name, const rz_gfx_buffer_desc& desc, u32 id);
             void                  releaseTransientBuffer(rz_gfx_buffer_handle handle, u32 id);
 
             inline void                registerLifetime(const RZResourceLifetime& lifetime) { m_RegisteredLifetimes.push_back(lifetime); }

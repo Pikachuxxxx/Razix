@@ -4,10 +4,10 @@ namespace Razix {
     namespace Debug {
 
 #ifndef RAZIX_GOLD_MASTER
-    #define RZ_DEBUG_NAME_TAG_S_ARG        const std::string& bufferName
-    #define RZ_DEBUG_NAME_TAG_E_ARG        , const std::string& bufferName
-    #define RZ_DEBUG_NAME_TAG_F_ARG        const std::string &bufferName,
-    #define RZ_DEBUG_NAME_TAG_M_ARG        , const std::string &bufferName,
+    #define RZ_DEBUG_NAME_TAG_S_ARG        const RZString& bufferName
+    #define RZ_DEBUG_NAME_TAG_E_ARG        , const RZString& bufferName
+    #define RZ_DEBUG_NAME_TAG_F_ARG        const RZString& &bufferName,
+    #define RZ_DEBUG_NAME_TAG_M_ARG        , const RZString& &bufferName,
     #define RZ_DEBUG_F_ARG_NAME            bufferName,
     #define RZ_DEBUG_S_ARG_NAME            bufferName
     #define RZ_DEBUG_E_ARG_NAME            , bufferName

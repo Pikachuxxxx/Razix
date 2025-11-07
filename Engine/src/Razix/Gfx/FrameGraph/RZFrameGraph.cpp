@@ -20,6 +20,9 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;    // use other lib that said it was faster than this on github
 
+#include <ostream>
+#include <fstream>
+
 namespace Razix {
     namespace Gfx {
 
@@ -32,10 +35,10 @@ namespace Razix {
         // First frame test
         bool RZFrameGraph::m_IsFirstFrame = true;
 
-        bool RZFrameGraph::parse(const std::string& path)
+        bool RZFrameGraph::parse(const RZString& path)
         {
 #if 0
-            std::string physicalPath;
+            RZString physicalPath;
             if (!RZVirtualFileSystem::Get().resolvePhysicalPath(path, physicalPath))
                 return false;
 
@@ -53,9 +56,9 @@ namespace Razix {
 
                 auto& resourceName = import_res["name"];
 
-                if (std::string(type) == "Texture") {
+                if (RZString(type) == "Texture") {
                     RZTextureDesc desc{};
-                    desc.name = std::string(resourceName);
+                    desc.name = RZString(resourceName);
 
                     auto& format = import_res["format"];
                     RAZIX_ASSERT(!format.empty(), "[Frame Graph] Missing Texture Format!");
@@ -90,9 +93,9 @@ namespace Razix {
                     auto textureHandle = RZResourceManager::Get().createTexture(desc);
                     resource           = import <RZFrameGraphTexture>(desc.name, CAST_TO_FG_TEX_DESC desc, {textureHandle});
 
-                } else if (std::string(type) == "Buffer") {
+                } else if (RZString(type) == "Buffer") {
                     RZBufferDesc desc{};
-                    desc.name = std::string(resourceName);
+                    desc.name = RZString(resourceName);
 
                     desc.size  = import_res["size"].get<int>();
                     auto usage = import_res["usage"];
@@ -103,9 +106,9 @@ namespace Razix {
                     // Create the buffer resource
                     auto bufferHandle = RZResourceManager::Get().createUniformBuffer(desc);
                     resource          = import <RZFrameGraphBuffer>(desc.name, CAST_TO_FG_BUF_DESC desc, {bufferHandle});
-                } else if (std::string(type) == "Sampler") {
+                } else if (RZString(type) == "Sampler") {
                     RZSamplerDesc desc{};
-                    desc.name = std::string(resourceName);
+                    desc.name = RZString(resourceName);
 
                     auto& wrapping = import_res["wrapping"];
                     if (!wrapping.empty())
@@ -131,7 +134,7 @@ namespace Razix {
             for (auto& pass: passes) {
                 auto& render_pass = pass["render_pass"];
                 // Load this render pass from file
-                RZPassNode& passNode = parsePass("//RazixFG/Passes/" + std::string(render_pass) + ".json");
+                RZPassNode& passNode = parsePass("//RazixFG/Passes/" + RZString(render_pass) + ".json");
 
                 // Use the builder to build input/output resources
                 RZPassResourceBuilder builder(*this, passNode);
@@ -160,7 +163,7 @@ namespace Razix {
 
                         auto& type = binding_info["type"];
                         if (!type.empty())
-                            bindingInfo.type = std::string(type) == "ImageSamplerCombined" ? DescriptorType::kImageSamplerCombined : DescriptorType::kUniformBuffer;
+                            bindingInfo.type = RZString(type) == "ImageSamplerCombined" ? DescriptorType::kImageSamplerCombined : DescriptorType::kUniformBuffer;
 
                         auto& stage = binding_info["stage"];
                         if (!stage.empty())
@@ -184,9 +187,9 @@ namespace Razix {
 
                     auto& resourceName = input["name"];
 
-                    if (std::string(type) == "Texture") {
+                    if (RZString(type) == "Texture") {
                         RZTextureDesc desc{};
-                        desc.name = std::string(resourceName);
+                        desc.name = RZString(resourceName);
 
                         auto& format = input["format"];
                         RAZIX_ASSERT(!format.empty(), "[Frame Graph] Missing Texture Format!");
@@ -222,9 +225,9 @@ namespace Razix {
                         // Mark the input resource as read for the current pass and pass the attachment info
                         builder.read(resource, hasBindingInfo ? EncodeDescriptorBindingInfo(bindingInfo) : kFlagsNone);
 
-                    } else if (std::string(type) == "Buffer") {
+                    } else if (RZString(type) == "Buffer") {
                         RZBufferDesc desc{};
-                        desc.name = std::string(resourceName);
+                        desc.name = RZString(resourceName);
 
                         desc.size = input["size"].get<int>();
 
@@ -237,9 +240,9 @@ namespace Razix {
                         // Mark the input resource as read for the current pass and pass the attachment info
                         builder.read(resource, hasBindingInfo ? EncodeDescriptorBindingInfo(bindingInfo) : kFlagsNone);
 
-                    } else if (std::string(type) == "Sampler") {
+                    } else if (RZString(type) == "Sampler") {
                         RZSamplerDesc desc{};
-                        desc.name = std::string(resourceName);
+                        desc.name = RZString(resourceName);
 
                         auto& wrapping = input["wrapping"];
                         if (!wrapping.empty())
@@ -307,9 +310,9 @@ namespace Razix {
 
                     auto& resourceName = output["name"];
 
-                    if (std::string(type) == "Texture") {
+                    if (RZString(type) == "Texture") {
                         RZTextureDesc desc{};
-                        desc.name = std::string(resourceName);
+                        desc.name = RZString(resourceName);
 
                         auto& format = output["format"];
                         RAZIX_ASSERT(!format.empty(), "[Frame Graph] Missing Texture Format!");
@@ -347,9 +350,9 @@ namespace Razix {
                         // Mark the input resource as read for the current pass and pass the attachment info
                         resource = builder.write(resource, hasAttachmentInfo ? EncodeAttachmentInfo(attachInfo) : kFlagsNone);
 
-                    } else if (std::string(type) == "Buffer") {
+                    } else if (RZString(type) == "Buffer") {
                         RZBufferDesc desc{};
-                        desc.name = std::string(resourceName);
+                        desc.name = RZString(resourceName);
 
                         desc.size = output["size"].get<int>();
 
@@ -379,10 +382,10 @@ namespace Razix {
             return true;
         }
 
-        RZPassNode& RZFrameGraph::parsePass(const std::string& passPath)
+        RZPassNode& RZFrameGraph::parsePass(const RZString& passPath)
         {
 #if 0
-            std::string physicalPath;
+            RZString physicalPath;
             RAZIX_ASSERT(RZVirtualFileSystem::Get().resolvePhysicalPath(passPath, physicalPath), "Invalid Pass, please check again!");
 
             auto jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
@@ -391,9 +394,9 @@ namespace Razix {
 
             // Get the pass name
             auto&       passName    = data["name"];
-            std::string passNameStr = "DefaultPass";
+            RZString passNameStr = "DefaultPass";
             if (!passName.empty())
-                passNameStr = passName.template get<std::string>();
+                passNameStr = passName.template get<RZString>();
 
             RAZIX_CORE_TRACE("pass name : {0}", passName);
 
@@ -401,10 +404,10 @@ namespace Razix {
             // TODO: Support loading user land shaders and re-verification of Builtin.Shaders
             // Since as of now we only deal with Built-in passes and shaders we can go ahead fine
             auto& shaderFileName = data["shader"];
-            auto  shader         = Gfx::RZShaderLibrary::Get().getBuiltInShader(std::string(shaderFileName));
+            auto  shader         = Gfx::RZShaderLibrary::Get().getBuiltInShader(RZString(shaderFileName));
 
             RZPipelineDesc pipelineDesc{};
-            pipelineDesc.name = std::string(passName) + ".Pipeline";
+            pipelineDesc.name = RZString(passName) + ".Pipeline";
 
             // Set the shader to the pipeline
             if (!shaderFileName.empty()) {
@@ -525,7 +528,7 @@ namespace Razix {
             //desc.layers                 = layers;
             auto* pass = new RZFrameGraphDataPass(desc);
             // Create the PassNode in the graph
-            RZPassNode& passNode = createPassNodeRef(std::string("DUMMY"), std::unique_ptr<RZFrameGraphDataPass>(pass));
+            RZPassNode& passNode = createPassNodeRef(RZString("DUMMY"), std::unique_ptr<RZFrameGraphDataPass>(pass));
             // Mark as data driven
             passNode.m_IsDataDriven = true;
             //auto isStandAlonePass   = data["is_standalone"];
@@ -878,7 +881,7 @@ namespace Razix {
             // -- Define pass nodes
 
             for (const RZPassNode& node: m_PassNodes) {
-                os << "P" << node.m_ID << " [label=<{ {<B>" << node.m_Name << "</B>} | {"
+                os << "P" << node.m_ID << " [label=<{ {<B>" << node.m_Name.c_str()   << "</B>} | {"
                    << (node.isStandAlone() ? "&#x2605; " : "")
                    << "Refs: " << node.m_RefCount << "<BR/> Index: " << node.m_ID
                    << "} }> style=\"rounded,filled\", fillcolor="
@@ -895,12 +898,12 @@ namespace Razix {
             for (const RZResourceNode& node: m_ResourceNodes) {
                 const auto& entry = m_ResourceRegistry[node.m_ResourceEntryID];
                 os << "R" << entry.m_ID << "_" << node.m_Version << " [label=<{ {<B>"
-                   << node.m_Name << "</B>";
+                   << node.m_Name.c_str() << "</B>";
                 if (node.m_Version > kRESOURCE_INITIAL_VERSION) {
                     // FIXME: Bold text overlaps regular text
-                    os << "   <FONT>v" + std::to_string(node.m_Version) + "</FONT>";
+                    os << "   <FONT>v" + std::string(rz_to_string(node.m_Version).c_str()) + "</FONT>";
                 }
-                os << "<BR/>" << entry.getConcept()->toString() << "} | {Index: " << entry.m_ID << "<BR/>"
+                os << "<BR/>" << entry.getConcept()->toString().c_str() << "} | {Index: " << entry.m_ID << "<BR/>"
                    << "Refs : " << node.m_RefCount << "} }> style=filled, fillcolor="
                    << (entry.isImported() ? style.color.resource.imported
                                           : style.color.resource.transient);
@@ -966,9 +969,9 @@ namespace Razix {
             os << "}";
         }
 
-        void RZFrameGraph::exportToGraphViz(const std::string& location) const
+        void RZFrameGraph::exportToGraphViz(const RZString& location) const
         {
-            std::ofstream os(location, std::ofstream::out | std::ofstream::trunc);
+            std::ofstream os(location.c_str(), std::ofstream::out | std::ofstream::trunc);
             RAZIX_CORE_INFO("Exporting FrameGraph .... to ({0})", location);
             os << *this;
             os.close();
@@ -1023,16 +1026,16 @@ namespace Razix {
             return os;
         }
 
-        const std::string& RZFrameGraph::getResourceName(RZFrameGraphResource id) const
+        const RZString& RZFrameGraph::getResourceName(RZFrameGraphResource id) const
         {
             RAZIX_CORE_ASSERT(id < m_ResourceNodes.size(), "id overflows resource nodes")
             auto& resNode = m_ResourceNodes[id];
             return resNode.getName();
         }
 
-        static std::string s_RES_NOT_FUND_STR("RESOURCE_ENTRY_NOT_FOUND");
+        static RZString s_RES_NOT_FUND_STR("RESOURCE_ENTRY_NOT_FOUND");
 
-        const std::string& RZFrameGraph::getResourceEntryName(RZFrameGraphResource id) const
+        const RZString& RZFrameGraph::getResourceEntryName(RZFrameGraphResource id) const
         {
             RAZIX_CORE_ASSERT(id < m_ResourceNodes.size(), "id overflows resource nodes")
             for (u32 i = 0; i < m_ResourceNodes.size(); i++) {
@@ -1056,13 +1059,13 @@ namespace Razix {
             return m_ResourceRegistry[node.m_ResourceEntryID];
         }
 
-        RZPassNode& RZFrameGraph::createPassNodeRef(const std::string& name, std::unique_ptr<IRZFrameGraphPass>&& base)
+        RZPassNode& RZFrameGraph::createPassNodeRef(const RZString& name, std::unique_ptr<IRZFrameGraphPass>&& base)
         {
             const auto id = static_cast<u32>(m_PassNodes.size());
             return m_PassNodes.emplace_back(RZPassNode(name, id, rz_move(base)));
         }
 
-        RZResourceNode& RZFrameGraph::createResourceNodeRef(const std::string& name, u32 resourceID)
+        RZResourceNode& RZFrameGraph::createResourceNodeRef(const RZString& name, u32 resourceID)
         {
             const auto id = static_cast<u32>(m_ResourceNodes.size());
             return m_ResourceNodes.emplace_back(RZResourceNode(name, id, resourceID, kRESOURCE_INITIAL_VERSION));

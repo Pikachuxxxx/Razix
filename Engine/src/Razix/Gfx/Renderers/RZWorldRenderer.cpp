@@ -5,6 +5,7 @@
 
 #define ENABLE_CODE_DRIVEN_FG_PASSES 0
 
+#include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 #include "Razix/Core/App/RZApplication.h"
@@ -73,19 +74,19 @@ namespace Razix {
 #else    // For GCC/Clang (Linux/macOS)
             localtime_r(&now_c, &local_tm);
 #endif
-            std::ostringstream timestamp;
-            timestamp << std::put_time(&local_tm, "%Y_%m_%d_%H_%M");
+            // Format timestamp manually
+            char timestamp_buffer[32];
+            rz_snprintf(timestamp_buffer, sizeof(timestamp_buffer), "%Y_%m_%d_%H_%M", &local_tm);
+            RZString timestamp(timestamp_buffer);
 
-            std::string outPath;
+            RZString outPath;
             RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/FrameGraphs", outPath, true);
 
             // Construct the filename with the timestamp
-            std::string filename = outPath + "/fg_debug_draw_test_" + timestamp.str() + ".dot";
+            RZString filename = outPath + "/fg_debug_draw_test_" + timestamp + ".dot";
 
             RAZIX_CORE_INFO("Exporting FrameGraph .... to ({0})", filename);
-
-            std::ofstream os(filename);
-            os << framegraph;
+            RZFileSystem::WriteTextFile(filename, filename.c_str());
         }
 
         //-------------------------------------------------------------------------------------------
@@ -179,12 +180,12 @@ namespace Razix {
 
                 rz_gfx_cmdpool_desc cmdPoolDesc = {};
                 cmdPoolDesc.poolType            = RZ_GFX_CMDPOOL_TYPE_GRAPHICS;
-                std::string commandPoolName     = "InFlightCommandPool_" + Utilities::to_string(i);
+                RZString commandPoolName        = "InFlightCommandPool_" + rz_to_string(i);
                 m_InFlightCmdPool[i]            = RZResourceManager::Get().createCommandPool(commandPoolName.c_str(), cmdPoolDesc);
 
                 rz_gfx_cmdbuf_desc desc        = {0};
                 desc.pool                      = RZResourceManager::Get().getCommandPoolResource(m_InFlightCmdPool[i]);
-                std::string inFlightCmdBufName = "InFlightDrawCommandBuffer_" + Utilities::to_string(i);
+                RZString inFlightCmdBufName    = "InFlightDrawCommandBuffer_" + rz_to_string(i);
                 m_InFlightDrawCmdBufHandles[i] = RZResourceManager::Get().createCommandBuffer(inFlightCmdBufName.c_str(), desc);
                 m_InFlightDrawCmdBufPtrs[i]    = RZResourceManager::Get().getCommandBufferResource(m_InFlightDrawCmdBufHandles[i]);
             }
@@ -800,7 +801,7 @@ namespace Razix {
                 rzRHI_BeginCmdBuf(cmdBuffer);
 
                 // Begin Frame Marker
-                RAZIX_MARK_BEGIN(cmdBuffer, "Frame # " + Utilities::to_string(m_FrameCount) + " [back buffer # " + Utilities::to_string(inFlightSyncobjIdx) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
+                RAZIX_MARK_BEGIN(cmdBuffer, "Frame # " + rz_to_string(m_FrameCount) + " [back buffer # " + rz_to_string(inFlightSyncobjIdx) + " ]", float4(1.0f, 0.0f, 1.0f, 1.0f));
 
                 // Insert barrier to transition the swapchain image (PRESENT) to RENDER_TARGET
                 rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_PRESENT, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);

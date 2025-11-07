@@ -14,7 +14,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZFrameGraphTexture::create(const std::string& name, const Desc& desc, u32 id, const void* transientAllocator)
+        void RZFrameGraphTexture::create(const RZString& name, const Desc& desc, u32 id, const void* transientAllocator)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -105,12 +105,12 @@ namespace Razix {
             //textureResource->Resize(width, height);
         }
 
-        std::string RZFrameGraphTexture::toString(const Desc& desc)
+        RZString RZFrameGraphTexture::toString(const Desc& desc)
         {
             //if (desc.layers > 1)
-            //    return "(" + Utilities::to_string(int(desc.width)) + ", " + Utilities::to_string(int(desc.height)) + ", " + Utilities::to_string(desc.layers) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
+            //    return "(" + to_string(int(desc.width)) + ", " + to_string(int(desc.height)) + ", " + to_string(desc.layers) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
             //else
-            //    return "(" + Utilities::to_string(int(desc.width)) + ", " + Utilities::to_string(int(desc.height)) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
+            //    return "(" + to_string(int(desc.width)) + ", " + to_string(int(desc.height)) + ") - " + RZTextureDesc::FormatToString(desc.format) + " [" + RZTextureDesc::TypeToString(desc.type) + "]";
             return "";
         }
     }    // namespace Gfx

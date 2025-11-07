@@ -56,7 +56,7 @@
     void RZResourceManager::destroy##PoolName(HandleType##_handle& handle)                                                                                                   \
     {                                                                                                                                                                        \
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);                                                                                                                  \
-        DESTROY_UTIL(m_##PoolName##Pool, std::string("[Resource Manager] Attempting to release ") + std::string(#PoolName) + std::string(" resource with Invalid handle!")); \
+        DESTROY_UTIL(m_##PoolName##Pool, RZString("[Resource Manager] Attempting to release ") + RZString(#PoolName) + RZString(" resource with Invalid handle!")); \
     }                                                                                                                                                                        \
     HandleType* RZResourceManager::get##PoolName##Resource(HandleType##_handle handle)                                                                                       \
     {                                                                                                                                                                        \
@@ -93,7 +93,7 @@ namespace Razix {
             RAZIX_ASSERT(shaderDesc->rzsfFilePath != nullptr, "[Resource Manager] RZSF file path is null! Cannot create shader from RZSF file!");
 
             // Parse the RZSF file and fill the shaderDesc with the parsed data
-            rz_gfx_shader_desc parsedDesc = Gfx::ParseRZSF(std::string(shaderDesc->rzsfFilePath));
+            rz_gfx_shader_desc parsedDesc = Gfx::ParseRZSF(RZString(shaderDesc->rzsfFilePath));
             shaderDesc->rzsfFilePath      = NULL;
 
             // Copy the parsed description to the shaderDesc
@@ -123,7 +123,7 @@ namespace Razix {
                 if (rootSigDesc.descriptorTableLayoutsCount == 0 && rootSigDesc.pRootConstantsDesc == NULL)
                     RAZIX_CORE_WARN("[Resource Manager] Empty Root Signature! Shader {0} has no root signature descriptor tables or root constants!", shader->resource.pName);
 #endif
-                auto rootSigName      = "RootSignature." + std::string(shader->resource.pName);
+                auto rootSigName      = "RootSignature." + RZString(shader->resource.pName);
                 shader->rootSignature = RZResourceManager::Get().createRootSignature(rootSigName.c_str(), rootSigDesc);
             }
 

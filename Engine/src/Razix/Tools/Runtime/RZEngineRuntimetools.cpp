@@ -11,7 +11,7 @@
 //#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
     #include "Razix/Core/Utils/RZColorUtilities.h"
-    #include "Razix/Core/Utils/RZStringUtilities.h"
+    #include "Razix/Core/Containers/string.h"
 
     #define IMGUI_DEFINE_MATH_OPERATORS
     #include <imgui/imgui.h>
@@ -113,7 +113,7 @@ namespace Razix {
 
         ImU32 GetAliasGroupColor(u32 groupID)
         {
-            float3 color = Utilities::GenerateHashedColor(groupID * MAGIC_VICODIN);
+            float3 color = GenerateHashedColor(groupID * MAGIC_VICODIN);
 
             u8 r = static_cast<u8>(color.x * 255.0f);
             u8 g = static_cast<u8>(color.y * 255.0f);
@@ -125,7 +125,7 @@ namespace Razix {
 
         ImU32 GetAliasGroupColorBoder(u32 groupID)
         {
-            float3 color = Utilities::GenerateHashedColor(groupID * MAGIC_VICODIN);
+            float3 color = GenerateHashedColor(groupID * MAGIC_VICODIN);
 
             u8 r = static_cast<u8>(color.x * LifetimeCellStyle::BorderSaturation * 255.0f);
             u8 g = static_cast<u8>(color.y * LifetimeCellStyle::BorderSaturation * 255.0f);
@@ -232,7 +232,7 @@ namespace Razix {
             const auto& compiledPassNodes = frameGraph.getCompiledPassNodes();
             for (uint32_t i = 0; i < compiledPassNodes.size(); ++i) {
                 const auto&        passNode = frameGraph.getPassNode(compiledPassNodes[i]);
-                const std::string& label    = Utilities::GetFilePathExtension(passNode.getName());
+                const RZString& label    = GetFilePathExtension(passNode.getName());
 
                 float  boxHeight = ImGui::GetFontSize() + 2.0f * PassLabelStyle::PaddingY;
                 ImVec2 p0        = ImVec2(x, y);
@@ -409,7 +409,7 @@ namespace Razix {
                 ImGui::SameLine();
 
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
-                std::string engineBuildVersionFull = RazixVersion.getVersionString() + "." + RazixVersion.getReleaseStageString();
+                RZString engineBuildVersionFull = RazixVersion.getVersionString() + "." + RazixVersion.getReleaseStageString();
                 ImGui::Text("| Engine build version : %s | ", engineBuildVersionFull.c_str());
                 ImGui::PopStyleColor(1);
 
