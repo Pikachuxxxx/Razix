@@ -62,10 +62,11 @@ typedef struct VkQueueFamilyIndices
 typedef struct VkSwapchainSupportDetails
 {
     VkSurfaceCapabilitiesKHR capabilities;
-    VkSurfaceFormatKHR*      formats;
     uint32_t                 formatCount;
+    VkSurfaceFormatKHR*      formats;
     VkPresentModeKHR*        presentModes;
     uint32_t                 presentModeCount;
+    uint32_t                 _pad0;
 } VkSwapchainSupportDetails;
 
 typedef struct vk_ctx
@@ -100,9 +101,11 @@ typedef struct vk_swapchain
 {
     VkSwapchainKHR            swapchain;
     VkFormat                  imageFormat;
+    uint32_t                  _pad0;
     VkImage                   images[4];
     VkImageView               imageViews[4];
     VkSwapchainSupportDetails supportDetails;
+    uint64_t                  _pad1;
 } vk_swapchain;
 
 typedef struct vk_cmdpool
