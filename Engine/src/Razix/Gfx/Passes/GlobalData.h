@@ -84,15 +84,6 @@ namespace Razix {
             float4x4 viewProjMatrix = float4x4(1.0f);
         };
 
-        // PBR/IBL
-
-        struct LightProbe
-        {
-            rz_texture_handle skybox;
-            rz_texture_handle diffuse;
-            rz_texture_handle specular;
-        };
-
         struct GlobalLightProbeData
         {
             RZFrameGraphResource environmentMap;
@@ -193,7 +184,6 @@ namespace Razix {
         };
 
         // Lighting
-
         struct SceneLightsData
         {
             RZFrameGraphResource lightsDataBuffer;
@@ -204,6 +194,14 @@ namespace Razix {
             alignas(4) u32 numLights   = 0;
             alignas(4) u32 _padding[3] = {0, 0, 0};
             alignas(16) LightData lightData[MAX_LIGHTS];
+        };
+
+        // PBR/IBL
+        struct LightProbe
+        {
+            rz_gfx_texture_handle skybox;
+            rz_gfx_texture_handle diffuse;
+            rz_gfx_texture_handle specular;
         };
 
     }    // namespace Gfx

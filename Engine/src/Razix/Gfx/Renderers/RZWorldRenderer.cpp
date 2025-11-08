@@ -59,10 +59,8 @@ namespace Razix {
         rz_gfx_descriptor_heap_handle RZWorldRenderer::m_DepthRenderTargetHeap = {};
         rz_gfx_descriptor_heap_handle RZWorldRenderer::m_ResourceHeap          = {};
         rz_gfx_descriptor_heap_handle RZWorldRenderer::m_SamplerHeap           = {};
-
-        // TODO: Fill them at compile time? idk not possible
-        RZWorldRenderer::SamplersPool     RZWorldRenderer::m_SamplersPool     = {};
-        RZWorldRenderer::SamplersViewPool RZWorldRenderer::m_SamplersViewPool = {};
+        SamplersPool                  RZWorldRenderer::m_SamplersPool          = {};
+        SamplersViewPool              RZWorldRenderer::m_SamplersViewPool      = {};
 
         //-------------------------------------------------------------------------------------------
 
@@ -237,7 +235,7 @@ namespace Razix {
 
                 // Create a descriptor table for all the samplers
                 rz_gfx_descriptor samplerDescriptor = {};
-                rz_snprintf(samplerDescriptor.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$");
+                rz_snprintf(samplerDescriptor.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "LinearSamplerDescriptor");
                 samplerDescriptor.type                                 = RZ_GFX_DESCRIPTOR_TYPE_SAMPLER;
                 samplerDescriptor.location.binding                     = 0;
                 samplerDescriptor.location.space                       = 0;
@@ -318,9 +316,9 @@ namespace Razix {
         void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
         {
             memset(&m_LastSwapchainReadback, 0, sizeof(rz_gfx_texture_readback));
-
             m_FrameGraphBuildingInProgress = true;
 
+            //-----------------------------------------------------------------------------------
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
             m_BRDFfLUTTextureHandle             = CreateTextureFromFile("//RazixContent/Textures/Texture.Builtin.BrdfLUT.png");
@@ -328,6 +326,8 @@ namespace Razix {
             BRDFData&           brdfData        = m_FrameGraph.getBlackboard().add<BRDFData>();
             brdfData.lut                        = m_FrameGraph.import <RZFrameGraphTexture>("BRDFLut", CAST_TO_FG_TEX_DESC brdfTextureDesc, {m_BRDFfLUTTextureHandle});
 
+            //-----------------------------------------------------------------------------------
+            // Frame common data upload pass
             m_FrameGraph.getBlackboard().add<FrameData>() = m_FrameGraph.addCallbackPass<FrameData>(
                 "Pass.Builtin.Code.FrameDataUpload",
                 [&](FrameData& data, RZPassResourceBuilder& builder) {
@@ -434,6 +434,8 @@ namespace Razix {
                     RAZIX_TIME_STAMP_END();
                 });
 
+            //-----------------------------------------------------------------------------------
+            // Scene Lights Data upload pass
             m_FrameGraph.getBlackboard().add<SceneLightsData>() = m_FrameGraph.addCallbackPass<SceneLightsData>(
                 "Pass.Builtin.Code.SceneLightsDataUpload",
                 [&](SceneLightsData& data, RZPassResourceBuilder& builder) {
@@ -515,17 +517,15 @@ namespace Razix {
                 });
 
 #if 0
-
-                //-----------------------------------------------------------------------------------
-
-                // Load the Skybox and Global Light Probes
-                // FIXME: This is hard coded make this a user land material
-                // Or this is the default fallback but should be user configurable
-                m_GlobalLightProbes.skybox = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/teufelsberg_inner_4k.hdr");
-            m_GlobalLightProbes.diffuse    = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
-            m_GlobalLightProbes.specular   = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
+            //-----------------------------------------------------------------------------------
+            // Load the Skybox and Global Light Probes
+            // FIXME: This is hard coded make this a user land material
+            // Or this is the default fallback but should be user configurable
+            m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/teufelsberg_inner_4k.hdr");
+            m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
+            m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph
-             auto& globalLightProbeData = m_FrameGraph.getBlackboard().add<GlobalLightProbeData>();
+            auto& globalLightProbeData = m_FrameGraph.getBlackboard().add<GlobalLightProbeData>();
 
             auto SkyboxDesc   = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.skybox)->getDescription();
             auto DiffuseDesc  = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.diffuse)->getDescription();
@@ -538,7 +538,6 @@ namespace Razix {
             globalLightProbeData.environmentMap         = m_FrameGraph.import <RZFrameGraphTexture>("EnvironmentMap", CAST_TO_FG_TEX_DESC SkyboxDesc, {globalLightProbe.skybox});
             globalLightProbeData.diffuseIrradianceMap   = m_FrameGraph.import <RZFrameGraphTexture>("IrradianceMap", CAST_TO_FG_TEX_DESC DiffuseDesc, {globalLightProbe.diffuse});
             globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <RZFrameGraphTexture>("PreFilteredMap", CAST_TO_FG_TEX_DESC SpecularDesc, {globalLightProbe.specular});
- 
 
             //-----------------------------------------------------------------------------------
             // Misc Variables
@@ -552,10 +551,6 @@ namespace Razix {
             }
 
             //-----------------------------------------------------------------------------------
-
-            // These are system level code passes so always enabled
-            uploadFrameData(scene, settings);
-            uploadLightsData(scene, settings);
 
             auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
 

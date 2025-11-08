@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/Utils/RZColorUtilities.h"
+
 #include "Razix/Core/RZHandle.h"
 #include "Razix/Gfx/RHI/RHI.h"
 #include "Razix/Gfx/RZGfxDebug.h"
@@ -10,6 +12,8 @@
 #define RAZIX_MAX_LINE_LENGTH        1024
 #define RAZIX_MAX_SHADER_STAGES      RZ_GFX_SHADER_STAGE_COUNT
 #define RAZIX_MAX_INCLUDE_DEPTH      16
+
+#define RAZIX_CMD_MARKER_NAME_COLOR(name) name, GenerateHashedColor4(RZString(name).hash())
 
 namespace Razix {
     namespace Gfx {
