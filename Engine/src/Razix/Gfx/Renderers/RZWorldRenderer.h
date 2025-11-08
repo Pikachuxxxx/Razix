@@ -1,14 +1,16 @@
 #pragma once
 
+#include "Razix/Core/Utils/RZTimestep.h"
+
 #include "Razix/Gfx/RHI/RHI.h"
 
-#include "Razix/Core/Utils/RZTimestep.h"
+#include "Razix/Gfx/RZGfxUtil.h"
 
 #include "Razix/Gfx/FrameGraph/RZBlackboard.h"
 #include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
 // Passes Data
-//#include "Razix/Gfx/Passes/Data/GlobalData.h"
+#include "Razix/Gfx/Passes/GlobalData.h"
 
 // Passes
 #include "Razix/Gfx/Passes/IRZPass.h"
@@ -27,9 +29,6 @@
 //#include "Razix/Gfx/Passes/RZTonemapPass.h"
 //#include "Razix/Gfx/Passes/RZVisibilityBufferFillPass.h"
 
-#include "Razix/Gfx/RZGfxUtil.h"
-
-// Renderers
 #include "Razix/Gfx/Renderers/RZRendererSettings.h"
 
 #include "Razix/Math/Grid.h"
@@ -74,6 +73,43 @@ namespace Razix {
 
     namespace Gfx {
 
+        struct RenderSyncPrimitives
+        {
+            // [Source]: https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html
+            struct
+            {
+                // supports both timeline and fences in vulkan based on VK_KHR_timeline_semaphore availability
+                rz_gfx_syncobj imageAcquired[RAZIX_MAX_FRAMES_IN_FLIGHT];     // one per frame in flight
+                rz_gfx_syncobj renderingDone[RAZIX_MAX_SWAP_IMAGES_COUNT];    // one per swapchain image
+            } presentSync = {};                                               // won't be needing this in DX12 and other APIs
+            struct
+            {
+                u32            inFlightSyncIdx;    // current in-flight frame idx being recorded
+                u32            _pad0[3];
+                rz_gfx_syncobj inflightSyncobj[RAZIX_MAX_FRAMES_IN_FLIGHT];    // CPU->GPU sync, one per frame in flight (fence or timeline sema)
+            } frameSync = {};
+        };
+
+        struct SamplersPool
+        {
+            rz_gfx_sampler_handle linearSampler;
+            rz_gfx_sampler_handle pointSampler;
+            rz_gfx_sampler_handle mipSampler;
+            rz_gfx_sampler_handle anisotropicSampler;
+            rz_gfx_sampler_handle shadowSampler;
+            rz_gfx_sampler_handle shadowPCFSampler;
+        };
+
+        struct SamplersViewPool
+        {
+            rz_gfx_resource_view_handle linearSampler;
+            rz_gfx_resource_view_handle pointSampler;
+            rz_gfx_resource_view_handle mipSampler;
+            rz_gfx_resource_view_handle anisotropicSampler;
+            rz_gfx_resource_view_handle shadowSampler;
+            rz_gfx_resource_view_handle shadowPCFSampler;
+        };
+
         /**
          * Razix World Renderer handles rendering everything in the scene, it build and compiles and frame graph and is responsible for execution
          * Also holds the Gfx resources and controls rendering flow
@@ -87,23 +123,12 @@ namespace Razix {
             void create(RZWindow* window, u32 width, u32 height);
             void destroy();
 
-            /**
-             * Builds the frame graph using all the passes
-             * 
-             * Note: exports the svg & dot file into the Game/Exports/FrameGraph folder
-             */
             void buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene);
-            /* draws the frame by executing the frame graph */
             void drawFrame(RZRendererSettings& settings, Razix::RZScene* scene);
 
-            /* On Update for world renderer passes */
             void OnUpdate(RZTimestep dt);
-
-            /* ImGui rendering for the world renderer */
             void OnImGui();
-
             void OnResize(u32 width, u32 height);
-
             void flushGPUWork();
 
             inline void clearFrameGraph() { m_FrameGraph.destroy(); }
@@ -128,83 +153,42 @@ namespace Razix {
             inline rz_gfx_descriptor_heap_handle  getDepthRenderTargetHeap() const { return m_DepthRenderTargetHeap; }
             inline rz_gfx_descriptor_heap_handle  getSamplerHeap() const { return m_SamplerHeap; }
             inline rz_gfx_descriptor_heap_handle  getResourceHeap() const { return m_ResourceHeap; }
-            // FIXME: Remove this, we will soon be using Immutable Samplers instead
-            inline rz_gfx_descriptor_table_handle getGlobalSamplerTable() { return m_GlobalSamplerTable; }
+            // TODO: Remove this, we will soon be using Immutable Samplers instead
+            inline rz_gfx_descriptor_table_handle getGlobalSamplerTable() const { return m_GlobalSamplerTable; }
 
         private:
             static rz_gfx_descriptor_heap_handle m_RenderTargetHeap;
             static rz_gfx_descriptor_heap_handle m_DepthRenderTargetHeap;
             static rz_gfx_descriptor_heap_handle m_ResourceHeap;
             static rz_gfx_descriptor_heap_handle m_SamplerHeap;
-
-            static struct SamplersPool
-            {
-                rz_gfx_sampler_handle linearSampler;
-                rz_gfx_sampler_handle pointSampler;
-                rz_gfx_sampler_handle mipSampler;
-                rz_gfx_sampler_handle anisotropicSampler;
-                rz_gfx_sampler_handle shadowSampler;
-                rz_gfx_sampler_handle shadowPCFSampler;
-            } m_SamplersPool;
-
-            static struct SamplersViewPool
-            {
-                rz_gfx_resource_view_handle linearSampler;
-                rz_gfx_resource_view_handle pointSampler;
-                rz_gfx_resource_view_handle mipSampler;
-                rz_gfx_resource_view_handle anisotropicSampler;
-                rz_gfx_resource_view_handle shadowSampler;
-                rz_gfx_resource_view_handle shadowPCFSampler;
-            } m_SamplersViewPool;
-
-            RZFrameGraph          m_FrameGraph            = {};
-            rz_gfx_texture_handle m_BRDFfLUTTextureHandle = {};
-            //LightProbe      m_GlobalLightProbes;
-            //RZShadowPass             m_ShadowPass;
-            //RZGBufferPass            m_GBufferPass;
-            //RZSSAOPass               m_SSAOPass;
-            //RZPBRDeferredShadingPass m_PBRDeferredPass;
-            //RZSkyboxPass             m_SkyboxPass;
-            //RZToneMapPass            m_TonemapPass;
-            //RZCompositionPass        m_CompositePass;
-            rz_gfx_texture_readback m_LastSwapchainReadback                                 = {0};
-            RZWindow*               m_Window                                                = NULL;
-            u32                     m_FrameCount                                            = 0;
-            float2                  m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
-            float4x4                m_PreviousViewProj                                      = {};
-            float2                  m_Jitter                                                = {};
-            float2                  m_PreviousJitter                                        = {};
-            bool                    m_FrameGraphBuildingInProgress                          = false;
-            bool                    m_IsFGFilePathDirty                                     = false;
-            bool                    m_ReadSwapchainThisFrame                                = false;
-            RZString                m_FrameGraphFilePath                                    = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
-            // Gfx resources
-            struct RenderSyncPrimitives
-            {
-                // [Source]: https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html
-                struct
-                {
-                    rz_gfx_syncobj imageAcquired[RAZIX_MAX_FRAMES_IN_FLIGHT];     // one per frame in flight
-                    rz_gfx_syncobj renderingDone[RAZIX_MAX_SWAP_IMAGES_COUNT];    // one per swapchain image
-                } presentSync;                                                    // won't be needing this in DX12 and other APIs
-                // supports both timeline and fences in vulkan based on VK_KHR_timeline_semaphore availability
-                struct
-                {
-                    uint32_t       inFlightSyncIdx;                                // current in-flight frame idx being recorded
-                    rz_gfx_syncobj inflightSyncobj[RAZIX_MAX_FRAMES_IN_FLIGHT];    // CPU->GPU sync, one per frame in flight (fence or timeline sema)
-                } frameSync;
-            } m_RenderSync;
-            rz_gfx_swapchain m_Swapchain;
-            // TODO: use a ring buffer for cmd buffers/pools/cpu syncobj and gpu syncobj per frame in flight per thread per submit
-            rz_gfx_cmdpool_handle m_InFlightCmdPool[RAZIX_MAX_FRAMES_IN_FLIGHT];
-            rz_gfx_cmdbuf_handle  m_InFlightDrawCmdBufHandles[RAZIX_MAX_FRAMES_IN_FLIGHT];
-            const rz_gfx_cmdbuf*  m_InFlightDrawCmdBufPtrs[RAZIX_MAX_FRAMES_IN_FLIGHT];    // Caching at start because we re-use raw pointers so frequently
-            // TODO: maintain them per in-flight frame
-            rz_gfx_resource_view_handle    m_FrameDataCBVHandle;
-            rz_gfx_resource_view_handle    m_SceneLightsDataCBVHandle;
-            rz_gfx_descriptor_table_handle m_GlobalSamplerTable;
-            rz_gfx_descriptor_table_handle m_FrameDataTable;
-            rz_gfx_descriptor_table_handle m_SceneLightsDataTable;
+            static SamplersPool                  m_SamplersPool;
+            static SamplersViewPool              m_SamplersViewPool;
+            RZFrameGraph                         m_FrameGraph                                            = {};
+            rz_gfx_texture_handle                m_BRDFfLUTTextureHandle                                 = {};
+            LightProbe                           m_GlobalLightProbes                                     = {};
+            rz_gfx_texture_readback              m_LastSwapchainReadback                                 = {0};
+            RZWindow*                            m_Window                                                = NULL;
+            u32                                  m_FrameCount                                            = 0;
+            bool                                 m_FrameGraphBuildingInProgress                          = false;
+            bool                                 m_IsFGFilePathDirty                                     = false;
+            bool                                 m_ReadSwapchainThisFrame                                = false;
+            bool                                 _pad0                                                   = false;
+            float2                               m_TAAJitterHaltonSamples[NUM_HALTON_SAMPLES_TAA_JITTER] = {};
+            float4x4                             m_PreviousViewProj                                      = {};
+            float2                               m_Jitter                                                = {};
+            float2                               m_PreviousJitter                                        = {};
+            RZString                             m_FrameGraphFilePath                                    = "//RazixFG/Graphs/FrameGraph.Builtin.PBRLighting.json";
+            RenderSyncPrimitives                 m_RenderSync                                            = {};
+            rz_gfx_swapchain                     m_Swapchain                                             = {};
+            rz_gfx_cmdpool_handle                m_InFlightCmdPool[RAZIX_MAX_FRAMES_IN_FLIGHT]           = {};    // TODO: use a ring buffer for cmd buffers/pools/cpu syncobj and gpu syncobj per frame in flight per thread per submit
+            rz_gfx_cmdbuf_handle                 m_InFlightDrawCmdBufHandles[RAZIX_MAX_FRAMES_IN_FLIGHT] = {};    // TODO: use a ring buffer for cmd buffers/pools/cpu syncobj and gpu syncobj per frame in flight per thread per submit
+            const rz_gfx_cmdbuf*                 m_InFlightDrawCmdBufPtrs[RAZIX_MAX_FRAMES_IN_FLIGHT]    = {};    // TODO: use a ring buffer for cmd buffers/pools/cpu syncobj and gpu syncobj per frame in flight per thread per submit
+            rz_gfx_resource_view_handle          m_FrameDataCBVHandle                                    = {};    // TODO: maintain them per in-flight frame
+            rz_gfx_resource_view_handle          m_SceneLightsDataCBVHandle                              = {};    // TODO: maintain them per in-flight frame
+            rz_gfx_descriptor_table_handle       m_GlobalSamplerTable                                    = {};    // TODO: maintain them per in-flight frame
+            rz_gfx_descriptor_table_handle       m_FrameDataTable                                        = {};    // TODO: maintain them per in-flight frame
+            rz_gfx_descriptor_table_handle       m_SceneLightsDataTable                                  = {};    // TODO: maintain them per in-flight frame
+            u32                                  _pad1[2];
 
         private:
             //void importGlobalLightProbes(LightProbe globalLightProbe);
