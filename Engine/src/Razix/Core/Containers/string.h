@@ -246,6 +246,7 @@ namespace Razix {
         sz   m_capacity      = RAZIX_SSO_STRING_SIZE;
         bool m_is_using_heap = false;
         bool _pad0[7]        = {};
+        u32  _pad1           = 0;    // Padding to make the struct 16-byte aligned
 
         RAZIX_API friend RZString operator+(const RZString& lhs, const RZString& rhs);
         RAZIX_API friend RZString operator+(const RZString& lhs, const char* rhs);
