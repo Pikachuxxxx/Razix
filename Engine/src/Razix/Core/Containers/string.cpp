@@ -330,6 +330,20 @@ namespace Razix {
         m_length = length;
     }
 
+    sz RZString::hash() const
+    {
+        // FNV-1a hash algorithm
+        size_t      hash = 14695981039346656037ULL;    // FNV offset basis
+        const char* data = c_str();
+
+        for (size_t i = 0; i < length(); ++i) {
+            hash ^= static_cast<unsigned char>(data[i]);
+            hash *= 1099511628211ULL;    // FNV prime
+        }
+
+        return hash;
+    }
+
     RZString& RZString::append(const RZString& str)
     {
         return append(str.c_str(), str.m_length);

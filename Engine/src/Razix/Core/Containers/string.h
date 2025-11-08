@@ -161,6 +161,7 @@ namespace Razix {
         void resize(sz new_length);
         void clear();
         void setLength(sz length);
+        sz   hash() const;
 
         RZString& append(const RZString& str);
         RZString& append(const RZString& str, sz pos, sz count = npos);
@@ -246,7 +247,7 @@ namespace Razix {
         sz   m_capacity      = RAZIX_SSO_STRING_SIZE;
         bool m_is_using_heap = false;
         bool _pad0[7]        = {};
-        u32  _pad1           = 0;    // Padding to make the struct 16-byte aligned
+        u32  _pad1[2]        = {};
 
         RAZIX_API friend RZString operator+(const RZString& lhs, const RZString& rhs);
         RAZIX_API friend RZString operator+(const RZString& lhs, const char* rhs);
@@ -334,16 +335,7 @@ namespace std {
     {
         size_t operator()(const Razix::RZString& str) const
         {
-            // FNV-1a hash algorithm
-            size_t      hash = 14695981039346656037ULL;    // FNV offset basis
-            const char* data = str.c_str();
-
-            for (size_t i = 0; i < str.length(); ++i) {
-                hash ^= static_cast<unsigned char>(data[i]);
-                hash *= 1099511628211ULL;    // FNV prime
-            }
-
-            return hash;
+            return str.hash();
         }
     };
 }    // namespace std
