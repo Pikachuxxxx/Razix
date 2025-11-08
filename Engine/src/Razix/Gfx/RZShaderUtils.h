@@ -68,7 +68,7 @@ namespace Razix {
         public:
             struct NamedResView
             {
-                RZString                 name;
+                RZString                    name;
                 rz_gfx_resource_view_handle resourceViewHandle;
             };
 
@@ -108,14 +108,14 @@ namespace Razix {
             inline const rz_gfx_descriptor_table_handle&              getDescriptorTableHandleAt(u32 idx) const { return m_DescriptorTables[idx]; }
 
         private:
-            rz_gfx_shader_reflection                           m_ShaderReflection        = {};
-            rz_gfx_shader_handle                               m_ShaderHandle            = {};
+            rz_gfx_shader_reflection                        m_ShaderReflection        = {};
+            rz_gfx_shader_handle                            m_ShaderHandle            = {};
             std::map<RZString, rz_gfx_resource_view_handle> m_ResourceViewHandleRefs  = {};
-            std::vector<DescriptorBlacklist>                   m_BlacklistDescriptors    = {};
-            std::map<u32, std::vector<NamedResView>>           m_TableBuilderResViewRefs = {};
-            std::vector<rz_gfx_descriptor_table_handle>        m_DescriptorTables        = {};
-            BindMapValidationErr                               m_LastError               = BIND_MAP_VALIDATION_FAILED;
-            rz_gfx_root_signature_handle                       m_RootSigHandle           = {};
+            std::vector<DescriptorBlacklist>                m_BlacklistDescriptors    = {};
+            std::map<u32, std::vector<NamedResView>>        m_TableBuilderResViewRefs = {};
+            std::vector<rz_gfx_descriptor_table_handle>     m_DescriptorTables        = {};
+            BindMapValidationErr                            m_LastError               = BIND_MAP_VALIDATION_FAILED;
+            rz_gfx_root_signature_handle                    m_RootSigHandle           = {};
             union
             {
                 u32 statusFlags = 0xffffffff;

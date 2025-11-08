@@ -13,8 +13,8 @@
 #include "Razix/Gfx/RZShaderUtils.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
-#include "Razix/Core/Utils/RZLoadImage.h"
 #include "Razix/Core/Containers/string.h"
+#include "Razix/Core/Utils/RZLoadImage.h"
 
 namespace Razix {
     namespace Gfx {
@@ -51,12 +51,12 @@ namespace Razix {
 
             std::map<rz_gfx_shader_stage, RZString> shaders;
             std::vector<RZString>                   shader_defines;
-            rz_gfx_shader_desc                         desc       = {};
+            rz_gfx_shader_desc                      desc       = {};
             RZString                                rzsfSource = RZVirtualFileSystem::Get().readTextFile(filePath);
 
             // Break the shader into lines
             std::vector<RZString> lines = GetLines(rzsfSource);
-            rz_gfx_shader_stage      stage = rz_gfx_shader_stage::RZ_GFX_SHADER_STAGE_NONE;
+            rz_gfx_shader_stage   stage = rz_gfx_shader_stage::RZ_GFX_SHADER_STAGE_NONE;
 
             // Set file extensions and directories based on render API
             switch (rzGfxCtx_GetRenderAPI()) {
@@ -93,8 +93,8 @@ namespace Razix {
                 } else if (StartsWith(line, "#ifdef")) {
                     // Parse conditional compilation
                     RZString condition = line.substr(7);    // skip "#ifdef "
-                    condition             = RemoveSpaces(condition);
-                    auto defines          = SplitString(condition, "||");
+                    condition          = RemoveSpaces(condition);
+                    auto defines       = SplitString(condition, "||");
                     shader_defines.insert(shader_defines.end(), defines.begin(), defines.end());
                 } else if (StartsWith(line, "#include")) {
                     // Parse shader include directive

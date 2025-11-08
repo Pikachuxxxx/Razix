@@ -17,8 +17,8 @@
 #ifndef RAZIX_GOLD_MASTER
 
     #define RAZIX_TIME_STAMP_BEGIN(name) \
-        const RZString& Key   = name;  \
-        auto              start = std::chrono::high_resolution_clock::now();
+        const RZString& Key   = name;    \
+        auto            start = std::chrono::high_resolution_clock::now();
 
     #define RAZIX_TIME_STAMP_END()                                                                           \
         auto                                   stop             = std::chrono::high_resolution_clock::now(); \

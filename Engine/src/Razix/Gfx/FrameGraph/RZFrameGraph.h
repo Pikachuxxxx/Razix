@@ -155,8 +155,8 @@ namespace Razix {
             void destroy();
             bool isValid(RZFrameGraphResource id);
 
-            const RZString&     getResourceName(RZFrameGraphResource id) const;
-            const RZString&     getResourceEntryName(RZFrameGraphResource id) const;
+            const RZString&        getResourceName(RZFrameGraphResource id) const;
+            const RZString&        getResourceEntryName(RZFrameGraphResource id) const;
             const RZResourceNode&  getResourceNode(RZFrameGraphResource id) const;
             const RZResourceEntry& getResourceEntry(RZFrameGraphResource id) const;
 

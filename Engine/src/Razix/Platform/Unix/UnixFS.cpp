@@ -5,13 +5,13 @@
 
 #ifdef RAZIX_PLATFORM_UNIX
 
-#include "Razix/Core/Memory/RZMemoryFunctions.h"
+    #include "Razix/Core/Memory/RZMemoryFunctions.h"
 
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <errno.h>
-#include <cstring>
+    #include <cstring>
+    #include <errno.h>
+    #include <fcntl.h>
+    #include <sys/stat.h>
+    #include <unistd.h>
 
 namespace Razix {
 
@@ -60,12 +60,12 @@ namespace Razix {
         }
 
         // Allocate buffer using RZMalloc
-        u8* buffer = (u8*)Memory::RZMalloc(fileSize);
+        u8* buffer = (u8*) Memory::RZMalloc(fileSize);
         if (!buffer) {
             close(fd);
             return nullptr;
         }
-        
+
         // Read file contents
         ssize_t bytesRead = read(fd, buffer, fileSize);
         close(fd);
@@ -120,7 +120,7 @@ namespace Razix {
         }
 
         // Allocate temporary buffer using RZMalloc
-        char* tempBuffer = (char*)Memory::RZMalloc(fileSize + 1);
+        char* tempBuffer = (char*) Memory::RZMalloc(fileSize + 1);
         if (!tempBuffer) {
             close(fd);
             return RZString();
@@ -132,7 +132,7 @@ namespace Razix {
         RZString result;
         if (bytesRead == fileSize) {
             tempBuffer[fileSize] = '\0';
-            result = RZString(tempBuffer);
+            result               = RZString(tempBuffer);
         }
 
         Memory::RZFree(tempBuffer);
@@ -164,8 +164,8 @@ namespace Razix {
         }
 
         const char* data = text.c_str();
-        int64_t size = text.length();
-        
+        int64_t     size = text.length();
+
         ssize_t bytesWritten = write(fd, data, size);
         close(fd);
 

@@ -51,14 +51,14 @@ namespace Razix {
         static i32 ProcessMessages();
 
     private:
-        HWND        hWnd;
+        HWND     hWnd;
         RZString m_VersionString;
         RZString m_LogString;
         RZString m_ImagePath;
-        HBITMAP     m_SplashImage;
-        HWND        m_SplashImageView;
-        HWND        m_VersionLabel;
-        HWND        m_LogLabel;
+        HBITMAP  m_SplashImage;
+        HWND     m_SplashImageView;
+        HWND     m_VersionLabel;
+        HWND     m_LogLabel;
 
     private:
         static LRESULT CALLBACK HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;

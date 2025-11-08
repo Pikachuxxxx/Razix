@@ -57,8 +57,8 @@ namespace Razix {
     {
         RAZIX_CORE_ASSERT(m_CommandOptions.find(name) != m_CommandOptions.end(), "No value has been passed to the argument");
         RZString value = m_CommandOptions[name].value;
-        char*       numConvPtr;
-        i32         intVal = (i32) strtol(value.c_str(), &numConvPtr, 10);
+        char*    numConvPtr;
+        i32      intVal = (i32) strtol(value.c_str(), &numConvPtr, 10);
         return intVal;
     }
 

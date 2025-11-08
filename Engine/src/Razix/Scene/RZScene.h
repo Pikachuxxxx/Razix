@@ -121,8 +121,8 @@ namespace Razix {
     private:
         entt::registry m_Registry;                  /* Scene registry for storing all the entities  */
         RZUUID         m_SceneUUID;                 /* The UUID to identify the scene uniquely      */
-        RZString    m_SceneName = "Razix Scene"; /* The name of the scene                        */
-        RZString    m_ScenePath;                 /* The Path of the scene file                   */
+        RZString       m_SceneName = "Razix Scene"; /* The name of the scene                        */
+        RZString       m_ScenePath;                 /* The Path of the scene file                   */
         u32            m_LastMeshesCount = 0;
         RZSceneCamera  m_EditorModeCamera;
         //Gfx::RZMesh*   m_Cube = nullptr;

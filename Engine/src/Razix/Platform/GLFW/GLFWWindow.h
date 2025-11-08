@@ -42,8 +42,8 @@ namespace Razix {
         struct WindowData
         {
             RZString Title;
-            u32         Width;
-            u32         Height;
+            u32      Width;
+            u32      Height;
             //            u32             wScale;
             //            u32             hScale;
             bool            Vsync;

@@ -16,7 +16,7 @@ namespace Razix {
         bool ParseBudgetFile(const RZString& filePath)
         {
             RZiniParser budgetFileIniParser;
-            bool                   success = budgetFileIniParser.parse(filePath);
+            bool        success = budgetFileIniParser.parse(filePath);
 
             if (success) {
                 // Get global vars

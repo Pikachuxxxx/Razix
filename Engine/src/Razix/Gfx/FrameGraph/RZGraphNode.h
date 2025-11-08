@@ -28,16 +28,16 @@ namespace Razix {
             RAZIX_DEFAULT_MOVABLE_CLASS(RZGraphNode)
 
             inline const RZString& getName() const { return m_Name; }
-            inline u32                getID() const { return m_ID; }
-            inline u32                getRefCount() const { return m_RefCount; }
+            inline u32             getID() const { return m_ID; }
+            inline u32             getRefCount() const { return m_RefCount; }
 
         protected:
             RZGraphNode(const RZString& name, u32 id);
 
         protected:
             RZString m_Name;
-            u32         m_ID       = -1;
-            i32         m_RefCount = 0;
+            u32      m_ID       = -1;
+            i32      m_RefCount = 0;
         };
     }    // namespace Gfx
 }    // namespace Razix

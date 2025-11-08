@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Razix/Core/std/type_traits.h"
 #include "Razix/Core/RZDataTypes.h"
+#include "Razix/Core/std/type_traits.h"
 
 namespace Razix {
 

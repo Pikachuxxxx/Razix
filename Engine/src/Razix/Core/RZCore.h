@@ -395,8 +395,8 @@
         }                                                     \
         RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier)
 
-// Enum names array size checker
-#define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
+    // Enum names array size checker
+    #define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
 
 #endif    // __cplusplus
 

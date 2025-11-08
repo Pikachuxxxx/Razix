@@ -51,12 +51,12 @@ namespace Razix {
                  */
             struct RAZIX_API Concept
             {
-                virtual ~Concept()                                          = default;
-                virtual void        create(const void* transientAllocator)  = 0;
-                virtual void        destroy(const void* transientAllocator) = 0;
-                virtual void        preRead(uint32_t flags)                 = 0;
-                virtual void        preWrite(uint32_t flags)                = 0;
-                virtual void        resize(u32 width, u32 height)           = 0;
+                virtual ~Concept()                                       = default;
+                virtual void     create(const void* transientAllocator)  = 0;
+                virtual void     destroy(const void* transientAllocator) = 0;
+                virtual void     preRead(uint32_t flags)                 = 0;
+                virtual void     preWrite(uint32_t flags)                = 0;
+                virtual void     resize(u32 width, u32 height)           = 0;
                 virtual RZString toString() const                        = 0;
             };
 
@@ -139,7 +139,7 @@ namespace Razix {
                 T                      resource;
                 const typename T::Desc descriptor;
                 u32                    m_ID;
-                RZString            m_Name;
+                RZString               m_Name;
             };
 
         public:
@@ -183,11 +183,11 @@ namespace Razix {
             }
 
             RAZIX_NO_DISCARD inline const RZString& getName() const { return m_Name; }
-            RAZIX_NO_DISCARD inline u32                getVersion() const { return m_Version; }
-            RAZIX_NO_DISCARD inline bool               isImported() const { return m_Imported; }
-            RAZIX_NO_DISCARD inline bool               isTransient() const { return !m_Imported; }
-            RAZIX_NO_DISCARD inline u32                getID() const { return m_ID; }
-            RAZIX_NO_DISCARD inline FGResourceType     getResourceType() const { return m_ResType; }
+            RAZIX_NO_DISCARD inline u32             getVersion() const { return m_Version; }
+            RAZIX_NO_DISCARD inline bool            isImported() const { return m_Imported; }
+            RAZIX_NO_DISCARD inline bool            isTransient() const { return !m_Imported; }
+            RAZIX_NO_DISCARD inline u32             getID() const { return m_ID; }
+            RAZIX_NO_DISCARD inline FGResourceType  getResourceType() const { return m_ResType; }
 
         private:
             std::unique_ptr<Concept> m_Concept;      // Use unique_ptr for safe memory management
@@ -196,7 +196,7 @@ namespace Razix {
             const bool               m_Imported = false;
             u32                      m_Version  = UINT32_MAX;
             FGResourceType           m_ResType  = {};
-            RZString              m_Name;
+            RZString                 m_Name;
 #ifdef FG_USE_FINE_GRAINED_LIFETIMES
             std::vector<RZResourceLifetime> m_Lifetimes;
 #else
@@ -207,11 +207,11 @@ namespace Razix {
         private:
             template<typename T>
             RZResourceEntry(const RZString& name,
-                u32                            id,
-                typename T::Desc&&             desc,
-                T&&                            obj,
-                u32                            version,
-                bool                           imported = false)
+                u32                         id,
+                typename T::Desc&&          desc,
+                T&&                         obj,
+                u32                         version,
+                bool                        imported = false)
                 : m_ID(id), m_Imported(imported), m_TypeIndex(typeid(T))
             {
                 RAZIX_CORE_INFO("Creating RZResourceEntry with T = {}", typeid(T).name());

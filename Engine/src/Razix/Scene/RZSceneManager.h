@@ -67,12 +67,12 @@ namespace Razix {
         void                  saveCurrentScene();
 
     private:
-        u32                      m_CurrentSceneIdx = 0;            /* The current index of the scene that is being presented by the engine */
-        RZScene*                 m_CurrentScene    = nullptr;      /* The reference to the currently presented scene                       */
-        std::vector<RZScene*>    m_LoadedScenes;                   /* The queue of all the loaded scene in memory ready to be switched     */
+        u32                   m_CurrentSceneIdx = 0;            /* The current index of the scene that is being presented by the engine */
+        RZScene*              m_CurrentScene    = nullptr;      /* The reference to the currently presented scene                       */
+        std::vector<RZScene*> m_LoadedScenes;                   /* The queue of all the loaded scene in memory ready to be switched     */
         std::vector<RZString> m_LoadedSceneFilePaths;           /* List of files paths of the scenes that were loaded into memory       */
-        bool                     m_IsSwitchingScenes      = false; /* Is the scene switching is in progress or not                         */
-        u32                      m_QueuedSceneIndexToLoad = -1;    /* The next scene index to which it will switch to                      */
+        bool                  m_IsSwitchingScenes      = false; /* Is the scene switching is in progress or not                         */
+        u32                   m_QueuedSceneIndexToLoad = -1;    /* The next scene index to which it will switch to                      */
         friend class RZEntity;
     };
 }    // namespace Razix

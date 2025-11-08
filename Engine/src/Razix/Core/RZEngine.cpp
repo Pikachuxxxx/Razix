@@ -186,7 +186,7 @@ namespace Razix {
         RZiniParser engineConfigParser;
         // Engine is in the same directory as the executable
         RZString defaultConfigPath    = "//RazixConfig/DefaultEngineConfig.ini";
-        bool        skipVFSForConfigLoad = false;
+        bool     skipVFSForConfigLoad = false;
         if (m_CommandLineParser.isSet("engine config filename")) {
             defaultConfigPath    = m_CommandLineParser.getValueAsString("engine config filename");
             skipVFSForConfigLoad = true;

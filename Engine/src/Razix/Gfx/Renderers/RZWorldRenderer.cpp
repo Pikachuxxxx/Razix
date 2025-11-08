@@ -347,7 +347,7 @@ namespace Razix {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     rz_gfx_cmdbuf_handle cmdBufHandle = m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx];
-                    
+
                     RAZIX_TIME_STAMP_BEGIN("Upload FrameData");
                     RAZIX_MARK_BEGIN(cmdBufHandle, "Upload FrameData", float4(0.8f, 0.2f, 0.15f, 1.0f));
 

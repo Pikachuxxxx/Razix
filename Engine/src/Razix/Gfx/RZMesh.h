@@ -41,7 +41,7 @@ namespace Razix {
 
             void bindVBsAndIB(rz_gfx_cmdbuf_handle cmdBuffer);
 
-            inline const RZString&   getName() const { return m_Name; }
+            inline const RZString&      getName() const { return m_Name; }
             inline void                 setName(const char* name) { m_Name = RZString(name); }
             inline void                 setName(RZString name) { m_Name = name; }
             inline RZMaterial*          getMaterial() { return m_Material; }
@@ -52,7 +52,7 @@ namespace Razix {
             inline void                 setVertexCount(u32 count) { m_VertexCount = count; }
             inline u32                  getIndexCount() const { return m_IndexCount; }
             inline void                 setIndexCount(u32 count) { m_IndexCount = count; }
-            inline RZString          getPath() { return m_MeshPath; }
+            inline RZString             getPath() { return m_MeshPath; }
             inline void                 setPath(RZString path) { m_MeshPath = path; }
             inline Maths::AABB          getBoundingBox() { return m_BoundingBox; }
             inline void                 setBoundingBox(Maths::AABB aabb) { m_BoundingBox = aabb; }
@@ -66,7 +66,7 @@ namespace Razix {
             inline void                 setBaseIndex(u32 count) { m_BaseIndex = count; }
 
         private:
-            RZString          m_Name                                    = "SM_Primitive.Cube";
+            RZString             m_Name                                    = "SM_Primitive.Cube";
             RZMaterial*          m_Material                                = NULL;
             rz_gfx_buffer_handle m_IndexBuffer                             = {};
             u32                  m_IndexCount                              = 0;
@@ -74,7 +74,7 @@ namespace Razix {
             Maths::AABB          m_BoundingBox                             = {};
             u32                  m_BaseIndex                               = 0;
             u32                  m_BaseVertex                              = 0;
-            RZString          m_MeshPath                                = "";
+            RZString             m_MeshPath                                = "";
             rz_gfx_buffer_handle m_VertexBuffers[VERTEX_MAX_ATTRIBS_COUNT] = {};
 
             void initMeshFromVectors(const RZVertex& vertices, const std::vector<u32>& indices);

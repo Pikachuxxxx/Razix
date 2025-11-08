@@ -83,8 +83,8 @@ namespace Razix {
             }
 
             RAZIX_INLINE const RZString& getFinalOutputName() const { return m_FinalOutputName; }
-            RAZIX_INLINE void               setFinalOutputName(const RZString& val) { m_FinalOutputName = val; }
-            RZFrameGraphResource            getFinalOutputID() { return getID(m_FinalOutputName); }
+            RAZIX_INLINE void            setFinalOutputName(const RZString& val) { m_FinalOutputName = val; }
+            RZFrameGraphResource         getFinalOutputID() { return getID(m_FinalOutputName); }
 
             void destroy()
             {

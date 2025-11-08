@@ -1000,8 +1000,8 @@ namespace Razix {
                     rz_gfx_descriptor_heap_handle globalResourceHeapHandle = RZEngine::Get().getWorldRenderer().getResourceHeap();
                     desc.pHeap                                             = RZResourceManager::Get().getDescriptorHeapResource(globalResourceHeapHandle);
 
-                    RZString                   shaderName            = RZResourceManager::Get().getShaderResource(m_ShaderHandle)->resource.pName;
-                    RZString                   tableName             = "ShaderBindMap.DescriptorTable." + rz_to_string(i) + "_" + shaderName;
+                    RZString                      shaderName            = RZResourceManager::Get().getShaderResource(m_ShaderHandle)->resource.pName;
+                    RZString                      tableName             = "ShaderBindMap.DescriptorTable." + rz_to_string(i) + "_" + shaderName;
                     rz_gfx_descriptor_heap_handle descriptorTableHandle = RZResourceManager::Get().createDescriptorTable(tableName.c_str(), desc);
                     m_DescriptorTables.push_back(descriptorTableHandle);
 
