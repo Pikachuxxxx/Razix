@@ -2,8 +2,16 @@
 <img width=200" align="left" src="https://github.com/Pikachuxxxx/Razix/blob/master/Branding/RazixLogo.png"> <h1> Razix Engine </h1>
 Razix is a High Performance Engine for experimenting with different rendering techniques. Razix supports Windows, Mac, Linux.   
 
+---
 
-THIS ENGINE IS BEING MADE FOR A GAME! not a generic engine, I'll have the GDD/Story etc. soon here!
+THIS ENGINE IS BEING MADE FOR A GAME called "Tanu"! not a generic engine, I'll have the GDD/Story etc. soon here! For now I have the mood board and broad storkes of the game. It's a first person narrative driven action-puzzle game, with a duration of 2-3 hours.
+
+_Tanu = Body/Her_
+
+Tanu Mood Board:
+![](./Tanu/Design/ProjectTanu.drawio.png)
+
+[tanu_mood.txt - thoughs about the direction of the game](./Tanu/Design/tanu_mood.txt)
 
 
 # About
