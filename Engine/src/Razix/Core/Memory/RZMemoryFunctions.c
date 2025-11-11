@@ -1,4 +1,4 @@
-#include "RZMemoryFunctions.h"
+#include "Razix/Core/Memory/RZMemoryFunctions.h"
 
 #ifdef RAZIX_PLATFORM_WINDOWS
     #include <corecrt_malloc.h>
@@ -14,10 +14,14 @@ void* rz_malloc(size_t size, size_t alignment)
 
     void* address = NULL;
 
-#ifdef RAZIX_MEMORY_DEBUG
+#ifdef RAZIX_DEBUG
     address = rz_debug_malloc(size, alignment, NULL, 0, NULL);
 #else
-    address = malloc(rz_mem_align(size, alignment));
+    #ifdef RAZIX_PLATFORM_WINDOWS
+    address = _aligned_malloc(size, alignment);
+    #elif RAZIX_PLATFORM_UNIX
+    address = memalign(alignment, size);
+    #endif
 #endif
 
     // Zero out the allocated memory
@@ -64,10 +68,19 @@ void* rz_realloc(void* oldPtr, size_t newSize, size_t alignment)
         return rz_malloc(newSize, alignment);
     }
 
-    oldPtr = realloc(oldPtr, newSize);
-    if (!oldPtr) {
-        return NULL;
+#ifdef RAZIX_PLATFORM_WINDOWS
+    oldPtr = _aligned_realloc(oldPtr, newSize, alignment);
+#elif RAZIX_PLATFORM_UNIX
+    void* newPtr = memalign(alignment, newSize);
+    if (newPtr) {
+        memcpy(newPtr, oldPtr, newSize);
+        free(oldPtr);
+        oldPtr = newPtr;
+    } else {
+        oldPtr = NULL;
     }
+#endif
+
     return oldPtr;
 }
 
@@ -82,7 +95,7 @@ void* rz_calloc(size_t count, size_t size, size_t alignment)
     return rz_malloc(totalSize, alignment);    // already zeroes out memory
 }
 
-void* rz_calloc_simple(size_t count, size_t size)
+void* rz_calloc_aligned(size_t count, size_t size)
 {
     return rz_calloc(count, size, 16);
 }
@@ -91,11 +104,16 @@ void rz_free(void* address)
 {
     // TODO: Begin tracking allocation here
 
-#ifdef RAZIX_MEMORY_DEBUG
+#ifdef RAZIX_DEBUG
     rz_debug_free(address);
 #else
-    if (address)
+    if (address) {
+    #ifdef RAZIX_PLATFORM_WINDOWS
+        _aligned_free(address);
+    #elif RAZIX_PLATFORM_UNIX
         free(address);
+    #endif
+    }
 #endif
     // TODO: End tracking allocation here
 }
@@ -106,7 +124,7 @@ size_t rz_mem_align(size_t size, size_t alignment)
     return (size + alignment_mask) & ~alignment_mask;
 }
 
-#ifdef RAZIX_MEMORY_DEBUG
+#ifdef RAZIX_DEBUG
 
 void* rz_debug_malloc(size_t size, size_t alignment, const char* filename, uint32_t lineNumber, const char* tag)
 {
@@ -115,7 +133,14 @@ void* rz_debug_malloc(size_t size, size_t alignment, const char* filename, uint3
     // We create a struct as mentioned and then add it to the total allocation size --> Init it with allocation info --> Append it --> Align it and boom sent it for usage --> user wont know it's a bit bigger
     //size_t total_size = size; /* + sizeof(AllocationInfo) */
 
-    void* addr = malloc(rz_mem_align(size, alignment));
+    void* addr = NULL;
+
+    #ifdef RAZIX_PLATFORM_WINDOWS
+    addr = _aligned_malloc(size, alignment);
+    #elif RAZIX_PLATFORM_UNIX
+    addr = memalign(alignment, size);
+    #endif
+
     //printf("[Memory Alloc]  sz : %zu | alignment : %zu | tag : %s | addr : %llx", size, alignment, tag, (uintptr_t) addr);
     return addr;
 }
@@ -125,8 +150,13 @@ void rz_debug_free(void* address)
     // Removes the allocation info that was done from the tracker
     // Add the allocation info size --> sets to 0xCD --> Free's the memory to the OS
     // Kinda works for now
-    if (address)
+    if (address) {
+    #ifdef RAZIX_PLATFORM_WINDOWS
+        _aligned_free(address);
+    #elif RAZIX_PLATFORM_UNIX
         free(address);
+    #endif
+    }
 }
 
 #endif
