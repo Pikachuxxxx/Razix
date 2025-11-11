@@ -36,13 +36,13 @@ namespace Razix {
         ~RZString()
         {
             if (m_is_using_heap && m_data.ptr != NULL)
-                Memory::RZFree(m_data.ptr);
+                rz_free(m_data.ptr);
         }
 
         RZString(const RZString& other)
         {
             if (m_is_using_heap) {
-                Memory::RZFree(m_data.ptr);
+                rz_free(m_data.ptr);
                 m_data.ptr = NULL;
             }
 
@@ -51,7 +51,7 @@ namespace Razix {
             m_is_using_heap = other.m_is_using_heap;
 
             if (m_is_using_heap) {
-                m_data.ptr = (char*) Memory::RZMalloc(m_capacity);
+                m_data.ptr = (char*) rz_malloc(m_capacity, RAZIX_CACHE_LINE_ALIGN);
                 memcpy(m_data.ptr, other.m_data.ptr, m_length);
                 m_data.ptr[m_length] = '\0';
             } else {
@@ -64,7 +64,7 @@ namespace Razix {
         RZString& operator=(const RZString& other)
         {
             if (m_is_using_heap) {
-                Memory::RZFree(m_data.ptr);
+                rz_free(m_data.ptr);
                 m_data.ptr = NULL;
             }
 
@@ -73,7 +73,7 @@ namespace Razix {
             m_is_using_heap = other.m_is_using_heap;
 
             if (m_is_using_heap) {
-                m_data.ptr = (char*) Memory::RZMalloc(m_capacity);
+                m_data.ptr = (char*) rz_malloc(m_capacity, RAZIX_CACHE_LINE_ALIGN);
                 memcpy(m_data.ptr, other.m_data.ptr, m_length);
                 m_data.ptr[m_length] = '\0';
             } else {
@@ -108,7 +108,7 @@ namespace Razix {
         RZString& operator=(RZString&& other) noexcept
         {
             if (m_data.ptr && m_is_using_heap)
-                Memory::RZFree(m_data.ptr);
+                rz_free(m_data.ptr);
 
             m_length        = other.m_length;
             m_capacity      = other.m_capacity;

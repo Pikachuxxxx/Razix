@@ -120,7 +120,7 @@ namespace Razix {
                     continue;
                 }
 
-                void* heapCopy = Memory::RZMemCopyToHeap(bytecode, bytecodeSize);
+                void* heapCopy = rz_mem_copy_to_heap(bytecode, bytecodeSize);
 
                 // Assign bytecode to appropriate shader stage
                 switch (stage) {
@@ -237,37 +237,37 @@ namespace Razix {
                     // Free raster pipeline stages
                     if (desc->raster.vs.bytecode) {
                         RAZIX_ASSERT(desc->raster.vs.size > 0, "[RZSF] VS bytecode has invalid size");
-                        Memory::RZFree((void*) desc->raster.vs.bytecode);
+                        rz_free((void*) desc->raster.vs.bytecode);
                         desc->raster.vs.bytecode = NULL;
                     }
                     if (desc->raster.ps.bytecode) {
                         RAZIX_ASSERT(desc->raster.ps.size > 0, "[RZSF] PS bytecode has invalid size");
-                        Memory::RZFree((void*) desc->raster.ps.bytecode);
+                        rz_free((void*) desc->raster.ps.bytecode);
                         desc->raster.ps.bytecode = NULL;
                     }
                     if (desc->raster.gs.bytecode) {
                         RAZIX_ASSERT(desc->raster.gs.size > 0, "[RZSF] GS bytecode has invalid size");
-                        Memory::RZFree((void*) desc->raster.gs.bytecode);
+                        rz_free((void*) desc->raster.gs.bytecode);
                         desc->raster.gs.bytecode = NULL;
                     }
                     if (desc->raster.tcs.bytecode) {
                         RAZIX_ASSERT(desc->raster.tcs.size > 0, "[RZSF] TCS bytecode has invalid size");
-                        Memory::RZFree((void*) desc->raster.tcs.bytecode);
+                        rz_free((void*) desc->raster.tcs.bytecode);
                         desc->raster.tcs.bytecode = NULL;
                     }
                     if (desc->raster.tes.bytecode) {
                         RAZIX_ASSERT(desc->raster.tes.size > 0, "[RZSF] TES bytecode has invalid size");
-                        Memory::RZFree((void*) desc->raster.tes.bytecode);
+                        rz_free((void*) desc->raster.tes.bytecode);
                         desc->raster.tes.bytecode = NULL;
                     }
                     if (desc->raster.task.bytecode) {
                         RAZIX_ASSERT(desc->raster.task.size > 0, "[RZSF] Task shader bytecode has invalid size");
-                        Memory::RZFree((void*) desc->raster.task.bytecode);
+                        rz_free((void*) desc->raster.task.bytecode);
                         desc->raster.task.bytecode = NULL;
                     }
                     if (desc->raster.mesh.bytecode) {
                         RAZIX_ASSERT(desc->raster.mesh.size > 0, "[RZSF] Mesh shader bytecode has invalid size");
-                        Memory::RZFree((void*) desc->raster.mesh.bytecode);
+                        rz_free((void*) desc->raster.mesh.bytecode);
                         desc->raster.mesh.bytecode = NULL;
                     }
                     break;
@@ -276,7 +276,7 @@ namespace Razix {
                 case RZ_GFX_PIPELINE_TYPE_COMPUTE: {
                     if (desc->compute.cs.bytecode) {
                         RAZIX_ASSERT(desc->compute.cs.size > 0, "[RZSF] CS bytecode has invalid size");
-                        Memory::RZFree((void*) desc->compute.cs.bytecode);
+                        rz_free((void*) desc->compute.cs.bytecode);
                         desc->compute.cs.bytecode = NULL;
                     }
                     break;
@@ -286,27 +286,27 @@ namespace Razix {
                     // Free raytracing pipeline stages
                     if (desc->raytracing.rgen.bytecode) {
                         RAZIX_ASSERT(desc->raytracing.rgen.size > 0, "[RZSF] RGEN bytecode has invalid size");
-                        Memory::RZFree((void*) desc->raytracing.rgen.bytecode);
+                        rz_free((void*) desc->raytracing.rgen.bytecode);
                         desc->raytracing.rgen.bytecode = NULL;
                     }
                     if (desc->raytracing.miss.bytecode) {
                         RAZIX_ASSERT(desc->raytracing.miss.size > 0, "[RZSF] MISS bytecode has invalid size");
-                        Memory::RZFree((void*) desc->raytracing.miss.bytecode);
+                        rz_free((void*) desc->raytracing.miss.bytecode);
                         desc->raytracing.miss.bytecode = NULL;
                     }
                     if (desc->raytracing.chit.bytecode) {
                         RAZIX_ASSERT(desc->raytracing.chit.size > 0, "[RZSF] CHIT bytecode has invalid size");
-                        Memory::RZFree((void*) desc->raytracing.chit.bytecode);
+                        rz_free((void*) desc->raytracing.chit.bytecode);
                         desc->raytracing.chit.bytecode = NULL;
                     }
                     if (desc->raytracing.ahit.bytecode) {
                         RAZIX_ASSERT(desc->raytracing.ahit.size > 0, "[RZSF] AHIT bytecode has invalid size");
-                        Memory::RZFree((void*) desc->raytracing.ahit.bytecode);
+                        rz_free((void*) desc->raytracing.ahit.bytecode);
                         desc->raytracing.ahit.bytecode = NULL;
                     }
                     if (desc->raytracing.callable.bytecode) {
                         RAZIX_ASSERT(desc->raytracing.callable.size > 0, "[RZSF] CALLABLE bytecode has invalid size");
-                        Memory::RZFree((void*) desc->raytracing.callable.bytecode);
+                        rz_free((void*) desc->raytracing.callable.bytecode);
                         desc->raytracing.callable.bytecode = NULL;
                     }
                     break;

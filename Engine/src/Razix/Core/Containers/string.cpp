@@ -65,7 +65,7 @@ namespace Razix {
             m_data.sso[len] = '\0';
         } else {
             m_capacity = len + 1;
-            m_data.ptr = static_cast<char*>(Memory::RZMalloc(len + 1));
+            m_data.ptr = static_cast<char*>(rz_malloc(len + 1, RAZIX_CACHE_LINE_ALIGN));
             memcpy(m_data.ptr, str, len);
             m_data.ptr[len] = '\0';
             m_is_using_heap = true;
@@ -85,7 +85,7 @@ namespace Razix {
             m_data.sso[count] = '\0';
         } else {
             m_capacity = count + 1;
-            m_data.ptr = static_cast<char*>(Memory::RZMalloc(count + 1));
+            m_data.ptr = static_cast<char*>(rz_malloc(count + 1, RAZIX_CACHE_LINE_ALIGN));
             memcpy(m_data.ptr, str, count);
             m_data.ptr[count] = '\0';
             m_is_using_heap   = true;
@@ -111,7 +111,7 @@ namespace Razix {
             m_data.sso[len] = '\0';
         } else {
             m_capacity = len + 1;
-            m_data.ptr = static_cast<char*>(Memory::RZMalloc(len + 1));
+            m_data.ptr = static_cast<char*>(rz_malloc(len + 1, RAZIX_CACHE_LINE_ALIGN));
             memcpy(m_data.ptr, src + pos, len);
             m_data.ptr[len] = '\0';
             m_is_using_heap = true;
@@ -130,7 +130,7 @@ namespace Razix {
             m_data.sso[count] = '\0';
         } else {
             m_capacity = count + 1;
-            m_data.ptr = static_cast<char*>(Memory::RZMalloc(count + 1));
+            m_data.ptr = static_cast<char*>(rz_malloc(count + 1, RAZIX_CACHE_LINE_ALIGN));
             memset(m_data.ptr, ch, count);
             m_data.ptr[count] = '\0';
             m_is_using_heap   = true;
@@ -283,7 +283,7 @@ namespace Razix {
         while (m_capacity < new_capacity)
             m_capacity *= 2;
 
-        char* new_buf = (char*) Memory::RZMalloc(m_capacity + 1);
+        char* new_buf = (char*) rz_malloc(m_capacity + 1, RAZIX_CACHE_LINE_ALIGN);
         char* src     = m_is_using_heap ? m_data.ptr : m_data.sso;
 
         memcpy(new_buf, src, m_length);
@@ -291,7 +291,7 @@ namespace Razix {
         memset(new_buf + m_length, 0xCD, m_capacity - m_length);
 
         if (m_is_using_heap)
-            Memory::RZFree(m_data.ptr);
+            rz_free(m_data.ptr);
 
         m_data.ptr      = new_buf;
         m_is_using_heap = true;
@@ -491,7 +491,7 @@ namespace Razix {
         if (m_is_using_heap && m_length < RAZIX_SSO_STRING_SIZE) {
             // move data from heap to SSO buffer
             memcpy(m_data.sso, dst, m_length);
-            Memory::RZFree(dst);
+            rz_free(dst);
             m_is_using_heap = false;
         }
 

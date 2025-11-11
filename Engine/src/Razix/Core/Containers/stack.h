@@ -184,7 +184,7 @@ namespace Razix {
     void RZStack<T>::reserve(sz capacity)
     {
         if (capacity > m_capacity || !m_data) {
-            m_data = (T*) Razix::Memory::RZMalloc(capacity * sizeof(T), 16);
+            m_data = (T*) rz_malloc(capacity * sizeof(T), 16);
             if (!m_data) {
                 RAZIX_CORE_ERROR("[RZStack] failed to allocated memory for RZStack");
             }
@@ -220,7 +220,7 @@ namespace Razix {
     void RZStack<T>::destroy()
     {
         if (m_data) {
-            Razix::Memory::RZFree(m_data);
+            rz_free(m_data);
             m_size     = 0;
             m_capacity = 0;
             m_data     = NULL;

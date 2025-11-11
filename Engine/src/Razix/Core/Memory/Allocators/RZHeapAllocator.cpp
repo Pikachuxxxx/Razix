@@ -15,9 +15,6 @@ namespace Razix {
 
         static void deallocation_pool_walker(void* ptr, size_t size, int used, void* user_data)
         {
-            RZMemAllocatorStats* stats = (RZMemAllocatorStats*) user_data;
-            stats->Add(used ? size : 0);
-
 #ifdef RAZIX_DEBUG
             if (used)
                 printf("[Heap Allocator] Found active allocation at : %p, size: %zu \n", ptr, size);
@@ -29,7 +26,7 @@ namespace Razix {
             m_TotalChunkSize = chunkSize;
 
             // Allocate a big chunk of heap for TLSF to manage
-            // Note: by default RZMalloc gives 16-byte aligned memory, if you need raw malloc and you can manage yourself use the OG functions
+            // Note: by default rz_malloc_aligned gives 16-byte aligned memory, if you need raw malloc and you can manage yourself use the OG functions
             m_ChunkAddress = malloc(chunkSize);
 
             // Create a TLSF memory pool from which the heap allocations is done

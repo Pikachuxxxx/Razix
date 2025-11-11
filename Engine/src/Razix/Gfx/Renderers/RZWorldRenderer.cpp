@@ -265,7 +265,7 @@ namespace Razix {
             m_FrameCount = 0;
 
             if (m_LastSwapchainReadback.data) {
-                Memory::RZFree(m_LastSwapchainReadback.data);
+                rz_free(m_LastSwapchainReadback.data);
                 m_LastSwapchainReadback.data = NULL;
             }
 

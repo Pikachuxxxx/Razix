@@ -60,7 +60,7 @@ namespace Razix {
         }
 
         // Allocate buffer using RZMalloc
-        u8* buffer = (u8*) Memory::RZMalloc(fileSize);
+        u8* buffer = (u8*) rz_malloc_aligned(fileSize);
         if (!buffer) {
             close(fd);
             return nullptr;
@@ -120,7 +120,7 @@ namespace Razix {
         }
 
         // Allocate temporary buffer using RZMalloc
-        char* tempBuffer = (char*) Memory::RZMalloc(fileSize + 1);
+        char* tempBuffer = (char*) rz_malloc_aligned(fileSize + 1);
         if (!tempBuffer) {
             close(fd);
             return RZString();

@@ -455,6 +455,12 @@
 #define in_Mib(x) (x / (1 << 20))
 #define in_Kib(x) (x / 1024)
 
+#define RAZIX_CACHE_LINE_SIZE  64    // typical size of a cache line
+#define RAZIX_16B_ALIGN        16
+#define RAZIX_32B_ALIGN        32
+#define RAZIX_CACHE_LINE_ALIGN RAZIX_CACHE_LINE_SIZE
+#define RAZIX_128B_ALIGN       128
+
 // TODO: Add Safe memory delete and unloading macro
 
 /****************************************************************************************************
@@ -476,4 +482,3 @@
  *                                                  Misc                                            * 
  ****************************************************************************************************/
 #define RAZIX_MSG_BUFFER_SIZE 256
-#define RAZIX_CACHE_LINE_SIZE 64    // typical size of a cache line

@@ -110,7 +110,7 @@ namespace Razix {
     void RZQueue<T>::reserve(sz capacity)
     {
         if (capacity > m_capacity || !m_data) {
-            m_data = static_cast<T*>(Memory::RZMalloc(capacity * sizeof(T), 16));
+            m_data = static_cast<T*>(rz_malloc(capacity * sizeof(T), 16));
             if (!m_data)
                 RAZIX_CORE_ERROR("[RZQueue] Failed to allocate memory for RZQueue");
 
@@ -122,7 +122,7 @@ namespace Razix {
     void RZQueue<T>::destroy()
     {
         if (m_data) {
-            Memory::RZFree(m_data);
+            rz_free(m_data);
             m_data     = nullptr;
             m_size     = 0;
             m_capacity = 0;

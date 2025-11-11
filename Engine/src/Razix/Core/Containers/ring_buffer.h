@@ -108,7 +108,7 @@ namespace Razix {
     {
         if (capacity <= m_capacity && m_data) return;
 
-        T* new_data = static_cast<T*>(Memory::RZMalloc(capacity * sizeof(T), 16));
+        T* new_data = static_cast<T*>(rz_malloc(capacity * sizeof(T), 16));
         if (!new_data) {
             RAZIX_CORE_ERROR("[RZRingBuffer] Failed to allocate memory for RZRingBuffer");
             return;
@@ -124,7 +124,7 @@ namespace Razix {
     void RZRingBuffer<T>::destroy()
     {
         if (m_data) {
-            Memory::RZFree(m_data);
+            rz_free(m_data);
             m_data     = nullptr;
             m_capacity = 0;
             m_write    = 0;
