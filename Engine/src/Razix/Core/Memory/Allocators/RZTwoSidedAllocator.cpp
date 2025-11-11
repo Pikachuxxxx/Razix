@@ -40,7 +40,7 @@ namespace Razix {
         {
             const size_t new_start          = rz_mem_align(m_Bottom, alignment);
             const size_t new_allocated_size = new_start + size;
-            if (new_start <= m_Bottom) {
+            if (new_allocated_size > m_Top) {
                 std::cout << "[Two Sided Allocator] Stack Overflow!" << std::endl;
                 return nullptr;
             }

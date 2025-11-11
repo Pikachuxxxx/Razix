@@ -1,9 +1,10 @@
 #pragma once
 
+#include "Razix/Core/RZCore.h"
 #include "IRZAllocator.h"
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
+#include "Razix/Core/RZDataTypes.h"
 
-#include <cstdint>
 #include <mutex>
 
 namespace Razix {
@@ -45,7 +46,7 @@ namespace Razix {
         void Razix::Memory::RZRingAllocator<T>::init(size_t size)
         {
             m_MaxSize = (uint32_t) size;
-            m_Buffer  = (T*) rz_malloc_aligned(size);
+            m_Buffer  = (T*) rz_malloc_aligned(size * sizeof(T));
         }
 
         template<class T>

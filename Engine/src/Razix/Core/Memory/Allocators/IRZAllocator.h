@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stddef.h>
+#include "Razix/Core/RZCore.h"
 
 namespace Razix {
     namespace Memory {
@@ -10,7 +10,7 @@ namespace Razix {
          * 
          * Note: This cannot be used for creating STL allocator
          */
-        class IRZAllocator
+        class RAZIX_API IRZAllocator
         {
         public:
             IRZAllocator()          = default;

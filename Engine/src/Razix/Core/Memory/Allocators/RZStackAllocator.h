@@ -1,12 +1,13 @@
 #pragma once
 
+#include "Razix/Core/RZCore.h"
 #include "IRZAllocator.h"
 
-#include <cstdint>
+#include "Razix/Core/RZDataTypes.h"
 
 namespace Razix {
     namespace Memory {
-        class RZStackAllocator : public IRZAllocator
+        class RAZIX_API RZStackAllocator : public IRZAllocator
         {
         public:
             RZStackAllocator()  = default;

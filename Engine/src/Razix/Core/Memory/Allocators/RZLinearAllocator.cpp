@@ -13,7 +13,6 @@ namespace Razix {
 
         void RZLinearAllocator::init(size_t size)
         {
-            m_Chunk         = (uint8_t*) rz_malloc_aligned(size);    // Allocate a huge chunk of 16-byte aligned memory
             m_AllocatedSize = 0;
             m_TotalSize     = size;
         }
@@ -22,19 +21,35 @@ namespace Razix {
         {
             clear();
             rz_free(m_Chunk);
+            m_Chunk         = NULL;
+            m_AllocatedSize = 0;
+            m_TotalSize     = 0;
         }
 
         void* RZLinearAllocator::allocate(size_t size, size_t alignment)
         {
-            const size_t new_start          = rz_mem_align(m_AllocatedSize, alignment);
-            const size_t new_allocated_size = new_start + size;
-            if (new_allocated_size > m_TotalSize) {
-                std::cout << "[Linear Allocator] Overflow!" << std::endl;
-                return nullptr;
+            if (m_Chunk == NULL) {
+                m_Chunk = (uint8_t*) rz_malloc(m_TotalSize, alignment);
             }
 
-            m_AllocatedSize = new_allocated_size;
-            return m_Chunk + new_start;
+            if (size == 0)
+                return NULL;
+
+            size_t currentAddr = (size_t) (m_Chunk + m_AllocatedSize);
+
+            if (m_AllocatedSize + size > m_TotalSize) {
+                return NULL;
+            }
+
+            m_AllocatedSize += size;
+
+            return (void*) (m_Chunk + m_AllocatedSize);
         }
+
+        size_t RZLinearAllocator::getRemainingSize() const
+        {
+            return (m_AllocatedSize >= m_TotalSize) ? 0 : (m_TotalSize - m_AllocatedSize);
+        }
+
     }    // namespace Memory
 }    // namespace Razix
