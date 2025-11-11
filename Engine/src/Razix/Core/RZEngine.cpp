@@ -16,6 +16,8 @@
 
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
+#include "Razix/Gfx/RZShaderLibrary.h"
+
 #ifdef RAZIX_USE_GLFW_WINDOWS
     #include "Razix/Platform/GLFW/GLFWInput.h"
     #include "Razix/Platform/GLFW/GLFWWindow.h"
@@ -117,6 +119,8 @@ namespace Razix {
 
         Gfx::RZResourceManager::Get().StartUp();
 
+        Gfx::RZShaderLibrary::Get().StartUp();
+
         // Input setup and window pointers
         // TODO: Use #elif for other platforms
 #ifdef RAZIX_USE_GLFW_WINDOWS
@@ -155,6 +159,8 @@ namespace Razix {
         RAZIX_CORE_ERROR("***********************************");
 
         // Shutting down all the sub-systems
+
+        Gfx::RZShaderLibrary::Get().ShutDown();
 
         Gfx::RZResourceManager::Get().ShutDown();
 
