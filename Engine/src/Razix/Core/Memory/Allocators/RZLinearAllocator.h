@@ -13,10 +13,11 @@ namespace Razix {
             RZLinearAllocator()  = default;
             ~RZLinearAllocator() = default;
 
-            void init(size_t size) override;
+            void init(size_t size, size_t alignment = 16) override;
+
             void shutdown() override;
 
-            void* allocate(size_t size, size_t alignment) override;
+            void* allocate(size_t size) override;
             void deallocate(void* ptr) override {}
 
             void clear() { m_AllocatedSize = 0; }
@@ -29,6 +30,7 @@ namespace Razix {
             uint8_t* m_Chunk         = nullptr;
             size_t   m_AllocatedSize = 0;
             size_t   m_TotalSize     = 0;
+            size_t   m_Alignment     = 16;
         };
     }    // namespace Memory
-}    // namespace Razix
+}    // namespace Razix}    // namespace Razix

@@ -27,6 +27,16 @@ namespace Razix {
             SUCCEED();
         }
 
+        TEST_F(RZRingAllocatorTests, AlignedAllocation)
+        {
+            RZRingAllocator<int> aligned_allocator;
+            aligned_allocator.init(totalSize, 32);
+            void* buffer = aligned_allocator.allocate(0); // size is not used
+            EXPECT_NE(buffer, nullptr);
+            EXPECT_EQ(reinterpret_cast<uintptr_t>(buffer) % 32, 0);
+            aligned_allocator.shutdown();
+        }
+
         TEST_F(RZRingAllocatorTests, PutAndGet)
         {
             EXPECT_TRUE(allocator.empty());
