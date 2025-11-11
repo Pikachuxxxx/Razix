@@ -236,23 +236,85 @@ namespace Razix {
     template<typename T>
     inline constexpr bool rz_is_integral_v = rz_is_integral<T>::value;
 
+    //----------------------------------------------------------------------------
+    // MAKE UNSIGNED
+    //----------------------------------------------------------------------------
+
+    // Primary template — identity (for non-integral or unsupported types)
     template<typename T>
     struct rz_make_unsigned
     {
         using type = T;
     };
+
+    // Signed specializations
+    template<>
+    struct rz_make_unsigned<signed char>
+    {
+        using type = unsigned char;
+    };
+    template<>
+    struct rz_make_unsigned<short>
+    {
+        using type = unsigned short;
+    };
+    template<>
+    struct rz_make_unsigned<int>
+    {
+        using type = unsigned int;
+    };
+    template<>
+    struct rz_make_unsigned<long>
+    {
+        using type = unsigned long;
+    };
+    template<>
+    struct rz_make_unsigned<long long>
+    {
+        using type = unsigned long long;
+    };
+
+    // Unsigned versions (identity)
+    template<>
+    struct rz_make_unsigned<unsigned char>
+    {
+        using type = unsigned char;
+    };
+    template<>
+    struct rz_make_unsigned<unsigned short>
+    {
+        using type = unsigned short;
+    };
+    template<>
+    struct rz_make_unsigned<unsigned int>
+    {
+        using type = unsigned int;
+    };
+    template<>
+    struct rz_make_unsigned<unsigned long>
+    {
+        using type = unsigned long;
+    };
+    template<>
+    struct rz_make_unsigned<unsigned long long>
+    {
+        using type = unsigned long long;
+    };
+
+    // References forward to base type
     template<typename T>
     struct rz_make_unsigned<T&>
     {
-        using type = T;
+        using type = typename rz_make_unsigned<T>::type;
     };
     template<typename T>
     struct rz_make_unsigned<T&&>
     {
-        using type = T;
+        using type = typename rz_make_unsigned<T>::type;
     };
 
-    template<class T>
+    // Alias helper
+    template<typename T>
     using rz_make_unsigned_t = typename rz_make_unsigned<T>::type;
 
     //----------------------------------------------------------------------------

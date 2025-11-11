@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/Containers/string.h"
+
 #include "Razix/Gfx/RHI/RHI.h"
 
 #define CUBEMAP_LAYERS                6
