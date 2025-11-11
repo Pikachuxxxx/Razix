@@ -74,7 +74,7 @@ namespace Razix {
             return buffer;
         }
 
-        Memory::RZFree(buffer);
+        rz_free(buffer);
         return nullptr;
     }
 
@@ -135,7 +135,7 @@ namespace Razix {
             result               = RZString(tempBuffer);
         }
 
-        Memory::RZFree(tempBuffer);
+        rz_free(tempBuffer);
         return result;
     }
 

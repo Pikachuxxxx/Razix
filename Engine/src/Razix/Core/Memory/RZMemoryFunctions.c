@@ -4,6 +4,7 @@
     #include <corecrt_malloc.h>
 #elif RAZIX_PLATFORM_UNIX
     #include <stdlib.h>
+    #include <memory.h>
 #endif
 
 #include <string.h>    // for memset, memcpy
@@ -71,7 +72,8 @@ void* rz_realloc(void* oldPtr, size_t newSize, size_t alignment)
 #ifdef RAZIX_PLATFORM_WINDOWS
     oldPtr = _aligned_realloc(oldPtr, newSize, alignment);
 #elif RAZIX_PLATFORM_UNIX
-    void* newPtr = memalign(alignment, newSize);
+    void* newPtr = NULL;
+    posix_memalign(&newPtr, alignment, newSize);
     if (newPtr) {
         memcpy(newPtr, oldPtr, newSize);
         free(oldPtr);
@@ -138,7 +140,7 @@ void* rz_debug_malloc(size_t size, size_t alignment, const char* filename, uint3
     #ifdef RAZIX_PLATFORM_WINDOWS
     addr = _aligned_malloc(size, alignment);
     #elif RAZIX_PLATFORM_UNIX
-    addr = memalign(alignment, size);
+    posix_memalign(&addr, alignment, size);
     #endif
 
     //printf("[Memory Alloc]  sz : %zu | alignment : %zu | tag : %s | addr : %llx", size, alignment, tag, (uintptr_t) addr);

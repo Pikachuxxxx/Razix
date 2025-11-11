@@ -73,7 +73,7 @@ namespace Razix {
         {
             size_t count = 10;
             size_t size = sizeof(int);
-            int* mem = (int*)rz_calloc(count, size, 4);
+            int* mem = (int*)rz_calloc(count, size, 16);
             EXPECT_NE(mem, nullptr);
             for(size_t i = 0; i < count; ++i) {
                 EXPECT_EQ(mem[i], 0);
