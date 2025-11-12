@@ -77,7 +77,7 @@ namespace Razix {
                 return RZString("key_") + rz_to_string(index);
             } else if constexpr (std::is_pointer_v<KeyType>) {
                 static int dummy_values[10000];
-                return &dummy_values[index % 10000];
+                return reinterpret_cast<KeyType>(&dummy_values[index % 10000]);
             }
         }
 
@@ -835,7 +835,8 @@ namespace Razix {
 
     TYPED_TEST(RZHashMapTypedTest, ZeroKey)
     {
-        if constexpr (std::is_integral_v<typename std::remove_pointer_t<typename RZHashMapTypedTest::KeyType>>) {
+        using KeyType = typename TestFixture::KeyType;
+        if constexpr (std::is_integral_v<KeyType>) {
             this->map.insert(this->CreateKey(0), this->CreateValue(0));
             EXPECT_NE(this->map.find(this->CreateKey(0)), nullptr);
         }
@@ -843,9 +844,9 @@ namespace Razix {
 
     TYPED_TEST(RZHashMapTypedTest, NegativeKeys)
     {
-        if constexpr (std::is_signed_v<typename std::remove_pointer_t<typename RZHashMapTypedTest::KeyType>>) {
-            // Skip for unsigned or pointer types
-            auto key = this->CreateKey(1);    // Just use positive for this test
+        using KeyType = typename TestFixture::KeyType;
+        if constexpr (std::is_signed_v<KeyType> && std::is_integral_v<KeyType>) {
+            auto key = this->CreateKey(-1);
             this->map.insert(key, this->CreateValue(1));
             EXPECT_NE(this->map.find(key), nullptr);
         }
@@ -853,7 +854,8 @@ namespace Razix {
 
     TYPED_TEST(RZHashMapTypedTest, EmptyStringKey)
     {
-        if constexpr (std::is_same_v<typename RZHashMapTypedTest::KeyType, RZString>) {
+        using KeyType = typename TestFixture::KeyType;
+        if constexpr (std::is_same_v<KeyType, RZString>) {
             auto empty_key = RZString("");
             this->map.insert(empty_key, this->CreateValue(1));
             EXPECT_NE(this->map.find(empty_key), nullptr); 
@@ -862,8 +864,10 @@ namespace Razix {
 
     TYPED_TEST(RZHashMapTypedTest, IdenticalKeysAndValues)
     {
-        if constexpr (std::is_same_v<typename RZHashMapTypedTest::KeyType, RZString> &&
-                      std::is_same_v<typename RZHashMapTypedTest::ValueType, RZString>) {
+        using KeyType = typename TestFixture::KeyType;
+        using ValueType = typename TestFixture::ValueType;
+        if constexpr (std::is_same_v<KeyType, RZString> &&
+                      std::is_same_v<ValueType, RZString>) {
             auto key_value = RZString("same");
             this->map.insert(key_value, key_value);
             EXPECT_NE(this->map.find(key_value), nullptr);
