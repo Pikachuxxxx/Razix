@@ -578,12 +578,6 @@ namespace Razix {
         EXPECT_EQ(arr[2], "third");
     }
 
-    //TEST_F(RZDynamicArrayStringTest, EmplaceBackString)
-    //{
-    //    auto& ref = arr.emplace_back("hello", 3);    // Construct std::string with "hel"
-    //    EXPECT_EQ(arr.size(), 1);
-    //    EXPECT_EQ(ref, "hel");
-    //}
 
     TEST_F(RZDynamicArrayStringTest, ResizeWithStrings)
     {
