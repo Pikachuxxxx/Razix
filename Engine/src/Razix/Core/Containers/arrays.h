@@ -8,6 +8,7 @@
 #include "Razix/Core/std/utility.h"
 
 #define RZ_DEFAULT_ARRAY_CAPACITY 64
+#define RZ_ARRAY_GROWTH_FACTOR    2
 
 namespace Razix {
 
@@ -69,7 +70,7 @@ namespace Razix {
         template<typename... Args>
         void construct(size_type index, Args&&... args)
         {
-            // Note: Why new? Because placement new constructs the object in the pre-allocated memory 
+            // Note: Why new? Because placement new constructs the object in the pre-allocated memory
             // It also calls the constructor of T with the provided arguments, which is essential for proper initialization.
             new (&reinterpret_cast<T*>(m_Data)[index]) T(std::forward<Args>(args)...);
         }
@@ -91,6 +92,8 @@ namespace Razix {
     template<typename T, size_t N>
     RZFixedArray<T, N>::~RZFixedArray()
     {
+        for (u32 i = 0; i < m_Size; ++i)
+            destroy(m_Size);
         clear();
     }
 
@@ -126,7 +129,6 @@ namespace Razix {
         if (this != &other) {
             clear();
             for (m_Size = 0; m_Size < other.m_Size; ++m_Size)
-                // TODO: Replace std::forward with rz_forward when implemented
                 construct(m_Size, rz_move(other[m_Size]));
             other.clear();
         }
@@ -280,6 +282,7 @@ namespace Razix {
     RZFixedArray<T, N>::emplace_back(Args&&... args)
     {
         RAZIX_CORE_ASSERT(m_Size < N, "RZFixedArray: Exceeded fixed capacity of {0}", N);
+        // TODO: Replace std::forward with rz_forward when implemented
         construct(m_Size++, std::forward<Args>(args)...);
         return back();
     }
@@ -307,6 +310,381 @@ namespace Razix {
         while (m_Size > count)
             destroy(--m_Size);
     }
+
+    //----------------------------------------------------------
+    // RZDynamicArray
+    //----------------------------------------------------------
+
+    template<typename T>
+    class RZDynamicArray
+    {
+    public:
+        using value_type      = T;
+        using size_type       = size_t;
+        using reference       = T&;
+        using const_reference = const T&;
+        using pointer         = T*;
+        using const_pointer   = const T*;
+        using iterator        = T*;
+        using const_iterator  = const T*;
+
+        RZDynamicArray() = default;
+        RZDynamicArray(size_type initialCapacity);
+        RZDynamicArray(size_type initialCapacity, const T& value);
+        ~RZDynamicArray();
+
+        RZDynamicArray(const RZDynamicArray& other);
+        RZDynamicArray& operator=(const RZDynamicArray& other);
+
+        RZDynamicArray(RZDynamicArray&& other) noexcept;
+        RZDynamicArray& operator=(RZDynamicArray&& other) noexcept;
+
+        reference       operator[](size_type index);
+        const_reference operator[](size_type index) const;
+        reference       at(size_type index);
+        const_reference at(size_type index) const;
+        reference       front();
+        const_reference front() const;
+        reference       back();
+        const_reference back() const;
+        iterator        begin();
+        const_iterator  begin() const;
+        const_iterator  cbegin() const;
+        iterator        end();
+        const_iterator  end() const;
+        const_iterator  cend() const;
+        bool            empty() const;
+        size_type       size() const;
+        size_type       capacity() const;
+        void            clear();
+
+        void push_back(const T& value);
+        void push_back(T&& value);
+        template<typename... Args>
+        reference emplace_back(Args&&... args);
+        void      pop_back();
+        void      resize(size_type count, const T& value = T{});
+        void      reserve(size_type newCapacity);
+
+    private:
+        template<typename... Args>
+        void construct(size_type index, Args&&... args)
+        {
+            // Note: Why new? Because placement new constructs the object in the pre-allocated memory
+            // It also calls the constructor of T with the provided arguments, which is essential for proper initialization.
+            new (&reinterpret_cast<T*>(m_Data)[index]) T(std::forward<Args>(args)...);
+        }
+
+        void destroy(size_type index)
+        {
+            reinterpret_cast<T*>(m_Data)[index].~T();
+        }
+
+    private:
+        T*        m_Data     = NULL;
+        size_type m_Size     = 0;
+        size_type m_Capacity = 0;
+    };
+
+    //----------------------------------------------------------
+    // RZDynamicArray Implementation
+    //----------------------------------------------------------
+
+    template<typename T>
+    RZDynamicArray<T>::RZDynamicArray(size_type initialCapacity)
+    {
+        if (initialCapacity == 0)
+            return;
+        m_Data     = reinterpret_cast<T*>(rz_malloc_aligned(sizeof(T) * initialCapacity));
+        m_Capacity = initialCapacity;
+        memset(m_Data, 0x0, sizeof(T) * initialCapacity);
+    };
+
+    template<typename T>
+    RZDynamicArray<T>::RZDynamicArray(size_type initialCapacity, const T& value)
+    {
+        if (initialCapacity == 0)
+            return;
+        m_Data     = reinterpret_cast<T*>(rz_malloc_aligned(sizeof(T) * initialCapacity));
+        m_Size     = 0;
+        m_Capacity = initialCapacity;
+        for (m_Size = 0; m_Size < initialCapacity; ++m_Size)
+            construct(m_Size, value);
+    };
+
+    template<typename T>
+    RZDynamicArray<T>::~RZDynamicArray()
+    {
+        clear();
+        if (m_Data)
+            rz_free(m_Data);
+    }
+
+    template<typename T>
+    RZDynamicArray<T>::RZDynamicArray(const RZDynamicArray& other)
+    {
+        if (m_Data)
+            rz_free(m_Data);
+        m_Data     = reinterpret_cast<T*>(rz_malloc_aligned(sizeof(T) * other.m_Capacity));
+        m_Capacity = other.m_Capacity;
+        m_Size     = 0;
+        for (m_Size = 0; m_Size < other.m_Size; ++m_Size)
+            construct(m_Size, other[m_Size]);
+    }
+
+    template<typename T>
+    RZDynamicArray<T>& RZDynamicArray<T>::operator=(const RZDynamicArray& other)
+    {
+        if (this != &other) {
+            clear();
+            // Allocate new memory if the current capacity is less than the other array's capacity
+            // Don't care about earlier data, we are overwriting it
+            if (m_Capacity < other.m_Capacity) {
+                if (m_Data)
+                    rz_free(m_Data);
+                m_Data     = reinterpret_cast<T*>(rz_malloc_aligned(sizeof(T) * other.m_Capacity));
+                m_Capacity = other.m_Capacity;
+            }
+            m_Size = 0;
+            for (m_Size = 0; m_Size < other.m_Size; ++m_Size)
+                construct(m_Size, other[m_Size]);
+        }
+        return *this;
+    }
+
+    template<typename T>
+    RZDynamicArray<T>::RZDynamicArray(RZDynamicArray&& other) noexcept
+    {
+        m_Data           = other.m_Data;
+        m_Size           = other.m_Size;
+        m_Capacity       = other.m_Capacity;
+        other.m_Data     = NULL;
+        other.m_Size     = 0;
+        other.m_Capacity = 0;
+    }
+
+    template<typename T>
+    RZDynamicArray<T>& RZDynamicArray<T>::operator=(RZDynamicArray&& other) noexcept
+    {
+        if (this != &other) {
+            clear();
+            if (m_Data)
+                rz_free(m_Data);
+            m_Data           = other.m_Data;
+            m_Size           = other.m_Size;
+            m_Capacity       = other.m_Capacity;
+            other.m_Data     = NULL;
+            other.m_Size     = 0;
+            other.m_Capacity = 0;
+        }
+        return *this;
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::reference RZDynamicArray<T>::operator[](size_type index)
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        RAZIX_CORE_ASSERT(index < m_Size, "RZDynamicArray: Index out of bounds!");
+        return reinterpret_cast<T*>(m_Data)[index];
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::const_reference RZDynamicArray<T>::operator[](size_type index) const
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        RAZIX_CORE_ASSERT(index < m_Size, "RZDynamicArray: Index out of bounds!");
+        return reinterpret_cast<T*>(m_Data)[index];
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::reference RZDynamicArray<T>::at(size_type index)
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        RAZIX_CORE_ASSERT(index < m_Size, "RZDynamicArray: Index out of bounds!");
+        return reinterpret_cast<T*>(m_Data)[index];
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::const_reference RZDynamicArray<T>::at(size_type index) const
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        RAZIX_CORE_ASSERT(index < m_Size, "RZDynamicArray: Index out of bounds!");
+        return reinterpret_cast<T*>(m_Data)[index];
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::reference RZDynamicArray<T>::front()
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return reinterpret_cast<T*>(m_Data)[0];
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::const_reference RZDynamicArray<T>::front() const
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return reinterpret_cast<T*>(m_Data)[0];
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::reference RZDynamicArray<T>::back()
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return reinterpret_cast<T*>(m_Data)[m_Size - 1];
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::const_reference RZDynamicArray<T>::back() const
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return reinterpret_cast<T*>(m_Data)[m_Size - 1];
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::iterator RZDynamicArray<T>::begin()
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return reinterpret_cast<T*>(m_Data);
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::const_iterator RZDynamicArray<T>::begin() const
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return reinterpret_cast<T*>(m_Data);
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::const_iterator RZDynamicArray<T>::cbegin() const
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return reinterpret_cast<T*>(m_Data);
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::iterator RZDynamicArray<T>::end()
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return reinterpret_cast<T*>(m_Data) + m_Size;
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::const_iterator RZDynamicArray<T>::end() const
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return reinterpret_cast<T*>(m_Data) + m_Size;
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::const_iterator RZDynamicArray<T>::cend() const
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return reinterpret_cast<T*>(m_Data) + m_Size;
+    }
+
+    template<typename T>
+    bool RZDynamicArray<T>::empty() const
+    {
+        return m_Size == 0;
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::size_type RZDynamicArray<T>::size() const
+    {
+        return m_Size;
+    }
+
+    template<typename T>
+    typename RZDynamicArray<T>::size_type RZDynamicArray<T>::capacity() const
+    {
+        return m_Capacity;
+    }
+
+    template<typename T>
+    void RZDynamicArray<T>::clear()
+    {
+        for (RZDynamicArray<T>::size_type i = 0; i < m_Size; ++i)
+            destroy(i);
+        m_Size = 0;
+    }
+
+    template<typename T>
+    void RZDynamicArray<T>::push_back(const T& value)
+    {
+        reserve(1 + m_Size);
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot push_back to uninitialized array. Call reserve() first to allocate memory.");
+        RAZIX_CORE_ASSERT(m_Size < m_Capacity, "RZDynamicArray::push_back size exceeded at capacity: {}", m_Capacity);
+        construct(m_Size++, value);
+    }
+
+    template<typename T>
+    void RZDynamicArray<T>::push_back(T&& value)
+    {
+        reserve(1 + m_Size);
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot push_back to uninitialized array. Call reserve() first to allocate memory.");
+        RAZIX_CORE_ASSERT(m_Size < m_Capacity, "RZDynamicArray::push_back size exceeded at capacity: {}", m_Capacity);
+        construct(m_Size++, value);
+    }
+
+    template<typename T>
+    template<typename... Args>
+    typename RZDynamicArray<T>::reference RZDynamicArray<T>::emplace_back(Args&&... args)
+    {
+        reserve(1 + m_Size);
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot push_back to uninitialized array. Call reserve() first to allocate memory.");
+        RAZIX_CORE_ASSERT(m_Size < m_Capacity, "RZDynamicArray::push_back size exceeded at capacity: {}", m_Capacity);
+        construct(m_Size++, std::forward<Args>(args)...);
+        return m_Data[m_Size - 1];
+    }
+
+    template<typename T>
+    void RZDynamicArray<T>::pop_back()
+    {
+        RAZIX_CORE_ASSERT(!empty(), "RZDynamicArray: Cannot pop_back() from empty array");
+        destroy(--m_Size);
+    }
+
+    template<typename T>
+    void RZDynamicArray<T>::resize(size_type count, const T& value)
+    {
+        if (count > m_Capacity)
+            reserve(count);
+
+        while (m_Size < count)
+            construct(m_Size++, value);
+        while (m_Size > count)
+            destroy(--m_Size);
+    }
+
+    template<typename T>
+    void RZDynamicArray<T>::reserve(size_type newCapacity)
+    {
+        RAZIX_CORE_ASSERT(newCapacity > 0, "RZDynamicArray: Cannot reserve with capacity of 0");
+
+        if (newCapacity <= m_Capacity)
+            return;
+
+        size_type oldCapacity = m_Capacity;
+        while (m_Capacity < newCapacity)
+            m_Capacity = (m_Capacity == 0) ? RZ_DEFAULT_ARRAY_CAPACITY : m_Capacity * RZ_ARRAY_GROWTH_FACTOR;
+
+        T* newData = reinterpret_cast<T*>(rz_malloc_aligned(m_Capacity * sizeof(T)));
+        RAZIX_CORE_ASSERT(newData != NULL, "RZDynamicArray: Memory allocation failed in reserve()");
+
+        // Move the old data to the new newData
+        if (m_Data != NULL && m_Size > 0) {
+            // Do element-wise move construction to the new Memory
+            // We cannot just do a memcpy because that would skip the constructor call and lead to undefined behavior for complex types
+            for (size_type i = 0; i < m_Size; ++i) {
+                new (&newData[i]) T(rz_move(m_Data[i]));
+                m_Data[i].~T();
+            }
+            rz_free(m_Data);
+        }
+
+        m_Data = newData;
+    }
+
 }    // namespace Razix
 
 #endif    // _RZ_ARRAYS_H_

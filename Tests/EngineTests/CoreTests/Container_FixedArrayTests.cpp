@@ -19,12 +19,12 @@ namespace Razix {
 
         void SetUp() override
         {
-            // Common setup for each test
+            Razix::Debug::RZLog::StartUp();
         }
 
         void TearDown() override
         {
-            // Common cleanup for each test
+            Razix::Debug::RZLog::Shutdown();
         }
     };
 
