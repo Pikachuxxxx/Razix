@@ -140,7 +140,7 @@ namespace Razix {
 
         bool operator==(const RZHashMapIterator& other) const;
         bool operator!=(const RZHashMapIterator& other) const;
-
+ 
         // Element access
         Value& operator*()
         {
@@ -216,6 +216,27 @@ namespace Razix {
 
         RZHashMap(RZHashMap&& other) noexcept;
         RZHashMap& operator=(RZHashMap&& other) noexcept;
+
+        RZHashMap(std::initializer_list<RZPair<Key, Value>> init)
+            : RZHashMap(16)
+        {
+            for (const auto& pair : init)
+            {
+                insert(pair.first, pair.second);
+            }
+        }
+
+        // Initializer list assignment operator - uses rz::initializer_list with RZPair
+        RZHashMap& operator=(std::initializer_list<RZPair<Key, Value>> init)
+        {
+            clear();
+            for (const auto& pair : init)
+            {
+                insert(pair.first, pair.second);
+            }
+            return *this;
+        }
+
 
         void            insert(const Key& key, const Value& value);
         void            insert(const Key& key, Value&& value);
