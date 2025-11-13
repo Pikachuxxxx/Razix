@@ -3,6 +3,8 @@
 // clang-format on
 #include "string.h"
 
+#include <string.h> // for memcpy
+
 namespace Razix {
 
     sz rz_strlen(const char* str)
@@ -42,6 +44,11 @@ namespace Razix {
             }
         }
         return 0;
+    }
+
+    void* rz_memcpy(void* dst, const void* src, sz count)
+    {
+        return memcpy(dst, src, count);
     }
 
     RZString::RZString(const char* str)

@@ -3,6 +3,7 @@
 // clang-format on
 #include "RZEngine.h"
 
+#include "Razix/Core/Containers/string_utils.h"
 #include "Razix/Core/Memory/RZMemoryBudgets.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 #include "Razix/Core/Utils/RZPlatformUtils.h"

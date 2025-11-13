@@ -3,6 +3,7 @@
 // clang-format on
 #include "RZVirtualFileSystem.h"
 
+#include "Razix/Core/Containers/string_utils.h"
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 

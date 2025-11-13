@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Core/Containers/string.h"
+#include "Razix/Core/Containers/string_utils.h"
 
 #include <variant>
 

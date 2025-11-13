@@ -3,6 +3,7 @@
 // clang-format on
 #include "RZGfxUtil.h"
 
+#include "Razix/Core/Containers/string_utils.h"
 #include "Razix/Core/Markers/RZMarkers.h"
 
 #include "Razix/Core/Memory/RZMemoryFunctions.h"

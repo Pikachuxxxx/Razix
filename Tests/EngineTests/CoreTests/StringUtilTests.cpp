@@ -10,7 +10,7 @@
 
 #include <Razix/Core/Log/RZLog.h>
 
-#include "Razix/Core/Containers/string.h"
+#include "Razix/Core/Containers/string_utils.h"
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
 

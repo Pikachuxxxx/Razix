@@ -768,7 +768,7 @@ namespace Razix {
     }
 
     template<typename Key, typename Value, typename Hash, typename Equal>
-    typename const RZHashMap<Key, Value, Hash, Equal>::iterator RZHashMap<Key, Value, Hash, Equal>::cfind(const Key& key) const
+    const typename RZHashMap<Key, Value, Hash, Equal>::iterator RZHashMap<Key, Value, Hash, Equal>::cfind(const Key& key) const
     {
         RAZIX_CORE_ASSERT(m_Keys && m_Values && m_Occupied && m_Hashes,
             "[RZHashMap] Hash map is not initialized");

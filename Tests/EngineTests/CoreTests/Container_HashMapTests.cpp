@@ -1,4 +1,4 @@
-// AI-generated unit tests for the RZDynamicArray container class
+// AI-generated unit tests for the RZHashMap container class
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
 
@@ -165,8 +165,8 @@ namespace Razix {
         this->map.insert(key, value);
         auto result = this->map.find(key);
 
-        EXPECT_NE(result, nullptr);
-        EXPECT_TRUE(this->ValuesEqual(*result, value));
+        EXPECT_NE(result, this->map.end());
+        EXPECT_TRUE(this->ValuesEqual(result.value(), value));
     }
 
     TYPED_TEST(RZHashMapTypedTest, FindNonExistentKey)
@@ -174,7 +174,7 @@ namespace Razix {
         this->map.insert(this->CreateKey(1), this->CreateValue(1));
         auto result = this->map.find(this->CreateKey(999));
 
-        EXPECT_EQ(result, nullptr);
+        EXPECT_EQ(result, this->map.end());
     }
 
     TYPED_TEST(RZHashMapTypedTest, Contains)
@@ -196,8 +196,8 @@ namespace Razix {
 
         for (int i = 0; i < NUM_ELEMENTS; ++i) {
             auto result = this->map.find(this->CreateKey(i));
-            EXPECT_NE(result, nullptr);
-            EXPECT_TRUE(this->ValuesEqual(*result, this->CreateValue(i)));
+            EXPECT_NE(result, this->map.end());
+            EXPECT_TRUE(this->ValuesEqual(result.value(), this->CreateValue(i)));
         }
     }
 
@@ -212,7 +212,7 @@ namespace Razix {
         // Random verification
         for (int i = 0; i < NUM_ELEMENTS; i += 7) {
             auto result = this->map.find(this->CreateKey(i));
-            EXPECT_NE(result, nullptr);
+            EXPECT_NE(result, this->map.end());
         }
     }
 
@@ -227,11 +227,11 @@ namespace Razix {
         auto value2 = this->CreateValue(2);
 
         this->map.insert(key, value1);
-        EXPECT_TRUE(this->ValuesEqual(*this->map.find(key), value1));
+        EXPECT_TRUE(this->ValuesEqual(this->map.find(key).value(), value1));
 
         this->map.insert(key, value2);
         EXPECT_EQ(this->map.size(), 1);
-        EXPECT_TRUE(this->ValuesEqual(*this->map.find(key), value2));
+        EXPECT_TRUE(this->ValuesEqual(this->map.find(key).value(), value2));
     }
 
     TYPED_TEST(RZHashMapTypedTest, UpdateWithMoveSemantics)
@@ -244,7 +244,7 @@ namespace Razix {
         this->map.insert(key, std::move(value2));
 
         EXPECT_EQ(this->map.size(), 1);
-        EXPECT_TRUE(this->ValuesEqual(*this->map.find(key), this->CreateValue(2)));
+        EXPECT_TRUE(this->ValuesEqual(this->map.find(key).value(), this->CreateValue(2)));
     }
 
     TYPED_TEST(RZHashMapTypedTest, MultipleUpdates)
@@ -256,7 +256,7 @@ namespace Razix {
         }
 
         EXPECT_EQ(this->map.size(), 1);
-        EXPECT_TRUE(this->ValuesEqual(*this->map.find(key), this->CreateValue(9)));
+        EXPECT_TRUE(this->ValuesEqual(this->map.find(key).value(), this->CreateValue(9)));
     }
 
     //==================================================
@@ -275,7 +275,7 @@ namespace Razix {
 
         EXPECT_TRUE(result);
         EXPECT_EQ(this->map.size(), 1);
-        EXPECT_EQ(this->map.find(key1), nullptr);
+        EXPECT_EQ(this->map.find(key1), this->map.end());
     }
 
     TYPED_TEST(RZHashMapTypedTest, RemoveNonExistentKey)
@@ -315,7 +315,7 @@ namespace Razix {
         this->map.insert(key, value2);
 
         EXPECT_EQ(this->map.size(), 1);
-        EXPECT_TRUE(this->ValuesEqual(*this->map.find(key), value2));
+        EXPECT_TRUE(this->ValuesEqual(this->map.find(key).value(), value2));
     }
 
     TYPED_TEST(RZHashMapTypedTest, RemoveFromMiddle)
@@ -335,10 +335,10 @@ namespace Razix {
 
         // Verify remaining elements
         for (int i = 0; i < 5; ++i) {
-            EXPECT_NE(this->map.find(this->CreateKey(i)), nullptr);
+            EXPECT_NE(this->map.find(this->CreateKey(i)), this->map.end());
         }
         for (int i = 15; i < NUM_ELEMENTS; ++i) {
-            EXPECT_NE(this->map.find(this->CreateKey(i)), nullptr);
+            EXPECT_NE(this->map.find(this->CreateKey(i)), this->map.end());
         }
     }
 
@@ -364,7 +364,7 @@ namespace Razix {
         value       = this->CreateValue(10);
 
         EXPECT_EQ(this->map.size(), 1);
-        EXPECT_TRUE(this->ValuesEqual(*this->map.find(key), this->CreateValue(10)));
+        EXPECT_TRUE(this->ValuesEqual(this->map.find(key).value(), this->CreateValue(10)));
     }
 
     TYPED_TEST(RZHashMapTypedTest, OperatorBracketUpdate)
@@ -376,7 +376,7 @@ namespace Razix {
         this->map.insert(key, value1);
         this->map[key] = value2;
 
-        EXPECT_TRUE(this->ValuesEqual(*this->map.find(key), value2));
+        EXPECT_TRUE(this->ValuesEqual(this->map.find(key).value(), value2));
     }
 
     TYPED_TEST(RZHashMapTypedTest, OperatorBracketChained)
@@ -431,8 +431,8 @@ namespace Razix {
 
         for (int i = 0; i < NUM_ELEMENTS; ++i) {
             auto result = this->map.find(this->CreateKey(i));
-            EXPECT_NE(result, nullptr);
-            EXPECT_TRUE(this->ValuesEqual(*result, this->CreateValue(i)));
+            EXPECT_NE(result, this->map.end());
+            EXPECT_TRUE(this->ValuesEqual(result.value(), this->CreateValue(i)));
         }
     }
 
@@ -448,7 +448,7 @@ namespace Razix {
 
         // Verify random elements after multiple expansions
         for (int i = 0; i < NUM_ELEMENTS; i += 13) {
-            EXPECT_NE(this->map.find(this->CreateKey(i)), nullptr);
+            EXPECT_NE(this->map.find(this->CreateKey(i)), this->map.end());
         }
     }
 
@@ -466,7 +466,7 @@ namespace Razix {
 
         EXPECT_TRUE(this->map.empty());
         EXPECT_EQ(this->map.size(), 0);
-        EXPECT_EQ(this->map.find(this->CreateKey(1)), nullptr);
+        EXPECT_EQ(this->map.find(this->CreateKey(1)), this->map.end());
     }
 
     TYPED_TEST(RZHashMapTypedTest, ClearThenReinsert)
@@ -480,7 +480,7 @@ namespace Razix {
         this->map.insert(key, value2);
 
         EXPECT_EQ(this->map.size(), 1);
-        EXPECT_TRUE(this->ValuesEqual(*this->map.find(key), value2));
+        EXPECT_TRUE(this->ValuesEqual(this->map.find(key).value(), value2));
     }
 
     TYPED_TEST(RZHashMapTypedTest, ClearLargeMap)
@@ -507,9 +507,9 @@ namespace Razix {
         this->map.insert(this->CreateKey(32), this->CreateValue(32));
 
         EXPECT_EQ(this->map.size(), 3);
-        EXPECT_NE(this->map.find(this->CreateKey(0)), nullptr);
-        EXPECT_NE(this->map.find(this->CreateKey(16)), nullptr);
-        EXPECT_NE(this->map.find(this->CreateKey(32)), nullptr);
+        EXPECT_NE(this->map.find(this->CreateKey(0)), this->map.end());
+        EXPECT_NE(this->map.find(this->CreateKey(16)), this->map.end());
+        EXPECT_NE(this->map.find(this->CreateKey(32)), this->map.end());
     }
 
     TYPED_TEST(RZHashMapTypedTest, CollisionWithManyElements)
@@ -522,8 +522,8 @@ namespace Razix {
 
         for (int i = 0; i < NUM_ELEMENTS; ++i) {
             auto result = this->map.find(this->CreateKey(i));
-            EXPECT_NE(result, nullptr);
-            EXPECT_TRUE(this->ValuesEqual(*result, this->CreateValue(i)));
+            EXPECT_NE(result, this->map.end());
+            EXPECT_TRUE(this->ValuesEqual(result.value(), this->CreateValue(i)));
         }
     }
 
@@ -668,8 +668,8 @@ namespace Razix {
         auto map_copy = this->map;
 
         EXPECT_EQ(map_copy.size(), 2);
-        EXPECT_NE(map_copy.find(this->CreateKey(1)), nullptr);
-        EXPECT_NE(map_copy.find(this->CreateKey(2)), nullptr);
+        EXPECT_NE(map_copy.find(this->CreateKey(1)), map_copy.end());
+        EXPECT_NE(map_copy.find(this->CreateKey(2)), map_copy.end());
     }
 
     TYPED_TEST(RZHashMapTypedTest, CopyAssignment)
@@ -682,7 +682,7 @@ namespace Razix {
         map_copy = this->map;
 
         EXPECT_EQ(map_copy.size(), 2);
-        EXPECT_NE(map_copy.find(this->CreateKey(1)), nullptr);
+        EXPECT_NE(map_copy.find(this->CreateKey(1)), map_copy.end());
     }
 
     TYPED_TEST(RZHashMapTypedTest, CopyAssignmentWithResize)
@@ -695,7 +695,7 @@ namespace Razix {
         map_copy = this->map;
 
         EXPECT_EQ(map_copy.size(), 50);
-        EXPECT_NE(map_copy.find(this->CreateKey(25)), nullptr);
+        EXPECT_NE(map_copy.find(this->CreateKey(25)), map_copy.end());
     }
 
     TYPED_TEST(RZHashMapTypedTest, CopySelfAssignment)
@@ -704,7 +704,7 @@ namespace Razix {
         this->map = this->map;
 
         EXPECT_EQ(this->map.size(), 1);
-        EXPECT_NE(this->map.find(this->CreateKey(1)), nullptr);
+        EXPECT_NE(this->map.find(this->CreateKey(1)), this->map.end());
     }
 
     TYPED_TEST(RZHashMapTypedTest, CopyIndependence)
@@ -717,7 +717,7 @@ namespace Razix {
 
         EXPECT_EQ(this->map.size(), 0);
         EXPECT_EQ(map_copy.size(), 1);
-        EXPECT_NE(map_copy.find(key), nullptr);
+        EXPECT_NE(map_copy.find(key), map_copy.end());
     }
 
     //==================================================
@@ -755,7 +755,7 @@ namespace Razix {
         this->map = std::move(this->map);
 
         EXPECT_EQ(this->map.size(), 1);
-        EXPECT_NE(this->map.find(this->CreateKey(1)), nullptr);
+        EXPECT_NE(this->map.find(this->CreateKey(1)), this->map.end());
     }
 
     TYPED_TEST(RZHashMapTypedTest, MoveLargeMap)
@@ -794,7 +794,7 @@ namespace Razix {
         }
 
         for (int i = 0; i < NUM_ELEMENTS; ++i) {
-            EXPECT_NE(this->map.find(this->CreateKey(i)), nullptr);
+            EXPECT_NE(this->map.find(this->CreateKey(i)), this->map.end());
         }
     }
 
@@ -813,7 +813,7 @@ namespace Razix {
         EXPECT_EQ(this->map.size(), NUM_OPS / 2);
     
         for (int i = NUM_OPS / 2; i < NUM_OPS; ++i) {
-            EXPECT_NE(this->map.find(this->CreateKey(i)), nullptr);
+            EXPECT_NE(this->map.find(this->CreateKey(i)), this->map.end());
         }
     }
 
@@ -841,7 +841,7 @@ namespace Razix {
         using KeyType = typename TestFixture::KeyType;
         if constexpr (std::is_integral_v<KeyType>) {
             this->map.insert(this->CreateKey(0), this->CreateValue(0));
-            EXPECT_NE(this->map.find(this->CreateKey(0)), nullptr);
+            EXPECT_NE(this->map.find(this->CreateKey(0)), this->map.end());
         }
     }
 
@@ -851,7 +851,7 @@ namespace Razix {
         if constexpr (std::is_signed_v<KeyType> && std::is_integral_v<KeyType>) {
             auto key = this->CreateKey(-1);
             this->map.insert(key, this->CreateValue(1));
-            EXPECT_NE(this->map.find(key), nullptr);
+            EXPECT_NE(this->map.find(key), this->map.end());
         }
     }
 
@@ -861,7 +861,7 @@ namespace Razix {
         if constexpr (std::is_same_v<KeyType, RZString>) {
             auto empty_key = RZString("");
             this->map.insert(empty_key, this->CreateValue(1));
-            EXPECT_NE(this->map.find(empty_key), nullptr);
+            EXPECT_NE(this->map.find(empty_key), this->map.end());
         }
     }
 
@@ -873,7 +873,7 @@ namespace Razix {
                       std::is_same_v<ValueType, RZString>) {
             auto key_value = RZString("same");
             this->map.insert(key_value, key_value);
-            EXPECT_NE(this->map.find(key_value), nullptr);
+            EXPECT_NE(this->map.find(key_value), this->map.end());
         }
     }
 

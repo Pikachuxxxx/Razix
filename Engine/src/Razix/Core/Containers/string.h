@@ -8,6 +8,9 @@
 #include "Razix/Core/std/type_traits.h"
 
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
+
+#include <typeinfo>
+
 #define RAZIX_SSO_STRING_SIZE 64
 
 namespace Razix {
@@ -15,6 +18,7 @@ namespace Razix {
     extern sz  rz_strlen(const char* str);
     extern i32 rz_strcmp(const char* s1, const char* s2);
     extern i32 rz_memcmp(const void* ptr1, const void* ptr2, sz count);
+    extern void* rz_memcpy(void* dst, const void* src, sz count);
 
     // [header declarations taken from]: https://en.cppreference.com/w/cpp/string/basic_string.html
     class RAZIX_MEM_ALIGN_16 RAZIX_API RZString
@@ -54,11 +58,11 @@ namespace Razix {
 
             if (m_is_using_heap) {
                 m_data.ptr = (char*) rz_malloc(m_capacity, RAZIX_CACHE_LINE_ALIGN);
-                memcpy(m_data.ptr, other.m_data.ptr, m_length);
+                rz_memcpy(m_data.ptr, other.m_data.ptr, m_length);
                 m_data.ptr[m_length] = '\0';
             } else {
                 // copy string as-is if it's SSO
-                memcpy(m_data.sso, other.m_data.sso, RAZIX_SSO_STRING_SIZE);
+                rz_memcpy(m_data.sso, other.m_data.sso, RAZIX_SSO_STRING_SIZE);
                 m_data.sso[m_length] = '\0';
             }
         }
@@ -76,11 +80,11 @@ namespace Razix {
 
             if (m_is_using_heap) {
                 m_data.ptr = (char*) rz_malloc(m_capacity, RAZIX_CACHE_LINE_ALIGN);
-                memcpy(m_data.ptr, other.m_data.ptr, m_length);
+                rz_memcpy(m_data.ptr, other.m_data.ptr, m_length);
                 m_data.ptr[m_length] = '\0';
             } else {
                 // copy string as-is if it's SSO
-                memcpy(m_data.sso, other.m_data.sso, RAZIX_SSO_STRING_SIZE);
+                rz_memcpy(m_data.sso, other.m_data.sso, RAZIX_SSO_STRING_SIZE);
                 m_data.sso[m_length] = '\0';
             }
 
@@ -97,7 +101,7 @@ namespace Razix {
                 m_data.ptr           = other.m_data.ptr;
                 m_data.ptr[m_length] = '\0';
             } else {
-                memcpy(m_data.sso, other.m_data.sso, m_length);
+                rz_memcpy(m_data.sso, other.m_data.sso, m_length);
                 m_data.sso[m_length] = '\0';
             }
 
@@ -120,7 +124,7 @@ namespace Razix {
                 m_data.ptr           = other.m_data.ptr;
                 m_data.ptr[m_length] = '\0';
             } else {
-                memcpy(m_data.sso, other.m_data.sso, m_length);
+                rz_memcpy(m_data.sso, other.m_data.sso, m_length);
                 m_data.sso[m_length] = '\0';
             }
 
@@ -314,6 +318,3 @@ namespace std {
     };
 }    // namespace std
 #endif    // _RZ_STRING_H_
-
-
-#include "string_utils.h"

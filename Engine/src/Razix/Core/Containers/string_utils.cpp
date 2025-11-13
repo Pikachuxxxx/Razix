@@ -65,12 +65,12 @@ namespace Razix {
         return false;
     }
 
-    RZDynamicArray<RZString> SplitString(const RZString& string, const RZString& delimiters)
+    std::vector<RZString> SplitString(const RZString& string, const RZString& delimiters)
     {
         sz start = 0;
         sz end   = string.find_first_of(delimiters);
 
-        RZDynamicArray<RZString> result;
+        std::vector<RZString> result;
 
         while (end <= RZString::npos) {
             RZString token = string.substr(start, end - start);
@@ -87,17 +87,17 @@ namespace Razix {
         return result;
     }
 
-    RZDynamicArray<RZString> SplitString(const RZString& string, char delimiter)
+    std::vector<RZString> SplitString(const RZString& string, char delimiter)
     {
         return SplitString(string, RZString(1, delimiter));
     }
 
-    RZDynamicArray<RZString> Tokenize(const RZString& string)
+    std::vector<RZString> Tokenize(const RZString& string)
     {
         return SplitString(string, RZString(" \t\n"));
     }
 
-    RZDynamicArray<RZString> GetLines(const RZString& string)
+    std::vector<RZString> GetLines(const RZString& string)
     {
         return SplitString(string, RZString("\n"));
     }

@@ -12,10 +12,10 @@ namespace Razix {
     RAZIX_API RZString RemoveName(const RZString& FilePath);
     RAZIX_API RZString GetFileLocation(const RZString& FilePath);
     RAZIX_API bool     IsHiddenFile(const RZString& path);
-    RAZIX_API RZDynamicArray<RZString> SplitString(const RZString& string, const RZString& delimiters);
-    RAZIX_API RZDynamicArray<RZString> SplitString(const RZString& string, const char delimiter);
-    RAZIX_API RZDynamicArray<RZString> Tokenize(const RZString& string);
-    RAZIX_API RZDynamicArray<RZString> GetLines(const RZString& string);
+    RAZIX_API std::vector<RZString> SplitString(const RZString& string, const RZString& delimiters);
+    RAZIX_API std::vector<RZString> SplitString(const RZString& string, const char delimiter);
+    RAZIX_API std::vector<RZString> Tokenize(const RZString& string);
+    RAZIX_API std::vector<RZString> GetLines(const RZString& string);
     RAZIX_API const char*              FindToken(const char* str, const RZString& token);
     RAZIX_API const char*              FindToken(const RZString& string, const RZString& token);
     RAZIX_API int32_t                  FindStringPosition(const RZString& string, const RZString& search, uint32_t offset = 0);
