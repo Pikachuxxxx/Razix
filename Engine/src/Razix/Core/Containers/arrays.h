@@ -2,7 +2,6 @@
 #define _RZ_ARRAYS_H_
 
 #include "Razix/Core/Log/RZLog.h"
-#include "Razix/Core/Memory/RZMemoryFunctions.h"
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/std/utility.h"
@@ -36,6 +35,8 @@ namespace Razix {
 
         reference       operator[](size_type index);
         const_reference operator[](size_type index) const;
+
+        RZFixedArray(std::initializer_list<T> init);
 
         reference       at(size_type index);
         const_reference at(size_type index) const;
@@ -133,6 +134,15 @@ namespace Razix {
             other.clear();
         }
         return *this;
+    }
+
+    template<typename T, size_t N>
+    RZFixedArray<T, N>::RZFixedArray(std::initializer_list<T> init)
+    {
+        reserve(init.size());
+        for (const auto& item: init) {
+            push_back(item);
+        }
     }
 
     template<typename T, size_t N>
@@ -339,6 +349,8 @@ namespace Razix {
         RZDynamicArray(RZDynamicArray&& other) noexcept;
         RZDynamicArray& operator=(RZDynamicArray&& other) noexcept;
 
+        RZDynamicArray(std::initializer_list<T> init);
+
         reference       operator[](size_type index);
         const_reference operator[](size_type index) const;
         reference       at(size_type index);
@@ -357,6 +369,7 @@ namespace Razix {
         size_type       size() const;
         size_type       capacity() const;
         void            clear();
+        void            erase(size_type index);
 
         void push_back(const T& value);
         void push_back(T&& value);
@@ -478,6 +491,15 @@ namespace Razix {
             other.m_Capacity = 0;
         }
         return *this;
+    }
+
+    template<typename T>
+    RZDynamicArray<T>::RZDynamicArray(std::initializer_list<T> init)
+    {
+        reserve(init.size());
+        for (const auto& item: init) {
+            push_back(item);
+        }
     }
 
     template<typename T>
@@ -606,6 +628,21 @@ namespace Razix {
         for (RZDynamicArray<T>::size_type i = 0; i < m_Size; ++i)
             destroy(i);
         m_Size = 0;
+    }
+
+    template<typename T>
+    void RZDynamicArray<T>::erase(size_type index)
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        RAZIX_CORE_ASSERT(index < m_Size, "RZDynamicArray: Index out of bounds!");
+        // Destroy the element at the specified index
+        destroy(index);
+        // Shift elements to fill the gap
+        for (size_type i = index; i < m_Size - 1; ++i) {
+            construct(i, rz_move((*this)[i + 1]));
+            destroy(i + 1);
+        }
+        --m_Size;
     }
 
     template<typename T>
