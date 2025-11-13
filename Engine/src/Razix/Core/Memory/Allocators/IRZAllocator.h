@@ -2,8 +2,8 @@
 
 #include "Razix/Core/RZCore.h"
 
+#include <stddef.h>    // size_t
 #include <stdint.h>
-#include <stddef.h> // size_t
 
 namespace Razix {
     namespace Memory {

@@ -3,7 +3,7 @@
 // clang-format on
 #include "string.h"
 
-#include <string.h> // for memcpy
+#include <string.h>    // for memcpy
 
 namespace Razix {
 

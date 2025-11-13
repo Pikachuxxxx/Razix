@@ -18,7 +18,7 @@ namespace Razix {
             void shutdown() override;
 
             void* allocate(size_t size) override;
-            void deallocate(void* ptr) override {}
+            void  deallocate(void* ptr) override {}
 
             void clear() { m_AllocatedSize = 0; }
 
@@ -33,4 +33,4 @@ namespace Razix {
             size_t   m_Alignment     = 16;
         };
     }    // namespace Memory
-}    // namespace Razix}    // namespace Razix
+}    // namespace Razix

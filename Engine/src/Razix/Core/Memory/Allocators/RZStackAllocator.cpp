@@ -10,9 +10,9 @@ namespace Razix {
 
         void RZStackAllocator::init(size_t size, size_t alignment)
         {
-            m_TotalSize   = size;
-            m_Alignment   = alignment;
-            m_StackChunk  = (uint8_t*) rz_malloc(size, alignment);
+            m_TotalSize  = size;
+            m_Alignment  = alignment;
+            m_StackChunk = (uint8_t*) rz_malloc(size, alignment);
         }
 
         void RZStackAllocator::shutdown()

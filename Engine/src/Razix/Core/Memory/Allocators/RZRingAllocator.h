@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Razix/Core/RZCore.h"
 #include "IRZAllocator.h"
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
+#include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
 
 #include <mutex>
@@ -34,21 +34,21 @@ namespace Razix {
             T    get();
 
         private:
-            std::mutex m_Mutex;             /* Mutex to make read/write from ring buffer thread safe */
-            T*         m_Buffer  = nullptr; /* Raw data buffer of type T                             */
-            uint64_t   m_Head    = 0;       /* Head of the ring buffer                               */
-            uint64_t   m_Tail    = 0;       /* Tail of the ring buffer                               */
-            uint32_t   m_MaxSize = 0;
+            std::mutex m_Mutex;               /* Mutex to make read/write from ring buffer thread safe */
+            T*         m_Buffer    = nullptr; /* Raw data buffer of type T                             */
+            uint64_t   m_Head      = 0;       /* Head of the ring buffer                               */
+            uint64_t   m_Tail      = 0;       /* Tail of the ring buffer                               */
+            uint32_t   m_MaxSize   = 0;
             size_t     m_Alignment = 16;
-            bool       m_IsFull  = false;
+            bool       m_IsFull    = false;
         };
 
         template<class T>
         void Razix::Memory::RZRingAllocator<T>::init(size_t size, size_t alignment)
         {
-            m_MaxSize = (uint32_t) size;
+            m_MaxSize   = (uint32_t) size;
             m_Alignment = alignment;
-            m_Buffer  = (T*) rz_malloc(size * sizeof(T), alignment);
+            m_Buffer    = (T*) rz_malloc(size * sizeof(T), alignment);
         }
 
         template<class T>

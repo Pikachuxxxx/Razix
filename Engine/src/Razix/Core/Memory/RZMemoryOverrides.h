@@ -6,25 +6,25 @@ extern "C"
 {
 #endif    // __cplusplus
 
-//#ifndef malloc
-//    #define malloc(size) PLEASE_USE_rz_malloc_or_rz_new
-//#endif
-//
-//#ifndef calloc
-//    #define calloc(count, size) PLEASE_USE_rz_calloc_or_rz_new_array_zero
-//#endif
-//
-//#ifndef memalign
-//    #define memalign(align, size) PLEASE_USE_rz_malloc_aligned_or_rz_new_aligned
-//#endif
-//
-//#ifndef realloc
-//    #define realloc(ptr, size) PLEASE_USE_rz_realloc
-//#endif
-//
-//#ifndef free
-//    #define free(ptr) PLEASE_USE_rz_delete
-//#endif
+    //#ifndef malloc
+    //    #define malloc(size) PLEASE_USE_rz_malloc_or_rz_new
+    //#endif
+    //
+    //#ifndef calloc
+    //    #define calloc(count, size) PLEASE_USE_rz_calloc_or_rz_new_array_zero
+    //#endif
+    //
+    //#ifndef memalign
+    //    #define memalign(align, size) PLEASE_USE_rz_malloc_aligned_or_rz_new_aligned
+    //#endif
+    //
+    //#ifndef realloc
+    //    #define realloc(ptr, size) PLEASE_USE_rz_realloc
+    //#endif
+    //
+    //#ifndef free
+    //    #define free(ptr) PLEASE_USE_rz_delete
+    //#endif
 
 #define rz_new(type) \
     ((type*) rz_malloc(sizeof(type), _Alignof(type)))

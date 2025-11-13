@@ -15,9 +15,9 @@
 
 namespace Razix {
 
-    extern sz  rz_strlen(const char* str);
-    extern i32 rz_strcmp(const char* s1, const char* s2);
-    extern i32 rz_memcmp(const void* ptr1, const void* ptr2, sz count);
+    extern sz    rz_strlen(const char* str);
+    extern i32   rz_strcmp(const char* s1, const char* s2);
+    extern i32   rz_memcmp(const void* ptr1, const void* ptr2, sz count);
     extern void* rz_memcpy(void* dst, const void* src, sz count);
 
     // [header declarations taken from]: https://en.cppreference.com/w/cpp/string/basic_string.html

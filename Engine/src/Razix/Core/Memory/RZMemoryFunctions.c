@@ -3,8 +3,8 @@
 #ifdef RAZIX_PLATFORM_WINDOWS
     #include <corecrt_malloc.h>
 #elif RAZIX_PLATFORM_UNIX
-    #include <stdlib.h>
     #include <memory.h>
+    #include <stdlib.h>
 #endif
 
 #include <string.h>    // for memset, memcpy
