@@ -827,7 +827,6 @@ namespace Razix {
             probe_count++;
             index = quadratic_probe(index, probe_count, m_Capacity);
         }
-        RAZIX_CORE_ERROR("[RZHashMap] Hash map is full, couldn't find entry!");
         return m_Capacity;
     }
 

@@ -798,24 +798,24 @@ namespace Razix {
         }
     }
 
-    //TYPED_TEST(RZHashMapTypedTest, StressTestMixed)
-    //{
-    //    const int NUM_OPS = 500;
-    //
-    //    for (int i = 0; i < NUM_OPS; ++i) {
-    //        this->map.insert(this->CreateKey(i), this->CreateValue(i));
-    //    }
-    //
-    //    for (int i = 0; i < NUM_OPS / 2; ++i) {
-    //        this->map.remove(this->CreateKey(i));
-    //    }
-    //
-    //    EXPECT_EQ(this->map.size(), NUM_OPS / 2);
-    //
-    //    for (int i = NUM_OPS / 2; i < NUM_OPS; ++i) {
-    //        EXPECT_NE(this->map.find(this->CreateKey(i)), nullptr);
-    //    }
-    //}
+    TYPED_TEST(RZHashMapTypedTest, StressTestMixed)
+    {
+        const int NUM_OPS = 500;
+    
+        for (int i = 0; i < NUM_OPS; ++i) {
+            this->map.insert(this->CreateKey(i), this->CreateValue(i));
+        }
+    
+        for (int i = 0; i < NUM_OPS / 2; ++i) {
+            this->map.remove(this->CreateKey(i));
+        }
+    
+        EXPECT_EQ(this->map.size(), NUM_OPS / 2);
+    
+        for (int i = NUM_OPS / 2; i < NUM_OPS; ++i) {
+            EXPECT_NE(this->map.find(this->CreateKey(i)), nullptr);
+        }
+    }
 
     TYPED_TEST(RZHashMapTypedTest, StressTestAlternatingInsertRemove)
     {
