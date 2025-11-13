@@ -821,13 +821,9 @@ namespace Razix {
         size_type index       = hash_value % m_Capacity;
         size_type probe_count = 0;
         while (probe_count < m_Capacity) {
-            if (!m_Occupied[index]) {
-                // Empty slot found, key does not exist
-                return m_Capacity;
-            } else if (m_Hashes[index] == hash_value && m_Equal(m_Keys[index], key)) {
-                // Key found
+            if (m_Occupied[index] && m_Hashes[index] == hash_value && m_Equal(m_Keys[index], key))
                 return index;
-            }
+
             probe_count++;
             index = quadratic_probe(index, probe_count, m_Capacity);
         }

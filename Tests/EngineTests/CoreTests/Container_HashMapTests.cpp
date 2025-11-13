@@ -287,19 +287,22 @@ namespace Razix {
         EXPECT_EQ(this->map.size(), 1);
     }
 
-    //TYPED_TEST(RZHashMapTypedTest, RemoveAllElements)
-    //{
-    //    for (int i = 1; i <= 5; ++i) {
-    //        this->map.insert(this->CreateKey(i), this->CreateValue(i));
-    //    }
-    //
-    //    for (int i = 1; i <= 5; ++i) {
-    //        this->map.remove(this->CreateKey(i));
-    //    }
-    //
-    //    EXPECT_TRUE(this->map.empty());
-    //    EXPECT_EQ(this->map.size(), 0);
-    //}
+    TYPED_TEST(RZHashMapTypedTest, RemoveAllElements)
+    {
+        for (int i = 1; i <= 5; ++i) {
+            this->map.insert(this->CreateKey(i), this->CreateValue(i));
+        }
+
+        for (int i = 1; i <= 5; ++i) {
+            if (!this->map.remove(this->CreateKey(i))) {
+                RAZIX_CORE_ERROR("Failed to remove key during RemoveAllElements test");
+                RAZIX_DEBUG_BREAK();
+            }
+        }
+
+        EXPECT_TRUE(this->map.empty());
+        EXPECT_EQ(this->map.size(), 0);
+    }
 
     TYPED_TEST(RZHashMapTypedTest, ReinsertAfterRemove)
     {
@@ -858,13 +861,13 @@ namespace Razix {
         if constexpr (std::is_same_v<KeyType, RZString>) {
             auto empty_key = RZString("");
             this->map.insert(empty_key, this->CreateValue(1));
-            EXPECT_NE(this->map.find(empty_key), nullptr); 
+            EXPECT_NE(this->map.find(empty_key), nullptr);
         }
     }
 
     TYPED_TEST(RZHashMapTypedTest, IdenticalKeysAndValues)
     {
-        using KeyType = typename TestFixture::KeyType;
+        using KeyType   = typename TestFixture::KeyType;
         using ValueType = typename TestFixture::ValueType;
         if constexpr (std::is_same_v<KeyType, RZString> &&
                       std::is_same_v<ValueType, RZString>) {
