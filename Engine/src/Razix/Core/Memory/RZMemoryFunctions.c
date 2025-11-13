@@ -21,7 +21,7 @@ void* rz_malloc(size_t size, size_t alignment)
     #ifdef RAZIX_PLATFORM_WINDOWS
     address = _aligned_malloc(size, alignment);
     #elif RAZIX_PLATFORM_UNIX
-    address = memalign(alignment, size);
+    posix_memalign(&address, alignment, size);
     #endif
 #endif
 
