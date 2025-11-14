@@ -331,7 +331,9 @@ namespace std {
     };
 }    // namespace std
 
-#include <spdlog/fmt/bundled/core.h>
+#ifndef RAZIX_GOLD_MASTER
+
+    #include <spdlog/spdlog.h>    // only needed for fmt integration
 
 namespace fmt {
     template<>
@@ -351,4 +353,5 @@ namespace fmt {
     };
 }    // namespace fmt
 
+#endif    // RAZIX_GOLD_MASTER
 #endif    // _RZ_STRING_H_

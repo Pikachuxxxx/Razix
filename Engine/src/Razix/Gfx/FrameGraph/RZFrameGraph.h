@@ -167,9 +167,9 @@ namespace Razix {
             inline u32                         getPassNodesSize() const { return static_cast<u32>(m_PassNodes.size()); }
             inline u32                         getResourceNodesSize() const { return static_cast<u32>(m_ResourceNodes.size()); }
             inline u32                         getCompiledResourceEntriesSize() const { return static_cast<u32>(m_CompiledResourceEntries.size()); }
-            inline RZDynamicArray<u32>            getCompiledResourceEntries() const { return m_CompiledResourceEntries; }
-            inline RZDynamicArray<u32>            getCompiledResourceNodes() const { return m_CompiledResourceIndices; }
-            inline RZDynamicArray<u32>            getCompiledPassNodes() const { return m_CompiledPassIndices; }
+            inline RZDynamicArray<u32>         getCompiledResourceEntries() const { return m_CompiledResourceEntries; }
+            inline RZDynamicArray<u32>         getCompiledResourceNodes() const { return m_CompiledResourceIndices; }
+            inline RZDynamicArray<u32>         getCompiledPassNodes() const { return m_CompiledPassIndices; }
             inline const AliasingBook&         getAliasBook() const { return m_TransientAllocator.getAliasBook(); }
             inline const RZTransientAllocator* getTransientAllocatorPtr() const { return &m_TransientAllocator; }
 
@@ -182,11 +182,11 @@ namespace Razix {
             RZDynamicArray<RZPassNode>      m_PassNodes;
             RZDynamicArray<RZResourceNode>  m_ResourceNodes;
             RZDynamicArray<RZResourceEntry> m_ResourceRegistry;
-            RZBlackboard                 m_Blackboard;
+            RZBlackboard                    m_Blackboard;
             RZDynamicArray<u32>             m_CompiledPassIndices;
             RZDynamicArray<u32>             m_CompiledResourceIndices;
             RZDynamicArray<u32>             m_CompiledResourceEntries;
-            RZTransientAllocator         m_TransientAllocator;
+            RZTransientAllocator            m_TransientAllocator;
 
         private:
             template<typename T>

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Razix/Core/Containers/arrays.h"
+#include "Razix/Core/std/utility.h"
+
 #include <cereal/details/helpers.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -115,26 +117,32 @@ namespace glm {
 }    // namespace glm
 
 namespace cereal {
-    // Serialization for RZDynamicArray
     template<class Archive, typename T>
-    void serialize(Archive& archive, Razix::RZDynamicArray<T>& arr)
+    void save(Archive& archive, const Razix::RZDynamicArray<T>& arr)
     {
-        // Get the size
-        using CerealSize = typename cereal::size_type;
+        using CerealSize      = typename cereal::size_type;
         CerealSize cerealSize = static_cast<cereal::size_type>(arr.size());
-
-        // Serialize size
         archive(cereal::make_size_tag(cerealSize));
 
-        // On load, resize the array
-        if (Archive::is_loading::value) {
-            arr.clear();
-            arr.reserve(cerealSize);
-        }
-
-        // Serialize each element
         for (size_t i = 0; i < cerealSize; ++i) {
             archive(arr[i]);
+        }
+    }
+
+    template<class Archive, typename T>
+    void load(Archive& archive, Razix::RZDynamicArray<T>& arr)
+    {
+        using CerealSize = typename cereal::size_type;
+        CerealSize cerealSize;
+        archive(cereal::make_size_tag(cerealSize));
+
+        arr.clear();
+        arr.reserve(cerealSize);
+
+        for (size_t i = 0; i < cerealSize; ++i) {
+            T value;
+            archive(value);
+            arr.push_back(Razix::rz_move(value));
         }
     }
 }    // namespace cereal

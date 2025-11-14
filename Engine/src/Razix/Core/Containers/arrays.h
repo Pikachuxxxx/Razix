@@ -570,42 +570,36 @@ namespace Razix {
     template<typename T>
     typename RZDynamicArray<T>::iterator RZDynamicArray<T>::begin()
     {
-        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
         return reinterpret_cast<T*>(m_Data);
     }
 
     template<typename T>
     typename RZDynamicArray<T>::const_iterator RZDynamicArray<T>::begin() const
     {
-        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
         return reinterpret_cast<T*>(m_Data);
     }
 
     template<typename T>
     typename RZDynamicArray<T>::const_iterator RZDynamicArray<T>::cbegin() const
     {
-        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
         return reinterpret_cast<T*>(m_Data);
     }
 
     template<typename T>
     typename RZDynamicArray<T>::iterator RZDynamicArray<T>::end()
     {
-        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
         return reinterpret_cast<T*>(m_Data) + m_Size;
     }
 
     template<typename T>
     typename RZDynamicArray<T>::const_iterator RZDynamicArray<T>::end() const
     {
-        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
         return reinterpret_cast<T*>(m_Data) + m_Size;
     }
 
     template<typename T>
     typename RZDynamicArray<T>::const_iterator RZDynamicArray<T>::cend() const
     {
-        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
         return reinterpret_cast<T*>(m_Data) + m_Size;
     }
 
