@@ -858,7 +858,7 @@ namespace Razix {
             return *this;
         }
 
-        RZShaderBindMap& RZShaderBindMap::setDescriptorBlacklist(const RZString& name, const std::vector<RZString>& blacklistNames)
+        RZShaderBindMap& RZShaderBindMap::setDescriptorBlacklist(const RZString& name, const RZDynamicArray<RZString>& blacklistNames)
         {
             dirty = true;
             DescriptorBlacklist blacklist;
@@ -977,7 +977,7 @@ namespace Razix {
 
             if (dirty) {
                 for (u32 i = 0; i < m_TableBuilderResViewRefs.size(); i++) {
-                    const std::vector<NamedResView>& resViews = m_TableBuilderResViewRefs[i];
+                    const RZDynamicArray<NamedResView>& resViews = m_TableBuilderResViewRefs[i];
                     if (resViews.empty()) {
                         RAZIX_CORE_WARN("[ShaderBindMap] No resource views found for table index {0}! Skipping... Probably blacklisted? or validation messed up! Please Check Logs!", i);
                         continue;

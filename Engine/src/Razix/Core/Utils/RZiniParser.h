@@ -54,7 +54,7 @@ namespace Razix {
         {
             // check if the key has a sub-key
             if (StringContains(key, ".")) {
-                std::vector<RZString> KeySubKey = SplitString(key, '.');
+                RZDynamicArray<RZString> KeySubKey = SplitString(key, '.');
                 if (KeySubKey.size() > 2) {
                     RAZIX_CORE_ERROR("Subsection has nested sections > 1 depth, not supported!");
                     return false;

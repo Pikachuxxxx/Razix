@@ -74,7 +74,7 @@ namespace Razix {
              * FIXME: But this also means extra tracking of rz_gfx_resource_view_desc for deferred creation after the actual resource is created, waste of memory!
              */
 
-            std::vector<RZFrameGraphResource>                                       m_Creates;
+            RZDynamicArray<RZFrameGraphResource>                                       m_Creates;
             std::unordered_map<RZFrameGraphResource, RZFrameGraphResourceAcessView> m_Reads;
             std::unordered_map<RZFrameGraphResource, RZFrameGraphResourceAcessView> m_Writes;
             bool                                                                    m_IsStandAlone      = false;

@@ -60,7 +60,7 @@ namespace Razix {
     void GLFWWindow::SetWindowIcon()
     {
         // 64-bit logo
-        std::vector<GLFWimage> images;
+        RZDynamicArray<GLFWimage> images;
         GLFWimage              image64{};
 
         image64.height = RazixLogo64Height;

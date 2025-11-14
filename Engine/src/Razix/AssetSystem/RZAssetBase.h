@@ -80,7 +80,7 @@ namespace Razix {
         {
             RZString              name;         /* Name of the asset                                         */
             RZString              category;     /* Category (e.g., "Texture", "Material", "Audio")           */
-            std::vector<RZString> tags;         /* Tags for easy searching and filtering                     */
+            RZDynamicArray<RZString> tags;         /* Tags for easy searching and filtering                     */
             AssetVersion          version;      /* Version info                                              */
             RZString              author;       /* Author of the asset                                       */
             RZString              lastModified; /* Date/Time of last modification (e.g., "2024-11-24 15:30") */
@@ -140,7 +140,7 @@ namespace Razix {
             inline void                               acquireLockOnAsset() { m_Mutex.lock(); }
             inline void                               releaseLockOnAsset() { m_Mutex.unlock(); }
             inline void                               addDependency(AssetType assetType, const RZUUID& assetID) { m_Dependencies.push_back({assetType, assetID}); }
-            inline const std::vector<AssetDependecy>& getDependencies() const { return m_Dependencies; }
+            inline const RZDynamicArray<AssetDependecy>& getDependencies() const { return m_Dependencies; }
 
             RZUUID operator()() { return m_UUID; }
             bool   operator==(RZAsset& other) { return m_UUID == other.m_UUID; }
@@ -150,7 +150,7 @@ namespace Razix {
             RZUUID                      m_UUID;              /* Unique identifier                              */
             AssetType                   m_Type;              /* Type of the asset (e.g., "Texture", "Model")   */
             RZAtomicU64                 m_ReferenceCount;    /* Reference count for ownership tracking         */
-            std::vector<AssetDependecy> m_Dependencies;      /* Other assets this asset depends on             */
+            RZDynamicArray<AssetDependecy> m_Dependencies;      /* Other assets this asset depends on             */
             AssetMetadata               m_Metadata;          /* Additional metadata                            */
             AssetStorageType            m_StoragePreference; /* Asset memory storage type                      */
             bool                        m_IsDirty;           /* Flag for tracking modifications                */

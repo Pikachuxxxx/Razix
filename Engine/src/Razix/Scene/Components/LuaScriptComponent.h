@@ -43,7 +43,7 @@ namespace Razix {
 
     private:
         RZString              m_Filepath;
-        std::vector<RZString> m_Errors;
+        RZDynamicArray<RZString> m_Errors;
 
         i32 m_OnStartFunc = -1;
         i32 m_UpdateFunc  = -1;

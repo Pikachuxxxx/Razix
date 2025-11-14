@@ -28,6 +28,6 @@ struct RAZIX_MEM_ALIGN_16 LightData
     alignas(4) u32 _padding[2]         = {0, 0};    // Implicit padding that will be consumed by GLSL for 16 byte alignment
 };
 
-typedef std::vector<LightData> LightsData;
+typedef Razix::RZDynamicArray<LightData> LightsData;
 
 #endif

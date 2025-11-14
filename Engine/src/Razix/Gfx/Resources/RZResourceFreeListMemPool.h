@@ -48,7 +48,7 @@ namespace Razix {
             // TODO: Figure out how to offer both version and make it safe
             T* get(rz_handle handle) const;
 
-            std::vector<rz_handle> getHandles();
+            RZDynamicArray<rz_handle> getHandles();
 
         private:
             T* getInternal(rz_handle& handle);
@@ -67,9 +67,9 @@ namespace Razix {
         }
 
         template<typename T>
-        std::vector<rz_handle> RZResourceFreeListMemPoolTyped<T>::getHandles()
+        RZDynamicArray<rz_handle> RZResourceFreeListMemPoolTyped<T>::getHandles()
         {
-            std::vector<rz_handle> handles;
+            RZDynamicArray<rz_handle> handles;
 
             if (m_FreeIndicesHead != 0) {
                 for (u32 i = 0; i < m_FreeIndicesHead; ++i) {

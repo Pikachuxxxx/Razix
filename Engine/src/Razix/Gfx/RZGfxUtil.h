@@ -88,7 +88,7 @@ namespace Razix {
         //     uint32_t         transformID;
         // };
 
-        //using Drawables = std::vector<Drawable>;
+        //using Drawables = RZDynamicArray<Drawable>;
 
         /**
          * Drawables are batched by their common VB/IB and material pools
@@ -100,7 +100,7 @@ namespace Razix {
         //      RZPipelineHandle     pso;
         //  };
 
-        //  using Batches = std::vector<Batch>;
+        //  using Batches = RZDynamicArray<Batch>;
 
         /**
          * DrawData is use for Bindless Rendering 

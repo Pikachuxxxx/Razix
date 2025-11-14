@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/Containers/arrays.h"
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -110,6 +112,30 @@ namespace glm {
         archive(q.x, q.y, q.z, q.w);
     }
 }    // namespace glm
+
+namespace cereal {
+    // Serialization for RZDynamicArray
+    template<class Archive, typename T>
+    void serialize(Archive& archive, Razix::RZDynamicArray<T>& arr)
+    {
+        // Get the size
+        size_t size = arr.size();
+
+        // Serialize size
+        archive(cereal::make_size_tag(size));
+
+        // On load, resize the array
+        if (Archive::is_loading::value) {
+            arr.clear();
+            arr.reserve(size);
+        }
+
+        // Serialize each element
+        for (size_t i = 0; i < size; ++i) {
+            archive(arr[i]);
+        }
+    }
+}    // namespace cereal
 
 //namespace Razix {
 //    template<class Archive>

@@ -28,7 +28,7 @@ namespace Razix {
         public:
             RZMesh();
             RZMesh(rz_gfx_buffer_handle vertexBuffer[VERTEX_MAX_ATTRIBS_COUNT], rz_gfx_buffer_handle indexBuffer, u32 vtxcount, u32 idxcount, MeshType meshType = MeshType::StaticMesh);
-            RZMesh(const RZVertex& vertices, const std::vector<u32>& indices);
+            RZMesh(const RZVertex& vertices, const RZDynamicArray<u32>& indices);
             RZMesh(const RZVertex& vertices, u32* indices, uint32_t indicesCount);
             virtual ~RZMesh() {}
 
@@ -77,7 +77,7 @@ namespace Razix {
             RZString             m_MeshPath                                = "";
             rz_gfx_buffer_handle m_VertexBuffers[VERTEX_MAX_ATTRIBS_COUNT] = {};
 
-            void initMeshFromVectors(const RZVertex& vertices, const std::vector<u32>& indices);
+            void initMeshFromVectors(const RZVertex& vertices, const RZDynamicArray<u32>& indices);
         };
     }    // namespace Gfx
 }    // namespace Razix

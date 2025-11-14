@@ -30,7 +30,7 @@ namespace Razix {
                 }
 
             private:
-                std::vector<RZNNLayer<T>*> m_Layers;
+                RZDynamicArray<RZNNLayer<T>*> m_Layers;
             };
 
         }    // namespace ML

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Razix/Core/Containers/arrays.h"
 #include "Razix/Core/Containers/smart_pointers.h"
 #include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/RZDataTypes.h"
@@ -107,7 +108,7 @@ static int AttachConsole(void)
 static int EngineMain(int argc, char** argv)
 {
     // Read the command line arguments
-    static std::vector<cstr> args;
+    static Razix::RZDynamicArray<cstr> args;
     for (int32_t i = 1; i < argc; i++) {
         args.push_back(argv[i]);
     };

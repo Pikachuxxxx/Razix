@@ -105,7 +105,7 @@ namespace Razix {
         }
 
         RZString              textFileStr = RZFileSystem::ReadTextFile(physicalPath);
-        std::vector<RZString> lines       = GetLines(textFileStr);
+        RZDynamicArray<RZString> lines       = GetLines(textFileStr);
 
         Section  currentSection;
         RZString currentSectionName;
@@ -146,7 +146,7 @@ namespace Razix {
         // 1. break by = to get crude key-value pair
         // 2. break key if has "." into subsection
         // 3. remove any ;xxx from value before assigning
-        std::vector<RZString> KeyValue = SplitString(line, '=');
+        RZDynamicArray<RZString> KeyValue = SplitString(line, '=');
         if (KeyValue.size() > 2) {
             RAZIX_CORE_ERROR("Multiple key value pairs found");
             return false;
@@ -157,7 +157,7 @@ namespace Razix {
 
         // check if it has subsection
         if (StringContains(Key, RZString("."))) {
-            std::vector<RZString> KeySubKey = SplitString(Key, '.');
+            RZDynamicArray<RZString> KeySubKey = SplitString(Key, '.');
             if (KeySubKey.size() > 2) {
                 RAZIX_CORE_ERROR("Subsection has nested sections > 1 depth, not supported!");
                 return false;

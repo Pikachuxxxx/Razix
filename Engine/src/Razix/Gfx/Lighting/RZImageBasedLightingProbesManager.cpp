@@ -197,7 +197,7 @@ namespace Razix {
 
             const u32 MaxMipLevels = RZTexture::CalculateMipMapCount(PREFILTERED_MAP_DIM, PREFILTERED_MAP_DIM);
 
-            std::vector<RZDescriptorSetHandle> PrefilteredMapPerMipHeaps = {};
+            RZDynamicArray<RZDescriptorSetHandle> PrefilteredMapPerMipHeaps = {};
             for (u32 mipLevel = 0; mipLevel < MaxMipLevels; mipLevel++) {
                 // Create a heap with different SRV/UAV attached
                 preFilteredMap->setCurrentMipLevel(mipLevel);

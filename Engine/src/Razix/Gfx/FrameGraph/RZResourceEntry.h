@@ -165,8 +165,8 @@ namespace Razix {
             }
 
 #ifdef FG_USE_FINE_GRAINED_LIFETIMES
-            const std::vector<RZResourceLifetime>& getLifetimes() const { return m_Lifetimes; }
-            std::vector<RZResourceLifetime>&       getLifetimesRef() { return m_Lifetimes; }
+            const RZDynamicArray<RZResourceLifetime>& getLifetimes() const { return m_Lifetimes; }
+            RZDynamicArray<RZResourceLifetime>&       getLifetimesRef() { return m_Lifetimes; }
 #else
             inline const RZPassNode& getProducerPassNode() const { return *m_Producer; }
             inline const RZPassNode& getLastPassNode() const { return *m_Last; }
@@ -198,7 +198,7 @@ namespace Razix {
             FGResourceType           m_ResType  = {};
             RZString                 m_Name;
 #ifdef FG_USE_FINE_GRAINED_LIFETIMES
-            std::vector<RZResourceLifetime> m_Lifetimes;
+            RZDynamicArray<RZResourceLifetime> m_Lifetimes;
 #else
             RZPassNode* m_Producer = nullptr;
             RZPassNode* m_Last     = nullptr;

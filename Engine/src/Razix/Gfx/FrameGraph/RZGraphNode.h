@@ -20,7 +20,7 @@ namespace Razix {
             RAZIX_NONCOPYABLE_CLASS(RZGraphNode)
 
             // https://stackoverflow.com/questions/40457302/c-vector-emplace-back-calls-copy-constructor
-            // According to https://en.cppreference.com/w/cpp/container/vector/emplace_back, the value_type of a std::vector<T>
+            // According to https://en.cppreference.com/w/cpp/container/vector/emplace_back, the value_type of a RZDynamicArray<T>
             // needs to be MoveInsertable and EmplaceConstructible. MoveInsertable in particular requires a move constructor or a copy constructor
             // So, if you don't want your class to be copied, you should add an explicit move constructor to work
             // You can use = default to use the compiler-provided default implementation that just moves all fields

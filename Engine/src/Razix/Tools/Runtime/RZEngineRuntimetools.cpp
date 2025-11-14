@@ -198,7 +198,7 @@ namespace Razix {
             DrawLifetimeCell(cellOrigin, cellWidth, LifetimeCellStyle::CellHeight, lifetime, groupID);
         }
 
-        void DrawSimulatedBarriers(ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, const std::vector<SimulatedBarrier>& barriers)
+        void DrawSimulatedBarriers(ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, const RZDynamicArray<SimulatedBarrier>& barriers)
         {
             for (const auto& barrier: barriers) {
                 const float x = origin.x + (barrier.passIdx + 1) * cellWidth;
@@ -279,7 +279,7 @@ namespace Razix {
             if (ImGui::Begin("Frame Graph Resource Viewer##FGResourceVis")) {
                 ImGui::Text("Welcome to Frame Graph resource viz! Your one stop viewer for Transient resources/Barriers and memory usage of a Frame.");
 
-                std::vector<u32> compiledResourceEntryPoints = frameGraph.getCompiledResourceEntries();
+                RZDynamicArray<u32> compiledResourceEntryPoints = frameGraph.getCompiledResourceEntries();
                 u32              resourceCount               = static_cast<u32>(compiledResourceEntryPoints.size());
 
                 ImDrawList* draw   = ImGui::GetWindowDrawList();

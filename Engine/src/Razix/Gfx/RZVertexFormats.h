@@ -37,40 +37,40 @@ namespace Razix {
 
         struct RZVertex
         {
-            std::vector<float3> Position;
-            std::vector<float4> Color;
-            std::vector<float2> UV;
-            std::vector<float3> Normal;
-            std::vector<float3> Tangent;
+            RZDynamicArray<float3> Position;
+            RZDynamicArray<float4> Color;
+            RZDynamicArray<float2> UV;
+            RZDynamicArray<float3> Normal;
+            RZDynamicArray<float3> Tangent;
         };
 
         struct RZSkeletalVertex
         {
-            std::vector<float3> Position;
-            std::vector<float2> UV;
-            std::vector<float3> Normal;
-            std::vector<float3> Tangent;
-            std::vector<float3> BiTangent;
-            std::vector<int4>   BoneIndices;    // MAX_BONES_COUNT
-            std::vector<float3> BoneWeights;
+            RZDynamicArray<float3> Position;
+            RZDynamicArray<float2> UV;
+            RZDynamicArray<float3> Normal;
+            RZDynamicArray<float3> Tangent;
+            RZDynamicArray<float3> BiTangent;
+            RZDynamicArray<int4>   BoneIndices;    // MAX_BONES_COUNT
+            RZDynamicArray<float3> BoneWeights;
         };
 
         struct RZParticleVertex
         {
-            std::vector<float3> Position;
-            std::vector<float3> Velocity;
-            std::vector<float4> Color;
-            std::vector<float2> Size;
-            std::vector<float2> Life;
+            RZDynamicArray<float3> Position;
+            RZDynamicArray<float3> Velocity;
+            RZDynamicArray<float4> Color;
+            RZDynamicArray<float2> Size;
+            RZDynamicArray<float2> Life;
         };
 
         struct RZTerrainVertex
         {
-            std::vector<float3> Position;
-            std::vector<float2> UV;
-            std::vector<float3> Normal;
-            std::vector<float>  Height;
-            std::vector<float4> BlendWeights;
+            RZDynamicArray<float3> Position;
+            RZDynamicArray<float2> UV;
+            RZDynamicArray<float3> Normal;
+            RZDynamicArray<float>  Height;
+            RZDynamicArray<float4> BlendWeights;
         };
 #endif
     }    // namespace Gfx

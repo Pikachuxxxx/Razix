@@ -62,7 +62,7 @@ namespace Razix {
         return intVal;
     }
 
-    void RZCommandLineParser::addCommand(RZString name, std::vector<RZString> commands, bool hasValue, RZString help)
+    void RZCommandLineParser::addCommand(RZString name, RZDynamicArray<RZString> commands, bool hasValue, RZString help)
     {
         m_CommandOptions[name].commandFlags = commands;
         m_CommandOptions[name].helpDesc     = help;
@@ -71,7 +71,7 @@ namespace Razix {
         m_CommandOptions[name].value        = "";
     }
 
-    void RZCommandLineParser::parse(std::vector<cstr>& arguments)
+    void RZCommandLineParser::parse(RZDynamicArray<cstr>& arguments)
     {
         bool printH = false;
         // Known arguments

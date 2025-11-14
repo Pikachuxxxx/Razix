@@ -14,9 +14,9 @@ namespace Razix {
             return Razix::RZTypeRegistry::getTypeMetaData<std::remove_cv_t<std::remove_pointer_t<Derived>>>();
         }
 
-        std::vector<u8> serializeToBinary() const
+        RZDynamicArray<u8> serializeToBinary() const
         {
-            std::vector<u8>     buffer;
+            RZDynamicArray<u8>     buffer;
             const TypeMetaData* metaData = getTypeMetaData();
             if (!metaData) return buffer;
 
@@ -27,7 +27,7 @@ namespace Razix {
             return buffer;
         }
 
-        void deserializeFromBinary(const std::vector<u8>& binaryData)
+        void deserializeFromBinary(const RZDynamicArray<u8>& binaryData)
         {
             const TypeMetaData* metaData = getTypeMetaData();
             if (!metaData) return;

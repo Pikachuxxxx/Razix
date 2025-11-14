@@ -5,11 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <Razix/Core/Log/RZLog.h>
-
-#include "Razix/Core/RZCore.h"
-#include "Razix/Core/RZDataTypes.h"
-#include "Razix/Core/Utils/RZCommandLineParser.h"
+#include <Razix.h>
 
 #include <gtest/gtest.h>
 
@@ -40,7 +36,7 @@ namespace Razix {
         parser.addCommand("help", {"--help", "-h"}, false, "Shows the help message");
 
         // Simulate arguments
-        std::vector<const char*> args = {"app", "--test", "value123", "--help"};
+        Razix::RZDynamicArray<cstr> args = {"app", "--test", "value123", "--help"};
         parser.parse(args);
 
         // Check that commands were set correctly
@@ -58,7 +54,7 @@ namespace Razix {
         parser.addCommand("test", {"--test", "-t"}, true, "A test command that requires a value");
 
         // Simulate empty arguments
-        std::vector<const char*> args = {"app"};
+        Razix::RZDynamicArray<const char*> args = {"app"};
         parser.parse(args);
 
         // Check that commands were not set
@@ -73,7 +69,7 @@ namespace Razix {
         parser.addCommand("NumCmd", {"--number", "-n"}, true, "A test command that requires a numeric value");
 
         // Simulate arguments
-        std::vector<const char*> args = {"app", "--number", "42"};
+        Razix::RZDynamicArray<const char*> args = {"app", "--number", "42"};
         parser.parse(args);
 
         // Check that commands were set correctly and value is parsed as int

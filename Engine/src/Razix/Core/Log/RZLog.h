@@ -7,6 +7,18 @@
 namespace Razix {
     namespace Debug {
 
+        //============================================================================
+        // !!! EXCEPTION !!!
+        // This file is ALLOWED to use std::vector and STL containers
+        //
+        // REASON: RZLog is a foundational system used to log errors in other
+        // containers and is the FIRST system initialized in the engine.
+        // Using Razix custom containers here would create CYCLIC DEPENDENCIES.
+        //
+        // This exception is EXCLUDED from GoldMaster builds anyway (see macros below),
+        // so no STL overhead in production builds.
+        //============================================================================
+
         // TODO: Add categorization for sinks
 
         /** 

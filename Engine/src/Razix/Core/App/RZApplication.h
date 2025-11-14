@@ -133,7 +133,7 @@ namespace Razix {
         RZWindow*                 m_Window                    = nullptr;
         WindowProperties          m_WindowProperties          = {};
         RZUUID                    m_ProjectID                 = {};
-        std::vector<RZString>     sceneFilePaths              = {};
+        RZDynamicArray<RZString>     sceneFilePaths              = {};
         Guizmo::OPERATION         m_GuizmoOperation           = Guizmo::TRANSLATE;
         Guizmo::MODE              m_GuizmoMode                = Guizmo::WORLD;
         f32                       m_GuizmoSnapAmount          = 0.0f;

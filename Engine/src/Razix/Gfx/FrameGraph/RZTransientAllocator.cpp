@@ -60,7 +60,7 @@ namespace Razix {
             return UINT32_MAX;
         }
 
-        void AliasingBook::build(std::vector<RZResourceLifetime> lifetimes)
+        void AliasingBook::build(RZDynamicArray<RZResourceLifetime> lifetimes)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

@@ -59,7 +59,7 @@ namespace Razix {
 
         // Break the path by '/' and get the list of directories of the path to search
         static RZString       delimiter  = "/";
-        std::vector<RZString> dirs       = SplitString(virtualPath, delimiter);
+        RZDynamicArray<RZString> dirs       = SplitString(virtualPath, delimiter);
         const RZString&       virtualDir = dirs.front();
 
         // If it is the last directory it's the path itself

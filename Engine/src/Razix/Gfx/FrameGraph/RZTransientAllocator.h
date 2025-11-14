@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/Containers/arrays.h"
+
 #include "Razix/Gfx/FrameGraph/RZFrameGraphResource.h"
 
 namespace Razix {
@@ -27,8 +29,8 @@ namespace Razix {
             }
 
         private:
-            std::vector<AliasingPriorityEntry> m_Entries;
-            u32                                m_Count = 0;
+            RZDynamicArray<AliasingPriorityEntry> m_Entries;
+            u32                                   m_Count = 0;
         };
 
         class RAZIX_API AliasingGroup
@@ -47,30 +49,30 @@ namespace Razix {
                 m_ResourceEntryIDs.push_back(lifetime.ResourceEntryID);
                 m_MaxEnd = std::max(m_MaxEnd, lifetime.EndPassID);
             }
-            inline u32                     id() const { return m_GroupID; }
-            inline u32                     end() const { return m_MaxEnd; }
-            inline const std::vector<u32>& getResourceEntryIDs() const { return m_ResourceEntryIDs; }
-            inline u32                     getResourceEntriesSize() const { return static_cast<u32>(m_ResourceEntryIDs.size()); }
+            inline u32                        id() const { return m_GroupID; }
+            inline u32                        end() const { return m_MaxEnd; }
+            inline const RZDynamicArray<u32>& getResourceEntryIDs() const { return m_ResourceEntryIDs; }
+            inline u32                        getResourceEntriesSize() const { return static_cast<u32>(m_ResourceEntryIDs.size()); }
 
         private:
-            u32              m_GroupID = UINT32_MAX;
-            u32              m_MaxEnd  = 0;
-            std::vector<u32> m_ResourceEntryIDs;
+            u32                 m_GroupID = UINT32_MAX;
+            u32                 m_MaxEnd  = 0;
+            RZDynamicArray<u32> m_ResourceEntryIDs;
         };
 
         // TODO: Sort groups by resource types! no mix and match allowed
         class RAZIX_API AliasingBook
         {
         public:
-            void build(std::vector<RZResourceLifetime> lifetimes);
+            void build(RZDynamicArray<RZResourceLifetime> lifetimes);
 
             inline void reset()
             {
                 m_Groups.clear();
                 m_Queue.reset();
             }
-            inline const std::vector<AliasingGroup>& getGroups() const { return m_Groups; }
-            inline u32                               getGroupIDForResource(u32 resourceID) const
+            inline const RZDynamicArray<AliasingGroup>& getGroups() const { return m_Groups; }
+            inline u32                                  getGroupIDForResource(u32 resourceID) const
             {
                 auto it = m_ResourceToGroup.find(resourceID);
                 if (it != m_ResourceToGroup.end()) {
@@ -80,9 +82,9 @@ namespace Razix {
             }
 
         private:
-            std::vector<AliasingGroup>   m_Groups;
-            AliasingEndTimeQueue         m_Queue;
-            std::unordered_map<u32, u32> m_ResourceToGroup;
+            RZDynamicArray<AliasingGroup> m_Groups;
+            AliasingEndTimeQueue          m_Queue;
+            std::unordered_map<u32, u32>  m_ResourceToGroup;
         };
 
         class RAZIX_API RZTransientAllocator
@@ -108,7 +110,7 @@ namespace Razix {
 
         private:
             AliasingBook                                   m_AliasingBook;
-            std::vector<RZResourceLifetime>                m_RegisteredLifetimes;
+            RZDynamicArray<RZResourceLifetime>             m_RegisteredLifetimes;
             std::unordered_map<u32, rz_gfx_texture_handle> m_TextureCache;
             std::unordered_map<u32, rz_gfx_buffer_handle>  m_BufferCache;
             const Gfx::RZFrameGraph&                       m_FrameGraph;

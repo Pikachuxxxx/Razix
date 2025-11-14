@@ -507,7 +507,7 @@ namespace Razix {
 
         // Load the scenes from the project file for the engine to load and present
         RAZIX_CORE_TRACE("Loading Scenes...");
-        std::vector<std::string> scenePaths;
+        RZDynamicArray<std::string> scenePaths;
         archive(cereal::make_nvp("Scenes", scenePaths));
 
         // Convert std::string to RZString
@@ -533,7 +533,7 @@ namespace Razix {
         auto& paths = RZSceneManager::Get().getSceneFilePaths();
 
         // Convert RZString vector to std::string vector for serialization
-        std::vector<std::string> scenePaths;
+        RZDynamicArray<std::string> scenePaths;
         for (const auto& path: paths) {
             scenePaths.push_back(std::string(path.c_str()));
         }

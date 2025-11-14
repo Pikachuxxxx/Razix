@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/Containers/arrays.h"
+
 #include "Razix/Gfx/RHI/RHI.h"
 
 namespace Razix {
@@ -54,8 +56,8 @@ namespace Razix {
         constexpr u32 RZ_SHADER_BIND_MAP_IGNORE_TABLE_IDX = 0xffffffff;
         struct DescriptorBlacklist
         {
-            RZString              name;
-            std::vector<RZString> blacklistNames;
+            RZString                 name;
+            RZDynamicArray<RZString> blacklistNames;
         };
         static const DescriptorBlacklist s_SystemDescriptorsBlacklistPreset    = {"SystemDescriptors (FrameData/SceneLightsData)", {"FrameData", "SceneLightsData"}};
         static const DescriptorBlacklist s_MaterialsDescriptorsBlacklistPreset = {"MaterialDescriptors", {"Material", "albedoMap", "normalMap", "metallicMap", "roughnessMap", "specularMap", "emissiveMap", "aoMap"}};
@@ -92,7 +94,7 @@ namespace Razix {
             RZShaderBindMap& setDescriptorTable(const rz_gfx_descriptor_table& descriptorTable);
             RZShaderBindMap& setDescriptorTable(const rz_gfx_descriptor_table_handle& descriptorTableHandle);
             RZShaderBindMap& setDescriptorBlacklist(const DescriptorBlacklist& blacklist);
-            RZShaderBindMap& setDescriptorBlacklist(const RZString& name, const std::vector<RZString>& blacklistNames);
+            RZShaderBindMap& setDescriptorBlacklist(const RZString& name, const RZDynamicArray<RZString>& blacklistNames);
             RZShaderBindMap& validate();
             RZShaderBindMap& build();
             RZShaderBindMap& clear();
@@ -102,18 +104,18 @@ namespace Razix {
             void                 bind(rz_gfx_cmdbuf_handle cmdBufHandle, rz_gfx_pipeline_type pipelineType);
             BindMapValidationErr error();
 
-            inline const rz_gfx_shader_reflection&                    getShaderReflection() const { return m_ShaderReflection; }
-            inline const rz_gfx_shader_handle&                        getShaderHandle() const { return m_ShaderHandle; }
-            inline const std::vector<rz_gfx_descriptor_table_handle>& getDescriptorTableHandles() const { return m_DescriptorTables; }
-            inline const rz_gfx_descriptor_table_handle&              getDescriptorTableHandleAt(u32 idx) const { return m_DescriptorTables[idx]; }
+            inline const rz_gfx_shader_reflection&                       getShaderReflection() const { return m_ShaderReflection; }
+            inline const rz_gfx_shader_handle&                           getShaderHandle() const { return m_ShaderHandle; }
+            inline const RZDynamicArray<rz_gfx_descriptor_table_handle>& getDescriptorTableHandles() const { return m_DescriptorTables; }
+            inline const rz_gfx_descriptor_table_handle&                 getDescriptorTableHandleAt(u32 idx) const { return m_DescriptorTables[idx]; }
 
         private:
             rz_gfx_shader_reflection                        m_ShaderReflection        = {};
             rz_gfx_shader_handle                            m_ShaderHandle            = {};
             std::map<RZString, rz_gfx_resource_view_handle> m_ResourceViewHandleRefs  = {};
-            std::vector<DescriptorBlacklist>                m_BlacklistDescriptors    = {};
-            std::map<u32, std::vector<NamedResView>>        m_TableBuilderResViewRefs = {};
-            std::vector<rz_gfx_descriptor_table_handle>     m_DescriptorTables        = {};
+            RZDynamicArray<DescriptorBlacklist>             m_BlacklistDescriptors    = {};
+            std::map<u32, RZDynamicArray<NamedResView>>     m_TableBuilderResViewRefs = {};
+            RZDynamicArray<rz_gfx_descriptor_table_handle>  m_DescriptorTables        = {};
             BindMapValidationErr                            m_LastError               = BIND_MAP_VALIDATION_FAILED;
             rz_gfx_root_signature_handle                    m_RootSigHandle           = {};
             union

@@ -42,8 +42,8 @@ namespace Razix {
 
     TEST(AliaisngTests, AliasingBookTestBuildAssignsGroups)
     {
-        AliasingBook                    book;
-        std::vector<RZResourceLifetime> lifetimes = {
+        AliasingBook                              book;
+        Razix::RZDynamicArray<RZResourceLifetime> lifetimes = {
             {0, 0, 2},
             {1, 3, 5},
             {2, 1, 4}};

@@ -167,9 +167,9 @@ namespace Razix {
             inline u32                         getPassNodesSize() const { return static_cast<u32>(m_PassNodes.size()); }
             inline u32                         getResourceNodesSize() const { return static_cast<u32>(m_ResourceNodes.size()); }
             inline u32                         getCompiledResourceEntriesSize() const { return static_cast<u32>(m_CompiledResourceEntries.size()); }
-            inline std::vector<u32>            getCompiledResourceEntries() const { return m_CompiledResourceEntries; }
-            inline std::vector<u32>            getCompiledResourceNodes() const { return m_CompiledResourceIndices; }
-            inline std::vector<u32>            getCompiledPassNodes() const { return m_CompiledPassIndices; }
+            inline RZDynamicArray<u32>            getCompiledResourceEntries() const { return m_CompiledResourceEntries; }
+            inline RZDynamicArray<u32>            getCompiledResourceNodes() const { return m_CompiledResourceIndices; }
+            inline RZDynamicArray<u32>            getCompiledPassNodes() const { return m_CompiledPassIndices; }
             inline const AliasingBook&         getAliasBook() const { return m_TransientAllocator.getAliasBook(); }
             inline const RZTransientAllocator* getTransientAllocatorPtr() const { return &m_TransientAllocator; }
 
@@ -179,13 +179,13 @@ namespace Razix {
         private:
             static bool m_IsFirstFrame;
 
-            std::vector<RZPassNode>      m_PassNodes;
-            std::vector<RZResourceNode>  m_ResourceNodes;
-            std::vector<RZResourceEntry> m_ResourceRegistry;
+            RZDynamicArray<RZPassNode>      m_PassNodes;
+            RZDynamicArray<RZResourceNode>  m_ResourceNodes;
+            RZDynamicArray<RZResourceEntry> m_ResourceRegistry;
             RZBlackboard                 m_Blackboard;
-            std::vector<u32>             m_CompiledPassIndices;
-            std::vector<u32>             m_CompiledResourceIndices;
-            std::vector<u32>             m_CompiledResourceEntries;
+            RZDynamicArray<u32>             m_CompiledPassIndices;
+            RZDynamicArray<u32>             m_CompiledResourceIndices;
+            RZDynamicArray<u32>             m_CompiledResourceEntries;
             RZTransientAllocator         m_TransientAllocator;
 
         private:

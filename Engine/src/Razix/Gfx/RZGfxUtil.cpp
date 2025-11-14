@@ -51,13 +51,13 @@ namespace Razix {
             RAZIX_CORE_TRACE("[RZSF] Parsing shader file: {0}", filePath);
 
             std::map<rz_gfx_shader_stage, RZString> shaders;
-            std::vector<RZString>                   shader_defines;
+            RZDynamicArray<RZString>                shader_defines;
             rz_gfx_shader_desc                      desc       = {};
             RZString                                rzsfSource = RZVirtualFileSystem::Get().readTextFile(filePath);
 
             // Break the shader into lines
-            std::vector<RZString> lines = GetLines(rzsfSource);
-            rz_gfx_shader_stage   stage = rz_gfx_shader_stage::RZ_GFX_SHADER_STAGE_NONE;
+            RZDynamicArray<RZString> lines = GetLines(rzsfSource);
+            rz_gfx_shader_stage      stage = rz_gfx_shader_stage::RZ_GFX_SHADER_STAGE_NONE;
 
             // Set file extensions and directories based on render API
             switch (rzGfxCtx_GetRenderAPI()) {
@@ -96,7 +96,11 @@ namespace Razix {
                     RZString condition = line.substr(7);    // skip "#ifdef "
                     condition          = RemoveSpaces(condition);
                     auto defines       = SplitString(condition, "||");
-                    shader_defines.insert(shader_defines.end(), defines.begin(), defines.end());
+                    // TODO: Add insert method to RZDynamicArray
+                    // shader_defines.insert(shader_defines.end(), defines.begin(), defines.end());
+                    for (const auto& define: defines) {
+                        shader_defines.push_back(define);
+                    }
                 } else if (StartsWith(line, "#include")) {
                     // Parse shader include directive
                     RZString includePath = TrimWhitespaces(line.substr(9));    // skip "#include "

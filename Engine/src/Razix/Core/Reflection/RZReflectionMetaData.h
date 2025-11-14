@@ -1,10 +1,9 @@
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include "Razix/Core/RZDataTypes.h"
 
+#include "Razix/Core/Containers/arrays.h"
+#include "Razix/Core/Containers/hash_map.h"
 #include "Razix/Core/Containers/string.h"
 
 namespace Razix {
@@ -19,10 +18,10 @@ namespace Razix {
 
     struct TypeMetaData
     {
-        RZString                    name;
-        RZString                    typeName;
-        u32                         size;
-        std::vector<MemberMetaData> members;
+        RZString                       name;
+        RZString                       typeName;
+        u32                            size;
+        RZDynamicArray<MemberMetaData> members;
     };
 
     /**
@@ -32,13 +31,13 @@ namespace Razix {
     {
         RZString                              name;
         RZString                              typeName;
-        std::vector<std::pair<RZString, int>> values;
+        RZDynamicArray<RZPair<RZString, int>> values;
     };
 
     struct BitFieldMetaData
     {
         RZString                              name;
         RZString                              typeName;
-        std::vector<std::pair<RZString, int>> values;    // int describes the bit index
+        RZDynamicArray<RZPair<RZString, int>> values;    // int describes the bit index
     };
 }    // namespace Razix

@@ -26,7 +26,7 @@ namespace Razix {
         }
 
 #if WIP_REFACTOR
-        RZMesh::RZMesh(const std::vector<u32>& indices, const std::vector<RZVertex>& vertices, f32 optimiseThreshold /*= 1.0f*/)
+        RZMesh::RZMesh(const RZDynamicArray<u32>& indices, const RZDynamicArray<RZVertex>& vertices, f32 optimiseThreshold /*= 1.0f*/)
         {
             auto m_Indices  = indices;
             auto m_Vertices = vertices;
@@ -66,7 +66,7 @@ namespace Razix {
             m_Vertices.clear();
             m_Indices.clear();
         }
-        RZMesh::RZMesh(const RZVertex& vertices, const std::vector<u32>& indices)
+        RZMesh::RZMesh(const RZVertex& vertices, const RZDynamicArray<u32>& indices)
         {
             initMeshFromVectors(vertices, indices);
         }
@@ -83,7 +83,7 @@ namespace Razix {
 
         RZMesh::RZMesh(const RZVertex& vertices, u32* indices, uint32_t indicesCount)
         {
-            std::vector<u32> indicesVec;
+            RZDynamicArray<u32> indicesVec;
             indicesVec.resize(indicesCount);
             memcpy(indicesVec.data(), indices, indicesCount * sizeof(u32));
 
@@ -256,7 +256,7 @@ namespace Razix {
             }
         }
 
-        void RZMesh::initMeshFromVectors(const RZVertex& vertices, const std::vector<u32>& indices)
+        void RZMesh::initMeshFromVectors(const RZVertex& vertices, const RZDynamicArray<u32>& indices)
         {
             // FIXME: Name is wrong here
 

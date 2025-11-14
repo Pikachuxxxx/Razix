@@ -12,7 +12,7 @@
 namespace Razix {
     namespace Gfx {
 
-        RAZIX_NO_DISCARD static bool hasId(const std::vector<RZFrameGraphResource>& v, RZFrameGraphResource id)
+        RAZIX_NO_DISCARD static bool hasId(const RZDynamicArray<RZFrameGraphResource>& v, RZFrameGraphResource id)
         {
 #if __cpp_lib_ranges
             return std::ranges::find(v, id) != v.cend();
@@ -21,7 +21,7 @@ namespace Razix {
 #endif
         }
 
-        RAZIX_NO_DISCARD static bool hasId(const std::vector<RZFrameGraphResourceAcessView>& v, RZFrameGraphResource id)
+        RAZIX_NO_DISCARD static bool hasId(const RZDynamicArray<RZFrameGraphResourceAcessView>& v, RZFrameGraphResource id)
         {
             const auto match = [id](const auto& e) { return e.id == id; };
 

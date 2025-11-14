@@ -627,7 +627,7 @@ namespace Razix {
             //    u32          entryID;
             //    LifeTimeMode mode;
             //};
-            //std::map<u32, std::vector<Interval>> intervals;
+            //std::map<u32, RZDynamicArray<Interval>> intervals;
             // track last seen pass for each (entryID, mode)
             std::map<u32, u32> lastSeen;
 

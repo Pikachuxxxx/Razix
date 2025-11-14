@@ -12,7 +12,7 @@ namespace Razix {
         /* Command Line Option information */
         struct CommandLineOption
         {
-            std::vector<RZString> commandFlags;     /* The list of flags that can be used to call the command                               */
+            RZDynamicArray<RZString> commandFlags;     /* The list of flags that can be used to call the command                               */
             RZString              value;            /* The value passed along with the command flag                                         */
             RZString              helpDesc;         /* The description of the command                                                       */
             bool                  set      = false; /* A boolean to indicate whether the command was set or not                             */
@@ -28,7 +28,7 @@ namespace Razix {
          *
          * @param arguments The list of all the arguments to parse
          */
-        void parse(std::vector<const char*>& arguments);
+        void parse(RZDynamicArray<const char*>& arguments);
 
         /**
          * prints the description of all command available and their description
@@ -53,7 +53,7 @@ namespace Razix {
          * @param hasValue  Denotes that the command takes a value after the flag
          * @param help      Description of the command
          */
-        void addCommand(RZString name, std::vector<RZString> commands, bool hasValue, RZString help);
+        void addCommand(RZString name, RZDynamicArray<RZString> commands, bool hasValue, RZString help);
 
     private:
         std::unordered_map<RZString, CommandLineOption> m_CommandOptions; /* The list of all command line options available, if passed via command line, it is set */

@@ -96,9 +96,9 @@ namespace Razix {
 
         // TODO: Get the reference to the components instead
         template<typename T>
-        std::vector<T> GetComponentsOfType()
+        RZDynamicArray<T> GetComponentsOfType()
         {
-            std::vector<T> components;
+            RZDynamicArray<T> components;
 
 #pragma warning(push)
 #pragma warning(disable : 4267)
