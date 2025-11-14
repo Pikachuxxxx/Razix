@@ -440,7 +440,7 @@ namespace Razix {
 
     template<typename Key, typename Value, typename Hash, typename Equal>
     RZHashMap<Key, Value, Hash, Equal>::RZHashMap()
-        : m_Keys(NULL), m_Values(NULL), m_Occupied(NULL), m_Hashes(NULL), m_Length(0), m_Capacity(RZ_DEFAULT_ARRAY_CAPACITY)
+        : m_Keys(NULL), m_Values(NULL), m_Occupied(NULL), m_Hashes(NULL), m_Length(0), m_Capacity(RZ_INITIAL_HASH_MAP_CAPACITY)
     {
         m_Keys     = static_cast<Key*>(rz_malloc_aligned(m_Capacity * sizeof(Key)));
         m_Values   = static_cast<Value*>(rz_malloc_aligned(m_Capacity * sizeof(Value)));
