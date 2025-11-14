@@ -305,6 +305,17 @@ namespace Razix {
 
         return RZString(buffer);
     }
+
+    // Hash specialization for RZString to use with RZHashMap
+    template<>
+    struct rz_hash<RZString>
+    {
+        size_t operator()(const RZString& str) const
+        {
+            return static_cast<size_t>(str.hash());
+        }
+    };
+
 }    // namespace Razix
 
 namespace std {
@@ -317,4 +328,23 @@ namespace std {
         }
     };
 }    // namespace std
+
+namespace fmt {
+    template<>
+    struct formatter<Razix::RZString>
+    {
+        template<typename ParseContext>
+        constexpr auto parse(ParseContext& ctx)
+        {
+            return ctx.begin();
+        }
+
+        template<typename FormatContext>
+        auto format(const Razix::RZString& str, FormatContext& ctx)
+        {
+            return fmt::format_to(ctx.out(), "{}", str.c_str());
+        }
+    };
+}    // namespace fmt
+
 #endif    // _RZ_STRING_H_
