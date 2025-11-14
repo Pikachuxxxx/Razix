@@ -373,6 +373,8 @@ namespace Razix {
         size_type       capacity() const;
         void            clear();
         void            erase(size_type index);
+        T*              data();
+        const T*        data() const;
 
         void push_back(const T& value);
         void push_back(T&& value);
@@ -649,6 +651,20 @@ namespace Razix {
     }
 
     template<typename T>
+    T* RZDynamicArray<T>::data()
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return m_Data;
+    }
+
+    template<typename T>
+    const T* RZDynamicArray<T>::data() const
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return m_Data;
+    }
+
+    template<typename T>
     void RZDynamicArray<T>::push_back(const T& value)
     {
         reserve(1 + m_Size);
@@ -663,7 +679,7 @@ namespace Razix {
         reserve(1 + m_Size);
         RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot push_back to uninitialized array. Call reserve() first to allocate memory.");
         RAZIX_CORE_ASSERT(m_Size < m_Capacity, "RZDynamicArray::push_back size exceeded at capacity: {}", m_Capacity);
-        construct(m_Size++, value);
+        construct(m_Size++, std::forward<T>(value));
     }
 
     template<typename T>
