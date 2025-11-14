@@ -5,12 +5,10 @@
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
-#include "Razix/Core/RZHandle.h"
 #include "Razix/Core/std/type_traits.h"
 #include "Razix/Core/std/utility.h"
 
 // just for the std::type_index hash specialization
-#include <any>
 #include <typeindex>
 
 // TODO: Implement this https://www.youtube.com/watch?v=ncHmEUmJZf4 from CppCon 2017
@@ -55,24 +53,6 @@ namespace Razix {
         size_t operator()(T* ptr) const
         {
             return rz_hash<uint64_t>{}(reinterpret_cast<uint64_t>(ptr));
-        }
-    };
-
-    template<>
-    struct rz_hash<RZString>
-    {
-        size_t operator()(const RZString& str) const
-        {
-            return static_cast<size_t>(str.hash());
-        }
-    };
-
-    template<>
-    struct rz_hash<rz_handle>
-    {
-        size_t operator()(const rz_handle& handle) const
-        {
-            return static_cast<size_t>(handle.index) ^ (static_cast<size_t>(handle.generation) << 32);
         }
     };
 
