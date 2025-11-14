@@ -20,6 +20,7 @@
 // Containers
 #include "Razix/Core/Containers/arrays.h"
 #include "Razix/Core/Containers/bits.h"
+#include "Razix/Core/Containers/hash_functors.h"
 #include "Razix/Core/Containers/hash_map.h"
 #include "Razix/Core/Containers/initializer_list.h"
 #include "Razix/Core/Containers/queue.h"

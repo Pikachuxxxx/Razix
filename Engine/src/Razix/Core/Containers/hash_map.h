@@ -8,62 +8,18 @@
 #include "Razix/Core/std/type_traits.h"
 #include "Razix/Core/std/utility.h"
 
+#include "Razix/Core/Containers/hash_functors.h"
+
 // just for the std::type_index hash specialization
 #include <typeindex>
 
 // TODO: Implement this https://www.youtube.com/watch?v=ncHmEUmJZf4 from CppCon 2017
 // TODO: Add move/copy asserts to types used as Key/Value in the hash map, this will help the users
 
-// [Source]: https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
-#define FNV_OFFSET_BASIS 0xcbf29ce484222325UL
-#define FNV_PRIME        0x100000001b3UL
-
-#define RZ_HASH_MAP_GROWTH_FACTOR 2
+#define RZ_INITIAL_HASH_MAP_CAPACITY 16
+#define RZ_HASH_MAP_GROWTH_FACTOR    2
 
 namespace Razix {
-
-    //--------------------------------------------------
-    // Hash functors
-    //--------------------------------------------------
-    // Hash specializations for commonly used types
-    // Default implementation for integral types using FNV-1a
-    template<typename T>
-    struct rz_hash
-    {
-        static_assert(rz_is_integral_v<T>, "Hash not specialized for this type");
-
-        size_t operator()(T value) const
-        {
-            // [Source]: https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
-            // Use memcpy to treat any integral as bytes
-            uint64_t             hash_val = FNV_OFFSET_BASIS;
-            const unsigned char* bytes    = reinterpret_cast<const unsigned char*>(&value);
-
-            for (size_t i = 0; i < sizeof(T); ++i) {
-                hash_val ^= bytes[i];
-                hash_val *= FNV_PRIME;
-            }
-            return static_cast<size_t>(hash_val);
-        }
-    };
-
-    template<typename T>
-    struct rz_hash<T*>
-    {
-        size_t operator()(T* ptr) const
-        {
-            return rz_hash<uint64_t>{}(reinterpret_cast<uint64_t>(ptr));
-        }
-    };
-
-    template<>
-    struct rz_hash<std::type_index>
-    {
-        size_t operator()(const std::type_index& ti) const
-        {
-            return ti.hash_code();
-        }
-    };
 
     //--------------------------------------------------
     // For comparing keys
@@ -205,98 +161,6 @@ namespace Razix {
         };
 
         static StaticLifetimeProxy proxy;
-    };
-
-    //--------------------------------------------------
-    // Hash Map (Simple quadratic probing with FNV-1a hashing)
-    //--------------------------------------------------
-
-    template<typename Key, typename Value, typename Hash = rz_hash<Key>, typename Equal = rz_equal_to<Key>>
-    class RZHashMap
-    {
-    public:
-        using key_type        = Key;
-        using value_type      = Value;
-        using size_type       = sz;
-        using reference       = Value&;
-        using const_reference = const Value&;
-        using iterator        = RZHashMapIterator<Key, Value>;
-        using const_iterator  = const RZHashMapIterator<Key, Value>;
-
-        RZHashMap();
-        explicit RZHashMap(size_type initial_capacity);
-        ~RZHashMap();
-
-        RZHashMap(const RZHashMap& other);
-        RZHashMap& operator=(const RZHashMap& other);
-
-        RZHashMap(RZHashMap&& other) noexcept;
-        RZHashMap& operator=(RZHashMap&& other) noexcept;
-
-        RZHashMap(std::initializer_list<RZPair<Key, Value>> init)
-            : RZHashMap(16)
-        {
-            for (const auto& pair: init) {
-                insert(pair.first, pair.second);
-            }
-        }
-
-        // Initializer list assignment operator - uses rz::initializer_list with RZPair
-        RZHashMap& operator=(std::initializer_list<RZPair<Key, Value>> init)
-        {
-            clear();
-            for (const auto& pair: init) {
-                insert(pair.first, pair.second);
-            }
-            return *this;
-        }
-
-        void reserve(size_type new_capacity);
-        template<typename... Args>
-        void            emplace(const Key& key, Args&&... args);
-        void            insert(const Key& key, const Value& value);
-        void            insert(const Key& key, Value&& value);
-        iterator        find(const Key& key);
-        const iterator  cfind(const Key& key) const;
-        bool            contains(const Key& key) const;
-        bool            remove(const Key& key);
-        void            clear();
-        reference       operator[](const Key& key);
-        const_reference operator[](const Key& key) const;
-        reference       at(const Key& key);
-        const_reference at(const Key& key) const;
-        size_type       size() const;
-        size_type       capacity() const;
-        bool            empty() const;
-        float           load_factor() const;
-        iterator        begin() const;
-        iterator        end() const;
-        const_iterator  cbegin() const
-        {
-            return begin();
-        }
-        const_iterator cend() const
-        {
-            return end();
-        }
-        bool erase(const iterator& it);
-
-    private:
-        Key*      m_Keys;
-        Value*    m_Values;
-        bool*     m_Occupied;
-        uint64_t* m_Hashes;
-        size_type m_Length;
-        size_type m_Capacity;
-        Hash      m_Hash;
-        Equal     m_Equal;
-
-        static size_type quadratic_probe(size_type index, size_type probe_count, size_type capacity);
-        void             insert_entry(const Key& key, const Value& value);
-        bool             expand();
-        size_type        find_entry(const Key& key) const;
-
-        friend class RZHashMapIterator<Key, Value>;
     };
 
     //--------------------------------------------------
@@ -480,17 +344,119 @@ namespace Razix {
     }
 
     //--------------------------------------------------
+    // Hash Map (Simple quadratic probing with FNV-1a hashing)
+    //--------------------------------------------------
+
+    template<typename Key, typename Value, typename Hash = rz_hash<Key>, typename Equal = rz_equal_to<Key>>
+    class RZHashMap
+    {
+    public:
+        using key_type        = Key;
+        using value_type      = Value;
+        using size_type       = sz;
+        using reference       = Value&;
+        using const_reference = const Value&;
+        using iterator        = RZHashMapIterator<Key, Value>;
+        using const_iterator  = const RZHashMapIterator<Key, Value>;
+
+        explicit RZHashMap(size_type initial_capacity = RZ_INITIAL_HASH_MAP_CAPACITY);
+        ~RZHashMap();
+
+        RZHashMap(const RZHashMap& other);
+        RZHashMap& operator=(const RZHashMap& other);
+
+        RZHashMap(RZHashMap&& other) noexcept;
+        RZHashMap& operator=(RZHashMap&& other) noexcept;
+
+        RZHashMap(std::initializer_list<RZPair<Key, Value>> init)
+            : RZHashMap(16)
+        {
+            for (const auto& pair: init) {
+                insert(pair.first, pair.second);
+            }
+        }
+
+        // Initializer list assignment operator - uses rz::initializer_list with RZPair
+        RZHashMap& operator=(std::initializer_list<RZPair<Key, Value>> init)
+        {
+            clear();
+            for (const auto& pair: init) {
+                insert(pair.first, pair.second);
+            }
+            return *this;
+        }
+
+        void reserve(size_type new_capacity);
+        template<typename... Args>
+        void            emplace(const Key& key, Args&&... args);
+        void            insert(const Key& key, const Value& value);
+        void            insert(const Key& key, Value&& value);
+        iterator        find(const Key& key);
+        const iterator  cfind(const Key& key) const;
+        bool            contains(const Key& key) const;
+        bool            remove(const Key& key);
+        void            clear();
+        reference       operator[](const Key& key);
+        const_reference operator[](const Key& key) const;
+        reference       at(const Key& key);
+        const_reference at(const Key& key) const;
+        size_type       size() const;
+        size_type       capacity() const;
+        bool            empty() const;
+        float           load_factor() const;
+        iterator        begin() const;
+        iterator        end() const;
+        const_iterator  cbegin() const
+        {
+            return begin();
+        }
+        const_iterator cend() const
+        {
+            return end();
+        }
+        bool erase(const iterator& it);
+
+    private:
+        Key*      m_Keys;
+        Value*    m_Values;
+        bool*     m_Occupied;
+        uint64_t* m_Hashes;
+        size_type m_Length;
+        size_type m_Capacity;
+        Hash      m_Hash;
+        Equal     m_Equal;
+
+        static size_type quadratic_probe(size_type index, size_type probe_count, size_type capacity);
+        void             insert_entry(const Key& key, const Value& value);
+        bool             expand();
+        size_type        find_entry(const Key& key) const;
+
+        friend class RZHashMapIterator<Key, Value>;
+    };
+
+    //--------------------------------------------------
     // RZHashMap implementation
     //--------------------------------------------------
 
-    template<typename Key, typename Value, typename Hash, typename Equal>
-    RZHashMap<Key, Value, Hash, Equal>::RZHashMap()
-        : m_Keys(NULL), m_Values(NULL), m_Occupied(NULL), m_Hashes(NULL), m_Length(0), m_Capacity(0)
-    {
-    }
+    //template<typename Key, typename Value, typename Hash, typename Equal>
+    //RZHashMap<Key, Value, Hash, Equal>::RZHashMap()
+    //    : m_Keys(NULL), m_Values(NULL), m_Occupied(NULL), m_Hashes(NULL), m_Length(0), m_Capacity(RZ_DEFAULT_ARRAY_CAPACITY)
+    //{
+    //    m_Keys     = static_cast<Key*>(rz_malloc_aligned(m_Capacity * sizeof(Key)));
+    //    m_Values   = static_cast<Value*>(rz_malloc_aligned(m_Capacity * sizeof(Value)));
+    //    m_Occupied = static_cast<bool*>(rz_malloc_aligned(m_Capacity * sizeof(bool)));
+    //    m_Hashes   = static_cast<uint64_t*>(rz_malloc_aligned(m_Capacity * sizeof(uint64_t)));
+    //
+    //    RAZIX_CORE_ASSERT(m_Keys && m_Values && m_Occupied && m_Hashes,
+    //        "[RZHashMap] Failed to allocate memory for hash map");
+    //
+    //    // Initialize arrays to zero/false
+    //    memset(m_Occupied, 0, m_Capacity * sizeof(bool));
+    //    memset(m_Hashes, 0, m_Capacity * sizeof(uint64_t));
+    //}
 
     template<typename Key, typename Value, typename Hash, typename Equal>
-    RZHashMap<Key, Value, Hash, Equal>::RZHashMap(size_type initial_capacity)
+    RZHashMap<Key, Value, Hash, Equal>::RZHashMap(size_type initial_capacity /*= RZ_DEFAULT_ARRAY_CAPACITY*/)
         : m_Keys(NULL), m_Values(NULL), m_Occupied(NULL), m_Hashes(NULL), m_Length(0), m_Capacity(initial_capacity)
     {
         if (initial_capacity == 0) {
@@ -742,7 +708,7 @@ namespace Razix {
 
         size_type idx = find_entry(key);
         if (idx == m_Capacity)
-            return iterator(NULL, NULL, NULL, NULL, NULL);
+            return end();
 
         return iterator(m_Keys, m_Values, m_Occupied, m_Capacity, idx);
     }
@@ -755,7 +721,7 @@ namespace Razix {
 
         size_type idx = find_entry(key);
         if (idx == m_Capacity)
-            return iterator(NULL, NULL, NULL, NULL, NULL);
+            return end();
 
         return iterator(m_Keys, m_Values, m_Occupied, m_Capacity, idx);
     }

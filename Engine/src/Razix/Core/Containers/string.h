@@ -9,7 +9,9 @@
 
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
 
-#include <typeinfo>
+#include "Razix/Core/Containers/hash_functors.h"
+
+#include <typeinfo>    // for std::type_info used in rz_to_string
 
 #define RAZIX_SSO_STRING_SIZE 64
 
@@ -328,6 +330,8 @@ namespace std {
         }
     };
 }    // namespace std
+
+#include <spdlog/fmt/bundled/core.h>
 
 namespace fmt {
     template<>

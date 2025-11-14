@@ -80,21 +80,25 @@ extern "C"
 #endif    // __cplusplus
 
 #ifdef __cplusplus
-    #include <functional>
+
+    #include "Razix/Core/Containers/hash_functors.h"    // for rz_hash specialization
 
 inline bool operator==(const rz_handle& a, const rz_handle& b) noexcept
 {
     return a.index == b.index && a.generation == b.generation;
 }
 
-template<>
-struct Razix::rz_hash<rz_handle>
-{
-    size_t operator()(const rz_handle& handle) const
+namespace Razix {
+
+    template<>
+    struct rz_hash<rz_handle>
     {
-        return static_cast<size_t>(handle.index) ^ (static_cast<size_t>(handle.generation) << 32);
-    }
-};
+        size_t operator()(const rz_handle& handle) const
+        {
+            return static_cast<size_t>(handle.index) ^ (static_cast<size_t>(handle.generation) << 32);
+        }
+    };
+}    // namespace Razix
 
 namespace std {
     template<>

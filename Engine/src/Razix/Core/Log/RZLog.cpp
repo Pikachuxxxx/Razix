@@ -13,7 +13,6 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
 
 #ifndef __APPLE__    // disabled until I find a good solution cause apple is a bitch about creating files and directories without proper permissions
     #define ENABLE_FILE_LOGGING 1

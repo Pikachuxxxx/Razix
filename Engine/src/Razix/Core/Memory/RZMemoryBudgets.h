@@ -2,6 +2,8 @@
 
 #include "Razix/Core/RZDepartments.h"
 
+#include "Razix/Core/Containers/string.h"
+
 namespace Razix {
     namespace Memory {
 

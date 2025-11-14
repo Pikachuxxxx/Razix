@@ -1,9 +1,12 @@
 #ifndef _RZ_ARRAYS_H_
 #define _RZ_ARRAYS_H_
 
-#include "Razix/Core/Log/RZLog.h"
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
+
+#include "Razix/Core/Log/RZLog.h"
+#include "Razix/Core/Memory/RZMemoryFunctions.h"
+
 #include "Razix/Core/std/utility.h"
 
 #define RZ_DEFAULT_ARRAY_CAPACITY 64
