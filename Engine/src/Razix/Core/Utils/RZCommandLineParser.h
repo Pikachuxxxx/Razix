@@ -13,10 +13,10 @@ namespace Razix {
         struct CommandLineOption
         {
             RZDynamicArray<RZString> commandFlags;     /* The list of flags that can be used to call the command                               */
-            RZString              value;            /* The value passed along with the command flag                                         */
-            RZString              helpDesc;         /* The description of the command                                                       */
-            bool                  set      = false; /* A boolean to indicate whether the command was set or not                             */
-            bool                  hasValue = false; /* Boolean to check is the command has any value, if set true, it read the value passed */
+            RZString                 value;            /* The value passed along with the command flag                                         */
+            RZString                 helpDesc;         /* The description of the command                                                       */
+            bool                     set      = false; /* A boolean to indicate whether the command was set or not                             */
+            bool                     hasValue = false; /* Boolean to check is the command has any value, if set true, it read the value passed */
         };
 
     public:

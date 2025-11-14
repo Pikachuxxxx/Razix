@@ -61,7 +61,7 @@ namespace Razix {
     {
         // 64-bit logo
         RZDynamicArray<GLFWimage> images;
-        GLFWimage              image64{};
+        GLFWimage                 image64{};
 
         image64.height = RazixLogo64Height;
         image64.width  = RazixLogo64Width;

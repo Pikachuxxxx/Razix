@@ -16,7 +16,7 @@ namespace Razix {
 
         RZDynamicArray<u8> serializeToBinary() const
         {
-            RZDynamicArray<u8>     buffer;
+            RZDynamicArray<u8>  buffer;
             const TypeMetaData* metaData = getTypeMetaData();
             if (!metaData) return buffer;
 

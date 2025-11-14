@@ -69,7 +69,7 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
         RZDynamicArray<RZEntity> children;
-        auto                  hierarchyComponent = TryGetComponent<HierarchyComponent>();
+        auto                     hierarchyComponent = TryGetComponent<HierarchyComponent>();
         if (hierarchyComponent) {
             entt::entity child = hierarchyComponent->First;
             while (child != entt::null && m_Scene->getRegistry().valid(child)) {

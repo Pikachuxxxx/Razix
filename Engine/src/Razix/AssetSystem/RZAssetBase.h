@@ -78,17 +78,17 @@ namespace Razix {
 
         struct RAZIX_MEM_ALIGN_16 AssetMetadata
         {
-            RZString              name;         /* Name of the asset                                         */
-            RZString              category;     /* Category (e.g., "Texture", "Material", "Audio")           */
+            RZString                 name;         /* Name of the asset                                         */
+            RZString                 category;     /* Category (e.g., "Texture", "Material", "Audio")           */
             RZDynamicArray<RZString> tags;         /* Tags for easy searching and filtering                     */
-            AssetVersion          version;      /* Version info                                              */
-            RZString              author;       /* Author of the asset                                       */
-            RZString              lastModified; /* Date/Time of last modification (e.g., "2024-11-24 15:30") */
-            RZString              createdDate;  /* Date/Time when the asset was originally created           */
-            RZString              description;  /* Short description of the asset                            */
-            RZString              commitHash;   /* Version control ID/commit hash                            */
-            Department            department;   /* Department responsible for the asset                      */
-            int                   _padding;
+            AssetVersion             version;      /* Version info                                              */
+            RZString                 author;       /* Author of the asset                                       */
+            RZString                 lastModified; /* Date/Time of last modification (e.g., "2024-11-24 15:30") */
+            RZString                 createdDate;  /* Date/Time when the asset was originally created           */
+            RZString                 description;  /* Short description of the asset                            */
+            RZString                 commitHash;   /* Version control ID/commit hash                            */
+            Department               department;   /* Department responsible for the asset                      */
+            int                      _padding;
         };
 
         struct RZ_ALIGN_AS(8) AssetDependecy
@@ -127,19 +127,19 @@ namespace Razix {
             // Notify listeners of a specific event
             void notifyListeners(RZEvent& event) { m_EventDispatcher.dispatch(event); }
 
-            inline const RZUUID&                      getUUID() const { return m_UUID; }
-            inline AssetType                          getType() const { return m_Type; }
-            inline void                               addReference() { rz_atomic64_increment(&m_ReferenceCount, RZ_MEMORY_ORDER_RELAXED); }
-            inline void                               removeReference() { rz_atomic64_decrement(&m_ReferenceCount, RZ_MEMORY_ORDER_RELAXED); }
-            inline u64                                getReferenceCount() { return rz_atomic64_load(&m_ReferenceCount, RZ_MEMORY_ORDER_RELAXED); }
-            inline void                               markDirty() { m_IsDirty = true; }
-            inline void                               clearDirty() { m_IsDirty = false; }
-            inline bool                               isDirty() const { return m_IsDirty; }
-            inline void                               setMetadata(const AssetMetadata& metadata) { m_Metadata = metadata; }
-            inline const AssetMetadata&               getMetadata() const { return m_Metadata; }
-            inline void                               acquireLockOnAsset() { m_Mutex.lock(); }
-            inline void                               releaseLockOnAsset() { m_Mutex.unlock(); }
-            inline void                               addDependency(AssetType assetType, const RZUUID& assetID) { m_Dependencies.push_back({assetType, assetID}); }
+            inline const RZUUID&                         getUUID() const { return m_UUID; }
+            inline AssetType                             getType() const { return m_Type; }
+            inline void                                  addReference() { rz_atomic64_increment(&m_ReferenceCount, RZ_MEMORY_ORDER_RELAXED); }
+            inline void                                  removeReference() { rz_atomic64_decrement(&m_ReferenceCount, RZ_MEMORY_ORDER_RELAXED); }
+            inline u64                                   getReferenceCount() { return rz_atomic64_load(&m_ReferenceCount, RZ_MEMORY_ORDER_RELAXED); }
+            inline void                                  markDirty() { m_IsDirty = true; }
+            inline void                                  clearDirty() { m_IsDirty = false; }
+            inline bool                                  isDirty() const { return m_IsDirty; }
+            inline void                                  setMetadata(const AssetMetadata& metadata) { m_Metadata = metadata; }
+            inline const AssetMetadata&                  getMetadata() const { return m_Metadata; }
+            inline void                                  acquireLockOnAsset() { m_Mutex.lock(); }
+            inline void                                  releaseLockOnAsset() { m_Mutex.unlock(); }
+            inline void                                  addDependency(AssetType assetType, const RZUUID& assetID) { m_Dependencies.push_back({assetType, assetID}); }
             inline const RZDynamicArray<AssetDependecy>& getDependencies() const { return m_Dependencies; }
 
             RZUUID operator()() { return m_UUID; }
@@ -147,16 +147,16 @@ namespace Razix {
             bool   operator!=(RZAsset& other) { return m_UUID != other.m_UUID; }
 
         protected:
-            RZUUID                      m_UUID;              /* Unique identifier                              */
-            AssetType                   m_Type;              /* Type of the asset (e.g., "Texture", "Model")   */
-            RZAtomicU64                 m_ReferenceCount;    /* Reference count for ownership tracking         */
+            RZUUID                         m_UUID;              /* Unique identifier                              */
+            AssetType                      m_Type;              /* Type of the asset (e.g., "Texture", "Model")   */
+            RZAtomicU64                    m_ReferenceCount;    /* Reference count for ownership tracking         */
             RZDynamicArray<AssetDependecy> m_Dependencies;      /* Other assets this asset depends on             */
-            AssetMetadata               m_Metadata;          /* Additional metadata                            */
-            AssetStorageType            m_StoragePreference; /* Asset memory storage type                      */
-            bool                        m_IsDirty;           /* Flag for tracking modifications                */
-            Razix::RZEventDispatcher    m_EventDispatcher;   /* Listeners for asset updates                    */
-            mutable std::mutex          m_Mutex;             /* Thread safety lock                             */
-            bool                        m_AllocateLazy;      /* This resource storage will be done lazily      */
+            AssetMetadata                  m_Metadata;          /* Additional metadata                            */
+            AssetStorageType               m_StoragePreference; /* Asset memory storage type                      */
+            bool                           m_IsDirty;           /* Flag for tracking modifications                */
+            Razix::RZEventDispatcher       m_EventDispatcher;   /* Listeners for asset updates                    */
+            mutable std::mutex             m_Mutex;             /* Thread safety lock                             */
+            bool                           m_AllocateLazy;      /* This resource storage will be done lazily      */
         };
     }    // namespace AssetSystem
 }    // namespace Razix

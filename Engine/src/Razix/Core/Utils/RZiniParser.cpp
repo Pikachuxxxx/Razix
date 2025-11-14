@@ -104,7 +104,7 @@ namespace Razix {
                 return false;
         }
 
-        RZString              textFileStr = RZFileSystem::ReadTextFile(physicalPath);
+        RZString                 textFileStr = RZFileSystem::ReadTextFile(physicalPath);
         RZDynamicArray<RZString> lines       = GetLines(textFileStr);
 
         Section  currentSection;

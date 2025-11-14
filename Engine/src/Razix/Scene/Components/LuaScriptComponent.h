@@ -42,7 +42,7 @@ namespace Razix {
         const RZString& getScriptFilePath() { return m_Filepath; }
 
     private:
-        RZString              m_Filepath;
+        RZString                 m_Filepath;
         RZDynamicArray<RZString> m_Errors;
 
         i32 m_OnStartFunc = -1;

@@ -254,7 +254,7 @@ namespace Razix {
             }
 
             RZDynamicArray<u32> indices;
-            u16              k1, k2;
+            u16                 k1, k2;
             for (u16 i = 0; i < stackCount; ++i) {
                 k1 = i * (static_cast<u16>(sectorCount) + 1U);    // beginning of current stack
                 k2 = k1 + static_cast<u16>(sectorCount) + 1U;     // beginning of next stack
