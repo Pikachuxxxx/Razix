@@ -87,6 +87,15 @@ inline bool operator==(const rz_handle& a, const rz_handle& b) noexcept
     return a.index == b.index && a.generation == b.generation;
 }
 
+template<>
+struct Razix::rz_hash<rz_handle>
+{
+    size_t operator()(const rz_handle& handle) const
+    {
+        return static_cast<size_t>(handle.index) ^ (static_cast<size_t>(handle.generation) << 32);
+    }
+};
+
 namespace std {
     template<>
     struct hash<rz_handle>
