@@ -388,10 +388,14 @@ namespace Razix {
 
         void reserve(size_type new_capacity);
         template<typename... Args>
-        void            emplace(const Key& key, Args&&... args);
-        void            insert(const Key& key, const Value& value);
-        void            insert(const Key& key, Value&& value);
-        iterator        find(const Key& key);
+        void           emplace(const Key& key, Args&&... args);
+        void           insert(const Key& key, const Value& value);
+        void           insert(const Key& key, Value&& value);
+        iterator       find(const Key& key);
+        const iterator find(const Key& key) const
+        {
+            return cfind(key);
+        }
         const iterator  cfind(const Key& key) const;
         bool            contains(const Key& key) const;
         bool            remove(const Key& key);
@@ -399,7 +403,6 @@ namespace Razix {
         reference       operator[](const Key& key);
         const_reference operator[](const Key& key) const;
         reference       at(const Key& key);
-        const_reference at(const Key& key) const;
         size_type       size() const;
         size_type       capacity() const;
         bool            empty() const;
@@ -782,12 +785,6 @@ namespace Razix {
 
         RAZIX_CORE_ASSERT(idx != m_Capacity, "[RZHashMap] Inserted key not found after insertion");
         return m_Values[idx];
-    }
-
-    template<typename Key, typename Value, typename Hash, typename Equal>
-    typename RZHashMap<Key, Value, Hash, Equal>::const_reference RZHashMap<Key, Value, Hash, Equal>::at(const Key& key) const
-    {
-        return at(key);
     }
 
     template<typename Key, typename Value, typename Hash, typename Equal>
