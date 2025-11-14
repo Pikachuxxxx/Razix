@@ -124,6 +124,23 @@ namespace Razix {
     template<class T>
     void rz_as_const(const T&&) = delete;
 
+    template<typename T>
+    struct rz_remove_pointer
+    {
+        using type = T;
+    };
+
+    // Specialization for pointer types
+    template<typename T>
+    struct rz_remove_pointer<T*>
+    {
+        using type = T;
+    };
+
+    // Helper type alias
+    template<typename T>
+    using rz_remove_pointer_t = typename rz_remove_pointer<T>::type;
+
     //----------------------------------------------------------------------------
     //INTEGRAL CONSTANT & TRUE/FALSE type traits
     //----------------------------------------------------------------------------
