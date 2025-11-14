@@ -50,10 +50,10 @@ namespace Razix {
 
             RAZIX_CORE_TRACE("[RZSF] Parsing shader file: {0}", filePath);
 
-            std::map<rz_gfx_shader_stage, RZString> shaders;
-            RZDynamicArray<RZString>                shader_defines;
-            rz_gfx_shader_desc                      desc       = {};
-            RZString                                rzsfSource = RZVirtualFileSystem::Get().readTextFile(filePath);
+            RZHashMap<rz_gfx_shader_stage, RZString> shaders;
+            RZDynamicArray<RZString>                 shader_defines;
+            rz_gfx_shader_desc                       desc       = {};
+            RZString                                 rzsfSource = RZVirtualFileSystem::Get().readTextFile(filePath);
 
             // Break the shader into lines
             RZDynamicArray<RZString> lines = GetLines(rzsfSource);

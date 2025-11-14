@@ -3,6 +3,9 @@
 #include "Razix/Core/Utils/RZColorUtilities.h"
 
 #include "Razix/Core/RZHandle.h"
+
+#include "Razix/Core/Containers/hash_functors.h"
+
 #include "Razix/Gfx/RHI/RHI.h"
 #include "Razix/Gfx/RZGfxDebug.h"
 #include "Razix/Gfx/RZShaderUtils.h"
@@ -119,4 +122,23 @@ namespace Razix {
 
         //-----------------------------------------------------------------------------------
     }    // namespace Gfx
+
+    template<>
+    struct rz_hash<rz_gfx_shader_stage>
+    {
+        size_t operator()(const rz_gfx_shader_stage& stage) const
+        {
+            return rz_hash<u32>{}(static_cast<u32>(stage));
+        }
+    };
+
+    template<>
+    struct rz_hash<Gfx::ShaderBuiltin>
+    {
+        size_t operator()(const Gfx::ShaderBuiltin& stage) const
+        {
+            return rz_hash<u32>{}(static_cast<u32>(stage));
+        }
+    };
+
 }    // namespace Razix

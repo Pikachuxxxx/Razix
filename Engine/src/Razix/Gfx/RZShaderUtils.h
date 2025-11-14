@@ -110,14 +110,14 @@ namespace Razix {
             inline const rz_gfx_descriptor_table_handle&                 getDescriptorTableHandleAt(u32 idx) const { return m_DescriptorTables[idx]; }
 
         private:
-            rz_gfx_shader_reflection                        m_ShaderReflection        = {};
-            rz_gfx_shader_handle                            m_ShaderHandle            = {};
-            std::map<RZString, rz_gfx_resource_view_handle> m_ResourceViewHandleRefs  = {};
-            RZDynamicArray<DescriptorBlacklist>             m_BlacklistDescriptors    = {};
-            std::map<u32, RZDynamicArray<NamedResView>>     m_TableBuilderResViewRefs = {};
-            RZDynamicArray<rz_gfx_descriptor_table_handle>  m_DescriptorTables        = {};
-            BindMapValidationErr                            m_LastError               = BIND_MAP_VALIDATION_FAILED;
-            rz_gfx_root_signature_handle                    m_RootSigHandle           = {};
+            rz_gfx_shader_reflection                         m_ShaderReflection        = {};
+            rz_gfx_shader_handle                             m_ShaderHandle            = {};
+            RZHashMap<RZString, rz_gfx_resource_view_handle> m_ResourceViewHandleRefs  = {};
+            RZDynamicArray<DescriptorBlacklist>              m_BlacklistDescriptors    = {};
+            RZHashMap<u32, RZDynamicArray<NamedResView>>     m_TableBuilderResViewRefs = {};
+            RZDynamicArray<rz_gfx_descriptor_table_handle>   m_DescriptorTables        = {};
+            BindMapValidationErr                             m_LastError               = BIND_MAP_VALIDATION_FAILED;
+            rz_gfx_root_signature_handle                     m_RootSigHandle           = {};
             union
             {
                 u32 statusFlags = 0xffffffff;

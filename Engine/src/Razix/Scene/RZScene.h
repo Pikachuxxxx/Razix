@@ -34,7 +34,7 @@ namespace Razix {
 
     RAZIX_ENUM_NAMES_ASSERT(SceneDrawGeometryModeNames, SceneDrawGeometryMode);
 
-    static std::map<RZString, Razix::SceneDrawGeometryMode> SceneGeometryModeStringMap = {
+    static RZHashMap<RZString, Razix::SceneDrawGeometryMode> SceneGeometryModeStringMap = {
         {"SceneGeometry", Razix::SceneDrawGeometryMode::SceneGeometry},
         {"Cubemap", Razix::SceneDrawGeometryMode::Cubemap},
         {"ScreenQuad", Razix::SceneDrawGeometryMode::ScreenQuad},

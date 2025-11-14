@@ -627,9 +627,9 @@ namespace Razix {
             //    u32          entryID;
             //    LifeTimeMode mode;
             //};
-            //std::map<u32, RZDynamicArray<Interval>> intervals;
+            //RZHashMap<u32, RZDynamicArray<Interval>> intervals;
             // track last seen pass for each (entryID, mode)
-            std::map<u32, u32> lastSeen;
+            RZHashMap<u32, u32> lastSeen;
 
             for (u32 passID = 0; passID < m_PassNodes.size(); ++passID) {
                 const auto& pass = m_PassNodes[passID];
