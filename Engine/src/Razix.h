@@ -5,21 +5,6 @@
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZCore.h"
 // clang-format on
-#include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/Log/RZLog.h"
-#include "Razix/Core/Markers/RZMarkers.h"
-#include "Razix/Core/RZEngine.h"
-#include "Razix/Core/SplashScreen/RZSplashScreen.h"
-#include "Razix/Core/System/IRZSystem.h"
-#include "Razix/Core/UUID/RZUUID.h"
-#include "Razix/Core/Version/RazixVersion.h"
-
-// Core/OS
-#include "Razix/Core/OS/RZFileSystem.h"
-#include "Razix/Core/OS/RZInput.h"
-#include "Razix/Core/OS/RZKeyCodes.h"
-#include "Razix/Core/OS/RZVirtualFileSystem.h"
-#include "Razix/Core/OS/RZWindow.h"
 
 // Containers
 #include "Razix/Core/Containers/arrays.h"
@@ -41,6 +26,22 @@
 #include "Razix/Core/std/sprintf.h"
 #include "Razix/Core/std/type_traits.h"
 #include "Razix/Core/std/utility.h"
+
+#include "Razix/Core/App/RZApplication.h"
+#include "Razix/Core/Log/RZLog.h"
+#include "Razix/Core/Markers/RZMarkers.h"
+#include "Razix/Core/RZEngine.h"
+#include "Razix/Core/SplashScreen/RZSplashScreen.h"
+#include "Razix/Core/System/IRZSystem.h"
+#include "Razix/Core/UUID/RZUUID.h"
+#include "Razix/Core/Version/RazixVersion.h"
+
+// Core/OS
+#include "Razix/Core/OS/RZFileSystem.h"
+#include "Razix/Core/OS/RZInput.h"
+#include "Razix/Core/OS/RZKeyCodes.h"
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
+#include "Razix/Core/OS/RZWindow.h"
 
 // Events
 #include "Razix/Events/ApplicationEvent.h"
