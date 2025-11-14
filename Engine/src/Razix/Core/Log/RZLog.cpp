@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZLog.h"
 
+#include "Razix/Core/std/sprintf.h"    // for rz_snprintf
+
 #include <chrono>
 #include <filesystem>
 #include <iomanip>
@@ -27,7 +29,7 @@ namespace Razix {
         std::vector<spdlog::sink_ptr>   RZLog::s_CoreLoggerSinks;
         std::vector<spdlog::sink_ptr>   RZLog::s_AppLoggerSinks;
 
-        static RZString GetTimestampedLogFileName()
+        static std::string GetTimestampedLogFileName()
         {
             auto        now   = std::chrono::system_clock::now();
             std::time_t now_c = std::chrono::system_clock::to_time_t(now);
@@ -40,7 +42,7 @@ namespace Razix {
             char logFileName[256];
             rz_snprintf(logFileName, sizeof(logFileName), "Logs/Razix_Engine_Log_%04d-%02d-%02d_%02d-%02d-%02d.log", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 
-            return RZString(logFileName);
+            return std::string(logFileName);
         }
 
         void RZLog::StartUp()
