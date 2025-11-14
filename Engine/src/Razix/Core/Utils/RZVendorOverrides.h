@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Core/Containers/arrays.h"
+#include <cereal/details/helpers.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -119,19 +120,20 @@ namespace cereal {
     void serialize(Archive& archive, Razix::RZDynamicArray<T>& arr)
     {
         // Get the size
-        size_t size = arr.size();
+        using CerealSize = typename cereal::size_type;
+        CerealSize cerealSize = static_cast<cereal::size_type>(arr.size());
 
         // Serialize size
-        archive(cereal::make_size_tag(size));
+        archive(cereal::make_size_tag(cerealSize));
 
         // On load, resize the array
         if (Archive::is_loading::value) {
             arr.clear();
-            arr.reserve(size);
+            arr.reserve(cerealSize);
         }
 
         // Serialize each element
-        for (size_t i = 0; i < size; ++i) {
+        for (size_t i = 0; i < cerealSize; ++i) {
             archive(arr[i]);
         }
     }
