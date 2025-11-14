@@ -52,10 +52,6 @@ namespace Razix {
                     hash_val *= FNV_PRIME;
                 }
                 return static_cast<size_t>(hash_val);
-            } else {
-                static_assert(false, "Hash not specialized for this type:");
-                static_assert(false, __FUNCTION__);
-                return 0;
             }
             return 0;
         }
