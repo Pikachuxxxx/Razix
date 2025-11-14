@@ -14,6 +14,20 @@
 
 namespace Razix {
 
+    namespace detail {
+        template<typename T, typename = void>
+        struct MissingHashSpecialization
+        {
+            static constexpr bool value = true;
+        };
+
+        template<typename T>
+        struct MissingHashSpecialization<T, rz_enable_if_t<rz_is_integral_v<T>>>
+        {
+            static constexpr bool value = false;
+        };
+    }    // namespace detail
+
     //--------------------------------------------------
     // Hash functors
     //--------------------------------------------------
@@ -22,20 +36,28 @@ namespace Razix {
     template<typename T>
     struct rz_hash
     {
-        static_assert(rz_is_integral_v<T>, "Hash not specialized for this type");
+        static_assert(!detail::MissingHashSpecialization<T>::value,
+            "Hash not specialized for this type. See template instantiation above for the type.");
 
         size_t operator()(T value) const
         {
-            // [Source]: https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
-            // Use memcpy to treat any integral as bytes
-            uint64_t             hash_val = FNV_OFFSET_BASIS;
-            const unsigned char* bytes    = reinterpret_cast<const unsigned char*>(&value);
+            if constexpr (!detail::MissingHashSpecialization<T>::value) {
+                // [Source]: https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
+                // Use memcpy to treat any integral as bytes
+                uint64_t             hash_val = FNV_OFFSET_BASIS;
+                const unsigned char* bytes    = reinterpret_cast<const unsigned char*>(&value);
 
-            for (size_t i = 0; i < sizeof(T); ++i) {
-                hash_val ^= bytes[i];
-                hash_val *= FNV_PRIME;
+                for (size_t i = 0; i < sizeof(T); ++i) {
+                    hash_val ^= bytes[i];
+                    hash_val *= FNV_PRIME;
+                }
+                return static_cast<size_t>(hash_val);
+            } else {
+                static_assert(false, "Hash not specialized for this type:");
+                static_assert(false, __FUNCTION__);
+                return 0;
             }
-            return static_cast<size_t>(hash_val);
+            return 0;
         }
     };
 

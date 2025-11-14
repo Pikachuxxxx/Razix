@@ -359,7 +359,8 @@ namespace Razix {
         using iterator        = RZHashMapIterator<Key, Value>;
         using const_iterator  = const RZHashMapIterator<Key, Value>;
 
-        explicit RZHashMap(size_type initial_capacity = RZ_INITIAL_HASH_MAP_CAPACITY);
+        RZHashMap();
+        explicit RZHashMap(size_type initial_capacity);
         ~RZHashMap();
 
         RZHashMap(const RZHashMap& other);
@@ -376,7 +377,6 @@ namespace Razix {
             }
         }
 
-        // Initializer list assignment operator - uses rz::initializer_list with RZPair
         RZHashMap& operator=(std::initializer_list<RZPair<Key, Value>> init)
         {
             clear();
@@ -438,29 +438,29 @@ namespace Razix {
     // RZHashMap implementation
     //--------------------------------------------------
 
-    //template<typename Key, typename Value, typename Hash, typename Equal>
-    //RZHashMap<Key, Value, Hash, Equal>::RZHashMap()
-    //    : m_Keys(NULL), m_Values(NULL), m_Occupied(NULL), m_Hashes(NULL), m_Length(0), m_Capacity(RZ_DEFAULT_ARRAY_CAPACITY)
-    //{
-    //    m_Keys     = static_cast<Key*>(rz_malloc_aligned(m_Capacity * sizeof(Key)));
-    //    m_Values   = static_cast<Value*>(rz_malloc_aligned(m_Capacity * sizeof(Value)));
-    //    m_Occupied = static_cast<bool*>(rz_malloc_aligned(m_Capacity * sizeof(bool)));
-    //    m_Hashes   = static_cast<uint64_t*>(rz_malloc_aligned(m_Capacity * sizeof(uint64_t)));
-    //
-    //    RAZIX_CORE_ASSERT(m_Keys && m_Values && m_Occupied && m_Hashes,
-    //        "[RZHashMap] Failed to allocate memory for hash map");
-    //
-    //    // Initialize arrays to zero/false
-    //    memset(m_Occupied, 0, m_Capacity * sizeof(bool));
-    //    memset(m_Hashes, 0, m_Capacity * sizeof(uint64_t));
-    //}
+    template<typename Key, typename Value, typename Hash, typename Equal>
+    RZHashMap<Key, Value, Hash, Equal>::RZHashMap()
+        : m_Keys(NULL), m_Values(NULL), m_Occupied(NULL), m_Hashes(NULL), m_Length(0), m_Capacity(RZ_DEFAULT_ARRAY_CAPACITY)
+    {
+        m_Keys     = static_cast<Key*>(rz_malloc_aligned(m_Capacity * sizeof(Key)));
+        m_Values   = static_cast<Value*>(rz_malloc_aligned(m_Capacity * sizeof(Value)));
+        m_Occupied = static_cast<bool*>(rz_malloc_aligned(m_Capacity * sizeof(bool)));
+        m_Hashes   = static_cast<uint64_t*>(rz_malloc_aligned(m_Capacity * sizeof(uint64_t)));
+
+        RAZIX_CORE_ASSERT(m_Keys && m_Values && m_Occupied && m_Hashes,
+            "[RZHashMap] Failed to allocate memory for hash map");
+
+        // Initialize arrays to zero/false
+        memset(m_Occupied, 0, m_Capacity * sizeof(bool));
+        memset(m_Hashes, 0, m_Capacity * sizeof(uint64_t));
+    }
 
     template<typename Key, typename Value, typename Hash, typename Equal>
-    RZHashMap<Key, Value, Hash, Equal>::RZHashMap(size_type initial_capacity /*= RZ_DEFAULT_ARRAY_CAPACITY*/)
+    RZHashMap<Key, Value, Hash, Equal>::RZHashMap(size_type initial_capacity)
         : m_Keys(NULL), m_Values(NULL), m_Occupied(NULL), m_Hashes(NULL), m_Length(0), m_Capacity(initial_capacity)
     {
         if (initial_capacity == 0) {
-            m_Capacity = 16;
+            m_Capacity = RZ_INITIAL_HASH_MAP_CAPACITY;
         }
 
         m_Keys     = static_cast<Key*>(rz_malloc_aligned(m_Capacity * sizeof(Key)));
