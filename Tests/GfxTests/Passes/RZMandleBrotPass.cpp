@@ -21,7 +21,7 @@ namespace Razix {
 
             // Register shader bind map early
             RZResourceManager::Get()
-                .getShaderBindMap(m_Shader)
+                .getShaderBindMapRef(m_Shader)
                 .RegisterBindMap(m_Shader);
 
             framegraph.getBlackboard().add<MandleBrotPassData>() = framegraph.addCallbackPass<MandleBrotPassData>(
@@ -64,7 +64,7 @@ namespace Razix {
 
                     if (RZFrameGraph::IsFirstFrame()) {
                         RZResourceManager::Get()
-                            .getShaderBindMap(m_Shader)
+                            .getShaderBindMapRef(m_Shader)
                             .setResourceView("g_OutputTexture", resources.getResourceViewHandle<RZFrameGraphTexture>(data.Output))
                             .validate()
                             .build();
@@ -74,7 +74,7 @@ namespace Razix {
                     rzRHI_BindComputeRootSig(cmdBuffer, m_RootSigHandle);
                     rzRHI_BindPipeline(cmdBuffer, m_Pipeline);
 
-                    RZResourceManager::Get().getShaderBindMap(m_Shader).bind(cmdBuffer, RZ_GFX_PIPELINE_TYPE_COMPUTE);
+                    RZResourceManager::Get().getShaderBindMapRef(m_Shader).bind(cmdBuffer, RZ_GFX_PIPELINE_TYPE_COMPUTE);
 
                     u32 width      = RZApplication::Get().getWindow()->getWidth();
                     u32 height     = RZApplication::Get().getWindow()->getHeight();
@@ -97,7 +97,7 @@ namespace Razix {
 
         void RZMandleBrotPass::destroy()
         {
-            RZResourceManager::Get().getShaderBindMap(m_Shader).destroy();
+            RZResourceManager::Get().getShaderBindMapRef(m_Shader).destroy();
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
             RZResourceManager::Get().destroyShader(m_Shader);
         }

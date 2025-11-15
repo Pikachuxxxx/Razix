@@ -799,7 +799,7 @@ namespace Razix {
 
             RAZIX_ASSERT(rz_handle_is_valid(&shaderHandle), "[ShaderBindMap] Invalid shader handle provided to register bind map!");
 
-            RZShaderBindMap& bindMap   = Gfx::RZResourceManager::Get().getShaderBindMap(shaderHandle);
+            RZShaderBindMap& bindMap   = Gfx::RZResourceManager::Get().getShaderBindMapRef(shaderHandle);
             rz_gfx_shader*   shader    = Gfx::RZResourceManager::Get().getShaderResource(shaderHandle);
             bindMap.m_ShaderHandle     = shaderHandle;
             bindMap.m_ShaderReflection = Gfx::ReflectShader(shader);

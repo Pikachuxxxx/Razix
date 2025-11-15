@@ -624,7 +624,7 @@ namespace Razix {
     {
         RZDynamicArray<CustomObject> arr(3);
         for (size_t i = 0; i < 3; ++i) {
-            arr.push_back(CustomObject(i));
+            arr.push_back(CustomObject(static_cast<uint32_t>(i)));
             EXPECT_TRUE(arr[i].constructed);
         }
     }

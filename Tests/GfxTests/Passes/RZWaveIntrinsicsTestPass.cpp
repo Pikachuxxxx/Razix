@@ -43,7 +43,7 @@ namespace Razix {
                 u32 waveMode = 1;
             };
 
-            RZResourceManager::Get().getShaderBindMap(m_Shader).RegisterBindMap(m_Shader);
+            RZResourceManager::Get().getShaderBindMapRef(m_Shader).RegisterBindMap(m_Shader);
 
             framegraph.getBlackboard()
                 .add<WaveIntrinsicsData>() = framegraph.addCallbackPass<WaveIntrinsicsData>(
@@ -106,7 +106,7 @@ namespace Razix {
                     if (RZFrameGraph::IsFirstFrame()) {
                         // Deferred creation of the shader bind map, for res view
                         RZResourceManager::Get()
-                            .getShaderBindMap(m_Shader)
+                            .getShaderBindMapRef(m_Shader)
                             .setResourceView("g_WaveIntrinsicsConstantBuffer", resources.getResourceViewHandle<RZFrameGraphBuffer>(data.DebugBuffer))
                             .validate()
                             .build();
@@ -123,7 +123,7 @@ namespace Razix {
                     rzRHI_UpdateConstantBuffer(cbUpdate);
 
                     RZResourceManager::Get()
-                        .getShaderBindMap(m_Shader)
+                        .getShaderBindMapRef(m_Shader)
                         .bind(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS);
 
 #define NUM_TRIANGLE_VERTS 3
@@ -140,7 +140,7 @@ namespace Razix {
         {
             if (g_GraphicsFeatures.support.WaveIntrinsics) {
                 RZResourceManager::Get()
-                    .getShaderBindMap(m_Shader)
+                    .getShaderBindMapRef(m_Shader)
                     .destroy();
                 RZResourceManager::Get().destroyShader(m_Shader);
                 RZResourceManager::Get().destroyPipeline(m_Pipeline);

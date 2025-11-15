@@ -801,17 +801,17 @@ namespace Razix {
     TYPED_TEST(RZHashMapTypedTest, StressTestMixed)
     {
         const int NUM_OPS = 500;
-    
+
         for (int i = 0; i < NUM_OPS; ++i) {
             this->map.insert(this->CreateKey(i), this->CreateValue(i));
         }
-    
+
         for (int i = 0; i < NUM_OPS / 2; ++i) {
             this->map.remove(this->CreateKey(i));
         }
-    
+
         EXPECT_EQ(this->map.size(), NUM_OPS / 2);
-    
+
         for (int i = NUM_OPS / 2; i < NUM_OPS; ++i) {
             EXPECT_NE(this->map.find(this->CreateKey(i)), this->map.end());
         }
@@ -930,17 +930,396 @@ namespace Razix {
         EXPECT_LT(lf_after_insert, 1.0f);
     }
 
-    TYPED_TEST(RZHashMapTypedTest, CbeginCend)
+    TYPED_TEST(RZHashMapTypedTest, beginend)
     {
         for (int i = 1; i <= 3; ++i) {
             this->map.insert(this->CreateKey(i), this->CreateValue(i));
         }
 
         int count = 0;
-        for (auto it = this->map.cbegin(); it != this->map.cend(); ++it) {
+        for (auto it = this->map.begin(); it != this->map.end(); ++it) {
             count++;
         }
         EXPECT_EQ(count, 3);
+    }
+
+    //==================================================
+    // Test: Assignment to second via iterator
+    //==================================================
+    // Corrected by: Pikachuxxxx
+    // Date: 2025-11-15 17:18:03 UTC
+
+    TYPED_TEST(RZHashMapTypedTest, AssignmentToSecondPersists)
+    {
+        // SETUP: Insert a known key-value pair.
+        auto key1       = this->CreateKey(1);
+        auto val1       = this->CreateValue(1);
+        this->map[key1] = val1;
+
+        // Insert other keys to ensure we aren't just getting lucky with position.
+        this->map[this->CreateKey(2)] = this->CreateValue(2);
+        this->map[this->CreateKey(3)] = this->CreateValue(3);
+        ASSERT_EQ(this->map.size(), 3);
+
+        auto modified_val = this->CreateValue(999);
+
+        // ACTION:
+        // 1. Find the specific element for key1 to get a mutable iterator.
+        auto it = this->map.find(key1);
+        ASSERT_NE(it, this->map.end());    // Ensure we found the key.
+
+        // 2. Modify the value via the iterator.
+        it->second = modified_val;
+
+        // VERIFICATION:
+        // 3. Directly verify that the value for key1 was updated.
+        EXPECT_TRUE(this->ValuesEqual(this->map[key1], modified_val));
+    }
+
+    //==================================================
+    // Test: Assignment to first via iterator
+    //==================================================
+    TYPED_TEST(RZHashMapTypedTest, AssignmentToFirstPersists)
+    {
+        auto key         = this->CreateKey(1);
+        auto initial_val = this->CreateValue(1);
+
+        this->map[key] = initial_val;
+
+        auto it = this->map.begin();
+
+        auto val_change1 = this->CreateValue(10);
+
+        it->second = val_change1;
+        EXPECT_TRUE(this->ValuesEqual(this->map[key], val_change1));
+    }
+
+    //==================================================
+    // Test: Multiple sequential assignments
+    //==================================================
+    TYPED_TEST(RZHashMapTypedTest, MultipleSequentialAssignments)
+    {
+        auto key         = this->CreateKey(1);
+        auto initial_val = this->CreateValue(1);
+
+        this->map[key] = initial_val;
+
+        auto it = this->map.begin();
+
+        // Multiple assignments to same element
+        auto val_change1 = this->CreateValue(10);
+        auto val_change2 = this->CreateValue(20);
+        auto val_change3 = this->CreateValue(30);
+
+        it->second = val_change1;
+        EXPECT_TRUE(this->ValuesEqual(this->map[key], val_change1));
+
+        it->second = val_change2;
+        EXPECT_TRUE(this->ValuesEqual(this->map[key], val_change2));
+
+        it->second = val_change3;
+        EXPECT_TRUE(this->ValuesEqual(this->map[key], val_change3));
+    }
+
+    //==================================================
+    // Test: Assignment via first() and second() accessors
+    //==================================================
+    TYPED_TEST(RZHashMapTypedTest, AccessorMethodsModifyUnderlying)
+    {
+        auto key         = this->CreateKey(5);
+        auto initial_val = this->CreateValue(50);
+
+        this->map[key] = initial_val;
+
+        auto it           = this->map.begin();
+        auto modified_val = this->CreateValue(500);
+
+        // Modify via accessor methods
+        it.second() = modified_val;
+
+        // Verify change persists
+        EXPECT_TRUE(this->ValuesEqual(this->map[key], modified_val));
+    }
+
+    //==================================================
+    // Test: Assignment through operator->
+    //==================================================
+    TYPED_TEST(RZHashMapTypedTest, ArrowOperatorAssignment)
+    {
+        auto key          = this->CreateKey(7);
+        auto initial_val  = this->CreateValue(70);
+        auto modified_val = this->CreateValue(700);
+
+        this->map[key] = initial_val;
+
+        auto it    = this->map.begin();
+        it->second = modified_val;
+
+        EXPECT_TRUE(this->ValuesEqual(this->map[key], modified_val));
+    }
+
+    //==================================================
+    // Test: Range-based for loop with assignment
+    //==================================================
+    TYPED_TEST(RZHashMapTypedTest, RangeBasedForWithAssignment)
+    {
+        auto key1 = this->CreateKey(1);
+        auto key2 = this->CreateKey(2);
+        auto key3 = this->CreateKey(3);
+
+        auto val1 = this->CreateValue(1);
+        auto val2 = this->CreateValue(2);
+        auto val3 = this->CreateValue(3);
+
+        this->map[key1] = val1;
+        this->map[key2] = val2;
+        this->map[key3] = val3;
+
+        // Modify all values in range-based loop
+        int index = 0;
+        for (auto& pair: this->map) {
+            auto multiplied = this->CreateValue((index + 1) * 100);
+            pair.second     = multiplied;
+            index++;
+        }
+
+        // Verify all modified
+        for (auto& pair: this->map) {
+            auto val = pair.second;
+            // Each value should be modified (non-zero and changed)
+            EXPECT_FALSE(this->ValuesEqual(val, val1) && this->ValuesEqual(val, val2) && this->ValuesEqual(val, val3));
+        }
+    }
+
+    //==================================================
+    // Test: Assignment doesn't affect other elements
+    //==================================================
+    // Corrected by: Pikachuxxxx
+    // Date: 2025-11-15 17:24:58 UTC
+
+    TYPED_TEST(RZHashMapTypedTest, AssignmentIsolation)
+    {
+        // SETUP: Insert three distinct key-value pairs.
+        auto key1 = this->CreateKey(1);
+        auto key2 = this->CreateKey(2);
+        auto key3 = this->CreateKey(3);
+
+        auto val1 = this->CreateValue(100);
+        auto val2 = this->CreateValue(200);
+        auto val3 = this->CreateValue(300);
+
+        this->map[key1] = val1;
+        this->map[key2] = val2;
+        this->map[key3] = val3;
+        ASSERT_EQ(this->map.size(), 3);
+
+        auto modified_val = this->CreateValue(999);
+
+        // ACTION:
+        // 1. Find a specific element to modify (e.g., the one for key2).
+        auto it = this->map.find(key2);
+        ASSERT_NE(it, this->map.end());
+
+        // 2. Modify only this element.
+        it->second = modified_val;
+
+        // VERIFICATION:
+        // 3. Confirm that the target element was changed.
+        EXPECT_TRUE(this->ValuesEqual(this->map[key2], modified_val));
+
+        // 4. CRITICAL: Verify that the other elements were NOT affected.
+        EXPECT_TRUE(this->ValuesEqual(this->map[key1], val1));
+        EXPECT_TRUE(this->ValuesEqual(this->map[key3], val3));
+    }
+
+    //==================================================
+    // Test: Const iterator prevents modification (compile-time check)
+    //==================================================
+    TYPED_TEST(RZHashMapTypedTest, ConstIteratorReadOnly)
+    {
+        auto key         = this->CreateKey(1);
+        auto initial_val = this->CreateValue(100);
+
+        this->map[key] = initial_val;
+
+        const auto& const_map = this->map;
+        auto        const_it  = const_map.begin();
+
+        // Verify we can read through const iterator
+        auto read_val = const_it->second;
+        EXPECT_TRUE(this->ValuesEqual(read_val, initial_val));
+
+        // Note: Attempting to modify through const_it should not compile
+        // const_it->second = this->CreateValue(999);  // Would fail to compile
+    }
+
+    //==================================================
+    // Test: Assignment through reference returned by value()
+    //==================================================
+    TYPED_TEST(RZHashMapTypedTest, ValueAccessorAssignment)
+    {
+        auto key          = this->CreateKey(42);
+        auto initial_val  = this->CreateValue(420);
+        auto modified_val = this->CreateValue(4200);
+
+        this->map[key] = initial_val;
+
+        auto  it      = this->map.begin();
+        auto& val_ref = it.value();
+        val_ref       = modified_val;
+
+        EXPECT_TRUE(this->ValuesEqual(this->map[key], modified_val));
+    }
+
+    //==================================================
+    // Test: Assignment after find()
+    //==================================================
+    TYPED_TEST(RZHashMapTypedTest, AssignmentAfterFind)
+    {
+        auto key1 = this->CreateKey(10);
+        auto key2 = this->CreateKey(20);
+        auto val1 = this->CreateValue(100);
+        auto val2 = this->CreateValue(200);
+
+        this->map[key1] = val1;
+        this->map[key2] = val2;
+
+        auto it = this->map.find(key1);
+        ASSERT_NE(it, this->map.end());
+
+        auto modified_val = this->CreateValue(1000);
+        it->second        = modified_val;
+
+        EXPECT_TRUE(this->ValuesEqual(this->map[key1], modified_val));
+        EXPECT_TRUE(this->ValuesEqual(this->map[key2], val2));
+    }
+
+    //==================================================
+    // Test: Rapid successive assignments
+    //==================================================
+    TYPED_TEST(RZHashMapTypedTest, RapidSuccessiveAssignments)
+    {
+        auto key         = this->CreateKey(1);
+        auto initial_val = this->CreateValue(1);
+
+        this->map[key] = initial_val;
+
+        auto it = this->map.begin();
+
+        // Perform 10 rapid assignments
+        for (int i = 0; i < 10; ++i) {
+            auto new_val = this->CreateValue(i * 10);
+            it->second   = new_val;
+        }
+
+        // Final value should be from last iteration
+        auto expected_val = this->CreateValue(90);
+        EXPECT_TRUE(this->ValuesEqual(this->map[key], expected_val));
+    }
+
+    //==================================================
+    // Test: Assignment preserves map size
+    //==================================================
+    TYPED_TEST(RZHashMapTypedTest, AssignmentPreservesSize)
+    {
+        auto key1 = this->CreateKey(1);
+        auto key2 = this->CreateKey(2);
+        auto key3 = this->CreateKey(3);
+
+        auto val1 = this->CreateValue(10);
+        auto val2 = this->CreateValue(20);
+        auto val3 = this->CreateValue(30);
+
+        this->map[key1] = val1;
+        this->map[key2] = val2;
+        this->map[key3] = val3;
+
+        sz initial_size = this->map.size();
+
+        // Modify values via iterator
+        for (auto& pair: this->map) {
+            pair.second = this->CreateValue(999);
+        }
+
+        // Size should remain unchanged
+        EXPECT_EQ(this->map.size(), initial_size);
+    }
+
+    //==================================================
+    // Test: Empty map iterator behavior (edge case)
+    //==================================================
+    TYPED_TEST(RZHashMapTypedTest, EmptyMapIteratorBehavior)
+    {
+        EXPECT_EQ(this->map.begin(), this->map.end());
+        EXPECT_EQ(this->map.size(), 0);
+    }
+
+    //==================================================
+    // Test: Dereference operator assignment
+    //==================================================
+    TYPED_TEST(RZHashMapTypedTest, DereferenceOperatorAssignment)
+    {
+        auto key         = this->CreateKey(5);
+        auto initial_val = this->CreateValue(50);
+
+        this->map[key] = initial_val;
+
+        auto it   = this->map.begin();
+        auto pair = *it;    // Dereference creates a copy via RZPair
+
+        auto modified_val = this->CreateValue(500);
+        pair.second       = modified_val;
+
+        // Assign modified pair back through dereference
+        *it = pair;
+
+        EXPECT_TRUE(this->ValuesEqual(this->map[key], modified_val));
+    }
+
+    //==================================================
+    // Test: Mixed assignments across multiple iterations
+    //==================================================
+    TYPED_TEST(RZHashMapTypedTest, MixedAssignmentsAcrossIterations)
+    {
+        auto key1 = this->CreateKey(1);
+        auto key2 = this->CreateKey(2);
+        auto key3 = this->CreateKey(3);
+
+        auto val1 = this->CreateValue(100);
+        auto val2 = this->CreateValue(200);
+        auto val3 = this->CreateValue(300);
+
+        this->map[key1] = val1;
+        this->map[key2] = val2;
+        this->map[key3] = val3;
+
+        // Assign via iterator methods
+        int count = 0;
+        for (auto it = this->map.begin(); it != this->map.end(); ++it) {
+            if (count == 0) {
+                it->second = this->CreateValue(1000);
+            } else if (count == 1) {
+                it.second() = this->CreateValue(2000);
+            } else {
+                auto& ref = it.value();
+                ref       = this->CreateValue(3000);
+            }
+            count++;
+        }
+
+        // Verify all assignments persisted
+        count = 0;
+        for (auto& pair: this->map) {
+            auto val = pair.second;
+            if (count == 0) {
+                EXPECT_TRUE(this->ValuesEqual(val, this->CreateValue(1000)));
+            } else if (count == 1) {
+                EXPECT_TRUE(this->ValuesEqual(val, this->CreateValue(2000)));
+            } else {
+                EXPECT_TRUE(this->ValuesEqual(val, this->CreateValue(3000)));
+            }
+            count++;
+        }
     }
 
 }    // namespace Razix

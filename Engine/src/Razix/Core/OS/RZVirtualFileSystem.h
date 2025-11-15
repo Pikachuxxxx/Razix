@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Razix/Core/Containers/arrays.h"
+#include "Razix/Core/Containers/hash_map.h"
 #include "Razix/Core/Containers/string.h"
 
 #include "Razix/Core/Utils/TRZSingleton.h"
@@ -80,7 +81,7 @@ namespace Razix {
         bool writeTextFile(const RZString& path, const RZString& text);
 
     private:
-        std::unordered_map<RZString, RZDynamicArray<RZString>> m_MountPoints; /* The map of virtual path and it's corresponding Physical mount paths in a key value association */
+        RZHashMap<RZString, RZDynamicArray<RZString>> m_MountPoints; /* The map of virtual path and it's corresponding Physical mount paths in a key value association */
     };
 
 }    // namespace Razix

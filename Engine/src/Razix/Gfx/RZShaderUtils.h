@@ -130,7 +130,9 @@ namespace Razix {
             };
 
         private:
-            RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZShaderBindMap);
+            // FIXME! [HIGH PRIORITY!] Make this immovable and non copyable after solving the hash_map issue
+            // currently the static map uses this so we have to keep it copyable/movable
+            //RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZShaderBindMap);
 
             RZShaderBindMap(rz_gfx_shader_handle shaderHandle);
         };

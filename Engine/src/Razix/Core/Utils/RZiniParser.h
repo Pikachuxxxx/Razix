@@ -2,6 +2,7 @@
 
 #include "Razix/Core/Containers/string.h"
 #include "Razix/Core/Containers/string_utils.h"
+#include "Razix/Core/Containers/hash_map.h"
 
 #include <variant>
 
@@ -33,8 +34,8 @@ namespace Razix {
 
     struct Section
     {
-        std::unordered_map<RZString, ValueType> variables;      // Key-value pairs
-        std::unordered_map<RZString, Section>   subsections;    // Subsections (nested sections)
+        RZHashMap<RZString, ValueType> variables;      // Key-value pairs
+        RZHashMap<RZString, Section>   subsections;    // Subsections (nested sections)
     };
 
     class RZiniParser
@@ -80,7 +81,7 @@ namespace Razix {
         }
 
     protected:    // Protexted only for the
-        std::unordered_map<RZString, Section> m_Sections;
+        RZHashMap<RZString, Section> m_Sections;
 
     private:
         bool parseKeyValue(const RZString& sectionName, Section& section, RZString& line);

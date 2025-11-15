@@ -84,7 +84,7 @@ namespace Razix {
         private:
             RZDynamicArray<AliasingGroup> m_Groups;
             AliasingEndTimeQueue          m_Queue;
-            std::unordered_map<u32, u32>  m_ResourceToGroup;
+            RZHashMap<u32, u32>  m_ResourceToGroup;
         };
 
         class RAZIX_API RZTransientAllocator
@@ -111,8 +111,8 @@ namespace Razix {
         private:
             AliasingBook                                   m_AliasingBook;
             RZDynamicArray<RZResourceLifetime>             m_RegisteredLifetimes;
-            std::unordered_map<u32, rz_gfx_texture_handle> m_TextureCache;
-            std::unordered_map<u32, rz_gfx_buffer_handle>  m_BufferCache;
+            RZHashMap<u32, rz_gfx_texture_handle> m_TextureCache;
+            RZHashMap<u32, rz_gfx_buffer_handle>  m_BufferCache;
             const Gfx::RZFrameGraph&                       m_FrameGraph;
         };
 

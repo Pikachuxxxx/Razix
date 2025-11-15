@@ -177,7 +177,7 @@ namespace Razix {
             }
 
             RZResourceManager::Get()
-                .getShaderBindMap(m_Shader)
+                .getShaderBindMapRef(m_Shader)
                 .RegisterBindMap(m_Shader);
 
             struct PrimitivePassData
@@ -255,14 +255,14 @@ namespace Razix {
 
                     if (RZFrameGraph::IsFirstFrame()) {
                         RZResourceManager::Get()
-                            .getShaderBindMap(m_Shader)
+                            .getShaderBindMapRef(m_Shader)
                             .setResourceView("InstanceTransforms", resources.getResourceViewHandle<RZFrameGraphBuffer>(data.primitiveCB))
                             .validate()
                             .build();
                     }
 
                     RZResourceManager::Get()
-                        .getShaderBindMap(m_Shader)
+                        .getShaderBindMapRef(m_Shader)
                         .bind(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS);
 
                     rz_gfx_buffer_update cbUpdate = {};
@@ -290,7 +290,7 @@ namespace Razix {
 
         void RZPrimitiveTestPass::destroy()
         {
-            RZResourceManager::Get().getShaderBindMap(m_Shader).destroy();
+            RZResourceManager::Get().getShaderBindMapRef(m_Shader).destroy();
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
             RZResourceManager::Get().destroyShader(m_Shader);
             RZResourceManager::Get().destroyBuffer(m_VertexBuffer);

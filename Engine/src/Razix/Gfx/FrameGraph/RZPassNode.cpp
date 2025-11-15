@@ -32,7 +32,7 @@ namespace Razix {
 #endif
         }
 
-        RAZIX_NO_DISCARD static bool hasId(const std::unordered_map<RZFrameGraphResource, RZFrameGraphResourceAcessView>& v, RZFrameGraphResource id)
+        RAZIX_NO_DISCARD static bool hasId(const RZHashMap<RZFrameGraphResource, RZFrameGraphResourceAcessView>& v, RZFrameGraphResource id)
         {
             return v.find(id) != v.end();
         }

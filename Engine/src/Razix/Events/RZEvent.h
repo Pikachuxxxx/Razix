@@ -109,7 +109,7 @@ namespace Razix {
 
     private:
         using Callback = std::function<void(RZEvent&)>;
-        std::unordered_map<std::type_index, Callback> callbacks;
+        RZHashMap<std::type_index, Callback> callbacks;
     };
 
 }    // namespace Razix

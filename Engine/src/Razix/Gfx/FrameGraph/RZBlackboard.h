@@ -61,8 +61,8 @@ namespace Razix {
             template<typename T>
             RAZIX_NO_DISCARD const T* try_get() const
             {
-                auto it = m_Storage.find(typeid(T));
-                return it != m_Storage.cend() ? std::any_cast<const T>(&it->second) : nullptr;
+                const auto it = m_Storage.cfind(typeid(T));
+                return it != m_Storage.cend() ? std::any_cast<const T>(&it->second()) : NULL;
             }
 
             template<typename T>
@@ -79,7 +79,7 @@ namespace Razix {
             template<typename T>
             bool has() const
             {
-                return m_Storage.find(typeid(T)) != m_Storage.cend();
+                return m_Storage.find(typeid(T)) != m_Storage.end();
             }
 
             RAZIX_INLINE const RZString& getFinalOutputName() const { return m_FinalOutputName; }
@@ -93,10 +93,10 @@ namespace Razix {
             }
 
         private:
-            std::unordered_map<std::type_index, std::any> m_Storage;
-            //std::unordered_map<RZString, RZDynamicArray<std::pair<RZString, RZFrameGraphResource>>> m_DataDrivenStorage;
-            std::unordered_map<RZString, RZFrameGraphResource> m_DataDrivenStorage;
-            RZString                                           m_FinalOutputName = "SceneHDR";
+            RZHashMap<std::type_index, std::any> m_Storage;
+            //RZHashMap<RZString, RZDynamicArray<std::pair<RZString, RZFrameGraphResource>>> m_DataDrivenStorage;
+            RZHashMap<RZString, RZFrameGraphResource> m_DataDrivenStorage;
+            RZString                                  m_FinalOutputName = "SceneHDR";
         };
     }    // namespace Gfx
 }    // namespace Razix

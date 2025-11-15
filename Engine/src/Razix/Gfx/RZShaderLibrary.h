@@ -25,10 +25,10 @@ namespace Razix {
             ShaderBuiltin        getBuiltInShaderID(RZString shaderName);
 
         public:
-            std::unordered_map<ShaderBuiltin, rz_gfx_shader_handle> m_BuiltinShaders;
-            std::unordered_map<RZString, ShaderBuiltin>             m_BuiltinShadersReverseNameMap;
-            //std::unordered_map<ShaderBuiltin, RZShaderHandle> m_UserShaders;
-            //std::unordered_map<RZString, ShaderBuiltin>    m_UserShadersReverseNameMap;
+            RZHashMap<ShaderBuiltin, rz_gfx_shader_handle> m_BuiltinShaders;
+            RZHashMap<RZString, ShaderBuiltin>             m_BuiltinShadersReverseNameMap;
+            //RZHashMap<ShaderBuiltin, RZShaderHandle> m_UserShaders;
+            //RZHashMap<RZString, ShaderBuiltin>    m_UserShadersReverseNameMap;
         };
     }    // namespace Gfx
 }    // namespace Razix

@@ -1,9 +1,8 @@
 #pragma once
 
-#include <string>
-#include <unordered_map>
-
 #include "Razix/Core/RZDataTypes.h"
+
+#include "Razix/Core/Containers/hash_map.h"
 
 namespace Razix {
 
@@ -62,13 +61,13 @@ namespace Razix {
 
     struct DepartmentHasher
     {
-        std::size_t operator()(Department dept) const noexcept
+        size_t operator()(const Department& dept) const
         {
-            return static_cast<std::size_t>(dept);
+            return rz_hash<u32>{}(static_cast<u32>(dept));
         }
     };
 
-    const static std::unordered_map<Department, DepartmentInfo, DepartmentHasher> s_DepartmentInfo = {
+    const static RZHashMap<Department, DepartmentInfo, DepartmentHasher> s_DepartmentInfo = {
         {Department::NONE, {"None", "Unowned by anyone"}},
         {Department::Core, {"Core", "Core Systems (Engine/Rendering related)"}},
         {Department::Environment, {"Environment", "Environment"}},
@@ -84,7 +83,7 @@ namespace Razix {
         {Department::Debug, {"Debug", "Anything related to debugging"}},
     };
 
-    const static std::unordered_map<const char*, Department> s_StringToDepartment = {
+    const static RZHashMap<const char*, Department> s_StringToDepartment = {
         {"NONE", Department::NONE},
         {"Core", Department::Core},
         {"Environment", Department::Environment},

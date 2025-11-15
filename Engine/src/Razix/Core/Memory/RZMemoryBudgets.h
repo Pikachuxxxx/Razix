@@ -14,7 +14,7 @@ namespace Razix {
         };
 
         // This is loaded from the config file: RazixDepartmentBudgets.ini
-        using DepartmentBudgets = std::unordered_map<Department, BudgetInfo>;
+        using DepartmentBudgets = RZHashMap<Department, BudgetInfo, DepartmentHasher>;
 
         /**
          * Parses the budget ini file to assign memory/frame time constraints

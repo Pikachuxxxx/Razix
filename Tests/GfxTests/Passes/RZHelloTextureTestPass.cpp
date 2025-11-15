@@ -42,7 +42,7 @@ namespace Razix {
 
             // Register the shader bind map for this shader
             // This is used to manage the lifetime of the descriptor tables for this shader and manage binding resources to the shader
-            RZResourceManager::Get().getShaderBindMap(m_Shader).RegisterBindMap(m_Shader);
+            RZResourceManager::Get().getShaderBindMapRef(m_Shader).RegisterBindMap(m_Shader);
 
             framegraph.addCallbackPass<HelloTexturePassData>(
                 "[Test] Pass.Builtin.Code.HelloTexture",
@@ -102,7 +102,7 @@ namespace Razix {
                     if (RZFrameGraph::IsFirstFrame()) {
                         // Deferred creation of the shader bind map, for res view
                         RZResourceManager::Get()
-                            .getShaderBindMap(m_Shader)
+                            .getShaderBindMapRef(m_Shader)
                             .setDescriptorTable(RZEngine::Get().getWorldRenderer().getGlobalSamplerTable())
                             .setDescriptorBlacklist("Samplers", {"g_Sampler"})
                             .setResourceView("g_TestTexture", resources.getResourceViewHandle<RZFrameGraphTexture>(checkerMap))
@@ -111,7 +111,7 @@ namespace Razix {
                     }
 
                     RZResourceManager::Get()
-                        .getShaderBindMap(m_Shader)
+                        .getShaderBindMapRef(m_Shader)
                         .bind(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS);
 
                     constexpr u32 kNumTriangleVerts = 3;
@@ -127,7 +127,7 @@ namespace Razix {
         void RZHelloTextureTestPass::destroy()
         {
             RZResourceManager::Get()
-                .getShaderBindMap(m_Shader)
+                .getShaderBindMapRef(m_Shader)
                 .destroy();    // This will destroy all the descriptor tables created/owned by this bind map
             RZResourceManager::Get().destroyPipeline(m_Pipeline);
             RZResourceManager::Get().destroyShader(m_Shader);

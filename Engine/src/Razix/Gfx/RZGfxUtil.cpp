@@ -25,7 +25,7 @@ namespace Razix {
         static RZString ShaderBinaryFileDirectory = "";
 
         // Shader stage mapping for RZSF parsing
-        static const std::unordered_map<RZString, rz_gfx_shader_stage> kStageMap = {
+        static const RZHashMap<RZString, rz_gfx_shader_stage> kStageMap = {
             {"vertex", RZ_GFX_SHADER_STAGE_VERTEX},
             {"fragment", RZ_GFX_SHADER_STAGE_PIXEL},
             {"pixel", RZ_GFX_SHADER_STAGE_PIXEL},

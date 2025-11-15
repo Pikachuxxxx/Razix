@@ -75,8 +75,8 @@ namespace Razix {
              */
 
             RZDynamicArray<RZFrameGraphResource>                                    m_Creates;
-            std::unordered_map<RZFrameGraphResource, RZFrameGraphResourceAcessView> m_Reads;
-            std::unordered_map<RZFrameGraphResource, RZFrameGraphResourceAcessView> m_Writes;
+            RZHashMap<RZFrameGraphResource, RZFrameGraphResourceAcessView> m_Reads;
+            RZHashMap<RZFrameGraphResource, RZFrameGraphResourceAcessView> m_Writes;
             bool                                                                    m_IsStandAlone      = false;
             bool                                                                    m_IsDataDriven      = false;
             Department                                                              m_Department        = Department::NONE;

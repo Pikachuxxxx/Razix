@@ -95,7 +95,15 @@ namespace Razix {
     {
         size_t operator()(const rz_handle& handle) const
         {
-            return static_cast<size_t>(handle.index) ^ (static_cast<size_t>(handle.generation) << 32);
+            // FNV-1a hash algorithm
+            size_t hash = FNV_OFFSET_BASIS;    // FNV offset basis
+
+            hash ^= handle.index;
+            hash *= FNV_PRIME;    // FNV prime
+            hash ^= handle.generation;
+            hash *= FNV_PRIME;    // FNV prime
+
+            return hash;
         }
     };
 }    // namespace Razix

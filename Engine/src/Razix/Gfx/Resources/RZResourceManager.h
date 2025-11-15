@@ -74,14 +74,14 @@ private:                                                                        
             //-----------------------------------------------------------------------------------
 
         public:
-            inline RZShaderBindMap& getShaderBindMap(const rz_gfx_shader_handle& shaderHandle)
+            inline RZShaderBindMap& getShaderBindMapRef(const rz_gfx_shader_handle& shaderHandle)
             {
                 return m_GlobalShaderBindMapRegistry[shaderHandle];
             }
 
         private:
-            RZResourceCBFuncs                              m_ResourceTypeCBFuncs[RZ_GFX_RESOURCE_TYPE_COUNT];
-            std::unordered_map<rz_handle, RZShaderBindMap> m_GlobalShaderBindMapRegistry;
+            RZResourceCBFuncs                     m_ResourceTypeCBFuncs[RZ_GFX_RESOURCE_TYPE_COUNT];
+            RZHashMap<rz_handle, RZShaderBindMap> m_GlobalShaderBindMapRegistry;
         };
 
 #define RZ_GET_RESOURCE_MANAGER()      RZResourceManager::Get()

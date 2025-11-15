@@ -56,6 +56,6 @@ namespace Razix {
         void addCommand(RZString name, RZDynamicArray<RZString> commands, bool hasValue, RZString help);
 
     private:
-        std::unordered_map<RZString, CommandLineOption> m_CommandOptions; /* The list of all command line options available, if passed via command line, it is set */
+        RZHashMap<RZString, CommandLineOption> m_CommandOptions; /* The list of all command line options available, if passed via command line, it is set */
     };
 }    // namespace Razix

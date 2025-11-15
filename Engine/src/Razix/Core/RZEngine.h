@@ -52,7 +52,7 @@ namespace Razix {
             u32 TexturesInMemory      = 0;
             u32 DescriptorSetCapacity = 0;    //[ ] // Add this after the debug font renderer is done
             // Pass timings
-            std::unordered_map<RZString, f32> PassTimings; /* Holds references to frame graph pass node Idx and it's CPU execution time */
+            RZHashMap<RZString, f32> PassTimings; /* Holds references to frame graph pass node Idx and it's CPU execution time */
 
             void reset()
             {
