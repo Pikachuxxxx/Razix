@@ -34,7 +34,7 @@ namespace Razix {
         }
     };
 
-    extern i32 rz_strcmp(const char* s1, const char* s2);
+    RAZIX_API extern i32 rz_strcmp(const char* s1, const char* s2);
 
     // Specialization for C-strings
     template<>

@@ -17,10 +17,10 @@
 
 namespace Razix {
 
-    extern sz    rz_strlen(const char* str);
-    extern i32   rz_strcmp(const char* s1, const char* s2);
-    extern i32   rz_memcmp(const void* ptr1, const void* ptr2, sz count);
-    extern void* rz_memcpy(void* dst, const void* src, sz count);
+    RAZIX_API extern sz    rz_strlen(const char* str);
+    RAZIX_API extern i32   rz_strcmp(const char* s1, const char* s2);
+    RAZIX_API extern i32   rz_memcmp(const void* ptr1, const void* ptr2, sz count);
+    RAZIX_API extern void* rz_memcpy(void* dst, const void* src, sz count);
 
     // [header declarations taken from]: https://en.cppreference.com/w/cpp/string/basic_string.html
     class RAZIX_MEM_ALIGN_16 RAZIX_API RZString
