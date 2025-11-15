@@ -53,13 +53,37 @@ namespace Razix {
     template<typename K, typename V>
     struct RZPair
     {
+        const K& first;
+        V&       second;
+
+        //// This templated constructor uses "perfect forwarding" to handle
+        //// copying, moving, or binding references automatically.
+        //// This allows RZPair to hold either values or references.
+        //template<typename U1, typename U2>
+        //RZPair(U1&& f, U2&& s)
+        //    : first(std::forward<U1>(f)), second(std::forward<U2>(s))
+        //{
+        //}
+
+        RZPair& operator=(const RZPair& other)
+        {
+            second = other.second;
+            return *this;
+        }
+
+        template<typename OtherPair>
+        RZPair& operator=(const OtherPair& other)
+        {
+            second = other.second;
+            return *this;
+        }
+    };
+
+    template<typename K, typename V>
+    struct RZInitalizerPair
+    {
         K first;
         V second;
-
-        RZPair(const K& key, const V& value)
-            : first(key), second(value)
-        {
-        }
     };
 
     //--------------------------------------------------
@@ -73,48 +97,46 @@ namespace Razix {
     class RZHashMapIterator
     {
     public:
-        using pair_type = RZPair<Key, Value>;
+        using pair_type = RZPair<Key&, Value&>;
         using size_type = sz;
 
         RZHashMapIterator();
         ~RZHashMapIterator();
 
-        // Copy semantics
         RZHashMapIterator(const RZHashMapIterator& other);
         RZHashMapIterator& operator=(const RZHashMapIterator& other);
 
-        // Move semantics
         RZHashMapIterator(RZHashMapIterator&& other) noexcept;
         RZHashMapIterator& operator=(RZHashMapIterator&& other) noexcept;
 
-        // Iterator interface
-        RZHashMapIterator& operator++();       // prefix increment
-        RZHashMapIterator  operator++(int);    // postfix increment
+        RZHashMapIterator& operator++();
+        RZHashMapIterator  operator++(int);
 
         bool operator==(const RZHashMapIterator& other) const;
         bool operator!=(const RZHashMapIterator& other) const;
 
-        // Element access
-        pair_type operator*()
-        {
-            return RZPair(m_Keys[m_Index], m_Values[m_Index]);
-        }
-
-        const pair_type& operator*() const
-        {
-            return RZPair(m_Keys[m_Index], m_Values[m_Index]);
-        }
-
         pair_type* operator->()
         {
-            new (proxy.m_ptr) pair_type(m_Keys[m_Index], m_Values[m_Index]);
-            return proxy.m_ptr;
+            new (&m_ProxyStorage) pair_type{m_Keys[m_Index], m_Values[m_Index]};
+            return reinterpret_cast<pair_type*>(&m_ProxyStorage);
         }
 
         const pair_type* operator->() const
         {
-            new (proxy.m_ptr) pair_type(m_Keys[m_Index], m_Values[m_Index]);
-            return proxy.m_ptr;
+            new (&m_ProxyStorage) pair_type{m_Keys[m_Index], m_Values[m_Index]};
+            return reinterpret_cast<const pair_type*>(&m_ProxyStorage);
+        }
+
+        pair_type& operator*()
+        {
+            new (&m_ProxyStorage) pair_type{m_Keys[m_Index], m_Values[m_Index]};
+            return *reinterpret_cast<pair_type*>(&m_ProxyStorage);
+        }
+
+        const pair_type& operator*() const
+        {
+            new (&m_ProxyStorage) pair_type{m_Keys[m_Index], m_Values[m_Index]};
+            return *reinterpret_cast<const pair_type*>(&m_ProxyStorage);
         }
 
         Key&         key();
@@ -135,40 +157,16 @@ namespace Razix {
         bool*     m_Occupied;
         size_type m_Index;
         size_type m_Capacity;
+        mutable alignas(pair_type) unsigned char m_ProxyStorage[sizeof(pair_type)];
 
         RZHashMapIterator(Key* keys, Value* values, bool* occupied, size_type capacity, size_type start_index = 0);
 
         void advance_to_next_occupied();
-
-        struct StaticLifetimeProxy
-        {
-            pair_type* m_ptr;
-
-            // Constructor: Allocates memory on first use.
-            StaticLifetimeProxy()
-            {
-                m_ptr = static_cast<pair_type*>(rz_malloc_aligned(sizeof(pair_type)));
-            }
-
-            // Destructor: Frees memory at program exit.
-            ~StaticLifetimeProxy()
-            {
-                if (m_ptr) {
-                    rz_free(m_ptr);
-                    m_ptr = nullptr;
-                }
-            }
-        };
-
-        static StaticLifetimeProxy proxy;
     };
 
     //--------------------------------------------------
     // RZHashMapIterator implementation
     //--------------------------------------------------
-
-    template<typename Key, typename Value>
-    typename RZHashMapIterator<Key, Value>::StaticLifetimeProxy RZHashMapIterator<Key, Value>::proxy;
 
     template<typename Key, typename Value>
     RZHashMapIterator<Key, Value>::RZHashMapIterator()
@@ -369,7 +367,7 @@ namespace Razix {
         RZHashMap(RZHashMap&& other) noexcept;
         RZHashMap& operator=(RZHashMap&& other) noexcept;
 
-        RZHashMap(std::initializer_list<RZPair<Key, Value>> init)
+        RZHashMap(std::initializer_list<RZInitalizerPair<Key, Value>> init)
             : RZHashMap(16)
         {
             for (const auto& pair: init) {
@@ -377,7 +375,7 @@ namespace Razix {
             }
         }
 
-        RZHashMap& operator=(std::initializer_list<RZPair<Key, Value>> init)
+        RZHashMap& operator=(std::initializer_list<RZInitalizerPair<Key, Value>> init)
         {
             clear();
             for (const auto& pair: init) {
@@ -388,14 +386,11 @@ namespace Razix {
 
         void reserve(size_type new_capacity);
         template<typename... Args>
-        void           emplace(const Key& key, Args&&... args);
-        void           insert(const Key& key, const Value& value);
-        void           insert(const Key& key, Value&& value);
-        iterator       find(const Key& key);
-        const iterator find(const Key& key) const
-        {
-            return cfind(key);
-        }
+        void            emplace(const Key& key, Args&&... args);
+        void            insert(const Key& key, const Value& value);
+        void            insert(const Key& key, Value&& value);
+        iterator        find(const Key& key);
+        const iterator  find(const Key& key) const;
         const iterator  cfind(const Key& key) const;
         bool            contains(const Key& key) const;
         bool            remove(const Key& key);
@@ -403,21 +398,16 @@ namespace Razix {
         reference       operator[](const Key& key);
         const_reference operator[](const Key& key) const;
         reference       at(const Key& key);
+        const_reference at(const Key& key) const;
         size_type       size() const;
         size_type       capacity() const;
         bool            empty() const;
         float           load_factor() const;
-        iterator        begin() const;
-        iterator        end() const;
-        const_iterator  cbegin() const
-        {
-            return begin();
-        }
-        const_iterator cend() const
-        {
-            return end();
-        }
-        bool erase(const iterator& it);
+        iterator        begin();
+        iterator        end();
+        const iterator  begin() const;
+        const iterator  end() const;
+        bool            erase(const iterator& it);
 
     private:
         Key*      m_Keys;
@@ -717,16 +707,16 @@ namespace Razix {
     }
 
     template<typename Key, typename Value, typename Hash, typename Equal>
+    const typename RZHashMap<Key, Value, Hash, Equal>::iterator RZHashMap<Key, Value, Hash, Equal>::find(const Key& key) const
+    {
+        return cfind(key);
+    }
+
+    template<typename Key, typename Value, typename Hash, typename Equal>
     const typename RZHashMap<Key, Value, Hash, Equal>::iterator RZHashMap<Key, Value, Hash, Equal>::cfind(const Key& key) const
     {
-        RAZIX_CORE_ASSERT(m_Keys && m_Values && m_Occupied && m_Hashes,
-            "[RZHashMap] Hash map is not initialized");
-
-        size_type idx = find_entry(key);
-        if (idx == m_Capacity)
-            return end();
-
-        return iterator(m_Keys, m_Values, m_Occupied, m_Capacity, idx);
+        auto& self = const_cast<RZHashMap&>(*this);
+        return self.find(key);
     }
 
     template<typename Key, typename Value, typename Hash, typename Equal>
@@ -742,6 +732,9 @@ namespace Razix {
         if (idx == m_Capacity)
             return false;
 
+        m_Keys[idx].~Key();
+        m_Values[idx].~Value();
+
         m_Occupied[idx] = false;
         m_Length--;
         return true;
@@ -750,6 +743,13 @@ namespace Razix {
     template<typename Key, typename Value, typename Hash, typename Equal>
     void RZHashMap<Key, Value, Hash, Equal>::clear()
     {
+        for (size_type i = 0; i < m_Capacity; ++i) {
+            if (m_Occupied[i]) {
+                m_Keys[i].~Key();
+                m_Values[i].~Value();
+            }
+        }
+
         memset(m_Occupied, 0, m_Capacity * sizeof(bool));
         m_Length = 0;
     }
@@ -788,6 +788,13 @@ namespace Razix {
     }
 
     template<typename Key, typename Value, typename Hash, typename Equal>
+    typename RZHashMap<Key, Value, Hash, Equal>::const_reference RZHashMap<Key, Value, Hash, Equal>::at(const Key& key) const
+    {
+        auto& self = const_cast<RZHashMap&>(*this);
+        return self.at(key);
+    }
+
+    template<typename Key, typename Value, typename Hash, typename Equal>
     typename RZHashMap<Key, Value, Hash, Equal>::size_type RZHashMap<Key, Value, Hash, Equal>::size() const
     {
         return m_Length;
@@ -812,15 +819,28 @@ namespace Razix {
     }
 
     template<typename Key, typename Value, typename Hash, typename Equal>
-    typename RZHashMap<Key, Value, Hash, Equal>::iterator RZHashMap<Key, Value, Hash, Equal>::begin() const
+    typename RZHashMap<Key, Value, Hash, Equal>::iterator RZHashMap<Key, Value, Hash, Equal>::begin()
     {
         return iterator(m_Keys, m_Values, m_Occupied, m_Capacity, 0);
     }
 
     template<typename Key, typename Value, typename Hash, typename Equal>
-    typename RZHashMap<Key, Value, Hash, Equal>::iterator RZHashMap<Key, Value, Hash, Equal>::end() const
+    typename RZHashMap<Key, Value, Hash, Equal>::iterator RZHashMap<Key, Value, Hash, Equal>::end()
     {
         return iterator(m_Keys, m_Values, m_Occupied, m_Capacity, m_Capacity);
+    }
+
+    template<typename Key, typename Value, typename Hash, typename Equal>
+    const typename RZHashMap<Key, Value, Hash, Equal>::const_iterator RZHashMap<Key, Value, Hash, Equal>::begin() const
+    {
+        // Returns a read-only iterator
+        return const_iterator(m_Keys, m_Values, m_Occupied, m_Capacity, 0);
+    }
+
+    template<typename Key, typename Value, typename Hash, typename Equal>
+    const typename RZHashMap<Key, Value, Hash, Equal>::const_iterator RZHashMap<Key, Value, Hash, Equal>::end() const
+    {
+        return const_iterator(m_Keys, m_Values, m_Occupied, m_Capacity, m_Capacity);
     }
 
     template<typename Key, typename Value, typename Hash, typename Equal>
@@ -845,8 +865,8 @@ namespace Razix {
         while (probe_count < m_Capacity) {
             if (!m_Occupied[index]) {
                 // Empty slot found
-                m_Keys[index]     = key;
-                m_Values[index]   = value;
+                new (&m_Keys[index]) Key(key);
+                new (&m_Values[index]) Value(value);
                 m_Occupied[index] = true;
                 m_Hashes[index]   = hash_value;
                 m_Length++;
@@ -902,7 +922,7 @@ namespace Razix {
         // Re-hash all entries into new arrays
         for (size_type i = 0; i < old_capacity; ++i) {
             if (old_occupied[i]) {
-                insert_entry(old_keys[i], Value(old_values[i]));
+                insert_entry(rz_move(old_keys[i]), rz_move(Value(old_values[i])));
             }
         }
 
