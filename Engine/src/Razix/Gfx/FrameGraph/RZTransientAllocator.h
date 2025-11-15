@@ -84,7 +84,7 @@ namespace Razix {
         private:
             RZDynamicArray<AliasingGroup> m_Groups;
             AliasingEndTimeQueue          m_Queue;
-            RZHashMap<u32, u32>  m_ResourceToGroup;
+            RZHashMap<u32, u32>           m_ResourceToGroup;
         };
 
         class RAZIX_API RZTransientAllocator
@@ -109,11 +109,11 @@ namespace Razix {
             inline const AliasingBook& getAliasBook() const { return m_AliasingBook; }
 
         private:
-            AliasingBook                                   m_AliasingBook;
-            RZDynamicArray<RZResourceLifetime>             m_RegisteredLifetimes;
+            AliasingBook                          m_AliasingBook;
+            RZDynamicArray<RZResourceLifetime>    m_RegisteredLifetimes;
             RZHashMap<u32, rz_gfx_texture_handle> m_TextureCache;
             RZHashMap<u32, rz_gfx_buffer_handle>  m_BufferCache;
-            const Gfx::RZFrameGraph&                       m_FrameGraph;
+            const Gfx::RZFrameGraph&              m_FrameGraph;
         };
 
 #define TRANSIENT_ALLOCATOR_CAST(x) ((RZTransientAllocator*) x)
