@@ -62,7 +62,7 @@ namespace Razix {
             RAZIX_NO_DISCARD const T* try_get() const
             {
                 const auto it = m_Storage.cfind(typeid(T));
-                return it != m_Storage.cend() ? std::any_cast<const T>(&it->second()) : NULL;
+                return it != m_Storage.end() ? std::any_cast<const T>(&it->second) : NULL;
             }
 
             template<typename T>
