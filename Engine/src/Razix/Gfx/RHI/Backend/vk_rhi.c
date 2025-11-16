@@ -1873,7 +1873,7 @@ static void vk_util_upload_pixel_data(rz_gfx_texture* texture, rz_gfx_texture_de
     // Transition image layout: UNDEFINED -> TRANSFER_DST_OPTIMAL
     VkImageMemoryBarrier barrier = {
         .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-        .oldLayout           = vk_util_translate_imagelayout_resstate(texture->resource.currentState),    // This is most likely UNDEFINED
+        .oldLayout           = vk_util_translate_imagelayout_resstate(texture->resource.hot.currentState),    // This is most likely UNDEFINED
         .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
@@ -1916,7 +1916,7 @@ static void vk_util_upload_pixel_data(rz_gfx_texture* texture, rz_gfx_texture_de
     vk_util_end_singletime_cmdlist(cmdBuf);
 
     // update current state to shader read only
-    texture->resource.currentState = RZ_GFX_RESOURCE_STATE_SHADER_READ;
+    texture->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_SHADER_READ;
 
     // Clean up staging buffer
     vkDestroyBuffer(VKDEVICE, stagingBuffer, NULL);
@@ -2132,34 +2132,34 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
         memset(texture, 0, sizeof(rz_gfx_texture));
 
         // Set up resource metadata
-        snprintf(texture->resource.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$_%u", i);
-        texture->resource.handle                         = (rz_handle) {i, i};
-        texture->resource.viewHints                      = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
-        texture->resource.type                           = RZ_GFX_RESOURCE_TYPE_TEXTURE;
-        texture->resource.currentState                   = RZ_GFX_RESOURCE_STATE_PRESENT;
-        texture->resource.desc.textureDesc.width         = swapchain->width;
-        texture->resource.desc.textureDesc.height        = swapchain->height;
-        texture->resource.desc.textureDesc.depth         = 1;
-        texture->resource.desc.textureDesc.arraySize     = 1;
-        texture->resource.desc.textureDesc.mipLevels     = 1;
-        texture->resource.desc.textureDesc.format        = RAZIX_SWAPCHAIN_FORMAT;
-        texture->resource.desc.textureDesc.textureType   = RZ_GFX_TEXTURE_TYPE_2D;
-        texture->resource.desc.textureDesc.resourceHints = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
-        texture->resource.desc.textureDesc.pPixelData    = NULL;
-        texture->vk.image                                = swapchain->vk.images[i];
+        snprintf(texture->resource.pCold->pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$_%u", i);
+        texture->resource.hot.handle                            = (rz_handle) {i, i};
+        texture->resource.hot.viewHints                         = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
+        texture->resource.hot.type                              = RZ_GFX_RESOURCE_TYPE_TEXTURE;
+        texture->resource.hot.currentState                      = RZ_GFX_RESOURCE_STATE_PRESENT;
+        texture->resource.pCold->desc.textureDesc.width         = swapchain->width;
+        texture->resource.pCold->desc.textureDesc.height        = swapchain->height;
+        texture->resource.pCold->desc.textureDesc.depth         = 1;
+        texture->resource.pCold->desc.textureDesc.arraySize     = 1;
+        texture->resource.pCold->desc.textureDesc.mipLevels     = 1;
+        texture->resource.pCold->desc.textureDesc.format        = RAZIX_SWAPCHAIN_FORMAT;
+        texture->resource.pCold->desc.textureDesc.textureType   = RZ_GFX_TEXTURE_TYPE_2D;
+        texture->resource.pCold->desc.textureDesc.resourceHints = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
+        texture->resource.pCold->desc.textureDesc.pPixelData    = NULL;
+        texture->vk.image                                       = swapchain->vk.images[i];
         // Note: We don't set memory handle since swapchain images are managed by the swapchain
         // Create resource view for the swapchain image
         rz_gfx_resource_view* resourceView = &swapchain->backbuffersResViews[i];
         memset(resourceView, 0, sizeof(rz_gfx_resource_view));
-        snprintf(resourceView->resource.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_RES_VIEW$_%u", i);
-        resourceView->resource.handle                                               = (rz_handle) {i, i};
-        resourceView->resource.type                                                 = RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW;
-        resourceView->resource.desc.resourceViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE;
-        resourceView->resource.desc.resourceViewDesc.textureViewDesc.pTexture       = texture;
-        resourceView->resource.desc.resourceViewDesc.textureViewDesc.baseMip        = 0;
-        resourceView->resource.desc.resourceViewDesc.textureViewDesc.baseArrayLayer = 0;
-        resourceView->resource.desc.resourceViewDesc.textureViewDesc.dimension      = RAZIX_RESOURCE_VIEW_DIMENSION_FULL;
-        resourceView->vk.imageView                                                  = swapchain->vk.imageViews[i];
+        snprintf(resourceView->resource.pCold->pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_RES_VIEW$_%u", i);
+        resourceView->resource.hot.handle                                                  = (rz_handle) {i, i};
+        resourceView->resource.hot.type                                                    = RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW;
+        resourceView->resource.pCold->desc.resourceViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE;
+        resourceView->resource.pCold->desc.resourceViewDesc.textureViewDesc.pTexture       = texture;
+        resourceView->resource.pCold->desc.resourceViewDesc.textureViewDesc.baseMip        = 0;
+        resourceView->resource.pCold->desc.resourceViewDesc.textureViewDesc.baseArrayLayer = 0;
+        resourceView->resource.pCold->desc.resourceViewDesc.textureViewDesc.dimension      = RAZIX_RESOURCE_VIEW_DIMENSION_FULL;
+        resourceView->vk.imageView                                                         = swapchain->vk.imageViews[i];
 
         RAZIX_RHI_LOG_TRACE("Created texture and resource view wrapper for swapchain image %u", i);
     }
@@ -2307,7 +2307,7 @@ static void vk_util_create_buffer_view(rz_gfx_resource_view* pView)
 {
     RAZIX_RHI_ASSERT(pView != NULL, "Resource view cannot be NULL");
 
-    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.pCold->desc.resourceViewDesc;
     RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL");
 
     rz_gfx_buffer_view_desc* pBufferViewDesc = &pViewDesc->bufferViewDesc;
@@ -2316,7 +2316,7 @@ static void vk_util_create_buffer_view(rz_gfx_resource_view* pView)
     const rz_gfx_buffer* pBuffer = pBufferViewDesc->pBuffer;
     RAZIX_RHI_ASSERT(pBuffer != NULL, "Buffer resource cannot be NULL");
 
-    const rz_gfx_buffer_desc* pBufferDesc = &pBuffer->resource.desc.bufferDesc;
+    const rz_gfx_buffer_desc* pBufferDesc = &pBuffer->resource.pCold->desc.bufferDesc;
     RAZIX_RHI_ASSERT(pBufferDesc != NULL, "Buffer description cannot be NULL");
 
     VkBufferViewCreateInfo bufferViewCreateInfo = {0};
@@ -2329,14 +2329,14 @@ static void vk_util_create_buffer_view(rz_gfx_resource_view* pView)
     bufferViewCreateInfo.range                  = pBufferViewDesc->size;
 
     CHECK_VK(vkCreateBufferView(VKDEVICE, &bufferViewCreateInfo, NULL, &pView->vk.bufferView));
-    TAG_OBJECT(pView->vk.bufferView, VK_OBJECT_TYPE_BUFFER_VIEW, pView->resource.pName);
+    TAG_OBJECT(pView->vk.bufferView, VK_OBJECT_TYPE_BUFFER_VIEW, pView->resource.pCold->pName);
 }
 
 static void vk_util_create_image_view(rz_gfx_resource_view* pView)
 {
     RAZIX_RHI_ASSERT(pView != NULL, "Resource view cannot be NULL");
 
-    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.pCold->desc.resourceViewDesc;
     RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL");
 
     rz_gfx_texture_view_desc* pTexViewDesc = &pViewDesc->textureViewDesc;
@@ -2345,7 +2345,7 @@ static void vk_util_create_image_view(rz_gfx_resource_view* pView)
     const rz_gfx_texture* pTexture = pTexViewDesc->pTexture;
     RAZIX_RHI_ASSERT(pTexture != NULL, "Texture resource cannot be NULL");
 
-    const rz_gfx_texture_desc* pTexDesc = &pTexture->resource.desc.textureDesc;
+    const rz_gfx_texture_desc* pTexDesc = &pTexture->resource.pCold->desc.textureDesc;
     RAZIX_RHI_ASSERT(pTexDesc != NULL, "Texture description cannot be NULL");
 
     VkImageViewCreateInfo imageViewCreateInfo = {0};
@@ -2368,16 +2368,16 @@ static void vk_util_create_image_view(rz_gfx_resource_view* pView)
     imageViewCreateInfo.subresourceRange.layerCount     = pTexDesc->arraySize;
 
     CHECK_VK(vkCreateImageView(VKDEVICE, &imageViewCreateInfo, NULL, &pView->vk.imageView));
-    TAG_OBJECT(pView->vk.imageView, VK_OBJECT_TYPE_IMAGE_VIEW, pView->resource.pName);
+    TAG_OBJECT(pView->vk.imageView, VK_OBJECT_TYPE_IMAGE_VIEW, pView->resource.pCold->pName);
 }
 
 static void vk_util_transition_subresource(vk_cmdbuf cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState, uint32_t mipBase, uint32_t mipCount, uint32_t layerBase, uint32_t layerCount)
 {
     RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
-    RAZIX_RHI_ASSERT((mipBase + mipCount) <= texture->resource.desc.textureDesc.mipLevels, "Mip range out of bounds");
-    RAZIX_RHI_ASSERT((layerBase + layerCount) <= texture->resource.desc.textureDesc.arraySize, "Layer range out of bounds");
+    RAZIX_RHI_ASSERT((mipBase + mipCount) <= texture->resource.pCold->desc.textureDesc.mipLevels, "Mip range out of bounds");
+    RAZIX_RHI_ASSERT((layerBase + layerCount) <= texture->resource.pCold->desc.textureDesc.arraySize, "Layer range out of bounds");
 
-    VkImageAspectFlags aspectMask = vk_util_deduce_image_aspect_flags(texture->resource.desc.textureDesc.format);
+    VkImageAspectFlags aspectMask = vk_util_deduce_image_aspect_flags(texture->resource.pCold->desc.textureDesc.format);
 
     uint32_t              barrierCount = mipCount * layerCount;
     VkImageMemoryBarrier* barriers     = (VkImageMemoryBarrier*) alloca(sizeof(VkImageMemoryBarrier) * barrierCount);
@@ -2418,7 +2418,7 @@ static void vk_util_transition_subresource(vk_cmdbuf cmdBuf, rz_gfx_texture* tex
         barrierCount,
         barriers    // image barriers
     );
-    texture->resource.currentState = afterState;
+    texture->resource.hot.currentState = afterState;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -2696,13 +2696,13 @@ static void vk_DestroySyncobj(rz_gfx_syncobj* syncobj)
 static void vk_CreateCmdPool(void* where)
 {
     rz_gfx_cmdpool* cmdPool = (rz_gfx_cmdpool*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&cmdPool->resource.handle), "Invalid cmd pool handle, who is allocating this? ResourceManager should create a valid handle");
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&cmdPool->resource.hot.handle), "Invalid cmd pool handle, who is allocating this? ResourceManager should create a valid handle");
 
     VkCommandPoolCreateInfo poolInfo = {0};
     poolInfo.sType                   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.pNext                   = NULL;
     poolInfo.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;    // Allow individual command buffers to be reset
-    switch (cmdPool->resource.desc.cmdpoolDesc.poolType) {
+    switch (cmdPool->resource.pCold->desc.cmdpoolDesc.poolType) {
         case RZ_GFX_CMDPOOL_TYPE_GRAPHICS: poolInfo.queueFamilyIndex = VKCONTEXT.queueFamilyIndices.graphicsFamily; break;
         case RZ_GFX_CMDPOOL_TYPE_COMPUTE: poolInfo.queueFamilyIndex = VKCONTEXT.queueFamilyIndices.computeFamily; break;
         case RZ_GFX_CMDPOOL_TYPE_TRANSFER: poolInfo.queueFamilyIndex = VKCONTEXT.queueFamilyIndices.transferFamily; break;
@@ -2713,7 +2713,7 @@ static void vk_CreateCmdPool(void* where)
     }
 
     CHECK_VK(vkCreateCommandPool(VKDEVICE, &poolInfo, NULL, &cmdPool->vk.cmdPool));
-    TAG_OBJECT(cmdPool->vk.cmdPool, VK_OBJECT_TYPE_COMMAND_POOL, cmdPool->resource.pName);
+    TAG_OBJECT(cmdPool->vk.cmdPool, VK_OBJECT_TYPE_COMMAND_POOL, cmdPool->resource.pCold->pName);
 }
 
 static void vk_DestroyCmdPool(void* cmdPool)
@@ -2728,8 +2728,8 @@ static void vk_DestroyCmdPool(void* cmdPool)
 static void vk_CreateCmdBuf(void* where)
 {
     rz_gfx_cmdbuf* cmdBuf = (rz_gfx_cmdbuf*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&cmdBuf->resource.handle), "Invalid command buffer handle, who is allocating this? ResourceManager should create a valid handle");
-    const rz_gfx_cmdpool* cmdPool = cmdBuf->resource.desc.cmdbufDesc.pool;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&cmdBuf->resource.hot.handle), "Invalid command buffer handle, who is allocating this? ResourceManager should create a valid handle");
+    const rz_gfx_cmdpool* cmdPool = cmdBuf->resource.pCold->desc.cmdbufDesc.pool;
     RAZIX_RHI_ASSERT(cmdPool != NULL, "Command buffer must have a valid command pool");
     RAZIX_RHI_ASSERT(cmdPool->vk.cmdPool != VK_NULL_HANDLE, "Command buffer must have a valid command pool");
 
@@ -2744,7 +2744,7 @@ static void vk_CreateCmdBuf(void* where)
     allocInfo.commandBufferCount          = 1;                                  // Allocate one command buffer at a time
 
     CHECK_VK(vkAllocateCommandBuffers(VKDEVICE, &allocInfo, &cmdBuf->vk.cmdBuf));
-    TAG_OBJECT(cmdBuf->vk.cmdBuf, VK_OBJECT_TYPE_COMMAND_BUFFER, cmdBuf->resource.pName);
+    TAG_OBJECT(cmdBuf->vk.cmdBuf, VK_OBJECT_TYPE_COMMAND_BUFFER, cmdBuf->resource.pCold->pName);
 }
 
 static void vk_DestroyCmdBuf(void* cmdBuf)
@@ -2760,8 +2760,8 @@ static void vk_DestroyCmdBuf(void* cmdBuf)
 static void vk_CreateShader(void* where)
 {
     rz_gfx_shader* shader = (rz_gfx_shader*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&shader->resource.handle), "Invalid shader handle, who is allocating this? ResourceManager should create a valid handle");
-    rz_gfx_shader_desc* desc = &shader->resource.desc.shaderDesc;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&shader->resource.hot.handle), "Invalid shader handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_shader_desc* desc = &shader->resource.pCold->desc.shaderDesc;
 
     uint32_t stageCount = 0;
     switch (desc->pipelineType) {
@@ -2775,7 +2775,7 @@ static void vk_CreateShader(void* where)
                 CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
 
                 char vsName[256];
-                snprintf(vsName, sizeof(vsName), "%s_VS", shader->resource.pName);
+                snprintf(vsName, sizeof(vsName), "%s_VS", shader->resource.pCold->pName);
                 TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, vsName);
                 stageCount++;
             }
@@ -2788,7 +2788,7 @@ static void vk_CreateShader(void* where)
                 CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
 
                 char psName[256];
-                snprintf(psName, sizeof(psName), "%s_PS", shader->resource.pName);
+                snprintf(psName, sizeof(psName), "%s_PS", shader->resource.pCold->pName);
                 TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, psName);
                 stageCount++;
             }
@@ -2801,7 +2801,7 @@ static void vk_CreateShader(void* where)
                 CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
 
                 char gsName[256];
-                snprintf(gsName, sizeof(gsName), "%s_GS", shader->resource.pName);
+                snprintf(gsName, sizeof(gsName), "%s_GS", shader->resource.pCold->pName);
                 TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, gsName);
                 stageCount++;
             }
@@ -2814,7 +2814,7 @@ static void vk_CreateShader(void* where)
                 CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
 
                 char tcsName[256];
-                snprintf(tcsName, sizeof(tcsName), "%s_TCS", shader->resource.pName);
+                snprintf(tcsName, sizeof(tcsName), "%s_TCS", shader->resource.pCold->pName);
                 TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, tcsName);
                 stageCount++;
             }
@@ -2827,7 +2827,7 @@ static void vk_CreateShader(void* where)
                 CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
 
                 char tesName[256];
-                snprintf(tesName, sizeof(tesName), "%s_TES", shader->resource.pName);
+                snprintf(tesName, sizeof(tesName), "%s_TES", shader->resource.pCold->pName);
                 TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, tesName);
                 stageCount++;
             }
@@ -2840,7 +2840,7 @@ static void vk_CreateShader(void* where)
                 CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
 
                 char taskName[256];
-                snprintf(taskName, sizeof(taskName), "%s_TASK", shader->resource.pName);
+                snprintf(taskName, sizeof(taskName), "%s_TASK", shader->resource.pCold->pName);
                 TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, taskName);
                 stageCount++;
             }
@@ -2853,7 +2853,7 @@ static void vk_CreateShader(void* where)
                 CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
 
                 char meshName[256];
-                snprintf(meshName, sizeof(meshName), "%s_MESH", shader->resource.pName);
+                snprintf(meshName, sizeof(meshName), "%s_MESH", shader->resource.pCold->pName);
                 TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, meshName);
                 stageCount++;
             }
@@ -2868,7 +2868,7 @@ static void vk_CreateShader(void* where)
                 CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
 
                 char csName[256];
-                snprintf(csName, sizeof(csName), "%s_CS", shader->resource.pName);
+                snprintf(csName, sizeof(csName), "%s_CS", shader->resource.pCold->pName);
                 TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, csName);
                 stageCount++;
             }
@@ -2883,7 +2883,7 @@ static void vk_CreateShader(void* where)
                 CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
 
                 char rgenName[256];
-                snprintf(rgenName, sizeof(rgenName), "%s_RGEN", shader->resource.pName);
+                snprintf(rgenName, sizeof(rgenName), "%s_RGEN", shader->resource.pCold->pName);
                 TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, rgenName);
                 stageCount++;
             }
@@ -2896,7 +2896,7 @@ static void vk_CreateShader(void* where)
                 CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
 
                 char missName[256];
-                snprintf(missName, sizeof(missName), "%s_MISS", shader->resource.pName);
+                snprintf(missName, sizeof(missName), "%s_MISS", shader->resource.pCold->pName);
                 TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, missName);
                 stageCount++;
             }
@@ -2909,7 +2909,7 @@ static void vk_CreateShader(void* where)
                 CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
 
                 char chitName[256];
-                snprintf(chitName, sizeof(chitName), "%s_CHIT", shader->resource.pName);
+                snprintf(chitName, sizeof(chitName), "%s_CHIT", shader->resource.pCold->pName);
                 TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, chitName);
                 stageCount++;
             }
@@ -2922,7 +2922,7 @@ static void vk_CreateShader(void* where)
                 CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
 
                 char ahitName[256];
-                snprintf(ahitName, sizeof(ahitName), "%s_AHIT", shader->resource.pName);
+                snprintf(ahitName, sizeof(ahitName), "%s_AHIT", shader->resource.pCold->pName);
                 TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, ahitName);
                 stageCount++;
             }
@@ -2935,7 +2935,7 @@ static void vk_CreateShader(void* where)
                 CHECK_VK(vkCreateShaderModule(VKDEVICE, &createInfo, NULL, &shader->vk.modules[stageCount]));
 
                 char callableName[256];
-                snprintf(callableName, sizeof(callableName), "%s_CALLABLE", shader->resource.pName);
+                snprintf(callableName, sizeof(callableName), "%s_CALLABLE", shader->resource.pCold->pName);
                 TAG_OBJECT(shader->vk.modules[stageCount], VK_OBJECT_TYPE_SHADER_MODULE, callableName);
                 stageCount++;
             }
@@ -2963,9 +2963,9 @@ static void vk_DestroyShader(void* shader)
 static void vk_CreateRootSignature(void* where)
 {
     rz_gfx_root_signature* rootSig = (rz_gfx_root_signature*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&rootSig->resource.handle), "Invalid rootsignature handle, who is allocating this? ResourceManager should create a valid handle");
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&rootSig->resource.hot.handle), "Invalid rootsignature handle, who is allocating this? ResourceManager should create a valid handle");
 
-    const rz_gfx_root_signature_desc* desc = &rootSig->resource.desc.rootSignatureDesc;
+    const rz_gfx_root_signature_desc* desc = &rootSig->resource.pCold->desc.rootSignatureDesc;
 
     VkDescriptorSetLayout descriptorSetLayouts[RAZIX_MAX_DESCRIPTOR_TABLES] = {VK_NULL_HANDLE};
     VkPushConstantRange   pushConstantRanges[RAZIX_MAX_ROOT_CONSTANTS]      = {0};
@@ -3031,7 +3031,7 @@ static void vk_CreateRootSignature(void* where)
     pipelineLayoutInfo.pPushConstantRanges        = pushConstantRanges;
 
     CHECK_VK(vkCreatePipelineLayout(VKDEVICE, &pipelineLayoutInfo, NULL, &rootSig->vk.pipelineLayout));
-    TAG_OBJECT(rootSig->vk.pipelineLayout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, rootSig->resource.pName);
+    TAG_OBJECT(rootSig->vk.pipelineLayout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, rootSig->resource.pCold->pName);
 
     // Cleanup descriptor set layouts as they are baked into the pipeline layout now
     for (uint32_t cleanupIdx = 0; cleanupIdx < desc->descriptorTableLayoutsCount; cleanupIdx++) {
@@ -3055,12 +3055,12 @@ static void vk_DestroyRootSignature(void* ptr)
 static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
 {
     rz_gfx_pipeline*             pso         = (rz_gfx_pipeline*) pipeline;
-    const rz_gfx_pipeline_desc*  desc        = &pso->resource.desc.pipelineDesc;
+    const rz_gfx_pipeline_desc*  desc        = &pso->resource.pCold->desc.pipelineDesc;
     const rz_gfx_shader*         pShader     = desc->pShader;
     const rz_gfx_root_signature* pRootSig    = desc->pRootSig;
-    const rz_gfx_shader_desc*    pShaderDesc = &pShader->resource.desc.shaderDesc;
+    const rz_gfx_shader_desc*    pShaderDesc = &pShader->resource.pCold->desc.shaderDesc;
 
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.hot.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
     RAZIX_RHI_ASSERT(desc != NULL, "Pipeline must have a valid description");
     RAZIX_RHI_ASSERT(desc->pShader != NULL, "Pipeline must have a valid shader");
     RAZIX_RHI_ASSERT(desc->pRootSig != NULL, "Pipeline must have a valid root signature");
@@ -3352,17 +3352,17 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
 
     // TODO: use pipeline cache for faster load times
     CHECK_VK(vkCreateGraphicsPipelines(VKDEVICE, VK_NULL_HANDLE, 1, &graphicsPipelineCI, NULL, &pso->vk.pipeline));
-    TAG_OBJECT(pso->vk.pipeline, VK_OBJECT_TYPE_PIPELINE, pso->resource.pName);
+    TAG_OBJECT(pso->vk.pipeline, VK_OBJECT_TYPE_PIPELINE, pso->resource.pCold->pName);
 }
 
 static void vk_CreateComputePipeline(rz_gfx_pipeline* pipeline)
 {
     rz_gfx_pipeline*             pso      = (rz_gfx_pipeline*) pipeline;
-    const rz_gfx_pipeline_desc*  desc     = &pso->resource.desc.pipelineDesc;
+    const rz_gfx_pipeline_desc*  desc     = &pso->resource.pCold->desc.pipelineDesc;
     const rz_gfx_shader*         pShader  = desc->pShader;
     const rz_gfx_root_signature* pRootSig = desc->pRootSig;
 
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.hot.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
     RAZIX_RHI_ASSERT(desc != NULL, "Pipeline must have a valid description");
     RAZIX_RHI_ASSERT(desc->pShader != NULL, "Pipeline must have a valid shader");
     RAZIX_RHI_ASSERT(desc->pRootSig != NULL, "Pipeline must have a valid root signature");
@@ -3389,17 +3389,17 @@ static void vk_CreateComputePipeline(rz_gfx_pipeline* pipeline)
     computePipelineCI.stage                       = shaderStageCI;
 
     CHECK_VK(vkCreateComputePipelines(VKDEVICE, VK_NULL_HANDLE, 1, &computePipelineCI, NULL, &pipeline->vk.pipeline));
-    TAG_OBJECT(pipeline->vk.pipeline, VK_OBJECT_TYPE_PIPELINE, pipeline->resource.pName);
+    TAG_OBJECT(pipeline->vk.pipeline, VK_OBJECT_TYPE_PIPELINE, pipeline->resource.pCold->pName);
 }
 
 static void vk_CreatePipeline(void* pipeline)
 {
     rz_gfx_pipeline* pso = (rz_gfx_pipeline*) pipeline;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.hot.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
 
-    if (pso->resource.desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
+    if (pso->resource.pCold->desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
         vk_CreateGraphicsPipeline(pso);
-    else if (pso->resource.desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_COMPUTE)
+    else if (pso->resource.pCold->desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_COMPUTE)
         vk_CreateComputePipeline(pso);
     else
         RAZIX_RHI_LOG_ERROR("Raytracing pipelines are not supported in Vulkan backend yet!");
@@ -3417,13 +3417,13 @@ static void vk_DestroyPipeline(void* pipeline)
 static void vk_CreateTexture(void* where)
 {
     rz_gfx_texture* texture = (rz_gfx_texture*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&texture->resource.handle), "Invalid texture handle, who is allocating this? ResourceManager should create a valid handle");
-    rz_gfx_texture_desc* desc = &texture->resource.desc.textureDesc;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&texture->resource.hot.handle), "Invalid texture handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_texture_desc* desc = &texture->resource.pCold->desc.textureDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Texture descriptor cannot be NULL");
     RAZIX_RHI_ASSERT(desc->width > 0 && desc->height > 0 && desc->depth > 0, "Texture dimensions must be greater than zero");
 
     // Maintain a second copy of hints...Ahhh...
-    texture->resource.viewHints = desc->resourceHints;
+    texture->resource.hot.viewHints = desc->resourceHints;
 
     // Create VkImage
     VkImageCreateInfo imageInfo = {
@@ -3443,7 +3443,7 @@ static void vk_CreateTexture(void* where)
         .samples     = VK_SAMPLE_COUNT_1_BIT,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
 
-    texture->resource.currentState = RZ_GFX_RESOURCE_STATE_UNDEFINED;
+    texture->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_UNDEFINED;
 
     // Set usage flags based on resource hints
     if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV)
@@ -3456,7 +3456,7 @@ static void vk_CreateTexture(void* where)
 
     // Create the image
     CHECK_VK(vkCreateImage(VKDEVICE, &imageInfo, NULL, &texture->vk.image));
-    TAG_OBJECT(texture->vk.image, VK_OBJECT_TYPE_IMAGE, texture->resource.pName);
+    TAG_OBJECT(texture->vk.image, VK_OBJECT_TYPE_IMAGE, texture->resource.pCold->pName);
 
     // Allocate memory for the image
     VkMemoryRequirements memRequirements;
@@ -3476,22 +3476,22 @@ static void vk_CreateTexture(void* where)
 
     vkBindImageMemory(VKDEVICE, texture->vk.image, texture->vk.memory, 0);
     char memoryName[256];
-    snprintf(memoryName, sizeof(memoryName), "%s_Memory", texture->resource.pName);
+    snprintf(memoryName, sizeof(memoryName), "%s_Memory", texture->resource.pCold->pName);
     TAG_OBJECT(texture->vk.memory, VK_OBJECT_TYPE_DEVICE_MEMORY, memoryName);
 
     // convert to general layout if there's a chance to be used as an UAV
     if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV) {
         vk_cmdbuf cmdBuf = vk_util_begin_singletime_cmdlist();
-        vk_util_transition_subresource(cmdBuf, texture, RZ_GFX_RESOURCE_STATE_UNDEFINED, RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS, 0, texture->resource.desc.textureDesc.mipLevels, 0, texture->resource.desc.textureDesc.arraySize);
+        vk_util_transition_subresource(cmdBuf, texture, RZ_GFX_RESOURCE_STATE_UNDEFINED, RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS, 0, texture->resource.pCold->desc.textureDesc.mipLevels, 0, texture->resource.pCold->desc.textureDesc.arraySize);
         vk_util_end_singletime_cmdlist(cmdBuf);
-        texture->resource.currentState = RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS;
+        texture->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS;
     }
 
     // Upload pixel data if provided
     if (desc->pPixelData != NULL) {
         RAZIX_RHI_LOG_INFO("Uploading pixel data for texture");
         vk_util_upload_pixel_data(texture, desc);
-        texture->resource.currentState = RZ_GFX_RESOURCE_STATE_SHADER_READ;
+        texture->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_SHADER_READ;
     }
 }
 
@@ -3514,8 +3514,8 @@ static void vk_DestroyTexture(void* texture)
 static void vk_CreateSampler(void* where)
 {
     rz_gfx_sampler* sampler = (rz_gfx_sampler*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&sampler->resource.handle), "Invalid sampler handle, who is allocating this? ResourceManager should create a valid handle");
-    rz_gfx_sampler_desc* desc = &sampler->resource.desc.samplerDesc;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&sampler->resource.hot.handle), "Invalid sampler handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_sampler_desc* desc = &sampler->resource.pCold->desc.samplerDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Sampler description cannot be null");
 
     VkSamplerCreateInfo samplerInfo     = {0};
@@ -3538,7 +3538,7 @@ static void vk_CreateSampler(void* where)
     samplerInfo.maxLod                  = desc->maxLod;
 
     CHECK_VK(vkCreateSampler(VKDEVICE, &samplerInfo, NULL, &sampler->vk.sampler));
-    TAG_OBJECT(sampler->vk.sampler, VK_OBJECT_TYPE_SAMPLER, sampler->resource.pName);
+    TAG_OBJECT(sampler->vk.sampler, VK_OBJECT_TYPE_SAMPLER, sampler->resource.pCold->pName);
 }
 
 static void vk_DestroySampler(void* sampler)
@@ -3553,13 +3553,13 @@ static void vk_DestroySampler(void* sampler)
 static void vk_CreateBuffer(void* where)
 {
     rz_gfx_buffer* buffer = (rz_gfx_buffer*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&buffer->resource.handle), "Invalid buffer handle, who is allocating this? ResourceManager should create a valid handle");
-    rz_gfx_buffer_desc* desc = &buffer->resource.desc.bufferDesc;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&buffer->resource.hot.handle), "Invalid buffer handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_buffer_desc* desc = &buffer->resource.pCold->desc.bufferDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Buffer description cannot be null");
     RAZIX_RHI_ASSERT(desc->sizeInBytes > 0, "Buffer size must be greater than zero");
 
     // Maintain a second copy of hints...Ahhh...
-    buffer->resource.viewHints = desc->resourceHints;
+    buffer->resource.hot.viewHints = desc->resourceHints;
 
 #ifdef RAZIX_DEBUG
     if (desc->type == RZ_GFX_BUFFER_TYPE_STRUCTURED || desc->type == RZ_GFX_BUFFER_TYPE_RW_STRUCTURED) {
@@ -3646,7 +3646,7 @@ static void vk_CreateBuffer(void* where)
     }
 
     CHECK_VK(vkCreateBuffer(VKDEVICE, &bufferInfo, NULL, &buffer->vk.buffer));
-    TAG_OBJECT(buffer->vk.buffer, VK_OBJECT_TYPE_BUFFER, buffer->resource.pName);
+    TAG_OBJECT(buffer->vk.buffer, VK_OBJECT_TYPE_BUFFER, buffer->resource.pCold->pName);
 
     // Allocate memory for the buffer
     VkMemoryRequirements memRequirements;
@@ -3693,7 +3693,7 @@ static void vk_CreateBuffer(void* where)
 
     vkBindBufferMemory(VKDEVICE, buffer->vk.buffer, buffer->vk.memory, 0);
     char memoryName[256];
-    snprintf(memoryName, sizeof(memoryName), "%s_Memory", buffer->resource.pName);
+    snprintf(memoryName, sizeof(memoryName), "%s_Memory", buffer->resource.pCold->pName);
     TAG_OBJECT(buffer->vk.memory, VK_OBJECT_TYPE_DEVICE_MEMORY, memoryName);
 
     if (desc->pInitData != NULL) {
@@ -3733,8 +3733,8 @@ static void vk_DestroyBuffer(void* buffer)
 static void vk_CreateResourceView(void* where)
 {
     rz_gfx_resource_view* pView = (rz_gfx_resource_view*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pView->resource.handle), "Invalid resource view handle, who is allocating this? ResourceManager should create a valid handle");
-    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pView->resource.hot.handle), "Invalid resource view handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.pCold->desc.resourceViewDesc;
     RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL");
     RAZIX_RHI_ASSERT(pViewDesc->descriptorType != RZ_GFX_DESCRIPTOR_TYPE_NONE, "Resource view descriptor type cannot be none");
 
@@ -3761,7 +3761,7 @@ static void vk_DestroyResourceView(void* view)
 {
     rz_gfx_resource_view* pView = (rz_gfx_resource_view*) view;
     RAZIX_RHI_ASSERT(pView != NULL, "Resource view is NULL, cannot destroy");
-    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.pCold->desc.resourceViewDesc;
     RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL");
 
     if (rzRHI_IsDescriptorTypeTexture(pViewDesc->descriptorType)) {
@@ -3782,8 +3782,8 @@ static void vk_CreateDescriptorHeap(void* where)
 {
     rz_gfx_descriptor_heap* heap = (rz_gfx_descriptor_heap*) where;
     RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&heap->resource.handle), "Invalid descriptor heap handle, who is allocating this? ResourceManager should create a valid handle");
-    rz_gfx_descriptor_heap_desc* desc = &heap->resource.desc.descriptorHeapDesc;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&heap->resource.hot.handle), "Invalid descriptor heap handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_descriptor_heap_desc* desc = &heap->resource.pCold->desc.descriptorHeapDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
 
     // Create pool sizes for all descriptor types we might need
@@ -3844,7 +3844,7 @@ static void vk_CreateDescriptorHeap(void* where)
     }
 
     RAZIX_RHI_LOG_INFO("Vulkan Descriptor Pool created successfully with %d max sets", totalDescriptors);
-    TAG_OBJECT(heap->vk.pool, VK_OBJECT_TYPE_DESCRIPTOR_POOL, heap->resource.pName);
+    TAG_OBJECT(heap->vk.pool, VK_OBJECT_TYPE_DESCRIPTOR_POOL, heap->resource.pCold->pName);
 
     heap->vk.allocatedSets = 0;
 
@@ -3873,7 +3873,7 @@ static void vk_util_update_descriptor_set(VkDescriptorSet descriptorSet,
 
     for (uint32_t i = 0; i < resourceViewsCount; i++) {
         const rz_gfx_resource_view*      pView     = &pResourceViews[i];
-        const rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+        const rz_gfx_resource_view_desc* pViewDesc = &pView->resource.pCold->desc.resourceViewDesc;
         RAZIX_RHI_ASSERT(pView != NULL, "Resource view cannot be NULL in a descriptor table! (Descriptor Table creation)");
         RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL in a descriptor table! (Descriptor Table creation)");
         RAZIX_RHI_ASSERT(pViewDesc->descriptorType != RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED, "Descriptor type cannot be Combined Image sampler, due to cross-API nature vulkan backend doesn't support it!");
@@ -3895,7 +3895,7 @@ static void vk_util_update_descriptor_set(VkDescriptorSet descriptorSet,
             pWrites[i].descriptorType        = vk_util_translate_descriptor_type(pViewDesc->descriptorType);
             VkDescriptorImageInfo* imageInfo = alloca(sizeof(VkDescriptorImageInfo));
             imageInfo->imageView             = pView->vk.imageView;
-            imageInfo->imageLayout           = vk_util_translate_imagelayout_resstate(pTexture->resource.currentState);
+            imageInfo->imageLayout           = vk_util_translate_imagelayout_resstate(pTexture->resource.hot.currentState);
             imageInfo->sampler               = VK_NULL_HANDLE;    // Only for combined image samplers
             pWrites[i].pImageInfo            = imageInfo;
             pWrites[i].pBufferInfo           = NULL;
@@ -3957,9 +3957,9 @@ static void vk_util_update_descriptor_set(VkDescriptorSet descriptorSet,
 static void vk_CreateDescriptorTable(void* where)
 {
     rz_gfx_descriptor_table* pTable = (rz_gfx_descriptor_table*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pTable->resource.handle), "Invalid table handle, who is allocating this? ResourceManager should create a valid handle");
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pTable->resource.hot.handle), "Invalid table handle, who is allocating this? ResourceManager should create a valid handle");
 
-    rz_gfx_descriptor_table_desc* pDesc = &pTable->resource.desc.descriptorTableDesc;
+    rz_gfx_descriptor_table_desc* pDesc = &pTable->resource.pCold->desc.descriptorTableDesc;
     RAZIX_RHI_ASSERT(pDesc != NULL, "Descriptor table descriptor cannot be NULL");
     RAZIX_RHI_ASSERT(pDesc->descriptorCount > 0, "Descriptor table should have atleast 1 descriptor");
     RAZIX_RHI_ASSERT(pDesc->pDescriptors != NULL, "Descriptor table cannot have NULL descriprtors");
@@ -3985,7 +3985,7 @@ static void vk_CreateDescriptorTable(void* where)
     layoutInfo.bindingCount                    = pDesc->descriptorCount;
     layoutInfo.pBindings                       = pBindings;
     CHECK_VK(vkCreateDescriptorSetLayout(VKDEVICE, &layoutInfo, NULL, &pTable->vk.setLayout));
-    TAG_OBJECT(pTable->vk.setLayout, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, pTable->resource.pName);
+    TAG_OBJECT(pTable->vk.setLayout, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, pTable->resource.pCold->pName);
 
     VkDescriptorSetAllocateInfo allocInfo = {0};
     allocInfo.sType                       = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -3996,7 +3996,7 @@ static void vk_CreateDescriptorTable(void* where)
     RAZIX_RHI_ASSERT(allocInfo.descriptorPool != VK_NULL_HANDLE, "Descriptor pool in the heap is invalid");
     RAZIX_RHI_ASSERT(allocInfo.pSetLayouts != VK_NULL_HANDLE, "Descriptor set layout in the heap is invalid");
     CHECK_VK(vkAllocateDescriptorSets(VKDEVICE, &allocInfo, &pTable->vk.set));
-    TAG_OBJECT(pTable->vk.set, VK_OBJECT_TYPE_DESCRIPTOR_SET, pTable->resource.pName);
+    TAG_OBJECT(pTable->vk.set, VK_OBJECT_TYPE_DESCRIPTOR_SET, pTable->resource.pCold->pName);
 }
 
 static void vk_UpdateDescriptorTable(rz_gfx_descriptor_table_update tableUpdate)
@@ -4337,12 +4337,12 @@ static void vk_BindPipeline(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_pipeline* 
 
     // Determine the pipeline bind point based on pipeline type
     VkPipelineBindPoint bindPoint;
-    if (pipeline->resource.desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_GRAPHICS) {
+    if (pipeline->resource.pCold->desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_GRAPHICS) {
         bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    } else if (pipeline->resource.desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_COMPUTE) {
+    } else if (pipeline->resource.pCold->desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_COMPUTE) {
         bindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
     } else {
-        RAZIX_RHI_LOG_ERROR("Unknown pipeline type: %d", pipeline->resource.desc.pipelineDesc.type);
+        RAZIX_RHI_LOG_ERROR("Unknown pipeline type: %d", pipeline->resource.pCold->desc.pipelineDesc.type);
         return;
     }
 
@@ -4511,16 +4511,16 @@ static void vk_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
 {
     RAZIX_RHI_ASSERT(updatedesc.pBuffer != NULL, "Buffer cannot be NULL");
     RAZIX_RHI_ASSERT(updatedesc.sizeInBytes > 0, "Size in bytes must be greater than zero");
-    RAZIX_RHI_ASSERT(updatedesc.offset + updatedesc.sizeInBytes <= updatedesc.pBuffer->resource.desc.bufferDesc.sizeInBytes, "Update range exceeds buffer size");
+    RAZIX_RHI_ASSERT(updatedesc.offset + updatedesc.sizeInBytes <= updatedesc.pBuffer->resource.pCold->desc.bufferDesc.sizeInBytes, "Update range exceeds buffer size");
     RAZIX_RHI_ASSERT(updatedesc.pData != NULL, "Data pointer cannot be NULL");
-    RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.desc.bufferDesc.type & RZ_GFX_BUFFER_TYPE_CONSTANT) == RZ_GFX_BUFFER_TYPE_CONSTANT, "Buffer must be of type RZ_GFX_BUFFER_TYPE_CONSTANT to update");
+    RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.pCold->desc.bufferDesc.type & RZ_GFX_BUFFER_TYPE_CONSTANT) == RZ_GFX_BUFFER_TYPE_CONSTANT, "Buffer must be of type RZ_GFX_BUFFER_TYPE_CONSTANT to update");
     RAZIX_RHI_ASSERT(
-        (updatedesc.pBuffer->resource.desc.bufferDesc.usage & (RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC | RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)),
+        (updatedesc.pBuffer->resource.pCold->desc.bufferDesc.usage & (RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC | RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)),
         "Buffer must be created with RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC or RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM usage flag");
     // TODO: When using VMA, ignore mapping/unmapping for persistent mapped buffers
     // TODO: Store the mapped pointer in the buffer struct to avoid mapping/unmapping every time for persistent mapped buffers
 
-    //if(updatedesc.pBuffer->resource.desc.bufferDesc.usage == RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM) {
+    //if(updatedesc.pBuffer->resource.pCold->desc.bufferDesc.usage == RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM) {
     //   // cache the mapped pointer
     //}
 
@@ -4540,11 +4540,11 @@ static void vk_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* t
     RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
     RAZIX_RHI_ASSERT(beforeState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "Before state cannot be undefined");
     RAZIX_RHI_ASSERT(afterState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "After state cannot be undefined");
-    RAZIX_RHI_ASSERT(!(texture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) ||
+    RAZIX_RHI_ASSERT(!(texture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) ||
                          (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS || afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS),
         "UAV barriers must be used only with UAV resources. If the resource has UAV view hint, either before or after state must be UAV");
     RAZIX_RHI_ASSERT(!(beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS) ||
-                         (texture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
+                         (texture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
         "UAV-to-UAV barrier requires resource to have UAV view hint");
 
     bool isUAVBarrier = (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -4585,11 +4585,11 @@ static void vk_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* t
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = texture->vk.image,
         .subresourceRange    = {
-               .aspectMask     = vk_util_deduce_image_aspect_flags(texture->resource.desc.textureDesc.format),
+               .aspectMask     = vk_util_deduce_image_aspect_flags(texture->resource.pCold->desc.textureDesc.format),
                .baseMipLevel   = 0,
-               .levelCount     = texture->resource.desc.textureDesc.mipLevels,
+               .levelCount     = texture->resource.pCold->desc.textureDesc.mipLevels,
                .baseArrayLayer = 0,
-               .layerCount     = texture->resource.desc.textureDesc.arraySize},
+               .layerCount     = texture->resource.pCold->desc.textureDesc.arraySize},
     };
 
     vkCmdPipelineBarrier(
@@ -4605,7 +4605,7 @@ static void vk_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* t
         &imageBarrier);    // Image barriers
 
     // Update the current state
-    texture->resource.currentState = afterState;
+    texture->resource.hot.currentState = afterState;
 }
 
 static void vk_InsertBufferBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_buffer* buffer, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
@@ -4614,11 +4614,11 @@ static void vk_InsertBufferBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_buffer* b
     RAZIX_RHI_ASSERT(buffer != NULL, "Buffer cannot be NULL");
     RAZIX_RHI_ASSERT(beforeState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "Before state cannot be undefined");
     RAZIX_RHI_ASSERT(afterState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "After state cannot be undefined");
-    RAZIX_RHI_ASSERT(!(buffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) ||
+    RAZIX_RHI_ASSERT(!(buffer->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) ||
                          (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS || afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS),
         "UAV barriers must be used only with UAV resources. If the resource has UAV view hint, either before or after state must be UAV");
     RAZIX_RHI_ASSERT(!(beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS) ||
-                         (buffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
+                         (buffer->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
         "UAV-to-UAV barrier requires resource to have UAV view hint");
 
     bool isUAVBarrier = (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -4673,7 +4673,7 @@ static void vk_InsertBufferBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_buffer* b
         NULL);    // Image barriers
 
     // Update the current state
-    buffer->resource.currentState = afterState;
+    buffer->resource.hot.currentState = afterState;
 }
 
 static void vk_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_texture_readback* readback)
@@ -4681,7 +4681,7 @@ static void vk_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_textu
     RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
     RAZIX_RHI_ASSERT(readback != NULL, "Readback structure cannot be NULL");
 
-    const rz_gfx_texture_desc* desc = &texture->resource.desc.textureDesc;
+    const rz_gfx_texture_desc* desc = &texture->resource.pCold->desc.textureDesc;
     // TODO: RAZIX_RHI_ASSERT(desc->flags & RZ_GFX_TEXTURE_FLAG_ALLOW_CPU_READ, "Texture must be created with RZ_GFX_TEXTURE_FLAG_ALLOW_CPU_READ flag to readback");
 
     VkImage  srcImage = texture->vk.image;
@@ -4716,13 +4716,13 @@ static void vk_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_textu
     CHECK_VK(vkAllocateMemory(VKDEVICE, &allocInfo, NULL, &stagingBufferMemory));
     CHECK_VK(vkBindBufferMemory(VKDEVICE, stagingBuffer, stagingBufferMemory, 0));
 
-    VkAccessFlags      srcAccessMask = vk_util_access_flags_translate(texture->resource.currentState);
+    VkAccessFlags      srcAccessMask = vk_util_access_flags_translate(texture->resource.hot.currentState);
     VkImageAspectFlags aspectFlags   = vk_util_deduce_image_aspect_flags(desc->format);
 
     // Transition texture to transfer source layout
     VkImageMemoryBarrier barrier = {
         .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-        .oldLayout           = vk_util_translate_imagelayout_resstate(texture->resource.currentState),
+        .oldLayout           = vk_util_translate_imagelayout_resstate(texture->resource.hot.currentState),
         .newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
@@ -4766,7 +4766,7 @@ static void vk_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_textu
     VkImageMemoryBarrier restoreBarrier = {
         .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
         .oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-        .newLayout           = vk_util_translate_imagelayout_resstate(texture->resource.currentState),
+        .newLayout           = vk_util_translate_imagelayout_resstate(texture->resource.hot.currentState),
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = srcImage,
@@ -4823,7 +4823,7 @@ static void vk_InsertBufferReadback(const rz_gfx_buffer* buffer, rz_gfx_buffer_r
     RAZIX_RHI_ASSERT(readback != NULL, "Readback structure cannot be NULL");
 
     VkBuffer srcBuffer = buffer->vk.buffer;
-    uint32_t size      = buffer->resource.desc.bufferDesc.sizeInBytes;
+    uint32_t size      = buffer->resource.pCold->desc.bufferDesc.sizeInBytes;
 
     vk_cmdbuf cmdBuf = vk_util_begin_singletime_cmdlist();
 
@@ -4852,7 +4852,7 @@ static void vk_InsertBufferReadback(const rz_gfx_buffer* buffer, rz_gfx_buffer_r
     CHECK_VK(vkAllocateMemory(VKDEVICE, &allocInfo, NULL, &stagingBufferMemory));
     CHECK_VK(vkBindBufferMemory(VKDEVICE, stagingBuffer, stagingBufferMemory, 0));
 
-    VkAccessFlags srcAccessMask = vk_util_access_flags_translate(buffer->resource.currentState);
+    VkAccessFlags srcAccessMask = vk_util_access_flags_translate(buffer->resource.hot.currentState);
 
     // Transition buffer to transfer source
     VkBufferMemoryBarrier barrier = {
@@ -4937,11 +4937,11 @@ static void vk_CopyBuffer(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* src,
     RAZIX_RHI_ASSERT(src != NULL, "Source buffer cannot be NULL");
     RAZIX_RHI_ASSERT(dst != NULL, "Destination buffer cannot be NULL");
     RAZIX_RHI_ASSERT(size > 0, "Size must be greater than zero");
-    RAZIX_RHI_ASSERT(srcOffset + size <= src->resource.desc.bufferDesc.sizeInBytes, "Source buffer copy range exceeds buffer size");
-    RAZIX_RHI_ASSERT(dstOffset + size <= dst->resource.desc.bufferDesc.sizeInBytes, "Destination buffer copy range exceeds buffer size");
+    RAZIX_RHI_ASSERT(srcOffset + size <= src->resource.pCold->desc.bufferDesc.sizeInBytes, "Source buffer copy range exceeds buffer size");
+    RAZIX_RHI_ASSERT(dstOffset + size <= dst->resource.pCold->desc.bufferDesc.sizeInBytes, "Destination buffer copy range exceeds buffer size");
 
-    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.currentState);
-    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.currentState);
+    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.hot.currentState);
+    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.hot.currentState);
 
     // Transition buffers to transfer states
     VkBufferMemoryBarrier transitionBarriers[2] = {
@@ -5022,18 +5022,18 @@ static void vk_CopyTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* sr
     RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
     RAZIX_RHI_ASSERT(src != NULL, "Source texture cannot be NULL");
     RAZIX_RHI_ASSERT(dst != NULL, "Destination texture cannot be NULL");
-    RAZIX_RHI_ASSERT(src->resource.desc.textureDesc.width == dst->resource.desc.textureDesc.width &&
-                         src->resource.desc.textureDesc.height == dst->resource.desc.textureDesc.height &&
-                         src->resource.desc.textureDesc.depth == dst->resource.desc.textureDesc.depth,
+    RAZIX_RHI_ASSERT(src->resource.pCold->desc.textureDesc.width == dst->resource.pCold->desc.textureDesc.width &&
+                         src->resource.pCold->desc.textureDesc.height == dst->resource.pCold->desc.textureDesc.height &&
+                         src->resource.pCold->desc.textureDesc.depth == dst->resource.pCold->desc.textureDesc.depth,
         "Source and destination textures must have the same dimensions for copy");
 
-    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.currentState);
-    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.currentState);
-    VkImageLayout originalSrcLayout = vk_util_translate_imagelayout_resstate(src->resource.currentState);
-    VkImageLayout originalDstLayout = vk_util_translate_imagelayout_resstate(dst->resource.currentState);
+    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.hot.currentState);
+    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.hot.currentState);
+    VkImageLayout originalSrcLayout = vk_util_translate_imagelayout_resstate(src->resource.hot.currentState);
+    VkImageLayout originalDstLayout = vk_util_translate_imagelayout_resstate(dst->resource.hot.currentState);
 
-    VkImageAspectFlags srcAspectFlags = vk_util_deduce_image_aspect_flags(src->resource.desc.textureDesc.format);
-    VkImageAspectFlags dstAspectFlags = vk_util_deduce_image_aspect_flags(dst->resource.desc.textureDesc.format);
+    VkImageAspectFlags srcAspectFlags = vk_util_deduce_image_aspect_flags(src->resource.pCold->desc.textureDesc.format);
+    VkImageAspectFlags dstAspectFlags = vk_util_deduce_image_aspect_flags(dst->resource.pCold->desc.textureDesc.format);
 
     // Transition images to transfer states
     VkImageMemoryBarrier transitionBarriers[2] = {
@@ -5089,9 +5089,9 @@ static void vk_CopyTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* sr
         .dstSubresource = {.aspectMask = dstAspectFlags, .mipLevel = 0, .baseArrayLayer = 0, .layerCount = 1},
         .dstOffset      = {0, 0, 0},
         .extent         = {
-                    .width  = src->resource.desc.textureDesc.width,
-                    .height = src->resource.desc.textureDesc.height,
-                    .depth  = src->resource.desc.textureDesc.depth,
+                    .width  = src->resource.pCold->desc.textureDesc.width,
+                    .height = src->resource.pCold->desc.textureDesc.height,
+                    .depth  = src->resource.pCold->desc.textureDesc.depth,
         },
     };
 
@@ -5158,14 +5158,14 @@ static void vk_CopyBufferToTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buf
     RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
     RAZIX_RHI_ASSERT(src != NULL, "Source buffer cannot be NULL");
     RAZIX_RHI_ASSERT(dst != NULL, "Destination texture cannot be NULL");
-    RAZIX_RHI_ASSERT(src->resource.desc.bufferDesc.sizeInBytes <= (dst->resource.desc.textureDesc.width * dst->resource.desc.textureDesc.height * 4),
+    RAZIX_RHI_ASSERT(src->resource.pCold->desc.bufferDesc.sizeInBytes <= (dst->resource.pCold->desc.textureDesc.width * dst->resource.pCold->desc.textureDesc.height * 4),
         "Source buffer size is insufficient for the texture copy");
 
-    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.currentState);
-    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.currentState);
-    VkImageLayout originalDstLayout = vk_util_translate_imagelayout_resstate(dst->resource.currentState);
+    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.hot.currentState);
+    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.hot.currentState);
+    VkImageLayout originalDstLayout = vk_util_translate_imagelayout_resstate(dst->resource.hot.currentState);
 
-    VkImageAspectFlags aspectFlags = vk_util_deduce_image_aspect_flags(dst->resource.desc.textureDesc.format);
+    VkImageAspectFlags aspectFlags = vk_util_deduce_image_aspect_flags(dst->resource.pCold->desc.textureDesc.format);
 
     // Transition resources to transfer states
     VkBufferMemoryBarrier bufferBarrier = {
@@ -5218,7 +5218,7 @@ static void vk_CopyBufferToTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buf
              .baseArrayLayer = 0,
              .layerCount     = 1},
         .imageOffset = {0, 0, 0},
-        .imageExtent = {.width = dst->resource.desc.textureDesc.width, .height = dst->resource.desc.textureDesc.height, .depth = dst->resource.desc.textureDesc.depth}};
+        .imageExtent = {.width = dst->resource.pCold->desc.textureDesc.width, .height = dst->resource.pCold->desc.textureDesc.height, .depth = dst->resource.pCold->desc.textureDesc.depth}};
 
     vkCmdCopyBufferToImage(cmdBuf->vk.cmdBuf,
         src->vk.buffer,
@@ -5273,14 +5273,14 @@ static void vk_CopyTextureToBufferFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_t
     RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
     RAZIX_RHI_ASSERT(src != NULL, "Source texture cannot be NULL");
     RAZIX_RHI_ASSERT(dst != NULL, "Destination buffer cannot be NULL");
-    RAZIX_RHI_ASSERT(dst->resource.desc.bufferDesc.sizeInBytes >= (src->resource.desc.textureDesc.width * src->resource.desc.textureDesc.height * 4),
+    RAZIX_RHI_ASSERT(dst->resource.pCold->desc.bufferDesc.sizeInBytes >= (src->resource.pCold->desc.textureDesc.width * src->resource.pCold->desc.textureDesc.height * 4),
         "Destination buffer size is insufficient for the texture copy");
 
-    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.currentState);
-    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.currentState);
-    VkImageLayout originalSrcLayout = vk_util_translate_imagelayout_resstate(src->resource.currentState);
+    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.hot.currentState);
+    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.hot.currentState);
+    VkImageLayout originalSrcLayout = vk_util_translate_imagelayout_resstate(src->resource.hot.currentState);
 
-    VkImageAspectFlags aspectFlags = vk_util_deduce_image_aspect_flags(src->resource.desc.textureDesc.format);
+    VkImageAspectFlags aspectFlags = vk_util_deduce_image_aspect_flags(src->resource.pCold->desc.textureDesc.format);
 
     // Transition resources to transfer states
     VkImageMemoryBarrier imageBarrier = {
@@ -5333,7 +5333,7 @@ static void vk_CopyTextureToBufferFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_t
              .baseArrayLayer = 0,
              .layerCount     = 1},
         .imageOffset = {0, 0, 0},
-        .imageExtent = {.width = src->resource.desc.textureDesc.width, .height = src->resource.desc.textureDesc.height, .depth = src->resource.desc.textureDesc.depth}};
+        .imageExtent = {.width = src->resource.pCold->desc.textureDesc.width, .height = src->resource.pCold->desc.textureDesc.height, .depth = src->resource.pCold->desc.textureDesc.depth}};
 
     vkCmdCopyImageToBuffer(cmdBuf->vk.cmdBuf,
         src->vk.image,
@@ -5388,14 +5388,14 @@ static void vk_GenerateMipmapsFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_textu
     RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
     RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
 
-    const rz_gfx_texture_desc* desc      = &texture->resource.desc.textureDesc;
+    const rz_gfx_texture_desc* desc      = &texture->resource.pCold->desc.textureDesc;
     VkImage                    image     = texture->vk.image;
     uint32_t                   mipLevels = desc->mipLevels;
     RAZIX_RHI_ASSERT(mipLevels > 1, "Texture must have more than one mip level to generate mipmaps");
 
     VkImageAspectFlags aspectFlags    = vk_util_deduce_image_aspect_flags(desc->format);
-    VkAccessFlags      originalAccess = vk_util_access_flags_translate(texture->resource.currentState);
-    VkImageLayout      originalLayout = vk_util_translate_imagelayout_resstate(texture->resource.currentState);
+    VkAccessFlags      originalAccess = vk_util_access_flags_translate(texture->resource.hot.currentState);
+    VkImageLayout      originalLayout = vk_util_translate_imagelayout_resstate(texture->resource.hot.currentState);
 
     // Transition entire image to transfer src optimal for mip generation
     VkImageMemoryBarrier initialBarrier = {
@@ -5547,13 +5547,13 @@ static void vk_BlitTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* sr
     RAZIX_RHI_ASSERT(src != NULL, "Source texture cannot be NULL");
     RAZIX_RHI_ASSERT(dst != NULL, "Destination texture cannot be NULL");
 
-    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.currentState);
-    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.currentState);
-    VkImageLayout originalSrcLayout = vk_util_translate_imagelayout_resstate(src->resource.currentState);
-    VkImageLayout originalDstLayout = vk_util_translate_imagelayout_resstate(dst->resource.currentState);
+    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.hot.currentState);
+    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.hot.currentState);
+    VkImageLayout originalSrcLayout = vk_util_translate_imagelayout_resstate(src->resource.hot.currentState);
+    VkImageLayout originalDstLayout = vk_util_translate_imagelayout_resstate(dst->resource.hot.currentState);
 
-    VkImageAspectFlags srcAspectFlags = vk_util_deduce_image_aspect_flags(src->resource.desc.textureDesc.format);
-    VkImageAspectFlags dstAspectFlags = vk_util_deduce_image_aspect_flags(dst->resource.desc.textureDesc.format);
+    VkImageAspectFlags srcAspectFlags = vk_util_deduce_image_aspect_flags(src->resource.pCold->desc.textureDesc.format);
+    VkImageAspectFlags dstAspectFlags = vk_util_deduce_image_aspect_flags(dst->resource.pCold->desc.textureDesc.format);
 
     // TODO: Check if blit is supported between the two formats
 
@@ -5615,9 +5615,9 @@ static void vk_BlitTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* sr
             .mipLevel       = 0,
             .baseArrayLayer = 0,
             .layerCount     = 1},
-        .srcOffsets     = {{0, 0, 0}, {src->resource.desc.textureDesc.width, src->resource.desc.textureDesc.height, src->resource.desc.textureDesc.depth}},
+        .srcOffsets     = {{0, 0, 0}, {src->resource.pCold->desc.textureDesc.width, src->resource.pCold->desc.textureDesc.height, src->resource.pCold->desc.textureDesc.depth}},
         .dstSubresource = {.aspectMask = dstAspectFlags, .mipLevel = 0, .baseArrayLayer = 0, .layerCount = 1},
-        .dstOffsets     = {{0, 0, 0}, {dst->resource.desc.textureDesc.width, dst->resource.desc.textureDesc.height, dst->resource.desc.textureDesc.depth}}};
+        .dstOffsets     = {{0, 0, 0}, {dst->resource.pCold->desc.textureDesc.width, dst->resource.pCold->desc.textureDesc.height, dst->resource.pCold->desc.textureDesc.depth}}};
 
     vkCmdBlitImage(cmdBuf->vk.cmdBuf,
         src->vk.image,
@@ -5685,13 +5685,13 @@ static void vk_ResolveTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*
     RAZIX_RHI_ASSERT(dst != NULL, "Destination texture cannot be NULL");
     // TODO: Check if src is multi-sampled and dst is single sampled
 
-    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.currentState);
-    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.currentState);
-    VkImageLayout originalSrcLayout = vk_util_translate_imagelayout_resstate(src->resource.currentState);
-    VkImageLayout originalDstLayout = vk_util_translate_imagelayout_resstate(dst->resource.currentState);
+    VkAccessFlags originalSrcAccess = vk_util_access_flags_translate(src->resource.hot.currentState);
+    VkAccessFlags originalDstAccess = vk_util_access_flags_translate(dst->resource.hot.currentState);
+    VkImageLayout originalSrcLayout = vk_util_translate_imagelayout_resstate(src->resource.hot.currentState);
+    VkImageLayout originalDstLayout = vk_util_translate_imagelayout_resstate(dst->resource.hot.currentState);
 
-    VkImageAspectFlags srcAspectFlags = vk_util_deduce_image_aspect_flags(src->resource.desc.textureDesc.format);
-    VkImageAspectFlags dstAspectFlags = vk_util_deduce_image_aspect_flags(dst->resource.desc.textureDesc.format);
+    VkImageAspectFlags srcAspectFlags = vk_util_deduce_image_aspect_flags(src->resource.pCold->desc.textureDesc.format);
+    VkImageAspectFlags dstAspectFlags = vk_util_deduce_image_aspect_flags(dst->resource.pCold->desc.textureDesc.format);
 
     // Transition images to resolve states
     VkImageMemoryBarrier transitionBarriers[2] = {
@@ -5758,9 +5758,9 @@ static void vk_ResolveTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*
         },
         .dstOffset = {0, 0, 0},
         .extent    = {
-               .width  = src->resource.desc.textureDesc.width,
-               .height = src->resource.desc.textureDesc.height,
-               .depth  = src->resource.desc.textureDesc.depth,
+               .width  = src->resource.pCold->desc.textureDesc.width,
+               .height = src->resource.pCold->desc.textureDesc.height,
+               .depth  = src->resource.pCold->desc.textureDesc.depth,
         },
     };
 

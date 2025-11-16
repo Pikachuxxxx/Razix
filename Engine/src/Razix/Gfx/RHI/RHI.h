@@ -245,6 +245,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define RAZIX_Z(v)               ((v)[2])
 #define RAZIX_W(v)               ((v)[3])
 
+// TODO: Reduce this to 128 or 64 after testing
 #define RAZIX_MAX_RESOURCE_NAME_CHAR 256
 
 // Resource
@@ -257,7 +258,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     {
         RZ_RENDER_API_NONE = -1,
         RZ_RENDER_API_VULKAN,       // Windows/MacOS/Linux
-        RZ_RENDER_API_D3D12,        // [WIP] // PC/XBOX
+        RZ_RENDER_API_D3D12,        // PC/XBOX
         RZ_RENDER_API_GXM,          // Not Supported yet! (PSVita)
         RZ_RENDER_API_GCM,          // Not Supported yet! (PS3)
         RZ_RENDER_API_AGC,          // Not Supported yet! (PlayStation 5)
@@ -1137,29 +1138,40 @@ static inline unsigned int rz_clz32(unsigned int x)
      * 4. Simulate hot and cold data separation, engine and RHI can use this to separate hot and cold data based on rz_gfx_xxx_desc separation, RHI will need data without rz_gfx_resource and desc
      */
 
-    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_resource
+    RAZIX_RHI_ALIGN_16 typedef union rz_gfx_resource_desc
     {
-        char                       pName[RAZIX_MAX_RESOURCE_NAME_CHAR];
-        rz_handle                  handle;
+        rz_gfx_resource_view_desc    resourceViewDesc;
+        rz_gfx_texture_desc          textureDesc;
+        rz_gfx_sampler_desc          samplerDesc;
+        rz_gfx_cmdpool_desc          cmdpoolDesc;
+        rz_gfx_cmdbuf_desc           cmdbufDesc;
+        rz_gfx_root_signature_desc   rootSignatureDesc;
+        rz_gfx_descriptor_heap_desc  descriptorHeapDesc;
+        rz_gfx_descriptor_table_desc descriptorTableDesc;
+        rz_gfx_buffer_desc           bufferDesc;
+        rz_gfx_shader_desc           shaderDesc;    // Big boi!
+        rz_gfx_pipeline_desc         pipelineDesc;
+    } rz_gfx_resource_desc;    // These are filled by the user, public members filled by backend are stored in each gfx_type separately
+
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_resource_cold
+    {
+        char                 pName[RAZIX_MAX_RESOURCE_NAME_CHAR];
+        rz_gfx_resource_desc desc;
+    } rz_gfx_resource_cold;
+
+    typedef struct rz_gfx_resource_hot
+    {
+        rz_handle                  handle;    // can also be used to get cold data if cached in Resource Manager Pools
         rz_gfx_resource_view_hints viewHints;
         rz_gfx_resource_type       type;
         rz_gfx_resource_state      currentState;
-        uint8_t                    _pad0[4];
+        uint32_t                   _pad0[1];
+    } rz_gfx_resource_hot;
 
-        union
-        {
-            rz_gfx_resource_view_desc    resourceViewDesc;
-            rz_gfx_texture_desc          textureDesc;
-            rz_gfx_sampler_desc          samplerDesc;
-            rz_gfx_cmdpool_desc          cmdpoolDesc;
-            rz_gfx_cmdbuf_desc           cmdbufDesc;
-            rz_gfx_root_signature_desc   rootSignatureDesc;
-            rz_gfx_descriptor_heap_desc  descriptorHeapDesc;
-            rz_gfx_descriptor_table_desc descriptorTableDesc;
-            rz_gfx_buffer_desc           bufferDesc;
-            rz_gfx_shader_desc           shaderDesc;    // Big boi!
-            rz_gfx_pipeline_desc         pipelineDesc;
-        } desc;    // These are filled by the user, public members filled by backend are stored in each gfx_type separately
+    RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_resource
+    {
+        rz_gfx_resource_hot   hot;
+        rz_gfx_resource_cold* pCold;    // Optional pointer to cold data, can be NULL if not needed
     } rz_gfx_resource;
 
     //---------------------------------------------------------------------------------------------

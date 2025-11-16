@@ -628,7 +628,7 @@ static void dx12_freelist_debug_print(const rz_gfx_descriptor_heap* heap)
     printf("Total Free Ranges: %u\n", allocator->numFreeRanges);
 
     printf("Fragmentation visualization:\n");
-    uint32_t total = heap->resource.desc.descriptorHeapDesc.descriptorCount;
+    uint32_t total = heap->resource.pCold->desc.descriptorHeapDesc.descriptorCount;
     for (uint32_t i = 0; i < total; ++i) {
         bool isFree = false;
         for (uint32_t r = 0; r < allocator->numFreeRanges; ++r) {
@@ -648,9 +648,9 @@ static void dx12_freelist_debug_print(const rz_gfx_descriptor_heap* heap)
 static void dx12_create_descriptor_freelist_allocator(rz_gfx_descriptor_heap* heap)
 {
     RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
-    rz_gfx_descriptor_heap_desc* desc = &heap->resource.desc.descriptorHeapDesc;
+    rz_gfx_descriptor_heap_desc* desc = &heap->resource.pCold->desc.descriptorHeapDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
-    RAZIX_RHI_ASSERT(heap->resource.desc.descriptorHeapDesc.flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must be of type FREE_LIST");
+    RAZIX_RHI_ASSERT(heap->resource.pCold->desc.descriptorHeapDesc.flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must be of type FREE_LIST");
     // Initialize the free list allocator
     heap->freeListAllocator = malloc(sizeof(rz_gfx_descriptor_freelist_allocator));
     RAZIX_RHI_ASSERT(heap->freeListAllocator != NULL, "Failed to allocate memory for free list allocator");
@@ -771,8 +771,8 @@ static dx12_descriptor_handles dx12_descriptor_ringbuffer_allocate(rz_gfx_descri
 {
     RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
     RAZIX_RHI_ASSERT(numDescriptors > 0, "Free count must be greater than zero");
-    RAZIX_RHI_ASSERT(heap->resource.desc.descriptorHeapDesc.heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must be of type FREE_LIST");
-    rz_gfx_descriptor_heap_desc* desc = &heap->resource.desc.descriptorHeapDesc;
+    RAZIX_RHI_ASSERT(heap->resource.pCold->desc.descriptorHeapDesc.heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must be of type FREE_LIST");
+    rz_gfx_descriptor_heap_desc* desc = &heap->resource.pCold->desc.descriptorHeapDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
 
     uint32_t freeSpace = 0;
@@ -809,13 +809,13 @@ static void dx12_descriptor_ringbuffer_free(rz_gfx_descriptor_heap* heap, uint32
     RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
     RAZIX_RHI_ASSERT(numDescriptors > 0, "Free count must be greater than zero");
     // In ring buffer, we don't actually free the descriptors, we just update the tail
-    heap->ringBufferTail = (heap->ringBufferTail + numDescriptors) % heap->resource.desc.descriptorHeapDesc.descriptorCount;
+    heap->ringBufferTail = (heap->ringBufferTail + numDescriptors) % heap->resource.pCold->desc.descriptorHeapDesc.descriptorCount;
     heap->isFull         = false;
 }
 
 static dx12_descriptor_handles dx12_descriptor_allocate_handle(rz_gfx_descriptor_heap* heap, uint32_t numDescriptors)
 {
-    if (heap->resource.desc.descriptorHeapDesc.flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST)
+    if (heap->resource.pCold->desc.descriptorHeapDesc.flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST)
         return dx12_descriptor_freelist_allocate(heap, numDescriptors);
     else
         return dx12_descriptor_ringbuffer_allocate(heap, numDescriptors);
@@ -823,7 +823,7 @@ static dx12_descriptor_handles dx12_descriptor_allocate_handle(rz_gfx_descriptor
 
 static void dx12_descriptor_free_handle(rz_gfx_descriptor_heap* heap, dx12_descriptor_handles handle, uint32_t numDescriptors)
 {
-    if (heap->resource.desc.descriptorHeapDesc.flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST)
+    if (heap->resource.pCold->desc.descriptorHeapDesc.flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST)
         dx12_descriptor_freelist_free(heap, handle, numDescriptors);
     else
         dx12_descriptor_ringbuffer_free(heap, numDescriptors);
@@ -855,7 +855,7 @@ static D3D12_SRV_DIMENSION dx12_util_texture_type_srv_dim(rz_gfx_texture_type ty
 static D3D12_SHADER_RESOURCE_VIEW_DESC dx12_create_texture_srv(const rz_gfx_texture_view_desc* desc, const rz_gfx_texture_desc* textureDesc)
 {
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {0};
-    srvDesc.Format                          = dx12_util_rz_gfx_format_to_dxgi_format(desc->pTexture->resource.desc.textureDesc.format);
+    srvDesc.Format                          = dx12_util_rz_gfx_format_to_dxgi_format(desc->pTexture->resource.pCold->desc.textureDesc.format);
     srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
     switch (textureDesc->textureType) {
@@ -917,7 +917,7 @@ static D3D12_SHADER_RESOURCE_VIEW_DESC dx12_create_texture_srv(const rz_gfx_text
 static D3D12_UNORDERED_ACCESS_VIEW_DESC dx12_create_texture_uav(const rz_gfx_texture_view_desc* desc, const rz_gfx_texture_desc* textureDesc)
 {
     D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {0};
-    uavDesc.Format                           = dx12_util_rz_gfx_format_to_dxgi_format(desc->pTexture->resource.desc.textureDesc.format);
+    uavDesc.Format                           = dx12_util_rz_gfx_format_to_dxgi_format(desc->pTexture->resource.pCold->desc.textureDesc.format);
 
     switch (textureDesc->textureType) {
         case RZ_GFX_TEXTURE_TYPE_1D:
@@ -958,7 +958,7 @@ static D3D12_UNORDERED_ACCESS_VIEW_DESC dx12_create_texture_uav(const rz_gfx_tex
 static D3D12_RENDER_TARGET_VIEW_DESC dx12_create_texture_rtv(const rz_gfx_texture_view_desc* desc, const rz_gfx_texture_desc* textureDesc)
 {
     D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {0};
-    rtvDesc.Format                        = dx12_util_rz_gfx_format_to_dxgi_format(desc->pTexture->resource.desc.textureDesc.format);
+    rtvDesc.Format                        = dx12_util_rz_gfx_format_to_dxgi_format(desc->pTexture->resource.pCold->desc.textureDesc.format);
     switch (textureDesc->textureType) {
         case RZ_GFX_TEXTURE_TYPE_1D:
             rtvDesc.ViewDimension      = D3D12_RTV_DIMENSION_TEXTURE1D;
@@ -997,7 +997,7 @@ static D3D12_RENDER_TARGET_VIEW_DESC dx12_create_texture_rtv(const rz_gfx_textur
 static D3D12_DEPTH_STENCIL_VIEW_DESC dx12_create_texture_dsv(const rz_gfx_texture_view_desc* desc, const rz_gfx_texture_desc* textureDesc)
 {
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {0};
-    dsvDesc.Format                        = dx12_util_rz_gfx_format_to_dxgi_format(desc->pTexture->resource.desc.textureDesc.format);
+    dsvDesc.Format                        = dx12_util_rz_gfx_format_to_dxgi_format(desc->pTexture->resource.pCold->desc.textureDesc.format);
     switch (textureDesc->textureType) {
         case RZ_GFX_TEXTURE_TYPE_1D:
             dsvDesc.ViewDimension      = D3D12_DSV_DIMENSION_TEXTURE1D;
@@ -1037,21 +1037,21 @@ static dx12_resview dx12_create_texture_view(const rz_gfx_texture_view_desc* des
     RAZIX_RHI_ASSERT(desc->pTexture != NULL, "Texture resource cannot be NULL");
     const rz_gfx_texture* pTexture = desc->pTexture;
     RAZIX_RHI_ASSERT(pTexture != NULL, "Texture resource must be created before creating a texture view");
-    const rz_gfx_texture_desc* textureDesc = &pTexture->resource.desc.textureDesc;
+    const rz_gfx_texture_desc* textureDesc = &pTexture->resource.pCold->desc.textureDesc;
     RAZIX_RHI_ASSERT(textureDesc != NULL, "Texture descriptor cannot be NULL");
 
     bool isTextureRW = rzRHI_IsDescriptorTypeTextureRW(descriptorType);
 
-    if (!isTextureRW && ((pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_SRV) == RZ_GFX_RESOURCE_VIEW_FLAG_SRV)) {
+    if (!isTextureRW && ((pTexture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_SRV) == RZ_GFX_RESOURCE_VIEW_FLAG_SRV)) {
         dx12_view.srvDesc = dx12_create_texture_srv(desc, textureDesc);
-    } else if (isTextureRW && ((pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV)) {
+    } else if (isTextureRW && ((pTexture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV)) {
         dx12_view.uavDesc = dx12_create_texture_uav(desc, textureDesc);
-    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE && ((pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_RTV) == RZ_GFX_RESOURCE_VIEW_FLAG_RTV)) {
+    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE && ((pTexture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_RTV) == RZ_GFX_RESOURCE_VIEW_FLAG_RTV)) {
         dx12_view.rtvDesc = dx12_create_texture_rtv(desc, textureDesc);
-    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE && ((pTexture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV) == RZ_GFX_RESOURCE_VIEW_FLAG_DSV)) {
+    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE && ((pTexture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV) == RZ_GFX_RESOURCE_VIEW_FLAG_DSV)) {
         dx12_view.dsvDesc = dx12_create_texture_dsv(desc, textureDesc);
     } else {
-        RAZIX_RHI_LOG_ERROR("Unsupported texture view descriptor type: %d and view hints: %d", descriptorType, pTexture->resource.viewHints);
+        RAZIX_RHI_LOG_ERROR("Unsupported texture view descriptor type: %d and view hints: %d", descriptorType, pTexture->resource.hot.viewHints);
         return dx12_view;    // Return empty view
     }
     return dx12_view;    // IDK why MSVC/Clang complained about it even though we have a dangling else
@@ -1084,18 +1084,18 @@ static dx12_resview dx12_create_buffer_view(const rz_gfx_buffer_view_desc* desc,
     RAZIX_RHI_ASSERT(desc->pBuffer != NULL, "Buffer resource cannot be NULL");
     const rz_gfx_buffer* pBuffer = desc->pBuffer;
     RAZIX_RHI_ASSERT(pBuffer != NULL, "Buffer resource must be created before creating a buffer view");
-    const rz_gfx_buffer_desc* bufferDesc = &pBuffer->resource.desc.bufferDesc;
+    const rz_gfx_buffer_desc* bufferDesc = &pBuffer->resource.pCold->desc.bufferDesc;
     RAZIX_RHI_ASSERT(bufferDesc != NULL, "Buffer descriptor cannot be NULL");
 
     bool isRWBuffer = rzRHI_IsDescriptorTypeBufferRW(descriptorType);
 
-    if (!isRWBuffer && ((pBuffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_CBV) == RZ_GFX_RESOURCE_VIEW_FLAG_CBV)) {
+    if (!isRWBuffer && ((pBuffer->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_CBV) == RZ_GFX_RESOURCE_VIEW_FLAG_CBV)) {
         if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER)
             dx12_view.cbvDesc = dx12_create_buffer_cbv(desc, bufferDesc);
-    } else if (isRWBuffer && ((pBuffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV)) {
+    } else if (isRWBuffer && ((pBuffer->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV)) {
         dx12_view.uavDesc = dx12_util_create_buffer_uav(desc, bufferDesc);
     } else {
-        RAZIX_RHI_LOG_ERROR("Unsupported buffer view descriptor type: %d and view hints: %d, Please specify a view flag hint", descriptorType, pBuffer->resource.viewHints);
+        RAZIX_RHI_LOG_ERROR("Unsupported buffer view descriptor type: %d and view hints: %d, Please specify a view flag hint", descriptorType, pBuffer->resource.hot.viewHints);
         return dx12_view;    // Return empty view
     }
     return dx12_view;
@@ -1107,7 +1107,7 @@ static dx12_resview dx12_create_sampler_view(const rz_gfx_sampler_view_desc* des
     RAZIX_RHI_ASSERT(desc != NULL, "Sampler view desc cannot be NULL");
     const rz_gfx_sampler* pSampler = desc->pSampler;
     RAZIX_RHI_ASSERT(pSampler != NULL, "Sampler resource must be created before creating a sampler view");
-    const rz_gfx_sampler_desc* samplerDesc = &pSampler->resource.desc.samplerDesc;
+    const rz_gfx_sampler_desc* samplerDesc = &pSampler->resource.pCold->desc.samplerDesc;
     RAZIX_RHI_ASSERT(samplerDesc != NULL, "Sampler descriptor cannot be NULL");
 
     D3D12_SAMPLER_DESC dxsamplerDesc = {0};
@@ -1270,7 +1270,7 @@ static void dx12_util_upload_buffer_data(rz_gfx_buffer* buffer, rz_gfx_buffer_de
     D3D12_RESOURCE_BARRIER barrier = {
         .Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
         .Transition.pResource   = buffer->dx12.resource,
-        .Transition.StateBefore = dx12_util_res_state_translate(buffer->resource.currentState),
+        .Transition.StateBefore = dx12_util_res_state_translate(buffer->resource.hot.currentState),
         .Transition.StateAfter  = D3D12_RESOURCE_STATE_COPY_DEST,
         .Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
     };
@@ -1282,7 +1282,7 @@ static void dx12_util_upload_buffer_data(rz_gfx_buffer* buffer, rz_gfx_buffer_de
         .Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
         .Transition.pResource   = buffer->dx12.resource,
         .Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST,
-        .Transition.StateAfter  = dx12_util_res_state_translate(buffer->resource.currentState),
+        .Transition.StateAfter  = dx12_util_res_state_translate(buffer->resource.hot.currentState),
         .Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
     };
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &restoreBarrier);
@@ -1686,25 +1686,25 @@ static void dx12_util_update_swapchain_rtvs(rz_gfx_swapchain* sc)
         // This is the only place where a RZ_RESOURCE is manually created, instead of using the RZResourceManager
         rz_gfx_texture texture   = {0};
         dx12_texture   dxtexture = {0};
-        snprintf(texture.resource.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$_%u", i);
-        texture.resource.handle                       = (rz_handle) {i, i};
-        texture.resource.viewHints                    = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
-        texture.resource.type                         = RZ_GFX_RESOURCE_TYPE_TEXTURE;
-        dxtexture.resource                            = d3dresource;
-        texture.dx12                                  = dxtexture;
-        texture.resource.desc.textureDesc.height      = sc->height;
-        texture.resource.desc.textureDesc.width       = sc->width;
-        texture.resource.desc.textureDesc.depth       = 1;
-        texture.resource.desc.textureDesc.arraySize   = 1;
-        texture.resource.desc.textureDesc.mipLevels   = 1;
-        texture.resource.desc.textureDesc.format      = RAZIX_SWAPCHAIN_FORMAT;
-        texture.resource.desc.textureDesc.textureType = RZ_GFX_TEXTURE_TYPE_2D;
-        sc->backbuffers[i]                            = texture;
+        snprintf(texture.resource.pCold->pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$_%u", i);
+        texture.resource.hot.handle                          = (rz_handle) {i, i};
+        texture.resource.hot.viewHints                       = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
+        texture.resource.hot.type                            = RZ_GFX_RESOURCE_TYPE_TEXTURE;
+        dxtexture.resource                                   = d3dresource;
+        texture.dx12                                         = dxtexture;
+        texture.resource.pCold->desc.textureDesc.height      = sc->height;
+        texture.resource.pCold->desc.textureDesc.width       = sc->width;
+        texture.resource.pCold->desc.textureDesc.depth       = 1;
+        texture.resource.pCold->desc.textureDesc.arraySize   = 1;
+        texture.resource.pCold->desc.textureDesc.mipLevels   = 1;
+        texture.resource.pCold->desc.textureDesc.format      = RAZIX_SWAPCHAIN_FORMAT;
+        texture.resource.pCold->desc.textureDesc.textureType = RZ_GFX_TEXTURE_TYPE_2D;
+        sc->backbuffers[i]                                   = texture;
 
         rz_gfx_resource_view view = {0};
-        snprintf(view.resource.pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_RES_VIEW$_%u", i);
-        view.resource.handle       = (rz_handle) {i, i};
-        view.resource.type         = RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW;
+        snprintf(view.resource.pCold->pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_RES_VIEW$_%u", i);
+        view.resource.hot.handle   = (rz_handle) {i, i};
+        view.resource.hot.type     = RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW;
         view.dx12.rtv.cpu          = rtvHandle;
         sc->backbuffersResViews[i] = view;
 
@@ -2033,15 +2033,15 @@ static void dx12_DestroySwapchain(rz_gfx_swapchain* sc)
 static void dx12_CreateCmdPool(void* where)
 {
     rz_gfx_cmdpool* cmdPool = (rz_gfx_cmdpool*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&cmdPool->resource.handle), "Invalid cmd pool handle, who is allocating this? ResourceManager should create a valid handle");
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&cmdPool->resource.hot.handle), "Invalid cmd pool handle, who is allocating this? ResourceManager should create a valid handle");
 
-    CHECK_HR(ID3D12Device10_CreateCommandAllocator(DX12Device, dx12_util_rz_cmdpool_to_cmd_list_type(cmdPool->resource.desc.cmdpoolDesc.poolType), &IID_ID3D12CommandAllocator, (void**) &cmdPool->dx12.cmdAlloc));
+    CHECK_HR(ID3D12Device10_CreateCommandAllocator(DX12Device, dx12_util_rz_cmdpool_to_cmd_list_type(cmdPool->resource.pCold->desc.cmdpoolDesc.poolType), &IID_ID3D12CommandAllocator, (void**) &cmdPool->dx12.cmdAlloc));
     if (cmdPool->dx12.cmdAlloc == NULL) {
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Command Allocator");
         return;
     }
-    cmdPool->type = cmdPool->resource.desc.cmdpoolDesc.poolType;
-    TAG_OBJECT(cmdPool->dx12.cmdAlloc, cmdPool->resource.pName);
+    cmdPool->type = cmdPool->resource.pCold->desc.cmdpoolDesc.poolType;
+    TAG_OBJECT(cmdPool->dx12.cmdAlloc, cmdPool->resource.pCold->pName);
 }
 
 static void dx12_DestroyCmdPool(void* cmdPool)
@@ -2057,10 +2057,10 @@ static void dx12_DestroyCmdPool(void* cmdPool)
 static void dx12_CreateCmdBuf(void* where)
 {
     rz_gfx_cmdbuf* cmdBuf = (rz_gfx_cmdbuf*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&cmdBuf->resource.handle), "Invalid command buffer handle, who is allocating this? ResourceManager should create a valid handle");
-    const rz_gfx_cmdpool* cmdPool = cmdBuf->resource.desc.cmdbufDesc.pool;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&cmdBuf->resource.hot.handle), "Invalid command buffer handle, who is allocating this? ResourceManager should create a valid handle");
+    const rz_gfx_cmdpool* cmdPool = cmdBuf->resource.pCold->desc.cmdbufDesc.pool;
     RAZIX_RHI_ASSERT(cmdPool != NULL, "Command buffer must have a valid command pool");
-    cmdBuf->dx12.cmdAlloc = cmdBuf->resource.desc.cmdbufDesc.pool->dx12.cmdAlloc;
+    cmdBuf->dx12.cmdAlloc = cmdBuf->resource.pCold->desc.cmdbufDesc.pool->dx12.cmdAlloc;
     RAZIX_RHI_ASSERT(cmdBuf->dx12.cmdAlloc != NULL, "Command buffer must have a valid command allocator");
 
     CHECK_HR(ID3D12Device10_CreateCommandList(DX12Device, 0, dx12_util_rz_cmdpool_to_cmd_list_type(cmdPool->type), cmdPool->dx12.cmdAlloc, NULL, &IID_ID3D12GraphicsCommandList, (void**) &cmdBuf->dx12.cmdList));
@@ -2070,7 +2070,7 @@ static void dx12_CreateCmdBuf(void* where)
     }
     // Immediately close it so that the first use can Reset() safely
     CHECK_HR(ID3D12GraphicsCommandList_Close(cmdBuf->dx12.cmdList));
-    TAG_OBJECT(cmdBuf->dx12.cmdList, cmdBuf->resource.pName);
+    TAG_OBJECT(cmdBuf->dx12.cmdList, cmdBuf->resource.pCold->pName);
 }
 
 static void dx12_DestroyCmdBuf(void* cmdBuf)
@@ -2086,14 +2086,14 @@ static void dx12_DestroyCmdBuf(void* cmdBuf)
 static void dx12_CreateShader(void* where)
 {
     rz_gfx_shader* shader = (rz_gfx_shader*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&shader->resource.handle), "Invalid shader handle, who is allocating this? ResourceManager should create a valid handle");
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&shader->resource.hot.handle), "Invalid shader handle, who is allocating this? ResourceManager should create a valid handle");
 
     // In Direct3D 12, shaders are not standalone objects like in Vulkan.
     // There's no need to create an intermediate shader module.
     // The raw shader bytecode (e.g., .cso or .dxil) is passed directly to the pipeline state during creation.
     // Therefore, this function intentionally does nothing. Actual shader usage happens during PSO creation.
 
-    rz_gfx_shader_desc* desc = &shader->resource.desc.shaderDesc;
+    rz_gfx_shader_desc* desc = &shader->resource.pCold->desc.shaderDesc;
 
     switch (desc->pipelineType) {
         case RZ_GFX_PIPELINE_TYPE_GRAPHICS:
@@ -2131,9 +2131,9 @@ static void dx12_DestroyShader(void* shader)
 static void dx12_CreateRootSignature(void* where)
 {
     rz_gfx_root_signature* rootSig = (rz_gfx_root_signature*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&rootSig->resource.handle), "Invalid rootsignaure handle, who is allocating this? ResourceManager should create a valid handle");
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&rootSig->resource.hot.handle), "Invalid rootsignaure handle, who is allocating this? ResourceManager should create a valid handle");
 
-    const rz_gfx_root_signature_desc* desc = &rootSig->resource.desc.rootSignatureDesc;
+    const rz_gfx_root_signature_desc* desc = &rootSig->resource.pCold->desc.rootSignatureDesc;
 
     D3D12_ROOT_PARAMETER   rootParams[RAZIX_MAX_DESCRIPTOR_TABLES + RAZIX_MAX_ROOT_CONSTANTS]         = {0};
     D3D12_DESCRIPTOR_RANGE descriptorRanges[RAZIX_MAX_DESCRIPTOR_TABLES][RAZIX_MAX_DESCRIPTOR_RANGES] = {0};
@@ -2204,7 +2204,7 @@ static void dx12_CreateRootSignature(void* where)
     }
 
     RAZIX_RHI_LOG_INFO("D3D12 Root Signature created successfully");
-    TAG_OBJECT(rootSig->dx12.rootSig, rootSig->resource.pName);
+    TAG_OBJECT(rootSig->dx12.rootSig, rootSig->resource.pCold->pName);
 }
 
 static void dx12_DestroyRootSignature(void* ptr)
@@ -2220,10 +2220,10 @@ static void dx12_DestroyRootSignature(void* ptr)
 
 static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
 {
-    const rz_gfx_pipeline_desc*  pPsoDesc    = &pso->resource.desc.pipelineDesc;
-    const rz_gfx_shader*         pShader     = pso->resource.desc.pipelineDesc.pShader;
-    const rz_gfx_shader_desc*    pShaderDesc = &pShader->resource.desc.shaderDesc;
-    const rz_gfx_root_signature* pRootSig    = pso->resource.desc.pipelineDesc.pRootSig;
+    const rz_gfx_pipeline_desc*  pPsoDesc    = &pso->resource.pCold->desc.pipelineDesc;
+    const rz_gfx_shader*         pShader     = pso->resource.pCold->desc.pipelineDesc.pShader;
+    const rz_gfx_shader_desc*    pShaderDesc = &pShader->resource.pCold->desc.shaderDesc;
+    const rz_gfx_root_signature* pRootSig    = pso->resource.pCold->desc.pipelineDesc.pRootSig;
     RAZIX_RHI_ASSERT(pShader != NULL, "Pipeline must have a valid shader! (Pipeline creation)");
     RAZIX_RHI_ASSERT(pRootSig != NULL, "Pipeline must have a valid root signature! (Pipeline creation)");
     RAZIX_RHI_ASSERT(pShaderDesc->pipelineType == RZ_GFX_PIPELINE_TYPE_GRAPHICS, "Shader must be a graphics shader for this pipeline type! (Pipeline creation)");
@@ -2306,13 +2306,13 @@ static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
     //----------------------------
     // Render/DS Targets & Formats
     //----------------------------
-    desc.NumRenderTargets = pso->resource.desc.pipelineDesc.renderTargetCount;
-    for (uint32_t i = 0; i < pso->resource.desc.pipelineDesc.renderTargetCount; ++i) {
-        desc.RTVFormats[i] = dx12_util_rz_gfx_format_to_dxgi_format(pso->resource.desc.pipelineDesc.renderTargetFormats[i]);
+    desc.NumRenderTargets = pso->resource.pCold->desc.pipelineDesc.renderTargetCount;
+    for (uint32_t i = 0; i < pso->resource.pCold->desc.pipelineDesc.renderTargetCount; ++i) {
+        desc.RTVFormats[i] = dx12_util_rz_gfx_format_to_dxgi_format(pso->resource.pCold->desc.pipelineDesc.renderTargetFormats[i]);
     }
 
-    if (pso->resource.desc.pipelineDesc.depthTestEnabled || pso->resource.desc.pipelineDesc.depthWriteEnabled || pso->resource.desc.pipelineDesc.stencilTestEnabled) {
-        desc.DSVFormat = dx12_util_rz_gfx_format_to_dxgi_format(pso->resource.desc.pipelineDesc.depthStencilFormat);
+    if (pso->resource.pCold->desc.pipelineDesc.depthTestEnabled || pso->resource.pCold->desc.pipelineDesc.depthWriteEnabled || pso->resource.pCold->desc.pipelineDesc.stencilTestEnabled) {
+        desc.DSVFormat = dx12_util_rz_gfx_format_to_dxgi_format(pso->resource.pCold->desc.pipelineDesc.depthStencilFormat);
     } else {
         desc.DSVFormat = DXGI_FORMAT_UNKNOWN;    // No depth-stencil
     }
@@ -2375,15 +2375,15 @@ static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
         return;
     }
     RAZIX_RHI_LOG_INFO("D3D12 Pipeline State Object (PSO) created successfully");
-    TAG_OBJECT(pso->dx12.pso, pso->resource.pName);
+    TAG_OBJECT(pso->dx12.pso, pso->resource.pCold->pName);
 }
 
 static void dx12_CreateComputePipeline(rz_gfx_pipeline* pso)
 {
-    const rz_gfx_pipeline_desc*  pPsoDesc    = &pso->resource.desc.pipelineDesc;
-    const rz_gfx_shader*         pShader     = pso->resource.desc.pipelineDesc.pShader;
-    const rz_gfx_shader_desc*    pShaderDesc = &pShader->resource.desc.shaderDesc;
-    const rz_gfx_root_signature* pRootSig    = pso->resource.desc.pipelineDesc.pRootSig;
+    const rz_gfx_pipeline_desc*  pPsoDesc    = &pso->resource.pCold->desc.pipelineDesc;
+    const rz_gfx_shader*         pShader     = pso->resource.pCold->desc.pipelineDesc.pShader;
+    const rz_gfx_shader_desc*    pShaderDesc = &pShader->resource.pCold->desc.shaderDesc;
+    const rz_gfx_root_signature* pRootSig    = pso->resource.pCold->desc.pipelineDesc.pRootSig;
     RAZIX_RHI_ASSERT(pShader != NULL, "Pipeline must have a valid shader! (Pipeline creation)");
     RAZIX_RHI_ASSERT(pRootSig != NULL, "Pipeline must have a valid root signature! (Pipeline creation)");
     RAZIX_RHI_ASSERT(pShaderDesc->pipelineType == RZ_GFX_PIPELINE_TYPE_COMPUTE, "Shader must be a compute shader for this pipeline type! (Pipeline creation)");
@@ -2406,15 +2406,15 @@ static void dx12_CreateComputePipeline(rz_gfx_pipeline* pso)
         return;
     }
     RAZIX_RHI_LOG_INFO("D3D12 Pipeline State Object (PSO) created successfully");
-    TAG_OBJECT(pso->dx12.pso, pso->resource.pName);
+    TAG_OBJECT(pso->dx12.pso, pso->resource.pCold->pName);
 }
 
 static void dx12_CreatePipeline(void* pipeline)
 {
     rz_gfx_pipeline* pso = (rz_gfx_pipeline*) pipeline;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pso->resource.hot.handle), "Invalid pipeline handle, who is allocating this? ResourceManager should create a valid handle");
 
-    if (pso->resource.desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
+    if (pso->resource.pCold->desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
         dx12_CreateGraphicsPipeline(pso);
     else
         dx12_CreateComputePipeline(pso);
@@ -2434,13 +2434,13 @@ static void dx12_DestroyPipeline(void* pipeline)
 static void dx12_CreateTexture(void* where)
 {
     rz_gfx_texture* texture = (rz_gfx_texture*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&texture->resource.handle), "Invalid texture handle, who is allocating this? ResourceManager should create a valid handle");
-    rz_gfx_texture_desc* desc = &texture->resource.desc.textureDesc;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&texture->resource.hot.handle), "Invalid texture handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_texture_desc* desc = &texture->resource.pCold->desc.textureDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Texture descriptor cannot be NULL");
     RAZIX_RHI_ASSERT(desc->width > 0 && desc->height > 0 && desc->depth > 0, "Texture dimensions must be greater than zero");
 
     // Maintain a second copy of hints...Ahhh...
-    texture->resource.viewHints = desc->resourceHints;
+    texture->resource.hot.viewHints = desc->resourceHints;
 
     D3D12_RESOURCE_DESC resDesc = {0};
     resDesc.Dimension           = dx12_util_translate_texture_dimension(desc->textureType);
@@ -2462,7 +2462,7 @@ static void dx12_CreateTexture(void* where)
     optClear.DepthStencil.Depth   = 1.0f;
     optClear.DepthStencil.Stencil = 0;
 
-    texture->resource.currentState = RZ_GFX_RESOURCE_STATE_COMMON;
+    texture->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_COMMON;
 
     bool isRtvDsv = (desc->resourceHints & (RZ_GFX_RESOURCE_VIEW_FLAG_RTV | RZ_GFX_RESOURCE_VIEW_FLAG_DSV)) != 0;
     // Set resource flags
@@ -2472,7 +2472,7 @@ static void dx12_CreateTexture(void* where)
         resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
     else if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV) == RZ_GFX_RESOURCE_VIEW_FLAG_DSV) {
         resDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-        texture->resource.currentState = RZ_GFX_RESOURCE_STATE_DEPTH_WRITE;
+        texture->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_DEPTH_WRITE;
     }
 
     // Create resource with memory backing
@@ -2482,13 +2482,13 @@ static void dx12_CreateTexture(void* where)
     heapProps.MemoryPoolPreference  = D3D12_MEMORY_POOL_UNKNOWN;
 
     // Create the texture resource
-    HRESULT hr = ID3D12Device10_CreateCommittedResource(DX12Device, &heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, dx12_util_res_state_translate(texture->resource.currentState), isRtvDsv ? &optClear : NULL, &IID_ID3D12Resource, &texture->dx12.resource);
+    HRESULT hr = ID3D12Device10_CreateCommittedResource(DX12Device, &heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, dx12_util_res_state_translate(texture->resource.hot.currentState), isRtvDsv ? &optClear : NULL, &IID_ID3D12Resource, &texture->dx12.resource);
     if (FAILED(hr)) {
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Texture2D: 0x%08X", hr);
         return;
     }
     RAZIX_RHI_LOG_INFO("D3D12 Texture2D created successfully");
-    TAG_OBJECT(texture->dx12.resource, texture->resource.pName);
+    TAG_OBJECT(texture->dx12.resource, texture->resource.pCold->pName);
 
     // Upload pixel data if provided
     if (desc->pPixelData != NULL) {
@@ -2510,7 +2510,7 @@ static void dx12_DestroyTexture(void* texture)
 static void dx12_CreateSampler(void* where)
 {
     rz_gfx_sampler* sampler = (rz_gfx_sampler*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&sampler->resource.handle), "Invalid sampler handle, who is allocating this? ResourceManager should create a valid handle");
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&sampler->resource.hot.handle), "Invalid sampler handle, who is allocating this? ResourceManager should create a valid handle");
     // This is empty we don't need to create anything for samplers in D3D12
     // Samplers are created during descriptor heap creation and bound to the pipeline state.
 }
@@ -2527,13 +2527,13 @@ static void dx12_DestroySampler(void* sampler)
 static void dx12_CreateBuffer(void* where)
 {
     rz_gfx_buffer* buffer = (rz_gfx_buffer*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&buffer->resource.handle), "Invalid buffer handle, who is allocating this? ResourceManager should create a valid handle");
-    rz_gfx_buffer_desc* desc = &buffer->resource.desc.bufferDesc;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&buffer->resource.hot.handle), "Invalid buffer handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_buffer_desc* desc = &buffer->resource.pCold->desc.bufferDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Buffer descriptor cannot be NULL");
     RAZIX_RHI_ASSERT(desc->sizeInBytes > 0, "Buffer size must be greater than zero");
 
     // Maintain a second copy of hints...Ahhh...
-    buffer->resource.viewHints = desc->resourceHints;
+    buffer->resource.hot.viewHints = desc->resourceHints;
 
 #ifdef RAZIX_DEBUG
     if (desc->type == RZ_GFX_BUFFER_TYPE_STRUCTURED || desc->type == RZ_GFX_BUFFER_TYPE_RW_STRUCTURED) {
@@ -2578,12 +2578,12 @@ static void dx12_CreateBuffer(void* where)
     heapProps.CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
     heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 
-    buffer->resource.currentState = RZ_GFX_RESOURCE_STATE_COMMON;
+    buffer->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_COMMON;
     if (useUploadHeapType)
-        buffer->resource.currentState = RZ_GFX_RESOURCE_STATE_GENERIC_READ;
+        buffer->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_GENERIC_READ;
 
     // Create the buffer resource
-    HRESULT hr = ID3D12Device10_CreateCommittedResource(DX12Device, &heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, dx12_util_res_state_translate(buffer->resource.currentState), NULL, &IID_ID3D12Resource, &buffer->dx12.resource);
+    HRESULT hr = ID3D12Device10_CreateCommittedResource(DX12Device, &heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, dx12_util_res_state_translate(buffer->resource.hot.currentState), NULL, &IID_ID3D12Resource, &buffer->dx12.resource);
     if (FAILED(hr)) {
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Buffer: 0x%08X", hr);
         return;
@@ -2608,7 +2608,7 @@ static void dx12_CreateBuffer(void* where)
         }
     }
 
-    TAG_OBJECT(buffer->dx12.resource, buffer->resource.pName);
+    TAG_OBJECT(buffer->dx12.resource, buffer->resource.pCold->pName);
 }
 
 static void dx12_DestroyBuffer(void* buffer)
@@ -2625,8 +2625,8 @@ static void dx12_CreateDescriptorHeap(void* where)
 {
     rz_gfx_descriptor_heap* heap = (rz_gfx_descriptor_heap*) where;
     RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&heap->resource.handle), "Invalid descriptor heap handle, who is allocating this? ResourceManager should create a valid handle");
-    rz_gfx_descriptor_heap_desc* desc = &heap->resource.desc.descriptorHeapDesc;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&heap->resource.hot.handle), "Invalid descriptor heap handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_descriptor_heap_desc* desc = &heap->resource.pCold->desc.descriptorHeapDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
 
     D3D12_DESCRIPTOR_HEAP_DESC d3d12Desc = {0};
@@ -2644,7 +2644,7 @@ static void dx12_CreateDescriptorHeap(void* where)
         return;
     }
     RAZIX_RHI_LOG_INFO("D3D12 Descriptor Heap created successfully");
-    TAG_OBJECT(heap->dx12.heap, heap->resource.pName);
+    TAG_OBJECT(heap->dx12.heap, heap->resource.pCold->pName);
 
     // Cache the descriptor size
     heap->dx12.descriptorSize = ID3D12Device10_GetDescriptorHandleIncrementSize(DX12Device, d3d12Desc.Type);
@@ -2684,7 +2684,7 @@ static void dx12_DestroyDescriptorHeap(void* heap)
         descHeap->dx12.heapStart.gpu.ptr = 0;
         descHeap->dx12.heapStart.cpu.ptr = 0;
 
-        rz_gfx_descriptor_heap_desc* desc = &descHeap->resource.desc.descriptorHeapDesc;
+        rz_gfx_descriptor_heap_desc* desc = &descHeap->resource.pCold->desc.descriptorHeapDesc;
 
         if (descHeap->freeListAllocator && (desc->flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST))
             dx12_destroy_descriptor_freelist_allocator(descHeap);
@@ -2699,8 +2699,8 @@ static void dx12_DestroyDescriptorHeap(void* heap)
 static void dx12_CreateResourceView(void* where)
 {
     rz_gfx_resource_view* pView = (rz_gfx_resource_view*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pView->resource.handle), "Invalid resource view handle, who is allocating this? ResourceManager should create a valid handle");
-    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pView->resource.hot.handle), "Invalid resource view handle, who is allocating this? ResourceManager should create a valid handle");
+    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.pCold->desc.resourceViewDesc;
     RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL");
     RAZIX_RHI_ASSERT(pViewDesc->descriptorType != RZ_GFX_DESCRIPTOR_TYPE_NONE, "Resource view descriptor type cannot be none");
 
@@ -2744,20 +2744,20 @@ static void dx12_DestroyResourceView(void* where)
     pView->dx12 = (dx12_resview) {0};
 
     // Except for RTV and DSV we free their slots in the heap as the scope is not tied to tables
-    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+    rz_gfx_resource_view_desc* pViewDesc = &pView->resource.pCold->desc.resourceViewDesc;
     RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL");
     if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE)
-        dx12_descriptor_free_handle(pView->resource.desc.resourceViewDesc.pRtvDsvHeap, pView->dx12.rtv, 1);
+        dx12_descriptor_free_handle(pView->resource.pCold->desc.resourceViewDesc.pRtvDsvHeap, pView->dx12.rtv, 1);
     else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE)
-        dx12_descriptor_free_handle(pView->resource.desc.resourceViewDesc.pRtvDsvHeap, pView->dx12.dsv, 1);
+        dx12_descriptor_free_handle(pView->resource.pCold->desc.resourceViewDesc.pRtvDsvHeap, pView->dx12.dsv, 1);
 }
 
 static void dx12_CreateDescriptorTable(void* where)
 {
     rz_gfx_descriptor_table* pTable = (rz_gfx_descriptor_table*) where;
-    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pTable->resource.handle), "Invalid table handle, who is allocating this? ResourceManager should create a valid handle");
+    RAZIX_RHI_ASSERT(rz_handle_is_valid(&pTable->resource.hot.handle), "Invalid table handle, who is allocating this? ResourceManager should create a valid handle");
 
-    rz_gfx_descriptor_table_desc* pDesc = &pTable->resource.desc.descriptorTableDesc;
+    rz_gfx_descriptor_table_desc* pDesc = &pTable->resource.pCold->desc.descriptorTableDesc;
     RAZIX_RHI_ASSERT(pDesc != NULL, "Descriptor table descriptor cannot be NULL");
     RAZIX_RHI_ASSERT(pDesc->descriptorCount > 0, "Descriptor table should have atleast 1 descriptor");
     RAZIX_RHI_ASSERT(pDesc->pDescriptors != NULL, "Descriptor table cannot have NULL resource views");
@@ -2771,7 +2771,7 @@ static void dx12_DestroyDescriptorTable(void* where)
     RAZIX_RHI_ASSERT(where != NULL, "Descriptor table is NULL, cannot destroy");
     rz_gfx_descriptor_table* pTable = (rz_gfx_descriptor_table*) where;
 
-    rz_gfx_descriptor_table_desc* desc = &pTable->resource.desc.descriptorTableDesc;
+    rz_gfx_descriptor_table_desc* desc = &pTable->resource.pCold->desc.descriptorTableDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Descriptor table descriptor cannot be NULL");
     RAZIX_RHI_ASSERT(desc->pHeap != NULL, "Descriptor tables needs a heap to create the table");
 
@@ -2948,7 +2948,7 @@ static void dx12_SetScissorRect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* 
 
 static void dx12_BindPipeline(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_pipeline* pso)
 {
-    if (pso->resource.desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
+    if (pso->resource.pCold->desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
         ID3D12GraphicsCommandList_IASetPrimitiveTopology(cmdBuf->dx12.cmdList, pso->dx12.topology);
     ID3D12GraphicsCommandList_SetPipelineState(cmdBuf->dx12.cmdList, pso->dx12.pso);
 }
@@ -2987,11 +2987,11 @@ static void dx12_BindDescriptorTables(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeli
 
     ID3D12DescriptorHeap* dx12Heaps[RAZIX_MAX_ALLOWED_TABLES_TO_BIND] = {0};
     for (uint32_t i = 0; i < tableCount; i++) {
-        dx12Heaps[i] = tables[i]->resource.desc.descriptorTableDesc.pHeap->dx12.heap;
+        dx12Heaps[i] = tables[i]->resource.pCold->desc.descriptorTableDesc.pHeap->dx12.heap;
         if (pipelineType == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
-            ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(cmdBuf->dx12.cmdList, i /*tables[i]->resource.desc.descriptorTableDesc.tableIndex*/, tables[i]->dx12.heapOffset.gpu);
+            ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(cmdBuf->dx12.cmdList, i /*tables[i]->resource.pCold->desc.descriptorTableDesc.tableIndex*/, tables[i]->dx12.heapOffset.gpu);
         else if (pipelineType == RZ_GFX_PIPELINE_TYPE_COMPUTE)
-            ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(cmdBuf->dx12.cmdList, i /*tables[i]->resource.desc.descriptorTableDesc.tableIndex*/, tables[i]->dx12.heapOffset.gpu);
+            ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(cmdBuf->dx12.cmdList, i /*tables[i]->resource.pCold->desc.descriptorTableDesc.tableIndex*/, tables[i]->dx12.heapOffset.gpu);
         else
             RAZIX_RHI_LOG_ERROR("Unsupported pipeline type for binding descriptor tables: %d", pipelineType);
     }
@@ -3008,7 +3008,7 @@ static void dx12_BindVertexBuffers(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buf
         RAZIX_RHI_ASSERT(buffers[i] != NULL, "Buffer at index %d is NULL", i);
         ID3D12Resource* d3d_buffer = (ID3D12Resource*) buffers[i]->dx12.resource;
         vbViews[i].BufferLocation  = ID3D12Resource_GetGPUVirtualAddress(d3d_buffer) + offsets[i];
-        vbViews[i].SizeInBytes     = (UINT) buffers[i]->resource.desc.bufferDesc.sizeInBytes - offsets[i];
+        vbViews[i].SizeInBytes     = (UINT) buffers[i]->resource.pCold->desc.bufferDesc.sizeInBytes - offsets[i];
         vbViews[i].StrideInBytes   = strides[i];
     }
     ID3D12GraphicsCommandList_IASetVertexBuffers(cmdBuf->dx12.cmdList, 0, bufferCount, vbViews);
@@ -3020,7 +3020,7 @@ static void dx12_BindIndexBuffer(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffe
     ID3D12Resource*         d3d_buffer = (ID3D12Resource*) buffer->dx12.resource;
     D3D12_INDEX_BUFFER_VIEW ibView;
     ibView.BufferLocation = ID3D12Resource_GetGPUVirtualAddress(d3d_buffer) + offset;
-    ibView.SizeInBytes    = (UINT) buffer->resource.desc.bufferDesc.sizeInBytes - offset;
+    ibView.SizeInBytes    = (UINT) buffer->resource.pCold->desc.bufferDesc.sizeInBytes - offset;
     if (indexType == RZ_GFX_INDEX_TYPE_UINT16)
         ibView.Format = DXGI_FORMAT_R16_UINT;
     else if (indexType == RZ_GFX_INDEX_TYPE_UINT32)
@@ -3126,7 +3126,7 @@ static void dx12_UpdateDescriptorTable(rz_gfx_descriptor_table_update tableUpdat
 
     for (uint32_t i = 0; i < tableUpdate.resViewCount; i++) {
         const rz_gfx_resource_view*      pView     = &tableUpdate.pResourceViews[i];
-        const rz_gfx_resource_view_desc* pViewDesc = &pView->resource.desc.resourceViewDesc;
+        const rz_gfx_resource_view_desc* pViewDesc = &pView->resource.pCold->desc.resourceViewDesc;
         RAZIX_RHI_ASSERT(pView != NULL, "Resource view cannot be NULL in a descriptor table! (Descriptor Table creation)");
         RAZIX_RHI_ASSERT(pViewDesc != NULL, "Resource view descriptor cannot be NULL in a descriptor table! (Descriptor Table creation)");
 
@@ -3182,12 +3182,12 @@ static void dx12_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
 {
     RAZIX_RHI_ASSERT(updatedesc.pBuffer != NULL, "Buffer cannot be NULL");
     RAZIX_RHI_ASSERT(updatedesc.sizeInBytes > 0, "Size in bytes must be greater than zero");
-    RAZIX_RHI_ASSERT(updatedesc.offset + updatedesc.sizeInBytes <= updatedesc.pBuffer->resource.desc.bufferDesc.sizeInBytes, "Update range exceeds buffer size");
+    RAZIX_RHI_ASSERT(updatedesc.offset + updatedesc.sizeInBytes <= updatedesc.pBuffer->resource.pCold->desc.bufferDesc.sizeInBytes, "Update range exceeds buffer size");
     RAZIX_RHI_ASSERT(updatedesc.pData != NULL, "Data pointer cannot be NULL");
     RAZIX_RHI_ASSERT(
-        (updatedesc.pBuffer->resource.desc.bufferDesc.usage & (RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC | RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)),
+        (updatedesc.pBuffer->resource.pCold->desc.bufferDesc.usage & (RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC | RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)),
         "Buffer must be created with RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC or RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM usage flag");
-    RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.desc.bufferDesc.type & RZ_GFX_BUFFER_TYPE_CONSTANT) == RZ_GFX_BUFFER_TYPE_CONSTANT, "Buffer must be of type RZ_GFX_BUFFER_TYPE_CONSTANT to update");
+    RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.pCold->desc.bufferDesc.type & RZ_GFX_BUFFER_TYPE_CONSTANT) == RZ_GFX_BUFFER_TYPE_CONSTANT, "Buffer must be of type RZ_GFX_BUFFER_TYPE_CONSTANT to update");
 
     D3D12_RANGE readRange = {0};
     readRange.Begin       = updatedesc.offset;
@@ -3204,11 +3204,11 @@ static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture*
     RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
     RAZIX_RHI_ASSERT(beforeState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "Before state cannot be undefined");
     RAZIX_RHI_ASSERT(afterState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "After state cannot be undefined");
-    RAZIX_RHI_ASSERT(!(texture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) ||
+    RAZIX_RHI_ASSERT(!(texture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) ||
                          (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS || afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS),
         "UAV barriers must be used only with UAV resources. If the resource has UAV view hint, either before or after state must be UAV");
     RAZIX_RHI_ASSERT(!(beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS) ||
-                         (texture->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
+                         (texture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
         "UAV-to-UAV barrier requires resource to have UAV view hint");
 
     bool isUAVBarrier = (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -3234,7 +3234,7 @@ static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture*
         }};
 
     // Update the current state
-    texture->resource.currentState = afterState;
+    texture->resource.hot.currentState = afterState;
 
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 1, &barrier);
 }
@@ -3245,11 +3245,11 @@ static void dx12_InsertBufferBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_buffer*
     RAZIX_RHI_ASSERT(buffer != NULL, "Buffer cannot be NULL");
     RAZIX_RHI_ASSERT(beforeState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "Before state cannot be undefined");
     RAZIX_RHI_ASSERT(afterState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "After state cannot be undefined");
-    RAZIX_RHI_ASSERT(!(buffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) ||
+    RAZIX_RHI_ASSERT(!(buffer->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) ||
                          (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS || afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS),
         "UAV barriers must be used only with UAV resources. If the resource has UAV view hint, either before or after state must be UAV");
     RAZIX_RHI_ASSERT(!(beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS) ||
-                         (buffer->resource.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
+                         (buffer->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
         "UAV-to-UAV barrier requires resource to have UAV view hint");
 
     bool isUAVBarrier = (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -3275,7 +3275,7 @@ static void dx12_InsertBufferBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_buffer*
         }};
 
     // Update the current state
-    buffer->resource.currentState = afterState;
+    buffer->resource.hot.currentState = afterState;
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf->dx12.cmdList, 1, &barrier);
 }
 
@@ -3290,8 +3290,8 @@ static void dx12_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_tex
 
     dx12_cmdbuf cmdBuf = dx12_util_begin_singletime_cmdlist();
 
-    uint32_t width  = texture->resource.desc.textureDesc.width;
-    uint32_t height = texture->resource.desc.textureDesc.height;
+    uint32_t width  = texture->resource.pCold->desc.textureDesc.width;
+    uint32_t height = texture->resource.pCold->desc.textureDesc.height;
     uint32_t size   = width * height * 4;    // Assuming 4 bytes per pixel (RGBA8)
 
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT srcFootprint = {0};
@@ -3341,7 +3341,7 @@ static void dx12_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_tex
         .Transition = {
             .pResource   = srcResource,
             .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
-            .StateBefore = dx12_util_res_state_translate(texture->resource.currentState),
+            .StateBefore = dx12_util_res_state_translate(texture->resource.hot.currentState),
             .StateAfter  = D3D12_RESOURCE_STATE_COPY_SOURCE}};
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &barrier);
 
@@ -3364,7 +3364,7 @@ static void dx12_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_tex
             .pResource   = srcResource,
             .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
             .StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE,
-            .StateAfter  = dx12_util_res_state_translate(texture->resource.currentState)}};
+            .StateAfter  = dx12_util_res_state_translate(texture->resource.hot.currentState)}};
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &restore_barrier);
 
     // Close command list and submit and flush GPU work
@@ -3437,7 +3437,7 @@ static void dx12_InsertBufferReadback(const rz_gfx_buffer* buffer, rz_gfx_buffer
         .Transition = {
             .pResource   = srcResource,
             .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
-            .StateBefore = dx12_util_res_state_translate(buffer->resource.currentState),
+            .StateBefore = dx12_util_res_state_translate(buffer->resource.hot.currentState),
             .StateAfter  = D3D12_RESOURCE_STATE_COPY_SOURCE}};
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &barrier);
 
@@ -3450,7 +3450,7 @@ static void dx12_InsertBufferReadback(const rz_gfx_buffer* buffer, rz_gfx_buffer
             .pResource   = srcResource,
             .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
             .StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE,
-            .StateAfter  = dx12_util_res_state_translate(buffer->resource.currentState)}};
+            .StateAfter  = dx12_util_res_state_translate(buffer->resource.hot.currentState)}};
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &restore_barrier);
 
     // Close command list and submit and flush GPU work
@@ -3467,11 +3467,11 @@ static void dx12_CopyBuffer(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* sr
     RAZIX_RHI_ASSERT(src != NULL, "Source buffer cannot be NULL");
     RAZIX_RHI_ASSERT(dst != NULL, "Destination buffer cannot be NULL");
     RAZIX_RHI_ASSERT(size > 0, "Size must be greater than zero");
-    RAZIX_RHI_ASSERT(srcOffset + size <= src->resource.desc.bufferDesc.sizeInBytes, "Source buffer copy range exceeds buffer size");
-    RAZIX_RHI_ASSERT(dstOffset + size <= dst->resource.desc.bufferDesc.sizeInBytes, "Destination buffer copy range exceeds buffer size");
+    RAZIX_RHI_ASSERT(srcOffset + size <= src->resource.pCold->desc.bufferDesc.sizeInBytes, "Source buffer copy range exceeds buffer size");
+    RAZIX_RHI_ASSERT(dstOffset + size <= dst->resource.pCold->desc.bufferDesc.sizeInBytes, "Destination buffer copy range exceeds buffer size");
 
-    D3D12_RESOURCE_STATES originalSrcState = dx12_util_res_state_translate(src->resource.currentState);
-    D3D12_RESOURCE_STATES originalDstState = dx12_util_res_state_translate(dst->resource.currentState);
+    D3D12_RESOURCE_STATES originalSrcState = dx12_util_res_state_translate(src->resource.hot.currentState);
+    D3D12_RESOURCE_STATES originalDstState = dx12_util_res_state_translate(dst->resource.hot.currentState);
 
     D3D12_RESOURCE_BARRIER transitionToCopyBarriers[2] = {
         {.Type          = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
@@ -3505,13 +3505,13 @@ static void dx12_CopyTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* 
     RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
     RAZIX_RHI_ASSERT(src != NULL, "Source texture cannot be NULL");
     RAZIX_RHI_ASSERT(dst != NULL, "Destination texture cannot be NULL");
-    RAZIX_RHI_ASSERT(src->resource.desc.textureDesc.width == dst->resource.desc.textureDesc.width &&
-                         src->resource.desc.textureDesc.height == dst->resource.desc.textureDesc.height &&
-                         src->resource.desc.textureDesc.depth == dst->resource.desc.textureDesc.depth,
+    RAZIX_RHI_ASSERT(src->resource.pCold->desc.textureDesc.width == dst->resource.pCold->desc.textureDesc.width &&
+                         src->resource.pCold->desc.textureDesc.height == dst->resource.pCold->desc.textureDesc.height &&
+                         src->resource.pCold->desc.textureDesc.depth == dst->resource.pCold->desc.textureDesc.depth,
         "Source and destination textures must have the same dimensions for copy");
 
-    D3D12_RESOURCE_STATES originalSrcState = dx12_util_res_state_translate(src->resource.currentState);
-    D3D12_RESOURCE_STATES originalDstState = dx12_util_res_state_translate(dst->resource.currentState);
+    D3D12_RESOURCE_STATES originalSrcState = dx12_util_res_state_translate(src->resource.hot.currentState);
+    D3D12_RESOURCE_STATES originalDstState = dx12_util_res_state_translate(dst->resource.hot.currentState);
 
     D3D12_RESOURCE_BARRIER transitionToCopyBarriers[2] = {
         {.Type          = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
@@ -3553,11 +3553,11 @@ static void dx12_CopyBufferToTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_b
     RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
     RAZIX_RHI_ASSERT(src != NULL, "Source buffer cannot be NULL");
     RAZIX_RHI_ASSERT(dst != NULL, "Destination texture cannot be NULL");
-    RAZIX_RHI_ASSERT(src->resource.desc.bufferDesc.sizeInBytes <= (dst->resource.desc.textureDesc.width * dst->resource.desc.textureDesc.height * 4),
+    RAZIX_RHI_ASSERT(src->resource.pCold->desc.bufferDesc.sizeInBytes <= (dst->resource.pCold->desc.textureDesc.width * dst->resource.pCold->desc.textureDesc.height * 4),
         "Source buffer size is insufficient for the texture copy");
 
-    D3D12_RESOURCE_STATES originalSrcState = dx12_util_res_state_translate(src->resource.currentState);
-    D3D12_RESOURCE_STATES originalDstState = dx12_util_res_state_translate(dst->resource.currentState);
+    D3D12_RESOURCE_STATES originalSrcState = dx12_util_res_state_translate(src->resource.hot.currentState);
+    D3D12_RESOURCE_STATES originalDstState = dx12_util_res_state_translate(dst->resource.hot.currentState);
 
     D3D12_RESOURCE_BARRIER transitionToCopyBarriers[2] = {
         {.Type          = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
@@ -3608,11 +3608,11 @@ static void dx12_CopyTextureToBufferFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx
     RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be NULL");
     RAZIX_RHI_ASSERT(src != NULL, "Source texture cannot be NULL");
     RAZIX_RHI_ASSERT(dst != NULL, "Destination buffer cannot be NULL");
-    RAZIX_RHI_ASSERT(dst->resource.desc.bufferDesc.sizeInBytes >= (src->resource.desc.textureDesc.width * src->resource.desc.textureDesc.height * 4),
+    RAZIX_RHI_ASSERT(dst->resource.pCold->desc.bufferDesc.sizeInBytes >= (src->resource.pCold->desc.textureDesc.width * src->resource.pCold->desc.textureDesc.height * 4),
         "Destination buffer size is insufficient for the texture copy");
 
-    D3D12_RESOURCE_STATES originalSrcState = dx12_util_res_state_translate(src->resource.currentState);
-    D3D12_RESOURCE_STATES originalDstState = dx12_util_res_state_translate(dst->resource.currentState);
+    D3D12_RESOURCE_STATES originalSrcState = dx12_util_res_state_translate(src->resource.hot.currentState);
+    D3D12_RESOURCE_STATES originalDstState = dx12_util_res_state_translate(dst->resource.hot.currentState);
 
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT srcFootprint = {0};
     UINT64                             totalSize    = 0;
@@ -3684,8 +3684,8 @@ static void dx12_ResolveTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_textur
     RAZIX_RHI_ASSERT(dst != NULL, "Destination texture cannot be NULL");
     // TODO: Check if src is multi-sampled and dst is single sampled
 
-    D3D12_RESOURCE_STATES originalSrcState = dx12_util_res_state_translate(src->resource.currentState);
-    D3D12_RESOURCE_STATES originalDstState = dx12_util_res_state_translate(dst->resource.currentState);
+    D3D12_RESOURCE_STATES originalSrcState = dx12_util_res_state_translate(src->resource.hot.currentState);
+    D3D12_RESOURCE_STATES originalDstState = dx12_util_res_state_translate(dst->resource.hot.currentState);
 
     D3D12_RESOURCE_BARRIER transitionToResolveBarriers[2] = {
         {.Type          = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
@@ -3704,7 +3704,7 @@ static void dx12_ResolveTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_textur
         0,
         src->dx12.resource,
         0,
-        dx12_util_rz_gfx_format_to_dxgi_format(src->resource.desc.textureDesc.format));
+        dx12_util_rz_gfx_format_to_dxgi_format(src->resource.pCold->desc.textureDesc.format));
 
     D3D12_RESOURCE_BARRIER restoreBarriers[2] = {
         {.Type          = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
