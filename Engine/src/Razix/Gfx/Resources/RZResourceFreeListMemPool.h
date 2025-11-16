@@ -73,7 +73,7 @@ namespace Razix {
 
             if (m_FreeIndicesHead != 0) {
                 for (u32 i = 0; i < m_FreeIndicesHead; ++i) {
-                    handles.push_back(((rz_gfx_resource*) accessResource(i))->handle);
+                    handles.push_back(((rz_gfx_resource*) accessResource(i))->hot.handle);
                 }
             }
             return handles;
