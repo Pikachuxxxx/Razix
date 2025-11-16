@@ -2196,12 +2196,12 @@ static void vk_util_destroy_swapchain_images(rz_gfx_swapchain* swapchain)
         memset(&swapchain->backbuffers[i], 0, sizeof(rz_gfx_texture));
         memset(&swapchain->backbuffersResViews[i], 0, sizeof(rz_gfx_resource_view));
 
-        if (&swapchain->backbuffers[i].resource.pCold) {
+        if (swapchain->backbuffers[i].resource.pCold) {
             free(swapchain->backbuffers[i].resource.pCold);
             swapchain->backbuffers[i].resource.pCold = NULL;
         }
 
-        if (&swapchain->backbuffersResViews[i].resource.pCold) {
+        if (swapchain->backbuffersResViews[i].resource.pCold) {
             free(swapchain->backbuffersResViews[i].resource.pCold);
             swapchain->backbuffersResViews[i].resource.pCold = NULL;
         }
