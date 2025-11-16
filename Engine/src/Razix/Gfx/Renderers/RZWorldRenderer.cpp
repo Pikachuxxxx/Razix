@@ -323,7 +323,7 @@ namespace Razix {
             // Upload buffers/textures Data to the FrameGraph and GPU initially
             // Upload BRDF look up texture to the GPU
             m_BRDFfLUTTextureHandle             = CreateTextureFromFile("//RazixContent/Textures/Texture.Builtin.BrdfLUT.png");
-            rz_gfx_texture_desc brdfTextureDesc = RZResourceManager::Get().getTextureResource(m_BRDFfLUTTextureHandle)->resource.desc.textureDesc;
+            rz_gfx_texture_desc brdfTextureDesc = RZResourceManager::Get().getTextureResource(m_BRDFfLUTTextureHandle)->resource.pCold->desc.textureDesc;
             BRDFData&           brdfData        = m_FrameGraph.getBlackboard().add<BRDFData>();
             brdfData.lut                        = m_FrameGraph.import <RZFrameGraphTexture>("BRDFLut", CAST_TO_FG_TEX_DESC brdfTextureDesc, {m_BRDFfLUTTextureHandle});
 

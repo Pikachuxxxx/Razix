@@ -98,7 +98,7 @@ namespace Razix {
         {
             for (auto& shader: m_BuiltinShaders) {
                 // FIXME: This is lost, once we load bytecode (unions of filepath and bytecode infact), need to store this elsewhere for proper paths?
-                RZString shaderPath = RZString(RZResourceManager::Get().getShaderResource(shader.second)->resource.desc.shaderDesc.rzsfFilePath);
+                RZString shaderPath = RZString(RZResourceManager::Get().getShaderResource(shader.second)->resource.pCold->desc.shaderDesc.rzsfFilePath);
                 RZResourceManager::Get().destroyShader(shader.second);
 
                 rz_gfx_shader_desc desc = {};

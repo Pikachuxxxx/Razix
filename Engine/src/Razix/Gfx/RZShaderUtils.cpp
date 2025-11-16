@@ -822,7 +822,7 @@ namespace Razix {
 
         RZShaderBindMap& RZShaderBindMap::setResourceView(const RZString& shaderResName, const rz_gfx_resource_view& resourceView)
         {
-            setResourceView(shaderResName, resourceView.resource.handle);
+            setResourceView(shaderResName, resourceView.resource.hot.handle);
             return *this;
         }
 
@@ -838,7 +838,7 @@ namespace Razix {
         RZShaderBindMap& RZShaderBindMap::setDescriptorTable(const rz_gfx_descriptor_table& descriptorTable)
         {
             dirty = true;
-            setDescriptorTable(descriptorTable.resource.handle);
+            setDescriptorTable(descriptorTable.resource.hot.handle);
             return *this;
         }
 
@@ -1000,7 +1000,7 @@ namespace Razix {
                     rz_gfx_descriptor_heap_handle globalResourceHeapHandle = RZEngine::Get().getWorldRenderer().getResourceHeap();
                     desc.pHeap                                             = RZResourceManager::Get().getDescriptorHeapResource(globalResourceHeapHandle);
 
-                    RZString                      shaderName            = RZResourceManager::Get().getShaderResource(m_ShaderHandle)->resource.pName;
+                    RZString                      shaderName            = RZResourceManager::Get().getShaderResource(m_ShaderHandle)->resource.pCold->pName;
                     RZString                      tableName             = "ShaderBindMap.DescriptorTable." + rz_to_string(i) + "_" + shaderName;
                     rz_gfx_descriptor_heap_handle descriptorTableHandle = RZResourceManager::Get().createDescriptorTable(tableName.c_str(), desc);
                     m_DescriptorTables.push_back(descriptorTableHandle);
@@ -1022,7 +1022,7 @@ namespace Razix {
                     RAZIX_CORE_INFO("[ShaderBindMap] Created descriptor table {0} for table index {1} with {2} resource views", tableName, i, resViews.size());
                 }
                 dirty = false;
-                RAZIX_CORE_INFO("[ShaderBindMap] Shader Bind Map built successfully! Created {0} descriptor tables for shader {1}", m_DescriptorTables.size(), RZResourceManager::Get().getShaderResource(m_ShaderHandle)->resource.pName);
+                RAZIX_CORE_INFO("[ShaderBindMap] Shader Bind Map built successfully! Created {0} descriptor tables for shader {1}", m_DescriptorTables.size(), RZResourceManager::Get().getShaderResource(m_ShaderHandle)->resource.pCold->pName);
             }
             return *this;
         }

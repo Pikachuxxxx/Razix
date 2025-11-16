@@ -61,7 +61,7 @@ namespace Razix {
         {
             if (m_FreeIndicesHead != 0) {
                 for (u32 i = 0; i < m_FreeIndicesHead; i++) {
-                    RAZIX_CORE_TRACE("\tResource id={0}, name={1}\n", m_FreeIndices[i], ((rz_gfx_resource*) accessResource(i))->pName);
+                    RAZIX_CORE_TRACE("\tResource id={0}, name={1}\n", m_FreeIndices[i], ((rz_gfx_resource*) accessResource(i))->pCold->pName);
                 }
             }
         }

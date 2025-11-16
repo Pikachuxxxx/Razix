@@ -80,7 +80,7 @@ namespace Razix {
                 if (rzRHI_IsDescriptorTypeBuffer(accessView.resViewDesc.descriptorType)) {
                     if (accessView.resViewDesc.bufferViewDesc.pBuffer == RZ_FG_BUF_RES_AUTO_POPULATE) {
                         accessView.resViewDesc.bufferViewDesc.pBuffer = RZResourceManager::Get().getBufferResource(resHandle);
-                        resViewName                                   = RZString(accessView.resViewDesc.bufferViewDesc.pBuffer->resource.pName);
+                        resViewName                                   = RZString(accessView.resViewDesc.bufferViewDesc.pBuffer->resource.pCold->pName);
                     } else {
                         RAZIX_CORE_WARN("pBuffer is either NULL or not AUTO_POPULATE");
                         return;
@@ -88,7 +88,7 @@ namespace Razix {
                 } else if (rzRHI_IsDescriptorTypeTexture(accessView.resViewDesc.descriptorType)) {
                     if (accessView.resViewDesc.textureViewDesc.pTexture == RZ_FG_TEX_RES_AUTO_POPULATE) {
                         accessView.resViewDesc.textureViewDesc.pTexture = RZResourceManager::Get().getTextureResource(resHandle);
-                        resViewName                                     = RZString(accessView.resViewDesc.textureViewDesc.pTexture->resource.pName);
+                        resViewName                                     = RZString(accessView.resViewDesc.textureViewDesc.pTexture->resource.pCold->pName);
                     } else {
                         RAZIX_CORE_WARN("pTexture is not AUTO_POPULATE, this is invalid way to create resource views with framegraph, please follow the right convention by defining the pTexture with RZ_FG_TEX_RES_AUTO_POPULATE, to automatically generate and maintain resource views per pass");
                         return;

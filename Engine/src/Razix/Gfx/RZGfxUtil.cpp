@@ -235,7 +235,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             RAZIX_ASSERT(shader != NULL, "[RZSF] Shader is NULL, cannot free bytecode allocation");
-            rz_gfx_shader_desc* desc = &shader->resource.desc.shaderDesc;
+            rz_gfx_shader_desc* desc = &shader->resource.pCold->desc.shaderDesc;
 
             switch (desc->pipelineType) {
                 case RZ_GFX_PIPELINE_TYPE_GRAPHICS: {
@@ -333,7 +333,7 @@ namespace Razix {
             rz_gfx_shader_reflection reflection = {0};
             RAZIX_ASSERT(shader != NULL, "[Reflection] Shader is NULL, cannot reflect");
 
-            const rz_gfx_shader_desc* desc = &shader->resource.desc.shaderDesc;
+            const rz_gfx_shader_desc* desc = &shader->resource.pCold->desc.shaderDesc;
             RAZIX_ASSERT(desc != NULL, "[Reflection] Shader descriptor is NULL, cannot reflect");
 
             // Get the appropriate reflection function for the current render API
@@ -465,7 +465,8 @@ namespace Razix {
             rzRHI_DestroySyncobj(&flushSyncobj);
             rz_gfx_cmdbuf* cmdBufRes = RZResourceManager::Get().getCommandBufferResource(cmdBuf);
             RZResourceManager::Get().destroyCommandBuffer(cmdBuf);
-            rz_handle handle = cmdBufRes->resource.desc.cmdbufDesc.pool->resource.handle;
+            // TODO: Optimize this convolute piece of shit memory access, I mean it looks weird but it's very less data being loaded into cache line but still, looks matter!
+            rz_handle handle = cmdBufRes->resource.pCold->desc.cmdbufDesc.pool->resource.hot.handle;
             RZResourceManager::Get().destroyCommandPool(handle);
         }
 

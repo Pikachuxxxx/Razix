@@ -32,7 +32,7 @@ namespace Razix {
             m_Pipeline = RZResourceManager::Get().createPipeline("Pipeline.GfxTest.HelloTriangle", pipelineInfo);
 
             rz_gfx_texture_handle testTexture     = Gfx::CreateTextureFromFile("//RazixContent/Textures/TestCheckerMap.png");
-            rz_gfx_texture_desc   testTextureDesc = RZResourceManager::Get().getTextureResource(testTexture)->resource.desc.textureDesc;
+            rz_gfx_texture_desc   testTextureDesc = RZResourceManager::Get().getTextureResource(testTexture)->resource.pCold->desc.textureDesc;
             RZFrameGraphResource  checkerMap      = framegraph.import <RZFrameGraphTexture>("Texture.TestCheckerMap", CAST_TO_FG_TEX_DESC testTextureDesc, {testTexture});
 
             struct HelloTexturePassData

@@ -25,7 +25,8 @@ public:                                                                         
     resourceTypeName*         get##poolName##Resource(resourceTypeName##_handle handle);               \
                                                                                                        \
 private:                                                                                               \
-    RZResourceFreeListMemPoolTyped<resourceTypeName> m_##poolName##Pool;
+    RZResourceFreeListMemPoolTyped<resourceTypeName>     m_##poolName##Pool;                           \
+    RZResourceFreeListMemPoolTyped<rz_gfx_resource_cold> m_##poolName##ColdDataPool;
 
         /**
          * Resource Manager maintains the CPU and GPU pools for all resource allocated in Razix Engine

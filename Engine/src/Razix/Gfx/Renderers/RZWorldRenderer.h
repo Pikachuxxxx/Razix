@@ -146,9 +146,9 @@ namespace Razix {
             inline const rz_gfx_texture_readback* getSwapchainReadbackPtr() const { return &m_LastSwapchainReadback; }
             inline rz_gfx_cmdbuf_handle           getCurrCmdBufHandle() const { return m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx]; }
             inline const rz_gfx_texture*          getCurrSwapchainBackbufferPtr() const { return &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx]; }
-            inline rz_gfx_texture_handle          getCurrSwapchainBackbufferHandle() const { return m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx].resource.handle; }
+            inline rz_gfx_texture_handle          getCurrSwapchainBackbufferHandle() const { return m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx].resource.hot.handle; }
             inline const rz_gfx_resource_view*    getCurrSwapchainBackbufferResViewPtr() const { return &m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx]; }
-            inline rz_gfx_resource_view_handle    getCurrSwapchainBackbufferResViewHandle() const { return m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx].resource.handle; }
+            inline rz_gfx_resource_view_handle    getCurrSwapchainBackbufferResViewHandle() const { return m_Swapchain.backbuffersResViews[m_Swapchain.currBackBufferIdx].resource.hot.handle; }
             inline rz_gfx_descriptor_heap_handle  getRenderTargetHeap() const { return m_RenderTargetHeap; }
             inline rz_gfx_descriptor_heap_handle  getDepthRenderTargetHeap() const { return m_DepthRenderTargetHeap; }
             inline rz_gfx_descriptor_heap_handle  getSamplerHeap() const { return m_SamplerHeap; }

@@ -6,36 +6,45 @@
 #include "Razix/Core/std/sprintf.h"
 #include "Razix/Gfx/RZGfxUtil.h"
 
-#define CREATE_UTIL(name, typeEnum, pool, handleSize)                                                    \
-    rz_handle        handle;                                                                             \
-    void*            where    = pool.obtain(handle);                                                     \
-    rz_gfx_resource* resource = (rz_gfx_resource*) where;                                                \
-    if (!where) {                                                                                        \
-        RAZIX_CORE_ERROR("[Resource Manager] Failed to create resource: {0}. Pool is full!", name);      \
-        return handle;                                                                                   \
-    }                                                                                                    \
-    memset(resource, 0x00, sizeof(rz_gfx_resource));                                                     \
-    resource->type = typeEnum;                                                                           \
-    rz_snprintf(resource->pName, 256, "%s", name);                                                       \
-    resource->handle = handle;                                                                           \
-    memcpy(&resource->desc, &desc, handleSize);                                                          \
-    if (m_ResourceTypeCBFuncs[typeEnum].createFuncCB) {                                                  \
-        m_ResourceTypeCBFuncs[typeEnum].createFuncCB(where);                                             \
-    } else {                                                                                             \
-        RAZIX_CORE_ERROR("[Resource Manager] Resource Create Callback is NULL for resource: {0}", name); \
-    }                                                                                                    \
+// use the hot data handle to get the cold data pool
+#define CREATE_UTIL(name, typeEnum, pool, cold_pool, handleSize)                                                  \
+    rz_handle        handle;                                                                                      \
+    void*            where    = pool.obtain(handle);                                                              \
+    rz_gfx_resource* resource = (rz_gfx_resource*) where;                                                         \
+    if (!where) {                                                                                                 \
+        RAZIX_CORE_ERROR("[Resource Manager] Failed to create resource: {0}. Pool is full!", name);               \
+        return handle;                                                                                            \
+    }                                                                                                             \
+    memset(resource, 0x00, sizeof(rz_gfx_resource));                                                              \
+    resource->hot.type   = typeEnum;                                                                              \
+    resource->hot.handle = handle;                                                                                \
+    resource->pCold      = cold_pool.get(resource->hot.handle);                                                   \
+    if (!resource->pCold) {                                                                                       \
+        RAZIX_CORE_ERROR("[Resource Manager] Failed to create cold data for resource: {0}. Pool is full!", name); \
+        pool.release(handle);                                                                                     \
+        rz_handle_destroy(&handle);                                                                               \
+        return handle;                                                                                            \
+    }                                                                                                             \
+    rz_snprintf(resource->pCold->pName, 256, "%s", name);                                                         \
+    memcpy(&resource->pCold->desc, &desc, handleSize);                                                            \
+    if (m_ResourceTypeCBFuncs[typeEnum].createFuncCB) {                                                           \
+        m_ResourceTypeCBFuncs[typeEnum].createFuncCB(where);                                                      \
+    } else {                                                                                                      \
+        RAZIX_CORE_ERROR("[Resource Manager] Resource Create Callback is NULL for resource: {0}", name);          \
+    }                                                                                                             \
     return handle;
 
-#define DESTROY_UTIL(pool, message)                                                                                                   \
+#define DESTROY_UTIL(pool, cold_pool, message)                                                                                        \
     if (rz_handle_is_valid(&handle)) {                                                                                                \
         rz_gfx_resource* resource = (rz_gfx_resource*) pool.get(handle);                                                              \
-        RAZIX_ASSERT(resource != nullptr, "[Resource Manager] Resource is null! Cannot destroy resource!");                           \
-        if (m_ResourceTypeCBFuncs[resource->type].destroyFuncCB) {                                                                    \
-            m_ResourceTypeCBFuncs[resource->type].destroyFuncCB((void*) resource);                                                    \
+        RAZIX_ASSERT(resource != NULL, "[Resource Manager] Resource is NULL! Cannot destroy resource!");                              \
+        if (m_ResourceTypeCBFuncs[resource->hot.type].destroyFuncCB) {                                                                \
+            m_ResourceTypeCBFuncs[resource->hot.type].destroyFuncCB((void*) resource);                                                \
         } else {                                                                                                                      \
             RAZIX_CORE_ERROR("[Resource Manager] Resource Destroy Callback is NULL for resource: {0}", rz_handle_get_index(&handle)); \
         }                                                                                                                             \
         pool.release(handle);                                                                                                         \
+        cold_pool.release(handle);                                                                                                    \
         rz_handle_destroy(&handle);                                                                                                   \
     } else                                                                                                                            \
         RAZIX_CORE_ERROR(message);
@@ -43,37 +52,41 @@
 #define GET_UTIL(pool)               \
     if (rz_handle_is_valid(&handle)) \
         return pool.get(handle);     \
-    return nullptr;
+    return NULL;
 
-#define RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(PoolName, ResourceType, HandleType)                                                                                      \
-    HandleType##_handle RZResourceManager::create##PoolName(const char* name, const HandleType##_desc& desc)                                                        \
-    {                                                                                                                                                               \
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);                                                                                                         \
-        CREATE_UTIL(name, ResourceType, m_##PoolName##Pool, sizeof(HandleType##_desc));                                                                             \
-    }                                                                                                                                                               \
-    void RZResourceManager::destroy##PoolName(HandleType##_handle& handle)                                                                                          \
-    {                                                                                                                                                               \
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);                                                                                                         \
-        DESTROY_UTIL(m_##PoolName##Pool, RZString("[Resource Manager] Attempting to release ") + RZString(#PoolName) + RZString(" resource with Invalid handle!")); \
-    }                                                                                                                                                               \
-    HandleType* RZResourceManager::get##PoolName##Resource(HandleType##_handle handle)                                                                              \
-    {                                                                                                                                                               \
-        GET_UTIL(m_##PoolName##Pool);                                                                                                                               \
+#define RAZIX_IMPLEMENT_RESOURCE_FUNCTIONS(PoolName, ResourceType, HandleType)                                                                                                                  \
+    HandleType##_handle RZResourceManager::create##PoolName(const char* name, const HandleType##_desc& desc)                                                                                    \
+    {                                                                                                                                                                                           \
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);                                                                                                                                     \
+        CREATE_UTIL(name, ResourceType, m_##PoolName##Pool, m_##PoolName##ColdDataPool, sizeof(HandleType##_desc));                                                                             \
+    }                                                                                                                                                                                           \
+    void RZResourceManager::destroy##PoolName(HandleType##_handle& handle)                                                                                                                      \
+    {                                                                                                                                                                                           \
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);                                                                                                                                     \
+        DESTROY_UTIL(m_##PoolName##Pool, m_##PoolName##ColdDataPool, RZString("[Resource Manager] Attempting to release ") + RZString(#PoolName) + RZString(" resource with Invalid handle!")); \
+    }                                                                                                                                                                                           \
+    HandleType* RZResourceManager::get##PoolName##Resource(HandleType##_handle handle)                                                                                                          \
+    {                                                                                                                                                                                           \
+        GET_UTIL(m_##PoolName##Pool);                                                                                                                                                           \
     }
 
 #define RAZIX_INIT_RESOURCE_POOL(PoolName, ResourceType, Capacity, ElementSize, CreateFuncCB, DestroyFuncCB) \
     m_ResourceTypeCBFuncs[ResourceType].createFuncCB  = CreateFuncCB;                                        \
     m_ResourceTypeCBFuncs[ResourceType].destroyFuncCB = DestroyFuncCB;                                       \
-    m_##PoolName##Pool.init(Capacity, ElementSize);
+    m_##PoolName##Pool.init(Capacity, ElementSize);                                                          \
+    m_##PoolName##ColdDataPool.init(Capacity, ElementSize);
 
 #ifdef RAZIX_DEBUG
     #define RAZIX_UNREGISTER_RESOURCE_POOL(PoolName)                                     \
         RAZIX_CORE_INFO("[Resource Manager] Destroying " #PoolName " Resource Pool..."); \
         m_##PoolName##Pool.printResources();                                             \
-        m_##PoolName##Pool.destroy();
+        m_##PoolName##Pool.destroy();                                                    \
+        m_##PoolName##ColdDataPool.printResources();                                     \
+        m_##PoolName##ColdDataPool.destroy();
 #else
     #define RAZIX_UNREGISTER_RESOURCE_POOL(PoolName) \
-        m_##PoolName##Pool.destroy();
+        m_##PoolName##Pool.destroy();                \
+        m_##PoolName##ColdDataPool.destroy();
 #endif
 
 namespace Razix {
@@ -83,12 +96,12 @@ namespace Razix {
         {
             // This function is called when a shader resource is created from an RZSF file
             rz_gfx_shader* shader = (rz_gfx_shader*) where;
-            RAZIX_ASSERT(shader != nullptr, "[Resource Manager] Shader resource is null! Cannot create shader from RZSF file!");
+            RAZIX_ASSERT(shader != NULL, "[Resource Manager] Shader resource is null! Cannot create shader from RZSF file!");
 
             // Get the shader description from the shader resource
-            rz_gfx_shader_desc* shaderDesc = &shader->resource.desc.shaderDesc;
-            RAZIX_ASSERT(shaderDesc != nullptr, "[Resource Manager] Shader description is null! Cannot create shader from RZSF file!");
-            RAZIX_ASSERT(shaderDesc->rzsfFilePath != nullptr, "[Resource Manager] RZSF file path is null! Cannot create shader from RZSF file!");
+            rz_gfx_shader_desc* shaderDesc = &shader->resource.pCold->desc.shaderDesc;
+            RAZIX_ASSERT(shaderDesc != NULL, "[Resource Manager] Shader description is null! Cannot create shader from RZSF file!");
+            RAZIX_ASSERT(shaderDesc->rzsfFilePath != NULL, "[Resource Manager] RZSF file path is null! Cannot create shader from RZSF file!");
 
             // Parse the RZSF file and fill the shaderDesc with the parsed data
             rz_gfx_shader_desc parsedDesc = Gfx::ParseRZSF(RZString(shaderDesc->rzsfFilePath));
@@ -119,9 +132,9 @@ namespace Razix {
             if (!(shaderDesc->flags & RZ_GFX_SHADER_FLAG_NO_ROOT_SIGNATURE)) {
 #ifdef RAZIX_DEBUG
                 if (rootSigDesc.descriptorTableLayoutsCount == 0 && rootSigDesc.pRootConstantsDesc == NULL)
-                    RAZIX_CORE_WARN("[Resource Manager] Empty Root Signature! Shader {0} has no root signature descriptor tables or root constants!", shader->resource.pName);
+                    RAZIX_CORE_WARN("[Resource Manager] Empty Root Signature! Shader {0} has no root signature descriptor tables or root constants!", shader->resource.pCold->pName);
 #endif
-                auto rootSigName      = "RootSignature." + RZString(shader->resource.pName);
+                auto rootSigName      = "RootSignature." + RZString(shader->resource.pCold->pName);
                 shader->rootSignature = RZResourceManager::Get().createRootSignature(rootSigName.c_str(), rootSigDesc);
             }
 
@@ -136,10 +149,10 @@ namespace Razix {
             // Free bytecode memory, since we allocate it
             FreeRZSFBytecodeAlloc(shaderPtr);
             rz_gfx_root_signature* rootSig = RZResourceManager::Get().getRootSignatureResource(shaderPtr->rootSignature);
-            FreeRootSigDescMemAllocs(&rootSig->resource.desc.rootSignatureDesc);
-            FreeInputElementsMemAllocs(shaderPtr->resource.desc.shaderDesc.pElements, shaderPtr->resource.desc.shaderDesc.elementsCount);
+            FreeRootSigDescMemAllocs(&rootSig->resource.pCold->desc.rootSignatureDesc);
+            FreeInputElementsMemAllocs(shaderPtr->resource.pCold->desc.shaderDesc.pElements, shaderPtr->resource.pCold->desc.shaderDesc.elementsCount);
             // Free root sig (since it's allocated by ParseRZSF we ask it to delete it)
-            if (!(shaderPtr->resource.desc.shaderDesc.flags & RZ_GFX_SHADER_FLAG_NO_ROOT_SIGNATURE))
+            if (!(shaderPtr->resource.pCold->desc.shaderDesc.flags & RZ_GFX_SHADER_FLAG_NO_ROOT_SIGNATURE))
                 RZResourceManager::Get().destroyRootSignature(shaderPtr->rootSignature);
             rzRHI_DestroyShader(ptr);
         }
