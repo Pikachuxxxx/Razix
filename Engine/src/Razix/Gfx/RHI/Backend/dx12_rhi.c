@@ -1684,8 +1684,16 @@ static void dx12_util_update_swapchain_rtvs(rz_gfx_swapchain* sc)
 #endif
 
         // This is the only place where a RZ_RESOURCE is manually created, instead of using the RZResourceManager
+        // pCold is managed by RHI here since swapchain images are special and owned by RHI itself
         rz_gfx_texture texture   = {0};
         dx12_texture   dxtexture = {0};
+        texture.resource.pCold   = malloc(sizeof(rz_gfx_resource_cold));
+        if (!texture.resource.pCold) {
+            RAZIX_RHI_LOG_ERROR("Failed to allocate memory for swapchain backbuffer resource cold data");
+            ID3D12Resource_Release(d3dresource);
+            break;
+        }
+        memset(texture.resource.pCold, 0, sizeof(rz_gfx_resource_cold));
         snprintf(texture.resource.pCold->pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$_%u", i);
         texture.resource.hot.handle                          = (rz_handle) {i, i};
         texture.resource.hot.viewHints                       = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
@@ -1702,6 +1710,13 @@ static void dx12_util_update_swapchain_rtvs(rz_gfx_swapchain* sc)
         sc->backbuffers[i]                                   = texture;
 
         rz_gfx_resource_view view = {0};
+        view.resource.pCold       = malloc(sizeof(rz_gfx_resource_cold));
+        if (!view.resource.pCold) {
+            RAZIX_RHI_LOG_ERROR("Failed to allocate memory for swapchain backbuffer resource view cold data");
+            ID3D12Resource_Release(d3dresource);
+            break;
+        }
+        memset(view.resource.pCold, 0, sizeof(rz_gfx_resource_cold));
         snprintf(view.resource.pCold->pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_RES_VIEW$_%u", i);
         view.resource.hot.handle   = (rz_handle) {i, i};
         view.resource.hot.type     = RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW;
@@ -1735,6 +1750,12 @@ static void dx12_util_create_backbuffers(rz_gfx_swapchain* sc)
 static void dx12_util_destroy_backbuffers(rz_gfx_swapchain* sc)
 {
     for (uint32_t i = 0; i < sc->imageCount; ++i) {
+        // Delete the cold data allocated for swapchain backbuffers
+        if (sc->backbuffers[i].resource.pCold)
+            free(sc->backbuffers[i].resource.pCold);
+        if (sc->backbuffersResViews[i].resource.pCold)
+            free(sc->backbuffersResViews[i].resource.pCold);
+
         if (sc->backbuffers[i].dx12.resource) {
             ID3D12Resource_Release(sc->backbuffers[i].dx12.resource);
             sc->backbuffers[i].dx12.resource = NULL;

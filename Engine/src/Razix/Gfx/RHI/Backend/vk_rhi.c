@@ -2132,6 +2132,12 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
         memset(texture, 0, sizeof(rz_gfx_texture));
 
         // Set up resource metadata
+        texture->resource.pCold = malloc(sizeof(rz_gfx_resource_cold));
+        if (!texture->resource.pCold) {
+            RAZIX_RHI_LOG_ERROR("Failed to allocate memory for swapchain backbuffer resource cold data");
+            break;
+        }
+        memset(texture->resource.pCold, 0, sizeof(rz_gfx_resource_cold));
         snprintf(texture->resource.pCold->pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_IMAGE$_%u", i);
         texture->resource.hot.handle                            = (rz_handle) {i, i};
         texture->resource.hot.viewHints                         = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
@@ -2151,6 +2157,12 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
         // Create resource view for the swapchain image
         rz_gfx_resource_view* resourceView = &swapchain->backbuffersResViews[i];
         memset(resourceView, 0, sizeof(rz_gfx_resource_view));
+        resourceView->resource.pCold = malloc(sizeof(rz_gfx_resource_cold));
+        if (!resourceView->resource.pCold) {
+            RAZIX_RHI_LOG_ERROR("Failed to allocate memory for swapchain backbuffer resource cold data");
+            break;
+        }
+        memset(resourceView->resource.pCold, 0, sizeof(rz_gfx_resource_cold));
         snprintf(resourceView->resource.pCold->pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "$SWAPCHAIN_RES_VIEW$_%u", i);
         resourceView->resource.hot.handle                                                  = (rz_handle) {i, i};
         resourceView->resource.hot.type                                                    = RZ_GFX_RESOURCE_TYPE_RESOURCE_VIEW;
@@ -2183,6 +2195,16 @@ static void vk_util_destroy_swapchain_images(rz_gfx_swapchain* swapchain)
     for (uint32_t i = 0; i < swapchain->imageCount; i++) {
         memset(&swapchain->backbuffers[i], 0, sizeof(rz_gfx_texture));
         memset(&swapchain->backbuffersResViews[i], 0, sizeof(rz_gfx_resource_view));
+
+        if (&swapchain->backbuffers[i].resource.pCold) {
+            free(swapchain->backbuffers[i].resource.pCold);
+            swapchain->backbuffers[i].resource.pCold = NULL;
+        }
+
+        if (&swapchain->backbuffersResViews[i].resource.pCold) {
+            free(swapchain->backbuffersResViews[i].resource.pCold);
+            swapchain->backbuffersResViews[i].resource.pCold = NULL;
+        }
     }
 
     if (swapchain->vk.supportDetails.formats)
