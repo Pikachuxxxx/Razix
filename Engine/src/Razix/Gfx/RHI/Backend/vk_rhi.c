@@ -4529,13 +4529,13 @@ static void vk_DispatchIndirect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer
     vkCmdDispatchIndirect(cmdBuf->vk.cmdBuf, buffer->vk.buffer, offset);
 }
 
-static void vk_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
+static void vk_UpdateMappedBuffer(rz_gfx_buffer_update updatedesc)
 {
     RAZIX_RHI_ASSERT(updatedesc.pBuffer != NULL, "Buffer cannot be NULL");
     RAZIX_RHI_ASSERT(updatedesc.sizeInBytes > 0, "Size in bytes must be greater than zero");
     RAZIX_RHI_ASSERT(updatedesc.offset + updatedesc.sizeInBytes <= updatedesc.pBuffer->resource.pCold->desc.bufferDesc.sizeInBytes, "Update range exceeds buffer size");
     RAZIX_RHI_ASSERT(updatedesc.pData != NULL, "Data pointer cannot be NULL");
-    RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.pCold->desc.bufferDesc.type & RZ_GFX_BUFFER_TYPE_CONSTANT) == RZ_GFX_BUFFER_TYPE_CONSTANT, "Buffer must be of type RZ_GFX_BUFFER_TYPE_CONSTANT to update");
+    RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.pCold->desc.bufferDesc.type & (RZ_GFX_BUFFER_TYPE_CONSTANT | RZ_GFX_BUFFER_TYPE_VERTEX | RZ_GFX_BUFFER_TYPE_INDEX)), "Buffer must be of type Constant, Vertex or Index buffer to update");
     RAZIX_RHI_ASSERT(
         (updatedesc.pBuffer->resource.pCold->desc.bufferDesc.usage & (RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC | RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)),
         "Buffer must be created with RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC or RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM usage flag");
@@ -4553,7 +4553,30 @@ static void vk_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
     // unmapping is not required for HOST_VISIBLE | HOST_COHERENT memory,
     // but doing it anyway for safety, we will try to prefer
     // HOST_COHERENT memory for dynamic and persistent uniform buffer
-    vkUnmapMemory(VKDEVICE, updatedesc.pBuffer->vk.memory);
+    if (updatedesc.pBuffer->resource.pCold->desc.bufferDesc.usage != RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)
+        vkUnmapMemory(VKDEVICE, updatedesc.pBuffer->vk.memory);
+}
+
+static void* vk_MapBuffer(const rz_gfx_buffer* pBuffer, const uint32_t offset, const uint32_t size)
+{
+    RAZIX_RHI_ASSERT(pBuffer != NULL, "Buffer cannot be NULL");
+    rz_gfx_buffer_desc bufferDesc = pBuffer->resource.pCold->desc.bufferDesc;
+    RAZIX_RHI_ASSERT(bufferDesc.sizeInBytes > 0, "Size in bytes must be greater than zero");
+    RAZIX_RHI_ASSERT((bufferDesc.type & (RZ_GFX_BUFFER_TYPE_CONSTANT | RZ_GFX_BUFFER_TYPE_VERTEX | RZ_GFX_BUFFER_TYPE_INDEX)), "Buffer must be of type Constant, Vertex or Index buffer to update");
+    RAZIX_RHI_ASSERT(
+        (bufferDesc.usage & (RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC | RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)),
+        "Buffer must be created with RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC or RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM usage flag");
+
+    void* mappedData = NULL;
+    CHECK_VK(vkMapMemory(VKDEVICE, pBuffer->vk.memory, offset, size, 0, (void**) &mappedData));
+    RAZIX_RHI_ASSERT(mappedData != NULL, "Failed to map constant buffer memory");
+    return mappedData;
+}
+
+static void vk_UnmapBuffer(const rz_gfx_buffer* pBuffer)
+{
+    RAZIX_RHI_ASSERT(pBuffer != NULL, "Buffer cannot be NULL");
+    vkUnmapMemory(VKDEVICE, pBuffer->vk.memory);
 }
 
 static void vk_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
@@ -5943,7 +5966,9 @@ rz_rhi_api vk_rhi = {
     .DrawIndexedIndirect   = vk_DrawIndexedAutoIndirect,    // DrawIndexedAutoIndirect
     .DispatchIndirect      = vk_DispatchIndirect,           // DispatchIndirect
     .UpdateDescriptorTable = vk_UpdateDescriptorTable,      // UpdateDescriptorTable
-    .UpdateConstantBuffer  = vk_UpdateConstantBuffer,       // UpdateConstantBuffer
+    .UpdateMappedBuffer    = vk_UpdateMappedBuffer,         // UpdateMappedBuffer
+    .MapBuffer             = vk_MapBuffer,                  // MapBuffer
+    .UnmapBuffer           = vk_UnmapBuffer,                // UnmapBuffer
     .InsertImageBarrier    = vk_InsertImageBarrier,         // InsertImageBarrier
     .InsertBufferBarrier   = vk_InsertBufferBarrier,        // InsertBufferBarrier
     .InsertTextureReadback = vk_InsertTextureReadback,      // InsertTextureReadback

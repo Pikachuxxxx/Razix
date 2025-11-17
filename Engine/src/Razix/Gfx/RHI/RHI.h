@@ -1684,7 +1684,9 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_DispatchIndirectFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* argumentBuffer, uint32_t argumentBufferOffset, uint32_t dispatchCount);
 
     typedef void (*rzRHI_UpdateDescriptorTableFn)(rz_gfx_descriptor_table_update tableUpdate);
-    typedef void (*rzRHI_UpdateConstantBufferFn)(rz_gfx_buffer_update bufferUpdate);
+    typedef void (*rzRHI_UpdateMappedBufferFn)(rz_gfx_buffer_update bufferUpdate);
+    typedef void* (*rzRHI_MapBufferFn)(const rz_gfx_buffer* pBuffer, const uint32_t offset, const uint32_t size);
+    typedef void (*rzRHI_UnmapBufferFn)(const rz_gfx_buffer* pBuffer);
 
     typedef void (*rzRHI_InsertImageBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state oldState, rz_gfx_resource_state newState);
     typedef void (*rzRHI_InsertBufferBarrierFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_buffer* buffer, rz_gfx_resource_state oldState, rz_gfx_resource_state newState);
@@ -1757,7 +1759,9 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_DrawIndexedIndirectFn    DrawIndexedIndirect;
         rzRHI_DispatchIndirectFn       DispatchIndirect;
         rzRHI_UpdateDescriptorTableFn  UpdateDescriptorTable;
-        rzRHI_UpdateConstantBufferFn   UpdateConstantBuffer;
+        rzRHI_UpdateMappedBufferFn     UpdateMappedBuffer;
+        rzRHI_MapBufferFn              MapBuffer;
+        rzRHI_UnmapBufferFn            UnmapBuffer;
         rzRHI_CopyBufferFn             CopyBuffer;
         rzRHI_CopyTextureFn            CopyTexture;
         rzRHI_CopyBufferToTextureFn    CopyBufferToTexture;
@@ -1906,7 +1910,9 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_DispatchIndirect(cb, bu, offset, maxDispatchCount) g_RHI.DispatchIndirect(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(bu), offset, maxDispatchCount)
 
         #define rzRHI_UpdateDescriptorTable                         g_RHI.UpdateDescriptorTable
-        #define rzRHI_UpdateConstantBuffer(bu)                      g_RHI.UpdateConstantBuffer(bu)
+        #define rzRHI_UpdateMappedBuffer(bu)                        g_RHI.UpdateMappedBuffer(bu)
+        #define rzRHI_MapBuffer(bu)                                 g_RHI.MapBuffer(RZResourceManager::Get().getBufferResource(bu), off, size)
+        #define rzRHI_UnmapBuffer(bu)                               g_RHI.UnmapBuffer(RZResourceManager::Get().getBufferResource(bu))
         #define rzRHI_InsertImageBarrier(cb, text, bs, as)          g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getTextureResource(text), bs, as)
         #define rzRHI_InsertSwapchainImageBarrier(cb, text, bs, as) g_RHI.InsertImageBarrier(RZResourceManager::Get().getCommandBufferResource(cb), text, bs, as)
         #define rzRHI_InsertBufferBarrier(cb, buf, bs, as)          g_RHI.InsertBufferBarrier(RZResourceManager::Get().getCommandBufferResource(cb), RZResourceManager::Get().getBufferResource(buf), bs, as)
@@ -1954,7 +1960,9 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_DrawIndexedIndirect            g_RHI.DrawIndexedIndirect
         #define rzRHI_DispatchIndirect               g_RHI.DispatchIndirect
         #define rzRHI_UpdateDescriptorTable          g_RHI.UpdateDescriptorTable
-        #define rzRHI_UpdateConstantBuffer           g_RHI.UpdateConstantBuffer
+        #define rzRHI_UpdateMappedBuffer             g_RHI.UpdateMappedBuffer
+        #define rzRHI_MapBuffer                      g_RHI.MapBuffer
+        #define rzRHI_UnmapBuffer                    g_RHI.UnmapBuffer
         #define rzRHI_InsertImageBarrier             g_RHI.InsertImageBarrier
         #define rzRHI_InsertSwapchainImageBarrier    g_RHI.InsertImageBarrier
         #define rzRHI_InsertBufferBarrier            g_RHI.InsertBufferBarrier
@@ -2186,10 +2194,18 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.UpdateDescriptorTable(updateDesc);                                   \
             } while (0)
 
-        #define rzRHI_UpdateConstantBuffer(bu)                                            \
-            do {                                                                          \
-                RAZIX_PROFILE_SCOPEC("rzRHI_UpdateConstantBuffer", RZ_PROFILE_COLOR_RHI); \
-                g_RHI.UpdateConstantBuffer(bu);                                           \
+        #define rzRHI_UpdateMappedBuffer(bu)                                            \
+            do {                                                                        \
+                RAZIX_PROFILE_SCOPEC("rzRHI_UpdateMappedBuffer", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.UpdateMappedBuffer(bu);                                           \
+            } while (0)
+
+        #define rzRHI_MapBuffer(bu, off, size) g_RHI.MapBuffer(RZResourceManager::Get().getBufferResource(bu), off, size)
+
+        #define rzRHI_UnmapBuffer(bu)                                              \
+            do {                                                                   \
+                RAZIX_PROFILE_SCOPEC("rzRHI_UnmapBuffer", RZ_PROFILE_COLOR_RHI);   \
+                g_RHI.UnmapBuffer(RZResourceManager::Get().getBufferResource(bu)); \
             } while (0)
 
         #define rzRHI_InsertImageBarrier(cb, tex, bs, as)                                                                                                  \
@@ -2506,11 +2522,20 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC_END();                                                \
             } while (0);
 
-        #define rzRHI_UpdateConstantBuffer(bu)                                            \
-            do {                                                                          \
-                RAZIX_PROFILE_SCOPEC("rzRHI_UpdateConstantBuffer", RZ_PROFILE_COLOR_RHI); \
-                g_RHI.UpdateConstantBuffer(bu);                                           \
-                RAZIX_PROFILE_SCOPEC_END();                                               \
+        #define rzRHI_UpdateMappedBuffer(bu)                                            \
+            do {                                                                        \
+                RAZIX_PROFILE_SCOPEC("rzRHI_UpdateMappedBuffer", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.UpdateMappedBuffer(bu);                                           \
+                RAZIX_PROFILE_SCOPEC_END();                                             \
+            } while (0)
+
+        #define rzRHI_MapBuffer(bu, off, size) g_RHI.MapBuffer(bu, off, size)
+
+        #define rzRHI_UnmapBuffer(bu)                                            \
+            do {                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_UnmapBuffer", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.UnmapBuffer(bu);                                           \
+                RAZIX_PROFILE_SCOPEC_END();                                      \
             } while (0)
 
         #define rzRHI_InsertImageBarrier(cb, tex, bs, as)                                                 \

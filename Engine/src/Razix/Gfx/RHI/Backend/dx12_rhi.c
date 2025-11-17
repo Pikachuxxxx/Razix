@@ -3199,7 +3199,7 @@ static void dx12_UpdateDescriptorTable(rz_gfx_descriptor_table_update tableUpdat
     }
 }
 
-static void dx12_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
+static void dx12_UpdateMappedBuffer(rz_gfx_buffer_update updatedesc)
 {
     RAZIX_RHI_ASSERT(updatedesc.pBuffer != NULL, "Buffer cannot be NULL");
     RAZIX_RHI_ASSERT(updatedesc.sizeInBytes > 0, "Size in bytes must be greater than zero");
@@ -3208,7 +3208,7 @@ static void dx12_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
     RAZIX_RHI_ASSERT(
         (updatedesc.pBuffer->resource.pCold->desc.bufferDesc.usage & (RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC | RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)),
         "Buffer must be created with RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC or RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM usage flag");
-    RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.pCold->desc.bufferDesc.type & RZ_GFX_BUFFER_TYPE_CONSTANT) == RZ_GFX_BUFFER_TYPE_CONSTANT, "Buffer must be of type RZ_GFX_BUFFER_TYPE_CONSTANT to update");
+    RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.pCold->desc.bufferDesc.type & (RZ_GFX_BUFFER_TYPE_CONSTANT | RZ_GFX_BUFFER_TYPE_VERTEX | RZ_GFX_BUFFER_TYPE_INDEX)), "Buffer must be of type Constant, Vertex or Index buffer to update");
 
     D3D12_RANGE readRange = {0};
     readRange.Begin       = updatedesc.offset;
@@ -3217,6 +3217,33 @@ static void dx12_UpdateConstantBuffer(rz_gfx_buffer_update updatedesc)
     ID3D12Resource_Map(updatedesc.pBuffer->dx12.resource, 0, &readRange, &mappedData);
     RAZIX_RHI_ASSERT(mappedData != NULL, "Failed to map constant buffer memory");
     memcpy((uint8_t*) mappedData, updatedesc.pData, updatedesc.sizeInBytes);
+    if (updatedesc.pBuffer->resource.pCold->desc.bufferDesc.usage != RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)
+        ID3D12Resource_Unmap(updatedesc.pBuffer->dx12.resource, 0, NULL);
+}
+
+static void* dx12_MapBuffer(const rz_gfx_buffer* pBuffer, const uint32_t offset, const uint32_t size)
+{
+    RAZIX_RHI_ASSERT(pBuffer != NULL, "Buffer cannot be NULL");
+    rz_gfx_buffer_desc bufferDesc = pBuffer->resource.pCold->desc.bufferDesc;
+    RAZIX_RHI_ASSERT(bufferDesc.sizeInBytes > 0, "Size in bytes must be greater than zero");
+    RAZIX_RHI_ASSERT((bufferDesc.type & (RZ_GFX_BUFFER_TYPE_CONSTANT | RZ_GFX_BUFFER_TYPE_VERTEX | RZ_GFX_BUFFER_TYPE_INDEX)), "Buffer must be of type Constant, Vertex or Index buffer to update");
+    RAZIX_RHI_ASSERT(
+        (bufferDesc.usage & (RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC | RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)),
+        "Buffer must be created with RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC or RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM usage flag");
+
+    D3D12_RANGE readRange = {0};
+    readRange.Begin       = offset;
+    readRange.End         = offset + size;
+    void* mappedData      = NULL;
+    ID3D12Resource_Map(pBuffer->dx12.resource, 0, &readRange, &mappedData);
+    RAZIX_RHI_ASSERT(mappedData != NULL, "Failed to map constant buffer memory");
+    return mappedData;
+}
+
+static void dx12_UnmapBuffer(const rz_gfx_buffer* pBuffer)
+{
+    RAZIX_RHI_ASSERT(pBuffer != NULL, "Buffer cannot be NULL");
+    ID3D12Resource_Unmap(pBuffer->dx12.resource, 0, NULL);
 }
 
 static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* texture, rz_gfx_resource_state beforeState, rz_gfx_resource_state afterState)
@@ -3837,7 +3864,9 @@ rz_rhi_api dx12_rhi = {
     .DrawIndexedIndirect   = dx12_DrawIndexedIndirect,      // DrawIndexedIndirect
     .DispatchIndirect      = dx12_DispatchIndirect,         // DispatchIndirect
     .UpdateDescriptorTable = dx12_UpdateDescriptorTable,    // UpdateDescriptorTable
-    .UpdateConstantBuffer  = dx12_UpdateConstantBuffer,     // UpdateConstantBuffer
+    .UpdateMappedBuffer    = dx12_UpdateMappedBuffer,       // UpdateMappedBuffer
+    .MapBuffer             = dx12_MapBuffer,                // MapBuffer
+    .UnmapBuffer           = dx12_UnmapBuffer,              // UnmapBuffer
     .InsertImageBarrier    = dx12_InsertImageBarrier,       // InsertImageBarrier
     .InsertBufferBarrier   = dx12_InsertBufferBarrier,      // InsertBufferBarrier
     .InsertTextureReadback = dx12_InsertTextureReadback,    // InsertTextureReadback
