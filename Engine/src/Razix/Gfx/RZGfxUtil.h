@@ -24,36 +24,32 @@ namespace Razix {
         // Engine shaders enumeration
         enum class ShaderBuiltin : u32
         {
-            //------------------------------
-            Default,
-            Skybox,
-            ProceduralSkybox,
-            GBuffer,
-            PBRDeferredLighting,
-            //----------------
-            VisibilityBufferFill,
-            //----------------
-            DeferredDecals,
-            Composition,
-            DepthPreTest,
-            CSM,
-            EnvToCubemap,
-            GenerateIrradianceMap,
-            GeneratePreFilteredMap,
-            Sprite,
-            SpriteTextured,
-            DebugPoint,
-            DebugLine,
-            ImGui,
+            kDefault,
+            kSkybox,
+            kProceduralSkybox,
+            kGBuffer,
+            kPBRDeferredLighting,
+            kVisibilityBufferFill,
+            kDeferredDecals,
+            kComposition,
+            kDepthPreTest,
+            kCSM,
+            kEnvToCubemap,
+            kGenerateIrradianceMap,
+            kGeneratePreFilteredMap,
+            kSprite,
+            kSpriteTextured,
+            kDebugPoint,
+            kDebugLine,
+            kImGui,
             // Post Processing FX
-            SSAO,
-            GaussianBlur,
-            ColorGrading,
-            TAAResolve,
-            FXAA,
-            Tonemap,
-            //---
-            COUNT
+            kSSAO,
+            kGaussianBlur,
+            kColorGrading,
+            kTAAResolve,
+            kFXAA,
+            kTonemap,
+            kCount
         };
 
         //-----------------------------------------------------------------------------------

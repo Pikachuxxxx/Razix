@@ -461,7 +461,43 @@
 #define RAZIX_CACHE_LINE_ALIGN RAZIX_CACHE_LINE_SIZE
 #define RAZIX_128B_ALIGN       128
 
-// TODO: Add Safe memory delete and unloading macro
+#ifdef __cplusplus
+
+    #ifdef RAZIX_PLATFORM_UNIX
+        #include <stddef.h>    // for size_t
+    #endif
+
+static constexpr size_t operator""_Gib(unsigned long long int x)
+{
+    return Gib(x);
+}
+
+static constexpr size_t operator""_Mib(unsigned long long int x)
+{
+    return Mib(x);
+}
+
+static constexpr size_t operator""_Kib(unsigned long long int x)
+{
+    return Kib(x);
+}
+
+static constexpr float operator""_inGib(unsigned long long int x)
+{
+    return (float) x / (1 << 30);
+}
+
+static constexpr float operator""_inMib(unsigned long long int x)
+{
+    return (float) x / (1 << 20);
+}
+
+static constexpr float operator""_inKib(unsigned long long int x)
+{
+    return (float) x / (1 << 10);
+}
+
+#endif    //   __cplusplus
 
 /****************************************************************************************************
  *                                         Vendor Settings                                          * 

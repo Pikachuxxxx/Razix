@@ -10,12 +10,6 @@ namespace Razix {
 #if LIMBO_STATE
         // Scene and G‑Buffer passes
 
-        struct SceneData
-        {
-            RZFrameGraphResource SceneHDR;
-            RZFrameGraphResource SceneLDR;
-        };
-
         struct GBufferData
         {
             RZFrameGraphResource GBuffer0;
@@ -100,12 +94,6 @@ namespace Razix {
         {
             RZFrameGraphResource DebugRT;
             RZFrameGraphResource DebugDRT;
-        };
-
-        struct ImGuiPassData
-        {
-            RZFrameGraphResource ImGuiRT;
-            RZFrameGraphResource ImGuiDRT;
         };
 
         // Volumetrics
@@ -202,6 +190,19 @@ namespace Razix {
             rz_gfx_texture_handle skybox;
             rz_gfx_texture_handle diffuse;
             rz_gfx_texture_handle specular;
+        };
+
+        struct ImGuiPassData
+        {
+            RZFrameGraphResource imguiRT;
+            RZFrameGraphResource imguiDepth;
+        };
+
+        struct SceneData
+        {
+            RZFrameGraphResource HDR;
+            RZFrameGraphResource LDR;
+            RZFrameGraphResource depth;
         };
 
     }    // namespace Gfx
