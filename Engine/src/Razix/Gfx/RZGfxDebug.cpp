@@ -23,7 +23,7 @@ namespace Razix {
 
 #ifdef RAZIX_RENDER_API_DIRECTX12
 
-        static HMODULE WinPixEventRuntimeModule = nullptr;
+        static HMODULE WinPixEventRuntimeModule = NULL;
 
         // Function pointers for PIX
         typedef HRESULT(WINAPI* BeginEventOnCommandList)(ID3D12GraphicsCommandList*, UINT64, _In_opt_ PCSTR);
@@ -33,7 +33,7 @@ namespace Razix {
         void LoadPIXRuntime()
         {
     #ifndef RAZIX_GOLD_MASTER
-            if (WinPixEventRuntimeModule == nullptr) {
+            if (WinPixEventRuntimeModule == NULL) {
                 WinPixEventRuntimeModule = LoadLibraryA("WinPixEventRuntime.dll");
                 if (!WinPixEventRuntimeModule) {
                     RAZIX_CORE_WARN("[DX12] Could not load WinPixEventRuntime.dll for GPU debugging.");
@@ -118,26 +118,19 @@ namespace Razix {
 #ifdef RAZIX_RENDER_API_VULKAN
 
         static bool                              s_DebugUtilsInitialized           = false;
-        static PFN_vkCmdBeginDebugUtilsLabelEXT  pfn_vkCmdBeginDebugUtilsLabelEXT  = nullptr;
-        static PFN_vkCmdEndDebugUtilsLabelEXT    pfn_vkCmdEndDebugUtilsLabelEXT    = nullptr;
-        static PFN_vkCmdInsertDebugUtilsLabelEXT pfn_vkCmdInsertDebugUtilsLabelEXT = nullptr;
-
-        static VkInstance s_VulkanInstance = VK_NULL_HANDLE;    // Should be set during Vulkan instance creation
-
-        void SetVulkanInstance(VkInstance instance)
-        {
-            s_VulkanInstance = instance;
-        }
+        static PFN_vkCmdBeginDebugUtilsLabelEXT  pfn_vkCmdBeginDebugUtilsLabelEXT  = NULL;
+        static PFN_vkCmdEndDebugUtilsLabelEXT    pfn_vkCmdEndDebugUtilsLabelEXT    = NULL;
+        static PFN_vkCmdInsertDebugUtilsLabelEXT pfn_vkCmdInsertDebugUtilsLabelEXT = NULL;
 
         void InitializeDebugUtils()
         {
-            if (s_DebugUtilsInitialized || s_VulkanInstance == VK_NULL_HANDLE) return;
+            if (s_DebugUtilsInitialized || g_GfxCtx.vk.instance == VK_NULL_HANDLE) return;
             pfn_vkCmdBeginDebugUtilsLabelEXT = reinterpret_cast<PFN_vkCmdBeginDebugUtilsLabelEXT>(
-                vkGetInstanceProcAddr(s_VulkanInstance, "vkCmdBeginDebugUtilsLabelEXT"));
+                vkGetInstanceProcAddr(g_GfxCtx.vk.instance, "vkCmdBeginDebugUtilsLabelEXT"));
             pfn_vkCmdEndDebugUtilsLabelEXT = reinterpret_cast<PFN_vkCmdEndDebugUtilsLabelEXT>(
-                vkGetInstanceProcAddr(s_VulkanInstance, "vkCmdEndDebugUtilsLabelEXT"));
+                vkGetInstanceProcAddr(g_GfxCtx.vk.instance, "vkCmdEndDebugUtilsLabelEXT"));
             pfn_vkCmdInsertDebugUtilsLabelEXT = reinterpret_cast<PFN_vkCmdInsertDebugUtilsLabelEXT>(
-                vkGetInstanceProcAddr(s_VulkanInstance, "vkCmdInsertDebugUtilsLabelEXT"));
+                vkGetInstanceProcAddr(g_GfxCtx.vk.instance, "vkCmdInsertDebugUtilsLabelEXT"));
             s_DebugUtilsInitialized = true;
         }
 

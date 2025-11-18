@@ -196,6 +196,7 @@ namespace Razix {
             rz_gfx_buffer_handle                 m_ImGuiVB                                               = {};
             rz_gfx_buffer_handle                 m_ImGuiIB                                               = {};
             rz_gfx_texture_handle                m_ImGuiFontAtlasTexture                                 = {};
+            rz_gfx_resource_view_handle          m_ImGuiFontSRVHandle                                    = {};
 
         private:
             //void importGlobalLightProbes(LightProbe globalLightProbe);

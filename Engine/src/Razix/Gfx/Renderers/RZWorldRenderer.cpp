@@ -397,9 +397,12 @@ namespace Razix {
             // Destroy Frame Graph Transient Resources
             m_FrameGraph.destroy();
 
+            RZResourceManager::Get().destroyResourceView(m_ImGuiFontSRVHandle);
+            RZResourceManager::Get().destroyDescriptorTable(m_ImGuiFontAtlasDescriptorSet);
+            RZResourceManager::Get().destroyTexture(m_ImGuiFontAtlasTexture);
             RZResourceManager::Get().destroyPipeline(m_ImGuiPipelineHandle);
-            RZResourceManager::Get().destroyPipeline(m_ImGuiIB);
-            RZResourceManager::Get().destroyPipeline(m_ImGuiVB);
+            RZResourceManager::Get().destroyBuffer(m_ImGuiVB);
+            RZResourceManager::Get().destroyBuffer(m_ImGuiIB);
 
             RZResourceManager::Get().destroyResourceView(m_FrameDataCBVHandle);
             RZResourceManager::Get().destroyDescriptorTable(m_FrameDataTable);
@@ -659,12 +662,12 @@ namespace Razix {
                     // - [x] Setup ImGui Style and Colors
                     // - [x] Create Shaders and Pipeline
                     // - [x] Create VB and IB
-                    // - [ ] Create Font Atlas Texture + Combine it with Awesome font for bigger atlas
-                    //      - [ ] Create Descriptor Sets for fonts
-                    // - [ ] GLFW integration for events and BeginFrame etc. (do it all in RZApplication?)
+                    // - [x] Create Font Atlas Texture + Combine it with Awesome font for bigger atlas
+                    //      - [x] Create Descriptor Sets for fonts
+                    // - [x] GLFW integration for events and BeginFrame etc. (do it all in RZApplication? already exists only backend init is done in FG setup)
                     // - [ ] Render Pass to render ImGui elements
-                    //      - [ ] Frame Graph Integration: scene resources
-                    //      - [ ] Update buffers and render elements
+                    //      - [ ] PushConstants
+                    //      - [ ] Update buffers and render elements and binding and draw calls
                     // - [ ] Test ImGui and resolve issues
 
                     // Setup context
@@ -696,7 +699,7 @@ namespace Razix {
 
                     rz_gfx_pipeline_desc pipelineDesc   = {};
                     pipelineDesc.pShader                = RZResourceManager::Get().getShaderResource(m_ImGuiShaderHandle);
-                    m_ImGuiRootSigHandle                = pipelineDesc.pShader->rootSignature;
+                    m_ImGuiRootSigHandle                = pipelineDesc.pShader->rootSignature;    // will be deleted by Shader
                     pipelineDesc.pRootSig               = RZResourceManager::Get().getRootSignatureResource(pipelineDesc.pShader->rootSignature);
                     pipelineDesc.type                   = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
                     pipelineDesc.blendPreset            = RZ_GFX_BLEND_PRESET_ALPHA_BLEND;
@@ -729,99 +732,110 @@ namespace Razix {
                     m_ImGuiIB                          = RZResourceManager::Get().createBuffer("IB.ImGui", indexBufferDesc);
 
                     // Build fonts
+                    // Add icon fonts to ImGui
+                    io.Fonts->AddFontDefault();
 
-                    {
-                        // Add icon fonts to ImGui
-                        io.Fonts->AddFontDefault();
+                    // merge in icons from Font Awesome
+                    static const ImWchar icons_ranges[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
+                    ImFontConfig         icons_config;
+                    icons_config.MergeMode  = true;
+                    icons_config.PixelSnapH = true;
+                    // https://github.com/ocornut/imgui/issues/1259
+                    icons_config.FontDataOwnedByAtlas = true;    // False Not working!!!
+                    RZString trueFontPath;
+                    RAZIX_CORE_INFO("Loading ImGui Font Awesome font from path: {}", trueFontPath);
+                    RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/Fonts/" + RZString(FONT_ICON_FILE_NAME_FAS), trueFontPath);
+                    RAZIX_CORE_ASSERT(!trueFontPath.empty(), "Failed to resolve ImGui Font Awesome font path!");
+                    io.Fonts->AddFontFromFileTTF(trueFontPath.c_str(), 12.0f, &icons_config, icons_ranges);
 
-                        // merge in icons from Font Awesome
-                        static const ImWchar icons_ranges[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
-                        ImFontConfig         icons_config;
-                        icons_config.MergeMode  = true;
-                        icons_config.PixelSnapH = true;
-                        // https://github.com/ocornut/imgui/issues/1259
-                        icons_config.FontDataOwnedByAtlas = true;    // False Not working!!!
-                        RZString trueFontPath;
-                        RAZIX_CORE_INFO("Loading ImGui Font Awesome font from path: {}", trueFontPath);
-                        RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixContent/Fonts/" + RZString(FONT_ICON_FILE_NAME_FAS), trueFontPath);
-                        RAZIX_CORE_ASSERT(!trueFontPath.empty(), "Failed to resolve ImGui Font Awesome font path!");
-                        io.Fonts->AddFontFromFileTTF(trueFontPath.c_str(), 12.0f, &icons_config, icons_ranges);
+                    unsigned char* fontData = NULL;
+                    int            texWidth, texHeight;
+                    io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
+                    RAZIX_CORE_ASSERT(fontData, "ImGui Font Atlas Data is NULL!");
+                    RAZIX_CORE_ASSERT(texWidth > 0 && texHeight > 0, "ImGui Font Atlas Texture has invalid dimensions!");
+                    u32 uploadSize = static_cast<u32>(texWidth) * static_cast<u32>(texHeight) * 4lu * sizeof(char);    // RGBA8
 
-                        unsigned char* fontData = NULL;
-                        int            texWidth, texHeight;
-                        io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
-                        RAZIX_CORE_ASSERT(fontData, "ImGui Font Atlas Data is NULL!");
-                        RAZIX_CORE_ASSERT(texWidth > 0 && texHeight > 0, "ImGui Font Atlas Texture has invalid dimensions!");
-                        u32 uploadSize = texWidth * texHeight * 4 * sizeof(char);
+                    // Describe the font atlas texture
+                    rz_gfx_texture_desc fontAtlasTextureDesc = {};
+                    fontAtlasTextureDesc.width               = texWidth;
+                    fontAtlasTextureDesc.height              = texHeight;
+                    fontAtlasTextureDesc.depth               = 1;
+                    fontAtlasTextureDesc.mipLevels           = 1;    // No mips for font textures
+                    fontAtlasTextureDesc.arraySize           = 1;
+                    fontAtlasTextureDesc.format              = RZ_GFX_FORMAT_R8G8B8A8_UNORM;
+                    fontAtlasTextureDesc.textureType         = RZ_GFX_TEXTURE_TYPE_2D;
+                    fontAtlasTextureDesc.resourceHints       = RZ_GFX_RESOURCE_VIEW_FLAG_SRV;
+                    fontAtlasTextureDesc.pPixelData          = fontData;
+                    m_ImGuiFontAtlasTexture                  = RZResourceManager::Get().createTexture("Texture.ImGui.AwesomeFontIconAtlas", fontAtlasTextureDesc);
 
-                        // Describe the font atlas texture
-                        rz_gfx_texture_desc fontAtlasTextureDesc   = {};
-                        fontAtlasTextureDesc.name                  = ;
-                        fontAtlasTextureDesc.width                 = (u32) texWidth;
-                        fontAtlasTextureDesc.height                = (u32) texHeight;
-                        fontAtlasTextureDesc.data                  = fontData;
-                        fontAtlasTextureDesc.size                  = uploadSize;
-                        fontAtlasTextureDesc.ownsInitData          = false;
-                        fontAtlasTextureDesc.type                  = TextureType::k2D;
-                        fontAtlasTextureDesc.initResourceViewHints = kSRV;
-                        fontAtlasTextureDesc.format                = TextureFormat::RGBA8;
-                        m_ImGuiFontAtlasTexture                    = RZResourceManager::Get().createTexture("Texture.ImGui.AwesomeFontIconAtlas", fontAtlasTextureDesc);
+                    rz_gfx_descriptor fontAtlasDescriptorDesc = {};
+                    rz_snprintf(fontAtlasDescriptorDesc.pName, 34, "%s", "Descriptor.ImGui.FontAtlasTexture");
+                    fontAtlasDescriptorDesc.type                    = RZ_GFX_DESCRIPTOR_TYPE_TEXTURE;
+                    fontAtlasDescriptorDesc.sizeInBytes             = uploadSize;
+                    fontAtlasDescriptorDesc.location.binding        = 0;
+                    fontAtlasDescriptorDesc.location.space          = 0;
+                    fontAtlasDescriptorDesc.memberCount             = 1;
+                    rz_gfx_descriptor_table_desc fontAtlasTableDesc = {};
+                    fontAtlasTableDesc.tableIndex                   = 1;    // Sampler @ table 0, textures start from table 1
+                    fontAtlasTableDesc.pHeap                        = RZResourceManager::Get().getDescriptorHeapResource(getResourceHeap());
+                    fontAtlasTableDesc.descriptorCount              = 1;
+                    fontAtlasTableDesc.pDescriptors                 = &fontAtlasDescriptorDesc;
+                    m_ImGuiFontAtlasDescriptorSet                   = RZResourceManager::Get().createDescriptorTable("DescriptorTable.ImGui.FontAtlas", fontAtlasTableDesc);
 
-                        // Create a descriptor for the constant buffer (if needed)
-                        // For font atlas - usually SRV
-                        rz_gfx_descriptor fontAtlasDescriptorDesc = {};
-                        strcpy(fontAtlasDescriptorDesc.pName, "Descriptor.ImGui.FontAtlasTexture");
-                        fontAtlasDescriptorDesc.type             = RZ_GFX_DESCRIPTOR_TYPE_TEXTURE;
-                        fontAtlasDescriptorDesc.sizeInBytes      = uploadSize;
-                        fontAtlasDescriptorDesc.location.binding = 0;
-                        fontAtlasDescriptorDesc.location.space   = 0;
+                    // Create a resource view for the font atlas buffer
+                    rz_gfx_resource_view_desc fontAtlasViewDesc      = {};
+                    fontAtlasViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_TEXTURE;
+                    fontAtlasViewDesc.textureViewDesc.pTexture       = RZResourceManager::Get().getTextureResource(m_ImGuiFontAtlasTexture);
+                    fontAtlasViewDesc.textureViewDesc.dimension      = 1;
+                    fontAtlasViewDesc.textureViewDesc.baseMip        = 0;
+                    fontAtlasViewDesc.textureViewDesc.baseArrayLayer = 0;
+                    m_ImGuiFontSRVHandle                             = RZResourceManager::Get().createResourceView("ResView.ImGui.FontAtlasSRV", fontAtlasViewDesc);
 
-                        // Create a descriptor table with one descriptor
-                        rz_gfx_descriptor_table_desc fontAtlasTableDesc = {};
-                        fontAtlasTableDesc.tableIndex                   = 0;
-                        fontAtlasTableDesc.descriptorCount              = 1;
-                        fontAtlasTableDesc.pDescriptors                 = &fontAtlasDescriptorDesc;    // pointer to one descriptor
+                    // Update the descriptor table to use the resource view
+                    rz_gfx_descriptor_table_update fontAtlasTableUpdate = {};
+                    fontAtlasTableUpdate.pTable                         = RZResourceManager::Get().getDescriptorTableResource(m_ImGuiFontAtlasDescriptorSet);
+                    fontAtlasTableUpdate.resViewCount                   = 1;
+                    fontAtlasTableUpdate.pResourceViews                 = RZResourceManager::Get().getResourceViewResource(m_ImGuiFontSRVHandle);
+                    rzRHI_UpdateDescriptorTable(fontAtlasTableUpdate);
 
-                        rz_gfx_descriptor_table_handle fontAtlasDescTable =
-                            rzRHI_CreateDescriptorTable(&fontAtlasTableDesc);
+                    io.Fonts->Build();
 
-                        // Create a resource view for the font atlas buffer
-                        rz_gfx_resource_view_desc fontAtlasViewDesc  = {};
-                        fontAtlasViewDesc.descriptorType             = RZ_GFX_DESCRIPTOR_TYPE_TEXTURE;
-                        fontAtlasViewDesc.textureViewDesc.pTexture   = RZResourceManager::Get().getTextureResource(m_ImGuiFontAtlasTexture);
-                        fontAtlasViewDesc.textureViewDesc.format     = TextureFormat::RGBA8;
-                        fontAtlasViewDesc.textureViewDesc.mipLevel   = 0;
-                        fontAtlasViewDesc.textureViewDesc.arrayLayer = 0;
-
-                        rz_gfx_resource_view_handle fontAtlasViewHandle =
-                            rzRHI_CreateResourceView(&fontAtlasViewDesc);
-
-                        // Update the descriptor table to use the resource view
-                        rz_gfx_descriptor_table_update fontAtlasTableUpdate = {};
-                        fontAtlasTableUpdate.pTable                         = fontAtlasDescTable;
-                        fontAtlasTableUpdate.resViewCount                   = 1;
-                        fontAtlasTableUpdate.pResourceViews                 = &fontAtlasViewHandle;
-
-                        rzRHI_UpdateDescriptorTable(&fontAtlasTableUpdate);
-
-                        io.Fonts->Build();
-
-                        // Set the ImGui font atlas id to the GPU descriptor table
-                        ImFontAtlas* atlas      = io.Fonts;
-                        ImTextureID  atlasTexID = (ImTextureID) &m_ImGuiFontAtlasDescriptorSet;
-                        atlas[0].SetTexID(atlasTexID);
-                    }
+                    // Set the ImGui font atlas id to the GPU descriptor table
+                    ImFontAtlas* atlas      = io.Fonts;
+                    ImTextureID  atlasTexID = (ImTextureID) &m_ImGuiFontAtlasDescriptorSet;
+                    atlas[0].SetTexID(atlasTexID);
                 },
                 [=](const ImGuiPassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RAZIX_TIME_STAMP_BEGIN("ImGui");
+
+                    ImDrawData* imDrawData = ImGui::GetDrawData();
+                    if (!imDrawData || imDrawData->TotalVtxCount == 0 || imDrawData->TotalIdxCount == 0)
+                        return;
+
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
                     RAZIX_MARK_BEGIN(cmdBuffer, "ImGui", float4(0.9f, 0.6f, 0.2f, 1.0f));
 
-                    rz_gfx_renderpass info                 = {0};
+                    u32 vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
+                    u32 indexBufferSize  = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
+                    // Upload vertex and index data to the GPU
+                    ImDrawVert* vtxDst = (ImDrawVert*) rzRHI_MapBuffer(m_ImGuiVB, 0, vertexBufferSize);
+                    ImDrawIdx*  idxDst = (ImDrawIdx*) rzRHI_MapBuffer(m_ImGuiIB, 0, indexBufferSize);
+                    for (int n = 0; n < imDrawData->CmdListsCount; n++) {
+                        const ImDrawList* cmd_list = imDrawData->CmdLists[n];
+
+                        memcpy(vtxDst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+                        memcpy(idxDst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+                        vtxDst += cmd_list->VtxBuffer.Size;
+                        idxDst += cmd_list->IdxBuffer.Size;
+                    }
+                    rzRHI_UnmapBuffer(m_ImGuiVB);
+                    rzRHI_UnmapBuffer(m_ImGuiIB);
+
+                    rz_gfx_renderpass info                 = {};
                     info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;
                     info.colorAttachmentsCount             = 1;
-                    info.colorAttachments[0].pResourceView = RZEngine::Get().getWorldRenderer().getCurrSwapchainBackbufferResViewPtr();
+                    info.colorAttachments[0].pResourceView = getCurrSwapchainBackbufferResViewPtr();
                     info.colorAttachments[0].clear         = true;
                     float4 randomColor                     = GenerateHashedColor4(m_FrameCount);
                     memcpy(&info.colorAttachments[0].clearColor.raw, &randomColor, sizeof(float4));
@@ -831,99 +845,72 @@ namespace Razix {
 
                     rzRHI_BeginRenderPass(cmdBuffer, &info);
 
-                    //rzRHI_BindGfxRootSig(cmdBuffer, m_ImGuiRootSigHandle);
-                    //rzRHI_BindPipeline(cmdBuffer, m_ImGuiPipelineHandle);
+                    rzRHI_BindGfxRootSig(cmdBuffer, m_ImGuiRootSigHandle);
+                    rzRHI_BindPipeline(cmdBuffer, m_ImGuiPipelineHandle);
 
-                    rzRHI_EndRenderPass(cmdBuffer);
+                    rz_gfx_descriptor_heap_handle heaps[] = {
+                        getSamplerHeap(),
+                        getResourceHeap(),
+                    };
+                    rzRHI_BindDescriptorHeaps(cmdBuffer, heaps, 2);
 
+                    ImGuiIO&        io = ImGui::GetIO();
+                    rz_gfx_viewport vp = {};
+                    vp.x               = 0;
+                    vp.y               = 0;
+                    vp.width           = static_cast<u32>(io.DisplaySize.x);
+                    vp.height          = static_cast<u32>(io.DisplaySize.y);
+                    rzRHI_SetViewport(cmdBuffer, &vp);
+
+                    // FIXME: Push constants are not supported fully yet
+                    struct PushConstant
                     {
-                        ImDrawData* imDrawData = ImGui::GetDrawData();
-                        if (!imDrawData)
-                            return;
+                        float2 scale;
+                        float2 translate;
+                    } m_PushConstantData         = {};
+                    m_PushConstantData.scale     = float2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
+                    m_PushConstantData.translate = float2(-1.0f, -1.0f);
+                    rzRHI_BindRootConstant(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS, m_ImGuiRootSigHandle, 0, sizeof(PushConstant), &m_PushConstantData);
 
-                        u32 vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
-                        u32 indexBufferSize  = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
+                    u32                  offsets[] = {0};
+                    u32                  strides[] = {sizeof(ImDrawVert)};
+                    rz_gfx_buffer_handle vbs[]     = {m_ImGuiVB};
+                    rzRHI_BindVertexBuffers(cmdBuffer, vbs, 1, offsets, strides);
+                    rzRHI_BindIndexBuffer(cmdBuffer, m_ImGuiIB, 0, RZ_GFX_INDEX_TYPE_UINT16);
 
-                        if ((vertexBufferSize == 0) || (indexBufferSize == 0))
-                            return;
+                    int32_t vertexOffset = 0;
+                    int32_t indexOffset  = 0;
+                    for (u32 i = 0; i < (u32) imDrawData->CmdListsCount; ++i) {
+                        ImDrawList* cmd_list = imDrawData->CmdLists[i];
+                        // FIXME: ImGuizmo integration //ImGuizmo::SetDrawlist(cmd_list);
+                        for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++) {
+                            const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
+                            // Note: pcmd->GetTexID(); // Use this to bind the appropriate descriptor set
+                            rz_gfx_descriptor_table_handle fontAtlasTexTable = *(rz_gfx_descriptor_table_handle*) pcmd->TextureId;
 
-                        // Upload vertex and index data to the GPU
-                        ImDrawVert* vtxDst = (ImDrawVert*) rzRHI_MapBuffer(m_ImGuiVB, 0, sizeof(vertexBufferSize));
-                        ImDrawIdx*  idxDst = (ImDrawIdx*) rzRHI_MapBuffer(m_ImGuiIB, 0, sizeof(indexBufferSize));
+                            rz_gfx_descriptor_table_handle tables[2] = {
+                                m_GlobalSamplerTable,
+                                fontAtlasTexTable,    // will be set per draw call
+                            };
+                            rzRHI_BindDescriptorTables(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS, m_ImGuiRootSigHandle, tables, 2);
 
-                        for (int n = 0; n < imDrawData->CmdListsCount; n++) {
-                            const ImDrawList* cmd_list = imDrawData->CmdLists[n];
+                            rz_gfx_rect scissorRect = {};
+                            scissorRect.x           = std::max((int32_t) (pcmd->ClipRect.x), 0);
+                            scissorRect.y           = std::max((int32_t) (pcmd->ClipRect.y), 0);
+                            scissorRect.width       = (u32) (pcmd->ClipRect.z - pcmd->ClipRect.x);
+                            scissorRect.height      = (u32) (pcmd->ClipRect.w - pcmd->ClipRect.y);
+                            rzRHI_SetScissorRect(cmdBuffer, &scissorRect);
 
-                            memcpy(vtxDst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
-                            memcpy(idxDst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
-                            vtxDst += cmd_list->VtxBuffer.Size;
-                            idxDst += cmd_list->IdxBuffer.Size;
+                            RZEngine::Get().GetStatistics().NumDrawCalls++;
+                            RZEngine::Get().GetStatistics().IndexedDraws++;
+
+                            rzRHI_DrawIndexedAuto(cmdBuffer, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
+
+                            indexOffset += pcmd->ElemCount;
                         }
-
-                        // TODO: Enable only on NVidia GPUs
-                        //imguiVB->Flush();
-                        //imguiIB->Flush();
+                        vertexOffset += cmd_list->VtxBuffer.Size;
                     }
-                    //
-                    //                    {
-                    //                        ImDrawData* imDrawData = ImGui::GetDrawData();
-                    //                        if ((!imDrawData) || (imDrawData->CmdListsCount == 0))
-                    //                            return;
-                    //
-                    //                        ImGuiIO& io = ImGui::GetIO();
-                    //
-                    //                        RHI::BindPipeline(m_Pipeline, cmdBuffer);
-                    //
-                    //                        RHI::SetViewport(cmdBuffer, 0, 0, (u32) io.DisplaySize.x, (u32) io.DisplaySize.y);
-                    //
-                    //                        m_PushConstantData.scale         = float2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
-                    //                        m_PushConstantData.translate     = float2(-1.0f, -1.0f);
-                    //                        RZPushConstant imguiPushConstant = {};
-                    //                        imguiPushConstant.name           = "PushConstant";
-                    //                        imguiPushConstant.shaderStage    = ShaderStage::kVertex;
-                    //                        imguiPushConstant.size           = sizeof(PushConstant);
-                    //                        imguiPushConstant.data           = &m_PushConstantData;
-                    //
-                    //                        RHI::BindPushConstant(m_Pipeline, cmdBuffer, imguiPushConstant);
-                    //
-                    //                        auto imguiVB = RZResourceManager::Get().getVertexBufferResource(m_ImGuiVBO);
-                    //                        auto imguiIB = RZResourceManager::Get().getIndexBufferResource(m_ImGuiIBO);
-                    //                        imguiVB->Bind(cmdBuffer);
-                    //                        imguiIB->Bind(cmdBuffer);
-                    //
-                    //                        int32_t vertexOffset = 0;
-                    //                        int32_t indexOffset  = 0;
-                    //                        for (u32 i = 0; i < (u32) imDrawData->CmdListsCount; ++i) {
-                    //                            ImDrawList* cmd_list = imDrawData->CmdLists[i];
-                    //                            //ImGuizmo::SetDrawlist(cmd_list);
-                    //                            for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++) {
-                    //                                const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
-                    //                                // pcmd->GetTexID(); // Use this to bind the appropriate descriptor set
-                    //                                RZDescriptorSetHandle* set = (RZDescriptorSetHandle*) pcmd->TextureId;
-                    //                                RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, *set, BindingTable_System::SET_IDX_IMGUI_DATA);
-                    //
-                    //                                auto cmdBufferResource = Razix::Gfx::RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-                    //                            // BUG: See this is fine because ImGui is same for the eternity, it's not some crucial thing and won't even make the final game
-                    //                            // So I don't see putting such hacky stuff in here, I don't want to be a bitch about making everything super decoupled,
-                    //                            // When life gives you oranges that taste like lemonade you still consume them, this doesn't affect the performance at all
-                    //                            // Just deal with this cause everything else was done manually, we'll see if this is a issue when we use multi-viewports, until then Cyao BITCH!!!
-                    //                            //RHI::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (u32) (pcmd->ClipRect.z - pcmd->ClipRect.x), (u32) (pcmd->ClipRect.w - pcmd->ClipRect.y));
-                    //
-                    //#ifdef RAZIX_RENDER_API_VULKAN
-                    //                                RZEngine::Get().GetStatistics().NumDrawCalls++;
-                    //                                RZEngine::Get().GetStatistics().IndexedDraws++;
-                    //
-                    //                                //FIXME: RZAPIRenderer::DrawIndexed(cmdBuffer, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
-                    //                                //RHI::DrawIndexed(cmdBuffer, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
-                    //                                VkCommandBuffer cmdBuf = *(VkCommandBuffer*) (cmdBufferResource->getAPIBuffer());
-                    //                                if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::VULKAN)
-                    //                                    vkCmdDrawIndexed(cmdBuf, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
-                    //#endif
-                    //                                indexOffset += pcmd->ElemCount;
-                    //                            }
-                    //                            vertexOffset += cmd_list->VtxBuffer.Size;
-                    //                        }
-                    //                    }
+                    rzRHI_EndRenderPass(cmdBuffer);
 
                     RAZIX_MARK_END(cmdBuffer);
                     RAZIX_TIME_STAMP_END();

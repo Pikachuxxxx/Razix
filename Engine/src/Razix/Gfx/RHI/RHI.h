@@ -1672,6 +1672,7 @@ static inline unsigned int rz_clz32(unsigned int x)
 
     typedef void (*rzRHI_BindDescriptorHeapsFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_descriptor_heap** heaps, uint32_t heapCount);
     typedef void (*rzRHI_BindDescriptorTablesFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type pipelineType, const rz_gfx_root_signature* rootSig, const rz_gfx_descriptor_table** tables, uint32_t tableCount);
+    typedef void (*rzRHI_BindRootConstantFn)(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type pipelineType, const rz_gfx_root_signature* rootSig, uint32_t offset, uint32_t size, void* data);
 
     typedef void (*rzRHI_BindVertexBuffersFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* const* buffers, uint32_t bufferCount, const uint32_t* offsets, const uint32_t* strides);
     typedef void (*rzRHI_BindIndexBufferFn)(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* buffer, uint32_t offset, rz_gfx_index_type indexType);
@@ -1750,6 +1751,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_BindComputeRootSigFn     BindComputeRootSig;
         rzRHI_BindDescriptorHeapsFn    BindDescriptorHeaps;
         rzRHI_BindDescriptorTablesFn   BindDescriptorTables;
+        rzRHI_BindRootConstantFn       BindRootConstant;
         rzRHI_BindVertexBuffersFn      BindVertexBuffers;
         rzRHI_BindIndexBufferFn        BindIndexBuffer;
         rzRHI_DrawAutoFn               DrawAuto;
@@ -1878,6 +1880,8 @@ static inline unsigned int rz_clz32(unsigned int x)
                     tablePtrs.size());                                                                \
             } while (0)
 
+        #define rzRHI_BindRootConstant(cb, ppt, rs, off, size, data) g_RHI.BindRootConstant(RZResourceManager::Get().getCommandBufferResource(cb), ppt, RZResourceManager::Get().getRootSignatureResource(rs), off, size, data)
+
         #define rzRHI_BindVertexBuffers(cb, bu, N, off, str)                                                        \
             do {                                                                                                    \
                 rz_gfx_buffer* _bufs[N];                                                                            \
@@ -1950,6 +1954,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_BindDescriptorHeapsContainer   g_RHI.BindDescriptorHeaps
         #define rzRHI_BindDescriptorTables           g_RHI.BindDescriptorTables
         #define rzRHI_BindDescriptorTablesContainer  g_RHI.BindDescriptorTables
+        #define rzRHI_BindRootConstant               g_RHI.BindRootConstant
         #define rzRHI_BindVertexBuffers              g_RHI.BindVertexBuffers
         #define rzRHI_BindVertexBuffersContainer     g_RHI.BindVertexBuffers
         #define rzRHI_BindIndexBuffer                g_RHI.BindIndexBuffer
@@ -2108,6 +2113,17 @@ static inline unsigned int rz_clz32(unsigned int x)
                     RZResourceManager::Get().getRootSignatureResource(rs),                            \
                     tablePtrs.data(),                                                                 \
                     tablePtrs.size());                                                                \
+            } while (0)
+
+        #define rzRHI_BindRootConstant(cb, ppt, rs, off, size, data)                             \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindRootConstant", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.BindRootConstant(RZResourceManager::Get().getCommandBufferResource(cb),    \
+                    ppt,                                                                         \
+                    RZResourceManager::Get().getRootSignatureResource(rs),                       \
+                    off,                                                                         \
+                    size,                                                                        \
+                    data);                                                                       \
             } while (0)
 
         #define rzRHI_BindVertexBuffers(cb, bu, N, off, str)                                                        \
@@ -2455,6 +2471,12 @@ static inline unsigned int rz_clz32(unsigned int x)
             do {                                                                                     \
                 RAZIX_PROFILE_SCOPEC("rzRHI_BindDescriptorTables", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
                 g_RHI.BindDescriptorTables(cb, ppt, rs, dts, N);                                     \
+            } while (0)
+
+        #define rzRHI_BindRootConstant(cb, ppt, rs, off, size, data)                             \
+            do {                                                                                 \
+                RAZIX_PROFILE_SCOPEC("rzRHI_BindRootConstant", RZ_PROFILE_COLOR_RHI_DRAW_CALLS); \
+                g_RHI.BindRootConstant(cb, ppt, rs, off, size, data);                            \
             } while (0)
 
         #define rzRHI_BindVertexBuffers(cb, bu, N, off, str)                                      \

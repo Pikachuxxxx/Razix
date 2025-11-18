@@ -120,7 +120,7 @@ namespace Razix {
                     WaveIntrinsicsConstantBufferData cbData = {};
                     cbData.waveMode                         = 3;
                     cbUpdate.pData                          = &cbData;
-                    rzRHI_UpdateConstantBuffer(cbUpdate);
+                    rzRHI_UpdateMappedBuffer(cbUpdate);
 
                     RZResourceManager::Get()
                         .getShaderBindMapRef(m_Shader)

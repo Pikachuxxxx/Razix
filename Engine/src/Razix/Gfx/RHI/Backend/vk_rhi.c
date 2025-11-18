@@ -92,6 +92,7 @@ static const char* s_RequiredInstanceExtensions[] = {
     #endif
 #endif
 
+
     // Enhanced physical device queries (promoted to core in 1.1, but extension still needed for compatibility)
     VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 
@@ -2470,10 +2471,10 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
     // Create Vulkan instance
     VkApplicationInfo appInfo  = {0};
     appInfo.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName   = "Tanu";                                                                      // A story about "HER" self discovery
-    appInfo.applicationVersion = VK_MAKE_VERSION(init.appVer.major, init.appVer.minor, init.appVer.patch);    // TODO: Get this from CtxInit
+    appInfo.pApplicationName   = "Tanu";    // A story about "HER" self discovery
+    appInfo.applicationVersion = VK_MAKE_VERSION(init.appVer.major, init.appVer.minor, init.appVer.patch);
     appInfo.pEngineName        = "Razix Engine";
-    appInfo.engineVersion      = VK_MAKE_VERSION(init.engineVer.major, init.engineVer.minor, init.engineVer.patch);    // TODO: Get this from CtxInit
+    appInfo.engineVersion      = VK_MAKE_VERSION(init.engineVer.major, init.engineVer.minor, init.engineVer.patch);
     appInfo.apiVersion         = RAZIX_VK_API_VERSION;
 
     VkInstanceCreateInfo createInfo    = {0};
@@ -4438,6 +4439,15 @@ static void vk_BindDescriptorTables(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline
     vkCmdBindDescriptorSets(cmdBuf->vk.cmdBuf, pipelineBindPoint, rootSig->vk.pipelineLayout, startSetIndex, tableCount, descriptorSets, 0, NULL);
 }
 
+static void vk_BindRootConstant(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type pipelineType, const rz_gfx_root_signature* rootSig, uint32_t offset, uint32_t size, void* data)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->vk.cmdBuf != VK_NULL_HANDLE, "Vulkan command buffer is invalid");
+    RAZIX_RHI_ASSERT(rootSig != NULL, "Root signature cannot be null");
+
+    vkCmdPushConstants(cmdBuf->vk.cmdBuf, rootSig->vk.pipelineLayout, VK_SHADER_STAGE_ALL, offset, size, data);
+}
+
 static void vk_BindVertexBuffers(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* const* buffers, uint32_t bufferCount, const uint32_t* offsets, const uint32_t* strides)
 {
     RAZIX_RHI_ASSERT(buffers != NULL, "Buffers cannot be NULL");
@@ -5963,6 +5973,7 @@ rz_rhi_api vk_rhi = {
     .BindComputeRootSig    = vk_BindComputeRootSig,         // BindComputeRootSig
     .BindDescriptorHeaps   = vk_BindDescriptorHeaps,        // BindDescriptorHeaps
     .BindDescriptorTables  = vk_BindDescriptorTables,       // BindDescriptorTables
+    .BindRootConstant      = vk_BindRootConstant,           // BindRootConstant
     .BindVertexBuffers     = vk_BindVertexBuffers,          // BindVertexBuffers
     .BindIndexBuffer       = vk_BindIndexBuffer,            // BindIndexBuffer
     .DrawAuto              = vk_DrawAuto,                   // DrawAuto

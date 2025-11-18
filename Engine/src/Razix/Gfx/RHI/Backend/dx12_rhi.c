@@ -2969,6 +2969,7 @@ static void dx12_SetScissorRect(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_rect* 
 
 static void dx12_BindPipeline(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_pipeline* pso)
 {
+    // FIXME: Optimize this, make type is explicit in function params instead of touching cold data every time
     if (pso->resource.pCold->desc.pipelineDesc.type == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
         ID3D12GraphicsCommandList_IASetPrimitiveTopology(cmdBuf->dx12.cmdList, pso->dx12.topology);
     ID3D12GraphicsCommandList_SetPipelineState(cmdBuf->dx12.cmdList, pso->dx12.pso);
@@ -3016,6 +3017,22 @@ static void dx12_BindDescriptorTables(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeli
         else
             RAZIX_RHI_LOG_ERROR("Unsupported pipeline type for binding descriptor tables: %d", pipelineType);
     }
+}
+
+static void dx12_BindRootConstant(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_type pipelineType, const rz_gfx_root_signature* rootSig, uint32_t offset, uint32_t size, void* data)
+{
+    RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
+    RAZIX_RHI_ASSERT(cmdBuf->dx12.cmdList != NULL, "DirectX 12 command list is invalid");
+    RAZIX_RHI_ASSERT(rootSig != NULL, "Root signature cannot be null");
+    RAZIX_RHI_ASSERT(data != NULL, "Root constant data cannot be null");
+    RAZIX_RHI_ASSERT(size > 0 && size % sizeof(DWORD) == 0, "Root constant size must be greater than zero and multiple of 4 bytes");
+    // FIXME: Optimize this, make type is explicit in function params instead of touching cold data every time
+
+    uint32_t numValues = size / sizeof(DWORD);
+    if (pipelineType == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
+        ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants(cmdBuf->dx12.cmdList, 0, numValues, data, offset);
+    else if (pipelineType == RZ_GFX_PIPELINE_TYPE_COMPUTE)
+        ID3D12GraphicsCommandList_SetComputeRoot32BitConstants(cmdBuf->dx12.cmdList, 0, numValues, data, offset);
 }
 
 static void dx12_BindVertexBuffers(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* const* buffers, uint32_t bufferCount, const uint32_t* offsets, const uint32_t* strides)

@@ -270,7 +270,7 @@ namespace Razix {
                     cbUpdate.sizeInBytes          = sizeof(PrimitiveCBData);
                     cbUpdate.offset               = 0;
                     cbUpdate.pData                = &cbData;
-                    rzRHI_UpdateConstantBuffer(cbUpdate);
+                    rzRHI_UpdateMappedBuffer(cbUpdate);
 
                     // Bind vertex and index buffers
                     u32                  offsets[] = {0};
