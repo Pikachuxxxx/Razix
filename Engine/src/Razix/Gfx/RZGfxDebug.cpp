@@ -125,6 +125,11 @@ namespace Razix {
         void InitializeDebugUtils()
         {
             if (s_DebugUtilsInitialized || g_GfxCtx.vk.instance == VK_NULL_HANDLE) return;
+
+            // only RHI DLL loads volk so we need to initialize it here again if Razix want to raw dog backend API calls
+            volkInitialize();
+            volkLoadInstance(g_GfxCtx.vk.instance);
+
             pfn_vkCmdBeginDebugUtilsLabelEXT = reinterpret_cast<PFN_vkCmdBeginDebugUtilsLabelEXT>(
                 vkGetInstanceProcAddr(g_GfxCtx.vk.instance, "vkCmdBeginDebugUtilsLabelEXT"));
             pfn_vkCmdEndDebugUtilsLabelEXT = reinterpret_cast<PFN_vkCmdEndDebugUtilsLabelEXT>(
