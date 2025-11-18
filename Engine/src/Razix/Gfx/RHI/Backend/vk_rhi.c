@@ -4535,9 +4535,16 @@ static void vk_UpdateMappedBuffer(rz_gfx_buffer_update updatedesc)
     RAZIX_RHI_ASSERT(updatedesc.sizeInBytes > 0, "Size in bytes must be greater than zero");
     RAZIX_RHI_ASSERT(updatedesc.offset + updatedesc.sizeInBytes <= updatedesc.pBuffer->resource.pCold->desc.bufferDesc.sizeInBytes, "Update range exceeds buffer size");
     RAZIX_RHI_ASSERT(updatedesc.pData != NULL, "Data pointer cannot be NULL");
-    RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.pCold->desc.bufferDesc.type & (RZ_GFX_BUFFER_TYPE_CONSTANT | RZ_GFX_BUFFER_TYPE_VERTEX | RZ_GFX_BUFFER_TYPE_INDEX)), "Buffer must be of type Constant, Vertex or Index buffer to update");
+    rz_gfx_buffer_type type = updatedesc.pBuffer->resource.pCold->desc.bufferDesc.type;
     RAZIX_RHI_ASSERT(
-        (updatedesc.pBuffer->resource.pCold->desc.bufferDesc.usage & (RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC | RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)),
+        type == RZ_GFX_BUFFER_TYPE_CONSTANT ||
+            type == RZ_GFX_BUFFER_TYPE_VERTEX ||
+            type == RZ_GFX_BUFFER_TYPE_INDEX,
+        "Buffer must be of type Constant, Vertex or Index buffer to update");
+    rz_gfx_buffer_usage_type usage = updatedesc.pBuffer->resource.pCold->desc.bufferDesc.usage;
+    RAZIX_RHI_ASSERT(
+        usage == RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC ||
+            usage == RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM,
         "Buffer must be created with RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC or RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM usage flag");
     // TODO: When using VMA, ignore mapping/unmapping for persistent mapped buffers
     // TODO: Store the mapped pointer in the buffer struct to avoid mapping/unmapping every time for persistent mapped buffers
@@ -4553,8 +4560,7 @@ static void vk_UpdateMappedBuffer(rz_gfx_buffer_update updatedesc)
     // unmapping is not required for HOST_VISIBLE | HOST_COHERENT memory,
     // but doing it anyway for safety, we will try to prefer
     // HOST_COHERENT memory for dynamic and persistent uniform buffer
-    if (updatedesc.pBuffer->resource.pCold->desc.bufferDesc.usage != RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)
-        vkUnmapMemory(VKDEVICE, updatedesc.pBuffer->vk.memory);
+    vkUnmapMemory(VKDEVICE, updatedesc.pBuffer->vk.memory);
 }
 
 static void* vk_MapBuffer(const rz_gfx_buffer* pBuffer, const uint32_t offset, const uint32_t size)
