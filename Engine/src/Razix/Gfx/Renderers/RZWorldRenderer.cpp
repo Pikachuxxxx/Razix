@@ -665,9 +665,9 @@ namespace Razix {
                     // - [x] Create Font Atlas Texture + Combine it with Awesome font for bigger atlas
                     //      - [x] Create Descriptor Sets for fonts
                     // - [x] GLFW integration for events and BeginFrame etc. (do it all in RZApplication? already exists only backend init is done in FG setup)
-                    // - [ ] Render Pass to render ImGui elements
-                    //      - [ ] PushConstants
-                    //      - [ ] Update buffers and render elements and binding and draw calls
+                    // - [x] Render Pass to render ImGui elements
+                    //      - [x] PushConstants
+                    //      - [x] Update buffers and render elements and binding and draw calls
                     // - [ ] Test ImGui and resolve issues
 
                     // Setup context
@@ -703,16 +703,17 @@ namespace Razix {
                     pipelineDesc.pRootSig               = RZResourceManager::Get().getRootSignatureResource(pipelineDesc.pShader->rootSignature);
                     pipelineDesc.type                   = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
                     pipelineDesc.blendPreset            = RZ_GFX_BLEND_PRESET_ALPHA_BLEND;
-                    pipelineDesc.cullMode               = RZ_GFX_CULL_MODE_TYPE_FRONT;
+                    pipelineDesc.cullMode               = RZ_GFX_CULL_MODE_TYPE_NONE;    // !! ImGui requires no culling
                     pipelineDesc.drawType               = RZ_GFX_DRAW_TYPE_TRIANGLE;
                     pipelineDesc.polygonMode            = RZ_GFX_POLYGON_MODE_TYPE_SOLID;
                     pipelineDesc.useBlendPreset         = true;
                     pipelineDesc.depthTestEnabled       = false;    // UI rendering can just overwrite stuff, no need to waste time in depth testing
                     pipelineDesc.depthWriteEnabled      = false;    // no depth attachment at all
                     pipelineDesc.enableStencilTest      = false;
-                    pipelineDesc.blendEnabled           = false;
+                    pipelineDesc.blendEnabled           = true;
                     pipelineDesc.renderTargetCount      = 1;
                     pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
+                    pipelineDesc.inputLayoutMode        = RZ_GFX_INPUT_LAYOUT_AOS;
                     m_ImGuiPipelineHandle               = RZResourceManager::Get().createPipeline("Pipeline.ImGui", pipelineDesc);
 
                     constexpr u32 kMaxBufferSize = 16_Mib;
@@ -837,14 +838,13 @@ namespace Razix {
                     info.colorAttachmentsCount             = 1;
                     info.colorAttachments[0].pResourceView = getCurrSwapchainBackbufferResViewPtr();
                     info.colorAttachments[0].clear         = true;
-                    float4 randomColor                     = GenerateHashedColor4(m_FrameCount);
+                    float4 randomColor                     = GenerateHashedColor4(123);
                     memcpy(&info.colorAttachments[0].clearColor.raw, &randomColor, sizeof(float4));
                     info.layers           = 1;
                     RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
                     RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
 
                     rzRHI_BeginRenderPass(cmdBuffer, &info);
-
                     rzRHI_BindGfxRootSig(cmdBuffer, m_ImGuiRootSigHandle);
                     rzRHI_BindPipeline(cmdBuffer, m_ImGuiPipelineHandle);
 
@@ -854,15 +854,7 @@ namespace Razix {
                     };
                     rzRHI_BindDescriptorHeaps(cmdBuffer, heaps, 2);
 
-                    ImGuiIO&        io = ImGui::GetIO();
-                    rz_gfx_viewport vp = {};
-                    vp.x               = 0;
-                    vp.y               = 0;
-                    vp.width           = static_cast<u32>(io.DisplaySize.x);
-                    vp.height          = static_cast<u32>(io.DisplaySize.y);
-                    rzRHI_SetViewport(cmdBuffer, &vp);
-
-                    // FIXME: Push constants are not supported fully yet
+                    ImGuiIO& io = ImGui::GetIO();
                     struct PushConstant
                     {
                         float2 scale;
@@ -876,7 +868,22 @@ namespace Razix {
                     u32                  strides[] = {sizeof(ImDrawVert)};
                     rz_gfx_buffer_handle vbs[]     = {m_ImGuiVB};
                     rzRHI_BindVertexBuffers(cmdBuffer, vbs, 1, offsets, strides);
-                    rzRHI_BindIndexBuffer(cmdBuffer, m_ImGuiIB, 0, RZ_GFX_INDEX_TYPE_UINT16);
+                    rzRHI_BindIndexBuffer(cmdBuffer, m_ImGuiIB, 0, RZ_GFX_INDEX_TYPE_UINT32);
+
+#ifdef RAZIX_RENDER_API_VULKAN
+                    // Note: Temporary fix for Vulkan's inverted Y viewport, until we render to an offscreen buffer and then blit to swapchain image and flip it again
+                    if (rzGfxCtx_GetRenderAPI() == RZ_RENDER_API_VULKAN) {
+                        VkViewport vkViewport = {};
+                        vkViewport.x          = 0.0f;
+                        vkViewport.y          = 0.0f;
+                        vkViewport.width      = (float) RAZIX_X(info.extents);
+                        vkViewport.height     = (float) RAZIX_Y(info.extents);
+                        vkViewport.minDepth   = (float) 0.0f;
+                        vkViewport.maxDepth   = (float) 1.0f;
+
+                        vkCmdSetViewport(m_InFlightDrawCmdBufPtrs[m_RenderSync.frameSync.inFlightSyncIdx]->vk.cmdBuf, 0, 1, &vkViewport);
+                    }
+#endif
 
                     int32_t vertexOffset = 0;
                     int32_t indexOffset  = 0;
