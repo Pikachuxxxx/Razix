@@ -25,12 +25,6 @@
 
 #include "Razix/Gfx/RZShaderLibrary.h"
 
-// Imgui
-#include <imgui.h>
-#include <imgui/backends/imgui_impl_glfw.h>
-#include <imgui/plugins/IconsFontAwesome5.h>
-//#include <imgui/plugins/ImGuizmo.h>    // SetDrawList
-
 #ifdef RAZIX_RENDER_API_VULKAN
     #include <vulkan/vulkan.h>
 #endif
@@ -57,106 +51,6 @@ namespace Razix {
 
             if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::VULKAN)
                 ImGui_ImplGlfw_InitForVulkan((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
-        }
-
-        void RZImGuiRendererProxy::Begin(RZScene* scene)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_CORE);
-
-            RAZIX_MARK_BEGIN("ImGui Pass", float4(1.0f, 7.0f, 0.0f, 1.0f));
-
-            ImDrawData* imDrawData = ImGui::GetDrawData();
-            if (!imDrawData)
-                return;
-
-            u32 vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
-            u32 indexBufferSize  = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
-
-            if ((vertexBufferSize == 0) || (indexBufferSize == 0))
-                return;
-
-            auto imguiVB = RZResourceManager::Get().getVertexBufferResource(m_ImGuiVBO);
-            auto imguiIB = RZResourceManager::Get().getIndexBufferResource(m_ImGuiIBO);
-            imguiVB->Map(vertexBufferSize, 0);
-            imguiIB->Map(indexBufferSize, 0);
-
-            // Upload vertex and index data to the GPU
-            ImDrawVert* vtxDst = (ImDrawVert*) imguiVB->GetMappedBuffer();
-            ImDrawIdx*  idxDst = (ImDrawIdx*) imguiIB->GetMappedBuffer();
-
-            for (int n = 0; n < imDrawData->CmdListsCount; n++) {
-                const ImDrawList* cmd_list = imDrawData->CmdLists[n];
-
-                memcpy(vtxDst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
-                memcpy(idxDst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
-                vtxDst += cmd_list->VtxBuffer.Size;
-                idxDst += cmd_list->IdxBuffer.Size;
-            }
-
-            // TODO: Enable only on NVidia GPUs
-            imguiVB->Flush();
-            imguiIB->Flush();
-        }
-
-        void RZImGuiRendererProxy::Draw(RZDrawCommandBufferHandle cmdBuffer)
-        {
-            ImDrawData* imDrawData = ImGui::GetDrawData();
-            if ((!imDrawData) || (imDrawData->CmdListsCount == 0))
-                return;
-
-            ImGuiIO& io = ImGui::GetIO();
-
-            RHI::BindPipeline(m_Pipeline, cmdBuffer);
-
-            RHI::SetViewport(cmdBuffer, 0, 0, (u32) io.DisplaySize.x, (u32) io.DisplaySize.y);
-
-            m_PushConstantData.scale         = float2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
-            m_PushConstantData.translate     = float2(-1.0f, -1.0f);
-            RZPushConstant imguiPushConstant = {};
-            imguiPushConstant.name           = "PushConstant";
-            imguiPushConstant.shaderStage    = ShaderStage::kVertex;
-            imguiPushConstant.size           = sizeof(PushConstant);
-            imguiPushConstant.data           = &m_PushConstantData;
-
-            RHI::BindPushConstant(m_Pipeline, cmdBuffer, imguiPushConstant);
-
-            auto imguiVB = RZResourceManager::Get().getVertexBufferResource(m_ImGuiVBO);
-            auto imguiIB = RZResourceManager::Get().getIndexBufferResource(m_ImGuiIBO);
-            imguiVB->Bind(cmdBuffer);
-            imguiIB->Bind(cmdBuffer);
-
-            int32_t vertexOffset = 0;
-            int32_t indexOffset  = 0;
-            for (u32 i = 0; i < (u32) imDrawData->CmdListsCount; ++i) {
-                ImDrawList* cmd_list = imDrawData->CmdLists[i];
-                //ImGuizmo::SetDrawlist(cmd_list);
-                for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++) {
-                    const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
-                    // pcmd->GetTexID(); // Use this to bind the appropriate descriptor set
-                    RZDescriptorSetHandle* set = (RZDescriptorSetHandle*) pcmd->TextureId;
-                    RHI::BindDescriptorSet(m_Pipeline, cmdBuffer, *set, BindingTable_System::SET_IDX_IMGUI_DATA);
-
-                    auto cmdBufferResource = Razix::Gfx::RZResourceManager::Get().getDrawCommandBufferResource(cmdBuffer);
-                    // BUG: See this is fine because ImGui is same for the eternity, it's not some crucial thing and won't even make the final game
-                    // So I don't see putting such hacky stuff in here, I don't want to be a bitch about making everything super decoupled,
-                    // When life gives you oranges that taste like lemonade you still consume them, this doesn't affect the performance at all
-                    // Just deal with this cause everything else was done manually, we'll see if this is a issue when we use multi-viewports, until then Cyao BITCH!!!
-                    //RHI::SetScissorRect(cmdBuffer, std::max((int32_t) (pcmd->ClipRect.x), 0), std::max((int32_t) (pcmd->ClipRect.y), 0), (u32) (pcmd->ClipRect.z - pcmd->ClipRect.x), (u32) (pcmd->ClipRect.w - pcmd->ClipRect.y));
-
-#ifdef RAZIX_RENDER_API_VULKAN
-                    RZEngine::Get().GetStatistics().NumDrawCalls++;
-                    RZEngine::Get().GetStatistics().IndexedDraws++;
-
-                    //FIXME: RZAPIRenderer::DrawIndexed(cmdBuffer, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
-                    //RHI::DrawIndexed(cmdBuffer, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
-                    VkCommandBuffer cmdBuf = *(VkCommandBuffer*) (cmdBufferResource->getAPIBuffer());
-                    if (Razix::Gfx::RZGraphicsContext::GetRenderAPI() == Razix::Gfx::RenderAPI::VULKAN)
-                        vkCmdDrawIndexed(cmdBuf, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
-#endif
-                    indexOffset += pcmd->ElemCount;
-                }
-                vertexOffset += cmd_list->VtxBuffer.Size;
-            }
         }
 
         void RZImGuiRendererProxy::End()

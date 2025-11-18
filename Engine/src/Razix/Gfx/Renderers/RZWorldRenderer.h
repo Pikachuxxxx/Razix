@@ -188,7 +188,14 @@ namespace Razix {
             rz_gfx_descriptor_table_handle       m_GlobalSamplerTable                                    = {};    // TODO: maintain them per in-flight frame
             rz_gfx_descriptor_table_handle       m_FrameDataTable                                        = {};    // TODO: maintain them per in-flight frame
             rz_gfx_descriptor_table_handle       m_SceneLightsDataTable                                  = {};    // TODO: maintain them per in-flight frame
-            u32                                  _pad1[2];
+            u32                                  _pad1[2]                                                = {};
+            rz_gfx_shader_handle                 m_ImGuiShaderHandle                                     = {};
+            rz_gfx_root_signature_handle         m_ImGuiRootSigHandle                                    = {};
+            rz_gfx_pipeline_handle               m_ImGuiPipelineHandle                                   = {};
+            rz_gfx_descriptor_table_handle       m_ImGuiFontAtlasDescriptorSet                           = {};
+            rz_gfx_buffer_handle                 m_ImGuiVB                                               = {};
+            rz_gfx_buffer_handle                 m_ImGuiIB                                               = {};
+            rz_gfx_texture_handle                m_ImGuiFontAtlasTexture                                 = {};
 
         private:
             //void importGlobalLightProbes(LightProbe globalLightProbe);
