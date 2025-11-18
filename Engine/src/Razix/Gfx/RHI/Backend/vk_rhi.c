@@ -92,7 +92,6 @@ static const char* s_RequiredInstanceExtensions[] = {
     #endif
 #endif
 
-
     // Enhanced physical device queries (promoted to core in 1.1, but extension still needed for compatibility)
     VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 
@@ -1048,7 +1047,7 @@ static VkPipelineColorBlendAttachmentState vk_util_blend_preset(rz_gfx_blend_pre
             desc.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
             desc.colorBlendOp        = VK_BLEND_OP_ADD;
             desc.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+            desc.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
             desc.alphaBlendOp        = VK_BLEND_OP_ADD;
             break;
         case RZ_GFX_BLEND_PRESET_SUBTRACTIVE:
