@@ -3878,6 +3878,7 @@ rz_rhi_api dx12_rhi = {
     .BindComputeRootSig    = dx12_BindComputeRootSig,       // BindComputeRootSig
     .BindDescriptorTables  = dx12_BindDescriptorTables,     // BindDescriptorTable
     .BindDescriptorHeaps   = dx12_BindDescriptorHeaps,      // BindDescriptorHeaps
+    .BindRootConstant      = dx12_BindRootConstant,         // BindRootConstant
     .BindVertexBuffers     = dx12_BindVertexBuffers,        // BindVertexBuffers
     .BindIndexBuffer       = dx12_BindIndexBuffer,          // BindIndexBuffer
     .DrawAuto              = dx12_DrawAuto,                 // DrawAuto
