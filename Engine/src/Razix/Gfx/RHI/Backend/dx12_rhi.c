@@ -3205,10 +3205,17 @@ static void dx12_UpdateMappedBuffer(rz_gfx_buffer_update updatedesc)
     RAZIX_RHI_ASSERT(updatedesc.sizeInBytes > 0, "Size in bytes must be greater than zero");
     RAZIX_RHI_ASSERT(updatedesc.offset + updatedesc.sizeInBytes <= updatedesc.pBuffer->resource.pCold->desc.bufferDesc.sizeInBytes, "Update range exceeds buffer size");
     RAZIX_RHI_ASSERT(updatedesc.pData != NULL, "Data pointer cannot be NULL");
+    rz_gfx_buffer_type type = updatedesc.pBuffer->resource.pCold->desc.bufferDesc.type;
     RAZIX_RHI_ASSERT(
-        (updatedesc.pBuffer->resource.pCold->desc.bufferDesc.usage & (RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC | RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)),
+        type == RZ_GFX_BUFFER_TYPE_CONSTANT ||
+            type == RZ_GFX_BUFFER_TYPE_VERTEX ||
+            type == RZ_GFX_BUFFER_TYPE_INDEX,
+        "Buffer must be of type Constant, Vertex or Index buffer to update");
+    rz_gfx_buffer_usage_type usage = updatedesc.pBuffer->resource.pCold->desc.bufferDesc.usage;
+    RAZIX_RHI_ASSERT(
+        usage == RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC ||
+            usage == RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM,
         "Buffer must be created with RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC or RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM usage flag");
-    RAZIX_RHI_ASSERT((updatedesc.pBuffer->resource.pCold->desc.bufferDesc.type & (RZ_GFX_BUFFER_TYPE_CONSTANT | RZ_GFX_BUFFER_TYPE_VERTEX | RZ_GFX_BUFFER_TYPE_INDEX)), "Buffer must be of type Constant, Vertex or Index buffer to update");
 
     D3D12_RANGE readRange = {0};
     readRange.Begin       = updatedesc.offset;
@@ -3217,8 +3224,7 @@ static void dx12_UpdateMappedBuffer(rz_gfx_buffer_update updatedesc)
     ID3D12Resource_Map(updatedesc.pBuffer->dx12.resource, 0, &readRange, &mappedData);
     RAZIX_RHI_ASSERT(mappedData != NULL, "Failed to map constant buffer memory");
     memcpy((uint8_t*) mappedData, updatedesc.pData, updatedesc.sizeInBytes);
-    if (updatedesc.pBuffer->resource.pCold->desc.bufferDesc.usage != RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM)
-        ID3D12Resource_Unmap(updatedesc.pBuffer->dx12.resource, 0, NULL);
+    ID3D12Resource_Unmap(updatedesc.pBuffer->dx12.resource, 0, NULL);
 }
 
 static void* dx12_MapBuffer(const rz_gfx_buffer* pBuffer, const uint32_t offset, const uint32_t size)
