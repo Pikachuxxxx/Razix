@@ -2,69 +2,35 @@
 
 // Modified from Source: https://github.com/jmorton06/Lumos/blob/main/Lumos/Source/Lumos/Graphics/Renderers/DebugRenderer.cpp // MIT License
 
-#include "Razix/Core/RZSTL/smart_pointers.h"
+#include "Razix/Core/RZDataTypes.h"
+#include "Razix/Core/Containers/smart_pointers.h"
+#include "Razix/Core/Utils/TRZSingleton.h"
 
-#include "Razix/Gfx/Renderers/IRZRendererProxy.h"
-
-#include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
-#include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
+#include "Razix/Gfx/RHI/RHI.h"
 
 #include "Razix/Math/AABB.h"
 #include "Razix/Math/Frustum.h"
 
-#include "Razix/Core/Utils/TRZSingleton.h"
-
 namespace Razix {
     namespace Gfx {
-
+        
+        // Forward Declarations
         class RZLight;
-        class RZDescriptorSet;
-
-        struct Line
-        {
-            float3 p1;
-            float3 p2;
-            float4 col;
-
-            Line(const float3& pos1, const float3& pos2, const float4& colour)
-            {
-                p1  = pos1;
-                p2  = pos2;
-                col = colour;
-            }
-        };
-
-        struct Point
-        {
-            float3 p1;
-            float4 col;
-            float  size;
-
-            Point(const float3& pos1, float s, const float4& colour)
-            {
-                p1   = pos1;
-                size = s;
-                col  = colour;
-            }
-        };
 
         /**
          * Draws debug geometry in the scene to help with visualization and debugging
          * 
          * Note: Uses Batched rendering to draw points/lines in a single draw call
          */
-        class RAZIX_API RZDebugRendererProxy : public IRZRendererProxy, public RZSingleton<RZDebugRendererProxy>
+        class RAZIX_API RZDebugDraw 
         {
         public:
             //-------------------------------------------------------------
-            // IRZRendererProxy
-
-            void Init() override;
-            void Begin(RZScene* scene) override;
-            void Draw(RZDrawCommandBufferHandle cmdBuffer) override;
-            void End() override;
-            void Resize(u32 width, u32 height) override {}
-            void Destroy() override;
+            static void Init();
+            static void Destroy();
+            static void BeginDraw();
+            static void IssueDrawCommands(rz_gfx_cmdbuf_handle cmdBuffer);
+            static void EndDraw();
 
             //-------------------------------------------------------------
             // Debug Draw Public API
@@ -107,37 +73,6 @@ namespace Razix {
             static void PopulatePointsDrawList(bool dt, const float3& pos, f32 point_radius, const float4& colour);
             static void PopulateThickLinesDrawList(bool dt, const float3& start, const float3& end, f32 line_width, const float4& colour);
             static void PopulateLinesDrawList(bool dt, const float3& start, const float3& end, const float4& colour);
-
-        private:
-            struct DebugDrawList
-            {
-                std::vector<Line>  m_DebugLines;
-                std::vector<Point> m_DebugPoints;
-                std::vector<Line>  m_DebugThickLines;
-            };
-
-            DebugDrawList m_DrawList;
-            DebugDrawList m_DrawListNDT;
-
-            RZPipelineHandle m_LinePipeline  = {};
-            RZPipelineHandle m_PointPipeline = {};
-            RZShaderHandle   m_LineShader    = {};
-            RZShaderHandle   m_PointShader   = {};
-
-            u32                  m_LineIndexCount  = 0;
-            RZIndexBufferHandle  m_LineIB          = {};
-            RZVertexBufferHandle m_LinePosition_VB = {};
-            RZVertexBufferHandle m_LineColor_VB    = {};
-
-            u32                  m_PointIndexCount  = 0;
-            RZIndexBufferHandle  m_PointIB          = {};
-            RZVertexBufferHandle m_PointPosition_VB = {};
-            RZVertexBufferHandle m_PointColor_VB    = {};
-
-        private:
-            void createPipelines();
-            void createPointBufferResources();
-            void createLineBufferResources();
         };
     }    // namespace Gfx
 }    // namespace Razix
