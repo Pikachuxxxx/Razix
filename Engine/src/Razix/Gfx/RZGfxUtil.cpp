@@ -240,37 +240,37 @@ namespace Razix {
             switch (desc->pipelineType) {
                 case RZ_GFX_PIPELINE_TYPE_GRAPHICS: {
                     // Free raster pipeline stages
-                    if (desc->raster.vs.bytecode) {
+                    if (desc->raster.vs.bytecode && desc->raster.vs.stage == RZ_GFX_SHADER_STAGE_VERTEX) {
                         RAZIX_ASSERT(desc->raster.vs.size > 0, "[RZSF] VS bytecode has invalid size");
                         rz_free((void*) desc->raster.vs.bytecode);
                         desc->raster.vs.bytecode = NULL;
                     }
-                    if (desc->raster.ps.bytecode) {
+                    if (desc->raster.ps.bytecode && desc->raster.ps.stage == RZ_GFX_SHADER_STAGE_PIXEL) {
                         RAZIX_ASSERT(desc->raster.ps.size > 0, "[RZSF] PS bytecode has invalid size");
                         rz_free((void*) desc->raster.ps.bytecode);
                         desc->raster.ps.bytecode = NULL;
                     }
-                    if (desc->raster.gs.bytecode) {
+                    if (desc->raster.gs.bytecode && desc->raster.gs.stage == RZ_GFX_SHADER_STAGE_GEOMETRY) {
                         RAZIX_ASSERT(desc->raster.gs.size > 0, "[RZSF] GS bytecode has invalid size");
                         rz_free((void*) desc->raster.gs.bytecode);
                         desc->raster.gs.bytecode = NULL;
                     }
-                    if (desc->raster.tcs.bytecode) {
+                    if (desc->raster.tcs.bytecode && desc->raster.tcs.stage == RZ_GFX_SHADER_STAGE_TESSELLATION_CONTROL) {
                         RAZIX_ASSERT(desc->raster.tcs.size > 0, "[RZSF] TCS bytecode has invalid size");
                         rz_free((void*) desc->raster.tcs.bytecode);
                         desc->raster.tcs.bytecode = NULL;
                     }
-                    if (desc->raster.tes.bytecode) {
+                    if (desc->raster.tes.bytecode && desc->raster.tes.stage == RZ_GFX_SHADER_STAGE_TESSELLATION_EVALUATION) {
                         RAZIX_ASSERT(desc->raster.tes.size > 0, "[RZSF] TES bytecode has invalid size");
                         rz_free((void*) desc->raster.tes.bytecode);
                         desc->raster.tes.bytecode = NULL;
                     }
-                    if (desc->raster.task.bytecode) {
+                    if (desc->raster.task.bytecode && desc->raster.task.stage == RZ_GFX_SHADER_STAGE_TASK) {
                         RAZIX_ASSERT(desc->raster.task.size > 0, "[RZSF] Task shader bytecode has invalid size");
                         rz_free((void*) desc->raster.task.bytecode);
                         desc->raster.task.bytecode = NULL;
                     }
-                    if (desc->raster.mesh.bytecode) {
+                    if (desc->raster.mesh.bytecode && desc->raster.mesh.stage == RZ_GFX_SHADER_STAGE_MESH) {
                         RAZIX_ASSERT(desc->raster.mesh.size > 0, "[RZSF] Mesh shader bytecode has invalid size");
                         rz_free((void*) desc->raster.mesh.bytecode);
                         desc->raster.mesh.bytecode = NULL;
@@ -279,7 +279,7 @@ namespace Razix {
                 }
 
                 case RZ_GFX_PIPELINE_TYPE_COMPUTE: {
-                    if (desc->compute.cs.bytecode) {
+                    if (desc->compute.cs.bytecode && desc->compute.cs.stage == RZ_GFX_SHADER_STAGE_COMPUTE) {
                         RAZIX_ASSERT(desc->compute.cs.size > 0, "[RZSF] CS bytecode has invalid size");
                         rz_free((void*) desc->compute.cs.bytecode);
                         desc->compute.cs.bytecode = NULL;
@@ -289,27 +289,27 @@ namespace Razix {
 
                 case RZ_GFX_PIPELINE_TYPE_RAYTRACING: {
                     // Free raytracing pipeline stages
-                    if (desc->raytracing.rgen.bytecode) {
+                    if (desc->raytracing.rgen.bytecode && desc->raytracing.rgen.stage == RZ_GFX_SHADER_STAGE_RAY_GEN) {
                         RAZIX_ASSERT(desc->raytracing.rgen.size > 0, "[RZSF] RGEN bytecode has invalid size");
                         rz_free((void*) desc->raytracing.rgen.bytecode);
                         desc->raytracing.rgen.bytecode = NULL;
                     }
-                    if (desc->raytracing.miss.bytecode) {
+                    if (desc->raytracing.miss.bytecode && desc->raytracing.miss.stage == RZ_GFX_SHADER_STAGE_RAY_MISS) {
                         RAZIX_ASSERT(desc->raytracing.miss.size > 0, "[RZSF] MISS bytecode has invalid size");
                         rz_free((void*) desc->raytracing.miss.bytecode);
                         desc->raytracing.miss.bytecode = NULL;
                     }
-                    if (desc->raytracing.chit.bytecode) {
+                    if (desc->raytracing.chit.bytecode && desc->raytracing.chit.stage == RZ_GFX_SHADER_STAGE_RAY_CLOSEST_HIT) {
                         RAZIX_ASSERT(desc->raytracing.chit.size > 0, "[RZSF] CHIT bytecode has invalid size");
                         rz_free((void*) desc->raytracing.chit.bytecode);
                         desc->raytracing.chit.bytecode = NULL;
                     }
-                    if (desc->raytracing.ahit.bytecode) {
+                    if (desc->raytracing.ahit.bytecode && desc->raytracing.ahit.stage == RZ_GFX_SHADER_STAGE_RAY_ANY_HIT) {
                         RAZIX_ASSERT(desc->raytracing.ahit.size > 0, "[RZSF] AHIT bytecode has invalid size");
                         rz_free((void*) desc->raytracing.ahit.bytecode);
                         desc->raytracing.ahit.bytecode = NULL;
                     }
-                    if (desc->raytracing.callable.bytecode) {
+                    if (desc->raytracing.callable.bytecode && desc->raytracing.callable.stage == RZ_GFX_SHADER_STAGE_RAY_CALLABLE) {
                         RAZIX_ASSERT(desc->raytracing.callable.size > 0, "[RZSF] CALLABLE bytecode has invalid size");
                         rz_free((void*) desc->raytracing.callable.bytecode);
                         desc->raytracing.callable.bytecode = NULL;
