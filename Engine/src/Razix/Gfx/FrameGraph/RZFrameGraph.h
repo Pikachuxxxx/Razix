@@ -69,9 +69,10 @@ namespace Razix {
                 // Also make sure the ExecuteFunc isn't too big
                 static_assert(sizeof(ExecuteFunc) < 1024, "Execute function captures too much");
                 static_assert(sizeof(ResizeFunc) < 1024, "Resize function captures too much");
-                static_assert(sizeof(ExitFunc) < 1024, "Exit function captures too much");
+                static_assert(sizeof(ExitFunc) < 256, "Exit function captures too much");
 
                 // Now that the checks are done, let's create the pass and PassNode
+                //void* mem  = rz_malloc(sizeof(RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc, ExitFunc>), 16);
                 auto* pass = new RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc, ExitFunc>(std::forward<ExecuteFunc>(executeFunc), std::forward<ResizeFunc>(resizeFunc), std::forward<ExitFunc>(exitFunc));
                 // Create the PassNode in the graph
                 RZPassNode& passNode = createPassNodeRef(name, std::unique_ptr<RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc, ExitFunc>>(pass));
@@ -102,10 +103,10 @@ namespace Razix {
             const PassData& addCallbackPass(const RZString& name, SetupFunc&& setupFunc, ExecuteFunc&& executeFunc, F&& f)
             {
                 if constexpr (std::is_invocable_v<F, RZPassResourceDirectory&, u32, u32>) {
-                    auto emptyExit = []() {};
+                    auto emptyExit = [=]() {};
                     return addCallbackPass<PassData>(name, std::forward<SetupFunc>(setupFunc), std::forward<ExecuteFunc>(executeFunc), std::forward<F>(f), emptyExit);
                 } else {
-                    auto emptyResize = [](RZPassResourceDirectory&, u32, u32) {};
+                    auto emptyResize = [=](RZPassResourceDirectory&, u32, u32) {};
                     return addCallbackPass<PassData>(name, std::forward<SetupFunc>(setupFunc), std::forward<ExecuteFunc>(executeFunc), emptyResize, std::forward<F>(f));
                 }
             }
@@ -136,10 +137,10 @@ namespace Razix {
                 struct NoData
                 {};
                 if constexpr (std::is_invocable_v<F, RZPassResourceDirectory&, u32, u32>) {
-                    auto emptyExit = []() {};
+                    auto emptyExit = [=]() {};
                     addCallbackPass<NoData>(name, std::forward<SetupFunc>(setupFunc), std::forward<ExecuteFunc>(executeFunc), std::forward<F>(f), emptyExit);
                 } else {
-                    auto emptyResize = [](RZPassResourceDirectory&, u32, u32) {};
+                    auto emptyResize = [=](RZPassResourceDirectory&, u32, u32) {};
                     addCallbackPass<NoData>(name, std::forward<SetupFunc>(setupFunc), std::forward<ExecuteFunc>(executeFunc), emptyResize, std::forward<F>(f));
                 }
             }
