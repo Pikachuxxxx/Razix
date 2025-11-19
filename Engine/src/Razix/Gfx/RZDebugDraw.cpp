@@ -239,6 +239,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+            RAZIX_CORE_ASSERT(camera != NULL, "Debug Draw::BeginDraw: Camera is null!");
+
             // FIXME: when using VMA, once enabled will skip MapBuffer calls and return the cached mapped pointer
             // same goes for DXMA as well, until then we need to unmap before mapping again, this is temporary fix
 
@@ -269,6 +271,9 @@ namespace Razix {
 
             // POINTS
             {
+                // Early out if no camera
+                if (!camera) return;
+
                 void* vtxPtr = rzRHI_MapBuffer(s_pDebugDrawState->pointPosVB, 0, PointPositionVertexBufferSize);
                 void* colPtr = rzRHI_MapBuffer(s_pDebugDrawState->pointColorVB, 0, PointColorVertexBufferSize);
 
@@ -302,9 +307,19 @@ namespace Razix {
             }
         }
 
-        void RZDebugDraw::IssueDrawCommands(rz_gfx_cmdbuf_handle cmdBuffer)
+        void RZDebugDraw::IssueDrawCommands(rz_gfx_cmdbuf_handle cmdBuffer, rz_gfx_descriptor_heap_handle heap, rz_gfx_descriptor_table_handle frameData)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+
+            rz_gfx_descriptor_heap_handle heaps[] = {
+                heap    // FrameData
+            };
+            rzRHI_BindDescriptorHeaps(cmdBuffer, heaps, 1);
+            // Bind frame data descriptor table
+            rz_gfx_descriptor_table_handle tables[] = {
+                frameData,
+            };
+            rzRHI_BindDescriptorTables(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS, s_pDebugDrawState->pointRootSig, tables, 1);
 
             // Points
             if (s_pDebugDrawState->pointIndexCount > 0) {
@@ -318,6 +333,8 @@ namespace Razix {
 
                 rzRHI_DrawIndexedAuto(cmdBuffer, s_pDebugDrawState->pointIndexCount, 1, 0, 0, 0);
             }
+
+            rzRHI_BindDescriptorTables(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS, s_pDebugDrawState->lineRootSig, tables, 1);
 
             // Lines
             if (s_pDebugDrawState->lineIndexCount > 0) {

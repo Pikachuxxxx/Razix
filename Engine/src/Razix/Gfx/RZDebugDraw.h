@@ -39,7 +39,7 @@ namespace Razix {
             static void ShutDown();
 
             static void BeginDraw(const Razix::RZSceneCamera* camera);
-            static void IssueDrawCommands(rz_gfx_cmdbuf_handle cmdBuffer);
+            static void IssueDrawCommands(rz_gfx_cmdbuf_handle cmdBuffer, rz_gfx_descriptor_heap_handle heap, rz_gfx_descriptor_table_handle frameData);
             static void EndDraw();
 
             //-------------------------------------------------------------
