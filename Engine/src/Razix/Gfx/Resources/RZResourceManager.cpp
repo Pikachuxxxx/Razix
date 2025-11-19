@@ -74,7 +74,7 @@
     m_ResourceTypeCBFuncs[ResourceType].createFuncCB  = CreateFuncCB;                                        \
     m_ResourceTypeCBFuncs[ResourceType].destroyFuncCB = DestroyFuncCB;                                       \
     m_##PoolName##Pool.init(Capacity, ElementSize);                                                          \
-    m_##PoolName##ColdDataPool.init(Capacity, ElementSize);
+    m_##PoolName##ColdDataPool.init(Capacity, sizeof(rz_gfx_resource_cold));
 
 #ifdef RAZIX_DEBUG
     #define RAZIX_UNREGISTER_RESOURCE_POOL(PoolName)                                     \
