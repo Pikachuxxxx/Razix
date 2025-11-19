@@ -117,6 +117,7 @@ typedef struct dx12_descriptor_table
 typedef struct dx12_root_signature
 {
     ID3D12RootSignature* rootSig;
+    uint32_t             pushConstantRootIndex;
 } dx12_root_signature;
 
 typedef struct dx12_shader_stage

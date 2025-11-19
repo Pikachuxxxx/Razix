@@ -2159,26 +2159,51 @@ static void dx12_CreateRootSignature(void* where)
     D3D12_ROOT_PARAMETER   rootParams[RAZIX_MAX_DESCRIPTOR_TABLES + RAZIX_MAX_ROOT_CONSTANTS]         = {0};
     D3D12_DESCRIPTOR_RANGE descriptorRanges[RAZIX_MAX_DESCRIPTOR_TABLES][RAZIX_MAX_DESCRIPTOR_RANGES] = {0};
 
-    D3D12_ROOT_SIGNATURE_DESC rootDesc = {0};
-    rootDesc.Flags                     = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-    rootDesc.NumParameters             = desc->descriptorTableLayoutsCount + desc->rootConstantCount;
-    rootDesc.pParameters               = rootParams;
-    // TODO: Use static samplers in future for truly bindless textures
-    rootDesc.NumStaticSamplers = 0;
-    rootDesc.pStaticSamplers   = NULL;
+    rootSig->dx12.rootSig               = NULL;
+    rootSig->dx12.pushConstantRootIndex = UINT32_MAX;
 
-    for (uint32_t tableIdx = 0; tableIdx < desc->descriptorTableLayoutsCount; tableIdx++) {
+    UINT rootParamCount = 0;
+
+    // Optional: push constants at root param 0
+    if (desc->rootConstantCount > 0) {
+        RAZIX_RHI_ASSERT(desc->rootConstantCount <= 1,
+            "Current DX12 backend supports only 1 root constant block in root signature (for push constants)!");
+
+        const rz_gfx_root_constant_desc* pRootConstantDesc = &desc->pRootConstantsDesc[0];
+        RAZIX_RHI_ASSERT(pRootConstantDesc != NULL,
+            "Root constant cannot be NULL in root signature creation! (Root Signature creation)");
+
+        D3D12_ROOT_PARAMETER* param = &rootParams[rootParamCount];
+
+        param->ParameterType            = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+        param->Constants.Num32BitValues = pRootConstantDesc->sizeInBytes >> 2;    // bytes -> num of 32-bit values =  divide by 2 ^ 2 = x / 4
+        param->Constants.ShaderRegister = pRootConstantDesc->location.binding;
+        param->Constants.RegisterSpace  = pRootConstantDesc->location.space;
+        param->ShaderVisibility         = D3D12_SHADER_VISIBILITY_ALL;    // TODO: ideally set based on reflection (which stages use it)
+
+        // Store the push constant root index for later use when setting root signature
+        rootSig->dx12.pushConstantRootIndex = rootParamCount;
+        rootParamCount++;
+    }
+
+    // Descriptor tables follow after push constants (if any)
+    for (uint32_t tableIdx = 0; tableIdx < desc->descriptorTableLayoutsCount; ++tableIdx) {
         const rz_gfx_descriptor_table_layout* pTableLayouts = &desc->pDescriptorTableLayouts[tableIdx];
-        RAZIX_RHI_ASSERT(pTableLayouts != NULL, "Descriptor table cannot be NULL in root signature creation! (Root Signature creation)");
+        RAZIX_RHI_ASSERT(pTableLayouts != NULL,
+            "Descriptor table cannot be NULL in root signature creation! (Root Signature creation)");
 
-        D3D12_ROOT_PARAMETER* param = &rootParams[tableIdx];
+        D3D12_ROOT_PARAMETER* param = &rootParams[rootParamCount];
         param->ParameterType        = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+        param->ShaderVisibility     = D3D12_SHADER_VISIBILITY_ALL;    // or per-stage later
 
-        for (uint32_t rangeIdx = 0; rangeIdx < pTableLayouts->descriptorCount; rangeIdx++) {
-            RAZIX_RHI_ASSERT(rangeIdx < RAZIX_MAX_DESCRIPTOR_RANGES, "Too many descriptors in a table! [MAXLIMIT: %d] (Root Signature creation)", RAZIX_MAX_DESCRIPTOR_RANGES);
+        for (uint32_t rangeIdx = 0; rangeIdx < pTableLayouts->descriptorCount; ++rangeIdx) {
+            RAZIX_RHI_ASSERT(rangeIdx < RAZIX_MAX_DESCRIPTOR_RANGES,
+                "Too many descriptors in a table! [MAXLIMIT: %d] (Root Signature creation)",
+                RAZIX_MAX_DESCRIPTOR_RANGES);
 
             const rz_gfx_descriptor* pDescriptor = &pTableLayouts->pDescriptors[rangeIdx];
-            RAZIX_RHI_ASSERT(pDescriptor != NULL, "Descriptor cannot be NULL in a descriptor table! (Root Signature creation)");
+            RAZIX_RHI_ASSERT(pDescriptor != NULL,
+                "Descriptor cannot be NULL in a descriptor table! (Root Signature creation)");
             RAZIX_RHI_ASSERT(pDescriptor->location.space == pTableLayouts->tableIndex,
                 "Descriptor space (%u) does not match table index (%u) in root signature creation! (Root Signature creation)",
                 pDescriptor->location.space,
@@ -2194,18 +2219,16 @@ static void dx12_CreateRootSignature(void* where)
 
         param->DescriptorTable.NumDescriptorRanges = pTableLayouts->descriptorCount;
         param->DescriptorTable.pDescriptorRanges   = descriptorRanges[tableIdx];
+
+        rootParamCount++;
     }
 
-    for (uint32_t i = 0; i < desc->rootConstantCount; i++) {
-        const rz_gfx_root_constant_desc* pRootConstantDesc = &desc->pRootConstantsDesc[i];
-        RAZIX_RHI_ASSERT(pRootConstantDesc != NULL, "Root constant cannot be NULL in root signature creation! (Root Signature creation)");
-
-        D3D12_ROOT_PARAMETER* param     = &rootParams[desc->descriptorTableLayoutsCount + i];
-        param->ParameterType            = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-        param->Constants.Num32BitValues = pRootConstantDesc->sizeInBytes >> 2;
-        param->Constants.ShaderRegister = pRootConstantDesc->location.binding;
-        param->Constants.RegisterSpace  = pRootConstantDesc->location.space;
-    }
+    D3D12_ROOT_SIGNATURE_DESC rootDesc = {0};
+    rootDesc.Flags                     = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+    rootDesc.NumParameters             = rootParamCount;
+    rootDesc.pParameters               = rootParams;
+    rootDesc.NumStaticSamplers         = 0;       // TODO: Use static samplers in future for truly bindless textures
+    rootDesc.pStaticSamplers           = NULL;    // TODO: Use static samplers in future for truly bindless textures
 
     ID3DBlob* signatureBlob = NULL;
     ID3DBlob* errorBlob     = NULL;
@@ -3001,19 +3024,23 @@ static void dx12_BindDescriptorTables(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeli
 {
     RAZIX_RHI_ASSERT(cmdBuf != NULL, "Command buffer cannot be null");
     RAZIX_RHI_ASSERT(tables != NULL, "Tables cannot be NULL");
+    RAZIX_RHI_ASSERT(rootSig != NULL, "Root signature cannot be null");
     RAZIX_RHI_ASSERT(tableCount > 0 && tableCount <= RAZIX_MAX_ALLOWED_TABLES_TO_BIND, "Invalid table count: %d. Must be between 1 and %d", tableCount, RAZIX_MAX_ALLOWED_TABLES_TO_BIND);
 
     // Vulkan uses the root signature to bind descriptor tables, it needs VkPipelineLayout to bind descriptor sets
     // Unused in DX12 as root signature is set directly on cmd list
     (void) rootSig;
+    // [11/19/2025] Oh wait! We do need root signature to know where the push constant root index is to offset the table indices
+    uint32_t tableStartRootParamIdx = rootSig->dx12.pushConstantRootIndex != UINT32_MAX ? rootSig->dx12.pushConstantRootIndex + 1 : 0;    // Tables start after push constant root index
+    RAZIX_RHI_ASSERT(tableStartRootParamIdx != UINT32_MAX, "Root signature does not have a valid push constant root index");
 
     ID3D12DescriptorHeap* dx12Heaps[RAZIX_MAX_ALLOWED_TABLES_TO_BIND] = {0};
     for (uint32_t i = 0; i < tableCount; i++) {
         dx12Heaps[i] = tables[i]->resource.pCold->desc.descriptorTableDesc.pHeap->dx12.heap;
         if (pipelineType == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
-            ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(cmdBuf->dx12.cmdList, i /*tables[i]->resource.pCold->desc.descriptorTableDesc.tableIndex*/, tables[i]->dx12.heapOffset.gpu);
+            ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(cmdBuf->dx12.cmdList, i + tableStartRootParamIdx /*tables[i]->resource.pCold->desc.descriptorTableDesc.tableIndex*/, tables[i]->dx12.heapOffset.gpu);
         else if (pipelineType == RZ_GFX_PIPELINE_TYPE_COMPUTE)
-            ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(cmdBuf->dx12.cmdList, i /*tables[i]->resource.pCold->desc.descriptorTableDesc.tableIndex*/, tables[i]->dx12.heapOffset.gpu);
+            ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(cmdBuf->dx12.cmdList, i + tableStartRootParamIdx /*tables[i]->resource.pCold->desc.descriptorTableDesc.tableIndex*/, tables[i]->dx12.heapOffset.gpu);
         else
             RAZIX_RHI_LOG_ERROR("Unsupported pipeline type for binding descriptor tables: %d", pipelineType);
     }
@@ -3029,10 +3056,13 @@ static void dx12_BindRootConstant(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_pipeline_t
     // FIXME: Optimize this, make type is explicit in function params instead of touching cold data every time
 
     uint32_t numValues = size / sizeof(DWORD);
+    uint32_t rootIndex = rootSig->dx12.pushConstantRootIndex;
+    RAZIX_RHI_ASSERT(rootIndex != UINT32_MAX, "Root signature does not have a valid push constant root index");
+
     if (pipelineType == RZ_GFX_PIPELINE_TYPE_GRAPHICS)
-        ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants(cmdBuf->dx12.cmdList, 0, numValues, data, offset);
+        ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants(cmdBuf->dx12.cmdList, rootIndex, numValues, data, offset);
     else if (pipelineType == RZ_GFX_PIPELINE_TYPE_COMPUTE)
-        ID3D12GraphicsCommandList_SetComputeRoot32BitConstants(cmdBuf->dx12.cmdList, 0, numValues, data, offset);
+        ID3D12GraphicsCommandList_SetComputeRoot32BitConstants(cmdBuf->dx12.cmdList, rootIndex, numValues, data, offset);
 }
 
 static void dx12_BindVertexBuffers(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buffer* const* buffers, uint32_t bufferCount, const uint32_t* offsets, const uint32_t* strides)

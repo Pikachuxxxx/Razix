@@ -575,6 +575,13 @@ namespace Razix {
                     rc->offsetInBytes             = 0;
                     rc->shaderStage               = stageBlob->stage;
 
+                    RAZIX_CORE_TRACE("[DX12] Reflected Root Constant - Binding: {0}, Space: {1}, Size: {2} (Num32BitValues: {3}), Offset: {4}",
+                        rc->location.binding,
+                        rc->location.space,
+                        rc->sizeInBytes,
+                        (rc->sizeInBytes >> 2),
+                        rc->offsetInBytes);
+
                     outReflection->rootSignatureDesc.rootConstantCount++;
                     continue;
                 }
