@@ -714,7 +714,6 @@ namespace Razix {
         if (newCapacity <= m_Capacity)
             return;
 
-        size_type oldCapacity = m_Capacity;
         while (m_Capacity < newCapacity)
             m_Capacity = (m_Capacity == 0) ? RZ_DEFAULT_ARRAY_CAPACITY : m_Capacity * RZ_ARRAY_GROWTH_FACTOR;
 

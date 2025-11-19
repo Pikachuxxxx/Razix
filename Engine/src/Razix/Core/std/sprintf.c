@@ -145,7 +145,6 @@ static uint64_t _itoa(uint64_t val, char* buf, int base, bool caps)
 {
     char* p = buf;
 
-    uint64_t           v          = val;
     uint64_t           bytes      = 0;
     static const char* charset[2] = {"0123456789abcdef", "0123456789ABCDEF"};
 

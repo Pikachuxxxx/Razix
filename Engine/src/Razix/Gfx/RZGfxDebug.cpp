@@ -6,6 +6,25 @@
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
 #ifdef RAZIX_RENDER_API_VULKAN
+    #ifdef RAZIX_PLATFORM_WINDOWS
+        #define VK_USE_PLATFORM_WIN32_KHR
+    #endif
+
+    #if defined(RAZIX_PLATFORM_MACOS)
+        #define VK_USE_PLATFORM_MACOS_MVK
+    #endif
+
+    #if defined(RAZIX_PLATFORM_LINUX)
+        #define VK_USE_PLATFORM_WAYLAND_KHR
+        #define VK_USE_PLATFORM_XCB_KHR
+        #define VK_USE_PLATFORM_XLIB_KHR
+        #define RAZIX_PLATFORM_WAYLAND
+        #define RAZIX_PLATFORM_XCB
+        #define RAZIX_PLATFORM_XLIB
+    #endif
+#endif
+
+#ifdef RAZIX_RENDER_API_VULKAN
     #define VOLK_IMPLEMENTATION
     #include <volk.h>
 #endif

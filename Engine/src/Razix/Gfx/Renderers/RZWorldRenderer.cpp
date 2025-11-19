@@ -639,7 +639,8 @@ namespace Razix {
 
             //-----------------------------------------------------------------------------------
             FrameData&       frameDataBlock  = m_FrameGraph.getBlackboard().get<FrameData>();
-            SceneLightsData& sceneLightsData = m_FrameGraph.getBlackboard().get<SceneLightsData>();
+            RAZIX_UNUSED(frameDataBlock);
+//            SceneLightsData& sceneLightsData = m_FrameGraph.getBlackboard().get<SceneLightsData>();
             //auto sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
@@ -907,7 +908,7 @@ namespace Razix {
             //-------------------------------
             // Debug Scene Pass
             //-------------------------------
-#if 0
+#if 1
   
             m_FrameGraph.getBlackboard().add<DebugPassData>() = m_FrameGraph.addCallbackPass<DebugPassData>(
                 "Pass.Builtin.Code.DebugDraw",

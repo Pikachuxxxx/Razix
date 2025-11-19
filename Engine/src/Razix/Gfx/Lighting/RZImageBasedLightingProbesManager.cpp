@@ -74,7 +74,7 @@ namespace Razix {
             auto cmdBuffer = Gfx::BeginSingleTimeCommandBuffer(RAZIX_CMD_MARKER_NAME_COLOR("ConvEquiToCubemap"));
             {
                 RAZIX_PROFILE_SCOPE("ConvEquiToCubemap");
-                RAZIX_MARK_BEGIN(cmdBuffer, "ConvEquiToCubemap", GenerateHashedColor4(RZString("ConvEquiToCubemap").hash()));
+                RAZIX_MARK_BEGIN(cmdBuffer, "ConvEquiToCubemap", GenerateHashedColor4(static_cast<u32>(RZString("ConvEquiToCubemap").hash())));
 
                 rzRHI_BindPipeline(cmdBuffer, envMapPipeline);
 
@@ -90,12 +90,12 @@ namespace Razix {
             RZResourceManager::Get().destroyTexture(equirectangularMapHandle);
 
             //Generate mip maps from first mip face
-            auto cubeMapTexture = RZResourceManager::Get().getTextureResource(cubeMapHandle);
+//            auto cubeMapTexture = RZResourceManager::Get().getTextureResource(cubeMapHandle);
             //cubeMapTexture->GenerateMipsAndViews();
             cmdBuffer = Gfx::BeginSingleTimeCommandBuffer(RAZIX_CMD_MARKER_NAME_COLOR("GenCubemapMipMaps"));
             {
                 RAZIX_PROFILE_SCOPE("GenCubemapMipMaps");
-                RAZIX_MARK_BEGIN(cmdBuffer, "GenCubemapMipMaps", GenerateHashedColor4(RZString("GenCubemapMipMaps").hash()));
+                RAZIX_MARK_BEGIN(cmdBuffer, "GenCubemapMipMaps", GenerateHashedColor4(static_cast<u32>(RZString("GenCubemapMipMaps").hash())));
 
                 rzRHI_GenerateMipmaps(cmdBuffer, cubeMapHandle);
 

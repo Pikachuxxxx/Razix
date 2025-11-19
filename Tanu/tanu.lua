@@ -153,6 +153,23 @@ project "Tanu"
         files {
             "%{wks.location}/../Engine/src/Razix/Platform/MacOS/IconAssets.xcassets"
         }
+        
+        includedirs
+        {
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+            "./",
+            "../"
+        }
+
+        libdirs
+        {
+            VulkanSDK .. "/lib"
+        }
 
         defines {
             "RAZIX_PLATFORM_MACOS",
