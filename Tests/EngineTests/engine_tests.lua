@@ -168,6 +168,23 @@ project "EngineTests"
             "RAZIX_RENDER_API_METAL",
             "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
+        
+        includedirs
+        {
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+            "./",
+            "../"
+        }
+
+        libdirs
+        {
+            VulkanSDK .. "/lib"
+        }
 
     filter "system:linux"
         cppdialect "C++17"
