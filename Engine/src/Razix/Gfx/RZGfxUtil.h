@@ -39,8 +39,8 @@ namespace Razix {
             kGeneratePreFilteredMap,
             kSprite,
             kSpriteTextured,
-            kDebugPoint,
             kDebugLine,
+            kDebugPoint,
             kImGui,
             // Post Processing FX
             kSSAO,
