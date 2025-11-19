@@ -990,7 +990,10 @@ namespace Razix {
                     entry.getConcept()->destroy(NULL);
 
             for (auto& pass: m_PassNodes) {
+                // destroy deferred resource views for this pass
                 pass.destroyDeferredResourceViews();
+                // call on exit for each pass
+                pass.m_Exec->onExit();
             }
 
             m_CompiledPassIndices.clear();
