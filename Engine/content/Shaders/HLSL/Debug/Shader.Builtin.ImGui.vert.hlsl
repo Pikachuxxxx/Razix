@@ -35,7 +35,7 @@ VSOutput VS_MAIN(VertexInput input)
 
     output.Position = float4(input.Position * GET_PUSH_CONSTANT(scale) + GET_PUSH_CONSTANT(translate), 0.0, 1.0);
     output.UV       = input.UV;
-    //output.Color    = input.Color;
+    //output.Color  = input.Color;
     output.Color    = unpackUnorm4x8(input.Color);
     return output;
 }

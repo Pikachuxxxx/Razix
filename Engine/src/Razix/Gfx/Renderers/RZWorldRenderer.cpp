@@ -643,6 +643,8 @@ namespace Razix {
                     RAZIX_TIME_STAMP_END();
                 });
 
+            //auto sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
+
             //-------------------------------
             // ImGui Pass
             //-------------------------------
@@ -654,21 +656,7 @@ namespace Razix {
                         .setAsStandAlonePass()    // TODO: remove this
                         .setDepartment(Department::UI);
 
-                    //---------------------------------------------------------------
-                    // ImGui Setup
-                    //---------------------------------------------------------------
-                    // Integration checklist:
-                    // - [x] Setup ImGui Context and IO and Flags
-                    // - [x] Setup ImGui Style and Colors
-                    // - [x] Create Shaders and Pipeline
-                    // - [x] Create VB and IB
-                    // - [x] Create Font Atlas Texture + Combine it with Awesome font for bigger atlas
-                    //      - [x] Create Descriptor Sets for fonts
-                    // - [x] GLFW integration for events and BeginFrame etc. (do it all in RZApplication? already exists only backend init is done in FG setup)
-                    // - [x] Render Pass to render ImGui elements
-                    //      - [x] PushConstants
-                    //      - [x] Update buffers and render elements and binding and draw calls
-                    // - [ ] Test ImGui and resolve issues
+                    // TODO: Render to offscreen RT and then blit to swapchain image
 
                     // Setup context
                     IMGUI_CHECKVERSION();
@@ -838,8 +826,7 @@ namespace Razix {
                     info.colorAttachmentsCount             = 1;
                     info.colorAttachments[0].pResourceView = getCurrSwapchainBackbufferResViewPtr();
                     info.colorAttachments[0].clear         = true;
-                    float4 randomColor                     = GenerateHashedColor4(123);
-                    memcpy(&info.colorAttachments[0].clearColor.raw, &randomColor, sizeof(float4));
+                    memcpy(&info.colorAttachments[0].clearColor.raw, &GenerateHashedColor4(123), sizeof(float4));
                     info.layers           = 1;
                     RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
                     RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
@@ -860,8 +847,8 @@ namespace Razix {
                         float2 scale;
                         float2 translate;
                     } m_PushConstantData         = {};
-                    m_PushConstantData.scale     = float2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
-                    m_PushConstantData.translate = float2(-1.0f, -1.0f);
+                    m_PushConstantData.scale     = float2(2.0f / io.DisplaySize.x, -2.0f / io.DisplaySize.y);
+                    m_PushConstantData.translate = float2(-1.0f, 1.0f);
                     rzRHI_BindRootConstant(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS, m_ImGuiRootSigHandle, 0, sizeof(PushConstant), &m_PushConstantData);
 
                     u32                  offsets[] = {0};
@@ -869,21 +856,6 @@ namespace Razix {
                     rz_gfx_buffer_handle vbs[]     = {m_ImGuiVB};
                     rzRHI_BindVertexBuffers(cmdBuffer, vbs, 1, offsets, strides);
                     rzRHI_BindIndexBuffer(cmdBuffer, m_ImGuiIB, 0, RZ_GFX_INDEX_TYPE_UINT32);
-
-#ifdef RAZIX_RENDER_API_VULKAN
-                    // Note: Temporary fix for Vulkan's inverted Y viewport, until we render to an offscreen buffer and then blit to swapchain image and flip it again
-                    if (rzGfxCtx_GetRenderAPI() == RZ_RENDER_API_VULKAN) {
-                        VkViewport vkViewport = {};
-                        vkViewport.x          = 0.0f;
-                        vkViewport.y          = 0.0f;
-                        vkViewport.width      = (float) RAZIX_X(info.extents);
-                        vkViewport.height     = (float) RAZIX_Y(info.extents);
-                        vkViewport.minDepth   = (float) 0.0f;
-                        vkViewport.maxDepth   = (float) 1.0f;
-
-                        vkCmdSetViewport(m_InFlightDrawCmdBufPtrs[m_RenderSync.frameSync.inFlightSyncIdx]->vk.cmdBuf, 0, 1, &vkViewport);
-                    }
-#endif
 
                     int32_t vertexOffset = 0;
                     int32_t indexOffset  = 0;
@@ -922,8 +894,6 @@ namespace Razix {
                     RAZIX_MARK_END(cmdBuffer);
                     RAZIX_TIME_STAMP_END();
                 });
-
-            //auto sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
 #if 0
             //-----------------------------------------------------------------------------------
