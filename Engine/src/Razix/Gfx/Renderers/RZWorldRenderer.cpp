@@ -826,7 +826,8 @@ namespace Razix {
                     info.colorAttachmentsCount             = 1;
                     info.colorAttachments[0].pResourceView = getCurrSwapchainBackbufferResViewPtr();
                     info.colorAttachments[0].clear         = true;
-                    memcpy(&info.colorAttachments[0].clearColor.raw, &GenerateHashedColor4(123), sizeof(float4));
+                    float4 clearColor = GenerateHashedColor4(123);
+                    memcpy(&info.colorAttachments[0].clearColor.raw, &clearColor, sizeof(float4));
                     info.layers           = 1;
                     RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
                     RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
