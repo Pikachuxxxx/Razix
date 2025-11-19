@@ -90,12 +90,6 @@ namespace Razix {
             RZFrameGraphResource SceneHDR;
         };
 
-        struct DebugPassData
-        {
-            RZFrameGraphResource DebugRT;
-            RZFrameGraphResource DebugDRT;
-        };
-
         // Volumetrics
 
         struct VolumetricCloudsData
@@ -192,17 +186,23 @@ namespace Razix {
             rz_gfx_texture_handle specular;
         };
 
+        struct SceneData
+        {
+            RZFrameGraphResource HDR;
+            RZFrameGraphResource LDR;
+            RZFrameGraphResource depth;
+        };
+
         struct ImGuiPassData
         {
             RZFrameGraphResource imguiRT;
             RZFrameGraphResource imguiDepth;
         };
 
-        struct SceneData
+        struct DebugPassData
         {
-            RZFrameGraphResource HDR;
-            RZFrameGraphResource LDR;
-            RZFrameGraphResource depth;
+            RZFrameGraphResource DebugRT;
+            RZFrameGraphResource DebugDRT;
         };
 
     }    // namespace Gfx

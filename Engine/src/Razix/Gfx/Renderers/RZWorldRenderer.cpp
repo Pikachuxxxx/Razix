@@ -15,6 +15,7 @@
 #include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/Markers/RZMarkers.h"
 
+#include "Razix/Gfx/RZDebugDraw.h"
 #include "Razix/Gfx/RZShaderLibrary.h"
 
 #include "Razix/Gfx/Resources/RZResourceManager.h"
@@ -397,13 +398,6 @@ namespace Razix {
             // Destroy Frame Graph Transient Resources
             m_FrameGraph.destroy();
 
-            RZResourceManager::Get().destroyResourceView(m_ImGuiFontSRVHandle);
-            RZResourceManager::Get().destroyDescriptorTable(m_ImGuiFontAtlasDescriptorSet);
-            RZResourceManager::Get().destroyTexture(m_ImGuiFontAtlasTexture);
-            RZResourceManager::Get().destroyPipeline(m_ImGuiPipelineHandle);
-            RZResourceManager::Get().destroyBuffer(m_ImGuiVB);
-            RZResourceManager::Get().destroyBuffer(m_ImGuiIB);
-
             RZResourceManager::Get().destroyResourceView(m_FrameDataCBVHandle);
             RZResourceManager::Get().destroyDescriptorTable(m_FrameDataTable);
 
@@ -643,6 +637,9 @@ namespace Razix {
                     RAZIX_TIME_STAMP_END();
                 });
 
+            //-----------------------------------------------------------------------------------
+            FrameData&       frameDataBlock  = m_FrameGraph.getBlackboard().get<FrameData>();
+            SceneLightsData& sceneLightsData = m_FrameGraph.getBlackboard().get<SceneLightsData>();
             //auto sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
@@ -802,7 +799,7 @@ namespace Razix {
                     if (!imDrawData || imDrawData->TotalVtxCount == 0 || imDrawData->TotalIdxCount == 0)
                         return;
 
-                    rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
+                    rz_gfx_cmdbuf_handle cmdBuffer = getCurrCmdBufHandle();
                     RAZIX_MARK_BEGIN(cmdBuffer, "ImGui", float4(0.9f, 0.6f, 0.2f, 1.0f));
 
                     u32 vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
@@ -826,7 +823,7 @@ namespace Razix {
                     info.colorAttachmentsCount             = 1;
                     info.colorAttachments[0].pResourceView = getCurrSwapchainBackbufferResViewPtr();
                     info.colorAttachments[0].clear         = true;
-                    float4 clearColor = GenerateHashedColor4(123);
+                    float4 clearColor                      = GenerateHashedColor4(123);
                     memcpy(&info.colorAttachments[0].clearColor.raw, &clearColor, sizeof(float4));
                     info.layers           = 1;
                     RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
@@ -894,7 +891,131 @@ namespace Razix {
 
                     RAZIX_MARK_END(cmdBuffer);
                     RAZIX_TIME_STAMP_END();
+                },
+                [=]() {
+                    // Cleanup ImGui resources
+                    ImGui_ImplGlfw_Shutdown();
+                    ImGui::DestroyContext();
+                    RZResourceManager::Get().destroyResourceView(m_ImGuiFontSRVHandle);
+                    RZResourceManager::Get().destroyDescriptorTable(m_ImGuiFontAtlasDescriptorSet);
+                    RZResourceManager::Get().destroyTexture(m_ImGuiFontAtlasTexture);
+                    RZResourceManager::Get().destroyPipeline(m_ImGuiPipelineHandle);
+                    RZResourceManager::Get().destroyBuffer(m_ImGuiVB);
+                    RZResourceManager::Get().destroyBuffer(m_ImGuiIB);
                 });
+
+            //-------------------------------
+            // Debug Scene Pass
+            //-------------------------------
+#if 0
+  
+            m_FrameGraph.getBlackboard().add<DebugPassData>() = m_FrameGraph.addCallbackPass<DebugPassData>(
+                "Pass.Builtin.Code.DebugDraw",
+                [&](DebugPassData& data, RZPassResourceBuilder& builder) {
+                    builder
+                        .setAsStandAlonePass()
+                        .setDepartment(Department::Debug);
+
+                    builder.read(frameDataBlock.frameData);
+
+                    //sceneData.SceneHDR = builder.write(sceneData.SceneHDR);
+                    //data.DebugRT       = sceneData.SceneHDR;
+
+                    //gBufferData.GBufferDepth = builder.write(gBufferData.GBufferDepth);
+                    //data.DebugDRT            = gBufferData.GBufferDepth;
+                    RZDebugDraw::StartUp();
+                },
+                [=](const DebugPassData& data, RZPassResourceDirectory& resources) {
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+                    RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
+
+                    rz_gfx_cmdbuf_handle cmdBuffer = getCurrCmdBufHandle();
+                    RAZIX_MARK_BEGIN(cmdBuffer, "DebugDraw", float4(0.9f, 0.6f, 0.2f, 1.0f));
+
+                    // Rendering debug primitives
+
+                    // Origin point
+                    RZDebugDraw::DrawPoint(float3(0.0f), 0.25f);
+
+                    // X, Y, Z lines
+                    RZDebugDraw::DrawLine(float3(-100.0f, 0.0f, 0.0f), float3(100.0f, 0.0f, 0.0f), float4(1.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugDraw::DrawLine(float3(0.0f, -100.0f, 0.0f), float3(0.0f, 100.0f, 0.0f), float4(0.0f, 1.0f, 0.0f, 1.0f));
+                    RZDebugDraw::DrawLine(float3(0.0f, 0.0f, -100.0f), float3(0.0f, 0.0f, 100.0f), float4(0.0f, 0.0f, 1.0f, 1.0f));
+
+                    // Grid
+                    RZDebugDraw::DrawGrid(125, float4(0.75f));
+
+                    // Render loop
+                    const RZSceneCamera& sceneCamera = scene->getSceneCamera();
+                    RZDebugDraw::BeginDraw(&sceneCamera);
+
+                    //// Draw all lights in the scene
+                    //auto lights = scene->GetComponentsOfType<LightComponent>();
+                    //// Draw predefined light matrix
+                    //// Use the first directional light and currently only one Dir Light casts shadows, multiple just won't do anything in the scene not even light contribution
+                    //RZLight dir_light = {};
+                    //for (auto& light: lights) {
+                    //    if (light.light.getType() == LightType::DIRECTIONAL) {
+                    //        dir_light = light.light;
+                    //        break;
+                    //    }
+                    //}
+
+                    //float4x4 lightView  = lookAt(dir_light.getPosition(), float3(0.0f), float3(0.0f, 1.0f, 0.0f));
+                    //float    near_plane = -50.0f, far_plane = 50.0f;
+                    //float4x4 lightProjection = ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
+                    //lightProjection[1][1] *= -1;
+                    //auto lightViewProj = lightProjection * lightView;
+                    //RZDebugDraw::DrawFrustum(lightViewProj, float4(0.863f, 0.28f, 0.21f, 1.0f));
+                    //
+                    //// Draw all camera frustums
+                    //auto cameras = scene->GetComponentsOfType<CameraComponent>();
+                    //for (auto& camComponents: cameras) {
+                    //    RZDebugDraw::DrawFrustum(camComponents.Camera.getFrustum(), float4(0.2f, 0.85f, 0.1f, 1.0f));
+                    //}
+                    //
+                    //// Draw AABBs for all the Meshes in the Scene
+                    //auto mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
+                    //for (auto entity: mesh_group) {
+                    //    // Draw the mesh renderer components
+                    //    const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
+                    //
+                    //    // Bind push constants, VBO, IBO and draw
+                    //    float4x4 transform = mesh_trans.GetGlobalTransform();
+                    //
+                    //    if (mrc.Mesh && mrc.enableBoundingBoxes)
+                    //        RZDebugDraw::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), float4(0.0f, 1.0f, 0.0f, 1.0f));
+                    //}
+
+                    //auto rt = resources.get<RZFrameGraphTexture>(data.DebugRT).getRHIHandle();
+                    //auto dt = resources.get<RZFrameGraphTexture>(data.DebugDRT).getRHIHandle();
+
+                    rz_gfx_renderpass info                 = {};
+                    info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;
+                    info.colorAttachmentsCount             = 1;
+                    info.colorAttachments[0].pResourceView = getCurrSwapchainBackbufferResViewPtr();
+                    info.colorAttachments[0].clear         = true;
+                    float4 clearColor                      = GenerateHashedColor4(123);
+                    memcpy(&info.colorAttachments[0].clearColor.raw, &clearColor, sizeof(float4));
+                    info.layers           = 1;
+                    RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
+                    RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
+
+                    rzRHI_BeginRenderPass(cmdBuffer, &info);
+
+                    RZDebugDraw::IssueDrawCommands(cmdBuffer, getResourceHeap(), m_FrameDataTable);
+
+                    rzRHI_EndRenderPass(cmdBuffer);
+
+                    RZDebugDraw::EndDraw();
+
+                    RAZIX_MARK_END(cmdBuffer);
+                    RAZIX_TIME_STAMP_END();
+                },
+                [=]() {
+                    RZDebugDraw::ShutDown();
+                });
+#endif
 
 #if 0
             //-----------------------------------------------------------------------------------
@@ -970,105 +1091,7 @@ namespace Razix {
             //-------------------------------
             // Tonemap Pass
             //-------------------------------
-            //m_TonemapPass.addPass(m_FrameGraph, scene, &settings);
-
-            //-------------------------------
-            // Debug Scene Pass
-            //-------------------------------
-            m_FrameGraph.getBlackboard().add<DebugPassData>() = m_FrameGraph.addCallbackPass<DebugPassData>(
-                "Pass.Builtin.Code.DebugDraw",
-                [&](DebugPassData& data, RZPassResourceBuilder& builder) {
-                    builder
-                        .setAsStandAlonePass()
-                        .setDepartment(Department::Debug);
-
-                    RZDebugRendererProxy::Get().Init();
-
-                    builder.read(frameDataBlock.frameData);
-
-                    sceneData.SceneHDR = builder.write(sceneData.SceneHDR);
-                    data.DebugRT       = sceneData.SceneHDR;
-
-                    gBufferData.GBufferDepth = builder.write(gBufferData.GBufferDepth);
-                    data.DebugDRT            = gBufferData.GBufferDepth;
-                },
-                [=](const DebugPassData& data, RZPassResourceDirectory& resources) {
-                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-                    RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
-
-                    // Origin point
-                    //RZDebugRendererProxy::DrawPoint(float3(0.0f), 0.25f);
-
-                    // X, Y, Z lines
-                    RZDebugRendererProxy::DrawLine(float3(-100.0f, 0.0f, 0.0f), float3(100.0f, 0.0f, 0.0f), float4(1.0f, 0.0f, 0.0f, 1.0f));
-                    RZDebugRendererProxy::DrawLine(float3(0.0f, -100.0f, 0.0f), float3(0.0f, 100.0f, 0.0f), float4(0.0f, 1.0f, 0.0f, 1.0f));
-                    RZDebugRendererProxy::DrawLine(float3(0.0f, 0.0f, -100.0f), float3(0.0f, 0.0f, 100.0f), float4(0.0f, 0.0f, 1.0f, 1.0f));
-
-                    // Grid
-                    RZDebugRendererProxy::DrawGrid(125, float4(0.75f));
-
-                    // Draw all lights in the scene
-                    auto lights = scene->GetComponentsOfType<LightComponent>();
-                    // Draw predefined light matrix
-                    // Use the first directional light and currently only one Dir Light casts shadows, multiple just won't do anything in the scene not even light contribution
-                    RZLight dir_light;
-                    for (auto& light: lights) {
-                        if (light.light.getType() == LightType::DIRECTIONAL) {
-                            dir_light = light.light;
-                            break;
-                        }
-                    }
-
-                    float4x4 lightView  = lookAt(dir_light.getPosition(), float3(0.0f), float3(0.0f, 1.0f, 0.0f));
-                    float    near_plane = -50.0f, far_plane = 50.0f;
-                    float4x4 lightProjection = ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
-                    lightProjection[1][1] *= -1;
-                    auto lightViewProj = lightProjection * lightView;
-                    RZDebugRendererProxy::DrawFrustum(lightViewProj, float4(0.863f, 0.28f, 0.21f, 1.0f));
-
-                    // Draw all camera frustums
-                    auto cameras = scene->GetComponentsOfType<CameraComponent>();
-                    for (auto& camComponents: cameras) {
-                        RZDebugRendererProxy::DrawFrustum(camComponents.Camera.getFrustum(), float4(0.2f, 0.85f, 0.1f, 1.0f));
-                    }
-
-                    // Draw AABBs for all the Meshes in the Scene
-                    auto mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
-                    for (auto entity: mesh_group) {
-                        // Draw the mesh renderer components
-                        const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
-
-                        // Bind push constants, VBO, IBO and draw
-                        float4x4 transform = mesh_trans.GetGlobalTransform();
-
-                        if (mrc.Mesh && mrc.enableBoundingBoxes)
-                            RZDebugRendererProxy::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), float4(0.0f, 1.0f, 0.0f, 1.0f));
-                    }
-
-                    RZDebugRendererProxy::Get().Begin(scene);
-
-                    auto rt = resources.get<RZFrameGraphTexture>(data.DebugRT).getHandle();
-                    auto dt = resources.get<RZFrameGraphTexture>(data.DebugDRT).getHandle();
-
-                    RenderingInfo info    = {};
-                    info.resolution       = Resolution::kWindow;
-                    info.colorAttachments = {{rt, {false, ClearColorPresets::TransparentBlack}}};
-                    info.depthAttachment  = {dt, {false, ClearColorPresets::DepthOneToZero}};
-
-                    auto cmdBuffer = RHI::GetCurrentCommandBuffer();
-
-                    RHI::BeginRendering(cmdBuffer, info);
-
-                    RZDebugRendererProxy::Get().Draw(cmdBuffer);
-
-                    RHI::EndRendering(cmdBuffer);
-
-                    RZDebugRendererProxy::Get().End();
-                    RAZIX_TIME_STAMP_END();
-                });
-
-            
+            //m_TonemapPass.addPass(m_FrameGraph, scene, &settings);      
 
             //-------------------------------
             // Composition Pass

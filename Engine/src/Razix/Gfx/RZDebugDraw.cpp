@@ -25,9 +25,9 @@ namespace Razix {
         struct DebugLine
         {
             float3 p1;
-            float  _pad0;
+            float  _pad0 = 0;
             float3 p2;
-            float  _pad1;
+            float  _pad1 = 0;
             float4 col;
 
             DebugLine(const float3& pos1, const float3& pos2, const float4& colour)
@@ -109,6 +109,7 @@ namespace Razix {
             }
 
             s_pDebugDrawState = (DebugDrawState*) rz_malloc(sizeof(DebugDrawState), 16);
+            RAZIX_CORE_ASSERT(s_pDebugDrawState, "RZDebugDraw::StartUp: Failed to allocate memory for Debug Draw State!");
 
             s_pDebugDrawState->drawList.m_DebugLines.clear();
             s_pDebugDrawState->drawList.m_DebugPoints.clear();
@@ -167,7 +168,7 @@ namespace Razix {
             rz_gfx_buffer_desc ibDesc = {};
             ibDesc.type               = RZ_GFX_BUFFER_TYPE_INDEX;
             ibDesc.resourceHints      = RZ_GFX_RESOURCE_VIEW_FLAG_SRV;
-            ibDesc.usage              = RZ_GFX_BUFFER_USAGE_TYPE_STATIC;
+            ibDesc.usage              = RZ_GFX_BUFFER_USAGE_TYPE_DYNAMIC;
             ibDesc.sizeInBytes        = MaxLineIndices * sizeof(u32);
             s_pDebugDrawState->lineIB = RZResourceManager::Get().createBuffer("IB.Lines", ibDesc);
             {

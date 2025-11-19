@@ -17,6 +17,9 @@ namespace Razix {
             RAZIX_CORE_INFO("[Shader Library] Starting Up Shader Library to load shaders");
             Razix::RZSplashScreen::Get().setLogString("Starting Shader Library...");
 
+            m_BuiltinShaders.reserve(128);
+            m_BuiltinShadersReverseNameMap.reserve(128);
+
             //
             // TESTING VIS BUFFER GEN SHADER
             //loadBuiltInShader(ShaderBuiltin::VisibilityBufferFill, "//RazixContent/Shaders/Razix/Shader.Builtin.VisibilityBufferFill.rzsf");
@@ -31,9 +34,9 @@ namespace Razix {
             // loadBuiltInShader(ShaderBuiltin::Skybox, "//RazixContent/Shaders/Razix/Shader.Builtin.Skybox.rzsf");
             // loadBuiltInShader(ShaderBuiltin::Composition, "//RazixContent/Shaders/Razix/Shader.Builtin.Composition.rzsf");
             // loadBuiltInShader(ShaderBuiltin::VisibilityBufferFill, "//RazixContent/Shaders/Razix/Shader.Builtin.VisibilityBufferFill.rzsf");
-            loadBuiltInShader(ShaderBuiltin::kImGui, "//RazixContent/Shaders/Razix/Shader.Builtin.ImGui.rzsf");
             loadBuiltInShader(ShaderBuiltin::kDebugLine, "//RazixContent/Shaders/Razix/Shader.Builtin.DebugLine.rzsf");
             loadBuiltInShader(ShaderBuiltin::kDebugPoint, "//RazixContent/Shaders/Razix/Shader.Builtin.DebugPoint.rzsf");
+            loadBuiltInShader(ShaderBuiltin::kImGui, "//RazixContent/Shaders/Razix/Shader.Builtin.ImGui.rzsf");
             // loadBuiltInShader(ShaderBuiltin::GBuffer, "//RazixContent/Shaders/Razix/Shader.Builtin.GBuffer.rzsf");
             // loadBuiltInShader(ShaderBuiltin::PBRDeferredLighting, "//RazixContent/Shaders/Razix/Shader.Builtin.DeferredShading.rzsf");
             // loadBuiltInShader(ShaderBuiltin::Tonemap, "//RazixContent/Shaders/Razix/Shader.Builtin.Tonemap.rzsf");
