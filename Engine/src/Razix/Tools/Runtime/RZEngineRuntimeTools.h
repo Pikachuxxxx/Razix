@@ -13,7 +13,7 @@ namespace Razix {
         };
 
         /* Draws the runtime ImGui based engine tools */
-        //void OnImGuiDrawEngineTools(ToolsDrawConfig& config);
+        void OnImGuiDrawEngineTools(ToolsDrawConfig& config);
 
     }    // namespace Tools
 }    // namespace Razix

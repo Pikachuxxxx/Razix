@@ -1195,14 +1195,10 @@ namespace Razix {
 
         void RZWorldRenderer::OnImGui()
         {
-#ifndef RAZIX_GOLD_MASTER
-
             // TESTING IMGUI RUNTIME TOOLS CONFIG!
             // This will be owned by RZEngine
-            //            static Tools::ToolsDrawConfig drawConfig = {};
-
-            //Tools::OnImGuiDrawEngineTools(drawConfig);
-#endif
+            static Tools::ToolsDrawConfig drawConfig = {};
+            Tools::OnImGuiDrawEngineTools(drawConfig);
         }
 
         void RZWorldRenderer::OnResize(u32 width, u32 height)

@@ -4,19 +4,17 @@
 
 #include "RZEngineRuntimeTools.h"
 
-#if 0
-    #include "Razix/Core/App/RZApplication.h"
-    #include "Razix/Core/RZEngine.h"
+#include "Razix/Core/App/RZApplication.h"
+#include "Razix/Core/RZEngine.h"
 
-//#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
+#include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
-    #include "Razix/Core/Containers/string.h"
-    #include "Razix/Core/Utils/RZColorUtilities.h"
+#include "Razix/Core/Containers/string.h"
+#include "Razix/Core/Utils/RZColorUtilities.h"
 
-    #define IMGUI_DEFINE_MATH_OPERATORS
-    #include <imgui/imgui.h>
-    #include <imgui/plugins/IconsFontAwesome5.h>
-
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include <imgui/imgui.h>
+#include <imgui/plugins/IconsFontAwesome5.h>
 
 namespace Razix {
     namespace Tools {
@@ -231,7 +229,7 @@ namespace Razix {
 
             const auto& compiledPassNodes = frameGraph.getCompiledPassNodes();
             for (uint32_t i = 0; i < compiledPassNodes.size(); ++i) {
-                const auto&        passNode = frameGraph.getPassNode(compiledPassNodes[i]);
+                const auto&     passNode = frameGraph.getPassNode(compiledPassNodes[i]);
                 const RZString& label    = GetFilePathExtension(passNode.getName());
 
                 float  boxHeight = ImGui::GetFontSize() + 2.0f * PassLabelStyle::PaddingY;
@@ -251,7 +249,7 @@ namespace Razix {
                     ImGui::BeginTooltip();
                     ImGui::Text("Pass ID        : %u", passNode.getID());
                     ImGui::Separator();
-                    ImGui::Text("Creates        : %zu", passNode.getCreatResources().size());
+                    ImGui::Text("Creates        : %zu", passNode.getCreateResources().size());
                     ImGui::Text("Reads          : %zu", passNode.getInputResources().size());
                     ImGui::Text("Writes         : %zu", passNode.getOutputResources().size());
                     ImGui::Separator();
@@ -280,7 +278,7 @@ namespace Razix {
                 ImGui::Text("Welcome to Frame Graph resource viz! Your one stop viewer for Transient resources/Barriers and memory usage of a Frame.");
 
                 RZDynamicArray<u32> compiledResourceEntryPoints = frameGraph.getCompiledResourceEntries();
-                u32              resourceCount               = static_cast<u32>(compiledResourceEntryPoints.size());
+                u32                 resourceCount               = static_cast<u32>(compiledResourceEntryPoints.size());
 
                 ImDrawList* draw   = ImGui::GetWindowDrawList();
                 ImVec2      origin = ImGui::GetCursorScreenPos() + ImVec2(0, FrameGraphStyle::TopPadding);
@@ -340,13 +338,13 @@ namespace Razix {
 
                     const Gfx::RZResourceEntry& resEntry = frameGraph.getResourceEntry(resEntryID);
 
-    #ifdef FG_USE_FINE_GRAINED_LIFETIMES
+#ifdef FG_USE_FINE_GRAINED_LIFETIMES
                     const auto& lifetimes = resEntry.getLifetimes();
 
                     for (auto& lifetime: lifetimes) {
                         DrawLifetimeCellFromPassRange(origin, lifetime.StartPassID, lifetime.EndPassID - lifetime.StartPassID + 1, (ry + 2) * FrameGraphStyle::CellSize, lifetime);
                     }
-    #else
+#else
                     Razix::Gfx::RZResourceLifetime lifetime = {};
                     lifetime                                = resEntry.getCoarseLifetime();
 
@@ -360,7 +358,7 @@ namespace Razix {
 
                     u32 groupID = frameGraph.getAliasBook().getGroupIDForResource(resEntryID);
                     DrawLifetimeCellFromPassRange(origin, lifetime.StartPassID, lifetime.EndPassID - lifetime.StartPassID + 1, (ry + 2) * FrameGraphStyle::CellSize, lifetime, groupID);
-    #endif
+#endif
 
                     ImVec2 mouse = ImGui::GetMousePos();
                     if (mouse.x >= row_p0.x && mouse.x <= row_p1.x && mouse.y >= row_p0.y && mouse.y <= row_p1.y) {
@@ -448,4 +446,3 @@ namespace Razix {
         }
     }    // namespace Tools
 }    // namespace Razix
-#endif
