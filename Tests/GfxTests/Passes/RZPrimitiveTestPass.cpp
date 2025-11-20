@@ -195,7 +195,6 @@ namespace Razix {
                     depthTexDesc.width               = RZApplication::Get().getWindow()->getWidth();
                     depthTexDesc.height              = RZApplication::Get().getWindow()->getHeight();
                     depthTexDesc.depth               = 1;
-                    depthTexDesc.arraySize           = 1;
                     depthTexDesc.mipLevels           = 1;
                     depthTexDesc.textureType         = RZ_GFX_TEXTURE_TYPE_2D;
                     depthTexDesc.format              = RZ_GFX_FORMAT_D32_FLOAT;

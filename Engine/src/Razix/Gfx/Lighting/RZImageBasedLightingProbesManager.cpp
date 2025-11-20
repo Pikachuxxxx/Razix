@@ -56,10 +56,10 @@ namespace Razix {
             cubeMapTextureDesc.resourceHints       = (rz_gfx_resource_view_hints) (RZ_GFX_RESOURCE_VIEW_FLAG_SRV | RZ_GFX_RESOURCE_VIEW_FLAG_UAV);
             cubeMapTextureDesc.width               = CUBEMAP_DIM;
             cubeMapTextureDesc.height              = CUBEMAP_DIM;
-            cubeMapTextureDesc.arraySize           = CUBEMAP_LAYERS;
+            cubeMapTextureDesc.depth               = CUBEMAP_LAYERS;
             cubeMapTextureDesc.textureType         = RZ_GFX_TEXTURE_TYPE_CUBE;
             cubeMapTextureDesc.format              = RZ_GFX_FORMAT_R16G16B16A16_FLOAT;
-            cubeMapTextureDesc.mipLevels           = rzRHI_GetMipLevelCount(CUBEMAP_DIM, CUBEMAP_DIM);
+            cubeMapTextureDesc.mipLevels           = 1;    //rzRHI_GetMipLevelCount(CUBEMAP_DIM, CUBEMAP_DIM);
             rz_gfx_texture_handle cubeMapHandle    = RZResourceManager::Get().createTexture("Texture.Imported.HDR.EnvCubeMap", cubeMapTextureDesc);
 
             // Create the shader and pipeline
@@ -90,7 +90,7 @@ namespace Razix {
             RZResourceManager::Get().destroyTexture(equirectangularMapHandle);
 
             //Generate mip maps from first mip face
-//            auto cubeMapTexture = RZResourceManager::Get().getTextureResource(cubeMapHandle);
+            //            auto cubeMapTexture = RZResourceManager::Get().getTextureResource(cubeMapHandle);
             //cubeMapTexture->GenerateMipsAndViews();
             cmdBuffer = Gfx::BeginSingleTimeCommandBuffer(RAZIX_CMD_MARKER_NAME_COLOR("GenCubemapMipMaps"));
             {

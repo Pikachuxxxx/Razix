@@ -910,11 +910,11 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t                   height;
         uint32_t                   depth;
         uint32_t                   mipLevels;
-        uint32_t                   arraySize;
         rz_gfx_format              format;
         rz_gfx_texture_type        textureType;
         rz_gfx_resource_view_hints resourceHints;    // Hints for how this texture should be viewed, used for binding
-        void*                      pPixelData;       // Pointer to the pixel data, used for texture creation, freed by user, RHI does not own this memory
+        uint32_t                   _pad0;
+        void*                      pPixelData;    // Pointer to the pixel data, used for texture creation, freed by user, RHI does not own this memory
     } rz_gfx_texture_desc;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_sampler_desc

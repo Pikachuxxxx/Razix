@@ -889,7 +889,7 @@ static D3D12_SHADER_RESOURCE_VIEW_DESC dx12_create_texture_srv(const rz_gfx_text
             srvDesc.TextureCubeArray.MipLevels           = textureDesc->mipLevels;
             srvDesc.TextureCubeArray.ResourceMinLODClamp = 0.0f;
             srvDesc.TextureCubeArray.First2DArrayFace    = desc->baseArrayLayer;
-            srvDesc.TextureCubeArray.NumCubes            = textureDesc->arraySize;
+            srvDesc.TextureCubeArray.NumCubes            = textureDesc->depth;
             break;
         case RZ_GFX_TEXTURE_TYPE_1D_ARRAY:
             srvDesc.ViewDimension                      = D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
@@ -897,7 +897,7 @@ static D3D12_SHADER_RESOURCE_VIEW_DESC dx12_create_texture_srv(const rz_gfx_text
             srvDesc.Texture1DArray.MipLevels           = textureDesc->mipLevels;
             srvDesc.Texture1DArray.ResourceMinLODClamp = 0.0f;
             srvDesc.Texture1DArray.FirstArraySlice     = desc->baseArrayLayer;
-            srvDesc.Texture1DArray.ArraySize           = textureDesc->arraySize;
+            srvDesc.Texture1DArray.ArraySize           = textureDesc->depth;
             break;
         case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
             srvDesc.ViewDimension                      = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
@@ -905,7 +905,7 @@ static D3D12_SHADER_RESOURCE_VIEW_DESC dx12_create_texture_srv(const rz_gfx_text
             srvDesc.Texture2DArray.MipLevels           = textureDesc->mipLevels;
             srvDesc.Texture2DArray.ResourceMinLODClamp = 0.0f;
             srvDesc.Texture2DArray.FirstArraySlice     = desc->baseArrayLayer;
-            srvDesc.Texture2DArray.ArraySize           = textureDesc->arraySize;    // 2D array depth is the array size
+            srvDesc.Texture2DArray.ArraySize           = textureDesc->depth;    // 2D array depth is the array size
             break;
 
         default:
@@ -938,13 +938,13 @@ static D3D12_UNORDERED_ACCESS_VIEW_DESC dx12_create_texture_uav(const rz_gfx_tex
             uavDesc.ViewDimension                  = D3D12_UAV_DIMENSION_TEXTURE1DARRAY;
             uavDesc.Texture1DArray.MipSlice        = desc->baseMip;
             uavDesc.Texture1DArray.FirstArraySlice = desc->baseArrayLayer;
-            uavDesc.Texture1DArray.ArraySize       = textureDesc->arraySize;
+            uavDesc.Texture1DArray.ArraySize       = textureDesc->depth;
             break;
         case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
             uavDesc.ViewDimension                  = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
             uavDesc.Texture2DArray.MipSlice        = desc->baseMip;
             uavDesc.Texture2DArray.FirstArraySlice = desc->baseArrayLayer;
-            uavDesc.Texture2DArray.ArraySize       = textureDesc->arraySize;
+            uavDesc.Texture2DArray.ArraySize       = textureDesc->depth;
             break;
         case RZ_GFX_TEXTURE_TYPE_CUBE:
         case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
@@ -977,13 +977,13 @@ static D3D12_RENDER_TARGET_VIEW_DESC dx12_create_texture_rtv(const rz_gfx_textur
             rtvDesc.ViewDimension                  = D3D12_RTV_DIMENSION_TEXTURE1DARRAY;
             rtvDesc.Texture1DArray.MipSlice        = desc->baseMip;
             rtvDesc.Texture1DArray.FirstArraySlice = desc->baseArrayLayer;
-            rtvDesc.Texture1DArray.ArraySize       = textureDesc->arraySize;
+            rtvDesc.Texture1DArray.ArraySize       = textureDesc->depth;
             break;
         case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
             rtvDesc.ViewDimension                  = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
             rtvDesc.Texture2DArray.MipSlice        = desc->baseMip;
             rtvDesc.Texture2DArray.FirstArraySlice = desc->baseArrayLayer;
-            rtvDesc.Texture2DArray.ArraySize       = textureDesc->arraySize;
+            rtvDesc.Texture2DArray.ArraySize       = textureDesc->depth;
             break;
         case RZ_GFX_TEXTURE_TYPE_CUBE:
         case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
@@ -1011,13 +1011,13 @@ static D3D12_DEPTH_STENCIL_VIEW_DESC dx12_create_texture_dsv(const rz_gfx_textur
             dsvDesc.ViewDimension                  = D3D12_DSV_DIMENSION_TEXTURE1DARRAY;
             dsvDesc.Texture1DArray.MipSlice        = desc->baseMip;
             dsvDesc.Texture1DArray.FirstArraySlice = desc->baseArrayLayer;
-            dsvDesc.Texture1DArray.ArraySize       = textureDesc->arraySize;
+            dsvDesc.Texture1DArray.ArraySize       = textureDesc->depth;
             break;
         case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
             dsvDesc.ViewDimension                  = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
             dsvDesc.Texture2DArray.MipSlice        = desc->baseMip;
             dsvDesc.Texture2DArray.FirstArraySlice = desc->baseArrayLayer;
-            dsvDesc.Texture2DArray.ArraySize       = textureDesc->arraySize;
+            dsvDesc.Texture2DArray.ArraySize       = textureDesc->depth;
             break;
         case RZ_GFX_TEXTURE_TYPE_3D:
         case RZ_GFX_TEXTURE_TYPE_CUBE:
@@ -1703,7 +1703,6 @@ static void dx12_util_update_swapchain_rtvs(rz_gfx_swapchain* sc)
         texture.resource.pCold->desc.textureDesc.height      = sc->height;
         texture.resource.pCold->desc.textureDesc.width       = sc->width;
         texture.resource.pCold->desc.textureDesc.depth       = 1;
-        texture.resource.pCold->desc.textureDesc.arraySize   = 1;
         texture.resource.pCold->desc.textureDesc.mipLevels   = 1;
         texture.resource.pCold->desc.textureDesc.format      = RAZIX_SWAPCHAIN_FORMAT;
         texture.resource.pCold->desc.textureDesc.textureType = RZ_GFX_TEXTURE_TYPE_2D;
@@ -2482,7 +2481,7 @@ static void dx12_CreateTexture(void* where)
     rz_gfx_texture_desc* desc = &texture->resource.pCold->desc.textureDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Texture descriptor cannot be NULL");
     RAZIX_RHI_ASSERT(desc->width > 0 && desc->height > 0, "Texture dimensions must be greater than zero");
-    RAZIX_RHI_ASSERT(desc->depth > 0 || desc->arraySize > 0, "Texture depth or array size must be greater than zero");
+    RAZIX_RHI_ASSERT(desc->depth > 0, "Texture depth or array size must be greater than zero");
     RAZIX_RHI_ASSERT(desc->mipLevels > 0, "Texture mip levels must be greater than zero");
 
     // Maintain a second copy of hints...Ahhh...

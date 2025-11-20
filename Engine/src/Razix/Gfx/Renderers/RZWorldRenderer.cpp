@@ -28,6 +28,8 @@
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
+#include "Razix/Gfx/Lighting/RZImageBasedLightingProbesManager.h"
+
 #include "Razix/Math/Grid.h"
 #include "Razix/Math/ImportanceSampling.h"
 
@@ -640,8 +642,41 @@ namespace Razix {
             //-----------------------------------------------------------------------------------
             FrameData& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
             RAZIX_UNUSED(frameDataBlock);
-            //            SceneLightsData& sceneLightsData = m_FrameGraph.getBlackboard().get<SceneLightsData>();
+
+            //-----------------------------------------------------------------------------------
+            // Load the Skybox and Global Light Probes
+            // FIXME: This is hard coded make this a user land material
+            // Or this is the default fallback but should be user configurable
+            m_GlobalLightProbes.skybox = ConvertEquirectangularToCubemap("//RazixContent/Textures/HDR/teufelsberg_inner_4k.hdr");
+            //m_GlobalLightProbes.diffuse  = GenerateIrradianceMap(m_GlobalLightProbes.skybox);
+            //m_GlobalLightProbes.specular = GeneratePreFilteredMap(m_GlobalLightProbes.skybox);
+            // Import this into the Frame Graph
+            auto& globalLightProbeData = m_FrameGraph.getBlackboard().add<GlobalLightProbeData>();
+
+            auto SkyboxDesc = RZResourceManager::Get().getTextureResource(m_GlobalLightProbes.skybox)->resource.pCold->desc.textureDesc;
+            //auto DiffuseDesc  = RZResourceManager::Get().getTextureResource(m_GlobalLightProbes.diffuse)->resource.pCold->desc.textureDesc;
+            //auto SpecularDesc = RZResourceManager::Get().getTextureResource(m_GlobalLightProbes.specular)->resource.pCold->desc.textureDesc;
+
+            globalLightProbeData.environmentMap = m_FrameGraph.import <RZFrameGraphTexture>("FGTexture.EnvironmentMap", CAST_TO_FG_TEX_DESC SkyboxDesc, {m_GlobalLightProbes.skybox});
+            //globalLightProbeData.diffuseIrradianceMap   = m_FrameGraph.import <RZFrameGraphTexture>("FGTexture.IrradianceMap", CAST_TO_FG_TEX_DESC DiffuseDesc, {m_GlobalLightProbes.diffuse});
+            //globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <RZFrameGraphTexture>("FGTexture.PreFilteredMap", CAST_TO_FG_TEX_DESC SpecularDesc, {m_GlobalLightProbes.specular});
+
+            //-----------------------------------------------------------------------------------
+            // Misc Variables
+            // Jitter samples for TAA
+            for (int i = 0; i < NUM_HALTON_SAMPLES_TAA_JITTER; ++i) {
+                // Generate jitter using Halton sequence with bases 2 and 3 for X and Y respectively
+                m_TAAJitterHaltonSamples[i].x = 2.0f * (f32) (Math::ImportanceSampling::HaltonSequenceSample(i + 1, 2) - 1.0f);    // Centering the jitter around (0,0)
+                m_TAAJitterHaltonSamples[i].y = 2.0f * (f32) (Math::ImportanceSampling::HaltonSequenceSample(i + 1, 3) - 1.0f);    // Centering the jitter around (0,0)
+                m_TAAJitterHaltonSamples[i].x /= RZApplication::Get().getWindow()->getWidth();
+                m_TAAJitterHaltonSamples[i].y /= RZApplication::Get().getWindow()->getHeight();
+            }
+            //-----------------------------------------------------------------------------------
             //auto sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
+
+            //-------------------------------
+            // TODO: Fix Skybox Pass
+            //-------------------------------
 
             //-------------------------------
             // ImGui Pass
@@ -748,7 +783,6 @@ namespace Razix {
                     fontAtlasTextureDesc.height              = texHeight;
                     fontAtlasTextureDesc.depth               = 1;
                     fontAtlasTextureDesc.mipLevels           = 1;    // No mips for font textures
-                    fontAtlasTextureDesc.arraySize           = 1;
                     fontAtlasTextureDesc.format              = RZ_GFX_FORMAT_R8G8B8A8_UNORM;
                     fontAtlasTextureDesc.textureType         = RZ_GFX_TEXTURE_TYPE_2D;
                     fontAtlasTextureDesc.resourceHints       = RZ_GFX_RESOURCE_VIEW_FLAG_SRV;
@@ -1019,40 +1053,6 @@ namespace Razix {
 #endif
 
 #if 0
-            //-----------------------------------------------------------------------------------
-            // Load the Skybox and Global Light Probes
-            // FIXME: This is hard coded make this a user land material
-            // Or this is the default fallback but should be user configurable
-            m_GlobalLightProbes.skybox   = RZImageBasedLightingProbesManager::convertEquirectangularToCubemap("//RazixContent/Textures/HDR/teufelsberg_inner_4k.hdr");
-            m_GlobalLightProbes.diffuse  = RZImageBasedLightingProbesManager::generateIrradianceMap(m_GlobalLightProbes.skybox);
-            m_GlobalLightProbes.specular = RZImageBasedLightingProbesManager::generatePreFilteredMap(m_GlobalLightProbes.skybox);
-            // Import this into the Frame Graph
-            auto& globalLightProbeData = m_FrameGraph.getBlackboard().add<GlobalLightProbeData>();
-
-            auto SkyboxDesc   = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.skybox)->getDescription();
-            auto DiffuseDesc  = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.diffuse)->getDescription();
-            auto SpecularDesc = RZResourceManager::Get().getPool<RZTexture>().get(globalLightProbe.specular)->getDescription();
-
-            SkyboxDesc.name   = "EnvironmentMap";
-            DiffuseDesc.name  = "IrradianceMap";
-            SpecularDesc.name = "PreFilteredMap";
-
-            globalLightProbeData.environmentMap         = m_FrameGraph.import <RZFrameGraphTexture>("EnvironmentMap", CAST_TO_FG_TEX_DESC SkyboxDesc, {globalLightProbe.skybox});
-            globalLightProbeData.diffuseIrradianceMap   = m_FrameGraph.import <RZFrameGraphTexture>("IrradianceMap", CAST_TO_FG_TEX_DESC DiffuseDesc, {globalLightProbe.diffuse});
-            globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <RZFrameGraphTexture>("PreFilteredMap", CAST_TO_FG_TEX_DESC SpecularDesc, {globalLightProbe.specular});
-
-            //-----------------------------------------------------------------------------------
-            // Misc Variables
-            // Jitter samples for TAA
-            for (int i = 0; i < NUM_HALTON_SAMPLES_TAA_JITTER; ++i) {
-                // Generate jitter using Halton sequence with bases 2 and 3 for X and Y respectively
-                m_TAAJitterHaltonSamples[i].x = 2.0f * (f32) (Math::ImportanceSampling::HaltonSequenceSample(i + 1, 2) - 1.0f);    // Centering the jitter around (0,0)
-                m_TAAJitterHaltonSamples[i].y = 2.0f * (f32) (Math::ImportanceSampling::HaltonSequenceSample(i + 1, 3) - 1.0f);    // Centering the jitter around (0,0)
-                m_TAAJitterHaltonSamples[i].x /= RZApplication::Get().getWindow()->getWidth();
-                m_TAAJitterHaltonSamples[i].y /= RZApplication::Get().getWindow()->getHeight();
-            }
-
-            //-----------------------------------------------------------------------------------
 
             auto& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
 

@@ -497,7 +497,6 @@ namespace Razix {
             // FIXME: Disable mips temporarily until rzRHI_GenerateMips is fixed for internal usage, as dx12 needs explicit shader for generating mips
             //rzRHI_GetMipLevelCount(textureDesc.width, textureDesc.height);
             textureDesc.depth         = 1;
-            textureDesc.arraySize     = 1;
             textureDesc.textureType   = RZ_GFX_TEXTURE_TYPE_2D;
             textureDesc.format        = floatingPoint ? RZ_GFX_FORMAT_R32G32B32A32_FLOAT : RZ_GFX_FORMAT_R8G8B8A8_UNORM;
             textureDesc.resourceHints = RZ_GFX_RESOURCE_VIEW_FLAG_SRV;

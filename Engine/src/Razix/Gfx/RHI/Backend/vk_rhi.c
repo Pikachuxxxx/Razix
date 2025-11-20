@@ -2146,7 +2146,6 @@ static void vk_util_create_swapchain_textures(rz_gfx_swapchain* swapchain)
         texture->resource.pCold->desc.textureDesc.width         = swapchain->width;
         texture->resource.pCold->desc.textureDesc.height        = swapchain->height;
         texture->resource.pCold->desc.textureDesc.depth         = 1;
-        texture->resource.pCold->desc.textureDesc.arraySize     = 1;
         texture->resource.pCold->desc.textureDesc.mipLevels     = 1;
         texture->resource.pCold->desc.textureDesc.format        = RAZIX_SWAPCHAIN_FORMAT;
         texture->resource.pCold->desc.textureDesc.textureType   = RZ_GFX_TEXTURE_TYPE_2D;
@@ -2387,7 +2386,7 @@ static void vk_util_create_image_view(rz_gfx_resource_view* pView)
     imageViewCreateInfo.subresourceRange.baseMipLevel   = pTexViewDesc->baseMip;
     imageViewCreateInfo.subresourceRange.levelCount     = pTexDesc->mipLevels;    // FIXME: maybe use VK_REMAINING_MIP_LEVELS?
     imageViewCreateInfo.subresourceRange.baseArrayLayer = pTexViewDesc->baseArrayLayer;
-    imageViewCreateInfo.subresourceRange.layerCount     = pTexDesc->arraySize;
+    imageViewCreateInfo.subresourceRange.layerCount     = pTexDesc->depth;
 
     CHECK_VK(vkCreateImageView(VKDEVICE, &imageViewCreateInfo, NULL, &pView->vk.imageView));
     TAG_OBJECT(pView->vk.imageView, VK_OBJECT_TYPE_IMAGE_VIEW, pView->resource.pCold->pName);
@@ -2397,7 +2396,7 @@ static void vk_util_transition_subresource(vk_cmdbuf cmdBuf, rz_gfx_texture* tex
 {
     RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be NULL");
     RAZIX_RHI_ASSERT((mipBase + mipCount) <= texture->resource.pCold->desc.textureDesc.mipLevels, "Mip range out of bounds");
-    RAZIX_RHI_ASSERT((layerBase + layerCount) <= texture->resource.pCold->desc.textureDesc.arraySize, "Layer range out of bounds");
+    RAZIX_RHI_ASSERT((layerBase + layerCount) <= texture->resource.pCold->desc.textureDesc.depth, "Layer range out of bounds");
 
     VkImageAspectFlags aspectMask = vk_util_deduce_image_aspect_flags(texture->resource.pCold->desc.textureDesc.format);
 
@@ -3443,7 +3442,7 @@ static void vk_CreateTexture(void* where)
     rz_gfx_texture_desc* desc = &texture->resource.pCold->desc.textureDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Texture descriptor cannot be NULL");
     RAZIX_RHI_ASSERT(desc->width > 0 && desc->height > 0, "Texture dimensions must be greater than zero");
-    RAZIX_RHI_ASSERT(desc->depth > 0 || desc->arraySize > 0, "Texture depth or array size must be greater than zero");
+    RAZIX_RHI_ASSERT(desc->depth > 0, "Texture depth or array size must be greater than zero");
     RAZIX_RHI_ASSERT(desc->mipLevels > 0, "Texture mip levels must be greater than zero");
 
     // Maintain a second copy of hints...Ahhh...
@@ -3458,7 +3457,7 @@ static void vk_CreateTexture(void* where)
                .height = desc->height,
                .depth  = desc->depth},
         .mipLevels     = desc->mipLevels,
-        .arrayLayers   = (desc->textureType == RZ_GFX_TEXTURE_TYPE_CUBE) ? 6 : desc->arraySize,
+        .arrayLayers   = (desc->textureType == RZ_GFX_TEXTURE_TYPE_CUBE) ? 6 : desc->depth,
         .format        = vk_util_translate_format(desc->format),
         .tiling        = VK_IMAGE_TILING_OPTIMAL,
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
@@ -3506,7 +3505,7 @@ static void vk_CreateTexture(void* where)
     // convert to general layout if there's a chance to be used as an UAV
     if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV) {
         vk_cmdbuf cmdBuf = vk_util_begin_singletime_cmdlist();
-        vk_util_transition_subresource(cmdBuf, texture, RZ_GFX_RESOURCE_STATE_UNDEFINED, RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS, 0, texture->resource.pCold->desc.textureDesc.mipLevels, 0, texture->resource.pCold->desc.textureDesc.arraySize);
+        vk_util_transition_subresource(cmdBuf, texture, RZ_GFX_RESOURCE_STATE_UNDEFINED, RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS, 0, texture->resource.pCold->desc.textureDesc.mipLevels, 0, texture->resource.pCold->desc.textureDesc.depth);
         vk_util_end_singletime_cmdlist(cmdBuf);
         texture->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS;
     }
@@ -4651,7 +4650,7 @@ static void vk_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* t
                .baseMipLevel   = 0,
                .levelCount     = texture->resource.pCold->desc.textureDesc.mipLevels,
                .baseArrayLayer = 0,
-               .layerCount     = texture->resource.pCold->desc.textureDesc.arraySize},
+               .layerCount     = texture->resource.pCold->desc.textureDesc.depth},
     };
 
     vkCmdPipelineBarrier(

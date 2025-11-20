@@ -34,7 +34,6 @@ namespace Razix {
                     outDesc.height              = RZApplication::Get().getWindow()->getHeight();
                     outDesc.mipLevels           = 1;
                     outDesc.depth               = 1;
-                    outDesc.arraySize           = 1;
                     outDesc.format              = RZ_GFX_FORMAT_B8G8R8A8_UNORM;
                     outDesc.textureType         = RZ_GFX_TEXTURE_TYPE_2D;
                     outDesc.resourceHints       = (rz_gfx_resource_view_hints) (RZ_GFX_RESOURCE_VIEW_FLAG_UAV | RZ_GFX_RESOURCE_VIEW_FLAG_SRV);

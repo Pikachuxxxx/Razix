@@ -78,13 +78,6 @@ namespace Razix {
             float4x4 viewProjMatrix = float4x4(1.0f);
         };
 
-        struct GlobalLightProbeData
-        {
-            RZFrameGraphResource environmentMap;
-            RZFrameGraphResource diffuseIrradianceMap;
-            RZFrameGraphResource specularPreFilteredMap;
-        };
-
         struct SkyboxPassData
         {
             RZFrameGraphResource SceneHDR;
@@ -184,6 +177,13 @@ namespace Razix {
             rz_gfx_texture_handle skybox;
             rz_gfx_texture_handle diffuse;
             rz_gfx_texture_handle specular;
+        };
+
+        struct GlobalLightProbeData
+        {
+            RZFrameGraphResource environmentMap;
+            RZFrameGraphResource diffuseIrradianceMap;
+            RZFrameGraphResource specularPreFilteredMap;
         };
 
         struct SceneData
