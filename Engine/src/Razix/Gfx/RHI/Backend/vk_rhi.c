@@ -1253,10 +1253,11 @@ static VkImageViewType vk_util_translate_texture_type_view_type(rz_gfx_texture_t
             return VK_IMAGE_VIEW_TYPE_2D;
         case RZ_GFX_TEXTURE_TYPE_3D:
             return VK_IMAGE_VIEW_TYPE_3D;
-        case RZ_GFX_TEXTURE_TYPE_CUBE:
+            //return VK_IMAGE_VIEW_TYPE_CUBE;
             return VK_IMAGE_VIEW_TYPE_CUBE;
         case RZ_GFX_TEXTURE_TYPE_1D_ARRAY:
             return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+        case RZ_GFX_TEXTURE_TYPE_CUBE:
         case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
             return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
         case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
