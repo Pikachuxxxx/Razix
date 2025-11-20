@@ -24,9 +24,11 @@ namespace Razix {
 
         inline float4x4 getViewProjection() { return getProjection() * getViewMatrix(); }
 
-        inline float4x4 getProjection() const
+        inline float4x4 getProjection()
         {
-            return m_Projection;
+            auto& proj = m_Projection;
+            proj[1][1] *= -1;    // Invert Y for GLM since GLM was designed for OpenGL where the Y is inverted
+            return proj;
         }
 
         inline float4x4 getProjectionRaw()

@@ -498,7 +498,7 @@ namespace Razix {
                     // TODO: Pass jitter as separate, just to upload to GPU for other usage
                     //auto jitteredProjMatrix = sceneCam.getProjection() * jitterMatrix;
 
-                    const auto& sceneCam              = scene->getSceneCamera();
+                    auto& sceneCam                    = scene->getSceneCamera();
                     gpuData.camera.projection         = sceneCam.getProjection();
                     gpuData.camera.inversedProjection = inverse(gpuData.camera.projection);
                     gpuData.camera.view               = sceneCam.getViewMatrix();
@@ -638,9 +638,9 @@ namespace Razix {
                 });
 
             //-----------------------------------------------------------------------------------
-            FrameData&       frameDataBlock  = m_FrameGraph.getBlackboard().get<FrameData>();
+            FrameData& frameDataBlock = m_FrameGraph.getBlackboard().get<FrameData>();
             RAZIX_UNUSED(frameDataBlock);
-//            SceneLightsData& sceneLightsData = m_FrameGraph.getBlackboard().get<SceneLightsData>();
+            //            SceneLightsData& sceneLightsData = m_FrameGraph.getBlackboard().get<SceneLightsData>();
             //auto sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
@@ -909,7 +909,7 @@ namespace Razix {
             // Debug Scene Pass
             //-------------------------------
 #if 1
-  
+
             m_FrameGraph.getBlackboard().add<DebugPassData>() = m_FrameGraph.addCallbackPass<DebugPassData>(
                 "Pass.Builtin.Code.DebugDraw",
                 [&](DebugPassData& data, RZPassResourceBuilder& builder) {
@@ -931,7 +931,7 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
 
                     rz_gfx_cmdbuf_handle cmdBuffer = getCurrCmdBufHandle();
-                    RAZIX_MARK_BEGIN(cmdBuffer, "DebugDraw", float4(0.9f, 0.6f, 0.2f, 1.0f));
+                    RAZIX_MARK_BEGIN(cmdBuffer, "DebugDraw", float4(0.4f, 0.6f, 0.2f, 1.0f));
 
                     // Rendering debug primitives
 
