@@ -110,9 +110,15 @@ namespace Razix {
 
             s_pDebugDrawState = (DebugDrawState*) rz_malloc(sizeof(DebugDrawState), 16);
             RAZIX_CORE_ASSERT(s_pDebugDrawState, "RZDebugDraw::StartUp: Failed to allocate memory for Debug Draw State!");
+            new (s_pDebugDrawState) DebugDrawState();
+            memset(s_pDebugDrawState, 0x00, sizeof(DebugDrawState));
 
             s_pDebugDrawState->drawList.m_DebugLines.clear();
             s_pDebugDrawState->drawList.m_DebugPoints.clear();
+            s_pDebugDrawState->drawList.m_DebugLines.reserve(MaxLines);
+            s_pDebugDrawState->drawList.m_DebugPoints.reserve(MaxPoints);
+            s_pDebugDrawState->lineIndexCount  = 0;
+            s_pDebugDrawState->pointIndexCount = 0;
 
             // load shaders
             s_pDebugDrawState->lineShader  = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kDebugLine);
@@ -127,7 +133,7 @@ namespace Razix {
             // Line Pipeline
             pipelineDesc.cullMode               = RZ_GFX_CULL_MODE_TYPE_NONE;
             pipelineDesc.drawType               = RZ_GFX_DRAW_TYPE_LINE;
-            pipelineDesc.polygonMode            = RZ_GFX_POLYGON_MODE_TYPE_POINT;
+            pipelineDesc.polygonMode            = RZ_GFX_POLYGON_MODE_TYPE_SOLID;
             pipelineDesc.pShader                = RZResourceManager::Get().getShaderResource(s_pDebugDrawState->lineShader);
             pipelineDesc.pRootSig               = RZResourceManager::Get().getRootSignatureResource(s_pDebugDrawState->lineRootSig);
             pipelineDesc.type                   = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
@@ -242,6 +248,9 @@ namespace Razix {
 
             RAZIX_CORE_ASSERT(camera != NULL, "Debug Draw::BeginDraw: Camera is null!");
 
+            s_pDebugDrawState->lineIndexCount  = 0;
+            s_pDebugDrawState->pointIndexCount = 0;
+
             // FIXME: when using VMA, once enabled will skip MapBuffer calls and return the cached mapped pointer
             // same goes for DXMA as well, until then we need to unmap before mapping again, this is temporary fix
 
@@ -278,8 +287,8 @@ namespace Razix {
                 void* vtxPtr = rzRHI_MapBuffer(s_pDebugDrawState->pointPosVB, 0, PointPositionVertexBufferSize);
                 void* colPtr = rzRHI_MapBuffer(s_pDebugDrawState->pointColorVB, 0, PointColorVertexBufferSize);
 
-                float3* pointsVertexData = (float3*) vtxPtr;
-                float3* pointsColorData  = (float3*) colPtr;
+                float4* pointsVertexData = (float4*) vtxPtr;
+                float4* pointsColorData  = (float4*) colPtr;
 
                 u32 pointIdx = 0;
                 for (auto& point: s_pDebugDrawState->drawList.m_DebugPoints) {
@@ -321,21 +330,6 @@ namespace Razix {
                 frameData,
             };
 
-            // Points
-            if (s_pDebugDrawState->pointIndexCount > 0) {
-                rzRHI_BindGfxRootSig(cmdBuffer, s_pDebugDrawState->pointRootSig);
-                rzRHI_BindPipeline(cmdBuffer, s_pDebugDrawState->pointPipeline);
-                rzRHI_BindDescriptorTables(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS, s_pDebugDrawState->pointRootSig, tables, 1);
-
-                u32                  offsetsP[2] = {0, 0};
-                u32                  stridesP[2] = {sizeof(float3), sizeof(float3)};
-                rz_gfx_buffer_handle vbsP[2]     = {s_pDebugDrawState->pointPosVB, s_pDebugDrawState->pointColorVB};
-                rzRHI_BindVertexBuffers(cmdBuffer, vbsP, 2, offsetsP, stridesP);
-                rzRHI_BindIndexBuffer(cmdBuffer, s_pDebugDrawState->pointIB, 0, RZ_GFX_INDEX_TYPE_UINT32);
-
-                rzRHI_DrawIndexedAuto(cmdBuffer, s_pDebugDrawState->pointIndexCount, 1, 0, 0, 0);
-            }
-
             // Lines
             if (s_pDebugDrawState->lineIndexCount > 0) {
                 rzRHI_BindGfxRootSig(cmdBuffer, s_pDebugDrawState->lineRootSig);
@@ -349,6 +343,21 @@ namespace Razix {
                 rzRHI_BindIndexBuffer(cmdBuffer, s_pDebugDrawState->lineIB, 0, RZ_GFX_INDEX_TYPE_UINT32);
 
                 rzRHI_DrawIndexedAuto(cmdBuffer, s_pDebugDrawState->lineIndexCount, 1, 0, 0, 0);
+            }
+
+            // Points
+            if (s_pDebugDrawState->pointIndexCount > 0) {
+                rzRHI_BindGfxRootSig(cmdBuffer, s_pDebugDrawState->pointRootSig);
+                rzRHI_BindPipeline(cmdBuffer, s_pDebugDrawState->pointPipeline);
+                rzRHI_BindDescriptorTables(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS, s_pDebugDrawState->pointRootSig, tables, 1);
+
+                u32                  offsetsP[2] = {0, 0};
+                u32                  stridesP[2] = {sizeof(float4), sizeof(float4)};
+                rz_gfx_buffer_handle vbsP[2]     = {s_pDebugDrawState->pointPosVB, s_pDebugDrawState->pointColorVB};
+                rzRHI_BindVertexBuffers(cmdBuffer, vbsP, 2, offsetsP, stridesP);
+                rzRHI_BindIndexBuffer(cmdBuffer, s_pDebugDrawState->pointIB, 0, RZ_GFX_INDEX_TYPE_UINT32);
+
+                rzRHI_DrawIndexedAuto(cmdBuffer, s_pDebugDrawState->pointIndexCount, 1, 0, 0, 0);
             }
         }
 
