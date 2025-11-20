@@ -5,65 +5,23 @@
 
 #include "Razix/Gfx/RZMesh.h"
 
-#if WIP_REFACTOR
+#include "Razix/Gfx/RHI/RHI.h"
 
-//#include "Razix/Gfx/RZShaderLibrary.h"
-//
-//#include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
-//#include "Razix/Gfx/RHI/API/RZTexture.h"
-//#include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
-//
-//#include "Razix/Gfx/Materials/RZMaterial.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
-    #define _USE_MATH_DEFINES
-    #include <math.h>
+#define NUM_QUAD_VERTS 4
+#define NUM_CUBE_VERTS 24
 
 namespace Razix {
     namespace Gfx {
 
-        static RZMesh* CreatePlane(f32 width = 10.0f, f32 height = 10.0f, const float4 color = float4(1.0f, 1.0f, 1.0f, 1.0f));
-        static RZMesh* CreateCube();
-        static RZMesh* CreatePyramid();
-        static RZMesh* CreateSphere(u32 xSegments = 64, u32 ySegments = 64);
-        static RZMesh* CreateIcoSphere(u32 radius = 1, u32 subdivision = 64);
-        static RZMesh* CreateCapsule(f32 radius = 1.0f, f32 midHeight = 1.0f, int radialSegments = 64, int rings = 8);
-        static RZMesh* CreateCylinder(f32 bottomRadius = 1.0f, f32 topRadius = 1.0f, f32 height = 1.0f, int radialSegments = 64, int rings = 8);
+#if 0
 
         // Materials are not duplicating when we have single instance
-        //static RZMesh* planeMesh  = nullptr;
-        //static RZMesh* cubeMesh   = nullptr;
-        //static RZMesh* sphereMesh = nullptr;
-
-        RZMesh* CreatePrimitive(MeshPrimitive primitive)
-        {
-            switch (primitive) {
-                case MeshPrimitive::Plane: {
-                    return CreatePlane();
-                }
-                case MeshPrimitive::Cube: {
-                    return CreateCube();
-                }
-                case MeshPrimitive::Sphere: {
-                    return CreateSphere();
-                }
-                case MeshPrimitive::Pyramid:
-                    RAZIX_UNIMPLEMENTED_METHOD
-                    break;
-                case MeshPrimitive::Capsule:
-                    RAZIX_UNIMPLEMENTED_METHOD
-                    break;
-                case MeshPrimitive::Cylinder:
-                    RAZIX_UNIMPLEMENTED_METHOD
-                    break;
-                default: {
-                    return CreateCube();
-                }
-            }
-            return nullptr;
-        }
-
-    #define NUM_QUAD_VERTS 4
-    #define NUM_CUBE_VERTS 24
+        static RZMesh* planeMesh  = NULL;
+        static RZMesh* cubeMesh   = NULL;
+        static RZMesh* sphereMesh = NULL;
 
         RZMesh* CreatePlane(f32 width, f32 height, const float4 color /*= float4(1.0f, 1.0f, 1.0f, 1.0f)*/)
         {
@@ -99,12 +57,6 @@ namespace Razix {
                 0, 1, 2, 2, 3, 0};
 
             RZMesh* mesh = new RZMesh(data, indices, 6);
-
-            auto        shader          = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
-            RZMaterial* gbufferMaterial = new RZMaterial(shader);
-            gbufferMaterial->createDescriptorSet();
-            mesh->setMaterial(gbufferMaterial);
-
             return mesh;
         }
 
@@ -210,12 +162,6 @@ namespace Razix {
                 0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
 
             RZMesh* mesh = new RZMesh(data, indices, 36);
-
-            auto        shader          = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
-            RZMaterial* gbufferMaterial = new RZMaterial(shader);
-            gbufferMaterial->createDescriptorSet();
-            mesh->setMaterial(gbufferMaterial);
-
             return mesh;
         }
 
@@ -278,15 +224,58 @@ namespace Razix {
             }
 
             RZMesh* mesh = new RZMesh(data, indices);
-
-            auto        shader          = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::GBuffer);
-            RZMaterial* gbufferMaterial = new RZMaterial(shader);
-            gbufferMaterial->createDescriptorSet();
-            mesh->setMaterial(gbufferMaterial);
-
             return mesh;
         }
+
+        RZMesh* CreatePrimitive(MeshPrimitive primitive)
+        {
+            switch (primitive) {
+                case MeshPrimitive::kPlane: {
+                    if (planeMesh)
+                        return planeMesh;
+                    else {
+                        //planeMesh = CreatePlane();
+                        return planeMesh;
+                    }
+                }
+                case MeshPrimitive::kCube: {
+                    if (cubeMesh)
+                        return cubeMesh;
+                    else {
+                        cubeMesh = CreateCube();
+                        return cubeMesh;
+                    }
+                }
+                case MeshPrimitive::kSphere: {
+                    if (sphereMesh)
+                        return sphereMesh;
+                    else {
+                        //sphereMesh = CreateSphere();
+                        return sphereMesh;
+                    }
+                }
+                case MeshPrimitive::kPyramid:
+                    RAZIX_UNIMPLEMENTED_METHOD
+                    break;
+                case MeshPrimitive::kCapsule:
+                    RAZIX_UNIMPLEMENTED_METHOD
+                    break;
+                case MeshPrimitive::kCylinder:
+                    RAZIX_UNIMPLEMENTED_METHOD
+                    break;
+                default: {
+                    RAZIX_CORE_WARN("Unknown mesh primitive type, returning cube mesh by default");
+                    if (cubeMesh)
+                        return cubeMesh;
+                    else {
+                        cubeMesh = CreateCube();
+                        return cubeMesh;
+                    }
+                }
+            }
+            RAZIX_CORE_ERROR("unknow mesh primitive type");
+            return NULL;
+        }
+#endif
     }    // namespace Gfx
 }    // namespace Razix
-
-#endif    // WIP_REFACTOR

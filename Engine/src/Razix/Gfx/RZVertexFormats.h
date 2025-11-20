@@ -9,7 +9,6 @@
     #define SHADER_STRUCT struct
 
     #include "Razix/Core/RZDataTypes.h"
-    #include <vector>
 #endif
 
 #define MAX_BONES_COUNT                          0x00000004

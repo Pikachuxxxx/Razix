@@ -19,6 +19,8 @@ namespace Razix {
             virtual ~IRZPass() = default;
 
             // TODO: make RZFrameGraph& a pointer too
+            // TODO: make RZRendererSettings a const pointer
+            // TODO: make RZScene a const pointer
             virtual void addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) = 0;
 
             virtual void destroy() = 0;

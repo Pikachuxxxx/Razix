@@ -254,7 +254,7 @@ namespace Razix {
             RAZIX_NO_DISCARD RZPassNode&          createPassNodeRef(const RZString& name, std::unique_ptr<IRZFrameGraphPass>&& func);
             RAZIX_NO_DISCARD RZResourceNode&      createResourceNodeRef(const RZString& name, u32 resourceID);
             RAZIX_NO_DISCARD RZFrameGraphResource cloneResource(RZFrameGraphResource id);
-            void                                  createResourceViewForPass(RZPassNode& pass, const RZFrameGraphResource& id);
+            void                                  createResourceViewForPass(RZPassNode& pass, const RZFrameGraphResource& id, RZFrameGraphResourceAcessView& accessView);
         };
 
         //-----------------------------------------------------------------------------------

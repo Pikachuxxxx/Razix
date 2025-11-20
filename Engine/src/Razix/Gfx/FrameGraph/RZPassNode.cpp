@@ -67,14 +67,12 @@ namespace Razix {
             return hasId(m_Writes, resourceID);
         }
 
-        void RZPassNode::createDeferredResourceView(RZFrameGraphResource id, rz_handle resHandle)
+        void RZPassNode::createDeferredResourceView(RZFrameGraphResource id, rz_handle resHandle, RZFrameGraphResourceAcessView& accessView)
         {
             // we can have passes that just update some buffers  and write to it via rzUdpateConstantBuffer so they have new views per pass
+            RAZIX_CORE_ASSERT(rz_handle_is_valid(&resHandle), "Invalid resource Handle passed!");
             if (!rz_handle_is_valid(&resHandle)) return;
 
-            RAZIX_CORE_ASSERT(rz_handle_is_valid(&resHandle), "Invalid resource Handle passed!");
-
-            auto& accessView = getResourceAccessViewRef(id);
             if (!rz_handle_is_valid(&accessView.resViewHandle)) {
                 RZString resViewName;
                 if (rzRHI_IsDescriptorTypeBuffer(accessView.resViewDesc.descriptorType)) {
@@ -82,7 +80,7 @@ namespace Razix {
                         accessView.resViewDesc.bufferViewDesc.pBuffer = RZResourceManager::Get().getBufferResource(resHandle);
                         resViewName                                   = RZString(accessView.resViewDesc.bufferViewDesc.pBuffer->resource.pCold->pName);
                     } else {
-                        RAZIX_CORE_WARN("pBuffer is either NULL or not AUTO_POPULATE");
+                        RAZIX_CORE_WARN("[Missing resource view] pBuffer is either NULL or not AUTO_POPULATE, \n this is invalid way to create resource views with framegraph, \n please follow the right convention by defining the pBuffer \n with RZ_FG_BUF_RES_AUTO_POPULATE, to automatically generate \n and maintain resource views per pass, ignore if intentional");
                         return;
                     }
                 } else if (rzRHI_IsDescriptorTypeTexture(accessView.resViewDesc.descriptorType)) {
@@ -90,7 +88,7 @@ namespace Razix {
                         accessView.resViewDesc.textureViewDesc.pTexture = RZResourceManager::Get().getTextureResource(resHandle);
                         resViewName                                     = RZString(accessView.resViewDesc.textureViewDesc.pTexture->resource.pCold->pName);
                     } else {
-                        RAZIX_CORE_WARN("pTexture is not AUTO_POPULATE, this is invalid way to create resource views with framegraph, please follow the right convention by defining the pTexture with RZ_FG_TEX_RES_AUTO_POPULATE, to automatically generate and maintain resource views per pass");
+                        RAZIX_CORE_WARN("[Missing resource view] pTexture is either NULL or not AUTO_POPULATE, \n this is invalid way to create resource views with framegraph, \n please follow the right convention by defining the pTexture \n with RZ_FG_TEX_RES_AUTO_POPULATE, to automatically generate \n and maintain resource views per pass, ignore if intentional");
                         return;
                     }
                 } else {
@@ -99,9 +97,9 @@ namespace Razix {
                 }
 
                 // Now that we have filled the pResource create the resource view
-                RZString resViewDebugName = RZString("ResView.") + resViewName + ".Pass." + getName();
-                RAZIX_CORE_INFO("{}", resViewDebugName);
-                accessView.resViewHandle = RZResourceManager::Get().createResourceView(resViewDebugName.c_str(), accessView.resViewDesc);
+                accessView.resViewHandle = RZResourceManager::Get().createResourceView(resViewName.c_str(), accessView.resViewDesc);
+                RAZIX_CORE_ASSERT(rz_handle_is_valid(&accessView.resViewHandle), "Failed to create resource view for FrameGraph resource!");
+                RAZIX_CORE_TRACE("PassNode [{0}] Resource View Created: Name = {1}, ID = {2}, Handle = {3}", m_Name, resViewName.c_str(), id, accessView.resViewHandle.index);
             }
         }
 

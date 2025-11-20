@@ -24,7 +24,7 @@
 //#include "Razix/Gfx/Passes/RZPBRDeferredShadingPass.h"
 //#include "Razix/Gfx/Passes/RZSSAOPass.h"
 //#include "Razix/Gfx/Passes/RZShadowPass.h"
-//#include "Razix/Gfx/Passes/RZSkyboxPass.h"
+#include "Razix/Gfx/Passes/RZSkyboxPass.h"
 //#include "Razix/Gfx/Passes/RZTAAResolvePass.h"
 //#include "Razix/Gfx/Passes/RZTonemapPass.h"
 //#include "Razix/Gfx/Passes/RZVisibilityBufferFillPass.h"
@@ -197,6 +197,7 @@ namespace Razix {
             rz_gfx_buffer_handle                 m_ImGuiIB                                               = {};
             rz_gfx_texture_handle                m_ImGuiFontAtlasTexture                                 = {};
             rz_gfx_resource_view_handle          m_ImGuiFontSRVHandle                                    = {};
+            RZSkyboxPass                         m_SkyboxPass                                            = {};
 
         private:
             //void importGlobalLightProbes(LightProbe globalLightProbe);

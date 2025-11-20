@@ -6,13 +6,17 @@
 #include <ShaderInclude.Builtin.ShaderLangCommon.h>
 //------------------------------------------------------------------------------
 #include <Common/ShaderInclude.Builtin.FrameData.h>
-#include <Razix/Shared/RZShaderCompitability.h>    // define the common vertex input over the engine
+//------------------------------------------------------------------------------
+struct VSIn
+{
+    float3 Position : POSITION0;
+};
 //------------------------------------------------------------------------------
 // Vertex Shader Stage Output
 struct VSOut
 {
-    float4 Position : SV_POSITION;
-    float4 PixelLocalPosTime : POSITION1;
+    float4 Position          : SV_POSITION;
+    float4 PixelLocalPosTime : POSITION0;
 };
 //------------------------------------------------------------------------------
 VSOut VS_MAIN(VSIn vsIn)

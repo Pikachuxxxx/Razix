@@ -36,7 +36,7 @@ namespace Razix {
             bool canReadResouce(RZFrameGraphResource resourceID) const;
             bool canWriteResouce(RZFrameGraphResource resourceID) const;
 
-            void createDeferredResourceView(RZFrameGraphResource id, rz_handle resHandle);
+            void createDeferredResourceView(RZFrameGraphResource id, rz_handle resHandle, RZFrameGraphResourceAcessView& accessView);
 
             inline rz_gfx_resource_view_handle getResourceViewHandle(RZFrameGraphResource id)
             {
@@ -50,7 +50,7 @@ namespace Razix {
 
             inline RZFrameGraphResourceAcessView& getResourceAccessViewRef(RZFrameGraphResource id)
             {
-                return getResourceAccessView<RZFrameGraphResourceAcessView>(id);
+                return getResourceAccessView<RZFrameGraphResourceAcessView&>(id);
             }
 
             inline const auto&               getCreateResources() const { return m_Creates; }
@@ -86,10 +86,10 @@ namespace Razix {
             template<typename T>
             T& getResourceAccessView(RZFrameGraphResource id)
             {
-                auto ri = m_Reads.find(id);
+                auto& ri = m_Reads.find(id);
                 if (ri != m_Reads.end())
                     return ri->second;
-                auto wi = m_Writes.find(id);
+                auto& wi = m_Writes.find(id);
                 if (wi != m_Writes.end())
                     return wi->second;
 

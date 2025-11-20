@@ -9,14 +9,14 @@ namespace Razix {
         class RZMesh;
 
         /* Mesh primitive describes the primitive geometry */
-        enum MeshPrimitive : int32_t
+        enum class MeshPrimitive : int32_t
         {
-            Plane = 0,
-            Cube,
-            Sphere,
-            Pyramid,    // WIP
-            Capsule,    // WIP
-            Cylinder    // WIP
+            kPlane = 0,
+            kCube,
+            kSphere,
+            kPyramid,    // WIP
+            kCapsule,    // WIP
+            kCylinder    // WIP
         };
 
         RAZIX_API RZMesh* CreatePrimitive(MeshPrimitive primitive);

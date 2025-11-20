@@ -715,7 +715,7 @@ namespace Razix {
             }
         }
 
-        void RZFrameGraph::createResourceViewForPass(RZPassNode& pass, const RZFrameGraphResource& id)
+        void RZFrameGraph::createResourceViewForPass(RZPassNode& pass, const RZFrameGraphResource& id, RZFrameGraphResourceAcessView& accessView)
         {
             rz_handle resourceHandle = {};
             if (verifyResourceType<RZFrameGraphTexture>(id))
@@ -724,7 +724,7 @@ namespace Razix {
                 resourceHandle = getResourceEntryRef(id).get<RZFrameGraphBuffer>().getRHIHandle();
             else
                 RAZIX_CORE_ASSERT(false, "Unknown Resource Type!");
-            pass.createDeferredResourceView(id, resourceHandle);
+            pass.createDeferredResourceView(id, resourceHandle, accessView);
         }
 
         void RZFrameGraph::execute()
@@ -764,18 +764,18 @@ namespace Razix {
                 // Safety of existence is taken care in the ResourceEntry class
                 // Skip if they are imported resource, since imported resources are always Read only data!
                 // This is also where we create resource views for the resources
-                for (auto&& [id, flags]: pass.m_Reads) {
+                for (auto& [id, accessView]: pass.m_Reads) {
                     // Create the resource view for this pass after the actual resource is created
-                    createResourceViewForPass(pass, id);
+                    createResourceViewForPass(pass, id, accessView);
 
                     if (getResourceEntryRef(id).isTransient())
                         getResourceEntryRef(id).getConcept()->preRead(~0u);
 
                     // TODO: For this pass CREATE the read resource view with the actual resource but just once?
                 }
-                for (auto&& [id, flags]: pass.m_Writes) {
+                for (auto& [id, accessView]: pass.m_Writes) {
                     // Create the resource view for this pass after the actual resource is created
-                    createResourceViewForPass(pass, id);
+                    createResourceViewForPass(pass, id, accessView);
 
                     if (getResourceEntryRef(id).isTransient())
                         getResourceEntryRef(id).getConcept()->preWrite(~0u);

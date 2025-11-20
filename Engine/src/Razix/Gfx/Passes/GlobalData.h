@@ -78,11 +78,6 @@ namespace Razix {
             float4x4 viewProjMatrix = float4x4(1.0f);
         };
 
-        struct SkyboxPassData
-        {
-            RZFrameGraphResource SceneHDR;
-        };
-
         // Volumetrics
 
         struct VolumetricCloudsData
@@ -191,6 +186,11 @@ namespace Razix {
             RZFrameGraphResource HDR;
             RZFrameGraphResource LDR;
             RZFrameGraphResource depth;
+        };
+
+        struct SkyboxPassData
+        {
+            RZFrameGraphResource SceneHDR;
         };
 
         struct ImGuiPassData

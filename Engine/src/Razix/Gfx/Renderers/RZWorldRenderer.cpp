@@ -328,13 +328,13 @@ namespace Razix {
             rz_gfx_descriptor_heap_desc renderTargetHeapDesc = {};
             renderTargetHeapDesc.heapType                    = RZ_GFX_DESCRIPTOR_HEAP_TYPE_RTV;
             renderTargetHeapDesc.descriptorCount             = RAZIX_MAX_RENDER_TARGETS * 1024;
-            renderTargetHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
+            renderTargetHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE | RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
             m_RenderTargetHeap                               = RZResourceManager::Get().createDescriptorHeap("RenderTargetHeap", renderTargetHeapDesc);
 
             rz_gfx_descriptor_heap_desc depthRenderTargetHeapDesc = {};
             depthRenderTargetHeapDesc.heapType                    = RZ_GFX_DESCRIPTOR_HEAP_TYPE_DSV;
             depthRenderTargetHeapDesc.descriptorCount             = 1024;    // 1024 Depth Stencil Views
-            depthRenderTargetHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
+            depthRenderTargetHeapDesc.flags                       = RZ_GFX_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE | RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER;
             m_DepthRenderTargetHeap                               = RZResourceManager::Get().createDescriptorHeap("DepthRenderTargetHeap", depthRenderTargetHeapDesc);
 
             // HIGH PRIORITY!
@@ -650,17 +650,16 @@ namespace Razix {
             // FIXME: This is hard coded make this a user land material
             // Or this is the default fallback but should be user configurable
             m_GlobalLightProbes.skybox = ConvertEquirectangularToCubemap("//RazixContent/Textures/HDR/teufelsberg_inner_4k.hdr");
-            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.skybox);
             //m_GlobalLightProbes.diffuse  = GenerateIrradianceMap(m_GlobalLightProbes.skybox);
             //m_GlobalLightProbes.specular = GeneratePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph
-            //auto& globalLightProbeData = m_FrameGraph.getBlackboard().add<GlobalLightProbeData>();
+            auto& globalLightProbeData = m_FrameGraph.getBlackboard().add<GlobalLightProbeData>();
 
-            //auto SkyboxDesc = RZResourceManager::Get().getTextureResource(m_GlobalLightProbes.skybox)->resource.pCold->desc.textureDesc;
+            auto SkyboxDesc = RZResourceManager::Get().getTextureResource(m_GlobalLightProbes.skybox)->resource.pCold->desc.textureDesc;
             //auto DiffuseDesc  = RZResourceManager::Get().getTextureResource(m_GlobalLightProbes.diffuse)->resource.pCold->desc.textureDesc;
             //auto SpecularDesc = RZResourceManager::Get().getTextureResource(m_GlobalLightProbes.specular)->resource.pCold->desc.textureDesc;
 
-            //globalLightProbeData.environmentMap = m_FrameGraph.import <RZFrameGraphTexture>("FGTexture.EnvironmentMap", CAST_TO_FG_TEX_DESC SkyboxDesc, {m_GlobalLightProbes.skybox});
+            globalLightProbeData.environmentMap = m_FrameGraph.import <RZFrameGraphTexture>("FG.Tex.EnvironmentMap", CAST_TO_FG_TEX_DESC SkyboxDesc, {m_GlobalLightProbes.skybox});
             //globalLightProbeData.diffuseIrradianceMap   = m_FrameGraph.import <RZFrameGraphTexture>("FGTexture.IrradianceMap", CAST_TO_FG_TEX_DESC DiffuseDesc, {m_GlobalLightProbes.diffuse});
             //globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <RZFrameGraphTexture>("FGTexture.PreFilteredMap", CAST_TO_FG_TEX_DESC SpecularDesc, {m_GlobalLightProbes.specular});
 
@@ -675,11 +674,12 @@ namespace Razix {
                 m_TAAJitterHaltonSamples[i].y /= RZApplication::Get().getWindow()->getHeight();
             }
             //-----------------------------------------------------------------------------------
-            //auto sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
-            // TODO: Fix Skybox Pass
+            // Skybox Pass
             //-------------------------------
+            m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
+            //auto sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
             // ImGui Pass
