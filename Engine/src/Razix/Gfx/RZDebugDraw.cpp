@@ -140,8 +140,8 @@ namespace Razix {
             pipelineDesc.renderTargetCount      = 1;
             pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
             //pipelineDesc.depthStencilFormat     = RZ_GFX_FORMAT_D16_UNORM;
-            pipelineDesc.inputLayoutMode        = RZ_GFX_INPUT_LAYOUT_SOA;    // position @ 0 and color @ 1
-            s_pDebugDrawState->linePipeline     = RZResourceManager::Get().createPipeline("Pipeline.DebugDraw::Line", pipelineDesc);
+            pipelineDesc.inputLayoutMode    = RZ_GFX_INPUT_LAYOUT_SOA;    // position @ 0 and color @ 1
+            s_pDebugDrawState->linePipeline = RZResourceManager::Get().createPipeline("Pipeline.DebugDraw::Line", pipelineDesc);
 
             // Point Pipeline
             pipelineDesc.cullMode               = RZ_GFX_CULL_MODE_TYPE_NONE;
@@ -320,11 +320,12 @@ namespace Razix {
             rz_gfx_descriptor_table_handle tables[] = {
                 frameData,
             };
-            rzRHI_BindDescriptorTables(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS, s_pDebugDrawState->pointRootSig, tables, 1);
 
             // Points
             if (s_pDebugDrawState->pointIndexCount > 0) {
+                rzRHI_BindGfxRootSig(cmdBuffer, s_pDebugDrawState->pointRootSig);
                 rzRHI_BindPipeline(cmdBuffer, s_pDebugDrawState->pointPipeline);
+                rzRHI_BindDescriptorTables(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS, s_pDebugDrawState->pointRootSig, tables, 1);
 
                 u32                  offsetsP[2] = {0, 0};
                 u32                  stridesP[2] = {sizeof(float3), sizeof(float3)};
@@ -335,11 +336,11 @@ namespace Razix {
                 rzRHI_DrawIndexedAuto(cmdBuffer, s_pDebugDrawState->pointIndexCount, 1, 0, 0, 0);
             }
 
-            rzRHI_BindDescriptorTables(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS, s_pDebugDrawState->lineRootSig, tables, 1);
-
             // Lines
             if (s_pDebugDrawState->lineIndexCount > 0) {
+                rzRHI_BindGfxRootSig(cmdBuffer, s_pDebugDrawState->lineRootSig);
                 rzRHI_BindPipeline(cmdBuffer, s_pDebugDrawState->linePipeline);
+                rzRHI_BindDescriptorTables(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS, s_pDebugDrawState->lineRootSig, tables, 1);
 
                 u32                  offsetsP[2] = {0, 0};
                 u32                  stridesP[2] = {sizeof(float4), sizeof(float4)};

@@ -12,13 +12,13 @@
 struct VertexInput
 {
     float4 Position : POSITION;
-    float4 Color : Color;
+    float4 Color : COLOR0;
 };
 //------------------------------------------------------------------------------
 struct VSOutput
 {
     float4 Position : SV_POSITION;
-    float4 Color : Color;
+    float4 Color : COLOR0;
 };
 //------------------------------------------------------------------------------
 VSOutput VS_MAIN(VertexInput input)
