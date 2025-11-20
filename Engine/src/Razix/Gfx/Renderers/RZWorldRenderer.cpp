@@ -649,7 +649,8 @@ namespace Razix {
             // Load the Skybox and Global Light Probes
             // FIXME: This is hard coded make this a user land material
             // Or this is the default fallback but should be user configurable
-            // m_GlobalLightProbes.skybox = ConvertEquirectangularToCubemap("//RazixContent/Textures/HDR/teufelsberg_inner_4k.hdr");
+            m_GlobalLightProbes.skybox = ConvertEquirectangularToCubemap("//RazixContent/Textures/HDR/teufelsberg_inner_4k.hdr");
+            RZResourceManager::Get().destroyTexture(m_GlobalLightProbes.skybox);
             //m_GlobalLightProbes.diffuse  = GenerateIrradianceMap(m_GlobalLightProbes.skybox);
             //m_GlobalLightProbes.specular = GeneratePreFilteredMap(m_GlobalLightProbes.skybox);
             // Import this into the Frame Graph
@@ -944,7 +945,6 @@ namespace Razix {
             //-------------------------------
             // Debug Scene Pass
             //-------------------------------
-#if 1
 
             m_FrameGraph.getBlackboard().add<DebugPassData>() = m_FrameGraph.addCallbackPass<DebugPassData>(
                 "Pass.Builtin.Code.DebugDraw",
@@ -1052,7 +1052,6 @@ namespace Razix {
                 [=]() {
                     RZDebugDraw::ShutDown();
                 });
-#endif
 
 #if 0
 

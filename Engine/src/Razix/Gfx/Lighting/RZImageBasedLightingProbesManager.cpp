@@ -95,13 +95,12 @@ namespace Razix {
                 hdrTextureDescriptorDesc,
                 cubeMapRTDescriptorDesc,
             };
-            rz_gfx_descriptor_table_desc envmapTableDesc = {};
-            envmapTableDesc.tableIndex                   = 1;    // Table 0 used for samplers; table 1 for textures/UAVs
-            envmapTableDesc.pHeap                        = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getResourceHeap());
-            envmapTableDesc.descriptorCount              = RAZIX_ARRAY_SIZE(envmapDescriptors);
-            envmapTableDesc.pDescriptors                 = envmapDescriptors;
-            rz_gfx_descriptor_table_handle m_EnvmapDescriptorTable =
-                RZResourceManager::Get().createDescriptorTable("DescriptorTable.EnvmapConversion", envmapTableDesc);
+            rz_gfx_descriptor_table_desc envmapTableDesc           = {};
+            envmapTableDesc.tableIndex                             = 1;    // Table 0 used for samplers; table 1 for textures/UAVs
+            envmapTableDesc.pHeap                                  = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getResourceHeap());
+            envmapTableDesc.descriptorCount                        = RAZIX_ARRAY_SIZE(envmapDescriptors);
+            envmapTableDesc.pDescriptors                           = envmapDescriptors;
+            rz_gfx_descriptor_table_handle m_EnvmapDescriptorTable = RZResourceManager::Get().createDescriptorTable("DescriptorTable.EnvmapConversion", envmapTableDesc);
 
             // HDRTexture SRV (equirectangular HDR)
             rz_gfx_resource_view_desc hdrTextureViewDesc      = {};
@@ -117,9 +116,8 @@ namespace Razix {
             cubeMapRTViewDesc.textureViewDesc.pTexture       = RZResourceManager::Get().getTextureResource(cubeMapHandle);
             cubeMapRTViewDesc.textureViewDesc.baseMip        = 0;
             cubeMapRTViewDesc.textureViewDesc.baseArrayLayer = 0;
-            rz_gfx_resource_view_handle m_CubeMapRTUAVHandle =
-                RZResourceManager::Get().createResourceView("ResView.Envmap.CubeMapRTUAV", cubeMapRTViewDesc);
-            rz_gfx_resource_view envmapViews[2] = {
+            rz_gfx_resource_view_handle m_CubeMapRTUAVHandle = RZResourceManager::Get().createResourceView("ResView.Envmap.CubeMapRTUAV", cubeMapRTViewDesc);
+            rz_gfx_resource_view        envmapViews[2]       = {
                 *RZResourceManager::Get().getResourceViewResource(m_HDRTextureSRVHandle),
                 *RZResourceManager::Get().getResourceViewResource(m_CubeMapRTUAVHandle),
             };
