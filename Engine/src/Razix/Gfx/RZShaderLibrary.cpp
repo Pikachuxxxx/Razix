@@ -6,6 +6,8 @@
 #include "Razix/Core/Containers/string_utils.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
+#include "Razix/Core/RZEngine.h"
+
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
 namespace Razix {
@@ -13,6 +15,9 @@ namespace Razix {
 
         void RZShaderLibrary::StartUp()
         {
+            // Early out if the engine is in test mode, we don't need to load any builtin shaders
+            if (Razix::RZEngine::Get().isEngineInTestMode()) return;
+
             // Instance is automatically created once the system is Started Up
             RAZIX_CORE_INFO("[Shader Library] Starting Up Shader Library to load shaders");
             Razix::RZSplashScreen::Get().setLogString("Starting Shader Library...");
