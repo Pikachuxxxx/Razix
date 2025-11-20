@@ -3187,7 +3187,7 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
     rasterizationSCI.depthBiasEnable                        = VK_FALSE;
     rasterizationSCI.depthBiasSlopeFactor                   = 0;
     rasterizationSCI.depthClampEnable                       = desc->depthClampEnable ? VK_TRUE : VK_FALSE;    // useful for shadow maps
-    rasterizationSCI.frontFace                              = VK_FRONT_FACE_COUNTER_CLOCKWISE;                // Must match DirectX12 coordinate system
+    rasterizationSCI.frontFace                              = VK_FRONT_FACE_CLOCKWISE;                        // Must match DirectX12 coordinate system
     rasterizationSCI.lineWidth                              = 1.0f;
     rasterizationSCI.polygonMode                            = vk_util_translate_polygon_mode(desc->polygonMode);
     rasterizationSCI.rasterizerDiscardEnable                = VK_FALSE;
