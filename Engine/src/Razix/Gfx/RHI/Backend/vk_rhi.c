@@ -2419,9 +2419,9 @@ static void vk_util_transition_subresource(vk_cmdbuf cmdBuf, rz_gfx_texture* tex
                 .subresourceRange    = {
                        .aspectMask     = aspectMask,
                        .baseMipLevel   = mipBase + m,
-                       .levelCount     = 1,
+                       .levelCount     = VK_REMAINING_MIP_LEVELS,
                        .baseArrayLayer = layerBase + l,
-                       .layerCount     = 1,
+                       .layerCount     = VK_REMAINING_ARRAY_LAYERS,
                 },
             };
         }
@@ -3466,7 +3466,7 @@ static void vk_CreateTexture(void* where)
         .samples     = VK_SAMPLE_COUNT_1_BIT,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
 
-    if(desc->textureType == RZ_GFX_TEXTURE_TYPE_CUBE)
+    if (desc->textureType == RZ_GFX_TEXTURE_TYPE_CUBE)
         imageInfo.flags |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
 
     texture->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_UNDEFINED;
