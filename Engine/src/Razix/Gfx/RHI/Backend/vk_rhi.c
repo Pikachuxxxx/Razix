@@ -2419,9 +2419,9 @@ static void vk_util_transition_subresource(vk_cmdbuf cmdBuf, rz_gfx_texture* tex
                 .subresourceRange    = {
                        .aspectMask     = aspectMask,
                        .baseMipLevel   = mipBase + m,
-                       .levelCount     = layerCount,
+                       .levelCount     = 1,
                        .baseArrayLayer = layerBase + l,
-                       .layerCount     = mipCount,
+                       .layerCount     = 1,
                 },
             };
         }
