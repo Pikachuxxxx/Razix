@@ -3442,7 +3442,9 @@ static void vk_CreateTexture(void* where)
     RAZIX_RHI_ASSERT(rz_handle_is_valid(&texture->resource.hot.handle), "Invalid texture handle, who is allocating this? ResourceManager should create a valid handle");
     rz_gfx_texture_desc* desc = &texture->resource.pCold->desc.textureDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Texture descriptor cannot be NULL");
-    RAZIX_RHI_ASSERT(desc->width > 0 && desc->height > 0 && desc->depth > 0, "Texture dimensions must be greater than zero");
+    RAZIX_RHI_ASSERT(desc->width > 0 && desc->height > 0, "Texture dimensions must be greater than zero");
+    RAZIX_RHI_ASSERT(desc->depth > 0 || desc->arraySize > 0, "Texture depth or array size must be greater than zero");
+    RAZIX_RHI_ASSERT(desc->mipLevels > 0, "Texture mip levels must be greater than zero");
 
     // Maintain a second copy of hints...Ahhh...
     texture->resource.hot.viewHints = desc->resourceHints;
