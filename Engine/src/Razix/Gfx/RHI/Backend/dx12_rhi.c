@@ -940,13 +940,13 @@ static D3D12_UNORDERED_ACCESS_VIEW_DESC dx12_create_texture_uav(const rz_gfx_tex
             uavDesc.Texture1DArray.FirstArraySlice = desc->baseArrayLayer;
             uavDesc.Texture1DArray.ArraySize       = textureDesc->depth;
             break;
+        case RZ_GFX_TEXTURE_TYPE_CUBE:
         case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
             uavDesc.ViewDimension                  = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
             uavDesc.Texture2DArray.MipSlice        = desc->baseMip;
             uavDesc.Texture2DArray.FirstArraySlice = desc->baseArrayLayer;
             uavDesc.Texture2DArray.ArraySize       = textureDesc->depth;
             break;
-        case RZ_GFX_TEXTURE_TYPE_CUBE:
         case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
         default:
             RAZIX_RHI_LOG_ERROR("Unsupported texture type for UAV creation: %d", textureDesc->textureType);
