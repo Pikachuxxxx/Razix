@@ -700,7 +700,7 @@ namespace Razix {
             "[RZHashMap] Hash map is not initialized");
 
         size_type idx = find_entry(key);
-        if (idx == m_Capacity)
+        if (idx == m_Capacity || !m_Occupied[idx])
             return end();
 
         return iterator(m_Keys, m_Values, m_Occupied, m_Capacity, idx);
