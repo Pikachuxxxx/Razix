@@ -8,6 +8,7 @@
 #include "Razix/Core/Utils/RZLoadImage.h"
 
 #include "Razix/Gfx/RZGfxUtil.h"
+#include "Razix/Gfx/RZShaderLibrary.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
 #define GLM_FORCE_LEFT_HANDED
@@ -63,13 +64,12 @@ namespace Razix {
             rz_gfx_texture_handle cubeMapHandle    = RZResourceManager::Get().createTexture("Texture.Imported.HDR.EnvCubeMap", cubeMapTextureDesc);
 
             // Create the shader and pipeline
-            rz_gfx_shader_handle envMapShaderHandle = {};    // = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::EquirectangularToCubemap);
-
-            rz_gfx_pipeline_desc pipelineDesc     = {};
-            pipelineDesc.type                     = RZ_GFX_PIPELINE_TYPE_COMPUTE;
-            pipelineDesc.pShader                  = RZResourceManager::Get().getShaderResource(envMapShaderHandle);
-            pipelineDesc.pRootSig                 = RZResourceManager::Get().getRootSignatureResource(pipelineDesc.pShader->rootSignature);
-            rz_gfx_pipeline_handle envMapPipeline = RZResourceManager::Get().createPipeline("Pipeline.EnvMapConversion", pipelineDesc);
+            rz_gfx_shader_handle envMapShaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kEnvToCubemap);
+            rz_gfx_pipeline_desc pipelineDesc       = {};
+            pipelineDesc.type                       = RZ_GFX_PIPELINE_TYPE_COMPUTE;
+            pipelineDesc.pShader                    = RZResourceManager::Get().getShaderResource(envMapShaderHandle);
+            pipelineDesc.pRootSig                   = RZResourceManager::Get().getRootSignatureResource(pipelineDesc.pShader->rootSignature);
+            rz_gfx_pipeline_handle envMapPipeline   = RZResourceManager::Get().createPipeline("Pipeline.EnvMapConversion", pipelineDesc);
 
             auto cmdBuffer = Gfx::BeginSingleTimeCommandBuffer(RAZIX_CMD_MARKER_NAME_COLOR("ConvEquiToCubemap"));
             {
