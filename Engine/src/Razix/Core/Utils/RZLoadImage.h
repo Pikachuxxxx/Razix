@@ -4,5 +4,5 @@
 
 namespace Razix {
     RAZIX_API u8*  LoadImageData(const RZString& filePath, u32* width, u32* height, u32* bpp, bool flipY = true);
-    RAZIX_API f32* LoadImageDataFloat(const RZString& filePath, u32* width, u32* height, u32* bpp);
+    RAZIX_API f32* LoadImageDataFloat(const RZString& filePath, u32* width, u32* height, u32* bpp, bool flipY = true);
 }    // namespace Razix
