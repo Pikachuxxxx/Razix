@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZImageBasedLightingProbesManager.h"
 
+#include "Razix/Core/RZEngine.h"
+
 #include "Razix/Core/Containers/string.h"
 #include "Razix/Core/Markers/RZMarkers.h"
 #include "Razix/Core/Utils/RZLoadImage.h"
@@ -64,22 +66,87 @@ namespace Razix {
             rz_gfx_texture_handle cubeMapHandle    = RZResourceManager::Get().createTexture("Texture.Imported.HDR.EnvCubeMap", cubeMapTextureDesc);
 
             // Create the shader and pipeline
-            rz_gfx_shader_handle envMapShaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kEnvToCubemap);
-            rz_gfx_pipeline_desc pipelineDesc       = {};
-            pipelineDesc.type                       = RZ_GFX_PIPELINE_TYPE_COMPUTE;
-            pipelineDesc.pShader                    = RZResourceManager::Get().getShaderResource(envMapShaderHandle);
-            pipelineDesc.pRootSig                   = RZResourceManager::Get().getRootSignatureResource(pipelineDesc.pShader->rootSignature);
-            rz_gfx_pipeline_handle envMapPipeline   = RZResourceManager::Get().createPipeline("Pipeline.EnvMapConversion", pipelineDesc);
+            rz_gfx_shader_handle         envMapShaderHandle  = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kEnvToCubemap);
+            rz_gfx_root_signature_handle envMapRootSigHandle = RZResourceManager::Get().getShaderResource(envMapShaderHandle)->rootSignature;
+            rz_gfx_pipeline_desc         pipelineDesc        = {};
+            pipelineDesc.type                                = RZ_GFX_PIPELINE_TYPE_COMPUTE;
+            pipelineDesc.pShader                             = RZResourceManager::Get().getShaderResource(envMapShaderHandle);
+            pipelineDesc.pRootSig                            = RZResourceManager::Get().getRootSignatureResource(pipelineDesc.pShader->rootSignature);
+            rz_gfx_pipeline_handle envMapPipeline            = RZResourceManager::Get().createPipeline("Pipeline.EnvMapConversion", pipelineDesc);
+
+            //------------------------------------------------------------------------------
+            // Envmap conversion descriptor + view setup (HDRTexture + CubeMapRT)
+            //------------------------------------------------------------------------------
+            // HDRTexture descriptor (Texture2D, t0, space1)
+            rz_gfx_descriptor hdrTextureDescriptorDesc = {};
+            rz_snprintf(hdrTextureDescriptorDesc.pName, sizeof(hdrTextureDescriptorDesc.pName), "%s", "Descriptor.Envmap.HDRTexture");
+            hdrTextureDescriptorDesc.type             = RZ_GFX_DESCRIPTOR_TYPE_TEXTURE;
+            hdrTextureDescriptorDesc.location.binding = 0;    // t0
+            hdrTextureDescriptorDesc.location.space   = 1;    // space1
+            hdrTextureDescriptorDesc.memberCount      = 1;
+            // CubeMapRT descriptor (RWTexture2DArray<float4>, u1, space1)
+            rz_gfx_descriptor cubeMapRTDescriptorDesc = {};
+            rz_snprintf(cubeMapRTDescriptorDesc.pName, sizeof(cubeMapRTDescriptorDesc.pName), "%s", "Descriptor.Envmap.CubeMapRT");
+            cubeMapRTDescriptorDesc.type             = RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE;    // UAV
+            cubeMapRTDescriptorDesc.location.binding = 1;                                    // u1
+            cubeMapRTDescriptorDesc.location.space   = 1;                                    // space1
+            cubeMapRTDescriptorDesc.memberCount      = 1;
+            rz_gfx_descriptor envmapDescriptors[2]   = {
+                hdrTextureDescriptorDesc,
+                cubeMapRTDescriptorDesc,
+            };
+            rz_gfx_descriptor_table_desc envmapTableDesc = {};
+            envmapTableDesc.tableIndex                   = 1;    // Table 0 used for samplers; table 1 for textures/UAVs
+            envmapTableDesc.pHeap                        = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getResourceHeap());
+            envmapTableDesc.descriptorCount              = RAZIX_ARRAY_SIZE(envmapDescriptors);
+            envmapTableDesc.pDescriptors                 = envmapDescriptors;
+            rz_gfx_descriptor_table_handle m_EnvmapDescriptorTable =
+                RZResourceManager::Get().createDescriptorTable("DescriptorTable.EnvmapConversion", envmapTableDesc);
+
+            // HDRTexture SRV (equirectangular HDR)
+            rz_gfx_resource_view_desc hdrTextureViewDesc      = {};
+            hdrTextureViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_TEXTURE;
+            hdrTextureViewDesc.textureViewDesc.pTexture       = RZResourceManager::Get().getTextureResource(equirectangularMapHandle);
+            hdrTextureViewDesc.textureViewDesc.baseMip        = 0;
+            hdrTextureViewDesc.textureViewDesc.baseArrayLayer = 0;
+            rz_gfx_resource_view_handle m_HDRTextureSRVHandle =
+                RZResourceManager::Get().createResourceView("ResView.Envmap.HDRTextureSRV", hdrTextureViewDesc);
+            // CubeMapRT UAV (cubemap as 2D array)
+            rz_gfx_resource_view_desc cubeMapRTViewDesc      = {};
+            cubeMapRTViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE;
+            cubeMapRTViewDesc.textureViewDesc.pTexture       = RZResourceManager::Get().getTextureResource(cubeMapHandle);
+            cubeMapRTViewDesc.textureViewDesc.baseMip        = 0;
+            cubeMapRTViewDesc.textureViewDesc.baseArrayLayer = 0;
+            rz_gfx_resource_view_handle m_CubeMapRTUAVHandle =
+                RZResourceManager::Get().createResourceView("ResView.Envmap.CubeMapRTUAV", cubeMapRTViewDesc);
+            rz_gfx_resource_view envmapViews[2] = {
+                *RZResourceManager::Get().getResourceViewResource(m_HDRTextureSRVHandle),
+                *RZResourceManager::Get().getResourceViewResource(m_CubeMapRTUAVHandle),
+            };
+            rz_gfx_descriptor_table_update envmapTableUpdate = {};
+            envmapTableUpdate.pTable                         = RZResourceManager::Get().getDescriptorTableResource(m_EnvmapDescriptorTable);
+            envmapTableUpdate.resViewCount                   = RAZIX_ARRAY_SIZE(envmapViews);
+            envmapTableUpdate.pResourceViews                 = envmapViews;
+            rzRHI_UpdateDescriptorTable(envmapTableUpdate);
 
             auto cmdBuffer = Gfx::BeginSingleTimeCommandBuffer(RAZIX_CMD_MARKER_NAME_COLOR("ConvEquiToCubemap"));
             {
                 RAZIX_PROFILE_SCOPE("ConvEquiToCubemap");
                 RAZIX_MARK_BEGIN(cmdBuffer, "ConvEquiToCubemap", GenerateHashedColor4(static_cast<u32>(RZString("ConvEquiToCubemap").hash())));
 
+                rzRHI_BindComputeRootSig(cmdBuffer, envMapRootSigHandle);
                 rzRHI_BindPipeline(cmdBuffer, envMapPipeline);
+                rz_gfx_descriptor_heap_handle heaps[] = {
+                    RZEngine::Get().getWorldRenderer().getSamplerHeap(),
+                    RZEngine::Get().getWorldRenderer().getResourceHeap(),
+                };
+                rzRHI_BindDescriptorHeaps(cmdBuffer, heaps, 2);
 
-                //rzRHI_BindDescriptorHeaps();
-                //rzRHI_BindDescriptorTables(envMapPipeline, cmdBuffer, envMapSet, BindingTable_System::SET_IDX_SYSTEM_START);
+                rz_gfx_descriptor_table_handle tables[2] = {
+                    RZEngine::Get().getWorldRenderer().getGlobalSamplerTable(),
+                    m_EnvmapDescriptorTable,
+                };
+                rzRHI_BindDescriptorTables(cmdBuffer, RZ_GFX_PIPELINE_TYPE_COMPUTE, envMapRootSigHandle, tables, 2);
 
                 rzRHI_Dispatch(cmdBuffer, CUBEMAP_DIM / IBL_DISPATCH_THREAD_GROUP_DIM, CUBEMAP_DIM / IBL_DISPATCH_THREAD_GROUP_DIM, CUBEMAP_LAYERS);
 
@@ -87,25 +154,26 @@ namespace Razix {
 
                 Gfx::EndSingleTimeCommandBuffer(cmdBuffer);
             }
-            RZResourceManager::Get().destroyTexture(equirectangularMapHandle);
 
             //Generate mip maps from first mip face
             //            auto cubeMapTexture = RZResourceManager::Get().getTextureResource(cubeMapHandle);
             //cubeMapTexture->GenerateMipsAndViews();
-            cmdBuffer = Gfx::BeginSingleTimeCommandBuffer(RAZIX_CMD_MARKER_NAME_COLOR("GenCubemapMipMaps"));
-            {
-                RAZIX_PROFILE_SCOPE("GenCubemapMipMaps");
-                RAZIX_MARK_BEGIN(cmdBuffer, "GenCubemapMipMaps", GenerateHashedColor4(static_cast<u32>(RZString("GenCubemapMipMaps").hash())));
+            //cmdBuffer = Gfx::BeginSingleTimeCommandBuffer(RAZIX_CMD_MARKER_NAME_COLOR("GenCubemapMipMaps"));
+            //{
+            //    RAZIX_PROFILE_SCOPE("GenCubemapMipMaps");
+            //    RAZIX_MARK_BEGIN(cmdBuffer, "GenCubemapMipMaps", GenerateHashedColor4(static_cast<u32>(RZString("GenCubemapMipMaps").hash())));
+            //
+            //    rzRHI_GenerateMipmaps(cmdBuffer, cubeMapHandle);
+            //
+            //    RAZIX_MARK_END(cmdBuffer);
+            //
+            //    Gfx::EndSingleTimeCommandBuffer(cmdBuffer);
+            //}
 
-                rzRHI_GenerateMipmaps(cmdBuffer, cubeMapHandle);
-
-                RAZIX_MARK_END(cmdBuffer);
-
-                Gfx::EndSingleTimeCommandBuffer(cmdBuffer);
-            }
-
-            //RZResourceManager::Get().destroyDescriptorTable(envMapSet);
-            //RZResourceManager::Get().destroyDescriptorHeap();
+            RZResourceManager::Get().destroyTexture(equirectangularMapHandle);
+            RZResourceManager::Get().destroyResourceView(m_HDRTextureSRVHandle);
+            RZResourceManager::Get().destroyResourceView(m_CubeMapRTUAVHandle);
+            RZResourceManager::Get().destroyDescriptorTable(m_EnvmapDescriptorTable);
             RZResourceManager::Get().destroyPipeline(envMapPipeline);
 
             return cubeMapHandle;
