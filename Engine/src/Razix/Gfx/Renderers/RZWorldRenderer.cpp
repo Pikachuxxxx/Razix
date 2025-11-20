@@ -400,12 +400,6 @@ namespace Razix {
             // Destroy Frame Graph Transient Resources
             m_FrameGraph.destroy();
 
-            RZResourceManager::Get().destroyResourceView(m_FrameDataCBVHandle);
-            RZResourceManager::Get().destroyDescriptorTable(m_FrameDataTable);
-
-            RZResourceManager::Get().destroyResourceView(m_SceneLightsDataCBVHandle);
-            RZResourceManager::Get().destroyDescriptorTable(m_SceneLightsDataTable);
-
             RZResourceManager::Get().destroyResourceView(m_SamplersViewPool.linearSampler);
             RZResourceManager::Get().destroySampler(m_SamplersPool.linearSampler);
             RZResourceManager::Get().destroyDescriptorTable(m_GlobalSamplerTable);
@@ -555,6 +549,10 @@ namespace Razix {
                     }
                     RAZIX_MARK_END(cmdBufHandle);
                     RAZIX_TIME_STAMP_END();
+                },
+                [=]() {
+                    RZResourceManager::Get().destroyResourceView(m_FrameDataCBVHandle);
+                    RZResourceManager::Get().destroyDescriptorTable(m_FrameDataTable);
                 });
 
             //-----------------------------------------------------------------------------------
@@ -637,6 +635,10 @@ namespace Razix {
 
                     RAZIX_MARK_END(cmdBufHandle);
                     RAZIX_TIME_STAMP_END();
+                },
+                [=]() {
+                    RZResourceManager::Get().destroyResourceView(m_SceneLightsDataCBVHandle);
+                    RZResourceManager::Get().destroyDescriptorTable(m_SceneLightsDataTable);
                 });
 
             //-----------------------------------------------------------------------------------
