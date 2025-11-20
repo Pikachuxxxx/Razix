@@ -39,7 +39,7 @@ namespace Razix {
             u32  width  = 0;
             u32  height = 0;
             u32  bpp    = 0;    // we only support 4 channels for HDR images
-            f32* pixels = LoadImageDataFloat(hdrFilePath, &width, &height, &bpp);
+            f32* pixels = LoadImageDataFloat(hdrFilePath, &width, &height, &bpp, false);
             RAZIX_CORE_ASSERT(pixels != NULL, "[Lighting] Failed to load cubemap data from: {}", hdrFilePath);
 
             rz_gfx_texture_desc equiMapTextureDesc         = {};
