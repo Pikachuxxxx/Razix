@@ -518,3 +518,5 @@ static constexpr float operator""_inKib(unsigned long long int x)
  *                                                  Misc                                            * 
  ****************************************************************************************************/
 #define RAZIX_MSG_BUFFER_SIZE 256
+
+#define RAZIX_ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
