@@ -457,6 +457,7 @@ namespace Razix {
             submitDesc.cmdCount           = 1;
             submitDesc.pCmdBufs           = RZResourceManager::Get().getCommandBufferResource(cmdBuf);
             submitDesc.pFrameSyncobj      = &flushSyncobj;    // Signal when the GPU is done for CPU to wait on it
+            rzRHI_WaitOnPrevCmds(&flushSyncobj);
             rzRHI_SubmitCmdBuf(submitDesc);
             // Wait for work to be done!
             rzRHI_FlushGPUWork(&flushSyncobj);
