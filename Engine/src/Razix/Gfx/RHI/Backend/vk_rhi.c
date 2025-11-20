@@ -1229,12 +1229,12 @@ static VkImageType vk_util_translate_texture_type_image_type(rz_gfx_texture_type
         case RZ_GFX_TEXTURE_TYPE_1D_ARRAY:
         case RZ_GFX_TEXTURE_TYPE_1D:
             return VK_IMAGE_TYPE_1D;
+        case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
+        case RZ_GFX_TEXTURE_TYPE_CUBE:
         case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
         case RZ_GFX_TEXTURE_TYPE_2D:
             return VK_IMAGE_TYPE_2D;
         case RZ_GFX_TEXTURE_TYPE_3D:
-        case RZ_GFX_TEXTURE_TYPE_CUBE:
-        case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
             return VK_IMAGE_TYPE_3D;
         case RZ_GFX_TEXTURE_TYPE_UNDEFINED:
         default:
@@ -3455,7 +3455,7 @@ static void vk_CreateTexture(void* where)
         .extent    = {
                .width  = desc->width,
                .height = desc->height,
-               .depth  = desc->depth},
+               .depth  = (desc->textureType == RZ_GFX_TEXTURE_TYPE_CUBE) ? 1 : desc->depth},
         .mipLevels     = desc->mipLevels,
         .arrayLayers   = (desc->textureType == RZ_GFX_TEXTURE_TYPE_CUBE) ? 6 : desc->depth,
         .format        = vk_util_translate_format(desc->format),
@@ -3465,6 +3465,9 @@ static void vk_CreateTexture(void* where)
         .usage       = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
         .samples     = VK_SAMPLE_COUNT_1_BIT,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
+
+    if(desc->textureType == RZ_GFX_TEXTURE_TYPE_CUBE)
+        imageInfo.flags |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
 
     texture->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_UNDEFINED;
 
