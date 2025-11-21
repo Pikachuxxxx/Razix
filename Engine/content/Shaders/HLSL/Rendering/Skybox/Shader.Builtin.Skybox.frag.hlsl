@@ -13,12 +13,12 @@ struct PsIn
 };
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-TextureCube<float4> EnvironmentMap  : register(t0, space0);
-SamplerState        HDRSampler      : register(s0, space1);
+SamplerState        g_Sampler       : register(s0, space1);
+TextureCube<float4> EnvironmentMap  : register(t0, space2);
 //------------------------------------------------------------------------------
 float4 PS_MAIN(PsIn input)
     : SV_TARGET
 {
-    return EnvironmentMap.Sample(HDRSampler, input.PixelLocalPosTime.xyz);
+    return EnvironmentMap.Sample(g_Sampler, input.PixelLocalPosTime.xyz);
 }
 //------------------------------------------------------------------------------

@@ -92,21 +92,22 @@ namespace Razix {
         {
             CreateSkyboxGeometry(m_VertexBuffer, m_IndexBuffer);
 
-            auto skyboxShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kSkybox);
+            m_SkyboxShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kSkybox);
             // Optional procedural shader path remains unchanged
             // auto proceduralSkyboxShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kProceduralSkybox);
 
             rz_gfx_pipeline_desc pipelineDesc   = {};
-            pipelineDesc.pShader                = RZResourceManager::Get().getShaderResource(skyboxShader);
+            pipelineDesc.pShader                = RZResourceManager::Get().getShaderResource(m_SkyboxShader);
             m_SkyboxRootSigHandle               = pipelineDesc.pShader->rootSignature;
             pipelineDesc.pRootSig               = RZResourceManager::Get().getRootSignatureResource(m_SkyboxRootSigHandle);
             pipelineDesc.type                   = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
-            pipelineDesc.cullMode               = RZ_GFX_CULL_MODE_TYPE_BACK;
-            pipelineDesc.depthTestEnabled       = true;
+            pipelineDesc.cullMode               = RZ_GFX_CULL_MODE_TYPE_NONE;
+            pipelineDesc.polygonMode            = RZ_GFX_POLYGON_MODE_TYPE_SOLID;
+            pipelineDesc.depthTestEnabled       = false;    // TODO: Disable until scene rendering is done, we have no depth at all to test against yet!
             pipelineDesc.depthWriteEnabled      = false;    // Skybox usually doesn't write to depth
             pipelineDesc.depthCompareOp         = RZ_GFX_COMPARE_OP_TYPE_LESS_OR_EQUAL;
             pipelineDesc.drawType               = RZ_GFX_DRAW_TYPE_TRIANGLE;
-            pipelineDesc.blendEnabled           = true;
+            pipelineDesc.blendEnabled           = false;    // Disable blending for skybox
             pipelineDesc.renderTargetCount      = 1;
             pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_R16G16B16A16_FLOAT;
             pipelineDesc.depthStencilFormat     = RZ_GFX_FORMAT_D16_UNORM;
@@ -115,6 +116,9 @@ namespace Razix {
 
             auto& frameDataBlock  = framegraph.getBlackboard().get<FrameData>();
             auto& lightProbesData = framegraph.getBlackboard().get<GlobalLightProbeData>();
+
+            // Register the bind map for the skybox shader in RZResourceManager
+            RZShaderBindMap::RegisterBindMap(m_SkyboxShader);
 
             framegraph.getBlackboard().add<SceneData>() = framegraph.addCallbackPass<SceneData>(
                 "Pass.Builtin.Code.Skybox",
@@ -185,13 +189,18 @@ namespace Razix {
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
                     RAZIX_MARK_BEGIN(cmdBuffer, "Skybox pass", float4(0.33f, 0.45f, 1.0f, 1.0f));
 
+                    rzRHI_InsertImageBarrier(cmdBuffer, resources.get<RZFrameGraphTexture>(data.HDR).getRHIHandle(), RZ_GFX_RESOURCE_STATE_SHADER_READ, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);
+
                     rz_gfx_renderpass info                 = {};
                     info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;
                     info.colorAttachmentsCount             = 1;
                     info.colorAttachments[0].pResourceView = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.HDR));
                     info.colorAttachments[0].clear         = true;
+                    info.colorAttachments[0].clearColor    = RAZIX_GFX_COLOR_RGBA_BLACK;
                     info.depthAttachment.pResourceView     = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.depth));
-                    info.layers                            = 6;    // !!!IMPORTANT: Cubemaps have 6 layers!!!
+                    info.depthAttachment.clear             = false;
+                    info.depthAttachment.clearColor        = {1.0f, 0.0f, 0.0f, 0.0f};
+                    info.layers                            = 1;
                     RAZIX_X(info.extents)                  = RZApplication::Get().getWindow()->getWidth();
                     RAZIX_Y(info.extents)                  = RZApplication::Get().getWindow()->getHeight();
 
@@ -210,7 +219,10 @@ namespace Razix {
                     if (RZFrameGraph::IsFirstFrame()) {
                         RZResourceManager::Get()
                             .getShaderBindMapRef(RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kSkybox))
+                            .setDescriptorTable(RZEngine::Get().getWorldRenderer().getFrameDataTable())
                             .setDescriptorTable(RZEngine::Get().getWorldRenderer().getGlobalSamplerTable())
+                            .setDescriptorBlacklist(s_SystemDescriptorsBlacklistPreset)
+                            .setDescriptorBlacklist(s_GlobalSamplersBlacklistPreset)
                             .setResourceView("EnvironmentMap", resources.getResourceViewHandle<RZFrameGraphTexture>(lightProbesData.environmentMap))
                             .validate()
                             .build();
@@ -230,20 +242,19 @@ namespace Razix {
 
                     rzRHI_EndRenderPass(cmdBuffer);
 
+                    rzRHI_InsertImageBarrier(cmdBuffer, resources.get<RZFrameGraphTexture>(data.HDR).getRHIHandle(), RZ_GFX_RESOURCE_STATE_RENDER_TARGET, RZ_GFX_RESOURCE_STATE_SHADER_READ);
+
                     RAZIX_MARK_END(cmdBuffer);
                     RAZIX_TIME_STAMP_END();
+                },
+                [=]() {
+                    RZResourceManager::Get()
+                        .getShaderBindMapRef(m_SkyboxShader)
+                        .destroy();    // This will destroy all the descriptor tables created/owned by this bind map
+                    RZResourceManager::Get().destroyPipeline(m_SkyboxPipeline);
+                    RZResourceManager::Get().destroyBuffer(m_VertexBuffer);
+                    RZResourceManager::Get().destroyBuffer(m_IndexBuffer);
                 });
         }
-
-        void RZSkyboxPass::destroy()
-        {
-            RZResourceManager::Get()
-                .getShaderBindMapRef(m_SkyboxShader)
-                .destroy();    // This will destroy all the descriptor tables created/owned by this bind map
-            RZResourceManager::Get().destroyPipeline(m_SkyboxPipeline);
-            RZResourceManager::Get().destroyBuffer(m_VertexBuffer);
-            RZResourceManager::Get().destroyBuffer(m_IndexBuffer);
-        }
-
     }    // namespace Gfx
 }    // namespace Razix

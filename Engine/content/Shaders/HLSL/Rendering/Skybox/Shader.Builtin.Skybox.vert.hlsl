@@ -23,7 +23,7 @@ VSOut VS_MAIN(VSIn vsIn)
 {
     VSOut vs_out;
     vs_out.PixelLocalPosTime.xyz = vsIn.Position;
-    //    vs_out.PixelLocalPosTime.y = -vs_out.PixelLocalPosTime.y;
+    //vs_out.PixelLocalPosTime.y = -vs_out.PixelLocalPosTime.y;
     vs_out.PixelLocalPosTime.w = frame_info.time;
 
     float4x4 rotView = frame_info.camera.view;
