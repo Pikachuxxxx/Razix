@@ -3231,24 +3231,22 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
         blendAttachStates[i].colorWriteMask = 0x0F;    // Write to all RGBA channels
         blendAttachStates[i].colorBlendOp   = vk_util_blend_op(desc->colorBlendOp);
         blendAttachStates[i].alphaBlendOp   = vk_util_blend_op(desc->alphaBlendOp);
+        blendAttachStates[i].blendEnable    = desc->blendEnabled;
 
         // Use preset if available or custom blending factors
         if (desc->blendPreset) {
             blendAttachStates[i] = vk_util_blend_preset(desc->blendPreset);
         } else {
             if (desc->transparencyEnabled) {
-                blendAttachStates[i].blendEnable         = VK_TRUE;
                 blendAttachStates[i].srcColorBlendFactor = vk_util_blend_factor(desc->srcColorBlendFactor);
                 blendAttachStates[i].dstColorBlendFactor = vk_util_blend_factor(desc->dstColorBlendFactor);
                 blendAttachStates[i].srcAlphaBlendFactor = vk_util_blend_factor(desc->srcAlphaBlendFactor);
                 blendAttachStates[i].dstAlphaBlendFactor = vk_util_blend_factor(desc->dstAlphaBlendFactor);
             } else {
-                blendAttachStates[i].blendEnable = VK_FALSE;
+                blendAttachStates[i].blendEnable = false;
                 // These values are ignored if blendEnable is VK_FALSE, but we set them anyway
-                blendAttachStates[i].srcColorBlendFactor = vk_util_blend_factor(desc->srcColorBlendFactor);
-                blendAttachStates[i].dstColorBlendFactor = vk_util_blend_factor(desc->dstColorBlendFactor);
-                blendAttachStates[i].srcAlphaBlendFactor = vk_util_blend_factor(desc->srcAlphaBlendFactor);
-                blendAttachStates[i].dstAlphaBlendFactor = vk_util_blend_factor(desc->dstAlphaBlendFactor);
+                // set to default additive blend setting instead of invalid when transparency is disabled
+                blendAttachStates[i] = vk_util_blend_preset(RZ_GFX_BLEND_PRESET_ADDITIVE);
             }
         }
     }
