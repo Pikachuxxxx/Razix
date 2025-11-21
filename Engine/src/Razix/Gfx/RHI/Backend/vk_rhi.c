@@ -2,12 +2,33 @@
 
 #include "Razix/Gfx/RHI/RHI.h"
 
+#if defined(RAZIX_PLATFORM_MACOS)
+// Select macOS Vulkan driver backend here
+    #define RAZIX_MACOS_MOLTENVK
+    // Experimental driver backend, build your own mesa 26.0.0 for the latest kosmickrisp drivers! until then it's disabled
+    #define RAZIX_MACOS_KOSMICKRISP_DRIVER
+// https://www.lunarg.com/a-vulkan-on-metal-mesa-3d-graphics-driver/
+// https://gitlab.freedesktop.org/mesa/mesa/-/issues/11990
+// https://www.lunarg.com/wp-content/uploads/2025/10/XDC-2025-KosmicKrisp-Overview.pdf
+// mesa 26.0.0-devel has vulkan 1.3 conformant kosmickrisp driver and Raizx Gfx tests all pass
+// build using meson setup build \
+        // -Dvulkan-drivers=kosmickrisp \
+        // -Dgallium-drivers= \
+        // -Dplatforms=macos \
+        // -Dglx=disabled \
+        // -Degl=disabled \
+        // -Dllvm=enabled \
+        // --strip \
+        // --buildtype=release
+// use export VK_ICD_FILENAMES to load the kosmickrisp_mesa_devenv_icd.aarch64.json and load the libvulkan_kosmickrisp.dylib
+// instead of libvulkan_moltenvk.dylib, this is still experimental but works fine, enable the RAZIX_MACOS_KOSMICKRISP_DRIVER
+// when you have a working setup of kosmickrisp build, until it's released in mesa/lunarg upcoming vulkan SDK we will stick to MVK for stability
+// As for installing the kosmickrisp driver I will provide instructions in readme and we will use it as experimental, however I will keep testing
+// and developing it locally and try to fix the driver in mesa if any issues arise.
+#endif    // RAZIX_PLATFORM_MACOS
+
 #define VOLK_IMPLEMENTATION
 #include <volk.h>
-
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
 
 #ifdef RAZIX_PLATFORM_LINUX
     #include <alloca.h>    // for alloca
