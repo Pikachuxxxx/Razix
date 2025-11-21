@@ -16,20 +16,25 @@ namespace Razix {
         typedef i32 RZFrameGraphResource;
 
 #if INTPTR_MAX == INT64_MAX
-        constexpr uintptr_t kFGResViewResInvalidTag  = 0x0000'DEAD'BEEF'BAADull;
-        constexpr uintptr_t kFGResViewResAutoFillTag = 0x0000'F111'FEED'BEEFull;
+        constexpr uintptr_t kFGResViewResInvalidTag       = 0x0000'DEAD'BEEF'BAADull;
+        constexpr uintptr_t kFGResViewResAutoFillTag      = 0x0000'F111'FEED'BEEFull;
+        constexpr uintptr_t kFGResViewResIgnoreResViewTag = 0x0000'FEE1'BAAD'BEEFull;
+        ;
 #elif INTPTR_MAX == INT32_MAX
-        constexpr uintptr_t kFGResViewResInvalidTag  = 0xDEAD'BEEFu;
-        constexpr uintptr_t kFGResViewResAutoFillTag = 0xF111'FEEDu;
+        constexpr uintptr_t kFGResViewResInvalidTag       = 0xDEAD'BEEFu;
+        constexpr uintptr_t kFGResViewResAutoFillTag      = 0xF111'FEEDu;
+        constexpr uintptr_t kFGResViewResIgnoreResViewTag = 0xBAAD'BEEFu;
 #else
     #error "Unsupported pointer size"
 #endif
 
         inline const rz_gfx_texture* RZ_FG_TEX_RES_INVALID       = reinterpret_cast<const rz_gfx_texture*>(kFGResViewResInvalidTag);
         inline const rz_gfx_texture* RZ_FG_TEX_RES_AUTO_POPULATE = reinterpret_cast<const rz_gfx_texture*>(kFGResViewResAutoFillTag);
+        inline const rz_gfx_texture* RZ_FG_TEX_RES_VIEW_IGNORE   = reinterpret_cast<const rz_gfx_texture*>(kFGResViewResIgnoreResViewTag);
 
         inline const rz_gfx_buffer* RZ_FG_BUF_RES_INVALID       = reinterpret_cast<const rz_gfx_buffer*>(kFGResViewResInvalidTag);
         inline const rz_gfx_buffer* RZ_FG_BUF_RES_AUTO_POPULATE = reinterpret_cast<const rz_gfx_buffer*>(kFGResViewResAutoFillTag);
+        inline const rz_gfx_buffer* RZ_FG_BUF_RES_VIEW_IGNORE   = reinterpret_cast<const rz_gfx_buffer*>(kFGResViewResIgnoreResViewTag);
 
         template<typename T>
         inline bool fg_is_tagged(const T* p, uintptr_t tag)
@@ -70,7 +75,11 @@ namespace Razix {
             rz_gfx_resource_view_desc   resViewDesc   = {};
             rz_gfx_resource_view_handle resViewHandle = {};
 
-            RZFrameGraphResourceAcessView() = default;
+            RZFrameGraphResourceAcessView()
+            {
+                // By default set invalid resources, pBuffer is enough to early exit
+                resViewDesc.bufferViewDesc.pBuffer = RZ_FG_BUF_RES_INVALID;
+            }
 
             RZFrameGraphResourceAcessView(RZFrameGraphResource _id, rz_gfx_resource_view_desc viewDesc)
                 : id(_id), resViewDesc(viewDesc)

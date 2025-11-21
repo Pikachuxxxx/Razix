@@ -74,9 +74,9 @@ namespace Razix {
              * FIXME: But this also means extra tracking of rz_gfx_resource_view_desc for deferred creation after the actual resource is created, waste of memory!
              */
 
-            RZDynamicArray<RZFrameGraphResource>                           m_Creates;
-            RZHashMap<RZFrameGraphResource, RZFrameGraphResourceAcessView> m_Reads;
-            RZHashMap<RZFrameGraphResource, RZFrameGraphResourceAcessView> m_Writes;
+            RZDynamicArray<RZFrameGraphResource>                           m_Creates           = {};
+            RZHashMap<RZFrameGraphResource, RZFrameGraphResourceAcessView> m_Reads             = {};
+            RZHashMap<RZFrameGraphResource, RZFrameGraphResourceAcessView> m_Writes            = {};
             bool                                                           m_IsStandAlone      = false;
             bool                                                           m_IsDataDriven      = false;
             Department                                                     m_Department        = Department::NONE;

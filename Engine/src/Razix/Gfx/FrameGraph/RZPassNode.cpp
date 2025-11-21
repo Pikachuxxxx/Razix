@@ -73,6 +73,11 @@ namespace Razix {
             RAZIX_CORE_ASSERT(rz_handle_is_valid(&resHandle), "Invalid resource Handle passed!");
             if (!rz_handle_is_valid(&resHandle)) return;
 
+            if (accessView.resViewDesc.bufferViewDesc.pBuffer == RZ_FG_BUF_RES_VIEW_IGNORE ||
+                accessView.resViewDesc.textureViewDesc.pTexture == RZ_FG_TEX_RES_VIEW_IGNORE) {
+                return;
+            }
+
             if (!rz_handle_is_valid(&accessView.resViewHandle)) {
                 RZString resViewName;
                 if (rzRHI_IsDescriptorTypeBuffer(accessView.resViewDesc.descriptorType)) {
@@ -99,7 +104,6 @@ namespace Razix {
                 // Now that we have filled the pResource create the resource view
                 accessView.resViewHandle = RZResourceManager::Get().createResourceView(resViewName.c_str(), accessView.resViewDesc);
                 RAZIX_CORE_ASSERT(rz_handle_is_valid(&accessView.resViewHandle), "Failed to create resource view for FrameGraph resource!");
-                RAZIX_CORE_TRACE("PassNode [{0}] Resource View Created: Name = {1}, ID = {2}, Handle = {3}", m_Name, resViewName.c_str(), id, accessView.resViewHandle.index);
             }
         }
 
