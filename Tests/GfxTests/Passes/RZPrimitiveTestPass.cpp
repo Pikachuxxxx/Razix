@@ -147,7 +147,7 @@ namespace Razix {
             pipelineDesc.pRootSig               = RZResourceManager::Get().getRootSignatureResource(pipelineDesc.pShader->rootSignature);
             pipelineDesc.depthTestEnabled       = true;
             pipelineDesc.depthWriteEnabled      = true;
-            pipelineDesc.cullMode               = RZ_GFX_CULL_MODE_TYPE_BACK;
+            pipelineDesc.cullMode               = RZ_GFX_CULL_MODE_TYPE_NONE;
             pipelineDesc.drawType               = RZ_GFX_DRAW_TYPE_TRIANGLE;
             pipelineDesc.blendEnabled           = false;
             pipelineDesc.useBlendPreset         = true;
