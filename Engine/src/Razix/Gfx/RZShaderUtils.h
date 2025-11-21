@@ -59,6 +59,7 @@ namespace Razix {
             RZString                 name;
             RZDynamicArray<RZString> blacklistNames;
         };
+        static const DescriptorBlacklist s_GlobalSamplersBlacklistPreset       = {"Samplers", {"g_Sampler"}};
         static const DescriptorBlacklist s_SystemDescriptorsBlacklistPreset    = {"SystemDescriptors (FrameData/SceneLightsData)", {"FrameData", "SceneLightsData"}};
         static const DescriptorBlacklist s_MaterialsDescriptorsBlacklistPreset = {"MaterialDescriptors", {"Material", "albedoMap", "normalMap", "metallicMap", "roughnessMap", "specularMap", "emissiveMap", "aoMap"}};
 

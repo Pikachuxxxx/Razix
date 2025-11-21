@@ -940,6 +940,7 @@ namespace Razix {
                             }
                             if (!blacklisted) {
                                 RAZIX_CORE_ERROR("[ShaderBindMap] Missing descriptor {0} idx {1} in table index {2}!", desc->pName, d, t);
+                                RAZIX_CORE_WARN("[ShaderBindMap] Maybe you want to blacklist these descriptors,  if you're binding your own tables don't forget to \n blacklist them so that the ShaderBindMap will not manage them.", desc->pName, d, t);
                                 validated   = false;
                                 m_LastError = BIND_MAP_VALIDATION_DESCRIPTOR_MISMATCH;
                                 return *this;
