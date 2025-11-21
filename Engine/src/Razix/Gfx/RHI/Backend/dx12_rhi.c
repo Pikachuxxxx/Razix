@@ -1316,12 +1316,15 @@ static D3D12_RESOURCE_DIMENSION dx12_util_translate_texture_dimension(rz_gfx_tex
 {
     switch (type) {
         case RZ_GFX_TEXTURE_TYPE_1D:
+        case RZ_GFX_TEXTURE_TYPE_1D_ARRAY:
             return D3D12_RESOURCE_DIMENSION_TEXTURE1D;
         case RZ_GFX_TEXTURE_TYPE_2D:
+        case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
             return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
         case RZ_GFX_TEXTURE_TYPE_3D:
             return D3D12_RESOURCE_DIMENSION_TEXTURE3D;
         case RZ_GFX_TEXTURE_TYPE_CUBE:
+        case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
             return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
         default:
             RAZIX_RHI_LOG_ERROR("Unsupported texture type for dimension translation: %d", type);
