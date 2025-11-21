@@ -679,7 +679,7 @@ namespace Razix {
             // Skybox Pass
             //-------------------------------
             m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
-            //auto sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
+            auto sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
             // ImGui Pass
@@ -693,6 +693,27 @@ namespace Razix {
                         .setDepartment(Department::UI);
 
                     // TODO: Render to offscreen RT and then blit to swapchain image
+                    rz_gfx_resource_view_desc sceneHDRViewDesc      = {};
+                    sceneHDRViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE;
+                    sceneHDRViewDesc.textureViewDesc.pTexture       = RZ_FG_TEX_RES_AUTO_POPULATE;
+                    sceneHDRViewDesc.textureViewDesc.baseMip        = 0;
+                    sceneHDRViewDesc.textureViewDesc.baseArrayLayer = 0;
+                    sceneHDRViewDesc.textureViewDesc.dimension      = 1;
+                    sceneHDRViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getRenderTargetHeap());
+                    builder.read(sceneData.HDR, sceneHDRViewDesc);
+
+                    rz_gfx_resource_view_desc depthTexViewDesc      = {};
+                    depthTexViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE;
+                    depthTexViewDesc.textureViewDesc.pTexture       = RZ_FG_TEX_RES_AUTO_POPULATE;
+                    depthTexViewDesc.textureViewDesc.baseMip        = 0;
+                    depthTexViewDesc.textureViewDesc.baseArrayLayer = 0;
+                    depthTexViewDesc.textureViewDesc.dimension      = 1;
+                    depthTexViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getDepthRenderTargetHeap());
+ 
+                    builder.read(sceneData.depth, depthTexViewDesc);
+                    // For the sake of completion
+                    data.imguiRT    = sceneData.HDR;
+                    data.imguiDepth = sceneData.depth;
 
                     // Setup context
                     IMGUI_CHECKVERSION();
@@ -859,13 +880,15 @@ namespace Razix {
                     rz_gfx_renderpass info                 = {};
                     info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;
                     info.colorAttachmentsCount             = 1;
-                    info.colorAttachments[0].pResourceView = getCurrSwapchainBackbufferResViewPtr();
+                    info.colorAttachments[0].pResourceView = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.imguiRT));
                     info.colorAttachments[0].clear         = true;
-                    float4 clearColor                      = GenerateHashedColor4(123);
-                    memcpy(&info.colorAttachments[0].clearColor.raw, &clearColor, sizeof(float4));
-                    info.layers           = 1;
-                    RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
-                    RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
+                    info.colorAttachments[0].clearColor    = RAZIX_GFX_COLOR_RGBA_BLACK;
+                    //info.depthAttachment.pResourceView     = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.imguiDepth));
+                    //info.depthAttachment.clear             = false;
+                    //info.depthAttachment.clearColor        = {1.0f, 0.0f, 0.0f, 0.0f};
+                    info.layers                            = 1;
+                    RAZIX_X(info.extents)                  = RZApplication::Get().getWindow()->getWidth();
+                    RAZIX_Y(info.extents)                  = RZApplication::Get().getWindow()->getHeight();
 
                     rzRHI_BeginRenderPass(cmdBuffer, &info);
                     rzRHI_BindGfxRootSig(cmdBuffer, m_ImGuiRootSigHandle);
@@ -955,6 +978,29 @@ namespace Razix {
 
                     builder.read(frameDataBlock.frameData);
 
+                    rz_gfx_resource_view_desc sceneHDRViewDesc      = {};
+                    sceneHDRViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE;
+                    sceneHDRViewDesc.textureViewDesc.pTexture       = RZ_FG_TEX_RES_AUTO_POPULATE;
+                    sceneHDRViewDesc.textureViewDesc.baseMip        = 0;
+                    sceneHDRViewDesc.textureViewDesc.baseArrayLayer = 0;
+                    sceneHDRViewDesc.textureViewDesc.dimension      = 1;
+                    sceneHDRViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getRenderTargetHeap());
+                    builder.read(sceneData.HDR, sceneHDRViewDesc);
+
+                    rz_gfx_resource_view_desc depthTexViewDesc      = {};
+                    depthTexViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE;
+                    depthTexViewDesc.textureViewDesc.pTexture       = RZ_FG_TEX_RES_AUTO_POPULATE;
+                    depthTexViewDesc.textureViewDesc.baseMip        = 0;
+                    depthTexViewDesc.textureViewDesc.baseArrayLayer = 0;
+                    depthTexViewDesc.textureViewDesc.dimension      = 1;
+                    depthTexViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getDepthRenderTargetHeap());
+ 
+                    builder.read(sceneData.depth, depthTexViewDesc);
+                    // For the sake of completion
+                    data.DebugRT    = sceneData.HDR;
+                    data.DebugDRT   = sceneData.depth;
+
+
                     //sceneData.SceneHDR = builder.write(sceneData.SceneHDR);
                     //data.DebugRT       = sceneData.SceneHDR;
 
@@ -1030,11 +1076,14 @@ namespace Razix {
                     rz_gfx_renderpass info                 = {};
                     info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;
                     info.colorAttachmentsCount             = 1;
-                    info.colorAttachments[0].pResourceView = getCurrSwapchainBackbufferResViewPtr();
+                    info.colorAttachments[0].pResourceView = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.DebugRT));
                     info.colorAttachments[0].clear         = true;
-                    float4 clearColor                      = GenerateHashedColor4(123);
-                    memcpy(&info.colorAttachments[0].clearColor.raw, &clearColor, sizeof(float4));
-                    info.layers           = 1;
+                    info.colorAttachments[0].clearColor    = RAZIX_GFX_COLOR_RGBA_BLACK;
+                    info.depthAttachment.pResourceView     = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.DebugDRT));
+                    info.depthAttachment.clear             = false;
+                    info.depthAttachment.clearColor        = {1.0f, 0.0f, 0.0f, 0.0f};
+                    info.layers                            = 1;
+         
                     RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
                     RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
 
