@@ -1117,6 +1117,7 @@ namespace Razix {
             struct CompositionPassData
             {
                 RZFrameGraphResource sceneColor;
+                RZFrameGraphResource sceneDepth;
             };
 
             m_FrameGraph.addCallbackPass<CompositionPassData>(
@@ -1149,15 +1150,16 @@ namespace Razix {
 
 #if __APPLE__
                     // keep the platform-specific dummy depth texture creation but use C-style desc if needed
-                    rz_gfx_texture_desc depthTextureDesc            = {};
-                    depthTextureDesc.width                          = RZApplication::Get().getWindow()->getWidth();
-                    depthTextureDesc.height                         = RZApplication::Get().getWindow()->getHeight();
-                    depthTextureDesc.depth                          = 1;
-                    depthTextureDesc.format                         = RZ_GFX_FORMAT_D16_UNORM;
-                    depthTextureDesc.textureType                    = RZ_GFX_TEXTURE_TYPE_2D;
-                    depthTextureDesc.mipLevels                      = 1;
-                    depthTextureDesc.resourceHints                  = RZ_GFX_RESOURCE_VIEW_FLAG_DSV;
-                    data.depth                                      = builder.create<RZFrameGraphTexture>("FG.Tex.SceneDepth", CAST_TO_FG_TEX_DESC depthTextureDesc);
+                    rz_gfx_texture_desc depthTextureDesc = {};
+                    depthTextureDesc.width               = RZApplication::Get().getWindow()->getWidth();
+                    depthTextureDesc.height              = RZApplication::Get().getWindow()->getHeight();
+                    depthTextureDesc.depth               = 1;
+                    depthTextureDesc.format              = RZ_GFX_FORMAT_D16_UNORM;
+                    depthTextureDesc.textureType         = RZ_GFX_TEXTURE_TYPE_2D;
+                    depthTextureDesc.mipLevels           = 1;
+                    depthTextureDesc.resourceHints       = RZ_GFX_RESOURCE_VIEW_FLAG_DSV;
+                    data.sceneDepth                      = builder.create<RZFrameGraphTexture>("FG.Tex.SceneDepth", CAST_TO_FG_TEX_DESC depthTextureDesc);
+
                     rz_gfx_resource_view_desc depthTexViewDesc      = {};
                     depthTexViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE;
                     depthTexViewDesc.textureViewDesc.pTexture       = RZ_FG_TEX_RES_AUTO_POPULATE;
@@ -1165,7 +1167,7 @@ namespace Razix {
                     depthTexViewDesc.textureViewDesc.baseArrayLayer = 0;
                     depthTexViewDesc.textureViewDesc.dimension      = 1;
                     depthTexViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getDepthRenderTargetHeap());
-                    data.depth                                      = builder.write(data.depth, depthTexViewDesc);
+                    data.sceneDepth                                 = builder.write(data.sceneDepth, depthTexViewDesc);
 #endif
 
                     rz_gfx_resource_view_desc sceneLDRViewDesc      = {};
@@ -1197,11 +1199,11 @@ namespace Razix {
                     info.colorAttachmentsCount             = 1;
                     info.colorAttachments[0].pResourceView = getCurrSwapchainBackbufferResViewPtr();
                     info.colorAttachments[0].clear         = false;
-#if __APPLE__
-                    info.depthAttachment.pResourceView =
-                        RZResourceManager::Get().getResourceViewResource(m_AppleNeedsADepthTexture->getDefaultView());
-                    info.depthAttachment.clear = true;
-#endif
+// #if __APPLE__
+//                     info.depthAttachment.pResourceView =
+//                         RZResourceManager::Get().getResourceViewResource(m_AppleNeedsADepthTextureHandle->getDefaultView());
+//                     info.depthAttachment.clear = true;
+// #endif
                     info.layers           = 1;
                     RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
                     RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
@@ -1247,8 +1249,8 @@ namespace Razix {
                         .destroy();
                     RZResourceManager::Get().destroyPipeline(m_CompositionPassPipeline);
 #if __APPLE__
-                    if (m_AppleNeedsADepthTexture) {
-                        RZResourceManager::Get().destroyTexture(m_AppleNeedsADepthTexture);
+                    if (rz_handle_is_valid(&m_AppleNeedsADepthTextureHandle)) {
+                        RZResourceManager::Get().destroyTexture(m_AppleNeedsADepthTextureHandle);
                     }
 #endif
                 });
