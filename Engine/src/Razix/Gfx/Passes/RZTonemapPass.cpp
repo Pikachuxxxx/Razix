@@ -157,6 +157,9 @@ namespace Razix {
                     RAZIX_TIME_STAMP_END();
                 },
                 [=]() {
+                    RZResourceManager::Get()
+                        .getShaderBindMapRef(RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kTonemap))
+                        .destroy();
                     RZResourceManager::Get().destroyPipeline(m_Pipeline);
                 });
         }
