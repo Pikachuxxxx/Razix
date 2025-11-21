@@ -4282,6 +4282,7 @@ static void vk_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderp
 
     for (uint32_t i = 0; i < colorAttachmentCount; ++i) {
         const rz_gfx_attachment* att    = &renderPass->colorAttachments[i];
+        RAZIX_RHI_ASSERT(att->pResourceView != NULL, "Color attachment resource view cannot be NULL in render pass");
         colorAttachments[i].sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
         colorAttachments[i].imageView   = att->pResourceView->vk.imageView;
         colorAttachments[i].imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;    // TODO: Double check if this is correct
@@ -4294,6 +4295,7 @@ static void vk_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderp
     bool                      hasDepth        = (renderPass->depthAttachment.pResourceView != NULL);
     if (hasDepth) {
         const rz_gfx_attachment* att                    = &renderPass->depthAttachment;
+        RAZIX_RHI_ASSERT(att->pResourceView != NULL, "Depth attachment resource view cannot be NULL in render pass");
         depthAttachment.sType                           = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
         depthAttachment.imageView                       = att->pResourceView->vk.imageView;
         depthAttachment.imageLayout                     = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;    // TODO: Double check if this is correct
