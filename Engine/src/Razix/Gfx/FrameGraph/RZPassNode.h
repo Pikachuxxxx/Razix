@@ -86,10 +86,10 @@ namespace Razix {
             template<typename T>
             T& getResourceAccessView(RZFrameGraphResource id)
             {
-                auto& ri = m_Reads.find(id);
+                auto ri = m_Reads.find(id);
                 if (ri != m_Reads.end())
                     return ri->second;
-                auto& wi = m_Writes.find(id);
+                auto wi = m_Writes.find(id);
                 if (wi != m_Writes.end())
                     return wi->second;
 
