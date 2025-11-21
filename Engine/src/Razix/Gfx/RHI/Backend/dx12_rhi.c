@@ -2503,14 +2503,17 @@ static void dx12_CreateTexture(void* where)
     resDesc.Layout              = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     resDesc.Flags               = D3D12_RESOURCE_FLAG_NONE;
 
-    D3D12_CLEAR_VALUE optClear    = {0};
-    optClear.Format               = resDesc.Format;
-    optClear.Color[0]             = 0.0f;
-    optClear.Color[1]             = 0.0f;
-    optClear.Color[2]             = 0.0f;
-    optClear.Color[3]             = 0.0f;
-    optClear.DepthStencil.Depth   = 1.0f;
-    optClear.DepthStencil.Stencil = 0;
+    D3D12_CLEAR_VALUE optClear = {0};
+    optClear.Format            = resDesc.Format;
+    optClear.Color[0]          = 0.0f;
+    optClear.Color[1]          = 0.0f;
+    optClear.Color[2]          = 0.0f;
+    optClear.Color[3]          = 0.0f;
+    if (desc->format == RZ_GFX_FORMAT_D32_FLOAT || desc->format == RZ_GFX_FORMAT_D24_UNORM_S8_UINT || desc->format == RZ_GFX_FORMAT_D16_UNORM) {
+        // Depth formats
+        optClear.DepthStencil.Depth   = 1.0f;
+        optClear.DepthStencil.Stencil = 0;
+    }
 
     texture->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_COMMON;
 
