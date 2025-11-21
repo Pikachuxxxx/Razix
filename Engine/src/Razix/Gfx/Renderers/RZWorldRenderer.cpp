@@ -679,7 +679,144 @@ namespace Razix {
             // Skybox Pass
             //-------------------------------
             m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
-            auto sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
+            auto& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
+
+            //-------------------------------
+            // Debug Scene Pass
+            //-------------------------------
+
+            m_FrameGraph.getBlackboard().add<DebugPassData>() = m_FrameGraph.addCallbackPass<DebugPassData>(
+                "Pass.Builtin.Code.DebugDraw",
+                [&](DebugPassData& data, RZPassResourceBuilder& builder) {
+                    builder
+                        .setAsStandAlonePass()
+                        .setDepartment(Department::Debug);
+
+                    builder.read(frameDataBlock.frameData);
+
+                    rz_gfx_resource_view_desc sceneHDRViewDesc      = {};
+                    sceneHDRViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE;
+                    sceneHDRViewDesc.textureViewDesc.pTexture       = RZ_FG_TEX_RES_AUTO_POPULATE;
+                    sceneHDRViewDesc.textureViewDesc.baseMip        = 0;
+                    sceneHDRViewDesc.textureViewDesc.baseArrayLayer = 0;
+                    sceneHDRViewDesc.textureViewDesc.dimension      = 1;
+                    sceneHDRViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getRenderTargetHeap());
+                    builder.read(sceneData.HDR, sceneHDRViewDesc);
+
+                    rz_gfx_resource_view_desc depthTexViewDesc      = {};
+                    depthTexViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE;
+                    depthTexViewDesc.textureViewDesc.pTexture       = RZ_FG_TEX_RES_AUTO_POPULATE;
+                    depthTexViewDesc.textureViewDesc.baseMip        = 0;
+                    depthTexViewDesc.textureViewDesc.baseArrayLayer = 0;
+                    depthTexViewDesc.textureViewDesc.dimension      = 1;
+                    depthTexViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getDepthRenderTargetHeap());
+
+                    builder.read(sceneData.depth, depthTexViewDesc);
+                    // For the sake of completion
+                    data.DebugRT  = sceneData.HDR;
+                    data.DebugDRT = sceneData.depth;
+
+                    //sceneData.SceneHDR = builder.write(sceneData.SceneHDR);
+                    //data.DebugRT       = sceneData.SceneHDR;
+
+                    //gBufferData.GBufferDepth = builder.write(gBufferData.GBufferDepth);
+                    //data.DebugDRT            = gBufferData.GBufferDepth;
+                    RZDebugDraw::StartUp();
+                },
+                [=](const DebugPassData& data, RZPassResourceDirectory& resources) {
+                    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+                    RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
+
+                    rz_gfx_cmdbuf_handle cmdBuffer = getCurrCmdBufHandle();
+                    RAZIX_MARK_BEGIN(cmdBuffer, "DebugDraw", float4(0.4f, 0.6f, 0.2f, 1.0f));
+
+                    // Rendering debug primitives
+
+                    // Origin point
+                    RZDebugDraw::DrawPoint(float3(0.0f), 0.25f);
+
+                    // X, Y, Z lines
+                    RZDebugDraw::DrawLine(float3(-100.0f, 0.0f, 0.0f), float3(100.0f, 0.0f, 0.0f), float4(1.0f, 0.0f, 0.0f, 1.0f));
+                    RZDebugDraw::DrawLine(float3(0.0f, -100.0f, 0.0f), float3(0.0f, 100.0f, 0.0f), float4(0.0f, 1.0f, 0.0f, 1.0f));
+                    RZDebugDraw::DrawLine(float3(0.0f, 0.0f, -100.0f), float3(0.0f, 0.0f, 100.0f), float4(0.0f, 0.0f, 1.0f, 1.0f));
+
+                    // Grid
+                    RZDebugDraw::DrawGrid(125, float4(0.75f));
+
+                    // Render loop
+                    const RZSceneCamera& sceneCamera = scene->getSceneCamera();
+                    RZDebugDraw::BeginDraw(&sceneCamera);
+
+#if 0
+                    //// Draw all lights in the scene
+                    //auto lights = scene->GetComponentsOfType<LightComponent>();
+                    //// Draw predefined light matrix
+                    //// Use the first directional light and currently only one Dir Light casts shadows, multiple just won't do anything in the scene not even light contribution
+                    //RZLight dir_light = {};
+                    //for (auto& light: lights) {
+                    //    if (light.light.getType() == LightType::DIRECTIONAL) {
+                    //        dir_light = light.light;
+                    //        break;
+                    //    }
+                    //}
+
+                    //float4x4 lightView  = lookAt(dir_light.getPosition(), float3(0.0f), float3(0.0f, 1.0f, 0.0f));
+                    //float    near_plane = -50.0f, far_plane = 50.0f;
+                    //float4x4 lightProjection = ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
+                    //lightProjection[1][1] *= -1;
+                    //auto lightViewProj = lightProjection * lightView;
+                    //RZDebugDraw::DrawFrustum(lightViewProj, float4(0.863f, 0.28f, 0.21f, 1.0f));
+                    //
+                    //// Draw all camera frustums
+                    //auto cameras = scene->GetComponentsOfType<CameraComponent>();
+                    //for (auto& camComponents: cameras) {
+                    //    RZDebugDraw::DrawFrustum(camComponents.Camera.getFrustum(), float4(0.2f, 0.85f, 0.1f, 1.0f));
+                    //}
+                    //
+                    //// Draw AABBs for all the Meshes in the Scene
+                    //auto mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
+                    //for (auto entity: mesh_group) {
+                    //    // Draw the mesh renderer components
+                    //    const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
+                    //
+                    //    // Bind push constants, VBO, IBO and draw
+                    //    float4x4 transform = mesh_trans.GetGlobalTransform();
+                    //
+                    //    if (mrc.Mesh && mrc.enableBoundingBoxes)
+                    //        RZDebugDraw::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), float4(0.0f, 1.0f, 0.0f, 1.0f));
+                    //}
+
+                    //auto rt = resources.get<RZFrameGraphTexture>(data.DebugRT).getRHIHandle();
+                    //auto dt = resources.get<RZFrameGraphTexture>(data.DebugDRT).getRHIHandle();
+#endif
+                    rz_gfx_renderpass info                 = {};
+                    info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;
+                    info.colorAttachmentsCount             = 1;
+                    info.colorAttachments[0].pResourceView = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.DebugRT));
+                    info.colorAttachments[0].clear         = false;
+                    info.colorAttachments[0].clearColor    = RAZIX_GFX_COLOR_RGBA_BLACK;
+                    info.depthAttachment.pResourceView     = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.DebugDRT));
+                    info.depthAttachment.clear             = false;
+                    info.depthAttachment.clearColor        = {1.0f, 0.0f, 0.0f, 0.0f};
+                    info.layers                            = 1;
+
+                    RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
+                    RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
+
+                    rzRHI_BeginRenderPass(cmdBuffer, &info);
+
+                    RZDebugDraw::IssueDrawCommands(cmdBuffer, getResourceHeap(), m_FrameDataTable);
+
+                    rzRHI_EndRenderPass(cmdBuffer);
+
+                    RZDebugDraw::EndDraw();
+
+                    RAZIX_MARK_END(cmdBuffer);
+                    RAZIX_TIME_STAMP_END();
+                },
+                [=]() {
+                    RZDebugDraw::ShutDown();
+                });
 
             //-------------------------------
             // ImGui Pass
@@ -709,7 +846,7 @@ namespace Razix {
                     depthTexViewDesc.textureViewDesc.baseArrayLayer = 0;
                     depthTexViewDesc.textureViewDesc.dimension      = 1;
                     depthTexViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getDepthRenderTargetHeap());
- 
+
                     builder.read(sceneData.depth, depthTexViewDesc);
                     // For the sake of completion
                     data.imguiRT    = sceneData.HDR;
@@ -757,7 +894,7 @@ namespace Razix {
                     pipelineDesc.enableStencilTest      = false;
                     pipelineDesc.blendEnabled           = true;
                     pipelineDesc.renderTargetCount      = 1;
-                    pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
+                    pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_R16G16B16A16_FLOAT;
                     pipelineDesc.inputLayoutMode        = RZ_GFX_INPUT_LAYOUT_AOS;
                     m_ImGuiPipelineHandle               = RZResourceManager::Get().createPipeline("Pipeline.ImGui", pipelineDesc);
 
@@ -881,14 +1018,14 @@ namespace Razix {
                     info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;
                     info.colorAttachmentsCount             = 1;
                     info.colorAttachments[0].pResourceView = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.imguiRT));
-                    info.colorAttachments[0].clear         = true;
+                    info.colorAttachments[0].clear         = false;
                     info.colorAttachments[0].clearColor    = RAZIX_GFX_COLOR_RGBA_BLACK;
                     //info.depthAttachment.pResourceView     = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.imguiDepth));
                     //info.depthAttachment.clear             = false;
                     //info.depthAttachment.clearColor        = {1.0f, 0.0f, 0.0f, 0.0f};
-                    info.layers                            = 1;
-                    RAZIX_X(info.extents)                  = RZApplication::Get().getWindow()->getWidth();
-                    RAZIX_Y(info.extents)                  = RZApplication::Get().getWindow()->getHeight();
+                    info.layers           = 1;
+                    RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
+                    RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
 
                     rzRHI_BeginRenderPass(cmdBuffer, &info);
                     rzRHI_BindGfxRootSig(cmdBuffer, m_ImGuiRootSigHandle);
@@ -948,7 +1085,10 @@ namespace Razix {
                         }
                         vertexOffset += cmd_list->VtxBuffer.Size;
                     }
+
                     rzRHI_EndRenderPass(cmdBuffer);
+
+                    rzRHI_InsertImageBarrier(cmdBuffer, resources.get<RZFrameGraphTexture>(sceneData.HDR).getRHIHandle(), RZ_GFX_RESOURCE_STATE_RENDER_TARGET, RZ_GFX_RESOURCE_STATE_SHADER_READ);
 
                     RAZIX_MARK_END(cmdBuffer);
                     RAZIX_TIME_STAMP_END();
@@ -966,27 +1106,58 @@ namespace Razix {
                 });
 
             //-------------------------------
-            // Debug Scene Pass
+            // Tonemap Pass
+            //-------------------------------
+            m_TonemapPass.addPass(m_FrameGraph, scene, &settings);
+
+            //-------------------------------
+            // Composition Pass
             //-------------------------------
 
-            m_FrameGraph.getBlackboard().add<DebugPassData>() = m_FrameGraph.addCallbackPass<DebugPassData>(
-                "Pass.Builtin.Code.DebugDraw",
-                [&](DebugPassData& data, RZPassResourceBuilder& builder) {
+            struct CompositionPassData
+            {
+                RZFrameGraphResource sceneColor;
+            };
+
+            m_FrameGraph.addCallbackPass<CompositionPassData>(
+                "Pass.Builtin.Code.Composition",
+                [&](CompositionPassData& data, RZPassResourceBuilder& builder) {
                     builder
                         .setAsStandAlonePass()
-                        .setDepartment(Department::Debug);
+                        .setDepartment(Department::Core);
 
-                    builder.read(frameDataBlock.frameData);
+                    auto compositionShader = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kComposition);
 
-                    rz_gfx_resource_view_desc sceneHDRViewDesc      = {};
-                    sceneHDRViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE;
-                    sceneHDRViewDesc.textureViewDesc.pTexture       = RZ_FG_TEX_RES_AUTO_POPULATE;
-                    sceneHDRViewDesc.textureViewDesc.baseMip        = 0;
-                    sceneHDRViewDesc.textureViewDesc.baseArrayLayer = 0;
-                    sceneHDRViewDesc.textureViewDesc.dimension      = 1;
-                    sceneHDRViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getRenderTargetHeap());
-                    builder.read(sceneData.HDR, sceneHDRViewDesc);
+                    rz_gfx_pipeline_desc pipelineDesc   = {};
+                    pipelineDesc.pShader                = RZResourceManager::Get().getShaderResource(compositionShader);
+                    m_CompositionPassRootSig            = pipelineDesc.pShader->rootSignature;
+                    pipelineDesc.pRootSig               = RZResourceManager::Get().getRootSignatureResource(m_CompositionPassRootSig);
+                    pipelineDesc.type                   = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
+                    pipelineDesc.cullMode               = RZ_GFX_CULL_MODE_TYPE_NONE;
+                    pipelineDesc.drawType               = RZ_GFX_DRAW_TYPE_TRIANGLE;
+                    pipelineDesc.polygonMode            = RZ_GFX_POLYGON_MODE_TYPE_SOLID;
+                    pipelineDesc.blendPreset            = RZ_GFX_BLEND_PRESET_ALPHA_BLEND;
+                    pipelineDesc.useBlendPreset         = true;
+                    pipelineDesc.depthTestEnabled       = false;
+                    pipelineDesc.depthWriteEnabled      = false;
+                    pipelineDesc.enableStencilTest      = false;
+                    pipelineDesc.blendEnabled           = false;
+                    pipelineDesc.renderTargetCount      = 1;
+                    pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;    // we render to swapchain back buffer
+                    pipelineDesc.inputLayoutMode        = RZ_GFX_INPUT_LAYOUT_AOS;
+                    m_CompositionPassPipeline           = RZResourceManager::Get().createPipeline("Pipeline.Composition", pipelineDesc);
 
+#if __APPLE__
+                    // keep the platform-specific dummy depth texture creation but use C-style desc if needed
+                    rz_gfx_texture_desc depthTextureDesc            = {};
+                    depthTextureDesc.width                          = RZApplication::Get().getWindow()->getWidth();
+                    depthTextureDesc.height                         = RZApplication::Get().getWindow()->getHeight();
+                    depthTextureDesc.depth                          = 1;
+                    depthTextureDesc.format                         = RZ_GFX_FORMAT_D16_UNORM;
+                    depthTextureDesc.textureType                    = RZ_GFX_TEXTURE_TYPE_2D;
+                    depthTextureDesc.mipLevels                      = 1;
+                    depthTextureDesc.resourceHints                  = RZ_GFX_RESOURCE_VIEW_FLAG_DSV;
+                    data.depth                                      = builder.create<RZFrameGraphTexture>("FG.Tex.SceneDepth", CAST_TO_FG_TEX_DESC depthTextureDesc);
                     rz_gfx_resource_view_desc depthTexViewDesc      = {};
                     depthTexViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE;
                     depthTexViewDesc.textureViewDesc.pTexture       = RZ_FG_TEX_RES_AUTO_POPULATE;
@@ -994,112 +1165,92 @@ namespace Razix {
                     depthTexViewDesc.textureViewDesc.baseArrayLayer = 0;
                     depthTexViewDesc.textureViewDesc.dimension      = 1;
                     depthTexViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getDepthRenderTargetHeap());
- 
-                    builder.read(sceneData.depth, depthTexViewDesc);
-                    // For the sake of completion
-                    data.DebugRT    = sceneData.HDR;
-                    data.DebugDRT   = sceneData.depth;
+                    data.depth                                      = builder.write(data.depth, depthTexViewDesc);
+#endif
 
+                    rz_gfx_resource_view_desc sceneLDRViewDesc      = {};
+                    sceneLDRViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_TEXTURE;
+                    sceneLDRViewDesc.textureViewDesc.pTexture       = RZ_FG_TEX_RES_AUTO_POPULATE;
+                    sceneLDRViewDesc.textureViewDesc.baseMip        = 0;
+                    sceneLDRViewDesc.textureViewDesc.baseArrayLayer = 0;
+                    sceneLDRViewDesc.textureViewDesc.dimension      = 1;
+                    sceneData.LDR                                   = builder.write(sceneData.LDR, sceneLDRViewDesc);
+                    data.sceneColor                                 = sceneData.LDR;
 
-                    //sceneData.SceneHDR = builder.write(sceneData.SceneHDR);
-                    //data.DebugRT       = sceneData.SceneHDR;
-
-                    //gBufferData.GBufferDepth = builder.write(gBufferData.GBufferDepth);
-                    //data.DebugDRT            = gBufferData.GBufferDepth;
-                    RZDebugDraw::StartUp();
+                    RZShaderBindMap::RegisterBindMap(compositionShader);
                 },
-                [=](const DebugPassData& data, RZPassResourceDirectory& resources) {
+                [=](const CompositionPassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-                    RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
+                    RAZIX_TIME_STAMP_BEGIN("Composition Pass");
 
-                    rz_gfx_cmdbuf_handle cmdBuffer = getCurrCmdBufHandle();
-                    RAZIX_MARK_BEGIN(cmdBuffer, "DebugDraw", float4(0.4f, 0.6f, 0.2f, 1.0f));
+                    rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
+                    RAZIX_MARK_BEGIN(cmdBuffer, "Composition pass", float4(0.5f, 0.5f, 0.5f, 1.0f));
 
-                    // Rendering debug primitives
-
-                    // Origin point
-                    RZDebugDraw::DrawPoint(float3(0.0f), 0.25f);
-
-                    // X, Y, Z lines
-                    RZDebugDraw::DrawLine(float3(-100.0f, 0.0f, 0.0f), float3(100.0f, 0.0f, 0.0f), float4(1.0f, 0.0f, 0.0f, 1.0f));
-                    RZDebugDraw::DrawLine(float3(0.0f, -100.0f, 0.0f), float3(0.0f, 100.0f, 0.0f), float4(0.0f, 1.0f, 0.0f, 1.0f));
-                    RZDebugDraw::DrawLine(float3(0.0f, 0.0f, -100.0f), float3(0.0f, 0.0f, 100.0f), float4(0.0f, 0.0f, 1.0f, 1.0f));
-
-                    // Grid
-                    RZDebugDraw::DrawGrid(125, float4(0.75f));
-
-                    // Render loop
-                    const RZSceneCamera& sceneCamera = scene->getSceneCamera();
-                    RZDebugDraw::BeginDraw(&sceneCamera);
-
-                    //// Draw all lights in the scene
-                    //auto lights = scene->GetComponentsOfType<LightComponent>();
-                    //// Draw predefined light matrix
-                    //// Use the first directional light and currently only one Dir Light casts shadows, multiple just won't do anything in the scene not even light contribution
-                    //RZLight dir_light = {};
-                    //for (auto& light: lights) {
-                    //    if (light.light.getType() == LightType::DIRECTIONAL) {
-                    //        dir_light = light.light;
-                    //        break;
-                    //    }
-                    //}
-
-                    //float4x4 lightView  = lookAt(dir_light.getPosition(), float3(0.0f), float3(0.0f, 1.0f, 0.0f));
-                    //float    near_plane = -50.0f, far_plane = 50.0f;
-                    //float4x4 lightProjection = ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
-                    //lightProjection[1][1] *= -1;
-                    //auto lightViewProj = lightProjection * lightView;
-                    //RZDebugDraw::DrawFrustum(lightViewProj, float4(0.863f, 0.28f, 0.21f, 1.0f));
-                    //
-                    //// Draw all camera frustums
-                    //auto cameras = scene->GetComponentsOfType<CameraComponent>();
-                    //for (auto& camComponents: cameras) {
-                    //    RZDebugDraw::DrawFrustum(camComponents.Camera.getFrustum(), float4(0.2f, 0.85f, 0.1f, 1.0f));
-                    //}
-                    //
-                    //// Draw AABBs for all the Meshes in the Scene
-                    //auto mesh_group = scene->getRegistry().group<MeshRendererComponent>(entt::get<TransformComponent>);
-                    //for (auto entity: mesh_group) {
-                    //    // Draw the mesh renderer components
-                    //    const auto& [mrc, mesh_trans] = mesh_group.get<MeshRendererComponent, TransformComponent>(entity);
-                    //
-                    //    // Bind push constants, VBO, IBO and draw
-                    //    float4x4 transform = mesh_trans.GetGlobalTransform();
-                    //
-                    //    if (mrc.Mesh && mrc.enableBoundingBoxes)
-                    //        RZDebugDraw::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), float4(0.0f, 1.0f, 0.0f, 1.0f));
-                    //}
-
-                    //auto rt = resources.get<RZFrameGraphTexture>(data.DebugRT).getRHIHandle();
-                    //auto dt = resources.get<RZFrameGraphTexture>(data.DebugDRT).getRHIHandle();
+                    //rzRHI_InsertImageBarrier(
+                    //    cmdBuffer,
+                    //    resources.get<RZFrameGraphTexture>(sceneData.LDR).getRHIHandle(),
+                    //    RZ_GFX_RESOURCE_STATE_UNKNOWN,    // current (framegraph manages exact state)
+                    //    RZ_GFX_RESOURCE_STATE_SHADER_READ);
 
                     rz_gfx_renderpass info                 = {};
                     info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;
                     info.colorAttachmentsCount             = 1;
-                    info.colorAttachments[0].pResourceView = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.DebugRT));
-                    info.colorAttachments[0].clear         = true;
-                    info.colorAttachments[0].clearColor    = RAZIX_GFX_COLOR_RGBA_BLACK;
-                    info.depthAttachment.pResourceView     = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.DebugDRT));
-                    info.depthAttachment.clear             = false;
-                    info.depthAttachment.clearColor        = {1.0f, 0.0f, 0.0f, 0.0f};
-                    info.layers                            = 1;
-         
+                    info.colorAttachments[0].pResourceView = getCurrSwapchainBackbufferResViewPtr();
+                    info.colorAttachments[0].clear         = false;
+#if __APPLE__
+                    info.depthAttachment.pResourceView =
+                        RZResourceManager::Get().getResourceViewResource(m_AppleNeedsADepthTexture->getDefaultView());
+                    info.depthAttachment.clear = true;
+#endif
+                    info.layers           = 1;
                     RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
                     RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
 
                     rzRHI_BeginRenderPass(cmdBuffer, &info);
 
-                    RZDebugDraw::IssueDrawCommands(cmdBuffer, getResourceHeap(), m_FrameDataTable);
+                    rzRHI_BindGfxRootSig(cmdBuffer, m_CompositionPassRootSig);
+                    rzRHI_BindPipeline(cmdBuffer, m_CompositionPassPipeline);
+
+                    rz_gfx_descriptor_heap_handle heaps[] = {
+                        RZEngine::Get().getWorldRenderer().getSamplerHeap(),
+                        RZEngine::Get().getWorldRenderer().getResourceHeap(),
+                    };
+                    rzRHI_BindDescriptorHeaps(cmdBuffer, heaps, 2);
+
+                    if (RZFrameGraph::IsFirstFrame()) {
+                        RZResourceManager::Get()
+                            .getShaderBindMapRef(RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kComposition))
+                            .setDescriptorTable(RZEngine::Get().getWorldRenderer().getGlobalSamplerTable())
+                            .setDescriptorBlacklist(s_GlobalSamplersBlacklistPreset)
+                            .setResourceView("FinalSceneColor", resources.getResourceViewHandle<RZFrameGraphTexture>(sceneData.LDR))
+                            .validate()
+                            .build();
+                    }
+
+                    RZResourceManager::Get()
+                        .getShaderBindMapRef(RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kComposition))
+                        .bind(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS);
+
+                    rzRHI_DrawAuto(cmdBuffer, 3, 1, 0, 0);
 
                     rzRHI_EndRenderPass(cmdBuffer);
-
-                    RZDebugDraw::EndDraw();
 
                     RAZIX_MARK_END(cmdBuffer);
                     RAZIX_TIME_STAMP_END();
                 },
+                [=](RZPassResourceDirectory& resources, u32 width, u32 height) {
+                    flushGPUWork();
+                },
                 [=]() {
-                    RZDebugDraw::ShutDown();
+                    RZResourceManager::Get()
+                        .getShaderBindMapRef(RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kComposition))
+                        .destroy();
+                    RZResourceManager::Get().destroyPipeline(m_CompositionPassPipeline);
+#if __APPLE__
+                    if (m_AppleNeedsADepthTexture) {
+                        RZResourceManager::Get().destroyTexture(m_AppleNeedsADepthTexture);
+                    }
+#endif
                 });
 
 #if 0
@@ -1133,16 +1284,6 @@ namespace Razix {
             //-------------------------------
             m_PBRDeferredPass.addPass(m_FrameGraph, scene, &settings);
             auto& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
-
-            //-------------------------------
-            // Skybox Pass
-            //-------------------------------
-            m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
-
-            //-------------------------------
-            // Tonemap Pass
-            //-------------------------------
-            //m_TonemapPass.addPass(m_FrameGraph, scene, &settings);      
 
             //-------------------------------
             // Composition Pass

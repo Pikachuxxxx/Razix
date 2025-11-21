@@ -144,19 +144,16 @@ namespace Razix {
             pipelineDesc.depthCompareOp         = RZ_GFX_COMPARE_OP_TYPE_LESS_OR_EQUAL;
             pipelineDesc.blendEnabled           = true;
             pipelineDesc.renderTargetCount      = 1;
-            pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
-            //pipelineDesc.depthStencilFormat     = RZ_GFX_FORMAT_D16_UNORM;
-            pipelineDesc.inputLayoutMode    = RZ_GFX_INPUT_LAYOUT_SOA;    // position @ 0 and color @ 1
-            s_pDebugDrawState->linePipeline = RZResourceManager::Get().createPipeline("Pipeline.DebugDraw::Line", pipelineDesc);
+            pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_R16G16B16A16_FLOAT;
+            pipelineDesc.depthStencilFormat     = RZ_GFX_FORMAT_D16_UNORM;
+            pipelineDesc.inputLayoutMode        = RZ_GFX_INPUT_LAYOUT_SOA;    // position @ 0 and color @ 1
+            s_pDebugDrawState->linePipeline     = RZResourceManager::Get().createPipeline("Pipeline.DebugDraw::Line", pipelineDesc);
 
             // Point Pipeline
-            pipelineDesc.cullMode               = RZ_GFX_CULL_MODE_TYPE_NONE;
-            pipelineDesc.drawType               = RZ_GFX_DRAW_TYPE_TRIANGLE;
-            pipelineDesc.polygonMode            = RZ_GFX_POLYGON_MODE_TYPE_SOLID;
-            pipelineDesc.pShader                = RZResourceManager::Get().getShaderResource(s_pDebugDrawState->pointShader);
-            pipelineDesc.pRootSig               = RZResourceManager::Get().getRootSignatureResource(s_pDebugDrawState->pointRootSig);
-            pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
-            s_pDebugDrawState->pointPipeline    = RZResourceManager::Get().createPipeline("Pipeline.DebugDraw::Points", pipelineDesc);
+            pipelineDesc.drawType            = RZ_GFX_DRAW_TYPE_TRIANGLE;
+            pipelineDesc.pShader             = RZResourceManager::Get().getShaderResource(s_pDebugDrawState->pointShader);
+            pipelineDesc.pRootSig            = RZResourceManager::Get().getRootSignatureResource(s_pDebugDrawState->pointRootSig);
+            s_pDebugDrawState->pointPipeline = RZResourceManager::Get().createPipeline("Pipeline.DebugDraw::Points", pipelineDesc);
 
             // Lines - position VB
             rz_gfx_buffer_desc vbDesc    = {};

@@ -108,6 +108,8 @@ namespace Razix {
             pipelineDesc.depthCompareOp         = RZ_GFX_COMPARE_OP_TYPE_LESS_OR_EQUAL;
             pipelineDesc.drawType               = RZ_GFX_DRAW_TYPE_TRIANGLE;
             pipelineDesc.blendEnabled           = false;    // Disable blending for skybox
+            pipelineDesc.blendPreset            = RZ_GFX_BLEND_PRESET_ADDITIVE;
+            pipelineDesc.useBlendPreset         = true;
             pipelineDesc.renderTargetCount      = 1;
             pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_R16G16B16A16_FLOAT;
             pipelineDesc.depthStencilFormat     = RZ_GFX_FORMAT_D16_UNORM;
@@ -126,16 +128,6 @@ namespace Razix {
                     builder
                         .setAsStandAlonePass()
                         .setDepartment(Department::Environment);
-
-                    // Read inputs
-                    builder.read(frameDataBlock.frameData);
-                    //builder.read(lightProbesData.diffuseIrradianceMap);
-                    //builder.read(lightProbesData.specularPreFilteredMap);
-                    //builder.read(gBufferData.GBufferDepth);
-
-                    // Write the HDR target used later by post-processing
-                    //sceneData.SceneHDR = builder.write(sceneData.SceneHDR);
-                    //data.SceneHDR      = sceneData.SceneHDR;
 
                     rz_gfx_texture_desc sceneHDRTextureDesc         = {};
                     sceneHDRTextureDesc.width                       = RZApplication::Get().getWindow()->getWidth();
@@ -241,8 +233,6 @@ namespace Razix {
                     rzRHI_DrawIndexedAuto(cmdBuffer, NUM_SKYBOX_INDICES, 1, 0, 0, 0);
 
                     rzRHI_EndRenderPass(cmdBuffer);
-
-                    rzRHI_InsertImageBarrier(cmdBuffer, resources.get<RZFrameGraphTexture>(data.HDR).getRHIHandle(), RZ_GFX_RESOURCE_STATE_RENDER_TARGET, RZ_GFX_RESOURCE_STATE_SHADER_READ);
 
                     RAZIX_MARK_END(cmdBuffer);
                     RAZIX_TIME_STAMP_END();
