@@ -155,6 +155,8 @@ namespace Razix {
             inline rz_gfx_descriptor_heap_handle  getResourceHeap() const { return m_ResourceHeap; }
             // TODO: Remove this, we will soon be using Immutable Samplers instead
             inline rz_gfx_descriptor_table_handle getGlobalSamplerTable() const { return m_GlobalSamplerTable; }
+            inline rz_gfx_descriptor_table_handle getFrameDataTable() const { return m_FrameDataTable; }
+            inline rz_gfx_descriptor_table_handle getSceneLightsDataTable() const { return m_SceneLightsDataTable; }
 
         private:
             static rz_gfx_descriptor_heap_handle m_RenderTargetHeap;
