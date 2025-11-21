@@ -2290,6 +2290,7 @@ static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
     // Input Assembly Stage
     //----------------------------
     D3D12_INPUT_ELEMENT_DESC* pInputElementDescs = alloca(pShaderDesc->elementsCount * sizeof(D3D12_INPUT_ELEMENT_DESC));
+    RAZIX_RHI_ASSERT(pInputElementDescs != NULL, "[ALLOCA] Failed to allocate memory for input element descriptions");
 
     for (uint32_t i = 0; i < pShaderDesc->elementsCount; i++) {
         rz_gfx_input_element* elem = &pShaderDesc->pElements[i];
@@ -2878,6 +2879,7 @@ static void dx12_SubmitCmdBuf(rz_gfx_submit_desc submitDesc)
 
     // stack allocate the command list array, quick and dirty
     ID3D12GraphicsCommandList** cmdLists = alloca(sizeof(ID3D12GraphicsCommandList*) * submitDesc.cmdCount);
+    RAZIX_RHI_ASSERT(cmdLists != NULL, "[ALLOCA] Failed to allocate command list array on stack");
     for (uint32_t i = 0; i < submitDesc.cmdCount; i++)
         cmdLists[i] = submitDesc.pCmdBufs[i].dx12.cmdList;
 

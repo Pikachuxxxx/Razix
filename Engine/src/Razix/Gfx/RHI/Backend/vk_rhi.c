@@ -2304,6 +2304,7 @@ static void vk_util_create_swapchain(rz_gfx_swapchain* sc, uint32_t width, uint3
     // Transition swapchain images to present state
     vk_cmdbuf             cmdBuf             = vk_util_begin_singletime_cmdlist();
     VkImageMemoryBarrier* pSwapchainBarriers = (VkImageMemoryBarrier*) alloca(sizeof(VkImageMemoryBarrier) * sc->imageCount);
+    RAZIX_RHI_ASSERT(pSwapchainBarriers != NULL, "[ALLOCA] Failed to allocate memory for swapchain image barriers");
     for (uint32_t i = 0; i < sc->imageCount; i++) {
         VkImageMemoryBarrier imageBarrier = {
             .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -2424,6 +2425,7 @@ static void vk_util_transition_subresource(vk_cmdbuf cmdBuf, rz_gfx_texture* tex
 
     uint32_t              barrierCount = mipCount * layerCount;
     VkImageMemoryBarrier* barriers     = (VkImageMemoryBarrier*) alloca(sizeof(VkImageMemoryBarrier) * barrierCount);
+    RAZIX_RHI_ASSERT(barriers != NULL, "[ALLOCA] Failed to allocate memory for image barriers");
 
     uint32_t idx = 0;
     for (uint32_t l = 0; l < layerCount; ++l) {
@@ -3334,7 +3336,7 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
     // Count how many shader stages we have
     uint32_t                         stageCount   = 0;
     VkPipelineShaderStageCreateInfo* shaderStages = alloca(sizeof(VkPipelineShaderStageCreateInfo) * RZ_GFX_SHADER_STAGE_COUNT);
-
+    RAZIX_RHI_ASSERT(shaderStages != NULL, "[ALLOCA] Failed to allocate memory for shader stages in graphics pipeline creation");
     if (pShader->shaderStageMask & RZ_GFX_SHADER_STAGE_VERTEX) {
         shaderStages[stageCount].sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         shaderStages[stageCount].pNext               = NULL;
@@ -3918,7 +3920,7 @@ static void vk_util_update_descriptor_set(VkDescriptorSet descriptorSet,
     uint32_t                                              resourceViewsCount)
 {
     VkWriteDescriptorSet* pWrites = alloca(resourceViewsCount * sizeof(VkWriteDescriptorSet));
-
+    RAZIX_RHI_ASSERT(pWrites != NULL, "[ALLOCA] Failed to allocate memory for descriptor set writes");
     for (uint32_t i = 0; i < resourceViewsCount; i++) {
         const rz_gfx_resource_view*      pView     = &pResourceViews[i];
         const rz_gfx_resource_view_desc* pViewDesc = &pView->resource.pCold->desc.resourceViewDesc;
@@ -3942,12 +3944,13 @@ static void vk_util_update_descriptor_set(VkDescriptorSet descriptorSet,
             pWrites[i].descriptorCount       = 1;
             pWrites[i].descriptorType        = vk_util_translate_descriptor_type(pViewDesc->descriptorType);
             VkDescriptorImageInfo* imageInfo = alloca(sizeof(VkDescriptorImageInfo));
-            imageInfo->imageView             = pView->vk.imageView;
-            imageInfo->imageLayout           = vk_util_translate_imagelayout_resstate(pTexture->resource.hot.currentState);
-            imageInfo->sampler               = VK_NULL_HANDLE;    // Only for combined image samplers
-            pWrites[i].pImageInfo            = imageInfo;
-            pWrites[i].pBufferInfo           = NULL;
-            pWrites[i].pTexelBufferView      = NULL;
+            RAZIX_RHI_ASSERT(imageInfo != NULL, "[ALLOCA] Failed to allocate memory for image descriptor info");
+            imageInfo->imageView        = pView->vk.imageView;
+            imageInfo->imageLayout      = vk_util_translate_imagelayout_resstate(pTexture->resource.hot.currentState);
+            imageInfo->sampler          = VK_NULL_HANDLE;    // Only for combined image samplers
+            pWrites[i].pImageInfo       = imageInfo;
+            pWrites[i].pBufferInfo      = NULL;
+            pWrites[i].pTexelBufferView = NULL;
         } else if (isBuffer) {
             const rz_gfx_buffer* pBuffer       = pViewDesc->bufferViewDesc.pBuffer;
             pWrites[i].sType                   = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -3958,12 +3961,13 @@ static void vk_util_update_descriptor_set(VkDescriptorSet descriptorSet,
             pWrites[i].descriptorCount         = 1;
             pWrites[i].descriptorType          = vk_util_translate_descriptor_type(pViewDesc->descriptorType);
             VkDescriptorBufferInfo* bufferInfo = alloca(sizeof(VkDescriptorBufferInfo));
-            bufferInfo->buffer                 = pBuffer->vk.buffer;
-            bufferInfo->offset                 = pViewDesc->bufferViewDesc.offset;
-            bufferInfo->range                  = pViewDesc->bufferViewDesc.size;
-            pWrites[i].pBufferInfo             = bufferInfo;
-            pWrites[i].pImageInfo              = NULL;
-            pWrites[i].pTexelBufferView        = NULL;
+            RAZIX_RHI_ASSERT(bufferInfo != NULL, "[ALLOCA] Failed to allocate memory for buffer descriptor info");
+            bufferInfo->buffer          = pBuffer->vk.buffer;
+            bufferInfo->offset          = pViewDesc->bufferViewDesc.offset;
+            bufferInfo->range           = pViewDesc->bufferViewDesc.size;
+            pWrites[i].pBufferInfo      = bufferInfo;
+            pWrites[i].pImageInfo       = NULL;
+            pWrites[i].pTexelBufferView = NULL;
         } else if (isSampler) {
             const rz_gfx_sampler* pSampler     = pViewDesc->samplerViewDesc.pSampler;
             pWrites[i].sType                   = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -3974,12 +3978,13 @@ static void vk_util_update_descriptor_set(VkDescriptorSet descriptorSet,
             pWrites[i].descriptorCount         = 1;
             pWrites[i].descriptorType          = vk_util_translate_descriptor_type(pViewDesc->descriptorType);
             VkDescriptorImageInfo* samplerInfo = alloca(sizeof(VkDescriptorImageInfo));
-            samplerInfo->sampler               = pSampler->vk.sampler;
-            samplerInfo->imageView             = VK_NULL_HANDLE;               // Only for combined image samplers
-            samplerInfo->imageLayout           = VK_IMAGE_LAYOUT_UNDEFINED;    // Not used for samplers
-            pWrites[i].pImageInfo              = samplerInfo;
-            pWrites[i].pBufferInfo             = NULL;
-            pWrites[i].pTexelBufferView        = NULL;
+            RAZIX_RHI_ASSERT(samplerInfo != NULL, "[ALLOCA] Failed to allocate memory for sampler descriptor info");
+            samplerInfo->sampler        = pSampler->vk.sampler;
+            samplerInfo->imageView      = VK_NULL_HANDLE;               // Only for combined image samplers
+            samplerInfo->imageLayout    = VK_IMAGE_LAYOUT_UNDEFINED;    // Not used for samplers
+            pWrites[i].pImageInfo       = samplerInfo;
+            pWrites[i].pBufferInfo      = NULL;
+            pWrites[i].pTexelBufferView = NULL;
         } else if (pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT) {
             RAZIX_RHI_LOG_ERROR("Seriously? RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT in here? bind it directly on the correct root signature. This will result in catastrophic descriptor API failure.");
             RAZIX_RHI_ABORT();
@@ -4015,6 +4020,7 @@ static void vk_CreateDescriptorTable(void* where)
 
     // Create the set layout based on descriptors in the table
     VkDescriptorSetLayoutBinding* pBindings = alloca(pDesc->descriptorCount * sizeof(VkDescriptorSetLayoutBinding));
+    RAZIX_RHI_ASSERT(pBindings != NULL, "[ALLOCA] Failed to allocate memory for descriptor set layout bindings");
     for (uint32_t i = 0; i < pDesc->descriptorCount; i++) {
         const rz_gfx_descriptor* pDescriptor = &pDesc->pDescriptors[i];
         RAZIX_RHI_ASSERT(pDescriptor != NULL, "Descriptor in the table cannot be NULL");
@@ -4145,7 +4151,7 @@ static void vk_SubmitCmdBuf(rz_gfx_submit_desc submitDesc)
     RAZIX_RHI_ASSERT(submitDesc.pSignalSyncobjs == NULL || submitDesc.signalSyncobjCount > 0, "Signal sync object count must be greater than zero if signal sync objects are provided");
 
     VkCommandBuffer* pCmdBuffers = alloca(submitDesc.cmdCount * sizeof(VkCommandBuffer));
-    RAZIX_RHI_ASSERT(pCmdBuffers != NULL, "Failed to allocate stack memory for command buffers");
+    RAZIX_RHI_ASSERT(pCmdBuffers != NULL, "[ALLOCA] Failed to allocate stack memory for command buffers");
     for (uint32_t i = 0; i < submitDesc.cmdCount; i++)
         pCmdBuffers[i] = submitDesc.pCmdBufs[i].vk.cmdBuf;
 
