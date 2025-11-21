@@ -650,7 +650,7 @@ static void dx12_create_descriptor_freelist_allocator(rz_gfx_descriptor_heap* he
     RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
     rz_gfx_descriptor_heap_desc* desc = &heap->resource.pCold->desc.descriptorHeapDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
-    RAZIX_RHI_ASSERT(heap->resource.pCold->desc.descriptorHeapDesc.flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must be of type FREE_LIST");
+    RAZIX_RHI_ASSERT(heap->resource.pCold->desc.descriptorHeapDesc.flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must have flags set DESCRIPTOR_ALLOC_FREELIST");
     // Initialize the free list allocator
     heap->freeListAllocator = malloc(sizeof(rz_gfx_descriptor_freelist_allocator));
     RAZIX_RHI_ASSERT(heap->freeListAllocator != NULL, "Failed to allocate memory for free list allocator");
@@ -771,7 +771,7 @@ static dx12_descriptor_handles dx12_descriptor_ringbuffer_allocate(rz_gfx_descri
 {
     RAZIX_RHI_ASSERT(heap != NULL, "Descriptor heap cannot be NULL");
     RAZIX_RHI_ASSERT(numDescriptors > 0, "Free count must be greater than zero");
-    RAZIX_RHI_ASSERT(heap->resource.pCold->desc.descriptorHeapDesc.heapType & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST == RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_FREELIST, "Descriptor heap must be of type FREE_LIST");
+    RAZIX_RHI_ASSERT(heap->resource.pCold->desc.descriptorHeapDesc.flags & RZ_GFX_DESCRIPTOR_HEAP_FLAG_DESCRIPTOR_ALLOC_RINGBUFFER, "Descriptor heap must have flags set DESCRIPTOR_ALLOC_RINGBUFFER");
     rz_gfx_descriptor_heap_desc* desc = &heap->resource.pCold->desc.descriptorHeapDesc;
     RAZIX_RHI_ASSERT(desc != NULL, "Descriptor heap descriptor cannot be NULL");
 
