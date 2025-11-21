@@ -89,7 +89,7 @@ namespace Razix {
                 f32 deltaY = mY - m_OldY;
 
                 if (RZInput::IsMouseButtonHeld(KeyCode::MouseKey::ButtonRight))
-                    processMouseMovement(deltaX, deltaY);
+                    processMouseMovement(deltaX, -deltaY);
 
                 m_OldX = mX;
                 m_OldY = mY;
