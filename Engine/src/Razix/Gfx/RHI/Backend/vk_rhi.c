@@ -1274,11 +1274,10 @@ static VkImageViewType vk_util_translate_texture_type_view_type(rz_gfx_texture_t
             return VK_IMAGE_VIEW_TYPE_2D;
         case RZ_GFX_TEXTURE_TYPE_3D:
             return VK_IMAGE_VIEW_TYPE_3D;
-            //return VK_IMAGE_VIEW_TYPE_CUBE;
+        case RZ_GFX_TEXTURE_TYPE_CUBE:
             return VK_IMAGE_VIEW_TYPE_CUBE;
         case RZ_GFX_TEXTURE_TYPE_1D_ARRAY:
             return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
-        case RZ_GFX_TEXTURE_TYPE_CUBE:
         case RZ_GFX_TEXTURE_TYPE_2D_ARRAY:
             return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
         case RZ_GFX_TEXTURE_TYPE_CUBE_ARRAY:
@@ -2398,8 +2397,11 @@ static void vk_util_create_image_view(rz_gfx_resource_view* pView)
     imageViewCreateInfo.flags                 = 0;
     imageViewCreateInfo.image                 = pTexture->vk.image;
     imageViewCreateInfo.viewType              = vk_util_translate_texture_type_view_type(pTexDesc->textureType);
-    imageViewCreateInfo.format                = vk_util_translate_format(pTexDesc->format);
-
+    // Specialization: Cube textures with RW descriptor type need to be treated as 2D array views, when using a cubmap as UAV
+    if (pTexDesc->textureType == RZ_GFX_TEXTURE_TYPE_CUBE && pViewDesc->descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE) {
+        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+    }
+    imageViewCreateInfo.format       = vk_util_translate_format(pTexDesc->format);
     imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_R;
     imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_G;
     imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_B;
