@@ -1042,17 +1042,21 @@ static dx12_resview dx12_create_texture_view(const rz_gfx_texture_view_desc* des
 
     bool isTextureRW = rzRHI_IsDescriptorTypeTextureRW(descriptorType);
 
-    if (!isTextureRW && ((pTexture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_SRV) == RZ_GFX_RESOURCE_VIEW_FLAG_SRV)) {
-        dx12_view.srvDesc = dx12_create_texture_srv(desc, textureDesc);
-    } else if (isTextureRW && ((pTexture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV)) {
-        dx12_view.uavDesc = dx12_create_texture_uav(desc, textureDesc);
-    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE && ((pTexture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_RTV) == RZ_GFX_RESOURCE_VIEW_FLAG_RTV)) {
+    // Pikachuxxxx - [2025-11-21]: Prioritize RTV/DSV over SRV/UAV when resolving texture view hints
+    if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE &&
+        (pTexture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_RTV) != 0) {
         dx12_view.rtvDesc = dx12_create_texture_rtv(desc, textureDesc);
-    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE && ((pTexture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV) == RZ_GFX_RESOURCE_VIEW_FLAG_DSV)) {
+    } else if (descriptorType == RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE &&
+               (pTexture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_DSV) != 0) {
         dx12_view.dsvDesc = dx12_create_texture_dsv(desc, textureDesc);
+    } else if (!isTextureRW &&
+               (pTexture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_SRV) != 0) {
+        dx12_view.srvDesc = dx12_create_texture_srv(desc, textureDesc);
+    } else if (isTextureRW &&
+               (pTexture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) != 0) {
+        dx12_view.uavDesc = dx12_create_texture_uav(desc, textureDesc);
     } else {
-        RAZIX_RHI_LOG_ERROR("Unsupported texture view descriptor type: %d and view hints: %d", descriptorType, pTexture->resource.hot.viewHints);
-        return dx12_view;    // Return empty view
+        RAZIX_RHI_LOG_ERROR("Unsupported texture view descriptorType=%d viewHints=0x%x", descriptorType, pTexture->resource.hot.viewHints);
     }
     return dx12_view;    // IDK why MSVC/Clang complained about it even though we have a dangling else
 }
