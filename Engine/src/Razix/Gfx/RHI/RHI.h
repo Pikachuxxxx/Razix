@@ -251,6 +251,14 @@ static inline unsigned int rz_clz32(unsigned int x)
 // Resource
 #define RAZIX_GFX_RESOURCE rz_gfx_resource resource
 
+#define RAZIX_GFX_COLOR_RGBA_BLACK        {0.0f, 0.0f, 0.0f, 0.0f}
+#define RAZIX_GFX_COLOR_RGBA_BLACK_OPAQUE {0.0f, 0.0f, 0.0f, 1.0f}
+#define RAZIX_GFX_COLOR_RGBA_WHITE        {1.0f, 1.0f, 1.0f, 1.0f}
+#define RAZIX_GFX_COLOR_RGBA_RED          {1.0f, 0.0f, 0.0f, 1.0f}
+#define RAZIX_GFX_COLOR_RGBA_GREEN        {0.0f, 1.0f, 0.0f, 1.0f}
+#define RAZIX_GFX_COLOR_RGBA_BLUE         {0.0f, 0.0f, 1.0f, 1.0f}
+#define RAZIX_GFX_COLOR_RGBA_PINK         {1.0f, 0.0f, 1.0f, 1.0f}
+
     //---------------------------------------------------------------------------------------------
     // GFX/RHI types
 
