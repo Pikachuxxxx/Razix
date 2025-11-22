@@ -101,6 +101,7 @@ namespace Razix {
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
                     RAZIX_MARK_BEGIN(cmdBuffer, "Tonemap Pass", GenerateHashedColor4(169u));
 
+                    rzRHI_InsertImageBarrier(cmdBuffer, resources.get<RZFrameGraphTexture>(sceneData.HDR).getRHIHandle(), RZ_GFX_RESOURCE_STATE_RENDER_TARGET, RZ_GFX_RESOURCE_STATE_SHADER_READ);
                     rzRHI_InsertImageBarrier(cmdBuffer, resources.get<RZFrameGraphTexture>(data.LDR).getRHIHandle(), RZ_GFX_RESOURCE_STATE_SHADER_READ, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);
 
                     rz_gfx_renderpass info                 = {};

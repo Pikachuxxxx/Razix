@@ -207,7 +207,6 @@ namespace Razix {
                     };
                     rzRHI_BindDescriptorHeaps(cmdBuffer, heaps, 2);
 
-                    // Update shader bind vars / descriptor once on the first frame (mirrors ImGui pattern)
                     if (RZFrameGraph::IsFirstFrame()) {
                         RZResourceManager::Get()
                             .getShaderBindMapRef(RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kSkybox))
@@ -240,7 +239,7 @@ namespace Razix {
                 [=]() {
                     RZResourceManager::Get()
                         .getShaderBindMapRef(m_SkyboxShader)
-                        .destroy();    // This will destroy all the descriptor tables created/owned by this bind map
+                        .destroy();
                     RZResourceManager::Get().destroyPipeline(m_SkyboxPipeline);
                     RZResourceManager::Get().destroyBuffer(m_VertexBuffer);
                     RZResourceManager::Get().destroyBuffer(m_IndexBuffer);

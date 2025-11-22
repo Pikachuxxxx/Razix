@@ -715,7 +715,6 @@ namespace Razix {
                     depthTexViewDesc.textureViewDesc.baseArrayLayer = 0;
                     depthTexViewDesc.textureViewDesc.dimension      = 1;
                     depthTexViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getDepthRenderTargetHeap());
-
                     builder.read(sceneData.depth, depthTexViewDesc);
                     // For the sake of completion
                     data.DebugRT  = sceneData.HDR;
@@ -1092,8 +1091,6 @@ namespace Razix {
                     }
 
                     rzRHI_EndRenderPass(cmdBuffer);
-
-                    rzRHI_InsertImageBarrier(cmdBuffer, resources.get<RZFrameGraphTexture>(sceneData.HDR).getRHIHandle(), RZ_GFX_RESOURCE_STATE_RENDER_TARGET, RZ_GFX_RESOURCE_STATE_SHADER_READ);
 
                     RAZIX_MARK_END(cmdBuffer);
                     RAZIX_TIME_STAMP_END();
