@@ -289,8 +289,8 @@ namespace Razix {
                 return m_PassNode.m_Creates.emplace_back(id);
             }
 
-            RZFrameGraphResource                  read(RZFrameGraphResource id, rz_gfx_resource_view_desc resViewDesc = {});
-            RAZIX_NO_DISCARD RZFrameGraphResource write(RZFrameGraphResource id, rz_gfx_resource_view_desc resViewDesc = {});
+            RZFrameGraphResource                  read(RZFrameGraphResource id, rz_gfx_resource_view_desc resViewDesc);
+            RAZIX_NO_DISCARD RZFrameGraphResource write(RZFrameGraphResource id, rz_gfx_resource_view_desc resViewDesc);
 
             /* Ensures that this pass is not culled during the frame graph compilation phase, single/hanging passes cans till exist and be executed */
             RZPassResourceBuilder& setAsStandAlonePass();
