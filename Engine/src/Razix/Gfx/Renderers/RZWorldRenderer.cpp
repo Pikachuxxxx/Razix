@@ -452,13 +452,15 @@ namespace Razix {
                         .setAsStandAlonePass()
                         .setDepartment(Department::Core);
 
-                    rz_gfx_buffer_desc framedataBufferDesc = {};
-                    framedataBufferDesc.type               = RZ_GFX_BUFFER_TYPE_CONSTANT;
-                    framedataBufferDesc.usage              = RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM;
-                    framedataBufferDesc.resourceHints      = RZ_GFX_RESOURCE_VIEW_FLAG_CBV;
-                    framedataBufferDesc.sizeInBytes        = sizeof(GPUFrameData);
-                    data.frameData                         = builder.create<RZFrameGraphBuffer>("FrameData", CAST_TO_FG_BUF_DESC framedataBufferDesc);
-                    data.frameData                         = builder.write(data.frameData);
+                    rz_gfx_buffer_desc framedataBufferDesc            = {};
+                    framedataBufferDesc.type                          = RZ_GFX_BUFFER_TYPE_CONSTANT;
+                    framedataBufferDesc.usage                         = RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM;
+                    framedataBufferDesc.resourceHints                 = RZ_GFX_RESOURCE_VIEW_FLAG_CBV;
+                    framedataBufferDesc.sizeInBytes                   = sizeof(GPUFrameData);
+                    data.frameData                                    = builder.create<RZFrameGraphBuffer>("FrameData", CAST_TO_FG_BUF_DESC framedataBufferDesc);
+                    rz_gfx_resource_view_desc frameDataIgnoreViewDesc = {};
+                    frameDataIgnoreViewDesc.bufferViewDesc.pBuffer    = RZ_FG_BUF_RES_VIEW_IGNORE;
+                    data.frameData                                    = builder.write(data.frameData, frameDataIgnoreViewDesc);
                 },
                 [=](const FrameData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -564,14 +566,15 @@ namespace Razix {
                         .setAsStandAlonePass()
                         .setDepartment(Department::Core);
 
-                    rz_gfx_buffer_desc lightdataBufferDesc = {};
-                    lightdataBufferDesc.type               = RZ_GFX_BUFFER_TYPE_CONSTANT;
-                    lightdataBufferDesc.usage              = RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM;
-                    lightdataBufferDesc.resourceHints      = RZ_GFX_RESOURCE_VIEW_FLAG_CBV;
-                    lightdataBufferDesc.sizeInBytes        = sizeof(GPULightsData);
-
-                    data.lightsDataBuffer = builder.create<RZFrameGraphBuffer>("SceneLightsData", CAST_TO_FG_BUF_DESC lightdataBufferDesc);
-                    data.lightsDataBuffer = builder.write(data.lightsDataBuffer);
+                    rz_gfx_buffer_desc lightdataBufferDesc                  = {};
+                    lightdataBufferDesc.type                                = RZ_GFX_BUFFER_TYPE_CONSTANT;
+                    lightdataBufferDesc.usage                               = RZ_GFX_BUFFER_USAGE_TYPE_PERSISTENT_STREAM;
+                    lightdataBufferDesc.resourceHints                       = RZ_GFX_RESOURCE_VIEW_FLAG_CBV;
+                    lightdataBufferDesc.sizeInBytes                         = sizeof(GPULightsData);
+                    data.lightsDataBuffer                                   = builder.create<RZFrameGraphBuffer>("SceneLightsData", CAST_TO_FG_BUF_DESC lightdataBufferDesc);
+                    rz_gfx_resource_view_desc sceneLightsDataIgnoreViewDesc = {};
+                    sceneLightsDataIgnoreViewDesc.bufferViewDesc.pBuffer    = RZ_FG_BUF_RES_VIEW_IGNORE;
+                    data.lightsDataBuffer                                   = builder.write(data.lightsDataBuffer, sceneLightsDataIgnoreViewDesc);
                 },
                 [=](const SceneLightsData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -692,7 +695,9 @@ namespace Razix {
                         .setAsStandAlonePass()
                         .setDepartment(Department::Debug);
 
-                    builder.read(frameDataBlock.frameData);
+                    rz_gfx_resource_view_desc frameDataIgnoreViewDesc = {};
+                    frameDataIgnoreViewDesc.bufferViewDesc.pBuffer    = RZ_FG_BUF_RES_VIEW_IGNORE;
+                    builder.read(frameDataBlock.frameData, frameDataIgnoreViewDesc);
 
                     rz_gfx_resource_view_desc sceneHDRViewDesc      = {};
                     sceneHDRViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE;
@@ -1199,11 +1204,11 @@ namespace Razix {
                     info.colorAttachmentsCount             = 1;
                     info.colorAttachments[0].pResourceView = getCurrSwapchainBackbufferResViewPtr();
                     info.colorAttachments[0].clear         = false;
-// #if __APPLE__
-//                     info.depthAttachment.pResourceView =
-//                         RZResourceManager::Get().getResourceViewResource(m_AppleNeedsADepthTextureHandle->getDefaultView());
-//                     info.depthAttachment.clear = true;
-// #endif
+                    // #if __APPLE__
+                    //                     info.depthAttachment.pResourceView =
+                    //                         RZResourceManager::Get().getResourceViewResource(m_AppleNeedsADepthTextureHandle->getDefaultView());
+                    //                     info.depthAttachment.clear = true;
+                    // #endif
                     info.layers           = 1;
                     RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
                     RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
