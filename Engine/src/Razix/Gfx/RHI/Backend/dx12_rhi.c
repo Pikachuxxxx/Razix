@@ -3336,6 +3336,11 @@ static void dx12_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture*
                          (texture->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
         "UAV-to-UAV barrier requires resource to have UAV view hint");
 
+    RAZIX_RHI_ASSERT(texture->resource.hot.currentState == beforeState,
+        "Texture current state (%d) does not match the expected before state (%d) for barrier insertion",
+        texture->resource.hot.currentState,
+        beforeState);
+
     bool isUAVBarrier = (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS);
 
     if (isUAVBarrier) {
@@ -3376,6 +3381,11 @@ static void dx12_InsertBufferBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_buffer*
     RAZIX_RHI_ASSERT(!(beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS) ||
                          (buffer->resource.hot.viewHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV),
         "UAV-to-UAV barrier requires resource to have UAV view hint");
+
+    RAZIX_RHI_ASSERT(buffer->resource.hot.currentState == beforeState,
+        "Buffer current state (%d) does not match the expected before state (%d) for barrier insertion",
+        buffer->resource.hot.currentState,
+        beforeState);
 
     bool isUAVBarrier = (beforeState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS && afterState == RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS);
 
