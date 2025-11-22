@@ -1705,6 +1705,7 @@ static void dx12_util_update_swapchain_rtvs(rz_gfx_swapchain* sc)
         texture.resource.hot.handle                          = (rz_handle) {i, i};
         texture.resource.hot.viewHints                       = RZ_GFX_RESOURCE_VIEW_FLAG_RTV;
         texture.resource.hot.type                            = RZ_GFX_RESOURCE_TYPE_TEXTURE;
+        texture.resource.hot.currentState                    = RZ_GFX_RESOURCE_STATE_PRESENT;
         dxtexture.resource                                   = d3dresource;
         texture.dx12                                         = dxtexture;
         texture.resource.pCold->desc.textureDesc.height      = sc->height;
