@@ -1188,6 +1188,8 @@ static void dx12_util_upload_pixel_Data(rz_gfx_texture* texture, rz_gfx_texture_
 
     dx12_cmdbuf cmdBuf = dx12_util_begin_singletime_cmdlist();
 
+    rz_gfx_resource_state beforeState = texture->resource.hot.currentState;
+
     D3D12_TEXTURE_COPY_LOCATION srcLocation        = {0};
     srcLocation.pResource                          = uploadBuffer;
     srcLocation.Type                               = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
@@ -1206,7 +1208,7 @@ static void dx12_util_upload_pixel_Data(rz_gfx_texture* texture, rz_gfx_texture_
     D3D12_RESOURCE_BARRIER barrier = {0};
     barrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
     barrier.Transition.pResource   = texture->dx12.resource;
-    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
+    barrier.Transition.StateBefore = dx12_util_res_state_translate(beforeState);
     barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_COPY_DEST;
     barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
@@ -1216,7 +1218,7 @@ static void dx12_util_upload_pixel_Data(rz_gfx_texture* texture, rz_gfx_texture_
 
     // Transition texture back to common state
     barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-    barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_COMMON;
+    barrier.Transition.StateAfter  = dx12_util_res_state_translate(beforeState);
     ID3D12GraphicsCommandList_ResourceBarrier(cmdBuf.cmdList, 1, &barrier);
 
     dx12_util_end_singletime_cmdlist(cmdBuf);
@@ -2519,7 +2521,7 @@ static void dx12_CreateTexture(void* where)
         optClear.DepthStencil.Stencil = 0;
     }
 
-    texture->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_COMMON;
+    texture->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_SHADER_READ;
 
     bool isRtvDsv = (desc->resourceHints & (RZ_GFX_RESOURCE_VIEW_FLAG_RTV | RZ_GFX_RESOURCE_VIEW_FLAG_DSV)) != 0;
     // Set resource flags
