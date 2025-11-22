@@ -3530,11 +3530,9 @@ static void vk_CreateTexture(void* where)
     TAG_OBJECT(texture->vk.memory, VK_OBJECT_TYPE_DEVICE_MEMORY, memoryName);
 
     // convert to general layout if there's a chance to be used as an UAV
+    rz_gfx_resource_state finalState = RZ_GFX_RESOURCE_STATE_SHADER_READ;
     if ((desc->resourceHints & RZ_GFX_RESOURCE_VIEW_FLAG_UAV) == RZ_GFX_RESOURCE_VIEW_FLAG_UAV) {
-        vk_cmdbuf cmdBuf = vk_util_begin_singletime_cmdlist();
-        vk_util_transition_subresource(cmdBuf, texture, RZ_GFX_RESOURCE_STATE_UNDEFINED, RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS, 0, texture->resource.pCold->desc.textureDesc.mipLevels, 0, texture->resource.pCold->desc.textureDesc.depth);
-        vk_util_end_singletime_cmdlist(cmdBuf);
-        texture->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS;
+        finalState = RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS;
     }
 
     // Upload pixel data if provided
@@ -3542,6 +3540,14 @@ static void vk_CreateTexture(void* where)
         RAZIX_RHI_LOG_INFO("Uploading pixel data for texture");
         vk_util_upload_pixel_data(texture, desc);
         texture->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_SHADER_READ;
+    }
+
+    if (texture->resource.hot.currentState != finalState) {
+        // Transition to the final state
+        vk_cmdbuf cmdBuf = vk_util_begin_singletime_cmdlist();
+        vk_util_transition_subresource(cmdBuf, texture, texture->resource.hot.currentState, finalState, 0, desc->mipLevels, 0, desc->depth);
+        vk_util_end_singletime_cmdlist(cmdBuf);
+        texture->resource.hot.currentState = finalState;
     }
 }
 
@@ -4281,7 +4287,7 @@ static void vk_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderp
     VkRenderingAttachmentInfo colorAttachments[RAZIX_MAX_RENDER_TARGETS] = {0};
 
     for (uint32_t i = 0; i < colorAttachmentCount; ++i) {
-        const rz_gfx_attachment* att    = &renderPass->colorAttachments[i];
+        const rz_gfx_attachment* att = &renderPass->colorAttachments[i];
         RAZIX_RHI_ASSERT(att->pResourceView != NULL, "Color attachment resource view cannot be NULL in render pass");
         colorAttachments[i].sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
         colorAttachments[i].imageView   = att->pResourceView->vk.imageView;
@@ -4294,7 +4300,7 @@ static void vk_BeginRenderPass(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_renderp
     VkRenderingAttachmentInfo depthAttachment = {0};
     bool                      hasDepth        = (renderPass->depthAttachment.pResourceView != NULL);
     if (hasDepth) {
-        const rz_gfx_attachment* att                    = &renderPass->depthAttachment;
+        const rz_gfx_attachment* att = &renderPass->depthAttachment;
         RAZIX_RHI_ASSERT(att->pResourceView != NULL, "Depth attachment resource view cannot be NULL in render pass");
         depthAttachment.sType                           = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
         depthAttachment.imageView                       = att->pResourceView->vk.imageView;
