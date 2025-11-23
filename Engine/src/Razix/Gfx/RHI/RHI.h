@@ -1713,6 +1713,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_SignalGPUFn)(rz_gfx_syncobj* syncObj);
     typedef void (*rzRHI_FlushGPUWorkFn)(rz_gfx_syncobj* syncObj);
     typedef void (*rzRHI_ResizeSwapchainFn)(rz_gfx_swapchain* swapchain, uint32_t width, uint32_t height);
+    typedef void (*rzRHI_ResizeTextureFn)(rz_gfx_texture* texture, uint32_t width, uint32_t height);
 
     typedef struct rz_rhi_api
     {
@@ -1786,6 +1787,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_SignalGPUFn              SignalGPU;
         rzRHI_FlushGPUWorkFn           FlushGPUWork;
         rzRHI_ResizeSwapchainFn        ResizeSwapchain;
+        rzRHI_ResizeTextureFn          ResizeTexture;
     } rz_rhi_api;
 
     //---------------------------------------------------------------------------------------------
@@ -1942,6 +1944,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_SignalGPU                                     g_RHI.SignalGPU
         #define rzRHI_FlushGPUWork                                  g_RHI.FlushGPUWork
         #define rzRHI_ResizeSwapchain                               g_RHI.ResizeSwapchain
+        #define rzRHI_ResizeTexture(texture, width, height)         g_RHI.ResizeTexture(RZResourceManager::Get().getTextureResource(text), width, height)
         #define rzRHI_BeginFrame                                    g_RHI.BeginFrame
         #define rzRHI_EndFrame                                      g_RHI.EndFrame
     #else
@@ -1993,6 +1996,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         #define rzRHI_SignalGPU                      g_RHI.SignalGPU
         #define rzRHI_FlushGPUWork                   g_RHI.FlushGPUWork
         #define rzRHI_ResizeSwapchain                g_RHI.ResizeSwapchain
+        #define rzRHI_ResizeTexture                  g_RHI.ResizeTexture
         #define rzRHI_BeginFrame                     g_RHI.BeginFrame
         #define rzRHI_EndFrame                       g_RHI.EndFrame
     #endif
@@ -2352,6 +2356,12 @@ static inline unsigned int rz_clz32(unsigned int x)
                 g_RHI.ResizeSwapchain(sp, w, h);                                     \
             } while (0)
 
+        #define rzRHI_ResizeTexture(tex, w, h)                                               \
+            do {                                                                             \
+                RAZIX_PROFILE_SCOPEC("rzRHI_ResizeTexture", RZ_PROFILE_COLOR_RHI);           \
+                g_RHI.ResizeTexture(RZResourceManager::Get().getTextureResource(tex), w, h); \
+            } while (0)
+
         #define rzRHI_BeginFrame(sc, wso, sso, fsps)                                             \
             do {                                                                                 \
                 RAZIX_PROFILE_SCOPEC("rzRHI_BeginFrame", RZ_PROFILE_COLOR_RHI_FRAME_OPERATIONS); \
@@ -2685,6 +2695,13 @@ static inline unsigned int rz_clz32(unsigned int x)
                 RAZIX_PROFILE_SCOPEC("rzRHI_ResizeSwapchain", RZ_PROFILE_COLOR_RHI); \
                 g_RHI.ResizeSwapchain(sp, w, h);                                     \
                 RAZIX_PROFILE_SCOPEC_END();                                          \
+            } while (0)
+
+        #define rzRHI_ResizeTexture(tex, w, h)                                     \
+            do {                                                                   \
+                RAZIX_PROFILE_SCOPEC("rzRHI_ResizeTexture", RZ_PROFILE_COLOR_RHI); \
+                g_RHI.ResizeTexture(tex, w, h);                                    \
+                RAZIX_PROFILE_SCOPEC_END();                                        \
             } while (0)
 
         #define rzRHI_BeginFrame(sc, wso, sso, fsps)                                             \

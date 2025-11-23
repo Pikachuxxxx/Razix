@@ -3897,6 +3897,25 @@ static void dx12_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t 
     dx12_util_update_swapchain_rtvs(sc);
 }
 
+static void dx12_ResizeTexture(rz_gfx_texture* texture, uint32_t width, uint32_t height)
+{
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be null");
+    RAZIX_RHI_ASSERT(width > 0, "Width must be greater than zero");
+    RAZIX_RHI_ASSERT(height > 0, "Height must be greater than zero");
+    RAZIX_RHI_ASSERT(texture->resource.pCold != NULL, "Texture cold resource data cannot be null");
+
+    if (texture->resource.pCold->desc.textureDesc.width == width && texture->resource.pCold->desc.textureDesc.height == height)
+        return;    // no need to resize if the dimensions are the same
+
+    rz_gfx_texture_desc* desc = &texture->resource.pCold->desc.textureDesc;
+    RAZIX_RHI_ASSERT(desc->width != width || desc->height != height, "New width and height must be different from the current ones");
+    texture->resource.pCold->desc.textureDesc.width  = width;
+    texture->resource.pCold->desc.textureDesc.height = height;
+
+    dx12_DestroyTexture(texture);
+    dx12_CreateTexture(texture);
+}
+
 //---------------------------------------------------------------------------------------------
 // Jump table
 
@@ -3973,4 +3992,5 @@ rz_rhi_api dx12_rhi = {
     .SignalGPU       = dx12_Signal,             // Signal
     .FlushGPUWork    = dx12_FlushGPUWork,       // FlushGPUWork
     .ResizeSwapchain = dx12_ResizeSwapchain,    // ResizeSwapchain
+    .ResizeTexture   = dx12_ResizeTexture,      // ResizeTexture
 };

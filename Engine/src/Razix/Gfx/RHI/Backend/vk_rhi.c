@@ -5973,6 +5973,25 @@ static void vk_ResizeSwapchain(rz_gfx_swapchain* sc, uint32_t width, uint32_t he
     vkDeviceWaitIdle(VKCONTEXT.device);
 }
 
+static void vk_ResizeTexture(rz_gfx_texture* texture, uint32_t width, uint32_t height)
+{
+    RAZIX_RHI_ASSERT(texture != NULL, "Texture cannot be null");
+    RAZIX_RHI_ASSERT(width > 0, "Width must be greater than zero");
+    RAZIX_RHI_ASSERT(height > 0, "Height must be greater than zero");
+    RAZIX_RHI_ASSERT(texture->resource.pCold != NULL, "Texture cold resource data cannot be null");
+
+    if (texture->resource.pCold->desc.textureDesc.width == width && texture->resource.pCold->desc.textureDesc.height == height)
+        return;    // no need to resize if the dimensions are the same
+
+    rz_gfx_texture_desc* desc = &texture->resource.pCold->desc.textureDesc;
+    RAZIX_RHI_ASSERT(desc->width != width || desc->height != height, "New width and height must be different from the current ones");
+    texture->resource.pCold->desc.textureDesc.width  = width;
+    texture->resource.pCold->desc.textureDesc.height = height;
+
+    vk_DestroyTexture(texture);
+    vk_CreateTexture(texture);
+}
+
 //---------------------------------------------------------------------------------------------
 // Jump table
 //---------------------------------------------------------------------------------------------
@@ -6050,4 +6069,5 @@ rz_rhi_api vk_rhi = {
     .SignalGPU       = vk_SignalGPU,          // SignalGPU
     .FlushGPUWork    = vk_FlushGPUWork,       // FlushGPUWork
     .ResizeSwapchain = vk_ResizeSwapchain,    // ResizeSwapchain
+    .ResizeTexture   = vk_ResizeTexture,      // ResizeTexture
 };
