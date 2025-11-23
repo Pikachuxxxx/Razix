@@ -100,6 +100,7 @@ namespace Razix {
             RZFrameGraphResource registerResourceForRead(RZFrameGraphResource id, rz_gfx_resource_view_desc viewDesc);
             RZFrameGraphResource registerResourceForWrite(RZFrameGraphResource id, rz_gfx_resource_view_desc viewDesc);
             void                 destroyDeferredResourceViews();
+            void                 recreateDeferredResourceViews();
         };
     }    // namespace Gfx
 }    // namespace Razix

@@ -101,8 +101,7 @@ namespace Razix {
 
         void RZFrameGraphTexture::resize(u32 width, u32 height)
         {
-            //RZTexture* textureResource = RZResourceManager::Get().getPool<RZTexture>().get(m_TextureHandle);
-            //textureResource->Resize(width, height);
+            rzRHI_ResizeTexture(getRHIHandle(), width, height);
         }
 
         RZString RZFrameGraphTexture::toString(const Desc& desc)

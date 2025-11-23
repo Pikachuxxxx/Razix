@@ -69,7 +69,9 @@ namespace Razix {
                     sceneHDRViewDesc.textureViewDesc.baseArrayLayer = 0;
                     sceneHDRViewDesc.textureViewDesc.dimension      = 1;
                     sceneHDRViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getRenderTargetHeap());
-                    builder.read(sceneData.HDR, sceneHDRViewDesc);
+                    // update global scene HDR version and pass off this version to pass resources
+                    sceneData.HDR = builder.write(sceneData.HDR, sceneHDRViewDesc);
+                    data.LDR      = sceneData.HDR;
 
                     // Render onto LDR target
                     rz_gfx_texture_desc sceneLDRTextureDesc         = {};

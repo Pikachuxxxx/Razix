@@ -706,7 +706,7 @@ namespace Razix {
                     sceneHDRViewDesc.textureViewDesc.baseArrayLayer = 0;
                     sceneHDRViewDesc.textureViewDesc.dimension      = 1;
                     sceneHDRViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getRenderTargetHeap());
-                    builder.read(sceneData.HDR, sceneHDRViewDesc);
+                    sceneData.HDR                                   = builder.write(sceneData.HDR, sceneHDRViewDesc);
 
                     rz_gfx_resource_view_desc depthTexViewDesc      = {};
                     depthTexViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE;
@@ -715,16 +715,11 @@ namespace Razix {
                     depthTexViewDesc.textureViewDesc.baseArrayLayer = 0;
                     depthTexViewDesc.textureViewDesc.dimension      = 1;
                     depthTexViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getDepthRenderTargetHeap());
-                    builder.read(sceneData.depth, depthTexViewDesc);
-                    // For the sake of completion
+                    sceneData.depth                                 = builder.write(sceneData.depth, depthTexViewDesc);
+
                     data.DebugRT  = sceneData.HDR;
                     data.DebugDRT = sceneData.depth;
 
-                    //sceneData.SceneHDR = builder.write(sceneData.SceneHDR);
-                    //data.DebugRT       = sceneData.SceneHDR;
-
-                    //gBufferData.GBufferDepth = builder.write(gBufferData.GBufferDepth);
-                    //data.DebugDRT            = gBufferData.GBufferDepth;
                     RZDebugDraw::StartUp();
                 },
                 [=](const DebugPassData& data, RZPassResourceDirectory& resources) {
@@ -841,7 +836,7 @@ namespace Razix {
                     sceneHDRViewDesc.textureViewDesc.baseArrayLayer = 0;
                     sceneHDRViewDesc.textureViewDesc.dimension      = 1;
                     sceneHDRViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getRenderTargetHeap());
-                    builder.read(sceneData.HDR, sceneHDRViewDesc);
+                    sceneData.HDR                                   = builder.write(sceneData.HDR, sceneHDRViewDesc);
 
                     rz_gfx_resource_view_desc depthTexViewDesc      = {};
                     depthTexViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE;
@@ -850,12 +845,10 @@ namespace Razix {
                     depthTexViewDesc.textureViewDesc.baseArrayLayer = 0;
                     depthTexViewDesc.textureViewDesc.dimension      = 1;
                     depthTexViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getDepthRenderTargetHeap());
+                    sceneData.depth                                 = builder.write(sceneData.depth, depthTexViewDesc);
 
-                    builder.read(sceneData.depth, depthTexViewDesc);
-                    // For the sake of completion
                     data.imguiRT    = sceneData.HDR;
                     data.imguiDepth = sceneData.depth;
-
                     // Setup context
                     IMGUI_CHECKVERSION();
                     ImGui::CreateContext();
@@ -1244,6 +1237,15 @@ namespace Razix {
                 },
                 [=](RZPassResourceDirectory& resources, u32 width, u32 height) {
                     flushGPUWork();
+
+                    RZResourceManager::Get()
+                        .getShaderBindMapRef(RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kComposition))
+                        .clear()    // destroy old bind map and create a new one with updated resources
+                        .setDescriptorTable(RZEngine::Get().getWorldRenderer().getGlobalSamplerTable())
+                        .setDescriptorBlacklist(s_GlobalSamplersBlacklistPreset)
+                        .setResourceView("FinalSceneColor", resources.getResourceViewHandle<RZFrameGraphTexture>(sceneData.LDR))
+                        .validate()
+                        .build();
                 },
                 [=]() {
                     RZResourceManager::Get()

@@ -829,6 +829,8 @@ namespace Razix {
                     if (getResourceEntryRef(id).isTransient())
                         getResourceEntryRef(id).getConcept()->resize(width, height);
 
+                pass.recreateDeferredResourceViews();
+
                 // call the ResizeFunc
                 RZPassResourceDirectory resources{*this, pass};
                 pass.m_Exec->resize(resources, width, height);

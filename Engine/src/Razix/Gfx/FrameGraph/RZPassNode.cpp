@@ -81,6 +81,7 @@ namespace Razix {
             if (!rz_handle_is_valid(&accessView.resViewHandle)) {
                 RZString resViewName;
                 if (rzRHI_IsDescriptorTypeBuffer(accessView.resViewDesc.descriptorType)) {
+                    RAZIX_CORE_ASSERT(accessView.resViewDesc.bufferViewDesc.pBuffer != NULL, "pBuffer in resource view desc is NULL!");
                     if (accessView.resViewDesc.bufferViewDesc.pBuffer == RZ_FG_BUF_RES_AUTO_POPULATE) {
                         accessView.resViewDesc.bufferViewDesc.pBuffer = RZResourceManager::Get().getBufferResource(resHandle);
                         resViewName                                   = RZString(accessView.resViewDesc.bufferViewDesc.pBuffer->resource.pCold->pName);
@@ -89,6 +90,7 @@ namespace Razix {
                         return;
                     }
                 } else if (rzRHI_IsDescriptorTypeTexture(accessView.resViewDesc.descriptorType)) {
+                    RAZIX_CORE_ASSERT(accessView.resViewDesc.textureViewDesc.pTexture != NULL, "pTexture in resource view desc is NULL!");
                     if (accessView.resViewDesc.textureViewDesc.pTexture == RZ_FG_TEX_RES_AUTO_POPULATE) {
                         accessView.resViewDesc.textureViewDesc.pTexture = RZResourceManager::Get().getTextureResource(resHandle);
                         resViewName                                     = RZString(accessView.resViewDesc.textureViewDesc.pTexture->resource.pCold->pName);
@@ -147,5 +149,38 @@ namespace Razix {
             }
         }
 
+        static RZString getResourceViewNamePrefix(const RZFrameGraphResourceAcessView& accessView)
+        {
+            RZString resViewName;
+            if (rzRHI_IsDescriptorTypeBuffer(accessView.resViewDesc.descriptorType)) {
+                resViewName = RZString(accessView.resViewDesc.bufferViewDesc.pBuffer->resource.pCold->pName);
+                return resViewName;
+            } else if (rzRHI_IsDescriptorTypeTexture(accessView.resViewDesc.descriptorType)) {
+                resViewName = RZString(accessView.resViewDesc.bufferViewDesc.pBuffer->resource.pCold->pName);
+                return resViewName;
+            }
+            RAZIX_CORE_ERROR("unsupported resource view descriptor type in FrameGraph {0}", accessView.resViewDesc.descriptorType);
+            return {};
+        }
+
+        void RZPassNode::recreateDeferredResourceViews()
+        {
+            for (auto& [id, accessView]: m_Writes) {
+                if (rz_handle_is_valid(&accessView.resViewHandle))
+                    RZResourceManager::Get().destroyResourceView(accessView.resViewHandle);
+            }
+
+            for (auto& wi: m_Writes) {
+                RZFrameGraphResourceAcessView& accessView = wi.second;
+                if (accessView.resViewDesc.bufferViewDesc.pBuffer == RZ_FG_BUF_RES_VIEW_IGNORE || accessView.resViewDesc.textureViewDesc.pTexture == RZ_FG_TEX_RES_VIEW_IGNORE) {
+                    continue;
+                }
+
+                RAZIX_CORE_INFO("Recreating write Resource View for FG Resource ID: {0} and name {1}", wi.first, getResourceViewNamePrefix(accessView));
+
+                accessView.resViewHandle = RZResourceManager::Get().createResourceView(getResourceViewNamePrefix(accessView).c_str(), accessView.resViewDesc);
+                RAZIX_CORE_ASSERT(rz_handle_is_valid(&accessView.resViewHandle), "Failed to create resource view for FrameGraph resource!");
+            }
+        }
     }    // namespace Gfx
 }    // namespace Razix

@@ -4,7 +4,7 @@
  */
 //------------------------------------------------------------------------------
 // Bindless Textures
-//#include <Utils/ShaderInclude.Builtin.Color.glsl>
+#include <Utils/ShaderInclude.Builtin.Color.h>
 //------------------------------------------------------------------------------
 // VersampleColor Input
 struct PsIn
@@ -21,9 +21,6 @@ float4 PS_MAIN(PsIn input)
     : SV_TARGET
 {
     float4 result = FinalSceneColor.Sample(g_Sampler, input.uv);
-
-    // TODO: Enable Gamma correction to sRGB
-    // result = LinearTosRGB(result);
     return result;
 }
 //------------------------------------------------------------------------------
