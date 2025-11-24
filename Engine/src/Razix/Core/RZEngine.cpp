@@ -29,9 +29,10 @@
 namespace Razix {
     void RZEngine::Ignite()
     {
+#ifdef RAZIX_DEBUG
         auto start = rz_time_now();
-
-        // Log the Engine Ignition
+#endif    // RAZIX_DEBUG \
+    // Log the Engine Ignition
         RAZIX_CORE_INFO("***********************************");
         RAZIX_CORE_INFO("*          Igniting Engine....    *");
         RAZIX_CORE_INFO("***********************************");
@@ -148,9 +149,10 @@ namespace Razix {
         // Destroy the splash screen since the engine has Ignited successfully!
         //Razix::RZSplashScreen::Get().destroy();
         // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
-
+#ifdef RAZIX_DEBUG
         auto end = rz_time_now();
         RAZIX_CORE_INFO("Engine Ignited in : {0} ms", static_cast<f32>(rz_get_elapsed_ms(start, end)));
+#endif    // RAZIX_DEBUG
     }
 
     void RZEngine::ShutDown()

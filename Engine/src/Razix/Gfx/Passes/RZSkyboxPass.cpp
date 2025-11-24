@@ -116,7 +116,6 @@ namespace Razix {
             pipelineDesc.inputLayoutMode        = RZ_GFX_INPUT_LAYOUT_AOS;
             m_SkyboxPipeline                    = RZResourceManager::Get().createPipeline("Pipeline.Skybox", pipelineDesc);
 
-            auto& frameDataBlock  = framegraph.getBlackboard().get<FrameData>();
             auto& lightProbesData = framegraph.getBlackboard().get<GlobalLightProbeData>();
 
             // Register the bind map for the skybox shader in RZResourceManager
