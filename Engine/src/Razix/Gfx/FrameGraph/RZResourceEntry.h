@@ -51,13 +51,13 @@ namespace Razix {
                  */
             struct RAZIX_API Concept
             {
-                virtual ~Concept()                                       = default;
-                virtual void     create(const void* transientAllocator)  = 0;
-                virtual void     destroy(const void* transientAllocator) = 0;
-                virtual void     preRead(uint32_t flags)                 = 0;
-                virtual void     preWrite(uint32_t flags)                = 0;
-                virtual void     resize(u32 width, u32 height)           = 0;
-                virtual RZString toString() const                        = 0;
+                virtual ~Concept()                                                = default;
+                virtual void     create(const void* transientAllocator)           = 0;
+                virtual void     destroy(const void* transientAllocator)          = 0;
+                virtual void     preRead(u32 descriptorType, u32 resViewOpFlags)  = 0;
+                virtual void     preWrite(u32 descriptorType, u32 resViewOpFlags) = 0;
+                virtual void     resize(u32 width, u32 height)                    = 0;
+                virtual RZString toString() const                                 = 0;
             };
 
             /**
@@ -107,18 +107,18 @@ namespace Razix {
                      * The flags are given to concept from frame graph when which as passes as args to the read/write methods of the FrameGraph class
                      */
 
-                void preRead(uint32_t flags)
+                void preRead(u32 descriptorType, u32 resViewOpFlags)
                 {
                     // Since these functions are optional for a resource to have and not enforce we check here before calling them
                     if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, preRead))
-                        resource.preRead(descriptor, flags);
+                        resource.preRead(descriptorType, resViewOpFlags);
                 }
 
-                void preWrite(uint32_t flags) final
+                void preWrite(u32 descriptorType, u32 resViewOpFlags) final
                 {
                     // Since these functions are optional for a resource to have and not enforce we check here before calling them
                     if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, preWrite))
-                        resource.preWrite(descriptor, flags);
+                        resource.preWrite(descriptorType, resViewOpFlags);
                 }
 
                 void resize(u32 width, u32 height) final

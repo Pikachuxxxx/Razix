@@ -460,6 +460,7 @@ namespace Razix {
                     data.frameData                                    = builder.create<RZFrameGraphBuffer>("FrameData", CAST_TO_FG_BUF_DESC framedataBufferDesc);
                     rz_gfx_resource_view_desc frameDataIgnoreViewDesc = {};
                     frameDataIgnoreViewDesc.bufferViewDesc.pBuffer    = RZ_FG_BUF_RES_VIEW_IGNORE;
+                    frameDataIgnoreViewDesc.opFlags                   = RZ_GFX_RES_VIEW_OP_FLAG_SKIP_BARRIER;
                     data.frameData                                    = builder.write(data.frameData, frameDataIgnoreViewDesc);
                 },
                 [=](const FrameData& data, RZPassResourceDirectory& resources) {
@@ -1017,12 +1018,9 @@ namespace Razix {
                     info.colorAttachments[0].pResourceView = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.imguiRT));
                     info.colorAttachments[0].clear         = false;
                     info.colorAttachments[0].clearColor    = RAZIX_GFX_COLOR_RGBA_BLACK;
-                    //info.depthAttachment.pResourceView     = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.imguiDepth));
-                    //info.depthAttachment.clear             = false;
-                    //info.depthAttachment.clearColor        = {1.0f, 0.0f, 0.0f, 0.0f};
-                    info.layers           = 1;
-                    RAZIX_X(info.extents) = RZApplication::Get().getWindow()->getWidth();
-                    RAZIX_Y(info.extents) = RZApplication::Get().getWindow()->getHeight();
+                    info.layers                            = 1;
+                    RAZIX_X(info.extents)                  = RZApplication::Get().getWindow()->getWidth();
+                    RAZIX_Y(info.extents)                  = RZApplication::Get().getWindow()->getHeight();
 
                     rzRHI_BeginRenderPass(cmdBuffer, &info);
                     rzRHI_BindGfxRootSig(cmdBuffer, m_ImGuiRootSigHandle);
@@ -1185,12 +1183,6 @@ namespace Razix {
 
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
                     RAZIX_MARK_BEGIN(cmdBuffer, "Composition pass", float4(0.5f, 0.5f, 0.5f, 1.0f));
-
-                    //rzRHI_InsertImageBarrier(
-                    //    cmdBuffer,
-                    //    resources.get<RZFrameGraphTexture>(sceneData.LDR).getRHIHandle(),
-                    //    RZ_GFX_RESOURCE_STATE_UNKNOWN,    // current (framegraph manages exact state)
-                    //    RZ_GFX_RESOURCE_STATE_SHADER_READ);
 
                     rz_gfx_renderpass info                 = {};
                     info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;

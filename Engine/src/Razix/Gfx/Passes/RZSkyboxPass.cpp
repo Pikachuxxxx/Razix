@@ -181,7 +181,7 @@ namespace Razix {
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
                     RAZIX_MARK_BEGIN(cmdBuffer, "Skybox pass", float4(0.33f, 0.45f, 1.0f, 1.0f));
 
-                    rzRHI_InsertImageBarrier(cmdBuffer, resources.get<RZFrameGraphTexture>(data.HDR).getRHIHandle(), RZ_GFX_RESOURCE_STATE_SHADER_READ, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);
+                    //rzRHI_InsertImageBarrier(cmdBuffer, resources.get<RZFrameGraphTexture>(data.HDR).getRHIHandle(), RZ_GFX_RESOURCE_STATE_SHADER_READ, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);
 
                     rz_gfx_renderpass info                 = {};
                     info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;

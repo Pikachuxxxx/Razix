@@ -769,18 +769,14 @@ namespace Razix {
                     createResourceViewForPass(pass, id, accessView);
 
                     if (getResourceEntryRef(id).isTransient())
-                        getResourceEntryRef(id).getConcept()->preRead(~0u);
-
-                    // TODO: For this pass CREATE the read resource view with the actual resource but just once?
+                        getResourceEntryRef(id).getConcept()->preRead(accessView.resViewDesc.descriptorType, accessView.resViewDesc.opFlags);
                 }
                 for (auto& [id, accessView]: pass.m_Writes) {
                     // Create the resource view for this pass after the actual resource is created
                     createResourceViewForPass(pass, id, accessView);
 
                     if (getResourceEntryRef(id).isTransient())
-                        getResourceEntryRef(id).getConcept()->preWrite(~0u);
-
-                    // TODO: For this pass CREATE the write resource view with the actual resource but just once?
+                        getResourceEntryRef(id).getConcept()->preWrite(accessView.resViewDesc.descriptorType, accessView.resViewDesc.opFlags);
                 }
 
                 // call the ExecuteFunc (same for Code and DataDriven passes)
@@ -1166,7 +1162,13 @@ namespace Razix {
                  * which serve no runtime purpose. Instead, we skip the read registration
                  * and directly clone + write:
                  */
+                // Note:
+                // Also skip read barrier here, as we're not actually reading from the original resource
+                // This particular frame graph per pass has pre barriers, so we don't care about post behavior, change your mental model
+                resViewDesc.opFlags |= (int) RZ_GFX_RES_VIEW_OP_FLAG_SKIP_BARRIER;
                 m_PassNode.registerResourceForRead(id, resViewDesc);
+                // remove this flag for the write operation, keep the rest of the flags intact
+                resViewDesc.opFlags &= ~RZ_GFX_RES_VIEW_OP_FLAG_SKIP_BARRIER;
                 // we're writing to the same existing external resource so clone it before writing to it
                 writeID = m_PassNode.registerResourceForWrite(m_FrameGraph.cloneResource(id), resViewDesc);
             }

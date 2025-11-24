@@ -75,6 +75,8 @@ namespace Razix {
 
             if (accessView.resViewDesc.bufferViewDesc.pBuffer == RZ_FG_BUF_RES_VIEW_IGNORE ||
                 accessView.resViewDesc.textureViewDesc.pTexture == RZ_FG_TEX_RES_VIEW_IGNORE) {
+                // set skip barrier flag
+                accessView.resViewDesc.opFlags |= RZ_GFX_RES_VIEW_OP_FLAG_SKIP_BARRIER;
                 return;
             }
 
