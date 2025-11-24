@@ -19,7 +19,7 @@
 
 #include "Razix/Scene/RZEntity.h"
 
-#include "Razix/Core/Utils/RZTimer.h"
+#include "Razix/Core/Utils/RZTime.h"
 #include "Razix/Core/Utils/RZTimestep.h"
 #include "Razix/Core/Utils/TRZSingleton.h"
 
@@ -101,7 +101,6 @@ namespace Razix {
         inline RZString              getProjectRoot() const { return m_ProjectPath; }
         inline void                  setProjectRoot(const RZString& projPath) { m_ProjectPath = projPath; }
         inline WindowProperties&     getWindowProps() { return m_WindowProperties; }
-        inline RZTimer               getTimer() const { return *m_Timer.get(); }
         inline RZUUID                getProjectUUID() const { return m_ProjectID; }
         inline void                  setViewportWindow(RZWindow* viewportWindow) { m_Window = viewportWindow; }
         inline AppType               getAppType() const { return m_appType; }
@@ -119,26 +118,26 @@ namespace Razix {
     private:
         static RZApplication* s_AppInstance;
 
-        AppState                  m_CurrentState              = AppState::Loading;
-        AppType                   m_appType                   = AppType::kGame;
-        RZString                  m_ProjectName               = "";
-        RZString                  m_ProjectPath               = "";
-        u32                       m_RenderAPI                 = 1;    // Vulkan
-        u32                       m_Frames                    = 0;
-        u32                       m_Updates                   = 0;
-        rzstl::UniqueRef<RZTimer> m_Timer                     = nullptr;
-        f32                       m_TotalTimeElapsedInSeconds = 0;
-        RZTimestep                m_FPSTimestep               = {};
-        RZTimestep                m_UPSTimestep               = {};
-        RZWindow*                 m_Window                    = nullptr;
-        WindowProperties          m_WindowProperties          = {};
-        RZUUID                    m_ProjectID                 = {};
-        RZDynamicArray<RZString>  sceneFilePaths              = {};
-        Guizmo::OPERATION         m_GuizmoOperation           = Guizmo::TRANSLATE;
-        Guizmo::MODE              m_GuizmoMode                = Guizmo::WORLD;
-        f32                       m_GuizmoSnapAmount          = 0.0f;
-        bool                      m_EnableGuizmoEditing       = false;
-        RZEventDispatcher         m_EventDispatcher           = {};
+        AppState                 m_CurrentState              = AppState::Loading;
+        AppType                  m_appType                   = AppType::kGame;
+        RZString                 m_ProjectName               = "";
+        RZString                 m_ProjectPath               = "";
+        u32                      m_RenderAPI                 = 0;    // Vulkan
+        u32                      m_Frames                    = 0;
+        u32                      m_Updates                   = 0;
+        RZTimestep               m_FPSTimestep               = {};
+        RZTimestep               m_UPSTimestep               = {};
+        RZWindow*                m_Window                    = nullptr;
+        WindowProperties         m_WindowProperties          = {};
+        RZUUID                   m_ProjectID                 = {};
+        RZDynamicArray<RZString> sceneFilePaths              = {};
+        Guizmo::OPERATION        m_GuizmoOperation           = Guizmo::TRANSLATE;
+        Guizmo::MODE             m_GuizmoMode                = Guizmo::WORLD;
+        f32                      m_GuizmoSnapAmount          = 0.0f;
+        bool                     m_EnableGuizmoEditing       = false;
+        RZEventDispatcher        m_EventDispatcher           = {};
+        rz_time_stamp            m_LastFrameTime             = {};
+        rz_time_stamp            m_TotalTimeElapsedInSeconds = {};
 
     private:
         RAZIX_NONCOPYABLE_CLASS(RZApplication);

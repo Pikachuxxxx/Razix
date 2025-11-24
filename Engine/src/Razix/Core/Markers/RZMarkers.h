@@ -18,12 +18,11 @@
 
     #define RAZIX_TIME_STAMP_BEGIN(name) \
         const RZString& Key   = name;    \
-        auto            start = std::chrono::high_resolution_clock::now();
+        auto            start = rz_time_now();
 
-    #define RAZIX_TIME_STAMP_END()                                                                           \
-        auto                                   stop             = std::chrono::high_resolution_clock::now(); \
-        std::chrono::duration<f32, std::milli> ms_f32           = (stop - start);                            \
-        Razix::RZEngine::Get().GetStatistics().PassTimings[Key] = ms_f32.count();
+    #define RAZIX_TIME_STAMP_END()                                               \
+        auto stop                                               = rz_time_now(); \
+        Razix::RZEngine::Get().GetStatistics().PassTimings[Key] = static_cast<f32>(rz_get_elapsed_ms(start, stop));
 
 #else
     #define RAZIX_TIME_STAMP_BEGIN(name)

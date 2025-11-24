@@ -104,8 +104,6 @@ namespace Razix {
             inputArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
         }
 
-        m_Timer = rzstl::CreateUniqueRef<RZTimer>();
-
         // The Razix Application Signature Name is generated here and passed to the window
         // Set the window properties and create the timer
         m_WindowProperties.Title = GetAppWindowTitleSignature(m_ProjectName);
@@ -274,12 +272,11 @@ namespace Razix {
 
         // TODO: Add Time stamp Queries for calculating GPU time
 
-        // Calculate the delta time
-        f32 now = m_Timer->GetElapsedS();
+        rz_time_stamp currTime = rz_time_now();
         RZEngine::Get().ResetStats();
         auto& stats = RZEngine::Get().GetStatistics();
-        m_FPSTimestep.Update(now);
-        m_UPSTimestep.Update(now);
+        m_FPSTimestep.Update(currTime);
+        m_UPSTimestep.Update(currTime);
 
         // Update the stats
         stats.DeltaTime = m_FPSTimestep.GetTimestepMs();
@@ -322,8 +319,8 @@ namespace Razix {
             RAZIX_PROFILE_SCOPEC("RZApplication::TimeStepUpdates", RZ_PROFILE_COLOR_APPLICATION);
 
             // Record the FPS
-            if (now - m_TotalTimeElapsedInSeconds > 1.0f) {
-                m_TotalTimeElapsedInSeconds += 1.0f;
+            if (rz_get_elapsed_ms(m_TotalTimeElapsedInSeconds, currTime) > 1000.0f) {
+                m_TotalTimeElapsedInSeconds = currTime;
 
                 stats.FramesPerSecond  = (u32) m_FPSTimestep.GetCurrentFPS();
                 stats.UpdatesPerSecond = (u32) m_UPSTimestep.GetCurrentFPS();
@@ -335,6 +332,7 @@ namespace Razix {
                 m_Window->setTitle(sig.c_str());
             }
         }
+
         return m_CurrentState != AppState::Closing;
     }
 

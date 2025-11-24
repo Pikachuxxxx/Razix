@@ -73,7 +73,7 @@
 #include "Razix/Core/Utils/RZColorUtilities.h"
 #include "Razix/Core/Utils/RZCommandLineParser.h"
 #include "Razix/Core/Utils/RZLoadImage.h"
-#include "Razix/Core/Utils/RZTimer.h"
+#include "Razix/Core/Utils/RZTime.h"
 #include "Razix/Core/Utils/RZTimestep.h"
 #include "Razix/Core/Utils/TRZSingleton.h"
 

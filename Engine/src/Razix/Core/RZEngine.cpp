@@ -29,7 +29,7 @@
 namespace Razix {
     void RZEngine::Ignite()
     {
-        auto start = std::chrono::high_resolution_clock::now();
+        auto start = rz_time_now();
 
         // Log the Engine Ignition
         RAZIX_CORE_INFO("***********************************");
@@ -147,10 +147,8 @@ namespace Razix {
         //Razix::RZSplashScreen::Get().destroy();
         // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
 
-        auto                                   stop   = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<d32, std::milli> ms_d32 = (stop - start);
-        RAZIX_CORE_INFO("Engine Ingnited in : {0} ms", ms_d32.count());
-        RAZIX_UNUSED(ms_d32);
+        auto end = rz_time_now();
+        RAZIX_CORE_INFO("Engine Ignited in : {0} ms", static_cast<f32>(rz_get_elapsed_ms(start, end)));
     }
 
     void RZEngine::ShutDown()
