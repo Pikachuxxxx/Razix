@@ -17,11 +17,13 @@ filter "system:windows"
         -- Fallback to system PATH if VulkanSDK not available
         spirvCrossLocation = "spirv-cross"
     end
-elseif os.host() == "macosx" or os.host() == "linux" then
-    VulkanSDK = os.getenv("VULKAN_SDK")
-    dxcLocation = "%{VulkanSDK}/bin/"
-    spirvCrossLocation = "spirv-cross"
 filter {}
+
+if os.host() == "macosx" or os.host() == "linux" then
+    VulkanSDK = os.getenv("VULKAN_SDK")
+    dxcLocation = VulkanSDK .. "/bin/"
+    spirvCrossLocation = "spirv-cross"
+end
 -- Note: All shaders are built using SM6
 
 -- TODO: Add as rules, every shader file type will have it's own rule
