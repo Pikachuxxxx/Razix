@@ -1,0 +1,324 @@
+name: Scheduled Stability Build
+
+on:
+  schedule:
+    # Run bi-weekly on Sundays at 2:00 AM UTC
+    # Note: GitHub Actions doesn't support exact bi-weekly, so this runs weekly
+    # We could add logic to skip every other run if needed
+    - cron: '0 2 * * 0'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Setup Visual Studio
+      uses: microsoft/setup-msbuild@v2
+      with:
+        msbuild-architecture: x64
+    
+    - name: Add MSBuild to PATH
+      run: |
+        $msbuildPath = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin"
+        if (-not (Test-Path $msbuildPath)) {
+          $msbuildPath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin"
+        }
+        if (-not (Test-Path $msbuildPath)) {
+          $msbuildPath = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin"
+        }
+        if (Test-Path $msbuildPath) {
+          echo $msbuildPath | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "MSBuild path added: $msbuildPath"
+        } else {
+          echo "MSBuild not found in expected locations"
+          exit 1
+        }
+      shell: powershell
+    
+    - name: Cache Vulkan SDK
+      uses: actions/cache@v4
+      id: cache-vulkan-windows
+      with:
+        path: |
+          C:\VulkanSDK
+        key: vulkan-sdk-windows-1.3.290.0
+    
+    - name: Install Vulkan SDK with Official Installer
+      if: steps.cache-vulkan-windows.outputs.cache-hit != 'true'
+      run: |
+        echo "Downloading Vulkan SDK for Windows..."
+        
+        # Use PowerShell's Invoke-WebRequest instead of curl
+        $url = "https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe"
+        $outputFile = "vulkan-sdk-installer.exe"
+        
+        try {
+            echo "Downloading from: $url"
+            curl.exe -L -o $outputFile $url
+            
+            if (Test-Path $outputFile) {
+                $fileSize = (Get-Item $outputFile).length
+                if ($fileSize -gt 1MB) {
+                    echo "Successfully downloaded installer ($fileSize bytes)"
+                } else {
+                    echo "ERROR: Downloaded file too small ($fileSize bytes)"
+                    exit 1
+                }
+            } else {
+                echo "ERROR: Download failed - file not found"
+                exit 1
+            }
+        } catch {
+            echo "ERROR: Failed to download Vulkan SDK installer"
+            echo "Error: $($_.Exception.Message)"
+            exit 1
+        }
+        
+        echo "Installing Vulkan SDK..."
+        # Use silent installation with /S flag (NSIS installer)
+        .\vulkan-sdk-installer.exe in  --accept-licenses  --root "C:\VulkanSDK\1.3.290.0"  --default-answer yes -c com.lunarg.vulkan.core com.lunarg.vulkan.usr com.lunarg.vulkan.sdl2 com.lunarg.vulkan.volk com.lunarg.vulkan.vma
+        
+        echo "Verifying installation..."
+        if (-not (Test-Path "C:\VulkanSDK\1.3.290.0")) {
+            echo "ERROR: Vulkan SDK installation failed"
+            exit 1
+        }
+        
+        echo "Cleaning up..."
+        Remove-Item $outputFile
+        
+        echo "Vulkan SDK installation completed successfully"
+      shell: powershell
+    
+    - name: Setup Vulkan SDK Environment
+      run: |
+        # Set up Vulkan SDK environment variables
+        if (Test-Path "C:\VulkanSDK\1.3.290.0") {
+            echo "Vulkan SDK directory found"
+            echo "VULKAN_SDK=C:\VulkanSDK\1.3.290.0" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            
+            # Inner if: Check Bin directory
+            if (Test-Path "C:\VulkanSDK\1.3.290.0\Bin") {
+                echo "Vulkan SDK Bin directory found"
+                
+                # Inner-inner if: Check dxc.exe
+                if (Test-Path "C:\VulkanSDK\1.3.290.0\Bin\dxc.exe") {
+                    echo "DXC found in Vulkan SDK"
+                    try {
+                        & "C:\VulkanSDK\1.3.290.0\Bin\dxc.exe" --version
+                        echo "DXC version check completed successfully"
+                    } catch {
+                        echo "DXC version check completed (with minor errors)"
+                    }
+                } else {
+                    echo "DXC not found at expected location"
+                }
+                if (Test-Path "C:\VulkanSDK\1.3.290.0\Bin\spirv-cross.exe") {
+                    echo "SPIRV-Cross found in Vulkan SDK"
+                } else {
+                    echo "SPIRV-Cross not found at expected location"
+                }
+            } else {
+                echo "Vulkan SDK Bin directory not found"
+            }
+        } else {
+            echo "Vulkan SDK directory not found"
+        }
+      shell: powershell
+    
+    - name: Generate Project Files
+      run: |
+        cd Scripts
+        .\GenerateVS22.bat
+      shell: cmd
+    
+    - name: Build Engine (GoldMaster)
+      run: |
+        cd Scripts
+        python build_razix.py --platform windows-x86_64 --config GoldMaster --github-ci
+      shell: cmd
+    
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: stability-build-windows-${{ github.run_number }}
+        path: |
+          bin/GoldMaster-windows-x64/**/*
+        retention-days: 30
+
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Install Xcode Command Line Tools
+      run: |
+        # Ensure Xcode command line tools are installed
+        xcode-select --install || true
+        # Accept Xcode license
+        sudo xcodebuild -license accept || true
+    
+    - name: Cache MoltenVK SDK
+      uses: actions/cache@v4
+      id: cache-vulkan-macos
+      with:
+        path: |
+          ~/VulkanSDK
+        key: moltenvk-sdk-macos-1.3.290.0
+    
+    - name: Install Vulkan SDK with Command-Line Installer
+      if: steps.cache-vulkan-macos.outputs.cache-hit != 'true'
+      run: |
+        echo "Downloading Vulkan SDK for macOS..."
+        curl -L -o vulkan-sdk.dmg https://sdk.lunarg.com/sdk/download/1.3.290.0/mac/vulkansdk-macos-1.3.290.0.dmg
+        
+        echo "Mounting the DMG..."
+        hdiutil attach vulkan-sdk.dmg -mountpoint /Volumes/VulkanSDK
+        
+        echo "Verifying mount was successful..."
+        if [ ! -d "/Volumes/VulkanSDK" ]; then
+          echo "ERROR: Failed to mount Vulkan SDK DMG"
+          exit 1
+        fi
+        
+        echo "Checking for InstallVulkan.app..."
+        if [ ! -d "/Volumes/VulkanSDK/InstallVulkan.app" ]; then
+          echo "ERROR: InstallVulkan.app not found in mounted volume"
+          echo "Contents of /Volumes/VulkanSDK:"
+          ls -la /Volumes/VulkanSDK/ || true
+          hdiutil detach /Volumes/VulkanSDK || true
+          exit 1
+        fi
+        
+        echo "Installing Vulkan SDK using command-line installer..."
+        sudo /Volumes/VulkanSDK/InstallVulkan.app/Contents/MacOS/InstallVulkan \
+          --root ~/VulkanSDK/1.3.290.0 \
+          --accept-licenses \
+          --default-answer \
+          --confirm-command install \
+          com.lunarg.vulkan.core \
+          com.lunarg.vulkan.usr \
+          com.lunarg.vulkan.sdl2 \
+          com.lunarg.vulkan.volk \
+          com.lunarg.vulkan.vma
+        
+        echo "Verifying installation..."
+        if [ ! -d "$HOME/VulkanSDK/1.3.290.0" ]; then
+          echo "ERROR: Vulkan SDK installation failed"
+          hdiutil detach /Volumes/VulkanSDK || true
+          exit 1
+        fi
+        
+        echo "Unmounting the DMG..."
+        hdiutil detach /Volumes/VulkanSDK
+        
+        echo "Cleaning up..."
+        rm vulkan-sdk.dmg
+        
+        echo "Vulkan SDK installation completed successfully"
+    
+    - name: Setup Vulkan SDK Environment
+      run: |
+        # Set up Vulkan SDK environment variables
+        echo "VULKAN_SDK=$HOME/VulkanSDK/1.3.290.0/macOS" >> $GITHUB_ENV
+        echo "$HOME/VulkanSDK/1.3.290.0/macOS/bin" >> $GITHUB_PATH
+        
+        # Verify SDK structure and DXC availability
+        echo "Verifying Vulkan SDK installation..."
+        if [ -d "$HOME/VulkanSDK/1.3.290.0/macOS" ]; then
+          echo "✓ Vulkan SDK directory found"
+          echo "Contents of Vulkan SDK:"
+          ls -la "$HOME/VulkanSDK/1.3.290.0/macOS/"
+          
+          if [ -d "$HOME/VulkanSDK/1.3.290.0/macOS/bin" ]; then
+            echo "✓ Vulkan SDK bin directory found"
+            echo "Contents of bin directory:"
+            ls -la "$HOME/VulkanSDK/1.3.290.0/macOS/bin/"
+            
+            if [ -f "$HOME/VulkanSDK/1.3.290.0/macOS/bin/dxc" ]; then
+              echo "✓ DXC found in Vulkan SDK"
+              "$HOME/VulkanSDK/1.3.290.0/macOS/bin/dxc" --version || echo "DXC version check completed"
+            else
+              echo "⚠ DXC not found at expected location"
+            fi
+          else
+            echo "⚠ Vulkan SDK bin directory not found"
+          fi
+        else
+          echo "⚠ Vulkan SDK directory not found"
+        fi
+    
+    - name: Generate Project Files
+      run: |
+        chmod +x ./Scripts/GenerateXCodeProjectsMacOS.sh
+        ./Scripts/GenerateXCodeProjectsMacOS.sh
+    
+    - name: Build Engine (GoldMaster)
+      run: |
+        python Scripts/build_razix.py --platform macosx-arm64 --config GoldMaster
+    
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: stability-build-macos-${{ github.run_number }}
+        path: |
+          bin/GoldMaster-macosx-ARM64/**/*
+        retention-days: 30
+
+  notify-results:
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Create Issue on Failure
+      if: needs.build-windows.result == 'failure' || needs.build-macos.result == 'failure'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const title = `Scheduled Build Failure - ${new Date().toISOString().split('T')[0]}`;
+          const body = `
+          ## Scheduled Stability Build Failed
+          
+          **Date:** ${new Date().toISOString()}
+          **Run:** ${{ github.run_number }}
+          
+          **Build Results:**
+          - Windows: ${{ needs.build-windows.result }}
+          - macOS: ${{ needs.build-macos.result }}
+          
+          **Action Required:**
+          Please investigate the build failures and fix any issues affecting the stability of the master branch.
+          
+          **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          `;
+          
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: title,
+            body: body,
+            labels: ['build system', 'scheduled-build-failure']
+          });

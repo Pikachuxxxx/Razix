@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Generating XCode Project files..."
+echo "Generating XCode Project files for macOS ARM64..."
 echo "=========================================================="
 echo " ____           _        _____             _            "
 echo "|  _ \ __ _ ___(_)_  __ | ____|_ __   __ _(_)_ __   ___ "
@@ -13,19 +13,18 @@ echo " Premake Build System CLI for Razix Engine - v0.4.3.dev "
 echo "       @ 2025 copyright Pikachuxxxx - Phani Srikar      "
 echo
 echo "Welcome to Razix-Premake-Build CLI tool..."
-echo "Generates XCode project files for iOS"
+echo "Generates XCode project files for macOS ARM64"
 echo "=========================================================="
 echo "- CLI for generating Project files and building"
 echo "- Cross platform tool for installation for dev/user"
 echo "=========================================================="
 echo
-echo "Usage premake5"
-echo "Options:"
-echo "  --version: Displays the tool version and exit"
-echo "  --help: Displays commands available and their usage"
-echo "THE TOOL IS A WIP...still adding options..."
+echo "Target: macOS ARM64"
+echo "Tool: Xcode 4"
 echo "🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧"
 echo "=========================================================="
 
 chmod +x ./Tools/Building/premake/premake5
-./Tools/Building/premake/premake5 --arch=arm64 --os=ios xcode4
+./Tools/Building/premake/premake5 --arch=arm64 --os=macosx xcode4
+echo "Project files generated successfully!"
+read -p "Press any key to continue..."

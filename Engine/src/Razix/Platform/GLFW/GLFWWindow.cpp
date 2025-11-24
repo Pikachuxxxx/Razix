@@ -115,6 +115,7 @@ namespace Razix {
 
         if (!sGLFWInitialized) {
             int success = glfwInit();
+            (void) success;
             RAZIX_CORE_ASSERT(success, "Could not initialize GLFW");
             RAZIX_UNUSED(success);
 

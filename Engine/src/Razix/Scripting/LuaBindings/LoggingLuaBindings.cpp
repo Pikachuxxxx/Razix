@@ -16,6 +16,7 @@ namespace Razix {
 
             LUA_REGISTER_GLOBAL_FUNCTION(L, "RZLog", Trace, {
                 const char* message = luaL_checkstring(L, 1);
+                (void)message;
                 RAZIX_TRACE(message);
                 RAZIX_UNUSED(message);
                 return 0;
@@ -23,6 +24,7 @@ namespace Razix {
 
             LUA_REGISTER_GLOBAL_FUNCTION(L, "RZLog", Info, {
                 const char* message = luaL_checkstring(L, 1);
+                (void)message;
                 RAZIX_INFO(message);
                 RAZIX_UNUSED(message);
                 return 0;
@@ -30,6 +32,7 @@ namespace Razix {
 
             LUA_REGISTER_GLOBAL_FUNCTION(L, "RZLog", Warn, {
                 const char* message = luaL_checkstring(L, 1);
+                (void)message;
                 RAZIX_WARN(message);
                 RAZIX_UNUSED(message);
                 return 0;
@@ -37,6 +40,7 @@ namespace Razix {
 
             LUA_REGISTER_GLOBAL_FUNCTION(L, "RZLog", Error, {
                 const char* message = luaL_checkstring(L, 1);
+                (void)message;
                 RAZIX_ERROR(message);
                 RAZIX_UNUSED(message);
                 return 0;

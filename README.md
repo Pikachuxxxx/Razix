@@ -1,5 +1,5 @@
 <br>
-<img width=200" align="left" src="https://github.com/Pikachuxxxx/Razix/blob/master/Branding/RazixLogo.png"> <h1> Razix Engine </h1>
+<img width="200" align="left" src="https://github.com/Pikachuxxxx/Razix/blob/master/Branding/RazixLogo.png"> <h1> Razix Engine </h1>
 Razix is a High Performance Engine for experimenting with different rendering techniques. Razix supports Windows, Mac, Linux.   
 
 ---
@@ -11,8 +11,7 @@ _Tanu = Body/Her_
 Tanu Mood Board:
 ![](./Tanu/Design/ProjectTanu.drawio.png)
 
-[tanu_mood.txt - thoughs about the direction of the game](./Tanu/Design/tanu_mood.txt)
-
+[tanu_mood.txt — thoughts about the direction of the game](./Tanu/Design/tanu_mood.txt)
 
 # About
 Razix is a cross-Platform 3D engine with multi render API support (Vulkan, DirectX 12). It's being built on a new design principle of **"Everything is as asset"** to replace traditonal 
@@ -36,10 +35,10 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 | ------------- | ------------- |
 
 - 3D audio using OpenAL
-- Complete Deferred pipeline + Bindless resources + nanite-like renderers(Future support for customizable render graph editor for complete control).
+- Complete Deferred pipeline + Bindless resources + nanite-like renderers (Future support for customizable render graph editor for complete control).
 - Runtime tools using ImGui + Blender Support as level editor
 - 3D physics using Jolt.
-- Basic lua scripting support
+- Basic Lua scripting support
 - Extremely detailed profiling using Tracy and RenderDoc integrated
 - Supports HLSL shading language to create custom materials + Custom Razix Shaders files for easy compilation
 - Resource Pool base management and custom asset format
@@ -55,7 +54,7 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 	- Skybox (HDR & Procedural)
 	- SSAO
 	- Debug Drawing
-	- ImGUi
+	- ImGui
 	- Tonemapping
 	- FXAA
 	- TAA (WIP)
@@ -300,27 +299,25 @@ premake5 --os=macosx --arch=arm64 xcode4
 
 ### 3. Build
 
-#### Using Python Build Script (either use IDE or build scripts)
+#### Using Python Build Script (Recommended)
 
-**Windows:**
+The build script supports only `Debug` and `GoldMaster` configurations.
+
+**Usage:**
+```bash
+python build_razix.py --platform <platform> [--config <Debug|GoldMaster>] [--github-ci] [--args ...]
+```
+
+- `--platform`: Target platform (`windows-x86_64`, `windows-arm64`, `macosx-arm64`, `linux-x86_64`, `linux-arm64`). **Required**
+- `--config`: Build configuration (choices: `Debug`, `GoldMaster`). Defaults to `Debug`
+- `--github-ci`: Use GitHub CI MSBuild path (Enterprise edition)
+- `--args`: Additional arguments to pass to the build executable
+
+**Examples:**
 ```cmd
-cd Scripts
-python build_razix.py --platform windows --config Debug
+python build_razix.py --platform windows-x86_64 --config Debug
+python build_razix.py --platform macosx-arm64 --config GoldMaster
 ```
-
-**macOS:**
-```bash
-cd Scripts
-python build_razix.py --platform macos --config Debug
-```
-
-**Linux:**
-```bash
-cd Scripts
-python build_razix.py --platform linux --config Debug
-```
-
-Available configurations: `Debug`, `Release`, `GoldMaster`
 
 #### Manual Building
 
@@ -328,40 +325,45 @@ Available configurations: `Debug`, `Release`, `GoldMaster`
 ```cmd
 # Open build/Razix.sln in Visual Studio 2022
 # Or build from command line:
-msbuild build/Razix.sln /p:Configuration=Release /p:Platform=x64
+msbuild build/Razix.sln /p:Configuration=Debug /p:Platform=x64
+msbuild build/Razix.sln /p:Configuration=GoldMaster /p:Platform=x64
 ```
 
 **Linux:**
 ```bash
 cd build
-make -j$(nproc) config=release
-
-# Available configurations:
-make config=debug      # Debug build
-make config=release    # Release build  
-make config=goldmaster # Distribution build
+make -j$(nproc) config=debug      # Debug build
+make -j$(nproc) config=goldmaster # GoldMaster (distribution) build
 ```
 
 **macOS:**
 ```bash
 cd build
-make -j$(sysctl -n hw.ncpu) config=release
-
-# Architecture-specific builds:
-make -j$(sysctl -n hw.ncpu) config=release_arm64  # Apple Silicon
+make -j$(sysctl -n hw.ncpu) config=debug      # Debug build
+make -j$(sysctl -n hw.ncpu) config=goldmaster # GoldMaster build
 ```
 
 ### 4. Running Tests
 
+**Usage:**
 ```bash
-cd Scripts
-python test_runner.py [config] [platform] [--verbose]
-
-# Examples:
-python test_runner.py Debug windows-x86_64
-python test_runner.py Release macosx-ARM64 --verbose
-python test_runner.py  # Uses defaults
+python test_runner.py --config <Debug|GoldMaster> --platform <platform> [--verbose] [--github-ci] [--args ...]
 ```
+- `--config`: Build config (choices: `Debug`, `GoldMaster`; default: `Debug`)
+- `--platform`: Platform (choices: `windows-x86_64`, `windows-arm64`, `macosx-arm64`, `linux-x86_64`, `linux-arm64`; default: `windows-x86_64`)
+- `--verbose`: Show test output in console
+- `--github-ci`: Skips engine gfx tests on GitHub CI as it's GPU dependent
+- `--args`: Additional arguments to pass to test executables
+
+**Examples:**
+```bash
+python test_runner.py --config Debug --platform windows-x86_64
+python test_runner.py --config GoldMaster --platform macosx-arm64 --verbose
+```
+
+**Only `Debug` and `GoldMaster` build configurations are supported.**
+
+---
 
 ## Build Output
 
@@ -446,7 +448,7 @@ require("lspconfig").clangd.setup({
 #### :warning: Still a work in progress
 ![](./Docs/Architecture/RazixEngine-Architecture-V.1.0.0.RC.png)
 
-**ex. Lua Scriping API cheatsheet** ![Lua Scriping API cheatsheet](./Docs/RazixLuaScriptingAPICheatSheet.png)
+**ex. Lua Scripting API cheatsheet** ![Lua Scripting API cheatsheet](./Docs/RazixLuaScriptingAPICheatSheet.png)
 
 **Check the Docs folder or [Architecture notes on Draw.io](https://drive.google.com/file/d/1y5ZFf-h02z3cx6WmUzR8giKScvORzmwx/view?usp=sharing) for a detailed architecture description**
 
