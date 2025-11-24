@@ -14,7 +14,7 @@ struct PsIn
 };
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-SamplerState g_Sampler              : register(s0, space0);
+SamplerState g_Sampler         : register(s0, space0);
 Texture2D    FinalSceneColor   : register(t0, space1);
 //------------------------------------------------------------------------------
 float4 PS_MAIN(PsIn input)

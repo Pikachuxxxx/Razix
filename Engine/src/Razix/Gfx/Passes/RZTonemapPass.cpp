@@ -41,6 +41,7 @@ namespace Razix {
             pipelineDesc.blendEnabled           = false;
             pipelineDesc.depthCompareOp         = RZ_GFX_COMPARE_OP_TYPE_LESS_OR_EQUAL;
             pipelineDesc.renderTargetCount      = 1;
+            pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;
             pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_R8G8B8A8_UNORM;
             pipelineDesc.inputLayoutMode        = RZ_GFX_INPUT_LAYOUT_AOS;
             m_Pipeline                          = RZResourceManager::Get().createPipeline("Pipeline.Tonemapping", pipelineDesc);
@@ -106,9 +107,13 @@ namespace Razix {
                     rzRHI_InsertImageBarrier(cmdBuffer, resources.get<RZFrameGraphTexture>(sceneData.HDR).getRHIHandle(), RZ_GFX_RESOURCE_STATE_RENDER_TARGET, RZ_GFX_RESOURCE_STATE_SHADER_READ);
                     rzRHI_InsertImageBarrier(cmdBuffer, resources.get<RZFrameGraphTexture>(data.LDR).getRHIHandle(), RZ_GFX_RESOURCE_STATE_SHADER_READ, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);
 
+                    auto swapchainResViewPtr = RZEngine::Get().getWorldRenderer().getCurrSwapchainBackbufferResViewPtr();
+                    RAZIX_UNUSED(swapchainResViewPtr);
+
                     rz_gfx_renderpass info                 = {};
                     info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;
                     info.colorAttachmentsCount             = 1;
+                    info.colorAttachments[0].pResourceView = swapchainResViewPtr;
                     info.colorAttachments[0].pResourceView = RZResourceManager::Get().getResourceViewResource(resources.getResourceViewHandle<RZFrameGraphTexture>(data.LDR));
                     info.colorAttachments[0].clear         = false;
                     info.colorAttachments[0].clearColor    = RAZIX_GFX_COLOR_RGBA_BLACK;
@@ -129,6 +134,7 @@ namespace Razix {
                     if (RZFrameGraph::IsFirstFrame()) {
                         RZResourceManager::Get()
                             .getShaderBindMapRef(RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kTonemap))
+                            .init()
                             .setDescriptorBlacklist(s_GlobalSamplersBlacklistPreset)
                             .setDescriptorBlacklist(s_RootConstantBlacklistPreset)
                             .setDescriptorTable(RZEngine::Get().getWorldRenderer().getGlobalSamplerTable())

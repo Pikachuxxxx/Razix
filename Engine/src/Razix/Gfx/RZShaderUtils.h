@@ -91,6 +91,7 @@ namespace Razix {
             static RZShaderBindMap& RegisterBindMap(const rz_gfx_shader_handle& shaderHandle);
             static RZShaderBindMap& Create(void* where, const rz_gfx_shader_handle& shaderHandle);
 
+            RZShaderBindMap& init();
             RZShaderBindMap& setResourceView(const RZString& shaderResName, const rz_gfx_resource_view& resourceView);
             RZShaderBindMap& setResourceView(const RZString& shaderResName, const rz_gfx_resource_view_handle& resourceViewHandle);
             RZShaderBindMap& setDescriptorTable(const rz_gfx_descriptor_table& descriptorTable);
@@ -108,8 +109,8 @@ namespace Razix {
 
             inline const rz_gfx_shader_reflection&                       getShaderReflection() const { return m_ShaderReflection; }
             inline const rz_gfx_shader_handle&                           getShaderHandle() const { return m_ShaderHandle; }
-            inline const RZDynamicArray<rz_gfx_descriptor_table_handle>& getDescriptorTableHandles() const { return m_DescriptorTables; }
-            inline const rz_gfx_descriptor_table_handle&                 getDescriptorTableHandleAt(u32 idx) const { return m_DescriptorTables[idx]; }
+            inline const RZDynamicArray<rz_gfx_descriptor_table_handle>& getDescriptorTableHandles() const { return m_BindDescriptorTables; }
+            inline const rz_gfx_descriptor_table_handle&                 getDescriptorTableHandleAt(u32 idx) const { return m_BindDescriptorTables[idx]; }
 
         private:
             rz_gfx_shader_reflection                         m_ShaderReflection        = {};
@@ -117,7 +118,8 @@ namespace Razix {
             RZHashMap<RZString, rz_gfx_resource_view_handle> m_ResourceViewHandleRefs  = {};
             RZDynamicArray<DescriptorBlacklist>              m_BlacklistDescriptors    = {};
             RZHashMap<u32, RZDynamicArray<NamedResView>>     m_TableBuilderResViewRefs = {};
-            RZDynamicArray<rz_gfx_descriptor_table_handle>   m_DescriptorTables        = {};
+            RZDynamicArray<rz_gfx_descriptor_table_handle>   m_BindDescriptorTables    = {};
+            RZDynamicArray<rz_gfx_descriptor_table_handle>   m_OwnedDescriptorTables   = {};    // Descriptor tables created by this bind map, to be destroyed on clear/destroy
             BindMapValidationErr                             m_LastError               = BIND_MAP_VALIDATION_FAILED;
             rz_gfx_root_signature_handle                     m_RootSigHandle           = {};
             union
@@ -125,9 +127,11 @@ namespace Razix {
                 u32 statusFlags = 0xffffffff;
                 struct
                 {
+                    u32 initialized : 1;
                     u32 validated : 1;
                     u32 built : 1;
                     u32 dirty : 1;
+                    u32 reserved : 28;
                 };
             };
 

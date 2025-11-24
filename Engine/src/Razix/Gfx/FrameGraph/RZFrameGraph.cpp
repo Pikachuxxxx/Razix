@@ -814,12 +814,14 @@ namespace Razix {
 
             m_TransientAllocator.endFrame();
 
-            // End first frame identifier
+            // End first frame identifier regardless
             RZFrameGraph::m_IsFirstFrame = false;
         }
 
         void RZFrameGraph::resize(u32 width, u32 height)
         {
+            m_IsFirstFrame = true;
+
             // Iterate though all passes and call their ExecuteFunc
             for (auto& pass: m_PassNodes) {
                 // Only it it's executable and not culled
@@ -829,6 +831,7 @@ namespace Razix {
                     if (getResourceEntryRef(id).isTransient())
                         getResourceEntryRef(id).getConcept()->resize(width, height);
 
+                // we need the resource first to recreate views, so call if after resizing resource entries
                 pass.recreateDeferredResourceViews();
 
                 // call the ResizeFunc

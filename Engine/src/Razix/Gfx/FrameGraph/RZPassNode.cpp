@@ -165,21 +165,55 @@ namespace Razix {
 
         void RZPassNode::recreateDeferredResourceViews()
         {
-            for (auto& [id, accessView]: m_Writes) {
-                if (rz_handle_is_valid(&accessView.resViewHandle))
-                    RZResourceManager::Get().destroyResourceView(accessView.resViewHandle);
-            }
-
+            // TODO: Collapse the duplicate code into a single lambda function
             for (auto& wi: m_Writes) {
                 RZFrameGraphResourceAcessView& accessView = wi.second;
-                if (accessView.resViewDesc.bufferViewDesc.pBuffer == RZ_FG_BUF_RES_VIEW_IGNORE || accessView.resViewDesc.textureViewDesc.pTexture == RZ_FG_TEX_RES_VIEW_IGNORE) {
+
+                if (rz_handle_is_valid(&accessView.resViewHandle)) {
+                    RZResourceManager::Get().destroyResourceView(accessView.resViewHandle);
+                    accessView.resViewHandle = {};
+                }
+
+                if (accessView.resViewDesc.bufferViewDesc.pBuffer == RZ_FG_BUF_RES_VIEW_IGNORE ||
+                    accessView.resViewDesc.textureViewDesc.pTexture == RZ_FG_TEX_RES_VIEW_IGNORE) {
                     continue;
                 }
 
-                RAZIX_CORE_INFO("Recreating write Resource View for FG Resource ID: {0} and name {1}", wi.first, getResourceViewNamePrefix(accessView));
+                RAZIX_CORE_INFO("[FOR TESTING ONLY] Recreating WRITE Resource View for FG Resource ID: {0} and name {1}",
+                    wi.first,
+                    getResourceViewNamePrefix(accessView));
 
-                accessView.resViewHandle = RZResourceManager::Get().createResourceView(getResourceViewNamePrefix(accessView).c_str(), accessView.resViewDesc);
-                RAZIX_CORE_ASSERT(rz_handle_is_valid(&accessView.resViewHandle), "Failed to create resource view for FrameGraph resource!");
+                accessView.resViewHandle =
+                    RZResourceManager::Get().createResourceView(getResourceViewNamePrefix(accessView).c_str(),
+                        accessView.resViewDesc);
+
+                RAZIX_CORE_ASSERT(rz_handle_is_valid(&accessView.resViewHandle),
+                    "Failed to create WRITE resource view for FrameGraph resource!");
+            }
+
+            for (auto& ri: m_Reads) {
+                RZFrameGraphResourceAcessView& accessView = ri.second;
+
+                if (rz_handle_is_valid(&accessView.resViewHandle)) {
+                    RZResourceManager::Get().destroyResourceView(accessView.resViewHandle);
+                    accessView.resViewHandle = {};
+                }
+
+                if (accessView.resViewDesc.bufferViewDesc.pBuffer == RZ_FG_BUF_RES_VIEW_IGNORE ||
+                    accessView.resViewDesc.textureViewDesc.pTexture == RZ_FG_TEX_RES_VIEW_IGNORE) {
+                    continue;
+                }
+
+                RAZIX_CORE_INFO("[FOR TESTING ONLY] Recreating READ Resource View for FG Resource ID: {0} and name {1}",
+                    ri.first,
+                    getResourceViewNamePrefix(accessView));
+
+                accessView.resViewHandle =
+                    RZResourceManager::Get().createResourceView(getResourceViewNamePrefix(accessView).c_str(),
+                        accessView.resViewDesc);
+
+                RAZIX_CORE_ASSERT(rz_handle_is_valid(&accessView.resViewHandle),
+                    "Failed to create READ resource view for FrameGraph resource!");
             }
         }
     }    // namespace Gfx

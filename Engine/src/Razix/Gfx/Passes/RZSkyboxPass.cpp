@@ -210,6 +210,7 @@ namespace Razix {
                     if (RZFrameGraph::IsFirstFrame()) {
                         RZResourceManager::Get()
                             .getShaderBindMapRef(RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kSkybox))
+                            .init()
                             .setDescriptorTable(RZEngine::Get().getWorldRenderer().getFrameDataTable())
                             .setDescriptorTable(RZEngine::Get().getWorldRenderer().getGlobalSamplerTable())
                             .setDescriptorBlacklist(s_SystemDescriptorsBlacklistPreset)

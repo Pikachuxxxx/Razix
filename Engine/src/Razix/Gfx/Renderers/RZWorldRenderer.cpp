@@ -871,7 +871,7 @@ namespace Razix {
                         ImGui_ImplGlfw_InitForOther((GLFWwindow*) RZApplication::Get().getWindow()->GetNativeWindow(), true);
 
                     // TODO: for PlayStation (PS5/PS6) we might need more setup and files from SDK to support dualsense controllers and such
-                    // XBOX and other platforms should work out of the box with GLFW backend
+                    // Note: XBOX and other platforms should work out of the box with GLFW backend
 
                     // Shaders and pipeline
                     m_ImGuiShaderHandle = RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kImGui);
@@ -882,7 +882,7 @@ namespace Razix {
                     pipelineDesc.pRootSig               = RZResourceManager::Get().getRootSignatureResource(pipelineDesc.pShader->rootSignature);
                     pipelineDesc.type                   = RZ_GFX_PIPELINE_TYPE_GRAPHICS;
                     pipelineDesc.blendPreset            = RZ_GFX_BLEND_PRESET_ALPHA_BLEND;
-                    pipelineDesc.cullMode               = RZ_GFX_CULL_MODE_TYPE_NONE;    // !! ImGui requires no culling
+                    pipelineDesc.cullMode               = RZ_GFX_CULL_MODE_TYPE_NONE;    // ! ImGui requires no culling
                     pipelineDesc.drawType               = RZ_GFX_DRAW_TYPE_TRIANGLE;
                     pipelineDesc.polygonMode            = RZ_GFX_POLYGON_MODE_TYPE_SOLID;
                     pipelineDesc.useBlendPreset         = true;
@@ -986,14 +986,14 @@ namespace Razix {
                 },
                 [=](const ImGuiPassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-                    RAZIX_TIME_STAMP_BEGIN("ImGui");
+                    RAZIX_TIME_STAMP_BEGIN("ImGui Pass");
 
                     ImDrawData* imDrawData = ImGui::GetDrawData();
                     if (!imDrawData || imDrawData->TotalVtxCount == 0 || imDrawData->TotalIdxCount == 0)
                         return;
 
                     rz_gfx_cmdbuf_handle cmdBuffer = getCurrCmdBufHandle();
-                    RAZIX_MARK_BEGIN(cmdBuffer, "ImGui", float4(0.9f, 0.6f, 0.2f, 1.0f));
+                    RAZIX_MARK_BEGIN(cmdBuffer, "ImGui Pass", float4(0.9f, 0.6f, 0.2f, 1.0f));
 
                     u32 vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
                     u32 indexBufferSize  = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
@@ -1109,6 +1109,11 @@ namespace Razix {
             // Composition Pass
             //-------------------------------
 
+            // For testing purposes only: skip the composition pass to test resizing issues
+#define ENABLE_COMPO_PASS_TO_TEST_INTERNAL_RESIZING 0
+#if ENABLE_COMPO_PASS_TO_TEST_INTERNAL_RESIZING
+            sceneData.LDR = sceneData.HDR;
+            return;
             struct CompositionPassData
             {
                 RZFrameGraphResource sceneColor;
@@ -1143,7 +1148,7 @@ namespace Razix {
                     pipelineDesc.inputLayoutMode        = RZ_GFX_INPUT_LAYOUT_AOS;
                     m_CompositionPassPipeline           = RZResourceManager::Get().createPipeline("Pipeline.Composition", pipelineDesc);
 
-#if __APPLE__
+    #if __APPLE__
                     // keep the platform-specific dummy depth texture creation but use C-style desc if needed
                     rz_gfx_texture_desc depthTextureDesc = {};
                     depthTextureDesc.width               = RZApplication::Get().getWindow()->getWidth();
@@ -1163,7 +1168,7 @@ namespace Razix {
                     depthTexViewDesc.textureViewDesc.dimension      = 1;
                     depthTexViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getDepthRenderTargetHeap());
                     data.sceneDepth                                 = builder.write(data.sceneDepth, depthTexViewDesc);
-#endif
+    #endif
 
                     rz_gfx_resource_view_desc sceneLDRViewDesc      = {};
                     sceneLDRViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_TEXTURE;
@@ -1217,6 +1222,7 @@ namespace Razix {
                     if (RZFrameGraph::IsFirstFrame()) {
                         RZResourceManager::Get()
                             .getShaderBindMapRef(RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kComposition))
+                            .init()
                             .setDescriptorTable(RZEngine::Get().getWorldRenderer().getGlobalSamplerTable())
                             .setDescriptorBlacklist(s_GlobalSamplersBlacklistPreset)
                             .setResourceView("FinalSceneColor", resources.getResourceViewHandle<RZFrameGraphTexture>(sceneData.LDR))
@@ -1237,27 +1243,19 @@ namespace Razix {
                 },
                 [=](RZPassResourceDirectory& resources, u32 width, u32 height) {
                     flushGPUWork();
-
-                    RZResourceManager::Get()
-                        .getShaderBindMapRef(RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kComposition))
-                        .clear()    // destroy old bind map and create a new one with updated resources
-                        .setDescriptorTable(RZEngine::Get().getWorldRenderer().getGlobalSamplerTable())
-                        .setDescriptorBlacklist(s_GlobalSamplersBlacklistPreset)
-                        .setResourceView("FinalSceneColor", resources.getResourceViewHandle<RZFrameGraphTexture>(sceneData.LDR))
-                        .validate()
-                        .build();
                 },
                 [=]() {
                     RZResourceManager::Get()
                         .getShaderBindMapRef(RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kComposition))
                         .destroy();
                     RZResourceManager::Get().destroyPipeline(m_CompositionPassPipeline);
-#if __APPLE__
+    #if __APPLE__
                     if (rz_handle_is_valid(&m_AppleNeedsADepthTextureHandle)) {
                         RZResourceManager::Get().destroyTexture(m_AppleNeedsADepthTextureHandle);
                     }
-#endif
+    #endif
                 });
+#endif    // ENABLE_COMPO_PASS_TO_TEST_INTERNAL_RESIZING
 
 #if 0
 
