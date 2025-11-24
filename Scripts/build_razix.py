@@ -108,7 +108,7 @@ def main():
     parser = argparse.ArgumentParser(description="Cross-platform project builder")
     parser.add_argument("--platform", choices=["windows", "macos"], required=True,
                         help="Target platform: windows or macos")
-    parser.add_argument("--config", choices=["Debug", "Release", "GoldMaster"], default="Debug",
+    parser.add_argument("--config", choices=["Debug", "GoldMaster"], default="Debug",
                         help="Build configuration")
 
     args = parser.parse_args()

@@ -152,9 +152,21 @@ workspace ( settings.workspace_name )
     configurations
     {
         "Debug",
-        "Release",
         "GoldMaster"
     }
+
+    -- global config settings for all projects, override if necessary in project lua files 
+    filter "configurations:Debug"
+        defines { "RAZIX_DEBUG", "_DEBUG" }
+        symbols "On"
+        runtime "Debug"
+        optimize "Off"
+
+    filter "configurations:GoldMaster"
+        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
+        symbols "Off"
+        runtime "Release"
+        optimize "Full"
 
     -- install git commit hooks
     execute = function()

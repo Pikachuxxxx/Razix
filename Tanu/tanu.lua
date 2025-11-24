@@ -205,25 +205,3 @@ project "Tanu"
             "RAZIX_RENDER_API_VULKAN",
             "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
-
-    ------------------------------------------------------------------------------
-    -- Configurations
-    ------------------------------------------------------------------------------
-    filter "configurations:Debug"
-        defines { "RAZIX_DEBUG", "_DEBUG" }
-        symbols "On"
-        runtime "Debug"
-        optimize "Off"
-
-    filter "configurations:Release"
-        defines { "RAZIX_RELEASE", "NDEBUG" }
-        symbols "On"
-        optimize "Speed"
-        runtime "Release"
-
-    filter "configurations:GoldMaster"
-        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
-        symbols "Off"
-        optimize "Full"
-        runtime "Release"
-

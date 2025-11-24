@@ -524,14 +524,8 @@ project "Razix"
             flags { "NoPCH" }
 
 
-    -- Config settings for Razix Engine project
+    -- Override settings for Razix Debug build
     filter "configurations:Debug"
-        defines { "RAZIX_DEBUG", "_DEBUG" }
-        symbols "On"
-        runtime "Debug"
-        optimize "Off"
-        editandcontinue "Off"
-
         filter "system:windows"
             links
             {
@@ -543,29 +537,6 @@ project "Razix"
                 "/INCREMENTAL",--"/NODEFAULTLIB:libcpmt.lib" ,"/NODEFAULTLIB:msvcprt.lib", "/NODEFAULTLIB:libcpmtd.lib", "/NODEFAULTLIB:msvcprtd.lib"
             }
         filter {}
-
-   
-    filter "configurations:Release"
-        defines { "RAZIX_RELEASE", "NDEBUG" }
-        symbols "On"
-        runtime "Release"
-        optimize "Speed"
-        editandcontinue "Off"
-        
-        filter "system:windows"
-            links
-            {
-                "WinPixEventRuntime",
-                "WinPixEventRuntime_UAP"
-            }
-        filter {}
-
-    filter "configurations:GoldMaster"
-        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
-        symbols "Off"
-        runtime "Release"
-        optimize "Full"
-        editandcontinue "Off"
 group""
 
 

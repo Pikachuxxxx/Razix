@@ -26,21 +26,7 @@ project "Tracy"
         cppdialect (engine_global_config.cpp_dialect)
         staticruntime "off"
 
-    -- Config settings for Razix Engine project
+     -- Tracy needs these defintions extra to work properly for implementation
     filter "configurations:Debug"
-        defines { "RAZIX_DEBUG", "TRACY_ENABLE", "TRACY_ON_DEMAND", "_DEBUG"}
-        symbols "On"
-        runtime "Debug"
-        optimize "Off"
+        defines {"TRACY_ENABLE", "TRACY_ON_DEMAND"}
 
-    filter "configurations:Release"
-        defines { "RAZIX_RELEASE", "NDEBUG", "TRACY_ENABLE", "TRACY_ON_DEMAND", }
-        optimize "Speed"
-        symbols "On"
-        runtime "Release"
-
-    filter "configurations:GoldMaster"
-        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
-        symbols "Off"
-        optimize "Full"
-        runtime "Release"
