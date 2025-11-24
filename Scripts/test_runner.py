@@ -2,6 +2,7 @@ import subprocess
 import os
 import argparse
 from datetime import datetime
+import sys
 
 test_names = [
     "EngineTests",
@@ -128,7 +129,10 @@ def run_tests(github_ci, config, platform, verbose, user_args=None):
         safe_print(" UwU All tests passed! So p-p-proud of you senpai~ (≧◡≦) ".center(66))
     else:
         safe_print(" Q_Q Some tests failed... but dw I still wuv u... Check logs~ ".center(66))
+        sys.exit(69)
     safe_print("=" * 66 + "\n")
+    sys.exit(0)  # Success
+
 
 if __name__ == "__main__":
     args = parse_args()

@@ -175,8 +175,7 @@ jobs:
 
     - name: Test Run EngineTests (Debug)
       run: |
-        cd Scripts
-        python test_runner.py --platform windows-x86_64 --config Debug --github-ci
+        python Scripts/test_runner.py --platform windows-x86_64 --config Debug --github-ci
       shell: cmd
 
     - name: Build Engine (GoldMaster)
@@ -187,8 +186,7 @@ jobs:
 
     - name: Test Run EngineTests (GoldMaster)
       run: |
-        cd Scripts
-        python test_runner.py --platform windows-x86_64 --config GoldMaster --github-ci
+        python Scripts/test_runner.py --platform windows-x86_64 --config GoldMaster --github-ci
       shell: cmd
     
     - name: Package Windows Build
@@ -334,8 +332,7 @@ jobs:
 
     - name: Test Run EngineTests (Debug)
       run: |
-        cd Scripts
-        python test_runner.py --platform macosx-arm64 --config Debug --github-ci
+        python Scripts/test_runner.py --platform macosx-arm64 --config Debug --github-ci
       shell: cmd
 
     - name: Build Engine (GoldMaster)
@@ -346,8 +343,7 @@ jobs:
 
     - name: Test Run EngineTests (GoldMaster)
       run: |
-        cd Scripts
-        python test_runner.py --platform macosx-arm64 --config GoldMaster --github-ci
+        python Scripts/test_runner.py --platform macosx-arm64 --config GoldMaster --github-ci
       shell: cmd
     
     - name: Package macOS Build
