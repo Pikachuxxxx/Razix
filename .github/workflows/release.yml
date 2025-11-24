@@ -197,16 +197,6 @@ jobs:
       run: ren razix-windows-goldmaster.zip razix-windows-goldmaster-${{ needs.create-release.outputs.tag_name }}.zip
       shell: cmd
 
-    - name: Upload Windows Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./razix-windows-goldmaster-${{ needs.create-release.outputs.tag_name }}.zip
-        asset_name: razix-windows-goldmaster-${{ needs.create-release.outputs.tag_name }}.zip
-        asset_content_type: application/zip
-
   build-macos:
     needs: create-release
     runs-on: macos-latest
@@ -350,13 +340,3 @@ jobs:
 
     - name: Rename for tag
       run: mv razix-macos-goldmaster.zip razix-macos-goldmaster-${{ needs.create-release.outputs.tag_name }}.zip
-
-    - name: Upload macOS Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./razix-macos-goldmaster-${{ needs.create-release.outputs.tag_name }}.zip
-        asset_name: razix-macos-goldmaster-${{ needs.create-release.outputs.tag_name }}.zip
-        asset_content_type: application/zip
