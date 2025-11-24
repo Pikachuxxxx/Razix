@@ -3704,6 +3704,8 @@ static void vk_CreateBuffer(void* where)
     CHECK_VK(vkCreateBuffer(VKDEVICE, &bufferInfo, NULL, &buffer->vk.buffer));
     TAG_OBJECT(buffer->vk.buffer, VK_OBJECT_TYPE_BUFFER, buffer->resource.pCold->pName);
 
+    buffer->resource.hot.currentState = RZ_GFX_RESOURCE_STATE_COMMON;
+
     // Allocate memory for the buffer
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(VKDEVICE, buffer->vk.buffer, &memRequirements);
