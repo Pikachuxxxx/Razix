@@ -1,5 +1,12 @@
 # Razix Engine Changelog
 
+#### Version - 0.49.0 [Development] - 25/11/2025
+- Re-wrote the RHI backend in C99 with full VK and DX12 backend support
+- loads of custom STL (RZDynamicArray, RZHashMap etc.)
+- removed redundant stuff and improved rendering
+- Added lot of engine/gfx tests
+- loads of stablitiy and c improvements
+
 #### Version - 0.49.0 [Development] - 23/06/2025
 
 ##### Major Changes
