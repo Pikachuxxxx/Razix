@@ -1110,10 +1110,8 @@ namespace Razix {
             //-------------------------------
 
             // For testing purposes only: skip the composition pass to test resizing issues
-#define ENABLE_COMPO_PASS_TO_TEST_INTERNAL_RESIZING 0
+#define ENABLE_COMPO_PASS_TO_TEST_INTERNAL_RESIZING 1
 #if ENABLE_COMPO_PASS_TO_TEST_INTERNAL_RESIZING
-            sceneData.LDR = sceneData.HDR;
-            return;
             struct CompositionPassData
             {
                 RZFrameGraphResource sceneColor;
@@ -1144,8 +1142,8 @@ namespace Razix {
                     pipelineDesc.enableStencilTest      = false;
                     pipelineDesc.blendEnabled           = false;
                     pipelineDesc.renderTargetCount      = 1;
-                    pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;    // we render to swapchain back buffer
-                    pipelineDesc.inputLayoutMode        = RZ_GFX_INPUT_LAYOUT_AOS;
+                    pipelineDesc.renderTargetFormats[0] = RZ_GFX_FORMAT_SCREEN;       // we render to swapchain back buffer
+                    pipelineDesc.inputLayoutMode        = RZ_GFX_INPUT_LAYOUT_AOS;    // doesn't matter, no vertex data
                     m_CompositionPassPipeline           = RZResourceManager::Get().createPipeline("Pipeline.Composition", pipelineDesc);
 
     #if __APPLE__
@@ -1198,7 +1196,8 @@ namespace Razix {
                     info.resolution                        = RZ_GFX_RESOLUTION_WINDOW;
                     info.colorAttachmentsCount             = 1;
                     info.colorAttachments[0].pResourceView = getCurrSwapchainBackbufferResViewPtr();
-                    info.colorAttachments[0].clear         = false;
+                    info.colorAttachments[0].clear         = true;
+                    info.colorAttachments[0].clearColor    = RAZIX_GFX_COLOR_RGBA_BLACK;
                     // #if __APPLE__
                     //                     info.depthAttachment.pResourceView =
                     //                         RZResourceManager::Get().getResourceViewResource(m_AppleNeedsADepthTextureHandle->getDefaultView());
@@ -1240,9 +1239,6 @@ namespace Razix {
 
                     RAZIX_MARK_END(cmdBuffer);
                     RAZIX_TIME_STAMP_END();
-                },
-                [=](RZPassResourceDirectory& resources, u32 width, u32 height) {
-                    flushGPUWork();
                 },
                 [=]() {
                     RZResourceManager::Get()
