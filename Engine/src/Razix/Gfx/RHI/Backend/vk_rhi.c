@@ -659,7 +659,6 @@ static VkSamplerMipmapMode vk_util_translate_mipmap_filter_type(rz_gfx_texture_f
         case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST:
         case RZ_GFX_TEXTURE_FILTER_TYPE_LINEAR:
             // These don't use mipmapping, but we need to return something
-            // You might want to return VK_SAMPLER_MIPMAP_MODE_NEAREST as default
             return VK_SAMPLER_MIPMAP_MODE_NEAREST;
 
         case RZ_GFX_TEXTURE_FILTER_TYPE_NEAREST_MIPMAP_NEAREST:
@@ -4422,7 +4421,7 @@ static void vk_BindGfxRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root_sig
 
     // In Vulkan, root signatures correspond to descriptor sets bound to pipeline layouts
     // For now, we'll just bind the pipeline layout - descriptor sets need to be bound separately
-    // This is a placeholder implementation that sets up the pipeline layout binding
+    // this is a no-op here
 
     // Note: Actual descriptor set binding would happen when descriptors are available
     // vkCmdBindDescriptorSets(cmdBuf->vk.cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -4439,7 +4438,7 @@ static void vk_BindComputeRootSig(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_root
 
     // In Vulkan, root signatures correspond to descriptor sets bound to pipeline layouts
     // For now, we'll just bind the pipeline layout - descriptor sets need to be bound separately
-    // This is a placeholder implementation that sets up the pipeline layout binding
+    // this is a no-op here
 
     // Note: Actual descriptor set binding would happen when descriptors are available
     // vkCmdBindDescriptorSets(cmdBuf->vk.cmdBuf, VK_PIPELINE_BIND_POINT_COMPUTE,

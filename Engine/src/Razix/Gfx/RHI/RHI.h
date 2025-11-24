@@ -1328,7 +1328,6 @@ static inline unsigned int rz_clz32(unsigned int x)
         };
     };
 
-    // Note:- Exception!, this is not a resource as it's managed by the Renderer and very few in number, might make is a Resource later
     struct RAZIX_RHI_ALIGN_16 rz_gfx_cmdpool
     {
         RAZIX_GFX_RESOURCE;
@@ -1606,16 +1605,14 @@ static inline unsigned int rz_clz32(unsigned int x)
     RAZIX_RHI_API void          rzGfxCtx_SetRenderAPI(rz_render_api api);
     RAZIX_RHI_API const char*   rzGfxCtx_GetRenderAPIString();
 
-    RAZIX_RHI_API const char* rzRHI_GetGPUVendorName(uint32_t id);
-
     // Utility Functions
-    RAZIX_RHI_API bool rzRHI_IsDescriptorTypeTexture(rz_gfx_descriptor_type type);
-    RAZIX_RHI_API bool rzRHI_IsDescriptorTypeBuffer(rz_gfx_descriptor_type type);
-    RAZIX_RHI_API bool rzRHI_IsDescriptorTypeSampler(rz_gfx_descriptor_type type);
-    RAZIX_RHI_API bool rzRHI_IsDescriptorTypeTextureRW(rz_gfx_descriptor_type type);
-    RAZIX_RHI_API bool rzRHI_IsDescriptorTypeBufferRW(rz_gfx_descriptor_type type);
-    RAZIX_RHI_API bool rzRHI_IsDepthFormat(rz_gfx_format format);
-
+    RAZIX_RHI_API const char*           rzRHI_GetGPUVendorName(uint32_t id);
+    RAZIX_RHI_API bool                  rzRHI_IsDescriptorTypeTexture(rz_gfx_descriptor_type type);
+    RAZIX_RHI_API bool                  rzRHI_IsDescriptorTypeBuffer(rz_gfx_descriptor_type type);
+    RAZIX_RHI_API bool                  rzRHI_IsDescriptorTypeSampler(rz_gfx_descriptor_type type);
+    RAZIX_RHI_API bool                  rzRHI_IsDescriptorTypeTextureRW(rz_gfx_descriptor_type type);
+    RAZIX_RHI_API bool                  rzRHI_IsDescriptorTypeBufferRW(rz_gfx_descriptor_type type);
+    RAZIX_RHI_API bool                  rzRHI_IsDepthFormat(rz_gfx_format format);
     RAZIX_RHI_API uint32_t              rzRHI_GetBytesPerPixel(rz_gfx_format format);
     RAZIX_RHI_API uint32_t              rzRHI_GetFormatStrideComponentsCount(rz_gfx_format format);
     RAZIX_RHI_API uint32_t              rzRHI_GetFormatComponentSize(rz_gfx_format format);
