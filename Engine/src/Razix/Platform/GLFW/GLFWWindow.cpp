@@ -131,7 +131,7 @@ namespace Razix {
 #ifdef __APPLE__
         glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
         // FIXME: Disable resizing in Apple until I sort out crashes and resizing withung correct swapchain extents and use proper DPI scaling!
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 #endif
 
         int           monitorCount;

@@ -1078,8 +1078,8 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            for (const auto& table: m_OwnedDescriptorTables)
-                RZResourceManager::Get().destroyDescriptorTable(static_cast<rz_gfx_descriptor_table_handle>(table));
+            for (auto& table: m_OwnedDescriptorTables)
+                RZResourceManager::Get().destroyDescriptorTable(table);
             clear();
             Gfx::FreeShaderReflectionMemAllocs(&m_ShaderReflection);
             m_LastError = BIND_MAP_VALIDATION_FAILED;
