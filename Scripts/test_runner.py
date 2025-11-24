@@ -35,6 +35,8 @@ def parse_args():
     parser.add_argument("--verbose", action="store_true", help="Show test output in console")
     parser.add_argument("--args", nargs=argparse.REMAINDER,
                         help="Additional arguments to pass to test executables")
+    parser.add_argument("--github-ci", action="store_true",
+                    help="Skips engine gfx tests on github CI as it's GPU dependent")
     return parser.parse_args()
 
 def print_header(config, platform):
@@ -62,7 +64,7 @@ def print_result(name, result, log_path=None):
         line += f"  (log: {log_path})"
     safe_print(line)
 
-def run_tests(config, platform, verbose, user_args=None):
+def run_tests(github_ci, config, platform, verbose, user_args=None):
     if user_args is None:
         user_args = []
         
@@ -76,7 +78,12 @@ def run_tests(config, platform, verbose, user_args=None):
     for name in test_names:
         exe_path = os.path.join(bin_root, f"{name}.exe" if platform.startswith("windows") else name)
         log_path = os.path.join(results_dir, f"{name}.log")
-
+        
+        # Skip GPU-dependent tests on GitHub CI
+        if(github_ci and name.startswith("GfxTest")):
+            print_result(name, "skip")
+            continue
+        
         # Handle library path for macOS
         env = None
         if platform.startswith("macosx"):
@@ -125,4 +132,4 @@ def run_tests(config, platform, verbose, user_args=None):
 
 if __name__ == "__main__":
     args = parse_args()
-    run_tests(args.config, args.platform, args.verbose, args.args)
+    run_tests(args.github_ci, args.config, args.platform, args.verbose, args.args,)

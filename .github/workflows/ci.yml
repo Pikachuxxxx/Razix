@@ -17,7 +17,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        submodules: recursive
+        submodules: recursive # we don't have any submodules yet, but in future we might
     
     - name: Setup Python
       uses: actions/setup-python@v4
@@ -141,11 +141,29 @@ jobs:
         cd Scripts
         .\GenerateVS22.bat
       shell: cmd
-    
+
+    - name: Build Engine (Debug)
+      run: |
+        cd Scripts
+        python build_razix.py --platform windows-x86_64 --config Debug --github-ci
+      shell: cmd
+
+    - name: Test Run EngineTests (Debug)
+      run: |
+        cd Scripts
+        python test_runner.py --platform windows-x86_64 --config Debug --github-ci
+      shell: cmd
+
     - name: Build Engine (GoldMaster)
       run: |
         cd Scripts
         python build_razix.py --platform windows-x86_64 --config GoldMaster --github-ci
+      shell: cmd
+
+    - name: Test Run EngineTests (GoldMaster)
+      run: |
+        cd Scripts
+        python test_runner.py --platform windows-x86_64 --config GoldMaster --github-ci
       shell: cmd
 
   build-macos:
@@ -265,6 +283,26 @@ jobs:
         chmod +x ./Scripts/GenerateXCodeProjectsMacOS.sh
         ./Scripts/GenerateXCodeProjectsMacOS.sh
     
+    - name: Build Engine (Debug)
+      run: |
+        cd Scripts
+        python build_razix.py --platform macosx-arm64 --config Debug --github-ci
+      shell: cmd
+
+    - name: Test Run EngineTests (Debug)
+      run: |
+        cd Scripts
+        python test_runner.py --platform macosx-arm64 --config Debug --github-ci
+      shell: cmd
+
     - name: Build Engine (GoldMaster)
       run: |
-        python Scripts/build_razix.py --platform macosx-arm64 --config GoldMaster
+        cd Scripts
+        python build_razix.py --platform macosx-arm64 --config GoldMaster --github-ci
+      shell: cmd
+
+    - name: Test Run EngineTests (GoldMaster)
+      run: |
+        cd Scripts
+        python test_runner.py --platform macosx-arm64 --config GoldMaster --github-ci
+      shell: cmd
