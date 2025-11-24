@@ -789,6 +789,19 @@ static inline unsigned int rz_clz32(unsigned int x)
         RZ_GFX_INPUT_LAYOUT_SOA         // Structure of Arrays (Efiicient but please profile!)
     } rz_gfx_input_layout_mode;
 
+    typedef enum rz_gfx_res_view_op_flags
+    {
+        RZ_GFX_RES_VIEW_OP_FLAG_NONE         = 0,
+        RZ_GFX_RES_VIEW_OP_FLAG_COPY_SRC     = 1 << 0,
+        RZ_GFX_RES_VIEW_OP_FLAG_COPY_DST     = 1 << 1,
+        RZ_GFX_RES_VIEW_OP_FLAG_PRESENT      = 1 << 2,
+        RZ_GFX_RES_VIEW_OP_FLAG_RESOLVE_SRC  = 1 << 3,
+        RZ_GFX_RES_VIEW_OP_FLAG_RESOLVE_DST  = 1 << 4,
+        RZ_GFX_RES_VIEW_OP_FLAG_INDIRECT     = 1 << 5,
+        RZ_GFX_RES_VIEW_OP_FLAG_SKIP_BARRIER = 1 << 6,
+        RZ_GFX_RES_VIEW_OP_FLAG_COUNT        = 7
+    } rz_gfx_res_view_op_flags;
+
     /**
       * Graphics Features as supported by the GPU, even though Engine supports them
       * the GPU can override certain setting and query run-time info like LaneWidth etc.
@@ -902,6 +915,7 @@ static inline unsigned int rz_clz32(unsigned int x)
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_resource_view_desc
     {
         rz_gfx_descriptor_type  descriptorType;
+        uint32_t                opFlags;        // Usage flags for the resource view, only used by framegraph/GPUTrain for barriers
         rz_gfx_descriptor_heap* pRtvDsvHeap;    // Only use it to create RTV/DSV immediately
         // We could the same for samplers too, but unless we use Immutable or Bindless Sampler, we need a descriptor table to bind samplers
         union
@@ -1600,12 +1614,17 @@ static inline unsigned int rz_clz32(unsigned int x)
     RAZIX_RHI_API bool rzRHI_IsDescriptorTypeSampler(rz_gfx_descriptor_type type);
     RAZIX_RHI_API bool rzRHI_IsDescriptorTypeTextureRW(rz_gfx_descriptor_type type);
     RAZIX_RHI_API bool rzRHI_IsDescriptorTypeBufferRW(rz_gfx_descriptor_type type);
+    RAZIX_RHI_API bool rzRHI_IsDepthFormat(rz_gfx_format format);
 
-    RAZIX_RHI_API uint32_t    rzRHI_GetBytesPerPixel(rz_gfx_format format);
-    RAZIX_RHI_API uint32_t    rzRHI_GetFormatStrideComponentsCount(rz_gfx_format format);
-    RAZIX_RHI_API uint32_t    rzRHI_GetFormatComponentSize(rz_gfx_format format);
-    RAZIX_RHI_API uint32_t    rzRHI_GetMipLevelCount(uint32_t width, uint32_t height);
-    RAZIX_RHI_API const char* rzRHI_GetResourceTypeString(rz_gfx_resource_type type);
+    RAZIX_RHI_API uint32_t              rzRHI_GetBytesPerPixel(rz_gfx_format format);
+    RAZIX_RHI_API uint32_t              rzRHI_GetFormatStrideComponentsCount(rz_gfx_format format);
+    RAZIX_RHI_API uint32_t              rzRHI_GetFormatComponentSize(rz_gfx_format format);
+    RAZIX_RHI_API uint32_t              rzRHI_GetMipLevelCount(uint32_t width, uint32_t height);
+    RAZIX_RHI_API rz_gfx_resource_state rzRHI_DeduceResourceState(rz_gfx_descriptor_type type, rz_gfx_res_view_op_flags resViewOpFlags, bool isWrite);
+    RAZIX_RHI_API const char*           rzRHI_GetResourceTypeString(rz_gfx_resource_type type);
+    RAZIX_RHI_API const char*           rzRHI_GetDescriptorTypeString(rz_gfx_descriptor_type type);
+    RAZIX_RHI_API char*                 rzRHI_ResourceOpFlagsString(rz_gfx_res_view_op_flags flags, char* buffer, size_t bufferLen);
+    RAZIX_RHI_API const char*           rzRHI_GetResourceStateString(rz_gfx_resource_state state);
 
     //---------------------------------------------------------------------------------------------
     // RHI Jump Table

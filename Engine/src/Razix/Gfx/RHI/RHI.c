@@ -156,6 +156,19 @@ bool rzRHI_IsDescriptorTypeBufferRW(rz_gfx_descriptor_type type)
     }
 }
 
+bool rzRHI_IsDepthFormat(rz_gfx_format format)
+{
+    switch (format) {
+        case RZ_GFX_FORMAT_D16_UNORM:
+        case RZ_GFX_FORMAT_D24_UNORM_S8_UINT:
+        case RZ_GFX_FORMAT_D32_FLOAT:
+        case RZ_GFX_FORMAT_D32_FLOAT_S8X24_UINT:
+            return true;
+        default:
+            return false;
+    }
+}
+
 uint32_t rzRHI_GetBytesPerPixel(rz_gfx_format format)
 {
     switch (format) {
@@ -413,6 +426,80 @@ uint32_t rzRHI_GetMipLevelCount(uint32_t width, uint32_t height)
     return (uint32_t) (floor(log2((double) ((width > height) ? width : height)))) + 1;
 }
 
+rz_gfx_resource_state rzRHI_DeduceResourceState(rz_gfx_descriptor_type type, rz_gfx_res_view_op_flags resViewOpFlags, bool isWrite)
+{
+    rz_gfx_resource_state deducedState = RZ_GFX_RESOURCE_STATE_UNDEFINED;
+
+    // these flags are enough to determine the state directly
+    if (resViewOpFlags & RZ_GFX_RES_VIEW_OP_FLAG_COPY_DST) {
+        deducedState = RZ_GFX_RESOURCE_STATE_COPY_DST;
+    } else if (resViewOpFlags & RZ_GFX_RES_VIEW_OP_FLAG_COPY_SRC) {
+        deducedState = RZ_GFX_RESOURCE_STATE_COPY_SRC;
+    } else if (resViewOpFlags & RZ_GFX_RES_VIEW_OP_FLAG_PRESENT) {
+        deducedState = RZ_GFX_RESOURCE_STATE_PRESENT;
+    } else if (resViewOpFlags & RZ_GFX_RES_VIEW_OP_FLAG_RESOLVE_SRC) {
+        deducedState = RZ_GFX_RESOURCE_STATE_RESOLVE_SRC;
+    } else if (resViewOpFlags & RZ_GFX_RES_VIEW_OP_FLAG_RESOLVE_DST) {
+        deducedState = RZ_GFX_RESOURCE_STATE_RESOLVE_DST;
+    } else if (resViewOpFlags & RZ_GFX_RES_VIEW_OP_FLAG_INDIRECT) {
+        deducedState = RZ_GFX_RESOURCE_STATE_INDIRECT_ARGUMENT;
+    } else {
+        switch (type) {
+            case RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER:
+                deducedState = RZ_GFX_RESOURCE_STATE_CONSTANT_BUFFER;
+                break;
+
+            case RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT:
+                deducedState = RZ_GFX_RESOURCE_STATE_UNDEFINED;
+                break;
+
+            case RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED:
+            case RZ_GFX_DESCRIPTOR_TYPE_TEXTURE:
+            case RZ_GFX_DESCRIPTOR_TYPE_STRUCTURED:
+            case RZ_GFX_DESCRIPTOR_TYPE_BYTE_ADDRESS:
+                deducedState = RZ_GFX_RESOURCE_STATE_SHADER_READ;
+                break;
+
+            case RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE:
+            case RZ_GFX_DESCRIPTOR_TYPE_RW_TYPED:
+            case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED:
+            case RZ_GFX_DESCRIPTOR_TYPE_RW_BYTE_ADDRESS:
+            case RZ_GFX_DESCRIPTOR_TYPE_APPEND_STRUCTURED:
+            case RZ_GFX_DESCRIPTOR_TYPE_CONSUME_STRUCTURED:
+            case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED_COUNTER:
+                deducedState = isWrite ? RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS
+                                       : RZ_GFX_RESOURCE_STATE_SHADER_READ;
+                break;
+
+            case RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE:
+                deducedState = isWrite ? RZ_GFX_RESOURCE_STATE_RENDER_TARGET
+                                       : RZ_GFX_RESOURCE_STATE_SHADER_READ;
+                break;
+
+            case RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE:
+                deducedState = isWrite ? RZ_GFX_RESOURCE_STATE_DEPTH_WRITE
+                                       : RZ_GFX_RESOURCE_STATE_DEPTH_READ;
+                break;
+
+            case RZ_GFX_DESCRIPTOR_TYPE_SAMPLER:
+                deducedState = RZ_GFX_RESOURCE_STATE_UNDEFINED;
+                break;
+
+            case RZ_GFX_DESCRIPTOR_TYPE_RT_ACCELERATION_STRUCTURE:
+                deducedState = RZ_GFX_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE;
+                break;
+
+            case RZ_GFX_DESCRIPTOR_TYPE_NONE:
+            case RZ_GFX_DESCRIPTOR_TYPE_COUNT:
+            default:
+                deducedState = RZ_GFX_RESOURCE_STATE_UNDEFINED;
+                break;
+        }
+    }
+
+    return deducedState;
+}
+
 const char* rzRHI_GetResourceTypeString(rz_gfx_resource_type type)
 {
     switch (type) {
@@ -430,5 +517,107 @@ const char* rzRHI_GetResourceTypeString(rz_gfx_resource_type type)
         case RZ_GFX_RESOURCE_TYPE_PIPELINE: return "Pipeline"; break;
         case RZ_GFX_RESOURCE_TYPE_COUNT: return "Count"; break;
         default: return "Unknown"; break;
+    }
+}
+
+const char* rzRHI_GetDescriptorTypeString(rz_gfx_descriptor_type type)
+{
+    switch (type) {
+        case RZ_GFX_DESCRIPTOR_TYPE_NONE: return "NONE";
+        case RZ_GFX_DESCRIPTOR_TYPE_CONSTANT_BUFFER: return "CONSTANT_BUFFER";
+        case RZ_GFX_DESCRIPTOR_TYPE_PUSH_CONSTANT: return "PUSH_CONSTANT";
+        case RZ_GFX_DESCRIPTOR_TYPE_IMAGE_SAMPLER_COMBINED: return "IMAGE_SAMPLER_COMBINED";
+        case RZ_GFX_DESCRIPTOR_TYPE_TEXTURE: return "TEXTURE";
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_TEXTURE: return "RW_TEXTURE";
+        case RZ_GFX_DESCRIPTOR_TYPE_RENDER_TEXTURE: return "RENDER_TEXTURE";
+        case RZ_GFX_DESCRIPTOR_TYPE_DEPTH_STENCIL_TEXTURE: return "DEPTH_STENCIL_TEXTURE";
+        case RZ_GFX_DESCRIPTOR_TYPE_SAMPLER: return "SAMPLER";
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_TYPED: return "RW_TYPED";
+        case RZ_GFX_DESCRIPTOR_TYPE_STRUCTURED: return "STRUCTURED";
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED: return "RW_STRUCTURED";
+        case RZ_GFX_DESCRIPTOR_TYPE_BYTE_ADDRESS: return "BYTE_ADDRESS";
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_BYTE_ADDRESS: return "RW_BYTE_ADDRESS";
+        case RZ_GFX_DESCRIPTOR_TYPE_APPEND_STRUCTURED: return "APPEND_STRUCTURED";
+        case RZ_GFX_DESCRIPTOR_TYPE_CONSUME_STRUCTURED: return "CONSUME_STRUCTURED";
+        case RZ_GFX_DESCRIPTOR_TYPE_RW_STRUCTURED_COUNTER: return "RW_STRUCTURED_COUNTER";
+        case RZ_GFX_DESCRIPTOR_TYPE_RT_ACCELERATION_STRUCTURE: return "RT_ACCELERATION_STRUCTURE";
+        case RZ_GFX_DESCRIPTOR_TYPE_COUNT: return "COUNT";
+        default: return "UNKNOWN_DESCRIPTOR_TYPE";
+    }
+}
+
+char* rzRHI_ResourceOpFlagsString(rz_gfx_res_view_op_flags flags, char* buffer, size_t bufferLen)
+{
+    buffer[0] = '\0';
+    int first = 1;
+    if (flags == RZ_GFX_RES_VIEW_OP_FLAG_NONE) {
+        strncpy(buffer, "NONE", bufferLen - 1);
+        buffer[bufferLen - 1] = '\0';
+        return buffer;
+    }
+    if (flags & RZ_GFX_RES_VIEW_OP_FLAG_COPY_SRC) {
+        if (!first) strncat(buffer, " | ", bufferLen - strlen(buffer) - 1);
+        strncat(buffer, "COPY_SRC", bufferLen - strlen(buffer) - 1);
+        first = 0;
+    }
+    if (flags & RZ_GFX_RES_VIEW_OP_FLAG_COPY_DST) {
+        if (!first) strncat(buffer, " | ", bufferLen - strlen(buffer) - 1);
+        strncat(buffer, "COPY_DST", bufferLen - strlen(buffer) - 1);
+        first = 0;
+    }
+    if (flags & RZ_GFX_RES_VIEW_OP_FLAG_PRESENT) {
+        if (!first) strncat(buffer, " | ", bufferLen - strlen(buffer) - 1);
+        strncat(buffer, "PRESENT", bufferLen - strlen(buffer) - 1);
+        first = 0;
+    }
+    if (flags & RZ_GFX_RES_VIEW_OP_FLAG_RESOLVE_SRC) {
+        if (!first) strncat(buffer, " | ", bufferLen - strlen(buffer) - 1);
+        strncat(buffer, "RESOLVE_SRC", bufferLen - strlen(buffer) - 1);
+        first = 0;
+    }
+    if (flags & RZ_GFX_RES_VIEW_OP_FLAG_RESOLVE_DST) {
+        if (!first) strncat(buffer, " | ", bufferLen - strlen(buffer) - 1);
+        strncat(buffer, "RESOLVE_DST", bufferLen - strlen(buffer) - 1);
+        first = 0;
+    }
+    if (flags & RZ_GFX_RES_VIEW_OP_FLAG_INDIRECT) {
+        if (!first) strncat(buffer, " | ", bufferLen - strlen(buffer) - 1);
+        strncat(buffer, "INDIRECT", bufferLen - strlen(buffer) - 1);
+        first = 0;
+    }
+    if (flags & RZ_GFX_RES_VIEW_OP_FLAG_SKIP_BARRIER) {
+        if (!first) strncat(buffer, " | ", bufferLen - strlen(buffer) - 1);
+        strncat(buffer, "SKIP_BARRIER", bufferLen - strlen(buffer) - 1);
+        first = 0;
+    }
+    return buffer;
+}
+
+const char* rzRHI_GetResourceStateString(rz_gfx_resource_state state)
+{
+    switch (state) {
+        case RZ_GFX_RESOURCE_STATE_UNDEFINED: return "UNDEFINED";
+        case RZ_GFX_RESOURCE_STATE_COMMON: return "COMMON";
+        case RZ_GFX_RESOURCE_STATE_GENERIC_READ: return "GENERIC_READ";
+        case RZ_GFX_RESOURCE_STATE_RENDER_TARGET: return "RENDER_TARGET";
+        case RZ_GFX_RESOURCE_STATE_DEPTH_WRITE: return "DEPTH_WRITE";
+        case RZ_GFX_RESOURCE_STATE_DEPTH_READ: return "DEPTH_READ";
+        case RZ_GFX_RESOURCE_STATE_SHADER_READ: return "SHADER_READ";
+        case RZ_GFX_RESOURCE_STATE_UNORDERED_ACCESS: return "UNORDERED_ACCESS";
+        case RZ_GFX_RESOURCE_STATE_COPY_SRC: return "COPY_SRC";
+        case RZ_GFX_RESOURCE_STATE_COPY_DST: return "COPY_DST";
+        case RZ_GFX_RESOURCE_STATE_PRESENT: return "PRESENT";
+        case RZ_GFX_RESOURCE_STATE_VERTEX_BUFFER: return "VERTEX_BUFFER";
+        case RZ_GFX_RESOURCE_STATE_INDEX_BUFFER: return "INDEX_BUFFER";
+        case RZ_GFX_RESOURCE_STATE_CONSTANT_BUFFER: return "CONSTANT_BUFFER";
+        case RZ_GFX_RESOURCE_STATE_INDIRECT_ARGUMENT: return "INDIRECT_ARGUMENT";
+        case RZ_GFX_RESOURCE_STATE_RESOLVE_SRC: return "RESOLVE_SRC";
+        case RZ_GFX_RESOURCE_STATE_RESOLVE_DST: return "RESOLVE_DST";
+        case RZ_GFX_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE: return "RAYTRACING_ACCELERATION_STRUCTURE";
+        case RZ_GFX_RESOURCE_STATE_SHADING_RATE_SOURCE: return "SHADING_RATE_SOURCE";
+        case RZ_GFX_RESOURCE_STATE_VIDEO_DECODE_READ: return "VIDEO_DECODE_READ";
+        case RZ_GFX_RESOURCE_STATE_VIDEO_DECODE_WRITE: return "VIDEO_DECODE_WRITE";
+        case RZ_GFX_RESOURCE_STATE_COUNT: return "COUNT";
+        default: return "UNKNOWN_RESOURCE_STATE";
     }
 }
