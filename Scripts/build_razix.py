@@ -141,10 +141,13 @@ def build_macos(config, platform_string="macosx-arm64"):
                 "xcodebuild",
                 "-project", project_path,
                 "-configuration", config,
-                "build",
                 "-parallelizeTargets",
                 "-UseModernBuildSystem=YES",
-                "-jobs", jobs,
+                "CODE_SIGNING_ALLOWED=NO",
+                "CODE_SIGN_IDENTITY=",
+                "CODE_SIGN_STYLE=Manual",
+                "DEVELOPMENT_TEAM=",
+                "-jobs", str(jobs),
             ])
 
 def build_linux(config):

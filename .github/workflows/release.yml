@@ -326,8 +326,7 @@ jobs:
     
     - name: Build Engine (Debug)
       run: |
-        cd Scripts
-        python build_razix.py --platform macosx-arm64 --config Debug --github-ci
+        python Scripts/build_razix.py --platform macosx-arm64 --config Debug --github-ci
       shell: cmd
 
     - name: Test Run EngineTests (Debug)
@@ -337,8 +336,7 @@ jobs:
 
     - name: Build Engine (GoldMaster)
       run: |
-        cd Scripts
-        python build_razix.py --platform macosx-arm64 --config GoldMaster --github-ci
+        python Scripts/build_razix.py --platform macosx-arm64 --config GoldMaster --github-ci
       shell: cmd
 
     - name: Test Run EngineTests (GoldMaster)

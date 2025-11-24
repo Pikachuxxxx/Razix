@@ -168,6 +168,14 @@ workspace ( settings.workspace_name )
         runtime "Release"
         optimize "Full"
 
+    filter { "system:macosx", "configurations:GoldMaster", "toolset:clang" }
+        optimize "Speed"            -- maps to -O2
+        buildoptions {
+            "-O3",                  -- override -O2
+            "-ffast-math"
+        }
+    filter {}
+
     -- install git commit hooks
     execute = function()
         print("Running Python hook installer...")

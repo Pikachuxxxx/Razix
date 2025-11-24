@@ -337,6 +337,7 @@ make -j$(nproc) config=goldmaster # GoldMaster (distribution) build
 ```
 
 **macOS:**
+Note: run all the python scripts from Root directory, don't cd into scripts folder
 ```bash
 cd build
 make -j$(sysctl -n hw.ncpu) config=debug      # Debug build
@@ -362,6 +363,7 @@ python test_runner.py --config GoldMaster --platform macosx-arm64 --verbose
 ```
 
 **Only `Debug` and `GoldMaster` build configurations are supported.**
+Note: run all the python scripts from Root directory, don't cd into scripts folder
 
 ---
 
