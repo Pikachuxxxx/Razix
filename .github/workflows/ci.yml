@@ -284,19 +284,19 @@ jobs:
     - name: Build Engine (Debug)
       run: |
         python Scripts/build_razix.py --platform macosx-arm64 --config Debug --github-ci
-      shell: cmd
+      shell: bash
 
     - name: Test Run EngineTests (Debug)
       run: |
         python Scripts/test_runner.py --platform macosx-arm64 --config Debug --github-ci
-      shell: cmd
+      shell: bash
 
     - name: Build Engine (GoldMaster)
       run: |
         python Scripts/build_razix.py --platform macosx-arm64 --config GoldMaster --github-ci
-      shell: cmd
+      shell: bash
 
     - name: Test Run EngineTests (GoldMaster)
       run: |
         python Scripts/test_runner.py --platform macosx-arm64 --config GoldMaster --github-ci
-      shell: cmd
+      shell: bash
