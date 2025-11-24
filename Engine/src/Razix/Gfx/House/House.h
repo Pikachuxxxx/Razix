@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Razix/Gfx/GfxData.h"
-
 namespace Razix {
 
     class RZScene;
