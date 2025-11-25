@@ -342,7 +342,6 @@ jobs:
           libvulkan1 \
           libxcb1-dev \
           libx11-dev \
-          libgl-dev \ 
           libgl1-mesa-dev \
           vulkan-validationlayers \
           vulkan-tools
