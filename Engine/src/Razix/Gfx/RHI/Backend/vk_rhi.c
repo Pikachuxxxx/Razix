@@ -2476,13 +2476,12 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
 
     g_GfxCtx.ctxDesc = init;
 
-    volkInitialize();
+    CHECK_VK(volkInitialize());
 
     // Check validation layer support
     if (init.opts.enableValidation) {
         if (!vk_util_check_validation_layer_support()) {
             RAZIX_RHI_LOG_ERROR("Validation lay.hers requested, but not available");
-            return;
         }
     }
 
@@ -4244,7 +4243,19 @@ static void vk_Present(rz_gfx_present_desc presentDesc)
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
         RAZIX_RHI_LOG_WARN("Swapchain out of date or suboptimal during present, VK_SUBOPTIMIAL_KHR means the presentation was successful and you probably resized, or requires to recreate the swapchain again because it's out of date.");
-        // TODO: Handle swapchain recreation
+        // Deliberate const removal cast, as we are requried to recreate swapchain again
+        rz_gfx_swapchain* sc = (rz_gfx_swapchain*) presentDesc.pSwapchain;
+        // destroy old swapchain images and views
+        vk_util_destroy_swapchain_images(sc);
+
+        if (sc->vk.swapchain) {
+            vkDestroySwapchainKHR(VKCONTEXT.device, sc->vk.swapchain, NULL);
+            sc->vk.swapchain = VK_NULL_HANDLE;
+        }
+
+        // create new swapchain
+        vk_util_create_swapchain(sc, sc->width, sc->height);
+
         RAZIX_RHI_ASSERT(false, "Swapchain recreation not implemented yet!");
     } else if (result != VK_SUCCESS) {
         RAZIX_RHI_LOG_ERROR("Failed to present swapchain image (VkResult): %d", result);
