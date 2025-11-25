@@ -335,11 +335,17 @@ jobs:
           python3 \
           python3-pip \
           git \
+          libxrandr-dev \
+          libxinerama-dev \
+          libxcursor-dev \
+          libwayland-dev \
           libvulkan1 \
-          vulkan-utils \
           libxcb1-dev \
           libx11-dev \
-          libgl-dev
+          libgl-dev \ 
+          libgl1-mesa-dev \
+          vulkan-validationlayers \
+          vulkan-tools
 
     - name: Cache Vulkan SDK
       uses: actions/cache@v4
