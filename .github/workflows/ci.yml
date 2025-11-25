@@ -389,7 +389,7 @@ jobs:
 
     - name: Build Engine (Debug)
       run: |
-        python Scripts/build_razix.py --platform linux-x86_64 --config Debug --github-ci --linux-build-make
+        python Scripts/build_razix.py --platform linux-x86_64 --config Debug --github-ci
 
     - name: Test Run EngineTests (Debug)
       run: |
@@ -397,7 +397,7 @@ jobs:
 
     - name: Build Engine (GoldMaster)
       run: |
-        python Scripts/build_razix.py --platform linux-x86_64 --config GoldMaster --github-ci --linux-build-make
+        python Scripts/build_razix.py --platform linux-x86_64 --config GoldMaster --github-ci
 
     - name: Test Run EngineTests (GoldMaster)
       run: |
