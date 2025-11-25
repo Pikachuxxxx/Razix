@@ -140,7 +140,7 @@
 
     #define RAZIX_API           __attribute__((visibility("default")))
     #define RAZIX_HIDDEN        __attribute__((visibility("hidden")))
-    #define RAZIX_DEBUG_BREAK() raise(SIGTRAP);
+    #define RAZIX_DEBUG_BREAK() 
     #define RAZIX_MEM_ALIGN_16  alignas(MEM_DEF_ALIGNMENT_16)
 
 #endif

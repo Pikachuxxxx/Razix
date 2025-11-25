@@ -25,6 +25,6 @@ echo "🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  🚧  �
 echo "=========================================================="
 
 chmod +x ./Tools/Building/premake/premake5
-./Tools/Building/premake/premake5 --arch=x64 --os=linux gmake2
+./Tools/Building/premake/bin/linux/x64/premake5 --arch=x64 --os=linux gmake2
 echo "Project files generated successfully!"
 read -p "Press any key to continue..."

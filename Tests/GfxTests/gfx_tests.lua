@@ -190,6 +190,30 @@ function ApplyGfxTestSettings()
             "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
+        buildoptions
+        {
+            "-march=native",
+            "-mavx2",
+            "-mfma",
+        }
+
+        includedirs
+        {
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+            "./",
+            "../"
+        }
+
+        libdirs
+        {
+            VulkanSDK .. "/lib"
+        }
+
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }
         symbols "On"

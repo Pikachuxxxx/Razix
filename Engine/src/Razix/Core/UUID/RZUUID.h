@@ -9,15 +9,15 @@
 #if defined(RAZIX_APPLE_SILICON) || defined(RAZIX_PLATFORM_MACOS) || defined(RAZIX_PLATFORM_LINUX_ARM64)
     #include <arm_neon.h>
 
-    #if defined(__clang__) || defined(__GNUC__)
-        #define SIMDE_ENABLE_NATIVE_ALIASES
-        #define SIMDE_X86_AVX_ENABLE_NATIVE_ALIASES
+#if defined(__clang__) || defined(__GNUC__)
+       #define SIMDE_ENABLE_NATIVE_ALIASES
+       #define SIMDE_X86_AVX_ENABLE_NATIVE_ALIASES
 
-        #include <simde/arm/neon.h>
-        #include <simde/x86/avx.h>     // AVX
-        #include <simde/x86/avx2.h>    // AVX
-        #include <simde/x86/sse4.1.h>
-    #endif
+       #include <simde/arm/neon.h>
+       #include <simde/x86/avx.h>     // AVX
+       #include <simde/x86/avx2.h>    // AVX
+       #include <simde/x86/sse4.1.h>
+#endif
 #endif
 
 namespace Razix {
@@ -127,14 +127,7 @@ namespace Razix {
 
         RZUUID& operator=(const RZUUID& other);
 
-        friend bool operator==(const RZUUID& lhs, const RZUUID& rhs)
-        {
-            __m128i x = _mm_load_si128((__m128i*) lhs.m_Data);
-            __m128i y = _mm_load_si128((__m128i*) rhs.m_Data);
-
-            __m128i neq = _mm_xor_si128(x, y);
-            return _mm_test_all_zeros(neq, neq);
-        }
+        friend bool operator==(const RZUUID& lhs, const RZUUID& rhs);
         friend bool operator<(const RZUUID& lhs, const RZUUID& rhs)
         {
             // There are no trivial 128-bits comparisons in SSE/AVX

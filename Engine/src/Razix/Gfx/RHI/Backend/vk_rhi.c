@@ -31,6 +31,7 @@
 #include <volk.h>
 
 #ifdef RAZIX_PLATFORM_LINUX
+    #include <stdlib.h>    // for free
     #include <alloca.h>    // for alloca
 #endif
 

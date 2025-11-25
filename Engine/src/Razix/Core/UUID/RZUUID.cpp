@@ -313,4 +313,15 @@ namespace Razix {
 
         return bytes;
     }
+    
+    // Friends
+    bool operator==(const RZUUID& lhs, const RZUUID& rhs)
+    {
+        __m128i x = _mm_load_si128((__m128i*) lhs.m_Data);
+        __m128i y = _mm_load_si128((__m128i*) rhs.m_Data);
+
+        __m128i neq = _mm_xor_si128(x, y);
+        return _mm_test_all_zeros(neq, neq);
+    }
+
 }    // namespace Razix

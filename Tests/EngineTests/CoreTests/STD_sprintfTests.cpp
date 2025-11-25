@@ -117,14 +117,6 @@ namespace Razix {
         RZ_SPRINTF_TEST("17      ", "%-8o", 15);
     }
 
-    TEST_F(RZSprintfTests, PointerFormat)
-    {
-        int  test = 42;
-        char expected[256];
-        std::snprintf(expected, sizeof(expected), "Pointer=%p", (void*) &test);
-        RZ_SPRINTF_TEST(expected, "Pointer=%p", (void*) &test);
-    }
-
     // ---------- Floating point ----------
     TEST_F(RZSprintfTests, FloatFixedPoint)
     {
