@@ -24,11 +24,6 @@
     #endif
 #endif
 
-#ifdef RAZIX_RENDER_API_VULKAN
-    #define VOLK_IMPLEMENTATION
-    #include <volk.h>
-#endif
-
 #ifdef RAZIX_RENDER_API_DIRECTX12
     #include <d3d12.h>
 #endif
@@ -136,80 +131,40 @@ namespace Razix {
 
 #ifdef RAZIX_RENDER_API_VULKAN
 
-        static bool                              s_DebugUtilsInitialized           = false;
-        static PFN_vkCmdBeginDebugUtilsLabelEXT  pfn_vkCmdBeginDebugUtilsLabelEXT  = NULL;
-        static PFN_vkCmdEndDebugUtilsLabelEXT    pfn_vkCmdEndDebugUtilsLabelEXT    = NULL;
-        static PFN_vkCmdInsertDebugUtilsLabelEXT pfn_vkCmdInsertDebugUtilsLabelEXT = NULL;
-
-        void InitializeDebugUtils()
-        {
-            if (s_DebugUtilsInitialized || g_GfxCtx.vk.instance == VK_NULL_HANDLE) return;
-
-            // only RHI DLL loads volk so we need to initialize it here again if Razix want to raw dog backend API calls
-            volkInitialize();
-            volkLoadInstance(g_GfxCtx.vk.instance);
-
-            pfn_vkCmdBeginDebugUtilsLabelEXT = reinterpret_cast<PFN_vkCmdBeginDebugUtilsLabelEXT>(
-                vkGetInstanceProcAddr(g_GfxCtx.vk.instance, "vkCmdBeginDebugUtilsLabelEXT"));
-            pfn_vkCmdEndDebugUtilsLabelEXT = reinterpret_cast<PFN_vkCmdEndDebugUtilsLabelEXT>(
-                vkGetInstanceProcAddr(g_GfxCtx.vk.instance, "vkCmdEndDebugUtilsLabelEXT"));
-            pfn_vkCmdInsertDebugUtilsLabelEXT = reinterpret_cast<PFN_vkCmdInsertDebugUtilsLabelEXT>(
-                vkGetInstanceProcAddr(g_GfxCtx.vk.instance, "vkCmdInsertDebugUtilsLabelEXT"));
-            s_DebugUtilsInitialized = true;
-        }
-
         void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const RZString& name, const glm::vec4& color)
         {
     #ifndef RAZIX_GOLD_MASTER
-            if (!s_DebugUtilsInitialized) {
-                InitializeDebugUtils();
-            }
+            VkDebugUtilsLabelEXT labelInfo{};
+            labelInfo.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+            labelInfo.pLabelName = name.c_str();
+            labelInfo.color[0]   = color.r;
+            labelInfo.color[1]   = color.g;
+            labelInfo.color[2]   = color.b;
+            labelInfo.color[3]   = color.a;
 
-            if (pfn_vkCmdBeginDebugUtilsLabelEXT) {
-                VkDebugUtilsLabelEXT labelInfo{};
-                labelInfo.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
-                labelInfo.pLabelName = name.c_str();
-                labelInfo.color[0]   = color.r;
-                labelInfo.color[1]   = color.g;
-                labelInfo.color[2]   = color.b;
-                labelInfo.color[3]   = color.a;
-
-                pfn_vkCmdBeginDebugUtilsLabelEXT(commandBuffer, &labelInfo);
-            }
+            rzRHI_BRIDGE_vkCmdBeginDebugUtilsLabelEXT(commandBuffer, &labelInfo);
     #endif    // RAZIX_GOLD_MASTER
         }
 
         void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const RZString& name, const glm::vec4& color)
         {
     #ifndef RAZIX_GOLD_MASTER
-            if (!s_DebugUtilsInitialized) {
-                InitializeDebugUtils();
-            }
+            VkDebugUtilsLabelEXT labelInfo{};
+            labelInfo.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+            labelInfo.pLabelName = name.c_str();
+            labelInfo.color[0]   = color.r;
+            labelInfo.color[1]   = color.g;
+            labelInfo.color[2]   = color.b;
+            labelInfo.color[3]   = color.a;
 
-            if (pfn_vkCmdInsertDebugUtilsLabelEXT) {
-                VkDebugUtilsLabelEXT labelInfo{};
-                labelInfo.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
-                labelInfo.pLabelName = name.c_str();
-                labelInfo.color[0]   = color.r;
-                labelInfo.color[1]   = color.g;
-                labelInfo.color[2]   = color.b;
-                labelInfo.color[3]   = color.a;
-
-                pfn_vkCmdInsertDebugUtilsLabelEXT(commandBuffer, &labelInfo);
-            }
+            rzRHI_BRIDGE_vkCmdInsertDebugUtilsLabelEXT(commandBuffer, &labelInfo);
     #endif    // RAZIX_GOLD_MASTER
         }
 
         void CmdEndDebugUtilsLabelEXT(VkCommandBuffer commandBuffer)
         {
     #ifndef RAZIX_GOLD_MASTER
-            if (!s_DebugUtilsInitialized) {
-                InitializeDebugUtils();
-            }
-
-            if (pfn_vkCmdEndDebugUtilsLabelEXT) {
-                pfn_vkCmdEndDebugUtilsLabelEXT(commandBuffer);
-            }
+            rzRHI_BRIDGE_vkCmdEndDebugUtilsLabelEXT(commandBuffer);
     #endif    // RAZIX_GOLD_MASTER
         }
 

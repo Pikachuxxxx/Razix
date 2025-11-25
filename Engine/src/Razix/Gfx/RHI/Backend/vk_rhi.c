@@ -4255,8 +4255,6 @@ static void vk_Present(rz_gfx_present_desc presentDesc)
 
         // create new swapchain
         vk_util_create_swapchain(sc, sc->width, sc->height);
-
-        RAZIX_RHI_ASSERT(false, "Swapchain recreation not implemented yet!");
     } else if (result != VK_SUCCESS) {
         RAZIX_RHI_LOG_ERROR("Failed to present swapchain image (VkResult): %d", result);
         return;
@@ -6006,6 +6004,26 @@ static void vk_ResizeTexture(rz_gfx_texture* texture, uint32_t width, uint32_t h
 }
 
 //---------------------------------------------------------------------------------------------
+// BRIDGE Function 
+//---------------------------------------------------------------------------------------------
+#if defined (RAZIX_RENDER_API_VULKAN) && defined (RAZIX_DEBUG)
+static void vk_BRIDGE_vkCmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdBuf, const VkDebugUtilsLabelEXT* pLabelInfo)
+{
+    vkCmdBeginDebugUtilsLabelEXT(cmdBuf, pLabelInfo);
+}
+
+static void vk_BRIDGE_vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdBuf, const VkDebugUtilsLabelEXT* pLabelInfo)
+{
+    vkCmdInsertDebugUtilsLabelEXT(cmdBuf, pLabelInfo);
+}
+
+static void vk_BRIDGE_vkCmdEndDebugUtilsLabelEXT(VkCommandBuffer cmdBuf)
+{
+    vkCmdEndDebugUtilsLabelEXT(cmdBuf);
+}
+#endif // RAZIX_RENDER_API_VULKAN && RAZIX_DEBUG
+
+//---------------------------------------------------------------------------------------------
 // Jump table
 //---------------------------------------------------------------------------------------------
 
@@ -6083,4 +6101,11 @@ rz_rhi_api vk_rhi = {
     .FlushGPUWork    = vk_FlushGPUWork,       // FlushGPUWork
     .ResizeSwapchain = vk_ResizeSwapchain,    // ResizeSwapchain
     .ResizeTexture   = vk_ResizeTexture,      // ResizeTexture
+
+#if defined (RAZIX_RENDER_API_VULKAN) && defined (RAZIX_DEBUG)
+    .BRIDGE_vkCmdBeginDebugUtilsLabelEXT  = vk_BRIDGE_vkCmdBeginDebugUtilsLabelEXT,
+    .BRIDGE_vkCmdInsertDebugUtilsLabelEXT = vk_BRIDGE_vkCmdInsertDebugUtilsLabelEXT,
+    .BRIDGE_vkCmdEndDebugUtilsLabelEXT    = vk_BRIDGE_vkCmdEndDebugUtilsLabelEXT,
+#endif // RAZIX_RENDER_API_VULKAN && RAZIX_DEBUG
+
 };
