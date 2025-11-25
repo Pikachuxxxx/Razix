@@ -127,7 +127,7 @@ namespace Razix {
 
         RZUUID& operator=(const RZUUID& other);
 
-        friend bool operator==(const RZUUID& lhs, const RZUUID& rhs);
+        RAZIX_API friend bool operator==(const RZUUID& lhs, const RZUUID& rhs);
         friend bool operator<(const RZUUID& lhs, const RZUUID& rhs)
         {
             // There are no trivial 128-bits comparisons in SSE/AVX
