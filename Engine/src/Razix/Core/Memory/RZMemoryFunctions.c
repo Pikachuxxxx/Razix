@@ -21,7 +21,9 @@ void* rz_malloc(size_t size, size_t alignment)
     #ifdef RAZIX_PLATFORM_WINDOWS
     address = _aligned_malloc(size, alignment);
     #elif RAZIX_PLATFORM_UNIX
-    posix_memalign(&address, alignment, size);
+    if (posix_memalign(&address, alignment, size) != 0) {
+        address = NULL;
+    }
     #endif
 #endif
 
@@ -73,7 +75,10 @@ void* rz_realloc(void* oldPtr, size_t newSize, size_t alignment)
     oldPtr = _aligned_realloc(oldPtr, newSize, alignment);
 #elif RAZIX_PLATFORM_UNIX
     void* newPtr = NULL;
-    posix_memalign(&newPtr, alignment, newSize);
+    if (posix_memalign(&newPtr, alignment, newSize) != 0) {
+        newPtr = NULL;
+        oldPtr = NULL;
+    }
     if (newPtr) {
         memcpy(newPtr, oldPtr, newSize);
         free(oldPtr);
