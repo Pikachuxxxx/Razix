@@ -157,7 +157,7 @@ namespace Razix {
             RAZIX_UNUSED(name);
             RAZIX_UNUSED(color);
             
-            #ifdef  RAZIX_GOLD_MASTER
+    #ifndef  RAZIX_GOLD_MASTER
             VkDebugUtilsLabelEXT labelInfo{};
             labelInfo.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
             labelInfo.pLabelName = name.c_str();

@@ -214,7 +214,6 @@ namespace Razix {
                 bool                        imported = false)
                 : m_ID(id), m_Imported(imported), m_TypeIndex(typeid(T))
             {
-                RAZIX_CORE_INFO("Creating RZResourceEntry with T = {}", typeid(T).name());
                 m_Concept = std::make_unique<Model<T>>(name, std::forward<typename T::Desc>(desc), std::forward<T>(obj), id);
                 m_Version = version;
                 m_Name    = name;

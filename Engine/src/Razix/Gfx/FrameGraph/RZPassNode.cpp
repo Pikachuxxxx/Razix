@@ -181,10 +181,6 @@ namespace Razix {
                     continue;
                 }
 
-                RAZIX_CORE_INFO("[FOR TESTING ONLY] Recreating WRITE Resource View for FG Resource ID: {0} and name {1}",
-                    wi.first,
-                    getResourceViewNamePrefix(accessView));
-
                 accessView.resViewHandle =
                     RZResourceManager::Get().createResourceView(getResourceViewNamePrefix(accessView).c_str(),
                         accessView.resViewDesc);
@@ -205,10 +201,6 @@ namespace Razix {
                     accessView.resViewDesc.textureViewDesc.pTexture == RZ_FG_TEX_RES_VIEW_IGNORE) {
                     continue;
                 }
-
-                RAZIX_CORE_INFO("[FOR TESTING ONLY] Recreating READ Resource View for FG Resource ID: {0} and name {1}",
-                    ri.first,
-                    getResourceViewNamePrefix(accessView));
 
                 accessView.resViewHandle =
                     RZResourceManager::Get().createResourceView(getResourceViewNamePrefix(accessView).c_str(),
