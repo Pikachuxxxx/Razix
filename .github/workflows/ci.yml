@@ -150,7 +150,7 @@ jobs:
 
     - name: Test Run EngineTests (Debug)
       run: |
-        python Scripts/test_runner.py --platform windows-x86_64 --config Debug --github-ci --stdout
+        python Scripts/test_runner.py --platform windows-x86_64 --config Debug --github-ci
       shell: cmd
 
     - name: Build Engine (GoldMaster)
@@ -161,7 +161,7 @@ jobs:
 
     - name: Test Run EngineTests (GoldMaster)
       run: |
-        python Scripts/test_runner.py --platform windows-x86_64 --config GoldMaster --github-ci --stdout
+        python Scripts/test_runner.py --platform windows-x86_64 --config GoldMaster --github-ci
       shell: cmd
 
   build-macos:
