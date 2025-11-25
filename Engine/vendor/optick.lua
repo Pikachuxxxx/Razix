@@ -21,6 +21,9 @@ project "optick"
     -- Needed when using clang-cl on windows as it will default to linux as soon as it sees clang is being used
     --defines "OPTICK_MSVC"
 
+    filter "system:linux"
+        pic "on"
+
     filter "system:windows"
         systemversion "latest"
 

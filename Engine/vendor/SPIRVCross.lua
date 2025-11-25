@@ -36,4 +36,7 @@ project "SpirvCross"
         "SPIRVCross/spirv_reflect.hpp"
     }
 
+    filter "system:linux"
+        pic "On"
+
     warnings "off"

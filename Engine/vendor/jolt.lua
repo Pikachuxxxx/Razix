@@ -22,6 +22,9 @@ project "Jolt"
         "Jolt/Jolt/**.cpp"
     }
 
+    filter "system:linux"
+        pic "On"
+
     filter "system:windows"
         systemversion "latest"
         cppdialect (engine_global_config.cpp_dialect)
