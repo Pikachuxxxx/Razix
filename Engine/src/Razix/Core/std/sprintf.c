@@ -141,8 +141,10 @@ static const fmt_spec spec_map[128] = {
     ['%'] = FMT_SPEC_PERCENTAGE,
 };
 
+#ifdef __GCC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
 static uint64_t _itoa(uint64_t val, char* buf, int base, bool caps)
 {
     char* p = buf;
@@ -165,7 +167,9 @@ static uint64_t _itoa(uint64_t val, char* buf, int base, bool caps)
 
     return bytes;
 }
+#ifdef __GCC__
 #pragma GCC diagnostic pop
+#endif
 
 static uint64_t itoA(uint64_t val, char* buf, int base)
 {

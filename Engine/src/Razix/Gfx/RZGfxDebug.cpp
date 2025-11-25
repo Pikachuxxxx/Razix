@@ -133,6 +133,10 @@ namespace Razix {
 
         void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const RZString& name, const glm::vec4& color)
         {
+            RAZIX_UNUSED(commandBuffer);
+            RAZIX_UNUSED(name);
+            RAZIX_UNUSED(color);
+
     #ifndef RAZIX_GOLD_MASTER
             VkDebugUtilsLabelEXT labelInfo{};
             labelInfo.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
@@ -141,6 +145,7 @@ namespace Razix {
             labelInfo.color[1]   = color.g;
             labelInfo.color[2]   = color.b;
             labelInfo.color[3]   = color.a;
+            RAZIX_UNUSED(labelInfo);
 
             rzRHI_BRIDGE_vkCmdBeginDebugUtilsLabelEXT(commandBuffer, &labelInfo);
     #endif    // RAZIX_GOLD_MASTER
@@ -148,7 +153,11 @@ namespace Razix {
 
         void CmdInsertDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const RZString& name, const glm::vec4& color)
         {
-    #ifndef RAZIX_GOLD_MASTER
+            RAZIX_UNUSED(commandBuffer);
+            RAZIX_UNUSED(name);
+            RAZIX_UNUSED(color);
+            
+            #ifdef  RAZIX_GOLD_MASTER
             VkDebugUtilsLabelEXT labelInfo{};
             labelInfo.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
             labelInfo.pLabelName = name.c_str();
@@ -156,6 +165,7 @@ namespace Razix {
             labelInfo.color[1]   = color.g;
             labelInfo.color[2]   = color.b;
             labelInfo.color[3]   = color.a;
+            RAZIX_UNUSED(labelInfo);
 
             rzRHI_BRIDGE_vkCmdInsertDebugUtilsLabelEXT(commandBuffer, &labelInfo);
     #endif    // RAZIX_GOLD_MASTER
@@ -163,6 +173,8 @@ namespace Razix {
 
         void CmdEndDebugUtilsLabelEXT(VkCommandBuffer commandBuffer)
         {
+            RAZIX_UNUSED(commandBuffer);
+            
     #ifndef RAZIX_GOLD_MASTER
             rzRHI_BRIDGE_vkCmdEndDebugUtilsLabelEXT(commandBuffer);
     #endif    // RAZIX_GOLD_MASTER

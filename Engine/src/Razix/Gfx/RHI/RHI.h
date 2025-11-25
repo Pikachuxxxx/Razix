@@ -1864,9 +1864,9 @@ static inline unsigned int rz_clz32(unsigned int x)
 
 // Bridge APIs, can be directly called
 #if defined (RAZIX_RENDER_API_VULKAN) && defined (RAZIX_DEBUG)
-    #define rzRHI_BRIDGE_vkCmdBeginDebugUtilsLabelEXT  g_RHI.BRIDGE_vkCmdBeginDebugUtilsLabelEXT;
-    #define rzRHI_BRIDGE_vkCmdInsertDebugUtilsLabelEXT g_RHI.BRIDGE_vkCmdInsertDebugUtilsLabelEXT;
-    #define rzRHI_BRIDGE_vkCmdEndDebugUtilsLabelEXT    g_RHI.BRIDGE_vkCmdEndDebugUtilsLabelEXT;
+    #define rzRHI_BRIDGE_vkCmdBeginDebugUtilsLabelEXT  g_RHI.BRIDGE_vkCmdBeginDebugUtilsLabelEXT
+    #define rzRHI_BRIDGE_vkCmdInsertDebugUtilsLabelEXT g_RHI.BRIDGE_vkCmdInsertDebugUtilsLabelEXT
+    #define rzRHI_BRIDGE_vkCmdEndDebugUtilsLabelEXT    g_RHI.BRIDGE_vkCmdEndDebugUtilsLabelEXT
 #else
     #define rzRHI_BRIDGE_vkCmdBeginDebugUtilsLabelEXT 
     #define rzRHI_BRIDGE_vkCmdInsertDebugUtilsLabelEXT 
