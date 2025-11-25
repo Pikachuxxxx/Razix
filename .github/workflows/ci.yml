@@ -281,6 +281,15 @@ jobs:
         chmod +x ./Scripts/GenerateMake-macOS-ARM64.sh
         ./Scripts/GenerateMake-macOS-ARM64.sh      
 
+    - name: Ensure shader output directories exist
+      run: |
+        mkdir -p Engine/content/Shaders/Compiled/CSO
+        mkdir -p Engine/content/Shaders/Compiled/SPIRV
+        mkdir -p Engine/content/Shaders/Generated/Assembly
+        mkdir -p Engine/content/Shaders/Generated/GLSL
+        mkdir -p Engine/content/Shaders/Generated/ReflectionData
+      shell: bash
+
     - name: Build Engine (Debug)
       run: |
         python Scripts/build_razix.py --platform macosx-arm64 --config Debug --github-ci --mac-build-make

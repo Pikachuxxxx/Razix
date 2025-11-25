@@ -319,6 +319,15 @@ jobs:
         python Scripts/build_razix.py --platform macosx-arm64 --config Debug --github-ci --mac-build-make
       shell: bash
 
+    - name: Ensure shader output directories exist
+      run: |
+        mkdir -p Engine/content/Shaders/Compiled/CSO
+        mkdir -p Engine/content/Shaders/Compiled/SPIRV
+        mkdir -p Engine/content/Shaders/Generated/Assembly
+        mkdir -p Engine/content/Shaders/Generated/GLSL
+        mkdir -p Engine/content/Shaders/Generated/ReflectionData
+      shell: bash
+
     - name: Test Run EngineTests (Debug)
       run: |
         python Scripts/test_runner.py --platform macosx-arm64 --config Debug --github-ci

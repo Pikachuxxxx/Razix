@@ -72,6 +72,19 @@ if os.target() == "windows" then
     os.execute(set_env_tools)
 end
 
+-- create some shader dirs
+local shaderDirs = {
+    "Engine/content/Shaders/Compiled/CSO",
+    "Engine/content/Shaders/Compiled/SPIRV",
+    "Engine/content/Shaders/Generated/Assembly",
+    "Engine/content/Shaders/Generated/GLSL",
+    "Engine/content/Shaders/Generated/ReflectionData"
+}
+
+for _, dir in ipairs(shaderDirs) do
+    os.mkdir(dir)      -- creates intermediate directories if needed; no error if it exists
+end
+
 -- Using the command line to get the selected architecture
 Arch = ""
 
