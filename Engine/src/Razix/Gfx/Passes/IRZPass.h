@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/RZCore.h"
+
 #include "Razix/Gfx/FrameGraph/RZBlackboard.h"
 #include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
@@ -10,16 +12,6 @@ namespace Razix {
     namespace Gfx {
 
         struct RZRendererSettings;
-
-        class RZDrawCommandBuffer;
-        class RZPipeline;
-        class RZRenderPass;
-        class RZFramebuffer;
-        class RZRenderTexture;
-        class RZUniformBuffer;
-        class RZTexture;
-        class RZDescriptorSet;
-
         class RAZIX_API IRZPass
         {
         public:
@@ -27,6 +19,8 @@ namespace Razix {
             virtual ~IRZPass() = default;
 
             // TODO: make RZFrameGraph& a pointer too
+            // TODO: make RZRendererSettings a const pointer
+            // TODO: make RZScene a const pointer
             virtual void addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) = 0;
 
             virtual void destroy() = 0;

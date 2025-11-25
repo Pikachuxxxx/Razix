@@ -17,7 +17,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        submodules: recursive
+        submodules: recursive # we don't have any submodules yet, but in future we might
     
     - name: Setup Python
       uses: actions/setup-python@v4
@@ -141,11 +141,27 @@ jobs:
         cd Scripts
         .\GenerateVS22.bat
       shell: cmd
-    
+
+    - name: Build Engine (Debug)
+      run: |
+        cd Scripts
+        python build_razix.py --platform windows-x86_64 --config Debug --github-ci
+      shell: cmd
+
+    - name: Test Run EngineTests (Debug)
+      run: |
+        python Scripts/test_runner.py --platform windows-x86_64 --config Debug --github-ci
+      shell: cmd
+
     - name: Build Engine (GoldMaster)
       run: |
         cd Scripts
         python build_razix.py --platform windows-x86_64 --config GoldMaster --github-ci
+      shell: cmd
+
+    - name: Test Run EngineTests (GoldMaster)
+      run: |
+        python Scripts/test_runner.py --platform windows-x86_64 --config GoldMaster --github-ci
       shell: cmd
 
   build-macos:
@@ -262,9 +278,34 @@ jobs:
     
     - name: Generate Project Files
       run: |
-        chmod +x ./Scripts/GenerateXCodeProjectsMacOS.sh
-        ./Scripts/GenerateXCodeProjectsMacOS.sh
-    
+        chmod +x ./Scripts/GenerateMake-macOS-ARM64.sh
+        ./Scripts/GenerateMake-macOS-ARM64.sh      
+
+    - name: Ensure shader output directories exist
+      run: |
+        mkdir -p Engine/content/Shaders/Compiled/CSO
+        mkdir -p Engine/content/Shaders/Compiled/SPIRV
+        mkdir -p Engine/content/Shaders/Generated/Assembly
+        mkdir -p Engine/content/Shaders/Generated/GLSL
+        mkdir -p Engine/content/Shaders/Generated/ReflectionData
+      shell: bash
+
+    - name: Build Engine (Debug)
+      run: |
+        python Scripts/build_razix.py --platform macosx-arm64 --config Debug --github-ci --mac-build-make
+      shell: bash
+
+    - name: Test Run EngineTests (Debug)
+      run: |
+        python Scripts/test_runner.py --platform macosx-arm64 --config Debug --github-ci
+      shell: bash
+
     - name: Build Engine (GoldMaster)
       run: |
-        python Scripts/build_razix.py --platform macosx-arm64 --config GoldMaster
+        python Scripts/build_razix.py --platform macosx-arm64 --config GoldMaster --github-ci --mac-build-make
+      shell: bash
+
+    - name: Test Run EngineTests (GoldMaster)
+      run: |
+        python Scripts/test_runner.py --platform macosx-arm64 --config GoldMaster --github-ci
+      shell: bash

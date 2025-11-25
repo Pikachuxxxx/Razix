@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2023 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -6,16 +7,24 @@
 #include <Tests/Test.h>
 #include <Jolt/Physics/Character/CharacterVirtual.h>
 
-// A test that demonstrates how a character may walk around a fast moving/accelerating sci-fi space ship that is equipped with inertial dampeners.
-// Note that this is 'game physics' and not real physics, inertial dampeners only exist in the movies.
-// You can walk off the ship and remain attached to the ship. A proper implementation would detect this and detach the character.
 class CharacterSpaceShipTest : public Test, public CharacterContactListener
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL(CharacterSpaceShipTest)
+	JPH_DECLARE_RTTI_VIRTUAL(JPH_NO_EXPORT, CharacterSpaceShipTest)
+
+	// Description of the test
+	virtual const char *	GetDescription() const override
+	{
+		return	"Demonstrates how a character may walk around a fast moving/accelerating sci-fi space ship that is equipped with inertial dampeners.\n"
+				"Note that this is 'game physics' and not real physics, inertial dampeners only exist in the movies.\n"
+				"You can walk off the ship and remain attached to the ship. A proper implementation would detect this and detach the character.";
+	}
 
 	// Initialize the test
 	virtual void			Initialize() override;
+
+	// Process input
+	virtual void			ProcessInput(const ProcessInputParams &inParams) override;
 
 	// Update the test, called before the physics update
 	virtual void			PrePhysicsUpdate(const PreUpdateParams &inParams) override;
@@ -29,6 +38,10 @@ public:
 	// Saving / restoring state for replay
 	virtual void			SaveState(StateRecorder &inStream) const override;
 	virtual void			RestoreState(StateRecorder &inStream) override;
+
+	// Saving / restoring controller input state for replay
+	virtual void			SaveInputState(StateRecorder &inStream) const override;
+	virtual void			RestoreInputState(StateRecorder &inStream) override;
 
 private:
 	// Calculate new ship velocity
@@ -55,10 +68,12 @@ private:
 	// Space ship velocity
 	Vec3					mSpaceShipLinearVelocity;
 	Vec3					mSpaceShipAngularVelocity;
-	
+
 	// Global time
 	float					mTime = 0.0f;
 
-	// Smoothed value of the player input
+	// Player input
 	Vec3					mDesiredVelocity = Vec3::sZero();
+	bool					mJump = false;
+	bool					mWasJump = false;
 };

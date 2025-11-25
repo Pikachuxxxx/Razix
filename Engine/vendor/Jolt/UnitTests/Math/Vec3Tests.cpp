@@ -1,7 +1,9 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 #include "UnitTestFramework.h"
+#include <Jolt/Core/StringTools.h>
 
 TEST_SUITE("Vec3Tests")
 {
@@ -28,6 +30,16 @@ TEST_SUITE("Vec3Tests")
 		v.SetComponent(1, 5);
 		v.SetComponent(2, 6);
 		CHECK(v == Vec3(4, 5, 6));
+
+		// Set the components
+		v.SetX(7);
+		v.SetY(8);
+		v.SetZ(9);
+		CHECK(v == Vec3(7, 8, 9));
+
+		// Set all components
+		v.Set(10, 11, 12);
+		CHECK(v == Vec3(10, 11, 12));
 	}
 
 	TEST_CASE("TestVec3LoadStoreFloat3")
@@ -83,6 +95,7 @@ TEST_SUITE("Vec3Tests")
 	{
 		Vec3 v1(1, 5, 3);
 		Vec3 v2(4, 2, 6);
+		Vec3 v3(6, 4, 2);
 
 		CHECK(Vec3::sMin(v1, v2) == Vec3(1, 2, 3));
 		CHECK(Vec3::sMax(v1, v2) == Vec3(4, 5, 6));
@@ -96,6 +109,8 @@ TEST_SUITE("Vec3Tests")
 		CHECK(v1.GetHighestComponentIndex() == 1);
 		CHECK(v2.GetLowestComponentIndex() == 1);
 		CHECK(v2.GetHighestComponentIndex() == 2);
+		CHECK(v3.GetLowestComponentIndex() == 2);
+		CHECK(v3.GetHighestComponentIndex() == 0);
 	}
 
 	TEST_CASE("TestVec3Clamp")
@@ -125,6 +140,8 @@ TEST_SUITE("Vec3Tests")
 	{
 		CHECK(Vec3::sSelect(Vec3(1, 2, 3), Vec3(4, 5, 6), UVec4(0x80000000U, 0, 0x80000000U, 0)) == Vec3(4, 2, 6));
 		CHECK(Vec3::sSelect(Vec3(1, 2, 3), Vec3(4, 5, 6), UVec4(0, 0x80000000U, 0, 0x80000000U)) == Vec3(1, 5, 3));
+		CHECK(Vec3::sSelect(Vec3(1, 2, 3), Vec3(4, 5, 6), UVec4(0xffffffffU, 0x7fffffffU, 0xffffffffU, 0x7fffffffU)) == Vec3(4, 2, 6));
+		CHECK(Vec3::sSelect(Vec3(1, 2, 3), Vec3(4, 5, 6), UVec4(0x7fffffffU, 0xffffffffU, 0x7fffffffU, 0xffffffffU)) == Vec3(1, 5, 3));
 	}
 
 	TEST_CASE("TestVec3BitOps")
@@ -154,6 +171,17 @@ TEST_SUITE("Vec3Tests")
 	{
 		CHECK(-Vec3(1, 2, 3) == Vec3(-1, -2, -3));
 
+		Vec3 neg_zero = -Vec3::sZero();
+		CHECK(neg_zero == Vec3::sZero());
+
+	#ifdef JPH_CROSS_PLATFORM_DETERMINISTIC
+		// When cross platform deterministic, we want to make sure that -0 is represented as 0
+		UVec4 neg_zero_bin = neg_zero.ReinterpretAsInt();
+		CHECK(neg_zero_bin.GetX() == 0);
+		CHECK(neg_zero_bin.GetY() == 0);
+		CHECK(neg_zero_bin.GetZ() == 0);
+	#endif // JPH_CROSS_PLATFORM_DETERMINISTIC
+
 		CHECK(Vec3(1, 2, 3) + Vec3(4, 5, 6) == Vec3(5, 7, 9));
 		CHECK(Vec3(1, 2, 3) - Vec3(6, 5, 4) == Vec3(-5, -3, -1));
 
@@ -179,7 +207,7 @@ TEST_SUITE("Vec3Tests")
 		CHECK(Vec3(2, 4, 8).Reciprocal() == Vec3(0.5f, 0.25f, 0.125f));
 	}
 
-	TEST_CASE("TestVec3Swizzle")	
+	TEST_CASE("TestVec3Swizzle")
 	{
 		Vec3 v(1, 2, 3);
 
@@ -230,7 +258,7 @@ TEST_SUITE("Vec3Tests")
 		CHECK(Vec3(1, 2, 3).DotV(Vec3(4, 5, 6)) == Vec3::sReplicate(1 * 4 + 2 * 5 + 3 * 6));
 		CHECK(Vec3(1, 2, 3).DotV4(Vec3(4, 5, 6)) == Vec4::sReplicate(1 * 4 + 2 * 5 + 3 * 6));
 	}
-		
+
 	TEST_CASE("TestVec3Length")
 	{
 		CHECK(Vec3(1, 2, 3).LengthSq() == float(1 + 4 + 9));
@@ -257,12 +285,14 @@ TEST_SUITE("Vec3Tests")
 		CHECK(Vec3(3, 2, 1).Normalized() == Vec3(3, 2, 1) / sqrt(9.0f + 4.0f + 1.0f));
 		CHECK(Vec3(3, 2, 1).NormalizedOr(Vec3(1, 2, 3)) == Vec3(3, 2, 1) / sqrt(9.0f + 4.0f + 1.0f));
 		CHECK(Vec3::sZero().NormalizedOr(Vec3(1, 2, 3)) == Vec3(1, 2, 3));
+		CHECK(Vec3(0.999f * sqrt(FLT_MIN), 0, 0).NormalizedOr(Vec3(1, 2, 3)) == Vec3(1, 2, 3)); // A vector that has a squared length that is denormal should also be treated as zero
+		CHECK_APPROX_EQUAL(Vec3(1.001f * sqrt(FLT_MIN), 0, 0).NormalizedOr(Vec3(1, 2, 3)), Vec3(1, 0, 0)); // A value that is just above being denormal should work normally
 	}
 
 	TEST_CASE("TestVec3Cast")
 	{
-		CHECK(Vec3(1, 2, 3).ToInt() == UVec4(1, 2, 3, 3));
-		CHECK(Vec3(1, 2, 3).ReinterpretAsInt() == UVec4(0x3f800000U, 0x40000000U, 0x40400000U, 0x40400000U));
+		CHECK(UVec4::sEquals(Vec3(1, 2, 3).ToInt(), UVec4(1, 2, 3, 0)).TestAllXYZTrue());
+		CHECK(UVec4::sEquals(Vec3(1, 2, 3).ReinterpretAsInt(), UVec4(0x3f800000U, 0x40000000U, 0x40400000U, 0)).TestAllXYZTrue());
 	}
 
 	TEST_CASE("TestVec3NormalizedPerpendicular")
@@ -286,6 +316,14 @@ TEST_SUITE("Vec3Tests")
 	{
 		CHECK(Vec3(1.2345f, -6.7891f, 0).GetSign() == Vec3(1, -1, 1));
 		CHECK(Vec3(0, 2.3456f, -7.8912f).GetSign() == Vec3(1, 1, -1));
+	}
+
+	TEST_CASE("TestVec3FlipSign")
+	{
+		Vec3 v(1, 2, 3);
+		CHECK(v.FlipSign<-1, 1, 1>() == Vec3(-1, 2, 3));
+		CHECK(v.FlipSign<1, -1, 1>() == Vec3(1, -2, 3));
+		CHECK(v.FlipSign<1, 1, -1>() == Vec3(1, 2, -3));
 	}
 
 #ifdef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
@@ -340,4 +378,23 @@ TEST_SUITE("Vec3Tests")
 		}
 	}
 #endif // JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
+
+	TEST_CASE("TestVec3ConvertToString")
+	{
+		Vec3 v(1, 2, 3);
+		CHECK(ConvertToString(v) == "1, 2, 3");
+	}
+
+	TEST_CASE("TestVec3CompressUnitVector")
+	{
+		UnitTestRandom random;
+		for (int i = 0; i < 1000; ++i)
+		{
+			Vec3 v = Vec3::sRandom(random);
+			uint32 compressed = v.CompressUnitVector();
+			Vec3 decompressed = Vec3::sDecompressUnitVector(compressed);
+			float diff = (decompressed - v).Length();
+			CHECK(diff < 1.0e-4f);
+		}
+	}
 }

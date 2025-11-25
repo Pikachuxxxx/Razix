@@ -1,26 +1,27 @@
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include "Razix/Core/RZDataTypes.h"
+
+#include "Razix/Core/Containers/arrays.h"
+#include "Razix/Core/Containers/hash_map.h"
+#include "Razix/Core/Containers/string.h"
 
 namespace Razix {
 
     struct MemberMetaData
     {
-        std::string name;
-        std::string typeName;
-        u32         offset;
-        u32         size;
+        RZString name;
+        RZString typeName;
+        u32      offset;
+        u32      size;
     };
 
     struct TypeMetaData
     {
-        std::string                 name;
-        std::string                 typeName;
-        u32                         size;
-        std::vector<MemberMetaData> members;
+        RZString                       name;
+        RZString                       typeName;
+        u32                            size;
+        RZDynamicArray<MemberMetaData> members;
     };
 
     /**
@@ -28,15 +29,15 @@ namespace Razix {
      */
     struct EnumMetaData
     {
-        std::string                              name;
-        std::string                              typeName;
-        std::vector<std::pair<std::string, int>> values;
+        RZString                              name;
+        RZString                              typeName;
+        RZDynamicArray<RZPair<RZString, int>> values;
     };
 
     struct BitFieldMetaData
     {
-        std::string                              name;
-        std::string                              typeName;
-        std::vector<std::pair<std::string, int>> values;    // int describes the bit index
+        RZString                              name;
+        RZString                              typeName;
+        RZDynamicArray<RZPair<RZString, int>> values;    // int describes the bit index
     };
 }    // namespace Razix

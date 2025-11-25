@@ -51,13 +51,14 @@ namespace Razix {
 
             virtual void operator()(RZPassNode& node, RZPassResourceDirectory& resources)  = 0;
             virtual void resize(RZPassResourceDirectory& resources, u32 width, u32 height) = 0;
+            virtual void onExit()                                                          = 0;
         };
 
-        template<typename Data, typename ExecuteFunc, typename ResizeFunc>    
+        template<typename Data, typename ExecuteFunc, typename ResizeFunc, typename ExitFunc>
         struct RZFrameGraphCodePass final : IRZFrameGraphPass
         {
-            explicit RZFrameGraphCodePass(ExecuteFunc&& exec, ResizeFunc&& resize)
-                : execFunction{std::forward<ExecuteFunc>(exec)}, resizeFunction{std::forward<ResizeFunc>(resize)} {}
+            explicit RZFrameGraphCodePass(ExecuteFunc&& exec, ResizeFunc&& resize, ExitFunc&& exit)
+                : execFunction{std::forward<ExecuteFunc>(exec)}, resizeFunction{std::forward<ResizeFunc>(resize)}, exitFunction{std::forward<ExitFunc>(exit)} {}
 
             RAZIX_VIRTUAL_DESCTURCTOR(RZFrameGraphCodePass)
 
@@ -72,15 +73,21 @@ namespace Razix {
                 resizeFunction(resources, width, height);
             }
 
+            void onExit() override
+            {
+                exitFunction();
+            }
+
             ExecuteFunc execFunction;
             ResizeFunc  resizeFunction;
+            ExitFunc    exitFunction;
             Data        data{};
         };
 
         struct FrameGraphDataPassDesc
         {
-            Gfx::RZShaderHandle          shader;
-            Gfx::RZPipelineHandle        pipeline;
+            //Gfx::RZShaderHandle          shader;
+            //Gfx::RZPipelineHandle        pipeline;
             Razix::SceneDrawGeometryMode geometryMode;
             Resolution                   resolution;
             float2                       extent;
@@ -97,6 +104,7 @@ namespace Razix {
 
             void operator()(RZPassNode& node, RZPassResourceDirectory& resources) override;
             void resize(RZPassResourceDirectory& resources, u32 width, u32 height) override;
+            void onExit() override {}
         };
     }    // namespace Gfx
 }    // namespace Razix

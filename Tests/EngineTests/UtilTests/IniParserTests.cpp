@@ -11,7 +11,7 @@
 
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
-#include "Razix/Utilities/RZiniParser.h"
+#include "Razix/Core/Utils/RZiniParser.h"
 
 #include <gtest/gtest.h>
 
@@ -37,7 +37,7 @@ namespace Razix {
         class MockRZiniParser : public RZiniParser
         {
         public:
-            void mockParse(const std::unordered_map<std::string, Section>& sections)
+            void mockParse(const RZHashMap<RZString, Section>& sections)
             {
                 m_Sections = sections;
             }

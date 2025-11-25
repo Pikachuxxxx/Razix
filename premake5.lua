@@ -72,6 +72,19 @@ if os.target() == "windows" then
     os.execute(set_env_tools)
 end
 
+-- create some shader dirs
+local shaderDirs = {
+    "Engine/content/Shaders/Compiled/CSO",
+    "Engine/content/Shaders/Compiled/SPIRV",
+    "Engine/content/Shaders/Generated/Assembly",
+    "Engine/content/Shaders/Generated/GLSL",
+    "Engine/content/Shaders/Generated/ReflectionData"
+}
+
+for _, dir in ipairs(shaderDirs) do
+    os.mkdir(dir)      -- creates intermediate directories if needed; no error if it exists
+end
+
 -- Using the command line to get the selected architecture
 Arch = ""
 
@@ -98,11 +111,22 @@ function apply_engine_global_config()
     end
 end
 
+function install_hooks()
+    if os.isdir(".git") then
+        print("Installing Git hooks...")
+        local result = os.execute("python3 Scripts/install_commit_hook.py")
+        if result ~= 0 then
+            error("Hook install failed.")
+        else
+            print("Commit hook installed.")
+        end
+    end
+end
 
 -- The Razix Engine Workspace
 workspace ( settings.workspace_name )
     location "build"
-    startproject "Sandbox"
+    startproject "Tanu" -- Actual game
     flags 'MultiProcessorCompile' --(this won't work with clang)
 
     -- Use clang on windows
@@ -128,6 +152,11 @@ workspace ( settings.workspace_name )
         architecture "x86"
     elseif Arch == "arm64" then
         architecture "ARM64"
+        -- enable PIC for arm64
+        pic "On"
+    else 
+        print("Unknown architecture '" .. Arch .. "'. Supported architectures are: arm, arm64, x86, x64")
+        os.exit(1)
     end
 
     print("Generating Project files for Architecture = ", Arch)
@@ -136,11 +165,41 @@ workspace ( settings.workspace_name )
     configurations
     {
         "Debug",
-        "Release",
         "GoldMaster"
     }
 
+    -- global config settings for all projects, override if necessary in project lua files 
+    filter "configurations:Debug"
+        defines { "RAZIX_DEBUG", "_DEBUG" }
+        symbols "On"
+        runtime "Debug"
+        optimize "Off"
+
+    filter "configurations:GoldMaster"
+        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
+        symbols "Off"
+        runtime "Release"
+        optimize "Full"
+
+    filter { "system:macosx", "configurations:GoldMaster", "toolset:clang" }
+        optimize "Speed"            -- maps to -O2
+        buildoptions {
+            "-O3",                  -- override -O2
+            "-ffast-math"
+        }
+    filter {}
+
+    -- install git commit hooks
+    execute = function()
+        print("Running Python hook installer...")
+        local result = os.execute("python3 Scripts/install_commit_hooks.py")
+        if result ~= 0 then
+            error("Hook install failed")
+        end
+    end
+
     apply_engine_global_config()
+    --install_hooks()
 
     ------------------------------------------------------------------------------
     -- Shaders build rules (declared at start for tests and demos to pickup)
@@ -148,21 +207,17 @@ workspace ( settings.workspace_name )
 
     -- Build scripts for the Razix vendor dependencies
     group "Dependencies"
-        include "Engine/vendor/cereal/cereal.lua"
-        include "Engine/vendor/glfw/glfw.lua"
-        include "Engine/vendor/imgui/imgui.lua"
-        include "Engine/vendor/lua/lua.lua"
-        include "Engine/vendor/optick/optick.lua"
-        include "Engine/vendor/spdlog/spdlog.lua"
-        include "Engine/vendor/SPIRVCross/SPIRVCross.lua"
-        include "Engine/vendor/SPIRVReflect/SPIRVReflect.lua"
-        include "Engine/vendor/tracy/tracy.lua"
-        include "Engine/vendor/Jolt/jolt.lua"
-    group ""
-
-    -- Experimental
-    group "Dependencies/Experimental"
-        include "Engine/vendor/Experimental/eigen/eigen.lua"
+        include "Engine/vendor/cereal.lua"
+        include "Engine/vendor/eigen.lua"
+        include "Engine/vendor/glfw.lua"
+        include "Engine/vendor/imgui.lua"
+        include "Engine/vendor/lua.lua"
+        include "Engine/vendor/optick.lua"
+        include "Engine/vendor/spdlog.lua"
+        include "Engine/vendor/SPIRVCross.lua"
+        include "Engine/vendor/SPIRVReflect.lua"
+        include "Engine/vendor/tracy.lua"
+        include "Engine/vendor/jolt.lua"
     group ""
 
     -- Build Script for Razix Engine (Core)
@@ -171,29 +226,24 @@ workspace ( settings.workspace_name )
         include "Engine/razix_engine.lua"
     group ""
 
-    -- Build Script for Razix Editor
+    group"Engine/RHI"
+        include "Engine/src/Razix/Gfx/RHI/rhi.lua"
+    group""
+    
+    -- GAME: Project Tanu
+    --------------------------------------------------------------------------------
+    group "Game"
+        include "Tanu/tanu.lua"
+    group ""
+
     --------------------------------------------------------------------------------
     -- TODO: We will be using blender so VS tool and CLI tools will be added here
-
-    --------------------------------------------------------------------------------
-    -- Build script for Razix Game Framework
-    group "Game Framework"
-        include "GameFramework/razix_game_framework.lua"
-    group ""
-
-    --------------------------------------------------------------------------------
-    -- Build script for Sandbox
-    group "Sandbox"
-        include "Sandbox/sandbox.lua"
-    group ""
 
     --------------------------------------------------------------------------------
     -- Engine related tools
     group "Tools/Build"
         -- premake scripts Utility project for in IDE management
         include "Tools/Building/premake/premake_regenerate_proj_files.lua"
-        -- Gets the version of the Engine for Build workflows
-        include "Tools/Building/RazixVersion/razix_tool_version.lua"
         -- Game Packager using Game Framework
         include "Tools/Building/GamePackager/game_packager.lua"
     group ""
@@ -202,4 +252,3 @@ workspace ( settings.workspace_name )
     --------------------------------------------------------------------------------
     -- Tests
     include "Tests/tests.lua"
-

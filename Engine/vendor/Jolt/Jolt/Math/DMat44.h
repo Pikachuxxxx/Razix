@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2022 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -8,7 +9,7 @@
 JPH_NAMESPACE_BEGIN
 
 /// Holds a 4x4 matrix of floats with the last column consisting of doubles
-class [[nodiscard]] alignas(JPH_DVECTOR_ALIGNMENT) DMat44
+class [[nodiscard]] alignas(max(JPH_VECTOR_ALIGNMENT, JPH_DVECTOR_ALIGNMENT)) DMat44
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE
@@ -25,6 +26,7 @@ public:
 								DMat44() = default; ///< Intentionally not initialized for performance reasons
 	JPH_INLINE					DMat44(Vec4Arg inC1, Vec4Arg inC2, Vec4Arg inC3, DVec3Arg inC4);
 								DMat44(const DMat44 &inM2) = default;
+	DMat44 &					operator = (const DMat44 &inM2) = default;
 	JPH_INLINE explicit			DMat44(Mat44Arg inM);
 	JPH_INLINE					DMat44(Mat44Arg inRot, DVec3Arg inT);
 	JPH_INLINE					DMat44(Type inC1, Type inC2, Type inC3, DTypeArg inC4);
@@ -53,7 +55,7 @@ public:
 	/// Convert to Mat44 rounding to nearest
 	JPH_INLINE Mat44			ToMat44() const											{ return Mat44(mCol[0], mCol[1], mCol[2], Vec3(mCol3)); }
 
-	/// Comparsion
+	/// Comparison
 	JPH_INLINE bool				operator == (DMat44Arg inM2) const;
 	JPH_INLINE bool				operator != (DMat44Arg inM2) const						{ return !(*this == inM2); }
 
@@ -113,6 +115,9 @@ public:
 	JPH_INLINE Vec4				GetColumn4(uint inCol) const							{ JPH_ASSERT(inCol < 3); return mCol[inCol]; }
 	JPH_INLINE void				SetColumn4(uint inCol, Vec4Arg inV)						{ JPH_ASSERT(inCol < 3); mCol[inCol] = inV; }
 
+	/// Transpose 3x3 subpart of matrix
+	JPH_INLINE Mat44			Transposed3x3() const									{ return GetRotation().Transposed3x3(); }
+
 	/// Inverse 4x4 matrix
 	JPH_INLINE DMat44			Inversed() const;
 
@@ -146,7 +151,7 @@ private:
 	DVec3						mCol3;													///< Translation column, 4th element is assumed to be 1
 };
 
-static_assert(is_trivial<DMat44>(), "Is supposed to be a trivial type!");
+static_assert(std::is_trivial<DMat44>(), "Is supposed to be a trivial type!");
 
 JPH_NAMESPACE_END
 

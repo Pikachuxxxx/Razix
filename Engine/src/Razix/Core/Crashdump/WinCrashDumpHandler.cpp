@@ -10,7 +10,7 @@ namespace Razix::CrashDumpHandler {
     {
     }
 
-    void WriteCrashDump(int signal, const std::string& description)
+    void WriteCrashDump(int signal, const RZString& description)
     {
     }
 

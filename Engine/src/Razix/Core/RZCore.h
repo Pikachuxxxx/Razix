@@ -3,37 +3,99 @@
 /****************************************************************************************************
  *                                  Settings based on OS/Compiler                                   *
  ****************************************************************************************************/
-
-// Compiler Detection
 #if defined(_MSC_VER)
     #define RAZIX_COMPILER_MSVC
 #elif defined(__clang__)
     #define RAZIX_COMPILER_CLANG
-    #define RAZIX_APPLE_INTEL
-    #if defined(__arm__) || defined(__aarch64__)
-        #define RAZIX_COMPILER_CLANG_ARM
-        #define RAZIX_APPLE_SILICON
-    #endif
 #elif defined(__GNUC__)
     #define RAZIX_COMPILER_GCC
-    #if defined(__arm__) || defined(__aarch64__)
-        #define RAZIX_COMPILER_GCC_ARM
-    #endif
 #else
     #error "Unsupported compiler"
+#endif
+
+#ifdef __APPLE__
+    #include <TargetConditionals.h>
 #endif
 
 // Architecture Detection
 #if defined(__x86_64__) || defined(_M_X64)
     #define RAZIX_ARCHITECTURE_X64
+#elif defined(__aarch64__) || defined(_M_ARM64) || defined(TARGET_CPU_ARM64) || defined(__arm64__)
+    #define RAZIX_ARCHITECTURE_ARM64
 #elif defined(__i386__) || defined(_M_IX86)
     #define RAZIX_ARCHITECTURE_X86
 #elif defined(__arm__) || defined(_M_ARM)
     #define RAZIX_ARCHITECTURE_ARM
-#elif defined(__aarch64__)
-    #define RAZIX_ARCHITECTURE_ARM64
 #else
     #error "Unsupported architecture"
+#endif
+
+// Platform + Architecture combos (for convenience)
+#if defined(RAZIX_PLATFORM_WINDOWS)
+    #if defined(RAZIX_ARCHITECTURE_X64)
+        #define RAZIX_PLATFORM_WINDOWS_X64
+    #elif defined(RAZIX_ARCHITECTURE_ARM64)
+        #define RAZIX_PLATFORM_WINDOWS_ARM64
+    #elif defined(RAZIX_ARCHITECTURE_X86)
+        #define RAZIX_PLATFORM_WINDOWS_X86
+    #elif defined(RAZIX_ARCHITECTURE_ARM)
+        #define RAZIX_PLATFORM_WINDOWS_ARM
+    #endif
+#elif defined(RAZIX_PLATFORM_LINUX)
+    #if defined(RAZIX_ARCHITECTURE_X64)
+        #define RAZIX_PLATFORM_LINUX_X64
+    #elif defined(RAZIX_ARCHITECTURE_ARM64)
+        #define RAZIX_PLATFORM_LINUX_ARM64
+    #elif defined(RAZIX_ARCHITECTURE_X86)
+        #define RAZIX_PLATFORM_LINUX_X86
+    #elif defined(RAZIX_ARCHITECTURE_ARM)
+        #define RAZIX_PLATFORM_LINUX_ARM
+    #endif
+#elif defined(RAZIX_PLATFORM_MACOS)
+    #if defined(RAZIX_ARCHITECTURE_X64)
+        #define RAZIX_PLATFORM_MACOS_X64
+    #elif defined(RAZIX_ARCHITECTURE_ARM64)
+        #define RAZIX_APPLE_SILICON
+        #define RAZIX_PLATFORM_MACOS_ARM64
+    #endif
+#elif defined(RAZIX_PLATFORM_FREEBSD)
+    #if defined(RAZIX_ARCHITECTURE_X64)
+        #define RAZIX_PLATFORM_FREEBSD_X64
+    #elif defined(RAZIX_ARCHITECTURE_ARM64)
+        #define RAZIX_PLATFORM_FREEBSD_ARM64
+    #endif
+#endif
+
+#if defined(_MSC_VER)
+    #define RAZIX_LITTLE_ENDIAN 1
+
+#elif defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && defined(__ORDER_BIG_ENDIAN__)
+    #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        #define RAZIX_LITTLE_ENDIAN 1
+    #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+        #define RAZIX_BIG_ENDIAN 1
+    #else
+        #error "Unknown endianness"
+    #endif
+
+#elif defined(__ARMEB__) || defined(__BIG_ENDIAN__)
+    #define RAZIX_BIG_ENDIAN 1
+#elif defined(__ARMEL__) || defined(__LITTLE_ENDIAN__)
+    #define RAZIX_LITTLE_ENDIAN 1
+
+#elif defined(RAZIX_ARCHITECTURE_X64) || defined(RAZIX_ARCHITECTURE_X86)
+    #define RAZIX_LITTLE_ENDIAN 1
+#elif defined(RAZIX_ARCHITECTURE_ARM64)
+    #define RAZIX_LITTLE_ENDIAN 1
+#elif defined(RAZIX_ARCHITECTURE_ARM)
+    #if defined(__ARMEB__)
+        #define RAZIX_BIG_ENDIAN 1
+    #else
+        #define RAZIX_LITTLE_ENDIAN 1
+    #endif
+
+#else
+    #error "Unable to determine endianness for this platform"
 #endif
 
 // Settings for Windows OS
@@ -117,12 +179,12 @@
                 RAZIX_DEBUG_BREAK();                                                                                 \
             }                                                                                                        \
         }
-    #define RAZIX_ASSERT(x, ...)                                                                                \
-        {                                                                                                       \
-            if (!(x)) {                                                                                         \
-                RAZIX_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); \
-                RAZIX_DEBUG_BREAK();                                                                            \
-            }                                                                                                   \
+    #define RAZIX_ASSERT(x, ...)                                                                                     \
+        {                                                                                                            \
+            if (!(x)) {                                                                                              \
+                RAZIX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); \
+                RAZIX_DEBUG_BREAK();                                                                                 \
+            }                                                                                                        \
         }
     // Generic conditioned Assertions
     #define RAZIX_ASSERT_NO_MESSAGE(condition)                                                     \
@@ -147,6 +209,20 @@
     #define RAZIX_ASSERT_MESSAGE(condition, ...)
 #endif
 
+#define RAZIX_FIXME_STUB_COMPILE(...) static_assert(false, "[RAZIX] FIXME_STUB: This function is not implemented!"##__VA_ARGS__)
+#define RAZIX_FIXME_STUB(...)                                                                              \
+    {                                                                                                      \
+        RAZIX_CORE_ERROR("[RAZIX] FIXME_STUB: {0} at Line {1} in File {2}", __func__, __LINE__, __FILE__); \
+        RAZIX_DEBUG_BREAK();                                                                               \
+    }
+
+#define RAZIX_TODO_STUB_COMPILE(...) static_assert(false, "[RAZIX] TODO_STUB: This function is not implemented!")
+#define RAZIX_TODO_STUB(...)                                                                              \
+    {                                                                                                     \
+        RAZIX_CORE_ERROR("[RAZIX] TODO_STUB: {0} at Line {1} in File {2}", __func__, __LINE__, __FILE__); \
+        RAZIX_DEBUG_BREAK();                                                                              \
+    }
+
 // Max number of objects in a scene
 #define MAX_OBJECTS 2048
 
@@ -166,10 +242,9 @@
 // Function Bind macro
 #define RAZIX_BIND_CB_EVENT_FN(x) std::bind(&Razix::RZApplication::x, this, std::placeholders::_1)
 
-#define CAST_TO_FG_DESC(t)   (Razix::Gfx::t::Desc)
-#define CAST_TO_FG_TEX_DESC  (Razix::Gfx::RZFrameGraphTexture::Desc)
-#define CAST_TO_FG_SAMP_DESC (Razix::Gfx::RZFrameGraphSampler::Desc)
-#define CAST_TO_FG_BUF_DESC  (Razix::Gfx::RZFrameGraphBuffer::Desc)
+#define CAST_TO_FG_DESC(t)  (Razix::Gfx::t::Desc)
+#define CAST_TO_FG_TEX_DESC (Razix::Gfx::RZFrameGraphTexture::Desc)
+#define CAST_TO_FG_BUF_DESC (Razix::Gfx::RZFrameGraphBuffer::Desc)
 
 // right bit shift (useful for converting integer based color to hex)
 #define RZ_BIT_SHIFT(x) (1 << x)
@@ -205,46 +280,6 @@
     {                                                                                                     \
         RAZIX_CORE_ERROR("Manchidi...!!! Unimplemented : {0} : {1} : {2}", __func__, __FILE__, __LINE__); \
     }
-
-#define RAZIX_DELETE_PUBLIC_CONSTRUCTOR(type_identifier) \
-public:                                                  \
-    type_identifier() = delete;
-
-#define RAZIX_VIRTUAL_DESCTURCTOR(type_identifier) \
-    virtual ~type_identifier() = default;
-
-// Make the Class/Struct Object Non-Copyable/Assignable
-#define RAZIX_NONCOPYABLE_CLASS(type_identifier)                 \
-    type_identifier(const type_identifier&)            = delete; \
-    type_identifier& operator=(const type_identifier&) = delete;
-
-#define RAZIX_IMMOVABLE_CLASS(type_identifier)                       \
-    type_identifier(type_identifier&&) noexcept            = delete; \
-    type_identifier& operator=(type_identifier&&) noexcept = delete;
-
-#define RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier) \
-    RAZIX_NONCOPYABLE_CLASS(type_identifier)               \
-    RAZIX_IMMOVABLE_CLASS(type_identifier)
-
-// Make the Class/Struct Object Copyable/Assignable Explicit default declaration
-#define RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
-    type_identifier(const type_identifier&)            = default; \
-    type_identifier& operator=(const type_identifier&) = default;
-
-#define RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)                  \
-    type_identifier(type_identifier&&) noexcept            = default; \
-    type_identifier& operator=(type_identifier&&) noexcept = default;
-
-#define RAZIX_DEFAULT_COPYABLE_MOVABLE_CLASS(type_identifier) \
-    RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
-    RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)
-
-#define RAZIX_PRIVATE_INSTANTIABLE_CLASS(type_identifier) \
-private:                                                  \
-    type_identifier()                                     \
-    {                                                     \
-    }                                                     \
-    RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier)
 
 // Deprecation error macros
 #ifdef _MSC_VER
@@ -285,153 +320,18 @@ private:                                                  \
 
 // Inline macros
 #define RAZIX_INLINE inline
-#ifdef RAZIX_COMPILER_MSVC
+#if defined(RAZIX_COMPILER_MSVC)
     #define RAZIX_FORCE_INLINE __forceinline
-#elif defined RAZIX_COMPILER_CLANG
+#elif defined(RAZIX_COMPILER_CLANG) || defined(RAZIX_COMPILER_GCC)
     #define RAZIX_FORCE_INLINE __attribute__((always_inline))
+#else
+    #define RAZIX_FORCE_INLINE inline
 #endif
 
 #define RAZIX_LIKELY   [[likely]]
 #define RAZIX_UNLIKELY [[unlikely]]
 
-/**
- * We need ways to emulate pure virtual function verification
- * We use SFINAE idiom and type traits as the base concept to do this 
- * 
- * Core Concept : SFINAE failure trigger redirection
- * 
- * SFINAE also does Struct/Type verification in addition to functions exist checks
- * 
- * SFINAE using safe substitution failure we manually trigger based on condition to choose the test we want
- * 
- * Note: These check don't consider the function signature
- * 
- * Note: We can do return type checks specialization inside the functions instead 
- * of just returning{}
- */
-
-// TODO: Add signature check when doing CHECK_TYPE_HAS_FUNCTION
-
-/**
- * RAZIX_CHECK_TYPE_HAS_FUNCTION
- * 
- * Working: Given a function name, it will check whether it has that function in it or not
- * If it's successful it will select the first specialization and return a true_type 
- * if not the first one will fail due to SFINAE and select the second type and return false_type
- */
-
-#define RAZIX_CHECK_TYPE_HAS_FUNCTION(T, funcName)                     \
-    template<typename T>                                               \
-    class has_##funcName                                               \
-    {                                                                  \
-    private:                                                           \
-        template<typename C>                                           \
-        static constexpr ::std::true_type test(decltype(&C::funcName)) \
-        {                                                              \
-            return {};                                                 \
-        }                                                              \
-                                                                       \
-        template<typename C>                                           \
-        static constexpr ::std::false_type test(...)                   \
-        {                                                              \
-            return {};                                                 \
-        }                                                              \
-                                                                       \
-    public:                                                            \
-        static constexpr bool value = test<T>(0);                      \
-    };                                                                 \
-    template<typename T>                                               \
-    inline constexpr bool has_##funcName##_v = has_##funcName<T>::value;
-
-#define RAZIX_TYPE_HAS_FUNCTION_V(T, funcName) \
-    has_##funcName##_v<T>
-
-/**
- * RAZIX_CHECK_TYPE_HAS_SUBTYPE
- * 
- * Working: Given a type and subtype, if the type has the subtype it will choose the second 
- * specialization and return true_type if not it will choose the first one as default and 
- * return false_type
- * 
- */
-
-#define RAZIX_CHECK_TYPE_HAS_SUBTYPE(T, U)                             \
-    template<typename T, typename = void>                              \
-    struct has_##U : ::std::false_type                                 \
-    {                                                                  \
-    };                                                                 \
-    template<typename T>                                               \
-    struct has_##U<T, ::std::void_t<typename T::U>> : ::std::true_type \
-    {                                                                  \
-    };                                                                 \
-    template<typename T>                                               \
-    inline constexpr bool has_##U##_v = has_##U<T>::value
-
-#define RAZIX_TYPE_HAS_SUB_TYPE_V(T, U) \
-    has_##U##_v<T>
-
-#define RAZIX_CHECK_IF_TYPE_IS_DEFINED(T, msg) static_assert(std::is_class_v<T>(), msg)
-
-/**
- * SFINAE_TYPE_ERASURE_CONCEPT_CHECK
- */
-
-/**
- * SFINAE ENUM CLASS |/& OPERATOR CHECK
- */
-#define RAZIX_ENUM_CHECK_FOR_BITWISE_OPS(E)                                     \
-    template<typename T, bool = std::is_enum<T>::value>                         \
-    struct E;                                                                   \
-                                                                                \
-    template<typename T>                                                        \
-    struct E<T, true> : std::false_type                                         \
-    {};                                                                         \
-                                                                                \
-    template<typename T, typename std::enable_if<E<T>::value>::type* = nullptr> \
-    T operator|(T lhs, T rhs)                                                   \
-    {                                                                           \
-        using u_t = typename std::underlying_type<T>::type;                     \
-        return static_cast<T>(static_cast<u_t>(lhs) | static_cast<u_t>(rhs));   \
-    }
-
-/**
- * Bitwise OR and AND for enum class type
- */
-#define RAZIX_ENUM_CLASS_BITWISE_COMPATIBLE(E)                                      \
-    static E operator|(E a, E b)                                                    \
-    {                                                                               \
-        return static_cast<E>(static_cast<unsigned>(a) | static_cast<unsigned>(b)); \
-    }                                                                               \
-                                                                                    \
-    static E operator&(E a, E b)                                                    \
-    {                                                                               \
-        return static_cast<E>(static_cast<unsigned>(a) & static_cast<unsigned>(b)); \
-    }                                                                               \
-                                                                                    \
-    static bool operator!(E a)                                                      \
-    {                                                                               \
-        return static_cast<unsigned>(a) == 0;                                       \
-    }                                                                               \
-                                                                                    \
-    static bool operator&&(E a, E b)                                                \
-    {                                                                               \
-        return static_cast<unsigned>(a) && static_cast<unsigned>(b);                \
-    }                                                                               \
-                                                                                    \
-    static bool operator||(E a, E b)                                                \
-    {                                                                               \
-        return static_cast<unsigned>(a) || static_cast<unsigned>(b);                \
-    }
-
-//bool operator|(E a, E b)                                                        \
-    //{                                                                               \
-    //    return static_cast<unsigned>(a) | static_cast<unsigned>(b);                 \
-    //}                                                                               \
-    //                                                                                \
-    //bool operator&(E a, E b)                                                        \
-    //{                                                                               \
-    //    return static_cast<unsigned>(a) & static_cast<unsigned>(b);                 \
-    //}
+#define RAZIX_UNUSED(x) (void) (x)
 
 // Warning push/pop as per compiler convention
 // MSVC-specific: __pragma(warning(push)) etc.
@@ -453,18 +353,57 @@ private:                                                  \
     #define RAZIX_WARNING_DISABLE(x)
 #endif
 
-#if defined(__GNUC__) || defined(__clang__)    // GCC or Clang
-    #define RAZIX_UNUSED [[maybe_unused]] x
-#else
-    #define RAZIX_UNUSED
-#endif
+#ifdef __cplusplus
 
-#define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
+    #define RAZIX_DELETE_PUBLIC_CONSTRUCTOR(type_identifier) \
+    public:                                                  \
+        type_identifier() = delete;
+
+    #define RAZIX_VIRTUAL_DESCTURCTOR(type_identifier) \
+        virtual ~type_identifier() = default;
+
+    // Make the Class/Struct Object Non-Copyable/Assignable
+    #define RAZIX_NONCOPYABLE_CLASS(type_identifier)                 \
+        type_identifier(const type_identifier&)            = delete; \
+        type_identifier& operator=(const type_identifier&) = delete;
+
+    #define RAZIX_IMMOVABLE_CLASS(type_identifier)                       \
+        type_identifier(type_identifier&&) noexcept            = delete; \
+        type_identifier& operator=(type_identifier&&) noexcept = delete;
+
+    #define RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier) \
+        RAZIX_NONCOPYABLE_CLASS(type_identifier)               \
+        RAZIX_IMMOVABLE_CLASS(type_identifier)
+
+    // Make the Class/Struct Object Copyable/Assignable Explicit default declaration
+    #define RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
+        type_identifier(const type_identifier&)            = default; \
+        type_identifier& operator=(const type_identifier&) = default;
+
+    #define RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)                  \
+        type_identifier(type_identifier&&) noexcept            = default; \
+        type_identifier& operator=(type_identifier&&) noexcept = default;
+
+    #define RAZIX_DEFAULT_COPYABLE_MOVABLE_CLASS(type_identifier) \
+        RAZIX_DEFAULT_COPYABLE_CLASS(type_identifier)             \
+        RAZIX_DEFAULT_MOVABLE_CLASS(type_identifier)
+
+    #define RAZIX_PRIVATE_INSTANTIABLE_CLASS(type_identifier) \
+    private:                                                  \
+        type_identifier()                                     \
+        {                                                     \
+        }                                                     \
+        RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(type_identifier)
+
+    // Enum names array size checker
+    #define RAZIX_ENUM_NAMES_ASSERT(arrayName, enumName) static_assert(sizeof(arrayName) / sizeof(const char*) == (u32) enumName::COUNT)
+
+#endif    // __cplusplus
 
 /**
  * Memory Related stuff & Alignment Macros
  */
-#define RZ_ALIGN_ARB(n, a) (((size_t) (n) + ((size_t) (a) -1)) & ~(size_t) ((a) -1))    // 'a' needs to be a power of 2
+#define RZ_ALIGN_ARB(n, a) (((size_t) (n) + ((size_t) (a) - 1)) & ~(size_t) ((a) - 1))    // 'a' needs to be a power of 2
 
 #define RZ_ALIGN_64K(n) ((((size_t) (n)) + 0xffff) & ~0xffff)
 
@@ -480,7 +419,7 @@ private:                                                  \
 #define RZ_ALIGN_4(n)   ((((size_t) (n)) + 3) & ~3)
 #define RZ_ALIGN_2(n)   ((((size_t) (n)) + 1) & ~1)
 
-#define RZ_IS_ALIGNED_ARB(n, a) (((size_t) (n) & ((size_t) (a) -1)) == 0)    // 'a' needs to be a power of 2
+#define RZ_IS_ALIGNED_ARB(n, a) (((size_t) (n) & ((size_t) (a) - 1)) == 0)    // 'a' needs to be a power of 2
 
 #define RZ_IS_ALIGNED_512(n) (((size_t) (n) & 511) == 0)
 #define RZ_IS_ALIGNED_256(n) (((size_t) (n) & 255) == 0)
@@ -492,7 +431,7 @@ private:                                                  \
 #define RZ_IS_ALIGNED_4(n)   (((size_t) (n) & 3) == 0)
 #define RZ_IS_ALIGNED_2(n)   (((size_t) (n) & 1) == 0)
 
-#define RZ_ALIGN_DOWN_ARB(n, a) ((size_t) (n) & ~(size_t) ((a) -1))    // 'a' needs to be a power of 2
+#define RZ_ALIGN_DOWN_ARB(n, a) ((size_t) (n) & ~(size_t) ((a) - 1))    // 'a' needs to be a power of 2
 
 #define RZ_ALIGN_DOWN_512(n) (size_t(n) & ~511)
 #define RZ_ALIGN_DOWN_256(n) (size_t(n) & ~255)
@@ -516,24 +455,31 @@ private:                                                  \
 #define in_Mib(x) (x / (1 << 20))
 #define in_Kib(x) (x / 1024)
 
-#ifdef RAZIX_PLATFORM_UNIX
-    #include <stddef.h>    // for size_t
-#endif
+#define RAZIX_CACHE_LINE_SIZE  64    // typical size of a cache line
+#define RAZIX_16B_ALIGN        16
+#define RAZIX_32B_ALIGN        32
+#define RAZIX_CACHE_LINE_ALIGN RAZIX_CACHE_LINE_SIZE
+#define RAZIX_128B_ALIGN       128
 
-// Operator overload for quick expression without using macros
+#ifdef __cplusplus
+
+    #ifdef RAZIX_PLATFORM_UNIX
+        #include <stddef.h>    // for size_t
+    #endif
+
 static constexpr size_t operator""_Gib(unsigned long long int x)
 {
-    return x * 1 << 30;
+    return Gib(x);
 }
 
 static constexpr size_t operator""_Mib(unsigned long long int x)
 {
-    return x * 1 << 20;
+    return Mib(x);
 }
 
 static constexpr size_t operator""_Kib(unsigned long long int x)
 {
-    return x * 1 << 10;
+    return Kib(x);
 }
 
 static constexpr float operator""_inGib(unsigned long long int x)
@@ -551,54 +497,11 @@ static constexpr float operator""_inKib(unsigned long long int x)
     return (float) x / (1 << 10);
 }
 
-// A macro to call a member function pointer
-#define RAZIX_CALL_MEMBER_FUNC(object, member_func) ((object)->*(member_func))
-
-// Macro to define DestroyResource for IRZResource clean up in a common way in the entire engine
-#define RAZIX_CLEANUP_RESOURCE            virtual void DestroyResource() override;
-#define RAZIX_CLEANUP_RESOURCE_IMPL(type) void type::DestroyResource()
-#define RAZIX_CLEANUP_RESOURCE_IMPL_BEGIN(type) \
-    void type::DestroyResource()                \
-    {
-#define RAZIX_CLEANUP_RESOURCE_IMPL_END }
-
-// TODO: Add Safe memory delete and unloading macros
-/****************************************************************************************************
- *                                         Graphics Settings                                        *
- ****************************************************************************************************/
-
-/* Triple buffering is enabled by default */
-#define RAZIX_ENABLE_TRIPLE_BUFFERING
-/* The total number of images that the swapchain can render/present to, by default we use triple buffering, defaults to d32 buffering if disabled */
-#ifdef RAZIX_ENABLE_TRIPLE_BUFFERING
-    /* Frames in FLight defines the number of frames that will be rendered to while another frame is being presented (used for triple buffering)*/
-    #define RAZIX_MAX_FRAMES_IN_FLIGHT  2
-    #define RAZIX_MAX_SWAP_IMAGES_COUNT 3
-    #define RAZIX_MAX_FRAMES            RAZIX_MAX_SWAP_IMAGES_COUNT
-#elif
-    #define RAZIX_MAX_SWAP_IMAGES_COUNT 2
-#endif
-
-/* Whether or not to use VMA as memory backend */
-#ifdef RAZIX_PLATFORM_WINDOWS
-    #define RAZIX_USE_VMA 1
-#elif RAZIX_PLATFORM_MACOS
-    #define RAZIX_USE_VMA 0    // Still porting WIP, so disabled idk if the SDK has it
-#endif
-
-/* Total No.Of Render Targets = typically a Max of 8 (as supported by most APIs) */
-#define RAZIX_MAX_RENDER_TARGETS 8
-
-/* Size of indices in Razix Engine, change here for global configuration */
-#define RAZIX_INDICES_SIZE         sizeof(u32)    // we use 32-bit indices for now
-#define RAZIX_INDICES_FORMAT       R32_UINT
-#define RAZIX_INDICES_FORMAT_VK    VK_INDEX_TYPE_UINT32
-#define RAZIX_INDICES_FORMAT_D3D12 DXGI_FORMAT_R32_UINT
-#define RAZIX_INDICES_FORMAT_AGC   sce::Agc::IndexSize::k32
+#endif    //   __cplusplus
 
 /****************************************************************************************************
  *                                         Vendor Settings                                          * 
- ****************************************************************************************************/
+****************************************************************************************************/
 
 #define RAZIX_DEFINE_SAVE_LOAD   \
     template<class Archive>      \
@@ -615,3 +518,5 @@ static constexpr float operator""_inKib(unsigned long long int x)
  *                                                  Misc                                            * 
  ****************************************************************************************************/
 #define RAZIX_MSG_BUFFER_SIZE 256
+
+#define RAZIX_ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))

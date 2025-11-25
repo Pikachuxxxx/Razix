@@ -1,9 +1,9 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 #pragma once
 
-#include <Renderer/Renderer.h>
 #include <Jolt/Core/Reference.h>
 
 class RenderPrimitive;
@@ -12,25 +12,17 @@ class RenderPrimitive;
 class RenderInstances : public RefTarget<RenderInstances>
 {
 public:
-	/// Constructor
-							RenderInstances(Renderer *inRenderer)											: mRenderer(inRenderer) { }
-							~RenderInstances()																{ Clear(); }
+	/// Destructor
+	virtual					~RenderInstances() = default;
 
 	/// Erase all instance data
-	void					Clear();
+	virtual void			Clear() = 0;
 
 	/// Instance buffer management functions
-	void					CreateBuffer(int inNumInstances, int inInstanceSize);
-	void *					Lock();
-	void					Unlock();
+	virtual void			CreateBuffer(int inNumInstances, int inInstanceSize) = 0;
+	virtual void *			Lock() = 0;
+	virtual void			Unlock() = 0;
 
 	/// Draw the instances when context has been set by Renderer::BindShader
-	void					Draw(RenderPrimitive *inPrimitive, int inStartInstance, int inNumInstances) const;
-
-private:
-	Renderer *				mRenderer;
-	
-	ComPtr<ID3D12Resource>	mInstanceBuffer;
-	int						mInstanceBufferSize = 0;
-	int						mInstanceSize = 0;
+	virtual void			Draw(RenderPrimitive *inPrimitive, int inStartInstance, int inNumInstances) const = 0;
 };

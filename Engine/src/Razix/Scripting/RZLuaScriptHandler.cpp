@@ -6,13 +6,11 @@
 #include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
-#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
-
 #include "Razix/Scene/RZScene.h"
 
 #include "Razix/Scene/Components/LuaScriptComponent.h"
 
-#include "Razix/Utilities/RZTimestep.h"
+#include "Razix/Core/Utils/RZTimestep.h"
 
 namespace Razix {
     namespace Scripting {

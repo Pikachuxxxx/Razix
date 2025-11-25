@@ -24,11 +24,11 @@ namespace Razix {
 
         inline int GetRepeatCount() const { return m_RepeatCount; }
 
-        std::string ToString() const override
+        RZString ToString() const override
         {
-            std::stringstream ss;
-            ss << "KeyPressedEvent: " << m_KeyCode << " (" << m_RepeatCount << " repeats)";
-            return ss.str();
+            char buffer[256];
+            rz_snprintf(buffer, sizeof(buffer), "KeyPressedEvent: %d ( %d repeats)", m_KeyCode, m_RepeatCount);
+            return RZString(buffer);
         }
 
         EVENT_CLASS_TYPE(kKeyPressed)
@@ -42,11 +42,11 @@ namespace Razix {
         RZKeyReleasedEvent(int keycode)
             : RZKeyEvent(keycode) {}
 
-        std::string ToString() const override
+        RZString ToString() const override
         {
-            std::stringstream ss;
-            ss << "KeyReleasedEvent: " << m_KeyCode;
-            return ss.str();
+            char buffer[256];
+            rz_snprintf(buffer, sizeof(buffer), "KeyReleasedEvent: %d ", m_KeyCode);
+            return RZString(buffer);
         }
 
         EVENT_CLASS_TYPE(kKeyReleased)

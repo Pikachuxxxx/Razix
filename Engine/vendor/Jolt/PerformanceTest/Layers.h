@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -9,9 +10,9 @@
 /// Layer that objects can be in, determines which other objects it can collide with
 namespace Layers
 {
-	static constexpr uint8 NON_MOVING = 0;
-	static constexpr uint8 MOVING = 1;
-	static constexpr uint8 NUM_LAYERS = 2;
+	static constexpr ObjectLayer NON_MOVING = 0;
+	static constexpr ObjectLayer MOVING = 1;
+	static constexpr ObjectLayer NUM_LAYERS = 2;
 };
 
 /// Class that determines if two object layers can collide
@@ -90,7 +91,7 @@ public:
 		case Layers::NON_MOVING:
 			return inLayer2 == BroadPhaseLayers::MOVING;
 		case Layers::MOVING:
-			return true;	
+			return true;
 		default:
 			JPH_ASSERT(false);
 			return false;

@@ -29,7 +29,7 @@ namespace Razix {
             int sockType = (protocol == SocketProtocol::TCP) ? SOCK_STREAM : SOCK_DGRAM;
             int family   = AF_INET;
 
-            m_Socket = (SOCKET*) Memory::RZMalloc(sizeof(SOCKET));
+            m_Socket = (SOCKET*) rz_malloc_aligned(sizeof(SOCKET));
 
             CAST_SOCKET_PTR(m_Socket) = socket(family, sockType, 0);
             if (CAST_SOCKET_PTR(m_Socket) == INVALID_SOCKET) {
@@ -51,7 +51,7 @@ namespace Razix {
             return SocketStatus::SUCCESS;
         }
 
-        SocketStatus RZSocket::Bind(const std::string& address, uint16_t port)
+        SocketStatus RZSocket::Bind(const RZString& address, uint16_t port)
         {
             sockaddr_in service;
             service.sin_family      = AF_INET;

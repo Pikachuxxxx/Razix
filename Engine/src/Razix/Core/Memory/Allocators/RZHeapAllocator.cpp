@@ -15,22 +15,20 @@ namespace Razix {
 
         static void deallocation_pool_walker(void* ptr, size_t size, int used, void* user_data)
         {
-            RZMemAllocatorStats* stats = (RZMemAllocatorStats*) user_data;
-            stats->Add(used ? size : 0);
-
 #ifdef RAZIX_DEBUG
             if (used)
                 printf("[Heap Allocator] Found active allocation at : %p, size: %zu \n", ptr, size);
 #endif
         }
 
-        void RZHeapAllocator::init(size_t chunkSize)
+        void RZHeapAllocator::init(size_t chunkSize, size_t alignment)
         {
             m_TotalChunkSize = chunkSize;
+            m_Alignment      = alignment;
 
             // Allocate a big chunk of heap for TLSF to manage
-            // Note: by default RZMalloc gives 16-byte aligned memory, if you need raw malloc and you can manage yourself use the OG functions
-            m_ChunkAddress = malloc(chunkSize);
+            // Note: by default rz_malloc_aligned gives 16-byte aligned memory, if you need raw malloc and you can manage yourself use the OG functions
+            m_ChunkAddress = rz_malloc(chunkSize, alignment);
 
             // Create a TLSF memory pool from which the heap allocations is done
             m_TLSFHandle = tlsf_create_with_pool(m_ChunkAddress, chunkSize);
@@ -60,12 +58,12 @@ namespace Razix {
 
             tlsf_destroy(m_TLSFHandle);
 
-            free(m_ChunkAddress);
+            rz_free(m_ChunkAddress);
         }
 
-        void* RZHeapAllocator::allocate(size_t size, size_t alignment)
+        void* RZHeapAllocator::allocate(size_t size)
         {
-            m_CurrentAllocation = tlsf_memalign(m_TLSFHandle, alignment, size);
+            m_CurrentAllocation = tlsf_memalign(m_TLSFHandle, m_Alignment, size);
             size_t actual_size  = tlsf_block_size(m_CurrentAllocation);
             m_AllocatedSize += actual_size;
             return m_CurrentAllocation;

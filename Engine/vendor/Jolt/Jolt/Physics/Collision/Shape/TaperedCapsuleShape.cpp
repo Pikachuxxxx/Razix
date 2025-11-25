@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -8,6 +9,7 @@
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Collision/Shape/ScaleHelpers.h>
 #include <Jolt/Physics/Collision/TransformedShape.h>
+#include <Jolt/Physics/Collision/CollideSoftBodyVertexIterator.h>
 #include <Jolt/Geometry/RayCapsule.h>
 #include <Jolt/ObjectStream/TypeDeclarations.h>
 #include <Jolt/Core/StreamIn.h>
@@ -33,7 +35,7 @@ bool TaperedCapsuleShapeSettings::IsSphere() const
 }
 
 ShapeSettings::ShapeResult TaperedCapsuleShapeSettings::Create() const
-{ 
+{
 	if (mCachedResult.IsEmpty())
 	{
 		Ref<Shape> shape;
@@ -67,25 +69,25 @@ ShapeSettings::ShapeResult TaperedCapsuleShapeSettings::Create() const
 		else
 		{
 			// Normal tapered capsule shape
-			shape = new TaperedCapsuleShape(*this, mCachedResult); 
+			shape = new TaperedCapsuleShape(*this, mCachedResult);
 		}
 	}
 	return mCachedResult;
 }
 
-TaperedCapsuleShapeSettings::TaperedCapsuleShapeSettings(float inHalfHeightOfTaperedCylinder, float inTopRadius, float inBottomRadius, const PhysicsMaterial *inMaterial) : 
+TaperedCapsuleShapeSettings::TaperedCapsuleShapeSettings(float inHalfHeightOfTaperedCylinder, float inTopRadius, float inBottomRadius, const PhysicsMaterial *inMaterial) :
 	ConvexShapeSettings(inMaterial),
 	mHalfHeightOfTaperedCylinder(inHalfHeightOfTaperedCylinder),
-	mTopRadius(inTopRadius), 
+	mTopRadius(inTopRadius),
 	mBottomRadius(inBottomRadius)
-{ 
+{
 }
 
 TaperedCapsuleShape::TaperedCapsuleShape(const TaperedCapsuleShapeSettings &inSettings, ShapeResult &outResult) :
 	ConvexShape(EShapeSubType::TaperedCapsule, inSettings, outResult),
-	mTopRadius(inSettings.mTopRadius), 
+	mTopRadius(inSettings.mTopRadius),
 	mBottomRadius(inSettings.mBottomRadius)
-{ 
+{
 	if (mTopRadius <= 0.0f)
 	{
 		outResult.SetError("Invalid top radius");
@@ -134,19 +136,19 @@ TaperedCapsuleShape::TaperedCapsuleShape(const TaperedCapsuleShapeSettings &inSe
 class TaperedCapsuleShape::TaperedCapsule final : public Support
 {
 public:
-					TaperedCapsule(Vec3Arg inTopCenter, Vec3Arg inBottomCenter, float inTopRadius, float inBottomRadius, float inConvexRadius) : 
+					TaperedCapsule(Vec3Arg inTopCenter, Vec3Arg inBottomCenter, float inTopRadius, float inBottomRadius, float inConvexRadius) :
 		mTopCenter(inTopCenter),
 		mBottomCenter(inBottomCenter),
 		mTopRadius(inTopRadius),
 		mBottomRadius(inBottomRadius),
 		mConvexRadius(inConvexRadius)
-	{ 
-		static_assert(sizeof(TaperedCapsule) <= sizeof(SupportBuffer), "Buffer size too small"); 
+	{
+		static_assert(sizeof(TaperedCapsule) <= sizeof(SupportBuffer), "Buffer size too small");
 		JPH_ASSERT(IsAligned(this, alignof(TaperedCapsule)));
 	}
 
 	virtual Vec3	GetSupport(Vec3Arg inDirection) const override
-	{ 
+	{
 		// Check zero vector
 		float len = inDirection.Length();
 		if (len == 0.0f)
@@ -194,6 +196,7 @@ const ConvexShape::Support *TaperedCapsuleShape::GetSupportFunction(ESupportMode
 		return new (&inBuffer) TaperedCapsule(scaled_top_center, scaled_bottom_center, scaled_top_radius, scaled_bottom_radius, 0.0f);
 
 	case ESupportMode::ExcludeConvexRadius:
+	case ESupportMode::Default:
 		{
 			// Get radii reduced by convex radius
 			float tr = scaled_top_radius - scaled_convex_radius;
@@ -209,7 +212,7 @@ const ConvexShape::Support *TaperedCapsuleShape::GetSupportFunction(ESupportMode
 }
 
 void TaperedCapsuleShape::GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg inDirection, Vec3Arg inScale, Mat44Arg inCenterOfMassTransform, SupportingFace &outVertices) const
-{	
+{
 	JPH_ASSERT(inSubShapeID.IsEmpty(), "Invalid subshape ID");
 	JPH_ASSERT(IsValidScale(inScale));
 
@@ -252,9 +255,9 @@ MassProperties TaperedCapsuleShape::GetMassProperties() const
 	return p;
 }
 
-Vec3 TaperedCapsuleShape::GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const 
-{ 
-	JPH_ASSERT(inSubShapeID.IsEmpty(), "Invalid subshape ID"); 
+Vec3 TaperedCapsuleShape::GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const
+{
+	JPH_ASSERT(inSubShapeID.IsEmpty(), "Invalid subshape ID");
 
 	// See: TaperedCapsuleShape.gliffy
 	// We need to calculate ty and by in order to see if the position is on the top or bottom sphere
@@ -283,7 +286,7 @@ AABox TaperedCapsuleShape::GetLocalBounds() const
 }
 
 AABox TaperedCapsuleShape::GetWorldSpaceBounds(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) const
-{ 
+{
 	JPH_ASSERT(IsValidScale(inScale));
 
 	Vec3 abs_scale = inScale.Abs();
@@ -298,18 +301,87 @@ AABox TaperedCapsuleShape::GetWorldSpaceBounds(Mat44Arg inCenterOfMassTransform,
 	return AABox(p1, p2);
 }
 
+void TaperedCapsuleShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint inNumVertices, int inCollidingShapeIndex) const
+{
+	JPH_ASSERT(IsValidScale(inScale));
+
+	Mat44 inverse_transform = inCenterOfMassTransform.InversedRotationTranslation();
+
+	// Get scaled tapered capsule
+	Vec3 abs_scale = inScale.Abs();
+	float scale_y = abs_scale.GetY();
+	float scale_xz = abs_scale.GetX();
+	Vec3 scale_y_flip(1, Sign(inScale.GetY()), 1);
+	Vec3 scaled_top_center(0, scale_y * mTopCenter, 0);
+	Vec3 scaled_bottom_center(0, scale_y * mBottomCenter, 0);
+	float scaled_top_radius = scale_xz * mTopRadius;
+	float scaled_bottom_radius = scale_xz * mBottomRadius;
+
+	for (CollideSoftBodyVertexIterator v = inVertices, sbv_end = inVertices + inNumVertices; v != sbv_end; ++v)
+		if (v.GetInvMass() > 0.0f)
+		{
+			Vec3 local_pos = scale_y_flip * (inverse_transform * v.GetPosition());
+
+			Vec3 position, normal;
+
+			// If the vertex is inside the cone starting at the top center pointing along the y-axis with angle PI/2 - alpha then the closest point is on the top sphere
+			// This corresponds to: Dot(y-axis, (local_pos - top_center) / |local_pos - top_center|) >= cos(PI/2 - alpha)
+			// <=> (local_pos - top_center).y >= sin(alpha) * |local_pos - top_center|
+			Vec3 top_center_to_local_pos = local_pos - scaled_top_center;
+			float top_center_to_local_pos_len = top_center_to_local_pos.Length();
+			if (top_center_to_local_pos.GetY() >= mSinAlpha * top_center_to_local_pos_len)
+			{
+				// Top sphere
+				normal = top_center_to_local_pos_len != 0.0f? top_center_to_local_pos / top_center_to_local_pos_len : Vec3::sAxisY();
+				position = scaled_top_center + scaled_top_radius * normal;
+			}
+			else
+			{
+				// If the vertex is outside the cone starting at the bottom center pointing along the y-axis with angle PI/2 - alpha then the closest point is on the bottom sphere
+				// This corresponds to: Dot(y-axis, (local_pos - bottom_center) / |local_pos - bottom_center|) <= cos(PI/2 - alpha)
+				// <=> (local_pos - bottom_center).y <= sin(alpha) * |local_pos - bottom_center|
+				Vec3 bottom_center_to_local_pos = local_pos - scaled_bottom_center;
+				float bottom_center_to_local_pos_len = bottom_center_to_local_pos.Length();
+				if (bottom_center_to_local_pos.GetY() <= mSinAlpha * bottom_center_to_local_pos_len)
+				{
+					// Bottom sphere
+					normal = bottom_center_to_local_pos_len != 0.0f? bottom_center_to_local_pos / bottom_center_to_local_pos_len : -Vec3::sAxisY();
+				}
+				else
+				{
+					// Tapered cylinder
+					normal = Vec3(local_pos.GetX(), 0, local_pos.GetZ()).NormalizedOr(Vec3::sAxisX());
+					normal.SetY(mTanAlpha);
+					normal = normal.NormalizedOr(Vec3::sAxisX());
+				}
+				position = scaled_bottom_center + scaled_bottom_radius * normal;
+			}
+
+			Plane plane = Plane::sFromPointAndNormal(position, normal);
+			float penetration = -plane.SignedDistance(local_pos);
+			if (v.UpdatePenetration(penetration))
+			{
+				// Need to flip the normal's y if capsule is flipped (this corresponds to flipping both the point and the normal around y)
+				plane.SetNormal(scale_y_flip * plane.GetNormal());
+
+				// Store collision
+				v.SetCollision(plane.GetTransformed(inCenterOfMassTransform), inCollidingShapeIndex);
+			}
+		}
+}
+
 #ifdef JPH_DEBUG_RENDERER
 void TaperedCapsuleShape::Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const
 {
 	if (mGeometry == nullptr)
 	{
 		SupportBuffer buffer;
-		const Support *support = GetSupportFunction(ESupportMode::IncludeConvexRadius, buffer, Vec3::sReplicate(1.0f));
+		const Support *support = GetSupportFunction(ESupportMode::IncludeConvexRadius, buffer, Vec3::sOne());
 		mGeometry = inRenderer->CreateTriangleGeometryForConvex([support](Vec3Arg inDirection) { return support->GetSupport(inDirection); });
 	}
 
 	// Preserve flip along y axis but make sure we're not inside out
-	Vec3 scale = ScaleHelpers::IsInsideOut(inScale)? Vec3(-1, 1, 1) * inScale : inScale;
+	Vec3 scale = ScaleHelpers::IsInsideOut(inScale)? inScale.FlipSign<-1, 1, 1>() : inScale;
 	RMat44 world_transform = inCenterOfMassTransform * Mat44::sScale(scale);
 
 	AABox bounds = Shape::GetWorldSpaceBounds(inCenterOfMassTransform, inScale);
@@ -329,15 +401,6 @@ AABox TaperedCapsuleShape::GetInertiaApproximation() const
 	// TODO: For now the mass and inertia is that of a box
 	float avg_radius = 0.5f * (mTopRadius + mBottomRadius);
 	return AABox(Vec3(-avg_radius, mBottomCenter - mBottomRadius, -avg_radius), Vec3(avg_radius, mTopCenter + mTopRadius, avg_radius));
-}
-
-void TaperedCapsuleShape::TransformShape(Mat44Arg inCenterOfMassTransform, TransformedShapeCollector &ioCollector) const
-{
-	Vec3 scale;
-	Mat44 transform = inCenterOfMassTransform.Decompose(scale);
-	TransformedShape ts(RVec3(transform.GetTranslation()), transform.GetRotation().GetQuaternion(), this, BodyID(), SubShapeIDCreator());
-	ts.SetShapeScale(scale.GetSign() * ScaleHelpers::MakeUniformScale(scale.Abs()));
-	ioCollector.AddHit(ts);
 }
 
 void TaperedCapsuleShape::SaveBinaryState(StreamOut &inStream) const
@@ -371,6 +434,13 @@ void TaperedCapsuleShape::RestoreBinaryState(StreamIn &inStream)
 bool TaperedCapsuleShape::IsValidScale(Vec3Arg inScale) const
 {
 	return ConvexShape::IsValidScale(inScale) && ScaleHelpers::IsUniformScale(inScale.Abs());
+}
+
+Vec3 TaperedCapsuleShape::MakeScaleValid(Vec3Arg inScale) const
+{
+	Vec3 scale = ScaleHelpers::MakeNonZeroScale(inScale);
+
+	return scale.GetSign() * ScaleHelpers::MakeUniformScale(scale.Abs());
 }
 
 void TaperedCapsuleShape::sRegister()

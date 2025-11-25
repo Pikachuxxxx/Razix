@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -34,7 +35,7 @@ bool MassProperties::DecomposePrincipalMomentsOfInertia(Mat44 &outRotation, Vec3
 	// Sort so that the biggest value goes first
 	int indices[] = { 0, 1, 2 };
 	InsertionSort(indices, indices + 3, [&eigen_val](int inLeft, int inRight) { return eigen_val[inLeft] > eigen_val[inRight]; });
-		
+
 	// Convert to a regular Mat44 and Vec3
 	outRotation = Mat44::sIdentity();
 	for (int i = 0; i < 3; ++i)
@@ -145,7 +146,7 @@ void MassProperties::Scale(Vec3Arg inScale)
 	// Mass scales linear with volume (note that the scaling can be negative and we don't want the mass to become negative)
 	float mass_scale = abs(inScale.GetX() * inScale.GetY() * inScale.GetZ());
 	mMass *= mass_scale;
-	
+
 	// Inertia scales linear with mass. This updates the m_k terms above.
 	mInertia *= mass_scale;
 

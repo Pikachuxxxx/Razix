@@ -1,11 +1,16 @@
 #pragma once
 
+#include "Razix/Core/std/type_traits.h"
+#include "Razix/Core/std/utility.h"
+
 #include "Razix/Gfx/FrameGraph/RZBlackboard.h"
 #include "Razix/Gfx/FrameGraph/RZFrameGraphResourcesTypeTraits.h"
 #include "Razix/Gfx/FrameGraph/RZResourceEntry.h"
 #include "Razix/Gfx/FrameGraph/RZResourceNode.h"
 
-#include "Razix/Gfx/Resources/RZTransientAllocator.h"
+#include "Razix/Gfx/FrameGraph/RZTransientAllocator.h"
+
+#include "Razix/Gfx/RHI/RHI.h"
 
 namespace Razix {
     namespace Gfx {
@@ -54,21 +59,23 @@ namespace Razix {
             // We don't want dangling frame graph resources and nodes
             RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZFrameGraph)
 
-            template<typename PassData, typename SetupFunc, typename ExecuteFunc, typename ResizeFunc>
-            const PassData& addCallbackPass(const std::string_view name, SetupFunc&& setupFunc, ExecuteFunc&& executeFunc, ResizeFunc&& resizeFunc)
+            template<typename PassData, typename SetupFunc, typename ExecuteFunc, typename ResizeFunc, typename ExitFunc>
+            const PassData& addCallbackPass(const RZString& name, SetupFunc&& setupFunc, ExecuteFunc&& executeFunc, ResizeFunc&& resizeFunc, ExitFunc&& exitFunc)
             {
                 // Compile time checks to make sure that the lambda functions are valid and have the right signature to be called by the pass
                 static_assert(std::is_invocable_v<SetupFunc, PassData&, RZPassResourceBuilder&>, "Invalid setup callback, check the signature again");
                 static_assert(std::is_invocable_v<ExecuteFunc, const PassData&, RZPassResourceDirectory&>, "Invalid exec callback, check the signature again");
-                static_assert(std::is_invocable_v<ResizeFunc, RZPassResourceDirectory&, u32, u32>, "Invalid resize callback, check the signature again");
+                static_assert(std::is_invocable_v<ExitFunc>, "Invalid exit callback, check the signature again");
                 // Also make sure the ExecuteFunc isn't too big
                 static_assert(sizeof(ExecuteFunc) < 1024, "Execute function captures too much");
                 static_assert(sizeof(ResizeFunc) < 1024, "Resize function captures too much");
+                static_assert(sizeof(ExitFunc) < 256, "Exit function captures too much");
 
                 // Now that the checks are done, let's create the pass and PassNode
-                auto* pass = new RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc>(std::forward<ExecuteFunc>(executeFunc), std::forward<ResizeFunc>(resizeFunc));
+                //void* mem  = rz_malloc(sizeof(RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc, ExitFunc>), 16);
+                auto* pass = new RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc, ExitFunc>(std::forward<ExecuteFunc>(executeFunc), std::forward<ResizeFunc>(resizeFunc), std::forward<ExitFunc>(exitFunc));
                 // Create the PassNode in the graph
-                RZPassNode& passNode = createPassNodeRef(name, std::unique_ptr<RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc>>(pass));
+                RZPassNode& passNode = createPassNodeRef(name, std::unique_ptr<RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc, ExitFunc>>(pass));
 
                 // Create a builder for this PassNode
                 // SetupFunc gets PassNode via RZPassResourceBuilder and ExecFunc gets PassNode via RZPassResourceDirectory
@@ -85,41 +92,80 @@ namespace Razix {
             }
 
             template<typename PassData, typename SetupFunc, typename ExecuteFunc>
-            const PassData& addCallbackPass(const std::string_view name, SetupFunc&& setupFunc, ExecuteFunc&& executeFunc)
+            const PassData& addCallbackPass(const RZString& name, SetupFunc&& setupFunc, ExecuteFunc&& executeFunc)
             {
-                auto emptyLambda = [=](RZPassResourceDirectory&, u32, u32) {};
-                return addCallbackPass<PassData>(name, setupFunc, std::forward<ExecuteFunc>(executeFunc), emptyLambda);
+                auto emptyLambda     = [=](RZPassResourceDirectory&, u32, u32) {};
+                auto emptyExitLambda = [=]() {};
+                return addCallbackPass<PassData>(name, setupFunc, std::forward<ExecuteFunc>(executeFunc), emptyLambda, emptyExitLambda);
             }
 
-            template<typename SetupFunc, typename ExecuteFunc, typename ResizeFunc>
-            void addCallbackPass(const std::string_view name, SetupFunc&& setupFunc, ExecuteFunc&& executeFunc, ResizeFunc&& resizeFunc)
+            template<typename PassData, typename SetupFunc, typename ExecuteFunc, typename F>
+            const PassData& addCallbackPass(const RZString& name, SetupFunc&& setupFunc, ExecuteFunc&& executeFunc, F&& f)
+            {
+                if constexpr (std::is_invocable_v<F, RZPassResourceDirectory&, u32, u32>) {
+                    auto emptyExit = [=]() {};
+                    return addCallbackPass<PassData>(name, std::forward<SetupFunc>(setupFunc), std::forward<ExecuteFunc>(executeFunc), std::forward<F>(f), emptyExit);
+                } else {
+                    auto emptyResize = [=](RZPassResourceDirectory&, u32, u32) {};
+                    return addCallbackPass<PassData>(name, std::forward<SetupFunc>(setupFunc), std::forward<ExecuteFunc>(executeFunc), emptyResize, std::forward<F>(f));
+                }
+            }
+
+            // NoData versions
+
+            template<typename SetupFunc, typename ExecuteFunc, typename ResizeFunc, typename ExitFunc>
+            void addCallbackPass(const RZString& name, SetupFunc&& setupFunc, ExecuteFunc&& executeFunc, ResizeFunc&& resizeFunc, ExitFunc&& exitFunc)
             {
                 struct NoData
                 {};
-                addCallbackPass<NoData>(name, setupFunc, std::forward<ExecuteFunc>(executeFunc), std::forward<ResizeFunc>(resizeFunc));
+                addCallbackPass<NoData>(name, setupFunc, std::forward<ExecuteFunc>(executeFunc), std::forward<ResizeFunc>(resizeFunc), std::forward<ExitFunc>(exitFunc));
             }
 
             template<typename SetupFunc, typename ExecuteFunc>
-            void addCallbackPass(const std::string_view name, SetupFunc&& setupFunc, ExecuteFunc&& executeFunc)
+            void addCallbackPass(const RZString& name, SetupFunc&& setupFunc, ExecuteFunc&& executeFunc)
             {
                 struct NoData
                 {};
-                auto emptyLambda = [=](RZPassResourceDirectory&, u32, u32) {};
+                auto emptyLambda     = [=](RZPassResourceDirectory&, u32, u32) {};
+                auto emptyExitLambda = [=]() {};
+                addCallbackPass<NoData>(name, setupFunc, std::forward<ExecuteFunc>(executeFunc), emptyLambda, emptyExitLambda);
+            }
 
-                addCallbackPass<NoData>(name, setupFunc, std::forward<ExecuteFunc>(executeFunc), emptyLambda);
+            template<typename SetupFunc, typename ExecuteFunc, typename F>
+            void addCallbackPass(const RZString& name, SetupFunc&& setupFunc, ExecuteFunc&& executeFunc, F&& f)
+            {
+                struct NoData
+                {};
+                if constexpr (std::is_invocable_v<F, RZPassResourceDirectory&, u32, u32>) {
+                    auto emptyExit = [=]() {};
+                    addCallbackPass<NoData>(name, std::forward<SetupFunc>(setupFunc), std::forward<ExecuteFunc>(executeFunc), std::forward<F>(f), emptyExit);
+                } else {
+                    auto emptyResize = [=](RZPassResourceDirectory&, u32, u32) {};
+                    addCallbackPass<NoData>(name, std::forward<SetupFunc>(setupFunc), std::forward<ExecuteFunc>(executeFunc), emptyResize, std::forward<F>(f));
+                }
             }
 
             /* Imports a external resource into the frame graph, for valid resources types only */
-            ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD RZFrameGraphResource import(const std::string_view name, typename T::Desc&& desc, T&& resource)
+            ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD RZFrameGraphResource import(const RZString& name, typename T::Desc&& desc, T&& resource)
             {
                 // same as createResource but we pass an actual resource instead of empty constructor to ResourceEntry
-                const uint32_t resourceId = static_cast<uint32_t>(m_ResourceRegistry.size());
-                m_ResourceRegistry.emplace_back(RZResourceEntry{resourceId, std::forward<typename T::Desc>(desc), std::forward<T>(resource), kRESOURCE_INITIAL_VERSION, true});    // Non-empty T constructor
+                const uint32_t  resourceId = static_cast<uint32_t>(m_ResourceRegistry.size());
+                RZResourceEntry entry(
+                    name,
+                    static_cast<uint32_t>(m_ResourceRegistry.size()),
+                    std::forward<typename T::Desc>(desc),
+                    std::forward<T>(resource),
+                    kRESOURCE_INITIAL_VERSION,
+                    true    // imported
+                );
+
+                m_ResourceRegistry.push_back(rz_move(entry));
+
                 // Create the node for this resource in the graph
                 RZFrameGraphResource id = createResourceNodeRef(name, resourceId).m_ID;
 
                 // Register the name, this makes code based frame graph pass resources compatible with data driven passes
-                m_Blackboard.add(std::string(name), id);
+                m_Blackboard.add(name, id);
 
                 return id;
             }
@@ -129,19 +175,19 @@ namespace Razix {
                 return getResourceEntryRef(id).getDescriptor<T>();
             }
 
-            bool                         parse(const std::string& path);
-            RAZIX_NO_DISCARD RZPassNode& parsePass(const std::string& passPath);
+            bool                         parse(const RZString& path);
+            RAZIX_NO_DISCARD RZPassNode& parsePass(const RZString& passPath);
 
             void compile();
             void execute();
             void resize(u32 width, u32 height);
             void exportToGraphViz(std::ostream&) const;
-            void exportToGraphViz(const std::string& location) const;
+            void exportToGraphViz(const RZString& location) const;
             void destroy();
             bool isValid(RZFrameGraphResource id);
 
-            const std::string&     getResourceName(RZFrameGraphResource id) const;
-            const std::string&     getResourceEntryName(RZFrameGraphResource id) const;
+            const RZString&        getResourceName(RZFrameGraphResource id) const;
+            const RZString&        getResourceEntryName(RZFrameGraphResource id) const;
             const RZResourceNode&  getResourceNode(RZFrameGraphResource id) const;
             const RZResourceEntry& getResourceEntry(RZFrameGraphResource id) const;
 
@@ -152,9 +198,9 @@ namespace Razix {
             inline u32                         getPassNodesSize() const { return static_cast<u32>(m_PassNodes.size()); }
             inline u32                         getResourceNodesSize() const { return static_cast<u32>(m_ResourceNodes.size()); }
             inline u32                         getCompiledResourceEntriesSize() const { return static_cast<u32>(m_CompiledResourceEntries.size()); }
-            inline std::vector<u32>            getCompiledResourceEntries() const { return m_CompiledResourceEntries; }
-            inline std::vector<u32>            getCompiledResourceNodes() const { return m_CompiledResourceIndices; }
-            inline std::vector<u32>            getCompiledPassNodes() const { return m_CompiledPassIndices; }
+            inline RZDynamicArray<u32>         getCompiledResourceEntries() const { return m_CompiledResourceEntries; }
+            inline RZDynamicArray<u32>         getCompiledResourceNodes() const { return m_CompiledResourceIndices; }
+            inline RZDynamicArray<u32>         getCompiledPassNodes() const { return m_CompiledPassIndices; }
             inline const AliasingBook&         getAliasBook() const { return m_TransientAllocator.getAliasBook(); }
             inline const RZTransientAllocator* getTransientAllocatorPtr() const { return &m_TransientAllocator; }
 
@@ -164,14 +210,14 @@ namespace Razix {
         private:
             static bool m_IsFirstFrame;
 
-            std::vector<RZPassNode>      m_PassNodes;
-            std::vector<RZResourceNode>  m_ResourceNodes;
-            std::vector<RZResourceEntry> m_ResourceRegistry;
-            RZBlackboard                 m_Blackboard;
-            std::vector<u32>             m_CompiledPassIndices;
-            std::vector<u32>             m_CompiledResourceIndices;
-            std::vector<u32>             m_CompiledResourceEntries;
-            RZTransientAllocator         m_TransientAllocator;
+            RZDynamicArray<RZPassNode>      m_PassNodes;
+            RZDynamicArray<RZResourceNode>  m_ResourceNodes;
+            RZDynamicArray<RZResourceEntry> m_ResourceRegistry;
+            RZBlackboard                    m_Blackboard;
+            RZDynamicArray<u32>             m_CompiledPassIndices;
+            RZDynamicArray<u32>             m_CompiledResourceIndices;
+            RZDynamicArray<u32>             m_CompiledResourceEntries;
+            RZTransientAllocator            m_TransientAllocator;
 
         private:
             template<typename T>
@@ -183,11 +229,19 @@ namespace Razix {
 
             FGResourceType getResourceType(u32 id) const;
 
-            ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD RZFrameGraphResource createResource(const std::string_view name, typename T::Desc&& desc)
+            ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD RZFrameGraphResource createResource(const RZString& name, typename T::Desc&& desc)
             {
                 // Create a new Resource entry
-                const auto resourceId = static_cast<uint32_t>(m_ResourceRegistry.size());
-                m_ResourceRegistry.emplace_back(RZResourceEntry{resourceId, std::forward<typename T::Desc>(desc), T{}, kRESOURCE_INITIAL_VERSION, false});    // Empty T{} constructor because it's not an imported resource
+                const auto      resourceId = static_cast<uint32_t>(m_ResourceRegistry.size());
+                RZResourceEntry entry(
+                    name,
+                    static_cast<uint32_t>(m_ResourceRegistry.size()),
+                    std::forward<typename T::Desc>(desc),
+                    T{},
+                    kRESOURCE_INITIAL_VERSION,
+                    false);
+
+                m_ResourceRegistry.push_back(rz_move(entry));
                 // Create the node for this resource in the graph
                 RZFrameGraphResource id = createResourceNodeRef(name, resourceId).m_ID;
                 return id;
@@ -197,9 +251,10 @@ namespace Razix {
 
             RZResourceNode&                       getResourceNodeRef(RZFrameGraphResource id);
             RZResourceEntry&                      getResourceEntryRef(RZFrameGraphResource id);
-            RAZIX_NO_DISCARD RZPassNode&          createPassNodeRef(const std::string_view name, std::unique_ptr<IRZFrameGraphPass>&& func);
-            RAZIX_NO_DISCARD RZResourceNode&      createResourceNodeRef(const std::string_view name, u32 resourceID);
+            RAZIX_NO_DISCARD RZPassNode&          createPassNodeRef(const RZString& name, std::unique_ptr<IRZFrameGraphPass>&& func);
+            RAZIX_NO_DISCARD RZResourceNode&      createResourceNodeRef(const RZString& name, u32 resourceID);
             RAZIX_NO_DISCARD RZFrameGraphResource cloneResource(RZFrameGraphResource id);
+            void                                  createResourceViewForPass(RZPassNode& pass, const RZFrameGraphResource& id, RZFrameGraphResourceAcessView& accessView);
         };
 
         //-----------------------------------------------------------------------------------
@@ -228,14 +283,14 @@ namespace Razix {
               * 
               * Restricts failure of creating types which will be used by concept which might call non existent stuff 
               */
-            ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD inline RZFrameGraphResource create(const std::string_view name, typename T::Desc&& desc)
+            ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD inline RZFrameGraphResource create(const RZString& name, typename T::Desc&& desc)
             {
-                const auto id = m_FrameGraph.createResource<T>(name, std::move(desc));
+                const auto id = m_FrameGraph.createResource<T>(name, rz_move(desc));
                 return m_PassNode.m_Creates.emplace_back(id);
             }
 
-            RZFrameGraphResource                  read(RZFrameGraphResource id, u32 flags = kFlagsNone);
-            RAZIX_NO_DISCARD RZFrameGraphResource write(RZFrameGraphResource id, u32 flags = kFlagsNone);
+            RZFrameGraphResource                  read(RZFrameGraphResource id, rz_gfx_resource_view_desc resViewDesc);
+            RAZIX_NO_DISCARD RZFrameGraphResource write(RZFrameGraphResource id, rz_gfx_resource_view_desc resViewDesc);
 
             /* Ensures that this pass is not culled during the frame graph compilation phase, single/hanging passes cans till exist and be executed */
             RZPassResourceBuilder& setAsStandAlonePass();
@@ -293,6 +348,12 @@ namespace Razix {
                 return m_FrameGraph.getResourceEntryRef(id).getDescriptor<T>();
             }
 
+            ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE rz_gfx_resource_view_handle getResourceViewHandle(RZFrameGraphResource id) const
+            {
+                RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
+                return m_PassNode.getResourceViewHandle(id);
+            }
+
             ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD bool verifyType(RZFrameGraphResource id)
             {
                 RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
@@ -301,7 +362,7 @@ namespace Razix {
                 return res ? true : false;
             }
 
-            ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD const std::string& getResourceName(RZFrameGraphResource id)
+            ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE RAZIX_NO_DISCARD const RZString& getResourceName(RZFrameGraphResource id)
             {
                 RAZIX_ASSERT(m_PassNode.canReadResouce(id) || m_PassNode.canCreateResouce(id) || m_PassNode.canWriteResouce(id), "Trying to get invalid resource, pass doesn't have access");
                 // This is a safe way that doesn't violate the design of the frame graph PassNodes

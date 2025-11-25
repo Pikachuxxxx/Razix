@@ -1,7 +1,8 @@
 // TransientAllocatorTests.cpp
 // AI-generated unit tests for the RZHandle class
+#define RAZIX_DEFINE_NO_ENGINE_ENTRY_POINT
 #include <Razix.h>
-#include <Razix/Gfx/Resources/RZTransientAllocator.h>
+#include <Razix/Gfx/FrameGraph/RZTransientAllocator.h>
 #include <gtest/gtest.h>
 
 namespace Razix {
@@ -41,8 +42,8 @@ namespace Razix {
 
     TEST(AliaisngTests, AliasingBookTestBuildAssignsGroups)
     {
-        AliasingBook                    book;
-        std::vector<RZResourceLifetime> lifetimes = {
+        AliasingBook                              book;
+        Razix::RZDynamicArray<RZResourceLifetime> lifetimes = {
             {0, 0, 2},
             {1, 3, 5},
             {2, 1, 4}};

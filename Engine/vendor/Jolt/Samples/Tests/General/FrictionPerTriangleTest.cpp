@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -10,12 +11,12 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(FrictionPerTriangleTest) 
-{ 
-	JPH_ADD_BASE_CLASS(FrictionPerTriangleTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(FrictionPerTriangleTest)
+{
+	JPH_ADD_BASE_CLASS(FrictionPerTriangleTest, Test)
 }
 
-void FrictionPerTriangleTest::Initialize() 
+void FrictionPerTriangleTest::Initialize()
 {
 	const int num_sections = 5;
 	const float section_size = 50.0f;
@@ -45,7 +46,7 @@ void FrictionPerTriangleTest::Initialize()
 	}
 
 	// A ramp
-	mBodyInterface->CreateAndAddBody(BodyCreationSettings(new MeshShapeSettings(triangles, materials), RVec3::sZero(), Quat::sRotation(Vec3::sAxisX(), 0.2f * JPH_PI), EMotionType::Static, Layers::NON_MOVING), EActivation::DontActivate);
+	mBodyInterface->CreateAndAddBody(BodyCreationSettings(new MeshShapeSettings(triangles, std::move(materials)), RVec3::sZero(), Quat::sRotation(Vec3::sAxisX(), 0.2f * JPH_PI), EMotionType::Static, Layers::NON_MOVING), EActivation::DontActivate);
 
 	// A box with friction 1 that slides down the ramp
 	Ref<BoxShape> box_shape = new BoxShape(Vec3(2.0f, 2.0f, 2.0f), cDefaultConvexRadius, new MyMaterial("Box Friction 1", Color::sYellow, 1.0f, 0.0f));

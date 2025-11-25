@@ -42,7 +42,7 @@ namespace Razix {
                 virtual Vector<T> forward(const Vector<T>& input)       = 0;
                 virtual Vector<T> backpropagate(const Vector<T>& input) = 0;
 
-                virtual std::string getType() const = 0;
+                virtual RZString getType() const = 0;
 
                 const Matrix<T>& getWeights() const { return weights; }
                 const Vector<T>& getBiases() const { return biases; }
@@ -58,5 +58,5 @@ namespace Razix {
             };
 
         }    // namespace ML
-    }        // namespace Experimental
+    }    // namespace Experimental
 }    // namespace Razix

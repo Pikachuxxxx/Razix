@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -18,7 +19,7 @@ void ClipPolyVsPlane(const VERTEX_ARRAY &inPolygonToClip, Vec3Arg inPlaneOrigin,
 	// Determine state of last point
 	Vec3 e1 = inPolygonToClip[inPolygonToClip.size() - 1];
 	float prev_num = (inPlaneOrigin - e1).Dot(inPlaneNormal);
-	bool prev_inside = prev_num < 0.0f; 
+	bool prev_inside = prev_num < 0.0f;
 
 	// Loop through all vertices
 	for (typename VERTEX_ARRAY::size_type j = 0; j < inPolygonToClip.size(); ++j)
@@ -72,13 +73,13 @@ void ClipPolyVsPoly(const VERTEX_ARRAY &inPolygonToClip, const VERTEX_ARRAY &inC
 		Vec3 clip_e1 = inClippingPolygon[i];
 		Vec3 clip_e2 = inClippingPolygon[(i + 1) % inClippingPolygon.size()];
 		Vec3 clip_normal = inClippingPolygonNormal.Cross(clip_e2 - clip_e1); // Pointing inward to the clipping polygon
-		
+
 		// Get source and target polygon
 		const VERTEX_ARRAY &src_polygon = (i == 0)? inPolygonToClip : tmp_vertices[tmp_vertices_idx];
 		tmp_vertices_idx ^= 1;
 		VERTEX_ARRAY &tgt_polygon = (i == inClippingPolygon.size() - 1)? outClippedPolygon : tmp_vertices[tmp_vertices_idx];
 		tgt_polygon.clear();
-		
+
 		// Clip against the edge
 		ClipPolyVsPlane(src_polygon, clip_e1, clip_normal, tgt_polygon);
 
@@ -114,8 +115,8 @@ void ClipPolyVsEdge(const VERTEX_ARRAY &inPolygonToClip, Vec3Arg inEdgeVertex1, 
 	// Determine state of last point
 	Vec3 e1 = inPolygonToClip[inPolygonToClip.size() - 1];
 	float prev_num = (inEdgeVertex1 - e1).Dot(edge_normal);
-	bool prev_inside = prev_num < 0.0f; 
-	
+	bool prev_inside = prev_num < 0.0f;
+
 	// Loop through all vertices
 	for (typename VERTEX_ARRAY::size_type j = 0; j < inPolygonToClip.size(); ++j)
 	{
@@ -127,10 +128,10 @@ void ClipPolyVsEdge(const VERTEX_ARRAY &inPolygonToClip, Vec3Arg inEdgeVertex1, 
 		// In -> Out or Out -> In: Add point on clipping plane
 		if (cur_inside != prev_inside)
 		{
-			// Solve: (X - inPlaneOrigin) . inPlaneNormal = 0 and X = e1 + t * (e2 - e1) for X
+			// Solve: (inEdgeVertex1 - X) . edge_normal = 0 and X = e1 + t * (e2 - e1) for X
 			Vec3 e12 = e2 - e1;
 			float denom = e12.Dot(edge_normal);
-			Vec3 clipped_point = e1 + (prev_num / denom) * e12;
+			Vec3 clipped_point = denom != 0.0f? e1 + (prev_num / denom) * e12 : e1;
 
 			// Project point on line segment v1, v2 so see if it falls outside if the edge
 			float projection = (clipped_point - v1).Dot(v12);
@@ -141,7 +142,7 @@ void ClipPolyVsEdge(const VERTEX_ARRAY &inPolygonToClip, Vec3Arg inEdgeVertex1, 
 			else
 				outClippedPolygon.push_back(clipped_point);
 		}
-		
+
 		// Update previous state
 		prev_num = num;
 		prev_inside = cur_inside;
@@ -158,7 +159,7 @@ void ClipPolyVsAABox(const VERTEX_ARRAY &inPolygonToClip, const AABox &inAABox, 
 
 	VERTEX_ARRAY tmp_vertices[2];
 	int tmp_vertices_idx = 0;
-	
+
 	for (int coord = 0; coord < 3; ++coord)
 		for (int side = 0; side < 2; ++side)
 		{

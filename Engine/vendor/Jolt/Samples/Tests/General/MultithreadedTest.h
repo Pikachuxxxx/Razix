@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -5,11 +6,16 @@
 
 #include <Tests/Test.h>
 
-// This test spawns boxes and ragdolls and performs ray cast tests from threads / jobs to see if the simulation is thread safe.
 class MultithreadedTest : public Test
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL(MultithreadedTest)
+	JPH_DECLARE_RTTI_VIRTUAL(JPH_NO_EXPORT, MultithreadedTest)
+
+	// Description of the test
+	virtual const char *	GetDescription() const override
+	{
+		return "This test spawns boxes and ragdolls and performs ray cast tests from threads / jobs to see if the simulation is thread safe.";
+	}
 
 	// Destructor
 	virtual					~MultithreadedTest() override;

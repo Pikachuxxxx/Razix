@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -39,10 +40,8 @@ CollideConvexVsTriangles::CollideConvexVsTriangles(const ConvexShape *inShape1, 
 
 void CollideConvexVsTriangles::Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8 inActiveEdges, const SubShapeID &inSubShapeID2)
 {
-	JPH_PROFILE_FUNCTION();
-
 	// Scale triangle and transform it to the space of 1
-	Vec3 v0 = mTransform2To1 * (mScale2 * inV0); 
+	Vec3 v0 = mTransform2To1 * (mScale2 * inV0);
 	Vec3 v1 = mTransform2To1 * (mScale2 * inV1);
 	Vec3 v2 = mTransform2To1 * (mScale2 * inV2);
 
@@ -78,7 +77,8 @@ void CollideConvexVsTriangles::Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2,
 		mShape1ExCvxRadius = mShape1->GetSupportFunction(ConvexShape::ESupportMode::ExcludeConvexRadius, mBufferExCvxRadius, mScale1);
 
 	// Perform GJK step
-	status = pen_depth.GetPenetrationDepthStepGJK(*mShape1ExCvxRadius, mShape1ExCvxRadius->GetConvexRadius() + mCollideShapeSettings.mMaxSeparationDistance, triangle, 0.0f, mCollideShapeSettings.mCollisionTolerance, penetration_axis, point1, point2);
+	float max_separation_distance = mCollideShapeSettings.mMaxSeparationDistance;
+	status = pen_depth.GetPenetrationDepthStepGJK(*mShape1ExCvxRadius, mShape1ExCvxRadius->GetConvexRadius() + max_separation_distance, triangle, 0.0f, mCollideShapeSettings.mCollisionTolerance, penetration_axis, point1, point2);
 
 	// Check result of collision detection
 	if (status == EPAPenetrationDepth::EStatus::NotColliding)
@@ -87,12 +87,18 @@ void CollideConvexVsTriangles::Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2,
 	{
 		// Need to run expensive EPA algorithm
 
+		// We know we're overlapping at this point, so we can set the max separation distance to 0.
+		// Numerically it is possible that GJK finds that the shapes are overlapping but EPA finds that they're separated.
+		// In order to avoid this, we clamp the max separation distance to 1 so that we don't excessively inflate the shape,
+		// but we still inflate it enough to avoid the case where EPA misses the collision.
+		max_separation_distance = min(max_separation_distance, 1.0f);
+
 		// Get the support function
 		if (mShape1IncCvxRadius == nullptr)
 			mShape1IncCvxRadius = mShape1->GetSupportFunction(ConvexShape::ESupportMode::IncludeConvexRadius, mBufferIncCvxRadius, mScale1);
 
 		// Add convex radius
-		AddConvexRadius<ConvexShape::Support> shape1_add_max_separation_distance(*mShape1IncCvxRadius, mCollideShapeSettings.mMaxSeparationDistance);
+		AddConvexRadius shape1_add_max_separation_distance(*mShape1IncCvxRadius, max_separation_distance);
 
 		// Perform EPA step
 		if (!pen_depth.GetPenetrationDepthStepEPA(shape1_add_max_separation_distance, triangle, mCollideShapeSettings.mPenetrationTolerance, penetration_axis, point1, point2))
@@ -100,14 +106,14 @@ void CollideConvexVsTriangles::Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2,
 	}
 
 	// Check if the penetration is bigger than the early out fraction
-	float penetration_depth = (point2 - point1).Length() - mCollideShapeSettings.mMaxSeparationDistance;
+	float penetration_depth = (point2 - point1).Length() - max_separation_distance;
 	if (-penetration_depth >= mCollector.GetEarlyOutFraction())
 		return;
 
 	// Correct point1 for the added separation distance
 	float penetration_axis_len = penetration_axis.Length();
 	if (penetration_axis_len > 0.0f)
-		point1 -= penetration_axis * (mCollideShapeSettings.mMaxSeparationDistance / penetration_axis_len);
+		point1 -= penetration_axis * (max_separation_distance / penetration_axis_len);
 
 	// Check if we have enabled active edge detection
 	if (mCollideShapeSettings.mActiveEdgeMode == EActiveEdgeMode::CollideOnlyWithActive && inActiveEdges != 0b111)
@@ -135,13 +141,12 @@ void CollideConvexVsTriangles::Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2,
 		mShape1->GetSupportingFace(SubShapeID(), -penetration_axis, mScale1, mTransform1, result.mShape1Face);
 
 		// Get face of the triangle
-		triangle.GetSupportingFace(penetration_axis, result.mShape2Face);
-
-		// Convert to world space
-		for (Vec3 &p : result.mShape2Face)
-			p = mTransform1 * p;
+		result.mShape2Face.resize(3);
+		result.mShape2Face[0] = mTransform1 * v0;
+		result.mShape2Face[1] = mTransform1 * v1;
+		result.mShape2Face[2] = mTransform1 * v2;
 	}
-	
+
 	// Notify the collector
 	JPH_IF_TRACK_NARROWPHASE_STATS(TrackNarrowPhaseCollector track;)
 	mCollector.AddHit(result);

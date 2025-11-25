@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -20,11 +21,11 @@ enum class ETrackSide : uint
 };
 
 /// Generic properties for tank tracks
-class VehicleTrackSettings
+class JPH_EXPORT VehicleTrackSettings
 {
-public:
-	JPH_DECLARE_SERIALIZABLE_NON_VIRTUAL(VehicleTrackSettings)
+	JPH_DECLARE_SERIALIZABLE_NON_VIRTUAL(JPH_EXPORT, VehicleTrackSettings)
 
+public:
 	/// Saves the contents in binary form to inStream.
 	void					SaveBinaryState(StreamOut &inStream) const;
 
@@ -40,7 +41,7 @@ public:
 };
 
 /// Runtime data for tank tracks
-class VehicleTrack : public VehicleTrackSettings
+class JPH_EXPORT VehicleTrack : public VehicleTrackSettings
 {
 public:
 	/// Saving state for replay

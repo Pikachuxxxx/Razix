@@ -30,18 +30,19 @@ namespace Razix {
             auto errorStr = lua_tostring(L, -1);
             (void) errorStr;
             RAZIX_CORE_ERROR("[Lua Script Manager] Error : {0}", errorStr);
+            RAZIX_UNUSED(errorStr);
             lua_pop(L, 1);    // Pop error message from stack
             return false;
         }
         return true;
     }
 
-    void LuaScriptComponent::loadScript(const std::string& scriptPath)
+    void LuaScriptComponent::loadScript(const RZString& scriptPath)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
 
         m_Filepath = scriptPath;
-        std::string physicalPath;
+        RZString physicalPath;
         if (!RZVirtualFileSystem::Get().resolvePhysicalPath(scriptPath, physicalPath)) {
             RAZIX_CORE_ERROR("[Lua Script Manager] Failed to Load Lua script {0}", scriptPath);
             return;
@@ -55,7 +56,7 @@ namespace Razix {
             (void) errorStr;
             RAZIX_CORE_ERROR("[Lua Script Manager] Failed to Execute Lua script {0}", physicalPath);
             RAZIX_CORE_ERROR("[Lua Script Manager] Error : {0}", errorStr);
-            m_Errors.push_back(std::string(errorStr));
+            m_Errors.push_back(RZString(errorStr));
             lua_pop(L, 1);    // Pop error message from stack
         }
 
@@ -76,6 +77,7 @@ namespace Razix {
             bool success = CallLuaFunction(m_OnStartFunc);
             (void) success;
             RAZIX_CORE_ASSERT(success, "[Lua Script Manager] Error in OnStart: {0}", m_Filepath);
+            RAZIX_UNUSED(success);
         }
     }
 
@@ -87,6 +89,7 @@ namespace Razix {
             bool success = CallLuaFunction(m_UpdateFunc);
             (void) success;
             RAZIX_CORE_ASSERT(success, "[Lua Script Manager] Error in Update: {0}", m_Filepath);
+            RAZIX_UNUSED(success);
         }
     }
 
@@ -98,6 +101,7 @@ namespace Razix {
             bool success = CallLuaFunction(m_OnImGuiFunc);
             (void) success;
             RAZIX_CORE_ASSERT(success, "[Lua Script Manager] Error in OnImGui: {0}", m_Filepath);
+            RAZIX_UNUSED(success);
         }
     }
 }    // namespace Razix

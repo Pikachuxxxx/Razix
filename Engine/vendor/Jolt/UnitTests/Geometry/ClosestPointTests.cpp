@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2023 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -9,7 +10,7 @@ TEST_SUITE("ClosestPointTests")
 	// Test closest point from inPoint to triangle (inA, inB, inC)
 	inline static void TestClosestPointToTriangle(Vec3Arg inA, Vec3Arg inB, Vec3Arg inC, Vec3Arg inPoint, Vec3Arg inExpectedClosestPoint, uint32 inExpectedSet)
 	{
-		// Make triangle relative to inPoint so we can get the closest poin to the origin
+		// Make triangle relative to inPoint so we can get the closest point to the origin
 		Vec3 a = inA - inPoint;
 		Vec3 b = inB - inPoint;
 		Vec3 c = inC - inPoint;
@@ -76,7 +77,7 @@ TEST_SUITE("ClosestPointTests")
 		// Vertex C
 		TestClosestPointToTriangle(a, b, c, Vec3(-101, 0, 0), c, 0b0100);
 	}
-	
+
 	TEST_CASE("TestNearColinearTriangle")
 	{
 		// A very long triangle that is nearly colinear
@@ -89,5 +90,23 @@ TEST_SUITE("ClosestPointTests")
 		Vec3 expected_closest = a + (-a.Dot(ac) / ac.LengthSq()) * ac;
 
 		TestClosestPointToTriangle(a, b, c, Vec3::sZero(), expected_closest, 0b0101);
+	}
+
+	TEST_CASE("TestSmallTriangleWithPlaneGoingThroughOrigin")
+	{
+		// A small but non-degenerate triangle whose plane almost goes through the origin
+		Vec3 a(-0.132395342f, -0.294095188f, -0.164812326f);
+		Vec3 b(-0.126054004f, -0.283950001f, -0.159065604f);
+		Vec3 c(-0.154956535f, -0.284792334f, -0.160523415f);
+
+		float u, v, w;
+		ClosestPoint::GetBaryCentricCoordinates(a, b, c, u, v, w);
+
+		// Closest point should be close to origin
+		Vec3 p = a * u + b * v + c * w;
+		CHECK_APPROX_EQUAL(p, Vec3::sZero());
+
+		// Closest point should be outside triangle
+		CHECK((u < 0.0f || v > 0.0f || w < 0.0f));
 	}
 }

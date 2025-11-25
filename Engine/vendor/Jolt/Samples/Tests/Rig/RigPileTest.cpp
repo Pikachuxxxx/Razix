@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -16,11 +17,12 @@
 #include <Application/DebugUI.h>
 #include <Layers.h>
 #include <Utils/Log.h>
+#include <Utils/AssetStream.h>
 #include <random>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(RigPileTest) 
-{ 
-	JPH_ADD_BASE_CLASS(RigPileTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(RigPileTest)
+{
+	JPH_ADD_BASE_CLASS(RigPileTest, Test)
 }
 
 const char *RigPileTest::sScenes[] =
@@ -31,10 +33,14 @@ const char *RigPileTest::sScenes[] =
 	"Terrain2",
 };
 
-#ifdef _DEBUG
+#ifdef JPH_DEBUG
 	const char *RigPileTest::sSceneName = "PerlinMesh";
+	int RigPileTest::sPileSize = 5;
+	int RigPileTest::sNumPilesPerAxis = 2;
 #else
 	const char *RigPileTest::sSceneName = "Terrain1";
+	int RigPileTest::sPileSize = 10;
+	int RigPileTest::sNumPilesPerAxis = 4;
 #endif
 
 RigPileTest::~RigPileTest()
@@ -54,12 +60,13 @@ void RigPileTest::Initialize()
 	{
 		// Default terrain
 		CreateHeightFieldTerrain();
-	}	
+	}
 	else
 	{
 		// Load scene
 		Ref<PhysicsScene> scene;
-		if (!ObjectStreamIn::sReadObject((String("Assets/") + sSceneName + ".bof").c_str(), scene))
+		AssetStream stream(String(sSceneName) + ".bof", std::ios::in | std::ios::binary);
+		if (!ObjectStreamIn::sReadObject(stream.Get(), scene))
 			FatalError("Failed to load scene");
 		for (BodyCreationSettings &body : scene->GetBodies())
 			body.mObjectLayer = Layers::NON_MOVING;
@@ -68,38 +75,33 @@ void RigPileTest::Initialize()
 	}
 
 	// Load ragdoll
-	Ref<RagdollSettings> settings = RagdollLoader::sLoad("Assets/Human.tof", EMotionType::Dynamic);
+	Ref<RagdollSettings> settings = RagdollLoader::sLoad("Human.tof", EMotionType::Dynamic);
 
 	// Load animation
 	const int cAnimationCount = 4;
 	Ref<SkeletalAnimation> animation[cAnimationCount];
 	for (int i = 0; i < cAnimationCount; ++i)
 	{
-		if (!ObjectStreamIn::sReadObject(StringFormat("Assets/Human/Dead_Pose%d.tof", i + 1).c_str(), animation[i]))
+		AssetStream stream(StringFormat("Human/dead_pose%d.tof", i + 1), std::ios::in);
+		if (!ObjectStreamIn::sReadObject(stream.Get(), animation[i]))
 			FatalError("Could not open animation");
 	}
 
 	const float cHorizontalSeparation = 4.0f;
 	const float cVerticalSeparation = 0.6f;
-#ifdef _DEBUG
-	const int cPileSize = 5;
-	const int cNumRows = 2;
-	const int cNumCols = 2;
-#else
-	const int cPileSize = 10;
-	const int cNumRows = 4;
-	const int cNumCols = 4;
-#endif
+
+	// Limit the size of the piles so we don't go over 160 ragdolls
+	int pile_size = min(sPileSize, 160 / Square(sNumPilesPerAxis));
 
 	// Create piles
 	default_random_engine random;
 	uniform_real_distribution<float> angle(0.0f, JPH_PI);
 	CollisionGroup::GroupID group_id = 1;
-	for (int row = 0; row < cNumRows; ++row)
-		for (int col = 0; col < cNumCols; ++col)
+	for (int row = 0; row < sNumPilesPerAxis; ++row)
+		for (int col = 0; col < sNumPilesPerAxis; ++col)
 		{
 			// Determine start location of ray
-			RVec3 start = RVec3(cHorizontalSeparation * (col - (cNumCols - 1) / 2.0f), 100, cHorizontalSeparation * (row - (cNumRows - 1) / 2.0f));
+			RVec3 start = RVec3(cHorizontalSeparation * (col - (sNumPilesPerAxis - 1) / 2.0f), 100, cHorizontalSeparation * (row - (sNumPilesPerAxis - 1) / 2.0f));
 
 			// Cast ray down to terrain
 			RayCastResult hit;
@@ -108,11 +110,11 @@ void RigPileTest::Initialize()
 			if (mPhysicsSystem->GetNarrowPhaseQuery().CastRay(ray, hit, SpecifiedBroadPhaseLayerFilter(BroadPhaseLayers::NON_MOVING), SpecifiedObjectLayerFilter(Layers::NON_MOVING)))
 				start = ray.GetPointOnRay(hit.mFraction);
 
-			for (int i = 0; i < cPileSize; ++i)
+			for (int i = 0; i < pile_size; ++i)
 			{
 				// Create ragdoll
 				Ref<Ragdoll> ragdoll = settings->CreateRagdoll(group_id++, 0, mPhysicsSystem);
-	
+
 				// Sample pose
 				SkeletonPose pose;
 				pose.SetSkeleton(settings->GetSkeleton());
@@ -137,11 +139,13 @@ void RigPileTest::Initialize()
 
 void RigPileTest::CreateSettingsMenu(DebugUI *inUI, UIElement *inSubMenu)
 {
-	inUI->CreateTextButton(inSubMenu, "Select Scene", [this, inUI]() { 
+	inUI->CreateTextButton(inSubMenu, "Select Scene", [this, inUI]() {
 		UIElement *scene_name = inUI->CreateMenu();
 		for (uint i = 0; i < size(sScenes); ++i)
 			inUI->CreateTextButton(scene_name, sScenes[i], [this, i]() { sSceneName = sScenes[i]; RestartTest(); });
 		inUI->ShowMenu(scene_name);
 	});
-}
 
+	inUI->CreateSlider(inSubMenu, "Num Ragdolls Per Pile", float(sPileSize), 1, 160, 1, [](float inValue) { sPileSize = (int)inValue; });
+	inUI->CreateSlider(inSubMenu, "Num Piles Per Axis", float(sNumPilesPerAxis), 1, 4, 1, [](float inValue) { sNumPilesPerAxis = (int)inValue; });
+}

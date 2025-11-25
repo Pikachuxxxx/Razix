@@ -5,29 +5,9 @@
 
 //-----System Includes-----//
 #ifdef __cplusplus
-    #include <algorithm>
-    #include <chrono>
-    #include <cstdint>
-    #include <fstream>
-    #include <functional>
-    #include <iomanip>
-    #include <iostream>
-    #include <limits>
-    #include <random>
-    #include <sstream>
-    #include <type_traits>
-    #include <utility>
-    #include <variant>
-
     //-----Data Structures-----//
-    // TODO: DIsable this once rzstl replacement is done
     #include <map>
-    #include <memory>
-    #include <set>
-    #include <stack>
-    #include <string>
     #include <unordered_map>
-    #include <unordered_set>
     #include <vector>
 #endif
 
@@ -37,17 +17,35 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZDebugConfig.h"
-#include "Razix/Gfx/GfxData.h"
-#include "Razix/Gfx/Resources/IRZResource.h"
-#include "Razix/Math/Math.h"
+// Containers
+#include "Razix/Core/Containers/arrays.h"
+#include "Razix/Core/Containers/bits.h"
+#include "Razix/Core/Containers/hash_functors.h"
+#include "Razix/Core/Containers/hash_map.h"
+#include "Razix/Core/Containers/initializer_list.h"
+#include "Razix/Core/Containers/queue.h"
+#include "Razix/Core/Containers/ref_counter.h"
+#include "Razix/Core/Containers/ring_buffer.h"
+#include "Razix/Core/Containers/smart_pointers.h"
+#include "Razix/Core/Containers/stack.h"
+#include "Razix/Core/Containers/string.h"
+#include "Razix/Core/Containers/string_utils.h"
+// Std
+#include "Razix/Core/std/atomics.h"
+#include "Razix/Core/std/spinlock.h"
+#include "Razix/Core/std/sprintf.h"
+#include "Razix/Core/std/type_traits.h"
+#include "Razix/Core/std/utility.h"
+
 // Razix Memory
 #include "Razix/Core/Memory/RZMemory.h"
-// Razix STL
-#include "Razix/Core/RZSTL/rzstl.h"
 
+// Math and GLM
+#include "Razix/Math/Math.h"
 //-----3rd Party-----//
 // Profilers
 #include <tracy/Tracy.hpp>
+#include <tracy/TracyC.h>
 // GLM
 //  Managed by Engine Math.h
 // Cereal
@@ -73,7 +71,7 @@
     #if RAZIX_USE_VMA
         #include <vma/vk_mem_alloc.h>
     #endif
-    #include <vulkan/vulkan.h>
+    #include <volk.h>
 #endif
 
 #ifdef RAZIX_RENDER_API_DIRECTX12

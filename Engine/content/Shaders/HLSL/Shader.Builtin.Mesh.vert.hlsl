@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 // Includes
 #include <Common/ShaderInclude.Builtin.FrameData.h>
-#include <Common/ShaderInclude.Builtin.VertexInput.h>
+#include <Razix/Shared/RZShaderCompitability.h>
 //------------------------------------------------------------------------------
 // Buffers and Root Constants
 // The model push constant
@@ -32,16 +32,16 @@ VSOut VS_MAIN(VSIn vsIn)
 {
     VSOut vso;
 
-    float4 transformedPos = mul(GET_PUSH_CONSTANT(worldTransform), float4(vsIn.inPosition, 1.0f));
+    float4 transformedPos = mul(GET_PUSH_CONSTANT(worldTransform), float4(vsIn.Position, 1.0f));
     vso.WorldPos          = transformedPos;
 
     transformedPos = mul(frame_info.camera.view, transformedPos);
     transformedPos = mul(frame_info.camera.projection, transformedPos);
     vso.Position   = transformedPos;
-    vso.Color      = vsIn.inColor;
-    vso.UV         = vsIn.inTexCoord;
-    vso.Normal     = vsIn.inNormal;    // this should be normal matrix scaled
-    vso.Tangent    = vsIn.inTangent;
+    vso.Color      = vsIn.Color;
+    vso.UV         = vsIn.UV;
+    vso.Normal     = vsIn.Normal;    // this should be normal matrix scaled
+    vso.Tangent    = vsIn.Tangent;
 
     return vso;
 }

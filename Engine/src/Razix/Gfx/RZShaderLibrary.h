@@ -1,45 +1,34 @@
 #pragma once
 
-#include "Razix/Utilities/TRZSingleton.h"
+#include "Razix/Core/Utils/TRZSingleton.h"
 
-#include "Razix/Core/RZSTL/smart_pointers.h"
+#include "Razix/Gfx/RZGfxUtil.h"
 
-#include "Razix/Gfx/GfxData.h"
+#include "Razix/Core/Containers/string.h"
 
 namespace Razix {
     namespace Gfx {
 
-#define REGISTER_USER_SHADER_ENUM_MEMBER(EnumType, memberName) \
-    ShaderUserRegistered memberName;
-
-#define REGISTER_USER_SHADER(EnumType, ShaderPath)
-
-        /**
-         * Manages the shaders instances and loads them nicely and gives their references all over the engine
-         */
-        class RZShaderLibrary : public RZSingleton<RZShaderLibrary>
+        class RAZIX_API RZShaderLibrary : public RZSingleton<RZShaderLibrary>
         {
         public:
-            RZShaderLibrary() {}
-            ~RZShaderLibrary() {}
-
             /* Initializes the Shader Library */
             void StartUp();
             /* Shuts down the Shader Library releases all the shaders held by it */
             void ShutDown();
 
             void reloadShadersFromDisk();
-            void loadBuiltInShader(ShaderBuiltin shaderID, std::string shaderPath);
+            void loadBuiltInShader(ShaderBuiltin shaderID, RZString shaderPath);
 
-            RZShaderHandle getBuiltInShader(ShaderBuiltin builtInShaderName);
-            RZShaderHandle getBuiltInShader(std::string shaderName);
-            ShaderBuiltin  getBuiltInShaderID(std::string shaderName);
+            rz_gfx_shader_handle getBuiltInShader(ShaderBuiltin builtInShaderName);
+            rz_gfx_shader_handle getBuiltInShader(RZString shaderName);
+            ShaderBuiltin        getBuiltInShaderID(RZString shaderName);
 
         public:
-            std::unordered_map<ShaderBuiltin, RZShaderHandle> m_BuiltinShaders;
-            std::unordered_map<std::string, ShaderBuiltin>    m_BuiltinShadersReverseNameMap;
-            //std::unordered_map<ShaderBuiltin, RZShaderHandle> m_UserShaders;
-            //std::unordered_map<std::string, ShaderBuiltin>    m_UserShadersReverseNameMap;
+            RZHashMap<ShaderBuiltin, rz_gfx_shader_handle> m_BuiltinShaders;
+            RZHashMap<RZString, ShaderBuiltin>             m_BuiltinShadersReverseNameMap;
+            //RZHashMap<ShaderBuiltin, RZShaderHandle> m_UserShaders;
+            //RZHashMap<RZString, ShaderBuiltin>    m_UserShadersReverseNameMap;
         };
     }    // namespace Gfx
 }    // namespace Razix

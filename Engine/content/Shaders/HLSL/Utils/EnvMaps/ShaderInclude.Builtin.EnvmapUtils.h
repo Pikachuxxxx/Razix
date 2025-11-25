@@ -5,7 +5,11 @@
 //------------------------------------------------------------------------------
 // Reference: https://github.com/Nadrin/PBR/
 
-static const uint  NumIrradianceMapSamples    = 64 * 1024;
+#define CUBEMAP_DIM         1024
+#define IRRADIANCE_MAP_DIM  64
+#define PREFILTERED_MAP_DIM 128
+
+static const uint  NumIrradianceMapSamples    = 64 * CUBEMAP_DIM;
 static const float InvNumIrradianceMapSamples = 1.0 / float(NumIrradianceMapSamples);
 // Use for both envmap and specular rpefiltered map sampling
 static const uint  NumEnvMapSamples    = 1024;

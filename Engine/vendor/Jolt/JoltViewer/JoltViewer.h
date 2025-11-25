@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -9,8 +10,11 @@
 #else
 	// Hack to still compile DebugRenderer inside the test framework when Jolt is compiled without
 	#define JPH_DEBUG_RENDERER
+	// Make sure the debug renderer symbols don't get imported or exported
+	#define JPH_DEBUG_RENDERER_EXPORT
 	#include <Jolt/Renderer/DebugRendererPlayback.h>
 	#undef JPH_DEBUG_RENDERER
+	#undef JPH_DEBUG_RENDERER_EXPORT
 #endif
 
 using namespace std;
@@ -20,10 +24,10 @@ class JoltViewer : public Application
 {
 public:
 	// Constructor / destructor
-							JoltViewer();
-		
-	// Render the frame
-	virtual bool			RenderFrame(float inDeltaTime) override;
+							JoltViewer(const String &inCommandLine);
+
+	// Update the application
+	virtual bool			UpdateFrame(float inDeltaTime) override;
 
 private:
 	enum class EPlaybackMode
@@ -38,5 +42,5 @@ private:
 	DebugRendererPlayback	mRendererPlayback { *mDebugRenderer };
 
 	EPlaybackMode			mPlaybackMode = EPlaybackMode::Play;						// Current playback state. Indicates if we're playing or scrubbing back/forward.
-	uint					mCurrentFrame = 0;	
+	uint					mCurrentFrame = 0;
 };

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -11,8 +12,8 @@
 
 class DebugUI;
 class UIElement;
-namespace JPH { 
-	class StateRecorder; 
+namespace JPH {
+	class StateRecorder;
 	class JobSystem;
 	class ContactListener;
 	class DebugRenderer;
@@ -21,7 +22,7 @@ namespace JPH {
 class Test
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL_BASE(Test)
+	JPH_DECLARE_RTTI_VIRTUAL_BASE(JPH_NO_EXPORT, Test)
 
 	// Destructor
 	virtual			~Test() = default;
@@ -38,6 +39,9 @@ public:
 	// Set the temp allocator
 	void			SetTempAllocator(TempAllocator *inTempAllocator)			{ mTempAllocator = inTempAllocator; }
 
+	// Description of the test
+	virtual const char *GetDescription() const									{ return nullptr; }
+
 	// Initialize the test
 	virtual void	Initialize()												{ }
 
@@ -47,11 +51,22 @@ public:
 	// If this test implements a contact listener, it should be returned here
 	virtual ContactListener *GetContactListener()								{ return nullptr; }
 
-	class PreUpdateParams
+	class ProcessInputParams
 	{
 	public:
 		float								mDeltaTime;
 		Keyboard *							mKeyboard;
+		CameraState							mCameraState;
+	};
+
+	// Process input, this is called before SaveInputState is called. This allows you to determine the player input and adjust internal state accordingly.
+	// This state should not be applied until PrePhysicsUpdate because on replay you will receive a call to RestoreInputState to restore the stored player input state before receiving another PrePhysicsUpdate.
+	virtual void	ProcessInput(const ProcessInputParams &inParams)			{ }
+
+	class PreUpdateParams
+	{
+	public:
+		float								mDeltaTime;
 		CameraState							mCameraState;
 #ifdef JPH_DEBUG_RENDERER
 		const SkeletonPose::DrawSettings *	mPoseDrawSettings;
@@ -88,19 +103,29 @@ public:
 	virtual void	SaveState(StateRecorder &inStream) const					{ }
 	virtual void	RestoreState(StateRecorder &inStream)						{ }
 
+	// Saving / restoring controller input state for replay
+	virtual void	SaveInputState(StateRecorder &inStream) const				{ }
+	virtual void	RestoreInputState(StateRecorder &inStream)					{ }
+
 	// Return a string that is displayed in the top left corner of the screen
 	virtual String	GetStatusString() const										{ return String(); }
+
+	// Draw the body labels
+	void			DrawBodyLabels();
 
 protected:
 	// Utility function to create a static floor body
 	Body &			CreateFloor(float inSize = 200.0f);
 
-	// Utiltity function to create a floor consisting of very large triangles
+	// Utility function to create a floor consisting of very large triangles
 	Body &			CreateLargeTriangleFloor();
 
 	// Create an uneven terrain floor body
 	Body &			CreateMeshTerrain();
 	Body &			CreateHeightFieldTerrain();
+
+	// Add a label to a body
+	void			SetBodyLabel(const BodyID &inBodyID, const String &inLabel)	{ mBodyLabels[inBodyID] = inLabel; }
 
 	JobSystem *		mJobSystem = nullptr;
 	PhysicsSystem *	mPhysicsSystem = nullptr;
@@ -110,4 +135,7 @@ protected:
 
 private:
 	bool			mNeedsRestart = false;
+
+	using BodyLabels = unordered_map<BodyID, String>;
+	BodyLabels		mBodyLabels;
 };

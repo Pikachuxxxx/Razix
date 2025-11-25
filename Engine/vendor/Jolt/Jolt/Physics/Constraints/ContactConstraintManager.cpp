@@ -1,12 +1,15 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 #include <Jolt/Jolt.h>
 
 #include <Jolt/Physics/Constraints/ContactConstraintManager.h>
+#include <Jolt/Physics/Constraints/CalculateSolverSteps.h>
 #include <Jolt/Physics/Body/Body.h>
 #include <Jolt/Physics/PhysicsUpdateContext.h>
 #include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/IslandBuilder.h>
 #include <Jolt/Physics/DeterminismLog.h>
 #include <Jolt/Core/TempAllocator.h>
@@ -32,43 +35,61 @@ bool ContactConstraintManager::sDrawContactManifolds = false;
 // ContactConstraintManager::WorldContactPoint
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ContactConstraintManager::WorldContactPoint::CalculateNonPenetrationConstraintProperties(float inDeltaTime, const Body &inBody1, const Body &inBody2, RVec3Arg inWorldSpacePosition1, RVec3Arg inWorldSpacePosition2, Vec3Arg inWorldSpaceNormal)
+void ContactConstraintManager::WorldContactPoint::CalculateNonPenetrationConstraintProperties(const Body &inBody1, float inInvMass1, float inInvInertiaScale1, const Body &inBody2, float inInvMass2, float inInvInertiaScale2, RVec3Arg inWorldSpacePosition1, RVec3Arg inWorldSpacePosition2, Vec3Arg inWorldSpaceNormal)
 {
 	// Calculate collision points relative to body
 	RVec3 p = 0.5_r * (inWorldSpacePosition1 + inWorldSpacePosition2);
 	Vec3 r1 = Vec3(p - inBody1.GetCenterOfMassPosition());
 	Vec3 r2 = Vec3(p - inBody2.GetCenterOfMassPosition());
 
-	mNonPenetrationConstraint.CalculateConstraintProperties(inDeltaTime, inBody1, r1, inBody2, r2, inWorldSpaceNormal);
+	mNonPenetrationConstraint.CalculateConstraintPropertiesWithMassOverride(inBody1, inInvMass1, inInvInertiaScale1, r1, inBody2, inInvMass2, inInvInertiaScale2, r2, inWorldSpaceNormal);
 }
 
 template <EMotionType Type1, EMotionType Type2>
-JPH_INLINE void ContactConstraintManager::WorldContactPoint::CalculateFrictionAndNonPenetrationConstraintProperties(float inDeltaTime, const Body &inBody1, const Body &inBody2, Mat44Arg inInvI1, Mat44Arg inInvI2, RVec3Arg inWorldSpacePosition1, RVec3Arg inWorldSpacePosition2, Vec3Arg inWorldSpaceNormal, Vec3Arg inWorldSpaceTangent1, Vec3Arg inWorldSpaceTangent2, float inCombinedRestitution, float inCombinedFriction, float inMinVelocityForRestitution)
+JPH_INLINE void ContactConstraintManager::WorldContactPoint::TemplatedCalculateFrictionAndNonPenetrationConstraintProperties(float inDeltaTime, float inGravityDeltaTimeDotNormal, const Body &inBody1, const Body &inBody2, float inInvM1, float inInvM2, Mat44Arg inInvI1, Mat44Arg inInvI2, RVec3Arg inWorldSpacePosition1, RVec3Arg inWorldSpacePosition2, Vec3Arg inWorldSpaceNormal, Vec3Arg inWorldSpaceTangent1, Vec3Arg inWorldSpaceTangent2, const ContactSettings &inSettings, float inMinVelocityForRestitution)
 {
-	JPH_DET_LOG("CalculateFrictionAndNonPenetrationConstraintProperties: p1: " << inWorldSpacePosition1 << " p2: " << inWorldSpacePosition2
+	JPH_DET_LOG("TemplatedCalculateFrictionAndNonPenetrationConstraintProperties: p1: " << inWorldSpacePosition1 << " p2: " << inWorldSpacePosition2
 		<< " normal: " << inWorldSpaceNormal << " tangent1: " << inWorldSpaceTangent1 << " tangent2: " << inWorldSpaceTangent2
-		<< " restitution: " << inCombinedRestitution << " friction: " << inCombinedFriction << " minv: " << inMinVelocityForRestitution);
+		<< " restitution: " << inSettings.mCombinedRestitution << " friction: " << inSettings.mCombinedFriction << " minv: " << inMinVelocityForRestitution
+		<< " surface_vel: " << inSettings.mRelativeLinearSurfaceVelocity << " surface_ang: " << inSettings.mRelativeAngularSurfaceVelocity);
 
 	// Calculate collision points relative to body
 	RVec3 p = 0.5_r * (inWorldSpacePosition1 + inWorldSpacePosition2);
 	Vec3 r1 = Vec3(p - inBody1.GetCenterOfMassPosition());
 	Vec3 r2 = Vec3(p - inBody2.GetCenterOfMassPosition());
 
-	const MotionProperties *mp1 = inBody1.GetMotionPropertiesUnchecked();
-	const MotionProperties *mp2 = inBody2.GetMotionPropertiesUnchecked();
+	// The gravity is applied in the beginning of the time step. If we get here, there was a collision
+	// at the beginning of the time step, so we've applied too much gravity. This means that our
+	// calculated restitution can be too high, so when we apply restitution, we cancel the added
+	// velocity due to gravity.
+	float gravity_dt_dot_normal;
 
 	// Calculate velocity of collision points
 	Vec3 relative_velocity;
 	if constexpr (Type1 != EMotionType::Static && Type2 != EMotionType::Static)
+	{
+		const MotionProperties *mp1 = inBody1.GetMotionPropertiesUnchecked();
+		const MotionProperties *mp2 = inBody2.GetMotionPropertiesUnchecked();
 		relative_velocity = mp2->GetPointVelocityCOM(r2) - mp1->GetPointVelocityCOM(r1);
+		gravity_dt_dot_normal = inGravityDeltaTimeDotNormal * (mp2->GetGravityFactor() - mp1->GetGravityFactor());
+	}
 	else if constexpr (Type1 != EMotionType::Static)
+	{
+		const MotionProperties *mp1 = inBody1.GetMotionPropertiesUnchecked();
 		relative_velocity = -mp1->GetPointVelocityCOM(r1);
+		gravity_dt_dot_normal = inGravityDeltaTimeDotNormal * mp1->GetGravityFactor();
+	}
 	else if constexpr (Type2 != EMotionType::Static)
+	{
+		const MotionProperties *mp2 = inBody2.GetMotionPropertiesUnchecked();
 		relative_velocity = mp2->GetPointVelocityCOM(r2);
+		gravity_dt_dot_normal = inGravityDeltaTimeDotNormal * mp2->GetGravityFactor();
+	}
 	else
 	{
 		JPH_ASSERT(false); // Static vs static makes no sense
 		relative_velocity = Vec3::sZero();
+		gravity_dt_dot_normal = 0.0f;
 	}
 	float normal_velocity = relative_velocity.Dot(inWorldSpaceNormal);
 
@@ -83,7 +104,7 @@ JPH_INLINE void ContactConstraintManager::WorldContactPoint::CalculateFrictionAn
 
 	// Determine if the velocity is big enough for restitution
 	float normal_velocity_bias;
-	if (inCombinedRestitution > 0.0f && normal_velocity < -inMinVelocityForRestitution)
+	if (inSettings.mCombinedRestitution > 0.0f && normal_velocity < -inMinVelocityForRestitution)
 	{
 		// We have a velocity that is big enough for restitution. This is where speculative contacts don't work
 		// great as we have to decide now if we're going to apply the restitution or not. If the relative
@@ -93,9 +114,11 @@ JPH_INLINE void ContactConstraintManager::WorldContactPoint::CalculateFrictionAn
 		// position rather than from a position where it is touching the other object. This causes the object
 		// to appear to move faster for 1 frame (the opposite of time stealing).
 		if (normal_velocity < -speculative_contact_velocity_bias)
-			normal_velocity_bias = inCombinedRestitution * normal_velocity;
+			normal_velocity_bias = inSettings.mCombinedRestitution * (normal_velocity - gravity_dt_dot_normal);
 		else
-			normal_velocity_bias = 0.0f;
+			// In this case we have predicted that we don't hit the other object, but if we do (due to other constraints changing velocities)
+			// the speculative contact will prevent penetration but will not apply restitution leading to another artifact.
+			normal_velocity_bias = speculative_contact_velocity_bias;
 	}
 	else
 	{
@@ -103,14 +126,19 @@ JPH_INLINE void ContactConstraintManager::WorldContactPoint::CalculateFrictionAn
 		normal_velocity_bias = speculative_contact_velocity_bias;
 	}
 
-	mNonPenetrationConstraint.TemplatedCalculateConstraintProperties<Type1, Type2>(inDeltaTime, mp1, inInvI1, r1, mp2, inInvI2, r2, inWorldSpaceNormal, normal_velocity_bias);
+	mNonPenetrationConstraint.TemplatedCalculateConstraintProperties<Type1, Type2>(inInvM1, inInvI1, r1, inInvM2, inInvI2, r2, inWorldSpaceNormal, normal_velocity_bias);
 
 	// Calculate friction part
-	if (inCombinedFriction > 0.0f)
+	if (inSettings.mCombinedFriction > 0.0f)
 	{
-		// Implement friction as 2 AxisContraintParts
-		mFrictionConstraint1.TemplatedCalculateConstraintProperties<Type1, Type2>(inDeltaTime, mp1, inInvI1, r1, mp2, inInvI2, r2, inWorldSpaceTangent1);
-		mFrictionConstraint2.TemplatedCalculateConstraintProperties<Type1, Type2>(inDeltaTime, mp1, inInvI1, r1, mp2, inInvI2, r2, inWorldSpaceTangent2);
+		// Get surface velocity relative to tangents
+		Vec3 ws_surface_velocity = inSettings.mRelativeLinearSurfaceVelocity + inSettings.mRelativeAngularSurfaceVelocity.Cross(r1);
+		float surface_velocity1 = inWorldSpaceTangent1.Dot(ws_surface_velocity);
+		float surface_velocity2 = inWorldSpaceTangent2.Dot(ws_surface_velocity);
+
+		// Implement friction as 2 AxisConstraintParts
+		mFrictionConstraint1.TemplatedCalculateConstraintProperties<Type1, Type2>(inInvM1, inInvI1, r1, inInvM2, inInvI2, r2, inWorldSpaceTangent1, surface_velocity1);
+		mFrictionConstraint2.TemplatedCalculateConstraintProperties<Type1, Type2>(inInvM1, inInvI1, r1, inInvM2, inInvI2, r2, inWorldSpaceTangent2, surface_velocity2);
 	}
 	else
 	{
@@ -126,7 +154,7 @@ JPH_INLINE void ContactConstraintManager::WorldContactPoint::CalculateFrictionAn
 
 #ifdef JPH_DEBUG_RENDERER
 void ContactConstraintManager::ContactConstraint::Draw(DebugRenderer *inRenderer, ColorArg inManifoldColor) const
-{			
+{
 	if (mContactPoints.empty())
 		return;
 
@@ -138,8 +166,8 @@ void ContactConstraintManager::ContactConstraint::Draw(DebugRenderer *inRenderer
 	for (const WorldContactPoint &wcp : mContactPoints)
 	{
 		// Test if any lambda from the previous frame was transferred
-		float radius = wcp.mNonPenetrationConstraint.GetTotalLambda() == 0.0f 
-					&& wcp.mFrictionConstraint1.GetTotalLambda() == 0.0f 
+		float radius = wcp.mNonPenetrationConstraint.GetTotalLambda() == 0.0f
+					&& wcp.mFrictionConstraint1.GetTotalLambda() == 0.0f
 					&& wcp.mFrictionConstraint2.GetTotalLambda() == 0.0f? 0.1f :  0.2f;
 
 		RVec3 next_point = transform_body1 * Vec3::sLoadFloat3Unsafe(wcp.mContactPoint->mPosition1);
@@ -153,7 +181,7 @@ void ContactConstraintManager::ContactConstraint::Draw(DebugRenderer *inRenderer
 
 	// Draw normal
 	RVec3 wp = transform_body1 * Vec3::sLoadFloat3Unsafe(mContactPoints[0].mContactPoint->mPosition1);
-	inRenderer->DrawArrow(wp, wp + mWorldSpaceNormal, Color::sRed, 0.05f);
+	inRenderer->DrawArrow(wp, wp + GetWorldSpaceNormal(), Color::sRed, 0.05f);
 
 	// Get tangents
 	Vec3 t1, t2;
@@ -221,9 +249,14 @@ void ContactConstraintManager::CachedBodyPair::RestoreState(StateRecorder &inStr
 
 void ContactConstraintManager::ManifoldCache::Init(uint inMaxBodyPairs, uint inMaxContactConstraints, uint inCachedManifoldsSize)
 {
-	mAllocator.Init(inMaxBodyPairs * sizeof(BodyPairMap::KeyValue) + inCachedManifoldsSize);
+	uint max_body_pairs = min(inMaxBodyPairs, cMaxBodyPairsLimit);
+	JPH_ASSERT(max_body_pairs == inMaxBodyPairs, "Cannot support this many body pairs!");
+	JPH_ASSERT(inMaxContactConstraints <= cMaxContactConstraintsLimit); // Should have been enforced by caller
+
+	mAllocator.Init(uint(min(uint64(max_body_pairs) * sizeof(BodyPairMap::KeyValue) + inCachedManifoldsSize, uint64(~uint(0)))));
+
 	mCachedManifolds.Init(GetNextPowerOf2(inMaxContactConstraints));
-	mCachedBodyPairs.Init(GetNextPowerOf2(inMaxBodyPairs));
+	mCachedBodyPairs.Init(GetNextPowerOf2(max_body_pairs));
 }
 
 void ContactConstraintManager::ManifoldCache::Clear()
@@ -262,7 +295,7 @@ ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCache::Cr
 	MKeyValue *kv = mCachedManifolds.Create(ioContactAllocator, inKey, inKeyHash, CachedManifold::sGetRequiredExtraSize(inNumContactPoints));
 	if (kv == nullptr)
 	{
-		JPH_ASSERT(false, "Out of cache space for manifold cache");
+		ioContactAllocator.mErrors |= EPhysicsUpdateError::ManifoldCacheFull;
 		return nullptr;
 	}
 	kv->GetValue().mNumContactPoints = uint16(inNumContactPoints);
@@ -281,19 +314,19 @@ ContactConstraintManager::MKVAndCreated ContactConstraintManager::ManifoldCache:
 
 uint32 ContactConstraintManager::ManifoldCache::ToHandle(const MKeyValue *inKeyValue) const
 {
-	JPH_ASSERT(!mIsFinalized);	
+	JPH_ASSERT(!mIsFinalized);
 	return mCachedManifolds.ToHandle(inKeyValue);
 }
 
 const ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCache::FromHandle(uint32 inHandle) const
 {
-	JPH_ASSERT(mIsFinalized);	
+	JPH_ASSERT(mIsFinalized);
 	return mCachedManifolds.FromHandle(inHandle);
 }
 
 const ContactConstraintManager::BPKeyValue *ContactConstraintManager::ManifoldCache::Find(const BodyPair &inKey, uint64 inKeyHash) const
 {
-	JPH_ASSERT(mIsFinalized);	
+	JPH_ASSERT(mIsFinalized);
 	return mCachedBodyPairs.Find(inKey, inKeyHash);
 }
 
@@ -303,7 +336,7 @@ ContactConstraintManager::BPKeyValue *ContactConstraintManager::ManifoldCache::C
 	BPKeyValue *kv = mCachedBodyPairs.Create(ioContactAllocator, inKey, inKeyHash, 0);
 	if (kv == nullptr)
 	{
-		JPH_ASSERT(false, "Out of cache space for body pair cache");
+		ioContactAllocator.mErrors |= EPhysicsUpdateError::BodyPairCacheFull;
 		return nullptr;
 	}
 	++ioContactAllocator.mNumBodyPairs;
@@ -357,6 +390,8 @@ void ContactConstraintManager::ManifoldCache::GetAllCCDManifoldsSorted(Array<con
 
 void ContactConstraintManager::ManifoldCache::ContactPointRemovedCallbacks(ContactListener *inListener)
 {
+	JPH_PROFILE_FUNCTION();
+
 	for (MKeyValue &kv : mCachedManifolds)
 		if ((kv.GetValue().mFlags & uint16(CachedManifold::EFlags::ContactPersisted)) == 0)
 			inListener->OnContactRemoved(kv.GetKey());
@@ -378,7 +413,7 @@ void ContactConstraintManager::ManifoldCache::Finalize()
 
 #endif
 
-void ContactConstraintManager::ManifoldCache::SaveState(StateRecorder &inStream) const
+void ContactConstraintManager::ManifoldCache::SaveState(StateRecorder &inStream, const StateRecorderFilter *inFilter) const
 {
 	JPH_ASSERT(mIsFinalized);
 
@@ -386,12 +421,22 @@ void ContactConstraintManager::ManifoldCache::SaveState(StateRecorder &inStream)
 	Array<const BPKeyValue *> all_bp;
 	GetAllBodyPairsSorted(all_bp);
 
-	// Write amount of body pairs
-	size_t num_body_pairs = all_bp.size();
-	inStream.Write(num_body_pairs);
+	// Determine which ones to save
+	Array<const BPKeyValue *> selected_bp;
+	if (inFilter == nullptr)
+		selected_bp = std::move(all_bp);
+	else
+	{
+		selected_bp.reserve(all_bp.size());
+		for (const BPKeyValue *bp_kv : all_bp)
+			if (inFilter->ShouldSaveContact(bp_kv->GetKey().mBodyA, bp_kv->GetKey().mBodyB))
+				selected_bp.push_back(bp_kv);
+	}
 
-	// Write all body pairs
-	for (const BPKeyValue *bp_kv : all_bp)
+	// Write body pairs
+	uint32 num_body_pairs = uint32(selected_bp.size());
+	inStream.Write(num_body_pairs);
+	for (const BPKeyValue *bp_kv : selected_bp)
 	{
 		// Write body pair key
 		inStream.Write(bp_kv->GetKey());
@@ -405,7 +450,7 @@ void ContactConstraintManager::ManifoldCache::SaveState(StateRecorder &inStream)
 		GetAllManifoldsSorted(bp, all_m);
 
 		// Write num manifolds
-		size_t num_manifolds = all_m.size();
+		uint32 num_manifolds = uint32(all_m.size());
 		inStream.Write(num_manifolds);
 
 		// Write all manifolds
@@ -432,16 +477,26 @@ void ContactConstraintManager::ManifoldCache::SaveState(StateRecorder &inStream)
 	Array<const MKeyValue *> all_m;
 	GetAllCCDManifoldsSorted(all_m);
 
-	// Write num CCD manifolds
-	size_t num_manifolds = all_m.size();
-	inStream.Write(num_manifolds);
+	// Determine which ones to save
+	Array<const MKeyValue *> selected_m;
+	if (inFilter == nullptr)
+		selected_m = std::move(all_m);
+	else
+	{
+		selected_m.reserve(all_m.size());
+		for (const MKeyValue *m_kv : all_m)
+			if (inFilter->ShouldSaveContact(m_kv->GetKey().GetBody1ID(), m_kv->GetKey().GetBody2ID()))
+				selected_m.push_back(m_kv);
+	}
 
 	// Write all CCD manifold keys
-	for (const MKeyValue *m_kv : all_m)
+	uint32 num_manifolds = uint32(selected_m.size());
+	inStream.Write(num_manifolds);
+	for (const MKeyValue *m_kv : selected_m)
 		inStream.Write(m_kv->GetKey());
 }
 
-bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &inReadCache, StateRecorder &inStream)
+bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &inReadCache, StateRecorder &inStream, const StateRecorderFilter *inFilter)
 {
 	JPH_ASSERT(!mIsFinalized);
 
@@ -456,13 +511,13 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 		inReadCache.GetAllBodyPairsSorted(all_bp);
 
 	// Read amount of body pairs
-	size_t num_body_pairs;
+	uint32 num_body_pairs;
 	if (inStream.IsValidating())
-		num_body_pairs = all_bp.size();
+		num_body_pairs = uint32(all_bp.size());
 	inStream.Read(num_body_pairs);
 
 	// Read entire cache
-	for (size_t i = 0; i < num_body_pairs; ++i)
+	for (uint32 i = 0; i < num_body_pairs; ++i)
 	{
 		// Read key
 		BodyPair body_pair_key;
@@ -470,72 +525,95 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 			body_pair_key = all_bp[i]->GetKey();
 		inStream.Read(body_pair_key);
 
-		// Create new entry for this body pair
-		uint64 body_pair_hash = body_pair_key.GetHash();
-		BPKeyValue *bp_kv = Create(contact_allocator, body_pair_key, body_pair_hash);
-		if (bp_kv == nullptr)
+		// Check if we want to restore this contact
+		if (inFilter == nullptr || inFilter->ShouldRestoreContact(body_pair_key.mBodyA, body_pair_key.mBodyB))
 		{
-			// Out of cache space
-			success = false;
-			break; 
-		}
-		CachedBodyPair &bp = bp_kv->GetValue();
-
-		// Read body pair
-		if (inStream.IsValidating() && i < all_bp.size())
-			memcpy(&bp, &all_bp[i]->GetValue(), sizeof(CachedBodyPair));
-		bp.RestoreState(inStream);
-
-		// When validating, get all existing manifolds
-		Array<const MKeyValue *> all_m;
-		if (inStream.IsValidating())
-			inReadCache.GetAllManifoldsSorted(all_bp[i]->GetValue(), all_m);
-
-		// Read amount of manifolds
-		size_t num_manifolds;
-		if (inStream.IsValidating())
-			num_manifolds = all_m.size();
-		inStream.Read(num_manifolds);
-
-		uint32 handle = ManifoldMap::cInvalidHandle;
-		for (size_t j = 0; j < num_manifolds; ++j)
-		{
-			// Read key
-			SubShapeIDPair sub_shape_key;
-			if (inStream.IsValidating() && j < all_m.size())
-				sub_shape_key = all_m[j]->GetKey();
-			inStream.Read(sub_shape_key);
-			uint64 sub_shape_key_hash = sub_shape_key.GetHash();
-			
-			// Read amount of contact points
-			uint16 num_contact_points;
-			if (inStream.IsValidating() && j < all_m.size())
-				num_contact_points = all_m[j]->GetValue().mNumContactPoints;
-			inStream.Read(num_contact_points);
-
-			// Read manifold
-			MKeyValue *m_kv = Create(contact_allocator, sub_shape_key, sub_shape_key_hash, num_contact_points);
-			if (m_kv == nullptr)
+			// Create new entry for this body pair
+			uint64 body_pair_hash = body_pair_key.GetHash();
+			BPKeyValue *bp_kv = Create(contact_allocator, body_pair_key, body_pair_hash);
+			if (bp_kv == nullptr)
 			{
 				// Out of cache space
 				success = false;
-				break; 
+				break;
 			}
-			CachedManifold &cm = m_kv->GetValue();
-			if (inStream.IsValidating() && j < all_m.size())
-			{
-				memcpy(&cm, &all_m[j]->GetValue(), CachedManifold::sGetRequiredTotalSize(num_contact_points));
-				cm.mNumContactPoints = uint16(num_contact_points); // Restore num contact points
-			}
-			cm.RestoreState(inStream);
-			cm.mNextWithSameBodyPair = handle;
-			handle = ToHandle(m_kv);
+			CachedBodyPair &bp = bp_kv->GetValue();
 
-			// Read contact points
-			for (uint32 k = 0; k < num_contact_points; ++k)
-				cm.mContactPoints[k].RestoreState(inStream);
-		}		
-		bp.mFirstCachedManifold = handle;
+			// Read body pair
+			if (inStream.IsValidating() && i < all_bp.size())
+				memcpy(&bp, &all_bp[i]->GetValue(), sizeof(CachedBodyPair));
+			bp.RestoreState(inStream);
+
+			// When validating, get all existing manifolds
+			Array<const MKeyValue *> all_m;
+			if (inStream.IsValidating())
+				inReadCache.GetAllManifoldsSorted(all_bp[i]->GetValue(), all_m);
+
+			// Read amount of manifolds
+			uint32 num_manifolds = 0;
+			if (inStream.IsValidating())
+				num_manifolds = uint32(all_m.size());
+			inStream.Read(num_manifolds);
+
+			uint32 handle = ManifoldMap::cInvalidHandle;
+			for (uint32 j = 0; j < num_manifolds; ++j)
+			{
+				// Read key
+				SubShapeIDPair sub_shape_key;
+				if (inStream.IsValidating() && j < all_m.size())
+					sub_shape_key = all_m[j]->GetKey();
+				inStream.Read(sub_shape_key);
+				uint64 sub_shape_key_hash = sub_shape_key.GetHash();
+
+				// Read amount of contact points
+				uint16 num_contact_points = 0;
+				if (inStream.IsValidating() && j < all_m.size())
+					num_contact_points = all_m[j]->GetValue().mNumContactPoints;
+				inStream.Read(num_contact_points);
+
+				// Read manifold
+				MKeyValue *m_kv = Create(contact_allocator, sub_shape_key, sub_shape_key_hash, num_contact_points);
+				if (m_kv == nullptr)
+				{
+					// Out of cache space
+					success = false;
+					break;
+				}
+				CachedManifold &cm = m_kv->GetValue();
+				if (inStream.IsValidating() && j < all_m.size())
+				{
+					memcpy(&cm, &all_m[j]->GetValue(), CachedManifold::sGetRequiredTotalSize(num_contact_points));
+					cm.mNumContactPoints = uint16(num_contact_points); // Restore num contact points
+				}
+				cm.RestoreState(inStream);
+				cm.mNextWithSameBodyPair = handle;
+				handle = ToHandle(m_kv);
+
+				// Read contact points
+				for (uint32 k = 0; k < num_contact_points; ++k)
+					cm.mContactPoints[k].RestoreState(inStream);
+			}
+			bp.mFirstCachedManifold = handle;
+		}
+		else
+		{
+			// Skip the contact
+			CachedBodyPair bp;
+			bp.RestoreState(inStream);
+			uint32 num_manifolds = 0;
+			inStream.Read(num_manifolds);
+			for (uint32 j = 0; j < num_manifolds; ++j)
+			{
+				SubShapeIDPair sub_shape_key;
+				inStream.Read(sub_shape_key);
+				uint16 num_contact_points;
+				inStream.Read(num_contact_points);
+				CachedManifold cm;
+				cm.RestoreState(inStream);
+				for (uint32 k = 0; k < num_contact_points; ++k)
+					cm.mContactPoints[0].RestoreState(inStream);
+			}
+		}
 	}
 
 	// When validating, get all existing CCD manifolds
@@ -544,34 +622,40 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 		inReadCache.GetAllCCDManifoldsSorted(all_m);
 
 	// Read amount of CCD manifolds
-	size_t num_manifolds;
+	uint32 num_manifolds;
 	if (inStream.IsValidating())
-		num_manifolds = all_m.size();
+		num_manifolds = uint32(all_m.size());
 	inStream.Read(num_manifolds);
 
-	for (size_t j = 0; j < num_manifolds; ++j)
+	for (uint32 j = 0; j < num_manifolds; ++j)
 	{
 		// Read key
 		SubShapeIDPair sub_shape_key;
 		if (inStream.IsValidating() && j < all_m.size())
 			sub_shape_key = all_m[j]->GetKey();
 		inStream.Read(sub_shape_key);
-		uint64 sub_shape_key_hash = sub_shape_key.GetHash();
-			
-		// Create CCD manifold
-		MKeyValue *m_kv = Create(contact_allocator, sub_shape_key, sub_shape_key_hash, 0);
-		if (m_kv == nullptr)
+
+		// Check if we want to restore this contact
+		if (inFilter == nullptr || inFilter->ShouldRestoreContact(sub_shape_key.GetBody1ID(), sub_shape_key.GetBody2ID()))
 		{
-			// Out of cache space
-			success = false;
-			break; 
+			// Create CCD manifold
+			uint64 sub_shape_key_hash = sub_shape_key.GetHash();
+			MKeyValue *m_kv = Create(contact_allocator, sub_shape_key, sub_shape_key_hash, 0);
+			if (m_kv == nullptr)
+			{
+				// Out of cache space
+				success = false;
+				break;
+			}
+			CachedManifold &cm = m_kv->GetValue();
+			cm.mFlags |= (uint16)CachedManifold::EFlags::CCDContact;
 		}
-		CachedManifold &cm = m_kv->GetValue();
-		cm.mFlags |= (uint16)CachedManifold::EFlags::CCDContact;
 	}
 
 #ifdef JPH_ENABLE_ASSERTS
-	mIsFinalized = true;
+	// We don't finalize until the last part is restored
+	if (inStream.IsLastPart())
+		mIsFinalized = true;
 #endif
 
 	return success;
@@ -597,18 +681,22 @@ ContactConstraintManager::~ContactConstraintManager()
 
 void ContactConstraintManager::Init(uint inMaxBodyPairs, uint inMaxContactConstraints)
 {
-	mMaxConstraints = inMaxContactConstraints;
+	// Limit the number of constraints so that the allocation size fits in an unsigned integer
+	mMaxConstraints = min(inMaxContactConstraints, cMaxContactConstraintsLimit);
+	JPH_ASSERT(mMaxConstraints == inMaxContactConstraints, "Cannot support this many contact constraints!");
 
 	// Calculate worst case cache usage
-	uint cached_manifolds_size = inMaxContactConstraints * (sizeof(CachedManifold) + (MaxContactPoints - 1) * sizeof(CachedContactPoint));
+	constexpr uint cMaxManifoldSizePerConstraint = sizeof(CachedManifold) + (MaxContactPoints - 1) * sizeof(CachedContactPoint);
+	static_assert(cMaxManifoldSizePerConstraint < sizeof(ContactConstraint)); // If not true, then the next line can overflow
+	uint cached_manifolds_size = mMaxConstraints * cMaxManifoldSizePerConstraint;
 
 	// Init the caches
-	mCache[0].Init(inMaxBodyPairs, inMaxContactConstraints, cached_manifolds_size);
-	mCache[1].Init(inMaxBodyPairs, inMaxContactConstraints, cached_manifolds_size);
+	mCache[0].Init(inMaxBodyPairs, mMaxConstraints, cached_manifolds_size);
+	mCache[1].Init(inMaxBodyPairs, mMaxConstraints, cached_manifolds_size);
 }
 
 void ContactConstraintManager::PrepareConstraintBuffer(PhysicsUpdateContext *inContext)
-{	
+{
 	// Store context
 	mUpdateContext = inContext;
 
@@ -618,11 +706,39 @@ void ContactConstraintManager::PrepareConstraintBuffer(PhysicsUpdateContext *inC
 }
 
 template <EMotionType Type1, EMotionType Type2>
-JPH_INLINE void ContactConstraintManager::TemplatedCalculateFrictionAndNonPenetrationConstraintProperties(ContactConstraint &ioConstraint, float inDeltaTime, RMat44Arg inTransformBody1, RMat44Arg inTransformBody2, const Body &inBody1, const Body &inBody2, Mat44Arg inInvI1, Mat44Arg inInvI2)
+JPH_INLINE void ContactConstraintManager::TemplatedCalculateFrictionAndNonPenetrationConstraintProperties(ContactConstraint &ioConstraint, const ContactSettings &inSettings, float inDeltaTime, Vec3Arg inGravityDeltaTime, RMat44Arg inTransformBody1, RMat44Arg inTransformBody2, const Body &inBody1, const Body &inBody2)
 {
+	// Calculate scaled mass and inertia
+	Mat44 inv_i1;
+	if constexpr (Type1 == EMotionType::Dynamic)
+	{
+		const MotionProperties *mp1 = inBody1.GetMotionPropertiesUnchecked();
+		inv_i1 = inSettings.mInvInertiaScale1 * mp1->GetInverseInertiaForRotation(inTransformBody1.GetRotation());
+	}
+	else
+	{
+		inv_i1 = Mat44::sZero();
+	}
+
+	Mat44 inv_i2;
+	if constexpr (Type2 == EMotionType::Dynamic)
+	{
+		const MotionProperties *mp2 = inBody2.GetMotionPropertiesUnchecked();
+		inv_i2 = inSettings.mInvInertiaScale2 * mp2->GetInverseInertiaForRotation(inTransformBody2.GetRotation());
+	}
+	else
+	{
+		inv_i2 = Mat44::sZero();
+	}
+
 	// Calculate tangents
 	Vec3 t1, t2;
 	ioConstraint.GetTangents(t1, t2);
+
+	Vec3 ws_normal = ioConstraint.GetWorldSpaceNormal();
+
+	// Calculate value for restitution correction
+	float gravity_dt_dot_normal = inGravityDeltaTime.Dot(ws_normal);
 
 	// Setup velocity constraint properties
 	float min_velocity_for_restitution = mPhysicsSettings.mMinVelocityForRestitution;
@@ -630,47 +746,44 @@ JPH_INLINE void ContactConstraintManager::TemplatedCalculateFrictionAndNonPenetr
 	{
 		RVec3 p1 = inTransformBody1 * Vec3::sLoadFloat3Unsafe(wcp.mContactPoint->mPosition1);
 		RVec3 p2 = inTransformBody2 * Vec3::sLoadFloat3Unsafe(wcp.mContactPoint->mPosition2);
-		wcp.CalculateFrictionAndNonPenetrationConstraintProperties<Type1, Type2>(inDeltaTime, inBody1, inBody2, inInvI1, inInvI2, p1, p2, ioConstraint.mWorldSpaceNormal, t1, t2, ioConstraint.mCombinedRestitution, ioConstraint.mCombinedFriction, min_velocity_for_restitution);
+		wcp.TemplatedCalculateFrictionAndNonPenetrationConstraintProperties<Type1, Type2>(inDeltaTime, gravity_dt_dot_normal, inBody1, inBody2, ioConstraint.mInvMass1, ioConstraint.mInvMass2, inv_i1, inv_i2, p1, p2, ws_normal, t1, t2, inSettings, min_velocity_for_restitution);
 	}
 }
 
-inline void ContactConstraintManager::CalculateFrictionAndNonPenetrationConstraintProperties(ContactConstraint &ioConstraint, float inDeltaTime, RMat44Arg inTransformBody1, RMat44Arg inTransformBody2, const Body &inBody1, const Body &inBody2)
+inline void ContactConstraintManager::CalculateFrictionAndNonPenetrationConstraintProperties(ContactConstraint &ioConstraint, const ContactSettings &inSettings, float inDeltaTime, Vec3Arg inGravityDeltaTime, RMat44Arg inTransformBody1, RMat44Arg inTransformBody2, const Body &inBody1, const Body &inBody2)
 {
 	// Dispatch to the correct templated form
 	switch (inBody1.GetMotionType())
 	{
 	case EMotionType::Dynamic:
+		switch (inBody2.GetMotionType())
 		{
-			Mat44 invi1 = inBody1.GetInverseInertia();
-			switch (inBody2.GetMotionType())
-			{
-			case EMotionType::Dynamic:
-				TemplatedCalculateFrictionAndNonPenetrationConstraintProperties<EMotionType::Dynamic, EMotionType::Dynamic>(ioConstraint, inDeltaTime, inTransformBody1, inTransformBody2, inBody1, inBody2, invi1, inBody2.GetInverseInertia());
-				break;
+		case EMotionType::Dynamic:
+			TemplatedCalculateFrictionAndNonPenetrationConstraintProperties<EMotionType::Dynamic, EMotionType::Dynamic>(ioConstraint, inSettings, inDeltaTime, inGravityDeltaTime, inTransformBody1, inTransformBody2, inBody1, inBody2);
+			break;
 
-			case EMotionType::Kinematic:
-				TemplatedCalculateFrictionAndNonPenetrationConstraintProperties<EMotionType::Dynamic, EMotionType::Kinematic>(ioConstraint, inDeltaTime, inTransformBody1, inTransformBody2, inBody1, inBody2, invi1, Mat44() /* Will not be used */);
-				break;
+		case EMotionType::Kinematic:
+			TemplatedCalculateFrictionAndNonPenetrationConstraintProperties<EMotionType::Dynamic, EMotionType::Kinematic>(ioConstraint, inSettings, inDeltaTime, inGravityDeltaTime, inTransformBody1, inTransformBody2, inBody1, inBody2);
+			break;
 
-			case EMotionType::Static:
-				TemplatedCalculateFrictionAndNonPenetrationConstraintProperties<EMotionType::Dynamic, EMotionType::Static>(ioConstraint, inDeltaTime, inTransformBody1, inTransformBody2, inBody1, inBody2, invi1, Mat44() /* Will not be used */);
-				break;
+		case EMotionType::Static:
+			TemplatedCalculateFrictionAndNonPenetrationConstraintProperties<EMotionType::Dynamic, EMotionType::Static>(ioConstraint, inSettings, inDeltaTime, inGravityDeltaTime, inTransformBody1, inTransformBody2, inBody1, inBody2);
+			break;
 
-			default:
-				JPH_ASSERT(false);
-				break;
-			}
+		default:
+			JPH_ASSERT(false);
 			break;
 		}
+		break;
 
 	case EMotionType::Kinematic:
 		JPH_ASSERT(inBody2.IsDynamic());
-		TemplatedCalculateFrictionAndNonPenetrationConstraintProperties<EMotionType::Kinematic, EMotionType::Dynamic>(ioConstraint, inDeltaTime, inTransformBody1, inTransformBody2, inBody1, inBody2, Mat44() /* Will not be used */, inBody2.GetInverseInertia());
+		TemplatedCalculateFrictionAndNonPenetrationConstraintProperties<EMotionType::Kinematic, EMotionType::Dynamic>(ioConstraint, inSettings, inDeltaTime, inGravityDeltaTime, inTransformBody1, inTransformBody2, inBody1, inBody2);
 		break;
 
 	case EMotionType::Static:
 		JPH_ASSERT(inBody2.IsDynamic());
-		TemplatedCalculateFrictionAndNonPenetrationConstraintProperties<EMotionType::Static, EMotionType::Dynamic>(ioConstraint, inDeltaTime, inTransformBody1, inTransformBody2, inBody1, inBody2, Mat44() /* Will not be used */, inBody2.GetInverseInertia());
+		TemplatedCalculateFrictionAndNonPenetrationConstraintProperties<EMotionType::Static, EMotionType::Dynamic>(ioConstraint, inSettings, inDeltaTime, inGravityDeltaTime, inTransformBody1, inTransformBody2, inBody1, inBody2);
 		break;
 
 	default:
@@ -681,8 +794,6 @@ inline void ContactConstraintManager::CalculateFrictionAndNonPenetrationConstrai
 
 void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactAllocator, Body &inBody1, Body &inBody2, bool &outPairHandled, bool &outConstraintCreated)
 {
-	JPH_PROFILE_FUNCTION();
-
 	// Start with nothing found and not handled
 	outConstraintCreated = false;
 	outPairHandled = false;
@@ -691,7 +802,7 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 	Body *body1, *body2;
 	if (inBody1.GetID() < inBody2.GetID())
 	{
-		body1 = &inBody1; 
+		body1 = &inBody1;
 		body2 = &inBody2;
 	}
 	else
@@ -753,7 +864,10 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 	RMat44 transform_body2 = body2->GetCenterOfMassTransform();
 
 	// Get time step
-	float delta_time = mUpdateContext->mSubStepDeltaTime;
+	float delta_time = mUpdateContext->mStepDeltaTime;
+
+	// Calculate value for restitution correction
+	Vec3 gravity_dt = mUpdateContext->mPhysicsSystem->GetGravity() * delta_time;
 
 	// Copy manifolds
 	uint32 output_handle = ManifoldMap::cInvalidHandle;
@@ -807,7 +921,7 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 				const CachedContactPoint &ccp = output_cm->mContactPoints[i];
 				manifold.mRelativeContactPointsOn1[i] = transform_body1.Multiply3x3(Vec3::sLoadFloat3Unsafe(ccp.mPosition1));
 				manifold.mRelativeContactPointsOn2[i] = local_transform_body2 * Vec3::sLoadFloat3Unsafe(ccp.mPosition2);
-				penetration_depth = max(penetration_depth, (manifold.mRelativeContactPointsOn1[0] - manifold.mRelativeContactPointsOn2[0]).Dot(world_space_normal));
+				penetration_depth = max(penetration_depth, (manifold.mRelativeContactPointsOn1[i] - manifold.mRelativeContactPointsOn2[i]).Dot(world_space_normal));
 			}
 			manifold.mPenetrationDepth = penetration_depth; // We don't have the penetration depth anymore, estimate it
 
@@ -815,18 +929,19 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 			mContactListener->OnContactPersisted(*body1, *body2, manifold, settings);
 		}
 
-		// If one of the bodies is a sensor, don't actually create the constraint
 		JPH_ASSERT(settings.mIsSensor || !(body1->IsSensor() || body2->IsSensor()), "Sensors cannot be converted into regular bodies by a contact callback!");
-		if (!settings.mIsSensor)
+		if (!settings.mIsSensor // If one of the bodies is a sensor, don't actually create the constraint
+			&& ((body1->IsDynamic() && settings.mInvMassScale1 != 0.0f) // One of the bodies must have mass to be able to create a contact constraint
+				|| (body2->IsDynamic() && settings.mInvMassScale2 != 0.0f)))
 		{
 			// Add contact constraint in world space for the solver
 			uint32 constraint_idx = mNumConstraints++;
 			if (constraint_idx >= mMaxConstraints)
 			{
-				JPH_ASSERT(false, "Out of contact constraints!");
+				ioContactAllocator.mErrors |= EPhysicsUpdateError::ContactConstraintsFull;
 				break;
 			}
-			
+
 			// A constraint will be created
 			outConstraintCreated = true;
 
@@ -835,9 +950,12 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 			constraint.mBody1 = body1;
 			constraint.mBody2 = body2;
 			constraint.mSortKey = input_hash;
-			constraint.mWorldSpaceNormal = world_space_normal;
+			world_space_normal.StoreFloat3(&constraint.mWorldSpaceNormal);
 			constraint.mCombinedFriction = settings.mCombinedFriction;
-			constraint.mCombinedRestitution = settings.mCombinedRestitution;
+			constraint.mInvMass1 = body1->GetMotionPropertiesUnchecked() != nullptr? settings.mInvMassScale1 * body1->GetMotionPropertiesUnchecked()->GetInverseMassUnchecked() : 0.0f;
+			constraint.mInvInertiaScale1 = settings.mInvInertiaScale1;
+			constraint.mInvMass2 = body2->GetMotionPropertiesUnchecked() != nullptr? settings.mInvMassScale2 * body2->GetMotionPropertiesUnchecked()->GetInverseMassUnchecked() : 0.0f;
+			constraint.mInvInertiaScale2 = settings.mInvInertiaScale2;
 			constraint.mContactPoints.resize(output_cm->mNumContactPoints);
 			for (uint32 i = 0; i < output_cm->mNumContactPoints; ++i)
 			{
@@ -852,7 +970,7 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 			JPH_DET_LOG("GetContactsFromCache: id1: " << constraint.mBody1->GetID() << " id2: " << constraint.mBody2->GetID() << " key: " << constraint.mSortKey);
 
 			// Calculate friction and non-penetration constraint properties for all contact points
-			CalculateFrictionAndNonPenetrationConstraintProperties(constraint, delta_time, transform_body1, transform_body2, *body1, *body2);
+			CalculateFrictionAndNonPenetrationConstraintProperties(constraint, settings, delta_time, gravity_dt, transform_body1, transform_body2, *body1, *body2);
 
 			// Notify island builder
 			mUpdateContext->mIslandBuilder->LinkContact(constraint_idx, body1->GetIndexInActiveBodiesInternal(), body2->GetIndexInActiveBodiesInternal());
@@ -876,8 +994,6 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 
 ContactConstraintManager::BodyPairHandle ContactConstraintManager::AddBodyPair(ContactAllocator &ioContactAllocator, const Body &inBody1, const Body &inBody2)
 {
-	JPH_PROFILE_FUNCTION();
-
 	// Swap bodies so that body 1 id < body 2 id
 	const Body *body1, *body2;
 	if (inBody1.GetID() < inBody2.GetID())
@@ -917,7 +1033,7 @@ ContactConstraintManager::BodyPairHandle ContactConstraintManager::AddBodyPair(C
 }
 
 template <EMotionType Type1, EMotionType Type2>
-bool ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &ioContactAllocator, BodyPairHandle inBodyPairHandle, Body &inBody1, Body &inBody2, const ContactManifold &inManifold, Mat44Arg inInvI1, Mat44Arg inInvI2)
+bool ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &ioContactAllocator, BodyPairHandle inBodyPairHandle, Body &inBody1, Body &inBody2, const ContactManifold &inManifold)
 {
 	// Calculate hash
 	SubShapeIDPair key { inBody1.GetID(), inManifold.mSubShapeID1, inBody2.GetID(), inManifold.mSubShapeID2 };
@@ -980,58 +1096,40 @@ bool ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 	// Get inverse transform for body 1
 	RMat44 inverse_transform_body1 = inBody1.GetInverseCenterOfMassTransform();
 
-	bool contact_constraint_created;
+	bool contact_constraint_created = false;
 
 	// If one of the bodies is a sensor, don't actually create the constraint
 	JPH_ASSERT(settings.mIsSensor || !(inBody1.IsSensor() || inBody2.IsSensor()), "Sensors cannot be converted into regular bodies by a contact callback!");
-	if (settings.mIsSensor)
-	{
-		// Store the contact manifold in the cache
-		for (int i = 0; i < num_contact_points; ++i)
-		{
-			// Convert to local space to the body
-			Vec3 p1 = Vec3(inverse_transform_body1 * (inManifold.mBaseOffset + inManifold.mRelativeContactPointsOn1[i]));
-			Vec3 p2 = Vec3(inverse_transform_body2 * (inManifold.mBaseOffset + inManifold.mRelativeContactPointsOn2[i]));
-
-			// Create new contact point
-			CachedContactPoint &cp = new_manifold->mContactPoints[i];
-			p1.StoreFloat3(&cp.mPosition1);
-			p2.StoreFloat3(&cp.mPosition2);
-
-			// We don't use this, but reset them anyway for determinism check
-			cp.mNonPenetrationLambda = 0.0f;
-			cp.mFrictionLambda[0] = 0.0f;
-			cp.mFrictionLambda[1] = 0.0f;
-		}
-
-		// No constraint created
-		contact_constraint_created = false;
-	}
-	else
+	if (!settings.mIsSensor
+		&& ((inBody1.IsDynamic() && settings.mInvMassScale1 != 0.0f) // One of the bodies must have mass to be able to create a contact constraint
+			|| (inBody2.IsDynamic() && settings.mInvMassScale2 != 0.0f)))
 	{
 		// Add contact constraint
 		uint32 constraint_idx = mNumConstraints++;
 		if (constraint_idx >= mMaxConstraints)
 		{
-			JPH_ASSERT(false, "Out of contact constraints!");
+			ioContactAllocator.mErrors |= EPhysicsUpdateError::ContactConstraintsFull;
 
 			// Manifold has been created already, we're not filling it in, so we need to reset the contact number of points.
 			// Note that we don't hook it up to the body pair cache so that it won't be used as a cache during the next simulation.
-			new_manifold->mNumContactPoints = 0; 
+			new_manifold->mNumContactPoints = 0;
 			return false;
 		}
 
 		// We will create a contact constraint
 		contact_constraint_created = true;
-		
+
 		ContactConstraint &constraint = mConstraints[constraint_idx];
 		new (&constraint) ContactConstraint();
-		constraint.mWorldSpaceNormal = inManifold.mWorldSpaceNormal;
 		constraint.mBody1 = &inBody1;
 		constraint.mBody2 = &inBody2;
 		constraint.mSortKey = key_hash;
+		inManifold.mWorldSpaceNormal.StoreFloat3(&constraint.mWorldSpaceNormal);
 		constraint.mCombinedFriction = settings.mCombinedFriction;
-		constraint.mCombinedRestitution = settings.mCombinedRestitution;
+		constraint.mInvMass1 = inBody1.GetMotionPropertiesUnchecked() != nullptr? settings.mInvMassScale1 * inBody1.GetMotionPropertiesUnchecked()->GetInverseMassUnchecked() : 0.0f;
+		constraint.mInvInertiaScale1 = settings.mInvInertiaScale1;
+		constraint.mInvMass2 = inBody2.GetMotionPropertiesUnchecked() != nullptr? settings.mInvMassScale2 * inBody2.GetMotionPropertiesUnchecked()->GetInverseMassUnchecked() : 0.0f;
+		constraint.mInvInertiaScale2 = settings.mInvInertiaScale2;
 
 		JPH_DET_LOG("TemplatedAddContactConstraint: id1: " << constraint.mBody1->GetID() << " id2: " << constraint.mBody2->GetID() << " key: " << constraint.mSortKey);
 
@@ -1039,7 +1137,39 @@ bool ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 		mUpdateContext->mIslandBuilder->LinkContact(constraint_idx, inBody1.GetIndexInActiveBodiesInternal(), inBody2.GetIndexInActiveBodiesInternal());
 
 		// Get time step
-		float delta_time = mUpdateContext->mSubStepDeltaTime;
+		float delta_time = mUpdateContext->mStepDeltaTime;
+
+		// Calculate value for restitution correction
+		float gravity_dt_dot_normal = inManifold.mWorldSpaceNormal.Dot(mUpdateContext->mPhysicsSystem->GetGravity() * delta_time);
+
+		// Calculate scaled mass and inertia
+		float inv_m1;
+		Mat44 inv_i1;
+		if constexpr (Type1 == EMotionType::Dynamic)
+		{
+			const MotionProperties *mp1 = inBody1.GetMotionPropertiesUnchecked();
+			inv_m1 = settings.mInvMassScale1 * mp1->GetInverseMass();
+			inv_i1 = settings.mInvInertiaScale1 * mp1->GetInverseInertiaForRotation(inverse_transform_body1.Transposed3x3());
+		}
+		else
+		{
+			inv_m1 = 0.0f;
+			inv_i1 = Mat44::sZero();
+		}
+
+		float inv_m2;
+		Mat44 inv_i2;
+		if constexpr (Type2 == EMotionType::Dynamic)
+		{
+			const MotionProperties *mp2 = inBody2.GetMotionPropertiesUnchecked();
+			inv_m2 = settings.mInvMassScale2 * mp2->GetInverseMass();
+			inv_i2 = settings.mInvInertiaScale2 * mp2->GetInverseInertiaForRotation(inverse_transform_body2.Transposed3x3());
+		}
+		else
+		{
+			inv_m2 = 0.0f;
+			inv_i2 = Mat44::sZero();
+		}
 
 		// Calculate tangents
 		Vec3 t1, t2;
@@ -1056,11 +1186,11 @@ bool ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 			// Convert to local space to the body
 			Vec3 p1_ls = Vec3(inverse_transform_body1 * p1_ws);
 			Vec3 p2_ls = Vec3(inverse_transform_body2 * p2_ws);
-						
+
 			// Check if we have a close contact point from last update
 			bool lambda_set = false;
 			for (const CachedContactPoint *ccp = ccp_start; ccp < ccp_end; ccp++)
-				if (Vec3::sLoadFloat3Unsafe(ccp->mPosition1).IsClose(p1_ls, mPhysicsSettings.mContactPointPreserveLambdaMaxDistSq) 
+				if (Vec3::sLoadFloat3Unsafe(ccp->mPosition1).IsClose(p1_ls, mPhysicsSettings.mContactPointPreserveLambdaMaxDistSq)
 					&& Vec3::sLoadFloat3Unsafe(ccp->mPosition2).IsClose(p2_ls, mPhysicsSettings.mContactPointPreserveLambdaMaxDistSq))
 				{
 					// Get lambdas from previous frame
@@ -1084,7 +1214,7 @@ bool ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 			wcp.mContactPoint = &cp;
 
 			// Setup velocity constraint
-			wcp.CalculateFrictionAndNonPenetrationConstraintProperties<Type1, Type2>(delta_time, inBody1, inBody2, inInvI1, inInvI2, p1_ws, p2_ws, inManifold.mWorldSpaceNormal, t1, t2, settings.mCombinedRestitution, settings.mCombinedFriction, mPhysicsSettings.mMinVelocityForRestitution);
+			wcp.TemplatedCalculateFrictionAndNonPenetrationConstraintProperties<Type1, Type2>(delta_time, gravity_dt_dot_normal, inBody1, inBody2, inv_m1, inv_m2, inv_i1, inv_i2, p1_ws, p2_ws, inManifold.mWorldSpaceNormal, t1, t2, settings, mPhysicsSettings.mMinVelocityForRestitution);
 		}
 
 	#ifdef JPH_DEBUG_RENDERER
@@ -1092,6 +1222,26 @@ bool ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 		if (sDrawContactManifolds)
 			constraint.Draw(DebugRenderer::sInstance, Color::sOrange);
 	#endif // JPH_DEBUG_RENDERER
+	}
+	else
+	{
+		// Store the contact manifold in the cache
+		for (int i = 0; i < num_contact_points; ++i)
+		{
+			// Convert to local space to the body
+			Vec3 p1 = Vec3(inverse_transform_body1 * (inManifold.mBaseOffset + inManifold.mRelativeContactPointsOn1[i]));
+			Vec3 p2 = Vec3(inverse_transform_body2 * (inManifold.mBaseOffset + inManifold.mRelativeContactPointsOn2[i]));
+
+			// Create new contact point
+			CachedContactPoint &cp = new_manifold->mContactPoints[i];
+			p1.StoreFloat3(&cp.mPosition1);
+			p2.StoreFloat3(&cp.mPosition2);
+
+			// Reset contact impulses, we haven't applied any
+			cp.mNonPenetrationLambda = 0.0f;
+			cp.mFrictionLambda[0] = 0.0f;
+			cp.mFrictionLambda[1] = 0.0f;
+		}
 	}
 
 	// Store cached contact point in body pair cache
@@ -1110,7 +1260,7 @@ bool ContactConstraintManager::AddContactConstraint(ContactAllocator &ioContactA
 	JPH_DET_LOG("AddContactConstraint: id1: " << inBody1.GetID() << " id2: " << inBody2.GetID()
 		<< " subshape1: " << inManifold.mSubShapeID1 << " subshape2: " << inManifold.mSubShapeID2
 		<< " normal: " << inManifold.mWorldSpaceNormal << " pendepth: " << inManifold.mPenetrationDepth);
-	
+
 	JPH_ASSERT(inManifold.mWorldSpaceNormal.IsNormalized());
 
 	// Swap bodies so that body 1 id < body 2 id
@@ -1137,17 +1287,16 @@ bool ContactConstraintManager::AddContactConstraint(ContactAllocator &ioContactA
 	{
 	case EMotionType::Dynamic:
 		{
-			Mat44 invi1 = body1->GetInverseInertia();
 			switch (body2->GetMotionType())
 			{
 			case EMotionType::Dynamic:
-				return TemplatedAddContactConstraint<EMotionType::Dynamic, EMotionType::Dynamic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, invi1, body2->GetInverseInertia());
+				return TemplatedAddContactConstraint<EMotionType::Dynamic, EMotionType::Dynamic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold);
 
 			case EMotionType::Kinematic:
-				return TemplatedAddContactConstraint<EMotionType::Dynamic, EMotionType::Kinematic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, invi1, Mat44() /* Will not be used */);
+				return TemplatedAddContactConstraint<EMotionType::Dynamic, EMotionType::Kinematic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold);
 
 			case EMotionType::Static:
-				return TemplatedAddContactConstraint<EMotionType::Dynamic, EMotionType::Static>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, invi1, Mat44() /* Will not be used */);
+				return TemplatedAddContactConstraint<EMotionType::Dynamic, EMotionType::Static>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold);
 
 			default:
 				JPH_ASSERT(false);
@@ -1160,13 +1309,13 @@ bool ContactConstraintManager::AddContactConstraint(ContactAllocator &ioContactA
 		switch (body2->GetMotionType())
 		{
 		case EMotionType::Dynamic:
-			return TemplatedAddContactConstraint<EMotionType::Kinematic, EMotionType::Dynamic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, body2->GetInverseInertia());
+			return TemplatedAddContactConstraint<EMotionType::Kinematic, EMotionType::Dynamic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold);
 
 		case EMotionType::Kinematic:
-			return TemplatedAddContactConstraint<EMotionType::Kinematic, EMotionType::Kinematic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, Mat44() /* Will not be used */);
+			return TemplatedAddContactConstraint<EMotionType::Kinematic, EMotionType::Kinematic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold);
 
 		case EMotionType::Static:
-			return TemplatedAddContactConstraint<EMotionType::Kinematic, EMotionType::Static>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, Mat44() /* Will not be used */);
+			return TemplatedAddContactConstraint<EMotionType::Kinematic, EMotionType::Static>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold);
 
 		default:
 			JPH_ASSERT(false);
@@ -1178,13 +1327,13 @@ bool ContactConstraintManager::AddContactConstraint(ContactAllocator &ioContactA
 		switch (body2->GetMotionType())
 		{
 		case EMotionType::Dynamic:
-			return TemplatedAddContactConstraint<EMotionType::Static, EMotionType::Dynamic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, body2->GetInverseInertia());
+			return TemplatedAddContactConstraint<EMotionType::Static, EMotionType::Dynamic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold);
 
 		case EMotionType::Kinematic:
-			return TemplatedAddContactConstraint<EMotionType::Static, EMotionType::Kinematic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold, Mat44() /* Will not be used */, Mat44() /* Will not be used */);
+			return TemplatedAddContactConstraint<EMotionType::Static, EMotionType::Kinematic>(ioContactAllocator, inBodyPairHandle, *body1, *body2, *manifold);
 
 		case EMotionType::Static: // Static vs static not possible
-		default: 
+		default:
 			JPH_ASSERT(false);
 			break;
 		}
@@ -1265,13 +1414,21 @@ void ContactConstraintManager::OnCCDContactAdded(ContactAllocator &ioContactAllo
 		}
 		else
 		{
-			// Already found this contact this physics update. 
+			// Already found this contact this physics update.
 			// Note that we can trigger OnContactPersisted multiple times per physics update, but otherwise we have no way of obtaining the settings
 			mContactListener->OnContactPersisted(*body1, *body2, *manifold, outSettings);
 		}
+
+		// If we swapped body1 and body2 we need to swap the mass scales back
+		if (manifold == &temp)
+		{
+			std::swap(outSettings.mInvMassScale1, outSettings.mInvMassScale2);
+			std::swap(outSettings.mInvInertiaScale1, outSettings.mInvInertiaScale2);
+			// Note we do not need to negate the relative surface velocity as it is not applied by the CCD collision constraint
+		}
 	}
 
-	JPH_ASSERT(!outSettings.mIsSensor, "CCD bodies cannot currently act as sensors");
+	JPH_ASSERT(outSettings.mIsSensor || !(inBody1.IsSensor() || inBody2.IsSensor()), "Sensors cannot be converted into regular bodies by a contact callback!");
 }
 
 void ContactConstraintManager::SortContacts(uint32 *inConstraintIdxBegin, uint32 *inConstraintIdxEnd) const
@@ -1299,7 +1456,7 @@ void ContactConstraintManager::SortContacts(uint32 *inConstraintIdxBegin, uint32
 	});
 }
 
-void ContactConstraintManager::FinalizeContactCache(uint inExpectedNumBodyPairs, uint inExpectedNumManifolds)
+void ContactConstraintManager::FinalizeContactCacheAndCallContactPointRemovedCallbacks(uint inExpectedNumBodyPairs, uint inExpectedNumManifolds)
 {
 	JPH_PROFILE_FUNCTION();
 
@@ -1316,44 +1473,32 @@ void ContactConstraintManager::FinalizeContactCache(uint inExpectedNumBodyPairs,
 	// Buffers are now complete, make write buffer the read buffer
 	mCacheWriteIdx ^= 1;
 
-	// Use the amount of contacts from the last iteration to determine the amount of buckets to use in the hash map for the next iteration
-	mCache[mCacheWriteIdx].Prepare(inExpectedNumBodyPairs, inExpectedNumManifolds);
-}
+	// Get the old read cache / new write cache
+	ManifoldCache &old_read_cache = mCache[mCacheWriteIdx];
 
-void ContactConstraintManager::ContactPointRemovedCallbacks()
-{
-	JPH_PROFILE_FUNCTION();
-
-	// Get the read cache
-	ManifoldCache &read_cache = mCache[mCacheWriteIdx ^ 1];
-
-	// Call the actual callbacks
+	// Call the contact point removal callbacks
 	if (mContactListener != nullptr)
-		read_cache.ContactPointRemovedCallbacks(mContactListener);
+		old_read_cache.ContactPointRemovedCallbacks(mContactListener);
 
-	// We're done with the cache now
-	read_cache.Clear();
+	// We're done with the old read cache now
+	old_read_cache.Clear();
+
+	// Use the amount of contacts from the last iteration to determine the amount of buckets to use in the hash map for the next iteration
+	old_read_cache.Prepare(inExpectedNumBodyPairs, inExpectedNumManifolds);
 }
 
-void ContactConstraintManager::SetupVelocityConstraints(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inDeltaTime)
+bool ContactConstraintManager::WereBodiesInContact(const BodyID &inBody1ID, const BodyID &inBody2ID) const
 {
-	JPH_PROFILE_FUNCTION();
-
-	for (const uint32 *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
-	{
-		ContactConstraint &constraint = mConstraints[*constraint_idx];
-
-		// Fetch bodies
-		const Body &body1 = *constraint.mBody1;
-		const Body &body2 = *constraint.mBody2;
-		
-		// Get body transforms
-		RMat44 transform_body1 = body1.GetCenterOfMassTransform();
-		RMat44 transform_body2 = body2.GetCenterOfMassTransform();
-
-		// Calculate friction and non-penetration constraint properties for all contact points
-		CalculateFrictionAndNonPenetrationConstraintProperties(constraint, inDeltaTime, transform_body1, transform_body2, body1, body2);
-	}
+	// The body pair needs to be in the cache and it needs to have a manifold (otherwise it's just a record indicating that there are no collisions)
+	const ManifoldCache &read_cache = mCache[mCacheWriteIdx ^ 1];
+	BodyPair key;
+	if (inBody1ID < inBody2ID)
+		key = BodyPair(inBody1ID, inBody2ID);
+	else
+		key = BodyPair(inBody2ID, inBody1ID);
+	uint64 key_hash = key.GetHash();
+	const BPKeyValue *kv = read_cache.Find(key, key_hash);
+	return kv != nullptr && kv->GetValue().mFirstCachedManifold != ManifoldMap::cInvalidHandle;
 }
 
 template <EMotionType Type1, EMotionType Type2>
@@ -1362,21 +1507,23 @@ JPH_INLINE void ContactConstraintManager::sWarmStartConstraint(ContactConstraint
 	// Calculate tangents
 	Vec3 t1, t2;
 	ioConstraint.GetTangents(t1, t2);
-		
+
+	Vec3 ws_normal = ioConstraint.GetWorldSpaceNormal();
+
 	for (WorldContactPoint &wcp : ioConstraint.mContactPoints)
 	{
 		// Warm starting: Apply impulse from last frame
-		if (wcp.mFrictionConstraint1.IsActive())
+		if (wcp.mFrictionConstraint1.IsActive() || wcp.mFrictionConstraint2.IsActive())
 		{
-			JPH_ASSERT(wcp.mFrictionConstraint2.IsActive());
-			wcp.mFrictionConstraint1.TemplatedWarmStart<Type1, Type2>(ioMotionProperties1, ioMotionProperties2, t1, inWarmStartImpulseRatio);
-			wcp.mFrictionConstraint2.TemplatedWarmStart<Type1, Type2>(ioMotionProperties1, ioMotionProperties2, t2, inWarmStartImpulseRatio);
+			wcp.mFrictionConstraint1.TemplatedWarmStart<Type1, Type2>(ioMotionProperties1, ioConstraint.mInvMass1, ioMotionProperties2, ioConstraint.mInvMass2, t1, inWarmStartImpulseRatio);
+			wcp.mFrictionConstraint2.TemplatedWarmStart<Type1, Type2>(ioMotionProperties1, ioConstraint.mInvMass1, ioMotionProperties2, ioConstraint.mInvMass2, t2, inWarmStartImpulseRatio);
 		}
-		wcp.mNonPenetrationConstraint.TemplatedWarmStart<Type1, Type2>(ioMotionProperties1, ioMotionProperties2, ioConstraint.mWorldSpaceNormal, inWarmStartImpulseRatio);
+		wcp.mNonPenetrationConstraint.TemplatedWarmStart<Type1, Type2>(ioMotionProperties1, ioConstraint.mInvMass1, ioMotionProperties2, ioConstraint.mInvMass2, ws_normal, inWarmStartImpulseRatio);
 	}
 }
 
-void ContactConstraintManager::WarmStartVelocityConstraints(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inWarmStartImpulseRatio)
+template <class MotionPropertiesCallback>
+void ContactConstraintManager::WarmStartVelocityConstraints(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inWarmStartImpulseRatio, MotionPropertiesCallback &ioCallback)
 {
 	JPH_PROFILE_FUNCTION();
 
@@ -1392,23 +1539,36 @@ void ContactConstraintManager::WarmStartVelocityConstraints(const uint32 *inCons
 		Body &body2 = *constraint.mBody2;
 		EMotionType motion_type2 = body2.GetMotionType();
 		MotionProperties *motion_properties2 = body2.GetMotionPropertiesUnchecked();
-				
+
 		// Dispatch to the correct templated form
 		// Note: Warm starting doesn't differentiate between kinematic/static bodies so we handle both as static bodies
 		if (motion_type1 == EMotionType::Dynamic)
 		{
 			if (motion_type2 == EMotionType::Dynamic)
+			{
 				sWarmStartConstraint<EMotionType::Dynamic, EMotionType::Dynamic>(constraint, motion_properties1, motion_properties2, inWarmStartImpulseRatio);
+
+				ioCallback(motion_properties2);
+			}
 			else
 				sWarmStartConstraint<EMotionType::Dynamic, EMotionType::Static>(constraint, motion_properties1, motion_properties2, inWarmStartImpulseRatio);
+
+			ioCallback(motion_properties1);
 		}
 		else
 		{
 			JPH_ASSERT(motion_type2 == EMotionType::Dynamic);
+
 			sWarmStartConstraint<EMotionType::Static, EMotionType::Dynamic>(constraint, motion_properties1, motion_properties2, inWarmStartImpulseRatio);
+
+			ioCallback(motion_properties2);
 		}
 	}
 }
+
+// Specialize for the two body callback types
+template void ContactConstraintManager::WarmStartVelocityConstraints<CalculateSolverSteps>(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inWarmStartImpulseRatio, CalculateSolverSteps &ioCallback);
+template void ContactConstraintManager::WarmStartVelocityConstraints<DummyCalculateSolverSteps>(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inWarmStartImpulseRatio, DummyCalculateSolverSteps &ioCallback);
 
 template <EMotionType Type1, EMotionType Type2>
 JPH_INLINE bool ContactConstraintManager::sSolveVelocityConstraint(ContactConstraint &ioConstraint, MotionProperties *ioMotionProperties1, MotionProperties *ioMotionProperties2)
@@ -1423,29 +1583,41 @@ JPH_INLINE bool ContactConstraintManager::sSolveVelocityConstraint(ContactConstr
 	for (WorldContactPoint &wcp : ioConstraint.mContactPoints)
 	{
 		// Check if friction is enabled
-		if (wcp.mFrictionConstraint1.IsActive())
+		if (wcp.mFrictionConstraint1.IsActive() || wcp.mFrictionConstraint2.IsActive())
 		{
-			JPH_ASSERT(wcp.mFrictionConstraint2.IsActive());
+			// Calculate impulse to stop motion in tangential direction
+			float lambda1 = wcp.mFrictionConstraint1.TemplatedSolveVelocityConstraintGetTotalLambda<Type1, Type2>(ioMotionProperties1, ioMotionProperties2, t1);
+			float lambda2 = wcp.mFrictionConstraint2.TemplatedSolveVelocityConstraintGetTotalLambda<Type1, Type2>(ioMotionProperties1, ioMotionProperties2, t2);
+			float total_lambda_sq = Square(lambda1) + Square(lambda2);
 
 			// Calculate max impulse that can be applied. Note that we're using the non-penetration impulse from the previous iteration here.
 			// We do this because non-penetration is more important so is solved last (the last things that are solved in an iterative solver
 			// contribute the most).
 			float max_lambda_f = ioConstraint.mCombinedFriction * wcp.mNonPenetrationConstraint.GetTotalLambda();
 
-			// Solve friction velocities
-			// Note that what we're doing is not fully correct since the max force we can apply is 2 * max_lambda_f instead of max_lambda_f since we're solving axis independently
-			if (wcp.mFrictionConstraint1.TemplatedSolveVelocityConstraint<Type1, Type2>(ioMotionProperties1, ioMotionProperties2, t1, -max_lambda_f, max_lambda_f))
+			// If the total lambda that we will apply is too large, scale it back
+			if (total_lambda_sq > Square(max_lambda_f))
+			{
+				float scale = max_lambda_f / sqrt(total_lambda_sq);
+				lambda1 *= scale;
+				lambda2 *= scale;
+			}
+
+			// Apply the friction impulse
+			if (wcp.mFrictionConstraint1.TemplatedSolveVelocityConstraintApplyLambda<Type1, Type2>(ioMotionProperties1, ioConstraint.mInvMass1, ioMotionProperties2, ioConstraint.mInvMass2, t1, lambda1))
 				any_impulse_applied = true;
-			if (wcp.mFrictionConstraint2.TemplatedSolveVelocityConstraint<Type1, Type2>(ioMotionProperties1, ioMotionProperties2, t2, -max_lambda_f, max_lambda_f))
+			if (wcp.mFrictionConstraint2.TemplatedSolveVelocityConstraintApplyLambda<Type1, Type2>(ioMotionProperties1, ioConstraint.mInvMass1, ioMotionProperties2, ioConstraint.mInvMass2, t2, lambda2))
 				any_impulse_applied = true;
 		}
 	}
+
+	Vec3 ws_normal = ioConstraint.GetWorldSpaceNormal();
 
 	// Then apply all non-penetration constraints
 	for (WorldContactPoint &wcp : ioConstraint.mContactPoints)
 	{
 		// Solve non penetration velocities
-		if (wcp.mNonPenetrationConstraint.TemplatedSolveVelocityConstraint<Type1, Type2>(ioMotionProperties1, ioMotionProperties2, ioConstraint.mWorldSpaceNormal, 0.0f, FLT_MAX))
+		if (wcp.mNonPenetrationConstraint.TemplatedSolveVelocityConstraint<Type1, Type2>(ioMotionProperties1, ioConstraint.mInvMass1, ioMotionProperties2, ioConstraint.mInvMass2, ws_normal, 0.0f, FLT_MAX))
 			any_impulse_applied = true;
 	}
 
@@ -1536,8 +1708,6 @@ bool ContactConstraintManager::SolvePositionConstraints(const uint32 *inConstrai
 
 	bool any_impulse_applied = false;
 
-	float delta_time = mUpdateContext->mSubStepDeltaTime;
-
 	for (const uint32 *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
 	{
 		ContactConstraint &constraint = mConstraints[*constraint_idx];
@@ -1550,6 +1720,8 @@ bool ContactConstraintManager::SolvePositionConstraints(const uint32 *inConstrai
 		RMat44 transform1 = body1.GetCenterOfMassTransform();
 		RMat44 transform2 = body2.GetCenterOfMassTransform();
 
+		Vec3 ws_normal = constraint.GetWorldSpaceNormal();
+
 		for (WorldContactPoint &wcp : constraint.mContactPoints)
 		{
 			// Calculate new contact point positions in world space (the bodies may have moved)
@@ -1559,16 +1731,16 @@ bool ContactConstraintManager::SolvePositionConstraints(const uint32 *inConstrai
 			// Calculate separation along the normal (negative if interpenetrating)
 			// Allow a little penetration by default (PhysicsSettings::mPenetrationSlop) to avoid jittering between contact/no-contact which wipes out the contact cache and warm start impulses
 			// Clamp penetration to a max PhysicsSettings::mMaxPenetrationDistance so that we don't apply a huge impulse if we're penetrating a lot
-			float separation = max(Vec3(p2 - p1).Dot(constraint.mWorldSpaceNormal) + mPhysicsSettings.mPenetrationSlop, -mPhysicsSettings.mMaxPenetrationDistance);
+			float separation = max(Vec3(p2 - p1).Dot(ws_normal) + mPhysicsSettings.mPenetrationSlop, -mPhysicsSettings.mMaxPenetrationDistance);
 
 			// Only enforce constraint when separation < 0 (otherwise we're apart)
 			if (separation < 0.0f)
 			{
 				// Update constraint properties (bodies may have moved)
-				wcp.CalculateNonPenetrationConstraintProperties(delta_time, body1, body2, p1, p2, constraint.mWorldSpaceNormal);
+				wcp.CalculateNonPenetrationConstraintProperties(body1, constraint.mInvMass1, constraint.mInvInertiaScale1, body2, constraint.mInvMass2, constraint.mInvInertiaScale2, p1, p2, ws_normal);
 
 				// Solve position errors
-				if (wcp.mNonPenetrationConstraint.SolvePositionConstraint(body1, body2, constraint.mWorldSpaceNormal, separation, mPhysicsSettings.mBaumgarte))
+				if (wcp.mNonPenetrationConstraint.SolvePositionConstraintWithMassOverride(body1, constraint.mInvMass1, body2, constraint.mInvMass2, ws_normal, separation, mPhysicsSettings.mBaumgarte))
 					any_impulse_applied = true;
 			}
 		}
@@ -1594,16 +1766,22 @@ void ContactConstraintManager::FinishConstraintBuffer()
 	mUpdateContext = nullptr;
 }
 
-void ContactConstraintManager::SaveState(StateRecorder &inStream) const
+void ContactConstraintManager::SaveState(StateRecorder &inStream, const StateRecorderFilter *inFilter) const
 {
-	mCache[mCacheWriteIdx ^ 1].SaveState(inStream);
+	mCache[mCacheWriteIdx ^ 1].SaveState(inStream, inFilter);
 }
 
-bool ContactConstraintManager::RestoreState(StateRecorder &inStream)
+bool ContactConstraintManager::RestoreState(StateRecorder &inStream, const StateRecorderFilter *inFilter)
 {
-	bool success = mCache[mCacheWriteIdx].RestoreState(mCache[mCacheWriteIdx ^ 1], inStream);
-	mCacheWriteIdx ^= 1;
-	mCache[mCacheWriteIdx].Clear();
+	bool success = mCache[mCacheWriteIdx].RestoreState(mCache[mCacheWriteIdx ^ 1], inStream, inFilter);
+
+	// If this is the last part, the cache is finalized
+	if (inStream.IsLastPart())
+	{
+		mCacheWriteIdx ^= 1;
+		mCache[mCacheWriteIdx].Clear();
+	}
+
 	return success;
 }
 

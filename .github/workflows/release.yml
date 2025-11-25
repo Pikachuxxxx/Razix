@@ -3,7 +3,7 @@ name: Release Build
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'V*.*.*'
 
 jobs:
   create-release:
@@ -167,26 +167,35 @@ jobs:
         .\GenerateVS22.bat
       shell: cmd
     
+    - name: Build Engine (Debug)
+      run: |
+        cd Scripts
+        python build_razix.py --platform windows-x86_64 --config Debug --github-ci
+      shell: cmd
+
+    - name: Test Run EngineTests (Debug)
+      run: |
+        python Scripts/test_runner.py --platform windows-x86_64 --config Debug --github-ci
+      shell: cmd
+
     - name: Build Engine (GoldMaster)
       run: |
         cd Scripts
         python build_razix.py --platform windows-x86_64 --config GoldMaster --github-ci
       shell: cmd
-    
-    - name: Package Windows Build
+
+    - name: Test Run EngineTests (GoldMaster)
       run: |
-        7z a razix-windows-goldmaster.zip bin/GoldMaster-windows-x64/**/*
+        python Scripts/test_runner.py --platform windows-x86_64 --config GoldMaster --github-ci
       shell: cmd
     
-    - name: Upload Windows Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./razix-windows-goldmaster.zip
-        asset_name: razix-windows-goldmaster.zip
-        asset_content_type: application/zip
+    - name: Package Windows Build
+      run: 7z a razix-windows-goldmaster.zip bin/GoldMaster-windows-x64\*\*
+      shell: cmd
+
+    - name: Rename for tag
+      run: ren razix-windows-goldmaster.zip razix-windows-goldmaster-${{ needs.create-release.outputs.tag_name }}.zip
+      shell: cmd
 
   build-macos:
     needs: create-release
@@ -302,23 +311,41 @@ jobs:
     
     - name: Generate Project Files
       run: |
-        chmod +x ./Scripts/GenerateXCodeProjectsMacOS.sh
-        ./Scripts/GenerateXCodeProjectsMacOS.sh
+        chmod +x ./Scripts/GenerateMake-macOS-ARM64.sh
+        ./Scripts/GenerateMake-macOS-ARM64.sh
     
+    - name: Build Engine (Debug)
+      run: |
+        python Scripts/build_razix.py --platform macosx-arm64 --config Debug --github-ci --mac-build-make
+      shell: bash
+
+    - name: Ensure shader output directories exist
+      run: |
+        mkdir -p Engine/content/Shaders/Compiled/CSO
+        mkdir -p Engine/content/Shaders/Compiled/SPIRV
+        mkdir -p Engine/content/Shaders/Generated/Assembly
+        mkdir -p Engine/content/Shaders/Generated/GLSL
+        mkdir -p Engine/content/Shaders/Generated/ReflectionData
+      shell: bash
+
+    - name: Test Run EngineTests (Debug)
+      run: |
+        python Scripts/test_runner.py --platform macosx-arm64 --config Debug --github-ci
+      shell: bash
+
     - name: Build Engine (GoldMaster)
       run: |
-        python Scripts/build_razix.py --platform macosx-arm64 --config GoldMaster
+        python Scripts/build_razix.py --platform macosx-arm64 --config GoldMaster --github-ci --mac-build-make
+      shell: bash
+
+    - name: Test Run EngineTests (GoldMaster)
+      run: |
+        python Scripts/test_runner.py --platform macosx-arm64 --config GoldMaster --github-ci
+      shell: bash
     
     - name: Package macOS Build
       run: |
         zip -r razix-macos-goldmaster.zip bin/GoldMaster-macosx-ARM64/
-    
-    - name: Upload macOS Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./razix-macos-goldmaster.zip
-        asset_name: razix-macos-goldmaster.zip
-        asset_content_type: application/zip
+
+    - name: Rename for tag
+      run: mv razix-macos-goldmaster.zip razix-macos-goldmaster-${{ needs.create-release.outputs.tag_name }}.zip

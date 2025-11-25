@@ -1,6 +1,6 @@
 # Jolt Physics Samples
 
-This document describes the demos in the Samples application (currently compiles only under Windows). When you run the samples application the application will initially start paused, press P to unpause it. The menu is accessible through pressing ESC, it has the following options:
+This document describes the demos in the [Samples](https://github.com/jrouwe/JoltPhysics/tree/master/Samples) application. When you run the samples application the application will initially start paused, press P to unpause it. The menu is accessible through pressing ESC, it has the following options:
 
 * Select Test - This allows you to select between the different types of physics tests
 * Test Settings - Some tests will allow extra configuration, if not this setting will be greyed out
@@ -41,6 +41,14 @@ This categories shows vehicles created through the VehicleConstraint. These vehi
 |:-|
 |*Demonstrates a tracked vehicle with a turret constrained to the main body with hinge constraints.*|
 
+|[![Motorcycle Demo](https://img.youtube.com/vi/umI8FF0gVxs/hqdefault.jpg)](https://www.youtube.com/watch?v=umI8FF0gVxs)|
+|:-|
+|*Demonstrates a motor cycle.*|
+
+|[![Vehicle Gravity Override](https://img.youtube.com/vi/AJPS31S6ZO8/hqdefault.jpg)](https://www.youtube.com/watch?v=AJPS31S6ZO8)|
+|:-|
+|*Applying a custom gravity override to a vehicle to create weird gameplay.*|
+
 ### Rig (Ragdolls)
 
 This category demonstrates how ragdolls can be made and controlled using keyframing or motors.
@@ -68,6 +76,24 @@ This category demonstrates how ragdolls can be made and controlled using keyfram
 |[![160 Ragdolls Driven to Pose](https://img.youtube.com/vi/jhpsIqbsU4I/hqdefault.jpg)](https://www.youtube.com/watch?v=jhpsIqbsU4I)|
 |:-|
 |*A pile of ragdolls that are driven to a specific animated death pose. This gives the ragdolls 'stiffness'.*|
+
+### Soft Body
+
+|[![Soft Body Demo](https://img.youtube.com/vi/vJX_3FNISkw/hqdefault.jpg)](https://www.youtube.com/watch?v=vJX_3FNISkw)|
+|:-|
+|*Demonstrates Soft Body physics as simulated by Jolt Physics. Soft body physics can be used for things like cloth and soft balls.*|
+
+|[![Soft Body Contact Listener Demo](https://img.youtube.com/vi/DmS_8d2bdOw/hqdefault.jpg)](https://www.youtube.com/watch?v=DmS_8d2bdOw)|
+|:-|
+|*Demonstrates the use of soft body contact listeners. You can use these to affect the collision response between a soft body and a rigid body by e.g. artificially making the mass of one of the two higher so that the other is less affected by the collision. Finally you can also turn a contact into a sensor contact which means you get the contact points but there will not be any collision response..*|
+
+|[![Soft Body Bend Constraints Demo](https://img.youtube.com/vi/A1iswelnGH4/hqdefault.jpg)](https://www.youtube.com/watch?v=A1iswelnGH4)|
+|:-|
+|*This video shows the effect of bend constraints on a wrinkled cloth. The left most patch has no constraints to preserve the wrinkles, the middle uses distance constrains ('sticks') to preserve the wrinkles and the last one uses dihedral angle constraints to preserve the angle between two triangles on their shared edge.*|
+
+|[![Soft Body Skin Constraints Demo](https://img.youtube.com/vi/NXw8yMczHJg/hqdefault.jpg)](https://www.youtube.com/watch?v=NXw8yMczHJg)|
+|:-|
+|*This demo shows a soft body that is connected to a skinned mesh via distance constraints. Each simulated vertex can deviate from its skinned position by a fixed length. The green lines indicate the animated joints of the skinned mesh.*|
 
 ### Character
 
@@ -111,7 +137,7 @@ This category shows the various constraints that are supported. Constraints conn
 
 ### General
 
-This category contains general simulation tests. It demonstrates things like friction, restitution, damping, modifying gravity and continous collision detection. Some highlights:
+This category contains general simulation tests. It demonstrates things like friction, restitution, damping, modifying gravity and continuous collision detection. Some highlights:
 
 |[![Stable Box Stacking](https://img.youtube.com/vi/fTtjBLYBxco/hqdefault.jpg)](https://www.youtube.com/watch?v=fTtjBLYBxco)|
 |:-|
@@ -132,6 +158,10 @@ This category contains general simulation tests. It demonstrates things like fri
 |[![Single vs Double Precision](https://img.youtube.com/vi/KGnlYSW3550/hqdefault.jpg)](https://www.youtube.com/watch?v=KGnlYSW3550)|
 |:-|
 |*Shows the difference between compiling Jolt Physics in single precision and double precision (define JPH_DOUBLE_PRECISION).*|
+
+|[![Conveyor belt](https://img.youtube.com/vi/p_H6egZzbZE/hqdefault.jpg)](https://www.youtube.com/watch?v=p_H6egZzbZE)|
+|:-|
+|*A demo of setting the surface velocity of a body to create a conveyor belt. The boxes have decreasing friction from front to back (last one has zero friction so slowly slides down the ramp).*|
 
 ### Shapes & Scaled Shapes
 

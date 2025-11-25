@@ -1,13 +1,18 @@
 #pragma once
 
 /**
-* FrameGraph is an alias for Render Graph which controls the entire frame and it's rendering process
-* Based on : Copyright (c) Dawid Kurek, GitHub : skaarj1989 [https://github.com/skaarj1989/FrameGraph] MIT license. 
-* With Additional Changes Copyright (c) by Phani Srikar (Pikachuxxxx) MIT license.
-* Inspired from EA's Frostbite engine : https://www.gdcvault.com/play/1024612/FrameGraph-Extensible-Rendering-Architecture-in
-*/
+ * FrameGraph is an alias for Render Graph which controls the entire frame and it's rendering process
+ * Based on: Copyright (c) Dawid Kurek, GitHub: skaarj1989 [https://github.com/skaarj1989/FrameGraph] MIT license.
+ * With Additional Changes Copyright (c) by Phani Srikar (Pikachuxxxx) MIT license.
+ * Inspired from EA's Frostbite engine: https://www.gdcvault.com/play/1024612/FrameGraph-Extensible-Rendering-Architecture-in
+ */
+
+#include "Razix/Core/std/utility.h"
 
 #include "Razix/Gfx/FrameGraph/RZPassNode.h"
+
+#include <typeindex>
+#include <typeinfo>
 
 namespace Razix {
     namespace Gfx {
@@ -46,25 +51,20 @@ namespace Razix {
                  */
             struct RAZIX_API Concept
             {
-                virtual ~Concept() = default;
-
-                virtual void create(const void* transientAllocator)  = 0;
-                virtual void destroy(const void* transientAllocator) = 0;
-
-                // Optional functions so we don't check for existence of these functions on the type rather on model before calling them
-                virtual void preRead(uint32_t flags)  = 0;
-                virtual void preWrite(uint32_t flags) = 0;
-
-                virtual void resize(u32 width, u32 height) = 0;
-
-                virtual std::string toString() const = 0;
+                virtual ~Concept()                                                = default;
+                virtual void     create(const void* transientAllocator)           = 0;
+                virtual void     destroy(const void* transientAllocator)          = 0;
+                virtual void     preRead(u32 descriptorType, u32 resViewOpFlags)  = 0;
+                virtual void     preWrite(u32 descriptorType, u32 resViewOpFlags) = 0;
+                virtual void     resize(u32 width, u32 height)                    = 0;
+                virtual RZString toString() const                                 = 0;
             };
 
             /**
                  * Implementation for concept
                  */
             template<typename T>
-            struct RAZIX_API Model final : Concept
+            struct Model final : Concept
             {
                 /**
                      * constructor for type, usually a pointer is stored but here we are taking a universal reference + a data member which we enforce rules on it to have
@@ -80,8 +80,8 @@ namespace Razix {
                      * and will reject non-matching overloads for types without any error, SFINAE's safe failure can choose the different
                      * paths during compile time to tell whether a type has a method/sub type or not and these compile time expression can be used for final evaluation
                      */
-                Model(typename T::Desc&& desc, T&& obj, u32 id)
-                    : descriptor(std::move(desc)), resource(std::move(obj)), m_ID(id)
+                Model(const RZString& name, typename T::Desc&& desc, T&& obj, u32 id)
+                    : m_Name(name), descriptor(rz_move(desc)), resource(rz_move(obj)), m_ID(id)
                 {
                 }
 
@@ -95,7 +95,7 @@ namespace Razix {
 
                 void create(const void* transientAllocator) final
                 {
-                    resource.create(descriptor, m_ID, transientAllocator);
+                    resource.create(m_Name, descriptor, m_ID, transientAllocator);
                 }
 
                 void destroy(const void* transientAllocator) final
@@ -107,28 +107,28 @@ namespace Razix {
                      * The flags are given to concept from frame graph when which as passes as args to the read/write methods of the FrameGraph class
                      */
 
-                void preRead(uint32_t flags)
+                void preRead(u32 descriptorType, u32 resViewOpFlags)
                 {
                     // Since these functions are optional for a resource to have and not enforce we check here before calling them
                     if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, preRead))
-                        resource.preRead(descriptor, flags);
+                        resource.preRead(descriptorType, resViewOpFlags);
                 }
 
-                void preWrite(uint32_t flags)
+                void preWrite(u32 descriptorType, u32 resViewOpFlags) final
                 {
                     // Since these functions are optional for a resource to have and not enforce we check here before calling them
                     if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, preWrite))
-                        resource.preWrite(descriptor, flags);
+                        resource.preWrite(descriptorType, resViewOpFlags);
                 }
 
-                void resize(u32 width, u32 height)
+                void resize(u32 width, u32 height) final
                 {
                     // Since these functions are optional for a resource to have and not enforce we check here before calling them
                     if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, resize))
                         resource.resize(width, height);
                 }
 
-                std::string toString() const final
+                RZString toString() const final
                 {
                     if constexpr (RAZIX_TYPE_HAS_FUNCTION_V(T, toString))
                         return resource.toString(descriptor);
@@ -136,9 +136,10 @@ namespace Razix {
                         return "XXXX";
                 }
 
-                T                      resource;   /* Resource handle              */
-                const typename T::Desc descriptor; /* Resource creation descriptor */
-                u32                    m_ID;       /* ID of the resource entry, used to identify the resource in the frame graph */
+                T                      resource;
+                const typename T::Desc descriptor;
+                u32                    m_ID;
+                RZString               m_Name;
             };
 
         public:
@@ -164,13 +165,13 @@ namespace Razix {
             }
 
 #ifdef FG_USE_FINE_GRAINED_LIFETIMES
-            const std::vector<RZResourceLifetime>& getLifetimes() const { return m_Lifetimes; }
-            std::vector<RZResourceLifetime>&       getLifetimesRef() { return m_Lifetimes; }
+            const RZDynamicArray<RZResourceLifetime>& getLifetimes() const { return m_Lifetimes; }
+            RZDynamicArray<RZResourceLifetime>&       getLifetimesRef() { return m_Lifetimes; }
 #else
             inline const RZPassNode& getProducerPassNode() const { return *m_Producer; }
             inline const RZPassNode& getLastPassNode() const { return *m_Last; }
-
 #endif
+
             inline RZResourceLifetime getCoarseLifetime() const
             {
                 Gfx::RZResourceLifetime lifetime = {};
@@ -181,39 +182,53 @@ namespace Razix {
                 return lifetime;
             }
 
-            RAZIX_NO_DISCARD inline u32            getVersion() const { return m_Version; }
-            RAZIX_NO_DISCARD inline bool           isImported() const { return m_Imported; }
-            RAZIX_NO_DISCARD inline bool           isTransient() const { return !m_Imported; }
-            RAZIX_NO_DISCARD inline u32            getID() const { return m_ID; }
-            RAZIX_NO_DISCARD inline FGResourceType getResourceType() const { return m_ResType; }
+            RAZIX_NO_DISCARD inline const RZString& getName() const { return m_Name; }
+            RAZIX_NO_DISCARD inline u32             getVersion() const { return m_Version; }
+            RAZIX_NO_DISCARD inline bool            isImported() const { return m_Imported; }
+            RAZIX_NO_DISCARD inline bool            isTransient() const { return !m_Imported; }
+            RAZIX_NO_DISCARD inline u32             getID() const { return m_ID; }
+            RAZIX_NO_DISCARD inline FGResourceType  getResourceType() const { return m_ResType; }
 
         private:
-            //---------------------------------
-            std::unique_ptr<Concept> m_Concept; /* Type Erased implementation class */
-            //---------------------------------
-            const u32      m_ID;
-            const bool     m_Imported = false;
-            u32            m_Version; /* Version of the latest cloned resource */
-            FGResourceType m_ResType;
+            std::unique_ptr<Concept> m_Concept;      // Use unique_ptr for safe memory management
+            std::type_index          m_TypeIndex;    // Store type info for T
+            const u32                m_ID;
+            const bool               m_Imported = false;
+            u32                      m_Version  = UINT32_MAX;
+            FGResourceType           m_ResType  = {};
+            RZString                 m_Name;
 #ifdef FG_USE_FINE_GRAINED_LIFETIMES
-            std::vector<RZResourceLifetime> m_Lifetimes;
+            RZDynamicArray<RZResourceLifetime> m_Lifetimes;
 #else
-            RZPassNode* m_Producer;
-            RZPassNode* m_Last;
+            RZPassNode* m_Producer = nullptr;
+            RZPassNode* m_Last     = nullptr;
 #endif
 
         private:
             template<typename T>
-            RZResourceEntry(u32 id, typename T::Desc&& desc, T&& obj, u32 version, bool imported = false)
-                : m_ID(id), m_Concept{std::make_unique<Model<T>>(std::forward<typename T::Desc>(desc), std::forward<T>(obj), id)}, m_Version(version), m_Imported(imported)
+            RZResourceEntry(const RZString& name,
+                u32                         id,
+                typename T::Desc&&          desc,
+                T&&                         obj,
+                u32                         version,
+                bool                        imported = false)
+                : m_ID(id), m_Imported(imported), m_TypeIndex(typeid(T))
             {
+                RAZIX_CORE_INFO("Creating RZResourceEntry with T = {}", typeid(T).name());
+                m_Concept = std::make_unique<Model<T>>(name, std::forward<typename T::Desc>(desc), std::forward<T>(obj), id);
+                m_Version = version;
+                m_Name    = name;
+                RAZIX_CORE_ASSERT(m_Concept != nullptr, "m_Concept is null after construction!");
             }
 
             template<typename T>
             RAZIX_NO_DISCARD Model<T>* getModel() const
             {
-                auto* model = dynamic_cast<Model<T>*>(m_Concept.get());
-                return model;
+                if (m_TypeIndex != typeid(T)) {
+                    return nullptr;
+                }
+                RAZIX_CORE_ASSERT(m_Concept != nullptr, "m_Concept is null in getModel!");
+                return static_cast<Model<T>*>(m_Concept.get());
             }
 
             RAZIX_NO_DISCARD Concept* getConcept() const

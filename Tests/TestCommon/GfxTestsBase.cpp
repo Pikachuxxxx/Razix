@@ -2,9 +2,12 @@
 
 namespace Razix {
 
-    static void WiteSwapchainTextureReadbackToPPM(Gfx::TextureReadback* texture, const char* filename)
+    int    g_argc;
+    char** g_argv;
+
+    static void WiteSwapchainTextureReadbackToPPM(const rz_gfx_texture_readback* texture, const char* filename)
     {
-        if (!texture || !texture->data || texture->bits_per_pixel != 32) {
+        if (!texture || !texture->data || texture->bpp != 32) {
             return;
         }
 
@@ -53,8 +56,7 @@ namespace Razix {
 
         int ch;
         while ((ch = fgetc(file)) == '#') {
-            while ((ch = fgetc(file)) != '\n' && ch != EOF)
-                ;    // Skip to end of comment
+            while ((ch = fgetc(file)) != '\n' && ch != EOF);    // Skip to end of comment
         }
 
         if (fscanf(file, "%d %d", width, height) != 2) {
@@ -70,8 +72,7 @@ namespace Razix {
             return false;
         }
 
-        while ((ch = fgetc(file)) == '\n' || ch == ' ')
-            ;
+        while ((ch = fgetc(file)) == '\n' || ch == ' ');
 
         *pixels = (uint8_t*) malloc(*width * *height * 3);
         if (!*pixels) {
@@ -88,12 +89,12 @@ namespace Razix {
 
     //-----------------------------------------------------------------------------------
 
-    void RZGfxTestAppBase::SetGoldenImagePath(const std::string& path)
+    void RZGfxTestAppBase::SetGoldenImagePath(const RZString& path)
     {
         m_GoldenImagePath = path;
     }
 
-    void RZGfxTestAppBase::SetScreenshotPath(const std::string& path)
+    void RZGfxTestAppBase::SetScreenshotPath(const RZString& path)
     {
         m_ScreenShotPath = path;
     }
@@ -113,15 +114,15 @@ namespace Razix {
     bool RZGfxTestAppBase::WriteScreenshot()
     {
         bool success = false;
-        if (m_SwapchainReadback.data) {
-            WiteSwapchainTextureReadbackToPPM(&m_SwapchainReadback, m_ScreenShotPath.c_str());
+        if (m_SwapchainReadback && m_SwapchainReadback->data) {
+            WiteSwapchainTextureReadbackToPPM(m_SwapchainReadback, m_ScreenShotPath.c_str());
             success = true;
         }
 
         return success;
     }
 
-    float RZGfxTestAppBase::CalculatePSNR(const std::string& capturedImagePath, const std::string& goldenImagePath)
+    float RZGfxTestAppBase::CalculatePSNR(const RZString& capturedImagePath, const RZString& goldenImagePath)
     {
         u32      capturedImgWidth   = 0;
         u32      capturedImgHeight  = 0;
@@ -131,13 +132,13 @@ namespace Razix {
         uint8_t* goldenImagePixels  = NULL;
 
         if (!ReadPPM(capturedImagePath.c_str(), &capturedImgWidth, &capturedImgHeight, &captureImagePixels))
-            return 100.0f;
+            return -1;
 
         if (!ReadPPM(goldenImagePath.c_str(), &goldenImgWidth, &goldenImgHeight, &goldenImagePixels))
-            return 100.0f;
+            return -1;
 
-        if ((capturedImgWidth != goldenImgWidth) && (capturedImgHeight != goldenImgHeight))
-            return 100.0f;
+        if ((capturedImgWidth != goldenImgWidth) || (capturedImgHeight != goldenImgHeight))
+            return -1;
 
         int total_pixels        = capturedImgWidth * capturedImgHeight;
         int total_squared_error = 0;
@@ -158,7 +159,7 @@ namespace Razix {
 
         // If MSE is 0, return infinite PSNR (perfect match)
         if (mse == 0.0f) {
-            return 0.0f;    // it should be INF but for brevity we return 0
+            return (float) UINT32_MAX;
         }
 
         // Compute PSNR
@@ -168,3 +169,12 @@ namespace Razix {
         return psnr;
     }
 }    // namespace Razix
+
+int main(int argc, char** argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    Razix::g_argc = argc;
+    Razix::g_argv = argv;
+
+    return RUN_ALL_TESTS();
+}

@@ -3,32 +3,31 @@
 // clang-format on
 #include "RZMesh.h"
 
-#include "Razix/Core/RZEngine.h"
-
-#include "Razix/Gfx/Materials/RZMaterial.h"
-#include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
-#include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
-
 namespace Razix {
     namespace Gfx {
 
         RZMesh::RZMesh()
-            : m_Material(nullptr)
         {
-            RZEngine::Get().GetStatistics().MeshesRendered++;
         }
 
-#if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
-        RZMesh::RZMesh(RZVertexBufferHandle vertexBuffers, RZIndexBufferHandle indexBuffer, u32 vtxcount, u32 idxcount)
-            : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer), m_VertexCount(vtxcount), m_IndexCount(idxcount)
+        RZMesh::RZMesh(rz_gfx_buffer_handle vertexBuffer[VERTEX_MAX_ATTRIBS_COUNT], rz_gfx_buffer_handle indexBuffer, u32 vtxcount, u32 idxcount, MeshType meshType)
         {
-            RZEngine::Get().GetStatistics().MeshesRendered++;
+            m_IndexBuffer = indexBuffer;
+            m_VertexCount = vtxcount;
+            m_IndexCount  = idxcount;
+
+            u32 numAttribs = meshType == MeshType::SkeletalMesh ? SKELETAL_VERTEX_ATTRIBS_COUNT : VERTEX_ATTRIBS_COUNT;
+            for (uint32_t i = 0; i < numAttribs; i++) {
+                if (rz_handle_is_valid(&vertexBuffer[i]))
+                    m_VertexBuffers[i] = vertexBuffer[i];
+                else
+                    RAZIX_CORE_WARN("Vertex Buffer at index {0} is not valid!", i);
+            }
         }
 
-        RZMesh::RZMesh(const std::vector<u32>& indices, const std::vector<RZVertex>& vertices, f32 optimiseThreshold /*= 1.0f*/)
+#if WIP_REFACTOR
+        RZMesh::RZMesh(const RZDynamicArray<u32>& indices, const RZDynamicArray<RZVertex>& vertices, f32 optimiseThreshold /*= 1.0f*/)
         {
-            RZEngine::Get().GetStatistics().MeshesRendered++;
-
             auto m_Indices  = indices;
             auto m_Vertices = vertices;
 
@@ -67,19 +66,15 @@ namespace Razix {
             m_Vertices.clear();
             m_Indices.clear();
         }
-#endif
-
-        RZMesh::RZMesh(const RZVertex& vertices, const std::vector<u32>& indices)
+        RZMesh::RZMesh(const RZVertex& vertices, const RZDynamicArray<u32>& indices)
         {
             initMeshFromVectors(vertices, indices);
         }
 
-        RZMesh::RZMesh(RZVertexBufferHandle vertexBuffer[VERTEX_ATTRIBS_COUNT], RZIndexBufferHandle indexBuffer, u32 vtxcount, u32 idxcount)
+        RZMesh::RZMesh(rz_gfx_buffer_handle vertexBuffer[VERTEX_ATTRIBS_COUNT], rz_gfx_buffer_handle indexBuffer, u32 vtxcount, u32 idxcount)
             : m_IndexBuffer(indexBuffer), m_VertexCount(vtxcount), m_IndexCount(idxcount)
 
         {
-            RZEngine::Get().GetStatistics().MeshesRendered++;
-
             for (uint32_t i = 0; i < VERTEX_ATTRIBS_COUNT; i++) {
                 if (vertexBuffer[i].isValid())
                     m_VertexBuffers[i] = vertexBuffer[i];
@@ -88,14 +83,14 @@ namespace Razix {
 
         RZMesh::RZMesh(const RZVertex& vertices, u32* indices, uint32_t indicesCount)
         {
-            std::vector<u32> indicesVec;
+            RZDynamicArray<u32> indicesVec;
             indicesVec.resize(indicesCount);
             memcpy(indicesVec.data(), indices, indicesCount * sizeof(u32));
 
             initMeshFromVectors(vertices, indicesVec);
         }
 
-#if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
+    #if RAZIX_ASSET_VERSION == RAZIX_ASSET_VERSION_V1
         void RZMesh::GenerateNormals(RZVertex* vertices, u32 vertexCount, u32* indices, u32 indexCount)
         {
             float3* normals = new float3[vertexCount];
@@ -232,7 +227,7 @@ namespace Razix {
                 vertices[i].BiTangent = normalize(vertices[i].BiTangent);
             }
         }
-#endif
+    #endif
 
         void RZMesh::Destroy()
         {
@@ -261,10 +256,8 @@ namespace Razix {
             }
         }
 
-        void RZMesh::initMeshFromVectors(const RZVertex& vertices, const std::vector<u32>& indices)
+        void RZMesh::initMeshFromVectors(const RZVertex& vertices, const RZDynamicArray<u32>& indices)
         {
-            RZEngine::Get().GetStatistics().MeshesRendered++;
-
             // FIXME: Name is wrong here
 
             auto m_Indices  = indices;
@@ -334,6 +327,7 @@ namespace Razix {
                 m_VertexBuffers[VERTEX_ATTRIBS_TAN_IDX] = RZResourceManager::Get().createVertexBuffer(vertexBufferDesc);
             }
         }
+#endif
 
     }    // namespace Gfx
 }    // namespace Razix

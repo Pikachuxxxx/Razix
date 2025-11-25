@@ -8,16 +8,17 @@
 // Vertex Input
 struct PsIn
 {
-    float4 PixelLocalPosTime : POSITION1;
+    float4 Position          : SV_POSITION;
+    float4 PixelLocalPosTime : POSITION0;
 };
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-TextureCube<float4> environmentMap : register(t0, space1);
-SamplerState        g_Sampler : register(s1, space1);
+SamplerState        g_Sampler       : register(s0, space1);
+TextureCube<float4> EnvironmentMap  : register(t0, space2);
 //------------------------------------------------------------------------------
 float4 PS_MAIN(PsIn input)
     : SV_TARGET
 {
-    return environmentMap.Sample(g_Sampler, input.PixelLocalPosTime.xyz);
+    return EnvironmentMap.Sample(g_Sampler, input.PixelLocalPosTime.xyz);
 }
 //------------------------------------------------------------------------------

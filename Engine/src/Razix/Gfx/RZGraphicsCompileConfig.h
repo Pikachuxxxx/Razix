@@ -1,9 +1,0 @@
-#pragma once
-
-#define DISABLE_MATERIALS_LOADING 0
-
-#define ENABLE_RENDERING 1
-
-#define ENABLE_SHADER_LOAD 1
-
-#define WIP_RENDERER_REFACTOR 1

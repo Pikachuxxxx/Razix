@@ -12,6 +12,9 @@
     #include <Razix/Math/ImportanceSampling.h>
     #include <Razix/Math/MathConstants.h>
 
+    // Vertex formats
+    #include <Razix/Gfx/RZVertexFormats.h>
+
 #else
     // If C/C++ code...
 #endif    // shaders

@@ -3,7 +3,8 @@
 // clang-format on
 #include "RZMemoryBudgets.h"
 
-#include "Razix/Utilities/RZiniParser.h"
+#include "Razix/Core/Containers/string_utils.h"
+#include "Razix/Core/Utils/RZiniParser.h"
 
 namespace Razix {
     namespace Memory {
@@ -13,10 +14,10 @@ namespace Razix {
         /* Per-Frame/Per-department budget */
         static DepartmentBudgets s_DepartmentBudgets;
 
-        bool ParseBudgetFile(const std::string& filePath)
+        bool ParseBudgetFile(const RZString& filePath)
         {
-            Utilities::RZiniParser budgetFileIniParser;
-            bool                   success = budgetFileIniParser.parse(filePath);
+            RZiniParser budgetFileIniParser;
+            bool        success = budgetFileIniParser.parse(filePath);
 
             if (success) {
                 // Get global vars
@@ -28,16 +29,19 @@ namespace Razix {
                 for (auto& departInfo: s_DepartmentInfo) {
                     if (departInfo.first == Department::NONE)
                         continue;
-                    std::string frameBudgetKey  = departInfo.second.debugName + std::string(".FrameBudget");
-                    std::string memoryBudgetKey = departInfo.second.debugName + std::string(".MemoryBudget");
+                    RZString frameBudgetKey  = departInfo.second.debugName + RZString(".FrameBudget");
+                    RZString memoryBudgetKey = departInfo.second.debugName + RZString(".MemoryBudget");
 
                     BudgetInfo budget                  = {};
                     bool       frameBudgetParseSuccess = budgetFileIniParser.getValue<float>("Departments", frameBudgetKey, budget.CPUframeBudget);
-                    (void) frameBudgetParseSuccess;
-                    RAZIX_CORE_ASSERT(frameBudgetParseSuccess, "[Memory] failed to parse frame budget for {0}, make sure it's a float in .ini file and the value exists.", frameBudgetKey);
+                    RAZIX_UNUSED(frameBudgetParseSuccess);
+                    RAZIX_CORE_ASSERT(frameBudgetParseSuccess, "[Memory] failed to parse frame budget for {0}, make sure it's a float in .ini file and the value exists.", frameBudgetKey.c_str());
                     bool memoryBudgetParseSuccess = budgetFileIniParser.getValue<int>("Departments", memoryBudgetKey, budget.MemoryBudget);
-                    (void) memoryBudgetParseSuccess;
-                    RAZIX_CORE_ASSERT(memoryBudgetParseSuccess, "[Memory] failed to parse memoroy budget for {0}, make sure it's a int in .ini file and the value exists.", memoryBudgetKey);
+                    RAZIX_UNUSED(memoryBudgetParseSuccess);
+                    RAZIX_CORE_ASSERT(memoryBudgetParseSuccess, "[Memory] failed to parse memoroy budget for {0}, make sure it's a int in .ini file and the value exists.", memoryBudgetKey.c_str());
+
+                    RAZIX_UNUSED(frameBudgetParseSuccess);
+                    RAZIX_UNUSED(memoryBudgetParseSuccess);
 
                     s_DepartmentBudgets[departInfo.first] = budget;
                 }

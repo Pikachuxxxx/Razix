@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -10,16 +11,16 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(PointConstraintTest) 
-{ 
-	JPH_ADD_BASE_CLASS(PointConstraintTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(PointConstraintTest)
+{
+	JPH_ADD_BASE_CLASS(PointConstraintTest, Test)
 }
 
 void PointConstraintTest::Initialize()
 {
 	// Floor
 	CreateFloor();
-		
+
 	float half_cylinder_height = 2.5f;
 
 	const int cChainLength = 15;

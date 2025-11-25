@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -10,10 +11,10 @@
 class UISlider : public UIElement
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL(UISlider)
+	JPH_DECLARE_RTTI_VIRTUAL(JPH_NO_EXPORT, UISlider)
 
 	using ValueChangedAction = function<void(float)>;
-	
+
 	/// Properties
 	void				SetValue(float inValue)								{ mCurrentValue = inValue; }
 	void				SetRange(float inMin, float inMax, float inStep)	{ mMinValue = inMin; mMaxValue = inMax; mStepValue = inStep; }
@@ -23,7 +24,7 @@ public:
 	void				SetSlider(const UITexturedQuad &inSlider)			{ mSlider = inSlider; }
 	void				SetThumb(const UITexturedQuad &inThumb)				{ mThumb = inThumb; }
 	void				SetValueChangedAction(ValueChangedAction inAction)	{ mValueChangedAction = inAction; }
-	
+
 	/// Cloning / copying
 	virtual void		CopyTo(UIElement *ioElement) const override;
 

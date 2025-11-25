@@ -7,10 +7,10 @@
 
 #include "Razix/Core/RZEngineSettings.h"
 
-#include "Razix/Utilities/RZCommandLineParser.h"
-#include "Razix/Utilities/TRZSingleton.h"
+#include "Razix/Core/Utils/RZCommandLineParser.h"
+#include "Razix/Core/Utils/TRZSingleton.h"
 
-#include "Razix/Gfx/RZShaderLibrary.h"
+//#include "Razix/Gfx/RZShaderLibrary.h"
 
 #include "Razix/Gfx/Renderers/RZWorldRenderer.h"
 
@@ -52,7 +52,7 @@ namespace Razix {
             u32 TexturesInMemory      = 0;
             u32 DescriptorSetCapacity = 0;    //[ ] // Add this after the debug font renderer is done
             // Pass timings
-            std::unordered_map<std::string, f32> PassTimings; /* Holds references to frame graph pass node Idx and it's CPU execution time */
+            RZHashMap<RZString, f32> PassTimings; /* Holds references to frame graph pass node Idx and it's CPU execution time */
 
             void reset()
             {
@@ -76,7 +76,7 @@ namespace Razix {
 
         inline bool                           isEngineInTestMode() const { return m_IsEngineInTestMode; }
         inline void                           setEngineInTestMode() { m_IsEngineInTestMode = true; }
-        inline RZCommandLineParser            getCommandLineParser() { return m_CommandLineParser; }
+        inline RZCommandLineParser&           getCommandLineParser() { return m_CommandLineParser; }
         inline Stats&                         GetStatistics() { return m_Stats; }
         inline void                           ResetStats() { m_Stats.reset(); }
         inline Gfx::RZRendererSettings&       getWorldSettings() { return m_WorldSettings; }
@@ -84,7 +84,7 @@ namespace Razix {
         inline const EngineSettings&          getGlobalEngineSettings() { return m_EngineSettings; }
         inline Gfx::RZWorldRenderer&          getWorldRenderer() { return m_WorldRenderer; }
         inline Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
-        inline Gfx::RZShaderLibrary&          getShaderLibrary() { return m_ShaderLibrary; }
+        //inline Gfx::RZShaderLibrary&          getShaderLibrary() { return m_ShaderLibrary; }
 
     private:
         RZCommandLineParser           m_CommandLineParser;
@@ -95,7 +95,7 @@ namespace Razix {
         RZSceneManager                m_SceneManagerSystem;
         Scripting::RZLuaScriptHandler m_LuaScriptHandlerSystem;
         Gfx::RZWorldRenderer          m_WorldRenderer;
-        Gfx::RZShaderLibrary          m_ShaderLibrary;
         bool                          m_IsEngineInTestMode = false;
+        //Gfx::RZShaderLibrary          m_ShaderLibrary;
     };
 }    // namespace Razix

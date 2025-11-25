@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -5,11 +6,11 @@
 
 #include <UI/UIElement.h>
 
-/// Layout class that will horizontally place elements next to eachother according to their widths
+/// Layout class that will horizontally place elements next to each other according to their widths
 class UIHorizontalStack : public UIElement
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL(UIHorizontalStack)
+	JPH_DECLARE_RTTI_VIRTUAL(JPH_NO_EXPORT, UIHorizontalStack)
 
 	/// Helper function to resize a list of child elements consisting of UIHorizontalStack's to make them the same width.
 	/// Can be used to give them the appearance of a table.

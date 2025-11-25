@@ -2,6 +2,8 @@
 
 #include "Razix/Core/RZDepartments.h"
 
+#include "Razix/Core/Containers/string.h"
+
 namespace Razix {
     namespace Memory {
 
@@ -12,12 +14,12 @@ namespace Razix {
         };
 
         // This is loaded from the config file: RazixDepartmentBudgets.ini
-        using DepartmentBudgets = std::unordered_map<Department, BudgetInfo>;
+        using DepartmentBudgets = RZHashMap<Department, BudgetInfo, DepartmentHasher>;
 
         /**
          * Parses the budget ini file to assign memory/frame time constraints
          */
-        RAZIX_API bool ParseBudgetFile(const std::string& filePath);
+        RAZIX_API bool ParseBudgetFile(const RZString& filePath);
         /**
          * Get the total frame budget
          */

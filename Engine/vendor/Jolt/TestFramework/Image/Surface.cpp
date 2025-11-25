@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -14,7 +15,7 @@
 // Format descriptions
 static FormatDescription sFormats[] =
 {
-	//				   Decription	BPP		#CMP	Closest 8 Bit				Closest Alpha				Red Mask	Green Mask	Blue Mask	Alpha Mask
+	//				   Description	BPP		#CMP	Closest 8 Bit				Closest Alpha				Red Mask	Green Mask	Blue Mask	Alpha Mask
 	FormatDescription("A4L4",		8,		2,		ESurfaceFormat::A8L8,		ESurfaceFormat::A4L4,		0x0000000f, 0x0000000f, 0x0000000f, 0x000000f0),
 	FormatDescription("L8",			8,		1,		ESurfaceFormat::L8,			ESurfaceFormat::A8L8,		0x000000ff,	0x000000ff,	0x000000ff, 0x00000000),
 	FormatDescription("A8",			8,		1,		ESurfaceFormat::A8,			ESurfaceFormat::A8,			0x00000000,	0x00000000,	0x00000000, 0x000000ff),
@@ -58,7 +59,7 @@ uint32 FormatDescription::Encode(ColorArg inColor) const
 		uint32 mask = GetComponentMask(c);
 		if ((written_mask & mask) != 0) continue;
 		written_mask |= mask;
-			
+
 		// Or in this component
 		col |= int(round((1.0f / 255.0f) * mask * inColor(c))) & mask;
 	}
@@ -73,7 +74,7 @@ const Color FormatDescription::Decode(uint32 inColor) const
 	// Loop through all components
 	for (int c = 0; c < 4; ++c)
 	{
-		uint32 mask = GetComponentMask(c);		
+		uint32 mask = GetComponentMask(c);
 		if (mask != 0)
 		{
 			uint32 shift = CountTrailingZeros(mask);
@@ -124,14 +125,14 @@ Surface::~Surface()
 void Surface::Lock(ESurfaceLockMode inMode) const
 {
 	// Check if this resource can be locked
-	JPH_ASSERT(!IsLocked()); 
+	JPH_ASSERT(!IsLocked());
 	JPH_ASSERT((uint(inMode) & uint(ESurfaceLockMode::ReadWrite)) != 0);
 
 	// Store mode
 	mLockMode = inMode;
-		
+
 	// Lock the buffer
-	HardwareLock();	
+	HardwareLock();
 
 	// Check that data and stride were filled in
 	JPH_ASSERT(mData != nullptr);
@@ -143,12 +144,12 @@ void Surface::UnLock() const
 {
 	// Check if this resource was locked
 	JPH_ASSERT(IsLocked());
-	
+
 	// Unlock the hardware resource
 	HardwareUnLock();
 
 	// Reset members, so we are sure they will be set next time
-	mLockMode = ESurfaceLockMode::None; 	
+	mLockMode = ESurfaceLockMode::None;
 	mStride = 0;
 	mLength = 0;
 	mData = nullptr;
@@ -176,7 +177,7 @@ void Surface::Clear(ColorArg inColor)
 		{
 			memcpy(d, &col, bpp);
 			d += bpp;
-		}		
+		}
 	}
 
 	UnLock();
@@ -197,18 +198,18 @@ SoftwareSurface::SoftwareSurface(int inWidth, int inHeight, ESurfaceFormat inFor
 
 	// Allocate pixel data
 	JPH_ASSERT(mPixelLength > 0);
-	mPixelData = new uint8 [mPixelLength];	
+	mPixelData = new uint8 [mPixelLength];
 }
 
 SoftwareSurface::~SoftwareSurface()
 {
-	delete mPixelData;
+	delete [] mPixelData;
 }
 
 void SoftwareSurface::HardwareLock() const
 {
 	// Get pointer to data
-	mData = mPixelData;	
+	mData = mPixelData;
 	mStride = mPixelStride;
 	mLength = mPixelLength;
 }

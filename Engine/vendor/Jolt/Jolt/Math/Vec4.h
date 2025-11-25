@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -26,6 +27,7 @@ public:
 	/// Constructor
 								Vec4() = default; ///< Intentionally not initialized for performance reasons
 								Vec4(const Vec4 &inRHS) = default;
+	Vec4 &						operator = (const Vec4 &inRHS) = default;
 	explicit JPH_INLINE			Vec4(Vec3Arg inRHS);							///< WARNING: W component undefined!
 	JPH_INLINE					Vec4(Vec3Arg inRHS, float inW);
 	JPH_INLINE					Vec4(Type inRHS) : mValue(inRHS)				{ }
@@ -35,6 +37,9 @@ public:
 
 	/// Vector with all zeros
 	static JPH_INLINE Vec4		sZero();
+
+	/// Vector with all ones
+	static JPH_INLINE Vec4		sOne();
 
 	/// Vector with all NaN's
 	static JPH_INLINE Vec4		sNaN();
@@ -58,6 +63,9 @@ public:
 	/// Return the maximum of each of the components
 	static JPH_INLINE Vec4		sMax(Vec4Arg inV1, Vec4Arg inV2);
 
+	/// Clamp a vector between min and max (component wise)
+	static JPH_INLINE Vec4		sClamp(Vec4Arg inV, Vec4Arg inMin, Vec4Arg inMax);
+
 	/// Equals (component wise)
 	static JPH_INLINE UVec4		sEquals(Vec4Arg inV1, Vec4Arg inV2);
 
@@ -76,8 +84,8 @@ public:
 	/// Calculates inMul1 * inMul2 + inAdd
 	static JPH_INLINE Vec4		sFusedMultiplyAdd(Vec4Arg inMul1, Vec4Arg inMul2, Vec4Arg inAdd);
 
-	/// Component wise select, returns inV1 when highest bit of inControl = 0 and inV2 when highest bit of inControl = 1
-	static JPH_INLINE Vec4		sSelect(Vec4Arg inV1, Vec4Arg inV2, UVec4Arg inControl);
+	/// Component wise select, returns inNotSet when highest bit of inControl = 0 and inSet when highest bit of inControl = 1
+	static JPH_INLINE Vec4		sSelect(Vec4Arg inNotSet, Vec4Arg inSet, UVec4Arg inControl);
 
 	/// Logical or (component wise)
 	static JPH_INLINE Vec4		sOr(Vec4Arg inV1, Vec4Arg inV2);
@@ -87,7 +95,7 @@ public:
 
 	/// Logical and (component wise)
 	static JPH_INLINE Vec4		sAnd(Vec4Arg inV1, Vec4Arg inV2);
-	
+
 	/// Sort the four elements of ioValue and sort ioIndex at the same time.
 	/// Based on a sorting network: http://en.wikipedia.org/wiki/Sorting_network
 	static JPH_INLINE void		sSort4(Vec4 &ioValue, UVec4 &ioIndex);
@@ -120,6 +128,9 @@ public:
 	JPH_INLINE void				SetZ(float inZ)									{ mF32[2] = inZ; }
 	JPH_INLINE void				SetW(float inW)									{ mF32[3] = inW; }
 
+	/// Set all components
+	JPH_INLINE void				Set(float inX, float inY, float inZ, float inW)	{ *this = Vec4(inX, inY, inZ, inW); }
+
 	/// Get float component by index
 	JPH_INLINE float			operator [] (uint inCoordinate) const			{ JPH_ASSERT(inCoordinate < 4); return mF32[inCoordinate]; }
 	JPH_INLINE float &			operator [] (uint inCoordinate)					{ JPH_ASSERT(inCoordinate < 4); return mF32[inCoordinate]; }
@@ -130,6 +141,9 @@ public:
 
 	/// Test if two vectors are close
 	JPH_INLINE bool				IsClose(Vec4Arg inV2, float inMaxDistSq = 1.0e-12f) const;
+
+	/// Test if vector is near zero
+	JPH_INLINE bool				IsNearZero(float inMaxDistSq = 1.0e-12f) const;
 
 	/// Test if vector is normalized
 	JPH_INLINE bool				IsNormalized(float inTolerance = 1.0e-6f) const;
@@ -170,7 +184,7 @@ public:
 	/// Subtract two float vectors (component wise)
 	JPH_INLINE Vec4				operator - (Vec4Arg inV2) const;
 
-	/// Add two float vectors (component wise)
+	/// Subtract two float vectors (component wise)
 	JPH_INLINE Vec4 &			operator -= (Vec4Arg inV2);
 
 	/// Divide (component wise)
@@ -192,15 +206,33 @@ public:
 	/// Replicate the W component to all components
 	JPH_INLINE Vec4				SplatW() const;
 
+	/// Replicate the X component to all components
+	JPH_INLINE Vec3				SplatX3() const;
+
+	/// Replicate the Y component to all components
+	JPH_INLINE Vec3				SplatY3() const;
+
+	/// Replicate the Z component to all components
+	JPH_INLINE Vec3				SplatZ3() const;
+
+	/// Replicate the W component to all components
+	JPH_INLINE Vec3				SplatW3() const;
+
+	/// Get index of component with lowest value
+	JPH_INLINE int				GetLowestComponentIndex() const;
+
+	/// Get index of component with highest value
+	JPH_INLINE int				GetHighestComponentIndex() const;
+
 	/// Return the absolute value of each of the components
 	JPH_INLINE Vec4				Abs() const;
 
 	/// Reciprocal vector (1 / value) for each of the components
 	JPH_INLINE Vec4				Reciprocal() const;
-	
-	/// Dot product, returns the dot product in X, Y and Z components
+
+	/// Dot product, returns the dot product in X, Y, Z and W components
 	JPH_INLINE Vec4				DotV(Vec4Arg inV2) const;
-	
+
 	/// Dot product
 	JPH_INLINE float			Dot(Vec4Arg inV2) const;
 
@@ -237,10 +269,14 @@ public:
 	/// Get vector that contains the sign of each element (returns 1.0f if positive, -1.0f if negative)
 	JPH_INLINE Vec4				GetSign() const;
 
-	/// Calcluate the sine and cosine for each element of this vector (input in radians)
+	/// Flips the signs of the components, e.g. FlipSign<-1, 1, -1, 1>() will flip the signs of the X and Z components
+	template <int X, int Y, int Z, int W>
+	JPH_INLINE Vec4				FlipSign() const;
+
+	/// Calculate the sine and cosine for each element of this vector (input in radians)
 	inline void					SinCos(Vec4 &outSin, Vec4 &outCos) const;
 
-	/// Calcluate the tangent for each element of this vector (input in radians)
+	/// Calculate the tangent for each element of this vector (input in radians)
 	inline Vec4					Tan() const;
 
 	/// Calculate the arc sine for each element of this vector (returns value in the range [-PI / 2, PI / 2])
@@ -257,6 +293,12 @@ public:
 	/// Calculate the arc tangent of y / x using the signs of the arguments to determine the correct quadrant (returns value in the range [-PI, PI])
 	inline static Vec4			sATan2(Vec4Arg inY, Vec4Arg inX);
 
+	/// Compress a unit vector to a 32 bit value, precision is around 0.5 * 10^-3
+	JPH_INLINE uint32			CompressUnitVector() const;
+
+	/// Decompress a unit vector from a 32 bit value
+	JPH_INLINE static Vec4		sDecompressUnitVector(uint32 inValue);
+
 	/// To String
 	friend ostream &			operator << (ostream &inStream, Vec4Arg inV)
 	{
@@ -271,7 +313,7 @@ public:
 	};
 };
 
-static_assert(is_trivial<Vec4>(), "Is supposed to be a trivial type!");
+static_assert(std::is_trivial<Vec4>(), "Is supposed to be a trivial type!");
 
 JPH_NAMESPACE_END
 

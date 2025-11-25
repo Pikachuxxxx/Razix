@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -28,7 +29,7 @@ using PhysicsLockContext = const BodyManager *;
 
 /// Helpers to safely lock the different mutexes that are part of the physics system while preventing deadlock
 /// Class that keeps track per thread which lock are taken and if the order of locking is correct
-class PhysicsLock
+class JPH_EXPORT PhysicsLock
 {
 public:
 #ifdef JPH_ENABLE_ASSERTS
@@ -36,16 +37,16 @@ public:
 	static inline void			sCheckLock(PhysicsLockContext inContext, EPhysicsLockTypes inType)
 	{
 		uint32 &mutexes = sGetLockedMutexes(inContext);
-		JPH_ASSERT((uint32)inType > mutexes, "A lock of same or higher priority was already taken, this can create a deadlock!");
-		mutexes = mutexes | (uint32)inType;
+		JPH_ASSERT(uint32(inType) > mutexes, "A lock of same or higher priority was already taken, this can create a deadlock!");
+		mutexes = mutexes | uint32(inType);
 	}
 
 	/// Call after releasing the lock
 	static inline void			sCheckUnlock(PhysicsLockContext inContext, EPhysicsLockTypes inType)
 	{
 		uint32 &mutexes = sGetLockedMutexes(inContext);
-		JPH_ASSERT((mutexes & (uint32)inType) != 0, "Mutex was not locked!");
-		mutexes = mutexes & ~(uint32)inType;
+		JPH_ASSERT((mutexes & uint32(inType)) != 0, "Mutex was not locked!");
+		mutexes = mutexes & ~uint32(inType);
 	}
 #endif // !JPH_ENABLE_ASSERTS
 
@@ -82,14 +83,14 @@ private:
 	struct LockData
 	{
 		uint32					mLockedMutexes = 0;
-		PhysicsLockContext 		mContext = nullptr;
+		PhysicsLockContext		mContext = nullptr;
 	};
-
-	static thread_local LockData sLocks[4];
 
 	// Helper function to find the locked mutexes for a particular context
 	static uint32 &				sGetLockedMutexes(PhysicsLockContext inContext)
 	{
+		static thread_local LockData sLocks[4];
+
 		// If we find a matching context we can use it
 		for (LockData &l : sLocks)
 			if (l.mContext == inContext)
@@ -123,7 +124,7 @@ public:
 	{
 		PhysicsLock::sLock(mLock JPH_IF_ENABLE_ASSERTS(, mContext, mType));
 	}
-								
+
 								~UniqueLock()
 	{
 		PhysicsLock::sUnlock(mLock JPH_IF_ENABLE_ASSERTS(, mContext, mType));
@@ -132,7 +133,7 @@ public:
 private:
 	LockType &					mLock;
 #ifdef JPH_ENABLE_ASSERTS
-	PhysicsLockContext 			mContext;
+	PhysicsLockContext			mContext;
 	EPhysicsLockTypes			mType;
 #endif // JPH_ENABLE_ASSERTS
 };
@@ -151,7 +152,7 @@ public:
 	{
 		PhysicsLock::sLockShared(mLock JPH_IF_ENABLE_ASSERTS(, mContext, mType));
 	}
-								
+
 								~SharedLock()
 	{
 		PhysicsLock::sUnlockShared(mLock JPH_IF_ENABLE_ASSERTS(, mContext, mType));
@@ -160,7 +161,7 @@ public:
 private:
 	LockType &					mLock;
 #ifdef JPH_ENABLE_ASSERTS
-	PhysicsLockContext 			mContext;
+	PhysicsLockContext			mContext;
 	EPhysicsLockTypes			mType;
 #endif // JPH_ENABLE_ASSERTS
 };

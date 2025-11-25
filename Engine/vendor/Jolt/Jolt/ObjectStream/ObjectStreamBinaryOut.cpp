@@ -1,7 +1,10 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 #include <Jolt/Jolt.h>
+
+#ifdef JPH_OBJECT_STREAM
 
 #include <Jolt/ObjectStream/ObjectStreamBinaryOut.h>
 #include <Jolt/Core/StringTools.h>
@@ -147,3 +150,6 @@ void ObjectStreamBinaryOut::WritePrimitiveData(const DMat44 &inPrimitive)
 }
 
 JPH_NAMESPACE_END
+
+#endif // JPH_OBJECT_STREAM
+

@@ -3,6 +3,10 @@
 -- https://github.com/microsoft/DirectXShaderCompiler/blob/main/docs/SPIR-V.rst
 
 -- Engine distributed DXC location
+-- DXIL shader signing
+-- https://www.wihlidal.com/blog/pipeline/2018-09-16-dxil-signing-post-compile/
+dxcLocation = ""
+VulkanSDK = ""
 filter "system:windows"
     -- For Windows: Always use engine DXC, but use VulkanSDK SPIRV-Cross
     dxcLocation = "%{wks.location}../Engine/Content/Shaders/Tools/dxc/bin/x64/"
@@ -13,11 +17,13 @@ filter "system:windows"
         -- Fallback to system PATH if VulkanSDK not available
         spirvCrossLocation = "spirv-cross"
     end
-filter "system:macosx"
-    VulkanSDK = os.getenv("VULKAN_SDK")
-    dxcLocation = "%{VulkanSDK}/bin/"
-    spirvCrossLocation = "spirv-cross"
 filter {}
+
+if os.host() == "macosx" or os.host() == "linux" then
+    VulkanSDK = os.getenv("VULKAN_SDK")
+    dxcLocation = VulkanSDK .. "/bin/"
+    spirvCrossLocation = "spirv-cross"
+end
 -- Note: All shaders are built using SM6
 
 -- TODO: Add as rules, every shader file type will have it's own rule
@@ -27,6 +33,8 @@ filter { "files:**.glsl or **.hlsl or **.pssl or **.cg or **.rzsf"}
     flags { "ExcludeFromBuild" }
 filter {}
 
+-- Signing shaders, DXIL.dll needs to be present in the same directoy as we are executing dxc.exe to sign shaders
+
 -- Build GLSL files based on their extension
 -------------------
 -- VERTEX SHADER
@@ -34,6 +42,7 @@ filter {}
 filter { "files:**.vert.hlsl" }
     removeflags "ExcludeFromBuild"
     buildmessage 'Compiling HLSL Vertex shader : %{file.name}'
+
     buildcommands
     {
         -- Compile CSO binary

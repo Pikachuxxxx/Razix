@@ -20,7 +20,7 @@ namespace Razix {
         template<class Archive>
         void load(Archive& archive)
         {
-            std::string uuid_string;
+            RZString uuid_string;
             archive(cereal::make_nvp("UUID", uuid_string));
             UUID = RZUUID(uuid_string);
         }

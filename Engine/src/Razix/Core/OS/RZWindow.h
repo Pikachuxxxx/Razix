@@ -4,6 +4,8 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Events/RZEvent.h"
 
+#include "Razix/Core/Containers/string.h"
+
 namespace Razix {
     /* A struct to set different window properties */
     // TODO: Store some properties in the Application class
@@ -21,7 +23,7 @@ namespace Razix {
 		 * @param borderless Should the window be borderless or not </param>
 		 * @param filepath	The path of the application </param>
 		 */
-        WindowProperties(const std::string& title = "Razix Engine", u32 width = 1280, u32 height = 720, bool fullscreen = false, bool vSync = true, bool borderless = false)
+        WindowProperties(const RZString& title = "Razix Engine", u32 width = 1280, u32 height = 720, bool fullscreen = false, bool vSync = true, bool borderless = false)
             : Width(width), Height(height), Title(title), Fullscreen(fullscreen), VSync(vSync), Borderless(borderless)
         {
         }
@@ -29,7 +31,7 @@ namespace Razix {
         /* Width and Height of the window */
         u32 Width, Height;
         /* The title of the window */
-        std::string Title;
+        RZString Title;
         /* Fullscreen status of the window */
         bool Fullscreen;
         /* A boolean to whether enable V-Sync or not */
@@ -53,7 +55,7 @@ namespace Razix {
 
         virtual void OnWindowUpdate() = 0;
 
-        virtual void ProcessInput(){};
+        virtual void ProcessInput() {};
 
         virtual void Destroy() = 0;
 

@@ -18,9 +18,8 @@ struct VertexInput
 struct VSOutput
 {
     float4 Position : SV_POSITION;
-    float4 Color : COLOR;
-    float2 Size : TEXCOORD0;
-    float2 UV : TEXCOORD1;
+    float4 Color : COLOR0;
+    float2 UV : TEXCOORD0;
 };
 
 static const float2 UVs[4] = {

@@ -65,11 +65,11 @@ namespace Razix {
             return RZEntity(entt::null, nullptr);
     }
 
-    std::vector<RZEntity> RZEntity::GetAllChildren()
+    RZDynamicArray<RZEntity> RZEntity::GetAllChildren()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-        std::vector<RZEntity> children;
-        auto                  hierarchyComponent = TryGetComponent<HierarchyComponent>();
+        RZDynamicArray<RZEntity> children;
+        auto                     hierarchyComponent = TryGetComponent<HierarchyComponent>();
         if (hierarchyComponent) {
             entt::entity child = hierarchyComponent->First;
             while (child != entt::null && m_Scene->getRegistry().valid(child)) {

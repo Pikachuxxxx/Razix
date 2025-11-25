@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -12,12 +13,12 @@ JPH_NAMESPACE_BEGIN
 class CollideShapeSettings;
 
 /// Collision detection helper that collides a sphere vs one or more triangles
-class CollideSphereVsTriangles
+class JPH_EXPORT CollideSphereVsTriangles
 {
 public:
 	/// Constructor
 	/// @param inShape1 The sphere to collide against triangles
-	/// @param inScale1 Local space scale for the sphere
+	/// @param inScale1 Local space scale for the sphere (scales relative to its center of mass)
 	/// @param inScale2 Local space scale for the triangles
 	/// @param inCenterOfMassTransform1 Transform that takes the center of mass of 1 into world space
 	/// @param inCenterOfMassTransform2 Transform that takes the center of mass of 2 into world space

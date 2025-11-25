@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -11,7 +12,7 @@ class UIElement;
 class UIAnimation
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL_BASE(UIAnimation)
+	JPH_DECLARE_RTTI_VIRTUAL_BASE(JPH_NO_EXPORT, UIAnimation)
 
 	/// Destructor
 	virtual			~UIAnimation() = default;

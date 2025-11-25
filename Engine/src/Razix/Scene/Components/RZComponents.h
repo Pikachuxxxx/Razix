@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Utilities/RZVendorOverrides.h"
+#include "Razix/Core/Utils/RZVendorOverrides.h"
 
 #include <cereal/archives/json.hpp>
 

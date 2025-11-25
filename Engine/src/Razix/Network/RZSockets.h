@@ -42,7 +42,7 @@ namespace Razix {
             SocketStatus CreateSocket(void* socket);
 
             // Binds the socket to an address and port, typically used by a server connection port
-            SocketStatus Bind(const std::string& address, uint16_t port);
+            SocketStatus Bind(const RZString& address, uint16_t port);
 
             // Starts listening for incoming connections
             SocketStatus Listen(int backlog = 5);

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -26,12 +27,12 @@ template <class T> class RefConst;
 /// some responsibility to the programmer. The most notable point is that you cannot
 /// have one object reference another and have the other reference the first one
 /// back, because this way the reference count of both objects will never become
-/// lower than 1, resulting in a memory leak. By carefully designing your classses
+/// lower than 1, resulting in a memory leak. By carefully designing your classes
 /// (and particularly identifying who owns who in the class hierarchy) you can avoid
 /// these problems.
 template <class T>
-class RefTarget		
-{	
+class RefTarget
+{
 public:
 	/// Constructor
 	inline					RefTarget() = default;
@@ -58,13 +59,19 @@ public:
 
 	inline void				Release() const
 	{
+	#ifndef JPH_TSAN_ENABLED
 		// Releasing a reference must use release semantics...
 		if (mRefCount.fetch_sub(1, memory_order_release) == 1)
 		{
-			// ... so that we can use aquire to ensure that we see any updates from other threads that released a ref before deleting the object
+			// ... so that we can use acquire to ensure that we see any updates from other threads that released a ref before deleting the object
 			atomic_thread_fence(memory_order_acquire);
 			delete static_cast<const T *>(this);
 		}
+	#else
+		// But under TSAN, we cannot use atomic_thread_fence, so we use an acq_rel operation unconditionally instead
+		if (mRefCount.fetch_sub(1, memory_order_acq_rel) == 1)
+			delete static_cast<const T *>(this);
+	#endif
 	}
 
 	/// INTERNAL HELPER FUNCTION USED BY SERIALIZATION
@@ -74,10 +81,10 @@ protected:
 	static constexpr uint32 cEmbedded = 0x0ebedded;							///< A large value that gets added to the refcount to mark the object as embedded
 
 	mutable atomic<uint32>	mRefCount = 0;									///< Current reference count
-};							
+};
 
 /// Pure virtual version of RefTarget
-class RefTargetVirtual
+class JPH_EXPORT RefTargetVirtual
 {
 public:
 	/// Virtual destructor
@@ -105,19 +112,17 @@ public:
 	inline					Ref(const Ref<T> &inRHS)						: mPtr(inRHS.mPtr) { AddRef(); }
 	inline					Ref(Ref<T> &&inRHS) noexcept					: mPtr(inRHS.mPtr) { inRHS.mPtr = nullptr; }
 	inline					~Ref()											{ Release(); }
-						
+
 	/// Assignment operators
-	inline Ref<T> &			operator = (T *inRHS) 							{ if (mPtr != inRHS) { Release(); mPtr = inRHS; AddRef(); } return *this; }
+	inline Ref<T> &			operator = (T *inRHS)							{ if (mPtr != inRHS) { Release(); mPtr = inRHS; AddRef(); } return *this; }
 	inline Ref<T> &			operator = (const Ref<T> &inRHS)				{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; AddRef(); } return *this; }
 	inline Ref<T> &			operator = (Ref<T> &&inRHS) noexcept			{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; inRHS.mPtr = nullptr; } return *this; }
-						
+
 	/// Casting operators
-	inline					operator T * const () const						{ return mPtr; }
-	inline					operator T *()									{ return mPtr; }
-						
+	inline					operator T *() const							{ return mPtr; }
+
 	/// Access like a normal pointer
-	inline T * const 		operator -> () const							{ return mPtr; }
-	inline T *				operator -> ()									{ return mPtr; }
+	inline T *				operator -> () const							{ return mPtr; }
 	inline T &				operator * () const								{ return *mPtr; }
 
 	/// Comparison
@@ -127,8 +132,13 @@ public:
 	inline bool				operator != (const Ref<T> &inRHS) const			{ return mPtr != inRHS.mPtr; }
 
 	/// Get pointer
-	inline T * 				GetPtr() const									{ return mPtr; }
-	inline T *				GetPtr()										{ return mPtr; }
+	inline T *				GetPtr() const									{ return mPtr; }
+
+	/// Get hash for this object
+	uint64					GetHash() const
+	{
+		return Hash<T *> { } (mPtr);
+	}
 
 	/// INTERNAL HELPER FUNCTION USED BY SERIALIZATION
 	void **					InternalGetPointer()							{ return reinterpret_cast<void **>(&mPtr); }
@@ -139,9 +149,9 @@ private:
 	/// Use "variable = nullptr;" to release an object, do not call these functions
 	inline void				AddRef()										{ if (mPtr != nullptr) mPtr->AddRef(); }
 	inline void				Release()										{ if (mPtr != nullptr) mPtr->Release(); }
-	
+
 	T *						mPtr;											///< Pointer to object that we are reference counting
-};						
+};
 
 /// Class for automatic referencing, this is the equivalent of a CONST pointer to type T
 /// if you assign a value to this class it will increment the reference count by one
@@ -160,19 +170,19 @@ public:
 	inline					RefConst(const Ref<T> &inRHS)					: mPtr(inRHS.mPtr) { AddRef(); }
 	inline					RefConst(Ref<T> &&inRHS) noexcept				: mPtr(inRHS.mPtr) { inRHS.mPtr = nullptr; }
 	inline					~RefConst()										{ Release(); }
-						
+
 	/// Assignment operators
-	inline RefConst<T> &	operator = (const T * inRHS) 					{ if (mPtr != inRHS) { Release(); mPtr = inRHS; AddRef(); } return *this; }
+	inline RefConst<T> &	operator = (const T * inRHS)					{ if (mPtr != inRHS) { Release(); mPtr = inRHS; AddRef(); } return *this; }
 	inline RefConst<T> &	operator = (const RefConst<T> &inRHS)			{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; AddRef(); } return *this; }
 	inline RefConst<T> &	operator = (RefConst<T> &&inRHS) noexcept		{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; inRHS.mPtr = nullptr; } return *this; }
 	inline RefConst<T> &	operator = (const Ref<T> &inRHS)				{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; AddRef(); } return *this; }
 	inline RefConst<T> &	operator = (Ref<T> &&inRHS) noexcept			{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; inRHS.mPtr = nullptr; } return *this; }
-						
+
 	/// Casting operators
 	inline					operator const T * () const						{ return mPtr; }
-						
+
 	/// Access like a normal pointer
-	inline const T * 	 	operator -> () const							{ return mPtr; }
+	inline const T *		operator -> () const							{ return mPtr; }
 	inline const T &		operator * () const								{ return *mPtr; }
 
 	/// Comparison
@@ -184,7 +194,13 @@ public:
 	inline bool				operator != (const Ref<T> &inRHS) const			{ return mPtr != inRHS.mPtr; }
 
 	/// Get pointer
-	inline const T * 		GetPtr() const									{ return mPtr; }
+	inline const T *		GetPtr() const									{ return mPtr; }
+
+	/// Get hash for this object
+	uint64					GetHash() const
+	{
+		return Hash<const T *> { } (mPtr);
+	}
 
 	/// INTERNAL HELPER FUNCTION USED BY SERIALIZATION
 	void **					InternalGetPointer()							{ return const_cast<void **>(reinterpret_cast<const void **>(&mPtr)); }
@@ -193,9 +209,9 @@ private:
 	/// Use "variable = nullptr;" to release an object, do not call these functions
 	inline void				AddRef()										{ if (mPtr != nullptr) mPtr->AddRef(); }
 	inline void				Release()										{ if (mPtr != nullptr) mPtr->Release(); }
-	
+
 	const T *				mPtr;											///< Pointer to object that we are reference counting
-};						
+};
 
 JPH_NAMESPACE_END
 
@@ -205,22 +221,22 @@ JPH_CLANG_SUPPRESS_WARNING("-Wc++98-compat")
 namespace std
 {
 	/// Declare std::hash for Ref
-	template <class T> 
+	template <class T>
 	struct hash<JPH::Ref<T>>
 	{
 		size_t operator () (const JPH::Ref<T> &inRHS) const
 		{
-			return hash<T *> { }(inRHS.GetPtr());
+			return size_t(inRHS.GetHash());
 		}
 	};
 
 	/// Declare std::hash for RefConst
-	template <class T> 
+	template <class T>
 	struct hash<JPH::RefConst<T>>
 	{
 		size_t operator () (const JPH::RefConst<T> &inRHS) const
 		{
-			return hash<const T *> { }(inRHS.GetPtr());
+			return size_t(inRHS.GetHash());
 		}
 	};
 }

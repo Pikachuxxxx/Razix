@@ -1,40 +1,43 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZLinearAllocator.h"
+#include "Razix/Core/Memory/Allocators/RZLinearAllocator.h"
 
-#include "Razix/Core/Memory/RZAllocationMetrics.h"
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
-
-#include <iostream>
 
 namespace Razix {
     namespace Memory {
 
-        void RZLinearAllocator::init(size_t size)
+        void RZLinearAllocator::init(size_t size, size_t alignment)
         {
-            m_Chunk         = (uint8_t*) RZMalloc(size);    // Allocate a huge chunk of 16-byte aligned memory
-            m_AllocatedSize = 0;
-            m_TotalSize     = size;
+            m_TotalSize = size;
+            m_Alignment = alignment;
+            m_Chunk     = (uint8_t*) rz_malloc(size, alignment);
         }
 
         void RZLinearAllocator::shutdown()
         {
             clear();
-            RZFree(m_Chunk);
+            rz_free(m_Chunk);
+            m_Chunk         = NULL;
+            m_AllocatedSize = 0;
+            m_TotalSize     = 0;
         }
 
-        void* RZLinearAllocator::allocate(size_t size, size_t alignment)
+        void* RZLinearAllocator::allocate(size_t size)
         {
-            const size_t new_start          = RZMemAlign(m_AllocatedSize, alignment);
-            const size_t new_allocated_size = new_start + size;
-            if (new_allocated_size > m_TotalSize) {
-                std::cout << "[Linear Allocator] Overflow!" << std::endl;
+            if (m_AllocatedSize + size > m_TotalSize)
                 return nullptr;
-            }
 
-            m_AllocatedSize = new_allocated_size;
-            return m_Chunk + new_start;
+            m_AllocatedSize += size;
+            void* address = m_Chunk + m_AllocatedSize;
+            return address;
         }
+
+        size_t RZLinearAllocator::getRemainingSize() const
+        {
+            return (m_AllocatedSize >= m_TotalSize) ? 0 : (m_TotalSize - m_AllocatedSize);
+        }
+
     }    // namespace Memory
 }    // namespace Razix

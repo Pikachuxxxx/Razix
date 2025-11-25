@@ -1,10 +1,11 @@
 #pragma once
 
+#include "Razix/Core/Utils/TRZSingleton.h"
+
 #ifdef RAZIX_PLATFORM_WINDOWS
     #include <Windows.h>
 
     #include "Razix/Core/RZCore.h"
-    #include "Razix/Utilities/TRZSingleton.h"
 
 namespace Razix {
     #define UPDATE_VERSION_LABEL (WM_APP + 20)    // We choose some arbitrary ID to register our custom event such so as to update the splash labels
@@ -42,22 +43,22 @@ namespace Razix {
         void ShutDown();
 
         /* Set version string for the splash screen */
-        void setVersionString(const std::string& text);
+        void setVersionString(const RZString& text);
         /* Set the log string for the splash screen */
-        void setLogString(const std::string& text);
+        void setLogString(const RZString& text);
 
         /* Process the windows messages */
         static i32 ProcessMessages();
 
     private:
-        HWND        hWnd;
-        std::string m_VersionString;
-        std::string m_LogString;
-        std::string m_ImagePath;
-        HBITMAP     m_SplashImage;
-        HWND        m_SplashImageView;
-        HWND        m_VersionLabel;
-        HWND        m_LogLabel;
+        HWND     hWnd;
+        RZString m_VersionString;
+        RZString m_LogString;
+        RZString m_ImagePath;
+        HBITMAP  m_SplashImage;
+        HWND     m_SplashImageView;
+        HWND     m_VersionLabel;
+        HWND     m_LogLabel;
 
     private:
         static LRESULT CALLBACK HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
@@ -79,9 +80,9 @@ namespace Razix {
         void ShutDown() {}
 
         /* Set version string for the splash screen */
-        void setVersionString(const std::string& text) {}
+        void setVersionString(const RZString& text) {}
         /* Set the log string for the splash screen */
-        void setLogString(const std::string& text) {}
+        void setLogString(const RZString& text) {}
     };
 }    // namespace Razix
 #endif

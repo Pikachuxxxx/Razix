@@ -38,11 +38,11 @@ namespace Razix {
             void createTestFile(const std::string& virtualPath, const std::string& content)
             {
                 // Create a physical file in the corresponding mounted directory
-                std::string physicalPath;
-                RZVirtualFileSystem::Get().resolvePhysicalPath(virtualPath, physicalPath);
-                fs::create_directories(fs::path(physicalPath).parent_path());
+                RZString physicalPath;
+                RZVirtualFileSystem::Get().resolvePhysicalPath(virtualPath.c_str(), physicalPath);
+                fs::create_directories(fs::path(physicalPath.c_str()).parent_path());
 
-                std::ofstream outFile(physicalPath);
+                std::ofstream outFile(physicalPath.c_str());
                 outFile << content;
                 outFile.close();
             }
@@ -50,8 +50,8 @@ namespace Razix {
             // Helper function to check if file exists at physical path
             bool checkFileExists(const std::string& virtualPath)
             {
-                std::string physicalPath;
-                return RZVirtualFileSystem::Get().resolvePhysicalPath(virtualPath, physicalPath);
+                RZString physicalPath;
+                return RZVirtualFileSystem::Get().resolvePhysicalPath(virtualPath.c_str(), physicalPath);
             }
         };
 
@@ -77,13 +77,13 @@ namespace Razix {
             std::string newPhysicalPath = RAZIX_ENGINE_ROOT_DIR + std::string("/Engine/content/");
 
             // Mount a new path
-            RZVirtualFileSystem::Get().mount(newVirtualPath, newPhysicalPath);
+            RZVirtualFileSystem::Get().mount(newVirtualPath.c_str(), newPhysicalPath.c_str());
 
             // Check if the new path resolves correctly
-            std::string resolvedPath;
+            RZString resolvedPath;
             bool        result = RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixNewContent", resolvedPath, true);
             EXPECT_TRUE(result);
-            EXPECT_EQ(resolvedPath, newPhysicalPath);
+            EXPECT_EQ(resolvedPath.c_str(), newPhysicalPath);
         }
 
         //// Test case to ensure file write works properly for virtual paths

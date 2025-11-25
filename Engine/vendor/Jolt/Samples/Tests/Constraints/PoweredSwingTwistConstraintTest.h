@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -9,7 +10,7 @@
 class PoweredSwingTwistConstraintTest : public Test
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL(PoweredSwingTwistConstraintTest)
+	JPH_DECLARE_RTTI_VIRTUAL(JPH_NO_EXPORT, PoweredSwingTwistConstraintTest)
 
 	virtual void				Initialize() override;
 	virtual void				PrePhysicsUpdate(const PreUpdateParams &inParams) override;

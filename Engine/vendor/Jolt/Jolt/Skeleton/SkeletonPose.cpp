@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -46,7 +47,7 @@ void SkeletonPose::CalculateJointStates()
 
 		JointState &joint = mJoints[i];
 		joint.mTranslation = local_transform.GetTranslation();
-		joint.mRotation = local_transform.GetRotation().GetQuaternion();
+		joint.mRotation = local_transform.GetQuaternion();
 	}
 }
 

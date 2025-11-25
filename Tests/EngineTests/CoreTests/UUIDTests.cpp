@@ -16,10 +16,10 @@ namespace Razix {
     {
     protected:
         // Helper to check valid UUID string format [8-4-4-4-12]
-        bool isValidUUID(const std::string& uuid)
+        bool isValidUUID(const RZString& uuid)
         {
             const std::regex uuidRegex("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[4][a-fA-F0-9]{3}-[89aAbB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$");
-            return std::regex_match(uuid, uuidRegex);
+            return std::regex_match(uuid.c_str(), uuidRegex);
         }
     };
 
@@ -27,8 +27,8 @@ namespace Razix {
     TEST_F(RZUUIDTests, DefaultConstructor)
     {
         Razix::RZUUID uuid;
-        std::string   prettyStr = uuid.prettyString();
-        EXPECT_TRUE(isValidUUID(prettyStr)) << "Generated UUID does not match the expected format: " << prettyStr;
+        RZString      prettyStr = uuid.prettyString();
+        EXPECT_TRUE(isValidUUID(prettyStr)) << "Generated UUID does not match the expected format: " << prettyStr.c_str();
     }
 
     // Test case for copy constructor
@@ -44,17 +44,17 @@ namespace Razix {
     TEST_F(RZUUIDTests, FromPrettyStrFactory)
     {
         Razix::RZUUID uuid1;
-        std::string   prettyStr = uuid1.prettyString();
+        RZString      prettyStr = uuid1.prettyString();
         Razix::RZUUID uuid2     = Razix::RZUUID::FromPrettyStrFactory(prettyStr);
         EXPECT_EQ(uuid1, uuid2) << "FromPrettyStrFactory failed to recreate the UUID from its pretty string representation.";
     }
 
     TEST_F(RZUUIDTests, DeserializeSerializePrettyStringRoundTrip)
     {
-        std::string originalPretty    = "09471372-a82c-430c-b79a-be29e88e3577";
+        RZString originalPretty = "09471372-a82c-430c-b79a-be29e88e3577";
 
-        RZUUID      uuid              = RZUUID::FromPrettyStrFactory(originalPretty);
-        std::string regeneratedPretty = uuid.prettyString();
+        RZUUID   uuid              = RZUUID::FromPrettyStrFactory(originalPretty);
+        RZString regeneratedPretty = uuid.prettyString();
         EXPECT_EQ(regeneratedPretty, originalPretty) << "Deserializes and Serialization pretty string round trip is not accurate";
     }
 
@@ -79,8 +79,8 @@ namespace Razix {
     // Test case for uniqueness of UUIDs
     TEST_F(RZUUIDTests, Uniqueness)
     {
-        constexpr int         numUUIDs = 1000;
-        std::set<std::string> uuidSet;
+        constexpr int      numUUIDs = 1000;
+        std::set<RZString> uuidSet;
 
         for (int i = 0; i < numUUIDs; ++i) {
             Razix::RZUUID uuid;

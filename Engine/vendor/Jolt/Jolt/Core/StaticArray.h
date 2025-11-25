@@ -1,7 +1,10 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 #pragma once
+
+#include <Jolt/Core/HashCombine.h>
 
 JPH_NAMESPACE_BEGIN
 
@@ -14,6 +17,8 @@ public:
 
 	using size_type = uint;
 
+	static constexpr uint Capacity = N;
+
 	/// Default constructor
 						StaticArray() = default;
 
@@ -21,8 +26,8 @@ public:
 	explicit			StaticArray(std::initializer_list<T> inList)
 	{
 		JPH_ASSERT(inList.size() <= N);
-		for (typename std::initializer_list<T>::iterator i = inList.begin(); i != inList.end(); ++i)
-			::new (reinterpret_cast<T *>(&mElements[mSize++])) T(*i);
+		for (const T &v : inList)
+			new (reinterpret_cast<T *>(&mElements[mSize++])) T(v);
 	}
 
 	/// Copy constructor
@@ -30,7 +35,7 @@ public:
 	{
 		while (mSize < inRHS.mSize)
 		{
-			::new (&mElements[mSize]) T(inRHS[mSize]);
+			new (&mElements[mSize]) T(inRHS[mSize]);
 			++mSize;
 		}
 	}
@@ -38,7 +43,7 @@ public:
 	/// Destruct all elements
 						~StaticArray()
 	{
-		if constexpr (!is_trivially_destructible<T>())
+		if constexpr (!std::is_trivially_destructible<T>())
 			for (T *e = reinterpret_cast<T *>(mElements), *end = e + mSize; e < end; ++e)
 				e->~T();
 	}
@@ -46,7 +51,7 @@ public:
 	/// Destruct all elements and set length to zero
 	void				clear()
 	{
-		if constexpr (!is_trivially_destructible<T>())
+		if constexpr (!std::is_trivially_destructible<T>())
 			for (T *e = reinterpret_cast<T *>(mElements), *end = e + mSize; e < end; ++e)
 				e->~T();
 		mSize = 0;
@@ -56,15 +61,15 @@ public:
 	void				push_back(const T &inElement)
 	{
 		JPH_ASSERT(mSize < N);
-		::new (&mElements[mSize++]) T(inElement);
+		new (&mElements[mSize++]) T(inElement);
 	}
 
 	/// Construct element at the back of the array
 	template <class... A>
 	void				emplace_back(A &&... inElement)
-	{	
+	{
 		JPH_ASSERT(mSize < N);
-		::new (&mElements[mSize++]) T(std::forward<A>(inElement)...);
+		new (&mElements[mSize++]) T(std::forward<A>(inElement)...);
 	}
 
 	/// Remove element from the back of the array
@@ -96,10 +101,10 @@ public:
 	void				resize(size_type inNewSize)
 	{
 		JPH_ASSERT(inNewSize <= N);
-		if constexpr (!is_trivially_constructible<T>())
+		if constexpr (!std::is_trivially_constructible<T>())
 			for (T *element = reinterpret_cast<T *>(mElements) + mSize, *element_end = reinterpret_cast<T *>(mElements) + inNewSize; element < element_end; ++element)
-				::new (element) T;
-		if constexpr (!is_trivially_destructible<T>())
+				new (element) T;
+		if constexpr (!std::is_trivially_destructible<T>())
 			for (T *element = reinterpret_cast<T *>(mElements) + inNewSize, *element_end = reinterpret_cast<T *>(mElements) + mSize; element < element_end; ++element)
 				element->~T();
 		mSize = inNewSize;
@@ -148,6 +153,19 @@ public:
 	}
 
 	const T &			operator [] (size_type inIdx) const
+	{
+		JPH_ASSERT(inIdx < mSize);
+		return reinterpret_cast<const T &>(mElements[inIdx]);
+	}
+
+	/// Access element
+	T &					at(size_type inIdx)
+	{
+		JPH_ASSERT(inIdx < mSize);
+		return reinterpret_cast<T &>(mElements[inIdx]);
+	}
+
+	const T &			at(size_type inIdx) const
 	{
 		JPH_ASSERT(inIdx < mSize);
 		return reinterpret_cast<const T &>(mElements[inIdx]);
@@ -208,13 +226,13 @@ public:
 	{
 		size_type rhs_size = inRHS.size();
 
-		if ((void *)this != (void *)&inRHS)
+		if (static_cast<const void *>(this) != static_cast<const void *>(&inRHS))
 		{
 			clear();
 
 			while (mSize < rhs_size)
 			{
-				::new (&mElements[mSize]) T(inRHS[mSize]);
+				new (&mElements[mSize]) T(inRHS[mSize]);
 				++mSize;
 			}
 		}
@@ -229,20 +247,20 @@ public:
 		size_type rhs_size = inRHS.size();
 		JPH_ASSERT(rhs_size <= N);
 
-		if ((void *)this != (void *)&inRHS)
+		if (static_cast<const void *>(this) != static_cast<const void *>(&inRHS))
 		{
 			clear();
 
 			while (mSize < rhs_size)
 			{
-				::new (&mElements[mSize]) T(inRHS[mSize]);
+				new (&mElements[mSize]) T(inRHS[mSize]);
 				++mSize;
 			}
 		}
 
 		return *this;
 	}
-	
+
 	/// Comparing arrays
 	bool				operator == (const StaticArray<T, N> &inRHS) const
 	{
@@ -263,7 +281,20 @@ public:
 				return true;
 		return false;
 	}
-	
+
+	/// Get hash for this array
+	uint64					GetHash() const
+	{
+		// Hash length first
+		uint64 ret = Hash<uint32> { } (uint32(size()));
+
+		// Then hash elements
+		for (const T *element = reinterpret_cast<const T *>(mElements), *element_end = reinterpret_cast<const T *>(mElements) + mSize; element < element_end; ++element)
+			HashCombine(ret, *element);
+
+		return ret;
+	}
+
 protected:
 	struct alignas(T) Storage
 	{
@@ -290,16 +321,7 @@ namespace std
 	{
 		size_t operator () (const JPH::StaticArray<T, N> &inRHS) const
 		{
-			std::size_t ret = 0;
-
-			// Hash length first
-            JPH::HashCombine(ret, inRHS.size());
-
-			// Then hash elements
-			for (const T &t : inRHS)
-	            JPH::HashCombine(ret, t);
-
-            return ret;
+			return std::size_t(inRHS.GetHash());
 		}
 	};
 }

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -13,17 +14,16 @@
 #include <Jolt/Core/StreamWrapper.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(MutableCompoundShapeTest) 
-{ 
-	JPH_ADD_BASE_CLASS(MutableCompoundShapeTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(MutableCompoundShapeTest)
+{
+	JPH_ADD_BASE_CLASS(MutableCompoundShapeTest, Test)
 }
 
-void MutableCompoundShapeTest::Initialize() 
+void MutableCompoundShapeTest::Initialize()
 {
 	// Floor (extra thick because we can randomly add sub shapes that then may stick out underneath the floor and cause objects to be pushed through)
-	Body &floor = *mBodyInterface->CreateBody(BodyCreationSettings(new BoxShape(Vec3(100.0f, 10.0f, 100.0f), 0.0f), RVec3(0.0f, -10.0f, 0.0f), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING));
-	mBodyInterface->AddBody(floor.GetID(), EActivation::DontActivate);
-		
+	mBodyInterface->CreateAndAddBody(BodyCreationSettings(new BoxShape(Vec3(100.0f, 10.0f, 100.0f), 0.0f), RVec3(0.0f, -10.0f, 0.0f), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING), EActivation::DontActivate);
+
 	// Compound with sub compound and rotation
 	StaticCompoundShapeSettings sub_compound_settings;
 	sub_compound_settings.AddShape(Vec3(0, 1.5f, 0), Quat::sRotation(Vec3::sAxisZ(), 0.5f * JPH_PI), new BoxShape(Vec3(1.5f, 0.25f, 0.2f)));
@@ -39,9 +39,8 @@ void MutableCompoundShapeTest::Initialize()
 		compound_shape->AddShape(Vec3::sZero(), Quat::sRotation(Vec3::sAxisX(), 0.25f * JPH_PI) * Quat::sRotation(Vec3::sAxisZ(), -0.75f * JPH_PI), mSubCompound);
 
 		// Create a body
-		Body &body = *mBodyInterface->CreateBody(BodyCreationSettings(compound_shape, RVec3(0, 10.0f + 5.0f * i, 0), Quat::sIdentity(), EMotionType::Dynamic, Layers::MOVING));
-		mBodyInterface->AddBody(body.GetID(), EActivation::Activate);
-		mBodyIDs.push_back(body.GetID());
+		BodyID body_id = mBodyInterface->CreateAndAddBody(BodyCreationSettings(compound_shape, RVec3(0, 10.0f + 5.0f * i, 0), Quat::sIdentity(), EMotionType::Dynamic, Layers::MOVING), EActivation::Activate);
+		mBodyIDs.push_back(body_id);
 	}
 }
 
@@ -65,7 +64,7 @@ void MutableCompoundShapeTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
 			Vec3 old_com = shape->GetCenterOfMass();
 
 			// Consistently seeded random engine so that bodies move in a predictable way
-			default_random_engine consistent_random; 
+			default_random_engine consistent_random;
 
 			// Simulate an engine data structure with strided positions/rotations
 			struct PositionRotation
@@ -87,7 +86,8 @@ void MutableCompoundShapeTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
 			shape->ModifyShapes(0, count, &pos_rot.front().mPosition, &pos_rot.front().mRotation, sizeof(PositionRotation), sizeof(PositionRotation));
 
 			// Initialize frame dependent random number generator
-			default_random_engine frame_random(mFrameNumber++);
+			// Note: Explicitly using the Mersenne Twister random generator as on some platforms you get the seed back as the first random number
+			mt19937 frame_random(mFrameNumber++);
 
 			// Roll the dice
 			float roll = roll_distribution(frame_random);
@@ -159,7 +159,7 @@ void MutableCompoundShapeTest::RestoreState(StateRecorder &inStream)
 			stringstream data(str);
 			StreamInWrapper stream_in(data);
 			Shape::ShapeResult result = Shape::sRestoreFromBinaryState(stream_in);
-			MutableCompoundShape *shape = static_cast<MutableCompoundShape *>(result.Get().GetPtr());
+			MutableCompoundShape *shape = StaticCast<MutableCompoundShape>(result.Get());
 
 			// Restore the pointers to the sub compound
 			ShapeList sub_shapes(shape->GetNumSubShapes(), mSubCompound);

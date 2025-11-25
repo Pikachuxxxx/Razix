@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -10,6 +11,7 @@
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Constraints/HingeConstraint.h>
 #include <Jolt/Core/StringTools.h>
@@ -17,11 +19,12 @@
 #include <Application/DebugUI.h>
 #include <Layers.h>
 #include <Utils/Log.h>
+#include <Utils/AssetStream.h>
 #include <Renderer/DebugRendererImp.h>
 
-JPH_IMPLEMENT_RTTI_ABSTRACT(CharacterBaseTest) 
-{ 
-	JPH_ADD_BASE_CLASS(CharacterBaseTest, Test) 
+JPH_IMPLEMENT_RTTI_ABSTRACT(CharacterBaseTest)
+{
+	JPH_ADD_BASE_CLASS(CharacterBaseTest, Test)
 }
 
 const char *CharacterBaseTest::sScenes[] =
@@ -29,8 +32,11 @@ const char *CharacterBaseTest::sScenes[] =
 	"PerlinMesh",
 	"PerlinHeightField",
 	"ObstacleCourse",
+	"InitiallyIntersecting",
+#ifdef JPH_OBJECT_STREAM
 	"Terrain1",
 	"Terrain2",
+#endif // JPH_OBJECT_STREAM
 };
 
 const char *CharacterBaseTest::sSceneName = "ObstacleCourse";
@@ -38,8 +44,14 @@ const char *CharacterBaseTest::sSceneName = "ObstacleCourse";
 // Scene constants
 static const RVec3 cRotatingPosition(-5, 0.15f, 15);
 static const Quat cRotatingOrientation = Quat::sIdentity();
-static const RVec3 cVerticallyMovingPosition(0, 2.0f, 15);
-static const Quat cVerticallyMovingOrientation = Quat::sIdentity();
+static const RVec3 cRotatingWallPosition(5, 1.0f, 25.0f);
+static const Quat cRotatingWallOrientation = Quat::sIdentity();
+static const RVec3 cRotatingAndTranslatingPosition(-10, 0.15f, 27.5f);
+static const Quat cRotatingAndTranslatingOrientation = Quat::sIdentity();
+static const RVec3 cSmoothVerticallyMovingPosition(0, 2.0f, 15);
+static const Quat cSmoothVerticallyMovingOrientation = Quat::sIdentity();
+static const RVec3 cReversingVerticallyMovingPosition(0, 0.15f, 25);
+static const Quat cReversingVerticallyMovingOrientation = Quat::sIdentity();
 static const RVec3 cHorizontallyMovingPosition(5, 1, 15);
 static const Quat cHorizontallyMovingOrientation = Quat::sRotation(Vec3::sAxisZ(), 0.5f * JPH_PI);
 static const RVec3 cConveyorBeltPosition(-10, 0.15f, 15);
@@ -71,9 +83,69 @@ static const float cMeshWallStepEnd = 4.0f;
 static const int cMeshWallSegments = 25;
 static const RVec3 cHalfCylinderPosition(5.0f, 0, 8.0f);
 static const RVec3 cMeshBoxPosition(30.0f, 1.5f, 5.0f);
+static const RVec3 cSensorPosition(30, 0.9f, -5);
+static const RVec3 cCharacterPosition(-3.5f, 0, 3.0f);
+static const RVec3 cCharacterVirtualPosition(-5.0f, 0, 3.0f);
+static const RVec3 cCharacterVirtualWithInnerBodyPosition(-6.5f, 0, 3.0f);
+static const Vec3 cCharacterVelocity(0, 0, 2);
+
+CharacterBaseTest::~CharacterBaseTest()
+{
+	if (mAnimatedCharacter != nullptr)
+		mAnimatedCharacter->RemoveFromPhysicsSystem();
+}
 
 void CharacterBaseTest::Initialize()
 {
+	// Create capsule shapes for all stances
+	switch (sShapeType)
+	{
+	case EType::Capsule:
+		mStandingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0), Quat::sIdentity(), new CapsuleShape(0.5f * cCharacterHeightStanding, cCharacterRadiusStanding)).Create().Get();
+		mCrouchingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, 0), Quat::sIdentity(), new CapsuleShape(0.5f * cCharacterHeightCrouching, cCharacterRadiusCrouching)).Create().Get();
+		mInnerStandingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0), Quat::sIdentity(), new CapsuleShape(0.5f * cInnerShapeFraction * cCharacterHeightStanding, cInnerShapeFraction * cCharacterRadiusStanding)).Create().Get();
+		mInnerCrouchingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, 0), Quat::sIdentity(), new CapsuleShape(0.5f * cInnerShapeFraction * cCharacterHeightCrouching, cInnerShapeFraction * cCharacterRadiusCrouching)).Create().Get();
+		break;
+
+	case EType::Cylinder:
+		mStandingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0), Quat::sIdentity(), new CylinderShape(0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, cCharacterRadiusStanding)).Create().Get();
+		mCrouchingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, 0), Quat::sIdentity(), new CylinderShape(0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, cCharacterRadiusCrouching)).Create().Get();
+		mInnerStandingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0), Quat::sIdentity(), new CylinderShape(cInnerShapeFraction * (0.5f * cCharacterHeightStanding + cCharacterRadiusStanding), cInnerShapeFraction * cCharacterRadiusStanding)).Create().Get();
+		mInnerCrouchingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, 0), Quat::sIdentity(), new CylinderShape(cInnerShapeFraction * (0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching), cInnerShapeFraction * cCharacterRadiusCrouching)).Create().Get();
+		break;
+
+	case EType::Box:
+		mStandingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0), Quat::sIdentity(), new BoxShape(Vec3(cCharacterRadiusStanding, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, cCharacterRadiusStanding))).Create().Get();
+		mCrouchingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, 0), Quat::sIdentity(), new BoxShape(Vec3(cCharacterRadiusCrouching, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, cCharacterRadiusCrouching))).Create().Get();
+		mInnerStandingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0), Quat::sIdentity(), new BoxShape(cInnerShapeFraction * Vec3(cCharacterRadiusStanding, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, cCharacterRadiusStanding))).Create().Get();
+		mInnerCrouchingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, 0), Quat::sIdentity(), new BoxShape(cInnerShapeFraction * Vec3(cCharacterRadiusCrouching, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, cCharacterRadiusCrouching))).Create().Get();
+		break;
+
+	case EType::Compound:
+		{
+			StaticCompoundShapeSettings standing_compound;
+			standing_compound.AddShape(Vec3(-0.3f, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0), Quat::sIdentity(), new CapsuleShape(0.5f * cCharacterHeightStanding, cCharacterRadiusStanding));
+			standing_compound.AddShape(Vec3(0.3f, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0), Quat::sIdentity(), new BoxShape(Vec3(cCharacterRadiusStanding, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, cCharacterRadiusStanding)));
+			mStandingShape = standing_compound.Create().Get();
+
+			StaticCompoundShapeSettings crouching_compound;
+			crouching_compound.AddShape(Vec3(-0.3f, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, 0), Quat::sIdentity(), new CapsuleShape(0.5f * cCharacterHeightCrouching, cCharacterRadiusCrouching));
+			crouching_compound.AddShape(Vec3(0.3f, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, 0), Quat::sIdentity(), new BoxShape(Vec3(cCharacterRadiusCrouching, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, cCharacterRadiusCrouching)));
+			mCrouchingShape = crouching_compound.Create().Get();
+
+			StaticCompoundShapeSettings inner_standing_compound;
+			inner_standing_compound.AddShape(Vec3(-0.3f, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0), Quat::sIdentity(), new CapsuleShape(0.5f * cInnerShapeFraction * cCharacterHeightStanding, cInnerShapeFraction * cCharacterRadiusStanding));
+			inner_standing_compound.AddShape(Vec3(0.3f, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0), Quat::sIdentity(), new BoxShape(cInnerShapeFraction * Vec3(cCharacterRadiusStanding, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, cCharacterRadiusStanding)));
+			mInnerStandingShape = inner_standing_compound.Create().Get();
+
+			StaticCompoundShapeSettings inner_crouching_compound;
+			inner_crouching_compound.AddShape(Vec3(-0.3f, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, 0), Quat::sIdentity(), new CapsuleShape(0.5f * cInnerShapeFraction * cCharacterHeightCrouching, cInnerShapeFraction * cCharacterRadiusCrouching));
+			inner_crouching_compound.AddShape(Vec3(0.3f, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, 0), Quat::sIdentity(), new BoxShape(cInnerShapeFraction * Vec3(cCharacterRadiusCrouching, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, cCharacterRadiusCrouching)));
+			mInnerCrouchingShape = inner_crouching_compound.Create().Get();
+		}
+		break;
+	}
+
 	if (strcmp(sSceneName, "PerlinMesh") == 0)
 	{
 		// Default terrain
@@ -83,6 +155,21 @@ void CharacterBaseTest::Initialize()
 	{
 		// Default terrain
 		CreateHeightFieldTerrain();
+	}
+	else if (strcmp(sSceneName, "InitiallyIntersecting") == 0)
+	{
+		CreateFloor();
+
+		// Create a grid of boxes that are initially intersecting with the character
+		RefConst<Shape> box = new BoxShape(Vec3(0.1f, 0.1f, 0.1f));
+		BodyCreationSettings settings(box, RVec3(0, 0.5f, 0), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING);
+		for (int x = 0; x < 4; ++x)
+			for (int y = 0; y <= 10; ++y)
+				for (int z = 0; z <= 10; ++z)
+				{
+					settings.mPosition = RVec3(-0.5f + 0.1f * x, 0.1f + 0.1f * y, -0.5f + 0.1f * z);
+					mBodyInterface->CreateAndAddBody(settings, EActivation::DontActivate);
+				}
 	}
 	else if (strcmp(sSceneName, "ObstacleCourse") == 0)
 	{
@@ -97,9 +184,20 @@ void CharacterBaseTest::Initialize()
 		}
 
 		{
+			// Create ramps with different inclinations intersecting with a steep slope
+			Ref<Shape> ramp = RotatedTranslatedShapeSettings(Vec3(0, 0, -2.5f), Quat::sIdentity(), new BoxShape(Vec3(1.0f, 0.05f, 2.5f))).Create().Get();
+			Ref<Shape> ramp2 = RotatedTranslatedShapeSettings(Vec3(0, 2.0f, 0), Quat::sIdentity(), new BoxShape(Vec3(0.05f, 2.0f, 1.0f))).Create().Get();
+			for (int angle = 0; angle < 9; ++angle)
+			{
+				mBodyInterface->CreateAndAddBody(BodyCreationSettings(ramp, RVec3(-15.0f + angle * 2.0f, 0, -20.0f - angle * 0.1f), Quat::sRotation(Vec3::sAxisX(), DegreesToRadians(10.0f * angle)), EMotionType::Static, Layers::NON_MOVING), EActivation::DontActivate);
+				mBodyInterface->CreateAndAddBody(BodyCreationSettings(ramp2, RVec3(-15.0f + angle * 2.0f, 0, -21.0f), Quat::sRotation(Vec3::sAxisZ(), DegreesToRadians(20.0f)), EMotionType::Static, Layers::NON_MOVING), EActivation::DontActivate);
+			}
+		}
+
+		{
 			// Create wall consisting of vertical pillars
 			// Note: Convex radius 0 because otherwise it will be a bumpy wall
-			Ref<Shape> wall = new BoxShape(Vec3(0.1f, 2.5f, 0.1f), 0.0f); 
+			Ref<Shape> wall = new BoxShape(Vec3(0.1f, 2.5f, 0.1f), 0.0f);
 			for (int z = 0; z < 30; ++z)
 				mBodyInterface->CreateAndAddBody(BodyCreationSettings(wall, RVec3(0.0f, 2.5f, 2.0f + 0.2f * z), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING), EActivation::DontActivate);
 		}
@@ -108,7 +206,10 @@ void CharacterBaseTest::Initialize()
 			// Kinematic blocks to test interacting with moving objects
 			Ref<Shape> kinematic = new BoxShape(Vec3(1, 0.15f, 3.0f));
 			mRotatingBody = mBodyInterface->CreateAndAddBody(BodyCreationSettings(kinematic, cRotatingPosition, cRotatingOrientation, EMotionType::Kinematic, Layers::MOVING), EActivation::Activate);
-			mVerticallyMovingBody = mBodyInterface->CreateAndAddBody(BodyCreationSettings(kinematic, cVerticallyMovingPosition, cVerticallyMovingOrientation, EMotionType::Kinematic, Layers::MOVING), EActivation::Activate);
+			mRotatingWallBody = mBodyInterface->CreateAndAddBody(BodyCreationSettings(new BoxShape(Vec3(3.0f, 1, 0.15f)), cRotatingWallPosition, cRotatingWallOrientation, EMotionType::Kinematic, Layers::MOVING), EActivation::Activate);
+			mRotatingAndTranslatingBody = mBodyInterface->CreateAndAddBody(BodyCreationSettings(kinematic, cRotatingAndTranslatingPosition, cRotatingAndTranslatingOrientation, EMotionType::Kinematic, Layers::MOVING), EActivation::Activate);
+			mSmoothVerticallyMovingBody = mBodyInterface->CreateAndAddBody(BodyCreationSettings(kinematic, cSmoothVerticallyMovingPosition, cSmoothVerticallyMovingOrientation, EMotionType::Kinematic, Layers::MOVING), EActivation::Activate);
+			mReversingVerticallyMovingBody = mBodyInterface->CreateAndAddBody(BodyCreationSettings(kinematic, cReversingVerticallyMovingPosition, cReversingVerticallyMovingOrientation, EMotionType::Kinematic, Layers::MOVING), EActivation::Activate);
 			mHorizontallyMovingBody = mBodyInterface->CreateAndAddBody(BodyCreationSettings(kinematic, cHorizontallyMovingPosition, cHorizontallyMovingOrientation, EMotionType::Kinematic, Layers::MOVING), EActivation::Activate);
 		}
 
@@ -294,8 +395,6 @@ void CharacterBaseTest::Initialize()
 
 				triangles.push_back(Triangle(s2, b2, rs2));
 				triangles.push_back(Triangle(rs2, b2, rb2));
-
-				p1 = p2;
 			}
 
 			MeshShapeSettings mesh(triangles);
@@ -341,7 +440,6 @@ void CharacterBaseTest::Initialize()
 				triangles.push_back(Triangle(b1, s2, b2));
 				triangles.push_back(Triangle(s1, p1, p2));
 				triangles.push_back(Triangle(s1, p2, s2));
-				p1 = p2;
 			}
 
 			MeshShapeSettings mesh(triangles);
@@ -408,7 +506,7 @@ void CharacterBaseTest::Initialize()
 				triangles.push_back(IndexedTriangle(end, end + angle, end + angle + 1));
 			}
 
-			MeshShapeSettings mesh(vertices, triangles);
+			MeshShapeSettings mesh(std::move(vertices), std::move(triangles));
 			mesh.SetEmbedded();
 			BodyCreationSettings mesh_cylinder(&mesh, cHalfCylinderPosition, Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING);
 			mBodyInterface->CreateAndAddBody(mesh_cylinder, EActivation::DontActivate);
@@ -442,17 +540,57 @@ void CharacterBaseTest::Initialize()
 				IndexedTriangle(0, 5, 4)
 			};
 
-			MeshShapeSettings mesh(vertices, triangles);
+			MeshShapeSettings mesh(std::move(vertices), std::move(triangles));
 			mesh.SetEmbedded();
 			BodyCreationSettings box(&mesh, cMeshBoxPosition, Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING);
 			mBodyInterface->CreateAndAddBody(box, EActivation::DontActivate);
 		}
+
+		// Create a sensor
+		{
+			BodyCreationSettings sensor(new BoxShape(Vec3::sOne()), cSensorPosition, Quat::sIdentity(), EMotionType::Kinematic, Layers::SENSOR);
+			sensor.mIsSensor = true;
+			mSensorBody = mBodyInterface->CreateAndAddBody(sensor, EActivation::Activate);
+		}
+
+		// Create Character
+		{
+			CharacterSettings settings;
+			settings.mLayer = Layers::MOVING;
+			settings.mShape = mStandingShape;
+			settings.mSupportingVolume = Plane(Vec3::sAxisY(), -cCharacterRadiusStanding); // Accept contacts that touch the lower sphere of the capsule
+			mAnimatedCharacter = new Character(&settings, cCharacterPosition, Quat::sIdentity(), 0, mPhysicsSystem);
+			mAnimatedCharacter->AddToPhysicsSystem();
+		}
+
+		// Create CharacterVirtual
+		{
+			CharacterVirtualSettings settings;
+			settings.mShape = mStandingShape;
+			settings.mSupportingVolume = Plane(Vec3::sAxisY(), -cCharacterRadiusStanding); // Accept contacts that touch the lower sphere of the capsule
+			mAnimatedCharacterVirtual = new CharacterVirtual(&settings, cCharacterVirtualPosition, Quat::sIdentity(), 0, mPhysicsSystem);
+			mAnimatedCharacterVirtual->SetCharacterVsCharacterCollision(&mCharacterVsCharacterCollision);
+			mCharacterVsCharacterCollision.Add(mAnimatedCharacterVirtual);
+		}
+
+		// Create CharacterVirtual with inner rigid body
+		{
+			CharacterVirtualSettings settings;
+			settings.mShape = mStandingShape;
+			settings.mInnerBodyShape = mInnerStandingShape;
+			settings.mSupportingVolume = Plane(Vec3::sAxisY(), -cCharacterRadiusStanding); // Accept contacts that touch the lower sphere of the capsule
+			mAnimatedCharacterVirtualWithInnerBody = new CharacterVirtual(&settings, cCharacterVirtualWithInnerBodyPosition, Quat::sIdentity(), 0, mPhysicsSystem);
+			mAnimatedCharacterVirtualWithInnerBody->SetCharacterVsCharacterCollision(&mCharacterVsCharacterCollision);
+			mCharacterVsCharacterCollision.Add(mAnimatedCharacterVirtualWithInnerBody);
+		}
 	}
+#ifdef JPH_OBJECT_STREAM
 	else
 	{
 		// Load scene
 		Ref<PhysicsScene> scene;
-		if (!ObjectStreamIn::sReadObject((String("Assets/") + sSceneName + ".bof").c_str(), scene))
+		AssetStream stream(String(sSceneName) + ".bof", std::ios::in | std::ios::binary);
+		if (!ObjectStreamIn::sReadObject(stream.Get(), scene))
 			FatalError("Failed to load scene");
 		scene->FixInvalidScales();
 		for (BodyCreationSettings &settings : scene->GetBodies())
@@ -462,25 +600,30 @@ void CharacterBaseTest::Initialize()
 		}
 		scene->CreateBodies(mPhysicsSystem);
 	}
+#endif // JPH_OBJECT_STREAM
+}
 
-	// Create capsule shapes for all stances
-	switch (sShapeType)
-	{
-	case EType::Capsule:
-		mStandingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0), Quat::sIdentity(), new CapsuleShape(0.5f * cCharacterHeightStanding, cCharacterRadiusStanding)).Create().Get();
-		mCrouchingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, 0), Quat::sIdentity(), new CapsuleShape(0.5f * cCharacterHeightCrouching, cCharacterRadiusCrouching)).Create().Get();
-		break;
+void CharacterBaseTest::ProcessInput(const ProcessInputParams &inParams)
+{
+	// Determine controller input
+	mControlInput = Vec3::sZero();
+	if (inParams.mKeyboard->IsKeyPressed(EKey::Left))	mControlInput.SetZ(-1);
+	if (inParams.mKeyboard->IsKeyPressed(EKey::Right))	mControlInput.SetZ(1);
+	if (inParams.mKeyboard->IsKeyPressed(EKey::Up))		mControlInput.SetX(1);
+	if (inParams.mKeyboard->IsKeyPressed(EKey::Down))	mControlInput.SetX(-1);
+	if (mControlInput != Vec3::sZero())
+		mControlInput = mControlInput.Normalized();
 
-	case EType::Cylinder:
-		mStandingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0), Quat::sIdentity(), new CylinderShape(0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, cCharacterRadiusStanding)).Create().Get();
-		mCrouchingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, 0), Quat::sIdentity(), new CylinderShape(0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, cCharacterRadiusCrouching)).Create().Get();
-		break;
+	// Rotate controls to align with the camera
+	Vec3 cam_fwd = inParams.mCameraState.mForward;
+	cam_fwd.SetY(0.0f);
+	cam_fwd = cam_fwd.NormalizedOr(Vec3::sAxisX());
+	Quat rotation = Quat::sFromTo(Vec3::sAxisX(), cam_fwd);
+	mControlInput = rotation * mControlInput;
 
-	case EType::Box:
-		mStandingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, 0), Quat::sIdentity(), new BoxShape(Vec3(cCharacterRadiusStanding, 0.5f * cCharacterHeightStanding + cCharacterRadiusStanding, cCharacterRadiusStanding))).Create().Get();
-		mCrouchingShape = RotatedTranslatedShapeSettings(Vec3(0, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, 0), Quat::sIdentity(), new BoxShape(Vec3(cCharacterRadiusCrouching, 0.5f * cCharacterHeightCrouching + cCharacterRadiusCrouching, cCharacterRadiusCrouching))).Create().Get();
-		break;
-	}
+	// Check actions
+	mJump = inParams.mKeyboard->IsKeyPressedAndTriggered(EKey::RControl, mWasJump);
+	mSwitchStance = inParams.mKeyboard->IsKeyPressedAndTriggered(EKey::RShift, mWasSwitchStance);
 }
 
 void CharacterBaseTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
@@ -488,42 +631,61 @@ void CharacterBaseTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
 	// Update scene time
 	mTime += inParams.mDeltaTime;
 
-	// Determine controller input
-	Vec3 control_input = Vec3::sZero();
-	if (inParams.mKeyboard->IsKeyPressed(DIK_LEFT))		control_input.SetZ(-1);
-	if (inParams.mKeyboard->IsKeyPressed(DIK_RIGHT))	control_input.SetZ(1);
-	if (inParams.mKeyboard->IsKeyPressed(DIK_UP))		control_input.SetX(1);
-	if (inParams.mKeyboard->IsKeyPressed(DIK_DOWN))		control_input.SetX(-1);
-	if (control_input != Vec3::sZero())
-		control_input = control_input.Normalized();
-
-	// Rotate controls to align with the camera
-	Vec3 cam_fwd = inParams.mCameraState.mForward;
-	cam_fwd.SetY(0.0f);
-	cam_fwd = cam_fwd.NormalizedOr(Vec3::sAxisX());
-	Quat rotation = Quat::sFromTo(Vec3::sAxisX(), cam_fwd);
-	control_input = rotation * control_input;
-
-	// Check actions
-	bool jump = false;
-	bool switch_stance = false;
-	for (int key = inParams.mKeyboard->GetFirstKey(); key != 0; key = inParams.mKeyboard->GetNextKey())
-	{
-		if (key == DIK_RSHIFT)
-			switch_stance = true;
-		else if (key == DIK_RCONTROL)
-			jump = true;
-	}
-
-	HandleInput(control_input, jump, switch_stance, inParams.mDeltaTime);
+	// Update camera pivot
+	mCameraPivot = GetCharacterPosition();
 
 	// Animate bodies
 	if (!mRotatingBody.IsInvalid())
 		mBodyInterface->MoveKinematic(mRotatingBody, cRotatingPosition, Quat::sRotation(Vec3::sAxisY(), JPH_PI * Sin(mTime)), inParams.mDeltaTime);
+	if (!mRotatingWallBody.IsInvalid())
+		mBodyInterface->MoveKinematic(mRotatingWallBody, cRotatingWallPosition, Quat::sRotation(Vec3::sAxisY(), JPH_PI * Sin(mTime)), inParams.mDeltaTime);
+	if (!mRotatingAndTranslatingBody.IsInvalid())
+		mBodyInterface->MoveKinematic(mRotatingAndTranslatingBody, cRotatingAndTranslatingPosition + 5.0f * Vec3(Sin(JPH_PI * mTime), 0, Cos(JPH_PI * mTime)), Quat::sRotation(Vec3::sAxisY(), JPH_PI * Sin(mTime)), inParams.mDeltaTime);
 	if (!mHorizontallyMovingBody.IsInvalid())
 		mBodyInterface->MoveKinematic(mHorizontallyMovingBody, cHorizontallyMovingPosition + Vec3(3.0f * Sin(mTime), 0, 0), cHorizontallyMovingOrientation, inParams.mDeltaTime);
-	if (!mVerticallyMovingBody.IsInvalid())
-		mBodyInterface->MoveKinematic(mVerticallyMovingBody, cVerticallyMovingPosition + Vec3(0, 1.75f * Sin(mTime), 0), cVerticallyMovingOrientation, inParams.mDeltaTime);
+	if (!mSmoothVerticallyMovingBody.IsInvalid())
+		mBodyInterface->MoveKinematic(mSmoothVerticallyMovingBody, cSmoothVerticallyMovingPosition + Vec3(0, 1.75f * Sin(mTime), 0), cSmoothVerticallyMovingOrientation, inParams.mDeltaTime);
+	if (!mReversingVerticallyMovingBody.IsInvalid())
+	{
+		RVec3 pos = mBodyInterface->GetPosition(mReversingVerticallyMovingBody);
+		if (pos.GetY() < cReversingVerticallyMovingPosition.GetY())
+			mReversingVerticallyMovingVelocity = 1.0f;
+		else if (pos.GetY() > cReversingVerticallyMovingPosition.GetY() + 5.0f)
+			mReversingVerticallyMovingVelocity = -1.0f;
+		mBodyInterface->MoveKinematic(mReversingVerticallyMovingBody, pos + Vec3(0, mReversingVerticallyMovingVelocity * 3.0f * inParams.mDeltaTime, 0), cReversingVerticallyMovingOrientation, inParams.mDeltaTime);
+	}
+
+	// Animate character
+	if (mAnimatedCharacter != nullptr)
+		mAnimatedCharacter->SetLinearVelocity(Sin(mTime) * cCharacterVelocity);
+
+	// Animate character virtual
+	for (CharacterVirtual *character : { mAnimatedCharacterVirtual, mAnimatedCharacterVirtualWithInnerBody })
+		if (character != nullptr)
+		{
+			// Draw the character
+			DrawPaddedCharacter(character->GetShape(), character->GetCharacterPadding(), character->GetCenterOfMassTransform());
+
+			// Update velocity and apply gravity
+			Vec3 velocity;
+			if (character->GetGroundState() == CharacterVirtual::EGroundState::OnGround)
+				velocity = Vec3::sZero();
+			else
+				velocity = character->GetLinearVelocity() * mAnimatedCharacter->GetUp() + mPhysicsSystem->GetGravity() * inParams.mDeltaTime;
+			velocity += Sin(mTime) * cCharacterVelocity;
+			character->SetLinearVelocity(velocity);
+
+			// Move character
+			CharacterVirtual::ExtendedUpdateSettings update_settings;
+			character->ExtendedUpdate(inParams.mDeltaTime,
+				mPhysicsSystem->GetGravity(),
+				update_settings,
+				mPhysicsSystem->GetDefaultBroadPhaseLayerFilter(Layers::MOVING),
+				mPhysicsSystem->GetDefaultLayerFilter(Layers::MOVING),
+				{ },
+				{ },
+				*mTempAllocator);
+		}
 
 	// Reset ramp blocks
 	mRampBlocksTimeLeft -= inParams.mDeltaTime;
@@ -536,23 +698,36 @@ void CharacterBaseTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
 		}
 		mRampBlocksTimeLeft = cRampBlocksTime;
 	}
+
+	// Call handle input after new velocities have been set to avoid frame delay
+	HandleInput(mControlInput, mJump, mSwitchStance, inParams.mDeltaTime);
 }
 
 void CharacterBaseTest::CreateSettingsMenu(DebugUI *inUI, UIElement *inSubMenu)
 {
-	inUI->CreateTextButton(inSubMenu, "Select Scene", [this, inUI]() { 
+	inUI->CreateTextButton(inSubMenu, "Select Scene", [this, inUI]() {
 		UIElement *scene_name = inUI->CreateMenu();
 		for (uint i = 0; i < size(sScenes); ++i)
 			inUI->CreateTextButton(scene_name, sScenes[i], [this, i]() { sSceneName = sScenes[i]; RestartTest(); });
 		inUI->ShowMenu(scene_name);
 	});
 
-	inUI->CreateTextButton(inSubMenu, "Configuration Settings", [=]() {
+	inUI->CreateTextButton(inSubMenu, "Character Movement Settings", [this, inUI]() {
+		UIElement *movement_settings = inUI->CreateMenu();
+
+		inUI->CreateCheckBox(movement_settings, "Control Movement During Jump", sControlMovementDuringJump, [](UICheckBox::EState inState) { sControlMovementDuringJump = inState == UICheckBox::STATE_CHECKED; });
+		inUI->CreateSlider(movement_settings, "Character Speed", sCharacterSpeed, 0.1f, 10.0f, 0.1f, [](float inValue) { sCharacterSpeed = inValue; });
+		inUI->CreateSlider(movement_settings, "Character Jump Speed", sJumpSpeed, 0.1f, 10.0f, 0.1f, [](float inValue) { sJumpSpeed = inValue; });
+		AddCharacterMovementSettings(inUI, movement_settings);
+		inUI->ShowMenu(movement_settings);
+	});
+
+	inUI->CreateTextButton(inSubMenu, "Configuration Settings", [this, inUI]() {
 		UIElement *configuration_settings = inUI->CreateMenu();
 
-		inUI->CreateComboBox(configuration_settings, "Shape Type", { "Capsule", "Cylinder", "Box" }, (int)sShapeType, [](int inItem) { sShapeType = (EType)inItem; });
+		inUI->CreateComboBox(configuration_settings, "Shape Type", { "Capsule", "Cylinder", "Box", "Compound" }, (int)sShapeType, [](int inItem) { sShapeType = (EType)inItem; });
 		AddConfigurationSettings(inUI, configuration_settings);
-		inUI->CreateTextButton(configuration_settings, "Accept Changes", [=]() { RestartTest(); });
+		inUI->CreateTextButton(configuration_settings, "Accept Changes", [this]() { RestartTest(); });
 		inUI->ShowMenu(configuration_settings);
 	});
 }
@@ -564,23 +739,51 @@ void CharacterBaseTest::GetInitialCamera(CameraState& ioState) const
 	ioState.mForward = Vec3(10.0f, -2.0f, 0).Normalized();
 }
 
-RMat44 CharacterBaseTest::GetCameraPivot(float inCameraHeading, float inCameraPitch) const 
+RMat44 CharacterBaseTest::GetCameraPivot(float inCameraHeading, float inCameraPitch) const
 {
 	// Pivot is center of character + distance behind based on the heading and pitch of the camera
 	Vec3 fwd = Vec3(Cos(inCameraPitch) * Cos(inCameraHeading), Sin(inCameraPitch), Cos(inCameraPitch) * Sin(inCameraHeading));
-	return RMat44::sTranslation(GetCharacterPosition() + Vec3(0, cCharacterHeightStanding + cCharacterRadiusStanding, 0) - 5.0f * fwd);
+	return RMat44::sTranslation(mCameraPivot + Vec3(0, cCharacterHeightStanding + cCharacterRadiusStanding, 0) - 5.0f * fwd);
 }
 
 void CharacterBaseTest::SaveState(StateRecorder &inStream) const
 {
 	inStream.Write(mTime);
 	inStream.Write(mRampBlocksTimeLeft);
+	inStream.Write(mReversingVerticallyMovingVelocity);
+
+	if (mAnimatedCharacterVirtual != nullptr)
+		mAnimatedCharacterVirtual->SaveState(inStream);
+
+	if (mAnimatedCharacterVirtualWithInnerBody != nullptr)
+		mAnimatedCharacterVirtualWithInnerBody->SaveState(inStream);
 }
 
 void CharacterBaseTest::RestoreState(StateRecorder &inStream)
 {
 	inStream.Read(mTime);
 	inStream.Read(mRampBlocksTimeLeft);
+	inStream.Read(mReversingVerticallyMovingVelocity);
+
+	if (mAnimatedCharacterVirtual != nullptr)
+		mAnimatedCharacterVirtual->RestoreState(inStream);
+
+	if (mAnimatedCharacterVirtualWithInnerBody != nullptr)
+		mAnimatedCharacterVirtualWithInnerBody->RestoreState(inStream);
+}
+
+void CharacterBaseTest::SaveInputState(StateRecorder &inStream) const
+{
+	inStream.Write(mControlInput);
+	inStream.Write(mJump);
+	inStream.Write(mSwitchStance);
+}
+
+void CharacterBaseTest::RestoreInputState(StateRecorder &inStream)
+{
+	inStream.Read(mControlInput);
+	inStream.Read(mJump);
+	inStream.Read(mSwitchStance);
 }
 
 void CharacterBaseTest::DrawCharacterState(const CharacterBase *inCharacter, RMat44Arg inCharacterTransform, Vec3Arg inCharacterVelocity)
@@ -589,27 +792,8 @@ void CharacterBaseTest::DrawCharacterState(const CharacterBase *inCharacter, RMa
 	// Drawing prior to update since the physics system state is also that prior to the simulation step (so that all detected collisions etc. make sense)
 	mDebugRenderer->DrawCoordinateSystem(inCharacterTransform, 0.1f);
 
-	// Determine color
-	CharacterBase::EGroundState ground_state = inCharacter->GetGroundState();
-	Color color;
-	switch (ground_state)
-	{
-	case CharacterBase::EGroundState::OnGround:
-		color = Color::sGreen;
-		break;
-	case CharacterBase::EGroundState::OnSteepGround:
-		color = Color::sYellow;
-		break;
-	case CharacterBase::EGroundState::NotSupported:
-		color = Color::sOrange;
-		break;
-	case CharacterBase::EGroundState::InAir:
-	default:
-		color = Color::sRed;
-		break;
-	}
-
 	// Draw the state of the ground contact
+	CharacterBase::EGroundState ground_state = inCharacter->GetGroundState();
 	if (ground_state != CharacterBase::EGroundState::InAir)
 	{
 		RVec3 ground_position = inCharacter->GetGroundPosition();
@@ -633,5 +817,39 @@ void CharacterBaseTest::DrawCharacterState(const CharacterBase *inCharacter, RMa
 	const PhysicsMaterial *ground_material = inCharacter->GetGroundMaterial();
 	Vec3 horizontal_velocity = inCharacterVelocity;
 	horizontal_velocity.SetY(0);
-	mDebugRenderer->DrawText3D(inCharacterTransform.GetTranslation(), StringFormat("Mat: %s\nHorizontal Vel: %.1f m/s\nVertical Vel: %.1f m/s", ground_material->GetDebugName(), (double)horizontal_velocity.Length(), (double)inCharacterVelocity.GetY()), color, 0.25f);
+	mDebugRenderer->DrawText3D(inCharacterTransform.GetTranslation(), StringFormat("State: %s\nMat: %s\nHorizontal Vel: %.1f m/s\nVertical Vel: %.1f m/s", CharacterBase::sToString(ground_state), ground_material->GetDebugName(), (double)horizontal_velocity.Length(), (double)inCharacterVelocity.GetY()), Color::sWhite, 0.25f);
+}
+
+void CharacterBaseTest::DrawPaddedCharacter(const Shape *inShape, float inPadding, RMat44Arg inCenterOfMass)
+{
+	if (inShape->GetSubType() == EShapeSubType::Capsule)
+	{
+		const CapsuleShape *capsule = static_cast<const CapsuleShape *>(inShape);
+		mDebugRenderer->DrawCapsule(inCenterOfMass, capsule->GetHalfHeightOfCylinder(), capsule->GetRadius() + inPadding, Color::sGrey, DebugRenderer::ECastShadow::Off, DebugRenderer::EDrawMode::Wireframe);
+	}
+	else if (inShape->GetSubType() == EShapeSubType::Cylinder)
+	{
+		// Not correct as the edges should be rounded
+		const CylinderShape *cylinder = static_cast<const CylinderShape *>(inShape);
+		mDebugRenderer->DrawCylinder(inCenterOfMass, cylinder->GetHalfHeight() + inPadding, cylinder->GetRadius() + inPadding, Color::sGrey, DebugRenderer::ECastShadow::Off, DebugRenderer::EDrawMode::Wireframe);
+	}
+	else if (inShape->GetSubType() == EShapeSubType::Box)
+	{
+		// Not correct as the edges should be rounded
+		const BoxShape *box = static_cast<const BoxShape *>(inShape);
+		AABox bounds = box->GetLocalBounds();
+		bounds.ExpandBy(Vec3::sReplicate(inPadding));
+		mDebugRenderer->DrawWireBox(inCenterOfMass, bounds, Color::sGrey);
+	}
+	else if (inShape->GetSubType() == EShapeSubType::RotatedTranslated)
+	{
+		const RotatedTranslatedShape *rt = static_cast<const RotatedTranslatedShape *>(inShape);
+		DrawPaddedCharacter(rt->GetInnerShape(), inPadding, inCenterOfMass);
+	}
+	else if (inShape->GetType() == EShapeType::Compound)
+	{
+		const CompoundShape *compound = static_cast<const CompoundShape *>(inShape);
+		for (const CompoundShape::SubShape &sub_shape : compound->GetSubShapes())
+			DrawPaddedCharacter(sub_shape.mShape, inPadding, inCenterOfMass * sub_shape.GetLocalTransformNoScale(Vec3::sOne()));
+	}
 }

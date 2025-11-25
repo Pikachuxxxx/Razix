@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/RZDataTypes.h"
+
 namespace Razix {
     namespace AssetSystem {
 

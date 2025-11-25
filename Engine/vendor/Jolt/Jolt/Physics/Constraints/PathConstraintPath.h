@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -16,11 +17,11 @@ class DebugRenderer;
 #endif // JPH_DEBUG_RENDERER
 
 /// The path for a path constraint. It allows attaching two bodies to each other while giving the second body the freedom to move along a path relative to the first.
-class PathConstraintPath : public SerializableObject, public RefTarget<PathConstraintPath>
+class JPH_EXPORT PathConstraintPath : public SerializableObject, public RefTarget<PathConstraintPath>
 {
-public:
-	JPH_DECLARE_SERIALIZABLE_ABSTRACT(PathConstraintPath)
+	JPH_DECLARE_SERIALIZABLE_ABSTRACT(JPH_EXPORT, PathConstraintPath)
 
+public:
 	using PathResult = Result<Ref<PathConstraintPath>>;
 
 	/// Virtual destructor to ensure that derived types get their destructors called
@@ -31,8 +32,9 @@ public:
 
 	/// Get the globally closest point on the curve (Could be slow!)
 	/// @param inPosition Position to find closest point for
+	/// @param inFractionHint Last known fraction along the path (can be used to speed up the search)
 	/// @return Fraction of closest point along the path
-	virtual float		GetClosestPoint(Vec3Arg inPosition) const = 0;
+	virtual float		GetClosestPoint(Vec3Arg inPosition, float inFractionHint) const = 0;
 
 	/// Given the fraction along the path, get the point, tangent and normal.
 	/// @param inFraction Fraction along the path [0, GetPathMaxFraction()].
@@ -42,7 +44,7 @@ public:
 	/// @param outPathBinormal Returns the binormal to the path at outPathPosition (a vector so that normal cross tangent = binormal)
 	virtual void		GetPointOnPath(float inFraction, Vec3 &outPathPosition, Vec3 &outPathTangent, Vec3 &outPathNormal, Vec3 &outPathBinormal) const = 0;
 
-	/// If the path is looping or not. If a path is looping, the first and last point are automatically connected to eachother. They should not be the same points.
+	/// If the path is looping or not. If a path is looping, the first and last point are automatically connected to each other. They should not be the same points.
 	void				SetIsLooping(bool inIsLooping)						{ mIsLooping = inIsLooping; }
 	bool				IsLooping() const									{ return mIsLooping; }
 
@@ -58,11 +60,16 @@ public:
 	static PathResult	sRestoreFromBinaryState(StreamIn &inStream);
 
 protected:
+	/// Don't allow (copy) constructing this base class, but allow derived classes to (copy) construct themselves
+						PathConstraintPath() = default;
+						PathConstraintPath(const PathConstraintPath &) = default;
+	PathConstraintPath &operator = (const PathConstraintPath &) = default;
+
 	/// This function should not be called directly, it is used by sRestoreFromBinaryState.
 	virtual void		RestoreBinaryState(StreamIn &inStream);
 
 private:
-	/// If the path is looping or not. If a path is looping, the first and last point are automatically connected to eachother. They should not be the same points.
+	/// If the path is looping or not. If a path is looping, the first and last point are automatically connected to each other. They should not be the same points.
 	bool				mIsLooping = false;
 };
 

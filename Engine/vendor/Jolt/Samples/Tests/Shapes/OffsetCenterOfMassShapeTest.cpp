@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -9,12 +10,12 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(OffsetCenterOfMassShapeTest) 
-{ 
-	JPH_ADD_BASE_CLASS(OffsetCenterOfMassShapeTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(OffsetCenterOfMassShapeTest)
+{
+	JPH_ADD_BASE_CLASS(OffsetCenterOfMassShapeTest, Test)
 }
 
-void OffsetCenterOfMassShapeTest::Initialize() 
+void OffsetCenterOfMassShapeTest::Initialize()
 {
 	// Floor
 	Body &floor = CreateFloor();
@@ -45,12 +46,12 @@ void OffsetCenterOfMassShapeTest::Initialize()
 	bcs.mLinearDamping = 0.0f;
 	bcs.mAngularDamping = 0.0f;
 	Body *body_rotating1 = mBodyInterface->CreateBody(bcs);
-    mBodyInterface->AddBody(body_rotating1->GetID(), EActivation::Activate);
+	mBodyInterface->AddBody(body_rotating1->GetID(), EActivation::Activate);
 	body_rotating1->AddAngularImpulse(Vec3(0, 1.0e6f, 0));
 
 	// Create the same body but this time apply a torque
 	bcs.mPosition = RVec3(5, 5, 10);
 	Body *body_rotating2 = mBodyInterface->CreateBody(bcs);
-    mBodyInterface->AddBody(body_rotating2->GetID(), EActivation::Activate);
+	mBodyInterface->AddBody(body_rotating2->GetID(), EActivation::Activate);
 	body_rotating2->AddTorque(Vec3(0, 1.0e6f * 60.0f, 0)); // Assuming physics sim is at 60Hz here, otherwise the bodies won't rotate with the same speed
 }

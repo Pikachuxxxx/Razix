@@ -5,24 +5,25 @@
 
 #include "Razix/Core/RZEngine.h"
 
+#include "Razix/Gfx/RHI/RHI.h"
+
 #include "Razix/Gfx/FrameGraph/RZFrameGraphResource.h"
 
-#include "Razix/Gfx/RHI/API/RZShader.h"
-#include "Razix/Gfx/RHI/RHI.h"
+#include "Razix/Gfx/Resources/RZResourceManager.h"
 
 namespace Razix {
     namespace Gfx {
 
-        void RZFrameGraphBuffer::create(const Desc& desc, u32 id, const void* transientAllocator)
+        void RZFrameGraphBuffer::create(const RZString& name, const Desc& desc, u32 id, const void* transientAllocator)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             if (transientAllocator)
-                m_BufferHandle = TRANSIENT_ALLOCATOR_CAST(transientAllocator)->acquireTransientBuffer(desc, id);
+                m_BufferHandle = TRANSIENT_ALLOCATOR_CAST(transientAllocator)->acquireTransientBuffer(name, desc, id);
             else {
                 // If no transient allocator is provided, we create a imported persistent resource only ONCE!
-                if (!m_BufferHandle.isValid())
-                    m_BufferHandle = RZResourceManager::Get().createUniformBuffer(desc);
+                if (!rz_handle_is_valid(&m_BufferHandle))
+                    m_BufferHandle = RZResourceManager::Get().createBuffer(name.c_str(), desc);
             }
         }
 
@@ -33,68 +34,93 @@ namespace Razix {
             if (transientAllocator)
                 TRANSIENT_ALLOCATOR_CAST(transientAllocator)->releaseTransientBuffer(m_BufferHandle, id);
             else {
-                if (m_BufferHandle.isValid())
-                    RZResourceManager::Get().destroyUniformBuffer(m_BufferHandle);
+                if (rz_handle_is_valid(&m_BufferHandle))
+                    RZResourceManager::Get().destroyBuffer(m_BufferHandle);
             }
         }
 
-        // TODO: use a combination of BufferUsage and resourceViewHints to deduce, we don't have ImageLayout and needs to do more intelligent tracking to deduce barrier types
-
-        void RZFrameGraphBuffer::preRead(const Desc& desc, uint32_t flags)
+        void RZFrameGraphBuffer::preRead(u32 descriptorType, u32 resViewOpFlags)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            RZBufferDesc bufferDesc = CAST_TO_FG_BUF_DESC desc;
+            if (resViewOpFlags & RZ_GFX_RES_VIEW_OP_FLAG_SKIP_BARRIER)
+                return;
 
-            BufferBarrierType barrierType = BufferBarrierType::ShaderReadOnly;
+            rz_gfx_buffer* bufferResource = RZResourceManager::Get().getBufferResource(m_BufferHandle);
+            RAZIX_CORE_ASSERT(bufferResource, "Buffer Resource is NULL in RZFrameGraphBuffer::preRead!");
+            // TODO: Check ASM and memory access patterns for this, seems like too much data is being sent in/out
+            rz_gfx_resource_state currentState    = bufferResource->resource.hot.currentState;
+            rz_gfx_resource_state newDeducedState = RZ_GFX_RESOURCE_STATE_SHADER_READ;    // default state for read access
+            newDeducedState                       = rzRHI_DeduceResourceState(static_cast<rz_gfx_descriptor_type>(descriptorType), static_cast<rz_gfx_res_view_op_flags>(resViewOpFlags), false);
 
-            if ((bufferDesc.initResourceViewHints & kCBV) == kCBV) {    // use a dirtyFlags to check if it's dirty
-                barrierType = BufferBarrierType::CPUToGPU;
-            } else if ((bufferDesc.initResourceViewHints & kTransferSrc) == kTransferSrc) {
-                barrierType = BufferBarrierType::TransferDstToShaderRead;
-            }
+            RAZIX_CORE_ASSERT(currentState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "[ReadBarrier::buffer] Current State is UNDEFINED, can't read from an undefined resource!");
+            RAZIX_CORE_ASSERT(newDeducedState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "[ReadBarrier::buffer] New Deduced State is UNDEFINED, can't transition to an undefined state!");
 
 #ifndef RAZIX_GOLD_MASTER
-            if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
-                RAZIX_CORE_INFO("[ReadBarrier::Buffer] resource name: {0} | barrier type: {1}", bufferDesc.name, BufferBarrierTypeNames[(u32) barrierType]);
-#endif
-            RHI::InsertBufferMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_BufferHandle, barrierType);
 
-            m_LastReadBarrier = barrierType;
+            if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging) {
+                const char* descTypeStr = rzRHI_GetDescriptorTypeString(static_cast<rz_gfx_descriptor_type>(descriptorType));
+                RZString    opBuffer;
+                opBuffer.reserve(128);
+                const char* opFlagsStr   = rzRHI_ResourceOpFlagsString(static_cast<rz_gfx_res_view_op_flags>(resViewOpFlags), opBuffer.data(), opBuffer.capacity());
+                const char* currStateStr = rzRHI_GetResourceStateString(currentState);
+                const char* newStateStr  = rzRHI_GetResourceStateString(newDeducedState);
+
+                RAZIX_CORE_INFO(
+                    "[ReadBarrier::Buffer] Resource: {} | Descriptor: {} | Ops: {} | State: {} ---> {}",
+                    bufferResource->resource.pCold->pName,
+                    descTypeStr,
+                    opFlagsStr,
+                    currStateStr,
+                    newStateStr);
+            }
+#endif
+            rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
+            rzRHI_InsertBufferBarrier(cmdBuffer, m_BufferHandle, currentState, newDeducedState);
         }
 
-        void RZFrameGraphBuffer::preWrite(const Desc& desc, uint32_t flags)
+        void RZFrameGraphBuffer::preWrite(u32 descriptorType, u32 resViewOpFlags)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-            RZBufferDesc bufferDesc = CAST_TO_FG_BUF_DESC desc;
+            if (resViewOpFlags & RZ_GFX_RES_VIEW_OP_FLAG_SKIP_BARRIER)
+                return;
 
-            BufferBarrierType barrierType = BufferBarrierType::ShaderReadToShaderWrite;
+            rz_gfx_buffer* bufferResource = RZResourceManager::Get().getBufferResource(m_BufferHandle);
+            RAZIX_CORE_ASSERT(bufferResource, "Buffer Resource is NULL in RZFrameGraphBuffer::preWrite!");
+            // TODO: Check ASM and memory access patterns for this, seems like too much data is being sent in/out
+            rz_gfx_resource_state currentState    = bufferResource->resource.hot.currentState;
+            rz_gfx_resource_state newDeducedState = RZ_GFX_RESOURCE_STATE_RENDER_TARGET;
+            newDeducedState                       = rzRHI_DeduceResourceState(static_cast<rz_gfx_descriptor_type>(descriptorType), static_cast<rz_gfx_res_view_op_flags>(resViewOpFlags), true);
 
-            if ((bufferDesc.initResourceViewHints & kUAV) == kUAV) {
-                barrierType = BufferBarrierType::ShaderReadToShaderWrite;
-            } else if ((bufferDesc.initResourceViewHints & kTransferDst) == kTransferDst) {
-                barrierType = BufferBarrierType::TransferDstToShaderRead;
-            } else if ((bufferDesc.initResourceViewHints & kCBV) == kCBV) {
-                barrierType = BufferBarrierType::ShaderReadOnly;
-            }
-
-            // doesn't make sense to wait until CPU write then it's being read by a shader
-            // there was already a barrier inserted when we started writing to it in preRead
-            if (barrierType == BufferBarrierType::CPUToGPU) return;
+            RAZIX_CORE_ASSERT(currentState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "[WriteBarrier::buffer] Current State is UNDEFINED, can't write from an undefined resource!");
+            RAZIX_CORE_ASSERT(newDeducedState != RZ_GFX_RESOURCE_STATE_UNDEFINED, "[WriteBarrier::buffer] New Deduced State is UNDEFINED, can't transition to an undefined state!");
 
 #ifndef RAZIX_GOLD_MASTER
-            if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging)
-                RAZIX_CORE_INFO("[WriteBarrier::Buffer] resource name: {0} | barrier type: {1}", bufferDesc.name, BufferBarrierTypeNames[(u32) barrierType]);
-#endif
-            RHI::InsertBufferMemoryBarrier(RHI::Get().GetCurrentCommandBuffer(), m_BufferHandle, barrierType);
+            if (RZEngine::Get().getGlobalEngineSettings().EnableBarrierLogging) {
+                const char* descTypeStr = rzRHI_GetDescriptorTypeString(static_cast<rz_gfx_descriptor_type>(descriptorType));
+                RZString    opBuffer;
+                opBuffer.reserve(128);
+                const char* opFlagsStr   = rzRHI_ResourceOpFlagsString(static_cast<rz_gfx_res_view_op_flags>(resViewOpFlags), opBuffer.data(), opBuffer.capacity());
+                const char* currStateStr = rzRHI_GetResourceStateString(currentState);
+                const char* newStateStr  = rzRHI_GetResourceStateString(newDeducedState);
 
-            m_LastWriteBarrier = barrierType;
+                RAZIX_CORE_INFO(
+                    "[WriteBarrier::Buffer] Resource: {} | Descriptor: {} | Ops: {} | State: {} ---> {}",
+                    bufferResource->resource.pCold->pName,
+                    descTypeStr,
+                    opFlagsStr,
+                    currStateStr,
+                    newStateStr);
+            }
+#endif
+            rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
+            rzRHI_InsertBufferBarrier(cmdBuffer, m_BufferHandle, currentState, newDeducedState);
         }
 
-        std::string RZFrameGraphBuffer::toString(const Desc& desc)
+        RZString RZFrameGraphBuffer::toString(const Desc& desc)
         {
-            return "size : " + std::to_string(desc.size) + " bytes";
+            return "size : " + rz_to_string(desc.sizeInBytes) + " bytes";
         }
     }    // namespace Gfx
 }    // namespace Razix

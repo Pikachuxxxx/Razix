@@ -2,6 +2,10 @@
 
 #include "Razix/Core/RZCore.h"
 
+#include "Razix/Core/Containers/string.h"
+
+#include "Razix/Core/std/utility.h"
+
 #include <functional>
 #include <sstream>
 #include <typeindex>
@@ -73,9 +77,9 @@ namespace Razix {
     public:
         virtual ~RZEvent() = default;
 
-        virtual cstr        GetName() const      = 0;
-        virtual EventType   GetEventType() const = 0;
-        virtual std::string ToString() const { return GetName(); }
+        virtual cstr      GetName() const      = 0;
+        virtual EventType GetEventType() const = 0;
+        virtual RZString  ToString() const { return GetName(); }
 
     private:
         friend class RZEventDispatcher;
@@ -90,7 +94,7 @@ namespace Razix {
         template<typename T>
         void registerCallback(std::function<void(T&)> callback)
         {
-            callbacks[typeid(T)] = [cb = std::move(callback)](RZEvent& e) {
+            callbacks[typeid(T)] = [cb = rz_move(callback)](RZEvent& e) {
                 cb(static_cast<T&>(e));
             };
         }
@@ -105,7 +109,7 @@ namespace Razix {
 
     private:
         using Callback = std::function<void(RZEvent&)>;
-        std::unordered_map<std::type_index, Callback> callbacks;
+        RZHashMap<std::type_index, Callback> callbacks;
     };
 
 }    // namespace Razix

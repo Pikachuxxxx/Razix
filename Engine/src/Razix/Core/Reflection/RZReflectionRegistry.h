@@ -54,9 +54,9 @@ namespace Razix {
         }
 
     private:
-        static std::unordered_map<std::type_index, TypeMetaData>& getRegistry()
+        static RZHashMap<std::type_index, TypeMetaData>& getRegistry()
         {
-            static std::unordered_map<std::type_index, TypeMetaData> m_Registry;
+            static RZHashMap<std::type_index, TypeMetaData> m_Registry;
             return m_Registry;
         }
     };

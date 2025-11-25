@@ -1,44 +1,46 @@
-# Pull Request Title
+# Engine Update: (insert engine version)
 
-Engine Version: current version of the engine
+---
 
-## Description
+## TL;DR
 
-### What does this PR do?
-- Provide a concise summary of the changes and their purpose
-- Mention the relevant subsystem (e.g., rendering, physics, input, etc.)
+- What changed, and in which part of the engine.
+- Why this is needed or matters—make it worth the reviewer’s attention.
 
-## Implementation Details
+---
 
-### How was this implemented?
-- Provide any insights into the approach, algorithms, or design decisions made
+## Approach
+
+- Main design or implementation notes.
+- Anything reviewers should consider—gotchas, tradeoffs, rationale.
+
+---
+
+## Testing
+
+- How to verify this works, including any tricky cases to look at.
+- Run instructions or steps, if not obvious.
+
+---
 
 ## Checklist
 
-### Code Quality
-- [ ] Code adheres to the project's style guidelines + Formatting rules etc
-_Will be checked by Github Actions so careful_
+- [ ] Code style is on point (lint/CI will complain if not)
+- [ ] New/changed tests
+- [ ] Changelog updated
+- [ ] Docs, comments, diagrams are current (link any diagrams if used)
 
+---
 
-### Testing
-- [ ] Unit tests have been added/updated
-- [ ] Existing tests pass without failures
+## Related Issues
 
-### Documentation
-- [ ] Changelog has been updated with this PR
-- [ ] Added necessary commments and updated the DrawIO architecture sheet/PPT
-- [ ] Link for DrawIO sheets with PR related design
+- Reference fixed or relevant issues:  
+  (e.g., `Closes #123`, `Relates to #456`)
 
+---
 
+## Visuals
 
-### Testing Details
-Explain how to test the engine to check the feature functionality introduced in this PR
+- Screenshots, logs, or clips—if it helps, drop it here.
 
-## Related Issue(s)
-
-- Link issues addressed by this PR (e.g., `Closes #123`, `Related to #456`).
-
-
-## Screenshots (if applicable)
-
-Include screenshots or videos showing before/after changes, if relevant.
+---

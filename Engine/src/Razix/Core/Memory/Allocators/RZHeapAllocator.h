@@ -1,22 +1,23 @@
 #pragma once
 
 #include "IRZAllocator.h"
+#include "Razix/Core/RZCore.h"
 
-#include <cstdint>
+#include "Razix/Core/RZDataTypes.h"
 
 namespace Razix {
     namespace Memory {
 
-        class RZHeapAllocator final : public IRZAllocator
+        class RAZIX_API RZHeapAllocator final : public IRZAllocator
         {
         public:
             RZHeapAllocator()  = default;
             ~RZHeapAllocator() = default;
 
-            void init(size_t chunkSize) override;
+            void init(size_t size, size_t alignment = 16) override;
             void shutdown() override;
 
-            void* allocate(size_t size, size_t alignment) override;
+            void* allocate(size_t size) override;
 
             void deallocate(void* ptr) override;
 
@@ -28,6 +29,7 @@ namespace Razix {
             void*  m_ChunkAddress;
             size_t m_AllocatedSize     = 0;
             size_t m_TotalChunkSize    = 0;
+            size_t m_Alignment         = 16;
             void*  m_CurrentAllocation = nullptr;
         };
 

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -5,6 +6,7 @@
 
 #include <Jolt/Core/Reference.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/SoftBody/SoftBodyCreationSettings.h>
 #include <Jolt/Physics/Constraints/TwoBodyConstraint.h>
 
 JPH_NAMESPACE_BEGIN
@@ -12,11 +14,11 @@ JPH_NAMESPACE_BEGIN
 class PhysicsSystem;
 
 /// Contains the creation settings of a set of bodies
-class PhysicsScene : public RefTarget<PhysicsScene>
+class JPH_EXPORT PhysicsScene : public RefTarget<PhysicsScene>
 {
-public:
-	JPH_DECLARE_SERIALIZABLE_NON_VIRTUAL(PhysicsScene)
+	JPH_DECLARE_SERIALIZABLE_NON_VIRTUAL(JPH_EXPORT, PhysicsScene)
 
+public:
 	/// Add a body to the scene
 	void									AddBody(const BodyCreationSettings &inBody);
 
@@ -29,6 +31,9 @@ public:
 	/// @param inBody2 Index in the bodies list of the second body to attach constraint to
 	void									AddConstraint(const TwoBodyConstraintSettings *inConstraint, uint32 inBody1, uint32 inBody2);
 
+	/// Add a soft body to the scene
+	void									AddSoftBody(const SoftBodyCreationSettings &inSoftBody);
+
 	/// Get number of bodies in this scene
 	size_t									GetNumBodies() const							{ return mBodies.size(); }
 
@@ -39,9 +44,9 @@ public:
 	/// A constraint and how it is connected to the bodies in the scene
 	class ConnectedConstraint
 	{
-	public:
-		JPH_DECLARE_SERIALIZABLE_NON_VIRTUAL(ConnectedConstraint)
+		JPH_DECLARE_SERIALIZABLE_NON_VIRTUAL(JPH_EXPORT, ConnectedConstraint)
 
+	public:
 											ConnectedConstraint() = default;
 											ConnectedConstraint(const TwoBodyConstraintSettings *inSettings, uint inBody1, uint inBody2) : mSettings(inSettings), mBody1(inBody1), mBody2(inBody2) { }
 
@@ -56,6 +61,13 @@ public:
 	/// Access to the constraints for this scene
 	const Array<ConnectedConstraint> &		GetConstraints() const							{ return mConstraints; }
 	Array<ConnectedConstraint> &			GetConstraints()								{ return mConstraints; }
+
+	/// Get number of bodies in this scene
+	size_t									GetNumSoftBodies() const						{ return mSoftBodies.size(); }
+
+	/// Access to the soft body settings for this scene
+	const Array<SoftBodyCreationSettings> &	GetSoftBodies() const							{ return mSoftBodies; }
+	Array<SoftBodyCreationSettings> &		GetSoftBodies()									{ return mSoftBodies; }
 
 	/// Instantiate all bodies, returns false if not all bodies could be created
 	bool									CreateBodies(PhysicsSystem *inSystem) const;
@@ -84,6 +96,9 @@ private:
 
 	/// Constraints that are part of this scene
 	Array<ConnectedConstraint>				mConstraints;
+
+	/// Soft bodies that are part of this scene
+	Array<SoftBodyCreationSettings>			mSoftBodies;
 };
 
 JPH_NAMESPACE_END

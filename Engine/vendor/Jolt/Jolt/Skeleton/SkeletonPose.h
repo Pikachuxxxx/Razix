@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -13,7 +14,7 @@ class DebugRenderer;
 #endif // JPH_DEBUG_RENDERER
 
 /// Instance of a skeleton, contains the pose the current skeleton is in
-class SkeletonPose
+class JPH_EXPORT SkeletonPose
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -17,11 +18,12 @@
 #include <Jolt/ObjectStream/ObjectStreamIn.h>
 #include <Application/DebugUI.h>
 #include <Utils/Log.h>
+#include <Utils/AssetStream.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(HighSpeedTest) 
-{ 
-	JPH_ADD_BASE_CLASS(HighSpeedTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(HighSpeedTest)
+{
+	JPH_ADD_BASE_CLASS(HighSpeedTest, Test)
 }
 
 const char *HighSpeedTest::sScenes[] =
@@ -146,8 +148,7 @@ void HighSpeedTest::CreateSimpleScene()
 		enclosing_settings.mMotionType = EMotionType::Kinematic;
 		enclosing_settings.mObjectLayer = Layers::MOVING;
 		enclosing_settings.mPosition = offset + Vec3(0, 1, 0);
-		Body &enclosing = *mBodyInterface->CreateBody(enclosing_settings);
-		mBodyInterface->AddBody(enclosing.GetID(), EActivation::Activate);
+		mBodyInterface->CreateAndAddBody(enclosing_settings, EActivation::Activate);
 
 		// Fast moving sphere in box
 		CreateDynamicObject(offset + Vec3(0, 0.5f, 0), Vec3(-speed, 0, -0.5f * speed), new SphereShape(radius));
@@ -327,14 +328,19 @@ void HighSpeedTest::CreateConvexOnLargeTriangles()
 
 void HighSpeedTest::CreateConvexOnTerrain1()
 {
+#ifdef JPH_OBJECT_STREAM
 	// Load scene
 	Ref<PhysicsScene> scene;
-	if (!ObjectStreamIn::sReadObject("Assets/terrain1.bof", scene))
+	AssetStream stream("terrain1.bof", std::ios::in | std::ios::binary);
+	if (!ObjectStreamIn::sReadObject(stream.Get(), scene))
 		FatalError("Failed to load scene");
 	for (BodyCreationSettings &body : scene->GetBodies())
 		body.mObjectLayer = Layers::NON_MOVING;
 	scene->FixInvalidScales();
 	scene->CreateBodies(mPhysicsSystem);
+#else
+	CreateFloor();
+#endif // JPH_OBJECT_STREAM
 
 	CreateFastSmallConvexObjects();
 }
@@ -363,7 +369,7 @@ void HighSpeedTest::Initialize()
 
 void HighSpeedTest::CreateSettingsMenu(DebugUI *inUI, UIElement *inSubMenu)
 {
-	inUI->CreateTextButton(inSubMenu, "Select Scene", [this, inUI]() { 
+	inUI->CreateTextButton(inSubMenu, "Select Scene", [this, inUI]() {
 		UIElement *scene_name = inUI->CreateMenu();
 		for (uint i = 0; i < size(sScenes); ++i)
 			inUI->CreateTextButton(scene_name, sScenes[i], [this, i]() { sSelectedScene = i; RestartTest(); });

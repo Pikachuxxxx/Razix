@@ -4,6 +4,7 @@
 #include "RZSceneManager.h"
 
 #include "Razix/Core/App/RZApplication.h"
+#include "Razix/Core/Containers/string_utils.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
@@ -12,7 +13,7 @@
 #include "Razix/Scene/RZEntity.h"
 #include "Razix/Scene/RZScene.h"
 
-#include "Razix/Utilities/RZStringUtilities.h"
+#include "Razix/Core/Containers/string.h"
 
 namespace Razix {
 
@@ -37,19 +38,19 @@ namespace Razix {
 
         m_LoadedScenes.push_back(scene);
         // TODO: serialize this scene and add it's path to the list
-        std::string scenePath = "//Scenes/" + scene->getSceneName() + ".rzscn";
+        RZString scenePath = "//Scenes/" + scene->getSceneName() + ".rzscn";
         m_LoadedSceneFilePaths.push_back(scenePath);
         scene->serialiseScene(scenePath);
         RAZIX_CORE_INFO("[Scene Manager] - Enqueued Scene Index : {0}, Name : {1}", scene->getSceneName(), m_QueuedSceneIndexToLoad);
     }
 
-    void RZSceneManager::enqueueSceneFromFile(const std::string& sceneFilePath)
+    void RZSceneManager::enqueueSceneFromFile(const RZString& sceneFilePath)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
         m_LoadedSceneFilePaths.push_back(sceneFilePath);
 
-        auto name  = Utilities::RemoveFilePathExtension(Utilities::GetFileName(sceneFilePath));
+        auto name  = RemoveFilePathExtension(GetFileName(sceneFilePath));
         auto scene = new RZScene(name);
         // Once loaded to memory De-Serialize it
         scene->deSerialiseScene(sceneFilePath);
@@ -88,7 +89,7 @@ namespace Razix {
         loadSceneSettings();
     }
 
-    void RZSceneManager::loadScene(const std::string& sceneName)
+    void RZSceneManager::loadScene(const RZString& sceneName)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
@@ -139,7 +140,7 @@ namespace Razix {
         // Load and resume other paused/exited engine systems related to scene functionality\
 
         // Deserialize the scene
-        //std::string physicalPath;
+        //RZString physicalPath;
         //if (Razix::RZVirtualFileSystem::Get().resolvePhysicalPath("//Scenes/" + m_CurrentScene->getSceneName() + ".rzscn", physicalPath)) {
         //}
         //m_CurrentScene->deSerialiseScene(physicalPath);
@@ -180,7 +181,7 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
 
         // TODO: This isn't right
-        std::string scenePath = "//Scenes/" + m_CurrentScene->getSceneName() + ".rzscn";
+        RZString scenePath = "//Scenes/" + m_CurrentScene->getSceneName() + ".rzscn";
         m_CurrentScene->serialiseScene(scenePath);
     }
 

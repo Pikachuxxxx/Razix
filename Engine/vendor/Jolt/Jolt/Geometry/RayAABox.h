@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -20,7 +21,7 @@ public:
 		mIsParallel = Vec3::sLessOrEqual(inDirection.Abs(), Vec3::sReplicate(1.0e-20f));
 
 		// Calculate 1 / direction while avoiding division by zero
-		mInvDirection = Vec3::sSelect(inDirection, Vec3::sReplicate(1.0f), mIsParallel).Reciprocal();
+		mInvDirection = Vec3::sSelect(inDirection, Vec3::sOne(), mIsParallel).Reciprocal();
 	}
 
 	Vec3			mInvDirection;					///< 1 / ray direction
@@ -35,7 +36,7 @@ JPH_INLINE float RayAABox(Vec3Arg inOrigin, const RayInvDirection &inInvDirectio
 	Vec3 flt_min = Vec3::sReplicate(-FLT_MAX);
 	Vec3 flt_max = Vec3::sReplicate(FLT_MAX);
 
-	// Test against all three axii simultaneously.
+	// Test against all three axes simultaneously.
 	Vec3 t1 = (inBoundsMin - inOrigin) * inInvDirection.mInvDirection;
 	Vec3 t2 = (inBoundsMax - inOrigin) * inInvDirection.mInvDirection;
 
@@ -88,8 +89,8 @@ JPH_INLINE Vec4 RayAABox4(Vec3Arg inOrigin, const RayInvDirection &inInvDirectio
 	Vec4 invdirx = inInvDirection.mInvDirection.SplatX();
 	Vec4 invdiry = inInvDirection.mInvDirection.SplatY();
 	Vec4 invdirz = inInvDirection.mInvDirection.SplatZ();
-	
-	// Test against all three axii simultaneously.
+
+	// Test against all three axes simultaneously.
 	Vec4 t1x = (inBoundsMinX - originx) * invdirx;
 	Vec4 t1y = (inBoundsMinY - originy) * invdiry;
 	Vec4 t1z = (inBoundsMinZ - originz) * invdirz;
@@ -138,7 +139,7 @@ JPH_INLINE void RayAABox(Vec3Arg inOrigin, const RayInvDirection &inInvDirection
 	Vec3 flt_min = Vec3::sReplicate(-FLT_MAX);
 	Vec3 flt_max = Vec3::sReplicate(FLT_MAX);
 
-	// Test against all three axii simultaneously.
+	// Test against all three axes simultaneously.
 	Vec3 t1 = (inBoundsMin - inOrigin) * inInvDirection.mInvDirection;
 	Vec3 t2 = (inBoundsMax - inOrigin) * inInvDirection.mInvDirection;
 
@@ -177,7 +178,7 @@ JPH_INLINE bool RayAABoxHits(Vec3Arg inOrigin, const RayInvDirection &inInvDirec
 	Vec3 flt_min = Vec3::sReplicate(-FLT_MAX);
 	Vec3 flt_max = Vec3::sReplicate(FLT_MAX);
 
-	// Test against all three axii simultaneously.
+	// Test against all three axes simultaneously.
 	Vec3 t1 = (inBoundsMin - inOrigin) * inInvDirection.mInvDirection;
 	Vec3 t2 = (inBoundsMax - inOrigin) * inInvDirection.mInvDirection;
 
@@ -218,7 +219,7 @@ JPH_INLINE bool RayAABoxHits(Vec3Arg inOrigin, Vec3Arg inDirection, Vec3Arg inBo
 
 	Vec3 diff = 2.0f * inOrigin - inBoundsMin - inBoundsMax;
 	Vec3 abs_diff = diff.Abs();
-		
+
 	UVec4 no_intersection = UVec4::sAnd(Vec3::sGreater(abs_diff, extents), Vec3::sGreaterOrEqual(diff * inDirection, Vec3::sZero()));
 
 	Vec3 abs_dir = inDirection.Abs();

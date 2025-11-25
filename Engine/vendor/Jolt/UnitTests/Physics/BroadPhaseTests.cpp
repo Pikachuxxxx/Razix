@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -15,18 +16,18 @@ TEST_SUITE("BroadPhaseTests")
 {
 	TEST_CASE("TestBroadPhaseOptimize")
 	{
-		BPLayerInterfaceImpl broad_phase_layer_interface; 
+		BPLayerInterfaceImpl broad_phase_layer_interface;
 
 		// Create body manager
 		BodyManager body_manager;
 		body_manager.Init(1, 0, broad_phase_layer_interface);
-		
+
 		// Create quad tree
 		BroadPhaseQuadTree broadphase;
 		broadphase.Init(&body_manager, broad_phase_layer_interface);
 
 		// Create a box
-		BodyCreationSettings settings(new BoxShape(Vec3::sReplicate(1.0f)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING);
+		BodyCreationSettings settings(new BoxShape(Vec3::sOne()), RVec3::sZero(), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING);
 		Body &body = *body_manager.AllocateBody(settings);
 		body_manager.AddBody(&body);
 

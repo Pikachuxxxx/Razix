@@ -1,9 +1,11 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 #pragma once
 
 #include <Jolt/Math/Vec4.h>
+#include <Jolt/Core/FPException.h>
 
 JPH_NAMESPACE_BEGIN
 
@@ -76,7 +78,7 @@ inline HalfFloat FromFloatFallback(float inV)
 		bool round_up = RoundingMode == ROUND_TO_NEAREST || (hf_sign == 0) == (RoundingMode == ROUND_TO_POS_INF);
 		return hf_sign | (round_up? HALF_FLT_INF : HALF_FLT_MAX);
 	}
-	
+
 	// Check underflow to zero
 	if (rebiased_exponent < -HALF_FLT_MANTISSA_BITS)
 	{
@@ -131,11 +133,14 @@ template <int RoundingMode>
 JPH_INLINE HalfFloat FromFloat(float inV)
 {
 #ifdef JPH_USE_F16C
+	FPExceptionDisableOverflow disable_overflow;
+	JPH_UNUSED(disable_overflow);
+
 	union
 	{
 		__m128i		u128;
 		HalfFloat	u16[8];
-	} hf;	
+	} hf;
 	__m128 val = _mm_load_ss(&inV);
 	switch (RoundingMode)
 	{
@@ -147,7 +152,7 @@ JPH_INLINE HalfFloat FromFloat(float inV)
 		break;
 	case ROUND_TO_NEAREST:
 		hf.u128 = _mm_cvtps_ph(val, _MM_FROUND_TO_NEAREST_INT);
-		break;		
+		break;
 	}
 	return hf.u16[0];
 #else
@@ -192,7 +197,7 @@ JPH_INLINE Vec4 ToFloat(UVec4Arg inValue)
 #if defined(JPH_USE_F16C)
 	return _mm_cvtph_ps(inValue.mValue);
 #elif defined(JPH_USE_NEON)
-	return vcvt_f32_f16(vreinterpret_f16_f32(vget_low_f32(inValue.mValue)));
+	return vcvt_f32_f16(vreinterpret_f16_u32(vget_low_u32(inValue.mValue)));
 #else
 	return ToFloatFallback(inValue);
 #endif

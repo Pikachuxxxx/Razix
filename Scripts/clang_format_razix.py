@@ -6,7 +6,7 @@ import sys
 directories = ["Engine", "Sandbox", "Game", "GameFramework"]
 
 # Directories to ignore
-ignore_dirs = ["vendor"]
+ignore_dirs = ["vendor", "dxc"]
 
 # File extensions to format
 extensions = (".cpp", ".h", ".hpp", ".c", ".hlsl")

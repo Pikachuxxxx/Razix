@@ -2,8 +2,8 @@
 
 #include "Razix/Core/RZCore.h"
 
-#include "Razix/Utilities/RZTimestep.h"
-#include "Razix/Utilities/TRZSingleton.h"
+#include "Razix/Core/Utils/RZTimestep.h"
+#include "Razix/Core/Utils/TRZSingleton.h"
 
 #include <string>
 
@@ -32,9 +32,9 @@ namespace Razix {
         virtual void OnImGui() {}
 
         /* Returns the name of the system for debugging purpose */
-        inline const std::string& GetName() const { return m_SystemName; }
+        inline const RZString& GetName() const { return m_SystemName; }
 
     protected:
-        std::string m_SystemName;
+        RZString m_SystemName;
     };
 }    // namespace Razix

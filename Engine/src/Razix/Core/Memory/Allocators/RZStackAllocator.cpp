@@ -1,46 +1,40 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZStackAllocator.h"
 
-#include "Razix/Core/Memory/RZAllocationMetrics.h"
+#include "Razix/Core/Memory/Allocators/RZStackAllocator.h"
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
-
-#include <iostream>
 
 namespace Razix {
     namespace Memory {
 
-        void RZStackAllocator::init(size_t size)
+        void RZStackAllocator::init(size_t size, size_t alignment)
         {
-            m_StackChunk    = (uint8_t*) RZMalloc(size);    // Allocate a huge chunk of 16-byte aligned memory
-            m_AllocatedSize = 0;
-            m_TotalSize     = size;
+            m_TotalSize  = size;
+            m_Alignment  = alignment;
+            m_StackChunk = (uint8_t*) rz_malloc(size, alignment);
         }
 
         void RZStackAllocator::shutdown()
         {
-            RZFree(m_StackChunk);
+            rz_free(m_StackChunk);
         }
 
-        void* RZStackAllocator::allocate(size_t size, size_t alignment)
+        void* RZStackAllocator::allocate(size_t size)
         {
-            const size_t new_start          = RZMemAlign(m_AllocatedSize, alignment);
-            const size_t new_allocated_size = new_start + size;
-            if (new_allocated_size > m_TotalSize) {
-                std::cout << "[Stack Allocator] Stack Overflow!" << std::endl;
+            if (m_AllocatedSize + size > m_TotalSize)
                 return nullptr;
-            }
 
-            m_AllocatedSize = new_allocated_size;
-            return m_StackChunk + new_start;
+            void* address = m_StackChunk + m_AllocatedSize;
+            m_AllocatedSize += size;
+            return address;
         }
 
         void RZStackAllocator::deallocate(void* ptr)
         {
-            // TODO: Add asserts
-            const size_t size_at_pointer = (uint8_t*) ptr - m_StackChunk;
-            m_AllocatedSize              = size_at_pointer;
+            // In a stack allocator, deallocation is typically done by clearing the entire stack or by popping the last allocation.
+            // A single deallocate call is often a no-op.
         }
+
     }    // namespace Memory
 }    // namespace Razix

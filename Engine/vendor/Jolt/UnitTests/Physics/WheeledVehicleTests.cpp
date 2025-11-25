@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2022 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -80,7 +81,7 @@ TEST_SUITE("WheeledVehicleTests")
 		vehicle.mWheels[FR_WHEEL] = fr;
 		vehicle.mWheels[BL_WHEEL] = bl;
 		vehicle.mWheels[BR_WHEEL] = br;
-	
+
 		for (WheelSettings *w : vehicle.mWheels)
 		{
 			w->mRadius = inSettings.mWheelRadius;
@@ -139,11 +140,11 @@ TEST_SUITE("WheeledVehicleTests")
 	{
 		// Between min and max suspension length
 		RVec3 pos = inConstraint->GetVehicleBody()->GetPosition();
-		CHECK(pos.GetY() > inSettings.mSuspensionMinLength + inSettings.mWheelOffsetVertical + inSettings.mHalfVehicleHeight); 
+		CHECK(pos.GetY() > inSettings.mSuspensionMinLength + inSettings.mWheelOffsetVertical + inSettings.mHalfVehicleHeight);
 		CHECK(pos.GetY() < inSettings.mSuspensionMaxLength + inSettings.mWheelOffsetVertical + inSettings.mHalfVehicleHeight);
 
 		// Wheels touching ground
-		for (const Wheel *w : inConstraint->GetWheels()) 
+		for (const Wheel *w : inConstraint->GetWheels())
 			CHECK(w->GetContactBodyID() == inGroundID);
 	}
 
@@ -177,24 +178,24 @@ TEST_SUITE("WheeledVehicleTests")
 		// Start driving forward
 		controller->SetDriverInput(1.0f, 0.0f, 0.0f, 0.0f);
 		c.GetBodyInterface().ActivateBody(body->GetID());
-		c.Simulate(1.0f);
+		c.Simulate(2.0f);
 		CheckOnGround(constraint, settings, floor_id);
 		RVec3 pos2 = body->GetPosition();
-		CHECK_APPROX_EQUAL(pos2.GetX(), 0, 1.0e-3_r); // Not moving left/right
+		CHECK_APPROX_EQUAL(pos2.GetX(), 0, 1.0e-2_r); // Not moving left/right
 		CHECK(pos2.GetZ() > pos1.GetZ() + 1.0f); // Moving in Z direction
 		Vec3 vel = body->GetLinearVelocity();
-		CHECK_APPROX_EQUAL(vel.GetX(), 0, 1.0e-2f); // Not moving left/right
+		CHECK_APPROX_EQUAL(vel.GetX(), 0, 2.0e-2f); // Not moving left/right
 		CHECK(vel.GetZ() > 1.0f); // Moving in Z direction
 		CHECK(controller->GetTransmission().GetCurrentGear() > 0);
 
 		// Brake
 		controller->SetDriverInput(0.0f, 0.0f, 1.0f, 0.0f);
 		c.GetBodyInterface().ActivateBody(body->GetID());
-		c.Simulate(2.0f);
+		c.Simulate(5.0f);
 		CheckOnGround(constraint, settings, floor_id);
-		CHECK(!body->IsActive()); // Car should have gone sleeping
+		CHECK(!body->IsActive()); // Car should have gone to sleep
 		RVec3 pos3 = body->GetPosition();
-		CHECK_APPROX_EQUAL(pos3.GetX(), 0, 2.0e-3_r); // Not moving left/right
+		CHECK_APPROX_EQUAL(pos3.GetX(), 0, 2.0e-2_r); // Not moving left/right
 		CHECK(pos3.GetZ() > pos2.GetZ() + 1.0f); // Moving in Z direction while braking
 		vel = body->GetLinearVelocity();
 		CHECK_APPROX_EQUAL(vel, Vec3::sZero(), 1.0e-3f); // Not moving
@@ -205,21 +206,21 @@ TEST_SUITE("WheeledVehicleTests")
 		c.Simulate(2.0f);
 		CheckOnGround(constraint, settings, floor_id);
 		RVec3 pos4 = body->GetPosition();
-		CHECK_APPROX_EQUAL(pos4.GetX(), 0, 1.0e-2_r); // Not moving left/right
+		CHECK_APPROX_EQUAL(pos4.GetX(), 0, 3.0e-2_r); // Not moving left/right
 		CHECK(pos4.GetZ() < pos3.GetZ() - 1.0f); // Moving in -Z direction
 		vel = body->GetLinearVelocity();
-		CHECK_APPROX_EQUAL(vel.GetX(), 0, 1.0e-2f); // Not moving left/right
+		CHECK_APPROX_EQUAL(vel.GetX(), 0, 5.0e-2f); // Not moving left/right
 		CHECK(vel.GetZ() < -1.0f); // Moving in -Z direction
 		CHECK(controller->GetTransmission().GetCurrentGear() < 0);
 
 		// Brake
 		controller->SetDriverInput(0.0f, 0.0f, 1.0f, 0.0f);
 		c.GetBodyInterface().ActivateBody(body->GetID());
-		c.Simulate(3.0f);
+		c.Simulate(5.0f);
 		CheckOnGround(constraint, settings, floor_id);
-		CHECK(!body->IsActive()); // Car should have gone sleeping
+		CHECK(!body->IsActive()); // Car should have gone to sleep
 		RVec3 pos5 = body->GetPosition();
-		CHECK_APPROX_EQUAL(pos5.GetX(), 0, 1.0e-2_r); // Not moving left/right
+		CHECK_APPROX_EQUAL(pos5.GetX(), 0, 7.0e-2_r); // Not moving left/right
 		CHECK(pos5.GetZ() < pos4.GetZ() - 1.0f); // Moving in -Z direction while braking
 		vel = body->GetLinearVelocity();
 		CHECK_APPROX_EQUAL(vel, Vec3::sZero(), 1.0e-3f); // Not moving
@@ -227,7 +228,7 @@ TEST_SUITE("WheeledVehicleTests")
 		// Turn right
 		controller->SetDriverInput(1.0f, 1.0f, 0.0f, 0.0f);
 		c.GetBodyInterface().ActivateBody(body->GetID());
-		c.Simulate(1.0f);
+		c.Simulate(2.0f);
 		CheckOnGround(constraint, settings, floor_id);
 		Vec3 omega = body->GetAngularVelocity();
 		CHECK(omega.GetY() < -0.4f); // Rotating right
@@ -236,16 +237,16 @@ TEST_SUITE("WheeledVehicleTests")
 		// Hand brake
 		controller->SetDriverInput(0.0f, 0.0f, 0.0f, 1.0f);
 		c.GetBodyInterface().ActivateBody(body->GetID());
-		c.Simulate(4.0f);
+		c.Simulate(7.0f);
 		CheckOnGround(constraint, settings, floor_id);
-		CHECK(!body->IsActive()); // Car should have gone sleeping
+		CHECK(!body->IsActive()); // Car should have gone to sleep
 		vel = body->GetLinearVelocity();
 		CHECK_APPROX_EQUAL(vel, Vec3::sZero(), 1.0e-3f); // Not moving
 
 		// Turn left
 		controller->SetDriverInput(1.0f, -1.0f, 0.0f, 0.0f);
 		c.GetBodyInterface().ActivateBody(body->GetID());
-		c.Simulate(1.0f);
+		c.Simulate(2.0f);
 		CheckOnGround(constraint, settings, floor_id);
 		omega = body->GetAngularVelocity();
 		CHECK(omega.GetY() > 0.4f); // Rotating left
@@ -303,6 +304,14 @@ TEST_SUITE("WheeledVehicleTests")
 			VehicleConstraint *constraint = AddVehicle(c, settings);
 			Body *body = constraint->GetVehicleBody();
 			WheeledVehicleController *controller = static_cast<WheeledVehicleController *>(constraint->GetController());
+
+			// Give the wheels extra grip
+			controller->SetTireMaxImpulseCallback(
+				[](uint, float &outLongitudinalImpulse, float &outLateralImpulse, float inSuspensionImpulse, float inLongitudinalFriction, float inLateralFriction, float, float, float)
+				{
+					outLongitudinalImpulse = 10.0f * inLongitudinalFriction * inSuspensionImpulse;
+					outLateralImpulse = inLateralFriction * inSuspensionImpulse;
+				});
 
 			// Simulate till vehicle rests on block
 			bool vehicle_on_floor = false;

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2022 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -15,11 +16,12 @@
 #include <Renderer/DebugRendererImp.h>
 #include <Layers.h>
 #include <Utils/Log.h>
+#include <Utils/AssetStream.h>
 #include <random>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(BigWorldTest) 
-{ 
-	JPH_ADD_BASE_CLASS(BigWorldTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(BigWorldTest)
+{
+	JPH_ADD_BASE_CLASS(BigWorldTest, Test)
 }
 
 BigWorldTest::~BigWorldTest()
@@ -32,17 +34,18 @@ BigWorldTest::~BigWorldTest()
 void BigWorldTest::Initialize()
 {
 	constexpr int cPileSize = 5;
-	
+
 	// Default terrain
 	Body &floor = CreateMeshTerrain();
 	RefConst<Shape> shape = floor.GetShape();
 
 	// Load ragdoll
-	Ref<RagdollSettings> settings = RagdollLoader::sLoad("Assets/Human.tof", EMotionType::Dynamic);
+	Ref<RagdollSettings> settings = RagdollLoader::sLoad("Human.tof", EMotionType::Dynamic);
 
 	// Load animation
 	Ref<SkeletalAnimation> animation;
-	if (!ObjectStreamIn::sReadObject("Assets/Human/Dead_Pose1.tof", animation))
+	AssetStream stream("Human/dead_pose1.tof", std::ios::in);
+	if (!ObjectStreamIn::sReadObject(stream.Get(), animation))
 		FatalError("Could not open animation");
 	SkeletonPose pose;
 	pose.SetSkeleton(settings->GetSkeleton());
@@ -73,7 +76,7 @@ void BigWorldTest::Initialize()
 		{
 			// Create ragdoll
 			Ref<Ragdoll> ragdoll = settings->CreateRagdoll(0, 0, mPhysicsSystem);
-	
+
 			// Override root
 			SkeletonPose::JointState &root = pose.GetJoint(0);
 			root.mTranslation = Vec3::sZero();
@@ -128,7 +131,7 @@ void BigWorldTest::PrePhysicsUpdate(const PreUpdateParams &inParams)
 
 						#ifdef JPH_DEBUG_RENDERER
 							// Draw the shape
-							body.GetShape()->Draw(mDebugRenderer, transform, Vec3::sReplicate(1.0f), color, false, sDrawWireframe);
+							body.GetShape()->Draw(mDebugRenderer, transform, Vec3::sOne(), color, false, sDrawWireframe);
 						#endif // JPH_DEBUG_RENDERER
 						}
 					}

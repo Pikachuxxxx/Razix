@@ -24,7 +24,7 @@ namespace Razix {
     void RZSplashScreen::StartUp()
     {
         // Select the splash image based on the release stage
-        std::string filePath;
+        RZString filePath;
         if (RazixVersion.getReleaseStage() == Version::Stage::Development)
             filePath = "//RazixSplash/RazixSplashScreenDev.bmp";
         else if (RazixVersion.getReleaseStage() == Version::Stage::Alpha)
@@ -60,13 +60,13 @@ namespace Razix {
         DestroyWindow(hWnd);
     }
 
-    void RZSplashScreen::setVersionString(const std::string& text)
+    void RZSplashScreen::setVersionString(const RZString& text)
     {
         m_VersionString = text;
         SendMessage(hWnd, UPDATE_VERSION_LABEL, NULL, NULL);
     }
 
-    void RZSplashScreen::setLogString(const std::string& text)
+    void RZSplashScreen::setLogString(const RZString& text)
     {
         m_LogString = text;
         SendMessage(hWnd, UPDATE_VERSION_LABEL, NULL, NULL);

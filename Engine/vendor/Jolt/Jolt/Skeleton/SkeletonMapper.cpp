@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -85,10 +86,10 @@ void SkeletonMapper::Initialize(const Skeleton *inSkeleton1, const Mat44 *inNeut
 
 			// If the chain exists in 1 too
 			if (cur == start)
-			{		
+			{
 				// Reverse the chains
-				reverse(chain1.begin(), chain1.end());
-				reverse(chain2.begin(), chain2.end());
+				std::reverse(chain1.begin(), chain1.end());
+				std::reverse(chain2.begin(), chain2.end());
 
 				// Mark elements mapped
 				for (int j1 : chain1)

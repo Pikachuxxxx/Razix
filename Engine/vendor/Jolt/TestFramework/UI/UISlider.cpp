@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -71,7 +72,7 @@ bool UISlider::MouseDown(int inX, int inY)
 			mThumbDragPoint = inX - tx;
 			return true;
 		}
-	}	
+	}
 
 	return UIElement::MouseDown(inX, inY);
 }
@@ -125,7 +126,7 @@ void UISlider::Draw() const
 	GetManager()->DrawQuad(tx, GetY() + ty, mThumb.mWidth, mThumb.mHeight, mThumb, Color::sWhite);
 }
 
-void UISlider::AutoLayout() 
+void UISlider::AutoLayout()
 {
 	UIElement::AutoLayout();
 
@@ -139,16 +140,16 @@ void UISlider::AutoLayout()
 }
 
 void UISlider::SetValueInternal(float inValue)
-{ 
+{
 	float old_value = mCurrentValue;
 
 	float step = round((inValue - mMinValue) / mStepValue);
 	mCurrentValue = Clamp(mMinValue + step * mStepValue, mMinValue, mMaxValue);
-		
+
 	if (mCurrentValue != old_value)
 	{
-		if (mValueChangedAction) 
-			mValueChangedAction(mCurrentValue); 
+		if (mValueChangedAction)
+			mValueChangedAction(mCurrentValue);
 
 		UpdateStaticText();
 	}

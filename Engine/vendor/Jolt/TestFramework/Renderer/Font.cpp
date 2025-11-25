@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -6,18 +7,27 @@
 #include <Renderer/Font.h>
 #include <Renderer/Renderer.h>
 #include <Image/Surface.h>
+#include <Utils/ReadData.h>
 #include <Jolt/Core/Profiler.h>
+#include <Jolt/Core/ScopeExit.h>
 
-const int cSpacingH		= 2;								// Number of pixels to put horizontally between characters
-const int cSpacingV		= 2;								// Number of pixels to put vertically between characters
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
+JPH_CLANG_SUPPRESS_WARNING("-Wreserved-identifier")
+JPH_CLANG_SUPPRESS_WARNING("-Wzero-as-null-pointer-constant")
+JPH_CLANG_SUPPRESS_WARNING("-Wcast-qual")
+JPH_CLANG_SUPPRESS_WARNING("-Wimplicit-fallthrough")
+JPH_CLANG_SUPPRESS_WARNING("-Wcomma")
+JPH_CLANG_SUPPRESS_WARNING("-Wdouble-promotion")
+#define STB_TRUETYPE_IMPLEMENTATION
+#include <External/stb_truetype.h>
+JPH_SUPPRESS_WARNINGS_STD_END
 
 Font::Font(Renderer *inRenderer) :
 	mRenderer(inRenderer)
 {
 }
 
-bool
-Font::Create(const char *inFontName, int inCharHeight)
+bool Font::Create(const char *inFontName, int inCharHeight)
 {
 	JPH_PROFILE("Create");
 
@@ -27,94 +37,30 @@ Font::Create(const char *inFontName, int inCharHeight)
 	mHorizontalTexels = 64;
 	mVerticalTexels = 64;
 
-	// Check font name length
-	if (mFontName.size() >= LF_FACESIZE) 
+	constexpr int cSpacingH = 2; // Number of pixels to put horizontally between characters
+	constexpr int cSpacingV = 2; // Number of pixels to put vertically between characters
+
+	// Read font data
+	Array<uint8> font_data = ReadData((String("Fonts/") + inFontName + ".ttf").c_str());
+
+	// Construct a font info
+	stbtt_fontinfo font;
+	if (!stbtt_InitFont(&font, font_data.data(), stbtt_GetFontOffsetForIndex(font_data.data(), 0)))
 		return false;
 
-	// Create font
-	LOGFONTA font_desc;
-	memset(&font_desc, 0, sizeof(font_desc));
-	font_desc.lfHeight			= mCharHeight; 
-	font_desc.lfWeight			= FW_NORMAL; 
-	font_desc.lfCharSet			= DEFAULT_CHARSET; 
-	font_desc.lfOutPrecision	= OUT_DEFAULT_PRECIS; 
-	font_desc.lfClipPrecision	= CLIP_DEFAULT_PRECIS; 
-	font_desc.lfQuality			= ANTIALIASED_QUALITY; 
-	font_desc.lfPitchAndFamily	= VARIABLE_PITCH;
-	strcpy_s(font_desc.lfFaceName, mFontName.c_str());
-	HFONT font = CreateFontIndirectA(&font_desc);
-    if (font == nullptr) 
-		return false;
-    
-	// Create a DC for the font
-    HDC dc = CreateCompatibleDC(nullptr);	
-	if (dc == nullptr)
-	{
-		DeleteObject(font);
-		return false;
-	}
-
-	// Select the font
-	SelectObject(dc, font);
-    SetMapMode(dc, MM_TEXT);
-
-	// Get text metrics
-	TEXTMETRICA textmetric;
-	if (!GetTextMetricsA(dc, &textmetric))
-	{
-		DeleteObject(font);
-		DeleteDC(dc);
-		return false;
-	}
-
-	// Compute spacing
-	ABC widths[256];
-	if (!GetCharABCWidthsA(dc, 0, 255, widths))
-	{
-		DeleteObject(font);
-		DeleteDC(dc);
-		return false;
-	}
-	for (int idx1 = 0; idx1 < cNumChars; ++idx1)
-		for (int idx2 = 0; idx2 < cNumChars; ++idx2)
-		{
-			int spacing = int(widths[idx1 + cBeginChar].abcB) + widths[idx1 + cBeginChar].abcC + widths[idx2 + cBeginChar].abcA;
-			JPH_ASSERT(spacing >= 0 && spacing <= 0xff);
-			mSpacing[idx1][idx2] = (uint8)spacing;
-		}
-
-	// Adjust spacing for kerning pairs
-	DWORD pair_count = GetKerningPairsA(dc, 0, nullptr);
-	if (pair_count > 0)
-	{
-		LPKERNINGPAIR pairs = new KERNINGPAIR [pair_count];
-		GetKerningPairsA(dc, pair_count, pairs);
-		for (DWORD i = 0; i < pair_count; ++i)
-			if (pairs[i].wFirst >= cBeginChar && pairs[i].wFirst < cEndChar && pairs[i].wSecond >= cBeginChar && pairs[i].wSecond < cEndChar)
-			{
-				int idx1 = pairs[i].wFirst - cBeginChar;
-				int idx2 = pairs[i].wSecond - cBeginChar;
-
-				int new_spacing = (int)mSpacing[idx1][idx2] + pairs[i].iKernAmount;
-				JPH_ASSERT(new_spacing >= 0 && new_spacing <= 0xff);
-				mSpacing[idx1][idx2] = (uint8)new_spacing;
-			}
-		delete [] pairs;
-	}
+	// Get the base line for the font
+	float scale = stbtt_ScaleForPixelHeight(&font, float(mCharHeight));
+	int ascent;
+	stbtt_GetFontVMetrics(&font, &ascent, nullptr, nullptr);
+	int baseline = int(ascent * scale);
 
 	// Create surface for characters
 	Ref<SoftwareSurface> surface = new SoftwareSurface(mHorizontalTexels, mVerticalTexels, ESurfaceFormat::L8);
 	surface->Clear();
 	surface->Lock(ESurfaceLockMode::Write);
 
-	// Identity transform
-	MAT2 identity;
-	memset(&identity, 0, sizeof(identity));
-	identity.eM11.value = 1;
-	identity.eM22.value = 1;
-
 	// Draw all printable characters
-	try_again:;
+try_again:;
 	int x = 0, y = 0;
 	static_assert(cBeginChar == ' ', "We skip space in the for loop below");
 	for (int c = cBeginChar + 1; c < cEndChar; ++c)
@@ -122,15 +68,20 @@ Font::Create(const char *inFontName, int inCharHeight)
 		// Get index in the arrays
 		int idx = c - cBeginChar;
 
+		int w, h, xoff, yoff;
+		unsigned char *bitmap = stbtt_GetCodepointBitmap(&font, 0, scale, c, &w, &h, &xoff, &yoff);
+		JPH_SCOPE_EXIT([bitmap]{ STBTT_free(bitmap, nullptr); });
+		yoff = baseline + yoff;
+
 		// Check if there is room on this line
-		if (int(x + widths[c].abcB + cSpacingH) > mHorizontalTexels)
+		if (int(x + xoff + w + cSpacingH) > mHorizontalTexels)
 		{
 			// Next line
 			x = 0;
-			y += textmetric.tmHeight + cSpacingV;
+			y += mCharHeight + cSpacingV;
 
 			// Check if character fits
-			if (y + textmetric.tmHeight + cSpacingV > mVerticalTexels)
+			if (y + mCharHeight + cSpacingV > mVerticalTexels)
 			{
 				// Character doesn't fit, enlarge surface
 				if (mHorizontalTexels < 2 * mVerticalTexels)
@@ -152,63 +103,54 @@ Font::Create(const char *inFontName, int inCharHeight)
 		// Get location of character in font surface
 		JPH_ASSERT(x >= 0 && x <= 0xffff);
 		JPH_ASSERT(y >= 0 && y <= 0xffff);
-		JPH_ASSERT(widths[c].abcB <= 0xff);
+		JPH_ASSERT(w <= 0xff);
 		mStartU[idx] = uint16(x);
 		mStartV[idx] = uint16(y);
-		mWidth[idx] = uint8(widths[c].abcB);
+		mWidth[idx] = uint8(w + 1);
 
-		// Get character data size
-		GLYPHMETRICS metrics;
-		int char_size = GetGlyphOutlineA(dc, c, GGO_GRAY8_BITMAP, &metrics, 0, nullptr, &identity);
-		if (char_size != 0)
+		// Copy the character data
+		for (int y2 = 0; y2 < h; ++y2)
 		{
-			// Allocate room for character
-			uint8 *char_data = new uint8 [char_size];
-		
-			// Get character
-			GetGlyphOutlineA(dc, c, GGO_GRAY8_BITMAP, &metrics, char_size, char_data, &identity);
-			uint src_pitch = (metrics.gmBlackBoxX + 3) & ~uint(3);
-
-			// Copy the character data
-			for (uint src_y = 0, dst_y = y; src_y < metrics.gmBlackBoxY; ++src_y, ++dst_y)
-			{
-				uint8 *src = char_data + src_y * src_pitch;
-				uint8 *dst = surface->GetScanLine(dst_y + int(textmetric.tmHeight - textmetric.tmDescent - metrics.gmptGlyphOrigin.y)) + x;
-
-				for (uint src_x = 0; src_x < metrics.gmBlackBoxX; ++src_x, ++src, ++dst)
-					*dst = uint8(min(int(*src) << 2, 255));
-			}				
-
-			// Destroy temporary character data
-			delete [] char_data;
+			uint8 *src = bitmap + y2 * w;
+			uint8 *dst = surface->GetScanLine(y + yoff + y2) + x + xoff;
+			memcpy(dst, src, w);
 		}
 
 		// Go to the next character
-		x += widths[c].abcB + cSpacingH;			
+		x += w + cSpacingH;
 	}
+
+	// Calculate spacing between characters
+	for (int idx1 = 0; idx1 < cNumChars; ++idx1)
+		for (int idx2 = 0; idx2 < cNumChars; ++idx2)
+		{
+			int c1 = cBeginChar + idx1;
+			int c2 = cBeginChar + idx2;
+
+			int advance;
+			stbtt_GetCodepointHMetrics(&font, c1, &advance, nullptr);
+			int spacing = Clamp(int(scale * (advance + stbtt_GetCodepointKernAdvance(&font, c1, c2))), 0, 0xff);
+			mSpacing[idx1][idx2] = (uint8)spacing;
+		}
 
 	// Unlock surface
 	surface->UnLock();
 
-	// Release GDI objects
-    DeleteObject(font);
-    DeleteDC(dc);
-
 	// Create input layout
-	const D3D12_INPUT_ELEMENT_DESC vertex_desc[] =
+	const PipelineState::EInputDescription vertex_desc[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		PipelineState::EInputDescription::Position,
+		PipelineState::EInputDescription::TexCoord,
+		PipelineState::EInputDescription::Color
 	};
 
 	// Load vertex shader
-	ComPtr<ID3DBlob> vtx = mRenderer->CreateVertexShader("Assets/Shaders/FontVertexShader.hlsl");
+	Ref<VertexShader> vtx = mRenderer->CreateVertexShader("FontVertexShader");
 
 	// Load pixel shader
-	ComPtr<ID3DBlob> pix = mRenderer->CreatePixelShader("Assets/Shaders/FontPixelShader.hlsl");
+	Ref<PixelShader> pix = mRenderer->CreatePixelShader("FontPixelShader");
 
-	mPipelineState = mRenderer->CreatePipelineState(vtx.Get(), vertex_desc, ARRAYSIZE(vertex_desc), pix.Get(), D3D12_FILL_MODE_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, PipelineState::EDepthTest::Off, PipelineState::EBlendMode::AlphaTest, PipelineState::ECullMode::Backface);
+	mPipelineState = mRenderer->CreatePipelineState(vtx, vertex_desc, std::size(vertex_desc), pix, PipelineState::EDrawPass::Normal, PipelineState::EFillMode::Solid, PipelineState::ETopology::Triangle, PipelineState::EDepthTest::Off, PipelineState::EBlendMode::AlphaBlend, PipelineState::ECullMode::Backface);
 
 	// Create texture
 	mTexture = mRenderer->CreateTexture(surface);
@@ -239,7 +181,7 @@ Float2 Font::MeasureText(const string_view &inText) const
 		if (ch > cBeginChar && ch < cEndChar)
 		{
 			// Update extents
-			int c1 = ch - cBeginChar;		
+			int c1 = ch - cBeginChar;
 			extents.x = max(extents.x, x + float(mWidth[c1]) / mCharHeight);
 		}
 
@@ -253,7 +195,7 @@ Float2 Font::MeasureText(const string_view &inText) const
 		else if (i + 1 < inText.size())
 		{
 			// Do spacing between the two characters
-			int c1 = ch - cBeginChar;		
+			int c1 = ch - cBeginChar;
 			int c2 = inText[i + 1] - cBeginChar;
 
 			if (c1 >= 0 && c1 < cNumChars && c2 >= 0 && c2 < cNumChars)
@@ -263,7 +205,7 @@ Float2 Font::MeasureText(const string_view &inText) const
 
 	return extents;
 }
-	
+
 bool Font::CreateString(Mat44Arg inTransform, const string_view &inText, ColorArg inColor, RenderPrimitive &ioPrimitive) const
 {
 	JPH_PROFILE("CreateString");
@@ -286,12 +228,12 @@ bool Font::CreateString(Mat44Arg inTransform, const string_view &inText, ColorAr
 	// Get correction factor for texture size
 	float texel_to_u = 1.0f / mHorizontalTexels;
 	float texel_to_v = 1.0f / mVerticalTexels;
-	
+
 	int vtx_size = printable * 4;
 	int idx_size = printable * 6;
 	ioPrimitive.CreateVertexBuffer(vtx_size, sizeof(FontVertex));
 	ioPrimitive.CreateIndexBuffer(idx_size);
-			
+
 	// Current vertex
 	uint32 vtx = 0;
 
@@ -299,7 +241,7 @@ bool Font::CreateString(Mat44Arg inTransform, const string_view &inText, ColorAr
 	FontVertex *font_vtx = (FontVertex *)ioPrimitive.LockVertexBuffer();
 	uint32 *idx_start = ioPrimitive.LockIndexBuffer();
 	uint32 *idx = idx_start;
-	
+
 	// Current raster position
 	float x = 0, y = -1.0f;
 
@@ -314,8 +256,8 @@ bool Font::CreateString(Mat44Arg inTransform, const string_view &inText, ColorAr
 		if (ch > cBeginChar && ch < cEndChar)
 		{
 			// Get index for character
-			int c1 = ch - cBeginChar;		
-			
+			int c1 = ch - cBeginChar;
+
 			// Create indices
 			*idx = vtx;
 			++idx;
@@ -368,7 +310,7 @@ bool Font::CreateString(Mat44Arg inTransform, const string_view &inText, ColorAr
 		else if (i + 1 < inText.size())
 		{
 			// Do spacing between the two characters
-			int c1 = ch - cBeginChar;		
+			int c1 = ch - cBeginChar;
 			int c2 = inText[i + 1] - cBeginChar;
 
 			if (c1 >= 0 && c1 < cNumChars && c2 >= 0 && c2 < cNumChars)
@@ -395,13 +337,13 @@ void Font::DrawText3D(Mat44Arg inTransform, const string_view &inText, ColorArg 
 	if (inText.empty())
 		return;
 
-	RenderPrimitive primitive(mRenderer, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	if (CreateString(inTransform, inText, inColor, primitive))
+	Ref<RenderPrimitive> primitive = mRenderer->CreateRenderPrimitive(PipelineState::ETopology::Triangle);
+	if (CreateString(inTransform, inText, inColor, *primitive))
 	{
-		mTexture->Bind(2);
+		mTexture->Bind();
 
 		mPipelineState->Activate();
 
-		primitive.Draw();
+		primitive->Draw();
 	}
 }

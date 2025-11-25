@@ -25,7 +25,7 @@ namespace Razix {
               * 
               * Because the resources can be cloned and have multiple instance in the graph they need another ID to point to it's entry point in FG
               */
-            RZResourceNode(const std::string_view name, u32 id, u32 resourceID, u32 version);
+            RZResourceNode(const RZString& name, u32 id, u32 resourceID, u32 version);
 
         public:
             inline u32 getResourceEntryId() const { return m_ResourceEntryID; }

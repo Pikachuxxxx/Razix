@@ -1,28 +1,26 @@
 /*
  * Razix Engine Shader File
- * Default Pixel Shader composition pass for presention onto a swapchain image, takes a RT and presents it onto a Screen Quad 
+ * Default Pixel Shader composition pass for presentation onto a swapchain image, takes a RT and presents it onto a Screen Quad 
  */
 //------------------------------------------------------------------------------
 // Bindless Textures
-//#include <Utils/ShaderInclude.Builtin.Color.glsl>
+#include <Utils/ShaderInclude.Builtin.Color.h>
 //------------------------------------------------------------------------------
 // VersampleColor Input
 struct PsIn
 {
-    float2 uv : TEXCOORD0;
+    float4 position : SV_POSITION;
+    float2 uv       : TEXCOORD0;
 };
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-Texture2D    CompositionTarget : register(t0, space0);
-SamplerState g_ColorSampler : register(s1, space0);
+SamplerState g_Sampler         : register(s0, space0);
+Texture2D    FinalSceneColor   : register(t0, space1);
 //------------------------------------------------------------------------------
 float4 PS_MAIN(PsIn input)
     : SV_TARGET
 {
-    float4 result = CompositionTarget.Sample(g_ColorSampler, input.uv);
-
-    // Gamma correction to sRGB
-    // result = LinearTosRGB(result);
+    float4 result = FinalSceneColor.Sample(g_Sampler, input.uv);
     return result;
 }
 //------------------------------------------------------------------------------

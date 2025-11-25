@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -25,15 +26,15 @@ public:
 		if (mMutexMask != 0)
 		{
 			// Get mutex
-			if (Write) 
+			if (Write)
 				inBodyLockInterface.LockWrite(mMutexMask);
 			else
 				inBodyLockInterface.LockRead(mMutexMask);
 		}
 	}
 
-	/// Destructor will unlock the bodies
-								~BodyLockMultiBase()
+	/// Explicitly release the locks on all bodies (normally this is done in the destructor)
+	inline void					ReleaseLocks()
 	{
 		if (mMutexMask != 0)
 		{
@@ -41,7 +42,23 @@ public:
 				mBodyLockInterface.UnlockWrite(mMutexMask);
 			else
 				mBodyLockInterface.UnlockRead(mMutexMask);
+
+			mMutexMask = 0;
+			mBodyIDs = nullptr;
+			mNumBodyIDs = 0;
 		}
+	}
+
+	/// Destructor will unlock the bodies
+								~BodyLockMultiBase()
+	{
+		ReleaseLocks();
+	}
+
+	/// Returns the number of bodies that were locked
+	inline int					GetNumBodies() const
+	{
+		return mNumBodyIDs;
 	}
 
 	/// Access the body (returns null if body was not properly locked)
@@ -67,13 +84,13 @@ private:
 };
 
 /// A multi body lock takes a number of body IDs and locks the underlying bodies so that other threads cannot access its members
-/// 
+///
 /// The common usage pattern is:
-/// 
+///
 ///		BodyLockInterface lock_interface = physics_system.GetBodyLockInterface(); // Or non-locking interface if the lock is already taken
 ///		const BodyID *body_id = ...; // Obtain IDs to bodies
 ///		int num_body_ids = ...;
-///		
+///
 ///		// Scoped lock
 ///		{
 ///			BodyLockMultiRead lock(lock_interface, body_ids, num_body_ids);
@@ -83,7 +100,7 @@ private:
 ///				if (body != nullptr)
 ///				{
 ///					const Body &body = lock.Body();
-///		
+///
 ///					// Do something with body
 ///					...
 ///				}

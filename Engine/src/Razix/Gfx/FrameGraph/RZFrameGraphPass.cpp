@@ -11,29 +11,20 @@
 #include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/Markers/RZMarkers.h"
 
-#include "Razix/Gfx/RHI/API/RZDrawCommandBuffer.h"
-#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
-#include "Razix/Gfx/RHI/API/RZIndexBuffer.h"
-#include "Razix/Gfx/RHI/API/RZPipeline.h"
-#include "Razix/Gfx/RHI/API/RZShader.h"
-#include "Razix/Gfx/RHI/API/RZTexture.h"
-#include "Razix/Gfx/RHI/API/RZUniformBuffer.h"
-#include "Razix/Gfx/RHI/API/RZVertexBuffer.h"
-
 #include "Razix/Gfx/RHI/RHI.h"
 
-#include "Razix/Gfx/RZMesh.h"
-#include "Razix/Gfx/RZMeshFactory.h"
-
-#include "Razix/Gfx/RZShaderLibrary.h"
-
-#include "Razix/Gfx/Materials/RZMaterial.h"
-
-#include "Razix/Gfx/Passes/Data/GlobalData.h"
-
-#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Gfx/Resources/RZFrameGraphSampler.h"
-#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
+//#include "Razix/Gfx/RZMesh.h"
+//#include "Razix/Gfx/RZMeshFactory.h"
+//
+//#include "Razix/Gfx/RZShaderLibrary.h"
+//
+//#include "Razix/Gfx/Materials/RZMaterial.h"
+//
+//#include "Razix/Gfx/Passes/Data/GlobalData.h"
+//
+//#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
+//#include "Razix/Gfx/Resources/RZFrameGraphSampler.h"
+//#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Scene/Components/RZComponents.h"
 
@@ -52,9 +43,9 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
+#if 0
             // Since this a debug color we don't care much but see if we can use the color from the Frame Graph Editor here
             RAZIX_MARK_BEGIN(node.getName(), float4(((double) rand()) / RAND_MAX, ((double) rand()) / RAND_MAX, ((double) rand()) / RAND_MAX, 1.0f));
-
             // Rendering Info, use all the writable resources in the pass node to render onto
             RenderingInfo info{};
             info.resolution = m_Desc.resolution;
@@ -133,6 +124,7 @@ namespace Razix {
 
             RHI::EndRendering(RHI::GetCurrentCommandBuffer());
             RAZIX_MARK_END();
+#endif
         }
 
         void RZFrameGraphDataPass::resize(RZPassResourceDirectory& resources, u32 width, u32 height)
@@ -142,7 +134,7 @@ namespace Razix {
             // TODO: [High Priority] Resize all "Input" texture resources and only then re-generate the descriptor sets
 
             // Update/Regenerate the descriptors table on resize
-            RZResourceManager::Get().getShaderResource(m_Desc.shader)->updateBindVarsHeaps();
+            //RZResourceManager::Get().getShaderResource(m_Desc.shader)->updateBindVarsHeaps();
         }
     }    // namespace Gfx
 }    // namespace Razix

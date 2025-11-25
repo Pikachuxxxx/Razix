@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -5,7 +6,7 @@
 
 #include <Utils/CustomMemoryHook.h>
 
-#if defined(_DEBUG) && !defined(JPH_DISABLE_CUSTOM_ALLOCATOR) && !defined(JPH_COMPILER_MINGW)
+#ifdef JPH_CUSTOM_MEMORY_HOOK_ENABLED
 
 // Global to turn checking on/off
 static bool sEnableCustomMemoryHook = false;
@@ -35,6 +36,9 @@ struct InCustomAllocator
 // Add a tag to an allocation to track if it is aligned / unaligned
 static void *TagAllocation(void *inPointer, size_t inAlignment, char inMode)
 {
+	if (inPointer == nullptr)
+		return nullptr;
+
 	uint8 *p = reinterpret_cast<uint8 *>(inPointer);
 	*p = inMode;
 	return p + inAlignment;
@@ -43,6 +47,9 @@ static void *TagAllocation(void *inPointer, size_t inAlignment, char inMode)
 // Remove tag from allocation
 static void *UntagAllocation(void *inPointer, size_t inAlignment, char inMode)
 {
+	if (inPointer == nullptr)
+		return nullptr;
+
 	uint8 *p = reinterpret_cast<uint8 *>(inPointer) - inAlignment;
 	JPH_ASSERT(*p == inMode);
 	*p = 0;
@@ -51,8 +58,16 @@ static void *UntagAllocation(void *inPointer, size_t inAlignment, char inMode)
 
 static void *AllocateHook(size_t inSize)
 {
+	JPH_ASSERT(inSize > 0);
 	InCustomAllocator ica;
 	return TagAllocation(malloc(inSize + 16), 16, 'U');
+}
+
+static void *ReallocateHook(void *inBlock, size_t inOldSize, size_t inNewSize)
+{
+	JPH_ASSERT(inNewSize > 0);
+	InCustomAllocator ica;
+	return TagAllocation(realloc(UntagAllocation(inBlock, 16, 'U'), inNewSize + 16), 16, 'U');
 }
 
 static void FreeHook(void *inBlock)
@@ -63,8 +78,7 @@ static void FreeHook(void *inBlock)
 
 static void *AlignedAllocateHook(size_t inSize, size_t inAlignment)
 {
-	JPH_ASSERT(inAlignment <= 64);
-
+	JPH_ASSERT(inSize > 0 && inAlignment > 0 && inAlignment <= 64);
 	InCustomAllocator ica;
 	return TagAllocation(_aligned_malloc(inSize + 64, inAlignment), 64, 'A');
 }
@@ -84,6 +98,7 @@ static int MyAllocHook(int nAllocType, void *pvData, size_t nSize, int nBlockUse
 void RegisterCustomMemoryHook()
 {
 	Allocate = AllocateHook;
+	Reallocate = ReallocateHook;
 	Free = FreeHook;
 	AlignedAllocate = AlignedAllocateHook;
 	AlignedFree = AlignedFreeHook;
@@ -121,4 +136,4 @@ DisableCustomMemoryHook::~DisableCustomMemoryHook()
 {
 }
 
-#endif // _DEBUG && !JPH_DISABLE_CUSTOM_ALLOCATOR && !JPH_COMPILER_MINGW
+#endif // JPH_CUSTOM_MEMORY_HOOK_ENABLED

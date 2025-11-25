@@ -71,13 +71,11 @@ project "Razix"
         "RAZIX_BUILD_DLL",
         "RAZIX_ROOT_DIR="  .. root_dir,
         "RAZIX_BUILD_CONFIG=" .. outputdir,
-        -- Renderer
-        "RAZIX_RENDERER_RAZIX",
-        "RAZIX_RAY_TRACE_RENDERER_RAZIX",
-        "RAZIX_RAY_TRACE_RENDERER_OPTIX",
-        "RAZIX_RAY_TRACE_RENDERER_EMBREE",
+        -- RHI
+        "RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES",
         -- vendor
-        "OPTICK_MSVC"
+        "OPTICK_MSVC",
+        "VK_NO_PROTOTYPES",
     }
 
     -- Razix Engine source files (Global)
@@ -85,17 +83,25 @@ project "Razix"
     {
         "src/**.h",
         "src/**.c",
-        "src/**.cpp"
+        "src/**.cpp",
         -- vendor
         --"vendor/tracy/TracyClient.cpp",
+        -- imgui
+        "vendor/imgui/backends/imgui_impl_glfw.cpp",
+        "vendor/imgui/backends/imgui_impl_vulkan.cpp",
     }
 
     -- Lazily add the platform files based on OS config
 	-- Also remove the core module, they are compiled as a library
     removefiles
     {
+        --------------------------
+        -- just until we finish off RHI
+        "src/Razix/Gfx/LIMBO_STATE/**",
+        --------------------------
         "src/Razix/Platform/**",
-        "src/Razix/Core/Memory/vendor/mmgr/mmgr.cpp"
+        "src/Razix/Gfx/RHI/**",
+        "src/Razix/Core/Memory/vendor/mmgr/mmgr.cpp",
     }
 
     -- For MacOS
@@ -130,6 +136,7 @@ project "Razix"
         "%{IncludeDir.json}",
         "%{IncludeDir.D3D12MA}",
         "%{IncludeDir.dxc}",
+        "%{IncludeDir.volk}",
         "%{IncludeDir.Razix}",
         "%{IncludeDir.vendor}",
         -- Experimental Vendor
@@ -139,6 +146,8 @@ project "Razix"
     -- Razix engine external linkage libraries (Global)
     links
     {
+        -- RHI
+        "RHI",
         "glfw",
         "imgui",
         "spdlog", -- Being linked staically by RazixMemory (Only include this in debug and release build exempt this in GoldMaster build)
@@ -186,17 +195,14 @@ project "Razix"
         pchheader "rzxpch.h"
         pchsource "src/rzxpch.cpp"
 
-         -- Enable AVX, AVX2, Bit manipulation Instruction set (-mbmi)
-         -- because GCC uses fused-multiply-add (fma) instruction by default, if it is available. Clang, on the contrary, doesn't use them by default, even if it is available, so we enable it explicityly
-        -- Only works with GCC and Clang
-        --buildoptions { "-mavx", "-mavx2", "-mbmi", "-march=haswell"}--, "-mavx512f -mavx512dq -mavx512bw -mavx512vbmi -mavx512vbmi2 -mavx512vl"}
-        --buildoptions {"/-fsanitize=address"}
-
         -- Build options for Windows / Visual Studio (MSVC)
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
         buildoptions
         {
             "/MP", "/bigobj", 
+            -- AVX2
+            "/arch:AVX2", 
+            -- TODO: enable FMA and AVX512
             -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
         }
 
@@ -222,11 +228,11 @@ project "Razix"
             "_DISABLE_EXTENDED_ALIGNED_STORAGE",
             "_SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING",
             "_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING",
-            "TRACY_ENABLE",
+            "TRACY_ENABLE", "TRACY_ON_DEMAND",
             -- build options
             "_DISABLE_VECTOR_ANNOTATION",
             "_DISABLE_STRING_ANNOTATION",
-            "_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS"
+            "_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS",
         }
 
         -- Windows specific source files for compilation
@@ -271,7 +277,6 @@ project "Razix"
         {
             "Dbghelp",
             -- Render API
-            "vulkan-1",
             "d3d11",
             "d3d12",
             "dxgi",
@@ -289,7 +294,7 @@ project "Razix"
             -- Copy the DXC dlls 
             '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxcompiler.dll" "%{cfg.targetdir}"',
             '{COPY} "%{wks.location}../Engine/content/Shaders/Tools/dxc/bin/x64/dxil.dll" "%{cfg.targetdir}"',
-                -- we are using RAZIX_ROOT_DIR for now
+            -- we are using RAZIX_ROOT_DIR for now
             -- Copy the engine conten folder with subdirs: config, Fonts, FrameGraphs, Logos, Shaders/Compiled, Splash, Textures
             -- [Docs]: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/robocopy
             -- /E: Copies subdirectories. This option automatically includes empty directories.
@@ -324,7 +329,7 @@ project "Razix"
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE"
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
         -- Windows specific source files for compilation
@@ -377,7 +382,6 @@ project "Razix"
         links
         {
             -- Render API
-            "vulkan",
             "IOKit.framework",
             "CoreFoundation.framework",
             "CoreVideo.framework",
@@ -446,51 +450,93 @@ project "Razix"
             -- API
             "RAZIX_RENDER_API_VULKAN",
             "RAZIX_RENDER_API_METAL",
-            "TRACY_ENABLE"
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
 
-    -- Config settings for Razix Engine project
-    filter "configurations:Debug"
-        defines { "RAZIX_DEBUG", "_DEBUG" }
-        symbols "On"
-        runtime "Debug"
-        optimize "Off"
-        editandcontinue "On"
+    -------------------------------------
+    -- Razix Project settings for Linux
+    -------------------------------------
+    filter "system:linux"
+        cppdialect "C++17"
 
+        defines
+        {
+            -- Engine
+            "RAZIX_PLATFORM_LINUX",
+            "RAZIX_PLATFORM_UNIX",
+            "RAZIX_USE_GLFW_WINDOWS",
+            "RAZIX_IMGUI",
+            -- API
+            "RAZIX_RENDER_API_VULKAN",
+            "TRACY_ENABLE", "TRACY_ON_DEMAND"
+        }
+
+        -- Windows specific source files for compilation
+        files
+        {
+            -- platform sepecific implementatioon
+            "src/Razix/Platform/Linux/*.h",
+            "src/Razix/Platform/Linux/*.cpp",
+            
+            "src/Razix/Platform/Unix/*.h",
+            "src/Razix/Platform/Unix/*.cpp",
+
+            "src/Razix/Platform/GLFW/*.h",
+            "src/Razix/Platform/GLFW/*.cpp",
+
+            "src/Razix/Platform/API/Vulkan/*.h",
+            "src/Razix/Platform/API/Vulkan/*.cpp",
+
+            -- Vendor source files
+            "vendor/glad/src/glad.c"
+        }
+    
+        -- Windows specific incldue directories
+        includedirs
+        {
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+            "./",
+            "../"
+        }
+
+        libdirs
+        {
+            VulkanSDK .. "/lib"
+        }
+        
+        -- Clang/GCC compiler options
+        buildoptions
+        {
+            "-Wno-error=switch-enum",
+            "-Wno-switch", "-Wno-switch-enum"
+        }
+        
+        filter "files:**.c"
+            flags { "NoPCH" }
+        filter "files:**.m"
+            flags { "NoPCH" }
+        filter "files:**.mm"
+            flags { "NoPCH" }
+
+
+    -- Override settings for Razix Debug build
+    filter "configurations:Debug"
         filter "system:windows"
             links
             {
                 "WinPixEventRuntime",
                 "WinPixEventRuntime_UAP"
             }
-            buildoptions { "/ZI"}
             linkoptions
             {
                 "/INCREMENTAL",--"/NODEFAULTLIB:libcpmt.lib" ,"/NODEFAULTLIB:msvcprt.lib", "/NODEFAULTLIB:libcpmtd.lib", "/NODEFAULTLIB:msvcprtd.lib"
             }
         filter {}
-
-    filter "configurations:Release"
-        defines { "RAZIX_RELEASE", "NDEBUG" }
-        symbols "On"
-        runtime "Release"
-        optimize "Speed"
-        editandcontinue "Off"
-        
-        filter "system:windows"
-            links
-            {
-                "WinPixEventRuntime",
-                "WinPixEventRuntime_UAP"
-            }
-        filter {}
-
-    filter "configurations:GoldMaster"
-        defines { "RAZIX_GOLD_MASTER", "NDEBUG" }
-        symbols "Off"
-        runtime "Release"
-        optimize "Speed"  -- Changed from "Full" to "Speed"
-        editandcontinue "Off"
 group""
 
 

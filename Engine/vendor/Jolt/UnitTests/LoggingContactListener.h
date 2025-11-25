@@ -1,9 +1,13 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 #pragma once
 
 #include <Jolt/Physics/Collision/ContactListener.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Core/Mutex.h>
+#include <Jolt/Core/UnorderedSet.h>
 
 // Contact listener that just logs the calls made to it for later validation
 class LoggingContactListener : public ContactListener
@@ -29,8 +33,9 @@ public:
 
 	virtual ValidateResult			OnContactValidate(const Body &inBody1, const Body &inBody2, RVec3Arg inBaseOffset, const CollideShapeResult &inCollisionResult) override
 	{
-		// Check contract that body 1 is dynamic or that body2 is not dynamic
-		bool contract = inBody1.IsDynamic() || !inBody2.IsDynamic();
+		// Check ordering contract between body 1 and body 2
+		bool contract = inBody1.GetMotionType() >= inBody2.GetMotionType()
+			|| (inBody1.GetMotionType() == inBody2.GetMotionType() && inBody1.GetID() < inBody2.GetID());
 		CHECK(contract);
 
 		lock_guard lock(mLogMutex);
@@ -50,7 +55,7 @@ public:
 	}
 
 	virtual void					OnContactPersisted(const Body &inBody1, const Body &inBody2, const ContactManifold &inManifold, ContactSettings &ioSettings) override
-	{ 
+	{
 		// Check contract that body 1 < body 2
 		CHECK(inBody1.GetID() < inBody2.GetID());
 
@@ -61,13 +66,16 @@ public:
 	}
 
 	virtual void					OnContactRemoved(const SubShapeIDPair &inSubShapePair) override
-	{ 
+	{
 		// Check contract that body 1 < body 2
 		CHECK(inSubShapePair.GetBody1ID() < inSubShapePair.GetBody2ID());
 
 		lock_guard lock(mLogMutex);
 		CHECK(mExistingContacts.erase(inSubShapePair) == 1); // Validate that OnContactAdded was called
-		mLog.push_back({ EType::Remove, inSubShapePair.GetBody1ID(), inSubShapePair.GetBody2ID(), ContactManifold() });
+		ContactManifold manifold;
+		manifold.mSubShapeID1 = inSubShapePair.GetSubShapeID1();
+		manifold.mSubShapeID2 = inSubShapePair.GetSubShapeID2();
+		mLog.push_back({ EType::Remove, inSubShapePair.GetBody1ID(), inSubShapePair.GetBody2ID(), manifold });
 	}
 
 	void							Clear()
@@ -84,7 +92,7 @@ public:
 	{
 		return mLog[inIdx];
 	}
-	   
+
 	// Find first event with a particular type and involving two particular bodies
 	int								Find(EType inType, const BodyID &inBody1, const BodyID &inBody2) const
 	{
@@ -102,6 +110,27 @@ public:
 	bool							Contains(EType inType, const BodyID &inBody1, const BodyID &inBody2) const
 	{
 		return Find(inType, inBody1, inBody2) >= 0;
+	}
+
+	// Find first event with a particular type and involving two particular bodies and sub shape IDs
+	int								Find(EType inType, const BodyID &inBody1, const SubShapeID &inSubShapeID1, const BodyID &inBody2, const SubShapeID &inSubShapeID2) const
+	{
+		for (size_t i = 0; i < mLog.size(); ++i)
+		{
+			const LogEntry &e = mLog[i];
+			if (e.mType == inType
+				&& ((e.mBody1 == inBody1 && e.mManifold.mSubShapeID1 == inSubShapeID1 && e.mBody2 == inBody2 && e.mManifold.mSubShapeID2 == inSubShapeID2)
+					|| (e.mBody1 == inBody2 && e.mManifold.mSubShapeID1 == inSubShapeID2 && e.mBody2 == inBody1 && e.mManifold.mSubShapeID2 == inSubShapeID1)))
+				return int(i);
+		}
+
+		return -1;
+	}
+
+	// Check if event with a particular type and involving two particular bodies and sub shape IDs exists
+	bool							Contains(EType inType, const BodyID &inBody1, const SubShapeID &inSubShapeID1, const BodyID &inBody2, const SubShapeID &inSubShapeID2) const
+	{
+		return Find(inType, inBody1, inSubShapeID1, inBody2, inSubShapeID2) >= 0;
 	}
 
 private:

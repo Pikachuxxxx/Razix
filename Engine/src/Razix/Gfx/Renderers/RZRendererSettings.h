@@ -1,11 +1,14 @@
 #pragma once
 
+#define RZ_ENABLE_GFX 0
+
 namespace Razix {
     namespace Gfx {
 
 #define NUM_HALTON_SAMPLES_TAA_JITTER 16
 
-        // Renderer Settings + Debug flags
+        // TODO: Use bit structs instead?
+
         enum RendererFeatures : u32
         {
             RendererFeature_None = 0,
@@ -30,23 +33,11 @@ namespace Razix {
             RendererFeature_All = RendererFeature_Default | RendererFeature_SSR,
         };
 
-        enum RendererDebugFlags : u32
-        {
-            RendererDebugFlag_None            = 0,
-            RendererDebugFlag_VisWireframe    = 1 << 0,
-            RendererDebugFlag_VisSSAO         = 1 << 1,
-            RendererDebugFlag_VisPreTonemap   = 1 << 2,
-            RendererDebugFlag_VisQuadOverDraw = 1 << 3,
-            RendererDebugFlag_VisUVs          = 1 << 4,
-            RendererDebugFlag_VisAlbedo       = 1 << 5,
-            RendererDebugFlag_VisCSMCascades  = 1 << 6,
-        };
-
         enum Antialising
         {
-            NoAA = 0,    // Render as-is
-            FXAA,        // Fast sampled anti-aliasing
-            TAA          // Temporal anti-aliasing
+            NoAA = 0,
+            FXAA,
+            TAA
         };
 
         enum TonemapMode : u32
@@ -65,19 +56,26 @@ namespace Razix {
         enum SceneSamplingPattern : u32
         {
             Normal,
-            Halton,
+            Halton,    // Preferred for TAA
             Stratified
+        };
+
+        struct RendererDebugFlags
+        {
+            u32 None : 1;
+            u32 VisWireframe : 1;
+            u32 VisSSAO : 1;
+            u32 VisPreTonemap : 1;
+            u32 VisQuadOverDraw : 1;
+            u32 VisUVs : 1;
+            u32 VisAlbedo : 1;
+            u32 VisCSMCascades : 1;
         };
 
         struct RZRendererSettings
         {
-            u32 renderFeatures = RendererFeature_Default;
-            struct
-            {
-                f32 radius   = 0.005f;
-                f32 strength = 0.04f;
-            } bloomConfig;
-            u32                  debugFlags{0u};
+            u32                  renderFeatures      = RendererFeature_Default;
+            RendererDebugFlags   debugFlags          = {0};
             TonemapMode          tonemapMode         = ACES;
             Antialising          aaMode              = NoAA;
             SceneSamplingPattern samplingPattern     = Halton;

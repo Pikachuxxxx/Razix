@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -8,11 +9,11 @@
 JPH_NAMESPACE_BEGIN
 
 /// Class that constructs a TriangleShape
-class TriangleShapeSettings final : public ConvexShapeSettings
+class JPH_EXPORT TriangleShapeSettings final : public ConvexShapeSettings
 {
-public:
-	JPH_DECLARE_SERIALIZABLE_VIRTUAL(TriangleShapeSettings)
+	JPH_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, TriangleShapeSettings)
 
+public:
 	/// Default constructor for deserialization
 							TriangleShapeSettings() = default;
 
@@ -30,7 +31,7 @@ public:
 };
 
 /// A single triangle, not the most efficient way of creating a world filled with triangles but can be used as a query shape for example.
-class TriangleShape final : public ConvexShape
+class JPH_EXPORT TriangleShape final : public ConvexShape
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE
@@ -43,12 +44,17 @@ public:
 	/// Note that the convex radius is currently only used for shape vs shape collision, for all other purposes the triangle is infinitely thin.
 							TriangleShape(Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inV3, float inConvexRadius = 0.0f, const PhysicsMaterial *inMaterial = nullptr) : ConvexShape(EShapeSubType::Triangle, inMaterial), mV1(inV1), mV2(inV2), mV3(inV3), mConvexRadius(inConvexRadius) { JPH_ASSERT(inConvexRadius >= 0.0f); }
 
+	/// Get the vertices of the triangle
+	inline Vec3				GetVertex1() const																	{ return mV1; }
+	inline Vec3				GetVertex2() const																	{ return mV2; }
+	inline Vec3				GetVertex3() const																	{ return mV3; }
+
 	/// Convex radius
 	float					GetConvexRadius() const																{ return mConvexRadius; }
 
 	// See Shape::GetLocalBounds
 	virtual AABox			GetLocalBounds() const override;
-		
+
 	// See Shape::GetWorldSpaceBounds
 	virtual AABox			GetWorldSpaceBounds(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) const override;
 	using Shape::GetWorldSpaceBounds;
@@ -83,8 +89,8 @@ public:
 	// See: Shape::CollidePoint
 	virtual void			CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
-	// See Shape::TransformShape
-	virtual void			TransformShape(Mat44Arg inCenterOfMassTransform, TransformedShapeCollector &ioCollector) const override;
+	// See: Shape::CollideSoftBodyVertices
+	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::GetTrianglesStart
 	virtual void			GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
@@ -104,6 +110,9 @@ public:
 	// See Shape::IsValidScale
 	virtual bool			IsValidScale(Vec3Arg inScale) const override;
 
+	// See Shape::MakeScaleValid
+	virtual Vec3			MakeScaleValid(Vec3Arg inScale) const override;
+
 	// Register shape functions with the registry
 	static void				sRegister();
 
@@ -122,7 +131,7 @@ private:
 	class					TSGetTrianglesContext;
 
 	// Classes for GetSupportFunction
-	class 					TriangleNoConvex;
+	class					TriangleNoConvex;
 	class					TriangleWithConvex;
 
 	Vec3					mV1;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Razix/Core/std/type_traits.h"
+
 /**
 * FrameGraph is an alias for Render Graph which controls the entire frame and it's rendering process
 * Based on : Copyright (c) Dawid Kurek, GitHub : skaarj1989 [https://github.com/skaarj1989/FrameGraph] MIT license. 
@@ -69,14 +71,12 @@ namespace Razix {
             static_assert(RAZIX_TYPE_HAS_FUNCTION_V(T, create), "Type doesn't have a function named create");
             static_assert(RAZIX_TYPE_HAS_FUNCTION_V(T, destroy), "Type doesn't have a function named destroy");
 
-            return std::is_default_constructible_v<T> &&
-                   std::is_move_constructible_v<T> &&
+            return rz_is_default_constructible_v<T> &&
+                   rz_is_move_constructible_v<T> &&
                    RAZIX_TYPE_HAS_SUB_TYPE_V(T, Desc) &&
                    RAZIX_TYPE_HAS_FUNCTION_V(T, create) &&
                    RAZIX_TYPE_HAS_FUNCTION_V(T, destroy);
         }
-
-#define ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE template<typename T, typename = std::enable_if_t<is_acceptible_frame_graph_resource<T>()>>
 
         /**
              * Okay using type erasure we will register wrapper frame graph resource types using template Type T
@@ -95,7 +95,7 @@ namespace Razix {
              * if it fails we can use SFINAE to trigger errors on why it happened or use that failure 
              * path to rectify the stuff and dispatch to alternate paths if needed
              */
-#define ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE template<typename T, typename = std::enable_if_t<is_acceptible_frame_graph_resource<T>()>>
+#define ENFORCE_RESOURCE_ENTRY_CONCEPT_ON_TYPE template<typename T, typename = rz_enable_if_t<is_acceptible_frame_graph_resource<T>()>>
 
     }    // namespace Gfx
 }    // namespace Razix

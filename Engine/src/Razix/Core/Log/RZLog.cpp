@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZLog.h"
 
+#include "Razix/Core/std/sprintf.h"    // for rz_snprintf
+
 #include <chrono>
 #include <filesystem>
 #include <iomanip>
@@ -11,7 +13,6 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
 
 #ifndef __APPLE__    // disabled until I find a good solution cause apple is a bitch about creating files and directories without proper permissions
     #define ENABLE_FILE_LOGGING 1
@@ -37,9 +38,10 @@ namespace Razix {
 #else
             localtime_r(&now_c, &tm);
 #endif
-            std::ostringstream oss;
-            oss << "Logs/Razix_Engine_Log_" << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S") << ".log";
-            return oss.str();
+            char logFileName[256];
+            rz_snprintf(logFileName, sizeof(logFileName), "Logs/Razix_Engine_Log_%04d-%02d-%02d_%02d-%02d-%02d.log", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+
+            return std::string(logFileName);
         }
 
         void RZLog::StartUp()
@@ -64,7 +66,7 @@ namespace Razix {
             s_CoreLoggerSinks.push_back(core_console_sink);
 
 #ifdef ENABLE_FILE_LOGGING
-            auto core_file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(GetTimestampedLogFileName(), true);
+            auto core_file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(GetTimestampedLogFileName().c_str(), true);
             core_file_sink->set_level(spdlog::level::trace);
     #ifndef RAZIX_TESTS
             core_file_sink->set_pattern(LOG_MSG_PATTERN);
@@ -72,9 +74,9 @@ namespace Razix {
             s_CoreLoggerSinks.push_back(core_file_sink);
 #endif
 
-            std::stringstream coreLoggerName;
-            coreLoggerName << std::setw(18) << std::left << "Razix Core";
-            s_CoreLogger = std::make_shared<spdlog::logger>(coreLoggerName.str(), s_CoreLoggerSinks.begin(), s_CoreLoggerSinks.end());
+            char coreLoggerName[64];
+            rz_snprintf(coreLoggerName, sizeof(coreLoggerName), "%-18s", "Razix Core");
+            s_CoreLogger = std::make_shared<spdlog::logger>(coreLoggerName, s_CoreLoggerSinks.begin(), s_CoreLoggerSinks.end());
             s_CoreLogger->set_level(spdlog::level::trace);
 #ifdef ENABLE_FILE_LOGGING
             s_CoreLogger->flush_on(spdlog::level::trace);
@@ -93,7 +95,7 @@ namespace Razix {
             s_AppLoggerSinks.push_back(app_console_sink);
 
 #ifdef ENABLE_FILE_LOGGING
-            auto app_file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(GetTimestampedLogFileName(), true);
+            auto app_file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(GetTimestampedLogFileName().c_str(), true);
             app_file_sink->set_level(spdlog::level::trace);
     #ifndef RAZIX_TESTS
             app_file_sink->set_pattern(LOG_MSG_PATTERN);
@@ -101,9 +103,9 @@ namespace Razix {
             s_AppLoggerSinks.push_back(app_file_sink);
 #endif
 
-            std::stringstream appLoggerName;
-            appLoggerName << std::setw(18) << std::left << "Razix App";
-            s_ApplicationLogger = std::make_shared<spdlog::logger>(appLoggerName.str(), s_AppLoggerSinks.begin(), s_AppLoggerSinks.end());
+            char appLoggerName[64];
+            rz_snprintf(appLoggerName, sizeof(appLoggerName), "%-18s", "Razix App");
+            s_ApplicationLogger = std::make_shared<spdlog::logger>(appLoggerName, s_AppLoggerSinks.begin(), s_AppLoggerSinks.end());
             s_ApplicationLogger->set_level(spdlog::level::trace);
 #ifdef ENABLE_FILE_LOGGING
             s_ApplicationLogger->flush_on(spdlog::level::trace);

@@ -12,11 +12,11 @@ namespace Razix {
         inline unsigned int GetWidth() const { return m_Width; }
         inline unsigned int GetHeight() const { return m_Height; }
 
-        std::string ToString() const override
+        RZString ToString() const override
         {
-            std::stringstream ss;
-            ss << "WindowResizeEvent: (" << m_Width << ", " << m_Height << ")";
-            return ss.str();
+            char buffer[256];
+            rz_snprintf(buffer, sizeof(buffer), "WindowResizeEvent: (%d, %d)", m_Width, m_Height);
+            return RZString(buffer);
         }
 
         EVENT_CLASS_TYPE(kWindowResize)

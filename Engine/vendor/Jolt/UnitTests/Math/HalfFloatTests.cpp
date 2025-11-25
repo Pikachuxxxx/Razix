@@ -1,9 +1,9 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 #include "UnitTestFramework.h"
 #include <Jolt/Math/HalfFloat.h>
-#include <Jolt/Core/FPException.h>
 
 TEST_SUITE("HalfFloatTests")
 {

@@ -1,7 +1,6 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-
 #include "RZApplication.h"
 
 // ---------- Engine ----------
@@ -18,45 +17,35 @@
 
 #include "Razix/Events/ApplicationEvent.h"
 
-#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
-#include "Razix/Gfx/RHI/API/RZSwapchain.h"
-#include "Razix/Gfx/RHI/API/RZTexture.h"
-#include "Razix/Gfx/RHI/RHI.h"
-
 #include "Razix/Scene/Components/CameraComponent.h"
 #include "Razix/Scene/Components/LightComponent.h"
-
 #include "Razix/Scene/Components/TransformComponent.h"
 
+#include <Core/Log/RZLog.h>
 #include <backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/plugins/IconsFontAwesome5.h>
 //#include <imgui/plugins/ImGuizmo.h>
-
+#include <GLFW/glfw3.h>
 #include <cereal/archives/json.hpp>
-
 #include <entt.hpp>
 
-#include <glfw/glfw3.h>
+#include <fstream>
+#include <iostream>
 
 #define ENABLE_IMGUI_EVENT_DATA_CAPTURE 0
 
 namespace Razix {
     RZApplication* RZApplication::s_AppInstance = nullptr;
 
-    // Editor-Graphics API Resize primitives won't make into final game so not an issues as of now!!!
-    bool                    RZApplication::ready_for_execution = false;
-    std::mutex              RZApplication::m;
-    std::condition_variable RZApplication::halt_execution;
-
-    static std::string GetAppWindowTitleSignature(const std::string& projectName)
+    static RZString GetAppWindowTitleSignature(const RZString& projectName)
     {
-        std::string SignatureTitle = projectName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + Gfx::RZGraphicsContext::GetRenderAPIString() + ">" + " | " + " " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
+        RZString SignatureTitle = projectName + " | " + "Razix Engine" + " - " + Razix::RazixVersion.getVersionString() + " " + "[" + Razix::RazixVersion.getReleaseStageString() + "]" + " " + "<" + rzGfxCtx_GetRenderAPIString() + ">" + " | " + RAZIX_STRINGIZE(RAZIX_BUILD_CONFIG);
         return SignatureTitle;
     }
 
-    RZApplication::RZApplication(const std::string& projectRoot, const std::string& appName /*= "Razix App"*/)
-        : m_ProjectName(appName), m_ProjectPath(projectRoot), m_Timestep(RZTimestep(0.0f)), m_GuizmoOperation(Guizmo::TRANSLATE), m_GuizmoMode(Guizmo::MODE::WORLD)
+    RZApplication::RZApplication(const RZString& projectRoot, const RZString& appName /*= "Razix App"*/)
+        : m_ProjectName(appName), m_ProjectPath(projectRoot)
     {
         // Create the application instance
         RAZIX_CORE_ASSERT(!s_AppInstance, "Application already exists!");
@@ -76,20 +65,20 @@ namespace Razix {
         // TODO: Add verification for Engine and Project Version
         std::ifstream AppStream;
         if (RZEngine::Get().getCommandLineParser().isSet("project file name") && RZEngine::Get().getCommandLineParser().isSet("project file path")) {
-            std::string projectPath = RZEngine::Get().getCommandLineParser().getValueAsString("project file path");
-            std::string projectName = RZEngine::Get().getCommandLineParser().getValueAsString("project file name");
-            std::string fullPath    = projectPath + projectName + std::string(".razixproject");
+            RZString projectPath = RZEngine::Get().getCommandLineParser().getValueAsString("project file path");
+            RZString projectName = RZEngine::Get().getCommandLineParser().getValueAsString("project file name");
+            RZString fullPath    = projectPath + projectName + RZString(".razixproject");
             RAZIX_CORE_TRACE("[Application] Command line resolved full project path : {0}", fullPath);
             RAZIX_CORE_INFO("[Application] Opening the project file de-serialization...");
-            AppStream.open(fullPath, std::ifstream::in);
+            AppStream.open(fullPath.c_str(), std::ifstream::in);
             m_ProjectPath = projectPath;
         } else {
             RAZIX_CORE_WARN("[Application] command line args for project file path and name are not set...using App args to resolve *.razixproject");
             // TODO: If command line is not provided or doesn't use engine default sandbox project we need some way to resolve the project root directory, make this agnostic we need not redirect to sandbox by default it must be provided as a placeholder value instead as a fall back
             //m_AppFilePath = ??
-            std::string projectFullPath = m_ProjectPath + "/" + m_ProjectName + std::string(".razixproject");
+            RZString projectFullPath = m_ProjectPath + "/" + m_ProjectName + RZString(".razixproject");
             RAZIX_CORE_INFO("[Application] Opening the project file de-serialization... from RZApplication resolved path: {0}", projectFullPath);
-            AppStream.open(projectFullPath, std::ifstream::in);
+            AppStream.open(projectFullPath.c_str(), std::ifstream::in);
         }
 
         // Mount the VFS paths based on the Project directory (done here cause the Application can make things easier by making this easy by loading some default directories, others can be added later sandbox shouldn't be troubled by all this labor work)
@@ -100,18 +89,13 @@ namespace Razix {
         Razix::RZSplashScreen::Get().setLogString("Mounting file systems...");
 
         RZVirtualFileSystem::Get().mount("Project", m_ProjectPath);
-
-        RZVirtualFileSystem::Get().mount("Assets", m_ProjectPath + std::string("/Assets"));
-        RZVirtualFileSystem::Get().mount("Meshes", m_ProjectPath + std::string("/Assets/Meshes"));
-        RZVirtualFileSystem::Get().mount("Scenes", m_ProjectPath + std::string("/Assets/Scenes"));
-        RZVirtualFileSystem::Get().mount("Scripts", m_ProjectPath + std::string("/Assets/Scripts"));
-        RZVirtualFileSystem::Get().mount("Sounds", m_ProjectPath + std::string("/Assets/Sounds"));
-        RZVirtualFileSystem::Get().mount("Textures", m_ProjectPath + std::string("/Assets/Textures"));
-        RZVirtualFileSystem::Get().mount("Materials", m_ProjectPath + std::string("/Assets/Materials"));
-
-        // Check the command line arguments for the rendering api
-        if (RZEngine::Get().getCommandLineParser().isSet("rendering api"))
-            Gfx::RZGraphicsContext::SetRenderAPI((Gfx::RenderAPI) RZEngine::Get().getCommandLineParser().getValueAsInt("project filename"));
+        RZVirtualFileSystem::Get().mount("Assets", m_ProjectPath + RZString("/Assets"));
+        RZVirtualFileSystem::Get().mount("Meshes", m_ProjectPath + RZString("/Assets/Meshes"));
+        RZVirtualFileSystem::Get().mount("Scenes", m_ProjectPath + RZString("/Assets/Scenes"));
+        RZVirtualFileSystem::Get().mount("Scripts", m_ProjectPath + RZString("/Assets/Scripts"));
+        RZVirtualFileSystem::Get().mount("Sounds", m_ProjectPath + RZString("/Assets/Sounds"));
+        RZVirtualFileSystem::Get().mount("Textures", m_ProjectPath + RZString("/Assets/Textures"));
+        RZVirtualFileSystem::Get().mount("Materials", m_ProjectPath + RZString("/Assets/Materials"));
 
         // De-serialize the application
         if (AppStream.is_open()) {
@@ -121,48 +105,27 @@ namespace Razix {
         }
 
         // The Razix Application Signature Name is generated here and passed to the window
-
-        // Create the timer
-        m_Timer = rzstl::CreateUniqueRef<RZTimer>();
-
         // Set the window properties and create the timer
         m_WindowProperties.Title = GetAppWindowTitleSignature(m_ProjectName);
-
-        // TODO: Load any other Engine systems that needs to be done only in the Application
-        // Destroy the Splash Screen before we create the window
-        //Razix::RZSplashScreen::Get().destroy();
-
-        // Create the Window only if it's not set before (using the native window pointer, usually done by the QT editor)
-        if (m_Window == nullptr) {
+        if (m_Window == nullptr)
             m_Window = RZWindow::Create(m_WindowProperties);
-        }
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(RZApplication::OnEvent));
 
         // Create a default project file file if nothing exists
         if (!AppStream.is_open()) {
             RAZIX_CORE_ERROR("Project File does not exist!");
-            std::string               projectFullPath = m_ProjectPath + m_ProjectName + std::string(".razixproject");
-            std::ofstream             opAppStream(projectFullPath);
+            RZString                  projectFullPath = m_ProjectPath + m_ProjectName + RZString(".razixproject");
+            std::ofstream             opAppStream(projectFullPath.c_str());
             cereal::JSONOutputArchive defArchive(opAppStream);
             RAZIX_CORE_TRACE("Creating a default Project file...");
 
             defArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
         }
 
-        // Override for dev utils (can still be override by application)
-        if (RZEngine::Get().getCommandLineParser().isSet("vulkan"))
-            Gfx::RZGraphicsContext::SetRenderAPI(Gfx::RenderAPI::VULKAN);
-        else if (RZEngine::Get().getCommandLineParser().isSet("dx12"))
-            Gfx::RZGraphicsContext::SetRenderAPI(Gfx::RenderAPI::D3D12);
-
         // If we change the API, then update the window title
         m_Window->setTitle(GetAppWindowTitleSignature(m_ProjectName).c_str());
 
-        // Convert the app to loaded state
         m_CurrentState = AppState::Loading;
-
-        // Enable V-Sync
-        //m_Window->SetVSync(true);
     }
 
     void RZApplication::OnEvent(RZEvent& event)
@@ -192,12 +155,8 @@ namespace Razix {
             io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
         }
 
-        if (Gfx::RHI::GetPointer() != nullptr) {
-            Gfx::RHI::OnResize(e.GetWidth(), e.GetHeight());
-
-            // Resize the frame graph resource before resizing the RHI
-            Razix::RZEngine::Get().getWorldRenderer().OnResize(e.GetWidth(), e.GetHeight());
-        }
+        // Resize the frame graph resource before resizing the RHI
+        Razix::RZEngine::Get().getWorldRenderer().OnResize(e.GetWidth(), e.GetHeight());
 
         OnResize(e.GetWidth(), e.GetHeight());
         return true;
@@ -266,45 +225,32 @@ namespace Razix {
 
     void RZApplication::Begin()
     {
-        Razix::RZSplashScreen::Get().setLogString("Initializing RHI...");
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        // Create the API renderer to issue render commands
-        Gfx::RHI::Create(getWindow()->getWidth(), getWindow()->getHeight());
-        // TODO: Enable window V-Sync here
-        Gfx::RHI::Init();
-
-#ifndef WIP_DX12_RENDERER
-        // TODO: Job system and Engine Systems(run-time) Initialization
         Razix::RZSplashScreen::Get().setLogString("Loading Scene...");
-
         // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
         for (auto& sceneFilePath: sceneFilePaths)
             RZSceneManager::Get().enqueueSceneFromFile(sceneFilePath);
 
         // Load a scene into memory
         RZSceneManager::Get().loadScene(0);
-
         Razix::RZSplashScreen::Get().setLogString("Scene Loading Successful...");
 
-        Razix::RZSplashScreen::Get().setLogString("Building FrameGraph...");
+        Razix::RZSplashScreen::Get().setLogString("Creating world renderer");
+        Razix::RZEngine::Get().getWorldRenderer().create(m_Window, m_Window->getWidth(), m_Window->getHeight());
 
-#endif
-        // TODO: Put this somewhere else?
-        if (RZEngine::Get().isEngineInTestMode() == false)
-            Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
+        if (RZEngine::Get().isEngineInTestMode() == false) {
+            Razix::RZSplashScreen::Get().setLogString("Building FrameGraph...");
+            Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentSceneMutablePtr());
+        }
 
         m_CurrentState = AppState::Running;
 
         Razix::RZSplashScreen::Get().setLogString("Starting Razix Application...");
-
         Razix::RZSplashScreen::Get().ShutDown();
 
-        // Window close event
         m_EventDispatcher.registerCallback<WindowCloseEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowClose));
-        // Window resize event
         m_EventDispatcher.registerCallback<RZWindowResizeEvent>(RAZIX_BIND_CB_EVENT_FN(OnWindowResize));
-        // Mouse Events
-        // Mouse Moved event
         m_EventDispatcher.registerCallback<RZMouseMovedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseMoved));
         m_EventDispatcher.registerCallback<RZMouseButtonPressedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseButtonPressed));
         m_EventDispatcher.registerCallback<RZMouseButtonReleasedEvent>(RAZIX_BIND_CB_EVENT_FN(OnMouseButtonReleased));
@@ -324,30 +270,16 @@ namespace Razix {
         // Naming threads have been inspired from mamoniem on twitter, can't find the particular tweet
         RAZIX_PROFILE_SETTHREADNAME("MainThread::Kratos");
 
-        if (RZApplication::Get().getAppType() != AppType::kGame) {
-            // Wait until Editor sends data
-            std::unique_lock<std::mutex> lk(m);
-            halt_execution.wait(lk, [] {
-                return ready_for_execution;
-            });
-            // Manual unlocking is done before notifying, to avoid waking up
-            // the waiting thread only to block again (see notify_one for details)
-            lk.unlock();
-            halt_execution.notify_one();
-        }
-
         // TODO: Add Time stamp Queries for calculating GPU time
 
-        // Calculate the delta time
-        f32 now = m_Timer->GetElapsedS();
+        rz_time_stamp currTime = rz_time_now();
         RZEngine::Get().ResetStats();
         auto& stats = RZEngine::Get().GetStatistics();
-        m_Timestep.Update(now);
+        m_FPSTimestep.Update(currTime);
+        m_UPSTimestep.Update(currTime);
 
         // Update the stats
-
-        stats.DeltaTime = m_Timestep.GetTimestepMs();
-        //RAZIX_CORE_TRACE("dt : {0} ms", stats.DeltaTime);
+        stats.DeltaTime = m_FPSTimestep.GetTimestepMs();
 
         // Poll for Input events
         m_Window->ProcessInput();
@@ -362,17 +294,16 @@ namespace Razix {
         // Reload shaders and FrameGraph resources
         if (RZInput::IsKeyPressed(Razix::KeyCode::Key::R)) {
             RAZIX_CORE_INFO("Reloading FrameGraph...");
-            Gfx::RZShaderLibrary::Get().reloadShadersFromDisk();
-            auto& worldRenderer = Razix::RZEngine::Get().getWorldRenderer();
-            worldRenderer.destroy();
-            Razix::Gfx::RZFrameGraph::ResetFirstFrame();
-            worldRenderer.buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
-            RAZIX_CORE_INFO("FrameGraph reload Done!");
+            //Gfx::RZShaderLibrary::Get().reloadShadersFromDisk();
+            //auto& worldRenderer = Razix::RZEngine::Get().getWorldRenderer();
+            //worldRenderer.destroy();
+            //Razix::Gfx::RZFrameGraph::ResetFirstFrame();
+            //worldRenderer.buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentSceneMutablePtr());
+            //RAZIX_CORE_INFO("FrameGraph reload Done!");
         }
 
         // Update the Engine systems
-        Update(m_Timestep);
-        m_Updates++;
+        Update(m_UPSTimestep);
 
         // Render the Graphics
         Render();
@@ -388,22 +319,20 @@ namespace Razix {
             RAZIX_PROFILE_SCOPEC("RZApplication::TimeStepUpdates", RZ_PROFILE_COLOR_APPLICATION);
 
             // Record the FPS
-            if (now - m_SecondTimer > 1.0f) {
-                m_SecondTimer += 1.0f;
+            if (rz_get_elapsed_ms(m_TotalTimeElapsedInSeconds, currTime) > 1000.0f) {
+                m_TotalTimeElapsedInSeconds = currTime;
 
-                stats.FramesPerSecond  = m_Frames;
-                stats.UpdatesPerSecond = m_Updates;
-                RAZIX_CORE_TRACE("FPS : {0} (dt: {1}ms)", stats.FramesPerSecond, stats.DeltaTime);
+                stats.FramesPerSecond  = (u32) m_FPSTimestep.GetCurrentFPS();
+                stats.UpdatesPerSecond = (u32) m_UPSTimestep.GetCurrentFPS();
+                //RAZIX_CORE_TRACE("FPS : {0} (dt: {1}ms) | Avg FPS: {2}", stats.FramesPerSecond, stats.DeltaTime, (u32) m_FPSTimestep.GetAverageFPS());
                 //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
                 // update window signature with FPS
-                auto sig = GetAppWindowTitleSignature(m_ProjectName) + " | FPS: " + std::to_string(stats.FramesPerSecond);
+                auto sig = GetAppWindowTitleSignature(m_ProjectName) + " | FPS: " + rz_to_string(stats.FramesPerSecond) + " Avg. FPS: " + rz_to_string((u32) m_FPSTimestep.GetAverageFPS());
                 m_Window->setTitle(sig.c_str());
-
-                m_Frames  = 0;
-                m_Updates = 0;
             }
         }
+
         return m_CurrentState != AppState::Closing;
     }
 
@@ -414,8 +343,8 @@ namespace Razix {
         OnStart();
 
         // Run the OnStart method for all the scripts in the scene
-        if (RZSceneManager::Get().getCurrentScene())
-            RZEngine::Get().getScriptHandler().OnStart(RZSceneManager::Get().getCurrentScene());
+        if (RZSceneManager::Get().getCurrentSceneMutablePtr())
+            RZEngine::Get().getScriptHandler().OnStart(RZSceneManager::Get().getCurrentSceneMutablePtr());
     }
 
     void RZApplication::Update(const RZTimestep& dt)
@@ -425,9 +354,11 @@ namespace Razix {
         // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
         // Update the renderer stuff here
         // Update Scene Graph here
-        RZSceneManager::Get().getCurrentScene()->update();
+        RZScene* CurrentScene = RZSceneManager::Get().getCurrentSceneMutablePtr();
+        CurrentScene->update();
         // Update the Scene Camera Here
-        RZSceneManager::Get().getCurrentScene()->getSceneCamera().update(dt.GetTimestepMs());
+        CurrentScene->getSceneCamera().update(dt.GetTimestepMs());
+        CurrentScene->getSceneCamera().setAspectRatio(f32(m_Window->getWidth()) / f32(m_Window->getHeight()));
 
         auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
@@ -436,17 +367,6 @@ namespace Razix {
             io.DisplaySize             = ImVec2(static_cast<f32>(getWindow()->getWidth()), static_cast<f32>(getWindow()->getHeight()));
             io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
         }
-
-        // Update the Runtime Systems only on Game Application type
-        //if (m_appType == AppType::GAME) {
-        // Run the OnUpdate for all the scripts
-        // FIXME: Enable this when the data driven rendering is finished
-        //if (RZSceneManager::Get().getCurrentScene())
-        //    RZEngine::Get().getScriptHandler().OnUpdate(RZSceneManager::Get().getCurrentScene(), dt);
-
-        // TODO: Update the Physics Engine here
-        /*RZEngine::Get().getPhysicsEngine().update(dt); */
-        //}
 
         // Client App Update
         OnUpdate(dt);
@@ -458,7 +378,7 @@ namespace Razix {
 
         OnRender();
 
-        Razix::RZEngine::Get().getWorldRenderer().drawFrame(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentScene());
+        Razix::RZEngine::Get().getWorldRenderer().drawFrame(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentSceneMutablePtr());
     }
 
     void RZApplication::RenderGUI()
@@ -486,12 +406,9 @@ namespace Razix {
         // World Renderer Tools
         RZEngine::Get().getWorldRenderer().OnImGui();
 
-        // RHI Stats
-        Razix::Gfx::RHI::Get().OnImGui();
-
         // User GUI
-        if (RZSceneManager::Get().getCurrentScene())
-            RZEngine::Get().getScriptHandler().OnImGui(RZSceneManager::Get().getCurrentScene());
+        if (RZSceneManager::Get().getCurrentSceneMutablePtr())
+            RZEngine::Get().getScriptHandler().OnImGui(RZSceneManager::Get().getCurrentSceneMutablePtr());
 
         // Client side
         OnImGui();
@@ -512,48 +429,90 @@ namespace Razix {
         RZSceneManager::Get().destroyAllScenes();
         SaveApp();
 
-        Gfx::RHI::Destroy();
-
         RAZIX_CORE_ERROR("Closing Application!");
     }
+
+    struct RZStringSerialize
+    {
+        std::string value;
+
+        RZStringSerialize() = default;
+        explicit RZStringSerialize(const RZString& str)
+            : value(str.c_str()) {}
+
+        operator RZString() const { return RZString(value.c_str()); }
+    };
 
     /* Application Serialization */
     // Load mechanism for the RZApplication class
     template<class Archive>
     void RZApplication::load(Archive& archive)
     {
+        // Load project name as std::string, then convert to RZString
         std::string projectName;
         archive(cereal::make_nvp("Project Name", projectName));
-        RAZIX_ASSERT_MESSAGE((projectName == m_ProjectName), "Project name doesn't match with Executable");
+        m_ProjectName = RZString(projectName.c_str());
+        RAZIX_ASSERT_MESSAGE((m_ProjectName == RZString(projectName.c_str())), "Project name doesn't match with Executable");
+
         /**
-             * Currently the project name will be verified with the one given in the sandbox or game project
-             * If it doesn't match it updates the project name, it's not necessary that the name must match the 
-             * executable name, since the Editor can load any *.razixproject file, this should also mean that
-             * it should be able to load any project name since the project name is always mutable just all it's properties
-             * There's not enforcement on the project names and other properties, the Razix Editor Application 
-             * and can load any thing as long it is supplies with the required data to
-             */
-        m_ProjectName = projectName;
-        // TODO: Verify these two!
-        //archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.GetVersionString()));
+     * Currently the project name will be verified with the one given in the sandbox or game project
+     * If it doesn't match it updates the project name, it's not necessary that the name must match the 
+     * executable name, since the Editor can load any *.razixproject file, this should also mean that
+     * it should be able to load any project name since the project name is always mutable just all it's properties
+     * There's not enforcement on the project names and other properties, the Razix Editor Application 
+     * and can load any thing as long it is supplies with the required data to
+     */
+
+        // Deserialize engine version from std::string
+        std::string versionStr;
+        archive(cereal::make_nvp("Engine Version", versionStr));
+        RZString storedVersionStr(versionStr.c_str());
+
+        const Razix::Version  loadedVersion  = Version::ParseVersionString(storedVersionStr);
+        const Razix::Version& currentVersion = Razix::RazixVersion;
+
+        if (storedVersionStr != currentVersion.getVersionString()) {
+            RAZIX_CORE_WARN("[Serialization] Engine version mismatch detected!");
+            RAZIX_CORE_WARN("[Serialization] Loaded asset was saved with version: {}", storedVersionStr);
+            RAZIX_CORE_WARN("[Serialization] Current engine version is: {}", currentVersion.getVersionString());
+
+            if (loadedVersion.getVersionMajor() < currentVersion.getVersionMajor()) {
+                RAZIX_CORE_ERROR("[Serialization] Major version is older! incompatibility likely!");
+            } else if (loadedVersion.getVersionMinor() < currentVersion.getVersionMinor()) {
+                RAZIX_CORE_ERROR("[Serialization] Minor version is older! may be partially compatible.");
+            } else if (loadedVersion.getVersionPatch() < currentVersion.getVersionPatch()) {
+                RAZIX_CORE_ERROR("[Serialization] Patch version is older! usually safe, but changes may exist.");
+            } else {
+                RAZIX_CORE_ERROR("[Serialization] Version is newer than current engine! unsupported forward compatibility.");
+            }
+        } else {
+            RAZIX_CORE_INFO("[Serialization] Engine version matches exactly: {}", storedVersionStr);
+        }
+
+        // TODO: Verify these also!
         //archive(cereal::make_nvp("Project Version", 0));
-        archive(cereal::make_nvp("Render API", m_RenderAPI));
-        // Set the render API from the De-serialized data
-        Gfx::RZGraphicsContext::SetRenderAPI((Gfx::RenderAPI) m_RenderAPI);
         u32 Width, Height;
         archive(cereal::make_nvp("Width", Width));
         archive(cereal::make_nvp("Height", Height));
         m_WindowProperties.Width  = Width;
         m_WindowProperties.Height = Height;
 
-        // Extract the project UUID as as string and convert it back to the RZUUID
-        std::string uuid_string;
-        archive(cereal::make_nvp("Project ID", uuid_string));
+        // Extract the project UUID from std::string
+        std::string uuid_stringStr;
+        archive(cereal::make_nvp("Project ID", uuid_stringStr));
+        RZString uuid_string(uuid_stringStr.c_str());
         m_ProjectID = RZUUID::FromPrettyStrFactory(uuid_string);
 
         // Load the scenes from the project file for the engine to load and present
         RAZIX_CORE_TRACE("Loading Scenes...");
-        archive(cereal::make_nvp("Scenes", sceneFilePaths));
+        RZDynamicArray<std::string> scenePaths;
+        archive(cereal::make_nvp("Scenes", scenePaths));
+
+        // Convert std::string to RZString
+        sceneFilePaths.clear();
+        for (const auto& path: scenePaths) {
+            sceneFilePaths.push_back(RZString(path.c_str()));
+        }
     }
 
     // Save mechanism for the RZApplication class
@@ -561,30 +520,30 @@ namespace Razix {
     void RZApplication::save(Archive& archive) const
     {
         RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}", m_Window->getWidth(), m_Window->getHeight());
-        archive(cereal::make_nvp("Project Name", m_ProjectName));
-        archive(cereal::make_nvp("Engine Version", Razix::RazixVersion.getVersionString()));
-        archive(cereal::make_nvp("Project ID", m_ProjectID.prettyString()));
-        archive(cereal::make_nvp("Render API", (u32) Gfx::RZGraphicsContext::GetRenderAPI()));
+
+        // Save RZString fields as std::string
+        archive(cereal::make_nvp("Project Name", std::string(m_ProjectName.c_str())));
+        archive(cereal::make_nvp("Engine Version", std::string(Razix::RazixVersion.getVersionString().c_str())));
+        archive(cereal::make_nvp("Project ID", std::string(m_ProjectID.prettyString().c_str())));
         archive(cereal::make_nvp("Width", m_Window->getWidth()));
         archive(cereal::make_nvp("Height", m_Window->getHeight()));
 
         auto& paths = RZSceneManager::Get().getSceneFilePaths();
 
-        std::vector<std::string> newPaths;
-        for (auto& path: paths) {
-            std::string newPath;
-            RZVirtualFileSystem::Get().absolutePathToVFS(path, newPath);
-            newPaths.push_back(path);
+        // Convert RZString vector to std::string vector for serialization
+        RZDynamicArray<std::string> scenePaths;
+        for (const auto& path: paths) {
+            scenePaths.push_back(std::string(path.c_str()));
         }
-        archive(cereal::make_nvp("Scenes", newPaths));
+        archive(cereal::make_nvp("Scenes", scenePaths));
     }
 
     void RZApplication::SaveApp()
     {
         // Save the app data before closing
         RAZIX_CORE_WARN("Saving project...");
-        std::string               projectFullPath = m_ProjectPath + m_ProjectName + std::string(".razixproject");
-        std::ofstream             opAppStream(projectFullPath);
+        RZString                  projectFullPath = m_ProjectPath + m_ProjectName + RZString(".razixproject");
+        std::ofstream             opAppStream(projectFullPath.c_str());
         cereal::JSONOutputArchive saveArchive(opAppStream);
         saveArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
     }
@@ -600,7 +559,7 @@ namespace Razix {
 #if 0
         // Guizmo Controls for an Entity
         if (m_EnableGuizmoEditing) {
-            auto currentScene = RZSceneManager::Get().getCurrentScene();
+            auto currentScene = RZSceneManager::Get().getCurrentSceneMutablePtr();
             //auto&          registry     = currentScene->getRegistry();
             //auto           cameraView   = registry.view<CameraComponent>();
             //RZSceneCamera* cam          = nullptr;

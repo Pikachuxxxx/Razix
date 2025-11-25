@@ -15,10 +15,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <unordered_map>
 #include <variant>
-
-#include <sys/stat.h>
+#include <zstd.h>
 
 #ifdef _MSC_VER
 #define stat64 _stat64
@@ -30,7 +30,6 @@
 #include "../../server/TracyFileWrite.hpp"
 #include "../../server/TracyMmap.hpp"
 #include "../../server/TracyWorker.hpp"
-#include "../../zstd/zstd.h"
 
 void Usage() {
   printf("Usage: import-fuchsia input.json output.tracy\n\n");
@@ -189,6 +188,12 @@ std::pair<bool, Record> read_next_record(std::vector<uint8_t> const &input, size
   CHECK_BOUND(offset + 8*len_word);
 
   Record r{(uint64_t *)&input[offset], len_word, header};
+
+  if (len_word == 0) {
+    fprintf(stderr, "warning: invalid record with length=0 at offset %" PRIu64 "\n", offset); \
+    return std::make_pair(false,Record{}); \
+  }
+
   offset += 8 * len_word;
   return std::make_pair(true, r);
 }

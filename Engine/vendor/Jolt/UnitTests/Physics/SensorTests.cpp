@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -6,6 +7,11 @@
 #include "Layers.h"
 #include "LoggingContactListener.h"
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
+#include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Physics/Collision/CollideShapeVsShapePerLeaf.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 
 TEST_SUITE("SensorTests")
 {
@@ -22,7 +28,7 @@ TEST_SUITE("SensorTests")
 		c.GetSystem()->SetContactListener(&listener);
 
 		// Sensor
-		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(1)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING);
+		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(1)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Static, Layers::SENSOR);
 		sensor_settings.mIsSensor = true;
 		BodyID sensor_id = c.GetBodyInterface().CreateAndAddBody(sensor_settings, EActivation::DontActivate);
 
@@ -34,8 +40,8 @@ TEST_SUITE("SensorTests")
 		c.SimulateSingleStep();
 		CHECK(listener.GetEntryCount() == 0);
 
-		// After half a second we should be touching the sensor
-		c.Simulate(0.5f);
+		// After half a second and one step we should be touching the sensor
+		c.Simulate(0.5f + c.GetStepDeltaTime());
 		CHECK(listener.Contains(EType::Add, dynamic.GetID(), sensor_id));
 		listener.Clear();
 
@@ -46,7 +52,7 @@ TEST_SUITE("SensorTests")
 		listener.Clear();
 
 		// After 3 more seconds we should have left the sensor at the bottom side
-		c.Simulate(3.0f + c.GetDeltaTime());
+		c.Simulate(3.0f);
 		CHECK(listener.Contains(EType::Remove, dynamic.GetID(), sensor_id));
 		CHECK_APPROX_EQUAL(dynamic.GetPosition(), RVec3(0, -1.5f - 3.0f * c.GetDeltaTime(), 0), 1.0e-4f);
 	}
@@ -60,7 +66,7 @@ TEST_SUITE("SensorTests")
 		c.GetSystem()->SetContactListener(&listener);
 
 		// Sensor
-		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(1)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING);
+		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(1)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Static, Layers::SENSOR);
 		sensor_settings.mIsSensor = true;
 		BodyID sensor_id = c.GetBodyInterface().CreateAndAddBody(sensor_settings, EActivation::DontActivate);
 
@@ -72,8 +78,8 @@ TEST_SUITE("SensorTests")
 		c.SimulateSingleStep();
 		CHECK(listener.GetEntryCount() == 0);
 
-		// After half a second we should be touching the sensor
-		c.Simulate(0.5f);
+		// After half a second and one step we should be touching the sensor
+		c.Simulate(0.5f + c.GetStepDeltaTime());
 		CHECK(listener.Contains(EType::Add, kinematic.GetID(), sensor_id));
 		listener.Clear();
 
@@ -84,7 +90,7 @@ TEST_SUITE("SensorTests")
 		listener.Clear();
 
 		// After 3 more seconds we should have left the sensor at the bottom side
-		c.Simulate(3.0f + c.GetDeltaTime());
+		c.Simulate(3.0f);
 		CHECK(listener.Contains(EType::Remove, kinematic.GetID(), sensor_id));
 		CHECK_APPROX_EQUAL(kinematic.GetPosition(), RVec3(0, -1.5f - 3.0f * c.GetDeltaTime(), 0), 1.0e-4f);
 	}
@@ -100,7 +106,7 @@ TEST_SUITE("SensorTests")
 		c.GetSystem()->SetContactListener(&listener);
 
 		// Kinematic sensor
-		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(1)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Kinematic, Layers::NON_MOVING);
+		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(1)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Kinematic, Layers::SENSOR);
 		sensor_settings.mIsSensor = true;
 		BodyID sensor_id = c.GetBodyInterface().CreateAndAddBody(sensor_settings, EActivation::Activate);
 
@@ -112,8 +118,8 @@ TEST_SUITE("SensorTests")
 		c.SimulateSingleStep();
 		CHECK(listener.GetEntryCount() == 0);
 
-		// After half a second we should be touching the sensor
-		c.Simulate(0.5f);
+		// After half a second and one step we should be touching the sensor
+		c.Simulate(0.5f + c.GetStepDeltaTime());
 		CHECK(listener.Contains(EType::Add, kinematic.GetID(), sensor_id));
 		listener.Clear();
 
@@ -124,7 +130,7 @@ TEST_SUITE("SensorTests")
 		listener.Clear();
 
 		// After 3 more seconds we should have left the sensor at the bottom side
-		c.Simulate(3.0f + c.GetDeltaTime());
+		c.Simulate(3.0f);
 		CHECK(listener.Contains(EType::Remove, kinematic.GetID(), sensor_id));
 		CHECK_APPROX_EQUAL(kinematic.GetPosition(), RVec3(0, -1.5f - 3.0f * c.GetDeltaTime(), 0), 1.0e-4f);
 	}
@@ -144,7 +150,7 @@ TEST_SUITE("SensorTests")
 		kinematic.SetLinearVelocity(Vec3(0, -1, 0));
 
 		// Kinematic sensor
-		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(1)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Kinematic, Layers::NON_MOVING);
+		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(1)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Kinematic, Layers::SENSOR);
 		sensor_settings.mIsSensor = true;
 		BodyID sensor_id = c.GetBodyInterface().CreateAndAddBody(sensor_settings, EActivation::Activate);
 
@@ -152,8 +158,8 @@ TEST_SUITE("SensorTests")
 		c.SimulateSingleStep();
 		CHECK(listener.GetEntryCount() == 0);
 
-		// After half a second we should be touching the sensor
-		c.Simulate(0.5f);
+		// After half a second and one step we should be touching the sensor
+		c.Simulate(0.5f + c.GetStepDeltaTime());
 		CHECK(listener.Contains(EType::Add, kinematic.GetID(), sensor_id));
 		listener.Clear();
 
@@ -164,7 +170,7 @@ TEST_SUITE("SensorTests")
 		listener.Clear();
 
 		// After 3 more seconds we should have left the sensor at the bottom side
-		c.Simulate(3.0f + c.GetDeltaTime());
+		c.Simulate(3.0f);
 		CHECK(listener.Contains(EType::Remove, kinematic.GetID(), sensor_id));
 		CHECK_APPROX_EQUAL(kinematic.GetPosition(), RVec3(0, -1.5f - 3.0f * c.GetDeltaTime(), 0), 1.0e-4f);
 	}
@@ -178,7 +184,7 @@ TEST_SUITE("SensorTests")
 		c.GetSystem()->SetContactListener(&listener);
 
 		// Sensor
-		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(1)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING);
+		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(1)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Static, Layers::SENSOR);
 		sensor_settings.mIsSensor = true;
 		Body &sensor = *c.GetBodyInterface().CreateBody(sensor_settings);
 		c.GetBodyInterface().AddBody(sensor.GetID(), EActivation::DontActivate);
@@ -233,7 +239,7 @@ TEST_SUITE("SensorTests")
 		c.GetSystem()->SetContactListener(&listener);
 
 		// Kinematic sensor that is active (so will keep detecting contacts with sleeping bodies)
-		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(1)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Kinematic, Layers::NON_MOVING);
+		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(1)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Kinematic, Layers::SENSOR);
 		sensor_settings.mIsSensor = true;
 		Body &sensor = *c.GetBodyInterface().CreateBody(sensor_settings);
 		c.GetBodyInterface().AddBody(sensor.GetID(), EActivation::Activate);
@@ -300,6 +306,67 @@ TEST_SUITE("SensorTests")
 		CHECK(!dynamic.IsActive());
 		CHECK(listener.Contains(EType::Remove, floor.GetID(), dynamic.GetID()));
 		CHECK(!listener.Contains(EType::Remove, sensor.GetID(), dynamic.GetID()));
+	}
+
+	TEST_CASE("TestSensorVsSensor")
+	{
+		for (int test = 0; test < 2; ++test)
+		{
+			bool sensor_detects_sensor = test == 1;
+
+			PhysicsTestContext c;
+
+			// Register listener
+			LoggingContactListener listener;
+			c.GetSystem()->SetContactListener(&listener);
+
+			// Depending on the iteration we either place the sensor in the moving layer which means it will collide with other sensors
+			// or we put it in the sensor layer which means it won't collide with other sensors
+			ObjectLayer layer = sensor_detects_sensor? Layers::MOVING : Layers::SENSOR;
+
+			// Sensor 1
+			BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(1)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Static, layer);
+			sensor_settings.mIsSensor = true;
+			BodyID sensor_id1 = c.GetBodyInterface().CreateAndAddBody(sensor_settings, EActivation::DontActivate);
+
+			// Sensor 2 moving downwards
+			sensor_settings.mMotionType = EMotionType::Kinematic;
+			sensor_settings.mPosition = RVec3(0, 3, 0);
+			sensor_settings.mIsSensor = true;
+			sensor_settings.mLinearVelocity = Vec3(0, -2, 0);
+			BodyID sensor_id2 = c.GetBodyInterface().CreateAndAddBody(sensor_settings, EActivation::Activate);
+
+			// After a single step the sensors should not touch yet
+			c.SimulateSingleStep();
+			CHECK(listener.GetEntryCount() == 0);
+
+			// After half a second and one step the sensors should be touching
+			c.Simulate(0.5f + c.GetDeltaTime());
+			if (sensor_detects_sensor)
+				CHECK(listener.Contains(EType::Add, sensor_id1, sensor_id2));
+			else
+				CHECK(listener.GetEntryCount() == 0);
+			listener.Clear();
+
+			// The next step we require that the contact persists
+			c.SimulateSingleStep();
+			if (sensor_detects_sensor)
+			{
+				CHECK(listener.Contains(EType::Persist, sensor_id1, sensor_id2));
+				CHECK(!listener.Contains(EType::Remove, sensor_id1, sensor_id2));
+			}
+			else
+				CHECK(listener.GetEntryCount() == 0);
+			listener.Clear();
+
+			// After 2 more seconds we should have left the sensor at the bottom side
+			c.Simulate(2.0f);
+			if (sensor_detects_sensor)
+				CHECK(listener.Contains(EType::Remove, sensor_id1, sensor_id2));
+			else
+				CHECK(listener.GetEntryCount() == 0);
+			CHECK_APPROX_EQUAL(c.GetBodyInterface().GetPosition(sensor_id2), sensor_settings.mPosition + sensor_settings.mLinearVelocity * (2.5f + 3.0f * c.GetDeltaTime()), 1.0e-4f);
+		}
 	}
 
 	TEST_CASE("TestContactListenerMakesSensor")
@@ -374,5 +441,324 @@ TEST_SUITE("SensorTests")
 		CHECK(listener.Contains(EType::Remove, dynamic2.GetID(), static_id));
 		CHECK_APPROX_EQUAL(dynamic1.GetPosition(), RVec3(-2, 1.5f, 0), 5.0e-3f);
 		CHECK_APPROX_EQUAL(dynamic2.GetPosition(), RVec3(2, -1.5f - 3.0f * c.GetDeltaTime(), 0), 1.0e-4f);
+	}
+
+	TEST_CASE("TestContactListenerMakesSensorCCD")
+	{
+		PhysicsTestContext c;
+		c.ZeroGravity();
+
+		const float cPenetrationSlop = c.GetSystem()->GetPhysicsSettings().mPenetrationSlop;
+
+		class SensorOverridingListener : public LoggingContactListener
+		{
+		public:
+			virtual void		OnContactAdded(const Body &inBody1, const Body &inBody2, const ContactManifold &inManifold, ContactSettings &ioSettings) override
+			{
+				LoggingContactListener::OnContactAdded(inBody1, inBody2, inManifold, ioSettings);
+
+				JPH_ASSERT(ioSettings.mIsSensor == false);
+				if (inBody1.GetID() == mBodyThatBecomesSensor || inBody2.GetID() == mBodyThatBecomesSensor)
+					ioSettings.mIsSensor = true;
+			}
+
+			virtual void		OnContactPersisted(const Body &inBody1, const Body &inBody2, const ContactManifold &inManifold, ContactSettings &ioSettings) override
+			{
+				LoggingContactListener::OnContactPersisted(inBody1, inBody2, inManifold, ioSettings);
+
+				JPH_ASSERT(ioSettings.mIsSensor == false);
+				if (inBody1.GetID() == mBodyThatBecomesSensor || inBody2.GetID() == mBodyThatBecomesSensor)
+					ioSettings.mIsSensor = true;
+			}
+
+			BodyID				mBodyThatBecomesSensor;
+		};
+
+		// Register listener
+		SensorOverridingListener listener;
+		c.GetSystem()->SetContactListener(&listener);
+
+		// Body that blocks the path
+		BodyID static_id = c.GetBodyInterface().CreateAndAddBody(BodyCreationSettings(new BoxShape(Vec3(0.1f, 10, 10)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING), EActivation::DontActivate);
+
+		// Dynamic body moving to the static object that will do a normal CCD collision
+		RVec3 dynamic1_pos(-0.5f, 2, 0);
+		Vec3 initial_velocity(500, 0, 0);
+		Body &dynamic1 = c.CreateBox(dynamic1_pos, Quat::sIdentity(), EMotionType::Dynamic, EMotionQuality::LinearCast, Layers::MOVING, Vec3::sReplicate(0.1f));
+		dynamic1.SetAllowSleeping(false);
+		dynamic1.SetLinearVelocity(initial_velocity);
+		dynamic1.SetRestitution(1.0f);
+
+		// Dynamic body moving through the static object that will become a sensor an thus pass through
+		RVec3 dynamic2_pos(-0.5f, -2, 0);
+		Body &dynamic2 = c.CreateBox(dynamic2_pos, Quat::sIdentity(), EMotionType::Dynamic, EMotionQuality::LinearCast, Layers::MOVING, Vec3::sReplicate(0.1f));
+		dynamic2.SetAllowSleeping(false);
+		dynamic2.SetLinearVelocity(initial_velocity);
+		dynamic2.SetRestitution(1.0f);
+		listener.mBodyThatBecomesSensor = dynamic2.GetID();
+
+		// After a single step the we should have contact added callbacks for both bodies
+		c.SimulateSingleStep();
+		CHECK(listener.Contains(EType::Add, dynamic1.GetID(), static_id));
+		CHECK(listener.Contains(EType::Add, dynamic2.GetID(), static_id));
+		listener.Clear();
+		CHECK_APPROX_EQUAL(dynamic1.GetPosition(), dynamic1_pos + RVec3(0.3f + cPenetrationSlop, 0, 0), 1.0e-4f); // Dynamic 1 should have moved to the surface of the static body
+		CHECK_APPROX_EQUAL(dynamic2.GetPosition(), dynamic2_pos + initial_velocity * c.GetDeltaTime(), 1.0e-4f); // Dynamic 2 should have passed through the static body because it became a sensor
+
+		// The next step the sensor should have its contact removed and the CCD body should have its contact persisted because it starts penetrating
+		c.SimulateSingleStep();
+		CHECK(listener.Contains(EType::Persist, dynamic1.GetID(), static_id));
+		CHECK(listener.Contains(EType::Remove, dynamic2.GetID(), static_id));
+		listener.Clear();
+
+		// The next step all contacts have been removed
+		c.SimulateSingleStep();
+		CHECK(listener.Contains(EType::Remove, dynamic1.GetID(), static_id));
+		listener.Clear();
+	}
+
+	TEST_CASE("TestSensorVsSubShapes")
+	{
+		PhysicsTestContext c;
+		BodyInterface &bi = c.GetBodyInterface();
+
+		// Register listener
+		LoggingContactListener listener;
+		c.GetSystem()->SetContactListener(&listener);
+
+		// Create sensor
+		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(5.0f)), RVec3(0, 10, 0), Quat::sIdentity(), EMotionType::Static, Layers::SENSOR);
+		sensor_settings.mIsSensor = true;
+		BodyID sensor_id = bi.CreateAndAddBody(sensor_settings, EActivation::DontActivate);
+
+		// We will be testing if we receive callbacks from the individual sub shapes
+		enum class EUserData
+		{
+			Bottom,
+			Middle,
+			Top,
+		};
+
+		// Create compound with 3 sub shapes
+		Ref<StaticCompoundShapeSettings> shape_settings = new StaticCompoundShapeSettings();
+		Ref<BoxShapeSettings> shape1 = new BoxShapeSettings(Vec3::sReplicate(0.4f));
+		shape1->mUserData = (uint64)EUserData::Bottom;
+		Ref<BoxShapeSettings> shape2 = new BoxShapeSettings(Vec3::sReplicate(0.4f));
+		shape2->mUserData = (uint64)EUserData::Middle;
+		Ref<BoxShapeSettings> shape3 = new BoxShapeSettings(Vec3::sReplicate(0.4f));
+		shape3->mUserData = (uint64)EUserData::Top;
+		shape_settings->AddShape(Vec3(0, -1.0f, 0), Quat::sIdentity(), shape1);
+		shape_settings->AddShape(Vec3(0, 0.0f, 0), Quat::sIdentity(), shape2);
+		shape_settings->AddShape(Vec3(0, 1.0f, 0), Quat::sIdentity(), shape3);
+		BodyCreationSettings compound_body_settings(shape_settings, RVec3(0, 20, 0), Quat::sIdentity(), JPH::EMotionType::Dynamic, Layers::MOVING);
+		compound_body_settings.mUseManifoldReduction = false; // Turn off manifold reduction for this body so that we can get proper callbacks for individual sub shapes
+		JPH::BodyID compound_body = bi.CreateAndAddBody(compound_body_settings, JPH::EActivation::Activate);
+
+		// Simulate until the body passes the origin
+		while (bi.GetPosition(compound_body).GetY() > 0.0f)
+			c.SimulateSingleStep();
+
+		// The expected events
+		struct Expected
+		{
+
+			EType		mType;
+			EUserData	mUserData;
+		};
+		const Expected expected[] = {
+			{ EType::Add, EUserData::Bottom },
+			{ EType::Add, EUserData::Middle },
+			{ EType::Add, EUserData::Top },
+			{ EType::Remove, EUserData::Bottom },
+			{ EType::Remove, EUserData::Middle },
+			{ EType::Remove, EUserData::Top }
+		};
+		const Expected *next = expected;
+		const Expected *end = expected + size(expected);
+
+		// Loop over events that we received
+		for (size_t e = 0; e < listener.GetEntryCount(); ++e)
+		{
+			const LoggingContactListener::LogEntry &entry = listener.GetEntry(e);
+
+			// Only interested in adds/removes
+			if (entry.mType != EType::Add && entry.mType != EType::Remove)
+				continue;
+
+			// Check if we have more expected events
+			if (next >= end)
+			{
+				CHECK(false);
+				break;
+			}
+
+			// Check if it is of expected type
+			CHECK(entry.mType == next->mType);
+			CHECK(entry.mBody1 == sensor_id);
+			CHECK(entry.mManifold.mSubShapeID1 == SubShapeID());
+			CHECK(entry.mBody2 == compound_body);
+			EUserData user_data = (EUserData)bi.GetShape(compound_body)->GetSubShapeUserData(entry.mManifold.mSubShapeID2);
+			CHECK(user_data == next->mUserData);
+
+			// Next expected event
+			++next;
+		}
+
+		// Check all expected events received
+		CHECK(next == end);
+	}
+
+	TEST_CASE("TestSensorVsStatic")
+	{
+		PhysicsTestContext c;
+
+		// Register listener
+		LoggingContactListener listener;
+		c.GetSystem()->SetContactListener(&listener);
+
+		// Static body 1
+		Body &static1 = c.CreateSphere(RVec3::sZero(), 1.0f, EMotionType::Static, EMotionQuality::Discrete, Layers::NON_MOVING, EActivation::DontActivate);
+
+		// Sensor
+		BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(1)), RVec3::sZero(), Quat::sIdentity(), EMotionType::Kinematic, Layers::MOVING); // Put in layer that collides with static
+		sensor_settings.mIsSensor = true;
+		Body &sensor = *c.GetBodyInterface().CreateBody(sensor_settings);
+		BodyID sensor_id = sensor.GetID();
+		c.GetBodyInterface().AddBody(sensor_id, EActivation::Activate);
+
+		// Static body 2 (created after sensor to force higher body ID)
+		Body &static2 = c.CreateSphere(RVec3::sZero(), 1.0f, EMotionType::Static, EMotionQuality::Discrete, Layers::NON_MOVING, EActivation::DontActivate);
+
+		// After a step we should not detect the static bodies
+		c.SimulateSingleStep();
+		CHECK(listener.GetEntryCount() == 0);
+		listener.Clear();
+
+		// Start detecting static
+		sensor.SetCollideKinematicVsNonDynamic(true);
+
+		// After a single step we should detect both static bodies
+		c.SimulateSingleStep();
+		CHECK(listener.GetEntryCount() == 4); // Should also contain validates
+		CHECK(listener.Contains(EType::Add, static1.GetID(), sensor_id));
+		CHECK(listener.Contains(EType::Add, static2.GetID(), sensor_id));
+		listener.Clear();
+
+		// Stop detecting static
+		sensor.SetCollideKinematicVsNonDynamic(false);
+
+		// After a single step we should stop detecting both static bodies
+		c.SimulateSingleStep();
+		CHECK(listener.GetEntryCount() == 2);
+		CHECK(listener.Contains(EType::Remove, static1.GetID(), sensor_id));
+		CHECK(listener.Contains(EType::Remove, static2.GetID(), sensor_id));
+		listener.Clear();
+	}
+
+	static void sCollideBodyVsBodyAll(const Body &inBody1, const Body &inBody2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, CollideShapeSettings &ioCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter)
+	{
+		// Override the back face mode so we get hits with all triangles
+		ioCollideShapeSettings.mBackFaceMode = EBackFaceMode::CollideWithBackFaces;
+		PhysicsSystem::sDefaultSimCollideBodyVsBody(inBody1, inBody2, inCenterOfMassTransform1, inCenterOfMassTransform2, ioCollideShapeSettings, ioCollector, inShapeFilter);
+	}
+
+	static void sCollideBodyVsBodyPerBody(const Body &inBody1, const Body &inBody2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, CollideShapeSettings &ioCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter)
+	{
+		// Max 1 hit per body pair
+		AnyHitCollisionCollector<CollideShapeCollector> collector;
+		SubShapeIDCreator part1, part2;
+		CollisionDispatch::sCollideShapeVsShape(inBody1.GetShape(), inBody2.GetShape(), Vec3::sOne(), Vec3::sOne(), inCenterOfMassTransform1, inCenterOfMassTransform2, part1, part2, ioCollideShapeSettings, collector);
+		if (collector.HadHit())
+			ioCollector.AddHit(collector.mHit);
+	}
+
+	static void sCollideBodyVsBodyPerLeaf(const Body &inBody1, const Body &inBody2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, CollideShapeSettings &ioCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter)
+	{
+		// Max 1 hit per leaf shape pair
+		SubShapeIDCreator part1, part2;
+		CollideShapeVsShapePerLeaf<AnyHitCollisionCollector<CollideShapeCollector>>(inBody1.GetShape(), inBody2.GetShape(), Vec3::sOne(), Vec3::sOne(), inCenterOfMassTransform1, inCenterOfMassTransform2, part1, part2, ioCollideShapeSettings, ioCollector, inShapeFilter);
+	}
+
+	TEST_CASE("TestSimCollideBodyVsBody")
+	{
+		// Create pyramid with flat top
+		MeshShapeSettings pyramid;
+		pyramid.mTriangleVertices = { Float3(1, 0, 1), Float3(1, 0, -1), Float3(-1, 0, -1), Float3(-1, 0, 1), Float3(0.1f, 1, 0.1f), Float3(0.1f, 1, -0.1f), Float3(-0.1f, 1, -0.1f), Float3(-0.1f, 1, 0.1f) };
+		pyramid.mIndexedTriangles = { IndexedTriangle(0, 1, 4), IndexedTriangle(4, 1, 5), IndexedTriangle(1, 2, 5), IndexedTriangle(2, 6, 5), IndexedTriangle(2, 3, 6), IndexedTriangle(3, 7, 6), IndexedTriangle(3, 0, 7), IndexedTriangle(0, 4, 7), IndexedTriangle(4, 5, 6), IndexedTriangle(4, 6, 7) };
+		pyramid.SetEmbedded();
+
+		// Create floor of many pyramids
+		StaticCompoundShapeSettings compound;
+		for (int x = -10; x <= 10; ++x)
+			for (int z = -10; z <= 10; ++z)
+				compound.AddShape(Vec3(x * 2.0f, 0, z * 2.0f), Quat::sIdentity(), &pyramid);
+		compound.SetEmbedded();
+
+		for (int type = 0; type < 3; ++type)
+		{
+			PhysicsTestContext c;
+
+			// Register listener
+			LoggingContactListener listener;
+			c.GetSystem()->SetContactListener(&listener);
+
+			// Create floor
+			BodyID floor_id = c.GetBodyInterface().CreateAndAddBody(BodyCreationSettings(&compound, RVec3::sZero(), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING), EActivation::DontActivate);
+
+			// A kinematic sensor that also detects static bodies
+			// Note that the size has been picked so that it is slightly smaller than 11 x 11 pyramids and incorporates all triangles in those pyramids
+			BodyCreationSettings sensor_settings(new BoxShape(Vec3::sReplicate(10.99f)), RVec3(0, 5, 0), Quat::sIdentity(), EMotionType::Kinematic, Layers::MOVING); // Put in a layer that collides with static
+			sensor_settings.mIsSensor = true;
+			sensor_settings.mCollideKinematicVsNonDynamic = true;
+			sensor_settings.mUseManifoldReduction = false;
+			BodyID sensor_id = c.GetBodyInterface().CreateAndAddBody(sensor_settings, EActivation::Activate);
+
+			// Select the body vs body collision function
+			switch (type)
+			{
+			case 0:
+				c.GetSystem()->SetSimCollideBodyVsBody(sCollideBodyVsBodyAll);
+				break;
+
+			case 1:
+				c.GetSystem()->SetSimCollideBodyVsBody(sCollideBodyVsBodyPerLeaf);
+				break;
+
+			case 2:
+				c.GetSystem()->SetSimCollideBodyVsBody(sCollideBodyVsBodyPerBody);
+				break;
+			}
+
+			// Trigger collision callbacks
+			c.SimulateSingleStep();
+
+			// Count the number of hits that were detected
+			size_t count = 0;
+			for (size_t i = 0; i < listener.GetEntryCount(); ++i)
+			{
+				const LoggingContactListener::LogEntry &entry = listener.GetEntry(i);
+				if (entry.mType == EType::Add && entry.mBody1 == floor_id && entry.mBody2 == sensor_id)
+					++count;
+			}
+
+			// Check that we received the number of hits that we expected
+			switch (type)
+			{
+			case 0:
+				// All hits
+				CHECK(count == 11 * 11 * pyramid.mIndexedTriangles.size());
+				break;
+
+			case 1:
+				// Only 1 per sub shape
+				CHECK(count == 11 * 11);
+				break;
+
+			case 2:
+				// Only 1 per body pair
+				CHECK(count == 1);
+				break;
+			}
+		}
 	}
 }

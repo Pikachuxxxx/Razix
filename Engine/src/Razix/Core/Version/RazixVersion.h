@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "Razix/Core/Containers/string.h"
 
 namespace Razix {
     /* Describes the current version details for Razix Engine */
@@ -32,6 +32,14 @@ namespace Razix {
         Version(int major, int minor, int patch, Stage stage, Date releaseDate)
             : m_Major(major), m_Minor(minor), m_Patch(patch), m_ReleaseStage(stage), m_ReleaseDate(releaseDate) {}
 
+        static Razix::Version ParseVersionString(const RZString& versionStr)
+        {
+            int major = 0, minor = 0, patch = 0;
+            int ret = sscanf(versionStr.c_str(), "%d.%d.%d", &major, &minor, &patch);
+            (void) ret;                                                                                                // Ignore return value, we assume the format is correct
+            return Razix::Version(major, minor, patch, Razix::Version::Stage::Development, Razix::Version::Date());    // TODO: Add stage and date in serialized string
+        }
+
         /* Gets the major version of the engine */
         int getVersionMajor() const { return m_Major; }
         /* gets the minor version of the engine */
@@ -44,9 +52,9 @@ namespace Razix {
         Date getReleaseDate() const { return m_ReleaseDate; }
 
         /* Returns the version as a string (Major.Minor.Patch) */
-        std::string getVersionString() const { return (std::to_string(m_Major) + "." + std::to_string(m_Minor) + "." + std::to_string(m_Patch)); }
+        RZString getVersionString() const { return (rz_to_string(m_Major) + "." + rz_to_string(m_Minor) + "." + rz_to_string(m_Patch)); }
         /* Returns the release stage as a string */
-        std::string getReleaseStageString() const
+        RZString getReleaseStageString() const
         {
             switch (m_ReleaseStage) {
                 case Stage::Development:
@@ -67,7 +75,7 @@ namespace Razix {
             }
         }
         /* Returns the release data as a string (dd-mm-yyyy) */
-        std::string getReleaseDateString() const { return (std::to_string(m_ReleaseDate.Day) + "-" + std::to_string(m_ReleaseDate.Month) + "-" + std::to_string(m_ReleaseDate.Year)); }
+        RZString getReleaseDateString() const { return (rz_to_string(m_ReleaseDate.Day) + "-" + rz_to_string(m_ReleaseDate.Month) + "-" + rz_to_string(m_ReleaseDate.Year)); }
 
     private:
         int   m_Major = 0;    /* The Major release version of the engine  */

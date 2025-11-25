@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -24,11 +25,11 @@ class SamplesApp : public Application
 {
 public:
 	// Constructor / destructor
-							SamplesApp();
+							SamplesApp(const String &inCommandLine);
 	virtual					~SamplesApp() override;
-		
-	// Render the frame.
-	virtual bool			RenderFrame(float inDeltaTime) override;
+
+	// Update the application
+	virtual bool			UpdateFrame(float inDeltaTime) override;
 
 	// Override to specify the initial camera state (local to GetCameraPivot)
 	virtual void			GetInitialCamera(CameraState &ioState) const override;
@@ -67,7 +68,7 @@ private:
 	void					ShootObject();
 
 	// Debug functionality: firing a ball, mouse dragging
-	void					UpdateDebug();
+	void					UpdateDebug(float inDeltaTime);
 
 	// Draw the state of the physics system
 	void					DrawPhysics();
@@ -86,9 +87,8 @@ private:
 
 	// Global settings
 	int						mMaxConcurrentJobs = thread::hardware_concurrency();		// How many jobs to run in parallel
-	float					mUpdateFrequency = 60.0f;									// Physics update frequency
+	float					mUpdateFrequency = 60.0f;									// Physics update frequency, measured in Hz (cycles per second)
 	int						mCollisionSteps = 1;										// How many collision detection steps per physics update
-	int						mIntegrationSubSteps = 1;									// How many integration steps per physics update
 	TempAllocator *			mTempAllocator = nullptr;									// Allocator for temporary allocations
 	JobSystem *				mJobSystem = nullptr;										// The job system that runs physics jobs
 	JobSystem *				mJobSystemValidating = nullptr;								// The job system to use when validating determinism
@@ -105,6 +105,7 @@ private:
 	bool					mDrawConstraints = false;									// If the constraints should be drawn
 	bool					mDrawConstraintLimits = false;								// If the constraint limits should be drawn
 	bool					mDrawConstraintReferenceFrame = false;						// If the constraint reference frames should be drawn
+	bool					mDrawPhysicsSystemBounds = false;							// If the bounds of the physics system should be drawn
 	BodyManager::DrawSettings mBodyDrawSettings;										// Settings for how to draw bodies from the body manager
 	SkeletonPose::DrawSettings mPoseDrawSettings;										// Settings for drawing skeletal poses
 #endif // JPH_DEBUG_RENDERER
@@ -117,12 +118,12 @@ private:
 	const RTTI *			mTestClass = nullptr;										// RTTI information for the test we're currently running
 	Test *					mTest = nullptr;											// The test we're currently running
 	UITextButton *			mTestSettingsButton = nullptr;								// Button that activates the menu that the test uses to configure additional settings
+	int						mShowDescription = 0;										// If > 0, render the description of the test
 
 	// Automatic cycling through tests
-	Array<const RTTI *>		mTestsToRun;												// The list of tests that are still waiting to be run
+	bool					mIsRunningAllTests = false;									// If the user selected the 'Run All Tests' option
 	float					mTestTimeLeft = -1.0f;										// How many seconds the test is still supposed to run
 	bool					mExitAfterRunningTests = false;								// When true, the application will quit when mTestsToRun becomes empty
-	UITextButton *			mNextTestButton = nullptr;									// Button that activates the next test when we're running all tests
 
 	// Test settings
 	bool					mInstallContactListener = false;							// When true, the contact listener is installed the next time the test is reset
@@ -130,7 +131,12 @@ private:
 	// State recording and determinism checks
 	bool					mRecordState = false;										// When true, the state of the physics system is recorded in mPlaybackFrames every physics update
 	bool					mCheckDeterminism = false;									// When true, the physics state is rolled back after every update and run again to verify that the state is the same
-	Array<StateRecorderImpl> mPlaybackFrames;											// A list of recorded world states, one per physics simulation step
+	struct PlayBackFrame
+	{
+		StateRecorderImpl	mInputState;												// State of the player inputs at the beginning of the step
+		StateRecorderImpl	mState;														// Main simulation state
+	};
+	Array<PlayBackFrame>	mPlaybackFrames;											// A list of recorded world states, one per physics simulation step
 	enum class EPlaybackMode
 	{
 		Rewind,
@@ -151,7 +157,9 @@ private:
 		RayCollector,
 		CollidePoint,
 		CollideShape,
+		CollideShapeWithInternalEdgeRemoval,
 		CastShape,
+		CollideSoftBody,
 		TransformedShape,
 		GetTriangles,
 		BroadPhaseRay,
@@ -172,6 +180,7 @@ private:
 		TaperedCapsule,
 		Cylinder,
 		Triangle,
+		RotatedTranslated,
 		StaticCompound,
 		StaticCompound2,
 		MutableCompound,
@@ -182,8 +191,9 @@ private:
 	EProbeMode				mProbeMode = EProbeMode::Pick;								// Mouse probe mode. Determines what happens under the crosshair.
 	EProbeShape				mProbeShape = EProbeShape::Sphere;							// Shape to use for the mouse probe.
 	bool					mScaleShape = false;										// If the shape is scaled or not. When true mShapeScale is taken into account.
-	Vec3					mShapeScale = Vec3::sReplicate(1.0f);						// Scale in local space for the probe shape.
-	EBackFaceMode			mBackFaceMode = EBackFaceMode::CollideWithBackFaces;		// How to handle back facing triangles when doing a collision probe check.
+	Vec3					mShapeScale = Vec3::sOne();									// Scale in local space for the probe shape.
+	EBackFaceMode			mBackFaceModeTriangles = EBackFaceMode::CollideWithBackFaces; // How to handle back facing triangles when doing a collision probe check.
+	EBackFaceMode			mBackFaceModeConvex = EBackFaceMode::CollideWithBackFaces;	// How to handle back facing convex shapes when doing a collision probe check.
 	EActiveEdgeMode			mActiveEdgeMode = EActiveEdgeMode::CollideOnlyWithActive;	// How to handle active edges when doing a collision probe check.
 	ECollectFacesMode		mCollectFacesMode = ECollectFacesMode::NoFaces;				// If we should collect colliding faces
 	float					mMaxSeparationDistance = 0.0f;								// Max separation distance for collide shape test
@@ -192,6 +202,7 @@ private:
 	bool					mUseShrunkenShapeAndConvexRadius = false;					// Shrink then expand the shape by the convex radius
 	bool					mDrawSupportingFace = false;								// Draw the result of GetSupportingFace
 	int						mMaxHits = 10;												// The maximum number of hits to request for a collision probe.
+	bool					mClosestHitPerBody = false;									// If we are only interested in the closest hit for every body
 
 	// Which object to shoot
 	enum class EShootObjectShape
@@ -199,6 +210,7 @@ private:
 		Sphere,
 		ConvexHull,
 		ThinBar,
+		SoftBodyCube,
 	};
 
 	// Shoot object settings
@@ -208,15 +220,18 @@ private:
 	float					mShootObjectFriction = 0.2f;								// Friction for the object that is shot
 	float					mShootObjectRestitution = 0.0f;								// Restitution for the object that is shot
 	bool					mShootObjectScaleShape = false;								// If the shape should be scaled
-	Vec3					mShootObjectShapeScale = Vec3::sReplicate(1.0f);			// Scale of the object to shoot
+	Vec3					mShootObjectShapeScale = Vec3::sOne();						// Scale of the object to shoot
+	bool					mWasShootKeyPressed = false;								// Remembers if the shoot key was pressed last frame
 
 	// Mouse dragging
-	Body *					mDragAnchor = nullptr;										// A anchor point for the distance constraint. Corresponds to the current crosshair position.
+	Body *					mDragAnchor = nullptr;										// Rigid bodies only: A anchor point for the distance constraint. Corresponds to the current crosshair position.
 	BodyID					mDragBody;													// The body ID of the body that the user is currently dragging.
-	Ref<Constraint>			mDragConstraint;											// The distance constraint that connects the body to be dragged and the anchor point.
+	Ref<Constraint>			mDragConstraint;											// Rigid bodies only: The distance constraint that connects the body to be dragged and the anchor point.
+	uint					mDragVertexIndex = ~uint(0);								// Soft bodies only: The vertex index of the body that the user is currently dragging.
+	float					mDragVertexPreviousInvMass = 0.0f;							// Soft bodies only: The inverse mass of the vertex that the user is currently dragging.
 	float					mDragFraction;												// Fraction along cDragRayLength (see cpp) where the hit occurred. This will be combined with the crosshair position to get a 3d anchor point.
 
 	// Timing
 	uint					mStepNumber = 0;											// Which step number we're accumulating
-	uint64					mTotalTime = 0;												// How many tick we spent
+	chrono::microseconds	mTotalTime { 0 };											// How many nano seconds we spent simulating
 };

@@ -12,17 +12,21 @@
     #define i8  char
 #else
 
-    #include <stddef.h>    // UNIX
+    #include <stdbool.h>    // bool for C land
+    #include <stddef.h>     // UNIX
     #include <stdint.h>
 
-    // remove using  for shader compatibility
-    #include <glm/gtx/compatibility.hpp>
+    #ifdef __cplusplus
+        // remove using  for shader compatibility
+        #define GLM_ENABLE_EXPERIMENTAL
+        #include <glm/gtx/compatibility.hpp>
 using namespace glm;
 
 typedef vec<1, uint, defaultp> uint1;
 typedef vec<2, uint, defaultp> uint2;
 typedef vec<3, uint, defaultp> uint3;
 typedef vec<4, uint, defaultp> uint4;
+    #endif    // __cplusplus
 
 // Native types typedefs /////////////////////////////////////////////////
 typedef int8_t  i8;

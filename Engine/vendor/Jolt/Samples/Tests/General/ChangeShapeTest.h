@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -7,11 +8,16 @@
 #include <Jolt/Physics/Body/BodyID.h>
 #include <Jolt/Physics/Collision/Shape/Shape.h>
 
-// This test will make a dynamic body cyle through various shapes
 class ChangeShapeTest : public Test
 {
 public:
-	JPH_DECLARE_RTTI_VIRTUAL(ChangeShapeTest)
+	JPH_DECLARE_RTTI_VIRTUAL(JPH_NO_EXPORT, ChangeShapeTest)
+
+	// Description of the test
+	virtual const char *	GetDescription() const override
+	{
+		return "Demonstrates how to dynamically update the shape of a body.";
+	}
 
 	// Initialize the test
 	virtual void			Initialize() override;
@@ -30,7 +36,7 @@ public:
 private:
 	bool					mActivateAfterSwitch = true;
 	BodyID					mBodyID;
-	Array<RefConst<Shape>> 	mShapes;
+	Array<RefConst<Shape>>	mShapes;
 	float					mTime = 0.0f;
 	int						mShapeIdx = 0;
 };

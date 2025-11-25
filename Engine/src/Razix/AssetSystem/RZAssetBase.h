@@ -1,6 +1,13 @@
 #pragma once
 
 #include "Razix/Core/RZDepartments.h"
+
+#include "Razix/Core/Containers/string.h"
+
+#include "Razix/Core/std/atomics.h"
+
+#include "Razix/Core/UUID/RZUUID.h"
+
 #include "Razix/Events/RZEvent.h"
 
 namespace Razix {
@@ -53,33 +60,33 @@ namespace Razix {
 
         struct RAZIX_MEM_ALIGN_16 AssetVersion
         {
-            int         major        = 0; /* Major version (e.g., breaking changes) */
-            int         minor        = 0; /* Minor version (e.g., added features, backwards-compatible) */
-            int         patch        = 0; /* Patch version (e.g., bug fixes) */
-            int         _padding     = {0};
-            std::string revisionID   = ""; /* Unique ID for this version (e.g., hash, GUID) */
-            int         _padding2[2] = {0, 0};
+            int      major        = 0; /* Major version (e.g., breaking changes) */
+            int      minor        = 0; /* Minor version (e.g., added features, backwards-compatible) */
+            int      patch        = 0; /* Patch version (e.g., bug fixes) */
+            int      _padding     = {0};
+            RZString revisionID   = ""; /* Unique ID for this version (e.g., hash, GUID) */
+            int      _padding2[2] = {0, 0};
 
-            AssetVersion(int major = 1, int minor = 0, int patch = 0, const std::string& revID = "")
+            AssetVersion(int major = 1, int minor = 0, int patch = 0, const RZString& revID = "")
                 : major(major), minor(minor), patch(patch), revisionID(revID) {}
 
-            std::string toString() const
+            RZString toString() const
             {
-                return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch) + (revisionID.empty() ? "" : (" (" + revisionID + ")"));
+                return rz_to_string(major) + "." + rz_to_string(minor) + "." + rz_to_string(patch) + (revisionID.empty() ? "" : (" (" + revisionID + ")"));
             }
         };
 
         struct RAZIX_MEM_ALIGN_16 AssetMetadata
         {
-            std::string              name;         /* Name of the asset                                         */
-            std::string              category;     /* Category (e.g., "Texture", "Material", "Audio")           */
-            std::vector<std::string> tags;         /* Tags for easy searching and filtering                     */
+            RZString                 name;         /* Name of the asset                                         */
+            RZString                 category;     /* Category (e.g., "Texture", "Material", "Audio")           */
+            RZDynamicArray<RZString> tags;         /* Tags for easy searching and filtering                     */
             AssetVersion             version;      /* Version info                                              */
-            std::string              author;       /* Author of the asset                                       */
-            std::string              lastModified; /* Date/Time of last modification (e.g., "2024-11-24 15:30") */
-            std::string              createdDate;  /* Date/Time when the asset was originally created           */
-            std::string              description;  /* Short description of the asset                            */
-            std::string              commitHash;   /* Version control ID/commit hash                            */
+            RZString                 author;       /* Author of the asset                                       */
+            RZString                 lastModified; /* Date/Time of last modification (e.g., "2024-11-24 15:30") */
+            RZString                 createdDate;  /* Date/Time when the asset was originally created           */
+            RZString                 description;  /* Short description of the asset                            */
+            RZString                 commitHash;   /* Version control ID/commit hash                            */
             Department               department;   /* Department responsible for the asset                      */
             int                      _padding;
         };
@@ -120,36 +127,36 @@ namespace Razix {
             // Notify listeners of a specific event
             void notifyListeners(RZEvent& event) { m_EventDispatcher.dispatch(event); }
 
-            RAZIX_INLINE const RZUUID&        getUUID() const { return m_UUID; }
-            RAZIX_INLINE AssetType            getType() const { return m_Type; }
-            RAZIX_INLINE void                 addReference() { m_ReferenceCount.fetch_add(1, std::memory_order_relaxed); }
-            RAZIX_INLINE void                 removeReference() { m_ReferenceCount.fetch_sub(1, std::memory_order_relaxed); }
-            RAZIX_INLINE int                  getReferenceCount() const { return m_ReferenceCount.load(std::memory_order_relaxed); }
-            RAZIX_INLINE void                 markDirty() { m_IsDirty = true; }
-            RAZIX_INLINE void                 clearDirty() { m_IsDirty = false; }
-            RAZIX_INLINE bool                 isDirty() const { return m_IsDirty; }
-            RAZIX_INLINE void                 setMetadata(const AssetMetadata& metadata) { m_Metadata = metadata; }
-            RAZIX_INLINE const AssetMetadata& getMetadata() const { return m_Metadata; }
-            RAZIX_INLINE void                 acquireLockOnAsset() { m_Mutex.lock(); }
-            RAZIX_INLINE void                 releaseLockOnAsset() { m_Mutex.unlock(); }
-            RAZIX_INLINE void                 addDependency(AssetType assetType, const RZUUID& assetID) { m_Dependencies.push_back({assetType, assetID}); }
-            RAZIX_INLINE const std::vector<AssetDependecy>& getDependencies() const { return m_Dependencies; }
+            inline const RZUUID&                         getUUID() const { return m_UUID; }
+            inline AssetType                             getType() const { return m_Type; }
+            inline void                                  addReference() { rz_atomic64_increment(&m_ReferenceCount, RZ_MEMORY_ORDER_RELAXED); }
+            inline void                                  removeReference() { rz_atomic64_decrement(&m_ReferenceCount, RZ_MEMORY_ORDER_RELAXED); }
+            inline u64                                   getReferenceCount() { return rz_atomic64_load(&m_ReferenceCount, RZ_MEMORY_ORDER_RELAXED); }
+            inline void                                  markDirty() { m_IsDirty = true; }
+            inline void                                  clearDirty() { m_IsDirty = false; }
+            inline bool                                  isDirty() const { return m_IsDirty; }
+            inline void                                  setMetadata(const AssetMetadata& metadata) { m_Metadata = metadata; }
+            inline const AssetMetadata&                  getMetadata() const { return m_Metadata; }
+            inline void                                  acquireLockOnAsset() { m_Mutex.lock(); }
+            inline void                                  releaseLockOnAsset() { m_Mutex.unlock(); }
+            inline void                                  addDependency(AssetType assetType, const RZUUID& assetID) { m_Dependencies.push_back({assetType, assetID}); }
+            inline const RZDynamicArray<AssetDependecy>& getDependencies() const { return m_Dependencies; }
 
             RZUUID operator()() { return m_UUID; }
             bool   operator==(RZAsset& other) { return m_UUID == other.m_UUID; }
             bool   operator!=(RZAsset& other) { return m_UUID != other.m_UUID; }
 
         protected:
-            RZUUID                      m_UUID;              /* Unique identifier                              */
-            AssetType                   m_Type;              /* Type of the asset (e.g., "Texture", "Model")   */
-            std::atomic<u32>            m_ReferenceCount;    /* Reference count for ownership tracking         */
-            std::vector<AssetDependecy> m_Dependencies;      /* Other assets this asset depends on             */
-            AssetMetadata               m_Metadata;          /* Additional metadata                            */
-            AssetStorageType            m_StoragePreference; /* Asset memory storage type                      */
-            bool                        m_IsDirty;           /* Flag for tracking modifications                */
-            Razix::RZEventDispatcher    m_EventDispatcher;   /* Listeners for asset updates                    */
-            mutable std::mutex          m_Mutex;             /* Thread safety lock                             */
-            bool                        m_AllocateLazy;      /* This resource storage will be done lazily      */
+            RZUUID                         m_UUID;              /* Unique identifier                              */
+            AssetType                      m_Type;              /* Type of the asset (e.g., "Texture", "Model")   */
+            RZAtomicU64                    m_ReferenceCount;    /* Reference count for ownership tracking         */
+            RZDynamicArray<AssetDependecy> m_Dependencies;      /* Other assets this asset depends on             */
+            AssetMetadata                  m_Metadata;          /* Additional metadata                            */
+            AssetStorageType               m_StoragePreference; /* Asset memory storage type                      */
+            bool                           m_IsDirty;           /* Flag for tracking modifications                */
+            Razix::RZEventDispatcher       m_EventDispatcher;   /* Listeners for asset updates                    */
+            mutable std::mutex             m_Mutex;             /* Thread safety lock                             */
+            bool                           m_AllocateLazy;      /* This resource storage will be done lazily      */
         };
     }    // namespace AssetSystem
 }    // namespace Razix

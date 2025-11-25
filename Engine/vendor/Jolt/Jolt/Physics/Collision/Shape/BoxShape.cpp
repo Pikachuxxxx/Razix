@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -10,6 +11,7 @@
 #include <Jolt/Physics/Collision/CastResult.h>
 #include <Jolt/Physics/Collision/CollidePointResult.h>
 #include <Jolt/Physics/Collision/TransformedShape.h>
+#include <Jolt/Physics/Collision/CollideSoftBodyVertexIterator.h>
 #include <Jolt/Geometry/RayAABox.h>
 #include <Jolt/ObjectStream/TypeDeclarations.h>
 #include <Jolt/Core/StreamIn.h>
@@ -44,20 +46,20 @@ static const Vec3 sUnitBoxTriangles[] = {
 };
 
 ShapeSettings::ShapeResult BoxShapeSettings::Create() const
-{ 
+{
 	if (mCachedResult.IsEmpty())
-		Ref<Shape> shape = new BoxShape(*this, mCachedResult); 
+		Ref<Shape> shape = new BoxShape(*this, mCachedResult);
 	return mCachedResult;
 }
 
-BoxShape::BoxShape(const BoxShapeSettings &inSettings, ShapeResult &outResult) : 
-	ConvexShape(EShapeSubType::Box, inSettings, outResult), 
-	mHalfExtent(inSettings.mHalfExtent), 
-	mConvexRadius(inSettings.mConvexRadius) 
-{ 
+BoxShape::BoxShape(const BoxShapeSettings &inSettings, ShapeResult &outResult) :
+	ConvexShape(EShapeSubType::Box, inSettings, outResult),
+	mHalfExtent(inSettings.mHalfExtent),
+	mConvexRadius(inSettings.mConvexRadius)
+{
 	// Check convex radius
 	if (inSettings.mConvexRadius < 0.0f
-		|| inSettings.mHalfExtent.ReduceMin() <= inSettings.mConvexRadius)
+		|| inSettings.mHalfExtent.ReduceMin() < inSettings.mConvexRadius)
 	{
 		outResult.SetError("Invalid convex radius");
 		return;
@@ -70,17 +72,17 @@ BoxShape::BoxShape(const BoxShapeSettings &inSettings, ShapeResult &outResult) :
 class BoxShape::Box final : public Support
 {
 public:
-					Box(const AABox &inBox, float inConvexRadius) : 
+					Box(const AABox &inBox, float inConvexRadius) :
 		mBox(inBox),
 		mConvexRadius(inConvexRadius)
-	{ 
-		static_assert(sizeof(Box) <= sizeof(SupportBuffer), "Buffer size too small"); 
+	{
+		static_assert(sizeof(Box) <= sizeof(SupportBuffer), "Buffer size too small");
 		JPH_ASSERT(IsAligned(this, alignof(Box)));
 	}
 
 	virtual Vec3	GetSupport(Vec3Arg inDirection) const override
-	{ 
-		return mBox.GetSupport(inDirection); 
+	{
+		return mBox.GetSupport(inDirection);
 	}
 
 	virtual float	GetConvexRadius() const override
@@ -101,6 +103,7 @@ const ConvexShape::Support *BoxShape::GetSupportFunction(ESupportMode inMode, Su
 	switch (inMode)
 	{
 	case ESupportMode::IncludeConvexRadius:
+	case ESupportMode::Default:
 		{
 			// Make box out of our half extents
 			AABox box = AABox(-scaled_half_extent, scaled_half_extent);
@@ -124,13 +127,13 @@ const ConvexShape::Support *BoxShape::GetSupportFunction(ESupportMode inMode, Su
 	return nullptr;
 }
 
-void BoxShape::GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg inDirection, Vec3Arg inScale, Mat44Arg inCenterOfMassTransform, SupportingFace &outVertices) const 
-{ 
+void BoxShape::GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg inDirection, Vec3Arg inScale, Mat44Arg inCenterOfMassTransform, SupportingFace &outVertices) const
+{
 	JPH_ASSERT(inSubShapeID.IsEmpty(), "Invalid subshape ID");
 
 	Vec3 scaled_half_extent = inScale.Abs() * mHalfExtent;
 	AABox box(-scaled_half_extent, scaled_half_extent);
-	box.GetSupportingFace(inDirection, outVertices); 
+	box.GetSupportingFace(inDirection, outVertices);
 
 	// Transform to world space
 	for (Vec3 &v : outVertices)
@@ -144,9 +147,9 @@ MassProperties BoxShape::GetMassProperties() const
 	return p;
 }
 
-Vec3 BoxShape::GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const 
-{ 
-	JPH_ASSERT(inSubShapeID.IsEmpty(), "Invalid subshape ID"); 
+Vec3 BoxShape::GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const
+{
+	JPH_ASSERT(inSubShapeID.IsEmpty(), "Invalid subshape ID");
 
 	// Get component that is closest to the surface of the box
 	int index = (inLocalSurfacePosition.Abs() - mHalfExtent).Abs().GetLowestComponentIndex();
@@ -181,7 +184,7 @@ bool BoxShape::CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubShape
 void BoxShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	float min_fraction, max_fraction;
@@ -203,7 +206,7 @@ void BoxShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSet
 		}
 
 		// Check back side hit
-		if (inRayCastSettings.mBackFaceMode == EBackFaceMode::CollideWithBackFaces 
+		if (inRayCastSettings.mBackFaceModeConvex == EBackFaceMode::CollideWithBackFaces
 			&& max_fraction < ioCollector.GetEarlyOutFraction())
 		{
 			hit.mFraction = max_fraction;
@@ -215,16 +218,67 @@ void BoxShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSet
 void BoxShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	if (Vec3::sLessOrEqual(inPoint.Abs(), mHalfExtent).TestAllXYZTrue())
 		ioCollector.AddHit({ TransformedShape::sGetBodyID(ioCollector.GetContext()), inSubShapeIDCreator.GetID() });
 }
 
+void BoxShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint inNumVertices, int inCollidingShapeIndex) const
+{
+	Mat44 inverse_transform = inCenterOfMassTransform.InversedRotationTranslation();
+	Vec3 half_extent = inScale.Abs() * mHalfExtent;
+
+	for (CollideSoftBodyVertexIterator v = inVertices, sbv_end = inVertices + inNumVertices; v != sbv_end; ++v)
+		if (v.GetInvMass() > 0.0f)
+		{
+			// Convert to local space
+			Vec3 local_pos = inverse_transform * v.GetPosition();
+
+			// Clamp point to inside box
+			Vec3 clamped_point = Vec3::sMax(Vec3::sMin(local_pos, half_extent), -half_extent);
+
+			// Test if point was inside
+			if (clamped_point == local_pos)
+			{
+				// Calculate closest distance to surface
+				Vec3 delta = half_extent - local_pos.Abs();
+				int index = delta.GetLowestComponentIndex();
+				float penetration = delta[index];
+				if (v.UpdatePenetration(penetration))
+				{
+					// Calculate contact point and normal
+					Vec3 possible_normals[] = { Vec3::sAxisX(), Vec3::sAxisY(), Vec3::sAxisZ() };
+					Vec3 normal = local_pos.GetSign() * possible_normals[index];
+					Vec3 point = normal * half_extent;
+
+					// Store collision
+					v.SetCollision(Plane::sFromPointAndNormal(point, normal).GetTransformed(inCenterOfMassTransform), inCollidingShapeIndex);
+				}
+			}
+			else
+			{
+				// Calculate normal
+				Vec3 normal = local_pos - clamped_point;
+				float normal_length = normal.Length();
+
+				// Penetration will be negative since we're not penetrating
+				float penetration = -normal_length;
+				if (v.UpdatePenetration(penetration))
+				{
+					normal /= normal_length;
+
+					// Store collision
+					v.SetCollision(Plane::sFromPointAndNormal(clamped_point, normal).GetTransformed(inCenterOfMassTransform), inCollidingShapeIndex);
+				}
+			}
+		}
+}
+
 void BoxShape::GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const
 {
-	new (&ioContext) GetTrianglesContextVertexList(inPositionCOM, inRotation, inScale, Mat44::sScale(mHalfExtent), sUnitBoxTriangles, sizeof(sUnitBoxTriangles) / sizeof(Vec3), GetMaterial());
+	new (&ioContext) GetTrianglesContextVertexList(inPositionCOM, inRotation, inScale, Mat44::sScale(mHalfExtent), sUnitBoxTriangles, std::size(sUnitBoxTriangles), GetMaterial());
 }
 
 int BoxShape::GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxTrianglesRequested, Float3 *outTriangleVertices, const PhysicsMaterial **outMaterials) const

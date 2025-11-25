@@ -7,37 +7,20 @@
 #include "Razix/Core/Markers/RZMarkers.h"
 #include "Razix/Core/RZEngine.h"
 
-#include "Razix/Gfx/RHI/API/RZPipeline.h"
-#include "Razix/Gfx/RHI/API/RZShader.h"
-
 #include "Razix/Gfx/RHI/RHI.h"
-
-#include "Razix/Gfx/RZShaderLibrary.h"
 
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
 #include "Razix/Scene/RZScene.h"
 
-#include "Razix/Utilities/RZColorUtilities.h"
+#include "Razix/Core/Utils/RZColorUtilities.h"
 
 namespace Razix {
     namespace Gfx {
 
         void RZEmptyRenderPassTemplate::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {
-            // Create the shader and the pipeline
-            //auto shader = Graphics::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::);
-            //
-            //RZPipelineDesc pipelineInfo         = {};
-            //pipelineInfo.name                   = "Pipeline.VisibilityBuffer";
-            //pipelineInfo.shader                 = shader;
-            //pipelineInfo.colorAttachmentFormats = {TextureFormat::RGBA16F};
-            //pipelineInfo.cullMode               = Graphics::CullMode::None;
-            //pipelineInfo.drawType               = Graphics::DrawType::Triangle;
-            //pipelineInfo.transparencyEnabled    = false;
-            //pipelineInfo.depthBiasEnabled       = false;
-            //m_Pipeline = RZResourceManager::Get().createPipeline(pipelineInfo);
             framegraph.addCallbackPass(
                 "",
                 [&](auto& data, RZPassResourceBuilder& builder) {
@@ -47,7 +30,7 @@ namespace Razix {
 #if 0
                     
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-                    RAZIX_MARK_BEGIN("", Utilities::GenerateHashedColor4(45u));
+                    RAZIX_MARK_BEGIN("", GenerateHashedColor4(45u));
 
                     auto cmdBuffer = RHI::GetCurrentCommandBuffer();
 
@@ -81,7 +64,6 @@ namespace Razix {
 
         void RZEmptyRenderPassTemplate::destroy()
         {
-            RZResourceManager::Get().destroyPipeline(m_Pipeline);
         }
     }    // namespace Gfx
 }    // namespace Razix

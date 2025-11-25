@@ -1,7 +1,10 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 #include <Jolt/Jolt.h>
+
+#ifdef JPH_OBJECT_STREAM
 
 #include <Jolt/ObjectStream/ObjectStreamBinaryIn.h>
 
@@ -134,7 +137,7 @@ bool ObjectStreamBinaryIn::ReadPrimitiveData(String &outPrimitive)
 	if (len & 0x80000000)
 	{
 		StringTable::iterator i = mStringTable.find(len);
-		if (i == mStringTable.end()) 
+		if (i == mStringTable.end())
 			return false;
 		outPrimitive = i->second;
 		return true;
@@ -227,3 +230,5 @@ bool ObjectStreamBinaryIn::ReadPrimitiveData(DMat44 &outPrimitive)
 }
 
 JPH_NAMESPACE_END
+
+#endif // JPH_OBJECT_STREAM

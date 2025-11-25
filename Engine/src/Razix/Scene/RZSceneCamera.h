@@ -22,75 +22,82 @@ namespace Razix {
         RZSceneCamera();
         virtual ~RZSceneCamera() = default;
 
-        RAZIX_FORCE_INLINE float4x4 getViewProjection() { return getProjection() * getViewMatrix(); }
+        inline float4x4 getViewProjection() { return getProjection() * getViewMatrix(); }
 
-        RAZIX_FORCE_INLINE float4x4 getProjection();
-        RAZIX_FORCE_INLINE float4x4 getProjectionRaw();
+        inline float4x4 getProjection()
+        {
+            return m_Projection;
+        }
+
+        inline float4x4 getProjectionRaw()
+        {
+            return m_Projection;
+        }
 
         void setPerspective(f32 verticalFOV, f32 nearClip, f32 farClip);
         void setOrthographic(f32 size, f32 nearClip, f32 farClip);
         void setViewportSize(u32 width, u32 height);
 
-        RAZIX_INLINE ProjectionType getProjectionType() const { return m_ProjectionType; }
-        RAZIX_INLINE void           setProjectionType(ProjectionType type)
+        inline ProjectionType getProjectionType() const { return m_ProjectionType; }
+        inline void           setProjectionType(ProjectionType type)
         {
             m_ProjectionType = type;
             recalculateProjection();
         }
 
-        RAZIX_INLINE f32  getPerspectiveVerticalFOV() const { return m_PerspectiveFOV; }
-        RAZIX_INLINE void setPerspectiveVerticalFOV(f32 verticalFov)
+        inline f32  getPerspectiveVerticalFOV() const { return m_PerspectiveFOV; }
+        inline void setPerspectiveVerticalFOV(f32 verticalFov)
         {
             m_PerspectiveFOV = verticalFov;
             recalculateProjection();
         }
 
-        RAZIX_INLINE f32  getPerspectiveNearClip() const { return m_PerspectiveNear; }
-        RAZIX_INLINE void setPerspectiveNearClip(f32 nearClip)
+        inline f32  getPerspectiveNearClip() const { return m_PerspectiveNear; }
+        inline void setPerspectiveNearClip(f32 nearClip)
         {
             m_PerspectiveNear = nearClip;
             recalculateProjection();
         }
 
-        RAZIX_INLINE f32  getPerspectiveFarClip() const { return m_PerspectiveFar; }
-        RAZIX_INLINE void setPerspectiveFarClip(f32 farClip)
+        inline f32  getPerspectiveFarClip() const { return m_PerspectiveFar; }
+        inline void setPerspectiveFarClip(f32 farClip)
         {
             m_PerspectiveFar = farClip;
             recalculateProjection();
         }
 
-        RAZIX_INLINE f32  getOrthographicSize() const { return m_OrthographicSize; }
-        RAZIX_INLINE void setOrthographicSize(f32 size)
+        inline f32  getOrthographicSize() const { return m_OrthographicSize; }
+        inline void setOrthographicSize(f32 size)
         {
             m_OrthographicSize = size;
             recalculateProjection();
         }
 
-        RAZIX_INLINE f32  getOrthographicNearClip() const { return m_OrthographicNear; }
-        RAZIX_INLINE void setOrthographicNearClip(f32 nearClip)
+        inline f32  getOrthographicNearClip() const { return m_OrthographicNear; }
+        inline void setOrthographicNearClip(f32 nearClip)
         {
             m_OrthographicNear = nearClip;
             recalculateProjection();
         }
 
-        RAZIX_INLINE f32  getOrthographicFarClip() const { return m_OrthographicFar; }
-        RAZIX_INLINE void setOrthographicFarClip(f32 farClip)
+        inline f32  getOrthographicFarClip() const { return m_OrthographicFar; }
+        inline void setOrthographicFarClip(f32 farClip)
         {
             m_OrthographicFar = farClip;
             recalculateProjection();
         }
 
-        RAZIX_INLINE f32  getAspectRatio() const { return m_AspectRatio; }
-        RAZIX_INLINE void setAspectRatio(f32 ratio)
+        inline f32  getAspectRatio() const { return m_AspectRatio; }
+        inline void setAspectRatio(f32 ratio)
         {
             m_AspectRatio = ratio;
             recalculateProjection();
         }
 
-        RAZIX_INLINE const float4& getBgColor() const { return m_BgColor; }
-        RAZIX_INLINE void          setBgColor(const float4& color) { m_BgColor = color; }
+        inline const float4& getBgColor() const { return m_BgColor; }
+        inline void          setBgColor(const float4& color) { m_BgColor = color; }
 
-        RAZIX_INLINE const Maths::RZFrustum& getFrustum() const { return m_CameraFrustum; }
+        inline const Maths::RZFrustum& getFrustum() const { return m_CameraFrustum; }
 
         template<class Archive>
         void save(Archive& archive) const
@@ -198,19 +205,16 @@ namespace Razix {
         void recalculateProjection();
 
     private:
-        ProjectionType m_ProjectionType = ProjectionType::Perspective;
-
-        float4x4 m_Projection      = float4x4(1.0f);
-        f32      m_PerspectiveFOV  = radians(45.0f);
-        f32      m_PerspectiveNear = 0.1f, m_PerspectiveFar = 1000.0f;
-
-        f32 m_OrthographicSize = 10.0f;
-        f32 m_OrthographicNear = -1.0f, m_OrthographicFar = 1.0f;
-
-        f32 m_AspectRatio = 0.0f;
-
-        float4 m_BgColor = float4(0.0f);
-
+        ProjectionType   m_ProjectionType   = ProjectionType::Perspective;
+        float4x4         m_Projection       = float4x4(1.0f);
+        f32              m_PerspectiveFOV   = radians(45.0f);
+        f32              m_PerspectiveNear  = 0.1f;
+        f32              m_PerspectiveFar   = 1000.0f;
+        f32              m_OrthographicSize = 10.0f;
+        f32              m_OrthographicNear = -1.0f;
+        f32              m_OrthographicFar  = 1.0f;
+        f32              m_AspectRatio      = 0.0f;
+        float4           m_BgColor          = float4(0.0f);
         Maths::RZFrustum m_CameraFrustum;
     };
 }    // namespace Razix

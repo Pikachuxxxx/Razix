@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -27,7 +28,7 @@ JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(RackAndPinionConstraintSettings)
 }
 
 void RackAndPinionConstraintSettings::SaveBinaryState(StreamOut &inStream) const
-{ 
+{
 	ConstraintSettings::SaveBinaryState(inStream);
 
 	inStream.Write(mSpace);
@@ -82,6 +83,11 @@ void RackAndPinionConstraint::SetupVelocityConstraint(float inDeltaTime)
 	CalculateConstraintProperties(rotation1, rotation2);
 }
 
+void RackAndPinionConstraint::ResetWarmStart()
+{
+	mRackAndPinionConstraintPart.Deactivate();
+}
+
 void RackAndPinionConstraint::WarmStartVelocityConstraint(float inWarmStartImpulseRatio)
 {
 	// Warm starting: Apply previous frame impulse
@@ -101,7 +107,7 @@ bool RackAndPinionConstraint::SolvePositionConstraint(float inDeltaTime, float i
 	float rotation;
 	if (mPinionConstraint->GetSubType() == EConstraintSubType::Hinge)
 	{
-		rotation = static_cast<const HingeConstraint *>(mPinionConstraint.GetPtr())->GetCurrentAngle();
+		rotation = StaticCast<HingeConstraint>(mPinionConstraint)->GetCurrentAngle();
 	}
 	else
 	{
@@ -112,10 +118,10 @@ bool RackAndPinionConstraint::SolvePositionConstraint(float inDeltaTime, float i
 	float translation;
 	if (mRackConstraint->GetSubType() == EConstraintSubType::Slider)
 	{
-		translation = static_cast<const SliderConstraint *>(mRackConstraint.GetPtr())->GetCurrentPosition();
+		translation = StaticCast<SliderConstraint>(mRackConstraint)->GetCurrentPosition();
 	}
 	else
-	{		
+	{
 		JPH_ASSERT(false, "Unsupported");
 		return false;
 	}
@@ -171,13 +177,13 @@ Ref<ConstraintSettings> RackAndPinionConstraint::GetConstraintSettings() const
 Mat44 RackAndPinionConstraint::GetConstraintToBody1Matrix() const
 {
 	Vec3 perp = mLocalSpaceHingeAxis.GetNormalizedPerpendicular();
-	return Mat44(Vec4(mLocalSpaceHingeAxis, 0), Vec4(perp, 0), Vec4(mLocalSpaceHingeAxis.Cross(perp), 0), Vec4(0, 0, 0, 1)); 
+	return Mat44(Vec4(mLocalSpaceHingeAxis, 0), Vec4(perp, 0), Vec4(mLocalSpaceHingeAxis.Cross(perp), 0), Vec4(0, 0, 0, 1));
 }
 
-Mat44 RackAndPinionConstraint::GetConstraintToBody2Matrix() const 
-{ 
+Mat44 RackAndPinionConstraint::GetConstraintToBody2Matrix() const
+{
 	Vec3 perp = mLocalSpaceSliderAxis.GetNormalizedPerpendicular();
-	return Mat44(Vec4(mLocalSpaceSliderAxis, 0), Vec4(perp, 0), Vec4(mLocalSpaceSliderAxis.Cross(perp), 0), Vec4(0, 0, 0, 1)); 
+	return Mat44(Vec4(mLocalSpaceSliderAxis, 0), Vec4(perp, 0), Vec4(mLocalSpaceSliderAxis.Cross(perp), 0), Vec4(0, 0, 0, 1));
 }
 
 JPH_NAMESPACE_END

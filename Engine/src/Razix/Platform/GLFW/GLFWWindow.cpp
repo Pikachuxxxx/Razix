@@ -9,7 +9,10 @@
 #include "Razix/Events/ApplicationEvent.h"
 #include "Razix/Events/RZKeyEvent.h"
 #include "Razix/Events/RZMouseEvent.h"
-#include "Razix/Utilities/RZLoadImage.h"
+
+#include "Razix/Gfx/RHI/RHI.h"
+
+#include "Razix/Core/Utils/RZLoadImage.h"
 
 #if defined RAZIX_RENDER_API_OPENGL || RAZIX_RENDER_API_VULKAN
 // clang-format off
@@ -18,22 +21,8 @@
 // clang-format on
 #endif
 
-#include "Razix/Gfx/RHI/API/RZGraphicsContext.h"
-
 namespace Razix {
     static bool sGLFWInitialized = false;
-
-    //typedef void (* GLFWwindowsizefun)(GLFWwindow*,int,int);
-    //    template <typename Fn>
-    //    GLFWwindowsizefun SetWindowSizeCallback(GLFWwindow* handle, Fn func) {
-    //        auto closure = [](GLFWwindow* window, int width, int height) -> void {
-    //            auto og = (Fn*) glfwGetWindowUserPointer(window); // store where this comes from
-    //            (*og)(width, height);
-    //        };
-    //
-    //        glfwSetWindowUserPointer(handle, &func);
-    //        return glfwSetWindowSizeCallback(handle, closure);
-    //    }
 
     GLFWWindow::GLFWWindow(const WindowProperties& properties)
     {
@@ -71,8 +60,8 @@ namespace Razix {
     void GLFWWindow::SetWindowIcon()
     {
         // 64-bit logo
-        std::vector<GLFWimage> images;
-        GLFWimage              image64{};
+        RZDynamicArray<GLFWimage> images;
+        GLFWimage                 image64{};
 
         image64.height = RazixLogo64Height;
         image64.width  = RazixLogo64Width;
@@ -124,37 +113,26 @@ namespace Razix {
             RAZIX_CORE_ERROR("GLFW Error! code : {0} description : {1}", errorCode, description);
         });
 
-        // TODO: Replace all this with WIN32 API
         if (!sGLFWInitialized) {
             int success = glfwInit();
             (void) success;
             RAZIX_CORE_ASSERT(success, "Could not initialize GLFW");
+            RAZIX_UNUSED(success);
 
             sGLFWInitialized = true;
         }
 
-#ifdef RAZIX_RENDER_API_OPENGL
-        if (Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::OPENGL) {
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    #ifdef __APPLE__
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
-    #endif
-        }
-#endif
-
 #if defined RAZIX_RENDER_API_VULKAN || defined RAZIX_RENDER_API_DIRECTX12
-        if (Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::VULKAN || Gfx::RZGraphicsContext::GetRenderAPI() == Gfx::RenderAPI::D3D12) {
+        if (rzGfxCtx_GetRenderAPI() == RZ_RENDER_API_VULKAN || rzGfxCtx_GetRenderAPI() == RZ_RENDER_API_D3D12) {
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
             glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         }
 #endif
-        
+
 #ifdef __APPLE__
         glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
         // FIXME: Disable resizing in Apple until I sort out crashes and resizing withung correct swapchain extents and use proper DPI scaling!
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 #endif
 
         int           monitorCount;
@@ -162,8 +140,8 @@ namespace Razix {
         if (monitors && monitorCount > 0) {
 // Use the primary monitor for now, since we don't want to crash at startup on the monitor the game launches on
 #define PRIMARY_MONITOR_IDX 0
-            GLFWmonitor*       primary = monitors[PRIMARY_MONITOR_IDX];
-            int workWidth, workHeight;
+            GLFWmonitor* primary = monitors[PRIMARY_MONITOR_IDX];
+            int          workWidth, workHeight;
             glfwGetMonitorWorkarea(primary, nullptr, nullptr, &workWidth, &workHeight);
 
             m_Data.Width  = std::min(properties.Width, static_cast<u32>(workWidth));
@@ -171,18 +149,18 @@ namespace Razix {
         }
 
         m_Window = glfwCreateWindow((int) m_Data.Width, (int) m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
-        
-//        int fbWidth, fbHeight;
-//        glfwGetFramebufferSize(m_Window, &fbWidth, &fbHeight);
+
+        //        int fbWidth, fbHeight;
+        //        glfwGetFramebufferSize(m_Window, &fbWidth, &fbHeight);
         // update DPI
-//        float xscale, yscale;
-//        glfwGetWindowContentScale(m_Window, &xscale, &yscale);
-//        m_Data.wScale = int(xscale);
-//        m_Data.hScale = int(yscale);
+        //        float xscale, yscale;
+        //        glfwGetWindowContentScale(m_Window, &xscale, &yscale);
+        //        m_Data.wScale = int(xscale);
+        //        m_Data.hScale = int(yscale);
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
 
-        //std::string icon = std::string(STRINGIZE(RAZIX_ROOT_DIR)) + std::string("/Razix/src/Razix/Embedded/RazixLogo.png");
+        //RZString icon = RZString(STRINGIZE(RAZIX_ROOT_DIR)) + RZString("/Razix/src/Razix/Embedded/RazixLogo.png");
 #ifndef __APPLE__
         SetWindowIcon();
 #endif
@@ -217,12 +195,9 @@ namespace Razix {
 
             data.Width  = width;
             data.Height = height;
-            
-            if(!data.Width|| !data.Height)
-                return;
 
-            //            data.Width *= data.wScale;
-            //            data.Height *= data.hScale;
+            if (!data.Width || !data.Height)
+                return;
 
             RZWindowResizeEvent event(data.Width, data.Height);
             data.EventCallback(event);

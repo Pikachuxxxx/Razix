@@ -5,9 +5,17 @@
 
 #ifdef RAZIX_PLATFORM_UNIX
 
+    #include "Razix/Core/Memory/RZMemoryFunctions.h"
+
+    #include <cstring>
+    #include <errno.h>
+    #include <fcntl.h>
+    #include <sys/stat.h>
+    #include <unistd.h>
+
 namespace Razix {
 
-    bool RZFileSystem::CreateDir(const std::string& path)
+    bool RZFileSystem::CreateDir(const RZString& path)
     {
         // Using mkdir to create directories
         if (mkdir(path.c_str(), 0755) == 0) {
@@ -16,19 +24,19 @@ namespace Razix {
         return false;
     }
 
-    bool RZFileSystem::FileExists(const std::string& path)
+    bool RZFileSystem::FileExists(const RZString& path)
     {
         struct stat buffer;
         return (stat(path.c_str(), &buffer) == 0) && S_ISREG(buffer.st_mode);
     }
 
-    bool RZFileSystem::FolderExists(const std::string& path)
+    bool RZFileSystem::FolderExists(const RZString& path)
     {
         struct stat buffer;
         return (stat(path.c_str(), &buffer) == 0) && S_ISDIR(buffer.st_mode);
     }
 
-    int64_t RZFileSystem::GetFileSize(const std::string& path)
+    int64_t RZFileSystem::GetFileSize(const RZString& path)
     {
         struct stat buffer;
         if (stat(path.c_str(), &buffer) == 0) {
@@ -37,84 +45,133 @@ namespace Razix {
         return -1;
     }
 
-    u8* RZFileSystem::ReadFile(const std::string& path)
+    u8* RZFileSystem::ReadFile(const RZString& path)
     {
-        // Open file for reading
-        std::ifstream file(path, std::ios::binary | std::ios::ate);
-        if (!file.is_open()) {
+        // Get file size first
+        int64_t fileSize = GetFileSize(path);
+        if (fileSize <= 0) {
             return nullptr;
         }
 
-        std::streamsize size = file.tellg();
-        file.seekg(0, std::ios::beg);
+        // Open file for reading
+        int fd = open(path.c_str(), O_RDONLY);
+        if (fd == -1) {
+            return nullptr;
+        }
 
-        // Allocate buffer and read the file contents
-        u8* buffer = new u8[size];
-        if (file.read(reinterpret_cast<char*>(buffer), size)) {
-            file.close();
+        // Allocate buffer using RZMalloc
+        u8* buffer = (u8*) rz_malloc_aligned(fileSize);
+        if (!buffer) {
+            close(fd);
+            return nullptr;
+        }
+
+        // Read file contents
+        ssize_t bytesRead = read(fd, buffer, fileSize);
+        close(fd);
+
+        if (bytesRead == fileSize) {
             return buffer;
         }
 
-        file.close();
-        delete[] buffer;
+        rz_free(buffer);
         return nullptr;
     }
 
-    bool RZFileSystem::ReadFile(const std::string& path, void* buffer, int64_t size)
+    bool RZFileSystem::ReadFile(const RZString& path, void* buffer, int64_t size)
     {
-        std::ifstream file(path, std::ios::binary);
-        if (!file.is_open()) {
+        if (!buffer) {
             return false;
         }
 
+        // If size is -1, get the actual file size
         if (size == -1) {
-            file.seekg(0, std::ios::end);
-            size = file.tellg();
-            file.seekg(0, std::ios::beg);
+            size = GetFileSize(path);
+            if (size <= 0) {
+                return false;
+            }
         }
 
-        file.read(reinterpret_cast<char*>(buffer), size);
-        file.close();
-        return file.gcount() == size;
+        // Open file for reading
+        int fd = open(path.c_str(), O_RDONLY);
+        if (fd == -1) {
+            return false;
+        }
+
+        // Read file contents
+        ssize_t bytesRead = read(fd, buffer, size);
+        close(fd);
+
+        return bytesRead == size;
     }
 
-    std::string RZFileSystem::ReadTextFile(const std::string& path)
+    RZString RZFileSystem::ReadTextFile(const RZString& path)
     {
-        std::ifstream file(path);
-        if (!file.is_open()) {
+        int64_t fileSize = GetFileSize(path);
+        if (fileSize <= 0) {
             RAZIX_CORE_ERROR("[FileSystem] cannot open file check path: {0}", path);
-            return "";
+            return RZString();
         }
 
-        std::stringstream buffer;
-        buffer << file.rdbuf();
-        file.close();
-        return buffer.str();
+        int fd = open(path.c_str(), O_RDONLY);
+        if (fd == -1) {
+            RAZIX_CORE_ERROR("[FileSystem] cannot open file check path: {0}", path);
+            return RZString();
+        }
+
+        // Allocate temporary buffer using RZMalloc
+        char* tempBuffer = (char*) rz_malloc_aligned(fileSize + 1);
+        if (!tempBuffer) {
+            close(fd);
+            return RZString();
+        }
+
+        ssize_t bytesRead = read(fd, tempBuffer, fileSize);
+        close(fd);
+
+        RZString result;
+        if (bytesRead == fileSize) {
+            tempBuffer[fileSize] = '\0';
+            result               = RZString(tempBuffer);
+        }
+
+        rz_free(tempBuffer);
+        return result;
     }
 
-    bool RZFileSystem::WriteFile(const std::string& path, u8* buffer, i64 size)
+    bool RZFileSystem::WriteFile(const RZString& path, u8* buffer, i64 size)
     {
-        std::ofstream file(path, std::ios::binary);
-        if (!file.is_open()) {
+        if (!buffer || size <= 0) {
             return false;
         }
 
-        file.write(reinterpret_cast<char*>(buffer), size);
-        file.close();
-        return true;
-    }
-
-    bool RZFileSystem::WriteTextFile(const std::string& path, const std::string& text)
-    {
-        std::ofstream file(path);
-        if (!file.is_open()) {
+        int fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (fd == -1) {
             return false;
         }
 
-        file << text;
-        file.close();
-        return true;
+        ssize_t bytesWritten = write(fd, buffer, size);
+        close(fd);
+
+        return bytesWritten == size;
+    }
+
+    bool RZFileSystem::WriteTextFile(const RZString& path, const RZString& text)
+    {
+        int fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (fd == -1) {
+            return false;
+        }
+
+        const char* data = text.c_str();
+        int64_t     size = text.length();
+
+        ssize_t bytesWritten = write(fd, data, size);
+        close(fd);
+
+        return bytesWritten == size;
     }
 
 }    // namespace Razix
+
 #endif

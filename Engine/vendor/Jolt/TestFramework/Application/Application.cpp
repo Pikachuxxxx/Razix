@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -8,14 +9,28 @@
 #include <Application/DebugUI.h>
 #include <Utils/Log.h>
 #include <Utils/CustomMemoryHook.h>
-#include <Jolt/Core/FPException.h>
 #include <Jolt/Core/Factory.h>
 #include <Jolt/RegisterTypes.h>
 #include <Renderer/DebugRendererImp.h>
-#include <crtdbg.h>
+#ifdef JPH_PLATFORM_WINDOWS
+	#include <crtdbg.h>
+	#include <Input/Win/KeyboardWin.h>
+	#include <Input/Win/MouseWin.h>
+	#include <Window/ApplicationWindowWin.h>
+#elif defined(JPH_PLATFORM_LINUX)
+	#include <Input/Linux/KeyboardLinux.h>
+	#include <Input/Linux/MouseLinux.h>
+	#include <Window/ApplicationWindowLinux.h>
+#elif defined(JPH_PLATFORM_MACOS)
+	#include <Input/MacOS/KeyboardMacOS.h>
+	#include <Input/MacOS/MouseMacOS.h>
+	#include <Window/ApplicationWindowMacOS.h>
+#endif
+
+JPH_GCC_SUPPRESS_WARNING("-Wswitch")
 
 // Constructor
-Application::Application() : 
+Application::Application(const char *inApplicationName, [[maybe_unused]] const String &inCommandLine) :
 	mDebugRenderer(nullptr),
 	mRenderer(nullptr),
 	mKeyboard(nullptr),
@@ -23,7 +38,7 @@ Application::Application() :
 	mUI(nullptr),
 	mDebugUI(nullptr)
 {
-#if defined(_DEBUG)
+#if defined(JPH_PLATFORM_WINDOWS) && defined(_DEBUG)
 	// Enable leak detection
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
@@ -50,25 +65,53 @@ Application::Application() :
 		// Disable allocation checking
 		DisableCustomMemoryHook dcmh;
 
+		// Create window
+	#ifdef JPH_PLATFORM_WINDOWS
+		mWindow = new ApplicationWindowWin;
+	#elif defined(JPH_PLATFORM_LINUX)
+		mWindow = new ApplicationWindowLinux;
+	#elif defined(JPH_PLATFORM_MACOS)
+		mWindow = new ApplicationWindowMacOS;
+	#else
+		#error No window defined
+	#endif
+		mWindow->Initialize(inApplicationName);
+
 		// Create renderer
-		mRenderer = new Renderer;
-		mRenderer->Initialize();
+		mRenderer = Renderer::sCreate();
+		mRenderer->Initialize(mWindow);
 
 		// Create font
 		Font *font = new Font(mRenderer);
-		font->Create("Arial", 24);
+		font->Create("Roboto-Regular", 24);
 		mFont = font;
 
 		// Init debug renderer
 		mDebugRenderer = new DebugRendererImp(mRenderer, mFont);
 
 		// Init keyboard
-		mKeyboard = new Keyboard;
-		mKeyboard->Initialize(mRenderer);
+	#ifdef JPH_PLATFORM_WINDOWS
+		mKeyboard = new KeyboardWin;
+	#elif defined(JPH_PLATFORM_LINUX)
+		mKeyboard = new KeyboardLinux;
+	#elif defined(JPH_PLATFORM_MACOS)
+		mKeyboard = new KeyboardMacOS;
+	#else
+		#error No keyboard defined
+	#endif
+		mKeyboard->Initialize(mWindow);
 
 		// Init mouse
-		mMouse = new Mouse;
-		mMouse->Initialize(mRenderer);
+	#ifdef JPH_PLATFORM_WINDOWS
+		mMouse = new MouseWin;
+	#elif defined(JPH_PLATFORM_LINUX)
+		mMouse = new MouseLinux;
+	#elif defined(JPH_PLATFORM_MACOS)
+		mMouse = new MouseMacOS;
+	#else
+		#error No mouse defined
+	#endif
+		mMouse->Initialize(mWindow);
 
 		// Init UI
 		mUI = new UIManager(mRenderer);
@@ -79,7 +122,7 @@ Application::Application() :
 	}
 
 	// Get initial time
-	mLastUpdateTicks = GetProcessorTickCount();
+	mLastUpdateTime = chrono::high_resolution_clock::now();
 }
 
 // Destructor
@@ -96,10 +139,26 @@ Application::~Application()
 		delete mDebugRenderer;
 		mFont = nullptr;
 		delete mRenderer;
+		delete mWindow;
 	}
+
+	// Unregisters all types with the factory and cleans up the default material
+	UnregisterTypes();
 
 	delete Factory::sInstance;
 	Factory::sInstance = nullptr;
+}
+
+String Application::sCreateCommandLine(int inArgC, char **inArgV)
+{
+	String command_line;
+	for (int i = 0; i < inArgC; ++i)
+	{
+		if (i > 0)
+			command_line += " ";
+		command_line += inArgV[i];
+	}
+	return command_line;
 }
 
 // Clear debug lines / triangles / texts that have been accumulated
@@ -118,117 +177,148 @@ void Application::Run()
 	// Set initial camera position
 	ResetCamera();
 
-	// Main message loop
-	MSG msg;
-	memset(&msg, 0, sizeof(msg));
-	while (WM_QUIT != msg.message)
-	{
-		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-		{
-			JPH_PROFILE("DispatchMessage");
+	// Enter the main loop
+	mWindow->MainLoop([this]() { return RenderFrame(); });
+}
 
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+bool Application::RenderFrame()
+{
+	// Get new input
+	mKeyboard->Poll();
+	mMouse->Poll();
+
+	// Handle keyboard input
+	for (EKey key = mKeyboard->GetFirstKey(); key != EKey::Invalid; key = mKeyboard->GetNextKey())
+		switch (key)
+		{
+		case EKey::P:
+			mIsPaused = !mIsPaused;
+			break;
+
+		case EKey::O:
+			mSingleStep = true;
+			break;
+
+		case EKey::T:
+			// Dump timing info to file
+			JPH_PROFILE_DUMP();
+			break;
+
+		case EKey::Escape:
+			mDebugUI->ToggleVisibility();
+			break;
 		}
-		else
+
+	// Calculate delta time
+	chrono::high_resolution_clock::time_point time = chrono::high_resolution_clock::now();
+	chrono::microseconds delta = chrono::duration_cast<chrono::microseconds>(time - mLastUpdateTime);
+	mLastUpdateTime = time;
+	float clock_delta_time = 1.0e-6f * delta.count();
+	float world_delta_time = 0.0f;
+	if (mRequestedDeltaTime <= 0.0f)
+	{
+		// If no fixed frequency update is requested, update with variable time step
+		world_delta_time = !mIsPaused || mSingleStep? clock_delta_time : 0.0f;
+		mResidualDeltaTime = 0.0f;
+	}
+	else
+	{
+		// Else use fixed time steps
+		if (mSingleStep)
 		{
-			// Get new input
-			mKeyboard->Poll();
-			mMouse->Poll();
-
-			// Handle keyboard input
-			for (int key = mKeyboard->GetFirstKey(); key != 0; key = mKeyboard->GetNextKey())
-				switch (key)
-				{
-				case DIK_P:
-					mIsPaused = !mIsPaused;
-					break;
-
-				case DIK_O:
-					mSingleStep = true;
-					break;
-
-				case DIK_T:
-					// Dump timing info to file
-					JPH_PROFILE_DUMP();
-					break;
-
-				case DIK_ESCAPE:
-					mDebugUI->ToggleVisibility();
-					break;
-				}
-
-			// Calculate delta time
-			uint64 ticks = GetProcessorTickCount();
-			uint64 delta = ticks - mLastUpdateTicks;
-			mLastUpdateTicks = ticks;
-			float clock_delta_time = float(delta) / float(GetProcessorTicksPerSecond());
-			float world_delta_time = !mIsPaused || mSingleStep? clock_delta_time : 0.0f;
-			mSingleStep = false;
-
-			// Clear debug lines if we're going to step
-			if (world_delta_time > 0.0f)
-				ClearDebugRenderer();
-
-			// Update the camera position
-			if (!mUI->IsVisible())
-				UpdateCamera(clock_delta_time);
-
-			// Start rendering
-			mRenderer->BeginFrame(mWorldCamera, GetWorldScale());
-
+			// Single step
+			world_delta_time = mRequestedDeltaTime;
+		}
+		else if (!mIsPaused)
+		{
+			// Calculate how much time has passed since the last render
+			world_delta_time = clock_delta_time + mResidualDeltaTime;
+			if (world_delta_time < mRequestedDeltaTime)
 			{
-				JPH_PROFILE("RenderFrame");
-				if (!RenderFrame(world_delta_time))
-					break;
-			}
-
-			// Draw coordinate axis
-			if (mDebugRendererCleared)
-				mDebugRenderer->DrawCoordinateSystem(RMat44::sIdentity());
-
-			// For next frame: mark that we haven't cleared debug stuff
-			mDebugRendererCleared = false;
-
-			// Draw debug information
-			static_cast<DebugRendererImp *>(mDebugRenderer)->Draw();
-
-			// Draw the frame rate counter
-			DrawFPS(clock_delta_time);
-
-			if (mUI->IsVisible())
-			{
-				// Send mouse input to UI		
-				bool left_pressed = mMouse->IsLeftPressed();
-				if (left_pressed && !mLeftMousePressed)
-					mUI->MouseDown(mMouse->GetX(), mMouse->GetY());
-				else if (!left_pressed && mLeftMousePressed)
-					mUI->MouseUp(mMouse->GetX(), mMouse->GetY());
-				mLeftMousePressed = left_pressed;
-				mUI->MouseMove(mMouse->GetX(), mMouse->GetY());
-
-				{
-					// Disable allocation checking
-					DisableCustomMemoryHook dcmh;
-
-					// Update and draw the menu
-					mUI->Update(clock_delta_time);
-					mUI->Draw();
-				}
+				// Too soon, set the residual time and don't update
+				mResidualDeltaTime = world_delta_time;
+				world_delta_time = 0.0f;
 			}
 			else
 			{
-				// Menu not visible, cancel any mouse operations
-				mUI->MouseCancel();
+				// Update and clamp the residual time to a full update to avoid spiral of death
+				mResidualDeltaTime = min(mRequestedDeltaTime, world_delta_time - mRequestedDeltaTime);
+				world_delta_time = mRequestedDeltaTime;
 			}
-
-			// Show the frame
-			mRenderer->EndFrame();
-
-			// Notify of next frame
-			JPH_PROFILE_NEXTFRAME();
 		}
 	}
+	mSingleStep = false;
+
+	// Clear debug lines if we're going to step
+	if (world_delta_time > 0.0f)
+		ClearDebugRenderer();
+
+	{
+		JPH_PROFILE("UpdateFrame");
+		if (!UpdateFrame(world_delta_time))
+			return false;
+	}
+
+	// Draw coordinate axis
+	if (mDebugRendererCleared)
+		mDebugRenderer->DrawCoordinateSystem(RMat44::sIdentity());
+
+	// For next frame: mark that we haven't cleared debug stuff
+	mDebugRendererCleared = false;
+
+	// Update the camera position
+	if (!mUI->IsVisible())
+		UpdateCamera(clock_delta_time);
+
+	// Start rendering
+	if (!mRenderer->BeginFrame(mWorldCamera, GetWorldScale()))
+		return true;
+
+	// Draw from light
+	static_cast<DebugRendererImp *>(mDebugRenderer)->DrawShadowPass();
+
+	// Start drawing normally
+	mRenderer->EndShadowPass();
+
+	// Draw debug information
+	static_cast<DebugRendererImp *>(mDebugRenderer)->Draw();
+
+	// Draw the frame rate counter
+	DrawFPS(clock_delta_time);
+
+	if (mUI->IsVisible())
+	{
+		// Send mouse input to UI
+		bool left_pressed = mMouse->IsLeftPressed();
+		if (left_pressed && !mLeftMousePressed)
+			mUI->MouseDown(mMouse->GetX(), mMouse->GetY());
+		else if (!left_pressed && mLeftMousePressed)
+			mUI->MouseUp(mMouse->GetX(), mMouse->GetY());
+		mLeftMousePressed = left_pressed;
+		mUI->MouseMove(mMouse->GetX(), mMouse->GetY());
+
+		{
+			// Disable allocation checking
+			DisableCustomMemoryHook dcmh;
+
+			// Update and draw the menu
+			mUI->Update(clock_delta_time);
+			mUI->Draw();
+		}
+	}
+	else
+	{
+		// Menu not visible, cancel any mouse operations
+		mUI->MouseCancel();
+	}
+
+	// Show the frame
+	mRenderer->EndFrame();
+
+	// Notify of next frame
+	JPH_PROFILE_NEXTFRAME();
+
+	return true;
 }
 
 void Application::GetCameraLocalHeadingAndPitch(float &outHeading, float &outPitch)
@@ -265,20 +355,20 @@ void Application::UpdateCamera(float inDeltaTime)
 	JPH_PROFILE_FUNCTION();
 
 	// Determine speed
-	float speed = GetWorldScale() * mWorldCamera.mFarPlane / 50.0f * inDeltaTime;
-	bool shift = mKeyboard->IsKeyPressed(DIK_LSHIFT) || mKeyboard->IsKeyPressed(DIK_RSHIFT);
-	bool control = mKeyboard->IsKeyPressed(DIK_LCONTROL) || mKeyboard->IsKeyPressed(DIK_RCONTROL);
-	bool alt = mKeyboard->IsKeyPressed(DIK_LALT) || mKeyboard->IsKeyPressed(DIK_RALT);
+	float speed = 20.0f * GetWorldScale() * inDeltaTime;
+	bool shift = mKeyboard->IsKeyPressed(EKey::LShift) || mKeyboard->IsKeyPressed(EKey::RShift);
+	bool control = mKeyboard->IsKeyPressed(EKey::LControl) || mKeyboard->IsKeyPressed(EKey::RControl);
+	bool alt = mKeyboard->IsKeyPressed(EKey::LAlt) || mKeyboard->IsKeyPressed(EKey::RAlt);
 	if (shift)				speed *= 10.0f;
 	else if (control)		speed /= 25.0f;
 	else if (alt)			speed = 0.0f;
 
 	// Position
 	Vec3 right = mLocalCamera.mForward.Cross(mLocalCamera.mUp);
-	if (mKeyboard->IsKeyPressed(DIK_A))		mLocalCamera.mPos -= speed * right;
-	if (mKeyboard->IsKeyPressed(DIK_D))		mLocalCamera.mPos += speed * right;
-	if (mKeyboard->IsKeyPressed(DIK_W))		mLocalCamera.mPos += speed * mLocalCamera.mForward;
-	if (mKeyboard->IsKeyPressed(DIK_S))		mLocalCamera.mPos -= speed * mLocalCamera.mForward;
+	if (mKeyboard->IsKeyPressed(EKey::A))	mLocalCamera.mPos -= speed * right;
+	if (mKeyboard->IsKeyPressed(EKey::D))	mLocalCamera.mPos += speed * right;
+	if (mKeyboard->IsKeyPressed(EKey::W))	mLocalCamera.mPos += speed * mLocalCamera.mForward;
+	if (mKeyboard->IsKeyPressed(EKey::S))	mLocalCamera.mPos -= speed * mLocalCamera.mForward;
 
 	// Forward
 	float heading, pitch;
@@ -321,7 +411,7 @@ void Application::DrawFPS(float inDeltaTime)
 	int text_h = int(text_size.y * mFont->GetCharHeight());
 
 	// Draw FPS counter
-	int x = (mRenderer->GetWindowWidth() - text_w) / 2 - 20;
+	int x = (mWindow->GetWindowWidth() - text_w) / 2 - 20;
 	int y = 10;
 	mUI->DrawQuad(x - 5, y - 3, text_w + 10, text_h + 6, UITexturedQuad(), Color(0, 0, 0, 128));
 	mUI->DrawText(x, y, fps, mFont);
@@ -335,7 +425,7 @@ void Application::DrawFPS(float inDeltaTime)
 	{
 		string_view paused_str = "P: Unpause, ESC: Menu";
 		Float2 pause_size = mFont->MeasureText(paused_str);
-		mUI->DrawText(mRenderer->GetWindowWidth() - 5 - int(pause_size.x * mFont->GetCharHeight()), 5, paused_str, mFont);
+		mUI->DrawText(mWindow->GetWindowWidth() - 5 - int(pause_size.x * mFont->GetCharHeight()), 5, paused_str, mFont);
 	}
 
 	// Restore state

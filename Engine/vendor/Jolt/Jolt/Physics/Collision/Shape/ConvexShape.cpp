@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -32,10 +33,10 @@ JPH_IMPLEMENT_SERIALIZABLE_ABSTRACT(ConvexShapeSettings)
 	JPH_ADD_ATTRIBUTE(ConvexShapeSettings, mMaterial)
 }
 
-const std::vector<Vec3> ConvexShape::sUnitSphereTriangles = []() { 
+const StaticArray<Vec3, 384> ConvexShape::sUnitSphereTriangles = []() {
 	const int level = 2;
 
-	std::vector<Vec3> verts;	
+	StaticArray<Vec3, 384> verts;
 	GetTrianglesContextVertexList::sCreateHalfUnitSphereTop(verts, level);
 	GetTrianglesContextVertexList::sCreateHalfUnitSphereBottom(verts, level);
 	return verts;
@@ -56,8 +57,9 @@ void ConvexShape::sCollideConvexVsConvex(const Shape *inShape1, const Shape *inS
 	Mat44 transform_2_to_1 = inverse_transform1 * inCenterOfMassTransform2;
 
 	// Get bounding boxes
+	float max_separation_distance = inCollideShapeSettings.mMaxSeparationDistance;
 	AABox shape1_bbox = shape1->GetLocalBounds().Scaled(inScale1);
-	shape1_bbox.ExpandBy(Vec3::sReplicate(inCollideShapeSettings.mMaxSeparationDistance));
+	shape1_bbox.ExpandBy(Vec3::sReplicate(max_separation_distance));
 	AABox shape2_bbox = shape2->GetLocalBounds().Scaled(inScale2);
 
 	// Check if they overlap
@@ -85,10 +87,10 @@ void ConvexShape::sCollideConvexVsConvex(const Shape *inShape1, const Shape *inS
 		const Support *shape2_excl_cvx_radius = shape2->GetSupportFunction(ConvexShape::ESupportMode::ExcludeConvexRadius, buffer2_excl_cvx_radius, inScale2);
 
 		// Transform shape 2 in the space of shape 1
-		TransformedConvexObject<Support> transformed2_excl_cvx_radius(transform_2_to_1, *shape2_excl_cvx_radius);
-	
+		TransformedConvexObject transformed2_excl_cvx_radius(transform_2_to_1, *shape2_excl_cvx_radius);
+
 		// Perform GJK step
-		status = pen_depth.GetPenetrationDepthStepGJK(*shape1_excl_cvx_radius, shape1_excl_cvx_radius->GetConvexRadius() + inCollideShapeSettings.mMaxSeparationDistance, transformed2_excl_cvx_radius, shape2_excl_cvx_radius->GetConvexRadius(), inCollideShapeSettings.mCollisionTolerance, penetration_axis, point1, point2);
+		status = pen_depth.GetPenetrationDepthStepGJK(*shape1_excl_cvx_radius, shape1_excl_cvx_radius->GetConvexRadius() + max_separation_distance, transformed2_excl_cvx_radius, shape2_excl_cvx_radius->GetConvexRadius(), inCollideShapeSettings.mCollisionTolerance, penetration_axis, point1, point2);
 	}
 
 	// Check result of collision detection
@@ -104,16 +106,22 @@ void ConvexShape::sCollideConvexVsConvex(const Shape *inShape1, const Shape *inS
 		{
 			// Need to run expensive EPA algorithm
 
+			// We know we're overlapping at this point, so we can set the max separation distance to 0.
+			// Numerically it is possible that GJK finds that the shapes are overlapping but EPA finds that they're separated.
+			// In order to avoid this, we clamp the max separation distance to 1 so that we don't excessively inflate the shape,
+			// but we still inflate it enough to avoid the case where EPA misses the collision.
+			max_separation_distance = min(max_separation_distance, 1.0f);
+
 			// Create support function
 			SupportBuffer buffer1_incl_cvx_radius, buffer2_incl_cvx_radius;
 			const Support *shape1_incl_cvx_radius = shape1->GetSupportFunction(ConvexShape::ESupportMode::IncludeConvexRadius, buffer1_incl_cvx_radius, inScale1);
 			const Support *shape2_incl_cvx_radius = shape2->GetSupportFunction(ConvexShape::ESupportMode::IncludeConvexRadius, buffer2_incl_cvx_radius, inScale2);
 
 			// Add separation distance
-			AddConvexRadius<Support> shape1_add_max_separation_distance(*shape1_incl_cvx_radius, inCollideShapeSettings.mMaxSeparationDistance);
+			AddConvexRadius shape1_add_max_separation_distance(*shape1_incl_cvx_radius, max_separation_distance);
 
 			// Transform shape 2 in the space of shape 1
-			TransformedConvexObject<Support> transformed2_incl_cvx_radius(transform_2_to_1, *shape2_incl_cvx_radius);
+			TransformedConvexObject transformed2_incl_cvx_radius(transform_2_to_1, *shape2_incl_cvx_radius);
 
 			// Perform EPA step
 			if (!pen_depth.GetPenetrationDepthStepEPA(shape1_add_max_separation_distance, transformed2_incl_cvx_radius, inCollideShapeSettings.mPenetrationTolerance, penetration_axis, point1, point2))
@@ -123,14 +131,14 @@ void ConvexShape::sCollideConvexVsConvex(const Shape *inShape1, const Shape *inS
 	}
 
 	// Check if the penetration is bigger than the early out fraction
-	float penetration_depth = (point2 - point1).Length() - inCollideShapeSettings.mMaxSeparationDistance;
+	float penetration_depth = (point2 - point1).Length() - max_separation_distance;
 	if (-penetration_depth >= ioCollector.GetEarlyOutFraction())
 		return;
 
 	// Correct point1 for the added separation distance
 	float penetration_axis_len = penetration_axis.Length();
 	if (penetration_axis_len > 0.0f)
-		point1 -= penetration_axis * (inCollideShapeSettings.mMaxSeparationDistance / penetration_axis_len);
+		point1 -= penetration_axis * (max_separation_distance / penetration_axis_len);
 
 	// Convert to world space
 	point1 = inCenterOfMassTransform1 * point1;
@@ -146,7 +154,7 @@ void ConvexShape::sCollideConvexVsConvex(const Shape *inShape1, const Shape *inS
 		// Get supporting face of shape 1
 		shape1->GetSupportingFace(SubShapeID(), -penetration_axis, inScale1, inCenterOfMassTransform1, result.mShape1Face);
 
-		// Get supporting face of shape 2 
+		// Get supporting face of shape 2
 		shape2->GetSupportingFace(SubShapeID(), transform_2_to_1.Multiply3x3Transposed(penetration_axis), inScale2, inCenterOfMassTransform2, result.mShape2Face);
 	}
 
@@ -163,7 +171,7 @@ bool ConvexShape::CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubSh
 
 	// Create support function
 	SupportBuffer buffer;
-	const Support *support = GetSupportFunction(ConvexShape::ESupportMode::IncludeConvexRadius, buffer, Vec3::sReplicate(1.0f));
+	const Support *support = GetSupportFunction(ConvexShape::ESupportMode::IncludeConvexRadius, buffer, Vec3::sOne());
 
 	// Cast ray
 	GJKClosestPoint gjk;
@@ -181,7 +189,7 @@ void ConvexShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCast
 	// Note: This is a fallback routine, most convex shapes should implement a more performant version!
 
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	// First do a normal raycast, limited to the early out fraction
@@ -197,7 +205,7 @@ void ConvexShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCast
 		}
 
 		// Check if we want back facing hits and the collector still accepts additional hits
-		if (inRayCastSettings.mBackFaceMode == EBackFaceMode::CollideWithBackFaces && !ioCollector.ShouldEarlyOut())
+		if (inRayCastSettings.mBackFaceModeConvex == EBackFaceMode::CollideWithBackFaces && !ioCollector.ShouldEarlyOut())
 		{
 			// Invert the ray, going from the early out fraction back to the fraction where we found our forward hit
 			float start_fraction = min(1.0f, ioCollector.GetEarlyOutFraction());
@@ -209,7 +217,7 @@ void ConvexShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCast
 				// Cast another ray
 				RayCastResult inverted_hit;
 				inverted_hit.mFraction = 1.0f;
-				if (CastRay(inverted_ray, inSubShapeIDCreator, inverted_hit) 
+				if (CastRay(inverted_ray, inSubShapeIDCreator, inverted_hit)
 					&& inverted_hit.mFraction > 0.0f) // Ignore hits with fraction 0, this means the ray ends inside the object and we don't want to report it as a back facing hit
 				{
 					// Invert fraction and rescale it to the fraction of the original ray
@@ -225,7 +233,7 @@ void ConvexShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCast
 void ConvexShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	// First test bounding box
@@ -233,7 +241,7 @@ void ConvexShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubSh
 	{
 		// Create support function
 		SupportBuffer buffer;
-		const Support *support = GetSupportFunction(ConvexShape::ESupportMode::IncludeConvexRadius, buffer, Vec3::sReplicate(1.0f));
+		const Support *support = GetSupportFunction(ConvexShape::ESupportMode::IncludeConvexRadius, buffer, Vec3::sOne());
 
 		// Create support function for point
 		PointConvexSupport point { inPoint };
@@ -251,14 +259,14 @@ void ConvexShape::sCastConvexVsConvex(const ShapeCast &inShapeCast, const ShapeC
 	JPH_PROFILE_FUNCTION();
 
 	// Only supported for convex shapes
-	JPH_ASSERT(inShapeCast.mShape->GetType() == EShapeType::Convex); 
+	JPH_ASSERT(inShapeCast.mShape->GetType() == EShapeType::Convex);
 	const ConvexShape *cast_shape = static_cast<const ConvexShape *>(inShapeCast.mShape);
 
-	JPH_ASSERT(inShape->GetType() == EShapeType::Convex); 
+	JPH_ASSERT(inShape->GetType() == EShapeType::Convex);
 	const ConvexShape *shape = static_cast<const ConvexShape *>(inShape);
 
 	// Determine if we want to use the actual shape or a shrunken shape with convex radius
-	ConvexShape::ESupportMode support_mode = inShapeCastSettings.mUseShrunkenShapeAndConvexRadius? ConvexShape::ESupportMode::ExcludeConvexRadius : ConvexShape::ESupportMode::IncludeConvexRadius;
+	ConvexShape::ESupportMode support_mode = inShapeCastSettings.mUseShrunkenShapeAndConvexRadius? ConvexShape::ESupportMode::ExcludeConvexRadius : ConvexShape::ESupportMode::Default;
 
 	// Create support function for shape to cast
 	SupportBuffer cast_buffer;
@@ -273,7 +281,7 @@ void ConvexShape::sCastConvexVsConvex(const ShapeCast &inShapeCast, const ShapeC
 	float fraction = ioCollector.GetEarlyOutFraction();
 	Vec3 contact_point_a, contact_point_b, contact_normal;
 	if (epa.CastShape(inShapeCast.mCenterOfMassStart, inShapeCast.mDirection, inShapeCastSettings.mCollisionTolerance, inShapeCastSettings.mPenetrationTolerance, *cast_support, *target_support, cast_support->GetConvexRadius(), target_support->GetConvexRadius(), inShapeCastSettings.mReturnDeepestPoint, fraction, contact_point_a, contact_point_b, contact_normal)
-		&& (inShapeCastSettings.mBackFaceModeConvex == EBackFaceMode::CollideWithBackFaces 
+		&& (inShapeCastSettings.mBackFaceModeConvex == EBackFaceMode::CollideWithBackFaces
 			|| contact_normal.Dot(inShapeCast.mDirection) > 0.0f)) // Test if backfacing
 	{
 		// Convert to world space
@@ -282,6 +290,10 @@ void ConvexShape::sCastConvexVsConvex(const ShapeCast &inShapeCast, const ShapeC
 		Vec3 contact_normal_world = inCenterOfMassTransform2.Multiply3x3(contact_normal);
 
 		ShapeCastResult result(fraction, contact_point_a, contact_point_b, contact_normal_world, false, inSubShapeIDCreator1.GetID(), inSubShapeIDCreator2.GetID(), TransformedShape::sGetBodyID(ioCollector.GetContext()));
+
+		// Early out if this hit is deeper than the collector's early out value
+		if (fraction == 0.0f && -result.mPenetrationDepth >= ioCollector.GetEarlyOutFraction())
+			return;
 
 		// Gather faces
 		if (inShapeCastSettings.mCollectFacesMode == ECollectFacesMode::CollectFaces)
@@ -303,11 +315,11 @@ void ConvexShape::sCastConvexVsConvex(const ShapeCast &inShapeCast, const ShapeC
 class ConvexShape::CSGetTrianglesContext
 {
 public:
-				CSGetTrianglesContext(const ConvexShape *inShape, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) : 		
-		mLocalToWorld(Mat44::sRotationTranslation(inRotation, inPositionCOM) * Mat44::sScale(inScale)), 
-		mIsInsideOut(ScaleHelpers::IsInsideOut(inScale)) 
-	{ 
-		mSupport = inShape->GetSupportFunction(ESupportMode::IncludeConvexRadius, mSupportBuffer, Vec3::sReplicate(1.0f));
+				CSGetTrianglesContext(const ConvexShape *inShape, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) :
+		mLocalToWorld(Mat44::sRotationTranslation(inRotation, inPositionCOM) * Mat44::sScale(inScale)),
+		mIsInsideOut(ScaleHelpers::IsInsideOut(inScale))
+	{
+		mSupport = inShape->GetSupportFunction(ESupportMode::IncludeConvexRadius, mSupportBuffer, Vec3::sOne());
 	}
 
 	SupportBuffer		mSupportBuffer;
@@ -441,7 +453,7 @@ void ConvexShape::DrawGetSupportFunction(DebugRenderer *inRenderer, RMat44Arg in
 	// Get the support function with convex radius
 	SupportBuffer buffer;
 	const Support *support = GetSupportFunction(ESupportMode::ExcludeConvexRadius, buffer, inScale);
-	AddConvexRadius<Support> add_convex(*support, support->GetConvexRadius());
+	AddConvexRadius add_convex(*support, support->GetConvexRadius());
 
 	// Draw the shape
 	DebugRenderer::GeometryRef geometry = inRenderer->CreateTriangleGeometryForConvex([&add_convex](Vec3Arg inDirection) { return add_convex.GetSupport(inDirection); });
@@ -472,10 +484,10 @@ void ConvexShape::DrawGetSupportingFace(DebugRenderer *inRenderer, RMat44Arg inC
 	for (Vec3 v : Vec3::sUnitSphere)
 	{
 		Vec3 direction = 0.05f * v;
-			
+
 		SupportingFace face;
 		GetSupportingFace(SubShapeID(), direction, inScale, Mat44::sIdentity(), face);
-			
+
 		if (!face.empty())
 		{
 			JPH_ASSERT(face.size() >= 2, "The GetSupportingFace function should either return nothing or at least an edge");
@@ -493,9 +505,9 @@ void ConvexShape::DrawGetSupportingFace(DebugRenderer *inRenderer, RMat44Arg inC
 		SupportingFace face = ftd.first;
 
 		// Displace the face a little bit forward so it is easier to see
-		Vec3 normal = face.size() >= 3? (face[2] - face[1]).Cross(face[0] - face[1]).Normalized() : Vec3::sZero();
+		Vec3 normal = face.size() >= 3? (face[2] - face[1]).Cross(face[0] - face[1]).NormalizedOr(Vec3::sZero()) : Vec3::sZero();
 		Vec3 displacement = 0.001f * normal;
-		
+
 		// Transform face to world space and calculate center of mass
 		Vec3 com_ls = Vec3::sZero();
 		for (Vec3 &v : face)
@@ -504,7 +516,7 @@ void ConvexShape::DrawGetSupportingFace(DebugRenderer *inRenderer, RMat44Arg inC
 			com_ls += v;
 		}
 		RVec3 com = inCenterOfMassTransform.GetTranslation() + com_ls / (float)face.size();
-		
+
 		// Draw the polygon and directions
 		inRenderer->DrawWirePolygon(RMat44::sTranslation(inCenterOfMassTransform.GetTranslation()), face, color, face.size() >= 3? 0.001f : 0.0f);
 		if (face.size() >= 3)
@@ -530,15 +542,15 @@ void ConvexShape::RestoreBinaryState(StreamIn &inStream)
 }
 
 void ConvexShape::SaveMaterialState(PhysicsMaterialList &outMaterials) const
-{ 
+{
 	outMaterials.clear();
 	outMaterials.push_back(mMaterial);
 }
 
-void ConvexShape::RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint inNumMaterials) 
-{ 
-	JPH_ASSERT(inNumMaterials == 1); 
-	mMaterial = inMaterials[0]; 
+void ConvexShape::RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint inNumMaterials)
+{
+	JPH_ASSERT(inNumMaterials == 1);
+	mMaterial = inMaterials[0];
 }
 
 void ConvexShape::sRegister()

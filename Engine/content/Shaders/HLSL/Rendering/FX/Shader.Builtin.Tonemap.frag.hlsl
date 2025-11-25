@@ -10,19 +10,20 @@
 // Vertex Input from Quad.vert
 struct VSOutput
 {
-    float2 UV : TEXCOORD0;
+    float4 position : SV_POSITION;
+    float2 UV       : TEXCOORD0;
 };
 //------------------------------------------------------------------------------
 // GBuffer Deferred resource bindings
-Texture2D    SceneHDRRenderTarget : register(t0);
-SamplerState linearSampler : register(s0);
+SamplerState g_Sampler              : register(s0, space0);
+Texture2D    SceneHDRRenderTarget   : register(t0, space1);
 //------------------------------------------------------------------------------
 // Push constants
-struct PushConstantData
+struct PushConstant
 {
     uint tonemapMode;
 };
-PUSH_CONSTANT(PushConstantData);
+PUSH_CONSTANT(PushConstant);
 //------------------------------------------------------------------------------
 // Final Render targets
 struct PSOut
@@ -33,7 +34,7 @@ struct PSOut
 PSOut PS_MAIN(VSOutput input)
 {
     float2 uv     = float2(input.UV.x, input.UV.y);
-    float3 result = SceneHDRRenderTarget.Sample(linearSampler, uv).rgb;
+    float3 result = SceneHDRRenderTarget.Sample(g_Sampler, uv).rgb;
 
     // Tonemap
     switch (GET_PUSH_CONSTANT(tonemapMode)) {
@@ -62,7 +63,7 @@ PSOut PS_MAIN(VSOutput input)
             result = TonemapFuncs::Unreal(result);
             break;
         case 8:
-            result = result;    // No tonemapping
+            result = result;    // No Tonemapping, let UNORM render target normalize it or write as-is, will cause clipping
             break;
     }
 

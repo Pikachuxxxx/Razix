@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -8,12 +9,12 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Layers.h>
 
-JPH_IMPLEMENT_RTTI_VIRTUAL(HeavyOnLightTest) 
-{ 
-	JPH_ADD_BASE_CLASS(HeavyOnLightTest, Test) 
+JPH_IMPLEMENT_RTTI_VIRTUAL(HeavyOnLightTest)
+{
+	JPH_ADD_BASE_CLASS(HeavyOnLightTest, Test)
 }
 
-void HeavyOnLightTest::Initialize() 
+void HeavyOnLightTest::Initialize()
 {
 	// Floor
 	CreateFloor();
@@ -23,13 +24,13 @@ void HeavyOnLightTest::Initialize()
 
 	for (int i = 1; i <= 10; ++i)
 	{
-		Body &body1 = *mBodyInterface->CreateBody(BodyCreationSettings(box, RVec3(-75.0f + i * 15.0f, 10.0f, 0.0f), Quat::sIdentity(), EMotionType::Dynamic, Layers::MOVING));
-		mBodyInterface->AddBody(body1.GetID(), EActivation::Activate);
+		BodyID id = mBodyInterface->CreateAndAddBody(BodyCreationSettings(box, RVec3(-75.0f + i * 15.0f, 10.0f, 0.0f), Quat::sIdentity(), EMotionType::Dynamic, Layers::MOVING), EActivation::Activate);
+		SetBodyLabel(id, StringFormat("Mass: %g", double(box->GetMassProperties().mMass)));
 
 		Ref<BoxShape> box2 = new BoxShape(Vec3::sReplicate(5));
 		box2->SetDensity(5000.0f * i);
 
-		Body &body2 = *mBodyInterface->CreateBody(BodyCreationSettings(box2, RVec3(-75.0f + i * 15.0f, 30.0f, 0.0f), Quat::sIdentity(), EMotionType::Dynamic, Layers::MOVING));
-		mBodyInterface->AddBody(body2.GetID(), EActivation::Activate);
+		id = mBodyInterface->CreateAndAddBody(BodyCreationSettings(box2, RVec3(-75.0f + i * 15.0f, 30.0f, 0.0f), Quat::sIdentity(), EMotionType::Dynamic, Layers::MOVING), EActivation::Activate);
+		SetBodyLabel(id, StringFormat("Mass: %g", double(box2->GetMassProperties().mMass)));
 	}
 }

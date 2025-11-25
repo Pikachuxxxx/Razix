@@ -9,8 +9,8 @@
 
 #include "Razix/Gfx/FrameGraph/RZFrameGraph.h"
 
-#include "Razix/Utilities/RZColorUtilities.h"
-#include "Razix/Utilities/RZStringUtilities.h"
+#include "Razix/Core/Containers/string.h"
+#include "Razix/Core/Utils/RZColorUtilities.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui/imgui.h>
@@ -111,7 +111,7 @@ namespace Razix {
 
         ImU32 GetAliasGroupColor(u32 groupID)
         {
-            float3 color = Utilities::GenerateHashedColor(groupID * MAGIC_VICODIN);
+            float3 color = GenerateHashedColor(groupID * MAGIC_VICODIN);
 
             u8 r = static_cast<u8>(color.x * 255.0f);
             u8 g = static_cast<u8>(color.y * 255.0f);
@@ -123,7 +123,7 @@ namespace Razix {
 
         ImU32 GetAliasGroupColorBoder(u32 groupID)
         {
-            float3 color = Utilities::GenerateHashedColor(groupID * MAGIC_VICODIN);
+            float3 color = GenerateHashedColor(groupID * MAGIC_VICODIN);
 
             u8 r = static_cast<u8>(color.x * LifetimeCellStyle::BorderSaturation * 255.0f);
             u8 g = static_cast<u8>(color.y * LifetimeCellStyle::BorderSaturation * 255.0f);
@@ -196,7 +196,7 @@ namespace Razix {
             DrawLifetimeCell(cellOrigin, cellWidth, LifetimeCellStyle::CellHeight, lifetime, groupID);
         }
 
-        void DrawSimulatedBarriers(ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, const std::vector<SimulatedBarrier>& barriers)
+        void DrawSimulatedBarriers(ImDrawList* draw, ImVec2 origin, float cellWidth, float cellHeight, const RZDynamicArray<SimulatedBarrier>& barriers)
         {
             for (const auto& barrier: barriers) {
                 const float x = origin.x + (barrier.passIdx + 1) * cellWidth;
@@ -229,8 +229,8 @@ namespace Razix {
 
             const auto& compiledPassNodes = frameGraph.getCompiledPassNodes();
             for (uint32_t i = 0; i < compiledPassNodes.size(); ++i) {
-                const auto&        passNode = frameGraph.getPassNode(compiledPassNodes[i]);
-                const std::string& label    = Utilities::GetFilePathExtension(passNode.getName());
+                const auto&     passNode = frameGraph.getPassNode(compiledPassNodes[i]);
+                const RZString& label    = GetFilePathExtension(passNode.getName());
 
                 float  boxHeight = ImGui::GetFontSize() + 2.0f * PassLabelStyle::PaddingY;
                 ImVec2 p0        = ImVec2(x, y);
@@ -249,7 +249,7 @@ namespace Razix {
                     ImGui::BeginTooltip();
                     ImGui::Text("Pass ID        : %u", passNode.getID());
                     ImGui::Separator();
-                    ImGui::Text("Creates        : %zu", passNode.getCreatResources().size());
+                    ImGui::Text("Creates        : %zu", passNode.getCreateResources().size());
                     ImGui::Text("Reads          : %zu", passNode.getInputResources().size());
                     ImGui::Text("Writes         : %zu", passNode.getOutputResources().size());
                     ImGui::Separator();
@@ -277,8 +277,8 @@ namespace Razix {
             if (ImGui::Begin("Frame Graph Resource Viewer##FGResourceVis")) {
                 ImGui::Text("Welcome to Frame Graph resource viz! Your one stop viewer for Transient resources/Barriers and memory usage of a Frame.");
 
-                std::vector<u32> compiledResourceEntryPoints = frameGraph.getCompiledResourceEntries();
-                u32              resourceCount               = static_cast<u32>(compiledResourceEntryPoints.size());
+                RZDynamicArray<u32> compiledResourceEntryPoints = frameGraph.getCompiledResourceEntries();
+                u32                 resourceCount               = static_cast<u32>(compiledResourceEntryPoints.size());
 
                 ImDrawList* draw   = ImGui::GetWindowDrawList();
                 ImVec2      origin = ImGui::GetCursorScreenPos() + ImVec2(0, FrameGraphStyle::TopPadding);
@@ -407,7 +407,7 @@ namespace Razix {
                 ImGui::SameLine();
 
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
-                std::string engineBuildVersionFull = RazixVersion.getVersionString() + "." + RazixVersion.getReleaseStageString();
+                RZString engineBuildVersionFull = RazixVersion.getVersionString() + "." + RazixVersion.getReleaseStageString();
                 ImGui::Text("| Engine build version : %s | ", engineBuildVersionFull.c_str());
                 ImGui::PopStyleColor(1);
 

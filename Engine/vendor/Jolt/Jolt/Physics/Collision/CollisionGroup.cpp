@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -16,6 +17,8 @@ JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(CollisionGroup)
 	JPH_ADD_ATTRIBUTE(CollisionGroup, mGroupID)
 	JPH_ADD_ATTRIBUTE(CollisionGroup, mSubGroupID)
 }
+
+const CollisionGroup CollisionGroup::sInvalid;
 
 void CollisionGroup::SaveBinaryState(StreamOut &inStream) const
 {
