@@ -309,3 +309,91 @@ jobs:
       run: |
         python Scripts/test_runner.py --platform macosx-arm64 --config GoldMaster --github-ci
       shell: bash
+
+  build-linux:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          clang \
+          cmake \
+          python3 \
+          python3-pip \
+          git \
+          libvulkan1 \
+          vulkan-utils \
+          libxcb1-dev \
+          libx11-dev \
+          libgl-dev
+
+    - name: Cache Vulkan SDK
+      uses: actions/cache@v4
+      id: cache-vulkan-linux
+      with:
+        path: |
+          ~/.vulkan-sdk
+        key: vulkan-sdk-linux-1.3.290.0
+
+    - name: Install Vulkan SDK
+      if: steps.cache-vulkan-linux.outputs.cache-hit != 'true'
+      run: |
+        echo "Downloading Vulkan SDK for Linux..."
+        curl -L -o vulkan-sdk.tar.gz https://sdk.lunarg.com/sdk/download/1.3.290.0/linux/vulkan-sdk-linux-x86_64-1.3.290.0.tar.gz
+        
+        echo "Extracting Vulkan SDK..."
+        mkdir -p ~/.vulkan-sdk
+        tar -xzf vulkan-sdk.tar.gz -C ~/.vulkan-sdk
+        
+        echo "Cleaning up..."
+        rm vulkan-sdk.tar.gz
+
+    - name: Setup Vulkan SDK Environment
+      run: |
+        export VULKAN_SDK=$HOME/.vulkan-sdk/1.3.290.0/x86_64
+        echo "VULKAN_SDK=$VULKAN_SDK" >> $GITHUB_ENV
+        echo "$VULKAN_SDK/bin" >> $GITHUB_PATH
+        echo "$VULKAN_SDK/lib" >> $GITHUB_PATH
+
+    - name: Generate Project Files
+      run: |
+        chmod +x ./Scripts/GenerateMake-Linux-x64.sh
+        ./Scripts/GenerateMake-Linux-x64.sh
+
+    - name: Ensure shader output directories exist
+      run: |
+        mkdir -p Engine/content/Shaders/Compiled/CSO
+        mkdir -p Engine/content/Shaders/Compiled/SPIRV
+        mkdir -p Engine/content/Shaders/Generated/Assembly
+        mkdir -p Engine/content/Shaders/Generated/GLSL
+        mkdir -p Engine/content/Shaders/Generated/ReflectionData
+
+    - name: Build Engine (Debug)
+      run: |
+        python Scripts/build_razix.py --platform linux-x86_64 --config Debug --github-ci --linux-build-make
+
+    - name: Test Run EngineTests (Debug)
+      run: |
+        python Scripts/test_runner.py --platform linux-x86_64 --config Debug --github-ci
+
+    - name: Build Engine (GoldMaster)
+      run: |
+        python Scripts/build_razix.py --platform linux-x86_64 --config GoldMaster --github-ci --linux-build-make
+
+    - name: Test Run EngineTests (GoldMaster)
+      run: |
+        python Scripts/test_runner.py --platform linux-x86_64 --config GoldMaster --github-ci
