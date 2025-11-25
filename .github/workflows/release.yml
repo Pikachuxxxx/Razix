@@ -386,7 +386,7 @@ jobs:
         curl -L -o vulkan-sdk.tar.gz https://sdk.lunarg.com/sdk/download/1.3.290.0/linux/vulkan-sdk-linux-x86_64-1.3.290.0.tar.gz
         echo "Extracting Vulkan SDK..."
         mkdir -p ~/.vulkan-sdk
-        tar -xzf vulkan-sdk.tar.gz -C ~/.vulkan-sdk
+        tar -xvf vulkan-sdk.tar.gz -C ~/.vulkan-sdk
         echo "Cleaning up..."
         rm vulkan-sdk.tar.gz
 
