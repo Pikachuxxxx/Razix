@@ -13,23 +13,16 @@ BLACKLISTED_PROJECTS = {
 }
 
 def run_command(cmd, cwd=None):
-    try:
-        print(f"[INFO] Running: {' '.join(cmd)}")
-        subprocess.check_call(cmd, cwd=cwd)
-    except subprocess.CalledProcessError as e:
-        print(f"[ERROR] Command failed with exit code {e.returncode}")
-        sys.exit(e.returncode)
+    """Run a command, optionally in a given working directory, and exit on failure."""
+    print(f"[COMMAND] {' '.join(cmd)} (cwd={cwd or os.getcwd()})")
+    result = subprocess.run(cmd, cwd=cwd, shell=False)
+    if result.returncode != 0:
+        print(f"[ERROR] Command failed with exit code {result.returncode}")
+        sys.exit(result.returncode)
 
 def is_inside_scripts_dir():
     # Modify this according to your actual detection logic
     return os.path.basename(os.getcwd()).lower() == "scripts"
-
-def run_command(cmd):
-    print(f"[COMMAND] {' '.join(cmd)}")
-    result = subprocess.run(cmd, shell=False)
-    if result.returncode != 0:
-        print(f"[ERROR] Command failed with exit code {result.returncode}")
-        sys.exit(result.returncode)
 
 def build_windows(config, github_ci=False):
     print(f"[INFO] Starting Windows build with config: {config}, GitHub CI: {github_ci}")
@@ -115,8 +108,13 @@ def output_exists_for(project_name, config, platform_string="macosx-ARM64"):
             return True
     return False
 
-def build_macos(config, platform_string="macosx-arm64"):
+def build_macos_xcode(config, platform_string="macosx-arm64"):
+    """Build macOS projects using xcodebuild."""
     build_dir = "./build"
+    if not os.path.exists(build_dir):
+        print(f"[WARNING] Build directory {build_dir} does not exist. No Xcode projects to build.")
+        sys.exit(0)
+
     for entry in os.listdir(build_dir):
         if entry.endswith(".xcodeproj"):
             project_path = os.path.join(build_dir, entry)
@@ -147,27 +145,70 @@ def build_macos(config, platform_string="macosx-arm64"):
                 "CODE_SIGN_IDENTITY=",
                 "CODE_SIGN_STYLE=Manual",
                 "DEVELOPMENT_TEAM=",
-                "-jobs", str(jobs),
+                "-jobs", jobs,
             ])
 
-def build_linux(config):
-    """Build for Linux using make or similar build system"""
+def get_macos_ncpu():
+    """Get number of CPUs on macOS using sysctl -n hw.ncpu, fallback to multiprocessing."""
+    try:
+        result = subprocess.run(
+            ["sysctl", "-n", "hw.ncpu"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=True
+        )
+        ncpu_str = result.stdout.strip()
+        ncpu = int(ncpu_str)
+        if ncpu > 0:
+            return ncpu
+    except Exception as e:
+        print(f"[WARN] Failed to get hw.ncpu via sysctl, falling back to multiprocessing: {e}")
+    return multiprocessing.cpu_count()
+
+def build_macos_make(config):
+    """Build for macOS using Makefiles under ./build, with -j$(sysctl -n hw.ncpu)."""
     build_dir = "./build"
-    
     if not os.path.exists(build_dir):
         print(f"[WARNING] Build directory {build_dir} does not exist. No makefiles to build.")
         sys.exit(0)
-    
-    # Look for Makefiles or other build files
+
+    ncpu = get_macos_ncpu()
+    print(f"[INFO] macOS make build: using -j{ncpu} (from hw.ncpu)")
+
     found_makefile = False
     for root, _, files in os.walk(build_dir):
         if "Makefile" in files:
             found_makefile = True
             makefile_path = os.path.join(root, "Makefile")
             print(f"[INFO] Found Makefile: {makefile_path}")
-            
-            # Run make with appropriate config
-            make_cmd = ["make", f"config={config.lower()}", f"-j{multiprocessing.cpu_count()}"]
+            make_cmd = ["make", f"config={config.lower()}", f"-j{ncpu}"]
+            print(f"[INFO] Running make: {' '.join(make_cmd)}")
+            run_command(make_cmd, cwd=root)
+
+    if not found_makefile:
+        print(f"[WARNING] No Makefiles found in {build_dir}")
+    else:
+        print(f"[SUCCESS] Finished building all Makefiles in {build_dir}")
+
+def build_linux(config):
+    """Build for Linux using make or similar build system."""
+    build_dir = "./build"
+    
+    if not os.path.exists(build_dir):
+        print(f"[WARNING] Build directory {build_dir} does not exist. No makefiles to build.")
+        sys.exit(0)
+    
+    found_makefile = False
+    jobs = multiprocessing.cpu_count()
+    print(f"[INFO] Linux make build: using -j{jobs}")
+
+    for root, _, files in os.walk(build_dir):
+        if "Makefile" in files:
+            found_makefile = True
+            makefile_path = os.path.join(root, "Makefile")
+            print(f"[INFO] Found Makefile: {makefile_path}")
+            make_cmd = ["make", f"config={config.lower()}", f"-j{jobs}"]
             print(f"[INFO] Running make: {' '.join(make_cmd)}")
             run_command(make_cmd, cwd=root)
     
@@ -178,14 +219,33 @@ def build_linux(config):
 
 def main():
     parser = argparse.ArgumentParser(description="Cross-platform project builder")
-    parser.add_argument("--platform", choices=["windows-x86_64", "windows-arm64", "macosx-arm64", "linux-x86_64", "linux-arm64"], required=True,
-                        help="Target platform")
-    parser.add_argument("--config", choices=["Debug", "GoldMaster"], default="Debug",
-                        help="Build configuration")
-    parser.add_argument("--github-ci", action="store_true",
-                        help="Use GitHub CI MSBuild path (Enterprise edition)")
-    parser.add_argument("--args", nargs=argparse.REMAINDER,
-                        help="Additional arguments to pass to the build executable")
+    parser.add_argument(
+        "--platform",
+        choices=["windows-x86_64", "windows-arm64", "macosx-arm64", "linux-x86_64", "linux-arm64"],
+        required=True,
+        help="Target platform"
+    )
+    parser.add_argument(
+        "--config",
+        choices=["Debug", "GoldMaster"],
+        default="Debug",
+        help="Build configuration"
+    )
+    parser.add_argument(
+        "--github-ci",
+        action="store_true",
+        help="Use GitHub CI MSBuild path (Enterprise edition)"
+    )
+    parser.add_argument(
+        "--args",
+        nargs=argparse.REMAINDER,
+        help="Additional arguments to pass to the build executable"
+    )
+    parser.add_argument(
+        "--mac-build-make",
+        action="store_true",
+        help="On macOS, build using Makefiles under ./build instead of xcodebuild"
+    )
 
     args = parser.parse_args()
 
@@ -197,19 +257,29 @@ def main():
             print(f"[ERROR] You're not on Windows but selected platform = {args.platform}.")
             sys.exit(1)
         build_windows(args.config, args.github_ci)
+
     elif platform_family == "macosx":
         if platform.system() != "Darwin":
             print(f"[ERROR] You're not on macOS but selected platform = {args.platform}.")
             sys.exit(1)
-        build_macos(args.config, args.platform)
+
+        if args.mac_build_make:
+            print("[INFO] macOS build mode: Makefiles (gmake2).")
+            build_macos_make(args.config)
+        else:
+            print("[INFO] macOS build mode: Xcode projects (xcodebuild).")
+            build_macos_xcode(args.config, args.platform)
+
     elif platform_family == "linux":
         if platform.system() != "Linux":
             print(f"[ERROR] You're not on Linux but selected platform = {args.platform}.")
             sys.exit(1)
         build_linux(args.config)
+
     else:
         print(f"[ERROR] Unsupported platform: {args.platform}")
         sys.exit(1)
 
 if __name__ == "__main__":
     main()
+

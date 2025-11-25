@@ -278,12 +278,12 @@ jobs:
     
     - name: Generate Project Files
       run: |
-        chmod +x ./Scripts/GenerateXCodeProjectsMacOS.sh
-        ./Scripts/GenerateXCodeProjectsMacOS.sh
+        chmod +x ./Scripts/GenerateMake-macOS-ARM64.sh
+        ./Scripts/GenerateMake-macOS-ARM64.sh
     
     - name: Build Engine (Debug)
       run: |
-        python Scripts/build_razix.py --platform macosx-arm64 --config Debug --github-ci
+        python Scripts/build_razix.py --platform macosx-arm64 --config Debug --github-ci --mac-build-make
       shell: bash
 
     - name: Test Run EngineTests (Debug)
@@ -293,7 +293,7 @@ jobs:
 
     - name: Build Engine (GoldMaster)
       run: |
-        python Scripts/build_razix.py --platform macosx-arm64 --config GoldMaster --github-ci
+        python Scripts/build_razix.py --platform macosx-arm64 --config GoldMaster --github-ci --mac-build-make
       shell: bash
 
     - name: Test Run EngineTests (GoldMaster)
