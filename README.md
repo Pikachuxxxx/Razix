@@ -1,17 +1,13 @@
 <br>
 <img width="200" align="left" src="https://github.com/Pikachuxxxx/Razix/blob/master/Branding/RazixLogo.png"> <h1> Razix Engine </h1>
-Razix is a High Performance Engine for experimenting with different rendering techniques. Razix supports Windows, Mac, Linux.   
-
----
-
-THIS ENGINE IS BEING MADE FOR A GAME called "Tanu"! not a generic engine, I'll have the GDD/Story etc. soon here! For now I have the mood board and broad storkes of the game. It's a first person narrative driven action-puzzle game, with a duration of 2-3 hours.
+Razix is a High Performance Engine for a game called "Tanu"! it is not a generic engine, I'll have the GDD/Story etc. soon here! For now I have the mood board and broad storkes of the game. It's a first person narrative driven action-puzzle game, with a duration of 2-3 hours. Razix supports Windows, Mac, Linux.
 
 _Tanu = Body/Her_
 
 Tanu Mood Board:
 ![](./Tanu/Design/ProjectTanu.drawio.png)
 
-[tanu_mood.txt — thoughts about the direction of the game](./Tanu/Design/tanu_mood.txt)
+[tanu_mood.txt - thoughts about the direction of the game](./Tanu/Design/tanu_mood.txt)
 
 # About
 Razix is a cross-Platform 3D engine with multi render API support (Vulkan, DirectX 12). It's being built on a new design principle of **"Everything is as asset"** to replace traditonal 
@@ -60,7 +56,6 @@ View the [Trello Board](https://trello.com/b/yvWKH1Xr/razix-engine) and the [Arc
 	- TAA (WIP)
 
 **Experimental features:**
-  - Machine Learning sandbox (custom NNs class + Transformers WIP) CPU only for now, later might be ported over the engine RHI layer
   - Department based memory/frame time budget profiling (inspiration from SMS GDC talk and Insomniac engine)
   - I have a secret RazixGPT build in rust might use it for game NPCs one day.
 
@@ -73,6 +68,19 @@ DirectX11, OpenGL has been deprecated. Only high-level APIs and RTX level GPUs w
 
 # Screenshots/Demos
 <img src="./Branding/DemoImages/ReleaseNotes/Razix_Engine_V.0.49.0.png">
+
+# Architecture
+
+#### :warning: Still a work in progress
+![](./Docs/Architecture/RazixEngine-Architecture-V.1.0.0.RC.png)
+
+**ex. Lua Scripting API cheatsheet** ![Lua Scripting API cheatsheet](./Docs/RazixLuaScriptingAPICheatSheet.png)
+
+**Check the Docs folder or [Architecture notes on Draw.io](https://drive.google.com/file/d/1y5ZFf-h02z3cx6WmUzR8giKScvORzmwx/view?usp=sharing) for a detailed architecture description**
+
+| Core Systems | Frame Graph |
+| ----------- | ---------- |
+| <img src="./Docs/Architecture/RazixEngine-CoreSystems.png" width="300">  |  <img src="./Docs/Architecture/Razix Engine-FrameGraph.png" width="300"> |
 
 # Building Razix Engine
 
@@ -444,20 +452,6 @@ require("lspconfig").clangd.setup({
 ```
 
 **Related Issue:** [mason-org/mason-registry#5800](https://github.com/mason-org/mason-registry/issues/5800)
-
-# Architecture
-
-#### :warning: Still a work in progress
-![](./Docs/Architecture/RazixEngine-Architecture-V.1.0.0.RC.png)
-
-**ex. Lua Scripting API cheatsheet** ![Lua Scripting API cheatsheet](./Docs/RazixLuaScriptingAPICheatSheet.png)
-
-**Check the Docs folder or [Architecture notes on Draw.io](https://drive.google.com/file/d/1y5ZFf-h02z3cx6WmUzR8giKScvORzmwx/view?usp=sharing) for a detailed architecture description**
-
-| Core Systems | Frame Graph |
-| ----------- | ---------- |
-| <img src="./Docs/Architecture/RazixEngine-CoreSystems.png" width="300">  |  <img src="./Docs/Architecture/Razix Engine-FrameGraph.png" width="300"> |
-
 
 # Contributing
 More information will be update on creating PRs and other ways to contribute to Razix Engine.
