@@ -648,7 +648,7 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
                 num_buf[0] = '0';
                 num_buf[1] = 'x';
                 writtenBytes += 2;
-                writtenBytes += itoa((uint64_t) ptr, num_buf + 2, 16);
+                writtenBytes += itoa((uint64_t) ptr, (buf_span){num_buf + 2, sizeof(num_buf) - 2}, 16);
 #endif
             } break;
             case FMT_SPEC_PERCENTAGE:    // literal %
