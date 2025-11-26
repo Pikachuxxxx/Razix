@@ -3627,7 +3627,7 @@ static void vk_CreateBuffer(void* where)
     bool isConstantBuffer = desc->type == RZ_GFX_BUFFER_TYPE_CONSTANT;
     if (isConstantBuffer) {
         if (desc->sizeInBytes % RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT != 0) {
-            desc->sizeInBytes = RAZIX_RHI_ALIGN(desc->sizeInBytes, RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT);
+            desc->sizeInBytes = (uint32_t) RAZIX_RHI_ALIGN(desc->sizeInBytes, RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT);
             RAZIX_RHI_LOG_WARN("Buffer size rounded up to %u bytes to meet constant buffer alignment requirements of %d bytes", desc->sizeInBytes, RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT);
         }
 
