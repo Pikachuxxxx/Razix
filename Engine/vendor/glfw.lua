@@ -18,6 +18,11 @@ project "GLFW"
         {
             "_GLFW_X11"
         }
+        
+        buildoptions 
+        { 
+            "-fPIC" 
+        }
     
     filter "system:macosx"
         systemversion "14.0"
@@ -25,7 +30,8 @@ project "GLFW"
         files
     	{
 		    "glfw/src/**.m"
-	    }
+	    
+        }
     
     filter "system:windows"
         defines

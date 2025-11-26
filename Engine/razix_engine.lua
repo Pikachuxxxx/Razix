@@ -512,8 +512,12 @@ project "Razix"
         -- Clang/GCC compiler options
         buildoptions
         {
+            "-march=native",
+            "-mavx2",
+            "-mfma",
             "-Wno-error=switch-enum",
-            "-Wno-switch", "-Wno-switch-enum"
+            "-Wno-switch",
+            "-Wno-switch-enum"
         }
         
         filter "files:**.c"

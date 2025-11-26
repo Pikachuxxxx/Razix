@@ -1,6 +1,7 @@
 // CommandLineParserTests.cpp
 // AI-generated unit tests for the RZCommandLineParser class
 
+#define RAZIX_DEFINE_NO_ENGINE_ENTRY_POINT
 #include <Razix.h>
 
 #include <gtest/gtest.h>

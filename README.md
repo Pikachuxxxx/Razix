@@ -225,7 +225,7 @@ DirectX11, OpenGL has been deprecated. Only high-level APIs and RTX level GPUs w
 **Ubuntu/Debian:**
 ```bash
 sudo apt install build-essential libxrandr-dev libxinerama-dev libxcursor-dev \
-                 libxi-dev libgl1-mesa-dev libvulkan1 vulkan-tools vulkan-validationlayers-dev
+                 libxi-dev libgl1-mesa-dev libvulkan1 vulkan-tools vulkan-validationlayers libwayland-dev
 ```
 
 **Fedora/RHEL:**

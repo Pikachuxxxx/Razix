@@ -205,3 +205,28 @@ project "Tanu"
             "RAZIX_RENDER_API_VULKAN",
             "TRACY_ENABLE", "TRACY_ON_DEMAND"
         }
+
+        buildoptions
+        {
+            "-march=native",
+            "-mavx2",
+            "-mfma",
+        }
+
+        includedirs
+        {
+            VulkanSDK .. "/include"
+        }
+        
+        externalincludedirs
+        {
+            VulkanSDK .. "/include",
+            "./",
+            "../"
+        }
+
+        libdirs
+        {
+            VulkanSDK .. "/lib"
+        }
+

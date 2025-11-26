@@ -32,6 +32,12 @@ project "ImGui"
         "imgui/plugins/**.inl"
     }
 
+    filter "system:linux"
+        buildoptions
+        {
+            "-fPIC"
+        }
+
     filter "system:windows"
         systemversion "latest"
         cppdialect (engine_global_config.cpp_dialect)

@@ -19,6 +19,7 @@
 #define IEEE754_FLOAT_EXPONENT_DIGITS  8
 #define IEEE754_FLOAT_SIGN_DIGITS      1
 #define IEEE754_FLOAT_EXPONENT_BIAS    127U    // [2^8 - 2 (0 and inf/nan)] / 2 = 127
+#define MAX_INTERMEDIATE_BUFFER_SIZE   256
 
 #define ARG_TABLE_SIGNED(F, base)             \
     F(FMT_MOD_NONE, int, int, base)           \
@@ -40,27 +41,27 @@
     F(FMT_MOD_t, ptrdiff_t, ptrdiff_t, base)                    \
     F(FMT_MOD_z, size_t, size_t, base)
 
-#define GET_ARG_S(mod, vartype, argtype, base)       \
-    case mod: {                                      \
-        vartype v = (vartype) va_arg(args, argtype); \
-        isNeg     = v < 0;                           \
-        val       = isNeg ? -v : v;                  \
-        writtenBytes += itoa(val, num_buf, base);    \
-        break;                                       \
+#define GET_ARG_S(mod, vartype, argtype, base)                                  \
+    case mod: {                                                                 \
+        vartype v = (vartype) va_arg(args, argtype);                            \
+        isNeg     = v < 0;                                                      \
+        val       = isNeg ? -v : v;                                             \
+        writtenBytes += itoa(val, (buf_span) {num_buf, sizeof(num_buf)}, base); \
+        break;                                                                  \
     }
 
-#define GET_ARG_U(mod, vartype, argtype, base)       \
-    case mod: {                                      \
-        vartype v = (vartype) va_arg(args, argtype); \
-        writtenBytes += itoa(v, num_buf, base);      \
-        break;                                       \
+#define GET_ARG_U(mod, vartype, argtype, base)                                \
+    case mod: {                                                               \
+        vartype v = (vartype) va_arg(args, argtype);                          \
+        writtenBytes += itoa(v, (buf_span) {num_buf, sizeof(num_buf)}, base); \
+        break;                                                                \
     }
 
-#define GET_ARG_CAPS(mod, vartype, argtype, base)    \
-    case mod: {                                      \
-        vartype v = (vartype) va_arg(args, argtype); \
-        writtenBytes += itoA(v, num_buf, base);      \
-        break;                                       \
+#define GET_ARG_CAPS(mod, vartype, argtype, base)                             \
+    case mod: {                                                               \
+        vartype v = (vartype) va_arg(args, argtype);                          \
+        writtenBytes += itoA(v, (buf_span) {num_buf, sizeof(num_buf)}, base); \
+        break;                                                                \
     }
 
 typedef enum fmt_flag
@@ -141,39 +142,63 @@ static const fmt_spec spec_map[128] = {
     ['%'] = FMT_SPEC_PERCENTAGE,
 };
 
-static uint64_t _itoa(uint64_t val, char* buf, int base, bool caps)
+typedef struct buf_span
 {
-    char* p = buf;
+    char*  ptr;
+    size_t len;
+} buf_span;
+
+static uint64_t _itoa(uint64_t val, buf_span buf, int base, bool caps)
+{
+    if (buf.ptr == NULL || buf.len == 0)
+        return 0;
+
+    if (base < 2 || base > 16)
+        return 0;
 
     uint64_t           bytes      = 0;
     static const char* charset[2] = {"0123456789abcdef", "0123456789ABCDEF"};
 
+    char* const out_begin = buf.ptr;
+
     do {
-        *p++ = charset[caps][val % base];
+        if (bytes + 1 >= buf.len)
+            break;
+
+        *buf.ptr++ = charset[caps][val % base];
         val /= base;
         bytes++;
     } while (val);
 
-    for (char *q = buf, *r = p - 1; q < r; q++, r--) {
-        char t = *q;
-        *q     = *r;
-        *r     = t;
+    {
+        size_t i = 0;
+        size_t j = (bytes == 0) ? 0 : (size_t) bytes - 1;
+
+        while (i < j) {
+            char tmp     = out_begin[i];
+            out_begin[i] = out_begin[j];
+            out_begin[j] = tmp;
+            ++i;
+            --j;
+        }
     }
+
+    out_begin[bytes] = '\0';
 
     return bytes;
 }
 
-static uint64_t itoA(uint64_t val, char* buf, int base)
+static uint64_t itoA(uint64_t val, buf_span buf, int base)
 {
     return _itoa(val, buf, base, true);
 }
 
-static uint64_t itoa(uint64_t val, char* buf, int base)
+static uint64_t itoa(uint64_t val, buf_span buf, int base)
 {
     return _itoa(val, buf, base, false);
 }
 
-static uint64_t ftoa(double val, char* buf, uint32_t precision)
+static uint64_t ftoa(double val, buf_span buf, uint32_t precision)
 {
     // double IEEE-745: [sign:1] [exponent:11] [mantissa:52]
     // bias = 1023, all exponents have bias to store as positive numbers
@@ -195,11 +220,11 @@ static uint64_t ftoa(double val, char* buf, uint32_t precision)
 
     if (exponent == 0) {
         if (mantissa == 0) {
-            *buf++ = '0';
-            *buf++ = '.';
+            *buf.ptr++ = '0';
+            *buf.ptr++ = '.';
             bytes += 2;
             for (uint32_t i = 0; i < precision; i++) {
-                *buf++ = '0';
+                *buf.ptr++ = '0';
                 bytes++;
             }
             return bytes;
@@ -211,10 +236,10 @@ static uint64_t ftoa(double val, char* buf, uint32_t precision)
         // special cases
         if (mantissa == 0) {
             //  INF
-            memcpy(buf, "inf", 3 * sizeof(char));
+            memcpy(buf.ptr, "inf", 3 * sizeof(char));
         } else {
             // NAN
-            memcpy(buf, "nan", 3 * sizeof(char));
+            memcpy(buf.ptr, "nan", 3 * sizeof(char));
         }
         bytes += 3;
         return bytes;
@@ -249,14 +274,17 @@ static uint64_t ftoa(double val, char* buf, uint32_t precision)
     }
 
     bytes += itoa(int_part, buf, 10);
-    buf += bytes;
-    *buf++ = '.';
+    buf.ptr += bytes;
+    *buf.ptr++ = '.';
     bytes++;
     // convert fract to string
+    if (precision > buf.len - bytes) {
+        precision = (uint32_t) (buf.len - bytes);
+    }
     for (uint32_t i = 0; i < precision; i++) {
         frac_part *= 10;
         uint64_t digit = frac_part >> shift;
-        *buf++         = "0123456789"[digit % 10];
+        *buf.ptr++     = "0123456789"[digit % 10];
         bytes++;
         frac_part &= ((1ULL << shift) - 1);
     }
@@ -264,7 +292,7 @@ static uint64_t ftoa(double val, char* buf, uint32_t precision)
     return bytes;
 }
 
-static uint64_t ftohex(double val, char* buf)
+static uint64_t ftohex(double val, buf_span buf)
 {
     uint64_t bytes = 0;
     union
@@ -283,16 +311,16 @@ static uint64_t ftohex(double val, char* buf)
     bool     leadingMantissa = false;
 
     if ((mantissa == 0 && exponent == 0) || val == 0.0) {
-        memcpy(buf, "0x0p+0", 6 * sizeof(char));
+        memcpy(buf.ptr, "0x0p+0", 6 * sizeof(char));
         bytes += 6;
         return bytes;
     }
 
     if (exponent == EXP_MASK) {
         if (mantissa == 0) {
-            memcpy(buf, "inf", 3 * sizeof(char));
+            memcpy(buf.ptr, "inf", 3 * sizeof(char));
         } else {
-            memcpy(buf, "nan", 3 * sizeof(char));
+            memcpy(buf.ptr, "nan", 3 * sizeof(char));
         }
         bytes += 3;
         return bytes;
@@ -305,34 +333,34 @@ static uint64_t ftohex(double val, char* buf)
         exponent        = exponent - IEEE754_DOUBLE_EXPONENT_BIAS;
     }
 
-    *buf++ = '0';
-    *buf++ = 'x';
-    *buf++ = leadingMantissa ? '1' : '0';
-    *buf++ = '.';
+    *buf.ptr++ = '0';
+    *buf.ptr++ = 'x';
+    *buf.ptr++ = leadingMantissa ? '1' : '0';
+    *buf.ptr++ = '.';
     bytes += 4;
     char hex[16] = {0};
-    itoa(mantissa, hex, 16);
-    memcpy(buf, hex, DEFAULT_FLOATHEX_PRECISION * sizeof(char));
+    itoa(mantissa, (buf_span) {hex, sizeof(hex)}, 16);
+    memcpy(buf.ptr, hex, DEFAULT_FLOATHEX_PRECISION * sizeof(char));
     bytes += DEFAULT_FLOATHEX_PRECISION;
-    buf += DEFAULT_FLOATHEX_PRECISION;
+    buf.ptr += DEFAULT_FLOATHEX_PRECISION;
 
-    *buf++ = 'p';
-    *buf++ = exponent > 0 ? '+' : '-';
+    *buf.ptr++ = 'p';
+    *buf.ptr++ = exponent > 0 ? '+' : '-';
     bytes += 2;
     char exp[4] = {0};
-    itoa(exponent, exp, 10);
-    memcpy(buf, exp, 4 * sizeof(char));
+    itoa(exponent, (buf_span) {exp, sizeof(exp)}, 10);
+    memcpy(buf.ptr, exp, 4 * sizeof(char));
     bytes += 4;
 
     return bytes;
 }
 
-static uint64_t etoa(double val, char* buf, uint32_t precision, bool caps)
+static uint64_t etoa(double val, buf_span buf, uint32_t precision, bool caps)
 {
     uint64_t bytes = 0;
 
     if (val == 0.0) {
-        memcpy(buf, "0.000000e+00", 12 * sizeof(char));
+        memcpy(buf.ptr, "0.000000e+00", 12 * sizeof(char));
         bytes += 12;
         return bytes;
     }
@@ -349,18 +377,18 @@ static uint64_t etoa(double val, char* buf, uint32_t precision, bool caps)
 
     // write the fract part as is
     bytes += ftoa(val, buf, precision);
-    buf += bytes;
+    buf.ptr += bytes;
 
-    *buf++ = caps ? 'E' : 'e';
-    *buf++ = base10_exponent > 0 ? '+' : '-';
+    *buf.ptr++ = caps ? 'E' : 'e';
+    *buf.ptr++ = base10_exponent > 0 ? '+' : '-';
     bytes += 2;
     if (base10_exponent < 10) {
-        *buf++ = '0';
+        *buf.ptr++ = '0';
         bytes++;
     }
     char     expv[16] = {0};
-    uint64_t write    = itoa(base10_exponent < 0 ? -base10_exponent : base10_exponent, expv, 10);
-    memcpy(buf, expv, write * sizeof(char));
+    uint64_t write    = itoa(base10_exponent < 0 ? -base10_exponent : base10_exponent, (buf_span) {expv, sizeof(expv)}, 10);
+    memcpy(buf.ptr, expv, write * sizeof(char));
     bytes += write;
 
     return bytes;
@@ -405,6 +433,8 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
 
     if (bReadUntilNullChar)
         size = strlen(fmt);    // TODO: write your own, maybe use SIMD to quick count until \0? or use dotproduct like magic?
+
+    if (size == 0) return 0;
 
     // not found copy the whole string as-is
     if (!scan_elem) {
@@ -531,9 +561,9 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
 
         size_t byteBeforeArgs = writtenBytes;
 
-        uint64_t val          = (uint64_t) 0x0;
-        bool     isNeg        = false;
-        char     num_buf[256] = {0};
+        uint64_t val                                   = (uint64_t) 0x0;
+        bool     isNeg                                 = false;
+        char     num_buf[MAX_INTERMEDIATE_BUFFER_SIZE] = {0};
         switch (spec) {
             case FMT_SPEC_d:
             case FMT_SPEC_i:
@@ -584,7 +614,7 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
                     case FMT_MOD_NONE: {
                         double v = va_arg(args, double);
                         isNeg    = v < 0;
-                        writtenBytes += ftoa(isNeg ? -v : v, num_buf, precision);
+                        writtenBytes += ftoa(isNeg ? -v : v, (buf_span) {num_buf, sizeof(num_buf)}, precision);
                         break;
                     }
                 }
@@ -593,7 +623,7 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
             case FMT_SPEC_e: {
                 double v = va_arg(args, double);
                 isNeg    = v < 0;
-                writtenBytes += etoa(isNeg ? -v : v, num_buf, precision, spec != FMT_SPEC_e /* TODO: replace with FMT_SPEC_E */);
+                writtenBytes += etoa(isNeg ? -v : v, (buf_span) {num_buf, sizeof(num_buf)}, precision, spec != FMT_SPEC_e /* TODO: replace with FMT_SPEC_E */);
                 break;
             }
             case FMT_SPEC_g:
@@ -602,7 +632,7 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
             case FMT_SPEC_a: {
                 double v = va_arg(args, double);
                 isNeg    = v < 0;
-                writtenBytes += ftohex(isNeg ? -v : v, num_buf);
+                writtenBytes += ftohex(isNeg ? -v : v, (buf_span) {num_buf, sizeof(num_buf)});
                 break;
             } break;
             case FMT_SPEC_p:    // pointer
@@ -610,7 +640,7 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
                 void* ptr = va_arg(args, void*);
 #ifdef _MSC_VER
                 char     hex[16] = {0};
-                uint64_t len     = itoA((uint64_t) ptr, hex, 16);
+                uint64_t len     = itoA((uint64_t) ptr, (buf_span) {hex, sizeof(hex)}, 16);
                 memset(num_buf, '0', 16 - len);
                 memcpy(num_buf + (16 - len), hex, len);
                 writtenBytes += 16;
@@ -618,7 +648,7 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
                 num_buf[0] = '0';
                 num_buf[1] = 'x';
                 writtenBytes += 2;
-                writtenBytes += itoa((uint64_t) ptr, num_buf + 2, 16);
+                writtenBytes += itoa((uint64_t) ptr, (buf_span){num_buf + 2, sizeof(num_buf) - 2}, 16);
 #endif
             } break;
             case FMT_SPEC_PERCENTAGE:    // literal %
@@ -629,7 +659,7 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
             }
             default:
                 val = (int) va_arg(args, int);
-                writtenBytes += itoa(val, num_buf, 10);
+                writtenBytes += itoa(val, (buf_span) {num_buf, sizeof(num_buf)}, 10);
                 break;
         }
         scan_elem++;
@@ -646,8 +676,9 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
         // left padding
         memset(buf + byteBeforeArgs, pad_char, padding_needed * pad_leading);
         if (padding_needed * pad_leading) {
-            byteBeforeArgs += padding_needed * pad_leading;
-            writtenBytes += padding_needed * pad_leading;
+            size_t left_padding = padding_needed * pad_leading;
+            byteBeforeArgs += left_padding;
+            writtenBytes += left_padding;
         }
 
         if (flags & FMT_FLAG_SPACE) {
@@ -655,6 +686,7 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
             writtenBytes++;
         }
 
+        // clamp to fit
         memcpy(buf + byteBeforeArgs, num_buf, argsBytesWritten);
 
         // right padding

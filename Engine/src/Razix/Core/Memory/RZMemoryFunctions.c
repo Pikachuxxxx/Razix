@@ -21,7 +21,9 @@ void* rz_malloc(size_t size, size_t alignment)
     #ifdef RAZIX_PLATFORM_WINDOWS
     address = _aligned_malloc(size, alignment);
     #elif RAZIX_PLATFORM_UNIX
-    posix_memalign(&address, alignment, size);
+    if (posix_memalign(&address, alignment, size) != 0) {
+        address = NULL;
+    }
     #endif
 #endif
 
@@ -58,7 +60,7 @@ void* rz_mem_copy_to_heap(void* data, size_t size)
     return heapData;
 }
 
-void* rz_realloc(void* oldPtr, size_t newSize, size_t alignment)
+void* rz_realloc(void* oldPtr, size_t oldSize, size_t newSize, size_t alignment)
 {
     if (newSize == 0) {
         rz_free(oldPtr);
@@ -73,9 +75,12 @@ void* rz_realloc(void* oldPtr, size_t newSize, size_t alignment)
     oldPtr = _aligned_realloc(oldPtr, newSize, alignment);
 #elif RAZIX_PLATFORM_UNIX
     void* newPtr = NULL;
-    posix_memalign(&newPtr, alignment, newSize);
+    if (posix_memalign(&newPtr, alignment, newSize) != 0) {
+        newPtr = NULL;
+        oldPtr = NULL;
+    }
     if (newPtr) {
-        memcpy(newPtr, oldPtr, newSize);
+        memcpy(newPtr, oldPtr, oldSize < newSize ? oldSize : newSize);
         free(oldPtr);
         oldPtr = newPtr;
     } else {
@@ -86,9 +91,9 @@ void* rz_realloc(void* oldPtr, size_t newSize, size_t alignment)
     return oldPtr;
 }
 
-void* rz_realloc_aligned(void* oldPtr, size_t newSize)
+void* rz_realloc_aligned(void* oldPtr, size_t oldSize, size_t newSize)
 {
-    return rz_realloc(oldPtr, newSize, 16);
+    return rz_realloc(oldPtr, oldSize, newSize, 16);
 }
 
 void* rz_calloc(size_t count, size_t size, size_t alignment)

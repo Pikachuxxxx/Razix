@@ -26,6 +26,12 @@ project "Tracy"
         cppdialect (engine_global_config.cpp_dialect)
         staticruntime "off"
 
+    filter "system:linux"
+        buildoptions 
+        { 
+            "-fPIC" 
+        }
+
      -- Tracy needs these defintions extra to work properly for implementation
     filter "configurations:Debug"
         defines {"TRACY_ENABLE", "TRACY_ON_DEMAND"}

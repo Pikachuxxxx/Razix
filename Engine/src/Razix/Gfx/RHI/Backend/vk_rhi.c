@@ -31,6 +31,7 @@
 #include <volk.h>
 
 #ifdef RAZIX_PLATFORM_LINUX
+    #include <stdlib.h>    // for free
     #include <alloca.h>    // for alloca
 #endif
 
@@ -2475,13 +2476,12 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
 
     g_GfxCtx.ctxDesc = init;
 
-    volkInitialize();
+    CHECK_VK(volkInitialize());
 
     // Check validation layer support
     if (init.opts.enableValidation) {
         if (!vk_util_check_validation_layer_support()) {
             RAZIX_RHI_LOG_ERROR("Validation lay.hers requested, but not available");
-            return;
         }
     }
 
@@ -3627,7 +3627,7 @@ static void vk_CreateBuffer(void* where)
     bool isConstantBuffer = desc->type == RZ_GFX_BUFFER_TYPE_CONSTANT;
     if (isConstantBuffer) {
         if (desc->sizeInBytes % RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT != 0) {
-            desc->sizeInBytes = RAZIX_RHI_ALIGN(desc->sizeInBytes, RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT);
+            desc->sizeInBytes = (uint32_t) RAZIX_RHI_ALIGN(desc->sizeInBytes, RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT);
             RAZIX_RHI_LOG_WARN("Buffer size rounded up to %u bytes to meet constant buffer alignment requirements of %d bytes", desc->sizeInBytes, RAZIX_CONSTANT_BUFFER_MIN_ALIGNMENT);
         }
 
@@ -4243,8 +4243,18 @@ static void vk_Present(rz_gfx_present_desc presentDesc)
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
         RAZIX_RHI_LOG_WARN("Swapchain out of date or suboptimal during present, VK_SUBOPTIMIAL_KHR means the presentation was successful and you probably resized, or requires to recreate the swapchain again because it's out of date.");
-        // TODO: Handle swapchain recreation
-        RAZIX_RHI_ASSERT(false, "Swapchain recreation not implemented yet!");
+        // Deliberate const removal cast, as we are requried to recreate swapchain again
+        rz_gfx_swapchain* sc = (rz_gfx_swapchain*) presentDesc.pSwapchain;
+        // destroy old swapchain images and views
+        vk_util_destroy_swapchain_images(sc);
+
+        if (sc->vk.swapchain) {
+            vkDestroySwapchainKHR(VKCONTEXT.device, sc->vk.swapchain, NULL);
+            sc->vk.swapchain = VK_NULL_HANDLE;
+        }
+
+        // create new swapchain
+        vk_util_create_swapchain(sc, sc->width, sc->height);
     } else if (result != VK_SUCCESS) {
         RAZIX_RHI_LOG_ERROR("Failed to present swapchain image (VkResult): %d", result);
         return;
@@ -5994,6 +6004,26 @@ static void vk_ResizeTexture(rz_gfx_texture* texture, uint32_t width, uint32_t h
 }
 
 //---------------------------------------------------------------------------------------------
+// BRIDGE Function 
+//---------------------------------------------------------------------------------------------
+#if defined (RAZIX_RENDER_API_VULKAN) && defined (RAZIX_DEBUG)
+static void vk_BRIDGE_vkCmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdBuf, const VkDebugUtilsLabelEXT* pLabelInfo)
+{
+    vkCmdBeginDebugUtilsLabelEXT(cmdBuf, pLabelInfo);
+}
+
+static void vk_BRIDGE_vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdBuf, const VkDebugUtilsLabelEXT* pLabelInfo)
+{
+    vkCmdInsertDebugUtilsLabelEXT(cmdBuf, pLabelInfo);
+}
+
+static void vk_BRIDGE_vkCmdEndDebugUtilsLabelEXT(VkCommandBuffer cmdBuf)
+{
+    vkCmdEndDebugUtilsLabelEXT(cmdBuf);
+}
+#endif // RAZIX_RENDER_API_VULKAN && RAZIX_DEBUG
+
+//---------------------------------------------------------------------------------------------
 // Jump table
 //---------------------------------------------------------------------------------------------
 
@@ -6071,4 +6101,11 @@ rz_rhi_api vk_rhi = {
     .FlushGPUWork    = vk_FlushGPUWork,       // FlushGPUWork
     .ResizeSwapchain = vk_ResizeSwapchain,    // ResizeSwapchain
     .ResizeTexture   = vk_ResizeTexture,      // ResizeTexture
+
+#if defined (RAZIX_RENDER_API_VULKAN) && defined (RAZIX_DEBUG)
+    .BRIDGE_vkCmdBeginDebugUtilsLabelEXT  = vk_BRIDGE_vkCmdBeginDebugUtilsLabelEXT,
+    .BRIDGE_vkCmdInsertDebugUtilsLabelEXT = vk_BRIDGE_vkCmdInsertDebugUtilsLabelEXT,
+    .BRIDGE_vkCmdEndDebugUtilsLabelEXT    = vk_BRIDGE_vkCmdEndDebugUtilsLabelEXT,
+#endif // RAZIX_RENDER_API_VULKAN && RAZIX_DEBUG
+
 };
