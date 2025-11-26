@@ -108,6 +108,7 @@ namespace Razix {
                 // Reallocate to accommodate new elements
                 outReflection->pInputElements = (rz_gfx_input_element*) rz_realloc_aligned(
                     outReflection->pInputElements,
+                    outReflection->elementCount,
                     sizeof(rz_gfx_input_element) * newElementCount);
 
                 u32 currentElementIndex = outReflection->elementCount;
@@ -175,6 +176,7 @@ namespace Razix {
                     outReflection->rootSignatureDesc.pRootConstantsDesc =
                         (rz_gfx_root_constant_desc*) rz_realloc_aligned(
                             outReflection->rootSignatureDesc.pRootConstantsDesc,
+                            outReflection->rootSignatureDesc.rootConstantCount,
                             sizeof(rz_gfx_root_constant_desc) * (outReflection->rootSignatureDesc.rootConstantCount + 1));
 
                     rz_gfx_root_constant_desc* rc = &outReflection->rootSignatureDesc.pRootConstantsDesc[outReflection->rootSignatureDesc.rootConstantCount];
@@ -210,6 +212,7 @@ namespace Razix {
                     outReflection->rootSignatureDesc.pDescriptorTableLayouts =
                         (rz_gfx_descriptor_table_layout*) rz_realloc_aligned(
                             outReflection->rootSignatureDesc.pDescriptorTableLayouts,
+                            outReflection->rootSignatureDesc.descriptorTableLayoutsCount,
                             sizeof(rz_gfx_descriptor_table_layout) * (outReflection->rootSignatureDesc.descriptorTableLayoutsCount + 1));
 
                     targetTableIndex = outReflection->rootSignatureDesc.descriptorTableLayoutsCount;
@@ -226,6 +229,7 @@ namespace Razix {
                 // Add descriptor to the table (append to existing descriptors)
                 targetTable->pDescriptors = (rz_gfx_descriptor*) rz_realloc_aligned(
                     (void*) targetTable->pDescriptors,
+                    targetTable->descriptorCount,
                     sizeof(rz_gfx_descriptor) * (targetTable->descriptorCount + 1));
 
                 RAZIX_CORE_TRACE("[SPV] Reflected Descriptor - Name: {0}, Set: {1}, Binding: {2}, Type: {3}, Count: {4}, Size: {5}, Offset: {6}, Resource Type: {7}, Count: {8}",
@@ -511,6 +515,7 @@ namespace Razix {
                 // Reallocate to accommodate new elements
                 outReflection->pInputElements = (rz_gfx_input_element*) rz_realloc_aligned(
                     outReflection->pInputElements,
+                    outReflection->elementCount,
                     sizeof(rz_gfx_input_element) * newElementCount);
 
                 u32 currentElementIndex = outReflection->elementCount;
@@ -566,6 +571,7 @@ namespace Razix {
                     outReflection->rootSignatureDesc.pRootConstantsDesc =
                         (rz_gfx_root_constant_desc*) rz_realloc_aligned(
                             outReflection->rootSignatureDesc.pRootConstantsDesc,
+                            outReflection->rootSignatureDesc.rootConstantCount,
                             sizeof(rz_gfx_root_constant_desc) * (outReflection->rootSignatureDesc.rootConstantCount + 1));
 
                     rz_gfx_root_constant_desc* rc = &outReflection->rootSignatureDesc.pRootConstantsDesc[outReflection->rootSignatureDesc.rootConstantCount];
@@ -605,6 +611,7 @@ namespace Razix {
                     outReflection->rootSignatureDesc.pDescriptorTableLayouts =
                         (rz_gfx_descriptor_table_layout*) rz_realloc_aligned(
                             outReflection->rootSignatureDesc.pDescriptorTableLayouts,
+                            outReflection->rootSignatureDesc.descriptorTableLayoutsCount,
                             sizeof(rz_gfx_descriptor_table_layout) * (outReflection->rootSignatureDesc.descriptorTableLayoutsCount + 1));
 
                     targetTableIndex = outReflection->rootSignatureDesc.descriptorTableLayoutsCount;
@@ -621,6 +628,7 @@ namespace Razix {
                 // Add descriptor to the table (append to existing descriptors)
                 targetTable->pDescriptors = (rz_gfx_descriptor*) rz_realloc_aligned(
                     (void*) targetTable->pDescriptors,
+                    targetTable->descriptorCount,
                     sizeof(rz_gfx_descriptor) * (targetTable->descriptorCount + 1));
 
                 RAZIX_CORE_TRACE("[DX12] Reflected Descriptor - Name: {0}, Set: {1}, Binding: {2}, Type: {3}, Count: {4}",

@@ -30,8 +30,8 @@ extern "C"
     RAZIX_API void*  rz_malloc_debug(size_t size, const char* filename, uint32_t lineNumber, const char* tag);
     RAZIX_API void*  rz_malloc_debug_aligned(size_t size, size_t alignment, const char* filename, uint32_t lineNumber, const char* tag);
     RAZIX_API void*  rz_mem_copy_to_heap(void* data, size_t size);
-    RAZIX_API void*  rz_realloc(void* oldPtr, size_t newSize, size_t alignment);
-    RAZIX_API void*  rz_realloc_aligned(void* oldPtr, size_t newSize);
+    RAZIX_API void*  rz_realloc(void* oldPtr, size_t oldSize, size_t newSize, size_t alignment);
+    RAZIX_API void*  rz_realloc_aligned(void* oldPtr, size_t oldSize, size_t newSize);
     RAZIX_API void*  rz_calloc(size_t count, size_t size, size_t alignment);
     RAZIX_API void*  rz_calloc_aligned(size_t count, size_t size);
     RAZIX_API void   rz_free(void* address);

@@ -51,7 +51,7 @@ namespace Razix {
             EXPECT_NE(mem, nullptr);
             strcpy(mem, "Hello");
 
-            char* new_mem = (char*)rz_realloc(mem, 256, 8);
+            char* new_mem = (char*)rz_realloc(mem, 128, 256, 8);
             EXPECT_NE(new_mem, nullptr);
             EXPECT_STREQ(new_mem, "Hello");
             rz_free(new_mem);
@@ -63,7 +63,7 @@ namespace Razix {
             EXPECT_NE(mem, nullptr);
             strcpy(mem, "Hello");
 
-            char* new_mem = (char*)rz_realloc_aligned(mem, 256);
+            char* new_mem = (char*)rz_realloc_aligned(mem, 128, 256);
             EXPECT_NE(new_mem, nullptr);
             EXPECT_STREQ(new_mem, "Hello");
             rz_free(new_mem);
