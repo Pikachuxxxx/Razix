@@ -6,8 +6,6 @@ include 'Scripts/premake/common/tool_includes.lua'
 -- System overrides to support PS4/PS5/PS3 and XBOX ONE/X/SERIES X and other hardware systems
 include 'Scripts/premake/extensions/system-overides.lua'
 
-EngineVersion = "0.49.0.Dev"
-
 -- Workspace Settings
 settings = { }
 settings.workspace_name     = 'Razix'

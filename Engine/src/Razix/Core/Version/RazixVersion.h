@@ -87,7 +87,7 @@ namespace Razix {
 
     /* The Engine's current Version and release status [Date format : DD/MM/YYYY]*/
     ////----------------------------------------------------------------------------------------------------------------////
-    /**/ const Version RazixVersion = Version(0, 49, 0, Version::Stage::Development, Version::Date(23, 6, 2025));
+    /**/ const Version RazixVersion = Version(0, 50, 0, Version::Stage::Development, Version::Date(26, 11, 2025));
     ////----------------------------------------------------------------------------------------------------------------////
 
 }    // namespace Razix
