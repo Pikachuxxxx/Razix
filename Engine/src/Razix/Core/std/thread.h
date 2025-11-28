@@ -82,31 +82,31 @@ extern "C"
         RZThreadAffinity affinity;
     } RZThreadBootstrap;
 
-    RZThreadHandle rz_thread_create(const char* name, RZThreadPriority priority, RZThreadAffinity affinity, RZThreadCallback cb, void* userData);
+    RAZIX_API RZThreadHandle rz_thread_create(const char* name, RZThreadPriority priority, RZThreadAffinity affinity, RZThreadCallback cb, void* userData);
 
-    uint64_t rz_thread_exit(uint64_t ret);
-    uint64_t rz_thread_wait_for_exit(RZThreadHandle threadId, uint64_t timeout_ms);
-    void     rz_thread_join(RZThreadHandle thread);
-    void     rz_thread_detach(RZThreadHandle thread);
-    void     rz_thread_set_name(const char* pName);
-    void     rz_thread_set_affinity(RZThreadAffinity affinity);
-    void     rz_thread_yield(void);
+    RAZIX_API uint64_t rz_thread_exit(uint64_t ret);
+    RAZIX_API uint64_t rz_thread_wait_for_exit(RZThreadHandle threadId, uint64_t timeout_ms);
+    RAZIX_API void     rz_thread_join(RZThreadHandle thread);
+    RAZIX_API void     rz_thread_detach(RZThreadHandle thread);
+    RAZIX_API void     rz_thread_set_name(const char* pName);
+    RAZIX_API void     rz_thread_set_affinity(RZThreadAffinity affinity);
+    RAZIX_API void     rz_thread_yield(void);
 
-    void rz_thread_sleep(uint32_t milliseconds);
-    void rz_thread_sleep_micro(uint32_t microseconds);
+    RAZIX_API void rz_thread_sleep(uint32_t milliseconds);
+    RAZIX_API void rz_thread_sleep_micro(uint32_t microseconds);
 
-    void rz_thread_busy_wait_micro(uint32_t microseconds);
+    RAZIX_API void rz_thread_busy_wait_micro(uint32_t microseconds);
 
-    uint64_t       rz_thread_get_current_id(void);
-    RZThreadHandle rz_thread_get_current_handle(void);
+    RAZIX_API uint64_t       rz_thread_get_current_id(void);
+    RAZIX_API RZThreadHandle rz_thread_get_current_handle(void);
 
-    void rz_thread_set_main(void);
-    bool rz_thread_is_main(void);
+    RAZIX_API void rz_thread_set_main(void);
+    RAZIX_API bool rz_thread_is_main(void);
 
-    const char* rz_thread_get_current_name();
+    RAZIX_API const char* rz_thread_get_current_name();
 
-    int rz_thread_get_priority(void);
-    int rz_thread_get_affinity(RZThreadHandle handle);
+    RAZIX_API int rz_thread_get_priority(void);
+    RAZIX_API int rz_thread_get_affinity(RZThreadHandle handle);
 
 // TODO: Implement pico pause for CPU/GPU/IO and other bubbles in C++ to inline it
 // https://software.intel.com/sites/default/files/m/d/4/1/d/8/17689_w_spinlock.pdf

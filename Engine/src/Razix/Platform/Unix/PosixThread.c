@@ -19,7 +19,7 @@ static RAZIX_TLS int      tls_is_valid        = false;
 
 //---------------------------------------------------------------------------
 
-static void _rz_set_thread_name(const char* pName)
+static void __rz_posix_set_thread_name__(const char* pName)
 {
     if (pName || pName[0]) return;
 
@@ -59,7 +59,7 @@ static void* _rz_thread_entry(void* args)
     tls_thread_id = rz_thread_get_current_id();
     tls_is_valid = true;
 
-    _rz_set_thread_name(local.pName);
+    __rz_posix_set_thread_name__(local.pName);
     // Note: affinity is ignored on non console platforms, since the processors and OS can result in weirdness
     switch (local.priority) {
         default:
@@ -166,12 +166,12 @@ void rz_thread_detach(RZThreadHandle handle)
     }
 }
 
-void rz_set_thread_name(const char* pName)
+void rz_thread_set_name(const char* pName)
 {
-    if (pName && pName[0])
-        _rz_set_thread_name(pName);
+    if (pName)
+        __rz_posix_set_thread_name__(pName);
     else
-        _rz_set_thread_name("<rz_invalid_thread_name>");
+        __rz_posix_set_thread_name__("<rz_invalid_thread_name>");
 }
 
 void rz_thread_set_affinity(RZThreadAffinity affinity)
