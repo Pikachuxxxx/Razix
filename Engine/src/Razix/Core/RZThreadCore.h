@@ -43,17 +43,12 @@ namespace Razix {
         }
 
     private:
-        T* m_pLock;
-        char        _pad[RAZIX_CACHE_LINE_SIZE - sizeof(T)];
-        // Pad and light to CACHE_LINE_SIZE to avoid false sharing b/w threads contention
-        static_assert(sizeof(RZAtomicU32) <= RAZIX_CACHE_LINE_SIZE,
-            "RZScopedLock::T cannot be larger than cache line size");
-
+        T*   m_pLock;
     };
 
-    typedef RZScopedLock<RZSpinLock> RZScopedSpinLock;
+    typedef RZScopedLock<RZSpinLock>        RZScopedSpinLock;
     typedef RZScopedLock<RZCriticalSection> RZScopedCriticalSection;
-
+   
 }    // namespace Razix
 
 #endif    // _RZ_THREAD_CORE_H
