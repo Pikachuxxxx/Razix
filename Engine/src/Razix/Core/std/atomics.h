@@ -10,7 +10,7 @@ extern "C"
 #endif    // __cplusplus
 
     // Memory ordering
-    typedef enum RazixMemoryOrder
+    typedef enum RZMemoryOrder
     {
         RZ_MEMORY_ORDER_RELAXED,    // No synchronization
         RZ_MEMORY_ORDER_ACQUIRE,    // Load barrier, don't move operations after this barrier
