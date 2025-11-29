@@ -6,6 +6,8 @@
 #include "Razix/Core/Log/RZLog.h"
 #include "Razix/Core/std/spinlock.h"
 
+#include "Razix/Core/RZThreadCore.h"
+
 #include <gtest/gtest.h>
 
 #include <thread>
@@ -135,9 +137,8 @@ TEST_F(RZSpinLockTest, MutualExclusion_MultipleThreads)
 }
 
 // ============================================================================
-// RZSpinLockScoped Tests
+// RZScopedSpinLock Tests
 // ============================================================================
-
 class RZSpinLockScopedTest : public ::testing::Test 
 {
 protected:
@@ -150,7 +151,7 @@ TEST_F(RZSpinLockScopedTest, RAII_LocksOnConstruction)
     bool lockAcquired = false;
     
     {
-        RZSpinLockScoped scopedLock(testLock);
+        RZScopedSpinLock scopedLock(testLock);
         lockAcquired = true;
         
         // Lock should be held here
@@ -168,7 +169,7 @@ TEST_F(RZSpinLockScopedTest, RAII_LocksOnConstruction)
 TEST_F(RZSpinLockScopedTest, RAII_UnlocksOnDestruction)
 {
     {
-        RZSpinLockScoped scopedLock(testLock);
+        RZScopedSpinLock scopedLock(testLock);
         // Lock is held
     }
     // Lock should be released
@@ -180,7 +181,7 @@ TEST_F(RZSpinLockScopedTest, RAII_UnlocksOnDestruction)
 TEST_F(RZSpinLockScopedTest, RAII_UnlocksOnException)
 {
     try {
-        RZSpinLockScoped scopedLock(testLock);
+        RZScopedSpinLock scopedLock(testLock);
         throw std::runtime_error("Test exception");
     } catch (...) {
         // Exception caught
@@ -194,12 +195,12 @@ TEST_F(RZSpinLockScopedTest, RAII_UnlocksOnException)
 TEST_F(RZSpinLockScopedTest, NestedScopes_Sequential)
 {
     {
-        RZSpinLockScoped lock1(testLock);
+        RZScopedSpinLock lock1(testLock);
         sharedCounter++;
     }
     
     {
-        RZSpinLockScoped lock2(testLock);
+        RZScopedSpinLock lock2(testLock);
         sharedCounter++;
     }
     
@@ -214,7 +215,7 @@ TEST_F(RZSpinLockScopedTest, MultiThreaded_WithScopedLock)
     
     auto threadFunc = [&]() {
         for (int i = 0; i < iterations; ++i) {
-            RZSpinLockScoped lock(testLock);
+            RZScopedSpinLock lock(testLock);
             sharedCounter++;
         }
     };
@@ -229,7 +230,6 @@ TEST_F(RZSpinLockScopedTest, MultiThreaded_WithScopedLock)
     
     EXPECT_EQ(sharedCounter.load(), numThreads * iterations);
 }
-
 // ============================================================================
 // Memory Ordering and Visibility Tests
 // ============================================================================
@@ -345,7 +345,7 @@ TEST_F(RZSpinLockTest, Size_MatchesCacheLine)
 
 TEST_F(RZSpinLockScopedTest, Alignment_CacheLineAligned)
 {
-    RZSpinLockScoped scoped(testLock);
+    RZScopedSpinLock scoped(testLock);
     EXPECT_EQ(reinterpret_cast<uintptr_t>(&scoped) % RAZIX_CACHE_LINE_SIZE, 0);
 }
 

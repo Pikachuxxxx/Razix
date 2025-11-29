@@ -8,7 +8,13 @@ extern "C"
 {
 #endif
 
+typedef struct RZCriticalSection {
 
+} RZCriticalSection;
+
+typedef struct RZConditionalVar {
+
+} RZConditionalVar;
 
 #ifdef __cplusplus
 }
