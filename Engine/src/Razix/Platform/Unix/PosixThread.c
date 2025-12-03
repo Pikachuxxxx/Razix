@@ -109,8 +109,7 @@ RZThreadHandle rz_thread_create(const char* name, RZThreadPriority priority, RZT
 
     // Set/Get attributes on thread like sched policy, stack size etc.
 
-    pthread_t thread;
-    err = pthread_create(&thread, &attr, _rz_thread_entry, pBootStrap);
+    err = pthread_create((pthread_t*) &handle, &attr, _rz_thread_entry, pBootStrap);
     pthread_attr_destroy(&attr);
     if (err != 0) {
         // TODO: Have wrapper in C for RZLog.h
@@ -172,6 +171,7 @@ void rz_thread_set_name(const char* pName)
         __rz_posix_set_thread_name__(pName);
     else
         __rz_posix_set_thread_name__("<rz_invalid_thread_name>");
+    rz_sprintf(tls_thread_name, "[Razix Thread] %s", pName ? pName : "<rz_invalid_thread_name>");
 }
 
 void rz_thread_set_affinity(RZThreadAffinity affinity)
@@ -237,7 +237,7 @@ void rz_thread_busy_wait_micro(uint32_t microseconds)
         clock_gettime(CLOCK_MONOTONIC, &now);
         uint64_t current = (uint64_t) now.tv_sec * 1000000ULL +
                            (uint64_t) now.tv_nsec / 1000ULL;
-        if (current >= target)
+        if (current >= target + 1)
             break;
     }
 }
