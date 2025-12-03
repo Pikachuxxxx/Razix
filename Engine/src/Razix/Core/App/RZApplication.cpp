@@ -31,7 +31,6 @@
 #include <entt.hpp>
 
 #include <fstream>
-#include <iostream>
 
 #define ENABLE_IMGUI_EVENT_DATA_CAPTURE 0
 
