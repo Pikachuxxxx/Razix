@@ -44,6 +44,34 @@ namespace Razix {
     static_assert(sizeof(RZCriticalSection) == 2 * RAZIX_CACHE_LINE_SIZE, "RZCriticalSection must be less than 2 cache lines");
     static_assert(alignof(RZCriticalSection) == RAZIX_CACHE_LINE_SIZE, "RZCriticalSection must be cache-line aligned");
 
+    //---------------------------------------------------------------------------
+
+    class alignas(RAZIX_CACHE_LINE_SIZE) RAZIX_API RZConditionalVar
+    {
+    public:
+        RZConditionalVar()  = default;
+        ~RZConditionalVar() = default;
+        // Mutexes and locking primitves cannot be copied/moved
+        RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZConditionalVar);
+
+        void init();
+        void destroy();
+
+        void signal();
+        void broadcast();
+        void wait(RZCriticalSection* cs);
+        void wait(RZCriticalSection* cs, u32 timeout);
+
+    private:
+#ifdef RAZIX_PLATFORM_WINDOWS
+        CONDITIONLA_VARIABLE m_CV;
+#elif defined RAZIX_PLATFORM_UNIX
+        pthread_cond_t m_CV;
+#endif
+    };
+    static_assert(sizeof(RZConditionalVar) == RAZIX_CACHE_LINE_SIZE, "RZConditionalVar must be less than cache line");
+    static_assert(alignof(RZConditionalVar) == RAZIX_CACHE_LINE_SIZE, "RZConditionalVar must be cache-line aligned");
+
 }    // namespace Razix
 
 #endif    // _RZ_SYNC_H_
