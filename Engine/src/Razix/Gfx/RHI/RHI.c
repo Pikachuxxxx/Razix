@@ -74,7 +74,7 @@ const char* rzRHI_GetGPUVendorName(uint32_t vid)
         case 0x13B5: return "ARM";
         case 0x5143: return "Qualcomm";
         case 0x1010: return "ImgTec";
-        case 0x1AE0: return "Apple";
+        case 0x106B: return "Apple";
         default: return "Unknown";
     }
 }
