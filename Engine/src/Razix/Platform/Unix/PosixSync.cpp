@@ -7,6 +7,8 @@
 #ifdef RAZIX_PLATFORM_UNIX
 
     #include <pthread.h>
+    #include <errno.h>
+    #include <time.h>
 
 namespace Razix {
 
@@ -57,8 +59,6 @@ namespace Razix {
         i32                err = pthread_condattr_init(&attr);
         RAZIX_CORE_ASSERT(err == 0, "[PosixThread] Failed to initialize conditional variable attributes! | ERROR_CODE: {}", err);
 
-        // pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
-
         err = pthread_cond_init(&m_CV, &attr);
         RAZIX_CORE_ASSERT(err == 0, "[PosixThread] Failed to initialize conditional variable! | ERROR_CODE: {} ", err);
 
@@ -87,8 +87,8 @@ namespace Razix {
     
     void RZConditionalVar::broadcast()
     {
-        i32 err = pthread_cond_signal(&m_CV);
-        RAZIX_CORE_ASSERT(err == 0, "[PosixThread] Failed to signal conditional variable! | ERROR_CODE: {} ", err);   
+        i32 err = pthread_cond_broadcast(&m_CV);
+        RAZIX_CORE_ASSERT(err == 0, "[PosixThread] Failed to broadcast conditional variable! | ERROR_CODE: {} ", err);
     }
 
     void RZConditionalVar::wait(RZCriticalSection* cs)
@@ -102,7 +102,7 @@ namespace Razix {
     {
 
         struct timespec ts;
-        clock_gettime(CLOCK_MONOTONIC, &ts);
+        clock_gettime(CLOCK_REALTIME, &ts);
 
         ts.tv_sec  += timeout_ms / 1000;
         ts.tv_nsec += (timeout_ms % 1000) * 1000000ULL;
@@ -114,7 +114,9 @@ namespace Razix {
 
         // TODO: Check if the calling thread has the lock to the mutex being passed, track is locked, and parent info if possible or atleast the flag.
         i32 err = pthread_cond_timedwait(&m_CV, &cs->m_CS, &ts);
-        RAZIX_CORE_ASSERT(err == 0, "[PosixThread] Failed to wait on conditional variable. The mutex must be locked by the calling thread on entrance to pthread_cond_wait(). | ERROR_CODE: {} ", err);    
+        if (err != 0) {
+            RAZIX_CORE_ASSERT(err == ETIMEDOUT, "[PosixThread] Failed to wait on conditional variable. The mutex must be locked by the calling thread on entrance to pthread_cond_wait(). | ERROR_CODE: {} ", err);
+        }
     }
 
 }    // namespace Razix

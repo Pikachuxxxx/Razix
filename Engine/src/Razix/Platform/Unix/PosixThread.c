@@ -131,7 +131,7 @@ uint64_t rz_thread_wait_for_exit(RZThreadHandle threadId, uint64_t timeout_ms)
 {
     #if defined RAZIX_PLATFORM_LINUX
     struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
+    clock_gettime(CLOCK_REALTIME, &ts);
 
     ts.tv_sec += timeout_ms / 1000;
     ts.tv_nsec += (timeout_ms % 1000) * 1000000;
@@ -228,13 +228,13 @@ RZThreadHandle rz_thread_get_current_handle(void)
 void rz_thread_busy_wait_micro(uint32_t microseconds)
 {
     struct timespec start, now;
-    clock_gettime(CLOCK_MONOTONIC, &start);
+    clock_gettime(CLOCK_REALTIME, &start);
 
     uint64_t target = (uint64_t) start.tv_sec * 1000000ULL +
                       (uint64_t) start.tv_nsec / 1000ULL + microseconds;
 
     for (;;) {
-        clock_gettime(CLOCK_MONOTONIC, &now);
+        clock_gettime(CLOCK_REALTIME, &now);
         uint64_t current = (uint64_t) now.tv_sec * 1000000ULL +
                            (uint64_t) now.tv_nsec / 1000ULL;
         if (current >= target + 1)
