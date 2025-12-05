@@ -84,6 +84,8 @@ def run_tests(github_ci, config, platform, verbose, user_args=None, to_stdout=Fa
     print_header(config, platform)
     all_passed = True
 
+    failed_logs = []
+
     for name in test_names:
         exe_path = os.path.join(bin_root, f"{name}.exe" if platform.startswith("windows") else name)
         log_path = os.path.join(results_dir, f"{name}.log") if not to_stdout else None
@@ -146,15 +148,30 @@ def run_tests(github_ci, config, platform, verbose, user_args=None, to_stdout=Fa
         except subprocess.CalledProcessError:
             print_result(name, "fail", None if to_stdout else log_path)
             all_passed = False
+            if not to_stdout and log_path:
+                failed_logs.append((name, log_path))
 
     safe_print("\n" + "=" * 66)
+
     if all_passed:
         safe_print(" UwU All tests passed! So p-p-proud of you senpai~ (≧◡≦) ".center(66))
     else:
-        safe_print(" Q_Q Some tests failed... but dw I still wuv u... Check logs~ ".center(66))
+        safe_print(" Q_Q Some tests failed... dumping logs below ".center(66))
+
+        for name, log_path in failed_logs:
+            safe_print(f"\n[FAILED TEST] {name}")
+            safe_print("-" * 66)
+            try:
+                with open(log_path, "r") as f:
+                    for line in f:
+                        safe_print("  " + line.rstrip())
+            except Exception as e:
+                safe_print(f"  [ERROR] Could not read log: {e}")
+
         sys.exit(69)
+
     safe_print("=" * 66 + "\n")
-    sys.exit(0)  # Success
+    sys.exit(0)
 
 
 if __name__ == "__main__":
