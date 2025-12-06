@@ -41,7 +41,7 @@ namespace Razix {
 
         friend class RZConditionalVar;
     };
-    static_assert(sizeof(RZCriticalSection) == 2 * RAZIX_CACHE_LINE_SIZE, "RZCriticalSection must be less than 2 cache lines");
+    static_assert(sizeof(RZCriticalSection) <= 2 * RAZIX_CACHE_LINE_SIZE, "RZCriticalSection must be less than 2 cache lines");
     static_assert(alignof(RZCriticalSection) == RAZIX_CACHE_LINE_SIZE, "RZCriticalSection must be cache-line aligned");
 
     //---------------------------------------------------------------------------

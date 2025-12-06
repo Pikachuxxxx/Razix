@@ -5,10 +5,12 @@
     #include "Razix/Core/Memory/RZMemoryFunctions.h"
     #include "Razix/Core/std/sprintf.h"
 
+    #define _GNU_SOURCE         // for GNU extension APIs
     #include <pthread.h>
     #include <sched.h>           // cput_set_t
     #include <sys/resource.h>    // PRIO_
     #include <time.h>            // for timespec
+    #include <errno.h>
 
 //---------------------------------------------------------------------------
 
@@ -18,15 +20,22 @@ static RAZIX_TLS int      tls_is_main         = 0;
 static RAZIX_TLS int      tls_is_valid        = false;
 
 //---------------------------------------------------------------------------
-
+// cross platform wrapper for non-standard GNU extension
 static void __rz_posix_set_thread_name__(const char* pName)
 {
     if (pName || pName[0]) return;
 
-    #ifdef __APPLE__
-    int err = pthread_setname_np(pName);
-    #else
-    int err = pthread_setname_np(pthread_self(), pName);
+    // FIXME: Truncate to 15 chars on POSIX environment
+    
+    int err = -1;
+    #if defined __APPLE__
+        err = pthread_setname_np(pName);
+    #elif defined(__LINUX__) && defined(PR_SET_NAME) // available since Linux 2.6.9
+        // https://groups.google.com/g/wx-dev/c/FA846FoKoGA
+        char truncatedName[16] = { 0 };
+        rz_strncpy(truncatedName, pName, 15);
+        truncatedName[15] = '\0';
+        err = prtctl(PR_SET_NAME, truncatedName, 0, 0, 0);
     #endif
     if (err != 0) {
         // TODO: RAZIX_CORE_ASSERT, once it's ported to C
@@ -80,7 +89,7 @@ static void* _rz_thread_entry(void* args)
 }
 
 //---------------------------------------------------------------------------
-
+#include <stdio.h>
 RZThreadHandle rz_thread_create(const char* name, RZThreadPriority priority, RZThreadAffinity affinity, RZThreadCallback cb, void* pUserData)
 {
     RZThreadHandle handle;
@@ -93,10 +102,11 @@ RZThreadHandle rz_thread_create(const char* name, RZThreadPriority priority, RZT
     pBootStrap->affinity          = affinity;
     pBootStrap->pName[0]          = '\0';
 
-    if (name && name[0] != '\0')
-        rz_sprintf(pBootStrap->pName, "[Razix Thread] %s", name);
+    if (name && name[0] != '\0') { 
+        rz_snprintf(pBootStrap->pName, RAZIX_THREAD_NAME_MAX_CHARS, "[Razix Thread] %s", name);
+    }
     else
-        rz_sprintf(pBootStrap->pName, "[Razix Thread] %s", "<rz_invalid_thread_name>");
+        rz_snprintf(pBootStrap->pName, RAZIX_THREAD_NAME_MAX_CHARS, "[Razix Thread] %s", "<rz_invalid_thread_name>");
 
     pthread_attr_t attr;
     int            err = pthread_attr_init(&attr);
@@ -129,7 +139,7 @@ uint64_t rz_thread_exit(uint64_t ret)
 
 uint64_t rz_thread_wait_for_exit(RZThreadHandle threadId, uint64_t timeout_ms)
 {
-    #if defined RAZIX_PLATFORM_LINUX
+    #if defined RAZIX_PLATFORM_APPLE
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
 
@@ -171,7 +181,7 @@ void rz_thread_set_name(const char* pName)
         __rz_posix_set_thread_name__(pName);
     else
         __rz_posix_set_thread_name__("<rz_invalid_thread_name>");
-    rz_sprintf(tls_thread_name, "[Razix Thread] %s", pName ? pName : "<rz_invalid_thread_name>");
+    rz_snprintf(tls_thread_name, 32, "[Razix Thread] %s", pName ? pName : "<rz_invalid_thread_name>");
 }
 
 void rz_thread_set_affinity(RZThreadAffinity affinity)
@@ -189,7 +199,7 @@ void rz_thread_sleep(uint32_t milliseconds)
 {
     // https://man7.org/linux/man-pages/man2/nanosleep.2.html
     if (milliseconds == 0) return;
-
+    printf("waiting for %u ms", milliseconds);
     struct timespec ts;
     ts.tv_sec  = milliseconds / 1000u;
     ts.tv_nsec = (long) ((milliseconds % 1000u) * 1000000u);

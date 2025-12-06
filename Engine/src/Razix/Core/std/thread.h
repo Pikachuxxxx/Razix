@@ -12,7 +12,7 @@ extern "C"
 #include <stdint.h>
 
 #define RAZIX_INVALID_THREAD_ID     (0ull)
-#define RAZIX_THREAD_NAME_MAx_CHARS 16
+#define RAZIX_THREAD_NAME_MAX_CHARS 64
 #define RAZIX_TANU_MAX_THREADS      6
 
     typedef enum RZThreadPriority
@@ -77,7 +77,7 @@ extern "C"
     {
         RZThreadCallback cb;
         void*            pUserData;
-        char             pName[RAZIX_THREAD_NAME_MAx_CHARS];
+        char             pName[RAZIX_THREAD_NAME_MAX_CHARS];
         RZThreadPriority priority;
         RZThreadAffinity affinity;
     } RZThreadBootstrap;
