@@ -6,6 +6,8 @@
 #include "Razix/Core/Containers/smart_pointers.h"
 #include "Razix/Core/Containers/string.h"
 
+#include "Razix/Core/std/thread.h"
+
 #include "Razix/Core/Utils/RZVendorOverrides.h"
 
 #include "Razix/Core/OS/RZWindow.h"

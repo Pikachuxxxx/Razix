@@ -120,6 +120,7 @@ namespace Razix {
         stack.push(1);
         stack.reserve(50);    // Reserve smaller should not shrink
         EXPECT_GE(stack.capacity(), 100);
+        stack.destroy();
     }
 
     // Test clear

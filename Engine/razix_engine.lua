@@ -241,6 +241,7 @@ project "Razix"
             -- platform sepecific implementatioon
             "src/Razix/Platform/Windows/*.h",
             "src/Razix/Platform/Windows/*.cpp",
+            "src/Razix/Platform/Windows/*.c",
 
             "src/Razix/Platform/GLFW/*.h",
             "src/Razix/Platform/GLFW/*.cpp",
@@ -341,6 +342,7 @@ project "Razix"
             
             "src/Razix/Platform/Unix/*.h",
             "src/Razix/Platform/Unix/*.cpp",
+            "src/Razix/Platform/Unix/*.c",
 
             "src/Razix/Platform/GLFW/*.h",
             "src/Razix/Platform/GLFW/*.cpp",
@@ -480,6 +482,7 @@ project "Razix"
             
             "src/Razix/Platform/Unix/*.h",
             "src/Razix/Platform/Unix/*.cpp",
+            "src/Razix/Platform/Unix/*.c",
 
             "src/Razix/Platform/GLFW/*.h",
             "src/Razix/Platform/GLFW/*.cpp",
