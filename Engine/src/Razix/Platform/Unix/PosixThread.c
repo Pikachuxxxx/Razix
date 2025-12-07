@@ -5,12 +5,12 @@
     #include "Razix/Core/Memory/RZMemoryFunctions.h"
     #include "Razix/Core/std/sprintf.h"
 
-    #define _GNU_SOURCE         // for GNU extension APIs
+    #define _GNU_SOURCE    // for GNU extension APIs
+    #include <errno.h>
     #include <pthread.h>
     #include <sched.h>           // cput_set_t
     #include <sys/resource.h>    // PRIO_
     #include <time.h>            // for timespec
-    #include <errno.h>
 
 //---------------------------------------------------------------------------
 
@@ -26,16 +26,16 @@ static void __rz_posix_set_thread_name__(const char* pName)
     if (!pName || !pName[0]) return;
 
     // FIXME: Truncate to 15 chars on POSIX environment
-    
+
     int err = -1;
     #if defined __APPLE__
-        err = pthread_setname_np(pName);
-    #elif defined(__LINUX__) && defined(PR_SET_NAME) // available since Linux 2.6.9
-        // https://groups.google.com/g/wx-dev/c/FA846FoKoGA
-        char truncatedName[16] = { 0 };
-        rz_strncpy(truncatedName, pName, 15);
-        truncatedName[15] = '\0';
-        err = prtctl(PR_SET_NAME, truncatedName, 0, 0, 0);
+    err = pthread_setname_np(pName);
+    #elif defined(__LINUX__) && defined(PR_SET_NAME)    // available since Linux 2.6.9
+    // https://groups.google.com/g/wx-dev/c/FA846FoKoGA
+    char truncatedName[16] = {0};
+    rz_strncpy(truncatedName, pName, 15);
+    truncatedName[15] = '\0';
+    err               = prtctl(PR_SET_NAME, truncatedName, 0, 0, 0);
     #endif
     if (err != 0) {
         // TODO: RAZIX_CORE_ASSERT, once it's ported to C
@@ -66,7 +66,7 @@ static void* _rz_thread_entry(void* args)
 
     rz_sprintf(tls_thread_name, "[Razix Thread] %s", local.pName);
     tls_thread_id = rz_thread_get_current_id();
-    tls_is_valid = true;
+    tls_is_valid  = true;
 
     __rz_posix_set_thread_name__(local.pName);
     // Note: affinity is ignored on non console platforms, since the processors and OS can result in weirdness
@@ -102,10 +102,9 @@ RZThreadHandle rz_thread_create(const char* name, RZThreadPriority priority, RZT
     pBootStrap->affinity          = affinity;
     pBootStrap->pName[0]          = '\0';
 
-    if (name && name[0] != '\0') { 
+    if (name && name[0] != '\0') {
         rz_snprintf(pBootStrap->pName, RAZIX_THREAD_NAME_MAX_CHARS, "[Razix Thread] %s", name);
-    }
-    else
+    } else
         rz_snprintf(pBootStrap->pName, RAZIX_THREAD_NAME_MAX_CHARS, "[Razix Thread] %s", "<rz_invalid_thread_name>");
 
     pthread_attr_t attr;

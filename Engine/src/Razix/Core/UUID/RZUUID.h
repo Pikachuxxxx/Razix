@@ -9,15 +9,15 @@
 #if defined(RAZIX_APPLE_SILICON) || defined(RAZIX_PLATFORM_MACOS) || defined(RAZIX_PLATFORM_LINUX_ARM64)
     #include <arm_neon.h>
 
-#if defined(__clang__) || defined(__GNUC__)
-       #define SIMDE_ENABLE_NATIVE_ALIASES
-       #define SIMDE_X86_AVX_ENABLE_NATIVE_ALIASES
+    #if defined(__clang__) || defined(__GNUC__)
+        #define SIMDE_ENABLE_NATIVE_ALIASES
+        #define SIMDE_X86_AVX_ENABLE_NATIVE_ALIASES
 
-       #include <simde/arm/neon.h>
-       #include <simde/x86/avx.h>     // AVX
-       #include <simde/x86/avx2.h>    // AVX
-       #include <simde/x86/sse4.1.h>
-#endif
+        #include <simde/arm/neon.h>
+        #include <simde/x86/avx.h>     // AVX
+        #include <simde/x86/avx2.h>    // AVX
+        #include <simde/x86/sse4.1.h>
+    #endif
 #endif
 
 namespace Razix {
@@ -128,7 +128,7 @@ namespace Razix {
         RZUUID& operator=(const RZUUID& other);
 
         RAZIX_API friend bool operator==(const RZUUID& lhs, const RZUUID& rhs);
-        friend bool operator<(const RZUUID& lhs, const RZUUID& rhs)
+        friend bool           operator<(const RZUUID& lhs, const RZUUID& rhs)
         {
             // There are no trivial 128-bits comparisons in SSE/AVX
             // It's faster to compare two uint64_t

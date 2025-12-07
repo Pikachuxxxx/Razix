@@ -98,7 +98,7 @@ namespace Razix {
             m_is_using_heap = other.m_is_using_heap;
 
             if (m_is_using_heap) {
-                m_data.ptr = other.m_data.ptr;
+                m_data.ptr       = other.m_data.ptr;
                 other.m_data.ptr = NULL;
             } else {
                 rz_memcpy(m_data.sso, other.m_data.sso, m_length + 1);
@@ -113,8 +113,8 @@ namespace Razix {
         RZString& operator=(RZString&& other) noexcept
         {
             if (this == &other)
-                return *this; 
-            
+                return *this;
+
             if (m_data.ptr && m_is_using_heap)
                 rz_free(m_data.ptr);
 
@@ -123,8 +123,8 @@ namespace Razix {
             m_is_using_heap = other.m_is_using_heap;
 
             if (m_is_using_heap) {
-                m_data.ptr           = other.m_data.ptr;
-                other.m_data.ptr = NULL; 
+                m_data.ptr       = other.m_data.ptr;
+                other.m_data.ptr = NULL;
             } else {
                 rz_memcpy(m_data.sso, other.m_data.sso, m_length + 1);
             }

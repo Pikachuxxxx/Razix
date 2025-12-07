@@ -6,8 +6,8 @@
 
 #ifdef RAZIX_PLATFORM_UNIX
 
-    #include <pthread.h>
     #include <errno.h>
+    #include <pthread.h>
     #include <time.h>
 
 namespace Razix {
@@ -71,7 +71,7 @@ namespace Razix {
         i32 err = pthread_cond_destroy(&m_CV);
         RAZIX_CORE_ASSERT(err == 0, "[PosixThread] Failed to destroy conditional variable! | ERROR_CODE: {}", err);
     }
-    
+
     void RZConditionalVar::signal()
     {
         /**
@@ -84,7 +84,7 @@ namespace Razix {
         i32 err = pthread_cond_signal(&m_CV);
         RAZIX_CORE_ASSERT(err == 0, "[PosixThread] Failed to signal conditional variable! | ERROR_CODE: {} ", err);
     }
-    
+
     void RZConditionalVar::broadcast()
     {
         i32 err = pthread_cond_broadcast(&m_CV);
@@ -95,16 +95,15 @@ namespace Razix {
     {
         // TODO: Check if the calling thread has the lock to the mutex being passed, track is locked, and parent info if possible or atleast the flag.
         i32 err = pthread_cond_wait(&m_CV, &cs->m_CS);
-        RAZIX_CORE_ASSERT(err == 0, "[PosixThread] Failed to wait on conditional variable. The mutex must be locked by the calling thread on entrance to pthread_cond_wait(). | ERROR_CODE: {} ", err);    
+        RAZIX_CORE_ASSERT(err == 0, "[PosixThread] Failed to wait on conditional variable. The mutex must be locked by the calling thread on entrance to pthread_cond_wait(). | ERROR_CODE: {} ", err);
     }
 
     void RZConditionalVar::wait(RZCriticalSection* cs, u32 timeout_ms)
     {
-
         struct timespec ts;
         clock_gettime(CLOCK_REALTIME, &ts);
 
-        ts.tv_sec  += timeout_ms / 1000;
+        ts.tv_sec += timeout_ms / 1000;
         ts.tv_nsec += (timeout_ms % 1000) * 1000000ULL;
 
         if (ts.tv_nsec >= 1000000000) {

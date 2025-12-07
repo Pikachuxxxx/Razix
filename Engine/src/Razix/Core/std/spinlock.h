@@ -26,7 +26,7 @@ namespace Razix {
         // Pad and light to CACHE_LINE_SIZE to avoid false sharing b/w threads contention
         static_assert(sizeof(RZAtomicU32) <= RAZIX_CACHE_LINE_SIZE,
             "RZAtomicU32 cannot be larger than cache line size");
-    }; 
+    };
 }    // namespace Razix
 
 #endif    // _RZ_SPINLOCK_H_

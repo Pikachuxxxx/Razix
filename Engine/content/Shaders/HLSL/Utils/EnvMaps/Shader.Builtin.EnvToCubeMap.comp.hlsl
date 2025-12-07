@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 SamplerState             HDRSampler : register(s0, space0);    // Sampler for the HDR texture
 Texture2D                HDRTexture : register(t0, space1);    // Equirectangular HDR texture
-RWTexture2DArray<float4> CubeMapRT  : register(u1, space1);
+RWTexture2DArray<float4> CubeMapRT : register(u1, space1);
 //------------------------------------------------------------------------------
 [numthreads(32, 32, 1)] void CS_MAIN(uint3 DTid : SV_DispatchThreadID) {
     uint   faceIdx    = DTid.z;    // on CPU we have RHI::Dispatch(W/32, H/32, NUM_FACES = 6)

@@ -15,7 +15,7 @@ struct VSIn
 // Vertex Shader Stage Output
 struct VSOut
 {
-    float4 Position          : SV_POSITION;
+    float4 Position : SV_POSITION;
     float4 PixelLocalPosTime : POSITION0;
 };
 //------------------------------------------------------------------------------

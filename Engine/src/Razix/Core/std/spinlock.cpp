@@ -12,10 +12,10 @@ namespace Razix {
         while (true) {
             if (!rz_atomic32_exchange(&m_Flag, 1u, RZ_MEMORY_ORDER_ACQUIRE))
                 return;
-            // try_lock failed immediately we spink until lock is release and it's 0 and  
+            // try_lock failed immediately we spink until lock is release and it's 0 and
             while (rz_atomic32_load(&m_Flag, RZ_MEMORY_ORDER_RELAXED))
                 RAZIX_BUSY_WAIT();
-        } 
+        }
     }
 
     bool RZSpinLock::try_lock()

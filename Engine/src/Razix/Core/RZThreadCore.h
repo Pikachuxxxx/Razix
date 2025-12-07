@@ -43,12 +43,12 @@ namespace Razix {
         }
 
     private:
-        T*   m_pLock;
+        T* m_pLock;
     };
 
     typedef RZScopedLock<RZSpinLock>        RZScopedSpinLock;
     typedef RZScopedLock<RZCriticalSection> RZScopedCriticalSection;
-   
+
 }    // namespace Razix
 
 #endif    // _RZ_THREAD_CORE_H

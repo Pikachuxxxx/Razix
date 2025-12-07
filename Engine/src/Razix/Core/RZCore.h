@@ -138,10 +138,10 @@
 #else
     #define MEM_DEF_ALIGNMENT_16 16
 
-    #define RAZIX_API           __attribute__((visibility("default")))
-    #define RAZIX_HIDDEN        __attribute__((visibility("hidden")))
-    #define RAZIX_DEBUG_BREAK() 
-    #define RAZIX_MEM_ALIGN_16  alignas(MEM_DEF_ALIGNMENT_16)
+    #define RAZIX_API    __attribute__((visibility("default")))
+    #define RAZIX_HIDDEN __attribute__((visibility("hidden")))
+    #define RAZIX_DEBUG_BREAK()
+    #define RAZIX_MEM_ALIGN_16 alignas(MEM_DEF_ALIGNMENT_16)
 
 #endif
 
@@ -531,11 +531,11 @@ static constexpr float operator""_inKib(unsigned long long int x)
     #elif defined(__aarch64__) || defined(__arm__)
         #define RAZIX_BUSY_WAIT() __asm__ __volatile__("yield" ::: "memory")
     #else
-        #define RAZIX_BUSY_WAIT() ((void)0)
+        #define RAZIX_BUSY_WAIT() ((void) 0)
     #endif
 #else
     #error "Undefined platform"
-#endif 
+#endif
 
 /* OS-level yield: give timeslice to another runnable thread */
 #if defined(RAZIX_PLATFORM_WINDOWS)
@@ -552,10 +552,9 @@ static constexpr float operator""_inKib(unsigned long long int x)
 #ifdef RAZIX_COMPILER_MSVC
     #define RAZIX_THREAD_LOCAL_STORAGE __declspec(thread)
 #elif defined RAZIX_COMPILER_GCC || defined RAZIX_COMPILER_CLANG
-    #define RAZIX_THREAD_LOCAL_STORAGE __thread 
+    #define RAZIX_THREAD_LOCAL_STORAGE __thread
 #else
     #error "No thread-local storage keyword available for this compiler"
 #endif
 
 #define RAZIX_TLS RAZIX_THREAD_LOCAL_STORAGE
-

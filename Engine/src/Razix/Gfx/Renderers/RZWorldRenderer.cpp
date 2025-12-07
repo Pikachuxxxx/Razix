@@ -583,7 +583,7 @@ namespace Razix {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     rz_gfx_cmdbuf_handle cmdBufHandle = m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx];
-            RAZIX_UNUSED(cmdBufHandle);
+                    RAZIX_UNUSED(cmdBufHandle);
                     RAZIX_TIME_STAMP_BEGIN("Upload SceneLights");
                     RAZIX_MARK_BEGIN(cmdBufHandle, "Upload SceneLights", float4(0.2f, 0.2f, 0.75f, 1.0f));
 
