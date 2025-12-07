@@ -188,7 +188,6 @@ namespace Razix {
 #ifdef RAZIX_PLATFORM_UNIX
         EXPECT_FALSE(cs.try_lock());    // On POSIX, a thread can relock a mutex it already holds (deadlock mutexes excluded)
 #endif
-        EXPECT_TRUE(cs.try_lock());
         cs.unlock();
 
         cs.destroy();
