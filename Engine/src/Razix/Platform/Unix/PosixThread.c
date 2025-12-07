@@ -23,7 +23,7 @@ static RAZIX_TLS int      tls_is_valid        = false;
 // cross platform wrapper for non-standard GNU extension
 static void __rz_posix_set_thread_name__(const char* pName)
 {
-    if (pName || pName[0]) return;
+    if (!pName || !pName[0]) return;
 
     // FIXME: Truncate to 15 chars on POSIX environment
     
@@ -89,7 +89,7 @@ static void* _rz_thread_entry(void* args)
 }
 
 //---------------------------------------------------------------------------
-#include <stdio.h>
+
 RZThreadHandle rz_thread_create(const char* name, RZThreadPriority priority, RZThreadAffinity affinity, RZThreadCallback cb, void* pUserData)
 {
     RZThreadHandle handle;
@@ -199,7 +199,6 @@ void rz_thread_sleep(uint32_t milliseconds)
 {
     // https://man7.org/linux/man-pages/man2/nanosleep.2.html
     if (milliseconds == 0) return;
-    printf("waiting for %u ms", milliseconds);
     struct timespec ts;
     ts.tv_sec  = milliseconds / 1000u;
     ts.tv_nsec = (long) ((milliseconds % 1000u) * 1000000u);
@@ -207,7 +206,7 @@ void rz_thread_sleep(uint32_t milliseconds)
     while (nanosleep(&ts, &ts) == -1) {}
 }
 
-void rz_thread_sleep_micor(uint32_t microseconds)
+void rz_thread_sleep_micro(uint32_t microseconds)
 {
     // https://man7.org/linux/man-pages/man2/nanosleep.2.html
     if (microseconds == 0) return;
