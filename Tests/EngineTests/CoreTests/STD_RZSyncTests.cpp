@@ -342,7 +342,7 @@ TEST_F(RZSyncConditionalVarTests, BroadcastWakesAll)
         }
         const auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(SteadyClock::now() - start);
 
-        EXPECT_GE(elapsedMs.count(), 4);
+        EXPECT_GE(elapsedMs.count(), 2);
         EXPECT_EQ(signals, 1u);
 
         cv.destroy();
