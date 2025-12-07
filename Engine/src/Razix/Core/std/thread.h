@@ -82,7 +82,7 @@ extern "C"
         RZThreadAffinity affinity;
     } RZThreadBootstrap;
 
-    RAZIX_API RZThreadHandle rz_thread_create(const char* name, RZThreadPriority priority, RZThreadAffinity affinity, RZThreadCallback cb, void* userData);
+    RAZIX_API RZThreadHandle rz_thread_create(const char* name, RZThreadPriority priority, RZThreadAffinity affinity, RZThreadCallback cb, void* pUserData);
 
     RAZIX_API uint64_t rz_thread_exit(uint64_t ret);
     RAZIX_API uint64_t rz_thread_wait_for_exit(RZThreadHandle threadId, uint64_t timeout_ms);

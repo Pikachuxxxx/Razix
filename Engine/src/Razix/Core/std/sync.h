@@ -64,7 +64,7 @@ namespace Razix {
 
     private:
 #ifdef RAZIX_PLATFORM_WINDOWS
-        CONDITIONLA_VARIABLE m_CV;
+        CONDITION_VARIABLE m_CV;
 #elif defined RAZIX_PLATFORM_UNIX
         pthread_cond_t m_CV;
 #endif
