@@ -11,12 +11,12 @@
 struct VSOutput
 {
     float4 position : SV_POSITION;
-    float2 UV       : TEXCOORD0;
+    float2 UV : TEXCOORD0;
 };
 //------------------------------------------------------------------------------
 // GBuffer Deferred resource bindings
-SamplerState g_Sampler              : register(s0, space0);
-Texture2D    SceneHDRRenderTarget   : register(t0, space1);
+SamplerState g_Sampler : register(s0, space0);
+Texture2D    SceneHDRRenderTarget : register(t0, space1);
 //------------------------------------------------------------------------------
 // Push constants
 struct PushConstant

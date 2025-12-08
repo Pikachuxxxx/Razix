@@ -31,7 +31,6 @@
 #include <entt.hpp>
 
 #include <fstream>
-#include <iostream>
 
 #define ENABLE_IMGUI_EVENT_DATA_CAPTURE 0
 
@@ -266,9 +265,10 @@ namespace Razix {
     bool RZApplication::RenderFrame()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
-        RAZIX_PROFILE_FRAMEMARKER("RZApplication Main Thread");
-        // Naming threads have been inspired from mamoniem on twitter, can't find the particular tweet
-        RAZIX_PROFILE_SETTHREADNAME("MainThread::Kratos");
+        const char* mainThreadName_Tanu = g_ThreadNames_Tanu[RZ_THREAD_NAME_TANU_GAME_MAIN];
+        RAZIX_PROFILE_FRAMEMARKER(mainThreadName_Tanu);
+        RAZIX_PROFILE_SETTHREADNAME(mainThreadName_Tanu);
+        rz_thread_set_name(mainThreadName_Tanu);
 
         // TODO: Add Time stamp Queries for calculating GPU time
 

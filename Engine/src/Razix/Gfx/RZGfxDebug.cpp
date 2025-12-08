@@ -156,8 +156,8 @@ namespace Razix {
             RAZIX_UNUSED(commandBuffer);
             RAZIX_UNUSED(name);
             RAZIX_UNUSED(color);
-            
-    #ifndef  RAZIX_GOLD_MASTER
+
+    #ifndef RAZIX_GOLD_MASTER
             VkDebugUtilsLabelEXT labelInfo{};
             labelInfo.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
             labelInfo.pLabelName = name.c_str();
@@ -174,7 +174,7 @@ namespace Razix {
         void CmdEndDebugUtilsLabelEXT(VkCommandBuffer commandBuffer)
         {
             RAZIX_UNUSED(commandBuffer);
-            
+
     #ifndef RAZIX_GOLD_MASTER
             rzRHI_BRIDGE_vkCmdEndDebugUtilsLabelEXT(commandBuffer);
     #endif    // RAZIX_GOLD_MASTER

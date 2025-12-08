@@ -10,12 +10,12 @@
 struct PsIn
 {
     float4 position : SV_POSITION;
-    float2 uv       : TEXCOORD0;
+    float2 uv : TEXCOORD0;
 };
 //------------------------------------------------------------------------------
 // Fragment Shader Stage Uniforms
-SamplerState g_Sampler         : register(s0, space0);
-Texture2D    FinalSceneColor   : register(t0, space1);
+SamplerState g_Sampler : register(s0, space0);
+Texture2D    FinalSceneColor : register(t0, space1);
 //------------------------------------------------------------------------------
 float4 PS_MAIN(PsIn input)
     : SV_TARGET

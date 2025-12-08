@@ -3,7 +3,7 @@
 
 #include "Razix/Core/std/type_traits.h"
 
-#include <stddef.h> // for size_t on linux
+#include <stddef.h>    // for size_t on linux
 
 // just for the std::type_index hash specialization
 #include <typeindex>

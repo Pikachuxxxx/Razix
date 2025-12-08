@@ -313,7 +313,7 @@ namespace Razix {
 
         return bytes;
     }
-    
+
     // Friends
     bool operator==(const RZUUID& lhs, const RZUUID& rhs)
     {

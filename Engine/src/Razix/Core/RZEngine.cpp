@@ -201,7 +201,6 @@ namespace Razix {
             skipVFSForConfigLoad = true;
         }
         bool success = engineConfigParser.parse(defaultConfigPath, skipVFSForConfigLoad);
-        (void) success;
         if (success) {
             // Rendering Settings
             {

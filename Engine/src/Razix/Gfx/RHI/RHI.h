@@ -1732,11 +1732,11 @@ static inline unsigned int rz_clz32(unsigned int x)
     typedef void (*rzRHI_ResizeTextureFn)(rz_gfx_texture* texture, uint32_t width, uint32_t height);
 
     // BRIDGE functions for backend API hooks
-#if defined (RAZIX_RENDER_API_VULKAN) && defined (RAZIX_DEBUG)
+#if defined(RAZIX_RENDER_API_VULKAN) && defined(RAZIX_DEBUG)
     typedef void (*rzRHI_BRIDGE_vkCmdBeginDebugUtilsLabelEXTFn)(VkCommandBuffer cmdBuf, const VkDebugUtilsLabelEXT* pLabelInfo);
     typedef void (*rzRHI_BRIDGE_vkCmdInsertDebugUtilsLabelEXTFn)(VkCommandBuffer cmdBuf, const VkDebugUtilsLabelEXT* pLabelInfo);
     typedef void (*rzRHI_BRIDGE_vkCmdEndDebugUtilsLabelEXTFn)(VkCommandBuffer cmdBuf);
-#endif // RAZIX_RENDER_API_VULKAN && RAZIX_DEBUG
+#endif    // RAZIX_RENDER_API_VULKAN && RAZIX_DEBUG
 
     typedef struct rz_rhi_api
     {
@@ -1811,12 +1811,12 @@ static inline unsigned int rz_clz32(unsigned int x)
         rzRHI_FlushGPUWorkFn           FlushGPUWork;
         rzRHI_ResizeSwapchainFn        ResizeSwapchain;
         rzRHI_ResizeTextureFn          ResizeTexture;
-        
-#if defined (RAZIX_RENDER_API_VULKAN) && defined (RAZIX_DEBUG)
+
+#if defined(RAZIX_RENDER_API_VULKAN) && defined(RAZIX_DEBUG)
         rzRHI_BRIDGE_vkCmdBeginDebugUtilsLabelEXTFn  BRIDGE_vkCmdBeginDebugUtilsLabelEXT;
         rzRHI_BRIDGE_vkCmdInsertDebugUtilsLabelEXTFn BRIDGE_vkCmdInsertDebugUtilsLabelEXT;
         rzRHI_BRIDGE_vkCmdEndDebugUtilsLabelEXTFn    BRIDGE_vkCmdEndDebugUtilsLabelEXT;
-#endif 
+#endif
     } rz_rhi_api;
 
     //---------------------------------------------------------------------------------------------
@@ -1863,15 +1863,15 @@ static inline unsigned int rz_clz32(unsigned int x)
 #define rzRHI_DestroyDescriptorTable g_RHI.DestroyDescriptorTable
 
 // Bridge APIs, can be directly called
-#if defined (RAZIX_RENDER_API_VULKAN) && defined (RAZIX_DEBUG)
+#if defined(RAZIX_RENDER_API_VULKAN) && defined(RAZIX_DEBUG)
     #define rzRHI_BRIDGE_vkCmdBeginDebugUtilsLabelEXT  g_RHI.BRIDGE_vkCmdBeginDebugUtilsLabelEXT
     #define rzRHI_BRIDGE_vkCmdInsertDebugUtilsLabelEXT g_RHI.BRIDGE_vkCmdInsertDebugUtilsLabelEXT
     #define rzRHI_BRIDGE_vkCmdEndDebugUtilsLabelEXT    g_RHI.BRIDGE_vkCmdEndDebugUtilsLabelEXT
 #else
-    #define rzRHI_BRIDGE_vkCmdBeginDebugUtilsLabelEXT 
-    #define rzRHI_BRIDGE_vkCmdInsertDebugUtilsLabelEXT 
-    #define rzRHI_BRIDGE_vkCmdEndDebugUtilsLabelEXT 
-#endif 
+    #define rzRHI_BRIDGE_vkCmdBeginDebugUtilsLabelEXT
+    #define rzRHI_BRIDGE_vkCmdInsertDebugUtilsLabelEXT
+    #define rzRHI_BRIDGE_vkCmdEndDebugUtilsLabelEXT
+#endif
 
 #if !RZ_PROFILER_ENABLED
     #if defined(RAZIX_RHI_USE_RESOURCE_MANAGER_HANDLES) && defined(__cplusplus)

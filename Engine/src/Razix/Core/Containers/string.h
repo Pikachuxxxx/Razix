@@ -49,18 +49,13 @@ namespace Razix {
 
         RZString(const RZString& other)
         {
-            if (m_is_using_heap) {
-                rz_free(m_data.ptr);
-                m_data.ptr = NULL;
-            }
-
             m_length        = other.m_length;
             m_capacity      = other.m_capacity;
             m_is_using_heap = other.m_is_using_heap;
 
             if (m_is_using_heap) {
                 m_data.ptr = (char*) rz_malloc(m_capacity, RAZIX_CACHE_LINE_ALIGN);
-                rz_memcpy(m_data.ptr, other.m_data.ptr, m_length);
+                rz_memcpy(m_data.ptr, other.m_data.ptr, m_length + 1);
                 m_data.ptr[m_length] = '\0';
             } else {
                 // copy string as-is if it's SSO
@@ -71,7 +66,10 @@ namespace Razix {
 
         RZString& operator=(const RZString& other)
         {
-            if (m_is_using_heap) {
+            if (this == &other)
+                return *this;
+
+            if (m_is_using_heap && m_data.ptr) {
                 rz_free(m_data.ptr);
                 m_data.ptr = NULL;
             }
@@ -82,7 +80,7 @@ namespace Razix {
 
             if (m_is_using_heap) {
                 m_data.ptr = (char*) rz_malloc(m_capacity, RAZIX_CACHE_LINE_ALIGN);
-                rz_memcpy(m_data.ptr, other.m_data.ptr, m_length);
+                rz_memcpy(m_data.ptr, other.m_data.ptr, m_length + 1);
                 m_data.ptr[m_length] = '\0';
             } else {
                 // copy string as-is if it's SSO
@@ -100,11 +98,10 @@ namespace Razix {
             m_is_using_heap = other.m_is_using_heap;
 
             if (m_is_using_heap) {
-                m_data.ptr           = other.m_data.ptr;
-                m_data.ptr[m_length] = '\0';
+                m_data.ptr       = other.m_data.ptr;
+                other.m_data.ptr = NULL;
             } else {
-                rz_memcpy(m_data.sso, other.m_data.sso, m_length);
-                m_data.sso[m_length] = '\0';
+                rz_memcpy(m_data.sso, other.m_data.sso, m_length + 1);
             }
 
             other.m_is_using_heap = false;
@@ -115,6 +112,9 @@ namespace Razix {
 
         RZString& operator=(RZString&& other) noexcept
         {
+            if (this == &other)
+                return *this;
+
             if (m_data.ptr && m_is_using_heap)
                 rz_free(m_data.ptr);
 
@@ -123,11 +123,10 @@ namespace Razix {
             m_is_using_heap = other.m_is_using_heap;
 
             if (m_is_using_heap) {
-                m_data.ptr           = other.m_data.ptr;
-                m_data.ptr[m_length] = '\0';
+                m_data.ptr       = other.m_data.ptr;
+                other.m_data.ptr = NULL;
             } else {
-                rz_memcpy(m_data.sso, other.m_data.sso, m_length);
-                m_data.sso[m_length] = '\0';
+                rz_memcpy(m_data.sso, other.m_data.sso, m_length + 1);
             }
 
             other.m_is_using_heap = false;

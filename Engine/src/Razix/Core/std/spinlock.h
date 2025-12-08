@@ -27,19 +27,6 @@ namespace Razix {
         static_assert(sizeof(RZAtomicU32) <= RAZIX_CACHE_LINE_SIZE,
             "RZAtomicU32 cannot be larger than cache line size");
     };
-
-    class alignas(RAZIX_CACHE_LINE_SIZE) RAZIX_API RZSpinLockScoped
-    {
-    public:
-        RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZSpinLockScoped);
-
-        explicit RZSpinLockScoped(RZSpinLock& lock);
-        ~RZSpinLockScoped();
-
-    private:
-        RZSpinLock& m_Lock;
-    };
-
 }    // namespace Razix
 
 #endif    // _RZ_SPINLOCK_H_

@@ -138,10 +138,10 @@
 #else
     #define MEM_DEF_ALIGNMENT_16 16
 
-    #define RAZIX_API           __attribute__((visibility("default")))
-    #define RAZIX_HIDDEN        __attribute__((visibility("hidden")))
-    #define RAZIX_DEBUG_BREAK() 
-    #define RAZIX_MEM_ALIGN_16  alignas(MEM_DEF_ALIGNMENT_16)
+    #define RAZIX_API    __attribute__((visibility("default")))
+    #define RAZIX_HIDDEN __attribute__((visibility("hidden")))
+    #define RAZIX_DEBUG_BREAK()
+    #define RAZIX_MEM_ALIGN_16 alignas(MEM_DEF_ALIGNMENT_16)
 
 #endif
 
@@ -520,3 +520,41 @@ static constexpr float operator""_inKib(unsigned long long int x)
 #define RAZIX_MSG_BUFFER_SIZE 256
 
 #define RAZIX_ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
+/* Busy-wait hint: PAUSE/YIELD instruction, stays scheduled */
+#if defined(RAZIX_PLATFORM_WINDOWS)
+    // [Source]: https://learn.microsoft.com/en-us/windows/win32/api/winnt/nf-winnt-yieldprocessor
+    #define RAZIX_BUSY_WAIT() YieldProcessor()
+#elif defined(RAZIX_PLATFORM_UNIX)
+    #if defined(__x86_64__) || defined(__i386__)
+        #define RAZIX_BUSY_WAIT() _mm_pause()
+    #elif defined(__aarch64__) || defined(__arm__)
+        #define RAZIX_BUSY_WAIT() __asm__ __volatile__("yield" ::: "memory")
+    #else
+        #define RAZIX_BUSY_WAIT() ((void) 0)
+    #endif
+#else
+    #error "Undefined platform"
+#endif
+
+/* OS-level yield: give timeslice to another runnable thread */
+#if defined(RAZIX_PLATFORM_WINDOWS)
+    #define RAZIX_YIELD() SwitchToThread()
+#elif defined(RAZIX_PLATFORM_UNIX)
+    #define RAZIX_YIELD() sched_yield()
+#else
+    #error Undefined platform
+#endif
+
+#define RAZIX_THREAD_DEFAULT_STACK_SIZE (2 * 1024 * 1024)
+
+// For C99 compatibility, we cannot use thread_local since its C++11 keyword
+#ifdef RAZIX_COMPILER_MSVC
+    #define RAZIX_THREAD_LOCAL_STORAGE __declspec(thread)
+#elif defined RAZIX_COMPILER_GCC || defined RAZIX_COMPILER_CLANG
+    #define RAZIX_THREAD_LOCAL_STORAGE __thread
+#else
+    #error "No thread-local storage keyword available for this compiler"
+#endif
+
+#define RAZIX_TLS RAZIX_THREAD_LOCAL_STORAGE

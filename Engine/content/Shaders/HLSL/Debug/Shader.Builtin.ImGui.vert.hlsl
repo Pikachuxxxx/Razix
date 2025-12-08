@@ -3,8 +3,8 @@
  * Debug shader used to draw lines in the world
  */
 //------------------------------------------------------------------------------
-#include <ShaderInclude.Builtin.ShaderLangCommon.h>
 #include <Math/ShaderInclude.Builtin.PackingUtils.h>
+#include <ShaderInclude.Builtin.ShaderLangCommon.h>
 //------------------------------------------------------------------------------
 // Vertex Input
 struct VertexInput
@@ -21,7 +21,7 @@ struct PushConstant
     float2 translate;
 };
 PUSH_CONSTANT(PushConstant);
-//------------------------------------------------------------------------------    
+//------------------------------------------------------------------------------
 struct VSOutput
 {
     float4 Position : SV_POSITION;
@@ -36,7 +36,7 @@ VSOutput VS_MAIN(VertexInput input)
     output.Position = float4(input.Position * GET_PUSH_CONSTANT(scale) + GET_PUSH_CONSTANT(translate), 0.0, 1.0);
     output.UV       = input.UV;
     //output.Color  = input.Color;
-    output.Color    = unpackUnorm4x8(input.Color);
+    output.Color = unpackUnorm4x8(input.Color);
     return output;
 }
 //------------------------------------------------------------------------------

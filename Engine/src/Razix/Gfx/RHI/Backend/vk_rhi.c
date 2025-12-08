@@ -31,8 +31,8 @@
 #include <volk.h>
 
 #ifdef RAZIX_PLATFORM_LINUX
-    #include <stdlib.h>    // for free
     #include <alloca.h>    // for alloca
+    #include <stdlib.h>    // for free
 #endif
 
 // Type friendly defines
@@ -6004,9 +6004,9 @@ static void vk_ResizeTexture(rz_gfx_texture* texture, uint32_t width, uint32_t h
 }
 
 //---------------------------------------------------------------------------------------------
-// BRIDGE Function 
+// BRIDGE Function
 //---------------------------------------------------------------------------------------------
-#if defined (RAZIX_RENDER_API_VULKAN) && defined (RAZIX_DEBUG)
+#if defined(RAZIX_RENDER_API_VULKAN) && defined(RAZIX_DEBUG)
 static void vk_BRIDGE_vkCmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdBuf, const VkDebugUtilsLabelEXT* pLabelInfo)
 {
     vkCmdBeginDebugUtilsLabelEXT(cmdBuf, pLabelInfo);
@@ -6021,7 +6021,7 @@ static void vk_BRIDGE_vkCmdEndDebugUtilsLabelEXT(VkCommandBuffer cmdBuf)
 {
     vkCmdEndDebugUtilsLabelEXT(cmdBuf);
 }
-#endif // RAZIX_RENDER_API_VULKAN && RAZIX_DEBUG
+#endif    // RAZIX_RENDER_API_VULKAN && RAZIX_DEBUG
 
 //---------------------------------------------------------------------------------------------
 // Jump table
@@ -6102,10 +6102,10 @@ rz_rhi_api vk_rhi = {
     .ResizeSwapchain = vk_ResizeSwapchain,    // ResizeSwapchain
     .ResizeTexture   = vk_ResizeTexture,      // ResizeTexture
 
-#if defined (RAZIX_RENDER_API_VULKAN) && defined (RAZIX_DEBUG)
+#if defined(RAZIX_RENDER_API_VULKAN) && defined(RAZIX_DEBUG)
     .BRIDGE_vkCmdBeginDebugUtilsLabelEXT  = vk_BRIDGE_vkCmdBeginDebugUtilsLabelEXT,
     .BRIDGE_vkCmdInsertDebugUtilsLabelEXT = vk_BRIDGE_vkCmdInsertDebugUtilsLabelEXT,
     .BRIDGE_vkCmdEndDebugUtilsLabelEXT    = vk_BRIDGE_vkCmdEndDebugUtilsLabelEXT,
-#endif // RAZIX_RENDER_API_VULKAN && RAZIX_DEBUG
+#endif    // RAZIX_RENDER_API_VULKAN && RAZIX_DEBUG
 
 };
