@@ -28,6 +28,12 @@ protected:
         // Reset shared data before each test
         sharedCounter = 0;
         completedThreads = 0;
+        // Initialize the spinlock (if needed, though it's likely zero-initialized by default or constructor if it had one, but it's a struct now)
+        // Assuming zero-initialization is enough or we should have an init function.
+        // Looking at previous code, it was just a struct with atomic flag.
+        // Let's assume zero-init is fine for now as per C style structs usually.
+        // Actually, let's explicitly zero it out to be safe if it's POD.
+        memset(&testLock, 0, sizeof(RZSpinLock));
     }
 
     void TearDown() override 
@@ -48,39 +54,39 @@ protected:
 TEST_F(RZSpinLockTest, LockUnlock_BasicUsage)
 {
     // Test basic lock/unlock sequence
-    testLock.lock();
-    EXPECT_NO_THROW(testLock.unlock());
+    rz_spinlock_lock(&testLock);
+    EXPECT_NO_THROW(rz_spinlock_unlock(&testLock));
 }
 
 TEST_F(RZSpinLockTest, TryLock_SucceedsWhenUnlocked)
 {
     // Should succeed when lock is available
-    EXPECT_TRUE(testLock.try_lock());
-    testLock.unlock();
+    EXPECT_TRUE(rz_spinlock_try_lock(&testLock));
+    rz_spinlock_unlock(&testLock);
 }
 
 TEST_F(RZSpinLockTest, TryLock_FailsWhenLocked)
 {
     // Lock first
-    testLock.lock();
+    rz_spinlock_lock(&testLock);
     
     // Try lock should fail
-    EXPECT_FALSE(testLock.try_lock());
+    EXPECT_FALSE(rz_spinlock_try_lock(&testLock));
     
-    testLock.unlock();
+    rz_spinlock_unlock(&testLock);
 }
 
 TEST_F(RZSpinLockTest, MultipleLockUnlock_Sequential)
 {
     // Test multiple lock/unlock cycles
     for (int i = 0; i < 100; ++i) {
-        testLock.lock();
-        testLock.unlock();
+        rz_spinlock_lock(&testLock);
+        rz_spinlock_unlock(&testLock);
     }
     
     // Should still be able to lock
-    EXPECT_TRUE(testLock.try_lock());
-    testLock.unlock();
+    EXPECT_TRUE(rz_spinlock_try_lock(&testLock));
+    rz_spinlock_unlock(&testLock);
 }
 
 // ============================================================================
@@ -93,9 +99,9 @@ TEST_F(RZSpinLockTest, MutualExclusion_TwoThreads)
     
     auto threadFunc = [&]() {
         for (int i = 0; i < iterations; ++i) {
-            testLock.lock();
+            rz_spinlock_lock(&testLock);
             sharedCounter++;
-            testLock.unlock();
+            rz_spinlock_unlock(&testLock);
         }
     };
     
@@ -117,9 +123,9 @@ TEST_F(RZSpinLockTest, MutualExclusion_MultipleThreads)
     
     auto threadFunc = [&]() {
         for (int i = 0; i < iterations; ++i) {
-            testLock.lock();
+            rz_spinlock_lock(&testLock);
             sharedCounter++;
-            testLock.unlock();
+            rz_spinlock_unlock(&testLock);
         }
     };
     
@@ -142,6 +148,11 @@ TEST_F(RZSpinLockTest, MutualExclusion_MultipleThreads)
 class RZSpinLockScopedTest : public ::testing::Test 
 {
 protected:
+    void SetUp() override 
+    {
+        memset(&testLock, 0, sizeof(RZSpinLock));
+    }
+
     RZSpinLock testLock;
     std::atomic<int> sharedCounter{0};
 };
@@ -156,14 +167,14 @@ TEST_F(RZSpinLockScopedTest, RAII_LocksOnConstruction)
         
         // Lock should be held here
         // Trying to acquire should fail from another context
-        EXPECT_FALSE(testLock.try_lock());
+        EXPECT_FALSE(rz_spinlock_try_lock(&testLock));
     }
     
     EXPECT_TRUE(lockAcquired);
     
     // After scope, lock should be released
-    EXPECT_TRUE(testLock.try_lock());
-    testLock.unlock();
+    EXPECT_TRUE(rz_spinlock_try_lock(&testLock));
+    rz_spinlock_unlock(&testLock);
 }
 
 TEST_F(RZSpinLockScopedTest, RAII_UnlocksOnDestruction)
@@ -174,8 +185,8 @@ TEST_F(RZSpinLockScopedTest, RAII_UnlocksOnDestruction)
     }
     // Lock should be released
     
-    EXPECT_TRUE(testLock.try_lock());
-    testLock.unlock();
+    EXPECT_TRUE(rz_spinlock_try_lock(&testLock));
+    rz_spinlock_unlock(&testLock);
 }
 
 TEST_F(RZSpinLockScopedTest, RAII_UnlocksOnException)
@@ -188,8 +199,8 @@ TEST_F(RZSpinLockScopedTest, RAII_UnlocksOnException)
     }
     
     // Lock should still be released
-    EXPECT_TRUE(testLock.try_lock());
-    testLock.unlock();
+    EXPECT_TRUE(rz_spinlock_try_lock(&testLock));
+    rz_spinlock_unlock(&testLock);
 }
 
 TEST_F(RZSpinLockScopedTest, NestedScopes_Sequential)
@@ -241,18 +252,18 @@ TEST_F(RZSpinLockTest, MemoryVisibility_WriteBeforeLock_ReadAfterLock)
     
     std::thread writer([&]() {
         data = 42;
-        testLock.lock();
+        rz_spinlock_lock(&testLock);
         ready = true;
-        testLock.unlock();
+        rz_spinlock_unlock(&testLock);
     });
     
     std::thread reader([&]() {
         while (!ready.load()) {
             std::this_thread::yield();
         }
-        testLock.lock();
+        rz_spinlock_lock(&testLock);
         EXPECT_EQ(data, 42); // Should see the write
-        testLock.unlock();
+        rz_spinlock_unlock(&testLock);
     });
     
     writer.join();
@@ -268,9 +279,9 @@ TEST_F(RZSpinLockTest, MemoryVisibility_ProtectedWrites)
     
     auto threadFunc = [&](int threadId) {
         for (int i = 0; i < itemsPerThread; ++i) {
-            testLock.lock();
+            rz_spinlock_lock(&testLock);
             sharedData.push_back(threadId * 1000 + i);
-            testLock.unlock();
+            rz_spinlock_unlock(&testLock);
         }
     };
     
@@ -294,8 +305,8 @@ TEST_F(RZSpinLockTest, Stress_RapidLockUnlock)
     const int iterations = 100000;
     
     for (int i = 0; i < iterations; ++i) {
-        testLock.lock();
-        testLock.unlock();
+        rz_spinlock_lock(&testLock);
+        rz_spinlock_unlock(&testLock);
     }
     
     // Should complete without deadlock
@@ -310,9 +321,9 @@ TEST_F(RZSpinLockTest, Stress_ManyThreadsShortCriticalSection)
     
     auto threadFunc = [&]() {
         for (int i = 0; i < iterations; ++i) {
-            testLock.lock();
+            rz_spinlock_lock(&testLock);
             sharedCounter++;
-            testLock.unlock();
+            rz_spinlock_unlock(&testLock);
         }
     };
     

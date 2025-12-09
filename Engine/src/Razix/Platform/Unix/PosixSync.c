@@ -61,7 +61,7 @@ void rz_critical_section_unlock(RZCriticalSection* cs)
 
 //-----------------------------------------------------------------------------
 
-RZConditionalVar rz_conditional_var_init(void)
+RZConditionalVar rz_conditional_var_create(void)
 {
     RZConditionalVar cv;
 

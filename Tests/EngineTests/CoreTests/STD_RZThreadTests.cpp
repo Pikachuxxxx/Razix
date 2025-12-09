@@ -25,9 +25,9 @@ namespace {
 
     struct ThreadBarrier
     {
-        RZAtomicU32 ready;
-        RZAtomicU32 start;
-        RZAtomicU32 done;
+        rz_atomic_u32 ready;
+        rz_atomic_u32 start;
+        rz_atomic_u32 done;
     };
 
     static void BarrierInit(ThreadBarrier& barrier)
@@ -37,7 +37,7 @@ namespace {
         rz_atomic32_store(&barrier.done, 0u, RZ_MEMORY_ORDER_RELAXED);
     }
 
-    static void SpinUntilEquals(RZAtomicU32* atom, uint32_t expected)
+    static void SpinUntilEquals(rz_atomic_u32* atom, uint32_t expected)
     {
         while (rz_atomic32_load(atom, RZ_MEMORY_ORDER_ACQUIRE) != expected)
             rz_thread_yield();
@@ -72,8 +72,8 @@ namespace {
 
     struct MainFlagData
     {
-        RZAtomicU32 ready;
-        RZAtomicU32 isMain;
+        rz_atomic_u32 ready;
+        rz_atomic_u32 isMain;
     };
 
     static void ThreadCheckMain(void* userData)
@@ -106,9 +106,9 @@ namespace {
     {
         ThreadBarrier* barrier;
         uint32_t        iterations;
-        RZAtomicU32*    zeroIds;
-        RZAtomicU32*    zeroHandles;
-        RZAtomicU32*    loopCount;
+        rz_atomic_u32*    zeroIds;
+        rz_atomic_u32*    zeroHandles;
+        rz_atomic_u32*    loopCount;
     };
 
     static void ThreadMixedApi(void* userData)
@@ -361,9 +361,9 @@ TEST(RZThreadStressTests, MixedApiCallsStayResponsive)
     ThreadBarrier barrier;
     BarrierInit(barrier);
 
-    RZAtomicU32 zeroIds     = 0u;
-    RZAtomicU32 zeroHandles = 0u;
-    RZAtomicU32 loopCount   = 0u;
+    rz_atomic_u32 zeroIds     = 0u;
+    rz_atomic_u32 zeroHandles = 0u;
+    rz_atomic_u32 loopCount   = 0u;
 
     RZDynamicArray<MixedApiPayload> payloads;
     payloads.resize(threadCount);
