@@ -10,6 +10,27 @@
 
 namespace Razix {
 
+    template<typename T>
+    struct LockTraits
+    {
+        static void lock(T* t) { t->lock(); }
+        static void unlock(T* t) { t->unlock(); }
+    };
+
+    template<>
+    struct LockTraits<RZSpinLock>
+    {
+        static void lock(RZSpinLock* t) { rz_spinlock_lock(t); }
+        static void unlock(RZSpinLock* t) { rz_spinlock_unlock(t); }
+    };
+
+    template<>
+    struct LockTraits<RZCriticalSection>
+    {
+        static void lock(RZCriticalSection* t) { rz_critical_section_lock(t); }
+        static void unlock(RZCriticalSection* t) { rz_critical_section_unlock(t); }
+    };
+
     template<class T>
     class alignas(RAZIX_CACHE_LINE_SIZE) RZScopedLock
     {
@@ -21,22 +42,23 @@ namespace Razix {
         explicit inline RZScopedLock(T* cs)
             : m_pLock(cs)
         {
-            cs->lock();
+            if (m_pLock) LockTraits<T>::lock(m_pLock);
         }
 
         explicit inline RZScopedLock(T& cs)
             : m_pLock(&cs)
         {
-            cs.lock();
+            if (m_pLock) LockTraits<T>::lock(m_pLock);
         }
 
         inline void unlock()
         {
             if (m_pLock) {
-                m_pLock->unlock();
-                m_pLock = NULL;
+                LockTraits<T>::unlock(m_pLock);
+                m_pLock = nullptr;
             }
         }
+
         inline ~RZScopedLock()
         {
             unlock();
@@ -48,6 +70,14 @@ namespace Razix {
 
     typedef RZScopedLock<RZSpinLock>        RZScopedSpinLock;
     typedef RZScopedLock<RZCriticalSection> RZScopedCriticalSection;
+
+    static_assert(sizeof(RZAtomicU32) <= RAZIX_CACHE_LINE_SIZE, "RZSpinLock::RZAtomicU32 cannot be larger than cache line size");
+
+    static_assert(sizeof(RZCriticalSection) <= 2 * RAZIX_CACHE_LINE_SIZE, "RZCriticalSection must be less than 2 cache lines");
+    static_assert(alignof(RZCriticalSection) == RAZIX_CACHE_LINE_SIZE, "RZCriticalSection must be cache-line aligned");
+
+    static_assert(sizeof(RZConditionalVar) == RAZIX_CACHE_LINE_SIZE, "RZConditionalVar must be 1 cache lines");
+    static_assert(alignof(RZConditionalVar) == RAZIX_CACHE_LINE_SIZE, "RZConditionalVar must be 1 cache-line aligned");
 
 }    // namespace Razix
 

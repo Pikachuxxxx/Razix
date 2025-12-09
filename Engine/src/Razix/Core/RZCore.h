@@ -461,6 +461,9 @@
 #define RAZIX_CACHE_LINE_ALIGN RAZIX_CACHE_LINE_SIZE
 #define RAZIX_128B_ALIGN       128
 
+// C99 valid alignas for structs
+#define RAZIX_ALIGN_AS(x) __attribute__((aligned(x)))
+
 #ifdef __cplusplus
 
     #ifdef RAZIX_PLATFORM_UNIX
