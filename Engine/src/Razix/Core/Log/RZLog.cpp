@@ -148,3 +148,77 @@ namespace Razix {
         }
     }    // namespace Debug
 }    // namespace Razix
+
+void RZLog_StartUp(void)
+{
+    Razix::Debug::RZLog::StartUp();
+}
+
+void RZLog_Shutdown(void)
+{
+    Razix::Debug::RZLog::Shutdown();
+}
+
+void RZLog_CoreTrace(const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    Razix::Debug::RZLog::GetCoreLogger()->trace(args);
+    va_end(args);
+}
+
+void RZLog_CoreInfo(const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    Razix::Debug::RZLog::GetCoreLogger()->info(args);
+    va_end(args);
+}
+
+void RZLog_CoreWarn(const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    Razix::Debug::RZLog::GetCoreLogger()->warn(args);
+    va_end(args);
+}
+
+void RZLog_CoreError(const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    Razix::Debug::RZLog::GetCoreLogger()->error(args);
+    va_end(args);
+}
+
+void RZLog_AppTrace(const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    Razix::Debug::RZLog::GetApplicationLogger()->trace(args);
+    va_end(args);
+}
+
+void RZLog_AppInfo(const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    Razix::Debug::RZLog::GetApplicationLogger()->info(args);
+    va_end(args);
+}
+
+void RZLog_AppWarn(const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    Razix::Debug::RZLog::GetApplicationLogger()->warn(args);
+    va_end(args);
+}
+
+void RZLog_AppError(const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    Razix::Debug::RZLog::GetApplicationLogger()->error(args);
+    va_end(args);
+}
