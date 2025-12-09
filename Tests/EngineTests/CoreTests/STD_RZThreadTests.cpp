@@ -65,7 +65,7 @@ namespace {
 
     static void DetachCurrentThread()
     {
-        const RZThreadHandle self = rz_thread_get_current_handle();
+        const rz_thread_handle self = rz_thread_get_current_handle();
         if (self != RAZIX_INVALID_THREAD_ID && self != 0)
             rz_thread_detach(self);
     }
@@ -213,7 +213,7 @@ TEST(RZThreadBasicApiTests, MainFlagIsThreadLocal)
     rz_atomic32_store(&data.ready, 0u, RZ_MEMORY_ORDER_RELAXED);
     rz_atomic32_store(&data.isMain, 1u, RZ_MEMORY_ORDER_RELAXED);
 
-    RZThreadHandle handle = rz_thread_create("MainFlagCheck", RZ_THREAD_PRIORITY_NORMAL, RZ_THREAD_AFFINITY_WORKER, ThreadCheckMain, &data);
+    rz_thread_handle handle = rz_thread_create("MainFlagCheck", RZ_THREAD_PRIORITY_NORMAL, RZ_THREAD_AFFINITY_WORKER, ThreadCheckMain, &data);
     rz_thread_set_main();
     RAZIX_UNUSED(handle);
 
@@ -230,8 +230,8 @@ TEST(RZThreadBasicApiTests, CurrentThreadIdIsStable)
 
 TEST(RZThreadBasicApiTests, CurrentThreadHandleIsNonZero)
 {
-    const RZThreadHandle handle = rz_thread_get_current_handle();
-    EXPECT_NE(handle, static_cast<RZThreadHandle>(0));
+    const rz_thread_handle handle = rz_thread_get_current_handle();
+    EXPECT_NE(handle, static_cast<rz_thread_handle>(0));
 }
 
 TEST(RZThreadBasicApiTests, CurrentThreadNameIsReadable)
@@ -326,7 +326,7 @@ TEST(RZThreadStressTests, ConcurrentIdsAreUnique)
     RZDynamicArray<IdCapturePayload> payloads;
     payloads.resize(threadCount);
 
-    RZDynamicArray<RZThreadHandle> handles;
+    RZDynamicArray<rz_thread_handle> handles;
     handles.reserve(threadCount);
 
     for (uint32_t i = 0; i < threadCount; ++i) {
@@ -368,7 +368,7 @@ TEST(RZThreadStressTests, MixedApiCallsStayResponsive)
     RZDynamicArray<MixedApiPayload> payloads;
     payloads.resize(threadCount);
 
-    RZDynamicArray<RZThreadHandle> handles;
+    RZDynamicArray<rz_thread_handle> handles;
     handles.reserve(threadCount);
 
     for (uint32_t i = 0; i < threadCount; ++i) {
@@ -399,7 +399,7 @@ TEST(RZThreadStressTests, HighThreadCountYieldStormFinishesQuickly)
 
     RZDynamicArray<YieldStormPayload> payloads;
     payloads.resize(threadCount);
-    RZDynamicArray<RZThreadHandle> handles;
+    RZDynamicArray<rz_thread_handle> handles;
     handles.reserve(threadCount);
 
     for (uint32_t i = 0; i < threadCount; ++i) {
@@ -427,7 +427,7 @@ TEST(RZThreadStressTests, BusyWaitContentionStillMakesProgress)
 
     RZDynamicArray<BusyWaitPayload> payloads;
     payloads.resize(threadCount);
-    RZDynamicArray<RZThreadHandle> handles;
+    RZDynamicArray<rz_thread_handle> handles;
     handles.reserve(threadCount);
 
     for (uint32_t i = 0; i < threadCount; ++i) {
@@ -454,7 +454,7 @@ TEST(RZThreadStressTests, ParallelSleepDoesNotBlockOthers)
 
     RZDynamicArray<ParallelSleepPayload> payloads;
     payloads.resize(threadCount);
-    RZDynamicArray<RZThreadHandle> handles;
+    RZDynamicArray<rz_thread_handle> handles;
     handles.reserve(threadCount);
 
     for (uint32_t i = 0; i < threadCount; ++i) {

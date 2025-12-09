@@ -8,14 +8,14 @@
     #include <pthread.h>
     #include <time.h>
 
-RZCriticalSection rz_critical_section_create(void)
+rz_critical_section rz_critical_section_create(void)
 {
     return rz_critical_section_create_ex(RAZIX_CS_DEF_SPIN_CNT);
 }
 
-RZCriticalSection rz_critical_section_create_ex(u32 spinCount)
+rz_critical_section rz_critical_section_create_ex(u32 spinCount)
 {
-    RZCriticalSection cs;
+    rz_critical_section cs;
     cs.m_SpinCount = spinCount;
 
     pthread_mutexattr_t attr;
@@ -28,14 +28,14 @@ RZCriticalSection rz_critical_section_create_ex(u32 spinCount)
     return cs;
 }
 
-void rz_critical_section_destroy(RZCriticalSection* cs)
+void rz_critical_section_destroy(rz_critical_section* cs)
 {
     i32 err = pthread_mutex_destroy((pthread_mutex_t*) cs->m_Internal.buffer);
     RAZIX_UNUSED(err);
     RAZIX_CORE_ASSERT(err == 0, "[PosixThread] Failed to destroy critical section! | ERROR_CODE: {}", err);
 }
 
-void rz_critical_section_lock(RZCriticalSection* cs)
+void rz_critical_section_lock(rz_critical_section* cs)
 {
     pthread_mutex_t* nativeMutex = (pthread_mutex_t*) cs->m_Internal.buffer;
 
@@ -49,21 +49,21 @@ void rz_critical_section_lock(RZCriticalSection* cs)
     pthread_mutex_lock(nativeMutex);
 }
 
-bool rz_critical_section_try_lock(RZCriticalSection* cs)
+bool rz_critical_section_try_lock(rz_critical_section* cs)
 {
     return !pthread_mutex_trylock((pthread_mutex_t*) cs->m_Internal.buffer);
 }
 
-void rz_critical_section_unlock(RZCriticalSection* cs)
+void rz_critical_section_unlock(rz_critical_section* cs)
 {
     pthread_mutex_unlock((pthread_mutex_t*) cs->m_Internal.buffer);
 }
 
 //-----------------------------------------------------------------------------
 
-RZConditionalVar rz_conditional_var_create(void)
+rz_cond_var rz_conditional_var_create(void)
 {
-    RZConditionalVar cv;
+    rz_cond_var cv;
 
     pthread_condattr_t attr;
     i32                err = pthread_condattr_init(&attr);
@@ -79,14 +79,14 @@ RZConditionalVar rz_conditional_var_create(void)
     return cv;
 }
 
-void rz_conditional_var_destroy(RZConditionalVar* cv)
+void rz_conditional_var_destroy(rz_cond_var* cv)
 {
     i32 err = pthread_cond_destroy((pthread_cond_t*) cv->m_Internal.buffer);
     RAZIX_UNUSED(err);
     RAZIX_CORE_ASSERT(err == 0, "[PosixThread] Failed to destroy conditional variable! | ERROR_CODE: {}", err);
 }
 
-void rz_conditional_var_signal(RZConditionalVar* cv)
+void rz_conditional_var_signal(rz_cond_var* cv)
 {
     /**
      * [Source]: https://man7.org/linux//man-pages/man3/pthread_cond_init.3.html
@@ -100,14 +100,14 @@ void rz_conditional_var_signal(RZConditionalVar* cv)
     RAZIX_CORE_ASSERT(err == 0, "[PosixThread] Failed to signal conditional variable! | ERROR_CODE: {} ", err);
 }
 
-void rz_conditional_var_broadcast(RZConditionalVar* cv)
+void rz_conditional_var_broadcast(rz_cond_var* cv)
 {
     i32 err = pthread_cond_broadcast((pthread_cond_t*) cv->m_Internal.buffer);
     RAZIX_UNUSED(err);
     RAZIX_CORE_ASSERT(err == 0, "[PosixThread] Failed to broadcast conditional variable! | ERROR_CODE: {} ", err);
 }
 
-void rz_conditional_var_wait(RZConditionalVar* cv, RZCriticalSection* cs)
+void rz_conditional_var_wait(rz_cond_var* cv, rz_critical_section* cs)
 {
     // TODO: Check if the calling thread has the lock to the mutex being passed, track is locked, and parent info if possible or atleast the flag.
     i32 err = pthread_cond_wait((pthread_cond_t*) cv->m_Internal.buffer, (pthread_mutex_t*) cs->m_Internal.buffer);
@@ -115,7 +115,7 @@ void rz_conditional_var_wait(RZConditionalVar* cv, RZCriticalSection* cs)
     RAZIX_CORE_ASSERT(err == 0, "[PosixThread] Failed to wait on conditional variable. The mutex must be locked by the calling thread on entrance to pthread_cond_wait(). | ERROR_CODE: {} ", err);
 }
 
-void rz_conditional_var_wait_until(RZConditionalVar* cv, RZCriticalSection* cs, u32 timeout_ms)
+void rz_conditional_var_wait_until(rz_cond_var* cv, rz_critical_section* cs, u32 timeout_ms)
 {
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);

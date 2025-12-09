@@ -9,60 +9,60 @@
 
 namespace Razix {
 
-    void RZCriticalSection::init(u32 spinCount)
+    void rz_critical_section::init(u32 spinCount)
     {
         m_SpinCount = spinCount;
         bool ret    = InitializeCriticalSectionAndSpinCount(&m_CS, m_SpinCount);
         RAZIX_CORE_ASSERT(ret, "Failed to initialize Critical Section with spintcount!");
     }
 
-    void RZCriticalSection::destroy()
+    void rz_critical_section::destroy()
     {
         DeleteCriticalSection(&m_CS);
     }
 
-    void RZCriticalSection::lock()
+    void rz_critical_section::lock()
     {
         EnterCriticalSection(&m_CS);
     }
 
-    bool RZCriticalSection::try_lock()
+    bool rz_critical_section::try_lock()
     {
         return TryEnterCriticalSection(&m_CS) != 0;
     }
 
-    void RZCriticalSection::unlock()
+    void rz_critical_section::unlock()
     {
         LeaveCriticalSection(&m_CS);
     }
 
     //---------------------------------------------------------------------------
-    void RZConditionalVar::init()
+    void rz_cond_var::init()
     {
         InitializeConditionVariable(&m_CV);
     }
 
-    void RZConditionalVar::destroy()
+    void rz_cond_var::destroy()
     {
         // No-op on Windows
     }
 
-    void RZConditionalVar::signal()
+    void rz_cond_var::signal()
     {
         WakeConditionVariable(&m_CV);
     }
 
-    void RZConditionalVar::broadcast()
+    void rz_cond_var::broadcast()
     {
         WakeAllConditionVariable(&m_CV);
     }
 
-    void RZConditionalVar::wait(RZCriticalSection* cs)
+    void rz_cond_var::wait(rz_critical_section* cs)
     {
         SleepConditionVariableCS(&m_CV, &cs->m_CS, INFINITE);
     }
 
-    void RZConditionalVar::wait(RZCriticalSection* cs, u32 timeout_ms)
+    void rz_cond_var::wait(rz_critical_section* cs, u32 timeout_ms)
     {
         SleepConditionVariableCS(&m_CV, &cs->m_CS, (DWORD) timeout_ms);
     }

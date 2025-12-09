@@ -15,14 +15,14 @@ extern "C"
 #define RAZIX_THREAD_NAME_MAX_CHARS 64
 #define RAZIX_TANU_MAX_THREADS      6
 
-    typedef enum RZThreadPriority
+    typedef enum rz_thread_priority
     {
         RZ_THREAD_PRIORITY_LOW    = -1,
         RZ_THREAD_PRIORITY_NORMAL = 0,
         RZ_THREAD_PRIORITY_HIGH   = 1,
-    } RZThreadPriority;
+    } rz_thread_priority;
 
-    typedef enum RZThreadAffinity
+    typedef enum rz_thread_affinity
     {
         RZ_THREAD_AFFINITY_TANU_GAME_MAIN,    // "TanuGameMain"
         RZ_THREAD_AFFINITY_RENDER,            // "Render"
@@ -32,7 +32,7 @@ extern "C"
         RZ_THREAD_AFFINITY_ASSET_IO,          // "AssetIO"
         RZ_THREAD_AFFINITY_EVERYWHERE,        // "Everywhere"
         RZ_THREAD_AFFINITY_COUNT              // RAZIX_TANU_MAX_THREADS + 1
-    } RZThreadAffinity;
+    } rz_thread_affinity;
 
     // 8-core, all threads have 0 affinity on windows! on consoles they benefit from explict core layout as it's fixed!
     static const uint32_t g_ThreadAffinityMask_8C[RZ_THREAD_AFFINITY_COUNT] =
@@ -47,7 +47,7 @@ extern "C"
             /* EVERYWHERE*/ 0xFFu                     // cores 0–7
     };
 
-    typedef enum RZThreadNames_Tanu
+    typedef enum rz_thread_names_Tanu
     {
         RZ_THREAD_NAME_TANU_GAME_MAIN = 0,    // "TanuGameMain"
         RZ_THREAD_NAME_RENDER,                // "Render"
@@ -57,7 +57,7 @@ extern "C"
         RZ_THREAD_NAME_ASSET_IO,              // "AssetIO"
         RZ_THREAD_NAME_EVERYWHERE,            // "Everywhere"
         RZ_THREAD_NAME_COUNT                  // RAZIX_TANU_MAX_THREADS + 1
-    } RZThreadNames_Tanu;
+    } rz_thread_names_Tanu;
 
     static const char* const g_ThreadNames_Tanu[RAZIX_TANU_MAX_THREADS + 1] =
         {
@@ -70,26 +70,26 @@ extern "C"
             "Everywhere"       // RZ_THREAD_AFFINITY_EVERYWHERE
     };
 
-    typedef uint64_t RZThreadHandle;    // HANDLE from Win32 API is just a void* which can fit within a u64
+    typedef uint64_t rz_thread_handle;    // HANDLE from Win32 API is just a void* which can fit within a u64
     typedef void (*RZThreadCallback)(void* userData);
 
-    typedef struct RZThreadBootstrap
+    typedef struct rz_thread_bootstrap
     {
-        RZThreadCallback cb;
-        void*            pUserData;
-        char             pName[RAZIX_THREAD_NAME_MAX_CHARS];
-        RZThreadPriority priority;
-        RZThreadAffinity affinity;
-    } RZThreadBootstrap;
+        RZThreadCallback   cb;
+        void*              pUserData;
+        char               pName[RAZIX_THREAD_NAME_MAX_CHARS];
+        rz_thread_priority priority;
+        rz_thread_affinity affinity;
+    } rz_thread_bootstrap;
 
-    RAZIX_API RZThreadHandle rz_thread_create(const char* name, RZThreadPriority priority, RZThreadAffinity affinity, RZThreadCallback cb, void* pUserData);
+    RAZIX_API rz_thread_handle rz_thread_create(const char* name, rz_thread_priority priority, rz_thread_affinity affinity, RZThreadCallback cb, void* pUserData);
 
     RAZIX_API uint64_t rz_thread_exit(uint64_t ret);
-    RAZIX_API uint64_t rz_thread_wait_for_exit(RZThreadHandle threadId, uint64_t timeout_ms);
-    RAZIX_API void     rz_thread_join(RZThreadHandle thread);
-    RAZIX_API void     rz_thread_detach(RZThreadHandle thread);
+    RAZIX_API uint64_t rz_thread_wait_for_exit(rz_thread_handle threadId, uint64_t timeout_ms);
+    RAZIX_API void     rz_thread_join(rz_thread_handle thread);
+    RAZIX_API void     rz_thread_detach(rz_thread_handle thread);
     RAZIX_API void     rz_thread_set_name(const char* pName);
-    RAZIX_API void     rz_thread_set_affinity(RZThreadAffinity affinity);
+    RAZIX_API void     rz_thread_set_affinity(rz_thread_affinity affinity);
     RAZIX_API void     rz_thread_yield(void);
 
     RAZIX_API void rz_thread_sleep(uint32_t milliseconds);
@@ -97,8 +97,8 @@ extern "C"
 
     RAZIX_API void rz_thread_busy_wait_micro(uint32_t microseconds);
 
-    RAZIX_API uint64_t       rz_thread_get_current_id(void);
-    RAZIX_API RZThreadHandle rz_thread_get_current_handle(void);
+    RAZIX_API uint64_t         rz_thread_get_current_id(void);
+    RAZIX_API rz_thread_handle rz_thread_get_current_handle(void);
 
     RAZIX_API void rz_thread_set_main(void);
     RAZIX_API bool rz_thread_is_main(void);
@@ -106,7 +106,7 @@ extern "C"
     RAZIX_API const char* rz_thread_get_current_name();
 
     RAZIX_API int rz_thread_get_priority(void);
-    RAZIX_API int rz_thread_get_affinity(RZThreadHandle handle);
+    RAZIX_API int rz_thread_get_affinity(rz_thread_handle handle);
 
 // TODO: Implement pico pause for CPU/GPU/IO and other bubbles in C++ to inline it
 // https://software.intel.com/sites/default/files/m/d/4/1/d/8/17689_w_spinlock.pdf

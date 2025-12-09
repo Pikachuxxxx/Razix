@@ -20,7 +20,7 @@
 namespace Razix {
 
 // Test Fixture
-class RZSpinLockTest : public ::testing::Test 
+class rz_spin_lockTest : public ::testing::Test 
 {
 protected:
     void SetUp() override 
@@ -33,7 +33,7 @@ protected:
         // Looking at previous code, it was just a struct with atomic flag.
         // Let's assume zero-init is fine for now as per C style structs usually.
         // Actually, let's explicitly zero it out to be safe if it's POD.
-        memset(&testLock, 0, sizeof(RZSpinLock));
+        memset(&testLock, 0, sizeof(rz_spin_lock));
     }
 
     void TearDown() override 
@@ -42,7 +42,7 @@ protected:
     }
 
     // Shared test data
-    RZSpinLock testLock;
+    rz_spin_lock testLock;
     std::atomic<int> sharedCounter{0};
     std::atomic<int> completedThreads{0};
 };
@@ -51,21 +51,21 @@ protected:
 // Basic Functionality Tests
 // ============================================================================
 
-TEST_F(RZSpinLockTest, LockUnlock_BasicUsage)
+TEST_F(rz_spin_lockTest, LockUnlock_BasicUsage)
 {
     // Test basic lock/unlock sequence
     rz_spinlock_lock(&testLock);
     EXPECT_NO_THROW(rz_spinlock_unlock(&testLock));
 }
 
-TEST_F(RZSpinLockTest, TryLock_SucceedsWhenUnlocked)
+TEST_F(rz_spin_lockTest, TryLock_SucceedsWhenUnlocked)
 {
     // Should succeed when lock is available
     EXPECT_TRUE(rz_spinlock_try_lock(&testLock));
     rz_spinlock_unlock(&testLock);
 }
 
-TEST_F(RZSpinLockTest, TryLock_FailsWhenLocked)
+TEST_F(rz_spin_lockTest, TryLock_FailsWhenLocked)
 {
     // Lock first
     rz_spinlock_lock(&testLock);
@@ -76,7 +76,7 @@ TEST_F(RZSpinLockTest, TryLock_FailsWhenLocked)
     rz_spinlock_unlock(&testLock);
 }
 
-TEST_F(RZSpinLockTest, MultipleLockUnlock_Sequential)
+TEST_F(rz_spin_lockTest, MultipleLockUnlock_Sequential)
 {
     // Test multiple lock/unlock cycles
     for (int i = 0; i < 100; ++i) {
@@ -93,7 +93,7 @@ TEST_F(RZSpinLockTest, MultipleLockUnlock_Sequential)
 // Thread Safety Tests
 // ============================================================================
 
-TEST_F(RZSpinLockTest, MutualExclusion_TwoThreads)
+TEST_F(rz_spin_lockTest, MutualExclusion_TwoThreads)
 {
     const int iterations = 10000;
     
@@ -115,7 +115,7 @@ TEST_F(RZSpinLockTest, MutualExclusion_TwoThreads)
     EXPECT_EQ(sharedCounter.load(), iterations * 2);
 }
 
-TEST_F(RZSpinLockTest, MutualExclusion_MultipleThreads)
+TEST_F(rz_spin_lockTest, MutualExclusion_MultipleThreads)
 {
     const int numThreads = 8;
     const int iterations = 1000;
@@ -145,19 +145,19 @@ TEST_F(RZSpinLockTest, MutualExclusion_MultipleThreads)
 // ============================================================================
 // RZScopedSpinLock Tests
 // ============================================================================
-class RZSpinLockScopedTest : public ::testing::Test 
+class rz_spin_lockScopedTest : public ::testing::Test 
 {
 protected:
     void SetUp() override 
     {
-        memset(&testLock, 0, sizeof(RZSpinLock));
+        memset(&testLock, 0, sizeof(rz_spin_lock));
     }
 
-    RZSpinLock testLock;
+    rz_spin_lock testLock;
     std::atomic<int> sharedCounter{0};
 };
 
-TEST_F(RZSpinLockScopedTest, RAII_LocksOnConstruction)
+TEST_F(rz_spin_lockScopedTest, RAII_LocksOnConstruction)
 {
     bool lockAcquired = false;
     
@@ -177,7 +177,7 @@ TEST_F(RZSpinLockScopedTest, RAII_LocksOnConstruction)
     rz_spinlock_unlock(&testLock);
 }
 
-TEST_F(RZSpinLockScopedTest, RAII_UnlocksOnDestruction)
+TEST_F(rz_spin_lockScopedTest, RAII_UnlocksOnDestruction)
 {
     {
         RZScopedSpinLock scopedLock(testLock);
@@ -189,7 +189,7 @@ TEST_F(RZSpinLockScopedTest, RAII_UnlocksOnDestruction)
     rz_spinlock_unlock(&testLock);
 }
 
-TEST_F(RZSpinLockScopedTest, RAII_UnlocksOnException)
+TEST_F(rz_spin_lockScopedTest, RAII_UnlocksOnException)
 {
     try {
         RZScopedSpinLock scopedLock(testLock);
@@ -203,7 +203,7 @@ TEST_F(RZSpinLockScopedTest, RAII_UnlocksOnException)
     rz_spinlock_unlock(&testLock);
 }
 
-TEST_F(RZSpinLockScopedTest, NestedScopes_Sequential)
+TEST_F(rz_spin_lockScopedTest, NestedScopes_Sequential)
 {
     {
         RZScopedSpinLock lock1(testLock);
@@ -218,7 +218,7 @@ TEST_F(RZSpinLockScopedTest, NestedScopes_Sequential)
     EXPECT_EQ(sharedCounter.load(), 2);
 }
 
-TEST_F(RZSpinLockScopedTest, MultiThreaded_WithScopedLock)
+TEST_F(rz_spin_lockScopedTest, MultiThreaded_WithScopedLock)
 {
     const int numThreads = 8;
     const int iterations = 1000;
@@ -245,7 +245,7 @@ TEST_F(RZSpinLockScopedTest, MultiThreaded_WithScopedLock)
 // Memory Ordering and Visibility Tests
 // ============================================================================
 
-TEST_F(RZSpinLockTest, MemoryVisibility_WriteBeforeLock_ReadAfterLock)
+TEST_F(rz_spin_lockTest, MemoryVisibility_WriteBeforeLock_ReadAfterLock)
 {
     std::atomic<bool> ready{false};
     int data = 0;
@@ -270,7 +270,7 @@ TEST_F(RZSpinLockTest, MemoryVisibility_WriteBeforeLock_ReadAfterLock)
     reader.join();
 }
 
-TEST_F(RZSpinLockTest, MemoryVisibility_ProtectedWrites)
+TEST_F(rz_spin_lockTest, MemoryVisibility_ProtectedWrites)
 {
     std::vector<int> sharedData;
     const int numThreads = 4;
@@ -300,7 +300,7 @@ TEST_F(RZSpinLockTest, MemoryVisibility_ProtectedWrites)
 // Performance and Stress Tests
 // ============================================================================
 
-TEST_F(RZSpinLockTest, Stress_RapidLockUnlock)
+TEST_F(rz_spin_lockTest, Stress_RapidLockUnlock)
 {
     const int iterations = 100000;
     
@@ -313,7 +313,7 @@ TEST_F(RZSpinLockTest, Stress_RapidLockUnlock)
     SUCCEED();
 }
 
-TEST_F(RZSpinLockTest, Stress_ManyThreadsShortCriticalSection)
+TEST_F(rz_spin_lockTest, Stress_ManyThreadsShortCriticalSection)
 {
     const int numThreads = 32;
     const int iterations = 100;
@@ -342,19 +342,19 @@ TEST_F(RZSpinLockTest, Stress_ManyThreadsShortCriticalSection)
 // Edge Cases and Robustness Tests
 // ============================================================================
 
-TEST_F(RZSpinLockTest, Alignment_CacheLineAligned)
+TEST_F(rz_spin_lockTest, Alignment_CacheLineAligned)
 {
     // Verify cache line alignment
     EXPECT_EQ(reinterpret_cast<uintptr_t>(&testLock) % RAZIX_CACHE_LINE_SIZE, 0);
 }
 
-TEST_F(RZSpinLockTest, Size_MatchesCacheLine)
+TEST_F(rz_spin_lockTest, Size_MatchesCacheLine)
 {
     // Verify size to prevent false sharing
-    EXPECT_EQ(sizeof(RZSpinLock), RAZIX_CACHE_LINE_SIZE);
+    EXPECT_EQ(sizeof(rz_spin_lock), RAZIX_CACHE_LINE_SIZE);
 }
 
-TEST_F(RZSpinLockScopedTest, Alignment_CacheLineAligned)
+TEST_F(rz_spin_lockScopedTest, Alignment_CacheLineAligned)
 {
     RZScopedSpinLock scoped(testLock);
     EXPECT_EQ(reinterpret_cast<uintptr_t>(&scoped) % RAZIX_CACHE_LINE_SIZE, 0);

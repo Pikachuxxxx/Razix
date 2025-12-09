@@ -60,8 +60,8 @@ static void _rz_set_thread_priority_high(void)
 // once the thread is created and dispatches it makes it easy to set the name and affinity from within the thread this way
 static void* _rz_thread_entry(void* args)
 {
-    RZThreadBootstrap* boot  = (RZThreadBootstrap*) args;
-    RZThreadBootstrap  local = *boot;    // keep a local copy for safety instead of using pointer
+    rz_thread_bootstrap* boot  = (rz_thread_bootstrap*) args;
+    rz_thread_bootstrap  local = *boot;    // keep a local copy for safety instead of using pointer
     rz_free(boot);
 
     rz_sprintf(tls_thread_name, "[Razix Thread] %s", local.pName);
@@ -90,17 +90,17 @@ static void* _rz_thread_entry(void* args)
 
 //---------------------------------------------------------------------------
 
-RZThreadHandle rz_thread_create(const char* name, RZThreadPriority priority, RZThreadAffinity affinity, RZThreadCallback cb, void* pUserData)
+rz_thread_handle rz_thread_create(const char* name, rz_thread_priority priority, rz_thread_affinity affinity, RZThreadCallback cb, void* pUserData)
 {
-    RZThreadHandle handle;
+    rz_thread_handle handle;
     if (!cb || !pUserData)
         return handle;
 
-    RZThreadBootstrap* pBootStrap = rz_malloc(sizeof(RZThreadBootstrap), 16);
-    pBootStrap->cb                = cb;
-    pBootStrap->pUserData         = pUserData;
-    pBootStrap->affinity          = affinity;
-    pBootStrap->pName[0]          = '\0';
+    rz_thread_bootstrap* pBootStrap = rz_malloc(sizeof(rz_thread_bootstrap), 16);
+    pBootStrap->cb                  = cb;
+    pBootStrap->pUserData           = pUserData;
+    pBootStrap->affinity            = affinity;
+    pBootStrap->pName[0]            = '\0';
 
     if (name && name[0] != '\0') {
         rz_snprintf(pBootStrap->pName, RAZIX_THREAD_NAME_MAX_CHARS, "[Razix Thread] %s", name);
@@ -136,7 +136,7 @@ uint64_t rz_thread_exit(uint64_t ret)
     return ret;
 }
 
-uint64_t rz_thread_wait_for_exit(RZThreadHandle threadId, uint64_t timeout_ms)
+uint64_t rz_thread_wait_for_exit(rz_thread_handle threadId, uint64_t timeout_ms)
 {
     #if defined RAZIX_PLATFORM_APPLE
     struct timespec ts;
@@ -156,7 +156,7 @@ uint64_t rz_thread_wait_for_exit(RZThreadHandle threadId, uint64_t timeout_ms)
     #endif
 }
 
-void rz_thread_join(RZThreadHandle handle)
+void rz_thread_join(rz_thread_handle handle)
 {
     int err = pthread_join((pthread_t) handle, NULL);
     if (err != 0) {
@@ -165,7 +165,7 @@ void rz_thread_join(RZThreadHandle handle)
     }
 }
 
-void rz_thread_detach(RZThreadHandle handle)
+void rz_thread_detach(rz_thread_handle handle)
 {
     int err = pthread_detach((pthread_t) handle);
     if (err != 0) {
@@ -183,7 +183,7 @@ void rz_thread_set_name(const char* pName)
     rz_snprintf(tls_thread_name, 32, "[Razix Thread] %s", pName ? pName : "<rz_invalid_thread_name>");
 }
 
-void rz_thread_set_affinity(RZThreadAffinity affinity)
+void rz_thread_set_affinity(rz_thread_affinity affinity)
 {
     RAZIX_UNUSED(affinity);
     // Note: affinity is ignored on non console platforms, since the processors and OS can result in weirdness
@@ -228,9 +228,9 @@ uint64_t rz_thread_get_current_id(void)
     #endif
 }
 
-RZThreadHandle rz_thread_get_current_handle(void)
+rz_thread_handle rz_thread_get_current_handle(void)
 {
-    return (RZThreadHandle) pthread_self();
+    return (rz_thread_handle) pthread_self();
 }
 
 void rz_thread_busy_wait_micro(uint32_t microseconds)
@@ -277,7 +277,7 @@ int rz_thread_get_priority(void)
     return sp.sched_priority;
 }
 
-int rz_thread_get_affinity(RZThreadHandle handle)
+int rz_thread_get_affinity(rz_thread_handle handle)
 {
     RAZIX_UNUSED(handle);
     return 0;
