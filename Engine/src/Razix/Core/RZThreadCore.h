@@ -71,10 +71,11 @@ namespace Razix {
     typedef RZScopedLock<RZSpinLock>        RZScopedSpinLock;
     typedef RZScopedLock<RZCriticalSection> RZScopedCriticalSection;
 
-    static_assert(sizeof(RZAtomicU32) <= RAZIX_CACHE_LINE_SIZE, "RZSpinLock::RZAtomicU32 cannot be larger than cache line size");
+    static_assert(sizeof(rz_atomic_u32) <= RAZIX_CACHE_LINE_SIZE, "RZSpinLock::rz_atomic_u32 cannot be larger than cache line size");
 
-    static_assert(sizeof(RZCriticalSection) <= 2 * RAZIX_CACHE_LINE_SIZE, "RZCriticalSection must be less than 2 cache lines");
+    static_assert(sizeof(RZCriticalSection) == 2 * RAZIX_CACHE_LINE_SIZE, "RZCriticalSection must be less than 2 cache lines");
     static_assert(alignof(RZCriticalSection) == RAZIX_CACHE_LINE_SIZE, "RZCriticalSection must be cache-line aligned");
+    // print size of RZCriticalSection::m_Internal at compile time
 
     static_assert(sizeof(RZConditionalVar) == RAZIX_CACHE_LINE_SIZE, "RZConditionalVar must be 1 cache lines");
     static_assert(alignof(RZConditionalVar) == RAZIX_CACHE_LINE_SIZE, "RZConditionalVar must be 1 cache-line aligned");
