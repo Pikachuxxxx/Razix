@@ -4,7 +4,7 @@
 #include "Razix/Core/RZCore.h"
 
 #ifdef __cplusplus
-#include <spdlog/spdlog.h>
+    #include <spdlog/spdlog.h>
 
 namespace Razix {
     namespace Debug {
@@ -47,11 +47,12 @@ namespace Razix {
         };
     }    // namespace Debug
 }    // namespace Razix
-#endif // __cplusplus
+#endif    // __cplusplus
 
 #ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
+extern "C"
+{
+#endif    // __cplusplus
 
     // Initialization wrappers
     RAZIX_API void RZLog_StartUp(void);
@@ -70,7 +71,7 @@ extern "C" {
 
 #ifdef __cplusplus
 }
-#endif // __cplusplus
+#endif    // __cplusplus
 
 #ifndef RAZIX_GOLD_MASTER
 
@@ -80,21 +81,21 @@ extern "C" {
         #define RAZIX_CORE_WARN(...)  ::Razix::Debug::RZLog::GetCoreLogger()->warn(__VA_ARGS__)
         #define RAZIX_CORE_ERROR(...) ::Razix::Debug::RZLog::GetCoreLogger()->error(__VA_ARGS__)
 
-        #define RAZIX_TRACE(...)      ::Razix::Debug::RZLog::GetApplicationLogger()->trace(__VA_ARGS__)
-        #define RAZIX_INFO(...)       ::Razix::Debug::RZLog::GetApplicationLogger()->info(__VA_ARGS__)
-        #define RAZIX_WARN(...)       ::Razix::Debug::RZLog::GetApplicationLogger()->warn(__VA_ARGS__)
-        #define RAZIX_ERROR(...)      ::Razix::Debug::RZLog::GetApplicationLogger()->error(__VA_ARGS__)
+        #define RAZIX_TRACE(...) ::Razix::Debug::RZLog::GetApplicationLogger()->trace(__VA_ARGS__)
+        #define RAZIX_INFO(...)  ::Razix::Debug::RZLog::GetApplicationLogger()->info(__VA_ARGS__)
+        #define RAZIX_WARN(...)  ::Razix::Debug::RZLog::GetApplicationLogger()->warn(__VA_ARGS__)
+        #define RAZIX_ERROR(...) ::Razix::Debug::RZLog::GetApplicationLogger()->error(__VA_ARGS__)
     #else
         #define RAZIX_CORE_TRACE(...) RZLog_CoreTrace(__VA_ARGS__)
         #define RAZIX_CORE_INFO(...)  RZLog_CoreInfo(__VA_ARGS__)
         #define RAZIX_CORE_WARN(...)  RZLog_CoreWarn(__VA_ARGS__)
         #define RAZIX_CORE_ERROR(...) RZLog_CoreError(__VA_ARGS__)
 
-        #define RAZIX_TRACE(...)      RZLog_AppTrace(__VA_ARGS__)
-        #define RAZIX_INFO(...)       RZLog_AppInfo(__VA_ARGS__)
-        #define RAZIX_WARN(...)       RZLog_AppWarn(__VA_ARGS__)
-        #define RAZIX_ERROR(...)      RZLog_AppError(__VA_ARGS__)
-    #endif // __cplusplus
+        #define RAZIX_TRACE(...) RZLog_AppTrace(__VA_ARGS__)
+        #define RAZIX_INFO(...)  RZLog_AppInfo(__VA_ARGS__)
+        #define RAZIX_WARN(...)  RZLog_AppWarn(__VA_ARGS__)
+        #define RAZIX_ERROR(...) RZLog_AppError(__VA_ARGS__)
+    #endif    // __cplusplus
 #else
     // Strip everything in Gold Master
     #define RAZIX_CORE_TRACE(...)
@@ -105,6 +106,6 @@ extern "C" {
     #define RAZIX_INFO(...)
     #define RAZIX_WARN(...)
     #define RAZIX_ERROR(...)
-#endif // RAZIX_GOLD_MASTER
+#endif    // RAZIX_GOLD_MASTER
 
-#endif // _RZ_LOG_H_
+#endif    // _RZ_LOG_H_
