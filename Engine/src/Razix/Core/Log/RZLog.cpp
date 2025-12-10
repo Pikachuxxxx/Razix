@@ -163,62 +163,94 @@ void RZLog_CoreTrace(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    Razix::Debug::RZLog::GetCoreLogger()->trace(args);
+    
+    char buffer[4096];
+    rz_vsnprintf(buffer, sizeof(buffer), fmt, args);
     va_end(args);
+    
+    Razix::Debug::RZLog::GetCoreLogger()->trace(buffer);
 }
 
 void RZLog_CoreInfo(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    Razix::Debug::RZLog::GetCoreLogger()->info(args);
+    
+    char buffer[4096];
+    rz_vsnprintf(buffer, sizeof(buffer), fmt, args);
     va_end(args);
+    
+    Razix::Debug:: RZLog::GetCoreLogger()->info(buffer);
 }
 
 void RZLog_CoreWarn(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    Razix::Debug::RZLog::GetCoreLogger()->warn(args);
+    
+    char buffer[4096];
+    rz_vsnprintf(buffer, sizeof(buffer), fmt, args);
     va_end(args);
+    
+    Razix:: Debug::RZLog::GetCoreLogger()->warn(buffer);
 }
 
 void RZLog_CoreError(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    Razix::Debug::RZLog::GetCoreLogger()->error(args);
+    
+    char buffer[4096];
+    rz_vsnprintf(buffer, sizeof(buffer), fmt, args);
     va_end(args);
+    
+    Razix::Debug::RZLog::GetCoreLogger()->error(buffer);
 }
 
 void RZLog_AppTrace(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    Razix::Debug::RZLog::GetApplicationLogger()->trace(args);
+    
+    char buffer[4096];
+    rz_vsnprintf(buffer, sizeof(buffer), fmt, args);
     va_end(args);
+    
+    Razix::Debug::RZLog:: GetApplicationLogger()->trace(buffer);
 }
 
 void RZLog_AppInfo(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    Razix::Debug::RZLog::GetApplicationLogger()->info(args);
+    
+    char buffer[4096];
+    rz_vsnprintf(buffer, sizeof(buffer), fmt, args);
     va_end(args);
+    
+    Razix:: Debug::RZLog::GetApplicationLogger()->info(buffer);
 }
 
 void RZLog_AppWarn(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    Razix::Debug::RZLog::GetApplicationLogger()->warn(args);
+    
+    char buffer[4096];
+    rz_vsnprintf(buffer, sizeof(buffer), fmt, args);
     va_end(args);
+    
+    Razix::Debug::RZLog::GetApplicationLogger()->warn(buffer);
 }
 
 void RZLog_AppError(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    Razix::Debug::RZLog::GetApplicationLogger()->error(args);
+    
+    char buffer[4096];
+    rz_vsnprintf(buffer, sizeof(buffer), fmt, args);
     va_end(args);
+    
+    Razix::Debug::RZLog::GetApplicationLogger()->error(buffer);
 }

@@ -529,9 +529,11 @@ static constexpr float operator""_inKib(unsigned long long int x)
 /* Busy-wait hint: PAUSE/YIELD instruction, stays scheduled */
 #if defined(RAZIX_PLATFORM_WINDOWS)
     // [Source]: https://learn.microsoft.com/en-us/windows/win32/api/winnt/nf-winnt-yieldprocessor
+    #include <immintrin.h>
     #define RAZIX_BUSY_WAIT() _mm_pause()
 #elif defined(RAZIX_PLATFORM_UNIX)
     #if defined(__x86_64__) || defined(__i386__)
+        #include <immintrin.h>
         #define RAZIX_BUSY_WAIT() _mm_pause()
     #elif defined(__aarch64__) || defined(__arm__)
         #define RAZIX_BUSY_WAIT() __asm__ __volatile__("yield" ::: "memory")
