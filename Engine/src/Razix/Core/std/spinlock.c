@@ -1,5 +1,9 @@
 #include "spinlock.h"
 
+#ifdef _MSC_VER
+    #include <intrin.h>
+#endif
+
 void rz_spinlock_lock(rz_spin_lock* spinlock)
 {
     // acquire lock then value is 1 and return 0 and we exit, to execute the code

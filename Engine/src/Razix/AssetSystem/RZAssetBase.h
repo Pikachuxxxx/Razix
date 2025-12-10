@@ -91,7 +91,7 @@ namespace Razix {
             int                      _padding;
         };
 
-        struct RZ_ALIGN_AS(8) AssetDependecy
+        struct RAZIX_ALIGN_TO(8) AssetDependecy
         {
             AssetType type;
             RZUUID    assetID;

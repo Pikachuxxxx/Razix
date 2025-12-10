@@ -9,7 +9,7 @@
 #define RAZIX_OS_COND_STORAGE_SIZE  64
 
 // Fast PImpl idiom to avoid including heavy OS specific headers in the main codebase
-RAZIX_ALIGN_AS(RAZIX_CACHE_LINE_SIZE)
+RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
 typedef struct rz_critical_section
 {
     u32 m_SpinCount;
@@ -20,7 +20,7 @@ typedef struct rz_critical_section
     } m_Internal;
 } rz_critical_section;
 
-RAZIX_ALIGN_AS(RAZIX_CACHE_LINE_SIZE)
+RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
 typedef struct rz_cond_var
 {
     union

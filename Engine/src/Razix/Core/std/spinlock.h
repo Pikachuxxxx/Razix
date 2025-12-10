@@ -4,7 +4,7 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/std/atomics.h"
 
-RAZIX_ALIGN_AS(RAZIX_CACHE_LINE_SIZE)
+RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
 typedef struct rz_spin_lock
 {
     rz_atomic_u32 flag;
