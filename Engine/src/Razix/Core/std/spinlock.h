@@ -4,29 +4,25 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/std/atomics.h"
 
-namespace Razix {
+RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
+typedef struct rz_spin_lock
+{
+    rz_atomic_u32 flag;
+    char          _pad[RAZIX_CACHE_LINE_SIZE - sizeof(rz_atomic_u32)];
+    // Pad and light to CACHE_LINE_SIZE to avoid false sharing b/w threads contention
+} rz_spin_lock;
 
-    class alignas(RAZIX_CACHE_LINE_SIZE) RAZIX_API RZSpinLock
-    {
-    public:
-        RZSpinLock()
-            : m_Flag(0) {}
-        ~RZSpinLock() = default;
-        // Mutexes and locking primitves cannot be copied/moved
-        // Doing so may cause false impression and dangling zmobies which will mess things up
-        RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZSpinLock);
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-        void lock();
-        bool try_lock();
-        void unlock();
+    RAZIX_API void rz_spinlock_lock(rz_spin_lock* spinlock);
+    RAZIX_API bool rz_spinlock_try_lock(rz_spin_lock* spinlock);
+    RAZIX_API void rz_spinlock_unlock(rz_spin_lock* spinlock);
 
-    private:
-        RZAtomicU32 m_Flag = false;
-        char        _pad[RAZIX_CACHE_LINE_SIZE - sizeof(RZAtomicU32)];
-        // Pad and light to CACHE_LINE_SIZE to avoid false sharing b/w threads contention
-        static_assert(sizeof(RZAtomicU32) <= RAZIX_CACHE_LINE_SIZE,
-            "RZAtomicU32 cannot be larger than cache line size");
-    };
-}    // namespace Razix
+#ifdef __cplusplus
+}
+#endif
 
 #endif    // _RZ_SPINLOCK_H_

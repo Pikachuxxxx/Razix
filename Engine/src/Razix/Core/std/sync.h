@@ -4,74 +4,56 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
 
-#ifdef RAZIX_PLATFORM_WINDOWS
-    #include <windows.h>
-#elif defined RAZIX_PLATFORM_UNIX
-    #include <pthread.h>
-#endif
+#define RAZIX_CS_DEF_SPIN_CNT       100    // TODO: to be measures using __mm_pause or how long threads take to switch
+#define RAZIX_OS_MUTEX_STORAGE_SIZE (64 * 2)
+#define RAZIX_OS_COND_STORAGE_SIZE  64
 
-#define RAZIX_CS_DEF_SPIN_CNT 100    // TODO: to be measures using __mm_pause or how long threads take to switch
-
-namespace Razix {
-
-    class RZConditionalVar;
-
-    class alignas(RAZIX_CACHE_LINE_SIZE) RAZIX_API RZCriticalSection
+// Fast PImpl idiom to avoid including heavy OS specific headers in the main codebase
+RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
+typedef struct rz_critical_section
+{
+    u32 m_SpinCount;
+    union
     {
-    public:
-        RZCriticalSection()  = default;
-        ~RZCriticalSection() = default;
-        // Mutexes and locking primitves cannot be copied/moved
-        RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZCriticalSection);
+        u8 buffer[RAZIX_OS_MUTEX_STORAGE_SIZE - sizeof(u32)];
+        // void* aligner;
+    } m_Internal;
+} rz_critical_section;
 
-        void init(u32 spinCount = RAZIX_CS_DEF_SPIN_CNT);
-        void destroy();
-
-        void lock();
-        bool try_lock();
-        void unlock();
-
-    private:
-        u32 m_SpinCount;
-#ifdef RAZIX_PLATFORM_WINDOWS
-        CRITICAL_SECTION m_CS;
-#elif defined RAZIX_PLATFORM_UNIX
-        pthread_mutex_t m_CS;
-#endif
-
-        friend class RZConditionalVar;
-    };
-    static_assert(sizeof(RZCriticalSection) <= 2 * RAZIX_CACHE_LINE_SIZE, "RZCriticalSection must be less than 2 cache lines");
-    static_assert(alignof(RZCriticalSection) == RAZIX_CACHE_LINE_SIZE, "RZCriticalSection must be cache-line aligned");
-
-    //---------------------------------------------------------------------------
-
-    class alignas(RAZIX_CACHE_LINE_SIZE) RAZIX_API RZConditionalVar
+RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
+typedef struct rz_cond_var
+{
+    union
     {
-    public:
-        RZConditionalVar()  = default;
-        ~RZConditionalVar() = default;
-        // Mutexes and locking primitves cannot be copied/moved
-        RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZConditionalVar);
+        u8    buffer[RAZIX_OS_COND_STORAGE_SIZE];
+        void* aligner;
+    } m_Internal;
+} rz_cond_var;
 
-        void init();
-        void destroy();
+#ifdef __cplusplus
+extern "C"
+{
+#endif    // __cplusplus
 
-        void signal();
-        void broadcast();
-        void wait(RZCriticalSection* cs);
-        void wait(RZCriticalSection* cs, u32 timeout);
+    // Mutex API
+    RAZIX_API rz_critical_section rz_critical_section_create(void);
+    RAZIX_API rz_critical_section rz_critical_section_create_ex(u32 spinCount);
+    RAZIX_API void                rz_critical_section_destroy(rz_critical_section* cs);
 
-    private:
-#ifdef RAZIX_PLATFORM_WINDOWS
-        CONDITION_VARIABLE m_CV;
-#elif defined RAZIX_PLATFORM_UNIX
-        pthread_cond_t m_CV;
-#endif
-    };
-    static_assert(sizeof(RZConditionalVar) == RAZIX_CACHE_LINE_SIZE, "RZConditionalVar must be less than cache line");
-    static_assert(alignof(RZConditionalVar) == RAZIX_CACHE_LINE_SIZE, "RZConditionalVar must be cache-line aligned");
+    RAZIX_API void rz_critical_section_lock(rz_critical_section* cs);
+    RAZIX_API bool rz_critical_section_try_lock(rz_critical_section* cs);
+    RAZIX_API void rz_critical_section_unlock(rz_critical_section* cs);
 
-}    // namespace Razix
+    // Conditional Variable API
+    RAZIX_API rz_cond_var rz_conditional_var_create(void);
+    RAZIX_API void        rz_conditional_var_destroy(rz_cond_var* cv);
+
+    RAZIX_API void rz_conditional_var_wait(rz_cond_var* cv, rz_critical_section* cs);
+    RAZIX_API void rz_conditional_var_signal(rz_cond_var* cv);
+    RAZIX_API void rz_conditional_var_broadcast(rz_cond_var* cv);
+
+#ifdef __cplusplus
+}
+#endif    // __cplusplus
 
 #endif    // _RZ_SYNC_H_

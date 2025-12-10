@@ -443,10 +443,6 @@
 #define RZ_ALIGN_DOWN_4(n)   (size_t(n) & ~3)
 #define RZ_ALIGN_DOWN_2(n)   (size_t(n) & ~1)
 
-// Align a struct as specified
-#define RZ_ALIGN_TO(a) __declspec(align(a))
-#define RZ_ALIGN_AS(a) alignas(a)
-
 #define Gib(x) x * (1 << 30)
 #define Mib(x) x * (1 << 20)
 #define Kib(x) x * (1 << 10)
@@ -460,6 +456,15 @@
 #define RAZIX_32B_ALIGN        32
 #define RAZIX_CACHE_LINE_ALIGN RAZIX_CACHE_LINE_SIZE
 #define RAZIX_128B_ALIGN       128
+
+// C99 valid alignas for structs
+#if defined(_MSC_VER)
+    #define RAZIX_ALIGN_TO(x) __declspec(align(x))
+#elif defined(__GNUC__) || defined(__clang__)
+    #define RAZIX_ALIGN_TO(x) __attribute__((aligned(x)))
+#else
+    #error "Unsupported compiler define for RAZIX_ALIGN_TO, please add compiler specific attributes"
+#endif
 
 #ifdef __cplusplus
 
@@ -524,9 +529,11 @@ static constexpr float operator""_inKib(unsigned long long int x)
 /* Busy-wait hint: PAUSE/YIELD instruction, stays scheduled */
 #if defined(RAZIX_PLATFORM_WINDOWS)
     // [Source]: https://learn.microsoft.com/en-us/windows/win32/api/winnt/nf-winnt-yieldprocessor
-    #define RAZIX_BUSY_WAIT() YieldProcessor()
+    #include <immintrin.h>
+    #define RAZIX_BUSY_WAIT() _mm_pause()
 #elif defined(RAZIX_PLATFORM_UNIX)
     #if defined(__x86_64__) || defined(__i386__)
+        #include <immintrin.h>
         #define RAZIX_BUSY_WAIT() _mm_pause()
     #elif defined(__aarch64__) || defined(__arm__)
         #define RAZIX_BUSY_WAIT() __asm__ __volatile__("yield" ::: "memory")

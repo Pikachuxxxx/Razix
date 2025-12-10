@@ -91,7 +91,7 @@ namespace Razix {
             int                      _padding;
         };
 
-        struct RZ_ALIGN_AS(8) AssetDependecy
+        struct RAZIX_ALIGN_TO(8) AssetDependecy
         {
             AssetType type;
             RZUUID    assetID;
@@ -149,7 +149,7 @@ namespace Razix {
         protected:
             RZUUID                         m_UUID;              /* Unique identifier                              */
             AssetType                      m_Type;              /* Type of the asset (e.g., "Texture", "Model")   */
-            RZAtomicU64                    m_ReferenceCount;    /* Reference count for ownership tracking         */
+            rz_atomic_u64                  m_ReferenceCount;    /* Reference count for ownership tracking         */
             RZDynamicArray<AssetDependecy> m_Dependencies;      /* Other assets this asset depends on             */
             AssetMetadata                  m_Metadata;          /* Additional metadata                            */
             AssetStorageType               m_StoragePreference; /* Asset memory storage type                      */
