@@ -18,14 +18,27 @@
 typedef struct rz_job rz_job;
 void                  rz_job_func_cb(rz_job* pJob);
 
-struct rz_job
-{
+// TODO: Profile and tune cache line alignments for better performance
+// TODO: Add manual padding where necessary for cache line alignment to avoid false sharing
+
+typedef struct rz_job_hot {
     void (*pFunc)(rz_job* pJob);
     void*         pUserData;
     rz_atomic_u32 unfinishedJobs;
-    rz_job*       pDeps[RAZIX_JOBS_MAX_DEPENDENCIES];
-    u32           depCount;
-    char          pName[RAZIX_JOB_NAME_MAX_CHARS];
+} rz_job_hot;
+
+typedef struct rz_job_cold {
+    rz_job* pDeps[RAZIX_JOBS_MAX_DEPENDENCIES];
+    u32     depCount;
+    char    pName[RAZIX_JOB_NAME_MAX_CHARS];
+} rz_job_cold;
+
+struct rz_job
+{
+    RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
+    rz_job_hot  hot;
+    RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
+    rz_job_cold* pCold;
 };
 
 typedef u64 rz_job_handle;
@@ -33,12 +46,15 @@ typedef u64 rz_job_handle;
 RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
 typedef struct rz_local_job_queue
 {
+    // Put the job pointers on their own cache line
     RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
     rz_job* pJobs[RAZIX_MAX_LOCAL_JOBS_QUEUE_SIZE];
 
+    // Put the write index on its own cache line
     RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
     rz_atomic_u32 head;
 
+    // Put the read index on its own cache line
     RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
     rz_atomic_u32 tail;
 
@@ -71,6 +87,7 @@ typedef struct rz_worker
     // Put isBusy / load flags separately
     RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
     rz_atomic_u32 jobsInLocalQueue;
+    rz_atomic_u32 jobsInWorker;
     bool          isBusy;
 
 } rz_worker;
@@ -85,6 +102,7 @@ typedef struct rz_job_system
     rz_atomic_u32       roundRobinWorkerIndex;
 } rz_job_system;
 
+// TLS pointer to the current worker for the executing thread
 extern RAZIX_TLS rz_worker* ptls_CurrentWorker;
 static struct rz_job_system g_JobSystem;
 
@@ -92,6 +110,15 @@ static struct rz_job_system g_JobSystem;
 extern "C"
 {
 #endif    // __cplusplus
+
+    // Job System Public API
+    RAZIX_API void rz_job_system_startup(u32 workerCount);
+    RAZIX_API void rz_job_system_shutdown(void);
+
+    RAZIX_API rz_job_handle rz_job_system_submit_job(const rz_job* pJob);
+    RAZIX_API void          rz_job_system_wait_for_job(rz_job_handle jobHandle);
+    RAZIX_API void          rz_job_system_wait_for_all_jobs(void);
+    RAZIX_API void          rz_job_system_add_dependency(rz_job* pJob, rz_job* pDependency);
 
 #ifdef __cplusplus
 }

@@ -11,6 +11,8 @@
 
 #include "Razix/Core/OS/RZWindow.h"
 
+#include "Razix/Core/Job/RZJobSystem.h"
+
 //#include "Razix/Gfx/Materials/RZMaterial.h"
 
 #include "Razix/Core/Memory/RZCPUMemoryManager.h"
@@ -89,14 +91,18 @@ namespace Razix {
         //Graphics::RZGPUMemoryManager::Get().Init(VRamInitSize);
         //--------------------------------------------------------------------------
 
-        // 2. Sound Engine
+        // Initialize Job System right after memory systems
+        rz_job_system_startup(RAZIX_MAX_WORKER_THREADS);
+        RAZIX_CORE_INFO("Job System started with {0} worker threads!", RAZIX_MAX_WORKER_THREADS);
+
+        // Sound Engine
         //Audio::RZSoundEngine::Get().StartUp();
         // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
 
-        // 3. Scene Manager
+        // Scene Manager
         RZSceneManager::Get().StartUp();
 
-        // 4. Script Handler
+        // Script Handler
         Scripting::RZLuaScriptHandler::Get().StartUp();
 
         // Done once all kind of default or existing engine config file is loaded
@@ -167,13 +173,17 @@ namespace Razix {
 
         Gfx::RZResourceManager::Get().ShutDown();
 
-        // 5. Graphics API
+        // Graphics API
         rzGfxCtx_ShutDown();
 
         // Shutdown the lua script handle
         Scripting::RZLuaScriptHandler::Get().ShutDown();
         // Shutdown the Scene Manager
         RZSceneManager::Get().ShutDown();
+        // Shutdown the Audio Engine
+        //Audio::RZSoundEngine::Get().ShutDown();
+        // Shutdown Job System
+        rz_job_system_shutdown();
         // Shutdown memory systems and free all the memory
         //Graphics::RZGPUMemoryManager::Get().ShutDown();
         // Shutdown the VFS last
