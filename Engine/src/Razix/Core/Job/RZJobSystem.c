@@ -307,10 +307,10 @@ void rz_job_system_worker_spawn_job(rz_job* pJob)
     if (pJob == NULL) return;
 
     // Only submit on local thread
-    if (ptls_CurrentWorker != NULL) {
+    if (pTLS_CurrentWorker != NULL) {
         rz_atomic32_increment(&pJob->hot.unfinishedJobs, RZ_MEMORY_ORDER_RELEASE);
         rz_atomic32_increment(&g_JobSystem.jobsInSystem, RZ_MEMORY_ORDER_RELEASE);
-        _rz_worker_local_queue_push_(ptls_CurrentWorker, pJob);
+        _rz_worker_local_queue_push_(pTLS_CurrentWorker, pJob);
     } else {
         RAZIX_CORE_ERROR("[JobSystem] Trying to spawn from non-worker, this is wrong!");
         RAZIX_DEBUG_BREAK();

@@ -107,10 +107,6 @@ typedef struct rz_job_system
     rz_atomic_u32       roundRobinWorkerIndex;
 } rz_job_system;
 
-// TLS pointer to the current worker for the executing thread
-extern RAZIX_TLS rz_worker* ptls_CurrentWorker;
-static struct rz_job_system g_JobSystem;
-
 #ifdef __cplusplus
 extern "C"
 {
