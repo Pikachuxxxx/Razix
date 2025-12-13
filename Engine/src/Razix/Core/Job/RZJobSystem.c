@@ -8,7 +8,7 @@
 
 #include <string.h>    // FIXME: for memset, this fuckery needs to be addressed we need a SIMD rz_memset soon
 
-#if defined(RAZIX_PLATFORM_LINUX)
+#if defined(RAZIX_PLATFORM_LINUX) || defined(RAZIX_PLATFORM_MACOS)
     #include <sched.h>
 #endif
 
@@ -185,6 +185,7 @@ static inline void _rz_job_execute_(rz_job* pJob)
     }
     rz_atomic32_decrement(&pJob->hot.unfinishedJobs, RZ_MEMORY_ORDER_RELEASE);
     rz_atomic32_decrement(&g_JobSystem.jobsInSystem, RZ_MEMORY_ORDER_RELEASE);
+    printf("Job Completed, Remaining Jobs in System: %u\n", rz_atomic32_load(&g_JobSystem.jobsInSystem, RZ_MEMORY_ORDER_ACQUIRE));
 }
 
 static void _rz_worker_run_(void* pUserData)
