@@ -88,6 +88,7 @@ typedef struct rz_worker
     RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
     rz_atomic_u32 jobsInLocalQueue;
     rz_atomic_u32 jobsInWorker;
+    rz_atomic_u32 shutdown;
     bool          isBusy;
 
 } rz_worker;
@@ -97,7 +98,6 @@ typedef struct rz_job_system
     rz_global_job_queue globalQueue;
     rz_worker           workers[RAZIX_MAX_WORKER_THREADS];
     u32                 workerCount;
-    rz_atomic_u32       shutdown;
     rz_atomic_u32       jobsInSystem;
     rz_atomic_u32       roundRobinWorkerIndex;
 } rz_job_system;
