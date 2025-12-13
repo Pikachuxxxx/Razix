@@ -10,7 +10,11 @@
 
 #if defined(RAZIX_PLATFORM_LINUX) || defined(RAZIX_PLATFORM_MACOS)
     #include <sched.h>
+#elif defined RAZIX_PLATFORM_WINDOWS
+    #include <windows.h>
 #endif
+
+#include <stdio.h>    // for temp testing only
 
 //-----------------------------------------------------------------------------
 RAZIX_TLS rz_worker* pTLS_CurrentWorker = NULL;
@@ -256,6 +260,8 @@ void rz_job_system_startup(u32 workerCount)
     for (u32 i = 0; i < workerCount; ++i) {
         rz_worker* pWorker = &g_JobSystem.workers[i];
         memset(pWorker, 0, sizeof(rz_worker));
+        rz_atomic32_store(&pWorker->jobsInLocalQueue, 0, RZ_MEMORY_ORDER_RELAXED);
+        rz_atomic32_store(&pWorker->jobsInWorker, 0, RZ_MEMORY_ORDER_RELAXED);
         pWorker->handle = i;
 
         char threadName[32];
@@ -292,7 +298,6 @@ void rz_job_system_submit_job(rz_job* pJob)
 {
     if (pJob == NULL) return;
 
-    rz_atomic32_increment(&pJob->hot.unfinishedJobs, RZ_MEMORY_ORDER_RELEASE);
     rz_atomic32_increment(&g_JobSystem.jobsInSystem, RZ_MEMORY_ORDER_RELEASE);
 
     rz_worker* pWorker = _rz_find_best_worker_to_submit_to_();
@@ -309,7 +314,6 @@ void rz_job_system_worker_spawn_job(rz_job* pJob)
 
     // Only submit on local thread
     if (pTLS_CurrentWorker != NULL) {
-        rz_atomic32_increment(&pJob->hot.unfinishedJobs, RZ_MEMORY_ORDER_RELEASE);
         rz_atomic32_increment(&g_JobSystem.jobsInSystem, RZ_MEMORY_ORDER_RELEASE);
         _rz_worker_local_queue_push_(pTLS_CurrentWorker, pJob);
     } else {
