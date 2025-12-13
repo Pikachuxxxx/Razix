@@ -8,6 +8,10 @@
 
 #include <string.h>    // FIXME: for memset, this fuckery needs to be addressed we need a SIMD rz_memset soon
 
+#if defined(RAZIX_PLATFORM_LINUX)
+    #include <sched.h>
+#endif
+
 //-----------------------------------------------------------------------------
 RAZIX_TLS rz_worker* pTLS_CurrentWorker = NULL;
 static rz_job_system g_JobSystem        = {0};
