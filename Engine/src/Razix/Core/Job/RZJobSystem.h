@@ -46,17 +46,14 @@ typedef u64 rz_job_handle;
 RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
 typedef struct rz_local_job_queue
 {
-    // Put the job pointers on their own cache line
-    RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
     rz_job* pJobs[RAZIX_MAX_LOCAL_JOBS_QUEUE_SIZE];
 
+    u32 tail;
+
     // Put the write index on its own cache line
+    // Shared head for stealing
     RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
     rz_atomic_u32 head;
-
-    // Put the read index on its own cache line
-    RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
-    rz_atomic_u32 tail;
 
 } rz_local_job_queue;
 
