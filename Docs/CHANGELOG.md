@@ -4,6 +4,7 @@
 - Added custom rz thread handle API - for win32 and posix
 - Added custom Sync primitives - Mutex/Conditional Variables (wrapped over win32/posix)
 - Fixed some minor mem leaks with assignment/copy operators in RZString class
+- Added JobSystem API for razix based on atomics, simple local/stealing/global queue etc.
 
 #### Version - 0.50.0 [Development] - 26/11/2025
 - Re-wrote the RHI backend in C99 with full VK and DX12 backend support, can easily switch backend using config files

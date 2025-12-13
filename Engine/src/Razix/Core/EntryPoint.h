@@ -120,6 +120,7 @@ static int EngineMain(int argc, char** argv)
     // 1.-> Logging System Initialization, start up logging before anything else
     Razix::Debug::RZLog::StartUp();
 
+    // TODO: Can we move this inside Engine ignition?
     // Virtual File System for mapping engine config files
     Razix::RZVirtualFileSystem::Get().StartUp();
 

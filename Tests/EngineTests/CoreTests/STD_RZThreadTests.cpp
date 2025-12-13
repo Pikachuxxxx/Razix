@@ -273,7 +273,7 @@ TEST(RZThreadTimingTests, BusyWaitMicroHonorsMinimum)
         rz_thread_busy_wait_micro(requested);
     });
     EXPECT_GE(elapsedMicros, requested);
-    EXPECT_LT(elapsedMicros, requested * 10u);
+    EXPECT_LT(elapsedMicros, requested * 8u);
 }
 
 TEST(RZThreadTimingTests, BusyWaitScalesWithDuration)

@@ -74,15 +74,10 @@ namespace Razix {
     void RZCommandLineParser::parse(RZDynamicArray<cstr>& arguments)
     {
         bool printH = false;
-        printHelp();
         // Known arguments
         for (auto& option: m_CommandOptions) {
             for (auto& command: option.second.commandFlags) {
                 for (sz i = 0; i < arguments.size(); i++) {
-                    std::cout << "Comparing " << arguments[i] << " with " << command.c_str() << std::endl;
-                    std::cout << "\t rz_strcmp Result: " << rz_strcmp(arguments[i], command.c_str()) << std::endl;
-                    std::cout << "\t strcmp Result: " << strcmp(arguments[i], command.c_str()) << std::endl;
-
                     if (rz_strcmp(arguments[i], command.c_str()) == 0) {
                         option.second.set = true;
                         // Get value
