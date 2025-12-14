@@ -26,17 +26,18 @@ typedef struct rz_job_hot
 {
     void (*pFunc)(rz_job* pJob);
     void*         pUserData;
-    rz_atomic_u32 unfinishedJobs;
+    u32           blockedByCount;
+    rz_atomic_u32 isExecuted;
 } rz_job_hot;
 
 typedef struct rz_job_cold
 {
     // Jobs this job is blocked on (parents - must complete before this runs)
     rz_job* pBlockedOn[RAZIX_JOBS_MAX_DEPENDENCIES];
-    u32     blockedOnCount;
     // Jobs blocked by this job (children - waiting for this to complete)
     rz_job* pBlockedBy[RAZIX_JOBS_MAX_DEPENDENCIES];
-    u32     blockedByCount;
+    u32     blockedOnCount;
+    u32     _pad0;
     char    pName[RAZIX_JOB_NAME_MAX_CHARS];
 } rz_job_cold;
 

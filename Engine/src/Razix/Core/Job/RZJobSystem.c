@@ -27,31 +27,31 @@ static void _rz_global_queue_push_(rz_job* pJob)
 
     u32 head     = rz_atomic32_load(&g_JobSystem.globalQueue.head, RZ_MEMORY_ORDER_ACQUIRE);
     u32 tail     = rz_atomic32_load(&g_JobSystem.globalQueue.tail, RZ_MEMORY_ORDER_ACQUIRE);
-    u32 nextTail = (tail + 1) & (RAZIX_MAX_LOCAL_JOBS_QUEUE_SIZE - 1);
+    u32 nextTail = (tail + 1) & (RAZIX_MAX_GLOBAL_JOBS_QUEUE_SIZE - 1);
 
     if (nextTail == head) {
         RAZIX_CORE_ERROR("[JobSystem] Global queue is full, failed to add Job! ==> CATASTROPIC EFFECT, JOB LOST!");
         return;
     }
 
-    g_JobSystem.globalQueue.ppJobs[nextTail] = pJob;
+    g_JobSystem.globalQueue.ppJobs[tail] = pJob;
     rz_atomic32_store(&g_JobSystem.globalQueue.tail, nextTail, RZ_MEMORY_ORDER_RELEASE);
 }
 
 static rz_job* _rz_global_queue_pop_()
 {
-    u32 head = rz_atomic32_load(&g_JobSystem.globalQueue.head, RZ_MEMORY_ORDER_ACQUIRE);
-    u32 tail = rz_atomic32_load(&g_JobSystem.globalQueue.tail, RZ_MEMORY_ORDER_ACQUIRE);
+    while (1) {
+        u32 head = rz_atomic32_load(&g_JobSystem.globalQueue.head, RZ_MEMORY_ORDER_RELAXED);
+        u32 tail = rz_atomic32_load(&g_JobSystem.globalQueue.tail, RZ_MEMORY_ORDER_ACQUIRE);
 
-    if (head == tail) {
-        return NULL;    // Queue is empty
+        if (head == tail)
+            return NULL;
+
+        u32 nextHead = (head + 1) & (RAZIX_MAX_GLOBAL_JOBS_QUEUE_SIZE - 1);
+
+        if (rz_atomic32_cas(&g_JobSystem.globalQueue.head, head, nextHead, RZ_MEMORY_ORDER_ACQ_REL))
+            return g_JobSystem.globalQueue.ppJobs[head];
     }
-
-    rz_job* pJob     = g_JobSystem.globalQueue.ppJobs[head];
-    u32     nextHead = (head + 1) & (RAZIX_MAX_GLOBAL_JOBS_QUEUE_SIZE - 1);
-    rz_atomic32_store(&g_JobSystem.globalQueue.head, nextHead, RZ_MEMORY_ORDER_RELEASE);
-
-    return pJob;
 }
 
 /**
@@ -174,22 +174,18 @@ static inline void _rz_job_execute_(rz_job* pJob)
 {
     if (pJob == NULL) return;
 
-    if (rz_atomic32_load(&pJob->hot.unfinishedJobs, RZ_MEMORY_ORDER_ACQUIRE) > 1) {
-        // Reschedule back to local queue
-        _rz_worker_local_queue_push_(pTLS_CurrentWorker, pJob);
-        return;
-    }
-
     pJob->hot.pFunc(pJob->hot.pUserData);
 
+    rz_atomic32_store(&pJob->hot.isExecuted, 1, RZ_MEMORY_ORDER_RELEASE);
+
     // Unblock all jobs that were blocked by this one
-    for (u32 i = 0; i < pJob->pCold->blockedByCount; ++i) {
-        rz_job* pDependent = pJob->pCold->pBlockedBy[i];
-        rz_atomic32_decrement(&pDependent->hot.unfinishedJobs, RZ_MEMORY_ORDER_RELEASE);
-    }
-    rz_atomic32_decrement(&pJob->hot.unfinishedJobs, RZ_MEMORY_ORDER_RELEASE);
+    //    for (u32 i = 0; i < pJob->pCold->blockedByCount; ++i) {
+    //        rz_job* pDependent = pJob->pCold->pBlockedBy[i];
+    //        rz_atomic32_decrement(&pDependent->hot.unfinishedJobs, RZ_MEMORY_ORDER_RELEASE);
+    //
+    //        // TODO: add back to local queue if unfinishedJobs == 1 i.e. itself
+    //    }
     rz_atomic32_decrement(&g_JobSystem.jobsInSystem, RZ_MEMORY_ORDER_RELEASE);
-    printf("Job Completed, Remaining Jobs in System: %u\n", rz_atomic32_load(&g_JobSystem.jobsInSystem, RZ_MEMORY_ORDER_ACQUIRE));
 }
 
 static void _rz_worker_run_(void* pUserData)
@@ -215,7 +211,7 @@ static void _rz_worker_run_(void* pUserData)
             continue;
         }
 
-        // PRIORITY 2:  Steal from other workers
+        // PRIORITY 2: Steal from other workers
         rz_worker* pVictimWorker = _rz_find_victim_worker_to_steal_from_();
         if (pVictimWorker) {
             pJob = _rz_worker_steal_(pVictimWorker);
@@ -257,6 +253,8 @@ void rz_job_system_startup(u32 workerCount)
     g_JobSystem.workerCount = workerCount;
 
     rz_atomic32_store(&g_JobSystem.jobsInSystem, 0, RZ_MEMORY_ORDER_RELEASE);
+    rz_atomic32_store(&g_JobSystem.globalQueue.head, 0, RZ_MEMORY_ORDER_RELEASE);
+    rz_atomic32_store(&g_JobSystem.globalQueue.tail, 0, RZ_MEMORY_ORDER_RELEASE);
 
     // Time to create some workers
     for (u32 i = 0; i < workerCount; ++i) {
@@ -301,13 +299,14 @@ void rz_job_system_submit_job(rz_job* pJob)
     if (pJob == NULL) return;
 
     rz_atomic32_increment(&g_JobSystem.jobsInSystem, RZ_MEMORY_ORDER_RELEASE);
+    rz_atomic32_store(&pJob->hot.isExecuted, 0, RZ_MEMORY_ORDER_RELEASE);
 
-    rz_worker* pWorker = _rz_find_best_worker_to_submit_to_();
-    if (pWorker) {
-        _rz_worker_local_queue_push_(pWorker, pJob);
-    } else {
-        _rz_global_queue_push_(pJob);
-    }
+    //    rz_worker* pWorker = _rz_find_best_worker_to_submit_to_();
+    //    if (pWorker) {
+    //        _rz_worker_local_queue_push_(pWorker, pJob);
+    //    } else {
+    _rz_global_queue_push_(pJob);
+    //    }
 }
 
 void rz_job_system_worker_spawn_job(rz_job* pJob)
@@ -317,6 +316,7 @@ void rz_job_system_worker_spawn_job(rz_job* pJob)
     // Only submit on local thread
     if (pTLS_CurrentWorker != NULL) {
         rz_atomic32_increment(&g_JobSystem.jobsInSystem, RZ_MEMORY_ORDER_RELEASE);
+        rz_atomic32_store(&pJob->hot.isExecuted, 0, RZ_MEMORY_ORDER_RELEASE);
         _rz_worker_local_queue_push_(pTLS_CurrentWorker, pJob);
     } else {
         RAZIX_CORE_ERROR("[JobSystem] Trying to spawn from non-worker, this is wrong!");
@@ -333,21 +333,20 @@ void rz_job_system_add_dependency(rz_job* pJob, rz_job* pDependency)
         return;
     }
 
-    if (pDependency->pCold->blockedByCount >= RAZIX_JOBS_MAX_DEPENDENCIES) {
+    if (pDependency->hot.blockedByCount >= RAZIX_JOBS_MAX_DEPENDENCIES) {
         RAZIX_CORE_WARN("[JobSystem] Job blockedBy limit reached!");
         return;
     }
 
-    pJob->pCold->pBlockedOn[pJob->pCold->blockedOnCount++]               = pDependency;
-    pDependency->pCold->pBlockedBy[pDependency->pCold->blockedByCount++] = pJob;
-    rz_atomic32_increment(&pJob->hot.unfinishedJobs, RZ_MEMORY_ORDER_RELEASE);
+    pJob->pCold->pBlockedOn[pJob->pCold->blockedOnCount++]            = pDependency;
+    pDependency->pCold->pBlockedBy[pDependency->hot.blockedByCount++] = pJob;
 }
 
 void rz_job_system_wait_for_job(rz_job* pJob)
 {
     if (pJob == NULL) return;
 
-    while (rz_atomic32_load(&pJob->hot.unfinishedJobs, RZ_MEMORY_ORDER_ACQUIRE) > 0)
+    while (!rz_atomic32_load(&pJob->hot.isExecuted, RZ_MEMORY_ORDER_ACQUIRE))
         RAZIX_YIELD();
 }
 
