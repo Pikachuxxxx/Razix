@@ -302,12 +302,12 @@ void rz_job_system_submit_job(rz_job* pJob)
     rz_atomic32_increment(&g_JobSystem.jobsInSystem, RZ_MEMORY_ORDER_RELEASE);
     rz_atomic32_store(&pJob->hot.isExecuted, 0, RZ_MEMORY_ORDER_RELEASE);
 
-    rz_worker* pWorker = _rz_find_best_worker_to_submit_to_();
-    if (pWorker) {
-        _rz_worker_local_queue_push_(pWorker, pJob);
-    } else {
+    // rz_worker* pWorker = _rz_find_best_worker_to_submit_to_();
+    // if (pWorker) {
+    //     _rz_worker_local_queue_push_(pWorker, pJob);
+    // } else {
         _rz_global_queue_push_(pJob);
-    }
+    // }
 }
 
 void rz_job_system_worker_spawn_job(rz_job* pJob)
