@@ -174,7 +174,7 @@ static inline void _rz_job_execute_(rz_job* pJob)
 {
     if (pJob == NULL) return;
 
-    if (rz_atomic32_load(&pJob->hot.unfinishedJobs, RZ_MEMORY_ORDER_ACQUIRE) != 0) {
+    if (rz_atomic32_load(&pJob->hot.unfinishedJobs, RZ_MEMORY_ORDER_ACQUIRE) > 1) {
         // Reschedule back to local queue
         _rz_worker_local_queue_push_(pTLS_CurrentWorker, pJob);
         return;
@@ -255,6 +255,8 @@ void rz_job_system_startup(u32 workerCount)
 
     memset(&g_JobSystem, 0, sizeof(rz_job_system));
     g_JobSystem.workerCount = workerCount;
+
+    rz_atomic32_store(&g_JobSystem.jobsInSystem, 0, RZ_MEMORY_ORDER_RELEASE);
 
     // Time to create some workers
     for (u32 i = 0; i < workerCount; ++i) {
