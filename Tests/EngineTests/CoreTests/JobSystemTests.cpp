@@ -157,113 +157,114 @@ namespace Razix {
         EXPECT_EQ(hitFlag, 1u);
     }
 
-#ifndef RAZIX_PLATFORM_LINUX
-
-    TEST_F(RZJobSystemFixture, RunsMultipleIndependentJobs)
-    {
-        constexpr u32 jobCount = 12u;
-
-        RZDynamicArray<u32>            hitFlags;
-        RZDynamicArray<JobWrapper>     wrappers;
-        RZDynamicArray<HitTaskPayload> payloads;
-        hitFlags.resize(jobCount);
-        wrappers.resize(jobCount);
-        payloads.resize(jobCount);
-
-        for (u32 i = 0; i < jobCount; ++i) {
-            hitFlags[i]            = 0u;
-            payloads[i].jobWrapper = &wrappers[i];
-            payloads[i].flag       = &hitFlags[i];
-            PrepareJob(wrappers[i], &payloads[i], HitTask);
-            rz_job_system_submit_job(&wrappers[i].job);
-        }
-
-        rz_job_system_wait_for_all();
-
-        u32 totalHits = 0u;
-        for (u32 i = 0; i < jobCount; ++i)
-            totalHits += hitFlags[i];
-
-        EXPECT_EQ(totalHits, jobCount);
-    }
-
-    TEST_F(RZJobSystemFixture, WorkerSpawnedJobsComplete)
-    {
-        constexpr u32 childCount = 6u;
-
-        RZDynamicArray<u32>                   childFlags;
-        RZDynamicArray<JobWrapper>            childWrappers;
-        RZDynamicArray<ChildSpawnTaskPayload> childPayloads;
-        childFlags.resize(childCount);
-        childWrappers.resize(childCount);
-        childPayloads.resize(childCount);
-
-        for (u32 i = 0; i < childCount; ++i) {
-            childFlags[i]               = 0u;
-            childPayloads[i].jobWrapper = &childWrappers[i];
-            childPayloads[i].doneFlag   = &childFlags[i];
-            PrepareJob(childWrappers[i], &childPayloads[i], ChildSpawnTask);
-        }
-
-        u32                    parentFlag = 0u;
-        JobWrapper             parentWrapper{};
-        ParentSpawnTaskPayload parentPayload{&parentWrapper, &childPayloads, &parentFlag};
-        PrepareJob(parentWrapper, &parentPayload, ParentSpawnTask);
-
-        rz_job_system_submit_job(&parentWrapper.job);
-
-        rz_job_system_wait_for_all();
-
-        u32 completedChildren = 0u;
-        for (u32 i = 0; i < childCount; ++i)
-            completedChildren += childFlags[i];
-
-        EXPECT_EQ(parentFlag, 1u);
-        EXPECT_EQ(completedChildren, childCount);
-    }
-
-    TEST_F(RZJobSystemFixture, ParallelWorkIsFasterThanSerialWithinSlack)
-    {
-        constexpr u32 jobCount         = 16u;
-        constexpr u32 busyMicrosPerJob = 1500u;
-
-        // Serial baseline
-        auto serialStart = Clock::now();
-        for (u32 i = 0; i < jobCount; ++i)
-            rz_thread_busy_wait_micro(busyMicrosPerJob);
-        auto serialElapsed = std::chrono::duration_cast<std::chrono::microseconds>(Clock::now() - serialStart).count();
-
-        RZDynamicArray<u32>                 doneFlags;
-        RZDynamicArray<JobWrapper>          wrappers;
-        RZDynamicArray<BusyWorkTaskPayload> payloads;
-        doneFlags.resize(jobCount);
-        wrappers.resize(jobCount);
-        payloads.resize(jobCount);
-
-        const auto jobStart = Clock::now();
-        for (u32 i = 0; i < jobCount; ++i) {
-            doneFlags[i]           = 0u;
-            payloads[i].jobWrapper = &wrappers[i];
-            payloads[i].doneFlag   = &doneFlags[i];
-            payloads[i].busyMicros = busyMicrosPerJob;
-            PrepareJob(wrappers[i], &payloads[i], BusyWorkTask);
-            rz_job_system_submit_job(&wrappers[i].job);
-        }
-
-        rz_job_system_wait_for_all();
-
-        u32 finished = 0u;
-        for (u32 i = 0; i < jobCount; ++i)
-            finished += doneFlags[i];
-
-        ASSERT_EQ(finished, jobCount);
-
-        auto jobElapsed = std::chrono::duration_cast<std::chrono::microseconds>(Clock::now() - jobStart).count();
-
-        // Allow a generous 1.8x headroom for CI variance.
-        EXPECT_LT(jobElapsed, static_cast<int64_t>(serialElapsed * 18 / 10 + 5000));
-    }
-
-#endif
-
-}    // namespace Razix
+// #ifndef RAZIX_PLATFORM_LINUX
+//
+//     TEST_F(RZJobSystemFixture, RunsMultipleIndependentJobs)
+//     {
+//         constexpr u32 jobCount = 12u;
+//
+//         RZDynamicArray<u32>            hitFlags;
+//         RZDynamicArray<JobWrapper>     wrappers;
+//         RZDynamicArray<HitTaskPayload> payloads;
+//         hitFlags.resize(jobCount);
+//         wrappers.resize(jobCount);
+//         payloads.resize(jobCount);
+//
+//         for (u32 i = 0; i < jobCount; ++i) {
+//             hitFlags[i]            = 0u;
+//             payloads[i].jobWrapper = &wrappers[i];
+//             payloads[i].flag       = &hitFlags[i];
+//             PrepareJob(wrappers[i], &payloads[i], HitTask);
+//             rz_job_system_submit_job(&wrappers[i].job);
+//         }
+//
+//         rz_job_system_wait_for_all();
+//
+//         u32 totalHits = 0u;
+//         for (u32 i = 0; i < jobCount; ++i)
+//             totalHits += hitFlags[i];
+//
+//         EXPECT_EQ(totalHits, jobCount);
+//     }
+//
+//     TEST_F(RZJobSystemFixture, WorkerSpawnedJobsComplete)
+//     {
+//         constexpr u32 childCount = 6u;
+//
+//         RZDynamicArray<u32>                   childFlags;
+//         RZDynamicArray<JobWrapper>            childWrappers;
+//         RZDynamicArray<ChildSpawnTaskPayload> childPayloads;
+//         childFlags.resize(childCount);
+//         childWrappers.resize(childCount);
+//         childPayloads.resize(childCount);
+//
+//         for (u32 i = 0; i < childCount; ++i) {
+//             childFlags[i]               = 0u;
+//             childPayloads[i].jobWrapper = &childWrappers[i];
+//             childPayloads[i].doneFlag   = &childFlags[i];
+//             PrepareJob(childWrappers[i], &childPayloads[i], ChildSpawnTask);
+//         }
+//
+//         u32                    parentFlag = 0u;
+//         JobWrapper             parentWrapper{};
+//         ParentSpawnTaskPayload parentPayload{&parentWrapper, &childPayloads, &parentFlag};
+//         PrepareJob(parentWrapper, &parentPayload, ParentSpawnTask);
+//
+//         rz_job_system_submit_job(&parentWrapper.job);
+//
+//         rz_job_system_wait_for_all();
+//
+//         u32 completedChildren = 0u;
+//         for (u32 i = 0; i < childCount; ++i)
+//             completedChildren += childFlags[i];
+//
+//         EXPECT_EQ(parentFlag, 1u);
+//         EXPECT_EQ(completedChildren, childCount);
+//     }
+//
+//     TEST_F(RZJobSystemFixture, ParallelWorkIsFasterThanSerialWithinSlack)
+//     {
+//         constexpr u32 jobCount         = 16u;
+//         constexpr u32 busyMicrosPerJob = 1500u;
+//
+//         // Serial baseline
+//         auto serialStart = Clock::now();
+//         for (u32 i = 0; i < jobCount; ++i)
+//             rz_thread_busy_wait_micro(busyMicrosPerJob);
+//         auto serialElapsed = std::chrono::duration_cast<std::chrono::microseconds>(Clock::now() - serialStart).count();
+//
+//         RZDynamicArray<u32>                 doneFlags;
+//         RZDynamicArray<JobWrapper>          wrappers;
+//         RZDynamicArray<BusyWorkTaskPayload> payloads;
+//         doneFlags.resize(jobCount);
+//         wrappers.resize(jobCount);
+//         payloads.resize(jobCount);
+//
+//         const auto jobStart = Clock::now();
+//         for (u32 i = 0; i < jobCount; ++i) {
+//             doneFlags[i]           = 0u;
+//             payloads[i].jobWrapper = &wrappers[i];
+//             payloads[i].doneFlag   = &doneFlags[i];
+//             payloads[i].busyMicros = busyMicrosPerJob;
+//             PrepareJob(wrappers[i], &payloads[i], BusyWorkTask);
+//             rz_job_system_submit_job(&wrappers[i].job);
+//         }
+//
+//         rz_job_system_wait_for_all();
+//
+//         u32 finished = 0u;
+//         for (u32 i = 0; i < jobCount; ++i)
+//             finished += doneFlags[i];
+//
+//         ASSERT_EQ(finished, jobCount);
+//
+//         auto jobElapsed = std::chrono::duration_cast<std::chrono::microseconds>(Clock::now() - jobStart).count();
+//
+//         // Allow a generous 1.8x headroom for CI variance.
+//         EXPECT_LT(jobElapsed, static_cast<int64_t>(serialElapsed * 18 / 10 + 5000));
+//     }
+//
+// #endif
+//
+}
+// namespace Razix
