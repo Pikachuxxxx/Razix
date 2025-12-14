@@ -64,7 +64,7 @@ static void _rz_worker_local_queue_push_(rz_worker* pWorker, rz_job* pJob)
     if (pJob == NULL || pWorker == NULL) return;
 
     if (pWorker != NULL) {
-        u32 tail     = pWorker->localQueue.tail;
+        u32 tail     = rz_atomic32_load(&pWorker->localQueue.tail, RZ_MEMORY_ORDER_ACQUIRE);
         u32 head     = rz_atomic32_load(&pWorker->localQueue.head, RZ_MEMORY_ORDER_ACQUIRE);
         u32 nextTail = (tail + 1) & (RAZIX_MAX_LOCAL_JOBS_QUEUE_SIZE - 1);
 
@@ -76,6 +76,7 @@ static void _rz_worker_local_queue_push_(rz_worker* pWorker, rz_job* pJob)
 
         pWorker->localQueue.ppJobs[tail] = pJob;
         pWorker->localQueue.tail         = nextTail;
+        rz_atomic32_store(&pWorker->localQueue.tail, nextTail,RZ_MEMORY_ORDER_RELEASE);
         rz_atomic32_increment(&pWorker->jobsInLocalQueue, RZ_MEMORY_ORDER_RELEASE);
     }
 }
@@ -179,12 +180,12 @@ static inline void _rz_job_execute_(rz_job* pJob)
     rz_atomic32_store(&pJob->hot.isExecuted, 1, RZ_MEMORY_ORDER_RELEASE);
 
     // Unblock all jobs that were blocked by this one
-    //    for (u32 i = 0; i < pJob->pCold->blockedByCount; ++i) {
-    //        rz_job* pDependent = pJob->pCold->pBlockedBy[i];
-    //        rz_atomic32_decrement(&pDependent->hot.unfinishedJobs, RZ_MEMORY_ORDER_RELEASE);
-    //
-    //        // TODO: add back to local queue if unfinishedJobs == 1 i.e. itself
-    //    }
+    for (u32 i = 0; i < pJob->hot.blockedByCount; ++i) {
+        rz_job* pDependent = pJob->pCold->pBlockedBy[i];
+        u32 old = rz_atomic32_decrement(&pDependent->hot.blockedByCount, RZ_MEMORY_ORDER_RELEASE);
+        if(old == 1)
+            _rz_worker_local_queue_push_(pTLS_CurrentWorker, pJob);
+    }
     rz_atomic32_decrement(&g_JobSystem.jobsInSystem, RZ_MEMORY_ORDER_RELEASE);
 }
 
@@ -301,12 +302,12 @@ void rz_job_system_submit_job(rz_job* pJob)
     rz_atomic32_increment(&g_JobSystem.jobsInSystem, RZ_MEMORY_ORDER_RELEASE);
     rz_atomic32_store(&pJob->hot.isExecuted, 0, RZ_MEMORY_ORDER_RELEASE);
 
-    //    rz_worker* pWorker = _rz_find_best_worker_to_submit_to_();
-    //    if (pWorker) {
-    //        _rz_worker_local_queue_push_(pWorker, pJob);
-    //    } else {
-    _rz_global_queue_push_(pJob);
-    //    }
+    rz_worker* pWorker = _rz_find_best_worker_to_submit_to_();
+    if (pWorker) {
+        _rz_worker_local_queue_push_(pWorker, pJob);
+    } else {
+        _rz_global_queue_push_(pJob);
+    }
 }
 
 void rz_job_system_worker_spawn_job(rz_job* pJob)
@@ -328,7 +329,7 @@ void rz_job_system_add_dependency(rz_job* pJob, rz_job* pDependency)
 {
     if (pJob == NULL || pDependency == NULL) return;
 
-    if (pJob->pCold->blockedOnCount >= RAZIX_JOBS_MAX_DEPENDENCIES) {
+    if (pJob->hot.blockedOnCount >= RAZIX_JOBS_MAX_DEPENDENCIES) {
         RAZIX_CORE_WARN("[JobSystem] Job blockedOn limit reached!");
         return;
     }
@@ -338,7 +339,7 @@ void rz_job_system_add_dependency(rz_job* pJob, rz_job* pDependency)
         return;
     }
 
-    pJob->pCold->pBlockedOn[pJob->pCold->blockedOnCount++]            = pDependency;
+    pJob->pCold->pBlockedOn[pJob->hot.blockedOnCount++]               = pDependency;
     pDependency->pCold->pBlockedBy[pDependency->hot.blockedByCount++] = pJob;
 }
 

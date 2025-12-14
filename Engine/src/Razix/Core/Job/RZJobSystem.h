@@ -27,7 +27,9 @@ typedef struct rz_job_hot
     void (*pFunc)(rz_job* pJob);
     void*         pUserData;
     u32           blockedByCount;
+    u32           blockedOnCount;
     rz_atomic_u32 isExecuted;
+    u32           _pad0;
 } rz_job_hot;
 
 typedef struct rz_job_cold
@@ -36,8 +38,6 @@ typedef struct rz_job_cold
     rz_job* pBlockedOn[RAZIX_JOBS_MAX_DEPENDENCIES];
     // Jobs blocked by this job (children - waiting for this to complete)
     rz_job* pBlockedBy[RAZIX_JOBS_MAX_DEPENDENCIES];
-    u32     blockedOnCount;
-    u32     _pad0;
     char    pName[RAZIX_JOB_NAME_MAX_CHARS];
 } rz_job_cold;
 
@@ -57,7 +57,8 @@ typedef struct rz_local_job_queue
     rz_job* ppJobs[RAZIX_MAX_LOCAL_JOBS_QUEUE_SIZE];
 
     // used internally by the owner worker, hence no false sharing and need to be on separate thread
-    u32 tail;
+    RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
+    rz_atomic_u32 tail;
 
     // Put the write index on its own cache line
     // Shared head for stealing

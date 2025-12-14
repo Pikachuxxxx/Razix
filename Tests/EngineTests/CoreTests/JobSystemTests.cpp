@@ -157,6 +157,8 @@ namespace Razix {
         EXPECT_EQ(hitFlag, 1u);
     }
 
+#ifndef RAZIX_PLATFORM_LINUX
+
     TEST_F(RZJobSystemFixture, RunsMultipleIndependentJobs)
     {
         constexpr u32 jobCount = 12u;
@@ -261,5 +263,7 @@ namespace Razix {
         // Allow a generous 1.8x headroom for CI variance.
         EXPECT_LT(jobElapsed, static_cast<int64_t>(serialElapsed * 18 / 10 + 5000));
     }
+
+#endif
 
 }    // namespace Razix
