@@ -6,7 +6,7 @@
 // Select macOS Vulkan driver backend here
     #define RAZIX_MACOS_MOLTENVK
     // Experimental driver backend, build your own mesa 26.0.0 for the latest kosmickrisp drivers! until then it's disabled
-    #define RAZIX_MACOS_KOSMICKRISP_DRIVER
+//    #define RAZIX_MACOS_KOSMICKRISP_DRIVER
 // https://www.lunarg.com/a-vulkan-on-metal-mesa-3d-graphics-driver/
 // https://gitlab.freedesktop.org/mesa/mesa/-/issues/11990
 // https://www.lunarg.com/wp-content/uploads/2025/10/XDC-2025-KosmicKrisp-Overview.pdf

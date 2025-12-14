@@ -68,7 +68,7 @@ static void* _rz_thread_entry(void* args)
     tls_thread_id = rz_thread_get_current_id();
     tls_is_valid  = true;
 
-    __rz_posix_set_thread_name__(local.pName);
+    __rz_posix_set_thread_name__(tls_thread_name);
     // Note: affinity is ignored on non console platforms, since the processors and OS can result in weirdness
     switch (local.priority) {
         default:
@@ -103,9 +103,9 @@ rz_thread_handle rz_thread_create(const char* name, rz_thread_priority priority,
     pBootStrap->pName[0]            = '\0';
 
     if (name && name[0] != '\0') {
-        rz_snprintf(pBootStrap->pName, RAZIX_THREAD_NAME_MAX_CHARS, "[Razix Thread] %s", name);
+        rz_snprintf(pBootStrap->pName, RAZIX_THREAD_NAME_MAX_CHARS, "%s", name);
     } else
-        rz_snprintf(pBootStrap->pName, RAZIX_THREAD_NAME_MAX_CHARS, "[Razix Thread] %s", "<rz_invalid_thread_name>");
+        rz_snprintf(pBootStrap->pName, RAZIX_THREAD_NAME_MAX_CHARS, "%s", "<rz_invalid_thread_name>");
 
     pthread_attr_t attr;
     int            err = pthread_attr_init(&attr);
