@@ -86,8 +86,7 @@ namespace Razix {
     } RZAssetFlags;
     static_assert(RZ_ASSET_FLAG_COUNT <= 8, "Asset flags exceeded the u8 limit!");
 
-    RAZIX_ALIGN_TO(MEM_DEF_ALIGNMENT_16)
-    struct RZAssetMetadata
+    struct RAZIX_ALIGN_TO(MEM_DEF_ALIGNMENT_16) RZAssetMetadata
     {
         RZString         name;
         RZString         author;
@@ -100,8 +99,7 @@ namespace Razix {
         u8               _pad0[13];
     };
 
-    RAZIX_ALIGN_TO(MEM_DEF_ALIGNMENT_16)
-    struct RZAssetDependecy
+    struct RAZIX_ALIGN_TO(MEM_DEF_ALIGNMENT_16) RZAssetDependecy
     {
         RZUUID      assetID;
         RZAssetType type;
@@ -257,13 +255,6 @@ namespace Razix {
         {
             RAZIX_ASSERT(m_pCold != NULL, "Cold data not initialized");
             return !m_pCold->dependencies.empty();
-        }
-
-        inline const RZScopedCriticalSection& acquireScopedLock()
-        {
-            RAZIX_ASSERT(m_pCold != NULL, "Cold data not initialized");
-            RZScopedCriticalSection cs(&m_pCold->CS);
-            return cs;
         }
 
         inline rz_critical_section getCriticalSection()
