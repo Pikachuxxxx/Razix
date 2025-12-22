@@ -746,7 +746,7 @@ namespace Razix {
                     RZDebugDraw::DrawGrid(125, float4(0.75f));
 
                     // Render loop
-                    const RZSceneCamera& sceneCamera = scene->getSceneCamera();
+                    const RZCamera3D& sceneCamera = scene->getSceneCamera();
                     RZDebugDraw::BeginDraw(&sceneCamera);
 
 #if 0

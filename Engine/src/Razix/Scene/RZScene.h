@@ -6,7 +6,7 @@
 #include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/UUID/RZUUID.h"
 
-#include "Razix/Scene/RZSceneCamera.h"
+#include "Razix/Gfx/Cameras/RZCamera3D.h"
 
 namespace Razix {
 
@@ -89,7 +89,7 @@ namespace Razix {
         /**
          * Gets the scene camera with which the world is rendered (if exists)
          */
-        RZSceneCamera& getSceneCamera()
+        RZCamera3D& getSceneCamera()
         {
             return m_DefaultSceneCameraToAvoidCompileErrors;
         }
@@ -124,9 +124,9 @@ namespace Razix {
         RZString       m_SceneName = "Razix Scene"; /* The name of the scene                        */
         RZString       m_ScenePath;                 /* The Path of the scene file                   */
         u32            m_LastMeshesCount = 0;
-        RZSceneCamera  m_EditorModeCamera;
+        RZCamera3D  m_EditorModeCamera;
         //Gfx::RZMesh*   m_Cube = nullptr;
-        RZSceneCamera m_DefaultSceneCameraToAvoidCompileErrors;
+        RZCamera3D m_DefaultSceneCameraToAvoidCompileErrors;
 
         friend class RZEntity;
 

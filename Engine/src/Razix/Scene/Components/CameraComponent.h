@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Scene/RZSceneCamera.h"
+#include "Razix/Gfx/Cameras/RZCamera3D.h"
 #include <cereal/cereal.hpp>
 
 namespace Razix {
@@ -10,7 +10,7 @@ namespace Razix {
      */
     struct RAZIX_API CameraComponent
     {
-        RZSceneCamera Camera;
+        RZCamera3D Camera;
         bool          Primary = true;    // TODO: think about moving this to Scene
 
         CameraComponent()                       = default;
@@ -19,8 +19,6 @@ namespace Razix {
         template<class Archive>
         void serialize(Archive& archive)
         {
-            archive(cereal::make_nvp("isPrimary", Primary));
-            archive(cereal::make_nvp("Camera", Camera));
         }
     };
 

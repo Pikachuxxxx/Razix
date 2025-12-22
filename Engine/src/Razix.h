@@ -53,7 +53,7 @@
 #include "Razix/Gfx/RHI/RHI.h"
 
 // Graphics/Cameras
-#include "Razix/Gfx/Cameras/Camera3D.h"
+#include "Razix/Gfx/Cameras/RZCamera3D.h"
 
 // Graphics (FrameGraph and Resources)
 #include "Razix/Gfx/FrameGraph/RZFrameGraph.h"

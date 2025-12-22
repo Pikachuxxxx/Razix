@@ -17,7 +17,7 @@
 
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
-#include "Razix/Scene/RZSceneCamera.h"
+#include "Razix/Gfx/Cameras/RZCamera3D.h"
 
 namespace Razix {
     namespace Gfx {
@@ -239,7 +239,7 @@ namespace Razix {
             }
         }
 
-        void RZDebugDraw::BeginDraw(const Razix::RZSceneCamera* camera)
+        void RZDebugDraw::BeginDraw(const Razix::RZCamera3D* camera)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

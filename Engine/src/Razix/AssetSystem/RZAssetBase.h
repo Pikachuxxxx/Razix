@@ -17,6 +17,19 @@
 #define RAZIX_ASSET_HOTDATA_MASK   0x00000000FFFFFFFFULL
 #define RAZIX_ASSET_COLDDATA_MASK  0xFFFFFFFF00000000ULL
 
+#ifdef RAZIX_DEBUG
+    #define RAZIX_ASSET_PAYLOAD_HEADER \
+        rz_asset_handle handle;        \
+        u32 _debugMagic = 0xA55E7;     /* "ASSET" in leet-speak */
+#else
+    #define RAZIX_ASSET_PAYLOAD_HEADER \
+        rz_asset_handle handle;
+#endif
+
+#define RAZIX_ASSET RAZIX_ASSET_PAYLOAD_HEADER
+
+typedef u64 rz_asset_handle;    // higher 32 bits for asset playload data index and lower 32 bits for hot/cold data index into the asset pools
+
 namespace Razix {
 
     // trick to dynamically generate asset type enum
@@ -61,6 +74,7 @@ namespace Razix {
         kRuntimeGenBacked,
         kNonMemoryBacked,
         kLazyMemoryBacked,
+        kSceneGraphBacked,
         COUNT
     };
 
@@ -105,8 +119,6 @@ namespace Razix {
         RZAssetType type;
         u8          _pad0[4];
     };
-
-    typedef u64 rz_asset_handle;    // higher 32 bits for asset playload data index and lower 32 bits for hot/cold data index into the asset pools
 
     // RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
     // We could do this or instead keep this to 48 bytes and load the vtable pointer and cold data pointer together with this in a single cache line
