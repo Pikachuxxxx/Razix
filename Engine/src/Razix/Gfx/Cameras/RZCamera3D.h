@@ -18,7 +18,6 @@
 #define RZ_CAMERA_FLAG_PROJECTION (1u << 1)
 
 namespace Razix {
-    // Camera movement options (Razix enum style)
     enum class CameraMovementDirection
     {
         kForward,
@@ -41,18 +40,11 @@ namespace Razix {
         };
 
     public:
-        // Constructor with vectors
-        RZCamera3D(float3 position = float3(0.0f, 0.0f, 0.0f), float3 up = float3(0.0f, 1.0f, 0.0f), f32 yaw = RZ_CAMERA3D_YAW, f32 pitch = RZ_CAMERA3D_PITCH);
-        // Constructor with scalar values
-        RZCamera3D(f32 posX, f32 posY, f32 posZ, f32 upX, f32 upY, f32 upZ, f32 yaw, f32 pitch);
+        RZCamera3D() = default;
 
-        // Update the camera movement in the world space
         void update(d32 deltaTime);
-        // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
         void processKeyboard(CameraMovementDirection direction, d32 deltaTime);
-        // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
         void processMouseMovement(f32 xoffset, f32 yoffset, bool constrainPitch = true);
-        // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
         void processMouseScroll(f32 yoffset);
 
         inline float4x4 getViewProjection() { return getProjection() * getViewMatrix(); }
@@ -197,46 +189,39 @@ namespace Razix {
         }
 
     private:
-        void ensureViewUpdated(); 
+        void ensureViewUpdated();
         void ensureProjectionUpdated();
         void updateCameraVectors();
         void recalculateProjection();
 
     private:
-        // Matrices and frustum
-        mutable float4x4         m_Projection = float4x4(1.0f);
-        mutable Maths::RZFrustum m_CameraFrustum;
-
-        // Vectors
-        float3 Position       = float3(0.0f);
-        float3 Front          = float3(-0.1f, -0.18f, -0.88f);
-        float3 Up             = float3(0.0f);
-        float3 Right          = float3(0.0f);
-        float3 WorldUp        = float3(0.0f, 1.0f, 0.0f);
-        float3 TargetMovement = float3(0.0f);
-        float3 Velocity       = float3(0.0f);
-        float4 m_BgColor      = float4(0.0f);
-
-        // Scalars
-        f32 Yaw                = RZ_CAMERA3D_YAW;
-        f32 Pitch              = RZ_CAMERA3D_PITCH;
-        f32 MovementSpeed      = RZ_CAMERA3D_SPEED;
-        f32 MouseSensitivity   = RZ_CAMERA3D_SENSITIVTY;
-        f32 Zoom               = RZ_CAMERA3D_ZOOM;
-        f32 m_PerspectiveFOV   = glm::radians(45.0f);
-        f32 m_PerspectiveNear  = 0.1f;
-        f32 m_PerspectiveFar   = 1000.0f;
-        f32 m_OrthographicSize = 10.0f;
-        f32 m_OrthographicNear = -1.0f;
-        f32 m_OrthographicFar  = 1.0f;
-        f32 m_AspectRatio      = 0.0f;
-        f32 DampingFactor      = 0.90f;
-        f32 m_OldX             = 0.0f;
-        f32 m_OldY             = 0.0f;
-
-        ProjectionType m_ProjectionType = ProjectionType::kPerspective;
-
-        mutable u8 m_DirtyFlags = static_cast<u8>(RZ_CAMERA_FLAG_VIEW | RZ_CAMERA_FLAG_PROJECTION);
+        float4x4         m_Projection = float4x4(1.0f);
+        Maths::RZFrustum m_CameraFrustum = {};   
+        float4           m_BgColor          = float4(0.0f);
+        float3           Position           = float3(0.0f);
+        f32              Yaw                = RZ_CAMERA3D_YAW;
+        float3           Front              = float3(-0.1f, -0.18f, -0.88f);
+        f32              Pitch              = RZ_CAMERA3D_PITCH;
+        float3           Up                 = float3(0.0f);
+        f32              MovementSpeed      = RZ_CAMERA3D_SPEED;
+        float3           Right              = float3(0.0f);
+        f32              MouseSensitivity   = RZ_CAMERA3D_SENSITIVTY;
+        float3           WorldUp            = float3(0.0f, 1.0f, 0.0f);
+        f32              Zoom               = RZ_CAMERA3D_ZOOM;
+        float3           TargetMovement     = float3(0.0f);
+        f32              DampingFactor      = 0.90f;
+        float3           Velocity           = float3(0.0f);
+        f32              m_AspectRatio      = 0.0f;
+        f32              m_PerspectiveFOV   = glm::radians(45.0f);
+        f32              m_PerspectiveNear  = 0.1f;
+        f32              m_PerspectiveFar   = 1000.0f;
+        f32              m_OrthographicSize = 10.0f;
+        f32              m_OrthographicNear = -1.0f;
+        f32              m_OrthographicFar  = 1.0f;
+        f32              m_OldX             = 0.0f;
+        f32              m_OldY             = 0.0f;
+        ProjectionType   m_ProjectionType   = ProjectionType::kPerspective;
+        u8               m_DirtyFlags       = static_cast<u8>(RZ_CAMERA_FLAG_VIEW | RZ_CAMERA_FLAG_PROJECTION);
     };
 
     namespace Gfx {

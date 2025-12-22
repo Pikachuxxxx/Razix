@@ -9,28 +9,6 @@
 
 namespace Razix {
 
-    RZCamera3D::RZCamera3D(float3 position, float3 up, f32 yaw, f32 pitch)
-    {
-        Position = position;
-        WorldUp  = up;
-        Yaw      = yaw;
-        Pitch    = pitch;
-        m_DirtyFlags |= RZ_CAMERA_FLAG_VIEW;
-        ensureViewUpdated();
-        ensureProjectionUpdated();
-    }
-
-    RZCamera3D::RZCamera3D(f32 posX, f32 posY, f32 posZ, f32 upX, f32 upY, f32 upZ, f32 yaw, f32 pitch)
-    {
-        Position = float3(posX, posY, posZ);
-        WorldUp  = float3(upX, upY, upZ);
-        Yaw      = yaw;
-        Pitch    = pitch;
-        m_DirtyFlags |= RZ_CAMERA_FLAG_VIEW;
-        ensureViewUpdated();
-        ensureProjectionUpdated();
-    }
-
     void RZCamera3D::update(d32 deltaTime)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
