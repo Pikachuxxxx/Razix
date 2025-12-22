@@ -20,7 +20,7 @@
 #ifdef RAZIX_DEBUG
     #define RAZIX_ASSET_PAYLOAD_HEADER \
         rz_asset_handle handle;        \
-        u32 _debugMagic = 0xA55E7;     /* "ASSET" in leet-speak */
+        u32             _debugMagic = 0xA55E7; /* "ASSET" in leet-speak */
 #else
     #define RAZIX_ASSET_PAYLOAD_HEADER \
         rz_asset_handle handle;
@@ -89,7 +89,7 @@ namespace Razix {
     typedef enum RZAssetFlags : u8
     {
         RZ_ASSET_FLAG_NONE        = 0,
-        RZ_ASET_FLAG_READY        = 0,
+        RZ_ASSET_FLAG_READY       = 0,
         RZ_ASSET_FLAG_COMPRESSED  = 1 << 0,
         RZ_ASSET_FLAG_ENCRYPTED   = 1 << 1,
         RZ_ASSET_FLAG_READONLY    = 1 << 2,
@@ -117,13 +117,13 @@ namespace Razix {
     {
         RZUUID      assetID;
         RZAssetType type;
-        u8          _pad0[4];
+        u8          _pad0[12];
     };
 
     // RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
     // We could do this or instead keep this to 48 bytes and load the vtable pointer and cold data pointer together with this in a single cache line
-    // This way we can avoid multiple cache line loads for accessing cold/vptr pointers, and still keep hot data active, ofc we will have very less hot data space left, 8 bytes for future use
-    typedef struct RZAssetHotData
+    // This way we can avoid multiple cache line loads for accessing cold/vptr pointers, and still keep hot data active, ofc we will have very less hot data space left, 15 bytes for future use
+    struct RAZIX_ALIGN_TO(8) RZAssetHotData
     {
         RZUUID             UUID;
         rz_asset_handle    handle;
@@ -131,17 +131,18 @@ namespace Razix {
         RZAssetType        type;
         RZAssetStorageType storagePreference;
         RZAssetFlags       flags;
-        u8                 _pad0[8];    // remaining bytes for future use
-    } RZAssetHotData;
+        u8                 _pad0[15];    // remaining bytes for future use
+    };
     static_assert(sizeof(RZAssetHotData) == 64 - RAZIX_COLD_DATA_PTR_SIZE_BYTES, "Hot data must be less than 64 bytes - RAZIX_COLD_DATA_PTR_SIZE_BYTES (8 bytes) ");
 
-    typedef struct
+    struct RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE) RZAssetColdData
     {
         RZDynamicArray<RZAssetDependecy> dependencies;    // TODO: can we cap this and use a RZFixedArray? we will know once Tanu is ready
-        RZAssetMetadata                  metadata;
-        rz_critical_section              CS;
         Razix::RZEventDispatcher         eventDispatcher;
-    } RZAssetColdData;
+        RZAssetMetadata                  metadata;
+        u8                               _pad0[48];
+        rz_critical_section              CS; // forces cache line alignment
+    };
 
     /**
      * RZAsset is the base class for the all assets in the engine
@@ -212,8 +213,8 @@ namespace Razix {
         inline void               setCompressed(bool value) { value ? addFlags(RZ_ASSET_FLAG_COMPRESSED) : removeFlags(RZ_ASSET_FLAG_COMPRESSED); }
         inline void               setEncrypted(bool value) { value ? addFlags(RZ_ASSET_FLAG_ENCRYPTED) : removeFlags(RZ_ASSET_FLAG_ENCRYPTED); }
         inline void               setReadOnly(bool value) { value ? addFlags(RZ_ASSET_FLAG_READONLY) : removeFlags(RZ_ASSET_FLAG_READONLY); }
-        inline bool               isReady() const { return hasFlag(RZ_ASET_FLAG_READY); }
-        inline void               setReady(bool value) { value ? addFlags(RZ_ASET_FLAG_READY) : removeFlags(RZ_ASET_FLAG_READY); }
+        inline bool               isReady() const { return hasFlag(RZ_ASSET_FLAG_READY); }
+        inline void               setReady(bool value) { value ? addFlags(RZ_ASSET_FLAG_READY) : removeFlags(RZ_ASSET_FLAG_READY); }
         inline bool               isDirty() const { return hasFlag(RZ_ASSET_FLAG_DIRTY); }
         inline void               markDirty() { addFlags(RZ_ASSET_FLAG_DIRTY); }
         inline void               clearDirty() { removeFlags(RZ_ASSET_FLAG_DIRTY); }
@@ -292,7 +293,6 @@ namespace Razix {
         inline bool   operator!=(RZAsset& other) { return m_Hot.UUID != other.m_Hot.UUID; }
 
     protected:
-        // 8 bytes for vtable pointer
         RZAssetHotData   m_Hot   = {};
         RZAssetColdData* m_pCold = NULL;
     };
