@@ -22,14 +22,16 @@ namespace Razix {
     struct RZTransformAsset
     {
         RAZIX_ASSET;
-        
     };
 
     // Define Serialization
-    REFLECT_TYPE_START(RZTransformAsset)
+    RAZIX_REFLECT_TYPE_START(RZTransformAsset)
     // Just the typical RZAsset header, which will be read as part of deserialization automatically.
-    // The same index is used to laod data from SceneGraph, and load into the special RZTransformAssetPool 
-    REFLECT_TYPE_END(RZTransformAsset)
+    // The same index is used to load data from SceneGraph, and load into the special RZTransformAssetPool
+    // We will have a template specialization of RZAssetPool for RZTransformAsset to handle SOA pools
+    // As for indexing, we can just use the lower 32-bits of the handle as the index into the SOA pools in SceneGraph, ultimate reuse
+    // All other assets are stored in AOS format and can be saved to disk, but for transform asset the data is stored in SceneGraph file ex. SCN_TanuRoom.scene
+    RAZIX_REFLECT_TYPE_END(RZTransformAsset)
 };    // namespace Razix
 
 #endif    // _RZ_TRANSFORM_ASSET_H_

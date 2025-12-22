@@ -3,6 +3,8 @@
 #include "Razix/Core/RZCore.h"
 #include "Razix/Core/RZDataTypes.h"
 
+#include "Razix/Core/Reflection/RZReflection.h"
+
 #include "Razix/Math/Frustum.h"
 
 #include <glm/glm.hpp>
@@ -195,8 +197,8 @@ namespace Razix {
         void recalculateProjection();
 
     private:
-        float4x4         m_Projection = float4x4(1.0f);
-        Maths::RZFrustum m_CameraFrustum = {};   
+        float4x4         m_Projection       = float4x4(1.0f);
+        Maths::RZFrustum m_CameraFrustum    = {};
         float4           m_BgColor          = float4(0.0f);
         float3           Position           = float3(0.0f);
         f32              Yaw                = RZ_CAMERA3D_YAW;
@@ -227,4 +229,5 @@ namespace Razix {
     namespace Gfx {
         using RZCamera3D = Razix::RZCamera3D;
     }    // namespace Gfx
+
 }    // namespace Razix

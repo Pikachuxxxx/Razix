@@ -33,11 +33,11 @@ namespace Razix {
         u8       _pad[];
     };
 
-    REFLECT_TYPE_START(RZLuaScriptAsset)
-    REFLECT_MEMBER(lastModifiedTime)
-    REFLECT_MEMBER(isCompiled)
-    REFLECT_MEMBER(autoReload)
-    REFLECT_TYPE_END(RZLuaScriptAsset)
+    RAZIX_REFLECT_TYPE_START(RZLuaScriptAsset)
+    RAZIX_REFLECT_MEMBER(lastModifiedTime)
+    RAZIX_REFLECT_MEMBER(isCompiled)
+    RAZIX_REFLECT_MEMBER(autoReload)
+    RAZIX_REFLECT_TYPE_END(RZLuaScriptAsset)
 
 }    // namespace Razix
 

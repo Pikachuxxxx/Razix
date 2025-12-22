@@ -40,10 +40,10 @@ namespace Razix {
         }
     };
 
-    REFLECT_TYPE_START(TransformComponent)
-    REFLECT_MEMBER(Translation)
-    REFLECT_MEMBER(Rotation)
-    REFLECT_MEMBER(Scale)
-    REFLECT_TYPE_END(TransformComponent)
+    RAZIX_REFLECT_TYPE_START(TransformComponent)
+    RAZIX_REFLECT_MEMBER(Translation)
+    RAZIX_REFLECT_MEMBER(Rotation)
+    RAZIX_REFLECT_MEMBER(Scale)
+    RAZIX_REFLECT_TYPE_END(TransformComponent)
 
 }    // namespace Razix
