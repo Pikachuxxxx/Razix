@@ -13,24 +13,6 @@
 
 #include "Razix/Gfx/RHI/RHI.h"
 
-//#include "Razix/Gfx/RZMesh.h"
-//#include "Razix/Gfx/RZMeshFactory.h"
-//
-//#include "Razix/Gfx/RZShaderLibrary.h"
-//
-//#include "Razix/Gfx/Materials/RZMaterial.h"
-//
-//#include "Razix/Gfx/Passes/Data/GlobalData.h"
-//
-//#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-//#include "Razix/Gfx/Resources/RZFrameGraphSampler.h"
-//#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
-
-#include "Razix/Scene/Components/RZComponents.h"
-
-#include "Razix/Scene/RZScene.h"
-#include "Razix/Scene/RZSceneManager.h"
-
 namespace Razix {
     namespace Gfx {
 

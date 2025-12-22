@@ -64,9 +64,9 @@
 //#include "Razix/Gfx/RZMeshFactory.h"
 
 // Scene
-#include "Razix/Scene/Components/RZComponents.h"
+
 #include "Razix/Scene/RZEntity.h"
-#include "Razix/Scene/RZScene.h"
+
 
 // Utilities
 #include "Razix/Core/Containers/string.h"

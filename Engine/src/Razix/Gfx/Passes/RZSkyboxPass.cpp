@@ -20,10 +20,6 @@
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
-#include "Razix/Scene/Components/RZComponents.h"
-
-#include "Razix/Scene/RZScene.h"
-
 #define NUM_SKYBOX_VERTICES 8
 #define NUM_SKYBOX_INDICES  36
 

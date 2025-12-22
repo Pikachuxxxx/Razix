@@ -560,7 +560,7 @@ namespace Razix {
             }
 
             //  Cull unused resources and their producer passes
-            std::stack<RZResourceNode*> unreferencedResources;
+            RZStack<RZResourceNode*> unreferencedResources;
             for (auto& node: m_ResourceNodes)
                 if (node.m_RefCount == 0)
                     unreferencedResources.push(&node);

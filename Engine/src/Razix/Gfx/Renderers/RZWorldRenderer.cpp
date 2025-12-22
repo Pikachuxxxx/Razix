@@ -499,15 +499,15 @@ namespace Razix {
                     // TODO: Pass jitter as separate, just to upload to GPU for other usage
                     //auto jitteredProjMatrix = sceneCam.getProjection() * jitterMatrix;
 
-                    auto& sceneCam                    = scene->getSceneCamera();
-                    gpuData.camera.projection         = sceneCam.getProjection();
-                    gpuData.camera.inversedProjection = inverse(gpuData.camera.projection);
-                    gpuData.camera.view               = sceneCam.getViewMatrix();
-                    gpuData.camera.inversedView       = inverse(gpuData.camera.view);
-                    gpuData.camera.prevViewProj       = m_PreviousViewProj;
-                    gpuData.camera.fov                = sceneCam.getPerspectiveVerticalFOV();
-                    gpuData.camera.nearPlane          = sceneCam.getPerspectiveNearClip();
-                    gpuData.camera.farPlane           = sceneCam.getPerspectiveFarClip();
+                    //auto& sceneCam                    = scene->getSceneCamera();
+                    //gpuData.camera.projection         = sceneCam.getProjection();
+                    //gpuData.camera.inversedProjection = inverse(gpuData.camera.projection);
+                    //gpuData.camera.view               = sceneCam.getViewMatrix();
+                    //gpuData.camera.inversedView       = inverse(gpuData.camera.view);
+                    //gpuData.camera.prevViewProj       = m_PreviousViewProj;
+                    //gpuData.camera.fov                = sceneCam.getPerspectiveVerticalFOV();
+                    //gpuData.camera.nearPlane          = sceneCam.getPerspectiveNearClip();
+                    //gpuData.camera.farPlane           = sceneCam.getPerspectiveFarClip();
 
                     // update and upload the UBO
                     auto                 frameDataBufferHandle = resources.get<RZFrameGraphBuffer>(data.frameData).getRHIHandle();
@@ -745,9 +745,9 @@ namespace Razix {
                     // Grid
                     RZDebugDraw::DrawGrid(125, float4(0.75f));
 
-                    // Render loop
-                    const RZCamera3D& sceneCamera = scene->getSceneCamera();
-                    RZDebugDraw::BeginDraw(&sceneCamera);
+                // Render loop
+                //const RZCamera3D& sceneCamera = scene->getSceneCamera();
+                //RZDebugDraw::BeginDraw(&sceneCamera);
 
 #if 0
                     //// Draw all lights in the scene
@@ -1309,7 +1309,7 @@ namespace Razix {
             if (m_IsFGFilePathDirty) {
                 destroy();
                 RZFrameGraph::ResetFirstFrame();
-                buildFrameGraph(settings, RZSceneManager::Get().getCurrentSceneMutablePtr());
+                buildFrameGraph(settings, NULL);
                 m_IsFGFilePathDirty = false;
             }
 

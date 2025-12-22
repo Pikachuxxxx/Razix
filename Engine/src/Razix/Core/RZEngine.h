@@ -14,9 +14,6 @@
 
 #include "Razix/Gfx/Renderers/RZWorldRenderer.h"
 
-#include "Razix/Scene/RZScene.h"
-#include "Razix/Scene/RZSceneManager.h"
-
 #include "Razix/Scripting/RZLuaScriptHandler.h"
 
 //! Some style guide rules are waved off for RZEngine class
@@ -92,7 +89,6 @@ namespace Razix {
         Gfx::RZRendererSettings       m_WorldSettings;
         EngineSettings                m_EngineSettings;
         RZVirtualFileSystem           m_VirtualFileSystem;
-        RZSceneManager                m_SceneManagerSystem;
         Scripting::RZLuaScriptHandler m_LuaScriptHandlerSystem;
         Gfx::RZWorldRenderer          m_WorldRenderer;
         bool                          m_IsEngineInTestMode = false;

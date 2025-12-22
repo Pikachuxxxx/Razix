@@ -17,10 +17,6 @@
 
 #include "Razix/Events/ApplicationEvent.h"
 
-#include "Razix/Scene/Components/CameraComponent.h"
-#include "Razix/Scene/Components/LightComponent.h"
-#include "Razix/Scene/Components/TransformComponent.h"
-
 #include <Core/Log/RZLog.h>
 #include <backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
@@ -226,21 +222,16 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        Razix::RZSplashScreen::Get().setLogString("Loading Scene...");
-        // Now the scenes are loaded onto the scene manger here but they must be STATIC INITIALIZED shouldn't depend on the start up for the graphics context
-        for (auto& sceneFilePath: sceneFilePaths)
-            RZSceneManager::Get().enqueueSceneFromFile(sceneFilePath);
-
+        Razix::RZSplashScreen::Get().setLogString("Loading Scene Graph...");
         // Load a scene into memory
-        RZSceneManager::Get().loadScene(0);
-        Razix::RZSplashScreen::Get().setLogString("Scene Loading Successful...");
+        //Razix::RZSplashScreen::Get().setLogString("Scene Loading Successful...");
 
         Razix::RZSplashScreen::Get().setLogString("Creating world renderer");
         Razix::RZEngine::Get().getWorldRenderer().create(m_Window, m_Window->getWidth(), m_Window->getHeight());
 
         if (RZEngine::Get().isEngineInTestMode() == false) {
             Razix::RZSplashScreen::Get().setLogString("Building FrameGraph...");
-            Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentSceneMutablePtr());
+            Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), NULL);
         }
 
         m_CurrentState = AppState::Running;
@@ -343,8 +334,8 @@ namespace Razix {
         OnStart();
 
         // Run the OnStart method for all the scripts in the scene
-        if (RZSceneManager::Get().getCurrentSceneMutablePtr())
-            RZEngine::Get().getScriptHandler().OnStart(RZSceneManager::Get().getCurrentSceneMutablePtr());
+        //if (RZSceneManager::Get().getCurrentSceneMutablePtr())
+        //RZEngine::Get().getScriptHandler().OnStart(NULL);
     }
 
     void RZApplication::Update(const RZTimestep& dt)
@@ -352,13 +343,8 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
         // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
-        // Update the renderer stuff here
-        // Update Scene Graph here
-        RZScene* CurrentScene = RZSceneManager::Get().getCurrentSceneMutablePtr();
-        CurrentScene->update();
-        // Update the Scene Camera Here
-        CurrentScene->getSceneCamera().update(dt.GetTimestepMs());
-        CurrentScene->getSceneCamera().setAspectRatio(f32(m_Window->getWidth()) / f32(m_Window->getHeight()));
+        // TODO: Update the renderer stuff here
+        // TODO: Update Scene Graph here
 
         auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
@@ -378,7 +364,7 @@ namespace Razix {
 
         OnRender();
 
-        Razix::RZEngine::Get().getWorldRenderer().drawFrame(Razix::RZEngine::Get().getWorldSettings(), RZSceneManager::Get().getCurrentSceneMutablePtr());
+        Razix::RZEngine::Get().getWorldRenderer().drawFrame(Razix::RZEngine::Get().getWorldSettings(), NULL);
     }
 
     void RZApplication::RenderGUI()
@@ -407,8 +393,7 @@ namespace Razix {
         RZEngine::Get().getWorldRenderer().OnImGui();
 
         // User GUI
-        if (RZSceneManager::Get().getCurrentSceneMutablePtr())
-            RZEngine::Get().getScriptHandler().OnImGui(RZSceneManager::Get().getCurrentSceneMutablePtr());
+        RZEngine::Get().getScriptHandler().OnImGui(NULL);
 
         // Client side
         OnImGui();
@@ -425,8 +410,6 @@ namespace Razix {
         Razix::RZEngine::Get().getWorldRenderer().destroy();
 
         // Save the scene and the Application
-        RZSceneManager::Get().saveAllScenes();
-        RZSceneManager::Get().destroyAllScenes();
         SaveApp();
 
         RAZIX_CORE_ERROR("Closing Application!");
@@ -528,14 +511,11 @@ namespace Razix {
         archive(cereal::make_nvp("Width", m_Window->getWidth()));
         archive(cereal::make_nvp("Height", m_Window->getHeight()));
 
-        auto& paths = RZSceneManager::Get().getSceneFilePaths();
-
         // Convert RZString vector to std::string vector for serialization
         RZDynamicArray<std::string> scenePaths;
-        for (const auto& path: paths) {
-            scenePaths.push_back(std::string(path.c_str()));
-        }
+        // TODO: parse scenegraphs and get their relative file paths, we need an manager to switch b/w scenegraphs
         archive(cereal::make_nvp("Scenes", scenePaths));
+        RAZIX_UNUSED(scenePaths);
     }
 
     void RZApplication::SaveApp()

@@ -19,8 +19,6 @@
 #include "Razix/Events/RZKeyEvent.h"
 #include "Razix/Events/RZMouseEvent.h"
 
-#include "Razix/Scene/RZEntity.h"
-
 #include "Razix/Core/Utils/RZTime.h"
 #include "Razix/Core/Utils/RZTimestep.h"
 #include "Razix/Core/Utils/TRZSingleton.h"
