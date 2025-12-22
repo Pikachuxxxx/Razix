@@ -487,15 +487,16 @@ namespace Razix {
         m_ProjectID = RZUUID::FromPrettyStrFactory(uuid_string);
 
         // Load the scenes from the project file for the engine to load and present
-        RAZIX_CORE_TRACE("Loading Scenes...");
-        RZDynamicArray<std::string> scenePaths;
-        archive(cereal::make_nvp("Scenes", scenePaths));
-
-        // Convert std::string to RZString
-        sceneFilePaths.clear();
-        for (const auto& path: scenePaths) {
-            sceneFilePaths.push_back(RZString(path.c_str()));
-        }
+        //RAZIX_CORE_TRACE("Loading Scenes...");
+        //RZDynamicArray<std::string> scenePaths;
+        //scenePaths.reserve(16);
+        //archive(cereal::make_nvp("Scenes", scenePaths));
+        //
+        //// Convert std::string to RZString
+        //sceneFilePaths.clear();
+        //for (const auto& path: scenePaths) {
+        //    sceneFilePaths.push_back(RZString(path.c_str()));
+        //}
     }
 
     // Save mechanism for the RZApplication class
@@ -512,10 +513,11 @@ namespace Razix {
         archive(cereal::make_nvp("Height", m_Window->getHeight()));
 
         // Convert RZString vector to std::string vector for serialization
-        RZDynamicArray<std::string> scenePaths;
-        // TODO: parse scenegraphs and get their relative file paths, we need an manager to switch b/w scenegraphs
-        archive(cereal::make_nvp("Scenes", scenePaths));
-        RAZIX_UNUSED(scenePaths);
+        //RZDynamicArray<std::string> scenePaths;
+        //scenePaths.reserve(16);
+        //// TODO: parse scenegraphs and get their relative file paths, we need an manager to switch b/w scenegraphs
+        //archive(cereal::make_nvp("Scenes", scenePaths));
+        //RAZIX_UNUSED(scenePaths);
     }
 
     void RZApplication::SaveApp()
