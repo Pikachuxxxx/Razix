@@ -3,7 +3,7 @@
 #include "Razix/Gfx/RHI/RHI.h"
 
 #include "Razix/Gfx/Resources/RZResourceManager.h"
-#include "Razix/Scene/RZSceneCamera.h"
+#include "Razix/Gfx/Cameras/RZCamera3D.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -163,7 +163,7 @@ namespace Razix {
             createInstanceDataCPU();
             createIndirectArgs();
 
-            RZSceneCamera camera;
+            RZCamera3D camera;
             u32           winW = RZApplication::Get().getWindow()->getWidth();
             u32           winH = RZApplication::Get().getWindow()->getHeight();
             camera.setViewportSize(winW, winH);

@@ -4,9 +4,6 @@
         "Engine Version": "0.50.0",
         "Project ID": "a77aee7f-c395-4c39-aa73-167661fb84db",
         "Width": 1280,
-        "Height": 720,
-        "Scenes": [
-            "//Scenes/default Scene.rzscn"
-        ]
+        "Height": 720
     }
 }

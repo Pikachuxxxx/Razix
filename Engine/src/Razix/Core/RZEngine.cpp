@@ -99,8 +99,7 @@ namespace Razix {
         //Audio::RZSoundEngine::Get().StartUp();
         // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
 
-        // Scene Manager
-        RZSceneManager::Get().StartUp();
+        // TODO: Scene Graph Manager
 
         // Script Handler
         Scripting::RZLuaScriptHandler::Get().StartUp();
@@ -178,8 +177,7 @@ namespace Razix {
 
         // Shutdown the lua script handle
         Scripting::RZLuaScriptHandler::Get().ShutDown();
-        // Shutdown the Scene Manager
-        RZSceneManager::Get().ShutDown();
+        // TODO: Shutdown the SceneGraph Manager
         // Shutdown the Audio Engine
         //Audio::RZSoundEngine::Get().ShutDown();
         // Shutdown Job System

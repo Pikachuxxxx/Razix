@@ -6,10 +6,6 @@
 #include "Razix/Core/App/RZApplication.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 
-#include "Razix/Scene/RZScene.h"
-
-#include "Razix/Scene/Components/LuaScriptComponent.h"
-
 #include "Razix/Core/Utils/RZTimestep.h"
 
 namespace Razix {
@@ -57,7 +53,7 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
 
-            auto& registry = scene->getRegistry();
+            /* auto& registry = scene->getRegistry();
 
             auto view = registry.view<LuaScriptComponent>();
 
@@ -67,14 +63,14 @@ namespace Razix {
             for (auto entity: view) {
                 auto& luaScript = registry.get<LuaScriptComponent>(entity);
                 luaScript.OnStart(RZEntity(entity, scene));
-            }
+            }*/
         }
 
         void RZLuaScriptHandler::OnUpdate(RZScene* scene, RZTimestep dt)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
 
-            auto& registry = scene->getRegistry();
+            /*auto& registry = scene->getRegistry();
 
             auto view = registry.view<LuaScriptComponent>();
 
@@ -84,14 +80,14 @@ namespace Razix {
             for (auto entity: view) {
                 auto& luaScript = registry.get<LuaScriptComponent>(entity);
                 luaScript.OnUpdate(RZEntity(entity, scene), dt);
-            }
+            }*/
         }
 
         void RZLuaScriptHandler::OnImGui(RZScene* scene)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCRIPTING);
 
-            auto& registry = scene->getRegistry();
+            /*auto& registry = scene->getRegistry();
 
             auto view = registry.view<LuaScriptComponent>();
 
@@ -101,7 +97,7 @@ namespace Razix {
             for (auto entity: view) {
                 auto& luaScript = registry.get<LuaScriptComponent>(entity);
                 luaScript.OnImGui();
-            }
+            }*/
         }
 
         void RZLuaScriptHandler::bindSceneManagerAPI()

@@ -30,7 +30,7 @@
 #include "Razix/Scene/Components/RZComponents.h"
 
 #include "Razix/Scene/RZScene.h"
-#include "Razix/Scene/RZSceneCamera.h"
+#include "Razix/Gfx/Cameras/RZCamera3D.h"
 
 namespace Razix {
     namespace Gfx {
@@ -105,7 +105,7 @@ namespace Razix {
 
             //auto&         registry   = scene->getRegistry();
             //auto          cameraView = registry.view<CameraComponent>();
-            //RZSceneCamera cam;
+            //RZCamera3D cam;
             //if (!cameraView.empty()) {
             //    // By using front we get the one and only or the first one in the list of camera entities
             //    cam = cameraView.get<CameraComponent>(cameraView.front()).Camera;
@@ -115,7 +115,7 @@ namespace Razix {
             m_Cascades = buildCascades(scene->getSceneCamera(), -dirLight[0].light.getPosition(), kNumCascades, kSplitLambda, kShadowMapSize);
         }
 
-        std::vector<Cascade> RZCSMPass::buildCascades(RZSceneCamera camera, float3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize)
+        std::vector<Cascade> RZCSMPass::buildCascades(RZCamera3D camera, float3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
