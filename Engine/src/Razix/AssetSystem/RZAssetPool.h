@@ -4,10 +4,15 @@
 
 namespace Razix {
 
+    // Why not re-use RZResourceFreeListmemPool?
+    // Because we need to pack 2 32-bit handles and rz_handle actually tracks generation index
+    // We don't need that here, unlike GPU resource handles asset cannot be sale or idk doesn't make sense to me here
+    // so we use a internal simple freelist as-is in place. Fuck re-use.
+
     /**
      * A pool for storing RZAsset headers (hot data) and cold data.
      * This pool manages the memory for RZAsset instances and their associated cold data.
-     * It uses a free list to manage available slots. Same as RZResourceManager class.
+     * It uses a free list to manage available slots. Same as RZResourceManager class design.
      */
     class RAZIX_API RZAssetHeaderPool
     {
@@ -18,10 +23,12 @@ namespace Razix {
         void init(u32 capacity);
         void destroy();
 
-        rz_asset_handle  allocate(RZAssetType type);
-        void             release(rz_asset_handle handle);
-        RZAsset*         get(rz_asset_handle handle);
-        RZAssetColdData* getColdData(rz_asset_handle handle);
+        rz_asset_handle        allocate(RZAssetType type);
+        void                   release(rz_asset_handle handle);
+        const RZAsset*         get(rz_asset_handle handle) const;
+        const RZAssetColdData* getColdData(rz_asset_handle handle) const;
+        RZAsset*               getMutablePtr(rz_asset_handle handle) const;
+        RZAssetColdData*       getColdDataMutablePtr(rz_asset_handle handle) const;
 
         u32 getCapacity() const { return m_Capacity; }
         u32 getCount() const { return m_Count; }
@@ -43,11 +50,11 @@ namespace Razix {
     };
 
     template<typename T>
-    class RZAssetPool : public RZAssetPoolBase
+    class RZAssetPool final : public RZAssetPoolBase
     {
     public:
-        RZAssetPool() = default;
-        virtual ~RZAssetPool() { destroy(); }
+        RZAssetPool()          = default;
+        virtual ~RZAssetPool() = default;
 
         /**
          * Initializes the pool with a given capacity.
@@ -156,6 +163,32 @@ namespace Razix {
         u32  m_Capacity     = 0;
         u32  m_Count        = 0;
         u32  m_FreeListHead = 0;
+    };
+
+    //---------------------------------------------------------------
+    //RZAssetPool specilziaation for RZAssetPool<RZTransformAsset> due to SOA design
+    //---------------------------------------------------------------
+
+    struct RZTransformAsset;
+
+    template<>
+    class RZAssetPool<RZTransformAsset> : public RZAssetPoolBase
+    {
+    public:
+        RZAssetPool()          = default;
+        virtual ~RZAssetPool() = default;
+
+        // TODO: Implement the SOA design specific methods for RZTransformAsset
+
+    private:
+        float4*   m_Positions     = NULL;
+        float4*   m_Rotations     = NULL;
+        float4*   m_Scales        = NULL;
+        float4x4* m_LocalMatrices = NULL;
+        float4x4* m_WorldMatrices = NULL;
+        u32       m_Capacity      = 0;
+        u32       m_Count         = 0;
+        u32*      m_FreeList      = NULL;
     };
 
 }    // namespace Razix

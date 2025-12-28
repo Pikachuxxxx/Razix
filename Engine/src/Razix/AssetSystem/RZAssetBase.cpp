@@ -1,6 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
+
 #include "RZAssetBase.h"
 
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
@@ -26,7 +27,10 @@ namespace Razix {
     {
         if (m_pCold) {
             rz_critical_section_destroy(&m_pCold->CS);
-            rz_free(m_pCold);
+            // Don't free cold data here as its managed by the asset pool
+            // You do not own the memory! and we don't want double frees.
+            // The freelist in the asset pool will take care of freeing the cold data memory
+            //rz_free(m_pCold);
             m_pCold = NULL;
         }
     }

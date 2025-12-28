@@ -13,7 +13,7 @@
 
 #include "Razix/Events/RZEvent.h"
 
-#define RAZIX_ASSET_INVALID_HANDLE                   0xFFFFFFFFFFFFFFFFULL    // use for invalid asset handles
+#define RAZIX_ASSET_INVALID_HANDLE                   0xFFFFFFFFU   // use for invalid asset handles
 #define RAZIX_ASSET_INVALID_PAYLOAD_INDEX            0xFFFFFFFFU
 #define RAZIX_ASSET_PAYLOLAD_INDEX_MASK              0xFFFFFFFF00000000ULL
 #define RAZIX_ASSET_PAYLOAD_SHIFT_INDEX              32
