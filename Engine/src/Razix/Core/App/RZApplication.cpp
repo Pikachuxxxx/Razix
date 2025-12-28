@@ -31,7 +31,8 @@
 #define ENABLE_IMGUI_EVENT_DATA_CAPTURE 0
 
 namespace Razix {
-    RZApplication* RZApplication::s_AppInstance = nullptr;
+
+    RZApplication* RZApplication::s_AppInstance = NULL;
 
     static RZString GetAppWindowTitleSignature(const RZString& projectName)
     {
@@ -102,7 +103,7 @@ namespace Razix {
         // The Razix Application Signature Name is generated here and passed to the window
         // Set the window properties and create the timer
         m_WindowProperties.Title = GetAppWindowTitleSignature(m_ProjectName);
-        if (m_Window == nullptr)
+        if (m_Window == NULL)
             m_Window = RZWindow::Create(m_WindowProperties);
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(RZApplication::OnEvent));
 
@@ -120,7 +121,7 @@ namespace Razix {
         // If we change the API, then update the window title
         m_Window->setTitle(GetAppWindowTitleSignature(m_ProjectName).c_str());
 
-        m_CurrentState = AppState::Loading;
+        m_CurrentState = AppState::kLoading;
     }
 
     void RZApplication::OnEvent(RZEvent& event)
@@ -134,7 +135,7 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        m_CurrentState = AppState::Closing;
+        m_CurrentState = AppState::kClosing;
         return true;
     }
 
@@ -234,7 +235,7 @@ namespace Razix {
             Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), NULL);
         }
 
-        m_CurrentState = AppState::Running;
+        m_CurrentState = AppState::kRunning;
 
         Razix::RZSplashScreen::Get().setLogString("Starting Razix Application...");
         Razix::RZSplashScreen::Get().ShutDown();
@@ -277,9 +278,9 @@ namespace Razix {
 
         // Early close if the escape key is pressed or close button is pressed
         if (RZInput::IsKeyPressed(Razix::KeyCode::Key::Escape))
-            m_CurrentState = AppState::Closing;
+            m_CurrentState = AppState::kClosing;
 
-        if (m_CurrentState == AppState::Closing)
+        if (m_CurrentState == AppState::kClosing)
             return false;
 
         // Reload shaders and FrameGraph resources
@@ -324,7 +325,7 @@ namespace Razix {
             }
         }
 
-        return m_CurrentState != AppState::Closing;
+        return m_CurrentState != AppState::kClosing;
     }
 
     void RZApplication::Start()

@@ -45,7 +45,7 @@ namespace Razix {
 
             if (m_CurrentFrame >= m_NumFrames) {
                 // Request app to close
-                RZApplication::Get().setAppState(AppState::Closing);
+                RZApplication::Get().setAppState(AppState::kClosing);
             }
             m_CurrentFrame++;
         }
