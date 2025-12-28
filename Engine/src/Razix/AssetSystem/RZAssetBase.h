@@ -13,9 +13,13 @@
 
 #include "Razix/Events/RZEvent.h"
 
-#define RAZIX_ASSET_INVALID_HANDLE 0xFFFFFFFFFFFFFFFFULL
-#define RAZIX_ASSET_HOTDATA_MASK   0x00000000FFFFFFFFULL
-#define RAZIX_ASSET_COLDDATA_MASK  0xFFFFFFFF00000000ULL
+#define RAZIX_ASSET_INVALID_HANDLE                   0xFFFFFFFFFFFFFFFFULL    // use for invalid asset handles
+#define RAZIX_ASSET_INVALID_PAYLOAD_INDEX            0xFFFFFFFFU
+#define RAZIX_ASSET_PAYLOLAD_INDEX_MASK              0xFFFFFFFF00000000ULL
+#define RAZIX_ASSET_PAYLOAD_SHIFT_INDEX              32
+#define RAZIX_ASSET_HOTDATA_MASK                     0x00000000FFFFFFFFULL
+#define RAZIX_ASSET_COLDDATA_MASK                    0xFFFFFFFF00000000ULL
+#define RAZIX_ASSET_HANDLE_GET_PAYLOAD_INDEX(handle) ((u32) ((handle & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX))
 
 #ifdef RAZIX_DEBUG
     #define RAZIX_ASSET_PAYLOAD_HEADER \
@@ -141,7 +145,7 @@ namespace Razix {
         Razix::RZEventDispatcher         eventDispatcher;
         RZAssetMetadata                  metadata;
         u8                               _pad0[48];
-        rz_critical_section              CS; // forces cache line alignment
+        rz_critical_section              CS;    // forces cache line alignment
     };
 
     /**
