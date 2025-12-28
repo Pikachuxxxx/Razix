@@ -10,6 +10,8 @@
 namespace Razix {
 
     // TODO: instead of duplicating, we can instead store RZCameraAsset inside RZCamera3D for public/serialization and keep private separate?
+    // Because this is the public data we want to serialize, and RZCamera3D might have some private data we don't want to serialize
+    // If so might as well share the same data structure inside RZCamera3D and use friend class for RZCameraAsset to access private data
     struct RAZIX_ALIGN_TO(RAZIX_16B_ALIGN) RZCameraAsset
     {
         float3                     Position;

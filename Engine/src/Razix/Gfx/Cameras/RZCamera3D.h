@@ -20,6 +20,10 @@
 #define RZ_CAMERA_FLAG_PROJECTION (1u << 1)
 
 namespace Razix {
+
+    // Forward Declarations for serialization struct
+    struct RZCameraAsset;
+
     enum class CameraMovementDirection
     {
         kForward,
@@ -224,6 +228,9 @@ namespace Razix {
         f32              m_OldY             = 0.0f;
         ProjectionType   m_ProjectionType   = ProjectionType::kPerspective;
         u8               m_DirtyFlags       = static_cast<u8>(RZ_CAMERA_FLAG_VIEW | RZ_CAMERA_FLAG_PROJECTION);
+
+        // Allow the asset class to access private members for serialization
+        friend struct RZCameraAsset;
     };
 
     namespace Gfx {

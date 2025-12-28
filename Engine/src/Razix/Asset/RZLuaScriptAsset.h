@@ -25,18 +25,19 @@ namespace Razix {
     {
         RAZIX_ASSET;
 
-        RZString sourceCode;
-        u32      scriptPathHash;
-        u64      lastModifiedTime;
-        bool     isCompiled;
-        bool     autoReload;
-        u8       _pad[];
+        RZString SourceCode;
+        u32      ScriptPath;
+        u64      LastModifiedTime;
+        bool     bIsCompiled;
+        bool     bAutoReload;
+        u8       _pad[6];
     };
 
     RAZIX_REFLECT_TYPE_START(RZLuaScriptAsset)
-    RAZIX_REFLECT_MEMBER(lastModifiedTime)
-    RAZIX_REFLECT_MEMBER(isCompiled)
-    RAZIX_REFLECT_MEMBER(autoReload)
+    RAZIX_REFLECT_MEMBER(ScriptPath)
+    RAZIX_REFLECT_MEMBER(LastModifiedTime)
+    RAZIX_REFLECT_MEMBER(bIsCompiled)
+    RAZIX_REFLECT_MEMBER(bAutoReload)
     RAZIX_REFLECT_TYPE_END(RZLuaScriptAsset)
 
 }    // namespace Razix

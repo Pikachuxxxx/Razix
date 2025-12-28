@@ -20,28 +20,28 @@ namespace Razix {
 
     struct RAZIX_ALIGN_TO(RAZIX_16B_ALIGN) RZLightAsset
     {
-        float4      position_Range;
-        float4      color_Intensity;
-        float4      direction;
-        f32         constantAttenuation;
-        f32         linearAttenuation;
-        f32         quadratic;
-        f32         innerConeAngle;
-        f32         outerConeAngle;
-        RZLightType type;
+        float4      Position_Range;
+        float4      Color_Intensity;
+        float4      Direction;
+        f32         ConstantAttenuation;
+        f32         LinearAttenuation;
+        f32         Quadratic;
+        f32         InnerConeAngle;
+        f32         OuterConeAngle;
+        RZLightType Type;
         u8          _pad0[8];
     };
 
     RAZIX_REFLECT_TYPE_START(RZLightAsset)
-    RAZIX_REFLECT_MEMBER(position_Range)
-    RAZIX_REFLECT_MEMBER(color_Intensity)
-    RAZIX_REFLECT_MEMBER(direction)
-    RAZIX_REFLECT_MEMBER(constantAttenuation)
-    RAZIX_REFLECT_MEMBER(linearAttenuation)
-    RAZIX_REFLECT_MEMBER(quadratic)
-    RAZIX_REFLECT_MEMBER(innerConeAngle)
-    RAZIX_REFLECT_MEMBER(outerConeAngle)
-    RAZIX_REFLECT_MEMBER(type)
+    RAZIX_REFLECT_MEMBER(Position_Range)
+    RAZIX_REFLECT_MEMBER(Color_Intensity)
+    RAZIX_REFLECT_MEMBER(Direction)
+    RAZIX_REFLECT_MEMBER(ConstantAttenuation)
+    RAZIX_REFLECT_MEMBER(LinearAttenuation)
+    RAZIX_REFLECT_MEMBER(Quadratic)
+    RAZIX_REFLECT_MEMBER(InnerConeAngle)
+    RAZIX_REFLECT_MEMBER(OuterConeAngle)
+    RAZIX_REFLECT_MEMBER(Type)
     RAZIX_REFLECT_TYPE_END(RZLightAsset)
 
 }    // namespace Razix
