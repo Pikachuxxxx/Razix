@@ -32,6 +32,7 @@
 
 #define RAZIX_ASSET RAZIX_ASSET_PAYLOAD_HEADER
 
+// TODO: use rz_handle since payload index matches header index, they are always allocated together
 typedef u64 rz_asset_handle;    // higher 32 bits for asset playload data index and lower 32 bits for hot/cold data index into the asset pools
 
 namespace Razix {
