@@ -1,14 +1,14 @@
 #pragma once
 
 #include "Razix/AssetSystem/RZAssetBase.h"
+#include "Razix/Asset/RZTransformAsset.h"
 
 namespace Razix {
 
     // TODO: debugging hooks
     // TODO: profiling hooks
     // TODO: Fixed budget enforcement (skip resizing delibretaly) use RZDepartments properly here
-    // TODO: pagefault/memory safety hooks --> allocated by pages etc.?
-    // TODO: provide memory in a consumed way
+    // [Optional] TODO: pagefault/memory safety hooks --> allocated by pages etc.?
 
     // Why not re-use RZResourceFreeListmemPool?
     // Because we need to pack 2 32-bit handles and rz_handle actually tracks generation index
@@ -183,10 +183,10 @@ namespace Razix {
         RZAssetPool()          = default;
         virtual ~RZAssetPool() = default;
 
-        // TODO: Implement the SOA design specific methods for RZTransformAsset
         void init(u32 capacity)
         {
             m_Capacity      = capacity;
+            m_Assets        = (RZTransformAsset*) rz_malloc(sizeof(RZTransformAsset) * m_Capacity, RAZIX_16B_ALIGN);
             m_Positions     = (float4*) rz_malloc(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
             m_Rotations     = (float4*) rz_malloc(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
             m_Scales        = (float4*) rz_malloc(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
@@ -204,6 +204,10 @@ namespace Razix {
 
         void destroy() override
         {
+            if (m_Assets) {
+                rz_free(m_Assets);
+                m_Assets = NULL;
+            }
             if (m_Positions) {
                 rz_free(m_Positions);
                 m_Positions = NULL;
@@ -243,15 +247,29 @@ namespace Razix {
             m_FreeListHead = m_FreeList[index];
             m_Count++;
 
-            return NULL;
+            // Reset slot to sensible defaults for transforms
+            m_Assets[index].handle = RAZIX_ASSET_INVALID_HANDLE;
+            m_Positions[index]     = float4(0.0f);
+            m_Rotations[index]     = float4(0.0f, 0.0f, 0.0f, 1.0f);
+            m_Scales[index]        = float4(1.0f);
+            m_LocalMatrices[index] = float4x4(1.0f);
+            m_WorldMatrices[index] = float4x4(1.0f);
+
+            return &m_Assets[index];
         }
 
         void release(u32 index)
         {
             if (index >= m_Capacity)
                 return;
-            m_FreeList[index] = m_FreeListHead;
-            m_FreeListHead    = index;
+            m_Assets[index].handle = RAZIX_ASSET_INVALID_HANDLE;
+            m_Positions[index]     = float4(0.0f);
+            m_Rotations[index]     = float4(0.0f, 0.0f, 0.0f, 1.0f);
+            m_Scales[index]        = float4(1.0f);
+            m_LocalMatrices[index] = float4x4(1.0f);
+            m_WorldMatrices[index] = float4x4(1.0f);
+            m_FreeList[index]      = m_FreeListHead;
+            m_FreeListHead         = index;
             m_Count--;
         }
 
@@ -260,7 +278,7 @@ namespace Razix {
             if (index >= m_Capacity) {
                 return NULL;
             }
-            return NULL;
+            return &m_Assets[index];
         }
 
         u32       getCapacity() const { return m_Capacity; }
@@ -284,11 +302,12 @@ namespace Razix {
         float4x4* getWorldMatrices() { return m_WorldMatrices; }
 
     private:
-        float4*   m_Positions     = NULL;
-        float4*   m_Rotations     = NULL;
-        float4*   m_Scales        = NULL;
-        float4x4* m_LocalMatrices = NULL;
-        float4x4* m_WorldMatrices = NULL;
+        RZTransformAsset* m_Assets        = NULL;
+        float4*           m_Positions     = NULL;
+        float4*           m_Rotations     = NULL;
+        float4*           m_Scales        = NULL;
+        float4x4*         m_LocalMatrices = NULL;
+        float4x4*         m_WorldMatrices = NULL;
         u32       m_Capacity      = 0;
         u32       m_Count         = 0;
         u32*      m_FreeList      = NULL;
