@@ -7,24 +7,25 @@
 
 #include "Razix/Core/Containers/string.h"
 
+// TODO: Cryptography/RZVignereCipher.h/c
+
 namespace Razix {
 
-    struct RZVigneerePuzzleAsset
+    struct RZVignerePuzzleAsset
     {
+        // TODO: Replace with RZASCIIString for ASCII only chars
         RZString PlainText;
-        RZString CipherText;
         RZString Key;
-        u32      Difficulty;
-        bool     IsSolved;
+        // TODO: Replace it with a rz_bitset type (maybe C++ for calling functions on it)
+        bool     bIsSolved;
         u8       _pad0[7];
     };
 
-    RAZIX_REFLECT_TYPE_START(RZVigneerePuzzleAsset)
+    RAZIX_REFLECT_TYPE_START(RZVignerePuzzleAsset)
     RAZIX_REFLECT_MEMBER(PlainText)
-    RAZIX_REFLECT_MEMBER(CipherText)
     RAZIX_REFLECT_MEMBER(Key)
-    RAZIX_REFLECT_MEMBER(Difficulty)
-    RAZIX_REFLECT_TYPE_END(RZVigneerePuzzleAsset)
+    RAZIX_REFLECT_MEMBER(bIsSolved)
+    RAZIX_REFLECT_TYPE_END(RZVignerePuzzleAsset)
 
 };    // namespace Razix
 
