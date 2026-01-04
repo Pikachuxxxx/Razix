@@ -28,6 +28,7 @@ namespace Razix {
 
             void clear_top();
             void clear_bottom();
+            void* getBase() override { return m_Chunk; }
 
         private:
             uint8_t* m_Chunk     = nullptr; /* Allocator chunk                                */

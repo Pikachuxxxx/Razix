@@ -31,6 +31,8 @@ namespace Razix {
 
             /* Deallocate the pointer from the allocator as per the design */
             virtual void deallocate(void* ptr) = 0;
+
+            virtual void* getBase() = 0;
         };
     }    // namespace Memory
 }    // namespace Razix

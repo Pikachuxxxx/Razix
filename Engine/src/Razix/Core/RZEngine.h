@@ -1,14 +1,16 @@
 #pragma once
 
-#include "Razix/Audio/RZSoundEngine.h"
+#include "Razix/Core/RZEngineSettings.h"
 
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 #include "Razix/Core/Version/RazixVersion.h"
 
-#include "Razix/Core/RZEngineSettings.h"
+#include "Razix/Core/Memory/RZAllocators.h"
 
 #include "Razix/Core/Utils/RZCommandLineParser.h"
 #include "Razix/Core/Utils/TRZSingleton.h"
+
+#include "Razix/Audio/RZSoundEngine.h"
 
 //#include "Razix/Gfx/RZShaderLibrary.h"
 
@@ -71,8 +73,8 @@ namespace Razix {
         void Run();
         void LoadEngineConfigFile();
 
-        inline bool                           isEngineInTestMode() const { return m_IsEngineInTestMode; }
-        inline void                           setEngineInTestMode() { m_IsEngineInTestMode = true; }
+        inline bool                           isEngineInTestMode() const { return m_bIsEngineInTestMode; }
+        inline void                           setEngineInTestMode() { m_bIsEngineInTestMode = true; }
         inline RZCommandLineParser&           getCommandLineParser() { return m_CommandLineParser; }
         inline Stats&                         GetStatistics() { return m_Stats; }
         inline void                           ResetStats() { m_Stats.reset(); }
@@ -83,15 +85,26 @@ namespace Razix {
         inline Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
         //inline Gfx::RZShaderLibrary&          getShaderLibrary() { return m_ShaderLibrary; }
 
+        inline const Razix::Memory::RZHeapAllocator&     getSystemAllocator() { return m_SystemAllocator; }
+        inline const Razix::Memory::RZBumpAllocator&     getFrameAllocator() { return m_FrameAllocator; }
+        inline const Razix::Memory::RZTwoSidedAllocator& getPacketAllocator() { return m_PacketAllocator; }
+
+        inline rz_critical_section& getSystemAllocatorMutex() { return m_SystemAllocatorMutex; }
+
     private:
-        RZCommandLineParser           m_CommandLineParser;
-        Stats                         m_Stats;
-        Gfx::RZRendererSettings       m_WorldSettings;
-        EngineSettings                m_EngineSettings;
-        RZVirtualFileSystem           m_VirtualFileSystem;
-        Scripting::RZLuaScriptHandler m_LuaScriptHandlerSystem;
-        Gfx::RZWorldRenderer          m_WorldRenderer;
-        bool                          m_IsEngineInTestMode = false;
+    private:
+        RZCommandLineParser                m_CommandLineParser;
+        Stats                              m_Stats;
+        Gfx::RZRendererSettings            m_WorldSettings;
+        EngineSettings                     m_EngineSettings;
+        RZVirtualFileSystem                m_VirtualFileSystem;
+        Scripting::RZLuaScriptHandler      m_LuaScriptHandlerSystem;
+        Gfx::RZWorldRenderer               m_WorldRenderer;
+        Razix::Memory::RZHeapAllocator     m_SystemAllocator;
+        Razix::Memory::RZBumpAllocator     m_FrameAllocator;
+        Razix::Memory::RZTwoSidedAllocator m_PacketAllocator;
+        rz_critical_section                m_SystemAllocatorMutex;
+        bool                               m_bIsEngineInTestMode = false;
         //Gfx::RZShaderLibrary          m_ShaderLibrary;
     };
 }    // namespace Razix

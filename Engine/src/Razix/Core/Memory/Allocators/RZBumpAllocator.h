@@ -7,11 +7,11 @@
 
 namespace Razix {
     namespace Memory {
-        class RAZIX_API RZLinearAllocator final : public IRZAllocator
+        class RAZIX_API RZBumpAllocator final : public IRZAllocator
         {
         public:
-            RZLinearAllocator()  = default;
-            ~RZLinearAllocator() = default;
+            RZBumpAllocator()  = default;
+            ~RZBumpAllocator() = default;
 
             void init(size_t size, size_t alignment = 16) override;
 
@@ -25,6 +25,8 @@ namespace Razix {
             size_t getRemainingSize() const;
             size_t getAllocatedSize() const { return m_AllocatedSize; }
             size_t getTotalSize() const { return m_TotalSize; }
+
+            void* getBase() override { return m_Chunk; }
 
         private:
             uint8_t* m_Chunk         = nullptr;

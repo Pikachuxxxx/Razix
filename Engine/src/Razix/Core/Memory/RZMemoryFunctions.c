@@ -9,6 +9,8 @@
 
 #include <string.h>    // for memset, memcpy
 
+#define RAZIX_MEMORY_POISON 0xCD
+
 void* rz_malloc(size_t size, size_t alignment)
 {
     // TODO: Begin tracking allocation here
@@ -131,6 +133,15 @@ size_t rz_mem_align(size_t size, size_t alignment)
     return (size + alignment_mask) & ~alignment_mask;
 }
 
+void* rz_align_ptr(void* ptr, size_t alignment)
+{
+    // alignment must be a power of 2
+    // static_assert((alignment & (alignment - 1)) == 0, "Alignment must be power of 2");
+    uintptr_t addr    = (uintptr_t) (ptr);
+    uintptr_t aligned = (addr + alignment - 1) & ~(alignment - 1);
+    return (void*) (aligned);
+}
+
 #ifdef RAZIX_DEBUG
 
 void* rz_debug_malloc(size_t size, size_t alignment, const char* filename, uint32_t lineNumber, const char* tag)
@@ -163,6 +174,14 @@ void rz_debug_free(void* address)
     #elif RAZIX_PLATFORM_UNIX
         free(address);
     #endif
+    }
+}
+
+RAZIX_API void rz_poison_memory(void* ptr, size_t size)
+{
+    // TODO: update tracking here
+    if (ptr) {
+        memset(ptr, RAZIX_MEMORY_POISON, size);
     }
 }
 

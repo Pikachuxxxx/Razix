@@ -15,8 +15,6 @@
 
 //#include "Razix/Gfx/Materials/RZMaterial.h"
 
-#include "Razix/Core/Memory/RZCPUMemoryManager.h"
-
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
 #include "Razix/Gfx/RZShaderLibrary.h"
@@ -82,14 +80,31 @@ namespace Razix {
 
         // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
         //--------------------------------------------------------------------------
-        // Start Up Memory Managers
+        // Start Up Memory
         //--------------------------
-        //u32 SystemHeapSize = Mib(256);    // For now we only manage 256 Mib
-        //RZCPUMemoryManager::Get().Init(SystemHeapSize);
-        //
+        m_SystemAllocatorMutex = rz_critical_section_create();
+
+        // This is used by the asset system and other core engine system with big allocations
+        // RZResourceManager has it's own set of pools and allocators, their memory comes from rz_malloc/rz_free directly
+        // We only track asset system memory this way
+        // TODO: Exploring using SystemAllocator for RZResourceManager as well
+        u32 SystemHeapSize = Gib(1);    // For now we only manage 1 GiB
+        // TODO: Add this to the game budget ini file, for total heap budget
+        m_SystemAllocator.init(SystemHeapSize);
+
+        // Per-frame bump allocator based on CPU frame budget
+        u32 cpuMemoryFrameBudget = Memory::GetGlobalFrameBudget().MemoryBudget;
+        m_FrameAllocator.init(cpuMemoryFrameBudget);
+
+        m_PacketAllocator.init(RAZIX_PACKETS * RAZIX_PACKET_SIZE);
+
         //u32 VRamInitSize = Mib(256);    // Initializing with 256 Mib of GPU memory
         //Graphics::RZGPUMemoryManager::Get().Init(VRamInitSize);
         //--------------------------------------------------------------------------
+
+        // Asset DB and System and Pools
+        // Use the SystemHeap along with department budgets for the RZAssetPools
+        // Create the asset DB with system allocator and list of asset types to register pools for
 
         // Initialize Job System right after memory systems
         rz_job_system_startup(RAZIX_MAX_WORKER_THREADS);
@@ -183,7 +198,11 @@ namespace Razix {
         // Shutdown Job System
         rz_job_system_shutdown();
         // Shutdown memory systems and free all the memory
-        //Graphics::RZGPUMemoryManager::Get().ShutDown();
+        m_SystemAllocator.shutdown();
+        m_FrameAllocator.shutdown();
+        m_PacketAllocator.shutdown();
+
+        rz_critical_section_destroy(&m_SystemAllocatorMutex);
         // Shutdown the VFS last
         RZVirtualFileSystem::Get().ShutDown();
 

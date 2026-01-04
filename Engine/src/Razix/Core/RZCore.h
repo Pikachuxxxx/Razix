@@ -502,6 +502,9 @@ static constexpr float operator""_inKib(unsigned long long int x)
     return (float) x / (1 << 10);
 }
 
+    #define RAZIX_PACKET_SIZE Kib(64)    // Max size of each packet in a 2-sided allocator
+    #define RAZIX_PACKETS     1024       // Total number of two-sided allocations
+
 #endif    //   __cplusplus
 
 /****************************************************************************************************

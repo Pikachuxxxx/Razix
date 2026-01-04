@@ -21,6 +21,7 @@ namespace Razix {
             void  deallocate(void* ptr) override;
 
             void clear() { m_AllocatedSize = 0; }
+            void* getBase() override { return m_StackChunk; }
 
         private:
             uint8_t* m_StackChunk    = nullptr;
