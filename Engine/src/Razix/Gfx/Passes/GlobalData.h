@@ -1,7 +1,8 @@
 ﻿#pragma once
 
-#include "Razix/Gfx/Lighting/LightData.h"
 //#include "Razix/Scene/RZSceneCamera.h"
+
+#include "Razix/Asset/RZLightAsset.h"
 
 namespace Razix {
     namespace Gfx {
@@ -161,9 +162,9 @@ namespace Razix {
 
         struct GPULightsData
         {
-            alignas(4) u32 numLights   = 0;
-            alignas(4) u32 _padding[3] = {0, 0, 0};
-            alignas(16) LightData lightData[MAX_LIGHTS];
+            alignas(4) u32 numLights = 0;
+            alignas(4) u32 _pad0[3]  = {0, 0, 0};
+            alignas(16) RZLightAsset lightAssets[RAZIX_MAX_LIGHTS_PER_WORLD];
         };
 
         // PBR/IBL

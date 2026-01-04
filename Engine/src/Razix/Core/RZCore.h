@@ -565,3 +565,6 @@ static constexpr float operator""_inKib(unsigned long long int x)
 #endif
 
 #define RAZIX_TLS RAZIX_THREAD_LOCAL_STORAGE
+
+#define RAZIX_VTABLE_PTR_SIZE_BYTES    8
+#define RAZIX_COLD_DATA_PTR_SIZE_BYTES 8

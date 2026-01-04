@@ -11,13 +11,12 @@
 
 #include "Razix/Gfx/RHI/RHI.h"
 
-#include "Razix/Gfx/Lighting/RZLight.h"
 #include "Razix/Gfx/RZMesh.h"
 #include "Razix/Gfx/RZShaderLibrary.h"
 
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
-#include "Razix/Scene/RZSceneCamera.h"
+#include "Razix/Gfx/Cameras/RZCamera3D.h"
 
 namespace Razix {
     namespace Gfx {
@@ -239,7 +238,7 @@ namespace Razix {
             }
         }
 
-        void RZDebugDraw::BeginDraw(const Razix::RZSceneCamera* camera)
+        void RZDebugDraw::BeginDraw(const Razix::RZCamera3D* camera)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -460,23 +459,25 @@ namespace Razix {
         void RZDebugDraw::DrawLight(Gfx::RZLight* light, const float4& colour)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+            RAZIX_UNUSED(light);
+            RAZIX_UNUSED(colour);
 
             // Directional
-            if (light->getType() == RZ_LIGHT_TYPE_DIRECTIONAL) {
-                float3 offset(0.0f, 0.1f, 0.0f);
-                auto   lightPos = normalize(-light->getPosition());
-                DrawLine(float3(light->getPosition()) + offset, float3(lightPos * 2.0f) + offset, colour);
-                DrawLine(float3(light->getPosition()) - offset, float3(lightPos * 2.0f) - offset, colour);
-                DrawLine(float3(light->getPosition()), float3(lightPos * 2.0f), colour);
-                //DrawCone(20, 4, 30.0f, 1.5f, (light->getPosition() - (light->getDirection()) * 1.5f), rotation, colour);
-            }
-            //// Spot
-            //else if (light->Type < 1.1f) {
-            //    DrawCone(20, 4, light->getAngle(), light->getIntensity(), light->getPosition(), rotation, colour);
+            //if (light->getType() == RZ_LIGHT_TYPE_DIRECTIONAL) {
+            //    float3 offset(0.0f, 0.1f, 0.0f);
+            //    auto   lightPos = normalize(-light->getPosition());
+            //    DrawLine(float3(light->getPosition()) + offset, float3(lightPos * 2.0f) + offset, colour);
+            //    DrawLine(float3(light->getPosition()) - offset, float3(lightPos * 2.0f) - offset, colour);
+            //    DrawLine(float3(light->getPosition()), float3(lightPos * 2.0f), colour);
+            //    //DrawCone(20, 4, 30.0f, 1.5f, (light->getPosition() - (light->getDirection()) * 1.5f), rotation, colour);
             //}
-            else if (light->getType() == RZ_LIGHT_TYPE_POINT) {
-                DrawSphere(light->getRadius() * 0.5f, light->getPosition(), colour);
-            }
+            ////// Spot
+            ////else if (light->Type < 1.1f) {
+            ////    DrawCone(20, 4, light->getAngle(), light->getIntensity(), light->getPosition(), rotation, colour);
+            ////}
+            //else if (light->getType() == RZ_LIGHT_TYPE_POINT) {
+            //    DrawSphere(light->getRadius() * 0.5f, light->getPosition(), colour);
+            //}
         }
 
         void RZDebugDraw::DrawFrustum(const Maths::RZFrustum& frustum, const float4& colour)
