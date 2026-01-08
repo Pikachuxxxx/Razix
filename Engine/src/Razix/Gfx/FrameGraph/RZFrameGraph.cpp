@@ -1193,7 +1193,7 @@ namespace Razix {
 
         RZPassResourceBuilder& RZPassResourceBuilder::setCPUTime(f32 time)
         {
-            m_PassNode.m_CurrentPassBudget.CPUframeBudget = time;
+            m_PassNode.m_CurrentPassBudget = time;
             return *this;
         }
 
@@ -1202,19 +1202,14 @@ namespace Razix {
             return m_PassNode.m_Department;
         }
 
-        Memory::BudgetInfo RZPassResourceBuilder::getPassCurrentBudget()
+        Memory::DepartmentBudgetMs RZPassResourceBuilder::getPassCurrentBudget()
         {
             return m_PassNode.m_CurrentPassBudget;
         }
 
         f32 RZPassResourceBuilder::getPassCurrentCPUTimeBudget()
         {
-            return m_PassNode.m_CurrentPassBudget.CPUframeBudget;
-        }
-
-        u32 RZPassResourceBuilder::getPassCurrentMemoryBudget()
-        {
-            return m_PassNode.m_CurrentPassBudget.MemoryBudget;
+            return m_PassNode.m_CurrentPassBudget;
         }
 
         //-----------------------------------------------------------------------------------

@@ -88,16 +88,16 @@ namespace Razix {
         // RZResourceManager has it's own set of pools and allocators, their memory comes from rz_malloc/rz_free directly
         // We only track asset system memory this way
         // TODO: Exploring using SystemAllocator for RZResourceManager as well
-        u32 SystemHeapSize = Gib(1);    // For now we only manage 1 GiB
+        u32 SystemHeapSize = Mib(256);
         // TODO: Add this to the game budget ini file, for total heap budget
         m_SystemAllocator.init(SystemHeapSize);
 
         // Per-frame bump allocator based on CPU frame budget
-        u32 cpuMemoryFrameBudget = Memory::GetGlobalFrameBudget().MemoryBudget;
+        u32 cpuMemoryFrameBudget = Memory::GetGlobalFrameAllocatorBudget();
+        // TODO: divide this between per thread frame allocators, this is just one for now so give it all the memory
         m_FrameAllocator.init(cpuMemoryFrameBudget);
 
         m_PacketAllocator.init(RAZIX_PACKETS * RAZIX_PACKET_SIZE);
-
         //u32 VRamInitSize = Mib(256);    // Initializing with 256 Mib of GPU memory
         //Graphics::RZGPUMemoryManager::Get().Init(VRamInitSize);
         //--------------------------------------------------------------------------

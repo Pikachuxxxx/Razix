@@ -53,13 +53,13 @@ namespace Razix {
                 return getResourceAccessView<RZFrameGraphResourceAcessView&>(id);
             }
 
-            inline const auto&               getCreateResources() const { return m_Creates; }
-            inline const auto&               getInputResources() const { return m_Reads; }
-            inline const auto&               getOutputResources() const { return m_Writes; }
-            inline bool                      isStandAlone() const { return m_IsStandAlone; }
-            inline bool                      isDataDriven() const { return m_IsDataDriven; }
-            inline Department                getDepartment() const { return m_Department; }
-            inline const Memory::BudgetInfo& getCurrentPassBudget() const { return m_CurrentPassBudget; }
+            inline const auto&                       getCreateResources() const { return m_Creates; }
+            inline const auto&                       getInputResources() const { return m_Reads; }
+            inline const auto&                       getOutputResources() const { return m_Writes; }
+            inline bool                              isStandAlone() const { return m_IsStandAlone; }
+            inline bool                              isDataDriven() const { return m_IsDataDriven; }
+            inline Department                        getDepartment() const { return m_Department; }
+            inline const Memory::DepartmentBudgetMs& getCurrentPassBudget() const { return m_CurrentPassBudget; }
 
         private:
             std::unique_ptr<IRZFrameGraphPass> m_Exec;
@@ -80,7 +80,7 @@ namespace Razix {
             bool                                                           m_IsStandAlone      = false;
             bool                                                           m_IsDataDriven      = false;
             Department                                                     m_Department        = Department::NONE;
-            Memory::BudgetInfo                                             m_CurrentPassBudget = {};
+            Memory::DepartmentBudgetMs                                     m_CurrentPassBudget = {};
 
         private:
             template<typename T>

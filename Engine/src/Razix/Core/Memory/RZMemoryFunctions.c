@@ -177,6 +177,8 @@ void rz_debug_free(void* address)
     }
 }
 
+#endif
+
 RAZIX_API void rz_poison_memory(void* ptr, size_t size)
 {
     // TODO: update tracking here
@@ -184,5 +186,3 @@ RAZIX_API void rz_poison_memory(void* ptr, size_t size)
         memset(ptr, RAZIX_MEMORY_POISON, size);
     }
 }
-
-#endif
