@@ -5,50 +5,46 @@
 
 namespace Razix {
 
-    u32 GetDepartmentPoolCapacity(const RZAssetPoolConfig& config, u32 slotSize)
+    u32 GetAssetPoolCapacityFromMemoryBudget(Memory::RZMemoryPoolType poolType, u32 slotSize)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-        using namespace Razix::Memory;
-        BudgetInfo deptBudgetInfo = GetDepartmentBudgetInfo(config.department);
-        if (deptBudgetInfo.MemoryBudget == 0)
+        Memory::MemoryPoolBudget poolBudget = GetMemoryPoolBudget(poolType);
+
+        if (poolBudget.HeapSizeMB == 0)
             return RAZIX_ASSETPOOL_DEFAULT_CAPACITY;
-        // Convert MB to Bytes
-        u64 deptMemoryBudgetBytes = Mib(static_cast<u64>(deptBudgetInfo.MemoryBudget));
-        u32 capacity              = static_cast<u32>(deptMemoryBudgetBytes / slotSize);
-        RAZIX_CORE_INFO("[AssetSystem] Department: {} - {} | Memory Budget: {} MB | Slot Size: {} bytes | Calculated Capacity: {}",
-            s_DepartmentInfo[config.department].debugName,
-            s_DepartmentInfo[config.department].friendlyName,
-            deptBudgetInfo.MemoryBudget,
+
+        // Convert MB to bytes
+        u64 poolMemoryBudgetBytes = Mib(static_cast<u64>(poolBudget.HeapSizeMB));
+        u32 capacity              = static_cast<u32>(poolMemoryBudgetBytes / slotSize);
+
+        RAZIX_CORE_INFO("[AssetSystem] Pool:  {0} | Memory Budget: {1} MB | Slot Size: {2} bytes | Calculated Capacity: {3}",
+            poolBudget.PoolName,
+            poolBudget.HeapSizeMB,
             slotSize,
             capacity);
 
-        RAZIX_CORE_ASSERT(capacity > 0, "[AssetSystem] Department: {} - {} has insufficient memory budget: {} MB for asset pool of slot size: {} bytes", s_DepartmentInfo[config.department].debugName, s_DepartmentInfo[config.department].friendlyName, deptBudgetInfo.MemoryBudget, slotSize);
+        RAZIX_CORE_ASSERT(capacity > 0, "[AssetSystem] Pool: {0} has insufficient memory budget: {1} MB for asset pool of slot size: {2} bytes", poolBudget.PoolName, poolBudget.HeapSizeMB, slotSize);
 
         return capacity;
     }
 
-    u32 ClampDepartmentPoolCapacity(const RZAssetPoolConfig& config, u32 desiredCapacity, u32 slotSize)
+    u32 ClampAssetPoolCapacity(Memory::RZMemoryPoolType poolType, u32 desiredCapacity, u32 slotSize)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-        u32 deptCapacity = GetDepartmentPoolCapacity(config, slotSize);
-        if (desiredCapacity > deptCapacity) {
-            RAZIX_CORE_WARN("[AssetSystem] Department: {} - {} | Desired Capacity: {} exceeds calculated capacity: {} based on memory budget. Clamping to calculated capacity.",
-                s_DepartmentInfo[config.department].debugName,
-                s_DepartmentInfo[config.department].friendlyName,
+        u32 maxCapacity = GetAssetPoolCapacityFromMemoryBudget(poolType, slotSize);
+
+        if (desiredCapacity > maxCapacity) {
+            Memory::MemoryPoolBudget poolBudget = GetMemoryPoolBudget(poolType);
+            RAZIX_CORE_WARN("[AssetSystem] Pool: {0} | Desired Capacity:  {1} exceeds calculated capacity:  {2} based on memory budget.  Clamping to {2}.",
+                poolBudget.PoolName,
                 desiredCapacity,
-                deptCapacity);
-            return deptCapacity;
+                maxCapacity);
+            return maxCapacity;
         }
 
-        RAZIX_CORE_INFO("[AssetSystem] Department: {} - {} | Desired Capacity: {} is within calculated capacity: {} based on memory budget.",
-            s_DepartmentInfo[config.department].debugName,
-            s_DepartmentInfo[config.department].friendlyName,
-            desiredCapacity,
-            deptCapacity);
-
-        RAZIX_CORE_ASSERT(desiredCapacity > 0, "[AssetSystem] Department: {} - {} has insufficient desired capacity: {} for asset pool of slot size: {} bytes", s_DepartmentInfo[config.department].debugName, s_DepartmentInfo[config.department].friendlyName, desiredCapacity, slotSize);
+        RAZIX_CORE_ASSERT(desiredCapacity > 0, "[AssetSystem] Desired capacity must be greater than 0");
 
         return desiredCapacity;
     }

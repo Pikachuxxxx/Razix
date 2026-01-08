@@ -258,8 +258,7 @@ namespace Razix {
                     ImGui::Text("Department     : %s", info.debugName);
                     ImGui::Separator();
                     auto& budget = passNode.getCurrentPassBudget();
-                    ImGui::Text("CPU Budget     : %.2f ms", budget.CPUframeBudget);
-                    ImGui::Text("Memory Budget  : %u MiB", budget.MemoryBudget);
+                    ImGui::Text("CPU Budget     : %.2f ms", budget);
                     ImGui::EndTooltip();
                 }
 

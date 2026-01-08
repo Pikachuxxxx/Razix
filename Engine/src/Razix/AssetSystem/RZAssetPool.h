@@ -54,19 +54,19 @@ namespace Razix {
 
     struct RZAssetPoolHooks
     {
-        void (*onAllocate)(rz_asset_handle handle, Department dept, const char* label) = NULL;
-        void (*onRelease)(rz_asset_handle handle, Department dept, const char* label)  = NULL;
+        void (*onAllocate)(rz_asset_handle handle, const char* label) = NULL;
+        void (*onRelease)(rz_asset_handle handle, const char* label)  = NULL;
     };
 
     struct RAZIX_API RZAssetPoolConfig
     {
-        Department       department = Department::NONE;
-        RZString         debugLabel = "<RZAssetPool>";
-        RZAssetPoolHooks hooks      = {};
+        Memory::RZMemoryPoolType poolType   = Memory::RZ_MEM_POOL_TYPE_ASSET_POOL;
+        RZString                 debugLabel = "<RZAssetPool>";
+        RZAssetPoolHooks         hooks      = {};
     };
 
-    u32 GetDepartmentPoolCapacity(const RZAssetPoolConfig& config, u32 slotSize);
-    u32 ClampDepartmentPoolCapacity(const RZAssetPoolConfig& config, u32 desiredCapacity, u32 slotSize);
+    u32 GetAssetPoolCapacityFromMemoryBudget(Memory::RZMemoryPoolType poolType, u32 slotSize);
+    u32 ClampAssetPoolCapacity(Memory::RZMemoryPoolType poolType, u32 desiredCapacity, u32 slotSize);
 
     /**
      * A pool for storing RZAsset headers (hot data) and cold data.
@@ -125,7 +125,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
             u32 slotSize     = sizeof(T);
-            u32 poolCapacity = ClampDepartmentPoolCapacity(config, capacity, slotSize);
+            u32 poolCapacity = ClampAssetPoolCapacity(config.poolType, capacity, slotSize);
             init(where, poolCapacity);
             m_Config = config;
         }
@@ -135,7 +135,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
             u32 slotSize     = sizeof(T);
-            u32 poolCapacity = ClampDepartmentPoolCapacity(config, capacity, slotSize);
+            u32 poolCapacity = ClampAssetPoolCapacity(config.poolType, capacity, slotSize);
             init(poolCapacity);
             m_Config = config;
         }
@@ -204,7 +204,7 @@ namespace Razix {
 
             if (m_Config.hooks.onAllocate) {
                 rz_asset_handle handle = (rz_asset_handle) index;
-                m_Config.hooks.onAllocate(handle, m_Config.department, m_Config.debugLabel.c_str());
+                m_Config.hooks.onAllocate(handle, m_Config.debugLabel.c_str());
             }
 
             return &m_Data[index];
@@ -222,7 +222,7 @@ namespace Razix {
 
             if (m_Config.hooks.onRelease) {
                 rz_asset_handle handle = (rz_asset_handle) index;
-                m_Config.hooks.onRelease(handle, m_Config.department, m_Config.debugLabel.c_str());
+                m_Config.hooks.onRelease(handle, m_Config.debugLabel.c_str());
             }
 
             rz_poison_memory(m_Data[index], m_SlotSize);
@@ -269,7 +269,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
             u32 slotSize     = sizeof(RZTransformAsset) + sizeof(float4) * 3 + sizeof(float4x4) * 2;
-            u32 poolCapacity = ClampDepartmentPoolCapacity(config, capacity, slotSize);
+            u32 poolCapacity = ClampAssetPoolCapacity(config.poolType, capacity, slotSize);
             init(where, poolCapacity);
             m_Config = config;
         }
@@ -279,7 +279,7 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
             u32 slotSize     = sizeof(RZTransformAsset) + sizeof(float4) * 3 + sizeof(float4x4) * 2;
-            u32 poolCapacity = ClampDepartmentPoolCapacity(config, capacity, slotSize);
+            u32 poolCapacity = ClampAssetPoolCapacity(config.poolType, capacity, slotSize);
             init(poolCapacity);
             m_Config = config;
         }
@@ -383,7 +383,7 @@ namespace Razix {
 
             if (m_Config.hooks.onAllocate) {
                 rz_asset_handle handle = (rz_asset_handle) index;
-                m_Config.hooks.onAllocate(handle, m_Config.department, m_Config.debugLabel.c_str());
+                m_Config.hooks.onAllocate(handle, m_Config.debugLabel.c_str());
             }
 
             return &m_Assets[index];
@@ -407,7 +407,7 @@ namespace Razix {
 
             if (m_Config.hooks.onRelease) {
                 rz_asset_handle handle = (rz_asset_handle) index;
-                m_Config.hooks.onRelease(handle, m_Config.department, m_Config.debugLabel.c_str());
+                m_Config.hooks.onRelease(handle, m_Config.debugLabel.c_str());
             }
 
             rz_poison_memory(&m_Assets[index], m_SlotSize);
