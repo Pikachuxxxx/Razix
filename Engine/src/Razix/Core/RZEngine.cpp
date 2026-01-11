@@ -13,6 +13,8 @@
 
 #include "Razix/Core/Job/RZJobSystem.h"
 
+#include "Razix/AssetSystem/RZAssetDB.h"
+
 //#include "Razix/Gfx/Materials/RZMaterial.h"
 
 #include "Razix/Gfx/Resources/RZResourceManager.h"
@@ -105,6 +107,11 @@ namespace Razix {
         // Asset DB and System and Pools
         // Use the SystemHeap along with department budgets for the RZAssetPools
         // Create the asset DB with system allocator and list of asset types to register pools for
+        const Memory::MemoryPoolBudget assetBudget        = Memory::GetMemoryPoolBudget(Memory::RZ_MEM_POOL_TYPE_ASSET_POOL);
+        u64                            assetHeapSizeBytes = Mib(static_cast<u64>(assetBudget.HeapSizeMB));
+        RAZIX_CORE_ASSERT(assetHeapSizeBytes > 0, "Asset pool budget is 0 bytes!");
+        m_AssetAllocator.init(assetHeapSizeBytes);
+        RZAssetDB::Get().Startup(m_AssetAllocator);
 
         // Initialize Job System right after memory systems
         rz_job_system_startup(RAZIX_MAX_WORKER_THREADS);
@@ -198,6 +205,8 @@ namespace Razix {
         // Shutdown Job System
         rz_job_system_shutdown();
         // Shutdown memory systems and free all the memory
+        RZAssetDB::Get().Shutdown();
+        m_AssetAllocator.shutdown();
         m_SystemAllocator.shutdown();
         m_FrameAllocator.shutdown();
         m_PacketAllocator.shutdown();

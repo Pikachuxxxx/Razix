@@ -12,6 +12,7 @@
 //#include "Razix/Gfx/Renderers/RZImGuiRendererProxy.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 #include "Razix/Scripting/RZLuaScriptHandler.h"
+#include "Razix/AssetSystem/RZAssetDB.h"
 
 namespace Razix {
 
@@ -29,6 +30,7 @@ namespace Razix {
     template class Razix::RZSingleton<Razix::Gfx::RZResourceManager>;
     template class Razix::RZSingleton<Razix::Gfx::RZShaderLibrary>;
     template class Razix::RZSingleton<Razix::Scripting::RZLuaScriptHandler>;
+    template class Razix::RZSingleton<Razix::RZAssetDB>;
     //template class Razix::RZSingleton<Razix::Gfx::RZDebugRendererProxy>;
     //template class Razix::RZSingleton<Razix::Gfx::RZImGuiRendererProxy>;
 

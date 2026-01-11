@@ -110,15 +110,14 @@ namespace Razix {
         m_FreeListHead = 0;
     }
 
-    rz_asset_handle RZAssetHeaderPool::allocate(RZAssetType type)
+    u32 RZAssetHeaderPool::allocate(RZAssetType type)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-        rz_asset_handle handle = RAZIX_ASSET_INVALID_HANDLE;
         if (m_FreeListHead == UINT32_MAX) {
             // TODO: Resize pool?
             RAZIX_CORE_ERROR("[AssetSystem] Asset Pool is full! Cannot allocate more assets. Please edit the budget files to adjust meomry budget at engine ingition time. Game budget should always be pre-compute and fixed.");
-            return handle;
+            return RAZIX_ASSET_INVALID_HANDLE;
         }
 
         u32 index      = m_FreeListHead;
@@ -134,15 +133,12 @@ namespace Razix {
         // The upper 32 bits will be set by the caller (RZAssetDatabase) when allocating the payload
         // For now, we just set the lower part.
         // We return the index as the lower 32 bits of the handle
-        handle = (u64) index;
-        return handle;
+        return index;
     }
 
-    void RZAssetHeaderPool::release(rz_asset_handle handle)
+    void RZAssetHeaderPool::release(u32 index)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
-
-        u32 index = (u32) (handle & RAZIX_ASSET_HOTDATA_MASK);
 
         if (index >= m_Capacity) {
             RAZIX_CORE_ERROR("[AssetSystem] Invalid asset handle index {}", index);
