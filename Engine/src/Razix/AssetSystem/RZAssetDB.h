@@ -31,7 +31,7 @@ namespace Razix {
     }
 }
 
-#define RAZIX_MAX_ASSETS 1024 * 1024    // 1 Million assets max for now
+#define RAZIX_MAX_ASSETS 1024 // 1 Million assets max for now
 
 namespace Razix {
 
@@ -44,8 +44,10 @@ namespace Razix {
         void Startup(Memory::RZHeapAllocator& assetAllocator);
         void Shutdown();
 
+        static u64 ComputeMinBudgetBytesForMaxAssets(u64 maxAssets);
+
         template<typename T>
-        const RZAssetPool<T>& GetAssetPool()
+        RZAssetPool<T>& GetAssetPoolRef()
         {
             if constexpr (std::is_same_v<T, RZTransformAsset>) {
                 return m_TransformAssetPool;
@@ -125,7 +127,7 @@ namespace Razix {
             if (headerIndex == RAZIX_ASSET_INVALID_HANDLE)
                 return RAZIX_ASSET_INVALID_HANDLE;
 
-            RZAssetPool<T>& pool = GetAssetPool<T>();
+            RZAssetPool<T>& pool = GetAssetPoolRef<T>();
             u32             payloadIndex = pool.allocate(assetType);
             if (payloadIndex == RAZIX_ASSET_INVALID_HANDLE) {
                 m_HeaderPool.release(headerIndex);
@@ -143,7 +145,7 @@ namespace Razix {
             u32 headerIndex  = static_cast<u32>(handle & RAZIX_ASSET_HOTDATA_MASK);
             u32 payloadIndex = static_cast<u32>((handle & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
 
-            RZAssetPool<T>& pool = GetAssetPool<T>();
+            RZAssetPool<T>& pool = GetAssetPoolRef<T>();
             pool.release(payloadIndex);
             m_HeaderPool.release(headerIndex);
         }
@@ -151,7 +153,7 @@ namespace Razix {
         template<typename T>
         const T* getAssetResourcePtr(rz_asset_handle handle) const
         {
-            const RZAssetPool<T>& pool  = GetAssetPool<T>();
+            const RZAssetPool<T>& pool  = GetAssetPoolRef<T>();
             u32                   index = static_cast<u32>((handle & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
             return pool.get(index);
         }
@@ -159,7 +161,7 @@ namespace Razix {
         template<typename T>
         T* getAssetResourceMutablePtr(rz_asset_handle handle)
         {
-            RZAssetPool<T>& pool  = GetAssetPool<T>();
+            RZAssetPool<T>& pool  = GetAssetPoolRef<T>();
             u32             index = static_cast<u32>((handle & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
             return pool.get(index);
         }

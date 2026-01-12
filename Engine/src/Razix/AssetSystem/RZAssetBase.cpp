@@ -14,6 +14,7 @@ namespace Razix {
         m_Hot.UUID = RZUUID();
         m_Hot.type = type;
 
+        // safe callback if used doesn't provide memory
         if (m_pCold == NULL || pColdDataMemory == NULL) {
             m_pCold = (RZAssetColdData*) rz_malloc_aligned(sizeof(RZAssetColdData));
         } else {

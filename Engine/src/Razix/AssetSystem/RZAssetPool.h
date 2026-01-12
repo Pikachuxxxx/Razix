@@ -5,6 +5,10 @@
 #include "Razix/Core/Memory/RZMemoryBudgets.h"
 #include "Razix/Core/RZDepartments.h"
 
+#include "Razix/Core/Memory/RZMemoryFunctions.h"
+
+#include "Razix/Core/Profiling/RZProfiling.h"
+
 #define RAZIX_ASSETPOOL_DEFAULT_CAPACITY 1024_Kib    // 1 MB
 
 namespace Razix {
@@ -229,7 +233,7 @@ namespace Razix {
                 m_Config.hooks.onRelease(handle, m_Config.debugLabel.c_str());
             }
 
-            rz_poison_memory(m_Data[index], m_SlotSize);
+            rz_poison_memory(&m_Data[index], m_SlotSize);
         }
 
         T* get(u32 index)

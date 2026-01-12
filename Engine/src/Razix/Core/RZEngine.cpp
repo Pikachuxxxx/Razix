@@ -110,6 +110,9 @@ namespace Razix {
         const Memory::MemoryPoolBudget assetBudget        = Memory::GetMemoryPoolBudget(Memory::RZ_MEM_POOL_TYPE_ASSET_POOL);
         u64                            assetHeapSizeBytes = Mib(static_cast<u64>(assetBudget.HeapSizeMB));
         RAZIX_CORE_ASSERT(assetHeapSizeBytes > 0, "Asset pool budget is 0 bytes!");
+        const u64 minAssetHeapBytes = RZAssetDB::ComputeMinBudgetBytesForMaxAssets(static_cast<u64>(RAZIX_MAX_ASSETS));
+        RAZIX_CORE_INFO("Initializing Asset Pool with budget: {0} KiB and minAssetHeapBytes: {1} KiB", in_Kib(assetHeapSizeBytes), in_Kib(minAssetHeapBytes));
+        RAZIX_CORE_ASSERT(assetHeapSizeBytes >= minAssetHeapBytes, "Asset pool budget ({0} KiB) below minimum required ({1} KiB) for RAZIX_MAX_ASSETS={2}. Update RazixDepartmentBudgets.ini.", in_Kib(assetHeapSizeBytes), in_Kib(minAssetHeapBytes), static_cast<u64>(RAZIX_MAX_ASSETS));
         m_AssetAllocator.init(assetHeapSizeBytes);
         RZAssetDB::Get().Startup(m_AssetAllocator);
 
