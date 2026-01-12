@@ -7,6 +7,8 @@
 - Added JobSystem API for razix based on atomics, simple local/stealing/global queue etc.
 - unified camera class finally
 - added RZAssetbase and pool design and base assets (21/12/2025)
+- Added new RZAsset types, RZAssetPool and RZAssetDB with budgeted allocations
+- Added rz_mem_tracker for rz_malloc/rz_free
 
 #### Version - 0.50.0 [Development] - 26/11/2025
 - Re-wrote the RHI backend in C99 with full VK and DX12 backend support, can easily switch backend using config files

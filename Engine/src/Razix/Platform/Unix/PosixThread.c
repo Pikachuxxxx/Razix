@@ -62,7 +62,7 @@ static void* _rz_thread_entry(void* args)
 {
     rz_thread_bootstrap* boot  = (rz_thread_bootstrap*) args;
     rz_thread_bootstrap  local = *boot;    // keep a local copy for safety instead of using pointer
-    rz_free(boot);
+    RZ_FREE(boot);
 
     rz_sprintf(tls_thread_name, "[Razix Thread] %s", local.pName);
     tls_thread_id = rz_thread_get_current_id();
@@ -96,7 +96,7 @@ rz_thread_handle rz_thread_create(const char* name, rz_thread_priority priority,
     if (!cb || !pUserData)
         return handle;
 
-    rz_thread_bootstrap* pBootStrap = rz_malloc(sizeof(rz_thread_bootstrap), 16);
+    rz_thread_bootstrap* pBootStrap = RZ_MALLOC_ALIGNED(sizeof(rz_thread_bootstrap), 16);
     pBootStrap->cb                  = cb;
     pBootStrap->pUserData           = pUserData;
     pBootStrap->affinity            = affinity;
@@ -112,7 +112,7 @@ rz_thread_handle rz_thread_create(const char* name, rz_thread_priority priority,
     if (err != 0) {
         // TODO: Have wrapper in C for RZLog.h
         // RAZIX_CORE_ASSERT_MSG(false, "pthread_attr_init failed: %d", err);
-        rz_free(pBootStrap);
+        RZ_FREE(pBootStrap);
         return handle;
     }
 
@@ -123,7 +123,7 @@ rz_thread_handle rz_thread_create(const char* name, rz_thread_priority priority,
     if (err != 0) {
         // TODO: Have wrapper in C for RZLog.h
         // RAZIX_CORE_ASSERT_MSG(false, "pthread_attr_init failed: %d", err);
-        rz_free(pBootStrap);
+        RZ_FREE(pBootStrap);
         return handle;
     }
 

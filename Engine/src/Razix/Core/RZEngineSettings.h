@@ -28,6 +28,7 @@ namespace Razix {
         bool              EnableMSAA           = false;
         bool              EnableBindless       = false;
         bool              EnableBarrierLogging = false;
+        bool              EnableMemoryTracking = true;
         GfxQualityMode    GfxQuality           = GfxQualityMode::kHigh;
         PerfMode          PerformanceMode      = PerfMode::kFidelity;
         rz_gfx_resolution PreferredResolution  = RZ_GFX_RESOLUTION_1440p;

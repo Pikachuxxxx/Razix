@@ -166,8 +166,8 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
             m_Capacity     = capacity;
-            m_Data         = (T*) rz_malloc(sizeof(T) * m_Capacity, RAZIX_16B_ALIGN);
-            m_FreeList     = (u32*) rz_malloc_aligned(sizeof(u32) * m_Capacity);
+            m_Data         = (T*) RZ_MALLOC_ALIGNED(sizeof(T) * m_Capacity, RAZIX_16B_ALIGN);
+            m_FreeList     = (u32*) RZ_MALLOC_ALIGNED(sizeof(u32) * m_Capacity, 16);
             m_Count        = 0;
             m_FreeListHead = 0;
             m_ExternalMemory = false;
@@ -182,11 +182,11 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
             if (m_Data && !m_ExternalMemory) {
-                rz_free(m_Data);
+                RZ_FREE(m_Data);
                 m_Data = NULL;
             }
             if (m_FreeList && !m_ExternalMemory) {
-                rz_free(m_FreeList);
+                RZ_FREE(m_FreeList);
                 m_FreeList = NULL;
             }
             m_Capacity     = 0;
@@ -320,13 +320,13 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
             m_Capacity      = capacity;
-            m_Assets        = (RZTransformAsset*) rz_malloc(sizeof(RZTransformAsset) * m_Capacity, RAZIX_16B_ALIGN);
-            m_Positions     = (float4*) rz_malloc(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_Rotations     = (float4*) rz_malloc(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_Scales        = (float4*) rz_malloc(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_LocalMatrices = (float4x4*) rz_malloc(sizeof(float4x4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_WorldMatrices = (float4x4*) rz_malloc(sizeof(float4x4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_FreeList      = (u32*) rz_malloc_aligned(sizeof(u32) * m_Capacity);
+            m_Assets        = (RZTransformAsset*) RZ_MALLOC_ALIGNED(sizeof(RZTransformAsset) * m_Capacity, RAZIX_16B_ALIGN);
+            m_Positions     = (float4*) RZ_MALLOC_ALIGNED(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_Rotations     = (float4*) RZ_MALLOC_ALIGNED(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_Scales        = (float4*) RZ_MALLOC_ALIGNED(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_LocalMatrices = (float4x4*) RZ_MALLOC_ALIGNED(sizeof(float4x4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_WorldMatrices = (float4x4*) RZ_MALLOC_ALIGNED(sizeof(float4x4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_FreeList      = (u32*) RZ_MALLOC_ALIGNED(sizeof(u32) * m_Capacity, 16);
             m_Count         = 0;
             m_FreeListHead  = 0;
             m_ExternalMemory = false;
@@ -341,31 +341,31 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
             if (m_Assets && !m_ExternalMemory) {
-                rz_free(m_Assets);
+                RZ_FREE(m_Assets);
                 m_Assets = NULL;
             }
             if (m_Positions && !m_ExternalMemory) {
-                rz_free(m_Positions);
+                RZ_FREE(m_Positions);
                 m_Positions = NULL;
             }
             if (m_Rotations && !m_ExternalMemory) {
-                rz_free(m_Rotations);
+                RZ_FREE(m_Rotations);
                 m_Rotations = NULL;
             }
             if (m_Scales && !m_ExternalMemory) {
-                rz_free(m_Scales);
+                RZ_FREE(m_Scales);
                 m_Scales = NULL;
             }
             if (m_LocalMatrices && !m_ExternalMemory) {
-                rz_free(m_LocalMatrices);
+                RZ_FREE(m_LocalMatrices);
                 m_LocalMatrices = NULL;
             }
             if (m_WorldMatrices && !m_ExternalMemory) {
-                rz_free(m_WorldMatrices);
+                RZ_FREE(m_WorldMatrices);
                 m_WorldMatrices = NULL;
             }
             if (m_FreeList && !m_ExternalMemory) {
-                rz_free(m_FreeList);
+                RZ_FREE(m_FreeList);
                 m_FreeList = NULL;
             }
             m_Capacity     = 0;

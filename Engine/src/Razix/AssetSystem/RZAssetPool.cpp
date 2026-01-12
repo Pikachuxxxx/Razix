@@ -59,9 +59,9 @@ namespace Razix {
 
         RAZIX_CORE_INFO("[AssetSystem] Initializing Asset Header Pool with capacity: {}", capacity);
         m_Capacity     = capacity;
-        m_Assets       = static_cast<RZAsset*>(rz_malloc_aligned(sizeof(RZAsset) * m_Capacity));
-        m_ColdData     = static_cast<RZAssetColdData*>(rz_malloc_aligned(sizeof(RZAssetColdData) * m_Capacity));
-        m_FreeList     = static_cast<u32*>(rz_malloc_aligned(sizeof(u32) * m_Capacity));
+        m_Assets       = static_cast<RZAsset*>(RZ_MALLOC_ALIGNED(sizeof(RZAsset) * m_Capacity, 16));
+        m_ColdData     = static_cast<RZAssetColdData*>(RZ_MALLOC_ALIGNED(sizeof(RZAssetColdData) * m_Capacity, 16));
+        m_FreeList     = static_cast<u32*>(RZ_MALLOC_ALIGNED(sizeof(u32) * m_Capacity, 16));
         m_Count        = 0;
         m_FreeListHead = 0;
 
@@ -100,11 +100,11 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
         if (m_Assets)
-            rz_free(m_Assets);
+            RZ_FREE(m_Assets);
         if (m_ColdData)
-            rz_free(m_ColdData);
+            RZ_FREE(m_ColdData);
         if (m_FreeList)
-            rz_free(m_FreeList);
+            RZ_FREE(m_FreeList);
         m_Capacity     = 0;
         m_Count        = 0;
         m_FreeListHead = 0;

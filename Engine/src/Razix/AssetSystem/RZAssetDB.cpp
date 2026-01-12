@@ -248,7 +248,7 @@ namespace Razix {
         };
 
         // initPayloadPool(m_TransformAssetPool, "Transform Asset Pool");
-        initPayloadPool(m_CameraAssetPool, "Camera Asset Pool");
+        // initPayloadPool(m_CameraAssetPool, "Camera Asset Pool");
         // initPayloadPool(m_LightAssetPool, "Light Asset Pool");
         // initPayloadPool(m_MaterialAssetPool, "Material Asset Pool");
         // initPayloadPool(m_PhysicsMaterialAssetPool, "Physics Material Asset Pool");
