@@ -73,6 +73,11 @@ static inline void rz_memtracker_copy_text(char* dst, size_t dst_len, const char
     dst[dst_len - 1] = '\0';
 }
 
+// Opt-in diagnostics to help find mismatched frees/reallocs while tracking is on
+#ifndef RZ_MEMTRACK_DIAGNOSTICS
+    #define RZ_MEMTRACK_DIAGNOSTICS 1
+#endif
+
 static inline u64 rz_memtracker_timestamp(void)
 {
     return (u64) time(NULL);
@@ -121,6 +126,13 @@ static void rz_memtracker_ensure_allocation_capacity(u32 idx)
     memset(new_buf + s_memtracker.allocation_capacity, 0, (new_cap - s_memtracker.allocation_capacity) * sizeof(RZMemAllocationRecord));
     s_memtracker.allocations         = new_buf;
     s_memtracker.allocation_capacity = new_cap;
+}
+
+// Helper to grab the header word (if present) for diagnostics without failing hard
+static inline u64 rz_memtracker_peek_header(void* user_ptr)
+{
+    if (!user_ptr) return 0;
+    return *((const u64*) (((const u8*) user_ptr) - sizeof(u64)));
 }
 
 static void rz_memtracker_init(void)
@@ -181,7 +193,7 @@ static RZMemAllocationRecord* rz_memtracker_get_record(void* user_ptr)
     return rec;
 }
 
-static void* rz_memtracker_unwrap_pointer(void* user_ptr)
+static void* rz_memtracker_unwrap_pointer(void* user_ptr, const char* file, u32 line)
 {
     if (!s_memtracker.enabled || !user_ptr) return user_ptr;
 
@@ -191,6 +203,18 @@ static void* rz_memtracker_unwrap_pointer(void* user_ptr)
     if (rec && rec->active) {
         raw_ptr     = rec->raw_ptr ? rec->raw_ptr : user_ptr;
         rec->active = false;
+    } else if (RZ_MEMTRACK_DIAGNOSTICS) {
+        u64 header       = rz_memtracker_peek_header(user_ptr);
+        const char* src  = file ? file : "<unknown>";
+        const char* kind = rec ? "inactive" : "untracked";
+        fprintf(stderr,
+                "[Razix][Memory][diag] free on %s pointer %p header=0x%016llx (free site %s:%u)%s\n",
+                kind,
+                user_ptr,
+                (unsigned long long) header,
+                src,
+                line,
+                rec ? "" : "");
     }
     rz_critical_section_unlock(&s_memtracker.lock);
     return raw_ptr;
@@ -372,6 +396,23 @@ static void* rz_realloc_internal_with_meta(void* oldPtr, size_t oldSize, size_t 
         rz_critical_section_unlock(&s_memtracker.lock);
 
         return aligned_user;
+    } else if (tracking_active && !rec) {
+        // Fallback: treat as a new tracked allocation and copy, then free the old block raw
+        void* new_user = rz_mem_alloc_internal(newSize, alignment, tag ? tag : "rz_realloc", file, line, 0, false);
+        if (new_user) {
+            size_t copySize = oldSize < newSize ? oldSize : newSize;
+            memcpy(new_user, oldPtr, copySize);
+        }
+        // Free the original block without touching tracker (it wasn't tracked)
+        rz_platform_aligned_free(raw_ptr);
+        if (RZ_MEMTRACK_DIAGNOSTICS) {
+            u64 header = rz_memtracker_peek_header(oldPtr);
+            fprintf(stderr, "[Razix][Memory][diag] realloc on untracked pointer %p header=0x%016llx (file=%s line=%u)\n", oldPtr, (unsigned long long) header, file ? file : "<unknown>", line);
+            if (!new_user) {
+                fprintf(stderr, "[Razix][Memory][diag] realloc fallback alloc failed for pointer %p\n", oldPtr);
+            }
+        }
+        return new_user;
     }
 #endif
 
@@ -418,7 +459,7 @@ void* rz_calloc_debug(size_t count, size_t size, size_t alignment, const char* f
 void rz_free(void* address)
 {
 #ifdef RAZIX_ENABLE_MEM_ALLOC_TRACKING
-    void* raw_ptr = rz_memtracker_unwrap_pointer(address);
+    void* raw_ptr = rz_memtracker_unwrap_pointer(address, NULL, 0);
 #else
     void* raw_ptr = address;
 #endif
@@ -434,9 +475,18 @@ void rz_free(void* address)
 
 void rz_free_debug(void* address, const char* filename, uint32_t lineNumber)
 {
-    (void) filename;
-    (void) lineNumber;
-    rz_free(address);
+    void* raw_ptr = address;
+#ifdef RAZIX_ENABLE_MEM_ALLOC_TRACKING
+    raw_ptr = rz_memtracker_unwrap_pointer(address, filename, lineNumber);
+#endif
+
+#ifdef RAZIX_DEBUG
+    rz_debug_free(raw_ptr);
+#else
+    if (raw_ptr) {
+        rz_platform_aligned_free(raw_ptr);
+    }
+#endif
 }
 
 //--------------------------------------
@@ -526,13 +576,15 @@ void rz_memory_tracker_report_leaks(void)
         for (size_t i = 1; i < s_memtracker.allocation_capacity; ++i) {
             const RZMemAllocationRecord* rec = &s_memtracker.allocations[i];
             if (!rec->active) continue;
-            fprintf(stderr,
-                    "  [Leak] alloc_id=%u size=%zu thread=%u name=%s magic=0x%08x %s:%u\n",
+                fprintf(stderr,
+                    "  [Leak] alloc_id=%u size=%zu thread=%u name=%s magic=0x%08x user_ptr=%p raw_ptr=%p %s:%u\n",
                     rec->id,
                     rec->size,
                     rec->thread_id,
                     rec->name[0] ? rec->name : "<unnamed>",
                     rec->magic_number,
+                    rec->user_ptr,
+                    rec->raw_ptr,
                     rec->file[0] ? rec->file : "<unknown>",
                     rec->line);
         }
