@@ -123,7 +123,7 @@ namespace Razix {
 
         //--------------------------
         // Asset DB startup
-        //RZAssetDB::Get().Startup(m_AssetAllocator);
+        RZAssetDB::Get().Startup(m_AssetAllocator);
 
         //--------------------------
         // Initialize Job System right after memory systems
@@ -225,8 +225,8 @@ namespace Razix {
         // Shutdown Job System
         rz_job_system_shutdown();
         // Shutdown memory systems and free all the memory
-        //RZAssetDB::Get().Shutdown();
-        //m_AssetAllocator.shutdown();
+        RZAssetDB::Get().Shutdown();
+        m_AssetAllocator.shutdown();
         m_SystemAllocator.shutdown();
         m_FrameAllocator.shutdown();
         m_PacketAllocator.shutdown();

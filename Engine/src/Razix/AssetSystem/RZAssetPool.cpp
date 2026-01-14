@@ -22,12 +22,6 @@ namespace Razix {
         u64 poolMemoryBudgetBytes = Mib(static_cast<u64>(poolBudget.HeapSizeMB));
         u32 capacity              = static_cast<u32>(poolMemoryBudgetBytes / slotSize);
 
-        RAZIX_CORE_TRACE("[AssetSystem] [Assetool] Created Pool...: {0} | Memory Budget: {1} MB | Slot Size: {2} bytes | Calculated Capacity: {3}",
-            poolBudget.PoolName,
-            poolBudget.HeapSizeMB,
-            slotSize,
-            capacity);
-
         RAZIX_CORE_ASSERT(capacity > 0, "[AssetSystem] Pool: {0} has insufficient memory budget: {1} MB for asset pool of slot size: {2} bytes", poolBudget.PoolName, poolBudget.HeapSizeMB, slotSize);
 
         return capacity;
