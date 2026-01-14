@@ -13,6 +13,7 @@
 
 namespace Razix {
 
+    // TODO: move to more apt place, idk where
     static inline u64 rz_max_u64(u64 a, u64 b)
     {
         return (a > b) ? a : b;
@@ -22,7 +23,9 @@ namespace Razix {
     {
         return (a < b) ? a : b;
     }
-
+    
+    //-------------------------------------------------------------------------
+    
     static void OnAssetAllocate(rz_asset_handle handle, const char* label)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
@@ -36,6 +39,8 @@ namespace Razix {
 
         RAZIX_CORE_INFO("[AssetSystem][{}] Released Asset with handle: {}", label, handle);
     }
+
+    //-------------------------------------------------------------------------
 
     template<typename AssetT>
     constexpr u64 GetAssetPayloadSize()
@@ -59,7 +64,7 @@ namespace Razix {
 
         const u32 maxAssetsCap = static_cast<u32>(RAZIX_MAX_ASSETS);
         RAZIX_CORE_ASSERT(capacity >= maxAssetsCap, "[AssetSystem] Pool capacity {} below RAZIX_MAX_ASSETS {}. Increase asset pool budget or reduce pool count.", capacity, maxAssetsCap);
-        capacity = rz_min_u32(capacity, maxAssetsCap);
+        capacity = maxAssetsCap;//rz_min_u32(capacity, maxAssetsCap);
 
         return capacity;
     }
@@ -88,16 +93,16 @@ namespace Razix {
 
     static u32 ComputeHeaderCapacity(u64 sliceBytes)
     {
-        auto align_up = [](u64 value, u64 alignment) {
-            const u64 mask = alignment - 1;
-            return (value + mask) & ~mask;
-        };
+//        auto align_up = [](u64 value, u64 alignment) {
+//            const u64 mask = alignment - 1;
+//            return (value + mask) & ~mask;
+//        };
 
         auto computeAllocBytes = [&](u32 cap) {
             u64 offset = sizeof(RZAsset) * cap;
-            offset     = align_up(offset, alignof(RZAssetColdData));
+//            offset     = align_up(offset, alignof(RZAssetColdData));
             offset += sizeof(RZAssetColdData) * cap;
-            offset = align_up(offset, alignof(u32));
+//            offset = align_up(offset, alignof(u32));
             offset += sizeof(u32) * cap;
             return offset;
         };
@@ -115,17 +120,17 @@ namespace Razix {
 
     static void InitHeaderPoolWithSlice(RZAssetHeaderPool& pool, Memory::RZHeapAllocator& allocator, u64 sliceBytes)
     {
-        auto align_up = [](u64 value, u64 alignment) {
-            const u64 mask = alignment - 1;
-            return (value + mask) & ~mask;
-        };
+//        auto align_up = [](u64 value, u64 alignment) {
+//            const u64 mask = alignment - 1;
+//            return (value + mask) & ~mask;
+//        };
 
         const u32 capacity = ComputeHeaderCapacity(sliceBytes);
 
         u64 allocationSize = sizeof(RZAsset) * capacity;
-        allocationSize     = align_up(allocationSize, alignof(RZAssetColdData));
+//        allocationSize     = align_up(allocationSize, alignof(RZAssetColdData));
         allocationSize += sizeof(RZAssetColdData) * capacity;
-        allocationSize = align_up(allocationSize, alignof(u32));
+//        allocationSize = align_up(allocationSize, alignof(u32));
         allocationSize += sizeof(u32) * capacity;
 
         void* memory = allocator.allocate(allocationSize);
@@ -138,15 +143,15 @@ namespace Razix {
 
     static u64 ComputeHeaderSlotBytesAligned()
     {
-        auto align_up = [](u64 value, u64 alignment) {
-            const u64 mask = alignment - 1;
-            return (value + mask) & ~mask;
-        };
+//        auto align_up = [](u64 value, u64 alignment) {
+//            const u64 mask = alignment - 1;
+//            return (value + mask) & ~mask;
+//        };
 
         u64 bytes = sizeof(RZAsset);
-        bytes     = align_up(bytes, alignof(RZAssetColdData));
+//        bytes     = align_up(bytes, alignof(RZAssetColdData));
         bytes += sizeof(RZAssetColdData);
-        bytes  = align_up(bytes, alignof(u32));
+//        bytes  = align_up(bytes, alignof(u32));
         bytes += sizeof(u32);
         return bytes;
     }
@@ -247,7 +252,7 @@ namespace Razix {
             InitPoolWithSlice<AssetType>(pool, assetAllocator, label, slice);
         };
 
-        // initPayloadPool(m_TransformAssetPool, "Transform Asset Pool");
+         initPayloadPool(m_TransformAssetPool, "Transform Asset Pool");
         // initPayloadPool(m_CameraAssetPool, "Camera Asset Pool");
         // initPayloadPool(m_LightAssetPool, "Light Asset Pool");
         // initPayloadPool(m_MaterialAssetPool, "Material Asset Pool");

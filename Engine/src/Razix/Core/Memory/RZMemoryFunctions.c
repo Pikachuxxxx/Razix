@@ -346,6 +346,7 @@ static void* rz_realloc_internal_with_meta(void* oldPtr, size_t oldSize, size_t 
     void*                  raw_ptr = rec ? rec->raw_ptr : oldPtr;
 #else
     void* raw_ptr = oldPtr;
+    RAZIX_UNUSED(raw_ptr);
 #endif
 
     size_t totalSize = newSize;

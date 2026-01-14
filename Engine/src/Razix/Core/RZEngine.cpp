@@ -118,7 +118,7 @@ namespace Razix {
         RAZIX_CORE_INFO("Initializing Asset Pool with budget: {0} KiB and minAssetHeapBytes: {1} KiB", in_Kib(assetHeapSizeBytes), in_Kib(minAssetHeapBytes));
         RAZIX_CORE_ASSERT(assetHeapSizeBytes >= minAssetHeapBytes, "Asset pool budget ({0} KiB) below minimum required ({1} KiB) for RAZIX_MAX_ASSETS={2}. Update RazixDepartmentBudgets.ini.", in_Kib(assetHeapSizeBytes), in_Kib(minAssetHeapBytes), static_cast<u64>(RAZIX_MAX_ASSETS));
         m_AssetAllocator.init(assetHeapSizeBytes);
-        // RZAssetDB::Get().Startup(m_AssetAllocator);
+         RZAssetDB::Get().Startup(m_AssetAllocator);
 
         // Initialize Job System right after memory systems
         rz_job_system_startup(RAZIX_MAX_WORKER_THREADS);

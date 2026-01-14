@@ -127,6 +127,7 @@ namespace Razix {
         // Construct the asset in place
         // We pass the pointer to the corresponding cold data
         RZAsset* asset = new (&m_Assets[index]) RZAsset(type, &m_ColdData[index]);
+        RAZIX_UNUSED(asset);
 
         // Set the handle
         // The handle's lower 32 bits are the index in this pool
