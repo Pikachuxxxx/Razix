@@ -433,6 +433,9 @@ namespace Razix {
 
         void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
         {
+            if (!scene)
+                return;
+
             memset(&m_LastSwapchainReadback, 0, sizeof(rz_gfx_texture_readback));
             m_FrameGraphBuildingInProgress = true;
 

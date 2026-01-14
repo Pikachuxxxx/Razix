@@ -102,11 +102,11 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
         if (m_Assets && !m_ExternalMemory)
-            RZ_FREE(m_Assets);
+            rz_free(m_Assets);
         if (m_ColdData && !m_ExternalMemory)
-            RZ_FREE(m_ColdData);
+            rz_free(m_ColdData);
         if (m_FreeList && !m_ExternalMemory)
-            RZ_FREE(m_FreeList);
+            rz_free(m_FreeList);
         m_Capacity     = 0;
         m_Count        = 0;
         m_FreeListHead = 0;
