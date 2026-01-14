@@ -172,19 +172,21 @@
 
 // TODO: Define a Razix Static Assert
 
-    #define RAZIX_CORE_ASSERT(x, ...)                                                                                \
-        {                                                                                                            \
-            if (!(x)) {                                                                                              \
-                RAZIX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); \
-                RAZIX_DEBUG_BREAK();                                                                                 \
-            }                                                                                                        \
+    #define RAZIX_CORE_ASSERT(x, ...)                                                               \
+        {                                                                                           \
+            if (!(x)) {                                                                             \
+                RAZIX_CORE_ERROR("Assertions Failed: at Line {0} in File {1}", __LINE__, __FILE__); \
+                RAZIX_CORE_ERROR("\t Details: {0}", __VA_ARGS__);                                   \
+                RAZIX_DEBUG_BREAK();                                                                \
+            }                                                                                       \
         }
-    #define RAZIX_ASSERT(x, ...)                                                                                     \
-        {                                                                                                            \
-            if (!(x)) {                                                                                              \
-                RAZIX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); \
-                RAZIX_DEBUG_BREAK();                                                                                 \
-            }                                                                                                        \
+    #define RAZIX_ASSERT(x, ...)                                                               \
+        {                                                                                      \
+            if (!(x)) {                                                                        \
+                RAZIX_ERROR("Assertions Failed: at Line {0} in File {1}", __LINE__, __FILE__); \
+                RAZIX_ERROR("\t Details: {0}", __VA_ARGS__);                                   \
+                RAZIX_DEBUG_BREAK();                                                           \
+            }                                                                                  \
         }
     // Generic conditioned Assertions
     #define RAZIX_ASSERT_NO_MESSAGE(condition)                                                     \
@@ -195,12 +197,13 @@
             }                                                                                      \
         }
 
-    #define RAZIX_ASSERT_MESSAGE(condition, ...)                                                                     \
-        {                                                                                                            \
-            if (!(condition)) {                                                                                      \
-                RAZIX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); \
-                RAZIX_DEBUG_BREAK();                                                                                 \
-            }                                                                                                        \
+    #define RAZIX_ASSERT_MESSAGE(condition, ...)                                                    \
+        {                                                                                           \
+            if (!(condition)) {                                                                     \
+                RAZIX_CORE_ERROR("Assertions Failed: at Line {0} in File {1}", __LINE__, __FILE__); \
+                RAZIX_CORE_ERROR("\t Details: {0}", __VA_ARGS__);                                   \
+                RAZIX_DEBUG_BREAK();                                                                \
+            }                                                                                       \
         }
 #else
     #define RAZIX_CORE_ASSERT(x, ...)
