@@ -5,6 +5,7 @@
 
 #include "Razix/Core/Containers/string_utils.h"
 #include "Razix/Core/Memory/RZMemoryBudgets.h"
+#include "Razix/Core/Memory/RZMemoryFunctions.h"
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 #include "Razix/Core/Utils/RZPlatformUtils.h"
 #include "Razix/Core/Version/RazixVersion.h"
@@ -12,6 +13,8 @@
 #include "Razix/Core/OS/RZWindow.h"
 
 #include "Razix/Core/Job/RZJobSystem.h"
+
+#include "Razix/AssetSystem/RZAssetDB.h"
 
 //#include "Razix/Gfx/Materials/RZMaterial.h"
 
@@ -29,6 +32,9 @@
 namespace Razix {
     void RZEngine::Ignite()
     {
+    #ifdef RAZIX_ENABLE_MEM_ALLOC_TRACKING
+        rz_memory_tracking_set_enabled(m_EngineSettings.EnableMemoryTracking);
+    #endif
 #ifdef RAZIX_DEBUG
         auto start = rz_time_now();
 #endif    // RAZIX_DEBUG \
@@ -105,6 +111,14 @@ namespace Razix {
         // Asset DB and System and Pools
         // Use the SystemHeap along with department budgets for the RZAssetPools
         // Create the asset DB with system allocator and list of asset types to register pools for
+        const Memory::MemoryPoolBudget assetBudget        = Memory::GetMemoryPoolBudget(Memory::RZ_MEM_POOL_TYPE_ASSET_POOL);
+        u64                            assetHeapSizeBytes = Mib(static_cast<u64>(assetBudget.HeapSizeMB));
+        RAZIX_CORE_ASSERT(assetHeapSizeBytes > 0, "Asset pool budget is 0 bytes!");
+        const u64 minAssetHeapBytes = RZAssetDB::ComputeMinBudgetBytesForMaxAssets(static_cast<u64>(RAZIX_MAX_ASSETS));
+        RAZIX_CORE_INFO("Initializing Asset Pool with budget: {0} KiB and minAssetHeapBytes: {1} KiB", in_Kib(assetHeapSizeBytes), in_Kib(minAssetHeapBytes));
+        RAZIX_CORE_ASSERT(assetHeapSizeBytes >= minAssetHeapBytes, "Asset pool budget ({0} KiB) below minimum required ({1} KiB) for RAZIX_MAX_ASSETS={2}. Update RazixDepartmentBudgets.ini.", in_Kib(assetHeapSizeBytes), in_Kib(minAssetHeapBytes), static_cast<u64>(RAZIX_MAX_ASSETS));
+        m_AssetAllocator.init(assetHeapSizeBytes);
+         RZAssetDB::Get().Startup(m_AssetAllocator);
 
         // Initialize Job System right after memory systems
         rz_job_system_startup(RAZIX_MAX_WORKER_THREADS);
@@ -198,6 +212,8 @@ namespace Razix {
         // Shutdown Job System
         rz_job_system_shutdown();
         // Shutdown memory systems and free all the memory
+        // RZAssetDB::Get().Shutdown();
+        m_AssetAllocator.shutdown();
         m_SystemAllocator.shutdown();
         m_FrameAllocator.shutdown();
         m_PacketAllocator.shutdown();
@@ -210,6 +226,11 @@ namespace Razix {
         RAZIX_CORE_ERROR("***********************************");
         RAZIX_CORE_ERROR("*    Engine Shutdown Complete!    *");
         RAZIX_CORE_ERROR("***********************************");
+
+#ifdef RAZIX_ENABLE_MEM_ALLOC_TRACKING
+        if (m_EngineSettings.EnableMemoryTracking)
+            rz_memory_tracker_report_leaks();
+#endif
     }
 
     void RZEngine::Run()
@@ -259,6 +280,9 @@ namespace Razix {
                 engineConfigParser.getValue<int>("Rendering", "MaxShadowCascades", m_EngineSettings.MaxShadowCascades);
                 engineConfigParser.getValue<int>("Rendering", "MSAASamples", m_EngineSettings.MSAASamples);
             }
+
+            // Debug / Memory settings
+            engineConfigParser.getValue<bool>("Debug", "EnableMemoryTracking", m_EngineSettings.EnableMemoryTracking);
         }
     }
 }    // namespace Razix

@@ -12,12 +12,12 @@ namespace Razix {
         {
             m_TotalSize  = size;
             m_Alignment  = alignment;
-            m_StackChunk = (uint8_t*) rz_malloc(size, alignment);
+            m_StackChunk = (uint8_t*) RZ_MALLOC_ALIGNED(size, alignment);
         }
 
         void RZStackAllocator::shutdown()
         {
-            rz_free(m_StackChunk);
+            RZ_FREE(m_StackChunk);
         }
 
         void* RZStackAllocator::allocate(size_t size)

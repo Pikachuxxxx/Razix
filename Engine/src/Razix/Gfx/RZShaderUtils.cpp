@@ -106,10 +106,7 @@ namespace Razix {
                 u32 newElementCount = outReflection->elementCount + module.input_variable_count;
 
                 // Reallocate to accommodate new elements
-                outReflection->pInputElements = (rz_gfx_input_element*) rz_realloc_aligned(
-                    outReflection->pInputElements,
-                    sizeof(rz_gfx_input_element) * outReflection->elementCount,
-                    sizeof(rz_gfx_input_element) * newElementCount);
+                outReflection->pInputElements = (rz_gfx_input_element*) RZ_REALLOC_ALIGNED(outReflection->pInputElements, sizeof(rz_gfx_input_element) * outReflection->elementCount, sizeof(rz_gfx_input_element) * newElementCount, 16);
 
                 u32 currentElementIndex = outReflection->elementCount;
                 u32 currentOffset       = 0;
@@ -174,10 +171,7 @@ namespace Razix {
                 if (strstr(pushConstant.name, RAZIX_PUSH_CONSTANT_REFLECTION_NAME_VK) != NULL) {
                     // Append to existing root constants
                     outReflection->rootSignatureDesc.pRootConstantsDesc =
-                        (rz_gfx_root_constant_desc*) rz_realloc_aligned(
-                            outReflection->rootSignatureDesc.pRootConstantsDesc,
-                            sizeof(rz_gfx_root_constant_desc) * outReflection->rootSignatureDesc.rootConstantCount,
-                            sizeof(rz_gfx_root_constant_desc) * (outReflection->rootSignatureDesc.rootConstantCount + 1));
+                        (rz_gfx_root_constant_desc*) RZ_REALLOC_ALIGNED(outReflection->rootSignatureDesc.pRootConstantsDesc, sizeof(rz_gfx_root_constant_desc) * outReflection->rootSignatureDesc.rootConstantCount, sizeof(rz_gfx_root_constant_desc) * (outReflection->rootSignatureDesc.rootConstantCount + 1), 16);
 
                     rz_gfx_root_constant_desc* rc = &outReflection->rootSignatureDesc.pRootConstantsDesc[outReflection->rootSignatureDesc.rootConstantCount];
                     rc->location.binding          = 0;    // Doesn't make sense for PushConstants
@@ -210,10 +204,7 @@ namespace Razix {
                 if (!targetTable) {
                     // Reallocate table layouts array
                     outReflection->rootSignatureDesc.pDescriptorTableLayouts =
-                        (rz_gfx_descriptor_table_layout*) rz_realloc_aligned(
-                            outReflection->rootSignatureDesc.pDescriptorTableLayouts,
-                            sizeof(rz_gfx_descriptor_table_layout) * outReflection->rootSignatureDesc.descriptorTableLayoutsCount,
-                            sizeof(rz_gfx_descriptor_table_layout) * (outReflection->rootSignatureDesc.descriptorTableLayoutsCount + 1));
+                        (rz_gfx_descriptor_table_layout*) RZ_REALLOC_ALIGNED(outReflection->rootSignatureDesc.pDescriptorTableLayouts, sizeof(rz_gfx_descriptor_table_layout) * outReflection->rootSignatureDesc.descriptorTableLayoutsCount, sizeof(rz_gfx_descriptor_table_layout) * (outReflection->rootSignatureDesc.descriptorTableLayoutsCount + 1), 16);
 
                     targetTableIndex = outReflection->rootSignatureDesc.descriptorTableLayoutsCount;
                     targetTable      = &outReflection->rootSignatureDesc.pDescriptorTableLayouts[targetTableIndex];
@@ -227,10 +218,7 @@ namespace Razix {
                 }
 
                 // Add descriptor to the table (append to existing descriptors)
-                targetTable->pDescriptors = (rz_gfx_descriptor*) rz_realloc_aligned(
-                    (void*) targetTable->pDescriptors,
-                    sizeof(rz_gfx_descriptor) * targetTable->descriptorCount,
-                    sizeof(rz_gfx_descriptor) * (targetTable->descriptorCount + 1));
+                targetTable->pDescriptors = (rz_gfx_descriptor*) RZ_REALLOC_ALIGNED((void*) targetTable->pDescriptors, sizeof(rz_gfx_descriptor) * targetTable->descriptorCount, sizeof(rz_gfx_descriptor) * (targetTable->descriptorCount + 1), 16);
 
                 RAZIX_CORE_TRACE("[SPV] Reflected Descriptor - Name: {0}, Set: {1}, Binding: {2}, Type: {3}, Count: {4}, Size: {5}, Offset: {6}, Resource Type: {7}, Count: {8}",
                     descriptor.name,
@@ -513,10 +501,7 @@ namespace Razix {
                 u32 newElementCount = outReflection->elementCount + shaderDesc.InputParameters;
 
                 // Reallocate to accommodate new elements
-                outReflection->pInputElements = (rz_gfx_input_element*) rz_realloc_aligned(
-                    outReflection->pInputElements,
-                    sizeof(rz_gfx_input_element) * outReflection->elementCount,
-                    sizeof(rz_gfx_input_element) * newElementCount);
+                outReflection->pInputElements = (rz_gfx_input_element*) RZ_REALLOC_ALIGNED(outReflection->pInputElements, sizeof(rz_gfx_input_element) * outReflection->elementCount, sizeof(rz_gfx_input_element) * newElementCount, 16);
 
                 u32 currentElementIndex = outReflection->elementCount;
                 u32 currentOffset       = 0;
@@ -569,10 +554,7 @@ namespace Razix {
                 if (strstr(bindDesc.Name, RAZIX_PUSH_CONSTANT_REFLECTION_NAME_DX12) != NULL) {
                     // Append to existing root constants
                     outReflection->rootSignatureDesc.pRootConstantsDesc =
-                        (rz_gfx_root_constant_desc*) rz_realloc_aligned(
-                            outReflection->rootSignatureDesc.pRootConstantsDesc,
-                            sizeof(rz_gfx_root_constant_desc) * outReflection->rootSignatureDesc.rootConstantCount,
-                            sizeof(rz_gfx_root_constant_desc) * (outReflection->rootSignatureDesc.rootConstantCount + 1));
+                        (rz_gfx_root_constant_desc*) RZ_REALLOC_ALIGNED(outReflection->rootSignatureDesc.pRootConstantsDesc, sizeof(rz_gfx_root_constant_desc) * outReflection->rootSignatureDesc.rootConstantCount, sizeof(rz_gfx_root_constant_desc) * (outReflection->rootSignatureDesc.rootConstantCount + 1), 16);
 
                     rz_gfx_root_constant_desc* rc = &outReflection->rootSignatureDesc.pRootConstantsDesc[outReflection->rootSignatureDesc.rootConstantCount];
                     rc->location.binding          = bindDesc.BindPoint;
@@ -609,10 +591,7 @@ namespace Razix {
                 if (!targetTable) {
                     // Reallocate table layouts array
                     outReflection->rootSignatureDesc.pDescriptorTableLayouts =
-                        (rz_gfx_descriptor_table_layout*) rz_realloc_aligned(
-                            outReflection->rootSignatureDesc.pDescriptorTableLayouts,
-                            sizeof(rz_gfx_descriptor_table_layout) * outReflection->rootSignatureDesc.descriptorTableLayoutsCount,
-                            sizeof(rz_gfx_descriptor_table_layout) * (outReflection->rootSignatureDesc.descriptorTableLayoutsCount + 1));
+                        (rz_gfx_descriptor_table_layout*) RZ_REALLOC_ALIGNED(outReflection->rootSignatureDesc.pDescriptorTableLayouts, sizeof(rz_gfx_descriptor_table_layout) * outReflection->rootSignatureDesc.descriptorTableLayoutsCount, sizeof(rz_gfx_descriptor_table_layout) * (outReflection->rootSignatureDesc.descriptorTableLayoutsCount + 1), 16);
 
                     targetTableIndex = outReflection->rootSignatureDesc.descriptorTableLayoutsCount;
                     targetTable      = &outReflection->rootSignatureDesc.pDescriptorTableLayouts[targetTableIndex];
@@ -626,10 +605,7 @@ namespace Razix {
                 }
 
                 // Add descriptor to the table (append to existing descriptors)
-                targetTable->pDescriptors = (rz_gfx_descriptor*) rz_realloc_aligned(
-                    (void*) targetTable->pDescriptors,
-                    sizeof(rz_gfx_descriptor) * targetTable->descriptorCount,
-                    sizeof(rz_gfx_descriptor) * (targetTable->descriptorCount + 1));
+                targetTable->pDescriptors = (rz_gfx_descriptor*) RZ_REALLOC_ALIGNED((void*) targetTable->pDescriptors, sizeof(rz_gfx_descriptor) * targetTable->descriptorCount, sizeof(rz_gfx_descriptor) * (targetTable->descriptorCount + 1), 16);
 
                 RAZIX_CORE_TRACE("[DX12] Reflected Descriptor - Name: {0}, Set: {1}, Binding: {2}, Type: {3}, Count: {4}",
                     bindDesc.Name,
@@ -684,7 +660,7 @@ namespace Razix {
         void FreeShaderReflectionMemAllocs(rz_gfx_shader_reflection* reflection)
         {
             if (reflection->pInputElements) {
-                rz_free(reflection->pInputElements);
+                RZ_FREE(reflection->pInputElements);
                 reflection->pInputElements = NULL;
             }
             if (reflection->rootSignatureDesc.pDescriptorTableLayouts) {
@@ -693,18 +669,18 @@ namespace Razix {
                     if (tableLayout->pDescriptors) {
                         for (u32 j = 0; j < tableLayout->descriptorCount; ++j) {
                         }
-                        rz_free(tableLayout->pDescriptors);
+                        RZ_FREE(tableLayout->pDescriptors);
                         tableLayout->pDescriptors = NULL;
                     }
                     // I don't think we want to free the resource views here because they are managed by the descriptor tables
                 }
 
                 if (reflection->rootSignatureDesc.pRootConstantsDesc) {
-                    rz_free(reflection->rootSignatureDesc.pRootConstantsDesc);
+                    RZ_FREE(reflection->rootSignatureDesc.pRootConstantsDesc);
                     reflection->rootSignatureDesc.pRootConstantsDesc = NULL;
                 }
 
-                rz_free(reflection->rootSignatureDesc.pDescriptorTableLayouts);
+                RZ_FREE(reflection->rootSignatureDesc.pDescriptorTableLayouts);
                 reflection->rootSignatureDesc.pDescriptorTableLayouts = NULL;
             }
             reflection->elementCount = 0;
@@ -716,8 +692,7 @@ namespace Razix {
 
             // Do a deep copy of the descriptor tables and root constants
             if (src->rootSignatureDesc.pDescriptorTableLayouts) {
-                dst->pDescriptorTableLayouts = (rz_gfx_descriptor_table_layout*) rz_malloc_aligned(
-                    sizeof(rz_gfx_descriptor_table_layout) * src->rootSignatureDesc.descriptorTableLayoutsCount);
+                dst->pDescriptorTableLayouts = (rz_gfx_descriptor_table_layout*) RZ_MALLOC_ALIGNED(sizeof(rz_gfx_descriptor_table_layout) * src->rootSignatureDesc.descriptorTableLayoutsCount, 16);
                 memcpy(dst->pDescriptorTableLayouts, src->rootSignatureDesc.pDescriptorTableLayouts, sizeof(rz_gfx_descriptor_table_layout) * src->rootSignatureDesc.descriptorTableLayoutsCount);
 
                 // for each descriptor table, copy the descriptors
@@ -725,8 +700,7 @@ namespace Razix {
                     rz_gfx_descriptor_table_layout* srcTable = &src->rootSignatureDesc.pDescriptorTableLayouts[i];
                     rz_gfx_descriptor_table_layout* dstTable = &dst->pDescriptorTableLayouts[i];
                     if (srcTable->pDescriptors) {
-                        dstTable->pDescriptors = (rz_gfx_descriptor*) rz_malloc_aligned(
-                            sizeof(rz_gfx_descriptor) * srcTable->descriptorCount);
+                        dstTable->pDescriptors = (rz_gfx_descriptor*) RZ_MALLOC_ALIGNED(sizeof(rz_gfx_descriptor) * srcTable->descriptorCount, 16);
                         for (uint32_t j = 0; j < srcTable->descriptorCount; ++j) {
                             dstTable->pDescriptors[j] = srcTable->pDescriptors[j];
                             rz_snprintf(dstTable->pDescriptors[j].pName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", srcTable->pDescriptors[j].pName);
@@ -740,8 +714,7 @@ namespace Razix {
                 dst->pDescriptorTableLayouts = NULL;
             }
             if (src->rootSignatureDesc.pRootConstantsDesc) {
-                dst->pRootConstantsDesc = (rz_gfx_root_constant_desc*) rz_malloc_aligned(
-                    sizeof(rz_gfx_root_constant_desc) * src->rootSignatureDesc.rootConstantCount);
+                dst->pRootConstantsDesc = (rz_gfx_root_constant_desc*) RZ_MALLOC_ALIGNED(sizeof(rz_gfx_root_constant_desc) * src->rootSignatureDesc.rootConstantCount, 16);
                 memcpy(dst->pRootConstantsDesc, src->rootSignatureDesc.pRootConstantsDesc, sizeof(rz_gfx_root_constant_desc) * src->rootSignatureDesc.rootConstantCount);
             } else {
                 dst->pRootConstantsDesc = NULL;
@@ -758,16 +731,16 @@ namespace Razix {
                 for (uint32_t i = 0; i < rootSigDesc->descriptorTableLayoutsCount; ++i) {
                     rz_gfx_descriptor_table_layout* tableLayout = &rootSigDesc->pDescriptorTableLayouts[i];
                     if (tableLayout->pDescriptors) {
-                        rz_free(tableLayout->pDescriptors);
+                        RZ_FREE(tableLayout->pDescriptors);
                         tableLayout->pDescriptors = NULL;
                     }
                     // I don't think we want to free the resource views here because they are managed by the descriptor tables
                 }
-                rz_free(rootSigDesc->pDescriptorTableLayouts);
+                RZ_FREE(rootSigDesc->pDescriptorTableLayouts);
                 rootSigDesc->pDescriptorTableLayouts = NULL;
             }
             if (rootSigDesc->pRootConstantsDesc) {
-                rz_free(rootSigDesc->pRootConstantsDesc);
+                RZ_FREE(rootSigDesc->pRootConstantsDesc);
                 rootSigDesc->pRootConstantsDesc = NULL;
             }
             rootSigDesc->descriptorTableLayoutsCount = 0;
@@ -780,7 +753,7 @@ namespace Razix {
             // Allocate memory for input elements
             *elementCount = src->elementCount;
             if (*elementCount > 0) {
-                *dst = (rz_gfx_input_element*) rz_malloc_aligned(sizeof(rz_gfx_input_element) * (*elementCount));
+                *dst = (rz_gfx_input_element*) RZ_MALLOC_ALIGNED(sizeof(rz_gfx_input_element) * (*elementCount), 16);
                 for (u32 i = 0; i < *elementCount; i++) {
                     rz_snprintf((*dst)[i].pSemanticName, RAZIX_MAX_RESOURCE_NAME_CHAR, "%s", src->pInputElements[i].pSemanticName);
                     (*dst)[i].semanticIndex     = src->pInputElements[i].semanticIndex;
@@ -799,7 +772,7 @@ namespace Razix {
         void FreeInputElementsMemAllocs(rz_gfx_input_element* inputElements, u32 numElements)
         {
             if (inputElements) {
-                rz_free(inputElements);
+                RZ_FREE(inputElements);
                 inputElements = NULL;
             }
         }
@@ -1037,7 +1010,7 @@ namespace Razix {
                     m_BindDescriptorTables.push_back(descriptorTableHandle);
                     m_OwnedDescriptorTables.push_back(descriptorTableHandle);
 
-                    rz_gfx_resource_view* pResViews = (rz_gfx_resource_view*) rz_malloc_aligned(sizeof(rz_gfx_resource_view) * resViews.size());
+                    rz_gfx_resource_view* pResViews = (rz_gfx_resource_view*) RZ_MALLOC_ALIGNED(sizeof(rz_gfx_resource_view) * resViews.size(), 16);
                     for (u32 j = 0; j < resViews.size(); j++) {
                         const NamedResView& resView = resViews[j];
                         RAZIX_ASSERT(rz_handle_is_valid(&resView.resourceViewHandle), "[ShaderBindMap] Invalid resource view handle for resource view {0} in table index {1}!", resView.name, i);
@@ -1049,7 +1022,7 @@ namespace Razix {
                     updateDesc.resViewCount                   = static_cast<u32>(resViews.size());
                     updateDesc.pResourceViews                 = pResViews;
                     rzRHI_UpdateDescriptorTable(updateDesc);
-                    rz_free(pResViews);
+                    RZ_FREE(pResViews);
 
                     RAZIX_CORE_INFO("[ShaderBindMap] Created descriptor table {0} for table index {1} with {2} resource views", tableName, i, resViews.size());
                 }

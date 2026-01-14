@@ -52,7 +52,6 @@ namespace Razix {
     X(LuaScript)        \
     X(AssetRef)         \
     X(VignerePuzzle)    \
-    X(LovePuzzle)       \
     X(Cloth)            \
     X(GameData)
 
@@ -64,7 +63,7 @@ namespace Razix {
             COUNT
     };
 
-    static_assert((u32) RZAssetType::COUNT == 15, "More asset types have been added, make changes to apt places!");
+    static_assert((u32) RZAssetType::COUNT == 14, "More asset types have been added, make changes to apt places!");
 
     /**
      * Defined how the assets are stored in the database pools

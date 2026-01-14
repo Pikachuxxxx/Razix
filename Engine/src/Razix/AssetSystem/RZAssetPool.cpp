@@ -3,6 +3,8 @@
 // clang-format on
 #include "RZAssetPool.h"
 
+#include "Razix/Core/Memory/RZMemoryFunctions.h"
+
 namespace Razix {
 
     u32 GetAssetPoolCapacityFromMemoryBudget(Memory::RZMemoryPoolType poolType, u32 slotSize)
@@ -57,9 +59,9 @@ namespace Razix {
 
         RAZIX_CORE_INFO("[AssetSystem] Initializing Asset Header Pool with capacity: {}", capacity);
         m_Capacity     = capacity;
-        m_Assets       = static_cast<RZAsset*>(rz_malloc_aligned(sizeof(RZAsset) * m_Capacity));
-        m_ColdData     = static_cast<RZAssetColdData*>(rz_malloc_aligned(sizeof(RZAssetColdData) * m_Capacity));
-        m_FreeList     = static_cast<u32*>(rz_malloc_aligned(sizeof(u32) * m_Capacity));
+        m_Assets       = static_cast<RZAsset*>(RZ_MALLOC_ALIGNED(sizeof(RZAsset) * m_Capacity, 16));
+        m_ColdData     = static_cast<RZAssetColdData*>(RZ_MALLOC_ALIGNED(sizeof(RZAssetColdData) * m_Capacity, 16));
+        m_FreeList     = static_cast<u32*>(RZ_MALLOC_ALIGNED(sizeof(u32) * m_Capacity, 16));
         m_Count        = 0;
         m_FreeListHead = 0;
 
@@ -98,25 +100,24 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
         if (m_Assets)
-            rz_free(m_Assets);
+            RZ_FREE(m_Assets);
         if (m_ColdData)
-            rz_free(m_ColdData);
+            RZ_FREE(m_ColdData);
         if (m_FreeList)
-            rz_free(m_FreeList);
+            RZ_FREE(m_FreeList);
         m_Capacity     = 0;
         m_Count        = 0;
         m_FreeListHead = 0;
     }
 
-    rz_asset_handle RZAssetHeaderPool::allocate(RZAssetType type)
+    u32 RZAssetHeaderPool::allocate(RZAssetType type)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-        rz_asset_handle handle = RAZIX_ASSET_INVALID_HANDLE;
         if (m_FreeListHead == UINT32_MAX) {
             // TODO: Resize pool?
             RAZIX_CORE_ERROR("[AssetSystem] Asset Pool is full! Cannot allocate more assets. Please edit the budget files to adjust meomry budget at engine ingition time. Game budget should always be pre-compute and fixed.");
-            return handle;
+            return RAZIX_ASSET_INVALID_HANDLE;
         }
 
         u32 index      = m_FreeListHead;
@@ -126,21 +127,19 @@ namespace Razix {
         // Construct the asset in place
         // We pass the pointer to the corresponding cold data
         RZAsset* asset = new (&m_Assets[index]) RZAsset(type, &m_ColdData[index]);
+        RAZIX_UNUSED(asset);
 
         // Set the handle
         // The handle's lower 32 bits are the index in this pool
         // The upper 32 bits will be set by the caller (RZAssetDatabase) when allocating the payload
         // For now, we just set the lower part.
         // We return the index as the lower 32 bits of the handle
-        handle = (u64) index;
-        return handle;
+        return index;
     }
 
-    void RZAssetHeaderPool::release(rz_asset_handle handle)
+    void RZAssetHeaderPool::release(u32 index)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
-
-        u32 index = (u32) (handle & RAZIX_ASSET_HOTDATA_MASK);
 
         if (index >= m_Capacity) {
             RAZIX_CORE_ERROR("[AssetSystem] Invalid asset handle index {}", index);

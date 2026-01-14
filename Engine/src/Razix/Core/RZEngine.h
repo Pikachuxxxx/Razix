@@ -86,6 +86,7 @@ namespace Razix {
         //inline Gfx::RZShaderLibrary&          getShaderLibrary() { return m_ShaderLibrary; }
 
         inline const Razix::Memory::RZHeapAllocator&     getSystemAllocator() { return m_SystemAllocator; }
+        inline const Razix::Memory::RZHeapAllocator&     getAssetAllocator() { return m_AssetAllocator; }
         inline const Razix::Memory::RZBumpAllocator&     getFrameAllocator() { return m_FrameAllocator; }
         inline const Razix::Memory::RZTwoSidedAllocator& getPacketAllocator() { return m_PacketAllocator; }
 
@@ -101,6 +102,7 @@ namespace Razix {
         Scripting::RZLuaScriptHandler      m_LuaScriptHandlerSystem;
         Gfx::RZWorldRenderer               m_WorldRenderer;
         Razix::Memory::RZHeapAllocator     m_SystemAllocator;
+        Razix::Memory::RZHeapAllocator     m_AssetAllocator;
         Razix::Memory::RZBumpAllocator     m_FrameAllocator;
         Razix::Memory::RZTwoSidedAllocator m_PacketAllocator;
         rz_critical_section                m_SystemAllocatorMutex;

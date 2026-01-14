@@ -44,31 +44,31 @@ namespace Razix {
 
 #pragma warning(disable : 4661)
 
-    // TODO: Test with DCLP before using
-    // TODO: Do not use this yet!
-    template<class T>
-    class RZThreadSafeSingleton
-    {
-    public:
-        static T& Get()
-        {
-            std::lock_guard<std::mutex> lock(m_mConstructed);    //Lock is required here though, to prevent multiple threads initializing multiple instances of the class when it turns out it has not been initialized yet
-            static T                    instance;
-            return instance;
-        }
-
-    protected:
-        //Only allow the class to be created and destroyed by itself
-        RZThreadSafeSingleton() {}
-        ~RZThreadSafeSingleton() {}
-
-        static std::mutex m_mConstructed;
-
-    private:
-        RAZIX_NONCOPYABLE_CLASS(RZThreadSafeSingleton);
-    };
-
-    template<class T>
-    std::mutex Razix::RZThreadSafeSingleton<T>::m_mConstructed;
+    // // TODO: Test with DCLP before using
+    // // TODO: Do not use this yet!
+    // template<class T>
+    // class RZThreadSafeSingleton
+    // {
+    // public:
+    //     static T& Get()
+    //     {
+    //         RZScopedCriticalSection lock(m_mConstructed);    //Lock is required here though, to prevent multiple threads initializing multiple instances of the class when it turns out it has not been initialized yet
+    //         static T                    instance;
+    //         return instance;
+    //     }
+    //
+    // protected:
+    //     //Only allow the class to be created and destroyed by itself
+    //     RZThreadSafeSingleton() {}
+    //     ~RZThreadSafeSingleton() {}
+    //
+    //     static std::mutex m_mConstructed;
+    //
+    // private:
+    //     RAZIX_NONCOPYABLE_CLASS(RZThreadSafeSingleton);
+    // };
+    //
+    // template<class T>
+    // RZCriticalSection Razix::RZThreadSafeSingleton<T>::m_mConstructed;
 
 }    // namespace Razix

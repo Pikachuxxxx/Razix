@@ -5,6 +5,10 @@
 #include "Razix/Core/Memory/RZMemoryBudgets.h"
 #include "Razix/Core/RZDepartments.h"
 
+#include "Razix/Core/Memory/RZMemoryFunctions.h"
+
+#include "Razix/Core/Profiling/RZProfiling.h"
+
 #define RAZIX_ASSETPOOL_DEFAULT_CAPACITY 1024_Kib    // 1 MB
 
 namespace Razix {
@@ -83,8 +87,8 @@ namespace Razix {
         void init(u32 capacity);
         void destroy();
 
-        rz_asset_handle        allocate(RZAssetType type);
-        void                   release(rz_asset_handle handle);
+            u32                    allocate(RZAssetType type);
+            void                   release(u32 index);
         const RZAsset*         get(rz_asset_handle handle) const;
         const RZAssetColdData* getColdData(rz_asset_handle handle) const;
         RZAsset*               getMutablePtr(rz_asset_handle handle) const;
@@ -117,6 +121,8 @@ namespace Razix {
     class RZAssetPool final
     {
     public:
+        using value_type = T;
+
         RZAssetPool()          = default;
         virtual ~RZAssetPool() = default;
 
@@ -149,6 +155,7 @@ namespace Razix {
             m_FreeList     = reinterpret_cast<u32*>((u8*) where + sizeof(T) * capacity);
             m_Count        = 0;
             m_FreeListHead = 0;
+            m_ExternalMemory = true;
             for (u32 i = 0; i < m_Capacity; ++i)
                 m_FreeList[i] = i + 1;
             m_FreeList[m_Capacity - 1] = UINT32_MAX;    // End of list
@@ -159,10 +166,11 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
             m_Capacity     = capacity;
-            m_Data         = (T*) rz_malloc(sizeof(T) * m_Capacity, RAZIX_16B_ALIGN);
-            m_FreeList     = (u32*) rz_malloc_aligned(sizeof(u32) * m_Capacity);
+            m_Data         = (T*) RZ_MALLOC_ALIGNED(sizeof(T) * m_Capacity, RAZIX_16B_ALIGN);
+            m_FreeList     = (u32*) RZ_MALLOC_ALIGNED(sizeof(u32) * m_Capacity, 16);
             m_Count        = 0;
             m_FreeListHead = 0;
+            m_ExternalMemory = false;
 
             for (u32 i = 0; i < m_Capacity; ++i)
                 m_FreeList[i] = i + 1;
@@ -173,20 +181,21 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-            if (m_Data) {
-                rz_free(m_Data);
+            if (m_Data && !m_ExternalMemory) {
+                RZ_FREE(m_Data);
                 m_Data = NULL;
             }
-            if (m_FreeList) {
-                rz_free(m_FreeList);
+            if (m_FreeList && !m_ExternalMemory) {
+                RZ_FREE(m_FreeList);
                 m_FreeList = NULL;
             }
             m_Capacity     = 0;
             m_Count        = 0;
             m_FreeListHead = 0;
+            m_ExternalMemory = false;
         }
 
-        T* allocate(u32& index)
+        u32 allocate(RZAssetType /*assetType*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
@@ -195,10 +204,9 @@ namespace Razix {
                 // TODO: Resize pool?
                 // Actually no dynamic resizing, account for asset memory budget before hand
                 RAZIX_CORE_ERROR("[AssetSystem] Asset Pool is full! Cannot allocate more assets. Please edit the budget files to adjust meomry budget at engine ingition time. Game budget should always be pre-compute and fixed.");
-                return NULL;
+                return RAZIX_ASSET_INVALID_HANDLE;
             }
-
-            index          = m_FreeListHead;
+            u32 index      = m_FreeListHead;
             m_FreeListHead = m_FreeList[index];
             m_Count++;
 
@@ -207,7 +215,7 @@ namespace Razix {
                 m_Config.hooks.onAllocate(handle, m_Config.debugLabel.c_str());
             }
 
-            return &m_Data[index];
+            return index;
         }
 
         void release(u32 index)
@@ -225,7 +233,7 @@ namespace Razix {
                 m_Config.hooks.onRelease(handle, m_Config.debugLabel.c_str());
             }
 
-            rz_poison_memory(m_Data[index], m_SlotSize);
+            rz_poison_memory(&m_Data[index], m_SlotSize);
         }
 
         T* get(u32 index)
@@ -249,6 +257,7 @@ namespace Razix {
         u32               m_FreeListHead = 0;
         u32               m_SlotSize     = sizeof(T);
         RZAssetPoolConfig m_Config       = {};
+        bool              m_ExternalMemory = false;
     };
 
     //---------------------------------------------------------------
@@ -261,6 +270,8 @@ namespace Razix {
     class RZAssetPool<RZTransformAsset>
     {
     public:
+        using value_type = RZTransformAsset;
+
         RZAssetPool()          = default;
         virtual ~RZAssetPool() = default;
 
@@ -298,6 +309,7 @@ namespace Razix {
             m_FreeList      = reinterpret_cast<u32*>((u8*) where + sizeof(RZTransformAsset) * capacity + sizeof(float4) * capacity * 3 + sizeof(float4x4) * capacity * 2);
             m_Count         = 0;
             m_FreeListHead  = 0;
+            m_ExternalMemory = true;
 
             for (u32 i = 0; i < m_Capacity; ++i)
                 m_FreeList[i] = i + 1;
@@ -308,15 +320,16 @@ namespace Razix {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
             m_Capacity      = capacity;
-            m_Assets        = (RZTransformAsset*) rz_malloc(sizeof(RZTransformAsset) * m_Capacity, RAZIX_16B_ALIGN);
-            m_Positions     = (float4*) rz_malloc(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_Rotations     = (float4*) rz_malloc(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_Scales        = (float4*) rz_malloc(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_LocalMatrices = (float4x4*) rz_malloc(sizeof(float4x4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_WorldMatrices = (float4x4*) rz_malloc(sizeof(float4x4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_FreeList      = (u32*) rz_malloc_aligned(sizeof(u32) * m_Capacity);
+            m_Assets        = (RZTransformAsset*) RZ_MALLOC_ALIGNED(sizeof(RZTransformAsset) * m_Capacity, RAZIX_16B_ALIGN);
+            m_Positions     = (float4*) RZ_MALLOC_ALIGNED(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_Rotations     = (float4*) RZ_MALLOC_ALIGNED(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_Scales        = (float4*) RZ_MALLOC_ALIGNED(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_LocalMatrices = (float4x4*) RZ_MALLOC_ALIGNED(sizeof(float4x4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_WorldMatrices = (float4x4*) RZ_MALLOC_ALIGNED(sizeof(float4x4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_FreeList      = (u32*) RZ_MALLOC_ALIGNED(sizeof(u32) * m_Capacity, 16);
             m_Count         = 0;
             m_FreeListHead  = 0;
+            m_ExternalMemory = false;
 
             for (u32 i = 0; i < m_Capacity; ++i)
                 m_FreeList[i] = i + 1;
@@ -327,49 +340,50 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-            if (m_Assets) {
-                rz_free(m_Assets);
+            if (m_Assets && !m_ExternalMemory) {
+                RZ_FREE(m_Assets);
                 m_Assets = NULL;
             }
-            if (m_Positions) {
-                rz_free(m_Positions);
+            if (m_Positions && !m_ExternalMemory) {
+                RZ_FREE(m_Positions);
                 m_Positions = NULL;
             }
-            if (m_Rotations) {
-                rz_free(m_Rotations);
+            if (m_Rotations && !m_ExternalMemory) {
+                RZ_FREE(m_Rotations);
                 m_Rotations = NULL;
             }
-            if (m_Scales) {
-                rz_free(m_Scales);
+            if (m_Scales && !m_ExternalMemory) {
+                RZ_FREE(m_Scales);
                 m_Scales = NULL;
             }
-            if (m_LocalMatrices) {
-                rz_free(m_LocalMatrices);
+            if (m_LocalMatrices && !m_ExternalMemory) {
+                RZ_FREE(m_LocalMatrices);
                 m_LocalMatrices = NULL;
             }
-            if (m_WorldMatrices) {
-                rz_free(m_WorldMatrices);
+            if (m_WorldMatrices && !m_ExternalMemory) {
+                RZ_FREE(m_WorldMatrices);
                 m_WorldMatrices = NULL;
             }
-            if (m_FreeList) {
-                rz_free(m_FreeList);
+            if (m_FreeList && !m_ExternalMemory) {
+                RZ_FREE(m_FreeList);
                 m_FreeList = NULL;
             }
             m_Capacity     = 0;
             m_Count        = 0;
             m_FreeListHead = 0;
+            m_ExternalMemory = false;
         }
 
-        RZTransformAsset* allocate(u32& index)
+        u32 allocate(RZAssetType /*assetType*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
             if (m_FreeListHead == UINT32_MAX) {
                 // Pool is full
                 RAZIX_CORE_ERROR("[AssetSystem] Asset Pool is full! Cannot allocate more assets. Please edit the budget files to adjust meomry budget at engine ingition time. Game budget should always be pre-compute and fixed.");
-                return NULL;
+                return RAZIX_ASSET_INVALID_HANDLE;
             }
-            index          = m_FreeListHead;
+            u32 index      = m_FreeListHead;
             m_FreeListHead = m_FreeList[index];
             m_Count++;
 
@@ -386,7 +400,7 @@ namespace Razix {
                 m_Config.hooks.onAllocate(handle, m_Config.debugLabel.c_str());
             }
 
-            return &m_Assets[index];
+            return index;
         }
 
         void release(u32 index)
@@ -461,5 +475,6 @@ namespace Razix {
         u32               m_FreeListHead  = 0;
         u32               m_SlotSize      = sizeof(RZTransformAsset) + sizeof(float4) * 3 + sizeof(float4x4) * 2;
         RZAssetPoolConfig m_Config        = {};
+        bool              m_ExternalMemory = false;
     };
 }    // namespace Razix

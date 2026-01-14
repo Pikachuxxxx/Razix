@@ -14,8 +14,9 @@ namespace Razix {
         m_Hot.UUID = RZUUID();
         m_Hot.type = type;
 
+        // safe callback if used doesn't provide memory
         if (m_pCold == NULL || pColdDataMemory == NULL) {
-            m_pCold = (RZAssetColdData*) rz_malloc_aligned(sizeof(RZAssetColdData));
+            m_pCold = (RZAssetColdData*) RZ_MALLOC_ALIGNED(sizeof(RZAssetColdData), 16);
         } else {
             m_pCold = (RZAssetColdData*) pColdDataMemory;
         }
@@ -30,7 +31,7 @@ namespace Razix {
             // Don't free cold data here as its managed by the asset pool
             // You do not own the memory! and we don't want double frees.
             // The freelist in the asset pool will take care of freeing the cold data memory
-            //rz_free(m_pCold);
+            //RZ_FREE(m_pCold);
             m_pCold = NULL;
         }
     }

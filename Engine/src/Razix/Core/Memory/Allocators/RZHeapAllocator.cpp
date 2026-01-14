@@ -28,7 +28,7 @@ namespace Razix {
 
             // Allocate a big chunk of heap for TLSF to manage
             // Note: by default rz_malloc_aligned gives 16-byte aligned memory, if you need raw malloc and you can manage yourself use the OG functions
-            m_ChunkAddress = rz_malloc(chunkSize, alignment);
+            m_ChunkAddress = RZ_MALLOC_ALIGNED(chunkSize, alignment);
 
             // Create a TLSF memory pool from which the heap allocations is done
             m_TLSFHandle = tlsf_create_with_pool(m_ChunkAddress, chunkSize);
@@ -58,7 +58,7 @@ namespace Razix {
 
             tlsf_destroy(m_TLSFHandle);
 
-            rz_free(m_ChunkAddress);
+            RZ_FREE(m_ChunkAddress);
         }
 
         void* RZHeapAllocator::allocate(size_t size)

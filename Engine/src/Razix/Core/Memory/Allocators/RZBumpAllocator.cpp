@@ -12,13 +12,13 @@ namespace Razix {
         {
             m_TotalSize = size;
             m_Alignment = alignment;
-            m_Chunk     = (uint8_t*) rz_malloc(size, alignment);
+            m_Chunk     = (uint8_t*) RZ_MALLOC_ALIGNED(size, alignment);
         }
 
         void RZBumpAllocator::shutdown()
         {
             clear();
-            rz_free(m_Chunk);
+            RZ_FREE(m_Chunk);
             m_Chunk         = NULL;
             m_AllocatedSize = 0;
             m_TotalSize     = 0;
