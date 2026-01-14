@@ -29,13 +29,13 @@ namespace Razix {
     namespace Memory {
         class RZHeapAllocator;
     }
-}
+}    // namespace Razix
 
-#define RAZIX_MAX_ASSETS 1024 // 1 Million assets max for now
+#define RAZIX_MAX_ASSETS 1024    // 1 Million assets max for now
 
 namespace Razix {
 
-    class RZAssetDB final : public RZSingleton<RZAssetDB>
+    class RAZIX_API RZAssetDB final : public RZSingleton<RZAssetDB>
     {
     public:
         RZAssetDB()  = default;
@@ -127,7 +127,7 @@ namespace Razix {
             if (headerIndex == RAZIX_ASSET_INVALID_HANDLE)
                 return RAZIX_ASSET_INVALID_HANDLE;
 
-            RZAssetPool<T>& pool = GetAssetPoolRef<T>();
+            RZAssetPool<T>& pool         = GetAssetPoolRef<T>();
             u32             payloadIndex = pool.allocate(assetType);
             if (payloadIndex == RAZIX_ASSET_INVALID_HANDLE) {
                 m_HeaderPool.release(headerIndex);
@@ -142,8 +142,8 @@ namespace Razix {
         void releaseAsset(rz_asset_handle handle)
         {
             RZScopedCriticalSection lock(m_AssetDBLock);
-            u32 headerIndex  = static_cast<u32>(handle & RAZIX_ASSET_HOTDATA_MASK);
-            u32 payloadIndex = static_cast<u32>((handle & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
+            u32                     headerIndex  = static_cast<u32>(handle & RAZIX_ASSET_HOTDATA_MASK);
+            u32                     payloadIndex = static_cast<u32>((handle & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
 
             RZAssetPool<T>& pool = GetAssetPoolRef<T>();
             pool.release(payloadIndex);
@@ -180,10 +180,10 @@ namespace Razix {
         RZAssetPool<RZPhysicsMaterialAsset> m_PhysicsMaterialAssetPool;
         RZAssetPool<RZTextureAsset>         m_TextureAssetPool;
         RZAssetPool<RZTransformAsset>       m_TransformAssetPool;
-        RZAssetPool<RZVignerePuzzleAsset>    m_VignerePuzzleAssetPool;
+        RZAssetPool<RZVignerePuzzleAsset>   m_VignerePuzzleAssetPool;
         RZAssetHeaderPool                   m_HeaderPool;
 
-        rz_critical_section  m_AssetDBLock = {};
+        rz_critical_section      m_AssetDBLock    = {};
         Memory::RZHeapAllocator* m_AssetAllocator = NULL;
         u32                      m_BudgetInMB     = 0;
     };

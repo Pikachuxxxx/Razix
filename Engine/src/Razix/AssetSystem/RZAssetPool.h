@@ -87,8 +87,8 @@ namespace Razix {
         void init(u32 capacity);
         void destroy();
 
-            u32                    allocate(RZAssetType type);
-            void                   release(u32 index);
+        u32                    allocate(RZAssetType type);
+        void                   release(u32 index);
         const RZAsset*         get(rz_asset_handle handle) const;
         const RZAssetColdData* getColdData(rz_asset_handle handle) const;
         RZAsset*               getMutablePtr(rz_asset_handle handle) const;
@@ -101,13 +101,14 @@ namespace Razix {
         const RZAssetPoolConfig& getConfig() const { return m_Config; }
 
     private:
-        RZAsset*          m_Assets       = NULL;
-        RZAssetColdData*  m_ColdData     = NULL;
-        u32*              m_FreeList     = NULL;
-        u32               m_Capacity     = 0;
-        u32               m_Count        = 0;
-        u32               m_FreeListHead = 0;
-        RZAssetPoolConfig m_Config       = {};
+        RZAsset*          m_Assets         = NULL;
+        RZAssetColdData*  m_ColdData       = NULL;
+        u32*              m_FreeList       = NULL;
+        u32               m_Capacity       = 0;
+        u32               m_Count          = 0;
+        u32               m_FreeListHead   = 0;
+        RZAssetPoolConfig m_Config         = {};
+        bool              m_ExternalMemory = false;
     };
 
     //class RAZIX_API RZAssetPoolBase
@@ -150,11 +151,11 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-            m_Capacity     = capacity;
-            m_Data         = reinterpret_cast<T*>(where);
-            m_FreeList     = reinterpret_cast<u32*>((u8*) where + sizeof(T) * capacity);
-            m_Count        = 0;
-            m_FreeListHead = 0;
+            m_Capacity       = capacity;
+            m_Data           = reinterpret_cast<T*>(where);
+            m_FreeList       = reinterpret_cast<u32*>((u8*) where + sizeof(T) * capacity);
+            m_Count          = 0;
+            m_FreeListHead   = 0;
             m_ExternalMemory = true;
             for (u32 i = 0; i < m_Capacity; ++i)
                 m_FreeList[i] = i + 1;
@@ -165,11 +166,11 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-            m_Capacity     = capacity;
-            m_Data         = (T*) RZ_MALLOC_ALIGNED(sizeof(T) * m_Capacity, RAZIX_16B_ALIGN);
-            m_FreeList     = (u32*) RZ_MALLOC_ALIGNED(sizeof(u32) * m_Capacity, 16);
-            m_Count        = 0;
-            m_FreeListHead = 0;
+            m_Capacity       = capacity;
+            m_Data           = (T*) RZ_MALLOC_ALIGNED(sizeof(T) * m_Capacity, RAZIX_16B_ALIGN);
+            m_FreeList       = (u32*) RZ_MALLOC_ALIGNED(sizeof(u32) * m_Capacity, 16);
+            m_Count          = 0;
+            m_FreeListHead   = 0;
             m_ExternalMemory = false;
 
             for (u32 i = 0; i < m_Capacity; ++i)
@@ -189,9 +190,9 @@ namespace Razix {
                 RZ_FREE(m_FreeList);
                 m_FreeList = NULL;
             }
-            m_Capacity     = 0;
-            m_Count        = 0;
-            m_FreeListHead = 0;
+            m_Capacity       = 0;
+            m_Count          = 0;
+            m_FreeListHead   = 0;
             m_ExternalMemory = false;
         }
 
@@ -250,13 +251,13 @@ namespace Razix {
         u32 getCount() const { return m_Count; }
 
     private:
-        T*                m_Data         = NULL;
-        u32*              m_FreeList     = NULL;
-        u32               m_Capacity     = 0;
-        u32               m_Count        = 0;
-        u32               m_FreeListHead = 0;
-        u32               m_SlotSize     = sizeof(T);
-        RZAssetPoolConfig m_Config       = {};
+        T*                m_Data           = NULL;
+        u32*              m_FreeList       = NULL;
+        u32               m_Capacity       = 0;
+        u32               m_Count          = 0;
+        u32               m_FreeListHead   = 0;
+        u32               m_SlotSize       = sizeof(T);
+        RZAssetPoolConfig m_Config         = {};
         bool              m_ExternalMemory = false;
     };
 
@@ -299,16 +300,16 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-            m_Capacity      = capacity;
-            m_Assets        = reinterpret_cast<RZTransformAsset*>(where);
-            m_Positions     = reinterpret_cast<float4*>((u8*) where + sizeof(RZTransformAsset) * capacity);
-            m_Rotations     = reinterpret_cast<float4*>((u8*) where + sizeof(RZTransformAsset) * capacity + sizeof(float4) * capacity);
-            m_Scales        = reinterpret_cast<float4*>((u8*) where + sizeof(RZTransformAsset) * capacity + sizeof(float4) * capacity * 2);
-            m_LocalMatrices = reinterpret_cast<float4x4*>((u8*) where + sizeof(RZTransformAsset) * capacity + sizeof(float4) * capacity * 3);
-            m_WorldMatrices = reinterpret_cast<float4x4*>((u8*) where + sizeof(RZTransformAsset) * capacity + sizeof(float4) * capacity * 3 + sizeof(float4x4) * capacity);
-            m_FreeList      = reinterpret_cast<u32*>((u8*) where + sizeof(RZTransformAsset) * capacity + sizeof(float4) * capacity * 3 + sizeof(float4x4) * capacity * 2);
-            m_Count         = 0;
-            m_FreeListHead  = 0;
+            m_Capacity       = capacity;
+            m_Assets         = reinterpret_cast<RZTransformAsset*>(where);
+            m_Positions      = reinterpret_cast<float4*>((u8*) where + sizeof(RZTransformAsset) * capacity);
+            m_Rotations      = reinterpret_cast<float4*>((u8*) where + sizeof(RZTransformAsset) * capacity + sizeof(float4) * capacity);
+            m_Scales         = reinterpret_cast<float4*>((u8*) where + sizeof(RZTransformAsset) * capacity + sizeof(float4) * capacity * 2);
+            m_LocalMatrices  = reinterpret_cast<float4x4*>((u8*) where + sizeof(RZTransformAsset) * capacity + sizeof(float4) * capacity * 3);
+            m_WorldMatrices  = reinterpret_cast<float4x4*>((u8*) where + sizeof(RZTransformAsset) * capacity + sizeof(float4) * capacity * 3 + sizeof(float4x4) * capacity);
+            m_FreeList       = reinterpret_cast<u32*>((u8*) where + sizeof(RZTransformAsset) * capacity + sizeof(float4) * capacity * 3 + sizeof(float4x4) * capacity * 2);
+            m_Count          = 0;
+            m_FreeListHead   = 0;
             m_ExternalMemory = true;
 
             for (u32 i = 0; i < m_Capacity; ++i)
@@ -319,16 +320,16 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-            m_Capacity      = capacity;
-            m_Assets        = (RZTransformAsset*) RZ_MALLOC_ALIGNED(sizeof(RZTransformAsset) * m_Capacity, RAZIX_16B_ALIGN);
-            m_Positions     = (float4*) RZ_MALLOC_ALIGNED(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_Rotations     = (float4*) RZ_MALLOC_ALIGNED(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_Scales        = (float4*) RZ_MALLOC_ALIGNED(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_LocalMatrices = (float4x4*) RZ_MALLOC_ALIGNED(sizeof(float4x4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_WorldMatrices = (float4x4*) RZ_MALLOC_ALIGNED(sizeof(float4x4) * m_Capacity, RAZIX_16B_ALIGN);
-            m_FreeList      = (u32*) RZ_MALLOC_ALIGNED(sizeof(u32) * m_Capacity, 16);
-            m_Count         = 0;
-            m_FreeListHead  = 0;
+            m_Capacity       = capacity;
+            m_Assets         = (RZTransformAsset*) RZ_MALLOC_ALIGNED(sizeof(RZTransformAsset) * m_Capacity, RAZIX_16B_ALIGN);
+            m_Positions      = (float4*) RZ_MALLOC_ALIGNED(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_Rotations      = (float4*) RZ_MALLOC_ALIGNED(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_Scales         = (float4*) RZ_MALLOC_ALIGNED(sizeof(float4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_LocalMatrices  = (float4x4*) RZ_MALLOC_ALIGNED(sizeof(float4x4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_WorldMatrices  = (float4x4*) RZ_MALLOC_ALIGNED(sizeof(float4x4) * m_Capacity, RAZIX_16B_ALIGN);
+            m_FreeList       = (u32*) RZ_MALLOC_ALIGNED(sizeof(u32) * m_Capacity, 16);
+            m_Count          = 0;
+            m_FreeListHead   = 0;
             m_ExternalMemory = false;
 
             for (u32 i = 0; i < m_Capacity; ++i)
@@ -368,9 +369,9 @@ namespace Razix {
                 RZ_FREE(m_FreeList);
                 m_FreeList = NULL;
             }
-            m_Capacity     = 0;
-            m_Count        = 0;
-            m_FreeListHead = 0;
+            m_Capacity       = 0;
+            m_Count          = 0;
+            m_FreeListHead   = 0;
             m_ExternalMemory = false;
         }
 
@@ -463,18 +464,18 @@ namespace Razix {
         float4x4* getWorldMatrices() { return m_WorldMatrices; }
 
     private:
-        RZTransformAsset* m_Assets        = NULL;
-        float4*           m_Positions     = NULL;
-        float4*           m_Rotations     = NULL;
-        float4*           m_Scales        = NULL;
-        float4x4*         m_LocalMatrices = NULL;
-        float4x4*         m_WorldMatrices = NULL;
-        u32               m_Capacity      = 0;
-        u32               m_Count         = 0;
-        u32*              m_FreeList      = NULL;
-        u32               m_FreeListHead  = 0;
-        u32               m_SlotSize      = sizeof(RZTransformAsset) + sizeof(float4) * 3 + sizeof(float4x4) * 2;
-        RZAssetPoolConfig m_Config        = {};
+        RZTransformAsset* m_Assets         = NULL;
+        float4*           m_Positions      = NULL;
+        float4*           m_Rotations      = NULL;
+        float4*           m_Scales         = NULL;
+        float4x4*         m_LocalMatrices  = NULL;
+        float4x4*         m_WorldMatrices  = NULL;
+        u32               m_Capacity       = 0;
+        u32               m_Count          = 0;
+        u32*              m_FreeList       = NULL;
+        u32               m_FreeListHead   = 0;
+        u32               m_SlotSize       = sizeof(RZTransformAsset) + sizeof(float4) * 3 + sizeof(float4x4) * 2;
+        RZAssetPoolConfig m_Config         = {};
         bool              m_ExternalMemory = false;
     };
 }    // namespace Razix

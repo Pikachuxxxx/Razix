@@ -7,6 +7,8 @@
 
 namespace Razix {
 
+    // FIXME: We compute capacity for the rest of the pool memory, what about other pools?
+    // FIXME: I think we need to divide into slices and use slice to get capacity instead. Not use the whole pool
     u32 GetAssetPoolCapacityFromMemoryBudget(Memory::RZMemoryPoolType poolType, u32 slotSize)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
@@ -20,7 +22,7 @@ namespace Razix {
         u64 poolMemoryBudgetBytes = Mib(static_cast<u64>(poolBudget.HeapSizeMB));
         u32 capacity              = static_cast<u32>(poolMemoryBudgetBytes / slotSize);
 
-        RAZIX_CORE_INFO("[AssetSystem] Pool:  {0} | Memory Budget: {1} MB | Slot Size: {2} bytes | Calculated Capacity: {3}",
+        RAZIX_CORE_TRACE("[AssetSystem] [Assetool] Created Pool...: {0} | Memory Budget: {1} MB | Slot Size: {2} bytes | Calculated Capacity: {3}",
             poolBudget.PoolName,
             poolBudget.HeapSizeMB,
             slotSize,
@@ -80,11 +82,9 @@ namespace Razix {
         m_Assets = reinterpret_cast<RZAsset*>(ptr);
         ptr += sizeof(RZAsset) * capacity;
 
-        ptr        = (u8*) rz_align_ptr(ptr, alignof(RZAssetColdData));
         m_ColdData = reinterpret_cast<RZAssetColdData*>(ptr);
         ptr += sizeof(RZAssetColdData) * capacity;
 
-        ptr        = (u8*) rz_align_ptr(ptr, alignof(u32));
         m_FreeList = reinterpret_cast<u32*>(ptr);
 
         m_Count        = 0;
@@ -93,17 +93,19 @@ namespace Razix {
             m_FreeList[i] = i + 1;
 
         m_FreeList[capacity - 1] = UINT32_MAX;
+
+        m_ExternalMemory = true;
     }
 
     void RZAssetHeaderPool::destroy()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-        if (m_Assets)
+        if (m_Assets && !m_ExternalMemory)
             RZ_FREE(m_Assets);
-        if (m_ColdData)
+        if (m_ColdData && !m_ExternalMemory)
             RZ_FREE(m_ColdData);
-        if (m_FreeList)
+        if (m_FreeList && !m_ExternalMemory)
             RZ_FREE(m_FreeList);
         m_Capacity     = 0;
         m_Count        = 0;
