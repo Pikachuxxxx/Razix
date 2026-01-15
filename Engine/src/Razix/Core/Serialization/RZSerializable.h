@@ -19,29 +19,45 @@ namespace Razix {
         RZDynamicArray<u8> serializeToBinary() const
         {
             RZDynamicArray<u8>  buffer;
-            const TypeMetaData* metaData = getTypeMetaData();
-            if (!metaData) return buffer;
+            const TypeMetaData* meta = getTypeMetaData();
+            if (!meta) return buffer;
 
-            for (const auto& member: metaData->members) {
-                const u8* dataPtr = reinterpret_cast<const u8*>(this) + member.offset;
-                buffer.insert(buffer.end(), dataPtr, dataPtr + member.size);
+            const u8* base = reinterpret_cast<const u8*>(&m_Data);
+
+            for (const auto& member: meta->members) {
+                size_t oldSize = buffer.size();
+                buffer.resize(oldSize + member.size);
+
+                memcpy(buffer.data() + oldSize,
+                    base + member.offset,
+                    member.size);
             }
+
             return buffer;
         }
 
-        void deserializeFromBinary(const RZDynamicArray<u8>& binaryData)
+        void deserializeFromBinary(const RZDynamicArray<u8>& binary)
         {
-            const TypeMetaData* metaData = getTypeMetaData();
-            if (!metaData) return;
+            const TypeMetaData* meta = getTypeMetaData();
+            if (!meta) return;
 
+            u8*    base   = reinterpret_cast<u8*>(&m_Data);
             size_t offset = 0;
-            for (const auto& member: metaData->members) {
-                if (offset + member.size > binaryData.size()) break;
-                u8* dataPtr = reinterpret_cast<u8*>(this) + member.offset;
-                memcpy(dataPtr, binaryData.data() + offset, member.size);
+
+            for (const auto& member: meta->members) {
+                if (offset + member.size > binary.size()) break;
+                memcpy(base + member.offset, binary.data() + offset, member.size);
                 offset += member.size;
             }
         }
+
+        const Derived& getData() const
+        {
+            return m_Data;
+        }
+
+    private:
+        Derived m_Data;
     };
 }    // namespace Razix
 #endif    // SERIALZABLE_H
