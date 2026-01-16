@@ -13,7 +13,7 @@
 
 #include "Razix/Events/RZEvent.h"
 
-#define RAZIX_ASSET_INVALID_HANDLE                   0xFFFFFFFFU   // use for invalid asset handles
+#define RAZIX_ASSET_INVALID_HANDLE                   0xFFFFFFFFU    // use for invalid asset handles
 #define RAZIX_ASSET_INVALID_PAYLOAD_INDEX            0xFFFFFFFFU
 #define RAZIX_ASSET_PAYLOLAD_INDEX_MASK              0xFFFFFFFF00000000ULL
 #define RAZIX_ASSET_PAYLOAD_SHIFT_INDEX              32
@@ -104,6 +104,18 @@ namespace Razix {
     } RZAssetFlags;
     static_assert(RZ_ASSET_FLAG_COUNT <= 8, "Asset flags exceeded the u8 limit!");
 
+    typedef enum RZAssetCompressionFlags : u8
+    {
+        RZ_ASSET_COMPRESSION_NONE    = 0,
+        RZ_ASSET_COMPRESSION_ZLIB    = 1 << 0,
+        RZ_ASSET_COMPRESSION_LZ4     = 1 << 1,
+        RZ_ASSET_COMPRESSION_BCn     = 1 << 2,
+        RZ_ASSET_COMPRESSION_ASTC    = 1 << 3,
+        RZ_ASSET_COMPRESSION_MESHOPT = 1 << 4,
+        RZ_ASSET_COMPRESSION_COUNT   = 6,
+    } RZAssetCompressionFlags;
+    static_assert(RZ_ASSET_COMPRESSION_COUNT <= 8, "Asset compression flags exceeded the u8 limit!");
+
     struct RAZIX_ALIGN_TO(MEM_DEF_ALIGNMENT_16) RZAssetMetadata
     {
         RZString         name;
@@ -129,13 +141,14 @@ namespace Razix {
     // This way we can avoid multiple cache line loads for accessing cold/vptr pointers, and still keep hot data active, ofc we will have very less hot data space left, 15 bytes for future use
     struct RAZIX_ALIGN_TO(8) RZAssetHotData
     {
-        RZUUID             UUID;
-        rz_asset_handle    handle;
-        rz_atomic_u64      referenceCount;
-        RZAssetType        type;
-        RZAssetStorageType storagePreference;
-        RZAssetFlags       flags;
-        u8                 _pad0[15];    // remaining bytes for future use
+        RZUUID                  UUID;
+        rz_asset_handle         handle;
+        rz_atomic_u64           referenceCount;
+        RZAssetType             type;
+        RZAssetStorageType      storagePreference;
+        RZAssetFlags            flags;
+        RZAssetCompressionFlags compressionFlags;
+        u8                      reserved[14];    // remaining bytes for future use
     };
     static_assert(sizeof(RZAssetHotData) == 64 - RAZIX_COLD_DATA_PTR_SIZE_BYTES, "Hot data must be less than 64 bytes - RAZIX_COLD_DATA_PTR_SIZE_BYTES (8 bytes) ");
 

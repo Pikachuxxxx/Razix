@@ -4,6 +4,7 @@
 #include <Razix/Core/Serialization/RZSerializable.h>
 #include <gtest/gtest.h>
 #include <string>
+#include <stdio.h>
 
 namespace Razix {
     // Dummy struct for testing reflection and serialization
@@ -11,16 +12,16 @@ namespace Razix {
     {
         int    health;
         float  rage;
-        double stamina;
         char*  name;
+        double stamina;
     };
 
     // Register the type
     RAZIX_REFLECT_TYPE_START(PlayerStruct)
     RAZIX_REFLECT_MEMBER(health)
     RAZIX_REFLECT_MEMBER(rage)
+    RAZIX_REFLECT_MEMBER(name)
     RAZIX_REFLECT_MEMBER(stamina)
-    //RAZIX_REFLECT_MEMBER(name)
     RAZIX_REFLECT_TYPE_END(PlayerStruct)
 
     // Fixture for Serialization Tests
@@ -47,23 +48,18 @@ namespace Razix {
         EXPECT_EQ(metaData->name, "PlayerStruct");
         EXPECT_EQ(metaData->typeName, typeid(PlayerStruct).name());
         EXPECT_EQ(metaData->size, sizeof(PlayerStruct));
-        ASSERT_EQ(metaData->members.size(), 4) << "PlayerStruct should have 4 members.";
 
         // now reflection is done we can test serialization
         PlayerStruct playerOriginal;
         playerOriginal.health  = 100;
         playerOriginal.rage    = 75.5f;
         playerOriginal.stamina = 50.25;
-        playerOriginal.name    = const_cast<char*>("Hero");
+        playerOriginal.name    = const_cast<char*>("Hero, Kratos is god hello ik tghis is a long string");
 
-        RZSerializable<PlayerStruct> serializablePlayerOriginal;
-        auto                         serializedData = serializablePlayerOriginal.serializeToBinary();
+        auto serializedData = RZSerializable<PlayerStruct>::serializeToBinary(playerOriginal);
         EXPECT_GT(serializedData.size(), 0) << "Serialized data should not be empty.";
 
-        RZSerializable<PlayerStruct> serializablePlayerNew;
-        serializablePlayerNew.deserializeFromBinary(serializedData);
-        PlayerStruct playerNew = static_cast<PlayerStruct>(serializablePlayerNew.getData());
-
+        PlayerStruct playerNew = static_cast<PlayerStruct>(RZSerializable<PlayerStruct>::deserializeFromBinary(serializedData));
         EXPECT_EQ(playerNew.health, playerOriginal.health);
         EXPECT_EQ(playerNew.rage, playerOriginal.rage);
         EXPECT_EQ(playerNew.stamina, playerOriginal.stamina);

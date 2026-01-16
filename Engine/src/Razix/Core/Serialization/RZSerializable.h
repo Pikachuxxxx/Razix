@@ -11,22 +11,24 @@ namespace Razix {
     public:
         virtual ~RZSerializable() = default;
 
-        const TypeMetaData* getTypeMetaData() const
+        static const TypeMetaData* getTypeMetaData()
         {
             return Razix::RZTypeRegistry::getTypeMetaData<rz_remove_cv_t<rz_remove_pointer_t<Derived>>>();
         }
 
-        RZDynamicArray<u8> serializeToBinary() const
+        static RZDynamicArray<u8> serializeToBinary(const Derived& data)
         {
             RZDynamicArray<u8>  buffer;
             const TypeMetaData* meta = getTypeMetaData();
             if (!meta) return buffer;
 
-            const u8* base = reinterpret_cast<const u8*>(&m_Data);
+            const u8* base = reinterpret_cast<const u8*>(&data);
 
             for (const auto& member: meta->members) {
                 size_t oldSize = buffer.size();
                 buffer.resize(oldSize + member.size);
+
+                printf("member.name:  | member size: %d \n", member.size);
 
                 memcpy(buffer.data() + oldSize,
                     base + member.offset,
@@ -36,12 +38,14 @@ namespace Razix {
             return buffer;
         }
 
-        void deserializeFromBinary(const RZDynamicArray<u8>& binary)
+        static Derived deserializeFromBinary(const RZDynamicArray<u8>& binary)
         {
             const TypeMetaData* meta = getTypeMetaData();
             if (!meta) return;
 
-            u8*    base   = reinterpret_cast<u8*>(&m_Data);
+            Derived data = {};
+
+            u8*    base   = reinterpret_cast<u8*>(&data);
             size_t offset = 0;
 
             for (const auto& member: meta->members) {
@@ -49,15 +53,9 @@ namespace Razix {
                 memcpy(base + member.offset, binary.data() + offset, member.size);
                 offset += member.size;
             }
+            
+            return data;
         }
-
-        const Derived& getData() const
-        {
-            return m_Data;
-        }
-
-    private:
-        Derived m_Data;
     };
 }    // namespace Razix
 #endif    // SERIALZABLE_H
