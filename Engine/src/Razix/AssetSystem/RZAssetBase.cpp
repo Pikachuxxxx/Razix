@@ -21,7 +21,7 @@ namespace Razix {
             m_pCold = (RZAssetColdData*) pColdDataMemory;
         }
         memset(m_pCold, 0, sizeof(RZAssetColdData));
-        rz_critical_section_destroy(&m_pCold->CS);
+        m_pCold->CS = rz_critical_section_create();
     }
 
     void RZAsset::destroy()
