@@ -188,7 +188,7 @@ namespace Razix {
         /* User cannot do this by their own */
         RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZAsset);
         RAZIX_DELETE_PUBLIC_CONSTRUCTOR(RZAsset);
-        ~RZAsset() = delete;
+        // ~RZAsset() = delete;
 
         RZAsset(RZAssetType type, void* pColdDataMemory);
 

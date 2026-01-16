@@ -76,7 +76,7 @@ WorkerThread.PerFrameAllocatorMB = 16
         {
             Razix::Debug::RZLog::StartUp();
 
-            const u32 assetBudgetMB = 16;    // small but sufficient for 1024 camera slots
+            const u32 assetBudgetMB = 256;    // small but sufficient for 1024 camera slots
             tempBudgetPath          = WriteBudgetFile(assetBudgetMB);
             ASSERT_TRUE(Memory::ParseBudgetFile(RZString(tempBudgetPath.string().c_str())));
 

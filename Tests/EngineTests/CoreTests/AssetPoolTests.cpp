@@ -35,7 +35,7 @@ namespace Razix {
         {
             Razix::Debug::RZLog::StartUp();
 
-            allocator.init(64 * 1024);
+            allocator.init(64 * 1024 * 1024);
             const size_t slotBytes    = sizeof(DummyAsset);
             const size_t freelistSize = sizeof(u32) * capacity;
             backing                   = allocator.allocate(slotBytes * capacity + freelistSize);
@@ -62,7 +62,7 @@ namespace Razix {
 
         void SetUp() override
         {
-            allocator.init(128 * 1024);
+            allocator.init(128 * 1024 * 1024);
 
             size_t bufferSize = sizeof(RZAsset) * capacity;
             bufferSize        = align_up(bufferSize, alignof(RZAssetColdData));

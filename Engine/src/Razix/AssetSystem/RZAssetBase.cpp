@@ -5,21 +5,19 @@
 #include "RZAssetBase.h"
 
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
+#include <Core/RZCore.h>
 
 namespace Razix {
 
     RZAsset::RZAsset(RZAssetType type, void* pColdDataMemory)
     {
+        RAZIX_CORE_ASSERT(pColdDataMemory != NULL, "[Asset] pColdDataMemory is NULL, creating asset with provided memory.");
+
         memset(&m_Hot, 0, sizeof(m_Hot));
         m_Hot.UUID = RZUUID();
         m_Hot.type = type;
 
-        // safe callback if used doesn't provide memory
-        if (m_pCold == NULL || pColdDataMemory == NULL) {
-            m_pCold = (RZAssetColdData*) RZ_MALLOC_ALIGNED(sizeof(RZAssetColdData), 16);
-        } else {
-            m_pCold = (RZAssetColdData*) pColdDataMemory;
-        }
+        m_pCold = (RZAssetColdData*) pColdDataMemory;
         memset(m_pCold, 0, sizeof(RZAssetColdData));
         m_pCold->CS = rz_critical_section_create();
     }

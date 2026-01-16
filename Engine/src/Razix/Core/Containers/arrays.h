@@ -413,7 +413,7 @@ namespace Razix {
     {
         if (initialCapacity == 0)
             return;
-        m_Data     = reinterpret_cast<T*>(RZ_MALLOC_ALIGNED(sizeof(T) * initialCapacity, 16));
+        m_Data     = reinterpret_cast<T*>(RZ_MALLOC_ALIGNED(sizeof(T) * initialCapacity, alignof(T)));
         m_Capacity = initialCapacity;
         memset(m_Data, 0x0, sizeof(T) * initialCapacity);
     };
@@ -423,7 +423,7 @@ namespace Razix {
     {
         if (initialCapacity == 0)
             return;
-        m_Data     = reinterpret_cast<T*>(RZ_MALLOC_ALIGNED(sizeof(T) * initialCapacity, 16));
+        m_Data     = reinterpret_cast<T*>(RZ_MALLOC_ALIGNED(sizeof(T) * initialCapacity, alignof(T)));
         m_Size     = 0;
         m_Capacity = initialCapacity;
         for (m_Size = 0; m_Size < initialCapacity; ++m_Size)
@@ -443,7 +443,7 @@ namespace Razix {
     {
         if (m_Data)
             RZ_FREE(m_Data);
-        m_Data     = reinterpret_cast<T*>(RZ_MALLOC_ALIGNED(sizeof(T) * other.m_Capacity, 16));
+        m_Data     = reinterpret_cast<T*>(RZ_MALLOC_ALIGNED(sizeof(T) * other.m_Capacity, alignof(T)));
         m_Capacity = other.m_Capacity;
         m_Size     = 0;
         for (m_Size = 0; m_Size < other.m_Size; ++m_Size)
@@ -460,7 +460,7 @@ namespace Razix {
             if (m_Capacity < other.m_Capacity) {
                 if (m_Data)
                     RZ_FREE(m_Data);
-                m_Data     = reinterpret_cast<T*>(RZ_MALLOC_ALIGNED(sizeof(T) * other.m_Capacity, 16));
+                m_Data     = reinterpret_cast<T*>(RZ_MALLOC_ALIGNED(sizeof(T) * other.m_Capacity, alignof(T)));
                 m_Capacity = other.m_Capacity;
             }
             m_Size = 0;
