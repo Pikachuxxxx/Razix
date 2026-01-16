@@ -40,10 +40,10 @@ namespace Razix {
 
         static Derived deserializeFromBinary(const RZDynamicArray<u8>& binary)
         {
-            const TypeMetaData* meta = getTypeMetaData();
-            if (!meta) return;
-
             Derived data = {};
+            
+            const TypeMetaData* meta = getTypeMetaData();
+            if (!meta) return data;
 
             u8*    base   = reinterpret_cast<u8*>(&data);
             size_t offset = 0;
