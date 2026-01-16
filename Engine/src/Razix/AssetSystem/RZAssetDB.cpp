@@ -145,6 +145,8 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
+        m_AssetAllocator = &assetAllocator;
+
         m_AssetDBLock = rz_critical_section_create();
 
         const Memory::MemoryPoolBudget assetBudget = Memory::GetMemoryPoolBudget(Memory::RZ_MEM_POOL_TYPE_ASSET_POOL);
@@ -221,6 +223,22 @@ namespace Razix {
     void RZAssetDB::Shutdown()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+
+        m_AssetAllocator->deallocate(m_HeaderPool.getBackingMemoryMutablePtr());
+        m_AssetAllocator->deallocate(m_AnimationAssetPool.getBackingMemoryMutablePtr());
+        m_AssetAllocator->deallocate(m_AssetRefAssetPool.getBackingMemoryMutablePtr());
+        m_AssetAllocator->deallocate(m_AudioAssetPool.getBackingMemoryMutablePtr());
+        m_AssetAllocator->deallocate(m_CameraAssetPool.getBackingMemoryMutablePtr());
+        m_AssetAllocator->deallocate(m_ClothAssetPool.getBackingMemoryMutablePtr());
+        m_AssetAllocator->deallocate(m_GameDataAssetPool.getBackingMemoryMutablePtr());
+        m_AssetAllocator->deallocate(m_LightAssetPool.getBackingMemoryMutablePtr());
+        m_AssetAllocator->deallocate(m_LuaScriptAssetPool.getBackingMemoryMutablePtr());
+        m_AssetAllocator->deallocate(m_MaterialAssetPool.getBackingMemoryMutablePtr());
+        m_AssetAllocator->deallocate(m_MeshAssetPool.getBackingMemoryMutablePtr());
+        m_AssetAllocator->deallocate(m_PhysicsMaterialAssetPool.getBackingMemoryMutablePtr());
+        m_AssetAllocator->deallocate(m_TextureAssetPool.getBackingMemoryMutablePtr());
+        m_AssetAllocator->deallocate(m_TransformAssetPool.getBackingMemoryMutablePtr());
+        m_AssetAllocator->deallocate(m_VignerePuzzleAssetPool.getBackingMemoryMutablePtr());
 
         m_HeaderPool.destroy();
         m_AnimationAssetPool.destroy();

@@ -94,11 +94,12 @@ namespace Razix {
         RZAsset*               getMutablePtr(rz_asset_handle handle) const;
         RZAssetColdData*       getColdDataMutablePtr(rz_asset_handle handle) const;
 
-        u32 getCapacity() const { return m_Capacity; }
-        u32 getCount() const { return m_Count; }
+        inline u32 getCapacity() const { return m_Capacity; }
+        inline u32 getCount() const { return m_Count; }
 
-        void                     setHooks(const RZAssetPoolHooks& hooks) { m_Config.hooks = hooks; }
-        const RZAssetPoolConfig& getConfig() const { return m_Config; }
+        inline void                     setHooks(const RZAssetPoolHooks& hooks) { m_Config.hooks = hooks; }
+        inline const RZAssetPoolConfig& getConfig() const { return m_Config; }
+        inline void*              getBackingMemoryMutablePtr() { return static_cast<void*>(m_Assets); }
 
     private:
         RZAsset*          m_Assets         = NULL;
@@ -247,8 +248,10 @@ namespace Razix {
             return &m_Data[index];
         }
 
-        u32 getCapacity() const { return m_Capacity; }
-        u32 getCount() const { return m_Count; }
+        inline u32 getCapacity() const { return m_Capacity; }
+        inline u32 getCount() const { return m_Count; }
+
+        inline void* getBackingMemoryMutablePtr() { return static_cast<void*>(m_Data); }
 
     private:
         T*                m_Data           = NULL;
@@ -443,25 +446,27 @@ namespace Razix {
             return &m_Assets[index];
         }
 
-        u32       getCapacity() const { return m_Capacity; }
-        u32       getCount() const { return m_Count; }
-        float4*   getPositionPtr(u32 index) { return &m_Positions[index]; }
-        float4*   getRotationPtr(u32 index) { return &m_Rotations[index]; }
-        float4*   getScalePtr(u32 index) { return &m_Scales[index]; }
-        float4x4* getLocalMatrixPtr(u32 index) { return &m_LocalMatrices[index]; }
-        float4x4* getWorldMatrixPtr(u32 index) { return &m_WorldMatrices[index]; }
+        inline u32       getCapacity() const { return m_Capacity; }
+        inline u32       getCount() const { return m_Count; }
+        inline float4*   getPositionPtr(u32 index) { return &m_Positions[index]; }
+        inline float4*   getRotationPtr(u32 index) { return &m_Rotations[index]; }
+        inline float4*   getScalePtr(u32 index) { return &m_Scales[index]; }
+        inline float4x4* getLocalMatrixPtr(u32 index) { return &m_LocalMatrices[index]; }
+        inline float4x4* getWorldMatrixPtr(u32 index) { return &m_WorldMatrices[index]; }
 
-        void setPosition(u32 index, const float4& position) { m_Positions[index] = position; }
-        void setRotation(u32 index, const float4& rotation) { m_Rotations[index] = rotation; }
-        void setScale(u32 index, const float4& scale) { m_Scales[index] = scale; }
-        void setLocalMatrix(u32 index, const float4x4& localMatrix) { m_LocalMatrices[index] = localMatrix; }
-        void setWorldMatrix(u32 index, const float4x4& worldMatrix) { m_WorldMatrices[index] = worldMatrix; }
+        inline void setPosition(u32 index, const float4& position) { m_Positions[index] = position; }
+        inline void setRotation(u32 index, const float4& rotation) { m_Rotations[index] = rotation; }
+        inline void setScale(u32 index, const float4& scale) { m_Scales[index] = scale; }
+        inline void setLocalMatrix(u32 index, const float4x4& localMatrix) { m_LocalMatrices[index] = localMatrix; }
+        inline void setWorldMatrix(u32 index, const float4x4& worldMatrix) { m_WorldMatrices[index] = worldMatrix; }
 
-        float4*   getPositions() { return m_Positions; }
-        float4*   getRotations() { return m_Rotations; }
-        float4*   getScales() { return m_Scales; }
-        float4x4* getLocalMatrices() { return m_LocalMatrices; }
-        float4x4* getWorldMatrices() { return m_WorldMatrices; }
+        inline float4*   getPositions() { return m_Positions; }
+        inline float4*   getRotations() { return m_Rotations; }
+        inline float4*   getScales() { return m_Scales; }
+        inline float4x4* getLocalMatrices() { return m_LocalMatrices; }
+        inline float4x4* getWorldMatrices() { return m_WorldMatrices; }
+
+        inline void* getBackingMemoryMutablePtr() { return static_cast<void*>(m_Assets); }
 
     private:
         RZTransformAsset* m_Assets         = NULL;
