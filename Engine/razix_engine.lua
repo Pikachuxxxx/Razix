@@ -78,11 +78,6 @@ project "Razix"
         "VK_NO_PROTOTYPES",
     }
 
-    if _OPTIONS["memtrack"] == "on" then
-        print("Razix engine is being built with MEM_ALLOC_TRACKING, perf will take a hit!")
-        defines { "RAZIX_ENABLE_MEM_ALLOC_TRACKING" }
-    end
-
     -- Razix Engine source files (Global)
     files
     {

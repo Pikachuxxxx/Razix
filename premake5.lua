@@ -47,9 +47,6 @@ function generate_default_engine_config()
         TargetFPS = 120                 ; 60/120
         MaxShadowCascades = 4
         MSAASamples = 4
-
-        [Debug]
-        EnableMemoryTracking = true
     ]]
     end
 

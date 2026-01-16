@@ -11,7 +11,7 @@ namespace Razix {
 
         void RZTwoSidedAllocator::init(size_t size, size_t alignment)
         {
-            m_Chunk     = (uint8_t*) RZ_MALLOC_ALIGNED(size, alignment);
+            m_Chunk     = (uint8_t*) rz_malloc(size, alignment);
             m_Top       = 0;
             m_Bottom    = size;
             m_TotalSize = size;
@@ -19,7 +19,7 @@ namespace Razix {
 
         void RZTwoSidedAllocator::shutdown()
         {
-            RZ_FREE(m_Chunk);
+            rz_free(m_Chunk);
         }
 
         void* RZTwoSidedAllocator::allocate_top(size_t size)

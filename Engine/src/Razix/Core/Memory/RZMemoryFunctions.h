@@ -35,19 +35,8 @@ extern "C"
     RAZIX_API void*  rz_calloc(size_t count, size_t size, size_t alignment);
     RAZIX_API void*  rz_calloc_aligned(size_t count, size_t size);
     RAZIX_API void   rz_free(void* address);
-    // Debug variants that capture file/line for tracking
-    RAZIX_API void*  rz_realloc_debug(void* oldPtr, size_t oldSize, size_t newSize, size_t alignment, const char* filename, uint32_t lineNumber, const char* tag);
-    RAZIX_API void*  rz_calloc_debug(size_t count, size_t size, size_t alignment, const char* filename, uint32_t lineNumber, const char* tag);
-    RAZIX_API void   rz_free_debug(void* address, const char* filename, uint32_t lineNumber);
     RAZIX_API size_t rz_mem_align(size_t size, size_t alignment);
     RAZIX_API void*  rz_align_ptr(void* ptr, size_t alignment);
-
-#ifdef RAZIX_ENABLE_MEM_ALLOC_TRACKING
-    // Allocation tracker control and registration APIs
-    RAZIX_API void  rz_memory_tracking_set_enabled(bool enabled);
-    RAZIX_API bool  rz_memory_tracking_is_enabled(void);
-    RAZIX_API void  rz_memory_tracker_report_leaks(void);
-#endif
 
 #ifdef RAZIX_DEBUG
     RAZIX_API void* rz_debug_malloc(size_t size, size_t alignment, const char* filename, uint32_t lineNumber, const char* tag);
@@ -55,25 +44,6 @@ extern "C"
 #endif
 
     RAZIX_API void rz_poison_memory(void* ptr, size_t size);
-
-    // Tracking-aware macros for capturing file/line when enabled
-    #if defined(RAZIX_ENABLE_MEM_ALLOC_TRACKING) && !defined(RAZIX_GOLD_MASTER)
-        #define RZ_MALLOC(size) rz_malloc_debug((size), __FILE__, __LINE__, "RZ_MALLOC")
-        #define RZ_MALLOC_ALIGNED(size, align) rz_malloc_debug_aligned((size), (align), __FILE__, __LINE__, "RZ_MALLOC")
-        #define RZ_REALLOC(ptr, oldSize, newSize) rz_realloc_debug((ptr), (oldSize), (newSize), 16, __FILE__, __LINE__, "RZ_REALLOC")
-        #define RZ_REALLOC_ALIGNED(ptr, oldSize, newSize, align) rz_realloc_debug((ptr), (oldSize), (newSize), (align), __FILE__, __LINE__, "RZ_REALLOC")
-        #define RZ_CALLOC(count, size) rz_calloc_debug((count), (size), 16, __FILE__, __LINE__, "RZ_CALLOC")
-        #define RZ_CALLOC_ALIGNED(count, size, align) rz_calloc_debug((count), (size), (align), __FILE__, __LINE__, "RZ_CALLOC")
-        #define RZ_FREE(ptr) rz_free_debug((ptr), __FILE__, __LINE__)
-    #else
-        #define RZ_MALLOC(size) rz_malloc((size), 16)
-        #define RZ_MALLOC_ALIGNED(size, align) rz_malloc((size), (align))
-        #define RZ_REALLOC(ptr, oldSize, newSize) rz_realloc((ptr), (oldSize), (newSize), 16)
-        #define RZ_REALLOC_ALIGNED(ptr, oldSize, newSize, align) rz_realloc((ptr), (oldSize), (newSize), (align))
-        #define RZ_CALLOC(count, size) rz_calloc((count), (size), 16)
-        #define RZ_CALLOC_ALIGNED(count, size, align) rz_calloc((count), (size), (align))
-        #define RZ_FREE(ptr) rz_free((ptr))
-    #endif
 
 #ifdef __cplusplus
 }

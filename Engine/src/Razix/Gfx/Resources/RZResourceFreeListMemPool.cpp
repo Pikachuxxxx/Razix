@@ -16,7 +16,7 @@ namespace Razix {
             m_ResourceSize = resourceSize;
 
             // Group allocate ( resource size + u32 )
-            m_MemoryChunk = (u8*) RZ_MALLOC_ALIGNED(poolSize * (resourceSize + sizeof(u32)), alignment);
+            m_MemoryChunk = (u8*) rz_malloc(poolSize * (resourceSize + sizeof(u32)), alignment);
 
             //TracyAlloc(m_MemoryChunk, poolSize * (resourceSize + sizeof(u32)));
 
@@ -44,7 +44,7 @@ namespace Razix {
 
             //TracyFree(m_MemoryChunk);
 
-            RZ_FREE(m_MemoryChunk);
+            rz_free(m_MemoryChunk);
         }
 
         u32 RZResourceFreeListMemPool::allocateResource()

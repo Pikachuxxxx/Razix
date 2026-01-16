@@ -45,7 +45,7 @@ static DWORD WINAPI _rz_thread_entry(LPVOID args)
 {
     rz_thread_bootstrap* boot  = (rz_thread_bootstrap*) args;
     rz_thread_bootstrap  local = *boot;    // keep a local copy for safety instead of using pointer
-    RZ_FREE(boot);
+    rz_free(boot);
 
     rz_sprintf(tls_thread_name, "[Razix Thread] %s", local.pName);
     tls_thread_id = rz_thread_get_current_id();
@@ -86,7 +86,7 @@ rz_thread_handle rz_thread_create(const char* name, rz_thread_priority priority,
     if (!cb || !pUserData)
         return handle;
 
-    rz_thread_bootstrap* pBootStrap = RZ_MALLOC_ALIGNED(sizeof(rz_thread_bootstrap), 16);
+    rz_thread_bootstrap* pBootStrap = rz_malloc(sizeof(rz_thread_bootstrap), 16);
     pBootStrap->cb                  = cb;
     pBootStrap->pUserData           = pUserData;
     pBootStrap->affinity            = affinity;
@@ -107,7 +107,7 @@ rz_thread_handle rz_thread_create(const char* name, rz_thread_priority priority,
     );
 
     if (!threadHandle) {
-        RZ_FREE(pBootStrap);
+        rz_free(pBootStrap);
         return 0;
     }
 

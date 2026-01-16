@@ -25,18 +25,6 @@ newoption
 
 newoption
 {
-    trigger     = "memtrack",
-    value       = "state",
-    description = "Enable Razix memory allocation tracking",
-    allowed     =
-    {
-        { "on",  "Enable memory allocation tracking" },
-        { "off", "Disable memory allocation tracking" }
-    }
-}
-
-newoption
-{
 	trigger     = "teamid",
 	value	    = "id",
 	description = "development team id for apple developers"

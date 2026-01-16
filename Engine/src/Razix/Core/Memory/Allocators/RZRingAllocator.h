@@ -50,7 +50,7 @@ namespace Razix {
         {
             m_MaxSize   = (uint32_t) size;
             m_Alignment = alignment;
-            m_Buffer    = (T*) RZ_MALLOC_ALIGNED(size * sizeof(T), alignment);
+            m_Buffer    = (T*) rz_malloc(size * sizeof(T), alignment);
         }
 
         template<class T>
@@ -71,7 +71,7 @@ namespace Razix {
         void Razix::Memory::RZRingAllocator<T>::shutdown()
         {
             reset();
-            RZ_FREE((void*) m_Buffer);
+            rz_free((void*) m_Buffer);
         }
 
         template<class T>

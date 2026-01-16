@@ -18,6 +18,7 @@ namespace Razix {
         m_Hot.type = type;
 
         m_pCold = (RZAssetColdData*) pColdDataMemory;
+
         memset(m_pCold, 0, sizeof(RZAssetColdData));
         m_pCold->CS = rz_critical_section_create();
     }
@@ -29,7 +30,7 @@ namespace Razix {
             // Don't free cold data here as its managed by the asset pool
             // You do not own the memory! and we don't want double frees.
             // The freelist in the asset pool will take care of freeing the cold data memory
-            //RZ_FREE(m_pCold);
+            //rz_free(m_pCold);
             m_pCold = NULL;
         }
     }

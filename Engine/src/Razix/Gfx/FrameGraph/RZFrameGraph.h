@@ -72,7 +72,7 @@ namespace Razix {
                 static_assert(sizeof(ExitFunc) < 256, "Exit function captures too much");
 
                 // Now that the checks are done, let's create the pass and PassNode
-                //void* mem  = RZ_MALLOC_ALIGNED(sizeof(RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc, ExitFunc>), 16);
+                //void* mem  = rz_malloc(sizeof(RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc, ExitFunc>), 16);
                 auto* pass = new RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc, ExitFunc>(std::forward<ExecuteFunc>(executeFunc), std::forward<ResizeFunc>(resizeFunc), std::forward<ExitFunc>(exitFunc));
                 // Create the PassNode in the graph
                 RZPassNode& passNode = createPassNodeRef(name, std::unique_ptr<RZFrameGraphCodePass<PassData, ExecuteFunc, ResizeFunc, ExitFunc>>(pass));

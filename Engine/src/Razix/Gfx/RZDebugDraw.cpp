@@ -107,7 +107,7 @@ namespace Razix {
                 return;
             }
 
-            s_pDebugDrawState = (DebugDrawState*) RZ_MALLOC_ALIGNED(sizeof(DebugDrawState), 16);
+            s_pDebugDrawState = (DebugDrawState*) rz_malloc(sizeof(DebugDrawState), 16);
             RAZIX_CORE_ASSERT(s_pDebugDrawState, "RZDebugDraw::StartUp: Failed to allocate memory for Debug Draw State!");
             new (s_pDebugDrawState) DebugDrawState();
             memset(s_pDebugDrawState, 0x00, sizeof(DebugDrawState));
@@ -175,7 +175,7 @@ namespace Razix {
             s_pDebugDrawState->lineIB = RZResourceManager::Get().createBuffer("IB.Lines", ibDesc);
             {
                 // fill identity indices
-                u32* line_indices = (u32*) RZ_MALLOC_ALIGNED(MaxLineIndices * sizeof(u32), 16);
+                u32* line_indices = (u32*) rz_malloc(MaxLineIndices * sizeof(u32), 16);
                 for (u32 i = 0; i < MaxLineIndices; ++i)
                     line_indices[i] = i;
 
@@ -183,7 +183,7 @@ namespace Razix {
                 memcpy(dst, line_indices, MaxLineIndices * sizeof(u32));
                 rzRHI_UnmapBuffer(s_pDebugDrawState->lineIB);
 
-                RZ_FREE(line_indices);
+                rz_free(line_indices);
             }
 
             // Points - position VB
@@ -198,7 +198,7 @@ namespace Razix {
             s_pDebugDrawState->pointIB = RZResourceManager::Get().createBuffer("IB.Points", ibDesc);
             // Pre-fill point index buffer with quad indices (0,1,2,2,3,0) pattern
             {
-                u32* indices = (u32*) RZ_MALLOC_ALIGNED(MaxPointIndices * sizeof(u32), 16);
+                u32* indices = (u32*) rz_malloc(MaxPointIndices * sizeof(u32), 16);
                 u32  offset  = 0;
                 for (u32 i = 0; i < MaxPointIndices; i += 6) {
                     indices[i + 0] = offset + 0;
@@ -215,7 +215,7 @@ namespace Razix {
                 memcpy(dst, indices, MaxPointIndices * sizeof(u32));
                 rzRHI_UnmapBuffer(s_pDebugDrawState->pointIB);
 
-                RZ_FREE(indices);
+                rz_free(indices);
             }
         }
 
@@ -233,7 +233,7 @@ namespace Razix {
             RZResourceManager::Get().destroyBuffer(s_pDebugDrawState->lineIB);
 
             if (s_pDebugDrawState != NULL) {
-                RZ_FREE(s_pDebugDrawState);
+                rz_free(s_pDebugDrawState);
                 s_pDebugDrawState = NULL;
             }
         }
