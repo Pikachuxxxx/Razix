@@ -78,6 +78,53 @@ project "Razix"
         "VK_NO_PROTOTYPES",
     }
 
+    if _OPTIONS["memtrack"] == "on" then
+        print("Razix engine is being built with MEM_ALLOC_TRACKING, perf will take a hit!")
+        defines { "RAZIX_ENABLE_MEM_ALLOC_TRACKING" }
+    end
+
+    local sanitizer = _OPTIONS["sanitize"]
+    if sanitizer and sanitizer ~= "off" then
+        print("Razix engine sanitizers enabled: " .. sanitizer)
+        defines { "RAZIX_ENABLE_SANITIZERS" }
+
+        local clangGccSanitizeFlag = nil
+        if sanitizer == "asan" then
+            clangGccSanitizeFlag = "-fsanitize=address"
+            defines { "RAZIX_SANITIZER_ASAN" }
+        elseif sanitizer == "ubsan" then
+            clangGccSanitizeFlag = "-fsanitize=undefined"
+            defines { "RAZIX_SANITIZER_UBSAN" }
+        elseif sanitizer == "tsan" then
+            clangGccSanitizeFlag = "-fsanitize=thread"
+            defines { "RAZIX_SANITIZER_TSAN" }
+        elseif sanitizer == "asan-ubsan" then
+            clangGccSanitizeFlag = "-fsanitize=address,undefined"
+            defines { "RAZIX_SANITIZER_ASAN", "RAZIX_SANITIZER_UBSAN" }
+        else
+            print("Unknown sanitizer option: " .. sanitizer)
+        end
+
+        if clangGccSanitizeFlag then
+            filter { "toolset:clang" }
+                buildoptions { clangGccSanitizeFlag, "-fno-omit-frame-pointer", "-fno-sanitize-recover=all" }
+                linkoptions  { clangGccSanitizeFlag }
+            filter { "toolset:gcc" }
+                buildoptions { clangGccSanitizeFlag, "-fno-omit-frame-pointer", "-fno-sanitize-recover=all" }
+                linkoptions  { clangGccSanitizeFlag }
+            filter {}
+        end
+
+        if sanitizer == "asan" then
+            filter { "toolset:msc" }
+                buildoptions { "/fsanitize=address" }
+                linkoptions  { "/fsanitize=address" }
+            filter {}
+        elseif os.target() == "windows" then
+            print("Sanitizer '" .. sanitizer .. "' is not supported by MSVC. Use clang toolset or non-Windows toolchains.")
+        end
+    end
+
     -- Razix Engine source files (Global)
     files
     {
