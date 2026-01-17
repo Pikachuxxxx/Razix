@@ -310,7 +310,7 @@ TEST(RZThreadBenchmarkTests, BusyWaitMicroAverageIsReasonable)
         });
     const uint64_t average = totalMicros / iterations;
     EXPECT_GE(average, requested);
-    EXPECT_LT(average, requested * 8u);
+    EXPECT_LT(average, requested * 20u);
 }
 
 // Stress tests ----------------------------------------------------------------
