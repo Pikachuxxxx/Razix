@@ -38,6 +38,9 @@ Editor/src/generated/
 Logs/
 *.log
 
+# Ignore PSO cache
+PSOCache
+
 # Test Images
 Tests/GfxTests/TestImages/
 
