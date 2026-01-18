@@ -37,6 +37,7 @@ extern "C"
     RAZIX_API void   rz_free(void* address);
     RAZIX_API size_t rz_mem_align(size_t size, size_t alignment);
     RAZIX_API void*  rz_align_ptr(void* ptr, size_t alignment);
+    RAZIX_API size_t rz_next_power_of_two(size_t size);
 
 #ifdef RAZIX_DEBUG
     RAZIX_API void* rz_debug_malloc(size_t size, size_t alignment, const char* filename, uint32_t lineNumber, const char* tag);

@@ -56,7 +56,15 @@ namespace Razix {
     u64 RZAssetDB::ComputeMinHeaderBudgetBytesForMaxAssets(u64 maxAssets)
     {
         RAZIX_CORE_ASSERT(kRZAssetHeaderSlotBytes > 0, "[AssetSystem] Invalid slot sizing for header budget computation.");
-        return rz_mem_align(maxAssets * kRZAssetHeaderSlotBytes, RAZIX_CACHE_LINE_ALIGN);
+        u64 raw_size = rz_mem_align(maxAssets * kRZAssetHeaderSlotBytes, RAZIX_CACHE_LINE_ALIGN);
+        u64 power2Size = rz_next_power_of_two(raw_size);
+
+        RAZIX_CORE_TRACE("[AssetSystem] Rounded to next power of 2: {} bytes ({} MB / {} GB)",
+            power2Size,
+            in_Mib(power2Size),
+            in_Gib(power2Size));
+
+        return power2Size;
     }
 
     //-------------------------------------------------------------------------
@@ -116,6 +124,7 @@ namespace Razix {
 
         if (capToMaxAssets) {
             const u32 maxAssetsCap = static_cast<u32>(RAZIX_MAX_ASSETS);
+            // RAZIX_CORE_TRACE("[AssetSystem] Calculated capacity: {} for slice: {} bytes and slot size: {} bytes", capacity, sliceBytes, slotBytes);
             RAZIX_CORE_ASSERT(capacity >= maxAssetsCap, "[AssetSystem] Pool capacity {} below RAZIX_MAX_ASSETS {}. Increase asset pool budget or reduce pool count.", capacity, maxAssetsCap);
             capacity = maxAssetsCap;
         }

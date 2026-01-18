@@ -31,7 +31,7 @@ namespace Razix {
     }
 }    // namespace Razix
 
-#define RAZIX_MAX_ASSETS 1024    // 1 Million assets max for now
+#define RAZIX_MAX_ASSETS 4096 // 1 Million assets max for now
 
 namespace Razix {
 

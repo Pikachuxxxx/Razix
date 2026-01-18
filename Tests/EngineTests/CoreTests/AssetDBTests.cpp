@@ -166,4 +166,19 @@ namespace Razix {
         db.releaseAsset<RZCameraAsset>(handle2);
     }
 
+    TEST_F(AssetDBFixture, ComputeMinBudgetIsPositiveAndMonotonic)
+    {
+        const u64 budget1 = RZAssetDB::ComputeMinPoolBudgetBytesForMaxAssets(1);
+        const u64 budget2 = RZAssetDB::ComputeMinPoolBudgetBytesForMaxAssets(2);
+
+        EXPECT_GT(budget1, 0u);
+        EXPECT_GT(budget2, budget1);
+
+        const u64 headerBudget1 = RZAssetDB::ComputeMinHeaderBudgetBytesForMaxAssets(1);
+        const u64 headerBudget2 = RZAssetDB::ComputeMinHeaderBudgetBytesForMaxAssets(2);
+
+        EXPECT_GT(headerBudget1, 0u);
+        EXPECT_GT(headerBudget2, headerBudget1);
+    }
+
 }    // namespace Razix

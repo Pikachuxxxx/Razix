@@ -142,6 +142,20 @@ void* rz_align_ptr(void* ptr, size_t alignment)
     return (void*) (aligned);
 }
 
+size_t rz_next_power_of_two(size_t size)
+{
+    size_t v = size;
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    v |= v >> 32;
+    v++;
+    return v;
+}
+
 #ifdef RAZIX_DEBUG
 
 void* rz_debug_malloc(size_t size, size_t alignment, const char* filename, uint32_t lineNumber, const char* tag)
