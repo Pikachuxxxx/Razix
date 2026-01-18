@@ -421,6 +421,7 @@ namespace Razix {
 
         static size_type quadratic_probe(size_type index, size_type probe_count, size_type capacity);
         void             insert_entry(const Key& key, const Value& value);
+        // void             insert_entry(Key&& key, Value&& value);
         bool             expand();
         size_type        find_entry(const Key& key) const;
 
@@ -641,7 +642,10 @@ namespace Razix {
         // Re-hash all entries into new arrays
         for (size_type i = 0; i < old_capacity; ++i) {
             if (old_occupied[i]) {
-                insert_entry(old_keys[i], Value(old_values[i]));
+                insert_entry(rz_move(old_keys[i]), Value(old_values[i]));
+
+                old_keys[i].~Key();
+                old_values[i].~Value();
             }
         }
 
@@ -743,6 +747,8 @@ namespace Razix {
     template<typename Key, typename Value, typename Hash, typename Equal>
     void RZHashMap<Key, Value, Hash, Equal>::clear()
     {
+        if (!m_Occupied) return;
+
         for (size_type i = 0; i < m_Capacity; ++i) {
             if (m_Occupied[i]) {
                 m_Keys[i].~Key();
@@ -884,6 +890,35 @@ namespace Razix {
         RAZIX_CORE_ERROR("[RZHashMap] Hash map is full, couldn't insert entry!");
     }
 
+    // template<typename Key, typename Value, typename Hash, typename Equal>
+    // void RZHashMap<Key, Value, Hash, Equal>::insert_entry(Key&& key, Value&& value)
+    // {
+    //     u64       hash_value  = m_Hash(key);
+    //     size_type index       = hash_value % m_Capacity;
+    //     size_type probe_count = 0;
+    //
+    //     while (probe_count < m_Capacity) {
+    //         if (!m_Occupied[index]) {
+    //             // Empty slot found - use move construction
+    //             new (&m_Keys[index]) Key(rz_move(key));
+    //             new (&m_Values[index]) Value(rz_move(value));
+    //             m_Occupied[index] = true;
+    //             m_Hashes[index]   = hash_value;
+    //             m_Length++;
+    //             return;
+    //         }
+    //
+    //         if (m_Hashes[index] == hash_value && m_Equal(m_Keys[index], key)) {
+    //             // Key already exists, update value with move
+    //             m_Values[index] = rz_move(value);
+    //             return;
+    //         }
+    //         probe_count++;
+    //         index = quadratic_probe(index, probe_count, m_Capacity);
+    //     }
+    //     RAZIX_CORE_ERROR("[RZHashMap] Hash map is full, couldn't insert entry!");
+    // }
+
     template<typename Key, typename Value, typename Hash, typename Equal>
     bool RZHashMap<Key, Value, Hash, Equal>::expand()
     {
@@ -922,7 +957,10 @@ namespace Razix {
         // Re-hash all entries into new arrays
         for (size_type i = 0; i < old_capacity; ++i) {
             if (old_occupied[i]) {
-                insert_entry(rz_move(old_keys[i]), rz_move(Value(old_values[i])));
+                insert_entry(rz_move(old_keys[i]), rz_move(old_values[i]));
+
+                old_keys[i].~Key();
+                old_values[i].~Value();
             }
         }
 

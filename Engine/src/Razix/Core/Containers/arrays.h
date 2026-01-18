@@ -441,9 +441,8 @@ namespace Razix {
 
     template<typename T>
     RZDynamicArray<T>::RZDynamicArray(const RZDynamicArray& other)
+    :m_Data(NULL), m_Capacity(0), m_Size(0)
     {
-        if (m_Data)
-            rz_free(m_Data);
         m_Data     = reinterpret_cast<T*>(rz_malloc_aligned(sizeof(T) * other.m_Capacity));
         m_Capacity = other.m_Capacity;
         m_Size     = 0;

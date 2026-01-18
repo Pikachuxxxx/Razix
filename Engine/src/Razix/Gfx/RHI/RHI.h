@@ -1054,6 +1054,7 @@ static inline unsigned int rz_clz32(unsigned int x)
         uint32_t      inputClass : 1;
         uint32_t      instanceStepRate : 8;
         uint32_t      stride;
+        uint8_t       _pad[8];
     } rz_gfx_input_element;
 
     RAZIX_RHI_ALIGN_16 typedef struct rz_gfx_shader_desc

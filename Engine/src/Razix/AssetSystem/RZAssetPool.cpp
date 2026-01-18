@@ -73,10 +73,10 @@ namespace Razix {
         m_Capacity = capacity;
         u8* ptr    = static_cast<u8*>(where);
 
-        m_Assets = reinterpret_cast<RZAsset*>(ptr);
+        m_Assets = reinterpret_cast<RZAsset*>(rz_align_ptr(ptr, alignof(RZAsset)));
         ptr += sizeof(RZAsset) * capacity;
 
-        m_ColdData = reinterpret_cast<RZAssetColdData*>(ptr);
+        m_ColdData = reinterpret_cast<RZAssetColdData*>(rz_align_ptr(ptr, alignof(RZAssetColdData)));
         ptr += sizeof(RZAssetColdData) * capacity;
 
         m_FreeList = reinterpret_cast<u32*>(ptr);

@@ -62,35 +62,37 @@ void* rz_mem_copy_to_heap(void* data, size_t size)
     return heapData;
 }
 
+#include <stdio.h>
+
 void* rz_realloc(void* oldPtr, size_t oldSize, size_t newSize, size_t alignment)
 {
     if (newSize == 0) {
-        rz_free(oldPtr);
+        if (oldPtr)
+            rz_free(oldPtr);
         return NULL;
     }
 
     if (!oldPtr) {
-        return rz_malloc(newSize, alignment);
+        void* addr = rz_malloc(newSize, alignment);
+        return addr;
     }
 
 #ifdef RAZIX_PLATFORM_WINDOWS
-    oldPtr = _aligned_realloc(oldPtr, newSize, alignment);
+    return _aligned_realloc(oldPtr, newSize, alignment);
 #elif RAZIX_PLATFORM_UNIX
-    void* newPtr = NULL;
-    if (posix_memalign(&newPtr, alignment, newSize) != 0) {
-        newPtr = NULL;
-        oldPtr = NULL;
+    void* newPtr = rz_malloc(newSize, alignment);
+    if (!newPtr) {
+        return NULL; // Allocation failed, oldPtr is still valid
     }
-    if (newPtr) {
-        memcpy(newPtr, oldPtr, oldSize < newSize ? oldSize : newSize);
-        free(oldPtr);
-        oldPtr = newPtr;
-    } else {
-        oldPtr = NULL;
-    }
-#endif
 
-    return oldPtr;
+    size_t copySize = (oldSize < newSize) ? oldSize : newSize;
+    if (copySize > 0) {
+        memcpy(newPtr, oldPtr, copySize);
+    }
+
+    rz_free(oldPtr);
+    return newPtr;
+#endif
 }
 
 void* rz_realloc_aligned(void* oldPtr, size_t oldSize, size_t newSize)
