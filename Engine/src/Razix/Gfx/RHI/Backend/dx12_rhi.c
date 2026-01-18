@@ -7,6 +7,8 @@
 
 #include <malloc.h>    // for alloca
 
+#include <direct.h>    // for mkdir for PSOCache
+
 // TYpe friendly defines
 #define DX12Context g_GfxCtx.dx12
 #define DX12Device  g_GfxCtx.dx12.device10
@@ -1891,6 +1893,31 @@ static void dx12_util_destroy_command_signatures(dx12_ctx* ctx)
     }
 }
 
+static void dx12_util_dump_pipeline_cache(ID3D12Device10* device, ID3D12PipelineLibrary* pipelineLibrary)
+{
+    uint32_t size = (uint32_t) ID3D12PipelineLibrary_GetSerializedSize(pipelineLibrary);
+
+    void* data = malloc(size);
+    if (!data) {
+        RAZIX_RHI_LOG_ERROR("Failed to allocate memory for pipeline cache serialization");
+        return;
+    }
+
+    CHECK_HR(ID3D12PipelineLibrary_Serialize(pipelineLibrary, data, size));
+
+#if defined(_WIN32)
+    _mkdir("PSOCache");
+#endif
+
+    FILE* f = fopen("PSOCache/dx12_pipeline_library.bin", "wb");
+    if (f) {
+        fwrite(data, 1, size, f);
+        fclose(f);
+    }
+
+    free(data);
+}
+
 //---------------------------------------------------------------------------------------------
 // Public API functions
 
@@ -1975,12 +2002,22 @@ static void dx12_GlobalCtxInit(rz_gfx_context_desc init)
 
     dx12_util_create_command_signatures(&DX12Context);
 
+    // Create the virgin pipeline library
+    CHECK_HR(ID3D12Device10_CreatePipelineLibrary(DX12Device, NULL, 0, &IID_ID3D12PipelineLibrary, &DX12Context.pipelineLibrary));
+
     RAZIX_RHI_LOG_INFO("D3D12 Global context initialized successfully");
 }
 
 static void dx12_GlobalCtxDestroy(void)
 {
     dx12_util_destroy_command_signatures(&DX12Context);
+
+    if (DX12Context.pipelineLibrary) {
+        dx12_util_dump_pipeline_cache(DX12Device, DX12Context.pipelineLibrary);
+
+        ID3D12PipelineLibrary_Release(DX12Context.pipelineLibrary);
+        DX12Context.pipelineLibrary = NULL;
+    }
 
     if (DX12Context.directQ) {
         ID3D12CommandQueue_Release(DX12Context.directQ);
@@ -2464,6 +2501,19 @@ static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
     desc.SampleDesc.Quality = 0;
     desc.SampleMask         = UINT_MAX;    // No sample mask
 
+    //----------------------------
+    // PSO libray cache
+    //----------------------------
+    if (DX12Context.pipelineLibrary) {
+        ID3D12PipelineState* cachedPso = NULL;
+        HRESULT              hr        = ID3D12PipelineLibrary_LoadGraphicsPipeline(DX12Context.pipelineLibrary, (LPCWSTR) pso->resource.pCold->pName, &desc, &IID_ID3D12PipelineState, &cachedPso);
+        if (SUCCEEDED(hr) && cachedPso != NULL) {
+            pso->dx12.pso = cachedPso;
+            RAZIX_RHI_LOG_INFO("Loaded D3D12 Graphics Pipeline State Object (PSO) from pipeline library cache");
+            return;
+        }
+    }
+
     // Create the pipeline state object
     HRESULT hr = ID3D12Device10_CreateGraphicsPipelineState(DX12Device, &desc, &IID_ID3D12PipelineState, (void**) &pso->dx12.pso);
     if (FAILED(hr)) {
@@ -2471,6 +2521,12 @@ static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Pipeline State Object (PSO): 0x%08X", hr);
         return;
     }
+
+    if (DX12Context.pipelineLibrary) {
+        // store the created PSO in the pipeline library cache
+        CHECK_HR(ID3D12PipelineLibrary_StorePipeline(DX12Context.pipelineLibrary, (LPCWSTR) pso->resource.pCold->pName, pso->dx12.pso));
+    }
+
     RAZIX_RHI_LOG_INFO("D3D12 Pipeline State Object (PSO) created successfully");
     TAG_OBJECT(pso->dx12.pso, pso->resource.pCold->pName);
 }
@@ -2496,6 +2552,19 @@ static void dx12_CreateComputePipeline(rz_gfx_pipeline* pso)
     //----------------------------
     desc.CS = dx12_util_shader_bytecode_to_d3d12_shader(&pShaderDesc->compute.cs);
 
+    //----------------------------
+    // PSO libray cache
+    //----------------------------
+    if (DX12Context.pipelineLibrary) {
+        ID3D12PipelineState* cachedPso = NULL;
+        HRESULT              hr        = ID3D12PipelineLibrary_LoadComputePipeline(DX12Context.pipelineLibrary, (LPCWSTR) pso->resource.pCold->pName, &desc, &IID_ID3D12PipelineState, &cachedPso);
+        if (SUCCEEDED(hr) && cachedPso != NULL) {
+            pso->dx12.pso = cachedPso;
+            RAZIX_RHI_LOG_INFO("Loaded D3D12 Compute Pipeline State Object (PSO) from pipeline library cache");
+            return;
+        }
+    }
+
     // Create the pipeline state object
     HRESULT hr = ID3D12Device10_CreateComputePipelineState(DX12Device, &desc, &IID_ID3D12PipelineState, (void**) &pso->dx12.pso);
     if (FAILED(hr)) {
@@ -2503,6 +2572,12 @@ static void dx12_CreateComputePipeline(rz_gfx_pipeline* pso)
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Pipeline State Object (PSO): 0x%08X", hr);
         return;
     }
+
+    if (DX12Context.pipelineLibrary) {
+        // store the created PSO in the pipeline library cache
+        CHECK_HR(ID3D12PipelineLibrary_StorePipeline(DX12Context.pipelineLibrary, (LPCWSTR) pso->resource.pCold->pName, pso->dx12.pso));
+    }
+
     RAZIX_RHI_LOG_INFO("D3D12 Pipeline State Object (PSO) created successfully");
     TAG_OBJECT(pso->dx12.pso, pso->resource.pCold->pName);
 }
