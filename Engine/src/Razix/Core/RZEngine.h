@@ -103,6 +103,7 @@ namespace Razix {
         Gfx::RZWorldRenderer               m_WorldRenderer;
         Razix::Memory::RZHeapAllocator     m_SystemAllocator;
         Razix::Memory::RZHeapAllocator     m_AssetAllocator;
+        Razix::Memory::RZHeapAllocator     m_AssetHeaderAllocator;
         Razix::Memory::RZBumpAllocator     m_FrameAllocator;
         Razix::Memory::RZTwoSidedAllocator m_PacketAllocator;
         rz_critical_section                m_SystemAllocatorMutex;

@@ -46,11 +46,17 @@ namespace Razix {
                GetAssetPayloadSize<RZGameDataAsset>() + sizeof(u32);
     }
 
-    u64 RZAssetDB::ComputeMinBudgetBytesForMaxAssets(u64 maxAssets)
+    u64 RZAssetDB::ComputeMinPoolBudgetBytesForMaxAssets(u64 maxAssets)
     {
         constexpr u64 maxPayloadSlotBytes = CalculateMaxSlotMemForPayloads();
-        RAZIX_CORE_ASSERT(kRZAssetHeaderSlotBytes > 0 && maxPayloadSlotBytes > 0, "[AssetSystem] Invalid slot sizing for budget computation.");
-        return maxAssets * (kRZAssetHeaderSlotBytes + maxPayloadSlotBytes);
+        RAZIX_CORE_ASSERT(maxPayloadSlotBytes > 0, "[AssetSystem] Invalid slot sizing for pool budget computation.");
+        return maxAssets * (maxPayloadSlotBytes);
+    }
+
+    u64 RZAssetDB::ComputeMinHeaderBudgetBytesForMaxAssets(u64 maxAssets)
+    {
+        RAZIX_CORE_ASSERT(kRZAssetHeaderSlotBytes > 0, "[AssetSystem] Invalid slot sizing for header budget computation.");
+        return rz_mem_align(maxAssets * kRZAssetHeaderSlotBytes, RAZIX_CACHE_LINE_ALIGN);
     }
 
     //-------------------------------------------------------------------------
@@ -141,11 +147,12 @@ namespace Razix {
 
     //-------------------------------------------------------------------------
 
-    void RZAssetDB::Startup(Memory::RZHeapAllocator& assetAllocator)
+    void RZAssetDB::Startup(Memory::RZHeapAllocator& assetAllocator, Memory::RZHeapAllocator& assetHeaderAllocator)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-        m_AssetAllocator = &assetAllocator;
+        m_AssetAllocator       = &assetAllocator;
+        m_AssetHeaderAllocator = &assetHeaderAllocator;
 
         m_AssetDBLock = rz_critical_section_create();
 
@@ -166,7 +173,7 @@ namespace Razix {
 
         RAZIX_CORE_ASSERT(headerBytesToAllocate > 0, "[AssetSystem] Header pool reserved zero bytes; increase asset budget.");
         RAZIX_CORE_ASSERT(headerBytesToAllocate >= headerSlotBytes, "[AssetSystem] Header pool allocation below one slot ({} bytes available).", headerBytesToAllocate);
-        InitHeaderPoolWithSlice(m_HeaderPool, assetAllocator, headerBytesToAllocate);
+        InitHeaderPoolWithSlice(m_HeaderPool, assetHeaderAllocator, headerBytesToAllocate);
 
         u64 bytesRemaining = budgetInBytes - headerBytesToAllocate;
         u32 poolsRemaining = numPayloadPools;
@@ -224,7 +231,8 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-        m_AssetAllocator->deallocate(m_HeaderPool.getBackingMemoryMutablePtr());
+        m_AssetHeaderAllocator->deallocate(m_HeaderPool.getBackingMemoryMutablePtr());
+
         m_AssetAllocator->deallocate(m_AnimationAssetPool.getBackingMemoryMutablePtr());
         m_AssetAllocator->deallocate(m_AssetRefAssetPool.getBackingMemoryMutablePtr());
         m_AssetAllocator->deallocate(m_AudioAssetPool.getBackingMemoryMutablePtr());

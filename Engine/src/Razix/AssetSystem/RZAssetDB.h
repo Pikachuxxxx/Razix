@@ -41,10 +41,11 @@ namespace Razix {
         RZAssetDB()  = default;
         ~RZAssetDB() = default;
 
-        void Startup(Memory::RZHeapAllocator& assetAllocator);
+        void Startup(Memory::RZHeapAllocator& assetAllocator, Memory::RZHeapAllocator& assetHeaderAllocator);
         void Shutdown();
 
-        static u64 ComputeMinBudgetBytesForMaxAssets(u64 maxAssets);
+        static u64 ComputeMinPoolBudgetBytesForMaxAssets(u64 maxAssets);
+        static u64 ComputeMinHeaderBudgetBytesForMaxAssets(u64 maxAssets);
 
         template<typename T>
         RZAssetPool<T>& GetAssetPoolRef()
@@ -185,6 +186,7 @@ namespace Razix {
 
         rz_critical_section      m_AssetDBLock    = {};
         Memory::RZHeapAllocator* m_AssetAllocator = NULL;
+        Memory::RZHeapAllocator* m_AssetHeaderAllocator = NULL;
         u32                      m_BudgetInMB     = 0;
     };
 

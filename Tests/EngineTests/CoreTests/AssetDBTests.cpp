@@ -23,37 +23,39 @@ namespace Razix {
 
         static std::filesystem::path WriteBudgetFile(u32 assetPoolMB)
         {
+            // clang-format off
             const std::string content = R"INI([GlobalFrameBudget]
-TotalFrameBudgetMs = 16.67
+                TotalFrameBudgetMs = 16.67
 
-[DeptTimingBudgets]
-Core.FrameBudgetMs = 1.0
-Environment.FrameBudgetMs = 1.0
-Character.FrameBudgetMs = 1.0
-Lighting.FrameBudgetMs = 1.0
-RayTracing.FrameBudgetMs = 1.0
-VFX.FrameBudgetMs = 1.0
-UI.FrameBudgetMs = 1.0
-Physics.FrameBudgetMs = 1.0
-Scripting.FrameBudgetMs = 1.0
-Audio.FrameBudgetMs = 1.0
-Network.FrameBudgetMs = 1.0
-Rendering.FrameBudgetMs = 1.0
+                [DeptTimingBudgets]
+                Core.FrameBudgetMs = 1.0
+                Environment.FrameBudgetMs = 1.0
+                Character.FrameBudgetMs = 1.0
+                Lighting.FrameBudgetMs = 1.0
+                RayTracing.FrameBudgetMs = 1.0
+                VFX.FrameBudgetMs = 1.0
+                UI.FrameBudgetMs = 1.0
+                Physics.FrameBudgetMs = 1.0
+                Scripting.FrameBudgetMs = 1.0
+                Audio.FrameBudgetMs = 1.0
+                Network.FrameBudgetMs = 1.0
+                Rendering.FrameBudgetMs = 1.0
 
-[MemoryPools]
-CoreSystems.HeapSizeMB = 16
-AssetPool.HeapSizeMB = )INI" + std::to_string(assetPoolMB) +
-                                        R"INI(
-GfxResources.HeapSizeMB = 32
-GfxResources.GPUMemoryMB = 64
-RenderingPool.HeapSizeMB = 16
+                [MemoryPools]
+                CoreSystems.HeapSizeMB = 16
+                AssetPool.HeapSizeMB = )INI" + std::to_string(assetPoolMB) +
+                                                        R"INI(
+                GfxResources.HeapSizeMB = 32
+                GfxResources.GPUMemoryMB = 64
+                RenderingPool.HeapSizeMB = 16
 
-[ThreadFrameBudgets]
-TotalFrameAllocatorBudget = 64
-RenderThread.PerFrameAllocatorMB = 16
-GameThread.PerFrameAllocatorMB = 32
-WorkerThread.PerFrameAllocatorMB = 16
-)INI";
+                [ThreadFrameBudgets]
+                TotalFrameAllocatorBudget = 64
+                RenderThread.PerFrameAllocatorMB = 16
+                GameThread.PerFrameAllocatorMB = 32
+                WorkerThread.PerFrameAllocatorMB = 16
+                )INI";
+            // clang-format on
 
             const std::filesystem::path tempPath = std::filesystem::temp_directory_path() / "AssetDBTestBudget.ini";
             std::ofstream               out(tempPath);
@@ -68,6 +70,7 @@ WorkerThread.PerFrameAllocatorMB = 16
     {
     protected:
         Memory::RZHeapAllocator allocator;
+        Memory::RZHeapAllocator headerAllocator;
         RZAssetDB               db;
         std::filesystem::path   tempBudgetPath;
         std::filesystem::path   defaultBudgetPath;
@@ -85,8 +88,9 @@ WorkerThread.PerFrameAllocatorMB = 16
             const auto   assetBudget = Memory::GetMemoryPoolBudget(Memory::RZ_MEM_POOL_TYPE_ASSET_POOL);
             const size_t chunkSize   = static_cast<size_t>(assetBudget.HeapSizeMB) * 1024 * 1024;
             allocator.init(chunkSize);
+            headerAllocator.init(chunkSize, RAZIX_CACHE_LINE_ALIGN);
 
-            db.Startup(allocator);
+            db.Startup(allocator, headerAllocator);
         }
 
         void TearDown() override

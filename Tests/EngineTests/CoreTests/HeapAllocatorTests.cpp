@@ -1,4 +1,5 @@
 // HeapAllocatorTests.cpp
+#include "Razix/Core/Log/RZLog.h"
 #include "Razix/Core/Memory/Allocators/RZHeapAllocator.h"
 #include <gtest/gtest.h>
 
@@ -13,12 +14,16 @@ namespace Razix {
 
             void SetUp() override
             {
+        Razix::Debug::RZLog::StartUp();
+
                 allocator.init(chunkSize);
             }
 
             void TearDown() override
             {
                 allocator.shutdown();
+
+        Razix::Debug::RZLog::Shutdown();
             }
         };
 

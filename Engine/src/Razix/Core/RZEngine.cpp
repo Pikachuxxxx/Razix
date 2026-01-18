@@ -111,14 +111,21 @@ namespace Razix {
         u64                            assetHeapSizeBytes = Mib(static_cast<u64>(assetBudget.HeapSizeMB));
         RAZIX_CORE_ASSERT(assetHeapSizeBytes > 0, "Asset pool budget is 0 bytes!");
 
-        const u64 minAssetHeapBytes = RZAssetDB::ComputeMinBudgetBytesForMaxAssets(static_cast<u64>(RAZIX_MAX_ASSETS));
+        const u64 minAssetHeaderHeapBytes = RZAssetDB::ComputeMinHeaderBudgetBytesForMaxAssets(static_cast<u64>(RAZIX_MAX_ASSETS));
+        RAZIX_CORE_INFO("Initializing Asset Header Pool with minAssetHeaderHeapBytes: {0} KiB", in_Kib(minAssetHeaderHeapBytes));
+        RAZIX_CORE_ASSERT(assetHeapSizeBytes >= minAssetHeaderHeapBytes, "Asset header pool budget ({0} KiB) below minimum required ({1} KiB) for RAZIX_MAX_ASSETS={2}. Update RazixDepartmentBudgets.ini.", in_Kib(assetHeapSizeBytes), in_Kib(minAssetHeaderHeapBytes), static_cast<u64>(RAZIX_MAX_ASSETS));
+        m_AssetHeaderAllocator.init(minAssetHeaderHeapBytes, RAZIX_CACHE_LINE_ALIGN);
+        assetHeapSizeBytes -= minAssetHeaderHeapBytes;
+
+        const u64 minAssetHeapBytes = RZAssetDB::ComputeMinPoolBudgetBytesForMaxAssets(static_cast<u64>(RAZIX_MAX_ASSETS));
         RAZIX_CORE_INFO("Initializing Asset Pool with budget: {0} KiB and minAssetHeapBytes: {1} KiB", in_Kib(assetHeapSizeBytes), in_Kib(minAssetHeapBytes));
         RAZIX_CORE_ASSERT(assetHeapSizeBytes >= minAssetHeapBytes, "Asset pool budget ({0} KiB) below minimum required ({1} KiB) for RAZIX_MAX_ASSETS={2}. Update RazixDepartmentBudgets.ini.", in_Kib(assetHeapSizeBytes), in_Kib(minAssetHeapBytes), static_cast<u64>(RAZIX_MAX_ASSETS));
         m_AssetAllocator.init(assetHeapSizeBytes);
 
+
         //--------------------------
         // Asset DB startup
-        RZAssetDB::Get().Startup(m_AssetAllocator);
+        RZAssetDB::Get().Startup(m_AssetAllocator, m_AssetHeaderAllocator);
 
         //--------------------------
         // Initialize Job System right after memory systems
