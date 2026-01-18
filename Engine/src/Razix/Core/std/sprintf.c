@@ -45,7 +45,7 @@
     case mod: {                                                                                      \
         vartype v = (vartype) va_arg(args, argtype);                                                 \
         isNeg     = v < 0;                                                                           \
-        val       = isNeg ? (unsigned long long) (-(unsigned long long) v) : (unsigned long long) v; \
+        val       = isNeg ? (long long) (-(long long) v) : (long long) v; \
         writtenBytes += itoa(val, (buf_span) {num_buf, sizeof(num_buf)}, base);                      \
         break;                                                                                       \
     }
