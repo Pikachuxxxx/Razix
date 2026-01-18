@@ -2513,6 +2513,28 @@ static void vk_util_dump_pipeline_cache(VkDevice device, VkPipelineCache cache)
     free(data);
 }
 
+static void* vk_util_load_pipeline_cache(VkDevice device, uint32_t* outSize)
+{
+    FILE* f = fopen("PSOCache/vk_pipeline_cache.bin", "rb");
+    if (!f) {
+        *outSize = 0;
+        return NULL;
+    }
+    fseek(f, 0, SEEK_END);
+    *outSize = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    void* data = malloc(*outSize);
+    if (!data) {
+        fclose(f);
+        *outSize = 0;
+        return NULL;
+    }
+    fread(data, 1, *outSize, f);
+    fclose(f);
+
+    return data;
+}
+
 //---------------------------------------------------------------------------------------------
 
 static void vk_GlobalCtxInit(rz_gfx_context_desc init)
@@ -2671,11 +2693,14 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
     g_GraphicsFeatures.MaxLaneWidth                 = subgroupProps.subgroupSize;
 
     // Virgin pipeline cache for first run
+    uint32_t                  cacheSize = 0;
+    void* cache = vk_util_load_pipeline_cache(VKDEVICE, &cacheSize);
     VkPipelineCacheCreateInfo pci = {0};
     pci.sType                     = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-    pci.initialDataSize           = 0;
-    pci.pInitialData              = NULL;
+    pci.initialDataSize           = cacheSize;
+    pci.pInitialData              = cache;
     CHECK_VK(vkCreatePipelineCache(VKDEVICE, &pci, NULL, &g_GfxCtx.vk.pipelineCache));
+    free(cache);
 
     RAZIX_RHI_LOG_INFO("Vulkan RHI backend initialized successfully");
 }
