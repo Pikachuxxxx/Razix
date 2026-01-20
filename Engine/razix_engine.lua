@@ -151,44 +151,7 @@ project "Razix"
         "src/Razix/Core/Memory/vendor/mmgr/mmgr.cpp",
     }
 
-    -- For MacOS
-    externalincludedirs
-    {
-        -- Engine
-        "./",
-        "../",
-        "internal/",
-        "src/",
-        "src/Razix",
-        "%{wks.location}/../Engine",
-        "%{wks.location}/../Engine/src",
-        "%{wks.location}/../Engine/src/Razix",
-        "%{wks.location}/../Engine/internal",
-        "%{wks.location}/../Engine/internal/RazixMemory",
-        "%{wks.location}/../Engine/internal/RZSTL",
-        "%{IncludeDir.GLFW}",
-        "%{IncludeDir.Glad}",
-        "%{IncludeDir.stb}",
-        "%{IncludeDir.glm}",
-        "%{IncludeDir.ImGui}",
-        "%{IncludeDir.spdlog}",
-        "%{IncludeDir.cereal}",
-        "%{IncludeDir.SPIRVReflect}",
-        "%{IncludeDir.SPIRVCross}",
-        "%{IncludeDir.entt}",
-        "%{IncludeDir.lua}",
-        "%{IncludeDir.tracy}",
-        "%{IncludeDir.optick}",
-        "%{IncludeDir.Jolt}",
-        "%{IncludeDir.json}",
-        "%{IncludeDir.D3D12MA}",
-        "%{IncludeDir.dxc}",
-        "%{IncludeDir.volk}",
-        "%{IncludeDir.Razix}",
-        "%{IncludeDir.vendor}",
-        -- Experimental Vendor
-        "%{ExperimentalIncludeDir.Eigen}",
-    }
+    setEngineVendorIncludes()
 
     -- Razix engine external linkage libraries (Global)
     links
@@ -204,6 +167,7 @@ project "Razix"
         "optick",
         "tracy",
         "Jolt",
+        "LZ4",
         -- Shaders
         "Shaders",
     }

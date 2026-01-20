@@ -216,6 +216,7 @@ workspace ( settings.workspace_name )
         include "Engine/vendor/SPIRVReflect.lua"
         include "Engine/vendor/tracy.lua"
         include "Engine/vendor/jolt.lua"
+        include "Engine/vendor/lz4.lua"
     group ""
 
     -- Build Script for Razix Engine (Core)

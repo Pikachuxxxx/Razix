@@ -65,13 +65,13 @@ namespace Razix {
 
     struct RZSerializedBlob
     {
-        u32                offset;      // offset in the file where the blob data starts
-        u32                size;        // size of the blob data in bytes
-        u32                typeHash;    // Do we really need this? leave it for future use
-        RZCompressionFlags compression;
-        u8                 _pad0[3];
-        u32                decompressedSize;    // size after decompression, useful for allocating memory during deserialization
-        u32                _pad1[3];
+        u32                  offset;      // offset in the file where the blob data starts
+        u32                  size;        // size of the blob data in bytes
+        u32                  typeHash;    // Do we really need this? leave it for future use
+        rz_compression_type compression;
+        u8                   _pad0[3];
+        u32                  decompressedSize;    // size after decompression, useful for allocating memory during deserialization
+        u32                  _pad1[3];
     };
     static_assert(sizeof(RZSerializedBlob) == 32, "RZSerializedBlob size must be 32 bytes");
 

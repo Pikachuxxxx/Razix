@@ -26,72 +26,10 @@ project "EngineTests"
         "Razix"
     }
 
-    includedirs
-    {
-        "%{wks.location}/../Engine",
-        "%{wks.location}/../Engine/src",
-        "%{wks.location}/../Engine/src/Razix",
-        "%{wks.location}/../Engine/internal",
-        "%{wks.location}/../Engine/internal/RazixMemory",
-        "%{wks.location}/../Engine/internal/RZSTL",
-        "%{IncludeDir.GLFW}",
-        "%{IncludeDir.Glad}",
-        "%{IncludeDir.stb}",
-        "%{IncludeDir.glm}",
-        "%{IncludeDir.ImGui}",
-        "%{IncludeDir.spdlog}",
-        "%{IncludeDir.cereal}",
-        "%{IncludeDir.SPIRVReflect}",
-        "%{IncludeDir.SPIRVCross}",
-        "%{IncludeDir.entt}",
-        "%{IncludeDir.lua}",
-        "%{IncludeDir.tracy}",
-        "%{IncludeDir.optick}",
-        "%{IncludeDir.Jolt}",
-        "%{IncludeDir.json}",
-        "%{IncludeDir.D3D12MA}",
-        "%{IncludeDir.dxc}",
-        "%{IncludeDir.volk}",
-        "%{IncludeDir.Razix}",
-        "%{IncludeDir.vendor}",
-        -- Experimental Vendor
-        "%{ExperimentalIncludeDir.Eigen}",
-        -- googletest vendor
-        "%{wks.location}/../Tests/",
-        "%{wks.location}/../Tests/vendor/googletest/googletest",
-        "%{wks.location}/../Tests/vendor/googletest/googletest/include"
-    }
+    setEngineVendorIncludes()
 
     externalincludedirs
     {
-        "%{wks.location}/../Engine",
-        "%{wks.location}/../Engine/src",
-        "%{wks.location}/../Engine/src/Razix",
-        "%{wks.location}/../Engine/internal",
-        "%{wks.location}/../Engine/internal/RazixMemory",
-        "%{wks.location}/../Engine/internal/RZSTL",
-        "%{IncludeDir.GLFW}",
-        "%{IncludeDir.Glad}",
-        "%{IncludeDir.stb}",
-        "%{IncludeDir.glm}",
-        "%{IncludeDir.ImGui}",
-        "%{IncludeDir.spdlog}",
-        "%{IncludeDir.cereal}",
-        "%{IncludeDir.SPIRVReflect}",
-        "%{IncludeDir.SPIRVCross}",
-        "%{IncludeDir.entt}",
-        "%{IncludeDir.lua}",
-        "%{IncludeDir.tracy}",
-        "%{IncludeDir.optick}",
-        "%{IncludeDir.Jolt}",
-        "%{IncludeDir.json}",
-        "%{IncludeDir.D3D12MA}",
-        "%{IncludeDir.dxc}",
-        "%{IncludeDir.volk}",
-        "%{IncludeDir.Razix}",
-        "%{IncludeDir.vendor}",
-        -- Experimental Vendor
-        "%{ExperimentalIncludeDir.Eigen}",
         -- googletest vendor
         "%{wks.location}/../Tests/",
         "%{wks.location}/../Tests/vendor/googletest/googletest",

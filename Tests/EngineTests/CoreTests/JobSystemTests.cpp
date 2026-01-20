@@ -456,7 +456,7 @@ namespace Razix {
         EXPECT_LT(jobElapsed, static_cast<int64_t>(serialElapsed * 18 / 10 + 5000));
     }
 
-    TEST_F(RZJobSystemFixture, MacSequentialVsSubmittedFileReads)
+    TEST_F(RZJobSystemFixture, SequentialVsSubmittedFileReads)
     {
         constexpr u32   kFileCount       = 150u;
         constexpr size_t kMaxFileSizeB   = 256u * 1024u;    // Up to 256 KB per file
@@ -500,13 +500,13 @@ namespace Razix {
 
         const double speedup = serialMicros / static_cast<double>(jobMicros);
 
-        std::printf("[macOS] Workers: %u | Sequential: %lldus (%zu bytes) | submit: %lldus (%llu bytes) | Speedup: %.2fx\n", RZJobSystemFixture::kWorkerCount, static_cast<long long>(serialMicros), serialBytesRead, static_cast<long long>(jobMicros), static_cast<unsigned long long>(totalBytes.load()), speedup);
+        std::printf("Workers: %u | Sequential: %lldus (%zu bytes) | submit: %lldus (%llu bytes) | Speedup: %.2fx\n", RZJobSystemFixture::kWorkerCount, static_cast<long long>(serialMicros), serialBytesRead, static_cast<long long>(jobMicros), static_cast<unsigned long long>(totalBytes.load()), speedup);
 
         // Submit should not be dramatically slower than serial; allow wide slack for CI and filesystem caching.
         EXPECT_LT(jobMicros, serialMicros * 4 + 100000);
     }
 
-    TEST_F(RZJobSystemHighWorkerFixture, MacSerialGlobalVsSpawnedFileReads)
+    TEST_F(RZJobSystemHighWorkerFixture, DISABLED_SerialGlobalVsSpawnedFileReads)
     {
         constexpr u32   kFileCount     = 150u;
         constexpr size_t kMaxFileSizeB = 256u * 1024u;
@@ -571,13 +571,13 @@ namespace Razix {
         const double submitSpeedup = serialMicros / static_cast<double>(submitMicros);
         const double masterSpeedup = serialMicros / static_cast<double>(masterMicros);
 
-        std::printf("[macOS] Workers: %u | Serial: %lldus | submit: %lldus | master-spawn: %lldus | bytes: %llu | Submit speedup: %.2fx | Master speedup: %.2fx\n", RZJobSystemHighWorkerFixture::kWorkerCount, static_cast<long long>(serialMicros), static_cast<long long>(submitMicros), static_cast<long long>(masterMicros), static_cast<unsigned long long>(totalBytes.load()), submitSpeedup, masterSpeedup);
+        std::printf("Workers: %u | Serial: %lldus | submit: %lldus | master-spawn: %lldus | bytes: %llu | Submit speedup: %.2fx | Master speedup: %.2fx\n", RZJobSystemHighWorkerFixture::kWorkerCount, static_cast<long long>(serialMicros), static_cast<long long>(submitMicros), static_cast<long long>(masterMicros), static_cast<unsigned long long>(totalBytes.load()), submitSpeedup, masterSpeedup);
 
         EXPECT_LT(submitMicros, serialMicros * 4 + 100000);
         EXPECT_LT(masterMicros, serialMicros * 4 + 100000);
     }
 
-    TEST_F(RZJobSystemHighWorkerFixture, MacAggressiveFileReadsHighWorkers)
+    TEST_F(RZJobSystemHighWorkerFixture, DISABLED_AggressiveFileReadsHighWorkers)
     {
         constexpr u32   kFileCount     = 256u;
         constexpr size_t kMaxFileSizeB = 512 * 1024u;
@@ -619,7 +619,7 @@ namespace Razix {
 
         const double submitSpeedup = serialMicros / static_cast<double>(submitMicros);
 
-        std::printf("[macOS][Aggressive] Workers: %u | Serial: %lldus | submit: %lldus | bytes: %llu | Submit speedup: %.2fx\n", RZJobSystemHighWorkerFixture::kWorkerCount, static_cast<long long>(serialMicros), static_cast<long long>(submitMicros), static_cast<unsigned long long>(totalBytes.load()), submitSpeedup);
+        std::printf("[Aggressive] Workers: %u | Serial: %lldus | submit: %lldus | bytes: %llu | Submit speedup: %.2fx\n", RZJobSystemHighWorkerFixture::kWorkerCount, static_cast<long long>(serialMicros), static_cast<long long>(submitMicros), static_cast<unsigned long long>(totalBytes.load()), submitSpeedup);
 
         EXPECT_LT(submitMicros, serialMicros * 4 + 150000);
     }

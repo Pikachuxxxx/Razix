@@ -40,7 +40,7 @@ namespace Razix {
             {
                 u32                isTriviallySerializable : 1;    // seems redundant with TypeMetaData::bIsTriviallySerializable?
                 u32                forceCompression : 1;
-                RZCompressionFlags compressionMethod : 3;
+                rz_compression_type compressionMethod : 3;
                 u32                reserved : 27;
             };
         };
