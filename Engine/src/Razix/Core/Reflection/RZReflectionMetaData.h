@@ -1,6 +1,9 @@
-#pragma once
+#ifndef _RZ_REFLECTION_METADATA_H_
+#define _RZ_REFLECTION_METADATA_H_
 
 #include "Razix/Core/RZDataTypes.h"
+
+#include "Razix/Core/Compression/RZCompression.h"
 
 #include "Razix/Core/Containers/arrays.h"
 #include "Razix/Core/Containers/hash_map.h"
@@ -24,30 +27,33 @@ namespace Razix {
 
     struct MemberMetaData
     {
-        RZString              name;     // variable name
-        RZString              typeName; // underlying typename
+        RZString              name;        // variable name
+        RZString              typeName;    // underlying typename
         u32                   offset;
-        u32                   size;
-        SerializeableDataType dataType; // filled by user reflection macros
+        u32                   size;        // TODO: use fixed sizes instead of sizeof for compatibility across platforms
+        SerializeableDataType dataType;    // filled by user reflection macros
         // some additional flags to hint serilization behaviour, these are set by the user reflection macros
         union
         {
             u32 flags;
             struct
             {
-                u32 isTriviallySerializable: 1;
-                u32 forceCompression: 1;
-                u32 compressionMethod: 2;    // 0: none, 1: zlib, 2: lz4, 3: custom
-                u32 reserved : 30;
+                u32                isTriviallySerializable : 1;    // seems redundant with TypeMetaData::bIsTriviallySerializable?
+                u32                forceCompression : 1;
+                RZCompressionFlags compressionMethod : 3;
+                u32                reserved : 27;
             };
         };
     };
 
     struct TypeMetaData
     {
-        RZString                       name; // variable name
-        RZString                       typeName; // underlying typename, actaully same as name for root TypeMetaData?
-        u32                            size;
+        RZString                       name;        // variable name
+        RZString                       typeName;    // underlying typename, actaully same as name for root TypeMetaData?
+        u32                            size;        // not actual size but sizeof for the type, not serialized size
         RZDynamicArray<MemberMetaData> members;
+        bool                           bIsTriviallySerializable = true;    // if true, the whole struct can be serialized as a blob
     };
 }    // namespace Razix
+
+#endif    // _RZ_REFLECTION_METADATA_H_

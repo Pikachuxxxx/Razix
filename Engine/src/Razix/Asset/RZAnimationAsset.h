@@ -22,11 +22,11 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZAnimationAsset)
-    RAZIX_REFLECT_MEMBER(FrameCount)
-    RAZIX_REFLECT_MEMBER(BoneCount)
-    RAZIX_REFLECT_MEMBER(Duration)
-    RAZIX_REFLECT_MEMBER(FrameRate)
-    RAZIX_REFLECT_MEMBER(bShouldLoop)
+    RAZIX_REFLECT_PRIMITIVE(FrameCount)
+    RAZIX_REFLECT_PRIMITIVE(BoneCount)
+    RAZIX_REFLECT_PRIMITIVE(Duration)
+    RAZIX_REFLECT_PRIMITIVE(FrameRate)
+    RAZIX_REFLECT_PRIMITIVE(bShouldLoop)
     RAZIX_REFLECT_TYPE_END(RZAnimationAsset)
 
 };    // namespace Razix

@@ -16,10 +16,10 @@ namespace Razix {
 
     // Register the type
     RAZIX_REFLECT_TYPE_START(TestStruct)
-    RAZIX_REFLECT_MEMBER(intValue)
-    RAZIX_REFLECT_MEMBER(floatValue)
-    RAZIX_REFLECT_MEMBER(doubleValue)
-    RAZIX_REFLECT_MEMBER(charValue)
+    RAZIX_REFLECT_PRIMITIVE(intValue)
+    RAZIX_REFLECT_PRIMITIVE(floatValue)
+    RAZIX_REFLECT_PRIMITIVE(doubleValue)
+    RAZIX_REFLECT_PRIMITIVE(charValue)
     RAZIX_REFLECT_TYPE_END(TestStruct)
 
     // Fixture for Reflection Tests
@@ -102,8 +102,8 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(AnotherStruct)
-    RAZIX_REFLECT_MEMBER(flag)
-    RAZIX_REFLECT_MEMBER(count)
+    RAZIX_REFLECT_PRIMITIVE(flag)
+    RAZIX_REFLECT_PRIMITIVE(count)
     RAZIX_REFLECT_TYPE_END(AnotherStruct)
 
     TEST_F(RZReflectionTests, RegisterAnotherType)

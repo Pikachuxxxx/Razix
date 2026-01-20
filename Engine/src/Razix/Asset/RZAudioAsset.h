@@ -27,13 +27,13 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZAudioAsset)
-    RAZIX_REFLECT_MEMBER(AudioDataHandle)
-    RAZIX_REFLECT_MEMBER(SampleRate)
-    RAZIX_REFLECT_MEMBER(ChannelCount)
-    RAZIX_REFLECT_MEMBER(SampleCount)
-    RAZIX_REFLECT_MEMBER(Duration)
-    RAZIX_REFLECT_MEMBER(Type)
-    RAZIX_REFLECT_MEMBER(bIsLooping)
+    RAZIX_REFLECT_PRIMITIVE(AudioDataHandle)
+    RAZIX_REFLECT_PRIMITIVE(SampleRate)
+    RAZIX_REFLECT_PRIMITIVE(ChannelCount)
+    RAZIX_REFLECT_PRIMITIVE(SampleCount)
+    RAZIX_REFLECT_PRIMITIVE(Duration)
+    RAZIX_REFLECT_PRIMITIVE(Type)
+    RAZIX_REFLECT_PRIMITIVE(bIsLooping)
     RAZIX_REFLECT_TYPE_END(RZAudioAsset)
 
 };    // namespace Razix

@@ -21,13 +21,13 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZPhysicsMaterialAsset)
-    RAZIX_REFLECT_MEMBER(Density)
-    RAZIX_REFLECT_MEMBER(StaticFriction)
-    RAZIX_REFLECT_MEMBER(DynamicFriction)
-    RAZIX_REFLECT_MEMBER(Restitution)
-    RAZIX_REFLECT_MEMBER(LinearDamping)
-    RAZIX_REFLECT_MEMBER(AngularDamping)
-    RAZIX_REFLECT_MEMBER(bIsTrigger)
+    RAZIX_REFLECT_PRIMITIVE(Density)
+    RAZIX_REFLECT_PRIMITIVE(StaticFriction)
+    RAZIX_REFLECT_PRIMITIVE(DynamicFriction)
+    RAZIX_REFLECT_PRIMITIVE(Restitution)
+    RAZIX_REFLECT_PRIMITIVE(LinearDamping)
+    RAZIX_REFLECT_PRIMITIVE(AngularDamping)
+    RAZIX_REFLECT_PRIMITIVE(bIsTrigger)
     RAZIX_REFLECT_TYPE_END(RZPhysicsMaterialAsset)
 
 };    // namespace Razix

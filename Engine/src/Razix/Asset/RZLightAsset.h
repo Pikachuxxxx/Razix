@@ -33,15 +33,15 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZLightAsset)
-    RAZIX_REFLECT_MEMBER(Position_Range)
-    RAZIX_REFLECT_MEMBER(Color_Intensity)
-    RAZIX_REFLECT_MEMBER(Direction)
-    RAZIX_REFLECT_MEMBER(ConstantAttenuation)
-    RAZIX_REFLECT_MEMBER(LinearAttenuation)
-    RAZIX_REFLECT_MEMBER(Quadratic)
-    RAZIX_REFLECT_MEMBER(InnerConeAngle)
-    RAZIX_REFLECT_MEMBER(OuterConeAngle)
-    RAZIX_REFLECT_MEMBER(Type)
+    RAZIX_REFLECT_PRIMITIVE(Position_Range)
+    RAZIX_REFLECT_PRIMITIVE(Color_Intensity)
+    RAZIX_REFLECT_PRIMITIVE(Direction)
+    RAZIX_REFLECT_PRIMITIVE(ConstantAttenuation)
+    RAZIX_REFLECT_PRIMITIVE(LinearAttenuation)
+    RAZIX_REFLECT_PRIMITIVE(Quadratic)
+    RAZIX_REFLECT_PRIMITIVE(InnerConeAngle)
+    RAZIX_REFLECT_PRIMITIVE(OuterConeAngle)
+    RAZIX_REFLECT_PRIMITIVE(Type)
     RAZIX_REFLECT_TYPE_END(RZLightAsset)
 
 }    // namespace Razix

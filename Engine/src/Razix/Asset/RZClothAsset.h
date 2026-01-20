@@ -24,13 +24,13 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZClothAsset)
-    RAZIX_REFLECT_MEMBER(VertexCount)
-    RAZIX_REFLECT_MEMBER(TriangleCount)
-    RAZIX_REFLECT_MEMBER(ConstraintCount)
-    RAZIX_REFLECT_MEMBER(Mass)
-    RAZIX_REFLECT_MEMBER(Damping)
-    RAZIX_REFLECT_MEMBER(GravityScale)
-    RAZIX_REFLECT_MEMBER(bIsSimulating)
+    RAZIX_REFLECT_PRIMITIVE(VertexCount)
+    RAZIX_REFLECT_PRIMITIVE(TriangleCount)
+    RAZIX_REFLECT_PRIMITIVE(ConstraintCount)
+    RAZIX_REFLECT_PRIMITIVE(Mass)
+    RAZIX_REFLECT_PRIMITIVE(Damping)
+    RAZIX_REFLECT_PRIMITIVE(GravityScale)
+    RAZIX_REFLECT_PRIMITIVE(bIsSimulating)
     RAZIX_REFLECT_TYPE_END(RZClothAsset)
 
 };    // namespace Razix

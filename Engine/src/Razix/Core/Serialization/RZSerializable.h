@@ -1,47 +1,51 @@
-#ifndef SERIALIZABLE_H
-#define SERIALIZABLE_H
+#ifndef _RZ_SERIALIZABLE_H
+#define _RZ_SERIALIZABLE_H
 
 #include "Razix/Core/std/type_traits.h"
-#include <Core/Reflection/RZReflectionMetaData.h>
+#include "Razix/Core/std/utility.h"
+
+#include "Razix/Core/Compression/RZCompression.h"
+
+#include "Razix/Core/Reflection/RZReflectionMetaData.h"
 
 namespace Razix {
 
-    enum class DiskTypeTag : u8
+    enum class RZDiskTypeTag : u8
     {
-        Primitive   = 1,
-        Blob        = 2,
-        Array       = 3,
-        HashMap     = 4,
-        String      = 5,
-        Object      = 6,
-        ObjectArray = 7,
-        Enum        = 8,
-        BitField    = 9,
+        kPrimitive   = 1,
+        kBlob        = 2,
+        kArray       = 3,
+        kHashMap     = 4,
+        kString      = 5,
+        kObject      = 6,
+        kObjectArray = 7,
+        kEnum        = 8,
+        kBitField    = 9,
+        COUNT
     };
 
-    DiskTypeTag ToDiskTag(SerializeableDataType t)
+    RZDiskTypeTag ToDiskTag(SerializeableDataType t)
     {
         switch (t) {
-            default: /* error */;
-            case SerializeableDataType::kPrimitive: return DiskTypeTag::Primitive;
-            case SerializeableDataType::kBlob: return DiskTypeTag::Blob;
-            case SerializeableDataType::kArray: return DiskTypeTag::Array;
-            case SerializeableDataType::kHashMap: return DiskTypeTag::HashMap;
-            case SerializeableDataType::kString: return DiskTypeTag::String;
-            case SerializeableDataType::kObject: return DiskTypeTag::Object;
-            case SerializeableDataType::kObjectArray: return DiskTypeTag::ObjectArray;
-            case SerializeableDataType::kEnum: return DiskTypeTag::Enum;
-            case SerializeableDataType::kBitField: return DiskTypeTag::BitField;
+            default:
+            case SerializeableDataType::kPrimitive: return RZDiskTypeTag::kPrimitive;
+            case SerializeableDataType::kBlob: return RZDiskTypeTag::kBlob;
+            case SerializeableDataType::kArray: return RZDiskTypeTag::kArray;
+            case SerializeableDataType::kHashMap: return RZDiskTypeTag::kHashMap;
+            case SerializeableDataType::kString: return RZDiskTypeTag::kString;
+            case SerializeableDataType::kObject: return RZDiskTypeTag::kObject;
+            case SerializeableDataType::kObjectArray: return RZDiskTypeTag::kObjectArray;
+            case SerializeableDataType::kEnum: return RZDiskTypeTag::kEnum;
+            case SerializeableDataType::kBitField: return RZDiskTypeTag::kBitField;
         }
-        return DiskTypeTag::Primitive;
-
+        return RZDiskTypeTag::kPrimitive;
     }
 
     //-------------------------------------------------------------------------
     //  Serialized Data types
     //-------------------------------------------------------------------------
 
-    struct SerializedPrimitive
+    struct RZSerializedPrimitive
     {
         union
         {
@@ -59,83 +63,74 @@ namespace Razix {
         };
     };
 
-    struct SerializedBlob
+    struct RZSerializedBlob
     {
-        u32 offset;
-        u32 size;
-        u32 type_hash;
-        u8  compression;
-        u8  reserved[3];
-        u32 decompressed_size;
+        u32                offset;      // offset in the file where the blob data starts
+        u32                size;        // size of the blob data in bytes
+        u32                typeHash;    // Do we really need this? leave it for future use
+        RZCompressionFlags compression;
+        u8                 _pad0[3];
+        u32                decompressedSize;    // size after decompression, useful for allocating memory during deserialization
+        u32                _pad1[3];
     };
+    static_assert(sizeof(RZSerializedBlob) == 32, "RZSerializedBlob size must be 32 bytes");
 
     // Array of anything
-    struct SerializedArray
+    struct RZSerializedArray
     {
-        SerializedBlob data;    // blob of all elements
-        u32            element_count;
-        u32            element_type_hash;
-        u8             element_size;
-        u8             reserved[3];
+        RZSerializedBlob data;    // blob of all elements
+        u32              elementCount;
+        u8               elementSize;
+        u8               _pad0[3];
     };
 
     // HashMap
-    struct SerializedHashMap
+    struct RZSerializedHashMap
     {
-        SerializedBlob keys;      // blob of all keys
-        SerializedBlob values;    // blob of all values
-        u32            capacity;
-        u32            count;
-        u32            index;
+        RZSerializedBlob keys;      // blob of all keys
+        RZSerializedBlob values;    // blob of all values
+        u32              capacity;
+        u32              count;
+        u32              index;
     };
 
     // String
-    struct SerializedString
+    struct RZSerializedString
     {
-        SerializedBlob data;    // blob of characters
-        u32            length;
-        u8             encoding;    // UTF-8, UTF-16, ASCII
-        u8             reserved[3];
+        RZSerializedBlob data;    // blob of characters
+        u32              length;
+        u8               encoding;    // UTF-8, UTF-16, ASCII
+        u8               _pad0[3];
     };
 
     // Struct instance - only works for POD/simple structs without pointers. Marked as clean POD in reflection registry.
-    struct SerializedObject
+    struct RZSerializedObject
     {
-        SerializedBlob data;    // blob of struct bytes
-        u32            type_hash;
-        u32            size;
+        RZSerializedBlob data;    // blob of struct bytes
+        u32              typeHash;
+        u32              size;
+        bool             bIsTriviallySerializable;
     };
 
     // Array of objects - only works for POD/simple structs without pointers. Marked as clean POD in reflection registry.
-    struct SerializedObjectArray
+    struct RZSerializedObjectArray
     {
-        SerializedBlob data;    // blob containing array of blobs
-        u32            element_count;
-        u32            element_type_hash;
+        RZSerializedBlob data;    // blob containing array of blobs
+        u32              elementCount;
+        u32              elementTypeHash;
     };
 
-    struct SerialzeEnumValue
+    struct RZSerializedEnumValue
     {
         RZString name;
         int      value;
     };
 
-    struct SerializeBitFieldValue
+    struct RZSerializedBitFieldValue
     {
         RZString name;
         int      bitIndex;
     };
-
-    using RZSerialzableVariant = std::variant<
-        SerializedPrimitive,
-        SerializedBlob,
-        SerializedArray,
-        SerializedHashMap,
-        SerializedString,
-        SerializedObject,
-        SerializedObjectArray,
-        SerialzeEnumValue,
-        SerializeBitFieldValue>;
 
     template<typename Derived>
     class RZSerializable
@@ -150,17 +145,44 @@ namespace Razix {
 
         static RZDynamicArray<u8> serializeToBinary(const Derived& data)
         {
-            RZDynamicArray<u8>  buffer;
-            const TypeMetaData* meta = getTypeMetaData();
-            if (!meta) return buffer;
+            RZDynamicArray<u8>  buffer = {};
+            const TypeMetaData* meta   = getTypeMetaData();
+            if (!meta) {
+                RAZIX_CORE_ERROR("[RZSerializable] Type metadata for type '{}' not found.", typeid(Derived).name());
+                return buffer;
+            }
 
             const u8* base = reinterpret_cast<const u8*>(&data);
 
+            // we don't need to serialize member by member if the whole struct is trivially serializable
+            // all are assumed to be primitive types
+            if (meta->bIsTriviallySerializable) {
+                RAZIX_CORE_TRACE("Serializing trivially serializable type: {} of size: {}", meta->name.c_str(), meta->size);
+                buffer.resize(meta->size);
+                memcpy(buffer.data(), base, meta->size);
+                return buffer;
+            }
+
+            // Otherwise serialize member by member
             for (const auto& member: meta->members) {
                 size_t oldSize = buffer.size();
-                buffer.resize(oldSize + member.size);
 
-                printf("member.name:  | member size: %d \n", member.size);
+                buffer.resize(oldSize + member.size);
+                RAZIX_CORE_TRACE("member.name:  | member size: %d \n", member.size);
+
+                switch (member.dataType) {
+                    case SerializeableDataType::kPrimitive:
+                        RAZIX_CORE_TRACE("Serializing primitive member: {} of size: {}", member.name.c_str(), member.size);
+                        break;
+                    case SerializeableDataType::kBlob:
+                        RAZIX_CORE_TRACE("Serializing blob member: {} of size: {}", member.name.c_str(), member.size);
+                        break;
+                    default:
+                        RAZIX_DEBUG_BREAK();
+                        RAZIX_CORE_ERROR("Work in progress handling other serialization types");
+                        RAZIX_CORE_ERROR("Serializing non-trivially serializable member: {} of type: {}. Ensure custom serialization is handled!", member.name.c_str(), member.typeName.c_str());
+                        break;
+                }
 
                 memcpy(buffer.data() + oldSize,
                     base + member.offset,
@@ -175,19 +197,24 @@ namespace Razix {
             Derived data = {};
 
             const TypeMetaData* meta = getTypeMetaData();
-            if (!meta) return data;
-
-            u8*    base   = reinterpret_cast<u8*>(&data);
-            size_t offset = 0;
-
-            for (const auto& member: meta->members) {
-                if (offset + member.size > binary.size()) break;
-                memcpy(base + member.offset, binary.data() + offset, member.size);
-                offset += member.size;
+            if (!meta) {
+                RAZIX_CORE_ERROR("[RZSerializable] Type metadata for type '{}' not found.", typeid(Derived).name());
+                return data;
             }
+
+            u8* dest = reinterpret_cast<u8*>(&data);
+
+            if (meta->bIsTriviallySerializable) {
+                RAZIX_CORE_TRACE("De-Serializing trivially serializable type: {} of size: {}", meta->name.c_str(), meta->size);
+                memcpy(dest, binary.data(), rz_min<size_t>(meta->size, binary.size()));
+                return data;
+            }
+
+            RAZIX_DEBUG_BREAK();
+            RAZIX_CORE_ERROR("Work in progress handling other deserialization types");
 
             return data;
         }
     };
 }    // namespace Razix
-#endif    // SERIALZABLE_H
+#endif    // _RZ_SERIALIZABLE_H

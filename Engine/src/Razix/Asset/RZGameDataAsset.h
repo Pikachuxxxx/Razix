@@ -22,12 +22,12 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZGameDataAsset)
-    RAZIX_REFLECT_MEMBER(SaveSlotCount)
-    RAZIX_REFLECT_MEMBER(TotalPlayTime)
-    RAZIX_REFLECT_MEMBER(bIsDLCEnabled)
-    RAZIX_REFLECT_MEMBER(DifficultyLevel)
-    RAZIX_REFLECT_MEMBER(LastPlayedLevel)
-    RAZIX_REFLECT_MEMBER(CheckpointPosition)
+    RAZIX_REFLECT_PRIMITIVE(SaveSlotCount)
+    RAZIX_REFLECT_PRIMITIVE(TotalPlayTime)
+    RAZIX_REFLECT_PRIMITIVE(bIsDLCEnabled)
+    RAZIX_REFLECT_PRIMITIVE(DifficultyLevel)
+    RAZIX_REFLECT_PRIMITIVE(LastPlayedLevel)
+    RAZIX_REFLECT_PRIMITIVE(CheckpointPosition)
     RAZIX_REFLECT_TYPE_END(RZGameDataAsset)
 
 };    // namespace Razix

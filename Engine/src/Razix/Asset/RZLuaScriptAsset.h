@@ -34,10 +34,10 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZLuaScriptAsset)
-    RAZIX_REFLECT_MEMBER(ScriptPath)
-    RAZIX_REFLECT_MEMBER(LastModifiedTime)
-    RAZIX_REFLECT_MEMBER(bIsCompiled)
-    RAZIX_REFLECT_MEMBER(bAutoReload)
+    RAZIX_REFLECT_PRIMITIVE(ScriptPath)
+    RAZIX_REFLECT_PRIMITIVE(LastModifiedTime)
+    RAZIX_REFLECT_PRIMITIVE(bIsCompiled)
+    RAZIX_REFLECT_PRIMITIVE(bAutoReload)
     RAZIX_REFLECT_TYPE_END(RZLuaScriptAsset)
 
 }    // namespace Razix

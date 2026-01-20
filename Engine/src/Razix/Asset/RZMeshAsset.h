@@ -23,15 +23,15 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZMeshAsset)
-    RAZIX_REFLECT_MEMBER(VertexCount)
-    RAZIX_REFLECT_MEMBER(IndexCount)
-    RAZIX_REFLECT_MEMBER(VertexBufferHandle)
-    RAZIX_REFLECT_MEMBER(IndexBufferHandle)
-    RAZIX_REFLECT_MEMBER(BoundsMin)
-    RAZIX_REFLECT_MEMBER(BoundsRadius)
-    RAZIX_REFLECT_MEMBER(BoundsMax)
-    RAZIX_REFLECT_MEMBER(MeshPath)
-    RAZIX_REFLECT_MEMBER(MaterialPath)
+    RAZIX_REFLECT_PRIMITIVE(VertexCount)
+    RAZIX_REFLECT_PRIMITIVE(IndexCount)
+    RAZIX_REFLECT_PRIMITIVE(VertexBufferHandle)
+    RAZIX_REFLECT_PRIMITIVE(IndexBufferHandle)
+    RAZIX_REFLECT_PRIMITIVE(BoundsMin)
+    RAZIX_REFLECT_PRIMITIVE(BoundsRadius)
+    RAZIX_REFLECT_PRIMITIVE(BoundsMax)
+    RAZIX_REFLECT_PRIMITIVE(MeshPath)
+    RAZIX_REFLECT_PRIMITIVE(MaterialPath)
     RAZIX_REFLECT_TYPE_END(RZMeshAsset)
 
 };    // namespace Razix

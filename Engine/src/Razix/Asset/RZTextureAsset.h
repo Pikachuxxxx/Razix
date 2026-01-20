@@ -17,14 +17,14 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZTextureAsset)
-    RAZIX_REFLECT_MEMBER(TexturePath)
-    RAZIX_REFLECT_MEMBER(Desc.width)
-    RAZIX_REFLECT_MEMBER(Desc.height)
-    RAZIX_REFLECT_MEMBER(Desc.depth)
-    RAZIX_REFLECT_MEMBER(Desc.mipLevels)
-    RAZIX_REFLECT_MEMBER(Desc.format)
-    RAZIX_REFLECT_MEMBER(Desc.textureType)
-    RAZIX_REFLECT_MEMBER(Desc.resourceHints)
+    RAZIX_REFLECT_PRIMITIVE(TexturePath)
+    RAZIX_REFLECT_PRIMITIVE(Desc.width)
+    RAZIX_REFLECT_PRIMITIVE(Desc.height)
+    RAZIX_REFLECT_PRIMITIVE(Desc.depth)
+    RAZIX_REFLECT_PRIMITIVE(Desc.mipLevels)
+    RAZIX_REFLECT_PRIMITIVE(Desc.format)
+    RAZIX_REFLECT_PRIMITIVE(Desc.textureType)
+    RAZIX_REFLECT_PRIMITIVE(Desc.resourceHints)
     RAZIX_REFLECT_TYPE_END(RZTextureAsset)
 
 };    // namespace Razix

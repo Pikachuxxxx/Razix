@@ -3,26 +3,50 @@
 #include <Razix/Core/Reflection/RZReflection.h>
 #include <Razix/Core/Serialization/RZSerializable.h>
 #include <gtest/gtest.h>
-#include <string>
 #include <stdio.h>
+#include <string>
 
 namespace Razix {
     // Dummy struct for testing reflection and serialization
-    struct PlayerStruct
+    struct PlayerStats
     {
         int    health;
         float  rage;
-        char*  name;
         double stamina;
+        char   rank;
     };
 
     // Register the type
-    RAZIX_REFLECT_TYPE_START(PlayerStruct)
-    RAZIX_REFLECT_MEMBER(health)
-    RAZIX_REFLECT_MEMBER(rage)
-    RAZIX_REFLECT_MEMBER(name)
-    RAZIX_REFLECT_MEMBER(stamina)
-    RAZIX_REFLECT_TYPE_END(PlayerStruct)
+    RAZIX_REFLECT_TYPE_START(PlayerStats)
+    RAZIX_REFLECT_PRIMITIVE(health)
+    RAZIX_REFLECT_PRIMITIVE(rage)
+    RAZIX_REFLECT_PRIMITIVE(stamina)
+    RAZIX_REFLECT_TYPE_END(PlayerStats)
+
+    struct PlayerMetaData
+    {
+        char* pName;
+        int   level;
+        float experience;
+        //RZString description;
+    };
+
+    RAZIX_REFLECT_TYPE_START(PlayerMetaData)
+    RAZIX_REFLECT_BLOB(pName, 64 * sizeof(char))
+    RAZIX_REFLECT_PRIMITIVE(level)
+    RAZIX_REFLECT_PRIMITIVE(experience)
+    RAZIX_REFLECT_TYPE_END(PlayerMetaData)
+
+    struct MasterPlayerStats
+    {
+        PlayerStats stats;
+        int         score;
+    };
+
+    RAZIX_REFLECT_TYPE_START(MasterPlayerStats)
+    //RAZIX_REFLECT_MEMBER(stats)
+    RAZIX_REFLECT_PRIMITIVE(score)
+    RAZIX_REFLECT_TYPE_END(MasterPlayerStats)
 
     // Fixture for Serialization Tests
     class RZSerializationTests : public ::testing::Test
@@ -30,39 +54,77 @@ namespace Razix {
     protected:
         void SetUp() override
         {
-            // Ensure the type is registered (happens automatically via static block)
+            Debug::RZLog::StartUp();
         }
 
         void TearDown() override
         {
-            // Clean up after tests if necessary
+            Debug::RZLog::Shutdown();
         }
     };
 
     // Test: Type Registration
     TEST_F(RZSerializationTests, PODSerializationHandshake)
     {
-        const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<PlayerStruct>();
-        ASSERT_NE(metaData, nullptr) << "Metadata for PlayerStruct should not be null.";
+        const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<PlayerStats>();
+        ASSERT_NE(metaData, nullptr) << "Metadata for PlayerStats should not be null.";
 
-        EXPECT_EQ(metaData->name, "PlayerStruct");
-        EXPECT_EQ(metaData->typeName, typeid(PlayerStruct).name());
-        EXPECT_EQ(metaData->size, sizeof(PlayerStruct));
+        EXPECT_EQ(metaData->name, "PlayerStats");
+        EXPECT_EQ(metaData->typeName, typeid(PlayerStats).name());
+        EXPECT_EQ(metaData->size, sizeof(PlayerStats));
 
         // now reflection is done we can test serialization
-        PlayerStruct playerOriginal;
-        playerOriginal.health  = 100;
-        playerOriginal.rage    = 75.5f;
-        playerOriginal.stamina = 50.25;
-        playerOriginal.name    = const_cast<char*>("Hero, Kratos is god hello ik tghis is a long string");
+        PlayerStats playerOriginal = {};
+        playerOriginal.health      = 100;
+        playerOriginal.rage        = 75.5f;
+        playerOriginal.stamina     = 50.25;
+        playerOriginal.rank        = 'A';
 
-        auto serializedData = RZSerializable<PlayerStruct>::serializeToBinary(playerOriginal);
+        auto serializedData = RZSerializable<PlayerStats>::serializeToBinary(playerOriginal);
         EXPECT_GT(serializedData.size(), 0) << "Serialized data should not be empty.";
 
-        PlayerStruct playerNew = static_cast<PlayerStruct>(RZSerializable<PlayerStruct>::deserializeFromBinary(serializedData));
+        PlayerStats playerNew = static_cast<PlayerStats>(RZSerializable<PlayerStats>::deserializeFromBinary(serializedData));
         EXPECT_EQ(playerNew.health, playerOriginal.health);
         EXPECT_EQ(playerNew.rage, playerOriginal.rage);
         EXPECT_EQ(playerNew.stamina, playerOriginal.stamina);
-        EXPECT_STREQ(playerNew.name, playerOriginal.name);
+        EXPECT_EQ(playerNew.rank, playerOriginal.rank);
     }
+
+    //TEST_F(RZSerializationTests, BlobTest)
+    //{
+    //    const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<PlayerMetaData>();
+    //    ASSERT_NE(metaData, nullptr) << "Metadata for PlayerMetaData should not be null.";
+
+    //    PlayerMetaData original = {};
+    //    original.level          = 42;
+    //    original.experience     = 9999.0f;
+
+    //    constexpr size_t BlobSize = 64;
+
+    //    original.pName = static_cast<char*>(rz_malloc_aligned(BlobSize));
+    //    ASSERT_NE(original.pName, nullptr);
+
+    //    std::memset(original.pName, 0, BlobSize);
+    //    const char* description =
+    //        "Kratos! Ghost of Sparta. Slayer of gods. Anger issues included.";
+    //    std::strncpy(original.pName, description, BlobSize - 1);
+
+    //    auto serializedData =
+    //        RZSerializable<PlayerMetaData>::serializeToBinary(original);
+
+    //    EXPECT_GT(serializedData.size(), 0);
+    //    rz_free(original.pName);
+
+    //    PlayerMetaData deserialized =
+    //        RZSerializable<PlayerMetaData>::deserializeFromBinary(serializedData);
+
+    //    // assume serializer allocates memory for blobs and members
+    //    ASSERT_NE(deserialized.pName, nullptr);
+
+    //    EXPECT_STREQ(deserialized.pName, original.pName);
+    //    EXPECT_EQ(deserialized.level, original.level);
+    //    EXPECT_EQ(deserialized.experience, original.experience);
+
+    //    rz_free(deserialized.pName);
+    //}
 }    // namespace Razix

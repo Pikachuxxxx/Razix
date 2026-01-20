@@ -20,12 +20,12 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZMaterialsTexturePaths)
-    RAZIX_REFLECT_MEMBER(AlbedoPath)
-    RAZIX_REFLECT_MEMBER(NormalPath)
-    RAZIX_REFLECT_MEMBER(MetallicPath)
-    RAZIX_REFLECT_MEMBER(RoughnessPath)
-    RAZIX_REFLECT_MEMBER(AmbientOcclusionPath)
-    RAZIX_REFLECT_MEMBER(EmissivePath)
+    RAZIX_REFLECT_PRIMITIVE(AlbedoPath)
+    RAZIX_REFLECT_PRIMITIVE(NormalPath)
+    RAZIX_REFLECT_PRIMITIVE(MetallicPath)
+    RAZIX_REFLECT_PRIMITIVE(RoughnessPath)
+    RAZIX_REFLECT_PRIMITIVE(AmbientOcclusionPath)
+    RAZIX_REFLECT_PRIMITIVE(EmissivePath)
     RAZIX_REFLECT_TYPE_END(RZMaterialsTexturePaths)
 
     // TODO: to be ratified later once RZMaterial system is done
@@ -49,20 +49,20 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZMaterialAsset)
-    RAZIX_REFLECT_MEMBER(Albedo)
-    RAZIX_REFLECT_MEMBER(Metallic)
-    RAZIX_REFLECT_MEMBER(Roughness)
-    RAZIX_REFLECT_MEMBER(AmbientOcclusion)
-    RAZIX_REFLECT_MEMBER(AlbedoTextureHandle)
-    RAZIX_REFLECT_MEMBER(NormalTextureHandle)
-    RAZIX_REFLECT_MEMBER(MetallicTextureHandle)
-    RAZIX_REFLECT_MEMBER(RoughnessTextureHandle)
-    RAZIX_REFLECT_MEMBER(AmbientOcclusionTextureHandle)
-    RAZIX_REFLECT_MEMBER(EmissiveTextureHandle)
-    RAZIX_REFLECT_MEMBER(NormalStrength)
-    RAZIX_REFLECT_MEMBER(EmissiveIntensity)
-    RAZIX_REFLECT_MEMBER(EmissiveColor)
-    RAZIX_REFLECT_MEMBER(TexturePaths)
+    RAZIX_REFLECT_PRIMITIVE(Albedo)
+    RAZIX_REFLECT_PRIMITIVE(Metallic)
+    RAZIX_REFLECT_PRIMITIVE(Roughness)
+    RAZIX_REFLECT_PRIMITIVE(AmbientOcclusion)
+    RAZIX_REFLECT_PRIMITIVE(AlbedoTextureHandle)
+    RAZIX_REFLECT_PRIMITIVE(NormalTextureHandle)
+    RAZIX_REFLECT_PRIMITIVE(MetallicTextureHandle)
+    RAZIX_REFLECT_PRIMITIVE(RoughnessTextureHandle)
+    RAZIX_REFLECT_PRIMITIVE(AmbientOcclusionTextureHandle)
+    RAZIX_REFLECT_PRIMITIVE(EmissiveTextureHandle)
+    RAZIX_REFLECT_PRIMITIVE(NormalStrength)
+    RAZIX_REFLECT_PRIMITIVE(EmissiveIntensity)
+    RAZIX_REFLECT_PRIMITIVE(EmissiveColor)
+    RAZIX_REFLECT_PRIMITIVE(TexturePaths)
     RAZIX_REFLECT_TYPE_END(RZMaterialAsset)
 
 };    // namespace Razix

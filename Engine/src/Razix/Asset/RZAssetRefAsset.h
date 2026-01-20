@@ -15,7 +15,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZAssetRefAsset)
-    RAZIX_REFLECT_MEMBER(AssetUUID)
+    RAZIX_REFLECT_PRIMITIVE(AssetUUID)
     RAZIX_REFLECT_TYPE_END(RZAssetRefAsset)
 
 };    // namespace Razix
