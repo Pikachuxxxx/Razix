@@ -20,6 +20,20 @@ Data Types handling:
 - Arrays: uses a RZSerializedArrayHeader that has type info, size and element count again similar to Blobs, everything is a blob if you look closely
 - HashMaps: Serialize keys/value/occupied arrays as Arrays 
 - Clean POD structs: needs to track alignment and we can drirectly write the serialized Blobs
+- Compression is handles per SerialzedBlob instead of at asset level
+- for trivially capable types we just memcpy
+- for more complex types we define macros walk through TypeMetaData members and serialize them one by one
+- We can use heuristics to choose to compress based on Blob payloads
+- Use std::visit and overloadTs to customize serialization logic (or use a simple switch case?)
+- If the type has all primitive datatypes they are trivially copyable, and however big never compressed just memcpy on filer read.
+- Use custom macros for each reflection type ex. REFLECT_PRIMITIVE, REFLECT_STRUCT, REFLECT_STRING etc. to handle metadata generation and make intent more explicit and this also helps with easier extension in future
+
+As for iterating through members:
+```
+u8* base = reinterpret_cast<u8*>(obj);
+void* fieldPtr = base + m.offset;
+```
+I can then check the TypeMetaData serialization type and pass to a switch and fill these SerializedXXX structs and write to disk
 
 ```
 struct SerializedBlob {
