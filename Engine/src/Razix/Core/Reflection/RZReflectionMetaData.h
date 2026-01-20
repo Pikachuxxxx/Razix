@@ -8,36 +8,46 @@
 
 namespace Razix {
 
+    enum class SerializeableDataType : u8
+    {
+        kPrimitive,
+        kBlob,
+        kArray,
+        kHashMap,
+        kString,
+        kObject,    // POD struct
+        kObjectArray,
+        kEnum,
+        kBitField,
+        COUNT
+    };
+
     struct MemberMetaData
     {
-        RZString name;
-        RZString typeName;
-        u32      offset;
-        u32      size;
+        RZString              name;     // variable name
+        RZString              typeName; // underlying typename
+        u32                   offset;
+        u32                   size;
+        SerializeableDataType dataType; // filled by user reflection macros
+        // some additional flags to hint serilization behaviour, these are set by the user reflection macros
+        union
+        {
+            u32 flags;
+            struct
+            {
+                u32 isTriviallySerializable: 1;
+                u32 forceCompression: 1;
+                u32 compressionMethod: 2;    // 0: none, 1: zlib, 2: lz4, 3: custom
+                u32 reserved : 30;
+            };
+        };
     };
 
     struct TypeMetaData
     {
-        RZString                       name;
-        RZString                       typeName;
+        RZString                       name; // variable name
+        RZString                       typeName; // underlying typename, actaully same as name for root TypeMetaData?
         u32                            size;
         RZDynamicArray<MemberMetaData> members;
-    };
-
-    /**
-     * Assuming every enum in the Razix code bases uses a COUNT member at the end
-     */
-    struct EnumMetaData
-    {
-        RZString                              name;
-        RZString                              typeName;
-        RZDynamicArray<RZPair<RZString, int>> values;
-    };
-
-    struct BitFieldMetaData
-    {
-        RZString                              name;
-        RZString                              typeName;
-        RZDynamicArray<RZPair<RZString, int>> values;    // int describes the bit index
     };
 }    // namespace Razix
