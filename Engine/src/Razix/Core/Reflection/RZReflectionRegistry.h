@@ -26,7 +26,6 @@ namespace Razix {
             if (it != getRegistry().end()) {
                 return &it->second;
             }
-            RAZIX_CORE_ERROR("[RZTypeRegistry] Type metadata for type '{}' not found in registry.", typeid(T).name());
             return NULL;
         }
 
