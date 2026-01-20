@@ -56,7 +56,7 @@ namespace Razix {
     u64 RZAssetDB::ComputeMinHeaderBudgetBytesForMaxAssets(u64 maxAssets)
     {
         RAZIX_CORE_ASSERT(kRZAssetHeaderSlotBytes > 0, "[AssetSystem] Invalid slot sizing for header budget computation.");
-        u64 raw_size = rz_mem_align(maxAssets * kRZAssetHeaderSlotBytes, RAZIX_CACHE_LINE_ALIGN);
+        u64 raw_size   = rz_mem_align(maxAssets * kRZAssetHeaderSlotBytes, RAZIX_CACHE_LINE_ALIGN);
         u64 power2Size = rz_next_power_of_two(raw_size);
 
         RAZIX_CORE_TRACE("[AssetSystem] Rounded to next power of 2: {} bytes ({} MB / {} GB)",

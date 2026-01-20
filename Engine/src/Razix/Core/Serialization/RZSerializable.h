@@ -65,13 +65,13 @@ namespace Razix {
 
     struct RZSerializedBlob
     {
-        u32                  offset;      // offset in the file where the blob data starts
-        u32                  size;        // size of the blob data in bytes
-        u32                  typeHash;    // Do we really need this? leave it for future use
+        u32                 offset;      // offset in the file where the blob data starts
+        u32                 size;        // size of the blob data in bytes
+        u32                 typeHash;    // Do we really need this? leave it for future use
         rz_compression_type compression;
-        u8                   _pad0[3];
-        u32                  decompressedSize;    // size after decompression, useful for allocating memory during deserialization
-        u32                  _pad1[3];
+        u8                  _pad0[3];
+        u32                 decompressedSize;    // size after decompression, useful for allocating memory during deserialization
+        u32                 _pad1[2];
     };
     static_assert(sizeof(RZSerializedBlob) == 32, "RZSerializedBlob size must be 32 bytes");
 
@@ -168,25 +168,38 @@ namespace Razix {
                 size_t oldSize = buffer.size();
 
                 buffer.resize(oldSize + member.size);
-                RAZIX_CORE_TRACE("member.name:  | member size: %d \n", member.size);
+                RAZIX_CORE_TRACE("member.name: {}, member.typeName: {}, member.offset: {}, member.size: {}", member.name.c_str(), member.typeName.c_str(), member.offset, member.size);
 
                 switch (member.dataType) {
                     case SerializeableDataType::kPrimitive:
                         RAZIX_CORE_TRACE("Serializing primitive member: {} of size: {}", member.name.c_str(), member.size);
+                        memcpy(buffer.data() + oldSize, base + member.offset, member.size);
                         break;
-                    case SerializeableDataType::kBlob:
+                    case SerializeableDataType::kBlob: {
                         RAZIX_CORE_TRACE("Serializing blob member: {} of size: {}", member.name.c_str(), member.size);
+                        RZSerializedBlob blob = {};
+                        blob.size             = member.size;
+                        // NOTE: Currently we support only inline payloads, file offfsets will handled in V2 of the serialization system
+                        // NOTE: Which means offset will be size of RZSerializedBlob and data will be written right after it and is relative to Header
+                        blob.offset           = sizeof(RZSerializedBlob);    // TODO: will be filled during file writing
+                        blob.typeHash         = 0;                           // future use
+                        blob.compression      = RZ_COMPRESSION_NONE;
+                        blob.decompressedSize = member.size;
+                        memcpy(buffer.data() + oldSize, &blob, sizeof(RZSerializedBlob));
+
+                        // Write the inline payload right after the blob metadata
+                        const void* blobSrc = *reinterpret_cast<void* const*>(base + member.offset);
+                        RAZIX_CORE_ASSERT(blobSrc != NULL, "Blob payload is null");
+                        memcpy(buffer.data() + oldSize + blob.offset, blobSrc, blob.size);
+
                         break;
+                    }
                     default:
                         RAZIX_DEBUG_BREAK();
                         RAZIX_CORE_ERROR("Work in progress handling other serialization types");
                         RAZIX_CORE_ERROR("Serializing non-trivially serializable member: {} of type: {}. Ensure custom serialization is handled!", member.name.c_str(), member.typeName.c_str());
                         break;
                 }
-
-                memcpy(buffer.data() + oldSize,
-                    base + member.offset,
-                    member.size);
             }
 
             return buffer;

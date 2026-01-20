@@ -10,9 +10,9 @@
 #include "Razix/Gfx/RZShaderLibrary.h"
 //#include "Razix/Gfx/Renderers/RZDebugRendererProxy.h"
 //#include "Razix/Gfx/Renderers/RZImGuiRendererProxy.h"
+#include "Razix/AssetSystem/RZAssetDB.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 #include "Razix/Scripting/RZLuaScriptHandler.h"
-#include "Razix/AssetSystem/RZAssetDB.h"
 
 namespace Razix {
 

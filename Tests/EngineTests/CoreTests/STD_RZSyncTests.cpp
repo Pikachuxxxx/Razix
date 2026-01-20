@@ -12,267 +12,266 @@
 #include <chrono>
 
 namespace Razix {
-namespace {
-    using SteadyClock = std::chrono::steady_clock;
+    namespace {
+        using SteadyClock = std::chrono::steady_clock;
 
-    class RZSyncTestFixture : public ::testing::Test
-    {
-    protected:
-        void SetUp() override
+        class RZSyncTestFixture : public ::testing::Test
         {
-            Razix::Debug::RZLog::StartUp();
-        }
+        protected:
+            void SetUp() override
+            {
+                Razix::Debug::RZLog::StartUp();
+            }
 
-        void TearDown() override
+            void TearDown() override
+            {
+                Razix::Debug::RZLog::Shutdown();
+            }
+        };
+
+        class RZSyncCriticalSectionTests : public RZSyncTestFixture
         {
-            Razix::Debug::RZLog::Shutdown();
-        }
-    };
+        };
 
-    class RZSyncCriticalSectionTests : public RZSyncTestFixture
-    {
-    };
-
-    class RZSyncConditionalVarTests : public RZSyncTestFixture
-    {
-    };
-
-    class RZSyncIntegrationTests : public RZSyncTestFixture
-    {
-    };
-
-    struct ProducerConsumerPayload
-    {
-        rz_critical_section*        cs;
-        rz_cond_var*         cv;
-        RZDynamicArray<uint32_t>* queue;
-        uint32_t*                 head;
-        uint32_t*                 tail;
-        uint32_t                  items;
-    };
-
-    static void ConsumerThread(void* userData)
-    {
-        ProducerConsumerPayload* payload = static_cast<ProducerConsumerPayload*>(userData);
-        RZScopedCriticalSection  lock(*payload->cs);
-
-        uint32_t consumed = 0;
-        while (consumed < payload->items) {
-            while (*payload->tail == *payload->head)
-                rz_conditional_var_wait(payload->cv, payload->cs);
-
-            uint32_t index = (*payload->head) % payload->queue->size();
-            (*payload->queue)[index] = consumed;
-            ++(*payload->head);
-            consumed++;
-            rz_conditional_var_signal(payload->cv);
-        }
-
-    }
-
-    static void ProducerThread(void* userData)
-    {
-        ProducerConsumerPayload* payload = static_cast<ProducerConsumerPayload*>(userData);
-        RZScopedCriticalSection  lock(*payload->cs);
-
-        for (uint32_t i = 0; i < payload->items; ++i) {
-            while ((*payload->tail - *payload->head) >= payload->queue->size())
-                rz_conditional_var_wait(payload->cv, payload->cs);
-
-            uint32_t index = (*payload->tail) % payload->queue->size();
-            (*payload->queue)[index] = i;
-            ++(*payload->tail);
-            rz_conditional_var_signal(payload->cv);
-        }
-    }
-
-    struct ContentionPayload
-    {
-        rz_critical_section* cs;
-        uint32_t*          enterCount;
-        uint32_t           iterations;
-    };
-
-    static void ContentionWorker(void* userData)
-    {
-        ContentionPayload* payload = static_cast<ContentionPayload*>(userData);
-
-        for (uint32_t i = 0; i < payload->iterations; ++i) {
-            rz_critical_section_lock(payload->cs);
-            ++(*payload->enterCount);
-            rz_critical_section_unlock(payload->cs);
-        }
-    }
-
-    struct SingleSignalPayload
-    {
-        rz_critical_section* cs;
-        rz_cond_var*  cv;
-        uint32_t*          wakeCount;
-        rz_critical_section* readyLock;
-        rz_cond_var*  readyCv;
-        bool*              readyFlag;
-    };
-
-    static void SingleSignalWaiter(void* userData)
-    {
-        SingleSignalPayload* payload = static_cast<SingleSignalPayload*>(userData);
+        class RZSyncConditionalVarTests : public RZSyncTestFixture
         {
-            RZScopedCriticalSection readyGuard(*payload->readyLock);
-            *payload->readyFlag = true;
-            rz_conditional_var_signal(payload->readyCv);
+        };
+
+        class RZSyncIntegrationTests : public RZSyncTestFixture
+        {
+        };
+
+        struct ProducerConsumerPayload
+        {
+            rz_critical_section*      cs;
+            rz_cond_var*              cv;
+            RZDynamicArray<uint32_t>* queue;
+            uint32_t*                 head;
+            uint32_t*                 tail;
+            uint32_t                  items;
+        };
+
+        static void ConsumerThread(void* userData)
+        {
+            ProducerConsumerPayload* payload = static_cast<ProducerConsumerPayload*>(userData);
+            RZScopedCriticalSection  lock(*payload->cs);
+
+            uint32_t consumed = 0;
+            while (consumed < payload->items) {
+                while (*payload->tail == *payload->head)
+                    rz_conditional_var_wait(payload->cv, payload->cs);
+
+                uint32_t index           = (*payload->head) % payload->queue->size();
+                (*payload->queue)[index] = consumed;
+                ++(*payload->head);
+                consumed++;
+                rz_conditional_var_signal(payload->cv);
+            }
         }
 
-        RZScopedCriticalSection lock(*payload->cs);
-        ++(*payload->wakeCount);
-        rz_conditional_var_wait(payload->cv, payload->cs);
-        ++(*payload->wakeCount);
-    }
+        static void ProducerThread(void* userData)
+        {
+            ProducerConsumerPayload* payload = static_cast<ProducerConsumerPayload*>(userData);
+            RZScopedCriticalSection  lock(*payload->cs);
 
-    struct BroadcastPayload
-    {
-        rz_critical_section* cs;
-        rz_cond_var*  cv;
-        uint32_t*          wakeCount;
-        uint32_t*          predicate;
-    };
+            for (uint32_t i = 0; i < payload->items; ++i) {
+                while ((*payload->tail - *payload->head) >= payload->queue->size())
+                    rz_conditional_var_wait(payload->cv, payload->cs);
 
-    static void BroadcastWaiter(void* userData)
-    {
-        BroadcastPayload* payload = static_cast<BroadcastPayload*>(userData);
-        RZScopedCriticalSection lock(*payload->cs);
-        while (*payload->predicate == 0u)
+                uint32_t index           = (*payload->tail) % payload->queue->size();
+                (*payload->queue)[index] = i;
+                ++(*payload->tail);
+                rz_conditional_var_signal(payload->cv);
+            }
+        }
+
+        struct ContentionPayload
+        {
+            rz_critical_section* cs;
+            uint32_t*            enterCount;
+            uint32_t             iterations;
+        };
+
+        static void ContentionWorker(void* userData)
+        {
+            ContentionPayload* payload = static_cast<ContentionPayload*>(userData);
+
+            for (uint32_t i = 0; i < payload->iterations; ++i) {
+                rz_critical_section_lock(payload->cs);
+                ++(*payload->enterCount);
+                rz_critical_section_unlock(payload->cs);
+            }
+        }
+
+        struct SingleSignalPayload
+        {
+            rz_critical_section* cs;
+            rz_cond_var*         cv;
+            uint32_t*            wakeCount;
+            rz_critical_section* readyLock;
+            rz_cond_var*         readyCv;
+            bool*                readyFlag;
+        };
+
+        static void SingleSignalWaiter(void* userData)
+        {
+            SingleSignalPayload* payload = static_cast<SingleSignalPayload*>(userData);
+            {
+                RZScopedCriticalSection readyGuard(*payload->readyLock);
+                *payload->readyFlag = true;
+                rz_conditional_var_signal(payload->readyCv);
+            }
+
+            RZScopedCriticalSection lock(*payload->cs);
+            ++(*payload->wakeCount);
             rz_conditional_var_wait(payload->cv, payload->cs);
-        ++(*payload->wakeCount);
-    }
+            ++(*payload->wakeCount);
+        }
 
-    struct BroadcastLatencyPayload
+        struct BroadcastPayload
+        {
+            rz_critical_section* cs;
+            rz_cond_var*         cv;
+            uint32_t*            wakeCount;
+            uint32_t*            predicate;
+        };
+
+        static void BroadcastWaiter(void* userData)
+        {
+            BroadcastPayload*       payload = static_cast<BroadcastPayload*>(userData);
+            RZScopedCriticalSection lock(*payload->cs);
+            while (*payload->predicate == 0u)
+                rz_conditional_var_wait(payload->cv, payload->cs);
+            ++(*payload->wakeCount);
+        }
+
+        struct BroadcastLatencyPayload
+        {
+            rz_critical_section* cs;
+            rz_cond_var*         cv;
+            uint32_t*            wakeCount;
+            uint32_t*            fastWakeCount;
+            uint32_t*            predicate;
+        };
+
+        static void BroadcastLatencyWaiter(void* userData)
+        {
+            BroadcastLatencyPayload* payload = static_cast<BroadcastLatencyPayload*>(userData);
+            RZScopedCriticalSection  lock(*payload->cs);
+            const auto               start = SteadyClock::now();
+            while (*payload->predicate == 0u)
+                rz_conditional_var_wait(payload->cv, payload->cs);
+            const auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(SteadyClock::now() - start);
+            ++(*payload->wakeCount);
+            if (elapsed.count() < 5000)
+                ++(*payload->fastWakeCount);
+        }
+
+    }    // namespace
+
+    // rz_critical_section basics ---------------------------------------------------
+    TEST_F(RZSyncCriticalSectionTests, InitLockUnlock)
     {
-        rz_critical_section* cs;
-        rz_cond_var*  cv;
-        uint32_t*          wakeCount;
-        uint32_t*          fastWakeCount;
-        uint32_t*          predicate;
-    };
+        rz_critical_section cs = rz_critical_section_create();
+        rz_critical_section_lock(&cs);
+        rz_critical_section_unlock(&cs);
+        rz_critical_section_destroy(&cs);
+    }
 
-    static void BroadcastLatencyWaiter(void* userData)
+    TEST_F(RZSyncCriticalSectionTests, TryLockBehavior)
     {
-        BroadcastLatencyPayload* payload = static_cast<BroadcastLatencyPayload*>(userData);
-        RZScopedCriticalSection lock(*payload->cs);
-        const auto start = SteadyClock::now();
-        while (*payload->predicate == 0u)
-            rz_conditional_var_wait(payload->cv, payload->cs);
-        const auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(SteadyClock::now() - start);
-        ++(*payload->wakeCount);
-        if (elapsed.count() < 5000)
-            ++(*payload->fastWakeCount);
+        rz_critical_section cs = rz_critical_section_create();
+
+        EXPECT_TRUE(rz_critical_section_try_lock(&cs));
+        // EXPECT_FALSE(rz_critical_section_try_lock(&cs)); // Recursive lock might succeed depending on implementation, but usually try_lock on same thread succeeds if recursive.
+        // If it's recursive, this test expectation is wrong for the second try_lock.
+        // Assuming it is recursive (Windows CRITICAL_SECTION is).
+        // If it is recursive, we should unlock twice.
+        // But let's stick to what was there or assume standard behavior.
+        // The original test expected FALSE.
+        // EXPECT_FALSE(cs.try_lock());
+
+        rz_critical_section_unlock(&cs);
+
+        rz_critical_section_destroy(&cs);
     }
 
-}    // namespace
-
-// rz_critical_section basics ---------------------------------------------------
-TEST_F(RZSyncCriticalSectionTests, InitLockUnlock)
-{
-    rz_critical_section cs = rz_critical_section_create();
-    rz_critical_section_lock(&cs);
-    rz_critical_section_unlock(&cs);
-    rz_critical_section_destroy(&cs);
-}
-
-TEST_F(RZSyncCriticalSectionTests, TryLockBehavior)
-{
-    rz_critical_section cs = rz_critical_section_create();
-
-    EXPECT_TRUE(rz_critical_section_try_lock(&cs));
-    // EXPECT_FALSE(rz_critical_section_try_lock(&cs)); // Recursive lock might succeed depending on implementation, but usually try_lock on same thread succeeds if recursive.
-    // If it's recursive, this test expectation is wrong for the second try_lock.
-    // Assuming it is recursive (Windows CRITICAL_SECTION is).
-    // If it is recursive, we should unlock twice.
-    // But let's stick to what was there or assume standard behavior.
-    // The original test expected FALSE.
-    // EXPECT_FALSE(cs.try_lock());
-    
-    rz_critical_section_unlock(&cs);
-
-    rz_critical_section_destroy(&cs);
-}
-
-TEST_F(RZSyncCriticalSectionTests, ScopedLockReleasesOnDestruct)
-{
-    rz_critical_section cs = rz_critical_section_create();
-
+    TEST_F(RZSyncCriticalSectionTests, ScopedLockReleasesOnDestruct)
     {
-        RZScopedCriticalSection lock(cs);
-        // EXPECT_FALSE(rz_critical_section_try_lock(&cs)); // Again, recursive lock issue.
+        rz_critical_section cs = rz_critical_section_create();
+
+        {
+            RZScopedCriticalSection lock(cs);
+            // EXPECT_FALSE(rz_critical_section_try_lock(&cs)); // Again, recursive lock issue.
+        }
+
+        EXPECT_TRUE(rz_critical_section_try_lock(&cs));
+        rz_critical_section_unlock(&cs);
+        rz_critical_section_destroy(&cs);
     }
 
-    EXPECT_TRUE(rz_critical_section_try_lock(&cs));
-    rz_critical_section_unlock(&cs);
-    rz_critical_section_destroy(&cs);
-}
+    TEST_F(RZSyncCriticalSectionTests, ContentionProgress)
+    {
+        constexpr uint32_t threadCount = 10u;
+        constexpr uint32_t iterations  = 2000u;
 
-TEST_F(RZSyncCriticalSectionTests, ContentionProgress)
-{
-    constexpr uint32_t threadCount = 10u;
-    constexpr uint32_t iterations  = 2000u;
+        rz_critical_section cs = rz_critical_section_create();
 
-    rz_critical_section cs = rz_critical_section_create();
+        uint32_t enterCount = 0u;
 
-    uint32_t enterCount = 0u;
+        RZDynamicArray<ContentionPayload> payloads;
+        payloads.resize(threadCount);
+        RZDynamicArray<rz_thread_handle> handles;
+        handles.reserve(threadCount);
 
-    RZDynamicArray<ContentionPayload> payloads;
-    payloads.resize(threadCount);
-    RZDynamicArray<rz_thread_handle> handles;
-    handles.reserve(threadCount);
+        for (uint32_t i = 0; i < threadCount; ++i) {
+            payloads[i].cs         = &cs;
+            payloads[i].enterCount = &enterCount;
+            payloads[i].iterations = iterations;
+            handles.push_back(rz_thread_create("CSContention", RZ_THREAD_PRIORITY_NORMAL, RZ_THREAD_AFFINITY_WORKER, ContentionWorker, &payloads[i]));
+        }
 
-    for (uint32_t i = 0; i < threadCount; ++i) {
-        payloads[i].cs         = &cs;
-        payloads[i].enterCount = &enterCount;
-        payloads[i].iterations = iterations;
-        handles.push_back(rz_thread_create("CSContention", RZ_THREAD_PRIORITY_NORMAL, RZ_THREAD_AFFINITY_WORKER, ContentionWorker, &payloads[i]));
+        for (auto handle: handles)
+            rz_thread_join(handle);
+
+        EXPECT_EQ(enterCount, threadCount * iterations);
+
+        rz_critical_section_destroy(&cs);
     }
 
-    for (auto handle : handles)
+    // rz_cond_var functionality ---------------------------------------------
+    TEST_F(RZSyncConditionalVarTests, SingleSignalWakesOne)
+    {
+        rz_critical_section cs = rz_critical_section_create();
+        rz_cond_var         cv = rz_conditional_var_create();
+
+        uint32_t            wakeCount   = 0u;
+        bool                waiterReady = false;
+        rz_critical_section readyCS     = rz_critical_section_create();
+        rz_cond_var         readyCV     = rz_conditional_var_create();
+
+        SingleSignalPayload payload{&cs, &cv, &wakeCount, &readyCS, &readyCV, &waiterReady};
+        rz_thread_handle    handle = rz_thread_create("CVSingle", RZ_THREAD_PRIORITY_NORMAL, RZ_THREAD_AFFINITY_WORKER, SingleSignalWaiter, &payload);
+
+        {
+            RZScopedCriticalSection readyLock(readyCS);
+            while (!waiterReady)
+                rz_conditional_var_wait(&readyCV, &readyCS);
+        }
+        {
+            RZScopedCriticalSection lock(cs);
+            rz_conditional_var_signal(&cv);
+        }
+
         rz_thread_join(handle);
 
-    EXPECT_EQ(enterCount, threadCount * iterations);
+        EXPECT_EQ(wakeCount, 2u);
 
-    rz_critical_section_destroy(&cs);
-}
-
-// rz_cond_var functionality ---------------------------------------------
-TEST_F(RZSyncConditionalVarTests, SingleSignalWakesOne)
-{
-    rz_critical_section cs = rz_critical_section_create();
-    rz_cond_var cv = rz_conditional_var_create();
-
-    uint32_t wakeCount = 0u;
-    bool     waiterReady = false;
-    rz_critical_section readyCS = rz_critical_section_create();
-    rz_cond_var readyCV = rz_conditional_var_create();
-
-    SingleSignalPayload payload{&cs, &cv, &wakeCount, &readyCS, &readyCV, &waiterReady};
-    rz_thread_handle      handle = rz_thread_create("CVSingle", RZ_THREAD_PRIORITY_NORMAL, RZ_THREAD_AFFINITY_WORKER, SingleSignalWaiter, &payload);
-
-    {
-        RZScopedCriticalSection readyLock(readyCS);
-        while (!waiterReady)
-            rz_conditional_var_wait(&readyCV, &readyCS);
+        rz_conditional_var_destroy(&cv);
+        rz_critical_section_destroy(&cs);
+        rz_conditional_var_destroy(&readyCV);
+        rz_critical_section_destroy(&readyCS);
     }
-    {
-        RZScopedCriticalSection lock(cs);
-        rz_conditional_var_signal(&cv);
-    }
-
-    rz_thread_join(handle);
-
-    EXPECT_EQ(wakeCount, 2u);
-
-    rz_conditional_var_destroy(&cv);
-    rz_critical_section_destroy(&cs);
-    rz_conditional_var_destroy(&readyCV);
-    rz_critical_section_destroy(&readyCS);
-}
 
 #if 0    // TODO: Re-enable once broadcast synchronization issue is resolved.
 TEST_F(RZSyncConditionalVarTests, BroadcastWakesAll)
@@ -318,7 +317,7 @@ TEST_F(RZSyncConditionalVarTests, BroadcastWakesAll)
 }
 #endif
 
-/*
+    /*
 TEST_F(RZSyncConditionalVarTests, TimedWaitTimesOut)
 {
     rz_critical_section cs = rz_critical_section_create();
@@ -342,34 +341,34 @@ TEST_F(RZSyncConditionalVarTests, TimedWaitTimesOut)
 }
 */
 
-// Integrated producer-consumer -----------------------------------------------
-TEST_F(RZSyncIntegrationTests, ProducerConsumerNoLoss)
-{
-    constexpr uint32_t itemCount  = 256u;
-    constexpr uint32_t bufferSize = 32u;
+    // Integrated producer-consumer -----------------------------------------------
+    TEST_F(RZSyncIntegrationTests, ProducerConsumerNoLoss)
+    {
+        constexpr uint32_t itemCount  = 256u;
+        constexpr uint32_t bufferSize = 32u;
 
-    rz_critical_section cs = rz_critical_section_create();
-    rz_cond_var cv = rz_conditional_var_create();
+        rz_critical_section cs = rz_critical_section_create();
+        rz_cond_var         cv = rz_conditional_var_create();
 
-    RZDynamicArray<uint32_t> buffer(bufferSize, 0u);
-    uint32_t head = 0u;
-    uint32_t tail = 0u;
+        RZDynamicArray<uint32_t> buffer(bufferSize, 0u);
+        uint32_t                 head = 0u;
+        uint32_t                 tail = 0u;
 
-    ProducerConsumerPayload producer{&cs, &cv, &buffer, &head, &tail, itemCount};
-    ProducerConsumerPayload consumer{&cs, &cv, &buffer, &head, &tail, itemCount};
+        ProducerConsumerPayload producer{&cs, &cv, &buffer, &head, &tail, itemCount};
+        ProducerConsumerPayload consumer{&cs, &cv, &buffer, &head, &tail, itemCount};
 
-    rz_thread_handle producerHandle = rz_thread_create("Producer", RZ_THREAD_PRIORITY_NORMAL, RZ_THREAD_AFFINITY_WORKER, ProducerThread, &producer);
-    rz_thread_handle consumerHandle = rz_thread_create("Consumer", RZ_THREAD_PRIORITY_NORMAL, RZ_THREAD_AFFINITY_WORKER, ConsumerThread, &consumer);
+        rz_thread_handle producerHandle = rz_thread_create("Producer", RZ_THREAD_PRIORITY_NORMAL, RZ_THREAD_AFFINITY_WORKER, ProducerThread, &producer);
+        rz_thread_handle consumerHandle = rz_thread_create("Consumer", RZ_THREAD_PRIORITY_NORMAL, RZ_THREAD_AFFINITY_WORKER, ConsumerThread, &consumer);
 
-    rz_thread_join(producerHandle);
-    rz_thread_join(consumerHandle);
+        rz_thread_join(producerHandle);
+        rz_thread_join(consumerHandle);
 
-    EXPECT_EQ(head, itemCount);
-    EXPECT_EQ(tail, itemCount);
+        EXPECT_EQ(head, itemCount);
+        EXPECT_EQ(tail, itemCount);
 
-    rz_conditional_var_destroy(&cv);
-    rz_critical_section_destroy(&cs);
-}
+        rz_conditional_var_destroy(&cv);
+        rz_critical_section_destroy(&cs);
+    }
 
 #if 0    // TODO: Re-enable once broadcast synchronization issue is resolved.
 TEST_F(RZSyncIntegrationTests, BroadcastLatencyUnderThreshold)

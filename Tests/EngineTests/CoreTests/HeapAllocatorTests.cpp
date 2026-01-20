@@ -10,11 +10,11 @@ namespace Razix {
         {
         protected:
             RZHeapAllocator allocator;
-            const size_t chunkSize = 1024 * 10; // 10 KB
+            const size_t    chunkSize = 1024 * 10;    // 10 KB
 
             void SetUp() override
             {
-        Razix::Debug::RZLog::StartUp();
+                Razix::Debug::RZLog::StartUp();
 
                 allocator.init(chunkSize);
             }
@@ -23,7 +23,7 @@ namespace Razix {
             {
                 allocator.shutdown();
 
-        Razix::Debug::RZLog::Shutdown();
+                Razix::Debug::RZLog::Shutdown();
             }
         };
 
@@ -69,5 +69,5 @@ namespace Razix {
             if (mem)
                 allocator.deallocate(mem);
         }
-    }
-}
+    }    // namespace Memory
+}    // namespace Razix

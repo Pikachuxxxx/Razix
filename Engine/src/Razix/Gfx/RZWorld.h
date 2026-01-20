@@ -7,7 +7,7 @@ namespace Razix {
     namespace Gfx {
         struct RZRendererSettings;
         struct rz_gfx_texture_handle;
-    }
+    }    // namespace Gfx
 
     struct RZWorld
     {

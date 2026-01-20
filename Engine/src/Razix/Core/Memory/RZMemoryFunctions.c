@@ -82,7 +82,7 @@ void* rz_realloc(void* oldPtr, size_t oldSize, size_t newSize, size_t alignment)
 #elif RAZIX_PLATFORM_UNIX
     void* newPtr = rz_malloc(newSize, alignment);
     if (!newPtr) {
-        return NULL; // Allocation failed, oldPtr is still valid
+        return NULL;    // Allocation failed, oldPtr is still valid
     }
 
     size_t copySize = (oldSize < newSize) ? oldSize : newSize;

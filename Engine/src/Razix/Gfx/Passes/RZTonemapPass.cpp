@@ -20,7 +20,6 @@
 
 #include "Razix/Core/Utils/RZColorUtilities.h"
 
-
 namespace Razix {
     namespace Gfx {
 

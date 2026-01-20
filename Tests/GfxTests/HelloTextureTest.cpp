@@ -73,6 +73,5 @@ TEST_F(HelloTextureTests, HelloTexture)
     else
         result = -1;
 
-
     EXPECT_EQ(result, SUCCESSFUL_ENGINE_EXIT_CODE);
 }

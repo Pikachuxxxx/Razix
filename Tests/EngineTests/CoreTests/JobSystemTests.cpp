@@ -9,8 +9,8 @@
 
 #include <gtest/gtest.h>
 
-#include <atomic>
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <cstdio>
 #include <cstring>
@@ -39,9 +39,9 @@ namespace Razix {
 
         struct TempFileSet
         {
-            std::string              baseDir;
+            std::string               baseDir;
             std::vector<TempFileInfo> files;
-            size_t                   totalBytes = 0u;
+            size_t                    totalBytes = 0u;
         };
 
         struct TempDirGuard
@@ -84,8 +84,8 @@ namespace Razix {
             *payload->flag = 1u;
             RAZIX_UNUSED(payload->jobWrapper);
         }
-    // rz_worker* pWorker = _rz_find_best_worker_to_submit_to_();
-    // if (pWorker) {
+        // rz_worker* pWorker = _rz_find_best_worker_to_submit_to_();
+        // if (pWorker) {
 
         struct BusyWorkTaskPayload
         {
@@ -156,11 +156,11 @@ namespace Razix {
 
         struct FileReadJobPayload
         {
-            JobWrapper*                 jobWrapper;
-            const char*                 path;
-            std::atomic<uint64_t>*      totalBytes;
-            std::atomic<uint32_t>*      completedCount;
-            std::atomic<uint32_t>*      failures;
+            JobWrapper*            jobWrapper;
+            const char*            path;
+            std::atomic<uint64_t>* totalBytes;
+            std::atomic<uint32_t>* completedCount;
+            std::atomic<uint32_t>* failures;
         };
 
         struct MasterKickoffPayload
@@ -186,8 +186,8 @@ namespace Razix {
                 return result;
             }
 
-            std::mt19937_64                     rng(static_cast<unsigned>(nowTicks));
-            std::uniform_int_distribution<int>  charDist(32, 126);
+            std::mt19937_64                       rng(static_cast<unsigned>(nowTicks));
+            std::uniform_int_distribution<int>    charDist(32, 126);
             std::uniform_int_distribution<size_t> sizeDist(1u, maxBytesPerFile);
 
             result.files.reserve(fileCount);
@@ -230,9 +230,9 @@ namespace Razix {
 
         static size_t BlockingReadFile(const TempFileInfo& info)
         {
-            size_t             totalRead = 0u;
+            size_t                   totalRead = 0u;
             std::array<char, 131072> buffer{};    // 128 KB buffer
-            std::FILE*         in = std::fopen(info.path.c_str(), "rb");
+            std::FILE*               in = std::fopen(info.path.c_str(), "rb");
             if (in == nullptr)
                 return 0u;
 
@@ -250,7 +250,7 @@ namespace Razix {
         static size_t SequentialReadBytes(const std::vector<TempFileInfo>& files)
         {
             size_t total = 0u;
-            for (const auto& f : files)
+            for (const auto& f: files)
                 total += BlockingReadFile(f);
             return total;
         }
@@ -458,16 +458,16 @@ namespace Razix {
 
     TEST_F(RZJobSystemFixture, SequentialVsSubmittedFileReads)
     {
-        constexpr u32   kFileCount       = 150u;
-        constexpr size_t kMaxFileSizeB   = 256u * 1024u;    // Up to 256 KB per file
+        constexpr u32    kFileCount    = 150u;
+        constexpr size_t kMaxFileSizeB = 256u * 1024u;    // Up to 256 KB per file
 
-        TempFileSet files = CreateTempFilesForIoTest(kFileCount, kMaxFileSizeB);
+        TempFileSet  files = CreateTempFilesForIoTest(kFileCount, kMaxFileSizeB);
         TempDirGuard cleanup(files.baseDir);
         ASSERT_EQ(files.files.size(), kFileCount);
 
-        const auto serialStart = Clock::now();
+        const auto   serialStart     = Clock::now();
         const size_t serialBytesRead = SequentialReadBytes(files.files);
-        const auto serialMicros      = std::chrono::duration_cast<std::chrono::microseconds>(Clock::now() - serialStart).count();
+        const auto   serialMicros    = std::chrono::duration_cast<std::chrono::microseconds>(Clock::now() - serialStart).count();
 
         ASSERT_EQ(serialBytesRead, files.totalBytes);
 
@@ -508,16 +508,16 @@ namespace Razix {
 
     TEST_F(RZJobSystemHighWorkerFixture, DISABLED_SerialGlobalVsSpawnedFileReads)
     {
-        constexpr u32   kFileCount     = 150u;
+        constexpr u32    kFileCount    = 150u;
         constexpr size_t kMaxFileSizeB = 256u * 1024u;
 
-        TempFileSet files = CreateTempFilesForIoTest(kFileCount, kMaxFileSizeB);
+        TempFileSet  files = CreateTempFilesForIoTest(kFileCount, kMaxFileSizeB);
         TempDirGuard cleanup(files.baseDir);
         ASSERT_EQ(files.files.size(), kFileCount);
 
-        const auto serialStart = Clock::now();
-        const size_t serialBytes = SequentialReadBytes(files.files);
-        const auto serialMicros  = std::chrono::duration_cast<std::chrono::microseconds>(Clock::now() - serialStart).count();
+        const auto   serialStart  = Clock::now();
+        const size_t serialBytes  = SequentialReadBytes(files.files);
+        const auto   serialMicros = std::chrono::duration_cast<std::chrono::microseconds>(Clock::now() - serialStart).count();
         ASSERT_EQ(serialBytes, files.totalBytes);
 
         std::atomic<uint64_t> totalBytes{0u};
@@ -579,16 +579,16 @@ namespace Razix {
 
     TEST_F(RZJobSystemHighWorkerFixture, DISABLED_AggressiveFileReadsHighWorkers)
     {
-        constexpr u32   kFileCount     = 256u;
+        constexpr u32    kFileCount    = 256u;
         constexpr size_t kMaxFileSizeB = 512 * 1024u;
 
-        TempFileSet files = CreateTempFilesForIoTest(kFileCount, kMaxFileSizeB);
+        TempFileSet  files = CreateTempFilesForIoTest(kFileCount, kMaxFileSizeB);
         TempDirGuard cleanup(files.baseDir);
         ASSERT_EQ(files.files.size(), kFileCount);
 
-        const auto serialStart  = Clock::now();
-        const size_t serialRead = SequentialReadBytes(files.files);
-        const auto serialMicros = std::chrono::duration_cast<std::chrono::microseconds>(Clock::now() - serialStart).count();
+        const auto   serialStart  = Clock::now();
+        const size_t serialRead   = SequentialReadBytes(files.files);
+        const auto   serialMicros = std::chrono::duration_cast<std::chrono::microseconds>(Clock::now() - serialStart).count();
         ASSERT_EQ(serialRead, files.totalBytes);
 
         std::atomic<uint64_t> totalBytes{0u};

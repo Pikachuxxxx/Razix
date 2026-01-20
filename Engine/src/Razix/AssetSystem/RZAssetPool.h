@@ -99,7 +99,7 @@ namespace Razix {
 
         inline void                     setHooks(const RZAssetPoolHooks& hooks) { m_Config.hooks = hooks; }
         inline const RZAssetPoolConfig& getConfig() const { return m_Config; }
-        inline void*              getBackingMemoryMutablePtr() { return static_cast<void*>(m_Assets); }
+        inline void*                    getBackingMemoryMutablePtr() { return static_cast<void*>(m_Assets); }
 
     private:
         RZAsset*          m_Assets         = NULL;

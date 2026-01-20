@@ -17,8 +17,8 @@ namespace Razix {
         RZString PlainText;
         RZString Key;
         // TODO: Replace it with a rz_bitset type (maybe C++ for calling functions on it)
-        bool     bIsSolved;
-        u8       _pad0[7];
+        bool bIsSolved;
+        u8   _pad0[7];
     };
 
     RAZIX_REFLECT_TYPE_START(RZVignerePuzzleAsset)

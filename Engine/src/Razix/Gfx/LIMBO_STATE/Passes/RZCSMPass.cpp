@@ -29,8 +29,8 @@
 
 #include "Razix/Scene/Components/RZComponents.h"
 
-#include "Razix/Scene/RZScene.h"
 #include "Razix/Gfx/Cameras/RZCamera3D.h"
+#include "Razix/Scene/RZScene.h"
 
 namespace Razix {
     namespace Gfx {

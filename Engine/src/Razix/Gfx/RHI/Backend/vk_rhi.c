@@ -2694,11 +2694,11 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
 
     // Virgin pipeline cache for first run
     uint32_t                  cacheSize = 0;
-    void* cache = vk_util_load_pipeline_cache(VKDEVICE, &cacheSize);
-    VkPipelineCacheCreateInfo pci = {0};
-    pci.sType                     = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-    pci.initialDataSize           = cacheSize;
-    pci.pInitialData              = cache;
+    void*                     cache     = vk_util_load_pipeline_cache(VKDEVICE, &cacheSize);
+    VkPipelineCacheCreateInfo pci       = {0};
+    pci.sType                           = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+    pci.initialDataSize                 = cacheSize;
+    pci.pInitialData                    = cache;
     CHECK_VK(vkCreatePipelineCache(VKDEVICE, &pci, NULL, &g_GfxCtx.vk.pipelineCache));
     free(cache);
 

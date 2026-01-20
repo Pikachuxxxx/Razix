@@ -138,7 +138,7 @@ namespace Razix {
                     RAZIX_CORE_ASSERT(formatComponentsCount > 0, "Unsupported or unknown format reflected from SPIR-V");
                     u32 formatComponentSize = rzRHI_GetFormatComponentSize(engineFormat);
                     RAZIX_CORE_ASSERT(formatComponentSize > 0, "Unsupported or unknown format component size reflected from SPIR-V");
-                    u32                   formatSize = formatComponentsCount * formatComponentSize;
+                    u32 formatSize = formatComponentsCount * formatComponentSize;
                     printf("currentElementIndex: %d \n", currentElementIndex);
                     rz_gfx_input_element* inputParam = &outReflection->pInputElements[currentElementIndex];
 

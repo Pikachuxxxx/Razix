@@ -218,7 +218,7 @@ namespace Razix {
             recalculateProjection();
     }
 
-    void RZCamera3D::updateCameraVectors() 
+    void RZCamera3D::updateCameraVectors()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

@@ -1336,7 +1336,7 @@ namespace Razix {
         RZString version     = "0.50.0";
         RZString stage       = "Development";
         RZString api         = "Vulkan";
-        RZString config      = "Debug-x86_64-windows";                                                                                                             // 5 chars
+        RZString config      = "Debug-x86_64-windows";                                                                                                       // 5 chars
         RZString result      = projectName + " | " + "Razix Engine" + " - " + version + " " + "[" + stage + "]" + " " + "<" + api + ">" + " | " + config;    // +21 = 91 chars
 
         EXPECT_EQ(result.length(), 85);

@@ -122,7 +122,6 @@ namespace Razix {
         RAZIX_CORE_ASSERT(assetHeapSizeBytes >= minAssetHeapBytes, "Asset pool budget ({0} KiB) below minimum required ({1} KiB) for RAZIX_MAX_ASSETS={2}. Update RazixDepartmentBudgets.ini.", in_Kib(assetHeapSizeBytes), in_Kib(minAssetHeapBytes), static_cast<u64>(RAZIX_MAX_ASSETS));
         m_AssetAllocator.init(assetHeapSizeBytes);
 
-
         //--------------------------
         // Asset DB startup
         RZAssetDB::Get().Startup(m_AssetAllocator, m_AssetHeaderAllocator);

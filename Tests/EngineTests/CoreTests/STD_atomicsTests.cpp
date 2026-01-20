@@ -38,9 +38,9 @@ namespace Razix {
     TEST(RZAtomicsTests, AddSubConsistency32)
     {
         rz_atomic_u32 a      = 10u;
-        uint32_t       before = rz_atomic32_load(&a, RZ_MEMORY_ORDER_RELAXED);
-        uint32_t       ret    = rz_atomic32_add(&a, 5u, RZ_MEMORY_ORDER_SEQ_CST);    // platform may return old or new
-        uint32_t       after  = rz_atomic32_load(&a, RZ_MEMORY_ORDER_SEQ_CST);
+        uint32_t      before = rz_atomic32_load(&a, RZ_MEMORY_ORDER_RELAXED);
+        uint32_t      ret    = rz_atomic32_add(&a, 5u, RZ_MEMORY_ORDER_SEQ_CST);    // platform may return old or new
+        uint32_t      after  = rz_atomic32_load(&a, RZ_MEMORY_ORDER_SEQ_CST);
         EXPECT_EQ(after, before + 5u);
         expect_old_or_new_eq_uint32(ret, before, after);
     }
@@ -48,7 +48,7 @@ namespace Razix {
     TEST(RZAtomicsTests, IncrementDecrement32)
     {
         rz_atomic_u32 a    = 0u;
-        uint32_t       newv = rz_atomic32_increment(&a, RZ_MEMORY_ORDER_SEQ_CST);
+        uint32_t      newv = rz_atomic32_increment(&a, RZ_MEMORY_ORDER_SEQ_CST);
         // increment might return pre- or post-value depending on implementation, accept both:
         uint32_t cur = rz_atomic32_load(&a, RZ_MEMORY_ORDER_SEQ_CST);
         EXPECT_EQ(cur, 1u);
@@ -62,7 +62,7 @@ namespace Razix {
     TEST(RZAtomicsTests, CASExchange32)
     {
         rz_atomic_u32 a  = 7u;
-        bool           ok = rz_atomic32_cas(&a, 7u, 42u, RZ_MEMORY_ORDER_SEQ_CST);
+        bool          ok = rz_atomic32_cas(&a, 7u, 42u, RZ_MEMORY_ORDER_SEQ_CST);
         EXPECT_TRUE(ok);
         EXPECT_EQ(rz_atomic32_load(&a, RZ_MEMORY_ORDER_SEQ_CST), 42u);
 
@@ -105,9 +105,9 @@ namespace Razix {
     TEST(RZAtomicsTests, AddSubConsistency64)
     {
         rz_atomic_u64 a      = 1000ull;
-        uint64_t       before = rz_atomic64_load(&a, RZ_MEMORY_ORDER_RELAXED);
-        uint64_t       ret    = rz_atomic64_add(&a, 500ull, RZ_MEMORY_ORDER_SEQ_CST);
-        uint64_t       after  = rz_atomic64_load(&a, RZ_MEMORY_ORDER_SEQ_CST);
+        uint64_t      before = rz_atomic64_load(&a, RZ_MEMORY_ORDER_RELAXED);
+        uint64_t      ret    = rz_atomic64_add(&a, 500ull, RZ_MEMORY_ORDER_SEQ_CST);
+        uint64_t      after  = rz_atomic64_load(&a, RZ_MEMORY_ORDER_SEQ_CST);
         EXPECT_EQ(after, before + 500ull);
         expect_old_or_new_eq_uint64(ret, before, after);
     }
@@ -115,7 +115,7 @@ namespace Razix {
     TEST(RZAtomicsTests, CASExchange64)
     {
         rz_atomic_u64 a  = 0xAAull;
-        bool           ok = rz_atomic64_cas(&a, 0xAAull, 0xBBull, RZ_MEMORY_ORDER_SEQ_CST);
+        bool          ok = rz_atomic64_cas(&a, 0xAAull, 0xBBull, RZ_MEMORY_ORDER_SEQ_CST);
         EXPECT_TRUE(ok);
         EXPECT_EQ(rz_atomic64_load(&a, RZ_MEMORY_ORDER_SEQ_CST), 0xBBull);
 
@@ -127,7 +127,7 @@ namespace Razix {
     // Multithreaded stress test: increments many times concurrently (test for lost updates)
     TEST(RZAtomicsTests, ConcurrentIncrements32)
     {
-        rz_atomic_u32           counter = 0u;
+        rz_atomic_u32            counter = 0u;
         const int                threads = 8;
         const int                iters   = 50000;
         std::vector<std::thread> th;

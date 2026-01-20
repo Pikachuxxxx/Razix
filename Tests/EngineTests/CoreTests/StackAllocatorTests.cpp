@@ -9,7 +9,7 @@ namespace Razix {
         {
         protected:
             RZStackAllocator allocator;
-            const size_t totalSize = 1024;
+            const size_t     totalSize = 1024;
 
             void SetUp() override
             {
@@ -37,7 +37,7 @@ namespace Razix {
         {
             void* mem1 = allocator.allocate(128);
             EXPECT_NE(mem1, nullptr);
-            
+
             allocator.clear();
 
             void* mem2 = allocator.allocate(128);
@@ -78,11 +78,11 @@ namespace Razix {
         {
             void* mem1 = allocator.allocate(128);
             void* mem2 = allocator.allocate(128);
-            allocator.deallocate(mem2); // Should not affect anything
-            allocator.deallocate(mem1); // Should not affect anything
-            
+            allocator.deallocate(mem2);    // Should not affect anything
+            allocator.deallocate(mem1);    // Should not affect anything
+
             void* mem3 = allocator.allocate(256);
             EXPECT_NE(mem3, nullptr);
         }
-    }
-}
+    }    // namespace Memory
+}    // namespace Razix

@@ -76,7 +76,7 @@ static void _rz_worker_local_queue_push_(rz_worker* pWorker, rz_job* pJob)
 
         pWorker->localQueue.ppJobs[tail] = pJob;
         pWorker->localQueue.tail         = nextTail;
-        rz_atomic32_store(&pWorker->localQueue.tail, nextTail,RZ_MEMORY_ORDER_RELEASE);
+        rz_atomic32_store(&pWorker->localQueue.tail, nextTail, RZ_MEMORY_ORDER_RELEASE);
         rz_atomic32_increment(&pWorker->jobsInLocalQueue, RZ_MEMORY_ORDER_RELEASE);
     }
 }
@@ -182,8 +182,8 @@ static inline void _rz_job_execute_(rz_job* pJob)
     // Unblock all jobs that were blocked by this one
     for (u32 i = 0; i < pJob->hot.blockedByCount; ++i) {
         rz_job* pDependent = pJob->pCold->pBlockedBy[i];
-        u32 old = rz_atomic32_decrement(&pDependent->hot.blockedByCount, RZ_MEMORY_ORDER_RELEASE);
-        if(old == 1)
+        u32     old        = rz_atomic32_decrement(&pDependent->hot.blockedByCount, RZ_MEMORY_ORDER_RELEASE);
+        if (old == 1)
             _rz_worker_local_queue_push_(pTLS_CurrentWorker, pJob);
     }
     rz_atomic32_decrement(&g_JobSystem.jobsInSystem, RZ_MEMORY_ORDER_RELEASE);
@@ -306,7 +306,7 @@ void rz_job_system_submit_job(rz_job* pJob)
     // if (pWorker) {
     //     _rz_worker_local_queue_push_(pWorker, pJob);
     // } else {
-        _rz_global_queue_push_(pJob);
+    _rz_global_queue_push_(pJob);
     // }
 }
 

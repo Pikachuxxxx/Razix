@@ -62,7 +62,7 @@ namespace Razix {
 
         void SetUp() override
         {
-            Debug::RZLog::StartUp();    
+            Debug::RZLog::StartUp();
 
             allocator.init(128 * 1024 * 1024);
 

@@ -422,8 +422,8 @@ namespace Razix {
         static size_type quadratic_probe(size_type index, size_type probe_count, size_type capacity);
         void             insert_entry(const Key& key, const Value& value);
         // void             insert_entry(Key&& key, Value&& value);
-        bool             expand();
-        size_type        find_entry(const Key& key) const;
+        bool      expand();
+        size_type find_entry(const Key& key) const;
 
         friend class RZHashMapIterator<Key, Value>;
     };

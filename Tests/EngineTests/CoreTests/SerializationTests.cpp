@@ -38,7 +38,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(PlayerMetaData)
-    RAZIX_REFLECT_BLOB(pName, 64 * sizeof(char))
+    RAZIX_REFLECT_BLOB(pName, 128 * sizeof(char))
     RAZIX_REFLECT_PRIMITIVE(level)
     RAZIX_REFLECT_PRIMITIVE(experience)
     RAZIX_REFLECT_TYPE_END(PlayerMetaData)
@@ -107,41 +107,48 @@ namespace Razix {
         fs::remove(tempPath);
     }
 
-    //TEST_F(RZSerializationTests, BlobTest)
-    //{
-    //    const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<PlayerMetaData>();
-    //    ASSERT_NE(metaData, nullptr) << "Metadata for PlayerMetaData should not be null.";
+    TEST_F(RZSerializationTests, BlobTest)
+    {
+        const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<PlayerMetaData>();
+        ASSERT_NE(metaData, nullptr) << "Metadata for PlayerMetaData should not be null.";
 
-    //    PlayerMetaData original = {};
-    //    original.level          = 42;
-    //    original.experience     = 9999.0f;
+        PlayerMetaData original = {};
+        original.level          = 42;
+        original.experience     = 9999.0f;
 
-    //    constexpr size_t BlobSize = 64;
+        constexpr size_t BlobSize = 64;
 
-    //    original.pName = static_cast<char*>(rz_malloc_aligned(BlobSize));
-    //    ASSERT_NE(original.pName, nullptr);
+        original.pName = static_cast<char*>(rz_malloc_aligned(BlobSize));
+        ASSERT_NE(original.pName, nullptr);
 
-    //    std::memset(original.pName, 0, BlobSize);
-    //    const char* description =
-    //        "Kratos! Ghost of Sparta. Slayer of gods. Anger issues included.";
-    //    std::strncpy(original.pName, description, BlobSize - 1);
+        std::memset(original.pName, 0, BlobSize);
+        const char* description =
+            "Kratos! Ghost of Sparta. Slayer of gods. Anger issues included.";
+        std::strncpy(original.pName, description, strlen(description));
 
-    //    auto serializedData =
-    //        RZSerializable<PlayerMetaData>::serializeToBinary(original);
+        auto serializedData = RZSerializable<PlayerMetaData>::serializeToBinary(original);
+        EXPECT_GT(serializedData.size(), 0);
 
-    //    EXPECT_GT(serializedData.size(), 0);
-    //    rz_free(original.pName);
+        fs::path tempPath = fs::temp_directory_path() / "playermetadata.bin";
+        RAZIX_CORE_INFO("Temporary path for BlobTest: {}", tempPath.string().c_str());
+        // Write binary data
+        Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
 
-    //    PlayerMetaData deserialized =
-    //        RZSerializable<PlayerMetaData>::deserializeFromBinary(serializedData);
+        RZDynamicArray<u8> readBack;
+        i64                size = RZFileSystem::GetFileSize(tempPath.string().c_str());
+        readBack.resize(size);
+        Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
 
-    //    // assume serializer allocates memory for blobs and members
-    //    ASSERT_NE(deserialized.pName, nullptr);
-
-    //    EXPECT_STREQ(deserialized.pName, original.pName);
-    //    EXPECT_EQ(deserialized.level, original.level);
-    //    EXPECT_EQ(deserialized.experience, original.experience);
-
-    //    rz_free(deserialized.pName);
-    //}
+        // PlayerMetaData deserialized = RZSerializable<PlayerMetaData>::deserializeFromBinary(readBack);
+        //
+        // // assume serializer allocates memory for blobs and members
+        // ASSERT_NE(deserialized.pName, nullptr);
+        //
+        // EXPECT_STREQ(deserialized.pName, original.pName);
+        // EXPECT_EQ(deserialized.level, original.level);
+        // EXPECT_EQ(deserialized.experience, original.experience);
+        //
+        // rz_free(original.pName);
+        // rz_free(deserialized.pName);
+    }
 }    // namespace Razix

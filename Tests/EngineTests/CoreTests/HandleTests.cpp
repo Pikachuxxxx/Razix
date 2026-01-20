@@ -53,7 +53,7 @@ namespace Razix {
     TEST_F(RZHandleTests, CopySemantics)
     {
         rz_handle handle1 = rz_handle_create(2, 7);
-        rz_handle handle2 = handle1; // struct copy
+        rz_handle handle2 = handle1;    // struct copy
 
         EXPECT_EQ(rz_handle_get_index(&handle2), 2);
         EXPECT_EQ(rz_handle_get_generation(&handle2), 7);
@@ -65,8 +65,8 @@ namespace Razix {
     {
         rz_handle handle1 = rz_handle_create(3, 8);
         rz_handle handle2 = rz_handle_make_invalid();
-        
-        handle2 = handle1; // struct assignment
+
+        handle2 = handle1;    // struct assignment
 
         EXPECT_EQ(rz_handle_get_index(&handle2), 3);
         EXPECT_EQ(rz_handle_get_generation(&handle2), 8);
@@ -77,7 +77,7 @@ namespace Razix {
     TEST_F(RZHandleTests, EqualityFunction)
     {
         rz_handle handle1 = rz_handle_create(2, 3);
-        rz_handle handle2 = rz_handle_create(2, 5); // Same index, different generation
+        rz_handle handle2 = rz_handle_create(2, 5);    // Same index, different generation
 
         EXPECT_TRUE(rz_handle_equals(&handle1, &handle2)) << "Handles with the same index should be equal (C API compares only index).";
     }
@@ -96,7 +96,7 @@ namespace Razix {
     {
         rz_handle handle1 = rz_handle_create(2, 3);
         rz_handle handle2 = rz_handle_create(2, 3);
-        rz_handle handle3 = rz_handle_create(2, 4); // Same index, different generation
+        rz_handle handle3 = rz_handle_create(2, 4);    // Same index, different generation
 
         EXPECT_TRUE(handle1 == handle2) << "Handles with same index and generation should be equal.";
         EXPECT_FALSE(handle1 == handle3) << "Handles with same index but different generation should not be equal.";

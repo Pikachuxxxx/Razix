@@ -31,7 +31,7 @@ namespace Razix {
     }
 }    // namespace Razix
 
-#define RAZIX_MAX_ASSETS 4096 // 1 Million assets max for now
+#define RAZIX_MAX_ASSETS 4096    // 1 Million assets max for now
 
 namespace Razix {
 
@@ -184,10 +184,10 @@ namespace Razix {
         RZAssetPool<RZVignerePuzzleAsset>   m_VignerePuzzleAssetPool;
         RZAssetHeaderPool                   m_HeaderPool;
 
-        rz_critical_section      m_AssetDBLock    = {};
-        Memory::RZHeapAllocator* m_AssetAllocator = NULL;
+        rz_critical_section      m_AssetDBLock          = {};
+        Memory::RZHeapAllocator* m_AssetAllocator       = NULL;
         Memory::RZHeapAllocator* m_AssetHeaderAllocator = NULL;
-        u32                      m_BudgetInMB     = 0;
+        u32                      m_BudgetInMB           = 0;
     };
 
 }    // namespace Razix

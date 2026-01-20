@@ -2,8 +2,8 @@
 
 #include "Razix/Core/Containers/string.h"
 
-#include <string.h>  // strlen
-#include <cctype>   // isalpha
+#include <cctype>      // isalpha
+#include <string.h>    // strlen
 
 namespace Razix {
     /**

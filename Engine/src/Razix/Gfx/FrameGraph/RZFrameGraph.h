@@ -297,9 +297,9 @@ namespace Razix {
             RZPassResourceBuilder& setDepartment(Department dept);
             RZPassResourceBuilder& setCPUTime(f32 time);
 
-            Department         getDepartment();
+            Department                 getDepartment();
             Memory::DepartmentBudgetMs getPassCurrentBudget();
-            f32                getPassCurrentCPUTimeBudget();
+            f32                        getPassCurrentCPUTimeBudget();
 
         private:
             RZFrameGraph& m_FrameGraph; /* Reference to the FrameGraph                                   */
