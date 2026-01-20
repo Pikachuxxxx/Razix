@@ -1,10 +1,16 @@
 // Serialization.cpp
 // Pikachuxxxx + AI-generated unit tests for the Type Registration classes
+#include <Razix/Core/OS/RZFileSystem.h>
 #include <Razix/Core/Reflection/RZReflection.h>
 #include <Razix/Core/Serialization/RZSerializable.h>
 #include <gtest/gtest.h>
 #include <stdio.h>
 #include <string>
+
+#include <filesystem>
+#include <fstream>
+
+namespace fs = std::filesystem;
 
 namespace Razix {
     // Dummy struct for testing reflection and serialization
@@ -83,11 +89,22 @@ namespace Razix {
         auto serializedData = RZSerializable<PlayerStats>::serializeToBinary(playerOriginal);
         EXPECT_GT(serializedData.size(), 0) << "Serialized data should not be empty.";
 
-        PlayerStats playerNew = static_cast<PlayerStats>(RZSerializable<PlayerStats>::deserializeFromBinary(serializedData));
+        fs::path tempPath = fs::temp_directory_path() / "playerstats.bin";
+        // Write binary data
+        Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
+
+        RZDynamicArray<u8> readBack;
+        i64                size = RZFileSystem::GetFileSize(tempPath.string().c_str());
+        readBack.resize(size);
+        Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
+
+        PlayerStats playerNew = static_cast<PlayerStats>(RZSerializable<PlayerStats>::deserializeFromBinary(readBack));
         EXPECT_EQ(playerNew.health, playerOriginal.health);
         EXPECT_EQ(playerNew.rage, playerOriginal.rage);
         EXPECT_EQ(playerNew.stamina, playerOriginal.stamina);
         EXPECT_EQ(playerNew.rank, playerOriginal.rank);
+
+        fs::remove(tempPath);
     }
 
     //TEST_F(RZSerializationTests, BlobTest)
