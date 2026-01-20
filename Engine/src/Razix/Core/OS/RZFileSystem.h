@@ -2,6 +2,9 @@
 
 #include "Razix/Core/Containers/string.h"
 
+#include <string.h>  // strlen
+#include <cctype>   // isalpha
+
 namespace Razix {
     /**
      * Provides a OS independent interface to Interact with the files stored on the host
