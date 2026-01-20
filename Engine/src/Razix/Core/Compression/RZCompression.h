@@ -9,8 +9,7 @@ extern "C"
 {
 #endif // __cplusplus
 
-typedef enum rz_compression_type : u8
-{
+typedef enum rz_compression_type {
     RZ_COMPRESSION_NONE    = 0,
     RZ_COMPRESSION_ZLIB    = 1 << 0,
     RZ_COMPRESSION_LZ4     = 1 << 1,
