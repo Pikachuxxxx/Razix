@@ -11,6 +11,8 @@
 #include "Razix/Core/Compression/RZCompression.h"
 #include "Razix/Core/Log/RZLog.h"
 #include "Razix/Core/RZCore.h"
+#include "Razix/Core/Containers/string.h"
+#include "Razix/Core/Containers/string_utils.h"
 
 namespace Razix {
     class RZCompressionFixture : public ::testing::Test {
@@ -89,5 +91,35 @@ namespace Razix {
 
     TEST_F(RZCompressionFixture, DISABLED_GiantSizeCompression) {
         RunCompressionTest(Gib(1));
+    }
+
+    TEST_F(RZCompressionFixture, DISABLED_BigRZStringCompression) {
+        size_t strSize = 128 * 1024 * 1024;
+        Razix::RZString bigStr;
+        bigStr.resize(strSize);
+        for (size_t i = 0; i < strSize * 1.8; ++i) {
+            bigStr += (char)('A' + (i % 26));
+        }
+        // Compress
+        u32 minOut = rz_min_compressed_size(RZ_COMPRESSION_LZ4, bigStr.size());
+        std::vector<uint8_t> compressed(minOut);
+        size_t compressedSize = 0;
+        auto t0 = std::chrono::high_resolution_clock::now();
+        rz_compression_result cres = rz_compress(RZ_COMPRESSION_LZ4, bigStr.data(), bigStr.size(), compressed.data(), &compressedSize);
+        auto t1 = std::chrono::high_resolution_clock::now();
+        double elapsedSecs = std::chrono::duration<double>(t1 - t0).count();
+        double ratio = (double)bigStr.size() / (double)compressedSize;
+        RAZIX_CORE_TRACE("BigRZString Compression: input={} MB, compressed={} MB, ratio={:.4f}, time={:.6f} s", bigStr.size() / (1024.0 * 1024.0), compressedSize / (1024.0 * 1024.0), ratio, elapsedSecs);
+        ASSERT_EQ(cres, RZ_COMPRESSION_OK);
+        ASSERT_GT(compressedSize, 0u);
+        // Decompress
+        Razix::RZString decompressed;
+        decompressed.reserve(bigStr.size());
+        decompressed.resize(bigStr.size());
+        size_t decomprSize = 0;
+        rz_compression_result dres = rz_decompress(RZ_COMPRESSION_LZ4, compressed.data(), compressedSize, decompressed.data(), bigStr.size(), &decomprSize);
+        ASSERT_EQ(dres, RZ_COMPRESSION_OK);
+        ASSERT_EQ(decomprSize, bigStr.size());
+        ASSERT_EQ(0, std::memcmp(bigStr.data(), decompressed.data(), bigStr.size()));
     }
 }
