@@ -169,13 +169,16 @@ namespace Razix {
 
                 RAZIX_CORE_TRACE("member.name: {}, member.typeName: {}, member.offset: {}, member.size: {}", member.name.c_str(), member.typeName.c_str(), member.offset, member.size);
 
-                switch (member.dataType) {
-                    case SerializeableDataType::kPrimitive:
+                // Assets to Disk Tag, makes format immune to internal SerializeableDataType changes
+                RZDiskTypeTag tag = ToDiskTag(member.dataType);
+
+                switch (tag) {
+                    case RZDiskTypeTag::kPrimitive:
                         RAZIX_CORE_TRACE("Serializing primitive member: {} of size: {}", member.name.c_str(), member.size);
                         buffer.resize(oldSize + member.size);
                         memcpy(buffer.data() + oldSize, base + member.offset, member.size);
                         break;
-                    case SerializeableDataType::kBlob: {
+                    case RZDiskTypeTag::kBlob: {
                         RAZIX_CORE_TRACE("Serializing blob member: {} of size: {}", member.name.c_str(), member.size);
                         size_t writeSize = oldSize + member.size + sizeof(RZSerializedBlob);
                         buffer.resize(writeSize);
@@ -231,14 +234,17 @@ namespace Razix {
             for (const auto& member: meta->members) {
                 RAZIX_CORE_TRACE("member.name: {}, member.typeName: {}, member.offset: {}, member.size: {}", member.name.c_str(), member.typeName.c_str(), member.offset, member.size);
 
-                switch (member.dataType) {
-                    case SerializeableDataType::kPrimitive:
+                // Assets to Disk Tag, makes format immune to internal SerializeableDataType changes
+                RZDiskTypeTag tag = ToDiskTag(member.dataType);
+
+                switch (tag) {
+                    case RZDiskTypeTag::kPrimitive:
                         RAZIX_CORE_TRACE("De-Serializing primitive member: {} of size: {}", member.name.c_str(), member.size);
                         memcpy(dest + member.offset, binary.data() + readOffset, member.size);
                         readOffset += member.size;
                         break;
 
-                    case SerializeableDataType::kBlob: {
+                    case RZDiskTypeTag::kBlob: {
                         RAZIX_CORE_TRACE("De-Serializing blob member: {} of size: {}", member.name.c_str(), member.size);
                         RZSerializedBlob blob = {};
                         memcpy(&blob, binary.data() + readOffset, sizeof(RZSerializedBlob));
