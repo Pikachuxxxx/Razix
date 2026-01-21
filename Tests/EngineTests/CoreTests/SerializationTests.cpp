@@ -184,7 +184,7 @@ namespace Razix {
         }
         // Fill fixed array
         for (size_t i = 0; i < original.weaponIDs.capacity(); ++i) {
-            original.weaponIDs[i] = static_cast<int>(i);
+            original.weaponIDs.push_back(static_cast<int>(i)); // increase size
         }
 
         auto serializedData = RZSerializable<PlayerInventory>::serializeToBinary(original);
