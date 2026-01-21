@@ -108,7 +108,6 @@
 #define RAZIX_REFLECT_FIXED_ARRAY(Member)                              \
     do {                                                               \
         metaData.bIsTriviallySerializable = false;                     \
-        \ 
         using MemberT                     = decltype(refType::Member); \
         MemberMetaData m{};                                            \
                                                                        \

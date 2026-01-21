@@ -143,7 +143,7 @@ namespace Razix {
             return Razix::RZTypeRegistry::getTypeMetaData<rz_remove_cv_t<rz_remove_pointer_t<Derived>>>();
         }
 
-        static RZDynamicArray<u8> serializeToBinary(const Derived& data)
+        static RZDynamicArray<u8> serializeToBinary(const Derived& instance)
         {
             RZDynamicArray<u8>  buffer = {};
             const TypeMetaData* meta   = getTypeMetaData();
@@ -152,7 +152,7 @@ namespace Razix {
                 return buffer;
             }
 
-            const u8* base = reinterpret_cast<const u8*>(&data);
+            const u8* base = reinterpret_cast<const u8*>(&instance);
 
             // we don't need to serialize member by member if the whole struct is trivially serializable
             // all are assumed to be primitive types
@@ -210,15 +210,11 @@ namespace Razix {
                         const void* data = member.array.ops.get_data(arr);
                         RAZIX_CORE_ASSERT(data != NULL, "Array data pointer is null");
 
-                        size_t cnt       = member.isStaticCompileSizedFixed ? member.array.elementCount : member.array.ops.get_size(arr);
-                        size_t bytes     = cnt * member.array.elementSize;
+                        size_t cnt   = member.isStaticCompileSizedFixed ? member.array.elementCount : member.array.ops.get_size(arr);
+                        size_t bytes = cnt * member.array.elementSize;
                         RAZIX_CORE_WARN("Array member: {} has {} elements of size: {}, total bytes: {}", member.name.c_str(), cnt, member.array.elementSize, bytes);
                         size_t writeSize = oldSize + sizeof(RZSerializedArray) + bytes;
                         buffer.resize(writeSize);
-
-                        RZSerializedArray serializedArray = {};
-                        serializedArray.elementSize       = member.array.elementSize;
-                        serializedArray.elementCount      = static_cast<u32>(cnt);
 
                         // Create blob for array data
                         RZSerializedBlob blob = {};
@@ -227,7 +223,11 @@ namespace Razix {
                         blob.typeHash         = 0;                            // future use
                         blob.compression      = RZ_COMPRESSION_NONE;
                         blob.decompressedSize = static_cast<u32>(bytes);
-                        serializedArray.data  = blob;
+
+                        RZSerializedArray serializedArray = {};
+                        serializedArray.data              = blob;
+                        serializedArray.elementSize       = member.array.elementSize;
+                        serializedArray.elementCount      = static_cast<u32>(cnt);
                         memcpy(buffer.data() + oldSize, &serializedArray, sizeof(RZSerializedArray));
 
                         // now write the inline blob payload

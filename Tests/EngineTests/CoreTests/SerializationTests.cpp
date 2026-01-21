@@ -170,7 +170,7 @@ namespace Razix {
         rz_free(original.pName);
         rz_free(deserialized.pName);
     }
-    
+
     TEST_F(RZSerializationTests, DISABLED_ArrayTest)
     {
         const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<PlayerInventory>();
@@ -183,7 +183,7 @@ namespace Razix {
             original.itemWeights.push_back(i * 1.5f);
         }
         // Fill fixed array
-        for (size_t i = 0; i < original.weaponIDs.size(); ++i) {
+        for (size_t i = 0; i < original.weaponIDs.capacity(); ++i) {
             original.weaponIDs[i] = static_cast<int>(i);
         }
 
@@ -214,6 +214,5 @@ namespace Razix {
             EXPECT_EQ(deserialized.weaponIDs[i], original.weaponIDs[i]);
         }
     }
-
 
 }    // namespace Razix
