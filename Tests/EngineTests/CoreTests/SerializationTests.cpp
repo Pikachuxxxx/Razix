@@ -124,7 +124,7 @@ namespace Razix {
         std::memset(original.pName, 0, BlobSize);
         const char* description =
             "Kratos! Ghost of Sparta. Slayer of gods. Anger issues included.";
-        std::strncpy(original.pName, description, strlen(description));
+        std::strncpy(original.pName, description, BlobSize - 1/* strlen(description) */);
 
         auto serializedData = RZSerializable<PlayerMetaData>::serializeToBinary(original);
         EXPECT_GT(serializedData.size(), 0);
@@ -139,16 +139,16 @@ namespace Razix {
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
 
-        // PlayerMetaData deserialized = RZSerializable<PlayerMetaData>::deserializeFromBinary(readBack);
-        //
-        // // assume serializer allocates memory for blobs and members
-        // ASSERT_NE(deserialized.pName, nullptr);
-        //
-        // EXPECT_STREQ(deserialized.pName, original.pName);
-        // EXPECT_EQ(deserialized.level, original.level);
-        // EXPECT_EQ(deserialized.experience, original.experience);
-        //
-        // rz_free(original.pName);
-        // rz_free(deserialized.pName);
+        PlayerMetaData deserialized = RZSerializable<PlayerMetaData>::deserializeFromBinary(readBack);
+
+        // assume serializer allocates memory for blobs and members
+        ASSERT_NE(deserialized.pName, nullptr);
+
+        EXPECT_STREQ(deserialized.pName, original.pName);
+        EXPECT_EQ(deserialized.level, original.level);
+        EXPECT_EQ(deserialized.experience, original.experience);
+
+        rz_free(original.pName);
+        rz_free(deserialized.pName);
     }
 }    // namespace Razix

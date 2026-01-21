@@ -223,9 +223,44 @@ namespace Razix {
                 return data;
             }
 
-            RAZIX_DEBUG_BREAK();
-            RAZIX_CORE_ERROR("Work in progress handling other deserialization types");
+            size_t readOffset = 0;
+            // Otherwise serialize member by member
+            for (const auto& member: meta->members) {
+                RAZIX_CORE_TRACE("member.name: {}, member.typeName: {}, member.offset: {}, member.size: {}", member.name.c_str(), member.typeName.c_str(), member.offset, member.size);
 
+                switch (member.dataType) {
+                    case SerializeableDataType::kPrimitive:
+                        RAZIX_CORE_TRACE("De-Serializing primitive member: {} of size: {}", member.name.c_str(), member.size);
+                        memcpy(dest + member.offset, binary.data() + readOffset, member.size);
+                        RAZIX_CORE_TRACE("readData: {}", *(u32*) (binary.data() + readOffset));
+                        readOffset += member.size;
+                        break;
+
+                    case SerializeableDataType::kBlob: {
+                        RAZIX_CORE_TRACE("De-Serializing blob member: {} of size: {}", member.name.c_str(), member.size);
+                        RZSerializedBlob blob = {};
+                        memcpy(&blob, binary.data() + readOffset, sizeof(RZSerializedBlob));
+                        readOffset += sizeof(RZSerializedBlob);    // move to the payload start
+
+                        // TESTING ONLY! memory allocation for blob payload
+                        // FIXME: don't allocate memory, pass a pre-allocated buffer from outside,
+                        // FIXME: the Derived should be passed with pre-allocated memory for blobs
+                        // TODO: Or even better pass a scratch allocator to allocate memory from
+                        void* payload = rz_malloc_aligned(blob.decompressedSize);
+                        memcpy(payload, binary.data() + readOffset, blob.size);
+                        readOffset += blob.size;
+
+                        // store the pointer into the struct
+                        *reinterpret_cast<void**>(dest + member.offset) = payload;
+                    } break;
+
+                    default:
+                        RAZIX_DEBUG_BREAK();
+                        RAZIX_CORE_ERROR("Work in progress handling other deserialization types");
+                        RAZIX_CORE_ERROR("De-Serializing non-trivially serializable member: {} of type: {}. Ensure custom deserialization is handled!", member.name.c_str(), member.typeName.c_str());
+                        break;
+                }
+            }
             return data;
         }
     };
