@@ -167,19 +167,22 @@ namespace Razix {
             for (const auto& member: meta->members) {
                 size_t oldSize = buffer.size();
 
-                buffer.resize(oldSize + member.size);
                 RAZIX_CORE_TRACE("member.name: {}, member.typeName: {}, member.offset: {}, member.size: {}", member.name.c_str(), member.typeName.c_str(), member.offset, member.size);
 
                 switch (member.dataType) {
                     case SerializeableDataType::kPrimitive:
                         RAZIX_CORE_TRACE("Serializing primitive member: {} of size: {}", member.name.c_str(), member.size);
+                        buffer.resize(oldSize + member.size);
                         memcpy(buffer.data() + oldSize, base + member.offset, member.size);
                         break;
                     case SerializeableDataType::kBlob: {
                         RAZIX_CORE_TRACE("Serializing blob member: {} of size: {}", member.name.c_str(), member.size);
+                        size_t writeSize = oldSize + member.size + sizeof(RZSerializedBlob);
+                        buffer.resize(writeSize);
+
                         RZSerializedBlob blob = {};
                         blob.size             = member.size;
-                        // NOTE: Currently we support only inline payloads, file offfsets will handled in V2 of the serialization system
+                        // NOTE: Currently we support only inline payloads, file offsets will handled in V2 of the serialization system
                         // NOTE: Which means offset will be size of RZSerializedBlob and data will be written right after it and is relative to Header
                         blob.offset           = sizeof(RZSerializedBlob);    // TODO: will be filled during file writing
                         blob.typeHash         = 0;                           // future use
@@ -232,7 +235,6 @@ namespace Razix {
                     case SerializeableDataType::kPrimitive:
                         RAZIX_CORE_TRACE("De-Serializing primitive member: {} of size: {}", member.name.c_str(), member.size);
                         memcpy(dest + member.offset, binary.data() + readOffset, member.size);
-                        RAZIX_CORE_TRACE("readData: {}", *(u32*) (binary.data() + readOffset));
                         readOffset += member.size;
                         break;
 
