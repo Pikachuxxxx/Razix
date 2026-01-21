@@ -29,6 +29,8 @@ namespace Razix {
     RAZIX_REFLECT_PRIMITIVE(stamina)
     RAZIX_REFLECT_TYPE_END(PlayerStats)
 
+    //-------------------------------------------------------------------------
+    // Blob test struct
     struct PlayerMetaData
     {
         char* pName;
@@ -43,6 +45,23 @@ namespace Razix {
     RAZIX_REFLECT_PRIMITIVE(experience)
     RAZIX_REFLECT_TYPE_END(PlayerMetaData)
 
+    //-------------------------------------------------------------------------
+    // Array test struct
+    struct PlayerInventory
+    {
+        RZDynamicArray<int>    itemIDs;
+        RZDynamicArray<float>  itemWeights;
+        RZFixedArray<int, 100> weaponIDs;
+    };
+
+    RAZIX_REFLECT_TYPE_START(PlayerInventory)
+    RAZIX_REFLECT_ARRAY(itemIDs)
+    RAZIX_REFLECT_ARRAY(itemWeights)
+    RAZIX_REFLECT_FIXED_ARRAY(weaponIDs)
+    RAZIX_REFLECT_TYPE_END(PlayerInventory)
+
+    //-------------------------------------------------------------------------
+    // Nested struct test
     struct MasterPlayerStats
     {
         PlayerStats stats;
@@ -50,7 +69,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(MasterPlayerStats)
-    //RAZIX_REFLECT_MEMBER(stats)
+    //RAZIX_REFLECT_MEMBER(stats) // ?? Figure out how to reflect nested structs that (trivial and non-trivial types)
     RAZIX_REFLECT_PRIMITIVE(score)
     RAZIX_REFLECT_TYPE_END(MasterPlayerStats)
 
@@ -124,7 +143,7 @@ namespace Razix {
         std::memset(original.pName, 0, BlobSize);
         const char* description =
             "Kratos! Ghost of Sparta. Slayer of gods. Anger issues included.";
-        std::strncpy(original.pName, description, BlobSize - 1/* strlen(description) */);
+        std::strncpy(original.pName, description, BlobSize - 1 /* strlen(description) */);
 
         auto serializedData = RZSerializable<PlayerMetaData>::serializeToBinary(original);
         EXPECT_GT(serializedData.size(), 0);
@@ -151,4 +170,50 @@ namespace Razix {
         rz_free(original.pName);
         rz_free(deserialized.pName);
     }
+    
+    TEST_F(RZSerializationTests, DISABLED_ArrayTest)
+    {
+        const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<PlayerInventory>();
+        ASSERT_NE(metaData, nullptr) << "Metadata for PlayerInventory should not be null.";
+
+        PlayerInventory original = {};
+        // Fill dynamic arrays
+        for (int i = 0; i < 10; ++i) {
+            original.itemIDs.push_back(i);
+            original.itemWeights.push_back(i * 1.5f);
+        }
+        // Fill fixed array
+        for (size_t i = 0; i < original.weaponIDs.size(); ++i) {
+            original.weaponIDs[i] = static_cast<int>(i);
+        }
+
+        auto serializedData = RZSerializable<PlayerInventory>::serializeToBinary(original);
+        EXPECT_GT(serializedData.size(), 0);
+
+        fs::path tempPath = fs::temp_directory_path() / "playerinventory.bin";
+        RAZIX_CORE_INFO("Temporary path for ArrayTest: {}", tempPath.string().c_str());
+        // Write binary data
+        Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
+
+        RZDynamicArray<u8> readBack;
+        i64                size = RZFileSystem::GetFileSize(tempPath.string().c_str());
+        readBack.resize(size);
+        Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
+
+        PlayerInventory deserialized = RZSerializable<PlayerInventory>::deserializeFromBinary(readBack);
+
+        // Validate dynamic arrays
+        ASSERT_EQ(deserialized.itemIDs.size(), original.itemIDs.size());
+        ASSERT_EQ(deserialized.itemWeights.size(), original.itemWeights.size());
+        for (size_t i = 0; i < original.itemIDs.size(); ++i) {
+            EXPECT_EQ(deserialized.itemIDs[i], original.itemIDs[i]);
+            EXPECT_FLOAT_EQ(deserialized.itemWeights[i], original.itemWeights[i]);
+        }
+        // Validate fixed array
+        for (size_t i = 0; i < original.weaponIDs.size(); ++i) {
+            EXPECT_EQ(deserialized.weaponIDs[i], original.weaponIDs[i]);
+        }
+    }
+
+
 }    // namespace Razix

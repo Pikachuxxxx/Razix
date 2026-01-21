@@ -70,6 +70,19 @@ namespace Razix {
         void      pop_back();
         void      resize(size_type count, const T& value = T{});
 
+        T*       data();
+        const T* data() const;
+
+        static constexpr size_type static_capacity()
+        {
+            return N;
+        }
+
+        static constexpr size_type static_type_size()
+        {
+            return sizeof(T);
+        }
+
     private:
         template<typename... Args>
         void construct(size_type index, Args&&... args)
@@ -324,6 +337,20 @@ namespace Razix {
             destroy(--m_Size);
     }
 
+    template<typename T, size_t N>
+    T* RZFixedArray<T, N>::data()
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZFixedArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return m_Data;
+    }
+
+    template<typename T, size_t N>
+    const T* RZFixedArray<T, N>::data() const
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZFixedArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return reinterpret_cast<const T*>(m_Data);
+    }
+
     //----------------------------------------------------------
     // RZDynamicArray
     //----------------------------------------------------------
@@ -383,6 +410,11 @@ namespace Razix {
         void      pop_back();
         void      resize(size_type count, const T& value = T{});
         void      reserve(size_type newCapacity);
+
+        static constexpr size_type static_type_size()
+        {
+            return sizeof(T);
+        }
 
     private:
         template<typename... Args>

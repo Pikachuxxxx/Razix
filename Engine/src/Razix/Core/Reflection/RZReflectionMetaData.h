@@ -25,12 +25,31 @@ namespace Razix {
         COUNT
     };
 
+    struct ArrayOps
+    {
+        const void* (*get_data)(const void*);
+        size_t (*get_size)(const void*);
+    };
+
+    template<typename ArrayT>
+    constexpr ArrayOps make_array_ops()
+    {
+        return {
+            +[](const void* arr) -> const void* {
+                return static_cast<const ArrayT*>(arr)->data();
+            },
+            +[](const void* arr) -> size_t {
+                return static_cast<const ArrayT*>(arr)->size();
+            }};
+    }
+
+    // TODO: Add HashMap ops and other complex types ops as needed
+
     struct MemberMetaData
     {
         RZString              name;        // variable name
         RZString              typeName;    // underlying typename
-        u32                   offset;
-        u32                   size;        // TODO: use fixed sizes instead of sizeof for compatibility across platforms
+        u32                   offset;      // offset in the parent struct
         SerializeableDataType dataType;    // filled by user reflection macros
         // some additional flags to hint serilization behaviour, these are set by the user reflection macros
         union
@@ -38,11 +57,32 @@ namespace Razix {
             u32 flags;
             struct
             {
-                u32                 isTriviallySerializable : 1;    // seems redundant with TypeMetaData::bIsTriviallySerializable?
+                u32                 isStaticCompileSizedFixed : 1;    // seems redundant with TypeMetaData::bIsTriviallySerializable?
                 u32                 forceCompression : 1;
                 rz_compression_type compressionMethod : 3;
                 u32                 reserved : 27;
             };
+        };
+
+        union
+        {
+            struct
+            {
+                u32 size;    // sizeof(member)
+            } trivial;       // used for primitive and blob types
+
+            struct
+            {
+                u32      elementSize;
+                u32      elementCount;
+                ArrayOps ops;
+            } array;    // used for dynamic array types
+
+            struct
+            {
+                u32 keySize;
+                u32 valueSize;
+            } map;
         };
     };
 

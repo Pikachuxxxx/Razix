@@ -69,22 +69,22 @@ namespace Razix {
         EXPECT_EQ(members[0].name, "intValue");
         EXPECT_EQ(members[0].typeName, typeid(int).name());
         EXPECT_EQ(members[0].offset, offsetof(TestStruct, intValue));
-        EXPECT_EQ(members[0].size, sizeof(int));
+        EXPECT_EQ(members[0].trivial.size, sizeof(int));
 
         EXPECT_EQ(members[1].name, "floatValue");
         EXPECT_EQ(members[1].typeName, typeid(float).name());
         EXPECT_EQ(members[1].offset, offsetof(TestStruct, floatValue));
-        EXPECT_EQ(members[1].size, sizeof(float));
+        EXPECT_EQ(members[1].trivial.size, sizeof(float));
 
         EXPECT_EQ(members[2].name, "doubleValue");
         EXPECT_EQ(members[2].typeName, typeid(double).name());
         EXPECT_EQ(members[2].offset, offsetof(TestStruct, doubleValue));
-        EXPECT_EQ(members[2].size, sizeof(double));
+        EXPECT_EQ(members[2].trivial.size, sizeof(double));
 
         EXPECT_EQ(members[3].name, "charValue");
         EXPECT_EQ(members[3].typeName, typeid(char).name());
         EXPECT_EQ(members[3].offset, offsetof(TestStruct, charValue));
-        EXPECT_EQ(members[3].size, sizeof(char));
+        EXPECT_EQ(members[3].trivial.size, sizeof(char));
     }
 
     // Test: Missing Type Metadata
@@ -122,11 +122,11 @@ namespace Razix {
         EXPECT_EQ(members[0].name, "flag");
         EXPECT_EQ(members[0].typeName, typeid(bool).name());
         EXPECT_EQ(members[0].offset, offsetof(AnotherStruct, flag));
-        EXPECT_EQ(members[0].size, sizeof(bool));
+        EXPECT_EQ(members[0].trivial.size, sizeof(bool));
 
         EXPECT_EQ(members[1].name, "count");
         EXPECT_EQ(members[1].typeName, typeid(int).name());
         EXPECT_EQ(members[1].offset, offsetof(AnotherStruct, count));
-        EXPECT_EQ(members[1].size, sizeof(int));
+        EXPECT_EQ(members[1].trivial.size, sizeof(int));
     }
 }    // namespace Razix

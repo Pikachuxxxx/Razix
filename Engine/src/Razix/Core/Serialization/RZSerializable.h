@@ -167,30 +167,30 @@ namespace Razix {
             for (const auto& member: meta->members) {
                 size_t oldSize = buffer.size();
 
-                RAZIX_CORE_TRACE("member.name: {}, member.typeName: {}, member.offset: {}, member.size: {}", member.name.c_str(), member.typeName.c_str(), member.offset, member.size);
+                RAZIX_CORE_TRACE("member.name: {}, member.typeName: {}, member.offset: {}, member.size: {}", member.name.c_str(), member.typeName.c_str(), member.offset, member.trivial.size);
 
                 // Assets to Disk Tag, makes format immune to internal SerializeableDataType changes
                 RZDiskTypeTag tag = ToDiskTag(member.dataType);
 
                 switch (tag) {
                     case RZDiskTypeTag::kPrimitive:
-                        RAZIX_CORE_TRACE("Serializing primitive member: {} of size: {}", member.name.c_str(), member.size);
-                        buffer.resize(oldSize + member.size);
-                        memcpy(buffer.data() + oldSize, base + member.offset, member.size);
+                        RAZIX_CORE_TRACE("Serializing primitive member: {} of size: {}", member.name.c_str(), member.trivial.size);
+                        buffer.resize(oldSize + member.trivial.size);
+                        memcpy(buffer.data() + oldSize, base + member.offset, member.trivial.size);
                         break;
                     case RZDiskTypeTag::kBlob: {
-                        RAZIX_CORE_TRACE("Serializing blob member: {} of size: {}", member.name.c_str(), member.size);
-                        size_t writeSize = oldSize + member.size + sizeof(RZSerializedBlob);
+                        RAZIX_CORE_TRACE("Serializing blob member: {} of size: {}", member.name.c_str(), member.trivial.size);
+                        size_t writeSize = oldSize + member.trivial.size + sizeof(RZSerializedBlob);
                         buffer.resize(writeSize);
 
                         RZSerializedBlob blob = {};
-                        blob.size             = member.size;
+                        blob.size             = member.trivial.size;
                         // NOTE: Currently we support only inline payloads, file offsets will handled in V2 of the serialization system
                         // NOTE: Which means offset will be size of RZSerializedBlob and data will be written right after it and is relative to Header
                         blob.offset           = sizeof(RZSerializedBlob);    // TODO: will be filled during file writing
                         blob.typeHash         = 0;                           // future use
                         blob.compression      = RZ_COMPRESSION_NONE;
-                        blob.decompressedSize = member.size;
+                        blob.decompressedSize = member.trivial.size;
                         memcpy(buffer.data() + oldSize, &blob, sizeof(RZSerializedBlob));
 
                         // Write the inline payload right after the blob metadata
@@ -200,10 +200,45 @@ namespace Razix {
 
                         break;
                     }
+                    case RZDiskTypeTag::kArray: {
+                        RAZIX_CORE_TRACE("Serializing array member: {} of element size: {}", member.name.c_str(), member.array.elementSize);
+
+                        RAZIX_CORE_ASSERT(member.array.ops.get_data != NULL, "Array get_data function pointer is null");
+                        RAZIX_CORE_ASSERT(member.isStaticCompileSizedFixed || member.array.ops.get_size != NULL, "Array get_size function pointer is null");
+
+                        const void* arr  = reinterpret_cast<const void*>(base + member.offset);
+                        const void* data = member.array.ops.get_data(arr);
+                        RAZIX_CORE_ASSERT(data != NULL, "Array data pointer is null");
+
+                        size_t cnt       = member.isStaticCompileSizedFixed ? member.array.elementCount : member.array.ops.get_size(arr);
+                        size_t bytes     = cnt * member.array.elementSize;
+                        RAZIX_CORE_WARN("Array member: {} has {} elements of size: {}, total bytes: {}", member.name.c_str(), cnt, member.array.elementSize, bytes);
+                        size_t writeSize = oldSize + sizeof(RZSerializedArray) + bytes;
+                        buffer.resize(writeSize);
+
+                        RZSerializedArray serializedArray = {};
+                        serializedArray.elementSize       = member.array.elementSize;
+                        serializedArray.elementCount      = static_cast<u32>(cnt);
+
+                        // Create blob for array data
+                        RZSerializedBlob blob = {};
+                        blob.size             = static_cast<u32>(bytes);
+                        blob.offset           = sizeof(RZSerializedArray);    // TODO: will be filled during file writing
+                        blob.typeHash         = 0;                            // future use
+                        blob.compression      = RZ_COMPRESSION_NONE;
+                        blob.decompressedSize = static_cast<u32>(bytes);
+                        serializedArray.data  = blob;
+                        memcpy(buffer.data() + oldSize, &serializedArray, sizeof(RZSerializedArray));
+
+                        // now write the inline blob payload
+                        memcpy(buffer.data() + oldSize + blob.offset, data, blob.size);
+
+                        break;
+                    }
                     default:
-                        RAZIX_DEBUG_BREAK();
                         RAZIX_CORE_ERROR("Work in progress handling other serialization types");
                         RAZIX_CORE_ERROR("Serializing non-trivially serializable member: {} of type: {}. Ensure custom serialization is handled!", member.name.c_str(), member.typeName.c_str());
+                        RAZIX_DEBUG_BREAK();
                         break;
                 }
             }
@@ -232,20 +267,20 @@ namespace Razix {
             size_t readOffset = 0;
             // Otherwise serialize member by member
             for (const auto& member: meta->members) {
-                RAZIX_CORE_TRACE("member.name: {}, member.typeName: {}, member.offset: {}, member.size: {}", member.name.c_str(), member.typeName.c_str(), member.offset, member.size);
+                RAZIX_CORE_TRACE("member.name: {}, member.typeName: {}, member.offset: {}, member.size: {}", member.name.c_str(), member.typeName.c_str(), member.offset, member.trivial.size);
 
                 // Assets to Disk Tag, makes format immune to internal SerializeableDataType changes
                 RZDiskTypeTag tag = ToDiskTag(member.dataType);
 
                 switch (tag) {
                     case RZDiskTypeTag::kPrimitive:
-                        RAZIX_CORE_TRACE("De-Serializing primitive member: {} of size: {}", member.name.c_str(), member.size);
-                        memcpy(dest + member.offset, binary.data() + readOffset, member.size);
-                        readOffset += member.size;
+                        RAZIX_CORE_TRACE("De-Serializing primitive member: {} of size: {}", member.name.c_str(), member.trivial.size);
+                        memcpy(dest + member.offset, binary.data() + readOffset, member.trivial.size);
+                        readOffset += member.trivial.size;
                         break;
 
                     case RZDiskTypeTag::kBlob: {
-                        RAZIX_CORE_TRACE("De-Serializing blob member: {} of size: {}", member.name.c_str(), member.size);
+                        RAZIX_CORE_TRACE("De-Serializing blob member: {} of size: {}", member.name.c_str(), member.trivial.size);
                         RZSerializedBlob blob = {};
                         memcpy(&blob, binary.data() + readOffset, sizeof(RZSerializedBlob));
                         readOffset += sizeof(RZSerializedBlob);    // move to the payload start
@@ -263,9 +298,9 @@ namespace Razix {
                     } break;
 
                     default:
-                        RAZIX_DEBUG_BREAK();
                         RAZIX_CORE_ERROR("Work in progress handling other deserialization types");
                         RAZIX_CORE_ERROR("De-Serializing non-trivially serializable member: {} of type: {}. Ensure custom deserialization is handled!", member.name.c_str(), member.typeName.c_str());
+                        RAZIX_DEBUG_BREAK();
                         break;
                 }
             }

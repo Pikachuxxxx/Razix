@@ -47,9 +47,9 @@
         #Member,                                  \
         typeid(decltype(refType::Member)).name(), \
         offsetof(refType, Member),                \
-        sizeof(refType::Member),                  \
         SerializeableDataType::kPrimitive,        \
-        0,                                        \
+        {0},                                      \
+        {sizeof(refType::Member)},                \
     });
 
 // Note: Anyone that isn't a kPrimitive is considered non-trivially serializable, it will dirty the flag
@@ -61,9 +61,9 @@
         #Member,                                  \
         typeid(decltype(refType::Member)).name(), \
         offsetof(refType, Member),                \
-        Size,                                     \
         SerializeableDataType::kBlob,             \
         0,                                        \
+        {Size},                                   \
     });
 
 // TODO: register a function pointer to get the dynamic size at runtime
@@ -79,6 +79,55 @@
 //        0,                                              \
 //    });
 
-// TODO define other types here
+// TODO: define other types here
+
+// NOTE: Dynamic size, queried at runtime, stored as 0 during reflection
+#define RAZIX_REFLECT_ARRAY(Member)                                    \
+    do {                                                               \
+        metaData.bIsTriviallySerializable = false;                     \
+        using MemberT                     = decltype(refType::Member); \
+        MemberMetaData m{};                                            \
+                                                                       \
+        m.name     = #Member;                                          \
+        m.typeName = typeid(MemberT).name();                           \
+        m.offset   = offsetof(refType, Member);                        \
+        m.dataType = SerializeableDataType::kArray;                    \
+                                                                       \
+        m.isStaticCompileSizedFixed = 0;                               \
+                                                                       \
+        m.array.elementSize =                                          \
+            static_cast<u32>(MemberT::static_type_size());             \
+                                                                       \
+        m.array.elementCount = 0;                                      \
+                                                                       \
+        m.array.ops = make_array_ops<MemberT>();                       \
+                                                                       \
+        metaData.members.push_back(m);                                 \
+    } while (0);
+
+#define RAZIX_REFLECT_FIXED_ARRAY(Member)                              \
+    do {                                                               \
+        metaData.bIsTriviallySerializable = false;                     \
+        \ 
+        using MemberT                     = decltype(refType::Member); \
+        MemberMetaData m{};                                            \
+                                                                       \
+        m.name     = #Member;                                          \
+        m.typeName = typeid(MemberT).name();                           \
+        m.offset   = offsetof(refType, Member);                        \
+        m.dataType = SerializeableDataType::kArray;                    \
+                                                                       \
+        m.isStaticCompileSizedFixed = 1;                               \
+                                                                       \
+        m.array.elementSize =                                          \
+            static_cast<u32>(MemberT::static_type_size());             \
+                                                                       \
+        m.array.elementCount =                                         \
+            static_cast<u32>(MemberT::static_capacity());              \
+                                                                       \
+        m.array.ops = make_array_ops<MemberT>();                       \
+                                                                       \
+        metaData.members.push_back(m);                                 \
+    } while (0);
 
 #endif    // _RZ_REFLECTION_H_
