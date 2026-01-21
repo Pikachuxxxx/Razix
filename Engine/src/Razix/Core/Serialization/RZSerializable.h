@@ -268,10 +268,45 @@ namespace Razix {
             }
         }
 
-        static void processMember(
-            RZBinaryArchive&      ar,
-            void*                 objectBase,
-            const MemberMetaData& member)
+        static void proceessString(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
+        {
+            if (ar.mode == RZArchiveMode::kWrite) {
+                RAZIX_CORE_ASSERT(member.string.ops.get_data != NULL, "String get_data function pointer is null");
+                RAZIX_CORE_ASSERT(member.string.ops.get_size != NULL, "String get_length function pointer is null");
+
+                const void* strData = member.string.ops.get_data(reinterpret_cast<const void*>(base + member.offset));
+                size_t      length  = member.string.ops.get_size(reinterpret_cast<const void*>(base + member.offset)) + 1;    // +1 for null terminator
+                
+                RZSerializedBlob blob = {};
+                blob.size             = static_cast<u32>(length);
+                blob.offset           = sizeof(RZSerializedString);    // TODO: will be filled during file writing
+                blob.typeHash         = 0;                             // future use
+                blob.compression      = RZ_COMPRESSION_NONE;
+                blob.decompressedSize = static_cast<u32>(length);
+
+                RZSerializedString serializedString = {};
+                serializedString.data               = blob;
+                serializedString.length             = static_cast<u32>(length);
+                serializedString.encoding           = 0;    // TODO: set encoding type
+
+                ar.write(&serializedString, sizeof(RZSerializedString));
+
+                // now write the inline blob payload
+                ar.write(strData, blob.size);
+            } else {
+                RZSerializedString serializedString = {};
+                ar.read(&serializedString, sizeof(RZSerializedString));
+
+                // memory allocation for string is done internally as-usualy, unless containers use custom allocators
+                void* str = reinterpret_cast<void*>(base + member.offset);
+                member.string.ops.set_size(str, serializedString.length);
+                member.string.ops.set_data(str, ar.buffer->data() + ar.cursor);
+
+                ar.cursor += serializedString.data.size;
+            }
+        }
+
+        static void processMember(RZBinaryArchive& ar, void* objectBase, const MemberMetaData& member)
         {
             u8* base = reinterpret_cast<u8*>(objectBase);
 
@@ -285,6 +320,9 @@ namespace Razix {
                     break;
                 case RZDiskTypeTag::kArray:
                     processArray(ar, base, member);
+                    break;
+                case RZDiskTypeTag::kString:
+                    proceessString(ar, base, member);
                     break;
                 default:
                     RAZIX_CORE_ERROR("Work in progress handling other serialization types");

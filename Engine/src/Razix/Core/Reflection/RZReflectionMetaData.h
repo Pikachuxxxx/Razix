@@ -86,6 +86,10 @@ namespace Razix {
                 ArrayOps ops;
             } array;    // used for dynamic array types
 
+            struct {
+                ArrayOps ops;
+            } string;    // used for string types
+
             struct
             {
                 u32 keySize;

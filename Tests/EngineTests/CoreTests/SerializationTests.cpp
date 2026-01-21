@@ -61,6 +61,19 @@ namespace Razix {
     RAZIX_REFLECT_TYPE_END(PlayerInventory)
 
     //-------------------------------------------------------------------------
+    // String test structs
+    struct PlayerProfile
+    {
+        RZString playerName;
+        RZString bio;
+    };
+
+    RAZIX_REFLECT_TYPE_START(PlayerProfile)
+    RAZIX_REFLECT_STRING(playerName)
+    RAZIX_REFLECT_STRING(bio)
+    RAZIX_REFLECT_TYPE_END(PlayerProfile)
+
+    //-------------------------------------------------------------------------
     // Nested struct test
     struct MasterPlayerStats
     {
@@ -170,7 +183,7 @@ namespace Razix {
         rz_free(original.pName);
         rz_free(deserialized.pName);
     }
-    
+
     TEST_F(RZSerializationTests, ArrayTest)
     {
         const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<PlayerInventory>();
@@ -184,7 +197,7 @@ namespace Razix {
         }
         // Fill fixed array
         for (size_t i = 0; i < original.weaponIDs.capacity(); ++i) {
-            original.weaponIDs.push_back(static_cast<int>(i)); // increase size
+            original.weaponIDs.push_back(static_cast<int>(i));    // increase size
         }
 
         auto serializedData = RZSerializable<PlayerInventory>::serializeToBinary(original);
@@ -213,6 +226,34 @@ namespace Razix {
         for (size_t i = 0; i < original.weaponIDs.size(); ++i) {
             EXPECT_EQ(deserialized.weaponIDs[i], original.weaponIDs[i]);
         }
+    }
+
+    TEST_F(RZSerializationTests, StringTest)
+    {
+        const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<PlayerProfile>();
+        ASSERT_NE(metaData, nullptr) << "Metadata for PlayerProfile should not be null.";
+
+        PlayerProfile original = {};
+        original.playerName    = RZString("Jon Snow");
+        original.bio           = RZString("A fearless warrior from the north.");
+
+        auto serializedData = RZSerializable<PlayerProfile>::serializeToBinary(original);
+        EXPECT_GT(serializedData.size(), 0);
+
+        fs::path tempPath = fs::temp_directory_path() / "playerprofile.bin";
+        RAZIX_CORE_INFO("Temporary path for StringTest: {}", tempPath.string().c_str());
+        // Write binary data
+        Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
+
+        RZDynamicArray<u8> readBack;
+        i64                size = RZFileSystem::GetFileSize(tempPath.string().c_str());
+        readBack.resize(size);
+        Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
+
+        PlayerProfile deserialized = RZSerializable<PlayerProfile>::deserializeFromBinary(readBack);
+
+        EXPECT_STREQ(deserialized.playerName.c_str(), original.playerName.c_str());
+        EXPECT_STREQ(deserialized.bio.c_str(), original.bio.c_str());
     }
 
 }    // namespace Razix

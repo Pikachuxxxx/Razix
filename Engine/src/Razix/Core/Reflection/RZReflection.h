@@ -129,4 +129,20 @@
         metaData.members.push_back(m);                                 \
     } while (0);
 
+#define RAZIX_REFLECT_STRING(Member)                                   \
+    do {                                                               \
+        metaData.bIsTriviallySerializable = false;                     \
+        using MemberT                     = decltype(refType::Member); \
+        MemberMetaData m{};                                            \
+                                                                       \
+        m.name     = #Member;                                          \
+        m.typeName = typeid(MemberT).name();                           \
+        m.offset   = offsetof(refType, Member);                        \
+        m.dataType = SerializeableDataType::kString;                   \
+                                                                       \
+        m.string.ops = make_array_ops<MemberT>();                      \
+                                                                       \
+        metaData.members.push_back(m);                                 \
+    } while (0);
+
 #endif    // _RZ_REFLECTION_H_

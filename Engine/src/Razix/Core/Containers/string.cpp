@@ -344,6 +344,22 @@ namespace Razix {
         return hash;
     }
 
+    void RZString::set_size(sz length)
+    {
+        m_length = length;
+    }
+
+    void RZString::set_data(const char* newData)
+    {
+        RAZIX_ASSERT(newData != nullptr, "RZString: Cannot set data to nullptr");
+        sz newLength = rz_strlen(newData);
+        if (newLength > m_capacity) {
+            reserve(newLength + 1);
+        }
+        memcpy(m_is_using_heap ? m_data.ptr : m_data.sso, newData, newLength + 1);
+        m_length = newLength;
+    }
+
     RZString& RZString::append(const RZString& str)
     {
         return append(str.c_str(), str.m_length);
