@@ -73,6 +73,9 @@ namespace Razix {
         T*       data();
         const T* data() const;
 
+        void set_size(size_type newSize);
+        void set_data(const T* newData);
+
         static constexpr size_type static_capacity()
         {
             return N;
@@ -351,6 +354,20 @@ namespace Razix {
         return reinterpret_cast<const T*>(m_Data);
     }
 
+    template<typename T, size_t N>
+    void RZFixedArray<T, N>::set_size(size_type newSize)
+    {
+        RAZIX_CORE_ASSERT(newSize <= N, "RZFixedArray: Cannot set size beyond fixed capacity of {0}", N);
+        m_Size = newSize;
+    }
+
+    template<typename T, size_t N>
+    void RZFixedArray<T, N>::set_data(const T* newData)
+    {
+        RAZIX_CORE_ASSERT(newData != nullptr, "RZFixedArray: Cannot set data to nullptr");
+        memcpy(m_Data, newData, sizeof(T) * N);
+    }
+
     //----------------------------------------------------------
     // RZDynamicArray
     //----------------------------------------------------------
@@ -402,6 +419,9 @@ namespace Razix {
         void            erase(size_type index);
         T*              data();
         const T*        data() const;
+
+        void set_size(size_type newSize);
+        void set_data(const T* newData);
 
         void push_back(const T& value);
         void push_back(T&& value);
@@ -688,6 +708,20 @@ namespace Razix {
     {
         RAZIX_CORE_ASSERT(m_Data != NULL, "RZDynamicArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
         return m_Data;
+    }
+
+    template<typename T>
+    void RZDynamicArray<T>::set_size(size_type newSize)
+    {
+        m_Size = newSize;
+        resize(newSize);
+    }
+
+    template<typename T>
+    void RZDynamicArray<T>::set_data(const T* newData)
+    {
+        RAZIX_CORE_ASSERT(newData != nullptr, "RZDynamicArray: Cannot set data to nullptr");
+        memcpy(m_Data, newData, sizeof(T) * m_Size);
     }
 
     template<typename T>

@@ -170,8 +170,8 @@ namespace Razix {
         rz_free(original.pName);
         rz_free(deserialized.pName);
     }
-
-    TEST_F(RZSerializationTests, DISABLED_ArrayTest)
+    
+    TEST_F(RZSerializationTests, ArrayTest)
     {
         const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<PlayerInventory>();
         ASSERT_NE(metaData, nullptr) << "Metadata for PlayerInventory should not be null.";

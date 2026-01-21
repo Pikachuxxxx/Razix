@@ -29,6 +29,8 @@ namespace Razix {
     {
         const void* (*get_data)(const void*);
         size_t (*get_size)(const void*);
+        void (*set_data)(void*, const void*);
+        void (*set_size)(void*, size_t);
     };
 
     template<typename ArrayT>
@@ -40,6 +42,12 @@ namespace Razix {
             },
             +[](const void* arr) -> size_t {
                 return static_cast<const ArrayT*>(arr)->size();
+            },
+            +[](void* arr, const void* data) {
+                static_cast<ArrayT*>(arr)->set_data(static_cast<const typename ArrayT::value_type*>(data));
+            },
+            +[](void* arr, size_t size) {
+                static_cast<ArrayT*>(arr)->set_size(size);
             }};
     }
 

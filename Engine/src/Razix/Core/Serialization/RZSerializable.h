@@ -173,11 +173,13 @@ namespace Razix {
                 RZDiskTypeTag tag = ToDiskTag(member.dataType);
 
                 switch (tag) {
-                    case RZDiskTypeTag::kPrimitive:
+                    case RZDiskTypeTag::kPrimitive: {
                         RAZIX_CORE_TRACE("Serializing primitive member: {} of size: {}", member.name.c_str(), member.trivial.size);
                         buffer.resize(oldSize + member.trivial.size);
                         memcpy(buffer.data() + oldSize, base + member.offset, member.trivial.size);
+
                         break;
+                    }
                     case RZDiskTypeTag::kBlob: {
                         RAZIX_CORE_TRACE("Serializing blob member: {} of size: {}", member.name.c_str(), member.trivial.size);
                         size_t writeSize = oldSize + member.trivial.size + sizeof(RZSerializedBlob);
@@ -273,12 +275,13 @@ namespace Razix {
                 RZDiskTypeTag tag = ToDiskTag(member.dataType);
 
                 switch (tag) {
-                    case RZDiskTypeTag::kPrimitive:
+                    case RZDiskTypeTag::kPrimitive: {
                         RAZIX_CORE_TRACE("De-Serializing primitive member: {} of size: {}", member.name.c_str(), member.trivial.size);
                         memcpy(dest + member.offset, binary.data() + readOffset, member.trivial.size);
                         readOffset += member.trivial.size;
-                        break;
 
+                        break;
+                    }
                     case RZDiskTypeTag::kBlob: {
                         RAZIX_CORE_TRACE("De-Serializing blob member: {} of size: {}", member.name.c_str(), member.trivial.size);
                         RZSerializedBlob blob = {};
@@ -295,8 +298,26 @@ namespace Razix {
 
                         // store the pointer into the struct
                         *reinterpret_cast<void**>(dest + member.offset) = payload;
-                    } break;
 
+                        break;
+                    }
+                    case RZDiskTypeTag::kArray: {
+                        RAZIX_CORE_TRACE("De-Serializing array member: {} of element size: {}", member.name.c_str(), member.array.elementSize);
+
+                        RZSerializedArray serializedArray = {};
+                        memcpy(&serializedArray, binary.data() + readOffset, sizeof(RZSerializedArray));
+                        readOffset += sizeof(RZSerializedArray);
+
+                        u32 loadedDataSize = serializedArray.data.size;
+                        RAZIX_CORE_TRACE("Array member: {} has {} elements of size: {}, total bytes: {} and member.array.elementCount: {}", member.name.c_str(), serializedArray.elementCount, serializedArray.elementSize, loadedDataSize, member.array.elementCount);
+                        RAZIX_CORE_ASSERT(!member.isStaticCompileSizedFixed || serializedArray.elementCount == member.array.elementCount, "Static compile sized fixed array size mismatch during deserialization");
+                        // memory allocation for array is done internally as-usualy, unless containers use custom allocators
+                        member.array.ops.set_size(reinterpret_cast<void*>(dest + member.offset), serializedArray.elementCount);
+                        member.array.ops.set_data(reinterpret_cast<void*>(dest + member.offset), reinterpret_cast<const void*>(binary.data() + readOffset));
+                        readOffset += loadedDataSize;
+
+                        break;
+                    }
                     default:
                         RAZIX_CORE_ERROR("Work in progress handling other deserialization types");
                         RAZIX_CORE_ERROR("De-Serializing non-trivially serializable member: {} of type: {}. Ensure custom deserialization is handled!", member.name.c_str(), member.typeName.c_str());
