@@ -409,6 +409,14 @@ namespace Razix {
         const iterator  end() const;
         bool            erase(const iterator& it);
 
+        // for serialization
+        Key*   keys() const { return m_Keys; }
+        Value* values() const { return m_Values; }
+
+        // for setting data, use normal insert for adding entries, because they need to re-hashed
+        void set_size(size_type newSize) { m_Length = newSize; }
+        void insert_multiple(const Key* keys, const Value* values, size_type count);
+
     private:
         Key*      m_Keys;
         Value*    m_Values;
@@ -853,6 +861,22 @@ namespace Razix {
     bool RZHashMap<Key, Value, Hash, Equal>::erase(const iterator& it)
     {
         return remove(it.key());
+    }
+
+    template<typename Key, typename Value, typename Hash, typename Equal>
+    void RZHashMap<Key, Value, Hash, Equal>::insert_multiple(const Key* keys, const Value* values, size_type count)
+    {
+        RAZIX_CORE_ASSERT(m_Keys && m_Values && m_Occupied && m_Hashes,
+            "[RZHashMap] Hash map is not initialized");
+
+        // If length will exceed half of current capacity, expand it.
+        while ((m_Length + count) * 2 > m_Capacity) {
+            expand();
+        }
+
+        for (size_type i = 0; i < count; ++i) {
+            insert_entry(keys[i], values[i]);
+        }
     }
 
     template<typename Key, typename Value, typename Hash, typename Equal>

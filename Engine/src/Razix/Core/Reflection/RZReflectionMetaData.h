@@ -53,6 +53,38 @@ namespace Razix {
 
     // TODO: Add HashMap ops and other complex types ops as needed
 
+    struct HashMapOps
+    {
+        const void* (*get_keys)(const void*);
+        const void* (*get_values)(const void*);
+        size_t (*get_size)(const void*);
+        void (*set_data)(void*, const void*, const void*, const void*);
+        void (*set_size)(void*, size_t);
+    };
+
+    template<typename MapT>
+    constexpr HashMapOps make_hashmap_ops()
+    {
+        return {
+            +[](const void* map) -> const void* {
+                return static_cast<const MapT*>(map)->keys().data();
+            },
+            +[](const void* map) -> const void* {
+                return static_cast<const MapT*>(map)->values().data();
+            },
+            +[](const void* map) -> size_t {
+                return static_cast<const MapT*>(map)->size();
+            },
+            +[](void* map, const void* keys, const void* values) {
+                static_cast<MapT*>(map)->insert_multiple(static_cast<const typename MapT::key_type*>(keys),
+                    static_cast<const typename MapT::value_type*>(values),
+                    static_cast<const size_t>(static_cast<const MapT*>(map)->size()));
+            },
+            +[](void* map, size_t size) {
+                static_cast<MapT*>(map)->set_size(size);
+            }};
+    }
+
     struct MemberMetaData
     {
         RZString              name;        // variable name
@@ -86,7 +118,8 @@ namespace Razix {
                 ArrayOps ops;
             } array;    // used for dynamic array types
 
-            struct {
+            struct
+            {
                 ArrayOps ops;
             } string;    // used for string types
 
@@ -95,6 +128,11 @@ namespace Razix {
                 u32 keySize;
                 u32 valueSize;
             } map;
+
+            struct
+            {
+                std::type_index type;
+            } object;    // nested object type info
         };
     };
 

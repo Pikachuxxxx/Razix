@@ -276,7 +276,7 @@ namespace Razix {
 
                 const void* strData = member.string.ops.get_data(reinterpret_cast<const void*>(base + member.offset));
                 size_t      length  = member.string.ops.get_size(reinterpret_cast<const void*>(base + member.offset)) + 1;    // +1 for null terminator
-                
+
                 RZSerializedBlob blob = {};
                 blob.size             = static_cast<u32>(length);
                 blob.offset           = sizeof(RZSerializedString);    // TODO: will be filled during file writing
@@ -305,6 +305,22 @@ namespace Razix {
                 ar.cursor += serializedString.data.size;
             }
         }
+
+        // static void processObject(RZBinaryArchive& ar, u8* base, const TypeMetaData& meta)
+        // {
+        //     // we don't need to serialize member by member if the whole struct is trivially serializable
+        //     if (meta->bIsTriviallySerializable) {
+        //         if (ar.mode == RZArchiveMode::Write)
+        //             ar.write(object, meta->size);
+        //         else
+        //             ar.read(object, meta->size);
+        //         return;
+        //     }
+        //
+        //     // Otherwise serialize/deserialize member by member
+        //     for (const auto& member: meta->members)
+        //         processMember(ar, object, member);
+        // }
 
         static void processMember(RZBinaryArchive& ar, void* objectBase, const MemberMetaData& member)
         {
