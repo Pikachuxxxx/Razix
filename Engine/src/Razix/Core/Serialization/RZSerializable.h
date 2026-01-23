@@ -318,7 +318,7 @@ namespace Razix {
             RAZIX_CORE_ASSERT(member.map.ops.set_size != NULL, "HashMap ops set_size function pointer is null");
 
             if (ar.mode == RZArchiveMode::kWrite) {
-                size_t      count    = member.string.ops.get_size(reinterpret_cast<const void*>(base + member.offset));
+                size_t      count    = member.map.ops.get_size(reinterpret_cast<const void*>(base + member.offset));
                 const void* keysData = member.map.ops.get_keys(reinterpret_cast<const void*>(base + member.offset));
                 RAZIX_CORE_ASSERT(count == 0 || keysData != NULL, "HashMap keys data pointer is null");
                 const void* valuesData = member.map.ops.get_values(reinterpret_cast<const void*>(base + member.offset));
