@@ -89,9 +89,7 @@ namespace Razix {
     {
         RZSerializedBlob keys;      // blob of all keys
         RZSerializedBlob values;    // blob of all values
-        u32              capacity;
         u32              count;
-        u32              index;
     };
 
     // String
@@ -303,6 +301,67 @@ namespace Razix {
                 member.string.ops.set_data(str, ar.buffer->data() + ar.cursor);
 
                 ar.cursor += serializedString.data.size;
+            }
+        }
+
+        static void processHashMap(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
+        {
+            if (ar.mode == RZArchiveMode::kWrite) {
+                RAZIX_CORE_ASSERT(member.map.ops.get_keys != NULL, "HashMap get_keys function pointer is null");
+                RAZIX_CORE_ASSERT(member.map.ops.get_values != NULL, "HashMap get_values function pointer is null");
+                RAZIX_CORE_ASSERT(member.isStaticCompileSizedFixed || member.map.ops.get_size != NULL,
+                    "HashMap get_size function pointer is null");
+                RAZIX_CORE_ASSERT(member.map.ops.set_data != NULL, "HashMap ops set_data function pointer is null");
+                RAZIX_CORE_ASSERT(member.map.ops.set_size != NULL, "HashMap ops set_size function pointer is null");
+
+                size_t      count    = member.string.ops.get_size(reinterpret_cast<const void*>(base + member.offset));
+                const void* keysData = member.map.ops.get_keys(reinterpret_cast<const void*>(base + member.offset));
+                RAZIX_CORE_ASSERT(count == 0 || keysData != NULL, "HashMap keys data pointer is null");
+                const void* valuesData = member.map.ops.get_values(reinterpret_cast<const void*>(base + member.offset));
+                RAZIX_CORE_ASSERT(count == 0 || valuesData != NULL, "HashMap values data pointer is null");
+
+                u32 keyBytes   = count * member.map.keySize;
+                u32 valueBytes = count * member.map.valueSize;
+
+                RZSerializedBlob keysBlob = {};
+                keysBlob.size             = keyBytes;
+                keysBlob.offset           = sizeof(RZSerializedHashMap);    // TODO: will be filled during file writing
+                keysBlob.typeHash         = 0;                              // future use
+                keysBlob.compression      = RZ_COMPRESSION_NONE;
+                keysBlob.decompressedSize = keyBytes;
+
+                RZSerializedBlob valuesBlob = {};
+                valuesBlob.size             = valueBytes;
+                valuesBlob.offset           = sizeof(RZSerializedHashMap) + keysBlob.size;
+                valuesBlob.typeHash         = 0;    // future use
+                valuesBlob.compression      = RZ_COMPRESSION_NONE;
+                valuesBlob.decompressedSize = valueBytes;
+
+                RZSerializedHashMap serializedHashMap = {};
+                serializedHashMap.count               = static_cast<u32>(count);
+                serializedHashMap.keys                = keysBlob;
+                serializedHashMap.values              = valuesBlob;
+
+                ar.write(&serializedHashMap, sizeof(RZSerializedHashMap));
+
+                // now write the inline blob payload
+                ar.write(keysData, keysBlob.size);
+                ar.write(valuesData, valuesBlob.size);
+            } else {
+                RZSerializedHashMap serializedHashMap = {};
+                ar.read(&serializedHashMap, sizeof(RZSerializedHashMap));
+
+                // memory allocation for hashmap is done internally as-usualy, unless containers use custom allocators
+                void* map = reinterpret_cast<void*>(base + member.offset);
+
+                member.map.ops.set_size(map, serializedHashMap.count);
+
+                const void* keysData   = ar.buffer->data() + ar.cursor;
+                const void* valuesData = ar.buffer->data() + ar.cursor + (serializedHashMap.count * member.map.keySize);
+                member.map.ops.set_data(map, keysData, valuesData);
+
+                // advance the cursor by total size of keys and values blobs
+                ar.cursor += (member.map.keySize + member.map.valueSize) * serializedHashMap.count; 
             }
         }
 

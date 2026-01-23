@@ -58,7 +58,7 @@ namespace Razix {
         const void* (*get_keys)(const void*);
         const void* (*get_values)(const void*);
         size_t (*get_size)(const void*);
-        void (*set_data)(void*, const void*, const void*, const void*);
+        void (*set_data)(void*, const void*, const void*);
         void (*set_size)(void*, size_t);
     };
 
@@ -125,14 +125,15 @@ namespace Razix {
 
             struct
             {
-                u32 keySize;
-                u32 valueSize;
+                u32        keySize;
+                u32        valueSize;
+                HashMapOps ops;
             } map;
 
             struct
             {
                 std::type_index type;
-            } object;    // nested object type info
+            } object;    // nested object type info, use this to get TypeMetaData from the registry and call processMember recursively on it's members
         };
     };
 
