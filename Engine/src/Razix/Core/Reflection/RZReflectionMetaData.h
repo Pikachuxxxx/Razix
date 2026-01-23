@@ -67,13 +67,16 @@ namespace Razix {
     {
         return {
             +[](const void* map) -> const void* {
-                return static_cast<const MapT*>(map)->keys().data();
+                return static_cast<const MapT*>(map)->keys();
             },
             +[](const void* map) -> const void* {
-                return static_cast<const MapT*>(map)->values().data();
+                return static_cast<const MapT*>(map)->values();
             },
             +[](const void* map) -> size_t {
-                return static_cast<const MapT*>(map)->size();
+                RAZIX_CORE_TRACE("Getting size of HashMap");
+                u32 value = static_cast<const MapT*>(map)->size();
+                RAZIX_CORE_TRACE("Getting size of HashMap: {}", value);
+                return value;
             },
             +[](void* map, const void* keys, const void* values) {
                 static_cast<MapT*>(map)->insert_multiple(static_cast<const typename MapT::key_type*>(keys),

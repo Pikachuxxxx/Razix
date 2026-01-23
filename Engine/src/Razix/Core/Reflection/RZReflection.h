@@ -145,20 +145,22 @@
         metaData.members.push_back(m);                                 \
     } while (0);
 
-#define RAZIX_REFLECT_HASHMAP(Member)                                 \
-    do {                                                               \
-        metaData.bIsTriviallySerializable = false;                     \
-        using MemberT                     = decltype(refType::Member); \
-        MemberMetaData m{};                                            \
-                                                                       \
-        m.name     = #Member;                                          \
-        m.typeName = typeid(MemberT).name();                           \
-        m.offset   = offsetof(refType, Member);                        \
-        m.dataType = SerializeableDataType::kHashMap;                  \
-                                                                       \
-        m.hashmap.ops = make_hashmap_ops<MemberT>();                   \
-                                                                       \
-        metaData.members.push_back(m);                                 \
+#define RAZIX_REFLECT_HASHMAP(Member)                                              \
+    do {                                                                           \
+        metaData.bIsTriviallySerializable = false;                                 \
+        using MemberT                     = decltype(refType::Member);             \
+        MemberMetaData m{};                                                        \
+                                                                                   \
+        m.name     = #Member;                                                      \
+        m.typeName = typeid(MemberT).name();                                       \
+        m.offset   = offsetof(refType, Member);                                    \
+        m.dataType = SerializeableDataType::kHashMap;                              \
+                                                                                   \
+        m.map.ops       = make_hashmap_ops<MemberT>();                             \
+        m.map.keySize   = static_cast<u32>(sizeof(typename MemberT::key_type));    \
+        m.map.valueSize = static_cast<u32>(sizeof(typename MemberT::value_type)); \
+                                                                                   \
+        metaData.members.push_back(m);                                             \
     } while (0);
 
 #define RAZIX_REFLECT_OBJECT(Member)                                   \

@@ -216,11 +216,13 @@ namespace Razix {
 
         static void processArray(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
         {
-            if (ar.mode == RZArchiveMode::kWrite) {
-                RAZIX_CORE_ASSERT(member.array.ops.get_data != NULL, "Array get_data function pointer is null");
-                RAZIX_CORE_ASSERT(member.isStaticCompileSizedFixed || member.array.ops.get_size != NULL,
-                    "Array get_size function pointer is null");
+            RAZIX_CORE_ASSERT(member.array.ops.get_data != NULL, "Array get_data function pointer is null");
+            RAZIX_CORE_ASSERT(member.isStaticCompileSizedFixed || member.array.ops.get_size != NULL,
+                "Array get_size function pointer is null");
+            RAZIX_CORE_ASSERT(member.array.ops.set_data != NULL, "Array set_data function pointer is null");
+            RAZIX_CORE_ASSERT(member.array.ops.set_size != NULL, "Array set_size function pointer is null");
 
+            if (ar.mode == RZArchiveMode::kWrite) {
                 const void* arr  = reinterpret_cast<const void*>(base + member.offset);
                 const void* data = member.array.ops.get_data(arr);
                 RAZIX_CORE_ASSERT(data != NULL, "Array data pointer is null");
@@ -268,10 +270,12 @@ namespace Razix {
 
         static void proceessString(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
         {
-            if (ar.mode == RZArchiveMode::kWrite) {
-                RAZIX_CORE_ASSERT(member.string.ops.get_data != NULL, "String get_data function pointer is null");
-                RAZIX_CORE_ASSERT(member.string.ops.get_size != NULL, "String get_length function pointer is null");
+            RAZIX_CORE_ASSERT(member.string.ops.get_data != NULL, "String get_data function pointer is null");
+            RAZIX_CORE_ASSERT(member.string.ops.get_size != NULL, "String get_length function pointer is null");
+            RAZIX_CORE_ASSERT(member.string.ops.set_data != NULL, "String set_data function pointer is null");
+            RAZIX_CORE_ASSERT(member.string.ops.set_size != NULL, "String set_size function pointer is null");
 
+            if (ar.mode == RZArchiveMode::kWrite) {
                 const void* strData = member.string.ops.get_data(reinterpret_cast<const void*>(base + member.offset));
                 size_t      length  = member.string.ops.get_size(reinterpret_cast<const void*>(base + member.offset)) + 1;    // +1 for null terminator
 
@@ -306,14 +310,14 @@ namespace Razix {
 
         static void processHashMap(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
         {
-            if (ar.mode == RZArchiveMode::kWrite) {
-                RAZIX_CORE_ASSERT(member.map.ops.get_keys != NULL, "HashMap get_keys function pointer is null");
-                RAZIX_CORE_ASSERT(member.map.ops.get_values != NULL, "HashMap get_values function pointer is null");
-                RAZIX_CORE_ASSERT(member.isStaticCompileSizedFixed || member.map.ops.get_size != NULL,
-                    "HashMap get_size function pointer is null");
-                RAZIX_CORE_ASSERT(member.map.ops.set_data != NULL, "HashMap ops set_data function pointer is null");
-                RAZIX_CORE_ASSERT(member.map.ops.set_size != NULL, "HashMap ops set_size function pointer is null");
+            RAZIX_CORE_ASSERT(member.map.ops.get_keys != NULL, "HashMap get_keys function pointer is null");
+            RAZIX_CORE_ASSERT(member.map.ops.get_values != NULL, "HashMap get_values function pointer is null");
+            RAZIX_CORE_ASSERT(member.isStaticCompileSizedFixed || member.map.ops.get_size != NULL,
+                "HashMap get_size function pointer is null");
+            RAZIX_CORE_ASSERT(member.map.ops.set_data != NULL, "HashMap ops set_data function pointer is null");
+            RAZIX_CORE_ASSERT(member.map.ops.set_size != NULL, "HashMap ops set_size function pointer is null");
 
+            if (ar.mode == RZArchiveMode::kWrite) {
                 size_t      count    = member.string.ops.get_size(reinterpret_cast<const void*>(base + member.offset));
                 const void* keysData = member.map.ops.get_keys(reinterpret_cast<const void*>(base + member.offset));
                 RAZIX_CORE_ASSERT(count == 0 || keysData != NULL, "HashMap keys data pointer is null");
@@ -322,6 +326,8 @@ namespace Razix {
 
                 u32 keyBytes   = count * member.map.keySize;
                 u32 valueBytes = count * member.map.valueSize;
+
+                RAZIX_CORE_TRACE("Serializing HashMap with {} entries ({} bytes keys, {} bytes values)", count, keyBytes, valueBytes);
 
                 RZSerializedBlob keysBlob = {};
                 keysBlob.size             = keyBytes;
@@ -361,7 +367,7 @@ namespace Razix {
                 member.map.ops.set_data(map, keysData, valuesData);
 
                 // advance the cursor by total size of keys and values blobs
-                ar.cursor += (member.map.keySize + member.map.valueSize) * serializedHashMap.count; 
+                ar.cursor += (member.map.keySize + member.map.valueSize) * serializedHashMap.count;
             }
         }
 
@@ -385,6 +391,9 @@ namespace Razix {
         {
             u8* base = reinterpret_cast<u8*>(objectBase);
 
+            RAZIX_CORE_TRACE("Processing member '{}' of type '{}' at offset {}",
+                member.name, member.typeName, member.offset);
+
             // Assets to Disk Tag, makes format immune to internal SerializeableDataType changes
             switch (ToDiskTag(member.dataType)) {
                 case RZDiskTypeTag::kPrimitive:
@@ -398,6 +407,9 @@ namespace Razix {
                     break;
                 case RZDiskTypeTag::kString:
                     proceessString(ar, base, member);
+                    break;
+                case RZDiskTypeTag::kHashMap:
+                    processHashMap(ar, base, member);
                     break;
                 default:
                     RAZIX_CORE_ERROR("Work in progress handling other serialization types");

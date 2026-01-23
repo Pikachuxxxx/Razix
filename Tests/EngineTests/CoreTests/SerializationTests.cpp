@@ -74,6 +74,18 @@ namespace Razix {
     RAZIX_REFLECT_TYPE_END(PlayerProfile)
 
     //-------------------------------------------------------------------------
+    // HashMap test struct 
+    
+    struct PlayerSettings
+    {
+        RZHashMap<RZString, RZString> settings;
+    };
+
+    RAZIX_REFLECT_TYPE_START(PlayerSettings)
+    RAZIX_REFLECT_HASHMAP(settings)
+    RAZIX_REFLECT_TYPE_END(PlayerSettings)
+
+    //-------------------------------------------------------------------------
     // Nested struct test
     struct MasterPlayerStats
     {
@@ -254,6 +266,42 @@ namespace Razix {
 
         EXPECT_STREQ(deserialized.playerName.c_str(), original.playerName.c_str());
         EXPECT_STREQ(deserialized.bio.c_str(), original.bio.c_str());
+    }
+
+    // Hashmap test
+    TEST_F(RZSerializationTests, HashMapTest)
+    {
+        const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<PlayerSettings>();
+        ASSERT_NE(metaData, nullptr) << "Metadata for PlayerSettings should not be null.";
+
+        PlayerSettings original = {};
+        original.settings.insert("volume", "75");
+        original.settings.insert("resolution", "1920x1080");
+        original.settings.insert("fullscreen", "true");
+
+        RAZIX_CORE_TRACE("hashmap size: {}", original.settings.size());
+
+        auto serializedData = RZSerializable<PlayerSettings>::serializeToBinary(original);
+        EXPECT_GT(serializedData.size(), 0);
+
+        fs::path tempPath = fs::temp_directory_path() / "playersettings.bin";
+        RAZIX_CORE_INFO("Temporary path for HashMapTest: {}", tempPath.string().c_str());
+        // Write binary data
+        Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
+
+        RZDynamicArray<u8> readBack;
+        i64                size = RZFileSystem::GetFileSize(tempPath.string().c_str());
+        readBack.resize(size);
+        Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
+
+        PlayerSettings deserialized = RZSerializable<PlayerSettings>::deserializeFromBinary(readBack);
+
+        EXPECT_EQ(deserialized.settings.size(), original.settings.size());
+        for (const auto& [key, value]: original.settings) {
+            auto it = deserialized.settings.find(key);
+            ASSERT_NE(it, deserialized.settings.end());
+            EXPECT_EQ(it->second, value);
+        }
     }
 
 }    // namespace Razix
