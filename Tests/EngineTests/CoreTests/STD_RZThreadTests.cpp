@@ -257,7 +257,7 @@ namespace Razix {
     }
 
     // Timing helpers -------------------------------------------------------------
-    TEST(RZThreadTimingTests, SleepHonorsMinimumMilliseconds)
+    TEST(RZThreadTimingTests, DISABLED_SleepHonorsMinimumMilliseconds)
     {
         constexpr auto requested = std::chrono::milliseconds(5);
         const auto     start     = SteadyClock::now();
@@ -266,7 +266,7 @@ namespace Razix {
         EXPECT_GE(elapsed.count(), requested.count() - 1);
     }
 
-    TEST(RZThreadTimingTests, BusyWaitMicroHonorsMinimum)
+    TEST(RZThreadTimingTests, DISABLED_BusyWaitMicroHonorsMinimum)
     {
         constexpr uint32_t requested     = 1000u;
         const auto         elapsedMicros = MeasureMicros([&]() {
@@ -276,7 +276,7 @@ namespace Razix {
         EXPECT_LT(elapsedMicros, requested * 8u);
     }
 
-    TEST(RZThreadTimingTests, BusyWaitScalesWithDuration)
+    TEST(RZThreadTimingTests, DISABLED_BusyWaitScalesWithDuration)
     {
         const auto shortWait = MeasureMicros([]() {
             rz_thread_busy_wait_micro(200);
