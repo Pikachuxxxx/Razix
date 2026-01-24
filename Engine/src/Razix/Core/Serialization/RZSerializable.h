@@ -87,8 +87,7 @@ namespace Razix {
     // HashMap
     struct RZSerializedHashMap
     {
-        RZSerializedBlob keys;      // blob of all keys
-        RZSerializedBlob values;    // blob of all values
+        RZSerializedBlob keysValues;    // blob of all keys and Values interleaved
         u32              count;
     };
 
@@ -310,49 +309,59 @@ namespace Razix {
 
         static void processHashMap(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
         {
-            RAZIX_CORE_ASSERT(member.map.ops.get_keys != NULL, "HashMap get_keys function pointer is null");
-            RAZIX_CORE_ASSERT(member.map.ops.get_values != NULL, "HashMap get_values function pointer is null");
-            RAZIX_CORE_ASSERT(member.isStaticCompileSizedFixed || member.map.ops.get_size != NULL,
-                "HashMap get_size function pointer is null");
+            RAZIX_CORE_ASSERT(member.map.ops.get_data != NULL, "HashMap get_data function pointer is null");
+            RAZIX_CORE_ASSERT(member.map.ops.get_size != NULL, "HashMap get_size function pointer is null");
             RAZIX_CORE_ASSERT(member.map.ops.set_data != NULL, "HashMap ops set_data function pointer is null");
             RAZIX_CORE_ASSERT(member.map.ops.set_size != NULL, "HashMap ops set_size function pointer is null");
 
+            // TODO: add support for non-primitive/non-trivially serializable types as keys and values
+            // Hashmap currently only support primitive and trivially serializable types as keys and values
+            RAZIX_CORE_ASSERT(
+                (member.map.keyType == typeid(u8) || member.map.keyType == typeid(i8) ||
+                    member.map.keyType == typeid(u16) || member.map.keyType == typeid(i16) ||
+                    member.map.keyType == typeid(u32) || member.map.keyType == typeid(i32) ||
+                    member.map.keyType == typeid(u64) || member.map.keyType == typeid(i64) ||
+                    member.map.keyType == typeid(f32) || member.map.keyType == typeid(f64) ||
+                    Razix::RZTypeRegistry::isTypeTriviallySerializable(member.map.keyType)),
+                "HashMap key type must be primitive or trivially serializable");
+
+            RAZIX_CORE_ASSERT(
+                (member.map.valueType == typeid(u8) || member.map.valueType == typeid(i8) ||
+                    member.map.valueType == typeid(u16) || member.map.valueType == typeid(i16) ||
+                    member.map.valueType == typeid(u32) || member.map.valueType == typeid(i32) ||
+                    member.map.valueType == typeid(u64) || member.map.valueType == typeid(i64) ||
+                    member.map.valueType == typeid(f32) || member.map.valueType == typeid(f64) ||
+                    Razix::RZTypeRegistry::isTypeTriviallySerializable(member.map.valueType)),
+                "HashMap value type must be primitive or trivially serializable");
+
             if (ar.mode == RZArchiveMode::kWrite) {
-                size_t      count    = member.map.ops.get_size(reinterpret_cast<const void*>(base + member.offset));
-                const void* keysData = member.map.ops.get_keys(reinterpret_cast<const void*>(base + member.offset));
-                RAZIX_CORE_ASSERT(count == 0 || keysData != NULL, "HashMap keys data pointer is null");
-                const void* valuesData = member.map.ops.get_values(reinterpret_cast<const void*>(base + member.offset));
-                RAZIX_CORE_ASSERT(count == 0 || valuesData != NULL, "HashMap values data pointer is null");
+                u32 count          = static_cast<u32>(member.map.ops.get_size(reinterpret_cast<const void*>(base + member.offset)));
+                u32 keyBytes       = count * member.map.keySize;
+                u32 valueBytes     = count * member.map.valueSize;
+                u32 keyValuesBytes = keyBytes + valueBytes;
 
-                u32 keyBytes   = count * member.map.keySize;
-                u32 valueBytes = count * member.map.valueSize;
+                // TODO: use the rzserializer scratch allocator for temporary allocations
+                void* keyValuesBuf = rz_malloc_aligned(keyValuesBytes);
+                member.map.ops.get_data(reinterpret_cast<const void*>(base + member.offset), keyValuesBuf);
 
-                RAZIX_CORE_TRACE("Serializing HashMap with {} entries ({} bytes keys, {} bytes values)", count, keyBytes, valueBytes);
-
-                RZSerializedBlob keysBlob = {};
-                keysBlob.size             = keyBytes;
-                keysBlob.offset           = sizeof(RZSerializedHashMap);    // TODO: will be filled during file writing
-                keysBlob.typeHash         = 0;                              // future use
-                keysBlob.compression      = RZ_COMPRESSION_NONE;
-                keysBlob.decompressedSize = keyBytes;
-
-                RZSerializedBlob valuesBlob = {};
-                valuesBlob.size             = valueBytes;
-                valuesBlob.offset           = sizeof(RZSerializedHashMap) + keysBlob.size;
-                valuesBlob.typeHash         = 0;    // future use
-                valuesBlob.compression      = RZ_COMPRESSION_NONE;
-                valuesBlob.decompressedSize = valueBytes;
+                RZSerializedBlob keysValuesBlob = {};
+                keysValuesBlob.size             = keyValuesBytes;
+                keysValuesBlob.offset           = sizeof(RZSerializedHashMap);    // TODO: will be filled during file writing
+                keysValuesBlob.typeHash         = 0;                              // future use
+                keysValuesBlob.compression      = RZ_COMPRESSION_NONE;
+                keysValuesBlob.decompressedSize = keyValuesBytes;
 
                 RZSerializedHashMap serializedHashMap = {};
                 serializedHashMap.count               = static_cast<u32>(count);
-                serializedHashMap.keys                = keysBlob;
-                serializedHashMap.values              = valuesBlob;
+                serializedHashMap.keysValues          = keysValuesBlob;
 
                 ar.write(&serializedHashMap, sizeof(RZSerializedHashMap));
 
                 // now write the inline blob payload
-                ar.write(keysData, keysBlob.size);
-                ar.write(valuesData, valuesBlob.size);
+                ar.write(keyValuesBuf, keysValuesBlob.size);
+
+                // TODO: use the rzserializer scratch allocator for temporary allocations
+                rz_free(keyValuesBuf);
             } else {
                 RZSerializedHashMap serializedHashMap = {};
                 ar.read(&serializedHashMap, sizeof(RZSerializedHashMap));
@@ -362,12 +371,13 @@ namespace Razix {
 
                 member.map.ops.set_size(map, serializedHashMap.count);
 
-                const void* keysData   = ar.buffer->data() + ar.cursor;
-                const void* valuesData = ar.buffer->data() + ar.cursor + (serializedHashMap.count * member.map.keySize);
-                member.map.ops.set_data(map, keysData, valuesData);
+                // cursor is already at the start of keys data, set by ar.read above
+                void* keyValuesData = ar.buffer->data() + ar.cursor;
+                ar.cursor += serializedHashMap.count * (member.map.keySize + member.map.valueSize);
 
-                // advance the cursor by total size of keys and values blobs
-                ar.cursor += (member.map.keySize + member.map.valueSize) * serializedHashMap.count;
+                const char* buffer = static_cast<const char*>(keyValuesData);
+
+                member.map.ops.set_data(map, keyValuesData);
             }
         }
 
@@ -390,9 +400,6 @@ namespace Razix {
         static void processMember(RZBinaryArchive& ar, void* objectBase, const MemberMetaData& member)
         {
             u8* base = reinterpret_cast<u8*>(objectBase);
-
-            RAZIX_CORE_TRACE("Processing member '{}' of type '{}' at offset {}",
-                member.name, member.typeName, member.offset);
 
             // Assets to Disk Tag, makes format immune to internal SerializeableDataType changes
             switch (ToDiskTag(member.dataType)) {

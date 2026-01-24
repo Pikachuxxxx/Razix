@@ -74,11 +74,11 @@ namespace Razix {
     RAZIX_REFLECT_TYPE_END(PlayerProfile)
 
     //-------------------------------------------------------------------------
-    // HashMap test struct 
-    
+    // HashMap test struct
+
     struct PlayerSettings
     {
-        RZHashMap<RZString, RZString> settings;
+        RZHashMap<int, int> settings;
     };
 
     RAZIX_REFLECT_TYPE_START(PlayerSettings)
@@ -269,17 +269,15 @@ namespace Razix {
     }
 
     // Hashmap test
-    TEST_F(RZSerializationTests, HashMapTest)
+    TEST_F(RZSerializationTests, PrimitiveHashMapTest)
     {
         const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<PlayerSettings>();
         ASSERT_NE(metaData, nullptr) << "Metadata for PlayerSettings should not be null.";
 
         PlayerSettings original = {};
-        original.settings.insert("volume", "75");
-        original.settings.insert("resolution", "1920x1080");
-        original.settings.insert("fullscreen", "true");
-
-        RAZIX_CORE_TRACE("hashmap size: {}", original.settings.size());
+        for (int i = 1; i <= 20; ++i) {
+            original.settings.insert(i, i * 100);
+        }
 
         auto serializedData = RZSerializable<PlayerSettings>::serializeToBinary(original);
         EXPECT_GT(serializedData.size(), 0);
@@ -303,5 +301,4 @@ namespace Razix {
             EXPECT_EQ(it->second, value);
         }
     }
-
 }    // namespace Razix

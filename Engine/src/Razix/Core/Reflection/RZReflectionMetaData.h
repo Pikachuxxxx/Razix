@@ -55,10 +55,9 @@ namespace Razix {
 
     struct HashMapOps
     {
-        const void* (*get_keys)(const void*);
-        const void* (*get_values)(const void*);
+        void (*get_data)(const void*, void*);
         size_t (*get_size)(const void*);
-        void (*set_data)(void*, const void*, const void*);
+        void (*set_data)(void*, const void*);
         void (*set_size)(void*, size_t);
     };
 
@@ -66,19 +65,14 @@ namespace Razix {
     constexpr HashMapOps make_hashmap_ops()
     {
         return {
-            +[](const void* map) -> const void* {
-                return static_cast<const MapT*>(map)->keys();
-            },
-            +[](const void* map) -> const void* {
-                return static_cast<const MapT*>(map)->values();
+            +[](const void* map, void* buffer) -> void {
+                return static_cast<const MapT*>(map)->write_key_values(buffer);
             },
             +[](const void* map) -> size_t {
                 return static_cast<const MapT*>(map)->size();
             },
-            +[](void* map, const void* keys, const void* values) {
-                static_cast<MapT*>(map)->insert_multiple(static_cast<const typename MapT::key_type*>(keys),
-                    static_cast<const typename MapT::value_type*>(values),
-                    static_cast<const size_t>(static_cast<const MapT*>(map)->size()));
+            +[](void* map, const void* keys_values) {
+                static_cast<MapT*>(map)->insert_multiple(keys_values, static_cast<const size_t>(static_cast<const MapT*>(map)->size()));
             },
             +[](void* map, size_t size) {
                 static_cast<MapT*>(map)->set_size(size);
@@ -125,9 +119,11 @@ namespace Razix {
 
             struct
             {
-                u32        keySize;
-                u32        valueSize;
-                HashMapOps ops;
+                u32             keySize;
+                u32             valueSize;
+                std::type_index keyType;
+                std::type_index valueType;
+                HashMapOps      ops;
             } map;
 
             struct

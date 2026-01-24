@@ -133,10 +133,10 @@ namespace Razix {
         const u32 headerB  = static_cast<u32>(handleB & RAZIX_ASSET_HOTDATA_MASK);
         const u32 payloadB = static_cast<u32>((handleB & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
 
-        EXPECT_LT(headerA, RAZIX_MAX_ASSETS);
-        EXPECT_LT(payloadA, RAZIX_MAX_ASSETS);
-        EXPECT_LT(headerB, RAZIX_MAX_ASSETS);
-        EXPECT_LT(payloadB, RAZIX_MAX_ASSETS);
+        EXPECT_LT(headerA, static_cast<u32>(RAZIX_MAX_ASSETS));
+        EXPECT_LT(payloadA, static_cast<u32>(RAZIX_MAX_ASSETS));
+        EXPECT_LT(headerB, static_cast<u32>(RAZIX_MAX_ASSETS));
+        EXPECT_LT(payloadB, static_cast<u32>(RAZIX_MAX_ASSETS));
 
         EXPECT_NE(headerA, headerB);
         EXPECT_NE(payloadA, payloadB);

@@ -29,6 +29,15 @@ namespace Razix {
             return NULL;
         }
 
+        static bool isTypeTriviallySerializable(std::type_index typeIdx)
+        {
+            auto it = getRegistry().find(typeIdx);
+            if (it != getRegistry().end()) {
+                return it->second.bIsTriviallySerializable;
+            }
+            return false;
+        }
+
     private:
         static RZHashMap<std::type_index, TypeMetaData>& getRegistry()
         {
