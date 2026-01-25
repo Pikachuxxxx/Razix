@@ -99,11 +99,13 @@ namespace Razix {
     {
         bool flag;
         int  count;
+        float4 pos;
     };
 
     RAZIX_REFLECT_TYPE_START(AnotherStruct)
     RAZIX_REFLECT_PRIMITIVE(flag)
     RAZIX_REFLECT_PRIMITIVE(count)
+    RAZIX_REFLECT_PRIMITIVE(pos)
     RAZIX_REFLECT_TYPE_END(AnotherStruct)
 
     TEST_F(RZReflectionTests, RegisterAnotherType)
@@ -115,7 +117,7 @@ namespace Razix {
         EXPECT_EQ(metaData->typeName, typeid(AnotherStruct).name());
         EXPECT_EQ(metaData->size, sizeof(AnotherStruct));
 
-        ASSERT_EQ(metaData->members.size(), 2) << "AnotherStruct should have 2 members.";
+        ASSERT_EQ(metaData->members.size(), 3) << "AnotherStruct should have 3 members.";
 
         const auto& members = metaData->members;
 
@@ -128,5 +130,10 @@ namespace Razix {
         EXPECT_EQ(members[1].typeName, typeid(int).name());
         EXPECT_EQ(members[1].offset, offsetof(AnotherStruct, count));
         EXPECT_EQ(members[1].trivial.size, sizeof(int));
+
+        EXPECT_EQ(members[2].name, "pos");
+        EXPECT_EQ(members[2].typeName, typeid(float4).name());
+        EXPECT_EQ(members[2].offset, offsetof(AnotherStruct, pos));
+        EXPECT_EQ(members[2].trivial.size, sizeof(float4));
     }
 }    // namespace Razix

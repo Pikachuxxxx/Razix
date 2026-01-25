@@ -21,6 +21,7 @@ namespace Razix {
         float  rage;
         double stamina;
         char   rank;
+        float4 complexData;
     };
 
     // Register the type
@@ -28,6 +29,8 @@ namespace Razix {
     RAZIX_REFLECT_PRIMITIVE(health)
     RAZIX_REFLECT_PRIMITIVE(rage)
     RAZIX_REFLECT_PRIMITIVE(stamina)
+    RAZIX_REFLECT_PRIMITIVE(rank)
+    RAZIX_REFLECT_PRIMITIVE(complexData)
     RAZIX_REFLECT_TYPE_END(PlayerStats)
 
     //-------------------------------------------------------------------------
@@ -142,11 +145,13 @@ namespace Razix {
         playerOriginal.rage        = 75.5f;
         playerOriginal.stamina     = 50.25;
         playerOriginal.rank        = 'A';
+        playerOriginal.complexData = float4{1.0f, 2.0f, 3.0f, 4.0f};
 
         auto serializedData = RZSerializable<PlayerStats>::serializeToBinary(playerOriginal);
         EXPECT_GT(serializedData.size(), 0) << "Serialized data should not be empty.";
 
         fs::path tempPath = fs::temp_directory_path() / "playerstats.bin";
+        RAZIX_CORE_INFO("Temporary path for PODSerializationHandshake: {}", tempPath.string().c_str());
         // Write binary data
         Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
 
@@ -160,8 +165,6 @@ namespace Razix {
         EXPECT_EQ(playerNew.rage, playerOriginal.rage);
         EXPECT_EQ(playerNew.stamina, playerOriginal.stamina);
         EXPECT_EQ(playerNew.rank, playerOriginal.rank);
-
-        fs::remove(tempPath);
     }
 
     TEST_F(RZSerializationTests, BlobTest)
