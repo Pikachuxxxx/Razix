@@ -48,7 +48,9 @@ extern "C"
 {
 #endif    // __cplusplus
 
-#include "Razix/Core/Profiling/RZProfiling.h"
+#ifndef RAZIX_RHI_EXT_PROFILER_DISABLE
+    #include "Razix/Core/Profiling/RZProfiling.h"
+#endif
 
 #define ENABLE_SYNC_LOGGING 0
 
