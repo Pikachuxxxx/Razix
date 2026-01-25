@@ -3,6 +3,7 @@
 #include <Razix/Core/OS/RZFileSystem.h>
 #include <Razix/Core/Reflection/RZReflection.h>
 #include <Razix/Core/Serialization/RZSerializable.h>
+#include <Razix/Core/UUID/RZUUID.h>
 #include <gtest/gtest.h>
 #include <stdio.h>
 #include <string>
@@ -94,10 +95,22 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(MasterPlayerStats)
-    RAZIX_REFLECT_OBJECT(stats) // ?? Figure out how to reflect nested structs that (trivial and non-trivial types)
+    RAZIX_REFLECT_OBJECT(stats)    // ?? Figure out how to reflect nested structs that (trivial and non-trivial types)
     RAZIX_REFLECT_PRIMITIVE(score)
     RAZIX_REFLECT_TYPE_END(MasterPlayerStats)
 
+    //-------------------------------------------------------------------------
+    // UUID test struct
+    struct PlayerIDs
+    {
+        RZUUID id;
+    };
+
+    RAZIX_REFLECT_TYPE_START(PlayerIDs)
+    RAZIX_REFLECT_UUID(id)
+    RAZIX_REFLECT_TYPE_END(PlayerIDs)
+
+    //-------------------------------------------------------------------------
     // Fixture for Serialization Tests
     class RZSerializationTests : public ::testing::Test
     {
@@ -335,6 +348,31 @@ namespace Razix {
         EXPECT_FLOAT_EQ(deserialized.stats.rage, original.stats.rage);
         EXPECT_DOUBLE_EQ(deserialized.stats.stamina, original.stats.stamina);
         EXPECT_EQ(deserialized.stats.rank, original.stats.rank);
+    }
+
+    TEST_F(RZSerializationTests, UUIDTest)
+    {
+        RZUUID uuid;
+
+        PlayerIDs original = {};
+        original.id        = uuid;
+
+        auto serializedData = RZSerializable<PlayerIDs>::serializeToBinary(original);
+        EXPECT_GT(serializedData.size(), 0);
+
+        fs::path tempPath = fs::temp_directory_path() / "playerid.bin";
+        RAZIX_CORE_INFO("Temporary path for NestedStructTest: {}", tempPath.string().c_str());
+        // Write binary data
+        Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
+
+        RZDynamicArray<u8> readBack;
+        i64                size = RZFileSystem::GetFileSize(tempPath.string().c_str());
+        readBack.resize(size);
+        Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
+
+        PlayerIDs deserialized = RZSerializable<PlayerIDs>::deserializeFromBinary(readBack);
+
+        EXPECT_EQ(original.id, deserialized.id) << "UUIDs changed across serialization";
     }
 
 }    // namespace Razix

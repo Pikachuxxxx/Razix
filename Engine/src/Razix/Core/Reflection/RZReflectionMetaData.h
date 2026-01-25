@@ -9,6 +9,8 @@
 #include "Razix/Core/Containers/hash_map.h"
 #include "Razix/Core/Containers/string.h"
 
+#include "Razix/Core/UUID/RZUUID.h"
+
 namespace Razix {
 
     enum class SerializeableDataType : u8
@@ -22,6 +24,7 @@ namespace Razix {
         kObjectArray,
         kEnum,
         kBitField,
+        kUUID,
         COUNT
     };
 
@@ -79,13 +82,32 @@ namespace Razix {
             }};
     }
 
+    class RZUUID;
+
+    struct UUIDOps
+    {
+        const void* (*get_data)(const RZUUID*);
+        void (*set_data)(RZUUID*, const void*);
+    };
+
+    constexpr UUIDOps make_uuid_ops()
+    {
+        return {
+            +[](const RZUUID* uuid) -> const void* {
+                return uuid->data();
+            },
+            +[](RZUUID* uuid, const void* data) {
+                uuid->setData(static_cast<const u8*>(data));
+            }};
+    }
+
     struct MemberMetaData
     {
         RZString              name;        // variable name
         RZString              typeName;    // underlying typename
         u32                   offset;      // offset in the parent struct
         SerializeableDataType dataType;    // filled by user reflection macros
-        // some additional flags to hint serilization behaviour, these are set by the user reflection macros
+        // some additional flags to hint sterilization behaviour, these are set by the user reflection macros
         union
         {
             u32 flags;
@@ -130,6 +152,11 @@ namespace Razix {
             {
                 std::type_index type;
             } object;    // nested object type info, use this to get TypeMetaData from the registry and call processMember recursively on it's members
+
+            struct
+            {
+                UUIDOps ops;
+            } uuid;
         };
     };
 

@@ -123,7 +123,9 @@ namespace Razix {
         /* fills a char buffer with UUID string representation (32 bytes pretty string)*/
         void prettyString(char* res) const;
         /* Hash function for the UUID */
-        sz hash() const;
+        sz          hash() const;
+        const void* data() const;
+        void        setData(const u8* data);
 
         RZUUID& operator=(const RZUUID& other);
 

@@ -186,4 +186,20 @@
         metaData.members.push_back(m);                                                                                                                                                                                                      \
     } while (0);
 
+#define RAZIX_REFLECT_UUID(Member)                                     \
+    do {                                                               \
+        metaData.bIsTriviallySerializable = true;                      \
+        using MemberT                     = decltype(refType::Member); \
+        MemberMetaData m{};                                            \
+                                                                       \
+        m.name     = #Member;                                          \
+        m.typeName = typeid(MemberT).name();                           \
+        m.offset   = offsetof(refType, Member);                        \
+        m.dataType = SerializeableDataType::kUUID;                     \
+                                                                       \
+        m.uuid.ops = make_uuid_ops();                                  \
+                                                                       \
+        metaData.members.push_back(m);                                 \
+    } while (0);
+
 #endif    // _RZ_REFLECTION_H_

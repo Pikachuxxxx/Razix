@@ -21,6 +21,7 @@ namespace Razix {
         kObjectArray = 7,
         kEnum        = 8,
         kBitField    = 9,
+        kUUID        = 10,
         COUNT
     };
 
@@ -37,6 +38,7 @@ namespace Razix {
             case SerializeableDataType::kObjectArray: return RZDiskTypeTag::kObjectArray;
             case SerializeableDataType::kEnum: return RZDiskTypeTag::kEnum;
             case SerializeableDataType::kBitField: return RZDiskTypeTag::kBitField;
+            case SerializeableDataType::kUUID: return RZDiskTypeTag::kUUID;
         }
         return RZDiskTypeTag::kPrimitive;
     }
@@ -403,6 +405,19 @@ namespace Razix {
                 processMember(ar, base, member);
         }
 
+        static void processUUID(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
+        {
+            RAZIX_CORE_ASSERT(member.uuid.ops.get_data != NULL, "RZUUID get_data function pointer is null");
+            RAZIX_CORE_ASSERT(member.uuid.ops.set_data != NULL, "RZUUID ops set_data function pointer is null");
+
+            // UUID is just 16 bytes of data
+            if (ar.mode == RZArchiveMode::kWrite) {
+                ar.write(base + member.offset, sizeof(RZUUID));
+            } else {
+                ar.read(base + member.offset, sizeof(RZUUID));
+            }
+        }
+
         static void processMember(RZBinaryArchive& ar, void* objectBase, const MemberMetaData& member)
         {
             u8* base = reinterpret_cast<u8*>(objectBase);
@@ -426,6 +441,9 @@ namespace Razix {
                     break;
                 case RZDiskTypeTag::kObject:
                     processObject(ar, base + member.offset, member);
+                    break;
+                case RZDiskTypeTag::kUUID:
+                    processUUID(ar, base, member);
                     break;
                 default:
                     RAZIX_CORE_ERROR("Work in progress handling other serialization types");

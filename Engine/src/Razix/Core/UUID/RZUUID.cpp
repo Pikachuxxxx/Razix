@@ -210,6 +210,16 @@ namespace Razix {
         return a ^ b + 0x9e3779b9 + (a << 6) + (a >> 2);
     }
 
+    const void* RZUUID::data() const
+    {
+        return m_Data;
+    }
+
+    void RZUUID::setData(const u8* data)
+    {
+        *this = RZUUID(data);
+    }
+
     RZUUID& RZUUID::operator=(const RZUUID& other)
     {
         if (&other == this) {
