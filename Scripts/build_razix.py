@@ -166,6 +166,15 @@ def get_macos_ncpu():
         print(f"[WARN] Failed to get hw.ncpu via sysctl, falling back to multiprocessing: {e}")
     return multiprocessing.cpu_count()
 
+def get_linux_ncpu():
+    """Get number of CPUs on Linux using multiprocessing, fallback to 6."""
+    try:
+        ncpu = subprocess.check_output(["nproc"]).strip()
+        return int(ncpu)
+    except Exception as e:
+        print(f"[WARN] Failed to get CPU count via nproc, falling back to 6: {e}")
+    return 6 ## fallback is hardcoded 6
+
 def build_macos_make(config):
     """Build for macOS using Makefiles under ./build, with -j$(sysctl -n hw.ncpu)."""
     build_dir = "./build"
@@ -200,7 +209,7 @@ def build_linux(config):
         sys.exit(0)
     
     found_makefile = False
-    jobs = multiprocessing.cpu_count()
+    jobs = get_linux_ncpu()
     print(f"[INFO] Linux make build: using -j{jobs}")
 
     for root, _, files in os.walk(build_dir):
