@@ -25,8 +25,7 @@ namespace Razix {
     {
         RAZIX_ASSET;
 
-        RZString SourceCode;
-        u32      ScriptPath;
+        RZString      ScriptPath;
         u64      LastModifiedTime;
         bool     bIsCompiled;
         bool     bAutoReload;
@@ -34,7 +33,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZLuaScriptAsset)
-    RAZIX_REFLECT_PRIMITIVE(ScriptPath)
+    RAZIX_REFLECT_STRING(ScriptPath)
     RAZIX_REFLECT_PRIMITIVE(LastModifiedTime)
     RAZIX_REFLECT_PRIMITIVE(bIsCompiled)
     RAZIX_REFLECT_PRIMITIVE(bAutoReload)

@@ -30,8 +30,8 @@ namespace Razix {
     RAZIX_REFLECT_PRIMITIVE(BoundsMin)
     RAZIX_REFLECT_PRIMITIVE(BoundsRadius)
     RAZIX_REFLECT_PRIMITIVE(BoundsMax)
-    RAZIX_REFLECT_PRIMITIVE(MeshPath)
-    RAZIX_REFLECT_PRIMITIVE(MaterialPath)
+    RAZIX_REFLECT_STRING(MeshPath)
+    RAZIX_REFLECT_STRING(MaterialPath)
     RAZIX_REFLECT_TYPE_END(RZMeshAsset)
 
 };    // namespace Razix

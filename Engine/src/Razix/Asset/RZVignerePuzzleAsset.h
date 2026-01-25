@@ -22,8 +22,8 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZVignerePuzzleAsset)
-    RAZIX_REFLECT_PRIMITIVE(PlainText)
-    RAZIX_REFLECT_PRIMITIVE(Key)
+    RAZIX_REFLECT_STRING(PlainText)
+    RAZIX_REFLECT_STRING(Key)
     RAZIX_REFLECT_PRIMITIVE(bIsSolved)
     RAZIX_REFLECT_TYPE_END(RZVignerePuzzleAsset)
 

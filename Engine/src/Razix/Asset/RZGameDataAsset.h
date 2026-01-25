@@ -17,7 +17,7 @@ namespace Razix {
         bool     bIsDLCEnabled;
         u8       _pad0[3];
         float3   CheckpointPosition;
-        u8       _pad1[4];
+        u32      _pad1;
         RZString LastPlayedLevel;
     };
 
@@ -28,6 +28,7 @@ namespace Razix {
     RAZIX_REFLECT_PRIMITIVE(DifficultyLevel)
     RAZIX_REFLECT_PRIMITIVE(LastPlayedLevel)
     RAZIX_REFLECT_PRIMITIVE(CheckpointPosition)
+    RAZIX_REFLECT_STRING(LastPlayedLevel)
     RAZIX_REFLECT_TYPE_END(RZGameDataAsset)
 
 };    // namespace Razix

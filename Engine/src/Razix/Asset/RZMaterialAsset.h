@@ -3,6 +3,8 @@
 
 #include "Razix/AssetSystem/RZAssetBase.h"
 
+#include "Razix/Core/RZHandle.h"
+
 #include "Razix/Core/Reflection/RZReflection.h"
 
 #include "Razix/Core/Containers/string.h"
@@ -20,12 +22,12 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZMaterialsTexturePaths)
-    RAZIX_REFLECT_PRIMITIVE(AlbedoPath)
-    RAZIX_REFLECT_PRIMITIVE(NormalPath)
-    RAZIX_REFLECT_PRIMITIVE(MetallicPath)
-    RAZIX_REFLECT_PRIMITIVE(RoughnessPath)
-    RAZIX_REFLECT_PRIMITIVE(AmbientOcclusionPath)
-    RAZIX_REFLECT_PRIMITIVE(EmissivePath)
+    RAZIX_REFLECT_STRING(AlbedoPath)
+    RAZIX_REFLECT_STRING(NormalPath)
+    RAZIX_REFLECT_STRING(MetallicPath)
+    RAZIX_REFLECT_STRING(RoughnessPath)
+    RAZIX_REFLECT_STRING(AmbientOcclusionPath)
+    RAZIX_REFLECT_STRING(EmissivePath)
     RAZIX_REFLECT_TYPE_END(RZMaterialsTexturePaths)
 
     // TODO: to be ratified later once RZMaterial system is done
@@ -37,12 +39,12 @@ namespace Razix {
         f32                     AmbientOcclusion;
         f32                     NormalStrength;
         f32                     EmissiveIntensity;
-        u32                     AlbedoTextureHandle;
-        u32                     NormalTextureHandle;
-        u32                     MetallicTextureHandle;
-        u32                     RoughnessTextureHandle;
-        u32                     AmbientOcclusionTextureHandle;
-        u32                     EmissiveTextureHandle;
+        rz_handle               AlbedoTextureHandle;
+        rz_handle               NormalTextureHandle;
+        rz_handle               MetallicTextureHandle;
+        rz_handle               RoughnessTextureHandle;
+        rz_handle               AmbientOcclusionTextureHandle;
+        rz_handle               EmissiveTextureHandle;
         float3                  EmissiveColor;
         u8                      _pad0[4];
         RZMaterialsTexturePaths TexturePaths;
@@ -53,16 +55,10 @@ namespace Razix {
     RAZIX_REFLECT_PRIMITIVE(Metallic)
     RAZIX_REFLECT_PRIMITIVE(Roughness)
     RAZIX_REFLECT_PRIMITIVE(AmbientOcclusion)
-    RAZIX_REFLECT_PRIMITIVE(AlbedoTextureHandle)
-    RAZIX_REFLECT_PRIMITIVE(NormalTextureHandle)
-    RAZIX_REFLECT_PRIMITIVE(MetallicTextureHandle)
-    RAZIX_REFLECT_PRIMITIVE(RoughnessTextureHandle)
-    RAZIX_REFLECT_PRIMITIVE(AmbientOcclusionTextureHandle)
-    RAZIX_REFLECT_PRIMITIVE(EmissiveTextureHandle)
     RAZIX_REFLECT_PRIMITIVE(NormalStrength)
     RAZIX_REFLECT_PRIMITIVE(EmissiveIntensity)
     RAZIX_REFLECT_PRIMITIVE(EmissiveColor)
-    RAZIX_REFLECT_PRIMITIVE(TexturePaths)
+    RAZIX_REFLECT_OBJECT(TexturePaths)
     RAZIX_REFLECT_TYPE_END(RZMaterialAsset)
 
 };    // namespace Razix

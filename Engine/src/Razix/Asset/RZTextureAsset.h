@@ -16,15 +16,19 @@ namespace Razix {
         rz_gfx_texture_desc Desc;
     };
 
+    RAZIX_REFLECT_TYPE_START(rz_gfx_texture_desc)
+    RAZIX_REFLECT_PRIMITIVE(width)
+    RAZIX_REFLECT_PRIMITIVE(height)
+    RAZIX_REFLECT_PRIMITIVE(depth)
+    RAZIX_REFLECT_PRIMITIVE(mipLevels)
+    RAZIX_REFLECT_PRIMITIVE(format)
+    RAZIX_REFLECT_PRIMITIVE(textureType)
+    RAZIX_REFLECT_PRIMITIVE(resourceHints)
+    RAZIX_REFLECT_TYPE_END(rz_gfx_texture_desc)
+
     RAZIX_REFLECT_TYPE_START(RZTextureAsset)
-    RAZIX_REFLECT_PRIMITIVE(TexturePath)
-    RAZIX_REFLECT_PRIMITIVE(Desc.width)
-    RAZIX_REFLECT_PRIMITIVE(Desc.height)
-    RAZIX_REFLECT_PRIMITIVE(Desc.depth)
-    RAZIX_REFLECT_PRIMITIVE(Desc.mipLevels)
-    RAZIX_REFLECT_PRIMITIVE(Desc.format)
-    RAZIX_REFLECT_PRIMITIVE(Desc.textureType)
-    RAZIX_REFLECT_PRIMITIVE(Desc.resourceHints)
+    RAZIX_REFLECT_STRING(TexturePath)
+    RAZIX_REFLECT_OBJECT(Desc)
     RAZIX_REFLECT_TYPE_END(RZTextureAsset)
 
 };    // namespace Razix
