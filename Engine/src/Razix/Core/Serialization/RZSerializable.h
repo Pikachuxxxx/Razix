@@ -381,21 +381,27 @@ namespace Razix {
             }
         }
 
-        // static void processObject(RZBinaryArchive& ar, u8* base, const TypeMetaData& meta)
-        // {
-        //     // we don't need to serialize member by member if the whole struct is trivially serializable
-        //     if (meta->bIsTriviallySerializable) {
-        //         if (ar.mode == RZArchiveMode::Write)
-        //             ar.write(object, meta->size);
-        //         else
-        //             ar.read(object, meta->size);
-        //         return;
-        //     }
-        //
-        //     // Otherwise serialize/deserialize member by member
-        //     for (const auto& member: meta->members)
-        //         processMember(ar, object, member);
-        // }
+        static void processObject(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
+        {
+            RAZIX_CORE_ASSERT(member.dataType == SerializeableDataType::kObject, "processObject called for non-object member");
+            const TypeMetaData* meta = Razix::RZTypeRegistry::getTypeMetaData(member.object.type);
+            RAZIX_CORE_ASSERT(meta != NULL, "Type metadata for object member not found, check if the type is reflected properly");
+
+            // we don't need to serialize member by member if the whole struct is trivially serializable
+            if (meta->bIsTriviallySerializable) {
+                if (ar.mode == RZArchiveMode::kWrite)
+                    ar.write(base, meta->size);
+                else
+                    ar.read(base, meta->size);
+                return;
+            }
+
+            RAZIX_CORE_WARN("Non trivial object serialization might not work as expected currently, it's a little buggy");
+
+            // Otherwise serialize/deserialize member by member
+            for (const auto& member: meta->members)
+                processMember(ar, base, member);
+        }
 
         static void processMember(RZBinaryArchive& ar, void* objectBase, const MemberMetaData& member)
         {
@@ -417,6 +423,9 @@ namespace Razix {
                     break;
                 case RZDiskTypeTag::kHashMap:
                     processHashMap(ar, base, member);
+                    break;
+                case RZDiskTypeTag::kObject:
+                    processObject(ar, base + member.offset, member);
                     break;
                 default:
                     RAZIX_CORE_ERROR("Work in progress handling other serialization types");

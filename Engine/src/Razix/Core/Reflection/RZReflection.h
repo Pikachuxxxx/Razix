@@ -165,20 +165,25 @@
         metaData.members.push_back(m);                                            \
     } while (0);
 
-#define RAZIX_REFLECT_OBJECT(Member)                                   \
-    do {                                                               \
-        metaData.bIsTriviallySerializable = false;                     \
-        using MemberT                     = decltype(refType::Member); \
-        MemberMetaData m{};                                            \
-                                                                       \
-        m.name     = #Member;                                          \
-        m.typeName = typeid(MemberT).name();                           \
-        m.offset   = offsetof(refType, Member);                        \
-        m.dataType = SerializeableDataType::kObject;                   \
-                                                                       \
-        m.object.typeid = typeid(MemberT);                             \
-                                                                       \
-        metaData.members.push_back(m);                                 \
+#define RAZIX_REFLECT_OBJECT(Member)                                                                                                                                                                                                        \
+    do {                                                                                                                                                                                                                                    \
+        metaData.bIsTriviallySerializable = false;                                                                                                                                                                                          \
+        using MemberT                     = decltype(refType::Member);                                                                                                                                                                      \
+        MemberMetaData m{};                                                                                                                                                                                                                 \
+        RAZIX_CORE_ASSERT(Razix::RZTypeRegistry::getTypeMetaData(typeid(MemberT)) != NULL, "RAZIX_REFLECT_OBJECT: Type " #Member " is not registered in the Type Registry. Please register it using RAZIX_REFLECT_TYPE_START/END macros."); \
+                                                                                                                                                                                                                                            \
+        if (Razix::RZTypeRegistry::isTypeTriviallySerializable(typeid(MemberT))) {                                                                                                                                                          \
+            metaData.bIsTriviallySerializable = true;                                                                                                                                                                                       \
+        }                                                                                                                                                                                                                                   \
+                                                                                                                                                                                                                                            \
+        m.name     = #Member;                                                                                                                                                                                                               \
+        m.typeName = typeid(MemberT).name();                                                                                                                                                                                                \
+        m.offset   = offsetof(refType, Member);                                                                                                                                                                                             \
+        m.dataType = SerializeableDataType::kObject;                                                                                                                                                                                        \
+                                                                                                                                                                                                                                            \
+        m.object.type = typeid(MemberT);                                                                                                                                                                                                    \
+                                                                                                                                                                                                                                            \
+        metaData.members.push_back(m);                                                                                                                                                                                                      \
     } while (0);
 
 #endif    // _RZ_REFLECTION_H_

@@ -94,7 +94,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(MasterPlayerStats)
-    //RAZIX_REFLECT_MEMBER(stats) // ?? Figure out how to reflect nested structs that (trivial and non-trivial types)
+    RAZIX_REFLECT_OBJECT(stats) // ?? Figure out how to reflect nested structs that (trivial and non-trivial types)
     RAZIX_REFLECT_PRIMITIVE(score)
     RAZIX_REFLECT_TYPE_END(MasterPlayerStats)
 
@@ -301,4 +301,40 @@ namespace Razix {
             EXPECT_EQ(it->second, value);
         }
     }
+
+    // Nested struct tests
+    TEST_F(RZSerializationTests, TrivialNestedStructTest)
+    {
+        const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<MasterPlayerStats>();
+        ASSERT_NE(metaData, nullptr) << "Metadata for MasterPlayerStats should not be null.";
+
+        MasterPlayerStats original = {};
+        original.stats.health      = 100;
+        original.stats.rage        = 80.0f;
+        original.stats.stamina     = 60.5;
+        original.stats.rank        = 'A';
+        original.score             = 99999;
+
+        auto serializedData = RZSerializable<MasterPlayerStats>::serializeToBinary(original);
+        EXPECT_GT(serializedData.size(), 0);
+
+        fs::path tempPath = fs::temp_directory_path() / "masterplayerstats.bin";
+        RAZIX_CORE_INFO("Temporary path for NestedStructTest: {}", tempPath.string().c_str());
+        // Write binary data
+        Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
+
+        RZDynamicArray<u8> readBack;
+        i64                size = RZFileSystem::GetFileSize(tempPath.string().c_str());
+        readBack.resize(size);
+        Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
+
+        MasterPlayerStats deserialized = RZSerializable<MasterPlayerStats>::deserializeFromBinary(readBack);
+
+        EXPECT_EQ(deserialized.score, original.score);
+        EXPECT_EQ(deserialized.stats.health, original.stats.health);
+        EXPECT_FLOAT_EQ(deserialized.stats.rage, original.stats.rage);
+        EXPECT_DOUBLE_EQ(deserialized.stats.stamina, original.stats.stamina);
+        EXPECT_EQ(deserialized.stats.rank, original.stats.rank);
+    }
+
 }    // namespace Razix

@@ -22,11 +22,22 @@ namespace Razix {
         template<typename T>
         static const TypeMetaData* getTypeMetaData()
         {
-            auto it = getRegistry().find(typeid(T));
+            return getTypeMetaData(typeid(T));
+        }
+
+        static const TypeMetaData* getTypeMetaData(std::type_index typeIdx)
+        {
+            auto it = getRegistry().find(typeIdx);
             if (it != getRegistry().end()) {
                 return &it->second;
             }
             return NULL;
+        }
+
+        template<typename T>
+        static bool isTypeTriviallySerializable()
+        {
+            return isTypeTriviallySerializable(typeid(T));
         }
 
         static bool isTypeTriviallySerializable(std::type_index typeIdx)
