@@ -11,6 +11,8 @@ namespace Razix {
 
     struct RAZIX_ALIGN_TO(RAZIX_16B_ALIGN) RZAnimationAsset
     {
+        RAZIX_ASSET
+
         u32       FrameCount;
         u32       BoneCount;
         f32       Duration;
@@ -22,6 +24,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZAnimationAsset)
+    RAZIX_REFLECT_ASSET_HEADER
     RAZIX_REFLECT_PRIMITIVE(FrameCount)
     RAZIX_REFLECT_PRIMITIVE(BoneCount)
     RAZIX_REFLECT_PRIMITIVE(Duration)

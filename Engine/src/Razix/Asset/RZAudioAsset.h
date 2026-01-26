@@ -16,7 +16,9 @@ namespace Razix {
 
     struct RAZIX_ALIGN_TO(RAZIX_16B_ALIGN) RZAudioAsset
     {
-        RZString         AudioFilePath;
+        RAZIX_ASSET
+
+        RZString    AudioFilePath;
         u32         SampleRate;
         u32         ChannelCount;
         u32         SampleCount;
@@ -27,6 +29,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZAudioAsset)
+    RAZIX_REFLECT_ASSET_HEADER
     RAZIX_REFLECT_PRIMITIVE(AudioFilePath)
     RAZIX_REFLECT_PRIMITIVE(SampleRate)
     RAZIX_REFLECT_PRIMITIVE(ChannelCount)

@@ -37,6 +37,10 @@
 // TODO: use rz_handle since payload index matches header index, they are always allocated together
 typedef u64 rz_asset_handle;    // higher 32 bits for asset playload data index and lower 32 bits for hot/cold data index into the asset pools
 
+#define RAZIX_REFLECT_ASSET_HEADER \
+    RAZIX_REFLECT_PRIMITIVE(handle)   \
+    RAZIX_REFLECT_PRIMITIVE(_debugMagic)
+
 namespace Razix {
 
     // trick to dynamically generate asset type enum

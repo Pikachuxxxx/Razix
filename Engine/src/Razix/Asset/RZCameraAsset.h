@@ -14,6 +14,8 @@ namespace Razix {
     // If so might as well share the same data structure inside RZCamera3D and use friend class for RZCameraAsset to access private data
     struct RAZIX_ALIGN_TO(RAZIX_16B_ALIGN) RZCameraAsset
     {
+        RAZIX_ASSET
+
         float3                     Position;
         f32                        Yaw;
         float3                     Front;
@@ -37,6 +39,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZCameraAsset)
+    RAZIX_REFLECT_ASSET_HEADER
     RAZIX_REFLECT_PRIMITIVE(Position)
     RAZIX_REFLECT_PRIMITIVE(Yaw)
     RAZIX_REFLECT_PRIMITIVE(Front)

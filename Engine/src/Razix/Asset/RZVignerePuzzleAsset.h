@@ -13,6 +13,8 @@ namespace Razix {
 
     struct RZVignerePuzzleAsset
     {
+        RAZIX_ASSET
+
         // TODO: Replace with RZASCIIString for ASCII only chars
         RZString PlainText;
         RZString Key;
@@ -22,6 +24,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZVignerePuzzleAsset)
+    RAZIX_REFLECT_ASSET_HEADER
     RAZIX_REFLECT_STRING(PlainText)
     RAZIX_REFLECT_STRING(Key)
     RAZIX_REFLECT_PRIMITIVE(bIsSolved)
