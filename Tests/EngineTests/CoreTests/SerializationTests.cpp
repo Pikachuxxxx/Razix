@@ -68,6 +68,17 @@ namespace Razix {
     RAZIX_REFLECT_PRIMITIVE(experience)
     RAZIX_REFLECT_TYPE_END(PlayerMetaData)
 
+#define PLAYER_BLOB_COUNT 5
+
+    struct PlayerBlobTest
+    {
+        PlayerMetaData* pMetaDatas;
+    };
+
+    RAZIX_REFLECT_TYPE_START(PlayerBlobTest)
+    RAZIX_REFLECT_BLOB(pMetaDatas, PLAYER_BLOB_COUNT * sizeof(PlayerMetaData))
+    RAZIX_REFLECT_TYPE_END(PlayerBlobTest)
+
     //-------------------------------------------------------------------------
     // Array test struct
     struct PlayerInventory
@@ -229,6 +240,48 @@ namespace Razix {
 
         rz_free(original.pName);
         rz_free(deserialized.pName);
+    }
+
+    TEST_F(RZSerializationTests, BlobTypeTest)
+    {
+        const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<PlayerBlobTest>();
+        ASSERT_NE(metaData, nullptr) << "Metadata for PlayerBlobTest should not be null.";
+        PlayerBlobTest original = {};
+
+        original.pMetaDatas = static_cast<PlayerMetaData*>(rz_malloc_aligned(sizeof(PlayerMetaData) * PLAYER_BLOB_COUNT));
+        ASSERT_NE(original.pMetaDatas, nullptr);
+        for (size_t i = 0; i < PLAYER_BLOB_COUNT; ++i) {
+            original.pMetaDatas[i].level      = static_cast<int>(i * 10);
+            original.pMetaDatas[i].experience = static_cast<float>(i * 1000);
+            original.pMetaDatas[i].pName      = static_cast<char*>(rz_malloc_aligned(128 * sizeof(char)));
+            ASSERT_NE(original.pMetaDatas[i].pName, nullptr);
+            std::memset(original.pMetaDatas[i].pName, 0, 128 * sizeof(char));
+            std::snprintf(original.pMetaDatas[i].pName, 128, "Player_%zu", i);
+        }
+        auto serializedData = RZSerializable<PlayerBlobTest>::serializeToBinary(original);
+        EXPECT_GT(serializedData.size(), 0);
+        fs::path tempPath = fs::temp_directory_path() / "playerblobtest.bin";
+        RAZIX_CORE_INFO("Temporary path for BlobTypeTest: {}", tempPath.string().c_str());
+        // Write binary data
+        Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
+        RZDynamicArray<u8> readBack;
+        i64                size = RZFileSystem::GetFileSize(tempPath.string().c_str());
+        readBack.resize(size);
+        Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
+        PlayerBlobTest deserialized = RZSerializable<PlayerBlobTest>::deserializeFromBinary(readBack);
+
+        for (size_t i = 0; i < PLAYER_BLOB_COUNT; ++i) {
+            ASSERT_NE(deserialized.pMetaDatas[i].pName, nullptr);
+            EXPECT_STREQ(deserialized.pMetaDatas[i].pName, original.pMetaDatas[i].pName);
+            EXPECT_EQ(deserialized.pMetaDatas[i].level, original.pMetaDatas[i].level);
+            EXPECT_EQ(deserialized.pMetaDatas[i].experience, original.pMetaDatas[i].experience);
+            rz_free(original.pMetaDatas[i].pName);
+            // FIXME: Who tf is allocating this? we should be able to free this properly
+            //rz_free(deserialized.pMetaDatas[i].pName);
+        }
+
+        rz_free(original.pMetaDatas);
+        rz_free(deserialized.pMetaDatas);
     }
 
     TEST_F(RZSerializationTests, ArrayTest)
@@ -1071,5 +1124,52 @@ namespace Razix {
         EXPECT_EQ(deserialized.Key, original.Key);
         EXPECT_EQ(deserialized.bIsSolved, original.bIsSolved);
     }
+
+    //-------------------------------------------------------------------------
+
+    //class RZAssetHeaderSerializationTests : public ::testing::Test
+    //{
+    //protected:
+    //    void SetUp() override
+    //    {
+    //        Debug::RZLog::StartUp();
+    //    }
+
+    //    void TearDown() override
+    //    {
+    //        Debug::RZLog::Shutdown();
+    //    }
+    //};
+
+    //TEST_F(RZAssetHeaderSerializationTests, AssetHotDataTest)
+    //{
+    //    const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<Razix::RZAssetHotData>();
+    //    ASSERT_NE(metaData, nullptr) << "Metadata for RZAssetHotData should not be null.";
+
+    //    RZAssetHotData original   = {};
+    //    original.LastModifiedTime = 1712345678ull;
+    //    original.bIsLoaded        = true;
+    //    original.bIsDirty         = false;
+    //    original.ReferenceCount   = 5;
+    //    auto serializedData       = RZSerializable<RZAssetHotData>::serializeToBinary(original);
+    //    EXPECT_GT(serializedData.size(), 0);
+
+    //    fs::path tempPath = fs::temp_directory_path() / "rzassethotdata.bin";
+    //    RAZIX_CORE_INFO("Temporary path for AssetHotDataTest: {}", tempPath.string().c_str());
+
+    //    // Write binary data
+    //    Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
+    //    RZDynamicArray<u8> readBack;
+    //    i64                size = RZFileSystem::GetFileSize(tempPath.string().c_str());
+    //    readBack.resize(size);
+
+    //    Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
+    //    RZAssetHotData deserialized = RZSerializable<RZAssetHotData>::deserializeFromBinary(readBack);
+
+    //    EXPECT_EQ(deserialized.LastModifiedTime, original.LastModifiedTime);
+    //    EXPECT_EQ(deserialized.bIsLoaded, original.bIsLoaded);
+    //    EXPECT_EQ(deserialized.bIsDirty, original.bIsDirty);
+    //    EXPECT_EQ(deserialized.ReferenceCount, original.ReferenceCount);
+    //}
 
 }    // namespace Razix
