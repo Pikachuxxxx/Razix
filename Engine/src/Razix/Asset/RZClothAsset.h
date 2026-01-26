@@ -11,6 +11,8 @@ namespace Razix {
 
     struct RAZIX_ALIGN_TO(RAZIX_16B_ALIGN) RZClothAsset
     {
+        RAZIX_ASSET
+
         u32       VertexCount;
         u32       TriangleCount;
         u32       ConstraintCount;
@@ -24,6 +26,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZClothAsset)
+    RAZIX_REFLECT_ASSET_HEADER
     RAZIX_REFLECT_PRIMITIVE(VertexCount)
     RAZIX_REFLECT_PRIMITIVE(TriangleCount)
     RAZIX_REFLECT_PRIMITIVE(ConstraintCount)

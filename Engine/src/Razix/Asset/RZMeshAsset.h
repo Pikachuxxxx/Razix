@@ -10,6 +10,8 @@ namespace Razix {
     // TODO: To be merged with RZMesh class
     struct RAZIX_ALIGN_TO(RAZIX_16B_ALIGN) RZMeshAsset
     {
+        RAZIX_ASSET
+
         u32      VertexCount;
         u32      IndexCount;
         u32      VertexBufferHandle;
@@ -23,6 +25,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZMeshAsset)
+    RAZIX_REFLECT_ASSET_HEADER
     RAZIX_REFLECT_PRIMITIVE(VertexCount)
     RAZIX_REFLECT_PRIMITIVE(IndexCount)
     RAZIX_REFLECT_PRIMITIVE(VertexBufferHandle)

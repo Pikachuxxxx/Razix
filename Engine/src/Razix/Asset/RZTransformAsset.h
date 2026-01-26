@@ -75,6 +75,7 @@ namespace Razix {
 
     // Define Serialization
     RAZIX_REFLECT_TYPE_START(RZTransformAsset)
+    RAZIX_REFLECT_ASSET_HEADER
     // Just the typical RZAsset header, which will be read as part of deserialization automatically.
     // The same index is used to load data from SceneGraph, and load into the special RZTransformAssetPool
     // We will have a template specialization of RZAssetPool for RZTransformAsset to handle SOA pools

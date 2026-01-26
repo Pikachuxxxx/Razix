@@ -33,6 +33,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZLuaScriptAsset)
+    RAZIX_REFLECT_ASSET_HEADER
     RAZIX_REFLECT_STRING(ScriptPath)
     RAZIX_REFLECT_PRIMITIVE(LastModifiedTime)
     RAZIX_REFLECT_PRIMITIVE(bIsCompiled)

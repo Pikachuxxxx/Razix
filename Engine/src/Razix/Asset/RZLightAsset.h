@@ -20,6 +20,8 @@ namespace Razix {
 
     struct RAZIX_ALIGN_TO(RAZIX_16B_ALIGN) RZLightAsset
     {
+        RAZIX_ASSET
+
         float4      Position_Range;
         float4      Color_Intensity;
         float4      Direction;
@@ -33,6 +35,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZLightAsset)
+    RAZIX_REFLECT_ASSET_HEADER
     RAZIX_REFLECT_PRIMITIVE(Position_Range)
     RAZIX_REFLECT_PRIMITIVE(Color_Intensity)
     RAZIX_REFLECT_PRIMITIVE(Direction)

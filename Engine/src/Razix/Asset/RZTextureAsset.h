@@ -11,6 +11,8 @@ namespace Razix {
 
     struct RAZIX_ALIGN_TO(RAZIX_16B_ALIGN) RZTextureAsset
     {
+        RAZIX_ASSET
+
         RZString            TexturePath;
         rz_handle           TextureHandle;
         rz_gfx_texture_desc Desc;
@@ -27,6 +29,7 @@ namespace Razix {
     RAZIX_REFLECT_TYPE_END(rz_gfx_texture_desc)
 
     RAZIX_REFLECT_TYPE_START(RZTextureAsset)
+    RAZIX_REFLECT_ASSET_HEADER
     RAZIX_REFLECT_STRING(TexturePath)
     RAZIX_REFLECT_OBJECT(Desc)
     RAZIX_REFLECT_TYPE_END(RZTextureAsset)

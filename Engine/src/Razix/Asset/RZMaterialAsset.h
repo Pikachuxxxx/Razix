@@ -33,6 +33,8 @@ namespace Razix {
     // TODO: to be ratified later once RZMaterial system is done
     struct RAZIX_ALIGN_TO(RAZIX_16B_ALIGN) RZMaterialAsset
     {
+        RAZIX_ASSET
+
         float4                  Albedo;
         f32                     Metallic;
         f32                     Roughness;
@@ -51,6 +53,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZMaterialAsset)
+    RAZIX_REFLECT_ASSET_HEADER
     RAZIX_REFLECT_PRIMITIVE(Albedo)
     RAZIX_REFLECT_PRIMITIVE(Metallic)
     RAZIX_REFLECT_PRIMITIVE(Roughness)

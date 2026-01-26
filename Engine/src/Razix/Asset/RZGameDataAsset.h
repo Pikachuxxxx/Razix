@@ -11,6 +11,8 @@ namespace Razix {
 
     struct RZGameDataAsset
     {
+        RAZIX_ASSET
+
         u32      SaveSlotCount;
         u32      TotalPlayTime;
         u32      DifficultyLevel;
@@ -22,6 +24,7 @@ namespace Razix {
     };
 
     RAZIX_REFLECT_TYPE_START(RZGameDataAsset)
+    RAZIX_REFLECT_ASSET_HEADER
     RAZIX_REFLECT_PRIMITIVE(SaveSlotCount)
     RAZIX_REFLECT_PRIMITIVE(TotalPlayTime)
     RAZIX_REFLECT_PRIMITIVE(bIsDLCEnabled)
