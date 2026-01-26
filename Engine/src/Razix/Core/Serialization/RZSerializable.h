@@ -6,7 +6,7 @@
 
 #include "Razix/Core/Compression/RZCompression.h"
 
-#include "Razix/Core/Reflection/RZReflectionMetaData.h"
+#include "Razix/Core/Reflection/RZReflectionRegistry.h"
 
 namespace Razix {
 
@@ -133,6 +133,8 @@ namespace Razix {
         RZString name;
         int      bitIndex;
     };
+
+    void* RZAssetUtilCreateAssetInstanceInPlace(void* memoryBacking, void* coldDataBacking);
 
     template<typename Derived>
     class RZSerializable
@@ -515,17 +517,12 @@ namespace Razix {
         }
 
         // Specialization for RZAsset deserialization where memory is provided externally
-        static RZAsset* deserializeAssetFromBinary(const RZDynamicArray<u8>& binary, void* pAssetMemory, void* pColdDataMemory)
+        static void* deserializeAssetFromBinary(const RZDynamicArray<u8>& binary, void* pAssetMemory, void* pColdDataMemory)
         {
-            if constexpr (rz_is_same_v<Derived, RZAsset>) {
-                RAZIX_CORE_ERROR("Use deserializeAssetFromBinary for RZAsset types");
-                RAZIX_DEBUG_BREAK();
-            }
-
             RAZIX_CORE_ASSERT(pAssetMemory != NULL, "Asset memory pointer is null");
             RAZIX_CORE_ASSERT(pColdDataMemory != NULL, "Asset cold data memory pointer is null");
 
-            RZAsset* pAsset = new (pAssetMemory) RZAsset(RZAssetType::kTransform, pColdDataMemory);
+            void* pAsset = RZAssetUtilCreateAssetInstanceInPlace(pAssetMemory, pColdDataMemory);
             RAZIX_CORE_ASSERT(pAsset != NULL, "Failed to create RZAsset in provided memory");
 
             const TypeMetaData* meta = getTypeMetaData();

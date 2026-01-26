@@ -1366,7 +1366,7 @@ namespace Razix {
 
         void*           assetMemoryBacking   = rz_malloc_aligned(sizeof(Razix::RZAsset));
         void*           assetColdDataBacking = rz_malloc_aligned(sizeof(Razix::RZAssetColdData));
-        Razix::RZAsset* pDeserialized        = RZSerializable<Razix::RZAsset>::deserializeAssetFromBinary(readBack, assetMemoryBacking, assetColdDataBacking);
+        Razix::RZAsset* pDeserialized        = (RZAsset*) RZSerializable<Razix::RZAsset>::deserializeAssetFromBinary(readBack, assetMemoryBacking, assetColdDataBacking);
 
         EXPECT_EQ(pDeserialized->getUUID(), uuid);
         EXPECT_EQ(pDeserialized->getType(), assetType);
