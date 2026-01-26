@@ -638,19 +638,19 @@ namespace Razix {
         const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<Razix::RZAsset>();
         ASSERT_NE(metaData, nullptr) << "Metadata for RZAsset should not be null.";
 
-        void* mem      = rz_malloc_aligned(sizeof(RZAssetColdData));
+        void* mem      = rz_malloc(sizeof(RZAssetColdData), RAZIX_CACHE_LINE_ALIGN);
         auto* coldData = new (mem) Razix::RZAssetColdData();
 
-        Razix::RZAssetMetadata meta;
-        meta.name               = "ComprehensiveAsset";
-        meta.author             = "Pikachuxxxx";
-        meta.description        = "All fields fully filled";
-        meta.commitHash         = "babe123deadbeef";
-        meta.version.revisionID = RZUUID();
-        meta.version.major      = 123456789;
-        meta.packlastModified   = rz_date_pack({20203, 12, 23});
-        meta.createdDate        = rz_date_pack({20203, 12, 23});
-        meta.department         = Razix::Department::Audio;
+        Razix::RZAssetMetadata meta = {};
+        meta.name                   = "ComprehensiveAsset";
+        meta.author                 = "Pikachuxxxx";
+        meta.description            = "All fields fully filled";
+        meta.commitHash             = "babe123deadbeef";
+        meta.version.revisionID     = RZUUID();
+        meta.version.major          = 123456789;
+        meta.packlastModified       = rz_date_pack({20203, 12, 23});
+        meta.createdDate            = rz_date_pack({20203, 12, 23});
+        meta.department             = Razix::Department::Audio;
 
         Razix::RZAssetType assetType = Razix::RZAssetType::kCloth;
         Razix::RZAsset     asset(assetType, coldData);
@@ -689,8 +689,8 @@ namespace Razix {
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
 
-        void*           assetMemoryBacking   = rz_malloc_aligned(sizeof(Razix::RZAsset));
-        void*           assetColdDataBacking = rz_malloc_aligned(sizeof(Razix::RZAssetColdData));
+        void*           assetMemoryBacking   = rz_malloc(sizeof(Razix::RZAsset), RAZIX_CACHE_LINE_ALIGN);
+        void*           assetColdDataBacking = rz_malloc(sizeof(Razix::RZAssetColdData), RAZIX_CACHE_LINE_ALIGN);
         Razix::RZAsset* pDeserialized        = (RZAsset*) RZSerializable<Razix::RZAsset>::deserializeAssetFromBinary(readBack, assetMemoryBacking, assetColdDataBacking);
 
         EXPECT_EQ(pDeserialized->getUUID(), uuid);
@@ -1402,5 +1402,4 @@ namespace Razix {
         EXPECT_EQ(deserialized.Key, original.Key);
         EXPECT_EQ(deserialized.bIsSolved, original.bIsSolved);
     }
-
-   }    // namespace Razix
+}    // namespace Razix
