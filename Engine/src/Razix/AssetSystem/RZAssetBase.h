@@ -206,10 +206,11 @@ namespace Razix {
     public:
         /* User cannot do this by their own */
         RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(RZAsset);
-        RAZIX_DELETE_PUBLIC_CONSTRUCTOR(RZAsset);
+        // Disabled temporarily to allow asset creation via RZSerializable, we need to find a better way to do this and pass cold data memory
+        //RAZIX_DELETE_PUBLIC_CONSTRUCTOR(RZAsset);
         // ~RZAsset() = delete;
 
-        RZAsset(RZAssetType type, void* pColdDataMemory);
+        RAZIX_API RZAsset(RZAssetType type, void* pColdDataMemory);
 
         // Destroys the asset and frees cold data, however hot data will be freed by the asset pools, cold data asset pool can use this util function
         void destroy();

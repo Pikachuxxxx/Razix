@@ -10,6 +10,9 @@
 
 namespace Razix {
 
+    struct RZAssetColdData;
+    class RZAsset;
+
     enum class RZDiskTypeTag : u8
     {
         kPrimitive   = 1,
@@ -482,6 +485,11 @@ namespace Razix {
 
         static Derived deserializeFromBinary(const RZDynamicArray<u8>& binary)
         {
+            if constexpr (rz_is_same_v<Derived, RZAsset>) {
+                RAZIX_CORE_ERROR("Use deserializeAssetFromBinary for RZAsset types");
+                RAZIX_DEBUG_BREAK();
+            }
+
             Derived data = {};
 
             const TypeMetaData* meta = getTypeMetaData();
@@ -504,6 +512,38 @@ namespace Razix {
                 processMember(ar, &data, member);
 
             return data;
+        }
+
+        // Specialization for RZAsset deserialization where memory is provided externally
+        static RZAsset* deserializeAssetFromBinary(const RZDynamicArray<u8>& binary, void* pAssetMemory, void* pColdDataMemory)
+        {
+            RAZIX_CORE_ASSERT(typeid(Derived) == typeid(RZAsset), "deserializeAssetFromBinary can only be used for RZAsset types");
+            RAZIX_CORE_ASSERT(pAssetMemory != NULL, "Asset memory pointer is null");
+            RAZIX_CORE_ASSERT(pColdDataMemory != NULL, "Asset cold data memory pointer is null");
+
+            RZAsset* pAsset = new (pAssetMemory) RZAsset(RZAssetType::kTransform, pColdDataMemory);
+            RAZIX_CORE_ASSERT(pAsset != NULL, "Failed to create RZAsset in provided memory");
+
+            const TypeMetaData* meta = getTypeMetaData();
+            if (!meta) {
+                RAZIX_CORE_ERROR("[RZSerializable] Type metadata for type '{}' not found.",
+                    typeid(Derived).name());
+                return pAsset;
+            }
+
+            RZDynamicArray<u8> temp = binary;
+            RZBinaryArchive    ar{&temp, 0, RZArchiveMode::kRead};
+
+            if (meta->bIsTriviallySerializable) {
+                memcpy(pAsset, binary.data(), rz_min<size_t>(meta->size, binary.size()));
+                return pAsset;
+            }
+
+            // Otherwise deserialize member by member
+            for (const auto& member: meta->members)
+                processMember(ar, pAsset, member);
+
+            return pAsset;
         }
     };
 

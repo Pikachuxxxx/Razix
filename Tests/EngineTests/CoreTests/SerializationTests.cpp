@@ -1,5 +1,8 @@
 // Serialization.cpp
 // Pikachuxxxx + AI-generated unit tests for the Type Registration classes
+
+#include <Razix/Core/RZCore.h>
+
 #include <Razix/Core/OS/RZFileSystem.h>
 #include <Razix/Core/Reflection/RZReflection.h>
 #include <Razix/Core/Serialization/RZSerializable.h>
@@ -22,6 +25,8 @@
 #include <Razix/Asset/RZTextureAsset.h>
 #include <Razix/Asset/RZTransformAsset.h>
 #include <Razix/Asset/RZVignerePuzzleAsset.h>
+
+#include <Razix/Core/Utils/RZDateUtils.h>
 
 #include <gtest/gtest.h>
 #include <stdio.h>
@@ -1127,49 +1132,275 @@ namespace Razix {
 
     //-------------------------------------------------------------------------
 
-    //class RZAssetHeaderSerializationTests : public ::testing::Test
-    //{
-    //protected:
-    //    void SetUp() override
-    //    {
-    //        Debug::RZLog::StartUp();
-    //    }
+    class RZAssetHeaderSerializationTests : public ::testing::Test
+    {
+    protected:
+        void SetUp() override
+        {
+            Debug::RZLog::StartUp();
+        }
 
-    //    void TearDown() override
-    //    {
-    //        Debug::RZLog::Shutdown();
-    //    }
-    //};
+        void TearDown() override
+        {
+            Debug::RZLog::Shutdown();
+        }
+    };
 
-    //TEST_F(RZAssetHeaderSerializationTests, AssetHotDataTest)
-    //{
-    //    const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<Razix::RZAssetHotData>();
-    //    ASSERT_NE(metaData, nullptr) << "Metadata for RZAssetHotData should not be null.";
+    TEST_F(RZAssetHeaderSerializationTests, AssetHotDataTest)
+    {
+        const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<Razix::RZAssetHotData>();
+        ASSERT_NE(metaData, nullptr) << "Metadata for RZAssetHotData should not be null.";
 
-    //    RZAssetHotData original   = {};
-    //    original.LastModifiedTime = 1712345678ull;
-    //    original.bIsLoaded        = true;
-    //    original.bIsDirty         = false;
-    //    original.ReferenceCount   = 5;
-    //    auto serializedData       = RZSerializable<RZAssetHotData>::serializeToBinary(original);
-    //    EXPECT_GT(serializedData.size(), 0);
+        RZAssetHotData original    = {};
+        original.UUID              = RZUUID();
+        original.referenceCount    = 42;
+        original.type              = RZAssetType::kTexture;
+        original.storagePreference = RZAssetStorageType::kGPUBacked;
+        original.flags             = (RZAssetFlags) (RZ_ASSET_FLAG_COMPRESSED | RZ_ASSET_FLAG_READONLY);
 
-    //    fs::path tempPath = fs::temp_directory_path() / "rzassethotdata.bin";
-    //    RAZIX_CORE_INFO("Temporary path for AssetHotDataTest: {}", tempPath.string().c_str());
+        auto serializedData = RZSerializable<RZAssetHotData>::serializeToBinary(original);
+        EXPECT_GT(serializedData.size(), 0);
 
-    //    // Write binary data
-    //    Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
-    //    RZDynamicArray<u8> readBack;
-    //    i64                size = RZFileSystem::GetFileSize(tempPath.string().c_str());
-    //    readBack.resize(size);
+        fs::path tempPath = fs::temp_directory_path() / "rzassethotdata.bin";
+        RAZIX_CORE_INFO("Temporary path for AssetHotDataTest: {}", tempPath.string().c_str());
 
-    //    Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
-    //    RZAssetHotData deserialized = RZSerializable<RZAssetHotData>::deserializeFromBinary(readBack);
+        // Write binary data
+        Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
+        RZDynamicArray<u8> readBack;
+        i64                size = RZFileSystem::GetFileSize(tempPath.string().c_str());
+        readBack.resize(size);
 
-    //    EXPECT_EQ(deserialized.LastModifiedTime, original.LastModifiedTime);
-    //    EXPECT_EQ(deserialized.bIsLoaded, original.bIsLoaded);
-    //    EXPECT_EQ(deserialized.bIsDirty, original.bIsDirty);
-    //    EXPECT_EQ(deserialized.ReferenceCount, original.ReferenceCount);
-    //}
+        Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
+        RZAssetHotData deserialized = RZSerializable<RZAssetHotData>::deserializeFromBinary(readBack);
+
+        EXPECT_EQ(deserialized.UUID, original.UUID);
+        EXPECT_EQ(deserialized.referenceCount, original.referenceCount);
+        EXPECT_EQ(deserialized.type, original.type);
+        EXPECT_EQ(deserialized.storagePreference, original.storagePreference);
+        EXPECT_EQ(deserialized.flags, original.flags);
+    }
+
+    TEST_F(RZAssetHeaderSerializationTests, AssetMetadataTest)
+    {
+        const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<Razix::RZAssetMetadata>();
+        ASSERT_NE(metaData, nullptr) << "Metadata for RZAssetMetadata should not be null.";
+
+        Razix::RZAssetMetadata original = {};
+        original.name                   = "GoldenCube";
+        original.author                 = "Pikachuxxxx";
+        original.description            = "A fancy asset";
+        original.commitHash             = "deadbeefcafe";
+        original.version.revisionID     = RZUUID();
+        original.version.major          = 44;
+        original.packlastModified       = rz_date_pack({20203, 12, 23});
+        original.createdDate            = rz_date_pack({20203, 12, 23});
+        original.department             = Razix::Department::Core;
+
+        auto serializedData = RZSerializable<Razix::RZAssetMetadata>::serializeToBinary(original);
+        EXPECT_GT(serializedData.size(), 0);
+
+        fs::path tempPath = fs::temp_directory_path() / "rzassetmetadata.bin";
+        RAZIX_CORE_INFO("Temporary path for AssetMetadataTest: {}", tempPath.string().c_str());
+
+        Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
+        RZDynamicArray<u8> readBack;
+        i64                size = Razix::RZFileSystem::GetFileSize(tempPath.string().c_str());
+        readBack.resize(size);
+        Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
+
+        Razix::RZAssetMetadata deserialized = RZSerializable<Razix::RZAssetMetadata>::deserializeFromBinary(readBack);
+
+        EXPECT_EQ(deserialized.name, original.name);
+        EXPECT_EQ(deserialized.author, original.author);
+        EXPECT_EQ(deserialized.description, original.description);
+        EXPECT_EQ(deserialized.commitHash, original.commitHash);
+        EXPECT_EQ(deserialized.version.revisionID, original.version.revisionID);
+        EXPECT_EQ(deserialized.version.major, original.version.major);
+        EXPECT_EQ(deserialized.packlastModified, original.packlastModified);
+        EXPECT_EQ(deserialized.createdDate, original.createdDate);
+        EXPECT_EQ(deserialized.department, original.department);
+    }
+
+    TEST_F(RZAssetHeaderSerializationTests, AssetDependencyTest)
+    {
+        const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<Razix::RZAssetDependecy>();
+        ASSERT_NE(metaData, nullptr) << "Metadata for RZAssetDependecy should not be null.";
+
+        Razix::RZAssetDependecy original = {};
+        original.assetID                 = RZUUID();
+        original.type                    = Razix::RZAssetType::kAnimation;
+
+        auto serializedData = RZSerializable<Razix::RZAssetDependecy>::serializeToBinary(original);
+        EXPECT_GT(serializedData.size(), 0);
+
+        fs::path tempPath = fs::temp_directory_path() / "rzassetdependency.bin";
+        RAZIX_CORE_INFO("Temporary path for AssetDependencyTest: {}", tempPath.string().c_str());
+
+        Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
+        RZDynamicArray<u8> readBack;
+        i64                size = Razix::RZFileSystem::GetFileSize(tempPath.string().c_str());
+        readBack.resize(size);
+        Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
+
+        Razix::RZAssetDependecy deserialized = RZSerializable<Razix::RZAssetDependecy>::deserializeFromBinary(readBack);
+
+        EXPECT_EQ(deserialized.assetID, original.assetID);
+        EXPECT_EQ(deserialized.type, original.type);
+    }
+
+    TEST_F(RZAssetHeaderSerializationTests, AssetColdDataTest)
+    {
+        const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<Razix::RZAssetColdData>();
+        ASSERT_NE(metaData, nullptr) << "Metadata for RZAssetColdData should not be null.";
+
+        Razix::RZAssetColdData original = {};
+
+        // Fill dependencies array
+        Razix::RZAssetDependecy dep1 = {};
+        dep1.assetID                 = RZUUID();
+        dep1.type                    = Razix::RZAssetType::kLuaScript;
+        Razix::RZAssetDependecy dep2 = {};
+        dep2.assetID                 = RZUUID();
+        dep2.type                    = Razix::RZAssetType::kMesh;
+        original.dependencies.push_back(dep1);
+        original.dependencies.push_back(dep2);
+
+        // Fill metadata
+        original.metadata.name               = "CoolAsset";
+        original.metadata.author             = "Pikachuxxxx";
+        original.metadata.description        = "A dependency test asset";
+        original.metadata.commitHash         = "abcdef";
+        original.metadata.version.revisionID = RZUUID();
+        original.metadata.version.major      = 99;
+        original.metadata.packlastModified   = rz_date_pack({20203, 12, 23});
+        original.metadata.createdDate        = rz_date_pack({20203, 12, 23});
+        original.metadata.department         = Razix::Department::Core;
+
+        auto serializedData = RZSerializable<Razix::RZAssetColdData>::serializeToBinary(original);
+        EXPECT_GT(serializedData.size(), 0);
+
+        fs::path tempPath = fs::temp_directory_path() / "rzassetcolddata.bin";
+        RAZIX_CORE_INFO("Temporary path for AssetColdDataTest: {}", tempPath.string().c_str());
+
+        Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
+        RZDynamicArray<u8> readBack;
+        i64                size = Razix::RZFileSystem::GetFileSize(tempPath.string().c_str());
+        readBack.resize(size);
+        Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
+
+        Razix::RZAssetColdData deserialized = RZSerializable<Razix::RZAssetColdData>::deserializeFromBinary(readBack);
+
+        // Check dependencies array
+        EXPECT_EQ(deserialized.dependencies.size(), original.dependencies.size());
+        for (size_t i = 0; i < original.dependencies.size(); ++i) {
+            EXPECT_EQ(deserialized.dependencies[i].assetID, original.dependencies[i].assetID);
+            EXPECT_EQ(deserialized.dependencies[i].type, original.dependencies[i].type);
+        }
+        // Check metadata fields
+        EXPECT_EQ(deserialized.metadata.name, original.metadata.name);
+        EXPECT_EQ(deserialized.metadata.author, original.metadata.author);
+        EXPECT_EQ(deserialized.metadata.description, original.metadata.description);
+        EXPECT_EQ(deserialized.metadata.commitHash, original.metadata.commitHash);
+        EXPECT_EQ(deserialized.metadata.version.revisionID, original.metadata.version.revisionID);
+        EXPECT_EQ(deserialized.metadata.version.major, original.metadata.version.major);
+        EXPECT_EQ(deserialized.metadata.packlastModified, original.metadata.packlastModified);
+        EXPECT_EQ(deserialized.metadata.createdDate, original.metadata.createdDate);
+        EXPECT_EQ(deserialized.metadata.department, original.metadata.department);
+    }
+
+    TEST_F(RZAssetHeaderSerializationTests, AssetFullRoundtripTest)
+    {
+        const TypeMetaData* metaData = RZTypeRegistry::getTypeMetaData<Razix::RZAsset>();
+        ASSERT_NE(metaData, nullptr) << "Metadata for RZAsset should not be null.";
+
+        void* mem      = rz_malloc_aligned(sizeof(RZAssetColdData));
+        auto* coldData = new (mem) Razix::RZAssetColdData();
+
+        Razix::RZAssetMetadata meta;
+        meta.name               = "ComprehensiveAsset";
+        meta.author             = "Pikachuxxxx";
+        meta.description        = "All fields fully filled";
+        meta.commitHash         = "babe123deadbeef";
+        meta.version.revisionID = RZUUID();
+        meta.version.major      = 123456789;
+        meta.packlastModified   = rz_date_pack({20203, 12, 23});
+        meta.createdDate        = rz_date_pack({20203, 12, 23});
+        meta.department         = Razix::Department::Audio;
+
+        Razix::RZAssetType assetType = Razix::RZAssetType::kCloth;
+        Razix::RZAsset     asset(assetType, coldData);
+
+        RZUUID uuid = RZUUID();
+        asset.setUUID(uuid);
+
+        asset.setType(assetType);
+        asset.setStoragePreference(Razix::RZAssetStorageType::kGPUBacked);
+        asset.setReferenceCount(67890ull);
+
+        asset.setFlags(static_cast<Razix::RZAssetFlags>(0));
+        asset.addFlags(Razix::RZ_ASSET_FLAG_COMPRESSED);
+        asset.addFlags(Razix::RZ_ASSET_FLAG_READONLY);
+        asset.addFlags(Razix::RZ_ASSET_FLAG_DIRTY);
+
+        asset.setMetadata(meta);
+
+        for (int i = 0; i < 3; ++i) {
+            Razix::RZAssetDependecy dep = {};
+            dep.assetID                 = RZUUID();
+            dep.type                    = static_cast<Razix::RZAssetType>(((int) Razix::RZAssetType::kLuaScript + i) % (int) Razix::RZAssetType::COUNT);
+            asset.addDependency(dep.type, dep.assetID);
+        }
+
+        auto serializedData = RZSerializable<Razix::RZAsset>::serializeToBinary(asset);
+        EXPECT_GT(serializedData.size(), 0);
+
+        fs::path tempPath = fs::temp_directory_path() / "rzasset.bin";
+        RAZIX_CORE_INFO("Temporary path for AssetFullRoundtripTest: {}", tempPath.string().c_str());
+
+        Razix::RZFileSystem::WriteFile(RZString(tempPath.string().c_str()), serializedData.data(), serializedData.size());
+
+        RZDynamicArray<u8> readBack;
+        i64                size = Razix::RZFileSystem::GetFileSize(tempPath.string().c_str());
+        readBack.resize(size);
+        Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
+
+        void*           assetMemoryBacking   = rz_malloc_aligned(sizeof(Razix::RZAsset));
+        void*           assetColdDataBacking = rz_malloc_aligned(sizeof(Razix::RZAssetColdData));
+        Razix::RZAsset* pDeserialized        = RZSerializable<Razix::RZAsset>::deserializeAssetFromBinary(readBack, assetMemoryBacking, assetColdDataBacking);
+
+        EXPECT_EQ(pDeserialized->getUUID(), uuid);
+        EXPECT_EQ(pDeserialized->getType(), assetType);
+        EXPECT_EQ(pDeserialized->getStoragePreference(), Razix::RZAssetStorageType::kGPUBacked);
+        EXPECT_EQ(pDeserialized->getReferenceCount(), 67890ull);
+
+        Razix::RZAssetFlags expectedFlags = static_cast<Razix::RZAssetFlags>(
+            Razix::RZ_ASSET_FLAG_COMPRESSED | Razix::RZ_ASSET_FLAG_READONLY | Razix::RZ_ASSET_FLAG_DIRTY);
+        EXPECT_EQ(pDeserialized->getFlags(), expectedFlags);
+
+        EXPECT_TRUE(pDeserialized->isCompressed());
+        EXPECT_TRUE(pDeserialized->isReadOnly());
+        EXPECT_TRUE(pDeserialized->isDirty());
+
+        const auto& dMeta = pDeserialized->getMetadata();
+        EXPECT_EQ(dMeta.name, meta.name);
+        EXPECT_EQ(dMeta.author, meta.author);
+        EXPECT_EQ(dMeta.description, meta.description);
+        EXPECT_EQ(dMeta.commitHash, meta.commitHash);
+        EXPECT_EQ(dMeta.version.revisionID, meta.version.revisionID);
+        EXPECT_EQ(dMeta.version.major, meta.version.major);
+        EXPECT_EQ(dMeta.packlastModified, meta.packlastModified);
+        EXPECT_EQ(dMeta.createdDate, meta.createdDate);
+        EXPECT_EQ(dMeta.department, meta.department);
+
+        const auto& deps = pDeserialized->getDependencies();
+        ASSERT_EQ(deps.size(), coldData->dependencies.size());
+        for (size_t i = 0; i < deps.size(); ++i) {
+            EXPECT_EQ(deps[i].assetID, coldData->dependencies[i].assetID);
+            EXPECT_EQ(deps[i].type, coldData->dependencies[i].type);
+            for (int j = 0; j < 12; ++j)
+                EXPECT_EQ(deps[i]._pad0[j], coldData->dependencies[i]._pad0[j]);
+        }
+        rz_free(coldData);
+    }
 
 }    // namespace Razix
