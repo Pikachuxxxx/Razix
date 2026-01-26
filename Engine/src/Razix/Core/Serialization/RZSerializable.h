@@ -134,7 +134,7 @@ namespace Razix {
         int      bitIndex;
     };
 
-    void* RZAssetUtilCreateAssetInstanceInPlace(void* memoryBacking, void* coldDataBacking);
+    RAZIX_API void* RZAssetUtilCreateAssetInstanceInPlace(void* memoryBacking, void* coldDataBacking);
 
     template<typename Derived>
     class RZSerializable
