@@ -42,6 +42,15 @@
     }
 // clang-format on
 
+// Friend helped to access private/protected members for reflection
+#define RAZIX_REFLECT_FRIEND_FWD_DECL(Type) \
+    namespace Type##_TypeRegistrationNS \
+    {                                   \
+        struct Type##_TypeRegistration; \
+    }
+#define RAZIX_REFLECT_FRIEND(Type) \
+    friend struct Type##_TypeRegistrationNS::Type##_TypeRegistration;
+
 #define RAZIX_REFLECT_PRIMITIVE(Member)           \
     metaData.members.push_back({                  \
         #Member,                                  \

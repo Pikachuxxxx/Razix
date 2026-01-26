@@ -7,6 +7,8 @@
 
 #include "Razix/Core/RZThreadCore.h"
 
+#include "Razix/Core/Reflection/RZReflection.h"
+
 #include "Razix/Core/UUID/RZUUID.h"
 
 #include "Razix/Core/Utils/RZDateUtils.h"
@@ -117,12 +119,28 @@ namespace Razix {
         u8               _pad0[13];
     };
 
+    RAZIX_REFLECT_TYPE_START(RZAssetMetadata)
+    RAZIX_REFLECT_STRING(name)
+    RAZIX_REFLECT_STRING(author)
+    RAZIX_REFLECT_STRING(description)
+    RAZIX_REFLECT_STRING(commitHash)
+    RAZIX_REFLECT_PRIMITIVE(version)
+    RAZIX_REFLECT_PRIMITIVE(packlastModified)
+    RAZIX_REFLECT_PRIMITIVE(createdDate)
+    RAZIX_REFLECT_PRIMITIVE(department)
+    RAZIX_REFLECT_TYPE_END(RZAssetMetadata)
+
     struct RAZIX_ALIGN_TO(MEM_DEF_ALIGNMENT_16) RZAssetDependecy
     {
         RZUUID      assetID;
         RZAssetType type;
         u8          _pad0[12];
     };
+
+    RAZIX_REFLECT_TYPE_START(RZAssetDependecy)
+    RAZIX_REFLECT_UUID(assetID)
+    RAZIX_REFLECT_PRIMITIVE(type)
+    RAZIX_REFLECT_TYPE_END(RZAssetDependecy)
 
     // RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
     // We could do this or instead keep this to 48 bytes and load the vtable pointer and cold data pointer together with this in a single cache line
@@ -139,6 +157,14 @@ namespace Razix {
     };
     static_assert(sizeof(RZAssetHotData) == 64 - RAZIX_COLD_DATA_PTR_SIZE_BYTES, "Hot data must be less than 64 bytes - RAZIX_COLD_DATA_PTR_SIZE_BYTES (8 bytes) ");
 
+    RAZIX_REFLECT_TYPE_START(RZAssetHotData)
+    RAZIX_REFLECT_UUID(UUID)
+    RAZIX_REFLECT_PRIMITIVE(referenceCount)
+    RAZIX_REFLECT_PRIMITIVE(type)
+    RAZIX_REFLECT_PRIMITIVE(storagePreference)
+    RAZIX_REFLECT_PRIMITIVE(flags)
+    RAZIX_REFLECT_TYPE_END(RZAssetHotData)
+
     struct RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE) RZAssetColdData
     {
         RZDynamicArray<RZAssetDependecy> dependencies;    // TODO: can we cap this and use a RZFixedArray? we will know once Tanu is ready
@@ -148,6 +174,12 @@ namespace Razix {
         rz_critical_section              CS;    // forces cache line alignment
     };
 
+    RAZIX_REFLECT_TYPE_START(RZAssetColdData)
+    RAZIX_REFLECT_ARRAY(dependencies)
+    RAZIX_REFLECT_OBJECT(metadata)
+    RAZIX_REFLECT_TYPE_END(RZAssetColdData)
+
+    RAZIX_REFLECT_FRIEND_FWD_DECL(RZAsset)
     /**
      * RZAsset is the base class for the all assets in the engine
      * Razix follows the principle "Everything in an Asset"
@@ -296,10 +328,17 @@ namespace Razix {
         inline bool   operator==(RZAsset& other) { return m_Hot.UUID == other.m_Hot.UUID; }
         inline bool   operator!=(RZAsset& other) { return m_Hot.UUID != other.m_Hot.UUID; }
 
+        RAZIX_REFLECT_FRIEND(RZAsset)
+
     protected:
         RZAssetHotData   m_Hot   = {};
         RZAssetColdData* m_pCold = NULL;
     };
     static_assert(sizeof(RZAsset) == RAZIX_CACHE_LINE_SIZE, "RZAsset size must be equal cache line size");
+
+    RAZIX_REFLECT_TYPE_START(RZAsset)
+    RAZIX_REFLECT_OBJECT(m_Hot)
+    RAZIX_REFLECT_BLOB(m_pCold, sizeof(RZAssetColdData))
+    RAZIX_REFLECT_TYPE_END(RZAsset)
 
 }    // namespace Razix
