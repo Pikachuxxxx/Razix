@@ -517,7 +517,11 @@ namespace Razix {
         // Specialization for RZAsset deserialization where memory is provided externally
         static RZAsset* deserializeAssetFromBinary(const RZDynamicArray<u8>& binary, void* pAssetMemory, void* pColdDataMemory)
         {
-            RAZIX_CORE_ASSERT(typeid(Derived) == typeid(RZAsset), "deserializeAssetFromBinary can only be used for RZAsset types");
+            if constexpr (rz_is_same_v<Derived, RZAsset>) {
+                RAZIX_CORE_ERROR("Use deserializeAssetFromBinary for RZAsset types");
+                RAZIX_DEBUG_BREAK();
+            }
+
             RAZIX_CORE_ASSERT(pAssetMemory != NULL, "Asset memory pointer is null");
             RAZIX_CORE_ASSERT(pColdDataMemory != NULL, "Asset cold data memory pointer is null");
 
