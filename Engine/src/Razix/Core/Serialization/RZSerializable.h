@@ -415,11 +415,16 @@ namespace Razix {
             RAZIX_CORE_ASSERT(member.uuid.ops.get_data != NULL, "RZUUID get_data function pointer is null");
             RAZIX_CORE_ASSERT(member.uuid.ops.set_data != NULL, "RZUUID ops set_data function pointer is null");
 
+
             // UUID is just 16 bytes of data
             if (ar.mode == RZArchiveMode::kWrite) {
                 ar.write(base + member.offset, sizeof(RZUUID));
             } else {
                 ar.read(base + member.offset, sizeof(RZUUID));
+                // this calls the RZUUID constructor internally
+                // TODO: we need to properly use std::start_lifetime as from C++23 to avoid undefined behavior
+                RZUUID* uuid = reinterpret_cast<RZUUID*>(base + member.offset);
+                member.uuid.ops.set_data(uuid, base + member.offset);
             }
         }
 

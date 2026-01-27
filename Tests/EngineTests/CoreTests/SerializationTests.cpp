@@ -211,7 +211,7 @@ namespace Razix {
         original.level          = 42;
         original.experience     = 9999.0f;
 
-        constexpr size_t BlobSize = 64;
+        constexpr size_t BlobSize = 256 * sizeof(char);
 
         original.pName = static_cast<char*>(rz_malloc_aligned(BlobSize));
         ASSERT_NE(original.pName, nullptr);
