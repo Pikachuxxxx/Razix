@@ -726,6 +726,11 @@ namespace Razix {
                 EXPECT_EQ(deps[i]._pad0[j], coldData->dependencies[i]._pad0[j]);
         }
         rz_free(coldData);
+        pDeserialized->destroy();
+        // Don't do this, double-free, just de-allocate the asset mem backing 
+        // rz_free(pDeserialized);
+        rz_free(assetColdDataBacking);
+        rz_free(assetMemoryBacking);
     }
 
     //-------------------------------------------------------------------------
@@ -812,7 +817,7 @@ namespace Razix {
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
         RZAssetRefAsset deserialized = RZSerializable<RZAssetRefAsset>::deserializeFromBinary(readBack);
-        EXPECT_EQ(deserialized.AssetUUID, original.AssetUUID);
+        EXPECT_TRUE(deserialized.AssetUUID == original.AssetUUID) << "Equality operator failed for equivalent AssetRef UUIDs.";
     }
 
     // RZAudioAsset test
