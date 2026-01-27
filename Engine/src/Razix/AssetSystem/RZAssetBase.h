@@ -222,7 +222,7 @@ namespace Razix {
         RAZIX_API RZAsset(RZAssetType type, void* pColdDataMemory);
 
         // Destroys the asset and frees cold data, however hot data will be freed by the asset pools, cold data asset pool can use this util function
-        void destroy();
+        RAZIX_API void destroy();
 
         // Asset Events are defined in the central RZEvent.h file under EventType enum
         // Event management (listeners for asset changes)
