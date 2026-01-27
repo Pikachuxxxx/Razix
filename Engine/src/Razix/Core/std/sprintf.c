@@ -41,13 +41,17 @@
     F(FMT_MOD_t, ptrdiff_t, ptrdiff_t, base)                    \
     F(FMT_MOD_z, size_t, size_t, base)
 
-#define GET_ARG_S(mod, vartype, argtype, base)                                  \
-    case mod: {                                                                 \
-        vartype v = (vartype) va_arg(args, argtype);                            \
-        isNeg     = v < 0;                                                      \
-        val       = isNeg ? (long long) (-(long long) v) : (long long) v;       \
-        writtenBytes += itoa(val, (buf_span) {num_buf, sizeof(num_buf)}, base); \
-        break;                                                                  \
+#define GET_ARG_S(mod, vartype, argtype, base)                        \
+    case mod: {                                                       \
+        vartype v = (vartype) va_arg(args, argtype);                  \
+        isNeg     = v < 0;                                            \
+        unsigned long long uval =                                     \
+            isNeg ? (unsigned long long) (0 - (unsigned long long) v) \
+                  : (unsigned long long) v;                           \
+        writtenBytes += itoa(uval,                                    \
+            (buf_span) {num_buf, sizeof(num_buf)},                    \
+            base);                                                    \
+        break;                                                        \
     }
 
 #define GET_ARG_U(mod, vartype, argtype, base)                                \
