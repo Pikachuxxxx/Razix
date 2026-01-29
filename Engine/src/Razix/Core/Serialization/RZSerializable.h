@@ -136,7 +136,77 @@ namespace Razix {
 
     RAZIX_API void* RZAssetUtilCreateAssetInstanceInPlace(void* memoryBacking, void* coldDataBacking);
 
-    template<typename Derived>
+    enum class RZArchiveMode
+    {
+        kRead,
+        kWrite,
+        COUNT
+    };
+
+    struct RZFileHeader
+    {
+        u8  magic[4];    // 'R','Z','A','F' (Razix Archive File) = 0x525A4146 [echo "RZAF" | xxd]
+        u32 _pad0;
+        u64 headerSize;     // size of the header section
+        u64 payloadSize;    // size of the payload section
+    };
+
+    // Inline payload binary archive
+    struct RZBinaryArchive
+    {
+        RZDynamicArray<u8>* buffer;
+        size_t              cursor = 0;
+        RZArchiveMode       mode;
+
+        void write(const void* src, size_t size)
+        {
+            size_t oldSize = buffer->size();
+            buffer->resize(oldSize + size);
+            memcpy(buffer->data() + oldSize, src, size);
+        }
+
+        void read(void* dst, size_t size)
+        {
+            memcpy(dst, buffer->data() + cursor, size);
+            cursor += size;
+        }
+    };
+
+    struct RZPendingBlob
+    {
+        size_t              headerOffset;    // offset inside headerBuffer
+        const void*         payload;         // original uncompressed payload pointer
+        u32                 payloadSize;     // uncompressed size
+        rz_compression_type compression;     // compression type
+    };
+
+    /**
+     * Out of line compressed archive
+     * Format: [RZFileHeader][HeaderSection][COMPRESSED PayloadSection]
+     */
+    struct RZCompressedArchive
+    {
+        RZDynamicArray<u8>* buffer;
+        size_t              cursor = 0;
+        RZArchiveMode       mode;
+
+        void write(const void* src, size_t size)
+        {
+            RAZIX_UNIMPLEMENTED_METHOD;
+        }
+
+        void read(void* dst, size_t size)
+        {
+            RAZIX_UNIMPLEMENTED_METHOD;
+        }
+
+        void finalize(const RZDynamicArray<RZPendingBlob>& pendingBlobs)
+        {
+            RAZIX_UNIMPLEMENTED_METHOD;
+        }
+    };
+
+    template<typename Derived, typename Archive = RZBinaryArchive>
     class RZSerializable
     {
     public:
@@ -148,33 +218,6 @@ namespace Razix {
         }
 
     private:
-        enum class RZArchiveMode
-        {
-            kRead,
-            kWrite,
-            COUNT
-        };
-
-        struct RZBinaryArchive
-        {
-            RZDynamicArray<u8>* buffer;
-            size_t              cursor = 0;
-            RZArchiveMode       mode;
-
-            void write(const void* src, size_t size)
-            {
-                size_t oldSize = buffer->size();
-                buffer->resize(oldSize + size);
-                memcpy(buffer->data() + oldSize, src, size);
-            }
-
-            void read(void* dst, size_t size)
-            {
-                memcpy(dst, buffer->data() + cursor, size);
-                cursor += size;
-            }
-        };
-
         static void processPrimitive(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
         {
             if (ar.mode == RZArchiveMode::kWrite) {
@@ -414,7 +457,6 @@ namespace Razix {
         {
             RAZIX_CORE_ASSERT(member.uuid.ops.get_data != NULL, "RZUUID get_data function pointer is null");
             RAZIX_CORE_ASSERT(member.uuid.ops.set_data != NULL, "RZUUID ops set_data function pointer is null");
-
 
             // UUID is just 16 bytes of data
             if (ar.mode == RZArchiveMode::kWrite) {
