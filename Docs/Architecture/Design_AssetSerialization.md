@@ -103,6 +103,56 @@ struct SerializedMap {
 };
 ```
 
+## Compression
+File format: RZCompressedArchive uses deferred payloads unlike the RZBinaryArchive
+```
+[RZFileHeader][HeaderSection][PayloadSection]
+```
+
+
+```C++
+// Changes to RZSerializable
+template<typename Derived, typename Archive>
+class RZSerializable;
+```
+
+Both archives must provide:
+
+```C++
+void write(const void* src, size_t size);
+void read(void* dst, size_t size);
+
+static constexpr bool kUsesOutOfLineBlobs;
+```
+
+Only `RZCompressedArchive` additionally provides:
+```C++
+
+void registerBlob(size_t headerOffset,
+                  const void* payload,
+                  u32 payloadSize,
+                  rz_compression_type compression);
+
+void finalize();
+```
+
+Serializer code branches with `if constexpr (Archive::kUsesOutOfLineBlobs)`.
+
+```C++
+struct RZPendingBlob {
+    size_t              headerOffset;   // where the RZSerializedBlob lives in HeaderSection
+    const void*         payload;        // original data pointer
+    u32                 payloadSize;    // uncompressed size
+    rz_compression_type compression;
+};
+```
+- payloads are deferred
+- offsets are patched after compression
+- Walk reflection metadata and defer SerializedBlobs
+- compress/decompress blobs and patch the header using headerOffset once compression is done
+- use if constexpr to switch b/w different Arhive mechanisms, ofc still use custom read/write into archive.
+
+
 ## Async Load mechanism
 - Once a scene graph is loaded or parsed into a RZZone --> it knows what assets to load 
 --> scene graph --> load Zone --> load Mesh/Material (install a placeholder asset and register for AssetLoaded event callback to update the scenegraph) --> push to worker jobs --> pre-defied asset load jobs
