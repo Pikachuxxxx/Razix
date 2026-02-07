@@ -218,7 +218,7 @@ namespace Razix {
         }
 
     private:
-        static void processPrimitive(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
+        static void processPrimitive(Archive& ar, u8* base, const MemberMetaData& member)
         {
             if (ar.mode == RZArchiveMode::kWrite) {
                 // all are assumed to be primitive types
@@ -228,7 +228,7 @@ namespace Razix {
             }
         }
 
-        static void processBlob(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
+        static void processBlob(Archive& ar, u8* base, const MemberMetaData& member)
         {
             if (ar.mode == RZArchiveMode::kWrite) {
                 // Assets to Disk Tag, makes format immune to internal SerializeableDataType changes
@@ -263,7 +263,7 @@ namespace Razix {
             }
         }
 
-        static void processArray(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
+        static void processArray(Archive& ar, u8* base, const MemberMetaData& member)
         {
             RAZIX_CORE_ASSERT(member.array.ops.get_data != NULL, "Array get_data function pointer is null");
             RAZIX_CORE_ASSERT(member.isStaticCompileSizedFixed || member.array.ops.get_size != NULL,
@@ -317,7 +317,7 @@ namespace Razix {
             }
         }
 
-        static void proceessString(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
+        static void proceessString(Archive& ar, u8* base, const MemberMetaData& member)
         {
             RAZIX_CORE_ASSERT(member.string.ops.get_data != NULL, "String get_data function pointer is null");
             RAZIX_CORE_ASSERT(member.string.ops.get_size != NULL, "String get_length function pointer is null");
@@ -357,7 +357,7 @@ namespace Razix {
             }
         }
 
-        static void processHashMap(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
+        static void processHashMap(Archive& ar, u8* base, const MemberMetaData& member)
         {
             RAZIX_CORE_ASSERT(member.map.ops.get_data != NULL, "HashMap get_data function pointer is null");
             RAZIX_CORE_ASSERT(member.map.ops.get_size != NULL, "HashMap get_size function pointer is null");
@@ -431,7 +431,7 @@ namespace Razix {
             }
         }
 
-        static void processObject(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
+        static void processObject(Archive& ar, u8* base, const MemberMetaData& member)
         {
             RAZIX_CORE_ASSERT(member.dataType == SerializeableDataType::kObject, "processObject called for non-object member");
             const TypeMetaData* meta = Razix::RZTypeRegistry::getTypeMetaData(member.object.type);
@@ -453,7 +453,7 @@ namespace Razix {
                 processMember(ar, base, member);
         }
 
-        static void processUUID(RZBinaryArchive& ar, u8* base, const MemberMetaData& member)
+        static void processUUID(Archive& ar, u8* base, const MemberMetaData& member)
         {
             RAZIX_CORE_ASSERT(member.uuid.ops.get_data != NULL, "RZUUID get_data function pointer is null");
             RAZIX_CORE_ASSERT(member.uuid.ops.set_data != NULL, "RZUUID ops set_data function pointer is null");
@@ -470,7 +470,7 @@ namespace Razix {
             }
         }
 
-        static void processMember(RZBinaryArchive& ar, void* objectBase, const MemberMetaData& member)
+        static void processMember(Archive& ar, void* objectBase, const MemberMetaData& member)
         {
             u8* base = reinterpret_cast<u8*>(objectBase);
 
@@ -516,7 +516,7 @@ namespace Razix {
                 return buffer;
             }
 
-            RZBinaryArchive ar{&buffer, 0, RZArchiveMode::kWrite};
+            Archive ar{&buffer, 0, RZArchiveMode::kWrite};
 
             // we don't need to serialize member by member if the whole struct is trivially serializable
             if (meta->bIsTriviallySerializable) {
@@ -549,7 +549,7 @@ namespace Razix {
             }
 
             RZDynamicArray<u8> temp = binary;
-            RZBinaryArchive    ar{&temp, 0, RZArchiveMode::kRead};
+            Archive    ar{&temp, 0, RZArchiveMode::kRead};
 
             if (meta->bIsTriviallySerializable) {
                 memcpy(&data, binary.data(), rz_min<size_t>(meta->size, binary.size()));
@@ -580,7 +580,7 @@ namespace Razix {
             }
 
             RZDynamicArray<u8> temp = binary;
-            RZBinaryArchive    ar{&temp, 0, RZArchiveMode::kRead};
+            Archive    ar{&temp, 0, RZArchiveMode::kRead};
 
             if (meta->bIsTriviallySerializable) {
                 memcpy(pAsset, binary.data(), rz_min<size_t>(meta->size, binary.size()));
