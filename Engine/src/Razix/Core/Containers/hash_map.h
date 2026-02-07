@@ -369,10 +369,10 @@ namespace Razix {
     RZHashMap<Key, Value, Hash, Equal>::RZHashMap()
         : m_Keys(NULL), m_Values(NULL), m_Occupied(NULL), m_Hashes(NULL), m_Length(0), m_Capacity(RZ_INITIAL_HASH_MAP_CAPACITY)
     {
-        m_Keys     = static_cast<Key*>(rz_malloc_aligned(m_Capacity * sizeof(Key)));
-        m_Values   = static_cast<Value*>(rz_malloc_aligned(m_Capacity * sizeof(Value)));
-        m_Occupied = static_cast<bool*>(rz_malloc_aligned(m_Capacity * sizeof(bool)));
-        m_Hashes   = static_cast<uint64_t*>(rz_malloc_aligned(m_Capacity * sizeof(uint64_t)));
+        m_Keys     = static_cast<Key*>(rz_malloc(m_Capacity * sizeof(Key), alignof(Key) < 16 ? 16 : alignof(Key)));
+        m_Values   = static_cast<Value*>(rz_malloc(m_Capacity * sizeof(Value), alignof(Value) < 16 ? 16 : alignof(Value)));
+        m_Occupied = static_cast<bool*>(rz_malloc(m_Capacity * sizeof(bool), alignof(bool) < 16 ? 16 : alignof(bool)));
+        m_Hashes   = static_cast<uint64_t*>(rz_malloc(m_Capacity * sizeof(uint64_t), alignof(uint64_t) < 16 ? 16 : alignof(uint64_t)));
 
         RAZIX_CORE_ASSERT(m_Keys && m_Values && m_Occupied && m_Hashes,
             "[RZHashMap] Failed to allocate memory for hash map");
@@ -390,10 +390,10 @@ namespace Razix {
             m_Capacity = RZ_INITIAL_HASH_MAP_CAPACITY;
         }
 
-        m_Keys     = static_cast<Key*>(rz_malloc_aligned(m_Capacity * sizeof(Key)));
-        m_Values   = static_cast<Value*>(rz_malloc_aligned(m_Capacity * sizeof(Value)));
-        m_Occupied = static_cast<bool*>(rz_malloc_aligned(m_Capacity * sizeof(bool)));
-        m_Hashes   = static_cast<uint64_t*>(rz_malloc_aligned(m_Capacity * sizeof(uint64_t)));
+        m_Keys     = static_cast<Key*>(rz_malloc(m_Capacity * sizeof(Key), alignof(Key) < 16 ? 16 : alignof(Key)));
+        m_Values   = static_cast<Value*>(rz_malloc(m_Capacity * sizeof(Value), alignof(Value) < 16 ? 16 : alignof(Value)));
+        m_Occupied = static_cast<bool*>(rz_malloc(m_Capacity * sizeof(bool), alignof(bool) < 16 ? 16 : alignof(bool)));
+        m_Hashes   = static_cast<uint64_t*>(rz_malloc(m_Capacity * sizeof(uint64_t), alignof(uint64_t) < 16 ? 16 : alignof(uint64_t)));
 
         RAZIX_CORE_ASSERT(m_Keys && m_Values && m_Occupied && m_Hashes,
             "[RZHashMap] Failed to allocate memory for hash map");
@@ -433,10 +433,10 @@ namespace Razix {
     RZHashMap<Key, Value, Hash, Equal>::RZHashMap(const RZHashMap& other)
         : m_Length(0), m_Capacity(other.m_Capacity)
     {
-        m_Keys     = static_cast<Key*>(rz_malloc_aligned(m_Capacity * sizeof(Key)));
-        m_Values   = static_cast<Value*>(rz_malloc_aligned(m_Capacity * sizeof(Value)));
-        m_Occupied = static_cast<bool*>(rz_malloc_aligned(m_Capacity * sizeof(bool)));
-        m_Hashes   = static_cast<uint64_t*>(rz_malloc_aligned(m_Capacity * sizeof(uint64_t)));
+        m_Keys     = static_cast<Key*>(rz_malloc(m_Capacity * sizeof(Key), alignof(Key) < 16 ? 16 : alignof(Key)));
+        m_Values   = static_cast<Value*>(rz_malloc(m_Capacity * sizeof(Value), alignof(Value) < 16 ? 16 : alignof(Value)));
+        m_Occupied = static_cast<bool*>(rz_malloc(m_Capacity * sizeof(bool), alignof(bool) < 16 ? 16 : alignof(bool)));
+        m_Hashes   = static_cast<uint64_t*>(rz_malloc(m_Capacity * sizeof(uint64_t), alignof(uint64_t) < 16 ? 16 : alignof(uint64_t)));
 
         RAZIX_CORE_ASSERT(m_Keys && m_Values && m_Occupied && m_Hashes,
             "[RZHashMap] Hash map is not initialized");
@@ -465,10 +465,10 @@ namespace Razix {
                 rz_free(m_Hashes);
 
                 m_Capacity = other.m_Capacity;
-                m_Keys     = static_cast<Key*>(rz_malloc_aligned(m_Capacity * sizeof(Key)));
-                m_Values   = static_cast<Value*>(rz_malloc_aligned(m_Capacity * sizeof(Value)));
-                m_Occupied = static_cast<bool*>(rz_malloc_aligned(m_Capacity * sizeof(bool)));
-                m_Hashes   = static_cast<uint64_t*>(rz_malloc_aligned(m_Capacity * sizeof(uint64_t)));
+                m_Keys     = static_cast<Key*>(rz_malloc(m_Capacity * sizeof(Key), alignof(Key) < 16 ? 16 : alignof(Key)));
+                m_Values   = static_cast<Value*>(rz_malloc(m_Capacity * sizeof(Value), alignof(Value) < 16 ? 16 : alignof(Value)));
+                m_Occupied = static_cast<bool*>(rz_malloc(m_Capacity * sizeof(bool), alignof(bool) < 16 ? 16 : alignof(bool)));
+                m_Hashes   = static_cast<uint64_t*>(rz_malloc(m_Capacity * sizeof(uint64_t), alignof(uint64_t) < 16 ? 16 : alignof(uint64_t)));
 
                 RAZIX_CORE_ASSERT(m_Keys && m_Values && m_Occupied && m_Hashes,
                     "[RZHashMap] Hash map is not initialized");
@@ -546,10 +546,10 @@ namespace Razix {
         }
 
         // Allocate new arrays
-        Key*      new_keys     = static_cast<Key*>(rz_malloc_aligned(actual_capacity * sizeof(Key)));
-        Value*    new_values   = static_cast<Value*>(rz_malloc_aligned(actual_capacity * sizeof(Value)));
-        bool*     new_occupied = static_cast<bool*>(rz_malloc_aligned(actual_capacity * sizeof(bool)));
-        uint64_t* new_hashes   = static_cast<uint64_t*>(rz_malloc_aligned(actual_capacity * sizeof(uint64_t)));
+        Key*      new_keys     = static_cast<Key*>(rz_malloc(actual_capacity * sizeof(Key), alignof(Key) < 16 ? 16 : alignof(Key)));
+        Value*    new_values   = static_cast<Value*>(rz_malloc(actual_capacity * sizeof(Value), alignof(Value) < 16 ? 16 : alignof(Value)));
+        bool*     new_occupied = static_cast<bool*>(rz_malloc(actual_capacity * sizeof(bool), alignof(bool) < 16 ? 16 : alignof(bool)));
+        uint64_t* new_hashes   = static_cast<uint64_t*>(rz_malloc(actual_capacity * sizeof(uint64_t), alignof(uint64_t) < 16 ? 16 : alignof(uint64_t)));
 
         RAZIX_CORE_ASSERT(new_keys && new_values && new_occupied && new_hashes,
             "[RZHashMap] Failed to allocate memory during reserve");
