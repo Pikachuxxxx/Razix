@@ -169,7 +169,7 @@ namespace Razix {
         size_t              headerOffset;    // offset inside headerBuffer
         const void*         payload;         // original uncompressed payload pointer
         u32                 payloadSize;     // uncompressed size
-        u32                 compressedSize;
+        u32                 compressedSize;  // will be filled later when compression is being done
         rz_compression_type compression;    // compression type
     };
 
@@ -231,6 +231,7 @@ namespace Razix {
             pendingWriteBlobs.push_back({headerOffset,
                 payload,
                 payloadSize,
+                0, // data is not compressed yet
                 compression});
         }
 
@@ -246,7 +247,7 @@ namespace Razix {
                 outPtr});
         }
 
-        void compressPayloads(const RZDynamicArray<RZPendingBlob>& pendingBlobs)
+        void compressPayloads(RZDynamicArray<RZPendingBlob>& pendingBlobs)
         {
             RAZIX_CORE_ASSERT(mode == RZArchiveMode::kWrite, "compressPayloads in read mode");
 
