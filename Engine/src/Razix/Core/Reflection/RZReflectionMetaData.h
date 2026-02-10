@@ -36,6 +36,8 @@ namespace Razix {
         void (*set_size)(void*, size_t);
     };
 
+    using StringOps = ArrayOps;
+
     template<typename ArrayT>
     constexpr ArrayOps make_array_ops()
     {
@@ -100,6 +102,14 @@ namespace Razix {
                 uuid->setData(static_cast<const u8*>(data));
             }};
     }
+
+    struct TypeMetaOps
+    {
+        ArrayOps arrayOps;
+        StringOps stringOps;
+        HashMapOps hashMapOps;
+        UUIDOps uuidOps;
+    };
 
     union TypeMetaAccess
     {
@@ -177,7 +187,7 @@ namespace Razix {
 
             struct
             {
-                ArrayOps ops;
+                StringOps ops;
             } string;    // used for string types
 
             struct
