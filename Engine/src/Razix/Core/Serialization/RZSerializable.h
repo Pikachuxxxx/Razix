@@ -31,7 +31,7 @@ namespace Razix {
     };
 
     // Assets to Disk Tag, makes format immune to internal SerializeableDataType changes
-    RZDiskTypeTag SerializableTypeToDiskTag(SerializeableDataType t);
+    RAZIX_API RZDiskTypeTag SerializableTypeToDiskTag(SerializeableDataType t);
 
     //-------------------------------------------------------------------------
     //  Serialized Data types
@@ -132,7 +132,7 @@ namespace Razix {
 
     // TODO: Stop using RZDynamicArray<u8> maybe, redirect allocations via scratch buffer?
 
-#define RAZIX_ASSSET_FILE_MAGIC 0x525A4146;    // 'R','Z','A','F' (Razix Archive File) = 0x525A4146 [echo "RZAF" | xxd]
+#define RAZIX_ASSSET_FILE_MAGIC 0x525A4146    // 'R','Z','A','F' (Razix Archive File) = 0x525A4146 [echo "RZAF" | xxd]
 
     struct RZFileHeader
     {
