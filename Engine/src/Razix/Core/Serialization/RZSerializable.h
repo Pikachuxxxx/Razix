@@ -150,6 +150,8 @@ namespace Razix {
         RZArchiveMode         mode;
         static constexpr bool kUsesOutOfLineBlobs = false;
 
+        RZBinaryArchive() {}
+
         RZBinaryArchive(RZDynamicArray<u8>* arr, size_t cursor, RZArchiveMode mode)
             : buffer(arr), cursor(cursor), mode(mode) {}
 
@@ -224,25 +226,25 @@ namespace Razix {
      */
     struct RZCompressedArchive
     {
+        RZDynamicArray<u8>*   buffer = NULL;
+        size_t                cursor = 0;
+        RZArchiveMode         mode;
+        static constexpr bool kUsesOutOfLineBlobs = true;
+
         // ---------- write ----------
-        RZDynamicArray<u8>*                finalOutBuffer = NULL;
         RZDynamicArray<u8>                 headerBuffer;
         RZDynamicArray<u8>                 payloadBuffer;
         RZDynamicArray<RZPendingWriteBlob> pendingWriteBlobs;
-
         // ---------- read ----------
         const u8*                         fileBase    = NULL;
         const u8*                         headerBase  = NULL;
         const u8*                         payloadBase = NULL;
         RZDynamicArray<RZPendingReadBlob> pendingReadBlobs;
 
-        size_t        headerCursor = 0;
-        RZArchiveMode mode;
-
-        static constexpr bool kUsesOutOfLineBlobs = true;
+        RZCompressedArchive() {}
 
         RZCompressedArchive(RZDynamicArray<u8>* arr, size_t cursor, RZArchiveMode mode)
-            : finalOutBuffer(arr), headerCursor(cursor), mode(mode) {}
+            : buffer(arr), cursor(cursor), mode(mode) {}
 
         void write(const void* src, size_t size)
         {
@@ -251,15 +253,15 @@ namespace Razix {
             size_t oldSize = headerBuffer.size();
             headerBuffer.resize(oldSize + size);
             memcpy(headerBuffer.data() + oldSize, src, size);
-            headerCursor += size;
+            cursor += size;
         }
 
         void read(void* dst, size_t size)
         {
             RAZIX_CORE_ASSERT(mode == RZArchiveMode::kRead, "read() in write mode");
 
-            memcpy(dst, headerBuffer.data() + headerCursor, size);
-            headerCursor += size;
+            memcpy(dst, headerBuffer.data() + cursor, size);
+            cursor += size;
         }
 
         void registerWriteBlob(size_t headerOffset, const void* payload, u32 payloadSize, rz_compression_type compression)
@@ -318,7 +320,7 @@ namespace Razix {
             pendingReadBlobs.push_back(pending);
         }
 
-        void compressPayloads()
+        void compressPayloads(rz_compression_type compressionType)
         {
             RAZIX_CORE_ASSERT(mode == RZArchiveMode::kWrite, "compressPayloads in read mode");
 
@@ -326,6 +328,8 @@ namespace Razix {
 
             for (auto& pb: pendingWriteBlobs) {
                 size_t payloadStart = payloadBuffer.size();
+
+                pb.compression = compressionType;
 
                 if (pb.compression == RZ_COMPRESSION_NONE) {
                     payloadBuffer.resize(payloadStart + pb.payloadSize);
@@ -418,11 +422,11 @@ namespace Razix {
             fh.headerSectionSize  = static_cast<u32>(headerBuffer.size());
             fh.payloadSectionSize = static_cast<u32>(payloadBuffer.size());
 
-            finalOutBuffer->resize(sizeof(RZFileHeader) +
+            buffer->resize(sizeof(RZFileHeader) +
                                    headerBuffer.size() +
                                    payloadBuffer.size());
 
-            u8* dst = finalOutBuffer->data();
+            u8* dst = buffer->data();
 
             memcpy(dst, &fh, sizeof(fh));
             memcpy(dst + sizeof(fh),
@@ -441,19 +445,20 @@ namespace Razix {
         struct RZAsyncSerializationContext
         {
             RZCompressedArchive archive;
-            union
+            RZArchiveMode       mode;
+            struct WriteState
             {
-                struct
-                {
-                    RZDynamicArray<u8> resultBuffer;
-                } write;
-
-                struct
-                {
-                    Derived*           targetInstance = NULL;
-                    RZDynamicArray<u8> sourceBuffer;
-                } read;
+                RZDynamicArray<u8> resultBuffer;
             };
+
+            struct ReadState
+            {
+                Derived*           targetInstance = nullptr;
+                RZDynamicArray<u8> sourceBuffer;
+            };
+
+            WriteState write;
+            ReadState  read;
         };
 
         virtual ~RZSerializable() = default;
@@ -822,9 +827,7 @@ namespace Razix {
             return data;
         }
 
-        static void* deserializeAssetFromBinary(const RZDynamicArray<u8>& binary,
-            void*                                                         pAssetMemory,
-            void*                                                         pColdDataMemory)
+        static void* deserializeAssetFromBinary(const RZDynamicArray<u8>& binary, void* pAssetMemory, void* pColdDataMemory)
         {
             RAZIX_CORE_ASSERT(pAssetMemory != NULL, "Asset memory pointer is null");
             RAZIX_CORE_ASSERT(pColdDataMemory != NULL, "Asset cold data memory pointer is null");
@@ -863,6 +866,7 @@ namespace Razix {
         static RZAsyncSerializationContext beginAsyncSerialization(const Derived& instance)
         {
             RZAsyncSerializationContext ctx = {};
+            ctx.mode                        = RZArchiveMode::kWrite;
 
             const TypeMetaData* meta = getTypeMetaData();
             if (!meta) {
@@ -893,10 +897,10 @@ namespace Razix {
             return ctx;
         }
 
-        static void processAsyncSerialization(RZAsyncSerializationContext& ctx)
+        static void processAsyncSerialization(RZAsyncSerializationContext& ctx, rz_compression_type compressionType)
         {
             if constexpr (Archive::kUsesOutOfLineBlobs) {
-                ctx.archive.compressPayloads();
+                ctx.archive.compressPayloads(compressionType);
             }
         }
 
@@ -912,6 +916,7 @@ namespace Razix {
             RAZIX_CORE_ASSERT(targetInstance != nullptr, "Target instance is null");
 
             RZAsyncSerializationContext ctx = {};
+            ctx.mode                        = RZArchiveMode::kRead;
             ctx.read.targetInstance         = targetInstance;
             ctx.read.sourceBuffer           = binary;
 
