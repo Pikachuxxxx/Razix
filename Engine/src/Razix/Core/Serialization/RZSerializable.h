@@ -145,10 +145,13 @@ namespace Razix {
     // Inline payload binary archive
     struct RZBinaryArchive
     {
-        RZDynamicArray<u8>*   buffer;
+        RZDynamicArray<u8>*   buffer = NULL;
         size_t                cursor = 0;
         RZArchiveMode         mode;
         static constexpr bool kUsesOutOfLineBlobs = false;
+
+        RZBinaryArchive(RZDynamicArray<u8>* arr, size_t cursor, RZArchiveMode mode)
+            : buffer(arr), cursor(cursor), mode(mode) {}
 
         void write(const void* src, size_t size)
         {
@@ -237,6 +240,9 @@ namespace Razix {
         RZArchiveMode mode;
 
         static constexpr bool kUsesOutOfLineBlobs = true;
+
+        RZCompressedArchive(RZDynamicArray<u8>* arr, size_t cursor, RZArchiveMode mode)
+            : finalOutBuffer(arr), headerCursor(cursor), mode(mode) {}
 
         void write(const void* src, size_t size)
         {
@@ -405,7 +411,7 @@ namespace Razix {
                 payloadCursor += pb.compressedSize;
             }
 
-            // emit final buffer
+            // emit final bufferWrites
             RZFileHeader fh       = {};
             fh.magic              = RAZIX_ASSSET_FILE_MAGIC;
             fh.version            = 1;
@@ -757,11 +763,19 @@ namespace Razix {
                 return buffer;
             }
 
-            Archive ar{&buffer, 0, RZArchiveMode::kWrite};
+            Archive ar(&buffer, 0, RZArchiveMode::kWrite);
+
+            if constexpr (!Archive::kUsesOutOfLineBlobs) {
+                RZFileHeader fh       = {};
+                fh.magic              = RAZIX_ASSSET_FILE_MAGIC;
+                fh.version            = 0;
+                fh.payloadSectionSize = 0;
+                fh.headerSectionSize  = 0;
+                ar.write(&fh, sizeof(RZFileHeader));
+            }
 
             if (meta->bIsTriviallySerializable) {
-                buffer.resize(meta->size);
-                memcpy(buffer.data(), &instance, meta->size);
+                ar.write(&instance, meta->size);
                 return buffer;
             }
 
@@ -788,10 +802,16 @@ namespace Razix {
             }
 
             RZDynamicArray<u8> temp = binary;
-            Archive            ar{&temp, 0, RZArchiveMode::kRead};
+            Archive            ar(&temp, 0, RZArchiveMode::kRead);
+
+            // Read File header
+            RZFileHeader fh = {};
+            ar.read(&fh, sizeof(RZFileHeader));
+
+            RAZIX_CORE_ASSERT(fh.magic == RAZIX_ASSSET_FILE_MAGIC, "[Serializer] Asset file magic header is corrupted!");
 
             if (meta->bIsTriviallySerializable) {
-                memcpy(&data, binary.data(), rz_min<size_t>(meta->size, binary.size()));
+                ar.read(&data, rz_min<size_t>(meta->size, binary.size()));
                 return data;
             }
 
@@ -819,8 +839,14 @@ namespace Razix {
             RZDynamicArray<u8> temp = binary;
             Archive            ar{&temp, 0, RZArchiveMode::kRead};
 
+            // Read File header
+            RZFileHeader fh = {};
+            ar.read(&fh, sizeof(RZFileHeader));
+
+            RAZIX_CORE_ASSERT(fh.magic == RAZIX_ASSSET_FILE_MAGIC, "[Serializer] Asset file magic header is corrupted!");
+
             if (meta->bIsTriviallySerializable) {
-                memcpy(pAsset, binary.data(), rz_min<size_t>(meta->size, binary.size()));
+                ar.read(&pAsset, rz_min<size_t>(meta->size, binary.size()));
                 return pAsset;
             }
 
