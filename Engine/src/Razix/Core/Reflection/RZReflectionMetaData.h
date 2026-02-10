@@ -101,6 +101,46 @@ namespace Razix {
             }};
     }
 
+    union TypeMetaAccess
+    {
+        struct
+        {
+            u32 size;    // sizeof(member)
+        } trivial;       // used for primitive and blob types
+
+        struct
+        {
+            u32      elementSize;
+            u32      elementCount;
+            ArrayOps ops;
+        } array;    // used for dynamic array types
+
+        struct
+        {
+            ArrayOps ops;
+        } string;    // used for string types
+
+        struct
+        {
+            u32             keySize;
+            u32             valueSize;
+            std::type_index keyType;
+            std::type_index valueType;
+            HashMapOps      ops;
+        } map;
+
+        struct
+        {
+            std::type_index type;
+        } object;    // nested object type info, use this to get TypeMetaData from the registry and call processMember recursively on it's members
+
+        struct
+        {
+            UUIDOps ops;
+        } uuid;
+    };
+
+
     struct MemberMetaData
     {
         RZString              name;        // variable name
@@ -119,7 +159,8 @@ namespace Razix {
                 u32                 reserved : 27;
             };
         };
-
+        
+        // Replace with TypeMetaAccess, I don't want to refactor so duplicating it for now
         union
         {
             struct

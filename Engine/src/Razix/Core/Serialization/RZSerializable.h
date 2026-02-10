@@ -166,20 +166,24 @@ namespace Razix {
 
     struct RZPendingBlob
     {
-        size_t              headerOffset;    // offset inside headerBuffer
-        const void*         payload;         // original uncompressed payload pointer
-        u32                 payloadSize;     // uncompressed size
-        u32                 compressedSize;  // will be filled later when compression is being done
-        rz_compression_type compression;    // compression type
+        size_t              headerOffset;      // offset inside headerBuffer
+        const void*         payload;           // original uncompressed payload pointer
+        u32                 payloadSize;       // uncompressed size
+        u32                 compressedSize;    // will be filled later when compression is being done
+        rz_compression_type compression;       // compression type
     };
 
     struct RZPendingReadBlob
     {
-        u64                 fileOffset;    // absolute offset in file
-        u32                 compressedSize;
-        u32                 decompressedSize;
-        rz_compression_type compression;
-        void*               outPtr;    // where final pointer goes
+        u64                   fileOffset;    // absolute offset in file
+        u32                   decompressedSize;
+        rz_compression_type   compression;
+        SerializeableDataType type;
+        union
+        {
+            void** outPtr;          // where final pointer goes
+            void*  typeInstance;    // deferred complex types to set data on using TypeMetaAccess
+        };
     };
 
     /**
@@ -231,23 +235,41 @@ namespace Razix {
             pendingWriteBlobs.push_back({headerOffset,
                 payload,
                 payloadSize,
-                0, // data is not compressed yet
+                0,    // data is not compressed yet
                 compression});
         }
 
-        void registerReadBlob(const RZSerializedBlob& blob, void* outPtr)
+        void registerReadBlob(const RZSerializedBlob& blob, void** outPtr)
         {
             RAZIX_CORE_ASSERT(mode == RZArchiveMode::kRead, "registerReadBlob in write mode");
             RAZIX_CORE_ASSERT(outPtr != NULL, "outPtr is null");
 
-            pendingReadBlobs.push_back({static_cast<u64>(blob.offset),
-                blob.size,
-                blob.decompressedSize,
-                blob.compression,
-                outPtr});
+            RZPendingReadBlob pendingRead = {};
+            pendingRead.decompressedSize  = blob.decompressedSize;
+            pendingRead.compression       = blob.compression;
+            pendingRead.compression       = blob.compression;
+            pendingRead.type              = SerializeableDataType::kBlob;
+            pendingRead.outPtr            = outPtr;
+
+            pendingReadBlobs.push_back(pendingRead);
         }
 
-        void compressPayloads(RZDynamicArray<RZPendingBlob>& pendingBlobs)
+        void registerReadBlob(const RZSerializedBlob& blob, SerializeableDataType type, void* typeInstance)
+        {
+            RAZIX_CORE_ASSERT(mode == RZArchiveMode::kRead, "registerReadBlob in write mode");
+            RAZIX_CORE_ASSERT(typeInstance != NULL, "TypeInstance is null");
+
+            RZPendingReadBlob pendingRead = {};
+            pendingRead.decompressedSize  = blob.decompressedSize;
+            pendingRead.compression       = blob.compression;
+            pendingRead.compression       = blob.compression;
+            pendingRead.type              = type;
+            pendingRead.typeInstance      = typeInstance;
+
+            pendingReadBlobs.push_back(pendingRead);
+        }
+
+        void compressPayloads()
         {
             RAZIX_CORE_ASSERT(mode == RZArchiveMode::kWrite, "compressPayloads in read mode");
 
@@ -287,18 +309,24 @@ namespace Razix {
             for (auto& rb: pendingReadBlobs) {
                 const u8* src = fileBase + rb.fileOffset;
 
+                // TODO: use a scratch buffer for serializer allocations
+                *rb.outPtr = rz_malloc_aligned(rb.decompressedSize);
+
                 if (rb.compression == RZ_COMPRESSION_NONE) {
-                    rb.outPtr = const_cast<u8*>(src);
+                    memcpy(*rb.outPtr, src, rb.decompressedSize);
                 } else {
                     void*  dst                 = rb.outPtr;
                     size_t outDecompressedSize = 0;
                     rz_decompress(rb.compression, src, rb.compressedSize, dst, rb.decompressedSize, &outDecompressedSize);
                     RAZIX_CORE_ASSERT(outDecompressedSize >= rb.decompressedSize, "[Serialization] decompressed blob size is less that expected, corrupted decompression has occured!");
                 }
+
+                switch (rb.type) {
+                }
             }
         }
 
-        void finalize(const RZDynamicArray<RZPendingBlob>& pendingBlobs)
+        void finalizeWrites()
         {
             RAZIX_CORE_ASSERT(mode == RZArchiveMode::kWrite, "finalize in read mode");
 
@@ -340,12 +368,34 @@ namespace Razix {
                 payloadBuffer.data(),
                 payloadBuffer.size());
         }
+
+        void fireupReads() {}
+
+        void finalizeReads() {}
     };
 
     template<typename Derived, typename Archive = RZBinaryArchive>
     class RZSerializable
     {
     public:
+        struct RZAsyncSerializationContext
+        {
+            RZCompressedArchive archive;
+            union
+            {
+                struct
+                {
+                    RZDynamicArray<u8> resultBuffer;
+                } write;
+
+                struct
+                {
+                    Derived*           targetInstance = NULL;
+                    RZDynamicArray<u8> sourceBuffer;
+                } read;
+            };
+        };
+
         virtual ~RZSerializable() = default;
 
         static const TypeMetaData* getTypeMetaData()
@@ -374,6 +424,9 @@ namespace Razix {
                 blob.compression      = RZ_COMPRESSION_NONE;
                 blob.decompressedSize = member.trivial.size;
 
+                // we pass the header offset so careful, ar.cursor tracks that as we only write headers inline
+                size_t headerOffset = ar.cursor;
+
                 ar.write(&blob, sizeof(RZSerializedBlob));
 
                 const void* blobSrc = *reinterpret_cast<void* const*>(base + member.offset);
@@ -381,7 +434,7 @@ namespace Razix {
 
                 // Deferred payloads (mostly used by RZCompressedArchive)
                 if constexpr (Archive::kUsesOutOfLineBlobs) {
-                    ar.registerWriteBlob();
+                    ar.registerWriteBlob(headerOffset, blobSrc, blob.decompressedSize, blob.compression);
                 } else {
                     // Write the inline payload right after the blob metadata
                     ar.write(blobSrc, blob.size);
@@ -391,15 +444,17 @@ namespace Razix {
                 RZSerializedBlob blob = {};
                 ar.read(&blob, sizeof(RZSerializedBlob));
 
-                // TESTING ONLY! memory allocation for blob payload
-                // FIXME: don't allocate memory, pass a pre-allocated buffer from outside,
-                // FIXME: the Derived should be passed with pre-allocated memory for blobs
-                // TODO: Or even better pass a scratch allocator to allocate memory from
-                void* payload = rz_malloc_aligned(blob.decompressedSize);
-                ar.read(payload, blob.size);
+                void** readSrc = reinterpret_cast<void**>(base + member.offset);
 
-                // store the pointer into the struct
-                *reinterpret_cast<void**>(base + member.offset) = payload;
+                if constexpr (Archive::kUsesOutOfLineBlobs) {
+                    ar.registerReadBlob(blob, readSrc);
+                } else {
+                    // TODO: Or even better pass a scratch allocator to allocate memory from
+                    void* payload = rz_malloc_aligned(blob.decompressedSize);
+                    ar.read(payload, blob.size);
+                    // store the pointer into the struct
+                    *readSrc = payload;
+                }
             }
         }
 
@@ -435,10 +490,17 @@ namespace Razix {
                 serializedArray.elementSize       = member.array.elementSize;
                 serializedArray.elementCount      = static_cast<u32>(cnt);
 
+                size_t headerOffset = ar.cursor;
                 ar.write(&serializedArray, sizeof(RZSerializedArray));
 
                 // now write the inline blob payload
                 ar.write(data, blob.size);
+                if constexpr (Archive::kUsesOutOfLineBlobs) {
+                    ar.registerWriteBlob(headerOffset, data, blob.decompressedSize, blob.compression);
+                } else {
+                    // Write the inline payload right after the blob metadata
+                    ar.write(data, blob.decompressedSize);
+                }
             } else {
                 RZSerializedArray serializedArray = {};
                 ar.read(&serializedArray, sizeof(RZSerializedArray));
@@ -451,8 +513,13 @@ namespace Razix {
                 // memory allocation for array is done internally as-usualy, unless containers use custom allocators
                 void* arr = reinterpret_cast<void*>(base + member.offset);
                 member.array.ops.set_size(arr, serializedArray.elementCount);
-                member.array.ops.set_data(arr, ar.buffer->data() + ar.cursor);
 
+                if constexpr (Archive::kUsesOutOfLineBlobs) {
+                    ar.registerReadBlob(serializedArray.data, SerializeableDataType::kArray, arr);
+
+                } else {
+                    member.array.ops.set_data(arr, ar.buffer->data() + ar.cursor);
+                }
                 ar.cursor += serializedArray.data.size;
             }
         }
@@ -734,6 +801,27 @@ namespace Razix {
             return pAsset;
         }
     };
+
+    // Async routines
+    static void beginAsyncSerialization()
+    {
+    }
+    static void processAsyncSerialization()
+    {
+    }
+    static void endAsyncSerialization()
+    {
+    }
+
+    static void beginAsyncDeserialization()
+    {
+    }
+    static void processAsyncDeserialization()
+    {
+    }
+    static void endAsyncDeserialization()
+    {
+    }
 
 }    // namespace Razix
 #endif    // _RZ_SERIALIZABLE_H
