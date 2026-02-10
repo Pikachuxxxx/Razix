@@ -1,6 +1,8 @@
 // Serialization.cpp
 // Pikachuxxxx + AI-generated unit tests for the Type Registration classes
 
+#include <Core/Compression/RZCompression.h>
+#include <Core/Log/RZLog.h>
 #include <Razix/Core/RZCore.h>
 
 #include <Razix/Core/OS/RZFileSystem.h>
@@ -453,6 +455,137 @@ namespace Razix {
         PlayerIDs deserialized = RZSerializable<PlayerIDs>::deserializeFromBinary(readBack);
 
         EXPECT_EQ(original.id, deserialized.id) << "UUIDs changed across serialization";
+    }
+
+    //-------------------------------------------------------------------------
+
+    class RZCompressedArchiveSerializationTests : public ::testing::Test
+    {
+    protected:
+        void SetUp() override
+        {
+            Debug::RZLog::StartUp();
+        }
+
+        void TearDown() override
+        {
+            Debug::RZLog::Shutdown();
+        }
+    };
+
+    template<typename T>
+    static T CompressedRoundTrip(const T& original)
+    {
+        auto writeCtx = RZSerializable<T, RZCompressedArchive>::beginAsyncSerialization(original);
+        RZSerializable<T, RZCompressedArchive>::processAsyncSerialization(writeCtx, RZ_COMPRESSION_LZ4);
+        RZSerializable<T, RZCompressedArchive>::endAsyncSerialization(writeCtx);
+
+        RAZIX_CORE_INFO("COMPRESSED Serialization is done!");
+
+        T deserialized = {};
+        auto readCtx   = RZSerializable<T, RZCompressedArchive>::beginAsyncDeserialization(writeCtx.write.resultBuffer, &deserialized);
+        RZSerializable<T, RZCompressedArchive>::processAsyncDeserialization(readCtx);
+        RZSerializable<T, RZCompressedArchive>::endAsyncDeserialization(readCtx);
+
+        return deserialized;
+    }
+
+    TEST_F(RZCompressedArchiveSerializationTests, PODAsyncCompressedRoundtrip)
+    {
+        PlayerStats original = {};
+        original.health      = 321;
+        original.rage        = 11.5f;
+        original.stamina     = 9.25;
+        original.rank        = 'S';
+        original.complexData = float4{9.0f, 8.0f, 7.0f, 6.0f};
+
+        auto deserialized = CompressedRoundTrip(original);
+
+        EXPECT_EQ(deserialized.health, original.health);
+        EXPECT_FLOAT_EQ(deserialized.rage, original.rage);
+        EXPECT_DOUBLE_EQ(deserialized.stamina, original.stamina);
+        EXPECT_EQ(deserialized.rank, original.rank);
+        EXPECT_EQ(deserialized.complexData, original.complexData);
+    }
+
+    TEST_F(RZCompressedArchiveSerializationTests, BlobAsyncCompressedRoundtrip)
+    {
+        PlayerMetaData original = {};
+        original.level          = 7;
+        original.experience     = 1337.0f;
+
+        constexpr size_t BlobSize = 256 * sizeof(char);
+        original.pName            = static_cast<char*>(rz_malloc_aligned(BlobSize));
+        ASSERT_NE(original.pName, nullptr);
+
+        std::memset(original.pName, 0, BlobSize);
+        const char* name = "Atreus, son of Kratos";
+        std::strncpy(original.pName, name, BlobSize - 1);
+
+        auto deserialized = CompressedRoundTrip(original);
+
+        ASSERT_NE(deserialized.pName, nullptr);
+        EXPECT_STREQ(deserialized.pName, original.pName);
+        EXPECT_EQ(deserialized.level, original.level);
+        EXPECT_FLOAT_EQ(deserialized.experience, original.experience);
+
+        rz_free(original.pName);
+        rz_free(deserialized.pName);
+    }
+
+    TEST_F(RZCompressedArchiveSerializationTests, ArrayAsyncCompressedRoundtrip)
+    {
+        PlayerInventory original = {};
+        for (int i = 0; i < 8; ++i) {
+            original.itemIDs.push_back(i * 2);
+            original.itemWeights.push_back(static_cast<float>(i) + 0.5f);
+        }
+        for (size_t i = 0; i < original.weaponIDs.capacity(); ++i) {
+            original.weaponIDs.push_back(static_cast<int>(i + 42));
+        }
+
+        auto deserialized = CompressedRoundTrip(original);
+
+        ASSERT_EQ(deserialized.itemIDs.size(), original.itemIDs.size());
+        ASSERT_EQ(deserialized.itemWeights.size(), original.itemWeights.size());
+        for (size_t i = 0; i < original.itemIDs.size(); ++i) {
+            EXPECT_EQ(deserialized.itemIDs[i], original.itemIDs[i]);
+            EXPECT_FLOAT_EQ(deserialized.itemWeights[i], original.itemWeights[i]);
+        }
+
+        ASSERT_EQ(deserialized.weaponIDs.size(), original.weaponIDs.size());
+        for (size_t i = 0; i < original.weaponIDs.size(); ++i) {
+            EXPECT_EQ(deserialized.weaponIDs[i], original.weaponIDs[i]);
+        }
+    }
+
+    TEST_F(RZCompressedArchiveSerializationTests, StringAsyncCompressedRoundtrip)
+    {
+        PlayerProfile original = {};
+        original.playerName    = RZString("Kratos");
+        original.bio           = RZString("Dad bod with a Leviathan axe.");
+
+        auto deserialized = CompressedRoundTrip(original);
+
+        EXPECT_STREQ(deserialized.playerName.c_str(), original.playerName.c_str());
+        EXPECT_STREQ(deserialized.bio.c_str(), original.bio.c_str());
+    }
+
+    TEST_F(RZCompressedArchiveSerializationTests, HashMapAsyncCompressedRoundtrip)
+    {
+        PlayerSettings original = {};
+        for (int i = 0; i < 16; ++i) {
+            original.settings.insert(i, i * 3);
+        }
+
+        auto deserialized = CompressedRoundTrip(original);
+
+        EXPECT_EQ(deserialized.settings.size(), original.settings.size());
+        for (const auto& [key, value]: original.settings) {
+            auto it = deserialized.settings.find(key);
+            ASSERT_NE(it, deserialized.settings.end());
+            EXPECT_EQ(it->second, value);
+        }
     }
 
     //-------------------------------------------------------------------------
