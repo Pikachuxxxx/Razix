@@ -474,16 +474,30 @@ namespace Razix {
     };
 
     template<typename T>
-    static T CompressedRoundTrip(const T& original)
+    static T CompressedRoundTrip(const T& original, const std::string& tempFileName = "compressed_roundtrip.bin")
     {
+        // Serialize (compressed) to memory
         auto writeCtx = RZSerializable<T, RZCompressedArchive>::beginAsyncSerialization(original);
         RZSerializable<T, RZCompressedArchive>::processAsyncSerialization(writeCtx, RZ_COMPRESSION_LZ4);
         RZSerializable<T, RZCompressedArchive>::endAsyncSerialization(writeCtx);
 
-        RAZIX_CORE_INFO("COMPRESSED Serialization is done!");
+        // Persist to disk
+        fs::path tempPath = fs::temp_directory_path() / tempFileName;
+        RAZIX_CORE_INFO("Temporary path for CompressedRoundTrip: {}", tempPath.string().c_str());
+        Razix::RZFileSystem::WriteFile(
+            RZString(tempPath.string().c_str()),
+            writeCtx.write.resultBuffer.data(),
+            writeCtx.write.resultBuffer.size());
 
+        // Read back from disk
+        RZDynamicArray<u8> readBack;
+        i64 size = Razix::RZFileSystem::GetFileSize(tempPath.string().c_str());
+        readBack.resize(size);
+        Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
+
+        // Deserialize from the file buffer
         T deserialized = {};
-        auto readCtx   = RZSerializable<T, RZCompressedArchive>::beginAsyncDeserialization(writeCtx.write.resultBuffer, &deserialized);
+        auto readCtx = RZSerializable<T, RZCompressedArchive>::beginAsyncDeserialization(readBack, &deserialized);
         RZSerializable<T, RZCompressedArchive>::processAsyncDeserialization(readCtx);
         RZSerializable<T, RZCompressedArchive>::endAsyncDeserialization(readCtx);
 
@@ -493,13 +507,13 @@ namespace Razix {
     TEST_F(RZCompressedArchiveSerializationTests, PODAsyncCompressedRoundtrip)
     {
         PlayerStats original = {};
-        original.health      = 321;
+        original.health      = 100;
         original.rage        = 11.5f;
         original.stamina     = 9.25;
         original.rank        = 'S';
         original.complexData = float4{9.0f, 8.0f, 7.0f, 6.0f};
 
-        auto deserialized = CompressedRoundTrip(original);
+        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerStats.bin");
 
         EXPECT_EQ(deserialized.health, original.health);
         EXPECT_FLOAT_EQ(deserialized.rage, original.rage);
@@ -511,7 +525,7 @@ namespace Razix {
     TEST_F(RZCompressedArchiveSerializationTests, BlobAsyncCompressedRoundtrip)
     {
         PlayerMetaData original = {};
-        original.level          = 7;
+        original.level          = 42;
         original.experience     = 1337.0f;
 
         constexpr size_t BlobSize = 256 * sizeof(char);
@@ -522,7 +536,7 @@ namespace Razix {
         const char* name = "Atreus, son of Kratos";
         std::strncpy(original.pName, name, BlobSize - 1);
 
-        auto deserialized = CompressedRoundTrip(original);
+        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerMetaData.bin");
 
         ASSERT_NE(deserialized.pName, nullptr);
         EXPECT_STREQ(deserialized.pName, original.pName);
@@ -544,7 +558,7 @@ namespace Razix {
             original.weaponIDs.push_back(static_cast<int>(i + 42));
         }
 
-        auto deserialized = CompressedRoundTrip(original);
+        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerInventory.bin");
 
         ASSERT_EQ(deserialized.itemIDs.size(), original.itemIDs.size());
         ASSERT_EQ(deserialized.itemWeights.size(), original.itemWeights.size());
@@ -565,7 +579,7 @@ namespace Razix {
         original.playerName    = RZString("Kratos");
         original.bio           = RZString("Dad bod with a Leviathan axe.");
 
-        auto deserialized = CompressedRoundTrip(original);
+        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerProfile.bin");
 
         EXPECT_STREQ(deserialized.playerName.c_str(), original.playerName.c_str());
         EXPECT_STREQ(deserialized.bio.c_str(), original.bio.c_str());
@@ -578,7 +592,7 @@ namespace Razix {
             original.settings.insert(i, i * 3);
         }
 
-        auto deserialized = CompressedRoundTrip(original);
+        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerSettings.bin");
 
         EXPECT_EQ(deserialized.settings.size(), original.settings.size());
         for (const auto& [key, value]: original.settings) {
