@@ -423,18 +423,23 @@ namespace Razix {
             fh.payloadSectionSize = static_cast<u32>(payloadBuffer.size());
 
             buffer->resize(sizeof(RZFileHeader) +
-                                   headerBuffer.size() +
-                                   payloadBuffer.size());
+                           headerBuffer.size() +
+                           payloadBuffer.size());
 
             u8* dst = buffer->data();
+
+            RAZIX_CORE_INFO("Finalized archive with header size {} bytes and payload size {} bytes",
+                headerBuffer.size(), payloadBuffer.size());
 
             memcpy(dst, &fh, sizeof(fh));
             memcpy(dst + sizeof(fh),
                 headerBuffer.data(),
                 headerBuffer.size());
-            memcpy(dst + sizeof(fh) + headerBuffer.size(),
-                payloadBuffer.data(),
-                payloadBuffer.size());
+            if (payloadBuffer.size() > 0) {
+                memcpy(dst + sizeof(fh) + headerBuffer.size(),
+                    payloadBuffer.data(),
+                    payloadBuffer.size());
+            }
         }
     };
 
