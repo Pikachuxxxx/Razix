@@ -413,6 +413,8 @@ namespace Razix {
 
                 hdr->size = pb.compressedSize;
                 payloadCursor += pb.compressedSize;
+
+                hdr->compression = pb.compression;
             }
 
             // emit final bufferWrites
@@ -944,11 +946,10 @@ namespace Razix {
                 const size_t fileHeaderSize = sizeof(RZFileHeader);
                 const size_t headerOffset   = fileHeaderSize;
                 const size_t payloadOffset  = fileHeaderSize + fh.headerSectionSize;
-                const size_t blobOffset     = payloadOffset + fh.payloadSectionSize;
 
                 u8* fileBase    = ctx.read.sourceBuffer.data();
                 u8* headerBase  = fileBase + headerOffset;
-                u8* payloadBase = fileBase + blobOffset;
+                u8* payloadBase = fileBase + payloadOffset;
 
                 ctx.archive.fileBase     = fileBase;
                 ctx.archive.headerBase   = headerBase;
