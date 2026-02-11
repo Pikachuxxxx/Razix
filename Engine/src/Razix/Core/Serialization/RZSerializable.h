@@ -132,7 +132,7 @@ namespace Razix {
 
     // TODO: Stop using RZDynamicArray<u8> maybe, redirect allocations via scratch buffer?
 
-#define RAZIX_ASSSET_FILE_MAGIC 0x525A4146    // 'R','Z','A','F' (Razix Archive File) = 0x525A4146 [echo "RZAF" | xxd]
+#define RAZIX_ASSSET_FILE_MAGIC 0x46415A52    // 'R','Z','A','F' (Razix Archive File) = 0x525A4146 [echo "RZAF" | xxd]
 
     struct RZFileHeader
     {
@@ -260,7 +260,7 @@ namespace Razix {
         {
             RAZIX_CORE_ASSERT(mode == RZArchiveMode::kRead, "read() in write mode");
 
-            memcpy(dst, headerBuffer.data() + cursor, size);
+            memcpy(dst, buffer->data() + cursor, size);
             cursor += size;
         }
 
@@ -432,9 +432,11 @@ namespace Razix {
                 headerBuffer.size(), payloadBuffer.size());
 
             memcpy(dst, &fh, sizeof(fh));
-            memcpy(dst + sizeof(fh),
-                headerBuffer.data(),
-                headerBuffer.size());
+            if(headerBuffer.size() > 0) {
+                memcpy(dst + sizeof(fh),
+                    headerBuffer.data(),
+                    headerBuffer.size());
+            }
             if (payloadBuffer.size() > 0) {
                 memcpy(dst + sizeof(fh) + headerBuffer.size(),
                     payloadBuffer.data(),
@@ -880,7 +882,7 @@ namespace Razix {
                 return ctx;
             }
 
-            ctx.archive = Archive(&ctx.write.resultBuffer, 0, RZArchiveMode::kWrite);
+            ctx.archive = Archive(&ctx.write.resultBuffer, 0, ctx.mode);
 
             if constexpr (!Archive::kUsesOutOfLineBlobs) {
                 RZFileHeader fh{};
@@ -932,10 +934,9 @@ namespace Razix {
                 return ctx;
             }
 
-            ctx.archive = Archive(&ctx.read.sourceBuffer, 0, RZArchiveMode::kRead);
+            ctx.archive = Archive(&ctx.read.sourceBuffer, 0, ctx.mode);
 
-            // Inline archive: optionally consume header now.
-            if constexpr (!Archive::kUsesOutOfLineBlobs) {
+            if constexpr (Archive::kUsesOutOfLineBlobs) {
                 RZFileHeader fh{};
                 ctx.archive.read(&fh, sizeof(RZFileHeader));
                 RAZIX_CORE_ASSERT(fh.magic == RAZIX_ASSSET_FILE_MAGIC, "[Serializer] Bad magic");
@@ -952,8 +953,7 @@ namespace Razix {
                 ctx.archive.fileBase     = fileBase;
                 ctx.archive.headerBase   = headerBase;
                 ctx.archive.payloadBase  = payloadBase;
-                ctx.archive.mode         = RZArchiveMode::kRead;
-                ctx.archive.headerCursor = 0;
+                ctx.archive.mode         = ctx.mode;
                 ctx.archive.pendingReadBlobs.clear();
             }
 
