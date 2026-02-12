@@ -10,6 +10,8 @@
 #include <Razix/Core/Serialization/RZSerializable.h>
 #include <Razix/Core/UUID/RZUUID.h>
 
+#include <Razix/Core/Memory/Allocators/RZHeapAllocator.h>
+
 // Explicitly disable RHI profiling for these tests
 #define RAZIX_RHI_EXT_PROFILER_DISABLE
 
@@ -36,6 +38,8 @@
 
 #include <filesystem>
 #include <fstream>
+
+// NOTE: Per-fixture heap allocators are initialized in each Test::SetUp()
 
 namespace fs = std::filesystem;
 
@@ -155,13 +159,17 @@ namespace Razix {
     class RZSerializationTests : public ::testing::Test
     {
     protected:
+        Memory::RZHeapAllocator heapAllocator;
+
         void SetUp() override
         {
             Debug::RZLog::StartUp();
+            heapAllocator.init(256ull * 1024ull * 1024ull);
         }
 
         void TearDown() override
         {
+            heapAllocator.shutdown();
             Debug::RZLog::Shutdown();
         }
     };
@@ -184,7 +192,7 @@ namespace Razix {
         playerOriginal.rank        = 'A';
         playerOriginal.complexData = float4{1.0f, 2.0f, 3.0f, 4.0f};
 
-        auto serializedData = RZSerializable<PlayerStats>::serializeToBinary(playerOriginal);
+        auto serializedData = RZSerializable<PlayerStats>::serializeToBinary(playerOriginal, heapAllocator);
         EXPECT_GT(serializedData.size(), 0) << "Serialized data should not be empty.";
 
         fs::path tempPath = fs::temp_directory_path() / "playerstats.bin";
@@ -197,7 +205,7 @@ namespace Razix {
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
 
-        PlayerStats playerNew = static_cast<PlayerStats>(RZSerializable<PlayerStats>::deserializeFromBinary(readBack));
+        PlayerStats playerNew = static_cast<PlayerStats>(RZSerializable<PlayerStats>::deserializeFromBinary(readBack, heapAllocator));
         EXPECT_EQ(playerNew.health, playerOriginal.health);
         EXPECT_EQ(playerNew.rage, playerOriginal.rage);
         EXPECT_EQ(playerNew.stamina, playerOriginal.stamina);
@@ -223,7 +231,7 @@ namespace Razix {
             "Kratos! Ghost of Sparta. Slayer of gods. Anger issues included.";
         std::strncpy(original.pName, description, BlobSize - 1 /* strlen(description) */);
 
-        auto serializedData = RZSerializable<PlayerMetaData>::serializeToBinary(original);
+        auto serializedData = RZSerializable<PlayerMetaData>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "playermetadata.bin";
@@ -236,7 +244,7 @@ namespace Razix {
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
 
-        PlayerMetaData deserialized = RZSerializable<PlayerMetaData>::deserializeFromBinary(readBack);
+        PlayerMetaData deserialized = RZSerializable<PlayerMetaData>::deserializeFromBinary(readBack, heapAllocator);
 
         // assume serializer allocates memory for blobs and members
         ASSERT_NE(deserialized.pName, nullptr);
@@ -246,7 +254,7 @@ namespace Razix {
         EXPECT_EQ(deserialized.experience, original.experience);
 
         rz_free(original.pName);
-        rz_free(deserialized.pName);
+        RZSerializable<PlayerMetaData>::freeDeserializedBlobs(&deserialized, heapAllocator);
     }
 
     TEST_F(RZSerializationTests, BlobTypeTest)
@@ -265,7 +273,7 @@ namespace Razix {
             std::memset(original.pMetaDatas[i].pName, 0, 128 * sizeof(char));
             std::snprintf(original.pMetaDatas[i].pName, 128, "Player_%zu", i);
         }
-        auto serializedData = RZSerializable<PlayerBlobTest>::serializeToBinary(original);
+        auto serializedData = RZSerializable<PlayerBlobTest>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
         fs::path tempPath = fs::temp_directory_path() / "playerblobtest.bin";
         RAZIX_CORE_INFO("Temporary path for BlobTypeTest: {}", tempPath.string().c_str());
@@ -275,7 +283,7 @@ namespace Razix {
         i64                size = RZFileSystem::GetFileSize(tempPath.string().c_str());
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
-        PlayerBlobTest deserialized = RZSerializable<PlayerBlobTest>::deserializeFromBinary(readBack);
+        PlayerBlobTest deserialized = RZSerializable<PlayerBlobTest>::deserializeFromBinary(readBack, heapAllocator);
 
         for (size_t i = 0; i < PLAYER_BLOB_COUNT; ++i) {
             ASSERT_NE(deserialized.pMetaDatas[i].pName, nullptr);
@@ -283,12 +291,11 @@ namespace Razix {
             EXPECT_EQ(deserialized.pMetaDatas[i].level, original.pMetaDatas[i].level);
             EXPECT_EQ(deserialized.pMetaDatas[i].experience, original.pMetaDatas[i].experience);
             rz_free(original.pMetaDatas[i].pName);
-            // FIXME: Who tf is allocating this? we should be able to free this properly
-            //rz_free(deserialized.pMetaDatas[i].pName);
         }
 
         rz_free(original.pMetaDatas);
-        rz_free(deserialized.pMetaDatas);
+        // free the blob that was allocated for the deserialized pMetaDatas
+        RZSerializable<PlayerBlobTest>::freeDeserializedBlobs(&deserialized, heapAllocator);
     }
 
     TEST_F(RZSerializationTests, ArrayTest)
@@ -307,7 +314,7 @@ namespace Razix {
             original.weaponIDs.push_back(static_cast<int>(i));    // increase size
         }
 
-        auto serializedData = RZSerializable<PlayerInventory>::serializeToBinary(original);
+        auto serializedData = RZSerializable<PlayerInventory>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "playerinventory.bin";
@@ -320,7 +327,7 @@ namespace Razix {
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
 
-        PlayerInventory deserialized = RZSerializable<PlayerInventory>::deserializeFromBinary(readBack);
+        PlayerInventory deserialized = RZSerializable<PlayerInventory>::deserializeFromBinary(readBack, heapAllocator);
 
         // Validate dynamic arrays
         ASSERT_EQ(deserialized.itemIDs.size(), original.itemIDs.size());
@@ -344,7 +351,7 @@ namespace Razix {
         original.playerName    = RZString("Jon Snow");
         original.bio           = RZString("A fearless warrior from the north.");
 
-        auto serializedData = RZSerializable<PlayerProfile>::serializeToBinary(original);
+        auto serializedData = RZSerializable<PlayerProfile>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "playerprofile.bin";
@@ -357,7 +364,7 @@ namespace Razix {
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
 
-        PlayerProfile deserialized = RZSerializable<PlayerProfile>::deserializeFromBinary(readBack);
+        PlayerProfile deserialized = RZSerializable<PlayerProfile>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_STREQ(deserialized.playerName.c_str(), original.playerName.c_str());
         EXPECT_STREQ(deserialized.bio.c_str(), original.bio.c_str());
@@ -374,7 +381,7 @@ namespace Razix {
             original.settings.insert(i, i * 100);
         }
 
-        auto serializedData = RZSerializable<PlayerSettings>::serializeToBinary(original);
+        auto serializedData = RZSerializable<PlayerSettings>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "playersettings.bin";
@@ -387,7 +394,7 @@ namespace Razix {
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
 
-        PlayerSettings deserialized = RZSerializable<PlayerSettings>::deserializeFromBinary(readBack);
+        PlayerSettings deserialized = RZSerializable<PlayerSettings>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.settings.size(), original.settings.size());
         for (const auto& [key, value]: original.settings) {
@@ -410,7 +417,7 @@ namespace Razix {
         original.stats.rank        = 'A';
         original.score             = 99999;
 
-        auto serializedData = RZSerializable<MasterPlayerStats>::serializeToBinary(original);
+        auto serializedData = RZSerializable<MasterPlayerStats>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "masterplayerstats.bin";
@@ -423,7 +430,7 @@ namespace Razix {
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
 
-        MasterPlayerStats deserialized = RZSerializable<MasterPlayerStats>::deserializeFromBinary(readBack);
+        MasterPlayerStats deserialized = RZSerializable<MasterPlayerStats>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.score, original.score);
         EXPECT_EQ(deserialized.stats.health, original.stats.health);
@@ -439,7 +446,7 @@ namespace Razix {
         PlayerIDs original = {};
         original.id        = uuid;
 
-        auto serializedData = RZSerializable<PlayerIDs>::serializeToBinary(original);
+        auto serializedData = RZSerializable<PlayerIDs>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "playerid.bin";
@@ -452,7 +459,7 @@ namespace Razix {
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
 
-        PlayerIDs deserialized = RZSerializable<PlayerIDs>::deserializeFromBinary(readBack);
+        PlayerIDs deserialized = RZSerializable<PlayerIDs>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(original.id, deserialized.id) << "UUIDs changed across serialization";
     }
@@ -463,22 +470,26 @@ namespace Razix {
     class RZCompressedArchiveSerializationTests : public ::testing::Test
     {
     protected:
+        Memory::RZHeapAllocator heapAllocator;
+
         void SetUp() override
         {
             Debug::RZLog::StartUp();
+            heapAllocator.init(256ull * 1024ull * 1024ull);
         }
 
         void TearDown() override
         {
+            heapAllocator.shutdown();
             Debug::RZLog::Shutdown();
         }
     };
 
     template<typename T>
-    static T CompressedRoundTrip(const T& original, const std::string& tempFileName = "compressed_roundtrip.bin")
+    static T CompressedRoundTrip(const T& original, const std::string& tempFileName = "compressed_roundtrip.bin", Memory::RZHeapAllocator* allocator = nullptr)
     {
         // Serialize (compressed) to memory
-        auto writeCtx = RZSerializable<T, RZCompressedArchive>::beginAsyncSerialization(original);
+        auto writeCtx = RZSerializable<T, RZCompressedArchive>::beginAsyncSerialization(original, allocator);
         RZSerializable<T, RZCompressedArchive>::processAsyncSerialization(writeCtx, RZ_COMPRESSION_LZ4);
         RZSerializable<T, RZCompressedArchive>::endAsyncSerialization(writeCtx);
 
@@ -498,7 +509,7 @@ namespace Razix {
 
         // Deserialize from the file buffer
         T deserialized = {};
-        auto readCtx = RZSerializable<T, RZCompressedArchive>::beginAsyncDeserialization(readBack, &deserialized);
+        auto readCtx = RZSerializable<T, RZCompressedArchive>::beginAsyncDeserialization(readBack, &deserialized, allocator);
         RZSerializable<T, RZCompressedArchive>::processAsyncDeserialization(readCtx);
         RZSerializable<T, RZCompressedArchive>::endAsyncDeserialization(readCtx);
 
@@ -514,7 +525,7 @@ namespace Razix {
         original.rank        = 'S';
         original.complexData = float4{9.0f, 8.0f, 7.0f, 6.0f};
 
-        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerStats.bin");
+        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerStats.bin", &heapAllocator);
 
         EXPECT_EQ(deserialized.health, original.health);
         EXPECT_FLOAT_EQ(deserialized.rage, original.rage);
@@ -537,7 +548,7 @@ namespace Razix {
         const char* name = "Atreus, son of Kratos";
         std::strncpy(original.pName, name, BlobSize - 1);
 
-        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerMetaData.bin");
+        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerMetaData.bin", &heapAllocator);
 
         ASSERT_NE(deserialized.pName, nullptr);
         EXPECT_STREQ(deserialized.pName, original.pName);
@@ -545,7 +556,7 @@ namespace Razix {
         EXPECT_FLOAT_EQ(deserialized.experience, original.experience);
 
         rz_free(original.pName);
-        rz_free(deserialized.pName);
+        RZSerializable<PlayerMetaData>::freeDeserializedBlobs(&deserialized, heapAllocator);
     }
 
     TEST_F(RZCompressedArchiveSerializationTests, ArrayAsyncCompressedRoundtrip)
@@ -559,7 +570,7 @@ namespace Razix {
             original.weaponIDs.push_back(static_cast<int>(i + 42));
         }
 
-        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerInventory.bin");
+        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerInventory.bin", &heapAllocator);
 
         ASSERT_EQ(deserialized.itemIDs.size(), original.itemIDs.size());
         ASSERT_EQ(deserialized.itemWeights.size(), original.itemWeights.size());
@@ -580,7 +591,7 @@ namespace Razix {
         original.playerName    = RZString("Kratos");
         original.bio           = RZString("Dad bod with a Leviathan axe.");
 
-        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerProfile.bin");
+        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerProfile.bin", &heapAllocator);
 
         EXPECT_STREQ(deserialized.playerName.c_str(), original.playerName.c_str());
         EXPECT_STREQ(deserialized.bio.c_str(), original.bio.c_str());
@@ -593,7 +604,7 @@ namespace Razix {
             original.settings.insert(i, i * 3);
         }
 
-        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerSettings.bin");
+        auto deserialized = CompressedRoundTrip(original, "COMPRESSED_PlayerSettings.bin", &heapAllocator);
 
         EXPECT_EQ(deserialized.settings.size(), original.settings.size());
         for (const auto& [key, value]: original.settings) {
@@ -609,13 +620,17 @@ namespace Razix {
     class RZAssetHeaderSerializationTests : public ::testing::Test
     {
     protected:
+        Memory::RZHeapAllocator heapAllocator;
+
         void SetUp() override
         {
             Debug::RZLog::StartUp();
+            heapAllocator.init(256ull * 1024ull * 1024ull);
         }
 
         void TearDown() override
         {
+            heapAllocator.shutdown();
             Debug::RZLog::Shutdown();
         }
     };
@@ -632,7 +647,7 @@ namespace Razix {
         original.storagePreference = RZAssetStorageType::kGPUBacked;
         original.flags             = (RZAssetFlags) (RZ_ASSET_FLAG_COMPRESSED | RZ_ASSET_FLAG_READONLY);
 
-        auto serializedData = RZSerializable<RZAssetHotData>::serializeToBinary(original);
+        auto serializedData = RZSerializable<RZAssetHotData>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzassethotdata.bin";
@@ -645,7 +660,7 @@ namespace Razix {
         readBack.resize(size);
 
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
-        RZAssetHotData deserialized = RZSerializable<RZAssetHotData>::deserializeFromBinary(readBack);
+        RZAssetHotData deserialized = RZSerializable<RZAssetHotData>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.UUID, original.UUID);
         EXPECT_EQ(deserialized.referenceCount, original.referenceCount);
@@ -670,7 +685,7 @@ namespace Razix {
         original.createdDate            = rz_date_pack({20203, 12, 23});
         original.department             = Razix::Department::Core;
 
-        auto serializedData = RZSerializable<Razix::RZAssetMetadata>::serializeToBinary(original);
+        auto serializedData = RZSerializable<Razix::RZAssetMetadata>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzassetmetadata.bin";
@@ -682,7 +697,7 @@ namespace Razix {
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
 
-        Razix::RZAssetMetadata deserialized = RZSerializable<Razix::RZAssetMetadata>::deserializeFromBinary(readBack);
+        Razix::RZAssetMetadata deserialized = RZSerializable<Razix::RZAssetMetadata>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.name, original.name);
         EXPECT_EQ(deserialized.author, original.author);
@@ -704,7 +719,7 @@ namespace Razix {
         original.assetID                 = RZUUID();
         original.type                    = Razix::RZAssetType::kAnimation;
 
-        auto serializedData = RZSerializable<Razix::RZAssetDependecy>::serializeToBinary(original);
+        auto serializedData = RZSerializable<Razix::RZAssetDependecy>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzassetdependency.bin";
@@ -716,7 +731,7 @@ namespace Razix {
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
 
-        Razix::RZAssetDependecy deserialized = RZSerializable<Razix::RZAssetDependecy>::deserializeFromBinary(readBack);
+        Razix::RZAssetDependecy deserialized = RZSerializable<Razix::RZAssetDependecy>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.assetID, original.assetID);
         EXPECT_EQ(deserialized.type, original.type);
@@ -750,7 +765,7 @@ namespace Razix {
         original.metadata.createdDate        = rz_date_pack({20203, 12, 23});
         original.metadata.department         = Razix::Department::Core;
 
-        auto serializedData = RZSerializable<Razix::RZAssetColdData>::serializeToBinary(original);
+        auto serializedData = RZSerializable<Razix::RZAssetColdData>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzassetcolddata.bin";
@@ -762,7 +777,7 @@ namespace Razix {
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
 
-        Razix::RZAssetColdData deserialized = RZSerializable<Razix::RZAssetColdData>::deserializeFromBinary(readBack);
+        Razix::RZAssetColdData deserialized = RZSerializable<Razix::RZAssetColdData>::deserializeFromBinary(readBack, heapAllocator);
 
         // Check dependencies array
         EXPECT_EQ(deserialized.dependencies.size(), original.dependencies.size());
@@ -825,7 +840,7 @@ namespace Razix {
             asset.addDependency(dep.type, dep.assetID);
         }
 
-        auto serializedData = RZSerializable<Razix::RZAsset>::serializeToBinary(asset);
+        auto serializedData = RZSerializable<Razix::RZAsset>::serializeToBinary(asset, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzasset.bin";
@@ -840,7 +855,7 @@ namespace Razix {
 
         void*           assetMemoryBacking   = rz_malloc(sizeof(Razix::RZAsset), RAZIX_CACHE_LINE_ALIGN);
         void*           assetColdDataBacking = rz_malloc(sizeof(Razix::RZAssetColdData), RAZIX_CACHE_LINE_ALIGN);
-        Razix::RZAsset* pDeserialized        = (RZAsset*) RZSerializable<Razix::RZAsset>::deserializeAssetFromBinary(readBack, assetMemoryBacking, assetColdDataBacking);
+        Razix::RZAsset* pDeserialized        = (RZAsset*) RZSerializable<Razix::RZAsset>::deserializeAssetFromBinary(readBack, assetMemoryBacking, assetColdDataBacking, heapAllocator);
 
         EXPECT_EQ(pDeserialized->getUUID(), uuid);
         EXPECT_EQ(pDeserialized->getType(), assetType);
@@ -880,6 +895,7 @@ namespace Razix {
         // rz_free(pDeserialized);
         rz_free(assetColdDataBacking);
         rz_free(assetMemoryBacking);
+        RZSerializable<Razix::RZAsset>::freeDeserializedBlobs(pDeserialized, heapAllocator);
     }
 
     //-------------------------------------------------------------------------
@@ -887,13 +903,17 @@ namespace Razix {
     class RZAssetPayloadSerializationTests : public ::testing::Test
     {
     protected:
+        Memory::RZHeapAllocator heapAllocator;
+
         void SetUp() override
         {
             Debug::RZLog::StartUp();
+            heapAllocator.init(256ull * 1024ull * 1024ull);
         }
 
         void TearDown() override
         {
+            heapAllocator.shutdown();
             Debug::RZLog::Shutdown();
         }
     };
@@ -914,7 +934,7 @@ namespace Razix {
         original.bShouldLoop         = true;
 
         auto serializedData =
-            RZSerializable<RZAnimationAsset>::serializeToBinary(original);
+            RZSerializable<RZAnimationAsset>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzanimationasset.bin";
@@ -935,7 +955,7 @@ namespace Razix {
             size);
 
         RZAnimationAsset deserialized =
-            RZSerializable<RZAnimationAsset>::deserializeFromBinary(readBack);
+            RZSerializable<RZAnimationAsset>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.FrameCount, original.FrameCount);
         EXPECT_EQ(deserialized.BoneCount, original.BoneCount);
@@ -954,7 +974,7 @@ namespace Razix {
 
         RZAssetRefAsset original = {};
         original.AssetUUID       = RZUUID();
-        auto serializedData      = RZSerializable<RZAssetRefAsset>::serializeToBinary(original);
+        auto serializedData      = RZSerializable<RZAssetRefAsset>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzassetrefasset.bin";
@@ -965,7 +985,7 @@ namespace Razix {
         i64                size = RZFileSystem::GetFileSize(tempPath.string().c_str());
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
-        RZAssetRefAsset deserialized = RZSerializable<RZAssetRefAsset>::deserializeFromBinary(readBack);
+        RZAssetRefAsset deserialized = RZSerializable<RZAssetRefAsset>::deserializeFromBinary(readBack, heapAllocator);
         EXPECT_TRUE(deserialized.AssetUUID == original.AssetUUID) << "Equality operator failed for equivalent AssetRef UUIDs.";
     }
 
@@ -986,7 +1006,7 @@ namespace Razix {
         original.bIsLooping    = true;
 
         auto serializedData =
-            RZSerializable<RZAudioAsset>::serializeToBinary(original);
+            RZSerializable<RZAudioAsset>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzaudioasset.bin";
@@ -1007,7 +1027,7 @@ namespace Razix {
             size);
 
         RZAudioAsset deserialized =
-            RZSerializable<RZAudioAsset>::deserializeFromBinary(readBack);
+            RZSerializable<RZAudioAsset>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.AudioFilePath, original.AudioFilePath);
         EXPECT_FLOAT_EQ(deserialized.Duration, original.Duration);
@@ -1053,7 +1073,7 @@ namespace Razix {
             RZCamera3D::ProjectionType::kPerspective;
 
         auto serializedData =
-            RZSerializable<RZCameraAsset>::serializeToBinary(original);
+            RZSerializable<RZCameraAsset>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzcameraasset.bin";
@@ -1074,7 +1094,7 @@ namespace Razix {
             size);
 
         RZCameraAsset deserialized =
-            RZSerializable<RZCameraAsset>::deserializeFromBinary(readBack);
+            RZSerializable<RZCameraAsset>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.Position, original.Position);
         EXPECT_EQ(deserialized.Front, original.Front);
@@ -1118,7 +1138,7 @@ namespace Razix {
         original.bIsSimulating   = true;
 
         auto serializedData =
-            RZSerializable<RZClothAsset>::serializeToBinary(original);
+            RZSerializable<RZClothAsset>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzclothasset.bin";
@@ -1139,7 +1159,7 @@ namespace Razix {
             size);
 
         RZClothAsset deserialized =
-            RZSerializable<RZClothAsset>::deserializeFromBinary(readBack);
+            RZSerializable<RZClothAsset>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.VertexCount, original.VertexCount);
         EXPECT_EQ(deserialized.TriangleCount, original.TriangleCount);
@@ -1165,7 +1185,7 @@ namespace Razix {
         original.LastPlayedLevel    = RZString("Levels/DesertOutpost.rzlevel");
 
         auto serializedData =
-            RZSerializable<RZGameDataAsset>::serializeToBinary(original);
+            RZSerializable<RZGameDataAsset>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzgamedataasset.bin";
@@ -1186,7 +1206,7 @@ namespace Razix {
             size);
 
         RZGameDataAsset deserialized =
-            RZSerializable<RZGameDataAsset>::deserializeFromBinary(readBack);
+            RZSerializable<RZGameDataAsset>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.SaveSlotCount, original.SaveSlotCount);
         EXPECT_EQ(deserialized.TotalPlayTime, original.TotalPlayTime);
@@ -1214,7 +1234,7 @@ namespace Razix {
         original.Type                = RZ_LIGHT_TYPE_SPOT;
 
         auto serializedData =
-            RZSerializable<RZLightAsset>::serializeToBinary(original);
+            RZSerializable<RZLightAsset>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzlightasset.bin";
@@ -1235,7 +1255,7 @@ namespace Razix {
             size);
 
         RZLightAsset deserialized =
-            RZSerializable<RZLightAsset>::deserializeFromBinary(readBack);
+            RZSerializable<RZLightAsset>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.Position_Range, original.Position_Range);
         EXPECT_EQ(deserialized.Color_Intensity, original.Color_Intensity);
@@ -1261,7 +1281,7 @@ namespace Razix {
         original.bAutoReload      = false;
 
         auto serializedData =
-            RZSerializable<RZLuaScriptAsset>::serializeToBinary(original);
+            RZSerializable<RZLuaScriptAsset>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzluascriptasset.bin";
@@ -1282,7 +1302,7 @@ namespace Razix {
             size);
 
         RZLuaScriptAsset deserialized =
-            RZSerializable<RZLuaScriptAsset>::deserializeFromBinary(readBack);
+            RZSerializable<RZLuaScriptAsset>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.ScriptPath, original.ScriptPath);
         EXPECT_EQ(deserialized.LastModifiedTime, original.LastModifiedTime);
@@ -1321,7 +1341,7 @@ namespace Razix {
         original.TexturePaths.EmissivePath         = RZString("Textures/Emissive.png");
 
         auto serializedData =
-            RZSerializable<RZMaterialAsset>::serializeToBinary(original);
+            RZSerializable<RZMaterialAsset>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzmaterialasset.bin";
@@ -1342,7 +1362,7 @@ namespace Razix {
             size);
 
         RZMaterialAsset deserialized =
-            RZSerializable<RZMaterialAsset>::deserializeFromBinary(readBack);
+            RZSerializable<RZMaterialAsset>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.Albedo, original.Albedo);
         EXPECT_FLOAT_EQ(deserialized.Metallic, original.Metallic);
@@ -1379,7 +1399,7 @@ namespace Razix {
         original.MaterialPath = RZString("Materials/Crate.rzmat");
 
         auto serializedData =
-            RZSerializable<RZMeshAsset>::serializeToBinary(original);
+            RZSerializable<RZMeshAsset>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzmeshasset.bin";
@@ -1400,7 +1420,7 @@ namespace Razix {
             size);
 
         RZMeshAsset deserialized =
-            RZSerializable<RZMeshAsset>::deserializeFromBinary(readBack);
+            RZSerializable<RZMeshAsset>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.VertexCount, original.VertexCount);
         EXPECT_EQ(deserialized.IndexCount, original.IndexCount);
@@ -1431,7 +1451,7 @@ namespace Razix {
         original.bIsTrigger             = false;
 
         auto serializedData =
-            RZSerializable<RZPhysicsMaterialAsset>::serializeToBinary(original);
+            RZSerializable<RZPhysicsMaterialAsset>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzphysicsmaterialasset.bin";
@@ -1452,7 +1472,7 @@ namespace Razix {
             size);
 
         RZPhysicsMaterialAsset deserialized =
-            RZSerializable<RZPhysicsMaterialAsset>::deserializeFromBinary(readBack);
+            RZSerializable<RZPhysicsMaterialAsset>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_FLOAT_EQ(deserialized.Density, original.Density);
         EXPECT_FLOAT_EQ(deserialized.StaticFriction, original.StaticFriction);
@@ -1482,7 +1502,7 @@ namespace Razix {
         original.Desc.resourceHints = RZ_GFX_RESOURCE_VIEW_FLAG_NONE;
 
         auto serializedData =
-            RZSerializable<RZTextureAsset>::serializeToBinary(original);
+            RZSerializable<RZTextureAsset>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rztextureasset.bin";
@@ -1503,7 +1523,7 @@ namespace Razix {
             size);
 
         RZTextureAsset deserialized =
-            RZSerializable<RZTextureAsset>::deserializeFromBinary(readBack);
+            RZSerializable<RZTextureAsset>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.TexturePath, original.TexturePath);
         EXPECT_EQ(deserialized.TextureHandle, original.TextureHandle);
@@ -1529,7 +1549,7 @@ namespace Razix {
         original.bIsSolved            = false;
 
         auto serializedData =
-            RZSerializable<RZVignerePuzzleAsset>::serializeToBinary(original);
+            RZSerializable<RZVignerePuzzleAsset>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 
         fs::path tempPath = fs::temp_directory_path() / "rzvigenerepuzzleasset.bin";
@@ -1550,7 +1570,7 @@ namespace Razix {
             size);
 
         RZVignerePuzzleAsset deserialized =
-            RZSerializable<RZVignerePuzzleAsset>::deserializeFromBinary(readBack);
+            RZSerializable<RZVignerePuzzleAsset>::deserializeFromBinary(readBack, heapAllocator);
 
         EXPECT_EQ(deserialized.PlainText, original.PlainText);
         EXPECT_EQ(deserialized.Key, original.Key);
