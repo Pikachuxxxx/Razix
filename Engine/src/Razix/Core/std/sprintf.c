@@ -432,7 +432,7 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
 
     // get the first %
     // TODO: use SIMD path instead of strchr to load 16 bytes at once into SIMD registers
-    char*       scan_elem = strchr(fmt, FMT_SPECIFIER_DELIMITER_CHR);
+    const char*       scan_elem = strchr(fmt, FMT_SPECIFIER_DELIMITER_CHR);
     const char* format    = fmt;
 
     if (bReadUntilNullChar)
