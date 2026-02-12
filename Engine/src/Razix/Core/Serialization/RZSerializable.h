@@ -165,9 +165,9 @@ namespace Razix {
 
         void readBlob(const RZSerializedBlob& blob, void** targetPtr)
         {
-            RAZIX_CORE_ASSERT(heapAllocator != nullptr, "[Serializer] Heap allocator required for blob deserialization");
+            RAZIX_CORE_ASSERT(heapAllocator != NULL || *targetPtr != NULL, "[Serializer] Heap allocator required for blob deserialization");
 
-            void* payload = heapAllocator->allocate(static_cast<size_t>(blob.decompressedSize));
+            void* payload = *targetPtr != NULL ? *targetPtr : heapAllocator->allocate(static_cast<size_t>(blob.decompressedSize));
             RAZIX_CORE_ASSERT(payload != nullptr, "[Serializer] Heap allocator failed to allocate blob payload");
 
             memcpy(payload, buffer->data() + cursor, blob.size);
@@ -885,7 +885,7 @@ namespace Razix {
             return data;
         }
 
-        static void* deserializeAssetFromBinary(const RZDynamicArray<u8>& binary, void* pAssetMemory, void* pColdDataMemory, Memory::RZHeapAllocator& blobAllocator)
+        static void* deserializeAssetFromBinary(const RZDynamicArray<u8>& binary, void* pAssetMemory, void* pColdDataMemory)
         {
             RAZIX_CORE_ASSERT(pAssetMemory != NULL, "Asset memory pointer is null");
             RAZIX_CORE_ASSERT(pColdDataMemory != NULL, "Asset cold data memory pointer is null");
@@ -901,7 +901,7 @@ namespace Razix {
             }
 
             RZDynamicArray<u8> temp = binary;
-            Archive            ar(&temp, 0, RZArchiveMode::kRead, const_cast<Memory::RZHeapAllocator*>(&blobAllocator));
+            Archive            ar(&temp, 0, RZArchiveMode::kRead, NULL);
 
             if (meta->bIsTriviallySerializable) {
                 ar.read(pAsset, rz_min<size_t>(meta->size, binary.size()));    // read into object memory

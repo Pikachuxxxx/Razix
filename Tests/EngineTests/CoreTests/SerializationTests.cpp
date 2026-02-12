@@ -855,7 +855,7 @@ namespace Razix {
 
         void*           assetMemoryBacking   = rz_malloc(sizeof(Razix::RZAsset), RAZIX_CACHE_LINE_ALIGN);
         void*           assetColdDataBacking = rz_malloc(sizeof(Razix::RZAssetColdData), RAZIX_CACHE_LINE_ALIGN);
-        Razix::RZAsset* pDeserialized        = (RZAsset*) RZSerializable<Razix::RZAsset>::deserializeAssetFromBinary(readBack, assetMemoryBacking, assetColdDataBacking, heapAllocator);
+        Razix::RZAsset* pDeserialized        = (RZAsset*) RZSerializable<Razix::RZAsset>::deserializeAssetFromBinary(readBack, assetMemoryBacking, assetColdDataBacking);
 
         EXPECT_EQ(pDeserialized->getUUID(), uuid);
         EXPECT_EQ(pDeserialized->getType(), assetType);
@@ -895,7 +895,6 @@ namespace Razix {
         // rz_free(pDeserialized);
         rz_free(assetColdDataBacking);
         rz_free(assetMemoryBacking);
-        RZSerializable<Razix::RZAsset>::freeDeserializedBlobs(pDeserialized, heapAllocator);
     }
 
     //-------------------------------------------------------------------------
