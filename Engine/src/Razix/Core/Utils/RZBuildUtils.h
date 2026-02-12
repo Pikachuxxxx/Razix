@@ -10,6 +10,12 @@ namespace Razix {
      */
     namespace BuildUtils {
 
+        enum class BuildMode
+        {
+            kDevelopment = 0,
+            kShipping
+        };
+
         enum class BuildConfig
         {
             DEBUG,

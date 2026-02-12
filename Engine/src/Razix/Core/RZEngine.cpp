@@ -289,6 +289,13 @@ namespace Razix {
                 engineConfigParser.getValue<int>("Rendering", "MaxShadowCascades", m_EngineSettings.MaxShadowCascades);
                 engineConfigParser.getValue<int>("Rendering", "MSAASamples", m_EngineSettings.MSAASamples);
             }
+
+            // Build
+            {
+                i32 buildMode = 0; // Development Mode by default
+                engineConfigParser.getValue<int>("Build", "BuildMode", buildMode);
+                m_BuildMode = (BuildUtils::BuildMode)(buildMode); 
+            }
         }
     }
 }    // namespace Razix
