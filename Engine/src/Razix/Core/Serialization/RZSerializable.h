@@ -488,7 +488,7 @@ namespace Razix {
                         void** ptr = reinterpret_cast<void**>(base + member.offset);
                         if (*ptr != nullptr) {
                             allocator.deallocate(*ptr);
-                            *ptr = nullptr;
+                            *ptr = NULL;
                         }
                     } break;
                     case RZDiskTypeTag::kObject: {

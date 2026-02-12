@@ -503,13 +503,13 @@ namespace Razix {
 
         // Read back from disk
         RZDynamicArray<u8> readBack;
-        i64 size = Razix::RZFileSystem::GetFileSize(tempPath.string().c_str());
+        i64                size = Razix::RZFileSystem::GetFileSize(tempPath.string().c_str());
         readBack.resize(size);
         Razix::RZFileSystem::ReadFile(tempPath.string().c_str(), readBack.data(), size);
 
         // Deserialize from the file buffer
-        T deserialized = {};
-        auto readCtx = RZSerializable<T, RZCompressedArchive>::beginAsyncDeserialization(readBack, &deserialized, allocator);
+        T    deserialized = {};
+        auto readCtx      = RZSerializable<T, RZCompressedArchive>::beginAsyncDeserialization(readBack, &deserialized, allocator);
         RZSerializable<T, RZCompressedArchive>::processAsyncDeserialization(readCtx);
         RZSerializable<T, RZCompressedArchive>::endAsyncDeserialization(readCtx);
 
@@ -613,7 +613,7 @@ namespace Razix {
             EXPECT_EQ(it->second, value);
         }
     }
-#endif // RAZIX_USE_COMPRESSED_ARCHIVE
+#endif    // RAZIX_USE_COMPRESSED_ARCHIVE
 
     //-------------------------------------------------------------------------
 
@@ -891,11 +891,13 @@ namespace Razix {
         }
         rz_free(coldData);
         pDeserialized->destroy();
-        // Don't do this, double-free, just de-allocate the asset mem backing 
+        // Don't do this, double-free, just de-allocate the asset mem backing
         // rz_free(pDeserialized);
         rz_free(assetColdDataBacking);
         rz_free(assetMemoryBacking);
+#ifndef RAZIX_PLATFORM_WINDOWS
         RZSerializable<Razix::RZAsset>::freeDeserializedBlobs(pDeserialized, heapAllocator);
+#endif
     }
 
     //-------------------------------------------------------------------------
