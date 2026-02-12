@@ -8,6 +8,7 @@
 
 #include "Razix/Core/Reflection/RZReflectionRegistry.h"
 #include <Core/Containers/arrays.h>
+#include <Core/Memory/Allocators/RZHeapAllocator.h>
 #include <Core/RZCore.h>
 
 namespace Razix {
@@ -138,12 +139,16 @@ namespace Razix {
         RZDynamicArray<u8>*   buffer = NULL;
         size_t                cursor = 0;
         RZArchiveMode         mode;
+        Memory::RZHeapAllocator* heapAllocator = nullptr;
         static constexpr bool kUsesOutOfLineBlobs = false;
 
         RZBinaryArchive() {}
 
         RZBinaryArchive(RZDynamicArray<u8>* arr, size_t cursor, RZArchiveMode mode)
-            : buffer(arr), cursor(cursor), mode(mode) {}
+            : buffer(arr), cursor(cursor), heapAllocator(nullptr), mode(mode) {}
+
+        RZBinaryArchive(RZDynamicArray<u8>* arr, size_t cursor, RZArchiveMode mode, Memory::RZHeapAllocator* allocator)
+            : buffer(arr), cursor(cursor), heapAllocator(allocator), mode(mode) {}
 
         void write(const void* src, size_t size)
         {
@@ -160,7 +165,11 @@ namespace Razix {
 
         void readBlob(const RZSerializedBlob& blob, void** targetPtr)
         {
-            void* payload = rz_malloc_aligned(blob.decompressedSize);
+            RAZIX_CORE_ASSERT(heapAllocator != nullptr, "[Serializer] Heap allocator required for blob deserialization");
+
+            void* payload = heapAllocator->allocate(static_cast<size_t>(blob.decompressedSize));
+            RAZIX_CORE_ASSERT(payload != nullptr, "[Serializer] Heap allocator failed to allocate blob payload");
+
             memcpy(payload, buffer->data() + cursor, blob.size);
             cursor += blob.size;
             *targetPtr = payload;
@@ -184,6 +193,8 @@ namespace Razix {
             cursor += blob.size;
         }
     };
+
+#ifdef RAZIX_USE_COMPRESSED_ARCHIVE
 
     struct RZPendingWriteBlob
     {
@@ -209,8 +220,6 @@ namespace Razix {
             HashMapOps hashMapOps;
         };
     };
-
-#ifdef RAZIX_USE_COMPRESSED_ARCHIVE
 
 #define RAZIX_ASSSET_FILE_MAGIC 0x46415A52    // 'R','Z','A','F' (Razix Archive File) = 0x525A4146 [echo "RZAF" | xxd]
 
@@ -242,11 +251,15 @@ namespace Razix {
         const u8*                         headerBase  = NULL;
         const u8*                         payloadBase = NULL;
         RZDynamicArray<RZPendingReadBlob> pendingReadBlobs;
+        Memory::RZHeapAllocator* heapAllocator = nullptr;
 
         RZCompressedArchive() {}
 
         RZCompressedArchive(RZDynamicArray<u8>* arr, size_t cursor, RZArchiveMode mode)
-            : buffer(arr), cursor(cursor), mode(mode) {}
+            : buffer(arr), cursor(cursor), heapAllocator(nullptr), mode(mode) {}
+
+        RZCompressedArchive(RZDynamicArray<u8>* arr, size_t cursor, RZArchiveMode mode, Memory::RZHeapAllocator* allocator)
+            : buffer(arr), cursor(cursor), heapAllocator(allocator), mode(mode) {}
 
         void write(const void* src, size_t size)
         {
@@ -357,11 +370,14 @@ namespace Razix {
         {
             RAZIX_CORE_ASSERT(mode == RZArchiveMode::kRead, "decompressPayloads in write mode");
 
+            RAZIX_CORE_ASSERT(heapAllocator != nullptr, "[Serializer] Heap allocator required for payload decompression");
+
             for (auto& rb: pendingReadBlobs) {
                 const u8* src = fileBase + rb.fileOffset;
 
                 // TODO: use a scratch buffer for serializer allocations
-                void* data = rz_malloc_aligned(rb.decompressedSize);
+                void* data = heapAllocator->allocate(static_cast<size_t>(rb.decompressedSize));
+                RAZIX_CORE_ASSERT(data != nullptr, "[Serializer] Heap allocator failed to allocate decompressed payload");
 
                 if (rb.compression == RZ_COMPRESSION_NONE) {
                     memcpy(data, src, rb.decompressedSize);
@@ -378,15 +394,15 @@ namespace Razix {
                         break;
                     case SerializeableDataType::kArray:
                         rb.arrayOps.set_data(rb.targetInstance, data);
-                        rz_free(data);
+                        heapAllocator->deallocate(data);
                         break;
                     case SerializeableDataType::kString:
                         rb.stringOps.set_data(rb.targetInstance, data);
-                        rz_free(data);
+                        heapAllocator->deallocate(data);
                         break;
                     case SerializeableDataType::kHashMap:
                         rb.hashMapOps.set_data(rb.targetInstance, data);
-                        rz_free(data);
+                        heapAllocator->deallocate(data);
                         break;
                     default:
                         RAZIX_CORE_ERROR("Unhandled pending read blob type");
@@ -454,6 +470,43 @@ namespace Razix {
     class RZSerializable
     {
     public:
+
+        // Free out-of-line blob allocations that were provided by an external heap allocator
+        static void freeDeserializedBlobs(void* objectBase, Memory::RZHeapAllocator& allocator)
+        {
+            const TypeMetaData* meta = getTypeMetaData();
+            if (!meta) {
+                RAZIX_CORE_ERROR("[RZSerializable] Type metadata for type '{}' not found.", typeid(Derived).name());
+                return;
+            }
+
+            auto freeMember = [&](void* basePtr, const MemberMetaData& member, auto&& freeMemberRef) -> void {
+                u8* base = reinterpret_cast<u8*>(basePtr);
+
+                switch (SerializableTypeToDiskTag(member.dataType)) {
+                    case RZDiskTypeTag::kBlob: {
+                        void** ptr = reinterpret_cast<void**>(base + member.offset);
+                        if (*ptr != nullptr) {
+                            allocator.deallocate(*ptr);
+                            *ptr = nullptr;
+                        }
+                    } break;
+                    case RZDiskTypeTag::kObject: {
+                        const TypeMetaData* m = Razix::RZTypeRegistry::getTypeMetaData(member.object.type);
+                        if (m && !m->bIsTriviallySerializable) {
+                            void* objBase = base + member.offset;
+                            for (const auto& mem: m->members)
+                                freeMemberRef(objBase, mem, freeMemberRef);
+                        }
+                    } break;
+                    default:
+                        break;
+                }
+            };
+
+            for (const auto& member: meta->members)
+                freeMember(objectBase, member, freeMember);
+        }
 #ifdef RAZIX_USE_COMPRESSED_ARCHIVE
         struct RZAsyncSerializationContext
         {
@@ -663,7 +716,10 @@ namespace Razix {
                 u32 valueBytes     = count * member.map.valueSize;
                 u32 keyValuesBytes = keyBytes + valueBytes;
 
-                void* keyValuesBuf = rz_malloc_aligned(keyValuesBytes);
+                RAZIX_CORE_ASSERT(ar.heapAllocator != nullptr, "[Serializer] Heap allocator required for HashMap serialization");
+                void* keyValuesBuf = ar.heapAllocator->allocate(keyValuesBytes);
+                RAZIX_CORE_ASSERT(keyValuesBuf != nullptr, "[Serializer] Heap allocator failed to allocate HashMap buffer");
+
                 member.map.ops.get_data(reinterpret_cast<const void*>(base + member.offset), keyValuesBuf);
 
                 RZSerializedBlob keysValuesBlob = {};
@@ -686,7 +742,7 @@ namespace Razix {
                     ar.write(keyValuesBuf, keysValuesBlob.size);
                 }
 
-                rz_free(keyValuesBuf);
+                ar.heapAllocator->deallocate(keyValuesBuf);
             } else {
                 RZSerializedHashMap serializedHashMap = {};
                 ar.read(&serializedHashMap, sizeof(RZSerializedHashMap));
@@ -771,8 +827,12 @@ namespace Razix {
         }
 
     public:
-        static RZDynamicArray<u8> serializeToBinary(const Derived& instance)
+        static RZDynamicArray<u8> serializeToBinary(const Derived& instance, Memory::RZHeapAllocator& blobAllocator)
         {
+            // with pointer data to write, it's hard to let user give memory
+            // As we would not know how much to ask for we use a dynamic array which seems safer, 
+            // Once we hook up the system allocator into the containers we are eves afer, one less place to refactor
+            // So this is accetable to use a RZDynamicArray here we just give the instance and get buffer of data in return.
             RZDynamicArray<u8> buffer = {};
 
             const TypeMetaData* meta = getTypeMetaData();
@@ -782,7 +842,7 @@ namespace Razix {
                 return buffer;
             }
 
-            Archive ar(&buffer, 0, RZArchiveMode::kWrite);
+            Archive ar(&buffer, 0, RZArchiveMode::kWrite, &blobAllocator);
 
             if (meta->bIsTriviallySerializable) {
                 ar.write(&instance, meta->size);
@@ -795,7 +855,7 @@ namespace Razix {
             return buffer;
         }
 
-        static Derived deserializeFromBinary(const RZDynamicArray<u8>& binary)
+        static Derived deserializeFromBinary(const RZDynamicArray<u8>& binary, Memory::RZHeapAllocator& blobAllocator)
         {
             if constexpr (rz_is_same_v<Derived, RZAsset>) {
                 RAZIX_CORE_ERROR("Use deserializeAssetFromBinary for RZAsset types");
@@ -812,7 +872,7 @@ namespace Razix {
             }
 
             RZDynamicArray<u8> temp = binary;
-            Archive            ar(&temp, 0, RZArchiveMode::kRead);
+            Archive            ar(&temp, 0, RZArchiveMode::kRead, const_cast<Memory::RZHeapAllocator*>(&blobAllocator));
 
             if (meta->bIsTriviallySerializable) {
                 ar.read(&data, rz_min<size_t>(meta->size, binary.size()));
@@ -825,7 +885,7 @@ namespace Razix {
             return data;
         }
 
-        static void* deserializeAssetFromBinary(const RZDynamicArray<u8>& binary, void* pAssetMemory, void* pColdDataMemory)
+        static void* deserializeAssetFromBinary(const RZDynamicArray<u8>& binary, void* pAssetMemory, void* pColdDataMemory, Memory::RZHeapAllocator& blobAllocator)
         {
             RAZIX_CORE_ASSERT(pAssetMemory != NULL, "Asset memory pointer is null");
             RAZIX_CORE_ASSERT(pColdDataMemory != NULL, "Asset cold data memory pointer is null");
@@ -841,7 +901,7 @@ namespace Razix {
             }
 
             RZDynamicArray<u8> temp = binary;
-            Archive            ar(&temp, 0, RZArchiveMode::kRead);
+            Archive            ar(&temp, 0, RZArchiveMode::kRead, const_cast<Memory::RZHeapAllocator*>(&blobAllocator));
 
             if (meta->bIsTriviallySerializable) {
                 ar.read(pAsset, rz_min<size_t>(meta->size, binary.size()));    // read into object memory
@@ -855,7 +915,7 @@ namespace Razix {
         }
 
 #ifdef RAZIX_USE_COMPRESSED_ARCHIVE
-        static RZAsyncSerializationContext beginAsyncSerialization(const Derived& instance)
+        static RZAsyncSerializationContext beginAsyncSerialization(const Derived& instance, Memory::RZHeapAllocator* blobAllocator)
         {
             RZAsyncSerializationContext ctx = {};
             ctx.mode                        = RZArchiveMode::kWrite;
@@ -867,7 +927,7 @@ namespace Razix {
                 return ctx;
             }
 
-            ctx.archive = Archive(&ctx.write.resultBuffer, 0, ctx.mode);
+            ctx.archive = Archive(&ctx.write.resultBuffer, 0, ctx.mode, blobAllocator);
 
             if constexpr (!Archive::kUsesOutOfLineBlobs) {
                 RZFileHeader fh{};
@@ -903,7 +963,7 @@ namespace Razix {
             }
         }
 
-        static RZAsyncSerializationContext beginAsyncDeserialization(const RZDynamicArray<u8>& binary, Derived* targetInstance)
+        static RZAsyncSerializationContext beginAsyncDeserialization(const RZDynamicArray<u8>& binary, Derived* targetInstance, Memory::RZHeapAllocator* blobAllocator = nullptr)
         {
             RAZIX_CORE_ASSERT(targetInstance != nullptr, "Target instance is null");
 
@@ -919,7 +979,7 @@ namespace Razix {
                 return ctx;
             }
 
-            ctx.archive = Archive(&ctx.read.sourceBuffer, 0, ctx.mode);
+            ctx.archive = Archive(&ctx.read.sourceBuffer, 0, ctx.mode, blobAllocator);
 
             if constexpr (Archive::kUsesOutOfLineBlobs) {
                 RZFileHeader fh{};
