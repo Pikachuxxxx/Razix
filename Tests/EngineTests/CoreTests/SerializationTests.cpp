@@ -459,6 +459,7 @@ namespace Razix {
 
     //-------------------------------------------------------------------------
 
+#ifdef RAZIX_USE_COMPRESSED_ARCHIVE
     class RZCompressedArchiveSerializationTests : public ::testing::Test
     {
     protected:
@@ -601,6 +602,7 @@ namespace Razix {
             EXPECT_EQ(it->second, value);
         }
     }
+#endif // RAZIX_USE_COMPRESSED_ARCHIVE
 
     //-------------------------------------------------------------------------
 
