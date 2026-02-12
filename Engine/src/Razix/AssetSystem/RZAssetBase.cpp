@@ -31,7 +31,7 @@ namespace Razix {
             // You do not own the memory! and we don't want double frees.
             // The freelist in the asset pool will take care of freeing the cold data memory
             //rz_free(m_pCold);
-            m_pCold = NULL;
+            //m_pCold = NULL;
         }
     }
 }    // namespace Razix

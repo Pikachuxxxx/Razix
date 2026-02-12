@@ -338,6 +338,9 @@ namespace Razix {
         inline bool   operator==(RZAsset& other) { return m_Hot.UUID == other.m_Hot.UUID; }
         inline bool   operator!=(RZAsset& other) { return m_Hot.UUID != other.m_Hot.UUID; }
 
+        inline const RZAssetColdData* getColdDataPtr() const { return m_pCold; }
+        inline RZAssetColdData* getColdDataMutablePtr() { return m_pCold; }
+
         RAZIX_REFLECT_FRIEND(RZAsset)
 
     protected:
