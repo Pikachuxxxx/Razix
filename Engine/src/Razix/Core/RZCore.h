@@ -511,21 +511,6 @@ static constexpr float operator""_inKib(unsigned long long int x)
 #endif    //   __cplusplus
 
 /****************************************************************************************************
- *                                         Vendor Settings                                          * 
-****************************************************************************************************/
-
-#define RAZIX_DEFINE_SAVE_LOAD   \
-    template<class Archive>      \
-    void load(Archive& archive); \
-                                 \
-    template<class Archive>      \
-    void save(Archive& archive) const;
-
-#define RAZIX_SEREALIZE     \
-    template<class Archive> \
-    void serialize(Archive& archive);
-
-/****************************************************************************************************
  *                                                  Misc                                            * 
  ****************************************************************************************************/
 #define RAZIX_MSG_BUFFER_SIZE 256

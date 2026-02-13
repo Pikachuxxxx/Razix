@@ -97,33 +97,6 @@ namespace Razix {
             RZFileSystem::WriteTextFile(filename, filename.c_str());
         }
 
-        //-------------------------------------------------------------------------------------------
-
-        static void PrintGLFWRequiredExtensions(void)
-        {
-#ifdef RAZIX_RENDER_API_VULKAN
-            // First we are sending in the list of desired extensions by GLFW to interface with the WPI
-            u32   glfwExtensionsCount = 0;
-            cstr* glfwExtensions;
-            glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionsCount);
-            RAZIX_CORE_TRACE("[Vulkan] GLFW loaded extensions count : {0}", glfwExtensionsCount);
-
-            // This is just for information and Querying purpose
-    #ifdef RAZIX_DEBUG
-            RAZIX_CORE_TRACE("GLFW Requested Extensions are : \n");
-            for (u32 i = 0; i < glfwExtensionsCount; i++) {
-                RAZIX_CORE_TRACE("\t");
-                int j = 0;
-                while (*(glfwExtensions[i] + j) != 0) {
-                    std::cout << *(glfwExtensions[i] + j);
-                    j++;
-                }
-                std::cout << std::endl;
-            }
-    #endif
-#endif
-        }
-
         //-----------------------------------------------------------------------------------
 
         static void SetupRazixImGuiStyle()
@@ -247,7 +220,6 @@ namespace Razix {
             memset(&m_RenderSync, 0, sizeof(RenderSyncPrimitives));
             m_FrameCount = 0;
 
-            PrintGLFWRequiredExtensions();
             // Create the swapchain
             GLFWwindow*   glfwWindow = static_cast<GLFWwindow*>(window->GetNativeWindow());
             rz_render_api api        = rzGfxCtx_GetRenderAPI();

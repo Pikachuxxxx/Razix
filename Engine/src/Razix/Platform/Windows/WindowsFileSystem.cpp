@@ -41,7 +41,7 @@ namespace Razix {
         return (dwAttr != INVALID_FILE_ATTRIBUTES) && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) == 0;
     }
 
-    bool RZFileSystem::FolderExists(const RZString& path)
+    iool RZFileSystem::FolderExists(const RZString& path)
     {
         DWORD dwAttrib = GetFileAttributes(path.c_str());
         return dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0;
@@ -106,7 +106,7 @@ namespace Razix {
         return RZString();
     }
 
-    bool RZFileSystem::WriteFile(const RZString& path, u8* buffer, i64 size = -1)
+    bool RZFileSystem::WriteFile(const RZString& path, const u8* buffer, i64 size = -1)
     {
         bool         fileExists = FileExists(path);
         int          flags      = fileExists ? OPEN_EXISTING : CREATE_NEW;

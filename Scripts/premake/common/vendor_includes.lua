@@ -1,6 +1,5 @@
 IncludeDir = {}
 -- Engine Vendors
-IncludeDir["cereal"]            = "%{wks.location}/../Engine/" .. "vendor/cereal/include"
 IncludeDir["Glad"]              = "%{wks.location}/../Engine/" .. "vendor/glad/include/"
 IncludeDir["GLFW"]              = "%{wks.location}/../Engine/" .. "vendor/glfw/include/"
 IncludeDir["ImGui"]             = "%{wks.location}/../Engine/" .. "vendor/imgui/"
@@ -65,7 +64,6 @@ function setEngineVendorIncludes()
         "%{IncludeDir.glm}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}",
-        "%{IncludeDir.cereal}",
         "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.SPIRVCross}",
         "%{IncludeDir.entt}",
@@ -98,7 +96,6 @@ function setEngineVendorIncludes()
         "%{IncludeDir.glm}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}",
-        "%{IncludeDir.cereal}",
         "%{IncludeDir.SPIRVReflect}",
         "%{IncludeDir.SPIRVCross}",
         "%{IncludeDir.entt}",

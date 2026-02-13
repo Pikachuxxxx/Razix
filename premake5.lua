@@ -205,7 +205,6 @@ workspace ( settings.workspace_name )
 
     -- Build scripts for the Razix vendor dependencies
     group "Dependencies"
-        include "Engine/vendor/cereal.lua"
         include "Engine/vendor/eigen.lua"
         include "Engine/vendor/glfw.lua"
         include "Engine/vendor/imgui.lua"

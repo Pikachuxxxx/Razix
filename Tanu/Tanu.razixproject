@@ -2,8 +2,9 @@
     "Razix Application": {
         "Project Name": "Tanu",
         "Engine Version": "0.50.0",
-        "Project ID": "a80a0c6f-0100-0000-0000-000000000000",
-        "Width": 2560,
-        "Height": 1373
+        "Project ID": "fd3241ea-bf0d-4d88-bf6a-4495bcbb11d2",
+        "Width": 1280,
+        "Height": 720,
+        "Scenes": []
     }
 }

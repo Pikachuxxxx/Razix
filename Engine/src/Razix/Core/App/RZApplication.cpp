@@ -10,21 +10,22 @@
 #include "Razix/Core/SplashScreen/RZSplashScreen.h"
 #include "Razix/Core/Version/RazixVersion.h"
 
+#include "Razix/Core/OS/RZFileSystem.h"
+
 #include "Razix/Core/OS/RZInput.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 
 #include "Razix/Events/ApplicationEvent.h"
 
 #include <Core/Log/RZLog.h>
+#include <Gfx/RHI/RHI.h>
 #include <backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/plugins/IconsFontAwesome5.h>
 //#include <imgui/plugins/ImGuizmo.h>
-#include <GLFW/glfw3.h>
-#include <cereal/archives/json.hpp>
-#include <entt.hpp>
-
-#include <fstream>
+#ifdef RAZIX_USE_GLFW_WINDOWS
+    #include <GLFW/glfw3.h>
+#endif
 
 #define ENABLE_IMGUI_EVENT_DATA_CAPTURE 0
 
@@ -57,14 +58,24 @@ namespace Razix {
     {
         // Load the De-serialized data from the project file or use the command line argument to open the file
         // TODO: Add verification for Engine and Project Version
-        std::ifstream AppStream;
         if (RZEngine::Get().getCommandLineParser().isSet("project file name") && RZEngine::Get().getCommandLineParser().isSet("project file path")) {
             RZString projectPath = RZEngine::Get().getCommandLineParser().getValueAsString("project file path");
             RZString projectName = RZEngine::Get().getCommandLineParser().getValueAsString("project file name");
             RZString fullPath    = projectPath + projectName + RZString(".razixproject");
             RAZIX_CORE_TRACE("[Application] Command line resolved full project path : {0}", fullPath);
             RAZIX_CORE_INFO("[Application] Opening the project file de-serialization...");
-            AppStream.open(fullPath.c_str(), std::ifstream::in);
+
+            RAZIX_CORE_TRACE("Loading project file...");
+            RZString physicalPath;
+            if (!RZVirtualFileSystem::Get().resolvePhysicalPath(fullPath, physicalPath)) {
+                RAZIX_CORE_ERROR("[Application] Failed to resolve path for *.razixproject: {0}", fullPath);
+                RAZIX_DEBUG_BREAK();
+                return;
+            }
+            auto           jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
+            nlohmann::ordered_json data        = nlohmann::ordered_json::parse(jsonStrData);
+            // pass this off to the load function below
+            loadRazixProject(data);
             m_ProjectPath = projectPath;
         } else {
             RAZIX_CORE_WARN("[Application] command line args for project file path and name are not set...using App args to resolve *.razixproject");
@@ -72,7 +83,18 @@ namespace Razix {
             //m_AppFilePath = ??
             RZString projectFullPath = m_ProjectPath + "/" + m_ProjectName + RZString(".razixproject");
             RAZIX_CORE_INFO("[Application] Opening the project file de-serialization... from RZApplication resolved path: {0}", projectFullPath);
-            AppStream.open(projectFullPath.c_str(), std::ifstream::in);
+
+            RZString physicalPath;
+            if (!RZVirtualFileSystem::Get().resolvePhysicalPath(projectFullPath, physicalPath)) {
+                RAZIX_CORE_ERROR("[Application] Failed to resolve path for *.razixproject: {0}", projectFullPath);
+                RAZIX_CORE_ERROR("Project File does not exist!");
+                RAZIX_CORE_TRACE("Creating a default Project file...");
+                SaveApp();
+            }
+            auto           jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
+            nlohmann::ordered_json data        = nlohmann::ordered_json::parse(jsonStrData);
+
+            loadRazixProject(data);
         }
 
         // Mount the VFS paths based on the Project directory (done here cause the Application can make things easier by making this easy by loading some default directories, others can be added later sandbox shouldn't be troubled by all this labor work)
@@ -91,30 +113,12 @@ namespace Razix {
         RZVirtualFileSystem::Get().mount("Textures", m_ProjectPath + RZString("/Assets/Textures"));
         RZVirtualFileSystem::Get().mount("Materials", m_ProjectPath + RZString("/Assets/Materials"));
 
-        // De-serialize the application
-        if (AppStream.is_open()) {
-            RAZIX_CORE_TRACE("Loading project file...");
-            cereal::JSONInputArchive inputArchive(AppStream);
-            inputArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
-        }
-
         // The Razix Application Signature Name is generated here and passed to the window
         // Set the window properties and create the timer
         m_WindowProperties.Title = GetAppWindowTitleSignature(m_ProjectName);
         if (m_Window == NULL)
             m_Window = RZWindow::Create(m_WindowProperties);
         m_Window->SetEventCallback(RAZIX_BIND_CB_EVENT_FN(RZApplication::OnEvent));
-
-        // Create a default project file file if nothing exists
-        if (!AppStream.is_open()) {
-            RAZIX_CORE_ERROR("Project File does not exist!");
-            RZString                  projectFullPath = m_ProjectPath + m_ProjectName + RZString(".razixproject");
-            std::ofstream             opAppStream(projectFullPath.c_str());
-            cereal::JSONOutputArchive defArchive(opAppStream);
-            RAZIX_CORE_TRACE("Creating a default Project file...");
-
-            defArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
-        }
 
         // If we change the API, then update the window title
         m_Window->setTitle(GetAppWindowTitleSignature(m_ProjectName).c_str());
@@ -426,30 +430,46 @@ namespace Razix {
     };
 
     /* Application Serialization */
-    // Load mechanism for the RZApplication class
-    template<class Archive>
-    void RZApplication::load(Archive& archive)
+#define RZ_JSON_KEY_ROOT           "Razix Application"
+#define RZ_JSON_KEY_PROJECT_NAME   "Project Name"
+#define RZ_JSON_KEY_ENGINE_VERSION "Engine Version"
+#define RZ_JSON_KEY_PROJECT_ID     "Project ID"
+#define RZ_JSON_KEY_WIDTH          "Width"
+#define RZ_JSON_KEY_HEIGHT         "Height"
+#define RZ_JSON_KEY_SCENES         "Scenes"
+
+    static bool ValidateRequiredProjectFields(const nlohmann::ordered_json& root)
     {
-        // Load project name as std::string, then convert to RZString
-        std::string projectName;
-        archive(cereal::make_nvp("Project Name", projectName));
-        m_ProjectName = RZString(projectName.c_str());
-        RAZIX_ASSERT_MESSAGE((m_ProjectName == RZString(projectName.c_str())), "Project name doesn't match with Executable");
+        const bool ok =
+            root.contains(RZ_JSON_KEY_PROJECT_NAME) && root[RZ_JSON_KEY_PROJECT_NAME].is_string() &&
+            root.contains(RZ_JSON_KEY_ENGINE_VERSION) && root[RZ_JSON_KEY_ENGINE_VERSION].is_string() &&
+            root.contains(RZ_JSON_KEY_PROJECT_ID) && root[RZ_JSON_KEY_PROJECT_ID].is_string() &&
+            root.contains(RZ_JSON_KEY_WIDTH) && root[RZ_JSON_KEY_WIDTH].is_number_unsigned() &&
+            root.contains(RZ_JSON_KEY_HEIGHT) && root[RZ_JSON_KEY_HEIGHT].is_number_unsigned();
 
-        /**
-     * Currently the project name will be verified with the one given in the sandbox or game project
-     * If it doesn't match it updates the project name, it's not necessary that the name must match the 
-     * executable name, since the Editor can load any *.razixproject file, this should also mean that
-     * it should be able to load any project name since the project name is always mutable just all it's properties
-     * There's not enforcement on the project names and other properties, the Razix Editor Application 
-     * and can load any thing as long it is supplies with the required data to
-     */
+        if (!ok) {
+            RAZIX_CORE_ERROR("[Serialization] Missing or invalid required fields. Aborting project load.");
+        }
+        return ok;
+    }
 
-        // Deserialize engine version from std::string
-        std::string versionStr;
-        archive(cereal::make_nvp("Engine Version", versionStr));
-        RZString storedVersionStr(versionStr.c_str());
+    void RZApplication::loadRazixProject(const nlohmann::ordered_json& j)
+    {
+        if (!j.contains(RZ_JSON_KEY_ROOT) || !j[RZ_JSON_KEY_ROOT].is_object()) {
+            RAZIX_CORE_ERROR("[Serialization] Missing root object '{}'.", RZ_JSON_KEY_ROOT);
+            m_SceneFilePaths.clear();
+            return;
+        }
+        const auto& root = j[RZ_JSON_KEY_ROOT];
 
+        if (!ValidateRequiredProjectFields(root)) {
+            m_SceneFilePaths.clear();
+            return;
+        }
+
+        m_ProjectName = RZString(root[RZ_JSON_KEY_PROJECT_NAME].get<std::string>().c_str());
+
+        RZString              storedVersionStr(root[RZ_JSON_KEY_ENGINE_VERSION].get<std::string>().c_str());
         const Razix::Version  loadedVersion  = Version::ParseVersionString(storedVersionStr);
         const Razix::Version& currentVersion = Razix::RazixVersion;
 
@@ -459,74 +479,88 @@ namespace Razix {
             RAZIX_CORE_WARN("[Serialization] Current engine version is: {}", currentVersion.getVersionString());
 
             if (loadedVersion.getVersionMajor() < currentVersion.getVersionMajor()) {
-                RAZIX_CORE_ERROR("[Serialization] Major version is older! incompatibility likely!");
+                RAZIX_CORE_ERROR("[Serialization] Major version is older! Incompatibility likely!");
             } else if (loadedVersion.getVersionMinor() < currentVersion.getVersionMinor()) {
-                RAZIX_CORE_ERROR("[Serialization] Minor version is older! may be partially compatible.");
+                RAZIX_CORE_ERROR("[Serialization] Minor version is older! May be partially compatible.");
             } else if (loadedVersion.getVersionPatch() < currentVersion.getVersionPatch()) {
-                RAZIX_CORE_ERROR("[Serialization] Patch version is older! usually safe, but changes may exist.");
+                RAZIX_CORE_ERROR("[Serialization] Patch version is older! Usually safe, but changes may exist.");
             } else {
-                RAZIX_CORE_ERROR("[Serialization] Version is newer than current engine! unsupported forward compatibility.");
+                RAZIX_CORE_ERROR("[Serialization] Version is newer than current engine! Unsupported forward compatibility.");
             }
         } else {
             RAZIX_CORE_INFO("[Serialization] Engine version matches exactly: {}", storedVersionStr);
         }
 
-        // TODO: Verify these also!
-        //archive(cereal::make_nvp("Project Version", 0));
-        u32 Width, Height;
-        archive(cereal::make_nvp("Width", Width));
-        archive(cereal::make_nvp("Height", Height));
-        m_WindowProperties.Width  = Width;
-        m_WindowProperties.Height = Height;
+        {
+            RZString uuid_string(root[RZ_JSON_KEY_PROJECT_ID].get<std::string>().c_str());
+            m_ProjectID = RZUUID::FromPrettyStrFactory(uuid_string);
+        }
 
-        // Extract the project UUID from std::string
-        std::string uuid_stringStr;
-        archive(cereal::make_nvp("Project ID", uuid_stringStr));
-        RZString uuid_string(uuid_stringStr.c_str());
-        m_ProjectID = RZUUID::FromPrettyStrFactory(uuid_string);
+        m_WindowProperties.Width  = static_cast<u32>(root[RZ_JSON_KEY_WIDTH].get<u32>());
+        m_WindowProperties.Height = static_cast<u32>(root[RZ_JSON_KEY_HEIGHT].get<u32>());
 
-        // Load the scenes from the project file for the engine to load and present
-        //RAZIX_CORE_TRACE("Loading Scenes...");
-        //RZDynamicArray<std::string> scenePaths;
-        //scenePaths.reserve(16);
-        //archive(cereal::make_nvp("Scenes", scenePaths));
-        //
-        //// Convert std::string to RZString
-        //sceneFilePaths.clear();
-        //for (const auto& path: scenePaths) {
-        //    sceneFilePaths.push_back(RZString(path.c_str()));
-        //}
+        m_SceneFilePaths.clear();
+        if (root.contains(RZ_JSON_KEY_SCENES) && root[RZ_JSON_KEY_SCENES].is_array()) {
+            for (const auto& pathJson: root[RZ_JSON_KEY_SCENES]) {
+                if (pathJson.is_string()) {
+                    m_SceneFilePaths.push_back(RZString(pathJson.get<std::string>().c_str()));
+                } else {
+                    RAZIX_CORE_WARN("[Serialization] Skipping non-string scene entry in project file.");
+                }
+            }
+        } else {
+            RAZIX_CORE_WARN("[Serialization] No scenes array found; scene list cleared.");
+        }
+
+        RAZIX_CORE_ASSERT(!m_ProjectName.empty(), "Project name must not be empty after load.");
+        RAZIX_CORE_ASSERT(m_WindowProperties.Width > 0 && m_WindowProperties.Height > 0, "Window size must be non-zero after load.");
     }
 
-    // Save mechanism for the RZApplication class
-    template<class Archive>
-    void RZApplication::save(Archive& archive) const
+    void RZApplication::saverazixproject(nlohmann::ordered_json& j) const
     {
-        RAZIX_TRACE("Window Resize override sandbox application! | W : {0}, H : {1}", m_Window->getWidth(), m_Window->getHeight());
+        nlohmann::ordered_json root = nlohmann::ordered_json::object();
 
-        // Save RZString fields as std::string
-        archive(cereal::make_nvp("Project Name", std::string(m_ProjectName.c_str())));
-        archive(cereal::make_nvp("Engine Version", std::string(Razix::RazixVersion.getVersionString().c_str())));
-        archive(cereal::make_nvp("Project ID", std::string(m_ProjectID.prettyString().c_str())));
-        archive(cereal::make_nvp("Width", m_Window->getWidth()));
-        archive(cereal::make_nvp("Height", m_Window->getHeight()));
+        const u32 width  = m_Window ? m_Window->getWidth() : m_WindowProperties.Width;
+        const u32 height = m_Window ? m_Window->getHeight() : m_WindowProperties.Height;
 
-        // Convert RZString vector to std::string vector for serialization
-        //RZDynamicArray<std::string> scenePaths;
-        //scenePaths.reserve(16);
-        //// TODO: parse scenegraphs and get their relative file paths, we need an manager to switch b/w scenegraphs
-        //archive(cereal::make_nvp("Scenes", scenePaths));
-        //RAZIX_UNUSED(scenePaths);
+        root[RZ_JSON_KEY_PROJECT_NAME]   = std::string(m_ProjectName.c_str());
+        root[RZ_JSON_KEY_ENGINE_VERSION] = std::string(Razix::RazixVersion.getVersionString().c_str());
+        root[RZ_JSON_KEY_PROJECT_ID]     = std::string(m_ProjectID.prettyString().c_str());
+        root[RZ_JSON_KEY_WIDTH]          = width;
+        root[RZ_JSON_KEY_HEIGHT]         = height;
+
+        nlohmann::ordered_json scenesJson = nlohmann::ordered_json::array();
+        for (const auto& path: m_SceneFilePaths) {
+            scenesJson.push_back(std::string(path.c_str()));
+        }
+        root[RZ_JSON_KEY_SCENES] = std::move(scenesJson);
+
+        j[RZ_JSON_KEY_ROOT] = std::move(root);
+
+        RAZIX_CORE_ASSERT(j[RZ_JSON_KEY_ROOT][RZ_JSON_KEY_PROJECT_NAME].is_string(), "Project Name must serialize as string.");
+        RAZIX_CORE_ASSERT(j[RZ_JSON_KEY_ROOT][RZ_JSON_KEY_ENGINE_VERSION].is_string(), "Engine Version must serialize as string.");
+        RAZIX_CORE_ASSERT(j[RZ_JSON_KEY_ROOT][RZ_JSON_KEY_PROJECT_ID].is_string(), "Project ID must serialize as string.");
+        RAZIX_CORE_ASSERT(j[RZ_JSON_KEY_ROOT][RZ_JSON_KEY_WIDTH].is_number_unsigned() && j[RZ_JSON_KEY_ROOT][RZ_JSON_KEY_WIDTH].get<u32>() > 0, "Width must be > 0.");
+        RAZIX_CORE_ASSERT(j[RZ_JSON_KEY_ROOT][RZ_JSON_KEY_HEIGHT].is_number_unsigned() && j[RZ_JSON_KEY_ROOT][RZ_JSON_KEY_HEIGHT].get<u32>() > 0, "Height must be > 0.");
     }
 
     void RZApplication::SaveApp()
     {
         // Save the app data before closing
-        RAZIX_CORE_WARN("Saving project...");
-        RZString                  projectFullPath = m_ProjectPath + m_ProjectName + RZString(".razixproject");
-        std::ofstream             opAppStream(projectFullPath.c_str());
-        cereal::JSONOutputArchive saveArchive(opAppStream);
-        saveArchive(cereal::make_nvp("Razix Application", *s_AppInstance));
+        RAZIX_CORE_WARN("Saving App...");
+        RZString       projectFullPath = m_ProjectPath + m_ProjectName + RZString(".razixproject");
+        nlohmann::ordered_json data;
+        saverazixproject(data);
+
+        std::string out = data.dump(4);    // pretty print with indent 4
+        const i64   sz  = static_cast<i64>(out.size());
+        if (!RZFileSystem::WriteFile(projectFullPath, reinterpret_cast<const u8*>(out.c_str()), sz)) {
+            RAZIX_CORE_ERROR("[Application] Failed to write project file: {0}", projectFullPath);
+            RAZIX_DEBUG_BREAK();
+            return;
+        }
+
+        RAZIX_CORE_INFO("[Application] Project saved successfully: {0}", projectFullPath);
     }
 
     void RZApplication::renderEngineImGuiElements()

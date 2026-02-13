@@ -139,7 +139,7 @@ namespace Razix {
         return result;
     }
 
-    bool RZFileSystem::WriteFile(const RZString& path, u8* buffer, i64 size)
+    bool RZFileSystem::WriteFile(const RZString& path, const u8* buffer, i64 size)
     {
         if (!buffer || size <= 0) {
             return false;

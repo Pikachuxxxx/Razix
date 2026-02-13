@@ -112,7 +112,7 @@ namespace Razix {
         return resolvePhysicalPath(path, physicalPath) ? RZFileSystem::ReadTextFile(physicalPath) : nullptr;
     }
 
-    bool RZVirtualFileSystem::writeFile(const RZString& path, u8* buffer, i64 size)
+    bool RZVirtualFileSystem::writeFile(const RZString& path, const u8* buffer, i64 size)
     {
         // RAZIX_ASSERT(s_Instance, "VFS was not Started Up properly");
         RZString physicalPath;

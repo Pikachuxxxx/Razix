@@ -8,8 +8,6 @@
 
 #include "Razix/Core/std/thread.h"
 
-#include "Razix/Core/Utils/RZVendorOverrides.h"
-
 #include "Razix/Core/OS/RZWindow.h"
 
 #include "Razix/Core/Profiling/RZProfiling.h"
@@ -23,10 +21,7 @@
 #include "Razix/Core/Utils/RZTimestep.h"
 #include "Razix/Core/Utils/TRZSingleton.h"
 
-// Cereal
-#pragma warning(push, 0)
-#include <cereal/types/vector.hpp>
-#pragma warning(pop)
+#include <nlohmann/json.hpp>
 
 //! Some style guide rules are waved off for RZApplication class
 
@@ -108,8 +103,8 @@ namespace Razix {
         inline const AppState&       getAppState() const { return m_CurrentState; }
         inline void                  setAppState(AppState state) { m_CurrentState = state; }
 
-        // Application Save and Load Functions
-        RAZIX_DEFINE_SAVE_LOAD
+        void loadRazixProject(const nlohmann::ordered_json& jsonData);
+        void saverazixproject(nlohmann::ordered_json& j) const;
 
     private:
         static RZApplication* s_AppInstance;

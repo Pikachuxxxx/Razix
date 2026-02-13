@@ -77,7 +77,7 @@ namespace Razix {
          * @param buffer The content that will be written to the fire
          * @returns True, if the write operation was successful
          */
-        static bool WriteFile(const RZString& path, u8* buffer, i64 size);
+        static bool WriteFile(const RZString& path, const u8* buffer, i64 size);
 
         /**
          * Writes the string to a text file
