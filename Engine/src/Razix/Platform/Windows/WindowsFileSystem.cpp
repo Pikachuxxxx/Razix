@@ -41,7 +41,7 @@ namespace Razix {
         return (dwAttr != INVALID_FILE_ATTRIBUTES) && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) == 0;
     }
 
-    iool RZFileSystem::FolderExists(const RZString& path)
+    bool RZFileSystem::FolderExists(const RZString& path)
     {
         DWORD dwAttrib = GetFileAttributes(path.c_str());
         return dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0;
