@@ -1,6 +1,7 @@
 #ifndef _RZ_ASSET_DB_H_
 #define _RZ_ASSET_DB_H_
 
+#include <Core/Containers/hash_map.h>
 #include <type_traits>
 
 #include "Razix/Core/RZThreadCore.h"

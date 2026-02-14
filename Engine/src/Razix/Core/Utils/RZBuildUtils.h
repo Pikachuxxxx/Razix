@@ -12,8 +12,11 @@ namespace Razix {
 
         enum class BuildMode
         {
+#if RAZIX_IS_DEVELOPMENT_BUILD
             kDevelopment = 0,
+#elif RAZIX_IS_SHIPPING_BUILD
             kShipping
+#endif
         };
 
         enum class BuildConfig
@@ -58,6 +61,16 @@ namespace Razix {
             return Platform::WINDOWS;
 #endif
         }
+
+        static BuildMode getBuildMode()
+        {
+#if RAZIX_IS_DEVELOPMENT_BUILD
+            return BuildMode::kDevelopment;
+#elif RAZIX_IS_SHIPPING_BUILD
+            return BuildMode::kShipping;
+#endif
+        }
+
     }    // namespace BuildUtils
 
 }    // namespace Razix

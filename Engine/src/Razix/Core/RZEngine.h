@@ -7,7 +7,6 @@
 
 #include "Razix/Core/Memory/RZAllocators.h"
 
-#include "Razix/Core/Utils/RZBuildUtils.h"
 #include "Razix/Core/Utils/RZCommandLineParser.h"
 #include "Razix/Core/Utils/TRZSingleton.h"
 
@@ -92,7 +91,6 @@ namespace Razix {
         inline const Razix::Memory::RZTwoSidedAllocator& getPacketAllocator() { return m_PacketAllocator; }
 
         inline rz_critical_section&  getSystemAllocatorMutex() { return m_SystemAllocatorMutex; }
-        inline BuildUtils::BuildMode getBuildMode() const { return m_BuildMode; }
 
     private:
         RZCommandLineParser                m_CommandLineParser;
@@ -109,7 +107,6 @@ namespace Razix {
         Razix::Memory::RZTwoSidedAllocator m_PacketAllocator;
         rz_critical_section                m_SystemAllocatorMutex;
         bool                               m_bIsEngineInTestMode = false;
-        BuildUtils::BuildMode              m_BuildMode           = BuildUtils::BuildMode::kDevelopment;
         //Gfx::RZShaderLibrary          m_ShaderLibrary;
     };
 }    // namespace Razix

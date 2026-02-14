@@ -166,6 +166,30 @@ workspace ( settings.workspace_name )
         "GoldMaster"
     }
 
+    BuildMode = _OPTIONS["buildmode"] or "Development"
+    if BuildMode == "Development" then
+        print("Selected Build Mode: Development")
+    elseif BuildMode == "Shipping" then
+        print("Selected Build Mode: Shipping")
+    else
+        print("Unknown Build Mode '" .. BuildMode .. "'. Supported build modes are: Development, Shipping")
+        os.exit(1)
+    end
+
+    if BuildMode == "Development" then
+        defines 
+        {
+            "RAZIX_IS_DEVELOPMENT_BUILD=1",
+            "RAZIX_IS_SHIPPING_BUILD=0",
+        }
+    elseif BuildMode == "Shipping" then
+        defines 
+        {
+            "RAZIX_IS_DEVELOPMENT_BUILD=0",
+            "RAZIX_IS_SHIPPING_BUILD=1",
+        }
+    end
+
     -- global config settings for all projects, override if necessary in project lua files 
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }

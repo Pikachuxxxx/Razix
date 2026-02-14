@@ -5,9 +5,14 @@
 
 #include "RZAssetDB.h"
 
+#include "Razix/Core/RZEngine.h"
+
 #include "Razix/Core/Memory/Allocators/RZHeapAllocator.h"
+#include "Razix/Core/OS/RZFileSystem.h"
+#include "Razix/Core/OS/RZVirtualFileSystem.h"
 #include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/RZThreadCore.h"
+#include "Razix/Core/Utils/RZBuildUtils.h"
 
 #include <type_traits>
 
@@ -234,6 +239,15 @@ namespace Razix {
         if (totalPayloadSlots > headerSlotsAvailable) {
             RAZIX_CORE_WARN("[AssetSystem] Header pool slots ({0}) below total payload capacity ({1}); allocations will cap at header capacity.", headerSlotsAvailable, totalPayloadSlots);
         }
+
+        //-----------------------------------------------------------------------------
+        // load registry in development builds
+#if RAZIX_IS_DEVELOPMENT_BUILD
+        if (!loadAssetDBRegistry()) {
+            RAZIX_CORE_ERROR("[AssetDB] Failed to load registry: {0}", RAZIX_ASSET_DB_REGISTRY_FILE);
+            RAZIX_CORE_ASSERT(false, "AssetDB registry missing or corrupted.");
+        }
+#endif
     }
 
     void RZAssetDB::Shutdown()
@@ -275,5 +289,85 @@ namespace Razix {
 
         rz_critical_section_destroy(&m_AssetDBLock);
     }
+
+#if RAZIX_IS_DEVELOPMENT_BUILD
+
+    bool RZAssetDB::loadAssetDBRegistry()
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+
+        RZString physicalPath;
+        if (!RZVirtualFileSystem::Get().resolvePhysicalPath(RAZIX_ASSET_DB_REGISTRY_FILE, physicalPath)) {
+            RAZIX_CORE_WARN("[AssetDB] Registry file not found: {0}. Starting with empty registry.", RAZIX_ASSET_DB_REGISTRY_FILE);
+            m_AssetDBDevRegistry.clear();
+            return true;
+        }
+
+        u64  fileSize        = 0;
+        u32  assetDBFileSize = RZFileSystem::GetFileSize(physicalPath);
+        u8*  buffer          = (u8*) rz_malloc_aligned(assetDBFileSize);
+        bool bReadResult     = RZFileSystem::ReadFile(physicalPath, buffer, assetDBFileSize);
+        if (bReadResult || fileSize < sizeof(u32)) {
+            RAZIX_CORE_ERROR("[AssetDB] Failed reading registry file or file corrupted.");
+            return false;
+        }
+
+        m_AssetDBDevRegistry.clear();
+
+        const u8* cursor = buffer;
+        const u8* end    = buffer + fileSize;
+
+        auto readU32 = [&](u32& out) {
+            RAZIX_CORE_ASSERT(cursor + sizeof(u32) <= end, "[AssetDB] Registry read overflow (u32).");
+            memcpy(&out, cursor, sizeof(u32));
+            cursor += sizeof(u32);
+        };
+
+        auto readUUID = [&](RZUUID& uuid) {
+            RAZIX_CORE_ASSERT(cursor + sizeof(RZUUID) <= end, "[AssetDB] Registry read overflow (UUID).");
+            memcpy(uuid.mutable_data(), cursor, sizeof(RZUUID));
+            cursor += sizeof(RZUUID);
+        };
+
+        u32 entryCount = 0;
+        readU32(entryCount);
+        RAZIX_CORE_TRACE("[AssetDB] Loading assetdb.bin registry with {0} entries.", entryCount);
+
+        for (u32 i = 0; i < entryCount; ++i) {
+            RZUUID uuid;
+            readUUID(uuid);
+
+            u32 stringSize = 0;
+            readU32(stringSize);
+
+            RAZIX_CORE_ASSERT(cursor + stringSize <= end, "[AssetDB] Registry read overflow (string).");
+
+            RZString path;
+            path.append(reinterpret_cast<const char*>(cursor), stringSize);
+            cursor += stringSize;
+
+            RAZIX_CORE_TRACE("[AssetDB] Loaded registry entry: UUID={0}, Path={1}", uuid.prettyString(), path);
+
+            m_AssetDBDevRegistry[uuid] = path;
+        }
+
+        rz_free(buffer);
+
+        RAZIX_CORE_INFO("[AssetDB] Loaded {0} registry entries.", entryCount);
+        return true;
+    }
+
+    void RZAssetDB::exportAssetDBRegistry() const
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+
+        // In development builds, we can save/load the entire registry to a single file for faster iteration
+        // called when AssetDB startup/shutsdown happens
+        // No streaming or zone --> pak loading support for this, just a single
+        // file with all assets in it, used for faster iteration during development
+
+        u32 entryCount = static_cast<u32>(m_AssetDBDevRegistry.size());
+    }
+#endif // RAZIX_IS_DEVELOPMENT_BUILD
 
 }    // namespace Razix
