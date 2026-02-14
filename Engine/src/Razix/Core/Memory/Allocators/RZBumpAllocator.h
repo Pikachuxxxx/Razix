@@ -14,10 +14,13 @@ namespace Razix {
             ~RZBumpAllocator() = default;
 
             void init(size_t size, size_t alignment = 16) override;
-
             void shutdown() override;
 
+            void beginFrame();
+            void endFrame();
+
             void* allocate(size_t size) override;
+            void* allocate(size_t size, size_t alignment);
             void  deallocate(void* ptr) override {}
 
             void clear() { m_AllocatedSize = 0; }

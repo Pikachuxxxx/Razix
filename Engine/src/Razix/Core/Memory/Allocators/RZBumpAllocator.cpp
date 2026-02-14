@@ -24,6 +24,18 @@ namespace Razix {
             m_TotalSize     = 0;
         }
 
+        void RZBumpAllocator::beginFrame()
+        {
+            m_AllocatedSize = 0;
+            memset(m_Chunk, 0x00, m_TotalSize);
+        }
+
+        void RZBumpAllocator::endFrame()
+        {
+            m_AllocatedSize = 0;
+            memset(m_Chunk, 0x00, m_TotalSize);
+        }
+
         void* RZBumpAllocator::allocate(size_t size)
         {
             if (m_AllocatedSize + size > m_TotalSize)
@@ -31,6 +43,22 @@ namespace Razix {
 
             void* address = m_Chunk + m_AllocatedSize;
             m_AllocatedSize += size;
+            memset(address, 0x00, size);
+            return address;
+        }
+
+        void* RZBumpAllocator::allocate(size_t size, size_t alignment)
+        {
+            size_t currentAddress = reinterpret_cast<size_t>(m_Chunk) + m_AllocatedSize;
+            size_t padding        = (alignment - (currentAddress % alignment)) % alignment;
+
+            if (m_AllocatedSize + padding + size > m_TotalSize)
+                return nullptr;
+
+            m_AllocatedSize += padding;
+            void* address = m_Chunk + m_AllocatedSize;
+            m_AllocatedSize += size;
+            memset(address, 0x00, size);
             return address;
         }
 
