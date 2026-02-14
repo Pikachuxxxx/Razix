@@ -26,15 +26,27 @@
 #include "Razix/Asset/RZTransformAsset.h"
 #include "Razix/Asset/RZVignerePuzzleAsset.h"
 
+#define RAZIX_ASSET_DB_REGISTRY_FILE     "//Assets/assetdb.bin"
+#define RAZIX_ASSET_DB_REGISTRY_FILE_NAME "assetdb.bin"
+#define RAZIX_MAX_ASSETS                 4096    // 1 Million assets max for now
+#define RAZIX_ASSET_MAX_FILE_PATH_LENGTH 256
+
+// AssetBD.bin format
+// [u32 count]
+// repeated:
+//   [16 byte UUID]
+//   [u32 string length]
+//   [char[] path]
+
 namespace Razix {
     namespace Memory {
         class RZHeapAllocator;
     }
 }    // namespace Razix
 
-#define RAZIX_MAX_ASSETS 4096    // 1 Million assets max for now
-
 namespace Razix {
+
+    class RZPakFile;
 
     class RAZIX_API RZAssetDB final : public RZSingleton<RZAssetDB>
     {
@@ -168,6 +180,78 @@ namespace Razix {
             return pool.get(index);
         }
 
+        template<typename T>
+        rz_asset_handle createAsset(const RZString& name)
+        {
+            RZScopedCriticalSection lock(m_AssetDBLock);
+
+            rz_asset_handle handle = allocateAsset<T>();
+            if (handle == RAZIX_ASSET_INVALID_HANDLE)
+                return handle;
+
+            RZAsset* header = m_HeaderPool.getMutablePtr(handle);
+            RAZIX_CORE_ASSERT(header, "[AssetDB] Invalid header after allocation.");
+            header->setName(name);
+
+#if RAZIX_IS_DEVELOPMENT_BUILD
+            const RZAssetType type = GetAssetTypeTag<T>();
+            RZString          path = s_AssetTypeFolderTable[static_cast<u8>(type)] + name + ".rzasset";
+
+            m_AssetDBDevRegistry[header->getUUID()] = path;
+#endif    // RAZIX_IS_DEVELOPMENT_BUILD
+            return handle;
+        }
+
+        template<typename T>
+        void destroyAsset(rz_asset_handle handle)
+        {
+            RZScopedCriticalSection lock(m_AssetDBLock);
+
+            RZAsset* header = m_HeaderPool.getMutablePtr(handle);
+            if (!header) {
+                RAZIX_CORE_ERROR("[AssetDB] Invalid asset handle for destruction.");
+                return;
+            }
+
+#if RAZIX_IS_DEVELOPMENT_BUILD
+            m_AssetDBDevRegistry.remove(header->getUUID());
+#endif    // RAZIX_IS_DEVELOPMENT_BUILD
+            releaseAsset<T>(handle);
+        }
+
+        // Unified load
+        // Checks RZEngine::BuildMode and calls either loadAssetFromDisk or loadAssetFromPak
+        rz_asset_handle loadAsset(RZUUID assetUUID);
+
+#if RAZIX_IS_DEVELOPMENT_BUILD
+        // All are called in Async fashion, they immediately return with default handle, and once the asset is loaded/saved,
+        // the handle is updated with the actual handle
+        // Paks are owned by scenegraph, so they will call these functions to load/save assets from/to paks
+        bool            saveAssetToDisk(rz_asset_handle handle) const;
+        rz_asset_handle loadAssetFromDisk(RZUUID assetUUID);
+        bool            saveAllAssetsToDisk() const;
+
+        // In development builds, we can save/load the entire registry to a single file for faster iteration
+        // called when AssetDB startup/shutsdown happens
+        // No streaming or zone --> pak loading support for this, just a single
+        // file with all assets in it, used for faster iteration during development
+        bool loadAssetDBRegistry();
+        void exportAssetDBRegistry() const;
+#elif RAZIX_IS_SHIPPING_BUILD
+
+        // Pak file variants
+        bool            saveAssetToPak(rz_asset_handle handle, RZPakFile* pakFile) const;
+        rz_asset_handle loadAssetFromPak(RZUUID assetUUID, RZPakFile* pakFile);
+
+        // Called Async by the SceneManager when it loads new zones from main game thread,
+        // once the pak file is loaded, it will call this function to load all assets from
+        // the pak file into the asset db, so that they can be used by the scene, this final
+        // step is done by calling buildAssetDBFromPak, which will read the pak file and populate
+        // the asset db, then the scene can start using the assets from the asset db. In the meantime,
+        // Since we can have Async loading of assets, the scene can start using the assets as they are loaded into the asset db.
+        void buildAssetDBFromPak(RZPakFile* pakFile);
+#endif
+
     private:
         RZAssetPool<RZAnimationAsset>       m_AnimationAssetPool;
         RZAssetPool<RZAssetRefAsset>        m_AssetRefAssetPool;
@@ -189,6 +273,10 @@ namespace Razix {
         Memory::RZHeapAllocator* m_AssetAllocator       = NULL;
         Memory::RZHeapAllocator* m_AssetHeaderAllocator = NULL;
         u32                      m_BudgetInMB           = 0;
+
+        //Not using union to avoid lifetime issues with non-trivial types
+        RZHashMap<RZUUID, RZString>   m_AssetDBDevRegistry;    // Used in Development buillds
+        RZHashMap<RZUUID, RZPakFile*> m_AssetPakRegistry;      // Used in Shipping builds
     };
 
 }    // namespace Razix

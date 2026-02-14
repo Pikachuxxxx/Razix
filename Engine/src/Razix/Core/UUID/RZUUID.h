@@ -4,6 +4,7 @@
 
 #include "Razix/Core/RZCore.h"
 
+#include "Razix/Core/Containers/hash_functors.h"
 #include "Razix/Core/Containers/string.h"
 
 #if defined(RAZIX_APPLE_SILICON) || defined(RAZIX_PLATFORM_MACOS) || defined(RAZIX_PLATFORM_LINUX_ARM64)
@@ -125,6 +126,7 @@ namespace Razix {
         /* Hash function for the UUID */
         sz          hash() const;
         const void* data() const;
+        void*       mutable_data() { return m_Data; }
         void        setData(const u8* data);
 
         RZUUID& operator=(const RZUUID& other);
@@ -165,6 +167,16 @@ namespace Razix {
         static __m128i inline stringTom128i(cstr mem);
         static const std::array<u8, 16> prettyStringToBytes(const RZString& prettyStr);
     };
+
+    template<>
+    struct rz_hash<RZUUID>
+    {
+        size_t operator()(const RZUUID& uuid) const
+        {
+            return static_cast<size_t>(uuid.hash());
+        }
+    };
+
 }    // namespace Razix
 
 namespace std {

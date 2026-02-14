@@ -14,6 +14,8 @@
 #include "Razix/Core/RZThreadCore.h"
 #include "Razix/Core/Utils/RZBuildUtils.h"
 
+#include "Razix/Core/std/utility.h"
+
 #include <type_traits>
 
 namespace Razix {
@@ -165,6 +167,8 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
+        RAZIX_CORE_INFO("[AssetSystem] Starting up asset system...");
+
         m_AssetAllocator       = &assetAllocator;
         m_AssetHeaderAllocator = &assetHeaderAllocator;
 
@@ -244,7 +248,7 @@ namespace Razix {
         // load registry in development builds
 #if RAZIX_IS_DEVELOPMENT_BUILD
         if (!loadAssetDBRegistry()) {
-            RAZIX_CORE_ERROR("[AssetDB] Failed to load registry: {0}", RAZIX_ASSET_DB_REGISTRY_FILE);
+            RAZIX_CORE_ERROR("[AssetSystem] Failed to load registry: {0}", RAZIX_ASSET_DB_REGISTRY_FILE);
             RAZIX_CORE_ASSERT(false, "AssetDB registry missing or corrupted.");
         }
 #endif
@@ -253,6 +257,12 @@ namespace Razix {
     void RZAssetDB::Shutdown()
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+
+        RAZIX_CORE_INFO("[AssetSystem] Shutting down asset system...");
+
+#if RAZIX_IS_DEVELOPMENT_BUILD
+        exportAssetDBRegistry();
+#endif
 
         m_AssetHeaderAllocator->deallocate(m_HeaderPool.getBackingMemoryMutablePtr());
 
@@ -298,7 +308,7 @@ namespace Razix {
 
         RZString physicalPath;
         if (!RZVirtualFileSystem::Get().resolvePhysicalPath(RAZIX_ASSET_DB_REGISTRY_FILE, physicalPath)) {
-            RAZIX_CORE_WARN("[AssetDB] Registry file not found: {0}. Starting with empty registry.", RAZIX_ASSET_DB_REGISTRY_FILE);
+            RAZIX_CORE_WARN("[AssetSystem] Registry file not found: {0}. Starting with empty registry.", RAZIX_ASSET_DB_REGISTRY_FILE);
             m_AssetDBDevRegistry.clear();
             return true;
         }
@@ -308,7 +318,7 @@ namespace Razix {
         u8*  buffer          = (u8*) rz_malloc_aligned(assetDBFileSize);
         bool bReadResult     = RZFileSystem::ReadFile(physicalPath, buffer, assetDBFileSize);
         if (bReadResult || fileSize < sizeof(u32)) {
-            RAZIX_CORE_ERROR("[AssetDB] Failed reading registry file or file corrupted.");
+            RAZIX_CORE_ERROR("[AssetSystem] Failed reading registry file or file corrupted.");
             return false;
         }
 
@@ -318,20 +328,20 @@ namespace Razix {
         const u8* end    = buffer + fileSize;
 
         auto readU32 = [&](u32& out) {
-            RAZIX_CORE_ASSERT(cursor + sizeof(u32) <= end, "[AssetDB] Registry read overflow (u32).");
+            RAZIX_CORE_ASSERT(cursor + sizeof(u32) <= end, "[AssetSystem] Registry read overflow (u32).");
             memcpy(&out, cursor, sizeof(u32));
             cursor += sizeof(u32);
         };
 
         auto readUUID = [&](RZUUID& uuid) {
-            RAZIX_CORE_ASSERT(cursor + sizeof(RZUUID) <= end, "[AssetDB] Registry read overflow (UUID).");
+            RAZIX_CORE_ASSERT(cursor + sizeof(RZUUID) <= end, "[AssetSystem] Registry read overflow (UUID).");
             memcpy(uuid.mutable_data(), cursor, sizeof(RZUUID));
             cursor += sizeof(RZUUID);
         };
 
         u32 entryCount = 0;
         readU32(entryCount);
-        RAZIX_CORE_TRACE("[AssetDB] Loading assetdb.bin registry with {0} entries.", entryCount);
+        RAZIX_CORE_TRACE("[AssetSystem] Loading assetdb.bin registry with {0} entries.", entryCount);
 
         for (u32 i = 0; i < entryCount; ++i) {
             RZUUID uuid;
@@ -340,20 +350,20 @@ namespace Razix {
             u32 stringSize = 0;
             readU32(stringSize);
 
-            RAZIX_CORE_ASSERT(cursor + stringSize <= end, "[AssetDB] Registry read overflow (string).");
+            RAZIX_CORE_ASSERT(cursor + stringSize <= end, "[AssetSystem] Registry read overflow (string).");
 
             RZString path;
             path.append(reinterpret_cast<const char*>(cursor), stringSize);
             cursor += stringSize;
 
-            RAZIX_CORE_TRACE("[AssetDB] Loaded registry entry: UUID={0}, Path={1}", uuid.prettyString(), path);
+            RAZIX_CORE_TRACE("[AssetSystem] Loaded registry entry: UUID={0}, Path={1}", uuid.prettyString(), path);
 
             m_AssetDBDevRegistry[uuid] = path;
         }
 
         rz_free(buffer);
 
-        RAZIX_CORE_INFO("[AssetDB] Loaded {0} registry entries.", entryCount);
+        RAZIX_CORE_INFO("[AssetSystem] Loaded {0} registry entries.", entryCount);
         return true;
     }
 
@@ -366,8 +376,58 @@ namespace Razix {
         // No streaming or zone --> pak loading support for this, just a single
         // file with all assets in it, used for faster iteration during development
 
-        u32 entryCount = static_cast<u32>(m_AssetDBDevRegistry.size());
+        u32    entryCount       = static_cast<u32>(m_AssetDBDevRegistry.size());
+        size_t registryFileSize = sizeof(u32) + entryCount * (sizeof(RZUUID) + sizeof(u32) + RAZIX_ASSET_MAX_FILE_PATH_LENGTH);
+        u8*    buffer           = (u8*) rz_malloc_aligned(registryFileSize);
+        u64    offset           = 0;
+
+        // write count first
+        buffer[offset] = entryCount;
+        offset += sizeof(u32);
+
+        // Compute total size needed: 4 bytes for entry count + (16 bytes for UUID + 4 bytes for string length + string bytes) per entryCount
+
+        for (const auto& [uuid, path]: m_AssetDBDevRegistry) {
+            RAZIX_CORE_TRACE("[AssetSystem] Registry entry to export: UUID={0}, Path={1}", uuid.prettyString(), path);
+
+            // Write uuid
+            memcpy(buffer + offset, uuid.data(), sizeof(RZUUID));
+            offset += sizeof(RZUUID);
+
+            // Write string length
+            u32 stringLength = static_cast<u32>(path.size());
+            memcpy(buffer + offset, &stringLength, sizeof(u32));
+            offset += sizeof(u32);
+
+            // Write string bytes
+            // cap the path to RAZIX_ASSET_MAX_FILE_PATH_LENGTH to prevent overflow during read/writes
+            RAZIX_CORE_ASSERT(path.size() <= RAZIX_ASSET_MAX_FILE_PATH_LENGTH, "[AssetSystem] Asset path exceeds max length: {0}", path);
+            u32 stringBytesToWrite = rz_min<u32>(static_cast<u32>(path.size()), RAZIX_ASSET_MAX_FILE_PATH_LENGTH);
+            memcpy(buffer + offset, path.c_str(), stringBytesToWrite);
+            offset += stringBytesToWrite;
+        }
+
+        RAZIX_CORE_TRACE("[AssetSystem] Finished writing registry entries to buffer. Total size: {} bytes. Expected size: {} bytes.", offset, registryFileSize);
+        RAZIX_CORE_ASSERT(offset <= registryFileSize, "[AssetSystem] Buffer overflow during registry export: offset {} exceeds allocated size {}", offset, registryFileSize);
+        // Write buffer to file
+        RZString physicalPath;
+        if (!RZVirtualFileSystem::Get().resolvePhysicalPath("//Assets/", physicalPath, true)) {
+            RAZIX_CORE_ERROR("[AssetSystem] Failed to resolve physical path for registry export: {0}", RAZIX_ASSET_DB_REGISTRY_FILE);
+            rz_free(buffer);
+            return;
+        }
+
+        physicalPath += RAZIX_ASSET_DB_REGISTRY_FILE_NAME;
+
+        bool bWriteResult = RZFileSystem::WriteFile(physicalPath, buffer, offset);
+        if (!bWriteResult) {
+            RAZIX_CORE_ERROR("[AssetSystem] Failed to write registry file: {0}", physicalPath);
+        } else {
+            RAZIX_CORE_INFO("[AssetSystem] Successfully exported registry with {0} entries to {1} ({2} bytes).", entryCount, physicalPath, offset);
+        }
+
+        rz_free(buffer);
     }
-#endif // RAZIX_IS_DEVELOPMENT_BUILD
+#endif    // RAZIX_IS_DEVELOPMENT_BUILD
 
 }    // namespace Razix

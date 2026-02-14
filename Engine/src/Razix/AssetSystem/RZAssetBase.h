@@ -66,13 +66,19 @@ namespace Razix {
     X(Cloth)            \
     X(GameData)
 
-    enum class RZAssetType
+    enum class RZAssetType: u8
     {
 #define X(name) k##name,
         ASSET_TYPE_LIST
 #undef X
             COUNT
     };
+
+    static constexpr const char* s_AssetTypeFolderTable[] = {
+#define X(name) "//Assets/" #name "s/",
+    ASSET_TYPE_LIST
+#undef X
+};
 
     static_assert((u32) RZAssetType::COUNT == 14, "More asset types have been added, make changes to apt places!");
 
@@ -287,6 +293,18 @@ namespace Razix {
         {
             RAZIX_ASSERT(m_pCold != NULL, "Cold data not initialized");
             return m_pCold->dependencies;
+        }
+
+        inline void setName(const RZString& name)
+        {
+            RAZIX_ASSERT(m_pCold != NULL, "Cold data not initialized");
+            m_pCold->metadata.name = name;
+        }
+
+        inline const RZString& getName() const
+        {
+            RAZIX_ASSERT(m_pCold != NULL, "Cold data not initialized");
+            return m_pCold->metadata.name;
         }
 
         inline void addDependency(RZAssetType assetType, const RZUUID& assetID)

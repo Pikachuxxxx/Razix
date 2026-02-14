@@ -75,6 +75,6 @@ namespace Razix {
         {
             return ti.hash_code();
         }
-    };
+    }; 
 }    // namespace Razix
 #endif    // _RZ_HASH_H_
