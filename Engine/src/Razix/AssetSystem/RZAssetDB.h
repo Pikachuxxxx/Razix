@@ -48,6 +48,13 @@ namespace Razix {
 
     class RZPakFile;
 
+    struct RZAssetAsyncLoadJobData
+    {
+        RZUUID      AssetUUID;
+        RZAssetType AssetType;
+        RZString    FilePath;
+    };
+
     class RAZIX_API RZAssetDB final : public RZSingleton<RZAssetDB>
     {
     public:
@@ -221,14 +228,14 @@ namespace Razix {
 
         // Unified load
         // Checks RZEngine::BuildMode and calls either loadAssetFromDisk or loadAssetFromPak
-        rz_asset_handle loadAsset(RZUUID assetUUID);
+        rz_asset_handle requestAssetLoad(RZUUID assetUUID);
 
 #if RAZIX_IS_DEVELOPMENT_BUILD
         // All are called in Async fashion, they immediately return with default handle, and once the asset is loaded/saved,
         // the handle is updated with the actual handle
         // Paks are owned by scenegraph, so they will call these functions to load/save assets from/to paks
         bool            saveAssetToDisk(rz_asset_handle handle) const;
-        rz_asset_handle loadAssetFromDisk(RZUUID assetUUID);
+        rz_asset_handle requestAssetLoadFromDisk(RZUUID assetUUID);
         bool            saveAllAssetsToDisk() const;
 
         // In development builds, we can save/load the entire registry to a single file for faster iteration

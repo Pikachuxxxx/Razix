@@ -264,6 +264,8 @@ namespace Razix {
         RAZIX_PROFILE_SETTHREADNAME(mainThreadName_Tanu);
         rz_thread_set_name(mainThreadName_Tanu);
 
+        RZEngine::Get().getFrameAllocator().beginFrame();
+
         // TODO: Add Time stamp Queries for calculating GPU time
 
         rz_time_stamp currTime = rz_time_now();
@@ -326,6 +328,8 @@ namespace Razix {
                 m_Window->setTitle(sig.c_str());
             }
         }
+
+        RZEngine::Get().getFrameAllocator().endFrame();
 
         return m_CurrentState != AppState::kClosing;
     }

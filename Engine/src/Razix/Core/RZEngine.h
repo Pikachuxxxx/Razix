@@ -85,10 +85,10 @@ namespace Razix {
         inline Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
         //inline Gfx::RZShaderLibrary&          getShaderLibrary() { return m_ShaderLibrary; }
 
-        inline const Razix::Memory::RZHeapAllocator&     getSystemAllocator() { return m_SystemAllocator; }
-        inline const Razix::Memory::RZHeapAllocator&     getAssetAllocator() { return m_AssetAllocator; }
-        inline const Razix::Memory::RZBumpAllocator&     getFrameAllocator() { return m_FrameAllocator; }
-        inline const Razix::Memory::RZTwoSidedAllocator& getPacketAllocator() { return m_PacketAllocator; }
+        inline Razix::Memory::RZHeapAllocator&     getSystemAllocator() { return m_SystemAllocator; }
+        inline Razix::Memory::RZHeapAllocator&     getAssetAllocator() { return m_AssetAllocator; }
+        inline Razix::Memory::RZBumpAllocator&     getFrameAllocator() { return m_FrameAllocator; }
+        inline Razix::Memory::RZTwoSidedAllocator& getPacketAllocator() { return m_PacketAllocator; }
 
         inline rz_critical_section&  getSystemAllocatorMutex() { return m_SystemAllocatorMutex; }
 

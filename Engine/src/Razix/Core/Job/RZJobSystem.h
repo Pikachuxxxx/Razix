@@ -17,19 +17,20 @@
 #define RAZIX_WORKER_BUSY_THRESHOLD_JOBS 128    // If a worker has more than these many jobs in its local queue, it is considered busy and other workers will not attempt to steal from it
 
 typedef struct rz_job rz_job;
-void                  rz_job_func_cb(rz_job* pJob);
+
+typedef void (*rz_job_func_cb)(rz_job* pJob);
 
 // TODO: Profile and tune cache line alignments for better performance
 // TODO: Add manual padding where necessary for cache line alignment to avoid false sharing
 
 typedef struct rz_job_hot
 {
-    void (*pFunc)(rz_job* pJob);
-    void*         pUserData;
-    u32           blockedByCount;
-    u32           blockedOnCount;
-    rz_atomic_u32 isExecuted;
-    u32           _pad0;
+    rz_job_func_cb pFunc;
+    void*          pUserData;
+    u32            blockedByCount;
+    u32            blockedOnCount;
+    rz_atomic_u32  isExecuted;
+    u32            _pad0;
 } rz_job_hot;
 
 typedef struct rz_job_cold

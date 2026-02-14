@@ -16,6 +16,8 @@
 
 #include "Razix/Core/std/utility.h"
 
+#include "Razix/Core/Job/RZJobSystem.h"
+
 #include <type_traits>
 
 namespace Razix {
@@ -163,6 +165,39 @@ namespace Razix {
 
     //-------------------------------------------------------------------------
 
+    static void AsyncRZAssetLoadJob(rz_job* pJob)
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+
+        auto* jobData = reinterpret_cast<RZAssetAsyncLoadJobData*>(pJob->hot.pUserData);
+        RAZIX_CORE_ASSERT(jobData != nullptr, "[AssetSystem] Invalid job data for async asset load.");
+
+        RAZIX_CORE_INFO("[AssetSystem] Asynchronously loading asset: {} of type: {} from path: {}", jobData->AssetUUID.prettyString(), jobData->AssetType, jobData->FilePath);
+    }
+
+    struct RZAssetAsyncLoadJob
+    {
+        rz_job*                 job;
+
+        RZAssetAsyncLoadJob(RZString jobName, const RZAssetAsyncLoadJobData& jobData)
+        {
+            Memory::RZBumpAllocator& frameAllocator = RZEngine::Get().getFrameAllocator();
+
+            job                   = static_cast<rz_job*>(frameAllocator.allocate(sizeof(rz_job)));
+            rz_job_cold* coldData = static_cast<rz_job_cold*>(frameAllocator.allocate(sizeof(rz_job_cold), RAZIX_CACHE_LINE_ALIGN));
+            job->pCold            = coldData;
+            // TODO: Use a razix utility function to set const char* names safely
+            memcpy(coldData->pName, jobName.c_str(), std::min(jobName.size(), static_cast<size_t>(RAZIX_JOB_NAME_MAX_CHARS - 1)));
+            job->hot.pFunc     = AsyncRZAssetLoadJob;
+
+            RZAssetAsyncLoadJobData* jobDataPtr = static_cast<RZAssetAsyncLoadJobData*>(frameAllocator.allocate(sizeof(RZAssetAsyncLoadJobData)));
+            *jobDataPtr = jobData;
+            job->hot.pUserData = jobDataPtr;
+        }
+    };
+
+    //-------------------------------------------------------------------------
+
     void RZAssetDB::Startup(Memory::RZHeapAllocator& assetAllocator, Memory::RZHeapAllocator& assetHeaderAllocator)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
@@ -300,7 +335,65 @@ namespace Razix {
         rz_critical_section_destroy(&m_AssetDBLock);
     }
 
+    rz_asset_handle RZAssetDB::requestAssetLoad(RZUUID assetUUID)
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+
 #if RAZIX_IS_DEVELOPMENT_BUILD
+        // In development builds, we can load assets directly from disk using the registry for faster iteration
+        return requestAssetLoadFromDisk(assetUUID);
+#else
+        RAZIX_UNIMPLEMENTED_METHOD;
+        return RAZIX_ASSET_INVALID_HANDLE;
+#endif
+    }
+
+#if RAZIX_IS_DEVELOPMENT_BUILD
+    // All are called in Async fashion, they immediately return with default handle, and once the asset is loaded/saved,
+    // the handle is updated with the actual handle
+    // Paks are owned by scenegraph, so they will call these functions to load/save assets from/to paks
+    bool RZAssetDB::saveAssetToDisk(rz_asset_handle handle) const
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+
+        RAZIX_UNIMPLEMENTED_METHOD;
+        return false;
+    }
+
+    rz_asset_handle RZAssetDB::requestAssetLoadFromDisk(RZUUID assetUUID)
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+
+        auto it = m_AssetDBDevRegistry.find(assetUUID);
+        if (it == m_AssetDBDevRegistry.end()) {
+            RAZIX_CORE_WARN("[AssetSystem] Asset UUID {} not found in registry.", assetUUID.prettyString());
+            return RAZIX_ASSET_INVALID_HANDLE;
+        }
+
+        const RZString& assetPath = it->second;
+        RAZIX_CORE_INFO("[AssetSystem] [ASYNC] Loading asset from disk: UUID={}, Path={}", assetUUID.prettyString(), assetPath);
+        // async load the asset from disk using the path, and once loaded, update the handle in the registry with the actual rz_asset_handle
+        // For now, just return an invalid handle as a placeholder
+        // TODO:!!! Create a default asset per asset type to return here while the actual asset is being loaded async, so that the game can start
+        // using the default asset immediately and then switch to the actual asset once it's loaded
+        // TODO: update name, asset load state and asset type
+        // Asset status is set to loading on the dummy asset, we create a default one in the correct slot and return it's handle with default data
+        // As for creating, we can call the createAsset here with the correct type, which will give us a handle and also create the default asset in the pool,
+        // then we can update the registry with the handle and kick off the async load, once the async load is done, we can update the asset data in the pool
+        // with the actual data loaded from disk, and set the asset status to loaded, so that the game can start using it
+        auto assetloadAsyncJob = RZAssetAsyncLoadJob("Async Asset Load Job", RZAssetAsyncLoadJobData{assetUUID, RZAssetType::kTransform, assetPath});
+        rz_job_system_submit_job(assetloadAsyncJob.job);
+
+        return RAZIX_ASSET_INVALID_HANDLE;
+    }
+
+    bool RZAssetDB::saveAllAssetsToDisk() const
+    {
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+
+        RAZIX_UNIMPLEMENTED_METHOD;
+        return false;
+    }
 
     bool RZAssetDB::loadAssetDBRegistry()
     {
