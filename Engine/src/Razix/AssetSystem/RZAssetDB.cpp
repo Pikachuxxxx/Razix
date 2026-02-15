@@ -170,7 +170,7 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
         auto* jobData = reinterpret_cast<RZAssetAsyncLoadJobData*>(pJob->hot.pUserData);
-        RAZIX_CORE_ASSERT(jobData != nullptr, "[AssetSystem] Invalid job data for async asset load.");
+        RAZIX_CORE_ASSERT(jobData != NULL, "[AssetSystem] Invalid job data for async asset load.");
 
         RAZIX_CORE_INFO("[AssetSystem] Asynchronously loading asset: {} of type: {} from path: {}", jobData->AssetUUID.prettyString(), jobData->AssetType, jobData->FilePath);
     }
@@ -335,19 +335,6 @@ namespace Razix {
         rz_critical_section_destroy(&m_AssetDBLock);
     }
 
-    rz_asset_handle RZAssetDB::requestAssetLoad(RZUUID assetUUID)
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
-
-#if RAZIX_IS_DEVELOPMENT_BUILD
-        // In development builds, we can load assets directly from disk using the registry for faster iteration
-        return requestAssetLoadFromDisk(assetUUID);
-#else
-        RAZIX_UNIMPLEMENTED_METHOD;
-        return RAZIX_ASSET_INVALID_HANDLE;
-#endif
-    }
-
 #if RAZIX_IS_DEVELOPMENT_BUILD
     // All are called in Async fashion, they immediately return with default handle, and once the asset is loaded/saved,
     // the handle is updated with the actual handle
@@ -360,39 +347,29 @@ namespace Razix {
         return false;
     }
 
-    rz_asset_handle RZAssetDB::requestAssetLoadFromDisk(RZUUID assetUUID)
+    RZString RZAssetDB::requestAssetLoadFromDiskInternal(RZUUID assetUUID, std::type_index typeIdx)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
         auto it = m_AssetDBDevRegistry.find(assetUUID);
         if (it == m_AssetDBDevRegistry.end()) {
             RAZIX_CORE_WARN("[AssetSystem] Asset UUID {} not found in registry.", assetUUID.prettyString());
-            return RAZIX_ASSET_INVALID_HANDLE;
+            return "<Invalid Asset>";
         }
 
         const RZString& assetPath = it->second;
         RAZIX_CORE_INFO("[AssetSystem] [ASYNC] Loading asset from disk: UUID={}, Path={}", assetUUID.prettyString(), assetPath);
         // async load the asset from disk using the path, and once loaded, update the handle in the registry with the actual rz_asset_handle
         // For now, just return an invalid handle as a placeholder
-        // TODO:!!! Create a default asset per asset type to return here while the actual asset is being loaded async, so that the game can start
         // using the default asset immediately and then switch to the actual asset once it's loaded
-        // TODO: update name, asset load state and asset type
         // Asset status is set to loading on the dummy asset, we create a default one in the correct slot and return it's handle with default data
         // As for creating, we can call the createAsset here with the correct type, which will give us a handle and also create the default asset in the pool,
         // then we can update the registry with the handle and kick off the async load, once the async load is done, we can update the asset data in the pool
         // with the actual data loaded from disk, and set the asset status to loaded, so that the game can start using it
-        auto assetloadAsyncJob = RZAssetAsyncLoadJob("Async Asset Load Job", RZAssetAsyncLoadJobData{assetUUID, RZAssetType::kTransform, assetPath});
+        auto assetloadAsyncJob = RZAssetAsyncLoadJob("Async Asset Load Job", RZAssetAsyncLoadJobData{assetUUID, GetAssetTypeFromTypeIndex(typeIdx), assetPath});
         rz_job_system_submit_job(assetloadAsyncJob.job);
 
-        return RAZIX_ASSET_INVALID_HANDLE;
-    }
-
-    bool RZAssetDB::saveAllAssetsToDisk() const
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
-
-        RAZIX_UNIMPLEMENTED_METHOD;
-        return false;
+        return GetFileName(assetPath);
     }
 
     bool RZAssetDB::loadAssetDBRegistry()
@@ -412,6 +389,7 @@ namespace Razix {
         bool bReadResult     = RZFileSystem::ReadFile(physicalPath, buffer, assetDBFileSize);
         if (bReadResult || fileSize < sizeof(u32)) {
             RAZIX_CORE_ERROR("[AssetSystem] Failed reading registry file or file corrupted.");
+            rz_free(buffer);
             return false;
         }
 

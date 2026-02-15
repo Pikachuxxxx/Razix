@@ -26,10 +26,10 @@
 #include "Razix/Asset/RZTransformAsset.h"
 #include "Razix/Asset/RZVignerePuzzleAsset.h"
 
-#define RAZIX_ASSET_DB_REGISTRY_FILE     "//Assets/assetdb.bin"
+#define RAZIX_ASSET_DB_REGISTRY_FILE      "//Assets/assetdb.bin"
 #define RAZIX_ASSET_DB_REGISTRY_FILE_NAME "assetdb.bin"
-#define RAZIX_MAX_ASSETS                 4096    // 1 Million assets max for now
-#define RAZIX_ASSET_MAX_FILE_PATH_LENGTH 256
+#define RAZIX_MAX_ASSETS                  4096    // 1 Million assets max for now
+#define RAZIX_ASSET_MAX_FILE_PATH_LENGTH  256
 
 // AssetBD.bin format
 // [u32 count]
@@ -139,6 +139,41 @@ namespace Razix {
             }
         }
 
+        static RZAssetType GetAssetTypeFromTypeIndex(std::type_index type)
+        {
+            if (type == typeid(RZTransformAsset))
+                return RZAssetType::kTransform;
+            else if (type == typeid(RZMeshAsset))
+                return RZAssetType::kMesh;
+            else if (type == typeid(RZMaterialAsset))
+                return RZAssetType::kMaterial;
+            else if (type == typeid(RZTextureAsset))
+                return RZAssetType::kTexture;
+            else if (type == typeid(RZAnimationAsset))
+                return RZAssetType::kAnimation;
+            else if (type == typeid(RZAudioAsset))
+                return RZAssetType::kAudio;
+            else if (type == typeid(RZLuaScriptAsset))
+                return RZAssetType::kLuaScript;
+            else if (type == typeid(RZPhysicsMaterialAsset))
+                return RZAssetType::kPhysicsMaterial;
+            else if (type == typeid(RZAssetRefAsset))
+                return RZAssetType::kAssetRef;
+            else if (type == typeid(RZCameraAsset))
+                return RZAssetType::kCamera;
+            else if (type == typeid(RZLightAsset))
+                return RZAssetType::kLight;
+            else if (type == typeid(RZGameDataAsset))
+                return RZAssetType::kGameData;
+            else if (type == typeid(RZClothAsset))
+                return RZAssetType::kCloth;
+            else if (type == typeid(RZVignerePuzzleAsset))
+                return RZAssetType::kVignerePuzzle;
+
+            RAZIX_CORE_ASSERT(false, "Unsupported asset type");
+            return RZAssetType::kTransform;
+        }
+
         template<typename T>
         rz_asset_handle allocateAsset()
         {
@@ -187,6 +222,18 @@ namespace Razix {
             return pool.get(index);
         }
 
+        const RZAsset* getAssetHeader(rz_asset_handle handle) const
+        {
+            u32 headerIndex = static_cast<u32>(handle & RAZIX_ASSET_HOTDATA_MASK);
+            return m_HeaderPool.get(headerIndex);
+        }
+
+        RZAsset* getAssetHeaderMutable(rz_asset_handle handle)
+        {
+            u32 headerIndex = static_cast<u32>(handle & RAZIX_ASSET_HOTDATA_MASK);
+            return m_HeaderPool.getMutablePtr(headerIndex);
+        }
+
         template<typename T>
         rz_asset_handle createAsset(const RZString& name)
         {
@@ -196,15 +243,16 @@ namespace Razix {
             if (handle == RAZIX_ASSET_INVALID_HANDLE)
                 return handle;
 
-            RZAsset* header = m_HeaderPool.getMutablePtr(handle);
-            RAZIX_CORE_ASSERT(header, "[AssetDB] Invalid header after allocation.");
-            header->setName(name);
+            RZAsset* pAsset = getAssetHeaderMutable(handle);
+            RAZIX_CORE_ASSERT(pAsset, "[AssetDB] Invalid header after allocation.");
+            pAsset->setName(name);
+            pAsset->setFlags(RZAssetFlags(RZ_ASSET_FLAG_DIRTY));
 
 #if RAZIX_IS_DEVELOPMENT_BUILD
             const RZAssetType type = GetAssetTypeTag<T>();
             RZString          path = s_AssetTypeFolderTable[static_cast<u8>(type)] + name + ".rzasset";
 
-            m_AssetDBDevRegistry[header->getUUID()] = path;
+            m_AssetDBDevRegistry[pAsset->getUUID()] = path;
 #endif    // RAZIX_IS_DEVELOPMENT_BUILD
             return handle;
         }
@@ -228,15 +276,47 @@ namespace Razix {
 
         // Unified load
         // Checks RZEngine::BuildMode and calls either loadAssetFromDisk or loadAssetFromPak
-        rz_asset_handle requestAssetLoad(RZUUID assetUUID);
+        template<typename T>
+        rz_asset_handle requestAssetLoad(RZUUID assetUUID)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+#if RAZIX_IS_DEVELOPMENT_BUILD
+            // In development builds, we can load assets directly from disk using the registry for faster iteration
+            return requestAssetLoadFromDisk<T>(assetUUID);
+#else
+            RAZIX_UNIMPLEMENTED_METHOD;
+            return RAZIX_ASSET_INVALID_HANDLE;
+#endif
+        }
 
 #if RAZIX_IS_DEVELOPMENT_BUILD
         // All are called in Async fashion, they immediately return with default handle, and once the asset is loaded/saved,
         // the handle is updated with the actual handle
         // Paks are owned by scenegraph, so they will call these functions to load/save assets from/to paks
-        bool            saveAssetToDisk(rz_asset_handle handle) const;
-        rz_asset_handle requestAssetLoadFromDisk(RZUUID assetUUID);
-        bool            saveAllAssetsToDisk() const;
+        bool saveAssetToDisk(rz_asset_handle handle) const;
+        template<typename T>
+        rz_asset_handle requestAssetLoadFromDisk(RZUUID assetUUID)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+
+            // TODO: check if an asset handle with given UUID exists already before creating a new one
+
+            RZString assetName = requestAssetLoadFromDiskInternal(assetUUID, typeid(T));
+            // TODO: update name, asset load state and asset type
+            // TODO:!!! Create a default asset per asset type to return here while the actual asset is being loaded async, so that the game can start
+            // Create a dummy asset with default places holder
+            rz_asset_handle handle = createAsset<T>(assetName);
+
+            // Set in loading state
+            RZAsset* pAsset = getAssetHeaderMutable(handle);
+            pAsset->addFlags(RZ_ASSET_FLAG_PLACEHOLDER);
+            pAsset->addFlags(RZ_ASSET_FLAG_STREAMING);
+            // No longer dirty once we make it a placeholder, it will be marked dirty again once it's ready and scenegraph has not touched the updated version yet.
+            pAsset->removeFlags(RZ_ASSET_FLAG_DIRTY);
+
+            return handle;
+        }
+        RZString requestAssetLoadFromDiskInternal(RZUUID assetUUID, std::type_index typeIdx);
 
         // In development builds, we can save/load the entire registry to a single file for faster iteration
         // called when AssetDB startup/shutsdown happens
@@ -282,8 +362,11 @@ namespace Razix {
         u32                      m_BudgetInMB           = 0;
 
         //Not using union to avoid lifetime issues with non-trivial types
-        RZHashMap<RZUUID, RZString>   m_AssetDBDevRegistry;    // Used in Development buillds
-        RZHashMap<RZUUID, RZPakFile*> m_AssetPakRegistry;      // Used in Shipping builds
+#ifdef RAZIX_IS_DEVELOPMENT_BUILD
+        RZHashMap<RZUUID, RZString> m_AssetDBDevRegistry;    // Used in Development buillds
+#elif RAZIX_IS_SHIPPING_BUILD
+        RZHashMap<RZUUID, RZPakFile*> m_AssetPakRegistry;    // Used in Shipping builds
+#endif    // RAZIX_IS_SHIPPING_BUILD
     };
 
 }    // namespace Razix

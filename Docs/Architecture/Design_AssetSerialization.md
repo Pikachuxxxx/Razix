@@ -183,11 +183,15 @@ struct RZPendingBlob {
 ## Async Load mechanism
 - Once a scene graph is loaded or parsed into a RZZone --> it knows what assets to load 
 --> scene graph --> load Zone --> load Mesh/Material (install a placeholder asset and register for AssetLoaded event callback to update the scenegraph) --> push to worker jobs --> pre-defied asset load jobs
-
 - kicks off RZAssetLoad/SaveAsyncJob --> reads file and check if needs to be compressed/decompressed --> kicks off RZAssetCompress/DecompressAsyncJob --> update the final asset and invoke the callback --> replace the placeholder asset
 if it's a mesh/texture we pass it off to the RZResourceManager from withing in the RZGfxResLoadJob invoked by RZAssetCompress/DecompressAsyncJob.
-
 - Since scene graph is converted to RZWorld and passed of to renderer with properly handles, Gfx doesn't care how it's done we need to replace it with valid handles that's it. simple.
+- user calls createAsset<T> or destroyAsset<T> to create new asset the inturn calls allocate/release asset and registers the UUID into registry map and updates the assetName
+- but things like scenegraph can use the assetName to to load in *.rzasset files (how de we resolve name IDK yet, maybe store node name in sexpression files) 
+- They call requestAssetLoadFromDisk/requestAssetLoadFromPak APIs and provide a eventlistern to register with RZAsset (scenegraph and use this to mark nodes dirty for update later)
+- So once I get a handle with default payload I can have SceneGraph subscribe on the RZAsset header
+- This sill return a default asset payload (from the curated list), now every one of these calls is templated so idk how load works properly
+- Also save all to disk doesn't make sense, I can have SceneGraphe export one by one as I save at end when the scenegraph is about to go out of bussiness and we call save on it.
 
 Async Jobs: DiskIO --> Compression --> PostProcess --> GPU Upload (optional for GfxResoures) --> Callback to replace placeholder in SceneGraph
 
@@ -196,6 +200,42 @@ So we first kick of a bunch of DiskIO jobs once any on of the DiskIO job is done
 Basically master DiskIO jobs can spawn child jobs onto the worker threads to steal. Only once the final ASSET_LOADED state is achieved and callback is invoked scenegraph sees this new asset and build new data for the renderer in the subsequent frame.
 
 **So each serialized type is inline header and it's payload on how to save it's SerializedBlob.**
+
+```C++
+bool saveAssetToDisk(rz_asset_handle handle) const;
+        template<typename T>
+        rz_asset_handle requestAssetLoadFromDisk(RZUUID assetUUID)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+
+            RZString assetName = requestAssetLoadFromDiskInternal(assetUUID, typeid(T));
+            // TODO: update name, asset load state and asset type
+            // TODO:!!! Create a default asset per asset type to return here while the actual asset is being loaded async, so that the game can start
+            // Create a dummy asset with default places holder
+            rz_asset_handle handle = createAsset<T>(assetName);
+
+            // Set in loading state
+            RZAsset* pAsset = getAssetHeaderMutable(handle);
+            pAsset->addFlags(RZ_ASSET_FLAG_PLACEHOLDER);
+            pAsset->addFlags(RZ_ASSET_FLAG_STREAMING);
+            // No longer dirty once we make it a placeholder
+            pAsset->removeFlags(RZ_ASSET_FLAG_DIRTY);
+
+            return handle;
+        }
+        RZString requestAssetLoadFromDiskInternal(RZUUID assetUUID, std::type_index typeIdx);
+```
+### Async FAQ
+
+#### Q: How will someone know if the asset is READY?
+**A:** If you want a callback when an asset is ready, you can use the handle to get pointers to `RZAsset` and install your own events on whoever needs to know.
+The SceneGraph can subscribe to the events on `pRZAsset` and use that to mark Scene Nodes dirty and update things as needed.
+
+#### Q: How to load all assets from disk? What is the workflow?
+As we parse the scenegraph, when we get a node and parse its atom, we know the type. It will call an opaque function that calls the templated function inside, and we are good to go.
+
+#### Q: How to register a callback for asset events?
+Whoever created the asset can use the handle to get the pointer and get `RZAsset`, then subscribe for events on that. `AssetDB` or other systems will dispatch events on `RZAssets`.
 
 ## Definitions
 
