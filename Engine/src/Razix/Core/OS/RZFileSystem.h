@@ -6,6 +6,30 @@
 #include <string.h>    // strlen
 
 namespace Razix {
+
+    struct RZFileHandle
+    {
+#if defined(RAZIX_PLATFORM_WINDOWS)
+        HANDLE handle;
+#elif defined(RAZIX_PLATFORM_LINUX) || defined(RAZIX_PLATFORM_MACOS)
+        i32 handle;
+#endif // platform-specific file handle
+    };
+
+    enum class RZFileMode
+    {
+        Read,
+        Write,
+        ReadWrite
+    };
+
+    enum class RZSeekOrigin
+    {
+        Begin,
+        Current,
+        End
+    };
+
     /**
      * Provides a OS independent interface to Interact with the files stored on the host
      */
@@ -87,6 +111,16 @@ namespace Razix {
          * @returns  True, if the write was successful
          */
         static bool WriteTextFile(const RZString& path, const RZString& text);
+
+        static RZFileHandle OpenFile(const RZString& path, RZFileMode mode);
+
+        static void CloseFile(const RZFileHandle& fileHandle);
+
+        static u32 WriteToFile(const RZFileHandle& fileHandle, const void* buffer, size_t size);
+
+        static u32 ReadFromFile(const RZFileHandle& fileHandle, void* buffer, size_t size);
+
+        static void SeekFile(const RZFileHandle& fileHandle, RZSeekOrigin origin, int64_t offset);
 
         /* Check if the provided path was a relative path or an absolute path */
         static bool IsRelativePath(cstr path)

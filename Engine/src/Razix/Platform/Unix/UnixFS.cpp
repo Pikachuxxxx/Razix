@@ -172,6 +172,90 @@ namespace Razix {
         return bytesWritten == size;
     }
 
+    RZFileHandle RZFileSystem::OpenFile(const RZString& path, RZFileMode mode)
+    {
+        int flags = 0;
+        switch (mode) {
+            case RZFileMode::Read:
+                flags = O_RDONLY;
+                break;
+            case RZFileMode::Write:
+                flags = O_WRONLY | O_CREAT | O_TRUNC;
+                break;
+            case RZFileMode::ReadWrite:
+                flags = O_RDWR | O_CREAT;
+                break;
+            default:
+                return RZFileHandle{-1};
+        }
+
+        int fd = open(path.c_str(), flags, 0644);
+        if (fd == -1) {
+            return RZFileHandle{-1};
+        }
+        return RZFileHandle{fd};
+    }
+
+    void RZFileSystem::CloseFile(const RZFileHandle& fileHandle)
+    {
+        if (fileHandle.handle != -1) {
+            close(fileHandle.handle);
+        }
+    }
+
+    u32 RZFileSystem::WriteToFile(const RZFileHandle& fileHandle, const void* buffer, size_t size)
+    {
+        if (fileHandle.handle == -1 || !buffer || size == 0) {
+            return 0;
+        }
+
+        ssize_t bytesWritten = write(fileHandle.handle, buffer, size);
+        if (bytesWritten != static_cast<ssize_t>(size)) {
+            RAZIX_CORE_ERROR("[FileSystem] Failed to write to file handle: {0}", fileHandle.handle);
+            return 0;
+        }
+        return static_cast<u32>(bytesWritten);
+    }
+
+    u32 RZFileSystem::ReadFromFile(const RZFileHandle& fileHandle, void* buffer, size_t size)
+    {
+        if (fileHandle.handle == -1 || !buffer || size == 0) {
+            return 0;
+        }
+
+        ssize_t bytesRead = read(fileHandle.handle, buffer, size);
+        if (bytesRead != static_cast<ssize_t>(size)) {
+            RAZIX_CORE_ERROR("[FileSystem] Failed to read from file handle: {0}", fileHandle.handle);
+            return 0;
+        }
+        return static_cast<u32>(bytesRead);
+    }
+
+    void RZFileSystem::SeekFile(const RZFileHandle& fileHandle, RZSeekOrigin origin, int64_t offset)
+    {
+        if (fileHandle.handle == -1) {
+            return;
+        }
+
+        int whence = 0;
+        switch (origin) {
+            case RZSeekOrigin::Begin:
+                whence = SEEK_SET;
+                break;
+            case RZSeekOrigin::Current:
+                whence = SEEK_CUR;
+                break;
+            case RZSeekOrigin::End:
+                whence = SEEK_END;
+                break;
+            default:
+                return;
+        }
+
+        if (lseek(fileHandle.handle, offset, whence) == -1) {
+            RAZIX_CORE_ERROR("[FileSystem] Failed to seek in file handle: {0}", fileHandle.handle);
+        }
+    }
 }    // namespace Razix
 
 #endif
