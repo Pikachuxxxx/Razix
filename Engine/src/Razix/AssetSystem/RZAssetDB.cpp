@@ -7,24 +7,83 @@
 
 #include "Razix/Core/RZEngine.h"
 
+#include "Razix/Core/Job/RZJobSystem.h"
 #include "Razix/Core/Memory/Allocators/RZHeapAllocator.h"
 #include "Razix/Core/OS/RZFileSystem.h"
 #include "Razix/Core/OS/RZVirtualFileSystem.h"
 #include "Razix/Core/Profiling/RZProfiling.h"
 #include "Razix/Core/RZThreadCore.h"
+#include "Razix/Core/Serialization/RZSerializable.h"
 #include "Razix/Core/Utils/RZBuildUtils.h"
-
 #include "Razix/Core/std/utility.h"
-
-#include "Razix/Core/Job/RZJobSystem.h"
 
 #include <type_traits>
 
 namespace Razix {
 
     constexpr bool bCapCapacityToMaxAssets = true;
+    constexpr u32  kRZAssetHeaderSlotBytes = sizeof(RZAsset) + sizeof(RZAssetColdData) + sizeof(u32);
 
-    constexpr u32 kRZAssetHeaderSlotBytes = sizeof(RZAsset) + sizeof(RZAssetColdData) + sizeof(u32);
+    using AssetSaveFn = bool (*)(rz_asset_handle handle);
+    using AssetLoadFn = void (*)(const RZAssetAsyncLoadJobData& jobData);
+
+    struct RZAssetIOHandlers
+    {
+        AssetSaveFn save = nullptr;
+        AssetLoadFn load = nullptr;
+    };
+
+    static RZAssetIOHandlers s_AssetIORegistry[(size_t) RZAssetType::COUNT];
+
+    template<typename T>
+    static void RegisterAssetIOHandlers(RZAssetType type)
+    {
+        s_AssetIORegistry[(size_t) type].save = [](rz_asset_handle handle) -> bool {
+            // Use engine heap allocator or passed allocator
+            Memory::RZHeapAllocator& heapAllocator = RZEngine::Get().getSystemAllocator();
+
+            const RZAsset* hdr = RZAssetDB::Get().getAssetHeader(handle);
+            if (!hdr) {
+                RAZIX_CORE_ERROR("[AssetSystem] Failed to retrieve asset header for handle: {}", handle);
+                return false;
+            }
+
+            auto& pool       = RZAssetDB::Get().GetAssetPoolRef<T>();
+            T*    payloadPtr = pool.get(handle);
+            if (!payloadPtr) {
+                RAZIX_CORE_ERROR("[AssetSystem] Failed to retrieve asset payload for handle: {}", handle);
+                return false;
+            }
+
+            auto headerBinary  = RZSerializable<RZAsset>::serializeToBinary(*hdr, heapAllocator);
+            auto payloadBinary = RZSerializable<T>::serializeToBinary(*payloadPtr, heapAllocator);
+
+            RZFileHandle fileHandle = RZFileSystem::OpenFile(hdr->getName(), RZFileMode::Write);
+            if (fileHandle.handle == -1) {
+                RAZIX_CORE_ERROR("[AssetSystem] Failed to open file for writing: {}", hdr->getName());
+                return false;
+            }
+
+            u32 magic = RAZIX_ASSSET_FILE_MAGIC;
+            u32 size  = RZFileSystem::WriteToFile(fileHandle, &magic, sizeof(u32));
+            RAZIX_CORE_ASSERT(size == sizeof(u32), "[AssetSystem] Failed to write file magic for asset: {}", hdr->getName());
+
+            size = RZFileSystem::WriteToFile(fileHandle, headerBinary.data(), headerBinary.size());
+            RAZIX_CORE_ASSERT(size == headerBinary.size(), "[AssetSystem] Failed to write asset header for asset: {}", hdr->getName());
+
+            size = RZFileSystem::WriteToFile(fileHandle, payloadBinary.data(), payloadBinary.size());
+            RAZIX_CORE_ASSERT(size == payloadBinary.size(), "[AssetSystem] Failed to write asset payload for asset: {}", hdr->getName());
+
+            RZFileSystem::CloseFile(fileHandle);
+            return true;
+        };
+
+        s_AssetIORegistry[(size_t) type].load = [](const RZAssetAsyncLoadJobData& jobData) {
+            RAZIX_UNIMPLEMENTED_METHOD;
+        };
+    }
+
+    //-------------------------------------------------------------------------
 
     template<typename AssetT>
     constexpr u64 GetAssetPayloadSize()
@@ -177,7 +236,7 @@ namespace Razix {
 
     struct RZAssetAsyncLoadJob
     {
-        rz_job*                 job;
+        rz_job* job;
 
         RZAssetAsyncLoadJob(RZString jobName, const RZAssetAsyncLoadJobData& jobData)
         {
@@ -188,11 +247,11 @@ namespace Razix {
             job->pCold            = coldData;
             // TODO: Use a razix utility function to set const char* names safely
             memcpy(coldData->pName, jobName.c_str(), std::min(jobName.size(), static_cast<size_t>(RAZIX_JOB_NAME_MAX_CHARS - 1)));
-            job->hot.pFunc     = AsyncRZAssetLoadJob;
+            job->hot.pFunc = AsyncRZAssetLoadJob;
 
             RZAssetAsyncLoadJobData* jobDataPtr = static_cast<RZAssetAsyncLoadJobData*>(frameAllocator.allocate(sizeof(RZAssetAsyncLoadJobData)));
-            *jobDataPtr = jobData;
-            job->hot.pUserData = jobDataPtr;
+            *jobDataPtr                         = jobData;
+            job->hot.pUserData                  = jobDataPtr;
         }
     };
 
@@ -267,6 +326,21 @@ namespace Razix {
         initPayloadPool(m_ClothAssetPool, "Cloth Asset Pool");
         initPayloadPool(m_GameDataAssetPool, "Game Data Asset Pool");
 
+        RegisterAssetIOHandlers<RZTransformAsset>(RZAssetType::kTransform);
+        RegisterAssetIOHandlers<RZCameraAsset>(RZAssetType::kCamera);
+        RegisterAssetIOHandlers<RZLightAsset>(RZAssetType::kLight);
+        RegisterAssetIOHandlers<RZMaterialAsset>(RZAssetType::kMaterial);
+        RegisterAssetIOHandlers<RZPhysicsMaterialAsset>(RZAssetType::kPhysicsMaterial);
+        RegisterAssetIOHandlers<RZMeshAsset>(RZAssetType::kMesh);
+        RegisterAssetIOHandlers<RZTextureAsset>(RZAssetType::kTexture);
+        RegisterAssetIOHandlers<RZAnimationAsset>(RZAssetType::kAnimation);
+        RegisterAssetIOHandlers<RZAudioAsset>(RZAssetType::kAudio);
+        RegisterAssetIOHandlers<RZLuaScriptAsset>(RZAssetType::kLuaScript);
+        RegisterAssetIOHandlers<RZAssetRefAsset>(RZAssetType::kAssetRef);
+        RegisterAssetIOHandlers<RZVignerePuzzleAsset>(RZAssetType::kVignerePuzzle);
+        RegisterAssetIOHandlers<RZClothAsset>(RZAssetType::kCloth);
+        RegisterAssetIOHandlers<RZGameDataAsset>(RZAssetType::kGameData);
+
         RAZIX_CORE_TRACE("[AssetSystem] Asset Pools memory usage: Header Pool: {0} KiB | Payload Pools: {1} KiB | Total Budget: {2} KiB | Leftover Budget: {3}",
             in_Kib(headerBytesToAllocate),
             in_Kib(totalPayloadSlots),
@@ -336,15 +410,27 @@ namespace Razix {
     }
 
 #if RAZIX_IS_DEVELOPMENT_BUILD
-    // All are called in Async fashion, they immediately return with default handle, and once the asset is loaded/saved,
-    // the handle is updated with the actual handle
-    // Paks are owned by scenegraph, so they will call these functions to load/save assets from/to paks
     bool RZAssetDB::saveAssetToDisk(rz_asset_handle handle) const
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-        RAZIX_UNIMPLEMENTED_METHOD;
-        return false;
+        // TODO: Serialize RZAsset and it's payload to disk using RSSerializable
+        // For now we can just write the contents to a buffer via the frameAllocator scratch space
+        // and then flush the contents to disk using RZFileSystem.
+        // What to serialize and how:
+        // - RZAsset is serialized along with it's cold data, just call serializeToBinary
+        const RZAsset* hdr = getAssetHeader(handle);
+        if (!hdr)
+            return false;
+
+        auto type = hdr->getType();
+
+        auto fn = s_AssetIORegistry[(size_t) type].save;
+        if (!fn)
+            return false;
+        fn(handle);
+
+        return true;
     }
 
     RZString RZAssetDB::requestAssetLoadFromDiskInternal(RZUUID assetUUID, std::type_index typeIdx)

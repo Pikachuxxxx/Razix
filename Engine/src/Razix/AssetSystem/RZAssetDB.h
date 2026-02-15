@@ -30,6 +30,8 @@
 #define RAZIX_ASSET_DB_REGISTRY_FILE_NAME "assetdb.bin"
 #define RAZIX_MAX_ASSETS                  4096    // 1 Million assets max for now
 #define RAZIX_ASSET_MAX_FILE_PATH_LENGTH  256
+#define RAZIX_ASSSET_FILE_MAGIC           0x46415A52    // 'R','Z','A','F' (Razix Archive File) = 0x525A4146 [echo "RZAF" | xxd]
+#define RAZIX_DATABASE_FILE_MAGIC         0x42445A52    // 'R','Z','D','B' (Razix Database File) = 0x525A4442 [echo "RZDB" | xxd]
 
 // AssetBD.bin format
 // [u32 count]
@@ -137,6 +139,35 @@ namespace Razix {
             } else {
                 static_assert(!std::is_same_v<T, T>, "Unsupported asset type for asset type tag retrieval");
             }
+        }
+
+        void* GetAssetPoolFromType(RZAssetType type)
+        {
+            switch (type) {
+                case RZAssetType::kTransform: return &m_TransformAssetPool;
+                case RZAssetType::kCamera: return &m_CameraAssetPool;
+                case RZAssetType::kLight: return &m_LightAssetPool;
+                case RZAssetType::kMaterial: return &m_MaterialAssetPool;
+                case RZAssetType::kPhysicsMaterial: return &m_PhysicsMaterialAssetPool;
+                case RZAssetType::kMesh: return &m_MeshAssetPool;
+                case RZAssetType::kTexture: return &m_TextureAssetPool;
+                case RZAssetType::kAnimation: return &m_AnimationAssetPool;
+                case RZAssetType::kAudio: return &m_AudioAssetPool;
+                case RZAssetType::kLuaScript: return &m_LuaScriptAssetPool;
+                case RZAssetType::kAssetRef: return &m_AssetRefAssetPool;
+                case RZAssetType::kVignerePuzzle: return &m_VignerePuzzleAssetPool;
+                case RZAssetType::kCloth: return &m_ClothAssetPool;
+                case RZAssetType::kGameData: return &m_GameDataAssetPool;
+                default:
+                    RAZIX_CORE_ASSERT(false, "Unsupported asset type");
+                    return nullptr;
+            }
+        }
+
+        template<typename T>
+        RZAssetPool<T>& GetAssetPoolFromType(RZAssetType type)
+        {
+            return *static_cast<RZAssetPool<T>*>(GetAssetPoolFromType(type));
         }
 
         static RZAssetType GetAssetTypeFromTypeIndex(std::type_index type)
