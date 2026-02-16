@@ -29,8 +29,8 @@ namespace Razix {
 
     struct RZAssetIOHandlers
     {
-        AssetSaveFn save = nullptr;
-        AssetLoadFn load = nullptr;
+        AssetSaveFn save = NULL;
+        AssetLoadFn load = NULL;
     };
 
     static RZAssetIOHandlers s_AssetIORegistry[(size_t) RZAssetType::COUNT];
@@ -58,15 +58,34 @@ namespace Razix {
             auto headerBinary  = RZSerializable<RZAsset>::serializeToBinary(*hdr, heapAllocator);
             auto payloadBinary = RZSerializable<T>::serializeToBinary(*payloadPtr, heapAllocator);
 
-            RZFileHandle fileHandle = RZFileSystem::OpenFile(hdr->getName(), RZFileMode::Write);
+            RZString assetVFSPath = AssetTypeToVFSFilePath(hdr->getType(), hdr->getName());
+            RZString physicalPath;
+            if (!RZVirtualFileSystem::Get().resolvePhysicalPath(assetVFSPath, physicalPath)) {
+                RAZIX_CORE_ERROR("[AssetSystem] Invalid VFS path for asset: {}", assetVFSPath);
+                return false;
+            }
+
+            RZFileHandle fileHandle = RZFileSystem::OpenFile(physicalPath, RZFileMode::Write);
             if (fileHandle.handle == -1) {
                 RAZIX_CORE_ERROR("[AssetSystem] Failed to open file for writing: {}", hdr->getName());
                 return false;
             }
 
+            /**
+             * AssetDB file format:
+             * [u32 Magic] [u32 Header Binary Data Size] [Payload Binary Data Size] [Header Binary Data] [Payload Binary Data]
+             */
             u32 magic = RAZIX_ASSSET_FILE_MAGIC;
             u32 size  = RZFileSystem::WriteToFile(fileHandle, &magic, sizeof(u32));
             RAZIX_CORE_ASSERT(size == sizeof(u32), "[AssetSystem] Failed to write file magic for asset: {}", hdr->getName());
+
+            u32 headerSize = static_cast<u32>(headerBinary.size());
+            size           = RZFileSystem::WriteToFile(fileHandle, &headerSize, sizeof(u32));
+            RAZIX_CORE_ASSERT(size == sizeof(u32), "[AssetSystem] Failed to write header size for asset: {}", hdr->getName());
+
+            u32 payloadSize = static_cast<u32>(payloadBinary.size());
+            size            = RZFileSystem::WriteToFile(fileHandle, &payloadSize, sizeof(u32));
+            RAZIX_CORE_ASSERT(size == sizeof(u32), "[AssetSystem] Failed to write payload size for asset: {}", hdr->getName());
 
             size = RZFileSystem::WriteToFile(fileHandle, headerBinary.data(), headerBinary.size());
             RAZIX_CORE_ASSERT(size == headerBinary.size(), "[AssetSystem] Failed to write asset header for asset: {}", hdr->getName());
@@ -79,7 +98,56 @@ namespace Razix {
         };
 
         s_AssetIORegistry[(size_t) type].load = [](const RZAssetAsyncLoadJobData& jobData) {
-            RAZIX_UNIMPLEMENTED_METHOD;
+            // Use engine heap allocator or passed allocator
+            Memory::RZHeapAllocator& heapAllocator = RZEngine::Get().getSystemAllocator();
+
+            RZString physicalPath;
+            if (!RZVirtualFileSystem::Get().resolvePhysicalPath(jobData.VFSFilePath, physicalPath)) {
+                RAZIX_CORE_ERROR("[AssetSystem] Invalid VFS path for asset: {}", jobData.VFSFilePath);
+                return;
+            }
+
+            RZFileHandle fileHandle = RZFileSystem::OpenFile(physicalPath, RZFileMode::Read);
+            if (fileHandle.handle == -1) {
+                RAZIX_CORE_ERROR("[AssetSystem] Failed to open file for reading: {}", jobData.VFSFilePath);
+                return;
+            }
+
+            u32 magic = RAZIX_ASSSET_FILE_MAGIC;
+            u32 size  = RZFileSystem::ReadFromFile(fileHandle, &magic, sizeof(u32));
+            RAZIX_CORE_ASSERT(size == sizeof(u32), "[AssetSystem] Failed to read file magic for asset: {}", jobData.VFSFilePath);
+
+            if (magic != RAZIX_ASSSET_FILE_MAGIC) {
+                RAZIX_CORE_ERROR("[AssetSystem] Invalid file magic for asset: {}", jobData.VFSFilePath);
+                RZFileSystem::CloseFile(fileHandle);
+                return;
+            }
+
+            u32 headerSize = 0;
+            size           = RZFileSystem::ReadFromFile(fileHandle, &headerSize, sizeof(u32));
+            RAZIX_CORE_ASSERT(size == sizeof(u32), "[AssetSystem] Failed to read header size for asset: {}", jobData.VFSFilePath);
+            u32 payloadSize = 0;
+            size            = RZFileSystem::ReadFromFile(fileHandle, &payloadSize, sizeof(u32));
+            RAZIX_CORE_ASSERT(size == sizeof(u32), "[AssetSystem] Failed to read payload size for asset: {}", jobData.VFSFilePath);
+
+            RZDynamicArray<u8> headerBinary(headerSize);
+            size = RZFileSystem::ReadFromFile(fileHandle, headerBinary.data(), headerSize);
+            RAZIX_CORE_ASSERT(size == headerSize, "[AssetSystem] Failed to read asset header for asset: {}", jobData.VFSFilePath);
+
+            RZDynamicArray<u8> payloadBinary(payloadSize);
+            size = RZFileSystem::ReadFromFile(fileHandle, payloadBinary.data(), payloadSize);
+            RAZIX_CORE_ASSERT(size == payloadSize, "[AssetSystem] Failed to read asset payload for asset: {}", jobData.VFSFilePath);
+
+            RZSerializable<RZAsset>::deserializeAssetFromBinary(headerBinary, jobData.pAsset);
+            T payload = RZSerializable<T>::deserializeFromBinary(payloadBinary, heapAllocator);
+
+            auto assetPlayloadPool = RZAssetDB::Get().GetAssetPoolRef<T>();
+            // Transform assets are loaded by SceneGraph and are not stored in the asset pool, they are directly stored in the scene graph nodes, so skip pool storage for them
+            if constexpr (!std::is_same_v<T, RZTransformAsset>) {
+                assetPlayloadPool.set(jobData.pAsset->getHandle(), payload);
+            }
+
+            RZFileSystem::CloseFile(fileHandle);
         };
     }
 
@@ -231,7 +299,12 @@ namespace Razix {
         auto* jobData = reinterpret_cast<RZAssetAsyncLoadJobData*>(pJob->hot.pUserData);
         RAZIX_CORE_ASSERT(jobData != NULL, "[AssetSystem] Invalid job data for async asset load.");
 
-        RAZIX_CORE_INFO("[AssetSystem] Asynchronously loading asset: {} of type: {} from path: {}", jobData->AssetUUID.prettyString(), jobData->AssetType, jobData->FilePath);
+        RAZIX_CORE_INFO("[AssetSystem] Asynchronously loading asset: {} of type: {} from path: {}", jobData->pAsset->getName(), jobData->AssetType, jobData->VFSFilePath);
+
+        AssetLoadFn loadFn = s_AssetIORegistry[(size_t) jobData->AssetType].load;
+        if (loadFn) {
+            loadFn(*jobData);
+        }
     }
 
     struct RZAssetAsyncLoadJob
@@ -425,6 +498,11 @@ namespace Razix {
 
         auto type = hdr->getType();
 
+        if (type == RZAssetType::kTransform) {
+            RAZIX_CORE_ERROR("[AssetSystem] Saving Transform assets to disk is not supported as they are managed and loaded by the SceneGraph.");
+            return false;
+        }
+
         auto fn = s_AssetIORegistry[(size_t) type].save;
         if (!fn)
             return false;
@@ -433,14 +511,14 @@ namespace Razix {
         return true;
     }
 
-    RZString RZAssetDB::requestAssetLoadFromDiskInternal(RZUUID assetUUID, std::type_index typeIdx)
+    void RZAssetDB::requestAssetLoadFromDiskInternal(RZUUID assetUUID, std::type_index typeIdx, RZAsset* pPlaceholderAsset)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
         auto it = m_AssetDBDevRegistry.find(assetUUID);
         if (it == m_AssetDBDevRegistry.end()) {
             RAZIX_CORE_WARN("[AssetSystem] Asset UUID {} not found in registry.", assetUUID.prettyString());
-            return "<Invalid Asset>";
+            return;
         }
 
         const RZString& assetPath = it->second;
@@ -452,10 +530,8 @@ namespace Razix {
         // As for creating, we can call the createAsset here with the correct type, which will give us a handle and also create the default asset in the pool,
         // then we can update the registry with the handle and kick off the async load, once the async load is done, we can update the asset data in the pool
         // with the actual data loaded from disk, and set the asset status to loaded, so that the game can start using it
-        auto assetloadAsyncJob = RZAssetAsyncLoadJob("Async Asset Load Job", RZAssetAsyncLoadJobData{assetUUID, GetAssetTypeFromTypeIndex(typeIdx), assetPath});
+        auto assetloadAsyncJob = RZAssetAsyncLoadJob("Async Asset Load Job", RZAssetAsyncLoadJobData{pPlaceholderAsset, GetAssetTypeFromTypeIndex(typeIdx), assetPath});
         rz_job_system_submit_job(assetloadAsyncJob.job);
-
-        return GetFileName(assetPath);
     }
 
     bool RZAssetDB::loadAssetDBRegistry()

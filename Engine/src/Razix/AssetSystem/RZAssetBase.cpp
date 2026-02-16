@@ -9,6 +9,32 @@
 
 namespace Razix {
 
+    RZString AssetTypeToVFSFilePath(RZAssetType type, const RZString& name)
+    {
+        // Map asset type to subdirectory
+        const char* subdir = "";
+        switch (type) {
+            case RZAssetType::kAnimation: subdir = "Animations/"; break;
+            case RZAssetType::kAudio: subdir = "Audio/"; break;
+            case RZAssetType::kCamera: subdir = "Cameras/"; break;
+            case RZAssetType::kCloth: subdir = "Clothes/"; break;
+            case RZAssetType::kGameData: subdir = "GameData/"; break;
+            case RZAssetType::kLight: subdir = "Lights/"; break;
+            case RZAssetType::kLuaScript: subdir = "LuaScripts/"; break;
+            case RZAssetType::kMaterial: subdir = "Materials/"; break;
+            case RZAssetType::kMesh: subdir = "Meshes/"; break;
+            case RZAssetType::kPhysicsMaterial: subdir = "PhysicsMaterials/"; break;
+            case RZAssetType::kTexture: subdir = "Textures/"; break;
+            case RZAssetType::kTransform: subdir = "Transforms/"; break;
+            case RZAssetType::kVignerePuzzle: subdir = "Puzzles/"; break;
+            default:
+                RAZIX_CORE_ERROR("[AssetSystem] Unknown asset type: {}", static_cast<u32>(type));
+                break;
+        }
+
+        return "//Assets/" + RZString(subdir) + name + ".rzasset";
+    }
+
     RZAsset::RZAsset(RZAssetType type, void* pColdDataMemory)
     {
         RAZIX_CORE_ASSERT(pColdDataMemory != NULL, "[Asset] pColdDataMemory is NULL, creating asset with provided memory.");

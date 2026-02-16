@@ -136,11 +136,11 @@ namespace Razix {
     // Inline payload binary archive
     struct RZBinaryArchive
     {
-        RZDynamicArray<u8>*   buffer = NULL;
-        size_t                cursor = 0;
-        RZArchiveMode         mode;
-        Memory::RZHeapAllocator* heapAllocator = nullptr;
-        static constexpr bool kUsesOutOfLineBlobs = false;
+        RZDynamicArray<u8>*      buffer = NULL;
+        size_t                   cursor = 0;
+        RZArchiveMode            mode;
+        Memory::RZHeapAllocator* heapAllocator       = nullptr;
+        static constexpr bool    kUsesOutOfLineBlobs = false;
 
         RZBinaryArchive() {}
 
@@ -221,7 +221,7 @@ namespace Razix {
         };
     };
 
-#define RAZIX_ASSSET_FILE_MAGIC 0x46415A52    // 'R','Z','A','F' (Razix Archive File) = 0x525A4146 [echo "RZAF" | xxd]
+    #define RAZIX_ASSSET_FILE_MAGIC 0x46415A52    // 'R','Z','A','F' (Razix Archive File) = 0x525A4146 [echo "RZAF" | xxd]
 
     struct RZFileHeader
     {
@@ -251,7 +251,7 @@ namespace Razix {
         const u8*                         headerBase  = NULL;
         const u8*                         payloadBase = NULL;
         RZDynamicArray<RZPendingReadBlob> pendingReadBlobs;
-        Memory::RZHeapAllocator* heapAllocator = nullptr;
+        Memory::RZHeapAllocator*          heapAllocator = nullptr;
 
         RZCompressedArchive() {}
 
@@ -449,10 +449,11 @@ namespace Razix {
             u8* dst = buffer->data();
 
             RAZIX_CORE_INFO("Finalized archive with header size {} bytes and payload size {} bytes",
-                headerBuffer.size(), payloadBuffer.size());
+                headerBuffer.size(),
+                payloadBuffer.size());
 
             memcpy(dst, &fh, sizeof(fh));
-            if(headerBuffer.size() > 0) {
+            if (headerBuffer.size() > 0) {
                 memcpy(dst + sizeof(fh),
                     headerBuffer.data(),
                     headerBuffer.size());
@@ -464,13 +465,12 @@ namespace Razix {
             }
         }
     };
-#endif // RAZIX_USE_COMPRESSED_ARCHIVE
+#endif    // RAZIX_USE_COMPRESSED_ARCHIVE
 
     template<typename Derived, typename Archive = RZBinaryArchive>
     class RZSerializable
     {
     public:
-
         // Free out-of-line blob allocations that were provided by an external heap allocator
         static void freeDeserializedBlobs(void* objectBase, Memory::RZHeapAllocator& allocator)
         {
@@ -526,7 +526,7 @@ namespace Razix {
             WriteState write;
             ReadState  read;
         };
-#endif // RAZIX_USE_COMPRESSED_ARCHIVE
+#endif    // RAZIX_USE_COMPRESSED_ARCHIVE
 
         virtual ~RZSerializable() = default;
 
@@ -830,7 +830,7 @@ namespace Razix {
         static RZDynamicArray<u8> serializeToBinary(const Derived& instance, Memory::RZHeapAllocator& blobAllocator)
         {
             // with pointer data to write, it's hard to let user give memory
-            // As we would not know how much to ask for we use a dynamic array which seems safer, 
+            // As we would not know how much to ask for we use a dynamic array which seems safer,
             // Once we hook up the system allocator into the containers we are eves afer, one less place to refactor
             // So this is accetable to use a RZDynamicArray here we just give the instance and get buffer of data in return.
             RZDynamicArray<u8> buffer = {};
@@ -914,6 +914,31 @@ namespace Razix {
             return pAsset;
         }
 
+        static RZAsset* deserializeAssetFromBinary(const RZDynamicArray<u8>& binary, RZAsset* pPlaceholderAsset)
+        {
+            RAZIX_CORE_ASSERT(pPlaceholderAsset != NULL, "Asset memory pointer is null");
+
+            const TypeMetaData* meta = getTypeMetaData();
+            if (!meta) {
+                RAZIX_CORE_ERROR("[RZSerializable] Type metadata for type '{}' not found.",
+                    typeid(Derived).name());
+                return pPlaceholderAsset;
+            }
+
+            RZDynamicArray<u8> temp = binary;
+            Archive            ar(&temp, 0, RZArchiveMode::kRead, NULL);
+
+            if (meta->bIsTriviallySerializable) {
+                ar.read(pPlaceholderAsset, rz_min<size_t>(meta->size, binary.size()));    // read into object memory
+                return pPlaceholderAsset;
+            }
+
+            for (const auto& member: meta->members)
+                processMember(ar, pPlaceholderAsset, member);
+
+            return pPlaceholderAsset;
+        }
+
 #ifdef RAZIX_USE_COMPRESSED_ARCHIVE
         static RZAsyncSerializationContext beginAsyncSerialization(const Derived& instance, Memory::RZHeapAllocator* blobAllocator)
         {
@@ -975,8 +1000,8 @@ namespace Razix {
             const TypeMetaData* meta = getTypeMetaData();
             if (!meta) {
                 RAZIX_CORE_ERROR("[RZSerializable] Type metadata for type '{}' not found.",
-                    typeid(Derived).name());RZSerializer (yes rename it!) 
-                return ctx;
+                    typeid(Derived).name());
+                RZSerializer(yes rename it !) return ctx;
             }
 
             ctx.archive = Archive(&ctx.read.sourceBuffer, 0, ctx.mode, blobAllocator);
@@ -994,10 +1019,10 @@ namespace Razix {
                 u8* headerBase  = fileBase + headerOffset;
                 u8* payloadBase = fileBase + payloadOffset;
 
-                ctx.archive.fileBase     = fileBase;
-                ctx.archive.headerBase   = headerBase;
-                ctx.archive.payloadBase  = payloadBase;
-                ctx.archive.mode         = ctx.mode;
+                ctx.archive.fileBase    = fileBase;
+                ctx.archive.headerBase  = headerBase;
+                ctx.archive.payloadBase = payloadBase;
+                ctx.archive.mode        = ctx.mode;
                 ctx.archive.pendingReadBlobs.clear();
             }
 
@@ -1025,7 +1050,7 @@ namespace Razix {
                 ctx.archive.pendingReadBlobs.clear();
             }
         }
-#endif // RAZIX_USE_COMPRESSED_ARCHIVE
+#endif    // RAZIX_USE_COMPRESSED_ARCHIVE
     };
 }    // namespace Razix
 #endif    // _RZ_SERIALIZABLE_H

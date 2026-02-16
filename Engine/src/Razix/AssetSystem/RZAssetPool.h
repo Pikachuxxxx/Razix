@@ -249,6 +249,16 @@ namespace Razix {
             return &m_Data[index];
         }
 
+        void set(u32 index, const T& value)
+        {
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+
+            if (index >= m_Capacity) {
+                return;
+            }
+            m_Data[index] = value;
+        }
+
         inline u32 getCapacity() const { return m_Capacity; }
         inline u32 getCount() const { return m_Count; }
 

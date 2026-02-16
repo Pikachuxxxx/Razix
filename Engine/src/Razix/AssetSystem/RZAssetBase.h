@@ -38,13 +38,13 @@
 typedef u64 rz_asset_handle;    // higher 32 bits for asset playload data index and lower 32 bits for hot/cold data index into the asset pools
 
 #ifdef RAZIX_DEBUG
-#define RAZIX_REFLECT_ASSET_HEADER \
-    RAZIX_REFLECT_PRIMITIVE(handle)   \
-    RAZIX_REFLECT_PRIMITIVE(_debugMagic)
-#else 
-#define RAZIX_REFLECT_ASSET_HEADER \
-    RAZIX_REFLECT_PRIMITIVE(handle)
-#endif 
+    #define RAZIX_REFLECT_ASSET_HEADER  \
+        RAZIX_REFLECT_PRIMITIVE(handle) \
+        RAZIX_REFLECT_PRIMITIVE(_debugMagic)
+#else
+    #define RAZIX_REFLECT_ASSET_HEADER \
+        RAZIX_REFLECT_PRIMITIVE(handle)
+#endif
 
 namespace Razix {
 
@@ -66,7 +66,7 @@ namespace Razix {
     X(Cloth)            \
     X(GameData)
 
-    enum class RZAssetType: u8
+    enum class RZAssetType : u8
     {
 #define X(name) k##name,
         ASSET_TYPE_LIST
@@ -74,13 +74,9 @@ namespace Razix {
             COUNT
     };
 
-    static constexpr const char* s_AssetTypeFolderTable[] = {
-#define X(name) "//Assets/" #name "s/",
-    ASSET_TYPE_LIST
-#undef X
-};
-
     static_assert((u32) RZAssetType::COUNT == 14, "More asset types have been added, make changes to apt places!");
+
+    RZString AssetTypeToVFSFilePath(RZAssetType type, const RZString& name);
 
     /**
      * Defined how the assets are stored in the database pools
@@ -242,6 +238,7 @@ namespace Razix {
         // Notify listeners of a specific event
         inline void notifyListeners(RZEvent& event) { m_pCold->eventDispatcher.dispatch(event); }
 
+        inline rz_asset_handle    getHandle() const { return m_Hot.handle; }
         inline const RZUUID&      getUUID() const { return m_Hot.UUID; }
         inline void               setUUID(const RZUUID& uuid) { m_Hot.UUID = uuid; }
         inline RZAssetType        getType() const { return m_Hot.type; }
@@ -357,7 +354,7 @@ namespace Razix {
         inline bool   operator!=(RZAsset& other) { return m_Hot.UUID != other.m_Hot.UUID; }
 
         inline const RZAssetColdData* getColdDataPtr() const { return m_pCold; }
-        inline RZAssetColdData* getColdDataMutablePtr() { return m_pCold; }
+        inline RZAssetColdData*       getColdDataMutablePtr() { return m_pCold; }
 
         RAZIX_REFLECT_FRIEND(RZAsset)
 

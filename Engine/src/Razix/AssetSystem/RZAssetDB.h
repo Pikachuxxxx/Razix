@@ -26,6 +26,8 @@
 #include "Razix/Asset/RZTransformAsset.h"
 #include "Razix/Asset/RZVignerePuzzleAsset.h"
 
+#include "Razix/Core/Containers/string_utils.h"
+
 #define RAZIX_ASSET_DB_REGISTRY_FILE      "//Assets/assetdb.bin"
 #define RAZIX_ASSET_DB_REGISTRY_FILE_NAME "assetdb.bin"
 #define RAZIX_MAX_ASSETS                  4096    // 1 Million assets max for now
@@ -52,9 +54,9 @@ namespace Razix {
 
     struct RZAssetAsyncLoadJobData
     {
-        RZUUID      AssetUUID;
+        RZAsset*    pAsset;
         RZAssetType AssetType;
-        RZString    FilePath;
+        RZString    VFSFilePath;
     };
 
     class RAZIX_API RZAssetDB final : public RZSingleton<RZAssetDB>
@@ -281,7 +283,7 @@ namespace Razix {
 
 #if RAZIX_IS_DEVELOPMENT_BUILD
             const RZAssetType type = GetAssetTypeTag<T>();
-            RZString          path = s_AssetTypeFolderTable[static_cast<u8>(type)] + name + ".rzasset";
+            RZString          path = AssetTypeToVFSFilePath(type, name);
 
             m_AssetDBDevRegistry[pAsset->getUUID()] = path;
 #endif    // RAZIX_IS_DEVELOPMENT_BUILD
@@ -330,24 +332,35 @@ namespace Razix {
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-            // TODO: check if an asset handle with given UUID exists already before creating a new one
+            if constexpr (std::is_same_v<T, RZTransformAsset>) {
+                RAZIX_CORE_ERROR("[AssetSystem] Loading Transform assets from disk is not supported as they are managed and loaded by the SceneGraph.");
+                return RAZIX_ASSET_INVALID_HANDLE;
+            }
 
-            RZString assetName = requestAssetLoadFromDiskInternal(assetUUID, typeid(T));
-            // TODO: update name, asset load state and asset type
+            // TODO: check if an asset handle with given UUID exists already before creating a new one
+            RZScopedCriticalSection lock(m_AssetDBLock);
+            auto                    it = m_AssetDBDevRegistry.find(assetUUID);
+            if (it == m_AssetDBDevRegistry.end()) {
+                RAZIX_CORE_WARN("[AssetSystem] Asset UUID {} not found in registry.", assetUUID.prettyString());
+                return RAZIX_ASSET_INVALID_HANDLE;
+            }
+
+            rz_asset_handle handle = createAsset<T>(GetFileName(it->second));
+            // Set in loading state
+            RZAsset* pPlaceholderAsset = getAssetHeaderMutable(handle);
+            pPlaceholderAsset->addFlags(RZ_ASSET_FLAG_PLACEHOLDER);
+            pPlaceholderAsset->addFlags(RZ_ASSET_FLAG_STREAMING);
+            // No longer dirty once we make it a placeholder, it will be marked dirty again once it's ready and scenegraph has not touched the updated version yet.
+            pPlaceholderAsset->removeFlags(RZ_ASSET_FLAG_DIRTY);
+
+            requestAssetLoadFromDiskInternal(assetUUID, typeid(T), pPlaceholderAsset);
             // TODO:!!! Create a default asset per asset type to return here while the actual asset is being loaded async, so that the game can start
             // Create a dummy asset with default places holder
-            rz_asset_handle handle = createAsset<T>(assetName);
-
-            // Set in loading state
-            RZAsset* pAsset = getAssetHeaderMutable(handle);
-            pAsset->addFlags(RZ_ASSET_FLAG_PLACEHOLDER);
-            pAsset->addFlags(RZ_ASSET_FLAG_STREAMING);
-            // No longer dirty once we make it a placeholder, it will be marked dirty again once it's ready and scenegraph has not touched the updated version yet.
-            pAsset->removeFlags(RZ_ASSET_FLAG_DIRTY);
 
             return handle;
         }
-        RZString requestAssetLoadFromDiskInternal(RZUUID assetUUID, std::type_index typeIdx);
+        void requestAssetLoadFromDiskInternal(RZUUID assetUUID, std::type_index typeIdx, RZAsset* pPlaceholderAsset);
+        ;
 
         // In development builds, we can save/load the entire registry to a single file for faster iteration
         // called when AssetDB startup/shutsdown happens
