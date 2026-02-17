@@ -63,15 +63,9 @@ namespace Razix {
             RZString physicalPath;
             // First try resolving the full file path (file already exists on disk)
             if (!RZVirtualFileSystem::Get().resolvePhysicalPath(assetVFSPath, physicalPath)) {
-                // File doesn't exist yet — resolve the parent directory and append the filename
-                // Extract the directory portion of the VFS path (e.g. "//Assets/Cameras/")
-                auto lastSlash = assetVFSPath.rfind('/');
-                if (lastSlash == RZString::npos) {
-                    RAZIX_CORE_ERROR("[AssetSystem] Invalid VFS path for asset: {}", assetVFSPath);
-                    return false;
-                }
-                RZString vfsDir  = assetVFSPath.substr(0, lastSlash + 1);
-                RZString fileName = assetVFSPath.substr(lastSlash + 1);
+                // File doesn't exist yet — resolve the parent directory
+                RZString vfsDir   = GetFileLocation(assetVFSPath);
+                RZString fileName = GetFileName(assetVFSPath);
                 RZString physicalDir;
                 if (!RZVirtualFileSystem::Get().resolvePhysicalPath(vfsDir, physicalDir, true)) {
                     RAZIX_CORE_ERROR("[AssetSystem] Invalid VFS directory for asset: {}", vfsDir);
@@ -81,7 +75,7 @@ namespace Razix {
             }
 
             RZFileHandle fileHandle = RZFileSystem::OpenFile(physicalPath, RZFileMode::Write);
-            if (fileHandle.handle == -1) {
+            if (fileHandle == RAZIX_INVALID_FILE_HANDLE) {
                 RAZIX_CORE_ERROR("[AssetSystem] Failed to open file for writing: {}", hdr->getName());
                 return false;
             }
@@ -123,7 +117,7 @@ namespace Razix {
             }
 
             RZFileHandle fileHandle = RZFileSystem::OpenFile(physicalPath, RZFileMode::Read);
-            if (fileHandle.handle == -1) {
+            if (fileHandle == RAZIX_INVALID_FILE_HANDLE) {
                 RAZIX_CORE_ERROR("[AssetSystem] Failed to open file for reading: {}", jobData.VFSFilePath);
                 return;
             }
@@ -574,10 +568,10 @@ namespace Razix {
             return true;
         }
 
-        u32  assetDBFileSize = RZFileSystem::GetFileSize(physicalPath);
+        i64  assetDBFileSize = RZFileSystem::GetFileSize(physicalPath);
         u8*  buffer          = (u8*) rz_malloc_aligned(assetDBFileSize);
         bool bReadResult     = RZFileSystem::ReadFile(physicalPath, buffer, assetDBFileSize);
-        if (!bReadResult || assetDBFileSize < sizeof(u32)) {
+        if (!bReadResult || assetDBFileSize < sizeof(i64)) {
             RAZIX_CORE_ERROR("[AssetSystem] Failed reading registry file or file corrupted.");
             rz_free(buffer);
             return false;
@@ -587,6 +581,12 @@ namespace Razix {
 
         const u8* cursor = buffer;
         const u8* end    = buffer + assetDBFileSize;
+
+        auto readI64 = [&](i64& out) {
+            RAZIX_CORE_ASSERT(cursor + sizeof(i64) <= end, "[AssetSystem] Registry read overflow (i64).");
+            memcpy(&out, cursor, sizeof(i64));
+            cursor += sizeof(i64);
+        };
 
         auto readU32 = [&](u32& out) {
             RAZIX_CORE_ASSERT(cursor + sizeof(u32) <= end, "[AssetSystem] Registry read overflow (u32).");
@@ -600,11 +600,11 @@ namespace Razix {
             cursor += sizeof(RZUUID);
         };
 
-        u32 entryCount = 0;
-        readU32(entryCount);
+        i64 entryCount = 0;
+        readI64(entryCount);
         RAZIX_CORE_TRACE("[AssetSystem] Loading assetdb.bin registry with {0} entries.", entryCount);
 
-        for (u32 i = 0; i < entryCount; ++i) {
+        for (i64 i = 0; i < entryCount; ++i) {
             RZUUID uuid;
             readUUID(uuid);
 
@@ -637,14 +637,14 @@ namespace Razix {
         // No streaming or zone --> pak loading support for this, just a single
         // file with all assets in it, used for faster iteration during development
 
-        u32    entryCount       = static_cast<u32>(m_AssetDBDevRegistry.size());
-        size_t registryFileSize = sizeof(u32) + entryCount * (sizeof(RZUUID) + sizeof(u32) + RAZIX_ASSET_MAX_FILE_PATH_LENGTH);
+        i64    entryCount       = static_cast<i64>(m_AssetDBDevRegistry.size());
+        size_t registryFileSize = sizeof(i64) + entryCount * (sizeof(RZUUID) + sizeof(u32) + RAZIX_ASSET_MAX_FILE_PATH_LENGTH);
         u8*    buffer           = (u8*) rz_malloc_aligned(registryFileSize);
         u64    offset           = 0;
 
         // write count first
-        buffer[offset] = entryCount;
-        offset += sizeof(u32);
+        memcpy(buffer + offset, &entryCount, sizeof(i64));
+        offset += sizeof(i64);
 
         // Compute total size needed: 4 bytes for entry count + (16 bytes for UUID + 4 bytes for string length + string bytes) per entryCount
 

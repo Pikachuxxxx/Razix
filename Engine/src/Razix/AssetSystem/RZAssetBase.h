@@ -76,7 +76,7 @@ namespace Razix {
 
     static_assert((u32) RZAssetType::COUNT == 14, "More asset types have been added, make changes to apt places!");
 
-    RZString AssetTypeToVFSFilePath(RZAssetType type, const RZString& name);
+    RAZIX_API RZString AssetTypeToVFSFilePath(RZAssetType type, const RZString& name);
 
     /**
      * Defined how the assets are stored in the database pools
