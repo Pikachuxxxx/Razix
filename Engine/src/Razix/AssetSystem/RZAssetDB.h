@@ -278,6 +278,7 @@ namespace Razix {
 
             RZAsset* pAsset = getAssetHeaderMutable(handle);
             RAZIX_CORE_ASSERT(pAsset, "[AssetDB] Invalid header after allocation.");
+            pAsset->setHandle(handle);
             pAsset->setName(name);
             pAsset->setFlags(RZAssetFlags(RZ_ASSET_FLAG_DIRTY));
 
@@ -360,7 +361,6 @@ namespace Razix {
             return handle;
         }
         void requestAssetLoadFromDiskInternal(RZUUID assetUUID, std::type_index typeIdx, RZAsset* pPlaceholderAsset);
-        ;
 
         // In development builds, we can save/load the entire registry to a single file for faster iteration
         // called when AssetDB startup/shutsdown happens

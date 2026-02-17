@@ -49,7 +49,8 @@ namespace Razix {
             }
 
             auto& pool       = RZAssetDB::Get().GetAssetPoolRef<T>();
-            T*    payloadPtr = pool.get(handle);
+            u32   payloadIdx = RAZIX_ASSET_HANDLE_GET_PAYLOAD_INDEX(handle);
+            T*    payloadPtr = pool.get(payloadIdx);
             if (!payloadPtr) {
                 RAZIX_CORE_ERROR("[AssetSystem] Failed to retrieve asset payload for handle: {}", handle);
                 return false;
@@ -131,20 +132,31 @@ namespace Razix {
             RAZIX_CORE_ASSERT(size == sizeof(u32), "[AssetSystem] Failed to read payload size for asset: {}", jobData.VFSFilePath);
 
             RZDynamicArray<u8> headerBinary(headerSize);
+            headerBinary.resize(headerSize);
             size = RZFileSystem::ReadFromFile(fileHandle, headerBinary.data(), headerSize);
             RAZIX_CORE_ASSERT(size == headerSize, "[AssetSystem] Failed to read asset header for asset: {}", jobData.VFSFilePath);
 
             RZDynamicArray<u8> payloadBinary(payloadSize);
+            payloadBinary.resize(payloadSize);
             size = RZFileSystem::ReadFromFile(fileHandle, payloadBinary.data(), payloadSize);
             RAZIX_CORE_ASSERT(size == payloadSize, "[AssetSystem] Failed to read asset payload for asset: {}", jobData.VFSFilePath);
 
+            // Save the placeholder's handle before deserialization overwrites it
+            rz_asset_handle placeholderHandle = jobData.pAsset->getHandle();
+
             RZSerializable<RZAsset>::deserializeAssetFromBinary(headerBinary, jobData.pAsset);
+
+            // Restore the placeholder handle — the serialized header contains the ORIGINAL
+            // asset's handle which belongs to a different pool slot.
+            jobData.pAsset->setHandle(placeholderHandle);
+
             T payload = RZSerializable<T>::deserializeFromBinary(payloadBinary, heapAllocator);
 
-            auto assetPlayloadPool = RZAssetDB::Get().GetAssetPoolRef<T>();
+            auto& assetPlayloadPool = RZAssetDB::Get().GetAssetPoolRef<T>();
             // Transform assets are loaded by SceneGraph and are not stored in the asset pool, they are directly stored in the scene graph nodes, so skip pool storage for them
             if constexpr (!std::is_same_v<T, RZTransformAsset>) {
-                assetPlayloadPool.set(jobData.pAsset->getHandle(), payload);
+                u32 payloadIdx = RAZIX_ASSET_HANDLE_GET_PAYLOAD_INDEX(jobData.pAsset->getHandle());
+                assetPlayloadPool.set(payloadIdx, payload);
             }
 
             RZFileSystem::CloseFile(fileHandle);
