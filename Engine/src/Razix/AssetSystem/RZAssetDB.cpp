@@ -571,7 +571,7 @@ namespace Razix {
         i64  assetDBFileSize = RZFileSystem::GetFileSize(physicalPath);
         u8*  buffer          = (u8*) rz_malloc_aligned(assetDBFileSize);
         bool bReadResult     = RZFileSystem::ReadFile(physicalPath, buffer, assetDBFileSize);
-        if (!bReadResult || assetDBFileSize < sizeof(i64)) {
+        if (!bReadResult) {
             RAZIX_CORE_ERROR("[AssetSystem] Failed reading registry file or file corrupted.");
             rz_free(buffer);
             return false;
