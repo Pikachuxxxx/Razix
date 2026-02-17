@@ -18,7 +18,7 @@
 
 typedef struct rz_job rz_job;
 
-typedef void (*rz_job_func_cb)(rz_job* pJob);
+typedef void (*rz_job_func_cb)(void* pUserData);
 
 // TODO: Profile and tune cache line alignments for better performance
 // TODO: Add manual padding where necessary for cache line alignment to avoid false sharing

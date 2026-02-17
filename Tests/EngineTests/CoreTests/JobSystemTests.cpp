@@ -38,7 +38,7 @@ namespace Razix {
                 job.pCold = &cold;
             }
 
-            void prepare(void* payload, void (*func)(rz_job*))
+            void prepare(void* payload, void (*func)(void*))
             {
                 std::memset(&job.hot, 0, sizeof(job.hot));
                 std::memset(&cold, 0, sizeof(cold));
@@ -77,7 +77,7 @@ namespace Razix {
             rz_atomic_u32 hit;
         };
 
-        static void SingleHitFunc(rz_job* pUserData)
+        static void SingleHitFunc(void* pUserData)
         {
             auto* d = reinterpret_cast<SingleHitData*>(pUserData);
             rz_atomic32_store(&d->hit, 1u, RZ_MEMORY_ORDER_RELEASE);
@@ -106,7 +106,7 @@ namespace Razix {
             rz_atomic_u32* pCounter;
         };
 
-        static void CounterFunc(rz_job* pUserData)
+        static void CounterFunc(void* pUserData)
         {
             auto* d = reinterpret_cast<CounterData*>(pUserData);
             rz_atomic32_increment(d->pCounter, RZ_MEMORY_ORDER_RELAXED);
@@ -143,7 +143,7 @@ namespace Razix {
             rz_atomic_u32* pCounter;
         };
 
-        static void ChildFunc(rz_job* pUserData)
+        static void ChildFunc(void* pUserData)
         {
             auto* d = reinterpret_cast<ChildData*>(pUserData);
             rz_atomic32_increment(d->pCounter, RZ_MEMORY_ORDER_RELAXED);
@@ -156,7 +156,7 @@ namespace Razix {
             u32            childCount;
         };
 
-        static void ParentFunc(rz_job* pUserData)
+        static void ParentFunc(void* pUserData)
         {
             auto* d = reinterpret_cast<ParentData*>(pUserData);
             rz_atomic32_store(d->pParentFlag, 1u, RZ_MEMORY_ORDER_RELEASE);
@@ -205,7 +205,7 @@ namespace Razix {
             u32            busyMicros;
         };
 
-        static void BusyFunc(rz_job* pUserData)
+        static void BusyFunc(void* pUserData)
         {
             auto* d = reinterpret_cast<BusyData*>(pUserData);
             rz_thread_busy_wait_micro(d->busyMicros);
@@ -324,7 +324,7 @@ namespace Razix {
             u32            simulatedBytes;
         };
 
-        static void SimIoFunc(rz_job* pUserData)
+        static void SimIoFunc(void* pUserData)
         {
             auto* d = reinterpret_cast<SimIoData*>(pUserData);
             rz_thread_busy_wait_micro(d->workMicros);
@@ -534,7 +534,7 @@ namespace Razix {
             rz_atomic_u32* pFailures;
         };
 
-        static void FileReadFunc(rz_job* pUserData)
+        static void FileReadFunc(void* pUserData)
         {
             auto* d = reinterpret_cast<FileReadData*>(pUserData);
 
@@ -655,7 +655,7 @@ namespace Razix {
             u32      childCount;
         };
 
-        static void MasterKickoffFunc(rz_job* pUserData)
+        static void MasterKickoffFunc(void* pUserData)
         {
             auto* d = reinterpret_cast<MasterKickoffData*>(pUserData);
             for (u32 i = 0; i < d->childCount; ++i)
