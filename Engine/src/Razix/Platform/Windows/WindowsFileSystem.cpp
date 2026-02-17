@@ -17,7 +17,7 @@ namespace Razix {
 
     static HANDLE OpenFileForReading(const RZString& path)
     {
-        return CreateFile(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
+        return CreateFile(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     }
 
     static int64_t GetFileSizeInternal(const HANDLE file)
@@ -29,10 +29,17 @@ namespace Razix {
 
     static bool ReadFileInternal(const HANDLE file, void* buffer, const int64_t size)
     {
-        OVERLAPPED ol = {0};
-    #pragma warning(push, 0)
-        return ReadFileEx(file, buffer, static_cast<DWORD>(size), &ol, NULL) != 0;
-    #pragma warning(pop)
+        DWORD bytesRead = 0;
+
+        BOOL result = ReadFile(
+            file,
+            buffer,
+            static_cast<DWORD>(size),
+            &bytesRead,
+            NULL    // NULL = use internal file pointer
+        );
+
+        return result && bytesRead == size;
     }
 
     bool RZFileSystem::FileExists(const RZString& path)
@@ -172,25 +179,24 @@ namespace Razix {
         if (fileHandle == INVALID_HANDLE_VALUE)
             return RAZIX_INVALID_FILE_HANDLE;
 
-        return (u64)fileHandle;
+        return (u64) fileHandle;
     }
-
 
     void RZFileSystem::CloseFile(const RZFileHandle& fileHandle)
     {
-        CloseHandle((HANDLE)fileHandle);
+        CloseHandle((HANDLE) fileHandle);
     }
 
     u32 RZFileSystem::WriteToFile(const RZFileHandle& fileHandle, const void* buffer, size_t size)
     {
         DWORD written;
-        ::WriteFile((HANDLE)fileHandle, buffer, static_cast<DWORD>(size), &written, NULL);
+        ::WriteFile((HANDLE) fileHandle, buffer, static_cast<DWORD>(size), &written, NULL);
         return written;
     }
 
     u32 RZFileSystem::ReadFromFile(const RZFileHandle& fileHandle, void* buffer, size_t size)
     {
-        const bool success = ReadFileInternal((HANDLE)fileHandle, buffer, size);
+        const bool success = ReadFileInternal((HANDLE) fileHandle, buffer, size);
         return success ? size : 0;
     }
 
