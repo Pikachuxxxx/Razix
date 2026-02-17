@@ -5,16 +5,11 @@
 #include <cctype>      // isalpha
 #include <string.h>    // strlen
 
+#define RAZIX_INVALID_FILE_HANDLE 0xFFFFFFFFFFFFFFFFU
+
 namespace Razix {
 
-    struct RZFileHandle
-    {
-#if defined(RAZIX_PLATFORM_WINDOWS)
-        HANDLE handle;
-#elif defined(RAZIX_PLATFORM_LINUX) || defined(RAZIX_PLATFORM_MACOS)
-        i32 handle;
-#endif // platform-specific file handle
-    };
+    typedef u64 RZFileHandle;
 
     enum class RZFileMode
     {

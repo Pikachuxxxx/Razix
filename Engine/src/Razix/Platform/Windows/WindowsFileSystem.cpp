@@ -17,7 +17,7 @@ namespace Razix {
 
     static HANDLE OpenFileForReading(const RZString& path)
     {
-        return CreateFile(path.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
+        return CreateFile(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
     }
 
     static int64_t GetFileSizeInternal(const HANDLE file)
@@ -31,7 +31,7 @@ namespace Razix {
     {
         OVERLAPPED ol = {0};
     #pragma warning(push, 0)
-        return ReadFileEx(file, buffer, static_cast<DWORD>(size), &ol, nullptr) != 0;
+        return ReadFileEx(file, buffer, static_cast<DWORD>(size), &ol, NULL) != 0;
     #pragma warning(pop)
     }
 
@@ -81,7 +81,7 @@ namespace Razix {
         CloseHandle(file);
         if (!result)
             delete[] buffer;
-        return result ? buffer : nullptr;
+        return result ? buffer : NULL;
     }
 
     RZString RZFileSystem::ReadTextFile(const RZString& path)
@@ -110,13 +110,13 @@ namespace Razix {
     {
         bool         fileExists = FileExists(path);
         int          flags      = fileExists ? OPEN_EXISTING : CREATE_NEW;
-        const HANDLE file       = CreateFile(path.c_str(), GENERIC_WRITE, NULL, nullptr, flags, FILE_ATTRIBUTE_NORMAL, nullptr);
+        const HANDLE file       = CreateFile(path.c_str(), GENERIC_WRITE, NULL, NULL, flags, FILE_ATTRIBUTE_NORMAL, NULL);
         if (file == INVALID_HANDLE_VALUE) {
             return false;
         }
 
         DWORD written;
-        ::WriteFile(file, buffer, static_cast<DWORD>(size), &written, nullptr);
+        ::WriteFile(file, buffer, static_cast<DWORD>(size), &written, NULL);
         CloseHandle(file);
         return written != 0;
     }
@@ -124,6 +124,95 @@ namespace Razix {
     bool RZFileSystem::WriteTextFile(const RZString& path, const RZString& text)
     {
         return WriteFile(path, (u8*) &text[0], text.size());
+    }
+
+    RZFileHandle RZFileSystem::OpenFile(const RZString& path, RZFileMode mode)
+    {
+        HANDLE fileHandle = INVALID_HANDLE_VALUE;
+
+        DWORD access              = 0;
+        DWORD creationDisposition = 0;
+        DWORD shareMode           = FILE_SHARE_READ;    // safe default
+
+        switch (mode) {
+            case RZFileMode::Read: {
+                access              = GENERIC_READ;
+                creationDisposition = OPEN_EXISTING;
+                shareMode           = FILE_SHARE_READ;
+                break;
+            }
+
+            case RZFileMode::Write: {
+                access              = GENERIC_WRITE;
+                creationDisposition = CREATE_ALWAYS;    // create or overwrite
+                shareMode           = 0;
+                break;
+            }
+
+            case RZFileMode::ReadWrite: {
+                access              = GENERIC_READ | GENERIC_WRITE;
+                creationDisposition = OPEN_ALWAYS;    // open or create
+                shareMode           = 0;
+                break;
+            }
+
+            default:
+                return RAZIX_INVALID_FILE_HANDLE;
+        }
+
+        fileHandle = CreateFileA(
+            path.c_str(),
+            access,
+            shareMode,
+            NULL,
+            creationDisposition,
+            FILE_ATTRIBUTE_NORMAL,
+            NULL);
+
+        if (fileHandle == INVALID_HANDLE_VALUE)
+            return RAZIX_INVALID_FILE_HANDLE;
+
+        return (u64)fileHandle;
+    }
+
+
+    void RZFileSystem::CloseFile(const RZFileHandle& fileHandle)
+    {
+        CloseHandle((HANDLE)fileHandle);
+    }
+
+    u32 RZFileSystem::WriteToFile(const RZFileHandle& fileHandle, const void* buffer, size_t size)
+    {
+        DWORD written;
+        ::WriteFile((HANDLE)fileHandle, buffer, static_cast<DWORD>(size), &written, NULL);
+        return written;
+    }
+
+    u32 RZFileSystem::ReadFromFile(const RZFileHandle& fileHandle, void* buffer, size_t size)
+    {
+        const bool success = ReadFileInternal((HANDLE)fileHandle, buffer, size);
+        return success ? size : 0;
+    }
+
+    void RZFileSystem::SeekFile(const RZFileHandle& fileHandle, RZSeekOrigin origin, int64_t offset)
+    {
+        DWORD moveMethod;
+        switch (origin) {
+            case RZSeekOrigin::Begin:
+                moveMethod = FILE_BEGIN;
+                break;
+            case RZSeekOrigin::Current:
+                moveMethod = FILE_CURRENT;
+                break;
+            case RZSeekOrigin::End:
+                moveMethod = FILE_END;
+                break;
+            default:
+                return;
+        }
+        LARGE_INTEGER liOffset;
+        liOffset.QuadPart = offset;
+        SetFilePointerEx((HANDLE) fileHandle, liOffset, NULL, moveMethod);
     }
 }    // namespace Razix
 
