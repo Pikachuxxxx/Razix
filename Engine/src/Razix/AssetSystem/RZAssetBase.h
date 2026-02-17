@@ -239,6 +239,7 @@ namespace Razix {
         inline void notifyListeners(RZEvent& event) { m_pCold->eventDispatcher.dispatch(event); }
 
         inline rz_asset_handle    getHandle() const { return m_Hot.handle; }
+        inline void               setHandle(rz_asset_handle h) { m_Hot.handle = h; }
         inline const RZUUID&      getUUID() const { return m_Hot.UUID; }
         inline void               setUUID(const RZUUID& uuid) { m_Hot.UUID = uuid; }
         inline RZAssetType        getType() const { return m_Hot.type; }

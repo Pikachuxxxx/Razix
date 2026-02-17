@@ -61,9 +61,23 @@ namespace Razix {
 
             RZString assetVFSPath = AssetTypeToVFSFilePath(hdr->getType(), hdr->getName());
             RZString physicalPath;
+            // First try resolving the full file path (file already exists on disk)
             if (!RZVirtualFileSystem::Get().resolvePhysicalPath(assetVFSPath, physicalPath)) {
-                RAZIX_CORE_ERROR("[AssetSystem] Invalid VFS path for asset: {}", assetVFSPath);
-                return false;
+                // File doesn't exist yet — resolve the parent directory and append the filename
+                // Extract the directory portion of the VFS path (e.g. "//Assets/Cameras/")
+                auto lastSlash = assetVFSPath.rfind('/');
+                if (lastSlash == RZString::npos) {
+                    RAZIX_CORE_ERROR("[AssetSystem] Invalid VFS path for asset: {}", assetVFSPath);
+                    return false;
+                }
+                RZString vfsDir  = assetVFSPath.substr(0, lastSlash + 1);
+                RZString fileName = assetVFSPath.substr(lastSlash + 1);
+                RZString physicalDir;
+                if (!RZVirtualFileSystem::Get().resolvePhysicalPath(vfsDir, physicalDir, true)) {
+                    RAZIX_CORE_ERROR("[AssetSystem] Invalid VFS directory for asset: {}", vfsDir);
+                    return false;
+                }
+                physicalPath = physicalDir + fileName;
             }
 
             RZFileHandle fileHandle = RZFileSystem::OpenFile(physicalPath, RZFileMode::Write);
@@ -73,7 +87,7 @@ namespace Razix {
             }
 
             /**
-             * AssetDB file format:
+             * Asset file format:
              * [u32 Magic] [u32 Header Binary Data Size] [Payload Binary Data Size] [Header Binary Data] [Payload Binary Data]
              */
             u32 magic = RAZIX_ASSSET_FILE_MAGIC;
@@ -304,11 +318,11 @@ namespace Razix {
 
     //-------------------------------------------------------------------------
 
-    static void AsyncRZAssetLoadJob(rz_job* pJob)
+    static void AsyncRZAssetLoadJob(void* pUserData)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
-        auto* jobData = reinterpret_cast<RZAssetAsyncLoadJobData*>(pJob->hot.pUserData);
+        auto* jobData = reinterpret_cast<RZAssetAsyncLoadJobData*>(pUserData);
         RAZIX_CORE_ASSERT(jobData != NULL, "[AssetSystem] Invalid job data for async asset load.");
 
         RAZIX_CORE_INFO("[AssetSystem] Asynchronously loading asset: {} of type: {} from path: {}", jobData->pAsset->getName(), jobData->AssetType, jobData->VFSFilePath);
@@ -328,13 +342,16 @@ namespace Razix {
             Memory::RZBumpAllocator& frameAllocator = RZEngine::Get().getFrameAllocator();
 
             job                   = static_cast<rz_job*>(frameAllocator.allocate(sizeof(rz_job)));
+            RAZIX_CORE_ASSERT(job != NULL, "[AssetSystem] Failed to allocate memory for async asset load job.");
             rz_job_cold* coldData = static_cast<rz_job_cold*>(frameAllocator.allocate(sizeof(rz_job_cold), RAZIX_CACHE_LINE_ALIGN));
+            RAZIX_CORE_ASSERT(coldData != NULL, "[AssetSystem] Failed to allocate memory for async asset load job cold data.");
             job->pCold            = coldData;
             // TODO: Use a razix utility function to set const char* names safely
             memcpy(coldData->pName, jobName.c_str(), std::min(jobName.size(), static_cast<size_t>(RAZIX_JOB_NAME_MAX_CHARS - 1)));
             job->hot.pFunc = AsyncRZAssetLoadJob;
 
             RZAssetAsyncLoadJobData* jobDataPtr = static_cast<RZAssetAsyncLoadJobData*>(frameAllocator.allocate(sizeof(RZAssetAsyncLoadJobData)));
+            RAZIX_CORE_ASSERT(jobDataPtr != NULL, "[AssetSystem] Failed to allocate memory for async asset load job data.");
             *jobDataPtr                         = jobData;
             job->hot.pUserData                  = jobDataPtr;
         }
@@ -552,16 +569,15 @@ namespace Razix {
 
         RZString physicalPath;
         if (!RZVirtualFileSystem::Get().resolvePhysicalPath(RAZIX_ASSET_DB_REGISTRY_FILE, physicalPath)) {
-            RAZIX_CORE_WARN("[AssetSystem] Registry file not found: {0}. Starting with empty registry.", RAZIX_ASSET_DB_REGISTRY_FILE);
+            RAZIX_CORE_WARN("[AssetSystem] Registry file not found: {0}. Starting with empty registry.", physicalPath);
             m_AssetDBDevRegistry.clear();
             return true;
         }
 
-        u64  fileSize        = 0;
         u32  assetDBFileSize = RZFileSystem::GetFileSize(physicalPath);
         u8*  buffer          = (u8*) rz_malloc_aligned(assetDBFileSize);
         bool bReadResult     = RZFileSystem::ReadFile(physicalPath, buffer, assetDBFileSize);
-        if (bReadResult || fileSize < sizeof(u32)) {
+        if (!bReadResult || assetDBFileSize < sizeof(u32)) {
             RAZIX_CORE_ERROR("[AssetSystem] Failed reading registry file or file corrupted.");
             rz_free(buffer);
             return false;
@@ -570,7 +586,7 @@ namespace Razix {
         m_AssetDBDevRegistry.clear();
 
         const u8* cursor = buffer;
-        const u8* end    = buffer + fileSize;
+        const u8* end    = buffer + assetDBFileSize;
 
         auto readU32 = [&](u32& out) {
             RAZIX_CORE_ASSERT(cursor + sizeof(u32) <= end, "[AssetSystem] Registry read overflow (u32).");
