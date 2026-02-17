@@ -275,6 +275,8 @@ namespace Razix {
         {
             RAZIX_CORE_ASSERT(mode == RZArchiveMode::kRead, "read() in write mode");
 
+            size_t oldSize = headerBuffer.size();
+            headerBuffer.resize(oldSize + size);
             memcpy(dst, buffer->data() + cursor, size);
             cursor += size;
         }
@@ -855,7 +857,7 @@ namespace Razix {
             return buffer;
         }
 
-        static Derived deserializeFromBinary(const RZDynamicArray<u8>& binary, Memory::RZHeapAllocator& blobAllocator)
+        static Derived deserializeFromBinary(RZDynamicArray<u8>& binary, Memory::RZHeapAllocator& blobAllocator)
         {
             if constexpr (rz_is_same_v<Derived, RZAsset>) {
                 RAZIX_CORE_ERROR("Use deserializeAssetFromBinary for RZAsset types");
@@ -871,11 +873,10 @@ namespace Razix {
                 return data;
             }
 
-            RZDynamicArray<u8> temp = binary;
-            Archive            ar(&temp, 0, RZArchiveMode::kRead, const_cast<Memory::RZHeapAllocator*>(&blobAllocator));
+            Archive            ar(&binary, 0, RZArchiveMode::kRead, const_cast<Memory::RZHeapAllocator*>(&blobAllocator));
 
             if (meta->bIsTriviallySerializable) {
-                ar.read(&data, rz_min<size_t>(meta->size, binary.size()));
+                ar.read(&data, meta->size);
                 return data;
             }
 
@@ -885,7 +886,7 @@ namespace Razix {
             return data;
         }
 
-        static void* deserializeAssetFromBinary(const RZDynamicArray<u8>& binary, void* pAssetMemory, void* pColdDataMemory)
+        static void* deserializeAssetFromBinary(RZDynamicArray<u8>& binary, void* pAssetMemory, void* pColdDataMemory)
         {
             RAZIX_CORE_ASSERT(pAssetMemory != NULL, "Asset memory pointer is null");
             RAZIX_CORE_ASSERT(pColdDataMemory != NULL, "Asset cold data memory pointer is null");
@@ -900,11 +901,10 @@ namespace Razix {
                 return pAsset;
             }
 
-            RZDynamicArray<u8> temp = binary;
-            Archive            ar(&temp, 0, RZArchiveMode::kRead, NULL);
+            Archive            ar(&binary, 0, RZArchiveMode::kRead, NULL);
 
             if (meta->bIsTriviallySerializable) {
-                ar.read(pAsset, rz_min<size_t>(meta->size, binary.size()));    // read into object memory
+                ar.read(pAsset, meta->size);
                 return pAsset;
             }
 
@@ -914,7 +914,7 @@ namespace Razix {
             return pAsset;
         }
 
-        static RZAsset* deserializeAssetFromBinary(const RZDynamicArray<u8>& binary, RZAsset* pPlaceholderAsset)
+        static RZAsset* deserializeAssetFromBinary(RZDynamicArray<u8>& binary, RZAsset* pPlaceholderAsset)
         {
             RAZIX_CORE_ASSERT(pPlaceholderAsset != NULL, "Asset memory pointer is null");
 
@@ -925,11 +925,10 @@ namespace Razix {
                 return pPlaceholderAsset;
             }
 
-            RZDynamicArray<u8> temp = binary;
-            Archive            ar(&temp, 0, RZArchiveMode::kRead, NULL);
+            Archive            ar(&binary, 0, RZArchiveMode::kRead, NULL);
 
             if (meta->bIsTriviallySerializable) {
-                ar.read(pPlaceholderAsset, rz_min<size_t>(meta->size, binary.size()));    // read into object memory
+                ar.read(pPlaceholderAsset, meta->size);
                 return pPlaceholderAsset;
             }
 
@@ -1027,7 +1026,7 @@ namespace Razix {
             }
 
             if (meta->bIsTriviallySerializable) {
-                ctx.archive.read(ctx.read.targetInstance, rz_min<size_t>(meta->size, ctx.read.sourceBuffer.size()));
+                ctx.archive.read(ctx.read.targetInstance, meta->size);
                 return ctx;
             }
 
