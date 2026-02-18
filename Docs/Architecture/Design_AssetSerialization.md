@@ -532,3 +532,364 @@ Phase - 2
 8. Zones streaming via RZAssetDB --> calling in RZAssetStreaming APIs and using the scenegraph to predict next active zones to load etc. using player positions
 9. Hook up RZPak with Async asset loading
 
+---
+
+## SceneGraph prototype DS and APIs
+```C
+#pragma once
+
+#include "rz_types.h"
+#include "rz_uuid.h"
+#include "rz_asset.h"
+#include "rz_math.h"
+
+#include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Constants
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+#define RZ_SCENE_NODE_NULL          (-1)
+#define RZ_ZONE_NAME_MAX            64
+#define RZ_NODE_NAME_MAX            64
+#define RZ_ZONE_MAX                 512
+#define RZ_SCENE_GRAPH_VERSION      1
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Node Flags
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+typedef enum rz_node_flags {
+    RZ_NODE_FLAG_NONE           = 0,
+    RZ_NODE_FLAG_DIRTY          = (1 << 0),   /* transform or asset changed   */
+    RZ_NODE_FLAG_VISIBLE        = (1 << 1),
+    RZ_NODE_FLAG_STATIC         = (1 << 2),   /* never moves at runtime       */
+    RZ_NODE_FLAG_PLACEHOLDER    = (1 << 3),   /* asset still loading async    */
+} rz_node_flags;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Gather List — per-type flat array of active node indices in a zone
+ *
+ * Enables data-driven batch operations without tree traversal.
+ * Each entry is a node index into zone->nodes[].
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+typedef struct rz_gather_list {
+    u32*    indices;         /* node indices of this asset type               */
+    u32     count;
+    u32     capacity;
+} rz_gather_list;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Dirty Transform List — sorted by depth for correct parent-before-child
+ * world matrix recomputation.
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+typedef struct rz_dirty_list {
+    u32*    node_indices;
+    u32     count;
+    u32     capacity;
+} rz_dirty_list;
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Scene Node
+ *
+ * Simplified:
+ *   - Removed rz_node_type (use rz_asset_type from handle)
+ *   - Removed transform_id (transform is just another asset)
+ *   - UUID + handle stored together for fast + persistent identity
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+typedef struct rz_scene_node {
+    char                name[RZ_NODE_NAME_MAX];
+
+    /* identity ------------------------------------------------------------ */
+    rz_uuid             uuid;               /* 16 bytes — persistent         */
+    rz_asset_handle     handle;             /*  8 bytes — runtime fast-path  */
+
+    /* flags --------------------------------------------------------------- */
+    u32                 flags;              /* rz_node_flags bitmask         */
+
+    /* tree linkage (indices into zone->nodes[], -1 = null) ---------------- */
+    i32                 parent;
+    i32                 first_child;
+    i32                 next_sibling;
+} rz_scene_node;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Zone State
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+typedef enum rz_zone_state {
+    RZ_ZONE_UNLOADED    = 0,
+    RZ_ZONE_LOADING     = 1,
+    RZ_ZONE_LOADED      = 2,
+} rz_zone_state;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Zone
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+typedef struct rz_zone {
+    char                name[RZ_ZONE_NAME_MAX];
+    i32                 grid_pos[3];
+    rz_aabb             bounds;
+
+    rz_zone_state       state;
+
+    /* node storage -------------------------------------------------------- */
+    rz_scene_node*      nodes;
+    u32                 node_count;
+    u32                 node_capacity;
+    u32                 root_node_index;     /* always 0                      */
+
+    u32*                node_freelist;
+    u32                 node_freelist_top;
+
+    /* ── per-type gather lists (data-driven batch ops) ─────────────────── */
+    rz_gather_list      gather[RZ_ASSET_TYPE_COUNT];
+
+    /* ── dirty transform tracking ──────────────────────────────────────── */
+    rz_dirty_list       dirty_transforms;
+
+    /* pak — NULL in development builds ------------------------------------ */
+    struct rz_pak*      pak;
+
+    /* file offset/size for lazy mmap -------------------------------------- */
+    u64                 file_offset;
+    u64                 file_size;
+} rz_zone;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Global Trigger
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+typedef struct rz_global_trigger {
+    char                name[RZ_NODE_NAME_MAX];
+    rz_aabb             bounds;
+    u32                 event_hash;
+} rz_global_trigger;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Scene Graph
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+typedef struct rz_scene_graph {
+    u32                     version;
+    rz_aabb                 scene_bounds;
+
+    u32                     grid_dims[3];
+    f32                     zone_physical_size;
+
+    rz_zone                 zones[RZ_ZONE_MAX];
+    u32                     zone_count;
+    u32                     active_zone_index;
+
+    rz_global_trigger*      triggers;
+    u32                     trigger_count;
+
+    void*                   mmap_base;
+    u64                     mmap_size;
+} rz_scene_graph;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Scene Graph Manager
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+typedef struct rz_scene_graph_manager {
+    rz_scene_graph*     active_scene;
+    rz_scene_graph*     queued_scenes[8];
+    u32                 queued_count;
+    rz_vec3             observer_position;
+    struct rz_asset_db* asset_db;
+} rz_scene_graph_manager;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ *
+ *  SCENE GRAPH API
+ *
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Lifecycle ───────────────────────────────────────────────────────────── */
+
+rz_scene_graph* rz_scene_graph_create(const void* file_data, u64 file_size);
+void            rz_scene_graph_destroy(rz_scene_graph* sg);
+
+/* Master update — called once per frame by game thread */
+void rz_scene_graph_update(rz_scene_graph* sg, 
+                            rz_vec3 observer_position, 
+                            f32 delta_time);
+
+/* ── Zone Lifecycle ────────────────────────────────────────────────────── */
+
+bool rz_zone_activate(rz_scene_graph* sg, u32 zone_idx);
+void rz_zone_deactivate(rz_scene_graph* sg, u32 zone_idx);
+
+rz_zone*       rz_zone_get(rz_scene_graph* sg, u32 zone_idx);
+const rz_zone* rz_zone_get_const(const rz_scene_graph* sg, u32 zone_idx);
+i32            rz_zone_find_by_name(const rz_scene_graph* sg, const char* name);
+i32            rz_zone_find_by_grid_pos(const rz_scene_graph* sg, i32 x, i32 y, i32 z);
+
+/* ── Node Operations (scene-graph-centric naming) ───────────────────────── */
+
+/* Attach pre-created asset to tree */
+i32 rz_scene_graph_attach_asset(rz_scene_graph* sg,
+                                 i32 parent_node_idx,
+                                 const char* name,
+                                 rz_uuid uuid,
+                                 rz_asset_handle handle);
+
+/* Convenience: create asset + attach to tree */
+i32 rz_scene_graph_create_node(rz_scene_graph* sg,
+                                struct rz_asset_db* asset_db,
+                                i32 parent_node_idx,
+                                const char* name,
+                                rz_uuid uuid,
+                                rz_asset_type type);
+
+/* Detach node from tree (keeps asset alive) */
+void rz_scene_graph_detach_node(rz_scene_graph* sg, i32 node_idx);
+
+/* Detach + destroy asset */
+void rz_scene_graph_destroy_node(rz_scene_graph* sg,
+                                  struct rz_asset_db* asset_db,
+                                  i32 node_idx);
+
+/* ── Node Queries ──────────────────────────────────────────────────────── */
+
+rz_scene_node*       rz_scene_graph_get_node(rz_scene_graph* sg, i32 node_idx);
+const rz_scene_node* rz_scene_graph_get_node_const(const rz_scene_graph* sg, i32 node_idx);
+
+i32 rz_scene_graph_find_node(const rz_scene_graph* sg, rz_uuid uuid);
+i32 rz_scene_graph_find_node_by_name(const rz_scene_graph* sg, const char* name);
+i32 rz_scene_graph_find_node_global(const rz_scene_graph* sg, rz_uuid uuid);
+
+/* ── Transforms ────────────────────────────────────────────────────────── */
+
+/* Get the transform asset for this node (walks up tree if node is not a transform) */
+rz_asset_handle rz_scene_graph_get_transform(const rz_scene_graph* sg, i32 node_idx);
+
+void rz_scene_graph_set_position(rz_scene_graph* sg, i32 node_idx, rz_vec3 pos);
+void rz_scene_graph_set_rotation(rz_scene_graph* sg, i32 node_idx, rz_quat rot);
+void rz_scene_graph_set_scale(rz_scene_graph* sg, i32 node_idx, rz_vec3 scale);
+
+/* Internal: recompute dirty transforms in active zones */
+void rz_scene_graph_update_transforms(rz_scene_graph* sg);
+
+/* ── Traversal ─────────────────────────────────────────────────────────── */
+
+typedef bool (*rz_node_visit_fn)(rz_scene_graph* sg, i32 node_idx, u32 depth, void* user);
+
+void rz_scene_graph_traverse_depth_first(rz_scene_graph* sg, i32 start_node,
+                                          rz_node_visit_fn visit, void* user);
+void rz_scene_graph_traverse_breadth_first(rz_scene_graph* sg, i32 start_node,
+                                            rz_node_visit_fn visit, void* user);
+
+/* ── Asset Resolution ──────────────────────────────────────────────────── */
+
+/* Called by asset system when async load completes */
+void rz_scene_graph_resolve_asset(rz_scene_graph* sg, i32 node_idx,
+                                   rz_asset_handle resolved_handle);
+
+/* ── Serialization ─────────────────────────────────────────────────────── */
+
+u64 rz_zone_serialize_sexp(const rz_zone* zone, void* out_buf, u64 buf_size);
+u64 rz_scene_graph_serialize(const rz_scene_graph* sg, void* out_buf, u64 buf_size);
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ *
+ *  SCENE GRAPH MANAGER API
+ *
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+rz_scene_graph_manager* rz_scene_graph_manager_create(struct rz_asset_db* db);
+void rz_scene_graph_manager_destroy(rz_scene_graph_manager* mgr);
+
+void rz_scene_graph_manager_load_scene(rz_scene_graph_manager* mgr, const char* path);
+void rz_scene_graph_manager_unload_scene(rz_scene_graph_manager* mgr);
+void rz_scene_graph_manager_queue_scene(rz_scene_graph_manager* mgr, const char* path);
+
+void rz_scene_graph_manager_update(rz_scene_graph_manager* mgr, f32 delta_time);
+void rz_scene_graph_manager_set_observer(rz_scene_graph_manager* mgr, rz_vec3 position);
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ *
+ *  S-EXPRESSION TOKENIZER (SIMD-accelerated)
+ *
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+typedef enum rz_sexp_token_type {
+    RZ_SEXP_LPAREN,
+    RZ_SEXP_RPAREN,
+    RZ_SEXP_ATOM,
+    RZ_SEXP_STRING,
+} rz_sexp_token_type;
+
+typedef struct rz_sexp_token {
+    u32                 offset;
+    u32                 length;
+    rz_sexp_token_type  type;
+} rz_sexp_token;
+
+typedef struct rz_sexp_tokenizer_result {
+    rz_sexp_token*      tokens;
+    u32                 count;
+    u32                 capacity;
+} rz_sexp_tokenizer_result;
+
+rz_sexp_tokenizer_result rz_sexp_tokenize(const char* src, u64 src_size);
+void                     rz_sexp_tokenizer_free(rz_sexp_tokenizer_result* result);
+
+bool rz_sexp_build_zone(rz_zone* zone, const char* src,
+                         const rz_sexp_tokenizer_result* tokens);
+
+bool rz_sexp_parse_scene_header(rz_scene_graph* sg, const char* src,
+                                 const rz_sexp_tokenizer_result* tokens);
+
+/* ------------------ SceneGraph Rules ------------------ */
+/* internal to rz_scene_graph.c, not exposed in public header */
+static const u32 s_scene_graph_child_rules[RZ_ASSET_TYPE_COUNT] = {
+    [RZ_ASSET_TRANSFORM] = (1 << RZ_ASSET_MESH) 
+                         | (1 << RZ_ASSET_LIGHT) 
+                         | (1 << RZ_ASSET_CAMERA)
+                         | (1 << RZ_ASSET_TRANSFORM),  /* transforms can nest */
+    
+    [RZ_ASSET_SCRIPT]    = (1 << RZ_ASSET_SCRIPT),     /* scripts can have sub-scripts */
+    
+    [RZ_ASSET_MESH]      = (1 << RZ_ASSET_MATERIAL),
+    
+    [RZ_ASSET_MATERIAL]  = 0,                          /* leaf node */
+    [RZ_ASSET_TEXTURE]   = 0,
+    [RZ_ASSET_LIGHT]     = 0,
+    [RZ_ASSET_CAMERA]    = 0,
+    [RZ_ASSET_AUDIO]     = 0,
+    [RZ_ASSET_FX]        = 0,
+};
+
+/* Only TRANSFORM and SCRIPT can be direct children of a zone root */
+static const u32 s_scene_graph_root_valid_mask = 
+    (1 << RZ_ASSET_TRANSFORM) | (1 << RZ_ASSET_SCRIPT);
+
+/* internal validator */
+static inline bool
+rz_scene_graph_is_valid_child(rz_asset_type parent, rz_asset_type child)
+{
+    return (s_scene_graph_child_rules[parent] & (1 << child)) != 0;
+}
+
+static inline bool
+rz_scene_graph_is_valid_root_child(rz_asset_type type)
+{
+    return (s_scene_graph_root_valid_mask & (1 << type)) != 0;
+}
+
+#ifdef __cplusplus
+}
+#endif
+```
