@@ -368,17 +368,69 @@ Each Zone has the bounds, scene hierarchy for that zone, transforms pools for th
   ; Everything below this point is zone data
   ; Never parsed unless zone is needed! 
   
-  @zone_0_0_0_data
-  (zone "zone_0_0_0"
-    (transforms ...)
-    (nodes ...))
-  
-  @zone_0_0_1_data
-  (zone "zone_0_0_1"
-    (transforms ...)
-    (nodes ...))
+
+(zone_0_0
+  (transforms
+    (0 0 0 0 0 0 0 1 1 1 1)
+    (1 50 0 50 0 0 0 1 1 1 1)
+    (2 25 10 25 0 0.707 0 0.707 2 2 2))
+
+  (transform world_root 0
+    (transform player_spawn 1
+      (mesh player_body a1b2c3d4e5f67890abcdef1234567890)
+      (material player_skin b2c3d4e5f67890abcdef234567890abc)
+      (light player_light c3d4e5f67890abcdef34567890abcd12))
+    (transform building_01 2
+      (mesh building_exterior d4e5f67890abcdef4567890abcdef123)
+      (mesh building_interior e5f67890abcdef567890abcdef1234567)
+      (material brick_wall f67890abcdef67890abcdef12345678ab)
+      (light ceiling_lamp 1234567890abcdef1234567890abcdef))))
+
+(zone_0_1
+  (transforms
+    (0 0 150 0 0 0 0 1 1 1 1)
+    (1 30 150 40 0 0 0 1 3 3 3))
+
+  (transform world_root 0
+    (transform forest_cluster 1
+      (mesh tree_01 2234567890abcdef1234567890abcdef)
+      (mesh tree_02 2234567890abcdef1234567890abcdef)
+      (mesh tree_03 2234567890abcdef1234567890abcdef)
+      (mesh rock_01 3234567890abcdef1234567890abcdef)
+      (audio ambient_birds 4234567890abcdef1234567890abcdef))))
+
+(zone_1_0
+  (transforms
+    (0 150 0 0 0 0 0 1 1 1 1)
+    (1 180 0 30 0 0.383 0 0.924 1 1 1))
+
+  (transform world_root 0
+    (script enemy_spawner 5234567890abcdef1234567890abcdef
+      (mesh spawn_marker 6234567890abcdef1234567890abcdef))
+    (transform watchtower 1
+      (mesh tower_base 7234567890abcdef1234567890abcdef)
+      (mesh tower_top 8234567890abcdef1234567890abcdef)
+      (light beacon 9234567890abcdef1234567890abcdef)
+      (camera security_cam a234567890abcdef1234567890abcdef))))
   
   ...  rest of zones ...)
+```
+## Scene Graph Grammar   ]
+```
+scene       := (scene VERSION bounds grid zone*)
+bounds      := (bounds MIN_X MIN_Y MIN_Z MAX_X MAX_Y MAX_Z)
+grid        := (grid DIM_X DIM_Y DIM_Z ZONE_SIZE)
+
+zone        := (zone NAME GRID_X GRID_Y GRID_Z MIN_X MIN_Y MIN_Z MAX_X MAX_Y MAX_Z transforms node*)
+transforms  := (transforms xform* node*)
+xform       := (INDEX)
+
+node        := transform_node | asset_node
+
+transform_node := (transform NAME XFORM_INDEX node*)
+asset_node     := (TYPE NAME UUID node*)
+
+TYPE        := mesh | material | light | camera | script | audio | fx
 ```
 
 Design FAQs?
