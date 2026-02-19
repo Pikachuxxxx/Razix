@@ -559,3 +559,27 @@ static constexpr float operator""_inKib(unsigned long long int x)
 
 #define RAZIX_VTABLE_PTR_SIZE_BYTES    8
 #define RAZIX_COLD_DATA_PTR_SIZE_BYTES 8
+
+/****************************************************************************************************
+ *                                        World Unitts                                              * 
+ ****************************************************************************************************/
+
+#define RAZIX_WORLD_UNIT_METERS      1
+#define RAZIX_WORLD_UNIT_CENTIMETERS 0.01f
+
+#define RAZIX_WORLD_UNIT      RAZIX_WORLD_UNIT_METERS
+#define RAZIX_UNITS_PER_METER (1.0f / RAZIX_WORLD_UNIT)
+
+#define RAZIX_GRAVITY        9.81f  /* m/s² */
+#define RAZIX_SPEED_OF_SOUND 343.0f /* m/s at 20°C */
+
+#define RAZIX_REF_HUMAN_HEIGHT   1.8f   /* meters */
+#define RZZIX_REF_DOOR_HEIGHT    2.1f   /* meters */
+#define RZZIX_REF_CAR_LENGTH     4.5f   /* meters */
+#define RZZIX_REF_FOOTBALL_FIELD 100.0f /* meters */
+
+#define RAZIX_SCALE_FROM_BLENDER 1.0f    /* Blender meters → Razix meters */
+#define RZZIX_SCALE_FROM_MAYA    0.01f   /* Maya cm → Razix meters */
+#define RZZIX_SCALE_FROM_3DSMAX  0.0254f /* 3ds Max inches → Razix meters */
+#define RZZIX_SCALE_FROM_HOUDINI 1.0f    /* Houdini meters → Razix meters */
+#define RZZIX_SCALE_FROM_C4D     0.01f   /* Cinema 4D cm → Razix meters */
