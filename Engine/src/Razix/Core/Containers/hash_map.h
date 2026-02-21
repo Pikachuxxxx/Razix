@@ -175,7 +175,7 @@ namespace Razix {
         bool*                 m_Occupied;
         size_type             m_Index;
         size_type             m_Capacity;
-        mutable unsigned char m_ProxyStorage[sizeof(pair_type)];
+        alignas(pair_type) mutable unsigned char m_ProxyStorage[sizeof(pair_type)];
 
         RZHashMapIterator(Key* keys, Value* values, bool* occupied, size_type capacity, size_type start_index = 0);
 
@@ -815,17 +815,15 @@ namespace Razix {
             "[RZHashMap] Hash map is not initialized");
 
         // We want a perfect fit here, so expand until we have enough capacity, unlike resize
-        while (m_Length > m_Capacity) {
-            expand();
+        if ((m_Length + count) * 2 > m_Capacity) {
+            reserve(m_Length + count);
         }
 
         const char* buffer = static_cast<const char*>(keysValuesBuffer);
         for (size_type i = 0; i < count; ++i) {
-            Key   key;
-            Value value;
-            memcpy(&key, buffer + i * (sizeof(Key) + sizeof(Value)), sizeof(Key));
-            memcpy(&value, buffer + i * (sizeof(Key) + sizeof(Value)) + sizeof(Key), sizeof(Value));
-            insert_entry(key, value);
+            const Key*   keyPtr   = reinterpret_cast<const Key*>(buffer + i * (sizeof(Key) + sizeof(Value)));
+            const Value* valuePtr = reinterpret_cast<const Value*>(buffer + i * (sizeof(Key) + sizeof(Value)) + sizeof(Key));
+            insert_entry(*keyPtr, *valuePtr);
         }
     }
 
@@ -836,8 +834,8 @@ namespace Razix {
             "[RZHashMap] Hash map is not initialized");
 
         // We want a perfect fit here, so expand until we have enough capacity, unlike resize
-        while (m_Length > m_Capacity) {
-            expand();
+        if ((m_Length + count) * 2 > m_Capacity) {
+            reserve(m_Length + count);
         }
 
         for (size_type i = 0; i < count; ++i) {

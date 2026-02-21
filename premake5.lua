@@ -109,6 +109,50 @@ function apply_engine_global_config()
     end
 end
 
+function apply_sanitizer_config()
+    local sanitizer = _OPTIONS["sanitizer"]
+    if sanitizer and sanitizer ~= "off" then
+        print("Razix sanitizers enabled: " .. sanitizer)
+        defines { "RAZIX_ENABLE_SANITIZERS" }
+
+        local clangGccSanitizeFlag = nil
+        if sanitizer == "asan" then
+            clangGccSanitizeFlag = "-fsanitize=address"
+            defines { "RAZIX_SANITIZER_ASAN" }
+        elseif sanitizer == "ubsan" then
+            clangGccSanitizeFlag = "-fsanitize=undefined"
+            defines { "RAZIX_SANITIZER_UBSAN" }
+        elseif sanitizer == "tsan" then
+            clangGccSanitizeFlag = "-fsanitize=thread"
+            defines { "RAZIX_SANITIZER_TSAN" }
+        elseif sanitizer == "asan-ubsan" then
+            clangGccSanitizeFlag = "-fsanitize=address,undefined"
+            defines { "RAZIX_SANITIZER_ASAN", "RAZIX_SANITIZER_UBSAN" }
+        else
+            print("Unknown sanitizer option: " .. sanitizer)
+        end
+
+        if clangGccSanitizeFlag then
+            filter { "toolset:clang" }
+                buildoptions { clangGccSanitizeFlag, "-fno-omit-frame-pointer", "-fno-sanitize-recover=all" }
+                linkoptions  { clangGccSanitizeFlag }
+            filter { "toolset:gcc" }
+                buildoptions { clangGccSanitizeFlag, "-fno-omit-frame-pointer", "-fno-sanitize-recover=all" }
+                linkoptions  { clangGccSanitizeFlag }
+            filter {}
+        end
+
+        if sanitizer == "asan" then
+            filter { "toolset:msc" }
+                buildoptions { "/fsanitize=address" }
+                linkoptions  { "/fsanitize=address" }
+            filter {}
+        elseif os.target() == "windows" then
+            print("Sanitizer '" .. sanitizer .. "' is not supported by MSVC. Use clang toolset or non-Windows toolchains.")
+        end
+    end
+end
+
 function install_hooks()
     if os.isdir(".git") then
         print("Installing Git hooks...")
@@ -221,6 +265,7 @@ workspace ( settings.workspace_name )
     end
 
     apply_engine_global_config()
+    apply_sanitizer_config()
     --install_hooks()
 
     ------------------------------------------------------------------------------

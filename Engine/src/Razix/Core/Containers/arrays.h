@@ -112,8 +112,6 @@ namespace Razix {
     template<typename T, size_t N>
     RZFixedArray<T, N>::~RZFixedArray()
     {
-        for (u32 i = 0; i < m_Size; ++i)
-            destroy(m_Size);
         clear();
     }
 
@@ -158,7 +156,7 @@ namespace Razix {
     template<typename T, size_t N>
     RZFixedArray<T, N>::RZFixedArray(std::initializer_list<T> init)
     {
-        reserve(init.size());
+        RAZIX_CORE_ASSERT(init.size() <= N, "RZFixedArray: Initializer list size {0} exceeds capacity {1}", init.size(), N);
         for (const auto& item: init) {
             push_back(item);
         }
@@ -343,8 +341,7 @@ namespace Razix {
     template<typename T, size_t N>
     T* RZFixedArray<T, N>::data()
     {
-        RAZIX_CORE_ASSERT(m_Data != NULL, "RZFixedArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
-        return m_Data;
+        return reinterpret_cast<T*>(m_Data);
     }
 
     template<typename T, size_t N>
@@ -796,12 +793,14 @@ namespace Razix {
         RAZIX_CORE_ASSERT(newData != NULL, "RZDynamicArray: Memory allocation failed in reserve()");
 
         // Move the old data to the new newData
-        if (m_Data != NULL && m_Size > 0) {
-            // Do element-wise move construction to the new Memory
-            // We cannot just do a memcpy because that would skip the constructor call and lead to undefined behavior for complex types
-            for (size_type i = 0; i < m_Size; ++i) {
-                new (&newData[i]) T(rz_move(m_Data[i]));
-                m_Data[i].~T();
+        if (m_Data != NULL) {
+            if (m_Size > 0) {
+                // Do element-wise move construction to the new Memory
+                // We cannot just do a memcpy because that would skip the constructor call and lead to undefined behavior for complex types
+                for (size_type i = 0; i < m_Size; ++i) {
+                    new (&newData[i]) T(rz_move(m_Data[i]));
+                    m_Data[i].~T();
+                }
             }
             rz_free(m_Data);
         }
