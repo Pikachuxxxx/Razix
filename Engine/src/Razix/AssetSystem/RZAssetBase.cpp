@@ -40,7 +40,7 @@ namespace Razix {
         RAZIX_CORE_ASSERT(pColdDataMemory != NULL, "[Asset] pColdDataMemory is NULL, creating asset with provided memory.");
 
         memset(&m_Hot, 0, sizeof(m_Hot));
-        m_Hot.UUID = RZUUID();
+        m_Hot.UUID = rz_uuid_generate();
         m_Hot.type = type;
 
         m_pCold = (RZAssetColdData*) pColdDataMemory;

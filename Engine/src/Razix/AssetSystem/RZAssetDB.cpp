@@ -314,12 +314,12 @@ namespace Razix {
 
     static void AsyncRZAssetLoadJob(void* pUserData)
     {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
         auto* jobData = reinterpret_cast<RZAssetAsyncLoadJobData*>(pUserData);
         RAZIX_CORE_ASSERT(jobData != NULL, "[AssetSystem] Invalid job data for async asset load.");
 
-        RAZIX_CORE_INFO("[AssetSystem] Asynchronously loading asset: {} of type: {} from path: {}", jobData->pAsset->getName(), jobData->AssetType, jobData->VFSFilePath);
+        RAZIX_CORE_INFO("[AssetSystem] Asynchronously loading asset: {} of type: {} from path: {}", jobData->pAsset->getName(), (u32)jobData->AssetType, jobData->VFSFilePath);
 
         AssetLoadFn loadFn = s_AssetIORegistry[(size_t) jobData->AssetType].load;
         if (loadFn) {
@@ -534,18 +534,22 @@ namespace Razix {
         return true;
     }
 
-    void RZAssetDB::requestAssetLoadFromDiskInternal(RZUUID assetUUID, std::type_index typeIdx, RZAsset* pPlaceholderAsset)
+    void RZAssetDB::requestAssetLoadFromDiskInternal(rz_uuid assetUUID, std::type_index typeIdx, RZAsset* pPlaceholderAsset)
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
         auto it = m_AssetDBDevRegistry.find(assetUUID);
         if (it == m_AssetDBDevRegistry.end()) {
-            RAZIX_CORE_WARN("[AssetSystem] Asset UUID {} not found in registry.", assetUUID.prettyString());
+            char uuid_str[37];
+            rz_uuid_to_pretty_str(&assetUUID, uuid_str);
+            RAZIX_CORE_WARN("[AssetSystem] Asset UUID {} not found in registry.", uuid_str);
             return;
         }
 
         const RZString& assetPath = it->second;
-        RAZIX_CORE_INFO("[AssetSystem] [ASYNC] Loading asset from disk: UUID={}, Path={}", assetUUID.prettyString(), assetPath);
+        char uuid_str[37];
+        rz_uuid_to_pretty_str(&assetUUID, uuid_str);
+        RAZIX_CORE_INFO("[AssetSystem] [ASYNC] Loading asset from disk: UUID={}, Path={}", uuid_str, assetPath);
         // async load the asset from disk using the path, and once loaded, update the handle in the registry with the actual rz_asset_handle
         // For now, just return an invalid handle as a placeholder
         // using the default asset immediately and then switch to the actual asset once it's loaded
@@ -594,10 +598,10 @@ namespace Razix {
             cursor += sizeof(u32);
         };
 
-        auto readUUID = [&](RZUUID& uuid) {
-            RAZIX_CORE_ASSERT(cursor + sizeof(RZUUID) <= end, "[AssetSystem] Registry read overflow (UUID).");
-            memcpy(uuid.mutable_data(), cursor, sizeof(RZUUID));
-            cursor += sizeof(RZUUID);
+        auto readUUID = [&](rz_uuid& uuid) {
+            RAZIX_CORE_ASSERT(cursor + sizeof(rz_uuid) <= end, "[AssetSystem] Registry read overflow (UUID).");
+            memcpy(uuid.data, cursor, sizeof(rz_uuid));
+            cursor += sizeof(rz_uuid);
         };
 
         i64 entryCount = 0;
@@ -605,7 +609,7 @@ namespace Razix {
         RAZIX_CORE_TRACE("[AssetSystem] Loading assetdb.bin registry with {0} entries.", entryCount);
 
         for (i64 i = 0; i < entryCount; ++i) {
-            RZUUID uuid;
+            rz_uuid uuid;
             readUUID(uuid);
 
             u32 stringSize = 0;
@@ -617,7 +621,9 @@ namespace Razix {
             path.append(reinterpret_cast<const char*>(cursor), stringSize);
             cursor += stringSize;
 
-            RAZIX_CORE_TRACE("[AssetSystem] Loaded registry entry: UUID={0}, Path={1}", uuid.prettyString(), path);
+            char uuid_str[37];
+            rz_uuid_to_pretty_str(&uuid, uuid_str);
+            RAZIX_CORE_TRACE("[AssetSystem] Loaded registry entry: UUID={0}, Path={1}", uuid_str, path);
 
             m_AssetDBDevRegistry[uuid] = path;
         }
@@ -638,7 +644,7 @@ namespace Razix {
         // file with all assets in it, used for faster iteration during development
 
         i64    entryCount       = static_cast<i64>(m_AssetDBDevRegistry.size());
-        size_t registryFileSize = sizeof(i64) + entryCount * (sizeof(RZUUID) + sizeof(u32) + RAZIX_ASSET_MAX_FILE_PATH_LENGTH);
+        size_t registryFileSize = sizeof(i64) + entryCount * (sizeof(rz_uuid) + sizeof(u32) + RAZIX_ASSET_MAX_FILE_PATH_LENGTH);
         u8*    buffer           = (u8*) rz_malloc_aligned(registryFileSize);
         u64    offset           = 0;
 
@@ -649,11 +655,13 @@ namespace Razix {
         // Compute total size needed: 4 bytes for entry count + (16 bytes for UUID + 4 bytes for string length + string bytes) per entryCount
 
         for (const auto& [uuid, path]: m_AssetDBDevRegistry) {
-            RAZIX_CORE_TRACE("[AssetSystem] Registry entry to export: UUID={0}, Path={1}", uuid.prettyString(), path);
+            char uuid_str[37];
+            rz_uuid_to_pretty_str(&uuid, uuid_str);
+            RAZIX_CORE_TRACE("[AssetSystem] Registry entry to export: UUID={0}, Path={1}", uuid_str, path);
 
             // Write uuid
-            memcpy(buffer + offset, uuid.data(), sizeof(RZUUID));
-            offset += sizeof(RZUUID);
+            memcpy(buffer + offset, uuid.data, sizeof(rz_uuid));
+            offset += sizeof(rz_uuid);
 
             // Write string length
             u32 stringLength = static_cast<u32>(path.size());

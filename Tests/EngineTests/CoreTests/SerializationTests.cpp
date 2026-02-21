@@ -147,7 +147,7 @@ namespace Razix {
     // UUID test struct
     struct PlayerIDs
     {
-        RZUUID id;
+        rz_uuid id;
     };
 
     RAZIX_REFLECT_TYPE_START(PlayerIDs)
@@ -441,7 +441,7 @@ namespace Razix {
 
     TEST_F(RZSerializationTests, UUIDTest)
     {
-        RZUUID uuid;
+        rz_uuid uuid;
 
         PlayerIDs original = {};
         original.id        = uuid;
@@ -641,7 +641,7 @@ namespace Razix {
         ASSERT_NE(metaData, nullptr) << "Metadata for RZAssetHotData should not be null.";
 
         RZAssetHotData original    = {};
-        original.UUID              = RZUUID();
+        original.UUID              = rz_uuid_generate();
         original.referenceCount    = 42;
         original.type              = RZAssetType::kTexture;
         original.storagePreference = RZAssetStorageType::kGPUBacked;
@@ -679,7 +679,7 @@ namespace Razix {
         original.author                 = "Pikachuxxxx";
         original.description            = "A fancy asset";
         original.commitHash             = "deadbeefcafe";
-        original.version.revisionID     = RZUUID();
+        original.version.revisionID     = rz_uuid_generate();
         original.version.major          = 44;
         original.packlastModified       = rz_date_pack({20203, 12, 23});
         original.createdDate            = rz_date_pack({20203, 12, 23});
@@ -716,7 +716,7 @@ namespace Razix {
         ASSERT_NE(metaData, nullptr) << "Metadata for RZAssetDependecy should not be null.";
 
         Razix::RZAssetDependecy original = {};
-        original.assetID                 = RZUUID();
+        original.assetID                 = rz_uuid_generate();
         original.type                    = Razix::RZAssetType::kAnimation;
 
         auto serializedData = RZSerializable<Razix::RZAssetDependecy>::serializeToBinary(original, heapAllocator);
@@ -746,10 +746,10 @@ namespace Razix {
 
         // Fill dependencies array
         Razix::RZAssetDependecy dep1 = {};
-        dep1.assetID                 = RZUUID();
+        dep1.assetID                 = rz_uuid_generate();
         dep1.type                    = Razix::RZAssetType::kLuaScript;
         Razix::RZAssetDependecy dep2 = {};
-        dep2.assetID                 = RZUUID();
+        dep2.assetID                 = rz_uuid_generate();
         dep2.type                    = Razix::RZAssetType::kMesh;
         original.dependencies.push_back(dep1);
         original.dependencies.push_back(dep2);
@@ -759,7 +759,7 @@ namespace Razix {
         original.metadata.author             = "Pikachuxxxx";
         original.metadata.description        = "A dependency test asset";
         original.metadata.commitHash         = "abcdef";
-        original.metadata.version.revisionID = RZUUID();
+        original.metadata.version.revisionID = rz_uuid_generate();
         original.metadata.version.major      = 99;
         original.metadata.packlastModified   = rz_date_pack({20203, 12, 23});
         original.metadata.createdDate        = rz_date_pack({20203, 12, 23});
@@ -810,7 +810,7 @@ namespace Razix {
         meta.author                 = "Pikachuxxxx";
         meta.description            = "All fields fully filled";
         meta.commitHash             = "babe123deadbeef";
-        meta.version.revisionID     = RZUUID();
+        meta.version.revisionID     = rz_uuid_generate();
         meta.version.major          = 123456789;
         meta.packlastModified       = rz_date_pack({20203, 12, 23});
         meta.createdDate            = rz_date_pack({20203, 12, 23});
@@ -819,7 +819,7 @@ namespace Razix {
         Razix::RZAssetType assetType = Razix::RZAssetType::kCloth;
         Razix::RZAsset     asset(assetType, coldData);
 
-        RZUUID uuid = RZUUID();
+        rz_uuid uuid = rz_uuid_generate();
         asset.setUUID(uuid);
 
         asset.setType(assetType);
@@ -835,7 +835,7 @@ namespace Razix {
 
         for (int i = 0; i < 3; ++i) {
             Razix::RZAssetDependecy dep = {};
-            dep.assetID                 = RZUUID();
+            dep.assetID                 = rz_uuid_generate();
             dep.type                    = static_cast<Razix::RZAssetType>(((int) Razix::RZAssetType::kLuaScript + i) % (int) Razix::RZAssetType::COUNT);
             asset.addDependency(dep.type, dep.assetID);
         }
@@ -972,7 +972,7 @@ namespace Razix {
         ASSERT_NE(metaData, nullptr) << "Metadata for RZAssetRefAsset should not be null.";
 
         RZAssetRefAsset original = {};
-        original.AssetUUID       = RZUUID();
+        original.AssetUUID       = rz_uuid_generate();
         auto serializedData      = RZSerializable<RZAssetRefAsset>::serializeToBinary(original, heapAllocator);
         EXPECT_GT(serializedData.size(), 0);
 

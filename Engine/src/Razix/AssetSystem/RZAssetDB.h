@@ -309,7 +309,7 @@ namespace Razix {
         // Unified load
         // Checks RZEngine::BuildMode and calls either loadAssetFromDisk or loadAssetFromPak
         template<typename T>
-        rz_asset_handle requestAssetLoad(RZUUID assetUUID)
+        rz_asset_handle requestAssetLoad(rz_uuid assetUUID)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 #if RAZIX_IS_DEVELOPMENT_BUILD
@@ -327,7 +327,7 @@ namespace Razix {
         // Paks are owned by scenegraph, so they will call these functions to load/save assets from/to paks
         bool saveAssetToDisk(rz_asset_handle handle) const;
         template<typename T>
-        rz_asset_handle requestAssetLoadFromDisk(RZUUID assetUUID)
+        rz_asset_handle requestAssetLoadFromDisk(rz_uuid assetUUID)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
 
@@ -339,7 +339,9 @@ namespace Razix {
             // TODO: check if an asset handle with given UUID exists already before creating a new one
             auto                    it = m_AssetDBDevRegistry.find(assetUUID);
             if (it == m_AssetDBDevRegistry.end()) {
-                RAZIX_CORE_WARN("[AssetSystem] Asset UUID {} not found in registry.", assetUUID.prettyString());
+                char uuid_str[37];
+                rz_uuid_to_pretty_str(&assetUUID, uuid_str);
+                RAZIX_CORE_WARN("[AssetSystem] Asset UUID {} not found in registry.", uuid_str);
                 return RAZIX_ASSET_INVALID_HANDLE;
             }
 
@@ -357,7 +359,7 @@ namespace Razix {
 
             return handle;
         }
-        void requestAssetLoadFromDiskInternal(RZUUID assetUUID, std::type_index typeIdx, RZAsset* pPlaceholderAsset);
+        void requestAssetLoadFromDiskInternal(rz_uuid assetUUID, std::type_index typeIdx, RZAsset* pPlaceholderAsset);
 
         // In development builds, we can save/load the entire registry to a single file for faster iteration
         // called when AssetDB startup/shutsdown happens
@@ -369,7 +371,7 @@ namespace Razix {
 
         // Pak file variants
         bool            saveAssetToPak(rz_asset_handle handle, RZPakFile* pakFile) const;
-        rz_asset_handle loadAssetFromPak(RZUUID assetUUID, RZPakFile* pakFile);
+        rz_asset_handle loadAssetFromPak(rz_uuid assetUUID, RZPakFile* pakFile);
 
         // Called Async by the SceneManager when it loads new zones from main game thread,
         // once the pak file is loaded, it will call this function to load all assets from
@@ -404,9 +406,9 @@ namespace Razix {
 
         //Not using union to avoid lifetime issues with non-trivial types
 #ifdef RAZIX_IS_DEVELOPMENT_BUILD
-        RZHashMap<RZUUID, RZString> m_AssetDBDevRegistry;    // Used in Development buillds
+        RZHashMap<rz_uuid, RZString> m_AssetDBDevRegistry;    // Used in Development buillds
 #elif RAZIX_IS_SHIPPING_BUILD
-        RZHashMap<RZUUID, RZPakFile*> m_AssetPakRegistry;    // Used in Shipping builds
+        RZHashMap<rz_uuid, RZPakFile*> m_AssetPakRegistry;    // Used in Shipping builds
 #endif    // RAZIX_IS_SHIPPING_BUILD
     };
 

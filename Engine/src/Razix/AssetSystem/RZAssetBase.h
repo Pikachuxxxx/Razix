@@ -98,7 +98,7 @@ namespace Razix {
     RAZIX_ALIGN_TO(MEM_DEF_ALIGNMENT_16)
     typedef struct RZAssetVersion
     {
-        RZUUID revisionID = {};    // unique ID for the asset revision
+        rz_uuid revisionID = {};    // unique ID for the asset revision
         u64    major      = 0;     // major version
         u64    _pad0      = 0;
     } RZAssetVersion;
@@ -143,7 +143,7 @@ namespace Razix {
 
     struct RAZIX_ALIGN_TO(MEM_DEF_ALIGNMENT_16) RZAssetDependecy
     {
-        RZUUID      assetID;
+        rz_uuid      assetID;
         RZAssetType type;
         u8          _pad0[12];
     };
@@ -158,7 +158,7 @@ namespace Razix {
     // This way we can avoid multiple cache line loads for accessing cold/vptr pointers, and still keep hot data active, ofc we will have very less hot data space left, 15 bytes for future use
     struct RAZIX_ALIGN_TO(8) RZAssetHotData
     {
-        RZUUID             UUID;
+        rz_uuid             UUID;
         rz_asset_handle    handle;
         rz_atomic_u64      referenceCount;
         RZAssetType        type;
@@ -240,8 +240,8 @@ namespace Razix {
 
         inline rz_asset_handle    getHandle() const { return m_Hot.handle; }
         inline void               setHandle(rz_asset_handle h) { m_Hot.handle = h; }
-        inline const RZUUID&      getUUID() const { return m_Hot.UUID; }
-        inline void               setUUID(const RZUUID& uuid) { m_Hot.UUID = uuid; }
+        inline const rz_uuid&      getUUID() const { return m_Hot.UUID; }
+        inline void               setUUID(const rz_uuid& uuid) { m_Hot.UUID = uuid; }
         inline RZAssetType        getType() const { return m_Hot.type; }
         inline void               setType(RZAssetType type) { m_Hot.type = type; }
         inline RZAssetStorageType getStoragePreference() const { return m_Hot.storagePreference; }
@@ -305,7 +305,7 @@ namespace Razix {
             return m_pCold->metadata.name;
         }
 
-        inline void addDependency(RZAssetType assetType, const RZUUID& assetID)
+        inline void addDependency(RZAssetType assetType, const rz_uuid& assetID)
         {
             RAZIX_ASSERT(m_pCold != NULL, "Cold data not initialized");
             RZAssetDependecy dep = {};
@@ -350,7 +350,7 @@ namespace Razix {
             rz_critical_section_unlock(&m_pCold->CS);
         }
 
-        inline RZUUID operator()() { return m_Hot.UUID; }
+        inline rz_uuid operator()() { return m_Hot.UUID; }
         inline bool   operator==(RZAsset& other) { return m_Hot.UUID == other.m_Hot.UUID; }
         inline bool   operator!=(RZAsset& other) { return m_Hot.UUID != other.m_Hot.UUID; }
 

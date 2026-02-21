@@ -96,7 +96,7 @@ namespace Razix {
         inline RZString              getAppName() const { return m_ProjectName; }
         inline RZString              getProjectRoot() const { return m_ProjectPath; }
         inline void                  setProjectRoot(const RZString& projPath) { m_ProjectPath = projPath; }
-        inline RZUUID                getProjectUUID() const { return m_ProjectID; }
+        inline rz_uuid                getProjectUUID() const { return m_ProjectID; }
         inline void                  setViewportWindow(RZWindow* viewportWindow) { m_Window = viewportWindow; }
         inline AppType               getAppType() const { return m_appType; }
         inline void                  setAppType(AppType appType) { m_appType = appType; }
@@ -120,7 +120,7 @@ namespace Razix {
         rz_time_stamp            m_TotalTimeElapsedInSeconds = {};
         RZTimestep               m_FPSTimestep               = {};
         RZTimestep               m_UPSTimestep               = {};
-        RZUUID                   m_ProjectID                 = {};
+        rz_uuid                   m_ProjectID                 = {};
         RZDynamicArray<RZString> m_SceneFilePaths            = {};
         RZEventDispatcher        m_EventDispatcher           = {};
         WindowProperties         m_WindowProperties          = {};

@@ -497,7 +497,7 @@ namespace Razix {
 
         {
             RZString uuid_string(root[RZ_JSON_KEY_PROJECT_ID].get<std::string>().c_str());
-            m_ProjectID = RZUUID::FromPrettyStrFactory(uuid_string);
+            m_ProjectID = rz_uuid_from_pretty_str(uuid_string.c_str());
         }
 
         m_WindowProperties.Width  = static_cast<u32>(root[RZ_JSON_KEY_WIDTH].get<u32>());
@@ -529,7 +529,9 @@ namespace Razix {
 
         root[RZ_JSON_KEY_PROJECT_NAME]   = std::string(m_ProjectName.c_str());
         root[RZ_JSON_KEY_ENGINE_VERSION] = std::string(Razix::RazixVersion.getVersionString().c_str());
-        root[RZ_JSON_KEY_PROJECT_ID]     = std::string(m_ProjectID.prettyString().c_str());
+        char uuid_str[37];
+        rz_uuid_to_pretty_str(&m_ProjectID, uuid_str);
+        root[RZ_JSON_KEY_PROJECT_ID]     = std::string(uuid_str);
         root[RZ_JSON_KEY_WIDTH]          = width;
         root[RZ_JSON_KEY_HEIGHT]         = height;
 

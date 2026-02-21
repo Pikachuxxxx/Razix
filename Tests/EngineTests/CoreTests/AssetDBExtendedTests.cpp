@@ -392,8 +392,7 @@ namespace Razix {
 
         RZAssetRefAsset* ref = db().getAssetResourceMutablePtr<RZAssetRefAsset>(handle);
         ASSERT_NE(ref, nullptr);
-        ref->AssetUUID = RZUUID();
-        EXPECT_NE(ref->AssetUUID.data(), nullptr);
+        ref->AssetUUID = rz_uuid_generate();
         db().destroyAsset<RZAssetRefAsset>(handle);
     }
 
@@ -690,7 +689,7 @@ namespace Razix {
         rz_asset_handle h = db().createAsset<RZAssetRefAsset>("SaveRef");
         ASSERT_NE(h, RAZIX_ASSET_INVALID_HANDLE);
         RZAssetRefAsset* ref = db().getAssetResourceMutablePtr<RZAssetRefAsset>(h);
-        ref->AssetUUID       = RZUUID();
+        ref->AssetUUID       = rz_uuid_generate();
 
         EXPECT_TRUE(db().saveAssetToDisk(h));
         VerifyAssetFileMagic(ResolveAssetPhysicalPath(RZAssetType::kAssetRef, "SaveRef"));
@@ -766,11 +765,11 @@ namespace Razix {
         ASSERT_NE(hMat, RAZIX_ASSET_INVALID_HANDLE);
 
         // Collect UUIDs before shutdown
-        RZUUID uuidCam   = db().getAssetHeader(hCam)->getUUID();
-        RZUUID uuidLight = db().getAssetHeader(hLight)->getUUID();
-        RZUUID uuidAudio = db().getAssetHeader(hAudio)->getUUID();
-        RZUUID uuidMesh  = db().getAssetHeader(hMesh)->getUUID();
-        RZUUID uuidMat   = db().getAssetHeader(hMat)->getUUID();
+        rz_uuid uuidCam   = db().getAssetHeader(hCam)->getUUID();
+        rz_uuid uuidLight = db().getAssetHeader(hLight)->getUUID();
+        rz_uuid uuidAudio = db().getAssetHeader(hAudio)->getUUID();
+        rz_uuid uuidMesh  = db().getAssetHeader(hMesh)->getUUID();
+        rz_uuid uuidMat   = db().getAssetHeader(hMat)->getUUID();
 
         // Shutdown exports registry to assetdb.bin
         db().Shutdown();
@@ -795,10 +794,10 @@ namespace Razix {
         // when the UUID is in the registry vs INVALID_HANDLE when it's not.
 
         // This UUID was never registered — should fail
-        RZUUID bogusUUID;
+        rz_uuid bogusUUID;
         rz_asset_handle hBogus = db().requestAssetLoad<RZCameraAsset>(bogusUUID);
         // Note: bogusUUID is a fresh UUID that was never in the registry, so this should fail
-        // However, RZUUID() generates a new random UUID, so it won't match any entry
+        // However, rz_uuid_generate() generates a new random UUID, so it won't match any entry
         EXPECT_EQ(hBogus, RAZIX_ASSET_INVALID_HANDLE);
     }
 
@@ -836,7 +835,7 @@ namespace Razix {
         cam->PerspectiveFar  = 5000.0f;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 
-        RZUUID uuid = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid uuid = db().getAssetHeader(hOrig)->getUUID();
 
         // Request async load — returns a placeholder handle immediately
         rz_asset_handle hLoaded = db().requestAssetLoad<RZCameraAsset>(uuid);
@@ -874,7 +873,7 @@ namespace Razix {
         light->Type            = RZ_LIGHT_TYPE_DIRECTIONAL;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 
-        RZUUID          uuid    = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid          uuid    = db().getAssetHeader(hOrig)->getUUID();
         rz_asset_handle hLoaded = db().requestAssetLoad<RZLightAsset>(uuid);
         ASSERT_NE(hLoaded, RAZIX_ASSET_INVALID_HANDLE);
         rz_job_system_wait_for_all();
@@ -901,7 +900,7 @@ namespace Razix {
         mat->NormalStrength   = 1.2f;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 
-        RZUUID          uuid    = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid          uuid    = db().getAssetHeader(hOrig)->getUUID();
         rz_asset_handle hLoaded = db().requestAssetLoad<RZMaterialAsset>(uuid);
         ASSERT_NE(hLoaded, RAZIX_ASSET_INVALID_HANDLE);
         rz_job_system_wait_for_all();
@@ -928,7 +927,7 @@ namespace Razix {
         mesh->BoundsRadius = 8.66f;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 
-        RZUUID          uuid    = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid          uuid    = db().getAssetHeader(hOrig)->getUUID();
         rz_asset_handle hLoaded = db().requestAssetLoad<RZMeshAsset>(uuid);
         ASSERT_NE(hLoaded, RAZIX_ASSET_INVALID_HANDLE);
         rz_job_system_wait_for_all();
@@ -954,7 +953,7 @@ namespace Razix {
         tex->Desc.mipLevels = 12;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 
-        RZUUID          uuid    = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid          uuid    = db().getAssetHeader(hOrig)->getUUID();
         rz_asset_handle hLoaded = db().requestAssetLoad<RZTextureAsset>(uuid);
         ASSERT_NE(hLoaded, RAZIX_ASSET_INVALID_HANDLE);
         rz_job_system_wait_for_all();
@@ -981,7 +980,7 @@ namespace Razix {
         anim->bShouldLoop = false;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 
-        RZUUID          uuid    = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid          uuid    = db().getAssetHeader(hOrig)->getUUID();
         rz_asset_handle hLoaded = db().requestAssetLoad<RZAnimationAsset>(uuid);
         ASSERT_NE(hLoaded, RAZIX_ASSET_INVALID_HANDLE);
         rz_job_system_wait_for_all();
@@ -1010,7 +1009,7 @@ namespace Razix {
         audio->bIsLooping   = true;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 
-        RZUUID          uuid    = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid          uuid    = db().getAssetHeader(hOrig)->getUUID();
         rz_asset_handle hLoaded = db().requestAssetLoad<RZAudioAsset>(uuid);
         ASSERT_NE(hLoaded, RAZIX_ASSET_INVALID_HANDLE);
         rz_job_system_wait_for_all();
@@ -1037,7 +1036,7 @@ namespace Razix {
         script->bAutoReload      = true;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 
-        RZUUID          uuid    = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid          uuid    = db().getAssetHeader(hOrig)->getUUID();
         rz_asset_handle hLoaded = db().requestAssetLoad<RZLuaScriptAsset>(uuid);
         ASSERT_NE(hLoaded, RAZIX_ASSET_INVALID_HANDLE);
         rz_job_system_wait_for_all();
@@ -1066,7 +1065,7 @@ namespace Razix {
         pm->bIsTrigger      = false;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 
-        RZUUID          uuid    = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid          uuid    = db().getAssetHeader(hOrig)->getUUID();
         rz_asset_handle hLoaded = db().requestAssetLoad<RZPhysicsMaterialAsset>(uuid);
         ASSERT_NE(hLoaded, RAZIX_ASSET_INVALID_HANDLE);
         rz_job_system_wait_for_all();
@@ -1087,11 +1086,11 @@ namespace Razix {
         rz_asset_handle hOrig = db().createAsset<RZAssetRefAsset>("AsyncRef");
         ASSERT_NE(hOrig, RAZIX_ASSET_INVALID_HANDLE);
         RZAssetRefAsset* ref = db().getAssetResourceMutablePtr<RZAssetRefAsset>(hOrig);
-        RZUUID           refTargetUUID;    // fresh UUID
+        rz_uuid           refTargetUUID;    // fresh UUID
         ref->AssetUUID = refTargetUUID;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 
-        RZUUID          uuid    = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid          uuid    = db().getAssetHeader(hOrig)->getUUID();
         rz_asset_handle hLoaded = db().requestAssetLoad<RZAssetRefAsset>(uuid);
         ASSERT_NE(hLoaded, RAZIX_ASSET_INVALID_HANDLE);
         rz_job_system_wait_for_all();
@@ -1117,7 +1116,7 @@ namespace Razix {
         gd->LastPlayedLevel    = "FinalChapter";
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 
-        RZUUID          uuid    = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid          uuid    = db().getAssetHeader(hOrig)->getUUID();
         rz_asset_handle hLoaded = db().requestAssetLoad<RZGameDataAsset>(uuid);
         ASSERT_NE(hLoaded, RAZIX_ASSET_INVALID_HANDLE);
         rz_job_system_wait_for_all();
@@ -1148,7 +1147,7 @@ namespace Razix {
         cloth->bIsSimulating   = true;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 
-        RZUUID          uuid    = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid          uuid    = db().getAssetHeader(hOrig)->getUUID();
         rz_asset_handle hLoaded = db().requestAssetLoad<RZClothAsset>(uuid);
         ASSERT_NE(hLoaded, RAZIX_ASSET_INVALID_HANDLE);
         rz_job_system_wait_for_all();
@@ -1174,7 +1173,7 @@ namespace Razix {
         puzzle->bIsSolved = false;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 
-        RZUUID          uuid    = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid          uuid    = db().getAssetHeader(hOrig)->getUUID();
         rz_asset_handle hLoaded = db().requestAssetLoad<RZVignerePuzzleAsset>(uuid);
         ASSERT_NE(hLoaded, RAZIX_ASSET_INVALID_HANDLE);
         rz_job_system_wait_for_all();
@@ -1202,7 +1201,7 @@ namespace Razix {
         cam->MovementSpeed = 1.0f;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 
-        RZUUID uuid = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid uuid = db().getAssetHeader(hOrig)->getUUID();
 
         // Request load — header should immediately have placeholder flags
         rz_asset_handle hLoaded = db().requestAssetLoad<RZCameraAsset>(uuid);
@@ -1227,7 +1226,7 @@ namespace Razix {
         {
             rz_asset_handle origHandle;
             rz_asset_handle loadedHandle;
-            RZUUID          uuid;
+            rz_uuid          uuid;
         };
 
         AssetEntry entries[10];
@@ -1328,7 +1327,7 @@ namespace Razix {
         RZCameraAsset* cam = db().getAssetResourceMutablePtr<RZCameraAsset>(hOrig);
         cam->MovementSpeed = 99.0f;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
-        RZUUID uuid = db().getAssetHeader(hOrig)->getUUID();
+        rz_uuid uuid = db().getAssetHeader(hOrig)->getUUID();
 
         auto start = Clock::now();
 
@@ -1353,7 +1352,7 @@ namespace Razix {
 
         rz_asset_handle origHandles[kBatchSize];
         rz_asset_handle loadHandles[kBatchSize];
-        RZUUID          uuids[kBatchSize];
+        rz_uuid          uuids[kBatchSize];
 
         // Create and save 20 camera assets with distinct data
         for (u32 i = 0; i < kBatchSize; ++i) {

@@ -782,15 +782,15 @@ namespace Razix {
 
         static void processUUID(Archive& ar, u8* base, const MemberMetaData& member)
         {
-            RAZIX_CORE_ASSERT(member.uuid.ops.get_data != NULL, "RZUUID get_data function pointer is null");
-            RAZIX_CORE_ASSERT(member.uuid.ops.set_data != NULL, "RZUUID ops set_data function pointer is null");
+            RAZIX_CORE_ASSERT(member.uuid.ops.get_data != NULL, "rz_uuid get_data function pointer is null");
+            RAZIX_CORE_ASSERT(member.uuid.ops.set_data != NULL, "rz_uuid ops set_data function pointer is null");
 
             if (ar.mode == RZArchiveMode::kWrite) {
                 // UUID is trivially sized; no out-of-line payload needed, but keep symmetry.
-                ar.write(base + member.offset, sizeof(RZUUID));
+                ar.write(base + member.offset, sizeof(rz_uuid));
             } else {
-                ar.read(base + member.offset, sizeof(RZUUID));
-                RZUUID* uuid = reinterpret_cast<RZUUID*>(base + member.offset);
+                ar.read(base + member.offset, sizeof(rz_uuid));
+                rz_uuid* uuid = reinterpret_cast<rz_uuid*>(base + member.offset);
                 member.uuid.ops.set_data(uuid, base + member.offset);
             }
         }

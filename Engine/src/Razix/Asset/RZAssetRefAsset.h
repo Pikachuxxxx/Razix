@@ -13,7 +13,7 @@ namespace Razix {
     {
         RAZIX_ASSET
 
-        RZUUID AssetUUID;
+        rz_uuid AssetUUID;
     };
 
     RAZIX_REFLECT_TYPE_START(RZAssetRefAsset)

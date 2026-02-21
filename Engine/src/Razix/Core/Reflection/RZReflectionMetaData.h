@@ -84,22 +84,20 @@ namespace Razix {
             }};
     }
 
-    class RZUUID;
-
     struct UUIDOps
     {
-        const void* (*get_data)(const RZUUID*);
-        void (*set_data)(RZUUID*, const void*);
+        const void* (*get_data)(const rz_uuid*);
+        void (*set_data)(rz_uuid*, const void*);
     };
 
     constexpr UUIDOps make_uuid_ops()
     {
         return {
-            +[](const RZUUID* uuid) -> const void* {
-                return uuid->data();
+            +[](const rz_uuid* uuid) -> const void* {
+                return uuid->data;
             },
-            +[](RZUUID* uuid, const void* data) {
-                uuid->setData(static_cast<const u8*>(data));
+            +[](rz_uuid* uuid, const void* data) {
+                memcpy(uuid->data, data, 16);
             }};
     }
 
