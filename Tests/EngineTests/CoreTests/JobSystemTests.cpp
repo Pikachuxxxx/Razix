@@ -262,12 +262,17 @@ namespace Razix {
             rz_atomic_u32 counter = 0u;
             rz_atomic32_store(&counter, 0u, RZ_MEMORY_ORDER_RELAXED);
 
-            RZDynamicArray<TestJob>     jobs(kJobCount);
-            RZDynamicArray<CounterData> payloads(kJobCount);
+            RZDynamicArray<TestJob>     jobs;
+            jobs.reserve(kJobCount);
+            RZDynamicArray<CounterData> payloads;
+            payloads.reserve(kJobCount);
 
             for (u32 i = 0; i < kJobCount; ++i) {
                 payloads.push_back(CounterData{&counter});
                 jobs.push_back(TestJob{});
+            }
+
+            for (u32 i = 0; i < kJobCount; ++i) {
                 jobs[i].prepare(&payloads[i], CounterFunc);
                 rz_job_system_submit_job(&jobs[i].job);
             }
@@ -353,13 +358,18 @@ namespace Razix {
                                 .count();
 
             // --- parallel ---
-            RZDynamicArray<TestJob>   jobs(kJobCount);
-            RZDynamicArray<SimIoData> payloads(kJobCount);
+            RZDynamicArray<TestJob>   jobs;
+            jobs.reserve(kJobCount);
+            RZDynamicArray<SimIoData> payloads;
+            payloads.reserve(kJobCount);
 
             auto parallelStart = Clock::now();
             for (u32 i = 0; i < kJobCount; ++i) {
                 payloads.push_back(SimIoData{&bytesProcessed, &completed, kWorkPerJobUs, kBytesPerJob});
                 jobs.push_back(TestJob{});
+            }
+
+            for (u32 i = 0; i < kJobCount; ++i) {
                 jobs[i].prepare(&payloads[i], SimIoFunc);
                 rz_job_system_submit_job(&jobs[i].job);
             }

@@ -25,17 +25,21 @@ static void _rz_global_queue_push_(rz_job* pJob)
 {
     if (pJob == NULL) return;
 
-    u32 head     = rz_atomic32_load(&g_JobSystem.globalQueue.head, RZ_MEMORY_ORDER_ACQUIRE);
-    u32 tail     = rz_atomic32_load(&g_JobSystem.globalQueue.tail, RZ_MEMORY_ORDER_ACQUIRE);
-    u32 nextTail = (tail + 1) & (RAZIX_MAX_GLOBAL_JOBS_QUEUE_SIZE - 1);
+    while (1) {
+        u32 head     = rz_atomic32_load(&g_JobSystem.globalQueue.head, RZ_MEMORY_ORDER_ACQUIRE);
+        u32 tail     = rz_atomic32_load(&g_JobSystem.globalQueue.tail, RZ_MEMORY_ORDER_ACQUIRE);
+        u32 nextTail = (tail + 1) & (RAZIX_MAX_GLOBAL_JOBS_QUEUE_SIZE - 1);
 
-    if (nextTail == head) {
-        RAZIX_CORE_ERROR("[JobSystem] Global queue is full, failed to add Job! ==> CATASTROPIC EFFECT, JOB LOST!");
-        return;
+        if (nextTail == head) {
+            RAZIX_CORE_ERROR("[JobSystem] Global queue is full, failed to add Job! ==> CATASTROPIC EFFECT, JOB LOST!");
+            return;
+        }
+
+        if (rz_atomic32_cas(&g_JobSystem.globalQueue.tail, tail, nextTail, RZ_MEMORY_ORDER_ACQ_REL)) {
+            g_JobSystem.globalQueue.ppJobs[tail] = pJob;
+            return;
+        }
     }
-
-    g_JobSystem.globalQueue.ppJobs[tail] = pJob;
-    rz_atomic32_store(&g_JobSystem.globalQueue.tail, nextTail, RZ_MEMORY_ORDER_RELEASE);
 }
 
 static rz_job* _rz_global_queue_pop_()
@@ -49,8 +53,15 @@ static rz_job* _rz_global_queue_pop_()
 
         u32 nextHead = (head + 1) & (RAZIX_MAX_GLOBAL_JOBS_QUEUE_SIZE - 1);
 
-        if (rz_atomic32_cas(&g_JobSystem.globalQueue.head, head, nextHead, RZ_MEMORY_ORDER_ACQ_REL))
-            return g_JobSystem.globalQueue.ppJobs[head];
+        if (rz_atomic32_cas(&g_JobSystem.globalQueue.head, head, nextHead, RZ_MEMORY_ORDER_ACQ_REL)) {
+            // Wait for producer to finish writing the job pointer
+            while (g_JobSystem.globalQueue.ppJobs[head] == NULL) {
+                RAZIX_YIELD();
+            }
+            rz_job* pJob = g_JobSystem.globalQueue.ppJobs[head];
+            g_JobSystem.globalQueue.ppJobs[head] = NULL;
+            return pJob;
+        }
     }
 }
 
@@ -183,8 +194,12 @@ static inline void _rz_job_execute_(rz_job* pJob)
     for (u32 i = 0; i < pJob->hot.blockedByCount; ++i) {
         rz_job* pDependent = pJob->pCold->pBlockedBy[i];
         u32     old        = rz_atomic32_decrement(&pDependent->hot.blockedByCount, RZ_MEMORY_ORDER_RELEASE);
-        if (old == 1)
-            _rz_worker_local_queue_push_(pTLS_CurrentWorker, pJob);
+        if (old == 1) {
+            if (pTLS_CurrentWorker)
+                _rz_worker_local_queue_push_(pTLS_CurrentWorker, pDependent);
+            else
+                _rz_global_queue_push_(pDependent);
+        }
     }
     rz_atomic32_decrement(&g_JobSystem.jobsInSystem, RZ_MEMORY_ORDER_RELEASE);
 }
