@@ -416,7 +416,7 @@ namespace Razix {
             PopulateLinesDrawList(false, start, end, colour);
         }
 
-        void RZDebugDraw::DrawAABB(const Maths::AABB& box, const float4& edgeColour, bool cornersOnly /*= false*/, f32 width /*= 0.02f*/)
+        void RZDebugDraw::DrawAABB(const rz_aabb& box, const float4& edgeColour, bool cornersOnly /*= false*/, f32 width /*= 0.02f*/)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Razix/Math/AABB.h"
+#include "Razix/Math/RZAABB.h"
 
 #include "glm/common.hpp"
 #include "glm/vec3.hpp"
@@ -19,9 +19,9 @@ namespace Razix {
             /**
              * The cell size for the grid is defined by the GI and Tiling implementation so it's defined there
              */
-            RZGrid(const AABB& aabb) {}
+            RZGrid(const rz_aabb& aabb) {}
 
-            AABB  aabb;     /* aabb of the Grid                     */
+            rz_aabb  aabb;     /* aabb of the Grid                     */
             uint3 size;     /* Total dimensions of the grid         */
             f32   cellSize; /* The size of each cell in the grid    */
         };

@@ -759,8 +759,10 @@ namespace Razix {
                     //    // Bind push constants, VBO, IBO and draw
                     //    float4x4 transform = mesh_trans.GetGlobalTransform();
                     //
-                    //    if (mrc.Mesh && mrc.enableBoundingBoxes)
-                    //        RZDebugDraw::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), float4(0.0f, 1.0f, 0.0f, 1.0f));
+                    //    rz_aabb box = mrc.Mesh->getBoundingBox();
+                    //    rz_aabb transformed_box;
+                    //    rz_aabb_transform(&transformed_box, &box, &transform);
+                    //    RZDebugDraw::DrawAABB(transformed_box, float4(0.0f, 1.0f, 0.0f, 1.0f));
                     //}
 
                     //auto rt = resources.get<RZFrameGraphTexture>(data.DebugRT).getRHIHandle();
