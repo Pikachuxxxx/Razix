@@ -193,7 +193,7 @@ namespace Razix {
         if (fd == -1) {
             return RAZIX_INVALID_FILE_HANDLE;
         }
-        return static_cast<u64>(fd); 
+        return static_cast<u64>(fd);
     }
 
     void RZFileSystem::CloseFile(const RZFileHandle& fileHandle)

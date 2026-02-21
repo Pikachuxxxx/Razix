@@ -20,21 +20,22 @@
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-typedef struct rz_uuid
-{
-    uint8_t data[16];
-} rz_uuid;
+    typedef struct rz_uuid
+    {
+        uint8_t data[16];
+    } rz_uuid;
 
-RAZIX_API rz_uuid rz_uuid_generate();
-RAZIX_API rz_uuid rz_uuid_from_str(const char* str);
-RAZIX_API rz_uuid rz_uuid_from_pretty_str(const char* str);
-RAZIX_API void    rz_uuid_to_bytes(const rz_uuid* uuid, char* out_bytes);
-RAZIX_API void    rz_uuid_to_pretty_str(const rz_uuid* uuid, char* out_str);
-RAZIX_API uint64_t rz_uuid_hash(const rz_uuid* uuid);
-RAZIX_API int     rz_uuid_compare(const rz_uuid* a, const rz_uuid* b);
+    RAZIX_API rz_uuid  rz_uuid_generate();
+    RAZIX_API rz_uuid  rz_uuid_from_str(const char* str);
+    RAZIX_API rz_uuid  rz_uuid_from_pretty_str(const char* str);
+    RAZIX_API void     rz_uuid_to_bytes(const rz_uuid* uuid, char* out_bytes);
+    RAZIX_API void     rz_uuid_to_pretty_str(const rz_uuid* uuid, char* out_str);
+    RAZIX_API uint64_t rz_uuid_hash(const rz_uuid* uuid);
+    RAZIX_API int      rz_uuid_compare(const rz_uuid* a, const rz_uuid* b);
 
 #ifdef __cplusplus
 }

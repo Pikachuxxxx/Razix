@@ -54,7 +54,7 @@ namespace Razix {
             inline void                 setIndexCount(u32 count) { m_IndexCount = count; }
             inline RZString             getPath() { return m_MeshPath; }
             inline void                 setPath(RZString path) { m_MeshPath = path; }
-            inline rz_aabb          getBoundingBox() { return m_BoundingBox; }
+            inline rz_aabb              getBoundingBox() { return m_BoundingBox; }
             inline void                 setBoundingBox(rz_aabb aabb) { m_BoundingBox = aabb; }
             inline float3               getMaxExtents() { return m_BoundingBox.max; }
             inline void                 setMaxExtents(float3 extents) { m_BoundingBox.max = extents; }
@@ -71,7 +71,7 @@ namespace Razix {
             rz_gfx_buffer_handle m_IndexBuffer                             = {};
             u32                  m_IndexCount                              = 0;
             u32                  m_VertexCount                             = 0;
-            rz_aabb          m_BoundingBox                             = {};
+            rz_aabb              m_BoundingBox                             = {};
             u32                  m_BaseIndex                               = 0;
             u32                  m_BaseVertex                              = 0;
             RZString             m_MeshPath                                = "";

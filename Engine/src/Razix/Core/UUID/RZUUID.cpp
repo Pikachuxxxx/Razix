@@ -3,8 +3,8 @@
 // clang-format on
 #include "RZUUID.h"
 
-#include <random>
 #include <memory>
+#include <random>
 
 namespace Razix {
 
@@ -121,84 +121,84 @@ namespace Razix {
 
         return _mm256_castsi256_si128(a);
     }
-}
+}    // namespace Razix
 
-extern "C" {
-
-rz_uuid rz_uuid_generate()
+extern "C"
 {
-    rz_uuid res;
-    static std::random_device                    rd;
-    static std::mt19937_64                       generator(rd());
-    std::uniform_int_distribution<uint64_t> distribution(std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max());
+    rz_uuid rz_uuid_generate()
+    {
+        rz_uuid                                 res;
+        static std::random_device               rd;
+        static std::mt19937_64                  generator(rd());
+        std::uniform_int_distribution<uint64_t> distribution(std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max());
 
-    const __m128i and_mask = _mm_set_epi64x(0xFFFFFFFFFFFFFF3Full, 0xFF0FFFFFFFFFFFFFull);
-    const __m128i or_mask  = _mm_set_epi64x(0x0000000000000080ull, 0x0040000000000000ull);
-    __m128i       n        = _mm_set_epi64x(distribution(generator), distribution(generator));
-    __m128i       uuid     = _mm_or_si128(_mm_and_si128(n, and_mask), or_mask);
+        const __m128i and_mask = _mm_set_epi64x(0xFFFFFFFFFFFFFF3Full, 0xFF0FFFFFFFFFFFFFull);
+        const __m128i or_mask  = _mm_set_epi64x(0x0000000000000080ull, 0x0040000000000000ull);
+        __m128i       n        = _mm_set_epi64x(distribution(generator), distribution(generator));
+        __m128i       uuid     = _mm_or_si128(_mm_and_si128(n, and_mask), or_mask);
 
-    _mm_storeu_si128(((__m128i*) res.data), uuid);
-    return res;
-}
-
-rz_uuid rz_uuid_from_str(const char* str)
-{
-    rz_uuid res;
-    __m128i x = Razix::stringTom128i(str);
-    _mm_storeu_si128((__m128i*) res.data, x);
-    return res;
-}
-
-rz_uuid rz_uuid_from_pretty_str(const char* prettyStr)
-{
-    rz_uuid res;
-    size_t  len = strlen(prettyStr);
-    if (len != 36) {
-        memset(res.data, 0, 16);
+        _mm_storeu_si128(((__m128i*) res.data), uuid);
         return res;
     }
 
-    size_t byteIndex = 0;
-    for (size_t i = 0; i < len; ++i) {
-        if (prettyStr[i] == '-') continue;
-
-        char hexByte[3] = {prettyStr[i], prettyStr[i + 1], '\0'};
-        res.data[byteIndex++] = static_cast<uint8_t>(std::strtol(hexByte, nullptr, 16));
-        ++i;
+    rz_uuid rz_uuid_from_str(const char* str)
+    {
+        rz_uuid res;
+        __m128i x = Razix::stringTom128i(str);
+        _mm_storeu_si128((__m128i*) res.data, x);
+        return res;
     }
-    return res;
-}
 
-void rz_uuid_to_bytes(const rz_uuid* uuid, char* out_bytes)
-{
-    __m128i x = betole128(_mm_loadu_si128((const __m128i*) uuid->data));
-    _mm_storeu_si128((__m128i*) out_bytes, x);
-}
+    rz_uuid rz_uuid_from_pretty_str(const char* prettyStr)
+    {
+        rz_uuid res;
+        size_t  len = strlen(prettyStr);
+        if (len != 36) {
+            memset(res.data, 0, 16);
+            return res;
+        }
 
-void rz_uuid_to_pretty_str(const rz_uuid* uuid, char* out_str)
-{
-    __m128i x = _mm_loadu_si128((const __m128i*) uuid->data);
-    Razix::m128iToString(x, out_str);
-    out_str[36] = '\0';
-}
+        size_t byteIndex = 0;
+        for (size_t i = 0; i < len; ++i) {
+            if (prettyStr[i] == '-') continue;
 
-uint64_t rz_uuid_hash(const rz_uuid* uuid)
-{
-    const uint64_t a = *((const uint64_t*) uuid->data);
-    const uint64_t b = *((const uint64_t*) &uuid->data[8]);
-    return a ^ b + 0x9e3779b9 + (a << 6) + (a >> 2);
-}
+            char hexByte[3]       = {prettyStr[i], prettyStr[i + 1], '\0'};
+            res.data[byteIndex++] = static_cast<uint8_t>(std::strtol(hexByte, nullptr, 16));
+            ++i;
+        }
+        return res;
+    }
 
-int rz_uuid_compare(const rz_uuid* a, const rz_uuid* b)
-{
-    const uint64_t* x = (const uint64_t*) a->data;
-    const uint64_t* y = (const uint64_t*) b->data;
+    void rz_uuid_to_bytes(const rz_uuid* uuid, char* out_bytes)
+    {
+        __m128i x = betole128(_mm_loadu_si128((const __m128i*) uuid->data));
+        _mm_storeu_si128((__m128i*) out_bytes, x);
+    }
 
-    if (x[0] < y[0]) return -1;
-    if (x[0] > y[0]) return 1;
-    if (x[1] < y[1]) return -1;
-    if (x[1] > y[1]) return 1;
-    return 0;
-}
+    void rz_uuid_to_pretty_str(const rz_uuid* uuid, char* out_str)
+    {
+        __m128i x = _mm_loadu_si128((const __m128i*) uuid->data);
+        Razix::m128iToString(x, out_str);
+        out_str[36] = '\0';
+    }
 
-} // extern "C"
+    uint64_t rz_uuid_hash(const rz_uuid* uuid)
+    {
+        const uint64_t a = *((const uint64_t*) uuid->data);
+        const uint64_t b = *((const uint64_t*) &uuid->data[8]);
+        return a ^ b + 0x9e3779b9 + (a << 6) + (a >> 2);
+    }
+
+    int rz_uuid_compare(const rz_uuid* a, const rz_uuid* b)
+    {
+        const uint64_t* x = (const uint64_t*) a->data;
+        const uint64_t* y = (const uint64_t*) b->data;
+
+        if (x[0] < y[0]) return -1;
+        if (x[0] > y[0]) return 1;
+        if (x[1] < y[1]) return -1;
+        if (x[1] > y[1]) return 1;
+        return 0;
+    }
+
+}    // extern "C"

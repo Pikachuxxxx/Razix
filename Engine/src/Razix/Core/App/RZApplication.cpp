@@ -72,7 +72,7 @@ namespace Razix {
                 RAZIX_DEBUG_BREAK();
                 return;
             }
-            auto           jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
+            auto                   jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
             nlohmann::ordered_json data        = nlohmann::ordered_json::parse(jsonStrData);
             // pass this off to the load function below
             loadRazixProject(data);
@@ -91,7 +91,7 @@ namespace Razix {
                 RAZIX_CORE_TRACE("Creating a default Project file...");
                 SaveApp();
             }
-            auto           jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
+            auto                   jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
             nlohmann::ordered_json data        = nlohmann::ordered_json::parse(jsonStrData);
 
             loadRazixProject(data);
@@ -531,9 +531,9 @@ namespace Razix {
         root[RZ_JSON_KEY_ENGINE_VERSION] = std::string(Razix::RazixVersion.getVersionString().c_str());
         char uuid_str[37];
         rz_uuid_to_pretty_str(&m_ProjectID, uuid_str);
-        root[RZ_JSON_KEY_PROJECT_ID]     = std::string(uuid_str);
-        root[RZ_JSON_KEY_WIDTH]          = width;
-        root[RZ_JSON_KEY_HEIGHT]         = height;
+        root[RZ_JSON_KEY_PROJECT_ID] = std::string(uuid_str);
+        root[RZ_JSON_KEY_WIDTH]      = width;
+        root[RZ_JSON_KEY_HEIGHT]     = height;
 
         nlohmann::ordered_json scenesJson = nlohmann::ordered_json::array();
         for (const auto& path: m_SceneFilePaths) {
@@ -554,7 +554,7 @@ namespace Razix {
     {
         // Save the app data before closing
         RAZIX_CORE_WARN("Saving App...");
-        RZString       projectFullPath = m_ProjectPath + m_ProjectName + RZString(".razixproject");
+        RZString               projectFullPath = m_ProjectPath + m_ProjectName + RZString(".razixproject");
         nlohmann::ordered_json data;
         saverazixproject(data);
 

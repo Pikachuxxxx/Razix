@@ -466,8 +466,8 @@ namespace Razix {
         if (initialCapacity == 0)
             return;
         constexpr size_t alignment = alignof(T) < 16 ? 16 : alignof(T);
-        m_Data     = reinterpret_cast<T*>(rz_malloc(sizeof(T) * initialCapacity, alignment));
-        m_Capacity = initialCapacity;
+        m_Data                     = reinterpret_cast<T*>(rz_malloc(sizeof(T) * initialCapacity, alignment));
+        m_Capacity                 = initialCapacity;
         memset(m_Data, 0x0, sizeof(T) * initialCapacity);
     };
 
@@ -477,9 +477,9 @@ namespace Razix {
         if (initialCapacity == 0)
             return;
         constexpr size_t alignment = alignof(T) < 16 ? 16 : alignof(T);
-        m_Data     = reinterpret_cast<T*>(rz_malloc(sizeof(T) * initialCapacity, alignment));
-        m_Size     = 0;
-        m_Capacity = initialCapacity;
+        m_Data                     = reinterpret_cast<T*>(rz_malloc(sizeof(T) * initialCapacity, alignment));
+        m_Size                     = 0;
+        m_Capacity                 = initialCapacity;
         for (m_Size = 0; m_Size < initialCapacity; ++m_Size)
             construct(m_Size, value);
     };
@@ -498,9 +498,9 @@ namespace Razix {
         if (other.m_Capacity == 0)
             return;
         constexpr size_t alignment = alignof(T) < 16 ? 16 : alignof(T);
-        m_Data     = reinterpret_cast<T*>(rz_malloc(sizeof(T) * other.m_Capacity, alignment));
-        m_Capacity = other.m_Capacity;
-        m_Size     = 0;
+        m_Data                     = reinterpret_cast<T*>(rz_malloc(sizeof(T) * other.m_Capacity, alignment));
+        m_Capacity                 = other.m_Capacity;
+        m_Size                     = 0;
         for (m_Size = 0; m_Size < other.m_Size; ++m_Size)
             construct(m_Size, other[m_Size]);
     }
@@ -514,8 +514,8 @@ namespace Razix {
                 if (m_Data)
                     rz_free(m_Data);
                 constexpr size_t alignment = alignof(T) < 16 ? 16 : alignof(T);
-                m_Data     = reinterpret_cast<T*>(rz_malloc(sizeof(T) * other.m_Capacity, alignment));
-                m_Capacity = other.m_Capacity;
+                m_Data                     = reinterpret_cast<T*>(rz_malloc(sizeof(T) * other.m_Capacity, alignment));
+                m_Capacity                 = other.m_Capacity;
             }
             m_Size = 0;
             for (m_Size = 0; m_Size < other.m_Size; ++m_Size)
@@ -792,7 +792,7 @@ namespace Razix {
             m_Capacity = (m_Capacity == 0) ? RZ_DEFAULT_ARRAY_CAPACITY : m_Capacity * RZ_ARRAY_GROWTH_FACTOR;
 
         constexpr size_t alignment = alignof(T) < 16 ? 16 : alignof(T);
-        T* newData = reinterpret_cast<T*>(rz_malloc(m_Capacity * sizeof(T), alignment));
+        T*               newData   = reinterpret_cast<T*>(rz_malloc(m_Capacity * sizeof(T), alignment));
         RAZIX_CORE_ASSERT(newData != NULL, "RZDynamicArray: Memory allocation failed in reserve()");
 
         // Move the old data to the new newData

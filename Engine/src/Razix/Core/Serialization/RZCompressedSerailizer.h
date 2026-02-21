@@ -22,8 +22,6 @@ namespace Razix {
                     typeid(T).name());
                 return;
             }
-
-            
         }
     }
 }    // namespace Razix

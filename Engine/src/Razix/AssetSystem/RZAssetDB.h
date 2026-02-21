@@ -210,8 +210,8 @@ namespace Razix {
         template<typename T>
         rz_asset_handle allocateAsset()
         {
-            const RZAssetType       assetType   = GetAssetTypeTag<T>();
-            u32                     headerIndex = m_HeaderPool.allocate(assetType);
+            const RZAssetType assetType   = GetAssetTypeTag<T>();
+            u32               headerIndex = m_HeaderPool.allocate(assetType);
             if (headerIndex == RAZIX_ASSET_INVALID_HANDLE)
                 return RAZIX_ASSET_INVALID_HANDLE;
 
@@ -229,8 +229,8 @@ namespace Razix {
         template<typename T>
         void releaseAsset(rz_asset_handle handle)
         {
-            u32                     headerIndex  = static_cast<u32>(handle & RAZIX_ASSET_HOTDATA_MASK);
-            u32                     payloadIndex = static_cast<u32>((handle & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
+            u32 headerIndex  = static_cast<u32>(handle & RAZIX_ASSET_HOTDATA_MASK);
+            u32 payloadIndex = static_cast<u32>((handle & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
 
             RZAssetPool<T>& pool = GetAssetPoolRef<T>();
             pool.release(payloadIndex);
@@ -337,7 +337,7 @@ namespace Razix {
             }
 
             // TODO: check if an asset handle with given UUID exists already before creating a new one
-            auto                    it = m_AssetDBDevRegistry.find(assetUUID);
+            auto it = m_AssetDBDevRegistry.find(assetUUID);
             if (it == m_AssetDBDevRegistry.end()) {
                 char uuid_str[37];
                 rz_uuid_to_pretty_str(&assetUUID, uuid_str);

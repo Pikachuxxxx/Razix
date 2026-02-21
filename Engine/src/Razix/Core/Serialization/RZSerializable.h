@@ -873,7 +873,7 @@ namespace Razix {
                 return data;
             }
 
-            Archive            ar(&binary, 0, RZArchiveMode::kRead, const_cast<Memory::RZHeapAllocator*>(&blobAllocator));
+            Archive ar(&binary, 0, RZArchiveMode::kRead, const_cast<Memory::RZHeapAllocator*>(&blobAllocator));
 
             if (meta->bIsTriviallySerializable) {
                 ar.read(&data, meta->size);
@@ -901,7 +901,7 @@ namespace Razix {
                 return pAsset;
             }
 
-            Archive            ar(&binary, 0, RZArchiveMode::kRead, NULL);
+            Archive ar(&binary, 0, RZArchiveMode::kRead, NULL);
 
             if (meta->bIsTriviallySerializable) {
                 ar.read(pAsset, meta->size);
@@ -925,7 +925,7 @@ namespace Razix {
                 return pPlaceholderAsset;
             }
 
-            Archive            ar(&binary, 0, RZArchiveMode::kRead, NULL);
+            Archive ar(&binary, 0, RZArchiveMode::kRead, NULL);
 
             if (meta->bIsTriviallySerializable) {
                 ar.read(pPlaceholderAsset, meta->size);

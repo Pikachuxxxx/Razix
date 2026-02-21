@@ -90,7 +90,7 @@ namespace Razix {
         inline Razix::Memory::RZBumpAllocator&     getFrameAllocator() { return m_FrameAllocator; }
         inline Razix::Memory::RZTwoSidedAllocator& getPacketAllocator() { return m_PacketAllocator; }
 
-        inline rz_critical_section&  getSystemAllocatorMutex() { return m_SystemAllocatorMutex; }
+        inline rz_critical_section& getSystemAllocatorMutex() { return m_SystemAllocatorMutex; }
 
     private:
         RZCommandLineParser                m_CommandLineParser;

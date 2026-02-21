@@ -25,7 +25,7 @@ namespace Razix {
     {
         RAZIX_ASSET;
 
-        RZString      ScriptPath;
+        RZString ScriptPath;
         u64      LastModifiedTime;
         bool     bIsCompiled;
         bool     bAutoReload;

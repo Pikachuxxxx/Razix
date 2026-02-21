@@ -413,7 +413,7 @@ namespace Razix {
                 ImGui::SameLine();
 
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
-                char uuid_str[37];
+                char    uuid_str[37];
                 rz_uuid projectUUID = RZApplication::Get().getProjectUUID();
                 rz_uuid_to_pretty_str(&projectUUID, uuid_str);
                 ImGui::Text(ICON_FA_ID_CARD " project UUID : %s", uuid_str);

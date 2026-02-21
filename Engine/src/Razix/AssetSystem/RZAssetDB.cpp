@@ -319,7 +319,7 @@ namespace Razix {
         auto* jobData = reinterpret_cast<RZAssetAsyncLoadJobData*>(pUserData);
         RAZIX_CORE_ASSERT(jobData != NULL, "[AssetSystem] Invalid job data for async asset load.");
 
-        RAZIX_CORE_INFO("[AssetSystem] Asynchronously loading asset: {} of type: {} from path: {}", jobData->pAsset->getName(), (u32)jobData->AssetType, jobData->VFSFilePath);
+        RAZIX_CORE_INFO("[AssetSystem] Asynchronously loading asset: {} of type: {} from path: {}", jobData->pAsset->getName(), (u32) jobData->AssetType, jobData->VFSFilePath);
 
         AssetLoadFn loadFn = s_AssetIORegistry[(size_t) jobData->AssetType].load;
         if (loadFn) {
@@ -335,19 +335,19 @@ namespace Razix {
         {
             Memory::RZBumpAllocator& frameAllocator = RZEngine::Get().getFrameAllocator();
 
-            job                   = static_cast<rz_job*>(frameAllocator.allocate(sizeof(rz_job)));
+            job = static_cast<rz_job*>(frameAllocator.allocate(sizeof(rz_job)));
             RAZIX_CORE_ASSERT(job != NULL, "[AssetSystem] Failed to allocate memory for async asset load job.");
             rz_job_cold* coldData = static_cast<rz_job_cold*>(frameAllocator.allocate(sizeof(rz_job_cold), RAZIX_CACHE_LINE_ALIGN));
             RAZIX_CORE_ASSERT(coldData != NULL, "[AssetSystem] Failed to allocate memory for async asset load job cold data.");
-            job->pCold            = coldData;
+            job->pCold = coldData;
             // TODO: Use a razix utility function to set const char* names safely
             memcpy(coldData->pName, jobName.c_str(), std::min(jobName.size(), static_cast<size_t>(RAZIX_JOB_NAME_MAX_CHARS - 1)));
             job->hot.pFunc = AsyncRZAssetLoadJob;
 
             RZAssetAsyncLoadJobData* jobDataPtr = static_cast<RZAssetAsyncLoadJobData*>(frameAllocator.allocate(sizeof(RZAssetAsyncLoadJobData)));
             RAZIX_CORE_ASSERT(jobDataPtr != NULL, "[AssetSystem] Failed to allocate memory for async asset load job data.");
-            *jobDataPtr                         = jobData;
-            job->hot.pUserData                  = jobDataPtr;
+            *jobDataPtr        = jobData;
+            job->hot.pUserData = jobDataPtr;
         }
     };
 
@@ -547,7 +547,7 @@ namespace Razix {
         }
 
         const RZString& assetPath = it->second;
-        char uuid_str[37];
+        char            uuid_str[37];
         rz_uuid_to_pretty_str(&assetUUID, uuid_str);
         RAZIX_CORE_INFO("[AssetSystem] [ASYNC] Loading asset from disk: UUID={}, Path={}", uuid_str, assetPath);
         // async load the asset from disk using the path, and once loaded, update the handle in the registry with the actual rz_asset_handle

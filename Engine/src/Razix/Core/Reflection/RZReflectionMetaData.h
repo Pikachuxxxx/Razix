@@ -103,10 +103,10 @@ namespace Razix {
 
     struct TypeMetaOps
     {
-        ArrayOps arrayOps;
-        StringOps stringOps;
+        ArrayOps   arrayOps;
+        StringOps  stringOps;
         HashMapOps hashMapOps;
-        UUIDOps uuidOps;
+        UUIDOps    uuidOps;
     };
 
     union TypeMetaAccess
@@ -148,7 +148,6 @@ namespace Razix {
         } uuid;
     };
 
-
     struct MemberMetaData
     {
         RZString              name;        // variable name
@@ -167,7 +166,7 @@ namespace Razix {
                 u32                 reserved : 27;
             };
         };
-        
+
         // Replace with TypeMetaAccess, I don't want to refactor so duplicating it for now
         union
         {

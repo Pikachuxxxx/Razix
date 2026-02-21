@@ -8,8 +8,8 @@
 
 #include "Razix/Gfx/RHI/RHI.h"
 
-#include "Razix/Math/RZAABB.h"
 #include "Razix/Math/Frustum.h"
+#include "Razix/Math/RZAABB.h"
 
 namespace Razix {
 

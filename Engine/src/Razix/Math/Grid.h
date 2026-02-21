@@ -21,9 +21,9 @@ namespace Razix {
              */
             RZGrid(const rz_aabb& aabb) {}
 
-            rz_aabb  aabb;     /* aabb of the Grid                     */
-            uint3 size;     /* Total dimensions of the grid         */
-            f32   cellSize; /* The size of each cell in the grid    */
+            rz_aabb aabb;     /* aabb of the Grid                     */
+            uint3   size;     /* Total dimensions of the grid         */
+            f32     cellSize; /* The size of each cell in the grid    */
         };
     }    // namespace Maths
 }    // namespace Razix
