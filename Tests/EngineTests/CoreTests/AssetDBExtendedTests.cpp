@@ -794,7 +794,7 @@ namespace Razix {
         // when the UUID is in the registry vs INVALID_HANDLE when it's not.
 
         // This UUID was never registered — should fail
-        rz_uuid bogusUUID;
+        rz_uuid bogusUUID = rz_uuid_generate();
         rz_asset_handle hBogus = db().requestAssetLoad<RZCameraAsset>(bogusUUID);
         // Note: bogusUUID is a fresh UUID that was never in the registry, so this should fail
         // However, rz_uuid_generate() generates a new random UUID, so it won't match any entry
@@ -1086,7 +1086,7 @@ namespace Razix {
         rz_asset_handle hOrig = db().createAsset<RZAssetRefAsset>("AsyncRef");
         ASSERT_NE(hOrig, RAZIX_ASSET_INVALID_HANDLE);
         RZAssetRefAsset* ref = db().getAssetResourceMutablePtr<RZAssetRefAsset>(hOrig);
-        rz_uuid           refTargetUUID;    // fresh UUID
+        rz_uuid          refTargetUUID = rz_uuid_generate();    // fresh UUID
         ref->AssetUUID = refTargetUUID;
         ASSERT_TRUE(db().saveAssetToDisk(hOrig));
 

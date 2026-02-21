@@ -441,7 +441,7 @@ namespace Razix {
 
     TEST_F(RZSerializationTests, UUIDTest)
     {
-        rz_uuid uuid;
+        rz_uuid uuid = rz_uuid_generate();
 
         PlayerIDs original = {};
         original.id        = uuid;
