@@ -1,7 +1,7 @@
 #ifndef _RZ_SCENE_GRAPH_H_
 #define _RZ_SCENE_GRAPH_H_
 
-#include "RAzix/Core/RZDataTypes.h"
+#include "Razix/Core/RZDataTypes.h"
 #include "Razix/Core/RZCore.h"
 
 #include "Razix/Core/UUID/RZUUID.h"
@@ -156,10 +156,6 @@ typedef struct rz_scene_graph_manager
 //-----------------------------------------------------------------------------
 // API Functions
 //-----------------------------------------------------------------------------
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 // Lifecycle
 RAZIX_API rz_scene_graph* rz_scene_graph_create(const void* pFileData, u64 fileSize);
