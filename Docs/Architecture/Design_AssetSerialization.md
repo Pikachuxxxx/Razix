@@ -1,68 +1,110 @@
 # [Draft-1] Asset System Design 
 
-## Razix Serialization
+## Table of Contents
+1. [Razix Serialization Philosophy](#razix-serialization-philosophy)
+2. [Definitions](#definitions)
+3. [Assets and Pools Architecture](#assets-and-pools-architecture)
+4. [Serialization Mechanics](#serialization-mechanics)
+5. [Serialization Data Structures](#serialization-data-structures)
+6. [Archive & Compression](#archive--compression)
+7. [Asynchronous Load Mechanism](#asynchronous-load-mechanism)
+8. [SceneGraph Format & Grammar](#scenegraph-format--grammar)
+9. [Asset Database & Streaming Workflows](#asset-database--streaming-workflows)
+10. [Naming & Validation](#naming--validation)
+11. [Pak and Storage Data Structures](#pak-and-storage-data-structures)
+12. [Implementation Milestones](#implementation-milestones)
+13. [Design FAQs](#design-faqs)
 
-In razix "asset is everything" for the first draft we only support binary file format. Later we can optionally support JSON/S-expressions for asset debuggability or a binary editor tool in pyqt.
+---
 
-Traditional ECS is boring, anyways this started more of an idea while I was high one day. Now idk what this will lead to but I'll be explaining my intuition and final design goals, idk how good will this design be and if it can be better than others. Here we go:
+## Razix Serialization Philosophy
 
-_Unlike having separate disk-time asset and runtime entity, in this design "everything in an asset". Runtime and disk time both call them assets. They are basically having same representation on disk vs runtime. Keep metadata and compressed data together + no components, assets reference other assets and we build a scene graphs of UUID refs that maps to linear pools of different asset types._
+In razix **"asset is everything"**. For the first draft, we only support binary file formats. Later we can optionally support JSON/S-expressions for asset debuggability or a binary editor tool in pyqt.
 
-### Some rules
-- SceneGraph maintains the hierarchy relationship between different asset nodes. 
-- Now how nodes can be tagged is decided by a ISceneGraphRule. 
-- Only script and transform assets can exist as first level nodes in the scene graph. 
-- You get the idea, a mesh asset should be child of transform asset, and material will be child of mesh asset. 
-- All ref asset are child nodes. 
-- All assets stored in linear pools (MeshPool, TexturePool, MaterialPool, …).
-- Uses a freelist internally to track what is free, no deferred references unlike Gfx resource so no need to track generation as we cannot have stale assets.
-- References use rz_asset_handle (hader _ payload inedx)
-- Child assets grouped together in child slabs to improve traversal locality.
-- Assets with hierarchy level are grouped together in memory, maybe use a RB tree with memory addressed cached? not sure will be thought out during implementation.
-- Textures & Meshes compressed to BCn/custom format --> metadata will store this info
+Traditional ECS is boring; anyways this started more of an idea while I was high one day. Now idk what this will lead to but I'll be explaining my intuition and final design goals. I don't know how good this design will be or if it can be better than others, but here we go:
+
+_Unlike having separate disk-time assets and runtime entities, in this design **"everything is an asset"**. Runtime and disk time both call them assets. They basically have the same representation on disk vs runtime. Keep metadata and compressed data together + no components; assets reference other assets and we build a scene graphs of UUID refs that maps to linear pools of different asset types._
+
+### Some Rules
+- **Hierarchy**: SceneGraph maintains the relationship between different asset nodes.
+- **Tagging**: How nodes are tagged is decided by `ISceneGraphRule`. 
+- **Roots**: Only script and transform assets can exist as first-level nodes in the scene graph. 
+- **Logic**: A mesh asset should be a child of a transform asset, and a material will be a child of a mesh asset. 
+- **Storage**: All assets are stored in linear pools (MeshPool, TexturePool, MaterialPool, …).
+- **Handles**: References use `rz_asset_handle` (header + payload index).
+- **Locality**: Child assets are grouped together in "child slabs" to improve traversal locality.
+- **Compression**: Textures & Meshes are compressed to BCn/custom formats; metadata stores this info.
 
 ### Misc
-- scene graph parsing code in RAW ASM! only rules in C++. 
-- Job system to load assets, placeholder defaults until then, CBs to refresh loads.
-- Models are broken/contructed by scene graph inside blender. 
-- no House renderer until V.0.8.0.Dev
-- write a doc for blender workflow.
-- RZthread for multi-threaded asset loading.
+- Scene graph parsing code in **RAW ASM**! Only rules in C++. 
+- Job system to load assets with placeholder defaults until ready.
+- Models are broken/constructed by the scene graph inside Blender. 
+- No House renderer until V.0.8.0.Dev.
+- Multi-threaded asset loading via `RZthread`.
 
+---
 
-### Now how will this work?
+## Definitions
 
-RZAssetDB will take care of this, RZAssetPool is only for runtime management. Once we call serialize/deserialize on RZAssetDB. It picks up each of the pool and then uses the RZReflectionRegistry to write them into the *.rzasset files.
+**SceneGraph** - Every zone has its own scene graph. Each Razix World/Level starts with many Zones as first-class nodes. The SceneGraph uses S-expressions to mimic a tree-like data structure.
 
-*.rzasset file format --> defined in RZAssetSpec.h
-- **[Header]** starts with RZAsset and it's RZAssetColdData metadata ==> Header/Metadata serialization, this can be hand-written functions without reflection or use it idc. Buy basically that.
-- **[Payload]** Next we have the asset payload, this is the actual important thing, this can be compressed blob, the header will tell us that and RZAssetDB can call schedule relevant compression/decompression Job on it.
+**Zone** - Logical separation of assets and nodes in runtime. We separate nodes in the level scene graph per zone and load/stream the corresponding `*.pak` file.
 
-Use the RZReflectionRegistry to parse through the members and write them as the structs need them, we do it as per the ABI format. Each data type is stored as per the datatype size of the platforms. Hopefull all x64 has the same ABI requirements.
+**Pak** - Storage file for all assets in a zone. Supports two scopes: "zone-local" and "shared". Patching is handled via `_patched.pak` which takes precedence.
 
-Data Types handling:
-- Blobs: As for pointer/blob data we use a blob_size to load a blob of pointer data and can be type-casted as needed. 
-- Strings: again it's just like a pointer, we store the str_size and the blob of data, basically behaves like pointer blobs
-- Floats/Doubles: copy 4/8 bytes
-- Primitives: written as-is for i32/u32/char/unsigned char/bool/bitset/enums flags
-- Arrays: uses a RZSerializedArrayHeader that has type info, size and element count again similar to Blobs, everything is a blob if you look closely
-- HashMaps: Serialize keys/value/occupied arrays as Arrays 
-- Clean POD structs: needs to track alignment and we can drirectly write the serialized Blobs
-- Compression is handles per SerialzedBlob instead of at asset level
-- for trivially capable types we just memcpy
-- for more complex types we define macros walk through TypeMetaData members and serialize them one by one
-- We can use heuristics to choose to compress based on Blob payloads
-- If the type has all primitive datatypes they are trivially copyable, and however big never compressed just memcpy on filer read.
-- Use custom macros for each reflection type ex. REFLECT_PRIMITIVE, REFLECT_STRUCT, REFLECT_STRING etc. to handle metadata generation and make intent more explicit and this also helps with easier extension in future
+---
+
+## Assets and Pools Architecture
+
+- There is a central `RZAsset` pool to manage metadata.
+- Actual asset data (payloads) are stored in separate, type-specific `RZAssetPools`.
+- Each defined asset is bidirectionally linked with `RZAsset` via `rz_asset_handle`.
+- This indirection facilitates management without enforcing inheritance or template-based designs.
+
+### The 64-bit Handle
+The `rz_asset_handle` is designed for efficient lookups:
+- **Lower 32-bits**: Hot/Cold data index in the central asset pool.
+- **Higher 32-bits**: Asset payload data index in the specific type pool.
+
+Similar to `RZResourceManager`, the system splits data for cache efficiency. **The entirety of `RZAsset` fits in a single cache line** (with 8 bytes left in hot data for future use).
+
+- **Hot Data**: High-frequency metadata (UUIDs, reference counts, flags).
+- **Cold Data**: Sister pool for infrequent metadata, linked via handles to keep similar data together.
+
+---
+
+## Serialization Mechanics
+
+`RZAssetDB` handles the heavy lifting, while `RZAssetPool` is only for runtime management. When `serialize/deserialize` is called on `RZAssetDB`, it picks up each pool and uses the `RZReflectionRegistry` to write them into `*.rzasset` files.
+
+### The `*.rzasset` Format (Defined in `RZAssetSpec.h`)
+- **[Header]**: Starts with `RZAsset` and its `RZAssetColdData` metadata. This can be hand-written or use reflection.
+- **[Payload]**: The actual asset data (e.g., compressed mesh blob). `RZAssetDB` schedules relevant compression/decompression jobs based on the header info.
+
+### Data Types Handling
+We use the reflection registry to parse members and write them per the **ABI format**. Each data type is stored per the size requirements of the platform (assuming x64 ABI consistency).
+
+- **Blobs/Strings**: Stored as a `size` followed by the data blob; type-casted as needed.
+- **Primitives**: Written as-is (i32, u32, bool, bitsets, etc.).
+- **Arrays**: Uses `RZSerializedArrayHeader` (type info, size, element count).
+- **HashMaps**: Serialized as Arrays of keys/values/occupied flags.
+- **Clean PODs**: Alignment is tracked and serialized as direct blobs.
+- **Compression**: Handled per `SerializedBlob` rather than at the asset level.
+- **Logic**: If a type consists only of primitives, it is "trivially copyable" and never compressed—just a direct `memcpy` on file read.
+
+---
+
+## Serialization Data Structures
 
 As for iterating through members:
-```
+```cpp
 u8* base = reinterpret_cast<u8*>(obj);
 void* fieldPtr = base + m.offset;
 ```
-I can then check the TypeMetaData serialization type and pass to a switch and fill these SerializedXXX structs and write to disk
 
-```
+I can then check the `TypeMetaData` serialization type and pass to a switch to fill these structs and write to disk:
+
+```cpp
 struct SerializedBlob {
     uint32_t offset;
     uint32_t size;
@@ -74,7 +116,7 @@ struct SerializedBlob {
 
 // Array of anything
 struct SerializedArray {
-    SerializedBlob data;                    // blob of all elements
+    SerializedBlob data;
     uint32_t element_count;
     uint32_t element_type_hash;
     uint8_t  element_size;
@@ -83,9 +125,9 @@ struct SerializedArray {
 
 // HashMap
 struct SerializedHashMap {
-    SerializedBlob keys;                    // blob of all keys
-    SerializedBlob values;                  // blob of all values
-    SerializedBlob occupied;                // blob of all occupancy flags
+    SerializedBlob keys;
+    SerializedBlob values;
+    SerializedBlob occupied;
     uint32_t capacity;
     uint32_t count;
     uint32_t index;
@@ -93,335 +135,116 @@ struct SerializedHashMap {
 
 // String
 struct SerializedString {
-    SerializedBlob data;                    // blob of characters
+    SerializedBlob data;
     uint32_t length;
-    uint8_t  encoding;                      // UTF-8, UTF-16, ASCII
+    uint8_t  encoding; // UTF-8, UTF-16, ASCII
     uint8_t  reserved[3];
 };
 
-// Struct instance - only works for POD/simple structs without pointers. Marked as clean POD in reflection registry.
+// Struct instance (Clean POD only)
 struct SerializedObject {
-    SerializedBlob data;                    // blob of struct bytes
+    SerializedBlob data;
     uint32_t type_hash;
     uint32_t size;
 };
-
-// Array of objects - only works for POD/simple structs without pointers. Marked as clean POD in reflection registry.
-struct SerializedObjectArray {
-    SerializedBlob data;                    // blob containing array of blobs
-    uint32_t element_count;
-    uint32_t element_type_hash;
-};
-
-// Vector<T>
-template<typename T>
-struct SerializedVector {
-    SerializedBlob data;                    // blob of elements
-    uint32_t count;
-    uint32_t capacity;
-};
-
-// Map/HashMap<K, V>
-template<typename K, typename V>
-struct SerializedMap {
-    SerializedBlob keys;                    // blob of keys
-    SerializedBlob values;                  // blob of values
-    uint32_t count;
-};
 ```
 
-## Compression
-File format: RZCompressedArchive uses deferred payloads unlike the RZBinaryArchive
-```
-[RZFileHeader][HeaderSection][PayloadSection]
-```
+---
 
+## Archive & Compression
 
-```C++
-// Changes to RZSerializable
-template<typename Derived, typename Archive>
-class RZSerializable;
-```
+Razix uses a dual-archive approach. `RZCompressedArchive` uses deferred payloads unlike the `RZBinaryArchive`.
 
-Both archives must provide:
+**File format:** `[RZFileHeader][HeaderSection][PayloadSection]`
 
-```C++
+```cpp
+// Both archives must provide:
 void write(const void* src, size_t size);
 void read(void* dst, size_t size);
-
 static constexpr bool kUsesOutOfLineBlobs;
-```
 
-Only `RZCompressedArchive` additionally provides:
-```C++
-
-void registerBlob(size_t headerOffset,
-                  const void* payload,
-                  u32 payloadSize,
-                  rz_compression_type compression);
-
+// RZCompressedArchive additionally provides:
+void registerBlob(size_t headerOffset, const void* payload, u32 payloadSize, rz_compression_type compression);
 void finalize();
 ```
 
-Serializer code branches with `if constexpr (Archive::kUsesOutOfLineBlobs)`.
+### Deferred Payloads
+- Offsets are patched *after* compression.
+- Walk reflection metadata and defer `SerializedBlobs`.
+- `if constexpr (Archive::kUsesOutOfLineBlobs)` is used to switch mechanisms at compile time.
 
-```C++
-struct RZPendingBlob {
-    size_t              headerOffset;   // where the RZSerializedBlob lives in HeaderSection
-    const void*         payload;        // original data pointer
-    u32                 payloadSize;    // uncompressed size
-    rz_compression_type compression;
-};
-```
-- payloads are deferred
-- offsets are patched after compression
-- Walk reflection metadata and defer SerializedBlobs
-- compress/decompress blobs and patch the header using headerOffset once compression is done
-- use if constexpr to switch b/w different Arhive mechanisms, ofc still use custom read/write into archive.
+---
 
+## Asynchronous Load Mechanism
 
-## Async Load mechanism
-- Once a scene graph is loaded or parsed into a RZZone --> it knows what assets to load 
---> scene graph --> load Zone --> load Mesh/Material (install a placeholder asset and register for AssetLoaded event callback to update the scenegraph) --> push to worker jobs --> pre-defied asset load jobs
-- kicks off RZAssetLoad/SaveAsyncJob --> reads file and check if needs to be compressed/decompressed --> kicks off RZAssetCompress/DecompressAsyncJob --> update the final asset and invoke the callback --> replace the placeholder asset
-if it's a mesh/texture we pass it off to the RZResourceManager from withing in the RZGfxResLoadJob invoked by RZAssetCompress/DecompressAsyncJob.
-- Since scene graph is converted to RZWorld and passed of to renderer with properly handles, Gfx doesn't care how it's done we need to replace it with valid handles that's it. simple.
-- user calls createAsset<T> or destroyAsset<T> to create new asset the inturn calls allocate/release asset and registers the UUID into registry map and updates the assetName
-- but things like scenegraph can use the assetName to to load in *.rzasset files (how de we resolve name IDK yet, maybe store node name in sexpression files) 
-- They call requestAssetLoadFromDisk/requestAssetLoadFromPak APIs and provide a eventlistern to register with RZAsset (scenegraph and use this to mark nodes dirty for update later)
-- So once I get a handle with default payload I can have SceneGraph subscribe on the RZAsset header
-- This sill return a default asset payload (from the curated list), now every one of these calls is templated so idk how load works properly
-- Also save all to disk doesn't make sense, I can have SceneGraphe export one by one as I save at end when the scenegraph is about to go out of bussiness and we call save on it.
-
-Async Jobs: DiskIO --> Compression --> PostProcess --> GPU Upload (optional for GfxResoures) --> Callback to replace placeholder in SceneGraph
+1. **Discovery**: Once a scene graph is parsed into an `RZZone`, it identifies necessary assets.
+2. **Placeholders**: The system installs a placeholder asset and registers for an `AssetLoaded` callback.
+3. **Jobs**: Kicks off `RZAssetLoad/SaveAsyncJob`.
+    - If compressed, it triggers `RZAssetCompress/DecompressAsyncJob`.
+    - For Gfx resources, it passes data to the `RZResourceManager`.
+4. **Resolution**: Once the job completes, the callback replaces the placeholder and updates the SceneGraph.
 
 **TLDR;**
-So we first kick of a bunch of DiskIO jobs once any on of the DiskIO job is done it'll add more Decompress jobs and once that is done if it has a post process it'll add them to worker threads and finally we can GPU upload jobs
-Basically master DiskIO jobs can spawn child jobs onto the worker threads to steal. Only once the final ASSET_LOADED state is achieved and callback is invoked scenegraph sees this new asset and build new data for the renderer in the subsequent frame.
+DiskIO jobs spawn child Decompress/PostProcess jobs onto worker threads. Only once the final `ASSET_LOADED` state is achieved does the SceneGraph see the new asset and build new data for the renderer.
 
-**So each serialized type is inline header and it's payload on how to save it's SerializedBlob.**
+```cpp
+template<typename T>
+rz_asset_handle requestAssetLoadFromDisk(RZUUID assetUUID)
+{
+    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+    RZString assetName = requestAssetLoadFromDiskInternal(assetUUID, typeid(T));
 
-```C++
-bool saveAssetToDisk(rz_asset_handle handle) const;
-        template<typename T>
-        rz_asset_handle requestAssetLoadFromDisk(RZUUID assetUUID)
-        {
-            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_ASSET_SYSTEM);
+    // Create a dummy asset with default placeholder
+    rz_asset_handle handle = createAsset<T>(assetName);
 
-            RZString assetName = requestAssetLoadFromDiskInternal(assetUUID, typeid(T));
-            // TODO: update name, asset load state and asset type
-            // TODO:!!! Create a default asset per asset type to return here while the actual asset is being loaded async, so that the game can start
-            // Create a dummy asset with default places holder
-            rz_asset_handle handle = createAsset<T>(assetName);
+    RZAsset* pAsset = getAssetHeaderMutable(handle);
+    pAsset->addFlags(RZ_ASSET_FLAG_PLACEHOLDER | RZ_ASSET_FLAG_STREAMING);
+    pAsset->removeFlags(RZ_ASSET_FLAG_DIRTY);
 
-            // Set in loading state
-            RZAsset* pAsset = getAssetHeaderMutable(handle);
-            pAsset->addFlags(RZ_ASSET_FLAG_PLACEHOLDER);
-            pAsset->addFlags(RZ_ASSET_FLAG_STREAMING);
-            // No longer dirty once we make it a placeholder
-            pAsset->removeFlags(RZ_ASSET_FLAG_DIRTY);
-
-            return handle;
-        }
-        RZString requestAssetLoadFromDiskInternal(RZUUID assetUUID, std::type_index typeIdx);
+    return handle;
+}
 ```
-### Async FAQ
 
-#### Q: How will someone know if the asset is READY?
-**A:** If you want a callback when an asset is ready, you can use the handle to get pointers to `RZAsset` and install your own events on whoever needs to know.
-The SceneGraph can subscribe to the events on `pRZAsset` and use that to mark Scene Nodes dirty and update things as needed.
+---
 
-#### Q: How to load all assets from disk? What is the workflow?
-As we parse the scenegraph, when we get a node and parse its atom, we know the type. It will call an opaque function that calls the templated function inside, and we are good to go.
+## SceneGraph Format & Grammar
 
-#### Q: How to register a callback for asset events?
-Whoever created the asset can use the handle to get the pointer and get `RZAsset`, then subscribe for events on that. `AssetDB` or other systems will dispatch events on `RZAssets`.
+SceneGraph uses **S-expressions** with a SIMD-accelerated C parser.
 
-## Definitions
+### `.scenegraph` Layout
+- **Zone Directory**: Top-level coordinates and bounds.
+- **Hierarchy**: Per-zone node tree.
+- **Transform Pooling**: Rotation/Scale/Translation data is pooled per zone. Transform assets simply point to an index in this pool.
 
-**SceneGraph** - Every zone has it's own scene graph, each Razix World/Level start of with many Zones as first class nodes in the SceneGraph and a SceneGraph is made up using S-expressions to mimic a tree like data structure. 
-
-**Zone** - logical seperation of assets and nodes in runtime, we seperate nodes in the level scene graph per zone and load/stream the *.pak file containing the assets for that zone.
-
-**Pak** - All the assets for that zone are stored in this file, we also have 2 types of asset scoping per zone and shared, we can either store them as zone local or in a shared.pak file, also to patch things _patched.pak will take precedence and replace the older paks.
-
-## Naming Conventions
-
-SceneGraphss - SCENENAME.scenegraph
-Zones inside SceneGraph - Zone_X_Y (X, Y) is the 2D coords in the world
-Zone Pak - SCENENAME_Zone_Z_Y.pak
-
-[Development Builds]
-assetdb.bin - stores the entire map of UUID --> ASSET_PATH references, ASSET_PATH is just plain string relative to //Asset, these are the VFS paths, that can be easily edited.
-
-ASSET_TYPE_PREFIX_AssetName*.rzasset - name of every asset file start with asset type prefix.
-ex. [MAT, TEX, AUDIO, FX, MESH, etc.], we can define the comprehensive list later here for validation.
-
-## Assets and Pools
-
-- There is a central RZAsset pool to manage metadata.
-- Actual asset data (payloads) are stored in separate, type-specific RZAssetPools which manage the memory and lifecycle of the assets.
-- The handle can easily refer to these pools on a need-to-basis.
--  Each defined asset is bidirectionally linked with RZAsset via rz_asset_handle.
-- This indirection facilitates easy management of assets and their data without enforcing inheritance or template-based designs.
-
-The rz_asset_handle is a 64-bit value designed for efficient lookups:
-- Lower 32-bits: Represents the hot/cold data index in the central asset pool.
-- Higher 32-bits: Represents the asset payload data index in the specific asset pool for the actual asset data.
-
-Similar to how RZResourceManager handles resources, the Asset System splits data for cache efficiency. **The entirely of RZAsset fits in a single cache line** (with still 8 bytes left in hot data for future use).
-
-We maintain a central RZAsset pool specifically to manage high-frequency metadata (UUIDs, reference counts, flags).
-Each actual asset starts with define that is a rz_asset_handle. So each asset type has it's own pool and same goes for RZAsset as well, link data via handles but keep similar data together. This is the base for this data-oriented design.
-
-## Asset Database and Streaming
-
-**Engine Startup**
-- Load storage backend (registry or Shared.pak)
-- Load Level.graph
-- Extract zones and build Zone list
-
-RZAssetDB has 2 main jobs
-1. Asset Serialization:
-    - In Development builds build the assetdb.bin file just a hashmap of UUID and VFS asset file path string, it writes the *.rzasset files into respective folders as-usual.
-    - Engine has a folder called Asset inside game folder to load *.rzasset from using relative VFS paths, as for raw assets we can have Raw in the same directory as Assets.
-    - In Shipping builds use the PakRead/Write APIs to write *.rzasset files and Pak API will take care of compressing them or streaming etc., we just launch Jobs and use APIs here.
-2. Async Asset loading
-    - In Development builds, it checks the assetdb.bin loaded hashmap in runtime and async loads it by issuing a Job
-    - In Shipping builds, it checks the UUID <--> Pak hashmap instead to load that pak into memory by issuing a stream and decompress job.
-    - These hashmaps are owned by RZAssetDB for now, current zone or zones to load can be done by the poking into the SceneGraph and checking. 
-- Different scenegraphs are loaded by the scene manager I suppose not really important now.
-
-### Dev Build
-
-- Instantiate scenegraph is done first before loading assets.
-
-- Load assetdb.bin
-- Zone Activate:
-    - Instantiate scenegraph subtree
-    - For each UUID -> load loose asset -> Async fills slots
-- Zone Deactivate:
-    - Release asset references
-
-### Shipping Build
-
-- Open Shared.pak
-- We load 
-- Register UUID map
-- Zone Activate:
-    - Open zone pak
-    - Register UUID -> Pak mapping -> Async load all chunks (initial version)
-
-- Zone Deactivate:
-    - Free chunks
-    - Close pak --> Unregister UUIDs
-
-**Streaming granularity = Zone** (no streaming in Development builds)
-
-## SceneGraph format
-
-Scenegraph in razix will use **S-expressions** with SIMD accelerated c-parser library(compiled into core for now, maybe seperate library in future or move it to Tools if blender needs it) from engine. 
-
-[Source]: https://en.wikipedia.org/wiki/S-expression
-
-.scenegraph file format:
-- Zone directory at the top
-- Per-Zone Scenegraph hierarchy of nodes
-- Lazy zone loading with mmap 
-- SIMD S-expression parsing
-- Transform pooling per zone (Num of transforms, rotations, scales, world matrices etc. or just matrices that we can decompose)
-    - each zone has a bunch of data about scene node transforms, that are loaded into the transform pool
-    - Each transform asset actually has just index
-    - Transform assets are packed into scene files without compression but we pack them IDK why tho. convoluted this.
-Each Zone directory has the zone name, idx, bounds, world position
-Each Zone has the bounds, scene hierarchy for that zone, transforms pools for that zone.
-
-```
+```lisp
 (scene-file
   (header
     (version 1)
-    (scene-bounds (min -1000 -1000 -1000) (max 1000 1000 1000))
-    (zone-grid-dims 20 20 20)
-    (zone-physical-size 100))
+    (scene-bounds (min -1000 -1000 -1000) (max 1000 1000 1000)))
   
     (zone "zone_0_0_0" 
-      (grid-pos 0 0 0)                           ; Grid coordinates
+      (grid-pos 0 0 0)
       (world-bounds (min 0 0 0) (max 100 100 100))
-      (offset 2048)                              ; File offset
-      (size 8192))                               ; Zone data size
-    
-    (zone "zone_0_0_1"
-      (grid-pos 0 0 1)
-      (world-bounds (min 0 0 100) (max 100 100 200))
-      (offset 10240)
-      (size 7456))
-    
-    (zone "zone_1_0_0"
-      (grid-pos 1 0 0)
-      (world-bounds (min 100 0 0) (max 200 100 100))
-      (offset 17696)
-      (size 9120))
-    
-    ... more entries ...
-  )
-  
-  ; Everything below this point is zone data
-  ; Never parsed unless zone is needed! 
-  
+      (offset 2048) (size 8192))
+)
 
 (zone_0_0
   (transforms
-    (0 0 0 0 0 0 0 1 1 1 1)
-    (1 50 0 50 0 0 0 1 1 1 1)
-    (2 25 10 25 0 0.707 0 0.707 2 2 2))
+    (0 0 0 0 0 0 0 1 1 1 1))
 
   (transform world_root 0
     (transform player_spawn 1
-      (mesh player_body a1b2c3d4e5f67890abcdef1234567890)
-      (material player_skin b2c3d4e5f67890abcdef234567890abc)
-      (light player_light c3d4e5f67890abcdef34567890abcd12))
-    (transform building_01 2
-      (mesh building_exterior d4e5f67890abcdef4567890abcdef123)
-      (mesh building_interior e5f67890abcdef567890abcdef1234567)
-      (material brick_wall f67890abcdef67890abcdef12345678ab)
-      (light ceiling_lamp 1234567890abcdef1234567890abcdef))))
-
-(zone_0_1
-  (transforms
-    (0 0 150 0 0 0 0 1 1 1 1)
-    (1 30 150 40 0 0 0 1 3 3 3))
-
-  (transform world_root 0
-    (transform forest_cluster 1
-      (mesh tree_01 2234567890abcdef1234567890abcdef)
-      (mesh tree_02 2234567890abcdef1234567890abcdef)
-      (mesh tree_03 2234567890abcdef1234567890abcdef)
-      (mesh rock_01 3234567890abcdef1234567890abcdef)
-      (audio ambient_birds 4234567890abcdef1234567890abcdef))))
-
-(zone_1_0
-  (transforms
-    (0 150 0 0 0 0 0 1 1 1 1)
-    (1 180 0 30 0 0.383 0 0.924 1 1 1))
-
-  (transform world_root 0
-    (script enemy_spawner 5234567890abcdef1234567890abcdef
-      (mesh spawn_marker 6234567890abcdef1234567890abcdef))
-    (transform watchtower 1
-      (mesh tower_base 7234567890abcdef1234567890abcdef)
-      (mesh tower_top 8234567890abcdef1234567890abcdef)
-      (light beacon 9234567890abcdef1234567890abcdef)
-      (camera security_cam a234567890abcdef1234567890abcdef))))
-  
-  ...  rest of zones ...)
+      (mesh player_body uuid...)
+      (material player_skin uuid...))))
 ```
-## Scene Graph Grammar   ]
-```
+
+### Scene Graph Grammar
+```bnf
 scene       := (scene VERSION bounds grid zone*)
 bounds      := (bounds MIN_X MIN_Y MIN_Z MAX_X MAX_Y MAX_Z)
 grid        := (grid DIM_X DIM_Y DIM_Z ZONE_SIZE)
 
-zone        := (zone NAME GRID_X GRID_Y GRID_Z MIN_X MIN_Y MIN_Z MAX_X MAX_Y MAX_Z transforms node*)
+zone        := (zone NAME GRID_X...MAX_Z transforms node*)
 transforms  := (transforms xform* node*)
 xform       := (INDEX)
 
@@ -433,103 +256,35 @@ asset_node     := (TYPE NAME UUID node*)
 TYPE        := mesh | material | light | camera | script | audio | fx
 ```
 
-Design FAQs?
-Q. how will zone handle scene hierarchies?does each zone have a root node? or can we have scene hierarchies part of the zone? which is better?
-==> Each zone has its own independent scene hierarchy with its own root node. Each zone is completely self-contained and can load/unload without affecting other zones.
+---
 
-```
-(zone "zone_0_0_0"
-  (bounds (min 0 0 0) (max 100 100 100))
-  (grid-pos 0 0 0)
-  (transforms ...)
-  
-  (root-node "zone_0_0_0_root"      ; ← Zone's own root
-    (transform-id 0)
-    (children
-      (node "building_1" (transform-id 1) (children ...))
-      (node "light_1" (transform-id 2) (component "Light"))
-      (node "enemy_group" (transform-id 3) (children ...)))))
+## Asset Database & Streaming Workflows
 
-(zone "zone_0_0_1"
-  (bounds (min 0 0 100) (max 100 100 200))
-  (grid-pos 0 0 1)
-  (transforms ...)
-  
-  (root-node "zone_0_0_1_root"      ; ← Different root
-    (transform-id 0)
-    (children
-      (node "forest_trees" (transform-id 1) (children ...))
-      (node "creatures" (transform-id 2) (children ...)))))
-```
+### Dev Build
+- **Storage**: Loose `*.rzasset` files on disk.
+- **Registry**: `assetdb.bin` stores the map of `UUID -> VFS Path`.
+- **Action**: On Zone Activate, the system instantiates the scenegraph subtree and async-fills slots via the VFS paths.
 
-Q. What about cross-zone mission triggers?
-==> Use global triggers for this create a new system in scene graph file and handle it. As of now let's see. We will try to develop this with the constrains of independent zones.
+### Shipping Build
+- **Storage**: Zone-specific `*.pak` files.
+- **Registry**: `UUID -> Pak` mapping.
+- **Action**: On Zone Activate, the system opens the zone pak and async-loads chunks.
+- **Streaming**: Granularity is at the **Zone** level.
 
-```
-(global-triggers
-    (trigger "enter_forest"
-      (bounds (min 90 0 90) (max 110 100 110))
-      (event "mission_forest_ambush"))
-    (trigger "reach_city"
-      (bounds (min 180 0 -20) (max 220 100 20))
-      (event "mission_city_gates")))
-```
+---
 
-## Zones
-Each level loads a bunch of zones, mainly the central zone and some neightbouring zones, as for streaming we can load the entire pak file and load the assets into memory.
+## Naming & Validation
 
-## Compression per zone/pak
+- **Naming**: `ASSET_TYPE_PREFIX_AssetName*.rzasset` (e.g., `MAT_Gold.rzasset`).
+- **Validation (Dev)**: Verify UUIDs in `.scenegraph` exist in `assetdb.bin`.
+- **Validation (Shipping)**: Cross-reference `RZPakFileEntry` against the SceneGraph.
 
-### Development builds
-- Each dev build stores lose *.rzasset files on disk. 
-- We will have a assetdb.bin to mape UUID --> Asset file paths, we can store as we like. But we will maintain storing meshes/textures/audio etc. together for sanity.
+---
 
-## Shipping builds
-- Each *.rzasset is written into 1/4/256 MB chunks (will decide after profiling) and then compressed and multiple chunks will be written into a *.pak file **per ZONE**
-- We can stream the corresponding zone and decompress the chunks per zone pak into memory. Granulity is suubject to profiling.
-- Each chunk independently decompressible
-- No per-asset compression
-- Compression only at chunk level
-- Offsets relative to decompressed buffer
+## Pak and Storage Data Structures
 
-## Asset Validation 
-
-### [Development Builds]
-- We can verify the asset UUIDs (16-byte data) in a *.scenegraph file with the UUIDs in the assetdb.bin file to make sure they exist. 
-- Stale resources can be removed or deleted or proned or replaces with default assets.
-
-### [Shipping Builds]
-- We can verify each of the PAK file and read it's RZPakFileEntry and check that UUID against the *.scenegraph file.
-
-We can do this in the RazixAssetManager tool, where we can validate them and also peek at the pak files and loose *.rzasset files via loading the assetdb.bin file.
-
-Zone are merely a virtual concept no concrete seperation in files exist, except for the *.scenegraph file.
-
-# Pak and some data structures
-
-```C++
-struct RZZone
-{
-    char name[64];
-    AABB bounds;
-
-    RZPak* pak;          // nullptr in dev
-    SceneGraph graph;
-
-    ZoneState state;     // Unloaded, Loading, Loaded
-};
-```
-Pak Disk Layout
-```
-[ PakHeader ]
-[ FileEntry[] ]
-[ ChunkEntry[] ]
-[ ChunkData... ]
-```
-
-```C++
-struct RZPakHeader
-{
+```cpp
+struct RZPakHeader {
     u32 magic;
     u32 version;
     u32 fileCount;
@@ -537,19 +292,16 @@ struct RZPakHeader
     u64 fileTableOffset;
     u64 chunkTableOffset;
     u32 chunkSize;
-    u32 flags;
 };
 
-struct RZPakFileEntry
-{
+struct RZPakFileEntry {
     UUID assetID;
     u32 chunkIndex;
     u32 offsetInChunk;
     u32 size;
 };
 
-struct RZPakChunkEntry
-{
+struct RZPakChunkEntry {
     u64 fileOffset;
     u32 compressedSize;
     u32 uncompressedSize;
@@ -557,391 +309,35 @@ struct RZPakChunkEntry
 };
 ```
 
+---
+
 ## Implementation Milestones
 
-Phase - 1
-0. AssetDB and Pool and Asset types etc.
-1. BinaryArhive serialization
-2. RZAssetDB --> assetdb.bin for development builds to map UUIDs to *.rzasset --> simple hashmap of 16byte UUIDs mapped to VFS relative paths from //Assets
-3. S-expression based SceneGraph parsing and build nodes
-    0. SceneManager to load and store scene, probably owned by the application? or a singleton? Simple Class in 
-    1. Zone as first class nodes
-    2. SIMD accelerated tokenization for s-expressions
-    3. load basic tree nodes fom s-expression tokenization results etc.
-    4. ISceneGraphRules for nodes tagging and validation
-    5. SceneGraph stores the active zone
-    6. Updating scenegraph transforms etc. and uupdates/querying all that mumbo jumbo
-    7. SceneGraph file per zone transforms shit
-4. Async asset loading for *.rzasset, and update stuff in the scenegraph node.
-5. RZPak reader and write API + #define to tweak chunking size frequency
-    1. basic pak write/read API, add chunks and create paylaods after memory frequcny
-    2. Compress and write to file and decompress and readback into RZAssetPools using asset types
-6. Blender Integration
+### Phase 1
+- AssetDB and Pool foundations.
+- BinaryArchive serialization.
+- `assetdb.bin` for development UUID mapping.
+- S-expression parsing and Zone nodes.
+- Async asset loading for `*.rzasset`.
+- Basic Pak reader/writer APIs.
 
-Phase - 2
-7. Debug tool to vis *.rzasset and validation:
-    - scenegraph via comparing with assedtb.bin and for pak files header peaking and use the UUIDs to match against scenegraph files.
-8. Zones streaming via RZAssetDB --> calling in RZAssetStreaming APIs and using the scenegraph to predict next active zones to load etc. using player positions
-9. Hook up RZPak with Async asset loading
+### Phase 2
+- Debug tools for `*.rzasset` visualization.
+- Zone streaming based on player position.
+- Blender workflow integration.
 
 ---
 
-## SceneGraph prototype DS and APIs
-```C
-#pragma once
+## Design FAQs
 
-#include "rz_types.h"
-#include "rz_uuid.h"
-#include "rz_asset.h"
-#include "rz_math.h"
+**Q: How will someone know if the asset is READY?**
+**A:** Use the handle to get the `RZAsset` pointer and subscribe to events. The SceneGraph uses these events to mark nodes dirty and trigger updates.
 
-#include <stdbool.h>
+**Q: How to load all assets from disk? What is the workflow?**
+**A:** As the scenegraph is parsed, we identify the atom type. This calls an opaque function that triggers the internal templated load, and we are good to go.
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+**Q: How will zones handle scene hierarchies?**
+**A:** Each zone has its own independent scene hierarchy with its own root node. They are completely self-contained and can load/unload without affecting others.
 
-/* ═══════════════════════════════════════════════════════════════════════════
- * Constants
- * ═══════════════════════════════════════════════════════════════════════════ */
-
-#define RZ_SCENE_NODE_NULL          (-1)
-#define RZ_ZONE_NAME_MAX            64
-#define RZ_NODE_NAME_MAX            64
-#define RZ_ZONE_MAX                 512
-#define RZ_SCENE_GRAPH_VERSION      1
-
-/* ═══════════════════════════════════════════════════════════════════════════
- * Node Flags
- * ═══════════════════════════════════════════════════════════════════════════ */
-
-typedef enum rz_node_flags {
-    RZ_NODE_FLAG_NONE           = 0,
-    RZ_NODE_FLAG_DIRTY          = (1 << 0),   /* transform or asset changed   */
-    RZ_NODE_FLAG_VISIBLE        = (1 << 1),
-    RZ_NODE_FLAG_STATIC         = (1 << 2),   /* never moves at runtime       */
-    RZ_NODE_FLAG_PLACEHOLDER    = (1 << 3),   /* asset still loading async    */
-} rz_node_flags;
-
-/* ═══════════════════════════════════════════════════════════════════════════
- * Gather List — per-type flat array of active node indices in a zone
- *
- * Enables data-driven batch operations without tree traversal.
- * Each entry is a node index into zone->nodes[].
- * ═══════════════════════════════════════════════════════════════════════════ */
-
-typedef struct rz_gather_list {
-    u32*    indices;         /* node indices of this asset type               */
-    u32     count;
-    u32     capacity;
-} rz_gather_list;
-
-/* ═══════════════════════════════════════════════════════════════════════════
- * Dirty Transform List — sorted by depth for correct parent-before-child
- * world matrix recomputation.
- * ═══════════════════════════════════════════════════════════════════════════ */
-
-typedef struct rz_dirty_list {
-    u32*    node_indices;
-    u32     count;
-    u32     capacity;
-} rz_dirty_list;
-
-
-/* ═══════════════════════════════════════════════════════════════════════════
- * Scene Node
- *
- * Simplified:
- *   - Removed rz_node_type (use rz_asset_type from handle)
- *   - Removed transform_id (transform is just another asset)
- *   - UUID + handle stored together for fast + persistent identity
- * ═══════════════════════════════════════════════════════════════════════════ */
-
-typedef struct rz_scene_node {
-    char                name[RZ_NODE_NAME_MAX];
-
-    /* identity ------------------------------------------------------------ */
-    rz_uuid             uuid;               /* 16 bytes — persistent         */
-    rz_asset_handle     handle;             /*  8 bytes — runtime fast-path  */
-
-    /* flags --------------------------------------------------------------- */
-    u32                 flags;              /* rz_node_flags bitmask         */
-
-    /* tree linkage (indices into zone->nodes[], -1 = null) ---------------- */
-    i32                 parent;
-    i32                 first_child;
-    i32                 next_sibling;
-} rz_scene_node;
-
-/* ═══════════════════════════════════════════════════════════════════════════
- * Zone State
- * ═══════════════════════════════════════════════════════════════════════════ */
-
-typedef enum rz_zone_state {
-    RZ_ZONE_UNLOADED    = 0,
-    RZ_ZONE_LOADING     = 1,
-    RZ_ZONE_LOADED      = 2,
-} rz_zone_state;
-
-/* ═══════════════════════════════════════════════════════════════════════════
- * Zone
- * ═══════════════════════════════════════════════════════════════════════════ */
-
-typedef struct rz_zone {
-    char                name[RZ_ZONE_NAME_MAX];
-    i32                 grid_pos[3];
-    rz_aabb             bounds;
-
-    rz_zone_state       state;
-
-    /* node storage -------------------------------------------------------- */
-    rz_scene_node*      nodes;
-    u32                 node_count;
-    u32                 node_capacity;
-    u32                 root_node_index;     /* always 0                      */
-
-    u32*                node_freelist;
-    u32                 node_freelist_top;
-
-    /* ── per-type gather lists (data-driven batch ops) ─────────────────── */
-    rz_gather_list      gather[RZ_ASSET_TYPE_COUNT];
-
-    /* ── dirty transform tracking ──────────────────────────────────────── */
-    rz_dirty_list       dirty_transforms;
-
-    /* pak — NULL in development builds ------------------------------------ */
-    struct rz_pak*      pak;
-
-    /* file offset/size for lazy mmap -------------------------------------- */
-    u64                 file_offset;
-    u64                 file_size;
-} rz_zone;
-
-/* ═══════════════════════════════════════════════════════════════════════════
- * Global Trigger
- * ═══════════════════════════════════════════════════════════════════════════ */
-
-typedef struct rz_global_trigger {
-    char                name[RZ_NODE_NAME_MAX];
-    rz_aabb             bounds;
-    u32                 event_hash;
-} rz_global_trigger;
-
-/* ═══════════════════════════════════════════════════════════════════════════
- * Scene Graph
- * ═══════════════════════════════════════════════════════════════════════════ */
-
-typedef struct rz_scene_graph {
-    u32                     version;
-    rz_aabb                 scene_bounds;
-
-    u32                     grid_dims[3];
-    f32                     zone_physical_size;
-
-    rz_zone                 zones[RZ_ZONE_MAX];
-    u32                     zone_count;
-    u32                     active_zone_index;
-
-    rz_global_trigger*      triggers;
-    u32                     trigger_count;
-
-    void*                   mmap_base;
-    u64                     mmap_size;
-} rz_scene_graph;
-
-/* ═══════════════════════════════════════════════════════════════════════════
- * Scene Graph Manager
- * ═══════════════════════════════════════════════════════════════════════════ */
-
-typedef struct rz_scene_graph_manager {
-    rz_scene_graph*     active_scene;
-    rz_scene_graph*     queued_scenes[8];
-    u32                 queued_count;
-    rz_vec3             observer_position;
-    struct rz_asset_db* asset_db;
-} rz_scene_graph_manager;
-
-/* ═══════════════════════════════════════════════════════════════════════════
- *
- *  SCENE GRAPH API
- *
- * ═══════════════════════════════════════════════════════════════════════════ */
-
-/* ── Lifecycle ───────────────────────────────────────────────────────────── */
-
-rz_scene_graph* rz_scene_graph_create(const void* file_data, u64 file_size);
-void            rz_scene_graph_destroy(rz_scene_graph* sg);
-
-/* Master update — called once per frame by game thread */
-void rz_scene_graph_update(rz_scene_graph* sg, 
-                            rz_vec3 observer_position, 
-                            f32 delta_time);
-
-/* ── Zone Lifecycle ────────────────────────────────────────────────────── */
-
-bool rz_zone_activate(rz_scene_graph* sg, u32 zone_idx);
-void rz_zone_deactivate(rz_scene_graph* sg, u32 zone_idx);
-
-rz_zone*       rz_zone_get(rz_scene_graph* sg, u32 zone_idx);
-const rz_zone* rz_zone_get_const(const rz_scene_graph* sg, u32 zone_idx);
-i32            rz_zone_find_by_name(const rz_scene_graph* sg, const char* name);
-i32            rz_zone_find_by_grid_pos(const rz_scene_graph* sg, i32 x, i32 y, i32 z);
-
-/* ── Node Operations (scene-graph-centric naming) ───────────────────────── */
-
-/* Attach pre-created asset to tree */
-i32 rz_scene_graph_attach_asset(rz_scene_graph* sg,
-                                 i32 parent_node_idx,
-                                 const char* name,
-                                 rz_uuid uuid,
-                                 rz_asset_handle handle);
-
-/* Convenience: create asset + attach to tree */
-i32 rz_scene_graph_create_node(rz_scene_graph* sg,
-                                struct rz_asset_db* asset_db,
-                                i32 parent_node_idx,
-                                const char* name,
-                                rz_uuid uuid,
-                                rz_asset_type type);
-
-/* Detach node from tree (keeps asset alive) */
-void rz_scene_graph_detach_node(rz_scene_graph* sg, i32 node_idx);
-
-/* Detach + destroy asset */
-void rz_scene_graph_destroy_node(rz_scene_graph* sg,
-                                  struct rz_asset_db* asset_db,
-                                  i32 node_idx);
-
-/* ── Node Queries ──────────────────────────────────────────────────────── */
-
-rz_scene_node*       rz_scene_graph_get_node(rz_scene_graph* sg, i32 node_idx);
-const rz_scene_node* rz_scene_graph_get_node_const(const rz_scene_graph* sg, i32 node_idx);
-
-i32 rz_scene_graph_find_node(const rz_scene_graph* sg, rz_uuid uuid);
-i32 rz_scene_graph_find_node_by_name(const rz_scene_graph* sg, const char* name);
-i32 rz_scene_graph_find_node_global(const rz_scene_graph* sg, rz_uuid uuid);
-
-/* ── Transforms ────────────────────────────────────────────────────────── */
-
-/* Get the transform asset for this node (walks up tree if node is not a transform) */
-rz_asset_handle rz_scene_graph_get_transform(const rz_scene_graph* sg, i32 node_idx);
-
-void rz_scene_graph_set_position(rz_scene_graph* sg, i32 node_idx, rz_vec3 pos);
-void rz_scene_graph_set_rotation(rz_scene_graph* sg, i32 node_idx, rz_quat rot);
-void rz_scene_graph_set_scale(rz_scene_graph* sg, i32 node_idx, rz_vec3 scale);
-
-/* Internal: recompute dirty transforms in active zones */
-void rz_scene_graph_update_transforms(rz_scene_graph* sg);
-
-/* ── Traversal ─────────────────────────────────────────────────────────── */
-
-typedef bool (*rz_node_visit_fn)(rz_scene_graph* sg, i32 node_idx, u32 depth, void* user);
-
-void rz_scene_graph_traverse_depth_first(rz_scene_graph* sg, i32 start_node,
-                                          rz_node_visit_fn visit, void* user);
-void rz_scene_graph_traverse_breadth_first(rz_scene_graph* sg, i32 start_node,
-                                            rz_node_visit_fn visit, void* user);
-
-/* ── Asset Resolution ──────────────────────────────────────────────────── */
-
-/* Called by asset system when async load completes */
-void rz_scene_graph_resolve_asset(rz_scene_graph* sg, i32 node_idx,
-                                   rz_asset_handle resolved_handle);
-
-/* ── Serialization ─────────────────────────────────────────────────────── */
-
-u64 rz_zone_serialize_sexp(const rz_zone* zone, void* out_buf, u64 buf_size);
-u64 rz_scene_graph_serialize(const rz_scene_graph* sg, void* out_buf, u64 buf_size);
-
-
-/* ═══════════════════════════════════════════════════════════════════════════
- *
- *  SCENE GRAPH MANAGER API
- *
- * ═══════════════════════════════════════════════════════════════════════════ */
-
-rz_scene_graph_manager* rz_scene_graph_manager_create(struct rz_asset_db* db);
-void rz_scene_graph_manager_destroy(rz_scene_graph_manager* mgr);
-
-void rz_scene_graph_manager_load_scene(rz_scene_graph_manager* mgr, const char* path);
-void rz_scene_graph_manager_unload_scene(rz_scene_graph_manager* mgr);
-void rz_scene_graph_manager_queue_scene(rz_scene_graph_manager* mgr, const char* path);
-
-void rz_scene_graph_manager_update(rz_scene_graph_manager* mgr, f32 delta_time);
-void rz_scene_graph_manager_set_observer(rz_scene_graph_manager* mgr, rz_vec3 position);
-
-/* ═══════════════════════════════════════════════════════════════════════════
- *
- *  S-EXPRESSION TOKENIZER (SIMD-accelerated)
- *
- * ═══════════════════════════════════════════════════════════════════════════ */
-
-typedef enum rz_sexp_token_type {
-    RZ_SEXP_LPAREN,
-    RZ_SEXP_RPAREN,
-    RZ_SEXP_ATOM,
-    RZ_SEXP_STRING,
-} rz_sexp_token_type;
-
-typedef struct rz_sexp_token {
-    u32                 offset;
-    u32                 length;
-    rz_sexp_token_type  type;
-} rz_sexp_token;
-
-typedef struct rz_sexp_tokenizer_result {
-    rz_sexp_token*      tokens;
-    u32                 count;
-    u32                 capacity;
-} rz_sexp_tokenizer_result;
-
-rz_sexp_tokenizer_result rz_sexp_tokenize(const char* src, u64 src_size);
-void                     rz_sexp_tokenizer_free(rz_sexp_tokenizer_result* result);
-
-bool rz_sexp_build_zone(rz_zone* zone, const char* src,
-                         const rz_sexp_tokenizer_result* tokens);
-
-bool rz_sexp_parse_scene_header(rz_scene_graph* sg, const char* src,
-                                 const rz_sexp_tokenizer_result* tokens);
-
-/* ------------------ SceneGraph Rules ------------------ */
-/* internal to rz_scene_graph.c, not exposed in public header */
-static const u32 s_scene_graph_child_rules[RZ_ASSET_TYPE_COUNT] = {
-    [RZ_ASSET_TRANSFORM] = (1 << RZ_ASSET_MESH) 
-                         | (1 << RZ_ASSET_LIGHT) 
-                         | (1 << RZ_ASSET_CAMERA)
-                         | (1 << RZ_ASSET_TRANSFORM),  /* transforms can nest */
-    
-    [RZ_ASSET_SCRIPT]    = (1 << RZ_ASSET_SCRIPT),     /* scripts can have sub-scripts */
-    
-    [RZ_ASSET_MESH]      = (1 << RZ_ASSET_MATERIAL),
-    
-    [RZ_ASSET_MATERIAL]  = 0,                          /* leaf node */
-    [RZ_ASSET_TEXTURE]   = 0,
-    [RZ_ASSET_LIGHT]     = 0,
-    [RZ_ASSET_CAMERA]    = 0,
-    [RZ_ASSET_AUDIO]     = 0,
-    [RZ_ASSET_FX]        = 0,
-};
-
-/* Only TRANSFORM and SCRIPT can be direct children of a zone root */
-static const u32 s_scene_graph_root_valid_mask = 
-    (1 << RZ_ASSET_TRANSFORM) | (1 << RZ_ASSET_SCRIPT);
-
-/* internal validator */
-static inline bool
-rz_scene_graph_is_valid_child(rz_asset_type parent, rz_asset_type child)
-{
-    return (s_scene_graph_child_rules[parent] & (1 << child)) != 0;
-}
-
-static inline bool
-rz_scene_graph_is_valid_root_child(rz_asset_type type)
-{
-    return (s_scene_graph_root_valid_mask & (1 << type)) != 0;
-}
-
-#ifdef __cplusplus
-}
-#endif
-```
+**Q: What about cross-zone mission triggers?**
+**A:** Use global triggers defined in the scene graph file. We handle these as a separate system outside the independent zone hierarchy.
