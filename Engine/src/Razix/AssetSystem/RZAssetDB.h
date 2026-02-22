@@ -230,7 +230,7 @@ namespace Razix {
         void releaseAsset(rz_asset_handle handle)
         {
             u32 headerIndex  = static_cast<u32>(handle & RAZIX_ASSET_HOTDATA_MASK);
-            u32 payloadIndex = static_cast<u32>((handle & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
+            u32 payloadIndex = static_cast<u32>((handle & RAZIX_ASSET_PAYLOAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
 
             RZAssetPool<T>& pool = GetAssetPoolRef<T>();
             pool.release(payloadIndex);
@@ -241,7 +241,7 @@ namespace Razix {
         const T* getAssetResourcePtr(rz_asset_handle handle) const
         {
             const RZAssetPool<T>& pool  = GetAssetPoolRef<T>();
-            u32                   index = static_cast<u32>((handle & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
+            u32                   index = static_cast<u32>((handle & RAZIX_ASSET_PAYLOAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
             return pool.get(index);
         }
 
@@ -249,7 +249,7 @@ namespace Razix {
         T* getAssetResourceMutablePtr(rz_asset_handle handle)
         {
             RZAssetPool<T>& pool  = GetAssetPoolRef<T>();
-            u32             index = static_cast<u32>((handle & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
+            u32             index = static_cast<u32>((handle & RAZIX_ASSET_PAYLOAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
             return pool.get(index);
         }
 

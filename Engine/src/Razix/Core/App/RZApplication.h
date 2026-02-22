@@ -21,6 +21,8 @@
 #include "Razix/Core/Utils/RZTimestep.h"
 #include "Razix/Core/Utils/TRZSingleton.h"
 
+#include "Razix/Scene/RZSceneGraph.h"
+
 #include <nlohmann/json.hpp>
 
 //! Some style guide rules are waved off for RZApplication class

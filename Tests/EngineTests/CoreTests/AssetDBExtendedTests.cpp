@@ -214,7 +214,7 @@ namespace Razix {
 
         // Extract header + payload indices from handle
         static u32 HeaderIndex(rz_asset_handle h) { return static_cast<u32>(h & RAZIX_ASSET_HOTDATA_MASK); }
-        static u32 PayloadIndex(rz_asset_handle h) { return static_cast<u32>((h & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX); }
+        static u32 PayloadIndex(rz_asset_handle h) { return static_cast<u32>((h & RAZIX_ASSET_PAYLOAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX); }
     };
 
     // ═════════════════════════════════════════════════════════════

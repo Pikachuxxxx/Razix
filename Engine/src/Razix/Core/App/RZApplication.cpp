@@ -17,6 +17,8 @@
 
 #include "Razix/Events/ApplicationEvent.h"
 
+#include "Razix/Scene/RZSceneGraph.h"
+
 #include <Core/Log/RZLog.h>
 #include <Gfx/RHI/RHI.h>
 #include <backends/imgui_impl_glfw.h>

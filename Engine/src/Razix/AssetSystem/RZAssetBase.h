@@ -17,11 +17,11 @@
 
 #define RAZIX_ASSET_INVALID_HANDLE                   0xFFFFFFFFU    // use for invalid asset handles
 #define RAZIX_ASSET_INVALID_PAYLOAD_INDEX            0xFFFFFFFFU
-#define RAZIX_ASSET_PAYLOLAD_INDEX_MASK              0xFFFFFFFF00000000ULL
+#define RAZIX_ASSET_PAYLOAD_INDEX_MASK               0xFFFFFFFF00000000ULL
 #define RAZIX_ASSET_PAYLOAD_SHIFT_INDEX              32
 #define RAZIX_ASSET_HOTDATA_MASK                     0x00000000FFFFFFFFULL
 #define RAZIX_ASSET_COLDDATA_MASK                    0xFFFFFFFF00000000ULL
-#define RAZIX_ASSET_HANDLE_GET_PAYLOAD_INDEX(handle) ((u32) ((handle & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX))
+#define RAZIX_ASSET_HANDLE_GET_PAYLOAD_INDEX(handle) ((u32) ((handle & RAZIX_ASSET_PAYLOAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX))
 
 #ifdef RAZIX_DEBUG
     #define RAZIX_ASSET_PAYLOAD_HEADER \
@@ -73,7 +73,7 @@ namespace Razix {
 #undef X
             COUNT
     };
-
+#define RAZIX_ASSET_TYPE_COUNT 14
     static_assert((u32) RZAssetType::COUNT == 14, "More asset types have been added, make changes to apt places!");
 
     RAZIX_API RZString AssetTypeToVFSFilePath(RZAssetType type, const RZString& name);

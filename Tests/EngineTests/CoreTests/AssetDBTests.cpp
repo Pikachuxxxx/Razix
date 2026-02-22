@@ -129,9 +129,9 @@ namespace Razix {
         EXPECT_NE(handleA, handleB);
 
         const u32 headerA  = static_cast<u32>(handleA & RAZIX_ASSET_HOTDATA_MASK);
-        const u32 payloadA = static_cast<u32>((handleA & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
+        const u32 payloadA = static_cast<u32>((handleA & RAZIX_ASSET_PAYLOAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
         const u32 headerB  = static_cast<u32>(handleB & RAZIX_ASSET_HOTDATA_MASK);
-        const u32 payloadB = static_cast<u32>((handleB & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
+        const u32 payloadB = static_cast<u32>((handleB & RAZIX_ASSET_PAYLOAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
 
         EXPECT_LT(headerA, static_cast<u32>(RAZIX_MAX_ASSETS));
         EXPECT_LT(payloadA, static_cast<u32>(RAZIX_MAX_ASSETS));
@@ -157,9 +157,9 @@ namespace Razix {
 
         // At least one of header/payload indices should be reused after release
         const u32 header1  = static_cast<u32>(handle1 & RAZIX_ASSET_HOTDATA_MASK);
-        const u32 payload1 = static_cast<u32>((handle1 & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
+        const u32 payload1 = static_cast<u32>((handle1 & RAZIX_ASSET_PAYLOAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
         const u32 header2  = static_cast<u32>(handle2 & RAZIX_ASSET_HOTDATA_MASK);
-        const u32 payload2 = static_cast<u32>((handle2 & RAZIX_ASSET_PAYLOLAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
+        const u32 payload2 = static_cast<u32>((handle2 & RAZIX_ASSET_PAYLOAD_INDEX_MASK) >> RAZIX_ASSET_PAYLOAD_SHIFT_INDEX);
 
         EXPECT_TRUE(header1 == header2 || payload1 == payload2);
 
