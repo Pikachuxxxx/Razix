@@ -303,20 +303,20 @@ RAZIX_API bool rz_sexp_parse_scene_header(rz_scene_graph* sg, const char* src,
 /* ------------------ SceneGraph Rules ------------------ */
 
 static const u32 s_scene_graph_child_rules[(int)Razix::RZAssetType::COUNT] = {
-    0,                                                                                                                                                                                                            /* kTransform */
-    (1 << (int) Razix::RZAssetType::kMesh) | (1 << (int) Razix::RZAssetType::kLight) | (1 << (int) Razix::RZAssetType::kCamera) | (1 << (int) Razix::RZAssetType::kTransform),                                    /* kCamera */
-    0,                                                                                                                                                                                                            /* kLight */
-    (1 << (int) Razix::RZAssetType::kMaterial),                                                                                                                                                                   /* kMaterial */
-    0,                                                                                                                                                                                                            /* kPhysicsMaterial */
-    0,                                                                                                                                                                                                            /* kMesh */
-    0,                                                                                                                                                                                                            /* kTexture */
-    0,                                                                                                                                                                                                            /* kAnimation */
-    0,                                                                                                                                                                                                            /* kAudio */
-    (1 << (int) Razix::RZAssetType::kLuaScript),                                                                                                                                                                  /* kLuaScript */
-    0,                                                                                                                                                                                                            /* kAssetRef */
-    0,                                                                                                                                                                                                            /* kVignerePuzzle */
-    0,                                                                                                                                                                                                            /* kCloth */
-    0                                                                                                                                                                                                             /* kGameData */
+    (1 << (int) Razix::RZAssetType::kMesh) | (1 << (int) Razix::RZAssetType::kLight) | (1 << (int) Razix::RZAssetType::kCamera) | (1 << (int) Razix::RZAssetType::kTransform),    /* kTransform */
+    0,                                                                                                                                                                           /* kCamera */
+    0,                                                                                                                                                                           /* kLight */
+    0,                                                                                                                                                                           /* kMaterial */
+    0,                                                                                                                                                                           /* kPhysicsMaterial */
+    (1 << (int) Razix::RZAssetType::kMaterial),                                                                                                                                 /* kMesh */
+    0,                                                                                                                                                                           /* kTexture */
+    0,                                                                                                                                                                           /* kAnimation */
+    0,                                                                                                                                                                           /* kAudio */
+    (1 << (int) Razix::RZAssetType::kLuaScript),                                                                                                                                /* kLuaScript */
+    0,                                                                                                                                                                           /* kAssetRef */
+    0,                                                                                                                                                                           /* kVignerePuzzle */
+    0,                                                                                                                                                                           /* kCloth */
+    0                                                                                                                                                                            /* kGameData */
 };
 
 /* Only TRANSFORM and SCRIPT can be direct children of a zone root */

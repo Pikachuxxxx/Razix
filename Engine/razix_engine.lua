@@ -145,6 +145,9 @@ project "Razix"
     -- Disable PCH for vendors
     filter 'files:vendor/**.cpp'
         flags  { 'NoPCH' }
+    -- Disable PCH for assembly files
+    filter "files:src/Razix/Scene/*.S"
+        flags { "NoPCH" }
     filter 'files:vendor/**.c'
         flags  { 'NoPCH' }
 
