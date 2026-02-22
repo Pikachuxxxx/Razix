@@ -4,24 +4,8 @@ Razix is a High Performance Engine for a game called "Tanu"! it is not a generic
 
 _Tanu = Body/Her_
 
-_Tanu, a girl trapped in a whore house she doesn’t belong to, goes to a carnival and learns ciphers. 
-One night she decodes a strange letter from a boy and starts dreaming his memories. She also finds her
-clothes react to her emotions protecting her, changing shape, glowing. She fights dream monsters that
-guard pieces of truth about the boy and falls in love. Each boss she kills opens new dreams and puzzles
-that help her see more of him and herself. She goes on a journey of self discovery and to find love for the boy._
-
 Tanu Mood Board:
-![](./Tanu/Design/ProjectTanu_ITERATION_2.drawio.png)
-
-### 🌿 Iteration 2 Direction
-The game is evolving into a **VFS (Virtual File System) and Asset-centric** architecture. Following the principle of **"Everything is an Asset"**, we are moving away from traditional object hierarchies towards a high-performance, streamable scene graph.
-
-**Core Pillars for Iteration 2:**
-- **Cloth-Based Combat Mechanics:** Tanu is clothes are not just aesthetic; they are her weapon and shield. The engine will focus on procedural cloth simulation that reacts to emotions and combat states.
-- **Cipher-Puzzle Integration:** Deeper integration of cryptographic puzzles (based on Kamasutra skills) that unlock new dream layers and power upgrades.
-- **Streamable Scene Graph:** Implementation of a lightweight, linear scene graph optimized for async asset loading and memory budget management.
-- **Dream-Real World Synergy:** Tanu can affect the real world through her dream state, a core mechanic that drives both narrative and gameplay progression.
-
+![](./Tanu/Design/ProjectTanu.drawio.png)
 
 [tanu_mood.txt - thoughts about the direction of the game](./Tanu/Design/tanu_mood.txt)
 
