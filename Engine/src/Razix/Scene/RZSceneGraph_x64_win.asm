@@ -1,23 +1,13 @@
-#undef SYMBOL
-#ifdef __APPLE__
-    #define SYMBOL(name) _##name
-    .section __TEXT,__text,regular,pure_instructions
-#else
-    #define SYMBOL(name) name
-    .section .text
-#endif
+; RZSceneGraph_x64_win.asm - MASM syntax for MSVC ml64.exe
+.code
 
-.p2align 4
-
-.macro STUB_FUNC f
-.globl SYMBOL(\f)
-#ifndef __APPLE__
-.type SYMBOL(\f), @function
-#endif
-SYMBOL(\f):
-    xor %rax, %rax
-    ret
-.endm
+STUB_FUNC MACRO name
+    PUBLIC name
+    name PROC
+        xor rax, rax
+        ret
+    name ENDP
+ENDM
 
 STUB_FUNC rz_scene_graph_create
 STUB_FUNC rz_scene_graph_destroy
@@ -59,3 +49,5 @@ STUB_FUNC rz_sexp_tokenize
 STUB_FUNC rz_sexp_tokenizer_free
 STUB_FUNC rz_sexp_build_zone
 STUB_FUNC rz_sexp_parse_scene_header
+
+END

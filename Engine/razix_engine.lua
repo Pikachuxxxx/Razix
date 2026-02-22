@@ -97,10 +97,12 @@ project "Razix"
     }
 
     -- Scene Graph Assembly Implementations
-    filter "architecture:ARM64"
+    filter { "architecture:ARM64" }
         files { "src/Razix/Scene/*_arm64.S" }
-    filter "architecture:x86_64"
-        files { "src/Razix/Scene/*_x64.S" }
+    filter { "architecture:x86_64", "system:windows" }
+        files { "src/Razix/Scene/*_win.asm" }
+    filter { "architecture:x86_64", "system:not windows" }
+        files { "src/Razix/Scene/*_gas.S" }
     filter {}
 
     -- Lazily add the platform files based on OS config
@@ -146,7 +148,7 @@ project "Razix"
     filter 'files:vendor/**.cpp'
         flags  { 'NoPCH' }
     -- Disable PCH for assembly files
-    filter "files:src/Razix/Scene/*.S"
+    filter "files:src/Razix/Scene/*"
         flags { "NoPCH" }
     filter 'files:vendor/**.c'
         flags  { 'NoPCH' }

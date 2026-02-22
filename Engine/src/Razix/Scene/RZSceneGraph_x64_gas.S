@@ -7,7 +7,7 @@
     .section .text
 #endif
 
-.p2align 2
+.p2align 4
 
 .macro STUB_FUNC name
 .globl SYMBOL(\name)
@@ -15,7 +15,7 @@
 .type SYMBOL(\name), @function
 #endif
 SYMBOL(\name):
-    mov x0, #0
+    xor %rax, %rax
     ret
 .endm
 
