@@ -96,6 +96,13 @@ project "Razix"
         "vendor/imgui/backends/imgui_impl_vulkan.cpp",
     }
 
+    -- Scene Graph Assembly Implementations
+    filter "architecture:ARM64"
+        files { "src/Razix/Scene/*_arm64.S" }
+    filter "architecture:x86_64"
+        files { "src/Razix/Scene/*_x64.S" }
+    filter {}
+
     -- Lazily add the platform files based on OS config
 	-- Also remove the core module, they are compiled as a library
     removefiles
