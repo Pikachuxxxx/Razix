@@ -1,3 +1,5 @@
+#include "rzxpch.h"
+#undef SYMBOL
 #ifdef __APPLE__
     #define SYMBOL(name) _##name
     .section __TEXT,__text,regular,pure_instructions
