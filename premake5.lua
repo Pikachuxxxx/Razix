@@ -133,22 +133,17 @@ function apply_sanitizer_config()
         end
 
         if clangGccSanitizeFlag then
-            filter { "toolset:clang" }
-                buildoptions { clangGccSanitizeFlag, "-fno-omit-frame-pointer", "-fno-sanitize-recover=all" }
-                linkoptions  { clangGccSanitizeFlag }
-            filter { "toolset:gcc" }
+            filter { "system:macosx or linux" }
                 buildoptions { clangGccSanitizeFlag, "-fno-omit-frame-pointer", "-fno-sanitize-recover=all" }
                 linkoptions  { clangGccSanitizeFlag }
             filter {}
         end
 
         if sanitizer == "asan" then
-            filter { "toolset:msc" }
+            filter { "system:windows", "toolset:msc" }
                 buildoptions { "/fsanitize=address" }
                 linkoptions  { "/fsanitize=address" }
             filter {}
-        elseif os.target() == "windows" then
-            print("Sanitizer '" .. sanitizer .. "' is not supported by MSVC. Use clang toolset or non-Windows toolchains.")
         end
     end
 end
