@@ -19,6 +19,11 @@ SYMBOL(\name):
     ret
 .endm
 
+#------------------------------------------------------------
+# Include Files 
+#------------------------------------------------------------
+#include "RZSceneGraph_asmcompat.inc"
+
 STUB_FUNC rz_scene_graph_create
 STUB_FUNC rz_scene_graph_create_from_file
 STUB_FUNC rz_scene_graph_destroy

@@ -96,9 +96,10 @@ extern "C"
 
     typedef enum rz_zone_state
     {
-        RZ_ZONE_UNLOADED = 0,
-        RZ_ZONE_LOADING  = 1,
-        RZ_ZONE_LOADED   = 2,
+        RZ_ZONE_INVALID  = 0,
+        RZ_ZONE_UNLOADED = 1,
+        RZ_ZONE_LOADING  = 2,
+        RZ_ZONE_LOADED   = 3,
     } rz_zone_state;
 
     // Zone: Logical separation of assets and nodes for streaming, rz_scene_node it attached to rz_zone

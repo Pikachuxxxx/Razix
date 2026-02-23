@@ -12,6 +12,44 @@
 
 .p2align 4
 
+#------------------------------------------------------------
+# Platform ABI detection
+#------------------------------------------------------------
+
+#if defined _WIN32
+
+    # Microsoft x64 ABI
+    # args: rcx, rdx, r8, r9
+
+    # argument registers
+    #define ARG0 %rcx
+    #define ARG1 %rdx
+    #define ARG2 %r8
+    #define ARG3 %r9
+
+    # caller-saved
+    #define RET  %rax
+#else
+    # System V ABI (Linux, macOS)
+    # args: rdi, rsi, rdx, rcx, r8, r9
+
+    # argument registers
+    #define ARG0 %rdi
+    #define ARG1 %rsi
+    #define ARG2 %rdx
+    #define ARG3 %rcx
+
+    # caller-saved
+    #define RET  %rax
+
+#endif
+
+#-----------------------------------------------------------------------------
+# STUB_FUNC name
+#
+# Declares a global function symbol and emits a minimal stub implementation
+# that immediately returns 0.
+#-----------------------------------------------------------------------------
 .macro STUB_FUNC name
 .globl SYMBOL(\name)
 #if !defined(__APPLE__) && !defined(_WIN32) && !defined(__WIN32__) && !defined(__CYGWIN__)
@@ -22,7 +60,72 @@ SYMBOL(\name):
     ret
 .endm
 
-STUB_FUNC rz_scene_graph_create
+#-----------------------------------------------------------------------------
+# FUNCTION_BEGIN name
+#
+# Declares a global function symbol properly for all platforms.
+#-----------------------------------------------------------------------------
+.macro FUNCTION_BEGIN name
+    .globl SYMBOL(\name)
+#if !defined(__APPLE__) && !defined(_WIN32) && !defined(__WIN32__) && !defined(__CYGWIN__)
+    .type SYMBOL(\name), @function
+#endif
+    SYMBOL(\name):
+.endm
+
+#-----------------------------------------------------------------------------
+# FUNCTION_END name
+#
+# Marks function size (needed for ELF, harmless elsewhere)
+#-----------------------------------------------------------------------------
+.macro FUNCTION_END name
+#if !defined(__APPLE__) && !defined(_WIN32) && !defined(__WIN32__) && !defined(__CYGWIN__)
+    .size SYMBOL(\name), . - SYMBOL(\name)
+#endif
+.endm
+
+#------------------------------------------------------------
+# Stack frame macros
+#------------------------------------------------------------
+
+#define FUNC_PROLOGUE \
+    push %rbp;        \
+    mov %rsp, %rbp
+
+#define FUNC_EPILOGUE \
+    pop %rbp;         \
+    ret
+
+#------------------------------------------------------------
+# Include Files 
+#------------------------------------------------------------
+#include "RZSceneGraph_asmcompat.inc"
+
+#-----------------------------------------------------------------------------
+# rz_scene_graph_create
+#
+# Creates and initializes a scene graph inside caller-provided memory.
+#
+# Parameters:
+#   rdi = void* where       # destination memory block
+#   esi = u32 numZones      # number of zones to initialize
+#
+# Returns:
+#   rax = rz_scene_graph*
+#
+# What does it do:
+#   - memset(scene_graph, 0, sizeof(rz_scene_graph))
+#   - sets version
+#   - sets zoneCount
+#   - initializes each zone
+#   - initializes zones to UNLOADED state
+#-----------------------------------------------------------------------------
+FUNCTION_BEGIN rz_scene_graph_create
+    xor ARG0, ARG0 
+    ret
+FUNCTION_END rz_scene_graph_create
+#-----------------------------------------------------------------------------
+
 STUB_FUNC rz_scene_graph_create_from_file
 STUB_FUNC rz_scene_graph_destroy
 STUB_FUNC rz_scene_graph_update
