@@ -97,12 +97,12 @@ project "Razix"
     }
 
     -- Scene Graph Assembly Implementations
-    filter { "architecture:ARM64" }
+    filter { "architecture:ARM64", "system:macosx" }
         files { "src/Razix/Scene/*_arm64.S" }
-    filter { "architecture:x86_64" }
-        files { "src/Razix/Scene/*_gas.S" }
+    filter { "architecture:x86_64", "system:windows or linux" }
+        files { "src/Razix/Scene/*_x64_gas.S" }
     -- On Windows, use clang to compile GAS (.S) files since MASM (ml64.exe) does not support them
-    filter { "system:windows", "files:src/Razix/Scene/*_gas.S" }
+    filter { "system:windows", "files:src/Razix/Scene/*_x64_gas.S" }
         buildmessage "Assembling %{file.name} with Clang..."
         buildcommands {
             "clang -c \"%{file.relpath}\" -o \"%{cfg.objdir}/%{file.basename}.obj\""
