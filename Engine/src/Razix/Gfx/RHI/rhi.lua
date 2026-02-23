@@ -72,14 +72,10 @@ project "RHI"
 
         -- Build options for Windows / Visual Studio (MSVC)
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
-        filter "toolset:msc"
-            buildoptions
-            {
-                "/MP", "/bigobj"
-            }
-        filter "toolset:clang"
-            -- clang options
-        filter "system:windows" 
+        buildoptions
+        {
+            "/MP", "/bigobj"
+        }
 
         linkoptions
         {

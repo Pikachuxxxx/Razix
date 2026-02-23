@@ -101,6 +101,16 @@ project "Razix"
         files { "src/Razix/Scene/*_arm64.S" }
     filter { "architecture:x86_64" }
         files { "src/Razix/Scene/*_gas.S" }
+    -- On Windows, use clang to compile GAS (.S) files since MASM (ml64.exe) does not support them
+    filter { "system:windows", "files:src/Razix/Scene/*_gas.S" }
+        buildmessage "Assembling %{file.name} with Clang..."
+        buildcommands {
+            "clang -c \"%{file.relpath}\" -o \"%{cfg.objdir}/%{file.basename}.obj\""
+        }
+        buildoutputs {
+            "%{cfg.objdir}/%{file.basename}.obj"
+        }
+
     filter {}
 
     -- Lazily add the platform files based on OS config
@@ -176,24 +186,14 @@ project "Razix"
 
         -- Build options for Windows / Visual Studio (MSVC)
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
-        filter "toolset:msc"
-            buildoptions
-            {
-                "/MP", "/bigobj", 
-                -- AVX2
-                "/arch:AVX2", 
-                -- TODO: enable FMA and AVX512
-                -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
-            }
-
-        filter "toolset:clang"
-            buildoptions
-            {
-                "-march=native",
-                "-mavx2",
-                "-mfma",
-            }
-        filter "system:windows" 
+        buildoptions
+        {
+            "/MP", "/bigobj", 
+            -- AVX2
+            "/arch:AVX2", 
+            -- TODO: enable FMA and AVX512
+            -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
+        }
 
         linkoptions
         {

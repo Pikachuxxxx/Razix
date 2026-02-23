@@ -79,23 +79,14 @@ project "EngineTests"
             "%{wks.location}/../Engine/vendor/winpix/Include/WinPixEventRuntime"
         }
 
-        filter "toolset:msc"
-            buildoptions
-            {
-                "/MP", "/bigobj", 
-                -- AVX2
-                "/arch:AVX2", 
-                -- TODO: enable FMA and AVX512
-                -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
-            }
-        filter "toolset:clang"
-            buildoptions
-            {
-                "-march=native",
-                "-mavx2",
-                "-mfma",
-            }
-        filter "system:windows" 
+        buildoptions
+        {
+            "/MP", "/bigobj", 
+            -- AVX2
+            "/arch:AVX2", 
+            -- TODO: enable FMA and AVX512
+            -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
+        }
 
     filter "system:macosx"
         cppdialect "C++17"
