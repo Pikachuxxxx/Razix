@@ -99,9 +99,7 @@ project "Razix"
     -- Scene Graph Assembly Implementations
     filter { "architecture:ARM64" }
         files { "src/Razix/Scene/*_arm64.S" }
-    filter { "architecture:x86_64", "system:windows" }
-        files { "src/Razix/Scene/*_win.asm" }
-    filter { "architecture:x86_64", "system:not windows" }
+    filter { "architecture:x86_64" }
         files { "src/Razix/Scene/*_gas.S" }
     filter {}
 
@@ -178,14 +176,24 @@ project "Razix"
 
         -- Build options for Windows / Visual Studio (MSVC)
         -- https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-library-features?view=msvc-170 
-        buildoptions
-        {
-            "/MP", "/bigobj", 
-            -- AVX2
-            "/arch:AVX2", 
-            -- TODO: enable FMA and AVX512
-            -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
-        }
+        filter "toolset:msc"
+            buildoptions
+            {
+                "/MP", "/bigobj", 
+                -- AVX2
+                "/arch:AVX2", 
+                -- TODO: enable FMA and AVX512
+                -- Treats all compiler warnings as errors! https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170
+            }
+
+        filter "toolset:clang"
+            buildoptions
+            {
+                "-march=native",
+                "-mavx2",
+                "-mfma",
+            }
+        filter "system:windows" 
 
         linkoptions
         {

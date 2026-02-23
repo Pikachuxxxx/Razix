@@ -71,7 +71,11 @@ project "Tanu"
         cppdialect (engine_global_config.cpp_dialect)
         staticruntime "off"
         systemversion "latest"
-        buildoptions { "/MP", "/bigobj" }
+        filter "toolset:msc"
+            buildoptions { "/MP", "/bigobj" }
+        filter "toolset:clang"
+            -- clang specific options for Tanu
+        filter "system:windows" 
 
         includedirs {
             VulkanSDK .. "/include",

@@ -164,10 +164,12 @@ end
 workspace ( settings.workspace_name )
     location "build"
     startproject "Tanu" -- Actual game
-    flags 'MultiProcessorCompile' --(this won't work with clang)
+    filter "toolset:msc"
+        flags "MultiProcessorCompile"
+    filter {}
 
     -- Use clang on windows
-    --toolset "clang"
+    toolset "clang"
 
     -- Output directory path based on build config
     outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
