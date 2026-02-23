@@ -105,7 +105,7 @@ project "Razix"
     filter { "system:windows", "files:src/Razix/Scene/*_x64_gas.S" }
         buildmessage "Assembling %{file.name} with Clang..."
         buildcommands {
-            "clang -c \"%{file.relpath}\" -o \"%{cfg.objdir}/%{file.basename}.obj\""
+            "clang -c -D_WIN32 \"%{file.relpath}\" -o \"%{cfg.objdir}/%{file.basename}.obj\""
         }
         buildoutputs {
             "%{cfg.objdir}/%{file.basename}.obj"

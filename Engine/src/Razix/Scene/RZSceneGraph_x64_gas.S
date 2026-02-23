@@ -1,7 +1,10 @@
 #undef SYMBOL
-#ifdef __APPLE__
+#if defined(__APPLE__)
     #define SYMBOL(name) _##name
     .section __TEXT,__text,regular,pure_instructions
+#elif defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+    #define SYMBOL(name) name
+    .section .text
 #else
     #define SYMBOL(name) name
     .section .text
@@ -11,7 +14,7 @@
 
 .macro STUB_FUNC name
 .globl SYMBOL(\name)
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(_WIN32) && !defined(__WIN32__) && !defined(__CYGWIN__)
 .type SYMBOL(\name), @function
 #endif
 SYMBOL(\name):
