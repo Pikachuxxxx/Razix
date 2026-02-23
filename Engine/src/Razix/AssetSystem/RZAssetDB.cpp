@@ -327,24 +327,27 @@ namespace Razix {
         }
     }
 
+    template<typename AllocatorT>
     struct RZAssetAsyncLoadJob
     {
         rz_job* job;
 
-        RZAssetAsyncLoadJob(RZString jobName, const RZAssetAsyncLoadJobData& jobData)
+        // [Refactor] Inject the allocator instead of calling Singleton internally
+        // Using a template allows passing either RZHeapAllocator or RZBumpAllocator
+        RZAssetAsyncLoadJob(RZString jobName, const RZAssetAsyncLoadJobData& jobData, AllocatorT& allocator)
         {
-            Memory::RZBumpAllocator& frameAllocator = RZEngine::Get().getFrameAllocator();
-
-            job = static_cast<rz_job*>(frameAllocator.allocate(sizeof(rz_job)));
+            job = static_cast<rz_job*>(allocator.allocate(sizeof(rz_job)));
             RAZIX_CORE_ASSERT(job != NULL, "[AssetSystem] Failed to allocate memory for async asset load job.");
-            rz_job_cold* coldData = static_cast<rz_job_cold*>(frameAllocator.allocate(sizeof(rz_job_cold), RAZIX_CACHE_LINE_ALIGN));
+
+            rz_job_cold* coldData = static_cast<rz_job_cold*>(allocator.allocate(sizeof(rz_job_cold), RAZIX_CACHE_LINE_ALIGN));
             RAZIX_CORE_ASSERT(coldData != NULL, "[AssetSystem] Failed to allocate memory for async asset load job cold data.");
             job->pCold = coldData;
+
             // TODO: Use a razix utility function to set const char* names safely
             memcpy(coldData->pName, jobName.c_str(), std::min(jobName.size(), static_cast<size_t>(RAZIX_JOB_NAME_MAX_CHARS - 1)));
             job->hot.pFunc = AsyncRZAssetLoadJob;
 
-            RZAssetAsyncLoadJobData* jobDataPtr = static_cast<RZAssetAsyncLoadJobData*>(frameAllocator.allocate(sizeof(RZAssetAsyncLoadJobData)));
+            RZAssetAsyncLoadJobData* jobDataPtr = static_cast<RZAssetAsyncLoadJobData*>(allocator.allocate(sizeof(RZAssetAsyncLoadJobData)));
             RAZIX_CORE_ASSERT(jobDataPtr != NULL, "[AssetSystem] Failed to allocate memory for async asset load job data.");
             *jobDataPtr        = jobData;
             job->hot.pUserData = jobDataPtr;
@@ -557,7 +560,10 @@ namespace Razix {
         // As for creating, we can call the createAsset here with the correct type, which will give us a handle and also create the default asset in the pool,
         // then we can update the registry with the handle and kick off the async load, once the async load is done, we can update the asset data in the pool
         // with the actual data loaded from disk, and set the asset status to loaded, so that the game can start using it
-        auto assetloadAsyncJob = RZAssetAsyncLoadJob("Async Asset Load Job", RZAssetAsyncLoadJobData{pPlaceholderAsset, GetAssetTypeFromTypeIndex(typeIdx), assetPath});
+
+        // TODO: Use a per-worker frame allocator in future
+        Memory::RZBumpAllocator& frameAllocator    = RZEngine::Get().getFrameAllocator();
+        auto                     assetloadAsyncJob = RZAssetAsyncLoadJob<Memory::RZBumpAllocator>("Async Asset Load Job", RZAssetAsyncLoadJobData{pPlaceholderAsset, GetAssetTypeFromTypeIndex(typeIdx), assetPath}, frameAllocator);
         rz_job_system_submit_job(assetloadAsyncJob.job);
     }
 
