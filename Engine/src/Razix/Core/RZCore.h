@@ -226,8 +226,8 @@
         RAZIX_DEBUG_BREAK();                                                                              \
     }
 
-// Max number of objects in a scene
-#define MAX_OBJECTS 2048
+// Max number of objects in a scene at any given movement in runtime
+#define RAZIX_MAX_OBJECTS 2048
 
 // Stringize
 #define STRINGIZE2(s)         #s
