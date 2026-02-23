@@ -98,9 +98,9 @@ project "Razix"
 
     -- Assembly Implementations
     filter { "architecture:ARM64", "system:macosx" }
-        files { "src/Razix/*_arm64.S" }
+        files { "src/Razix/**_arm64.S" }
     filter { "architecture:x86_64", "system:windows or linux" }
-        files { "src/Razix/*_x64_gas.S" }
+        files { "src/Razix/**_x64_gas.S" }
 
     -- On Windows, use clang to compile GAS (.S) files since MASM (ml64.exe) does not support them
     filter { "system:windows", "files:src/Razix/*_x64_gas.S" }
