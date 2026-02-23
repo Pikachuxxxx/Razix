@@ -250,7 +250,11 @@
 #define CAST_TO_FG_BUF_DESC (Razix::Gfx::RZFrameGraphBuffer::Desc)
 
 // right bit shift (useful for converting integer based color to hex)
-#define RZ_BIT_SHIFT(x) (1 << x)
+#ifndef __cplusplus
+    #define RZ_BIT_SHIFT(x) (1 << x)
+#else
+    #define RZ_BIT_SHIFT(x) (1u << static_cast<u32>(x))
+#endif    // __cplusplus
 #define RETURN_IF_BIT_NOT_SET(val, b) \
     if ((val & b) != b) return;
 #define RETURN_IF_BIT_SET(val, b) \

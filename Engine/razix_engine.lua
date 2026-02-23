@@ -96,13 +96,14 @@ project "Razix"
         "vendor/imgui/backends/imgui_impl_vulkan.cpp",
     }
 
-    -- Scene Graph Assembly Implementations
+    -- Assembly Implementations
     filter { "architecture:ARM64", "system:macosx" }
-        files { "src/Razix/Scene/*_arm64.S" }
+        files { "src/Razix/*_arm64.S" }
     filter { "architecture:x86_64", "system:windows or linux" }
-        files { "src/Razix/Scene/*_x64_gas.S" }
+        files { "src/Razix/*_x64_gas.S" }
+
     -- On Windows, use clang to compile GAS (.S) files since MASM (ml64.exe) does not support them
-    filter { "system:windows", "files:src/Razix/Scene/*_x64_gas.S" }
+    filter { "system:windows", "files:src/Razix/*_x64_gas.S" }
         buildmessage "Assembling %{file.name} with Clang..."
         buildcommands {
             "clang -c -D_WIN32 \"%{file.relpath}\" -o \"%{cfg.objdir}/%{file.basename}.obj\""
@@ -110,15 +111,14 @@ project "Razix"
         buildoutputs {
             "%{cfg.objdir}/%{file.basename}.obj"
         }
-
     filter {}
 
-    -- Lazily add the platform files based on OS config
-	-- Also remove the core module, they are compiled as a library
+    -- Lazily add the platform files based on OS configurations
+    -- Also remove the core module, they are compiled as a library
     removefiles
     {
         --------------------------
-        -- just until we finish off RHI
+        -- just until we finish off RHI and AssetIsEverything
         "src/Razix/Gfx/LIMBO_STATE/**",
         --------------------------
         "src/Razix/Platform/**",

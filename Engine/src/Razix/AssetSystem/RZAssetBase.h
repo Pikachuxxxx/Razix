@@ -46,6 +46,8 @@ typedef u64 rz_asset_handle;    // higher 32 bits for asset playload data index 
         RAZIX_REFLECT_PRIMITIVE(handle)
 #endif
 
+#define RZ_ASSET_INDEX(x) static_cast<size_t>(Razix::RZAssetType::x)
+
 namespace Razix {
 
     // trick to dynamically generate asset type enum
