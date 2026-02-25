@@ -103,7 +103,7 @@ project "Razix"
         files { "src/Razix/**_x64_gas.S" }
 
     -- On Windows, use clang to compile GAS (.S) files since MASM (ml64.exe) does not support them
-    filter { "system:windows", "files:src/Razix/*_x64_gas.S" }
+    filter { "system:windows", "files:src/Razix/**_x64_gas.S" }
         buildmessage "Assembling %{file.name} with Clang..."
         buildcommands {
             "clang -c -D_WIN32 \"%{file.relpath}\" -o \"%{cfg.objdir}/%{file.basename}.obj\""
@@ -155,9 +155,7 @@ project "Razix"
     -- Disable PCH for vendors
     filter 'files:vendor/**.cpp'
         flags  { 'NoPCH' }
-    -- Disable PCH for assembly files
-    filter "files:src/Razix/Scene/*"
-        flags { "NoPCH" }
+
     filter 'files:vendor/**.c'
         flags  { 'NoPCH' }
 
