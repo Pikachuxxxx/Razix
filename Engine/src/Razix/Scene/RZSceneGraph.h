@@ -26,7 +26,8 @@
 #define RAZIX_MAX_SCENE_GRAPH_NODES   RAZIX_MAX_OBJECTS
 #define RAZIX_TANU_ZONE_DIM_IN_METERS 128                              // each zone covers 128x128 meters grid in Tanu
 #define RAZIX_ZONE_DIM_IN_METERS      RAZIX_TANU_ZONE_DIM_IN_METERS    // abstracting game specific needs
-
+#define RAZIX_SCENE_DIMS              2                                // by default we will the scene with a 2x2 grid of zones
+#define RAZIX_DEFAULT_ZONES_COUNT     RAZIX_SCENE_DIMS* RAZIX_SCENE_DIMS
 using namespace Razix;
 
 #ifdef __cplusplus
@@ -138,8 +139,8 @@ extern "C"
         u32                version;
         rz_aabb            sceneBounds;
         u32                gridDims[3];
-        f32                zonePhysicalSize;         // useually equal to RAZIX_ZONE_DIM_IN_METERS
-        rz_zone            zones[RAZIX_ZONE_MAX];    // TODO: dynamic alloc instead of static array? let's see not a priority rn
+        f32                zonePhysicalSize;    // useually equal to RAZIX_ZONE_DIM_IN_METERS
+        rz_zone*           pZones;
         u32                zoneCount;
         u32                activeZoneIndex;
         rz_global_trigger* pTriggers;
@@ -161,8 +162,8 @@ extern "C"
     //-----------------------------------------------------------------------------
     // Lifecycle
     // Creates a scenegraph with a single zone by default
-    RAZIX_API rz_scene_graph* rz_scene_graph_create(void* where, u32 numZones);
-    RAZIX_API rz_scene_graph* rz_scene_graph_create_from_file(void* where, const void* pFileData, u64 fileSize);
+    RAZIX_API rz_scene_graph* rz_scene_graph_create(Memory::RZHeapAllocator& heapAllocator, u32 gridDim);
+    RAZIX_API rz_scene_graph* rz_scene_graph_create_from_file(Memory::RZHeapAllocator& heapAllocator, const void* pFileData, u64 fileSize);
     RAZIX_API void            rz_scene_graph_destroy(rz_scene_graph* sg);
     //-----------------------------------------------------------------------------
     // Master update — called once per frame by game thread. Zone selection/loading, Transform updates, node culling etc.

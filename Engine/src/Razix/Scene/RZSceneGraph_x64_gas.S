@@ -102,29 +102,6 @@ SYMBOL(\name):
 #include "RZSceneGraph_asmcompat.inc"
 
 //-----------------------------------------------------------------------------
-// rz_scene_graph_create
-//
-// Creates and initializes a scene graph inside caller-provided memory.
-//
-// Parameters:
-//   rdi = void* where       # destination memory block
-//   esi = u32 numZones      # number of zones to initialize
-//
-// Returns:
-//   rax = rz_scene_graph*
-//
-// What does it do:
-//   - memset(scene_graph, 0, sizeof(rz_scene_graph))
-//   - sets version
-//   - sets zoneCount
-//   - initializes each zone
-//   - initializes zones to UNLOADED state
-//-----------------------------------------------------------------------------
-FUNCTION_BEGIN rz_scene_graph_create
-    xor ARG0, ARG0 
-    ret
-FUNCTION_END rz_scene_graph_create
-//-----------------------------------------------------------------------------
 
 STUB_FUNC rz_scene_graph_create_from_file
 STUB_FUNC rz_scene_graph_destroy
